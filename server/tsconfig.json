@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "target": "es2015",
+      "module": "commonjs",
+      "jsx": "react",
+      "lib": ["es6"],
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+    },
+    "include": [
+      "src/**/*",
+      "../shared/**/*",
+    ],
+    "exclude": [
+      "node_modules",
+    ],
+  }
