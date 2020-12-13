@@ -5,15 +5,31 @@ import { Global, css } from '@emotion/core'
 import { iSocketEventsParams, socketEvents } from '../../shared/sockets/sockets.events';
 import { clientSocket, initSocketConnection } from './managers/sockets/socket.manager';
 import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
-import { iFile } from '../../shared/types.shared';
+import { iFile, iFolder } from '../../shared/types.shared';
+import { List } from './components/List.component';
+import { Editor } from './components/Editor.component';
+import { SearchBar } from './components/SearchBar.component';
+import { TreeView } from './components/TreeView.Component';
+const marked = require('marked');
 
-
-class App extends React.Component<{}, {files:iFile[]}> {
+class App extends React.Component<{}, {
+  files:iFile[], 
+  selectedFile: iFile | null
+  selectedFileContent: string | null
+  selectedFolder: string
+  isSearching: boolean
+  folderHierarchy: iFolder 
+}> {
 
   constructor(props:any) {
       super(props)
       this.state = {
-        files: []
+        files: [],
+        folderHierarchy: {title: '', key: '', path: ''},
+        selectedFile: null,
+        selectedFolder: '',
+        selectedFileContent: null,
+        isSearching: false
       }
   }
   listenerIds:number[] = []
@@ -22,15 +38,36 @@ class App extends React.Component<{}, {files:iFile[]}> {
     initSocketConnection().then(() => {
       bindEventManagerToSocketEvents()
       
-      let params:iSocketEventsParams.askForFolder = {}
-      clientSocket.emit(socketEvents.askForFolder, params)  
+      // INITIAL REQUESTS
+      this.askForFolderFiles(this.state.selectedFolder)
+      clientSocket.emit(socketEvents.askFolderHierarchy, {folderPath: ''} as iSocketEventsParams.askFolderHierarchy)  
 
       this.listenerIds[0] = socketEventsManager.on(
-        socketEvents.getFolderFiles, 
-        (data:iSocketEventsParams.getFolderFiles) => {  
-          this.setState({files: data.files})
+        socketEvents.getFiles, 
+        (data:iSocketEventsParams.getFiles) => {  
+          this.setState({
+            files: data.files,
+            isSearching: false
+          })
       })
+
+      this.listenerIds[1] = socketEventsManager.on(
+        socketEvents.getFileContent, 
+        (data:iSocketEventsParams.getFileContent) => {  
+          this.setState({selectedFileContent: data.fileContent})
+      })
+
+      this.listenerIds[2] = socketEventsManager.on(
+        socketEvents.getFolderHierarchy, 
+        (data:iSocketEventsParams.getFolderHierarchy) => {  
+          this.setState({folderHierarchy: data.folder})
+      })
+
     })
+  }
+  
+  askForFolderFiles = (folderPath:string) => {
+    clientSocket.emit(socketEvents.askForFiles, {folderPath: folderPath} as iSocketEventsParams.askForFiles)
   }
 
   componentWillUnmount(){
@@ -42,32 +79,75 @@ class App extends React.Component<{}, {files:iFile[]}> {
   render() {
     return (
       <Wrapper>
-        {
-          this.state.files.map((file,i) => 
-            <Item 
-              key={i}
-              bgImg={file.image || 'dd'}
-              >
-              <div className="background"></div>
-              <a href={file.link} about="_BLANK">{file.name}</a>
-            </Item>
-          )
-        }
+        
         <Global
-          styles={css`
-            body {
-              margin: 0;
-            }
-          `}
+          styles={GlobalStyle}
         />
+        <div className="main-wrapper">
+
+
+          <div className="left-wrapper">
+
+            <SearchBar 
+              onSearchSubmit={term => {
+                  this.setState({ isSearching: true })
+                  clientSocket.emit(socketEvents.searchFor, {term} as iSocketEventsParams.searchFor) 
+              }}
+              isSearching={this.state.isSearching}
+              isListEmpty={this.state.files.length === 0 ? true : false}
+            />
+
+            <TreeView 
+              folder={this.state.folderHierarchy}
+              onFolderClicked={(folderPath) => {
+                console.log(folderPath);
+                this.setState({selectedFolder: folderPath})
+                this.askForFolderFiles(folderPath)
+              }}
+            />
+
+            <div className="list-wrapper">
+              <List 
+                files={this.state.files} 
+                onFileClicked={file => {
+                  file.path = `${this.state.selectedFolder}/${file.path}`
+                  console.log({file});
+                  
+                  this.setState({selectedFile: file})
+                  clientSocket.emit(socketEvents.askForFileContent, 
+                    {filePath: file.path} as iSocketEventsParams.askForFileContent)  
+                }}
+                />
+            </div>
+          </div>
+
+
+
+
+          <div className="right-wrapper">
+            <div className="note-wrapper">
+              { 
+                this.state.selectedFile && 
+                  <Editor 
+                    file={this.state.selectedFile} 
+                    fileContent={this.state.selectedFileContent ? this.state.selectedFileContent : ''} 
+                    onFileEdited={(file, content) => {
+                      console.log(`file edited!`,{file, content});
+                    }}
+                  />
+              }
+              { 
+                !this.state.selectedFile && 
+                  <div>no file selected</div>
+              }
+            </div>
+          </div>
+
+
+
+
+        </div>
       </Wrapper>
-      // <div>
-      //   <div>dfssdsdffsd</div>
-      //   <div>dfssdsdffsd</div>
-      //   <div>dfssdsdffsd</div>
-      //   <div>dfssdsdffsd</div>
-      //   <div>dfssdsdffsd</div>
-      // </div>
     );
   }
 }
@@ -75,44 +155,86 @@ class App extends React.Component<{}, {files:iFile[]}> {
 
 export default App; //dd
 
+const GlobalStyle = css`
+  body {
+    margin: 0;
+    padding: 0px;
+    height: 100vh;
+    overflow: hidden;
+    /* background: rgb(221, 221, 221); */
+    background: #fceeded6;
+    font-size: 11px;
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+  }
+  .vis-timeline {
+    background: #fceeded6;
+    border: 0px solid;
+    border-bottom: 1px #cacaca solid;
+    border-top: 1px #cacaca solid;
+  }
+`
+
 const Wrapper  = styled.div`
-  //width: 100vw;
-  //min-height: 100vh;
-  background: rgba(0,0,0,0.9);
   display: flex;
   flex-wrap: wrap;
   justify-content:center;
-`
 
-const d = {
-  w: 200,
-  h: 150
-}
-const Item  = styled.div<{bgImg?:string},{}>`
-  display: block;
-  position: relative;
-  background-color: rgba(255,255,255,0.05);
-  margin: 10px 10px 10px 0px;
-  a {
-    margin: 20px 10px 10px 10px;
-    font-family: sans-serif;
-    display: block;
-    font-size: 16px;
-    text-align: center;
-    text-decoration: none;
-    line-height: -3px;
-    color: white;
-    max-width: ${d.w-20}px;
+  .main-wrapper {
+    display: flex;
+    .left-wrapper {
+        height:100vh;
+        background: rgb(221, 221, 221); 
+        /* max-height: 100vh; */
+        width: 30vw;
+        overflow: hidden;
+        overflow-y: scroll;
+      .list-wrapper {
+        ul {
+            list-style: none;
+            padding: 0px 0px 0px 25px;
+            li {
+                text-decoration: underline;
+                color: blue;
+                /* display:inline-block; */
+                cursor: pointer;
+            }
+        }
+      }
+      .search-input {
+          input {
+            border: none;
+            background: #eaeaea;
+            padding: 10px 2vw;
+            margin: 10px 3vw; 
+          }
+      }
+      .search-status {
+        text-align: center;
+        font-size: 8px;
+      }
+    }
+    .right-wrapper {
+        width: 70vw;
+        /* padding: 10px; */
+        padding-top: 0px;
+        /* max-height: 100vh;
+        overflow-y: scroll; */
+      .note-wrapper {
+        h3 {
+          margin-bottom: 0px;
+        }
+        .date {
+          font-size: 10px;
+          color: grey;
+        }
+        pre {
+          white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+          white-space: -pre-wrap; /* Opera */
+          white-space: -o-pre-wrap; /* Opera */
+          white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+          word-wrap: break-word; /* IE 5.5+ */
+        }
+      }
+    }
   }
-  .background {
-    width: ${d.w}px;
-    height: ${d.h}px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    
-    background-position: center;
-    background-image: url("${props => props.bgImg}");
-  }
-  
-  
 `

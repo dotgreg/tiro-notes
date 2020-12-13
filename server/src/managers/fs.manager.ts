@@ -32,7 +32,7 @@ export const openFile = async (path: string):Promise<string> => {
     })
 }
 
-export const saveFile = async (path: string, content:string):Promise<null> => {
+export const saveFile = async (path: string, content:string):Promise<void> => {
     return new Promise((resolve, reject) => {
         fs.writeFile(path, content, (err) => {
             if (err) {console.error(`[SAVEFILE] Error ${err.message} (${path}/${content})`); reject()}
@@ -41,7 +41,7 @@ export const saveFile = async (path: string, content:string):Promise<null> => {
     })
 }
 
-export const copyFile = async (pathOriginal:string, pathDestination:string):Promise<null> => {
+export const copyFile = async (pathOriginal:string, pathDestination:string):Promise<void> => {
     const fs = require('fs');
 
     return new Promise((resolve, reject) => {
@@ -82,3 +82,33 @@ console.log(`===== DL FILE ${url} ${path}`);
     })
 }
 
+
+export const getFileStats = async (path: string):Promise<iFileStats> => {
+    return new Promise((resolve, reject) => {
+        fs.stat(path,(err,data:iFileStats) => {
+            if (err) {console.error(`[GetFileStats] Error ${err.message}`); reject()}
+            else resolve(data)
+        }); 
+    })
+}
+
+export interface iFileStats {
+    dev: number
+    mode: number
+    nlink: number
+    uid: number
+    gid: number
+    rdev: number
+    blksize: number
+    ino: number
+    size: number
+    blocks: number
+    atimeMs: number
+    mtimeMs: number
+    ctimeMs: number
+    birthtimeMs: number
+    atime: Date
+    mtime: Date
+    ctime: Date
+    birthtime: Date
+}

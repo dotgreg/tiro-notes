@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon",
-    "killall" : "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)"
+    "killall": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)"
   },
   "author": "",
   "license": "ISC",
@@ -13,12 +13,15 @@
     "@types/lodash": "^4.14.161",
     "@types/node": "^14.11.2",
     "@types/socket.io": "^2.1.11",
+    "execa": "^5.0.0",
+    "glob": "^7.1.6",
     "images-scraper": "^5.0.7",
     "koa": "^2.13.0",
     "koa-mount": "^4.0.0",
     "koa-static": "^5.0.0",
     "lodash": "^4.17.20",
     "socket.io": "^2.3.0",
+    "socketio-file-upload": "^0.7.2",
     "typescript": "^4.0.3"
   },
   "devDependencies": {

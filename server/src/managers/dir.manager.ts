@@ -1,7 +1,8 @@
-import { iFile } from "../../../shared/types.shared";
+import { getDefaultFormatCodeSettings } from "typescript";
+import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
-import * as fs2 from "./fs.manager";
-import { getFileData } from "./fileData.manager";
+var glob = require("glob")
+
 
 var fs = require('fs');
 
@@ -22,6 +23,26 @@ export const createDir = async (path:string, mask:number = 0o775):Promise<null|s
 export const isDir = (path:string):boolean => fs.lstatSync(path).isDirectory() 
 
 
+// export const getFolderHierarchy = async (path:string):Promise<iFile[]|string> => {
+//     return new Promise((resolve, reject) => {
+//         let filesScanned:iFile[] = []
+//         glob(`${path}/**/`, {}, function (er, folder) {
+//             // let 
+//             folder = folder.replace(backConfig.dataFolder, '')
+//             let hierar:any = {}
+//             let folderArr = folder.split('/')
+
+//             let hierar = 
+//             // for (let i = 0; i < folderArr.length; i++) {
+//             //     const f = folderArr[i];
+//             //     hierar
+//             // }
+//             // console.log(folder);
+            
+//           })
+//     })
+// }
+
 export const scanDir = async (path:string):Promise<iFile[]|string> => {
     return new Promise((resolve, reject) => {
         let filesScanned:iFile[] = []
@@ -30,21 +51,42 @@ export const scanDir = async (path:string):Promise<iFile[]|string> => {
             for (let i = 0; i < files.length; i++) {
                 const fileName = files[i];
             
-                // get json info if it exists
-                const jsonPath = `${backConfig.internalPath}/${backConfig.dbDirName}/${fileName}.json`
-                const fileData = await getFileData(jsonPath) || {}
-
                 // packs everything
                 let fileObj:iFile = {
                     nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
                     name: fileName,
-                    link: `${backConfig.absolutePath}/${fileName}`,
-                    image: `${backConfig.absolutePath}/${backConfig.dbDirName}/${fileName}.jpg`,
-                    data: fileData
+                    path: fileName,
                 }
                 filesScanned.push(fileObj)
             }
             resolve(filesScanned)
         });
+    })
+}
+
+
+var fs = require('fs')
+var path = require('path')
+
+export const getFolderHierarchy = async (folder):Promise<iFolder> => {
+    return new Promise((resolve, reject) => {
+        var stats = fs.lstatSync(folder)
+        let relativeFolder = folder.replace(backConfig.dataFolder, '')
+        let info:iFolder= {
+            path: folder,
+            title: path.basename(folder),
+            key: relativeFolder
+        };
+        if (stats.isDirectory()) {
+            fs.readdirSync(folder).map(async (child) => {
+                let childFile = folder + '/' + child
+                let stats2 = fs.lstatSync(childFile)
+                if (stats2.isDirectory()) {
+                    if (!info.children) info.children = []
+                    info.children.push(await getFolderHierarchy(childFile))
+                } 
+            });
+        } 
+        resolve(info)
     })
 }

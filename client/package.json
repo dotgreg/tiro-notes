@@ -15,11 +15,15 @@
     "@types/socket.io-client": "^1.4.33",
     "emotion": "^10.0.27",
     "lodash": "^4.17.20",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
+    "marked": "^1.2.6",
+    "rc-tree": "^4.0.0",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "react-dropzone": "^11.2.4",
     "react-emotion": "^10.0.0",
     "react-scripts": "3.4.3",
-    "socket.io-client": "^2.3.0"
+    "socket.io-client": "^2.3.0",
+    "socketio-file-upload": "^0.7.2"
   },
   "scripts": {
     "start": "webpack-dev-server",
