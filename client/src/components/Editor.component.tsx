@@ -1,21 +1,29 @@
 import React from 'react';
 import styled from '@emotion/styled'
 import { iFile } from '../../../shared/types.shared';
-import { throttle } from 'lodash';
-import { insertAtCaret, uploadOnDrop } from '../managers/editor.manager';
-// import ReactMarkdown from 'react-markdown'
+import { debounce, throttle } from 'lodash';
+import { uploadOnDrop } from '../managers/editor.manager';
+import { transformImagesInHTML } from '../managers/textProcessor.manager';
+import { MonacoEditorWrapper } from './MonacoEditor.Component';
 const marked = require('marked');
 
 interface Props {
   file:iFile
   fileContent:string
-  onFileEdited: (file:iFile, content:string) => void
+  onFileEdited: (filepath:string, content:string) => void
+  onFilePathEdited: (initPath:string, endPath:string) => void
+  onSavingHistoryFile: (filepath:string, content:string) => void
+  onFileDelete: (filepath:string) => void
 }
 interface State {
   editorEnabled: boolean
   fileContent: string
   dragzoneEnabled: boolean
+  shouldSaveOnLeave: boolean
+  filePath: string
+  insertUnderCaret: string
 }
+
 
 export class Editor extends React.Component<Props, State> {
 
@@ -26,7 +34,10 @@ export class Editor extends React.Component<Props, State> {
         this.state = {
           editorEnabled: true,
           fileContent: '',
-          dragzoneEnabled: false
+          shouldSaveOnLeave: false,
+          dragzoneEnabled: false,
+          filePath: '',
+          insertUnderCaret: ''
         }
         this.textarea = React.createRef()
         this.dragzone = React.createRef()
@@ -35,9 +46,8 @@ export class Editor extends React.Component<Props, State> {
     componentDidMount() {
       uploadOnDrop(this.dragzone.current, {
         onUploadSuccess: (file) => {
-          insertAtCaret(this.textarea.current, `![${file.name}](${file.path})\n\n`)
-          this.setState({fileContent: this.textarea.current.value})
-          this.throttledOnFileEdited()
+          let imageInMd = `![${file.name}](${file.path})\n\n`
+          this.setState({insertUnderCaret: imageInMd})
         },
         onDragEnd: () => {
           console.log('drag end');
@@ -51,57 +61,107 @@ export class Editor extends React.Component<Props, State> {
         },
       })
     }
+    
 
-    componentDidUpdate(nextProps:Props, nextState:State) {
-      if (this.props.fileContent !== nextProps.fileContent) {
-        console.log('updating filecontent');
-        this.setState({fileContent: nextProps.fileContent})
-        // setTimeout(() => {
-        //   insertAtCaret(this.textarea.current, 'woooop')
-        // }, 3000)
+    triggerContentSaveLogic = (newContent:string) => {
+      if (!this.state.shouldSaveOnLeave) {
+        // console.log('init edit of new doc');
+        this.props.onSavingHistoryFile(this.props.file.path,this.state.fileContent)
       }
+      console.log('triggerContentSaveLogic');
+      this.setState({fileContent: newContent, shouldSaveOnLeave: true})
+      this.throttledOnFileEdited(this.props.file.path ,this.state.fileContent)
+      this.debouncedOnFileEdited(this.props.file.path, this.state.fileContent)
     }
 
-    throttledOnFileEdited = throttle(() => {
-      this.props.onFileEdited(this.props.file, this.state.fileContent)
+    throttledOnFileEdited = throttle((filePath:string, content:string) => {
+      this.props.onFileEdited(filePath, content)
     }, 10000)
 
+    debouncedOnFileEdited = debounce((filePath:string, content:string) => {
+      this.props.onFileEdited(filePath, content)
+    }, 10000)
+    
+    shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
+        if (this.props.file !== nextProps.file && this.state.shouldSaveOnLeave) {
+          console.log('saving on leave');
+          
+          this.setState({shouldSaveOnLeave: false})
+          this.props.onFileEdited(this.props.file.path, this.state.fileContent)
+        }
+        return true
+      }
+
+    submitOnEnter = (event:any) => {
+      if (event.key === 'Enter') {
+        if (this.state.filePath.length < 3) return
+        this.props.onFilePathEdited(this.props.file.path ,this.state.filePath)
+      }
+    }
+ 
+    oldContentProp: string = ''
     render() {
+      if (this.oldContentProp !== this.props.fileContent) {
+        this.setState({
+          fileContent: this.props.fileContent,
+          filePath: this.props.file.path
+        })
+        this.oldContentProp = this.props.fileContent
+      }
+
       return (
         <StyledWrapper>
           <div className="editor">
 
             <div className={`dragzone ${this.state.dragzoneEnabled ? '' : 'hidden'}`} ref={this.dragzone} ></div>
 
+
+            {
+              /////////////////////////////
+              // EDITOR
+              /////////////////////////////
+            }
             <div className={`editor-area ${this.state.editorEnabled ? 'active' : 'inactive'}`}>
-                  <textarea
-                    ref={this.textarea}
-                    onChange={(e) => {
-                      this.setState({fileContent: e.target.value})
-                      this.throttledOnFileEdited()
-                    }}
-                    value={this.state.fileContent}
-                  /> 
+              <div className='title-input-wrapper'>
+                <input 
+                      type="text" 
+                      value={this.state.filePath}
+                      onChange={(e) => {this.setState({filePath: e.target.value})}}
+                      onKeyDown={this.submitOnEnter}
+                  />
+              </div>
+              <MonacoEditorWrapper
+                value={this.state.fileContent}
+                onChange={this.triggerContentSaveLogic}
+                insertUnderCaret={this.state.insertUnderCaret}
+              />
             </div>
 
+
+
+
+            {
+              /////////////////////////////
+              // PREVIEW
+              /////////////////////////////
+            }
             <div className={`preview-area ${this.state.editorEnabled ? 'half' : 'full'}`}>
               <div className='toolbar-wrapper'>
-                {/* <MyDropzone ></MyDropzone> */}
-                {/* <UploadZone></UploadZone> */}
                 <input 
                   type="button" 
                   value='Editor'
                   onClick={(e) => {this.setState({editorEnabled: !this.state.editorEnabled})}}
                   />
+                <input 
+                  type="button" 
+                  value='Delete'
+                  onClick={(e) => { this.props.onFileDelete(this.props.file.path) }}
+                  />
 
               </div>
 
               <h3>{this.props.file.name}</h3>
-              {/* <ReactMarkdown> */}
-              <div dangerouslySetInnerHTML={{__html:marked(this.state.fileContent)}}></div>
-              {/* </ReactMarkdown> */}
-              {/* <ReactMarkdown>
-              </ReactMarkdown> */}
+              <div dangerouslySetInnerHTML={{__html:marked( transformImagesInHTML (this.state.fileContent))}}></div>
 
             </div>
 
@@ -112,51 +172,6 @@ export class Editor extends React.Component<Props, State> {
   }
   
   const StyledWrapper  = styled.div`
-    .editor {
-      display: flex;
-      .dragzone {
-        &.hidden {
-          display:none;
-        }
-        display:block;
-        position: absolute;
-        top: 0px;
-        left: 0px;
-        width: 100vw;
-        height: 100vh;
-        z-index: 10;
-        background: rgba(255,255,255,0.4);
-      }
-      .editor-area {
-        &.inactive {
-          display: none;
-        }
-        width: 50%;
-        textarea {
-          width: 100%;
-          padding: 10px;
-          height: 100vh;
-          overflow: hidden;
-          overflow-y: scroll;
-          background: rgba(255,255,255,0.5);
-          padding: 10px;
-          border: 0px;
-        }
-      }
-      .preview-area {
-        .toolbar-wrapper {
-          padding: 10px 0px 10px 0px;
-
-        }
-        &.full {
-          width: 100%
-        }
-        width: 50%;
-        padding: 0px 30px 30px 30px;
-        height: 100vh;
-        overflow: hidden;
-        overflow-y: scroll;
-      }
-    }
+    
     
   `

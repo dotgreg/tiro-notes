@@ -1,5 +1,7 @@
 var path = require('path');
 const webpack = require('webpack'); 
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
 
 // const env = process.env.NODE_ENV.trim()
 const env = 'development'
@@ -28,14 +30,30 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: /.ts(x?)$/, loader: 'ts-loader' }
-        ]
+            { test: /.ts(x?)$/, loader: 'ts-loader' },
+            {
+                test: /\.css$/i,
+                use: ["style-loader", "css-loader"],
+            },
+            {
+                test: /\.(ttf|eot|woff|woff2)$/,
+                loader: 'file-loader',
+                options: {
+                    name: 'fonts/[name].[ext]'
+                }
+            }
+        ],
+        
     },
     plugins: [
         new webpack.DefinePlugin({
           "process.env": {
             NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'production') // default value if not specified
           }
+        }),
+        new MonacoWebpackPlugin({
+            // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
+            languages: ['json']
         })
     ],
     output: {

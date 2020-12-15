@@ -1,6 +1,7 @@
 import { getDefaultFormatCodeSettings } from "typescript";
 import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
+import { formatDateHistory } from "./date.manager";
 var glob = require("glob")
 
 
@@ -23,27 +24,15 @@ export const createDir = async (path:string, mask:number = 0o775):Promise<null|s
 export const isDir = (path:string):boolean => fs.lstatSync(path).isDirectory() 
 
 
-// export const getFolderHierarchy = async (path:string):Promise<iFile[]|string> => {
-//     return new Promise((resolve, reject) => {
-//         let filesScanned:iFile[] = []
-//         glob(`${path}/**/`, {}, function (er, folder) {
-//             // let 
-//             folder = folder.replace(backConfig.dataFolder, '')
-//             let hierar:any = {}
-//             let folderArr = folder.split('/')
-
-//             let hierar = 
-//             // for (let i = 0; i < folderArr.length; i++) {
-//             //     const f = folderArr[i];
-//             //     hierar
-//             // }
-//             // console.log(folder);
-            
-//           })
-//     })
-// }
+export const fileNameFromFilePath = (path:string):string => {
+    let fileName = path.split('/').join('_')
+    fileName = fileName.split('\\').join('_')
+    return fileName
+}
 
 export const scanDir = async (path:string):Promise<iFile[]|string> => {
+    console.log(`[SCANDIR] path : ${path}`);
+    
     return new Promise((resolve, reject) => {
         let filesScanned:iFile[] = []
         fs.readdir(path, async (err, files) => {
@@ -55,7 +44,7 @@ export const scanDir = async (path:string):Promise<iFile[]|string> => {
                 let fileObj:iFile = {
                     nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
                     name: fileName,
-                    path: fileName,
+                    path: `${path.replace(backConfig.dataFolder, '').replace('//', '/')}/${fileName}`,
                 }
                 filesScanned.push(fileObj)
             }

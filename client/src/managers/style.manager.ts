@@ -1,0 +1,176 @@
+import { Global, css } from '@emotion/react'
+import styled from '@emotion/styled';
+
+export const styleApp = {
+    inputText: `
+        border: none;
+        background: #eaeaea;
+        padding: 10px 2vw;
+        margin: 10px ; 
+    `,
+    colors: {
+        bg: {
+            dark: 'rgb(39, 39, 39)' ,
+            grey: 'rgb(221, 221, 221)',
+            light: '#fceeded6'
+        }
+    }
+}
+
+export const GlobalCssApp = css`
+  body {
+    margin: 0;
+    padding: 0px;
+    height: 100vh;
+    overflow: hidden;
+    background: ${styleApp.colors.bg.light};
+    font-size: 11px;
+    font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
+  }
+`
+
+export const CssApp = styled.div`
+display: flex;
+flex-wrap: wrap;
+justify-content:center;
+
+.content-image {
+  max-width: 300px;
+}
+
+.main-wrapper {
+  display: flex;
+
+
+  ////////////////////////////////////////////v 
+  // LEFT
+  ////////////////////////////////////////////v
+  .left-wrapper {
+    background: ${styleApp.colors.bg.grey}; 
+    width: 40vw;
+    display: flex;
+    .left-wrapper-1 {
+      background: ${styleApp.colors.bg.dark}; 
+      color: white;
+      width: 40%;
+      padding-left: 90px;
+      height:100vh;
+      overflow: hidden;
+      overflow-y: auto;
+    }
+    .left-wrapper-2 {
+      width: 60%;
+      height:100vh;
+      overflow: hidden;
+      overflow-y: auto;
+    }
+
+    .list-toolbar {
+      padding: 0px 10px;
+    }
+
+    .list-wrapper {
+      ul {
+          list-style: none;
+          padding: 0px 0px 0px 0px;
+          li {
+              padding: 5px 15px;
+              display: block;
+              border-bottom: 1px rgba(0,0,0,0.1) solid;
+              color: blue;
+              cursor: pointer;
+              &.active {
+                text-decoration: underline;
+                  font-weight: 800;
+                  background: #ddddff;
+              }
+          }
+      }
+    }
+    .search-input {
+        input {
+         ${styleApp.inputText}
+        }
+    }
+    .search-status {
+      text-align: center;
+      font-size: 8px;
+    }
+  }
+
+  ////////////////////////////////////////////v 
+  // RIGHT
+  ////////////////////////////////////////////v 
+  .right-wrapper {
+      width: 70vw;
+      /* padding: 10px; */
+      padding-top: 0px;
+      /* max-height: 100vh;
+      overflow-y: auto; */
+    .note-wrapper {
+      .editor {
+        display: flex;
+        .dragzone {
+          &.hidden {
+            display:none;
+          }
+          display:block;
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          width: 100vw;
+          height: 100vh;
+          z-index: 10;
+          background: rgba(255,255,255,0.4);
+        }
+        .editor-area {
+          &.inactive {
+            display: none;
+          }
+          width: 50%;
+          .monaco-editor {
+            margin: 0px;
+          }
+      }
+        .preview-area {
+          &.full {
+            width: 100%
+          }
+          width: 43%;
+          padding: 0px 30px 30px 10px;
+          height: 100vh;
+          overflow: hidden;
+          overflow-y: scroll;
+
+          .toolbar-wrapper {
+            padding: 10px 0px 10px 0px;
+          }
+        }
+      }
+      
+      .title-input-wrapper {
+          input {
+            ${styleApp.inputText}
+            width: 80%;
+          }
+        }
+      h3 {
+        margin-bottom: 0px;
+      }
+      .date {
+        font-size: 10px;
+        color: grey;
+      }
+      pre {
+        white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+        white-space: -pre-wrap; /* Opera */
+        white-space: -o-pre-wrap; /* Opera */
+        white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+        word-wrap: break-word; /* IE 5.5+ */
+      }
+    }
+  }
+}
+`
+
+

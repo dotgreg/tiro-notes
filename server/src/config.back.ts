@@ -1,4 +1,5 @@
 export const backConfig = {
     dataFolder: '../../data',
-    uploadFolder: 'media'
+    uploadFolder: 'media',
+    staticServerPort: 8126
 }

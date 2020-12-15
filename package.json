@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "",
-    "client": "cd client & npm run start",
+    "launchApp": "npm run startServerNewCmd & npm run client",
+    "client": "npm run openBrowserPopup & cd client & npm run start",
     "server": "cd server & npm run start",
-    "startClient": "start cmd /k \"cd ./client & ls\"",
-    "startServer": "start cmd /k \"cd ./server & ls\""
+    "openBrowserPopup": "openPopup.bat",
+    "startClientNewCmd": "start cmd /k \"cd ./client & npm run start\"",
+    "startServerNewCmd": "start cmd /k \"cd ./server & npm run start\""
   },
   "repository": {
     "type": "git",
@@ -18,8 +18,5 @@
   "author": "",
   "license": "ISC",
   "homepage": "https://bitbucket.org/dotgreg/mediadir#readme",
-  "dependencies": {
-    "react": "^17.0.1",
-    "react-markdown": "^5.0.3"
-  }
+  "dependencies": {}
 }

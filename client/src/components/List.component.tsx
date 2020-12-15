@@ -4,9 +4,10 @@ import { iFile } from '../../../shared/types.shared';
 
 export class List extends React.Component<{
     files:iFile[]
-    onFileClicked: (file:iFile) => void
-}, {
+    activeFileIndex:number
     hoverMode:boolean
+    onFileClicked: (fileIndex:number) => void
+}, {
 }> {
 
     constructor(props:any) {
@@ -18,19 +19,18 @@ export class List extends React.Component<{
     render() {
       return (
         <StyledWrapper>
-            <input 
-                type="button" 
-                value={this.state.hoverMode ? 'Hover : ON' : 'Hover : OFF'} 
-                onClick={e => this.setState({hoverMode: !this.state.hoverMode})}
-            />
+            
             <ul>
                 {
-                    this.props.files.map( file => 
+                    this.props.files.map( (file,key) => 
                         <li 
-                            onClick={(e) => { this.props.onFileClicked(file) }}
-                            
+                            className={key === this.props.activeFileIndex ? 'active' : ''}
+                            key={key}
+                            onClick={(e) => { this.props.onFileClicked(key) }}
                         > 
-                            <span onMouseEnter={(e) => { this.state.hoverMode && this.props.onFileClicked(file) }}>{file.name}</span> 
+                            <span onMouseEnter={(e) => { 
+                                this.props.hoverMode && this.props.onFileClicked(key) 
+                            }}>{file.name}</span> 
                         </li>    
                     )
                 }

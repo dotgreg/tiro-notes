@@ -1,3 +1,6 @@
+import { backConfig } from "../config.back";
+import { createDir } from "./dir.manager";
+
 var http = require('http');
 var https = require('https');
 var fs = require('fs');
@@ -32,6 +35,43 @@ export const openFile = async (path: string):Promise<string> => {
     })
 }
 
+export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
+    // check for each folder if it exists, else create it
+    fullPathToCheck = fullPathToCheck.replace(backConfig.dataFolder, '')
+    let pathArr = fullPathToCheck.split('/')
+    pathArr.pop()
+    pathArr.shift()
+    console.log({pathArr});
+
+    let createFoldersRecursively = async (path:string, pathArray:string[]) => {
+        let fullPath = `${path}/${pathArray[0]}`
+        console.log(`createFoldersRecursively`,{path,pathArr,fullPath});
+        if (!fileExists(fullPath)) {
+            console.log('doesnt exists create it');
+            await createDir(fullPath)
+        } 
+
+        if (pathArr.length > 1) {
+            pathArr.shift()
+            console.log('pathArr > 1, new ',{pathArr});
+            await createFoldersRecursively(fullPath, pathArr)
+        }
+    }
+    await createFoldersRecursively(backConfig.dataFolder, pathArr)
+    return
+} 
+
+export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+        await upsertRecursivelyFolders(pathEnd)
+        console.log('shit is done');
+        fs.rename(pathInit, pathEnd, (err) => {
+            if (err) {console.error(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject()}
+            else resolve()
+        }); 
+    })
+}
+
 export const saveFile = async (path: string, content:string):Promise<void> => {
     return new Promise((resolve, reject) => {
         fs.writeFile(path, content, (err) => {
@@ -42,11 +82,18 @@ export const saveFile = async (path: string, content:string):Promise<void> => {
 }
 
 export const copyFile = async (pathOriginal:string, pathDestination:string):Promise<void> => {
-    const fs = require('fs');
-
     return new Promise((resolve, reject) => {
         fs.copyFile(pathOriginal, pathDestination, (err) => {
             if (err) {console.error(`[COPYFILE] Error ${err.message}`); reject()}
+            else resolve()
+        });
+    })
+}
+
+export const removeFile = async (filepath:string):Promise<void> => {
+    return new Promise((resolve, reject) => {
+        fs.unlink(filepath, (err) => {
+            if (err) {console.error(`[REMOVE FILE] Error ${err.message}`); reject()}
             else resolve()
         });
     })
@@ -60,11 +107,8 @@ const isHttps = (url:string) => url.indexOf("https") === 0;
 
 export const downloadFile = async (url:string, path:string):Promise<string> => {
 console.log(`===== DL FILE ${url} ${path}`);
-    
     if (!url) return
-
     let client = isHttps(url) ? https : http
-
     return new Promise((resolve, reject) => {
         let file = fs.createWriteStream(path);
         client.get(url,(response) => {
@@ -81,7 +125,6 @@ console.log(`===== DL FILE ${url} ${path}`);
         });
     })
 }
-
 
 export const getFileStats = async (path: string):Promise<iFileStats> => {
     return new Promise((resolve, reject) => {
