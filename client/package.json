@@ -6,6 +6,9 @@
     "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.1.2",
     "@emotion/styled": "^11.0.0",
+    "@fortawesome/fontawesome-svg-core": "^1.2.32",
+    "@fortawesome/free-solid-svg-icons": "^5.15.1",
+    "@fortawesome/react-fontawesome": "^0.1.13",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
@@ -18,6 +21,7 @@
     "lodash": "^4.17.20",
     "marked": "^1.2.6",
     "monaco-editor-webpack-plugin": "^2.0.0",
+    "monaco-vim": "^0.1.9",
     "rc-tree": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -33,7 +37,8 @@
   "scripts": {
     "start": "webpack-dev-server",
     "serve": "npx http-server build -p 3001",
-    "build": "react-scripts build",
+    "build": "webpack --config webpack.production.config.js & rm build/index.html & cp index.html build/ & cp public/favicon.png build/ & rm -r ../../data/.extrawurst/webclient & cp -r build ../../data/.extrawurst/webclient",
+    "build2": "cp index.html public/ & react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -70,6 +75,7 @@
     "ts-loader": "^8.0.4",
     "ttf-loader": "^1.0.2",
     "typescript": "^3.9.7",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "webpack-dev-server": "^3.11.0"

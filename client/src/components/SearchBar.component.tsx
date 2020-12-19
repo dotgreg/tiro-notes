@@ -43,7 +43,7 @@ export class SearchBar extends React.Component<{
             </div>
             <div className="search-status">
                 {this.props.isSearching && 'searching...'}
-                {this.props.isListEmpty && 'no result'}
+                {/* {this.props.isListEmpty && 'no result'} */}
             </div>
         </>
       );

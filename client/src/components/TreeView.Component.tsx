@@ -27,11 +27,6 @@ const motion = {
   onLeaveActive: () => ({ height: 0 }),
 };
 
-const gData = [
-  { title: '0-0', key: '0-0' },
-  { title: '0-1', key: '0-1' },
-  { title: '0-2', key: '0-2', children: [{ title: '0-2-0', key: '0-2-0' }] },
-];
 
 const LocalStorageMixin = require('react-localstorage');
 const reactMixin = require('react-mixin');
@@ -39,12 +34,20 @@ const reactMixin = require('react-mixin');
 export class TreeView extends React.Component<{
   folder: iFolder
   onFolderClicked: (folderPath:string) => void
-},{}> {
-  state = {
-    gData,
-    autoExpandParent: true,
-    expandedKeys: ['0-0-key', '0-0-0-key', '0-0-0-0-key'],
-  };
+  onFolderRightClicked: (folderPath:string) => void
+},{
+  autoExpandParent: boolean
+  expandedKeys: string[]
+}> {
+
+  static displayName = 'treeview';
+  constructor(props:any) {
+    super(props)
+    this.state = {
+      autoExpandParent: true,
+      expandedKeys: []
+    }
+  }
 
   onDragEnter = ({ expandedKeys }:any) => {
     console.log('enter', expandedKeys);
@@ -53,69 +56,6 @@ export class TreeView extends React.Component<{
     });
   };
 
-  onDrop = (info:any) => {
-    console.log('drop', info);
-    const dropKey = info.node.props.eventKey;
-    const dragKey = info.dragNode.props.eventKey;
-    const dropPos = info.node.props.pos.split('-');
-    const dropPosition = info.dropPosition - Number(dropPos[dropPos.length - 1]);
-
-    const loop = (data:any, key:any, callback:any) => {
-      data.forEach((item:any, index:any, arr:any) => {
-        if (item.key === key) {
-          callback(item, index, arr);
-          return;
-        }
-        if (item.children) {
-          loop(item.children, key, callback);
-        }
-      });
-    };
-    const data = [...this.state.gData];
-
-    // Find dragObject
-    let dragObj:any;
-    loop(data, dragKey, (item:any, index:any, arr:any) => {
-      arr.splice(index, 1);
-      dragObj = item;
-    });
-
-    if (!info.dropToGap) {
-      // Drop on the content
-      loop(data, dropKey, (item:any) => {
-        item.children = item.children || [];
-        // where to insert 示例添加到尾部，可以是随意位置
-        item.children.push(dragObj);
-      });
-    } else if (
-      (info.node.props.children || []).length > 0 && // Has children
-      info.node.props.expanded && // Is expanded
-      dropPosition === 1 // On the bottom gap
-    ) {
-      loop(data, dropKey, (item:any) => {
-        item.children = item.children || [];
-        // where to insert 示例添加到尾部，可以是随意位置
-        item.children.unshift(dragObj);
-      });
-    } else {
-      // Drop on the gap
-      let ar:any;
-      let i:any;
-      loop(data, dropKey, (item:any, index:any, arr:any) => {
-        ar = arr;
-        i = index;
-      });
-      if (dropPosition === -1) {
-        ar.splice(i, 0, dragObj);
-      } else {
-        ar.splice(i + 1, 0, dragObj);
-      }
-    }
-
-    this.setState({
-      gData: data,
-    });
-  };
 
   onExpand = (expandedKeys:any) => {
     console.log('onExpand', expandedKeys);
@@ -139,8 +79,13 @@ export class TreeView extends React.Component<{
               draggable
               //   onDragStart={this.onDragStart}
               onDragEnter={this.onDragEnter}
+              onRightClick={(info) => { 
+                // @ts-ignore
+                let path = info.node.path
+                if (!path) return 
+                this.props.onFolderRightClicked(path)
+              }}
               onSelect={(key, info) => { this.props.onFolderClicked(info.node.key as string) }}
-              onDrop={this.onDrop}
               treeData={[this.props.folder]}
               motion={motion}
             />

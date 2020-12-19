@@ -26,12 +26,15 @@ export enum socketEvents {
     createHistoryFile = 'createHistoryFile',
 
     onFileDelete = 'onFileDelete',
+    askForExplorer = 'askForExplorer',
+    askForNotepad = 'askForNotepad',
+    uploadResourcesInfos = 'uploadResourcesInfos',
 
 }
 
 export namespace iSocketEventsParams {
     export interface askForFiles { folderPath: string }
-    export interface getFiles { files: iFile[]}
+    export interface getFiles { files: iFile[], temporaryResults?:boolean}
 
     export interface askForFileContent {filePath:string}
     export interface getFileContent {fileContent: string}
@@ -51,4 +54,8 @@ export namespace iSocketEventsParams {
     export interface createHistoryFile {filePath: string, content: string}
 
     export interface onFileDelete {filepath: string}
+    export interface askForExplorer {folderpath: string}
+    export interface askForNotepad {filepath: string}
+
+    export interface uploadResourcesInfos {folderpath: string}
 }

@@ -4,10 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "launchApp": "npm run startServerNewCmd & npm run client",
-    "client": "npm run openBrowserPopup & cd client & npm run start",
+    "convertNotes": "cd scripts & yarle --configFile enex2md.json",
+    "launchAppDev": "npm run startServerNewCmd & npm run client",
+    "launchAppProd": "npm run startServerNewCmd",
+    "client": "cd client & npm run start",
+    "build": "cd client & npm run build",
     "server": "cd server & npm run start",
-    "openBrowserPopup": "openPopup.bat",
     "startClientNewCmd": "start cmd /k \"cd ./client & npm run start\"",
     "startServerNewCmd": "start cmd /k \"cd ./server & npm run start\""
   },

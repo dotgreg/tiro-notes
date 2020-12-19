@@ -1,14 +1,8 @@
 var path = require('path');
 const webpack = require('webpack'); 
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-
-
-// const env = process.env.NODE_ENV.trim()
 const env = 'development'
 // const httpsEnabled = process.env.HTTPS_ENABLED.trim() === 'true' ? true : false
 const httpsEnabled = false
-console.log(env);
-
 
 module.exports = {
     entry: './src/index.tsx',
@@ -51,14 +45,10 @@ module.exports = {
             NODE_ENV: JSON.stringify(process.env.NODE_ENV || 'production') // default value if not specified
           }
         }),
-        new MonacoWebpackPlugin({
-            // available options are documented at https://github.com/Microsoft/monaco-editor-webpack-plugin#options
-            languages: ['json']
-        })
     ],
     output: {
         filename: 'bundle.js',
         path: path.resolve(__dirname, 'dist'),
-        publicPath: 'dist/'
+        publicPath: 'js/'
     }
 };

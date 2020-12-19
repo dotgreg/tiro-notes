@@ -2,12 +2,12 @@ var path = require('path')
 var webpack = require('webpack')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 
+
 module.exports = {
   entry: {
     app: [
-      path.resolve(__dirname, 'src/game.ts')
+      path.resolve(__dirname, 'src/index.tsx')
     ],
-    // vendor: ['phaser']
   },
   output: {
     path: path.resolve(__dirname, 'build'),
@@ -15,44 +15,38 @@ module.exports = {
     filename: 'js/bundle.js'
   },
   plugins: [
-    // definePlugin,
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new webpack.optimize.UglifyJsPlugin({
-      drop_console: true,
-      minimize: true,
-      output: {
-        comments: false
-      }
-    }),
-    new webpack.optimize.CommonsChunkPlugin({ name: 'vendor' /* chunkName= */, filename: 'js/vendor.bundle.js' /* filename= */ }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: './src/index.html',
-      chunks: ['vendor', 'app'],
-      chunksSortMode: 'manual',
-      minify: {
-        removeAttributeQuotes: true,
-        collapseWhitespace: true,
-        html5: true,
-        minifyCSS: true,
-        minifyJS: true,
-        minifyURLs: true,
-        removeComments: true,
-        removeEmptyAttributes: true
-      },
+      template: './index.html',
+      // chunks: ['vendor', 'app'],
+      // chunksSortMode: 'manual',
+      // minify: {
+      //   removeAttributeQuotes: true,
+      //   collapseWhitespace: true,
+      //   html5: true,
+      //   minifyCSS: false,
+      //   minifyJS: false,
+      //   minifyURLs: false,
+      //   removeComments: false,
+      //   removeEmptyAttributes: true
+      // },
       hash: true
     })
   ],
   module: {
     rules: [
+      { test: /.ts(x?)$/, loader: 'ts-loader' },
       {
-        test: /\.ts$/,
-        loaders: ['babel-loader', 'awesome-typescript-loader'],
-        include: path.join(__dirname, 'src'),
+          test: /\.css$/i,
+          use: ["style-loader", "css-loader"],
       },
-      { 
-        test: [/\.vert$/, /\.frag$/], 
-        use: 'raw-loader' 
+      {
+          test: /\.(ttf|eot|woff|woff2)$/,
+          loader: 'file-loader',
+          options: {
+              name: 'fonts/[name].[ext]'
+          }
       }
     ]
   },
@@ -62,9 +56,6 @@ module.exports = {
     tls: 'empty'
   },
   resolve: {
-    extensions: ['.ts', '.js'],
-    alias: {
-      // 'phaser': phaser
-    }
+    extensions: ['.ts','.tsx', '.js'],
   }
 }

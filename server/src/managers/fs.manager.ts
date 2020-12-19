@@ -1,3 +1,4 @@
+import { max } from "lodash";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 
@@ -39,8 +40,8 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
     // check for each folder if it exists, else create it
     fullPathToCheck = fullPathToCheck.replace(backConfig.dataFolder, '')
     let pathArr = fullPathToCheck.split('/')
-    pathArr.pop()
-    pathArr.shift()
+    pathArr.pop() // remove object.jpg
+    pathArr.shift() // remove ""
     console.log({pathArr});
 
     let createFoldersRecursively = async (path:string, pathArray:string[]) => {
@@ -62,9 +63,9 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
 } 
 
 export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> => {
+    console.log(`[MOVEFILE] starting move ${pathInit} -> ${pathEnd}`);
+    
     return new Promise(async (resolve, reject) => {
-        await upsertRecursivelyFolders(pathEnd)
-        console.log('shit is done');
         fs.rename(pathInit, pathEnd, (err) => {
             if (err) {console.error(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject()}
             else resolve()
@@ -73,9 +74,10 @@ export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> =
 }
 
 export const saveFile = async (path: string, content:string):Promise<void> => {
+    console.log(`[SAVEFILE] starting save ${path}`);
     return new Promise((resolve, reject) => {
         fs.writeFile(path, content, (err) => {
-            if (err) {console.error(`[SAVEFILE] Error ${err.message} (${path}/${content})`); reject()}
+            if (err) {console.error(`[SAVEFILE] Error ${err.message} (${path})`); reject()}
             else resolve()
         }); 
     })

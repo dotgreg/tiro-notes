@@ -1,7 +1,12 @@
 import { backConfig } from "../config.back";
 import { socketEvents, iSocketEventsParams } from "../../../shared/sockets/sockets.events";
+import { getFileInfos } from "../../../shared/helpers/filename.helper";
+import { generateNewFileName } from "./move.manager";
+import { moveFile } from "./fs.manager";
 
 var siofu = require("socketio-file-upload");
+
+export let folderToUpload = {value: ''}
 
 export const initUploadFileRoute = (socket:SocketIO.Socket) => {
     // file upload starts listening
@@ -12,13 +17,24 @@ export const initUploadFileRoute = (socket:SocketIO.Socket) => {
         console.log('FILE UPLOAD STARTED', e); 
         
     })
-    uploader.on('complete', (e) => {
+    uploader.on('complete', async (e) => {
         // console.log('FILE UPLOAD COMPLETED', e);
 
         if (!e.file) return console.error(`file could not be uploaded`)
-        let actualFileNameArr = e.file.pathName.split('\\')
-        let actualFileName = actualFileNameArr[actualFileNameArr.length-1]
-        socket.emit(socketEvents.getUploadedFile, {name: e.file.name, path: `${backConfig.uploadFolder}/${actualFileName}`} as iSocketEventsParams.getUploadedFile)  
+        // e.file.path => is with ../../data 
+        let finfos = getFileInfos(e.file.pathName)
+
+        // do modification => namefile to unique ID here
+        let oldPath = `${e.file.pathName}`
+        // let newPath = `${finfos.folder}/${generateNewFileName()}.${finfos.extension}`
+        let newName = `${generateNewFileName()}.${finfos.extension}`
+        let newRelPath = `${backConfig.relativeUploadFolderName}/${newName}`
+        let newAbsPath = `${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`
+        console.log({oldPath, newAbsPath});
+        
+        await moveFile(oldPath, newAbsPath)
+ 
+        socket.emit(socketEvents.getUploadedFile, {name: newName, path:newRelPath} as iSocketEventsParams.getUploadedFile)  
         
     })
 }

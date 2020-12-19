@@ -34,8 +34,15 @@ display: flex;
 flex-wrap: wrap;
 justify-content:center;
 
+
 .content-image {
-  max-width: 300px;
+    /* max-width: 300px; */
+    width: 90%;
+  }
+.full {
+  .content-image {
+    /* max-width: 10000px; */
+  }
 }
 
 .main-wrapper {
@@ -67,6 +74,18 @@ justify-content:center;
 
     .list-toolbar {
       padding: 0px 10px;
+      position: relative;
+      button {
+        margin-right: 5px; 
+      }
+
+      .items-list-count {
+        position: absolute;
+        color: grey;
+        font-size: 10px;
+        right: 10px;
+        top: 5px;
+      }
     }
 
     .list-wrapper {
@@ -79,10 +98,28 @@ justify-content:center;
               border-bottom: 1px rgba(0,0,0,0.1) solid;
               color: blue;
               cursor: pointer;
+              position: relative;
               &.active {
                 text-decoration: underline;
                   font-weight: 800;
                   background: #ddddff;
+              }
+              .checkbox {
+
+              }
+              .label {
+                display: inline-block;
+                width: 90%;
+              }
+              .date {
+                position: absolute;
+                color: #a8a6a6;
+                font-size: 9px;
+                right: 5px;
+                top: 6px;
+                &.modified {
+                  color: green;
+                }
               }
           }
       }
@@ -134,16 +171,39 @@ justify-content:center;
       }
         .preview-area {
           &.full {
-            width: 100%
+            width: 100%;
+            pre {
+              code {
+                width: 90%;
+              }
+            }
           }
           width: 43%;
           padding: 0px 30px 30px 10px;
           height: 100vh;
           overflow: hidden;
           overflow-y: scroll;
+          pre {
+            code {
+              display: block;
+              background: #434242;
+              border-radius: 8px;
+              color: rgb(243 232 223);
+              padding: 10px;
+            }
+          }
 
           .toolbar-wrapper {
             padding: 10px 0px 10px 0px;
+            position: relative;
+            button {
+              margin-right: 5px;
+              &.delete {
+                /* background: red; */
+                position:absolute;
+                right: 10px;
+              }
+            }
           }
         }
       }

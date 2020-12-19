@@ -1,11 +1,14 @@
 import { iSockerRoute } from "./managers/socket/socket.manager"
 import { socketEvents, iSocketEventsParams } from "../../shared/sockets/sockets.events";
 import { backConfig } from "./config.back";
-import { exec2 } from "./managers/exec.manager";
+import {  exec3 } from "./managers/exec.manager";
 import { createDir, fileNameFromFilePath, getFolderHierarchy, scanDir } from "./managers/dir.manager";
-import { fileExists, moveFile, openFile, removeFile, saveFile } from "./managers/fs.manager";
-import { cacheSearchResults, retrieveCachedSearch, search } from "./managers/search.manager";
+import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
+import {  analyzeTerm, liveSearch } from "./managers/search.manager";
 import { formatDateNewNote, formatDateHistory, formatDateTag } from "./managers/date.manager";
+import { focusOnWinApp } from "./managers/win.manager";
+import { debouncedScanAfterMove, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
+import { folderToUpload } from "./managers/upload.manager";
 
 export const socketRoutes:iSockerRoute[] = [
     {
@@ -26,18 +29,32 @@ export const socketRoutes:iSockerRoute[] = [
     {
         event: socketEvents.searchFor,
         action: async (socket, data:iSocketEventsParams.searchFor) => {
+            // see if need to restrict search to a folder
+            let termObj = analyzeTerm(data.term)
+            console.log({termObj});
 
-            // first retrieve cached results if exists
-            let cachedRes = await retrieveCachedSearch(data.term)
-            socket.emit(socketEvents.getFiles, {files: cachedRes} as iSocketEventsParams.getFiles)
+            // // first retrieve cached results if exists
+            // let cachedRes = await retrieveCachedSearch(termObj.termId)
+            // socket.emit(socketEvents.getFiles, {files: cachedRes, temporaryResults: true} as iSocketEventsParams.getFiles)
             
             // Then trigger api
-            let apiAnswer = await search(data.term)
-            if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-            socket.emit(socketEvents.getFiles, {files: apiAnswer} as iSocketEventsParams.getFiles)
+            // let apiAnswer = await search(termObj.term, termObj.folderToSearch)
+            // if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+            // socket.emit(socketEvents.getFiles, {files: apiAnswer} as iSocketEventsParams.getFiles)
+            
+            liveSearch({
+                term: termObj.term, 
+                folder: termObj.folderToSearch, 
+                onSearchUpdate : files => {
+                    socket.emit(socketEvents.getFiles, {files: files, temporaryResults: true} as iSocketEventsParams.getFiles)
+                },
+                onSearchEnded : files => {
+                    socket.emit(socketEvents.getFiles, {files: files} as iSocketEventsParams.getFiles)
+                }
+            })
             
             // finally update cached search
-            await cacheSearchResults(data.term, apiAnswer)
+            // await cacheSearchResults(termObj.termId, apiAnswer)
         }
     },
     {
@@ -72,28 +89,28 @@ export const socketRoutes:iSockerRoute[] = [
     { 
         event: socketEvents.moveFile,
         action: async (socket, data:iSocketEventsParams.moveFile) => {
+            console.log(`=> MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
             // upsert folders if not exists and move file
-            console.log(`MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
+            console.log(`===> 1/4 creating folders ${data.endPath}`);
+            await upsertRecursivelyFolders(data.endPath)
+            
+            console.log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
+            await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
+            
+            console.log(`===> 3/4 moveFile`);
             await moveFile(`${backConfig.dataFolder}${data.initPath}`, `${backConfig.dataFolder}${data.endPath}`)
-
-            // rescan whole tree
-            let folder = await getFolderHierarchy(`${backConfig.dataFolder}`)
-            socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
-
+            
             // rescan the current dir
-            let folderPathArr = data.initPath.split('/')
-            folderPathArr.pop()
-            let folderPath = folderPathArr.join('/')
-            let apiAnswer = await scanDir(`${backConfig.dataFolder}${folderPath}`)
-            if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-            socket.emit(socketEvents.getFiles, { files: apiAnswer } as iSocketEventsParams.getFiles) 
+            // @TODO => VOIR PRK SI LENT
+            console.log(`===> 4/4 debouncedScanAfterMove`);
+            await debouncedScanAfterMove(socket, data.initPath)
         }
     },
     {
         event: socketEvents.createHistoryFile,
         action: async (socket, data:iSocketEventsParams.createHistoryFile) => {
             
-            let historyFolder = `${backConfig.dataFolder}/.history`
+            let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.history`
             if (!fileExists(historyFolder)) await createDir(historyFolder)
 
             let fileName = fileNameFromFilePath(data.filePath)
@@ -106,13 +123,39 @@ export const socketRoutes:iSockerRoute[] = [
         action: async (socket, data:iSocketEventsParams.onFileDelete) => {
             console.log(`DELETING ${backConfig.dataFolder}${data.filepath}`);
 
-            let trashFolder = `${backConfig.dataFolder}/.trash`
+            let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
             if (!fileExists(trashFolder)) await createDir(trashFolder)
 
             let fileName = fileNameFromFilePath(data.filepath)
             await moveFile(`${backConfig.dataFolder}${data.filepath}`, `${trashFolder}/${fileName}`)
         }
     },
+    {
+        event: socketEvents.askForExplorer,
+        action: async (socket, data:iSocketEventsParams.askForExplorer) => {
+            let fullPath = `${data.folderpath}`
+            console.log(`ASK FOR EXPLORER ${fullPath}`);
+            fullPath = fullPath.split('/').join('\\')
+            exec3(`%windir%\\explorer.exe \"${fullPath}\"`)
+            setTimeout(() => { focusOnWinApp('explorer') }, 500)
+        }
+    }, 
+    {
+        event: socketEvents.askForNotepad,
+        action: async (socket, data:iSocketEventsParams.askForNotepad) => {
+            let fullPath = `${backConfig.dataFolder}${data.filepath}`
+            console.log(`ASK FOR NOTEPAD ${fullPath}`);
+            fullPath = fullPath.split('/').join('\\')
+            exec3(`%windir%\\notepad.exe \"${fullPath}\"`)
+            setTimeout(() => { focusOnWinApp('notepad') }, 500)
+        }
+    }, 
+    {
+        event: socketEvents.uploadResourcesInfos,
+        action: async (socket, data:iSocketEventsParams.uploadResourcesInfos) => {
+            folderToUpload.value = data.folderpath
+        }
+    }, 
     {
         event: socketEvents.disconnect,
         action: async (socket) => {

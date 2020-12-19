@@ -14,6 +14,7 @@
     "@types/node": "^14.11.2",
     "@types/socket.io": "^2.1.11",
     "execa": "^5.0.0",
+    "ffi-napi": "^3.1.0",
     "glob": "^7.1.6",
     "images-scraper": "^5.0.7",
     "koa": "^2.13.0",

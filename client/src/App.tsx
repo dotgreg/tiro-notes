@@ -4,20 +4,23 @@ import { iSocketEventsParams, socketEvents } from '../../shared/sockets/sockets.
 import { clientSocket, initSocketConnection } from './managers/sockets/socket.manager';
 import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
 import { iFile, iFolder } from '../../shared/types.shared';
-import { List } from './components/List.component';
+import { List, SortModes, SortModesLabels } from './components/List.component';
 import { Editor } from './components/Editor.component';
 import { SearchBar } from './components/SearchBar.component';
 import { TreeView } from './components/TreeView.Component';
 import { Global } from '@emotion/react'
 import { CssApp, GlobalCssApp } from './managers/style.manager';
 import { onKey } from './managers/keys.manager';
-const marked = require('marked');
+import { configClient } from './config';
+import { filter, sortBy } from 'lodash';
+import { Icon } from './components/Icon.component';
 
 
 const LocalStorageMixin = require('react-localstorage');
 const reactMixin = require('react-mixin');
 @reactMixin.decorate(LocalStorageMixin)
-class App extends React.Component<{}, {
+class App extends React.Component<{
+}, {
   files:iFile[], 
   activeFileIndex: number
   activeFileContent: string | null
@@ -26,8 +29,13 @@ class App extends React.Component<{}, {
   isSearching: boolean
   folderHierarchy: iFolder 
   hoverMode: boolean 
+  ctrlPressed: boolean 
+  multiSelectMode: boolean 
+  multiSelectArray: number[] 
+  sortMode: number
 }> {
 
+  static displayName = 'extrawurstApp';
   constructor(props:any) {
       super(props)
       this.state = {
@@ -38,12 +46,36 @@ class App extends React.Component<{}, {
         searchTerm: '',
         activeFileContent: null,
         isSearching: false,
-        hoverMode: false
+        ctrlPressed: false,
+        hoverMode: false,
+        multiSelectMode: false,
+        sortMode: 0,
+        multiSelectArray: []
       }
   }
   listenerIds:number[] = []
 
   componentDidMount() {
+    if (window.location.host === 'localhost:3023') document.title =  `${document.title} (PROD ${configClient.version})`
+    else document.title = `/!\\ DEV /!\\`
+
+    window.onhashchange = () => { 
+      let hash = window.location.hash.substr(1)
+      hash = decodeURI(hash)
+      console.log(`[HASH CHANGE]`, hash)
+      if (hash.length > 0) {
+        if (hash.startsWith('search[')) {
+          hash = hash.replaceAll('search[','').replaceAll(']','').replaceAll('_','-')
+          this.setState({searchTerm: hash})
+          setTimeout(() => {
+            this.triggerSearch(this.state.searchTerm)
+          })
+        }
+      }
+      window.location.hash = ''
+    }
+
+
     window.onkeydown = (e:any) => {
       onKey(e, 'up', () => {
         let i = this.state.activeFileIndex  
@@ -53,6 +85,14 @@ class App extends React.Component<{}, {
         let i = this.state.activeFileIndex  
         if (i < this.state.files.length - 1) this.loadFileDetails(i+1)   
       })
+      onKey(e, 'ctrl', () => {
+        this.setState({ctrlPressed: true})
+      })
+    }
+    window.onkeyup = (e:any) => {
+      onKey(e, 'ctrl', () => {
+        this.setState({ctrlPressed: false})
+      })
     }
 
     initSocketConnection().then(() => {
@@ -60,23 +100,42 @@ class App extends React.Component<{}, {
       
       // INITIAL REQUESTS (including a folder scan every minute)
       setInterval(() => {
-        this.askForFolderScan()
+        // this.askForFolderScan()
       }, 1000 * 60)
+
+      // reload file details 
+      this.state.activeFileIndex !== -1 && this.loadFileDetails(this.state.activeFileIndex)
       this.askForFolderScan()
-      this.askForFolderFiles(this.state.selectedFolder)
+      this.setState({ctrlPressed: false})
 
       let lastFolderIn = this.state.selectedFolder
+      let lastSearchIn = this.state.searchTerm
       this.listenerIds[0] = socketEventsManager.on(
         socketEvents.getFiles, 
         (data:iSocketEventsParams.getFiles) => {  
+
+          // only keep md files in file list
+          let files = filter(data.files, {extension: 'md'})
+
+          // sort them
+          files = this.sortFiles(files, this.state.sortMode)
+
           this.setState({
-            files: data.files,
-            isSearching: false
+            files,
+            isSearching: data.temporaryResults ? true : false
           })
+          this.state.activeFileIndex !== -1 && this.loadFileDetails(this.state.activeFileIndex)
+
           setTimeout(() => {
-            if (this.state.selectedFolder !== lastFolderIn) {
+            // ON LIST ITEMS CHANGES
+            if (this.state.selectedFolder !== lastFolderIn || this.state.searchTerm !== lastSearchIn) {
+              // Load first item list 
               this.loadFileDetails(0)
               lastFolderIn = this.state.selectedFolder
+              lastSearchIn = this.state.searchTerm
+
+              // clean multiselect
+              this.cleanMultiSelect()
             }
           })
       })
@@ -102,16 +161,81 @@ class App extends React.Component<{}, {
     clientSocket.emit(socketEvents.askFolderHierarchy, {folderPath: ''} as iSocketEventsParams.askFolderHierarchy)  
   }
 
+  moveFile = (initPath:string, endPath:string) => {
+    console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
+    clientSocket.emit(socketEvents.moveFile, {initPath, endPath, shouldRescan: true} as iSocketEventsParams.moveFile)  
+  }
+
+  promptAndBatchMoveFiles = (folderpath:string) => {
+    let userAccepts = confirm(`Are you sure you want to move ${this.state.multiSelectArray.length} files and their resources to ${folderpath}`)
+    if (userAccepts) {
+      for (let i = 0; i < this.state.multiSelectArray.length; i++) {
+        const fileId = this.state.multiSelectArray[i];
+        let file = this.state.files[fileId]
+        let filenameArr = file.name.split('/')
+        // in case we are in research, the file.name === file.path
+        let realFileName = filenameArr[filenameArr.length-1]
+        this.moveFile(file.path, `${folderpath}/${realFileName}`)
+      }
+      this.cleanMultiSelect() 
+      this.emptyFileDetails()
+    }
+  }
+  
+  triggerSearch = (term:string) => {
+    this.setState({ isSearching: true, selectedFolder: '', activeFileIndex: -1 })
+    this.cleanMultiSelect()
+    clientSocket.emit(socketEvents.searchFor, {term} as iSocketEventsParams.searchFor) 
+  }
+
+  sortFiles = (files:iFile[], sortMode):iFile[] => {
+    let sortedFiles
+    switch (SortModes[sortMode]) {
+      case 'none':
+        sortedFiles = sortBy(files, ['index'])
+        break;
+      case 'alphabetical':
+        sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
+        break;
+      case 'created':
+        sortedFiles = sortBy(files, ['created']).reverse()
+        break;
+      case 'modified':
+        sortedFiles = sortBy(files, ['modified']).reverse()
+        break;
+    
+      default:
+        break;
+    }
+
+    return sortedFiles
+  }
+
+  cleanMultiSelect = () => {
+    this.setState({ multiSelectMode: false, multiSelectArray: [] })
+  }
+
   emptyFileDetails = () => {
     this.setState({activeFileIndex:-1, activeFileContent: ''})
   }
 
   loadFileDetails = (fileIndex:number) => {
     let file = this.state.files[fileIndex]
+    console.log(this.state.files, file);
+    
     if (file.name.endsWith('.md')) {
       this.setState({activeFileIndex:fileIndex, activeFileContent: ''})
       clientSocket.emit(socketEvents.askForFileContent, 
         {filePath: file.path} as iSocketEventsParams.askForFileContent)  
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.files !== this.state.files) {
+      console.log('files changed');
+      if (this.state.activeFileIndex !== -1) {
+        this.loadFileDetails(this.state.activeFileIndex)
+      }
     }
   }
 
@@ -138,9 +262,19 @@ class App extends React.Component<{}, {
             <div className="left-wrapper-1">
               <TreeView 
                 folder={this.state.folderHierarchy}
-                onFolderClicked={(folderPath) => {
-                  this.setState({selectedFolder: folderPath, searchTerm:'', activeFileIndex: -1})
-                  this.askForFolderFiles(folderPath)
+                onFolderClicked={(folderpath) => {
+                  // if multiselect not empty, prompt user, then move files into that
+                  if (this.state.multiSelectMode && this.state.multiSelectArray.length > 0) {
+                    this.promptAndBatchMoveFiles(folderpath)
+                  } else {
+                    // move from selected folder
+                    this.setState({selectedFolder: folderpath, searchTerm:'', activeFileIndex: -1})
+                    this.askForFolderFiles(folderpath)
+                  }
+                }}
+                onFolderRightClicked = {(folderpath) => {
+                  clientSocket.emit(socketEvents.askForExplorer, 
+                    {folderpath: folderpath} as iSocketEventsParams.askForExplorer) 
                 }}
               />
             </div>
@@ -153,8 +287,7 @@ class App extends React.Component<{}, {
             <div className="left-wrapper-2">
               <SearchBar 
                 onSearchSubmit={() => {
-                    this.setState({ isSearching: true, selectedFolder: '', activeFileIndex: -1 })
-                    clientSocket.emit(socketEvents.searchFor, {term:this.state.searchTerm} as iSocketEventsParams.searchFor) 
+                    this.triggerSearch(this.state.searchTerm)
                 }}
                 onSearchTermUpdate={searchTerm => {this.setState({ searchTerm})}}
                 searchTerm={this.state.searchTerm}
@@ -165,16 +298,41 @@ class App extends React.Component<{}, {
 
             <div className='list-toolbar'>
             
-              <button onClick={(e) => {
+              { this.state.searchTerm === '' &&
+                <button onClick={(e) => {
                     clientSocket.emit(socketEvents.createNote, 
                       {folderPath: this.state.selectedFolder} as iSocketEventsParams.createNote) 
-                }}>New note</button>
+                }}><Icon name="faStickyNote" /></button>
+              }
 
-                <input 
+                {/* <input 
                   type="button" 
                   value={this.state.hoverMode ? 'Hover:On' : 'Hover:Off'} 
                   onClick={e => this.setState({hoverMode: !this.state.hoverMode})}
-                />
+                /> */}
+
+                <button 
+                  type="button" 
+                  title={this.state.multiSelectMode ? 'Select:On' : 'Select:Off'}
+                  onClick={e => this.setState({
+                    multiSelectMode: !this.state.multiSelectMode,
+                    multiSelectArray: []
+                  })}
+                > <Icon name="faCheckDouble" /> </button>
+
+                <button 
+                  type="button" 
+                  title='sort'
+                  onClick={e => {
+                    let newMode = this.state.sortMode + 1 >= SortModes.length ? 0 : this.state.sortMode + 1
+                    let files = this.sortFiles(this.state.files, newMode)
+                    this.setState({sortMode: newMode, files})
+                  }}
+                > <Icon name="faSort" /> { this.state.sortMode !== 0 && SortModesLabels[this.state.sortMode] } </button>
+
+              { this.state.files.length > 0 &&
+                  <span className='items-list-count'>{this.state.files.length} els</span>
+              }
 
             </div>
 
@@ -190,6 +348,14 @@ class App extends React.Component<{}, {
                   files={this.state.files} 
                   hoverMode={this.state.hoverMode}
                   activeFileIndex={this.state.activeFileIndex}
+                  ctrlPressed={this.state.ctrlPressed}
+
+                  sortMode={this.state.sortMode}
+
+                  multiSelectArray={this.state.multiSelectArray}
+                  multiSelectMode={this.state.multiSelectMode}
+                  onMultiSelectChange={arr => this.setState({multiSelectArray:arr})}
+
                   onFileClicked={(fileIndex) => {
                     this.loadFileDetails(fileIndex)
                   }}
@@ -221,13 +387,21 @@ class App extends React.Component<{}, {
                     }}
                     onFilePathEdited={(initPath, endPath) => {
                       console.log(`onFilePathEdited =>`,{initPath, endPath});
-                      clientSocket.emit(socketEvents.moveFile, 
-                        {initPath, endPath} as iSocketEventsParams.moveFile)  
+                      this.emptyFileDetails()
+                      this.moveFile(initPath, endPath)
                     }}
                     onSavingHistoryFile={(filePath, content) => {
                       console.log(`onSavingHistoryFile => ${filePath}`);
                       clientSocket.emit(socketEvents.createHistoryFile, 
                         {filePath, content} as iSocketEventsParams.createHistoryFile)  
+                    }}
+                    onEditorDetached={(filepath) => {
+                      clientSocket.emit(socketEvents.askForNotepad, 
+                        {filepath} as iSocketEventsParams.askForNotepad) 
+
+                        setTimeout(() => {
+                          this.emptyFileDetails()
+                        }, 500)
                     }}
                     onFileDelete={(filepath) => {
                       console.log(`onFileDelete => ${filepath}`);

@@ -7,13 +7,24 @@ adsffsdafads
 `
 
 
-
-export const transformImagesInHTML = (bodyRaw: string):string => {
-    // let res:string = ''
-    // let regexRessource = /\[[a-zA-Z0-9_-]*\.([a-zA-Z0-9]*)\]\(\:\/([a-zA-Z0-9]*)\)/gm
-    const regex = /(\!\[([A-Za-z0-9\/\:\.\_\-\/\\]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\]*)\))/gm;
-    const subst = `<img class="content-image" src="http://localhost:${sharedConfig.staticServerPort}/$3"  />`;
+export const transformUrlLinks = (bodyRaw: string):string => {
+    const regex =  /(https:\/\/([A-Za-z0-9\/\:\.\_\-\/\\\\\?\=\&]*))/gm;
+    const subst = `<a href="$1" about="_blank">$2</a>`;
     return bodyRaw.replace(regex, subst);
 }
 
-console.log(transformImagesInHTML(txt));
+export const transformExtrawurstLinks = (bodyRaw: string):string => {
+    const regex = /\[search\|([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\\ ]*)\]/gm;
+    const subst = '<a href="#search[$1]">$1</a>';
+    return bodyRaw.replace(regex, subst);
+}
+
+//  @TODO
+// add folderPath that ./.resources/image.jpg becomes localhost:8082/dir1/dir2/dir3/.resources/image.jpg
+export const transformImagesInHTML = (currentFolderPath:string, bodyRaw: string ):string => {
+    const regex = /(\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&]*)\))/gm;
+    const subst = `<img class="content-image" src="http://localhost:${sharedConfig.staticServerPort}/${currentFolderPath}/$3"  />`;
+    return bodyRaw.replace(regex, subst);
+}
+
+// console.log(transformImagesInHTML(txt));
