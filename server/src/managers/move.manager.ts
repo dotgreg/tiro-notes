@@ -1,14 +1,14 @@
-import { randomInt } from "crypto"
 import { debounce, random } from "lodash"
 import { iSocketEventsParams, socketEvents } from "../../../shared/sockets/sockets.events"
+import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
-import { getFolderHierarchy, scanDir } from "./dir.manager"
+import { scanDir, workerGetFolderHierarchy } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
+import { triggerWorker } from "./workers/worker.manager"
 
 export const generateNewFileName = ():number => random(0, 10000000000)
 
-export const debouncedScanAfterMove = debounce( async(socket:any, initPath:string) => {
-    
+export const debouncedFolderScan = debounce( async(socket:any, initPath:string) => {
     let folderPathArr = initPath.split('/')
     folderPathArr.pop()
     let folderPath = folderPathArr.join('/')
@@ -17,12 +17,13 @@ export const debouncedScanAfterMove = debounce( async(socket:any, initPath:strin
     let apiAnswer = await scanDir(`${backConfig.dataFolder}${folderPath}`)
     if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
     socket.emit(socketEvents.getFiles, { files: apiAnswer } as iSocketEventsParams.getFiles) 
+}, 100)
 
-    // rescan whole tree
-    // TODO => VOIR PRK SI LENT
-    let folder = await getFolderHierarchy(`${backConfig.dataFolder}`)
-    socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
-}, 1000)
+export const debouncedHierarchyScan = debounce( async(socket:any) => {
+    triggerWorker('getFolderHierarchySync', {folder: backConfig.dataFolder}, (folder:iFolder) => {
+        socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
+    })  
+}, 2000)
 
 export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath:string, simulate: boolean = false) => {
     if(simulate) console.log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);
@@ -46,11 +47,14 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
     
 
     for (let i = 0; i < matches.length; i++) {
-        const rawImage = matches[i];
-        const pathImage = rawImage.replace(regex, '$3')
+        const rawResource = matches[i];
+        
+        const nameResource = rawResource.replace(regex, '$2')
+        // console.log('nameResource->',nameResource);
+        const pathResource = rawResource.replace(regex, '$3')
         let pathsToCheck = [
-            `${backConfig.dataFolder}/${pathImage}`,
-            `${backConfig.dataFolder}/${initFolderPath}/${pathImage}`,
+            `${backConfig.dataFolder}/${pathResource}`,
+            `${backConfig.dataFolder}/${initFolderPath}/${pathResource}`,
         ]
         
         for (let y = 0; y < pathsToCheck.length; y++) {
@@ -64,14 +68,14 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
                 let newFilename = `${generateNewFileName()}.${extension}`
 
                 let endResourcePath = `${backConfig.dataFolder}/${endFolderPath}/${backConfig.relativeUploadFolderName}/${newFilename}`
-                let moveSumup = `[MOVE] ressource note move:  ${pathsToCheck[y]} (exists) -> ${endResourcePath}`
+                let moveSumup = `[MOVE] Resource note move:  ${pathsToCheck[y]} (exists) -> ${endResourcePath}`
                 console.log(moveSumup);
                 await upsertRecursivelyFolders(endResourcePath)
                 if(!simulate) {
                     await moveFile(pathsToCheck[y], endResourcePath)
                     // change contentfile
-                    let mdImage = `![](./${backConfig.relativeUploadFolderName}/${newFilename})`
-                    newFileContent = newFileContent.replace(matches[i], mdImage)
+                    let mdResource = `![${nameResource}](./${backConfig.relativeUploadFolderName}/${newFilename})`
+                    newFileContent = newFileContent.replace(matches[i], mdResource)
                 }
             }
         }

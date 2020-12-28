@@ -1,5 +1,9 @@
 import { Global, css } from '@emotion/react'
 import styled from '@emotion/styled';
+import { deviceType, MobileView } from './device.manager';
+
+let d = deviceType()
+// let v = 'editor'
 
 export const styleApp = {
     inputText: `
@@ -29,7 +33,8 @@ export const GlobalCssApp = css`
   }
 `
 
-export const CssApp = styled.div`
+export const CssApp = styled.div<{v:MobileView}>`
+
 display: flex;
 flex-wrap: wrap;
 justify-content:center;
@@ -49,18 +54,24 @@ justify-content:center;
   display: flex;
 
 
+  .mobile-view-toggler {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+  }
+
   ////////////////////////////////////////////v 
   // LEFT
   ////////////////////////////////////////////v
   .left-wrapper {
     background: ${styleApp.colors.bg.grey}; 
-    width: 40vw;
-    display: flex;
+    width: ${d === 'desktop' ? '40' : (props => props.v === 'editor' ? 0 : 100)}vw;
+    display: ${d === 'desktop' ? 'flex' : (props => props.v === 'editor' ? 'none' : 'flex')};
     .left-wrapper-1 {
       background: ${styleApp.colors.bg.dark}; 
       color: white;
       width: 40%;
-      padding-left: 90px;
+      padding-left: ${d === 'desktop' ? '90' : '10'}px;
       height:100vh;
       overflow: hidden;
       overflow-y: auto;
@@ -139,14 +150,15 @@ justify-content:center;
   // RIGHT
   ////////////////////////////////////////////v 
   .right-wrapper {
-      width: 70vw;
+      width: ${d === 'desktop' ? '70' : (props => props.v === 'editor' ? 100 : 0)}vw;
+      display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'block' : 'none')};
       /* padding: 10px; */
       padding-top: 0px;
       /* max-height: 100vh;
       overflow-y: auto; */
     .note-wrapper {
       .editor {
-        display: flex;
+        display: ${d === 'desktop' ? 'flex' : 'block'};
         .dragzone {
           &.hidden {
             display:none;
@@ -164,12 +176,24 @@ justify-content:center;
           &.inactive {
             display: none;
           }
-          width: 50%;
+          width: ${d === 'desktop' ? '50' : '100'}%;
           .monaco-editor {
             margin: 0px;
           }
+          .textarea-editor {
+            border: none;
+            width: 87vw;
+            height: 100vh;
+            margin: 20px;
+            padding: 10px;
+            background: rgba(255,255,255,0.7);
+          }
       }
         .preview-area {
+          .extrawurst-link {
+            font-weight: 800;
+            color: rgb(38 183 2);
+          }
           &.full {
             width: 100%;
             pre {
@@ -179,6 +203,7 @@ justify-content:center;
             }
           }
           width: 43%;
+          display: ${d === 'desktop' ? 'block' : 'none'};
           padding: 0px 30px 30px 10px;
           height: 100vh;
           overflow: hidden;
@@ -192,21 +217,35 @@ justify-content:center;
               padding: 10px;
             }
           }
+        }
+      }
+      .toolbar-wrapper {
+        padding: 10px 0px 10px 0px;
+        position: relative;
+        
+        .upload-button-wrapper {
+          position: relative;  
+          .input-file-hidden {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+          }
+        }
 
-          .toolbar-wrapper {
-            padding: 10px 0px 10px 0px;
-            position: relative;
-            button {
-              margin-right: 5px;
-              &.delete {
-                /* background: red; */
-                position:absolute;
-                right: 10px;
-              }
-            }
+
+        button {
+          margin-right: 5px;
+          &.delete {
+            /* background: red; */
+            position:absolute;
+            right: 10px;
           }
         }
       }
+    
       
       .title-input-wrapper {
           input {

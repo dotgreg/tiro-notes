@@ -2,13 +2,16 @@ import { iSockerRoute } from "./managers/socket/socket.manager"
 import { socketEvents, iSocketEventsParams } from "../../shared/sockets/sockets.events";
 import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
-import { createDir, fileNameFromFilePath, getFolderHierarchy, scanDir } from "./managers/dir.manager";
+import { createDir, fileNameFromFilePath, getFolderHierarchySync, scanDir, workerGetFolderHierarchy } from "./managers/dir.manager";
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import {  analyzeTerm, liveSearch } from "./managers/search.manager";
 import { formatDateNewNote, formatDateHistory, formatDateTag } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
-import { debouncedScanAfterMove, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
+import { debouncedFolderScan, moveNoteResourcesAndUpdateContent, debouncedHierarchyScan } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
+import { random } from "lodash";
+import { triggerWorker } from "./managers/workers/worker.manager";
+import { iFolder } from "../../shared/types.shared";
 
 export const socketRoutes:iSockerRoute[] = [
     {
@@ -60,26 +63,28 @@ export const socketRoutes:iSockerRoute[] = [
     {
         event: socketEvents.askFolderHierarchy,
         action: async (socket, data:iSocketEventsParams.askFolderHierarchy) => {
-            let folder = await getFolderHierarchy(`${backConfig.dataFolder}${data.folderPath}`)
-            socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
+            triggerWorker('getFolderHierarchySync', {folder: `${backConfig.dataFolder}${data.folderPath}`}, (folder:iFolder) => {
+              socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
+            })  
         }
     },
     
     {
         event: socketEvents.saveFileContent,
         action: async (socket, data:iSocketEventsParams.saveFileContent) => {
-            console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`,data.newFileContent);
+            console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`);
             await saveFile(`${backConfig.dataFolder}${data.filepath}`, data.newFileContent)
-        }
+        },
+        disableDataLog: true
     },
     {
         event: socketEvents.createNote,
         action: async (socket, data:iSocketEventsParams.createNote) => {
             let time = new Date() 
-            let nameNote = `/Note from ${formatDateNewNote(time)}.md`
+            let nameNote = `/new-note-${random(0,10000)}.md`
             let notePath = `${backConfig.dataFolder}${data.folderPath}${nameNote}`
             console.log(`CREATING ${notePath}`);
-            await saveFile(`${notePath}`, `--date-${formatDateTag(time)}`)
+            await saveFile(`${notePath}`, ``)
 
             let apiAnswer = await scanDir(`${backConfig.dataFolder}${data.folderPath}`)
             if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
@@ -103,7 +108,8 @@ export const socketRoutes:iSockerRoute[] = [
             // rescan the current dir
             // @TODO => VOIR PRK SI LENT
             console.log(`===> 4/4 debouncedScanAfterMove`);
-            await debouncedScanAfterMove(socket, data.initPath)
+            await debouncedFolderScan(socket, data.initPath)
+            await debouncedHierarchyScan(socket)
         }
     },
     {
@@ -114,7 +120,7 @@ export const socketRoutes:iSockerRoute[] = [
             if (!fileExists(historyFolder)) await createDir(historyFolder)
 
             let fileName = fileNameFromFilePath(data.filePath)
-            fileName = `${formatDateHistory(new Date())}-${fileName}`
+            fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
             await saveFile(`${historyFolder}/${fileName}`, data.content)
         }
     },

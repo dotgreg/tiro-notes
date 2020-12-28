@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.socketEvents = void 0;
+var socketEvents;
+(function (socketEvents) {
+    socketEvents["connection"] = "connection";
+    socketEvents["disconnect"] = "disconnect";
+    socketEvents["connectionSuccess"] = "connectionSuccess";
+    socketEvents["askForFiles"] = "askForFiles";
+    socketEvents["getFiles"] = "getFiles";
+    socketEvents["askForFileContent"] = "askForFileContent";
+    socketEvents["getFileContent"] = "getFileContent";
+    socketEvents["saveFileContent"] = "saveFileContent";
+    socketEvents["getUploadedFile"] = "getUploadedFile";
+    socketEvents["moveFile"] = "moveFile";
+    socketEvents["searchFor"] = "searchFor";
+    socketEvents["askFolderHierarchy"] = "askFolderHierarchy";
+    socketEvents["getFolderHierarchy"] = "getFolderHierarchy";
+    socketEvents["createNote"] = "createNote";
+    socketEvents["createHistoryFile"] = "createHistoryFile";
+    socketEvents["onFileDelete"] = "onFileDelete";
+    socketEvents["askForExplorer"] = "askForExplorer";
+    socketEvents["askForNotepad"] = "askForNotepad";
+    socketEvents["uploadResourcesInfos"] = "uploadResourcesInfos";
+})(socketEvents = exports.socketEvents || (exports.socketEvents = {}));

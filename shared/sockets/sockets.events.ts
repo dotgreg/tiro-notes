@@ -51,7 +51,7 @@ export namespace iSocketEventsParams {
 
     export interface createNote {folderPath: string}
 
-    export interface createHistoryFile {filePath: string, content: string}
+    export interface createHistoryFile {filePath: string, content: string, historyFileType: string}
 
     export interface onFileDelete {filepath: string}
     export interface askForExplorer {folderpath: string}

@@ -68,6 +68,7 @@ export const liveSearch = async (params:{
         let res:iFile[] = []
         dataRaw = dataRaw.split(/\:[0-9]*/g).join('') 
         dataRaw = dataRaw.split(`${backConfig.dataFolder+params.folder}\\`).join('') 
+        dataRaw = dataRaw.split(`${backConfig.dataFolder+params.folder}/`).join('') 
         var array = dataRaw.match(/[^\r\n]+/g);
         
         for (let i = 0; i < array.length; i++) {

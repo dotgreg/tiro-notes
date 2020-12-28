@@ -11,7 +11,9 @@
     "build": "cd client & npm run build",
     "server": "cd server & npm run start",
     "startClientNewCmd": "start cmd /k \"cd ./client & npm run start\"",
-    "startServerNewCmd": "start cmd /k \"cd ./server & npm run start\""
+    "startServerNewCmd": "start cmd /k \"cd ./server & npm run start\"",
+    "serverLinux": "ssh u0_a200@192.168.43.1 -p8022 -t \"cd extrawurst/server;ls;npm run start\" ",
+    "linux": "ssh u0_a200@192.168.43.1 -p8022"
   },
   "repository": {
     "type": "git",

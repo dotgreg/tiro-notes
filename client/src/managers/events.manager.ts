@@ -18,6 +18,14 @@ export default class EventManager {
     this.name = params.name
   }
 
+  /**
+   * 
+   * @param event 
+   * @param callback 
+   * 
+   * @return key of the event callback that can be disabled by .off(key)
+   * 
+   */
   on(event:string, callback:Function):number {
     let key = random(1, 10000000)
     if (!this.events[event]) this.events[event] = {}

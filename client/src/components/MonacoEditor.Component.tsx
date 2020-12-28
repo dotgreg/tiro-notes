@@ -22,9 +22,9 @@ export class MonacoEditorWrapper extends React.Component<{
   editor:any
   monaco:any
   editorDidMount = (editor:any, monaco:any) => {
-    console.log('didmount', editor, monaco);
+    // console.log('didmount', editor, monaco);
     if (this.props.vimMode) {
-      console.log('vim mode started', this.vimStatusBar.current);
+      console.log('[MONACO EDITOR] vim mode started', this.vimStatusBar.current);
       initVimMode(editor, this.vimStatusBar.current)
     }
     this.editor = editor

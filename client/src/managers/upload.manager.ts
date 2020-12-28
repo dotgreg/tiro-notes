@@ -23,16 +23,32 @@ export const insertAtCaret =  (textarea:HTMLTextAreaElement, text:string) => {
     name:string
     path:string
 }
-  var siofu = require("socketio-file-upload");
+
+
+var siofu = require("socketio-file-upload");
+export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number => {
+  return socketEventsManager.on(socketEvents.getUploadedFile, 
+    (data:iSocketEventsParams.getUploadedFile) => {  
+          cb(data)
+      }
+    )
+  }
+    
+  export const uploadFile = (file:any) => {
+    var instanceFile = new siofu(clientSocket);
+    instanceFile.submitFiles([file]);
+  }
+
+  export const uploadOnInputChange = (el:HTMLTextAreaElement) => {
+    var instance = new siofu(clientSocket);
+    instance.listenOnInput(el);
+  }
+
   export const uploadOnDrop = (el:HTMLTextAreaElement, events: {
-    onUploadSuccess:(file:iUploadedFile) => void
     onDragStart:Function
     onDragEnd:Function
   }) => {
     var instance = new siofu(clientSocket);
-    // console.log({instance});
-    // console.log(this.zoneEl);
-    // instance.listenOnInput(el);
     instance.listenOnDrop(el);
 
     window.addEventListener('dragenter', function(e) {
@@ -45,10 +61,4 @@ export const insertAtCaret =  (textarea:HTMLTextAreaElement, text:string) => {
     window.addEventListener('drop', function(e) {
         events.onDragEnd()
     });
-
-    socketEventsManager.on(socketEvents.getUploadedFile, 
-        (data:iSocketEventsParams.getUploadedFile) => {  
-            events.onUploadSuccess(data)
-        }
-    )
   }

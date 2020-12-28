@@ -33,6 +33,7 @@ const reactMixin = require('react-mixin');
 @reactMixin.decorate(LocalStorageMixin)
 export class TreeView extends React.Component<{
   folder: iFolder
+  selected: string
   onFolderClicked: (folderPath:string) => void
   onFolderRightClicked: (folderPath:string) => void
 },{
@@ -75,6 +76,7 @@ export class TreeView extends React.Component<{
             <Tree
               expandedKeys={expandedKeys}
               onExpand={this.onExpand}
+              selectedKeys={[this.props.selected]}
               autoExpandParent={this.state.autoExpandParent}
               draggable
               //   onDragStart={this.onDragStart}
@@ -85,7 +87,9 @@ export class TreeView extends React.Component<{
                 if (!path) return 
                 this.props.onFolderRightClicked(path)
               }}
-              onSelect={(key, info) => { this.props.onFolderClicked(info.node.key as string) }}
+              onSelect={(key, info) => { 
+                this.props.onFolderClicked(info.node.key as string) 
+              }}
               treeData={[this.props.folder]}
               motion={motion}
             />

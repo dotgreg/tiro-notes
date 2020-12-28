@@ -13,3 +13,6 @@ export const onKey = (e:any, keyName:KeyName, action:Function) => {
         action()
     }
 }
+
+
+// export const initKeysLogic = 

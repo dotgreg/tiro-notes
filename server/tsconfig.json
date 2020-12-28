@@ -1,17 +1,18 @@
 {
-    "compilerOptions": {
-      "target": "esnext",
-      "module": "commonjs",
-      "jsx": "react",
-      "lib": ["es6"],
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-    },
-    "include": [
-      "src/**/*",
-      "../shared/**/*",
-    ],
-    "exclude": [
-      "node_modules",
-    ],
-  }
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "lib": ["es6"],
+    "emitDecoratorMetadata": true,
+    "allowJs": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist2"
+  },
+  "include": [
+    "src/**/*",
+    "../shared/**/*",
+  ],
+  "exclude": [
+    "node_modules",
+  ],
+}

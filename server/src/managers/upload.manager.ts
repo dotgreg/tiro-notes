@@ -11,7 +11,7 @@ export let folderToUpload = {value: ''}
 export const initUploadFileRoute = (socket:SocketIO.Socket) => {
     // file upload starts listening
     var uploader = new siofu();
-    uploader.dir = `${backConfig.dataFolder}\\${backConfig.uploadFolder}`;
+    uploader.dir = `${backConfig.dataFolder}/${backConfig.uploadFolder}`;
     uploader.listen(socket);
     uploader.on('start', (e) => {
         console.log('FILE UPLOAD STARTED', e); 
@@ -34,7 +34,7 @@ export const initUploadFileRoute = (socket:SocketIO.Socket) => {
         
         await moveFile(oldPath, newAbsPath)
  
-        socket.emit(socketEvents.getUploadedFile, {name: newName, path:newRelPath} as iSocketEventsParams.getUploadedFile)  
+        socket.emit(socketEvents.getUploadedFile, {name: finfos.filename, path:newRelPath} as iSocketEventsParams.getUploadedFile)  
         
     })
 }

@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon",
+    "prodTs": "ts-node --transpileOnly ./src/server.ts",
+    "prodJs": "tsc & node --experimental-worker dist/server/src/server.js",
     "killall": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)"
   },
   "author": "",
@@ -14,15 +16,17 @@
     "@types/node": "^14.11.2",
     "@types/socket.io": "^2.1.11",
     "execa": "^5.0.0",
-    "ffi-napi": "^3.1.0",
+    "express": "^4.17.1",
+    "express-basic-auth": "^1.2.0",
     "glob": "^7.1.6",
-    "images-scraper": "^5.0.7",
     "koa": "^2.13.0",
     "koa-mount": "^4.0.0",
     "koa-static": "^5.0.0",
     "lodash": "^4.17.20",
+    "microjob": "^0.7.0",
     "socket.io": "^2.3.0",
     "socketio-file-upload": "^0.7.2",
+    "threads": "^1.6.3",
     "typescript": "^4.0.3"
   },
   "devDependencies": {

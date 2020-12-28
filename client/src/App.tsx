@@ -14,6 +14,9 @@ import { onKey } from './managers/keys.manager';
 import { configClient } from './config';
 import { filter, sortBy } from 'lodash';
 import { Icon } from './components/Icon.component';
+import { listenToHashChanges } from './managers/hash.manager';
+import { initClipboardListener } from './managers/clipboard.manager';
+import { deviceType, MobileView } from './managers/device.manager';
 
 
 const LocalStorageMixin = require('react-localstorage');
@@ -33,6 +36,7 @@ class App extends React.Component<{
   multiSelectMode: boolean 
   multiSelectArray: number[] 
   sortMode: number
+  mobileView: MobileView
 }> {
 
   static displayName = 'extrawurstApp';
@@ -50,31 +54,25 @@ class App extends React.Component<{
         hoverMode: false,
         multiSelectMode: false,
         sortMode: 0,
-        multiSelectArray: []
+        multiSelectArray: [],
+        mobileView:'navigator'
       }
   }
   listenerIds:number[] = []
 
   componentDidMount() {
-    if (window.location.host === 'localhost:3023') document.title =  `${document.title} (PROD ${configClient.version})`
+    console.log(`[APP] MOUNTED on a ${deviceType()}`);
+    if (window.location.host.includes(configClient.global.staticPort.toString())) document.title =  `${document.title} (PROD ${configClient.version})`
     else document.title = `/!\\ DEV /!\\`
 
-    window.onhashchange = () => { 
-      let hash = window.location.hash.substr(1)
-      hash = decodeURI(hash)
-      console.log(`[HASH CHANGE]`, hash)
-      if (hash.length > 0) {
-        if (hash.startsWith('search[')) {
-          hash = hash.replaceAll('search[','').replaceAll(']','').replaceAll('_','-')
-          this.setState({searchTerm: hash})
-          setTimeout(() => {
-            this.triggerSearch(this.state.searchTerm)
-          })
-        }
-      }
-      window.location.hash = ''
-    }
+    listenToHashChanges((newHash) => {
+        this.setState({searchTerm: newHash})
+        setTimeout(() => {
+          this.triggerSearch(this.state.searchTerm)
+        })
+    })
 
+    // initClipboardListener()
 
     window.onkeydown = (e:any) => {
       onKey(e, 'up', () => {
@@ -127,16 +125,24 @@ class App extends React.Component<{
           this.state.activeFileIndex !== -1 && this.loadFileDetails(this.state.activeFileIndex)
 
           setTimeout(() => {
+
+            // IF RELOAD LIST SAME FOLDER
+            if (this.state.selectedFolder === lastFolderIn) {
+              this.loadFileDetails(0)
+            }
             // ON LIST ITEMS CHANGES
             if (this.state.selectedFolder !== lastFolderIn || this.state.searchTerm !== lastSearchIn) {
+              
               // Load first item list 
               this.loadFileDetails(0)
               lastFolderIn = this.state.selectedFolder
               lastSearchIn = this.state.searchTerm
-
+              
               // clean multiselect
               this.cleanMultiSelect()
             }
+            
+
           })
       })
 
@@ -153,9 +159,22 @@ class App extends React.Component<{
       })
     })
   }
+
+  toggleMobileView = () => {
+    let mobileView:MobileView = this.state.mobileView === 'editor' ? 'navigator' : 'editor'
+    this.setState({mobileView})
+  }
   
+  cleanFilesList = () => {
+    this.setState({files: []})
+  }
   askForFolderFiles = (folderPath:string) => {
     clientSocket.emit(socketEvents.askForFiles, {folderPath: folderPath} as iSocketEventsParams.askForFiles)
+  }
+  cleanAndAskForFolderFiles = (folderPath:string) => {
+    this.setState({isSearching: true})
+    this.cleanFilesList()
+    this.askForFolderFiles(folderPath)
   }
   askForFolderScan = () => {
     clientSocket.emit(socketEvents.askFolderHierarchy, {folderPath: ''} as iSocketEventsParams.askFolderHierarchy)  
@@ -183,8 +202,11 @@ class App extends React.Component<{
   }
   
   triggerSearch = (term:string) => {
-    this.setState({ isSearching: true, selectedFolder: '', activeFileIndex: -1 })
+    console.log(`[APP -> TRIGGER SEARCH] ${term}`);
+    this.emptyFileDetails()
+    this.cleanFilesList()
     this.cleanMultiSelect()
+    this.setState({ isSearching: true, selectedFolder: '', activeFileIndex: -1 })
     clientSocket.emit(socketEvents.searchFor, {term} as iSocketEventsParams.searchFor) 
   }
 
@@ -221,7 +243,6 @@ class App extends React.Component<{
 
   loadFileDetails = (fileIndex:number) => {
     let file = this.state.files[fileIndex]
-    console.log(this.state.files, file);
     
     if (file.name.endsWith('.md')) {
       this.setState({activeFileIndex:fileIndex, activeFileContent: ''})
@@ -232,7 +253,6 @@ class App extends React.Component<{
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.files !== this.state.files) {
-      console.log('files changed');
       if (this.state.activeFileIndex !== -1) {
         this.loadFileDetails(this.state.activeFileIndex)
       }
@@ -247,11 +267,21 @@ class App extends React.Component<{
 
   render() { 
     return (
-      <CssApp>
-        <Global styles={GlobalCssApp} />
+      <CssApp v={this.state.mobileView}>
+        <Global styles={GlobalCssApp}  />
 
 
         <div className="main-wrapper">
+            { 
+              deviceType() !== 'desktop' &&
+              <button 
+                className='mobile-view-toggler'
+                type="button" 
+                onClick={(e) => { this.toggleMobileView()}}>
+                {this.state.mobileView}</button>
+            }
+
+
           <div className="left-wrapper">
 
             {
@@ -261,6 +291,7 @@ class App extends React.Component<{
             }
             <div className="left-wrapper-1">
               <TreeView 
+                selected={this.state.selectedFolder}
                 folder={this.state.folderHierarchy}
                 onFolderClicked={(folderpath) => {
                   // if multiselect not empty, prompt user, then move files into that
@@ -269,7 +300,7 @@ class App extends React.Component<{
                   } else {
                     // move from selected folder
                     this.setState({selectedFolder: folderpath, searchTerm:'', activeFileIndex: -1})
-                    this.askForFolderFiles(folderpath)
+                    this.cleanAndAskForFolderFiles(folderpath)
                   }
                 }}
                 onFolderRightClicked = {(folderpath) => {
@@ -381,19 +412,20 @@ class App extends React.Component<{
                     file={this.state.files[this.state.activeFileIndex]} 
                     fileContent={this.state.activeFileContent ? this.state.activeFileContent : ''} 
                     onFileEdited={(filepath, content) => {
-                      console.log(`file edition updated to backend!`,{filepath, content});
+                      console.log(`[APP] API -> ask for file save`,{filepath, content});
+                      // this.askForFolderFiles(this.state.selectedFolder)
                       clientSocket.emit(socketEvents.saveFileContent, 
                         {filepath: filepath, newFileContent: content} as iSocketEventsParams.saveFileContent)  
                     }}
                     onFilePathEdited={(initPath, endPath) => {
-                      console.log(`onFilePathEdited =>`,{initPath, endPath});
+                      console.log(`[APP] onFilePathEdited =>`,{initPath, endPath});
                       this.emptyFileDetails()
                       this.moveFile(initPath, endPath)
                     }}
-                    onSavingHistoryFile={(filePath, content) => {
-                      console.log(`onSavingHistoryFile => ${filePath}`);
+                    onSavingHistoryFile={(filePath, content, historyFileType) => {
+                      console.log(`[APP] onSavingHistoryFile ${historyFileType} => ${filePath}`);
                       clientSocket.emit(socketEvents.createHistoryFile, 
-                        {filePath, content} as iSocketEventsParams.createHistoryFile)  
+                        {filePath, content, historyFileType} as iSocketEventsParams.createHistoryFile)  
                     }}
                     onEditorDetached={(filepath) => {
                       clientSocket.emit(socketEvents.askForNotepad, 
@@ -404,7 +436,7 @@ class App extends React.Component<{
                         }, 500)
                     }}
                     onFileDelete={(filepath) => {
-                      console.log(`onFileDelete => ${filepath}`);
+                      console.log(`[APP] onFileDelete => ${filepath}`);
                       
                       let i = this.state.activeFileIndex  
                       if (i > 0) this.loadFileDetails(i-1)    
