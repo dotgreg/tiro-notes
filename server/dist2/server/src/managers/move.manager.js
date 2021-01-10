@@ -6,6 +6,7 @@ const sockets_events_1 = require("../../../shared/sockets/sockets.events");
 const config_back_1 = require("../config.back");
 const dir_manager_1 = require("./dir.manager");
 const fs_manager_1 = require("./fs.manager");
+const worker_manager_1 = require("./workers/worker.manager");
 exports.generateNewFileName = () => lodash_1.random(0, 10000000000);
 exports.debouncedFolderScan = lodash_1.debounce(async (socket, initPath) => {
     let folderPathArr = initPath.split('/');
@@ -18,10 +19,9 @@ exports.debouncedFolderScan = lodash_1.debounce(async (socket, initPath) => {
     socket.emit(sockets_events_1.socketEvents.getFiles, { files: apiAnswer });
 }, 100);
 exports.debouncedHierarchyScan = lodash_1.debounce(async (socket) => {
-    console.log('debouncedHierarchyScan start');
-    let folder = await dir_manager_1.workerGetFolderHierarchy(config_back_1.backConfig.dataFolder);
-    console.log('debouncedHierarchyScan result', folder);
-    socket.emit(sockets_events_1.socketEvents.getFolderHierarchy, { folder: folder });
+    worker_manager_1.triggerWorker('getFolderHierarchySync', { folder: config_back_1.backConfig.dataFolder }, (folder) => {
+        socket.emit(sockets_events_1.socketEvents.getFolderHierarchy, { folder: folder });
+    });
 }, 2000);
 exports.moveNoteResourcesAndUpdateContent = async (initPath, endPath, simulate = false) => {
     if (simulate)

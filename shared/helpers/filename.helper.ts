@@ -1,3 +1,7 @@
+export const cleanPath = (path:string):string => {
+    path = path.split('//').join('/')
+    return path
+}
 export const getFileInfos = (path:string):{
     path: string,
     folder: string,

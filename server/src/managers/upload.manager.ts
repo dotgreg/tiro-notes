@@ -1,8 +1,8 @@
 import { backConfig } from "../config.back";
 import { socketEvents, iSocketEventsParams } from "../../../shared/sockets/sockets.events";
-import { getFileInfos } from "../../../shared/helpers/filename.helper";
+import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper";
 import { generateNewFileName } from "./move.manager";
-import { moveFile } from "./fs.manager";
+import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
 
 var siofu = require("socketio-file-upload");
 
@@ -26,12 +26,12 @@ export const initUploadFileRoute = (socket:SocketIO.Socket) => {
 
         // do modification => namefile to unique ID here
         let oldPath = `${e.file.pathName}`
-        // let newPath = `${finfos.folder}/${generateNewFileName()}.${finfos.extension}`
         let newName = `${generateNewFileName()}.${finfos.extension}`
-        let newRelPath = `${backConfig.relativeUploadFolderName}/${newName}`
-        let newAbsPath = `${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`
+        let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newName}`)
+        let newAbsPath = cleanPath(`${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`)
         console.log({oldPath, newAbsPath});
         
+        await upsertRecursivelyFolders(newAbsPath)
         await moveFile(oldPath, newAbsPath)
  
         socket.emit(socketEvents.getUploadedFile, {name: finfos.filename, path:newRelPath} as iSocketEventsParams.getUploadedFile)  

@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getFolderHierarchyParallel = exports.getFolderHierarchySync = exports.workerGetFolderHierarchy = exports.scanDir = exports.fileNameFromFilePath = exports.isDir = exports.createDir = void 0;
 const config_back_1 = require("../config.back");
+const fs_manager_1 = require("./fs.manager");
 var fs = require('fs');
 var path = require('path');
 let defaultBlacklist = ['.resources'];
@@ -36,32 +37,38 @@ exports.scanDir = async (path, blacklist = defaultBlacklist) => {
             let counterFilesStats = 0;
             for (let i = 0; i < files.length; i++) {
                 const fileName = files[i];
-                fs.lstat(`${path}/${fileName}`, {}, (err, stats) => {
-                    // counter++
-                    let extensionArr = fileName.split('.');
-                    let extension = extensionArr[extensionArr.length - 1];
-                    let folder = path.replace(config_back_1.backConfig.dataFolder, '').replace('//', '/');
-                    // packs everything
-                    let fileObj = {
-                        nature: exports.isDir(`${path}/${fileName}`) ? 'folder' : 'file',
-                        name: fileName,
-                        realname: fileName,
-                        index: i,
-                        extension,
-                        folder,
-                        created: Math.round(stats.birthtimeMs),
-                        modified: Math.round(stats.ctimeMs),
-                        path: `${folder}/${fileName}`,
-                    };
-                    if (blacklist.indexOf(fileName) === -1) {
-                        filesScanned.push(fileObj);
-                    }
+                let filePath = `${path}/${fileName}`;
+                if (!fs_manager_1.fileExists(filePath)) {
                     counterFilesStats++;
-                    // console.log(1, i,counterFilesStats,files.length );
-                    if (counterFilesStats === files.length) {
+                    if (counterFilesStats === files.length)
                         resolve(filesScanned);
-                    }
-                });
+                }
+                else {
+                    fs.lstat(filePath, {}, (err, stats) => {
+                        // counter++
+                        let extensionArr = fileName.split('.');
+                        let extension = extensionArr[extensionArr.length - 1];
+                        let folder = path.replace(config_back_1.backConfig.dataFolder, '').replace('//', '/');
+                        // packs everything
+                        let fileObj = {
+                            nature: exports.isDir(`${path}/${fileName}`) ? 'folder' : 'file',
+                            name: fileName,
+                            realname: fileName,
+                            index: i,
+                            extension,
+                            folder,
+                            created: Math.round(stats.birthtimeMs),
+                            modified: Math.round(stats.ctimeMs),
+                            path: `${folder}/${fileName}`,
+                        };
+                        if (blacklist.indexOf(fileName) === -1) {
+                            filesScanned.push(fileObj);
+                        }
+                        counterFilesStats++;
+                        if (counterFilesStats === files.length)
+                            resolve(filesScanned);
+                    });
+                }
             }
         });
     });

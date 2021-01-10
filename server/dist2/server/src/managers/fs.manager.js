@@ -49,7 +49,7 @@ exports.upsertRecursivelyFolders = async (fullPathToCheck) => {
     return;
 };
 exports.moveFile = async (pathInit, pathEnd) => {
-    console.log(`[MOVEFILE] starting move ${pathInit} -> ${pathEnd}`);
+    console.log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
     return new Promise(async (resolve, reject) => {
         fs.rename(pathInit, pathEnd, (err) => {
             if (err) {

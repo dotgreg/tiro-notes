@@ -3,6 +3,8 @@ import { iFile, iFolder } from "../types.shared";
 export enum socketEvents {
     connection = 'connection',
     disconnect = 'disconnect',
+    connect = 'connect',
+    reconnect = 'reconnect',
     connectionSuccess = 'connectionSuccess',
 
     askForFiles = 'askForFiles',
@@ -32,7 +34,7 @@ export enum socketEvents {
 
 }
 
-export namespace iSocketEventsParams {
+export declare namespace iSocketEventsParams {
     export interface askForFiles { folderPath: string }
     export interface getFiles { files: iFile[], temporaryResults?:boolean}
 

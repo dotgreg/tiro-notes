@@ -6,11 +6,11 @@ export const isMobile = ():boolean => {
   };
 
 type DeviceType = 'desktop'|'tablet'|'mobile'
-export type MobileView = 'navigator'|'editor'
+export type MobileView = 'navigator'|'editor'|'preview'
 
 export const deviceType = ():DeviceType => {
     let deviceWidth = window.innerWidth
-    console.log(deviceWidth);
+    // console.log(deviceWidth);
     
     let res:DeviceType = 'desktop'
     if (deviceWidth < 1100) res = 'tablet'

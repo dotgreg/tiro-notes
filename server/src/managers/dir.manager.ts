@@ -1,6 +1,7 @@
 import { getDefaultFormatCodeSettings } from "typescript";
 import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
+import { fileExists } from "./fs.manager";
 var fs = require('fs')
 var path = require('path')
 
@@ -38,39 +39,41 @@ export const scanDir = async (path:string, blacklist:string[]=defaultBlacklist):
             if (!files) return reject(err.message)
             let counterFilesStats = 0
             for (let i = 0; i < files.length; i++) {
-                const fileName = files[i];
-            
-                fs.lstat(`${path}/${fileName}`, {}, (err,stats) => {
-                    
-                    // counter++
-                    
-                    let extensionArr = fileName.split('.')
-                    let extension = extensionArr[extensionArr.length-1]
-                    let folder = path.replace(backConfig.dataFolder, '').replace('//', '/')
-                    
-                    // packs everything
-                    let fileObj:iFile = {
-                        nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
-                        name: fileName,
-                        realname: fileName,
-                        index: i,
-                        extension,
-                        folder,
-                        created: Math.round(stats.birthtimeMs),
-                        modified: Math.round(stats.ctimeMs),
-                        path: `${folder}/${fileName}`, 
-                        
-                    }
-                    if (blacklist.indexOf(fileName) === -1) {
-                        filesScanned.push(fileObj)
-                    }
-
+                const fileName = files[i]; 
+                let filePath = `${path}/${fileName}`
+                if (!fileExists(filePath)) {
                     counterFilesStats++
-                    // console.log(1, i,counterFilesStats,files.length );
-                    if (counterFilesStats === files.length) {
-                        resolve(filesScanned)
-                    }
-                })
+                    if (counterFilesStats === files.length) resolve(filesScanned)
+                }  else {
+                    fs.lstat(filePath, {}, (err,stats) => {
+                        
+                        // counter++
+                        
+                        let extensionArr = fileName.split('.')
+                        let extension = extensionArr[extensionArr.length-1]
+                        let folder = path.replace(backConfig.dataFolder, '').replace('//', '/')
+                        
+                        // packs everything
+                        let fileObj:iFile = {
+                            nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
+                            name: fileName,
+                            realname: fileName,
+                            index: i,
+                            extension,
+                            folder,
+                            created: Math.round(stats.birthtimeMs),
+                            modified: Math.round(stats.ctimeMs),
+                            path: `${folder}/${fileName}`, 
+                            
+                        }
+                        if (blacklist.indexOf(fileName) === -1) {
+                            filesScanned.push(fileObj)
+                        }
+    
+                        counterFilesStats++
+                        if (counterFilesStats === files.length) resolve(filesScanned)
+                    })
+                }
             }
         });
     })
@@ -87,12 +90,9 @@ const { job, start, stop } = require("microjob");
 export const workerGetFolderHierarchy = async (folder):Promise<iFolder>  => {
     let configDataFolder = backConfig.dataFolder
     try {
-        console.log(1);
         
         await start();
-        console.log(2);
         let resThreaded:iFolder = await job( async () => {
-            console.log(3);
             const fs = require('fs')
             const path = require('path')
             const getFolderHierarchySync = async (folder, blacklist:string[]=defaultBlacklist):Promise<iFolder> => {
@@ -117,7 +117,6 @@ export const workerGetFolderHierarchy = async (folder):Promise<iFolder>  => {
                     resolve(info)
                 })
             }
-            console.log(4);
             let res = await getFolderHierarchySync(folder)
             return res
         },{ ctx: { folder,defaultBlacklist,configDataFolder } }) 

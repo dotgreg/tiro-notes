@@ -1,0 +1,1 @@
+ssh greg@raw2.websocial.cc -t "sudo kill -9 $(sudo lsof -t -i:3023); sudo kill -9 $(sudo lsof -t -i:3022);" & ssh -v -R 3023:127.0.0.1:3023 -R 3022:127.0.0.1:3022 -f -N greg@37.59.48.73

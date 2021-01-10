@@ -7,6 +7,7 @@ import { triggerWorker } from './managers/workers/worker.manager';
 import { iFolder } from '../../shared/types.shared';
 
 console.log('===== SERVER STARTING ======', sharedConfig) 
+console.log('hello world');
 
 //
 // SOCKET SERVER

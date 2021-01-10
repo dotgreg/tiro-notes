@@ -5,6 +5,8 @@ var socketEvents;
 (function (socketEvents) {
     socketEvents["connection"] = "connection";
     socketEvents["disconnect"] = "disconnect";
+    socketEvents["connect"] = "connect";
+    socketEvents["reconnect"] = "reconnect";
     socketEvents["connectionSuccess"] = "connectionSuccess";
     socketEvents["askForFiles"] = "askForFiles";
     socketEvents["getFiles"] = "getFiles";

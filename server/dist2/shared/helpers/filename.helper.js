@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFileInfos = void 0;
+exports.getFileInfos = exports.cleanPath = void 0;
+exports.cleanPath = (path) => {
+    path = path.split('//').join('/');
+    return path;
+};
 exports.getFileInfos = (path) => {
     let pathArr1 = path.split('/');
     let pathArr2 = path.split('\\');

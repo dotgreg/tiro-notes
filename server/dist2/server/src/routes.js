@@ -12,6 +12,7 @@ const win_manager_1 = require("./managers/win.manager");
 const move_manager_1 = require("./managers/move.manager");
 const upload_manager_1 = require("./managers/upload.manager");
 const lodash_1 = require("lodash");
+const worker_manager_1 = require("./managers/workers/worker.manager");
 exports.socketRoutes = [
     {
         event: sockets_events_1.socketEvents.askForFiles,
@@ -59,10 +60,9 @@ exports.socketRoutes = [
     {
         event: sockets_events_1.socketEvents.askFolderHierarchy,
         action: async (socket, data) => {
-            console.log(`askFolderHierarchy start`);
-            let folder = await dir_manager_1.workerGetFolderHierarchy(`${config_back_1.backConfig.dataFolder}${data.folderPath}`);
-            console.log(`askFolderHierarchy end`, folder);
-            socket.emit(sockets_events_1.socketEvents.getFolderHierarchy, { folder: folder });
+            worker_manager_1.triggerWorker('getFolderHierarchySync', { folder: `${config_back_1.backConfig.dataFolder}${data.folderPath}` }, (folder) => {
+                socket.emit(sockets_events_1.socketEvents.getFolderHierarchy, { folder: folder });
+            });
         }
     },
     {

@@ -2,7 +2,7 @@ import React from 'react';
 import styled from '@emotion/styled'
 import { iFile } from '../../../shared/types.shared';
 import { debounce, throttle } from 'lodash';
-import { listenOnUploadSuccess, uploadFile, uploadOnDrop, uploadOnInputChange } from '../managers/upload.manager';
+import { insertAtCaret, listenOnUploadSuccess, uploadFile, uploadOnDrop, uploadOnInputChange } from '../managers/upload.manager';
 import { transformExtrawurstLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks } from '../managers/textProcessor.manager';
 import { MonacoEditorWrapper } from './MonacoEditor.Component';
 import { clientSocket } from '../managers/sockets/socket.manager';
@@ -13,6 +13,8 @@ import { textToId } from '../managers/string.manager';
 import { initClipboardListener } from '../managers/clipboard.manager';
 import { socketEventsManager } from '../managers/sockets/eventsListener.sockets';
 import { deviceType } from '../managers/device.manager';
+import { decryptText, encryptText } from '../managers/encryption.manager';
+import { PasswordPopup } from './PasswordPopup.component';
 const marked = require('marked');
 
 interface Props {
@@ -34,13 +36,15 @@ interface State {
   vimMode: boolean
   reloadEditor: boolean
   posY:number
-  
+  password:string|null
+  askForPassword: string|null
+  shouldEncryptOnLeave: boolean
 }
 
 
 export class Editor extends React.Component<Props, State> {
 
-    textarea:any
+    textareaMobile:any
     dragzone:any
     uploadInput:any
     previewContentWrapper:any
@@ -56,9 +60,12 @@ export class Editor extends React.Component<Props, State> {
           filePath: '',
           insertUnderCaret: '',
           reloadEditor: false,
-          posY: 0
+          posY: 0,
+          askForPassword: null,
+          password: null,
+          shouldEncryptOnLeave: false
         }
-        this.textarea = React.createRef()
+        this.textareaMobile = React.createRef()
         this.dragzone = React.createRef()
         this.uploadInput = React.createRef()
         this.previewContentWrapper = React.createRef()
@@ -68,12 +75,19 @@ export class Editor extends React.Component<Props, State> {
     keyUploadSocketListener:number = -1
     componentDidMount() {
       console.log('[EDITOR] MOUNTED');
+      console.log(this.textareaMobile.current);
       
       this.restartAutomaticHistorySave()
       
       this.keyUploadSocketListener = listenOnUploadSuccess((file) => {
         let imageInMd = `![${file.name}](${file.path})\n\n`
         this.setState({insertUnderCaret: imageInMd})
+
+        let textAreaEl = this.textareaMobile.current
+        if (textAreaEl) {
+          insertAtCaret(textAreaEl, imageInMd)
+          this.triggerContentSaveLogic(textAreaEl.value)
+        }
       })
 
       initClipboardListener({
@@ -96,6 +110,7 @@ export class Editor extends React.Component<Props, State> {
     componentWillUnmount(){
       console.log(`[EDITOR] will unmount ${this.keyUploadSocketListener}`);
       socketEventsManager.off(this.keyUploadSocketListener)
+      clearInterval(this.intervalReinitPassword)
     }
     
 
@@ -178,6 +193,38 @@ export class Editor extends React.Component<Props, State> {
         previewDivWrapper.scrollTop = this.state.posY
       }
     }
+
+
+    // 
+    // ENCRYPTION FUNCTIONS
+
+    intervalReinitPassword:any
+    startReinitPasswordInterval = () => {
+      clearInterval(this.intervalReinitPassword)
+      this.intervalReinitPassword = setInterval(() => {
+        if (!this.state.password) return 
+        console.log('[PASSWORD REINIT] password exists, reinit to null');
+        this.setState({password:null})
+      }, 1000*60*10)
+    }
+
+    encryptContent = () => {
+      if (!this.state.password) return 
+      let newContent = this.state.fileContent
+      newContent = encryptText(newContent, this.state.password)
+      this.setState({fileContent: newContent})
+      // console.log(newContent);
+      
+    }
+    decryptContent = () => {
+      if (!this.state.password) return 
+      let newContent = this.state.fileContent
+      newContent = decryptText(newContent, this.state.password)
+      // console.log(newContent);
+      this.setState({fileContent: newContent})
+    }
+
+
  
     oldContentProp: string = ''
     render() {
@@ -211,7 +258,7 @@ export class Editor extends React.Component<Props, State> {
                   onClick={(e) => {this.setState({editorEnabled: !this.state.editorEnabled})}}
                   ><Icon name="faEdit" /></button>
                
-                <button 
+                {/* <button 
                   type="button" 
                   title={this.state.vimMode ? 'Vim:On' : 'Vim:off'}
                   onClick={(e) => { 
@@ -220,14 +267,14 @@ export class Editor extends React.Component<Props, State> {
                       this.setState({reloadEditor: false})
                     }) 
                   }}
-                  ><Icon name="faCode" /></button>
-                <button 
+                  ><Icon name="faCode" /></button> */}
+                {/* <button 
                   type="button" 
                   title='Detach'
                   onClick={(e) => { 
                     this.props.onEditorDetached(this.props.file.path)
                   }}
-                  ><Icon name="faExternalLinkAlt" /></button>
+                  ><Icon name="faExternalLinkAlt" /></button> */}
                 <button 
                   type="button" 
                   title='insert-unique-id'
@@ -242,6 +289,22 @@ export class Editor extends React.Component<Props, State> {
                     
                   }}
                   ><Icon name="faFingerprint" /></button>
+                <button 
+                  type="button" 
+                  title='encrypt'
+                  onClick={async (e) => { 
+                    if (!this.state.password) this.setState({askForPassword: 'toEncrypt'})
+                    else this.encryptContent()
+                  }}
+                  ><Icon name="faLock" /></button>
+                <button 
+                  type="button" 
+                  title='decrypt'
+                  onClick={(e) => { 
+                    if (!this.state.password) this.setState({askForPassword: 'toDecrypt'})
+                    else this.decryptContent()
+                  }}
+                  ><Icon name="faUnlock" /></button>
                   
 
                 <button 
@@ -294,6 +357,7 @@ export class Editor extends React.Component<Props, State> {
                 deviceType() !== 'desktop' && 
                 <textarea
                   className='textarea-editor'
+                  ref={this.textareaMobile}
                   value={this.state.fileContent}
                   onChange={e => {this.triggerContentSaveLogic(e.target.value)}}
                 />
@@ -312,6 +376,28 @@ export class Editor extends React.Component<Props, State> {
               className={`preview-area ${this.state.editorEnabled ? 'half' : 'full'}`} 
               ref={this.previewContentWrapper}>
               
+              {
+                /////////////////////////////
+                // POPUPS
+                /////////////////////////////
+              }
+
+              {
+                this.state.askForPassword &&
+                  <PasswordPopup
+                    onClose={() => {this.setState({askForPassword: null})}}
+                    onSubmit={(password) => {
+                      let action = this.state.askForPassword
+                      this.setState({password, askForPassword: null})
+                      if (action === 'toEncrypt') setTimeout(()=> { this.encryptContent() },100)
+                      if (action === 'toDecrypt') setTimeout(()=> { 
+                        this.decryptContent() 
+                        this.setState({shouldEncryptOnLeave: true})
+                      },100)
+                      // this.startReinitPasswordInterval()
+                    }}
+                  ></PasswordPopup>
+              }
 
               {
                 /////////////////////////////

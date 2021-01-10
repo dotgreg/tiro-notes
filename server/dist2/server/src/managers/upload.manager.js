@@ -24,11 +24,11 @@ exports.initUploadFileRoute = (socket) => {
         let finfos = filename_helper_1.getFileInfos(e.file.pathName);
         // do modification => namefile to unique ID here
         let oldPath = `${e.file.pathName}`;
-        // let newPath = `${finfos.folder}/${generateNewFileName()}.${finfos.extension}`
         let newName = `${move_manager_1.generateNewFileName()}.${finfos.extension}`;
-        let newRelPath = `${config_back_1.backConfig.relativeUploadFolderName}/${newName}`;
-        let newAbsPath = `${config_back_1.backConfig.dataFolder}/${exports.folderToUpload.value}/${newRelPath}`;
+        let newRelPath = filename_helper_1.cleanPath(`${config_back_1.backConfig.relativeUploadFolderName}/${newName}`);
+        let newAbsPath = filename_helper_1.cleanPath(`${config_back_1.backConfig.dataFolder}/${exports.folderToUpload.value}/${newRelPath}`);
         console.log({ oldPath, newAbsPath });
+        await fs_manager_1.upsertRecursivelyFolders(newAbsPath);
         await fs_manager_1.moveFile(oldPath, newAbsPath);
         socket.emit(sockets_events_1.socketEvents.getUploadedFile, { name: finfos.filename, path: newRelPath });
     });

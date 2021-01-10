@@ -65,8 +65,8 @@ justify-content:center;
   ////////////////////////////////////////////v
   .left-wrapper {
     background: ${styleApp.colors.bg.grey}; 
-    width: ${d === 'desktop' ? '40' : (props => props.v === 'editor' ? 0 : 100)}vw;
-    display: ${d === 'desktop' ? 'flex' : (props => props.v === 'editor' ? 'none' : 'flex')};
+    width: ${d === 'desktop' ? '40' : (props => props.v !== 'navigator' ? 0 : 100)}vw;
+    display: ${d === 'desktop' ? 'flex' : (props => props.v !== 'navigator' ? 'none' : 'flex')};
     .left-wrapper-1 {
       background: ${styleApp.colors.bg.dark}; 
       color: white;
@@ -75,6 +75,20 @@ justify-content:center;
       height:100vh;
       overflow: hidden;
       overflow-y: auto;
+      position: relative;
+
+      .connection-status {
+        position: absolute;
+        bottom: 5px;
+        left: 66px;
+        font-size: 9px;
+        .disconnected{
+          color:red;
+        }
+        .connected {
+          color: green;
+        }
+      }
     }
     .left-wrapper-2 {
       width: 60%;
@@ -150,8 +164,8 @@ justify-content:center;
   // RIGHT
   ////////////////////////////////////////////v 
   .right-wrapper {
-      width: ${d === 'desktop' ? '70' : (props => props.v === 'editor' ? 100 : 0)}vw;
-      display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'block' : 'none')};
+      width: ${d === 'desktop' ? '70' : (props => props.v !== 'navigator' ? 100 : 0)}vw;
+      display: ${d === 'desktop' ? 'block' : (props => props.v !== 'navigator' ? 'block' : 'none')};
       /* padding: 10px; */
       padding-top: 0px;
       /* max-height: 100vh;
@@ -176,7 +190,8 @@ justify-content:center;
           &.inactive {
             display: none;
           }
-          width: ${d === 'desktop' ? '50' : '100'}%;
+          width: ${d === 'desktop' ? '50' : (props => props.v === 'editor' ? '100' : '0')}%;
+          display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'block' : 'none')};
           .monaco-editor {
             margin: 0px;
           }
@@ -202,9 +217,9 @@ justify-content:center;
               }
             }
           }
-          width: 43%;
-          display: ${d === 'desktop' ? 'block' : 'none'};
-          padding: 0px 30px 30px 10px;
+          width: ${d === 'desktop' ? '43' : (props => props.v === 'editor' ? '0' : '100')}%;
+          /* display: ${d === 'desktop' ? 'block' : 'none'}; */
+          padding: 30px 30px 30px 10px;
           height: 100vh;
           overflow: hidden;
           overflow-y: scroll;
@@ -219,9 +234,23 @@ justify-content:center;
           }
         }
       }
+
+
+
+
+
+
       .toolbar-wrapper {
+        ${
+          d === 'desktop' ?
+          `position: absolute;
+          left: 70%;
+          width: 30%;`
+          : `
+          position: relative;
+          `
+        }
         padding: 10px 0px 10px 0px;
-        position: relative;
         
         .upload-button-wrapper {
           position: relative;  

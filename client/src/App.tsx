@@ -37,6 +37,7 @@ class App extends React.Component<{
   multiSelectArray: number[] 
   sortMode: number
   mobileView: MobileView
+  isSocketConnected: boolean
 }> {
 
   static displayName = 'extrawurstApp';
@@ -55,15 +56,15 @@ class App extends React.Component<{
         multiSelectMode: false,
         sortMode: 0,
         multiSelectArray: [],
-        mobileView:'navigator'
+        mobileView:'navigator', 
+        isSocketConnected: false
       }
   }
   listenerIds:number[] = []
 
   componentDidMount() {
     console.log(`[APP] MOUNTED on a ${deviceType()}`);
-    if (window.location.host.includes(configClient.global.staticPort.toString())) document.title =  `${document.title} (PROD ${configClient.version})`
-    else document.title = `/!\\ DEV /!\\`
+    this.updatePageTitle()
 
     listenToHashChanges((newHash) => {
         this.setState({searchTerm: newHash})
@@ -94,6 +95,7 @@ class App extends React.Component<{
     }
 
     initSocketConnection().then(() => {
+      this.toggleSocketConnection(true)
       bindEventManagerToSocketEvents()
       
       // INITIAL REQUESTS (including a folder scan every minute)
@@ -141,9 +143,7 @@ class App extends React.Component<{
               // clean multiselect
               this.cleanMultiSelect()
             }
-            
-
-          })
+          }, 100)
       })
 
       this.listenerIds[1] = socketEventsManager.on(
@@ -157,11 +157,33 @@ class App extends React.Component<{
         (data:iSocketEventsParams.getFolderHierarchy) => {  
           this.setState({folderHierarchy: data.folder})
       })
-    })
+
+      this.listenerIds[3] = socketEventsManager.on(socketEvents.disconnect, () => { this.toggleSocketConnection(false) })
+      this.listenerIds[4] = socketEventsManager.on(socketEvents.reconnect, () => {this.toggleSocketConnection(true) })
+      this.listenerIds[5] = socketEventsManager.on(socketEvents.connect, () => {this.toggleSocketConnection(true) })
+  })
+}
+
+updatePageTitle = () => {
+  let newTitle = ''
+
+  if (window.location.host.includes(configClient.global.staticPort.toString())) newTitle =  `${document.title} (PROD ${configClient.version})`
+  else newTitle = `/!\\ DEV /!\\`
+
+  // if(!this.state.isSocketConnected) newTitle += ``
+  newTitle += this.state.isSocketConnected ? ` (Connected)` : ` (DISCONNECTED)`
+
+  document.title = newTitle
+}
+
+  toggleSocketConnection = (state: boolean) => {
+    console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
+    this.setState({isSocketConnected: state}) 
+    setTimeout(() => {this.updatePageTitle()}, 100)
   }
 
-  toggleMobileView = () => {
-    let mobileView:MobileView = this.state.mobileView === 'editor' ? 'navigator' : 'editor'
+  toggleMobileView = (mobileView:MobileView) => {
+    // let mobileView:MobileView = this.state.mobileView === 'editor' ? 'navigator' : 'editor'
     this.setState({mobileView})
   }
   
@@ -186,7 +208,7 @@ class App extends React.Component<{
   }
 
   promptAndBatchMoveFiles = (folderpath:string) => {
-    let userAccepts = confirm(`Are you sure you want to move ${this.state.multiSelectArray.length} files and their resources to ${folderpath}`)
+    let userAccepts = window.confirm(`Are you sure you want to move ${this.state.multiSelectArray.length} files and their resources to ${folderpath}`)
     if (userAccepts) {
       for (let i = 0; i < this.state.multiSelectArray.length; i++) {
         const fileId = this.state.multiSelectArray[i];
@@ -210,7 +232,7 @@ class App extends React.Component<{
     clientSocket.emit(socketEvents.searchFor, {term} as iSocketEventsParams.searchFor) 
   }
 
-  sortFiles = (files:iFile[], sortMode):iFile[] => {
+  sortFiles = (files:iFile[], sortMode:any):iFile[] => {
     let sortedFiles
     switch (SortModes[sortMode]) {
       case 'none':
@@ -227,6 +249,7 @@ class App extends React.Component<{
         break;
     
       default:
+        sortedFiles = sortBy(files, ['index'])
         break;
     }
 
@@ -244,14 +267,14 @@ class App extends React.Component<{
   loadFileDetails = (fileIndex:number) => {
     let file = this.state.files[fileIndex]
     
-    if (file.name.endsWith('.md')) {
+    if (file && file.name.endsWith('.md')) {
       this.setState({activeFileIndex:fileIndex, activeFileContent: ''})
       clientSocket.emit(socketEvents.askForFileContent, 
         {filePath: file.path} as iSocketEventsParams.askForFileContent)  
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps:any, prevState:any) {
     if (prevState.files !== this.state.files) {
       if (this.state.activeFileIndex !== -1) {
         this.loadFileDetails(this.state.activeFileIndex)
@@ -270,15 +293,24 @@ class App extends React.Component<{
       <CssApp v={this.state.mobileView}>
         <Global styles={GlobalCssApp}  />
 
-
         <div className="main-wrapper">
             { 
               deviceType() !== 'desktop' &&
-              <button 
-                className='mobile-view-toggler'
-                type="button" 
-                onClick={(e) => { this.toggleMobileView()}}>
-                {this.state.mobileView}</button>
+              <div className='mobile-view-toggler'>
+                <button 
+                  type="button" 
+                  onClick={(e) => { this.toggleMobileView('navigator')}}>
+                  Nav</button>
+                <button 
+                  type="button" 
+                  onClick={(e) => { this.toggleMobileView('editor')}}>
+                  Edi</button>
+                <button 
+                  type="button" 
+                  onClick={(e) => { this.toggleMobileView('preview')}}>
+                  Prev</button>
+                
+              </div>
             }
 
 
@@ -308,6 +340,11 @@ class App extends React.Component<{
                     {folderpath: folderpath} as iSocketEventsParams.askForExplorer) 
                 }}
               />
+
+              <div className="connection-status">
+                  {this.state.isSocketConnected && <div className="connected">connected</div>}
+                  {!this.state.isSocketConnected && <div className="disconnected">disconnected</div>}
+              </div>
             </div>
 
             {
