@@ -5,11 +5,15 @@ export const configClient = {
         socket: true,
         eventManager: true,
     },
-    version: 'build 10 28/12/2020',
+    version: 'build 11 21/01/2021',
     global: {
         socketPort: sharedConfig.socketServerPort,
         socketUrl: window.location.hostname,
+
         staticPort: sharedConfig.staticServerPort,
         staticUrl: window.location.hostname,
+
+        frontendPort: sharedConfig.frontendServerPort,
+        frontendUrl: window.location.hostname,
     }
 }

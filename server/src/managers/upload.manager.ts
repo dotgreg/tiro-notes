@@ -8,10 +8,14 @@ var siofu = require("socketio-file-upload");
 
 export let folderToUpload = {value: ''}
 
-export const initUploadFileRoute = (socket:SocketIO.Socket) => {
+export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
     // file upload starts listening
     var uploader = new siofu();
-    uploader.dir = `${backConfig.dataFolder}/${backConfig.uploadFolder}`;
+    let initialUploadPath = `${backConfig.dataFolder}/${backConfig.uploadFolder}`
+    console.log(initialUploadPath);
+    
+    await upsertRecursivelyFolders(`${initialUploadPath}/`)
+    uploader.dir = initialUploadPath;
     uploader.listen(socket);
     uploader.on('start', (e) => {
         console.log('FILE UPLOAD STARTED', e); 

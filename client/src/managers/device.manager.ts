@@ -5,7 +5,7 @@ export const isMobile = ():boolean => {
     return check;
   };
 
-type DeviceType = 'desktop'|'tablet'|'mobile'
+export type DeviceType = 'desktop'|'tablet'|'mobile'
 export type MobileView = 'navigator'|'editor'|'preview'
 
 export const deviceType = ():DeviceType => {

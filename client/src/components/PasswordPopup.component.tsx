@@ -9,11 +9,17 @@ export class PasswordPopup extends React.Component<{
     password: string
 }> {
 
+    passwordInput:any
     constructor(props:any) {
         super(props)
+        this.passwordInput = React.createRef()
         this.state = {
           password: '',
         }
+    }
+
+    componentDidMount() {
+        this.passwordInput.current.focus()
     }
     
     render() {
@@ -25,6 +31,7 @@ export class PasswordPopup extends React.Component<{
             >
                 <div>
                     <input 
+                        ref={this.passwordInput}
                         type="password" 
                         value={this.state.password} 
                         onChange={(e) => {

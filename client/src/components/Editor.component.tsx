@@ -38,7 +38,6 @@ interface State {
   posY:number
   password:string|null
   askForPassword: string|null
-  shouldEncryptOnLeave: boolean
 }
 
 
@@ -63,7 +62,6 @@ export class Editor extends React.Component<Props, State> {
           posY: 0,
           askForPassword: null,
           password: null,
-          shouldEncryptOnLeave: false
         }
         this.textareaMobile = React.createRef()
         this.dragzone = React.createRef()
@@ -107,15 +105,74 @@ export class Editor extends React.Component<Props, State> {
       })
     }
 
+    
+    
+
+    
+    
+    
+    //
+    // LIFECYCLES
+    // 
+    shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
+      if (this.props.file !== nextProps.file) {
+        this.onNoteLeaveLogic()
+        
+        this.setState({shouldSaveOnLeave: false, password: null})
+
+        console.log('[EDITOR] ON CHANGING DOCUMENT');
+        clientSocket.emit(socketEvents.uploadResourcesInfos, 
+          {folderpath: this.props.file.folder} as iSocketEventsParams.uploadResourcesInfos) 
+        this.restartAutomaticHistorySave()
+
+      }
+      return true
+    }
+
     componentWillUnmount(){
       console.log(`[EDITOR] will unmount ${this.keyUploadSocketListener}`);
+      this.onNoteLeaveLogic()
       socketEventsManager.off(this.keyUploadSocketListener)
       clearInterval(this.intervalReinitPassword)
     }
-    
+
+
+
+
+
+
+
+
+
+
+    //
+    // FUNCTIONS
+    //
+
+    onNoteLeaveLogic = () => {
+      if (this.state.shouldSaveOnLeave) {
+        console.log('[EDITOR] ON LEAVING AN EDITED DOCUMENT');
+        this.props.onFileEdited(this.props.file.path, this.state.fileContent)
+      } else {
+        console.log('[EDITOR] ON LEAVING AN UNEDITED DOCUMENT');
+      }
+
+      console.log('ON LEAVE', this.shouldEncryptOnLeave);
+      
+      if (this.shouldEncryptOnLeave && this.state.password) {
+        let res = encryptText(this.state.fileContent, this.state.password)
+        if (res.cipher) this.props.onFileEdited(this.props.file.path, res.cipher)
+        this.neutralizeDelayedFileSave = true
+        setTimeout(() => {this.neutralizeDelayedFileSave = false}, 1000)
+      }
+
+      this.shouldEncryptOnLeave = false
+      this.noHistoryBackup = false
+    }
 
     triggerContentSaveLogic = (newContent:string) => {
       if (!this.state.shouldSaveOnLeave) {
+        if (this.noHistoryBackup) return
         console.log('[EDITOR] ON NEW DOCUMENT EDITION');
         this.props.onSavingHistoryFile(this.props.file.path, newContent, 'enter')
       }
@@ -135,6 +192,7 @@ export class Editor extends React.Component<Props, State> {
       let historySaveIntTime = historySaveInMin * 60 * 1000 
       
       this.historySaveInterval = setInterval(() => {
+        if (this.noHistoryBackup) return
         if (this.state.fileContent !== this.historyContent) {
           this.historyContent = this.state.fileContent
           console.log(`[EDITOR => HISTORY SAVE CRON] : content changed, saving history version ${this.props.file.path}`);
@@ -145,35 +203,18 @@ export class Editor extends React.Component<Props, State> {
       }, historySaveIntTime )
     }
 
+
+
+    neutralizeDelayedFileSave: boolean = false
     throttledOnFileEdited = throttle((filePath:string, content:string) => {
+      if (this.neutralizeDelayedFileSave) return
       this.props.onFileEdited(filePath, content)
     }, 1000)
-
+    
     debouncedOnFileEdited = debounce((filePath:string, content:string) => {
+      if (this.neutralizeDelayedFileSave) return
       this.props.onFileEdited(filePath, content)
     }, 1000)
-    
-    
-    shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
-      if (this.props.file !== nextProps.file) {
-        if (this.state.shouldSaveOnLeave) {
-          console.log('[EDITOR] ON LEAVING AN EDITED DOCUMENT');
-          
-          this.props.onFileEdited(this.props.file.path, this.state.fileContent)
-          
-          this.setState({shouldSaveOnLeave: false})
-        } else {
-          console.log('[EDITOR] ON LEAVING AN UNEDITED DOCUMENT');
-        }
-
-        console.log('[EDITOR] ON CHANGING DOCUMENT');
-        clientSocket.emit(socketEvents.uploadResourcesInfos, 
-          {folderpath: this.props.file.folder} as iSocketEventsParams.uploadResourcesInfos) 
-        this.restartAutomaticHistorySave()
-
-      }
-      return true
-    }
 
     submitOnEnter = (event:any) => {
       if (event.key === 'Enter') {
@@ -211,17 +252,31 @@ export class Editor extends React.Component<Props, State> {
     encryptContent = () => {
       if (!this.state.password) return 
       let newContent = this.state.fileContent
-      newContent = encryptText(newContent, this.state.password)
-      this.setState({fileContent: newContent})
-      // console.log(newContent);
+      let res = encryptText(newContent, this.state.password)
+      if (res.status === 'failure') this.setState({password: null})
+      else {
+        this.shouldEncryptOnLeave = false
+        let textEncrypted = res.cipher as string
+        this.setState({fileContent:textEncrypted})
+        this.triggerContentSaveLogic(textEncrypted)
+      }
       
     }
+
+    noHistoryBackup: boolean = false
+    shouldEncryptOnLeave: boolean = false
     decryptContent = () => {
       if (!this.state.password) return 
       let newContent = this.state.fileContent
-      newContent = decryptText(newContent, this.state.password)
-      // console.log(newContent);
-      this.setState({fileContent: newContent})
+      let res = decryptText(newContent, this.state.password)
+      if (res.status === 'failure') {this.setState({password: null}); alert('wrong password')}
+      else {
+        this.noHistoryBackup = true
+        this.shouldEncryptOnLeave = true
+        let text = res.plaintext as string
+        this.setState({fileContent: res.plaintext as string})
+        this.triggerContentSaveLogic(text)
+      }
     }
 
 
@@ -392,7 +447,7 @@ export class Editor extends React.Component<Props, State> {
                       if (action === 'toEncrypt') setTimeout(()=> { this.encryptContent() },100)
                       if (action === 'toDecrypt') setTimeout(()=> { 
                         this.decryptContent() 
-                        this.setState({shouldEncryptOnLeave: true})
+                        
                       },100)
                       // this.startReinitPasswordInterval()
                     }}

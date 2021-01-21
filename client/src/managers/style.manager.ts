@@ -1,6 +1,6 @@
 import { Global, css } from '@emotion/react'
 import styled from '@emotion/styled';
-import { deviceType, MobileView } from './device.manager';
+import { deviceType, MobileView, DeviceType } from './device.manager';
 
 let d = deviceType()
 // let v = 'editor'
@@ -31,9 +31,16 @@ export const GlobalCssApp = css`
     font-size: 11px;
     font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
   }
+  html, body {
+    overflow-x: hidden;
+    heigth: 100vh;
+  }
+  body {
+    position: relative;
+  }
 `
 
-export const CssApp = styled.div<{v:MobileView}>`
+export const CssApp = styled.div<{v:MobileView }>`
 
 display: flex;
 flex-wrap: wrap;
@@ -55,9 +62,28 @@ justify-content:center;
 
 
   .mobile-view-toggler {
+      position: fixed;
+      bottom: 0px;
+      left: 0px;
+      z-index: 10;
+      button {
+        width: 33vw;
+        padding: 10px;
+      }
+  }
+
+  .connection-status {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
+    bottom: 5px;
+    right: 5px;
+    font-size: 9px;
+    z-index: 11;
+    .disconnected{
+      color:red;
+    }
+    .connected {
+      color: green;
+    }
   }
 
   ////////////////////////////////////////////v 
@@ -77,18 +103,7 @@ justify-content:center;
       overflow-y: auto;
       position: relative;
 
-      .connection-status {
-        position: absolute;
-        bottom: 5px;
-        left: 66px;
-        font-size: 9px;
-        .disconnected{
-          color:red;
-        }
-        .connected {
-          color: green;
-        }
-      }
+      
     }
     .left-wrapper-2 {
       width: 60%;
@@ -190,17 +205,17 @@ justify-content:center;
           &.inactive {
             display: none;
           }
-          width: ${d === 'desktop' ? '50' : (props => props.v === 'editor' ? '100' : '0')}%;
+          width: ${d === 'desktop' ? '50%' : (props => props.v === 'editor' ? '100vw' : '0vw')};
           display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'block' : 'none')};
           .monaco-editor {
             margin: 0px;
           }
           .textarea-editor {
             border: none;
-            width: 87vw;
-            height: 100vh;
-            margin: 20px;
-            padding: 10px;
+            width: 96vw;
+            height: 70vh;
+            margin: 0px;
+            padding: 2vw;
             background: rgba(255,255,255,0.7);
           }
       }
@@ -219,8 +234,10 @@ justify-content:center;
           }
           width: ${d === 'desktop' ? '43' : (props => props.v === 'editor' ? '0' : '100')}%;
           /* display: ${d === 'desktop' ? 'block' : 'none'}; */
+          display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'none' : 'block')};
           padding: 30px 30px 30px 10px;
-          height: 100vh;
+          height: ${d === 'desktop' ? '100vh':'80vh'};
+          margin-bottom: 100px;
           overflow: hidden;
           overflow-y: scroll;
           pre {
@@ -278,8 +295,11 @@ justify-content:center;
       
       .title-input-wrapper {
           input {
-            ${styleApp.inputText}
-            width: 80%;
+            border: none;
+            background: #eaeaea;
+            padding: 10px 1vw;
+            margin: 10px 1vw; 
+            width: ${d === 'desktop' ? '80%' :'96vw'};
           }
         }
       h3 {

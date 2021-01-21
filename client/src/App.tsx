@@ -12,9 +12,9 @@ import { Global } from '@emotion/react'
 import { CssApp, GlobalCssApp } from './managers/style.manager';
 import { onKey } from './managers/keys.manager';
 import { configClient } from './config';
-import { filter, sortBy } from 'lodash';
+import { debounce, filter, isNumber, sortBy } from 'lodash';
 import { Icon } from './components/Icon.component';
-import { listenToHashChanges } from './managers/hash.manager';
+import { getUrlParams, listenToUrlChanges, updateUrl, iUrlParams } from './managers/url.manager';
 import { initClipboardListener } from './managers/clipboard.manager';
 import { deviceType, MobileView } from './managers/device.manager';
 
@@ -62,40 +62,40 @@ class App extends React.Component<{
   }
   listenerIds:number[] = []
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //  LIFECYCLE EVENTS
+  //////////////////////////////////////////////////////////////////////////////// 
   componentDidMount() {
     console.log(`[APP] MOUNTED on a ${deviceType()}`);
+    this.toggleSocketConnection(false)
     this.updatePageTitle()
-
-    listenToHashChanges((newHash) => {
-        this.setState({searchTerm: newHash})
-        setTimeout(() => {
-          this.triggerSearch(this.state.searchTerm)
-        })
-    })
 
     // initClipboardListener()
 
-    window.onkeydown = (e:any) => {
-      onKey(e, 'up', () => {
-        let i = this.state.activeFileIndex  
-        if (i > 0) this.loadFileDetails(i-1)    
-      })
-      onKey(e, 'down', () => {
-        let i = this.state.activeFileIndex  
-        if (i < this.state.files.length - 1) this.loadFileDetails(i+1)   
-      })
-      onKey(e, 'ctrl', () => {
-        this.setState({ctrlPressed: true})
-      })
-    }
-    window.onkeyup = (e:any) => {
-      onKey(e, 'ctrl', () => {
-        this.setState({ctrlPressed: false})
-      })
-    }
+    this.initKeyboardShortcuts()
 
+    
     initSocketConnection().then(() => {
       this.toggleSocketConnection(true)
+
+      this.initUrlParamsLogic()
+
+      this.initSearchForContentLinks()
+
       bindEventManagerToSocketEvents()
       
       // INITIAL REQUESTS (including a folder scan every minute)
@@ -108,42 +108,12 @@ class App extends React.Component<{
       this.askForFolderScan()
       this.setState({ctrlPressed: false})
 
-      let lastFolderIn = this.state.selectedFolder
-      let lastSearchIn = this.state.searchTerm
+      this.lastFolderIn = this.state.selectedFolder
+      this.lastSearchIn = this.state.searchTerm
       this.listenerIds[0] = socketEventsManager.on(
         socketEvents.getFiles, 
         (data:iSocketEventsParams.getFiles) => {  
-
-          // only keep md files in file list
-          let files = filter(data.files, {extension: 'md'})
-
-          // sort them
-          files = this.sortFiles(files, this.state.sortMode)
-
-          this.setState({
-            files,
-            isSearching: data.temporaryResults ? true : false
-          })
-          this.state.activeFileIndex !== -1 && this.loadFileDetails(this.state.activeFileIndex)
-
-          setTimeout(() => {
-
-            // IF RELOAD LIST SAME FOLDER
-            if (this.state.selectedFolder === lastFolderIn) {
-              this.loadFileDetails(0)
-            }
-            // ON LIST ITEMS CHANGES
-            if (this.state.selectedFolder !== lastFolderIn || this.state.searchTerm !== lastSearchIn) {
-              
-              // Load first item list 
-              this.loadFileDetails(0)
-              lastFolderIn = this.state.selectedFolder
-              lastSearchIn = this.state.searchTerm
-              
-              // clean multiselect
-              this.cleanMultiSelect()
-            }
-          }, 100)
+          this.onFolderFilesReceived(data)
       })
 
       this.listenerIds[1] = socketEventsManager.on(
@@ -164,115 +134,7 @@ class App extends React.Component<{
   })
 }
 
-updatePageTitle = () => {
-  let newTitle = ''
 
-  if (window.location.host.includes(configClient.global.staticPort.toString())) newTitle =  `${document.title} (PROD ${configClient.version})`
-  else newTitle = `/!\\ DEV /!\\`
-
-  // if(!this.state.isSocketConnected) newTitle += ``
-  newTitle += this.state.isSocketConnected ? ` (Connected)` : ` (DISCONNECTED)`
-
-  document.title = newTitle
-}
-
-  toggleSocketConnection = (state: boolean) => {
-    console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
-    this.setState({isSocketConnected: state}) 
-    setTimeout(() => {this.updatePageTitle()}, 100)
-  }
-
-  toggleMobileView = (mobileView:MobileView) => {
-    // let mobileView:MobileView = this.state.mobileView === 'editor' ? 'navigator' : 'editor'
-    this.setState({mobileView})
-  }
-  
-  cleanFilesList = () => {
-    this.setState({files: []})
-  }
-  askForFolderFiles = (folderPath:string) => {
-    clientSocket.emit(socketEvents.askForFiles, {folderPath: folderPath} as iSocketEventsParams.askForFiles)
-  }
-  cleanAndAskForFolderFiles = (folderPath:string) => {
-    this.setState({isSearching: true})
-    this.cleanFilesList()
-    this.askForFolderFiles(folderPath)
-  }
-  askForFolderScan = () => {
-    clientSocket.emit(socketEvents.askFolderHierarchy, {folderPath: ''} as iSocketEventsParams.askFolderHierarchy)  
-  }
-
-  moveFile = (initPath:string, endPath:string) => {
-    console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
-    clientSocket.emit(socketEvents.moveFile, {initPath, endPath, shouldRescan: true} as iSocketEventsParams.moveFile)  
-  }
-
-  promptAndBatchMoveFiles = (folderpath:string) => {
-    let userAccepts = window.confirm(`Are you sure you want to move ${this.state.multiSelectArray.length} files and their resources to ${folderpath}`)
-    if (userAccepts) {
-      for (let i = 0; i < this.state.multiSelectArray.length; i++) {
-        const fileId = this.state.multiSelectArray[i];
-        let file = this.state.files[fileId]
-        let filenameArr = file.name.split('/')
-        // in case we are in research, the file.name === file.path
-        let realFileName = filenameArr[filenameArr.length-1]
-        this.moveFile(file.path, `${folderpath}/${realFileName}`)
-      }
-      this.cleanMultiSelect() 
-      this.emptyFileDetails()
-    }
-  }
-  
-  triggerSearch = (term:string) => {
-    console.log(`[APP -> TRIGGER SEARCH] ${term}`);
-    this.emptyFileDetails()
-    this.cleanFilesList()
-    this.cleanMultiSelect()
-    this.setState({ isSearching: true, selectedFolder: '', activeFileIndex: -1 })
-    clientSocket.emit(socketEvents.searchFor, {term} as iSocketEventsParams.searchFor) 
-  }
-
-  sortFiles = (files:iFile[], sortMode:any):iFile[] => {
-    let sortedFiles
-    switch (SortModes[sortMode]) {
-      case 'none':
-        sortedFiles = sortBy(files, ['index'])
-        break;
-      case 'alphabetical':
-        sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
-        break;
-      case 'created':
-        sortedFiles = sortBy(files, ['created']).reverse()
-        break;
-      case 'modified':
-        sortedFiles = sortBy(files, ['modified']).reverse()
-        break;
-    
-      default:
-        sortedFiles = sortBy(files, ['index'])
-        break;
-    }
-
-    return sortedFiles
-  }
-
-  cleanMultiSelect = () => {
-    this.setState({ multiSelectMode: false, multiSelectArray: [] })
-  }
-
-  emptyFileDetails = () => {
-    this.setState({activeFileIndex:-1, activeFileContent: ''})
-  }
-
-  loadFileDetails = (fileIndex:number) => {
-    let file = this.state.files[fileIndex]
-    
-    if (file && file.name.endsWith('.md')) {
-      this.setState({activeFileIndex:fileIndex, activeFileContent: ''})
-      clientSocket.emit(socketEvents.askForFileContent, 
-        {filePath: file.path} as iSocketEventsParams.askForFileContent)  
-    }
-  }
 
   componentDidUpdate(prevProps:any, prevState:any) {
     if (prevState.files !== this.state.files) {
@@ -280,6 +142,13 @@ updatePageTitle = () => {
         this.loadFileDetails(this.state.activeFileIndex)
       }
     }
+    
+    // URL : check if folder/fileIndex/searchTerm changes, if yes, change URL accordingly
+    if (
+      prevState.activeFileIndex !== this.state.activeFileIndex ||
+      prevState.selectedFolder !== this.state.selectedFolder || 
+      prevState.isSearching !== this.state.isSearching
+    ) this.updateAppUrl()
   }
 
   componentWillUnmount(){
@@ -288,12 +157,290 @@ updatePageTitle = () => {
     })
   }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //  SUPPORT FUNCTIONS
+  ////////////////////////////////////////////////////////////////////////////////
+  updatePageTitle = () => {
+    let newTitle = ''
+  
+    if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Extrawurst (PROD ${configClient.version})`
+    else newTitle = `/!\\ DEV /!\\`
+  
+    // if(!this.state.isSocketConnected) newTitle += ``
+    newTitle += this.state.isSocketConnected ? ` (Connected)` : ` (DISCONNECTED)`
+  
+    document.title = newTitle
+  }
+  
+    toggleSocketConnection = (state: boolean) => {
+      console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
+      this.setState({isSocketConnected: state}) 
+      setTimeout(() => {this.updatePageTitle()}, 100)
+    }
+  
+    toggleMobileView = (mobileView:MobileView) => {
+      // let mobileView:MobileView = this.state.mobileView === 'editor' ? 'navigator' : 'editor'
+      this.setState({mobileView})
+    }
+    
+    cleanFilesList = () => {
+      this.setState({files: []})
+    }
+    askForFolderFiles = (folderPath:string) => {
+      clientSocket.emit(socketEvents.askForFiles, {folderPath: folderPath} as iSocketEventsParams.askForFiles)
+    }
+    cleanAndAskForFolderFiles = (folderPath:string) => {
+      this.setState({isSearching: true})
+      this.cleanFilesList()
+      this.askForFolderFiles(folderPath)
+    }
+    askForFolderScan = () => {
+      clientSocket.emit(socketEvents.askFolderHierarchy, {folderPath: ''} as iSocketEventsParams.askFolderHierarchy)  
+    }
+  
+    moveFile = (initPath:string, endPath:string) => {
+      console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
+      clientSocket.emit(socketEvents.moveFile, {initPath, endPath, shouldRescan: true} as iSocketEventsParams.moveFile)  
+    }
+  
+    promptAndBatchMoveFiles = (folderpath:string) => {
+      let userAccepts = window.confirm(`Are you sure you want to move ${this.state.multiSelectArray.length} files and their resources to ${folderpath}`)
+      if (userAccepts) {
+        for (let i = 0; i < this.state.multiSelectArray.length; i++) {
+          const fileId = this.state.multiSelectArray[i];
+          let file = this.state.files[fileId]
+          let filenameArr = file.name.split('/')
+          // in case we are in research, the file.name === file.path
+          let realFileName = filenameArr[filenameArr.length-1]
+          this.moveFile(file.path, `${folderpath}/${realFileName}`)
+        }
+        this.cleanMultiSelect() 
+        this.emptyFileDetails()
+      }
+    }
+    
+    
+  
+    sortFiles = (files:iFile[], sortMode:any):iFile[] => {
+      let sortedFiles
+      switch (SortModes[sortMode]) {
+        case 'none':
+          sortedFiles = sortBy(files, ['index'])
+          break;
+        case 'alphabetical':
+          sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
+          break;
+        case 'created':
+          sortedFiles = sortBy(files, ['created']).reverse()
+          break;
+        case 'modified':
+          sortedFiles = sortBy(files, ['modified']).reverse()
+          break;
+      
+        default:
+          sortedFiles = sortBy(files, ['index'])
+          break;
+      }
+  
+      return sortedFiles
+    }
+  
+    cleanMultiSelect = () => {
+      this.setState({ multiSelectMode: false, multiSelectArray: [] })
+    }
+  
+    emptyFileDetails = () => {
+      this.setState({activeFileIndex:-1, activeFileContent: null})
+    }
+  
+    loadFileDetails = (fileIndex:number) => {
+      console.log('loadfiledetails');
+      
+      let file = this.state.files[fileIndex]
+      
+      if (file && file.name.endsWith('.md')) {
+        this.setState({activeFileIndex:fileIndex, activeFileContent: null})
+        clientSocket.emit(socketEvents.askForFileContent, 
+          {filePath: file.path} as iSocketEventsParams.askForFileContent)  
+      }
+    }
+
+
+
+
+
+  //////////////////////////////////////////////
+  //  KEYBOARD 
+  //
+  initKeyboardShortcuts = () => {
+    window.onkeydown = (e:any) => {
+      onKey(e, 'up', () => {
+        let i = this.state.activeFileIndex  
+        if (i > 0) this.loadFileDetails(i-1)    
+      })
+      onKey(e, 'down', () => {
+        let i = this.state.activeFileIndex  
+        if (i < this.state.files.length - 1) this.loadFileDetails(i+1)   
+      })
+      onKey(e, 'ctrl', () => {
+        this.setState({ctrlPressed: true})
+      })
+    }
+    window.onkeyup = (e:any) => {
+      onKey(e, 'ctrl', () => {
+        this.setState({ctrlPressed: false})
+      })
+    }
+  }
+
+
+  //////////////////////////////////////////////
+  //  FOLDER LIST LOGIC
+  //
+  lastFolderIn:string = ''
+  lastSearchIn:string = ''
+  shouldLoadFirstNote: boolean = false
+  onFolderFilesReceived = (data:iSocketEventsParams.getFiles) => {
+    // only keep md files in file list
+    let files = filter(data.files, {extension: 'md'})
+
+    // sort them
+    files = this.sortFiles(files, this.state.sortMode)
+
+    this.setState({
+      files,
+      isSearching: data.temporaryResults ? true : false
+    })
+
+    // if activeFileIndex exists + is in length of files, load it
+    if (this.state.activeFileIndex !== -1 && this.state.activeFileIndex < files.length) {
+      this.loadFileDetails(this.state.activeFileIndex)
+    }
+
+    setTimeout(() => {
+      if (this.shouldLoadFirstNote) {
+        console.log(11, files.length);
+        
+        files.length >= 1 && this.loadFileDetails(0)
+        this.shouldLoadFirstNote = false
+      }
+      // ON LIST ITEMS CHANGES
+      if (this.state.selectedFolder !== this.lastFolderIn || this.state.searchTerm !== this.lastSearchIn) {
+        
+        // Load first item list 
+        files.length >= 1 && this.loadFileDetails(0)
+        console.log(12, files.length);
+        this.lastFolderIn = this.state.selectedFolder
+        this.lastSearchIn = this.state.searchTerm
+        
+        // clean multiselect
+        this.cleanMultiSelect()
+      }
+    }, 100)
+  }
+
+
+  //////////////////////////////////////////////
+  //  SEARCH LOGIC
+  //
+  initSearchForContentLinks = () => {
+    //@ts-ignore
+    window.ewTriggerSearch = (term:string) => {
+      console.log(`[SEARCH FROM LINK] for ${term}`);
+      term = term.replaceAll('_','-')
+      this.triggerSearch(term)
+    }
+  }
+
+  triggerSearch = (term:string) => {
+    console.log(`[APP -> TRIGGER SEARCH] ${term}`);
+    this.emptyFileDetails()
+    this.cleanFilesList()
+    this.cleanMultiSelect()
+    this.setState({ searchTerm: term, isSearching: true, selectedFolder: '', activeFileIndex: -1 })
+    clientSocket.emit(socketEvents.searchFor, {term} as iSocketEventsParams.searchFor) 
+  }
+
+
+  //////////////////////////////////////////////
+  //  URL LOGIC
+  //
+
+  // ignore the first url change when page finishes loading
+  ignoreNextUrlChange:boolean = false
+
+  updateAppUrl = debounce(() => {
+    if (this.ignoreNextUrlChange) return this.ignoreNextUrlChange = false
+    console.log('[UPDATE APP URL]');
+    updateUrl ({
+      file: this.state.activeFileIndex, 
+      folder: this.state.selectedFolder, 
+      search: this.state.searchTerm
+    })
+  }, 200)
+
+  initUrlParamsLogic = () => {
+
+    // do a initial reading when finished loading
+    let newUrlParams = getUrlParams()
+    this.reactToUrlParams(newUrlParams)
+
+    listenToUrlChanges({
+      onUrlParamsChange: (newUrlParams) => {
+        // ignore url change due to state change from reaction of initial url change :S
+        this.ignoreNextUrlChange = true
+        this.reactToUrlParams(newUrlParams)
+      },
+    })
+  }
+
+  reactToUrlParams = (newUrlParams:iUrlParams) => {
+    if (newUrlParams.folder) {
+      console.log(110);
+      
+      let activeFileIndex = isNumber(newUrlParams.file) ? newUrlParams.file : -1
+      this.setState({selectedFolder: newUrlParams.folder, activeFileIndex, searchTerm: ''})
+      this.askForFolderFiles(newUrlParams.folder)
+    }
+    if (newUrlParams.search) {
+      console.log('reactToUrlParams -> triggersearch');
+      
+       this.triggerSearch(newUrlParams.search)
+    }
+  }
+
+
+
+
+
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //  RENDERING
+  ////////////////////////////////////////////////////////////////////////////////
   render() { 
     return (
-      <CssApp v={this.state.mobileView}>
+      <CssApp v={this.state.mobileView} >
         <Global styles={GlobalCssApp}  />
-
+        
         <div className="main-wrapper">
+              <div className="connection-status">
+                  {this.state.isSocketConnected ? <div className="connected">connected</div> : <div className="disconnected">disconnected</div>}
+              </div>
+
             { 
               deviceType() !== 'desktop' &&
               <div className='mobile-view-toggler'>
@@ -331,6 +478,7 @@ updatePageTitle = () => {
                     this.promptAndBatchMoveFiles(folderpath)
                   } else {
                     // move from selected folder
+                    this.shouldLoadFirstNote = true
                     this.setState({selectedFolder: folderpath, searchTerm:'', activeFileIndex: -1})
                     this.cleanAndAskForFolderFiles(folderpath)
                   }
@@ -341,10 +489,7 @@ updatePageTitle = () => {
                 }}
               />
 
-              <div className="connection-status">
-                  {this.state.isSocketConnected && <div className="connected">connected</div>}
-                  {!this.state.isSocketConnected && <div className="disconnected">disconnected</div>}
-              </div>
+              
             </div>
 
             {
@@ -444,7 +589,7 @@ updatePageTitle = () => {
           <div className="right-wrapper">
             <div className="note-wrapper">
               { 
-                (this.state.activeFileIndex !== -1) && 
+                (this.state.activeFileIndex !== -1 && this.state.files[this.state.activeFileIndex]) && 
                   <Editor 
                     file={this.state.files[this.state.activeFileIndex]} 
                     fileContent={this.state.activeFileContent ? this.state.activeFileContent : ''} 

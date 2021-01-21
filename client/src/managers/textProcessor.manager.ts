@@ -9,9 +9,9 @@ export const transformUrlInLinks = (bodyRaw: string):string => {
 }
 
 export const transformExtrawurstLinks = (bodyRaw: string):string => {
-    const regex = /\[search\|([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\ \#]*)([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\ \#]*)\]/gm;
-    const subst = '<a class="extrawurst-link" href="#search[$1$2]">[$1]</a>';
-    let body =  bodyRaw.replace(regex, subst);
+    const regex = /\[search\|([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\#]*)([A-Za-z0-9\/\:\.\_\-\/\ \\\?\=\&\#]*)\]/gm;
+    const subst = `<a class="extrawurst-link" href="javascript:window.ewTriggerSearch('$1$2');">[$1]</a>`;
+    let body =  bodyRaw.replace(regex, subst); 
     body = body.replaceAll('>[__id_', '>[');
     body = body.replaceAll('>[__tags_', '>[');
     body = body.replaceAll('>[__tag_', '>[');

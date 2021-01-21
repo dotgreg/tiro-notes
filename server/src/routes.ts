@@ -117,7 +117,7 @@ export const socketRoutes:iSockerRoute[] = [
         action: async (socket, data:iSocketEventsParams.createHistoryFile) => {
             
             let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.history`
-            if (!fileExists(historyFolder)) await createDir(historyFolder)
+            upsertRecursivelyFolders(`${historyFolder}/`) 
 
             let fileName = fileNameFromFilePath(data.filePath)
             fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`

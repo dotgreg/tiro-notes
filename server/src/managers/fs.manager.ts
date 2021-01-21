@@ -42,7 +42,7 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
     let pathArr = fullPathToCheck.split('/')
     pathArr.pop() // remove object.jpg
     pathArr.shift() // remove ""
-    console.log({pathArr});
+    // console.log(33,{pathArr});
 
     let createFoldersRecursively = async (path:string, pathArray:string[]) => {
         let fullPath = `${path}/${pathArray[0]}`

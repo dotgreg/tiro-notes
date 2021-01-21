@@ -2,7 +2,7 @@ import React from 'react';
 import Tree from 'rc-tree';
 import styled from '@emotion/styled'
 import { iFolder } from '../../../shared/types.shared';
-import { iconFolder } from '../../assets/icon';
+import { iconFolder } from '../managers/icons.manager';
 
 const STYLE = `
 .rc-tree-child-tree {
