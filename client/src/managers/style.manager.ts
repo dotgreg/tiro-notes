@@ -32,7 +32,7 @@ export const GlobalCssApp = css`
     font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
   }
   html, body {
-    overflow-x: hidden;
+    overflow: hidden;
     heigth: 100vh;
   }
   body {
@@ -240,6 +240,10 @@ justify-content:center;
           margin-bottom: 100px;
           overflow: hidden;
           overflow-y: scroll;
+
+          .preview-content {
+            margin-bottom:100px;
+          }
           pre {
             code {
               display: block;

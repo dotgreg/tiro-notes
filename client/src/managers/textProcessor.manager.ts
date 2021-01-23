@@ -2,8 +2,8 @@ import {sharedConfig} from '../../../shared/shared.config'
 import { configClient } from '../config';
 
 export const transformUrlInLinks = (bodyRaw: string):string => {
-    const regex =  /(https?:\/\/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\ \#]*))/gm;
-    const codeOpenPopup = `onclick="window.open('$1','popup','width=600,height=600');"`
+    const regex =  /(https?:\/\/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\%\ \#]*))/gm;
+    const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
     const subst = `<a href="#" ${codeOpenPopup}>$2</a>`;
     return bodyRaw.replace(regex, subst);
 }

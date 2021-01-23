@@ -5,7 +5,7 @@ import { clientSocket, initSocketConnection } from './managers/sockets/socket.ma
 import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
 import { iFile, iFolder } from '../../shared/types.shared';
 import { List, SortModes, SortModesLabels } from './components/List.component';
-import { Editor } from './components/Editor.component';
+import { Note } from './components/note/Note.component';
 import { SearchBar } from './components/SearchBar.component';
 import { TreeView } from './components/TreeView.Component';
 import { Global } from '@emotion/react'
@@ -17,6 +17,7 @@ import { Icon } from './components/Icon.component';
 import { getUrlParams, listenToUrlChanges, updateUrl, iUrlParams } from './managers/url.manager';
 import { initClipboardListener } from './managers/clipboard.manager';
 import { deviceType, MobileView } from './managers/device.manager';
+import { Note2 } from './components/note/Note2.component';
 
 
 const LocalStorageMixin = require('react-localstorage');
@@ -119,6 +120,8 @@ class App extends React.Component<{
       this.listenerIds[1] = socketEventsManager.on(
         socketEvents.getFileContent, 
         (data:iSocketEventsParams.getFileContent) => {  
+          let activeFile = this.state.files[this.state.activeFileIndex]
+          if (data.filePath !== activeFile.path) return
           this.setState({activeFileContent: data.fileContent})
       })
 
@@ -173,16 +176,36 @@ class App extends React.Component<{
   ////////////////////////////////////////////////////////////////////////////////
   //  SUPPORT FUNCTIONS
   ////////////////////////////////////////////////////////////////////////////////
+  intPageBlink:any
   updatePageTitle = () => {
-    let newTitle = ''
+    
+    let generateTitle = ():string => {
+      let newTitle = ''
+      if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Extrawurst (PROD ${configClient.version})`
+      else newTitle = `/!\\ DEV /!\\`
+      return newTitle
+    }
   
-    if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Extrawurst (PROD ${configClient.version})`
-    else newTitle = `/!\\ DEV /!\\`
-  
-    // if(!this.state.isSocketConnected) newTitle += ``
-    newTitle += this.state.isSocketConnected ? ` (Connected)` : ` (DISCONNECTED)`
-  
-    document.title = newTitle
+    let title
+    clearInterval(this.intPageBlink)
+    if (this.state.isSocketConnected) {
+       title =  `${generateTitle()} (Connected)`
+       console.log(13);
+    } else {
+      console.log(12);
+      
+      let warning1 = '(DISCONNECTED)'
+      let warning2 = '(/!\\ DISCONNECTED /!\\)'
+      let warning = warning1
+      title = `${generateTitle()} ${warning}`
+      this.intPageBlink = setInterval(() => {
+        warning = (warning === warning1) ? warning2 : warning1
+        title = `${generateTitle()} ${warning}`
+        document.title = title
+      }, 1000)
+    }
+    
+    document.title = title
   }
   
     toggleSocketConnection = (state: boolean) => {
@@ -438,7 +461,7 @@ class App extends React.Component<{
         
         <div className="main-wrapper">
               <div className="connection-status">
-                  {this.state.isSocketConnected ? <div className="connected">connected</div> : <div className="disconnected">disconnected</div>}
+                  {this.state.isSocketConnected ? <div className="connected">connected</div> : <div className="disconnected">/!\ DISCONNECTED /!\</div>}
               </div>
 
             { 
@@ -590,7 +613,8 @@ class App extends React.Component<{
             <div className="note-wrapper">
               { 
                 (this.state.activeFileIndex !== -1 && this.state.files[this.state.activeFileIndex]) && 
-                  <Editor 
+                  // <Note 
+                  <Note2
                     file={this.state.files[this.state.activeFileIndex]} 
                     fileContent={this.state.activeFileContent ? this.state.activeFileContent : ''} 
                     onFileEdited={(filepath, content) => {

@@ -12,6 +12,7 @@ import { folderToUpload } from "./managers/upload.manager";
 import { random } from "lodash";
 import { triggerWorker } from "./managers/workers/worker.manager";
 import { iFolder } from "../../shared/types.shared";
+import { ioServer } from "./server";
 
 export const socketRoutes:iSockerRoute[] = [
     {
@@ -26,7 +27,7 @@ export const socketRoutes:iSockerRoute[] = [
         event: socketEvents.askForFileContent,
         action: async (socket, data:iSocketEventsParams.askForFileContent) => {
             let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
-            socket.emit(socketEvents.getFileContent, {fileContent: apiAnswer} as iSocketEventsParams.getFileContent)
+            socket.emit(socketEvents.getFileContent, {fileContent: apiAnswer, filePath: data.filePath} as iSocketEventsParams.getFileContent)
         }
     },
     {
@@ -74,6 +75,8 @@ export const socketRoutes:iSockerRoute[] = [
         action: async (socket, data:iSocketEventsParams.saveFileContent) => {
             console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`);
             await saveFile(`${backConfig.dataFolder}${data.filepath}`, data.newFileContent)
+            // sends back to all sockets the updated content
+            ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as iSocketEventsParams.getFileContent)
         },
         disableDataLog: true
     },

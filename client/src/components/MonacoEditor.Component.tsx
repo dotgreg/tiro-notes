@@ -3,13 +3,14 @@ import MonacoEditor from 'react-monaco-editor';
 import { styleApp } from '../managers/style.manager';
 import styled from '@emotion/styled'
 import { initVimMode } from 'monaco-vim';
+import { LineTextInfos } from '../managers/textEditor.manager';
 
 export class MonacoEditorWrapper extends React.Component<{
   value:string,
   vimMode:boolean,
-  onChange:(text:string)=>void
   insertUnderCaret:string
   posY:number
+  onChange:(text:string)=>void
 },{}> {
   reactComp:any
   vimStatusBar:any
@@ -22,23 +23,12 @@ export class MonacoEditorWrapper extends React.Component<{
   editor:any
   monaco:any
   editorDidMount = (editor:any, monaco:any) => {
-    // console.log('didmount', editor, monaco);
     if (this.props.vimMode) {
       console.log('[MONACO EDITOR] vim mode started', this.vimStatusBar.current);
       initVimMode(editor, this.vimStatusBar.current)
     }
     this.editor = editor
     this.monaco = monaco
-    // console.log(this.monaco.Position);
-    // this.editor.modifyPosition
-    // setTimeout(() => {
-      
-    //   // var model = this.editor.getModel();
-    //   // console.log(222,model,editor.getPosition());
-    //   // model.modifyPosition(editor.getPosition(), -100);
-    //   this.editor.setScrollPosition({scrollTop: 300});
-
-    // })
     
     monaco.editor.defineTheme('customLightTheme', {
       base: 'vs',
@@ -49,18 +39,36 @@ export class MonacoEditorWrapper extends React.Component<{
           'editor.background': styleApp.colors.bg.light,
       }
     });
+
+    //@ts-ignore
+    window.monacoEditor = monaco.editor
+
     monaco.editor.setTheme('customLightTheme');
   }
 
-  shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
-    // setTimeout(() => {
-    //   this.editor.setSelection(new this.monaco.Selection(0, 0, 0, 0));
-    // })
-    if (this.props.posY !== nextProps.posY) {
-      // console.log('monaco should scroll');
-      this.editor.setScrollPosition({scrollTop: this.props.posY});
-    }
 
+  //
+  // LINE MANAGER
+  //
+  getCurrentLineInfos = ():LineTextInfos => {
+    var text = this.editor.getValue(position);
+    var position = this.editor.getPosition();
+    var splitedText=text.split("\n");
+    return {
+      monacoPosition: this.editor.getPosition(),
+      lines:splitedText,
+      activeLine: splitedText[position.lineNumber-1],
+      lineIndex: position.lineNumber-1
+    }
+  }
+
+  shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
+    
+    if (this.props.posY !== nextProps.posY) {
+        console.log(this.props.posY);
+         this.editor.setScrollPosition({scrollTop: this.props.posY});
+    }
+  
     if (this.props.insertUnderCaret !== nextProps.insertUnderCaret && nextProps.insertUnderCaret !== '') {
       console.log(`[MONACO EDITOR] insert under Caret ${nextProps.insertUnderCaret}`);
       this.editor.trigger('keyboard', 'type', {text: nextProps.insertUnderCaret});

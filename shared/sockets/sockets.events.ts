@@ -39,7 +39,7 @@ export declare namespace iSocketEventsParams {
     export interface getFiles { files: iFile[], temporaryResults?:boolean}
 
     export interface askForFileContent {filePath:string}
-    export interface getFileContent {fileContent: string}
+    export interface getFileContent {fileContent: string, filePath:string}
 
     export interface saveFileContent {filepath: string, newFileContent:string}
 
