@@ -76,7 +76,7 @@ export const socketRoutes:iSockerRoute[] = [
             console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`);
             await saveFile(`${backConfig.dataFolder}${data.filepath}`, data.newFileContent)
             // sends back to all sockets the updated content
-            ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as iSocketEventsParams.getFileContent)
+            // ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as iSocketEventsParams.getFileContent)
         },
         disableDataLog: true
     },

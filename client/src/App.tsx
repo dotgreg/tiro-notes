@@ -17,7 +17,7 @@ import { Icon } from './components/Icon.component';
 import { getUrlParams, listenToUrlChanges, updateUrl, iUrlParams } from './managers/url.manager';
 import { initClipboardListener } from './managers/clipboard.manager';
 import { deviceType, MobileView } from './managers/device.manager';
-import { Note2 } from './components/note/Note2.component';
+import { DualViewer } from './components/note/DualViewer.component';
 
 
 const LocalStorageMixin = require('react-localstorage');
@@ -119,7 +119,7 @@ class App extends React.Component<{
 
       this.listenerIds[1] = socketEventsManager.on(
         socketEvents.getFileContent, 
-        (data:iSocketEventsParams.getFileContent) => {  
+        (data:iSocketEventsParams.getFileContent) => {   
           let activeFile = this.state.files[this.state.activeFileIndex]
           if (data.filePath !== activeFile.path) return
           this.setState({activeFileContent: data.fileContent})
@@ -190,10 +190,7 @@ class App extends React.Component<{
     clearInterval(this.intPageBlink)
     if (this.state.isSocketConnected) {
        title =  `${generateTitle()} (Connected)`
-       console.log(13);
     } else {
-      console.log(12);
-      
       let warning1 = '(DISCONNECTED)'
       let warning2 = '(/!\\ DISCONNECTED /!\\)'
       let warning = warning1
@@ -290,8 +287,6 @@ class App extends React.Component<{
     }
   
     loadFileDetails = (fileIndex:number) => {
-      console.log('loadfiledetails');
-      
       let file = this.state.files[fileIndex]
       
       if (file && file.name.endsWith('.md')) {
@@ -299,7 +294,7 @@ class App extends React.Component<{
         clientSocket.emit(socketEvents.askForFileContent, 
           {filePath: file.path} as iSocketEventsParams.askForFileContent)  
       }
-    }
+    } 
 
 
 
@@ -355,8 +350,6 @@ class App extends React.Component<{
 
     setTimeout(() => {
       if (this.shouldLoadFirstNote) {
-        console.log(11, files.length);
-        
         files.length >= 1 && this.loadFileDetails(0)
         this.shouldLoadFirstNote = false
       }
@@ -365,7 +358,6 @@ class App extends React.Component<{
         
         // Load first item list 
         files.length >= 1 && this.loadFileDetails(0)
-        console.log(12, files.length);
         this.lastFolderIn = this.state.selectedFolder
         this.lastSearchIn = this.state.searchTerm
         
@@ -432,16 +424,19 @@ class App extends React.Component<{
 
   reactToUrlParams = (newUrlParams:iUrlParams) => {
     if (newUrlParams.folder) {
-      console.log(110);
+      let activeFileIndex = -1
+      if (isNumber(newUrlParams.file)) activeFileIndex = newUrlParams.file
+      if (activeFileIndex === -1 && this.state.files.length > 0) activeFileIndex = 0
       
-      let activeFileIndex = isNumber(newUrlParams.file) ? newUrlParams.file : -1
       this.setState({selectedFolder: newUrlParams.folder, activeFileIndex, searchTerm: ''})
       this.askForFolderFiles(newUrlParams.folder)
     }
     if (newUrlParams.search) {
       console.log('reactToUrlParams -> triggersearch');
-      
        this.triggerSearch(newUrlParams.search)
+    }
+    if (newUrlParams.mobileview) {
+      this.toggleMobileView(newUrlParams.mobileview)
     }
   }
 
@@ -538,6 +533,7 @@ class App extends React.Component<{
                 <button onClick={(e) => {
                     clientSocket.emit(socketEvents.createNote, 
                       {folderPath: this.state.selectedFolder} as iSocketEventsParams.createNote) 
+                    this.setState({activeFileIndex: 0})
                 }}><Icon name="faStickyNote" /></button>
               }
 
@@ -613,8 +609,8 @@ class App extends React.Component<{
             <div className="note-wrapper">
               { 
                 (this.state.activeFileIndex !== -1 && this.state.files[this.state.activeFileIndex]) && 
-                  // <Note 
-                  <Note2
+                  // < Note 
+                  <DualViewer
                     file={this.state.files[this.state.activeFileIndex]} 
                     fileContent={this.state.activeFileContent ? this.state.activeFileContent : ''} 
                     onFileEdited={(filepath, content) => {
@@ -627,19 +623,12 @@ class App extends React.Component<{
                       console.log(`[APP] onFilePathEdited =>`,{initPath, endPath});
                       this.emptyFileDetails()
                       this.moveFile(initPath, endPath)
+                      this.setState({activeFileIndex: 0})
                     }}
                     onSavingHistoryFile={(filePath, content, historyFileType) => {
                       console.log(`[APP] onSavingHistoryFile ${historyFileType} => ${filePath}`);
                       clientSocket.emit(socketEvents.createHistoryFile, 
                         {filePath, content, historyFileType} as iSocketEventsParams.createHistoryFile)  
-                    }}
-                    onEditorDetached={(filepath) => {
-                      clientSocket.emit(socketEvents.askForNotepad, 
-                        {filepath} as iSocketEventsParams.askForNotepad) 
-
-                        setTimeout(() => {
-                          this.emptyFileDetails()
-                        }, 500)
                     }}
                     onFileDelete={(filepath) => {
                       console.log(`[APP] onFileDelete => ${filepath}`);

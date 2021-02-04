@@ -8,3 +8,7 @@ export const textToId = (raw:string):string => {
     res = res.toLowerCase()
     return res
 }
+
+export const safeString = (str:string):string => {
+    return str.replace(/[^\w\s]/gi, '')
+  }

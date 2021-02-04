@@ -8,6 +8,11 @@ export const isMobile = ():boolean => {
 export type DeviceType = 'desktop'|'tablet'|'mobile'
 export type MobileView = 'navigator'|'editor'|'preview'
 
+export const isVarMobileView = (raw:any):boolean => {
+  if (raw === 'navigator' || raw === 'editor'|| raw === 'preview') return true
+  return false
+}
+
 export const deviceType = ():DeviceType => {
     let deviceWidth = window.innerWidth
     // console.log(deviceWidth);

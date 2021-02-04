@@ -1,6 +1,7 @@
 import { Global, css } from '@emotion/react'
 import styled from '@emotion/styled';
 import { deviceType, MobileView, DeviceType } from './device.manager';
+import {DragzoneCss} from '../hooks/editorUpload.hook'
 
 let d = deviceType()
 // let v = 'editor'
@@ -66,8 +67,10 @@ justify-content:center;
       bottom: 0px;
       left: 0px;
       z-index: 10;
+      display:flex;
+      width: 100%;
       button {
-        width: 33vw;
+        flex: 1 1 auto;
         padding: 10px;
       }
   }
@@ -186,21 +189,10 @@ justify-content:center;
       /* max-height: 100vh;
       overflow-y: auto; */
     .note-wrapper {
-      .editor {
+      .dual-view-wrapper {
+        position:relative;
         display: ${d === 'desktop' ? 'flex' : 'block'};
-        .dragzone {
-          &.hidden {
-            display:none;
-          }
-          display:block;
-          position: absolute;
-          top: 0px;
-          left: 0px;
-          width: 100vw;
-          height: 100vh;
-          z-index: 10;
-          background: rgba(255,255,255,0.4);
-        }
+        ${DragzoneCss}
         .editor-area {
           &.inactive {
             display: none;
@@ -260,19 +252,46 @@ justify-content:center;
 
 
 
+      .preview-only .toolbar-wrapper {
+        left: 10px;
+      }
 
       .toolbar-wrapper {
         ${
           d === 'desktop' ?
           `position: absolute;
-          left: 70%;
+          left: 50%;
           width: 30%;`
           : `
           position: relative;
           `
         }
-        padding: 10px 0px 10px 0px;
         
+        ul.toolbar {
+          display: flex;
+          list-style: none;
+          padding: 0px 0px 0px 0px;
+          margin: 10px 0px 0px 0px;
+          li {
+    
+          }
+        }
+
+        .mobile-text-manip-toolbar {
+          position: fixed;
+          bottom: 40px;
+          display: flex;
+          list-style: none;
+          width: 100%;
+          li {
+            flex: 1 1 auto;
+            button {
+              width: 100%;
+              padding: 5px;
+            }
+          }
+        }
+
         .upload-button-wrapper {
           position: relative;  
           .input-file-hidden {

@@ -9,15 +9,17 @@ var path = require('path');
 const basicAuth = require('express-basic-auth')
 
 
-export const startStaticServer = (path:string, port:number) => {
+export const startStaticServer = (path:string, port:number, login:boolean=true) => {
     var express = require('express');
     var server = express();
 
-    server.use(basicAuth({
-        authorizer: staticServerAuthLogic,
-        challenge: true,
-        authorizeAsync: true,
-    }))
+    if (login) {
+        server.use(basicAuth({
+            authorizer: staticServerAuthLogic,
+            challenge: true,
+            authorizeAsync: true,
+        }))
+    }
 
     server.use('/', express.static( path));
     // server.use('/app', express.static( frontendBuildFolder));

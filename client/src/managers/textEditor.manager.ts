@@ -1,3 +1,5 @@
+import { isNumber, isString } from "lodash";
+
 export const insertAtCaret =  (textarea:HTMLTextAreaElement, text:string) => {
     text = text || '';
    if (textarea.selectionStart || textarea.selectionStart === 0) {
@@ -14,19 +16,22 @@ export const insertAtCaret =  (textarea:HTMLTextAreaElement, text:string) => {
     }
   };
 
+
+
   export interface LineTextInfos {
     activeLine: string
     lines: string[]
     lineIndex: number
+    currentPosition: number
     monacoPosition?: any
-    textareaPosition?: number
   }
 
   export const getLines = (rawtext:string):string[] => {
     return rawtext.split("\n");
   }
 
-  export const getCurrentLineInfos =  (textarea:HTMLTextAreaElement):LineTextInfos => {
+
+  export const getTextAreaLineInfos =  (textarea:HTMLTextAreaElement):LineTextInfos => {
       // if (!textarea) return
       let text = textarea.value
       // var position = this.editor.getPosition();
@@ -37,14 +42,13 @@ export const insertAtCaret =  (textarea:HTMLTextAreaElement, text:string) => {
       let lineIndex = 0
       while (c < pos+1) {
         let lineLength = splitedText[lineIndex].length + 1
-        // c += lineLength === 0 ? 1 : lineLength
         c += lineLength
         lineIndex++
       }
       lineIndex--
 
       return {
-        textareaPosition: pos,
+        currentPosition: pos,
         lines:splitedText,
         activeLine: splitedText[lineIndex],
         lineIndex
@@ -113,12 +117,17 @@ export const updateTextFromLetterInput = (
   return infos.lines.join('\n')
 }
 
-export type TextModifAction = '->'|'<-'|'[x]'|'^'|'v'|'X'
+export type TextModifAction = '->'|'<-'|'[x]'|'^'|'v'|'X'|'insertAt'|'insertAtCurrentPos'
+export interface TextModifActionParams {
+  textToInsert: string
+  insertPosition: number|'currentPos'
+}
 
 export const triggerTextModifAction = (
   action: TextModifAction, 
   infos:LineTextInfos, 
-  afterTextModification:(decal:number)=>void
+  afterTextModification:(decal:number)=>void,
+  actionParams?: TextModifActionParams
 ):string => {
   let lines = infos.lines
   
@@ -172,5 +181,23 @@ export const triggerTextModifAction = (
     }
   }
 
+  if (
+    action === 'insertAt' && 
+    actionParams && 
+    actionParams.textToInsert &&
+    (isNumber(actionParams.insertPosition) || isString(actionParams.insertPosition))
+    ) {
+      let insertPos = actionParams.insertPosition === 'currentPos' ? infos.currentPosition : actionParams.insertPosition
+
+      let text = lines.join('\n') as string
+      let text2 = [
+        text.slice(0, insertPos), 
+        actionParams.textToInsert, 
+        text.slice(insertPos)
+      ].join('')
+      lines = text2.split('\n')
+  }
+
+  
   return lines.join('\n')
 }

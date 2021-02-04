@@ -24,7 +24,7 @@ export const transformExtrawurstLinks = (bodyRaw: string):string => {
 export const transformRessourcesInHTML = (currentFolderPath:string, bodyRaw: string ):string => {
     const regex = /(\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\ \#]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\ \#]*)\))/gm;
     const ressLink = `http://${configClient.global.staticUrl}:${sharedConfig.staticServerPort}/${currentFolderPath}/$3`
-    const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=200,height=200');"`
+    const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=800,height=1000');"`
     const subst = `<a href="#" ${codeOpenPopup}>$2</a>`;
     // const subst = `<a href="${ressLink}" download="$2">$2</a>`;
     return bodyRaw.replace(regex, subst);

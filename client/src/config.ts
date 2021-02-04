@@ -5,7 +5,7 @@ export const configClient = {
         socket: true,
         eventManager: true,
     },
-    version: 'build 13.2 25/01/2021',
+    version: 'build 14.1 01/02/2021',
     global: {
         socketPort: sharedConfig.socketServerPort,
         socketUrl: window.location.hostname,

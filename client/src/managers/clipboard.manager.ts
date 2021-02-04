@@ -38,6 +38,8 @@ export const initClipboardListener = (events: {
     alreadyListening = true
     
     window.addEventListener("paste", function(e){
+        console.log('PASTE');
+        
         retrieveImageFromClipboardAsBlob(e, function(imageBlob){
             if(imageBlob){
                 events.onImagePasted(imageBlob)

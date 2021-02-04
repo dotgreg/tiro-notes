@@ -19,7 +19,7 @@ export const ioServer:SocketIO.Server = require('socket.io')(sharedConfig.socket
 
 listenForSocketRoutes();
 
-startStaticServer(backConfig.dataFolder, sharedConfig.staticServerPort); 
+startStaticServer(backConfig.dataFolder, sharedConfig.staticServerPort, false); 
 startStaticServer(backConfig.frontendBuildFolder, sharedConfig.frontendServerPort); 
 // triggerWorker('getFolderHierarchySync', {folder: '../../data'}, (folder:iFolder) => {
 //   console.log('from worker in main <3', folder);

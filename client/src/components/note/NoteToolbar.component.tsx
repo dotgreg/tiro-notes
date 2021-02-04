@@ -88,6 +88,7 @@ export const NoteMobileToolbar = (p:{
 }) => {
   return <StyledToolbarMobile>
     <ButtonToolbar
+      class='mobile-text-manip-toolbar'
       buttons={[
         { title: '<-', action: () => p.onButtonClicked('<-') },
         { title: '->', action: () => p.onButtonClicked('->') },
@@ -101,8 +102,7 @@ export const NoteMobileToolbar = (p:{
 }
 
 const StyledToolbarMobile  = styled.div`
-  position: fixed;
-  bottom: 40px;
+  
 `
 
 
@@ -120,10 +120,13 @@ export interface ToolbarButton {
   action?:Function
 }
 
-export const ButtonToolbar = (p:{buttons: ToolbarButton[]}) => {
+export const ButtonToolbar = (p:{
+  class?:string
+  buttons: ToolbarButton[]
+}) => {
 
   return <StyledToolbar>
-    <ul className='toolbar'>
+    <ul className={`toolbar ${p.class}`}>
       {
         p.buttons.map(button => 
           <li title={button.title}>
@@ -135,13 +138,7 @@ export const ButtonToolbar = (p:{buttons: ToolbarButton[]}) => {
   </StyledToolbar>
 }
 const StyledToolbar  = styled.div`
-    ul.toolbar {
-      display: flex;
-      list-style: none;
-      li {
-
-      }
-    }
+    
 `
 
 

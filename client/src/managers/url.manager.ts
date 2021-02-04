@@ -1,9 +1,11 @@
 import { isNumber } from "lodash";
+import { isVarMobileView, MobileView } from "./device.manager";
 
 export interface iUrlParams {
     search?:string
     folder?:string
     file?:number
+    mobileview?:MobileView
 }
 let currentUrlParams:any = {}
 
@@ -48,8 +50,22 @@ export const getUrlParams = ():iUrlParams => {
     urlParams.search = urlParamsSearch.get('search') || undefined
     urlParams.file = urlParamsSearch.get('file') ? parseInt(urlParamsSearch.get('file') as string) : undefined
     urlParams.folder = urlParamsSearch.get('folder') || undefined
-    // console.log('[READING URL PARAMS]', urlParams);
+    urlParams.mobileview = isVarMobileView(urlParamsSearch.get('mobileview')) ? urlParamsSearch.get('mobileview') as MobileView : 'navigator'
     return urlParams
+}
+
+export const urlParamsToString = (urlParams:iUrlParams):string => {
+    let res = ''
+    let i = 0
+    for (const key in urlParams) {
+        if (Object.prototype.hasOwnProperty.call(urlParams, key)) {
+            if (urlParams[key]) {
+                res += `${i === 0 ? '' : '&'}${key}=${urlParams[key]}`
+                i++
+            }
+        }
+    }
+    return res
 }
 
 export const updateUrl = (urlParams:iUrlParams) => {

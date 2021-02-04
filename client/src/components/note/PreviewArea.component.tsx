@@ -24,7 +24,7 @@ export const PreviewArea = (p:{
 
     // scroll effect
     useEffect(() => {
-        previewAreaRefs.wrapper.scrollTop = p.posY
+        previewAreaRefs.wrapper.current.scrollTop = p.posY
     }, [p.posY])
 
     return (

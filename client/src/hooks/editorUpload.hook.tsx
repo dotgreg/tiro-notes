@@ -1,0 +1,93 @@
+import React, { useRef, useState } from "react"
+import { iSocketEventsParams, socketEvents } from "../../../shared/sockets/sockets.events"
+import { Icon } from "../components/Icon.component"
+import { initClipboardListener } from "../managers/clipboard.manager"
+import { socketEventsManager } from "../managers/sockets/eventsListener.sockets"
+import { clientSocket } from "../managers/sockets/socket.manager"
+import { safeString } from "../managers/string.manager"
+import { listenOnUploadSuccess, uploadFile, uploadOnDrop, uploadOnInputChange } from "../managers/upload.manager"
+
+let keyUploadSocketListener
+
+export const useEditorUploadLogic = (p:{
+    onUploadSuccess: (ressourceInMd:string) => void
+}) => {
+    const [dragzoneEnabled, setDragzoneEnabled] = useState(false)
+    let uploadDragzoneRef = useRef<HTMLDivElement>(null)
+    let uploadInputRef = useRef<HTMLInputElement>(null)
+
+    const initUploadLogic = () => {
+        // WHEN RECEIVE FILE INFOS FROM API
+        keyUploadSocketListener = listenOnUploadSuccess((file) => {
+            let ressourceInMd = `![${safeString (file.name)}](${file.path})\n\n`
+            p.onUploadSuccess(ressourceInMd)
+        })
+
+        // UPLOAD FROM CLIPBOARD
+        initClipboardListener({
+            onImagePasted: (imageBlob) => {
+                uploadFile(imageBlob)
+            }
+        })
+        
+        // UPLOAD FROM INPUT
+        uploadInputRef.current ? uploadOnInputChange(uploadInputRef.current) : console.error('[UPLOAD] uploadInputRef not detected');
+        
+        // UPLOAD FROM DRAG DROP
+        if(uploadDragzoneRef.current) {
+            uploadOnDrop(uploadDragzoneRef.current, {
+                onDragEnd: () => { setDragzoneEnabled(false)},
+                onDragStart: () => { setDragzoneEnabled(true)}
+            })
+        }
+    }
+
+    const cleanUploadLogic = () => {
+        socketEventsManager.off(keyUploadSocketListener)
+    }
+
+    const updateUploadFolder = (newUploadFolder:string) => {
+        clientSocket.emit(socketEvents.uploadResourcesInfos, {folderpath: newUploadFolder} as iSocketEventsParams.uploadResourcesInfos) 
+    }
+
+    const uploadButtonConfig = {
+        title:'upload files', 
+        class:'upload-button-wrapper',
+        customHtml: <>
+          <input className='input-file-hidden' id="file" name="file" type="file" ref={uploadInputRef}  />
+          <label 
+            //@ts-ignore 
+            for="file"><Icon name="faPaperclip" /></label>
+        </>
+      }
+
+
+    // COMPONENTS
+    const UploadDragZone = () => <div 
+        className={`dragzone ${dragzoneEnabled ? '' : 'hidden'}`} 
+        ref={uploadDragzoneRef} >
+    </div>
+
+    
+    return {
+        initUploadLogic, cleanUploadLogic, updateUploadFolder, 
+        uploadButtonConfig,
+        UploadDragZone
+    }
+}
+
+export const DragzoneCss = `
+    .dragzone {
+        &.hidden {
+        display:none;
+        }
+        display:block;
+        position: absolute;
+        top: 3vh;
+        left: 3vw;
+        width: 94vw;
+        height: 94vh;
+        z-index: 10;
+        background: rgba(255,255,255,0.4);
+    }
+`

@@ -9,16 +9,16 @@ import { clientSocket } from '../../managers/sockets/socket.manager';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
 import { formatDateEditor } from '../../managers/date.manager';
 import { Icon } from '../Icon.component';
-import { textToId } from '../../managers/string.manager';
+import { safeString } from '../../managers/string.manager';
 import { initClipboardListener } from '../../managers/clipboard.manager';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { deviceType } from '../../managers/device.manager';
 import { decryptText, encryptText } from '../../managers/encryption.manager';
 import { PasswordPopup } from '../PasswordPopup.component';
-import { getCurrentLineInfos, insertAtCaret, LineTextInfos, TextModifAction, triggerTextModifAction, updateTextFromLetterInput } from '../../managers/textEditor.manager';
+import { getTextAreaLineInfos, insertAtCaret, LineTextInfos, TextModifAction, triggerTextModifAction, updateTextFromLetterInput } from '../../managers/textEditor.manager';
 import {  ButtonToolbar, mainEditorToolbarConfig, NoteMobileToolbar } from './NoteToolbar.component';
 const marked = require('marked');
-
+ 
 export interface NoteProps {
   file:iFile
   fileContent:string
@@ -74,6 +74,10 @@ export class Note extends React.Component<NoteProps, State> {
         this.previewContentWrapper = React.createRef()
         this.previewContent = React.createRef()
         this.monacoEditorComp = React.createRef()
+
+        setTimeout(() => {
+          console.log(this.monacoEditorComp)
+        }, 1000)
     }
     
     
@@ -92,7 +96,7 @@ export class Note extends React.Component<NoteProps, State> {
       this.restartAutomaticHistorySave()
 
       this.keyUploadSocketListener = listenOnUploadSuccess((file) => {
-        let imageInMd = `![${file.name}](${file.path})\n\n`
+        let imageInMd = `![${safeString (file.name)}](${file.path})\n\n`
         this.setState({insertUnderCaret: imageInMd})
 
         let textAreaEl = this.textareaMobile.current
@@ -125,7 +129,7 @@ export class Note extends React.Component<NoteProps, State> {
         
         this.setState({shouldSaveOnLeave: false, password: null})
 
-        console.log('[EDITOR] ON CHANGING DOCUMENT');
+        console.log('[EDITOR] ON CHANGING DOCUMENT', nextProps.file);
         clientSocket.emit(socketEvents.uploadResourcesInfos, 
           {folderpath: this.props.file.folder} as iSocketEventsParams.uploadResourcesInfos) 
         this.restartAutomaticHistorySave()
@@ -166,8 +170,8 @@ export class Note extends React.Component<NoteProps, State> {
       if (this.shouldEncryptOnLeave && this.state.password) {
         let res = encryptText(this.state.fileContent, this.state.password)
         if (res.cipher) this.props.onFileEdited(this.props.file.path, res.cipher)
-        this.neutralizeDelayedFileSave = true
-        setTimeout(() => {this.neutralizeDelayedFileSave = false}, 1000)
+        this.stopDelayedFileSave = true
+        setTimeout(() => {this.stopDelayedFileSave = false}, 1000)
       }
 
       this.shouldEncryptOnLeave = false
@@ -209,14 +213,14 @@ export class Note extends React.Component<NoteProps, State> {
 
 
 
-    neutralizeDelayedFileSave: boolean = false
+    stopDelayedFileSave: boolean = false
     throttledOnFileEdited = throttle((filePath:string, content:string) => {
-      if (this.neutralizeDelayedFileSave) return
+      if (this.stopDelayedFileSave) return
       this.props.onFileEdited(filePath, content)
     }, 1000)
     
     debouncedOnFileEdited = debounce((filePath:string, content:string) => {
-      if (this.neutralizeDelayedFileSave) return
+      if (this.stopDelayedFileSave) return
       this.props.onFileEdited(filePath, content)
     }, 1000)
 
@@ -234,12 +238,11 @@ export class Note extends React.Component<NoteProps, State> {
       let previewDivWrapper = this.previewContentWrapper.current 
       let previewDiv = this.previewContent.current 
       // console.log(previewDiv.offsetHeight, previewDiv.clientHeight);
-      let monacoHeight = this.monacoEditorComp ? this.monacoEditorComp.editor.getContentHeight() : 0
+      
+      let monacoHeight = this.monacoEditorComp ? this.monacoEditorComp.current.editor.getContentHeight() : 0
       let maxHeight = Math.max(previewDiv.offsetHeight, monacoHeight)
       
       if (newY > -200 && newY < maxHeight) {
-        console.log(newY);
-        
         this.setState({posY: newY})
         previewDivWrapper.scrollTop = newY
       }
@@ -290,9 +293,9 @@ export class Note extends React.Component<NoteProps, State> {
         res = this.monacoEditorComp.getCurrentLineInfos()
         this.currentCursorPos = res.monacoPosition
       } else {
-        res = getCurrentLineInfos(this.textareaMobile.current)
-        this.currentCursorPos = res.textareaPosition
-        this.saveYTextarea()
+        res = getTextAreaLineInfos(this.textareaMobile.current)
+        this.currentCursorPos = res.currentPosition
+        // this.saveYTextarea()
       }
       return res
     }
@@ -305,7 +308,7 @@ export class Note extends React.Component<NoteProps, State> {
         setTimeout(()=>{
           textarea.selectionStart = this.currentCursorPos + decal
           textarea.selectionEnd = this.currentCursorPos + decal
-          this.resetYTextarea()
+          // this.resetYTextarea()
         })
       }
     }
@@ -371,15 +374,17 @@ export class Note extends React.Component<NoteProps, State> {
       //
       // RENDER
       //
-      oldContentProp: string = ''
+      oldPath: string = ''
+      oldContent: string = ''
       render() {
-        // if (!this.props.file) return <div></div>
-        if (this.oldContentProp !== this.props.fileContent) {
+        if (this.oldPath !== this.props.file.path || this.oldContent !== this.props.fileContent) {
           this.setState({
-          fileContent: this.props.fileContent,
-          filePath: this.props.file.path
-        })
-        this.oldContentProp = this.props.fileContent
+            fileContent: this.props.fileContent,
+            filePath: this.props.file.path
+          })
+          this.oldPath = this.props.file.path
+          this.oldContent = this.props.fileContent
+        
       }
       let currentFolderArr = this.props.file.path.split('/')
       currentFolderArr.pop()
