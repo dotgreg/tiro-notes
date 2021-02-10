@@ -2,7 +2,7 @@ import { debounce, random } from "lodash"
 import { iSocketEventsParams, socketEvents } from "../../../shared/sockets/sockets.events"
 import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
-import { scanDir, workerGetFolderHierarchy } from "./dir.manager"
+import { dirDefaultBlacklist, scanDir } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
 import { triggerWorker } from "./workers/worker.manager"
 
@@ -20,8 +20,11 @@ export const debouncedFolderScan = debounce( async(socket:any, initPath:string) 
 }, 100)
 
 export const debouncedHierarchyScan = debounce( async(socket:any) => {
-    triggerWorker('getFolderHierarchySync', {folder: backConfig.dataFolder}, (folder:iFolder) => {
-        socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
+    triggerWorker('getFolderHierarchySync', {
+        folder: `${backConfig.dataFolder}`,
+        config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
+    }, (folder:iFolder) => {
+      socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
     })  
 }, 2000)
 

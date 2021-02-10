@@ -1,0 +1,20 @@
+{
+  "name": "builds-ew",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-build-app": "node server/server.js",
+    "OLDstart-app": "node --experimental-worker server/server/src/server.js",
+    "OLDbuild": "npm install --prefix ./server/server --only=prod ./server/server",
+    "OLDbuild-and-start-linux": "npm run build; npm run start-app",
+    "OLDbuild-and-start-win": "npm run build & npm run start-app"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/dotgreg/extrawurst-builds.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/dotgreg/extrawurst-builds#readme"
+}

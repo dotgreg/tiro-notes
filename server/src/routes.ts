@@ -2,17 +2,16 @@ import { iSockerRoute } from "./managers/socket/socket.manager"
 import { socketEvents, iSocketEventsParams } from "../../shared/sockets/sockets.events";
 import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
-import { createDir, fileNameFromFilePath, getFolderHierarchySync, scanDir, workerGetFolderHierarchy } from "./managers/dir.manager";
+import { createDir, dirDefaultBlacklist, fileNameFromFilePath, scanDir } from "./managers/dir.manager";
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import {  analyzeTerm, liveSearch } from "./managers/search.manager";
-import { formatDateNewNote, formatDateHistory, formatDateTag } from "./managers/date.manager";
+import { formatDateHistory } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent, debouncedHierarchyScan } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
 import { random } from "lodash";
 import { triggerWorker } from "./managers/workers/worker.manager";
 import { iFolder } from "../../shared/types.shared";
-import { ioServer } from "./server";
 
 export const socketRoutes:iSockerRoute[] = [
     {
@@ -64,7 +63,10 @@ export const socketRoutes:iSockerRoute[] = [
     {
         event: socketEvents.askFolderHierarchy,
         action: async (socket, data:iSocketEventsParams.askFolderHierarchy) => {
-            triggerWorker('getFolderHierarchySync', {folder: `${backConfig.dataFolder}${data.folderPath}`}, (folder:iFolder) => {
+            triggerWorker('getFolderHierarchySync', {
+                folder: `${backConfig.dataFolder}${data.folderPath}`,
+                config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
+            }, (folder:iFolder) => {
               socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
             })  
         }

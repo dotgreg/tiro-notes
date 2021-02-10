@@ -1,6 +1,5 @@
 import { random, each } from "lodash";
 import { lengthObj } from "./helpers/lengthObj.helper";
-import { configClient } from "../client/src/config";
 
 interface iEventManagerParams {
   name: string
@@ -49,7 +48,6 @@ export default class EventManager {
   }
 
   trigger(event:string, params?:any) {
-    if(configClient.log.eventManager) console.log(`%c [${this.name.toUpperCase()}] --> trigger ${event}, nb functions:`,'background: #ccc; color: blue', lengthObj(this.events[event]),`data: `, params)
     if(this.events[event]) {
       each(this.events[event], f => {
         f(params)

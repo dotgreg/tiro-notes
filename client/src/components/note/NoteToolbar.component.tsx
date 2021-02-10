@@ -90,12 +90,12 @@ export const NoteMobileToolbar = (p:{
     <ButtonToolbar
       class='mobile-text-manip-toolbar'
       buttons={[
-        { title: '<-', action: () => p.onButtonClicked('<-') },
-        { title: '->', action: () => p.onButtonClicked('->') },
-        { title: '[x]', action: () => p.onButtonClicked('[x]') },
-        { title: '^', action: () => p.onButtonClicked('^') },
-        { title: 'v', action: () => p.onButtonClicked('v') },
-        { title: 'X', action: () => p.onButtonClicked('X') },
+        { icon: 'faAngleLeft', action: () => p.onButtonClicked('<-') },
+        { icon: 'faAngleRight', action: () => p.onButtonClicked('->') },
+        { icon: 'faCheckSquare', action: () => p.onButtonClicked('[x]') },
+        { icon: 'faAngleUp', action: () => p.onButtonClicked('^') },
+        { icon: 'faAngleDown', action: () => p.onButtonClicked('v') },
+        { icon: 'faEraser', action: () => p.onButtonClicked('X') },
       ]}
     />
   </StyledToolbarMobile>

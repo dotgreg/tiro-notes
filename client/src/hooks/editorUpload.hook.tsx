@@ -16,8 +16,13 @@ export const useEditorUploadLogic = (p:{
     let uploadDragzoneRef = useRef<HTMLDivElement>(null)
     let uploadInputRef = useRef<HTMLInputElement>(null)
 
-    const initUploadLogic = () => {
+    const reinitUploadLogic = () => {
+        console.log(`[UPLOAD] cleanUploadLogic`);
+        socketEventsManager.off(keyUploadSocketListener)
+
         // WHEN RECEIVE FILE INFOS FROM API
+        console.log(`[UPLOAD] initUploadLogic`);
+        
         keyUploadSocketListener = listenOnUploadSuccess((file) => {
             let ressourceInMd = `![${safeString (file.name)}](${file.path})\n\n`
             p.onUploadSuccess(ressourceInMd)
@@ -42,11 +47,8 @@ export const useEditorUploadLogic = (p:{
         }
     }
 
-    const cleanUploadLogic = () => {
-        socketEventsManager.off(keyUploadSocketListener)
-    }
-
     const updateUploadFolder = (newUploadFolder:string) => {
+        console.log(`[UPLOAD] updateUploadFolder to ${newUploadFolder}`);
         clientSocket.emit(socketEvents.uploadResourcesInfos, {folderpath: newUploadFolder} as iSocketEventsParams.uploadResourcesInfos) 
     }
 
@@ -70,7 +72,7 @@ export const useEditorUploadLogic = (p:{
 
     
     return {
-        initUploadLogic, cleanUploadLogic, updateUploadFolder, 
+        reinitUploadLogic, updateUploadFolder, 
         uploadButtonConfig,
         UploadDragZone
     }

@@ -32,10 +32,9 @@ export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number =>
     onDragStart:Function
     onDragEnd:Function
   }) => {
-    window.addEventListener('drop', function(ev) {
+    const handleDrop = (ev) => {
       ev.preventDefault();
       if (ev.dataTransfer && ev.dataTransfer.items) {
-        // console.log(ev.dataTransfer.items[0].getAsFile()?.name);
         let files = ev.dataTransfer.items
         uploadFile(files[0].getAsFile())
         // for (var i = 0; i < ev.dataTransfer.items.length; i++) {
@@ -45,11 +44,17 @@ export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number =>
         //   }
         // }
       }
-    }); 
-    window.addEventListener('dragover', function(e) {
+    }
+    const handleDragOver = (e) => {
       e.preventDefault();
       dragEndDebounced()
-    });
+    }
+    window.removeEventListener('drop', handleDrop); 
+    window.addEventListener('drop', handleDrop);
+
+    window.removeEventListener('dragover', handleDragOver);
+    window.addEventListener('dragover', handleDragOver);
+
     const dragEndDebounced = debounce(() => {
       events.onDragEnd()
     }, 100)

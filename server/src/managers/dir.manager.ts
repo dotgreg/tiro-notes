@@ -3,10 +3,8 @@ import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { fileExists } from "./fs.manager";
 var fs = require('fs')
-var path = require('path')
 
-let defaultBlacklist = ['.resources']
-
+export let dirDefaultBlacklist = ['.resources']
 
 export const createDir = async (path:string, mask:number = 0o775):Promise<null|string> => {
     return new Promise((resolve, reject) => {
@@ -30,7 +28,7 @@ export const fileNameFromFilePath = (path:string):string => {
     return fileName
 }
 
-export const scanDir = async (path:string, blacklist:string[]=defaultBlacklist):Promise<iFile[]|string> => {
+export const scanDir = async (path:string, blacklist:string[]=dirDefaultBlacklist):Promise<iFile[]|string> => {
     console.log(`[SCANDIR] path : ${path}`);
     
     return new Promise((resolve, reject) => {
@@ -76,130 +74,5 @@ export const scanDir = async (path:string, blacklist:string[]=defaultBlacklist):
                 }
             }
         });
-    })
-}
-
-
-
-
-
-
-
-
-const { job, start, stop } = require("microjob");
-export const workerGetFolderHierarchy = async (folder):Promise<iFolder>  => {
-    let configDataFolder = backConfig.dataFolder
-    try {
-        
-        await start();
-        let resThreaded:iFolder = await job( async () => {
-            const fs = require('fs')
-            const path = require('path')
-            const getFolderHierarchySync = async (folder, blacklist:string[]=defaultBlacklist):Promise<iFolder> => {
-                return new Promise((resolve, reject) => {
-                    var stats = fs.lstatSync(folder)
-                    let relativeFolder = folder.replace(configDataFolder, '')
-                    let info:iFolder= {
-                        path: folder,
-                        title: path.basename(folder),
-                        key: relativeFolder
-                    };
-                    if (stats.isDirectory()) {
-                        fs.readdirSync(folder).map(async (child) => {
-                            let childFile = folder + '/' + child
-                            let stats2 = fs.lstatSync(childFile)
-                            if (stats2.isDirectory() && blacklist.indexOf(path.basename(child)) === -1) {
-                                if (!info.children) info.children = []
-                                info.children.push(await getFolderHierarchySync(childFile,blacklist))
-                            } 
-                        });
-                    } 
-                    resolve(info)
-                })
-            }
-            let res = await getFolderHierarchySync(folder)
-            return res
-        },{ ctx: { folder,defaultBlacklist,configDataFolder } }) 
-        return resThreaded
-    } 
-    catch (err) {console.log('threaded err', err);}
-    finally {await stop();}
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export const getFolderHierarchySync = async (folder, blacklist:string[]=defaultBlacklist):Promise<iFolder> => {
-    // console.log(`getFolderHierarchySync ${folder}`);
-    
-    return new Promise((resolve, reject) => {
-        var stats = fs.lstatSync(folder)
-        let relativeFolder = folder.replace(backConfig.dataFolder, '')
-        let info:iFolder= {
-            path: folder,
-            title: path.basename(folder),
-            key: relativeFolder
-        };
-        if (stats.isDirectory()) {
-            fs.readdirSync(folder).map(async (child) => {
-                let childFile = folder + '/' + child
-                let stats2 = fs.lstatSync(childFile)
-                if (stats2.isDirectory() && blacklist.indexOf(path.basename(child)) === -1) {
-                    if (!info.children) info.children = []
-                    info.children.push(await getFolderHierarchySync(childFile,blacklist))
-                } 
-            });
-        } 
-        resolve(info)
-    })
-}
- 
-export const getFolderHierarchyParallel = async (folder, blacklist:string[]=defaultBlacklist):Promise<iFolder> => {
-    // console.log('getFolderHierarchy');
-    
-    return new Promise((resolve, reject) => {
-        fs.lstat(folder, (err, stats) => {
-            // console.log(stats);
-            
-            let relativeFolder = folder.replace(backConfig.dataFolder, '')
-            let info:iFolder= {
-                path: folder,
-                title: path.basename(folder),
-                key: relativeFolder
-            }; 
-            if (stats.isDirectory()) {
-                fs.readdir(folder, (err, files) => {
-                    let c = 0
-                    files.map(async (child) => {
-                        let childFile = folder + '/' + child
-                        fs.lstat(childFile, async (err, stats2) => {
-                            if (stats2.isDirectory() && blacklist.indexOf(path.basename(child)) === -1) {
-                                if (!info.children) info.children = []
-                                info.children.push(await getFolderHierarchyParallel(childFile,blacklist))
-                            } 
-                            c++
-                            if (c === files.length) {
-                                resolve(info)
-                            }
-                        })
-                    });
-                })
-            } 
-        })
     })
 }

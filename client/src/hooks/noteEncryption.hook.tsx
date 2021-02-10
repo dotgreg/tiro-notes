@@ -15,12 +15,15 @@ export const useNoteEncryption = (p:{
     const [password, setPassword] = useState<string|null>(null)
 
     const ifEncryptOnLeave = (cb:(encrypted:string)=>void) => {
+      console.log({shouldEncryptOnLeave, password});
+      
         if (shouldEncryptOnLeave && password) {
+            console.log('[EVENTS EDITOR] shouldEncryptOnLeave');
             let res = encryptText(p.fileContent, password)
             if (res.cipher) cb(res.cipher)
         }
         setPassword(null)
-        setNoHistoryBackupWhenDecrypted(true)
+        setNoHistoryBackupWhenDecrypted(false)
     }
 
     const encryptContent = (pwd:string) => {

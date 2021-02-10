@@ -1,13 +1,10 @@
 import {sharedConfig} from '../../shared/shared.config';
 import { listenForSocketRoutes } from './managers/socket/socket.manager';
-import { backConfig } from './config.back';
+import { backConfig, isEnvDev } from './config.back';
 import { startStaticServer } from './managers/staticServer.manager';
-import { getFolderHierarchySync, workerGetFolderHierarchy } from './managers/dir.manager';
-import { triggerWorker } from './managers/workers/worker.manager';
-import { iFolder } from '../../shared/types.shared';
 
-console.log('===== SERVER STARTING ======', sharedConfig) 
-console.log('hello world3');
+console.log(`===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}})`, sharedConfig) 
+// open('http://192.168.43.1:3023');
 
 //
 // SOCKET SERVER
@@ -15,13 +12,10 @@ console.log('hello world3');
 export const ioServer:SocketIO.Server = require('socket.io')(sharedConfig.socketServerPort, {
   path: '/',
   secure: true,
+  serveClient: false 
 });
 
 listenForSocketRoutes();
 
 startStaticServer(backConfig.dataFolder, sharedConfig.staticServerPort, false); 
 startStaticServer(backConfig.frontendBuildFolder, sharedConfig.frontendServerPort); 
-// triggerWorker('getFolderHierarchySync', {folder: '../../data'}, (folder:iFolder) => {
-//   console.log('from worker in main <3', folder);
-// })  
-  

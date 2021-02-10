@@ -1,5 +1,4 @@
-import { debounce } from 'lodash';
-import {  useEffect, useRef, useState } from 'react';
+import {  useEffect, useState } from 'react';
 import { iFile } from '../../../shared/types.shared';
 
 let oldPath:string = ''
@@ -16,58 +15,62 @@ export const useNoteEditorEvents = (p:{
     onNoteLeaving?: (isEdited:boolean, oldPath:string) => void
 }) => {
 
-    const [shouldSaveOnLeave, setShouldSaveOnLeave] = useState(false)
+    const [hasBeenEdited, setHasBeenEdited] = useState(false)
 
     useEffect(() => {
         if (p.onEditorDidMount){
-            console.log('[EDITOR] EDITOR DID MOUNT');
+            console.log('[EVENTS EDITOR] EDITOR DID MOUNT');
             p.onEditorDidMount()
         }
         
         return () => {
             if (p.onEditorWillUnmount){
-                console.log('[EDITOR] WILL UNMOUNT');
+                
+                triggerNoteLeaveLogic()
+
+                console.log('[EVENTS EDITOR] WILL UNMOUNT');
                 p.onEditorWillUnmount()
             }
         }
     },[])
     
     useEffect(() => {
-        if (shouldSaveOnLeave) {
-            if (p.onNoteLeaving){
-                console.log('[EDITOR] => leaving an edited note');
-                p.onNoteLeaving(true, oldPath)
-            }
-        } else {
-            if (p.onNoteLeaving){
-                console.log('[EDITOR] => leaving an unedited note');
-                p.onNoteLeaving(false, oldPath)
-            }
-        }
-        oldPath = p.file.path
+        triggerNoteLeaveLogic()
     }, [p.file.path])
-
+    
     useEffect(() => {
         if (p.onNoteContentDidLoad){
-            console.log('[EDITOR] => on note content did load');
+            console.log(`[EVENTS EDITOR] => on note content did load ${p.file.path}`);
             p.onNoteContentDidLoad()
         }
-    }, [p.fileContent])
+    }, [p.fileContent, p.file.path])
+
+
+
+    
+    const triggerNoteLeaveLogic = () => {
+        if (oldPath !== '' && p.onNoteLeaving) {
+            console.log(`[EVENTS EDITOR] => leaving edited ${oldPath} to ${p.file.path}`);
+            p.onNoteLeaving(hasBeenEdited, oldPath)
+        }
+        oldPath = p.file.path
+    }
+    
     
     // EVENT => EDITING
     const triggerNoteEdition = (newContent:string) => {
-        if (!shouldSaveOnLeave) {
+        if (!hasBeenEdited) {
             if (p.onNoteEdition){ 
-                console.log('[EDITOR] => onEdition (first)');
+                console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);
                 p.onNoteEdition(newContent, true)
             }
         } else {
             if (p.onNoteEdition){ 
-                console.log('[EDITOR] => onEdition');
+                console.log(`[EVENTS EDITOR] => onEdition (${p.file.path})`);
                 p.onNoteEdition(newContent, false)
             }
         }
-        setShouldSaveOnLeave(true)      
+        setHasBeenEdited(true)      
     }
 
     return {triggerNoteEdition}

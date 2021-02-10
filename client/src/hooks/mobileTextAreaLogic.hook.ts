@@ -5,9 +5,8 @@ import { useTextareaScrollStabilizer } from './textAreaScrollStabilizer.hook';
 import { useTextManipActions } from './textManipActions.hook';
 
 
-export const useMobileTextAreaLogic = (p:{
+export const useMobileTextAreaLogic = (fileContent: string, p:{
     mobileTextarea:React.RefObject<HTMLTextAreaElement>
-    fileContent: string
     onMobileNoteEdition: (string)=>void
 }) => {
     const {
@@ -38,7 +37,7 @@ export const useMobileTextAreaLogic = (p:{
       let updatedText = e.target.value
       let newLetter = updatedText[e.target.selectionStart-1].charCodeAt(0)
       // only react on insertion
-      if (updatedText.length > p.fileContent.length) {
+      if (updatedText.length > fileContent.length) {
         let linesInfos = getLineTextInfos()
         if (!linesInfos) return
         updatedText = updateTextFromLetterInput (

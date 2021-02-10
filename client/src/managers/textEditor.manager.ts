@@ -87,6 +87,8 @@ export const updateTextFromLetterInput = (
 
   // IF ENTER
   if (letterCode === 10) {
+    console.log(letterCode);
+    
     let lastLine = infos.lines[infos.lineIndex-1]
     let pattern1 = lastLine.indexOf('- [')
     let pattern2 = lastLine.indexOf('-')

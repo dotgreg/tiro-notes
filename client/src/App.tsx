@@ -18,6 +18,7 @@ import { getUrlParams, listenToUrlChanges, updateUrl, iUrlParams } from './manag
 import { initClipboardListener } from './managers/clipboard.manager';
 import { deviceType, MobileView } from './managers/device.manager';
 import { DualViewer } from './components/note/DualViewer.component';
+import { ButtonToolbar } from './components/note/NoteToolbar.component';
 
 
 const LocalStorageMixin = require('react-localstorage');
@@ -461,21 +462,14 @@ class App extends React.Component<{
 
             { 
               deviceType() !== 'desktop' &&
-              <div className='mobile-view-toggler'>
-                <button 
-                  type="button" 
-                  onClick={(e) => { this.toggleMobileView('navigator')}}>
-                  Nav</button>
-                <button 
-                  type="button" 
-                  onClick={(e) => { this.toggleMobileView('editor')}}>
-                  Edi</button>
-                <button 
-                  type="button" 
-                  onClick={(e) => { this.toggleMobileView('preview')}}>
-                  Prev</button>
-                
-              </div>
+              <ButtonToolbar
+                class='mobile-view-toggler'
+                buttons={[
+                    {icon: 'faList', action: () => {this.toggleMobileView('navigator')} },
+                    {icon: 'faEdit', action: () => {this.toggleMobileView('editor')} },
+                    {icon: 'faEye', action: () => {this.toggleMobileView('preview')} },
+                ]}
+              />
             }
 
 

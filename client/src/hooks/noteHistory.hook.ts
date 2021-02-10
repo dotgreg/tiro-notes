@@ -1,29 +1,23 @@
 import { useState } from "react"
+import { useInterval } from "./interval.hook"
 
-let historySaveInterval: any = ''
-let historyContent: string = ''
-
-export const useIntervalNoteHistory = (p:{
-    noHistoryBackup:boolean
-    fileContent: string
-    
+export const useIntervalNoteHistory = (fileContent: string,p:{
     shouldCreateIntervalNoteHistory: Function
 }) => {
-    const restartAutomaticHistorySave = () => {
-      clearInterval(historySaveInterval)
-      let historySaveInMin = 10 
-      let historySaveIntTime = historySaveInMin * 60 * 1000 
-      
-      historySaveInterval = setInterval(() => {
-        if (p.noHistoryBackup) return
-        if (p.fileContent !== historyContent) {
-          historyContent = p.fileContent
-          console.log(`[EDITOR => HISTORY SAVE CRON] : content changed, saving history version`);
-          p.shouldCreateIntervalNoteHistory()
-        } else {
-          console.log(`[EDITOR => HISTORY SAVE CRON] : content not changed, do nothing`);
-        }
-      }, historySaveIntTime )
-    }
-    return {restartAutomaticHistorySave}
+    const [historyContent, setHistoryContent] = useState('')
+
+    // console.log('[HISTORY FILE] : restartAutomaticHistorySave');
+    let historySaveInMin = 5 
+    // let historySaveIntTime = historySaveInMin * 60 * 1000 
+    let historySaveIntTime = 10 * 1000 
+    
+    useInterval(() => {
+      if (fileContent !== historyContent) {
+        setHistoryContent(fileContent)           
+        console.log(`[HISTORY FILE] : content changed, saving history version`);
+        p.shouldCreateIntervalNoteHistory()
+      } else {
+        console.log(`[HISTORY FILE] : content not changed, do nothing`);
+      }
+    }, historySaveIntTime )
 }

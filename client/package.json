@@ -7,6 +7,8 @@
     "@emotion/core": "^11.0.0",
     "@emotion/react": "^11.1.2",
     "@emotion/styled": "^11.0.0",
+    "emotion": "^11.0.0",
+    "react-emotion": "^10.0.0",
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
     "@fortawesome/react-fontawesome": "^0.1.13",
@@ -35,7 +37,6 @@
     "css-loader": "4.3.0",
     "dotenv": "8.2.0",
     "dotenv-expand": "5.1.0",
-    "emotion": "^11.0.0",
     "eslint": "^7.11.0",
     "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-flowtype": "^5.2.0",
@@ -72,7 +73,6 @@
     "react-app-polyfill": "^2.0.0",
     "react-dev-utils": "^11.0.1",
     "react-dom": "^17.0.1",
-    "react-emotion": "^10.0.0",
     "react-localstorage": "^1.0.0",
     "react-mixin": "^5.0.0",
     "react-monaco-editor": "^0.41.1",
@@ -98,8 +98,6 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
-    "build2": "cp index.html public/ & react-scripts build",
-    "build3": "webpack --config webpack.production.config.js & rm build/index.html & cp index.html build/ & cp public/favicon.png build/ & rm -r ../../data/.extrawurst/webclient & cp -r build ../../data/.extrawurst/webclient",
     "test": "node scripts/test.js"
   },
   "eslintConfig": {

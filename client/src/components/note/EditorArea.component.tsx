@@ -43,23 +43,24 @@ const EditorAreaInternal = (p:{
       fileContent: p.fileContent,
 
       onEditorDidMount: () => {
-        initUploadLogic()
+        
       },
       onEditorWillUnmount: () => {
-        cleanUploadLogic()
+      
       },
       onNoteContentDidLoad: () => {
         setInnerFileContent(p.fileContent)
         updateUploadFolder(p.file.folder)
-        restartAutomaticHistorySave()
+        reinitUploadLogic()
       },
       onNoteEdition: (newContent, isFirstEdition) => {
-        if (isFirstEdition) p.onSavingHistoryFile(p.file.path, newContent, 'enter')
+        // reaction from triggerNoteEdition
+        if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
         setInnerFileContent(newContent)
         p.onFileEdited(p.file.path, newContent)
       },
       onNoteLeaving: (isEdited,oldPath) => {
-        if (isEdited) p.onFileEdited(oldPath, innerFileContent)
+        // if (isEdited) p.onFileEdited(oldPath, innerFileContent)
         ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
       }
     })
@@ -73,12 +74,13 @@ const EditorAreaInternal = (p:{
     //   })
 
     // AUTOMATIC HISTORY HOOK Every 10m
-    const {restartAutomaticHistorySave} = useIntervalNoteHistory({
-      noHistoryBackup: false,
-      fileContent: p.fileContent,
+    useIntervalNoteHistory(innerFileContent, {
       shouldCreateIntervalNoteHistory: () => {
-        if (noHistoryBackupWhenDecrypted) return
-        p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
+        if (noHistoryBackupWhenDecrypted) return console.log('[HISTORY FILE] : noHistoryBackupWhenDecrypted')
+        else {
+          p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
+          console.log(`[HISTORY FILE] : creating history file for ${p.file.path}`)
+        }
       }
     })
 
@@ -86,7 +88,7 @@ const EditorAreaInternal = (p:{
     // UPLOAD LOGIC HOOK
     
     const { 
-      UploadDragZone, uploadButtonConfig, initUploadLogic, cleanUploadLogic, updateUploadFolder
+      UploadDragZone, uploadButtonConfig, reinitUploadLogic, updateUploadFolder
     } = useEditorUploadLogic({
         onUploadSuccess: ressLinkInMd => {
           insertTextAt(ressLinkInMd, 'currentPos')
@@ -95,9 +97,8 @@ const EditorAreaInternal = (p:{
 
     // MOBILE EDITOR LOGIC HOOK
     let mobileTextarea = useRef<HTMLTextAreaElement>(null)
-    const {onTextareaChange, onTextareaScroll} = useMobileTextAreaLogic ({
+    const {onTextareaChange, onTextareaScroll} = useMobileTextAreaLogic (innerFileContent, {
       mobileTextarea,
-      fileContent: p.fileContent,
       onMobileNoteEdition: triggerNoteEdition
     })
 
@@ -123,6 +124,13 @@ const EditorAreaInternal = (p:{
 
     // TOOLBAR ACTIONS
     const editorToolbarActions = [
+      {
+        title:'back', 
+        icon:'faAngleLeft', 
+        action: () => {
+          window.history.back()
+        }
+      },
       editorToggleButtonConfig(p.onEditorToggle),
       detachNoteNewWindowButtonConfig(),
       {
@@ -149,19 +157,23 @@ const EditorAreaInternal = (p:{
       },
     ]
 
-    
+                                          
 
     return (
         <div className={`editor-area ${p.editorEnabled ? 'active' : 'inactive'}`}>
                 <UploadDragZone />
 
                 <div className='toolbar-wrapper'>
-                  <NoteMobileToolbar
-                    onButtonClicked={action => {
-                      let updatedText = applyTextModifAction(action)
-                      if (updatedText) triggerNoteEdition(updatedText) 
-                    }}            
-                  />
+
+                  {
+                    deviceType() !== 'desktop' &&
+                    <NoteMobileToolbar
+                      onButtonClicked={action => {
+                        let updatedText = applyTextModifAction(action)
+                        if (updatedText) triggerNoteEdition(updatedText) 
+                      }}            
+                    />
+                  }
                   <ButtonToolbar
                     buttons={editorToolbarActions}
                   />
@@ -173,7 +185,7 @@ const EditorAreaInternal = (p:{
                 />
 
               {
-                deviceType() === 'desktop' && 
+                deviceType() !== 'mobile' && 
                 <MonacoEditorWrapper
                   value={innerFileContent}
                   vimMode={vimMode}
@@ -183,7 +195,7 @@ const EditorAreaInternal = (p:{
                 />
               }
               {
-                deviceType() !== 'desktop' && 
+                deviceType() === 'mobile' && 
                 <textarea
                   className='textarea-editor'
                   ref={mobileTextarea}

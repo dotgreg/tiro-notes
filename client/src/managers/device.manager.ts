@@ -18,7 +18,7 @@ export const deviceType = ():DeviceType => {
     // console.log(deviceWidth);
     
     let res:DeviceType = 'desktop'
-    if (deviceWidth < 1100) res = 'tablet'
+    if (deviceWidth < 1000) res = 'tablet'
     if (deviceWidth < 500) res = 'mobile'
     return res
 }

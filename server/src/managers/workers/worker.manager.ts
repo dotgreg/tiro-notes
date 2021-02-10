@@ -1,7 +1,8 @@
 type WorkerAction = 'getFolderHierarchySync'
 
+var path = require('path')
 const { Worker } = require('worker_threads');
-const worker = new Worker('./src/managers/workers/worker.js');
+const worker = new Worker(path.join(__dirname,'/worker.js'));
 
 let callback:{f:Function} = { f : () => {}}
 

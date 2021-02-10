@@ -69,9 +69,15 @@ justify-content:center;
       z-index: 10;
       display:flex;
       width: 100%;
-      button {
+      list-style: none;
+      margin: 0px;
+      padding: 0px;
+      li {
         flex: 1 1 auto;
-        padding: 10px;
+        button {
+          padding: 10px;
+          width: 100%;
+        }
       }
   }
 
@@ -199,6 +205,7 @@ justify-content:center;
           }
           width: ${d === 'desktop' ? '50%' : (props => props.v === 'editor' ? '100vw' : '0vw')};
           display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'block' : 'none')};
+          position: relative;
           .monaco-editor {
             margin: 0px;
           }
@@ -257,11 +264,12 @@ justify-content:center;
       }
 
       .toolbar-wrapper {
+
         ${
           d === 'desktop' ?
           `position: absolute;
-          left: 50%;
-          width: 30%;`
+          left: 100%;
+          width: 85%;`
           : `
           position: relative;
           `
