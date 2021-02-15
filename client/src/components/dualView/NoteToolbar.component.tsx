@@ -2,19 +2,13 @@ import React, { ReactElement } from 'react';
 import styled from '@emotion/styled'
 import { TextModifAction } from '../../managers/textEditor.manager';
 import { Icon } from '../Icon.component';
-import { capitalize } from 'lodash';
-import { Note } from './Note.component';
 import { textToId } from '../../managers/string.manager';
-import { title } from 'process';
- 
-
-
 
 //
 // MAIN TOOLBAR
 //
 
-export const mainEditorToolbarConfig = (thatNote: Note) => [
+export const mainEditorToolbarConfig = (thatNote: any) => [
   {
     title:'toggle editor', 
     icon:'faEdit', 
@@ -62,8 +56,7 @@ export const mainEditorToolbarConfig = (thatNote: Note) => [
     customHtml: <>
       <input className='input-file-hidden' id="file" name="file" type="file" ref={thatNote.uploadInput}  />
       <label 
-        //@ts-ignore 
-        for="file"><Icon name="faPaperclip" /></label>
+        ><Icon name="faPaperclip" /></label>
     </>
   },
   {
@@ -128,8 +121,8 @@ export const ButtonToolbar = (p:{
   return <StyledToolbar>
     <ul className={`toolbar ${p.class}`}>
       {
-        p.buttons.map(button => 
-          <li title={button.title}>
+        p.buttons.map((button,key) => 
+          <li title={button.title} key={key}>
             <Button {...button}/>
           </li>  
         )

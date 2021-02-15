@@ -3,6 +3,8 @@ import Tree from 'rc-tree';
 import styled from '@emotion/styled'
 import { iFolder } from '../../../shared/types.shared';
 import { iconFolder } from '../managers/icons.manager';
+import { onFolderClickedFn } from '../hooks/app/treeFolder.hook';
+import { random } from 'lodash';
 
 const STYLE = `
 .rc-tree-child-tree {
@@ -34,11 +36,14 @@ const reactMixin = require('react-mixin');
 export class TreeView extends React.Component<{
   folder: iFolder
   selected: string
-  onFolderClicked: (folderPath:string) => void
-  onFolderRightClicked: (folderPath:string) => void
+
+  expandedKeys: string[]
+  onExpandedKeysChange: (newKeys:string[]) => void
+
+  onFolderClicked: onFolderClickedFn
+  onFolderRightClicked: onFolderClickedFn
 },{
   autoExpandParent: boolean
-  expandedKeys: string[]
 }> {
 
   static displayName = 'treeview';
@@ -46,35 +51,31 @@ export class TreeView extends React.Component<{
     super(props)
     this.state = {
       autoExpandParent: true,
-      expandedKeys: []
     }
   }
 
   onDragEnter = ({ expandedKeys }:any) => {
     console.log('enter', expandedKeys);
-    this.setState({
-      expandedKeys,
-    });
+    this.props.onExpandedKeysChange(expandedKeys)
   };
 
 
   onExpand = (expandedKeys:any) => {
     console.log('onExpand', expandedKeys);
+    this.props.onExpandedKeysChange(expandedKeys)
     this.setState({
-      expandedKeys,
       autoExpandParent: false,
     });
-  };
+  }; 
 
   render() {
-    const { expandedKeys } = this.state;
 
     return (
         <StyledWrapper>
-        <div className="draggable-demo">
+        <div className="folder-tree">
             <style dangerouslySetInnerHTML={{ __html: STYLE }} />
             <Tree
-              expandedKeys={expandedKeys}
+              expandedKeys={this.props.expandedKeys}
               onExpand={this.onExpand}
               selectedKeys={[this.props.selected]}
               autoExpandParent={this.state.autoExpandParent}
@@ -91,7 +92,7 @@ export class TreeView extends React.Component<{
                 this.props.onFolderClicked(info.node.key as string) 
               }}
               treeData={[this.props.folder]}
-              motion={motion}
+              // motion={motion}
             />
         </div>
         </StyledWrapper>

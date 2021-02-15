@@ -2,35 +2,37 @@ import React, { useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { deviceType } from '../../managers/device.manager';
 import { MonacoEditorWrapper } from '../MonacoEditor.Component';
-import {  useNoteSaveLogic } from '../../hooks/noteSaveLogic.hook';
 import {NoteTitleInput, PathModifFn} from './TitleEditor.component'
-import { TextManipActionsHookParams, useTextManipActions } from '../../hooks/textManipActions.hook';
-import { useMobileTextAreaLogic } from '../../hooks/mobileTextAreaLogic.hook';
-import { useNoteEditorEvents } from '../../hooks/noteEditorEvents.hook';
-import { useIntervalNoteHistory } from '../../hooks/noteHistory.hook';
-import { useNoteEncryption } from '../../hooks/noteEncryption.hook';
-import { ButtonToolbar, mainEditorToolbarConfig, NoteMobileToolbar } from './NoteToolbar.component';
+import { useTextManipActions } from '../../hooks/editor/textManipActions.hook';
+import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
+import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
+import { useIntervalNoteHistory } from '../../hooks/editor/noteHistory.hook';
+import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
+import { ButtonToolbar, NoteMobileToolbar } from './NoteToolbar.component';
 import { textToId } from '../../managers/string.manager';
-import { useEditorUploadLogic } from '../../hooks/editorUpload.hook';
-import { editorToggleButtonConfig } from '../../managers/editorToggler.manager';
+import { useEditorUploadLogic } from '../../hooks/editor/editorUpload.hook';
 import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
+import { clientSocket } from '../../managers/sockets/socket.manager';
+import { useStatMemo } from '../../hooks/useStatMemo.hook';
+import { random } from 'lodash';
 
 export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
 export type onFileEditedFn  =(filepath:string, content:string) => void
 export type onFileDeleteFn  = (filepath:string) => void
+export type onScrollFn  = (newYpercent:number) => void
 
-const EditorAreaInternal = (p:{
-    editorEnabled: boolean,
+export const EditorArea = (p:{
     file:iFile, 
     posY:number, 
     fileContent:string,
 
+    onScroll: onScrollFn
     onFilePathEdited: PathModifFn
     onSavingHistoryFile: onSavingHistoryFileFn
     onFileEdited: onFileEditedFn
     onFileDelete: onFileDeleteFn
 
-    onEditorToggle: Function
+    onViewToggle: Function
 }) => {
 
     const [vimMode, setVimMode] = useState(false)
@@ -43,12 +45,12 @@ const EditorAreaInternal = (p:{
       fileContent: p.fileContent,
 
       onEditorDidMount: () => {
-        
       },
       onEditorWillUnmount: () => {
-      
+        
       },
       onNoteContentDidLoad: () => {
+        if (!clientSocket) return
         setInnerFileContent(p.fileContent)
         updateUploadFolder(p.file.folder)
         reinitUploadLogic()
@@ -131,7 +133,11 @@ const EditorAreaInternal = (p:{
           window.history.back()
         }
       },
-      editorToggleButtonConfig(p.onEditorToggle),
+      {
+        title:'toggle views', 
+        icon:'faEye', 
+        action: () => {p.onViewToggle()}
+      },
       detachNoteNewWindowButtonConfig(),
       {
         title:'insert unique id', 
@@ -157,11 +163,10 @@ const EditorAreaInternal = (p:{
       },
     ]
 
-                                          
-
     return (
-        <div className={`editor-area ${p.editorEnabled ? 'active' : 'inactive'}`}>
-                <UploadDragZone />
+        // <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
+        <div className={`editor-area`}>
+                {UploadDragZone}
 
                 <div className='toolbar-wrapper'>
 
@@ -175,6 +180,7 @@ const EditorAreaInternal = (p:{
                     />
                   }
                   <ButtonToolbar
+                    class='editor-main-toolbar'
                     buttons={editorToolbarActions}
                   />
                 </div>
@@ -183,7 +189,6 @@ const EditorAreaInternal = (p:{
                     path={p.file.path}
                     onEdited={p.onFilePathEdited}
                 />
-
               {
                 deviceType() !== 'mobile' && 
                 <MonacoEditorWrapper
@@ -191,6 +196,7 @@ const EditorAreaInternal = (p:{
                   vimMode={vimMode}
                   ref={monacoEditorComp}
                   onChange={triggerNoteEdition}
+                  onScroll={p.onScroll}
                   posY={p.posY}
                 />
               }
@@ -200,7 +206,10 @@ const EditorAreaInternal = (p:{
                   className='textarea-editor'
                   ref={mobileTextarea}
                   value={innerFileContent}
-                  onScroll={onTextareaScroll}
+                  onScroll={(e:any) => {
+                    p.onScroll(e)
+                    onTextareaScroll(e)
+                  }}
                   onChange={onTextareaChange}
                 />
               }
@@ -211,9 +220,9 @@ const EditorAreaInternal = (p:{
 }
 
 // let pass everything for the moment
-export const EditorArea = React.memo(EditorAreaInternal, (props, nextProps) => {
-  if(props.file.path === nextProps.file.path) {
-    return false
-  }
-  return false
-})
+// export const EditorArea = React.memo(EditorAreaInternal, (props, nextProps) => {
+//   if(props.file.path === nextProps.file.path) {
+//     return false
+//   }
+//   return false
+// })

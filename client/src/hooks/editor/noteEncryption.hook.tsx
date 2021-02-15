@@ -1,6 +1,6 @@
 import React, { useState } from "react"
-import { PasswordPopup } from "../components/PasswordPopup.component"
-import { decryptText, encryptText } from "../managers/encryption.manager"
+import { PasswordPopup } from "../../components/PasswordPopup.component"
+import { decryptText, encryptText } from "../../managers/encryption.manager"
 
 export const useNoteEncryption = (p:{
     fileContent:string
@@ -15,7 +15,6 @@ export const useNoteEncryption = (p:{
     const [password, setPassword] = useState<string|null>(null)
 
     const ifEncryptOnLeave = (cb:(encrypted:string)=>void) => {
-      console.log({shouldEncryptOnLeave, password});
       
         if (shouldEncryptOnLeave && password) {
             console.log('[EVENTS EDITOR] shouldEncryptOnLeave');

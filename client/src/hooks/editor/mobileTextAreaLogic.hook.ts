@@ -1,6 +1,6 @@
 import { debounce } from 'lodash';
 import React, {  useState } from 'react';
-import { updateTextFromLetterInput } from '../managers/textEditor.manager';
+import { updateTextFromLetterInput } from '../../managers/textEditor.manager';
 import { useTextareaScrollStabilizer } from './textAreaScrollStabilizer.hook';
 import { useTextManipActions } from './textManipActions.hook';
 
@@ -29,27 +29,38 @@ export const useMobileTextAreaLogic = (fileContent: string, p:{
       // @ts-ignore
       let y = e.target.scrollTop
       saveYTextarea(y)
+      console.log('onTextareaScroll');
+      
     } 
     const onTextareaChange = (e:any) => {
-      setIsTextareaEdited(true)
-      debounceTextareaEdited()
-      resetYTextarea()
+      console.log('onTextareaChange');
+      
+      // setIsTextareaEdited(true)
+      // debounceTextareaEdited()
+      
       let updatedText = e.target.value
       let newLetter = updatedText[e.target.selectionStart-1].charCodeAt(0)
+      // resetYTextarea()
       // only react on insertion
       if (updatedText.length > fileContent.length) {
-        let linesInfos = getLineTextInfos()
-        if (!linesInfos) return
-        updatedText = updateTextFromLetterInput (
-          linesInfos,
-          newLetter,
-          decalChars => {
-            resetCursorPosition(decalChars)
+          let linesInfos = getLineTextInfos()
+          if (!linesInfos) return
+          updatedText = updateTextFromLetterInput (
+            linesInfos,
+            newLetter,
+            decalChars => {
+              setTimeout(() => {
+                resetCursorPosition(decalChars)
+                resetYTextarea()
+              })
           })
-        }
-        p.onMobileNoteEdition(updatedText)
-        // triggerContentSaveLogic(updatedText); 
-      }
+      }  
+      p.onMobileNoteEdition(updatedText)
+      // resetYTextarea()
+      
+      // setTimeout(() => {
+      // }, 1000)
+    }
 
       return {onTextareaChange, onTextareaScroll}
 }

@@ -7,7 +7,6 @@ const marked = require('marked');
 export let previewAreaRefs
 
 export const PreviewArea = (p:{
-    editorEnabled: boolean,
     file:iFile, 
     posY:number, 
     fileContent:string
@@ -29,7 +28,7 @@ export const PreviewArea = (p:{
 
     return (
         <div 
-            className={`preview-area ${p.editorEnabled ? 'half' : 'full'}`}
+            className={`preview-area`}
             ref={previewAreaRefs.wrapper}
             >
 
@@ -38,18 +37,29 @@ export const PreviewArea = (p:{
             <div className='date modified'>modified: {formatDateEditor(new Date(p.file.modified || 0))}</div>
             <div className='date created'>created: {formatDateEditor(new Date(p.file.created || 0))}</div>
             
-            <div 
-                className='preview-content'
-                ref={previewAreaRefs.main}
-                dangerouslySetInnerHTML={{__html:
-                marked( 
-                transformRessourcesInHTML(currentFolder ,
-                transformImagesInHTML (currentFolder ,
-                transformExtrawurstLinks (
-                transformUrlInLinks ( 
-                    p.fileContent)))))}}>
-            </div>
+            <PreviewRenderer
+                filecontent={p.fileContent}
+                currentFolder={currentFolder}
+            />
 
         </div>
     )
 }
+
+
+
+const PreviewRenderer = React.memo((p:{filecontent:string, currentFolder:string}) => {
+    return (
+        <div 
+            className='preview-content'
+            ref={previewAreaRefs.main}
+            dangerouslySetInnerHTML={{__html:
+                marked( 
+                transformRessourcesInHTML(p.currentFolder ,
+                transformImagesInHTML (p.currentFolder ,
+                transformExtrawurstLinks (
+                transformUrlInLinks ( 
+                    p.filecontent)))))}}>
+        </div>  
+    )
+})

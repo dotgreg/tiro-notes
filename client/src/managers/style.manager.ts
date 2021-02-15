@@ -1,7 +1,7 @@
 import { Global, css } from '@emotion/react'
 import styled from '@emotion/styled';
 import { deviceType, MobileView, DeviceType } from './device.manager';
-import {DragzoneCss} from '../hooks/editorUpload.hook'
+import {DragzoneCss} from '../hooks/editor/editorUpload.hook'
 
 let d = deviceType()
 // let v = 'editor'
@@ -26,15 +26,14 @@ export const GlobalCssApp = css`
   body {
     margin: 0;
     padding: 0px;
-    height: 100vh;
     overflow: hidden;
     background: ${styleApp.colors.bg.light};
     font-size: 11px;
     font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
   }
   html, body {
-    overflow: hidden;
-    heigth: 100vh;
+    height: 100vh;
+    overflow:hidden;
   }
   body {
     position: relative;
@@ -103,22 +102,29 @@ justify-content:center;
     width: ${d === 'desktop' ? '40' : (props => props.v !== 'navigator' ? 0 : 100)}vw;
     display: ${d === 'desktop' ? 'flex' : (props => props.v !== 'navigator' ? 'none' : 'flex')};
     .left-wrapper-1 {
+      // remove scrollbar
+      overflow: hidden;
+
       background: ${styleApp.colors.bg.dark}; 
       color: white;
       width: 40%;
       padding-left: ${d === 'desktop' ? '90' : '10'}px;
       height:100vh;
-      overflow: hidden;
-      overflow-y: auto;
       position: relative;
-
+      .folder-tree {
+        // invisible scrollbars
+        height: 100vh;
+        padding-right: 20px;
+        width: 100%;
+        box-sizing: content-box;
+        overflow-y:scroll;
+      }
       
     }
     .left-wrapper-2 {
       width: 60%;
       height:100vh;
       overflow: hidden;
-      overflow-y: auto;
     }
 
     .list-toolbar {
@@ -138,6 +144,12 @@ justify-content:center;
     }
 
     .list-wrapper {
+      // remove scroll
+      height: 80vh;
+      padding-right: 20px;
+      width: 100%;
+      box-sizing: content-box;
+      overflow-y:scroll;
       ul {
           list-style: none;
           padding: 0px 0px 0px 0px;
@@ -196,13 +208,35 @@ justify-content:center;
       overflow-y: auto; */
     .note-wrapper {
       .dual-view-wrapper {
+
+
+
+        &.view-editor {
+          .editor-area {
+            width: 100%;
+          }
+          .preview-area {
+            display: none;
+          }
+        }
+        &.view-preview {
+          .editor-area {
+            .title-input-wrapper {
+              display: none;
+            }
+            width: 0%;
+          }
+          .preview-area {
+            width: 100%;
+          }
+        }
+
+
+
         position:relative;
         display: ${d === 'desktop' ? 'flex' : 'block'};
         ${DragzoneCss}
         .editor-area {
-          &.inactive {
-            display: none;
-          }
           width: ${d === 'desktop' ? '50%' : (props => props.v === 'editor' ? '100vw' : '0vw')};
           display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'block' : 'none')};
           position: relative;
@@ -223,14 +257,7 @@ justify-content:center;
             font-weight: 800;
             color: rgb(38 183 2);
           }
-          &.full {
-            width: 100%;
-            pre {
-              code {
-                width: 90%;
-              }
-            }
-          }
+          
           width: ${d === 'desktop' ? '43' : (props => props.v === 'editor' ? '0' : '100')}%;
           /* display: ${d === 'desktop' ? 'block' : 'none'}; */
           display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'none' : 'block')};
@@ -238,7 +265,6 @@ justify-content:center;
           height: ${d === 'desktop' ? '100vh':'80vh'};
           margin-bottom: 100px;
           overflow: hidden;
-          overflow-y: scroll;
 
           .preview-content {
             margin-bottom:100px;
@@ -263,23 +289,18 @@ justify-content:center;
         left: 10px;
       }
 
-      .toolbar-wrapper {
+      .toolbar-wrapper {    
 
-        ${
-          d === 'desktop' ?
-          `position: absolute;
-          left: 100%;
-          width: 85%;`
-          : `
-          position: relative;
-          `
-        }
+        
         
         ul.toolbar {
           display: flex;
           list-style: none;
           padding: 0px 0px 0px 0px;
           margin: 10px 0px 0px 0px;
+          &.editor-main-toolbar {
+            margin-left: 10px
+          }
           li {
     
           }
@@ -317,8 +338,9 @@ justify-content:center;
           margin-right: 5px;
           &.delete {
             /* background: red; */
-            position:absolute;
-            right: 10px;
+            // position:absolute;
+            // right: 10px;
+            margin-left: 30px;
           }
         }
       }

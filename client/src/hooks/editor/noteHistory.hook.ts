@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useInterval } from "./interval.hook"
+import { useInterval } from "../interval.hook"
 
 export const useIntervalNoteHistory = (fileContent: string,p:{
     shouldCreateIntervalNoteHistory: Function

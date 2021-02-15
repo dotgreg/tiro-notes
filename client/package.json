@@ -104,7 +104,13 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-useless-escape": "off",
+      "eqeqeq": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unused-vars": "off"
+    }
   },
   "browserslist": {
     "production": [

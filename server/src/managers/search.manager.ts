@@ -54,7 +54,7 @@ export const liveSearch = async (params:{
     let processTerm = params.term.split('-').join('\\-') 
     console.log({params});
 
-    const subprocess = execa.command([
+    const ripGrepStreamProcess = execa.command([
         'rg', 
         processTerm, 
         backConfig.dataFolder+params.folder, 
@@ -66,40 +66,50 @@ export const liveSearch = async (params:{
 
     let processDataToFiles = (dataRaw:string):iFile[] => {
         let res:iFile[] = []
-        dataRaw = dataRaw.split(/\:[0-9]*/g).join('') 
-        dataRaw = dataRaw.split(`${backConfig.dataFolder+params.folder}\\`).join('') 
-        dataRaw = dataRaw.split(`${backConfig.dataFolder+params.folder}/`).join('') 
-        var array = dataRaw.match(/[^\r\n]+/g);
+        
+        dataRaw = dataRaw.split(/\:[0-9]+/g).join('')  // remove file.md:1
+        dataRaw = dataRaw.split(`${backConfig.dataFolder+params.folder}\\`).join('') // remove absolute path C:/Users/...
+        dataRaw = dataRaw.split(`${backConfig.dataFolder+params.folder}/`).join('') // absolute path x2
+        var array = dataRaw.match(/[^\r\n]+/g); // split string in array
+        
         
         for (let i = 0; i < array.length; i++) {
-            let element = array[i];
-            element = element.split(`\\`).join('/') 
-            let stats = fs.lstatSync(`${backConfig.dataFolder}/${params.folder}/${element}`)
-            filesScanned.push({
-                nature: 'file',
-                extension: 'md',
-                index: i,
-                created: Math.round(stats.birthtimeMs),
-                modified: Math.round(stats.ctimeMs),
-                // created: -1,
-                // modified: -1,
-                name: `${params.folder}/${element}`,
-                realname: `${element}`,
-                path: `${params.folder}/${element}`,
-                folder: `${params.folder}`,
-            })
+            let filePath = array[i];
+            filePath = filePath.split(`\\`).join('/') 
+            console.log(222, filePath,backConfig.dataFolder);
+            
+            try {
+                let stats = fs.lstatSync(`${backConfig.dataFolder}/${params.folder}/${filePath}`)
+                filesScanned.push({
+                    nature: 'file',
+                    extension: 'md',
+                    index: i,
+                    created: Math.round(stats.birthtimeMs),
+                    modified: Math.round(stats.ctimeMs),
+                    // created: -1,
+                    // modified: -1,
+                    name: `${params.folder}/${filePath}`,
+                    realname: `${filePath}`,
+                    path: `${params.folder}/${filePath}`,
+                    folder: `${params.folder}`,
+                })
+            } catch (error) {
+                console.log('[SEARCH] ERROR : ', error);
+            }
         }
         return res
     }
 
     let filesScanned:iFile[] = []
-    subprocess.stdout.on('data', dataRaw => {
+    ripGrepStreamProcess.stdout.on('data', dataRaw => {
         let data = dataRaw.toString()
+        console.log({data}, backConfig.dataFolder);
+        
         filesScanned.push(...processDataToFiles(data))
         console.log(`SEARCH => temporary search : ${filesScanned.length} elements found`);
         params.onSearchUpdate(filesScanned)
     })
-    subprocess.stdout.on('close', dataRaw => {
+    ripGrepStreamProcess.stdout.on('close', dataRaw => {
         let data = dataRaw.toString()
         console.log(`SEARCH => search ENDED : ${filesScanned.length} elements found`);  
         params.onSearchEnded(filesScanned)
@@ -177,15 +187,14 @@ export const retrieveCachedSearch = async (term:string):Promise<iFile[]> => {
 export const analyzeTerm = (term:string):{rawTerm:string, termId:string, term:string, folderToSearch:string} => {
     let res = {rawTerm:term, termId:term, term:term, folderToSearch:''}
 
+    // if folder in 'toto /hello/world'
     let folderRaw = term.match(/\ \/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\\ ]*)$/gm)
-    // if folder
     if (folderRaw && folderRaw[0]) {
         res.term = term.replace(folderRaw[0], '')
         res.folderToSearch = folderRaw[0].substr(1)
     }
+
     res.termId = res.termId.replace('/', '')
-    // res.termId = res.termId.replace('/', '').split('_').join('-')
-    // res.term = res.term.split('_').join('-')
     
     return res
 }

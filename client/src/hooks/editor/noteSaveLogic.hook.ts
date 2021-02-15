@@ -1,7 +1,7 @@
 import { debounce, throttle } from 'lodash';
 import  {  useState } from 'react';
-import { onFileEditedFn } from '../components/note/EditorArea.component';
-import { useDebounce, useThrottle } from './lodash.hooks';
+import { onFileEditedFn } from '../../components/dualView/EditorArea.component';
+import { useDebounce, useThrottle } from '../lodash.hooks';
 
 export const useNoteSaveLogic = (p:{
     onNoteSave: onFileEditedFn

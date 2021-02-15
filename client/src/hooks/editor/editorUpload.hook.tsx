@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react"
-import { iSocketEventsParams, socketEvents } from "../../../shared/sockets/sockets.events"
-import { Icon } from "../components/Icon.component"
-import { initClipboardListener } from "../managers/clipboard.manager"
-import { socketEventsManager } from "../managers/sockets/eventsListener.sockets"
-import { clientSocket } from "../managers/sockets/socket.manager"
-import { safeString } from "../managers/string.manager"
-import { listenOnUploadSuccess, uploadFile, uploadOnDrop, uploadOnInputChange } from "../managers/upload.manager"
+import { iSocketEventsParams, socketEvents } from "../../../../shared/sockets/sockets.events"
+import { Icon } from "../../components/Icon.component"
+import { initClipboardListener } from "../../managers/clipboard.manager"
+import { socketEventsManager } from "../../managers/sockets/eventsListener.sockets"
+import { clientSocket } from "../../managers/sockets/socket.manager"
+import { safeString } from "../../managers/string.manager"
+import { listenOnUploadSuccess, uploadFile, uploadOnDrop, uploadOnInputChange } from "../../managers/upload.manager"
+import { useStatMemo } from "../useStatMemo.hook"
 
 let keyUploadSocketListener
 
@@ -58,17 +59,16 @@ export const useEditorUploadLogic = (p:{
         customHtml: <>
           <input className='input-file-hidden' id="file" name="file" type="file" ref={uploadInputRef}  />
           <label 
-            //@ts-ignore 
-            for="file"><Icon name="faPaperclip" /></label>
+            ><Icon name="faPaperclip" /></label>
         </>
       }
 
 
     // COMPONENTS
-    const UploadDragZone = () => <div 
+    const UploadDragZone = useStatMemo(<div 
         className={`dragzone ${dragzoneEnabled ? '' : 'hidden'}`} 
         ref={uploadDragzoneRef} >
-    </div>
+    </div>, [dragzoneEnabled])
 
     
     return {

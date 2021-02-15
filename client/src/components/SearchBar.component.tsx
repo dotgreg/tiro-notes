@@ -1,21 +1,23 @@
-import React from 'react';
+import React, { Ref } from 'react';
 import styled from '@emotion/styled'
 
 export class SearchBar extends React.Component<{
     isSearching: boolean
     isListEmpty: boolean
     searchTerm: string
-    onSearchTermUpdate: (term:string) => void
+    onSearchTermUpdate: (term:string, inputEl:HTMLInputElement|null) => void
     onSearchSubmit: () => void
 }, {
     // search: string
 }> {
 
+    inputRef:Ref<HTMLInputElement>
     constructor(props:any) {
         super(props)
         this.state = {
             search:'',
         }
+        this.inputRef = React.createRef()
     }
     submitOnEnter = (event:any) => {
         if (event.key === 'Enter') {
@@ -30,10 +32,11 @@ export class SearchBar extends React.Component<{
             <div className="search-input">
                 <input 
                     type="text" 
+                    ref={this.inputRef}
                     value={this.props.searchTerm}
                     onKeyDown={this.submitOnEnter}
                     onChange={(e) => {
-                        this.props.onSearchTermUpdate(e.target.value)
+                        this.props.onSearchTermUpdate(e.target.value, e.target)
                     }}
                 />
                 {/* <button onClick={(e) => {

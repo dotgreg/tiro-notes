@@ -1,7 +1,7 @@
 import React, {  useState, useEffect, useRef} from 'react';
-import { MonacoEditorWrapper } from '../components/MonacoEditor.Component';
-import { DeviceType, deviceType } from '../managers/device.manager';
-import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../managers/textEditor.manager';
+import { MonacoEditorWrapper } from '../../components/MonacoEditor.Component';
+import { DeviceType, deviceType } from '../../managers/device.manager';
+import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
 
 export interface TextManipActionsHookParams {
   editorType:DeviceType
@@ -18,9 +18,12 @@ export const useTextManipActions = (p:TextManipActionsHookParams) => {
       let res
       
       if (p.editorType === 'desktop') {
+        console.log(31);
         res = editorRefDesktop.current?.getCurrentLineInfos()
         currentCursorPos.current = res.monacoPosition
     } else {
+        console.log(32);
+      
         res = editorRefMobile.current ? getTextAreaLineInfos(editorRefMobile.current) : null
         currentCursorPos.current = res.currentPosition
       }
@@ -29,18 +32,19 @@ export const useTextManipActions = (p:TextManipActionsHookParams) => {
 
 
     const resetCursorPosition = (decal:number) => {
-      // console.log({decal, currentCursorPos});
-      
+      let newPos = currentCursorPos.current + decal
+      console.log('resetCursorPosition to ', newPos);
       if (deviceType() === 'desktop') {
-        editorRefDesktop.current?.editor.setPosition(currentCursorPos.current + decal);
+        editorRefDesktop.current?.editor.setPosition(newPos);
       } else {
         let textarea = editorRefMobile.current
         if (!textarea) return
         textarea.focus()
-        setTimeout(()=>{
-            if (!textarea) return
-            textarea.selectionStart = currentCursorPos.current + decal
-            textarea.selectionEnd = currentCursorPos.current + decal
+        // should wait abit, otherwise, will jump back to bottom of textarea in mobile
+        setTimeout(() => { 
+          if (!textarea) return
+          textarea.selectionStart = newPos
+          textarea.selectionEnd = newPos
         })
       }
     }
@@ -55,6 +59,8 @@ export const useTextManipActions = (p:TextManipActionsHookParams) => {
             action,                        
             linesInfos,
             charDecal => {
+              console.log('applyTextModifAction cb charDecal:',charDecal);
+              
               resetCursorPosition(charDecal)
             },
             actionsParams

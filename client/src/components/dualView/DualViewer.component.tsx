@@ -7,9 +7,11 @@ import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { ButtonToolbar } from './NoteToolbar.component';
 import { editorToggleButtonConfig } from '../../managers/editorToggler.manager';
 import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
+import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
 
 //@TODO mobile bar
 //@TODO mobile bar func to desktop
+export type ViewType = 'editor'| 'both' | 'preview'
 
 export const DualViewer = (p:{
     file:iFile
@@ -19,37 +21,32 @@ export const DualViewer = (p:{
     onSavingHistoryFile: onSavingHistoryFileFn
     onFileDelete: onFileDeleteFn
   }) => {
-      const {syncScrollY, updateSyncScroll} = useSyncScroll()
+      const {syncScrollY, updateSyncScroll, setPosY} = useSyncScroll()
 
 
-    const [editorEnabled, setEditorEnabled] = useState(true)
+    const [viewType, setViewType] = useLocalStorage('viewtype','both')
     const [previewContent, setPreviewContent] = useState('')
 
     useEffect(() => {
         setPreviewContent(p.fileContent)
     }, [p.fileContent])
 
+    // back to top when change file
+    useEffect(() => {
+        if (syncScrollY !== 0) setPosY(0)
+    }, [p.file.path])
+
     return <div 
-        className={`dual-view-wrapper ${!editorEnabled ? 'preview-only' : ''}`}
-        onWheelCapture={updateSyncScroll}
+            className={`dual-view-wrapper view-${viewType}`}
+            onWheelCapture={updateSyncScroll}
+            onTouchMoveCapture={updateSyncScroll}
         >
-
-            { !editorEnabled &&
-                <div className='toolbar-wrapper'>
-                  <ButtonToolbar
-                    buttons={[
-                        editorToggleButtonConfig(() => {setEditorEnabled(!editorEnabled)}),
-                        detachNoteNewWindowButtonConfig()
-                    ]}
-                  />
-                </div>
-            }
-
             <EditorArea
                 file={p.file}
                 posY={syncScrollY}
                 fileContent={p.fileContent}
                 
+                onScroll={newYPercent => {}}
                 onFilePathEdited={p.onFilePathEdited}
                 onSavingHistoryFile={p.onSavingHistoryFile}
                 onFileEdited={(path, content) => {
@@ -57,17 +54,24 @@ export const DualViewer = (p:{
                     setPreviewContent(content)
                 }}
                 onFileDelete={p.onFileDelete}
-                editorEnabled={editorEnabled}
-                onEditorToggle={() => {setEditorEnabled(!editorEnabled)}}
+                onViewToggle={() => {
+                    if (viewType === 'both') setViewType('editor')
+                    if (viewType === 'editor') setViewType('preview')
+                    if (viewType === 'preview') setViewType('both')
+                }}
                 />
 
            <PreviewArea
                 file={p.file}
                 posY={syncScrollY}
                 fileContent={previewContent}
-                editorEnabled={editorEnabled}
            />
 
     </div>
 }
+
+
+
+
+
 

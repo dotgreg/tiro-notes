@@ -13,23 +13,6 @@ export const listenToUrlChanges = (p:{
     onUrlParamsChange:(urlParams:iUrlParams)=>void, 
     // onHashChange:(searchTerm:string)=>void
 }) => {
-    // window.onhashchange = () => { 
-    //     let hash = window.location.hash.substr(1)
-    //     hash = decodeURI(hash)
-    //     if (hash.length > 0) {
-    //         console.log(`[HASH CHANGE]`, hash)
-    //         if (hash.startsWith('search[')) {
-    //         let searchTerm = hash.replaceAll('search[','').replaceAll(']','').replaceAll('_','-')
-    //         p.onHashChange(searchTerm)
-    //       }
-    //     }
-    //     window.location.hash = ''
-    // }
-
-    //@ts-ignore
-    window.log2 = console.log
-   
-    
     window.onpopstate  = () => { 
         let newUrlParams = getUrlParams()
         // console.log('ONPOPSTATE DETECTED'); 

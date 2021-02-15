@@ -82,12 +82,12 @@ const isLineStartClean = (str:string):boolean => {
 export const updateTextFromLetterInput = (
   infos: LineTextInfos, 
   letterCode:number, 
-  afterTextModification:(decal:number)=>void
+  cb:(decal:number)=>void
 ):string => {
 
   // IF ENTER
   if (letterCode === 10) {
-    console.log(letterCode);
+    console.log(`updateTextFromLetterInput => ENTER PRESSED`);
     
     let lastLine = infos.lines[infos.lineIndex-1]
     let pattern1 = lastLine.indexOf('- [')
@@ -99,7 +99,7 @@ export const updateTextFromLetterInput = (
       newLineStart = lastLine.substr(0, pattern1 + 3 ) + ' ] '
       if (isLineStartClean(newLineStart)) {
         infos.lines[infos.lineIndex] = newLineStart + infos.activeLine
-        setTimeout(() => { afterTextModification(newLineStart.length) })
+        cb(newLineStart.length)
       }
 
 
@@ -109,15 +109,20 @@ export const updateTextFromLetterInput = (
       newLineStart = lastLine.substr(0, pattern2+1) + ' ' 
       if (isLineStartClean(newLineStart)) {
         infos.lines[infos.lineIndex] = newLineStart + infos.activeLine
-        setTimeout(() => { afterTextModification(newLineStart.length) })
+        cb(newLineStart.length)
       }
     }
 
 
   } /** END ON ENTER LOGIC */
-
+  
   return infos.lines.join('\n')
 }
+
+
+
+
+
 
 export type TextModifAction = '->'|'<-'|'[x]'|'^'|'v'|'X'|'insertAt'|'insertAtCurrentPos'
 export interface TextModifActionParams {
@@ -128,7 +133,7 @@ export interface TextModifActionParams {
 export const triggerTextModifAction = (
   action: TextModifAction, 
   infos:LineTextInfos, 
-  afterTextModification:(decal:number)=>void,
+  cb:(decal:number)=>void,
   actionParams?: TextModifActionParams
 ):string => {
   let lines = infos.lines
@@ -138,31 +143,31 @@ export const triggerTextModifAction = (
     let currLine = lines[infos.lineIndex ]
     lines[infos.lineIndex] = prevLine
     lines[infos.lineIndex - 1] = currLine
-    afterTextModification(-prevLine.length-1)
+    cb(-prevLine.length-1)
   }
   if (action === 'v') {
     let nextLine = lines[infos.lineIndex + 1]
     let currLine = lines[infos.lineIndex ]
     lines[infos.lineIndex] = nextLine
     lines[infos.lineIndex + 1] = currLine
-    afterTextModification(+nextLine.length+1)
+    cb(+nextLine.length+1)
   }
   if (action === 'X') {
     let lineLength = lines[infos.lineIndex].length
     lines.splice(infos.lineIndex,1)
-    afterTextModification(-lineLength-1)
+    cb(-lineLength-1)
   }
 
   if (action === '->') {
     lines[infos.lineIndex] = '  ' + lines[infos.lineIndex]
-    afterTextModification(2)
+    cb(2)
   }
   if (action === '<-') {
     if (infos.activeLine.startsWith('  ')){
       lines[infos.lineIndex] = lines[infos.lineIndex].substr(2,lines[infos.lineIndex].length)
-      afterTextModification(-2)
+      cb(-2)
     } else {
-      afterTextModification(0)
+      cb(0)
     }
   }
 
@@ -171,15 +176,15 @@ export const triggerTextModifAction = (
   if (action === '[x]') {
     if (!activeLineContent.startsWith('- [ ]') && !activeLineContent.startsWith('- [x]')){
       lines[infos.lineIndex] = lines[infos.lineIndex].replace(activeLineContent, '- [ ] ' + activeLineContent.replace('-',''))
-      afterTextModification(6)
+      cb(6)
     } else if (activeLineContent.startsWith('- [ ]')){
       lines[infos.lineIndex] = lines[infos.lineIndex].replace('[ ]', '[x]')
-      afterTextModification(0)
+      cb(0)
     } else if (activeLineContent.startsWith('- [x]')){
       lines[infos.lineIndex] = lines[infos.lineIndex].replace('[x]', '[ ]')
-      afterTextModification(0)
+      cb(0)
     } else {
-      afterTextModification(0)
+      cb(0)
     }
   }
 

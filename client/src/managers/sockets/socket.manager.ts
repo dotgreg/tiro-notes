@@ -3,9 +3,11 @@ import { socketEvents } from '../../../../shared/sockets/sockets.events';
 import { configClient } from '../../config';
 
 export let clientSocket:SocketIOClient.Socket
+
 export const initSocketConnection = ():Promise<SocketIOClient.Socket> => {
     return new Promise((resolve, reject) => {
         let socketBackend = `${configClient.global.socketUrl}:${configClient.global.socketPort}`
+        if (clientSocket) return
         //@ts-ignore
         clientSocket = io(socketBackend);
         configClient.log.socket && console.log(`[SOCKET] connecting to ${socketBackend}...`);

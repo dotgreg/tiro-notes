@@ -4,6 +4,7 @@ import { styleApp } from '../managers/style.manager';
 import styled from '@emotion/styled'
 import { initVimMode } from 'monaco-vim';
 import { LineTextInfos } from '../managers/textEditor.manager';
+import { onScrollFn } from './dualView/EditorArea.component';
 
 export let monacoEditorInstance: any
 
@@ -12,6 +13,7 @@ export class MonacoEditorWrapper extends React.Component<{
   vimMode:boolean,
   posY:number
   onChange:(text:string)=>void
+  onScroll:onScrollFn
   insertUnderCaret?:string
 },{}> {
   reactComp:any
@@ -32,6 +34,11 @@ export class MonacoEditorWrapper extends React.Component<{
     this.editor = editor
     this.monaco = monaco
     monacoEditorInstance = editor
+
+    editor.onDidScrollChange( (e) =>{
+      this.props.onScroll(e.scrollTop)
+    });
+
     //@ts-ignore
     window.monaco = monaco
     
@@ -72,7 +79,7 @@ export class MonacoEditorWrapper extends React.Component<{
   shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
     
     if (this.props.posY !== nextProps.posY) {
-         this.editor.setScrollPosition({scrollTop: this.props.posY});
+      this.editor.setScrollPosition({scrollTop: this.props.posY});
     }
 
     // if (this.props.insertUnderCaret !== nextProps.insertUnderCaret && nextProps.insertUnderCaret !== '') {
@@ -103,8 +110,14 @@ export class MonacoEditorWrapper extends React.Component<{
               minimap: {enabled: false},
               wordWrap: 'on',
               fontSize: 11,
+              mouseWheelScrollSensitivity: 0.5,
+              lineNumbers: 'off',
+              glyphMargin: false,
+              folding: false,
+              // smoothScrolling: true,
               scrollbar: {
-                handleMouseWheel: false
+                handleMouseWheel: false,
+                verticalScrollbarSize: 0,
               }
             }}
             editorDidMount={this.editorDidMount}

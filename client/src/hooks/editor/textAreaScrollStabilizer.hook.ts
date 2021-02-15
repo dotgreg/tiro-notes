@@ -10,6 +10,7 @@ export const useTextareaScrollStabilizer = (
     }
     const resetYTextarea = () => {
       if (!textarea.current) return
+      console.log('resetYTextarea', textareaY);
       textarea.current.scrollTop = textareaY
     }
     return {saveYTextarea, resetYTextarea}

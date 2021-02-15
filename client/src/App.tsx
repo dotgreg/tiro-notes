@@ -5,7 +5,6 @@ import { clientSocket, initSocketConnection } from './managers/sockets/socket.ma
 import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
 import { iFile, iFolder } from '../../shared/types.shared';
 import { List, SortModes, SortModesLabels } from './components/List.component';
-import { Note } from './components/note/Note.component';
 import { SearchBar } from './components/SearchBar.component';
 import { TreeView } from './components/TreeView.Component';
 import { Global } from '@emotion/react'
@@ -17,8 +16,9 @@ import { Icon } from './components/Icon.component';
 import { getUrlParams, listenToUrlChanges, updateUrl, iUrlParams } from './managers/url.manager';
 import { initClipboardListener } from './managers/clipboard.manager';
 import { deviceType, MobileView } from './managers/device.manager';
-import { DualViewer } from './components/note/DualViewer.component';
-import { ButtonToolbar } from './components/note/NoteToolbar.component';
+import { DualViewer } from './components/dualView/DualViewer.component';
+import { ButtonToolbar } from './components/dualView/NoteToolbar.component';
+import { fixScrollToTop } from './managers/fixScroll.manager';
 
 
 const LocalStorageMixin = require('react-localstorage');
@@ -82,6 +82,10 @@ class App extends React.Component<{
   //  LIFECYCLE EVENTS
   //////////////////////////////////////////////////////////////////////////////// 
   componentDidMount() {
+
+
+    fixScrollToTop()
+
     console.log(`[APP] MOUNTED on a ${deviceType()}`);
     this.toggleSocketConnection(false)
     this.updatePageTitle()
@@ -100,11 +104,6 @@ class App extends React.Component<{
 
       bindEventManagerToSocketEvents()
       
-      // INITIAL REQUESTS (including a folder scan every minute)
-      setInterval(() => {
-        // this.askForFolderScan()
-      }, 1000 * 60)
-
       // reload file details 
       this.state.activeFileIndex !== -1 && this.loadFileDetails(this.state.activeFileIndex)
       this.askForFolderScan()
@@ -206,6 +205,7 @@ class App extends React.Component<{
     document.title = title
   }
   
+    
     toggleSocketConnection = (state: boolean) => {
       console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
       this.setState({isSocketConnected: state}) 
@@ -481,7 +481,7 @@ class App extends React.Component<{
               /////////////////////////////
             }
             <div className="left-wrapper-1">
-              <TreeView 
+              {/* <TreeView 
                 selected={this.state.selectedFolder}
                 folder={this.state.folderHierarchy}
                 onFolderClicked={(folderpath) => {
@@ -499,7 +499,7 @@ class App extends React.Component<{
                   clientSocket.emit(socketEvents.askForExplorer, 
                     {folderpath: folderpath} as iSocketEventsParams.askForExplorer) 
                 }}
-              />
+              /> */}
 
               
             </div>
@@ -514,7 +514,20 @@ class App extends React.Component<{
                 onSearchSubmit={() => {
                     this.triggerSearch(this.state.searchTerm)
                 }}
-                onSearchTermUpdate={searchTerm => {this.setState({ searchTerm})}}
+                onSearchTermUpdate={(searchTerm, input) => {
+                  // if in folder, automatically add /current/path in it
+                  if (this.state.searchTerm === '') {
+                    searchTerm = searchTerm + ' ' + this.state.selectedFolder
+                    if (input) {
+                      setTimeout(() => {
+                        let newCursorPos = (input.selectionStart || 0) - this.state.selectedFolder.length - 1
+                        input.selectionStart = newCursorPos
+                        input.selectionEnd = newCursorPos
+                      }, 100)
+                    }
+                  }
+                  this.setState({ searchTerm})
+                }}
                 searchTerm={this.state.searchTerm}
                 isSearching={this.state.isSearching}
                 isListEmpty={this.state.files.length === 0 ? true : false}

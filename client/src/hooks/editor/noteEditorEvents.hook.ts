@@ -1,5 +1,5 @@
 import {  useEffect, useState } from 'react';
-import { iFile } from '../../../shared/types.shared';
+import { iFile } from '../../../../shared/types.shared';
 
 let oldPath:string = ''
 
