@@ -16,6 +16,11 @@ import { useUrlLogic } from './hooks/app/urlLogic.hook';
 import { isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
+import { useKeys } from './hooks/app/useKeys.hook';
+import { useFixScrollTop } from './hooks/fixScrollTop.hook';
+import { consoleCli } from './managers/cliConsole.manager';
+import { configClient } from './config';
+import { onKey } from './managers/keys.manager';
 
 
 
@@ -39,23 +44,26 @@ export const App2 = React.memo(() => {
     },[])
 
     // APP-WIDE MULTI-AREA LOGIC
-    const shouldLoadFirstNote = useRef(false)
+    const shouldLoadNoteIndex = useRef<null|number>(null)
     const lastFolderIn = useRef('')
     const lastSearchIn = useRef('')
 
-    const cleanListAndFileContent = () => {
-        console.log('cleanListAndFileContent');
-        
-        setSelectedFolder('')
-
+    const cleanFileDetails = () => {
         setActiveFileIndex(-1)
+        setFileContent(null)
+    }
+
+    const cleanFilesList = () => {
         setFiles([])
         resetMultiSelect()
-        
-        setFileContent(null)
-        
         setIsSearching(false)
     }
+
+    const cleanListAndFileContent = () => {
+        console.log('cleanListAndFileContent');
+        cleanFileDetails()
+        cleanFilesList()
+    } 
 
     const onFilesReceivedCallback:onFilesReceivedFn = 
     (files, isTemporaryResult) => {
@@ -64,10 +72,13 @@ export const App2 = React.memo(() => {
         if (activeFileIndex !== -1 && activeFileIndex < files.length) {
             askForFileContent(files[activeFileIndex])
         }
-        if (shouldLoadFirstNote.current) {
-            setActiveFileIndex(0)
-            files.length >= 1 && askForFileContent(files[0])
-            shouldLoadFirstNote.current = false
+        if (isNumber(shouldLoadNoteIndex.current)) {
+            console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
+            
+            let noteIndex = shouldLoadNoteIndex.current
+            setActiveFileIndex(noteIndex)
+            if (files.length >= noteIndex + 1) askForFileContent(files[noteIndex])
+            shouldLoadNoteIndex.current = null
         }
         // ON LIST ITEMS CHANGES
         if (selectedFolder !== lastFolderIn.current || searchTerm !== lastSearchIn.current) {
@@ -84,18 +95,29 @@ export const App2 = React.memo(() => {
     //
     // HOOKS
     //
-
-    // Tree Folder
+    // Key press
     const {
-        selectedFolder, setSelectedFolder, 
-        askForFolderScan,
-        FolderTreeComponent
-    } = useAppTreeFolder(
-        // (folderPath) => {
-        //     askForFolderFiles(folderPath)
-        // }
-    )
-     
+        ctrlPressed
+    } = useKeys({
+        onKeyDown: e => {
+            onKey(e, 'up', () => {
+                let i = activeFileIndex   
+                if (i > 0) {
+                    setActiveFileIndex(i-1)
+                    askForFileContent(files[i-1])    
+                }
+            })
+            onKey(e, 'down', () => {
+                let i = activeFileIndex  
+                if (i < files.length - 1) {
+                    setActiveFileIndex(i+1)
+                    askForFileContent(files[i+1])
+                }   
+            })
+        },
+        onKeyUp: e => {}
+    })
+
     // Files List
     const {
         activeFileIndex, setActiveFileIndex,
@@ -103,16 +125,24 @@ export const App2 = React.memo(() => {
         files, setFiles,
         askForFolderFiles, resetMultiSelect,
         FilesListComponent
-    } = useAppFilesList(onFilesReceivedCallback)
+    } = useAppFilesList(
+        ctrlPressed,
+        onFilesReceivedCallback
+    )
 
-    // File Content
-    let activeFile = files[activeFileIndex] 
+    // Tree Folder
     const {
-        setFileContent,fileContent,
-        askForFileContent, 
-        DualViewerComponent
-    } = useFileContent(activeFile)
-    
+        selectedFolder, setSelectedFolder, 
+        askForFolderScan,
+        FolderTreeComponent,
+        
+    } = useAppTreeFolder(
+        multiSelectMode, multiSelectArray
+        // (folderPath) => {
+        //     askForFolderFiles(folderPath)
+        // }
+    )
+
     // Search 
     const {
         isSearching, setIsSearching,
@@ -120,7 +150,7 @@ export const App2 = React.memo(() => {
         triggerSearch,
         SearchBarComponent, 
     } = useAppSearch(
-        shouldLoadFirstNote,
+        shouldLoadNoteIndex,
         cleanListAndFileContent,
     )
 
@@ -131,22 +161,40 @@ export const App2 = React.memo(() => {
     } = useMobileView()
 
     // fileMove logic
-    const emptyFileContent = () => { setActiveFileIndex(-1); setFileContent(null)}
     const {
-        moveFile,
+        askForMoveFile,
         promptAndBatchMoveFiles
     } = useFileMove(
         multiSelectArray,
         files,
         resetMultiSelect,
-        emptyFileContent,
+        cleanFileDetails,
     )
+
+    // File Content + Dual Viewer
+    let activeFile = files[activeFileIndex] 
+    const {
+        setFileContent,
+        setCanEdit,
+        askForFileContent,  
+        DualViewerComponent
+    } = useFileContent(
+        activeFile, activeFileIndex, selectedFolder, files, shouldLoadNoteIndex,
+        cleanFileDetails, askForMoveFile, askForFolderFiles)
+    
     
     // CONNECTION INDICATOR
     const {
         connectionStatusComponent,
         toggleSocketConnection
-    } = useConnectionIndicator()
+    } = useConnectionIndicator(setCanEdit)
+
+    // make sure the interface doesnt scroll
+    useFixScrollTop()
+
+   
+
+    
     
     // url routing/react logic
     useUrlLogic(
@@ -175,7 +223,17 @@ export const App2 = React.memo(() => {
         }
     )
     
-
+    
+    // window variables
+    consoleCli.variables = {
+        description: 'variables for script uses',
+        func: () => {
+             return {
+                file:files[activeFileIndex],
+                config: configClient
+            }
+        }
+    }
 
     return (
         // <CssApp v={this.state.mobileView} >
@@ -203,8 +261,9 @@ export const App2 = React.memo(() => {
                                     } else {
                                         // NORMAL CHANGE FOLDER LOGIC
                                         setSearchTerm('')
-                                        shouldLoadFirstNote.current = true
+                                        shouldLoadNoteIndex.current = 0
                                         setSelectedFolder(folderPath)
+                                        cleanListAndFileContent()
                                         askForFolderFiles(folderPath)
                                     }
                                 }
@@ -223,6 +282,12 @@ export const App2 = React.memo(() => {
                             FilesListComponent({
                                 selectedFolder:selectedFolder,
                                 searchTerm:searchTerm,
+                                onNewFile:() => {
+                                    clientSocket.emit(socketEvents.createNote, 
+                                        {folderPath: selectedFolder} as iSocketEventsParams.createNote
+                                    ) 
+                                    shouldLoadNoteIndex.current = 0
+                                },
                                 onFileClicked:fileIndex => {
                                     setActiveFileIndex(fileIndex)
                                     askForFileContent(files[fileIndex])
@@ -235,7 +300,7 @@ export const App2 = React.memo(() => {
 
 
                 <div className="right-wrapper">
-                    {
+                    { 
                         DualViewerComponent({})
                     }
                     {/* <DualViewerComponent /> */}

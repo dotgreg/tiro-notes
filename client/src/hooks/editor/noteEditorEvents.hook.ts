@@ -6,6 +6,7 @@ let oldPath:string = ''
 export const useNoteEditorEvents = (p:{
     file:iFile 
     fileContent: string
+    canEdit: boolean
 
     onEditorDidMount?: Function
     onEditorWillUnmount?: Function
@@ -59,6 +60,7 @@ export const useNoteEditorEvents = (p:{
     
     // EVENT => EDITING
     const triggerNoteEdition = (newContent:string) => {
+        if (!p.canEdit) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
         if (!hasBeenEdited) {
             if (p.onNoteEdition){ 
                 console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);

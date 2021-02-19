@@ -1,17 +1,20 @@
-import { filter, sortBy } from 'lodash';
-import React, {  useEffect, useRef, useState } from 'react';
+import { cloneDeep, debounce, filter, sortBy } from 'lodash';
+import React, {  useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
-import { iFile } from '../../../../shared/types.shared';
+import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
 import { List, SortModes, SortModesLabels } from '../../components/List.component';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket } from '../../managers/sockets/socket.manager';
+import { useDebounce } from '../lodash.hooks';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 
 export type onFilesReceivedFn = (files:iFile[], temporaryResults: boolean) => void
+export interface FilesPreviewObject {[path:string]:iFilePreview}
 
 export const useAppFilesList = (
+    ctrlPressed:boolean,
     onFilesReceivedCallback: onFilesReceivedFn
 ) => {
     
@@ -22,11 +25,11 @@ export const useAppFilesList = (
     
     const [sortMode, setSortMode] = useLocalStorage<number>('sortMode',3)
     const [files, setFiles] = useLocalStorage<iFile[]>('files',[])
+    const [forceListUpdate, setForceListUpdate] = useState(0)
     
-    const [ctrlPressed, setCtrlPressed] = useState(false)
 
-    // SOCKET INTERACTIONS
     const listenerId = useRef<number>(0)
+    // SOCKET INTERACTIONS
     useEffect(() => {
         console.log(`[FILES LIST] init socket listener`);
         listenerId.current = socketEventsManager.on(
@@ -40,9 +43,72 @@ export const useAppFilesList = (
             socketEventsManager.off(listenerId.current)
         }
     }, [])
+    
     const askForFolderFiles = (folderPath:string) => {
         clientSocket.emit(socketEvents.askForFiles, {folderPath: folderPath} as iSocketEventsParams.askForFiles)
     }
+
+
+
+
+
+
+
+
+
+
+    //
+    // FILES PREVIEWS
+    //
+    const [filesPreviewObj, setFilesPreviewObj] = useState<FilesPreviewObject>({})
+    const listenerId2 = useRef<number>(0)
+
+    const askFilesPreview = (filesPath:string[]) => {
+        // do not ask again if file already has been fetched
+        let newFilesPathArr:string[] = []
+        
+        for (let i = 0; i < filesPath.length; i++) {
+            const path = filesPath[i];
+            if(!filesPreviewObj[path]) newFilesPathArr.push(path)
+        }
+        
+        if (newFilesPathArr.length > 1) {
+            console.log(`[LIST PREVIEW] askFilesPreview ${filesPath.length} asked but sent request for ${newFilesPathArr.length}`);
+            clientSocket.emit(socketEvents.askFilesPreview, {filesPath: newFilesPathArr} as iSocketEventsParams.askFilesPreview)
+        } else {
+            console.log(`[LIST PREVIEW] no request sent`);
+        }
+    }
+
+    useEffect(() => {
+        listenerId2.current = socketEventsManager.on(
+            socketEvents.getFilesPreview, 
+            processFilesPreview
+        )
+        return () => {
+            socketEventsManager.off(listenerId2.current)
+        }
+    }, [filesPreviewObj])
+
+    useEffect(() => {
+        setFilesPreviewObj({})
+    }, [files])
+
+    const processFilesPreview = (data:iSocketEventsParams.getFilesPreview) => {
+        let newFilesPreviewObj:FilesPreviewObject = cloneDeep(filesPreviewObj)
+        for (let i = 0; i < data.filesPreview.length; i++) {
+            const filePreview = data.filesPreview[i];
+            newFilesPreviewObj[filePreview.path] = filePreview
+        }
+        setFilesPreviewObj(newFilesPreviewObj)
+    }
+
+    
+
+
+
+
+
 
 
 
@@ -108,16 +174,14 @@ export const useAppFilesList = (
         searchTerm: string,
         selectedFolder: string,
         onFileClicked: (fileIndex:number)=>void
+        onNewFile: ()=>void
     }) => useStatMemo(
         <div>
             <div className='list-toolbar'>
                 { p.searchTerm === '' &&
                     <button 
                         onClick={(e) => {
-                            clientSocket.emit(socketEvents.createNote, 
-                                {folderPath: p.selectedFolder} as iSocketEventsParams.createNote
-                            ) 
-                            setActiveFileIndex(0)
+                            p.onNewFile()
                         }}
                     >
                         <Icon name="faStickyNote" />
@@ -160,9 +224,17 @@ export const useAppFilesList = (
             // LIST
             /////////////////////////////
             }
-            <div className="list-wrapper">
+            <div 
+                className="list-wrapper"
+                // onScroll={(e) => {
+                //     console.log('scrollOnList', );
+                    
+                // }}
+            >
                 <List
                     files={files} 
+                    filesPreview={filesPreviewObj}
+
                     hoverMode={false}
                     activeFileIndex={activeFileIndex}
                     ctrlPressed={ctrlPressed}
@@ -171,16 +243,23 @@ export const useAppFilesList = (
 
                     multiSelectArray={multiSelectArray}
                     multiSelectMode={multiSelectMode}
-                    onMultiSelectChange={arr => setMultiSelectArray(arr)}
+                    onMultiSelectChange={arr => {
+                        setMultiSelectArray(arr)
+                        setForceListUpdate(forceListUpdate+1)
+                    }}
 
                     onFileClicked={(fileIndex) => {
                         setActiveFileIndex(fileIndex)
                         p.onFileClicked(fileIndex)
                     }}
+
+                    onVisibleItemsChange={visibleFilesPath => {
+                        askFilesPreview(visibleFilesPath)
+                    }}
                     />
                 </div>
             </div>
-    , [files, activeFileIndex, multiSelectArray, multiSelectMode, sortMode])
+    , [files, activeFileIndex, multiSelectArray, multiSelectMode, sortMode, forceListUpdate, ctrlPressed, filesPreviewObj])
 
     return {
         activeFileIndex, setActiveFileIndex,

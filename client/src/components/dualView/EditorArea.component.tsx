@@ -22,12 +22,13 @@ export type onFileDeleteFn  = (filepath:string) => void
 export type onScrollFn  = (newYpercent:number) => void
 
 export const EditorArea = (p:{
-    file:iFile, 
-    posY:number, 
-    fileContent:string,
+    file:iFile 
+    posY:number 
+    fileContent:string
+    canEdit: boolean
 
     onScroll: onScrollFn
-    onFilePathEdited: PathModifFn
+    onFileTitleEdited: PathModifFn
     onSavingHistoryFile: onSavingHistoryFileFn
     onFileEdited: onFileEditedFn
     onFileDelete: onFileDeleteFn
@@ -43,6 +44,7 @@ export const EditorArea = (p:{
     const {triggerNoteEdition} = useNoteEditorEvents({
       file: p.file,
       fileContent: p.fileContent,
+      canEdit:p.canEdit,
 
       onEditorDidMount: () => {
       },
@@ -186,14 +188,15 @@ export const EditorArea = (p:{
                 </div>
 
                 <NoteTitleInput 
-                    path={p.file.path}
-                    onEdited={p.onFilePathEdited}
+                    title={p.file.name.replace('.md','')}
+                    onEdited={p.onFileTitleEdited}
                 />
               {
                 deviceType() !== 'mobile' && 
                 <MonacoEditorWrapper
                   value={innerFileContent}
                   vimMode={vimMode}
+                  readOnly={!p.canEdit}
                   ref={monacoEditorComp}
                   onChange={triggerNoteEdition}
                   onScroll={p.onScroll}
@@ -205,6 +208,7 @@ export const EditorArea = (p:{
                 <textarea
                   className='textarea-editor'
                   ref={mobileTextarea}
+                  readOnly={!p.canEdit}
                   value={innerFileContent}
                   onScroll={(e:any) => {
                     p.onScroll(e)

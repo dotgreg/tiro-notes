@@ -1,4 +1,9 @@
 export type iFileNature = 'file' | 'folder'
+export interface iFilePreview {
+    path: string,
+    picture?: string,
+    content: string,
+}
 export interface iFile {
     nature: iFileNature
     name: string

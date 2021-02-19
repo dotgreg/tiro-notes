@@ -10,6 +10,20 @@ export interface iUploadedFile {
 
 
 var siofu = require("socketio-file-upload");
+
+const handleDrop = (ev) => {
+  ev.preventDefault();
+  if (ev.dataTransfer && ev.dataTransfer.items) {
+    let files = ev.dataTransfer.items
+    //@TODO multiple files handling
+    uploadFile(files[0].getAsFile())
+  }
+}
+
+
+
+
+
 export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number => {
   return socketEventsManager.on(socketEvents.getUploadedFile, 
     (data:iSocketEventsParams.getUploadedFile) => {  
@@ -28,34 +42,26 @@ export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number =>
     instance.listenOnInput(el);
   }
 
-  export const uploadOnDrop = (el:HTMLDivElement, events: {
+  export const initListenUploadOnDrop = (callbacks: {
     onDragStart:Function
     onDragEnd:Function
   }) => {
-    const handleDrop = (ev) => {
-      ev.preventDefault();
-      if (ev.dataTransfer && ev.dataTransfer.items) {
-        let files = ev.dataTransfer.items
-        uploadFile(files[0].getAsFile())
-        // for (var i = 0; i < ev.dataTransfer.items.length; i++) {
-        //   if (ev.dataTransfer.items[i].kind === 'file') {
-        //     var file = ev.dataTransfer.items[i].getAsFile();
-        //     console.log('... file[' + i + '].name = ' + file?.name);
-        //   }
-        // }
-      }
-    }
+
     const handleDragOver = (e) => {
       e.preventDefault();
       dragEndDebounced()
     }
+    const dragEndDebounced = debounce(() => {
+      callbacks.onDragEnd()
+    }, 100)
+
+    console.log(`[UPLOAD] reinit drag/drop events`);
+    
     window.removeEventListener('drop', handleDrop); 
     window.addEventListener('drop', handleDrop);
 
     window.removeEventListener('dragover', handleDragOver);
     window.addEventListener('dragover', handleDragOver);
 
-    const dragEndDebounced = debounce(() => {
-      events.onDragEnd()
-    }, 100)
+    
   }

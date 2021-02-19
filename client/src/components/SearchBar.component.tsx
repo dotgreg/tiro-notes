@@ -45,7 +45,7 @@ export class SearchBar extends React.Component<{
                 }}>submit</button> */}
             </div>
             <div className="search-status">
-                {this.props.isSearching && 'searching...'}
+                {!this.props.isSearching && 'searching...'}
                 {/* {this.props.isListEmpty && 'no result'} */}
             </div>
         </>

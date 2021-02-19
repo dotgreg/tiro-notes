@@ -5,7 +5,7 @@ import { initClipboardListener } from "../../managers/clipboard.manager"
 import { socketEventsManager } from "../../managers/sockets/eventsListener.sockets"
 import { clientSocket } from "../../managers/sockets/socket.manager"
 import { safeString } from "../../managers/string.manager"
-import { listenOnUploadSuccess, uploadFile, uploadOnDrop, uploadOnInputChange } from "../../managers/upload.manager"
+import { listenOnUploadSuccess, uploadFile, initListenUploadOnDrop, uploadOnInputChange } from "../../managers/upload.manager"
 import { useStatMemo } from "../useStatMemo.hook"
 
 let keyUploadSocketListener
@@ -41,7 +41,7 @@ export const useEditorUploadLogic = (p:{
         
         // UPLOAD FROM DRAG DROP
         if(uploadDragzoneRef.current) {
-            uploadOnDrop(uploadDragzoneRef.current, {
+            initListenUploadOnDrop({
                 onDragEnd: () => { setDragzoneEnabled(false)},
                 onDragStart: () => { setDragzoneEnabled(true)}
             })
@@ -58,7 +58,8 @@ export const useEditorUploadLogic = (p:{
         class:'upload-button-wrapper',
         customHtml: <>
           <input className='input-file-hidden' id="file" name="file" type="file" ref={uploadInputRef}  />
-          <label 
+          {/* @ts-ignore  */}
+          <label for="file"
             ><Icon name="faPaperclip" /></label>
         </>
       }

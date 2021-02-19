@@ -20,11 +20,15 @@ const getFolderHierarchySync = async (folder, config) => {
         if (stats.isDirectory()) {
             fs.readdirSync(folder).map(async (child) => {
                 let childFile = folder + '/' + child
-                let stats2 = fs.lstatSync(childFile)
-                if (stats2.isDirectory() && config.blacklist.indexOf(path.basename(child)) === -1) {
-                    if (!info.children) info.children = []
-                    info.children.push(await getFolderHierarchySync(childFile,config))
-                } 
+                try {
+                    let stats2 = fs.lstatSync(childFile)
+                    if (stats2.isDirectory() && config.blacklist.indexOf(path.basename(child)) === -1) {
+                        if (!info.children) info.children = []
+                        info.children.push(await getFolderHierarchySync(childFile,config))
+                    } 
+                } catch (error) {
+                    console.log("getFolderHierarchySync => error "+ error);    
+                }
             });
         } 
         resolve(info)

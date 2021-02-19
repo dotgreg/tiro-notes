@@ -1,6 +1,6 @@
 import React from 'react';
 import MonacoEditor from 'react-monaco-editor';
-import { styleApp } from '../managers/style.manager';
+import { appFontFamily, styleApp } from '../managers/style.manager';
 import styled from '@emotion/styled'
 import { initVimMode } from 'monaco-vim';
 import { LineTextInfos } from '../managers/textEditor.manager';
@@ -12,6 +12,7 @@ export class MonacoEditorWrapper extends React.Component<{
   value:string,
   vimMode:boolean,
   posY:number
+  readOnly:boolean,
   onChange:(text:string)=>void
   onScroll:onScrollFn
   insertUnderCaret?:string
@@ -99,20 +100,22 @@ export class MonacoEditorWrapper extends React.Component<{
           </div>
           <MonacoEditor
             ref={this.reactComp}
-            width="100%"
+            width="110%"
             height="100%"
             language="markdown"
             theme="vs"
             value={this.props.value}
             options={{
+              fontFamily:'sans-serif',
+              readOnly: this.props.readOnly,
               automaticLayout: true,
               selectOnLineNumbers: true,
               minimap: {enabled: false},
               wordWrap: 'on',
-              fontSize: 11,
+              fontSize: 12,
               mouseWheelScrollSensitivity: 0.5,
               lineNumbers: 'off',
-              glyphMargin: false,
+              // glyphMargin: false,
               folding: false,
               // smoothScrolling: true,
               scrollbar: {

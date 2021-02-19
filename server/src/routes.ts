@@ -12,6 +12,7 @@ import { folderToUpload } from "./managers/upload.manager";
 import { random } from "lodash";
 import { triggerWorker } from "./managers/workers/worker.manager";
 import { iFolder } from "../../shared/types.shared";
+import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 
 export const socketRoutes:iSockerRoute[] = [
     {
@@ -152,16 +153,6 @@ export const socketRoutes:iSockerRoute[] = [
         }
     }, 
     {
-        event: socketEvents.askForNotepad,
-        action: async (socket, data:iSocketEventsParams.askForNotepad) => {
-            let fullPath = `${backConfig.dataFolder}${data.filepath}`
-            console.log(`ASK FOR NOTEPAD ${fullPath}`);
-            fullPath = fullPath.split('/').join('\\')
-            exec3(`%windir%\\notepad.exe \"${fullPath}\"`)
-            setTimeout(() => { focusOnWinApp('notepad') }, 500)
-        }
-    }, 
-    {
         event: socketEvents.uploadResourcesInfos,
         action: async (socket, data:iSocketEventsParams.uploadResourcesInfos) => {
             folderToUpload.value = data.folderpath
@@ -171,6 +162,14 @@ export const socketRoutes:iSockerRoute[] = [
         event: socketEvents.disconnect,
         action: async (socket) => {
             
+        }
+    },
+    {
+        event: socketEvents.askFilesPreview,
+        action: async (socket, data:iSocketEventsParams.askFilesPreview) => {
+            // let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
+            let res = await getFilesPreviewLogic(data)
+            socket.emit(socketEvents.getFilesPreview, {filesPreview: res} as iSocketEventsParams.getFilesPreview)
         }
     },
     

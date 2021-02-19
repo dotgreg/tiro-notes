@@ -7,7 +7,7 @@ export const useFileMove = (
     cleanMultiSelect,
     emptyFileDetails,
 ) => {
-    const moveFile = (initPath:string, endPath:string) => {
+    const askForMoveFile = (initPath:string, endPath:string) => {
         console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
         clientSocket.emit(socketEvents.moveFile, {initPath, endPath, shouldRescan: true} as iSocketEventsParams.moveFile)  
     }
@@ -21,12 +21,12 @@ export const useFileMove = (
             let filenameArr = file.name.split('/')
             // in case we are in research, the file.name === file.path
             let realFileName = filenameArr[filenameArr.length-1]
-            moveFile(file.path, `${folderpath}/${realFileName}`)
+            askForMoveFile(file.path, `${folderpath}/${realFileName}`)
             }
             cleanMultiSelect() 
             emptyFileDetails()
         }
     }
 
-    return {moveFile, promptAndBatchMoveFiles}
+    return {askForMoveFile, promptAndBatchMoveFiles}
 }

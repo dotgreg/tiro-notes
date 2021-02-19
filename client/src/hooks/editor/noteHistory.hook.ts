@@ -8,8 +8,8 @@ export const useIntervalNoteHistory = (fileContent: string,p:{
 
     // console.log('[HISTORY FILE] : restartAutomaticHistorySave');
     let historySaveInMin = 5 
-    // let historySaveIntTime = historySaveInMin * 60 * 1000 
-    let historySaveIntTime = 10 * 1000 
+    let historySaveIntTime = historySaveInMin * 60 * 1000 
+    // let historySaveIntTime = 10 * 1000 
     
     useInterval(() => {
       if (fileContent !== historyContent) {

@@ -16,8 +16,9 @@ export type ViewType = 'editor'| 'both' | 'preview'
 export const DualViewer = (p:{
     file:iFile
     fileContent:string
+    canEdit: boolean
     onFileEdited: onFileEditedFn
-    onFilePathEdited: PathModifFn
+    onFileTitleEdited: PathModifFn
     onSavingHistoryFile: onSavingHistoryFileFn
     onFileDelete: onFileDeleteFn
   }) => {
@@ -45,9 +46,10 @@ export const DualViewer = (p:{
                 file={p.file}
                 posY={syncScrollY}
                 fileContent={p.fileContent}
+                canEdit={p.canEdit}
                 
                 onScroll={newYPercent => {}}
-                onFilePathEdited={p.onFilePathEdited}
+                onFileTitleEdited={p.onFileTitleEdited}
                 onSavingHistoryFile={p.onSavingHistoryFile}
                 onFileEdited={(path, content) => {
                     p.onFileEdited(path, content)

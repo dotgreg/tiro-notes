@@ -1,7 +1,20 @@
 import React, {  useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { random } from "lodash";
+import { useLocalStorage } from './useLocalStorage.hook';
+import { consoleCli } from '../managers/cliConsole.manager';
 
 export const useStatMemo = (el:any, memProps) => {
+    const [showRenderId, setShowRenderId] = useLocalStorage('showRenderId', false)
+
+    consoleCli.toggleRenderId = {
+        description: 'toggle display of renderId for each block',
+        func: () => {
+            console.log('[toggleRenderId]');
+            setShowRenderId(!showRenderId)
+            setTimeout(() => {window.location.reload()}, 1000)
+        }  
+    }
+
     let renderId = random(0,1000)
     // 
     return useMemo(() =>{
@@ -10,11 +23,13 @@ export const useStatMemo = (el:any, memProps) => {
         var stack = err.stack;
         let name = stack?.split('\n')[6].replace('at ', '').replace(/\(.*\)/gi,'').trim()
         let comp = <>
-            <p style={{
-                position: 'absolute',
-                fontSize: '10px',
-                color: 'rgba(255,0,0,0.8)'
-            }}>{renderId}</p>
+            { showRenderId &&
+                <p style={{
+                    position: 'absolute',
+                    fontSize: '10px',
+                    color: 'rgba(255,0,0,0.8)'
+                }}>{renderId}</p>
+            }
             {el}
         </>
         let te = new Date().getTime()

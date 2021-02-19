@@ -1,5 +1,5 @@
 import { filter, sortBy } from 'lodash';
-import React, {  useEffect, useRef, useState } from 'react';
+import React, {  RefObject, useEffect, useRef, useState } from 'react';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
 import { iFile } from '../../../../shared/types.shared';
 import { DualViewer } from '../../components/dualView/DualViewer.component';
@@ -12,10 +12,19 @@ import { useStatMemo } from '../useStatMemo.hook';
 
 export const useFileContent = (
   activeFile: iFile|null,
+  activeFileIndex: number,
+  selectedFolder:string, 
+  files: iFile[],
+  shouldLoadNoteIndex:any,
+
+  cleanFileDetails: Function,
+  askForMoveFile: Function,
+  askForFolderFiles: Function
 ) => {
     
     // STATE
     const [fileContent, setFileContent] = useState<string|null>(null)
+    const [canEdit, setCanEdit] = useState(false)
 
 
     
@@ -31,6 +40,7 @@ export const useFileContent = (
           (data:iSocketEventsParams.getFileContent) => {   
             if (data.filePath !== activeFile?.path) return
             // console.log({data,activeFile, fileContent});
+            setCanEdit(true)
             setFileContent(data.fileContent)
           }
         )
@@ -40,8 +50,11 @@ export const useFileContent = (
         }
     }, [activeFile])
 
-    const askForFileContent = (file:iFile) => {
+    const askForFileContent = (file:iFile) => { 
       if (file && file.name.endsWith('.md')) {
+        setFileContent('loading...')
+        setCanEdit(false)
+
         clientSocket.emit(socketEvents.askForFileContent, 
           {filePath: file.path} as iSocketEventsParams.askForFileContent
         )  
@@ -57,48 +70,52 @@ export const useFileContent = (
           (activeFile) && 
             <DualViewer
               file={activeFile} 
+              canEdit={canEdit}
               fileContent={fileContent ? fileContent : ''} 
               onFileEdited={(filepath, content) => {
-                console.log(`[APP] API -> ask for file save`,{filepath, content});
+                console.log(`[FILE CONTENT] API -> ask for file save`,{filepath, content});
                 // this.askForFolderFiles(this.state.selectedFolder)
                 clientSocket.emit(socketEvents.saveFileContent, 
                   {filepath: filepath, newFileContent: content} as iSocketEventsParams.saveFileContent)  
               }}
-              onFilePathEdited={(initPath, endPath) => {
-                console.log(`[APP] onFilePathEdited =>`,{initPath, endPath});
-                // this.emptyFileDetails()
-                // this.moveFile(initPath, endPath)
-                // this.setState({activeFileIndex: 0})
+              onFileTitleEdited={(initTitle, endTitle) => {
+                let initPath = `${activeFile.folder}/${initTitle}.md`
+                let endPath = `${activeFile.folder}/${endTitle}.md`
+                console.log(`[FILE CONTENT] onFileTitleEdited =>`,{initPath, endPath});
+                askForMoveFile(initPath, endPath)
+                shouldLoadNoteIndex.current = 0
               }}
               onSavingHistoryFile={(filePath, content, historyFileType) => {
-                console.log(`[APP] onSavingHistoryFile ${historyFileType} => ${filePath}`);
+                console.log(`[FILE CONTENT] onSavingHistoryFile ${historyFileType} => ${filePath}`);
                 clientSocket.emit(socketEvents.createHistoryFile, 
                   {filePath, content, historyFileType} as iSocketEventsParams.createHistoryFile)  
               }}
               onFileDelete={(filepath) => {
-                console.log(`[APP] onFileDelete => ${filepath}`);
+                console.log(`[FILE CONTENT] onFileDelete => ${filepath}`);
                 
-                // let i = this.state.activeFileIndex  
-                // if (i > 0) this.loadFileDetails(i-1)    
-                // else if (i < this.state.files.length - 2) this.loadFileDetails(i+1)   
-                // else this.emptyFileDetails()
+                let i = activeFileIndex  
+                if (i > 0) shouldLoadNoteIndex.current = i-1   
+                else if (i === 0 && files.length > 0) shouldLoadNoteIndex.current = 0
+                // else if (i < files.length - 2) shouldLoadNoteIndex.current = i+1
+                else cleanFileDetails()
                 
-                // clientSocket.emit(socketEvents.onFileDelete, 
-                //   {filepath} as iSocketEventsParams.onFileDelete) 
+                clientSocket.emit(socketEvents.onFileDelete, 
+                  {filepath} as iSocketEventsParams.onFileDelete) 
                   
-                // this.askForFolderFiles(this.state.selectedFolder)
+                askForFolderFiles(selectedFolder)
               }}
             />
         }
         { 
           !activeFile && 
-            <div>no file selected</div>
+            <div className='no-file'>No file</div>
         }
       </div>
-    , [fileContent, activeFile])
+    , [fileContent, activeFile,canEdit])
 
     return {
       setFileContent,fileContent,
+      setCanEdit,
       askForFileContent,
       DualViewerComponent
     }

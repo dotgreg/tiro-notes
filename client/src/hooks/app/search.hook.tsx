@@ -7,7 +7,7 @@ import { useStatMemo } from '../useStatMemo.hook';
 
 
 export const useAppSearch = (
-    shouldLoadFirstNote: any,
+    shouldLoadNoteIndex: any,
     cleanListAndFileContent:Function,
 ) => {
     
@@ -28,7 +28,7 @@ export const useAppSearch = (
 
         setSearchTerm(term)
         setIsSearching(true)
-        shouldLoadFirstNote.current = true
+        shouldLoadNoteIndex.current = 0
         clientSocket.emit(
             socketEvents.searchFor, 
             {term} as iSocketEventsParams.searchFor
@@ -62,7 +62,7 @@ export const useAppSearch = (
             searchTerm={searchTerm}
             isSearching={isSearching}
             isListEmpty={files.length === 0 ? true : false}
-        />, [searchTerm, selectedFolder, files])
+        />, [searchTerm, selectedFolder, files, isSearching])
     return {
         isSearching, setIsSearching, 
         searchTerm, setSearchTerm,

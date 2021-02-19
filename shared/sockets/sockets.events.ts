@@ -1,4 +1,4 @@
-import { iFile, iFolder } from "../types.shared";
+import { iFile, iFilePreview, iFolder } from "../types.shared";
 
 export enum socketEvents {
     connection = 'connection',
@@ -29,8 +29,10 @@ export enum socketEvents {
 
     onFileDelete = 'onFileDelete',
     askForExplorer = 'askForExplorer',
-    askForNotepad = 'askForNotepad',
     uploadResourcesInfos = 'uploadResourcesInfos',
+
+    askFilesPreview = 'askFilesPreview',
+    getFilesPreview = 'getFilesPreview',
 
 }
 
@@ -57,7 +59,9 @@ export declare namespace iSocketEventsParams {
 
     export interface onFileDelete {filepath: string}
     export interface askForExplorer {folderpath: string}
-    export interface askForNotepad {filepath: string}
 
     export interface uploadResourcesInfos {folderpath: string}
+
+    export interface askFilesPreview {filesPath: string[]}
+    export interface getFilesPreview {filesPreview: iFilePreview[]}
 }

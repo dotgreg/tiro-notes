@@ -9,7 +9,7 @@ import { useStatMemo } from '../useStatMemo.hook';
 
 export type onFolderClickedFn = (folderPath:string) => void
 
-export const useAppTreeFolder = () => {
+export const useAppTreeFolder = (multiSelectMode, multiSelectArray) => {
 
     const [folderHierarchy, setFolderHierarchy] = useLocalStorage<iFolder>('folderHierarchy',{title: 'loading...', key: '', path: ''})
     // const [folderHierarchy, setFolderHierarchy] = useState<iFolder>({title: 'loading...', key: '', path: ''})
@@ -48,7 +48,7 @@ export const useAppTreeFolder = () => {
                 onFolderClicked={p.onFolderClicked}
                 onFolderRightClicked = {folderPath => {}}
             />
-            , [folderHierarchy, expandedKeys]
+            , [folderHierarchy, expandedKeys,multiSelectMode, multiSelectArray, selectedFolder]
         )
     
 

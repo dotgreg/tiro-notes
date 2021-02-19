@@ -76,8 +76,6 @@ export const liveSearch = async (params:{
         for (let i = 0; i < array.length; i++) {
             let filePath = array[i];
             filePath = filePath.split(`\\`).join('/') 
-            console.log(222, filePath,backConfig.dataFolder);
-            
             try {
                 let stats = fs.lstatSync(`${backConfig.dataFolder}/${params.folder}/${filePath}`)
                 filesScanned.push({

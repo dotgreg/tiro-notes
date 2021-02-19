@@ -11,9 +11,10 @@ const generateTitle = ():string => {
   return newTitle
 }
 
-export const useConnectionIndicator = () => {
+export const useConnectionIndicator = (setCanEdit:Function) => {
   const listenerIds = useRef<number[]>([])
   const [isSocketConnected, setIsSocketConnected] = useState(false)
+  const [backOnline, setBackOnline] = useState(false)
     
 
   // DURING WHOLE LIFECYCLE APP, UPDATE TITLE ACCORDING 
@@ -35,15 +36,25 @@ export const useConnectionIndicator = () => {
     // LISTENING TO SOCKET LIFECYCLE EVENTS
     listenerIds.current[0] = socketEventsManager.on(
       socketEvents.disconnect, 
-      () => { toggleSocketConnection(false) }
+      () => { toggleSocketConnection(false); setCanEdit(false); }
     )
     listenerIds.current[1] = socketEventsManager.on(
       socketEvents.reconnect, 
-      () => {toggleSocketConnection(true)}
+      () => {
+        toggleSocketConnection(true); 
+        setBackOnline(true)
+        setTimeout(() => {setBackOnline(false)}, 1000)
+        setCanEdit(true);
+      }
     )
     listenerIds.current[2] = socketEventsManager.on(
       socketEvents.connect, 
-      () => {toggleSocketConnection(true) }
+      () => {
+        toggleSocketConnection(true); 
+        setBackOnline(true)
+        setTimeout(() => {setBackOnline(false)}, 1000)
+        setCanEdit(true); 
+      }
     )
 
     return () => {
@@ -57,11 +68,18 @@ export const useConnectionIndicator = () => {
     console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
     setIsSocketConnected(state)
   }
+  
 
-  const connectionStatusComponent = () => 
-    <div className="connection-status">
-        {isSocketConnected ? <div className="connected">connected</div> : <div className="disconnected">/!\ DISCONNECTED /!\</div>}
-    </div>
+  const connectionStatusComponent = () => {
+    let res = ['connected', 'connected']
+    if (backOnline) res = ['back-online', 'back online']
+    if (!isSocketConnected) res = ['disconnected', 'disconnected']
+
+    return (
+      <div className="connection-status">
+          <div className={res[0]}>{res[1]}</div>
+      </div>
+    )}
   
   return {
     connectionStatusComponent,
