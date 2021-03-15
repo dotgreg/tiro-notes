@@ -56,6 +56,7 @@ export const useEditorUploadLogic = (p:{
     const uploadButtonConfig = {
         title:'upload files', 
         class:'upload-button-wrapper',
+        action: () => {},
         customHtml: <>
           <input className='input-file-hidden' id="file" name="file" type="file" ref={uploadInputRef}  />
           {/* @ts-ignore  */}

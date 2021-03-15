@@ -76,6 +76,11 @@ export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> =
 export const saveFile = async (path: string, content:string):Promise<void> => {
     console.log(`[SAVEFILE] starting save ${path}`);
     return new Promise((resolve, reject) => {
+        // fs.truncateSync(path)
+        // fs.appendFile(path, content, (err) => {
+        //     if (err) {console.error(`[SAVEFILE] Error ${err.message} (${path})`); reject()}
+        //     else resolve()
+        // }); 
         fs.writeFile(path, content, (err) => {
             if (err) {console.error(`[SAVEFILE] Error ${err.message} (${path})`); reject()}
             else resolve()

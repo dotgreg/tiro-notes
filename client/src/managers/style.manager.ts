@@ -51,6 +51,10 @@ html, body {
 
 export const appFontFamily = `font-family: Verdana, DejaVu Sans, Bitstream Vera Sans, Geneva, sans-serif`
 export const GlobalCssApp = css`
+  * {
+    -webkit-print-color-adjust: exact !important; 
+    color-adjust: exact !important;             
+  }
   body {
     margin: 0;
     padding: 0px;
@@ -164,6 +168,76 @@ justify-content:center;
       padding-left: ${d === 'desktop' ? '90' : '10'}px;
       height:100vh;
       position: relative;
+
+
+
+      .folder-tree-view-component {
+        // invisible scrollbars
+        height: 100vh;
+        padding-right: 20px;
+        width: 100%;
+        box-sizing: content-box;
+        overflow-y:scroll;
+        
+        li.folder-wrapper {
+
+          position: relative;
+          .context-menu-wrapper {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            display:none;
+            .context-menu {
+              position: absolute;
+              right: -15px;
+              top: 17px;
+              background: white;
+              color: black;
+              padding: 5px 10px;
+              width: 70px;
+              z-index: 10;
+              border-radius: 4px;
+              // display:none;
+            }
+          }
+          .folder-title:hover > .context-menu-wrapper {
+            cursor:pointer;
+            display:block;
+          }
+
+
+
+          list-style: none;
+          font-size: 12px;
+          
+          &.current > .folder-title {
+              background: #01789cf5;
+          }
+          .folder-title {
+            padding: 4px;
+            position:relative;
+            padding-left: 20px;
+            .icon {
+              position: absolute;
+              left: 2px;
+              cursor: pointer;
+              padding: 4px;
+              top: 0px;
+            }
+            .title {
+              padding-left: 4px;
+              cursor: pointer;
+              padding: 4px 20px 4px 7px;
+            }
+          }
+        }
+        ul.folder-children {
+          margin: 0px;
+          padding: 0px 0px 0px 10px;
+        }
+      }
+
+      // OLDY
       .folder-tree {
         // invisible scrollbars
         height: 100vh;
@@ -205,7 +279,7 @@ justify-content:center;
         box-sizing: content-box;
         overflow-y:scroll;
       }
-      ul {
+      div.List {
           list-style: none;
           padding: 0px 0px 0px 0px;
           &.multiselect-mode {
@@ -222,6 +296,7 @@ justify-content:center;
               position: relative;
               height: 50px;
               overflow: hidden;
+              &.multiselected,
               &.active  {
                 
                   background: #ddddff;
@@ -248,7 +323,8 @@ justify-content:center;
                   color: grey;
                   font-size: 9px;
                   margin-top: 3px;
-                  flex: 1 1 auto;
+                  flex:  1 auto;
+                  height: 34px;
                   overflow: hidden;
                   line-break: anywhere;
                   word-break: break-all;
@@ -360,7 +436,7 @@ justify-content:center;
           position: relative;
           width: ${d === 'desktop' ? '43' : (props => props.v === 'editor' ? '0' : '91')}%;
           display: ${d === 'desktop' ? 'block' : (props => props.v === 'editor' ? 'none' : 'block')};
-          padding: 30px 30px 30px 10px;
+          padding: 0px 30px 30px 10px;
           height: ${d === 'desktop' ? '100vh':'87vh'};
           margin-bottom: 100px;
           overflow: hidden;
@@ -394,6 +470,9 @@ justify-content:center;
       }
 
       .toolbar-wrapper {    
+        position: absolute;
+        z-index: 10;
+        ${d !== 'desktop' ? 'top: -30px;':''}
 
         
         
@@ -451,11 +530,20 @@ justify-content:center;
     
       
       .title-input-wrapper {
+          position:relative;
+          margin-top: 62px; 
+          .press-to-save {
+            position: absolute;
+            top: 32px;
+            font-size: 8px;
+            color: darkgrey;
+            right: 47px;
+          }
           input {
             border: none;
             background: #eaeaea;
             padding: 10px 1vw;
-            margin: 10px 1vw; 
+            margin: 10px 10px; 
             width: ${d === 'desktop' ? '80%' :'96vw'};
           }
         }

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { deviceType } from '../../managers/device.manager';
 import { MonacoEditorWrapper } from '../MonacoEditor.Component';
@@ -26,6 +26,8 @@ export const EditorArea = (p:{
     posY:number 
     fileContent:string
     canEdit: boolean
+
+    isLeavingNote: boolean
 
     onScroll: onScrollFn
     onFileTitleEdited: PathModifFn
@@ -68,6 +70,13 @@ export const EditorArea = (p:{
         ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
       }
     })
+
+    useEffect(() => {
+      ifEncryptOnLeave((encryptedText) => { 
+        // console.log(1111111,'DUAL VIEWER EXIT => ifEncryptOnLeave text', p.file.path, encryptedText);
+        p.onFileEdited(p.file.path, encryptedText) 
+      })
+    }, [p.isLeavingNote])
     
     //  HOOK : CONTENT SAVE => REMOVED AS ITS A MESS TO USE DEBOUNCE/THROTTLE HERE :(
     // const {
@@ -135,11 +144,11 @@ export const EditorArea = (p:{
           window.history.back()
         }
       },
-      {
+      deviceType() === 'desktop' ? {
         title:'toggle views', 
         icon:'faEye', 
         action: () => {p.onViewToggle()}
-      },
+      } : {},
       detachNoteNewWindowButtonConfig(),
       {
         title:'insert unique id', 

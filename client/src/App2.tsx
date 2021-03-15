@@ -21,6 +21,7 @@ import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { consoleCli } from './managers/cliConsole.manager';
 import { configClient } from './config';
 import { onKey } from './managers/keys.manager';
+import { iFile, iFolder } from '../../shared/types.shared';
 
 
 
@@ -55,7 +56,6 @@ export const App2 = React.memo(() => {
 
     const cleanFilesList = () => {
         setFiles([])
-        resetMultiSelect()
         setIsSearching(false)
     }
 
@@ -86,8 +86,6 @@ export const App2 = React.memo(() => {
             files.length >= 1 && askForFileContent(files[0])
             lastFolderIn.current = selectedFolder
             lastSearchIn.current = searchTerm
-            // clean multiselect
-            resetMultiSelect()
         }
     }
 
@@ -97,7 +95,7 @@ export const App2 = React.memo(() => {
     //
     // Key press
     const {
-        ctrlPressed
+        shiftPressed
     } = useKeys({
         onKeyDown: e => {
             onKey(e, 'up', () => {
@@ -121,12 +119,11 @@ export const App2 = React.memo(() => {
     // Files List
     const {
         activeFileIndex, setActiveFileIndex,
-        multiSelectMode, multiSelectArray, 
         files, setFiles,
-        askForFolderFiles, resetMultiSelect,
-        FilesListComponent
+        askForFolderFiles, 
+        FilesListComponent,
     } = useAppFilesList(
-        ctrlPressed,
+        shiftPressed,
         onFilesReceivedCallback
     )
 
@@ -135,13 +132,8 @@ export const App2 = React.memo(() => {
         selectedFolder, setSelectedFolder, 
         askForFolderScan,
         FolderTreeComponent,
-        
-    } = useAppTreeFolder(
-        multiSelectMode, multiSelectArray
-        // (folderPath) => {
-        //     askForFolderFiles(folderPath)
-        // }
-    )
+        cleanFolderHierarchy
+    } = useAppTreeFolder()
 
     // Search 
     const {
@@ -163,12 +155,12 @@ export const App2 = React.memo(() => {
     // fileMove logic
     const {
         askForMoveFile,
+        promptAndMoveFolder,
         promptAndBatchMoveFiles
     } = useFileMove(
-        multiSelectArray,
-        files,
-        resetMultiSelect,
         cleanFileDetails,
+        cleanFilesList,
+        cleanFolderHierarchy
     )
 
     // File Content + Dual Viewer
@@ -222,7 +214,33 @@ export const App2 = React.memo(() => {
             }
         }
     )
+
+
+    // DRAG/DROP FOLDER/FILES MOVING LOGIC
+    interface iDraggedItem {type:'file'|'folder', files?:iFile[], folder?:iFolder}
+    // const [draggedItems,setDraggedItems] = useState<iDraggedItem[]>([])
+    const draggedItems = useRef<iDraggedItem[]>([])
+
+    const processDragDropAction = (folderToDropInto:iFolder) => {
+        console.log(`[DRAG MOVE] processDragDropAction ->`,draggedItems.current,folderToDropInto);
+        let item = draggedItems.current[0]
+        if (item.type === 'file' && item.files) {
+            promptAndBatchMoveFiles(item.files, folderToDropInto)
+        } else if (item.type === 'folder' && item.folder) {
+            promptAndMoveFolder(item.folder, folderToDropInto)
+        }
+    }
     
+    // ... quand hover 
+    // creer menu context
+    // quand rename, creer prompt
+    // backend rename folder
+
+    // quand hold shift, multiselect active, 
+    // multiselect la selection
+    // if index < start point => <div class="startMulti">
+
+    // if index > end point => </div>
     
     // window variables
     consoleCli.variables = {
@@ -234,6 +252,10 @@ export const App2 = React.memo(() => {
             }
         }
     }
+
+
+    // Send Note Leaving Signal
+    const [isLeavingNote, setIsLeavingNote] = useState(false)
 
     return (
         // <CssApp v={this.state.mobileView} >
@@ -255,17 +277,29 @@ export const App2 = React.memo(() => {
                         {
                             FolderTreeComponent({
                                 onFolderClicked: folderPath => {
-                                    if (multiSelectMode && multiSelectArray.length > 0) {
-                                        // MULTISELECT LOGIC
-                                        promptAndBatchMoveFiles(folderPath)
-                                    } else {
-                                        // NORMAL CHANGE FOLDER LOGIC
+                                    // SEND FIRST isLeavingNote signal for leaving logic like encryption
+                                    setIsLeavingNote(true)
+                                    // NORMAL CHANGE FOLDER LOGIC
+                                    setTimeout(() => {
                                         setSearchTerm('')
                                         shouldLoadNoteIndex.current = 0
                                         setSelectedFolder(folderPath)
                                         cleanListAndFileContent()
                                         askForFolderFiles(folderPath)
-                                    }
+                                        setIsLeavingNote(false)
+                                    })
+                                },
+                                onFolderDragStart:draggedFolder => {
+                                    console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
+                                    draggedItems.current = [{type:'folder', folder:draggedFolder}]
+                                },
+                                onFolderDragEnd:() => {
+                                    console.log(`[DRAG MOVE] onFolderDragEnd`);
+                                    draggedItems.current = []
+
+                                },
+                                onFolderDrop:folderDroppedInto => {
+                                    processDragDropAction(folderDroppedInto)
                                 }
                             })
                         }
@@ -292,7 +326,15 @@ export const App2 = React.memo(() => {
                                     setActiveFileIndex(fileIndex)
                                     askForFileContent(files[fileIndex])
                                     // this.loadFileDetails(fileIndex)
-                                }
+                                },
+                                onFileDragStart:files => {
+                                    console.log(`[DRAG MOVE] onFileDragStart`, files);
+                                    draggedItems.current = [{type:'file', files:files}]
+                                },
+                                onFileDragEnd:() => {
+                                    console.log(`[DRAG MOVE] onFileDragEnd`);
+                                    draggedItems.current = []
+                                },
                             })
                         }
                     </div>
@@ -301,7 +343,7 @@ export const App2 = React.memo(() => {
 
                 <div className="right-wrapper">
                     { 
-                        DualViewerComponent({})
+                        DualViewerComponent({isLeavingNote})
                     }
                     {/* <DualViewerComponent /> */}
                 </div>

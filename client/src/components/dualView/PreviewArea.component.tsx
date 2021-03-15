@@ -1,6 +1,7 @@
 import React, { Ref, useEffect, useRef } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { formatDateEditor } from '../../managers/date.manager';
+import { replaceAll } from '../../managers/string.manager';
 import { transformExtrawurstLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks } from '../../managers/textProcessor.manager';
 const marked = require('marked');
 
@@ -76,7 +77,7 @@ const PreviewRenderer = React.memo((p:{filecontent:string, currentFolder:string}
     let scriptArea = document?.getElementById('preview-script-area');
     if (scriptArea) scriptArea.innerHTML = ''
     if (match && match[0]) {
-        let code = match[0].replaceAll('<script>','').replaceAll('</script>','')
+        let code = replaceAll(match[0], [['<script>',''],['</script>','']])
         console.log(code);
         try {
             eval(code)

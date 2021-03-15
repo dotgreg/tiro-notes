@@ -1,7 +1,7 @@
 import React, {  useEffect, useRef } from 'react';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
 import { iFolder } from '../../../../shared/types.shared';
-import { TreeView } from "../../components/TreeView.Component"
+import { onFolderDragStartFn, onFolderDropFn, TreeView } from "../../components/TreeView.Component"
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket } from '../../managers/sockets/socket.manager';
 import { useLocalStorage } from '../useLocalStorage.hook';
@@ -9,9 +9,10 @@ import { useStatMemo } from '../useStatMemo.hook';
 
 export type onFolderClickedFn = (folderPath:string) => void
 
-export const useAppTreeFolder = (multiSelectMode, multiSelectArray) => {
+export const useAppTreeFolder = () => {
 
-    const [folderHierarchy, setFolderHierarchy] = useLocalStorage<iFolder>('folderHierarchy',{title: 'loading...', key: '', path: ''})
+    const defaultFolderVal:iFolder = {title: 'loading...', key: '', path: ''}
+    const [folderHierarchy, setFolderHierarchy] = useLocalStorage<iFolder>('folderHierarchy',defaultFolderVal)
     // const [folderHierarchy, setFolderHierarchy] = useState<iFolder>({title: 'loading...', key: '', path: ''})
     const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selectedFolder','')
     const [expandedKeys, setExpandedKeys] = useLocalStorage<string[]>('expandedKeys',[])
@@ -31,29 +32,38 @@ export const useAppTreeFolder = (multiSelectMode, multiSelectArray) => {
         }
     }, [])
     
+
+    const cleanFolderHierarchy = () => {
+        setFolderHierarchy(defaultFolderVal)
+    }
     
     const askForFolderScan = () => {
         console.log(`[TREE FOLDER] askForFolderScan`);
         clientSocket.emit(socketEvents.askFolderHierarchy, {folderPath: ''} as iSocketEventsParams.askFolderHierarchy)  
     }
     
-    const FolderTreeComponent = (p:{onFolderClicked}) =>  
+    const FolderTreeComponent = (p:{
+        onFolderClicked,
+        onFolderDragStart: onFolderDragStartFn,
+        onFolderDragEnd,
+        onFolderDrop: onFolderDropFn
+    }) =>  
         useStatMemo(
             <TreeView
-                expandedKeys={expandedKeys}
-                onExpandedKeysChange={newKeys => {setExpandedKeys(newKeys)}}
-
-                selected={selectedFolder}
+                current={selectedFolder}
                 folder={folderHierarchy}
                 onFolderClicked={p.onFolderClicked}
-                onFolderRightClicked = {folderPath => {}}
+                onFolderDragStart={p.onFolderDragStart}
+                onFolderDragEnd={p.onFolderDragEnd}
+                onFolderDrop={p.onFolderDrop}
             />
-            , [folderHierarchy, expandedKeys,multiSelectMode, multiSelectArray, selectedFolder]
+            , [folderHierarchy, expandedKeys,selectedFolder]
         )
     
 
     return {
         selectedFolder, setSelectedFolder, 
+        cleanFolderHierarchy,
         askForFolderScan,
         FolderTreeComponent
     }

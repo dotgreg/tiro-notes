@@ -18,6 +18,7 @@ export enum socketEvents {
     getUploadedFile = 'getUploadedFile',
 
     moveFile = 'moveFile',
+    moveFolder = 'moveFolder',
     
     searchFor = 'searchFor',
     
@@ -46,6 +47,7 @@ export declare namespace iSocketEventsParams {
     export interface saveFileContent {filepath: string, newFileContent:string}
 
     export interface moveFile {initPath: string, endPath:string}
+    export interface moveFolder {initPath: string, endPath:string}
     
     export interface searchFor {term:string}
     export interface getUploadedFile {name:string, path:string}

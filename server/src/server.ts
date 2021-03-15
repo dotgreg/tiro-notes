@@ -2,8 +2,9 @@ import {sharedConfig} from '../../shared/shared.config';
 import { listenForSocketRoutes } from './managers/socket/socket.manager';
 import { backConfig, isEnvDev } from './config.back';
 import { startStaticServer } from './managers/staticServer.manager';
+import { getPlatform } from './managers/platform.manager';
 
-console.log(`===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}})`, sharedConfig) 
+console.log(`===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, platform: ${getPlatform()})`, sharedConfig) 
 // open('http://192.168.43.1:3023');
 
 //

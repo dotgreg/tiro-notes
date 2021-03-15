@@ -1,7 +1,9 @@
+import execa = require("execa");
 import { getDefaultFormatCodeSettings } from "typescript";
 import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { fileExists } from "./fs.manager";
+import { getPlatform } from "./platform.manager";
 var fs = require('fs')
 
 export let dirDefaultBlacklist = ['.resources']
@@ -45,6 +47,20 @@ export const scanDir = async (path:string, blacklist:string[]=dirDefaultBlacklis
                 }  else {
                     fs.lstat(filePath, {}, (err,stats) => {
                         
+                        // ON LINUX ONLY, MAKE SURE CREATION DATE IS IN RIGHT 
+                        let createdDate = stats.atimeMs
+                        if (getPlatform() === 'linux') {
+                            if (stats.mtimeMs < stats.atimeMs) {
+                                createdDate = stats.mtimeMs
+                                const ndate = new Date(stats.mtimeMs)
+                                const touchDateFormat = ndate.getFullYear() +''+ ( '0'+ndate.getMonth()).slice(-2) +''+ ('0'+ndate.getDay()).slice(-2)+ ('0'+ndate.getHours()).slice(-2)+ ('0'+ndate.getMinutes()).slice(-2)
+                                const cmd = `touch -t ${touchDateFormat} '${filePath}'`
+                                console.log(`[SCANDIR > STAT] ${filePath} stats.mtimeMs < stats.atimeMs => equalize : ${cmd}`);
+                                execa.command(cmd)
+                            }
+                        }
+                        
+
                         // counter++
                         
                         let extensionArr = fileName.split('.')
@@ -59,10 +75,9 @@ export const scanDir = async (path:string, blacklist:string[]=dirDefaultBlacklis
                             index: i,
                             extension,
                             folder,
-                            created: Math.round(stats.birthtimeMs),
+                            created: Math.round(createdDate),
                             modified: Math.round(stats.ctimeMs),
                             path: `${folder}/${fileName}`, 
-                            
                         }
                         if (blacklist.indexOf(fileName) === -1) {
                             filesScanned.push(fileObj)

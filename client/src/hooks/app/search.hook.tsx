@@ -3,6 +3,7 @@ import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/so
 import { iFile } from '../../../../shared/types.shared';
 import { SearchBar } from '../../components/SearchBar.component';
 import { clientSocket } from '../../managers/sockets/socket.manager';
+import { replaceAll } from '../../managers/string.manager';
 import { useStatMemo } from '../useStatMemo.hook';
 
 
@@ -18,7 +19,7 @@ export const useAppSearch = (
         //@ts-ignore
         window.ewTriggerSearch = (term:string) => {
           console.log(`[SEARCH FROM LINK] for ${term}`);
-          term = term.replaceAll('_','-')
+          term =  replaceAll(term, [['_','-']])
           triggerSearch(term)
         }
     }, [])

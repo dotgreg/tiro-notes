@@ -118,6 +118,14 @@ export const socketRoutes:iSockerRoute[] = [
             await debouncedHierarchyScan(socket)
         }
     },
+    { 
+        event: socketEvents.moveFolder,
+        action: async (socket, data:iSocketEventsParams.moveFolder) => {
+            console.log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
+            await moveFile(data.initPath, data.endPath)
+            await debouncedHierarchyScan(socket)
+        }
+    },
     {
         event: socketEvents.createHistoryFile,
         action: async (socket, data:iSocketEventsParams.createHistoryFile) => {

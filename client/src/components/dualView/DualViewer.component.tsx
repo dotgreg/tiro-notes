@@ -17,6 +17,7 @@ export const DualViewer = (p:{
     file:iFile
     fileContent:string
     canEdit: boolean
+    isLeavingNote: boolean
     onFileEdited: onFileEditedFn
     onFileTitleEdited: PathModifFn
     onSavingHistoryFile: onSavingHistoryFileFn
@@ -33,9 +34,19 @@ export const DualViewer = (p:{
     }, [p.fileContent])
 
     // back to top when change file
-    useEffect(() => {
-        if (syncScrollY !== 0) setPosY(0)
-    }, [p.file.path])
+    // useEffect(() => {
+    //     if (syncScrollY !== 0) setPosY(0)
+    //     console.log(111131)
+    //     setTriggerNoteLeaving(true);
+    // }, [p.file.path])
+
+    // const [triggerTextLeaving, setTriggerNoteLeaving] = useState(false)
+    // useEffect(() => {
+    //     return () => {
+    //         console.log(111132)
+    //         setTriggerNoteLeaving(true);
+    //     }
+    // }, [])
 
     return <div 
             className={`dual-view-wrapper view-${viewType}`}
@@ -47,6 +58,8 @@ export const DualViewer = (p:{
                 posY={syncScrollY}
                 fileContent={p.fileContent}
                 canEdit={p.canEdit}
+
+                isLeavingNote={p.isLeavingNote}
                 
                 onScroll={newYPercent => {}}
                 onFileTitleEdited={p.onFileTitleEdited}
@@ -61,7 +74,7 @@ export const DualViewer = (p:{
                     if (viewType === 'editor') setViewType('preview')
                     if (viewType === 'preview') setViewType('both')
                 }}
-                />
+            />
 
            <PreviewArea
                 file={p.file}

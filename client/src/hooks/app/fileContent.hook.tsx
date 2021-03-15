@@ -63,7 +63,7 @@ export const useFileContent = (
 
 
     // COMPONENT RENDERING
-    const DualViewerComponent = (p:{}) => 
+    const DualViewerComponent = (p:{isLeavingNote:boolean}) => 
     useStatMemo(
       <div className="note-wrapper">
         {   
@@ -71,6 +71,7 @@ export const useFileContent = (
             <DualViewer
               file={activeFile} 
               canEdit={canEdit}
+              isLeavingNote={p.isLeavingNote}
               fileContent={fileContent ? fileContent : ''} 
               onFileEdited={(filepath, content) => {
                 console.log(`[FILE CONTENT] API -> ask for file save`,{filepath, content});
@@ -111,7 +112,7 @@ export const useFileContent = (
             <div className='no-file'>No file</div>
         }
       </div>
-    , [fileContent, activeFile,canEdit])
+    , [fileContent, activeFile,canEdit, p.isLeavingNote])
 
     return {
       setFileContent,fileContent,

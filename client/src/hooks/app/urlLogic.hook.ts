@@ -36,9 +36,6 @@ export const useUrlLogic = (
 
 
 
-
-    
-
     const updateAppUrl = useDebounce(() => {
         if (ignoreNextUrlChange.current) return ignoreNextUrlChange.current = false
         console.log('[UPDATE APP URL]');

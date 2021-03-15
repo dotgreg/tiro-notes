@@ -7,6 +7,7 @@ export const NoteTitleInput = (p: {
     onEdited: PathModifFn
 }) => {
     const [title, setTitle] = useState('')
+    const [hasBeenEdited, setHasBeenEdited] = useState(false)
 
     useEffect(() => {
         setTitle(p.title)
@@ -17,14 +18,21 @@ export const NoteTitleInput = (p: {
             <input 
                 type="text" 
                 value={title}
-                onChange={(e) => {setTitle(e.target.value)}}
+                onChange={(e) => {
+                    setTitle(e.target.value)
+                    setHasBeenEdited(true)
+                }}
                 onKeyDown={e => {
                     if (e.key === 'Enter') {
                         if (title.length < 3) return
                         p.onEdited(p.title , title)
+                        setHasBeenEdited(false)
                     }
                 }}
             />
+            {
+                hasBeenEdited && <div className='press-to-save'>press enter to save</div>
+            }
         </div>
     )
 }

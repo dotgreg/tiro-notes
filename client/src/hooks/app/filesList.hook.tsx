@@ -3,7 +3,7 @@ import React, {  useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
 import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
-import { List, SortModes, SortModesLabels } from '../../components/List.component';
+import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket } from '../../managers/sockets/socket.manager';
 import { useDebounce } from '../lodash.hooks';
@@ -14,14 +14,12 @@ export type onFilesReceivedFn = (files:iFile[], temporaryResults: boolean) => vo
 export interface FilesPreviewObject {[path:string]:iFilePreview}
 
 export const useAppFilesList = (
-    ctrlPressed:boolean,
+    modifierPressed:boolean,
     onFilesReceivedCallback: onFilesReceivedFn
 ) => {
     
     // STATE
     const [activeFileIndex, setActiveFileIndex] = useLocalStorage<number>('activeFileIndex',-1)
-    const [multiSelectMode, setMultiSelectMode] = useState(false)
-    const [multiSelectArray, setMultiSelectArray] = useState<number[]>([])
     
     const [sortMode, setSortMode] = useLocalStorage<number>('sortMode',3)
     const [files, setFiles] = useLocalStorage<iFile[]>('files',[])
@@ -130,13 +128,6 @@ export const useAppFilesList = (
 
 
 
-    // OTHER FUNCTIONS
-    const resetMultiSelect = () => {
-        setMultiSelectMode(false)
-        setMultiSelectArray([])
-    }
-
-
 
 
 
@@ -145,9 +136,6 @@ export const useAppFilesList = (
     const sortFiles = (files:iFile[], sortMode:any):iFile[] => {
         let sortedFiles
         switch (SortModes[sortMode]) {
-          case 'none':
-            sortedFiles = sortBy(files, ['index'])
-            break;
           case 'alphabetical':
             sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
             break;
@@ -159,7 +147,7 @@ export const useAppFilesList = (
             break;
         
           default:
-            sortedFiles = sortBy(files, ['index'])
+            sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
             break;
         }
     
@@ -175,6 +163,8 @@ export const useAppFilesList = (
         selectedFolder: string,
         onFileClicked: (fileIndex:number)=>void
         onNewFile: ()=>void
+        onFileDragStart: onFileDragStartFn
+        onFileDragEnd: ()=>void
     }) => useStatMemo(
         <div>
             <div className='list-toolbar'>
@@ -188,16 +178,6 @@ export const useAppFilesList = (
                     </button>
                 }
 
-                <button 
-                    type="button" 
-                    title={multiSelectMode ? 'Select:On' : 'Select:Off'}
-                    onClick={e => {
-                        setMultiSelectMode(!multiSelectMode)
-                        setMultiSelectArray([])
-                    }}
-                > 
-                    <Icon name="faCheckDouble" /> 
-                </button>
 
                 <button 
                     type="button" 
@@ -208,7 +188,7 @@ export const useAppFilesList = (
                         setFiles(sortFiles(files, newMode))
                     }}
                 > 
-                    <Icon name="faSort" /> { sortMode !== 0 && SortModesLabels[sortMode] } 
+                    <Icon name="faSort" /> { SortModesLabels[sortMode] } 
                 </button>
 
                 { files.length > 0 &&
@@ -237,21 +217,17 @@ export const useAppFilesList = (
 
                     hoverMode={false}
                     activeFileIndex={activeFileIndex}
-                    ctrlPressed={ctrlPressed}
+                    modifierPressed={modifierPressed}
 
                     sortMode={sortMode}
-
-                    multiSelectArray={multiSelectArray}
-                    multiSelectMode={multiSelectMode}
-                    onMultiSelectChange={arr => {
-                        setMultiSelectArray(arr)
-                        setForceListUpdate(forceListUpdate+1)
-                    }}
 
                     onFileClicked={(fileIndex) => {
                         setActiveFileIndex(fileIndex)
                         p.onFileClicked(fileIndex)
                     }}
+
+                    onFileDragStart={p.onFileDragStart}
+                    onFileDragEnd={p.onFileDragEnd}
 
                     onVisibleItemsChange={visibleFilesPath => {
                         askFilesPreview(visibleFilesPath)
@@ -259,13 +235,12 @@ export const useAppFilesList = (
                     />
                 </div>
             </div>
-    , [files, activeFileIndex, multiSelectArray, multiSelectMode, sortMode, forceListUpdate, ctrlPressed, filesPreviewObj])
+    , [files, activeFileIndex, sortMode, forceListUpdate, modifierPressed, filesPreviewObj])
 
     return {
         activeFileIndex, setActiveFileIndex,
         files, setFiles,
-        multiSelectMode, multiSelectArray,
-        askForFolderFiles, resetMultiSelect,
-        FilesListComponent
+        askForFolderFiles,
+        FilesListComponent,
     }
 } 

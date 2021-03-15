@@ -17,6 +17,6 @@ export const formatDateEditor = (d: Date): string => {
 }
 export const formatDateList = (d: Date): string => {
     // var datestring =   d.getDate() + "  " + monthNamesShort[d.getMonth()] + " " + d.getFullYear() ;
-    var datestring =   d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear().toString().substr(2) ;
+    var datestring =   ('0'+d.getDate()).slice(-2) + "/" + ('0'+(d.getMonth()+1)).slice(-2) + "/" + d.getFullYear().toString().substr(2) ;
     return datestring
 }

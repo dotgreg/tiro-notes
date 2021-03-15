@@ -7,14 +7,16 @@ export const useKeys = (p: {
     onKeyUp: (e:any) => void
 }) => {
     const [ctrlPressed, setCtrlPressed] = useState(false)
+    const [shiftPressed, setShiftPressed] = useState(false)
 
     useEffect(() => {
         window.onkeydown = (e:any) => {
             p.onKeyDown(e)
             onKey(e, 'ctrl', () => {
-                
-                console.log('[MU ctrl');
                 setCtrlPressed(true)
+            })
+            onKey(e, 'shift', () => {
+                setShiftPressed(true)
             })
         }
         window.onkeyup = (e:any) => {
@@ -22,10 +24,14 @@ export const useKeys = (p: {
             onKey(e, 'ctrl', () => {
                 setCtrlPressed(false)
             })
+            onKey(e, 'shift', () => {
+                setShiftPressed(false)
+            })
         }
     })
 
     return {
         ctrlPressed, setCtrlPressed,
+        shiftPressed, setShiftPressed,
     }
 }

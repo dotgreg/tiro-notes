@@ -15,6 +15,7 @@ const handleDrop = (ev) => {
   ev.preventDefault();
   if (ev.dataTransfer && ev.dataTransfer.items) {
     let files = ev.dataTransfer.items
+    if(!files[0]) return
     //@TODO multiple files handling
     uploadFile(files[0].getAsFile())
   }
