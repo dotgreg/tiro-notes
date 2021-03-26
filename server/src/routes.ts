@@ -49,6 +49,8 @@ export const socketRoutes:iSockerRoute[] = [
             liveSearch({
                 term: termObj.term, 
                 folder: termObj.folderToSearch, 
+                titleSearch: termObj.titleSearch,
+                
                 onSearchUpdate : files => {
                     socket.emit(socketEvents.getFiles, {files: files, temporaryResults: true} as iSocketEventsParams.getFiles)
                 },
@@ -68,7 +70,7 @@ export const socketRoutes:iSockerRoute[] = [
                 folder: `${backConfig.dataFolder}${data.folderPath}`,
                 config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
             }, (folder:iFolder) => {
-              socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
+              socket.emit(socketEvents.getFolderHierarchy, {folder, pathBase: backConfig.dataFolder} as iSocketEventsParams.getFolderHierarchy)
             })  
         }
     },

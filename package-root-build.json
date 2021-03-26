@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node server/server.js",
     "start-build-app": "node server/server.js",
     "OLDstart-app": "node --experimental-worker server/server/src/server.js",
     "OLDbuild": "npm install --prefix ./server/server --only=prod ./server/server",

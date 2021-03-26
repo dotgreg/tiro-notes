@@ -24,7 +24,7 @@ export const debouncedHierarchyScan = debounce( async(socket:any) => {
         folder: `${backConfig.dataFolder}`,
         config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
     }, (folder:iFolder) => {
-      socket.emit(socketEvents.getFolderHierarchy, {folder: folder} as iSocketEventsParams.getFolderHierarchy)
+      socket.emit(socketEvents.getFolderHierarchy, {folder, pathBase: backConfig.dataFolder} as iSocketEventsParams.getFolderHierarchy)
     })  
 }, 2000)
 

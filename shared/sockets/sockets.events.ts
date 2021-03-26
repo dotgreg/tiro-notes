@@ -53,7 +53,7 @@ export declare namespace iSocketEventsParams {
     export interface getUploadedFile {name:string, path:string}
 
     export interface askFolderHierarchy {folderPath:string}
-    export interface getFolderHierarchy {folder: iFolder}
+    export interface getFolderHierarchy {folder: iFolder, pathBase:string}
 
     export interface createNote {folderPath: string}
 

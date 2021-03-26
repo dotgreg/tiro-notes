@@ -42,13 +42,17 @@ export class MonacoEditorWrapper extends React.Component<{
 
     //@ts-ignore
     window.monaco = monaco
-    
+    // const monokai = require('monaco-themes/themes/Monokai.json');
+    // monaco.editor.defineTheme('monokai', monokai);
+    // monaco.editor.setTheme('monokai');
     monaco.editor.defineTheme('customLightTheme', {
       base: 'vs',
       inherit: true,
       rules: [{ background: 'EDF9FA' }],
       colors: {
-          'editor.foreground': '#000000',
+          // 'editor.foreground': styleApp.colors.font.light,
+          // 'editor.background': styleApp.colors.bg.black,
+          'editor.foreground': styleApp.colors.bg.dark,
           'editor.background': styleApp.colors.bg.light,
       }
     });

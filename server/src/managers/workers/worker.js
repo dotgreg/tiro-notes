@@ -13,7 +13,7 @@ const getFolderHierarchySync = async (folder, config) => {
         var stats = fs.lstatSync(folder)
         let relativeFolder = folder.replace(config.dataFolder, '')
         let info= {
-            path: folder,
+            path: relativeFolder,
             title: path.basename(folder),
             key: relativeFolder
         };

@@ -12,8 +12,10 @@ export type onFolderClickedFn = (folderPath:string) => void
 export const useAppTreeFolder = () => {
 
     const defaultFolderVal:iFolder = {title: 'loading...', key: '', path: ''}
+    
+    
     const [folderHierarchy, setFolderHierarchy] = useLocalStorage<iFolder>('folderHierarchy',defaultFolderVal)
-    // const [folderHierarchy, setFolderHierarchy] = useState<iFolder>({title: 'loading...', key: '', path: ''})
+    const [folderBasePath, setFolderBasePath] = useLocalStorage('folderBasePath','')
     const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selectedFolder','')
     const [expandedKeys, setExpandedKeys] = useLocalStorage<string[]>('expandedKeys',[])
 
@@ -24,6 +26,7 @@ export const useAppTreeFolder = () => {
             socketEvents.getFolderHierarchy, 
             (data:iSocketEventsParams.getFolderHierarchy) => {  
                 setFolderHierarchy(data.folder)
+                setFolderBasePath(data.pathBase)
             }
         )
         return () => {
@@ -62,6 +65,7 @@ export const useAppTreeFolder = () => {
     
 
     return {
+        folderBasePath,
         selectedFolder, setSelectedFolder, 
         cleanFolderHierarchy,
         askForFolderScan,

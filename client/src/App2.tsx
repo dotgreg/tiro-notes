@@ -129,6 +129,7 @@ export const App2 = React.memo(() => {
 
     // Tree Folder
     const {
+        folderBasePath,
         selectedFolder, setSelectedFolder, 
         askForFolderScan,
         FolderTreeComponent,
@@ -227,7 +228,7 @@ export const App2 = React.memo(() => {
         if (item.type === 'file' && item.files) {
             promptAndBatchMoveFiles(item.files, folderToDropInto)
         } else if (item.type === 'folder' && item.folder) {
-            promptAndMoveFolder(item.folder, folderToDropInto)
+            promptAndMoveFolder(item.folder, folderToDropInto, folderBasePath)
         }
     }
     

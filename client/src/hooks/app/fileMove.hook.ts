@@ -32,11 +32,11 @@ export const useFileMove = (
         }
     }
 
-    const promptAndMoveFolder = (folder: iFolder, folderToDropInto:iFolder) => {
-        let userAccepts = window.confirm(`move folder ${folder.path} to ${folderToDropInto.path}/${folder.title}?`)
+    const promptAndMoveFolder = (folder: iFolder, folderToDropInto:iFolder, folderPathBase:string) => {
+        let initPath = `${folderPathBase}/${folder.path}`
+        let endPath = `${folderPathBase}/${folderToDropInto.path}/${folder.title}`
+        let userAccepts = window.confirm(`move folder ${initPath} to ${endPath}?`)
         if (userAccepts) {
-            let initPath = folder.path
-            let endPath = `${folderToDropInto.path}/${folder.title}`
             askForMoveFolder(initPath, endPath)
             emptyFileDetails()
             cleanFilesList()

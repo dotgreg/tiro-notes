@@ -6,7 +6,7 @@ export let clientSocket:SocketIOClient.Socket
 
 export const initSocketConnection = ():Promise<SocketIOClient.Socket> => {
     return new Promise((resolve, reject) => {
-        let socketBackend = `${configClient.global.socketUrl}:${configClient.global.socketPort}`
+        let socketBackend = `${configClient.global.protocol}://${configClient.global.socketUrl}:${configClient.global.socketPort}`
         if (clientSocket) return
         //@ts-ignore
         clientSocket = io(socketBackend);

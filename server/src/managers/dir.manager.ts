@@ -6,7 +6,7 @@ import { fileExists } from "./fs.manager";
 import { getPlatform } from "./platform.manager";
 var fs = require('fs')
 
-export let dirDefaultBlacklist = ['.resources']
+export let dirDefaultBlacklist = ['.resources', '_resources']
 
 export const createDir = async (path:string, mask:number = 0o775):Promise<null|string> => {
     return new Promise((resolve, reject) => {

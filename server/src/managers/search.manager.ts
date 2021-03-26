@@ -47,24 +47,44 @@ var fs = require('fs')
 export const liveSearch = async (params:{
     term:string, 
     folder:string, 
+    titleSearch: boolean,
+
+
     onSearchUpdate: (filesScanned:iFile[]) => void,
     onSearchEnded: (filesScanned:iFile[]) => void
 }):Promise<void> => {
 
     let processTerm = params.term.split('-').join('\\-') 
-    console.log({params});
+    
 
-    const ripGrepStreamProcess = execa.command([
+    const normalSearchCommand = [
         'rg', 
         processTerm, 
         backConfig.dataFolder+params.folder, 
         '--count-matches',
+        '--ignore-case',
         '--type',
         'md',
-    ].join(' '))
+    ].join(' ')
+    const titleSearchCommand = [
+        'rg',
+        '--files',
+        backConfig.dataFolder+params.folder,
+        '--type',
+        'md', 
+        // '|', 
+        // 'rg',
+        // processTerm, 
+        // '--ignore-case'
+    ].join(' ')
+    const command = params.titleSearch ? titleSearchCommand : normalSearchCommand
+
+    console.log('NEW SEARCH : ',{command, params});
+    const ripGrepStreamProcess = execa.command(command)
+    // console.log({ripGrepStreamProcess});
     
 
-    let processDataToFiles = (dataRaw:string):iFile[] => {
+    let processDataToFiles = (dataRaw:string, titleFilter:string = ''):iFile[] => {
         let res:iFile[] = []
         
         dataRaw = dataRaw.split(/\:[0-9]+/g).join('')  // remove file.md:1
@@ -76,6 +96,10 @@ export const liveSearch = async (params:{
         for (let i = 0; i < array.length; i++) {
             let filePath = array[i];
             filePath = filePath.split(`\\`).join('/') 
+
+            // TITLE FILTER
+            if (titleFilter !== '' && !filePath.toLowerCase().includes(titleFilter.toLowerCase())) continue
+
             try {
                 let stats = fs.lstatSync(`${backConfig.dataFolder}/${params.folder}/${filePath}`)
                 filesScanned.push({
@@ -103,7 +127,7 @@ export const liveSearch = async (params:{
         let data = dataRaw.toString()
         console.log({data}, backConfig.dataFolder);
         
-        filesScanned.push(...processDataToFiles(data))
+        filesScanned.push(...processDataToFiles(data, params.titleSearch ? processTerm : ''))
         console.log(`SEARCH => temporary search : ${filesScanned.length} elements found`);
         params.onSearchUpdate(filesScanned)
     })
@@ -182,14 +206,27 @@ export const retrieveCachedSearch = async (term:string):Promise<iFile[]> => {
     })
 }
 
-export const analyzeTerm = (term:string):{rawTerm:string, termId:string, term:string, folderToSearch:string} => {
-    let res = {rawTerm:term, termId:term, term:term, folderToSearch:''}
+export const analyzeTerm = (term:string):{
+    rawTerm:string, 
+
+    termId:string, 
+    term:string, 
+    folderToSearch:string,
+    titleSearch: boolean
+} => {
+    let res = {rawTerm:term, termId:term, term:term, folderToSearch:'', titleSearch:false}
 
     // if folder in 'toto /hello/world'
     let folderRaw = term.match(/\ \/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\\ ]*)$/gm)
     if (folderRaw && folderRaw[0]) {
         res.term = term.replace(folderRaw[0], '')
         res.folderToSearch = folderRaw[0].substr(1)
+    }
+
+    // if search term is intitle:toto, only search in title
+    if (res.term.startsWith('intitle:')) {
+        res.titleSearch = true
+        res.term = res.term.replace('intitle:', '')
     }
 
     res.termId = res.termId.replace('/', '')

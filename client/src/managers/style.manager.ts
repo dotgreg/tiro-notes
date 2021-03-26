@@ -17,7 +17,14 @@ export const styleApp = {
         bg: {
             dark: 'rgb(39, 39, 39)' ,
             grey: 'rgb(221, 221, 221)',
-            light: '#fceeded6'
+            // light: '#fceeded6'
+            light: '#FFFFFF',
+            black: '#000000'
+          },
+        font: {
+          light: '#FFFFFF',
+          black: '#000000'
+
         }
     }
 }
@@ -303,40 +310,35 @@ justify-content:center;
               }
 
               .preview {
-                position:relative;
+                // position:relative;
                 // float:left;
 
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                justify-content: center;
-                align-content: flex-start;
-                align-items: flex-start;
 
                 .content, .picture {
                   // display:inline-block;
                 }
                 &.with-image .content {
-                  width: 60%;
+                  width: 65%;
                 }
                 .content {
                   color: grey;
                   font-size: 9px;
                   margin-top: 3px;
-                  flex:  1 auto;
                   height: 34px;
                   overflow: hidden;
                   line-break: anywhere;
                   word-break: break-all;
+                  z-index: 2;
+                  position: relative;
                 }
                 .picture {
-                  // flex: 1 1 auto;
                   width: 50px;
-                  height: 50px;
+                  height: 34px;
                   background-size: cover;
-                  position: relative;
-                  top: 4px;
-                  left: 14px;
+                  position: absolute;
+                  z-index: 1;
+                  top: 23px;
+                  right: 5px;
                 }
               }
               .checkbox {
@@ -346,7 +348,10 @@ justify-content:center;
               }
               .label {
                 display: inline-block;
-                width: 90%;
+                width: 77%;
+                position: relative;
+                line-break: anywhere;
+                z-index: 2;
               }
               .date {
                 position: absolute;
@@ -354,6 +359,7 @@ justify-content:center;
                 font-size: 9px;
                 right: 5px;
                 top: 6px;
+                z-index: 2;
                 &.modified {
                   color: green;
                 }

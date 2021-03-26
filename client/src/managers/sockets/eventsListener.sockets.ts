@@ -1,5 +1,5 @@
 import { clientSocket } from "./socket.manager";
-import { socketEvents } from "../../../../shared/sockets/sockets.events";
+import { iSocketEventsParams, socketEvents } from "../../../../shared/sockets/sockets.events";
 import EventManager from "../events.manager";
 import {each} from 'lodash'
 
