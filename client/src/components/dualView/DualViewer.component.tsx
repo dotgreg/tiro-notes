@@ -34,24 +34,14 @@ export const DualViewer = (p:{
     }, [p.fileContent])
 
     // back to top when change file
-    // useEffect(() => {
-    //     if (syncScrollY !== 0) setPosY(0)
-    //     console.log(111131)
-    //     setTriggerNoteLeaving(true);
-    // }, [p.file.path])
-
-    // const [triggerTextLeaving, setTriggerNoteLeaving] = useState(false)
-    // useEffect(() => {
-    //     return () => {
-    //         console.log(111132)
-    //         setTriggerNoteLeaving(true);
-    //     }
-    // }, [])
+    useEffect(() => {
+        setPosY(1);
+    }, [p.file.path])
 
     return <div 
             className={`dual-view-wrapper view-${viewType}`}
-            onWheelCapture={updateSyncScroll}
-            onTouchMoveCapture={updateSyncScroll}
+            onWheelCapture={e => {updateSyncScroll(e.deltaY)}}
+            onTouchMoveCapture={(e:any) => {updateSyncScroll(e.deltaY)}}
         >
             <EditorArea
                 file={p.file}

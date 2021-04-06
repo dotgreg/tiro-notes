@@ -22,7 +22,8 @@ const handleDrop = (ev) => {
 }
 
 
-
+// const test = document.getElementById("image-file") as HTMLInputElement
+// const filetest.files?[0]
 
 
 export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number => {

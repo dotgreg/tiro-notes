@@ -5,13 +5,18 @@ import { replaceAll } from './string.manager';
 export const transformUrlInLinks = (bodyRaw: string):string => {
     const regex =  /(https?:\/\/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\%\ \#]*))/gm;
     const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
-    const subst = `<a href="#" ${codeOpenPopup}>$2</a>`;
+    const subst = `<a class="external-link preview-link" href="#" ${codeOpenPopup}>$2</a>`;
     return bodyRaw.replace(regex, subst);
 }
 
-export const transformExtrawurstLinks = (bodyRaw: string):string => {
+export const transformTitleSearchLinks = (bodyRaw: string):string => {
+    const regex = /\[link\|([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\#\ ]*)\ (\/[A-Za-z0-9\/\:\.\_\-\/\ \\\?\=\&\@\!\#]*)\]/gm;
+    const subst = `<a class="title-search-link preview-link" href="javascript:window.tiroCli.searchFileFromTitle.func('$1','$2');">$1</a>`;
+    return bodyRaw.replace(regex, subst); 
+}
+export const transformSearchLinks = (bodyRaw: string):string => {
     const regex = /\[search\|([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\#]*)([A-Za-z0-9\/\:\.\_\-\/\ \\\?\=\&\@\!\#]*)\]/gm;
-    const subst = `<a class="extrawurst-link" href="javascript:window.ewTriggerSearch('$1$2');">[$1]</a>`;
+    const subst = `<a class="search-link preview-link" href="javascript:window.tiroCli.triggerSearch.func('$1$2');">$1</a>`;
     let body =  bodyRaw.replace(regex, subst); 
     body = replaceAll(body, [
         ['>[__id_','>['],
@@ -29,7 +34,7 @@ export const transformRessourcesInHTML = (currentFolderPath:string, bodyRaw: str
     const regex = /(\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \#]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \#]*)\))/gm;
     const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/$3`
     const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=800,height=1000');"`
-    const subst = `<a href="#" ${codeOpenPopup}>$2</a>`;
+    const subst = `<a class="resource-link preview-link" href="#" ${codeOpenPopup}>$2</a>`;
     // const subst = `<a href="${ressLink}" download="$2">$2</a>`;
     return bodyRaw.replace(regex, subst);
 }

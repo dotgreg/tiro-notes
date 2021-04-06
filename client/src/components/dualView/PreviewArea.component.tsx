@@ -1,8 +1,11 @@
 import React, { Ref, useEffect, useRef } from 'react';
 import { iFile } from '../../../../shared/types.shared';
-import { formatDateEditor } from '../../managers/date.manager';
+import { formatDateEditor, formatDateList } from '../../managers/date.manager';
+import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { replaceAll } from '../../managers/string.manager';
-import { transformExtrawurstLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks } from '../../managers/textProcessor.manager';
+import { cssVars } from '../../managers/style/vars.style.manager';
+import { transformSearchLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks, transformTitleSearchLinks } from '../../managers/textProcessor.manager';
+import { commonCssEditors } from './EditorArea.component';
 const marked = require('marked');
 
 export let previewAreaRefs
@@ -43,11 +46,21 @@ export const PreviewArea = (p:{
             ref={previewAreaRefs.wrapper}
             >
 
-            <h3 className='preview-title'>{p.file.name}</h3>
-            <br/>
-            <div className='date modified'>modified: {formatDateEditor(new Date(p.file.modified || 0))}</div>
-            <div className='date created'>created: {formatDateEditor(new Date(p.file.created || 0))}</div>
-            
+            <div className="infos-preview-wrapper">
+                
+                <div className="file-path-wrapper">
+                    {p.file.path.replace(`/${p.file.name}`,'')}
+                </div>
+
+                <h1 className="title big-title">
+                    {p.file.name.replace('.md','')}
+                </h1>
+
+                <div className="dates-wrapper">
+                  <div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+                  <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+                </div>
+            </div>
             
             <PreviewRenderer
                 filecontent={p.fileContent}
@@ -59,16 +72,94 @@ export const PreviewArea = (p:{
 }
 
 
+export const previewAreaCss = (v:MobileView) => `
+.preview-area {
+    position: relative;
+    display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
+    padding: ${isA('desktop') ? `0px ${cssVars.sizes.block*3}px 0px ${(cssVars.sizes.block*3)/2}px` : `0px ${cssVars.sizes.block*2}px`};
+    margin-top: ${isA('desktop') ? '140':'0'}px;
+    height: ${isA('desktop') ? '100vh':'100vh'};
+    margin-bottom: 100px;
+    overflow: hidden;
+    ${isA('desktop') ? 'width: 50%':''};
+    ${deviceType() !== 'desktop' ? 'overflow-y: scroll;':''}
+
+    ${commonCssEditors}
+
+    .infos-preview-wrapper {
+        display: ${isA('desktop') ? 'none' : 'block'};
+    }
+
+    .title {
+        margin: 0px 0px;
+    }
+
+    .dates-wrapper {
+        margin-bottom: ${cssVars.sizes.block}px;
+    }
+
+    color: ${cssVars.colors.editor.font};
+    h1, h2, h3, h4, h5, h6 {
+        color: ${cssVars.colors.main};
+    }
+    .preview-link {
+      font-weight: 800;
+      
+      background-repeat: no-repeat;
+      background-position: 4px 2px;
+      padding-left: 20px;
+      background-size: 10px;
+      
+      &.external-link {
+        background-image: url(${cssVars.assets.worldIcon});
+        }
+        &.search-link {
+            color: ${cssVars.colors.main};
+            background-image: url(${cssVars.assets.searchIcon});
+        }
+        &.title-search-link {
+            color: ${cssVars.colors.main};
+            background-image: url(${cssVars.assets.linkIcon});
+        }
+        &.resource-link {
+          color: ${cssVars.colors.main};
+        background-image: url(${cssVars.assets.fileIcon});
+      }
+
+    }
+    .content-image {
+        border-radius: 7px;
+        box-shadow: 0px 0px 10px rgb(0 0 0 / 10%);
+    }
+
+    p {
+        margin-top: 0px;
+        margin-bottom: 1em;
+    }
+    .preview-content {
+      margin-bottom:100px;
+    }
+    pre {
+      code {
+        display: block;
+        border-radius: 8px;
+        padding: 10px;
+      }
+    }
+  }
+`
+
 
 
 const PreviewRenderer = React.memo((p:{filecontent:string, currentFolder:string}) => {
     const processRender = (raw:string):string => {
         return transformRessourcesInHTML(p.currentFolder ,
         transformImagesInHTML (p.currentFolder ,
-        transformExtrawurstLinks (
+        transformSearchLinks (
+        transformTitleSearchLinks (
         transformUrlInLinks ( 
             raw
-        ))))
+        )))))
     }
 
     // let test = p.filecontent.match()

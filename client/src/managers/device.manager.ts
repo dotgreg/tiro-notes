@@ -13,6 +13,10 @@ export const isVarMobileView = (raw:any):boolean => {
   return false
 }
 
+export const isA = (device:DeviceType):boolean => {
+  return deviceType() === device
+}
+
 export const deviceType = ():DeviceType => {
     let deviceWidth = window.innerWidth
     // console.log(deviceWidth);

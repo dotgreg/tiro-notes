@@ -1,5 +1,6 @@
 import React, { Ref } from 'react';
 import styled from '@emotion/styled'
+import { strings } from '../managers/strings.manager';
 
 export class SearchBar extends React.Component<{
     isSearching: boolean
@@ -32,6 +33,7 @@ export class SearchBar extends React.Component<{
             <div className="search-input">
                 <input 
                     type="text" 
+                    placeholder={strings.searchPlaceholder}
                     ref={this.inputRef}
                     value={this.props.searchTerm}
                     onKeyDown={this.submitOnEnter}

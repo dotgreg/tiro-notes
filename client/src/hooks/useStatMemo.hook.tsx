@@ -1,19 +1,19 @@
 import React, {  useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { random } from "lodash";
 import { useLocalStorage } from './useLocalStorage.hook';
-import { consoleCli } from '../managers/cliConsole.manager';
+import { addCliCmd } from '../managers/cliConsole.manager';
 
 export const useStatMemo = (el:any, memProps) => {
     const [showRenderId, setShowRenderId] = useLocalStorage('showRenderId', false)
 
-    consoleCli.toggleRenderId = {
+    addCliCmd('toggleRenderId', {
         description: 'toggle display of renderId for each block',
         func: () => {
             console.log('[toggleRenderId]');
             setShowRenderId(!showRenderId)
             setTimeout(() => {window.location.reload()}, 1000)
         }  
-    }
+    })
 
     let renderId = random(0,1000)
     // 

@@ -4,7 +4,7 @@ import { TreeView } from './components/TreeView.Component';
 import { deviceType } from './managers/device.manager';
 import { iSocketEventsParams, socketEvents } from '../../shared/sockets/sockets.events';
 import { clientSocket, initSocketConnection } from './managers/sockets/socket.manager';
-import { CssApp, GlobalCssApp } from './managers/style.manager';
+import { CssApp } from './managers/style/css.manager';
 import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
 import { useAppTreeFolder } from './hooks/app/treeFolder.hook';
 import { onFilesReceivedFn, useAppFilesList } from './hooks/app/filesList.hook';
@@ -18,10 +18,16 @@ import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useKeys } from './hooks/app/useKeys.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
-import { consoleCli } from './managers/cliConsole.manager';
+import { addCliCmd, consoleCli } from './managers/cliConsole.manager';
 import { configClient } from './config';
 import { onKey } from './managers/keys.manager';
 import { iFile, iFolder } from '../../shared/types.shared';
+import { GlobalCssApp } from './managers/style/global.style.manager';
+import { NewFileButton } from './components/NewFileButton.component';
+import { strings } from './managers/strings.manager';
+import { useSearchFromTitle } from './hooks/app/searchFromTitle.hook';
+import { LastNotes } from './components/LastNotes.component';
+import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 
 
 
@@ -65,16 +71,36 @@ export const App2 = React.memo(() => {
         cleanFilesList()
     } 
 
+
+    const changeToFolder = (folderPath:string) => {
+        console.log(`[FOLDER CHANGED] to ${folderPath}`);
+        // setTest2(`${test2} ${activeFile?.name}`)
+        // setTest2(test2+1)
+        
+        // SEND FIRST isLeavingNote signal for leaving logic like encryption
+        setIsLeavingNote(true)
+        // NORMAL CHANGE FOLDER LOGIC
+        setTimeout(() => {
+            setSearchTerm('')
+            shouldLoadNoteIndex.current = 0
+            setSelectedFolder(folderPath)
+            cleanListAndFileContent()
+            askForFolderFiles(folderPath)
+            setIsLeavingNote(false)
+        })
+    }
+
+
     const onFilesReceivedCallback:onFilesReceivedFn = 
     (files, isTemporaryResult) => {
         setIsSearching(!isTemporaryResult)
+        
         // if activeFileIndex exists + is in length of files, load it
         if (activeFileIndex !== -1 && activeFileIndex < files.length) {
             askForFileContent(files[activeFileIndex])
         }
         if (isNumber(shouldLoadNoteIndex.current)) {
             console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
-            
             let noteIndex = shouldLoadNoteIndex.current
             setActiveFileIndex(noteIndex)
             if (files.length >= noteIndex + 1) askForFileContent(files[noteIndex])
@@ -84,8 +110,19 @@ export const App2 = React.memo(() => {
         if (selectedFolder !== lastFolderIn.current || searchTerm !== lastSearchIn.current) {
             // Load first item list 
             files.length >= 1 && askForFileContent(files[0])
+            setActiveFileIndex(0)
             lastFolderIn.current = selectedFolder
             lastSearchIn.current = searchTerm
+        }
+        
+        // IF WE ARE ON SEARCH TITLE LOGIC 
+        // find a file whom title is the one we searched, else go to index 0
+        const indexSearch = getSearchedTitleFileIndex(files)
+        if ( indexSearch !== -1 ) {
+            if (files[indexSearch]) {
+                setActiveFileIndex(indexSearch)
+                askForFileContent(files[indexSearch])
+            }
         }
     }
 
@@ -164,6 +201,10 @@ export const App2 = React.memo(() => {
         cleanFolderHierarchy
     )
 
+
+    // Search Note from title
+    const {getSearchedTitleFileIndex, searchFileFromTitle} = useSearchFromTitle({changeToFolder})
+
     // File Content + Dual Viewer
     let activeFile = files[activeFileIndex] 
     const {
@@ -173,7 +214,11 @@ export const App2 = React.memo(() => {
         DualViewerComponent
     } = useFileContent(
         activeFile, activeFileIndex, selectedFolder, files, shouldLoadNoteIndex,
-        cleanFileDetails, askForMoveFile, askForFolderFiles)
+        cleanFileDetails, askForMoveFile, askForFolderFiles
+    )
+
+    // last Note + files history array
+    const {filesHistory} = useLastFilesHistory(activeFile)
     
     
     // CONNECTION INDICATOR
@@ -204,6 +249,7 @@ export const App2 = React.memo(() => {
                     setActiveFileIndex(activeFileIndex)
                     setSearchTerm('')
                     askForFolderFiles(newUrlParams.folder)
+                    
                 }
                 if (newUrlParams.search) {
                     console.log('reactToUrlParams -> triggersearch');
@@ -237,14 +283,9 @@ export const App2 = React.memo(() => {
     // quand rename, creer prompt
     // backend rename folder
 
-    // quand hold shift, multiselect active, 
-    // multiselect la selection
-    // if index < start point => <div class="startMulti">
-
-    // if index > end point => </div>
     
     // window variables
-    consoleCli.variables = {
+    addCliCmd('variables', {
         description: 'variables for script uses',
         func: () => {
              return {
@@ -252,12 +293,11 @@ export const App2 = React.memo(() => {
                 config: configClient
             }
         }
-    }
-
+    })
 
     // Send Note Leaving Signal
     const [isLeavingNote, setIsLeavingNote] = useState(false)
-
+    
     return (
         // <CssApp v={this.state.mobileView} >
         <CssApp v={mobileView} >
@@ -275,54 +315,60 @@ export const App2 = React.memo(() => {
 
                 <div className="left-wrapper">
                     <div className="left-wrapper-1">
-                        {
-                            FolderTreeComponent({
-                                onFolderClicked: folderPath => {
-                                    // SEND FIRST isLeavingNote signal for leaving logic like encryption
-                                    setIsLeavingNote(true)
-                                    // NORMAL CHANGE FOLDER LOGIC
-                                    setTimeout(() => {
-                                        setSearchTerm('')
-                                        shouldLoadNoteIndex.current = 0
-                                        setSelectedFolder(folderPath)
-                                        cleanListAndFileContent()
-                                        askForFolderFiles(folderPath)
-                                        setIsLeavingNote(false)
-                                    })
-                                },
-                                onFolderDragStart:draggedFolder => {
-                                    console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
-                                    draggedItems.current = [{type:'folder', folder:draggedFolder}]
-                                },
-                                onFolderDragEnd:() => {
-                                    console.log(`[DRAG MOVE] onFolderDragEnd`);
-                                    draggedItems.current = []
+                        <div className="invisible-scrollbars">
+                            <NewFileButton
+                                onNewFile= {() => {
+                                    clientSocket.emit(socketEvents.createNote, 
+                                        {folderPath: selectedFolder} as iSocketEventsParams.createNote
+                                    ) 
+                                    shouldLoadNoteIndex.current = 0
+                                }}
+                            />
+                            {/* {test2} */}
+                            {/* {filesHistory.length} */}
+                            <LastNotes 
+                                files={filesHistory}
+                                onClick={file => {
+                                    searchFileFromTitle(file.name, file.folder)
+                                }}
+                            />
 
-                                },
-                                onFolderDrop:folderDroppedInto => {
-                                    processDragDropAction(folderDroppedInto)
-                                }
-                            })
-                        }
+                            {
+                                FolderTreeComponent({
+                                    onFolderClicked: folderPath => {
+                                        changeToFolder(folderPath)
+                                    },
+                                    onFolderDragStart:draggedFolder => {
+                                        console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
+                                        draggedItems.current = [{type:'folder', folder:draggedFolder}]
+                                    },
+                                    onFolderDragEnd:() => {
+                                        console.log(`[DRAG MOVE] onFolderDragEnd`);
+                                        draggedItems.current = []
+
+                                    },
+                                    onFolderDrop:folderDroppedInto => {
+                                        processDragDropAction(folderDroppedInto)
+                                    }
+                                })
+                            }
+                        </div>
                     </div> 
                     <div className="left-wrapper-2">
-                        {
-                            SearchBarComponent(
-                                selectedFolder,
-                                files
-                            )
-                        } 
+                        <div className="top-files-list-wrapper">
+                            <h3 className="subtitle">{strings.files}</h3>
+                            {
+                                SearchBarComponent(
+                                    selectedFolder,
+                                    files
+                                )
+                            } 
+                        </div>
                         {
 
                             FilesListComponent({
                                 selectedFolder:selectedFolder,
                                 searchTerm:searchTerm,
-                                onNewFile:() => {
-                                    clientSocket.emit(socketEvents.createNote, 
-                                        {folderPath: selectedFolder} as iSocketEventsParams.createNote
-                                    ) 
-                                    shouldLoadNoteIndex.current = 0
-                                },
                                 onFileClicked:fileIndex => {
                                     setActiveFileIndex(fileIndex)
                                     askForFileContent(files[fileIndex])

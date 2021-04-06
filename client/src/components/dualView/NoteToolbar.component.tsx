@@ -1,74 +1,9 @@
 import React, { ReactElement } from 'react';
 import styled from '@emotion/styled'
 import { TextModifAction } from '../../managers/textEditor.manager';
-import { Icon } from '../Icon.component';
+import { Icon, IconSizeProp } from '../Icon.component';
 import { textToId } from '../../managers/string.manager';
-
-//
-// MAIN TOOLBAR
-//
-
-export const mainEditorToolbarConfig = (thatNote: any) => [
-  {
-    title:'toggle editor', 
-    icon:'faEdit', 
-    action: () => {thatNote.setState({editorEnabled: !thatNote.state.editorEnabled})}
-  },
-  {
-    title:'detach in new window', 
-    icon:'faExternalLinkAlt', 
-    action: () => {
-      window.open(window.location.href,'popupDetached','width=600,height=600');
-    }
-  },
-  {
-    title:'insert unique id', 
-    icon:'faFingerprint', 
-    action: () => { 
-      let newContent = thatNote.state.fileContent
-      let id = textToId(thatNote.props.file.realname)
-      let idtxt = `--id-${id}`
-      let idSearch = `__id_${id}`
-      let folder = `${thatNote.props.file.folder}`
-      newContent = `${idtxt}\n[search|${idSearch} ${folder}]\n` + newContent
-      thatNote.setState({fileContent: newContent})
-    }
-  },
-  {
-    title:'encrypt text', 
-    icon:'faLock', 
-    action: () => {
-      if (!thatNote.state.password) thatNote.setState({askForPassword: 'toEncrypt'})
-      else thatNote.encryptContent()
-    }
-  },
-  {
-    title:'decrypt text', 
-    icon:'faUnlock', 
-    action: () => {
-      if (!thatNote.state.password) thatNote.setState({askForPassword: 'toDecrypt'})
-      else thatNote.decryptContent()
-    }
-  },
-  {
-    title:'upload files', 
-    class:'upload-button-wrapper',
-    customHtml: <>
-      <input className='input-file-hidden' id="file" name="file" type="file" ref={thatNote.uploadInput}  />
-      <label 
-        ><Icon name="faPaperclip" /></label>
-    </>
-  },
-  {
-    title:'delete note', 
-    class:'delete',
-    icon:'faTrash', 
-    action: () => {
-      thatNote.props.onFileDelete(thatNote.props.file.path) 
-    }
-  },
-]
-
+import { cssVars } from '../../managers/style/vars.style.manager';
 
 
 
@@ -149,3 +84,27 @@ export const Button = (p:ToolbarButton) => {
   </button>
 }
 
+
+export const mobileNoteToolbarCss = `
+  .mobile-text-manip-toolbar {
+    position: fixed;
+    bottom: ${cssVars.sizes.mobile.editorBar}px;
+    display: flex;
+    list-style: none;
+    width: 100%;
+    padding: 0px;
+    height: ${cssVars.sizes.mobile.editorBar}px;
+    background: ${cssVars.colors.editor.mobileToolbar.bg};
+    li {
+      flex: 1 1 auto;
+      button {
+        svg {
+          color: ${cssVars.colors.editor.mobileToolbar.font};
+        }
+        ${cssVars.els.button};
+        width: 100%;
+        padding: 10px;
+      }
+    }
+  }
+`

@@ -16,6 +16,7 @@ export const NoteTitleInput = (p: {
     return (
         <div className='title-input-wrapper'>
             <input 
+                className="big-title"
                 type="text" 
                 value={title}
                 onChange={(e) => {

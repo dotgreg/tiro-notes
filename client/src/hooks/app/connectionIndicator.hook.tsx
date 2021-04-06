@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState }  from 'react';
 import { socketEvents } from '../../../../shared/sockets/sockets.events';
 import { configClient } from "../../config"
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
+import { cssVars } from '../../managers/style/vars.style.manager';
 import { useInterval } from '../interval.hook';
 
 const generateTitle = ():string => {
   let newTitle = ''
-  if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Extrawurst (PROD ${configClient.version})`
+  if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
   else newTitle = `/!\\ DEV /!\\`
   return newTitle
 }
@@ -87,3 +88,32 @@ export const useConnectionIndicator = (setCanEdit:Function) => {
   }
 
 }
+
+export const connectionIndicatorCss = `
+.connection-status {
+  font-size: 9px;
+  z-index: 11;
+  .back-online, .disconnected {
+    position: absolute;
+    text-align:center;
+    color:white;
+    top: 0px;
+    left: 0px;
+    width: 100vw;
+    padding: 1px;
+  }
+  .back-online{
+    background: green;
+  }
+  .disconnected{
+    background: ${cssVars.colors.main};
+  }
+  .connected {
+    display:none;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    color: green;
+  }
+}
+`

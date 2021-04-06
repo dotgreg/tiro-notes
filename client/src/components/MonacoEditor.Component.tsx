@@ -1,12 +1,22 @@
 import React from 'react';
 import MonacoEditor from 'react-monaco-editor';
-import { appFontFamily, styleApp } from '../managers/style.manager';
+import { cssVars } from '../managers/style/vars.style.manager';
 import styled from '@emotion/styled'
 import { initVimMode } from 'monaco-vim';
 import { LineTextInfos } from '../managers/textEditor.manager';
 import { onScrollFn } from './dualView/EditorArea.component';
 
 export let monacoEditorInstance: any
+export const resetMonacoSelection = () => {
+  if (!monacoEditorInstance) return
+  let selection = {
+    endColumn:0,
+    endLineNumber:0,
+    startColumn:0,
+    startLineNumber:0
+  }
+  monacoEditorInstance.setSelection(selection)
+}
 
 export class MonacoEditorWrapper extends React.Component<{
   value:string,
@@ -48,12 +58,14 @@ export class MonacoEditorWrapper extends React.Component<{
     monaco.editor.defineTheme('customLightTheme', {
       base: 'vs',
       inherit: true,
-      rules: [{ background: 'EDF9FA' }],
+      rules: [{ foreground: cssVars.colors.editor.font }],
       colors: {
-          // 'editor.foreground': styleApp.colors.font.light,
-          // 'editor.background': styleApp.colors.bg.black,
-          'editor.foreground': styleApp.colors.bg.dark,
-          'editor.background': styleApp.colors.bg.light,
+          // 'editor.foreground': cssVars.colors.font.light,
+          // 'editor.background': cssVars.colors.bg.black,
+          // 'editor.foreground': ''cssVars.colors.editor.font'',
+          // 'editor.background': cssVars.colors.bg.light,
+          'editor.foreground': 'red',
+          // 'editor.background': 'red',
       }
     });
 
@@ -83,7 +95,7 @@ export class MonacoEditorWrapper extends React.Component<{
 
   shouldComponentUpdate ( nextProps: any,  nextState: any, nextContext: any) { 
     
-    if (this.props.posY !== nextProps.posY) {
+    if (this.props.posY !== nextProps.posY || this.props.value !== nextProps.value) {
       this.editor.setScrollPosition({scrollTop: this.props.posY});
     }
 
@@ -104,14 +116,15 @@ export class MonacoEditorWrapper extends React.Component<{
           </div>
           <MonacoEditor
             ref={this.reactComp}
-            width="110%"
+            width="100%"
             height="100%"
             language="markdown"
             theme="vs"
             value={this.props.value}
             options={{
-              fontFamily:'sans-serif',
+              fontFamily:cssVars.font.editor,
               readOnly: this.props.readOnly,
+              quickSuggestions: false,
               automaticLayout: true,
               selectOnLineNumbers: true,
               minimap: {enabled: false},
@@ -137,6 +150,19 @@ export class MonacoEditorWrapper extends React.Component<{
     );
   }
 }
+
+export const monacoColorsCss  = `
+  [class^="mtk"]:not(.mtk1) {
+    color: ${cssVars.colors.main};
+    font-weight: 800;
+  }
+  // .mtk6 {
+  //   color: ${cssVars.colors.main};
+  // }
+  .monaco-editor .scroll-decoration {
+    box-shadow: none;
+  }
+`
 
 const StyledWrapper  = styled.div`
     height: 100vh;

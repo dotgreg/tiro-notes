@@ -9,14 +9,14 @@
     "build-client": "cd client & rm -r ./build & npm run build",
     "build-server": "cd server & rm -r ./build & npm run build",
     
-    "clean-prev-build": "rm -r ../builds-ew/client & rm -r ../builds-ew/server & rm -r ../builds-ew/binaries & rm -r ../builds-ew/scripts & rm ../builds-ew/package.json",
+    "clean-prev-build": "rm -r ../builds-tiro/client & rm -r ../builds-tiro/server & rm -r ../builds-tiro/binaries & rm -r ../builds-tiro/scripts & rm ../builds-tiro/package.json",
     
     "export-build": "npm run export-client & npm run export-binaries & npm run export-config & npm run export-scripts & npm run export-server",
-    "export-client": "cp -r client/build ../builds-ew/client",
-    "export-binaries": "cp -r binaries ../builds-ew/binaries",
-    "export-config": "cp package-root-build.json ../builds-ew/package.json & cp tiro-config.sample.json ../builds-ew/tiro-config.sample.json",
-    "export-scripts": "cp -r scripts ../builds-ew/scripts",
-    "export-server": "cp -r server/build ../builds-ew/server & cp -r server/ssl ../builds-ew/server/ssl",
+    "export-client": "cp -r client/build ../builds-tiro/client",
+    "export-binaries": "cp -r binaries ../builds-tiro/binaries",
+    "export-config": "cp package-root-build.json ../builds-tiro/package.json & cp tiro-config.sample.json ../builds-tiro/tiro-config.sample.json",
+    "export-scripts": "cp -r scripts ../builds-tiro/scripts",
+    "export-server": "cp -r server/build ../builds-tiro/server & cp -r server/ssl ../builds-tiro/server/ssl",
     
     
     

@@ -1,6 +1,6 @@
 import React, {  useState, useEffect, useRef} from 'react';
 import { MonacoEditorWrapper } from '../../components/MonacoEditor.Component';
-import { DeviceType, deviceType } from '../../managers/device.manager';
+import { DeviceType, deviceType, isA } from '../../managers/device.manager';
 import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
 
 export interface TextManipActionsHookParams {
@@ -34,7 +34,7 @@ export const useTextManipActions = (p:TextManipActionsHookParams) => {
     const resetCursorPosition = (decal:number) => {
       let newPos = currentCursorPos.current + decal
       console.log('resetCursorPosition to ', newPos);
-      if (deviceType() === 'desktop') {
+      if (isA('desktop')) {
         editorRefDesktop.current?.editor.setPosition(newPos);
       } else {
         let textarea = editorRefMobile.current

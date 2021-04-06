@@ -16,7 +16,6 @@ export const useNoteEncryption = (p:{
 
     const ifEncryptOnLeave = (cb:(encrypted:string)=>void) => {
       
-      console.log(1111112, shouldEncryptOnLeave, password);
       if (shouldEncryptOnLeave && password) {
           console.log('[EVENTS EDITOR] shouldEncryptOnLeave');
           let res = encryptText(p.fileContent, password)

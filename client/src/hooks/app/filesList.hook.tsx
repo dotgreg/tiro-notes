@@ -6,6 +6,7 @@ import { Icon } from '../../components/Icon.component';
 import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket } from '../../managers/sockets/socket.manager';
+import { cssVars } from '../../managers/style/vars.style.manager';
 import { useDebounce } from '../lodash.hooks';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
@@ -19,10 +20,10 @@ export const useAppFilesList = (
 ) => {
     
     // STATE
-    const [activeFileIndex, setActiveFileIndex] = useLocalStorage<number>('activeFileIndex',-1)
+    const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
     
     const [sortMode, setSortMode] = useLocalStorage<number>('sortMode',3)
-    const [files, setFiles] = useLocalStorage<iFile[]>('files',[])
+    const [files, setFiles] = useState<iFile[]>([])
     const [forceListUpdate, setForceListUpdate] = useState(0)
     
 
@@ -162,23 +163,11 @@ export const useAppFilesList = (
         searchTerm: string,
         selectedFolder: string,
         onFileClicked: (fileIndex:number)=>void
-        onNewFile: ()=>void
         onFileDragStart: onFileDragStartFn
         onFileDragEnd: ()=>void
     }) => useStatMemo(
-        <div>
+        <div className="files-list-component">
             <div className='list-toolbar'>
-                { p.searchTerm === '' &&
-                    <button 
-                        onClick={(e) => {
-                            p.onNewFile()
-                        }}
-                    >
-                        <Icon name="faStickyNote" />
-                    </button>
-                }
-
-
                 <button 
                     type="button" 
                     title='sort'
@@ -188,12 +177,13 @@ export const useAppFilesList = (
                         setFiles(sortFiles(files, newMode))
                     }}
                 > 
-                    <Icon name="faSort" /> { SortModesLabels[sortMode] } 
+                    <span> { SortModesLabels[sortMode] } </span> 
+                    <Icon name="faSort" color={cssVars.colors.l2.text} /> 
                 </button>
 
-                { files.length > 0 &&
+                {/* { files.length > 0 &&
                     <span className='items-list-count'>{files.length} els</span>
-                }
+                } */}
 
             </div>
 

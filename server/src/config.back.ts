@@ -17,7 +17,7 @@ let jsonConfig:TiroConfig = JSON.parse(fs.readFileSync(path.join(__dirname, `${p
 // LOADING CONFIG FILE
 export const backConfig = {
     dataFolder: path.join(__dirname, `${pathbase}/${jsonConfig.dataFolder}`),
-    frontendBuildFolder: path.join(__dirname, `${pathbase}/../client`),
+    frontendBuildFolder: path.join(__dirname, `${pathbase}/client`),
     
     configFolder: '.tiro',
     uploadFolder: '.resources',

@@ -1,13 +1,10 @@
-import { filter, sortBy } from 'lodash';
+import { cloneDeepWith, filter, sortBy } from 'lodash';
 import React, {  RefObject, useEffect, useRef, useState } from 'react';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
 import { iFile } from '../../../../shared/types.shared';
 import { DualViewer } from '../../components/dualView/DualViewer.component';
-import { Icon } from '../../components/Icon.component';
-import { List, SortModes, SortModesLabels } from '../../components/List.component';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket } from '../../managers/sockets/socket.manager';
-import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 
 export const useFileContent = (
@@ -19,17 +16,13 @@ export const useFileContent = (
 
   cleanFileDetails: Function,
   askForMoveFile: Function,
-  askForFolderFiles: Function
+  askForFolderFiles: Function,
 ) => {
     
     // STATE
     const [fileContent, setFileContent] = useState<string|null>(null)
     const [canEdit, setCanEdit] = useState(false)
-
-
     
-    
-
 
     // SOCKET INTERACTIONS
     const listenerId = useRef<number>(0)
@@ -120,4 +113,4 @@ export const useFileContent = (
       askForFileContent,
       DualViewerComponent
     }
-} 
+}  

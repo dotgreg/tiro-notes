@@ -2,6 +2,7 @@ import React, {  useEffect, useRef, useState } from 'react';
 import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
 import { iFile } from '../../../../shared/types.shared';
 import { SearchBar } from '../../components/SearchBar.component';
+import { addCliCmd } from '../../managers/cliConsole.manager';
 import { clientSocket } from '../../managers/sockets/socket.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { useStatMemo } from '../useStatMemo.hook';
@@ -15,14 +16,22 @@ export const useAppSearch = (
     const [searchTerm, setSearchTerm] = useState('')
     const [isSearching, setIsSearching] = useState(false)
 
-    useEffect(() => {
-        //@ts-ignore
-        window.ewTriggerSearch = (term:string) => {
-          console.log(`[SEARCH FROM LINK] for ${term}`);
-          term =  replaceAll(term, [['_','-']])
-          triggerSearch(term)
+    addCliCmd('triggerSearch', {
+        description: 'trigger a search programmatically',
+        func: (term:string) => {
+            console.log(`[SEARCH FROM LINK] for ${term}`);
+            term =  replaceAll(term, [['_','-']])
+            triggerSearch(term)
         }
-    }, [])
+    })
+    // useEffect(() => {
+    //     //@ts-ignore
+    //     window.ewTriggerSearch = (term:string) => {
+    //       console.log(`[SEARCH FROM LINK] for ${term}`);
+    //       term =  replaceAll(term, [['_','-']])
+    //       triggerSearch(term)
+    //     }
+    // }, [])
     
     const triggerSearch = (term:string) => {
         console.log(`[APP -> TRIGGER SEARCH] ${term}`);

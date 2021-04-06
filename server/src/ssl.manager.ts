@@ -18,7 +18,8 @@ export const sslConfig = {
 export const createSecureServer = (port:number, cb?:Function, label?:string):{secureServer:any, expressApp:any} => {
     var expressApp = express();
 
-    const secureServer = https.createServer(sslConfig, expressApp).listen(port, () => {
+    let secureServer
+    secureServer = https.createServer(sslConfig, expressApp).listen(port, () => {
         console.log(`[SECURE SERVER] create at port ${port} with label ${label}`);
         cb && cb()
     })

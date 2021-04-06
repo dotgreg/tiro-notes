@@ -1,10 +1,17 @@
+export interface iCliCmd {
+    description: string,
+    func:Function
+}
+
 export const consoleCli:{
-    [command:string]:{
-        description: string,
-        func:Function
-    }} = {
+    [command:string]:iCliCmd
+} = {
 
 }
 
+export const addCliCmd = (name:string, cmd:iCliCmd) => {
+    consoleCli[name] = cmd
+}
+
 //@ts-ignore
-window.ewCli = consoleCli
+window.tiroCli = consoleCli

@@ -33,7 +33,7 @@ export const getUrlParams = ():iUrlParams => {
     urlParams.search = urlParamsSearch.get('search') || undefined
     urlParams.file = urlParamsSearch.get('file') ? parseInt(urlParamsSearch.get('file') as string) : undefined
     urlParams.folder = urlParamsSearch.get('folder') || undefined
-    urlParams.mobileview = isVarMobileView(urlParamsSearch.get('mobileview')) ? urlParamsSearch.get('mobileview') as MobileView : 'navigator'
+    urlParams.mobileview = isVarMobileView(urlParamsSearch.get('mobileview')) ? urlParamsSearch.get('mobileview') as MobileView : undefined
     return urlParams
 }
 
