@@ -1,5 +1,5 @@
 import { debounce } from "lodash";
-import { iSocketEventsParams, socketEvents } from "../../../shared/sockets/sockets.events";
+import { iSocketEventsParams, socketEvents } from "../../../shared/apiDictionary.type";
 import { socketEventsManager } from "./sockets/eventsListener.sockets";
 import { clientSocket } from "./sockets/socket.manager";
 

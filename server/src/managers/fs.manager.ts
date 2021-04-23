@@ -7,8 +7,6 @@ var https = require('https');
 var fs = require('fs');
 
 
-
-
 //////////////////////////
 // METADATA FILES
 //////////////////////////
@@ -63,14 +61,20 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
 } 
 
 export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> => {
-    console.log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
+    // check if file exists/not
+    if (!fileExists(pathInit)) {
+        console.log(`[MOVEFILE] ERROR : PATHINIT ${pathInit} DOESNT EXISTS`);
+    } else {
+        console.log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
+        
+        return new Promise(async (resolve, reject) => {
+            fs.rename(pathInit, pathEnd, (err) => {
+                if (err) {console.error(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject()}
+                else resolve()
+            }); 
+        })
+    }
     
-    return new Promise(async (resolve, reject) => {
-        fs.rename(pathInit, pathEnd, (err) => {
-            if (err) {console.error(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject()}
-            else resolve()
-        }); 
-    })
 }
 
 export const saveFile = async (path: string, content:string):Promise<void> => {
@@ -83,6 +87,16 @@ export const saveFile = async (path: string, content:string):Promise<void> => {
         // }); 
         fs.writeFile(path, content, (err) => {
             if (err) {console.error(`[SAVEFILE] Error ${err.message} (${path})`); reject()}
+            else resolve()
+        }); 
+    })
+}
+
+export const createFolder = async (path: string):Promise<void> => {
+    console.log(`[CREATEFOLDER] at ${path}`);
+    return new Promise((resolve, reject) => {
+        fs.mkdir(path, (err) => {
+            if (err) {console.error(`[CREATEFOLDER] Error ${err.message} (${path})`); reject()}
             else resolve()
         }); 
     })

@@ -1,4 +1,4 @@
-import { isEnvDev } from "./config.back";
+import { isEnvDev } from "./managers/path.manager";
 
 const fs = require('fs')
 const path = require('path')

@@ -52,7 +52,7 @@ export const lastNotesCss = `
             margin-bottom: 7px;
             overflow: hidden;
             list-style: none;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 400;
             svg {
                 color: ${cssVars.colors.main};

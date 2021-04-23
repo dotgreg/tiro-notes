@@ -17,6 +17,7 @@
     "@types/lodash": "^4.14.161",
     "@types/node": "^14.11.2",
     "@types/socket.io": "^2.1.11",
+    "bcrypt": "^5.0.1",
     "execa": "^5.0.0",
     "express": "^4.17.1",
     "express-basic-auth": "^1.2.0",
@@ -26,7 +27,8 @@
     "koa-static": "^5.0.0",
     "lodash": "^4.17.20",
     "socket.io": "^2.3.0",
-    "socketio-file-upload": "^0.7.2"
+    "socketio-file-upload": "^0.7.2",
+    "webpack-node-externals": "^2.5.2"
   },
   "devDependencies": {
     "ts-loader": "^8.0.15",

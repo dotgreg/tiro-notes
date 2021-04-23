@@ -1,30 +1,31 @@
 import { debounce, random } from "lodash"
-import { iSocketEventsParams, socketEvents } from "../../../shared/sockets/sockets.events"
+import { iSocketEventsParams, socketEvents } from "../../../shared/apiDictionary.type"
 import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
-import { dirDefaultBlacklist, scanDir } from "./dir.manager"
+import { dirDefaultBlacklist, scanDirForFiles } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
+import { serverSocket2 } from "./socket.manager"
 import { triggerWorker } from "./workers/worker.manager"
 
 export const generateNewFileName = ():number => random(0, 10000000000)
 
-export const debouncedFolderScan = debounce( async(socket:any, initPath:string) => {
+export const debouncedFolderScan = debounce( async(socket:typeof serverSocket2, initPath:string) => {
     let folderPathArr = initPath.split('/')
     folderPathArr.pop()
     let folderPath = folderPathArr.join('/')
     console.log(`[HEAVY] ==> debouncedScanAfterMove for ${folderPath}`);
     
-    let apiAnswer = await scanDir(`${backConfig.dataFolder}${folderPath}`)
+    let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
     if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-    socket.emit(socketEvents.getFiles, { files: apiAnswer } as iSocketEventsParams.getFiles) 
+    socket.emit('getFiles', { files: apiAnswer }) 
 }, 100)
 
-export const debouncedHierarchyScan = debounce( async(socket:any) => {
+export const debouncedHierarchyScan = debounce( async(socket:typeof serverSocket2) => {
     triggerWorker('getFolderHierarchySync', {
         folder: `${backConfig.dataFolder}`,
         config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
     }, (folder:iFolder) => {
-      socket.emit(socketEvents.getFolderHierarchy, {folder, pathBase: backConfig.dataFolder} as iSocketEventsParams.getFolderHierarchy)
+      socket.emit('getFolderHierarchy', {folder, pathBase: backConfig.dataFolder})
     })  
 }, 2000)
 

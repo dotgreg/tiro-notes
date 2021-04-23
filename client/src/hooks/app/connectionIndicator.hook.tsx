@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState }  from 'react';
-import { socketEvents } from '../../../../shared/sockets/sockets.events';
+import { socketEvents } from '../../../../shared/apiDictionary.type';
 import { configClient } from "../../config"
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -113,7 +113,7 @@ export const connectionIndicatorCss = `
     position: absolute;
     bottom: 5px;
     right: 5px;
-    color: green;
+    color: ${cssVars.colors.green};
   }
 }
 `

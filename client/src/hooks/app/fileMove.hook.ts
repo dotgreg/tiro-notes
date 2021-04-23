@@ -1,22 +1,27 @@
-import { iSocketEventsParams, socketEvents } from "../../../../shared/sockets/sockets.events";
+import { iSocketEventsParams, socketEvents } from "../../../../shared/apiDictionary.type";
 import { iFile, iFolder } from "../../../../shared/types.shared";
-import { clientSocket } from "../../managers/sockets/socket.manager";
+import { getFolderParentPath } from "../../managers/folder.manager";
+import { clientSocket, clientSocket2 } from "../../managers/sockets/socket.manager";
+import { strings } from "../../managers/strings.manager";
 import { updateUrl } from "../../managers/url.manager";
+import { getLoginToken } from "./loginToken.hook";
 
 export const useFileMove = (
     emptyFileDetails,
     cleanFilesList,
-    cleanFolderHierarchy
+    cleanFolderHierarchy,
+    askForFolderScan
 ) => {
 
     const askForMoveFile = (initPath:string, endPath:string) => {
         console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
-        clientSocket.emit(socketEvents.moveFile, {initPath, endPath} as iSocketEventsParams.moveFile)  
+        clientSocket2.emit('moveFile', {initPath, endPath, token: getLoginToken()})  
     }
 
     const askForMoveFolder = (initPath:string, endPath:string) => {
         console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
-        clientSocket.emit(socketEvents.moveFolder, {initPath, endPath} as iSocketEventsParams.moveFolder)  
+        // back will then scan and send back whole hierarchy... maybe doing it here is better
+        clientSocket2.emit('moveFolder', {initPath, endPath, token: getLoginToken()})  
     }
     
     const promptAndBatchMoveFiles = (files: iFile[], folderToDropInto:iFolder) => {
@@ -32,16 +37,36 @@ export const useFileMove = (
         }
     }
 
-    const promptAndMoveFolder = (folder: iFolder, folderToDropInto:iFolder, folderPathBase:string) => {
-        let initPath = `${folderPathBase}/${folder.path}`
-        let endPath = `${folderPathBase}/${folderToDropInto.path}/${folder.title}`
-        let userAccepts = window.confirm(`move folder ${initPath} to ${endPath}?`)
+    
+
+    const promptAndMoveFolder = (p: {
+        folder: iFolder, 
+        folderToDropInto:iFolder, 
+        folderBasePath:string, 
+        newTitle?:string
+        renameOnly?:boolean
+    }) => {
+        const {folder, folderToDropInto, folderBasePath, newTitle, renameOnly} = {...p}
+        
+        let rels = [
+            folder.path, 
+            `${renameOnly ? getFolderParentPath(folderToDropInto) : folderToDropInto.path}/${newTitle ? newTitle : folder.title}`
+        ]
+
+        let initPath = `${folderBasePath}/${rels[0]}`
+        let endPath = `${folderBasePath}/${rels[1]}`
+
+        let userAccepts = window.confirm(`${strings.moveFolderPrompt} ${initPath} to ${endPath}?`)
         if (userAccepts) {
             askForMoveFolder(initPath, endPath)
             emptyFileDetails()
             cleanFilesList()
             cleanFolderHierarchy()
             updateUrl({})
+            askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
+            setTimeout(() => {
+                askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
+            }, 1000)
         }
     }
 

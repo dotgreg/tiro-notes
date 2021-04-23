@@ -4,12 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm run build-client & npm run build-server & npm run clean-prev-build & npm run export-build",
+    "build": "npm run prepare-build & npm run build-client & npm run build-server & npm run clean-prev-build & npm run export-build",
 
-    "build-client": "cd client & rm -r ./build & npm run build",
-    "build-server": "cd server & rm -r ./build & npm run build",
+    "prepare-build": "npx mkdirp ../builds-tiro & npx mkdirp ../builds-tiro/client & npx mkdirp ../builds-tiro/server",
+
+    "build-client": "cd client & npm i &  rm -r ./build & npm run build",
+    "build-server": "cd shared &  npm i & cd ../server & npm i & rm -r ./build & npm run build",
     
-    "clean-prev-build": "rm -r ../builds-tiro/client & rm -r ../builds-tiro/server & rm -r ../builds-tiro/binaries & rm -r ../builds-tiro/scripts & rm ../builds-tiro/package.json",
+    "clean-prev-build": "npm run clean-server & npm run clean-client & npm run clean-else",
+    "clean-server": "rm -r ../builds-tiro/server",
+    "clean-client": "rm -r ../builds-tiro/client",
+    "clean-else": "rm -r ../builds-tiro/binaries & rm -r ../builds-tiro/scripts & rm ../builds-tiro/package.json",
     
     "export-build": "npm run export-client & npm run export-binaries & npm run export-config & npm run export-scripts & npm run export-server",
     "export-client": "cp -r client/build ../builds-tiro/client",

@@ -17,6 +17,7 @@ import { useStatMemo } from '../../hooks/useStatMemo.hook';
 import { random } from 'lodash';
 import { formatDateList } from '../../managers/date.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { isTextEncrypted } from '../../managers/encryption.manager';
 
 export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
 export type onFileEditedFn  =(filepath:string, content:string) => void
@@ -152,8 +153,7 @@ export const EditorArea = (p:{
         action: () => {p.onViewToggle()}
       } : {},
       uploadButtonConfig,
-      encryptButtonConfig,
-      decryptButtonConfig,
+      isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
       isA('desktop') ? detachNoteNewWindowButtonConfig() : {},
       {
         title:'insert unique id', 

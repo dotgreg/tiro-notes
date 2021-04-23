@@ -11,6 +11,29 @@ export const strings = {
     minsAgo: ' mins ago',
     months: ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
-    ]
-  
+    ],
+    createFolder: 'Create folder',
+    createFolderPrompt: 'New Folder name to create in',
+    renameFolder: 'Rename folder',
+    renameFolderPrompt: 'Rename folder to :',
+    deleteFolder: 'Delete folder',
+    deleteFolderPrompt: 'Are you sure you want to delete the folder and all its notes (no recovery possible) : ',
+    moveToTrash: 'Move to trash',
+    moveToTrashPrompt: 'Are you sure you want move folder in .tiro/.trash : ',
+    loadingFolder:'loading...',
+    moveFolderPrompt: 'move folder',
+    setupForm: {
+        introText: `Welcome to Tiro, please fill these informations to get started`,
+        user: 'user',
+        password: 'password',
+        dataFolder: 'folder path',
+        userExplanation: 'should have > 3 chars',
+        passwordExplanation: 'should have > 3 chars',
+        folderExplanation: `relative from Tiro folder installation (../data for example)`,
+        successReload: `Configuration file successfully written, reloading application...`,
+    },
+    loginForm: {
+        wrongUserPassword: 'Wrong login/password',
+        wrongToken: 'Authentication expired, please log again'
+    }
 }

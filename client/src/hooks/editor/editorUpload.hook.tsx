@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react"
-import { iSocketEventsParams, socketEvents } from "../../../../shared/sockets/sockets.events"
+import { iSocketEventsParams, socketEvents } from "../../../../shared/apiDictionary.type"
 import { Icon } from "../../components/Icon.component"
 import { initClipboardListener } from "../../managers/clipboard.manager"
 import { socketEventsManager } from "../../managers/sockets/eventsListener.sockets"
-import { clientSocket } from "../../managers/sockets/socket.manager"
+import { clientSocket, clientSocket2 } from "../../managers/sockets/socket.manager"
 import { safeString } from "../../managers/string.manager"
 import { listenOnUploadSuccess, uploadFile, initListenUploadOnDrop, uploadOnInputChange } from "../../managers/upload.manager"
+import { getLoginToken } from "../app/loginToken.hook"
 import { useStatMemo } from "../useStatMemo.hook"
 
 let keyUploadSocketListener
@@ -50,7 +51,7 @@ export const useEditorUploadLogic = (p:{
 
     const updateUploadFolder = (newUploadFolder:string) => {
         console.log(`[UPLOAD] updateUploadFolder to ${newUploadFolder}`);
-        clientSocket.emit(socketEvents.uploadResourcesInfos, {folderpath: newUploadFolder} as iSocketEventsParams.uploadResourcesInfos) 
+        clientSocket2.emit('uploadResourcesInfos', {folderpath: newUploadFolder, token: getLoginToken()}) 
     }
 
     const uploadButtonConfig = {

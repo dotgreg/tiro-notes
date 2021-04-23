@@ -1,9 +1,8 @@
-import { iSockerRoute } from "./managers/socket/socket.manager"
-import { socketEvents, iSocketEventsParams } from "../../shared/sockets/sockets.events";
+import { socketEvents, iSocketEventsParams } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
-import { createDir, dirDefaultBlacklist, fileNameFromFilePath, scanDir } from "./managers/dir.manager";
-import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
+import { createDir, dirDefaultBlacklist, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
+import { createFolder, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import {  analyzeTerm, liveSearch } from "./managers/search.manager";
 import { formatDateHistory } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
@@ -13,175 +12,177 @@ import { random } from "lodash";
 import { triggerWorker } from "./managers/workers/worker.manager";
 import { iFolder } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
+import { hashPassword, verifyPassword } from "./managers/password.manager";
+import { appConfigJsonPath, processClientSetup, TiroConfig } from "./managers/configSetup.manager";
+import { restartTiroServer } from "./managers/serverRestart.manager";
+import { serverSocket2 } from "./managers/socket.manager";
+import { checkUserPassword, generateNewToken, getLoginToken, saveTokenInMemory } from "./managers/loginToken.manager";
 
-export const socketRoutes:iSockerRoute[] = [
-    {
-        event: socketEvents.askForFiles,
-        action: async (socket, data:iSocketEventsParams.askForFiles) => {
-            let apiAnswer = await scanDir(`${backConfig.dataFolder}${data.folderPath}`)
-            if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-            socket.emit(socketEvents.getFiles, { files: apiAnswer } as iSocketEventsParams.getFiles) 
-        }
-    },
-    {
-        event: socketEvents.askForFileContent,
-        action: async (socket, data:iSocketEventsParams.askForFileContent) => {
-            let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
-            socket.emit(socketEvents.getFileContent, {fileContent: apiAnswer, filePath: data.filePath} as iSocketEventsParams.getFileContent)
-        }
-    },
-    {
-        event: socketEvents.searchFor,
-        action: async (socket, data:iSocketEventsParams.searchFor) => {
-            // see if need to restrict search to a folder
-            let termObj = analyzeTerm(data.term)
-            console.log({termObj});
 
-            // // first retrieve cached results if exists
-            // let cachedRes = await retrieveCachedSearch(termObj.termId)
-            // socket.emit(socketEvents.getFiles, {files: cachedRes, temporaryResults: true} as iSocketEventsParams.getFiles)
-            
-            // Then trigger api
-            // let apiAnswer = await search(termObj.term, termObj.folderToSearch)
-            // if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-            // socket.emit(socketEvents.getFiles, {files: apiAnswer} as iSocketEventsParams.getFiles)
-            
-            liveSearch({
-                term: termObj.term, 
-                folder: termObj.folderToSearch, 
-                titleSearch: termObj.titleSearch,
-                
-                onSearchUpdate : files => {
-                    socket.emit(socketEvents.getFiles, {files: files, temporaryResults: true} as iSocketEventsParams.getFiles)
-                },
-                onSearchEnded : files => {
-                    socket.emit(socketEvents.getFiles, {files: files} as iSocketEventsParams.getFiles)
-                }
-            })
-            
-            // finally update cached search
-            // await cacheSearchResults(termObj.termId, apiAnswer)
-        }
-    },
-    {
-        event: socketEvents.askFolderHierarchy,
-        action: async (socket, data:iSocketEventsParams.askFolderHierarchy) => {
-            triggerWorker('getFolderHierarchySync', {
-                folder: `${backConfig.dataFolder}${data.folderPath}`,
-                config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
-            }, (folder:iFolder) => {
-              socket.emit(socketEvents.getFolderHierarchy, {folder, pathBase: backConfig.dataFolder} as iSocketEventsParams.getFolderHierarchy)
-            })  
-        }
-    },
-    
-    {
-        event: socketEvents.saveFileContent,
-        action: async (socket, data:iSocketEventsParams.saveFileContent) => {
-            console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`);
-            await saveFile(`${backConfig.dataFolder}${data.filepath}`, data.newFileContent)
-            // sends back to all sockets the updated content
-            // ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as iSocketEventsParams.getFileContent)
-        },
-        disableDataLog: true
-    },
-    {
-        event: socketEvents.createNote,
-        action: async (socket, data:iSocketEventsParams.createNote) => {
-            let time = new Date() 
-            let nameNote = `/new-note-${random(0,10000)}.md`
-            let notePath = `${backConfig.dataFolder}${data.folderPath}${nameNote}`
-            console.log(`CREATING ${notePath}`);
-            await saveFile(`${notePath}`, ``)
+export const listenSocketEndpoints = () => {
 
-            let apiAnswer = await scanDir(`${backConfig.dataFolder}${data.folderPath}`)
-            if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-            socket.emit(socketEvents.getFiles, { files: apiAnswer } as iSocketEventsParams.getFiles) 
-        }
-    },
-    { 
-        event: socketEvents.moveFile,
-        action: async (socket, data:iSocketEventsParams.moveFile) => {
-            console.log(`=> MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
-            // upsert folders if not exists and move file
-            console.log(`===> 1/4 creating folders ${data.endPath}`);
-            await upsertRecursivelyFolders(data.endPath)
-            
-            console.log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
-            await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
-            
-            console.log(`===> 3/4 moveFile`);
-            await moveFile(`${backConfig.dataFolder}${data.initPath}`, `${backConfig.dataFolder}${data.endPath}`)
-            
-            // rescan the current dir
-            // @TODO => VOIR PRK SI LENT
-            console.log(`===> 4/4 debouncedScanAfterMove`);
-            await debouncedFolderScan(socket, data.initPath)
-            await debouncedHierarchyScan(socket)
-        }
-    },
-    { 
-        event: socketEvents.moveFolder,
-        action: async (socket, data:iSocketEventsParams.moveFolder) => {
-            console.log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
-            await moveFile(data.initPath, data.endPath)
-            await debouncedHierarchyScan(socket)
-        }
-    },
-    {
-        event: socketEvents.createHistoryFile,
-        action: async (socket, data:iSocketEventsParams.createHistoryFile) => {
-            
-            let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.history`
-            upsertRecursivelyFolders(`${historyFolder}/`) 
+    serverSocket2.on('askForFiles', async data => {
+        let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
+        if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+        serverSocket2.emit('getFiles', { files: apiAnswer }) 
+    })
 
-            let fileName = fileNameFromFilePath(data.filePath)
-            fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
-            await saveFile(`${historyFolder}/${fileName}`, data.content)
-        }
-    },
-    {
-        event: socketEvents.onFileDelete,
-        action: async (socket, data:iSocketEventsParams.onFileDelete) => {
-            console.log(`DELETING ${backConfig.dataFolder}${data.filepath}`);
+    serverSocket2.on('askForFileContent', async data => {
+        let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
+        serverSocket2.emit('getFileContent', {fileContent: apiAnswer, filePath: data.filePath})
+    })
 
-            let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
-            if (!fileExists(trashFolder)) await createDir(trashFolder)
+    serverSocket2.on('searchFor', async data => {
+        // see if need to restrict search to a folder
+        let termObj = analyzeTerm(data.term)
+        console.log({termObj});
 
-            let fileName = fileNameFromFilePath(data.filepath)
-            await moveFile(`${backConfig.dataFolder}${data.filepath}`, `${trashFolder}/${fileName}`)
-        }
-    },
-    {
-        event: socketEvents.askForExplorer,
-        action: async (socket, data:iSocketEventsParams.askForExplorer) => {
-            let fullPath = `${data.folderpath}`
-            console.log(`ASK FOR EXPLORER ${fullPath}`);
-            fullPath = fullPath.split('/').join('\\')
-            exec3(`%windir%\\explorer.exe \"${fullPath}\"`)
-            setTimeout(() => { focusOnWinApp('explorer') }, 500)
-        }
-    }, 
-    {
-        event: socketEvents.uploadResourcesInfos,
-        action: async (socket, data:iSocketEventsParams.uploadResourcesInfos) => {
-            folderToUpload.value = data.folderpath
-        }
-    }, 
-    {
-        event: socketEvents.disconnect,
-        action: async (socket) => {
+        // // first retrieve cached results if exists
+        // let cachedRes = await retrieveCachedSearch(termObj.termId)
+        // socket.emit(socketEvents.getFiles, {files: cachedRes, temporaryResults: true} as iSocketEventsParams.getFiles)
+        
+        // Then trigger api
+        // let apiAnswer = await search(termObj.term, termObj.folderToSearch)
+        // if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+        // socket.emit(socketEvents.getFiles, {files: apiAnswer} as iSocketEventsParams.getFiles)
+        
+        liveSearch({
+            term: termObj.term, 
+            folder: termObj.folderToSearch, 
+            titleSearch: termObj.titleSearch,
             
+            onSearchUpdate : files => {
+                serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
+            },
+            onSearchEnded : files => {
+                serverSocket2.emit('getFiles', {files: files})
+            }
+        })
+        
+        // finally update cached search
+        // await cacheSearchResults(termObj.termId, apiAnswer)
+    })
+
+    serverSocket2.on('askFolderHierarchy', async data => {
+        triggerWorker('getFolderHierarchySync', {
+            folder: `${backConfig.dataFolder}${data.folderPath}`,
+            config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
+        }, (folder:iFolder) => {
+            serverSocket2.emit('getFolderHierarchy', {folder, pathBase: backConfig.dataFolder})
+        })  
+    })
+
+    serverSocket2.on('askFoldersScan', async data => {
+        let folders:iFolder[] = []
+        for (let i = 0; i < data.foldersPaths.length; i++) {
+            folders.push(scanDirForFolders(data.foldersPaths[i]))
         }
-    },
-    {
-        event: socketEvents.askFilesPreview,
-        action: async (socket, data:iSocketEventsParams.askFilesPreview) => {
-            // let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
-            let res = await getFilesPreviewLogic(data)
-            socket.emit(socketEvents.getFilesPreview, {filesPreview: res} as iSocketEventsParams.getFilesPreview)
+        serverSocket2.emit('getFoldersScan', {folders, pathBase: backConfig.dataFolder})
+    })
+
+    serverSocket2.on('saveFileContent', async data => {
+        console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`);
+        await saveFile(`${backConfig.dataFolder}${data.filepath}`, data.newFileContent)
+        // sends back to all sockets the updated content
+        // ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as iSocketEventsParams.getFileContent)
+    },{disableDataLog: true})
+
+    serverSocket2.on('createNote', async data => {
+        let nameNote = `/new-note-${random(0,10000)}.md`
+        let notePath = `${backConfig.dataFolder}${data.folderPath}${nameNote}`
+        console.log(`CREATING ${notePath}`);
+        await saveFile(`${notePath}`, ``)
+
+        let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
+        if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+        serverSocket2.emit('getFiles', { files: apiAnswer })     
+    })
+
+    serverSocket2.on('moveFile', async data => {
+        console.log(`=> MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
+        // upsert folders if not exists and move file
+        console.log(`===> 1/4 creating folders ${data.endPath}`);
+        await upsertRecursivelyFolders(data.endPath)
+        
+        console.log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
+        await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
+        
+        console.log(`===> 3/4 moveFile`);
+        await moveFile(`${backConfig.dataFolder}${data.initPath}`, `${backConfig.dataFolder}${data.endPath}`)
+        
+        // rescan the current dir
+        console.log(`===> 4/4 debouncedScanAfterMove`);
+        await debouncedFolderScan(serverSocket2, data.initPath)
+        // await debouncedHierarchyScan(socket)
+    })
+
+    serverSocket2.on('moveFolder', async data => {
+        console.log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
+        await upsertRecursivelyFolders(data.endPath)
+        await moveFile(data.initPath, data.endPath)
+    })
+
+    serverSocket2.on('createHistoryFile', async data => {
+        let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.history`
+        upsertRecursivelyFolders(`${historyFolder}/`) 
+
+        let fileName = fileNameFromFilePath(data.filePath)
+        fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
+        await saveFile(`${historyFolder}/${fileName}`, data.content)
+    })
+
+    serverSocket2.on('onFileDelete', async data => {
+        console.log(`DELETING ${backConfig.dataFolder}${data.filepath}`);
+
+        let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
+        if (!fileExists(trashFolder)) await createDir(trashFolder)
+
+        let fileName = fileNameFromFilePath(data.filepath)
+        await moveFile(`${backConfig.dataFolder}${data.filepath}`, `${trashFolder}/${fileName}`)
+    })
+
+    serverSocket2.on('askForExplorer', async data => {
+        let fullPath = `${data.folderpath}`
+        console.log(`ASK FOR EXPLORER ${fullPath}`);
+        fullPath = fullPath.split('/').join('\\')
+        exec3(`%windir%\\explorer.exe \"${fullPath}\"`)
+        setTimeout(() => { focusOnWinApp('explorer') }, 500)
+    })
+
+    serverSocket2.on('uploadResourcesInfos', async data => {
+        folderToUpload.value = data.folderpath
+    })
+
+    serverSocket2.on('disconnect', async data => {
+        
+    })
+
+    serverSocket2.on('askFilesPreview', async data => {
+        let res = await getFilesPreviewLogic(data)
+        serverSocket2.emit('getFilesPreview', {filesPreview: res})
+    })
+
+    serverSocket2.on('askFolderCreate', async data => {
+        createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
+    })
+
+    serverSocket2.on('sendSetupInfos', async data => {
+        const answer = await processClientSetup(data)
+        serverSocket2.emit(socketEvents.getSetupInfos, answer)
+
+        // if setup success, restart server
+        // NOT WORKING ON DEV NODEMON
+        if (answer.code === 'SUCCESS_CONFIG_CREATION') restartTiroServer()
+    }, {duringSetup: true})
+
+
+    serverSocket2.on('sendLoginInfos', async data => {
+        const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
+        if (!areClientInfosCorrect) {
+            serverSocket2.emit('getLoginInfos',{code:'WRONG_USER_PASSWORD'})
+        } else {
+            serverSocket2.emit('getLoginInfos',{code:'SUCCESS', token: getLoginToken()})
         }
-    },
-    
-    // ...roomsRoutes,
-]
+    }, {bypassLoginTokenCheck: true})
+}
+

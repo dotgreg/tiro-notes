@@ -1,15 +1,16 @@
 import { cloneDeep, debounce, filter, sortBy } from 'lodash';
 import React, {  useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
+import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
 import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
-import { clientSocket } from '../../managers/sockets/socket.manager';
+import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useDebounce } from '../lodash.hooks';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
+import { getLoginToken } from './loginToken.hook';
 
 export type onFilesReceivedFn = (files:iFile[], temporaryResults: boolean) => void
 export interface FilesPreviewObject {[path:string]:iFilePreview}
@@ -44,7 +45,7 @@ export const useAppFilesList = (
     }, [])
     
     const askForFolderFiles = (folderPath:string) => {
-        clientSocket.emit(socketEvents.askForFiles, {folderPath: folderPath} as iSocketEventsParams.askForFiles)
+        clientSocket2.emit('askForFiles', {folderPath: folderPath, token: getLoginToken()})
     }
 
 
@@ -73,7 +74,7 @@ export const useAppFilesList = (
         
         if (newFilesPathArr.length > 1) {
             console.log(`[LIST PREVIEW] askFilesPreview ${filesPath.length} asked but sent request for ${newFilesPathArr.length}`);
-            clientSocket.emit(socketEvents.askFilesPreview, {filesPath: newFilesPathArr} as iSocketEventsParams.askFilesPreview)
+            clientSocket2.emit('askFilesPreview', {filesPath: newFilesPathArr, token: getLoginToken()})
         } else {
             console.log(`[LIST PREVIEW] no request sent`);
         }

@@ -52,10 +52,9 @@ h3.subtitle {
 }
 
 .invisible-scrollbars {
-  // invisible scrollbars
   height: 100vh;
   padding-right: 20px;
-  width: 100%;
+  width: calc(100% + ${cssVars.sizes.scrollbar}px);
   box-sizing: content-box;
   overflow-y:scroll;
 }

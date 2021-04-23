@@ -13,6 +13,8 @@ import { filesListCss } from '../../components/List.component';
 import { mobileNoteToolbarCss } from '../../components/dualView/NoteToolbar.component';
 import { folderTreeCss } from '../../components/TreeView.Component';
 import { lastNotesCss } from '../../components/LastNotes.component';
+import { setupConfigCss } from '../../hooks/app/setupConfig.hook';
+import { inputComponentCss } from '../../components/Input.component';
 
 let d = deviceType()
 const {els,colors,font,sizes, other } = {...cssVars}
@@ -36,6 +38,10 @@ export const CssApp = styled.div<{v:MobileView }>`
   ${mobileViewMenuCss}
 
   ${connectionIndicatorCss}
+
+  ${setupConfigCss}
+
+  ${inputComponentCss}
 
   .no-file {
     text-align: center;
@@ -222,16 +228,7 @@ export const CssApp = styled.div<{v:MobileView }>`
         ${props => previewAreaCss(props.v)}
         
       }
-
-
-
-
-
-      
         ${mobileNoteToolbarCss}
-        
-
-        
       }
     
       

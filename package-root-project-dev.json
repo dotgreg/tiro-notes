@@ -1,0 +1,17 @@
+{
+    "name": "tiro",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "dev1": "cd sources-tiro & npm run client",
+      "build": "cd sources-tiro & npm run build & cd .. & npm run start-build",
+      "rebuild-server": "cd sources-tiro & npm run build-server & npm run clean-server & npm run export-server & cd .. & npm run start-build",
+      "start-build": "cd builds-tiro/server & npm run start",
+      "dev2": "cd sources-tiro & npm run server"
+    },
+    "author": "",
+    "license": "ISC"
+  }
+  

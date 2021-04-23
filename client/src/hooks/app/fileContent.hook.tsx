@@ -1,11 +1,12 @@
 import { cloneDeepWith, filter, sortBy } from 'lodash';
 import React, {  RefObject, useEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
+import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iFile } from '../../../../shared/types.shared';
 import { DualViewer } from '../../components/dualView/DualViewer.component';
 import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
-import { clientSocket } from '../../managers/sockets/socket.manager';
+import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useStatMemo } from '../useStatMemo.hook';
+import { getLoginToken } from './loginToken.hook';
 
 export const useFileContent = (
   activeFile: iFile|null,
@@ -48,9 +49,7 @@ export const useFileContent = (
         setFileContent('loading...')
         setCanEdit(false)
 
-        clientSocket.emit(socketEvents.askForFileContent, 
-          {filePath: file.path} as iSocketEventsParams.askForFileContent
-        )  
+        clientSocket2.emit('askForFileContent', {filePath: file.path, token: getLoginToken()} )  
       }
     } 
 
@@ -69,8 +68,7 @@ export const useFileContent = (
               onFileEdited={(filepath, content) => {
                 console.log(`[FILE CONTENT] API -> ask for file save`,{filepath, content});
                 // this.askForFolderFiles(this.state.selectedFolder)
-                clientSocket.emit(socketEvents.saveFileContent, 
-                  {filepath: filepath, newFileContent: content} as iSocketEventsParams.saveFileContent)  
+                clientSocket2.emit('saveFileContent', {filepath: filepath, newFileContent: content, token: getLoginToken()})  
               }}
               onFileTitleEdited={(initTitle, endTitle) => {
                 let initPath = `${activeFile.folder}/${initTitle}.md`
@@ -81,8 +79,7 @@ export const useFileContent = (
               }}
               onSavingHistoryFile={(filePath, content, historyFileType) => {
                 console.log(`[FILE CONTENT] onSavingHistoryFile ${historyFileType} => ${filePath}`);
-                clientSocket.emit(socketEvents.createHistoryFile, 
-                  {filePath, content, historyFileType} as iSocketEventsParams.createHistoryFile)  
+                clientSocket2.emit('createHistoryFile', {filePath, content, historyFileType, token: getLoginToken()})  
               }}
               onFileDelete={(filepath) => {
                 console.log(`[FILE CONTENT] onFileDelete => ${filepath}`);
@@ -93,8 +90,7 @@ export const useFileContent = (
                 // else if (i < files.length - 2) shouldLoadNoteIndex.current = i+1
                 else cleanFileDetails()
                 
-                clientSocket.emit(socketEvents.onFileDelete, 
-                  {filepath} as iSocketEventsParams.onFileDelete) 
+                clientSocket2.emit('onFileDelete', {filepath, token: getLoginToken()}) 
                   
                 askForFolderFiles(selectedFolder)
               }}
@@ -114,3 +110,6 @@ export const useFileContent = (
       DualViewerComponent
     }
 }  
+
+
+

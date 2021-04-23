@@ -1,5 +1,5 @@
 import { backConfig } from "../config.back";
-import { socketEvents, iSocketEventsParams } from "../../../shared/sockets/sockets.events";
+import { socketEvents, iSocketEventsParams } from "../../../shared/apiDictionary.type";
 import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper";
 import { generateNewFileName } from "./move.manager";
 import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
@@ -10,6 +10,8 @@ export let folderToUpload = {value: ''}
 
 export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
     // file upload starts listening
+    console.log('[initUploadFileRoute]');
+     
     var uploader = new siofu();
     let initialUploadPath = `${backConfig.dataFolder}/${backConfig.uploadFolder}`
     console.log(initialUploadPath);
@@ -23,7 +25,6 @@ export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
     })
     uploader.on('complete', async (e) => {
         // console.log('FILE UPLOAD COMPLETED', e);
-
         if (!e.file) return console.error(`file could not be uploaded`)
         // e.file.path => is with ../../data 
         let finfos = getFileInfos(e.file.pathName)
@@ -38,7 +39,6 @@ export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
         await upsertRecursivelyFolders(newAbsPath)
         await moveFile(oldPath, newAbsPath)
  
-        socket.emit(socketEvents.getUploadedFile, {name: finfos.filename, path:newRelPath} as iSocketEventsParams.getUploadedFile)  
-        
+        socket.emit(socketEvents.getUploadedFile, {name: finfos.filename, path:newRelPath} as iSocketEventsParams.getUploadedFile)         
     })
 }

@@ -1,24 +1,22 @@
 import { Global } from '@emotion/react';
 import React, { useEffect,  useMemo,  useRef,  useState } from 'react';
-import { TreeView } from './components/TreeView.Component';
 import { deviceType } from './managers/device.manager';
-import { iSocketEventsParams, socketEvents } from '../../shared/sockets/sockets.events';
-import { clientSocket, initSocketConnection } from './managers/sockets/socket.manager';
+import { iSocketEventsParams, socketEvents } from '../../shared/apiDictionary.type';
+import { clientSocket, clientSocket2, initSocketConnection } from './managers/sockets/socket.manager';
 import { CssApp } from './managers/style/css.manager';
 import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
-import { useAppTreeFolder } from './hooks/app/treeFolder.hook';
+import { useAppTreeFolder, buildTreeFolder, upsertFlatStructure, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
 import { onFilesReceivedFn, useAppFilesList } from './hooks/app/filesList.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
-import { DualViewer } from './components/dualView/DualViewer.component';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { useUrlLogic } from './hooks/app/urlLogic.hook';
-import { isNumber } from 'lodash';
+import { cloneDeep, isArray, isNull, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useKeys } from './hooks/app/useKeys.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
-import { addCliCmd, consoleCli } from './managers/cliConsole.manager';
+import { addCliCmd } from './managers/cliConsole.manager';
 import { configClient } from './config';
 import { onKey } from './managers/keys.manager';
 import { iFile, iFolder } from '../../shared/types.shared';
@@ -28,6 +26,8 @@ import { strings } from './managers/strings.manager';
 import { useSearchFromTitle } from './hooks/app/searchFromTitle.hook';
 import { LastNotes } from './components/LastNotes.component';
 import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
+import { useSetupConfig } from './hooks/app/setupConfig.hook';
+import { getLoginToken, useLoginToken } from './hooks/app/loginToken.hook';
 
 
 
@@ -41,7 +41,7 @@ export const App2 = React.memo(() => {
         initSocketConnection().then(() => {
             bindEventManagerToSocketEvents()
             toggleSocketConnection(true)
-            askForFolderScan()
+            askForFolderScan(openFolders)
         })
 
         return () => {
@@ -70,6 +70,14 @@ export const App2 = React.memo(() => {
         cleanFileDetails()
         cleanFilesList()
     } 
+    
+    const cleanAllApp = () => {
+        console.log('[cleanAllApp]');
+        cleanLastFilesHistory()
+        cleanFolderHierarchy() 
+        cleanFileDetails()
+        cleanFilesList()
+    }
 
 
     const changeToFolder = (folderPath:string) => {
@@ -130,6 +138,13 @@ export const App2 = React.memo(() => {
     //
     // HOOKS
     //
+
+    // Setup config file and welcoming screen logic
+    const {SetupPopupComponent} = useSetupConfig({cleanAllApp})
+
+    // Setup config file and welcoming screen logic
+    const {LoginPopupComponent} = useLoginToken({cleanListAndFileContent})
+    
     // Key press
     const {
         shiftPressed
@@ -166,6 +181,10 @@ export const App2 = React.memo(() => {
 
     // Tree Folder
     const {
+        openFolders,
+        addToOpenedFolders,
+        removeToOpenedFolders,
+
         folderBasePath,
         selectedFolder, setSelectedFolder, 
         askForFolderScan,
@@ -198,7 +217,8 @@ export const App2 = React.memo(() => {
     } = useFileMove(
         cleanFileDetails,
         cleanFilesList,
-        cleanFolderHierarchy
+        cleanFolderHierarchy,
+        askForFolderScan,
     )
 
 
@@ -218,7 +238,7 @@ export const App2 = React.memo(() => {
     )
 
     // last Note + files history array
-    const {filesHistory} = useLastFilesHistory(activeFile)
+    const {filesHistory, cleanLastFilesHistory} = useLastFilesHistory(activeFile)
     
     
     // CONNECTION INDICATOR
@@ -262,7 +282,6 @@ export const App2 = React.memo(() => {
         }
     )
 
-
     // DRAG/DROP FOLDER/FILES MOVING LOGIC
     interface iDraggedItem {type:'file'|'folder', files?:iFile[], folder?:iFolder}
     // const [draggedItems,setDraggedItems] = useState<iDraggedItem[]>([])
@@ -274,7 +293,7 @@ export const App2 = React.memo(() => {
         if (item.type === 'file' && item.files) {
             promptAndBatchMoveFiles(item.files, folderToDropInto)
         } else if (item.type === 'folder' && item.folder) {
-            promptAndMoveFolder(item.folder, folderToDropInto, folderBasePath)
+            promptAndMoveFolder({folder:item.folder, folderToDropInto, folderBasePath})
         }
     }
     
@@ -304,7 +323,14 @@ export const App2 = React.memo(() => {
             <Global styles={GlobalCssApp}  />
             
             <div className="main-wrapper">
+                {
+                    LoginPopupComponent({})
+                }
                 
+                {
+                    SetupPopupComponent({})
+                }
+
                 {
                     connectionStatusComponent()
                 }
@@ -318,14 +344,11 @@ export const App2 = React.memo(() => {
                         <div className="invisible-scrollbars">
                             <NewFileButton
                                 onNewFile= {() => {
-                                    clientSocket.emit(socketEvents.createNote, 
-                                        {folderPath: selectedFolder} as iSocketEventsParams.createNote
-                                    ) 
+                                    clientSocket2.emit('createNote', {folderPath: selectedFolder, token: getLoginToken()}) 
                                     shouldLoadNoteIndex.current = 0
                                 }}
                             />
-                            {/* {test2} */}
-                            {/* {filesHistory.length} */}
+                            
                             <LastNotes 
                                 files={filesHistory}
                                 onClick={file => {
@@ -338,6 +361,32 @@ export const App2 = React.memo(() => {
                                     onFolderClicked: folderPath => {
                                         changeToFolder(folderPath)
                                     },
+                                    onFolderMenuAction: (action, folder, newTitle) => {
+                                        if (action === 'rename' && newTitle) {
+                                            promptAndMoveFolder({
+                                                folder, 
+                                                folderToDropInto:folder, 
+                                                folderBasePath, 
+                                                newTitle, 
+                                                renameOnly: true
+                                            })
+                                        } else if (action === 'create' && newTitle) {
+                                            askFolderCreate(newTitle, folder)
+                                            askForFolderScan([folder.path])
+                                        } else if (action === 'moveToTrash') {
+                                            promptAndMoveFolder({folder, folderToDropInto:defaultTrashFolder, folderBasePath, newTitle})
+                                        } else if (action === 'delete') {
+                                            askFolderDelete(folder)
+                                            askForFolderScan([folder.path])
+                                        }
+                                    },
+                                    onFolderOpen: folderPath => {
+                                        addToOpenedFolders(folderPath)
+                                        askForFolderScan([folderPath])
+                                    },
+                                    onFolderClose: folderPath => {
+                                        removeToOpenedFolders(folderPath)
+                                    },
                                     onFolderDragStart:draggedFolder => {
                                         console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
                                         draggedItems.current = [{type:'folder', folder:draggedFolder}]
@@ -345,7 +394,6 @@ export const App2 = React.memo(() => {
                                     onFolderDragEnd:() => {
                                         console.log(`[DRAG MOVE] onFolderDragEnd`);
                                         draggedItems.current = []
-
                                     },
                                     onFolderDrop:folderDroppedInto => {
                                         processDragDropAction(folderDroppedInto)

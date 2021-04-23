@@ -1,4 +1,4 @@
-import { iSocketEventsParams } from "../../../shared/sockets/sockets.events";
+import { iSocketEventsParams } from "../../../shared/apiDictionary.type";
 import { iFilePreview } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { openFile } from "./fs.manager";

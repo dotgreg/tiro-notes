@@ -12,6 +12,7 @@ import searchIcon from '../../assets/search-solid.svg'
 const colors = {
     main: 'rgba(232,102,102,1)', //red orange
     mainRGB: '232,102,102', //red orange
+    green: 'green',
     l1: {
       bg: '#e1e1e1' ,
       font: '#615f5f' ,
@@ -87,6 +88,19 @@ const colors = {
     button: `
       background: none;
       border: none;
+    `,
+    redButton: `
+      border: none;
+      background: ${colors.main};
+      &:hover {
+          background: rgba(${colors.mainRGB},0.8);
+      }
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     `,
   }
 

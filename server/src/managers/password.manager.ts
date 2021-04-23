@@ -29,7 +29,7 @@ export const staticServerAuthLogic = (username, userPassword, cb) => {
     }
 }
 
-export const hashPassword = async (password) => {
+export const hashPassword = async (password):Promise<string> => {
     return new Promise((resolve, reject) => {
         const salt = crypto.randomBytes(16).toString("hex")
         crypto.scrypt(password, salt, 64, (err, derivedKey) => {
@@ -39,7 +39,7 @@ export const hashPassword = async (password) => {
     })
 }
 
-export const verifyPassword = (password, hash) => {
+export const verifyPassword = (password, hash):Promise<boolean> => {
     return new Promise((resolve, reject) => {
         const [salt, key] = hash.split(":")
         crypto.scrypt(password, salt, 64, (err, derivedKey) => {

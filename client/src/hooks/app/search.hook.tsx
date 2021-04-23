@@ -1,11 +1,12 @@
 import React, {  useEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/sockets/sockets.events';
+import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iFile } from '../../../../shared/types.shared';
 import { SearchBar } from '../../components/SearchBar.component';
 import { addCliCmd } from '../../managers/cliConsole.manager';
-import { clientSocket } from '../../managers/sockets/socket.manager';
+import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { useStatMemo } from '../useStatMemo.hook';
+import { getLoginToken } from './loginToken.hook';
 
 
 export const useAppSearch = (
@@ -39,11 +40,7 @@ export const useAppSearch = (
         setSearchTerm(term)
         setIsSearching(true)
         shouldLoadNoteIndex.current = 0
-        clientSocket.emit(
-            socketEvents.searchFor, 
-            {term} as iSocketEventsParams.searchFor
-        ) 
-
+        clientSocket2.emit('searchFor', {term, token: getLoginToken()}) 
         cleanListAndFileContent()
     }
 

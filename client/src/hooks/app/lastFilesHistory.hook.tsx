@@ -9,7 +9,11 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
     useEffect(() => {
         activeFile && addToHistory(activeFile)
     }, [activeFile])
-    
+
+    const cleanLastFilesHistory = () => {
+        setFilesHistory([])
+    }
+
     const addToHistory = (file:iFile) => {
         let shouldAddToHistory = true
         for (let i = 0; i < filesHistory.length; i++) {
@@ -22,5 +26,5 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
         }
     }
 
-    return {filesHistory}
+    return {filesHistory, cleanLastFilesHistory}
 }

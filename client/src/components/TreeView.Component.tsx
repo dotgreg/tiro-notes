@@ -8,14 +8,23 @@ import { useLocalStorage } from '../hooks/useLocalStorage.hook';
 import { Icon } from './Icon.component';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { strings } from '../managers/strings.manager';
+import { getFolderParentPath } from '../managers/folder.manager';
 
 export type onFolderDragStartFn = (folder:iFolder) => void
 export type onFolderDropFn = (folder:iFolder) => void
+export type onFolderMenuActionFn = (
+  action: 'rename'|'create'|'moveToTrash'|'delete', 
+  folder:iFolder,
+  newName?:string 
+) => void
 
 export const TreeView = (p:{
   folder: iFolder,
   current:string,
+  onFolderMenuAction: onFolderMenuActionFn
   onFolderClicked: onFolderClickedFn
+  onFolderOpen: onFolderClickedFn
+  onFolderClose: onFolderClickedFn
 
   onFolderDragStart: onFolderDragStartFn
   onFolderDragEnd: () => void
@@ -28,6 +37,9 @@ export const TreeView = (p:{
         folder={p.folder}
         current={p.current}
         onFolderClicked={p.onFolderClicked}
+        onFolderMenuAction={p.onFolderMenuAction}
+        onFolderOpen={p.onFolderOpen}
+        onFolderClose={p.onFolderClose}
 
         onFolderDragStart={p.onFolderDragStart}
         onFolderDragEnd={p.onFolderDragEnd}
@@ -37,10 +49,21 @@ export const TreeView = (p:{
   )
 }
 
+
+
+
+
+
+
+
 export const FolderView = (p:{
   folder: iFolder,
   current:string,
+  
+  onFolderMenuAction: onFolderMenuActionFn
   onFolderClicked: onFolderClickedFn
+  onFolderOpen: onFolderClickedFn
+  onFolderClose: onFolderClickedFn
   onFolderDragStart: onFolderDragStartFn
   onFolderDragEnd: () => void
   onFolderDrop: onFolderDropFn
@@ -72,9 +95,12 @@ export const FolderView = (p:{
       }}
     >
       <div className="folder-title">
-        <span className="icon" onClick={e=> {setIsOpen(!isOpen)}}>
+        <span className="icon" onClick={e=> {
+          isOpen ? p.onFolderClose(p.folder.key) : p.onFolderOpen(p.folder.key)
+          setIsOpen(!isOpen)
+        }}>
           {
-            p.folder.children &&
+            p.folder.hasChildren &&
             <Icon
               name={isOpen ? 'faCaretDown' : 'faCaretRight'} 
               color={cssVars.colors.main}
@@ -90,15 +116,48 @@ export const FolderView = (p:{
             setIsMenuOpened(!isMenuOpened)
           }}
           className="context-menu-wrapper">
-          <Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
-          { isMenuOpened &&
-            <div className="context-menu">
-              <div onClick={() => {
-                alert(`rename ${p.folder.title}`);
-                setIsMenuOpened(false)
-              }} >move</div>
-            </div>
-          }
+            <Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
+            { isMenuOpened &&
+              <div className="context-menu">
+                <ul>
+
+                  <li onClick={() => {
+                      if (p.folder.path === '') return setIsMenuOpened(false)
+                      const newFolderName = prompt(`${strings.renameFolderPrompt} `,p.folder.title);
+                      if (newFolderName && newFolderName !== '' && newFolderName !== p.folder.title) {
+                        p.onFolderMenuAction('rename', p.folder, newFolderName)
+                      }
+                      setIsMenuOpened(false)
+                    }}>{strings.renameFolder}</li>
+
+                  <li onClick={() => {
+                    if (p.folder.path === '') return setIsMenuOpened(false)
+                    const createdFolderName = prompt(`${strings.createFolderPrompt} ${p.folder.path}`,'');
+                    if (createdFolderName && createdFolderName !== '') p.onFolderMenuAction('create', p.folder, createdFolderName)
+                    setIsMenuOpened(false)
+                  }}>{strings.createFolder}</li>
+
+                  { p.folder.path.indexOf('.tiro/.trash') === -1 &&
+                    <li onClick={() => {
+                      if (p.folder.path === '') return setIsMenuOpened(false)
+                      const confirmed = window.confirm(`${strings.moveToTrash}${p.folder.path}?`);
+                      if (confirmed) { p.onFolderMenuAction('moveToTrash', p.folder) }
+                      setIsMenuOpened(false)
+                    }}>{strings.moveToTrash}</li>
+                  }
+
+                  { p.folder.path.indexOf('.tiro/.trash') !== -1 &&
+                    <li onClick={() => {
+                      if (p.folder.path === '') return setIsMenuOpened(false)
+                      const confirmed = window.confirm(`${strings.deleteFolderPrompt}${p.folder.path}?`);
+                      if (confirmed) { p.onFolderMenuAction('delete', p.folder)}
+                      setIsMenuOpened(false)
+                    }}>{strings.deleteFolder}</li>
+                  }
+
+                </ul>
+              </div>
+            }
         </span>
       </div>
 
@@ -110,6 +169,9 @@ export const FolderView = (p:{
             <FolderView 
               folder={child}
               current={p.current}
+              onFolderOpen={p.onFolderOpen}
+              onFolderMenuAction={p.onFolderMenuAction}
+              onFolderClose={p.onFolderClose}
               onFolderClicked={p.onFolderClicked}
               onFolderDragStart={p.onFolderDragStart}
               onFolderDragEnd={p.onFolderDragEnd}
@@ -134,7 +196,9 @@ export const l1Subtitle = `
 export const folderTreeCss = `
 .folder-tree-view-component {
   padding: ${cssVars.sizes.block}px;
+  padding-right: 0px;
   margin: 0px 0px 100px 0px;
+  width: calc(100% - ${cssVars.sizes.block}px);
 
   ul.folder-children {
     margin: 0px 0px 0px 0px;
@@ -151,19 +215,32 @@ export const folderTreeCss = `
 
     .context-menu-wrapper {
       position: absolute;
-      right: 5px;
+      right: 10px;
       top: 5px;
       display:none;
       .context-menu {
         position: absolute;
-        right: -15px;
-        top: 17px;
+        right: 0px;
+        top: 15px;
         background: white;
+        box-shadow: 0px 0px 4px rgb(0 0 0 / 10%);
         color: black;
-        padding: 5px 10px;
-        width: 70px;
+        padding: 0px 0px;
+        width: 100px;
         z-index: 10;
         border-radius: 4px;
+        font-size: 10px;
+        ul {
+          list-style: none;
+          padding: 0px;
+          margin: 0px;
+          li {
+            padding: 4px 11px;
+            &:hover {
+              background: rgba(${cssVars.colors.mainRGB}, 0.2)
+            }
+          }
+        }
       }
     }
     .folder-title:hover > .context-menu-wrapper {
