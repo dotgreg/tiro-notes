@@ -11,13 +11,13 @@ var express = require('express');
 export const startStaticServer = (path:string, port:number, login:boolean=true) => {
     const {secureServer, expressApp} = createSecureServer(port)
     expressApp.use('/', express.static( path));
-    if (login) {
-        expressApp.use(basicAuth({
-            authorizer: staticServerAuthLogic,
-            challenge: true,
-            authorizeAsync: true,
-        }))
-    }
+    // if (login) {
+    //     expressApp.use(basicAuth({
+    //         authorizer: staticServerAuthLogic,
+    //         challenge: true,
+    //         authorizeAsync: true,
+    //     }))
+    // }
 
     console.log(` ==> Static Server for ${path} running at localhost:${port}/`);
 }

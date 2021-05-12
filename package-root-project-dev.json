@@ -1,17 +1,23 @@
 {
-    "name": "tiro",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-      "test": "echo \"Error: no test specified\" && exit 1",
-      "dev1": "cd sources-tiro & npm run client",
-      "build": "cd sources-tiro & npm run build & cd .. & npm run start-build",
-      "rebuild-server": "cd sources-tiro & npm run build-server & npm run clean-server & npm run export-server & cd .. & npm run start-build",
-      "start-build": "cd builds-tiro/server & npm run start",
-      "dev2": "cd sources-tiro & npm run server"
-    },
-    "author": "",
-    "license": "ISC"
+  "name": "tiro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "cd sources-tiro & run-p client server",
+
+    "android1": "npm-s build-server build2Cordova android2",
+    "android2": "cd cordova-tiro & run-p emulator-detached test-apk",
+    "build2Cordova": "rm -r cordova-tiro/www/nodejs-project/tiro & npx mkdirp cordova-tiro/www/nodejs-project/tiro & cp -r builds-tiro/client cordova-tiro/www/nodejs-project/tiro/client & cp -r builds-tiro/server cordova-tiro/www/nodejs-project/tiro/server",
+    
+    "build": "cd sources-tiro & npm run build & cd .. & npm run start-build",
+
+    "build-server": "cd sources-tiro & npm run build-server & npm run clean-server & npm run export-server",
+    "start-build": "cd builds-tiro/server & npm run start"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
   }
-  
+}

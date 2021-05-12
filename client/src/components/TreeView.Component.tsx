@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from '@emotion/styled'
 import { iFolder } from '../../../shared/types.shared';
 import { iconFolder } from '../managers/icons.manager';
@@ -9,6 +9,7 @@ import { Icon } from './Icon.component';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { strings } from '../managers/strings.manager';
 import { getFolderParentPath } from '../managers/folder.manager';
+import { isA, isIpad } from '../managers/device.manager';
 
 export type onFolderDragStartFn = (folder:iFolder) => void
 export type onFolderDropFn = (folder:iFolder) => void
@@ -68,7 +69,7 @@ export const FolderView = (p:{
   onFolderDragEnd: () => void
   onFolderDrop: onFolderDropFn
 }) => {
-  const [isOpen, setIsOpen] = useLocalStorage(`treeview-${p.folder.key}`, false)
+  const [isOpen, setIsOpen] = useLocalStorage(`treeview-${(p.folder.key === '/' || p.folder.key === '') ? 'root' : p.folder.key}`, false)
   const [isMenuOpened, setIsMenuOpened] = useState(false)
 
   const isCurrentFolder = p.current === p.folder.key
@@ -198,7 +199,7 @@ export const folderTreeCss = `
   padding: ${cssVars.sizes.block}px;
   padding-right: 0px;
   margin: 0px 0px 100px 0px;
-  width: calc(100% - ${cssVars.sizes.block}px);
+  width: calc(100% - ${cssVars.sizes.block * (isA('desktop') && !isIpad() ? 1 : 2)}px);
 
   ul.folder-children {
     margin: 0px 0px 0px 0px;

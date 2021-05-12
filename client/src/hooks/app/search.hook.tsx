@@ -1,5 +1,4 @@
 import React, {  useEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iFile } from '../../../../shared/types.shared';
 import { SearchBar } from '../../components/SearchBar.component';
 import { addCliCmd } from '../../managers/cliConsole.manager';

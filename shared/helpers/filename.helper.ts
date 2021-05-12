@@ -6,6 +6,7 @@ export const getFileInfos = (path:string):{
     path: string,
     folder: string,
     filename:string, 
+    filenameWithoutExt:string, 
     extension:string
 } => {
 
@@ -16,10 +17,13 @@ export const getFileInfos = (path:string):{
     let filename = pathArr[pathArr.length-1]
     let extensionArr = filename.split('.')
 
+    
     let folder = path.replace(filename, '')
-
+    
     let extension = ''
     if (extensionArr.length > 1) extension = extensionArr[extensionArr.length-1]
 
-    return {filename, extension, path, folder}
+    let filenameWithoutExt = filename.replace(`.${extension}`,'')
+    
+    return {filename, extension, path, folder, filenameWithoutExt}
 }

@@ -8,10 +8,20 @@ import fileIcon from '../../assets/file-solid.svg'
 import linkIcon from '../../assets/link-solid.svg'
 import worldIcon from '../../assets/globe-africa-solid.svg'
 import searchIcon from '../../assets/search-solid.svg'
+import { css } from "@emotion/react"
 
 const colors = {
+    // https://coolors.co/E86666
+    main2: '#E86666', //red orange
     main: 'rgba(232,102,102,1)', //red orange
     mainRGB: '232,102,102', //red orange
+
+    dev: ['#C3668B','#A766A7','#CE66E8', '#E4E866'],
+    compl: ['#11abf8','#3fd7a4'],
+    pal1: ['#5c1a70','#ffa67c','#ffda77'],
+    grey1: '#797979' ,
+    grey2: '#615f5f' ,
+
     green: 'green',
     l1: {
       bg: '#e1e1e1' ,
@@ -84,6 +94,14 @@ const colors = {
     radius: `border-radius: 5px;`,
   }
   
+  const elsObjs = {
+    submitButton: {
+      marginTop: "10px",
+      background: 'none',
+      border: 'none',
+      padding: '10px 20px',
+    },
+  }
   const els = {
     button: `
       background: none;
@@ -115,6 +133,7 @@ const colors = {
   export const cssVars = {
       els,
       colors,
+      elsObjs,
       font,
       sizes,
       other,

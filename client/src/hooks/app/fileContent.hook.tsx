@@ -1,9 +1,7 @@
 import { cloneDeepWith, filter, sortBy } from 'lodash';
 import React, {  RefObject, useEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iFile } from '../../../../shared/types.shared';
-import { DualViewer } from '../../components/dualView/DualViewer.component';
-import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
+import { DualViewer, ViewType } from '../../components/dualView/DualViewer.component';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
@@ -23,24 +21,21 @@ export const useFileContent = (
     // STATE
     const [fileContent, setFileContent] = useState<string|null>(null)
     const [canEdit, setCanEdit] = useState(false)
-    
+
 
     // SOCKET INTERACTIONS
     const listenerId = useRef<number>(0)
     useEffect(() => {
         console.log(`[FILE CONTENT] init socket listener`);
-        listenerId.current = socketEventsManager.on(
-          socketEvents.getFileContent, 
-          (data:iSocketEventsParams.getFileContent) => {   
+        listenerId.current = clientSocket2.on('getFileContent', data => {   
             if (data.filePath !== activeFile?.path) return
-            // console.log({data,activeFile, fileContent});
             setCanEdit(true)
             setFileContent(data.fileContent)
           }
         )
         return () => {
             console.log(`[FILE CONTENT] clean socket listener`);
-            socketEventsManager.off(listenerId.current)
+            clientSocket2.off(listenerId.current)
         }
     }, [activeFile])
 
@@ -55,7 +50,11 @@ export const useFileContent = (
 
 
     // COMPONENT RENDERING
-    const DualViewerComponent = (p:{isLeavingNote:boolean}) => 
+    const DualViewerComponent = (p:{
+      isLeavingNote:boolean
+      viewType:ViewType
+      onBackButton:Function
+    }) => 
     useStatMemo(
       <div className="note-wrapper">
         {   
@@ -64,7 +63,9 @@ export const useFileContent = (
               file={activeFile} 
               canEdit={canEdit}
               isLeavingNote={p.isLeavingNote}
+              viewType={p.viewType}
               fileContent={fileContent ? fileContent : ''} 
+
               onFileEdited={(filepath, content) => {
                 console.log(`[FILE CONTENT] API -> ask for file save`,{filepath, content});
                 // this.askForFolderFiles(this.state.selectedFolder)
@@ -94,6 +95,7 @@ export const useFileContent = (
                   
                 askForFolderFiles(selectedFolder)
               }}
+              onBackButton={p.onBackButton}
             />
         }
         { 
@@ -101,7 +103,7 @@ export const useFileContent = (
             <div className='no-file'>No file</div>
         }
       </div>
-    , [fileContent, activeFile,canEdit, p.isLeavingNote])
+    , [fileContent, activeFile,canEdit, p.isLeavingNote, p.viewType])
 
     return {
       setFileContent,fileContent,

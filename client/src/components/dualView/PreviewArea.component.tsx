@@ -1,7 +1,7 @@
 import React, { Ref, useEffect, useRef } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { formatDateEditor, formatDateList } from '../../managers/date.manager';
-import { deviceType, isA, MobileView } from '../../managers/device.manager';
+import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { transformSearchLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks, transformTitleSearchLinks } from '../../managers/textProcessor.manager';
@@ -80,7 +80,7 @@ export const previewAreaCss = (v:MobileView) => `
     margin-top: ${isA('desktop') ? '140':'0'}px;
     height: ${isA('desktop') ? '100vh':'100vh'};
     margin-bottom: 100px;
-    overflow: hidden;
+    overflow: ${isIpad() ? 'scroll' : 'hidden'};
     ${isA('desktop') ? 'width: 50%':''};
     ${deviceType() !== 'desktop' ? 'overflow-y: scroll;':''}
 
@@ -180,9 +180,6 @@ const PreviewRenderer = React.memo((p:{filecontent:string, currentFolder:string}
         
     } 
     
-    // const scriptToEval = 'console.log("111111113222222222")'
-    // eval(scriptToEval)
-
     return (
         <>
             <div id='preview-script-area'></div>

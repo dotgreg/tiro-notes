@@ -18,12 +18,9 @@ export const useTextManipActions = (p:TextManipActionsHookParams) => {
       let res
       
       if (p.editorType === 'desktop') {
-        console.log(31);
         res = editorRefDesktop.current?.getCurrentLineInfos()
         currentCursorPos.current = res.monacoPosition
     } else {
-        console.log(32);
-      
         res = editorRefMobile.current ? getTextAreaLineInfos(editorRefMobile.current) : null
         currentCursorPos.current = res.currentPosition
       }

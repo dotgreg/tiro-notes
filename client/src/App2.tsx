@@ -1,11 +1,9 @@
 import { Global } from '@emotion/react';
 import React, { useEffect,  useMemo,  useRef,  useState } from 'react';
 import { deviceType } from './managers/device.manager';
-import { iSocketEventsParams, socketEvents } from '../../shared/apiDictionary.type';
-import { clientSocket, clientSocket2, initSocketConnection } from './managers/sockets/socket.manager';
+import {  clientSocket2, initSocketConnection } from './managers/sockets/socket.manager';
 import { CssApp } from './managers/style/css.manager';
-import { bindEventManagerToSocketEvents, socketEventsManager } from './managers/sockets/eventsListener.sockets';
-import { useAppTreeFolder, buildTreeFolder, upsertFlatStructure, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
+import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
 import { onFilesReceivedFn, useAppFilesList } from './hooks/app/filesList.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
@@ -28,6 +26,7 @@ import { LastNotes } from './components/LastNotes.component';
 import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
 import { getLoginToken, useLoginToken } from './hooks/app/loginToken.hook';
+import { ViewType } from './components/dualView/DualViewer.component';
 
 
 
@@ -39,7 +38,6 @@ export const App2 = React.memo(() => {
         console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
         
         initSocketConnection().then(() => {
-            bindEventManagerToSocketEvents()
             toggleSocketConnection(true)
             askForFolderScan(openFolders)
         })
@@ -62,7 +60,6 @@ export const App2 = React.memo(() => {
 
     const cleanFilesList = () => {
         setFiles([])
-        setIsSearching(false)
     }
 
     const cleanListAndFileContent = () => {
@@ -80,17 +77,15 @@ export const App2 = React.memo(() => {
     }
 
 
-    const changeToFolder = (folderPath:string) => {
+    const changeToFolder = (folderPath:string, loadFirstNote:boolean = true) => {
         console.log(`[FOLDER CHANGED] to ${folderPath}`);
-        // setTest2(`${test2} ${activeFile?.name}`)
-        // setTest2(test2+1)
         
         // SEND FIRST isLeavingNote signal for leaving logic like encryption
         setIsLeavingNote(true)
         // NORMAL CHANGE FOLDER LOGIC
         setTimeout(() => {
             setSearchTerm('')
-            shouldLoadNoteIndex.current = 0
+            if (loadFirstNote) shouldLoadNoteIndex.current = 0
             setSelectedFolder(folderPath)
             cleanListAndFileContent()
             askForFolderFiles(folderPath)
@@ -101,7 +96,7 @@ export const App2 = React.memo(() => {
 
     const onFilesReceivedCallback:onFilesReceivedFn = 
     (files, isTemporaryResult) => {
-        setIsSearching(!isTemporaryResult)
+        setIsSearching(isTemporaryResult)
         
         // if activeFileIndex exists + is in length of files, load it
         if (activeFileIndex !== -1 && activeFileIndex < files.length) {
@@ -147,7 +142,8 @@ export const App2 = React.memo(() => {
     
     // Key press
     const {
-        shiftPressed
+        shiftPressed,
+        altPressed
     } = useKeys({
         onKeyDown: e => {
             onKey(e, 'up', () => {
@@ -164,9 +160,26 @@ export const App2 = React.memo(() => {
                     askForFileContent(files[i+1])
                 }   
             })
+            onKey(e, 'down', () => {
+                let i = activeFileIndex  
+                if (i < files.length - 1) {
+                    setActiveFileIndex(i+1)
+                    askForFileContent(files[i+1])
+                }   
+            })
+            onKey(e, '!', () => { if (altPressed.current ) setDualViewType('editor') })
+            onKey(e, '@', () => { if (altPressed.current) setDualViewType('both') })
+            onKey(e, '#', () => { if (altPressed.current) setDualViewType('preview') })
         },
-        onKeyUp: e => {}
+        onKeyUp: e => {
+            // onKey(e, 'v', () => {
+            //     if (altPressed.current  && shiftPressed) setDualViewType('editor')
+            // })
+        }
     })
+
+    // toggle dualviewtype on alt+v
+    const [dualViewType, setDualViewType] = useState<ViewType>('both') 
 
     // Files List
     const {
@@ -228,6 +241,7 @@ export const App2 = React.memo(() => {
     // File Content + Dual Viewer
     let activeFile = files[activeFileIndex] 
     const {
+        fileContent,
         setFileContent,
         setCanEdit,
         askForFileContent,  
@@ -250,34 +264,39 @@ export const App2 = React.memo(() => {
     // make sure the interface doesnt scroll
     useFixScrollTop()
 
-   
-
-    
-    
     // url routing/react logic
     useUrlLogic(
         isSearching, searchTerm, 
-        selectedFolder, activeFileIndex,
+        selectedFolder, activeFile,
+        activeFileIndex,
         {
             reactToUrlParams: newUrlParams => {
-                if (newUrlParams.folder) {
-                    let newFileIndex = -1
-                    if (isNumber(newUrlParams.file)) newFileIndex = newUrlParams.file
-                    if (newFileIndex === -1 && files.length > 0) newFileIndex = 0
-                    
-                    setSelectedFolder(newUrlParams.folder)
-                    setActiveFileIndex(activeFileIndex)
-                    setSearchTerm('')
-                    askForFolderFiles(newUrlParams.folder)
-                    
-                }
-                if (newUrlParams.search) {
-                    console.log('reactToUrlParams -> triggersearch');
-                    triggerSearch(newUrlParams.search)
-                }
-                if (newUrlParams.mobileview) {
-                    setMobileView(newUrlParams.mobileview)
-                }
+                // timeout of 1000 as sometimes when loading is too long, not working
+                setTimeout(() => {
+                    // new way
+                    if (newUrlParams.folder && newUrlParams.title) {
+                        searchFileFromTitle(newUrlParams.title, newUrlParams.folder)
+                    }
+                    // old way to search
+                    if (newUrlParams.folder && newUrlParams.file) {
+                        let newFileIndex = -1
+                        if (isNumber(newUrlParams.file)) newFileIndex = newUrlParams.file
+                        if (newFileIndex === -1 && files.length > 0) newFileIndex = 0
+                        
+                        setSelectedFolder(newUrlParams.folder)
+                        setActiveFileIndex(activeFileIndex)
+                        setSearchTerm('')
+                        askForFolderFiles(newUrlParams.folder)
+                        
+                    }
+                    if (newUrlParams.search) {
+                        console.log('reactToUrlParams -> triggersearch');
+                        triggerSearch(newUrlParams.search)
+                    }
+                    if (newUrlParams.mobileview) {
+                        setMobileView(newUrlParams.mobileview)
+                    }
+                }, 1000)
             }
         }
     )
@@ -322,7 +341,7 @@ export const App2 = React.memo(() => {
         <CssApp v={mobileView} >
             <Global styles={GlobalCssApp}  />
             
-            <div className="main-wrapper">
+            <div role="dialog" className="main-wrapper">
                 {
                     LoginPopupComponent({})
                 }
@@ -359,6 +378,7 @@ export const App2 = React.memo(() => {
                             {
                                 FolderTreeComponent({
                                     onFolderClicked: folderPath => {
+                                        setIsSearching(true)
                                         changeToFolder(folderPath)
                                     },
                                     onFolderMenuAction: (action, folder, newTitle) => {
@@ -404,7 +424,10 @@ export const App2 = React.memo(() => {
                     </div> 
                     <div className="left-wrapper-2">
                         <div className="top-files-list-wrapper">
-                            <h3 className="subtitle">{strings.files}</h3>
+                            <div className="subtitle-wrapper">
+                                <h3 className="subtitle">{strings.files}</h3>
+                                {/* <p className="counter">{files.length}</p> */}
+                            </div>
                             {
                                 SearchBarComponent(
                                     selectedFolder,
@@ -438,7 +461,15 @@ export const App2 = React.memo(() => {
 
                 <div className="right-wrapper">
                     { 
-                        DualViewerComponent({isLeavingNote})
+                        DualViewerComponent({
+                            isLeavingNote,
+                            viewType: dualViewType,
+                            onBackButton: () => {
+                                let file = filesHistory[1]
+                                if (!filesHistory[1]) return
+                                searchFileFromTitle(file.name, file.folder)
+                            }
+                        })
                     }
                     {/* <DualViewerComponent /> */}
                 </div>

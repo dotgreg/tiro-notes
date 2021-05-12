@@ -4,6 +4,7 @@ import { replaceAll } from './string.manager';
 
 export const transformUrlInLinks = (bodyRaw: string):string => {
     const regex =  /(https?:\/\/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\%\ \#]*))/gm;
+    // const regex =  /(https?:\/\/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\%\ \#]*))/gm;
     const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
     const subst = `<a class="external-link preview-link" href="#" ${codeOpenPopup}>$2</a>`;
     return bodyRaw.replace(regex, subst);

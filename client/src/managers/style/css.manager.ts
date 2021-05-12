@@ -15,6 +15,7 @@ import { folderTreeCss } from '../../components/TreeView.Component';
 import { lastNotesCss } from '../../components/LastNotes.component';
 import { setupConfigCss } from '../../hooks/app/setupConfig.hook';
 import { inputComponentCss } from '../../components/Input.component';
+import { PopupWrapperCss } from '../../components/Popup.component';
 
 let d = deviceType()
 const {els,colors,font,sizes, other } = {...cssVars}
@@ -110,9 +111,18 @@ export const CssApp = styled.div<{v:MobileView }>`
       .top-files-list-wrapper {
         padding-top: ${sizes.search.padding}px;
         height: ${sizes.search.h}px;
-
-        h3.subtitle {
-          margin: 0px ${sizes.block}px ${sizes.block}px ${sizes.block}px; 
+        .subtitle-wrapper {
+          display: flex;
+          h3.subtitle {
+            margin: 0px ${sizes.block}px ${sizes.block}px ${sizes.block}px; 
+          }
+          .counter {
+            margin: 0px;
+            margin-top: 2px;
+            color: ${colors.l2.text};
+            font-size: 10px;
+            font-weight: 800;
+          }
         }
         .search-input {
           input {
@@ -172,6 +182,7 @@ export const CssApp = styled.div<{v:MobileView }>`
 
     
     ${filesListCss}
+
     
   }
 

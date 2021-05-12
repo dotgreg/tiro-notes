@@ -1,14 +1,15 @@
 import { backConfig } from "../config.back";
-import { socketEvents, iSocketEventsParams } from "../../../shared/apiDictionary.type";
 import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper";
 import { generateNewFileName } from "./move.manager";
 import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
+import { ServerSocketManager } from "./socket.manager"
+import { iApiDictionary } from "../../../shared/apiDictionary.type";
 
 var siofu = require("socketio-file-upload");
 
 export let folderToUpload = {value: ''}
 
-export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
+export const initUploadFileRoute = async (socket:ServerSocketManager<iApiDictionary>) => {
     // file upload starts listening
     console.log('[initUploadFileRoute]');
      
@@ -21,7 +22,6 @@ export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
     uploader.listen(socket);
     uploader.on('start', (e) => {
         console.log('FILE UPLOAD STARTED', e); 
-        
     })
     uploader.on('complete', async (e) => {
         // console.log('FILE UPLOAD COMPLETED', e);
@@ -31,7 +31,8 @@ export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
 
         // do modification => namefile to unique ID here
         let oldPath = `${e.file.pathName}`
-        let newName = `${generateNewFileName()}.${finfos.extension}`
+        let displayName = finfos.filenameWithoutExt.replace('-0','')
+        let newName = `${generateNewFileName(displayName)}.${finfos.extension}`
         let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newName}`)
         let newAbsPath = cleanPath(`${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`)
         console.log({oldPath, newAbsPath});
@@ -39,6 +40,6 @@ export const initUploadFileRoute = async (socket:SocketIO.Socket) => {
         await upsertRecursivelyFolders(newAbsPath)
         await moveFile(oldPath, newAbsPath)
  
-        socket.emit(socketEvents.getUploadedFile, {name: finfos.filename, path:newRelPath} as iSocketEventsParams.getUploadedFile)         
+        socket.emit('getUploadedFile', {name: displayName, path:newRelPath})         
     })
 }

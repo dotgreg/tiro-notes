@@ -1,9 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iSetupForm } from '../../../../shared/types.shared';
 import { Input } from '../../components/Input.component';
 import { Popup } from '../../components/Popup.component';
-import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -26,9 +24,7 @@ export const useSetupConfig = (p: {
     const listenerId = useRef<number>(0)
     useEffect(() => {
         console.log(`[SETUP CONFIG] init socket listener`);
-        listenerId.current = socketEventsManager.on(
-            socketEvents.getSetupInfos, 
-            (data:iSocketEventsParams.getSetupInfos) => {   
+        listenerId.current = clientSocket2.on('getSetupInfos',data => {   
                 if (data.code === 'SUCCESS_CONFIG_CREATION') {
                     setFormMessage(['success',`${strings.setupForm.successReload}`])
                     setTimeout(() => {
@@ -47,7 +43,7 @@ export const useSetupConfig = (p: {
         )
         return () => {
             console.log(`[SETUP CONFIG] clean socket listener`);
-            socketEventsManager.off(listenerId.current)
+            clientSocket2.off(listenerId.current)
         }
     }, [])
 

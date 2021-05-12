@@ -4,6 +4,7 @@ import { isVarMobileView, MobileView } from "./device.manager";
 export interface iUrlParams {
     search?:string
     folder?:string
+    title?:string
     file?:number
     mobileview?:MobileView
 }
@@ -33,6 +34,7 @@ export const getUrlParams = ():iUrlParams => {
     urlParams.search = urlParamsSearch.get('search') || undefined
     urlParams.file = urlParamsSearch.get('file') ? parseInt(urlParamsSearch.get('file') as string) : undefined
     urlParams.folder = urlParamsSearch.get('folder') || undefined
+    urlParams.title = urlParamsSearch.get('title') || undefined
     urlParams.mobileview = isVarMobileView(urlParamsSearch.get('mobileview')) ? urlParamsSearch.get('mobileview') as MobileView : undefined
     return urlParams
 }
@@ -43,7 +45,7 @@ export const urlParamsToString = (urlParams:iUrlParams):string => {
     for (const key in urlParams) {
         if (Object.prototype.hasOwnProperty.call(urlParams, key)) {
             if (urlParams[key]) {
-                res += `${i === 0 ? '' : '&'}${key}=${urlParams[key]}`
+                res += `${i === 0 ? '' : '&'}${key.toLowerCase()}=${urlParams[key]}`
                 i++
             }
         }
@@ -52,10 +54,14 @@ export const urlParamsToString = (urlParams:iUrlParams):string => {
 }
 
 export const updateUrl = (urlParams:iUrlParams) => {
-    
 
+    console.log(`updateurl `, {urlParams});
+    
     let newUrl = `${window.location.protocol}//${window.location.host}/?`
+
     if (isNumber(urlParams.file) && urlParams.file !== -1) newUrl += `file=${urlParams.file}&`
+
+    if (urlParams.title) newUrl += `title=${urlParams.title}&`
 
     if (urlParams.folder && urlParams.folder !== ''  && !urlParams.search) newUrl += `folder=${urlParams.folder}&`
 

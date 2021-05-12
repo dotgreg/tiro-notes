@@ -15,7 +15,12 @@ export const backConfig = {
     sharedConfig,
     
     configFolder: '.tiro',
+    historyFolder: '.history',
     uploadFolder: '.resources',
     relativeUploadFolderName: '.resources',
+
+    dev: {
+        disableLogin: false
+    }
 }
 

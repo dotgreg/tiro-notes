@@ -1,11 +1,13 @@
 import { isNumber } from "lodash"
 import { useEffect, useRef } from "react"
+import { iFile } from "../../../../shared/types.shared"
 import { getUrlParams, iUrlParams, listenToUrlChanges, updateUrl } from "../../managers/url.manager"
 import { useDebounce } from "../lodash.hooks"
 
 export const useUrlLogic = (
     isSearching, searchTerm,
     selectedFolder,
+    activeFile:iFile,
     activeFileIndex,
 
     p:{
@@ -38,9 +40,12 @@ export const useUrlLogic = (
 
     const updateAppUrl = useDebounce(() => {
         if (ignoreNextUrlChange.current) return ignoreNextUrlChange.current = false
+        // console.log('updateurlapp', {activeFile, selectedFolder});
+        
+        if (!activeFile) return
         console.log('[UPDATE APP URL]');
         updateUrl ({
-            file: activeFileIndex, 
+            title: activeFile.realname, 
             folder: selectedFolder, 
             search: searchTerm
         })

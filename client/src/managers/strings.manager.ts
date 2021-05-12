@@ -1,6 +1,9 @@
 export const strings = {
     folders: 'Folders',
     files: 'files',
+    trashNote: 'Are you sure to trash that note?',
+    clickHereDisconnected: '(click here if persist)',
+    searchingLabel:'searching...',
     lastNotes: 'Last Notes',
     newNote: 'New Note',
     dateModified: 'Modified :',
@@ -31,9 +34,26 @@ export const strings = {
         passwordExplanation: 'should have > 3 chars',
         folderExplanation: `relative from Tiro folder installation (../data for example)`,
         successReload: `Configuration file successfully written, reloading application...`,
+        submit: 'login'
     },
     loginForm: {
         wrongUserPassword: 'Wrong login/password',
         wrongToken: 'Authentication expired, please log again'
+    },
+    passwordForm: {
+        explanation: "please enter your password",
+        submit: 'submit'
+    },
+    editorBar: {
+        explanation: {
+            history: 'File history'
+        }
+    },
+    historyPopup: {
+        title: 'Versions for ',
+        thead: {
+            date: 'date',
+            name: 'version'
+        }
     }
 }

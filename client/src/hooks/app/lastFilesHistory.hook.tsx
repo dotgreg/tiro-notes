@@ -16,14 +16,20 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
 
     const addToHistory = (file:iFile) => {
         let shouldAddToHistory = true
+        let indexOldPos = -1
+        let newfilesHistory = filesHistory
         for (let i = 0; i < filesHistory.length; i++) {
-            if (filesHistory[i].name === file.name) shouldAddToHistory = false
+            if (filesHistory[i].name === file.name) {
+                // already in array
+                shouldAddToHistory = false
+                indexOldPos = i
+            }
         }
-        if (shouldAddToHistory) {
-            const newFilesHistory = filesHistory.slice(0, 4)
-            newFilesHistory.unshift(file)
-            setFilesHistory(newFilesHistory)
-        }
+
+        if (!shouldAddToHistory) newfilesHistory.splice(indexOldPos, 1)
+        newfilesHistory = newfilesHistory.slice(0, 20)
+        newfilesHistory.unshift(file)
+        setFilesHistory(newfilesHistory)
     }
 
     return {filesHistory, cleanLastFilesHistory}

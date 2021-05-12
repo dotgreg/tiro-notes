@@ -93,19 +93,21 @@ export const updateTextFromLetterInput = (
     let pattern1 = lastLine.indexOf('- [')
     let pattern2 = lastLine.indexOf('-')
     let newLineStart = ''
-
-    // IF LAST LINE STARTS "-", DUPLICATE START
-    if (pattern1 !== -1) {
+    // alert(lastLine)
+    console.log(lastLine);
+    
+    // IF LAST LINE STARTS "- [ ] ", DUPLICATE START	
+    if (pattern1 !== -1 && lastLine !== '- [ ] ') {
+      console.log(111);
       newLineStart = lastLine.substr(0, pattern1 + 3 ) + ' ] '
       if (isLineStartClean(newLineStart)) {
         infos.lines[infos.lineIndex] = newLineStart + infos.activeLine
         cb(newLineStart.length)
       }
-
-
-
-    // IF LAST LINE STARTS "- [ ] ", DUPLICATE START	
-    } else if (pattern2 !== -1) {
+      
+    // IF LAST LINE STARTS "-", DUPLICATE START
+    } else if (pattern2 !== -1 && lastLine !== '- '  && lastLine !== '- [ ] ' ) {
+      console.log(222);
       newLineStart = lastLine.substr(0, pattern2+1) + ' ' 
       if (isLineStartClean(newLineStart)) {
         infos.lines[infos.lineIndex] = newLineStart + infos.activeLine

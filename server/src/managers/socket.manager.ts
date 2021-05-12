@@ -1,4 +1,4 @@
-import { iApiDictionary, socketEvents} from "../../../shared/apiDictionary.type";
+import { iApiDictionary} from "../../../shared/apiDictionary.type";
 import { ioServer } from '../server';
 import { listenSocketEndpoints } from "../routes";
 import { initUploadFileRoute } from "./upload.manager";
@@ -24,7 +24,7 @@ type ApiEmitFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
                             payloadToSend: ApiDict[Endpoint]
                         ) => void;
 
-type ServerSocketManager<ApiDict> = {
+export type ServerSocketManager<ApiDict> = {
     on:ApiOnFn<ApiDict>
     emit:ApiEmitFn<ApiDict>
 }
@@ -33,23 +33,32 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
     return {
         on: async (endpoint, callback, options) => {
             rawServerSocket.on(endpoint, async (rawClientData:any) => {
+                
+                // LOG
+                console.log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} `);
+                !(options?.disableDataLog) && console.log(`with data `, rawClientData);
+                
+                
+                // IF SETUP MODE
                 if (backConfig.askForSetup && !options?.duringSetup) {
                     console.error(`[SOCKET SERV EVENT] BLOCKED AS DURING SETUP --> ${endpoint} `);
-                } else {
-                    console.log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} `);
-                    !(options?.disableDataLog) && console.log(`with data `, rawClientData);
+                } 
+                
+                // IF WRONG/NULL TOKEN 
+                else if (
+                    !backConfig.askForSetup && 
+                    !backConfig.dev.disableLogin &&
+                    !options?.bypassLoginTokenCheck && 
+                    !endpoint.startsWith('siofu') &&
+                    ( !rawClientData.token || getLoginToken() !== rawClientData.token )
+                ) {
+                    console.log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`);
+                    rawServerSocket.emit('getLoginInfos', {code:'WRONG_TOKEN'})
+                } 
                     
-                    if (!options?.bypassLoginTokenCheck && (
-                        !rawClientData.token ||
-                        getLoginToken() !== rawClientData.token 
-                    )) {
-                        // wrong token
-                        console.log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`);
-                        serverSocket2.emit('getLoginInfos', {code:'WRONG_TOKEN'})
-                    } else {
-                        await callback(rawClientData)
-                    }
-
+                // ELSE PROCESS TO NORMAL CALL
+                else {
+                    await callback(rawClientData)
                 }
             });
         },
@@ -61,16 +70,17 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
     }
 }
 
-export let serverSocket2:ServerSocketManager<iApiDictionary> 
+// export let serverSocket2:ServerSocketManager<iApiDictionary> 
 
 export const initSocketLogic = () => {
 
     // ON NEW CLIENT CONNECTION
-    ioServer.on(socketEvents.connection, (socket, params) => {
+    ioServer.on('connection', (socket, params) => {
         console.log(`[CONNECTION] new client connected`);
-        ioServer.emit(socketEvents.connectionSuccess, {woop: 'wooooop'})
+        ioServer.emit('connectionSuccess', {woop: 'wooooop'})
 
-        serverSocket2 = initServerSocketManager<iApiDictionary>(socket)
+        // creating new socket for each specific client
+        const serverSocket2 = initServerSocketManager<iApiDictionary>(socket)
 
         if (backConfig.askForSetup) {
             setTimeout(() => {
@@ -78,11 +88,11 @@ export const initSocketLogic = () => {
             },3000)
         }
        
-        if (!backConfig.askForSetup) initUploadFileRoute(socket);
+        if (!backConfig.askForSetup) initUploadFileRoute(serverSocket2);
 
         console.log('INIT SOCKET ENDPOINTS');
         
-        listenSocketEndpoints()
+        listenSocketEndpoints(serverSocket2)
     })
 }
 

@@ -17,6 +17,19 @@ export const isA = (device:DeviceType):boolean => {
   return deviceType() === device
 }
 
+export function isIpad() {
+  if (/iPad/.test(navigator.platform)) {
+    return true;
+  } else {
+    return navigator.maxTouchPoints &&
+      navigator.maxTouchPoints > 2 &&
+      /MacIntel/.test(navigator.platform);
+  }
+}
+
+
+
+
 export const deviceType = ():DeviceType => {
     let deviceWidth = window.innerWidth
     // console.log(deviceWidth);

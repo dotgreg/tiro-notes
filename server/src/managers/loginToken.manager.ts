@@ -14,10 +14,19 @@ export const generateNewToken = () => {
 export const saveTokenInMemory = (newToken:string) => {
     memoryToken = newToken
 }
+export const startIntervalTokenResfresh = (hours: number) => {
+    console.log(`[LOGIN TOKEN] startIntervalTokenResfresh every ${hours} hours = ${1000 * 60 * 60 * hours} seconds`);
+    
+    setInterval(() => {
+        saveTokenInMemory(generateNewToken())
+    }, 1000 * 60 * 60 * hours)
+}
 
 // TOKEN STORING SYSTEM
 let memoryToken = ''
+// refreshing token every x hours
 saveTokenInMemory(generateNewToken())
+startIntervalTokenResfresh(10)
 
 // USER/PASSWORD CHECK SYSTEM
 export const checkUserPassword = async (user:string, password:string):Promise<boolean> => {

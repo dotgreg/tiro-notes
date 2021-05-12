@@ -1,4 +1,4 @@
-import { socketEvents, iSocketEventsParams } from "../../shared/apiDictionary.type";
+import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
 import { createDir, dirDefaultBlacklist, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
@@ -10,19 +10,23 @@ import { debouncedFolderScan, moveNoteResourcesAndUpdateContent, debouncedHierar
 import { folderToUpload } from "./managers/upload.manager";
 import { random } from "lodash";
 import { triggerWorker } from "./managers/workers/worker.manager";
-import { iFolder } from "../../shared/types.shared";
+import { iFile, iFolder } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import { hashPassword, verifyPassword } from "./managers/password.manager";
 import { appConfigJsonPath, processClientSetup, TiroConfig } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
-import { serverSocket2 } from "./managers/socket.manager";
 import { checkUserPassword, generateNewToken, getLoginToken, saveTokenInMemory } from "./managers/loginToken.manager";
+import { ServerSocketManager } from './managers/socket.manager'
 
+const serverTaskId = {curr: -1}
+export const getServerTaskId = () => serverTaskId.curr
+export const setServerTaskId = (nb) => {serverTaskId.curr = nb}
 
-export const listenSocketEndpoints = () => {
+export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDictionary>) => {
 
     serverSocket2.on('askForFiles', async data => {
         let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
+
         if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
         serverSocket2.emit('getFiles', { files: apiAnswer }) 
     })
@@ -39,12 +43,12 @@ export const listenSocketEndpoints = () => {
 
         // // first retrieve cached results if exists
         // let cachedRes = await retrieveCachedSearch(termObj.termId)
-        // socket.emit(socketEvents.getFiles, {files: cachedRes, temporaryResults: true} as iSocketEventsParams.getFiles)
+        // socket.emit(socketEvents.getFiles, {files: cachedRes, temporaryResults: true} as .getFiles)
         
         // Then trigger api
         // let apiAnswer = await search(termObj.term, termObj.folderToSearch)
         // if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-        // socket.emit(socketEvents.getFiles, {files: apiAnswer} as iSocketEventsParams.getFiles)
+        // socket.emit(socketEvents.getFiles, {files: apiAnswer} as .getFiles)
         
         liveSearch({
             term: termObj.term, 
@@ -84,7 +88,7 @@ export const listenSocketEndpoints = () => {
         console.log(`SAVING ${backConfig.dataFolder}${data.filepath} with new content`);
         await saveFile(`${backConfig.dataFolder}${data.filepath}`, data.newFileContent)
         // sends back to all sockets the updated content
-        // ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as iSocketEventsParams.getFileContent)
+        // ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
     },{disableDataLog: true})
 
     serverSocket2.on('createNote', async data => {
@@ -92,8 +96,9 @@ export const listenSocketEndpoints = () => {
         let notePath = `${backConfig.dataFolder}${data.folderPath}${nameNote}`
         console.log(`CREATING ${notePath}`);
         await saveFile(`${notePath}`, ``)
-
+        
         let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
+
         if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
         serverSocket2.emit('getFiles', { files: apiAnswer })     
     })
@@ -123,7 +128,7 @@ export const listenSocketEndpoints = () => {
     })
 
     serverSocket2.on('createHistoryFile', async data => {
-        let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.history`
+        let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
         upsertRecursivelyFolders(`${historyFolder}/`) 
 
         let fileName = fileNameFromFilePath(data.filePath)
@@ -155,7 +160,7 @@ export const listenSocketEndpoints = () => {
 
     serverSocket2.on('disconnect', async data => {
         
-    })
+    }, {bypassLoginTokenCheck: true})
 
     serverSocket2.on('askFilesPreview', async data => {
         let res = await getFilesPreviewLogic(data)
@@ -168,7 +173,7 @@ export const listenSocketEndpoints = () => {
 
     serverSocket2.on('sendSetupInfos', async data => {
         const answer = await processClientSetup(data)
-        serverSocket2.emit(socketEvents.getSetupInfos, answer)
+        serverSocket2.emit('getSetupInfos', answer)
 
         // if setup success, restart server
         // NOT WORKING ON DEV NODEMON
@@ -180,9 +185,27 @@ export const listenSocketEndpoints = () => {
         const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
         if (!areClientInfosCorrect) {
             serverSocket2.emit('getLoginInfos',{code:'WRONG_USER_PASSWORD'})
-        } else {
+        } else { 
             serverSocket2.emit('getLoginInfos',{code:'SUCCESS', token: getLoginToken()})
+
+            // do also a root scan for first time
+            let folders = [scanDirForFolders('/')]
+            serverSocket2.emit('getFoldersScan', {folders, pathBase: backConfig.dataFolder})
         }
     }, {bypassLoginTokenCheck: true})
+
+    serverSocket2.on('askFileHistory', async data => {
+        // get all the history files 
+        const historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
+        const allHistoryFiles = await scanDirForFiles(historyFolder)
+        const fileNameToSearch = fileNameFromFilePath(data.filepath)
+        const historyFiles:iFile[] = []
+        if (typeof allHistoryFiles === 'string') return
+        for (let i = 0; i < allHistoryFiles.length; i++) {
+            const file = allHistoryFiles[i];
+            if (file.name.includes(fileNameToSearch)) historyFiles.push(file)
+        }
+        serverSocket2.emit('getFileHistory', {files: historyFiles})
+    })
 }
 

@@ -1,15 +1,15 @@
 import { debounce, random } from "lodash"
-import { iSocketEventsParams, socketEvents } from "../../../shared/apiDictionary.type"
+import { iApiDictionary} from "../../../shared/apiDictionary.type"
 import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
 import { dirDefaultBlacklist, scanDirForFiles } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
-import { serverSocket2 } from "./socket.manager"
+import { ServerSocketManager } from "./socket.manager"
 import { triggerWorker } from "./workers/worker.manager"
 
-export const generateNewFileName = ():number => random(0, 10000000000)
+export const generateNewFileName = (actualFileName: string):string => `${actualFileName}-${random(0, 1000)}`
 
-export const debouncedFolderScan = debounce( async(socket:typeof serverSocket2, initPath:string) => {
+export const debouncedFolderScan = debounce( async(socket:ServerSocketManager<iApiDictionary>, initPath:string) => {
     let folderPathArr = initPath.split('/')
     folderPathArr.pop()
     let folderPath = folderPathArr.join('/')
@@ -20,7 +20,7 @@ export const debouncedFolderScan = debounce( async(socket:typeof serverSocket2, 
     socket.emit('getFiles', { files: apiAnswer }) 
 }, 100)
 
-export const debouncedHierarchyScan = debounce( async(socket:typeof serverSocket2) => {
+export const debouncedHierarchyScan = debounce( async(socket:ServerSocketManager<iApiDictionary>) => {
     triggerWorker('getFolderHierarchySync', {
         folder: `${backConfig.dataFolder}`,
         config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
@@ -69,7 +69,8 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
                 let initResourcePathArr = pathsToCheck[y].split('/')
                 let filenameArr = initResourcePathArr.pop().split('.')
                 let extension = filenameArr[filenameArr.length-1]
-                let newFilename = `${generateNewFileName()}.${extension}`
+
+                let newFilename = `${generateNewFileName(nameResource)}.${extension}`
 
                 let endResourcePath = `${backConfig.dataFolder}/${endFolderPath}/${backConfig.relativeUploadFolderName}/${newFilename}`
                 let moveSumup = `[MOVE] Resource note move:  ${pathsToCheck[y]} (exists) -> ${endResourcePath}`

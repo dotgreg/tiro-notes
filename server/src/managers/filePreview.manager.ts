@@ -1,9 +1,9 @@
-import { iSocketEventsParams } from "../../../shared/apiDictionary.type";
+import { iApiDictionary } from "../../../shared/apiDictionary.type";
 import { iFilePreview } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { openFile } from "./fs.manager";
 
-export const getFilesPreviewLogic = async (data: iSocketEventsParams.askFilesPreview):Promise<iFilePreview[]> => {
+export const getFilesPreviewLogic = async (data: iApiDictionary['askFilesPreview']):Promise<iFilePreview[]> => {
     let filesPreview:iFilePreview[] = []
 
     for (let i = 0; i < data.filesPath.length; i++) {

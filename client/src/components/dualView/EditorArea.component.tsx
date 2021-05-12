@@ -12,12 +12,15 @@ import { ButtonToolbar, NoteMobileToolbar } from './NoteToolbar.component';
 import { textToId } from '../../managers/string.manager';
 import { useEditorUploadLogic } from '../../hooks/editor/editorUpload.hook';
 import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
-import { clientSocket } from '../../managers/sockets/socket.manager';
+import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useStatMemo } from '../../hooks/useStatMemo.hook';
 import { random } from 'lodash';
 import { formatDateList } from '../../managers/date.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { isTextEncrypted } from '../../managers/encryption.manager';
+import { strings } from '../../managers/strings.manager';
+import { getLoginToken } from '../../hooks/app/loginToken.hook';
+import { FileHistoryPopup } from '../FileHistoryPopup.component';
 
 export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
 export type onFileEditedFn  =(filepath:string, content:string) => void
@@ -38,6 +41,7 @@ export const EditorArea = (p:{
     onFileEdited: onFileEditedFn
     onFileDelete: onFileDeleteFn
 
+    onBackButton: Function
     onViewToggle: Function
 }) => {
 
@@ -144,7 +148,8 @@ export const EditorArea = (p:{
         title:'back', 
         icon:'faAngleLeft', 
         action: () => {
-          window.history.back()
+          // window.history.back()
+          p.onBackButton()
         }
       },
       isA('desktop') ? {
@@ -154,16 +159,21 @@ export const EditorArea = (p:{
       } : {},
       uploadButtonConfig,
       isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-      isA('desktop') ? detachNoteNewWindowButtonConfig() : {},
+      isA('desktop') ? detachNoteNewWindowButtonConfig(p.file) : {},
       {
         title:'insert unique id', 
         icon:'faFingerprint', 
         action: () => { 
-          let id = textToId(p.file.realname)
-          let idtxt = `--id-${id}`
-          let idSearch = `__id_${id}`
+          // let id = textToId(p.file.realname)
+          // let idtxt = `--id-${id}`
+          // let idSearch = `__id_${id}`
           let folder = `${p.file.folder}`
-          insertTextAt(`${idtxt}\n[search|${idSearch} ${folder}]\n`, 0)
+          insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
+          // let id = textToId(p.file.realname)
+          // let idtxt = `--id-${id}`
+          // let idSearch = `__id_${id}`
+          // let folder = `${p.file.folder}`
+          // insertTextAt(`${idtxt}\n[search|${idSearch} ${folder}]\n`, 0)
         }
       },
       {
@@ -173,22 +183,34 @@ export const EditorArea = (p:{
           window.print()
         }
       },
+      {
+        title: strings.editorBar.explanation.history, 
+        icon:'faHistory', 
+        action: () => { 
+          setHistoryPopup(!historyPopup)
+        }
+      },
       
       {
         title:'delete note', 
         class:'delete',
         icon:'faTrash', 
         action: () => {
-          p.onFileDelete(p.file.path) 
+          let userAccepts = window.confirm(`${strings.trashNote}`)
+          if (userAccepts) {
+            p.onFileDelete(p.file.path) 
+          }
         }
       },
     ]
+
+    // File History
+    const [historyPopup, setHistoryPopup] = useState(false)
 
     return (
         // <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
         <div className={`editor-area`}>
                 {UploadDragZone}
-
 
               {/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
               <div className="infos-editor-wrapper">
@@ -264,6 +286,8 @@ export const EditorArea = (p:{
               }
 
               {askForPassword && <APasswordPopup/>}
+
+              {historyPopup && <FileHistoryPopup file={p.file} onClose={() => {setHistoryPopup(false)}}/>}
         </div>
     )
 }
@@ -383,14 +407,15 @@ export const editorAreaCss = (v:MobileView) => `
     // 10 = monaco browser gutter
     // padding: 0px ${isA('desktop') ? (cssVars.sizes.block*3) - 10 : cssVars.sizes.block*2}px;
     ${isA('desktop') ? `padding: 0px ${(cssVars.sizes.block*3)/2}px 0px ${(cssVars.sizes.block*3) - 10}px;` : ''}
-    ${!isA('desktop') ? `padding: 0px ${cssVars.sizes.block*2}px;` : ''}
+    ${!isA('desktop') ? `padding: 0px ${cssVars.sizes.block*2}px 0px ${cssVars.sizes.block*2}px;` : ''}
+    ${!isA('desktop') ? `margin: 0px 0px ${cssVars.sizes.mobile.bottomBarHeight}px 0px;` : ''}
     .monaco-editor {
       margin: 0px;
     }
     .textarea-editor {
       border: none;
       width: 100%;
-      height: calc(100vh - ${cssVars.sizes.mobile.editorTopWrapper + cssVars.sizes.mobile.editorBar  + cssVars.sizes.mobile.bottomBarHeight}px);
+      height: calc(100vh - ${cssVars.sizes.mobile.editorTopWrapper + cssVars.sizes.mobile.editorBar  + cssVars.sizes.mobile.bottomBarHeight*2}px);
       margin: 0px;
       padding: 0px;
       background: rgba(255,255,255,0.7);

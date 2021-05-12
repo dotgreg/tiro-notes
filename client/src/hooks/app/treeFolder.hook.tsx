@@ -1,17 +1,14 @@
 import { cloneDeep, isArray } from 'lodash';
 import React, {  useEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
 import { iFolder } from '../../../../shared/types.shared';
 import { onFolderDragStartFn, onFolderDropFn, onFolderMenuActionFn, TreeView } from "../../components/TreeView.Component"
-import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
-import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
-import { strings } from '../../managers/strings.manager';
+import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
 
 export type onFolderClickedFn = (folderPath:string) => void
-export const defaultFolderVal:iFolder = {title: strings.loadingFolder, key: '', path: ''}
+export const defaultFolderVal:iFolder = {title: '', key: '', path: ''}
 
 
 

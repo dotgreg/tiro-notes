@@ -11,8 +11,7 @@ export const useMobileTextAreaLogic = (fileContent: string, p:{
 }) => {
     const {
         getLineTextInfos, 
-        resetCursorPosition, 
-        applyTextModifAction} = useTextManipActions ({
+        resetCursorPosition} = useTextManipActions ({
             editorType: 'mobile',
             editorRef: p.mobileTextarea,
       })
@@ -45,6 +44,7 @@ export const useMobileTextAreaLogic = (fileContent: string, p:{
       if (updatedText.length > fileContent.length) {
           let linesInfos = getLineTextInfos()
           if (!linesInfos) return
+          // IF JUMP, DUPLICATE LINE and other logic
           updatedText = updateTextFromLetterInput (
             linesInfos,
             newLetter,

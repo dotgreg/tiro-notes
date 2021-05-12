@@ -1,9 +1,7 @@
 import React, { useRef, useState } from "react"
-import { iSocketEventsParams, socketEvents } from "../../../../shared/apiDictionary.type"
 import { Icon } from "../../components/Icon.component"
 import { initClipboardListener } from "../../managers/clipboard.manager"
-import { socketEventsManager } from "../../managers/sockets/eventsListener.sockets"
-import { clientSocket, clientSocket2 } from "../../managers/sockets/socket.manager"
+import {  clientSocket2 } from "../../managers/sockets/socket.manager"
 import { safeString } from "../../managers/string.manager"
 import { listenOnUploadSuccess, uploadFile, initListenUploadOnDrop, uploadOnInputChange } from "../../managers/upload.manager"
 import { getLoginToken } from "../app/loginToken.hook"
@@ -20,7 +18,7 @@ export const useEditorUploadLogic = (p:{
 
     const reinitUploadLogic = () => {
         console.log(`[UPLOAD] cleanUploadLogic`);
-        socketEventsManager.off(keyUploadSocketListener)
+        clientSocket2.off(keyUploadSocketListener)
 
         // WHEN RECEIVE FILE INFOS FROM API
         console.log(`[UPLOAD] initUploadLogic`);
@@ -59,7 +57,7 @@ export const useEditorUploadLogic = (p:{
         class:'upload-button-wrapper',
         action: () => {},
         customHtml: <>
-          <input className='input-file-hidden' id="file" name="file" type="file" ref={uploadInputRef}  />
+          <input className='input-file-hidden' id="file" multiple name="file" type="file" ref={uploadInputRef}  />
           {/* @ts-ignore  */}
           <label for="file"
             ><Icon name="faPaperclip" /></label>

@@ -11,7 +11,7 @@ export const initClipboardListener = (events: {
         };
     
         var items = pasteEvent.clipboardData.items;
-        console.log(pasteEvent, items, items.length);
+        console.log(`[PASTE] informations on files pasted : `,pasteEvent, items, items.length);
         
     
         if(items == undefined){

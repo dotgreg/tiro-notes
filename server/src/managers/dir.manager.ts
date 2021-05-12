@@ -1,8 +1,10 @@
 import execa = require("execa");
 import { exists } from "fs";
+import { random } from "lodash";
 import { getDefaultFormatCodeSettings } from "typescript";
 import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
+import { getServerTaskId, setServerTaskId } from "../routes";
 import { fileExists } from "./fs.manager";
 import { getPlatform } from "./platform.manager";
 var fs = require('fs')
@@ -99,15 +101,31 @@ export const scanDirForFolders = (folderPath:string):iFolder => {
     return resultFolder
 }
 
-export const scanDirForFiles = async (path:string, blacklist:string[]=dirDefaultBlacklist):Promise<iFile[]|string> => {
-    console.log(`[scanDirForFiles] path : ${path}`);
+export const scanDirForFiles = async (path:string):Promise<iFile[]|string> => {
+    const blacklist = dirDefaultBlacklist
+    const taskId = random(0, 10000)
+    setServerTaskId(taskId)
     
+    console.log(`[scanDirForFiles] path : ${path} w taskid ${taskId}`);
+
     return new Promise((resolve, reject) => {
         let filesScanned:iFile[] = []
         fs.readdir(path, async (err, files) => {
+            console.log('readdir finissshed');
+            
             if (!files) return reject(err.message)
             let counterFilesStats = 0
+            if (files.length === 0) resolve([])
             for (let i = 0; i < files.length; i++) {
+
+                // if taskId changed, stop the for loop
+                // console.log(111, taskId, getServerTaskId());
+                
+                if (taskId !== getServerTaskId()) {
+                    console.log(`[SCANDIRFORFILE] taskId changed, stopping it, scanId ${taskId} !== ${getServerTaskId()}`)
+                    break;
+                }
+                
                 const fileName = files[i]; 
                 let filePath = `${path}/${fileName}`
                 if (!fileExists(filePath)) {
@@ -131,7 +149,6 @@ export const scanDirForFiles = async (path:string, blacklist:string[]=dirDefault
                         
 
                         // counter++
-                        
                         let extensionArr = fileName.split('.')
                         let extension = extensionArr[extensionArr.length-1]
                         let folder = path.replace(backConfig.dataFolder, '').replace('//', '/')
@@ -153,7 +170,10 @@ export const scanDirForFiles = async (path:string, blacklist:string[]=dirDefault
                         }
     
                         counterFilesStats++
-                        if (counterFilesStats === files.length) resolve(filesScanned)
+                        if (counterFilesStats === files.length) {
+                            setServerTaskId(-1)
+                            resolve(filesScanned)
+                        }
                     })
                 }
             }

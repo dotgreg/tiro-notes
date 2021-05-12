@@ -153,9 +153,28 @@ export class MonacoEditorWrapper extends React.Component<{
 
 export const monacoColorsCss  = `
   [class^="mtk"]:not(.mtk1) {
-    color: ${cssVars.colors.main};
+    // color: ${cssVars.colors.main};
     font-weight: 800;
   }
+  .mtk6 {color: ${cssVars.colors.main};}
+  .mtk21 {color: ${cssVars.colors.main};}
+
+  .mtk10 {color: ${cssVars.colors.compl[1]};} // () =>
+  .mtk8 {color: ${cssVars.colors.compl[0]};} // comments
+  .mtk7 {color: ${cssVars.colors.compl[0]};}  //  = 0o775
+  .mtk23 {color: ${cssVars.colors.compl[0]};} // Promise
+
+  // .mtk10 {color: ${cssVars.colors.dev[1]};} // () =>
+  // .mtk8 {color: ${cssVars.colors.dev[2]};} // comments
+  // .mtk7 {color: ${cssVars.colors.dev[2]};}  //  = 0o775
+  // .mtk23 {color: ${cssVars.colors.dev[2]};} // Promise
+
+  .mtk1 {}
+  .mtk1 {}
+  .mtk1 {}
+  .mtk1 {}
+  .mtk1 {}
+  .mtk1 {}
   // .mtk6 {
   //   color: ${cssVars.colors.main};
   // }

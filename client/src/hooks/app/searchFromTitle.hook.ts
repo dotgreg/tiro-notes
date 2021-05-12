@@ -13,7 +13,7 @@ export const useSearchFromTitle = (p:{
     const searchFileFromTitle = (title:string, folderPath:string) => {
         console.log(`[TITLE SEARCH] => ${title}-${folderPath}`);
         searchedFileTitle.current = title
-        changeToFolder(folderPath)
+        changeToFolder(folderPath, false)
     }
 
     const getSearchedTitleFileIndex = (files:iFile[]):number => {

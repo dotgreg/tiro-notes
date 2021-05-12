@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState }  from 'react';
-import { socketEvents } from '../../../../shared/apiDictionary.type';
 import { configClient } from "../../config"
-import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
+import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useInterval } from '../interval.hook';
 
@@ -35,12 +35,10 @@ export const useConnectionIndicator = (setCanEdit:Function) => {
   // LIFECYCLE EVENTS
   useEffect(() => {
     // LISTENING TO SOCKET LIFECYCLE EVENTS
-    listenerIds.current[0] = socketEventsManager.on(
-      socketEvents.disconnect, 
+    listenerIds.current[0] = clientSocket2.on('disconnect', 
       () => { toggleSocketConnection(false); setCanEdit(false); }
     )
-    listenerIds.current[1] = socketEventsManager.on(
-      socketEvents.reconnect, 
+    listenerIds.current[1] = clientSocket2.on('reconnect', 
       () => {
         toggleSocketConnection(true); 
         setBackOnline(true)
@@ -48,8 +46,7 @@ export const useConnectionIndicator = (setCanEdit:Function) => {
         setCanEdit(true);
       }
     )
-    listenerIds.current[2] = socketEventsManager.on(
-      socketEvents.connect, 
+    listenerIds.current[2] = clientSocket2.on('connect', 
       () => {
         toggleSocketConnection(true); 
         setBackOnline(true)
@@ -60,7 +57,7 @@ export const useConnectionIndicator = (setCanEdit:Function) => {
 
     return () => {
       listenerIds.current.forEach((id) => {
-        socketEventsManager.off(id)
+        clientSocket2.off(id)
       })
     }
   }, [])
@@ -78,7 +75,13 @@ export const useConnectionIndicator = (setCanEdit:Function) => {
 
     return (
       <div className="connection-status">
-          <div className={res[0]}>{res[1]}</div>
+          <div className={res[0]}>{res[1]} 
+            {!isSocketConnected && 
+              <a href={`${configClient.global.protocol}://${configClient.global.socketUrl}:${configClient.global.socketPort}`} target="_blank">
+                {strings.clickHereDisconnected}
+              </a>
+            }
+          </div>
       </div>
     )}
   
@@ -93,6 +96,10 @@ export const connectionIndicatorCss = `
 .connection-status {
   font-size: 9px;
   z-index: 11;
+  a {
+    margin-left: 10px;
+    color: white;
+  }
   .back-online, .disconnected {
     position: absolute;
     text-align:center;

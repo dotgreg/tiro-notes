@@ -8,6 +8,7 @@ import { ButtonToolbar } from './NoteToolbar.component';
 import { editorToggleButtonConfig } from '../../managers/editorToggler.manager';
 import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
 import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
+import { addCliCmd } from '../../managers/cliConsole.manager';
 
 //@TODO mobile bar
 //@TODO mobile bar func to desktop
@@ -16,18 +17,30 @@ export type ViewType = 'editor'| 'both' | 'preview'
 export const DualViewer = (p:{
     file:iFile
     fileContent:string
+    viewType:ViewType
     canEdit: boolean
     isLeavingNote: boolean
     onFileEdited: onFileEditedFn
     onFileTitleEdited: PathModifFn
     onSavingHistoryFile: onSavingHistoryFileFn
     onFileDelete: onFileDeleteFn
+    onBackButton: Function
   }) => {
       const {syncScrollY, updateSyncScroll, setPosY} = useSyncScroll()
 
 
     const [viewType, setViewType] = useLocalStorage('viewtype','both')
     const [previewContent, setPreviewContent] = useState('')
+
+    // window variables
+    addCliCmd('fileContent', {
+        description: 'live updated currentFileContent',
+        func: () => previewContent
+    })
+    
+    useEffect(() => {
+        setViewType(p.viewType)
+    }, [p.viewType])
 
     useEffect(() => {
         setPreviewContent(p.fileContent)
@@ -41,7 +54,10 @@ export const DualViewer = (p:{
     return <div 
             className={`dual-view-wrapper view-${viewType}`}
             onWheelCapture={e => {updateSyncScroll(e.deltaY)}}
-            onTouchMoveCapture={(e:any) => {updateSyncScroll(e.deltaY)}}
+            // onTouchMoveCapture={(e:any) => {
+            //     alert('ff')
+            //     updateSyncScroll(e.deltaY)
+            // }}
         >
             <EditorArea
                 file={p.file}
@@ -59,6 +75,7 @@ export const DualViewer = (p:{
                     setPreviewContent(content)
                 }}
                 onFileDelete={p.onFileDelete}
+                onBackButton={p.onBackButton}
                 onViewToggle={() => {
                     if (viewType === 'both') setViewType('editor')
                     if (viewType === 'editor') setViewType('preview')

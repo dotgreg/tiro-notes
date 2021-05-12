@@ -1,5 +1,5 @@
 var path = require('path')
-import { iSocketEventsParams } from '../../../shared/apiDictionary.type';
+import { iApiDictionary } from '../../../shared/apiDictionary.type';
 import { fileExists, saveFile } from './fs.manager';
 import { hashPassword } from './password.manager';
 import { getAppPathBase, isEnvDev, relativeToAbsolutePath } from './path.manager';
@@ -39,13 +39,15 @@ export const getDataFolder = () => {
 }
 export const shouldAskForSetup = () => {
     const jsonConfig = tryLoadJsonConfig();
-    return (!fileExists(getDataFolder()) || !jsonConfig) ? true : false
+    if (!jsonConfig || !jsonConfig.user || !jsonConfig.password || !jsonConfig.dataFolder) return true
+    if (!fileExists(getDataFolder())) return true
+    return false
 }
 
 
 
-export const processClientSetup = async (data:iSocketEventsParams.sendSetupInfos):Promise<iSocketEventsParams.getSetupInfos> => {
-    let answer:iSocketEventsParams.getSetupInfos 
+export const processClientSetup = async (data:iApiDictionary['sendSetupInfos']):Promise<iApiDictionary['getSetupInfos']> => {
+    let answer:iApiDictionary['getSetupInfos']
 
         // check if name is > 3 chars
         if (data.form.user.length < 3) answer = {code: 'BAD_USER_PASSWORD', message: 'user not valid'} 

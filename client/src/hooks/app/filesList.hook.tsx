@@ -1,10 +1,9 @@
 import { cloneDeep, debounce, filter, sortBy } from 'lodash';
 import React, {  useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { iSocketEventsParams, socketEvents } from '../../../../shared/apiDictionary.type';
+import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
 import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
-import { socketEventsManager } from '../../managers/sockets/eventsListener.sockets';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useDebounce } from '../lodash.hooks';
@@ -23,7 +22,7 @@ export const useAppFilesList = (
     // STATE
     const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
     
-    const [sortMode, setSortMode] = useLocalStorage<number>('sortMode',3)
+    const [sortMode, setSortMode] = useLocalStorage<number>('sortMode',2)
     const [files, setFiles] = useState<iFile[]>([])
     const [forceListUpdate, setForceListUpdate] = useState(0)
     
@@ -32,15 +31,10 @@ export const useAppFilesList = (
     // SOCKET INTERACTIONS
     useEffect(() => {
         console.log(`[FILES LIST] init socket listener`);
-        listenerId.current = socketEventsManager.on(
-            socketEvents.getFiles, 
-            (data:iSocketEventsParams.getFiles) => {  
-              onFolderFilesReceived(data)
-            }
-        )
+        listenerId.current = clientSocket2.on('getFiles', data => { onFolderFilesReceived(data) })
         return () => {
             console.log(`[FILES LIST] clean socket listener`);
-            socketEventsManager.off(listenerId.current)
+            clientSocket2.off(listenerId.current)
         }
     }, [])
     
@@ -81,12 +75,9 @@ export const useAppFilesList = (
     }
 
     useEffect(() => {
-        listenerId2.current = socketEventsManager.on(
-            socketEvents.getFilesPreview, 
-            processFilesPreview
-        )
+        listenerId2.current = clientSocket2.on('getFilesPreview',processFilesPreview)
         return () => {
-            socketEventsManager.off(listenerId2.current)
+            clientSocket2.off(listenerId2.current)
         }
     }, [filesPreviewObj])
 
@@ -94,7 +85,7 @@ export const useAppFilesList = (
         setFilesPreviewObj({})
     }, [files])
 
-    const processFilesPreview = (data:iSocketEventsParams.getFilesPreview) => {
+    const processFilesPreview = (data:iApiDictionary['getFilesPreview']) => {
         let newFilesPreviewObj:FilesPreviewObject = cloneDeep(filesPreviewObj)
         for (let i = 0; i < data.filesPreview.length; i++) {
             const filePreview = data.filesPreview[i];
@@ -115,11 +106,12 @@ export const useAppFilesList = (
 
 
     // DATA PROCESSING FUNCTIONS
-    const onFolderFilesReceived = (data:iSocketEventsParams.getFiles) => {
+    const onFolderFilesReceived = (data:iApiDictionary['getFiles']) => {
         // only keep md files in file list
         let files = filter(data.files, {extension: 'md'})
 
         // sort them
+        console.log(`[SORT] sorting received files with sort mode ${sortMode} : ${SortModes[sortMode]}`);
         files = sortFiles(files, sortMode)
 
         setFiles(files)
@@ -178,13 +170,14 @@ export const useAppFilesList = (
                         setFiles(sortFiles(files, newMode))
                     }}
                 > 
-                    <span> { SortModesLabels[sortMode] } </span> 
+                    <span> { files.length > 0 && <span className='list-count'>({files.length})</span>} { SortModesLabels[sortMode] } </span> 
                     <Icon name="faSort" color={cssVars.colors.l2.text} /> 
                 </button>
 
                 {/* { files.length > 0 &&
                     <span className='items-list-count'>{files.length} els</span>
                 } */}
+                
 
             </div>
 

@@ -12,6 +12,7 @@ console.log(`===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, platform: ${
 // SOCKET SERVER
 //
 const {secureServer, expressApp} = createSecureServer(sharedConfig.socketServerPort, ()=>{}, 'socket server')
+
 export const ioServer:SocketIO.Server = require('socket.io')(secureServer, { 
   path: '/',
   secure: true,
@@ -20,6 +21,8 @@ export const ioServer:SocketIO.Server = require('socket.io')(secureServer, {
 
 initSocketLogic();
 
+// client server
 startStaticServer(backConfig.frontendBuildFolder, sharedConfig.frontendServerPort); 
 
+// static folders for images, ressources
 if (backConfig.dataFolder) startStaticServer(backConfig.dataFolder, sharedConfig.staticServerPort, false); 

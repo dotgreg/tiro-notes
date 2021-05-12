@@ -1,7 +1,5 @@
 import { debounce } from "lodash";
-import { iSocketEventsParams, socketEvents } from "../../../shared/apiDictionary.type";
-import { socketEventsManager } from "./sockets/eventsListener.sockets";
-import { clientSocket } from "./sockets/socket.manager";
+import { clientSocket, clientSocket2 } from "./sockets/socket.manager";
 
 export interface iUploadedFile {
     name:string
@@ -16,8 +14,13 @@ const handleDrop = (ev) => {
   if (ev.dataTransfer && ev.dataTransfer.items) {
     let files = ev.dataTransfer.items
     if(!files[0]) return
-    //@TODO multiple files handling
-    uploadFile(files[0].getAsFile())
+    // @TODO multiple files handling
+    for (let i = 0; i < files.length; i++) {
+      // const element = files[i];
+      uploadFile(files[i].getAsFile())
+    }
+    // console.log('uploadfile');
+    // uploadFile(files[0].getAsFile())
   }
 }
 
@@ -27,43 +30,39 @@ const handleDrop = (ev) => {
 
 
 export const listenOnUploadSuccess = (cb:(file:iUploadedFile) => void):number => {
-  return socketEventsManager.on(socketEvents.getUploadedFile, 
-    (data:iSocketEventsParams.getUploadedFile) => {  
-          cb(data)
-      }
-    )
-  }
+  return clientSocket2.on('getUploadedFile', data => {  cb(data) })
+}
     
-  export const uploadFile = (file:any) => {
-    var instanceFile = new siofu(clientSocket);
-    instanceFile.submitFiles([file]);
+export const uploadFile = (file:any) => {
+  var instanceFile = new siofu(clientSocket);
+  instanceFile.submitFiles([file]);
+}
+
+export const uploadOnInputChange = (el:HTMLInputElement) => {
+  var instance = new siofu(clientSocket);
+  instance.listenOnInput(el);
+}
+
+export const initListenUploadOnDrop = (callbacks: {
+  onDragStart:Function
+  onDragEnd:Function
+}) => {
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    dragEndDebounced()
   }
+  const dragEndDebounced = debounce(() => {
+    callbacks.onDragEnd()
+  }, 100)
 
-  export const uploadOnInputChange = (el:HTMLInputElement) => {
-    var instance = new siofu(clientSocket);
-    instance.listenOnInput(el);
-  }
+  console.log(`[UPLOAD] reinit drag/drop events`);
+  
+  window.removeEventListener('drop', handleDrop); 
+  window.addEventListener('drop', handleDrop);
 
-  export const initListenUploadOnDrop = (callbacks: {
-    onDragStart:Function
-    onDragEnd:Function
-  }) => {
+  window.removeEventListener('dragover', handleDragOver);
+  window.addEventListener('dragover', handleDragOver);
 
-    const handleDragOver = (e) => {
-      e.preventDefault();
-      dragEndDebounced()
-    }
-    const dragEndDebounced = debounce(() => {
-      callbacks.onDragEnd()
-    }, 100)
-
-    console.log(`[UPLOAD] reinit drag/drop events`);
-    
-    window.removeEventListener('drop', handleDrop); 
-    window.addEventListener('drop', handleDrop);
-
-    window.removeEventListener('dragover', handleDragOver);
-    window.addEventListener('dragover', handleDragOver);
-
-    
-  }
+  
+}

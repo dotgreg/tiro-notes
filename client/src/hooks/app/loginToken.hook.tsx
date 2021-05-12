@@ -54,6 +54,11 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
         }
     }, [])
 
+    const submitForm = () => {
+        setFormMessage(undefined)
+        clientSocket2.emit('sendLoginInfos', { user, password, token: getLoginToken()}) 
+    }
+
     const LoginPopupComponent = (p:{
         
     }) => <>
@@ -65,7 +70,9 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
                 >
                     <div>
                         <Input
+                            shouldFocus={true}
                             value={user}
+                            onEnterPressed={() => {submitForm()}}
                             label={strings.setupForm.user}
                             onChange={e => {setUser(e)}}
                         />
@@ -73,13 +80,13 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
                             value={password}
                             label={strings.setupForm.password}
                             type={'password'}
+                            onEnterPressed={() => {submitForm()}}
                             onChange={e => {setPassword(e)}}
                         />
 
-                        <input type="button" value='submit' className="submit-button" onClick={e => {
-                            setFormMessage(undefined)
-                            clientSocket2.emit('sendLoginInfos', { user, password, token: getLoginToken()}) 
-                        }}/>
+                        <button value='submit' className="submit-button" onClick={e => {submitForm()}}> 
+                            {strings.setupForm.submit} 
+                        </button>
 
                         {
                             formMessage && 
