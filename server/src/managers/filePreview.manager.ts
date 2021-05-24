@@ -21,12 +21,11 @@ export const getFilesPreviewLogic = async (data: iApiDictionary['askFilesPreview
 
         // pictures run a regex to find ![](), can be shared with frontend regex
 
-        const regex = /\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \#]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \#]*\.(jpg|jpeg|png|gif))\)/gm;
+        const regex = /\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \ \#]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \ \#]*\.(jpg|jpeg|png|gif)[\?A-Za-z0-9]*)\)/gm;
         let match = body.match(regex)
         if (match && match[0]) {
-            const regex2 = /\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \#]*)\]\(/gm;
+            const regex2 = /\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\@\!\ \ \#]*)\]\(/gm;
             let imagePath =  match[0].replace(regex2,'').replace(')','')
-            // console.log(333, res);
             filePreview.picture = imagePath
         }
         filesPreview.push(filePreview)

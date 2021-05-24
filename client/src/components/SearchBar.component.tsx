@@ -22,7 +22,6 @@ export class SearchBar extends React.Component<{
     }
     submitOnEnter = (event:any) => {
         if (event.key === 'Enter') {
-            console.log('do validate')
             if (this.props.searchTerm.length < 3) return
             this.props.onSearchSubmit()
         }

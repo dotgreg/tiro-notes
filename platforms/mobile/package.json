@@ -1,0 +1,35 @@
+{
+  "name": "tiro-cordova",
+  "displayName": "tiro-cordova",
+  "version": "1.0.0",
+  "description": "A sample Apache Cordova application that responds to the deviceready event.",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "cordova platform add android",
+    "test-apk": "npm i & cd platforms/android & cordova run android --emulator",
+    "emulator-detached": "cd scripts & open-emulator.bat",
+    "emulator": "C:\\Users\\grego\\AppData\\Local\\Android\\Sdk\\emulator\\emulator -avd Pixel_2_API_29  -no-boot-anim -no-snapshot-load",
+    "logs": "open https://logentries.com/app/17b00238#/search/log/57bc4cea?last=Last%205%20Minutes"
+  },
+  "author": "Apache Cordova Team",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cordova-android": "^6.3.0",
+    "cordova-browser": "^5.0.4",
+    "cordova-plugin-console": "^1.1.0",
+    "cordova-plugin-whitelist": "^1.3.4",
+    "nodejs-mobile-cordova": "^0.4.2"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-whitelist": {},
+      "nodejs-mobile-cordova": {},
+      "cordova-plugin-console": {}
+    },
+    "platforms": [
+      "android",
+      "browser"
+    ]
+  }
+}

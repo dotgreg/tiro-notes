@@ -28,7 +28,7 @@ export const openMetadataFile = async (path: string):Promise<iMetadataFile> => {
 export const openFile = async (path: string):Promise<string> => {
     return new Promise((resolve, reject) => {
         fs.readFile(path, 'utf8', (err,data:string) => {
-            if (err) {console.error(`[READFILE] Error ${err.message}`); reject()}
+            if (err) {console.error(`[READFILE] could not read ${path}`);}
             else resolve(data)
         }); 
     })
@@ -40,7 +40,6 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
     let pathArr = fullPathToCheck.split('/')
     pathArr.pop() // remove object.jpg
     pathArr.shift() // remove ""
-    // console.log(33,{pathArr});
 
     let createFoldersRecursively = async (path:string, pathArray:string[]) => {
         let fullPath = `${path}/${pathArray[0]}`

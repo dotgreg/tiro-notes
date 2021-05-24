@@ -2,11 +2,15 @@ import execa = require("execa");
 import { exists } from "fs";
 import { random } from "lodash";
 import { getDefaultFormatCodeSettings } from "typescript";
+import { iApiDictionary } from "../../../shared/apiDictionary.type";
+import { cleanPath } from "../../../shared/helpers/filename.helper";
 import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { getServerTaskId, setServerTaskId } from "../routes";
 import { fileExists } from "./fs.manager";
 import { getPlatform } from "./platform.manager";
+import { ServerSocketManager } from './socket.manager'
+
 var fs = require('fs')
 const path = require ('path')
 
@@ -35,10 +39,11 @@ export const fileNameFromFilePath = (path:string):string => {
 }
 
 export const scanDirForFolders = (folderPath:string):iFolder => {
-    const fullFolderPath = `${backConfig.dataFolder}${folderPath}`
+    const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
+    
     if (!fileExists(fullFolderPath)) return
     var folderStats = fs.lstatSync(fullFolderPath)
-    let relativeFolder = fullFolderPath.replace(backConfig.dataFolder, '')
+    let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
     const resultFolder:iFolder = {
         path: relativeFolder,
         hasChildren: false,
@@ -49,12 +54,15 @@ export const scanDirForFolders = (folderPath:string):iFolder => {
         resultFolder.hasChildren = true
         resultFolder.children = []
         fs.readdirSync(fullFolderPath).map((child) => {
+            
             let fullChildPath = fullFolderPath + '/' + child
+            
             try {
                 let childStats = fs.lstatSync(fullChildPath)
                 if (childStats.isDirectory() && dirDefaultBlacklist.indexOf(path.basename(child)) === -1) {
                     // if (fullChildPath.indexOf('.tiro') !== -1) console.log('1212', fullChildPath)
-                    let relativeChildFolder = fullChildPath.replace(backConfig.dataFolder, '')
+                    let relativeChildFolder = cleanPath(fullChildPath).replace(cleanPath(backConfig.dataFolder), '')
+                    
                     let childFolder:iFolder = {
                         hasChildren: false,
                         path: relativeChildFolder,
@@ -101,7 +109,15 @@ export const scanDirForFolders = (folderPath:string):iFolder => {
     return resultFolder
 }
 
+export const lastFolderFilesScanned = {value: ""}
+export const rescanEmitDirForFiles = async (serverSocket2:ServerSocketManager<iApiDictionary>) => {
+    let apiAnswer = await scanDirForFiles(lastFolderFilesScanned.value)
+    if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+    serverSocket2.emit('getFiles', { files: apiAnswer }) 
+}
+
 export const scanDirForFiles = async (path:string):Promise<iFile[]|string> => {
+    lastFolderFilesScanned.value = path
     const blacklist = dirDefaultBlacklist
     const taskId = random(0, 10000)
     setServerTaskId(taskId)
@@ -111,16 +127,12 @@ export const scanDirForFiles = async (path:string):Promise<iFile[]|string> => {
     return new Promise((resolve, reject) => {
         let filesScanned:iFile[] = []
         fs.readdir(path, async (err, files) => {
-            console.log('readdir finissshed');
-            
             if (!files) return reject(err.message)
             let counterFilesStats = 0
             if (files.length === 0) resolve([])
             for (let i = 0; i < files.length; i++) {
 
                 // if taskId changed, stop the for loop
-                // console.log(111, taskId, getServerTaskId());
-                
                 if (taskId !== getServerTaskId()) {
                     console.log(`[SCANDIRFORFILE] taskId changed, stopping it, scanId ${taskId} !== ${getServerTaskId()}`)
                     break;

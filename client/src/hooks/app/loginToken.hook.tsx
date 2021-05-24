@@ -11,7 +11,7 @@ export const getLoginToken = ():string => {
     return cookie ? cookie : ''
 }
 export const setLoginToken = (token:string) => {
-    setCookie('tiro-login-token', token, 1)
+    setCookie('tiro-login-token', token, 48)
 }
 
 export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {

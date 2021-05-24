@@ -45,9 +45,14 @@ export const strings = {
         submit: 'submit'
     },
     editorBar: {
+        tts: 'Text to speech',
         explanation: {
             history: 'File history'
         }
+    },
+    ttsPopup: {
+        title: 'Text to speech',
+        voice: 'Voice',
     },
     historyPopup: {
         title: 'Versions for ',

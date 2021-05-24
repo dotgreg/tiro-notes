@@ -21,6 +21,7 @@ import { isTextEncrypted } from '../../managers/encryption.manager';
 import { strings } from '../../managers/strings.manager';
 import { getLoginToken } from '../../hooks/app/loginToken.hook';
 import { FileHistoryPopup } from '../FileHistoryPopup.component';
+import { TtsPopup } from '../TtsPopup.component';
 
 export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
 export type onFileEditedFn  =(filepath:string, content:string) => void
@@ -190,6 +191,13 @@ export const EditorArea = (p:{
           setHistoryPopup(!historyPopup)
         }
       },
+      {
+        title: strings.editorBar.tts, 
+        icon:'faCommentDots', 
+        action: () => { 
+          setTtsPopup(!ttsPopup)
+        }
+      },
       
       {
         title:'delete note', 
@@ -206,6 +214,9 @@ export const EditorArea = (p:{
 
     // File History
     const [historyPopup, setHistoryPopup] = useState(false)
+
+    // TTS
+    const [ttsPopup, setTtsPopup] = useState(false)
 
     return (
         // <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
@@ -288,6 +299,8 @@ export const EditorArea = (p:{
               {askForPassword && <APasswordPopup/>}
 
               {historyPopup && <FileHistoryPopup file={p.file} onClose={() => {setHistoryPopup(false)}}/>}
+              
+              {ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => {setTtsPopup(false)}}/>}
         </div>
     )
 }

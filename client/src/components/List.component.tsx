@@ -21,7 +21,7 @@ export type onFileDragStartFn = (files:iFile[])=>void
 export class List extends React.Component<{
     files:iFile[]
     filesPreview:FilesPreviewObject
-
+    
     activeFileIndex:number
     hoverMode:boolean
     sortMode:number
@@ -47,7 +47,9 @@ export class List extends React.Component<{
 
     oldFiles:iFile[] = []
     liRefs:any[] = []
+   
     scrollerWrapperRef:any = React.createRef()
+    scrollerListRef:any = React.createRef()
     shouldComponentUpdate(props:any, nextProps:any) {
         if (JSON.stringify(props.files) !== JSON.stringify(this.oldFiles)) {
             this.oldFiles = cloneDeep(props.files)
@@ -84,9 +86,8 @@ export class List extends React.Component<{
         // console.log('[LIST]', visibleFilesPath);
         this.props.onVisibleItemsChange(visibleFilesPath)
     }, 500)
+    
     onListScroll = () => {
-        console.log('onListScroll');
-        
         this.getVisibleItemsDebounced()
     }
     
@@ -99,12 +100,30 @@ export class List extends React.Component<{
         return false
     }
 
+    itemToScroll:number = 0
+    scrollToItem = (nb:number, isAbs=true) => {
+        this.itemToScroll = isAbs ? nb : this.itemToScroll + nb
+        if (this.itemToScroll < 0 ) this.itemToScroll = 0
+        if (this.itemToScroll > this.props.files.length ) this.itemToScroll = this.props.files.length
+        this.scrollerListRef.current.scrollToItem(this.itemToScroll)
+    }
+
     render() {
         let sort = SortModes[this.props.sortMode]
         const itemSize = cssVars.sizes.l2.fileLi.height + (cssVars.sizes.l2.fileLi.padding * 2) + (cssVars.sizes.l2.fileLi.margin)
         const listHeight = window.innerHeight - (cssVars.sizes.search.h + cssVars.sizes.search.padding)
         const responsiveListHeight = isA('desktop') ? listHeight : listHeight - cssVars.sizes.mobile.bottomBarHeight
       return (
+        <>
+        { 
+            deviceType() !== 'desktop' &&
+            <div className="mobile-buttons-up-down">
+                <div id="top" onClick={() => {  this.scrollToItem(0, false)  }}>=</div>
+                <div id="up" onClick={() => {  this.scrollToItem(-5, false) }}>^</div>
+                <div id="down" onClick={() => { this.scrollToItem(5, false) }}>v</div>
+            </div>
+        }
+        
         <div 
             className='list-wrapper-scroller'
             style={{height:responsiveListHeight}}
@@ -112,10 +131,13 @@ export class List extends React.Component<{
             ref={this.scrollerWrapperRef}
         >
 
+        
+
         <AutoSizer>{({height, width}) => ( 
             <FixedSizeList 
                 itemData={this.props.files}
                 className="List"
+                ref={this.scrollerListRef}
                 height={responsiveListHeight}
                 itemCount={this.props.files.length}
                 itemSize={itemSize}
@@ -125,6 +147,7 @@ export class List extends React.Component<{
                 {({ index, style }) => 
                 {
                     let file = this.props.files[index]
+                    let filePreview = this.props.filesPreview[file.path]
                     return (
                         <div style={style}>
                             <li 
@@ -135,7 +158,7 @@ export class List extends React.Component<{
                                     `element-${index}`,
                                     `${this.isMultiSelected(index) ? 'multiselected' : ''}`,
                                     `${index === this.props.activeFileIndex ? 'active' : ''}`,
-                                    `${this.props.filesPreview[file.path] && this.props.filesPreview[file.path].picture ? 'with-image':''}`
+                                    `${filePreview && filePreview.picture ? 'with-image':''}`
                                 ].join(' ')}
                                 key={index}
                                 draggable={true}
@@ -177,8 +200,8 @@ export class List extends React.Component<{
                                     </h3> 
                                     <div className="content">
                                     { 
-                                        (this.props.filesPreview[file.path] && this.props.filesPreview[file.path].content) &&
-                                            <>{this.props.filesPreview[file.path].content}</>
+                                        (filePreview && filePreview.content) &&
+                                            <>{filePreview.content}</>
                                     }
 
                                     </div>
@@ -192,12 +215,12 @@ export class List extends React.Component<{
                                 </div>
                                 <div className="right">
                                     { 
-                                        (this.props.filesPreview[file.path] && this.props.filesPreview[file.path].picture) && 
+                                        (filePreview && filePreview.picture) && 
                                         <div 
                                             className="picture"
                                             style={{
                                                 backgroundColor: 'white',
-                                                backgroundImage:`url('${absoluteLinkPathRoot(this.props.files[0].folder)}/${this.props.filesPreview[file.path].picture}')`
+                                                backgroundImage:`url('${ filePreview.picture.startsWith('http') ? filePreview.picture : absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}')`
                                             }}
                                         >
                                         </div>
@@ -212,6 +235,7 @@ export class List extends React.Component<{
             </FixedSizeList>)}
             </AutoSizer>
         </div>
+        </>
       );
     }
   }
@@ -230,6 +254,20 @@ export class List extends React.Component<{
         overflow-y:scroll;
         overflow: hidden;
     }
+
+    .mobile-buttons-up-down {
+        position: fixed;
+        right: 0px;
+        z-index: 10;
+        top: 50%;
+        div {
+            background: #d6d6d6;
+            padding: 10px;
+            color:white;
+            cursor: pointer;
+        }
+    }
+
     div.List {
         list-style: none;
         margin-right:20px;

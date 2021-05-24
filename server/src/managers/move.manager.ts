@@ -74,7 +74,6 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
 
                 let endResourcePath = `${backConfig.dataFolder}/${endFolderPath}/${backConfig.relativeUploadFolderName}/${newFilename}`
                 let moveSumup = `[MOVE] Resource note move:  ${pathsToCheck[y]} (exists) -> ${endResourcePath}`
-                console.log(moveSumup);
                 await upsertRecursivelyFolders(endResourcePath)
                 if(!simulate) {
                     await moveFile(pathsToCheck[y], endResourcePath)
@@ -87,5 +86,4 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
     }
 
     if(!simulate) await saveFile(`${backConfig.dataFolder}/${initPath}`, newFileContent)
-    console.log(newFileContent);
 }

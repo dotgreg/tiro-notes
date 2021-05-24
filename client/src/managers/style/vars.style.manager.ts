@@ -37,7 +37,8 @@ const colors = {
     },
     editor: {
       bg: '#ffffff' ,
-      font: '#959595' ,
+      // font: '#959595' ,
+      font: '#525252' ,
       interfaceGrey: '#d4d1d1',
       mobileToolbar: {
         bg: '#e1e1e1',

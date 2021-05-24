@@ -4,20 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "cd sources-tiro & run-p client server",
-
-    "android1": "npm-s build-server build2Cordova android2",
-    "android2": "cd cordova-tiro & run-p emulator-detached test-apk",
-    "build2Cordova": "rm -r cordova-tiro/www/nodejs-project/tiro & npx mkdirp cordova-tiro/www/nodejs-project/tiro & cp -r builds-tiro/client cordova-tiro/www/nodejs-project/tiro/client & cp -r builds-tiro/server cordova-tiro/www/nodejs-project/tiro/server",
-    
-    "build": "cd sources-tiro & npm run build & cd .. & npm run start-build",
-
-    "build-server": "cd sources-tiro & npm run build-server & npm run clean-server & npm run export-server",
-    "start-build": "cd builds-tiro/server & npm run start"
+    "dev": "cd sources-tiro & npm run dev",
+    "android": "cd sources-tiro & npm run android",
+    "build": "cd sources-tiro & npm run build-export"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "npm-run-all": "^4.1.5"
-  }
+  "devDependencies": {}
 }

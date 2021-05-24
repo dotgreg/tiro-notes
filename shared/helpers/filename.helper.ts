@@ -1,5 +1,7 @@
 export const cleanPath = (path:string):string => {
     path = path.split('//').join('/')
+    path = path.split('\\').join('/')
+    path = path.split('//').join('/')
     return path
 }
 export const getFileInfos = (path:string):{

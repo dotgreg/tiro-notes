@@ -2,11 +2,12 @@ import React, { Ref, useEffect, useRef } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { formatDateEditor, formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
+import { md2html } from '../../managers/markdown.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { transformSearchLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks, transformTitleSearchLinks } from '../../managers/textProcessor.manager';
 import { commonCssEditors } from './EditorArea.component';
-const marked = require('marked');
+
 
 export let previewAreaRefs
 
@@ -28,14 +29,16 @@ export const PreviewArea = (p:{
     // scroll effect
     useEffect(() => {
         previewAreaRefs.wrapper.current.scrollTop = p.posY
-    }, [p.posY])
+        // setTimeout(() => {
+        //     previewAreaRefs.wrapper.current.scrollTop = p.posY
+        //     console.log(`reinit1 ${p.posY} ${previewAreaRefs.wrapper.current.scrollTop} `)
+        // }, 1000)
+    }, [p.posY, p.file.path])
     
     useEffect(() => {
         // @ts-ignore
         window.previewHtmlOutput = '';
         return () => {
-            console.log('preview unmount');
-            
         }
     }, [p.file.path])
 
@@ -45,6 +48,21 @@ export const PreviewArea = (p:{
             className={`preview-area`}
             ref={previewAreaRefs.wrapper}
             >
+
+            { 
+                deviceType() !== 'desktop' &&
+                <div className="mobile-buttons-up-down">
+                    <div id="top" onClick={() => { 
+                        previewAreaRefs.wrapper.current.scrollTop = 0
+                    }}>=</div>
+                    <div id="up" onClick={() => { 
+                        previewAreaRefs.wrapper.current.scrollTop -= 300
+                    }}>^</div>
+                    <div id="down" onClick={() => {
+                        previewAreaRefs.wrapper.current.scrollTop += 300
+                    }}>v</div>
+                </div>
+            }
 
             <div className="infos-preview-wrapper">
                 
@@ -90,6 +108,18 @@ export const previewAreaCss = (v:MobileView) => `
         display: ${isA('desktop') ? 'none' : 'block'};
     }
 
+    .mobile-buttons-up-down {
+        position: fixed;
+        right: 0px;
+        top: 50%;
+        div {
+            background: #d6d6d6;
+            padding: 10px;
+            color:white;
+            cursor: pointer;
+        }
+    }
+
     .title {
         margin: 0px 0px;
     }
@@ -127,10 +157,14 @@ export const previewAreaCss = (v:MobileView) => `
       }
 
     }
+
+    img,
     .content-image {
         border-radius: 7px;
         box-shadow: 0px 0px 10px rgb(0 0 0 / 10%);
+        max-width: 100%;
     }
+
 
     p {
         margin-top: 0px;
@@ -186,7 +220,7 @@ const PreviewRenderer = React.memo((p:{filecontent:string, currentFolder:string}
             <div 
                 className='preview-content'
                 ref={previewAreaRefs.main}
-                dangerouslySetInnerHTML={{__html: marked(processRender ( p.filecontent))}}>
+                dangerouslySetInnerHTML={{__html: md2html(processRender ( p.filecontent))}}>
             </div>  
         </>
 

@@ -1,16 +1,22 @@
 import React, { useEffect, useRef }  from 'react';
 
+export type OptionObj = {key: number|string, label:string, obj: any }
+
 export const Input = (p:{
     id?:string
     label?:string
-    type?:'password'|'text'
+    type?:'password'|'text'|'select'
+    list?:OptionObj[]
     explanation?:string
-    value: string
-    onChange: (res:string) => void
+    value?: string|number
+    onChange?: (res:string) => void
+    onSelectChange?: (res:string) => void
     onFocus?: Function
     onEnterPressed?: Function
     shouldFocus?:boolean
 }) => {
+    const {value} = {...p}
+
     const inputRef = useRef<any>()
     useEffect(() => {
         if (p.shouldFocus) {
@@ -19,13 +25,13 @@ export const Input = (p:{
     }, [])
 
     return (
-        <div className={`input-component ${p.id ? p.id : ''}` }>
+        <div className={`input-component ${p.id ? p.id : ''} ${p.type}` }>
             
             {
                 p.label && <span>{p.label} :</span>
             }
             <div className="input-wrapper">
-                <input 
+                { p.type !== 'select' && <input 
                     ref={inputRef}
                     type={p.type ? p.type : 'text'} 
                     value={p.value} 
@@ -37,8 +43,27 @@ export const Input = (p:{
                         if (keyCode == 'Enter' && p.onEnterPressed) p.onEnterPressed()
                     }}
                     onChange={(e) => {
-                        p.onChange(e.target.value)
-                    }} />
+                        p.onChange && p.onChange(e.target.value)
+                    }} />}
+
+                { p.type === 'select' && 
+                    <select 
+                        value={p.value} 
+                        onChange={(e) => {
+                            p.onSelectChange && p.onSelectChange(e.target.value)
+                        }}>
+
+                        {
+                            p.list?.map((opt,i) => 
+                                <option 
+                                    value={opt.key} 
+                                    selected={ value === opt.key ? true : false}
+                                    // selected={ i === 3 ? true : false}
+                                >{opt.label} </option>    
+                            )
+                        }
+                    </select>
+                }
                 
                 { p.explanation && <div className="explanation"> {p.explanation} </div>}
             </div>
@@ -51,6 +76,11 @@ export const inputComponentCss = `
         display: flex;
         align-items: center;
         padding-bottom: 10px;
+        &.select {
+            span {
+                width: 20%;
+            }
+        }
         span {
             width: 30%;
             font-weight: 700;

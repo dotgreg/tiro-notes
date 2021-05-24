@@ -21,8 +21,6 @@ export const FileHistoryPopup = (p:{
         clientSocket2.emit('askFileHistory', {filepath: p.file.path, token:getLoginToken()})
         const listenerId = clientSocket2.on('getFileHistory', data => {
             const filesSorted = orderBy(data.files, ['created'], ['desc']);
-            console.log(filesSorted);
-            
             setFiles(filesSorted)
         })
         return () => {

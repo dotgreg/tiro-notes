@@ -18,6 +18,7 @@ import { addCliCmd } from './managers/cliConsole.manager';
 import { configClient } from './config';
 import { onKey } from './managers/keys.manager';
 import { iFile, iFolder } from '../../shared/types.shared';
+import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
 import { strings } from './managers/strings.manager';
@@ -36,7 +37,7 @@ export const App2 = React.memo(() => {
     useEffect(() => {
         // COMPONENT DID MOUNT didmount
         console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
-        
+
         initSocketConnection().then(() => {
             toggleSocketConnection(true)
             askForFolderScan(openFolders)
@@ -63,7 +64,7 @@ export const App2 = React.memo(() => {
     }
 
     const cleanListAndFileContent = () => {
-        console.log('cleanListAndFileContent');
+        console.log('[cleanListAndFileContent]');
         cleanFileDetails()
         cleanFilesList()
     } 
@@ -78,6 +79,7 @@ export const App2 = React.memo(() => {
 
 
     const changeToFolder = (folderPath:string, loadFirstNote:boolean = true) => {
+        folderPath = cleanPath(folderPath)
         console.log(`[FOLDER CHANGED] to ${folderPath}`);
         
         // SEND FIRST isLeavingNote signal for leaving logic like encryption

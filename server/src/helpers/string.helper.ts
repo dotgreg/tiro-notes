@@ -8,3 +8,14 @@ export const makeRandomString = (length:number) => {
    }
    return result.join('');
 }
+
+
+
+export const removeAccents = (raw:string):string => {
+  return raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
+}
+
+export const normalizeString = (raw:string):string => {
+  return removeAccents(raw).toLowerCase()
+}
+

@@ -4,6 +4,8 @@ import { generateNewFileName } from "./move.manager";
 import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
 import { ServerSocketManager } from "./socket.manager"
 import { iApiDictionary } from "../../../shared/apiDictionary.type";
+import { rescanEmitDirForFiles } from "./dir.manager";
+import { debounce } from "lodash";
 
 var siofu = require("socketio-file-upload");
 
@@ -33,13 +35,23 @@ export const initUploadFileRoute = async (socket:ServerSocketManager<iApiDiction
         let oldPath = `${e.file.pathName}`
         let displayName = finfos.filenameWithoutExt.replace('-0','')
         let newName = `${generateNewFileName(displayName)}.${finfos.extension}`
+
         let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newName}`)
+        // if md, upload directly in directory
+        if (finfos.extension === 'md') newRelPath = cleanPath(`${newName}`)
+        
         let newAbsPath = cleanPath(`${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`)
         console.log({oldPath, newAbsPath});
         
         await upsertRecursivelyFolders(newAbsPath)
         await moveFile(oldPath, newAbsPath)
  
-        socket.emit('getUploadedFile', {name: displayName, path:newRelPath})         
+        if (finfos.extension === 'md') {
+            // debounce()
+            rescanEmitDirForFiles(socket)
+        } else {
+            socket.emit('getUploadedFile', {name: displayName, path:newRelPath})   
+        }
+
     })
 }

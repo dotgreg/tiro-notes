@@ -55,8 +55,6 @@ export const urlParamsToString = (urlParams:iUrlParams):string => {
 
 export const updateUrl = (urlParams:iUrlParams) => {
 
-    console.log(`updateurl `, {urlParams});
-    
     let newUrl = `${window.location.protocol}//${window.location.host}/?`
 
     if (isNumber(urlParams.file) && urlParams.file !== -1) newUrl += `file=${urlParams.file}&`

@@ -8,3 +8,10 @@ client/build/
 build/
 build
 tiro-config.json
+node_modules
+
+platforms/mobile/platforms
+platforms/mobile/plugins
+platforms/mobile/hooks
+platforms/mobile/res
+platforms/mobile/www/nodejs-project/tiro/

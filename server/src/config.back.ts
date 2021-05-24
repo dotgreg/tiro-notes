@@ -20,7 +20,7 @@ export const backConfig = {
     relativeUploadFolderName: '.resources',
 
     dev: {
-        disableLogin: false
+        disableLogin: true
     }
 }
 

@@ -49,6 +49,7 @@ export const DualViewer = (p:{
     // back to top when change file
     useEffect(() => {
         setPosY(1);
+        
     }, [p.file.path])
 
     return <div 

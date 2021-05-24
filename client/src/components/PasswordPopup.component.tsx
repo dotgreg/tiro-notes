@@ -40,7 +40,7 @@ export class PasswordPopup extends React.Component<{
                     <Input
                         value={this.state.password}
                         label={strings.setupForm.password}
-                        type={'password'}
+                        type='password'
                         shouldFocus={true}
                         onChange={e => {this.setState({password: e})}}
                         onEnterPressed={() => {this.submitForm()}}

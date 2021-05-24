@@ -38,7 +38,7 @@ export const useMobileTextAreaLogic = (fileContent: string, p:{
       // debounceTextareaEdited()
       
       let updatedText = e.target.value
-      let newLetter = updatedText[e.target.selectionStart-1].charCodeAt(0)
+      let newLetter = updatedText[e.target.selectionStart-1] && updatedText[e.target.selectionStart-1].charCodeAt(0)
       // resetYTextarea()
       // only react on insertion
       if (updatedText.length > fileContent.length) {

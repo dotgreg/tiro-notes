@@ -35,7 +35,6 @@ export const useStatMemo = (el:any, memProps) => {
         let te = new Date().getTime()
         let diff = te-ti
         // console.log(`useStatMemo => new render for ${name} in ${diff}ms ->  renderid ${renderId}`);
-        console.log(`useStatMemo => new render for ${name} in ${diff}ms ->  renderid ${renderId}`);
 
         return comp
     }, memProps)

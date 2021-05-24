@@ -17,6 +17,7 @@ import { appConfigJsonPath, processClientSetup, TiroConfig } from "./managers/co
 import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, generateNewToken, getLoginToken, saveTokenInMemory } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
+import { liveSearchJs } from "./managers/search-js.manager";
 
 const serverTaskId = {curr: -1}
 export const getServerTaskId = () => serverTaskId.curr
@@ -41,30 +42,30 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
         let termObj = analyzeTerm(data.term)
         console.log({termObj});
 
-        // // first retrieve cached results if exists
-        // let cachedRes = await retrieveCachedSearch(termObj.termId)
-        // socket.emit(socketEvents.getFiles, {files: cachedRes, temporaryResults: true} as .getFiles)
-        
-        // Then trigger api
-        // let apiAnswer = await search(termObj.term, termObj.folderToSearch)
-        // if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-        // socket.emit(socketEvents.getFiles, {files: apiAnswer} as .getFiles)
-        
-        liveSearch({
-            term: termObj.term, 
-            folder: termObj.folderToSearch, 
-            titleSearch: termObj.titleSearch,
-            
-            onSearchUpdate : files => {
-                serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
-            },
-            onSearchEnded : files => {
-                serverSocket2.emit('getFiles', {files: files})
-            }
+        liveSearchJs({
+                term: termObj.term, 
+                folder: termObj.folderToSearch, 
+                titleSearch: termObj.titleSearch,
+                onSearchUpdate : files => {
+                    serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
+                },
+                onSearchEnded : files => {
+                    serverSocket2.emit('getFiles', {files: files})
+                }
         })
         
-        // finally update cached search
-        // await cacheSearchResults(termObj.termId, apiAnswer)
+        // liveSearch({
+        //     term: termObj.term, 
+        //     folder: termObj.folderToSearch, 
+        //     titleSearch: termObj.titleSearch,
+            
+        //     onSearchUpdate : files => {
+        //         serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
+        //     },
+        //     onSearchEnded : files => {
+        //         serverSocket2.emit('getFiles', {files: files})
+        //     }
+        // })
     })
 
     serverSocket2.on('askFolderHierarchy', async data => {

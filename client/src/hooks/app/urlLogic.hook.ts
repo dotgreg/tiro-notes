@@ -43,7 +43,6 @@ export const useUrlLogic = (
         // console.log('updateurlapp', {activeFile, selectedFolder});
         
         if (!activeFile) return
-        console.log('[UPDATE APP URL]');
         updateUrl ({
             title: activeFile.realname, 
             folder: selectedFolder, 

@@ -3,6 +3,7 @@ import { backConfig } from "../config.back";
 import { createDir, isDir } from "./dir.manager";
 import { exec2 } from "./exec.manager";
 import { fileExists, openFile, saveFile } from "./fs.manager";
+import { createIFile } from "./search-js.manager";
 const execa = require('execa');
 
 
@@ -102,19 +103,7 @@ export const liveSearch = async (params:{
 
             try {
                 let stats = fs.lstatSync(`${backConfig.dataFolder}/${params.folder}/${filePath}`)
-                filesScanned.push({
-                    nature: 'file',
-                    extension: 'md',
-                    index: i,
-                    created: Math.round(stats.birthtimeMs),
-                    modified: Math.round(stats.ctimeMs),
-                    // created: -1,
-                    // modified: -1,
-                    name: `${params.folder}/${filePath}`,
-                    realname: `${filePath}`,
-                    path: `${params.folder}/${filePath}`,
-                    folder: `${params.folder}`,
-                })
+                filesScanned.push(createIFile(filePath, params.folder, i, stats))
             } catch (error) {
                 console.log('[SEARCH] ERROR : ', error);
             }
@@ -217,7 +206,7 @@ export const analyzeTerm = (term:string):{
     let res = {rawTerm:term, termId:term, term:term, folderToSearch:'', titleSearch:false}
 
     // if folder in 'toto /hello/world'
-    let folderRaw = term.match(/\ \/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&\\ ]*)$/gm)
+    let folderRaw = term.match(/\ \/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\{\}\)\(\&\\ ]*)$/gm)
     if (folderRaw && folderRaw[0]) {
         res.term = term.replace(folderRaw[0], '')
         res.folderToSearch = folderRaw[0].substr(1)
