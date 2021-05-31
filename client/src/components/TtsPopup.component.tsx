@@ -64,17 +64,34 @@ export const TtsPopup = (p:{
                 />
                 {currChunk} / {totChunks}
                 <br/>
-                <button value='submit' className="submit-button" onClick={e => {tts.current.goBack()}}> 
-                    <Icon name= "faFastBackward" color="black"/>
-                </button>
-                <button value='submit' className="submit-button" onClick={e => {
-                       !isPlaying ?   tts.current.play() : tts.current.pause()
-                    }}> 
-                    <Icon name= { !isPlaying ?  "faPlay" : "faPause"} color="black"/>
-                </button>
-                <button value='submit' className="submit-button" onClick={e => {tts.current.goForward()}}> 
-                    <Icon name= "faFastForward" color="black"/>
-                </button>
+
+                <input type="range" defaultValue={currChunk} min="0" max={totChunks} 
+                    onChange={e => {
+                        console.log(e.target.value);
+                        tts.current.goToChunk(parseInt(e.target.value))
+                    }}>
+                </input>
+                <input type="number" defaultValue={currChunk} min="0" max={totChunks} 
+                    onChange={e => {
+                        console.log(e.target.value);
+                        tts.current.goToChunk(parseInt(e.target.value))
+                    }}>
+                </input>
+                <br/>
+                
+                <div className="buttons">
+                    <button onClick={e => {tts.current.goBack()}}> 
+                        <Icon name= "faFastBackward" color="black"/>
+                    </button>
+                    <button onClick={e => {
+                        !isPlaying ?   tts.current.play() : tts.current.pause()
+                        }}> 
+                        <Icon name= { !isPlaying ?  "faPlay" : "faPause"} color="black"/>
+                    </button>
+                    <button onClick={e => {tts.current.goForward()}}> 
+                        <Icon name= "faFastForward" color="black"/>
+                    </button>
+                </div>
                
 
             </Popup>
@@ -84,38 +101,14 @@ export const TtsPopup = (p:{
 
 export const StyledDiv = styled.div`
     .popup-wrapper .popupContent {
-        padding: 0px;
+        padding: 20px;
     }
-    .table-wrapper {
-        max-height: 50vh;
-        overflow-y: auto;
-        padding: 0px 20px 20px 20px;
-        
-        table {
-            border-spacing: 0px;
-            thead {
-                tr {
-                    th {
-                        padding: 8px;
-                    }
-                }
-            }
-            tbody {
-                text-align: left;
-                tr {
-                    cursor: pointer;
-                    background: #f1f0f0;
-                    &:nth-child(2n) {
-                        background: none;
-                    }
-                    &: hover {
-                        background: rgba(${cssVars.colors.mainRGB}, 0.2);
-                    }
-                    td {
-                        padding: 8px;
-                    }
-                }
-            }
+    .buttons {
+        display: flex;
+        padding: 20px 0px 0px 0px;
+        button {
+            width: 30%;
+            padding: 10px;
         }
     }
 `

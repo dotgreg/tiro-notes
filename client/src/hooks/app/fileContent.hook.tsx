@@ -54,6 +54,7 @@ export const useFileContent = (
       isLeavingNote:boolean
       viewType:ViewType
       onBackButton:Function
+      forceRender:boolean
     }) => 
     useStatMemo(
       <div className="note-wrapper">
@@ -64,6 +65,7 @@ export const useFileContent = (
               canEdit={canEdit}
               isLeavingNote={p.isLeavingNote}
               viewType={p.viewType}
+              forceRender={p.forceRender}
               fileContent={fileContent ? fileContent : ''} 
 
               onFileEdited={(filepath, content) => {
@@ -103,7 +105,7 @@ export const useFileContent = (
             <div className='no-file'>No file</div>
         }
       </div>
-    , [fileContent, activeFile,canEdit, p.isLeavingNote, p.viewType])
+    , [fileContent, activeFile,canEdit, p.isLeavingNote, p.viewType, p.forceRender])
 
     return {
       setFileContent,fileContent,

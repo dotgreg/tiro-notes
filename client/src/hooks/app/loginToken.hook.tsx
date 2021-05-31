@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
 import { Popup } from '../../components/Popup.component';
 import { getCookie, setCookie } from '../../managers/cookie.manager';
@@ -11,7 +12,7 @@ export const getLoginToken = ():string => {
     return cookie ? cookie : ''
 }
 export const setLoginToken = (token:string) => {
-    setCookie('tiro-login-token', token, 48)
+    setCookie('tiro-login-token', token, sharedConfig.tokenRefreshInHours)
 }
 
 export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
@@ -49,6 +50,7 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
                    break;
             }    
         })
+
         return () => {
             clientSocket2.off(listenerId.current)
         }
@@ -58,6 +60,8 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
         setFormMessage(undefined)
         clientSocket2.emit('sendLoginInfos', { user, password, token: getLoginToken()}) 
     }
+
+    const [inputFocus, setInputFocus] = useState(1)
 
     const LoginPopupComponent = (p:{
         
@@ -70,13 +74,14 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
                 >
                     <div>
                         <Input
-                            shouldFocus={true}
+                            shouldFocus={inputFocus === 1}
                             value={user}
-                            onEnterPressed={() => {submitForm()}}
+                            onEnterPressed={() => { setInputFocus(2) }}
                             label={strings.setupForm.user}
                             onChange={e => {setUser(e)}}
-                        />
+                            />
                         <Input
+                            shouldFocus={inputFocus === 2}
                             value={password}
                             label={strings.setupForm.password}
                             type={'password'}

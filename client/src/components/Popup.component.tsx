@@ -47,6 +47,7 @@ export const PopupWrapperCss = styled.div`
             top:20%;
         }
         width : auto;
+        max-width: 90%;
         transform:translate(-50%,-50%);
         background: white;
         border-radius:6px;
@@ -64,7 +65,7 @@ export const PopupWrapperCss = styled.div`
         }
         .popupContent {
             padding: 0px 20px 20px 20px;
-            min-width : 350px;
+            // min-width : 350px;
         }
         img{
             padding: 0px 5px 0px 0px;

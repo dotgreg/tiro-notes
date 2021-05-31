@@ -1,5 +1,6 @@
 export const sharedConfig = {
-    socketServerPort: 3022, 
-    frontendServerPort: 3023,
-    staticServerPort: 3021,
+    // socketServerPort: 3001, 
+    // frontendServerPort: 3001,
+    // staticServerPort: 3001,
+    tokenRefreshInHours: 24 * 4
 }

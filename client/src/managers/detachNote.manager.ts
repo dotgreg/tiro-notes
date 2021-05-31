@@ -1,4 +1,5 @@
 import { iFile } from "../../../shared/types.shared";
+import { configClient } from "../config";
 import { iUrlParams, urlParamsToString } from "./url.manager";
 
 export const detachNote = (file: iFile) => {
@@ -10,7 +11,7 @@ export const detachNote = (file: iFile) => {
             mobileview: 'editor'
         }
         
-        let fullUrl = `${window.location.protocol}//${window.location.host}?${urlParamsToString(urlParams)}`
+        let fullUrl = `${configClient.global.protocol}${configClient.global.url}${configClient.global.port}?${urlParamsToString(urlParams)}`
         
         window.open(
             fullUrl,

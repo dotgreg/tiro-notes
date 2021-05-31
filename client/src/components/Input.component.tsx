@@ -1,11 +1,12 @@
 import React, { useEffect, useRef }  from 'react';
 
 export type OptionObj = {key: number|string, label:string, obj: any }
+export type InputType = 'password'|'text'|'select'
 
 export const Input = (p:{
     id?:string
     label?:string
-    type?:'password'|'text'|'select'
+    type?:InputType
     list?:OptionObj[]
     explanation?:string
     value?: string|number
@@ -18,10 +19,16 @@ export const Input = (p:{
     const {value} = {...p}
 
     const inputRef = useRef<any>()
-    useEffect(() => {
+    const focusToInput = () => {
         if (p.shouldFocus) {
             inputRef.current.focus()
         }
+    }
+    useEffect(() => {
+        focusToInput()
+    }, [p.shouldFocus])
+    useEffect(() => {
+        focusToInput()
     }, [])
 
     return (
@@ -76,6 +83,9 @@ export const inputComponentCss = `
         display: flex;
         align-items: center;
         padding-bottom: 10px;
+        input, select {
+            max-width: 100%;
+        }
         &.select {
             span {
                 width: 20%;

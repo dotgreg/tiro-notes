@@ -9,7 +9,7 @@ export const useMobileView = () => {
 
     const [mobileView, setMobileView] = useState<MobileView>('navigator')
 
-    const MobileToolbarComponent = () => useStatMemo(
+    const MobileToolbarComponent = (forceRerender: boolean) => useStatMemo(
         <>
             { 
                 deviceType() !== 'desktop' &&
@@ -22,7 +22,7 @@ export const useMobileView = () => {
                     ]}
                 />
             }
-        </>, [mobileView])
+        </>, [mobileView, forceRerender])
 
     return {
         mobileView, setMobileView,

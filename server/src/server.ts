@@ -3,26 +3,29 @@ import { initSocketLogic } from './managers/socket.manager';
 import { backConfig } from './config.back';
 import { startStaticServer } from './managers/staticServer.manager';
 import { getPlatform } from './managers/platform.manager';
-import { createSecureServer } from './ssl.manager';
+import { createSecureServer, sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
 
-console.log(`===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, platform: ${getPlatform()})`, backConfig) 
 
-//
-// SOCKET SERVER
-//
-const {secureServer, expressApp} = createSecureServer(sharedConfig.socketServerPort, ()=>{}, 'socket server')
+let protocol = (backConfig.jsonConfig && backConfig.jsonConfig.https === 'true') ? 'https' : 'http'
+let port = (backConfig.jsonConfig && backConfig.jsonConfig.port) ? parseInt(backConfig.jsonConfig.port) : 3023
 
-export const ioServer:SocketIO.Server = require('socket.io')(secureServer, { 
-  path: '/',
-  secure: true,
-  serveClient: false 
-});
+console.log(`1===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${port}, protocol:${protocol}, platform: ${getPlatform()})`, backConfig) 
+var express = require('express');
+const app = express()
 
-initSocketLogic();
+let server 
+if (protocol === 'https') server = require("https").createServer(sslConfig, app)
+else server = require("http").createServer(app)
 
-// client server
-startStaticServer(backConfig.frontendBuildFolder, sharedConfig.frontendServerPort); 
+// localhost:port/socket.io = socket server
+export const ioServer:SocketIO.Server = require('socket.io')(server, { serveClient: false })
+initSocketLogic(); 
 
-// static folders for images, ressources
-if (backConfig.dataFolder) startStaticServer(backConfig.dataFolder, sharedConfig.staticServerPort, false); 
+// localhost:port/ = static react client
+app.use('/', express.static(backConfig.frontendBuildFolder));
+
+// localhost:port/static = static resources serving
+app.use('/static', express.static(backConfig.dataFolder ));
+
+server.listen(port, function () {})

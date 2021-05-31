@@ -6,29 +6,23 @@ export const useKeys = (p: {
     onKeyDown: (e:any) => void,
     onKeyUp: (e:any) => void
 }) => {
-    const [ctrlPressed, setCtrlPressed] = useState(false)
     const [shiftPressed, setShiftPressed] = useState(false)
     // const [altPressed, setAltPressed] = useState(false)
     const altPressed = useRef(false)
+    const ctrlPressed = useRef(false)
 
     useEffect(() => {
         window.onkeydown = (e:any) => {
             p.onKeyDown(e)
-            onKey(e, 'ctrl', () => { setCtrlPressed(true) })
+            onKey(e, 'ctrl', () => { ctrlPressed.current = true })
             onKey(e, 'shift', () => { setShiftPressed(true) })
-            onKey(e, 'alt', () => { 
-                altPressed.current = true
-                console.log('alt1', altPressed.current);
-            })
+            onKey(e, 'alt', () => {  altPressed.current = true })
         }
         window.onkeyup = (e:any) => {
             p.onKeyUp(e)
-            onKey(e, 'ctrl', () => { setCtrlPressed(false) })
+            onKey(e, 'ctrl', () => { ctrlPressed.current = false })
             onKey(e, 'shift', () => { setShiftPressed(false) })
-            onKey(e, 'alt', () => { 
-                altPressed.current = false 
-                console.log('alt2', altPressed.current);
-            })
+            onKey(e, 'alt', () => {  altPressed.current = false })
         }
 
         // if window loses focus, remove all modifiers
@@ -38,7 +32,7 @@ export const useKeys = (p: {
     }, [])
 
     return {
-        ctrlPressed, setCtrlPressed,
+        ctrlPressed,
         shiftPressed, setShiftPressed,
         altPressed
     }

@@ -1,13 +1,15 @@
 import { debounce, random } from "lodash"
 import { iApiDictionary} from "../../../shared/apiDictionary.type"
+import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
+import { normalizeString, removeSpecialChars } from "../helpers/string.helper"
 import { dirDefaultBlacklist, scanDirForFiles } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
 import { ServerSocketManager } from "./socket.manager"
 import { triggerWorker } from "./workers/worker.manager"
 
-export const generateNewFileName = (actualFileName: string):string => `${actualFileName}-${random(0, 1000)}`
+export const generateNewFileName = (actualFileName: string):string => `${removeSpecialChars(normalizeString(actualFileName))}-${random(0, 1000)}`
 
 export const debouncedFolderScan = debounce( async(socket:ServerSocketManager<iApiDictionary>, initPath:string) => {
     let folderPathArr = initPath.split('/')
@@ -33,8 +35,6 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
     if(simulate) console.log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);
     
     let filecontent = await openFile(`${backConfig.dataFolder}/${initPath}`)
-    // let replacementSymbol = '--*|_|*--'
-    // let tempFileContent = filecontent.replace(regex, replacementSymbol)
     
     let initFolderPathArr = initPath.split('/')
     initFolderPathArr.pop()
@@ -44,8 +44,7 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
     endFolderPathArr.pop()
     let endFolderPath = endFolderPathArr.join('/')
     
-    let regex = /(\!\[([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&]*)\]\(([A-Za-z0-9\/\:\.\_\-\/\\\?\=\&]*)\))/g
-    let matches = filecontent.match(regex)
+    let matches = filecontent.match(regexs.ressource)
     let newFileContent = filecontent
     if (!matches || !matches.length) return console.log('[moveNoteResourcesAndUpdateContent] no resources found, skipping');
     
@@ -53,9 +52,8 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
     for (let i = 0; i < matches.length; i++) {
         const rawResource = matches[i];
         
-        const nameResource = rawResource.replace(regex, '$2')
-        // console.log('nameResource->',nameResource);
-        const pathResource = rawResource.replace(regex, '$3')
+        const nameResource = rawResource.replace(regexs.ressource, '$1')
+        const pathResource = rawResource.replace(regexs.ressource, '$2')
         let pathsToCheck = [
             `${backConfig.dataFolder}/${pathResource}`,
             `${backConfig.dataFolder}/${initFolderPath}/${pathResource}`,

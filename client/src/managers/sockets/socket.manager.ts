@@ -1,18 +1,27 @@
 import { random } from 'lodash';
 import * as io from 'socket.io-client'
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
+import { getSetting } from '../../components/settingsView/settingsView.component';
 import { configClient } from '../../config';
 
 export let clientSocket:SocketIOClient.Socket
 export let clientSocket2:ClientSocketManager<iApiDictionary>
 
+export const getBackendUrl = () => {
+    let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
+    let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`
+    
+    let socketBackend = `${protocol}${configClient.global.url}${port}`
+    return socketBackend
+}
+
 export const initSocketConnection = ():Promise<SocketIOClient.Socket> => {
     return new Promise((resolve, reject) => {
-        let socketBackend = `${configClient.global.protocol}://${configClient.global.socketUrl}:${configClient.global.socketPort}`
         if (clientSocket) return
+        
         //@ts-ignore
-        clientSocket = io(socketBackend);
-        configClient.log.socket && console.log(`[SOCKET] connecting to ${socketBackend}...`);
+        clientSocket = io(getBackendUrl());
+        configClient.log.socket && console.log(`[SOCKET] try connecting to ${getBackendUrl()}...`);
 
         // resolve then connectionSuccess is received from backend
         clientSocket2 = initClientSocketManager<iApiDictionary>(clientSocket)

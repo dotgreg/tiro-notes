@@ -3,7 +3,7 @@ export type iFileNature = 'file' | 'folder'
 export interface iSetupForm {
     user: string, 
     password: string, 
-    dataFolder: string
+    dataFolder: string,
 }
 
 export interface iFilePreview {

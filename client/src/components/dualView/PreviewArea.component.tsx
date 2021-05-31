@@ -1,4 +1,4 @@
-import React, { Ref, useEffect, useRef } from 'react';
+import React, { Ref, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { formatDateEditor, formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
@@ -29,10 +29,6 @@ export const PreviewArea = (p:{
     // scroll effect
     useEffect(() => {
         previewAreaRefs.wrapper.current.scrollTop = p.posY
-        // setTimeout(() => {
-        //     previewAreaRefs.wrapper.current.scrollTop = p.posY
-        //     console.log(`reinit1 ${p.posY} ${previewAreaRefs.wrapper.current.scrollTop} `)
-        // }, 1000)
     }, [p.posY, p.file.path])
     
     useEffect(() => {
@@ -41,6 +37,8 @@ export const PreviewArea = (p:{
         return () => {
         }
     }, [p.file.path])
+
+    const [vertBarPos, setVertBarPos] = useState('right')
 
     return (
         <div 
@@ -51,7 +49,10 @@ export const PreviewArea = (p:{
 
             { 
                 deviceType() !== 'desktop' &&
-                <div className="mobile-buttons-up-down">
+                <div className={`mobile-buttons-up-down ${vertBarPos}`}>
+                    <div id="toggle-pos" onClick={() => { 
+                        setVertBarPos(vertBarPos === 'right' ? 'left' : 'right')
+                    }}>t</div>
                     <div id="top" onClick={() => { 
                         previewAreaRefs.wrapper.current.scrollTop = 0
                     }}>=</div>
@@ -110,11 +111,17 @@ export const previewAreaCss = (v:MobileView) => `
 
     .mobile-buttons-up-down {
         position: fixed;
-        right: 0px;
+        &.right {
+            right: 0px;
+        }
+        &.left {
+            left: 0px;
+        }
         top: 50%;
         div {
             background: #d6d6d6;
-            padding: 10px;
+            padding: 15px;
+            opacity: 0.5;
             color:white;
             cursor: pointer;
         }

@@ -1,12 +1,13 @@
 import { OptionObj } from "../components/Input.component"
 import { md2html } from "./markdown.manager"
-import { regexs } from "./regex.manager"
+import { regexs } from '../../../shared/helpers/regexs.helper';
 
 export const cleanText2Speech = (rawText: string ) => {
     let text2read = rawText
     text2read = text2read.replace(regexs.ressource, '')
     text2read = text2read.replace(regexs.ref, '')
     text2read = md2html(text2read)
+    console.log('222', text2read);
     text2read = text2read.replace(regexs.baliseHtml, '')
     console.log('cleanText2Speech', text2read);
     return text2read
@@ -66,7 +67,7 @@ export class Text2SpeechManager {
                     
                     
                     if (newSentence.length > this.chunkLength || y === words.length - 1){ 
-                        console.log( 'PUSH', newSentence);
+                        // console.log( 'PUSH', newSentence);
                         chunks.push(newSentence)
                         newSentence = ''
                     }
@@ -150,19 +151,21 @@ export class Text2SpeechManager {
         window.speechSynthesis.cancel();
     }
 
+    goToChunk = (chunkNb:number) => {
+        console.log('[TTS] goToChunk', chunkNb);
+        if (chunkNb <= 0 || chunkNb > this.chunkedText.length - 1) return
+        this.stop()
+        this.currChunkId = chunkNb
+        this.play()
+    }
+
     goBack = () => {
         console.log('[TTS] goBack', this.currChunkId);
-        if (this.currChunkId <= 0) return
-        this.stop()
-        this.currChunkId -= 1
-        this.play()
+        this.goToChunk(this.currChunkId - 1)
     }
     goForward = () => {
         console.log('[TTS] goForward', this.currChunkId);
-        if (this.currChunkId > this.chunkLength - 1) return
-        this.stop()
-        this.currChunkId += 1
-        this.play()
+        this.goToChunk(this.currChunkId + 1)
     }
 
 }

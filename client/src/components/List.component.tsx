@@ -220,7 +220,7 @@ export class List extends React.Component<{
                                             className="picture"
                                             style={{
                                                 backgroundColor: 'white',
-                                                backgroundImage:`url('${ filePreview.picture.startsWith('http') ? filePreview.picture : absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}')`
+                                                backgroundImage:`url('${ filePreview.picture.startsWith('http') ? filePreview.picture : `${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}`}')`
                                             }}
                                         >
                                         </div>

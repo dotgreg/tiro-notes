@@ -6,7 +6,8 @@
     "emitDecoratorMetadata": true,
     "allowJs": true,
     "experimentalDecorators": true,
-    "outDir": "./build"
+    "outDir": "./build",
+    "esModuleInterop": true,
   },
   
   "include": [

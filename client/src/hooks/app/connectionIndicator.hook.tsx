@@ -1,14 +1,15 @@
 import React, { useEffect, useRef, useState }  from 'react';
 import { configClient } from "../../config"
-import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useInterval } from '../interval.hook';
 
 const generateTitle = ():string => {
   let newTitle = ''
-  if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
-  else newTitle = `/!\\ DEV /!\\`
+  // if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
+  // else newTitle = `/!\\ DEV /!\\`
+  newTitle = `Tiro (${configClient.version})`
   return newTitle
 }
 
@@ -77,7 +78,7 @@ export const useConnectionIndicator = (setCanEdit:Function) => {
       <div className="connection-status">
           <div className={res[0]}>{res[1]} 
             {!isSocketConnected && 
-              <a href={`${configClient.global.protocol}://${configClient.global.socketUrl}:${configClient.global.socketPort}`} target="_blank">
+              <a href={`${getBackendUrl()}/socket.io/`} target="_blank">
                 {strings.clickHereDisconnected}
               </a>
             }

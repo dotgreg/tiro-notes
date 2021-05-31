@@ -10,6 +10,8 @@ export interface TiroConfig {
     user:string
     password:string
     dataFolder: string
+    https?: string
+    port?:string
 }
 
 /*
@@ -65,7 +67,7 @@ export const processClientSetup = async (data:iApiDictionary['sendSetupInfos']):
             const newConfig:TiroConfig = {
                 user: data.form.user,
                 password: await hashPassword(data.form.password),
-                dataFolder: data.form.dataFolder
+                dataFolder: data.form.dataFolder,
             }
             await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
             answer = {code: 'SUCCESS_CONFIG_CREATION'}  

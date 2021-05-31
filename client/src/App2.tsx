@@ -1,15 +1,15 @@
-import { Global } from '@emotion/react';
+import { css, Global } from '@emotion/react';
 import React, { useEffect,  useMemo,  useRef,  useState } from 'react';
 import { deviceType } from './managers/device.manager';
 import {  clientSocket2, initSocketConnection } from './managers/sockets/socket.manager';
-import { CssApp } from './managers/style/css.manager';
+import {  CssApp2 } from './managers/style/css.manager';
 import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
 import { onFilesReceivedFn, useAppFilesList } from './hooks/app/filesList.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { useUrlLogic } from './hooks/app/urlLogic.hook';
-import { cloneDeep, isArray, isNull, isNumber } from 'lodash';
+import { cloneDeep, debounce, isArray, isNull, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useKeys } from './hooks/app/useKeys.hook';
@@ -28,11 +28,15 @@ import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
 import { getLoginToken, useLoginToken } from './hooks/app/loginToken.hook';
 import { ViewType } from './components/dualView/DualViewer.component';
+import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
+import { Icon } from './components/Icon.component';
+import { cssVars } from './managers/style/vars.style.manager';
+import { SettingsPopup } from './components/settingsView/settingsView.component';
 
 
 
 
-export const App2 = React.memo(() => {
+export const App2 = () => {
 
     useEffect(() => {
         // COMPONENT DID MOUNT didmount
@@ -42,6 +46,12 @@ export const App2 = React.memo(() => {
             toggleSocketConnection(true)
             askForFolderScan(openFolders)
         })
+
+        // setInterval(() => {
+        //     console.log(1111);
+            
+        //     // setActiveFileIndex(activeFileIndex+1)
+        // }, 1000)
 
         return () => {
             // COMPONENT will unmount
@@ -145,10 +155,13 @@ export const App2 = React.memo(() => {
     // Key press
     const {
         shiftPressed,
+        ctrlPressed,
         altPressed
     } = useKeys({
         onKeyDown: e => {
             onKey(e, 'up', () => {
+                console.log('up!', activeFileIndex);
+                
                 let i = activeFileIndex   
                 if (i > 0) {
                     setActiveFileIndex(i-1)
@@ -156,22 +169,16 @@ export const App2 = React.memo(() => {
                 }
             })
             onKey(e, 'down', () => {
+                console.log('up!down', activeFileIndex);
                 let i = activeFileIndex  
                 if (i < files.length - 1) {
                     setActiveFileIndex(i+1)
                     askForFileContent(files[i+1])
                 }   
             })
-            onKey(e, 'down', () => {
-                let i = activeFileIndex  
-                if (i < files.length - 1) {
-                    setActiveFileIndex(i+1)
-                    askForFileContent(files[i+1])
-                }   
-            })
-            onKey(e, '!', () => { if (altPressed.current ) setDualViewType('editor') })
-            onKey(e, '@', () => { if (altPressed.current) setDualViewType('both') })
-            onKey(e, '#', () => { if (altPressed.current) setDualViewType('preview') })
+            onKey(e, '!', () => { if (ctrlPressed.current ) setDualViewType('editor') })
+            onKey(e, '@', () => { if (ctrlPressed.current) setDualViewType('both') })
+            onKey(e, '#', () => { if (ctrlPressed.current) setDualViewType('preview') })
         },
         onKeyUp: e => {
             // onKey(e, 'v', () => {
@@ -279,18 +286,6 @@ export const App2 = React.memo(() => {
                     if (newUrlParams.folder && newUrlParams.title) {
                         searchFileFromTitle(newUrlParams.title, newUrlParams.folder)
                     }
-                    // old way to search
-                    if (newUrlParams.folder && newUrlParams.file) {
-                        let newFileIndex = -1
-                        if (isNumber(newUrlParams.file)) newFileIndex = newUrlParams.file
-                        if (newFileIndex === -1 && files.length > 0) newFileIndex = 0
-                        
-                        setSelectedFolder(newUrlParams.folder)
-                        setActiveFileIndex(activeFileIndex)
-                        setSearchTerm('')
-                        askForFolderFiles(newUrlParams.folder)
-                        
-                    }
                     if (newUrlParams.search) {
                         console.log('reactToUrlParams -> triggersearch');
                         triggerSearch(newUrlParams.search)
@@ -302,6 +297,9 @@ export const App2 = React.memo(() => {
             }
         }
     )
+    
+    // DYNAMIC RESPONSIVE RERENDER (ON DEBOUNCE)
+    const {forceResponsiveRender} = useDynamicResponsive()
 
     // DRAG/DROP FOLDER/FILES MOVING LOGIC
     interface iDraggedItem {type:'file'|'folder', files?:iFile[], folder?:iFolder}
@@ -337,146 +335,162 @@ export const App2 = React.memo(() => {
 
     // Send Note Leaving Signal
     const [isLeavingNote, setIsLeavingNote] = useState(false)
+
+    // Show settings panel
+    const [showSettingsPopup, setShowSettingsPopup] = useState(false)
     
     return (
-        // <CssApp v={this.state.mobileView} >
-        <CssApp v={mobileView} >
-            <Global styles={GlobalCssApp}  />
-            
-            <div role="dialog" className="main-wrapper">
-                {
-                    LoginPopupComponent({})
-                }
-                
-                {
-                    SetupPopupComponent({})
-                }
+            <div  className={CssApp2(mobileView)} >
+                <Global styles={GlobalCssApp}  />
+                    <div role="dialog" className="main-wrapper">
+                        {
+                            LoginPopupComponent({})
+                        }
+                        
+                        {
+                            SetupPopupComponent({})
+                        }
 
-                {
-                    connectionStatusComponent()
-                }
+                        {
+                            connectionStatusComponent()
+                        }
 
-                {
-                    MobileToolbarComponent()
-                }
+                        {
+                            MobileToolbarComponent(forceResponsiveRender)
+                        }
 
-                <div className="left-wrapper">
-                    <div className="left-wrapper-1">
-                        <div className="invisible-scrollbars">
-                            <NewFileButton
-                                onNewFile= {() => {
-                                    clientSocket2.emit('createNote', {folderPath: selectedFolder, token: getLoginToken()}) 
-                                    shouldLoadNoteIndex.current = 0
-                                }}
-                            />
-                            
-                            <LastNotes 
-                                files={filesHistory}
-                                onClick={file => {
-                                    searchFileFromTitle(file.name, file.folder)
-                                }}
-                            />
+                        <div className="left-wrapper">
+                            <div className="left-wrapper-1">
+                                <div className="invisible-scrollbars">
+                                    <NewFileButton
+                                        onNewFile= {() => {
+                                            clientSocket2.emit('createNote', {folderPath: selectedFolder, token: getLoginToken()}) 
+                                            shouldLoadNoteIndex.current = 0
+                                        }}
+                                    />
+                                    
+                                    <LastNotes 
+                                        files={filesHistory}
+                                        onClick={file => {
+                                            searchFileFromTitle(file.name, file.folder)
+                                        }}
+                                    />
 
-                            {
-                                FolderTreeComponent({
-                                    onFolderClicked: folderPath => {
-                                        setIsSearching(true)
-                                        changeToFolder(folderPath)
-                                    },
-                                    onFolderMenuAction: (action, folder, newTitle) => {
-                                        if (action === 'rename' && newTitle) {
-                                            promptAndMoveFolder({
-                                                folder, 
-                                                folderToDropInto:folder, 
-                                                folderBasePath, 
-                                                newTitle, 
-                                                renameOnly: true
-                                            })
-                                        } else if (action === 'create' && newTitle) {
-                                            askFolderCreate(newTitle, folder)
-                                            askForFolderScan([folder.path])
-                                        } else if (action === 'moveToTrash') {
-                                            promptAndMoveFolder({folder, folderToDropInto:defaultTrashFolder, folderBasePath, newTitle})
-                                        } else if (action === 'delete') {
-                                            askFolderDelete(folder)
-                                            askForFolderScan([folder.path])
-                                        }
-                                    },
-                                    onFolderOpen: folderPath => {
-                                        addToOpenedFolders(folderPath)
-                                        askForFolderScan([folderPath])
-                                    },
-                                    onFolderClose: folderPath => {
-                                        removeToOpenedFolders(folderPath)
-                                    },
-                                    onFolderDragStart:draggedFolder => {
-                                        console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
-                                        draggedItems.current = [{type:'folder', folder:draggedFolder}]
-                                    },
-                                    onFolderDragEnd:() => {
-                                        console.log(`[DRAG MOVE] onFolderDragEnd`);
-                                        draggedItems.current = []
-                                    },
-                                    onFolderDrop:folderDroppedInto => {
-                                        processDragDropAction(folderDroppedInto)
+                                    {
+                                        FolderTreeComponent({
+                                            onFolderClicked: folderPath => {
+                                                setIsSearching(true)
+                                                changeToFolder(folderPath)
+                                            },
+                                            onFolderMenuAction: (action, folder, newTitle) => {
+                                                if (action === 'rename' && newTitle) {
+                                                    promptAndMoveFolder({
+                                                        folder, 
+                                                        folderToDropInto:folder, 
+                                                        folderBasePath, 
+                                                        newTitle, 
+                                                        renameOnly: true
+                                                    })
+                                                } else if (action === 'create' && newTitle) {
+                                                    askFolderCreate(newTitle, folder)
+                                                    askForFolderScan([folder.path])
+                                                } else if (action === 'moveToTrash') {
+                                                    promptAndMoveFolder({folder, folderToDropInto:defaultTrashFolder, folderBasePath, newTitle})
+                                                } else if (action === 'delete') {
+                                                    askFolderDelete(folder)
+                                                    askForFolderScan([folder.path])
+                                                }
+                                            },
+                                            onFolderOpen: folderPath => {
+                                                addToOpenedFolders(folderPath)
+                                                askForFolderScan([folderPath])
+                                            },
+                                            onFolderClose: folderPath => {
+                                                removeToOpenedFolders(folderPath)
+                                            },
+                                            onFolderDragStart:draggedFolder => {
+                                                console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
+                                                draggedItems.current = [{type:'folder', folder:draggedFolder}]
+                                            },
+                                            onFolderDragEnd:() => {
+                                                console.log(`[DRAG MOVE] onFolderDragEnd`);
+                                                draggedItems.current = []
+                                            },
+                                            onFolderDrop:folderDroppedInto => {
+                                                processDragDropAction(folderDroppedInto)
+                                            }
+                                        })
+                                    }
+                                </div>
+
+                                <div className="settings-button" onClick={() => {
+                                    setShowSettingsPopup(!showSettingsPopup)
+                                }}>
+                                    <Icon name="faCog" color='grey' /> 
+                                </div>
+                                
+                                {
+                                    showSettingsPopup &&
+                                        <SettingsPopup onClose={() => {
+                                            setShowSettingsPopup(false)
+                                        }} />
+                                }
+
+                            </div> 
+                            <div className="left-wrapper-2">
+                                <div className="top-files-list-wrapper">
+                                    <div className="subtitle-wrapper">
+                                        <h3 className="subtitle">{strings.files}</h3>
+                                        {/* <p className="counter">{files.length}</p> */}
+                                    </div>
+                                    {
+                                        SearchBarComponent(
+                                            selectedFolder,
+                                            files
+                                        )
+                                    } 
+                                </div>
+                                {
+
+                                    FilesListComponent({
+                                        selectedFolder:selectedFolder,
+                                        searchTerm:searchTerm,
+                                        onFileClicked:fileIndex => {
+                                            setActiveFileIndex(fileIndex)
+                                            askForFileContent(files[fileIndex])
+                                            // this.loadFileDetails(fileIndex)
+                                        },
+                                        onFileDragStart:files => {
+                                            console.log(`[DRAG MOVE] onFileDragStart`, files);
+                                            draggedItems.current = [{type:'file', files:files}]
+                                        },
+                                        onFileDragEnd:() => {
+                                            console.log(`[DRAG MOVE] onFileDragEnd`);
+                                            draggedItems.current = []
+                                        },
+                                    })
+                                }
+                            </div>
+                        </div>
+
+
+                        <div className="right-wrapper">
+                            { 
+                                DualViewerComponent({
+                                    isLeavingNote,
+                                    viewType: dualViewType,
+                                    forceRender: forceResponsiveRender,
+                                    onBackButton: () => {
+                                        let file = filesHistory[1]
+                                        if (!filesHistory[1]) return
+                                        searchFileFromTitle(file.name, file.folder)
                                     }
                                 })
                             }
+                            {/* <DualViewerComponent /> */}
                         </div>
-                    </div> 
-                    <div className="left-wrapper-2">
-                        <div className="top-files-list-wrapper">
-                            <div className="subtitle-wrapper">
-                                <h3 className="subtitle">{strings.files}</h3>
-                                {/* <p className="counter">{files.length}</p> */}
-                            </div>
-                            {
-                                SearchBarComponent(
-                                    selectedFolder,
-                                    files
-                                )
-                            } 
-                        </div>
-                        {
-
-                            FilesListComponent({
-                                selectedFolder:selectedFolder,
-                                searchTerm:searchTerm,
-                                onFileClicked:fileIndex => {
-                                    setActiveFileIndex(fileIndex)
-                                    askForFileContent(files[fileIndex])
-                                    // this.loadFileDetails(fileIndex)
-                                },
-                                onFileDragStart:files => {
-                                    console.log(`[DRAG MOVE] onFileDragStart`, files);
-                                    draggedItems.current = [{type:'file', files:files}]
-                                },
-                                onFileDragEnd:() => {
-                                    console.log(`[DRAG MOVE] onFileDragEnd`);
-                                    draggedItems.current = []
-                                },
-                            })
-                        }
                     </div>
                 </div>
-
-
-                <div className="right-wrapper">
-                    { 
-                        DualViewerComponent({
-                            isLeavingNote,
-                            viewType: dualViewType,
-                            onBackButton: () => {
-                                let file = filesHistory[1]
-                                if (!filesHistory[1]) return
-                                searchFileFromTitle(file.name, file.folder)
-                            }
-                        })
-                    }
-                    {/* <DualViewerComponent /> */}
-                </div>
-            </div>
-        </CssApp>
     )
-})
+}
 

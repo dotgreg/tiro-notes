@@ -10,7 +10,7 @@ import { debouncedFolderScan, moveNoteResourcesAndUpdateContent, debouncedHierar
 import { folderToUpload } from "./managers/upload.manager";
 import { random } from "lodash";
 import { triggerWorker } from "./managers/workers/worker.manager";
-import { iFile, iFolder } from "../../shared/types.shared";
+import { iFile, iFolder } from "../../shared/types.shared"; 
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import { hashPassword, verifyPassword } from "./managers/password.manager";
 import { appConfigJsonPath, processClientSetup, TiroConfig } from "./managers/configSetup.manager";

@@ -1,3 +1,4 @@
+import { sharedConfig } from "../../../shared/shared.config"
 import { backConfig } from "../config.back"
 import { makeRandomString } from "../helpers/string.helper"
 import { verifyPassword } from "./password.manager"
@@ -26,7 +27,7 @@ export const startIntervalTokenResfresh = (hours: number) => {
 let memoryToken = ''
 // refreshing token every x hours
 saveTokenInMemory(generateNewToken())
-startIntervalTokenResfresh(10)
+startIntervalTokenResfresh(sharedConfig.tokenRefreshInHours)
 
 // USER/PASSWORD CHECK SYSTEM
 export const checkUserPassword = async (user:string, password:string):Promise<boolean> => {

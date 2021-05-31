@@ -11,6 +11,10 @@ export const makeRandomString = (length:number) => {
 
 
 
+export const removeSpecialChars = (raw:string):string => {
+  return raw.replace(/[^\w\s]/gi, '')
+}
+
 export const removeAccents = (raw:string):string => {
   return raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "") 
 }

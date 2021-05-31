@@ -1,3 +1,4 @@
+import { regexs } from "../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { createDir, isDir } from "./dir.manager";
@@ -206,7 +207,7 @@ export const analyzeTerm = (term:string):{
     let res = {rawTerm:term, termId:term, term:term, folderToSearch:'', titleSearch:false}
 
     // if folder in 'toto /hello/world'
-    let folderRaw = term.match(/\ \/([A-Za-z0-9\/\:\.\_\-\/\\\?\=\{\}\)\(\&\\ ]*)$/gm)
+    let folderRaw = term.match(regexs.searchFolder)
     if (folderRaw && folderRaw[0]) {
         res.term = term.replace(folderRaw[0], '')
         res.folderToSearch = folderRaw[0].substr(1)

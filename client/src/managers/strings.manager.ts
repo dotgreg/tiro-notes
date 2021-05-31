@@ -54,6 +54,17 @@ export const strings = {
         title: 'Text to speech',
         voice: 'Voice',
     },
+    settingsPopup: {
+        title: 'Tiro Settings',
+        backend : {
+            title: 'Server settings',
+            explanation: 'Only fill if server is on another port/protocol than the client (usually in development)',
+            protocol: 'Https',
+            protocolExpl: 'https or http',
+            port: 'Port',
+            portExpl: 'Port used by backend (ex: 3023)',
+        }
+    },
     historyPopup: {
         title: 'Versions for ',
         thead: {

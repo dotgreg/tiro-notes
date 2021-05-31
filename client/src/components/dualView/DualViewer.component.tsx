@@ -19,6 +19,7 @@ export const DualViewer = (p:{
     fileContent:string
     viewType:ViewType
     canEdit: boolean
+    forceRender: boolean
     isLeavingNote: boolean
     onFileEdited: onFileEditedFn
     onFileTitleEdited: PathModifFn

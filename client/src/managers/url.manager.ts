@@ -1,4 +1,5 @@
 import { isNumber } from "lodash";
+import { configClient } from "../config";
 import { isVarMobileView, MobileView } from "./device.manager";
 
 export interface iUrlParams {
@@ -17,14 +18,14 @@ export const listenToUrlChanges = (p:{
     window.onpopstate  = () => { 
         let newUrlParams = getUrlParams()
         // console.log('ONPOPSTATE DETECTED'); 
-        // console.log(JSON.stringify(newUrlParams),JSON.stringify(currentUrlParams)); 
-        
         if (JSON.stringify(newUrlParams) === JSON.stringify(currentUrlParams)) return
         currentUrlParams = newUrlParams
-        // console.log('11 pop',currentUrlParams);
         console.log('[URL CHANGE DETECTED]', newUrlParams);
         p.onUrlParamsChange(newUrlParams)
     }
+}
+
+export const checkUrlParamsPorts = () => {
 }
 
 export const getUrlParams = ():iUrlParams => {
@@ -55,7 +56,7 @@ export const urlParamsToString = (urlParams:iUrlParams):string => {
 
 export const updateUrl = (urlParams:iUrlParams) => {
 
-    let newUrl = `${window.location.protocol}//${window.location.host}/?`
+    let newUrl = `${configClient.global.protocol}${configClient.global.url}${configClient.global.port}/?`
 
     if (isNumber(urlParams.file) && urlParams.file !== -1) newUrl += `file=${urlParams.file}&`
 
