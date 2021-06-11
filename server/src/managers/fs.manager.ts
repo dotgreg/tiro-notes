@@ -1,6 +1,7 @@
 import { max } from "lodash";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
+import { p } from "./path.manager";
 
 var http = require('http');
 var https = require('https');
@@ -26,6 +27,8 @@ export const openMetadataFile = async (path: string):Promise<iMetadataFile> => {
 //////////////////////////
 
 export const openFile = async (path: string):Promise<string> => {
+    path = p(path)
+
     return new Promise((resolve, reject) => {
         fs.readFile(path, 'utf8', (err,data:string) => {
             if (err) {console.error(`[READFILE] could not read ${path}`);}
@@ -35,6 +38,7 @@ export const openFile = async (path: string):Promise<string> => {
 }
 
 export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
+    fullPathToCheck = p(fullPathToCheck)
     // check for each folder if it exists, else create it
     fullPathToCheck = fullPathToCheck.replace(backConfig.dataFolder, '')
     let pathArr = fullPathToCheck.split('/')
@@ -42,7 +46,7 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
     pathArr.shift() // remove ""
 
     let createFoldersRecursively = async (path:string, pathArray:string[]) => {
-        let fullPath = `${path}/${pathArray[0]}`
+        let fullPath = `${p(path)}/${pathArray[0]}`
         console.log(`createFoldersRecursively`,{path,pathArr,fullPath});
         if (!fileExists(fullPath)) {
             console.log('doesnt exists create it');
@@ -60,6 +64,8 @@ export const upsertRecursivelyFolders = async (fullPathToCheck:string) => {
 } 
 
 export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> => {
+    pathInit = p(pathInit)
+    pathEnd = p(pathEnd)
     // check if file exists/not
     if (!fileExists(pathInit)) {
         console.log(`[MOVEFILE] ERROR : PATHINIT ${pathInit} DOESNT EXISTS`);
@@ -77,6 +83,7 @@ export const moveFile = async (pathInit: string, pathEnd:string):Promise<void> =
 }
 
 export const saveFile = async (path: string, content:string):Promise<void> => {
+    path = p(path)
     console.log(`[SAVEFILE] starting save ${path}`);
     return new Promise((resolve, reject) => {
         // fs.truncateSync(path)
@@ -92,6 +99,8 @@ export const saveFile = async (path: string, content:string):Promise<void> => {
 }
 
 export const createFolder = async (path: string):Promise<void> => {
+    path = p(path)
+
     console.log(`[CREATEFOLDER] at ${path}`);
     return new Promise((resolve, reject) => {
         fs.mkdir(path, (err) => {
@@ -102,6 +111,9 @@ export const createFolder = async (path: string):Promise<void> => {
 }
 
 export const copyFile = async (pathOriginal:string, pathDestination:string):Promise<void> => {
+    pathOriginal = p(pathOriginal)
+    pathDestination = p(pathDestination)
+
     return new Promise((resolve, reject) => {
         fs.copyFile(pathOriginal, pathDestination, (err) => {
             if (err) {console.error(`[COPYFILE] Error ${err.message}`); reject()}
@@ -111,6 +123,7 @@ export const copyFile = async (pathOriginal:string, pathDestination:string):Prom
 }
 
 export const removeFile = async (filepath:string):Promise<void> => {
+    filepath = p(filepath)
     return new Promise((resolve, reject) => {
         fs.unlink(filepath, (err) => {
             if (err) {console.error(`[REMOVE FILE] Error ${err.message}`); reject()}
@@ -120,13 +133,40 @@ export const removeFile = async (filepath:string):Promise<void> => {
 }
 
 export const fileExists = (path:string):boolean => {
-    return fs.existsSync(path)
+    path = p(path)
+    try {
+        return fs.existsSync(path)
+    } catch (error) {
+        console.log(1);
+        
+        return false
+    }
+}
+
+export const fileStats = (path:string):any => {
+    try {
+        return fs.lstatSync(path)
+    } catch (error) {
+        console.log(2);
+        return false
+    }
+}
+
+export const isDir = (path:string):boolean => {
+    try {
+        let stats = fileStats(path)
+        return stats ? stats.isDirectory() : false
+    } catch (error) {
+        console.log(3);
+        return false
+    }
 }
 
 const isHttps = (url:string) => url.indexOf("https") === 0;
 
 export const downloadFile = async (url:string, path:string):Promise<string> => {
-console.log(`===== DL FILE ${url} ${path}`);
+    path = p(path)
+    console.log(`===== DL FILE ${url} ${path}`);
     if (!url) return
     let client = isHttps(url) ? https : http
     return new Promise((resolve, reject) => {
@@ -146,14 +186,6 @@ console.log(`===== DL FILE ${url} ${path}`);
     })
 }
 
-export const getFileStats = async (path: string):Promise<iFileStats> => {
-    return new Promise((resolve, reject) => {
-        fs.stat(path,(err,data:iFileStats) => {
-            if (err) {console.error(`[GetFileStats] Error ${err.message}`); reject()}
-            else resolve(data)
-        }); 
-    })
-}
 
 export interface iFileStats {
     dev: number

@@ -1,9 +1,7 @@
-import {sharedConfig} from '../../shared/shared.config';
 import { initSocketLogic } from './managers/socket.manager';
 import { backConfig } from './config.back';
-import { startStaticServer } from './managers/staticServer.manager';
 import { getPlatform } from './managers/platform.manager';
-import { createSecureServer, sslConfig } from './ssl.manager';
+import { sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
 
 
@@ -26,6 +24,6 @@ initSocketLogic();
 app.use('/', express.static(backConfig.frontendBuildFolder));
 
 // localhost:port/static = static resources serving
-app.use('/static', express.static(backConfig.dataFolder ));
+if (backConfig.dataFolder) app.use('/static', express.static(backConfig.dataFolder));
 
 server.listen(port, function () {})

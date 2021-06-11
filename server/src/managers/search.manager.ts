@@ -1,9 +1,8 @@
 import { regexs } from "../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
-import { createDir, isDir } from "./dir.manager";
-import { exec2 } from "./exec.manager";
-import { fileExists, openFile, saveFile } from "./fs.manager";
+import { createDir } from "./dir.manager";
+import { fileExists, fileStats, openFile, saveFile } from "./fs.manager";
 import { createIFile } from "./search-js.manager";
 const execa = require('execa');
 
@@ -103,7 +102,7 @@ export const liveSearch = async (params:{
             if (titleFilter !== '' && !filePath.toLowerCase().includes(titleFilter.toLowerCase())) continue
 
             try {
-                let stats = fs.lstatSync(`${backConfig.dataFolder}/${params.folder}/${filePath}`)
+                let stats = fileStats(`${backConfig.dataFolder}/${params.folder}/${filePath}`)
                 filesScanned.push(createIFile(filePath, params.folder, i, stats))
             } catch (error) {
                 console.log('[SEARCH] ERROR : ', error);

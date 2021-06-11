@@ -7,7 +7,6 @@ import { normalizeString, removeSpecialChars } from "../helpers/string.helper"
 import { dirDefaultBlacklist, scanDirForFiles } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
 import { ServerSocketManager } from "./socket.manager"
-import { triggerWorker } from "./workers/worker.manager"
 
 export const generateNewFileName = (actualFileName: string):string => `${removeSpecialChars(normalizeString(actualFileName))}-${random(0, 1000)}`
 
@@ -21,15 +20,6 @@ export const debouncedFolderScan = debounce( async(socket:ServerSocketManager<iA
     if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
     socket.emit('getFiles', { files: apiAnswer }) 
 }, 100)
-
-export const debouncedHierarchyScan = debounce( async(socket:ServerSocketManager<iApiDictionary>) => {
-    triggerWorker('getFolderHierarchySync', {
-        folder: `${backConfig.dataFolder}`,
-        config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
-    }, (folder:iFolder) => {
-      socket.emit('getFolderHierarchy', {folder, pathBase: backConfig.dataFolder})
-    })  
-}, 2000)
 
 export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath:string, simulate: boolean = false) => {
     if(simulate) console.log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);

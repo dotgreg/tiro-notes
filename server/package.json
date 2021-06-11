@@ -8,7 +8,7 @@
     "prodTs": "ts-node --transpileOnly ./src/server.ts",
     "prodJs": "tsc & node --experimental-worker build/server/src/server.js",
     "buildOLD": "tsc",
-    "build": "webpack & cp ./src/managers/workers/worker.js build/worker.js",
+    "build": "webpack",
     "killall": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)"
   },
   "author": "",
@@ -29,6 +29,7 @@
     "lodash": "^4.17.20",
     "socket.io": "^2.3.0",
     "socketio-file-upload": "^0.7.2",
+    "through2": "^4.0.2",
     "webpack-node-externals": "^2.5.2"
   },
   "devDependencies": {

@@ -21,22 +21,14 @@ import { PopupWrapperCss } from '../../components/Popup.component';
 let d = deviceType()
 const {els,colors,font,sizes, other } = {...cssVars}
 
-const test2 = () => {
-  console.log('css reload!')
-  return 'red'
-}
-
 export const CssApp2 = (mobileView:MobileView) => {
   
 const cssString = `
 .content-image {
-    /* max-width: 300px; */
     width: 90%;
-    color: ${test2()};
   }
 .full {
   .content-image {
-    /* max-width: 10000px; */
   }
 }
 
@@ -77,6 +69,7 @@ const cssString = `
     position: fixed;
     bottom: 10px;
     right: 10px;
+    z-index: 11;
   }
 
 

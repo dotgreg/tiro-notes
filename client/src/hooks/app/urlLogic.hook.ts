@@ -17,15 +17,20 @@ export const useUrlLogic = (
     // ignore the first url change when page finishes loading
     const ignoreNextUrlChange = useRef(false)
 
+    // on init
     useEffect(() => {
         initUrlParamsLogic()
     }, [])
 
-    const initUrlParamsLogic = () => {
-
+    const reactToUrl = () => {
         // do a initial reading when finished loading
         let newUrlParams = getUrlParams()
         p.reactToUrlParams(newUrlParams)
+    }
+
+    const initUrlParamsLogic = () => {
+
+        reactToUrl()
 
         listenToUrlChanges({
             onUrlParamsChange: (newUrlParams) => {
@@ -40,7 +45,6 @@ export const useUrlLogic = (
 
     const updateAppUrl = useDebounce(() => {
         if (ignoreNextUrlChange.current) return ignoreNextUrlChange.current = false
-        // console.log('updateurlapp', {activeFile, selectedFolder});
         
         if (!activeFile) return
         updateUrl ({
@@ -50,7 +54,10 @@ export const useUrlLogic = (
         })
     }, 200)
 
+    // in case of params changes, update url
     useEffect(() => {
         updateAppUrl()
     }, [activeFileIndex, selectedFolder, isSearching])
+
+    return {reactToUrl}
 }

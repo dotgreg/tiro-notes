@@ -3,6 +3,7 @@ import { iFile } from "../../../../shared/types.shared"
 import { onKey } from "../../managers/keys.manager"
 
 export const useKeys = (p: {
+    activeFileIndex:number, 
     onKeyDown: (e:any) => void,
     onKeyUp: (e:any) => void
 }) => {
@@ -24,12 +25,10 @@ export const useKeys = (p: {
             onKey(e, 'shift', () => { setShiftPressed(false) })
             onKey(e, 'alt', () => {  altPressed.current = false })
         }
+        return () => {
 
-        // if window loses focus, remove all modifiers
-        // window.addEventListener("visibilitychange", e => {
-        //     console.log('alt3 visibilitychange', e);
-        // });
-    }, [])
+        }
+    }, [p.activeFileIndex])
 
     return {
         ctrlPressed,

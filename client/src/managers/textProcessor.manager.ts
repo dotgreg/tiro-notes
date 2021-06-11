@@ -40,8 +40,14 @@ export const transformImagesInHTML = (currentFolderPath:string, bodyRaw: string 
     const subst1 = `<img class="content-image" src="$1"  />`;
     bodyRaw = bodyRaw.replace(regexs.extimage, subst1);
 
-    const subst = `<img class="content-image" src="${absoluteLinkPathRoot(currentFolderPath)}/$1"  />`;
-    return bodyRaw.replace(regexs.image, subst);
+    const configCss = `
+        width: $1px;
+        max-width: 100%;
+        // min-height: $1px;
+        transform: rotate($2deg);
+    `
+    const subst = `<img class="content-image" style="${configCss}" src="${absoluteLinkPathRoot(currentFolderPath)}/$3"  />`;
+    return bodyRaw.replace(regexs.imageAndConfig, subst);
 }
 
 // console.log(transformImagesInHTML(txt));

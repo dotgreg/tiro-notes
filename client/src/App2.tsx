@@ -32,6 +32,7 @@ import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
 import { Icon } from './components/Icon.component';
 import { cssVars } from './managers/style/vars.style.manager';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
+import { updateUrl } from './managers/url.manager';
 
 
 
@@ -150,18 +151,25 @@ export const App2 = () => {
     const {SetupPopupComponent} = useSetupConfig({cleanAllApp})
 
     // Setup config file and welcoming screen logic
-    const {LoginPopupComponent} = useLoginToken({cleanListAndFileContent})
+    const {LoginPopupComponent} = useLoginToken({
+        onLoginAsked: () => {
+            cleanListAndFileContent()
+        },
+        onLoginSuccess: () => {
+            reactToUrl()
+        }
+    })
     
+    const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
     // Key press
     const {
         shiftPressed,
         ctrlPressed,
         altPressed
     } = useKeys({
+        activeFileIndex,
         onKeyDown: e => {
             onKey(e, 'up', () => {
-                console.log('up!', activeFileIndex);
-                
                 let i = activeFileIndex   
                 if (i > 0) {
                     setActiveFileIndex(i-1)
@@ -169,7 +177,6 @@ export const App2 = () => {
                 }
             })
             onKey(e, 'down', () => {
-                console.log('up!down', activeFileIndex);
                 let i = activeFileIndex  
                 if (i < files.length - 1) {
                     setActiveFileIndex(i+1)
@@ -192,11 +199,11 @@ export const App2 = () => {
 
     // Files List
     const {
-        activeFileIndex, setActiveFileIndex,
         files, setFiles,
         askForFolderFiles, 
         FilesListComponent,
     } = useAppFilesList(
+        activeFileIndex, setActiveFileIndex,
         shiftPressed,
         onFilesReceivedCallback
     )
@@ -274,7 +281,7 @@ export const App2 = () => {
     useFixScrollTop()
 
     // url routing/react logic
-    useUrlLogic(
+    const {reactToUrl} = useUrlLogic(
         isSearching, searchTerm, 
         selectedFolder, activeFile,
         activeFileIndex,

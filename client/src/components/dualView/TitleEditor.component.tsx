@@ -20,7 +20,8 @@ export const NoteTitleInput = (p: {
                 type="text" 
                 value={title}
                 onChange={(e) => {
-                    setTitle(e.target.value)
+                    let newTitle = e.target.value.replaceAll('/','_')
+                    setTitle(newTitle)
                     setHasBeenEdited(true)
                 }}
                 onKeyDown={e => {

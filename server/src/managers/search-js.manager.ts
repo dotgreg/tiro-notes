@@ -1,10 +1,31 @@
+import { exists, existsSync } from "fs";
 import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper";
 import { iFile } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { normalizeString } from "../helpers/string.helper";
-import { openFile } from "./fs.manager";
-const klaw = require('klaw')
+import { isDir, openFile } from "./fs.manager";
 
+const klaw = require('klaw')
+const through2 = require('through2')
+const path = require('path')
+
+
+const searchFilter = item => {
+    const basename = path.basename(item)
+    const isADir = isDir(item)
+    const isHiddenFile = basename[0] === '.'
+    
+    let res = true
+    if (isADir) {
+        // DIR RULES
+        res = !isHiddenFile
+    } else {
+        // FILE RULES
+        const isMdFile = basename.toLowerCase().endsWith('.md')
+        res = !isHiddenFile && isMdFile
+    }
+    return res 
+}
 
 export const liveSearchJs = async (params:{
     term:string,
@@ -23,21 +44,25 @@ export const liveSearchJs = async (params:{
     const absolutePathFolder = backConfig.dataFolder + folder
     let count = 0
     let totCount = 0
-    klaw(absolutePathFolder)
+
+    if (!existsSync(absolutePathFolder)) return console.log(`[SEARCH-JS] path ${absolutePathFolder} doesnt exists, stop search`)
+
+    klaw(absolutePathFolder, {filter: searchFilter})
         .on('data', async (item) => {
             
             totCount++
-            if (item.stats.isDirectory()) return
+            // if (item.stats.isDirectory()) return
 
             let finfos = getFileInfos(item.path)
             let relativeFolder = finfos.folder.replace(backConfig.dataFolder, '')
 
             let isValid = false
-            if (titleSearch) {
-                // 1 title search
-                if (normalizeString(finfos.filename).includes(normalizeString(term))) isValid = true
-            } else {
-                // 2 content search
+
+            // 1 title search for everybody
+            if (normalizeString(finfos.filename).includes(normalizeString(term))) isValid = true
+            
+            // 2 content search => only if title search is false
+            if (!titleSearch && !isValid) {
                 let filecontent = await openFile(item.path)
                 isValid = normalizeString(filecontent).indexOf(normalizeString(term)) !== -1
             }

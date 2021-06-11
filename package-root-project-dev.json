@@ -5,10 +5,13 @@
   "main": "index.js",
   "scripts": {
     "dev": "cd sources-tiro & npm run dev",
-    "android": "cd sources-tiro & npm run android",
+    "android": "cd sources-tiro & npm run android-server-refresh",
+    "android2": "cd sources-tiro & npm run android-apk-refresh",
+    "ssh-termux": "ssh u0_a200@192.168.43.1 -p8022",
     "build": "cd sources-tiro & npm run build-export"
   },
   "author": "",
   "license": "ISC",
-  "devDependencies": {}
+  "devDependencies": {},
+  "dependencies": {}
 }

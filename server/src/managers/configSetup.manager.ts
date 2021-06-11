@@ -2,7 +2,7 @@ var path = require('path')
 import { iApiDictionary } from '../../../shared/apiDictionary.type';
 import { fileExists, saveFile } from './fs.manager';
 import { hashPassword } from './password.manager';
-import { getAppPathBase, isEnvDev, relativeToAbsolutePath } from './path.manager';
+import { p, relativeToAbsolutePath } from './path.manager';
 var fs = require('fs')
 
 // LOADING CONFIG FILE
@@ -19,7 +19,7 @@ export interface TiroConfig {
 */
 
 // as we need to go down from sources-tiro/server/tiro-config.json to sources-tiro/tiro-config.json in dev mode
-export const appConfigJsonPath = relativeToAbsolutePath(`/tiro-config.json`)
+export const appConfigJsonPath = p(`../tiro-config.json`)
 
 let cachedJsonConfigLoadResult = null
 export const tryLoadJsonConfig = () => {
@@ -41,8 +41,14 @@ export const getDataFolder = () => {
 }
 export const shouldAskForSetup = () => {
     const jsonConfig = tryLoadJsonConfig();
-    if (!jsonConfig || !jsonConfig.user || !jsonConfig.password || !jsonConfig.dataFolder) return true
-    if (!fileExists(getDataFolder())) return true
+    if (!jsonConfig || !jsonConfig.user || !jsonConfig.password || !jsonConfig.dataFolder) {
+        console.log('[INIT SETUP] json doesnt exists, askForSetup!');
+        return true
+    }
+    if (!fileExists(getDataFolder())) {
+        console.log('[INIT SETUP] getDataFolder() doesnt exists, askForSetup!');
+        return true
+    }
     return false
 }
 
@@ -58,8 +64,7 @@ export const processClientSetup = async (data:iApiDictionary['sendSetupInfos']):
         if (data.form.password.length < 3) answer = {code: 'BAD_USER_PASSWORD', message: 'password not valid'} 
         
         // check if folder provided exists
-        let absPath = relativeToAbsolutePath(data.form.dataFolder)
-        if (!fileExists(absPath)) answer = {code: 'NO_FOLDER', message: `folder path ${absPath} doesnt exists`} 
+        if (!fileExists(data.form.dataFolder)) answer = {code: 'NO_FOLDER', message: `folder path ${p(data.form.dataFolder)} doesnt exists`} 
 
         // if all good
         if (!answer ||!answer.code) {

@@ -7,7 +7,7 @@ import { relativeToAbsolutePath } from './managers/path.manager';
 const dataFolder = getDataFolder()
 export const backConfig = {
     dataFolder,
-    frontendBuildFolder: relativeToAbsolutePath('/client'),
+    frontendBuildFolder: relativeToAbsolutePath('./client', true),
     
     dataFolderExists: fileExists(dataFolder),
     askForSetup: shouldAskForSetup(),

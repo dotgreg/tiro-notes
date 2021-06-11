@@ -109,6 +109,9 @@ export class List extends React.Component<{
     }
 
     render() {
+        // scroll list to item 
+        if (this.props.activeFileIndex > 0) this.scrollToItem(this.props.activeFileIndex)
+
         let sort = SortModes[this.props.sortMode]
         const itemSize = cssVars.sizes.l2.fileLi.height + (cssVars.sizes.l2.fileLi.padding * 2) + (cssVars.sizes.l2.fileLi.margin)
         const listHeight = window.innerHeight - (cssVars.sizes.search.h + cssVars.sizes.search.padding)
@@ -119,8 +122,8 @@ export class List extends React.Component<{
             deviceType() !== 'desktop' &&
             <div className="mobile-buttons-up-down">
                 <div id="top" onClick={() => {  this.scrollToItem(0, false)  }}>=</div>
-                <div id="up" onClick={() => {  this.scrollToItem(-5, false) }}>^</div>
-                <div id="down" onClick={() => { this.scrollToItem(5, false) }}>v</div>
+                <div id="up" onClick={() => {  this.scrollToItem(-4, false) }}>^</div>
+                <div id="down" onClick={() => { this.scrollToItem(4, false) }}>v</div>
             </div>
         }
         

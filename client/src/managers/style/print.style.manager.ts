@@ -19,6 +19,7 @@ export const printCss = `
             }
             .title {
                 margin-bottom: 40px!important;
+                line-height: 40px;
             }
             display:block!important;
         }

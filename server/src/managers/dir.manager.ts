@@ -7,7 +7,8 @@ import { cleanPath } from "../../../shared/helpers/filename.helper";
 import { iFile, iFolder } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { getServerTaskId, setServerTaskId } from "../routes";
-import { fileExists } from "./fs.manager";
+import { fileExists, fileStats, isDir } from "./fs.manager";
+import { p } from "./path.manager";
 import { getPlatform } from "./platform.manager";
 import { ServerSocketManager } from './socket.manager'
 
@@ -29,9 +30,6 @@ export const createDir = async (path:string, mask:number = 0o775):Promise<null|s
     });
 }
 
-export const isDir = (path:string):boolean => fs.lstatSync(path).isDirectory() 
-
-
 export const fileNameFromFilePath = (path:string):string => {
     let fileName = path.split('/').join('_')
     fileName = fileName.split('\\').join('_')
@@ -42,7 +40,7 @@ export const scanDirForFolders = (folderPath:string):iFolder => {
     const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
     
     if (!fileExists(fullFolderPath)) return
-    var folderStats = fs.lstatSync(fullFolderPath)
+    var folderStats = fileStats(fullFolderPath)
     let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
     const resultFolder:iFolder = {
         path: relativeFolder,
@@ -58,7 +56,7 @@ export const scanDirForFolders = (folderPath:string):iFolder => {
             let fullChildPath = fullFolderPath + '/' + child
             
             try {
-                let childStats = fs.lstatSync(fullChildPath)
+                let childStats = fileStats(fullChildPath)
                 if (childStats.isDirectory() && dirDefaultBlacklist.indexOf(path.basename(child)) === -1) {
                     // if (fullChildPath.indexOf('.tiro') !== -1) console.log('1212', fullChildPath)
                     let relativeChildFolder = cleanPath(fullChildPath).replace(cleanPath(backConfig.dataFolder), '')
@@ -117,6 +115,8 @@ export const rescanEmitDirForFiles = async (serverSocket2:ServerSocketManager<iA
 }
 
 export const scanDirForFiles = async (path:string):Promise<iFile[]|string> => {
+    path = p(path)
+
     lastFolderFilesScanned.value = path
     const blacklist = dirDefaultBlacklist
     const taskId = random(0, 10000)
@@ -140,53 +140,51 @@ export const scanDirForFiles = async (path:string):Promise<iFile[]|string> => {
                 
                 const fileName = files[i]; 
                 let filePath = `${path}/${fileName}`
-                if (!fileExists(filePath)) {
+                const stats = fileStats(filePath)
+                if (!fileExists(filePath) || !stats) {
                     counterFilesStats++
                     if (counterFilesStats === files.length) resolve(filesScanned)
                 }  else {
-                    fs.lstat(filePath, {}, (err,stats) => {
-                        
-                        // ON LINUX ONLY, MAKE SURE CREATION DATE IS IN RIGHT 
-                        let createdDate = stats.atimeMs
-                        if (getPlatform() === 'linux') {
-                            if (stats.mtimeMs < stats.atimeMs) {
-                                createdDate = stats.mtimeMs
-                                const ndate = new Date(stats.mtimeMs)
-                                const touchDateFormat = ndate.getFullYear() +''+ ( '0'+ndate.getMonth()).slice(-2) +''+ ('0'+ndate.getDay()).slice(-2)+ ('0'+ndate.getHours()).slice(-2)+ ('0'+ndate.getMinutes()).slice(-2)
-                                const cmd = `touch -t ${touchDateFormat} '${filePath}'`
-                                console.log(`[scanDirForFiles > STAT] ${filePath} stats.mtimeMs < stats.atimeMs => equalize : ${cmd}`);
-                                execa.command(cmd)
-                            }
+                    // ON LINUX ONLY, MAKE SURE CREATION DATE IS IN RIGHT 
+                    let createdDate = stats.atimeMs
+                    if (getPlatform() === 'linux') {
+                        if (stats.mtimeMs < stats.atimeMs) {
+                            createdDate = stats.mtimeMs
+                            const ndate = new Date(stats.mtimeMs)
+                            const touchDateFormat = ndate.getFullYear() +''+ ( '0'+ndate.getMonth()).slice(-2) +''+ ('0'+ndate.getDay()).slice(-2)+ ('0'+ndate.getHours()).slice(-2)+ ('0'+ndate.getMinutes()).slice(-2)
+                            const cmd = `touch -t ${touchDateFormat} '${filePath}'`
+                            console.log(`[scanDirForFiles > STAT] ${filePath} stats.mtimeMs < stats.atimeMs => equalize : ${cmd}`);
+                            execa.command(cmd)
                         }
-                        
+                    }
+                    
 
-                        // counter++
-                        let extensionArr = fileName.split('.')
-                        let extension = extensionArr[extensionArr.length-1]
-                        let folder = path.replace(backConfig.dataFolder, '').replace('//', '/')
-                        
-                        // packs everything
-                        let fileObj:iFile = {
-                            nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
-                            name: fileName,
-                            realname: fileName,
-                            index: i,
-                            extension,
-                            folder,
-                            created: Math.round(createdDate),
-                            modified: Math.round(stats.ctimeMs),
-                            path: `${folder}/${fileName}`, 
-                        }
-                        if (blacklist.indexOf(fileName) === -1) {
-                            filesScanned.push(fileObj)
-                        }
-    
-                        counterFilesStats++
-                        if (counterFilesStats === files.length) {
-                            setServerTaskId(-1)
-                            resolve(filesScanned)
-                        }
-                    })
+                    // counter++
+                    let extensionArr = fileName.split('.')
+                    let extension = extensionArr[extensionArr.length-1]
+                    let folder = path.replace(backConfig.dataFolder, '').replace('//', '/')
+                    
+                    // packs everything
+                    let fileObj:iFile = {
+                        nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
+                        name: fileName,
+                        realname: fileName,
+                        index: i,
+                        extension,
+                        folder,
+                        created: Math.round(createdDate),
+                        modified: Math.round(stats.ctimeMs),
+                        path: `${folder}/${fileName}`, 
+                    }
+                    if (blacklist.indexOf(fileName) === -1) {
+                        filesScanned.push(fileObj)
+                    }
+
+                    counterFilesStats++
+                    if (counterFilesStats === files.length) {
+                        setServerTaskId(-1)
+                        resolve(filesScanned)
+                    }
                 }
             }
         });

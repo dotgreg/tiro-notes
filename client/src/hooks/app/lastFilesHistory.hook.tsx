@@ -1,5 +1,6 @@
 import React, {  useEffect } from 'react';
 import { iFile } from "../../../../shared/types.shared"
+import { useDebounce } from '../lodash.hooks';
 import { useLocalStorage } from "../useLocalStorage.hook"
 
 export const useLastFilesHistory = (activeFile: iFile|null) => {
@@ -7,7 +8,7 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
     // const [filesHistory, setFilesHistory] = useState<iFile[]>([])
     
     useEffect(() => {
-        activeFile && addToHistory(activeFile)
+        activeFile && debouncedAddToHistory(activeFile)
     }, [activeFile])
 
     const cleanLastFilesHistory = () => {
@@ -15,6 +16,8 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
     }
 
     const addToHistory = (file:iFile) => {
+        console.log('Add to history', file.name);
+        
         let shouldAddToHistory = true
         let indexOldPos = -1
         let newfilesHistory = filesHistory
@@ -31,6 +34,7 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
         newfilesHistory.unshift(file)
         setFilesHistory(newfilesHistory)
     }
+    const debouncedAddToHistory = useDebounce(addToHistory, 1000)
 
     return {filesHistory, cleanLastFilesHistory}
 }

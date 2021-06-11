@@ -7,7 +7,6 @@ export const useDynamicResponsive = () => {
 
     useEffect(() => {
         let debouncedResponsiveRender = debounce(() => {
-            console.log(122, forceResponsiveRender, frr.current);
             frr.current = frr.current+1
             setForceResponsiveRender(true)
             setTimeout(() => {

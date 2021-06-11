@@ -15,16 +15,15 @@ export type onFilesReceivedFn = (files:iFile[], temporaryResults: boolean) => vo
 export interface FilesPreviewObject {[path:string]:iFilePreview}
 
 export const useAppFilesList = (
+    activeFileIndex:number,
+    setActiveFileIndex: Function,
     modifierPressed:boolean,
     onFilesReceivedCallback: onFilesReceivedFn
 ) => {
     
-    // STATE
-    const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
-    
     const [sortMode, setSortMode] = useLocalStorage<number>('sortMode',2)
     const [files, setFiles] = useState<iFile[]>([])
-    const [forceListUpdate, setForceListUpdate] = useState(0)
+    const [forceListUpdate, setForceListUpdate] = useState(1)
     
 
     const listenerId = useRef<number>(0)

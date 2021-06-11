@@ -1,21 +1,19 @@
 import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
-import { createDir, dirDefaultBlacklist, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
+import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
-import {  analyzeTerm, liveSearch } from "./managers/search.manager";
+import {  analyzeTerm } from "./managers/search.manager";
 import { formatDateHistory } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
-import { debouncedFolderScan, moveNoteResourcesAndUpdateContent, debouncedHierarchyScan } from "./managers/move.manager";
+import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
 import { random } from "lodash";
-import { triggerWorker } from "./managers/workers/worker.manager";
 import { iFile, iFolder } from "../../shared/types.shared"; 
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
-import { hashPassword, verifyPassword } from "./managers/password.manager";
-import { appConfigJsonPath, processClientSetup, TiroConfig } from "./managers/configSetup.manager";
+import {  processClientSetup } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
-import { checkUserPassword, generateNewToken, getLoginToken, saveTokenInMemory } from "./managers/loginToken.manager";
+import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { liveSearchJs } from "./managers/search-js.manager";
 
@@ -53,28 +51,6 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
                     serverSocket2.emit('getFiles', {files: files})
                 }
         })
-        
-        // liveSearch({
-        //     term: termObj.term, 
-        //     folder: termObj.folderToSearch, 
-        //     titleSearch: termObj.titleSearch,
-            
-        //     onSearchUpdate : files => {
-        //         serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
-        //     },
-        //     onSearchEnded : files => {
-        //         serverSocket2.emit('getFiles', {files: files})
-        //     }
-        // })
-    })
-
-    serverSocket2.on('askFolderHierarchy', async data => {
-        triggerWorker('getFolderHierarchySync', {
-            folder: `${backConfig.dataFolder}${data.folderPath}`,
-            config: {  dataFolder: backConfig.dataFolder, blacklist: dirDefaultBlacklist }
-        }, (folder:iFolder) => {
-            serverSocket2.emit('getFolderHierarchy', {folder, pathBase: backConfig.dataFolder})
-        })  
     })
 
     serverSocket2.on('askFoldersScan', async data => {

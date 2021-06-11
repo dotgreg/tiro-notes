@@ -15,7 +15,10 @@ export const setLoginToken = (token:string) => {
     setCookie('tiro-login-token', token, sharedConfig.tokenRefreshInHours)
 }
 
-export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
+export const useLoginToken = (p:{
+    onLoginAsked: Function
+    onLoginSuccess: Function
+}) => {
 
     const [displayLoginPopup, setDisplayLoginPopup] = useState(false)
 
@@ -35,11 +38,16 @@ export const useLoginToken = (p:{cleanListAndFileContent:Function}) => {
                     if (!data.token) return 
                     setLoginToken(data.token)
                     setDisplayLoginPopup(false)
+
+                    // custom logic after login success event
+                    p.onLoginSuccess()
                    break;
                case 'WRONG_TOKEN':
-                    p.cleanListAndFileContent()
-                    setDisplayLoginPopup(true)
-                    setFormMessage(['error', strings.loginForm.wrongToken])
+                   setDisplayLoginPopup(true)
+                   setFormMessage(['error', strings.loginForm.wrongToken])
+
+                   // custom logic after LoginAsked
+                   p.onLoginAsked()
                     break;
                case 'WRONG_USER_PASSWORD':
                     setFormMessage(['error', strings.loginForm.wrongUserPassword])
