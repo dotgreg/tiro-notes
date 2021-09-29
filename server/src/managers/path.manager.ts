@@ -10,6 +10,23 @@ const path = require('path')
 
 // export const
 
+const isAbsolute = (filePath:string) => {
+    if (filePath.endsWith('/') || filePath.endsWith('\\'))  filePath = filePath.slice(0, -1) 
+    const res = path.resolve(filePath) 
+    const norm = path.normalize(filePath)
+    return res === norm
+}
+
+export const anyToRelPath = (pathFile:string):string => {
+    if (backConfig && backConfig.dataFolder) {
+        pathFile = cleanPath(pathFile)
+        pathFile = pathFile.split(backConfig.dataFolder).join('')
+        // pathFile = pathFile.replace(backConfig.dataFolder, '')
+    }
+    
+    return pathFile
+}
+
 export const relativeToAbsolutePath = (pathFile:string, insideSnapshot: boolean = false):string => {
     
     // if (pathFile) {
@@ -21,17 +38,15 @@ export const relativeToAbsolutePath = (pathFile:string, insideSnapshot: boolean 
         pathFile = ''
     }
 
-    // remove first all occurences of rootFolderPath
-    if (backConfig && backConfig.dataFolder) {
-        pathFile = pathFile.split(backConfig.dataFolder).join('')
-        pathFile = `${backConfig.dataFolder}${pathFile}`
-    }
+    // if (backConfig && backConfig.dataFolder) {
+    //     pathFile = pathFile.split(backConfig.dataFolder).join('')
+    //     pathFile = `${backConfig.dataFolder}${pathFile}`
+    // }
 
     let res = pathFile
-    let isAbsolute = path.isAbsolute(pathFile)
     let rootFolder
     let basePath
-    if (!isAbsolute) {
+    if (!isAbsolute(pathFile)) {
         if (insideSnapshot) {
             basePath = isEnvDev() ? '../../..' : '..'
             rootFolder = __dirname
@@ -42,6 +57,12 @@ export const relativeToAbsolutePath = (pathFile:string, insideSnapshot: boolean 
         }
         res = path.join(rootFolder, `${basePath}/${pathFile}`)
     }
+
+    // remove first all occurences of rootFolderPath
+    // if (backConfig && backConfig.dataFolder) {
+    //     pathFile = pathFile.split(backConfig.dataFolder).join('')
+    //     pathFile = `${backConfig.dataFolder}${pathFile}`
+    // }
     
     res = cleanPath(res)
 

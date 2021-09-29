@@ -5,7 +5,7 @@ export const configClient = {
         socket: true,
         eventManager: true,
     },
-    version: 'build 20.10b3 10/06/2021',
+    version: 'build 20.11 11/06/2021',
     global: {
         protocol: '//',
         url: `${window.location.hostname}`,

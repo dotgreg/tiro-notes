@@ -17,7 +17,7 @@ if (protocol === 'https') server = require("https").createServer(sslConfig, app)
 else server = require("http").createServer(app)
 
 // localhost:port/socket.io = socket server
-export const ioServer:SocketIO.Server = require('socket.io')(server, { serveClient: false })
+export const ioServer:SocketIO.Server = require('socket.io')(server, { serveClient: false, pingTimeout: 10000, pingInterval: 50000})
 initSocketLogic(); 
 
 // localhost:port/ = static react client

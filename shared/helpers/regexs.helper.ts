@@ -25,6 +25,7 @@ export const regexs  = {
     url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 
     searchFolder: VerEx().find(' /').anything().endOfLine(),
+    searchFolderNoSpace: VerEx().find('/').anything().endOfLine(),
     firstPartImg: VerEx().find('![').anythingBut('[]').then('](')
 
 }

@@ -22,12 +22,18 @@ type ApiEmitFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
                         (
                             endpoint: `${Endpoint}`, 
                             payloadToSend: ApiDict[Endpoint]
-                        ) => void;
+                        ) => Promise<void>;
 
 export type ServerSocketManager<ApiDict> = {
     on:ApiOnFn<ApiDict>
     emit:ApiEmitFn<ApiDict>
 }
+
+export const sleep = (ms) => {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }   
 
 export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socket):ServerSocketManager<ApiDict> => {
     return {
@@ -62,10 +68,9 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
                 }
             });
         },
-        emit: (endpoint, payloadToSend) => {
-            // console.log(...createLogMessage(`==> EMIT ${endpoint} `,{...payloadToSend}));
+        emit: async (endpoint, payloadToSend) => {
             console.log(`[SOCKET SERV EVENT] ==> EMIT ${endpoint}`);
-            rawServerSocket.emit(endpoint, payloadToSend);
+            await rawServerSocket.emit(endpoint, payloadToSend);
        },
     }
 }

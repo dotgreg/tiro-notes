@@ -9,7 +9,7 @@ export interface iApiDictionary {
     connectionSuccess : {}
 
     askForFiles: { folderPath: string, token: string }
-    getFiles: { files: iFile[], temporaryResults?:boolean}
+    getFiles: { files: iFile[], temporaryResults?:boolean, initialResults?:boolean}
 
     askForFileContent: {filePath:string}
     getFileContent: {fileContent: string, filePath:string}

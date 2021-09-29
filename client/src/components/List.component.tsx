@@ -53,7 +53,6 @@ export class List extends React.Component<{
     shouldComponentUpdate(props:any, nextProps:any) {
         if (JSON.stringify(props.files) !== JSON.stringify(this.oldFiles)) {
             this.oldFiles = cloneDeep(props.files)
-            console.log('[LIST] FILES BEEN UPDATED BRO');
             this.liRefs = []
             for (let i = 0; i < props.files.length; i++) {
                 this.liRefs.push(React.createRef())

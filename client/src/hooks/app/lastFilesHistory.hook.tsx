@@ -8,6 +8,9 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
     // const [filesHistory, setFilesHistory] = useState<iFile[]>([])
     
     useEffect(() => {
+        console.log('[HISTORY] activeFile changed!', activeFile);
+        // activeFile && addToHistory(activeFile)
+        activeFile && debouncedAddToHistory(activeFile)
         activeFile && debouncedAddToHistory(activeFile)
     }, [activeFile])
 
@@ -16,7 +19,7 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
     }
 
     const addToHistory = (file:iFile) => {
-        console.log('Add to history', file.name);
+        console.log('[HISTORY] Add to history', file.name);
         
         let shouldAddToHistory = true
         let indexOldPos = -1

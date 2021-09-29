@@ -11,7 +11,7 @@ import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
 
-export type onFilesReceivedFn = (files:iFile[], temporaryResults: boolean) => void
+export type onFilesReceivedFn = (files:iFile[], temporaryResults: boolean, initialResults:boolean) => void
 export interface FilesPreviewObject {[path:string]:iFilePreview}
 
 export const useAppFilesList = (
@@ -105,24 +105,28 @@ export const useAppFilesList = (
 
 
     // DATA PROCESSING FUNCTIONS
+    const filesRef = useRef<iFile[]>([])
     const onFolderFilesReceived = (data:iApiDictionary['getFiles']) => {
-        // only keep md files in file list
-        let files = filter(data.files, {extension: 'md'})
+
+        if (data.initialResults) {
+            filesRef.current = []
+        }   
+        else if (data.temporaryResults) {
+            filesRef.current = [...filesRef.current, ...data.files]
+            
+        } else {
+            filesRef.current = data.files
+        }
 
         // sort them
-        console.log(`[SORT] sorting received files with sort mode ${sortMode} : ${SortModes[sortMode]}`);
-        files = sortFiles(files, sortMode)
+        // console.log(`[SORT] sorting received files with sort mode ${sortMode} : ${SortModes[sortMode]}`);
+        filesRef.current = sortFiles(filesRef.current, sortMode)
 
-        setFiles(files)
-        // isSearching: data.temporaryResults ? true : false
+        setFiles(filesRef.current)
+        
+        onFilesReceivedCallback(filesRef.current, data.temporaryResults || false, data.initialResults || false)
 
-        onFilesReceivedCallback(files, data.temporaryResults || false)
     }
-
-
-
-
-
 
 
     // RENDERING FUNCTIONS & COMPONENT

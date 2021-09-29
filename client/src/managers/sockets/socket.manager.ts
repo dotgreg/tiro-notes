@@ -56,7 +56,7 @@ type ClientSocketManager<ApiDict> = {
 const createLogMessage = (message:string,obj?:any) => [`%c [CLIENT SOCKET 2] ${message}`,'background: #ccc; color: red',obj ? obj : null]
 
 const createFn = (endpoint, callback) => data => {
-    console.log(...createLogMessage(`<== ON ${endpoint} `,{...data}));
+    // console.log(...createLogMessage(`<== ON ${endpoint} `,{...data}));
     callback(data)
 }
 
@@ -76,7 +76,7 @@ export const initClientSocketManager = <ApiDict>(rawClientSocket:SocketIOClient.
         },
         off: (listenerId:number) => {
             if (activeListeners[listenerId]) {
-                console.log(...createLogMessage(`OFF for ${listenerId} => ${activeListeners[listenerId]}`))
+                // console.log(...createLogMessage(`OFF for ${listenerId} => ${activeListeners[listenerId]}`))
                 rawClientSocket.off(activeListeners[listenerId].endpoint, activeListeners[listenerId].apiFn);
                 delete activeListeners[listenerId] 
             }

@@ -135,19 +135,22 @@ export const removeFile = async (filepath:string):Promise<void> => {
 export const fileExists = (path:string):boolean => {
     path = p(path)
     try {
+        // console.log(133, path);
         return fs.existsSync(path)
     } catch (error) {
-        console.log(1);
+        console.log(`[fileExists] error : `, error);
         
         return false
     }
 }
 
+// - 19 norauto bellepine : david
+
 export const fileStats = (path:string):any => {
     try {
         return fs.lstatSync(path)
     } catch (error) {
-        console.log(2);
+        // console.log(2, error);
         return false
     }
 }
@@ -157,7 +160,7 @@ export const isDir = (path:string):boolean => {
         let stats = fileStats(path)
         return stats ? stats.isDirectory() : false
     } catch (error) {
-        console.log(3);
+        // console.log(3, error);
         return false
     }
 }

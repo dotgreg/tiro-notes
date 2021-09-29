@@ -5,6 +5,7 @@ import {  clientSocket2 } from "../../managers/sockets/socket.manager"
 import { safeString } from "../../managers/string.manager"
 import { listenOnUploadSuccess, uploadFile, initListenUploadOnDrop, uploadOnInputChange } from "../../managers/upload.manager"
 import { getLoginToken } from "../app/loginToken.hook"
+import { useDebounce } from "../lodash.hooks"
 import { useStatMemo } from "../useStatMemo.hook"
 
 let keyUploadSocketListener
@@ -49,8 +50,11 @@ export const useEditorUploadLogic = (p:{
 
     const updateUploadFolder = (newUploadFolder:string) => {
         console.log(`[UPLOAD] updateUploadFolder to ${newUploadFolder}`);
-        clientSocket2.emit('uploadResourcesInfos', {folderpath: newUploadFolder, token: getLoginToken()}) 
+        debouncedUploadResourcesInfos(newUploadFolder)
     }
+    const debouncedUploadResourcesInfos = useDebounce((newUploadFolder) => {
+        clientSocket2.emit('uploadResourcesInfos', {folderpath: newUploadFolder, token: getLoginToken()}) 
+    }, 3000)
 
     const uploadButtonConfig = {
         title:'upload files', 

@@ -11,8 +11,8 @@ var express = require('express');
 const sslPath = isEnvDev() ? '../' : './'
 
 export const sslConfig = { 
-    key: fs.readFileSync(path.resolve(__dirname,`${sslPath}ssl/server.key`)),
-    cert: fs.readFileSync(path.resolve(__dirname,`${sslPath}ssl/server.cert`)),
+    key: fs.readFileSync(path.resolve(__dirname,`${sslPath}ssl/tiro-local.key`)),
+    cert: fs.readFileSync(path.resolve(__dirname,`${sslPath}ssl/tiro-local.crt`)),
 };
 
 export const createSecureServer = (port:number, cb?:Function, label?:string):{secureServer:any, expressApp:any} => {

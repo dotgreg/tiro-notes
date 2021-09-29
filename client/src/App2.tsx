@@ -108,36 +108,37 @@ export const App2 = () => {
 
 
     const onFilesReceivedCallback:onFilesReceivedFn = 
-    (files, isTemporaryResult) => {
+    (newFiles, isTemporaryResult, isInitialResults) => {
         setIsSearching(isTemporaryResult)
         
         // if activeFileIndex exists + is in length of files, load it
-        if (activeFileIndex !== -1 && activeFileIndex < files.length) {
-            askForFileContent(files[activeFileIndex])
+        if (activeFileIndex !== -1 && activeFileIndex < newFiles.length) {
+            askForFileContent(newFiles[activeFileIndex])
         }
         if (isNumber(shouldLoadNoteIndex.current)) {
             console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
             let noteIndex = shouldLoadNoteIndex.current
             setActiveFileIndex(noteIndex)
-            if (files.length >= noteIndex + 1) askForFileContent(files[noteIndex])
+            if (newFiles.length >= noteIndex + 1) askForFileContent(newFiles[noteIndex])
             shouldLoadNoteIndex.current = null
         }
         // ON LIST ITEMS CHANGES
         if (selectedFolder !== lastFolderIn.current || searchTerm !== lastSearchIn.current) {
             // Load first item list 
-            files.length >= 1 && askForFileContent(files[0])
+            newFiles.length >= 1 && askForFileContent(newFiles[0])
             setActiveFileIndex(0)
             lastFolderIn.current = selectedFolder
             lastSearchIn.current = searchTerm
         }
         
-        // IF WE ARE ON SEARCH TITLE LOGIC 
-        // find a file whom title is the one we searched, else go to index 0
-        const indexSearch = getSearchedTitleFileIndex(files)
-        if ( indexSearch !== -1 ) {
-            if (files[indexSearch]) {
-                setActiveFileIndex(indexSearch)
-                askForFileContent(files[indexSearch])
+        // at the end, search for title
+        if (!isTemporaryResult && !isInitialResults) {
+            const indexSearch = getSearchedTitleFileIndex(newFiles)
+            if ( indexSearch !== -1 ) {
+                if (newFiles[indexSearch]) {
+                    setActiveFileIndex(indexSearch)
+                    askForFileContent(newFiles[indexSearch])
+                }
             }
         }
     }

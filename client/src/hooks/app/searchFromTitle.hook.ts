@@ -18,6 +18,7 @@ export const useSearchFromTitle = (p:{
 
     const getSearchedTitleFileIndex = (files:iFile[]):number => {
         if (!searchedFileTitle.current) return -1
+        console.log(`[TITLE SEARCH] getSearchedTitleFileIndex start searching for  ${searchedFileTitle.current} in `, files);
         let res = 0
         const title2search = searchedFileTitle.current
         searchedFileTitle.current = undefined

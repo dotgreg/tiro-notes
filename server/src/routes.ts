@@ -16,6 +16,7 @@ import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { liveSearchJs } from "./managers/search-js.manager";
+import { sleep } from "./helpers/sleep.helper";
 
 const serverTaskId = {curr: -1}
 export const getServerTaskId = () => serverTaskId.curr
@@ -23,11 +24,27 @@ export const setServerTaskId = (nb) => {serverTaskId.curr = nb}
 
 export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDictionary>) => {
 
-    serverSocket2.on('askForFiles', async data => {
-        let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
+    // serverSocket2.on('askForFiles', async data => {
+    //     let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
 
-        if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-        serverSocket2.emit('getFiles', { files: apiAnswer }) 
+    //     if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+    //     serverSocket2.emit('getFiles', { files: apiAnswer }) 
+    // })
+    serverSocket2.on('askForFiles', async data => {
+        liveSearchJs({
+                term: '', 
+                folder: data.folderPath, 
+                titleSearch: false,
+                recursive: false,
+                onSearchUpdate : async (files, initial) => {
+                    await sleep(0)
+                    if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
+                    else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
+                },
+                onSearchEnded : async files => {
+                    await serverSocket2.emit('getFiles', {files: files})
+                }
+        })
     })
 
     serverSocket2.on('askForFileContent', async data => {
@@ -44,11 +61,14 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
                 term: termObj.term, 
                 folder: termObj.folderToSearch, 
                 titleSearch: termObj.titleSearch,
-                onSearchUpdate : files => {
-                    serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
+                recursive: true,
+                onSearchUpdate : async (files, initial) => {
+                    await sleep(0)
+                    if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
+                    else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
                 },
-                onSearchEnded : files => {
-                    serverSocket2.emit('getFiles', {files: files})
+                onSearchEnded : async files => {
+                    await serverSocket2.emit('getFiles', {files: files})
                 }
         })
     })

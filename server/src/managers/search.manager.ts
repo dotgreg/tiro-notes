@@ -205,11 +205,18 @@ export const analyzeTerm = (term:string):{
 } => {
     let res = {rawTerm:term, termId:term, term:term, folderToSearch:'', titleSearch:false}
 
+    // if only folder, term = ''
+    let folderRaw1 = term.match(regexs.searchFolderNoSpace)
+    if (folderRaw1 && folderRaw1[0]) {
+        res.term = ''
+        res.folderToSearch = folderRaw1[0]
+    }
+
     // if folder in 'toto /hello/world'
-    let folderRaw = term.match(regexs.searchFolder)
-    if (folderRaw && folderRaw[0]) {
-        res.term = term.replace(folderRaw[0], '')
-        res.folderToSearch = folderRaw[0].substr(1)
+    let folderRaw2 = term.match(regexs.searchFolder)
+    if (folderRaw2 && folderRaw2[0]) {
+        res.term = term.replace(folderRaw2[0], '')
+        res.folderToSearch = folderRaw2[0].substr(1)
     }
 
     // if search term is intitle:toto, only search in title
