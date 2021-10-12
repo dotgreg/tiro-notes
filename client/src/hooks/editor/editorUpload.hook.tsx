@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react"
 import { Icon } from "../../components/Icon.component"
+import { configClient } from "../../config"
 import { initClipboardListener } from "../../managers/clipboard.manager"
 import {  clientSocket2 } from "../../managers/sockets/socket.manager"
 import { safeString } from "../../managers/string.manager"
@@ -18,11 +19,11 @@ export const useEditorUploadLogic = (p:{
     let uploadInputRef = useRef<HTMLInputElement>(null)
 
     const reinitUploadLogic = () => {
-        console.log(`[UPLOAD] cleanUploadLogic`);
+        configClient.log.upload && console.log(`[UPLOAD] cleanUploadLogic`);
         clientSocket2.off(keyUploadSocketListener)
 
         // WHEN RECEIVE FILE INFOS FROM API
-        console.log(`[UPLOAD] initUploadLogic`);
+        configClient.log.upload && console.log(`[UPLOAD] initUploadLogic`);
         
         keyUploadSocketListener = listenOnUploadSuccess((file) => {
             let ressourceInMd = `![${safeString (file.name)}](${file.path})\n\n`
@@ -37,7 +38,7 @@ export const useEditorUploadLogic = (p:{
         })
         
         // UPLOAD FROM INPUT
-        uploadInputRef.current ? uploadOnInputChange(uploadInputRef.current) : console.error('[UPLOAD] uploadInputRef not detected');
+        uploadInputRef.current ? uploadOnInputChange(uploadInputRef.current) : configClient.log.upload && console.error('[UPLOAD] uploadInputRef not detected');
         
         // UPLOAD FROM DRAG DROP
         if(uploadDragzoneRef.current) {
@@ -49,7 +50,7 @@ export const useEditorUploadLogic = (p:{
     }
 
     const updateUploadFolder = (newUploadFolder:string) => {
-        console.log(`[UPLOAD] updateUploadFolder to ${newUploadFolder}`);
+        configClient.log.upload && console.log(`[UPLOAD] updateUploadFolder to ${newUploadFolder}`);
         debouncedUploadResourcesInfos(newUploadFolder)
     }
     const debouncedUploadResourcesInfos = useDebounce((newUploadFolder) => {

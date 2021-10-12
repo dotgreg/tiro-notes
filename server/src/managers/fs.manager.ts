@@ -144,13 +144,10 @@ export const fileExists = (path:string):boolean => {
     }
 }
 
-// - 19 norauto bellepine : david
-
 export const fileStats = (path:string):any => {
     try {
         return fs.lstatSync(path)
     } catch (error) {
-        // console.log(2, error);
         return false
     }
 }

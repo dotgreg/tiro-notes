@@ -21,6 +21,7 @@ export const backConfig = {
 
     dev: {
         disableLogin: true
-    }
+    },
+
 }
 

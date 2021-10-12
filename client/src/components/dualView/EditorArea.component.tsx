@@ -22,6 +22,7 @@ import { strings } from '../../managers/strings.manager';
 import { getLoginToken } from '../../hooks/app/loginToken.hook';
 import { FileHistoryPopup } from '../FileHistoryPopup.component';
 import { TtsPopup } from '../TtsPopup.component';
+import { MonacoEditor2 } from '../MonacoEditor2.Component';
 
 export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
 export type onFileEditedFn  =(filepath:string, content:string) => void
@@ -267,6 +268,9 @@ export const EditorArea = (p:{
                     onScroll={p.onScroll}
                     posY={p.posY}
                   />
+                  // <MonacoEditor2
+                  //   value={innerFileContent}
+                  // />
                 }
                 {
                   deviceType() === 'mobile' && 
@@ -296,7 +300,7 @@ export const EditorArea = (p:{
                 />
               }
 
-              {askForPassword && <APasswordPopup/>}
+              {askForPassword && APasswordPopup}
 
               {historyPopup && <FileHistoryPopup file={p.file} onClose={() => {setHistoryPopup(false)}}/>}
               

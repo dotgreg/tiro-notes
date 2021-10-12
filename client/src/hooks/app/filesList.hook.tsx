@@ -30,7 +30,9 @@ export const useAppFilesList = (
     // SOCKET INTERACTIONS
     useEffect(() => {
         console.log(`[FILES LIST] init socket listener`);
-        listenerId.current = clientSocket2.on('getFiles', data => { onFolderFilesReceived(data) })
+        listenerId.current = clientSocket2.on('getFiles', data => { 
+            onFolderFilesReceived(data) 
+        })
         return () => {
             console.log(`[FILES LIST] clean socket listener`);
             clientSocket2.off(listenerId.current)
@@ -112,10 +114,11 @@ export const useAppFilesList = (
             filesRef.current = []
         }   
         else if (data.temporaryResults) {
+            console.log(1111);
             filesRef.current = [...filesRef.current, ...data.files]
-            
         } else {
-            filesRef.current = data.files
+            console.log(2222);
+            filesRef.current = cloneDeep(data.files)
         }
 
         // sort them
@@ -124,7 +127,11 @@ export const useAppFilesList = (
 
         setFiles(filesRef.current)
         
-        onFilesReceivedCallback(filesRef.current, data.temporaryResults || false, data.initialResults || false)
+        onFilesReceivedCallback(
+            filesRef.current, 
+            data.temporaryResults || false, 
+            data.initialResults || false
+        )
 
     }
 

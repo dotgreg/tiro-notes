@@ -136,7 +136,7 @@ export class MonacoEditorWrapper extends React.Component<{
               folding: false,
               // smoothScrolling: true,
               scrollbar: {
-                handleMouseWheel: false,
+                handleMouseWheel: true,
                 verticalScrollbarSize: 0,
               }
             }}

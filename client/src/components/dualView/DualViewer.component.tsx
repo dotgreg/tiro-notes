@@ -17,7 +17,7 @@ export type ViewType = 'editor'| 'both' | 'preview'
 export const DualViewer = (p:{
     file:iFile
     fileContent:string
-    viewType:ViewType
+    // viewType:ViewType
     canEdit: boolean
     forceRender: boolean
     isLeavingNote: boolean
@@ -39,9 +39,11 @@ export const DualViewer = (p:{
         func: () => previewContent
     })
     
-    useEffect(() => {
-        setViewType(p.viewType)
-    }, [p.viewType])
+    // useEffect(() => {
+    //     console.log('setviewtype', p.viewType);
+        
+    //     setViewType(p.viewType)
+    // }, [p.viewType])
 
     useEffect(() => {
         setPreviewContent(p.fileContent)

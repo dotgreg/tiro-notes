@@ -1,7 +1,8 @@
 import {cleanPath} from '../../../shared/helpers/filename.helper'
 import { backConfig } from '../config.back'
 
-export const isEnvDev = ():boolean => process.env.NODE_ENV.trim() === 'development' ? true : false
+const nodeEnv = process.env.NODE_ENV || ''
+export const isEnvDev = ():boolean => nodeEnv.trim() === 'development' ? true : false
 export const getAppPathBase2 = () => isEnvDev() ? '../../..' : '..'
 export const getAppPathBase = () => isEnvDev() ? '..' : '..'
 
@@ -18,11 +19,15 @@ const isAbsolute = (filePath:string) => {
 }
 
 export const anyToRelPath = (pathFile:string):string => {
+    // console.log(11, pathFile);
+    
     if (backConfig && backConfig.dataFolder) {
         pathFile = cleanPath(pathFile)
+        // remove dataFolder
         pathFile = pathFile.split(backConfig.dataFolder).join('')
         // pathFile = pathFile.replace(backConfig.dataFolder, '')
     }
+    // console.log(1212, pathFile, backConfig.dataFolder);
     
     return pathFile
 }

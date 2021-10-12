@@ -3,7 +3,9 @@ import { backConfig } from './config.back';
 import { getPlatform } from './managers/platform.manager';
 import { sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
+import { testSqlite } from './managers/sqlite.manager';
 
+let protocol2 = 'lolcats';
 
 let protocol = (backConfig.jsonConfig && backConfig.jsonConfig.https === 'true') ? 'https' : 'http'
 let port = (backConfig.jsonConfig && backConfig.jsonConfig.port) ? parseInt(backConfig.jsonConfig.port) : 3023
@@ -11,6 +13,10 @@ let port = (backConfig.jsonConfig && backConfig.jsonConfig.port) ? parseInt(back
 console.log(`1===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${port}, protocol:${protocol}, platform: ${getPlatform()})`, backConfig) 
 var express = require('express');
 const app = express()
+
+setTimeout(() => {
+    testSqlite();
+}, 3000);
 
 let server 
 if (protocol === 'https') server = require("https").createServer(sslConfig, app)

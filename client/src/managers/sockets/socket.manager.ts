@@ -56,7 +56,7 @@ type ClientSocketManager<ApiDict> = {
 const createLogMessage = (message:string,obj?:any) => [`%c [CLIENT SOCKET 2] ${message}`,'background: #ccc; color: red',obj ? obj : null]
 
 const createFn = (endpoint, callback) => data => {
-    // console.log(...createLogMessage(`<== ON ${endpoint} `,{...data}));
+    console.log(...createLogMessage(`<== ON ${endpoint} `,{...data}));
     callback(data)
 }
 

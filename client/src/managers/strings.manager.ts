@@ -26,6 +26,7 @@ export const strings = {
     loadingFolder:'loading...',
     moveFolderPrompt: 'move folder',
     setupForm: {
+        title: "Login to Tiro",
         introText: `Welcome to Tiro, please fill these informations to get started`,
         user: 'user',
         password: 'password',

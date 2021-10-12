@@ -22,6 +22,13 @@ export interface iFile {
     index?:number
     folder:string
 }
+
+export type metaContent = string | number
+export interface iFileMetas {
+    [metaName:string]: metaContent
+}
+
+
 export interface iFolder {
     title: string
     key: string

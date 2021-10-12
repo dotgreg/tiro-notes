@@ -33,6 +33,7 @@ import { Icon } from './components/Icon.component';
 import { cssVars } from './managers/style/vars.style.manager';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
 import { updateUrl } from './managers/url.manager';
+import { MonacoEditor2 } from './components/MonacoEditor2.Component';
 
 
 
@@ -107,10 +108,21 @@ export const App2 = () => {
     }
 
 
+    const debounceStopIsSearching = debounce(() => {
+        setIsSearching(false)
+    }, 100)
     const onFilesReceivedCallback:onFilesReceivedFn = 
     (newFiles, isTemporaryResult, isInitialResults) => {
-        setIsSearching(isTemporaryResult)
         
+        if (!isTemporaryResult) {
+            debounceStopIsSearching()
+        } else {
+            setIsSearching(isTemporaryResult)
+        }
+        
+        // only continue if newFiles > 0 files
+        if (newFiles.length === 0) return
+
         // if activeFileIndex exists + is in length of files, load it
         if (activeFileIndex !== -1 && activeFileIndex < newFiles.length) {
             askForFileContent(newFiles[activeFileIndex])
@@ -118,8 +130,10 @@ export const App2 = () => {
         if (isNumber(shouldLoadNoteIndex.current)) {
             console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
             let noteIndex = shouldLoadNoteIndex.current
-            setActiveFileIndex(noteIndex)
-            if (newFiles.length >= noteIndex + 1) askForFileContent(newFiles[noteIndex])
+            if (newFiles.length >= noteIndex + 1) {
+                setActiveFileIndex(noteIndex)
+                askForFileContent(newFiles[noteIndex])
+            }
             shouldLoadNoteIndex.current = null
         }
         // ON LIST ITEMS CHANGES
@@ -184,9 +198,9 @@ export const App2 = () => {
                     askForFileContent(files[i+1])
                 }   
             })
-            onKey(e, '!', () => { if (ctrlPressed.current ) setDualViewType('editor') })
-            onKey(e, '@', () => { if (ctrlPressed.current) setDualViewType('both') })
-            onKey(e, '#', () => { if (ctrlPressed.current) setDualViewType('preview') })
+            // onKey(e, '!', () => { if (ctrlPressed.current ) setDualViewType('editor') })
+            // onKey(e, '@', () => { if (ctrlPressed.current) setDualViewType('both') })
+            // onKey(e, '#', () => { if (ctrlPressed.current) setDualViewType('preview') })
         },
         onKeyUp: e => {
             // onKey(e, 'v', () => {
@@ -196,7 +210,7 @@ export const App2 = () => {
     })
 
     // toggle dualviewtype on alt+v
-    const [dualViewType, setDualViewType] = useState<ViewType>('both') 
+    // const [dualViewType, setDualViewType] = useState<ViewType>('both') 
 
     // Files List
     const {
@@ -445,7 +459,7 @@ export const App2 = () => {
                                 }
 
                             </div> 
-                            <div className="left-wrapper-2">
+                            <div className="left-wrapper-2"> 
                                 <div className="top-files-list-wrapper">
                                     <div className="subtitle-wrapper">
                                         <h3 className="subtitle">{strings.files}</h3>
@@ -486,18 +500,21 @@ export const App2 = () => {
                             { 
                                 DualViewerComponent({
                                     isLeavingNote,
-                                    viewType: dualViewType,
+                                    // viewType: dualViewType,
                                     forceRender: forceResponsiveRender,
                                     onBackButton: () => {
-                                        let file = filesHistory[1]
-                                        if (!filesHistory[1]) return
+                                        console.log('BACK BUTTON to', filesHistory[0].name);
+                                        
+                                        let file = filesHistory[0]
+                                        if (!filesHistory[0]) return
                                         searchFileFromTitle(file.name, file.folder)
                                     }
                                 })
                             }
+                            {/* <MonacoEditor2 value={fileContent || ''} /> */}
                             {/* <DualViewerComponent /> */}
                         </div>
-                    </div>
+                    </div> 
                 </div>
     )
 }

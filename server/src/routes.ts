@@ -3,8 +3,8 @@ import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
-import {  analyzeTerm } from "./managers/search.manager";
-import { formatDateHistory } from "./managers/date.manager";
+import {  analyzeTerm, liveSearchRipGrep } from "./managers/search/search.manager";
+import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
@@ -15,31 +15,27 @@ import {  processClientSetup } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
-import { liveSearchJs } from "./managers/search-js.manager";
+import { liveSearchJs } from "./managers/search/search-js.manager";
 import { sleep } from "./helpers/sleep.helper";
 
 const serverTaskId = {curr: -1}
+let globalDateFileIncrement = {id: 1, date: dateId(new Date())}
+
 export const getServerTaskId = () => serverTaskId.curr
 export const setServerTaskId = (nb) => {serverTaskId.curr = nb}
 
 export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDictionary>) => {
 
-    // serverSocket2.on('askForFiles', async data => {
-    //     let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
-
-    //     if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
-    //     serverSocket2.emit('getFiles', { files: apiAnswer }) 
-    // })
     serverSocket2.on('askForFiles', async data => {
-        liveSearchJs({
+        // liveSearchJs({
+        liveSearchRipGrep({
                 term: '', 
                 folder: data.folderPath, 
                 titleSearch: false,
                 recursive: false,
                 onSearchUpdate : async (files, initial) => {
-                    await sleep(0)
-                    if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
-                    else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
+                    // if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
+                    // else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
                 },
                 onSearchEnded : async files => {
                     await serverSocket2.emit('getFiles', {files: files})
@@ -57,13 +53,12 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
         let termObj = analyzeTerm(data.term)
         console.log({termObj});
 
-        liveSearchJs({
+        liveSearchRipGrep({
                 term: termObj.term, 
                 folder: termObj.folderToSearch, 
                 titleSearch: termObj.titleSearch,
                 recursive: true,
                 onSearchUpdate : async (files, initial) => {
-                    await sleep(0)
                     if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
                     else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
                 },
@@ -89,8 +84,21 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
     },{disableDataLog: true})
 
     serverSocket2.on('createNote', async data => {
-        let nameNote = `/new-note-${random(0,10000)}.md`
-        let notePath = `${backConfig.dataFolder}${data.folderPath}${nameNote}`
+        const checkAndGenNewNoteName = ():string => {
+            let newNameNote = `/Note ${globalDateFileIncrement.id} of ${formatDateNewNote(new Date())}.md`
+            let newNotePath = `${backConfig.dataFolder}${data.folderPath}${newNameNote}`
+            if (globalDateFileIncrement.date !== dateId(new Date())) {
+                globalDateFileIncrement.id = 0
+                globalDateFileIncrement.date = dateId(new Date())
+            }
+            globalDateFileIncrement.id = globalDateFileIncrement.id+1
+            if (fileExists(newNotePath)) {
+                return checkAndGenNewNoteName()
+            } else {
+                return newNotePath
+            }
+        }
+        const notePath = checkAndGenNewNoteName();
         console.log(`CREATING ${notePath}`);
         await saveFile(`${notePath}`, ``)
         

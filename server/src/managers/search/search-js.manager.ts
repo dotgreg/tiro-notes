@@ -1,12 +1,12 @@
 import { exists, existsSync } from "fs";
 import { debounce, throttle } from "lodash";
-import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper";
-import { iFile } from "../../../shared/types.shared";
-import { backConfig } from "../config.back";
-import { normalizeString } from "../helpers/string.helper";
-import { dirDefaultBlacklist } from "./dir.manager";
-import { fileExists, fileStats, isDir, openFile } from "./fs.manager";
-import { anyToRelPath, p } from "./path.manager";
+import { cleanPath, getFileInfos } from "../../../../shared/helpers/filename.helper";
+import { iFile } from "../../../../shared/types.shared";
+import { backConfig } from "../../config.back";
+import { normalizeString } from "../../helpers/string.helper";
+import { dirDefaultBlacklist } from "../dir.manager";
+import { fileExists, fileStats, isDir, openFile } from "../fs.manager";
+import { anyToRelPath, p } from "../path.manager";
 
 const klaw = require('klaw')
 const through2 = require('through2')
@@ -157,7 +157,7 @@ export const liveSearchJs = async (params:{
 
 export const createIFile = (name:string, folder:string, index:number, stats:any):iFile => {
     folder = anyToRelPath(folder)
-    // console.log(333, folder);
+    // console.log(333, folder, name);
     
     return {
         nature: 'file',

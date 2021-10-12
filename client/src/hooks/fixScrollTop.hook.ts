@@ -13,7 +13,7 @@ export const useFixScrollTop = () => {
     // }, [])
     useInterval(() => {
         // console.log('I GET TRIGGERED ALL DS TIME')
-        window.scroll(0,0)
+        // window.scroll(0,0)
 
     }, 1000)
 }

@@ -3,6 +3,12 @@ import React, { useEffect, useRef }  from 'react';
 export type OptionObj = {key: number|string, label:string, obj: any }
 export type InputType = 'password'|'text'|'select'
 
+export const newComp = () => {
+    console.log('INSANELY FAAAST');
+    return 'hello world';
+}
+newComp()
+
 export const Input = (p:{
     id?:string
     label?:string

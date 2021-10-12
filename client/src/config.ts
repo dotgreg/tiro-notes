@@ -4,11 +4,17 @@ export const configClient = {
     log: {
         socket: true,
         eventManager: true,
+        upload: false,
     },
-    version: 'build 20.11 11/06/2021',
+    version: 'build 20.12 13/07/2021',
     global: {
         protocol: '//',
         url: `${window.location.hostname}`,
         port: window.location.port === '80' ? '' : `:${window.location.port}`
+    },
+    params: {
+        previewArea: {
+            scrollSpeed: 1.3
+        }
     }
 }

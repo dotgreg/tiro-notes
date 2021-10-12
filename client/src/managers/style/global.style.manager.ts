@@ -14,7 +14,7 @@ export const GlobalCssApp = css`
 body {
   margin: 0;
   padding: 0px;
-  overflow: hidden;
+//   overflow: hidden;
   background: ${cssVars.colors.bg.light};
   font-size: 11px;
   font-family:${cssVars.font.main};

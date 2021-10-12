@@ -10,7 +10,6 @@ export class Popup extends React.Component
     <{
         onClose:Function, 
         title:string,
-        inputFocus?:boolean,
     }, {
         
     }> {

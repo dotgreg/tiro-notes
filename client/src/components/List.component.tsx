@@ -50,6 +50,7 @@ export class List extends React.Component<{
    
     scrollerWrapperRef:any = React.createRef()
     scrollerListRef:any = React.createRef()
+    canAutoScroll = false
     shouldComponentUpdate(props:any, nextProps:any) {
         if (JSON.stringify(props.files) !== JSON.stringify(this.oldFiles)) {
             this.oldFiles = cloneDeep(props.files)
@@ -60,14 +61,28 @@ export class List extends React.Component<{
             this.getVisibleItemsDebounced()
 
             this.setState({selectionEdges:[-1,-1]})
+
+            console.log(`[LIST] reinit canAutoScroll`);
+            this.canAutoScroll = true
         }
+        // const p2 = this.props
+        // console.log(111, JSON.stringify({props: [p2.activeFileIndex, p2.hoverMode, p2.sortMode, p2.modifierPressed]}));
+        
+        // only scroll to items on load
+         if (this.props.activeFileIndex > 0 && this.canAutoScroll) {
+            this.canAutoScroll = false
+            this.autoScrollToItem(this.props.activeFileIndex)
+        }
+        
         return true
     }
 
     getVisibleItemsDebounced = debounce(() => {
+
         let wrapper = this.scrollerWrapperRef.current
         if (!wrapper) return
         let wrapperHeight = wrapper.getBoundingClientRect().height
+        let initElFocus = -1
 
         let visibleFilesPath:string[] = []
         for (let i = 0; i < this.liRefs.length; i++) {
@@ -77,16 +92,18 @@ export class List extends React.Component<{
                 let elTop = el.getBoundingClientRect().top
                 // adding some margin, notably after for smoother view
                 if (elTop > -50 && elTop < wrapperHeight + 100) {
+                    if (initElFocus === -1) initElFocus = i
                     this.props.files[i] && visibleFilesPath.push(this.props.files[i]?.path)
                 }
             }
         }
 
-        // console.log('[LIST]', visibleFilesPath);
         this.props.onVisibleItemsChange(visibleFilesPath)
     }, 500)
     
     onListScroll = () => {
+        // disable auto scroll on manual scroll
+        this.canAutoScroll = false
         this.getVisibleItemsDebounced()
     }
     
@@ -100,17 +117,17 @@ export class List extends React.Component<{
     }
 
     itemToScroll:number = 0
-    scrollToItem = (nb:number, isAbs=true) => {
+    autoScrollToItem = (nb:number, isAbs=true) => {
         this.itemToScroll = isAbs ? nb : this.itemToScroll + nb
         if (this.itemToScroll < 0 ) this.itemToScroll = 0
         if (this.itemToScroll > this.props.files.length ) this.itemToScroll = this.props.files.length
+        console.log('scroll to item: ', this.itemToScroll);
+        
         this.scrollerListRef.current.scrollToItem(this.itemToScroll)
     }
 
-    render() {
-        // scroll list to item 
-        if (this.props.activeFileIndex > 0) this.scrollToItem(this.props.activeFileIndex)
 
+    render() {
         let sort = SortModes[this.props.sortMode]
         const itemSize = cssVars.sizes.l2.fileLi.height + (cssVars.sizes.l2.fileLi.padding * 2) + (cssVars.sizes.l2.fileLi.margin)
         const listHeight = window.innerHeight - (cssVars.sizes.search.h + cssVars.sizes.search.padding)
@@ -120,9 +137,9 @@ export class List extends React.Component<{
         { 
             deviceType() !== 'desktop' &&
             <div className="mobile-buttons-up-down">
-                <div id="top" onClick={() => {  this.scrollToItem(0, false)  }}>=</div>
-                <div id="up" onClick={() => {  this.scrollToItem(-4, false) }}>^</div>
-                <div id="down" onClick={() => { this.scrollToItem(4, false) }}>v</div>
+                <div id="top" onClick={() => {  this.autoScrollToItem(0, false)  }}>=</div>
+                <div id="up" onClick={() => {  this.autoScrollToItem(-4, false) }}>^</div>
+                <div id="down" onClick={() => { this.autoScrollToItem(4, false) }}>v</div>
             </div>
         }
         

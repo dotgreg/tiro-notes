@@ -1,4 +1,5 @@
 import { debounce } from "lodash";
+import { configClient } from "../config";
 import { clientSocket, clientSocket2 } from "./sockets/socket.manager";
 
 export interface iUploadedFile {
@@ -56,7 +57,7 @@ export const initListenUploadOnDrop = (callbacks: {
     callbacks.onDragEnd()
   }, 100)
 
-  console.log(`[UPLOAD] reinit drag/drop events`);
+  configClient.log.upload && console.log(`[UPLOAD] reinit drag/drop events`);
   
   window.removeEventListener('drop', handleDrop); 
   window.addEventListener('drop', handleDrop);

@@ -50,8 +50,8 @@ export const useNoteEncryption = (p:{
             p.onTextDecrypted(text)
         }
       }
-    
-    const APasswordPopup = () =>  
+
+    const APasswordPopup = 
           <PasswordPopup
             onClose={() => {setAskForPassword(null)}}
             onSubmit={(pwd) => {

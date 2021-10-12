@@ -3,7 +3,7 @@ import { random } from "lodash";
 import { useLocalStorage } from './useLocalStorage.hook';
 import { addCliCmd } from '../managers/cliConsole.manager';
 
-export const useStatMemo = (el:any, memProps) => {
+export const useStatMemo = (el:any, memProps:any[]) => {
     const [showRenderId, setShowRenderId] = useLocalStorage('showRenderId', false)
 
     addCliCmd('toggleRenderId', {

@@ -77,7 +77,7 @@ export const useLoginToken = (p:{
         {displayLoginPopup && 
             <div className="setup-popup-component">
                 <Popup
-                    title="Login to Tiro"
+                    title={strings.setupForm.title}
                     onClose={() => {}}
                 >
                     <div>

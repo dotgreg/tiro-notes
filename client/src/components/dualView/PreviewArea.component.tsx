@@ -1,5 +1,7 @@
+import { clamp } from 'lodash';
 import React, { Ref, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
+import { configClient } from '../../config';
 import { formatDateEditor, formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
 import { md2html } from '../../managers/markdown.manager';
@@ -25,11 +27,6 @@ export const PreviewArea = (p:{
     let currentFolderArr = p.file.path.split('/')
     currentFolderArr.pop()
     let currentFolder = currentFolderArr.join('/')
-
-    // scroll effect
-    useEffect(() => {
-        previewAreaRefs.wrapper.current.scrollTop = p.posY
-    }, [p.posY, p.file.path])
     
     useEffect(() => {
         // @ts-ignore
@@ -40,66 +37,75 @@ export const PreviewArea = (p:{
 
     const [vertBarPos, setVertBarPos] = useState('right')
 
+    const calculateYPos = () => {
+        const max = previewAreaRefs.wrapper.current?.height || 3000
+        return clamp(p.posY, 0, max)
+    }
+
     return (
-        <div 
-            
-            className={`preview-area`}
-            ref={previewAreaRefs.wrapper}
-            >
+        <div className={`preview-area-wrapper`}>
+            <div 
+                className={`preview-area`}
+                ref={previewAreaRefs.wrapper}
+                style={{bottom:  calculateYPos()}}
+                >
 
-            { 
-                deviceType() !== 'desktop' &&
-                <div className={`mobile-buttons-up-down ${vertBarPos}`}>
-                    <div id="toggle-pos" onClick={() => { 
-                        setVertBarPos(vertBarPos === 'right' ? 'left' : 'right')
-                    }}>t</div>
-                    <div id="top" onClick={() => { 
-                        previewAreaRefs.wrapper.current.scrollTop = 0
-                    }}>=</div>
-                    <div id="up" onClick={() => { 
-                        previewAreaRefs.wrapper.current.scrollTop -= 300
-                    }}>^</div>
-                    <div id="down" onClick={() => {
-                        previewAreaRefs.wrapper.current.scrollTop += 300
-                    }}>v</div>
+                { 
+                    deviceType() !== 'desktop' &&
+                    <div className={`mobile-buttons-up-down ${vertBarPos}`}>
+                        <div id="toggle-pos" onClick={() => { 
+                            setVertBarPos(vertBarPos === 'right' ? 'left' : 'right')
+                        }}>t</div>
+                        <div id="top" onClick={() => { 
+                            previewAreaRefs.wrapper.current.scrollTop = 0
+                        }}>=</div>
+                        <div id="up" onClick={() => { 
+                            previewAreaRefs.wrapper.current.scrollTop -= 300
+                        }}>^</div>
+                        <div id="down" onClick={() => {
+                            previewAreaRefs.wrapper.current.scrollTop += 300
+                        }}>v</div>
+                    </div>
+                }
+
+                <div className="infos-preview-wrapper">
+                    
+                    <div className="file-path-wrapper">
+                        {p.file.path.replace(`/${p.file.name}`,'')}
+                    </div>
+
+                    <h1 className="title big-title">
+                        {p.file.name.replace('.md','')}
+                    </h1>
+
+                    <div className="dates-wrapper">
+                    <div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+                    <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+                    </div>
                 </div>
-            }
-
-            <div className="infos-preview-wrapper">
                 
-                <div className="file-path-wrapper">
-                    {p.file.path.replace(`/${p.file.name}`,'')}
-                </div>
+                <PreviewRenderer
+                    filecontent={p.fileContent}
+                    currentFolder={currentFolder}
+                />
 
-                <h1 className="title big-title">
-                    {p.file.name.replace('.md','')}
-                </h1>
-
-                <div className="dates-wrapper">
-                  <div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-                  <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-                </div>
-            </div>
-            
-            <PreviewRenderer
-                filecontent={p.fileContent}
-                currentFolder={currentFolder}
-            />
-
+        </div>
         </div>
     )
 }
 
 
 export const previewAreaCss = (v:MobileView) => `
+.preview-area-wrapper {
+    overflow: ${isIpad() ? 'scroll' : 'hidden'};
+    height: ${isA('desktop') ? '100vh':'100vh'};
+    margin-top: ${isA('desktop') ? '140':'0'}px;
+}
 .preview-area {
     position: relative;
     display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
     padding: ${isA('desktop') ? `0px ${cssVars.sizes.block*3}px 0px ${(cssVars.sizes.block*3)/2}px` : `0px ${cssVars.sizes.block*2}px`};
-    margin-top: ${isA('desktop') ? '140':'0'}px;
-    height: ${isA('desktop') ? '100vh':'100vh'};
-    margin-bottom: 100px;
-    overflow: ${isIpad() ? 'scroll' : 'hidden'};
+    // overflow: ${isIpad() ? 'scroll' : 'hidden'};
     ${isA('desktop') ? 'width: 50%':''};
     ${deviceType() !== 'desktop' ? 'overflow-y: scroll;':''}
 
@@ -178,7 +184,7 @@ export const previewAreaCss = (v:MobileView) => `
         margin-bottom: 1em;
     }
     .preview-content {
-      margin-bottom:100px;
+
     }
     pre {
       code {
