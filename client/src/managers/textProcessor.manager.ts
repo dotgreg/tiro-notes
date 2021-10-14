@@ -26,7 +26,12 @@ export const transformSearchLinks = (bodyRaw: string):string => {
     return body
 }
 
-export const absoluteLinkPathRoot = (currentFolderPath:string) =>  `${getBackendUrl()}/static/${currentFolderPath}`
+export const absoluteLinkPathRoot = (currentFolderPath:string) => {
+    const internalUrl = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${currentFolderPath}`
+    const res = currentFolderPath.startsWith('http') ? currentFolderPath : internalUrl
+    return res
+}
+
 //  @TODO
 // add folderPath that ./.resources/image.jpg becomes localhost:8082/dir1/dir2/dir3/.resources/image.jpg
 export const transformRessourcesInHTML = (currentFolderPath:string, bodyRaw: string ):string => {

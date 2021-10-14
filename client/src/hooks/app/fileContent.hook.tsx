@@ -1,7 +1,9 @@
+import { cloneDeep } from 'lodash';
 import React, {  RefObject, useEffect, useRef, useState } from 'react';
-import { iFile } from '../../../../shared/types.shared';
+import { iFile, iFileMetas } from '../../../../shared/types.shared';
+import { toTimeStampInS } from '../../../../shared/helpers/timestamp.helper';
 import { DualViewer } from '../../components/dualView/DualViewer.component';
-import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { filterMetaFromFileContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
@@ -20,6 +22,7 @@ export const useFileContent = (
     
     // STATE
     const [fileContent, setFileContent] = useState<string|null>(null)
+    const [fileMetas, setFileMetas] = useState<iFileMetas>({})
     const [canEdit, setCanEdit] = useState(false)
 
 
@@ -32,11 +35,12 @@ export const useFileContent = (
             console.log('[FILE CONTENT] getFileContent', data)
             setCanEdit(true)
 
-            // filterMetaFromFileContent
+            // remove metas from content
             let filterRes = filterMetaFromFileContent(data.fileContent)
-            console.log(JSON.stringify({filterRes}))
+            // console.log(JSON.stringify({filterRes}), metasObjToString(filterRes.metas))
+            setFileMetas(filterRes.metas)
 
-            setFileContent(data.fileContent)
+            setFileContent(filterRes.content)
           }
         )
         return () => {
@@ -46,8 +50,19 @@ export const useFileContent = (
     }, [])
 
     const onFileEditedSaveIt = (filepath, content) => {
-      console.log(`[FILE CONTENT] API -> ask for file save`,{filepath, content});
-      clientSocket2.emit('saveFileContent', {filepath: filepath, newFileContent: content, token: getLoginToken()})  
+      // before saving, reconstitute metas into content
+      const nFileMeta = cloneDeep(fileMetas)
+
+      // all of that complex system for that line to work...
+      // if we dont have created, take it from file stats, otherwise do not touch it
+      if (!nFileMeta.created) nFileMeta.created = toTimeStampInS(activeFile && activeFile.created ? activeFile.created : Date.now())
+      // update the modified field everytime it is edited
+      nFileMeta.modified = toTimeStampInS(Date.now())
+
+      const contentWithMeta = `${metasObjToHeaderString(nFileMeta)}${content}`
+      console.log(`[FILE CONTENT] API -> ask for file save`,{filepath, contentWithMeta});
+
+      clientSocket2.emit('saveFileContent', {filepath: filepath, newFileContent: contentWithMeta, token: getLoginToken()})  
     }
 
     const askForFileContent = (file:iFile) => { 

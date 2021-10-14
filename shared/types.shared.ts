@@ -28,6 +28,17 @@ export interface iFileMetas {
     [metaName:string]: metaContent
 }
 
+export interface iFileImage {
+    file: iFile,
+    url: string,
+    title: string
+}
+
+// export interface iImage {
+//     url: string,
+//     title: string
+// }
+
 
 export interface iFolder {
     title: string

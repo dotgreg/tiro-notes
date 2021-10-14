@@ -17,6 +17,9 @@ import { lastNotesCss } from '../../components/LastNotes.component';
 import { setupConfigCss } from '../../hooks/app/setupConfig.hook';
 import { inputComponentCss } from '../../components/Input.component';
 import { PopupWrapperCss } from '../../components/Popup.component';
+import { AppView, AppViewSwitcherComponentCss, GlobalAppViewCss } from '../../hooks/app/appView.hook';
+import { searchBarCss } from '../../components/SearchBar.component';
+import { imageGalleryCss } from '../../components/ImageGallery.component';
 
 let d = deviceType()
 const {els,colors,font,sizes, other } = {...cssVars}
@@ -32,9 +35,15 @@ const cssString = `
   }
 }
 
+${GlobalAppViewCss}
+${AppViewSwitcherComponentCss}
+
 .main-wrapper {
   display: flex;
 
+  ${imageGalleryCss}
+
+  ${searchBarCss}
 
   ${mobileViewMenuCss}
 
@@ -129,19 +138,6 @@ const cssString = `
             color: ${colors.l2.text};
             font-size: 10px;
             font-weight: 800;
-          }
-        }
-        .search-input {
-          input {
-            ${other.radius}
-            width: calc(100% - ${sizes.block*2+20}px);
-            border: none;
-            background: white;
-            padding:14px 10px;
-            margin: 0px ${sizes.block}px ${sizes.block}px ${sizes.block}px; 
-            &::placeholder {
-              color: #afadad;
-            }
           }
         }
       }

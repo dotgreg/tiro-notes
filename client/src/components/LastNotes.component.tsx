@@ -20,11 +20,12 @@ export const LastNotes = (p:{
                 <h3 className="subtitle">{strings.lastNotes}</h3>
                 <ul>
                     {
-                        files.map(file => {
+                        files.map((file, key) => {
                             let name = file.name.replace('.md', '')
                             name = name.length > limitTxt ? `${name.substr(0, limitTxt)}` : name
                             return (
                             <li 
+                                key={key}
                                 title={name}
                                 onClick={e => {p.onClick(file)}}
                                 className="note" >

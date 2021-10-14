@@ -4,9 +4,6 @@ import { EditorArea, onFileDeleteFn, onFileEditedFn, onSavingHistoryFileFn } fro
 import { iFile } from '../../../../shared/types.shared';
 import { PathModifFn } from './TitleEditor.component';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
-import { ButtonToolbar } from './NoteToolbar.component';
-import { editorToggleButtonConfig } from '../../managers/editorToggler.manager';
-import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
 import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
 import { addCliCmd } from '../../managers/cliConsole.manager';
 

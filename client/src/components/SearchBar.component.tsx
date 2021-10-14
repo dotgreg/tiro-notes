@@ -1,10 +1,10 @@
 import React, { Ref } from 'react';
 import styled from '@emotion/styled'
 import { strings } from '../managers/strings.manager';
+import { cssVars } from '../managers/style/vars.style.manager';
 
 export class SearchBar extends React.Component<{
     isSearching: boolean
-    isListEmpty: boolean
     searchTerm: string
     onSearchTermUpdate: (term:string, inputEl:HTMLInputElement|null) => void
     onSearchSubmit: () => void
@@ -29,7 +29,7 @@ export class SearchBar extends React.Component<{
     render() {
       return (
         <>
-            <div className="search-input">
+            <div className="search-bar-component">
                 <input 
                     type="text" 
                     placeholder={strings.searchPlaceholder}
@@ -40,20 +40,27 @@ export class SearchBar extends React.Component<{
                         this.props.onSearchTermUpdate(e.target.value, e.target)
                     }}
                 />
-                {/* <button onClick={(e) => {
-                    if (this.state.search.length < 3) return
-                    this.props.onSearchSubmit(this.state.search)
-                }}>submit</button> */}
             </div>
             <div className="search-status">
                 {this.props.isSearching && strings.searchingLabel}
-                {/* {this.props.isListEmpty && 'no result'} */}
             </div>
         </>
       );
     }
   }
   
-  const StyledWrapper  = styled.div`
-    
+  export const searchBarCss  = `
+    .search-bar-component {
+        input {
+        ${cssVars.other.radius}
+        width: calc(100% - ${cssVars.sizes.block*2+20}px);
+        border: none;
+        background: white;
+        padding:14px 10px;
+        margin: 0px ${cssVars.sizes.block}px ${cssVars.sizes.block}px ${cssVars.sizes.block}px; 
+        &::placeholder {
+            color: #afadad;
+        }
+        }
+    }
   `

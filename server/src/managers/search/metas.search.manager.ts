@@ -1,9 +1,10 @@
 import { each } from "lodash";
 import { processStringToMeta } from "../../../../shared/helpers/metas.helper";
+import { toTimeStampInS } from "../../../../shared/helpers/timestamp.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileMetas, metaContent } from "../../../../shared/types.shared";
 import { cleanFilePath } from "./file.search.manager";
-import { iFilesObj } from "./search.manager";
+import { iFilesObj } from "./search-ripgrep.manager";
 
 export interface iMetasFiles {
     [fileName:string]: iFileMetas
@@ -14,8 +15,10 @@ export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFile
 
      // merging meta dates into filesScannedObj
      each(metasFiles, (metasFile, fileName) => {
-        if (metasFile['created']) filesObj[fileName].created = metasFile['created'] as number
-        if (metasFile['modified']) filesObj[fileName].modified = metasFile['modified'] as number
+         if (filesObj[fileName]) {
+             if (metasFile['created']) filesObj[fileName].created = toTimeStampInS(metasFile['created'])*1000
+             if (metasFile['modified']) filesObj[fileName].modified = toTimeStampInS(metasFile['modified'])*1000
+         }
     })
 
     // from Files obj to Files Arr
@@ -49,7 +52,7 @@ export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:str
         const content = rawMetaArr2[1]
         const meta = processStringToMeta(content)
         
-        if (meta) res[cleanedFileName][meta.name] = meta.value
+        if (meta && meta.name) res[cleanedFileName][meta.name] = meta.value
     }
     return res
 }

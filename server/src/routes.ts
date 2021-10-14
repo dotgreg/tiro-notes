@@ -3,20 +3,17 @@ import { backConfig } from "./config.back";
 import {  exec3 } from "./managers/exec.manager";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
-import {  analyzeTerm, liveSearchRipGrep } from "./managers/search/search.manager";
+import {  analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
-import { random } from "lodash";
 import { iFile, iFolder } from "../../shared/types.shared"; 
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import {  processClientSetup } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
-import { liveSearchJs } from "./managers/search/search-js.manager";
-import { sleep } from "./helpers/sleep.helper";
 
 const serverTaskId = {curr: -1}
 let globalDateFileIncrement = {id: 1, date: dateId(new Date())}
@@ -27,19 +24,27 @@ export const setServerTaskId = (nb) => {serverTaskId.curr = nb}
 export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDictionary>) => {
 
     serverSocket2.on('askForFiles', async data => {
-        // liveSearchJs({
-        liveSearchRipGrep({
-                term: '', 
-                folder: data.folderPath, 
-                titleSearch: false,
-                recursive: false,
-                onSearchUpdate : async (files, initial) => {
-                    // if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
-                    // else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
-                },
-                onSearchEnded : async files => {
-                    await serverSocket2.emit('getFiles', {files: files})
-                }
+        searchWithRipGrep({
+            term: '', 
+            folder: data.folderPath, 
+            titleSearch: false,
+            recursive: false,
+            onSearchEnded : async res => {
+                if (res.files) await serverSocket2.emit('getFiles', {files: res.files})
+            }
+        })
+    })
+
+    serverSocket2.on('askForImages', async data => {
+        searchWithRipGrep({
+            term: '', 
+            imageSearch: true,
+            folder: data.folderPath, 
+            titleSearch: false,
+            recursive: false,
+            onSearchEnded : async res => {
+                if (res.images) await serverSocket2.emit('getImages', {images: res.images})
+            }
         })
     })
 
@@ -51,21 +56,29 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
     serverSocket2.on('searchFor', async data => {
         // see if need to restrict search to a folder
         let termObj = analyzeTerm(data.term)
-        console.log({termObj});
-
-        liveSearchRipGrep({
+        if (data.type === 'text') {
+            searchWithRipGrep({
                 term: termObj.term, 
                 folder: termObj.folderToSearch, 
                 titleSearch: termObj.titleSearch,
                 recursive: true,
-                onSearchUpdate : async (files, initial) => {
-                    if (initial) await serverSocket2.emit('getFiles', {files: files, initialResults: true}) 
-                    else await serverSocket2.emit('getFiles', {files: files, temporaryResults: true})
-                },
-                onSearchEnded : async files => {
-                    await serverSocket2.emit('getFiles', {files: files})
+                onSearchEnded : async res => {
+                    if (res.files) await serverSocket2.emit('getFiles', {files: res.files})
                 }
-        })
+            })
+        }
+        else if (data.type === 'image') {
+            searchWithRipGrep({
+                term: termObj.term, 
+                folder: termObj.folderToSearch, 
+                titleSearch: termObj.titleSearch,
+                imageSearch: true,
+                recursive: true,
+                onSearchEnded : async res => {
+                    if (res.images) await serverSocket2.emit('getImages', {images: res.images})
+                }
+            })
+        }
     })
 
     serverSocket2.on('askFoldersScan', async data => {

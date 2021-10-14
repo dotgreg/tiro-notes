@@ -3,12 +3,14 @@ import { useEffect, useRef } from "react"
 import { iFile } from "../../../../shared/types.shared"
 import { getUrlParams, iUrlParams, listenToUrlChanges, updateUrl } from "../../managers/url.manager"
 import { useDebounce } from "../lodash.hooks"
+import { AppView, iSwitchTypeViewFn } from "./appView.hook"
 
 export const useUrlLogic = (
     isSearching, searchTerm,
     selectedFolder,
     activeFile:iFile,
     activeFileIndex,
+    currentAppView:AppView,
 
     p:{
         reactToUrlParams: (newUrlParams:iUrlParams) => void
@@ -50,14 +52,15 @@ export const useUrlLogic = (
         updateUrl ({
             title: activeFile.realname, 
             folder: selectedFolder, 
-            search: searchTerm
+            search: searchTerm,
+            appview: currentAppView
         })
     }, 200)
 
     // in case of params changes, update url
     useEffect(() => {
         updateAppUrl()
-    }, [activeFileIndex, selectedFolder, isSearching])
+    }, [activeFileIndex, selectedFolder, isSearching, currentAppView])
 
     return {reactToUrl}
 }

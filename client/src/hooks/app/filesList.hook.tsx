@@ -4,6 +4,7 @@ import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
 import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
+import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useDebounce } from '../lodash.hooks';
@@ -114,10 +115,8 @@ export const useAppFilesList = (
             filesRef.current = []
         }   
         else if (data.temporaryResults) {
-            console.log(1111);
             filesRef.current = [...filesRef.current, ...data.files]
         } else {
-            console.log(2222);
             filesRef.current = cloneDeep(data.files)
         }
 

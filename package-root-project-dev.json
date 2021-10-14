@@ -8,7 +8,10 @@
     "android": "cd sources-tiro & npm run android-server-refresh",
     "android2": "cd sources-tiro & npm run android-apk-refresh",
     "ssh-termux": "ssh u0_a200@192.168.43.1 -p8022",
-    "build": "cd sources-tiro & npm run build-export"
+    "emulator": "C:\\Users\\grego\\AppData\\Local\\Android\\Sdk\\emulator\\emulator -avd Pixel_2_API_29  -no-boot-anim -no-snapshot-load",
+    "build": "ssh greg@raw2.websocial.cc",
+    "buildScriptToPut": "cd ~/Desktop/_Dev/tiro/sources-tiro/; git pull origin master; npm run build-export; cd ../builds-tiro; git add .; git commit -m 'up'; git push origin master",
+    "buildOld": "cd sources-tiro & npm run build-export"
   },
   "author": "",
   "license": "ISC",

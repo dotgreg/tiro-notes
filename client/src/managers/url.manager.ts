@@ -1,5 +1,6 @@
 import { isNumber } from "lodash";
 import { configClient } from "../config";
+import { AppView } from "../hooks/app/appView.hook";
 import { isVarMobileView, MobileView } from "./device.manager";
 
 export interface iUrlParams {
@@ -8,6 +9,7 @@ export interface iUrlParams {
     title?:string
     file?:number
     mobileview?:MobileView
+    appview?:AppView
 }
 let currentUrlParams:any = {}
 
@@ -36,6 +38,7 @@ export const getUrlParams = ():iUrlParams => {
     urlParams.file = urlParamsSearch.get('file') ? parseInt(urlParamsSearch.get('file') as string) : undefined
     urlParams.folder = urlParamsSearch.get('folder') || undefined
     urlParams.title = urlParamsSearch.get('title') || undefined
+    urlParams.appview = urlParamsSearch.get('appview') as AppView || undefined
     urlParams.mobileview = isVarMobileView(urlParamsSearch.get('mobileview')) ? urlParamsSearch.get('mobileview') as MobileView : undefined
     return urlParams
 }
@@ -68,8 +71,10 @@ export const updateUrl = (urlParams:iUrlParams) => {
 
     if (urlParams.search && urlParams.search !== '') newUrl += `search=${urlParams.search}&`
 
+    if (urlParams.appview) newUrl += `appview=${urlParams.appview}&`
+
     window.history.pushState({},document.title, newUrl)
 
-    currentUrlParams = getUrlParams()
-    // console.log('12 updateurl', currentUrlParams);
+    console.log(`[URL] update url to ${JSON.stringify({newUrl, urlParams})}`);
+    // currentUrlParams = getUrlParams()
 }

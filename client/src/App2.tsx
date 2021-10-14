@@ -9,7 +9,7 @@ import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { useUrlLogic } from './hooks/app/urlLogic.hook';
-import { cloneDeep, debounce, isArray, isNull, isNumber } from 'lodash';
+import { debounce, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useKeys } from './hooks/app/useKeys.hook';
@@ -27,13 +27,12 @@ import { LastNotes } from './components/LastNotes.component';
 import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
 import { getLoginToken, useLoginToken } from './hooks/app/loginToken.hook';
-import { ViewType } from './components/dualView/DualViewer.component';
 import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
 import { Icon } from './components/Icon.component';
-import { cssVars } from './managers/style/vars.style.manager';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
-import { updateUrl } from './managers/url.manager';
-import { MonacoEditor2 } from './components/MonacoEditor2.Component';
+import { AppView, onViewSwitchedFn, useAppViewType } from './hooks/app/appView.hook';
+import { ImageGallery } from './components/ImageGallery.component';
+import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 
 
 
@@ -75,10 +74,15 @@ export const App2 = () => {
         setFiles([])
     }
 
+    const cleanImagesList = () => {
+        setImages([])
+    }
+
     const cleanListAndFileContent = () => {
         console.log('[cleanListAndFileContent]');
         cleanFileDetails()
         cleanFilesList()
+        cleanImagesList()
     } 
     
     const cleanAllApp = () => {
@@ -87,23 +91,30 @@ export const App2 = () => {
         cleanFolderHierarchy() 
         cleanFileDetails()
         cleanFilesList()
+        cleanImagesList()
     }
 
 
-    const changeToFolder = (folderPath:string, loadFirstNote:boolean = true) => {
+    const changeToFolder = (folderPath:string, appView: AppView, loadFirstNote:boolean = true) => {
         folderPath = cleanPath(folderPath)
-        console.log(`[FOLDER CHANGED] to ${folderPath}`);
+        console.log(`[FOLDER CHANGED] to ${folderPath} with view ${appView}`);
         
         // SEND FIRST isLeavingNote signal for leaving logic like encryption
         setIsLeavingNote(true)
-        // NORMAL CHANGE FOLDER LOGIC
         setTimeout(() => {
+            // NORMAL CHANGE FOLDER LOGIC
             setSearchTerm('')
-            if (loadFirstNote) shouldLoadNoteIndex.current = 0
             setSelectedFolder(folderPath)
             cleanListAndFileContent()
-            askForFolderFiles(folderPath)
-            setIsLeavingNote(false)
+            
+            if (appView === 'text') {
+                if (loadFirstNote) shouldLoadNoteIndex.current = 0
+                askForFolderFiles(folderPath)
+                setIsLeavingNote(false)
+            } else if (appView === 'image'){
+                setSelectedFolder(folderPath)
+                askForFolderImages(folderPath)
+            }
         })
     }
 
@@ -111,6 +122,7 @@ export const App2 = () => {
     const debounceStopIsSearching = debounce(() => {
         setIsSearching(false)
     }, 100)
+
     const onFilesReceivedCallback:onFilesReceivedFn = 
     (newFiles, isTemporaryResult, isInitialResults) => {
         
@@ -223,6 +235,32 @@ export const App2 = () => {
         onFilesReceivedCallback
     )
 
+    /**
+     * Images List
+     */
+    const onImagesReceivedCallback: onImagesReceivedFn = images => {
+        console.log(`[IMAGES CALLBACK] images nb: ${images.length}`)
+        setIsSearching(false)
+    }
+
+    const {
+        images, setImages,
+        askForFolderImages
+    } = useImagesList(onImagesReceivedCallback)
+
+
+
+    /**
+     *  APP VIEW SWITCHER SYSTEM (image/text)
+     */
+    const { currentAppView, switchAppView,
+        AppViewSwitcherComponent
+    } = useAppViewType({
+        onViewSwitched : nView => {
+            changeToFolder(selectedFolder, nView)
+        }
+    })
+
     // Tree Folder
     const {
         openFolders,
@@ -234,7 +272,7 @@ export const App2 = () => {
         askForFolderScan,
         FolderTreeComponent,
         cleanFolderHierarchy
-    } = useAppTreeFolder()
+    } = useAppTreeFolder(currentAppView)
 
     // Search 
     const {
@@ -245,6 +283,7 @@ export const App2 = () => {
     } = useAppSearch(
         shouldLoadNoteIndex,
         cleanListAndFileContent,
+        currentAppView
     )
 
     // Mobile view
@@ -267,7 +306,7 @@ export const App2 = () => {
 
 
     // Search Note from title
-    const {getSearchedTitleFileIndex, searchFileFromTitle} = useSearchFromTitle({changeToFolder})
+    const {getSearchedTitleFileIndex, searchFileFromTitle} = useSearchFromTitle({changeToFolder, currentAppView})
 
     // File Content + Dual Viewer
     let activeFile = files[activeFileIndex] 
@@ -299,12 +338,15 @@ export const App2 = () => {
     const {reactToUrl} = useUrlLogic(
         isSearching, searchTerm, 
         selectedFolder, activeFile,
-        activeFileIndex,
+        activeFileIndex, 
+        currentAppView,
         {
             reactToUrlParams: newUrlParams => {
                 // timeout of 1000 as sometimes when loading is too long, not working
                 setTimeout(() => {
                     // new way
+                    console.log(`[URL] to url params changes ${JSON.stringify(newUrlParams)}`);
+                    
                     if (newUrlParams.folder && newUrlParams.title) {
                         searchFileFromTitle(newUrlParams.title, newUrlParams.folder)
                     }
@@ -314,6 +356,9 @@ export const App2 = () => {
                     }
                     if (newUrlParams.mobileview) {
                         setMobileView(newUrlParams.mobileview)
+                    }
+                    if (newUrlParams.appview) {
+                        switchAppView(newUrlParams.appview)
                     }
                 }, 1000)
             }
@@ -338,12 +383,6 @@ export const App2 = () => {
         }
     }
     
-    // ... quand hover 
-    // creer menu context
-    // quand rename, creer prompt
-    // backend rename folder
-
-    
     // window variables
     addCliCmd('variables', {
         description: 'variables for script uses',
@@ -364,7 +403,7 @@ export const App2 = () => {
     return (
             <div  className={CssApp2(mobileView)} >
                 <Global styles={GlobalCssApp}  />
-                    <div role="dialog" className="main-wrapper">
+                    <div role="dialog" className={`main-wrapper view-${currentAppView}`}>
                         {
                             LoginPopupComponent({})
                         }
@@ -384,25 +423,30 @@ export const App2 = () => {
                         <div className="left-wrapper">
                             <div className="left-wrapper-1">
                                 <div className="invisible-scrollbars">
+                                { currentAppView === 'text' && 
                                     <NewFileButton
-                                        onNewFile= {() => {
-                                            clientSocket2.emit('createNote', {folderPath: selectedFolder, token: getLoginToken()}) 
-                                            shouldLoadNoteIndex.current = 0
-                                        }}
+                                    onNewFile= {() => {
+                                        clientSocket2.emit('createNote', {folderPath: selectedFolder, token: getLoginToken()}) 
+                                        shouldLoadNoteIndex.current = 0
+                                    }}
                                     />
+                                }
                                     
+                                { currentAppView === 'text' && 
                                     <LastNotes 
                                         files={filesHistory}
                                         onClick={file => {
                                             searchFileFromTitle(file.name, file.folder)
                                         }}
                                     />
+                                }
+                                
 
                                     {
                                         FolderTreeComponent({
                                             onFolderClicked: folderPath => {
                                                 setIsSearching(true)
-                                                changeToFolder(folderPath)
+                                                changeToFolder(folderPath, currentAppView)
                                             },
                                             onFolderMenuAction: (action, folder, newTitle) => {
                                                 if (action === 'rename' && newTitle) {
@@ -463,56 +507,60 @@ export const App2 = () => {
                                 <div className="top-files-list-wrapper">
                                     <div className="subtitle-wrapper">
                                         <h3 className="subtitle">{strings.files}</h3>
-                                        {/* <p className="counter">{files.length}</p> */}
                                     </div>
                                     {
-                                        SearchBarComponent(
-                                            selectedFolder,
-                                            files
-                                        )
+                                        SearchBarComponent({selectedFolder})
                                     } 
+                                    <AppViewSwitcherComponent />
                                 </div>
-                                {
-
-                                    FilesListComponent({
-                                        selectedFolder:selectedFolder,
-                                        searchTerm:searchTerm,
-                                        onFileClicked:fileIndex => {
-                                            setActiveFileIndex(fileIndex)
-                                            askForFileContent(files[fileIndex])
-                                            // this.loadFileDetails(fileIndex)
-                                        },
-                                        onFileDragStart:files => {
-                                            console.log(`[DRAG MOVE] onFileDragStart`, files);
-                                            draggedItems.current = [{type:'file', files:files}]
-                                        },
-                                        onFileDragEnd:() => {
-                                            console.log(`[DRAG MOVE] onFileDragEnd`);
-                                            draggedItems.current = []
-                                        },
-                                    })
-                                }
+                                <div className="files-list-wrapper">
+                                    {
+                                        FilesListComponent({
+                                            selectedFolder:selectedFolder,
+                                            searchTerm:searchTerm,
+                                            onFileClicked:fileIndex => {
+                                                setActiveFileIndex(fileIndex)
+                                                askForFileContent(files[fileIndex])
+                                                // this.loadFileDetails(fileIndex)
+                                            },
+                                            onFileDragStart:files => {
+                                                console.log(`[DRAG MOVE] onFileDragStart`, files);
+                                                draggedItems.current = [{type:'file', files:files}]
+                                            },
+                                            onFileDragEnd:() => {
+                                                console.log(`[DRAG MOVE] onFileDragEnd`);
+                                                draggedItems.current = []
+                                            },
+                                        })
+                                    }
+                                </div>
                             </div>
                         </div>
 
 
-                        <div className="right-wrapper">
+                        
+                        <div className="right-wrapper image-gallery-view">
+                            {
+                                SearchBarComponent({selectedFolder})
+                            } 
+                            <AppViewSwitcherComponent />
+                            <ImageGallery images={images} />
+                        </div>
+
+                        <div className="right-wrapper dual-viewer-view">
                             { 
                                 DualViewerComponent({
                                     isLeavingNote,
-                                    // viewType: dualViewType,
                                     forceRender: forceResponsiveRender,
                                     onBackButton: () => {
-                                        console.log('BACK BUTTON to', filesHistory[0].name);
                                         
                                         let file = filesHistory[0]
                                         if (!filesHistory[0]) return
+                                        console.log('BACK BUTTON to', filesHistory[0].name);
                                         searchFileFromTitle(file.name, file.folder)
                                     }
                                 })
                             }
-                            {/* <MonacoEditor2 value={fileContent || ''} /> */}
-                            {/* <DualViewerComponent /> */}
                         </div>
                     </div> 
                 </div>

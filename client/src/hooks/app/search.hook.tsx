@@ -5,12 +5,14 @@ import { addCliCmd } from '../../managers/cliConsole.manager';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { useStatMemo } from '../useStatMemo.hook';
+import { AppView } from './appView.hook';
 import { getLoginToken } from './loginToken.hook';
 
 
 export const useAppSearch = (
     shouldLoadNoteIndex: any,
     cleanListAndFileContent:Function,
+    currentAppView: AppView
 ) => {
     
     const [searchTerm, setSearchTerm] = useState('')
@@ -24,51 +26,42 @@ export const useAppSearch = (
             triggerSearch(term)
         }
     })
-    // useEffect(() => {
-    //     //@ts-ignore
-    //     window.ewTriggerSearch = (term:string) => {
-    //       console.log(`[SEARCH FROM LINK] for ${term}`);
-    //       term =  replaceAll(term, [['_','-']])
-    //       triggerSearch(term)
-    //     }
-    // }, [])
     
     const triggerSearch = (term:string) => {
-        console.log(`[APP -> TRIGGER SEARCH] ${term}`);
+        console.log(`[APP -> TRIGGER SEARCH] with type ${currentAppView} : ${term}`);
 
         setSearchTerm(term)
         setIsSearching(true)
         shouldLoadNoteIndex.current = 0
-        clientSocket2.emit('searchFor', {term, token: getLoginToken()}) 
+        clientSocket2.emit('searchFor', {term, token: getLoginToken(), type:currentAppView}) 
         cleanListAndFileContent()
     }
 
-    const SearchBarComponent = (
+    const SearchBarComponent = (p:{
         selectedFolder:string, 
-        files:iFile[],
-    ) => useStatMemo( 
+
+    }) => useStatMemo( 
         <SearchBar
             onSearchSubmit={() => {
                 triggerSearch(searchTerm)
             }}
             onSearchTermUpdate={(newSearchTerm, input) => {
                 // if in folder, automatically add /current/path in it
-                if (searchTerm === '' && selectedFolder !=='') {
-                    newSearchTerm = newSearchTerm + ' ' + selectedFolder
+                if (searchTerm === '' && p.selectedFolder !=='') {
+                    newSearchTerm = newSearchTerm + ' ' + p.selectedFolder
                     if (input) {
                         setTimeout(() => {
-                            let newCursorPos = (input.selectionStart || 0) - selectedFolder.length - 1
+                            let newCursorPos = (input.selectionStart || 0) - p.selectedFolder.length - 1
                             input.selectionStart = newCursorPos
                             input.selectionEnd = newCursorPos
-                        }, 100)
+                        }, 10)
                     }
                 }
                 setSearchTerm(newSearchTerm)
             }}
             searchTerm={searchTerm}
             isSearching={isSearching}
-            isListEmpty={files.length === 0 ? true : false}
-        />, [searchTerm, selectedFolder, files, isSearching])
+        />, [searchTerm, p.selectedFolder, isSearching, currentAppView])
     return {
         isSearching, setIsSearching, 
         searchTerm, setSearchTerm,

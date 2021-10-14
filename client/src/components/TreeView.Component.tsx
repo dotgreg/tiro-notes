@@ -166,8 +166,9 @@ export const FolderView = (p:{
       { isOpen &&
         <ul className="folder-children">
         {
-          p.folder.children && p.folder.children.map( child => 
+          p.folder.children && p.folder.children.map( (child,key) => 
             <FolderView 
+              key={key}
               folder={child}
               current={p.current}
               onFolderOpen={p.onFolderOpen}

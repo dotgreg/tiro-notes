@@ -106,7 +106,7 @@ export const previewAreaCss = (v:MobileView) => `
     display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
     padding: ${isA('desktop') ? `0px ${cssVars.sizes.block*3}px 0px ${(cssVars.sizes.block*3)/2}px` : `0px ${cssVars.sizes.block*2}px`};
     // overflow: ${isIpad() ? 'scroll' : 'hidden'};
-    ${isA('desktop') ? 'width: 50%':''};
+    ${isA('desktop') ? '':''};
     ${deviceType() !== 'desktop' ? 'overflow-y: scroll;':''}
 
     ${commonCssEditors}

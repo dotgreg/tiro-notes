@@ -12,9 +12,13 @@ export const getFilesPreviewLogic = async (data: iApiDictionary['askFilesPreview
         
         // open file
         let body = await openFile(path)
+
+        // remove === HEADER ===
+        let bodyWithoutHeader = body.replace(regexs.metas, '')
+
         const filePreview:iFilePreview = {
             path: data.filesPath[i],
-            content: body.trim().substr(0,100)
+            content: bodyWithoutHeader.trim().substr(0,100)
         }
         
 
@@ -22,7 +26,7 @@ export const getFilesPreviewLogic = async (data: iApiDictionary['askFilesPreview
 
         // pictures run a regex to find ![](), can be shared with frontend regex
 
-        let match = body.match(regexs.image)
+        let match = bodyWithoutHeader.match(regexs.image)
         if (match && match[0]) {
             let imagePath =  match[0].replace(regexs.firstPartImg,'').replace(')','')
             filePreview.picture = imagePath

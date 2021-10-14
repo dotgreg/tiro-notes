@@ -7,8 +7,8 @@ import { iFileMetas } from "../../../shared/types.shared";
 export interface fileMetaAndContent {metas: iFileMetas, content:string}
 export const filterMetaFromFileContent = (fileContentWithMeta: string): fileMetaAndContent => {
     let matchs = fileContentWithMeta.match(regexs.metas)
-    console.log(111223, matchs);
     const metas:iFileMetas = {}
+
     // find metas
     if (matchs && matchs[0]) {
         const stringsArr = matchs[0].split('\n')
@@ -28,11 +28,11 @@ export const filterMetaFromFileContent = (fileContentWithMeta: string): fileMeta
     }
 }
 
-export const metasObjToString = (metas: iFileMetas): string => {
+export const metasObjToHeaderString = (metas: iFileMetas): string => {
     let res = `${sharedConfig.metas.headerStart}\n`
     each(metas, (metaContent, metaName) => {
         res += `${metaName}: ${metaContent}\n`
     }) 
-    res += `${sharedConfig.metas.headerStart}\n`
+    res += `${sharedConfig.metas.headerEnd}`
     return res
 }

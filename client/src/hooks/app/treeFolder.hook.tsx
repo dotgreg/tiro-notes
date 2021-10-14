@@ -5,6 +5,7 @@ import { onFolderDragStartFn, onFolderDropFn, onFolderMenuActionFn, TreeView } f
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
+import { AppView } from './appView.hook';
 import { getLoginToken } from './loginToken.hook';
 
 export type onFolderClickedFn = (folderPath:string) => void
@@ -12,7 +13,7 @@ export const defaultFolderVal:iFolder = {title: '', key: '', path: ''}
 
 
 
-export const useAppTreeFolder = () => {
+export const useAppTreeFolder = (currentAppView: AppView) => {
     const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat',[])
     const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
     
@@ -73,7 +74,7 @@ export const useAppTreeFolder = () => {
     
     // FOLDER SCAN
     const askForFolderScan = (foldersPaths: string[]) => {
-        console.log(`[TREE FOLDER] askForFolderScan with foldersPaths:`,foldersPaths);
+        console.log(`[TREE FOLDER] askForFolderScan with foldersPaths:`,{foldersPaths});
         clientSocket2.emit('askFoldersScan', {foldersPaths, token: getLoginToken()})  
     }
     
@@ -99,7 +100,7 @@ export const useAppTreeFolder = () => {
                 onFolderDragEnd={p.onFolderDragEnd}
                 onFolderDrop={p.onFolderDrop}
             />
-            , [folderHierarchy, openFolders, selectedFolder]
+            , [folderHierarchy, openFolders, selectedFolder, currentAppView]
         )
     
 
