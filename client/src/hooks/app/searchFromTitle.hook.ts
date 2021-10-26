@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from "react"
-import { iFile } from "../../../../shared/types.shared"
+import { iAppView, iFile } from "../../../../shared/types.shared"
 import { addCliCmd } from "../../managers/cliConsole.manager"
-import { AppView } from "./appView.hook"
 
 export const useSearchFromTitle = (p:{
     changeToFolder,
-    currentAppView: AppView
+    currentAppView: iAppView 
 }) => {
     const {changeToFolder, currentAppView} = {...p}
 

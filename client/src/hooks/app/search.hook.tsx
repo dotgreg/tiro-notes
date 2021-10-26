@@ -1,18 +1,17 @@
 import React, {  useEffect, useRef, useState } from 'react';
-import { iFile } from '../../../../shared/types.shared';
+import { iAppView, iFile } from '../../../../shared/types.shared';
 import { SearchBar } from '../../components/SearchBar.component';
 import { addCliCmd } from '../../managers/cliConsole.manager';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { useStatMemo } from '../useStatMemo.hook';
-import { AppView } from './appView.hook';
 import { getLoginToken } from './loginToken.hook';
 
 
 export const useAppSearch = (
     shouldLoadNoteIndex: any,
     cleanListAndFileContent:Function,
-    currentAppView: AppView
+    currentAppView: iAppView
 ) => {
     
     const [searchTerm, setSearchTerm] = useState('')

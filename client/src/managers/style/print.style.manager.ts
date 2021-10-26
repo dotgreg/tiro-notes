@@ -5,14 +5,15 @@ export const printCss = `
     .editor-area, .connected, .left-wrapper, .connection-status, .mobile-view-toggler {
         display:none!important;
     }
-    html {
-        overflow-y: scroll!important;
-    }
     html, body {
+        overflow: auto!important;
         height: auto!important;
         background-color: white;
     }
-    .preview-area {
+    .main-wrapper .right-wrapper.dual-viewer-view {
+        width: 100vw!important;
+    }
+    .preview-area-wrapper {
         .infos-preview-wrapper {
             .file-path-wrapper {
                 display:none!important;

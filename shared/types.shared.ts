@@ -32,8 +32,10 @@ export interface iFileImage {
     file: iFile,
     url: string,
     title: string
+    index?: number
 }
 
+export type iAppView = 'text'|'image'
 // export interface iImage {
 //     url: string,
 //     title: string

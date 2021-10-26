@@ -1,6 +1,7 @@
 export const strings = {
     folders: 'Folders',
     files: 'files',
+    images: 'images',
     trashNote: 'Are you sure to trash that note?',
     clickHereDisconnected: '(click here if persist)',
     searchingLabel:'searching...',
@@ -37,6 +38,10 @@ export const strings = {
         successReload: `Configuration file successfully written, reloading application...`,
         submit: 'login'
     },
+    appviews: {
+        image: 'Switch to Gallery View',
+        text: 'Switch to Files View',
+    },
     loginForm: {
         wrongUserPassword: 'Wrong login/password',
         wrongToken: 'Authentication expired, please log again'
@@ -49,7 +54,8 @@ export const strings = {
         tts: 'Text to speech',
         explanation: {
             history: 'File history'
-        }
+        },
+        lightbox: 'Show Images in Slider'
     },
     ttsPopup: {
         title: 'Text to speech',

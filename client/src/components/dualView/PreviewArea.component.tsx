@@ -97,7 +97,7 @@ export const PreviewArea = (p:{
 
 export const previewAreaCss = (v:MobileView) => `
 .preview-area-wrapper {
-    overflow: ${isIpad() ? 'scroll' : 'hidden'};
+    overflow: ${isIpad() ? 'scroll' : isA('mobile') ? 'scroll' : 'hidden'};
     height: ${isA('desktop') ? '100vh':'100vh'};
     margin-top: ${isA('desktop') ? '140':'0'}px;
 }
@@ -106,8 +106,6 @@ export const previewAreaCss = (v:MobileView) => `
     display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
     padding: ${isA('desktop') ? `0px ${cssVars.sizes.block*3}px 0px ${(cssVars.sizes.block*3)/2}px` : `0px ${cssVars.sizes.block*2}px`};
     // overflow: ${isIpad() ? 'scroll' : 'hidden'};
-    ${isA('desktop') ? '':''};
-    ${deviceType() !== 'desktop' ? 'overflow-y: scroll;':''}
 
     ${commonCssEditors}
 
@@ -173,9 +171,7 @@ export const previewAreaCss = (v:MobileView) => `
 
     img,
     .content-image {
-        border-radius: 7px;
-        box-shadow: 0px 0px 10px rgb(0 0 0 / 10%);
-        max-width: 100%;
+        ${cssVars.els.images}
     }
 
 

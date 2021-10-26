@@ -27,7 +27,8 @@ export const transformSearchLinks = (bodyRaw: string):string => {
 }
 
 export const absoluteLinkPathRoot = (currentFolderPath:string) => {
-    const internalUrl = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${currentFolderPath}`
+    const cleanedPath = currentFolderPath.replace(`${getBackendUrl()}/${sharedConfig.path.staticResources}/`, '')
+    const internalUrl = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${cleanedPath}`
     const res = currentFolderPath.startsWith('http') ? currentFolderPath : internalUrl
     return res
 }

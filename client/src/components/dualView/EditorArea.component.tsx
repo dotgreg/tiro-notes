@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { iFile } from '../../../../shared/types.shared';
+import { iFile, iFileImage } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelection } from '../MonacoEditor.Component';
 import {NoteTitleInput, PathModifFn} from './TitleEditor.component'
@@ -8,7 +8,6 @@ import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.h
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
 import { useIntervalNoteHistory } from '../../hooks/editor/noteHistory.hook';
 import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
-import { ButtonToolbar, NoteMobileToolbar } from './NoteToolbar.component';
 import { textToId } from '../../managers/string.manager';
 import { useEditorUploadLogic } from '../../hooks/editor/editorUpload.hook';
 import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
@@ -23,11 +22,15 @@ import { getLoginToken } from '../../hooks/app/loginToken.hook';
 import { FileHistoryPopup } from '../FileHistoryPopup.component';
 import { TtsPopup } from '../TtsPopup.component';
 import { MonacoEditor2 } from '../MonacoEditor2.Component';
+import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { NoteMobileToolbar } from './NoteToolbar.component';
+import { findImagesFromContent } from '../../managers/images.manager';
 
 export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
 export type onFileEditedFn  =(filepath:string, content:string) => void
 export type onFileDeleteFn  = (filepath:string) => void
 export type onScrollFn  = (newYpercent:number) => void
+export type onLightboxClickFn = (index: number, images:iFileImage[]) => void
 
 export const EditorArea = (p:{
     file:iFile 
@@ -42,9 +45,11 @@ export const EditorArea = (p:{
     onSavingHistoryFile: onSavingHistoryFileFn
     onFileEdited: onFileEditedFn
     onFileDelete: onFileDeleteFn
+    onLightboxClick: onLightboxClickFn
 
     onBackButton: Function
     onViewToggle: Function
+    
 }) => {
 
     const [vimMode, setVimMode] = useState(false)
@@ -166,16 +171,8 @@ export const EditorArea = (p:{
         title:'insert unique id', 
         icon:'faFingerprint', 
         action: () => { 
-          // let id = textToId(p.file.realname)
-          // let idtxt = `--id-${id}`
-          // let idSearch = `__id_${id}`
           let folder = `${p.file.folder}`
           insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
-          // let id = textToId(p.file.realname)
-          // let idtxt = `--id-${id}`
-          // let idSearch = `__id_${id}`
-          // let folder = `${p.file.folder}`
-          // insertTextAt(`${idtxt}\n[search|${idSearch} ${folder}]\n`, 0)
         }
       },
       {
@@ -190,6 +187,14 @@ export const EditorArea = (p:{
         icon:'faHistory', 
         action: () => { 
           setHistoryPopup(!historyPopup)
+        }
+      },
+      {
+        title: strings.editorBar.lightbox, 
+        icon:'faImages', 
+        action: () => { 
+          const imgs = findImagesFromContent(p.fileContent, p.file)
+          p.onLightboxClick(0, imgs)
         }
       },
       {
@@ -238,7 +243,7 @@ export const EditorArea = (p:{
 
               <div className="toolbar-and-dates-wrapper">
                 <div className='toolbar-wrapper'>
-                  <ButtonToolbar
+                  <ButtonsToolbar
                     class='editor-main-toolbar'
                     buttons={editorToolbarActions}
                   />
@@ -382,24 +387,13 @@ export const editorAreaCss = (v:MobileView) => `
 
     .toolbar-wrapper {  
       flex: 1 1 auto;
-      ul.toolbar {
+      ul.buttons-toolbar-component {
         display: flex;
         list-style: none;
         padding: 0px 0px 0px 0px;
         margin: ${isA("desktop") ? `${cssVars.sizes.block}px 0px` : `${cssVars.sizes.block/3}px 0px ${cssVars.sizes.block/1.5}px 0px `};
         li {
           margin-right: 10px;
-          button {
-            cursor: pointer;
-            ${cssVars.els.button}
-            svg {
-              transform: scale(1.3);
-              color: ${cssVars.colors.editor.interfaceGrey};
-              &:hover {
-                color: ${cssVars.colors.main};
-              }
-            }
-          }
         }
       }  
 

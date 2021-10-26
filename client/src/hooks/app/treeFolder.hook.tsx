@@ -1,11 +1,10 @@
 import { cloneDeep, isArray } from 'lodash';
 import React, {  useEffect, useRef, useState } from 'react';
-import { iFolder } from '../../../../shared/types.shared';
+import { iAppView, iFolder } from '../../../../shared/types.shared';
 import { onFolderDragStartFn, onFolderDropFn, onFolderMenuActionFn, TreeView } from "../../components/TreeView.Component"
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
-import { AppView } from './appView.hook';
 import { getLoginToken } from './loginToken.hook';
 
 export type onFolderClickedFn = (folderPath:string) => void
@@ -13,7 +12,7 @@ export const defaultFolderVal:iFolder = {title: '', key: '', path: ''}
 
 
 
-export const useAppTreeFolder = (currentAppView: AppView) => {
+export const useAppTreeFolder = (currentAppView: iAppView) => {
     const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat',[])
     const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
     

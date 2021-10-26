@@ -17,7 +17,7 @@ import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { addCliCmd } from './managers/cliConsole.manager';
 import { configClient } from './config';
 import { onKey } from './managers/keys.manager';
-import { iFile, iFolder } from '../../shared/types.shared';
+import { iAppView, iFile, iFileImage, iFolder } from '../../shared/types.shared';
 import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
@@ -30,9 +30,10 @@ import { getLoginToken, useLoginToken } from './hooks/app/loginToken.hook';
 import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
 import { Icon } from './components/Icon.component';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
-import { AppView, onViewSwitchedFn, useAppViewType } from './hooks/app/appView.hook';
+import { useAppViewType } from './hooks/app/appView.hook';
 import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
+import { Lightbox } from './components/Lightbox.component';
 
 
 
@@ -95,7 +96,7 @@ export const App2 = () => {
     }
 
 
-    const changeToFolder = (folderPath:string, appView: AppView, loadFirstNote:boolean = true) => {
+    const changeToFolder = (folderPath:string, appView: iAppView, loadFirstNote:boolean = true) => {
         folderPath = cleanPath(folderPath)
         console.log(`[FOLDER CHANGED] to ${folderPath} with view ${appView}`);
         
@@ -399,6 +400,24 @@ export const App2 = () => {
 
     // Show settings panel
     const [showSettingsPopup, setShowSettingsPopup] = useState(false)
+
+
+    /**
+     * LIGHTBOX SYSTEM
+     */
+    const [lightboxImages, setLightboxImages] = useState<iFileImage[]>([])
+    const [ligthboxIndex, setLigthboxIndex] = useState(0)
+    const openLightbox = (index: number, images:iFileImage[]) => {
+        console.log(`[LIGHTBOX] open ${images.length} images to index ${index}`, {images});
+        setLightboxImages(images)
+        setLigthboxIndex(index)
+    }
+    const closeLightbox = (index: number, images:iFileImage[]) => {
+        console.log(`[LIGHTBOX] close`);
+        setLightboxImages([])
+        setLigthboxIndex(0)
+    }
+
     
     return (
             <div  className={CssApp2(mobileView)} >
@@ -506,12 +525,12 @@ export const App2 = () => {
                             <div className="left-wrapper-2"> 
                                 <div className="top-files-list-wrapper">
                                     <div className="subtitle-wrapper">
-                                        <h3 className="subtitle">{strings.files}</h3>
+                                        {/* <h3 className="subtitle">{strings.files}</h3> */}
+                                        <AppViewSwitcherComponent />
                                     </div>
                                     {
                                         SearchBarComponent({selectedFolder})
                                     } 
-                                    <AppViewSwitcherComponent />
                                 </div>
                                 <div className="files-list-wrapper">
                                     {
@@ -540,11 +559,18 @@ export const App2 = () => {
 
                         
                         <div className="right-wrapper image-gallery-view">
-                            {
-                                SearchBarComponent({selectedFolder})
-                            } 
-                            <AppViewSwitcherComponent />
-                            <ImageGallery images={images} />
+                            <div className="image-gallery-header">
+                                <div className="subtitle-wrapper">
+                                    <AppViewSwitcherComponent />
+                                </div>
+                                {
+                                    SearchBarComponent({selectedFolder})
+                                } 
+                            </div>
+                            <ImageGallery
+                                images={images}
+                                onImageClicked={openLightbox}
+                                forceRender={forceResponsiveRender} />
                         </div>
 
                         <div className="right-wrapper dual-viewer-view">
@@ -552,6 +578,7 @@ export const App2 = () => {
                                 DualViewerComponent({
                                     isLeavingNote,
                                     forceRender: forceResponsiveRender,
+                                    onLightboxClick: openLightbox,
                                     onBackButton: () => {
                                         
                                         let file = filesHistory[0]
@@ -563,6 +590,15 @@ export const App2 = () => {
                             }
                         </div>
                     </div> 
+
+                    {
+                        lightboxImages.length > 0 &&
+                        <Lightbox
+                            images={lightboxImages}
+                            startingIndex={ligthboxIndex} 
+                            onClose={closeLightbox}
+                        />
+                    }
                 </div>
     )
 }

@@ -1,80 +1,107 @@
 import React, { useEffect, useRef, useState }  from 'react';
 import { iFileImage } from '../../../shared/types.shared';
 import { useDebounce } from '../hooks/lodash.hooks';
+import { detachNote } from '../managers/detachNote.manager';
+import { deviceType } from '../managers/device.manager';
 import { getImageDimensions } from '../managers/imageDimensions.manager';
+import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
+import { ButtonsToolbar } from './ButtonsToolbar.component';
+import { Icon } from './Icon.component';
 
 export const ImageGallery = (p:{
   images: iFileImage[]
+  forceRender: boolean
+  onImageClicked : (index: number, images:iFileImage[]) => void
 }) => {
-  const colsNb = 3
-  
-  // BASIC SYSTEM
-  // const imgsNbPerCols = Math.round(p.images.length / colsNb)
-  // const cols:iFileImage[][] = []
-  // let colsCounter = 0
-  // for (let i = 0; i < p.images.length; i++) {
-    //   if (!cols[colsCounter]) cols[colsCounter] = []
-    //   cols[colsCounter].push(p.images[i]) 
-    //   colsCounter++
-    //   // getImageDimensions(absoluteLinkPathRoot(p.images[i].url))
-    //   if (colsCounter > colsNb - 1) colsCounter = 0
-    // }
     
-  // TAKING IN ACCOUNT HEIGHT OF EACH IMAGE
+  
   type imagesCol = {height: number, images: iFileImage[]}
   const [cols, setCols] = useState<imagesCol[]>([])
-  // const [statusLabel, setStatusLabel] = useState<string>('')
+  const basicColsType = true
+
+
+  const getNbCols = () => deviceType() === 'desktop' ? 3 : 1
+  const [nbCols, setNbCols] = useState(getNbCols())
+  useEffect(() => {
+    setNbCols(getNbCols())
+  }, [p.forceRender])
 
   // create all cols
-  // const debounceNoResult = useDebounce(() => {
-  //   if (p.images.length === 0) {
-  //     // setStatusLabel('No results')
-  //   }
-  // }, 1000)
   useEffect(() => {
-
-    // setStatusLabel('Loading ...')
-    // debounceNoResult()
     setCols([])
 
-    const nCols:imagesCol[] = []
-    for (let i = 0; i < colsNb; i++) {
-      nCols.push({height: 0, images: []})
+    if (basicColsType) {
+      /**
+       *  BASIC BUT FASTER
+       */
+      const nCols:imagesCol[] = []
+      let colsCounter = 0
+      for (let i = 0; i < p.images.length; i++) {
+        if (!nCols[colsCounter]) nCols[colsCounter] = {height: 0, images:[]}
+        const nImage:iFileImage = p.images[i]
+        nImage.index = i
+        nCols[colsCounter].images.push(nImage)
+        colsCounter++
+        if (colsCounter > nbCols - 1) colsCounter = 0
+      }
+      setCols(nCols)
     }
-    
-    let loadCounter = 0
-    for (let i = 0; i < p.images.length; i++) {
-      const srcImg = absoluteLinkPathRoot(p.images[i].url)
-      getImageDimensions(srcImg).then(imgDims => {
-        let sid = 0
-        for (let y = 0; y < nCols.length; y++) {
-          if (nCols[sid].height > nCols[y].height) sid = y
+
+
+    else {
+      /**
+       *  INTELLIGENT (HEIGHT BASED) YET SLOWER
+       *  - TAKING IN ACCOUNT HEIGHT OF EACH IMAGE (should actually more be the ratio w/h than height)
+       */
+      const nCols:imagesCol[] = []
+      for (let i = 0; i < nbCols; i++) {
+        nCols.push({height: 0, images: []})
+      }
+  
+      const triggerColsUpdate = () => {
+        loadCounter++
+        if (loadCounter === p.images.length) {
+          setCols(nCols)
         }
-        nCols[sid].images.push(p.images[i])
-        nCols[sid].height += imgDims.height
+      }
+      
+      let loadCounter = 0
+      const allSrcs:string[] = []
+      for (let i = 0; i < p.images.length; i++) {
+        const srcImg = absoluteLinkPathRoot(p.images[i].url)
         
-        triggerColsUpdate()
-      }).catch(() => {
-        console.log(`[GALLERY] could not load ${srcImg}`)
-        triggerColsUpdate()
-      })
-    }
-   
-    const triggerColsUpdate = () => {
-      loadCounter++
-      // console.log(loadCounter, p.images.length);
-      if (loadCounter === p.images.length) {
-        setCols(nCols)
-        // setStatusLabel('')
+        // all images should be unique
+        if (!allSrcs.includes(srcImg)) {
+          getImageDimensions(srcImg).then(imgDims => {
+            let sid = 0
+            for (let y = 0; y < nCols.length; y++) {
+              if (nCols[sid].height > nCols[y].height) sid = y
+            }
+            const nImage:iFileImage = p.images[i]
+            nImage.index = i
+            nCols[sid].images.push(nImage)
+            nCols[sid].height += imgDims.height
+            
+            triggerColsUpdate()
+          }).catch(() => {
+            console.log(`[GALLERY] could not load ${srcImg}`)
+            triggerColsUpdate()
+          })
+          allSrcs.push(srcImg)
+        
+        } else {
+          triggerColsUpdate()
+        
+        }
       }
     }
-  }, [p.images])
+   
+  }, [p.images, nbCols])
   
 
     return (
         <div className={`image-gallery-component-wrapper` }>
-            {/* <div className={'status-label'}>{statusLabel}</div> */}
             <div className={`masonry-gallery`}>
               {
                 cols.map((col, key1) => 
@@ -82,6 +109,22 @@ export const ImageGallery = (p:{
                     { col.images.map((image, key2) => 
                       <div className={`masonry-col-item`} key={key2}>
                         <img src={absoluteLinkPathRoot(image.url)} />
+                        <div className="image-infos">
+                          <ButtonsToolbar 
+                            buttons={[{
+                                title: 'open note',
+                                icon:'faExternalLinkAlt',
+                                action: () => {detachNote(image.file)}
+                              },
+                              {
+                                title: 'open lightbox',
+                                icon:'faExpand',
+                                action: () => {p.onImageClicked(image.index || 0, p.images)}
+                              }
+                            ]}
+                            size={1}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -92,10 +135,13 @@ export const ImageGallery = (p:{
     )
 }
 
-export const imageGalleryCss = `
+export const imageGalleryCss = () => `
  .image-gallery-component-wrapper {
+   margin: 0px 17px;
    overflow-y: scroll;
-   height: 100vh;
+  //  height: calc(100vh - ${cssVars.sizes.search.padding + cssVars.sizes.gallery.topH + (deviceType() === 'desktop' ? 0 : 190)}px);
+   height: calc(100vh - ${cssVars.sizes.search.padding + cssVars.sizes.gallery.topH}px);
+  //  height: 100%;
    width: 100%;
 
    .masonry-gallery {
@@ -105,12 +151,24 @@ export const imageGalleryCss = `
      flex-wrap: wrap;
 
      .masonry-col {
-       width: 32%;
+       width: ${deviceType() === 'desktop' ? 32 : 90}%;
+       margin-right: 1%;
 
       .masonry-col-item {
-        img {
-          width: 100%;
+        position: relative;
+        &:hover {
+          .image-infos {
+            display: block;
+          }
         }
+        .image-infos {
+          display: none;
+         ${cssVars.els.imageInfos}
+        }
+        img {
+          ${cssVars.els.images}
+        }
+        margin-bottom: 10px;
       }
      }
    }

@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import { ButtonToolbar } from '../../components/dualView/NoteToolbar.component';
+import { ButtonsToolbar } from '../../components/ButtonsToolbar.component';
 import { deviceType, MobileView } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useLocalStorage } from '../useLocalStorage.hook';
@@ -13,7 +13,7 @@ export const useMobileView = () => {
         <>
             { 
                 deviceType() !== 'desktop' &&
-                <ButtonToolbar
+                <ButtonsToolbar
                     class='mobile-view-toggler'
                     buttons={[
                         {icon: 'faStream', class:`${mobileView === 'navigator' ? 'active' : ''}`, action: () => {setMobileView('navigator')} },
@@ -55,8 +55,16 @@ export const mobileViewMenuCss = `
                 padding: 10px 40px;
                 border-radius: 6px;
             }
-            &.active svg {
-                background: rgba(255,255,255,0.2);
+            &:hover {
+                svg {
+                    color: white;
+                }
+            }
+            &.active {
+                svg {
+                    color: white;
+                    background: rgba(255,255,255,0.2);
+                }
             }
         }
     }

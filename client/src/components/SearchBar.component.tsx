@@ -40,9 +40,9 @@ export class SearchBar extends React.Component<{
                         this.props.onSearchTermUpdate(e.target.value, e.target)
                     }}
                 />
-            </div>
-            <div className="search-status">
-                {this.props.isSearching && strings.searchingLabel}
+                <div className="search-status">
+                    {this.props.isSearching && strings.searchingLabel}
+                </div>
             </div>
         </>
       );
@@ -52,15 +52,19 @@ export class SearchBar extends React.Component<{
   export const searchBarCss  = `
     .search-bar-component {
         input {
-        ${cssVars.other.radius}
-        width: calc(100% - ${cssVars.sizes.block*2+20}px);
-        border: none;
-        background: white;
-        padding:14px 10px;
-        margin: 0px ${cssVars.sizes.block}px ${cssVars.sizes.block}px ${cssVars.sizes.block}px; 
-        &::placeholder {
-            color: #afadad;
+            ${cssVars.other.radius}
+            width: calc(100% - ${cssVars.sizes.block*2+20}px);
+            border: none;
+            background: white;
+            padding:14px 10px;
+            margin: 0px ${cssVars.sizes.block}px ${cssVars.sizes.block}px ${cssVars.sizes.block}px; 
+            &::placeholder {
+                color: #afadad;
+            }
         }
+        .search-status {
+            text-align: center;
+            font-size: 8px;
         }
     }
   `

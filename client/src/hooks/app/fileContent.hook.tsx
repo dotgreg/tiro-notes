@@ -7,6 +7,7 @@ import { filterMetaFromFileContent, metasObjToHeaderString } from '../../manager
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
+import { onLightboxClickFn } from '../../components/dualView/EditorArea.component';
 
 export const useFileContent = (
   activeFile: iFile|null,
@@ -79,6 +80,7 @@ export const useFileContent = (
     const DualViewerComponent = (p:{
       isLeavingNote:boolean
       onBackButton:Function
+      onLightboxClick:onLightboxClickFn
       forceRender:boolean
     }) => 
     useStatMemo(
@@ -115,9 +117,10 @@ export const useFileContent = (
                 else cleanFileDetails()
                 
                 clientSocket2.emit('onFileDelete', {filepath, token: getLoginToken()}) 
-                  
+                
                 askForFolderFiles(selectedFolder)
               }}
+              onLightboxClick={p.onLightboxClick}
               onBackButton={p.onBackButton}
             />
         }

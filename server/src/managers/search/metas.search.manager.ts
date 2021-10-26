@@ -29,7 +29,7 @@ export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFile
     return filesRes
 }
 
-export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:string):iMetasFiles => {
+export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:string, debugMode: boolean = false):iMetasFiles => {
     const res:iMetasFiles = {}
 
     // PROCESS META FROM STRING TO iFileMetas
@@ -43,7 +43,9 @@ export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:str
         
         // filter on nb results
         const rawMetaArr2 = metaStr.split('.md:')
-        if (rawMetaArr2.length < 1) continue
+        if (rawMetaArr2.length < 2) continue
+
+        // if (debugMode) console.log(12, metaStr, 'to', rawMetaArr2)
         
         const fileName = `${rawMetaArr2[0]}.md`;
         let cleanedFileName = cleanFilePath(fileName, folder)

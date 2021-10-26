@@ -1,5 +1,4 @@
-import { AppView } from "../client/src/hooks/app/appView.hook";
-import { iFile, iFileImage, iFilePreview, iFolder, iSetupCode, iSetupForm } from "./types.shared";
+import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -23,7 +22,7 @@ export interface iApiDictionary {
     moveFile: {initPath: string, endPath:string}
     moveFolder: {initPath: string, endPath:string}
     
-    searchFor: {term:string, type: AppView}
+    searchFor: {term:string, type: iAppView}
     getUploadedFile: {name:string, path:string}
 
     askFolderHierarchy: {folderPath:string}

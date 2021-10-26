@@ -29,7 +29,7 @@ export const listenSocketEndpoints = (serverSocket2:ServerSocketManager<iApiDict
             folder: data.folderPath, 
             titleSearch: false,
             recursive: false,
-            onSearchEnded : async res => {
+            onSearchEnded : async res => { 
                 if (res.files) await serverSocket2.emit('getFiles', {files: res.files})
             }
         })

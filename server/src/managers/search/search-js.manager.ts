@@ -1,12 +1,10 @@
-import { exists, existsSync } from "fs";
-import { debounce, throttle } from "lodash";
 import { cleanPath, getFileInfos } from "../../../../shared/helpers/filename.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { normalizeString } from "../../helpers/string.helper";
 import { dirDefaultBlacklist } from "../dir.manager";
-import { fileExists, fileStats, isDir, openFile } from "../fs.manager";
-import { anyToRelPath, p } from "../path.manager";
+import { fileExists, openFile } from "../fs.manager";
+import { createIFile } from "./file.search.manager";
 
 const klaw = require('klaw')
 const through2 = require('through2')
@@ -155,19 +153,23 @@ export const liveSearchJs = async (params:{
     }
 }
 
-export const createIFile = (name:string, folder:string, index:number, stats:any):iFile => {
-    folder = anyToRelPath(folder)
-    // console.log(333, folder, name);
+// export const createIFile = (name:string, folder:string, index:number, stats:any):iFile => {
+//     folder = anyToRelPath(folder)
+//     // clean name of possibe path inside
+//     const nameArr = name.split('/')
+//     let realName = nameArr.pop()
+//     let fullFolder = folder
+//     fullFolder = `${fullFolder}/${nameArr.join('/')}`
     
-    return {
-        nature: 'file',
-        extension: 'md',
-        index,
-        created: Math.round(stats.birthtimeMs),
-        modified: Math.round(stats.ctimeMs),
-        name: cleanPath(`${name}`),
-        realname: `${name}`,
-        path: cleanPath(`${folder}/${name}`),
-        folder: cleanPath(`${folder}`),
-    }
-}
+//     return {
+//         nature: 'file',
+//         extension: 'md',
+//         index,
+//         created: Math.round(stats.birthtimeMs),
+//         modified: Math.round(stats.ctimeMs),
+//         name: cleanPath(`${realName}`),
+//         realname: `${realName}`,
+//         path: cleanPath(`${fullFolder}/${realName}`),
+//         folder: cleanPath(`${fullFolder}`),
+//     }
+// }

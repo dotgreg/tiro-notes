@@ -135,7 +135,6 @@ export const removeFile = async (filepath:string):Promise<void> => {
 export const fileExists = (path:string):boolean => {
     path = p(path)
     try {
-        // console.log(133, path);
         return fs.existsSync(path)
     } catch (error) {
         console.log(`[fileExists] error : `, error);

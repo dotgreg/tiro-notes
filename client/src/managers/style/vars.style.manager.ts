@@ -67,6 +67,9 @@ const colors = {
       r: 63
     },
     search: {h: 94, padding: block},
+    gallery: {
+      topH: 100
+    },
     block: block,
     scrollbar: 17,
     l2: {
@@ -107,6 +110,23 @@ const colors = {
     button: `
       background: none;
       border: none;
+    `,
+    images: `
+      border-radius: 7px;
+      box-shadow: 0px 0px 10px rgb(0 0 0 / 10%);
+      max-width: 100%;
+    `,
+    imageInfos: `
+      position: absolute;
+      top: 0px;
+      height: 55px;
+      left: 0px;
+      width: 100%;
+      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%);
+      ul {
+        margin-top: 5px;
+        justify-content: flex-end;
+      }
     `,
     redButton: `
       border: none;

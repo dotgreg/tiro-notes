@@ -3,6 +3,7 @@ import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
+import { fileExists } from "../fs.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
@@ -24,6 +25,8 @@ export const searchWithRipGrep = async (params:{
     const folderToSearch = `${backConfig.dataFolder+params.folder}`;
     const perfs = {init: Date.now(), cmd1: Date.now(), cmd2:Date.now()}
     const searchType = (params.term === '') ? 'folder' : 'term'
+
+    const debugMode =  (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
     
     // regex dictionary
     const r = {
@@ -60,18 +63,24 @@ export const searchWithRipGrep = async (params:{
             resultsRawArr.push(...rawMetaArr)
         })
         ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-            const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, params.folder);
+            const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, params.folder, true);
+            // if (debugMode) console.log(11, resultsRawArr, 'to', metasFilesObj)
             const scannedFilesObj:iFilesObj = {}
             let index = 0
             each(metasFilesObj, (metaObj, fileName) => {
                 const file = processRawPathToFile(fileName, params.folder, index, titleFilter)
-                if (file && file.name) {
-                    scannedFilesObj[file.name] = file
-                    index++
+                if ( file && file.name) {
+                    // console.log(14, 'file exists?' , file.path,  fileExists(file.path), file)
+                    if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
+                        scannedFilesObj[file.name] = file
+                        index++
+                    }
                 }
             })
             const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
-            console.log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `,{ files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams});  
+            const debugObj = debugMode ? {filesWithMetaUpdated, scannedFilesObj, metasFilesObj} : {}
+
+            console.log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `,{ files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj});  
             params.onSearchEnded({files: filesWithMetaUpdated})
         })
     }
@@ -128,6 +137,7 @@ export const searchWithRipGrep = async (params:{
         })
         ripGrepStreamProcess2.stdout.on('close', dataRaw => {
             // process raw strings to meta objs
+            
             metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, params.folder)
             console.log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `,{metaFilesInFullFolderSearch});  
             perfs.cmd2 = Date.now()
@@ -172,9 +182,9 @@ export const searchWithRipGrep = async (params:{
             const partialRawStringsArr = partialRawString.split('\n')
             rawStrings.push(...partialRawStringsArr)
         })
-        ripGrepStreamProcessImg2.stdout.on('close', dataRaw => {
+        ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
             const images = processRawStringsToImagesArr(rawStrings, params.folder, titleFilter);
-            console.log(`[RIPGREP SEARCH] TERM SEARCH + IMAGE => ENDED ${images.length}`);  
+            console.log(`[RIPGREP SEARCH] TERM SEARCH + IMAGE => ENDED ${images.length}`, {searchParams});  
             params.onSearchEnded({images})
         })
     }

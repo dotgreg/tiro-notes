@@ -8,7 +8,12 @@ export const processRawStringsToImagesArr = (rawMetasStrings: string[], folder:s
     const imagesArr:iFileImage[] = []
 
     for (let i = 0; i < rawMetasStrings.length; i++) {
+        /**
+         * FILTERING
+         * trying to filter as much as possible lines to avoid expensive calculations below
+         */
         let rawStr = rawMetasStrings[i];
+        if (!rawStr.includes('![') || !rawStr.includes('](')) continue
         
         // filter on string
         rawStr = rawStr.split('\r').join('')
@@ -17,24 +22,33 @@ export const processRawStringsToImagesArr = (rawMetasStrings: string[], folder:s
         // filter on nb results
         const rawMetaArr2 = rawStr.split('.md:')
         if (rawMetaArr2.length < 1) continue
+
+        const content = rawMetaArr2[1]
+        if (!content.includes('![') || !content.includes('](')) continue
         
+
+         /**
+         * STRING PROCESSING
+         */
         const fileName = `${rawMetaArr2[0]}.md`;
         let cleanedFileName = cleanFilePath(fileName, folder)
         const file = processRawPathToFile(cleanedFileName, folder)
+        // console.log(file.path);
 
         if (titleFilter !== '' && !file.path.toLowerCase().includes(titleFilter.toLowerCase())) continue
 
-        const content = rawMetaArr2[1]
         const image = processStringToImage(content, file)
         
         if (image && image.url) imagesArr.push(image)
     }
+    // console.log(file.path);
     return imagesArr
 }
 
 export const processStringToImage = (raw:string, file:iFile):iFileImage|null => {
+    
+
     const matchs = raw.match(regexs.imageAndTitleCapture)   
-    console.log(matchs);
     if (!matchs || matchs.length !== 1) return null
     let imgStr = matchs[0]
     imgStr = imgStr.replace('![', '')

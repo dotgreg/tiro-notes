@@ -1,16 +1,16 @@
 import { isNumber } from "lodash"
 import { useEffect, useRef } from "react"
-import { iFile } from "../../../../shared/types.shared"
+import { iAppView, iFile } from "../../../../shared/types.shared"
 import { getUrlParams, iUrlParams, listenToUrlChanges, updateUrl } from "../../managers/url.manager"
 import { useDebounce } from "../lodash.hooks"
-import { AppView, iSwitchTypeViewFn } from "./appView.hook"
+import { iSwitchTypeViewFn } from "./appView.hook"
 
 export const useUrlLogic = (
     isSearching, searchTerm,
     selectedFolder,
     activeFile:iFile,
     activeFileIndex,
-    currentAppView:AppView,
+    currentAppView:iAppView,
 
     p:{
         reactToUrlParams: (newUrlParams:iUrlParams) => void
@@ -45,12 +45,16 @@ export const useUrlLogic = (
 
 
 
+    // CHANGE URL LOGIC HERE
     const updateAppUrl = useDebounce(() => {
         if (ignoreNextUrlChange.current) return ignoreNextUrlChange.current = false
         
-        if (!activeFile) return
+        const title = activeFile ? activeFile.realname : ''
+
+        if (currentAppView === 'text' && !activeFile) return
+        
         updateUrl ({
-            title: activeFile.realname, 
+            title, 
             folder: selectedFolder, 
             search: searchTerm,
             appview: currentAppView
