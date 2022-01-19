@@ -19,7 +19,7 @@ let execCmd = async () => {
     const fileBuffer = fs.readFileSync(path.resolve(__dirname, './rg/rg-win.exe'))
     let rgTemp = './rgtemp.exe'
     fs.writeFileSync(rgTemp, fileBuffer)
-    const {stdout} = await execa.command(`${rgTemp} elise ../../data`)
+    const {stdout} = await execa.command(`${rgTemp} test ../../data`)
     console.log(stdout);
     // const {stdout3} = await execa.command(`cp ${rgPath} ./rg2.exe`)
     // console.log(stdout3);
