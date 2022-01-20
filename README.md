@@ -4,13 +4,14 @@
 
 ## GOAL
 
-Tiro Notes is a markdown-only note manager flexible enough to be used on all your devices.
+Tiro Notes is a light markdown note editor flexible enough to be used on all your devices.
 
 Aims to offer all functionalities expected from applications like Evernote, Onenote, Joplin etc... 
 
 While keeping all your datas in a simple folder with markdown files you can edit and sync anywhere else.
 
 - No database, only markdown files 
+- Fast and lightweight
 - Web-based (can be installed on a server, accessed on any device with a browser)
 - Windows/Mac/Linux standalone applications
 - Can be installed on Android with termux
