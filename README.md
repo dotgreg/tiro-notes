@@ -4,7 +4,7 @@
 
 ## GOAL
 
-Tiro Notes wants to be a markdown-only note manager that is flexible enough to be used on all your devices.
+Tiro Notes is a markdown-only note manager flexible enough to be used on all your devices.
 
 Aims to offer all functionalities expected from applications like Evernote, Onenote, Joplin etc... 
 
