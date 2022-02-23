@@ -33,9 +33,8 @@ npx
 - you need ripgrep installed (https://github.com/BurntSushi/ripgrep)
 
 ```
-$ git clone https://github.com/dotgreg/tiro
+$ git clone https://bitbucket.org/dotgreg/tiro-builds --depth=1 tiro
 $ cd tiro
-$ npm install
 $ npm run start
 ```
 go to localhost:3023
