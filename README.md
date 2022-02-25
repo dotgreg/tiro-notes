@@ -19,25 +19,26 @@ While keeping all your datas in a simple folder with markdown files you can edit
 ## INSTALLATION
 ### APPS (Not yet)
 
-Mac/Linux/Windows Apps coming...
+Mac/Linux/Windows Electron Apps coming soon...
 
-### USING CLI (Not working yet)
+### CLI ONE LINER (Not working yet)
 you need nodejs installed (v14 minimum)
 
 ```
-npx
+npx tiro-server ./my-markdown-folder
 ```
 
-### WITH THE SOURCE
+### USING CLI
 - you need nodejs installed (v14 minimum)
 - you need ripgrep installed (https://github.com/BurntSushi/ripgrep)
 
 ```
-$ git clone https://bitbucket.org/dotgreg/tiro-builds --depth=1 tiro
+$ curl -O -L https://github.com/dotgreg/tiro/releases/download/pre-production/tiro-0.24-node.zip
+$ unzip tiro-0.24-node.zip
 $ cd tiro
-$ npm run start
+$ npm start
 ```
-go to localhost:3023
+- Go to localhost:3023
 
 ## CURRENT STATUS
 I have been developing it for over a year and using it as my daily note app for over 6 months now, its core functionalities seems stable enough for my use so far.
