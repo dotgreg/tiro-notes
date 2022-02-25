@@ -25,7 +25,7 @@ Mac/Linux/Windows Electron Apps coming soon...
 you need nodejs installed (v14 minimum)
 
 ```
-npx tiro-server ./my-markdown-folder
+npx @tiro/app ./my-markdown-folder
 ```
 
 ### USING CLI
