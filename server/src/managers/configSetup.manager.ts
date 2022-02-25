@@ -25,6 +25,7 @@ export const appConfigJsonPath = !isHeroku ? p(`../tiro-config.json`) : p(`../mi
 
 let cachedJsonConfigLoadResult = null
 export const tryLoadJsonConfig = () => {
+	console.log('tryloadjsonconfig', appConfigJsonPath);
 	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as TiroConfig
 
 	if (fileExists(appConfigJsonPath)) {
