@@ -100,6 +100,6 @@ Yes, all the datas Tiro uses is coming from markdown notes
 
 ## How can I access to Tiro on my device
 1) Device where tiro is installed : http://localhost:3023
-2) if on same local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
-3) not on same network : Tiro works great using SSH tunneling or similar (free ssh tunnels solutions exists like https://opentunnel.net/)
+2) If on same local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
+3) Not on same network : Tiro works great using SSH tunneling, AutoSSH or similar (free ssh tunnels solutions exists like https://opentunnel.net/)
 
