@@ -17,18 +17,8 @@ While keeping all your datas in a simple folder with markdown files you can edit
 - Can be installed on Android with termux
 
 ## INSTALLATION
-### APPS (Not yet)
 
-Mac/Linux/Windows Electron Apps coming soon...
-
-### CLI ONE LINER (Not working yet)
-you need nodejs installed (v14 minimum)
-
-```
-npx @tiro/app ./my-markdown-folder
-```
-
-### USING CLI
+### USING COMMAND LINE
 - you need nodejs installed (v14 minimum)
 - you need ripgrep installed (https://github.com/BurntSushi/ripgrep)
 
@@ -39,6 +29,17 @@ $ cd tiro
 $ npm start
 ```
 - Go to localhost:3023
+
+### APPS (Not yet)
+
+Mac/Linux/Windows Electron Apps coming soon...
+
+### COMMAND LINE ONE LINER (Not working yet)
+you need nodejs installed (v14 minimum)
+
+```
+npx @tiro/app ./my-markdown-folder
+```
 
 ## CURRENT STATUS
 I have been developing it for over a year and using it as my daily note app for over 6 months now, its core functionalities seems stable enough for my use so far.
