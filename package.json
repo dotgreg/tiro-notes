@@ -4,6 +4,8 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "__HEROKU__": "",
+				"start": "node build/server/server.js",
         "__INSTALL__": "",
         "install-all": "run-p install-client install-server",
         "install-client": "npm run --prefix ./client install-all",

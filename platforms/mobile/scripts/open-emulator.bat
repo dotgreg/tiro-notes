@@ -1,1 +1,0 @@
-START C:\Users\grego\AppData\Local\Android\Sdk\emulator\emulator -avd Pixel_2_API_29  -no-boot-anim -no-snapshot-load
