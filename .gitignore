@@ -5,10 +5,8 @@ data/
 server/build/
 client/build/
 .eslintcache
-build/
 scripts/
 docs/
-build
 tiro-config.json
 node_modules
 
