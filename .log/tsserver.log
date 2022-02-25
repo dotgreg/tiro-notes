@@ -37925,3 +37925,32 @@ Info 37860[19:48:53.195] Project: /Users/gregoirethiebault/Desktop/_dev/github-t
 Info 37861[19:48:53.195] Elapsed:: 0.5600423812866211ms DirectoryWatcher:: Triggered with /users/gregoirethiebault/desktop/_dev/github-tiro/server/src/managers/#configSetup.manager.ts# :: WatchInfo: /users/gregoirethiebault/desktop/_dev/github-tiro/server/src 1 undefined Config: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json WatchType: Wild card directory
 Info 37862[19:48:53.195] DirectoryWatcher:: Triggered with /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/src/managers/#configSetup.manager.ts# :: WatchInfo: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/src 1 undefined Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json WatchType: Failed Lookup Locations
 Info 37863[19:48:53.195] Elapsed:: 0.08712577819824219ms DirectoryWatcher:: Triggered with /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/src/managers/#configSetup.manager.ts# :: WatchInfo: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/src 1 undefined Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json WatchType: Failed Lookup Locations
+Info 37864[19:50:35.976] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37865[19:50:35.986] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 182 structureChanged: false structureIsReused:: Completely Elapsed: 10.625374794006348ms
+Info 37866[19:50:35.987] Different program with same set of files
+Info 37867[19:50:43.968] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37868[19:50:43.981] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 183 structureChanged: false structureIsReused:: Completely Elapsed: 12.213459014892578ms
+Info 37869[19:50:43.981] Different program with same set of files
+Info 37870[19:50:44.316] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37871[19:50:44.326] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 184 structureChanged: false structureIsReused:: Completely Elapsed: 9.889665603637695ms
+Info 37872[19:50:44.326] Different program with same set of files
+Info 37873[19:50:44.951] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37874[19:50:44.962] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 185 structureChanged: false structureIsReused:: Completely Elapsed: 10.308666229248047ms
+Info 37875[19:50:44.962] Different program with same set of files
+Info 37876[19:50:46.395] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37877[19:50:46.402] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 186 structureChanged: false structureIsReused:: Completely Elapsed: 6.706833839416504ms
+Info 37878[19:50:46.402] Different program with same set of files
+Info 37879[19:50:46.854] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37880[19:50:46.864] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 187 structureChanged: false structureIsReused:: Completely Elapsed: 9.799917221069336ms
+Info 37881[19:50:46.864] Different program with same set of files
+Info 37882[19:50:47.426] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37883[19:50:47.437] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 188 structureChanged: false structureIsReused:: Completely Elapsed: 11.045833587646484ms
+Info 37884[19:50:47.437] Different program with same set of files
+Info 37885[19:50:47.734] Starting updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json
+Info 37886[19:50:47.743] Finishing updateGraphWorker: Project: /Users/gregoirethiebault/Desktop/_dev/github-tiro/server/tsconfig.json Version: 189 structureChanged: false structureIsReused:: Completely Elapsed: 9.239583969116211ms
+Info 37887[19:50:47.743] Different program with same set of files
+Info 37888[19:50:48.533] Format host information updated
+Info 37889[19:51:19.239] FileWatcher:: Triggered with /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 1:: WatchInfo: /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 250 undefined WatchType: package.json file
+Info 37890[19:51:19.240] Elapsed:: 0.7586669921875ms FileWatcher:: Triggered with /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 1:: WatchInfo: /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 250 undefined WatchType: package.json file
+Info 37891[19:51:23.249] FileWatcher:: Triggered with /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 1:: WatchInfo: /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 250 undefined WatchType: package.json file
+Info 37892[19:51:23.250] Elapsed:: 0.678375244140625ms FileWatcher:: Triggered with /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 1:: WatchInfo: /users/gregoirethiebault/desktop/_dev/github-tiro/package.json 250 undefined WatchType: package.json file
