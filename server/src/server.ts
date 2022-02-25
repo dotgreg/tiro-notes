@@ -5,26 +5,25 @@ import { sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
 import { testSqlite } from './managers/sqlite.manager';
 
-let protocol2 = 'lolcats';
+let protocol = (backConfig.jsonConfig && backConfig.jsonConfig.https === 'true') ? 'https' : 'http';
+let ifHerokuPort = process.env.PORT || 3023;
+let port = (backConfig.jsonConfig && backConfig.jsonConfig.port) ? parseInt(backConfig.jsonConfig.port) : ifHerokuPort;
 
-let protocol = (backConfig.jsonConfig && backConfig.jsonConfig.https === 'true') ? 'https' : 'http'
-let port = (backConfig.jsonConfig && backConfig.jsonConfig.port) ? parseInt(backConfig.jsonConfig.port) : 3023
-
-console.log(`1===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${port}, protocol:${protocol}, platform: ${getPlatform()})`, backConfig) 
+console.log(`1===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${port}, protocol:${protocol}, platform: ${getPlatform()})`, backConfig)
 var express = require('express');
 const app = express()
 
 setTimeout(() => {
-    testSqlite();
+	testSqlite();
 }, 3000);
 
-let server 
+let server
 if (protocol === 'https') server = require("https").createServer(sslConfig, app)
 else server = require("http").createServer(app)
 
 // localhost:port/socket.io = socket server
-export const ioServer:SocketIO.Server = require('socket.io')(server, { serveClient: false, pingTimeout: 10000, pingInterval: 50000})
-initSocketLogic(); 
+export const ioServer: SocketIO.Server = require('socket.io')(server, { serveClient: false, pingTimeout: 10000, pingInterval: 50000 })
+initSocketLogic();
 
 // localhost:port/ = static react client
 app.use('/', express.static(backConfig.frontendBuildFolder));
@@ -32,4 +31,4 @@ app.use('/', express.static(backConfig.frontendBuildFolder));
 // localhost:port/static = static resources serving
 if (backConfig.dataFolder) app.use('/static', express.static(backConfig.dataFolder));
 
-server.listen(port, function () {})
+server.listen(port, function() { })

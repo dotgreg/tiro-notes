@@ -1,0 +1,17 @@
+[19:01:47.548] Global cache location '/Users/gregoirethiebault/Library/Caches/typescript/4.5', safe file path '/users/gregoirethiebault/.emacs.d/.cache/lsp/npm/typescript/lib/node_modules/typescript/lib/typingsafelist.json', types map path /users/gregoirethiebault/.emacs.d/.cache/lsp/npm/typescript/lib/node_modules/typescript/lib/typesmap.json
+[19:01:47.550] Processing cache location '/Users/gregoirethiebault/Library/Caches/typescript/4.5'
+[19:01:47.550] Trying to find '/Users/gregoirethiebault/Library/Caches/typescript/4.5/package.json'...
+[19:01:47.551] Loaded content of '/Users/gregoirethiebault/Library/Caches/typescript/4.5/package.json': {"private":true,"dependencies":{"types-registry":"^0.1.572"}}
+[19:01:47.551] Loaded content of '/Users/gregoirethiebault/Library/Caches/typescript/4.5/package-lock.json'
+[19:01:47.551] Finished processing cache location '/Users/gregoirethiebault/Library/Caches/typescript/4.5'
+[19:01:47.551] Process id: 86491
+[19:01:47.551] NPM location: /opt/homebrew/Cellar/node/17.3.0/bin/npm (explicit '--npmLocation' not  provided)
+[19:01:47.551] validateDefaultNpmLocation: false
+[19:01:47.551] Npm config file: /Users/gregoirethiebault/Library/Caches/typescript/4.5/package.json
+[19:01:47.551] Updating types-registry npm package...
+[19:01:47.551] Exec: /opt/homebrew/Cellar/node/17.3.0/bin/npm install --ignore-scripts types-registry@latest
+[19:01:47.566]     Failed. stdout:
+    stderr:
+    /bin/sh: /opt/homebrew/Cellar/node/17.3.0/bin/npm: No such file or directory
+    
+[19:01:47.566] Updated types-registry npm package

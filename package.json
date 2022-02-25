@@ -38,7 +38,7 @@
         "clean-else-1": "rm -r ../builds-tiro/scripts &",
         "clean-else-2": "rm ../builds-tiro/package.json &",
         "____3EXPORT__": "",
-        "export-build": "run-s export-client export-config export-scripts export-server",
+        "export-build": "run-s export-client export-config export-server",
         "export-client": "cp -r client/build ../builds-tiro/client",
         "export-config": "run-s export-config-1 export-config-2",
         "export-config-1": "cp package-root-build.json ../builds-tiro/package.json",
