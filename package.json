@@ -40,6 +40,7 @@
         "____3EXPORT__": "",
         "export-build": "run-s export-client export-config export-server",
         "export-client": "cp -r client/build ./build/client",
+        "export-misc": "cp -r misc ./build/client",
         "export-config": "run-s export-config-1 export-config-2",
         "export-config-1": "cp package-root-build.json ./build/package.json",
         "export-config-2": "cp tiro-config.sample.json ./build/tiro-config.sample.json",

@@ -6,7 +6,7 @@ export const configClient = {
         eventManager: true,
         upload: false,
     },
-    version: '20.14.2 26/10/2021 -- Beautiful Bird',
+    version: '0.25 10/03/2022',
     global: {
         protocol: '//',
         url: `${window.location.hostname}`,

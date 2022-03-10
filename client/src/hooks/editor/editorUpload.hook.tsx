@@ -52,7 +52,6 @@ export const useEditorUploadLogic = (p: {
 		}
 	}
 	const onUploadProgressAction = (nb: number) => {
-		//console.log(12123, nb);
 		setUploadProgress(`${nb}% uploaded`)
 		if (nb === 100) setUploadProgress('');
 	}
@@ -118,7 +117,7 @@ export const DragzoneCss = `
     left: 0px;
     width: 100%;
     z-index: 100;
-    background: ${cssVars.colors.main};
+    background: ${cssVars.colors.green};
     padding: 2px;
     text-align: center;
     border-radius: 0px 0px 6px 6px;
