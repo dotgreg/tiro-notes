@@ -217,7 +217,7 @@ export const folderTreeCss = `
 
     .context-menu-wrapper {
       position: absolute;
-      right: 10px;
+      right: 30px;
       top: 5px;
       display:none;
       .context-menu {
