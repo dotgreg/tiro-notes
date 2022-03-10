@@ -129,6 +129,7 @@ export const EditorArea = (p: {
 		onMobileNoteEdition: triggerNoteEdition
 	})
 
+
 	// TEXT MANIPULATION HOOK
 	const { applyTextModifAction } = useTextManipActions({
 		editorType: deviceType(),
@@ -264,7 +265,7 @@ export const EditorArea = (p: {
 			{/* {MAIN EDITOR AREA} */}
 			<div className="main-editor-wrapper">
 				{
-					deviceType() !== 'mobile' &&
+					deviceType() === 'desktop' &&
 					<MonacoEditorWrapper
 						value={innerFileContent}
 						vimMode={vimMode}
@@ -279,7 +280,7 @@ export const EditorArea = (p: {
 					// />
 				}
 				{
-					deviceType() === 'mobile' &&
+					deviceType() !== 'desktop' &&
 					<textarea
 						className='textarea-editor'
 						ref={mobileTextarea}
