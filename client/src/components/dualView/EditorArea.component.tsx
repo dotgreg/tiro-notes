@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelection } from '../MonacoEditor.Component';
-import {NoteTitleInput, PathModifFn} from './TitleEditor.component'
+import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
@@ -26,297 +26,298 @@ import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { NoteMobileToolbar } from './NoteToolbar.component';
 import { findImagesFromContent } from '../../managers/images.manager';
 
-export type onSavingHistoryFileFn = (filepath:string, content:string, historyFileType: string) => void
-export type onFileEditedFn  =(filepath:string, content:string) => void
-export type onFileDeleteFn  = (filepath:string) => void
-export type onScrollFn  = (newYpercent:number) => void
-export type onLightboxClickFn = (index: number, images:iFileImage[]) => void
+export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
+export type onFileEditedFn = (filepath: string, content: string) => void
+export type onFileDeleteFn = (filepath: string) => void
+export type onScrollFn = (newYpercent: number) => void
+export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 
-export const EditorArea = (p:{
-    file:iFile 
-    posY:number 
-    fileContent:string
-    canEdit: boolean
+export const EditorArea = (p: {
+	file: iFile
+	posY: number
+	fileContent: string
+	canEdit: boolean
 
-    isLeavingNote: boolean
+	isLeavingNote: boolean
 
-    onScroll: onScrollFn
-    onFileTitleEdited: PathModifFn
-    onSavingHistoryFile: onSavingHistoryFileFn
-    onFileEdited: onFileEditedFn
-    onFileDelete: onFileDeleteFn
-    onLightboxClick: onLightboxClickFn
+	onScroll: onScrollFn
+	onFileTitleEdited: PathModifFn
+	onSavingHistoryFile: onSavingHistoryFileFn
+	onFileEdited: onFileEditedFn
+	onFileDelete: onFileDeleteFn
+	onLightboxClick: onLightboxClickFn
 
-    onBackButton: Function
-    onViewToggle: Function
-    
+	onBackButton: Function
+	onViewToggle: Function
+
 }) => {
 
-    const [vimMode, setVimMode] = useState(false)
-    const [innerFileContent, setInnerFileContent] = useState('')
-    let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
+	const [vimMode, setVimMode] = useState(false)
+	const [innerFileContent, setInnerFileContent] = useState('')
+	let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
 
-    // LIFECYCLE EVENTS MANAGER HOOK
-    const {triggerNoteEdition} = useNoteEditorEvents({
-      file: p.file,
-      fileContent: p.fileContent,
-      canEdit:p.canEdit,
+	// LIFECYCLE EVENTS MANAGER HOOK
+	const { triggerNoteEdition } = useNoteEditorEvents({
+		file: p.file,
+		fileContent: p.fileContent,
+		canEdit: p.canEdit,
 
-      onEditorDidMount: () => {
-      },
-      onEditorWillUnmount: () => {
-        
-      },
-      onNoteContentDidLoad: () => {
-        if (!clientSocket) return
-        setInnerFileContent(p.fileContent)
-        updateUploadFolder(p.file.folder)
-        reinitUploadLogic()
-      },
-      onNoteEdition: (newContent, isFirstEdition) => {
-        // reaction from triggerNoteEdition
-        if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
-        setInnerFileContent(newContent)
-        p.onFileEdited(p.file.path, newContent)
-      },
-      onNoteLeaving: (isEdited,oldPath) => {
-        // if (isEdited) p.onFileEdited(oldPath, innerFileContent)
-        if (isA('desktop')) resetMonacoSelection()
-        ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
-      }
-    })
+		onEditorDidMount: () => {
+		},
+		onEditorWillUnmount: () => {
 
-    useEffect(() => {
-      ifEncryptOnLeave((encryptedText) => { 
-        p.onFileEdited(p.file.path, encryptedText) 
-      })
-    }, [p.isLeavingNote])
-    
-    //  HOOK : CONTENT SAVE => REMOVED AS ITS A MESS TO USE DEBOUNCE/THROTTLE HERE :(
-    // const {
-    //   setStopDelayedNoteSave, throttledOnNoteEdited, debouncedOnNoteEdited} = useNoteSaveLogic({
-    //     onNoteSave: (path, content) => {
-    //       p.onFileEdited(path, content)
-    //     }
-    //   })
+		},
+		onNoteContentDidLoad: () => {
+			if (!clientSocket) return
+			setInnerFileContent(p.fileContent)
+			updateUploadFolder(p.file.folder)
+			reinitUploadLogic()
+		},
+		onNoteEdition: (newContent, isFirstEdition) => {
+			// reaction from triggerNoteEdition
+			if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
+			setInnerFileContent(newContent)
+			p.onFileEdited(p.file.path, newContent)
+		},
+		onNoteLeaving: (isEdited, oldPath) => {
+			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
+			if (isA('desktop')) resetMonacoSelection()
+			ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
+		}
+	})
 
-    // AUTOMATIC HISTORY HOOK Every 10m
-    useIntervalNoteHistory(innerFileContent, {
-      shouldCreateIntervalNoteHistory: () => {
-        if (noHistoryBackupWhenDecrypted) return console.log('[HISTORY FILE] : noHistoryBackupWhenDecrypted')
-        else {
-          p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
-          console.log(`[HISTORY FILE] : creating history file for ${p.file.path}`)
-        }
-      }
-    })
+	useEffect(() => {
+		ifEncryptOnLeave((encryptedText) => {
+			p.onFileEdited(p.file.path, encryptedText)
+		})
+	}, [p.isLeavingNote])
 
+	//  HOOK : CONTENT SAVE => REMOVED AS ITS A MESS TO USE DEBOUNCE/THROTTLE HERE :(
+	// const {
+	//   setStopDelayedNoteSave, throttledOnNoteEdited, debouncedOnNoteEdited} = useNoteSaveLogic({
+	//     onNoteSave: (path, content) => {
+	//       p.onFileEdited(path, content)
+	//     }
+	//   })
 
-    // UPLOAD LOGIC HOOK
-    
-    const { 
-      UploadDragZone, uploadButtonConfig, reinitUploadLogic, updateUploadFolder
-    } = useEditorUploadLogic({
-        onUploadSuccess: ressLinkInMd => {
-          insertTextAt(ressLinkInMd, 'currentPos')
-        }
-      })
-
-    // MOBILE EDITOR LOGIC HOOK
-    let mobileTextarea = useRef<HTMLTextAreaElement>(null)
-    const {onTextareaChange, onTextareaScroll} = useMobileTextAreaLogic (innerFileContent, {
-      mobileTextarea,
-      onMobileNoteEdition: triggerNoteEdition
-    })
-
-    // TEXT MANIPULATION HOOK
-    const {applyTextModifAction} = useTextManipActions ({
-      editorType: deviceType(),
-      editorRef:deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
-    })
-    const insertTextAt = (textToInsert:string, insertPosition:number|'currentPos') => {
-      let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
-      if (updatedText) triggerNoteEdition(updatedText) 
-    }
-    
-    // ECRYPTION FUNCTIONS HOOKS
-    const {APasswordPopup, askForPassword, 
-      decryptButtonConfig, encryptButtonConfig,
-      ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
-    } = useNoteEncryption ({
-      fileContent:innerFileContent,
-      onTextEncrypted:triggerNoteEdition,
-      onTextDecrypted:triggerNoteEdition
-    })
-
-    // TOOLBAR ACTIONS
-    const editorToolbarActions = [
-      {
-        title:'back', 
-        icon:'faAngleLeft', 
-        action: () => {
-          // window.history.back()
-          p.onBackButton()
-        }
-      },
-      isA('desktop') ? {
-        title:'toggle views', 
-        icon:'faAdjust', 
-        action: () => {p.onViewToggle()}
-      } : {},
-      uploadButtonConfig,
-      isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-      isA('desktop') ? detachNoteNewWindowButtonConfig(p.file) : {},
-      {
-        title:'insert unique id', 
-        icon:'faFingerprint', 
-        action: () => { 
-          let folder = `${p.file.folder}`
-          insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
-        }
-      },
-      {
-        title:'print/download', 
-        icon:'faFileDownload', 
-        action: () => { 
-          window.print()
-        }
-      },
-      {
-        title: strings.editorBar.explanation.history, 
-        icon:'faHistory', 
-        action: () => { 
-          setHistoryPopup(!historyPopup)
-        }
-      },
-      {
-        title: strings.editorBar.lightbox, 
-        icon:'faImages', 
-        action: () => { 
-          const imgs = findImagesFromContent(p.fileContent, p.file)
-          p.onLightboxClick(0, imgs)
-        }
-      },
-      {
-        title: strings.editorBar.tts, 
-        icon:'faCommentDots', 
-        action: () => { 
-          setTtsPopup(!ttsPopup)
-        }
-      },
-      
-      {
-        title:'delete note', 
-        class:'delete',
-        icon:'faTrash', 
-        action: () => {
-          let userAccepts = window.confirm(`${strings.trashNote}`)
-          if (userAccepts) {
-            p.onFileDelete(p.file.path) 
-          }
-        }
-      },
-    ]
-
-    // File History
-    const [historyPopup, setHistoryPopup] = useState(false)
-
-    // TTS
-    const [ttsPopup, setTtsPopup] = useState(false)
-
-    return (
-        // <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
-        <div className={`editor-area`}>
-                {UploadDragZone}
-
-              {/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-              <div className="infos-editor-wrapper">
-      
-                <div className="file-path-wrapper">
-                  {p.file.path.replace(`/${p.file.name}`,'')}
-                </div>
-
-                <NoteTitleInput 
-                    title={p.file.name.replace('.md','')}
-                    onEdited={p.onFileTitleEdited}
-                />
-
-              <div className="toolbar-and-dates-wrapper">
-                <div className='toolbar-wrapper'>
-                  <ButtonsToolbar
-                    class='editor-main-toolbar'
-                    buttons={editorToolbarActions}
-                  />
+	// AUTOMATIC HISTORY HOOK Every 10m
+	useIntervalNoteHistory(innerFileContent, {
+		shouldCreateIntervalNoteHistory: () => {
+			if (noHistoryBackupWhenDecrypted) return console.log('[HISTORY FILE] : noHistoryBackupWhenDecrypted')
+			else {
+				p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
+				console.log(`[HISTORY FILE] : creating history file for ${p.file.path}`)
+			}
+		}
+	})
 
 
-                </div>
+	// UPLOAD LOGIC HOOK
 
-                <div className="dates-wrapper">
-                  <div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-                  <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-                </div>
-              </div>
+	const {
+		UploadDragZone, uploadButtonConfig, reinitUploadLogic, updateUploadFolder, uploadProgress
+	} = useEditorUploadLogic({
+		onUploadSuccess: ressLinkInMd => {
+			insertTextAt(ressLinkInMd, 'currentPos')
+		}
+	})
 
-              </div>
-                
+	// MOBILE EDITOR LOGIC HOOK
+	let mobileTextarea = useRef<HTMLTextAreaElement>(null)
+	const { onTextareaChange, onTextareaScroll } = useMobileTextAreaLogic(innerFileContent, {
+		mobileTextarea,
+		onMobileNoteEdition: triggerNoteEdition
+	})
 
-              {/* {MAIN EDITOR AREA} */}
-              <div className="main-editor-wrapper">
-                {
-                  deviceType() !== 'mobile' && 
-                  <MonacoEditorWrapper
-                    value={innerFileContent}
-                    vimMode={vimMode}
-                    readOnly={!p.canEdit}
-                    ref={monacoEditorComp}
-                    onChange={triggerNoteEdition}
-                    onScroll={p.onScroll}
-                    posY={p.posY}
-                  />
-                  // <MonacoEditor2
-                  //   value={innerFileContent}
-                  // />
-                }
-                {
-                  deviceType() === 'mobile' && 
-                  <textarea
-                    className='textarea-editor'
-                    ref={mobileTextarea}
-                    readOnly={!p.canEdit}
-                    value={innerFileContent}
-                    onScroll={(e:any) => {
-                      p.onScroll(e)
-                      onTextareaScroll(e)
-                    }}
-                    onChange={onTextareaChange}
-                  />
-                }
-              </div>
+	// TEXT MANIPULATION HOOK
+	const { applyTextModifAction } = useTextManipActions({
+		editorType: deviceType(),
+		editorRef: deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
+	})
+	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
+		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
+		if (updatedText) triggerNoteEdition(updatedText)
+	}
+
+	// ECRYPTION FUNCTIONS HOOKS
+	const { APasswordPopup, askForPassword,
+		decryptButtonConfig, encryptButtonConfig,
+		ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
+	} = useNoteEncryption({
+		fileContent: innerFileContent,
+		onTextEncrypted: triggerNoteEdition,
+		onTextDecrypted: triggerNoteEdition
+	})
+
+	// TOOLBAR ACTIONS
+	const editorToolbarActions = [
+		{
+			title: 'back',
+			icon: 'faAngleLeft',
+			action: () => {
+				// window.history.back()
+				p.onBackButton()
+			}
+		},
+		isA('desktop') ? {
+			title: 'toggle views',
+			icon: 'faAdjust',
+			action: () => { p.onViewToggle() }
+		} : {},
+		uploadButtonConfig,
+		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
+		isA('desktop') ? detachNoteNewWindowButtonConfig(p.file) : {},
+		{
+			title: 'insert unique id',
+			icon: 'faFingerprint',
+			action: () => {
+				let folder = `${p.file.folder}`
+				insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
+			}
+		},
+		{
+			title: 'print/download',
+			icon: 'faFileDownload',
+			action: () => {
+				window.print()
+			}
+		},
+		{
+			title: strings.editorBar.explanation.history,
+			icon: 'faHistory',
+			action: () => {
+				setHistoryPopup(!historyPopup)
+			}
+		},
+		{
+			title: strings.editorBar.lightbox,
+			icon: 'faImages',
+			action: () => {
+				const imgs = findImagesFromContent(p.fileContent, p.file)
+				p.onLightboxClick(0, imgs)
+			}
+		},
+		{
+			title: strings.editorBar.tts,
+			icon: 'faCommentDots',
+			action: () => {
+				setTtsPopup(!ttsPopup)
+			}
+		},
+
+		{
+			title: 'delete note',
+			class: 'delete',
+			icon: 'faTrash',
+			action: () => {
+				let userAccepts = window.confirm(`${strings.trashNote}`)
+				if (userAccepts) {
+					p.onFileDelete(p.file.path)
+				}
+			}
+		},
+	]
+
+	// File History
+	const [historyPopup, setHistoryPopup] = useState(false)
+
+	// TTS
+	const [ttsPopup, setTtsPopup] = useState(false)
+
+	return (
+		// <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
+		<div className={`editor-area`}>
+			{uploadProgress !== '' && <div className="upload-progress"> {uploadProgress}</div>}
+			{UploadDragZone}
+
+			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
+			<div className="infos-editor-wrapper">
+
+				<div className="file-path-wrapper">
+					{p.file.path.replace(`/${p.file.name}`, '')}
+				</div>
+
+				<NoteTitleInput
+					title={p.file.name.replace('.md', '')}
+					onEdited={p.onFileTitleEdited}
+				/>
+
+				<div className="toolbar-and-dates-wrapper">
+					<div className='toolbar-wrapper'>
+						<ButtonsToolbar
+							class='editor-main-toolbar'
+							buttons={editorToolbarActions}
+						/>
 
 
-              {
-                // BOTTOM MOBILE TOOLBAR
-                deviceType() !== 'desktop' &&
-                <NoteMobileToolbar
-                  onButtonClicked={action => {
-                    let updatedText = applyTextModifAction(action)
-                    if (updatedText) triggerNoteEdition(updatedText) 
-                  }}            
-                />
-              }
+					</div>
 
-              {askForPassword && APasswordPopup}
+					<div className="dates-wrapper">
+						<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+						<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+					</div>
+				</div>
 
-              {historyPopup && <FileHistoryPopup file={p.file} onClose={() => {setHistoryPopup(false)}}/>}
-              
-              {ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => {setTtsPopup(false)}}/>}
-        </div>
-    )
+			</div>
+
+
+			{/* {MAIN EDITOR AREA} */}
+			<div className="main-editor-wrapper">
+				{
+					deviceType() !== 'mobile' &&
+					<MonacoEditorWrapper
+						value={innerFileContent}
+						vimMode={vimMode}
+						readOnly={!p.canEdit}
+						ref={monacoEditorComp}
+						onChange={triggerNoteEdition}
+						onScroll={p.onScroll}
+						posY={p.posY}
+					/>
+					// <MonacoEditor2
+					//   value={innerFileContent}
+					// />
+				}
+				{
+					deviceType() === 'mobile' &&
+					<textarea
+						className='textarea-editor'
+						ref={mobileTextarea}
+						readOnly={!p.canEdit}
+						value={innerFileContent}
+						onScroll={(e: any) => {
+							p.onScroll(e)
+							onTextareaScroll(e)
+						}}
+						onChange={onTextareaChange}
+					/>
+				}
+			</div>
+
+
+			{
+				// BOTTOM MOBILE TOOLBAR
+				deviceType() !== 'desktop' &&
+				<NoteMobileToolbar
+					onButtonClicked={action => {
+						let updatedText = applyTextModifAction(action)
+						if (updatedText) triggerNoteEdition(updatedText)
+					}}
+				/>
+			}
+
+			{askForPassword && APasswordPopup}
+
+			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
+
+			{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
+		</div>
+	)
 }
 
 export const commonCssEditors = `
 .file-path-wrapper {
-  padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block/2}px;
+  padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
   font-size: 13px;
   font-weight: 700;
   color: #b6b5b5;
@@ -339,7 +340,7 @@ export const commonCssEditors = `
   }
 `
 
-export const editorAreaCss = (v:MobileView) => `
+export const editorAreaCss = (v: MobileView) => `
 .editor-area {
   width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
   display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'block' : 'none')};
@@ -347,8 +348,8 @@ export const editorAreaCss = (v:MobileView) => `
 
   .infos-editor-wrapper {
     ${isA('desktop') ? '' : `height: ${cssVars.sizes.mobile.editorTopWrapper}px;`}
-    ${isA('desktop') ? `width: calc(200% - ${(cssVars.sizes.block*3)*2}px);`:``}
-    padding: 0px ${isA('desktop') ? cssVars.sizes.block*3 : cssVars.sizes.block*2}px;
+    ${isA('desktop') ? `width: calc(200% - ${(cssVars.sizes.block * 3) * 2}px);` : ``}
+    padding: 0px ${isA('desktop') ? cssVars.sizes.block * 3 : cssVars.sizes.block * 2}px;
     position: relative;
 
     ${commonCssEditors}
@@ -391,7 +392,7 @@ export const editorAreaCss = (v:MobileView) => `
         display: flex;
         list-style: none;
         padding: 0px 0px 0px 0px;
-        margin: ${isA("desktop") ? `${cssVars.sizes.block}px 0px` : `${cssVars.sizes.block/3}px 0px ${cssVars.sizes.block/1.5}px 0px `};
+        margin: ${isA("desktop") ? `${cssVars.sizes.block}px 0px` : `${cssVars.sizes.block / 3}px 0px ${cssVars.sizes.block / 1.5}px 0px `};
         li {
           margin-right: 10px;
         }
@@ -416,9 +417,9 @@ export const editorAreaCss = (v:MobileView) => `
 
   .main-editor-wrapper {
     // 10 = monaco browser gutter
-    // padding: 0px ${isA('desktop') ? (cssVars.sizes.block*3) - 10 : cssVars.sizes.block*2}px;
-    ${isA('desktop') ? `padding: 0px ${(cssVars.sizes.block*3)/2}px 0px ${(cssVars.sizes.block*3) - 10}px;` : ''}
-    ${!isA('desktop') ? `padding: 0px ${cssVars.sizes.block*2}px 0px ${cssVars.sizes.block*2}px;` : ''}
+    // padding: 0px ${isA('desktop') ? (cssVars.sizes.block * 3) - 10 : cssVars.sizes.block * 2}px;
+    ${isA('desktop') ? `padding: 0px ${(cssVars.sizes.block * 3) / 2}px 0px ${(cssVars.sizes.block * 3) - 10}px;` : ''}
+    ${!isA('desktop') ? `padding: 0px ${cssVars.sizes.block * 2}px 0px ${cssVars.sizes.block * 2}px;` : ''}
     ${!isA('desktop') ? `margin: 0px 0px ${cssVars.sizes.mobile.bottomBarHeight}px 0px;` : ''}
     .monaco-editor {
       margin: 0px;
@@ -426,7 +427,7 @@ export const editorAreaCss = (v:MobileView) => `
     .textarea-editor {
       border: none;
       width: 100%;
-      height: calc(100vh - ${cssVars.sizes.mobile.editorTopWrapper + cssVars.sizes.mobile.editorBar  + cssVars.sizes.mobile.bottomBarHeight*2}px);
+      height: calc(100vh - ${cssVars.sizes.mobile.editorTopWrapper + cssVars.sizes.mobile.editorBar + cssVars.sizes.mobile.bottomBarHeight * 2}px);
       margin: 0px;
       padding: 0px;
       background: rgba(255,255,255,0.7);

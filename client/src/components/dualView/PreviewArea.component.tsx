@@ -4,7 +4,9 @@ import { iFile } from '../../../../shared/types.shared';
 import { configClient } from '../../config';
 import { formatDateEditor, formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
+import { transformLatex } from '../../managers/latex.manager';
 import { md2html } from '../../managers/markdown.manager';
+import { transformMarkdownScripts } from '../../managers/scriptsInMarkdown.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { transformSearchLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks, transformTitleSearchLinks } from '../../managers/textProcessor.manager';
@@ -13,98 +15,98 @@ import { commonCssEditors } from './EditorArea.component';
 
 export let previewAreaRefs
 
-export const PreviewArea = (p:{
-    file:iFile, 
-    posY:number, 
-    fileContent:string
-}) =>  {
-    
-    previewAreaRefs = {
-        wrapper: useRef<HTMLDivElement>(null),
-        main: useRef<HTMLDivElement>(null),
-    }
-    
-    let currentFolderArr = p.file.path.split('/')
-    currentFolderArr.pop()
-    let currentFolder = currentFolderArr.join('/')
-    
-    useEffect(() => {
-        // @ts-ignore
-        window.previewHtmlOutput = '';
-        return () => {
-        }
-    }, [p.file.path])
+export const PreviewArea = (p: {
+	file: iFile,
+	posY: number,
+	fileContent: string
+}) => {
 
-    const [vertBarPos, setVertBarPos] = useState('right')
+	previewAreaRefs = {
+		wrapper: useRef<HTMLDivElement>(null),
+		main: useRef<HTMLDivElement>(null),
+	}
 
-    const calculateYPos = () => {
-        const max = previewAreaRefs.wrapper.current?.height || 3000
-        return clamp(p.posY, 0, max)
-    }
+	let currentFolderArr = p.file.path.split('/')
+	currentFolderArr.pop()
+	let currentFolder = currentFolderArr.join('/')
 
-    return (
-        <div className={`preview-area-wrapper`}>
-            <div 
-                className={`preview-area`}
-                ref={previewAreaRefs.wrapper}
-                style={{bottom:  calculateYPos()}}
-                >
+	useEffect(() => {
+		// @ts-ignore
+		window.previewHtmlOutput = '';
+		return () => {
+		}
+	}, [p.file.path])
 
-                { 
-                    deviceType() !== 'desktop' &&
-                    <div className={`mobile-buttons-up-down ${vertBarPos}`}>
-                        <div id="toggle-pos" onClick={() => { 
-                            setVertBarPos(vertBarPos === 'right' ? 'left' : 'right')
-                        }}>t</div>
-                        <div id="top" onClick={() => { 
-                            previewAreaRefs.wrapper.current.scrollTop = 0
-                        }}>=</div>
-                        <div id="up" onClick={() => { 
-                            previewAreaRefs.wrapper.current.scrollTop -= 300
-                        }}>^</div>
-                        <div id="down" onClick={() => {
-                            previewAreaRefs.wrapper.current.scrollTop += 300
-                        }}>v</div>
-                    </div>
-                }
+	const [vertBarPos, setVertBarPos] = useState('right')
 
-                <div className="infos-preview-wrapper">
-                    
-                    <div className="file-path-wrapper">
-                        {p.file.path.replace(`/${p.file.name}`,'')}
-                    </div>
+	const calculateYPos = () => {
+		const max = previewAreaRefs.wrapper.current?.height || 3000
+		return clamp(p.posY, 0, max)
+	}
 
-                    <h1 className="title big-title">
-                        {p.file.name.replace('.md','')}
-                    </h1>
+	return (
+		<div className={`preview-area-wrapper`}>
+			<div
+				className={`preview-area`}
+				ref={previewAreaRefs.wrapper}
+				style={{ bottom: calculateYPos() }}
+			>
 
-                    <div className="dates-wrapper">
-                    <div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-                    <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-                    </div>
-                </div>
-                
-                <PreviewRenderer
-                    filecontent={p.fileContent}
-                    currentFolder={currentFolder}
-                />
+				{
+					deviceType() !== 'desktop' &&
+					<div className={`mobile-buttons-up-down ${vertBarPos}`}>
+						<div id="toggle-pos" onClick={() => {
+							setVertBarPos(vertBarPos === 'right' ? 'left' : 'right')
+						}}>t</div>
+						<div id="top" onClick={() => {
+							previewAreaRefs.wrapper.current.scrollTop = 0
+						}}>=</div>
+						<div id="up" onClick={() => {
+							previewAreaRefs.wrapper.current.scrollTop -= 300
+						}}>^</div>
+						<div id="down" onClick={() => {
+							previewAreaRefs.wrapper.current.scrollTop += 300
+						}}>v</div>
+					</div>
+				}
 
-        </div>
-        </div>
-    )
+				<div className="infos-preview-wrapper">
+
+					<div className="file-path-wrapper">
+						{p.file.path.replace(`/${p.file.name}`, '')}
+					</div>
+
+					<h1 className="title big-title">
+						{p.file.name.replace('.md', '')}
+					</h1>
+
+					<div className="dates-wrapper">
+						<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+						<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+					</div>
+				</div>
+
+				<PreviewRenderer
+					filecontent={p.fileContent}
+					currentFolder={currentFolder}
+				/>
+
+			</div>
+		</div>
+	)
 }
 
 
-export const previewAreaCss = (v:MobileView) => `
+export const previewAreaCss = (v: MobileView) => `
 .preview-area-wrapper {
     overflow: ${isIpad() ? 'scroll' : isA('mobile') ? 'scroll' : 'hidden'};
-    height: ${isA('desktop') ? '100vh':'100vh'};
-    margin-top: ${isA('desktop') ? '140':'0'}px;
+    height: ${isA('desktop') ? '100vh' : '100vh'};
+    margin-top: ${isA('desktop') ? '140' : '0'}px;
 }
 .preview-area {
     position: relative;
     display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
-    padding: ${isA('desktop') ? `0px ${cssVars.sizes.block*3}px 0px ${(cssVars.sizes.block*3)/2}px` : `0px ${cssVars.sizes.block*2}px`};
+    padding: ${isA('desktop') ? `0px ${cssVars.sizes.block * 3}px 0px ${(cssVars.sizes.block * 3) / 2}px` : `0px ${cssVars.sizes.block * 2}px`};
     // overflow: ${isIpad() ? 'scroll' : 'hidden'};
 
     ${commonCssEditors}
@@ -164,10 +166,61 @@ export const previewAreaCss = (v:MobileView) => `
         }
         &.resource-link {
           color: ${cssVars.colors.main};
-        background-image: url(${cssVars.assets.fileIcon});
       }
-
     }
+
+		.resource-link-wrapper {
+				background: #f7f6f6;
+				padding: 20px;
+				border-radius: 10px;
+				position: relative;
+				margin: 5px 0px;
+
+				.resource-link-icon {
+						background-image: url(${cssVars.assets.fileIcon});
+						&.pdf
+						{ background-image: url(${cssVars.assets.pdfIcon}); }
+
+						&.xls, &.xlsm, &.xlsx, &.ods
+						{ background-image: url(${cssVars.assets.excelIcon}); }
+
+						&.avi, &.flv, &.h264, &.m4v, &.mov, &.mp4, &.mpg, &.mpeg, &.rm, &.swf, &.vob, &.wmv, &.mkv
+						{ background-image: url(${cssVars.assets.videoIcon}); }
+
+						&.d7z, &.arj, &.deb, &.rar, &.gz, &.zip, &.rpm, &.pkg
+						{ background-image: url(${cssVars.assets.archiveIcon});}
+
+						&.aif, &.mp3, &.cda, &.mid, &.mpa, &.ogg, &.wav, &.wpl, &.wma, &.midi
+						{ background-image: url(${cssVars.assets.audioIcon}); }
+
+						&.doc, &.docx, &.odt
+						{ background-image: url(${cssVars.assets.wordIcon}); }
+
+						&.bin, &.dmg, &.iso, &.toast, &.vcd
+						{
+								top: 19px;
+								transform: scale(1.8);
+								background-image: url(${cssVars.assets.diskIcon});
+						}
+
+						&.ppt, &.pptx, &.odp, &.key, &.pps
+						{ background-image: url(${cssVars.assets.presIcon}); }
+
+						top: 14px;
+						left: 19px;
+						width: 21px;
+						height: 27px;
+						display: inline-block;
+						background-image: url(/static/media/file-solid.6415173e.svg);
+						opacity: 0.08;
+						position: absolute;
+						background-repeat: no-repeat;
+						transform: scale(1.5);
+				}
+				.resource-link {
+				}
+		}
+
 
     img,
     .content-image {
@@ -194,44 +247,46 @@ export const previewAreaCss = (v:MobileView) => `
 
 
 
-const PreviewRenderer = React.memo((p:{filecontent:string, currentFolder:string}) => {
-    const processRender = (raw:string):string => {
-        return transformRessourcesInHTML(p.currentFolder ,
-        transformImagesInHTML (p.currentFolder ,
-        transformSearchLinks (
-        transformTitleSearchLinks (
-        transformUrlInLinks ( 
-            raw
-        )))))
-    }
+const PreviewRenderer = React.memo((p: { filecontent: string, currentFolder: string }) => {
+	const processRender = (raw: string): string => {
+		return transformRessourcesInHTML(p.currentFolder,
+			transformImagesInHTML(p.currentFolder,
+				transformSearchLinks(
+					transformTitleSearchLinks(
+						transformUrlInLinks(
+							transformLatex(
+								transformMarkdownScripts(
+									raw
+								)))))))
+	}
 
-    // let test = p.filecontent.match()
-    let regex = new RegExp(/\<script\>(.*)\<\/script\>/gms)
-    let match = p.filecontent.match(regex)
-    let scriptArea = document?.getElementById('preview-script-area');
-    if (scriptArea) scriptArea.innerHTML = ''
-    if (match && match[0]) {
-        let code = replaceAll(match[0], [['<script>',''],['</script>','']])
-        console.log(code);
-        try {
-            eval(code)
-            // @ts-ignore
-            if (scriptArea && window.previewHtmlOutput) scriptArea.innerHTML = window.previewHtmlOutput;
-        } catch (error) {
-            console.log('[EVAL CODE] error :', error)        
-        }
-        
-    } 
-    
-    return (
-        <>
-            <div id='preview-script-area'></div>
-            <div 
-                className='preview-content'
-                ref={previewAreaRefs.main}
-                dangerouslySetInnerHTML={{__html: md2html(processRender ( p.filecontent))}}>
-            </div>  
-        </>
+	// let test = p.filecontent.match()
+	let regex = new RegExp(/\<script\>(.*)\<\/script\>/gms)
+	let match = p.filecontent.match(regex)
+	let scriptArea = document?.getElementById('preview-script-area');
+	if (scriptArea) scriptArea.innerHTML = ''
+	if (match && match[0]) {
+		let code = replaceAll(match[0], [['<script>', ''], ['</script>', '']])
+		console.log(code);
+		try {
+			eval(code)
+			// @ts-ignore
+			if (scriptArea && window.previewHtmlOutput) scriptArea.innerHTML = window.previewHtmlOutput;
+		} catch (error) {
+			console.log('[EVAL CODE] error :', error)
+		}
 
-    )
+	}
+
+	return (
+		<>
+			<div id='preview-script-area'></div>
+			<div
+				className='preview-content'
+				ref={previewAreaRefs.main}
+				dangerouslySetInnerHTML={{ __html: md2html(processRender(p.filecontent)) }}>
+			</div>
+		</>
+
+	)
 })
