@@ -23,9 +23,8 @@ While keeping all your datas in a simple folder with markdown files you can edit
 - you need ripgrep installed (https://github.com/BurntSushi/ripgrep)
 
 ```
-$ curl -O -L https://github.com/dotgreg/tiro/releases/download/pre-production/tiro-0.24-node.zip
-$ unzip tiro-0.24-node.zip
-$ cd tiro
+$ git clone --depth=1 https://github.com/dotgreg/tiro
+$ cd tiro/build
 $ npm start
 ```
 - Go to localhost:3023
