@@ -2,16 +2,19 @@ node_modules/
 dist/
 dist2/
 data/
-server/build/
-client/build/
 .eslintcache
 scripts/
 docs/
 tiro-config.json
 node_modules
+.log/
+.DS_Store
 
-platforms/mobile/platforms
-platforms/mobile/plugins
-platforms/mobile/hooks
-platforms/mobile/res
-platforms/mobile/www/nodejs-project/tiro/
+platforms/electron/bin/*
+platforms/electron/build/
+platforms/electron/node-build/
+platforms/electron/out
+platforms/electron/out/*
+
+server/build/
+client/build/

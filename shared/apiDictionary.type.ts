@@ -47,7 +47,7 @@ export interface iApiDictionary {
     askFolderDelete: {folderToDelete: iFolder}
     
     sendSetupInfos: {form: iSetupForm}
-    getSetupInfos: {code: iSetupCode, message?: string}
+  getSetupInfos: {code: iSetupCode, defaultFolder?:string, message?: string}
 
     sendLoginInfos: {user:string, password:string}
     getLoginInfos: {code: 'WRONG_TOKEN'|'WRONG_USER_PASSWORD'|'SUCCESS', token?: string},

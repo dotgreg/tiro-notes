@@ -4,6 +4,7 @@ import { backConfig } from "../../config.back";
 import { normalizeString } from "../../helpers/string.helper";
 import { dirDefaultBlacklist } from "../dir.manager";
 import { fileExists, openFile } from "../fs.manager";
+import { log } from "../log.manager";
 import { createIFile } from "./file.search.manager";
 
 const klaw = require('klaw')
@@ -27,7 +28,7 @@ let walkRec = (p:{
 
         if (p.taskQueue.length % blockLength === 0) {
             // every 1000 scan, do intermediary send
-            console.log('add step at ', i);
+            log('add step at ', i);
             p.taskQueue.push(async () => { 
                 await p.onBlockEnd() 
             })
@@ -39,7 +40,7 @@ let walkRec = (p:{
                 const basename = path.basename(itemPath)
                 const isHiddenFile = basename[0] === '.'
                 const isBlacklisted = dirDefaultBlacklist.indexOf(basename) !== -1
-                if (isBlacklisted) console.log(basename);
+                if (isBlacklisted) log(basename);
                 
                 if (!isHiddenFile && !isBlacklisted) {
                     stats = fs.statSync(itemPath)
@@ -85,7 +86,7 @@ export const liveSearchJs = async (params:{
     let count = 0
     let totCount = 0
 
-    if (!fileExists(absolutePathFolder)) return console.log(`[SEARCH-JS] path ${absolutePathFolder} doesnt exists, stop search`)
+    if (!fileExists(absolutePathFolder)) return log(`[SEARCH-JS] path ${absolutePathFolder} doesnt exists, stop search`)
 
     const taskQueue = []
     let lastFilesScannedCount = 0
@@ -95,7 +96,7 @@ export const liveSearchJs = async (params:{
         taskQueue,
         onBlockEnd: async () => {
             let timeSpent = new Date().getTime() - startTime
-            console.log(`[SEARCH-JS] search update for ${absolutePathFolder} in ${timeSpent}ms for ${totCount} elements with ${errors.length} errors`)
+            log(`[SEARCH-JS] search update for ${absolutePathFolder} in ${timeSpent}ms for ${totCount} elements with ${errors.length} errors`)
             await params.onSearchUpdate(filesScanned.slice(filesScanned.length - blockLength), false)
         },
         onFile: async item => {
@@ -130,7 +131,7 @@ export const liveSearchJs = async (params:{
             errors.push(e)
         }
     })
-    console.log(`[SEARCHJS] exec queue length: ${taskQueue.length}`);
+    log(`[SEARCHJS] exec queue length: ${taskQueue.length}`);
     
     for (let i = 0; i < taskQueue.length; i++) {
         // initial cleanup
@@ -147,7 +148,7 @@ export const liveSearchJs = async (params:{
         // show definitive result
         if (i === taskQueue.length - 1) {
             let timeSpent = new Date().getTime() - startTime
-            console.log(`[SEARCH-JS] SEARCH ENDED for ${absolutePathFolder} in ${timeSpent}ms for ${totCount} elements with ${errors.length} errors`);
+            log(`[SEARCH-JS] SEARCH ENDED for ${absolutePathFolder} in ${timeSpent}ms for ${totCount} elements with ${errors.length} errors`);
             params.onSearchEnded(filesScanned)
         }
     }

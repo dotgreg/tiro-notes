@@ -233,7 +233,35 @@ export const previewAreaCss = (v: MobileView) => `
         margin-bottom: 1em;
     }
     .preview-content {
+				overflow-wrap: break-word;
 
+
+				table {
+						margin: 10px 0px;
+						padding 15px;
+						border-spacing: 0;
+						border-collapse: collapse;
+
+				tr:first-child th:first-child { border-top-left-radius: 10px; }
+				tr:first-child th:last-child { border-top-right-radius: 10px; }
+				tr:last-child td:first-child { border-bottom-left-radius: 10px; }
+				tr:last-child td:last-child { border-bottom-right-radius: 10px; }
+
+						th {
+								text-align: left;
+								padding: 10px 10px;
+}
+						td {
+								padding: 5px 10px;
+						}
+						thead tr {
+								background: #CCC
+						}
+						tbody {
+								tr:nth-child(even) {background: #CCC}
+								tr:nth-child(odd) {background: #EEE}
+						}
+				}
     }
     pre {
       code {

@@ -1,0 +1,88 @@
+{
+		"name": "tiro-notes electron",
+		"productName": "tiro-notes-electron",
+		"version": "1.0.5",
+		"description": "",
+		"main": "src/index.js",
+		"scripts": {
+				"package": "electron-forge package",
+
+				"============= SUPPORT SCRIPTS ================": "",
+				"clean-bin": "rm ./bin/rg*",
+				"copy-rg-linux-x64": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-linux-x64 ./bin/rg ",
+				"copy-rg-darwin-both": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-darwin-arm ./bin/rg-darwin-arm.jpeg; cp ./not-packaged/ripgrep/rg-darwin-x64 ./bin/rg-darwin-x64; ",
+				"copy-rg-win-x64": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-win-x64.exe ./bin/rg.exe",
+
+				"============= DEV PROCESS ================": "",
+				"OLDstart-mac": "npm run copy-rg-darwin-both; TIRO_IS_ELECTRON='false' electron-forge start",
+				"dev": "TIRO_IS_ELECTRON='false' electron-forge start",
+
+				"============= BUILD PROCESS ================": "",
+				"=== ENV INSTALL": "",
+				"env-install": "dpkg --print-architecture; echo ==1==; dpkg --print-foreign-architectures; echo ==2==; sudo dpkg --add-architecture i386; echo =3==; dpkg --print-foreign-architectures; echo =4==; sudo apt update -y; echo ==5==; sudo apt install wine32 wine64 -y",
+
+				"=== MAKE COMMANDS": "",
+				"make-all": "npm run make-linux-x64; npm run make-darwin-x64; npm run make-win-x64",
+				"make": "npm run make-win-x64",
+				"=== LINUX": "",
+				"make-linux-x64": "echo '== LINUX X64 =='; npm run copy-rg-linux-x64; electron-forge make --platform linux --arch x64",
+				"=== MAC": "",
+				"make-darwin-arm64": "echo '== DARWIN ARM64 =='npm run copy-rg-darwin-both; electron-forge make --platform darwin --arch arm64",
+				"make-darwin-x64": "echo '== DARWIN X64 =='npm run copy-rg-darwin-both; electron-forge make --platform darwin --arch x64",
+				"=== WINDOWS": "",
+				"make-win-x64": "echo '== WINDOWS X64 =='; npm run copy-rg-win-x64; electron-forge make --platform win32 --arch x64",
+				"publish": "electron-forge publish",
+				"lint": "echo \"No linting configured\""
+		},
+		"keywords": [],
+		"author": {
+				"name": "greg@1m",
+				"email": "greg@1m"
+		},
+		"license": "MIT",
+		"config": {
+				"forge": {
+						"packagerConfig": {
+								"icon": "node-build/client/appicons/icons/mac/icon.icns",
+								"ignore": [
+										"not-packaged"
+								]
+						},
+						"makers": [
+								{
+										"name": "@electron-forge/maker-squirrel",
+										"config": {
+												"name": "tiro-notes"
+										}
+								},
+								{
+										"name": "@electron-forge/maker-zip",
+										"platforms": [
+												"darwin"
+										]
+								},
+								{
+										"name": "@electron-forge/maker-deb",
+										"config": {}
+								},
+								{
+										"name": "@electron-forge/maker-rpm",
+										"config": {}
+								}
+						]
+				}
+		},
+		"dependencies": {
+				"app-root-dir": "^1.0.2",
+				"electron-log": "^4.4.6",
+				"electron-squirrel-startup": "^1.0.0"
+		},
+		"devDependencies": {
+				"@electron-forge/cli": "^6.0.0-beta.63",
+				"@electron-forge/maker-deb": "^6.0.0-beta.63",
+				"@electron-forge/maker-rpm": "^6.0.0-beta.63",
+				"@electron-forge/maker-squirrel": "^6.0.0-beta.63",
+				"@electron-forge/maker-zip": "^6.0.0-beta.63",
+				"electron": "17.1.0"
+		}
+}

@@ -1,6 +1,7 @@
 import { sharedConfig } from "../../../shared/shared.config"
 import { backConfig } from "../config.back"
 import { makeRandomString } from "../helpers/string.helper"
+import { log } from "./log.manager"
 import { verifyPassword } from "./password.manager"
 
 
@@ -9,14 +10,14 @@ import { verifyPassword } from "./password.manager"
 export const getLoginToken = () => memoryToken
 export const generateNewToken = () => {
     let newToken = makeRandomString(60)
-    console.log(`[LOGIN TOKEN] generate new token ${newToken}`);
+    log(`[LOGIN TOKEN] generate new token ${newToken}`);
     return newToken
 }
 export const saveTokenInMemory = (newToken:string) => {
     memoryToken = newToken
 }
 export const startIntervalTokenResfresh = (hours: number) => {
-    console.log(`[LOGIN TOKEN] startIntervalTokenResfresh every ${hours} hours = ${1000 * 60 * 60 * hours} seconds`);
+    log(`[LOGIN TOKEN] startIntervalTokenResfresh every ${hours} hours = ${1000 * 60 * 60 * hours} seconds`);
     
     setInterval(() => {
         saveTokenInMemory(generateNewToken())

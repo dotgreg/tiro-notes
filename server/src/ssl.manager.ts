@@ -1,3 +1,4 @@
+import { log } from "./managers/log.manager";
 import { isEnvDev } from "./managers/path.manager";
 
 const fs = require('fs')
@@ -19,7 +20,7 @@ export const createSecureServer = (port:number, cb?:Function, label?:string):{se
 
     let secureServer
     secureServer = https.createServer(sslConfig, expressApp).listen(port, () => {
-        console.log(`[SECURE SERVER] create at port ${port} with label ${label}`);
+        log(`[SECURE SERVER] create at port ${port} with label ${label}`);
         cb && cb()
     })
     return {secureServer, expressApp};
