@@ -3,22 +3,24 @@ import { backConfig } from './config.back';
 import { getPlatform } from './managers/platform.manager';
 import { sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
-import { testSqlite } from './managers/sqlite.manager';
+import { fileLogClean, log } from './managers/log.manager';
+import { cloneDeep } from 'lodash';
 
-let protocol = (backConfig.jsonConfig && backConfig.jsonConfig.https === 'true') ? 'https' : 'http';
-let ifHerokuPort = process.env.PORT || 3023;
-let port = (backConfig.jsonConfig && backConfig.jsonConfig.port) ? parseInt(backConfig.jsonConfig.port) : ifHerokuPort;
+fileLogClean();
 
-console.log(`1===== SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${port}, protocol:${protocol}, platform: ${getPlatform()})`, backConfig)
+const backConfigToShow: any = cloneDeep(backConfig)
+backConfigToShow.sharedConfig.strings = {}
+
+
+log(`===== TIRO SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${backConfig.port}, https:${backConfig.https}, platform: ${getPlatform()})`, backConfigToShow)
+
+
+
 var express = require('express');
 const app = express()
 
-setTimeout(() => {
-	testSqlite();
-}, 3000);
-
 let server
-if (protocol === 'https') server = require("https").createServer(sslConfig, app)
+if (backConfig.https) server = require("https").createServer(sslConfig, app)
 else server = require("http").createServer(app)
 
 // localhost:port/socket.io = socket server
@@ -31,4 +33,6 @@ app.use('/', express.static(backConfig.frontendBuildFolder));
 // localhost:port/static = static resources serving
 if (backConfig.dataFolder) app.use('/static', express.static(backConfig.dataFolder));
 
-server.listen(port, function() { })
+server.listen(backConfig.port, function() {
+	log('SERVER_LOAD_SUCCESS : Tiro server started successfully');
+})

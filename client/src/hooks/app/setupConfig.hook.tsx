@@ -9,98 +9,101 @@ import { useStatMemo } from "../useStatMemo.hook"
 import { getLoginToken } from './loginToken.hook';
 
 export const useSetupConfig = (p: {
-    cleanAllApp: Function
+	cleanAllApp: Function
 }) => {
 
-    const [displayWelcomePopup, setDisplayWelcomePopup] = useState(false)
+	const [displayWelcomePopup, setDisplayWelcomePopup] = useState(false)
 
-    const [user, setUser] = useState('')
-    const [password, setPassword] = useState('')
-    const [dataFolder, setDataFolder] = useState('')
-    
-    const [formMessage, setFormMessage] = useState<['error'|'success',string]>()
+	const [user, setUser] = useState('')
+	const [password, setPassword] = useState('')
+	const [dataFolder, setDataFolder] = useState('')
 
-    // SOCKET INTERACTIONS
-    const listenerId = useRef<number>(0)
-    useEffect(() => {
-        console.log(`[SETUP CONFIG] init socket listener`);
-        listenerId.current = clientSocket2.on('getSetupInfos',data => {   
-                if (data.code === 'SUCCESS_CONFIG_CREATION') {
-                    setFormMessage(['success',`${strings.setupForm.successReload}`])
-                    setTimeout(() => {
-                        window.location.reload()
-                    }, 3000)
-                } else {
-                    if (data.code === 'ASK_SETUP') {
-                        p.cleanAllApp()
-                        setDisplayWelcomePopup(true)
-                    }
-                    else {
-                        setFormMessage(['error',`${data.code}: ${data.message}`])
-                    }
-                }
-          }
-        )
-        return () => {
-            console.log(`[SETUP CONFIG] clean socket listener`);
-            clientSocket2.off(listenerId.current)
-        }
-    }, [])
+	const [formMessage, setFormMessage] = useState<['error' | 'success', string]>()
 
-    const SetupPopupComponent = (p:{
-        
-    }) => <>
-        {displayWelcomePopup && 
-            <div className="setup-popup-component">
-                <Popup
-                    title="Welcome to Tiro"
-                    onClose={() => {}}
-                >
-                    <p>{strings.setupForm.introText}</p> <br/>
-                    <div>
-                        <Input
-                            value={user}
-                            label={strings.setupForm.user}
-                            explanation={strings.setupForm.userExplanation}
-                            onChange={e => {setUser(e)}}
-                        />
-                        <Input
-                            value={password}
-                            label={strings.setupForm.password}
-                            type={'password'}
-                            explanation={strings.setupForm.passwordExplanation}
-                            onChange={e => {setPassword(e)}}
-                            />
-                        <Input
-                            value={dataFolder}
-                            label={strings.setupForm.dataFolder}
-                            explanation={strings.setupForm.folderExplanation}
-                            onChange={e => {setDataFolder(e)}}
-                        />
-                        
+	// SOCKET INTERACTIONS
+	const listenerId = useRef<number>(0)
+	useEffect(() => {
+		console.log(`[SETUP CONFIG] init socket listener`);
+		listenerId.current = clientSocket2.on('getSetupInfos', data => {
+			if (data.code === 'SUCCESS_CONFIG_CREATION') {
+				setFormMessage(['success', `${strings.setupForm.successReload}`])
+				setTimeout(() => {
+					window.location.reload()
+				}, 3000)
+			} else {
+				if (data.code === 'ASK_SETUP') {
+					p.cleanAllApp()
+					setDisplayWelcomePopup(true)
+					if (data.defaultFolder) setDataFolder(data.defaultFolder);
+				}
+				else {
+					setFormMessage(['error', `${data.code}: ${data.message}`])
+				}
+			}
+		}
+		)
+		return () => {
+			console.log(`[SETUP CONFIG] clean socket listener`);
+			clientSocket2.off(listenerId.current)
+		}
+	}, [])
 
-                        <input type="button" value='submit' className="submit-button" onClick={e => {
-                            // console.log({user,password,dataFolder})
-                            setFormMessage(undefined)
-                            clientSocket2.emit('sendSetupInfos', {form:{user,password,dataFolder}, token: getLoginToken()}) 
-                        }}/>
+	const SetupPopupComponent = (p: {
 
-                        {
-                            formMessage && 
-                            <div className={formMessage[0]}>
-                                {formMessage[1]}
-                            </div>
-                        }
+	}) => <>
+			{displayWelcomePopup &&
+				<div className="setup-popup-component">
+					<Popup
+						title="Welcome to Tiro"
+						onClose={() => { }}
+					>
+						<p>{strings.setupForm.introText}</p> <br />
+						<div>
+							<Input
+								value={user}
+								label={strings.setupForm.user}
+								explanation={strings.setupForm.userExplanation}
+								onChange={e => { setUser(e) }}
+							shouldNotSelectOnClick={true}
+							/>
+							<Input
+								value={password}
+								label={strings.setupForm.password}
+								type={'password'}
+								explanation={strings.setupForm.passwordExplanation}
+								onChange={e => { setPassword(e) }}
+							shouldNotSelectOnClick={true}
+							/>
+							<Input
+								value={dataFolder}
+								label={strings.setupForm.dataFolder}
+								explanation={strings.setupForm.folderExplanation}
+								onChange={e => { setDataFolder(e) }}
+							shouldNotSelectOnClick={true}
+							/>
 
-                    </div>
-                </Popup>
-            </div>}
-        </>
 
-    return {
-        displayWelcomePopup,
-        SetupPopupComponent
-    }
+							<input type="button" value='submit' className="submit-button" onClick={e => {
+								setFormMessage(undefined)
+								clientSocket2.emit('sendSetupInfos', { form: { user, password, dataFolder }, token: getLoginToken() })
+							}} />
+
+							{
+								formMessage &&
+								<div className={formMessage[0]}>
+									{formMessage[1]}
+								</div>
+							}
+
+						</div>
+					</Popup>
+				</div>}
+		</>
+
+	return {
+		displayWelcomePopup,
+		SetupPopupComponent
+	}
 }
 
 export const setupConfigCss = `

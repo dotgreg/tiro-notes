@@ -1,6 +1,7 @@
 import { sharedConfig } from "../../../shared/shared.config";
 import { backConfig } from "../config.back";
 import { createSecureServer } from "../ssl.manager";
+import { log } from "./log.manager";
 import { staticServerAuthLogic, verifyPassword } from "./password.manager";
 
 const fs = require('fs')
@@ -19,5 +20,5 @@ export const startStaticServer = (path:string, port:number, login:boolean=true) 
     //     })) 
     // }
 
-    console.log(` ==> Static Server for ${path} running at localhost:${port}/`);
+    log(` ==> Static Server for ${path} running at localhost:${port}/`);
 }

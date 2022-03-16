@@ -4,214 +4,214 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { fileExists } from "../fs.manager";
+import { log } from "../log.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
 const execa = require('execa');
 
-export interface iFilesObj {[filePath:string]: iFile}
+export interface iFilesObj { [filePath: string]: iFile }
 
 var fs = require('fs')
-export const searchWithRipGrep = async (params:{
-    term:string, 
-    folder:string, 
-    titleSearch: boolean,
-    imageSearch?: boolean,
-    recursive: boolean,
-    onSearchEnded: (res:{files?:iFile[], images?:iFileImage[]}) => Promise<void>
-}):Promise<void> => {
+export const searchWithRipGrep = async (params: {
+	term: string,
+	folder: string,
+	titleSearch: boolean,
+	imageSearch?: boolean,
+	recursive: boolean,
+	onSearchEnded: (res: { files?: iFile[], images?: iFileImage[] }) => Promise<void>
+}): Promise<void> => {
 
-    let processTerm = params.term.split('-').join('\\-') 
-    const folderToSearch = `${backConfig.dataFolder+params.folder}`;
-    const perfs = {init: Date.now(), cmd1: Date.now(), cmd2:Date.now()}
-    const searchType = (params.term === '') ? 'folder' : 'term'
+	let processTerm = params.term.split('-').join('\\-')
+	const folderToSearch = `${backConfig.dataFolder + params.folder}`;
+	const perfs = { init: Date.now(), cmd1: Date.now(), cmd2: Date.now() }
+	const searchType = (params.term === '') ? 'folder' : 'term'
 
-    const debugMode =  (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
-    
-    // regex dictionary
-    const r = {
-        all: '[\\d\\D]*',
-        imageMd: '!\[[^\]]+\]\([^\]]+\)',
-        headerStart: sharedConfig.metas.headerStart,
-        headerStop: sharedConfig.metas.headerEnd,
-    }
-    
-    //////////////////////////////////////
-    // SEARCH TYPE 1 : TERM SEARCH
-    //
-    if (searchType === 'term' && !params.imageSearch) {
-        const titleFilter = params.titleSearch ? processTerm : ''
-        const searchedTerm = params.titleSearch ? '' : processTerm
-        
-        const termRegex  = `(${r.headerStart}${r.all}${r.headerStop})*${r.all}${searchedTerm}${r.all}(${r.headerStart}${r.all}${r.headerStop})*`
-        const normalSearchParams = [
-            termRegex, 
-            folderToSearch, 
-            '--ignore-case',
-            '--type',
-            'md',
-            '--multiline',
-        ]
+	const debugMode = (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
+
+	// regex dictionary
+	const r = {
+		all: '[\\d\\D]*',
+		imageMd: '!\[[^\]]+\]\([^\]]+\)',
+		headerStart: sharedConfig.metas.headerStart,
+		headerStop: sharedConfig.metas.headerEnd,
+	}
+
+	//////////////////////////////////////
+	// SEARCH TYPE 1 : TERM SEARCH
+	//
+	if (searchType === 'term' && !params.imageSearch) {
+		const titleFilter = params.titleSearch ? processTerm : ''
+		const searchedTerm = params.titleSearch ? '' : processTerm
+
+		const termRegex = `(${r.headerStart}${r.all}${r.headerStop})*${r.all}${searchedTerm}${r.all}(${r.headerStart}${r.all}${r.headerStop})*`
+		const normalSearchParams = [
+			termRegex,
+			folderToSearch,
+			'--ignore-case',
+			'--type',
+			'md',
+			'--multiline',
+		]
 
 
-        let resultsRawArr:string[] = []
-        const ripGrepStreamProcess1 = execa('rg', normalSearchParams)
-        ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
-            const rawMetaString = dataRaw.toString()
-            // split multiline strings
-            const rawMetaArr = rawMetaString.split('\n')
-            resultsRawArr.push(...rawMetaArr)
-        })
-        ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-            const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, params.folder, true);
-            // if (debugMode) console.log(11, resultsRawArr, 'to', metasFilesObj)
-            const scannedFilesObj:iFilesObj = {}
-            let index = 0
-            each(metasFilesObj, (metaObj, fileName) => {
-                const file = processRawPathToFile(fileName, params.folder, index, titleFilter)
-                if ( file && file.name) {
-                    // console.log(14, 'file exists?' , file.path,  fileExists(file.path), file)
-                    if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
-                        scannedFilesObj[file.name] = file
-                        index++
-                    }
-                }
-            })
-            const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
-            const debugObj = debugMode ? {filesWithMetaUpdated, scannedFilesObj, metasFilesObj} : {}
+		let resultsRawArr: string[] = []
+		const ripGrepStreamProcess1 = execa( backConfig.rgPath, normalSearchParams)
+		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+			const rawMetaString = dataRaw.toString()
+			// split multiline strings
+			const rawMetaArr = rawMetaString.split('\n')
+			resultsRawArr.push(...rawMetaArr)
+		})
+		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+			const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, params.folder, true);
+			// if (debugMode) log(11, resultsRawArr, 'to', metasFilesObj)
+			const scannedFilesObj: iFilesObj = {}
+			let index = 0
+			each(metasFilesObj, (metaObj, fileName) => {
+				const file = processRawPathToFile(fileName, params.folder, index, titleFilter)
+				if (file && file.name) {
+					if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
+						scannedFilesObj[file.name] = file
+						index++
+					}
+				}
+			})
+			const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
+			const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
 
-            console.log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `,{ files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj});  
-            params.onSearchEnded({files: filesWithMetaUpdated})
-        })
-    }
+			log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
+			params.onSearchEnded({ files: filesWithMetaUpdated })
+		})
+	}
 
-    //////////////////////////////////////
-    // SEARCH TYPE 2 : FOLDER SEARCH
-    //
-    else if (searchType === 'folder' && !params.imageSearch) {
-        const fullFolderSearchParams = [
-            '--files',
-            folderToSearch,
-            '--max-depth=1',
-            '--type',
-            'md', 
-        ]
-    
-        const metaFilesInFullFolderSearch = [
-            `${r.headerStart}${r.all}${r.headerStop}`,
-            folderToSearch,
-            '--max-depth=1',
-            '--type',
-            'md', 
-            '--multiline', 
-        ]
+	//////////////////////////////////////
+	// SEARCH TYPE 2 : FOLDER SEARCH
+	//
+	else if (searchType === 'folder' && !params.imageSearch) {
+		const fullFolderSearchParams = [
+			'--files',
+			folderToSearch,
+			'--max-depth=1',
+			'--type',
+			'md',
+		]
 
-        // PROCESS 1
-        const ripGrepStreamProcess1 = execa('rg', fullFolderSearchParams)
-        // const filesScanned:iFile[] = []
-        const filesScannedObj:iFilesObj = {}
-        ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
-            let data = dataRaw.toString()
-            const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', params.folder)
-            each(files, file => {
-                if (file && file.name) {
-                    filesScannedObj[file.name] = file
-                }
-            })
-        })
-        ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-            console.log(`[RIPGREP SEARCH] FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, {fullFolderSearchParams});  
-            perfs.cmd1 = Date.now()
-            triggerAggregationIfEnded()
-        })
-    
-        // PROCESS 2
-        const ripGrepStreamProcess2 = execa('rg', metaFilesInFullFolderSearch)
-        const rawMetasStrings:string[] = []
-        let metasFilesScanned:iMetasFiles = {}
-        ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
-            const rawMetaString = dataRaw.toString()
-            // split multiline strings
-            const rawMetaArr = rawMetaString.split('\n')
-            rawMetasStrings.push(...rawMetaArr)
-        })
-        ripGrepStreamProcess2.stdout.on('close', dataRaw => {
-            // process raw strings to meta objs
-            
-            metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, params.folder)
-            console.log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `,{metaFilesInFullFolderSearch});  
-            perfs.cmd2 = Date.now()
-            triggerAggregationIfEnded()
-        })
-    
-        // PROCESS 3 : AGGREGATE RESULTS WHEN BOTH CMDS ARE DONE
-        let counterCmdsDone = 0
-        const triggerAggregationIfEnded = () => {
-            counterCmdsDone++
-            if (counterCmdsDone === 2) {
-                const filesWithMetaUpdated = mergingMetaToFilesArr(filesScannedObj, metasFilesScanned)
-                const perfString = `tot:${Date.now() - perfs.init}ms / cmd1:${perfs.cmd1 - perfs.init}ms / cmd2:${perfs.cmd2 - perfs.init}ms`
-                console.log(`[RIPGREP SEARCH] FOLDER => BOTH CMDS => ENDED `, {files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs});  
-                params.onSearchEnded({files: filesWithMetaUpdated})
-            }
-        }
-    }
+		const metaFilesInFullFolderSearch = [
+			`${r.headerStart}${r.all}${r.headerStop}`,
+			folderToSearch,
+			'--max-depth=1',
+			'--type',
+			'md',
+			'--multiline',
+		]
 
-    
-    //////////////////////////////////////
-    // SEARCH TYPE 3 : IMAGE SEARCH
-    //
-    else if (searchType === 'term' && params.imageSearch) {
-        const titleFilter = params.titleSearch ? processTerm : ''
-        const searchedTerm = params.titleSearch ? '' : processTerm
+		// PROCESS 1
+		const ripGrepStreamProcess1 = execa(backConfig.rgPath, fullFolderSearchParams)
+		// const filesScanned:iFile[] = []
+		const filesScannedObj: iFilesObj = {}
+		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+			let data = dataRaw.toString()
+			const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', params.folder)
+			each(files, file => {
+				if (file && file.name) {
+					filesScannedObj[file.name] = file
+				}
+			})
+		})
+		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+			log(`[RIPGREP SEARCH] FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
+			perfs.cmd1 = Date.now()
+			triggerAggregationIfEnded()
+		})
 
-        const termRegex  = `(${r.imageMd}${r.all}${searchedTerm}|${searchedTerm}${r.all}${r.imageMd})+`
-        const searchParams = [
-            termRegex, 
-            folderToSearch, 
-            '--ignore-case',
-            '--type',
-            'md',
-            '--multiline',
-        ]
-        const ripGrepStreamProcessImg2 = execa('rg', searchParams)
-        const rawStrings:string[] = []
-        ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
-            const partialRawString = dataRaw.toString()
-            // split multiline strings
-            const partialRawStringsArr = partialRawString.split('\n')
-            rawStrings.push(...partialRawStringsArr)
-        })
-        ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
-            const images = processRawStringsToImagesArr(rawStrings, params.folder, titleFilter);
-            console.log(`[RIPGREP SEARCH] TERM SEARCH + IMAGE => ENDED ${images.length}`, {searchParams});  
-            params.onSearchEnded({images})
-        })
-    }
-    else if (searchType === 'folder' && params.imageSearch) {
-        const searchParams = [
-            `${r.imageMd}`, 
-            folderToSearch, 
-            '--max-depth=1',
-            '--ignore-case',
-            '--type',
-            'md',
-            '--multiline',
-        ]
-        const ripGrepStreamProcessImg1 = execa('rg', searchParams)
-        const rawStrings:string[] = []
-        ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
-            const partialRawString = dataRaw.toString()
-            // split multiline strings
-            const partialRawStringsArr = partialRawString.split('\n')
-            rawStrings.push(...partialRawStringsArr)
-        })
-        ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
-            const images = processRawStringsToImagesArr(rawStrings, params.folder);
-            console.log(`[RIPGREP SEARCH] IMAGE FOLDER => ENDED ${images.length}`);  
-            params.onSearchEnded({images})
-        })
-    }
+		// PROCESS 2
+		const ripGrepStreamProcess2 = execa(backConfig.rgPath, metaFilesInFullFolderSearch)
+		const rawMetasStrings: string[] = []
+		let metasFilesScanned: iMetasFiles = {}
+		ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
+			const rawMetaString = dataRaw.toString()
+			// split multiline strings
+			const rawMetaArr = rawMetaString.split('\n')
+			rawMetasStrings.push(...rawMetaArr)
+		})
+		ripGrepStreamProcess2.stdout.on('close', dataRaw => {
+			// process raw strings to meta objs
+
+			metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, params.folder)
+			log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
+			perfs.cmd2 = Date.now()
+			triggerAggregationIfEnded()
+		})
+
+		// PROCESS 3 : AGGREGATE RESULTS WHEN BOTH CMDS ARE DONE
+		let counterCmdsDone = 0
+		const triggerAggregationIfEnded = () => {
+			counterCmdsDone++
+			if (counterCmdsDone === 2) {
+				const filesWithMetaUpdated = mergingMetaToFilesArr(filesScannedObj, metasFilesScanned)
+				const perfString = `tot:${Date.now() - perfs.init}ms / cmd1:${perfs.cmd1 - perfs.init}ms / cmd2:${perfs.cmd2 - perfs.init}ms`
+				log(`[RIPGREP SEARCH] FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
+				params.onSearchEnded({ files: filesWithMetaUpdated })
+			}
+		}
+	}
+
+
+	//////////////////////////////////////
+	// SEARCH TYPE 3 : IMAGE SEARCH
+	//
+	else if (searchType === 'term' && params.imageSearch) {
+		const titleFilter = params.titleSearch ? processTerm : ''
+		const searchedTerm = params.titleSearch ? '' : processTerm
+
+		const termRegex = `(${r.imageMd}${r.all}${searchedTerm}|${searchedTerm}${r.all}${r.imageMd})+`
+		const searchParams = [
+			termRegex,
+			folderToSearch,
+			'--ignore-case',
+			'--type',
+			'md',
+			'--multiline',
+		]
+		const ripGrepStreamProcessImg2 = execa(backConfig.rgPath, searchParams)
+		const rawStrings: string[] = []
+		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
+			const partialRawString = dataRaw.toString()
+			// split multiline strings
+			const partialRawStringsArr = partialRawString.split('\n')
+			rawStrings.push(...partialRawStringsArr)
+		})
+		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
+			const images = processRawStringsToImagesArr(rawStrings, params.folder, titleFilter);
+			log(`[RIPGREP SEARCH] TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
+			params.onSearchEnded({ images })
+		})
+	}
+	else if (searchType === 'folder' && params.imageSearch) {
+		const searchParams = [
+			`${r.imageMd}`,
+			folderToSearch,
+			'--max-depth=1',
+			'--ignore-case',
+			'--type',
+			'md',
+			'--multiline',
+		]
+		const ripGrepStreamProcessImg1 = execa(backConfig.rgPath, searchParams)
+		const rawStrings: string[] = []
+		ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
+			const partialRawString = dataRaw.toString()
+			// split multiline strings
+			const partialRawStringsArr = partialRawString.split('\n')
+			rawStrings.push(...partialRawStringsArr)
+		})
+		ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
+			const images = processRawStringsToImagesArr(rawStrings, params.folder);
+			log(`[RIPGREP SEARCH] IMAGE FOLDER => ENDED ${images.length}`);
+			params.onSearchEnded({ images })
+		})
+	}
 
 
 
@@ -224,36 +224,36 @@ export const searchWithRipGrep = async (params:{
 
 
 
-export const analyzeTerm = (term:string):{
-    rawTerm:string, 
-    termId:string, 
-    term:string, 
-    folderToSearch:string,
-    titleSearch: boolean
+export const analyzeTerm = (term: string): {
+	rawTerm: string,
+	termId: string,
+	term: string,
+	folderToSearch: string,
+	titleSearch: boolean
 } => {
-    let res = {rawTerm:term, termId:term, term:term, folderToSearch:'', titleSearch:false}
+	let res = { rawTerm: term, termId: term, term: term, folderToSearch: '', titleSearch: false }
 
-    // if only folder, term = ''
-    let folderRaw1 = term.match(regexs.searchFolderNoSpace)
-    if (folderRaw1 && folderRaw1[0]) {
-        res.term = ''
-        res.folderToSearch = folderRaw1[0]
-    }
+	// if only folder, term = ''
+	let folderRaw1 = term.match(regexs.searchFolderNoSpace)
+	if (folderRaw1 && folderRaw1[0]) {
+		res.term = ''
+		res.folderToSearch = folderRaw1[0]
+	}
 
-    // if folder in 'toto /hello/world'
-    let folderRaw2 = term.match(regexs.searchFolder)
-    if (folderRaw2 && folderRaw2[0]) {
-        res.term = term.replace(folderRaw2[0], '')
-        res.folderToSearch = folderRaw2[0].substr(1)
-    }
+	// if folder in 'toto /hello/world'
+	let folderRaw2 = term.match(regexs.searchFolder)
+	if (folderRaw2 && folderRaw2[0]) {
+		res.term = term.replace(folderRaw2[0], '')
+		res.folderToSearch = folderRaw2[0].substr(1)
+	}
 
-    // if search term is intitle:toto, only search in title
-    if (res.term.startsWith('intitle:')) {
-        res.titleSearch = true
-        res.term = res.term.replace('intitle:', '')
-    }
+	// if search term is intitle:toto, only search in title
+	if (res.term.startsWith('intitle:')) {
+		res.titleSearch = true
+		res.term = res.term.replace('intitle:', '')
+	}
 
-    res.termId = res.termId.replace('/', '')
-    
-    return res
+	res.termId = res.termId.replace('/', '')
+
+	return res
 }

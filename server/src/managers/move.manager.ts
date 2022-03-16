@@ -6,6 +6,7 @@ import { backConfig } from "../config.back"
 import { normalizeString, removeSpecialChars } from "../helpers/string.helper"
 import { dirDefaultBlacklist, scanDirForFiles } from "./dir.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
+import { log } from "./log.manager"
 import { ServerSocketManager } from "./socket.manager"
 
 export const generateNewFileName = (actualFileName: string):string => `${removeSpecialChars(normalizeString(actualFileName))}-${random(0, 1000)}`
@@ -14,15 +15,15 @@ export const debouncedFolderScan = debounce( async(socket:ServerSocketManager<iA
     let folderPathArr = initPath.split('/')
     folderPathArr.pop()
     let folderPath = folderPathArr.join('/')
-    console.log(`[HEAVY] ==> debouncedScanAfterMove for ${folderPath}`);
+    log(`[HEAVY] ==> debouncedScanAfterMove for ${folderPath}`);
     
     let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
-    if (typeof(apiAnswer) === 'string') return console.error(apiAnswer)
+    if (typeof(apiAnswer) === 'string') return log(apiAnswer)
     socket.emit('getFiles', { files: apiAnswer }) 
 }, 100)
 
 export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath:string, simulate: boolean = false) => {
-    if(simulate) console.log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);
+    if(simulate) log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);
     
     let filecontent = await openFile(`${backConfig.dataFolder}/${initPath}`)
     
@@ -36,7 +37,7 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
     
     let matches = filecontent.match(regexs.ressource)
     let newFileContent = filecontent
-    if (!matches || !matches.length) return console.log('[moveNoteResourcesAndUpdateContent] no resources found, skipping');
+    if (!matches || !matches.length) return log('[moveNoteResourcesAndUpdateContent] no resources found, skipping');
     
 
     for (let i = 0; i < matches.length; i++) {
@@ -51,7 +52,7 @@ export const moveNoteResourcesAndUpdateContent = async (initPath:string, endPath
         
         for (let y = 0; y < pathsToCheck.length; y++) {
             let fileDoesExist = fileExists(pathsToCheck[y])
-            !fileDoesExist && console.log(`===> ${pathsToCheck[y]} not found`);
+            !fileDoesExist && log(`===> ${pathsToCheck[y]} not found`);
             if (fileDoesExist) {
                 // if yes, move it to endPath/.resources/UNIQUEID.jpg
                 let initResourcePathArr = pathsToCheck[y].split('/')

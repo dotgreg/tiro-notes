@@ -2,6 +2,7 @@ import { cleanPath } from "../../../../shared/helpers/filename.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { fileStats } from "../fs.manager";
+import { log } from "../log.manager";
 import { anyToRelPath } from "../path.manager";
 
 export const cleanFilePath = (rawString:string, folder) => {
@@ -24,7 +25,7 @@ export const processRawPathToFile = (rawPath:string, folder:string, index:number
         let stats = fileStats(`${backConfig.dataFolder}/${folder}/${filePath}`)
         res = createIFile(filePath, folder, index, stats)
     } catch (error) {
-        console.log('[RIPGREP SEARCH] ERROR : ', error);
+      log('[RIPGREP SEARCH] ERROR : ', error);
     }
     return res
 }
