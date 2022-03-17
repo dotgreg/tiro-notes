@@ -34,5 +34,7 @@ app.use('/', express.static(backConfig.frontendBuildFolder));
 if (backConfig.dataFolder) app.use('/static', express.static(backConfig.dataFolder));
 
 server.listen(backConfig.port, function() {
-	log('SERVER_LOAD_SUCCESS : Tiro server started successfully');
+	// THAT MESSAGE IS CRITICAL FOR ELECTRON TO START DISPLAYING THE WINDOW
+	let configServerStr = JSON.stringify({ https: backConfig.https, port: backConfig.port })
+	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })

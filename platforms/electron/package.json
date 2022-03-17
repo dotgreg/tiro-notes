@@ -1,8 +1,8 @@
 {
-		"name": "tiro-notes electron",
-		"productName": "tiro-notes-electron",
-		"version": "1.0.5",
-		"description": "",
+		"name": "Tiro Notes",
+		"productName": "Tiro Notes",
+		"version": "1.0.0",
+		"description": "Tiro Notes",
 		"main": "src/index.js",
 		"scripts": {
 				"package": "electron-forge package",
@@ -14,8 +14,8 @@
 				"copy-rg-win-x64": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-win-x64.exe ./bin/rg.exe",
 
 				"============= DEV PROCESS ================": "",
-				"OLDstart-mac": "npm run copy-rg-darwin-both; TIRO_IS_ELECTRON='false' electron-forge start",
-				"dev": "TIRO_IS_ELECTRON='false' electron-forge start",
+				"dev": "npm run dev-mac",
+				"dev-mac": "npm run copy-rg-darwin-both; electron-forge start",
 
 				"============= BUILD PROCESS ================": "",
 				"=== ENV INSTALL": "",
