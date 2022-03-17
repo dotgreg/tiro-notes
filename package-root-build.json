@@ -1,26 +1,13 @@
 {
-		"name": "builds-tiro",
+		"name": "Tiro Notes",
 		"version": "1.0.0",
 		"description": "",
 		"main": "index.js",
 		"scripts": {
-				"start": "PORT=3024 node server/server.js",
+				"start": "PORT=3023 node server/server.js",
 				"build-binaries": "pkg package.json"
 		},
-		"repository": {
-				"type": "git",
-				"url": "git+ssh://git@bitbucket.org/dotgreg/extrawurst-builds.git"
-		},
-		"__DESKTOP_BUILD_OPTIONS__": "",
     "bin": "server/server.js",
-    "pkg": {
-        "assets": ["server/**/*", "client/**/*"],
-        "targets-linux": [ "node14-linux-arm64", "node14-linux-x64", "node14-macos-x64", "node14-win-x64" ],
-        "targets-win": [ "node14-linux-x64", "node14-macos-x64", "node14-win-x64" ],
-        "targets": [ "node14-linux-x64", "node14-macos-x64", "node14-win-x64" ],
-        "outputPath": "../binaries-tiro"
-    },
 		"author": "",
-		"license": "ISC",
-		"homepage": "https://bitbucket.org/dotgreg/extrawurst-builds#readme"
+		"license": "ISC"
 }

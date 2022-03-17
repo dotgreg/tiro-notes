@@ -6,7 +6,7 @@ export const configClient = {
         eventManager: true,
         upload: false,
     },
-    version: '0.26 15/03/2022',
+    version: '0.27 17/03/2022',
     global: {
         protocol: '//',
         url: `${window.location.hostname}`,

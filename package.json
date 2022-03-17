@@ -4,38 +4,28 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-
         "================== SUPPORT =================== ": "",
         "__INSTALL__": "",
         "install-all": "run-p install-client install-server",
         "install-client": "npm run --prefix ./client install-all",
         "install-server": "npm run --prefix ./server install-all",
-
         "__REGENERATE ICONS FOR ELECTRON__": "",
         "refresh-icons": "cd ./client/public; rm -r appicons; npx electron-icon-maker --input=favicon.png --output=./appicons",
-
-
         "================== DEV =================== ": "",
         "__DEV__": "",
         "dev": "run-p client server",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
-
-				
         "================== NODE BUILD =================== ": "",
         "build": "npm run build-export",
-
         "build-export": "run-s create-build-folders build-client build-server clean-prev-build export-build export-to-electron-folder",
-
         "build-export-to-binaries": "run-s build-export build-binaries",
         "build-export-client": "run-s create-build-folders build-client clean-client export-client",
         "build-export-server": "run-s create-build-folders build-server clean-server export-server",
-
         "===____1_BUILD__": "",
         "create-build-folders": "npx mkdirp ./build ./build/client ./build/server",
         "build-client": "npm run --prefix ./client install-clean-build",
         "build-server": "npm run --prefix ./server install-clean-build",
-
         "===____2_CLEAN_PREV_BUILD__": "",
         "clean-prev-build": "run-s clean-server clean-client clean-else",
         "clean-server": "rm -r ./build/server &",
@@ -43,7 +33,6 @@
         "clean-else": "run-s clean-else-1 clean-else-2",
         "clean-else-1": "rm -r ./build/scripts &",
         "clean-else-2": "rm ./build/package.json &",
-
         "===____3_EXPORT__": "",
         "export-to-electron-folder": "rm -r ./platforms/electron/node-build; cp -r ./build ./platforms/electron/node-build",
         "export-build": "run-s export-client export-config export-server",
@@ -56,10 +45,9 @@
         "export-server": "run-s export-server-1 export-server-2",
         "export-server-1": "cp -r server/build ./build/server",
         "export-server-2": "cp -r server/ssl ./build/server/ssl",
-
         "================== MISC =================== ": "",
         "__HEROKU__": "",
-				"start": "node build/server/server.js",
+        "start": "node build/server/server.js",
         "__OTHER__": "",
         "convertNotes": "cd scripts & yarle --configFile enex2md.json",
         "launchAppDev": "npm run startServerNewCmd & npm run client",
