@@ -20,5 +20,7 @@ platforms/electron/node-build/
 platforms/electron/out
 platforms/electron/out/*
 
+platforms/npm-cli-module/node-build/
+
 server/build/
 client/build/

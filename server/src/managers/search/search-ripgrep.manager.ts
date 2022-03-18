@@ -8,11 +8,20 @@ import { log } from "../log.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
-const execa = require('execa');
 
+const fs = require('fs')
+const execa = require('execa');
 export interface iFilesObj { [filePath: string]: iFile }
 
-var fs = require('fs')
+
+// CHECK IF RG path exists and command line is functional
+export const isRgCliWorking = async (): Promise<boolean> => {
+	const { stdout } = await execa(backConfig.rgPath, ['--version']);
+	let res = stdout.includes('ripgrep') ? true : false
+	return res
+}
+
+// SEARCH WITH RG
 export const searchWithRipGrep = async (params: {
 	term: string,
 	folder: string,
@@ -56,7 +65,7 @@ export const searchWithRipGrep = async (params: {
 
 
 		let resultsRawArr: string[] = []
-		const ripGrepStreamProcess1 = execa( backConfig.rgPath, normalSearchParams)
+		const ripGrepStreamProcess1 = execa(backConfig.rgPath, normalSearchParams)
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
 			const rawMetaString = dataRaw.toString()
 			// split multiline strings

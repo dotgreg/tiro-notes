@@ -74,7 +74,6 @@
 		},
 		"dependencies": {
 				"app-root-dir": "^1.0.2",
-				"electron-log": "^4.4.6",
 				"electron-squirrel-startup": "^1.0.0"
 		},
 		"devDependencies": {

@@ -1,13 +1,11 @@
 {
-		"name": "Tiro Notes",
-		"version": "1.0.0",
-		"description": "",
+		"name": "tiro-notes",
+		"version": "0.27.6",
+		"description": "Tiro Notes",
 		"main": "index.js",
 		"scripts": {
-				"start": "PORT=3023 node server/server.js",
-				"build-binaries": "pkg package.json"
+				"start": "node server/server.js",
 		},
-    "bin": "server/server.js",
-		"author": "",
+		"author": "thiebault.gregoire@gmail.com",
 		"license": "ISC"
 }

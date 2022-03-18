@@ -84,13 +84,14 @@ const startTiroServer = (cb) => {
 								const successMessage = 'SERVER_LOAD_SUCCESS';
 								if (str.includes(successMessage)) {
 										hasStarted = true;
+										log(`-- ${str} --`);
 										try {
-												let configServerObj = JSON.parse(str.replace(successMessage, ''))
-												log(str)
+												let objStr = str.match(/\{.*\}/gm);
+												let configServerObj = JSON.parse(objStr)
 												log(`server config loaded successfully: ${JSON.stringify(configServerObj)}`);
 												if (cb) cb(configServerObj);
 										} catch(e){
-												log(`could not get the server config ${JSON.stringify(e)}`)
+												log(`ERROR! could not get the server config ${JSON.stringify(e)}`)
 										}
 										
 
