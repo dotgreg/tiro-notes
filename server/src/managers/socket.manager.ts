@@ -6,6 +6,7 @@ import { backConfig } from "../config.back";
 import { getLoginToken } from "./loginToken.manager";
 import { log } from "./log.manager";
 import { getDefaultDataFolderPath } from "./fs.manager";
+import { isRgCliWorking } from "./search/search-ripgrep.manager";
 
 
 interface routeOptions {
@@ -84,7 +85,15 @@ export const initSocketLogic = () => {
 	// ON NEW CLIENT CONNECTION
 	ioServer.on('connection', (socket, params) => {
 		log(`[CONNECTION] new client connected`);
-		ioServer.emit('connectionSuccess', { woop: 'wooooop' })
+
+		// check if rg path is working
+
+		isRgCliWorking().then(isRgGood => {
+			//if (!isRgGood) throw new Error(backConfig.sharedConfig.strings.rgNotWorking);
+			// do not block everything, that the UI still shows with the error in alert box
+			if (!isRgGood) log(backConfig.sharedConfig.strings.rgNotWorking);
+			ioServer.emit('connectionSuccess', { isRgGood })
+		})
 
 		// creating new socket for each specific client
 		const serverSocket2 = initServerSocketManager<iApiDictionary>(socket)

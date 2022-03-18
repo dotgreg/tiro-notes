@@ -37,8 +37,8 @@ export const sharedStrings = {
 		folderExplanation: `relative from Tiro folder installation (../data for example)`,
 		successReload: `Configuration file successfully written, reloading application...`,
 		submit: 'login',
-		noFolder1: 'folder path', 
-		noFolder2: 'doesn\'t exists, please create it or choose another folder (no data will be deleted).', 
+		noFolder1: 'folder path',
+		noFolder2: 'doesn\'t exists, please create it or choose another folder (no data will be deleted).',
 	},
 	appviews: {
 		image: 'Switch to Gallery View',
@@ -80,5 +80,6 @@ export const sharedStrings = {
 			date: 'date',
 			name: 'version'
 		}
-	}
+	},
+	rgNotWorking: 'ERROR: Tiro requires Ripgrep to be working, it seems that ripgrep (rg command) is either not installed or not functionning correctly on you computer. To install it, follow these instructions : https://github.com/BurntSushi/ripgrep#installation'
 }

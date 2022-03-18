@@ -16,4 +16,18 @@ export const sharedConfig = {
 	},
 
 	strings: sharedStrings,
+
+	client: {
+		log: {
+			socket: true,
+			eventManager: true,
+			upload: false,
+		},
+		version: '0.27 17/03/2022',
+		params: {
+			previewArea: {
+				scrollSpeed: 1.3
+			}
+		}
+	}
 }

@@ -1,31 +1,46 @@
 {
-    "name": "tiro-server",
+    "name": "tiro-notes-source-code",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
     "scripts": {
+
+
         "================== SUPPORT =================== ": "",
+
         "__INSTALL__": "",
         "install-all": "run-p install-client install-server",
         "install-client": "npm run --prefix ./client install-all",
         "install-server": "npm run --prefix ./server install-all",
+
         "__REGENERATE ICONS FOR ELECTRON__": "",
         "refresh-icons": "cd ./client/public; rm -r appicons; npx electron-icon-maker --input=favicon.png --output=./appicons",
+
+
         "================== DEV =================== ": "",
+
         "__DEV__": "",
         "dev": "run-p client server",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
+
+        "================== PLATFORMS RELATED =================== ": "",
+
+				"publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
+
         "================== NODE BUILD =================== ": "",
-        "build": "npm run build-export",
-        "build-export": "run-s create-build-folders build-client build-server clean-prev-build export-build export-to-electron-folder",
+
+        "build": "npm run build-then-export",
+        "build-then-export": "run-s create-build-folders build-client build-server clean-prev-build export-the-build copy-build-to-electron-folder",
         "build-export-to-binaries": "run-s build-export build-binaries",
         "build-export-client": "run-s create-build-folders build-client clean-client export-client",
         "build-export-server": "run-s create-build-folders build-server clean-server export-server",
+
         "===____1_BUILD__": "",
         "create-build-folders": "npx mkdirp ./build ./build/client ./build/server",
         "build-client": "npm run --prefix ./client install-clean-build",
         "build-server": "npm run --prefix ./server install-clean-build",
+
         "===____2_CLEAN_PREV_BUILD__": "",
         "clean-prev-build": "run-s clean-server clean-client clean-else",
         "clean-server": "rm -r ./build/server &",
@@ -33,9 +48,11 @@
         "clean-else": "run-s clean-else-1 clean-else-2",
         "clean-else-1": "rm -r ./build/scripts &",
         "clean-else-2": "rm ./build/package.json &",
+
         "===____3_EXPORT__": "",
-        "export-to-electron-folder": "rm -r ./platforms/electron/node-build; cp -r ./build ./platforms/electron/node-build",
-        "export-build": "run-s export-client export-config export-server",
+        "copy-build-to-electron-folder": "rm -r ./platforms/electron/node-build; cp -r ./build ./platforms/electron/node-build",
+        "export-the-build": "run-s export-client export-config export-server",
+
         "export-client": "cp -r client/build ./build/client",
         "export-misc": "cp -r misc ./build/client",
         "export-config": "run-s export-config-1 export-config-2",
@@ -45,24 +62,15 @@
         "export-server": "run-s export-server-1 export-server-2",
         "export-server-1": "cp -r server/build ./build/server",
         "export-server-2": "cp -r server/ssl ./build/server/ssl",
+
         "================== MISC =================== ": "",
         "__HEROKU__": "",
         "start": "node build/server/server.js",
         "__OTHER__": "",
-        "convertNotes": "cd scripts & yarle --configFile enex2md.json",
-        "launchAppDev": "npm run startServerNewCmd & npm run client",
-        "launchAppProd": "npm run startServerNewCmd",
-        "startClientNewCmd": "start cmd /k \"cd ./client & npm run start\"",
-        "startServerNewCmd": "start cmd /k \"cd ./server & npm run start\"",
-        "linux": "ssh u0_a200@192.168.43.1 -p8022"
+        "convertNotes": "cd scripts & yarle --configFile enex2md.json"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+ssh://git@bitbucket.org/dotgreg/mediadir.git"
-    },
-    "author": "",
+    "author": "thiebault.gregoire@gmail.com",
     "license": "ISC",
-    "homepage": "https://bitbucket.org/dotgreg/mediadir#readme",
     "dependencies": {
         "npm-run-all": "^4.1.5"
     }
