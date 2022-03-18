@@ -51,7 +51,7 @@
 
         "===____3_EXPORT__": "",
         "copy-build-to-electron-folder": "rm -r ./platforms/electron/node-build; cp -r ./build ./platforms/electron/node-build",
-        "export-the-build": "run-s export-client export-config export-server",
+        "export-the-build": "run-s export-client export-config export-server export-readme",
 
         "export-client": "cp -r client/build ./build/client",
         "export-misc": "cp -r misc ./build/client",
@@ -63,6 +63,8 @@
         "export-server-1": "cp -r server/build ./build/server",
         "export-server-2": "cp -r server/ssl ./build/server/ssl",
 
+        "export-readme": "cp README.md ./build/",
+
         "================== MISC =================== ": "",
         "__HEROKU__": "",
         "start": "node build/server/server.js",
@@ -73,5 +75,12 @@
     "license": "ISC",
     "dependencies": {
         "npm-run-all": "^4.1.5"
-    }
+    },
+		"repository": {
+        "type": "git",
+        "url": "https://github.com/dotgreg/tiro"
+    },
+    "author": "thiebault.gregoire@gmail.com",
+    "license": "ISC",
+    "homepage": "https://github.com/dotgreg/tiro"
 }
