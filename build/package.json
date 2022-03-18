@@ -6,6 +6,11 @@
 		"scripts": {
 				"start": "node server/server.js",
 		},
-		"author": "thiebault.gregoire@gmail.com",
-		"license": "ISC"
+		"repository": {
+        "type": "git",
+        "url": "https://github.com/dotgreg/tiro"
+    },
+    "author": "thiebault.gregoire@gmail.com",
+    "license": "ISC",
+    "homepage": "https://github.com/dotgreg/tiro"
 }
