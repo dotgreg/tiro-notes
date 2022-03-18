@@ -1,6 +1,6 @@
 {																 
 		"name": "tiro-notes",
-		"version": "0.27.9",
+		"version": "0.27.11",
 		"description": "Tiro Notes for CLI",
 		"main": "index.js",
 		"scripts": {
@@ -9,6 +9,11 @@
 				"build-then-publish": "cd ../..; npm run build; cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-cli-module; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING!; cd node-build; npm publish"
 		},
 		"bin": "cli.js",
-		"author": "thiebault.gregoire@gmail.com",
-		"license": "ISC"
+		"repository": {
+        "type": "git",
+        "url": "https://github.com/dotgreg/tiro"
+    },
+    "author": "thiebault.gregoire@gmail.com",
+    "license": "ISC",
+    "homepage": "https://github.com/dotgreg/tiro"
 }
