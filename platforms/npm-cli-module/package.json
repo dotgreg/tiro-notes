@@ -1,6 +1,6 @@
-{
+{																 
 		"name": "tiro-notes",
-		"version": "0.27.7",
+		"version": "0.27.9",
 		"description": "Tiro Notes for CLI",
 		"main": "index.js",
 		"scripts": {
@@ -10,8 +10,5 @@
 		},
 		"bin": "cli.js",
 		"author": "thiebault.gregoire@gmail.com",
-		"license": "ISC",
-		"dependencies": {
-				"app-root-dir": "^1.0.2"
-		}
+		"license": "ISC"
 }
