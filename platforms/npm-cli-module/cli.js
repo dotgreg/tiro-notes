@@ -37,11 +37,10 @@ function getCliArgs () {
 }
 
 // Main script
-const appRootDir = require('app-root-dir').get();
 function startTiroServerAsCli () {
 		var argsObj = getCliArgs();
 		console.log(`Starting Tiro-Notes from CLI with following arguments : ${JSON.stringify(argsObj)}`);
-		execCmd('node', ['${appRootDir}/server/server.js'], {
+		execCmd('node', [`${__dirname}/server/server.js`], {
 				env: { TIRO_PORT: argsObj.port },  
 		})
 }
