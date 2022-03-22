@@ -1,12 +1,14 @@
 {																 
 		"name": "tiro-notes",
-		"version": "0.27.11",
+		"version": "0.27.18",
 		"description": "Tiro Notes for CLI",
 		"main": "index.js",
 		"scripts": {
 				"clean-previous-build": "rm -r node-build",
+				"export-helpersOLD": "rm -r helpers-build; cp -r ../helpers helpers-build",
+				"export-helpers": "cp ../shared.helpers.js ./shared.helpers.build.js",
 				"export-cli-module": "cd ../..; cp -r build platforms/npm-cli-module/node-build; cd ./platforms/npm-cli-module; cp cli.js node-build/; cp package.json node-build/; ",
-				"build-then-publish": "cd ../..; npm run build; cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-cli-module; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING!; cd node-build; npm publish"
+				"build-then-publish": "cd ../..; npm run build; cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-helpers; npm run export-cli-module; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING!; cd node-build; npm publish"
 		},
 		"bin": "cli.js",
 		"repository": {
