@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-//const tHelpers = require('../helpers/helpers.platforms.js'); // for dev purposes
-const tHelpers = require('./shared.helpers.build.js');
+//const tHelpers = require('../shared.helpers.js'); // for dev purposes
+const tHelpers = require(`./shared.helpers.build.js`);
 
 // open frontend on default browser
 const openInBrowser = (url) => {
@@ -40,7 +40,7 @@ function startTiroServer (argsObj, cb) {
 		console.log(`Starting Tiro-Notes from CLI with following arguments : ${JSON.stringify(argsObj)}`);
 
 		// start tiro server, detect success message and get server params
-		tHelpers.execCmd('node', [`${__dirname}/server/server.js`], {
+		tHelpers.execCmd('node', [`${__dirname}/node-build/server/server.js`], {
 				env: { TIRO_PORT: argsObj.port },  
 				onLog: str => {
 						tHelpers.checkAndGetTiroConfig({platform: 'cli'}, cb)
