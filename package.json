@@ -14,7 +14,7 @@
         "install-server": "npm run --prefix ./server install-all",
 
         "__REGENERATE ICONS FOR ELECTRON__": "",
-        "refresh-icons": "cd ./client/public; rm -r appicons; npx electron-icon-maker --input=favicon.png --output=./appicons",
+        "refresh-icons": "cd ./client/public; rm -r appicons; npx electron-icon-maker --input=favicon.png --output=./appicons; cd ./appicons; cp ./icons/mac/icon.icns tiro_icon.icns; cp ./icons/win/icon.ico tiro_icon.ico; cp ./icons/png/256x256.png tiro_icon.png;",
 
 
         "================== DEV =================== ": "",
@@ -58,7 +58,7 @@
         "export-misc": "cp -r misc ./build/client",
         "export-config": "run-s export-config-1 export-config-2",
         "export-config-1": "cp package-root-build.json ./build/package.json",
-        "export-config-2": "cp tiro-config.sample.json ./build/tiro-config.sample.json",
+        "export-config-2": "",
         "export-scripts": "cp -r scripts ./build/scripts",
         "export-server": "run-s export-server-1 export-server-2",
         "export-server-1": "cp -r server/build ./build/server",
