@@ -43,7 +43,7 @@
 		"config": {
 				"forge": {
 						"packagerConfig": {
-								"icon": "node-build/client/appicons/icons/mac/icon.icns",
+								"icon": "node-build/client/appicons/tiro_icon",
 								"ignore": [
 										"not-packaged"
 								]
