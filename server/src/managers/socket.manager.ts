@@ -43,6 +43,11 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
 		on: async (endpoint, callback, options) => {
 			rawServerSocket.on(endpoint, async (rawClientData: any) => {
 
+				if (endpoint.startsWith('siofu')) {
+					if (!options) options = {}
+					options.disableDataLog = true
+				}
+
 				// LOG
 				log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} `);
 				!(options?.disableDataLog) && log(`with data `, rawClientData);

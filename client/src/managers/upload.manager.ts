@@ -1,4 +1,5 @@
-import { debounce } from "lodash";
+import { log } from "console";
+import { debounce, throttle } from "lodash";
 import { configClient } from "../config";
 import { clientSocket, clientSocket2 } from "./sockets/socket.manager";
 
@@ -51,24 +52,29 @@ export const uploadOnInputChange = (el: HTMLInputElement, onProgress: Function) 
 	startProgressTracker(instance, onProgress);
 }
 
+
+const liveOnProgress: any = { func: () => { } }
+const handleDropWithProg = (ev) => {
+	handleDrop(ev, liveOnProgress.func);
+}
+
 export const initListenUploadOnDrop = (callbacks: {
 	onDragStart: Function
 	onDragEnd: Function
 	onProgress: Function
 }) => {
+	liveOnProgress.func = callbacks.onProgress
 
 	const handleDragOver = (e) => {
 		e.preventDefault();
 		dragEndDebounced()
 	}
+
 	const dragEndDebounced = debounce(() => {
 		callbacks.onDragEnd()
 	}, 100)
 
 	configClient.log.upload && console.log(`[UPLOAD] reinit drag/drop events`);
-	const handleDropWithProg = (ev) => {
-		handleDrop(ev, callbacks.onProgress);
-	}
 
 	window.removeEventListener('drop', handleDropWithProg);
 	window.addEventListener('drop', handleDropWithProg);
