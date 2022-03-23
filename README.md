@@ -59,7 +59,6 @@ Tiro Notes focus points are :
 
 ## USAGE
 
-![tiro-notes-npx](https://user-images.githubusercontent.com/2981891/159723396-b5e81dcd-a4aa-4581-9b7f-e3b62bcdef65.gif)
 
 ### 1) COMMAND LINE
 - Requirements : [NodeJs](https://nodejs.org/en/download/) and [RipGrep](https://github.com/BurntSushi/ripgrep)
@@ -67,6 +66,8 @@ Tiro Notes focus points are :
 ```
 npx tiro-notes
 ```
+
+<img src="https://user-images.githubusercontent.com/2981891/159723396-b5e81dcd-a4aa-4581-9b7f-e3b62bcdef65.gif" width="600"/>
 
 This works with any platform/device, including unrooted Android with [Termux](https://termux.com) and possibly iOS with iSH (untested)
 
