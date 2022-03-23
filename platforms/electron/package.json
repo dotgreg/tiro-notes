@@ -52,7 +52,10 @@
 								{
 										"name": "@electron-forge/maker-squirrel",
 										"config": {
-												"name": "tiro-notes"
+												"exe": "Tiro Notes",
+												"setupExe": "Tiro Notes",
+												"iconUrl": "node-build/client/appicons/tiro_icon.ico",
+												"setupIcon": "node-build/client/appicons/tiro_icon.ico"
 										}
 								},
 								{
@@ -63,7 +66,11 @@
 								},
 								{
 										"name": "@electron-forge/maker-deb",
-										"config": {}
+										"config": {
+												"options": {
+														"setupIcon": "node-build/client/appicons/tiro_icon.png"
+												}
+										}
 								},
 								{
 										"name": "@electron-forge/maker-rpm",
