@@ -23,7 +23,7 @@ export const sharedConfig = {
 			eventManager: true,
 			upload: false,
 		},
-		version: '0.27 17/03/2022',
+		version: '0.27',
 		params: {
 			previewArea: {
 				scrollSpeed: 1.3
