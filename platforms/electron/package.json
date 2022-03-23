@@ -52,8 +52,7 @@
 								{
 										"name": "@electron-forge/maker-squirrel",
 										"config": {
-												"exe": "Tiro Notes",
-												"setupExe": "Tiro Notes",
+												"exe": "tiro notes",
 												"iconUrl": "node-build/client/appicons/tiro_icon.ico",
 												"setupIcon": "node-build/client/appicons/tiro_icon.ico"
 										}
