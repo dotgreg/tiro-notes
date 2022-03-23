@@ -10,16 +10,16 @@ Tiro Notes is designed to be a viable open source alternative to proprietary sof
 
 Tiro Notes focus points are : 
 
-- 👼 Open source & free: Code is open source, free forever. Optimistically reaching a GNU GPLv3 license in the future.
-- 👑 Own your data: No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
-- 🚅 Fast: Search is really fast (using ripgrep). You can scroll list of several thousands of items without slowdown.
-- 💅 Nice: Usability & nice user experience is key aspect of Tiro.
-- 📟 Use it anywhere : Apps for Windows, Mac, Linux. You can install and start Tiro within seconds with npx. You can install it on Android and iOS. You can use it as web server and use it with any device with a browser.
-- 🏋 Extensibility : custom and extensible markdown tags like [[latex]] or [[script]] or with third party plugins (planned).
+- 👼 **Open source & free**: Code is open source, free forever. Optimistically reaching a GNU GPLv3 license in the future.
+- 👑 **Own your data**: No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
+- 🚅 **Fast**: Search is really fast (using ripgrep). You can scroll list of several thousands of items without slowdown.
+- 💅 **Nice**: Usability & nice user experience is key aspect of Tiro.
+- 📟 **Use it anywhere** : Apps for Windows, Mac, Linux. You can install and start Tiro within seconds with npx. You can install it on Android and iOS. You can use it as web server and use it with any device with a browser.
+- 🏋 **Extensibility** : custom and extensible markdown tags like [[latex]] or [[script]] or with third party plugins (planned).
 
 ## Functionalities & Status
 
-Note Edition
+**Note Edition**
 - 🖊️ Mardown notes edition
 - 🌄 Drag and Drop images & files upload (stored in a relative .resources folder)
 - 🔗 Notes linking
@@ -33,11 +33,11 @@ Note Edition
 - (🔧) 🧬 display UML and other diagrams with [[diagram]] (planned...)
 - (🔧) 📡 Server Collaborative edition (planned...)
 
-Search
+**Search**
 - 🔍 Fast search (~2s for 30k notes)
 - 🔬 Search filters (intitle: etc...)
 
-Folders Tree & Notes List
+**Folders Tree & Notes List**
 - 🗂️ Folders management (create/rename/move/delete)
 - 🏎️ Fast Notes List (can display 10k files without slowdown)
 - 🧮 Notes List sorting (date creation/date modification/name)
@@ -45,11 +45,11 @@ Folders Tree & Notes List
 - 📤 Last notes edited
 - 🌄 Images list view
 
-Security
+**Security**
 - 🔒 Application login (user/password)
 - 🔒 HTTPS support (with self signed certificate)
 
-Platforms
+**Platforms
 - 💻 Windows/Mac/Linux applications
 - 🥷 10 seconds install & start with command line NPX 
 - 📱 Install on Android with Termux and NPX
