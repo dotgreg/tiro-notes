@@ -37,7 +37,7 @@ jobs:
 
     - run: npm run build 
     
-    - run: cd platforms/electron; npm run make-test --if-present
+    - run: cd platforms/electron; npm run make-all --if-present
     
     - run: cd platforms/electron; cd ./out/make; npx tree-cli -l 4 -y
     
