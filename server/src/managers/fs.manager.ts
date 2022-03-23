@@ -33,9 +33,9 @@ export const userHomePath = (): string => {
 export const getDefaultDataFolderPath = (): string => {
 	let path = ''
 	const homedir = userHomePath();
-	if (fileExists(homedir)) path = `${homedir}/markdown-folder`
-	if (fileExists(`${homedir}/Desktop`)) path = `${homedir}/Desktop/markdown-folder`
-	if (fileExists(`${homedir}/Documents`)) path = `${homedir}/Documents/markdown-folder`
+	if (fileExists(homedir)) path = `${homedir}/${backConfig.defaultDataFolder}`
+	if (fileExists(`${homedir}/Desktop`)) path = `${homedir}/Desktop/${backConfig.defaultDataFolder}`
+	if (fileExists(`${homedir}/Documents`)) path = `${homedir}/Documents/${backConfig.defaultDataFolder}`
 	return path
 }
 

@@ -148,7 +148,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('createHistoryFile', async data => {
 		let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
-		upsertRecursivelyFolders(`${historyFolder}/`)
+		await upsertRecursivelyFolders(`${historyFolder}/`)
 
 		let fileName = fileNameFromFilePath(data.filePath)
 		fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`

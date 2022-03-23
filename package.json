@@ -31,7 +31,7 @@
 
         "================== NODE BUILD =================== ": "",
 
-        "build": "npm run build-then-export",
+        "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server clean-prev-build export-the-build copy-build-to-electron-folder",
         "build-export-to-binaries": "run-s build-export build-binaries",
         "build-export-client": "run-s create-build-folders build-client clean-client export-client",
