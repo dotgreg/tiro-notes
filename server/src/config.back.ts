@@ -35,6 +35,7 @@ export const backConfig = {
 	https,
 	rgPath,
 
+	defaultDataFolder: 'markdown-notes',
 	configFolder: '.tiro',
 	historyFolder: '.history',
 	uploadFolder: '.resources',

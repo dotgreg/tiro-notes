@@ -1,7 +1,7 @@
 var path = require('path')
 import { iApiDictionary } from '../../../shared/apiDictionary.type';
 import { sharedConfig } from '../../../shared/shared.config';
-import { fileExists, saveFile, userHomePath } from './fs.manager';
+import { fileExists, saveFile, upsertRecursivelyFolders, userHomePath } from './fs.manager';
 import { log } from './log.manager';
 import { hashPassword } from './password.manager';
 import { p, relativeToAbsolutePath } from './path.manager';
@@ -81,6 +81,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 			password: await hashPassword(data.form.password),
 			dataFolder: data.form.dataFolder,
 		}
+
 		await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
 		answer = { code: 'SUCCESS_CONFIG_CREATION' }
 	}
