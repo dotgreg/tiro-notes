@@ -1,6 +1,40 @@
 #!/usr/bin/env node
-//const tHelpers = require('../shared.helpers.js'); // for dev purposes
-const tHelpers = require(`./shared.helpers.build.js`);
+
+// const isDev = false
+const isDev = process.env.ISDEV
+
+const tHelpers = isDev ? require('../shared.helpers.js') : require(`./shared.helpers.build.js`);
+
+
+// CLI HELP MANUAL
+const outputHelp = () => {
+		var p = require('./package.json');
+		const tiroHelpString = `
+VERSION:
+===
+${p.name.toUpperCase()} v.${p.version} ${isDev ? '(**dev**)' : ''}
+
+DESCRIPTION:
+===
+${p.description}
+
+ARGS:
+====
+
+--https/-s : enable https ssl with self signed certificate (boolean, false by default)
+--port/-p : port to use (number, 3023 by default)
+--tunnel/-t : uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+--help/-h : help 
+
+EXAMPLES:
+====
+- npx tiro-notes 
+- npx tiro-notes --tunnel ubuntu@myserver.com:3023 --port 3033 --https true
+- npx tiro-notes -t ubuntu@myserver.com:3023 -p 3033 -s true
+`;
+		console.log(tiroHelpString);	
+
+}
 
 // open frontend on default browser
 const openInBrowser = (url) => {
@@ -13,17 +47,20 @@ function getCliArgs () {
 		var args = process.argv;
 		var argsObj = {
 				port: 3023,
+				https: false,
+				help: false,
 				tunnel: {
             enabled: false,
         },
 		}
 		for (var i = 0; i < args.length; i++) {
 				if (i % 2 !== 0) continue
-				console.log(i);
 				var argName = args[i];
 				var argVal = args[i+1];
 				argName = argName.replace('--', '').replace('-','')
 				if (argName === 'p' || argName === 'port') argsObj.port = parseInt(argVal);
+				if (argName === 's' || argName === 'https') argsObj.https = true
+				if (argName === 'h' || argName === 'help') argsObj.help = true
 				if (argName === 't' || argName === 'tunnel') {
             const argsArr = argVal.split(':')
             if (argsArr.length > 1) {
@@ -40,10 +77,14 @@ function startTiroServer (argsObj, cb) {
 		console.log(`Starting Tiro-Notes from CLI with following arguments : ${JSON.stringify(argsObj)}`);
 
 		// start tiro server, detect success message and get server params
-		tHelpers.execCmd('node', [`${__dirname}/node-build/server/server.js`], {
-				env: { TIRO_PORT: argsObj.port },  
+		tHelpers.execCmd('node', [`${__dirname}/server/server.js`], {
+				env: {
+						TIRO_PORT: argsObj.port,
+						TIRO_HTTPS: argsObj.https
+				},  
+				logName: 'tiroServer',
 				onLog: str => {
-						tHelpers.checkAndGetTiroConfig({platform: 'cli'}, cb)
+						tHelpers.checkAndGetTiroConfig(str, {platform: 'cli', cb})
 				}
 		})
 }
@@ -51,19 +92,28 @@ function startTiroServer (argsObj, cb) {
 const startSshTunnel = (argsObj) => {
 		if (argsObj.tunnel.enabled) {
 				// kill previous autossh processes
-				tHelpers.execCmd('killall', [`autossh`], {logName:'tunnel'})
-
-				// check if autossh is working
-				try {
-						tHelpers.execCmd('autossh', [`--help`], {logName:'tunnel'})
-				} catch (e) {
-						throw Error('autossh not installed on the system, please install it.')
-				}
-
-				// check if autossh enabled
-				tHelpers.execCmd('autossh', ['-M','20000','-f','-N',argsObj.tunnel.remoteUrl,`-R ${argsObj.tunnel.remotePort}:localhost:${argsObj.port}`,'-C'], {logName:'tunnel'})
+				let cb2 = true
+				let cb1 = true
+				tHelpers.execCmd('killall', [`autossh`], {
+						logName:'tunnel 1/3',
+						onLog: () => {
+								if (!cb2) return
+								cb2 = false
+								// check if autossh is working
+								tHelpers.execCmd('autossh', [`-V`], {
+										logName:'tunnel 2/3',
+										onLog: str => {
+												if (!cb1) return
+												cb1 = false
+												// start autossh finally
+												tHelpers.execCmd('autossh',['-M',`2${argsObj.port}`,'-N', argsObj.tunnel.remoteUrl,'-R', `${argsObj.tunnel.remotePort}:localhost:${argsObj.port}`,'-C'], {
+														logName:'tunnel 3/3'
+												})
+										}
+								})
+						}
+				})
 		}
-		
 }
 
 // Main script
@@ -71,21 +121,35 @@ function main () {
 
 		var argsObj = getCliArgs();
 
-		startTiroServer(argsObj, (configServerObj) => {
+		if (argsObj.help) {
 
-				const c = configServerObj
-				const protocol = c.https ? 'https' : 'http'
-				const port = c.port
+				outputHelp();
 
-				// open in browser
-				openInBrowser(`${protocol}://localhost:${port}`);
+		} else {
 
-				// start tunnel with autossh if asked
-				startSshTunnel(argsObj);
-				
-		})
+				startTiroServer(argsObj, (configServerObj) => {
+
+						const c = configServerObj
+						const protocol = c.https ? 'https' : 'http'
+						const port = c.port
+
+						// open in browser
+						openInBrowser(`${protocol}://localhost:${port}`);
+
+						// start tunnel with autossh if asked
+						startSshTunnel(argsObj);
+						
+				})
+		}
 }
 
+const test = () => {
+		var argsObj = getCliArgs();
+		startSshTunnel(argsObj);
+}
+
+
 // start everything
-main();
+// isDev ? test() : main();
+isDev ? main() : main();
 

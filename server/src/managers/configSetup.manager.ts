@@ -30,7 +30,6 @@ export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 let cachedJsonConfigLoadResult = null
 
 export const tryLoadJsonConfig = () => {
-	log('[JSON CONFIG] tryloadjsonconfig', appConfigJsonPath);
 	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as TiroConfig
 
 	if (fileExists(appConfigJsonPath)) {
