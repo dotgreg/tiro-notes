@@ -1,7 +1,7 @@
 {
 		"name": "Tiro Notes",
 		"productName": "Tiro Notes",
-		"version": "0.27.1",
+		"version": "0.27.2",
 		"description": "Tiro Notes",
 		"main": "src/index.js",
 		"scripts": {
