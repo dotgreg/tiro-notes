@@ -1,4 +1,4 @@
-# Tiro Notes 
+# Tiro Notes
 
 Open-source, fast and supercharged markdown editor to be used anywhere
 
