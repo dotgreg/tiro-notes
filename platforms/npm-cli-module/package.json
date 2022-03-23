@@ -1,9 +1,9 @@
 {																 
 		"name": "tiro-notes",
-		"version": "0.27.19",
-		"description": "Tiro Notes for CLI",
-		"main": "cli.js",
+		"version": "0.27.37",
+		"description": "Tiro Notes CLI to start Tiro Notes from the command line!",
 		"scripts": {
+				"dev": "ISDEV=true node cli.js",
 				"clean-previous-build": "rm -r node-build",
 				"export-cli-module": "cp -r ../../build node-build; cp cli.js node-build/; cp package.json node-build/; ",
 				"export-helpers": "cp ../shared.helpers.js ./node-build/shared.helpers.build.js",

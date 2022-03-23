@@ -16,9 +16,13 @@ export interface iFilesObj { [filePath: string]: iFile }
 
 // CHECK IF RG path exists and command line is functional
 export const isRgCliWorking = async (): Promise<boolean> => {
-	const { stdout } = await execa(backConfig.rgPath, ['--version']);
-	let res = stdout.includes('ripgrep') ? true : false
-	return res
+	try {
+		const { stdout } = await execa(backConfig.rgPath, ['--version']);
+		let res = stdout.includes('ripgrep') ? true : false
+		return res
+	} catch (e) {
+		return false;
+	}
 }
 
 // SEARCH WITH RG

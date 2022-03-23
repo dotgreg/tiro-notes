@@ -23,7 +23,7 @@
 
 				"=== MAKE COMMANDS": "",
 				"make-all": "npm run make-linux-x64; npm run make-darwin-x64; npm run make-win-x64",
-				"make": "npm run make-win-x64",
+				"make-test": "npm run make-win-x64",
 				"=== LINUX": "",
 				"make-linux-x64": "echo '== LINUX X64 =='; npm run copy-rg-linux-x64; electron-forge make --platform linux --arch x64",
 				"=== MAC": "",

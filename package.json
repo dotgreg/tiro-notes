@@ -27,6 +27,7 @@
         "================== PLATFORMS RELATED =================== ": "",
 
 				"publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
+				"__PUBLISH_ELECTRON__": "push to master > github ci > .github/workflows/node.js.yml",
 
         "================== NODE BUILD =================== ": "",
 
@@ -66,6 +67,8 @@
         "export-readme": "cp README.md ./build/",
 
         "================== MISC =================== ": "",
+        "__TEST__": "",
+        "test1": "(node -e \"console.log('log1');\") && echo wooop",
         "__HEROKU__": "",
         "start": "node build/server/server.js",
         "__OTHER__": "",

@@ -8,11 +8,13 @@ import { cloneDeep } from 'lodash';
 
 fileLogClean();
 
-const backConfigToShow: any = cloneDeep(backConfig)
-backConfigToShow.sharedConfig.strings = {}
-
-
-log(`===== TIRO SERVER STARTING ====== (isEnvDev: ${isEnvDev()}, port: ${backConfig.port}, https:${backConfig.https}, platform: ${getPlatform()})`, backConfigToShow)
+log(`===== TIRO SERVER STARTING ====== `)
+log(`
+isEnvDev: ${isEnvDev()}
+port: ${backConfig.port}
+https:${backConfig.https}
+platform: ${getPlatform()}
+`)
 
 
 

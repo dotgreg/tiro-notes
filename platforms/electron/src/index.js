@@ -155,14 +155,8 @@ const execCmd = (cmd, params, p) => {
 		if (!p.onLog) p.onLog = () => {}
 
 		let child 
-		if (cmd === 'node') {
-				log(`ExecCMD node mode, using fork then`);
-				let fork = require( 'child_process' ).fork;
-				child = fork(params[0], {env: { ...process.env, ...p.env }});  
-		} else {
-				let spawn = require( 'child_process' ).spawn;
-				child = spawn( cmd, params, {env: { ...process.env, ...p.env }});  
-		}
+		let spawn = require( 'child_process' ).spawn;
+		child = spawn( cmd, params, {env: { ...process.env, ...p.env }});  
 
 		// try {
 		child.stdout.on( 'data', data => {
@@ -176,9 +170,6 @@ const execCmd = (cmd, params, p) => {
 		});
 		log(`ExecCMD SUCCESS ${JSON.stringify({cmd, params, p})}`);
 		return child;
-		// } catch (e) {
-		// 		log(`[${cmd} ERROR JS!] : ${JSON.stringify(e)}`);
-		// }
 }
 
 

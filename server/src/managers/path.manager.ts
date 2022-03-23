@@ -70,7 +70,7 @@ export const relativeToAbsolutePath = (pathFile:string, insideSnapshot: boolean 
     
     res = cleanPath(res)
 
-    if (insideSnapshot) log('relative2abs insideSnapshot', isAbsolute, pathFile, res);
+    //if (insideSnapshot) log('relative2abs insideSnapshot', isAbsolute, pathFile, res);
     return res
 }
 
