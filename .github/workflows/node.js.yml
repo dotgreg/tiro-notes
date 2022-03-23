@@ -32,7 +32,7 @@ jobs:
     - run: cd platforms/electron; npm run env-install 
 
     - run: npm install
-		
+
     - run: npm run install-all 
 
     - run: npm run build 
