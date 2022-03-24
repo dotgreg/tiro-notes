@@ -76,7 +76,7 @@ npx tiro-notes
 <img src="https://user-images.githubusercontent.com/2981891/159723396-b5e81dcd-a4aa-4581-9b7f-e3b62bcdef65.gif" width="600"/>
 
 - This works with any platform/device, including unrooted Android with [Termux](https://termux.com) and possibly iOS with iSH (untested)
-- "npx tiro-notes --help for all available options
+- ```npx tiro-notes --help``` for all available options
 
 ### 2) APPS (Coming...)
 Mac/Linux/Windows Electron Apps coming soon...
