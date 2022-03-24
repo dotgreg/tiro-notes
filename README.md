@@ -4,7 +4,7 @@ Open-source, fast and supercharged markdown editor to be used anywhere
 
 ![tiro-notes](https://user-images.githubusercontent.com/2981891/159723385-a6ab2fc8-c9b4-4019-9a54-a40382ad45bb.jpeg)
 
-## Why
+## WHY
 
 Tiro Notes is designed to be a viable open source alternative to proprietary software like Evernote, OneNote etc. 
 
@@ -12,13 +12,20 @@ Tiro Notes focus points are :
 
 - 👼 **Open source & free**: Code is open source, free forever. Optimistically reaching a GNU GPLv3 license in the future.
 - 👑 **Own your data**: No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
+
+
 - 🚅 **Fast**: Search is really fast (using ripgrep). You can scroll list of several thousands of items without slowdown.
 - 💅 **Nice**: Usability & nice user experience is key aspect of Tiro.
+
+
 - 📟 **Use it anywhere** : Apps for Windows, Mac, Linux. You can install and start Tiro within seconds with npx. You can install it on Android and iOS. You can use it as web server and use it with any device with a browser.
-- 🏋 **Extensibility** : custom and extensible markdown tags like [[latex]] or [[script]] or with third party plugins (planned).
+- 🏋 **Extensible** : custom and extensible markdown tags like [[latex]] or [[script]] or with third party plugins (planned).
 
-## Functionalities & Status
-
+## FUNCTIONALITIES
+<details>
+  <summary>Expand all functionalities</summary>
+  
+  
 **Note Edition**
 - 🖊️ Mardown notes edition
 - 🌄 Drag and Drop images & files upload (stored in a relative .resources folder)
@@ -49,17 +56,16 @@ Tiro Notes focus points are :
 - 🔒 Application login (user/password)
 - 🔒 HTTPS support (with self signed certificate)
 
-**Platforms
+**Platforms**
 - 💻 Windows/Mac/Linux applications
 - 🥷 10 seconds install & start with command line NPX 
 - 📱 Install on Android with Termux and NPX
 - ☁️ Use it as a local application, as a local or cloud server.
 - 📟 Use it on any device with a browser (Mobile, tablet and Desktop interface)
 - (🔧)📱 Install on iOS with iSH and NPX (to be tested...)
+</details>
 
 ## USAGE
-
-
 ### 1) COMMAND LINE
 - Requirements : [NodeJs](https://nodejs.org/en/download/) and [RipGrep](https://github.com/BurntSushi/ripgrep)
 
