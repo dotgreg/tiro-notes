@@ -5,6 +5,7 @@ import { sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { cloneDeep } from 'lodash';
+import { startSecuredStaticServer } from './managers/staticServer.manager';
 
 fileLogClean();
 
@@ -29,11 +30,18 @@ else server = require("http").createServer(app)
 export const ioServer: SocketIO.Server = require('socket.io')(server, { serveClient: false, pingTimeout: 10000, pingInterval: 50000 })
 initSocketLogic();
 
-// localhost:port/ = static react client
+// FRONTEND CLIENT SERVER on /
 app.use('/', express.static(backConfig.frontendBuildFolder));
 
-// localhost:port/static = static resources serving
-if (backConfig.dataFolder) app.use('/static', express.static(backConfig.dataFolder));
+// RESSOURCES SERVER on /static
+if (backConfig.dataFolder) {
+	startSecuredStaticServer({
+	expressApp: app,
+	url: '/static',
+	pathFolder: backConfig.dataFolder
+});
+}
+
 
 server.listen(backConfig.port, function() {
 	// THAT MESSAGE IS CRITICAL FOR ELECTRON TO START DISPLAYING THE WINDOW

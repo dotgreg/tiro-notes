@@ -4,40 +4,40 @@ import { iFilePreview } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { openFile } from "./fs.manager";
 
-export const getFilesPreviewLogic = async (data: iApiDictionary['askFilesPreview']):Promise<iFilePreview[]> => {
-    let filesPreview:iFilePreview[] = []
+export const getFilesPreviewLogic = async (data: iApiDictionary['askFilesPreview']): Promise<iFilePreview[]> => {
+	let filesPreview: iFilePreview[] = []
 
-    for (let i = 0; i < data.filesPath.length; i++) {
-        const path = `${backConfig.dataFolder}/${data.filesPath[i]}`;
-        
-        // open file
-        let body = await openFile(path)
+	for (let i = 0; i < data.filesPath.length; i++) {
+		const path = `${backConfig.dataFolder}/${data.filesPath[i]}`;
 
-        // remove === HEADER ===
-        let bodyWithoutHeader = body.replace(regexs.metas, '')
+		// open file
+		let body = await openFile(path)
 
-        const filePreview:iFilePreview = {
-            path: data.filesPath[i],
-            content: bodyWithoutHeader.trim().substr(0,100)
-        }
-        
+		// remove === HEADER ===
+		let bodyWithoutHeader = body.replace(regexs.metas, '')
 
-        // content = 200 first chars
+		const filePreview: iFilePreview = {
+			path: data.filesPath[i],
+			content: bodyWithoutHeader.trim().substr(0, 100)
+		}
 
-        // pictures run a regex to find ![](), can be shared with frontend regex
 
-        let match = bodyWithoutHeader.match(regexs.image)
-        if (match && match[0]) {
-            let imagePath =  match[0].replace(regexs.firstPartImg,'').replace(')','')
-            filePreview.picture = imagePath
-        }
-        filesPreview.push(filePreview)
-        
-        // export const transformImagesInHTML = (currentFolderPath:string, bodyRaw: string ):string => {
-        //     const subst = `<img class="content-image" src="http://${configClient.global.staticUrl}:${sharedConfig.staticServerPort}/${currentFolderPath}/$3"  />`;
-        //     return bodyRaw.replace(regex, subst);
-        // }
-    }
+		// content = 200 first chars
 
-    return filesPreview
+		// pictures run a regex to find ![](), can be shared with frontend regex
+
+		let match = bodyWithoutHeader.match(regexs.image)
+		if (match && match[0]) {
+			let imagePath = match[0].replace(regexs.firstPartImg, '').replace(')', '')
+			filePreview.picture = imagePath
+		}
+		filesPreview.push(filePreview)
+
+		// export const transformImagesInHTML = (currentFolderPath:string, bodyRaw: string ):string => {
+		//     const subst = `<img class="content-image" src="http://${configClient.global.staticUrl}:${sharedConfig.staticServerPort}/${currentFolderPath}/$3"  />`;
+		//     return bodyRaw.replace(regex, subst);
+		// }
+	}
+
+	return filesPreview
 }

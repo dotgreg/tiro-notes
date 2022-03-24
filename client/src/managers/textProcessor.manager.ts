@@ -4,6 +4,7 @@ import { regexs } from '../../../shared/helpers/regexs.helper';
 import { replaceAll } from './string.manager';
 import { getBackendUrl } from './sockets/socket.manager';
 import { replaceRegexInMd } from './markdown.manager';
+import { getLoginToken } from '../hooks/app/loginToken.hook';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -34,6 +35,10 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 	return res
 }
 
+const getUrlTokenParam = (): string => {
+	return `?token=${getLoginToken()}`
+}
+
 //  @TODO
 // add folderPath that ./.resources/image.jpg becomes localhost:8082/dir1/dir2/dir3/.resources/image.jpg
 export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: string): string => {
@@ -44,7 +49,7 @@ export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: st
 		let filetype = t1[t1.length - 1];
 		if (filetype === '7z') filetype = 'd7z';
 
-		const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/${link}`
+		const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/${link}${getUrlTokenParam()}`
 		const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=800,height=1000');"`
 		const subst = `
 <div class="resource-link-wrapper">
@@ -72,7 +77,7 @@ export const transformImagesInHTML = (currentFolderPath: string, bodyRaw: string
         // min-height: $1px;
         transform: rotate($2deg);
     `
-	const subst = `<img class="content-image" style="${configCss}" src="${absoluteLinkPathRoot(currentFolderPath)}/$3"  />`;
+	const subst = `<img class="content-image" style="${configCss}" src="${absoluteLinkPathRoot(currentFolderPath)}/$3${getUrlTokenParam()}"  />`;
 	return bodyRaw.replace(regexs.imageAndConfig, subst);
 }
 
