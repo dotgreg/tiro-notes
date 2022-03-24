@@ -51,10 +51,6 @@
 						"makers": [
 								{
 										"name": "@electron-forge/maker-squirrel",
-										"config": {
-												"icon": "node-build/client/appicons/tiro_icon.ico",
-												"setupIcon": "node-build/client/appicons/tiro_icon.ico"
-										}
 								},
 								{
 										"name": "@electron-forge/maker-zip",
