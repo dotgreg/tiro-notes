@@ -2,7 +2,7 @@
 
 Open-source, fast and supercharged markdown editor to be used anywhere
 
-![tiro-notes](https://user-images.githubusercontent.com/2981891/159723385-a6ab2fc8-c9b4-4019-9a54-a40382ad45bb.jpeg)
+![Tiro Notes S1](https://user-images.githubusercontent.com/2981891/159969275-57e1e0a1-9b77-4e7d-b814-9367ce5830ad.jpg)
 
 ## WHY
 
