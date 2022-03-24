@@ -48,6 +48,7 @@ export const EditorArea = (p: {
 	onLightboxClick: onLightboxClickFn
 
 	onBackButton: Function
+	onToggleSidebarButton: Function
 	onViewToggle: Function
 
 }) => {
@@ -156,8 +157,14 @@ export const EditorArea = (p: {
 			title: 'back',
 			icon: 'faAngleLeft',
 			action: () => {
-				// window.history.back()
 				p.onBackButton()
+			}
+		},
+		{
+			title: 'Toggle Sidebar',
+			icon: 'faExpand',
+			action: () => {
+				p.onToggleSidebarButton()
 			}
 		},
 		isA('desktop') ? {
