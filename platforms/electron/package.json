@@ -1,8 +1,8 @@
 {
-		"name": "Tiro Notes",
+		"name": "Tiro_Notes",
 		"productName": "Tiro Notes",
 		"version": "0.27.3",
-		"description": "Tiro Notes",
+		"description": "Tiro_Notes",
 		"main": "src/index.js",
 		"scripts": {
 				"package": "electron-forge package",
