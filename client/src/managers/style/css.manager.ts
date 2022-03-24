@@ -2,7 +2,7 @@ import { Global } from '@emotion/react'
 import { css, cx } from '@emotion/css'
 import styled from '@emotion/styled';
 import { deviceType, MobileView, DeviceType } from '../device.manager';
-import {DragzoneCss} from '../../hooks/editor/editorUpload.hook'
+import { DragzoneCss } from '../../hooks/editor/editorUpload.hook'
 import { cssVars } from './vars.style.manager';
 import { editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -24,11 +24,14 @@ import { ButtonsToolbarCss } from '../../components/ButtonsToolbar.component';
 import { lightboxCss } from '../../components/Lightbox.component';
 
 let d = deviceType()
-const {els,colors,font,sizes, other } = {...cssVars}
+const { els, colors, font, sizes, other } = { ...cssVars }
 
-export const CssApp2 = (mobileView:MobileView) => {
-  
-const cssString = `
+export const CssApp2 = (
+	mobileView: MobileView,
+	showSidebar: boolean
+) => {
+
+	const cssString = `
 .content-image {
     width: 90%;
   }
@@ -91,8 +94,9 @@ ${ButtonsToolbarCss}
   .left-wrapper {
     background: ${colors.l2.bg}; 
     width: ${deviceType() === 'desktop' ? sizes.desktop.l : (mobileView !== 'navigator' ? 0 : 100)}vw;
-    display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
 
+		display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
+		${deviceType() === 'desktop' && !showSidebar ? 'display:none;' : ''}
 
 
     .left-wrapper-1 {
@@ -220,11 +224,22 @@ ${ButtonsToolbarCss}
   ////////////////////////////////////////////v 
   ${mobileNoteToolbarCss}
   .right-wrapper.dual-viewer-view {
+
       width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
+		${deviceType() === 'desktop' && !showSidebar ? 'width: 100vw;' : ''}
+
+
+
+
       display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
       padding-top: 0px;
     .note-wrapper {
       .dual-view-wrapper {
+				&.view-both {
+          .preview-area-wrapper {
+            width: 50%;
+          }
+				}
         &.view-editor {
           .editor-area {
             width: 100%;
@@ -242,7 +257,7 @@ ${ButtonsToolbarCss}
           }
           .preview-area {
             width: 100%;
-            padding: 0px ${sizes.block*3}px;
+            padding: 0px ${sizes.block * 3}px;
           }
         }
         position:relative;
@@ -280,5 +295,5 @@ ${ButtonsToolbarCss}
 }
 `
 
-  return css`${cssString}`
+	return css`${cssString}`
 }
