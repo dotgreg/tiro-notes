@@ -4,7 +4,7 @@ Open-source, fast and supercharged markdown editor to be used anywhere
 
 ![tiro-notes](https://user-images.githubusercontent.com/2981891/159723385-a6ab2fc8-c9b4-4019-9a54-a40382ad45bb.jpeg)
 
-## Why
+## WHY
 
 Tiro Notes is designed to be a viable open source alternative to proprietary software like Evernote, OneNote etc. 
 
@@ -21,9 +21,10 @@ Tiro Notes focus points are :
 - 📟 **Use it anywhere** : Apps for Windows, Mac, Linux. You can install and start Tiro within seconds with npx. You can install it on Android and iOS. You can use it as web server and use it with any device with a browser.
 - 🏋 **Extensible** : custom and extensible markdown tags like [[latex]] or [[script]] or with third party plugins (planned).
 
-## Functionalities & Status
+## FUNCTIONALITIES
 <details>
-  <summary>Details</summary>
+  <summary>Expand all functionalities</summary>
+  
   
 **Note Edition**
 - 🖊️ Mardown notes edition
