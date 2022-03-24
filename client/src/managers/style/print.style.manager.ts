@@ -14,6 +14,10 @@ export const printCss = `
         width: 100vw!important;
     }
     .preview-area-wrapper {
+				display: block!important;
+				.preview-area {
+								display: block!important;
+				}
         .infos-preview-wrapper {
             .file-path-wrapper {
                 display:none!important;
