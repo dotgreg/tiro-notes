@@ -2,7 +2,7 @@
 
 Open-source, fast and supercharged markdown editor to be used anywhere
 
-![tiro-notes](https://user-images.githubusercontent.com/2981891/159723385-a6ab2fc8-c9b4-4019-9a54-a40382ad45bb.jpeg)
+![Tiro Notes S1](https://user-images.githubusercontent.com/2981891/159969275-57e1e0a1-9b77-4e7d-b814-9367ce5830ad.jpg)
 
 ## WHY
 
@@ -75,8 +75,8 @@ npx tiro-notes
 
 <img src="https://user-images.githubusercontent.com/2981891/159723396-b5e81dcd-a4aa-4581-9b7f-e3b62bcdef65.gif" width="600"/>
 
-This works with any platform/device, including unrooted Android with [Termux](https://termux.com) and possibly iOS with iSH (untested)
-
+- This works with any platform/device, including unrooted Android with [Termux](https://termux.com) and possibly iOS with iSH (untested)
+- ```npx tiro-notes --help``` for all available options
 
 ### 2) APPS (Coming...)
 Mac/Linux/Windows Electron Apps coming soon...
