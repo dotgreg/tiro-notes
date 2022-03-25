@@ -91,12 +91,11 @@ const startTiroServer = (cb) => {
 												log(`server config loaded successfully: ${JSON.stringify(configServerObj)}`);
 												if (cb) cb(configServerObj);
 										} catch(e){
-												log(`ERROR! could not get the server config ${JSON.stringify(e)}`)
+												const msg = `ERROR! could not get the server config ${JSON.stringify(e)}`;
+												log(msg);
+alert(msg);
 										}
-										
-
 								}
-
 						}
 				}
 		});
