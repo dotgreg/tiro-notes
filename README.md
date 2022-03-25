@@ -66,8 +66,13 @@ Tiro Notes focus points are :
 </details>
 
 ## USAGE
-### 1) COMMAND LINE
-- Requirements : [NodeJs](https://nodejs.org/en/download/) and [RipGrep](https://github.com/BurntSushi/ripgrep)
+
+### 1) DESKTOP APPLICATIONS
+
+Mac/Linux/Windows Applications can be downloaded [here](https://github.com/dotgreg/tiro-notes/releases/tag/production) 
+
+### 2) COMMAND LINE
+- Requirements : [NodeJs](https://nodejs.org/en/download/) and 
 
 ```
 npx tiro-notes
@@ -78,8 +83,6 @@ npx tiro-notes
 - This works with any platform/device, including unrooted Android with [Termux](https://termux.com) and possibly iOS with iSH (untested)
 - ```npx tiro-notes --help``` for all available options
 
-### 2) APPS (Coming...)
-Mac/Linux/Windows Electron Apps coming soon...
 
 # FAQ
 
