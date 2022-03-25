@@ -72,7 +72,7 @@ Tiro Notes focus points are :
 Mac/Linux/Windows Applications can be downloaded [here](https://github.com/dotgreg/tiro-notes/releases/tag/production) 
 
 ### 2) COMMAND LINE
-- Requirements : [NodeJs](https://nodejs.org/en/download/) and 
+- Requirements : [NodeJs](https://nodejs.org/en/download/) and [RipGrep](https://github.com/BurntSushi/ripgrep)
 
 ```
 npx tiro-notes
