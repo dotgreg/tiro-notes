@@ -9,12 +9,15 @@ import { startSecuredStaticServer } from './managers/staticServer.manager';
 
 fileLogClean();
 
+const archi = process.arch
+
 log(`===== TIRO SERVER STARTING ====== `)
 log(`
 isEnvDev: ${isEnvDev()}
 port: ${backConfig.port}
 https:${backConfig.https}
 platform: ${getPlatform()}
+architecture: ${archi}
 `)
 
 
@@ -36,10 +39,10 @@ app.use('/', express.static(backConfig.frontendBuildFolder));
 // RESSOURCES SERVER on /static
 if (backConfig.dataFolder) {
 	startSecuredStaticServer({
-	expressApp: app,
-	url: '/static',
-	pathFolder: backConfig.dataFolder
-});
+		expressApp: app,
+		url: '/static',
+		pathFolder: backConfig.dataFolder
+	});
 }
 
 
