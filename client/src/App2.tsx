@@ -34,6 +34,7 @@ import { useAppViewType } from './hooks/app/appView.hook';
 import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
+import { useClientApi } from './hooks/app/clientApi.hook';
 
 
 
@@ -420,6 +421,9 @@ export const App2 = () => {
 
 	// Toggle sidebar 
 	const [showSidebar, setShowSidebar] = useState(true);
+
+	// Client API (functions added to window.tiroCli)
+	useClientApi();
 
 	return (
 		<div className={CssApp2(mobileView, showSidebar)} >

@@ -70,7 +70,7 @@ export const initClientSocketManager = <ApiDict>(rawClientSocket: SocketIOClient
 		on: (endpoint, callback) => {
 			let apiFn = createFn(endpoint, callback)
 
-			let listenerId = random(1, 10000000)
+			let listenerId = random(1, 100000000)
 			activeListeners[listenerId] = { endpoint, apiFn }
 
 			rawClientSocket.on(endpoint, apiFn);

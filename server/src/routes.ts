@@ -51,7 +51,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askForFileContent', async data => {
 		let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
-		serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath })
+		serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
 	})
 
 	serverSocket2.on('searchFor', async data => {

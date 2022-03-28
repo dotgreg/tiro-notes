@@ -26,13 +26,17 @@ export const useFileContent = (
 	const [fileMetas, setFileMetas] = useState<iFileMetas>({})
 	const [canEdit, setCanEdit] = useState(false)
 
-
+	const idReq = 'currentlyDisplayedNote';
 	// SOCKET INTERACTIONS
 	const listenerId = useRef<number>(0)
 
 	useEffect(() => {
 		console.log(`[FILE CONTENT] init socket listener`);
 		listenerId.current = clientSocket2.on('getFileContent', data => {
+
+			// only takes in account right idReq 
+			if (data.idReq !== idReq) return;
+
 			console.log('[FILE CONTENT] getFileContent', data)
 			setCanEdit(true)
 
@@ -60,7 +64,7 @@ export const useFileContent = (
 		// update the modified field everytime it is edited
 		nFileMeta.modified = toTimeStampInS(Date.now())
 
-		const contentWithMeta = `${metasObjToHeaderString(nFileMeta)}${content}`
+		const contentWithMeta = `${metasObjToHeaderString(nFileMeta)}\n${content}`
 		console.log(`[FILE CONTENT] API -> ask for file save`, { filepath, contentWithMeta });
 
 		clientSocket2.emit('saveFileContent', { filepath: filepath, newFileContent: contentWithMeta, token: getLoginToken() })
@@ -71,7 +75,7 @@ export const useFileContent = (
 			setFileContent('loading...')
 			setCanEdit(false)
 
-			clientSocket2.emit('askForFileContent', { filePath: file.path, token: getLoginToken() })
+			clientSocket2.emit('askForFileContent', { filePath: file.path, token: getLoginToken(), idReq })
 		}
 	}
 
