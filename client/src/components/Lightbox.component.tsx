@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState }  from 'react';
 import { iFileImage } from '../../../shared/types.shared';
 import { detachNote } from '../managers/detachNote.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
-import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
+import { absoluteLinkPathRoot, getUrlTokenParam } from '../managers/textProcessor.manager';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 
 export const Lightbox = (p:{
@@ -38,7 +38,7 @@ export const Lightbox = (p:{
                             className={`lightbox-image`}
                             style={{display: key === currIndex ? 'flex' : 'none'}}
                         >
-                            <img src={absoluteLinkPathRoot(image.url)} />
+                            <img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
 
                             <div className="image-infos">
                                 <div className="image-name" onClick={e => detachNote(image.file)}> 

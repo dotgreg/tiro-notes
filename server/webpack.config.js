@@ -42,7 +42,7 @@ module.exports = {
     //   } 
   },
   output: {
-    filename: 'server.js',
+    filename: 'tiro-server.js',
     path: path.resolve(__dirname, 'build'),
   },
  

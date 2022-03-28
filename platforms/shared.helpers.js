@@ -44,6 +44,7 @@ const checkAndGetTiroConfig = (str, p) => {
 const execCmd = (cmd, params, p) => {
 		if (!p) p = {}
 		if (!p.env) p.env = {}
+		if (!p.sync) p.sync = false
 		if (!p.platform) p.platform = false
 		p.logName = !p.logName ? '' : `${p.logName} `
 		const log = whichLog(p);
@@ -51,7 +52,7 @@ const execCmd = (cmd, params, p) => {
 		log(`[${p.logName}] === ExecCMD ${JSON.stringify({cmd, params, p})}`);
 
 		let child 
-		let spawn = require( 'child_process' ).spawn;
+		let spawn = p.sync ? require( 'child_process' ).spawnSync : require( 'child_process' ).spawn;
 		child = spawn( cmd, params, {env: { ...process.env, ...p.env }});  
 
 		// try {
@@ -65,13 +66,38 @@ const execCmd = (cmd, params, p) => {
 				console.log( str );
 				if (p && p.onLog) p.onLog(str)
 		});
-		if (p && p.onDone) p.onDone()
+		child.on( 'close', data => {
+				const str = `[${p.logName} (${cmd}) ON CLOSE] : ${data}`;
+				console.log( str );
+				if (p && p.onClose) p.onClose(str)
+		});
 		return child;
 }
 
+const killPreviousInstances = (cb) => {
+		if (!cb) cb = () => {}
+
+		// LINUX / MAC => unix like
+		const isWin = process.platform.startsWith('win');
+
+		if (isWin) {
+				cb()
+		} else {
+				// execCmd('sh', ['-c', "ls"], { 
+				execCmd('sh', ['-c', "ps -ef | grep \'tiro-server.js\' | grep -v grep | awk \'{print $2}\' | xargs -r kill -9"], { 
+						// execCmd('sh', ['-c', "kill -9 $(ps aux | grep \'tiro-server.js\' | awk '{print $2}' )"], { 
+
+						logName: 'Kill prev tiroServer',
+						onClose: () => {
+								cb()
+						}
+				})
+		}
+}
 
 const e = {
 		checkAndGetTiroConfig,
+		killPreviousInstances,
 		execCmd
 }
 

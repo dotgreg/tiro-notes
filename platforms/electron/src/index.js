@@ -1,4 +1,16 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, dialog } = require('electron')
+
+const aalert = (str) => {
+		const options = {
+				title: 'Alert',
+				message: str,
+		};
+		dialog.showMessageBox(null, options);
+};
+
+// const isDev = false
+const isDev = process.env.ISDEV
+const tHelpers = isDev ? require('../../shared.helpers.js') : require(`./shared.helpers.build.js`);
 
 
 ////////////////////////
@@ -19,10 +31,12 @@ let tiroServerProcess
 ////////////////////////
 app.whenReady().then(() => {
 		cleanLog();
-		log(`============ starting app : onReady event done, envs: ${JSON.stringify(envs)}`);
-		startTiroServer((configServerObj) => {
-				log(`starttiroserver callback`);
-				createWindow(configServerObj);
+		tHelpers.killPreviousInstances(() => {
+				log(`============ starting app : onReady event done, envs: ${JSON.stringify(envs)}`);
+				startTiroServer((configServerObj) => {
+						log(`starttiroserver callback`);
+						createWindow(configServerObj);
+				});
 		});
 })
 
@@ -63,6 +77,7 @@ const createWindow = (configServerObj) => {
 						tiroServerProcess.stdin.pause()
 						tiroServerProcess.kill()
 				}
+				tHelpers.killPreviousInstances();
     });
 
 }
@@ -74,9 +89,12 @@ const createWindow = (configServerObj) => {
 
 // starting the server with the determined path of RG binary
 const startTiroServer = (cb) => {
+
+		tHelpers.killPreviousInstances();
+
 		let hasStarted = false
 		const rgPath = getRgPath();
-		tiroServerProcess = execNode(`${appRootDir}/node-build/server/server.js`, {
+		tiroServerProcess = execNode(`${appRootDir}/node-build/server/tiro-server.js`, {
 				env: {TIRO_RG_PATH: rgPath},
 				onLog : (str) => {
 						//log('onLog')
@@ -93,7 +111,7 @@ const startTiroServer = (cb) => {
 										} catch(e){
 												const msg = `ERROR! could not get the server config ${JSON.stringify(e)}`;
 												log(msg);
-alert(msg);
+												aalert(msg);
 										}
 								}
 						}
@@ -141,36 +159,11 @@ const execNode = (path, p) => {
 		child.stderr.on( 'data', data => {
 				const str = `err : ${data}`;
 				log( str );
+				aalert(str);
 		});
 		log(`ExecNode SUCCESS`);
 		return child;
 }
-
-// more general exec func
-const execCmd = (cmd, params, p) => {
-		log(`ExecCMD ${JSON.stringify({cmd, params, p})}`);
-		if (!p) p = {}
-		if (!p.env) p.env = {}
-		if (!p.onLog) p.onLog = () => {}
-
-		let child 
-		let spawn = require( 'child_process' ).spawn;
-		child = spawn( cmd, params, {env: { ...process.env, ...p.env }});  
-
-		// try {
-		child.stdout.on( 'data', data => {
-				const str = `[${cmd}] : ${data}`;
-				console.log( str );
-				if (p && p.onLog) p.onLog(str)
-		});
-		child.stderr.on( 'data', data => {
-				const str = `[${cmd} ERROR!] : ${data}`;
-				log( str );
-		});
-		log(`ExecCMD SUCCESS ${JSON.stringify({cmd, params, p})}`);
-		return child;
-}
-
 
 // Logging
 const homedir = require('os').homedir();

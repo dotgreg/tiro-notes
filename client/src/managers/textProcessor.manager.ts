@@ -35,7 +35,7 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 	return res
 }
 
-const getUrlTokenParam = (): string => {
+export const getUrlTokenParam = (): string => {
 	return `?token=${getLoginToken()}`
 }
 

@@ -19,6 +19,7 @@ platforms/electron/build/
 platforms/electron/node-build/
 platforms/electron/out
 platforms/electron/out/*
+platforms/electron/src/shared.helpers.build.js
 
 platforms/npm-cli-module/node-build/
 

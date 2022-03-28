@@ -1,14 +1,16 @@
 {
 		"name": "Tiro Notes",
 		"productName": "Tiro Notes",
-		"version": "0.27.3",
+		"version": "0.27.4",
 		"description": "Tiro Notes",
 		"main": "src/index.js",
 		"scripts": {
 				"package": "electron-forge package",
 
 				"============= SUPPORT SCRIPTS ================": "",
-				"clean-bin": "rm -r ./bin; mkdir ./bin",
+				"export-helpers": "cp ../shared.helpers.js ./src/shared.helpers.build.js",
+
+				"clean-bin": "npm run export-helpers; rm -r ./bin; mkdir ./bin",
 				"copy-rg-linux-x64": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-linux-x64 ./bin/rg ",
 				"copy-rg-darwin-both": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-darwin-arm ./bin/rg-darwin-arm.jpeg; cp ./not-packaged/ripgrep/rg-darwin-x64 ./bin/rg-darwin-x64; ",
 				"copy-rg-win-x64": "npm run clean-bin; cp ./not-packaged/ripgrep/rg-win-x64.exe ./bin/rg.exe",

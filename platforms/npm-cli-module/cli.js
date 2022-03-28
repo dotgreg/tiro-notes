@@ -2,7 +2,6 @@
 
 // const isDev = false
 const isDev = process.env.ISDEV
-
 const tHelpers = isDev ? require('../shared.helpers.js') : require(`./shared.helpers.build.js`);
 
 
@@ -76,17 +75,21 @@ function getCliArgs () {
 function startTiroServer (argsObj, cb) {
 		console.log(`Starting Tiro-Notes from CLI with following arguments : ${JSON.stringify(argsObj)}`);
 
-		// start tiro server, detect success message and get server params
-		tHelpers.execCmd('node', [`${__dirname}/server/server.js`], {
-				env: {
-						TIRO_PORT: argsObj.port,
-						TIRO_HTTPS: argsObj.https
-				},  
-				logName: 'tiroServer',
-				onLog: str => {
-						tHelpers.checkAndGetTiroConfig(str, {platform: 'cli', cb})
-				}
-		})
+		// kill all possible remaining servers of tiro 
+		tHelpers.killPreviousInstances(() => {
+
+				// start tiro server, detect success message and get server params
+				tHelpers.execCmd('node', [`${__dirname}/server/tiro-server.js`], {
+						env: {
+								TIRO_PORT: argsObj.port,
+								TIRO_HTTPS: argsObj.https
+						},  
+						logName: 'tiroServer',
+						onLog: str => {
+								tHelpers.checkAndGetTiroConfig(str, {platform: 'cli', cb})
+						}
+				})
+		});
 }
 
 const startSshTunnel = (argsObj) => {
@@ -106,7 +109,7 @@ const startSshTunnel = (argsObj) => {
 												if (!cb1) return
 												cb1 = false
 												// start autossh finally
-												tHelpers.execCmd('autossh',['-M',`2${argsObj.port}`,'-N', argsObj.tunnel.remoteUrl,'-R', `${argsObj.tunnel.remotePort}:localhost:${argsObj.port}`,'-C'], {
+												tHelpers.execCmd('autossh',['-M',`2${argsObj.tunnel.remotePort}`,'-N', argsObj.tunnel.remoteUrl,'-R', `${argsObj.tunnel.remotePort}:localhost:${argsObj.port}`,'-C'], {
 														logName:'tunnel 3/3'
 												})
 										}
