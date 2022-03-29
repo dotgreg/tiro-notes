@@ -106,3 +106,7 @@ However, I consider that application still in alpha phase, it still needs a lot 
 So use it at your own risk, and always with data you can afford to lose.
 
 I am not responsible of any data loss!
+
+# ADVANCED
+## Applications within Tiro with [[script]] and window.tiroCli
+- Create a calendar app with Tiro : [instructions](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
