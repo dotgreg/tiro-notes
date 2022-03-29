@@ -109,4 +109,4 @@ I am not responsible of any data loss!
 
 # ADVANCED
 ## Applications within Tiro with [[script]] and window.tiroCli
-- Create a calendar app with Tiro : [instructions](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
+- Add a calendar app within Tiro : [instructions](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
