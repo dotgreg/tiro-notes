@@ -11,6 +11,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { deviceType, isA } from '../managers/device.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { getKeyModif } from '../managers/keys.manager';
 
 export type SortMode = 'alphabetical' | 'created' | 'modified'
 export const SortModesLabels = ['Az', 'Crea', 'Modif']
@@ -26,7 +27,6 @@ export class List extends React.Component<{
 	activeFileIndex: number
 	hoverMode: boolean
 	sortMode: number
-	modifierPressed: boolean
 
 	onFileClicked: (fileIndex: number) => void
 	onVisibleItemsChange: (visibleFilesPath: string[]) => void
@@ -67,7 +67,6 @@ export class List extends React.Component<{
 			this.canAutoScroll = true
 		}
 		// const p2 = this.props
-		// console.log(111, JSON.stringify({props: [p2.activeFileIndex, p2.hoverMode, p2.sortMode, p2.modifierPressed]}));
 
 		// only scroll to items on load
 		if (this.props.activeFileIndex > 0 && this.canAutoScroll) {
@@ -198,7 +197,7 @@ export class List extends React.Component<{
 												this.props.onFileDragEnd()
 											}}
 											onClick={(e) => {
-												if (this.props.modifierPressed) {
+												if (getKeyModif('shift')) {
 													let edges: [number, number] = [this.props.activeFileIndex, index]
 													edges.sort()
 

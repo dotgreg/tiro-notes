@@ -12,11 +12,9 @@ import { useUrlLogic } from './hooks/app/urlLogic.hook';
 import { debounce, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
-import { useKeys } from './hooks/app/useKeys.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { addCliCmd } from './managers/cliConsole.manager';
 import { configClient } from './config';
-import { onKey } from './managers/keys.manager';
 import { iAppView, iFile, iFileImage, iFolder } from '../../shared/types.shared';
 import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
@@ -35,6 +33,8 @@ import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
 import { useClientApi } from './hooks/app/clientApi.hook';
+import { log } from 'console';
+import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 
 
 
@@ -55,6 +55,9 @@ export const App2 = () => {
 
 		//     // setActiveFileIndex(activeFileIndex+1)
 		// }, 1000)
+
+		startListeningToKeys();
+
 
 		return () => {
 			// COMPONENT will unmount
@@ -189,42 +192,29 @@ export const App2 = () => {
 		}
 	})
 
+	// Toggle sidebar 
+	const [showSidebar, setShowSidebar] = useState(true);
+	const toggleSidebar = () => { setShowSidebar(!showSidebar) }
 	const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
-	// Key press
-	const {
-		shiftPressed,
-		ctrlPressed,
-		altPressed
-	} = useKeys({
-		activeFileIndex,
-		onKeyDown: e => {
-			onKey(e, 'up', () => {
-				let i = activeFileIndex
-				if (i > 0) {
-					setActiveFileIndex(i - 1)
-					askForFileContent(files[i - 1])
-				}
-			})
-			onKey(e, 'down', () => {
-				let i = activeFileIndex
-				if (i < files.length - 1) {
-					setActiveFileIndex(i + 1)
-					askForFileContent(files[i + 1])
-				}
-			})
-			// onKey(e, '!', () => { if (ctrlPressed.current ) setDualViewType('editor') })
-			// onKey(e, '@', () => { if (ctrlPressed.current) setDualViewType('both') })
-			// onKey(e, '#', () => { if (ctrlPressed.current) setDualViewType('preview') })
-		},
-		onKeyUp: e => {
-			// onKey(e, 'v', () => {
-			//     if (altPressed.current  && shiftPressed) setDualViewType('editor')
-			// })
-		}
-	})
 
-	// toggle dualviewtype on alt+v
-	// const [dualViewType, setDualViewType] = useState<ViewType>('both') 
+	// KEY ACTIONS
+	useEffect(() => {
+		addKeyAction('up', () => {
+			let i = activeFileIndex
+			if (i > 0) {
+				setActiveFileIndex(i - 1)
+				askForFileContent(files[i - 1])
+			}
+		})
+		addKeyAction('1', () => { if (getKeyModif('ctrl')) toggleSidebar() })
+		addKeyAction('down', () => {
+			let i = activeFileIndex
+			if (i < files.length - 1) {
+				setActiveFileIndex(i + 1)
+				askForFileContent(files[i + 1])
+			}
+		})
+	}, [activeFileIndex, showSidebar])
 
 	// Files List
 	const {
@@ -233,7 +223,6 @@ export const App2 = () => {
 		FilesListComponent,
 	} = useAppFilesList(
 		activeFileIndex, setActiveFileIndex,
-		shiftPressed,
 		onFilesReceivedCallback
 	)
 
@@ -419,8 +408,6 @@ export const App2 = () => {
 		setLigthboxIndex(0)
 	}
 
-	// Toggle sidebar 
-	const [showSidebar, setShowSidebar] = useState(true);
 
 	// Client API (functions added to window.tiroCli)
 	useClientApi();
@@ -586,7 +573,7 @@ export const App2 = () => {
 							forceRender: forceResponsiveRender,
 							onLightboxClick: openLightbox,
 							onToggleSidebarButton: () => {
-								setShowSidebar(!showSidebar);
+								toggleSidebar()
 							},
 							onBackButton: () => {
 								let file = filesHistory[0]

@@ -22,13 +22,11 @@ if (!isLatexInit) initLatex();
 
 export const transformLatex = (bodyRaw: string): string => {
 	const deps =
-		`
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.css" crossorigin="anonymous">
-`;
+		`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.css" crossorigin="anonymous"/>\n`;
 
-	bodyRaw = deps + bodyRaw
+	bodyRaw = bodyRaw + deps
 
-	let res = replaceCustomMdTags(bodyRaw, '[[latex]]', (input:string) => {
+	let res = replaceCustomMdTags(bodyRaw, '[[latex]]', (input: string) => {
 		if (!katex) return input;
 		return katex.renderToString(input);
 	});
