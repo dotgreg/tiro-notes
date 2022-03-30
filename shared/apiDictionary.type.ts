@@ -17,7 +17,7 @@ export interface iApiDictionary {
 	askForFileContent: { filePath: string, idReq: string }
 	getFileContent: { fileContent: string, filePath: string, idReq: string }
 
-	saveFileContent: { filepath: string, newFileContent: string }
+	saveFileContent: { filePath: string, newFileContent: string }
 
 	moveFile: { initPath: string, endPath: string }
 	moveFolder: { initPath: string, endPath: string }

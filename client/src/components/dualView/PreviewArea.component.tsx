@@ -2,10 +2,11 @@ import { clamp } from 'lodash';
 import React, { Ref, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { configClient } from '../../config';
+import { addCliCmd } from '../../managers/cliConsole.manager';
 import { formatDateEditor, formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
 import { transformLatex } from '../../managers/latex.manager';
-import { md2html } from '../../managers/markdown.manager';
+import { md2html, replaceUserCustomMdTag } from '../../managers/markdown.manager';
 import { transformMarkdownScripts } from '../../managers/scriptsInMarkdown.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -276,35 +277,25 @@ export const previewAreaCss = (v: MobileView) => `
 
 
 const PreviewRenderer = React.memo((p: { filecontent: string, currentFolder: string }) => {
-	const processRender = (raw: string): string => {
-		return transformRessourcesInHTML(p.currentFolder,
-			transformImagesInHTML(p.currentFolder,
-				transformSearchLinks(
-					transformTitleSearchLinks(
-						transformUrlInLinks(
-							transformLatex(
+
+	const renderNoteContent = (raw: string): string => {
+		return md2html(
+			transformRessourcesInHTML(p.currentFolder,
+				transformImagesInHTML(p.currentFolder,
+					transformSearchLinks(
+						transformTitleSearchLinks(
+							transformUrlInLinks(
 								transformMarkdownScripts(
-									raw
-								)))))))
+									replaceUserCustomMdTag(
+										transformLatex(
+											raw
+										)))))))))
 	}
 
-	// let test = p.filecontent.match()
-	let regex = new RegExp(/\<script\>(.*)\<\/script\>/gms)
-	let match = p.filecontent.match(regex)
-	let scriptArea = document?.getElementById('preview-script-area');
-	if (scriptArea) scriptArea.innerHTML = ''
-	if (match && match[0]) {
-		let code = replaceAll(match[0], [['<script>', ''], ['</script>', '']])
-		console.log(code);
-		try {
-			eval(code)
-			// @ts-ignore
-			if (scriptArea && window.previewHtmlOutput) scriptArea.innerHTML = window.previewHtmlOutput;
-		} catch (error) {
-			console.log('[EVAL CODE] error :', error)
-		}
-
-	}
+	addCliCmd('renderNoteContent', {
+		description: 'renderNoteContent',
+		func: renderNoteContent
+	})
 
 	return (
 		<>
@@ -312,7 +303,7 @@ const PreviewRenderer = React.memo((p: { filecontent: string, currentFolder: str
 			<div
 				className='preview-content'
 				ref={previewAreaRefs.main}
-				dangerouslySetInnerHTML={{ __html: md2html(processRender(p.filecontent)) }}>
+				dangerouslySetInnerHTML={{ __html: renderNoteContent(p.filecontent) }}>
 			</div>
 		</>
 

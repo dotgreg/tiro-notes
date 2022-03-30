@@ -248,6 +248,7 @@ ${ButtonsToolbarCss}
             display: none;
           }
         }
+
         &.view-preview {
           .editor-area {
             position: absolute;
@@ -255,10 +256,12 @@ ${ButtonsToolbarCss}
               display:none;
             }
           }
-          .preview-area {
-            width: 100%;
-            padding: 0px ${sizes.block * 3}px;
-          }
+          .preview-area-wrapper {
+						width: 100%;
+						padding: 0px ${sizes.block * 3}px;
+						.preview-area {
+						}
+					}
         }
         position:relative;
         display: ${deviceType() === 'desktop' ? 'flex' : 'block'};

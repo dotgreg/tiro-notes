@@ -1,10 +1,13 @@
-import { each } from "lodash";
-import { getCustomMdTagRegex } from "../../../shared/helpers/regexs.helper";
+import { log } from "console";
+import { each, isObject, random, uniq } from "lodash";
+import { getCustomMdTagRegex, regexs } from "../../../shared/helpers/regexs.helper";
+import { consoleCli } from "./cliConsole.manager";
 
 const marked = require('marked');
 
 export const md2html = (raw: string): string => {
-	return marked(raw)
+	const res = marked(raw);
+	return res;
 }
 
 export const replaceRegexInMd = (
@@ -18,6 +21,54 @@ export const replaceRegexInMd = (
 		res = res.replace(match, funcToExec(match));
 	});
 	return res;
+};
+
+// replace [[calendar]] by the content of /.tiro/tags/calendar.md note
+export const replaceUserCustomMdTag = (
+	body: string,
+): string => {
+	const regex = regexs.userCustomTag3;
+	const matches = body.match(regex) || '';
+
+	// gather all different user custom tags
+	const uniqMatches = uniq(matches)
+
+	// for each unique tag, replace it with its equivalent 
+	console.log(uniqMatches);
+
+	const getFileContent = consoleCli['clientApiGetFileContent']
+	const renderNoteContent = consoleCli['renderNoteContent']
+
+	each(uniqMatches, userTag => {
+		if (userTag === '[[script]]') return
+
+		body = replaceCustomMdTags(body, userTag,
+			(innerTag) => {
+
+				userTag = userTag.replace('[[', '').replace(']]', '');
+				console.log(11223, userTag);
+				const id = `${userTag}-custom-tag-wrapper`;
+
+				// get the content of /.tiro/tags/${userTag}.md
+				if (getFileContent && getFileContent.f) {
+					getFileContent.f(`/.tiro/tags/${userTag}.md`, noteContent => {
+						const el = document.getElementById(id)
+
+						if (!el || !noteContent || !renderNoteContent || !renderNoteContent.f) return
+						// replace {{innerTag}} inside fetched noteContent
+						noteContent = noteContent.replace('{{innerTag}}', innerTag)
+						// render it
+						el.innerHTML = renderNoteContent.f(noteContent);
+					})
+				}
+
+				// return a html div tag that get filled later
+				return `<div id="${id}"></div>`
+			});
+	})
+
+	console.log(121333, body);
+	return body;
 };
 
 export const replaceCustomMdTags = (

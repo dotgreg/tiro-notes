@@ -64,10 +64,10 @@ export const useFileContent = (
 		// update the modified field everytime it is edited
 		nFileMeta.modified = toTimeStampInS(Date.now())
 
-		const contentWithMeta = `${metasObjToHeaderString(nFileMeta)}\n${content}`
+		const contentWithMeta = `${metasObjToHeaderString(nFileMeta)}${content}`
 		console.log(`[FILE CONTENT] API -> ask for file save`, { filepath, contentWithMeta });
 
-		clientSocket2.emit('saveFileContent', { filepath: filepath, newFileContent: contentWithMeta, token: getLoginToken() })
+		clientSocket2.emit('saveFileContent', { filePath: filepath, newFileContent: contentWithMeta, token: getLoginToken() })
 	}
 
 	const askForFileContent = (file: iFile) => {

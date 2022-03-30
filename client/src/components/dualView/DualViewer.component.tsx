@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileDeleteFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile } from '../../../../shared/types.shared';
@@ -38,6 +38,18 @@ export const DualViewer = (p: {
 		func: () => previewContent
 	})
 
+
+
+
+	const endTempViewType = useRef<string | null>(null);
+	addCliCmd('setTempViewType', {
+		description: 'setviewtype (both, preview, editor)',
+		func: view => {
+			endTempViewType.current = viewType;
+			setViewType(view)
+		}
+	})
+
 	// useEffect(() => {
 	//     console.log('setviewtype', p.viewType);
 
@@ -46,6 +58,10 @@ export const DualViewer = (p: {
 
 	useEffect(() => {
 		setPreviewContent(p.fileContent)
+		if (endTempViewType.current) {
+			setViewType(endTempViewType.current)
+			endTempViewType.current = null;
+		}
 	}, [p.fileContent])
 
 	// back to top when change file

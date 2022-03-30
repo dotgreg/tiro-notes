@@ -3,7 +3,8 @@ import { sharedConfig } from '../shared.config';
 
 const v = {
 	img: VerEx().find('.').then('jpg').or('jpeg').or('png').or('gif').or('webm').or('svg'),
-	imgMdConfig: VerEx().anythingBut('[]|').maybe('|').beginCapture().anythingBut('[]|').endCapture().maybe('|').beginCapture().anythingBut('[]|').endCapture()
+	imgMdConfig: VerEx().anythingBut('[]|').maybe('|').beginCapture().anythingBut('[]|').endCapture().maybe('|').beginCapture().anythingBut('[]|').endCapture(),
+	customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]')
 }
 
 
@@ -30,6 +31,12 @@ export const regexs = {
 	linklink: VerEx().find('[link|').beginCapture().anythingBut('[]').endCapture().then(' ').beginCapture().then('/').anythingBut('[]').endCapture().then(']'),
 	latexTag: VerEx().find('[[latex]]').beginCapture().anythingBut('').endCapture().then('[[latex]]'),
 	scriptTag: VerEx().find('[[script]]').beginCapture().anythingBut('').endCapture().then('[[script]]'),
+
+	userCustomTagFull: VerEx().find(v.customTag).beginCapture().anythingBut('').endCapture().then(v.customTag),
+	userCustomTagFull2: VerEx().beginCapture().find(v.customTag).endCapture(),
+	//userCustomTag3: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
+	userCustomTag3: VerEx().find('[[').beginCapture().then(/[a-zA-Z-_\/]/).oneOrMore().maybe("-").endCapture().then(']]'),
+
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 
 	searchFolder: VerEx().find(' /').anything().endOfLine(),
@@ -38,7 +45,7 @@ export const regexs = {
 
 }
 
-export const getCustomMdTagRegex = (tag:string) => {
+export const getCustomMdTagRegex = (tag: string) => {
 	return VerEx().find(tag).beginCapture().anythingBut('').endCapture().then(tag)
 }
 

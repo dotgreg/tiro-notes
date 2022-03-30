@@ -1,9 +1,11 @@
+import '../../managers/scriptsInMarkdown.manager';
 import { each, random } from 'lodash';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { addCliCmd } from '../../managers/cliConsole.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from './loginToken.hook';
+import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 
 export const useClientApi = (
 ) => {
@@ -24,7 +26,8 @@ export const useClientApi = (
 		// GET FILE CONTENT
 		console.log(`[CLIENT API] GetFileContent:  init socket listener`);
 		listenerId1.current = clientSocket2.on('getFileContent', data => {
-			onEventTriggerGoodListener(data.idReq, data)
+			let filterRes = filterMetaFromFileContent(data.fileContent)
+			onEventTriggerGoodListener(data.idReq, filterRes.content)
 		})
 
 		return () => {
@@ -45,38 +48,37 @@ export const useClientApi = (
 	// API FUNCTIONS
 	//
 	const clientApiGetFileContent = (noteLink: string, cb: Function) => {
-		// noteLink > notePath
-		console.log(1212, noteLinkToPath(noteLink));
 		const filePath = noteLinkToPath(noteLink);
-
-		// generate unique reqId
-		const idReq = `client-api-get-file-content-req-${random(1, 10000000)}`
-		// add a listener function
+		const idReq = genIdReq('get-file-content');
+		// 1. add a listener function
 		addListenerCallback(idReq, cb);
-
-		// emit request 
+		// 2. emit request 
 		clientSocket2.emit('askForFileContent', { filePath, token: getLoginToken(), idReq })
-
 	}
 
+	const clientApiSaveFileContent = (noteLink: string, content: string) => {
+		const filePath = noteLinkToPath(noteLink);
+		console.log(`[CLIENT API] try saving file content : ${filePath}, ${content}`);
+		clientSocket2.emit('saveFileContent', { filePath, newFileContent: content, token: getLoginToken() })
+	}
 
 
 
 	//
 	// SUPPORT FUNCTIONS
 	//
+	const genIdReq = (type: string): string => {
+		return `client-api-${type}-req-${random(1, 10000000)}`;
+	}
+
 	const noteLinkToPath = (noteLink: string): string => {
-		const subst = `$2$1`;
+		const subst = `$2/$1`;
 		return noteLink.replace(regexs.linklink, subst);
 	}
 
-	// add to window object
-	const addCliCmds = () => {
-		addCliCmd('clientApiGetFileContent', {
-			description: 'ask for a file content. params => (noteLink: [link|myNoteLink], callback: (NoteContent) => {} )',
-			func: clientApiGetFileContent
-		})
-	};
+
+
+
 
 	// add/remove listener logic
 	interface iListenersDic { [idReq: string]: Function }
@@ -87,11 +89,73 @@ export const useClientApi = (
 	const onEventTriggerGoodListener = (reqIdAnswer: string, dataAnswer: any) => {
 		each(listeners.current, (listenerCb, listenerReqId) => {
 			if (listenerReqId === reqIdAnswer) {
-				listenerCb(dataAnswer);
+				//console.log('onEventTriggerGoodListener', { listenerCb, reqIdAnswer, listenerReqId, dataAnswer });
+				try {
+					listenerCb(dataAnswer);
+				} catch (e) {
+					console.log('[CLIENT API] error with function', e);
+				}
 				delete listeners.current[listenerReqId];
 			}
 		});
 	}
+
+
+
+
+
+
+	// add to window object
+	const addCliCmds = () => {
+
+
+
+
+
+		addCliCmd('clientApiGetFileContent', {
+			description: `
+Get a file content.
+Return null if path invalid
+==
+params
+  noteLink: [link|myNoteLink]
+  callback: Function (noteContent) {}
+==
+${clientApiGetFileContent}`,
+			func: clientApiGetFileContent,
+			f: clientApiGetFileContent
+		})
+
+
+
+
+
+
+		addCliCmd('clientApiSaveFileContent', {
+
+			description: `
+Save a file content.
+==
+params
+  noteLink: [link|myNoteLink]
+  newFileContent 
+==
+${clientApiSaveFileContent}`,
+
+			func: clientApiSaveFileContent,
+			f: clientApiSaveFileContent
+		})
+
+
+		// add to window object
+
+
+	};
+
+
+
+
+
 
 
 	return {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { iAppView } from '../../../../shared/types.shared';
 import { ButtonsToolbar, iToolbarButton } from '../../components/ButtonsToolbar.component';
 import { deviceType, MobileView } from '../../managers/device.manager';
@@ -7,49 +7,50 @@ import { strings } from '../../managers/strings.manager';
 export type iSwitchTypeViewFn = (view: iAppView) => void
 export type onViewSwitchedFn = (view: iAppView) => void
 
-export const useAppViewType = (p:{
-    onViewSwitched:onViewSwitchedFn
+export const useAppViewType = (p: {
+	onViewSwitched: onViewSwitchedFn
 }) => {
 
-    const [currentAppView, setCurrentAppView] = useState<iAppView>('text')
+	const [currentAppView, setCurrentAppView] = useState<iAppView>('text')
 
-    const switchAppView:iSwitchTypeViewFn = view => {
-        console.log(`[APP VIEW] switching from ${currentAppView} to ${view}`);
-        setCurrentAppView(view)
-        setTimeout(() => {
-            p.onViewSwitched(view)
-        })
-    }
 
-    const AppViewSwitcherComponent = () => {
-        const nView = currentAppView === 'text' ? 'image': 'text'
-        const buttonsConf:iToolbarButton[] = [
-            {
-                icon: 'faFileAlt',
-                // icon: 'faCopy',
-                title: strings.appviews.text,
-                action: e => { if (currentAppView === 'image' ) switchAppView(nView)},
-                active: currentAppView === 'text'
-            },
-            {
-                // icon: 'faImages',
-                icon: 'faFileImage',
-                title: strings.appviews.image,
-                action: e => { if (currentAppView === 'text' ) switchAppView(nView)},
-                active: currentAppView === 'image'
-            },
-        ]
-        return (
-            <div className="app-view-switcher-component">
-                <ButtonsToolbar buttons={buttonsConf} />
-            </div>
-        )
-    }
+	const switchAppView: iSwitchTypeViewFn = view => {
+		console.log(`[APP VIEW] switching from ${currentAppView} to ${view}`);
+		setCurrentAppView(view)
+		setTimeout(() => {
+			p.onViewSwitched(view)
+		})
+	}
 
-    return {
-        currentAppView, switchAppView,
-        AppViewSwitcherComponent
-    }
+	const AppViewSwitcherComponent = () => {
+		const nView = currentAppView === 'text' ? 'image' : 'text'
+		const buttonsConf: iToolbarButton[] = [
+			{
+				icon: 'faFileAlt',
+				// icon: 'faCopy',
+				title: strings.appviews.text,
+				action: e => { if (currentAppView === 'image') switchAppView(nView) },
+				active: currentAppView === 'text'
+			},
+			{
+				// icon: 'faImages',
+				icon: 'faFileImage',
+				title: strings.appviews.image,
+				action: e => { if (currentAppView === 'text') switchAppView(nView) },
+				active: currentAppView === 'image'
+			},
+		]
+		return (
+			<div className="app-view-switcher-component">
+				<ButtonsToolbar buttons={buttonsConf} />
+			</div>
+		)
+	}
+
+	return {
+		currentAppView, switchAppView,
+		AppViewSwitcherComponent
+	}
 }
 
 
