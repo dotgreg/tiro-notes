@@ -6,25 +6,6 @@ type iKeyAlpha = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k'
 type iKeyNumbers = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0'
 type iKey = iKeySpecial | iKeyAlpha | iKeyNumbers | iKeyModif
 
-// export const onKey = (e: any, keyName: iKey, action: Function) => {
-// 	e = e || window.event;
-// 	//console.log(111, e)
-// 	let codes: { [key in KeyName]: number } = {
-// 		up: 38,
-// 		down: 40,
-// 		ctrl: 17,
-// 		shift: 16,
-// 		alt: 18,
-// 		opt: 93,
-// 		enter: 13,
-// 	}
-// 	if (e.keyCode === codes[keyName]) {
-// 		action()
-// 	} else if (e.key === keyName) {
-// 		action()
-// 	}
-// }
-
 // NEW SYSTEM 
 
 const modifs = {
@@ -36,7 +17,6 @@ const modifs = {
 
 export const getKeyModif = (modifName: iKeyModif): boolean => {
 	const res = modifs[modifName];
-	console.log(123123, res);
 	return res
 }
 
@@ -71,7 +51,7 @@ export const startListeningToKeys = () => {
 		if (allKeyActions[actionName]) allKeyActions[actionName]();
 		//console.log(123123, actionName, modifs, modifs[keyName]);
 	}
-	console.log('[KEY] 123123 startListeningToKeys');
+	//	console.log('[KEY] 123123 startListeningToKeys');
 }
 
 const allKeyActions: { [keyAndState: string]: Function } = {}

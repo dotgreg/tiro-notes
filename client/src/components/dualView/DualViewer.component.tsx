@@ -6,6 +6,7 @@ import { PathModifFn } from './TitleEditor.component';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
 import { addCliCmd } from '../../managers/cliConsole.manager';
+import { addKeyAction, getKeyModif } from '../../managers/keys.manager';
 
 //@TODO mobile bar
 //@TODO mobile bar func to desktop
@@ -31,6 +32,13 @@ export const DualViewer = (p: {
 
 	const [viewType, setViewType] = useLocalStorage('viewtype', 'both')
 	const [previewContent, setPreviewContent] = useState('')
+
+	// keyboard shortcuts
+	useEffect(() => {
+		addKeyAction('2', () => { if (getKeyModif('ctrl')) setViewType('editor') })
+		addKeyAction('3', () => { if (getKeyModif('ctrl')) setViewType('both') })
+		addKeyAction('4', () => { if (getKeyModif('ctrl')) setViewType('preview') })
+	}, [viewType])
 
 	// window variables
 	addCliCmd('fileContent', {
