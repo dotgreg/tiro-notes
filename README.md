@@ -108,8 +108,8 @@ npx tiro-notes
 ## DOCUMENTATION
 
 ### Available Custom Tags
-  - [[calendar]] a fully functional calendar that stored data on a note : [install instructions & screenshot](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
-  - [[mermaid]] Uml, Gantt and flowcharts : [install instructions & screenshot](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
+  - [[calendar]] a fully functional calendar that stored data on a note : [install instructions & screenshot](https://github.com/dotgreg/tiro-notes/blob/master/documentation/custom-tag-calendar.md)
+  - [[mermaid]] Uml, Gantt and flowcharts : [install instructions & screenshot](https://github.com/dotgreg/tiro-notes/blob/master/documentation/custom-tag-mermaid.md)
 
 ### Add scripts in your note
 
