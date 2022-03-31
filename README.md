@@ -1,6 +1,6 @@
 # Tiro Notes
 
-Open-source, fast and extensible markdown editor to use anywhere
+Open-source, fast and extensible markdown editor to use everywhere
 
 ![Tiro S2](https://user-images.githubusercontent.com/2981891/161093353-e9c2df15-ffca-4d2f-839d-ced9ced659b1.jpg)
 
