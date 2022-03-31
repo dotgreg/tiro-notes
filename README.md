@@ -28,7 +28,7 @@ Tiro Notes focus points are :
   + [Command Line](#command-line)
 * [Functionalities List](#functionalities-list)
 * [Documentation](#documentation)
-    + [Ready to install custom tags](#ready-to-install-custom-tags)
+    + [Available Custom Tags](#available-custom-tags)
     + [Add scripts in your note](#add-scripts-in-your-note)
     + [Create your own custom tags](#create-your-own-custom-tags)
       - [1) How to create a new custom tag [[mail-address]]](#1--how-to-create-a-new-custom-tag--)
