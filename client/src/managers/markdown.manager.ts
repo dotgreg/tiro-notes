@@ -46,8 +46,7 @@ export const replaceUserCustomMdTag = (
 			(innerTag) => {
 
 				userTag = userTag.replace('[[', '').replace(']]', '');
-				console.log(11223, userTag);
-				const id = `${userTag}-custom-tag-wrapper`;
+				const id = `${userTag}-${random(0, 100000000)}-custom-tag-wrapper`;
 
 				// get the content of /.tiro/tags/${userTag}.md
 				if (getFileContent && getFileContent.f) {
