@@ -1,6 +1,6 @@
 # Tiro Notes
 
-Open-source, fast and extensible markdown editor to use anywhere
+Open-source, fast and extensible markdown editor to use everywhere
 
 ![Tiro S2](https://user-images.githubusercontent.com/2981891/161093353-e9c2df15-ffca-4d2f-839d-ced9ced659b1.jpg)
 
@@ -28,7 +28,7 @@ Tiro Notes focus points are :
   + [Command Line](#command-line)
 * [Functionalities List](#functionalities-list)
 * [Documentation](#documentation)
-    + [Ready to install custom tags](#ready-to-install-custom-tags)
+    + [Available Custom Tags](#available-custom-tags)
     + [Add scripts in your note](#add-scripts-in-your-note)
     + [Create your own custom tags](#create-your-own-custom-tags)
       - [1) How to create a new custom tag [[mail-address]]](#1--how-to-create-a-new-custom-tag--)
@@ -108,8 +108,8 @@ npx tiro-notes
 ## DOCUMENTATION
 
 ### Available Custom Tags
-  - [[calendar]] a fully functional calendar that stored data on a note : [install instructions & screenshot](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
-  - [[mermaid]] Uml, Gantt and flowcharts : [install instructions & screenshot](https://gist.github.com/dotgreg/cb758ff85be8f9afb9c7854be494c945#comments)
+  - [[calendar]] a fully functional calendar that stored data on a note : [install instructions & screenshot](https://github.com/dotgreg/tiro-notes/blob/master/documentation/custom-tag-calendar.md)
+  - [[mermaid]] Uml, Gantt and flowcharts : [install instructions & screenshot](https://github.com/dotgreg/tiro-notes/blob/master/documentation/custom-tag-mermaid.md)
 
 ### Add scripts in your note
 
