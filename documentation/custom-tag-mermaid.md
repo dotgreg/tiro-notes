@@ -1,6 +1,16 @@
-# INSTALLATION
+## DESCRIPTION
 
-Place in /.tiro/tags/mermaid.md
+Tiro Notes [[mermaid]] Custom tag for Uml, Gantt and flowcharts using Mermaid.js
+
+Library Documentation here : https://mermaid-js.github.io/mermaid
+
+## SCREENSHOTS
+
+<img src="https://user-images.githubusercontent.com/2981891/161111905-8a5d03e8-08ad-4524-9345-a095245a2905.jpg" width="400"/>
+
+## INSTALLATION
+
+1. Place in /.tiro/tags/mermaid.md
 
 ```
 [[script]] 
@@ -20,7 +30,7 @@ return `<div id="mermaid-${id}-wrapper"></div>`
 [[script]]  
 ```
 
-You can then use the ```[[mermaid]] [[mermaid]]``` in your notes
+1. You can then use the ```[[mermaid]] [[mermaid]]``` in your notes
 
 # EXAMPLE
 

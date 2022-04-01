@@ -1,6 +1,13 @@
-# INSTALLATION
+# DESCRIPTION
 
-Place in /.tiro/tags/calendar.md
+A calendar app for [Tiro Notes](https://github.com/dotgreg/tiro-notes) with the data stored on a markdown note
+
+ ## SCREENSHOTS
+ <img src="https://user-images.githubusercontent.com/2981891/160671645-9d973a0b-d6a8-4c2c-999e-7c18c272890b.jpg" width="600"/>
+
+## INSTALLATION
+
+1. Place in /.tiro/tags/calendar.md
 
 ```
 [[script]] 
@@ -11,12 +18,7 @@ window.tiroCli.loadScripts.f(['https://gistcdn.githack.com/dotgreg/720511c275ad2
 return `<div id="calendar-wrapper"></div>` 
 [[script]]  
 ```
-
-You can then use the ```[[calendar]] [[calendar]]``` in your notes
-
-# DESCRIPTION
-
-A calendar app for [Tiro Notes](https://github.com/dotgreg/tiro-notes) with the data stored on a markdown note
+1. You can then use the ```[[calendar]] [[calendar]]``` in your notes
 
 ## USAGE
 - Event
