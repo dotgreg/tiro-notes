@@ -1,8 +1,10 @@
 # Tiro Notes
 
-Open-source, fast and extensible markdown editor to use everywhere
+An Open-source, cross-platform and extensible markdown editor 
 
 ![Tiro S2](https://user-images.githubusercontent.com/2981891/161093353-e9c2df15-ffca-4d2f-839d-ced9ced659b1.jpg)
+
+Twitter News & Updates : https://twitter.com/NotesTiro
 
 ## WHY
 
@@ -10,15 +12,10 @@ Tiro Notes is designed to be a viable open source alternative to proprietary sof
 
 Tiro Notes focus points are : 
 
-- 👼 **Open source & free**: Code is open source, free forever. Optimistically reaching a GNU GPLv3 license in the future.
-- 👑 **Own your data**: No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
+- 👑 **Open source & Open Data**: Code is open source, free forever. No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
 
+- ☁️ / 🖥️ /  💻 / 📱 **Cross-platform** : Windows, macOS, Android, Linux, Web. Start an App or with CLI and access it anywhere on your local network. 
 
-- 🚅 **Fast**: Search is really fast (using ripgrep). You can scroll list of several thousands of items without slowdown.
-- 💅 **Nice**: Usability & nice user experience is key aspect of Tiro.
-
-
-- ☁️ / 🖥️ /  💻 / 📱 **Use it anywhere** : Apps for Windows, Mac, Linux. You can install and start Tiro within seconds with npx. You can install it on Android and iOS. You can use it as web server and use it with any device with a browser.
 - 🏋 **Extensible** : create custom markdown tag like [[calendar]], [[uml]] and other within seconds. Use [[latex]]. Create your own tag with [[script]] and the client api
 
 ## MENU
@@ -258,6 +255,10 @@ You can use any sync solution like dropbox, google drive, resilio sync, syncthin
 ### Can I edit my notes on another application?
 Yes, all the datas Tiro uses is coming from markdown notes. So you can edit your notes in other applications without any problem.
 
+### Where are located the configuration file and the logs of Tiro?
+The configuration file is located at ```~/.tiro-config.json``` for linux, mac and termux android and under ```/Users/USER_NAME/.tiro-config.json```in windows.
+The logs are also located at the same path ```.tiro-logs.txt``` if using NPX or Node directly and ```.tiro-electron-log.txt``` if using Tiro Notes Desktop Apps.
+
 ### How can I access to Tiro on my device from anywhere
 1) Device where tiro is installed : http://localhost:3023 
 2) If on same Wifi/local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
@@ -269,7 +270,9 @@ I have been developing it for over a year and using it as my daily note app for 
 I haven't been loosing any data so far, and there is always the history note functionality in that case.
 
 However, I consider that application still in alpha phase, it still needs a lot of testing to be considered robust.
-
 So use it at your own risk, and always with data you can afford to lose.
 
-I am not responsible of any data loss!
+### How can I contribute?
+
+Contributions and PR are welcome! You can contact me for more details on the ROADMAP and how to be involved. Right now, Tiro Notes needs mainly testers to stabilize the current scope of functionalities. Also translation can be a nice thing to have in the future.
+

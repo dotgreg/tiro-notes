@@ -22,6 +22,7 @@ import { searchBarCss } from '../../components/SearchBar.component';
 import { imageGalleryCss } from '../../components/ImageGallery.component';
 import { ButtonsToolbarCss } from '../../components/ButtonsToolbar.component';
 import { lightboxCss } from '../../components/Lightbox.component';
+import { promptPopupCss} from '../../hooks/app/usePromptPopup.hook';
 
 let d = deviceType()
 const { els, colors, font, sizes, other } = { ...cssVars }
@@ -42,6 +43,7 @@ export const CssApp2 = (
 
 ${GlobalAppViewCss()}
 ${lightboxCss()}
+${promptPopupCss()}
 
 ${AppViewSwitcherComponentCss}
 ${ButtonsToolbarCss}

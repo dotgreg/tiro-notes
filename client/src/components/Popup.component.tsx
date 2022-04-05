@@ -7,24 +7,25 @@ import { isIpad } from '../managers/device.manager'
  * Generic popup system
  */
 export class Popup extends React.Component
-    <{
-        onClose:Function, 
-        title:string,
-    }, {
-        
-    }> {
+	<{
+		onClose: Function,
+		title: string,
+		canBgClose?: boolean,
+	}, {
 
-    render() {
-      return (
-        <PopupWrapperCss>
-            <div className="overlay-click-popup" onClick={e => {this.props.onClose()}}></div>
-            <div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
-                <div className="popupTitle"> {this.props.title}</div>
-                <div className="popupContent">{this.props.children}</div>
-            </div>
-        </PopupWrapperCss>
-      )
-    }
+	}> {
+
+	render() {
+		return (
+			<PopupWrapperCss>
+				<div className="overlay-click-popup" onClick={e => { if (this.props.canBgClose) this.props.onClose() }}></div>
+				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
+					<div className="popupTitle"> {this.props.title}</div>
+					<div className="popupContent">{this.props.children}</div>
+				</div>
+			</PopupWrapperCss>
+		)
+	}
 }
 
 export const PopupWrapperCss = styled.div`
@@ -112,4 +113,4 @@ export const PopupWrapperCss = styled.div`
 //     height: 100vh;
 //     background: rgba(0,0,0,0.1);
 // `
-  
+

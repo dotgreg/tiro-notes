@@ -35,6 +35,7 @@ import { Lightbox } from './components/Lightbox.component';
 import { useClientApi } from './hooks/app/clientApi.hook';
 import { log } from 'console';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
+import { usePromptPopup } from './hooks/app/usePromptPopup.hook';
 
 
 
@@ -55,6 +56,10 @@ export const App2 = () => {
 
 		//     // setActiveFileIndex(activeFileIndex+1)
 		// }, 1000)
+
+		setTimeout(() => {
+			/* triggerPromptPopup({ text: 'wppp', onAccept: () => { console.log('wpppp'); } }) */
+		}, 2000)
 
 		startListeningToKeys();
 
@@ -409,6 +414,9 @@ export const App2 = () => {
 	}
 
 
+	// PROMPT AND CONFIRM POPUPS
+	const { PromptPopupComponent, triggerPromptPopup } = usePromptPopup({})
+
 	// Client API (functions added to window.tiroCli)
 	useClientApi();
 
@@ -416,6 +424,10 @@ export const App2 = () => {
 		<div className={CssApp2(mobileView, showSidebar)} >
 			<Global styles={GlobalCssApp} />
 			<div role="dialog" className={`main-wrapper view-${currentAppView}`}>
+				{
+					PromptPopupComponent()
+				}
+
 				{
 					LoginPopupComponent({})
 				}

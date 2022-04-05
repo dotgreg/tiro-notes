@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { secureTitleString } from '../../managers/title.manager';
 
 export type PathModifFn = (initPath:string, endPath:string) => void
 
@@ -20,7 +21,7 @@ export const NoteTitleInput = (p: {
                 type="text" 
                 value={title}
                 onChange={(e) => {
-                    let newTitle = e.target.value.replaceAll('/','_')
+										let newTitle = secureTitleString(e.target.value)
                     setTitle(newTitle)
                     setHasBeenEdited(true)
                 }}

@@ -2,7 +2,7 @@ import VerEx from 'verbal-expressions';
 import { sharedConfig } from '../shared.config';
 
 const v = {
-	img: VerEx().find('.').then('jpg').or('jpeg').or('png').or('gif').or('webm').or('svg'),
+	img: VerEx().find('.').then('jpg').or('jpeg').or('png').or('gif').or('webm').or('svg').or('webp'),
 	imgMdConfig: VerEx().anythingBut('[]|').maybe('|').beginCapture().anythingBut('[]|').endCapture().maybe('|').beginCapture().anythingBut('[]|').endCapture(),
 	customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]')
 }
