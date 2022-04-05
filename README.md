@@ -1,6 +1,6 @@
 # Tiro Notes
 
-An Open-source, cross-platform and extensible markdown editor 
+An Open-source, cross-platform and extensible web markdown editor 
 
 ![Tiro S2](https://user-images.githubusercontent.com/2981891/161093353-e9c2df15-ffca-4d2f-839d-ced9ced659b1.jpg)
 
@@ -259,7 +259,7 @@ The logs are also located at the same path ```.tiro-logs.txt``` if using NPX or 
 1) Device where tiro is installed : http://localhost:3023 
 2) If on same Wifi/local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
 3) Not on same network : Tiro works great using SSH tunneling, AutoSSH or similar (free ssh tunnels solutions exists like https://opentunnel.net/). Npx tiro-notes also includes a --tunnel option for easy tunneling.
-4) On the cloud: You can install Tiro Notes on your server and access it from anywhere.
+4) On the cloud: You can self-host/install Tiro Notes on your server and access it from anywhere.
 
 ### What is the current status of Tiro Notes? 
 I have been developing it for over a year and using it as my daily note app for over 6 months now, its core functionalities seems stable enough for my use so far.
