@@ -255,7 +255,7 @@ Yes, all the datas Tiro uses is coming from markdown notes. So you can edit your
 The configuration file is located at ```~/.tiro-config.json``` for linux, mac and termux android and under ```/Users/USER_NAME/.tiro-config.json```in windows.
 The logs are also located at the same path ```.tiro-logs.txt``` if using NPX or Node directly and ```.tiro-electron-log.txt``` if using Tiro Notes Desktop Apps.
 
-### How can I access to Tiro on my device from anywhere
+### How can I use Tiro in the Web?
 1) Device where tiro is installed : http://localhost:3023 
 2) If on same Wifi/local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
 3) Not on same network : Tiro works great using SSH tunneling, AutoSSH or similar (free ssh tunnels solutions exists like https://opentunnel.net/). Npx tiro-notes also includes a --tunnel option for easy tunneling.
