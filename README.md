@@ -14,7 +14,7 @@ Tiro Notes focus points are :
 
 - 👑 **Open source & Open Data**: Code is open source, free forever. No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
 
-- ☁️ / 🖥️ /  💻 / 📱 **Cross-platform** : Windows, macOS, Android, Linux, Web. Start an App or with CLI and access it anywhere on your local network. 
+- ☁️ / 🖥️ /  💻 / 📱 **Cross-platform & Web** : Windows, macOS, Android, Linux, Web. Start an App or with CLI and access it anywhere on your local network. 
 
 - 🏋 **Extensible** : create custom markdown tag like [[calendar]], [[uml]] and other within seconds. Use [[latex]]. Create your own tag with [[script]] and the client api
 
@@ -58,9 +58,6 @@ npx tiro-notes
 
 
 ## FUNCTIONALITIES LIST
-<details>
-  <summary>Expand all functionalities</summary>
-  
   
 **Note Edition**
 - 🖊️ Mardown notes edition
@@ -99,7 +96,6 @@ npx tiro-notes
 - ☁️ Use it as a local application, as a local or cloud server.
 - 📟 Use it on any device with a browser (Mobile, tablet and Desktop interface)
 - (🔧)📱 Install on iOS with iSH and NPX (to be tested...)
-</details>
 
 
 ## DOCUMENTATION
@@ -276,3 +272,4 @@ So use it at your own risk, and always with data you can afford to lose.
 
 Contributions and PR are welcome! You can contact me for more details on the ROADMAP and how to be involved. Right now, Tiro Notes needs mainly testers to stabilize the current scope of functionalities. Also translation can be a nice thing to have in the future.
 
+Twitter News & Updates : https://twitter.com/NotesTiro
