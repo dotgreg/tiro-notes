@@ -270,6 +270,8 @@ So use it at your own risk, and always with data you can afford to lose.
 
 ### How can I contribute?
 
-Contributions and PR are welcome! You can contact me for more details on the ROADMAP and how to be involved. Right now, Tiro Notes needs mainly testers to stabilize the current scope of functionalities. Also translation can be a nice thing to have in the future.
+Contributions and PR are welcome! You can contact me for more details on the ROADMAP and how to be involved.
+Right now, Tiro Notes needs mainly testers to stabilize the current scope of functionalities.
+Also translation can be a nice thing to have in the future.
 
 Twitter News & Updates : https://twitter.com/NotesTiro
