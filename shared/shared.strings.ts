@@ -81,5 +81,9 @@ export const sharedStrings = {
 			name: 'version'
 		}
 	},
-	rgNotWorking: 'ERROR: Tiro requires Ripgrep to be working, it seems that ripgrep (rg command) is either not installed or not functionning correctly on you computer. To install it, follow these instructions : https://github.com/BurntSushi/ripgrep#installation'
+	rgNotWorking: 'ERROR: Tiro requires Ripgrep to be working, it seems that ripgrep (rg command) is either not installed or not functionning correctly on you computer. To install it, follow these instructions : https://github.com/BurntSushi/ripgrep#installation',
+	promptPopup: {
+		defaultTitle: `User Prompt`,
+	}
+
 }

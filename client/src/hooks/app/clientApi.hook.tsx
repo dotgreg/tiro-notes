@@ -7,6 +7,8 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from './loginToken.hook';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 
+
+
 export const useClientApi = (
 ) => {
 
