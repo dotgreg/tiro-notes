@@ -303,13 +303,13 @@ ${ButtonsToolbarCss}
 							padding-top: 40px;
 							transition: 0.2s all;
 							transition-delay: 0.5s;
-							transform: scale(0.2);
+							transform: scale(0.2) translateZ(0);
 							transform-origin: 0px 0px;
 							position: absolute;
 							width: 100%;
 							background: rgb(242, 242, 242);
 							right: -80%;
-							height: 100000px;
+							height: 500vh;
 						.preview-area {
 							padding: 80px;
 						}
