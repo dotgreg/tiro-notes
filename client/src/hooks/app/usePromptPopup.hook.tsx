@@ -29,6 +29,16 @@ const liveVars: {
 	onRefuse: () => { },
 }
 
+export type iPrompt = (p: {
+	text: string,
+	title?: string,
+	onAccept?: Function,
+	onRefuse?: Function
+}) => void
+export type iConfirmPopup = (text: string, cb: Function) => void
+export type iPopupsContext = { confirm?: iConfirmPopup, prompt?: iPrompt }
+export const PopupContext = React.createContext<iPopupsContext>({});
+
 export const usePromptPopup = (p: {
 }) => {
 
@@ -36,27 +46,42 @@ export const usePromptPopup = (p: {
 
 	const [text, setText] = useState(``)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
+	const [showRefuse, setShowRefuse] = useState(false)
 
-	const triggerPromptPopup = (p: {
-		text: string,
-		title?: string,
-		onAccept?: Function,
-		onRefuse?: Function
-	}) => {
+	const confirmPopup: iConfirmPopup = (text, cb, onRefuse?: Function) => {
+
+		promptPopup({
+			title: strings.promptPopup.confirmTitle,
+			text,
+			onAccept: cb,
+			onRefuse: () => { if (onRefuse) onRefuse(); }
+		})
+	}
+
+	const promptPopup: iPrompt = (p) => {
 		setDisplayPromptPopup(true)
 		setText(p.text);
 		if (p.title) setTitle(p.title);
 		if (p.onAccept) liveVars.onAccept = p.onAccept
-		if (p.onRefuse) liveVars.onRefuse = p.onRefuse
+		if (p.onRefuse) {
+			liveVars.onRefuse = p.onRefuse
+			setShowRefuse(true);
+		} else {
+			setShowRefuse(false);
+		}
 	}
 
 	const closePopup = () => {
 		setDisplayPromptPopup(false)
 	}
 
-	addCliCmd('triggerPromptPopup', {
-		description: 'triggerPromptPopup',
-		func: triggerPromptPopup
+	addCliCmd('promptPopup', {
+		description: 'promptPopup',
+		func: promptPopup
+	})
+	addCliCmd('confirmPopup', {
+		description: 'confirmPopup',
+		func: confirmPopup
 	})
 	// window.tiroCli.triggerPromptPopup.f({ text: 'wppp', onAccept: () => { console.log('wpppp'); } })
 
@@ -70,20 +95,33 @@ export const usePromptPopup = (p: {
 					canBgClose={false}
 				>
 					<div>
-						{text}
+						<div className="content">
+							{text}
+						</div>
+						<br />
+
 						<button
 							value='submit'
-							className="submit-button"
+							className="accept submit-button"
 							onClick={e => { liveVars.onAccept(); closePopup() }}>
-							{strings.setupForm.submit}
+							{strings.promptPopup.accept}
 						</button>
+						{showRefuse &&
+							<button
+								value='submit'
+								className="refuse submit-button"
+								onClick={e => { liveVars.onRefuse(); closePopup() }}>
+								{strings.promptPopup.refuse}
+							</button>
+						}
 					</div>
 				</Popup>
 			</div>}
 	</>
 
 	return {
-		triggerPromptPopup,
+		promptPopup,
+		confirmPopup,
 		PromptPopupComponent
 	}
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelection } from '../MonacoEditor.Component';
@@ -25,6 +25,7 @@ import { MonacoEditor2 } from '../MonacoEditor2.Component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { NoteMobileToolbar } from './NoteToolbar.component';
 import { findImagesFromContent } from '../../managers/images.manager';
+import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -50,12 +51,15 @@ export const EditorArea = (p: {
 	onBackButton: Function
 	onToggleSidebarButton: Function
 	onViewToggle: Function
+	onMaxYUpdate: (maxY: number) => void
 
 }) => {
 
 	const [vimMode, setVimMode] = useState(false)
 	const [innerFileContent, setInnerFileContent] = useState('')
 	let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
+		//@ts-ignore
+	window.monacoEditComp = monacoEditorComp
 
 	// LIFECYCLE EVENTS MANAGER HOOK
 	const { triggerNoteEdition } = useNoteEditorEvents({
@@ -218,14 +222,14 @@ export const EditorArea = (p: {
 			class: 'delete',
 			icon: 'faTrash',
 			action: () => {
-				let userAccepts = window.confirm(`${strings.trashNote}`)
-				if (userAccepts) {
+				if (popups.confirm) popups.confirm(`${strings.trashNote}`, () => {
 					p.onFileDelete(p.file.path)
-				}
+				})
 			}
 		},
 	]
 
+	const popups = useContext(PopupContext);
 	// File History
 	const [historyPopup, setHistoryPopup] = useState(false)
 

@@ -19,7 +19,9 @@ export const useDynamicResponsive = () => {
         })
 
         return () => {
-
+			window.removeEventListener('resize', () => {
+								debouncedResponsiveRender()
+						})
         }
     },[])
     return {forceResponsiveRender, frr}
