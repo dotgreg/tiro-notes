@@ -292,17 +292,19 @@ ${ButtonsToolbarCss}
 				.__MINIMAP_DESIGN HERE__ {}
 
 				.preview-area-wrapper:hover {
-						transform: scale(1);
-						right: 0px;
+						transform: scale(0.8);
 						background: rgb(246, 246, 246);
+						right: -50%;
+opacity: 1;
+box-shadow: -15px 18px 55px rgba(0, 0, 0, 0.15);
 						.preview-area {
+							width: 60%;
+							padding: 20px;
 						}
 				}
 				.preview-area-wrapper {
 							margin-top: 140px;
-							padding-top: 40px;
 							transition: 0.2s all;
-							transition-delay: 0.5s;
 							transform: scale(0.2) translateZ(0);
 							transform-origin: 0px 0px;
 							position: absolute;
