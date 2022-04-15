@@ -106,7 +106,7 @@ ${ButtonsToolbarCss}
 			border-radius: 0px 5px;
 			.left-wrapper {
 				transition: 0.2s all;
-				transition-delay: 0.5s;
+				transition-delay: 0s;
 				position: absolute;
 				left: -${sizes.desktop.l}vw;
 				top: 0px;
