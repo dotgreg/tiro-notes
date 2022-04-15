@@ -6,65 +6,61 @@ import { useDebounce } from "../lodash.hooks"
 import { iSwitchTypeViewFn } from "./appView.hook"
 
 export const useUrlLogic = (
-    isSearching, searchTerm,
-    selectedFolder,
-    activeFile:iFile,
-    activeFileIndex,
-    currentAppView:iAppView,
+	isSearching, searchTerm,
+	selectedFolder,
+	activeFile: iFile,
+	activeFileIndex,
+	currentAppView: iAppView,
 
-    p:{
-        reactToUrlParams: (newUrlParams:iUrlParams) => void
-    }
+	p: {
+		reactToUrlParams: (newUrlParams: iUrlParams) => void
+	}
 ) => {
-    // ignore the first url change when page finishes loading
-    const ignoreNextUrlChange = useRef(false)
+	// ignore the first url change when page finishes loading
+	const ignoreNextUrlChange = useRef(false)
 
-    // on init
-    useEffect(() => {
-        initUrlParamsLogic()
-    }, [])
+	// on init
+	useEffect(() => {
+		initUrlParamsLogic()
+	}, [])
 
-    const reactToUrl = () => {
-        // do a initial reading when finished loading
-        let newUrlParams = getUrlParams()
-        p.reactToUrlParams(newUrlParams)
-    }
+	const initUrlParamsLogic = () => {
+		reactToUrl()
+		listenToUrlChanges({
+			onUrlParamsChange: (newUrlParams) => {
+				// ignore url change due to state change from reaction of initial url change :S
+				ignoreNextUrlChange.current = true
+				p.reactToUrlParams(newUrlParams)
+			},
+		})
+	}
 
-    const initUrlParamsLogic = () => {
+	// REACT TO URL CHANGE <<<===
+	const reactToUrl = () => {
+		// do a initial reading when finished loading
+		let newUrlParams = getUrlParams()
+		p.reactToUrlParams(newUrlParams)
+	}
 
-        reactToUrl()
+	// CHANGE URL ===>>>>
+	// Everytime there is a modif in selected file index, folder, search 
+	const updateAppUrl = useDebounce(() => {
+		if (ignoreNextUrlChange.current) return ignoreNextUrlChange.current = false
+		const title = activeFile ? activeFile.realname : ''
+		if (currentAppView === 'text' && !activeFile) return
+		updateUrl({
+			title,
+			folder: selectedFolder,
+			search: searchTerm,
+			appview: currentAppView
+		})
+	}, 200)
 
-        listenToUrlChanges({
-            onUrlParamsChange: (newUrlParams) => {
-                // ignore url change due to state change from reaction of initial url change :S
-                ignoreNextUrlChange.current = true
-                p.reactToUrlParams(newUrlParams)
-            },
-        })
-    }
+	// in case of params changes, update url
+	useEffect(() => {
+		console.log(`[URL] USE_EFFECT SOME CHANGED IN URL : ${JSON.stringify({ activeFileIndex, selectedFolder, isSearching, currentAppView })}`);
+		updateAppUrl()
+	}, [activeFileIndex, selectedFolder, isSearching, currentAppView])
 
-
-
-    // CHANGE URL LOGIC HERE
-    const updateAppUrl = useDebounce(() => {
-        if (ignoreNextUrlChange.current) return ignoreNextUrlChange.current = false
-        
-        const title = activeFile ? activeFile.realname : ''
-
-        if (currentAppView === 'text' && !activeFile) return
-        
-        updateUrl ({
-            title, 
-            folder: selectedFolder, 
-            search: searchTerm,
-            appview: currentAppView
-        })
-    }, 200)
-
-    // in case of params changes, update url
-    useEffect(() => {
-        updateAppUrl()
-    }, [activeFileIndex, selectedFolder, isSearching, currentAppView])
-
-    return {reactToUrl}
+	return { reactToUrl }
 }

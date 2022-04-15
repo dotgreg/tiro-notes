@@ -20,6 +20,7 @@ export const PreviewArea = (p: {
 	file: iFile,
 	posY: number,
 	fileContent: string
+	onMaxYUpdate: (maxY: number) => void
 }) => {
 
 	previewAreaRefs = {
@@ -34,14 +35,27 @@ export const PreviewArea = (p: {
 	useEffect(() => {
 		// @ts-ignore
 		window.previewHtmlOutput = '';
-		return () => {
-		}
 	}, [p.file.path])
+
+	useEffect(() => {
+		console.log(11);
+		p.onMaxYUpdate(calculateYMax())
+			setTimeout(() => {
+		p.onMaxYUpdate(calculateYMax())
+			}, 1000)
+	}, [p.fileContent])
 
 	const [vertBarPos, setVertBarPos] = useState('right')
 
+	const calculateYMax = () => {
+		const d = previewAreaRefs.wrapper.current
+		const height = d?.height || d?.clientHeight
+		const max = height || 3000
+		return max
+	}
 	const calculateYPos = () => {
-		const max = previewAreaRefs.wrapper.current?.height || 3000
+
+		const max = calculateYMax();
 		return clamp(p.posY, 0, max)
 	}
 
@@ -179,6 +193,8 @@ export const previewAreaCss = (v: MobileView) => `
 
 				.resource-link-icon {
 						background-image: url(${cssVars.assets.fileIcon});
+						&.epub, &.cbr, &.cbz,&.mobi, &.azw, &.azw3, &.iba,  
+						{ background-image: url(${cssVars.assets.bookIcon}); }
 						&.pdf
 						{ background-image: url(${cssVars.assets.pdfIcon}); }
 

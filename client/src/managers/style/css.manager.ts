@@ -22,14 +22,14 @@ import { searchBarCss } from '../../components/SearchBar.component';
 import { imageGalleryCss } from '../../components/ImageGallery.component';
 import { ButtonsToolbarCss } from '../../components/ButtonsToolbar.component';
 import { lightboxCss } from '../../components/Lightbox.component';
-import { promptPopupCss} from '../../hooks/app/usePromptPopup.hook';
+import { promptPopupCss } from '../../hooks/app/usePromptPopup.hook';
+import { scrollingBarCss } from '../../components/dualView/Scroller.component';
 
 let d = deviceType()
 const { els, colors, font, sizes, other } = { ...cssVars }
 
 export const CssApp2 = (
 	mobileView: MobileView,
-	showSidebar: boolean
 ) => {
 
 	const cssString = `
@@ -93,12 +93,40 @@ ${ButtonsToolbarCss}
 
 
 
+	&.without-sidebar.device-view-desktop.view-text {
+		.left-sidebar-indicator {
+			display: block;
+			position: absolute;
+			top: 0%;
+			z-index:100;
+			width: 18px;
+			height: 100vh;
+			background: rgb(236, 236, 236);
+			margin: 0% 0px;
+			border-radius: 0px 5px;
+			.left-wrapper {
+				transition: 0.2s all;
+				transition-delay: 0.5s;
+				position: absolute;
+				left: -${sizes.desktop.l}vw;
+				top: 0px;
+			}
+		}
+
+	.left-sidebar-indicator:hover {
+		.left-wrapper {
+			left: 0vw;
+			top: 0px;
+		}
+	}
+}
+
+
   .left-wrapper {
     background: ${colors.l2.bg}; 
     width: ${deviceType() === 'desktop' ? sizes.desktop.l : (mobileView !== 'navigator' ? 0 : 100)}vw;
 
 		display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
-		${deviceType() === 'desktop' && !showSidebar ? 'display:none;' : ''}
 
 
     .left-wrapper-1 {
@@ -225,10 +253,17 @@ ${ButtonsToolbarCss}
   // TEXT VIEW : RIGHT
   ////////////////////////////////////////////v 
   ${mobileNoteToolbarCss}
+	${scrollingBarCss()}
+
+	&.without-sidebar.device-view-desktop.view-text {
+		.right-wrapper.dual-viewer-view {
+			width: 100vw
+		}
+	}
+
   .right-wrapper.dual-viewer-view {
 
       width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
-		${deviceType() === 'desktop' && !showSidebar ? 'width: 100vw;' : ''}
 
 
 
@@ -236,22 +271,52 @@ ${ButtonsToolbarCss}
       display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
       padding-top: 0px;
     .note-wrapper {
+			.dual-view-wrapper.device-tablet, 
+			.dual-view-wrapper.device-mobile {
+				.editor-area,
+				.preview-area-wrapper {
+					width: 100%;
+				}
+			}
       .dual-view-wrapper {
-				&.view-both {
+				&.view-both.device-desktop {
           .preview-area-wrapper {
             width: 50%;
           }
 				}
-        &.view-editor {
+        &.view-editor.device-desktop {
           .editor-area {
-            width: 100%;
+            width: 80%;
           }
-          .preview-area {
-            display: none;
+
+				.__MINIMAP_DESIGN HERE__ {}
+
+				.preview-area-wrapper:hover {
+						transform: scale(1);
+						right: 0px;
+						background: rgb(246, 246, 246);
+						.preview-area {
+						}
+				}
+				.preview-area-wrapper {
+							margin-top: 140px;
+							padding-top: 40px;
+							transition: 0.2s all;
+							transition-delay: 0.5s;
+							transform: scale(0.2);
+							transform-origin: 0px 0px;
+							position: absolute;
+							width: 100%;
+							background: rgb(242, 242, 242);
+							right: -80%;
+							height: 100000px;
+						.preview-area {
+							padding: 80px;
+						}
           }
         }
 
-        &.view-preview {
+        &.view-preview.device-desktop {
           .editor-area {
             position: absolute;
             .main-editor-wrapper {
@@ -265,6 +330,7 @@ ${ButtonsToolbarCss}
 						}
 					}
         }
+
         position:relative;
         display: ${deviceType() === 'desktop' ? 'flex' : 'block'};
         

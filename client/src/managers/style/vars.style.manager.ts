@@ -9,6 +9,7 @@ import diskIcon from '../../assets/compact-disc-solid.svg'
 //import diskIcon from '../../assets/file-solid.svg'
 import pdfIcon from '../../assets/file-pdf-solid.svg'
 import wordIcon from '../../assets/file-word-solid.svg'
+import bookIcon from '../../assets/book-solid.svg'
 import excelIcon from '../../assets/file-excel-solid.svg'
 import videoIcon from '../../assets/file-video-solid.svg'
 import audioIcon from '../../assets/file-audio-solid.svg'
@@ -167,6 +168,7 @@ const assets = {
 	videoIcon,
 	excelIcon,
 	wordIcon,
+	bookIcon,
 	archiveIcon,
 
 	searchIcon

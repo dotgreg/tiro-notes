@@ -7,6 +7,9 @@ import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
 import { addCliCmd } from '../../managers/cliConsole.manager';
 import { addKeyAction, getKeyModif } from '../../managers/keys.manager';
+import { deviceType } from '../../managers/device.manager';
+import { clamp } from 'lodash';
+import { ScrollingBar } from './Scroller.component';
 
 //@TODO mobile bar
 //@TODO mobile bar func to desktop
@@ -33,6 +36,22 @@ export const DualViewer = (p: {
 	const [viewType, setViewType] = useLocalStorage('viewtype', 'both')
 	const [previewContent, setPreviewContent] = useState('')
 
+	// calculate max Y for custom scroller bar
+	const [maxY, setMaxY] = useState(0)
+	const updateMaxY = (newMaxY) => {
+		if (newMaxY > maxY) setMaxY(newMaxY)
+	}
+	useEffect(() => {
+		setMaxY(0)
+	}, [p.fileContent])
+	// calculate percent scrolled by natural scroll
+	const [percentScrolled, setPercentScrolled] = useState(0)
+	useEffect(() => {
+		setPercentScrolled(fromPxToPercentY(syncScrollY));
+	}, [syncScrollY, maxY])
+	const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
+	const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
+
 	// keyboard shortcuts
 	useEffect(() => {
 		addKeyAction('2', () => { if (getKeyModif('ctrl')) setViewType('editor') })
@@ -45,9 +64,6 @@ export const DualViewer = (p: {
 		description: 'live updated currentFileContent',
 		func: () => previewContent
 	})
-
-
-
 
 	const endTempViewType = useRef<string | null>(null);
 	addCliCmd('setTempViewType', {
@@ -75,11 +91,10 @@ export const DualViewer = (p: {
 	// back to top when change file
 	useEffect(() => {
 		setPosY(1);
-
 	}, [p.file.path])
 
 	return <div
-		className={`dual-view-wrapper view-${viewType}`}
+		className={`dual-view-wrapper view-${viewType} device-${deviceType()}`}
 		onWheelCapture={e => { updateSyncScroll(e.deltaY) }}
 	>
 		<EditorArea
@@ -87,6 +102,7 @@ export const DualViewer = (p: {
 			posY={syncScrollY}
 			fileContent={p.fileContent}
 			canEdit={p.canEdit}
+
 
 			isLeavingNote={p.isLeavingNote}
 
@@ -106,13 +122,23 @@ export const DualViewer = (p: {
 				if (viewType === 'editor') setViewType('preview')
 				if (viewType === 'preview') setViewType('both')
 			}}
+
+			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
 		/>
 
 		<PreviewArea
 			file={p.file}
 			posY={syncScrollY}
 			fileContent={previewContent}
+			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
 		/>
+
+
+		<ScrollingBar
+			percent={percentScrolled}
+			onUpdated={(percent: number) => {
+				setPosY(fromPercentToPxY(percent))
+			}} />
 
 	</div>
 }

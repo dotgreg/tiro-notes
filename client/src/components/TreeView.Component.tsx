@@ -10,44 +10,49 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { strings } from '../managers/strings.manager';
 import { getFolderParentPath } from '../managers/folder.manager';
 import { isA, isIpad } from '../managers/device.manager';
+import { iConfirmPopup } from '../hooks/app/usePromptPopup.hook';
 
-export type onFolderDragStartFn = (folder:iFolder) => void
-export type onFolderDropFn = (folder:iFolder) => void
+export type onFolderDragStartFn = (folder: iFolder) => void
+export type onFolderDropFn = (folder: iFolder) => void
 export type onFolderMenuActionFn = (
-  action: 'rename'|'create'|'moveToTrash'|'delete', 
-  folder:iFolder,
-  newName?:string 
+	action: 'rename' | 'create' | 'moveToTrash' | 'delete',
+	folder: iFolder,
+	newName?: string
 ) => void
 
-export const TreeView = (p:{
-  folder: iFolder,
-  current:string,
-  onFolderMenuAction: onFolderMenuActionFn
-  onFolderClicked: onFolderClickedFn
-  onFolderOpen: onFolderClickedFn
-  onFolderClose: onFolderClickedFn
+export const TreeView = (p: {
+	folder: iFolder,
+	current: string,
 
-  onFolderDragStart: onFolderDragStartFn
-  onFolderDragEnd: () => void
-  onFolderDrop: onFolderDropFn
+	onFolderMenuAction: onFolderMenuActionFn
+	onFolderClicked: onFolderClickedFn
+	onFolderOpen: onFolderClickedFn
+	onFolderClose: onFolderClickedFn
+	onFolderDragStart: onFolderDragStartFn
+	onFolderDragEnd: () => void
+	onFolderDrop: onFolderDropFn
+
+	confirmPopup: iConfirmPopup
 }) => {
-  return (
-    <div className="folder-tree-view-component">
-      <h3 className='subtitle'>{strings.folders}</h3>
-      <FolderView 
-        folder={p.folder}
-        current={p.current}
-        onFolderClicked={p.onFolderClicked}
-        onFolderMenuAction={p.onFolderMenuAction}
-        onFolderOpen={p.onFolderOpen}
-        onFolderClose={p.onFolderClose}
+	return (
+		<div className="folder-tree-view-component">
+			<h3 className='subtitle'>{strings.folders}</h3>
+			<FolderView
+				folder={p.folder}
+				current={p.current}
+				onFolderClicked={p.onFolderClicked}
+				onFolderMenuAction={p.onFolderMenuAction}
+				onFolderOpen={p.onFolderOpen}
+				onFolderClose={p.onFolderClose}
 
-        onFolderDragStart={p.onFolderDragStart}
-        onFolderDragEnd={p.onFolderDragEnd}
-        onFolderDrop={p.onFolderDrop}
-      />
-    </div>
-  )
+				onFolderDragStart={p.onFolderDragStart}
+				onFolderDragEnd={p.onFolderDragEnd}
+				onFolderDrop={p.onFolderDrop}
+
+				confirmPopup={p.confirmPopup}
+			/>
+		</div>
+	)
 }
 
 
@@ -57,134 +62,141 @@ export const TreeView = (p:{
 
 
 
-export const FolderView = (p:{
-  folder: iFolder,
-  current:string,
-  
-  onFolderMenuAction: onFolderMenuActionFn
-  onFolderClicked: onFolderClickedFn
-  onFolderOpen: onFolderClickedFn
-  onFolderClose: onFolderClickedFn
-  onFolderDragStart: onFolderDragStartFn
-  onFolderDragEnd: () => void
-  onFolderDrop: onFolderDropFn
+export const FolderView = (p: {
+	folder: iFolder,
+	current: string,
+
+	onFolderMenuAction: onFolderMenuActionFn
+	onFolderClicked: onFolderClickedFn
+	onFolderOpen: onFolderClickedFn
+	onFolderClose: onFolderClickedFn
+	onFolderDragStart: onFolderDragStartFn
+	onFolderDragEnd: () => void
+	onFolderDrop: onFolderDropFn
+
+	confirmPopup: iConfirmPopup
 }) => {
-  const [isOpen, setIsOpen] = useLocalStorage(`treeview-${(p.folder.key === '/' || p.folder.key === '') ? 'root' : p.folder.key}`, false)
-  const [isMenuOpened, setIsMenuOpened] = useState(false)
+	const [isOpen, setIsOpen] = useLocalStorage(`treeview-${(p.folder.key === '/' || p.folder.key === '') ? 'root' : p.folder.key}`, false)
+	const [isMenuOpened, setIsMenuOpened] = useState(false)
 
-  const isCurrentFolder = p.current === p.folder.key
-  return (
-    <li 
-      className={`folder-wrapper ${isCurrentFolder ? 'current':''}`}
-      draggable={true}
-      onDrop={(e) => {
-        if (!p.folder.key) return
-        p.onFolderDrop(p.folder)
-        e.stopPropagation()
-      }}
-      onDragStart={(e) => {
-        if (!p.folder.key) return
-        p.onFolderDragStart(p.folder)
-        e.stopPropagation()
-      }}
-      onDragEnd={() => {
-        if (!p.folder.key) return
-        p.onFolderDragEnd()
-      }}
-      onMouseLeave={() => {
-        isMenuOpened && setIsMenuOpened(false)
-      }}
-    >
-      <div className="folder-title">
-        <span className="icon" onClick={e=> {
-          isOpen ? p.onFolderClose(p.folder.key) : p.onFolderOpen(p.folder.key)
-          setIsOpen(!isOpen)
-        }}>
-          {
-            p.folder.hasChildren &&
-            <Icon
-              name={isOpen ? 'faCaretDown' : 'faCaretRight'} 
-              color={cssVars.colors.main}
-            />
-          }
-        </span>
-        <span  className="title" onClick={e=> {p.onFolderClicked(p.folder.key)}}>
-          {p.folder.title}
-        </span>
-        <span 
-          onClick={() => {
-            // alert(p.folder.title)
-            setIsMenuOpened(!isMenuOpened)
-          }}
-          className="context-menu-wrapper">
-            <Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
-            { isMenuOpened &&
-              <div className="context-menu">
-                <ul>
+	const isCurrentFolder = p.current === p.folder.key
+	return (
+		<li
+			className={`folder-wrapper ${isCurrentFolder ? 'current' : ''}`}
+			draggable={true}
+			onDrop={(e) => {
+				if (!p.folder.key) return
+				p.onFolderDrop(p.folder)
+				e.stopPropagation()
+			}}
+			onDragStart={(e) => {
+				if (!p.folder.key) return
+				p.onFolderDragStart(p.folder)
+				e.stopPropagation()
+			}}
+			onDragEnd={() => {
+				if (!p.folder.key) return
+				p.onFolderDragEnd()
+			}}
+			onMouseLeave={() => {
+				isMenuOpened && setIsMenuOpened(false)
+			}}
+		>
+			<div className="folder-title">
+				<span className="icon" onClick={e => {
+					isOpen ? p.onFolderClose(p.folder.key) : p.onFolderOpen(p.folder.key)
+					setIsOpen(!isOpen)
+				}}>
+					{
+						p.folder.hasChildren &&
+						<Icon
+							name={isOpen ? 'faCaretDown' : 'faCaretRight'}
+							color={cssVars.colors.main}
+						/>
+					}
+				</span>
+				<span className="title" onClick={e => { p.onFolderClicked(p.folder.key) }}>
+					{p.folder.title}
+				</span>
+				<span
+					onClick={() => {
+						// alert(p.folder.title)
+						setIsMenuOpened(!isMenuOpened)
+					}}
+					className="context-menu-wrapper">
+					<Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
+					{isMenuOpened &&
+						<div className="context-menu">
+							<ul>
 
-                  <li onClick={() => {
-                      if (p.folder.path === '') return setIsMenuOpened(false)
-                      const newFolderName = prompt(`${strings.renameFolderPrompt} `,p.folder.title);
-                      if (newFolderName && newFolderName !== '' && newFolderName !== p.folder.title) {
-                        p.onFolderMenuAction('rename', p.folder, newFolderName)
-                      }
-                      setIsMenuOpened(false)
-                    }}>{strings.renameFolder}</li>
+								<li onClick={() => {
+									if (p.folder.path === '') return setIsMenuOpened(false)
+									const newFolderName = prompt(`${strings.renameFolderPrompt} `, p.folder.title);
+									if (newFolderName && newFolderName !== '' && newFolderName !== p.folder.title) {
+										p.onFolderMenuAction('rename', p.folder, newFolderName)
+									}
+									setIsMenuOpened(false)
+								}}>{strings.renameFolder}</li>
 
-                  <li onClick={() => {
-                    if (p.folder.path === '') return setIsMenuOpened(false)
-                    const createdFolderName = prompt(`${strings.createFolderPrompt} ${p.folder.path}`,'');
-                    if (createdFolderName && createdFolderName !== '') p.onFolderMenuAction('create', p.folder, createdFolderName)
-                    setIsMenuOpened(false)
-                  }}>{strings.createFolder}</li>
+								<li onClick={() => {
+									if (p.folder.path === '') return setIsMenuOpened(false)
+									const createdFolderName = prompt(`${strings.createFolderPrompt} ${p.folder.path}`, '');
+									if (createdFolderName && createdFolderName !== '') p.onFolderMenuAction('create', p.folder, createdFolderName)
+									setIsMenuOpened(false)
+								}}>{strings.createFolder}</li>
 
-                  { p.folder.path.indexOf('.tiro/.trash') === -1 &&
-                    <li onClick={() => {
-                      if (p.folder.path === '') return setIsMenuOpened(false)
-                      const confirmed = window.confirm(`${strings.moveToTrash}${p.folder.path}?`);
-                      if (confirmed) { p.onFolderMenuAction('moveToTrash', p.folder) }
-                      setIsMenuOpened(false)
-                    }}>{strings.moveToTrash}</li>
-                  }
+								{p.folder.path.indexOf('.tiro/.trash') === -1 &&
+									<li onClick={() => {
+										if (p.folder.path === '') return setIsMenuOpened(false)
+										setIsMenuOpened(false)
+										p.confirmPopup(
+											`${strings.moveToTrash} "${p.folder.path}"?`, () => {
+												p.onFolderMenuAction('moveToTrash', p.folder)
+											});
+									}}>{strings.moveToTrash}</li>
+								}
 
-                  { p.folder.path.indexOf('.tiro/.trash') !== -1 &&
-                    <li onClick={() => {
-                      if (p.folder.path === '') return setIsMenuOpened(false)
-                      const confirmed = window.confirm(`${strings.deleteFolderPrompt}${p.folder.path}?`);
-                      if (confirmed) { p.onFolderMenuAction('delete', p.folder)}
-                      setIsMenuOpened(false)
-                    }}>{strings.deleteFolder}</li>
-                  }
+								{p.folder.path.indexOf('.tiro/.trash') !== -1 &&
+									<li onClick={() => {
+										if (p.folder.path === '') return setIsMenuOpened(false)
+										setIsMenuOpened(false)
+										p.confirmPopup(
+											`${strings.deleteFolderPrompt} "${p.folder.path}"?`, () => {
+												p.onFolderMenuAction('delete', p.folder)
+											});
+									}}>{strings.deleteFolder}</li>
+								}
 
-                </ul>
-              </div>
-            }
-        </span>
-      </div>
+							</ul>
+						</div>
+					}
+				</span>
+			</div>
 
 
-      { isOpen &&
-        <ul className="folder-children">
-        {
-          p.folder.children && p.folder.children.map( (child,key) => 
-            <FolderView 
-              key={key}
-              folder={child}
-              current={p.current}
-              onFolderOpen={p.onFolderOpen}
-              onFolderMenuAction={p.onFolderMenuAction}
-              onFolderClose={p.onFolderClose}
-              onFolderClicked={p.onFolderClicked}
-              onFolderDragStart={p.onFolderDragStart}
-              onFolderDragEnd={p.onFolderDragEnd}
-              onFolderDrop={p.onFolderDrop}
-            />
-          )
-        }
-      </ul>
-      }
-    </li>
-  )
+			{isOpen &&
+				<ul className="folder-children">
+					{
+						p.folder.children && p.folder.children.map((child, key) =>
+							<FolderView
+								key={key}
+								folder={child}
+								current={p.current}
+								onFolderOpen={p.onFolderOpen}
+								onFolderMenuAction={p.onFolderMenuAction}
+								onFolderClose={p.onFolderClose}
+								onFolderClicked={p.onFolderClicked}
+								onFolderDragStart={p.onFolderDragStart}
+								onFolderDragEnd={p.onFolderDragEnd}
+								onFolderDrop={p.onFolderDrop}
+								confirmPopup={p.confirmPopup}
+							/>
+						)
+					}
+				</ul>
+			}
+		</li>
+	)
 }
 
 export const l1Subtitle = `
