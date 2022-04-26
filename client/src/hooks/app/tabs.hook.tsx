@@ -4,7 +4,7 @@ import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { cloneDeep, each, filter, isNumber } from 'lodash';
 
-export type iTabUpdate = 'close' | 'rename' | 'move' | 'add'
+export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
 
 export const useTabs = (p: {
@@ -22,35 +22,21 @@ export const useTabs = (p: {
 
 		} else if (type === 'close') {
 			if (!tab) return
-			//console.log('close', JSON.stringify({ tabs, tab }));
-			console.log('close', { tabs, tab });
 			const nTabs = filter(tabs, ctab => ctab.id !== tab.id)
 			setTabs(nTabs);
 
 		} else if (type === 'rename') {
+		} else if (type === 'activate') {
+			if (!tab) return
+			const nTabs = setActiveTab(tab.id, tabs)
+			setTabs(nTabs)
+
 		} else if (type === 'move') {
+
 		}
 
 	}
 
-	const getActiveTab = (tabs: iTab[]): iTab | undefined => {
-		let aTab: iTab | undefined = undefined
-		each(tabs, tab => { if (tab.active) { aTab = tab } })
-		return aTab
-	}
-
-	const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
-		const nTabs = cloneDeep(tabs)
-		each(nTabs, tab => {
-			if (tab.id === tabId) { tab.active = true }
-			else { tab.active = false }
-		})
-		return nTabs
-	}
-
-	const renameActiveTab = (newName: string) => {
-
-	}
 
 	return {
 		tabs, setTabs,
@@ -59,7 +45,27 @@ export const useTabs = (p: {
 	}
 }
 
+
 // SUPPORT FUNCTION
+const getActiveTab = (tabs: iTab[]): iTab | undefined => {
+	let aTab: iTab | undefined = undefined
+	each(tabs, tab => { if (tab.active) { aTab = tab } })
+	return aTab
+}
+
+const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
+	const nTabs = cloneDeep(tabs)
+	each(nTabs, tab => {
+		if (tab.id === tabId) { tab.active = true }
+		else { tab.active = false }
+	})
+	return nTabs
+}
+
+const renameActiveTab = (newName: string) => {
+
+}
+
 const generateNewTab = (copiedTab?: iTab): iTab => {
 	if (copiedTab) {
 		const tab = cloneDeep(copiedTab)
