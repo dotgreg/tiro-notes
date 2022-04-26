@@ -36,6 +36,7 @@ import { useClientApi } from './hooks/app/clientApi.hook';
 import { log } from 'console';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
+import { useTabs } from './hooks/app/tabs.hook';
 
 
 
@@ -418,10 +419,13 @@ export const App = () => {
 		setLigthboxIndex(0)
 	}
 
-
-
 	// Client API (functions added to window.tiroCli)
 	useClientApi();
+
+	// Tabs system
+	const { tabs, setTabs } = useTabs({});
+
+
 
 	return (
 		<div className={CssApp2(mobileView)} >
@@ -577,6 +581,8 @@ export const App = () => {
 
 
 						<div className="right-wrapper image-gallery-view">
+
+							{/* IMAGE GALLERY */}
 							<div className="image-gallery-header">
 								<div className="subtitle-wrapper">
 									<AppViewSwitcherComponent />
@@ -591,6 +597,7 @@ export const App = () => {
 								forceRender={forceResponsiveRender} />
 						</div>
 
+							{/* DUAL VIEWER */}
 						<div className="right-wrapper dual-viewer-view">
 							{
 								DualViewerComponent({
