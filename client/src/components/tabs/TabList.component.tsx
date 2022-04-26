@@ -1,44 +1,49 @@
 import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
-
-type onUpdateTabFn = (tab: iTab) => void
+import { onTabUpdateFn } from '../../hooks/app/tabs.hook';
 
 export const TabList = (p: {
 	tabs: iTab[]
-	onClose: onUpdateTabFn
-	onRename: onUpdateTabFn
-	onMove: onUpdateTabFn
+	onUpdate: onTabUpdateFn
 }) => {
 
 	return (
 		<StyledDiv>
 			<div className="tab-list-wrapper">
+				{/* ALL TABS LIST*/}
 				{p.tabs.map(tab =>
 					<Tab
 						tab={tab}
-						onClose={p.onClose}
-						onRename={p.onRename}
-						onMove={p.onMove}
+						onUpdate={p.onUpdate}
 					/>
 				)}
+
+				{/* ADD NEW TAB BUTTON*/}
+				<div
+					className="tab-wrapper tab-more"
+					onClick={e => {
+						p.onUpdate('add')
+					}}
+				>
+					+
+				</div>
 			</div>
 		</StyledDiv>
 	)
 
 }
 
+
 const Tab = (p: {
 	tab: iTab
-	onClose: onUpdateTabFn
-	onRename: onUpdateTabFn
-	onMove: onUpdateTabFn
+	onUpdate: onTabUpdateFn
 }) => {
 	const { tab } = { ...p }
 	return (
 		<div className="tab-wrapper">
 			<div className="tab-name"> {tab.name} </div>
-			<div className="tab-close" onClick={() => p.onClose(tab)}> x </div>
+			<div className="tab-close" onClick={() => p.onUpdate('close', tab)}> x </div>
 		</div >
 	)
 }

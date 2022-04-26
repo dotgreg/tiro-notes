@@ -37,6 +37,7 @@ import { log } from 'console';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
+import { TabList } from './components/tabs/TabList.component';
 
 
 
@@ -423,7 +424,7 @@ export const App = () => {
 	useClientApi();
 
 	// Tabs system
-	const { tabs, setTabs } = useTabs({});
+	const { tabs, onTabUpdate } = useTabs({});
 
 
 
@@ -597,8 +598,17 @@ export const App = () => {
 								forceRender={forceResponsiveRender} />
 						</div>
 
-							{/* DUAL VIEWER */}
+						{/* DUAL VIEWER */}
 						<div className="right-wrapper dual-viewer-view">
+
+
+							{/* TABS SYSTEM*/}
+							<TabList
+								tabs={tabs}
+								onUpdate={onTabUpdate}
+							/>
+
+
 							{
 								DualViewerComponent({
 									isLeavingNote,
