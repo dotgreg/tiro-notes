@@ -38,6 +38,7 @@ export const backConfig = {
 	defaultDataFolder: 'markdown-notes',
 	configFolder: '.tiro',
 	historyFolder: '.history',
+	archiveFolder: '.history_archive',
 	uploadFolder: '.resources',
 	relativeUploadFolderName: '.resources',
 

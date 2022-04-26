@@ -15,10 +15,12 @@ export class Popup extends React.Component
 
 	}> {
 
+	canBgClose = this.props.canBgClose ? this.props.canBgClose : true
+
 	render() {
 		return (
 			<PopupWrapperCss>
-				<div className="overlay-click-popup" onClick={e => { if (this.props.canBgClose) this.props.onClose() }}></div>
+				<div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
 					<div className="popupTitle"> {this.props.title}</div>
 					<div className="popupContent">{this.props.children}</div>
