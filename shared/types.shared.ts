@@ -14,8 +14,8 @@ export interface iLayout {
 export interface iTab {
 	id: string
 	name: string
+	active: boolean
 	layout: iLayout[]
-	position?: number
 }
 
 export interface iSetupForm {
