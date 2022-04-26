@@ -11,12 +11,20 @@ const config = {
 	days: 30
 }
 
+//
+// HIGH LEVEL FUNCTION
+//
+
+// only execute it every x hours using debounce
 export const debounceCleanHistoryFolder = debounce(() => {
 	log(`[HISTORY CLEAN] debounce Clean History Folder`);
 	cleanHistoryFolder(config.days)
 }, config.delay)
 
-// SUPPORT FUNCTION
+
+//
+// SUPPORT FUNCTIONS
+//
 const cleanHistoryFolder = async (retainDays: number) => {
 
 	const historyPathFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
@@ -55,7 +63,6 @@ const handleOlderFiles = async (
 }
 
 export type iFileToMove = { path: string, date: string, time: number, fileName: string }
-
 export const getFilesOlderThan = (folder: string, days: number): Promise<iFileToMove[]> => {
 
 	const folderPath = folder
@@ -93,8 +100,6 @@ export const getFilesOlderThan = (folder: string, days: number): Promise<iFileTo
 					} else {
 						toKeepFiles.push(fileTime)
 					}
-					//log(222, file, stat, counter, files.length);
-
 					if (counter === files.length) {
 						res(olderFiles);
 					}
