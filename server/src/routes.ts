@@ -15,12 +15,14 @@ import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
+import { debounceCleanHistoryFolder } from "./managers/history.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
 
 export const getServerTaskId = () => serverTaskId.curr
 export const setServerTaskId = (nb) => { serverTaskId.curr = nb }
+
 
 export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDictionary>) => {
 
@@ -152,9 +154,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
 		await upsertRecursivelyFolders(`${historyFolder}/`)
 
+		// save history note
 		let fileName = fileNameFromFilePath(data.filePath)
 		fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
 		await saveFile(`${historyFolder}/${fileName}`, data.content)
+
+		// only keep up to x days of history files
+		debounceCleanHistoryFolder()
+
 	})
 
 	serverSocket2.on('onFileDelete', async data => {

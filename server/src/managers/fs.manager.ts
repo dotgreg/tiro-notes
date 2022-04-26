@@ -2,7 +2,7 @@ import { max } from "lodash";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
-import { p } from "./path.manager";
+import { getAppPathBase, p } from "./path.manager";
 
 var http = require('http');
 var https = require('https');
@@ -59,7 +59,8 @@ export const upsertRecursivelyFolders = async (fullPathToCheck: string) => {
 	// check for each folder if it exists, else create it
 	fullPathToCheck = fullPathToCheck.replace(backConfig.dataFolder, '')
 	let pathArr = fullPathToCheck.split('/')
-	pathArr.pop() // remove object.jpg
+	const lastItem = pathArr[pathArr.length - 1]
+	if (looksLikeAFile(lastItem)) pathArr.pop()// remove object.jpg, if lastItem looks like a file 
 	pathArr.shift() // remove ""
 
 	let createFoldersRecursively = async (path: string, pathArray: string[]) => {
@@ -166,6 +167,20 @@ export const fileStats = (path: string): any => {
 	} catch (error) {
 		return false
 	}
+}
+
+export const looksLikeAFile = (path: string): boolean => {
+	// a file looks like having an extension,
+	// ie a string > "." > string (1 to 10)
+	let res = false
+	const pathArr = path.split('.')
+	if (
+		pathArr.length >= 2 &&
+		pathArr[pathArr.length - 2].length > 0 &&
+		pathArr[pathArr.length - 1].length > 0
+	) res = true
+
+	return res
 }
 
 export const isDir = (path: string): boolean => {
