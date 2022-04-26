@@ -11,14 +11,11 @@ import { deviceType } from '../../managers/device.manager';
 import { clamp } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 
-//@TODO mobile bar
-//@TODO mobile bar func to desktop
 export type ViewType = 'editor' | 'both' | 'preview'
 
 export const DualViewer = (p: {
 	file: iFile
 	fileContent: string
-	// viewType:ViewType
 	canEdit: boolean
 	forceRender: boolean
 	isLeavingNote: boolean

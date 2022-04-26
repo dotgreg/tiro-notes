@@ -40,7 +40,7 @@ import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 
 
 
-export const App2 = () => {
+export const App = () => {
 
 	useEffect(() => {
 		// COMPONENT DID MOUNT didmount
@@ -601,10 +601,11 @@ export const App2 = () => {
 										toggleSidebar()
 									},
 									onBackButton: () => {
-										let file = filesHistory[0]
-										if (!filesHistory[0]) return
-										console.log('BACK BUTTON to', filesHistory[0].name);
-										searchFileFromTitle(file.name, file.folder)
+										console.log('woooop', filesHistory, filesHistory[0].name, filesHistory[1].name);
+										let fileToGo = filesHistory[1]
+										if (!fileToGo) return
+										console.log('BACK BUTTON to', fileToGo.name);
+										searchFileFromTitle(fileToGo.name, fileToGo.folder)
 									}
 								})
 							}
