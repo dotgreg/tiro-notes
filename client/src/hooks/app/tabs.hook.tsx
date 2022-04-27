@@ -1,52 +1,122 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { iTab } from '../../../../shared/types.shared';
+import { iFile, iTab, iWindow } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { useLocalStorage } from '../useLocalStorage.hook';
-import { cloneDeep, each, filter, isNumber } from 'lodash';
+import { cloneDeep, each, filter, isNumber, stubString } from 'lodash';
+import { configClient } from '../../config';
+import { strings } from '../../managers/strings.manager';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
+
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
+
+export const addNewWindowConfig = (w: number = 3, h: number = 2): iWindow => {
+	return {
+		i: generateUUID(),
+		x: 0, y: 0, w, h,
+		minH: 1, maxH: 2,
+		active: false,
+		forceRender: 0
+	}
+}
+
 
 export const useTabs = (p: {
 }) => {
 
 	const [tabs, setTabs] = useLocalStorage<iTab[]>('tabs', [])
 
-	const onTabUpdate: onTabUpdateFn = (type, tab) => {
+	const updateTab: onTabUpdateFn = (type, tab) => {
 		console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
 
 		if (type === 'add') {
 			// if active tab exists, copy it in new one
 			const nTab = generateNewTab(getActiveTab(tabs))
-			setTabs([...tabs, nTab])
+			const nTabs = [...tabs, nTab]
+			const nTabs2 = setActiveTab(nTab.id, nTabs)
+			setTabs(nTabs2)
 
 		} else if (type === 'close') {
 			if (!tab) return
-			const nTabs = filter(tabs, ctab => ctab.id !== tab.id)
+			const nTabs: iTab[] = []
+			const oTabs = cloneDeep(tabs)
+			each(oTabs, (otab, index) => {
+				if (otab.id !== tab.id) nTabs.push(otab)
+			})
 			setTabs(nTabs);
 
 		} else if (type === 'rename') {
+
 		} else if (type === 'activate') {
+
+			// change tab
 			if (!tab) return
 			const nTabs = setActiveTab(tab.id, tabs)
 			setTabs(nTabs)
 
 		} else if (type === 'move') {
 
-		}
 
+		}
+	}
+
+
+	// on layout resizing, adding/removing windows etc...
+	const updateActiveTabLayout = (layout: iWindow[]) => {
+		const nTabs = cloneDeep(tabs)
+		const aId = getActiveTabIndex(nTabs)
+		if (!isNumber(aId)) return
+		nTabs[aId].layout = layout
+		console.log(`[TAB LAYOUT] update active window LAYOUT ${aId}`, layout);
+		setTabs(nTabs)
+	}
+
+
+	// changing active window file
+	const updateActiveWindowContent = (nFile: iFile) => {
+		if (!nFile) return
+		// get active tab
+		const nTabs = cloneDeep(tabs)
+		const aId = getActiveTabIndex(nTabs)
+		if (!isNumber(aId)) return
+		// get active window, if none, select first one
+		const aTab = nTabs[aId]
+		const aLayout = aTab.layout
+		if (aLayout.length < 1) return
+		let aWindowIndex = 0
+		each(aLayout, (window, index) => { if (window.active === true) aWindowIndex = index })
+		// change awindow.file
+		aLayout[aWindowIndex].file = cloneDeep(nFile)
+		// update tab name
+		aTab.name = nFile.name.substring(0, 20)
+
+		console.log(`[TAB LAYOUT] update active window content with file: ${nFile.name}`, nFile);
+
+		// save tabs
+		setTabs(nTabs)
 	}
 
 
 	return {
 		tabs, setTabs,
-		onTabUpdate,
-		renameActiveTab
+		getActiveTab,
+
+		updateTab,
+
+		updateActiveTabLayout,
+		updateActiveWindowContent,
+
 	}
 }
 
 
 // SUPPORT FUNCTION
+const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
+	let res: number | undefined = undefined
+	each(tabs, (tab, index) => { if (tab.active) { res = index } })
+	return res
+}
+
 const getActiveTab = (tabs: iTab[]): iTab | undefined => {
 	let aTab: iTab | undefined = undefined
 	each(tabs, tab => { if (tab.active) { aTab = tab } })
@@ -62,9 +132,6 @@ const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
 	return nTabs
 }
 
-const renameActiveTab = (newName: string) => {
-
-}
 
 const generateNewTab = (copiedTab?: iTab): iTab => {
 	if (copiedTab) {
@@ -73,12 +140,17 @@ const generateNewTab = (copiedTab?: iTab): iTab => {
 		tab.name = incrementName(copiedTab.name)
 		return tab
 	} else {
+
 		return {
 			id: generateUUID(),
-			name: 'New Tab',
+			name: strings.tabs.newTab,
 			active: true,
-			layout: [],
+			// generate a full window
+			layout: [
+				addNewWindowConfig(3, 2)
+			],
 		}
+
 	}
 
 }
