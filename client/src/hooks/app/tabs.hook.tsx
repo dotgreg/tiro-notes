@@ -5,6 +5,7 @@ import { useLocalStorage } from '../useLocalStorage.hook';
 import { cloneDeep, each, filter, isNumber, stubString } from 'lodash';
 import { configClient } from '../../config';
 import { strings } from '../../managers/strings.manager';
+import { increment } from '../../../../shared/helpers/number.helper';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 
@@ -58,7 +59,11 @@ export const useTabs = (p: {
 			// change tab
 			if (!tab) return
 			const nTabs = setActiveTab(tab.id, tabs)
-			setTabs(nTabs)
+
+			// refresh all tabs to view changes
+			const nTabs2 = refreshAllTabs(nTabs)
+
+			setTabs(nTabs2)
 
 		} else if (type === 'move') {
 
@@ -95,11 +100,12 @@ export const useTabs = (p: {
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
 		aTab.name = nFile.name.substring(0, 20)
+		// refresh all tabs to view changes
+		const nTabs2 = refreshAllTabs(nTabs)
 
-		console.log(`[TAB LAYOUT] update active window content with file: ${nFile.name}`, nFile);
-
+		console.log(`[TAB LAYOUT] active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
 		// save tabs
-		setTabs(nTabs)
+		setTabs(nTabs2)
 	}
 
 
@@ -117,6 +123,12 @@ export const useTabs = (p: {
 
 
 // SUPPORT FUNCTION
+const refreshAllTabs = (tabs: iTab[]): iTab[] => {
+	const nTabs = cloneDeep(tabs)
+	each(nTabs, tab => { tab.refresh = increment(tab.refresh) })
+	return nTabs
+}
+
 const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
 	let res: number | undefined = undefined
 	each(tabs, (tab, index) => { if (tab.active) { res = index } })
