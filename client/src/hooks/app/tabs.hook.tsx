@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { iFile, iTab, iWindow } from '../../../../shared/types.shared';
+import { iFile, iGrid, iTab, iWindow } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { cloneDeep, each, filter, isNumber, stubString } from 'lodash';
@@ -10,13 +10,19 @@ export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
 
-export const addNewWindowConfig = (w: number = 3, h: number = 2): iWindow => {
+export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
+	const id = generateUUID()
 	return {
-		i: generateUUID(),
-		x: 0, y: 0, w, h,
-		minH: 1, maxH: 2,
-		active: false,
-		forceRender: 0
+		layout: {
+			i: id,
+			x: 0, y: 0, w, h,
+			minH: 1, maxH: 2,
+			forceRender: 0
+		},
+		content: {
+			i: id,
+			active: false
+		}
 	}
 }
 
@@ -62,12 +68,12 @@ export const useTabs = (p: {
 
 
 	// on layout resizing, adding/removing windows etc...
-	const updateActiveTabLayout = (layout: iWindow[]) => {
+	const updateActiveTabGrid = (grid: iGrid) => {
 		const nTabs = cloneDeep(tabs)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
-		nTabs[aId].layout = layout
-		console.log(`[TAB LAYOUT] update active window LAYOUT ${aId}`, layout);
+		nTabs[aId].grid = grid
+		console.log(`[TAB LAYOUT] update GRID ${aId}`, grid);
 		setTabs(nTabs)
 	}
 
@@ -81,12 +87,12 @@ export const useTabs = (p: {
 		if (!isNumber(aId)) return
 		// get active window, if none, select first one
 		const aTab = nTabs[aId]
-		const aLayout = aTab.layout
-		if (aLayout.length < 1) return
+		const aContent = aTab.grid.content
+		if (aContent.length < 1) return
 		let aWindowIndex = 0
-		each(aLayout, (window, index) => { if (window.active === true) aWindowIndex = index })
+		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 		// change awindow.file
-		aLayout[aWindowIndex].file = cloneDeep(nFile)
+		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
 		aTab.name = nFile.name.substring(0, 20)
 
@@ -103,7 +109,7 @@ export const useTabs = (p: {
 
 		updateTab,
 
-		updateActiveTabLayout,
+		updateActiveTabGrid,
 		updateActiveWindowContent,
 
 	}
@@ -126,6 +132,7 @@ const getActiveTab = (tabs: iTab[]): iTab | undefined => {
 const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
 	const nTabs = cloneDeep(tabs)
 	each(nTabs, tab => {
+		tab.refresh = isNumber(tab.refresh) ? tab.refresh++ : 1
 		if (tab.id === tabId) { tab.active = true }
 		else { tab.active = false }
 	})
@@ -141,14 +148,21 @@ const generateNewTab = (copiedTab?: iTab): iTab => {
 		return tab
 	} else {
 
+		const newWindowConf = addNewWindowConfig(3, 2)
+
 		return {
 			id: generateUUID(),
 			name: strings.tabs.newTab,
 			active: true,
 			// generate a full window
-			layout: [
-				addNewWindowConfig(3, 2)
-			],
+			grid: {
+				layout: [
+					newWindowConf.layout
+				],
+				content: [
+					newWindowConf.content
+				]
+			}
 		}
 
 	}
