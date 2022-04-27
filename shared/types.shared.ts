@@ -1,21 +1,33 @@
 export type iFileNature = 'file' | 'folder'
 
-export interface iLayout {
-	notePath: string
-	id: number
+export interface iWindowContent {
+	i: string
+	file?: iFile
+	active: boolean
+}
+
+export interface iWindow {
+	i: string
 	x: number
 	y: number
 	w: number
 	h: number
 	minH: number
 	maxH: number
+	refresh?: number
+}
+export interface iGrid {
+	layout: iWindow[],
+	content: iWindowContent[]
 }
 
 export interface iTab {
 	id: string
 	name: string
 	active: boolean
-	layout: iLayout[]
+	grid: iGrid,
+	position?: number
+	refresh?: number
 }
 
 export interface iSetupForm {
