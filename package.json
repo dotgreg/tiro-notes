@@ -4,44 +4,31 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-
-
         "================== SUPPORT =================== ": "",
-
         "__INSTALL__": "",
         "install-all": "run-p install-client install-server",
         "install-client": "npm run --prefix ./client install-all",
         "install-server": "npm run --prefix ./server install-all",
-
         "__REGENERATE ICONS FOR ELECTRON__": "",
         "refresh-icons": "cd ./client/public; rm -r appicons; npx electron-icon-maker --input=favicon.png --output=./appicons; cd ./appicons; cp ./icons/mac/icon.icns tiro_icon.icns; cp ./icons/win/icon.ico tiro_icon.ico; cp ./icons/png/256x256.png tiro_icon.png;",
-
-
         "================== DEV =================== ": "",
-
         "__DEV__": "",
         "dev": "run-p client server",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
-
         "================== PLATFORMS RELATED =================== ": "",
-
-				"publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
-				"__PUBLISH_ELECTRON__": "push to master > github ci > .github/workflows/node.js.yml",
-
+        "publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
+        "__PUBLISH_ELECTRON__": "push to master > github ci > .github/workflows/node.js.yml",
         "================== NODE BUILD =================== ": "",
-
         "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server clean-prev-build export-the-build copy-build-to-electron-folder",
         "build-export-to-binaries": "run-s build-export build-binaries",
         "build-export-client": "run-s create-build-folders build-client clean-client export-client",
         "build-export-server": "run-s create-build-folders build-server clean-server export-server",
-
         "===____1_BUILD__": "",
         "create-build-folders": "npx mkdirp ./build ./build/client ./build/server",
         "build-client": "npm run --prefix ./client install-clean-build",
         "build-server": "npm run --prefix ./server install-clean-build",
-
         "===____2_CLEAN_PREV_BUILD__": "",
         "clean-prev-build": "run-s clean-server clean-client clean-else",
         "clean-server": "rm -r ./build/server &",
@@ -49,11 +36,9 @@
         "clean-else": "run-s clean-else-1 clean-else-2",
         "clean-else-1": "rm -r ./build/scripts &",
         "clean-else-2": "rm ./build/package.json &",
-
         "===____3_EXPORT__": "",
         "copy-build-to-electron-folder": "rm -r ./platforms/electron/node-build; cp -r ./build ./platforms/electron/node-build",
         "export-the-build": "run-s export-client export-config export-server export-readme",
-
         "export-client": "cp -r client/build ./build/client",
         "export-misc": "cp -r misc ./build/client",
         "export-config": "run-s export-config-1 export-config-2",
@@ -63,9 +48,7 @@
         "export-server": "run-s export-server-1 export-server-2",
         "export-server-1": "cp -r server/build ./build/server",
         "export-server-2": "cp -r server/ssl ./build/server/ssl",
-
         "export-readme": "cp README.md ./build/",
-
         "================== MISC =================== ": "",
         "__TEST__": "",
         "test1": "(node -e \"console.log('log1');\") && echo wooop",
@@ -79,11 +62,9 @@
     "dependencies": {
         "npm-run-all": "^4.1.5"
     },
-		"repository": {
+    "repository": {
         "type": "git",
         "url": "https://github.com/dotgreg/tiro"
     },
-    "author": "thiebault.gregoire@gmail.com",
-    "license": "ISC",
     "homepage": "https://github.com/dotgreg/tiro"
 }

@@ -87,6 +87,8 @@ export const sharedStrings = {
 		confirmTitle: `Confirm`,
 		accept: `Ok`,
 		refuse: `Cancel`,
+	},
+	tabs: {
+		newTab: 'New Tab'
 	}
-
 }
