@@ -7,6 +7,8 @@ import '../../../node_modules/react-resizable/css/styles.css'
 import { iGrid, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { addNewWindowConfig } from '../../hooks/app/tabs.hook';
+import { useResize } from '../../hooks/useResize.hook';
+import { WindowEditor } from './WindowEditor.component';
 
 
 //const rh = 10
@@ -144,7 +146,23 @@ export const DraggableGrid = (p: {
 		return allGood;
 	}
 
-	// init widht/height
+	// 
+	// RESIZING LOGIC
+	// 
+	useResize();
+	useEffect(() => {
+		const e = divWrapper.current
+		if (!e) return
+		e.addEventListener('resize', () => {
+			console.log(1);
+		})
+
+		return () => {
+			e.removeEventListener('resize', () => {
+				console.log(2);
+			})
+		}
+	}, [])
 	const divWrapper = useRef<HTMLDivElement>(null)
 	const s = {
 		width: 300,
@@ -155,6 +173,7 @@ export const DraggableGrid = (p: {
 		s.width = divWrapper.current.clientWidth
 		s.height = divWrapper.current.clientHeight - d.decalBottom
 	}
+	console.log(s, rh());
 
 	return (
 		<div className={cssApp}>
@@ -177,16 +196,19 @@ export const DraggableGrid = (p: {
 								key={window.i}
 								className={`${intContent[i].active ? 'active' : ''} window-wrapper`}
 							>
+								{canAdd && <button onClick={addNewWindow}> + </button>}
+								{canRemove && <button onClick={() => { removeWindow(window.i) }}> x </button>}
 								<div
 									className="window-name"
 									onClick={() => { makeWindowActive(window.i) }}
 								>
-									{p.refresh} -
-									{window.i} -
-									{intContent[i].file?.name} -
+									W - {intContent[i].file?.name}
 								</div>
-								{canAdd && <button onClick={addNewWindow}> + </button>}
-								{canRemove && <button onClick={() => { removeWindow(window.i) }}> x </button>}
+
+								<div className="note-wrapper">
+									<WindowEditor file={intContent[i].file} />
+								</div>
+
 							</div>
 						)
 					}
@@ -211,16 +233,22 @@ const cssApp = css`
 				position: relative;
 				.draggable-grid {
 						height: 100%;
-						background: grey;
+						//background: grey;
 						width: 100%;
 						height: 100%;
 						.window-wrapper {
+								//background: orange;
+								overflow-y: scroll;
+								overflow-x: hidden;
+								height:100%;
+								.content-wrapper {
+										height:100%;
+								}
 								&.active {
+										//background:red;
 										font-weight: bold
 								}
-						}
-						div {
-								background: orange;
+
 						}
 				}
 		}

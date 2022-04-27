@@ -264,10 +264,7 @@ ${ButtonsToolbarCss}
   .right-wrapper.dual-viewer-view {
 
       width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
-
-
-
-
+			height: 100vh;
       display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
       padding-top: 0px;
     .note-wrapper {
