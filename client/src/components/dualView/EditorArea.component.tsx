@@ -224,6 +224,7 @@ export const EditorArea = (p: {
 		},
 	]
 
+		
 	const popups = useContext(PopupContext);
 	// File History
 	const [historyPopup, setHistoryPopup] = useState(false)

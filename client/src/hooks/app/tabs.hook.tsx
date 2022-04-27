@@ -87,6 +87,11 @@ export const useTabs = (p: {
 	}
 
 
+	const refreshWindowGrid = () => {
+		const nTabs = refreshTabsViews(tabs)
+		setTabs(nTabs)
+	}
+
 	// changing active window file
 	const updateActiveWindowContent = (nFile: iFile) => {
 		if (!nFile) return
@@ -129,6 +134,7 @@ export const useTabs = (p: {
 		updateActiveTabGrid,
 		updateActiveWindowContent,
 
+		refreshWindowGrid,
 	}
 }
 

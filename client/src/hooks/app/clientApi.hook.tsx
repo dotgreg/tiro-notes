@@ -1,13 +1,18 @@
 import '../../managers/scriptsInMarkdown.manager';
 import { each, random } from 'lodash';
-import React, { RefObject, useEffect, useRef, useState } from 'react';
+import React, { RefObject, useContext, useEffect, useRef, useState } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { addCliCmd } from '../../managers/cliConsole.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from './loginToken.hook';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 
+export interface iClientApi {
+	getFileContent?: (noteLink: string, cb: Function) => void
+	saveFileContent?: (noteLink: string, content: string) => void
+}
 
+export const ClientApiContext = React.createContext<iClientApi | null>({});
 
 export const useClientApi = (
 ) => {
@@ -49,7 +54,7 @@ export const useClientApi = (
 	//
 	// API FUNCTIONS
 	//
-	const clientApiGetFileContent = (noteLink: string, cb: Function) => {
+	const clientApiGetFileContent: iClientApi['getFileContent'] = (noteLink, cb) => {
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
@@ -58,7 +63,7 @@ export const useClientApi = (
 		clientSocket2.emit('askForFileContent', { filePath, token: getLoginToken(), idReq })
 	}
 
-	const clientApiSaveFileContent = (noteLink: string, content: string) => {
+	const clientApiSaveFileContent: iClientApi['saveFileContent'] = (noteLink: string, content: string) => {
 		const filePath = noteLinkToPath(noteLink);
 		console.log(`[CLIENT API] try saving file content : ${filePath}, ${content}`);
 		clientSocket2.emit('saveFileContent', { filePath, newFileContent: content, token: getLoginToken() })
@@ -160,7 +165,12 @@ ${clientApiSaveFileContent}`,
 
 
 
+	const clientApi: iClientApi = {
+		getFileContent: clientApiGetFileContent,
+		saveFileContent: clientApiSaveFileContent
+	}
 	return {
+		clientApi
 	}
 }
 

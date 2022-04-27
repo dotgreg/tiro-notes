@@ -32,7 +32,7 @@ import { useAppViewType } from './hooks/app/appView.hook';
 import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
-import { useClientApi } from './hooks/app/clientApi.hook';
+import { ClientApiContext, useClientApi } from './hooks/app/clientApi.hook';
 import { log } from 'console';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
@@ -222,7 +222,8 @@ export const App = () => {
 	const {
 		tabs, updateTab,
 		getActiveTab,
-		updateActiveTabGrid, updateActiveWindowContent
+		updateActiveTabGrid, updateActiveWindowContent,
+		refreshWindowGrid
 	} = useTabs({});
 	const activeTab = getActiveTab(tabs);
 
@@ -423,198 +424,205 @@ export const App = () => {
 	}
 
 	// Client API (functions added to window.tiroCli)
-	useClientApi();
+	const { clientApi } = useClientApi();
 
 
 
 	return (
 		<div className={CssApp2(mobileView)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
-				<PopupContext.Provider value={{ confirm: confirmPopup, prompt: promptPopup }} >
-					<Global styles={GlobalCssApp} />
-					<div role="dialog" className={`
+
+				<ClientApiContext.Provider value={clientApi} >
+					<PopupContext.Provider value={{ confirm: confirmPopup, prompt: promptPopup }} >
+
+						<Global styles={GlobalCssApp} />
+						<div role="dialog" className={`
 								main-wrapper
 								${showSidebar ? "with-sidebar" : "without-sidebar"}
 								view-${currentAppView}
 								device-view-${deviceType()}`}>
-						{
-							PromptPopupComponent()
-						}
-
-						{
-							LoginPopupComponent({})
-						}
-
-						{
-							SetupPopupComponent({})
-						}
-
-						{
-							connectionStatusComponent()
-						}
-
-						{
-							MobileToolbarComponent(forceResponsiveRender)
-						}
-
-						<div className="left-sidebar-indicator">
-							<div className="left-wrapper">
-								<div className="left-wrapper-1">
-									<div className="invisible-scrollbars">
-										{currentAppView === 'text' &&
-											<NewFileButton
-												onNewFile={() => {
-													clientSocket2.emit('createNote', { folderPath: selectedFolder, token: getLoginToken() })
-													shouldLoadNoteIndex.current = 0
-												}}
-											/>
-										}
-
-										{currentAppView === 'text' &&
-											<LastNotes
-												files={filesHistory}
-												onClick={file => {
-													searchFileFromTitle(file.name, file.folder)
-												}}
-											/>
-										}
-
-
-										{
-											FolderTreeComponent({
-												onFolderClicked: folderPath => {
-													setIsSearching(true)
-													changeToFolder(folderPath, currentAppView)
-												},
-												onFolderMenuAction: (action, folder, newTitle) => {
-													if (action === 'rename' && newTitle) {
-														promptAndMoveFolder({
-															folder,
-															folderToDropInto: folder,
-															folderBasePath,
-															newTitle,
-															renameOnly: true
-														})
-													} else if (action === 'create' && newTitle) {
-														askFolderCreate(newTitle, folder)
-														askForFolderScan([folder.path])
-													} else if (action === 'moveToTrash') {
-														promptAndMoveFolder({ folder, folderToDropInto: defaultTrashFolder, folderBasePath, newTitle })
-													} else if (action === 'delete') {
-														askFolderDelete(folder)
-														askForFolderScan([folder.path])
-													}
-												},
-												onFolderOpen: folderPath => {
-													addToOpenedFolders(folderPath)
-													askForFolderScan([folderPath])
-												},
-												onFolderClose: folderPath => {
-													removeToOpenedFolders(folderPath)
-												},
-												onFolderDragStart: draggedFolder => {
-													console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
-													draggedItems.current = [{ type: 'folder', folder: draggedFolder }]
-												},
-												onFolderDragEnd: () => {
-													console.log(`[DRAG MOVE] onFolderDragEnd`);
-													draggedItems.current = []
-												},
-												onFolderDrop: folderDroppedInto => {
-													processDragDropAction(folderDroppedInto)
-												},
-												confirmPopup,
-											})
-										}
-									</div>
-
-									<div className="settings-button" onClick={() => {
-										setShowSettingsPopup(!showSettingsPopup)
-									}}>
-										<Icon name="faCog" color='grey' />
-									</div>
-
-									{
-										showSettingsPopup &&
-										<SettingsPopup onClose={() => {
-											setShowSettingsPopup(false)
-										}} />
-									}
-
-								</div>
-								<div className="left-wrapper-2">
-									<div className="top-files-list-wrapper">
-										<div className="subtitle-wrapper">
-											{/* <h3 className="subtitle">{strings.files}</h3> */}
-											<AppViewSwitcherComponent />
-										</div>
-										{
-											SearchBarComponent({ selectedFolder })
-										}
-									</div>
-									<div className="files-list-wrapper">
-										{
-											FilesListComponent({
-												selectedFolder: selectedFolder,
-												searchTerm: searchTerm,
-												onFileClicked: fileIndex => {
-													setActiveFileIndex(fileIndex)
-													askForFileContent(files[fileIndex])
-													updateActiveWindowContent(files[fileIndex])
-												},
-												onFileDragStart: files => {
-													console.log(`[DRAG MOVE] onFileDragStart`, files);
-													draggedItems.current = [{ type: 'file', files: files }]
-												},
-												onFileDragEnd: () => {
-													console.log(`[DRAG MOVE] onFileDragEnd`);
-													draggedItems.current = []
-												},
-											})
-										}
-									</div>
-								</div>
-							</div>
-							{/* end left sidebar indic */}
-						</div>
-
-
-
-						<div className="right-wrapper image-gallery-view">
-
-							{/* IMAGE GALLERY */}
-							<div className="image-gallery-header">
-								<div className="subtitle-wrapper">
-									<AppViewSwitcherComponent />
-								</div>
-								{
-									SearchBarComponent({ selectedFolder })
-								}
-							</div>
-							<ImageGallery
-								images={images}
-								onImageClicked={openLightbox}
-								forceRender={forceResponsiveRender} />
-						</div>
-
-						<div className="right-wrapper dual-viewer-view">
-
-
-							{/* TABS SYSTEM*/}
-							<TabList
-								tabs={tabs}
-								onUpdate={updateTab}
-							/>
-
-							{activeTab &&
-								<WindowGrid
-									tab={activeTab}
-									onGridUpdate={updateActiveTabGrid}
-								/>
+							{
+								PromptPopupComponent()
 							}
 
+							{
+								LoginPopupComponent({})
+							}
 
-							{/* {
+							{
+								SetupPopupComponent({})
+							}
+
+							{
+								connectionStatusComponent()
+							}
+
+							{
+								MobileToolbarComponent(forceResponsiveRender)
+							}
+
+							<div className="left-sidebar-indicator">
+								<div className="left-wrapper">
+									<div className="left-wrapper-1">
+										<div className="invisible-scrollbars">
+											{currentAppView === 'text' &&
+												<NewFileButton
+													onNewFile={() => {
+														clientSocket2.emit('createNote', { folderPath: selectedFolder, token: getLoginToken() })
+														shouldLoadNoteIndex.current = 0
+													}}
+												/>
+											}
+
+											{currentAppView === 'text' &&
+												<LastNotes
+													files={filesHistory}
+													onClick={file => {
+														searchFileFromTitle(file.name, file.folder)
+													}}
+												/>
+											}
+
+
+											{
+												FolderTreeComponent({
+													onFolderClicked: folderPath => {
+														setIsSearching(true)
+														changeToFolder(folderPath, currentAppView)
+													},
+													onFolderMenuAction: (action, folder, newTitle) => {
+														if (action === 'rename' && newTitle) {
+															promptAndMoveFolder({
+																folder,
+																folderToDropInto: folder,
+																folderBasePath,
+																newTitle,
+																renameOnly: true
+															})
+														} else if (action === 'create' && newTitle) {
+															askFolderCreate(newTitle, folder)
+															askForFolderScan([folder.path])
+														} else if (action === 'moveToTrash') {
+															promptAndMoveFolder({ folder, folderToDropInto: defaultTrashFolder, folderBasePath, newTitle })
+														} else if (action === 'delete') {
+															askFolderDelete(folder)
+															askForFolderScan([folder.path])
+														}
+													},
+													onFolderOpen: folderPath => {
+														addToOpenedFolders(folderPath)
+														askForFolderScan([folderPath])
+													},
+													onFolderClose: folderPath => {
+														removeToOpenedFolders(folderPath)
+													},
+													onFolderDragStart: draggedFolder => {
+														console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
+														draggedItems.current = [{ type: 'folder', folder: draggedFolder }]
+													},
+													onFolderDragEnd: () => {
+														console.log(`[DRAG MOVE] onFolderDragEnd`);
+														draggedItems.current = []
+													},
+													onFolderDrop: folderDroppedInto => {
+														processDragDropAction(folderDroppedInto)
+													},
+													confirmPopup,
+												})
+											}
+										</div>
+
+										<div className="settings-button" onClick={() => {
+											setShowSettingsPopup(!showSettingsPopup)
+										}}>
+											<Icon name="faCog" color='grey' />
+										</div>
+
+										{
+											showSettingsPopup &&
+											<SettingsPopup onClose={() => {
+												setShowSettingsPopup(false)
+											}} />
+										}
+
+									</div>
+									<div className="left-wrapper-2">
+										<div className="top-files-list-wrapper">
+											<div className="subtitle-wrapper">
+												{/* <h3 className="subtitle">{strings.files}</h3> */}
+												<AppViewSwitcherComponent />
+												{/* SIDEBAR TOGGLER */}
+												<button onClick={e => { toggleSidebar(); refreshWindowGrid(); }}>
+													<Icon name="faFastForward" color="black" />
+												</button>
+											</div>
+											{
+												SearchBarComponent({ selectedFolder })
+											}
+										</div>
+										<div className="files-list-wrapper">
+											{
+												FilesListComponent({
+													selectedFolder: selectedFolder,
+													searchTerm: searchTerm,
+													onFileClicked: fileIndex => {
+														setActiveFileIndex(fileIndex)
+														askForFileContent(files[fileIndex])
+														updateActiveWindowContent(files[fileIndex])
+													},
+													onFileDragStart: files => {
+														console.log(`[DRAG MOVE] onFileDragStart`, files);
+														draggedItems.current = [{ type: 'file', files: files }]
+													},
+													onFileDragEnd: () => {
+														console.log(`[DRAG MOVE] onFileDragEnd`);
+														draggedItems.current = []
+													},
+												})
+											}
+										</div>
+									</div>
+								</div>
+								{/* end left sidebar indic */}
+							</div>
+
+
+
+							<div className="right-wrapper image-gallery-view">
+
+								{/* IMAGE GALLERY */}
+								<div className="image-gallery-header">
+									<div className="subtitle-wrapper">
+										<AppViewSwitcherComponent />
+									</div>
+									{
+										SearchBarComponent({ selectedFolder })
+									}
+								</div>
+								<ImageGallery
+									images={images}
+									onImageClicked={openLightbox}
+									forceRender={forceResponsiveRender} />
+							</div>
+
+							<div className="right-wrapper dual-viewer-view">
+
+
+								{/* TABS SYSTEM*/}
+								<TabList
+									tabs={tabs}
+									onUpdate={updateTab}
+								/>
+
+								{activeTab &&
+									<WindowGrid
+										tab={activeTab}
+										onGridUpdate={updateActiveTabGrid}
+									/>
+								}
+
+
+								{/* {
 								DualViewerComponent({
 									isLeavingNote,
 									forceRender: forceResponsiveRender,
@@ -632,9 +640,10 @@ export const App = () => {
 								})
 							}
  */}
+							</div>
 						</div>
-					</div>
-				</PopupContext.Provider>
+					</PopupContext.Provider>
+				</ClientApiContext.Provider>
 			</div>
 
 			{
@@ -645,7 +654,7 @@ export const App = () => {
 					onClose={closeLightbox}
 				/>
 			}
-		</div>
+		</div >
 	)
 }
 

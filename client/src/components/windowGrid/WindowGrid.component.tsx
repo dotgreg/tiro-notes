@@ -21,13 +21,6 @@ export const WindowGrid = (p: {
 
 				}}
 			>
-
-
-				{/* {tab.name}
-				{JSON.stringify(tab.layout)}
- */}
-
-
 				<DraggableGrid
 					refresh={tab.refresh || 0}
 					grid={tab.grid}

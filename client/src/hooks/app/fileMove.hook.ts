@@ -1,4 +1,3 @@
-import { useContext } from "react";
 import { iFile, iFolder } from "../../../../shared/types.shared";
 import { getFolderParentPath } from "../../managers/folder.manager";
 import { clientSocket, clientSocket2 } from "../../managers/sockets/socket.manager";
