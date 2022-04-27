@@ -51,7 +51,6 @@ export const DraggableGrid = (p: {
 	}, [intLayout])
 
 	const resetLayout = () => {
-		/* console.log(993, lastGoodLayout.current, intLayout); */
 		if (!lastGoodLayout.current) return
 		// working but not all the time...
 		const nLayout = cloneDeep(lastGoodLayout.current)
@@ -193,6 +192,7 @@ export const DraggableGrid = (p: {
 									className="window-name"
 									onClick={() => { makeWindowActive(window.i) }}
 								>
+									{p.refresh} -
 									{window.i} -
 									{intContent[i].file?.name} -
 								</div>

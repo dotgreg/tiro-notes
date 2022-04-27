@@ -29,7 +29,7 @@ export const WindowGrid = (p: {
 
 
 				<DraggableGrid
-					refresh={tab.refresh}
+					refresh={tab.refresh || 0}
 					grid={tab.grid}
 					onGridUpdate={p.onGridUpdate}
 				/>
