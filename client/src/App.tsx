@@ -222,7 +222,7 @@ export const App = () => {
 	const {
 		tabs, updateTab,
 		getActiveTab,
-		updateActiveTabLayout, updateActiveWindowContent
+		updateActiveTabGrid, updateActiveWindowContent
 	} = useTabs({});
 	const activeTab = getActiveTab(tabs);
 
@@ -609,7 +609,7 @@ export const App = () => {
 							{activeTab &&
 								<WindowGrid
 									tab={activeTab}
-									onUpdateLayout={updateActiveTabLayout}
+									onGridUpdate={updateActiveTabGrid}
 								/>
 							}
 
