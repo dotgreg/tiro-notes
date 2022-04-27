@@ -46,7 +46,7 @@ const Tab = (p: {
 		>
 			<div className="tab-name"
 				onClick={() => { p.onUpdate('activate', tab) }}
-			> {tab.name} </div>
+			> {tab.name} ({tab.grid.layout.length})</div>
 
 			<div className="tab-close"
 				onClick={() => p.onUpdate('close', tab)}>

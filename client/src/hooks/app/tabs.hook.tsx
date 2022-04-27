@@ -31,7 +31,11 @@ export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
 export const useTabs = (p: {
 }) => {
 
-	const [tabs, setTabs] = useLocalStorage<iTab[]>('tabs', [])
+	const [tabs, setTabsInt] = useLocalStorage<iTab[]>('tabs', [])
+	const setTabs = (nTabs: iTab[]) => {
+		//nTabs = refreshAllTabsName(nTabs);
+		setTabsInt(nTabs)
+	}
 
 	const updateTab: onTabUpdateFn = (type, tab) => {
 		console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
@@ -61,7 +65,7 @@ export const useTabs = (p: {
 			const nTabs = setActiveTab(tab.id, tabs)
 
 			// refresh all tabs to view changes
-			const nTabs2 = refreshAllTabs(nTabs)
+			const nTabs2 = refreshTabsViews(nTabs)
 
 			setTabs(nTabs2)
 
@@ -99,18 +103,25 @@ export const useTabs = (p: {
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
-		aTab.name = nFile.name.substring(0, 20)
+		aTab.name = `${nFile.name.substring(0, 20)}`
 		// refresh all tabs to view changes
-		const nTabs2 = refreshAllTabs(nTabs)
+		const nTabs2 = refreshTabsViews(nTabs)
 
 		console.log(`[TAB LAYOUT] active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
 		// save tabs
 		setTabs(nTabs2)
 	}
 
+	/* const refreshAllTabsName = (tabs: iTab[]): iTab[] => {
+		each(tabs, tab => {
+			tab.displayedName = `${tab.name} (${tab.grid.layout.length})`
+		})
+		return tabs
+	}
+ */
 
 	return {
-		tabs, setTabs,
+		tabs,
 		getActiveTab,
 
 		updateTab,
@@ -123,7 +134,7 @@ export const useTabs = (p: {
 
 
 // SUPPORT FUNCTION
-const refreshAllTabs = (tabs: iTab[]): iTab[] => {
+const refreshTabsViews = (tabs: iTab[]): iTab[] => {
 	const nTabs = cloneDeep(tabs)
 	each(nTabs, tab => { tab.refresh = increment(tab.refresh) })
 	return nTabs

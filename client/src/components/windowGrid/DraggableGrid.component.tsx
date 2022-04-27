@@ -17,7 +17,7 @@ const d = {
 	m: 5,
 	rows: 2,
 	cols: 3,
-	decalBottom: 75
+	decalBottom: 50
 }
 
 export const DraggableGrid = (p: {
@@ -49,16 +49,6 @@ export const DraggableGrid = (p: {
 		updateCanRemove();
 		p.onGridUpdate({ layout: intLayout, content: intContent })
 	}, [intLayout])
-
-	const resetLayout = () => {
-		if (!lastGoodLayout.current) return
-		// working but not all the time...
-		const nLayout = cloneDeep(lastGoodLayout.current)
-		each(nLayout, window => {
-			window.refresh = increment(window.refresh)
-		})
-		setIntLayout(nLayout)
-	}
 
 	// 
 	// ADDING LOGIC
@@ -169,7 +159,6 @@ export const DraggableGrid = (p: {
 	return (
 		<div className={cssApp}>
 			<div className="draggable-grid-wrapper" ref={divWrapper}>
-				<button onClick={resetLayout}>reset</button>
 				<GridLayout
 					className="draggable-grid"
 					autoSize={false}
