@@ -49,8 +49,8 @@ const Tab = (p: {
 			> {tab.name} </div>
 
 			<div className="tab-close"
-					 onClick={() => p.onUpdate('close', tab)}>
-					x </div>
+				onClick={() => p.onUpdate('close', tab)}>
+				x </div>
 		</div >
 	)
 }
@@ -59,11 +59,34 @@ export const StyledDiv = styled.div`
     .tab-list-wrapper {
 				padding: 20px;
 				display: flex;
-		.tab-wrapper {
-				display: flex;
-				&.active {
-						font-weight: bold
+				.tab-wrapper {
+						margin-right: 5px;
+						padding: 5px;
+						background: grey;
+						display: flex;
+						display: flex;
+						min-width: 120px;
+						max-height: 27px;
+						overflow: hidden;
+						box-shadow: rgba(0,0,0,0.2) 0px 0px 2px;
+						text-align: center;
+						&.active {
+								background: white;
+								font-weight: bold
+						}
+						&.tab-more {
+								min-width: 30px;
+								width: 30px;
+								max-width: 30px;
+								cursor: pointer;
+						}
+						.tab-name {
+						//cursor: pointer;
+						}
+						.tab-close {
+						cursor: pointer;
+						margin-left: 5px;
+						}
 				}
 		}
-    }
 `

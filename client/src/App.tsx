@@ -38,6 +38,7 @@ import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
+import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 
 
 
@@ -53,18 +54,7 @@ export const App = () => {
 			askForFolderScan(openFolders)
 		})
 
-		// setInterval(() => {
-		//     console.log(1111);
-
-		//     // setActiveFileIndex(activeFileIndex+1)
-		// }, 1000)
-
-		setTimeout(() => {
-			/* triggerPromptPopup({ text: 'wppp', onAccept: () => { console.log('wpppp'); } }) */
-		}, 2000)
-
 		startListeningToKeys();
-
 
 		return () => {
 			// COMPONENT will unmount
@@ -157,6 +147,8 @@ export const App = () => {
 				let noteIndex = shouldLoadNoteIndex.current
 				if (newFiles.length >= noteIndex + 1) {
 					setActiveFileIndex(noteIndex)
+					console.log('TAB LAYOUT 10000000001');
+					updateActiveWindowContent(newFiles[noteIndex])
 					askForFileContent(newFiles[noteIndex])
 				}
 				shouldLoadNoteIndex.current = null
@@ -166,6 +158,7 @@ export const App = () => {
 				// Load first item list 
 				newFiles.length >= 1 && askForFileContent(newFiles[0])
 				setActiveFileIndex(0)
+				//updateActiveWindowContent(files[0])
 				lastFolderIn.current = selectedFolder
 				lastSearchIn.current = searchTerm
 			}
@@ -176,6 +169,7 @@ export const App = () => {
 				if (indexSearch !== -1) {
 					if (newFiles[indexSearch]) {
 						setActiveFileIndex(indexSearch)
+						updateActiveWindowContent(files[indexSearch])
 						askForFileContent(newFiles[indexSearch])
 					}
 				}
@@ -224,6 +218,14 @@ export const App = () => {
 		})
 	}, [activeFileIndex, showSidebar])
 
+	// Tabs system
+	const {
+		tabs, updateTab,
+		getActiveTab,
+		updateActiveTabLayout, updateActiveWindowContent
+	} = useTabs({});
+	const activeTab = getActiveTab(tabs);
+
 	// Files List
 	const {
 		files, setFiles,
@@ -231,7 +233,7 @@ export const App = () => {
 		FilesListComponent,
 	} = useAppFilesList(
 		activeFileIndex, setActiveFileIndex,
-		onFilesReceivedCallback
+		tabs, onFilesReceivedCallback
 	)
 
 	/**
@@ -423,9 +425,6 @@ export const App = () => {
 	// Client API (functions added to window.tiroCli)
 	useClientApi();
 
-	// Tabs system
-	const { tabs, onTabUpdate } = useTabs({});
-
 
 
 	return (
@@ -561,7 +560,7 @@ export const App = () => {
 												onFileClicked: fileIndex => {
 													setActiveFileIndex(fileIndex)
 													askForFileContent(files[fileIndex])
-													// this.loadFileDetails(fileIndex)
+													updateActiveWindowContent(files[fileIndex])
 												},
 												onFileDragStart: files => {
 													console.log(`[DRAG MOVE] onFileDragStart`, files);
@@ -598,18 +597,24 @@ export const App = () => {
 								forceRender={forceResponsiveRender} />
 						</div>
 
-						{/* DUAL VIEWER */}
 						<div className="right-wrapper dual-viewer-view">
 
 
 							{/* TABS SYSTEM*/}
 							<TabList
 								tabs={tabs}
-								onUpdate={onTabUpdate}
+								onUpdate={updateTab}
 							/>
 
+							{activeTab &&
+								<WindowGrid
+									tab={activeTab}
+									onUpdateLayout={updateActiveTabLayout}
+								/>
+							}
 
-							{
+
+							{/* {
 								DualViewerComponent({
 									isLeavingNote,
 									forceRender: forceResponsiveRender,
@@ -626,6 +631,7 @@ export const App = () => {
 									}
 								})
 							}
+ */}
 						</div>
 					</div>
 				</PopupContext.Provider>

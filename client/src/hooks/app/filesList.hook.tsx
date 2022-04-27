@@ -1,7 +1,7 @@
 import { cloneDeep, debounce, filter, sortBy } from 'lodash';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
-import { iFile, iFilePreview } from '../../../../shared/types.shared';
+import { iFile, iFilePreview, iTab } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
 import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
@@ -18,6 +18,7 @@ export interface FilesPreviewObject { [path: string]: iFilePreview }
 export const useAppFilesList = (
 	activeFileIndex: number,
 	setActiveFileIndex: Function,
+	tabs: iTab[],
 	onFilesReceivedCallback: onFilesReceivedFn
 ) => {
 
@@ -37,7 +38,7 @@ export const useAppFilesList = (
 			console.log(`[FILES LIST] clean socket listener`);
 			clientSocket2.off(listenerId.current)
 		}
-	}, [])
+	}, [tabs])
 
 	const askForFolderFiles = (folderPath: string) => {
 		clientSocket2.emit('askForFiles', { folderPath: folderPath, token: getLoginToken() })
@@ -226,7 +227,7 @@ export const useAppFilesList = (
 				/>
 			</div>
 		</div>
-		, [files, activeFileIndex, sortMode, forceListUpdate, filesPreviewObj])
+		, [files, tabs, activeFileIndex, sortMode, forceListUpdate, filesPreviewObj])
 
 	return {
 		activeFileIndex, setActiveFileIndex,
