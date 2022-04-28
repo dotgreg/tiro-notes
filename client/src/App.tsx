@@ -33,7 +33,6 @@ import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
 import { initClientApi } from './hooks/app/clientApi.hook';
-import { log } from 'console';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
@@ -46,7 +45,7 @@ import { useBackendState } from './hooks/useBackendState.hook';
 
 export const App = () => {
 
-	const [test1, setTest1] = useBackendState('user-test', 0);
+	const [test1, setTest1, refreshTest1] = useBackendState('user-test', 0);
 
 	useEffect(() => {
 		// COMPONENT DID MOUNT didmount
@@ -197,6 +196,7 @@ export const App = () => {
 		},
 		onLoginSuccess: () => {
 			reactToUrl()
+			refreshTest1()
 		}
 	})
 
@@ -439,7 +439,7 @@ export const App = () => {
 				<PopupContext.Provider value={{ confirm: confirmPopup, prompt: promptPopup }} >
 
 					<Global styles={GlobalCssApp} />
-					<div onClick={() => {setTest1(test1 + 1)}}>{test1}</div>
+					<div onClick={() => { setTest1(test1 + 1) }}>{test1}</div>
 					<div role="dialog" className={`
 								main-wrapper
 								${showSidebar ? "with-sidebar" : "without-sidebar"}
