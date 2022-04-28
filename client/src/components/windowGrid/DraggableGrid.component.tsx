@@ -93,7 +93,6 @@ export const DraggableGrid = (p: {
 			totalSize += window.w * window.h
 		})
 		// if all blocks > 6
-		//console.log(996, totalAllowedSize, totalSize);
 		if (totalSize === totalAllowedSize) setCanAdd(false)
 		else setCanAdd(true)
 	}
@@ -129,7 +128,6 @@ export const DraggableGrid = (p: {
 
 	const updateLastGood = (nlayout: iWindow[]) => {
 		lastGoodLayout.current = cloneDeep(nlayout)
-		/* console.log('UPDATE LAST GOOD', lastGoodLayout.current); */
 	}
 
 	// check if resizing new layout is good
@@ -137,7 +135,6 @@ export const DraggableGrid = (p: {
 		let allGood = true
 		for (let i = 0; i < nlayout.length; i++) {
 			const el = nlayout[i];
-			//console.log(995, el.y, el.h);
 			// should not be positionned below 1
 			if (el.y > 1) allGood = false
 			// if h is 2, y should be 0
@@ -154,12 +151,10 @@ export const DraggableGrid = (p: {
 		const e = divWrapper.current
 		if (!e) return
 		e.addEventListener('resize', () => {
-			console.log(1);
 		})
 
 		return () => {
 			e.removeEventListener('resize', () => {
-				console.log(2);
 			})
 		}
 	}, [])
@@ -173,7 +168,6 @@ export const DraggableGrid = (p: {
 		s.width = divWrapper.current.clientWidth
 		s.height = divWrapper.current.clientHeight - d.decalBottom
 	}
-	console.log(s, rh());
 
 	return (
 		<div className={cssApp}>
@@ -238,7 +232,7 @@ const cssApp = css`
 						height: 100%;
 						.window-wrapper {
 								//background: orange;
-								overflow-y: scroll;
+								overflow-y: hidden;
 								overflow-x: hidden;
 								height:100%;
 								.content-wrapper {

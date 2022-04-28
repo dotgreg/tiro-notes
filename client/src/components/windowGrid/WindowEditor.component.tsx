@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile, iGrid, iTab, iWindow } from '../../../../shared/types.shared';
-import { ClientApiContext } from '../../hooks/app/clientApi.hook';
+import { getClientApi } from '../../hooks/app/clientApi.hook';
 import { DualViewer } from '../dualView/DualViewer.component';
 
 export const WindowEditor = (p: {
@@ -10,13 +10,13 @@ export const WindowEditor = (p: {
 
 	const { file } = { ...p }
 
-	const clientApi = useContext(ClientApiContext)
-
 	const [fileContent, setFileContent] = useState('')
 	useEffect(() => {
-		if (!clientApi || !clientApi.getFileContent || !file) return
-		clientApi.getFileContent(file.path, content => {
-			setFileContent(content)
+		if (!file) return
+		getClientApi().then(api => {
+			api.getFileContent(file.path, content => {
+				setFileContent(content)
+			})
 		})
 	}, [p.file])
 
@@ -25,23 +25,23 @@ export const WindowEditor = (p: {
 			file &&
 			<StyledDiv>
 				<div className="window-editor-wrapper">
-						{/* =========
+					{/* =========
 					{fileContent}
 					========= */}
-						<DualViewer
-								file={file}
-								fileContent={fileContent}
+					<DualViewer
+						file={file}
+						fileContent={fileContent}
 						canEdit={true}
 						forceRender={true}
 						isLeavingNote={false}
-	onFileEdited={()=>{}}
-	onFileTitleEdited={()=>{}}
-	onSavingHistoryFile={()=>{}}
-	onFileDelete={()=>{}}
-	onLightboxClick={()=>{}}
-	onBackButton={()=>{}}
-	onToggleSidebarButton={()=>{}}
-						/>
+						onFileEdited={() => { }}
+						onFileTitleEdited={() => { }}
+						onSavingHistoryFile={() => { }}
+						onFileDelete={() => { }}
+						onLightboxClick={() => { }}
+						onBackButton={() => { }}
+						onToggleSidebarButton={() => { }}
+					/>
 				</div>
 			</StyledDiv>
 		}

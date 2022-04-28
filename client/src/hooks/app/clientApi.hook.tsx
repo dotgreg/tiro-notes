@@ -3,121 +3,112 @@ import { each, random } from 'lodash';
 import React, { RefObject, useContext, useEffect, useRef, useState } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { addCliCmd } from '../../managers/cliConsole.manager';
-import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { clientSocket2, ClientSocketManager } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from './loginToken.hook';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 
-export interface iClientApi {
-	getFileContent?: (noteLink: string, cb: Function) => void
-	saveFileContent?: (noteLink: string, content: string) => void
+
+//
+// FUNCTION TO UDE 
+//
+export const getClientApi = (): Promise<iClientApi2> => {
+	return new Promise((res, rej) => {
+		if (clientApiInt) return res(clientApiInt)
+		else {
+				let intId = setInterval(() => {
+						if (clientApiInt) {
+								return res(clientApiInt)
+
+						}
+				}, 200)
+
+		}
+	})
 }
 
-export const ClientApiContext = React.createContext<iClientApi | null>({});
 
-export const useClientApi = (
-) => {
+//
+// INIT LOGIC
+//
+export const initClientApi = (clientSocket2: ClientSocketManager<iApiDictionary>) => {
+	console.log(`[CLIENT API] INIT CLIENT DONE`);
 
-	// STATE
+	// LISTEN TO SOCKET 
+	listenerId[0] = clientSocket2.on('getFileContent', data => {
+		let filterRes = filterMetaFromFileContent(data.fileContent)
+		onEventTriggerGoodListener(data.idReq, filterRes.content)
+	})
 
-	// SOCKET INTERACTIONS
-	const listenerId1 = useRef<number>(0)
-
-	useEffect(() => {
-		// 
-		// INIT STEP
-		// 
-
-		// ADDING CLI CMDs to WINDOW
-		addCliCmds();
-
-		// GET FILE CONTENT
-		console.log(`[CLIENT API] GetFileContent:  init socket listener`);
-		listenerId1.current = clientSocket2.on('getFileContent', data => {
-			let filterRes = filterMetaFromFileContent(data.fileContent)
-			onEventTriggerGoodListener(data.idReq, filterRes.content)
-		})
-
-		return () => {
-			//
-			// CLEANING STEP
-			//
-
-			// GET FILE CONTENT
-			console.log(`[CLIENT API] GetFileContent: clean socket listener`);
-			clientSocket2.off(listenerId1.current)
-		}
-	}, [])
-
-
-
-
-	//
-	// API FUNCTIONS
-	//
-	const clientApiGetFileContent: iClientApi['getFileContent'] = (noteLink, cb) => {
-		const filePath = noteLinkToPath(noteLink);
-		const idReq = genIdReq('get-file-content');
-		// 1. add a listener function
-		addListenerCallback(idReq, cb);
-		// 2. emit request 
-		clientSocket2.emit('askForFileContent', { filePath, token: getLoginToken(), idReq })
+	// COMPLETE ClientApiInt
+	clientApiInt = {
+		getFileContent: apiGetFileContent,
+		saveFileContent: apiSaveFileContent
 	}
 
-	const clientApiSaveFileContent: iClientApi['saveFileContent'] = (noteLink: string, content: string) => {
-		const filePath = noteLinkToPath(noteLink);
-		console.log(`[CLIENT API] try saving file content : ${filePath}, ${content}`);
-		clientSocket2.emit('saveFileContent', { filePath, newFileContent: content, token: getLoginToken() })
-	}
+}
+
+//
+// API FUNCTIONS
+//
+const apiGetFileContent: iClientApi2['getFileContent'] = (noteLink, cb) => {
+	const filePath = noteLinkToPath(noteLink);
+	const idReq = genIdReq('get-file-content');
+	// 1. add a listener function
+	addListenerCallback(idReq, cb);
+	// 2. emit request 
+	clientSocket2.emit('askForFileContent', { filePath, token: getLoginToken(), idReq })
+}
+
+const apiSaveFileContent: iClientApi2['saveFileContent'] = (noteLink: string, content: string) => {
+	const filePath = noteLinkToPath(noteLink);
+	console.log(`[CLIENT API] try saving file content : ${filePath}, ${content}`);
+	clientSocket2.emit('saveFileContent', { filePath, newFileContent: content, token: getLoginToken() })
+}
 
 
+//
+// INTERFACES
+//
 
-	//
-	// SUPPORT FUNCTIONS
-	//
-	const genIdReq = (type: string): string => {
-		return `client-api-${type}-req-${random(1, 10000000)}`;
-	}
-
-	const noteLinkToPath = (noteLink: string): string => {
-		const subst = `$2/$1`;
-		return noteLink.replace(regexs.linklink, subst);
-	}
+export interface iClientApi2 {
+	getFileContent: (noteLink: string, cb: Function) => void
+	saveFileContent: (noteLink: string, content: string) => void
+}
 
 
+//
+// STORAGE
+//
 
+let clientApiInt: iClientApi2 | null = null
+const listenerId: any[] = []
 
-
-	// add/remove listener logic
-	interface iListenersDic { [idReq: string]: Function }
-	const listeners = useRef<iListenersDic>({})
-	const addListenerCallback = (reqId: string, cb: Function) => {
-		listeners.current[reqId] = cb
-	}
-	const onEventTriggerGoodListener = (reqIdAnswer: string, dataAnswer: any) => {
-		each(listeners.current, (listenerCb, listenerReqId) => {
-			if (listenerReqId === reqIdAnswer) {
-				//console.log('onEventTriggerGoodListener', { listenerCb, reqIdAnswer, listenerReqId, dataAnswer });
-				try {
-					listenerCb(dataAnswer);
-				} catch (e) {
-					console.log('[CLIENT API] error with function', e);
-				}
-				delete listeners.current[listenerReqId];
+//
+// EVENT BUS MANAGEMENT
+//
+interface iListenersDic { [idReq: string]: Function }
+const listeners: iListenersDic = {}
+const addListenerCallback = (reqId: string, cb: Function) => {
+	listeners[reqId] = cb
+}
+const onEventTriggerGoodListener = (reqIdAnswer: string, dataAnswer: any) => {
+	each(listeners, (listenerCb, listenerReqId) => {
+		if (listenerReqId === reqIdAnswer) {
+			try {
+				listenerCb(dataAnswer);
+			} catch (e) {
+				console.log('[CLIENT API] error with function', e);
 			}
-		});
-	}
-
-
-
+			delete listeners[listenerReqId];
+		}
+	});
+}
 
 
 
 	// add to window object
 	const addCliCmds = () => {
-
-
-
-
 
 		addCliCmd('clientApiGetFileContent', {
 			description: `
@@ -128,15 +119,10 @@ params
   noteLink: [link|myNoteLink]
   callback: Function (noteContent) {}
 ==
-${clientApiGetFileContent}`,
-			func: clientApiGetFileContent,
-			f: clientApiGetFileContent
+${apiGetFileContent}`,
+			func: apiGetFileContent,
+			f: apiGetFileContent
 		})
-
-
-
-
-
 
 		addCliCmd('clientApiSaveFileContent', {
 
@@ -147,31 +133,25 @@ params
   noteLink: [link|myNoteLink]
   newFileContent 
 ==
-${clientApiSaveFileContent}`,
+${apiSaveFileContent}`,
 
-			func: clientApiSaveFileContent,
-			f: clientApiSaveFileContent
+			func: apiSaveFileContent,
+			f: apiSaveFileContent
 		})
-
-
-		// add to window object
-
-
 	};
 
-
-
-
-
-
-
-	const clientApi: iClientApi = {
-		getFileContent: clientApiGetFileContent,
-		saveFileContent: clientApiSaveFileContent
-	}
-	return {
-		clientApi
-	}
+//
+// SUPPORT FUNCTIONS
+//
+const genIdReq = (type: string): string => {
+	return `client-api-${type}-req-${random(1, 10000000)}`;
 }
+
+const noteLinkToPath = (noteLink: string): string => {
+	const subst = `$2/$1`;
+	return noteLink.replace(regexs.linklink, subst);
+}
+
+
 
 

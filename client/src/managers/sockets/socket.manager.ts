@@ -16,6 +16,12 @@ export const getBackendUrl = () => {
 	return socketBackend
 }
 
+
+
+
+
+
+
 export const initSocketConnection = (): Promise<SocketIOClient.Socket> => {
 	return new Promise((resolve, reject) => {
 		if (clientSocket) return
@@ -49,7 +55,7 @@ type ApiEmitFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
 	payloadToSend: ApiDict[Endpoint] & { token: string }
 ) => void;
 
-type ClientSocketManager<ApiDict> = {
+export type ClientSocketManager<ApiDict> = {
 	on: ApiOnFn<ApiDict>
 	off: (listenerId: number) => void;
 	emit: ApiEmitFn<ApiDict>

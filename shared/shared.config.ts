@@ -8,6 +8,13 @@ export const sharedConfig = {
 
 	path: {
 		staticResources: 'static',
+		defaultDataFolder: 'markdown-notes',
+		configFolder: '.tiro',
+		backendStateFolder: '.states',
+		historyFolder: '.history',
+		archiveFolder: '.history_archive',
+		uploadFolder: '.resources',
+		relativeUploadFolderName: '.resources',
 	},
 
 	metas: {

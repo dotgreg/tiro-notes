@@ -32,7 +32,7 @@ export const ScrollingBar = (p: {
 		res.maxY = w.getBoundingClientRect().height - size
 		res.y = s.getBoundingClientRect().y - decalTopW
 		res.percent = Math.round((res.y / res.maxY) * 100)
-		console.log(`[SCROLLBAR] getstats ${JSON.stringify(res)}`);
+		//console.log(`[SCROLLBAR] getstats ${JSON.stringify(res)}`);
 		return res
 	}
 

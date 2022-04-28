@@ -35,12 +35,7 @@ export const backConfig = {
 	https,
 	rgPath,
 
-	defaultDataFolder: 'markdown-notes',
-	configFolder: '.tiro',
-	historyFolder: '.history',
-	archiveFolder: '.history_archive',
-	uploadFolder: '.resources',
-	relativeUploadFolderName: '.resources',
+	...sharedConfig.path,
 
 	dev: {
 		disableLogin: false
