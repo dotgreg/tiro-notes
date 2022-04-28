@@ -1,8 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
 import { getClientApi } from "./app/clientApi.hook";
+import { getLoginToken } from "./app/loginToken.hook";
 
-export function useBackendState<T>(key: string, initialValue: T): [T, (value: T) => void] {
+export function useBackendState<T>(key: string, initialValue: T): [T, (value: T) => void, Function] {
 
 	const [storedValue, setStoredValue] = useState(initialValue)
 
@@ -15,6 +16,18 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 
 	// fetch content on initial loading
 	useEffect(() => {
+			refreshVal();
+	}, [])
+
+	// persistence logic 
+	const setValue = value => {
+		setStoredValue(value)
+		getClientApi().then(api => {
+			api.saveFileContent(pathToNote, JSON.stringify(value))
+		})
+	}
+
+	const refreshVal = () => {
 		getClientApi().then(api => {
 			api.getFileContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)
@@ -22,17 +35,9 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 				setStoredValue(obj);
 			})
 		})
-	}, [])
-
-	// persistence logic 
-	const setValue = value => {
-		setStoredValue(value)
-		getClientApi().then(api=> {
-			api.saveFileContent(pathToNote, JSON.stringify(value))
-		})
 	}
 
-	return [storedValue, setValue];
+	return [storedValue, setValue, refreshVal];
 }
 
 //	const [val, setVal] = useBackendState('user-settings', { size: 12, test: 'world' })
