@@ -1,9 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { iFile, iGrid, iTab, iWindow } from '../../../../shared/types.shared';
+import React from 'react';
+import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
-import { useLocalStorage } from '../useLocalStorage.hook';
-import { cloneDeep, each, filter, isNumber, stubString } from 'lodash';
-import { configClient } from '../../config';
+import { cloneDeep, each, isNumber } from 'lodash';
 import { strings } from '../../managers/strings.manager';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
@@ -83,7 +81,8 @@ export const useTabs = (p: {
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
 		nTabs[aId].grid = grid
-		console.log(`[TAB LAYOUT] update GRID ${aId}`, grid);
+		console.log(`[TAB LAYOUT] update tab grid n:${aId}`, grid);
+		//const nTabs2 = refreshTabsViews(tabs)
 		setTabs(nTabs)
 	}
 

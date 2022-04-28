@@ -1,5 +1,6 @@
 import { log } from "console";
 import { each, isObject, random, uniq } from "lodash";
+import { generateUUID } from "../../../shared/helpers/id.helper";
 import { getCustomMdTagRegex, regexs } from "../../../shared/helpers/regexs.helper";
 import { consoleCli } from "./cliConsole.manager";
 
@@ -46,7 +47,7 @@ export const replaceUserCustomMdTag = (
 			(innerTag) => {
 
 				userTag = userTag.replace('[[', '').replace(']]', '');
-				const id = `${userTag}-${random(0, 100000000)}-custom-tag-wrapper`;
+				const id = `${userTag}-${generateUUID()}-custom-tag-wrapper`;
 
 				// get the content of /.tiro/tags/${userTag}.md
 				if (getFileContent && getFileContent.f) {

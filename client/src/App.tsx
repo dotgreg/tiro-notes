@@ -19,7 +19,6 @@ import { iAppView, iFile, iFileImage, iFolder } from '../../shared/types.shared'
 import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
-import { strings } from './managers/strings.manager';
 import { useSearchFromTitle } from './hooks/app/searchFromTitle.hook';
 import { LastNotes } from './components/LastNotes.component';
 import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
@@ -38,7 +37,6 @@ import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
-import { useBackendState } from './hooks/useBackendState.hook';
 
 
 

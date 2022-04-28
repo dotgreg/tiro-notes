@@ -38,11 +38,10 @@ export const PreviewArea = (p: {
 	}, [p.file.path])
 
 	useEffect(() => {
-		console.log(11);
 		p.onMaxYUpdate(calculateYMax())
-			setTimeout(() => {
-		p.onMaxYUpdate(calculateYMax())
-			}, 1000)
+		setTimeout(() => {
+			p.onMaxYUpdate(calculateYMax())
+		}, 1000)
 	}, [p.fileContent])
 
 	const [vertBarPos, setVertBarPos] = useState('right')
