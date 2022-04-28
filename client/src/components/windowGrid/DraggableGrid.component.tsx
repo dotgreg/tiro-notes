@@ -40,30 +40,49 @@ export const DraggableGrid = (p: {
 		setIntContent(p.grid.content)
 	}, [p.refresh])
 
+
+
 	// on content modification, mainly active state toggling
-	useEffect(() => {
+	/* useEffect(() => {
 		p.onGridUpdate({ layout: intLayout, content: intContent })
 	}, [intContent])
-
+ */
 	// on layout modification
 	useEffect(() => {
 		updateCanAdd();
 		updateCanRemove();
-		p.onGridUpdate({ layout: intLayout, content: intContent })
 	}, [intLayout])
+
+
+	const onGridUpdate = (layout: iWindow[], content: iWindowContent[]) => {
+		console.log(111);
+		p.onGridUpdate({ layout, content })
+	}
+
 
 	// 
 	// ADDING LOGIC
 	// 
 	const addNewWindow = () => {
+
 		const nWindow = addNewWindowConfig(1, 1)
 		const nLayout = cloneDeep(intLayout)
 		nLayout.push(nWindow.layout)
-		setIntLayout(nLayout)
+		if (isItAllGoody(nLayout)) {
+			console.log(333, nLayout, nLayout.length, intLayout.length);
+			setIntLayout(nLayout)
 
-		const nContent = cloneDeep(intContent)
-		nContent.push(nWindow.content)
-		setIntContent(nContent)
+			// required to deplay the content update behind the layout because of react-grid...
+			setTimeout(() => {
+				const nContent = cloneDeep(intContent)
+				nContent.push(nWindow.content)
+				setIntContent(nContent)
+				onGridUpdate(nLayout, nContent)
+			});
+
+			onGridUpdate(nLayout, intContent)
+		}
+
 	}
 
 	// 
@@ -77,8 +96,14 @@ export const DraggableGrid = (p: {
 		const nLayout = filter(cloneDeep(intLayout), window => window.i !== id)
 		setIntLayout(nLayout)
 
-		const nContent = filter(cloneDeep(intContent), c => c.i !== id)
-		setIntContent(nContent)
+		// required to deplay the content update behind the layout because of react-grid...
+		setTimeout(() => {
+			const nContent = filter(cloneDeep(intContent), c => c.i !== id)
+			setIntContent(nContent)
+			onGridUpdate(nLayout, nContent)
+		});
+
+		onGridUpdate(nLayout, intContent)
 	}
 
 	// 
@@ -103,26 +128,35 @@ export const DraggableGrid = (p: {
 	const makeWindowActive = (windowId: string) => {
 		const nContent = cloneDeep(intContent);
 		each(nContent, c => {
+			//console.log(windowId, c.i);
 			c.active = (c.i === windowId) ? true : false
 		})
 		setIntContent(nContent)
+		onGridUpdate(intLayout, nContent)
 	}
 
 	// 
 	// LIMIT RESIZING LOGIC
 	// 
 	const updateLayoutLogic = (newLayout) => {
+		//console.log(intLayout.length, intContent.length);
+		//if (intLayout.length !== intContent.length) return
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
+			console.log('allgood');
 			setIntLayout(nlayout)
 			updateLastGood(nlayout)
+			onGridUpdate(nlayout, intContent)
 		} else {
+			console.log('notgood');
 			if (!lastGoodLayout.current) return
 			const nLayout = cloneDeep(lastGoodLayout.current)
 			each(nLayout, window => {
 				window.refresh = increment(window.refresh)
 			})
 			setIntLayout(nLayout)
+			onGridUpdate(nLayout, intContent)
+
 		}
 	}
 
@@ -171,16 +205,21 @@ export const DraggableGrid = (p: {
 
 	return (
 		<div className={cssApp}>
+			<div className="debug">
+				{intLayout.length} -
+				{intContent.length}
+			</div>
 			<div className="draggable-grid-wrapper" ref={divWrapper}>
 				<GridLayout
 					className="draggable-grid"
 					autoSize={false}
-					layout={cloneDeep(intLayout)}
+					layout={intLayout}
 					onLayoutChange={updateLayoutLogic}
 					cols={d.cols}
 					compactType="horizontal"
 					useCSSTransforms={true}
 					rowHeight={rh()}
+					draggableHandle=".drag-handle"
 					width={s.width}
 					margin={[m, m]}
 				>
@@ -188,19 +227,24 @@ export const DraggableGrid = (p: {
 						intLayout.map((window, i) =>
 							<div
 								key={window.i}
-								className={`${intContent[i].active ? 'active' : ''} window-wrapper`}
+								className={`${intContent[i] && intContent[i].active ? 'active' : ''} window-wrapper`}
+								onClick={() => { if (intContent[i]) makeWindowActive(intContent[i].i) }}
 							>
+
+								<div className="note-active-ribbon"></div>
+
 								{canAdd && <button onClick={addNewWindow}> + </button>}
 								{canRemove && <button onClick={() => { removeWindow(window.i) }}> x </button>}
+								<button className="drag-handle"> D </button>
+
 								<div
 									className="window-name"
-									onClick={() => { makeWindowActive(window.i) }}
 								>
-									W - {intContent[i].file?.name}
+									W - {intContent[i] && intContent[i].file?.name}
 								</div>
 
 								<div className="note-wrapper">
-									<WindowEditor file={intContent[i].file} />
+									<WindowEditor file={intContent[i] && intContent[i].file} />
 								</div>
 
 							</div>
@@ -214,6 +258,10 @@ export const DraggableGrid = (p: {
 }
 
 const cssApp = css`
+		.debug {
+		position: absolute;
+		top: 20px;
+		}
 
 		// remove transition
 		.react-grid-item {
@@ -231,16 +279,22 @@ const cssApp = css`
 						width: 100%;
 						height: 100%;
 						.window-wrapper {
-								//background: orange;
+		opacity: 0.3;
+								background: orange;
 								overflow-y: hidden;
 								overflow-x: hidden;
 								height:100%;
 								.content-wrapper {
 										height:100%;
 								}
+								.note-active-ribbon {
+										height: 2px;
+										width: 100%;
+								}
 								&.active {
-										//background:red;
-										font-weight: bold
+										.note-active-ribbon {
+												background:red;
+										}
 								}
 
 						}

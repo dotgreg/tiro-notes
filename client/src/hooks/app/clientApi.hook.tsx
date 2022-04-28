@@ -62,7 +62,7 @@ const apiGetFileContent: iClientApi2['getFileContent'] = (noteLink, cb) => {
 
 const apiSaveFileContent: iClientApi2['saveFileContent'] = (noteLink: string, content: string) => {
 	const filePath = noteLinkToPath(noteLink);
-	console.log(`[CLIENT API] try saving file content : ${filePath}, ${content}`);
+	//console.log(`[CLIENT API] try saving file content : ${filePath}, ${content}`);
 	clientSocket2.emit('saveFileContent', { filePath, newFileContent: content, token: getLoginToken() })
 }
 
