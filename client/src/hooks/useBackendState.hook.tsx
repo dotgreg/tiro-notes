@@ -16,7 +16,7 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 
 	// fetch content on initial loading
 	useEffect(() => {
-			refreshVal();
+		refreshValFromBackend();
 	}, [])
 
 	// persistence logic 
@@ -27,7 +27,7 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 		})
 	}
 
-	const refreshVal = () => {
+	const refreshValFromBackend = () => {
 		getClientApi().then(api => {
 			api.getFileContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)
@@ -37,7 +37,7 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 		})
 	}
 
-	return [storedValue, setValue, refreshVal];
+	return [storedValue, setValue, refreshValFromBackend];
 }
 
 //	const [val, setVal] = useBackendState('user-settings', { size: 12, test: 'world' })

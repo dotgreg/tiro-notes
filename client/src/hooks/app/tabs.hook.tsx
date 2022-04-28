@@ -6,6 +6,7 @@ import { cloneDeep, each, filter, isNumber, stubString } from 'lodash';
 import { configClient } from '../../config';
 import { strings } from '../../managers/strings.manager';
 import { increment } from '../../../../shared/helpers/number.helper';
+import { useBackendState } from '../useBackendState.hook';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 
@@ -31,7 +32,7 @@ export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
 export const useTabs = (p: {
 }) => {
 
-	const [tabs, setTabsInt] = useLocalStorage<iTab[]>('tabs', [])
+	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
 	const setTabs = (nTabs: iTab[]) => {
 		//nTabs = refreshAllTabsName(nTabs);
 		setTabsInt(nTabs)
@@ -127,6 +128,7 @@ export const useTabs = (p: {
 
 	return {
 		tabs,
+		refreshTabsFromBackend,
 		getActiveTab,
 
 		updateTab,
