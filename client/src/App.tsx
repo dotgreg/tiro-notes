@@ -45,7 +45,6 @@ import { useBackendState } from './hooks/useBackendState.hook';
 
 export const App = () => {
 
-	const [test1, setTest1, refreshTest1] = useBackendState('user-test', 0);
 
 	useEffect(() => {
 		// COMPONENT DID MOUNT didmount
@@ -196,7 +195,8 @@ export const App = () => {
 		},
 		onLoginSuccess: () => {
 			reactToUrl()
-			refreshTest1()
+				refreshTabsFromBackend();
+
 		}
 	})
 
@@ -227,6 +227,7 @@ export const App = () => {
 	// Tabs system
 	const {
 		tabs, updateTab,
+			refreshTabsFromBackend,
 		getActiveTab,
 		updateActiveTabGrid, updateActiveWindowContent,
 		refreshWindowGrid
@@ -439,7 +440,6 @@ export const App = () => {
 				<PopupContext.Provider value={{ confirm: confirmPopup, prompt: promptPopup }} >
 
 					<Global styles={GlobalCssApp} />
-					<div onClick={() => { setTest1(test1 + 1) }}>{test1}</div>
 					<div role="dialog" className={`
 								main-wrapper
 								${showSidebar ? "with-sidebar" : "without-sidebar"}
