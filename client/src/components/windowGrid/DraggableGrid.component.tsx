@@ -388,10 +388,12 @@ export const draggableGridCss = `
 														padding-rigth: 10px;
 														width: 100%;
 														.title-input-wrapper {
+																padding-left: 10px;
 																.press-to-save {
 																		top: -6px;
 																		left: -6px;
 																		right: initial;
+																		opacity: 0.5;
 																}
 																.big-title {
 																		width: calc(100% - 65px);
@@ -400,6 +402,9 @@ export const draggableGridCss = `
 																		font-size: 15px;
 																}
 														}
+												}
+												.main-editor-wrapper {
+														margin-top: 45px;
 												}
 										}
 								}
