@@ -50,5 +50,6 @@ export const WindowEditor = (p: {
 }
 export const StyledDiv = styled.div`
     .window-editor-wrapper {
+
 		}
 `
