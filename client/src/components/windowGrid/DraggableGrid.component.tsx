@@ -22,7 +22,7 @@ const d = {
 	m: 5,
 	rows: 2,
 	cols: 3,
-	decalBottom: 30
+	decalBottom: 40
 }
 
 export const DraggableGrid = (p: {
@@ -310,6 +310,7 @@ export const draggableGridCss = `
 						height: 100%;
 						.window-wrapper {
 								overflow: hidden;
+								border-radius: 5px;
 								background: white;
 								overflow-y: hidden;
 								overflow-x: hidden;
@@ -323,32 +324,85 @@ export const draggableGridCss = `
 								}
 								&.active {
 										.note-active-ribbon {
-												background:${cssVars.colors.main};
+												//background:${cssVars.colors.main};
+										}
+										.dual-view-wrapper
+										.editor-area
+										.infos-editor-wrapper
+										.title-input-wrapper 
+										.big-title {
+												color: ${cssVars.colors.main};
+
 										}
 								}
 
-								.drag-handle {
-										cursor: grab;
-								}
-								.delete-button svg {
-										transform: rotate(45deg);
-								}
 
-								.can-add {
-										.add-button {display: block;}
+
+
+
+
+								.window-buttons-bar {
+										position: absolute;
+										z-index: 10;
+										right: 10px;
+										top: 10px;
+										.drag-handle {
+												cursor: grab;
+										}
+										.delete-button svg {
+												transform: rotate(45deg);
+										}
+										&.can-add {
+												.add-button {display: block;}
+										}
+										&.can-remove {
+												.detele-button {display: block;}
+										}
+										.detele-button {display: none;}
+										.add-button {display: none;}
 								}
-								.can-remove {
-										.detele-button {display: block;}
-								}
-								.detele-button {display: none;}
-								.add-button {display: none;}
 
 
 								
 								// content css modification
 								.dual-view-wrapper {
+										.file-path-wrapper {
+												display:none;
+										}
+										 .editor-area {
+												position:initial;
+												.infos-editor-wrapper {
+														z-index: 1;
+														background: white;
+														position:absolute;
+														top: 0px;
+														left: 0px;
+														width: 100%;
+														border-bottom: 1px solid rgba(0 0 0 / 5%);
+														//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+														height: 32px;
+												}
+												.main-editor-wrapper,
+												.infos-editor-wrapper {
+														padding-left: 10px;
+														padding-rigth: 10px;
+														width: 100%;
+														.title-input-wrapper {
+																.press-to-save {
+																		top: -6px;
+																		left: -6px;
+																		right: initial;
+																}
+																.big-title {
+																		width: calc(100% - 65px);
+																		font-family: ${cssVars.font.editor};
+																		color: grey;
+																		font-size: 15px;
+																}
+														}
+												}
+										}
 								}
-
 						}
 				}
 		}
