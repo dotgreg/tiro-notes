@@ -15,12 +15,12 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 //const rh = 10
 // donc en gros rowHeight doit etre egal a window.height/(2*10)
 // 600 wheight, donc on veut /2 grid = 300 et 10 pour plus de flex
-const m = 5
+const m = 10
 const d = {
 	m: 5,
 	rows: 2,
 	cols: 3,
-	decalBottom: 50
+	decalBottom: 30
 }
 
 export const DraggableGrid = (p: {
@@ -260,8 +260,9 @@ export const DraggableGrid = (p: {
 
 export const draggableGridCss = `
 
-.draggable-gri-wrapper {
+.draggable-grid-wrapper {
 		 	.debug {  
+					display:none;
 		position: absolute;
 		top: 20px;
 		}
