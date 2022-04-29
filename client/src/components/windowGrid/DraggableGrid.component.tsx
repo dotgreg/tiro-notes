@@ -10,6 +10,8 @@ import { addNewWindowConfig } from '../../hooks/app/tabs.hook';
 import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { Icon } from '../Icon.component';
+import { ButtonsToolbar } from '../ButtonsToolbar.component';
 
 
 //const rh = 10
@@ -204,6 +206,12 @@ export const DraggableGrid = (p: {
 		s.height = divWrapper.current.clientHeight - d.decalBottom
 	}
 
+
+	//
+	// BUTTONS CONTROL
+	//
+
+
 	return (
 		<div className='draggable-grid-wrapper'>
 			<div className="debug">
@@ -234,15 +242,33 @@ export const DraggableGrid = (p: {
 
 								<div className="note-active-ribbon"></div>
 
-								{canAdd && <button onClick={addNewWindow}> + </button>}
-								{canRemove && <button onClick={() => { removeWindow(window.i) }}> x </button>}
-								<button className="drag-handle"> D </button>
 
-								<div
-									className="window-name"
-								>
-									W - {intContent[i] && intContent[i].file?.name}
+								<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
+									<ButtonsToolbar
+										buttons={[
+											{
+												icon: 'faGripVertical',
+												title: 'Move Window',
+												class: 'drag-handle',
+												action: () => { }
+											},
+											{
+												icon: 'faPlus',
+												title: 'Add Window',
+												class: 'add-button',
+												action: addNewWindow
+											},
+											{
+												icon: 'faPlus',
+												title: 'Delete Window',
+												class: 'delete-button',
+												action: () => { removeWindow(window.i) }
+											}
+										]}
+										colors={["#d4d1d1", "#615f5f"]}
+										size={0.8} />
 								</div>
+
 
 								<div className="note-wrapper">
 									<WindowEditor file={intContent[i] && intContent[i].file} />
@@ -252,9 +278,10 @@ export const DraggableGrid = (p: {
 						)
 					}
 
-				</GridLayout>
-			</div>
-		</div>
+				</GridLayout
+				>
+			</div >
+		</div >
 	)
 }
 
@@ -298,6 +325,28 @@ export const draggableGridCss = `
 										.note-active-ribbon {
 												background:${cssVars.colors.main};
 										}
+								}
+
+								.drag-handle {
+										cursor: grab;
+								}
+								.delete-button svg {
+										transform: rotate(45deg);
+								}
+
+								.can-add {
+										.add-button {display: block;}
+								}
+								.can-remove {
+										.detele-button {display: block;}
+								}
+								.detele-button {display: none;}
+								.add-button {display: none;}
+
+
+								
+								// content css modification
+								.dual-view-wrapper {
 								}
 
 						}
