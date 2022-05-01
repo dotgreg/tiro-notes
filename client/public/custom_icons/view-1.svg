@@ -9,10 +9,10 @@
         <mask id="mask-2" fill="white">
             <use xlink:href="#path-1"></use>
         </mask>
-        <use id="Rectangle" fill="#D8D8D8" xlink:href="#path-1"></use>
+        <rect stroke="#D0D0D0" x="1.5" y="3.5" width="29" height="20" rx="3.5"></rect>
         <mask id="mask-4" fill="white">
             <use xlink:href="#path-3"></use>
         </mask>
-        <use id="Rectangle" fill="#888585" xlink:href="#path-3"></use>
+        <use id="Rectangle" fill="#D0D0D0" xlink:href="#path-3"></use>
     </g>
 </svg>

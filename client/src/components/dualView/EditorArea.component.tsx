@@ -248,24 +248,25 @@ export const EditorArea = (p: {
 									size={0.8}
 									buttons={[
 										{
-											title: 'Dual view',
-											customHtml: <div>
-												<Icon isLocal={true} name="custom_icons/view-1.svg" />
-												<Icon name="faCog" />
-											</div>,
-											icon: 'faFingerprint',
-											action: () => { p.onViewToggle('both') }
-										},
-										{
-											title: 'Editor view',
-											icon: 'faFingerprint',
+											title: 'Editor',
+											icon: "custom_icons/view-3.svg",
 											action: () => { p.onViewToggle('editor') }
 										},
 										{
-											title: 'Preview view',
-											icon: 'faFingerprint',
+											title: 'Editor with minimap',
+											icon: "custom_icons/view-4.svg",
+											action: () => { p.onViewToggle('editor') }
+										},
+										{
+											title: 'Dual view',
+											icon: "custom_icons/view-1.svg",
+											action: () => { p.onViewToggle('both') }
+										},
+										{
+											title: 'Render view',
+											icon: "custom_icons/view-2.svg",
 											action: () => { p.onViewToggle('preview') }
-										}
+										},
 									]}
 								/>
 							</div>

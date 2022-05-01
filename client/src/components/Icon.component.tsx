@@ -20,32 +20,31 @@ export type IconSizeProp =
 
 export class Icon extends React.Component<{
 	name: string
-	isLocal?: boolean
 	color?: string
 	size?: number
 }, {}> {
 	size = this.props.size ? this.props.size : 1
-	localUrl = (this.props.isLocal) ? this.props.name : ''
+	isLocal = this.props.name.startsWith('fa') ? false : true
 	render() {
 		return (
 			<span style={{
 				transform: `scale(${this.size})`,
 				display: 'inline-block'
 			}}>
-				{!this.props.isLocal &&
+				{!this.isLocal &&
 					<FontAwesomeIcon
 						icon={fa[this.props.name]}
 						color={this.props.color || 'black'}
 						size={'1x'}
 					/>
 				}
-				{this.props.isLocal &&
+				{this.isLocal &&
 					<span style={{
 						transform: `scale(${this.size})`,
 						display: 'inline-block',
 						width: '20px',
 						height: '20px',
-						background: `url('${this.localUrl}')`,
+						background: `url('${this.props.name}')`,
 						backgroundSize: 'contain',
 						backgroundRepeat: 'no-repeat',
 					}}></span>
