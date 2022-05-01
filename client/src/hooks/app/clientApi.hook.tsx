@@ -7,6 +7,7 @@ import { clientSocket2, ClientSocketManager } from '../../managers/sockets/socke
 import { getLoginToken } from './loginToken.hook';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
+import { generateUUID } from '../../../../shared/helpers/id.helper';
 
 
 //
@@ -144,7 +145,7 @@ ${apiSaveFileContent}`,
 // SUPPORT FUNCTIONS
 //
 const genIdReq = (type: string): string => {
-	return `client-api-${type}-req-${random(1, 10000000)}`;
+	return `client-api-${type}-req-${generateUUID()}`;
 }
 
 const noteLinkToPath = (noteLink: string): string => {

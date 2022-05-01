@@ -243,6 +243,39 @@ export const previewAreaCss = (v: MobileView) => `
     .preview-content {
 				overflow-wrap: break-word;
 
+				ul {
+						list-style-image: "./custom_icons/view-1.svg"; 
+						list-style: none; 
+						li {
+								background-image: url(./custom_icons/line.svg);
+								background-repeat: no-repeat;
+								background-position: -3px 4px;
+								background-size: 11px;
+								padding-left: 12px;
+						}
+input[type=checkbox] {
+position: relative;
+width: 0px;
+height: 10px;
+margin-right: 13px
+}
+input[type=checkbox]:before {
+		content: "";
+    display: block;
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: 0px;
+    left: 0px;
+    background-image: url(./custom_icons/check.svg);
+    background-repeat: no-repeat;
+    background-position: -2px -1px;
+    background-size: contain;
+}
+input[type=checkbox]:checked:before {
+background-image: url(./custom_icons/uncheck.svg);
+}
+				}
 
 				table {
 						margin: 10px 0px;
