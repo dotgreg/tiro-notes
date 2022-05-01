@@ -1,7 +1,7 @@
 
 export type iFileNature = 'file' | 'folder'
 
-export type iViewType = 'editor' | 'both' | 'preview'
+export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
 export interface iWindowContent {
 	i: string
 	file?: iFile
