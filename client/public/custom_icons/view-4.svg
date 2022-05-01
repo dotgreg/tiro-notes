@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/view-4</title>
+    <defs>
+        <rect id="path-1" x="1" y="4" width="30" height="21" rx="3.5"></rect>
+        <path d="M25,4 L27.5,4 C29.4329966,4 31,5.56700338 31,7.5 L31,21.5 C31,23.4329966 29.4329966,25 27.5,25 L25,25 L25,25 L25,4 Z" id="path-3"></path>
+    </defs>
+    <g id="icon/view-4" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="Rectangle" fill="#D8D8D8" xlink:href="#path-1"></use>
+        <mask id="mask-4" fill="white">
+            <use xlink:href="#path-3"></use>
+        </mask>
+        <use id="Rectangle" fill="#888585" xlink:href="#path-3"></use>
+    </g>
+</svg>

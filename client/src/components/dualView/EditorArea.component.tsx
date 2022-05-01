@@ -24,6 +24,7 @@ import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 import { Dropdown } from '../Dropdown.component';
 import { css } from '@emotion/css';
 import { iViewType } from './DualViewer.component';
+import { Icon } from '../Icon.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -240,14 +241,6 @@ export const EditorArea = (p: {
 						dir="right"
 					>
 						<>
-							<div className='toolbar-wrapper'>
-								<ButtonsToolbar
-									class='editor-main-toolbar'
-									design="vertical"
-									size={0.8}
-									buttons={editorToolbarActions}
-								/>
-							</div>
 
 							<div className="view-toggler-wrapper">
 								<ButtonsToolbar
@@ -256,6 +249,10 @@ export const EditorArea = (p: {
 									buttons={[
 										{
 											title: 'Dual view',
+											customHtml: <div>
+												<Icon isLocal={true} name="custom_icons/view-1.svg" />
+												<Icon name="faCog" />
+											</div>,
 											icon: 'faFingerprint',
 											action: () => { p.onViewToggle('both') }
 										},
@@ -269,10 +266,19 @@ export const EditorArea = (p: {
 											icon: 'faFingerprint',
 											action: () => { p.onViewToggle('preview') }
 										}
-										
 									]}
 								/>
 							</div>
+
+							<div className='toolbar-wrapper'>
+								<ButtonsToolbar
+									class='editor-main-toolbar'
+									design="vertical"
+									size={0.8}
+									buttons={editorToolbarActions}
+								/>
+							</div>
+
 							<div className="dates-wrapper">
 								<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
 								<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
