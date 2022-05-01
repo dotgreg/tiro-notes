@@ -78,7 +78,9 @@ export const tabsCss = `
 				padding: 7px 0px 0px 13px;
 				display: flex;
 				background: #D8D8D8;
-		    border-radius: 0px 0px 0px 5px;
+				width: 100%;
+				overflow-x: scroll;
+				border-radius: 0px 0px 0px 5px;
 				.tab-wrapper {
 						position: relative;
 						align-items:center;

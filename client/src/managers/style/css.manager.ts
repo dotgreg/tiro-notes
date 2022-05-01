@@ -347,7 +347,6 @@ box-shadow: -15px 18px 55px rgba(0, 0, 0, 0.15);
           }
           .preview-area-wrapper {
 						width: 100%;
-						padding: 0px ${sizes.block * 3}px;
 						.preview-area {
 						}
 					}

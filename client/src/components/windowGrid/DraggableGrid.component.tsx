@@ -445,13 +445,16 @@ export const draggableGridCss = `
 										}
 
 										 // 
-										 // FULL PREVIEW
+										 // ALL
 										 // 
 										 &.device-desktop {
 														.preview-area-wrapper {
 																margin-top: 33px;
-																padding: 20px 5px 5px 5px;
+																padding: 5px 5px 5px 5px;
 																background: #F7F7F7;
+														}
+														.preview-area {
+																padding: 10px;
 														}
 										 }
 

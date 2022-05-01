@@ -127,7 +127,8 @@ export const useTabs = (p: {
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
-		aTab.name = `${nFile.name.substring(0, 20)}`
+
+		aTab.name = nFile.name.length > 10 ? `${nFile.name.substring(0, 10)}..` : nFile.name
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
 
