@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { iFile, iFileImage } from '../../../../shared/types.shared';
+import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
@@ -9,7 +9,6 @@ import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
 import { useIntervalNoteHistory } from '../../hooks/editor/noteHistory.hook';
 import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
 import { useEditorUploadLogic } from '../../hooks/editor/editorUpload.hook';
-import { detachNoteNewWindowButtonConfig } from '../../managers/detachNote.manager';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { formatDateList } from '../../managers/date.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -23,8 +22,6 @@ import { findImagesFromContent } from '../../managers/images.manager';
 import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 import { Dropdown } from '../Dropdown.component';
 import { css } from '@emotion/css';
-import { iViewType } from './DualViewer.component';
-import { Icon } from '../Icon.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -49,7 +46,7 @@ export const EditorArea = (p: {
 
 	onBackButton: Function
 	onToggleSidebarButton: Function
-	onViewToggle: (view?: iViewType) => void
+	onViewToggle: (view: iViewType) => void
 	onMaxYUpdate: (maxY: number) => void
 
 }) => {

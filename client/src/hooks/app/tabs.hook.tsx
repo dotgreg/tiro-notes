@@ -1,5 +1,5 @@
 import React from 'react';
-import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
+import { iFile, iGrid, iTab, iViewType } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
 import { strings } from '../../managers/strings.manager';
@@ -21,7 +21,8 @@ export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
 		},
 		content: {
 			i: id,
-			active: false
+			active: false,
+			view: 'editor' as iViewType
 		}
 	}
 }

@@ -1,9 +1,12 @@
+
 export type iFileNature = 'file' | 'folder'
 
+export type iViewType = 'editor' | 'both' | 'preview'
 export interface iWindowContent {
 	i: string
 	file?: iFile
 	active: boolean
+	view: iViewType
 }
 
 export interface iWindow {

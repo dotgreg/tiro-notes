@@ -6,7 +6,7 @@ import { DragzoneCss } from '../../hooks/editor/editorUpload.hook'
 import { cssVars } from './vars.style.manager';
 import { editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
-import { monacoColorsCss } from '../../components/MonacoEditor.Component';
+import { monacoColorsCss, monacoEditorCss } from '../../components/MonacoEditor.Component';
 import { mobileViewMenuCss } from '../../hooks/app/mobileView.hook';
 import { connectionIndicatorCss } from '../../hooks/app/connectionIndicator.hook';
 import { newFileButtonCss } from '../../components/NewFileButton.component';
@@ -324,7 +324,6 @@ box-shadow: -15px 18px 55px rgba(0, 0, 0, 0.15);
 						}
 				}
 				.preview-area-wrapper {
-							margin-top: 140px;
 							transition: 0.2s all;
 							transform: scale(0.2) translateZ(0);
 							transform-origin: 0px 0px;
@@ -365,6 +364,7 @@ box-shadow: -15px 18px 55px rgba(0, 0, 0, 0.15);
         ${editorAreaCss(mobileView)}
 
         ${monacoColorsCss}
+        ${monacoEditorCss}
 
         ${previewAreaCss(mobileView)}
         

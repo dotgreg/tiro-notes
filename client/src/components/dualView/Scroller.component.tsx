@@ -32,7 +32,7 @@ export const ScrollingBar = (p: {
 		res.maxY = w.getBoundingClientRect().height - size
 		res.y = s.getBoundingClientRect().y - decalTopW
 		res.percent = Math.round((res.y / res.maxY) * 100)
-		//console.log(`[SCROLLBAR] getstats ${JSON.stringify(res)}`);
+		console.log(`[SCROLLBAR] 666 getstats ${JSON.stringify(res)}`);
 		return res
 	}
 
@@ -59,7 +59,6 @@ export const ScrollingBar = (p: {
 			<div
 				ref={scrollBarEl}
 				className="scrolling-bar">
-				{/* woop {frr.current} */}
 			</div>
 		</Draggable>
 	</div>
@@ -71,8 +70,8 @@ export const scrollingBarCss = () => `
 
 .scrolling-bar-wrapper {
 		position: absolute;
-		top: 140px;
-		height: calc(100vh - 140px);
+		top: 33px;
+		height: calc(100% - 33px);
 		opacity: 0.3;
 		background: rgb(195,195,195);
 		width: 10px;
