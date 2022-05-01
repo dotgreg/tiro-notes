@@ -61,7 +61,10 @@ const Tab = (p: {
 
 			{
 				tab.grid.layout.length > 1 &&
-				<div className="tab-nb-windows">
+				<div
+						className="tab-nb-windows"
+				onClick={() => { p.onUpdate('activate', tab) }}
+				>
 					<Icon name={iconName} color={`#b2b2b2`} />
 				</div>
 			}
@@ -131,6 +134,10 @@ export const tabsCss = `
 						}
 						.tab-name {
 								padding: 10px 0px 10px 10px;
+
+						}
+						.tab-nb-windows {
+								padding: 10px 0px 10px 0px;
 
 						}
 						.tab-close {
