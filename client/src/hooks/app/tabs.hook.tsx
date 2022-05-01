@@ -5,12 +5,17 @@ import { cloneDeep, each, isNumber } from 'lodash';
 import { strings } from '../../managers/strings.manager';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
+import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
 
-export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
+export const addNewWindowConfig = (p: { file: iFile, w?: number, h?: number }) => {
+	let { w, h, file } = { ...p }
+	if (!h) h = draggableGridConfig.rows
+	if (!w) w = draggableGridConfig.cols
+
 	const id = generateUUID()
 	return {
 		layout: {
@@ -22,6 +27,7 @@ export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
 		content: {
 			i: id,
 			active: false,
+			file: file,
 			view: 'editor' as iViewType
 		}
 	}
@@ -29,6 +35,7 @@ export const addNewWindowConfig = (w: number = 3, h: number = 2) => {
 
 
 export const useTabs = (p: {
+	activeFile: iFile
 }) => {
 
 	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
@@ -42,7 +49,10 @@ export const useTabs = (p: {
 
 		if (type === 'add') {
 			// if active tab exists, copy it in new one
-			const nTab = generateNewTab(getActiveTab(tabs))
+			//const nTab = generateNewTab(getActiveTab(tabs))
+			//tab with one window
+			const nTab = generateNewTab({ fullWindowFile: p.activeFile })
+			if (!nTab) return
 			const nTabs = [...tabs, nTab]
 			const nTabs2 = setActiveTab(nTab.id, nTabs)
 			setTabs(nTabs2)
@@ -171,15 +181,17 @@ const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
 }
 
 
-const generateNewTab = (copiedTab?: iTab): iTab => {
-	if (copiedTab) {
-		const tab = cloneDeep(copiedTab)
+const generateNewTab = (p: {
+	copiedTab?: iTab
+	fullWindowFile?: iFile
+}) => {
+	if (p.copiedTab) {
+		const tab = cloneDeep(p.copiedTab)
 		tab.id = generateUUID()
-		tab.name = incrementName(copiedTab.name)
+		tab.name = incrementName(p.copiedTab.name)
 		return tab
-	} else {
-
-		const newWindowConf = addNewWindowConfig(3, 2)
+	} else if (p.fullWindowFile) {
+		const newWindowConf = addNewWindowConfig({ file: p.fullWindowFile })
 
 		return {
 			id: generateUUID(),

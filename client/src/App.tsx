@@ -223,6 +223,8 @@ export const App = () => {
 		})
 	}, [activeFileIndex, showSidebar])
 
+	const [files, setFiles] = useState<iFile[]>([])
+
 	// Tabs system
 	const {
 		tabs, updateTab,
@@ -230,15 +232,15 @@ export const App = () => {
 		getActiveTab,
 		updateActiveTabGrid, updateActiveWindowContent,
 		refreshWindowGrid
-	} = useTabs({});
+	} = useTabs({ activeFile: files[activeFileIndex] });
 	const activeTab = getActiveTab(tabs);
 
 	// Files List
 	const {
-		files, setFiles,
 		askForFolderFiles,
 		FilesListComponent,
 	} = useAppFilesList(
+		files, setFiles,
 		activeFileIndex, setActiveFileIndex,
 		tabs, onFilesReceivedCallback
 	)
