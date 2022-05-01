@@ -272,6 +272,7 @@ export const DraggableGrid = (p: {
 								<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
 									<ButtonsToolbar
 										design="horizontal"
+										popup={false}
 										buttons={[
 											{
 												icon: 'faGripVertical',

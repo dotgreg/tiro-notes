@@ -9,15 +9,11 @@ export const ButtonsToolbar = (p: {
 	size?: number
 	buttons: iToolbarButton[]
 	design?: 'horizontal' | 'vertical'
+	popup?: boolean
 }) => {
 	let { design, colors, size } = { ...p }
 	if (!design) design = 'horizontal'
-	// let currColors = []
-	// if (!p.colors) {
-	//   currColors = []
-	// } else {
-	//   currColors = p.colors
-	// }
+	let popup = ('popup' in p) ? p.popup : true
 
 	const customCss = css`
 				button.toolbar-button {
@@ -38,7 +34,7 @@ export const ButtonsToolbar = (p: {
     `
 
 	return <div className={customCss}>
-		<ul className={`buttons-toolbar-component ${p.class} ${design}`}>
+		<ul className={`buttons-toolbar-component ${p.class} ${design} ${popup ? 'with-popup' : 'no-popup'}`}>
 			{
 				p.buttons.map((button, key) =>
 					button.action &&
@@ -76,10 +72,11 @@ export const ToolbarButton = (p: iToolbarButton) => {
 			<div className="inside-html-wrapper">
 				{insideHtml}
 			</div>
-			<div className="button-hover-popup">
+			<div
+				className={`button-hover-popup `}>
 				{p.title}
 			</div>
-		</button>
+		</button >
 	)
 }
 
@@ -118,13 +115,15 @@ export const ButtonsToolbarCss = `
 								}
 						}
 				}
+				&.horizontal.with-popup {
+								li button:hover .button-hover-popup {
+										display: block;
+								}
+				}
 				&.horizontal {
 						display: flex;
 						li {
 						button {
-								&:hover .button-hover-popup {
-										display: block;
-								}
 								.button-hover-popup {
 										display: none;
 										opacity: 0.2;
