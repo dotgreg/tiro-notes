@@ -334,6 +334,9 @@ ${ButtonsToolbarCss}
 						.preview-area {
 							width: 60%;
 							padding: 20px;
+ul {
+ list-style-type: "🔔 "; 
+}
 						}
 				}
 				.preview-area-wrapper {

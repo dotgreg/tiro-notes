@@ -320,6 +320,12 @@ export const draggableGridCss = `
 		.react-grid-item {
 				transition: all 0ms ease;
 				transition-property: left, top;
+				.react-resizable-handle {
+						bottom: 2px;
+						right: 0px;
+						cursor: se-resize;
+						opacity: 0.2;
+				}
 		}
 
 		height: 100%;
