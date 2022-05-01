@@ -7,9 +7,11 @@ export const Dropdown = (p: {
 	children?: JSX.Element
 	footer?: ReactElement
 	dir?: 'left' | 'right'
+	maxHeight?: number
 }) => {
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 	const dir = p.dir ? p.dir : 'left'
+	const maxHeight = p.maxHeight ? p.maxHeight : 50
 
 	return (
 		<div className={`dropdown-wrapper ${dir} ${p.hover ? 'hover-active' : ''}`}>
@@ -17,13 +19,12 @@ export const Dropdown = (p: {
 				onMouseEnter={() => {
 				}}
 				onClick={() => {
-					setIsMenuOpened(!isMenuOpened)
 				}}
-				className="context-menu-wrapper">
+				className="context-menu-wrapper" >
 				<div className="dropdown-icon">
 					<Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
 				</div>
-				<div className="context-menu">
+				<div className="context-menu" style={{ maxHeight }}>
 					{p.children}
 				</div>
 			</span>
@@ -55,6 +56,7 @@ export const dropdownCss = `
 				}
 
 				.context-menu {
+						overflow-y: scroll;
 						z-index: 100;
 						right: 0px;
 						top: 20px;
