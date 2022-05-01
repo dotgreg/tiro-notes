@@ -137,14 +137,6 @@ export class List extends React.Component<{
 		const responsiveListHeight = isA('desktop') ? listHeight : listHeight - cssVars.sizes.mobile.bottomBarHeight
 		return (
 			<>
-				{
-					deviceType() !== 'desktop' &&
-					<div className="mobile-buttons-up-down">
-						<div id="top" onClick={() => { this.autoScrollToItem(0, false) }}>=</div>
-						<div id="up" onClick={() => { this.autoScrollToItem(-4, false) }}>^</div>
-						<div id="down" onClick={() => { this.autoScrollToItem(4, false) }}>v</div>
-					</div>
-				}
 
 				<div
 					className='list-wrapper-scroller'

@@ -113,7 +113,6 @@ export const previewAreaCss = (v: MobileView) => `
 .preview-area {
     position: relative;
     display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
-    padding: ${isA('desktop') ? `0px ${cssVars.sizes.block * 3}px 0px ${(cssVars.sizes.block * 3) / 2}px` : `0px ${cssVars.sizes.block * 2}px`};
     // overflow: ${isIpad() ? 'scroll' : 'hidden'};
 
     ${commonCssEditors}
