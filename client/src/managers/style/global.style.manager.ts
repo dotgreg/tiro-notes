@@ -22,6 +22,7 @@ body {
 html, body {
   height: 100vh;
   overflow:hidden;
+	background: #efefef;
 }
 
 button,

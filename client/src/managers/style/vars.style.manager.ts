@@ -75,10 +75,10 @@ const colors = {
 let block = 15
 const sizes = {
 	desktop: {
-		l: 37, l1: 38, l2: 62,
+		l: 37, l1: 37, l2: 63,
 		r: 63
 	},
-	search: { h: 94, padding: block },
+	search: { h: 94, padding: 10 },
 	gallery: {
 		topH: 100
 	},

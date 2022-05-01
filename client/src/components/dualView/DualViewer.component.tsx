@@ -11,7 +11,7 @@ import { deviceType } from '../../managers/device.manager';
 import { clamp } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 
-export type ViewType = 'editor' | 'both' | 'preview'
+export type iViewType = 'editor' | 'both' | 'preview'
 
 export const DualViewer = (p: {
 	file: iFile
@@ -30,7 +30,7 @@ export const DualViewer = (p: {
 	const { syncScrollY, updateSyncScroll, setPosY } = useSyncScroll()
 
 
-	const [viewType, setViewType] = useLocalStorage('viewtype', 'both')
+	const [viewType, setViewType] = useState<iViewType>('both')
 	const [previewContent, setPreviewContent] = useState('')
 
 	// calculate max Y for custom scroller bar
@@ -62,7 +62,7 @@ export const DualViewer = (p: {
 		func: () => previewContent
 	})
 
-	const endTempViewType = useRef<string | null>(null);
+	const endTempViewType = useRef<iViewType | null>(null);
 	addCliCmd('setTempViewType', {
 		description: 'setviewtype (both, preview, editor)',
 		func: view => {
@@ -114,10 +114,14 @@ export const DualViewer = (p: {
 			onBackButton={p.onBackButton}
 			onToggleSidebarButton={p.onToggleSidebarButton}
 			onLightboxClick={p.onLightboxClick}
-			onViewToggle={() => {
-				if (viewType === 'both') setViewType('editor')
-				if (viewType === 'editor') setViewType('preview')
-				if (viewType === 'preview') setViewType('both')
+			onViewToggle={(view?: iViewType) => {
+				if (!view) {
+					if (viewType === 'both') setViewType('editor')
+					if (viewType === 'editor') setViewType('preview')
+					if (viewType === 'preview') setViewType('both')
+				} else {
+					setViewType(view)
+				}
 			}}
 
 			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}

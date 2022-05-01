@@ -24,7 +24,8 @@ export const loadScripts = (scripts: string[], cb: Function) => {
 				}
 			}
 		}
-		document.getElementById('preview-script-area')?.appendChild(s)
+		const el = document.getElementById('preview-script-area')
+		if (el) el.appendChild(s)
 	})
 }
 
@@ -53,12 +54,15 @@ addCliCmd('lodash', {
 export const transformMarkdownScripts = (bodyRaw: string): string => {
 	let res = replaceCustomMdTags(bodyRaw, '[[script]]', (input: string) => {
 		const func = `
-const toeval = function () {
-${input};
-}
-toeval();`;
-		//console.log('wooop', input, func);
-		return eval(func);
+				const toeval = function () {
+				${input};
+				}
+				toeval();
+		`;
+		try {
+			return eval(func)
+		} catch {
+		}
 	});
 	return res;
 };

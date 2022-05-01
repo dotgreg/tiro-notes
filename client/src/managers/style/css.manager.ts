@@ -24,6 +24,12 @@ import { ButtonsToolbarCss } from '../../components/ButtonsToolbar.component';
 import { lightboxCss } from '../../components/Lightbox.component';
 import { promptPopupCss } from '../../hooks/app/usePromptPopup.hook';
 import { scrollingBarCss } from '../../components/dualView/Scroller.component';
+import { draggableGridCss } from '../../components/windowGrid/DraggableGrid.component';
+import { tabsCss } from '../../components/tabs/TabList.component';
+import { dropdownCss } from '../../components/Dropdown.component';
+
+
+export const css2 = (css: string) => css
 
 let d = deviceType()
 const { els, colors, font, sizes, other } = { ...cssVars }
@@ -52,6 +58,8 @@ ${ButtonsToolbarCss}
   display: flex;
 
   ${imageGalleryCss()}
+
+  ${dropdownCss}
 
   ${searchBarCss}
 
@@ -102,9 +110,11 @@ ${ButtonsToolbarCss}
 			width: 18px;
 			height: 100vh;
 			background: rgb(236, 236, 236);
+				box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 			margin: 0% 0px;
 			border-radius: 0px 5px;
 			.left-wrapper {
+        box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 				transition: 0.2s all;
 				transition-delay: 0s;
 				position: absolute;
@@ -155,12 +165,22 @@ ${ButtonsToolbarCss}
       width: ${sizes.desktop.l2}%;
       height:100vh;
       overflow: hidden;
+				background: #efefef;
+
+
+
       
       .top-files-list-wrapper {
         padding-top: ${sizes.search.padding}px;
         height: ${sizes.search.h}px;
         .subtitle-wrapper {
-          display: flex;
+						position: relative;
+						display: flex;
+						.toggle-sidebar-btn {
+								position: absolute;
+								right: 10px;
+						}
+
           h3.subtitle {
             margin: 0px ${sizes.block}px ${sizes.block}px ${sizes.block}px; 
           }
@@ -189,7 +209,7 @@ ${ButtonsToolbarCss}
     .list-toolbar {
       position: absolute;
       top: -93px;
-      right: 0px;
+      right: 23px;
       color: ${colors.l2.text};
       button {
         color: ${colors.l2.text};
@@ -252,12 +272,16 @@ ${ButtonsToolbarCss}
   ////////////////////////////////////////////v 
   // TEXT VIEW : RIGHT
   ////////////////////////////////////////////v 
+		${tabsCss}
+		${draggableGridCss}
+
   ${mobileNoteToolbarCss}
 	${scrollingBarCss()}
 
 	&.without-sidebar.device-view-desktop.view-text {
 		.right-wrapper.dual-viewer-view {
-			width: 100vw
+				width: calc(100vw - 18px);
+				margin-left: 18px;
 		}
 	}
 

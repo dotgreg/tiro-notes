@@ -182,12 +182,6 @@ export const useAppFilesList = (
 					<span> {files.length > 0 && <span className='list-count'>({files.length})</span>} {SortModesLabels[sortMode]} </span>
 					<Icon name="faSort" color={cssVars.colors.l2.text} />
 				</button>
-
-				{/* { files.length > 0 &&
-                    <span className='items-list-count'>{files.length} els</span>
-                } */}
-
-
 			</div>
 
 

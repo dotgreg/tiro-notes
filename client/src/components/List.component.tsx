@@ -323,6 +323,9 @@ export const filesListCss = `
             display: flex;
             justify-content: center;
             
+						h3 {
+								font-size: 12px;
+						}
             .left {
               // width: calc(100% - ${sizes.l2.fileLi.img}px - 10px);
               width: 100%;
