@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
-import { MonacoEditorWrapper, resetMonacoSelection } from '../MonacoEditor.Component';
+import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -21,6 +21,9 @@ import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { NoteMobileToolbar } from './NoteToolbar.component';
 import { findImagesFromContent } from '../../managers/images.manager';
 import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
+import { Dropdown } from '../Dropdown.component';
+import { css } from '@emotion/css';
+import { iViewType } from './DualViewer.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -45,7 +48,7 @@ export const EditorArea = (p: {
 
 	onBackButton: Function
 	onToggleSidebarButton: Function
-	onViewToggle: Function
+	onViewToggle: (view?: iViewType) => void
 	onMaxYUpdate: (maxY: number) => void
 
 }) => {
@@ -53,7 +56,7 @@ export const EditorArea = (p: {
 	const [vimMode, setVimMode] = useState(false)
 	const [innerFileContent, setInnerFileContent] = useState('')
 	let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
-		//@ts-ignore
+	//@ts-ignore
 	window.monacoEditComp = monacoEditorComp
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -81,7 +84,7 @@ export const EditorArea = (p: {
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
-			if (isA('desktop')) resetMonacoSelection()
+			if (isA('desktop')) resetMonacoSelectionExt()
 			ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
 		}
 	})
@@ -152,30 +155,10 @@ export const EditorArea = (p: {
 
 	// TOOLBAR ACTIONS
 	const editorToolbarActions = [
-		{
-			title: 'back',
-			icon: 'faAngleLeft',
-			action: () => {
-				p.onBackButton()
-			}
-		},
-		{
-			title: 'Toggle Sidebar',
-			icon: 'faExpand',
-			action: () => {
-				p.onToggleSidebarButton()
-			}
-		},
-		isA('desktop') ? {
-			title: 'toggle views',
-			icon: 'faAdjust',
-			action: () => { p.onViewToggle() }
-		} : {},
 		uploadButtonConfig,
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-		isA('desktop') ? detachNoteNewWindowButtonConfig(p.file) : {},
 		{
-			title: 'insert unique id',
+			title: 'Insert unique id',
 			icon: 'faFingerprint',
 			action: () => {
 				let folder = `${p.file.folder}`
@@ -183,7 +166,7 @@ export const EditorArea = (p: {
 			}
 		},
 		{
-			title: 'print/download',
+			title: 'Print/download',
 			icon: 'faFileDownload',
 			action: () => {
 				window.print()
@@ -213,7 +196,7 @@ export const EditorArea = (p: {
 		},
 
 		{
-			title: 'delete note',
+			title: 'Delete note',
 			class: 'delete',
 			icon: 'faTrash',
 			action: () => {
@@ -224,7 +207,7 @@ export const EditorArea = (p: {
 		},
 	]
 
-		
+
 	const popups = useContext(PopupContext);
 	// File History
 	const [historyPopup, setHistoryPopup] = useState(false)
@@ -251,19 +234,53 @@ export const EditorArea = (p: {
 				/>
 
 				<div className="toolbar-and-dates-wrapper">
-					<div className='toolbar-wrapper'>
-						<ButtonsToolbar
-							class='editor-main-toolbar'
-							buttons={editorToolbarActions}
-						/>
 
+					<div className="editor-toolbar-dropdown"> 																			<Dropdown
+						hover={true}
+						dir="right"
+					>
+						<>
+							<div className='toolbar-wrapper'>
+								<ButtonsToolbar
+									class='editor-main-toolbar'
+									design="vertical"
+									size={0.8}
+									buttons={editorToolbarActions}
+								/>
+							</div>
 
+							<div className="view-toggler-wrapper">
+								<ButtonsToolbar
+									class='editor-view-toolbar'
+									size={0.8}
+									buttons={[
+										{
+											title: 'Dual view',
+											icon: 'faFingerprint',
+											action: () => { p.onViewToggle('both') }
+										},
+										{
+											title: 'Editor view',
+											icon: 'faFingerprint',
+											action: () => { p.onViewToggle('editor') }
+										},
+										{
+											title: 'Preview view',
+											icon: 'faFingerprint',
+											action: () => { p.onViewToggle('preview') }
+										}
+										
+									]}
+								/>
+							</div>
+							<div className="dates-wrapper">
+								<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+								<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+							</div>
+						</>
+					</Dropdown >
 					</div>
 
-					<div className="dates-wrapper">
-						<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-						<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-					</div>
 				</div>
 
 			</div>
@@ -322,6 +339,15 @@ export const EditorArea = (p: {
 		</div>
 	)
 }
+const test = css`
+		.test {
+				background: red;
+		}
+
+`
+const test2 = `
+the color changed everywhere;
+`
 
 export const commonCssEditors = `
 .file-path-wrapper {
@@ -394,17 +420,7 @@ export const editorAreaCss = (v: MobileView) => `
     }
     
 
-    .toolbar-wrapper {  
-      flex: 1 1 auto;
-      ul.buttons-toolbar-component {
-        display: flex;
-        list-style: none;
-        padding: 0px 0px 0px 0px;
-        margin: ${isA("desktop") ? `${cssVars.sizes.block}px 0px` : `${cssVars.sizes.block / 3}px 0px ${cssVars.sizes.block / 1.5}px 0px `};
-        li {
-          margin-right: 10px;
-        }
-      }  
+
 
       .upload-button-wrapper {
         position: relative;  

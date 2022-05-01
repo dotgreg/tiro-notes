@@ -7,7 +7,7 @@ import { LineTextInfos } from '../managers/textEditor.manager';
 import { onScrollFn } from './dualView/EditorArea.component';
 
 export let monacoEditorInstance: any
-export const resetMonacoSelection = () => {
+export const resetMonacoSelectionExt = () => {
 	if (!monacoEditorInstance) return
 	let selection = {
 		endColumn: 0,
@@ -50,6 +50,9 @@ export class MonacoEditorWrapper extends React.Component<{
 			this.props.onScroll(e.scrollTop)
 		});
 
+
+		//@ts-ignore
+		window.editor = editor
 		//@ts-ignore
 		window.monaco = monaco
 		// const monokai = require('monaco-themes/themes/Monokai.json');
@@ -71,9 +74,22 @@ export class MonacoEditorWrapper extends React.Component<{
 
 
 		monaco.editor.setTheme('customLightTheme');
+		setTimeout(() => {
+			//this.resetMonacoSelection();
+		}, 100)
 	}
 
 
+	resetMonacoSelection = () => {
+		const sel = this.editor.getSelection()
+		let selection = {
+			endColumn: sel.startColumn,
+			endLineNumber: sel.startLineNumber,
+			startColumn: sel.startColumn,
+			startLineNumber: sel.startLineNumber,
+		}
+		this.editor.setSelection(selection)
+	}
 	//
 	// LINE MANAGER
 	//
@@ -97,6 +113,14 @@ export class MonacoEditorWrapper extends React.Component<{
 
 		if (this.props.posY !== nextProps.posY || this.props.value !== nextProps.value) {
 			this.editor.setScrollPosition({ scrollTop: this.props.posY });
+		}
+
+
+		// TO REMOVE BUG : highlight everything on load
+		if (this.props.value.length === 0 && this.props.value.length !== nextProps.value.length) {
+			setTimeout(() => {
+				this.resetMonacoSelection();
+			}, 1)
 		}
 
 		// if (this.props.insertUnderCaret !== nextProps.insertUnderCaret && nextProps.insertUnderCaret !== '') {
@@ -186,12 +210,8 @@ export const monacoColorsCss = `
   }
 
 
-.view-overlaysd  {
-		display: none;
-		}
-// do not show bars
-.view-overlayds div {
-		display: none!important;
+		.view-overlays .current-line {
+				display:none;
 		}
 `
 

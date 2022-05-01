@@ -12,6 +12,7 @@ import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { Dropdown } from '../Dropdown.component';
 
 
 //const rh = 10
@@ -21,7 +22,7 @@ const m = 10
 const d = {
 	m: 5,
 	rows: 2,
-	cols: 3,
+	cols: 4,
 	decalBottom: 40
 }
 
@@ -242,9 +243,9 @@ export const DraggableGrid = (p: {
 
 								<div className="note-active-ribbon"></div>
 
-
 								<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
 									<ButtonsToolbar
+										design="horizontal"
 										buttons={[
 											{
 												icon: 'faGripVertical',
@@ -273,25 +274,27 @@ export const DraggableGrid = (p: {
 								<div className="note-wrapper">
 									<WindowEditor file={intContent[i] && intContent[i].file} />
 								</div>
-
 							</div>
 						)
 					}
-
-				</GridLayout
-				>
+				</GridLayout>
 			</div >
 		</div >
 	)
 }
+const test = `
+	.test {
+		background: red;
+	}
+`;
 
 export const draggableGridCss = `
-
 .draggable-grid-wrapper {
 		 	.debug {  
 					display:none;
-		position: absolute;
-		top: 20px;
+				position: absolute;
+				top: 20px;
+				background: red;
 		}
 
 		// remove transition
@@ -312,6 +315,7 @@ export const draggableGridCss = `
 								overflow: hidden;
 								border-radius: 5px;
 								background: white;
+								box-shadow: 0px 0px 5px rgba(0,0,0,.1);
 								overflow-y: hidden;
 								overflow-x: hidden;
 								height:100%;
@@ -336,6 +340,13 @@ export const draggableGridCss = `
 										}
 								}
 
+								.note-wrapper {
+										.editor-toolbar-dropdown {
+												position: absolute;
+												top: 10px;
+												right: 0px;
+										}
+								}
 
 
 
@@ -343,8 +354,8 @@ export const draggableGridCss = `
 
 								.window-buttons-bar {
 										position: absolute;
-										z-index: 10;
-										right: 10px;
+										z-index:2;
+										right: 30px;
 										top: 10px;
 										.drag-handle {
 												cursor: grab;
@@ -373,7 +384,6 @@ export const draggableGridCss = `
 												position:initial;
 												.infos-editor-wrapper {
 														z-index: 1;
-														background: white;
 														position:absolute;
 														top: 0px;
 														left: 0px;
@@ -381,12 +391,13 @@ export const draggableGridCss = `
 														border-bottom: 1px solid rgba(0 0 0 / 5%);
 														//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 														height: 32px;
+														padding: 0px;
 												}
 												.main-editor-wrapper,
 												.infos-editor-wrapper {
 														padding-left: 10px;
 														padding-rigth: 10px;
-														width: 100%;
+														width: calc(100% - 20px);
 														.title-input-wrapper {
 																padding-left: 10px;
 																.press-to-save {
@@ -404,12 +415,38 @@ export const draggableGridCss = `
 														}
 												}
 												.main-editor-wrapper {
-														margin-top: 45px;
+														margin-top: 33px;
 												}
 										}
+
+										 // 
+										 // FULL PREVIEW
+										 // 
+										 &.device-desktop.view-preview {
+														.editor-area {
+																width: 100%
+														}
+														.preview-area-wrapper {
+																margin-top: 33px;
+																padding: 20px 5px 5px 5px;
+														}
+										 }
+
+										 // 
+										 // FULL EDITOR
+										 // 
+										 &.device-desktop.view-editor {
+												.preview-area-wrapper {
+														margin-top: 33px;
+												}
+										 }
+
+										 .scrolling-bar-wrapper {
+														top: 33px;
+										 }
 								}
 						}
 				}
 		}
 }
-`
+`;

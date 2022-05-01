@@ -37,6 +37,7 @@ import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
+import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 
 
 
@@ -193,7 +194,7 @@ export const App = () => {
 		},
 		onLoginSuccess: () => {
 			reactToUrl()
-				refreshTabsFromBackend();
+			refreshTabsFromBackend();
 
 		}
 	})
@@ -225,7 +226,7 @@ export const App = () => {
 	// Tabs system
 	const {
 		tabs, updateTab,
-			refreshTabsFromBackend,
+		refreshTabsFromBackend,
 		getActiveTab,
 		updateActiveTabGrid, updateActiveWindowContent,
 		refreshWindowGrid
@@ -551,12 +552,20 @@ export const App = () => {
 								<div className="left-wrapper-2">
 									<div className="top-files-list-wrapper">
 										<div className="subtitle-wrapper">
+
+											{/* SIDEBAR TOGGLER */}
+											<div className="toggle-sidebar-btn">
+												<ButtonsToolbar buttons={[{
+													icon: 'faThumbtack',
+													title: 'Toggle Sidebar',
+													action: e => { toggleSidebar(); refreshWindowGrid(); },
+													active: showSidebar === true
+												}]} colors={["#d4d1d1", "#615f5f"]} size={0.8} />
+											</div>
+
 											{/* <h3 className="subtitle">{strings.files}</h3> */}
 											<AppViewSwitcherComponent />
-											{/* SIDEBAR TOGGLER */}
-											<button onClick={e => { toggleSidebar(); refreshWindowGrid(); }}>
-												<Icon name="faFastForward" color="black" />
-											</button>
+
 										</div>
 										{
 											SearchBarComponent({ selectedFolder })
@@ -645,7 +654,7 @@ export const App = () => {
 						</div>
 					</div>
 				</PopupContext.Provider>
-			</div>
+			</div >
 
 			{
 				lightboxImages.length > 0 &&

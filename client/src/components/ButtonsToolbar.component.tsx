@@ -8,8 +8,10 @@ export const ButtonsToolbar = (p: {
 	colors?: [string, string]
 	size?: number
 	buttons: iToolbarButton[]
+	design?: 'horizontal' | 'vertical'
 }) => {
-	const { colors, size } = { ...p }
+	let { design, colors, size } = { ...p }
+	if (!design) design = 'horizontal'
 	// let currColors = []
 	// if (!p.colors) {
 	//   currColors = []
@@ -18,42 +20,25 @@ export const ButtonsToolbar = (p: {
 	// }
 
 	const customCss = css`
-      button.toolbar-button {
-			position: relative; 
-				&:hover .button-hover-popup {
-						display: block;
+				button.toolbar-button {
+						position: relative; 
+						&.active {
+								svg {
+										color: ${colors ? colors[1] : cssVars.colors.main};
+								}
+						}
+						svg {
+								transform: scale(${size ? size : 1.3});
+								color: ${colors ? colors[0] : cssVars.colors.editor.interfaceGrey};
+								&:hover {
+										color: ${colors ? colors[1] : cssVars.colors.main};
+								}
+						}
 				}
-				.button-hover-popup {
-						display: none;
-						opacity: 0.2;
-						position: absolute;
-						bottom: 22px;
-						background: ${cssVars.colors.editor.interfaceGrey};
-						color: black;
-						padding: 5px;
-						left: 50%;
-						width: max-content;
-						font-size: 8px;
-						border-radius: 5px;
-						transform: translateX(-50%);
-				}
-        &.active {
-            svg {
-                color: ${colors ? colors[1] : cssVars.colors.main};
-            }
-        }
-        svg {
-            transform: scale(${size ? size : 1.3});
-            color: ${colors ? colors[0] : cssVars.colors.editor.interfaceGrey};
-            &:hover {
-                color: ${colors ? colors[1] : cssVars.colors.main};
-            }
-        }
-    }
     `
 
 	return <div className={customCss}>
-		<ul className={`buttons-toolbar-component ${p.class}`}>
+		<ul className={`buttons-toolbar-component ${p.class} ${design}`}>
 			{
 				p.buttons.map((button, key) =>
 					button.action &&
@@ -83,18 +68,24 @@ export const ToolbarButton = (p: iToolbarButton) => {
 	if (p.customHtml) insideHtml = p.customHtml
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
 
-	return <button
-		className={classes}
-		onClick={e => { p.action && p.action(e) }}>
-		<div className="button-hover-popup">{p.title}</div>
-		{insideHtml}
-	</button>
+	return (
+		<button
+			className={classes}
+			onClick={e => { p.action && p.action(e) }}
+		>
+			<div className="inside-html-wrapper">
+				{insideHtml}
+			</div>
+			<div className="button-hover-popup">
+				{p.title}
+			</div>
+		</button>
+	)
 }
 
 
 export const ButtonsToolbarCss = `
     ul.buttons-toolbar-component {
-        display: flex;
         list-style: none;
         padding: 0px;
         margin: 0px;
@@ -102,5 +93,54 @@ export const ButtonsToolbarCss = `
             ${cssVars.els.button};
             cursor: pointer;
         }
+				&.vertical {
+						.toolbar-button {
+								display: flex;
+								&:hover {
+										.inside-html-wrapper {
+												svg {
+														color:${cssVars.colors.main};
+												}
+										}
+										.button-hover-popup {
+												color:${cssVars.colors.main};
+										}
+								}
+								.inside-html-wrapper {
+										width: 15px;
+										span {
+										}
+								}
+								.button-hover-popup {
+										margin-left: 15px;
+										font-weight: 400;
+										font-size: 11px;
+								}
+						}
+				}
+				&.horizontal {
+						display: flex;
+						li {
+						button {
+								&:hover .button-hover-popup {
+										display: block;
+								}
+								.button-hover-popup {
+										display: none;
+										opacity: 0.2;
+										position: absolute;
+										bottom: 22px;
+										background: ${cssVars.colors.editor.interfaceGrey};
+										color: black;
+										padding: 5px;
+										left: 50%;
+										width: max-content;
+										font-size: 8px;
+										border-radius: 5px;
+										transform: translateX(-50%);
+								}
+						}
+				}
     }
-`
+}
+`;

@@ -67,7 +67,6 @@ export const replaceUserCustomMdTag = (
 			});
 	})
 
-	console.log(121333, body);
 	return body;
 };
 
@@ -90,7 +89,8 @@ export const replaceCustomMdTags = (
 			if (i % 2 === 0) {
 				try {
 					t3[i] = funcToExec(t3[i]);
-				} catch { }
+				} catch (e) {
+				}
 			}
 		})
 		let finalRes = t3.join('')

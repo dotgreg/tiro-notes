@@ -42,7 +42,7 @@ export const useAppViewType = (p: {
 		]
 		return (
 			<div className="app-view-switcher-component">
-				<ButtonsToolbar buttons={buttonsConf} />
+				<ButtonsToolbar buttons={buttonsConf} size={1.1} />
 			</div>
 		)
 	}
