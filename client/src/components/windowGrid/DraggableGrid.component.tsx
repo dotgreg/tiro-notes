@@ -12,15 +12,17 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 
 
-//const rh = 10
-// donc en gros rowHeight doit etre egal a window.height/(2*10)
-// 600 wheight, donc on veut /2 grid = 300 et 10 pour plus de flex
-const m = 10
-const d = {
-	m: 5,
+
+export const draggableGridConfig = {
 	rows: 2,
-	cols: 4,
-	decalBottom: 40
+	cols: 4
+}
+
+const d = {
+	m: 10,
+	rows: draggableGridConfig.rows,
+	cols: draggableGridConfig.cols,
+	decalBottom: 10
 }
 
 export const DraggableGrid = (p: {
@@ -56,7 +58,6 @@ export const DraggableGrid = (p: {
 
 
 	const onGridUpdate = (layout: iWindow[], content: iWindowContent[]) => {
-		console.log(121212);
 		p.onGridUpdate({ layout, content })
 	}
 
@@ -65,8 +66,9 @@ export const DraggableGrid = (p: {
 	// ADDING LOGIC
 	// 
 	const addNewWindow = () => {
-
-		const nWindow = addNewWindowConfig(1, 1)
+		const copiedFile = intContent[0].file
+		if (!copiedFile) return
+		const nWindow = addNewWindowConfig({ file: copiedFile, w: 1, h: 1 })
 		const nLayout = cloneDeep(intLayout)
 		nLayout.push(nWindow.layout)
 		if (isItAllGoody(nLayout)) {
@@ -77,11 +79,9 @@ export const DraggableGrid = (p: {
 				const nContent = cloneDeep(intContent)
 				nContent.push(nWindow.content)
 				setIntContent(nContent)
-				console.log(44444);
 				onGridUpdate(nLayout, nContent)
 			});
 
-			console.log(55555555);
 			onGridUpdate(nLayout, intContent)
 		}
 
@@ -102,7 +102,6 @@ export const DraggableGrid = (p: {
 		setTimeout(() => {
 			const nContent = filter(cloneDeep(intContent), c => c.i !== id)
 			setIntContent(nContent)
-			console.log(6666);
 			onGridUpdate(nLayout, nContent)
 		});
 
@@ -131,11 +130,9 @@ export const DraggableGrid = (p: {
 	const makeWindowActive = (windowId: string) => {
 		const nContent = cloneDeep(intContent);
 		each(nContent, c => {
-			//console.log(windowId, c.i);
 			c.active = (c.i === windowId) ? true : false
 		})
 		setIntContent(nContent)
-		console.log(77777);
 		onGridUpdate(intLayout, nContent)
 	}
 
@@ -143,24 +140,19 @@ export const DraggableGrid = (p: {
 	// LIMIT RESIZING LOGIC
 	// 
 	const updateLayoutLogic = (newLayout) => {
-		//console.log(intLayout.length, intContent.length);
 		//if (intLayout.length !== intContent.length) return
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
-			console.log('allgood');
 			setIntLayout(nlayout)
 			updateLastGood(nlayout)
-			console.log(333333);
 			onGridUpdate(nlayout, intContent)
 		} else {
-			console.log('notgood');
 			if (!lastGoodLayout.current) return
 			const nLayout = cloneDeep(lastGoodLayout.current)
 			each(nLayout, window => {
 				window.refresh = increment(window.refresh)
 			})
 			setIntLayout(nLayout)
-			console.log(222);
 			onGridUpdate(nLayout, intContent)
 
 		}
@@ -219,7 +211,6 @@ export const DraggableGrid = (p: {
 	const viewTypeChange = (nview: iViewType, index: number) => {
 		const nContent = cloneDeep(intContent);
 		nContent[index].view = nview
-		console.log(111222, nview);
 		setIntContent(nContent);
 		onGridUpdate(intLayout, nContent);
 	}
@@ -242,7 +233,7 @@ export const DraggableGrid = (p: {
 					rowHeight={rh()}
 					draggableHandle=".drag-handle"
 					width={s.width}
-					margin={[m, m]}
+					margin={[d.m, d.m]}
 				>
 					{
 						intLayout.map((window, i) =>
@@ -270,7 +261,7 @@ export const DraggableGrid = (p: {
 												icon: 'faPlus',
 												title: 'Add Window',
 												class: 'add-button',
-												action: addNewWindow
+												action: () => { addNewWindow() }
 											},
 											{
 												icon: 'faPlus',
@@ -299,11 +290,6 @@ export const DraggableGrid = (p: {
 		</div >
 	)
 }
-const test = `
-	.test {
-		background: red;
-	}
-`;
 
 export const draggableGridCss = `
 .draggable-grid-wrapper {

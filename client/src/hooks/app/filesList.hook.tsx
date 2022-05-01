@@ -4,10 +4,8 @@ import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 import { iFile, iFilePreview, iTab } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
 import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
-import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
-import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
+import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { useDebounce } from '../lodash.hooks';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
@@ -16,6 +14,8 @@ export type onFilesReceivedFn = (files: iFile[], temporaryResults: boolean, init
 export interface FilesPreviewObject { [path: string]: iFilePreview }
 
 export const useAppFilesList = (
+		files: iFile[],
+		setFiles: Function,
 	activeFileIndex: number,
 	setActiveFileIndex: Function,
 	tabs: iTab[],
@@ -23,7 +23,6 @@ export const useAppFilesList = (
 ) => {
 
 	const [sortMode, setSortMode] = useLocalStorage<number>('sortMode', 2)
-	const [files, setFiles] = useState<iFile[]>([])
 	const [forceListUpdate, setForceListUpdate] = useState(1)
 
 

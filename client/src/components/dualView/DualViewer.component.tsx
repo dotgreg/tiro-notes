@@ -44,18 +44,14 @@ export const DualViewer = (p: {
 
 
 	useEffect(() => {
-		console.log(6661, 'RESET', p.file.name);
 		setMaxY(0)
 	}, [p.fileContent])
 
 	// calculate percent scrolled by natural scroll
 	const [percentScrolled, setPercentScrolled] = useState(0)
-	console.log(666, percentScrolled, maxY);
-
 	const { syncScrollY, updateSyncScroll, setPosY } = useSyncScroll(maxY)
 
 	useEffect(() => {
-		console.log(6667, maxY, syncScrollY);
 		setPercentScrolled(fromPxToPercentY(syncScrollY));
 	}, [syncScrollY, maxY])
 
@@ -79,7 +75,6 @@ export const DualViewer = (p: {
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
 		onWheelCapture={e => { updateSyncScroll(e.deltaY) }}
 	>
-		{maxY}
 		<EditorArea
 			file={p.file}
 			posY={syncScrollY}
