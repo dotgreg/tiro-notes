@@ -305,7 +305,21 @@ ${ButtonsToolbarCss}
             width: 50%;
           }
 				}
+
+
+
+				.__EDITOR_DESIGN HERE__ {}
         &.view-editor.device-desktop {
+          .editor-area {
+            width: 100%;
+          }
+
+					.preview-area-wrapper {
+						display:none
+					}
+				}
+
+        &.view-editor-with-map.device-desktop {
           .editor-area {
             width: 80%;
           }
@@ -314,22 +328,19 @@ ${ButtonsToolbarCss}
 
 				.preview-area-wrapper:hover {
 						transform: scale(0.8);
-						background: rgb(246, 246, 246);
 						right: -50%;
-opacity: 1;
-box-shadow: -15px 18px 55px rgba(0, 0, 0, 0.15);
+						opacity: 1;
+						box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
 						.preview-area {
 							width: 60%;
 							padding: 20px;
 						}
 				}
 				.preview-area-wrapper {
-							transition: 0.2s all;
 							transform: scale(0.2) translateZ(0);
 							transform-origin: 0px 0px;
 							position: absolute;
 							width: 100%;
-							background: rgb(242, 242, 242);
 							right: -80%;
 							height: 500vh;
 						.preview-area {
@@ -386,7 +397,7 @@ box-shadow: -15px 18px 55px rgba(0, 0, 0, 0.15);
     }
   }
 }
-`
+`;
 
 	return css`${cssString}`
 }

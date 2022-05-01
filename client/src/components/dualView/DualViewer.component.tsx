@@ -71,10 +71,7 @@ export const DualViewer = (p: {
 	}, [p.file.path])
 
 
-	const dualWrapperEl = useRef<HTMLDivElement>(null)
-
 	return <div
-		ref={dualWrapperEl}
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
 		onWheelCapture={e => { updateSyncScroll(e.deltaY) }}
 	>

@@ -264,7 +264,7 @@ export const EditorArea = (p: {
 										{
 											title: 'Editor with minimap',
 											icon: "custom_icons/view-4.svg",
-											action: () => { p.onViewToggle('editor') }
+											action: () => { p.onViewToggle('editor-with-map') }
 										},
 										{
 											title: 'Dual view',
