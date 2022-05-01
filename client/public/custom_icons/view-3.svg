@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/view-3</title>
+    <defs>
+        <rect id="path-1" x="1" y="3" width="30" height="21" rx="3.5"></rect>
+    </defs>
+    <g id="icon/view-3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="Rectangle" fill="#747474" xlink:href="#path-1"></use>
+    </g>
+</svg>

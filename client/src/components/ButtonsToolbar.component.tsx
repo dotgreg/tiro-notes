@@ -126,7 +126,7 @@ export const ButtonsToolbarCss = `
 										display: block;
 								}
 								.button-hover-popup {
-										display: none;
+										//display: none;
 										opacity: 0.2;
 										position: absolute;
 										bottom: 22px;
