@@ -78,8 +78,9 @@ export const DraggableGrid = (p: {
 			setTimeout(() => {
 				const nContent = cloneDeep(intContent)
 				nContent.push(nWindow.content)
-				setIntContent(nContent)
-				onGridUpdate(nLayout, nContent)
+				const nContent2 = makeWindowActiveInt(nWindow.content.i, nContent)
+				setIntContent(nContent2)
+				onGridUpdate(nLayout, nContent2)
 			});
 
 			onGridUpdate(nLayout, intContent)
@@ -127,11 +128,15 @@ export const DraggableGrid = (p: {
 	// 
 	// ACTIVE WINDOW LOGIC
 	// 
-	const makeWindowActive = (windowId: string) => {
-		const nContent = cloneDeep(intContent);
+	const makeWindowActiveInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
+		const nContent = cloneDeep(content);
 		each(nContent, c => {
 			c.active = (c.i === windowId) ? true : false
 		})
+		return nContent
+	}
+	const makeWindowActive = (windowId: string) => {
+		const nContent = makeWindowActiveInt(windowId, intContent)
 		setIntContent(nContent)
 		onGridUpdate(intLayout, nContent)
 	}
