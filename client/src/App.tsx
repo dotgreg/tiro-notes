@@ -38,6 +38,7 @@ import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
+import { useUserSettings } from './hooks/useUserSettings.hook';
 
 
 
@@ -199,9 +200,25 @@ export const App = () => {
 		}
 	})
 
+	// user settings!
+
+	const {
+		userSettings,
+		updateUserSetting,
+		refreshUserSettingsFromBackend
+	} = useUserSettings();
+
+
 	// Toggle sidebar 
 	const [showSidebar, setShowSidebar] = useState(true);
-	const toggleSidebar = () => { setShowSidebar(!showSidebar) }
+	const toggleSidebar = () => {
+		//setShowSidebar(!showSidebar)
+		let res = userSettings.ui_sidebar ? !userSettings.ui_sidebar : true
+		updateUserSetting('ui_sidebar', res)
+	}
+
+
+
 	const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
 
 	// KEY ACTIONS
@@ -221,7 +238,7 @@ export const App = () => {
 				askForFileContent(files[i + 1])
 			}
 		})
-	}, [activeFileIndex, showSidebar])
+	}, [activeFileIndex, userSettings.ui_sidebar])
 
 	const [files, setFiles] = useState<iFile[]>([])
 
@@ -443,7 +460,7 @@ export const App = () => {
 					<Global styles={GlobalCssApp} />
 					<div role="dialog" className={`
 								main-wrapper
-								${showSidebar ? "with-sidebar" : "without-sidebar"}
+								${userSettings.ui_sidebar ? "with-sidebar" : "without-sidebar"}
 								view-${currentAppView}
 								device-view-${deviceType()}`}>
 						{
@@ -561,7 +578,7 @@ export const App = () => {
 													icon: 'faThumbtack',
 													title: 'Toggle Sidebar',
 													action: e => { toggleSidebar(); refreshWindowGrid(); },
-													active: showSidebar === true
+													active: userSettings.ui_sidebar === true
 												}]} colors={["#d4d1d1", "#615f5f"]} size={0.8} />
 											</div>
 
