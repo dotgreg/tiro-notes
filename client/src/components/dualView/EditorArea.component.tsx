@@ -73,7 +73,8 @@ export const EditorArea = (p: {
 			setInnerFileContent(p.fileContent)
 			updateUploadFolder(p.file.folder)
 			reinitUploadLogic()
-		},
+		}
+		,
 		onNoteEdition: (newContent, isFirstEdition) => {
 			// reaction from triggerNoteEdition
 			if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
@@ -213,9 +214,19 @@ export const EditorArea = (p: {
 	// TTS
 	const [ttsPopup, setTtsPopup] = useState(false)
 
+	const editorWrapperEl = useRef<HTMLDivElement>(null)
+
+	// calc max size for dropdown before scrolling
+	const el = editorWrapperEl.current
+	let maxDropdownHeight = 700
+	if (el) maxDropdownHeight = el.clientHeight / 1.3
+
 	return (
 		// <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
-		<div className={`editor-area`}>
+		<div
+			className={`editor-area`}
+			ref={editorWrapperEl}
+		>
 			{uploadProgress !== '' && <div className="upload-progress"> {uploadProgress}</div>}
 			{UploadDragZone}
 
@@ -236,6 +247,7 @@ export const EditorArea = (p: {
 					<div className="editor-toolbar-dropdown"> 																			<Dropdown
 						hover={true}
 						dir="right"
+						maxHeight={maxDropdownHeight}
 					>
 						<>
 
