@@ -132,7 +132,7 @@ export class MonacoEditorWrapper extends React.Component<{
 
 	render() {
 		return (
-			<StyledWrapper>
+			<div className="monaco-editor-wrapper">
 
 				<div
 					className={`vim-status-bar ${this.props.vimMode ? `active` : ``}`}
@@ -173,7 +173,7 @@ export class MonacoEditorWrapper extends React.Component<{
 					}}
 				// editorDidMount={this.reactCompDidMount}
 				/>
-			</StyledWrapper>
+			</div>
 		);
 	}
 }
@@ -215,8 +215,9 @@ export const monacoColorsCss = `
 		}
 `
 
-const StyledWrapper = styled.div`
-    height: 100vh;
+export const monacoEditorCss = `
+.monaco-editor-wrapper {
+    height: 100%;
     .scroll-wrapper {
       width: 100%;
       height: 100%;
@@ -239,4 +240,5 @@ const StyledWrapper = styled.div`
         margin: 0px 5px;
       }
     }
-`
+    }
+`;

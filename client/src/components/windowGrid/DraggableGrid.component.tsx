@@ -1,18 +1,15 @@
-import React, { ReactElement, useState, useEffect, useRef } from 'react';
-import { css, cx } from '@emotion/css'
-import { cloneDeep, each, filter, isNumber, noConflict } from 'lodash'
+import React, { useState, useEffect, useRef } from 'react';
+import { cloneDeep, each, filter } from 'lodash'
 import GridLayout from "react-grid-layout";
 import '../../../node_modules/react-grid-layout/css/styles.css'
 import '../../../node_modules/react-resizable/css/styles.css'
-import { iGrid, iWindow, iWindowContent } from '../../../../shared/types.shared';
+import { iGrid, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { addNewWindowConfig } from '../../hooks/app/tabs.hook';
 import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { Icon } from '../Icon.component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
-import { Dropdown } from '../Dropdown.component';
 
 
 //const rh = 10
@@ -59,7 +56,7 @@ export const DraggableGrid = (p: {
 
 
 	const onGridUpdate = (layout: iWindow[], content: iWindowContent[]) => {
-		console.log(111);
+		console.log(121212);
 		p.onGridUpdate({ layout, content })
 	}
 
@@ -73,7 +70,6 @@ export const DraggableGrid = (p: {
 		const nLayout = cloneDeep(intLayout)
 		nLayout.push(nWindow.layout)
 		if (isItAllGoody(nLayout)) {
-			console.log(333, nLayout, nLayout.length, intLayout.length);
 			setIntLayout(nLayout)
 
 			// required to deplay the content update behind the layout because of react-grid...
@@ -81,9 +77,11 @@ export const DraggableGrid = (p: {
 				const nContent = cloneDeep(intContent)
 				nContent.push(nWindow.content)
 				setIntContent(nContent)
+				console.log(44444);
 				onGridUpdate(nLayout, nContent)
 			});
 
+			console.log(55555555);
 			onGridUpdate(nLayout, intContent)
 		}
 
@@ -104,6 +102,7 @@ export const DraggableGrid = (p: {
 		setTimeout(() => {
 			const nContent = filter(cloneDeep(intContent), c => c.i !== id)
 			setIntContent(nContent)
+			console.log(6666);
 			onGridUpdate(nLayout, nContent)
 		});
 
@@ -136,6 +135,7 @@ export const DraggableGrid = (p: {
 			c.active = (c.i === windowId) ? true : false
 		})
 		setIntContent(nContent)
+		console.log(77777);
 		onGridUpdate(intLayout, nContent)
 	}
 
@@ -150,6 +150,7 @@ export const DraggableGrid = (p: {
 			console.log('allgood');
 			setIntLayout(nlayout)
 			updateLastGood(nlayout)
+			console.log(333333);
 			onGridUpdate(nlayout, intContent)
 		} else {
 			console.log('notgood');
@@ -159,6 +160,7 @@ export const DraggableGrid = (p: {
 				window.refresh = increment(window.refresh)
 			})
 			setIntLayout(nLayout)
+			console.log(222);
 			onGridUpdate(nLayout, intContent)
 
 		}
@@ -208,10 +210,19 @@ export const DraggableGrid = (p: {
 	}
 
 
-	//
-	// BUTTONS CONTROL
-	//
 
+
+
+	//
+	// view change in editor
+	//
+	const viewTypeChange = (nview: iViewType, index: number) => {
+		const nContent = cloneDeep(intContent);
+		nContent[index].view = nview
+		console.log(111222, nview);
+		setIntContent(nContent);
+		onGridUpdate(intLayout, nContent);
+	}
 
 	return (
 		<div className='draggable-grid-wrapper'>
@@ -238,7 +249,9 @@ export const DraggableGrid = (p: {
 							<div
 								key={window.i}
 								className={`${intContent[i] && intContent[i].active ? 'active' : ''} window-wrapper`}
-								onClick={() => { if (intContent[i]) makeWindowActive(intContent[i].i) }}
+								onClick={() => {
+									if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i)
+								}}
 							>
 
 								<div className="note-active-ribbon"></div>
@@ -272,7 +285,11 @@ export const DraggableGrid = (p: {
 
 
 								<div className="note-wrapper">
-									<WindowEditor file={intContent[i] && intContent[i].file} />
+									<WindowEditor
+										file={intContent[i] && intContent[i].file}
+										view={intContent[i] && intContent[i].view}
+										onViewChange={(nView) => { viewTypeChange(nView, i) }}
+									/>
 								</div>
 							</div>
 						)
@@ -312,13 +329,26 @@ export const draggableGridCss = `
 						width: 100%;
 						height: 100%;
 						.window-wrapper {
-								overflow: hidden;
+								//overflow: hidden;
 								border-radius: 5px;
 								background: white;
 								box-shadow: 0px 0px 5px rgba(0,0,0,.1);
 								overflow-y: hidden;
 								overflow-x: hidden;
 								height:100%;
+
+								// height 100% everywhere
+								.note-wrapper,
+								.window-editor-wrapper, 
+								.dual-view-wrapper, 
+								.editor-area,
+								.preview-area-wrapper,
+								.preview-area,
+								.main-editor-wrapper{
+										height: 100%;
+
+								}
+
 								.content-wrapper {
 										height:100%;
 								}
@@ -422,13 +452,22 @@ export const draggableGridCss = `
 										 // 
 										 // FULL PREVIEW
 										 // 
+										 &.device-desktop {
+														.preview-area-wrapper {
+																margin-top: 33px;
+																padding: 20px 5px 5px 5px;
+																background: #F7F7F7;
+														}
+										 }
+
+										 // 
+										 // FULL PREVIEW
+										 // 
 										 &.device-desktop.view-preview {
 														.editor-area {
 																width: 100%
 														}
 														.preview-area-wrapper {
-																margin-top: 33px;
-																padding: 20px 5px 5px 5px;
 														}
 										 }
 
@@ -437,7 +476,6 @@ export const draggableGridCss = `
 										 // 
 										 &.device-desktop.view-editor {
 												.preview-area-wrapper {
-														margin-top: 33px;
 												}
 										 }
 

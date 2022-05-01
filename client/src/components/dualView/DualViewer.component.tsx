@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileDeleteFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
-import { iFile } from '../../../../shared/types.shared';
+import { iFile, iViewType } from '../../../../shared/types.shared';
 import { PathModifFn } from './TitleEditor.component';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
@@ -11,7 +11,7 @@ import { deviceType } from '../../managers/device.manager';
 import { clamp } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 
-export type iViewType = 'editor' | 'both' | 'preview'
+export type onViewChangeFn = (nView: iViewType) => void
 
 export const DualViewer = (p: {
 	file: iFile
@@ -19,6 +19,10 @@ export const DualViewer = (p: {
 	canEdit: boolean
 	forceRender: boolean
 	isLeavingNote: boolean
+
+	viewType?: iViewType
+	onViewChange?: onViewChangeFn
+
 	onFileEdited: onFileEditedFn
 	onFileTitleEdited: PathModifFn
 	onSavingHistoryFile: onSavingHistoryFileFn
@@ -27,62 +31,43 @@ export const DualViewer = (p: {
 	onBackButton: Function
 	onToggleSidebarButton: Function
 }) => {
-	const { syncScrollY, updateSyncScroll, setPosY } = useSyncScroll()
 
 
-	const [viewType, setViewType] = useState<iViewType>('both')
 	const [previewContent, setPreviewContent] = useState('')
 
 	// calculate max Y for custom scroller bar
 	const [maxY, setMaxY] = useState(0)
 	const updateMaxY = (newMaxY) => {
+		console.log(6662, 'compa', newMaxY, maxY, p.file.name);
 		if (newMaxY > maxY) setMaxY(newMaxY)
 	}
+
+
 	useEffect(() => {
+		console.log(6661, 'RESET', p.file.name);
 		setMaxY(0)
 	}, [p.fileContent])
+
 	// calculate percent scrolled by natural scroll
 	const [percentScrolled, setPercentScrolled] = useState(0)
+	console.log(666, percentScrolled, maxY);
+
+	const { syncScrollY, updateSyncScroll, setPosY } = useSyncScroll(maxY)
+
 	useEffect(() => {
+		console.log(6667, maxY, syncScrollY);
 		setPercentScrolled(fromPxToPercentY(syncScrollY));
 	}, [syncScrollY, maxY])
+
 	const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
 	const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
-
-	// keyboard shortcuts
-	useEffect(() => {
-		addKeyAction('2', () => { if (getKeyModif('ctrl')) setViewType('editor') })
-		addKeyAction('3', () => { if (getKeyModif('ctrl')) setViewType('both') })
-		addKeyAction('4', () => { if (getKeyModif('ctrl')) setViewType('preview') })
-	}, [viewType])
-
 	// window variables
 	addCliCmd('fileContent', {
 		description: 'live updated currentFileContent',
 		func: () => previewContent
 	})
-
-	const endTempViewType = useRef<iViewType | null>(null);
-	addCliCmd('setTempViewType', {
-		description: 'setviewtype (both, preview, editor)',
-		func: view => {
-			endTempViewType.current = viewType;
-			setViewType(view)
-		}
-	})
-
-	// useEffect(() => {
-	//     console.log('setviewtype', p.viewType);
-
-	//     setViewType(p.viewType)
-	// }, [p.viewType])
-
 	useEffect(() => {
 		setPreviewContent(p.fileContent)
-		if (endTempViewType.current) {
-			setViewType(endTempViewType.current)
-			endTempViewType.current = null;
-		}
 	}, [p.fileContent])
 
 	// back to top when change file
@@ -91,9 +76,10 @@ export const DualViewer = (p: {
 	}, [p.file.path])
 
 	return <div
-		className={`dual-view-wrapper view-${viewType} device-${deviceType()}`}
+		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
 		onWheelCapture={e => { updateSyncScroll(e.deltaY) }}
 	>
+		{maxY}
 		<EditorArea
 			file={p.file}
 			posY={syncScrollY}
@@ -114,15 +100,7 @@ export const DualViewer = (p: {
 			onBackButton={p.onBackButton}
 			onToggleSidebarButton={p.onToggleSidebarButton}
 			onLightboxClick={p.onLightboxClick}
-			onViewToggle={(view?: iViewType) => {
-				if (!view) {
-					if (viewType === 'both') setViewType('editor')
-					if (viewType === 'editor') setViewType('preview')
-					if (viewType === 'preview') setViewType('both')
-				} else {
-					setViewType(view)
-				}
-			}}
+			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
 
 			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
 		/>

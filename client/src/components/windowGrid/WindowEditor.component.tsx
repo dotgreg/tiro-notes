@@ -1,11 +1,13 @@
 import styled from '@emotion/styled';
 import React, { useContext, useEffect, useState } from 'react';
-import { iFile, iGrid, iTab, iWindow } from '../../../../shared/types.shared';
+import { iFile, iViewType } from '../../../../shared/types.shared';
 import { getClientApi } from '../../hooks/app/clientApi.hook';
-import { DualViewer } from '../dualView/DualViewer.component';
+import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
 export const WindowEditor = (p: {
 	file: iFile | undefined
+	view: iViewType
+	onViewChange: onViewChangeFn
 }) => {
 
 	const { file } = { ...p }
@@ -23,17 +25,17 @@ export const WindowEditor = (p: {
 	return (<>
 		{
 			file &&
-			<StyledDiv>
 				<div className="window-editor-wrapper">
-					{/* =========
-					{fileContent}
-					========= */}
 					<DualViewer
 						file={file}
 						fileContent={fileContent}
 						canEdit={true}
 						forceRender={true}
 						isLeavingNote={false}
+
+						viewType={p.view}
+						onViewChange={p.onViewChange}
+
 						onFileEdited={() => { }}
 						onFileTitleEdited={() => { }}
 						onSavingHistoryFile={() => { }}
@@ -43,13 +45,7 @@ export const WindowEditor = (p: {
 						onToggleSidebarButton={() => { }}
 					/>
 				</div>
-			</StyledDiv>
 		}
 	</>)
 
 }
-export const StyledDiv = styled.div`
-    .window-editor-wrapper {
-
-		}
-`

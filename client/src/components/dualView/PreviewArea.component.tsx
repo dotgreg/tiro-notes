@@ -1,20 +1,17 @@
 import { clamp } from 'lodash';
 import React, { Ref, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
-import { configClient } from '../../config';
 import { addCliCmd } from '../../managers/cliConsole.manager';
-import { formatDateEditor, formatDateList } from '../../managers/date.manager';
+import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
 import { transformLatex } from '../../managers/latex.manager';
 import { md2html, replaceUserCustomMdTag } from '../../managers/markdown.manager';
 import { transformMarkdownScripts } from '../../managers/scriptsInMarkdown.manager';
-import { replaceAll } from '../../managers/string.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { transformSearchLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks, transformTitleSearchLinks } from '../../managers/textProcessor.manager';
 import { commonCssEditors } from './EditorArea.component';
 
 
-export let previewAreaRefs
 
 export const PreviewArea = (p: {
 	file: iFile,
@@ -23,7 +20,7 @@ export const PreviewArea = (p: {
 	onMaxYUpdate: (maxY: number) => void
 }) => {
 
-	previewAreaRefs = {
+	const previewAreaRefs = {
 		wrapper: useRef<HTMLDivElement>(null),
 		main: useRef<HTMLDivElement>(null),
 	}
@@ -44,18 +41,32 @@ export const PreviewArea = (p: {
 		}, 1000)
 	}, [p.fileContent])
 
-	const [vertBarPos, setVertBarPos] = useState('right')
 
 	const calculateYMax = () => {
-		const d = previewAreaRefs.wrapper.current
-		const height = d?.height || d?.clientHeight
+		const d = previewAreaRefs.main.current
+		const height = d?.clientHeight
 		const max = height || 3000
+		console.log(6663, max);
 		return max
 	}
-	const calculateYPos = () => {
 
+	const calculateYPos = () => {
 		const max = calculateYMax();
 		return clamp(p.posY, 0, max)
+	}
+
+	const renderNoteContent = (raw: string): string => {
+		return md2html(
+			transformRessourcesInHTML(currentFolder,
+				transformImagesInHTML(currentFolder,
+					transformSearchLinks(
+						transformTitleSearchLinks(
+							transformUrlInLinks(
+								transformMarkdownScripts(
+									replaceUserCustomMdTag(
+										transformLatex(
+											raw
+										)))))))))
 	}
 
 	return (
@@ -66,26 +77,7 @@ export const PreviewArea = (p: {
 				style={{ bottom: calculateYPos() }}
 			>
 
-				{
-					deviceType() !== 'desktop' &&
-					<div className={`mobile-buttons-up-down ${vertBarPos}`}>
-						<div id="toggle-pos" onClick={() => {
-							setVertBarPos(vertBarPos === 'right' ? 'left' : 'right')
-						}}>t</div>
-						<div id="top" onClick={() => {
-							previewAreaRefs.wrapper.current.scrollTop = 0
-						}}>=</div>
-						<div id="up" onClick={() => {
-							previewAreaRefs.wrapper.current.scrollTop -= 300
-						}}>^</div>
-						<div id="down" onClick={() => {
-							previewAreaRefs.wrapper.current.scrollTop += 300
-						}}>v</div>
-					</div>
-				}
-
 				<div className="infos-preview-wrapper">
-
 					<div className="file-path-wrapper">
 						{p.file.path.replace(`/${p.file.name}`, '')}
 					</div>
@@ -100,10 +92,12 @@ export const PreviewArea = (p: {
 					</div>
 				</div>
 
-				<PreviewRenderer
-					filecontent={p.fileContent}
-					currentFolder={currentFolder}
-				/>
+				<div id='preview-script-area'></div>
+				<div
+					className='preview-content'
+					ref={previewAreaRefs.main}
+					dangerouslySetInnerHTML={{ __html: renderNoteContent(p.fileContent) }}>
+				</div>
 
 			</div>
 		</div>
@@ -293,33 +287,9 @@ export const previewAreaCss = (v: MobileView) => `
 
 const PreviewRenderer = React.memo((p: { filecontent: string, currentFolder: string }) => {
 
-	const renderNoteContent = (raw: string): string => {
-		return md2html(
-			transformRessourcesInHTML(p.currentFolder,
-				transformImagesInHTML(p.currentFolder,
-					transformSearchLinks(
-						transformTitleSearchLinks(
-							transformUrlInLinks(
-								transformMarkdownScripts(
-									replaceUserCustomMdTag(
-										transformLatex(
-											raw
-										)))))))))
-	}
-
-	addCliCmd('renderNoteContent', {
-		description: 'renderNoteContent',
-		func: renderNoteContent
-	})
 
 	return (
 		<>
-			<div id='preview-script-area'></div>
-			<div
-				className='preview-content'
-				ref={previewAreaRefs.main}
-				dangerouslySetInnerHTML={{ __html: renderNoteContent(p.filecontent) }}>
-			</div>
 		</>
 
 	)

@@ -1,21 +1,14 @@
 import { useState } from 'react';
 import { monacoEditorInstance } from '../components/MonacoEditor.Component';
-import { previewAreaRefs } from '../components/dualView/PreviewArea.component';
 
-export const useSyncScroll = () => {
+export const useSyncScroll = (maxY: number) => {
 	// scrolling logic
 	const [posY, setPosY] = useState(0)
 	const updateSyncScroll = (deltaY: number) => {
 		let direction = deltaY > 0 ? 1 : -1
 		let delta = direction * Math.min(Math.abs(deltaY), 40)
 		let newY = posY + delta
-		// let newY = posY + e.deltaY
-		let previewDiv = previewAreaRefs.main.current
-
-		let monacoHeight = monacoEditorInstance ? monacoEditorInstance.getContentHeight() : 0
-		let maxHeight = Math.max(previewDiv.offsetHeight, monacoHeight)
-
-		if (newY > -200 && newY < maxHeight) setPosY(newY)
+		if (newY > -200 && newY < maxY) setPosY(newY)
 	}
 
 	return { syncScrollY: posY, updateSyncScroll, setPosY }
