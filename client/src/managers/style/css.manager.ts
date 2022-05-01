@@ -334,9 +334,6 @@ ${ButtonsToolbarCss}
 						.preview-area {
 							width: 60%;
 							padding: 20px;
-ul {
- list-style-type: "🔔 "; 
-}
 						}
 				}
 				.preview-area-wrapper {
@@ -400,6 +397,25 @@ ul {
     }
   }
 }
+
+
+.preview-content {
+		counter-reset: h2counter;
+    h1 {
+        counter-reset: h2counter;
+    }
+    h2:before {
+        content: counter(h2counter) ".\\0000a0\\0000a0";
+        counter-increment: h2counter;
+        counter-reset: h3counter;
+    }
+    h3:before {
+        content: counter(h2counter) "." counter(h3counter) ".\\0000a0\\0000a0";
+        counter-increment: h3counter;
+    }
+}
+
+
 `;
 
 	return css`${cssString}`

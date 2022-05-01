@@ -241,7 +241,27 @@ export const previewAreaCss = (v: MobileView) => `
         margin-bottom: 1em;
     }
     .preview-content {
-				overflow-wrap: break-word;
+	counter-reset: sh1;
+			overflow-wrap: break-word;
+
+h1:before {
+	content: ""counter(sh1)" ∙ ";
+	counter-increment: sh1;
+}
+h1 {
+	counter-reset: sh2;
+}
+h2:before {
+	content: ""counter(sh1)"." counter(sh2)" ∙  ";
+	counter-increment: sh2;
+}
+h3 {
+	counter-reset: sh3;
+}
+h3:before {
+	content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
+	counter-increment: sh3;
+}
 
 				ul {
 						list-style-image: "./custom_icons/view-1.svg"; 
@@ -254,10 +274,10 @@ export const previewAreaCss = (v: MobileView) => `
 								padding-left: 12px;
 						}
 input[type=checkbox] {
-position: relative;
-width: 0px;
-height: 10px;
-margin-right: 13px
+		position: relative;
+		width: 0px;
+		height: 10px;
+		margin-right: 9px
 }
 input[type=checkbox]:before {
 		content: "";
@@ -266,7 +286,7 @@ input[type=checkbox]:before {
     width: 15px;
     height: 15px;
     top: 0px;
-    left: 0px;
+    left: -4px;
     background-image: url(./custom_icons/check.svg);
     background-repeat: no-repeat;
     background-position: -2px -1px;

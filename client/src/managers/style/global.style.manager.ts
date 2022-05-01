@@ -40,24 +40,4 @@ body {
   position: relative;
 }
 
-
-
-h3.subtitle {
-  margin: 0px 0px ${cssVars.sizes.block}px 0px;
-  font-family:${cssVars.font.main};
-  text-transform: uppercase;
-  font-size: 14px;
-  font-weight: 800;
-  font-style: italic;
-  color: ${cssVars.colors.main};
-}
-
-.invisible-scrollbars {
-  height: 100vh;
-  padding-right: 20px;
-  width: calc(100% + ${cssVars.sizes.scrollbar}px);
-  box-sizing: content-box;
-  overflow-y:scroll;
-}
-
 `
