@@ -11,16 +11,24 @@ export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
 
-export const addNewWindowConfig = (p: { file: iFile, w?: number, h?: number }) => {
-	let { w, h, file } = { ...p }
+export const addNewWindowConfig = (p: {
+	file: iFile,
+	w?: number,
+	h?: number
+	x?: number
+	y?: number
+}) => {
+	let { w, h, x, y, file } = { ...p }
 	if (!h) h = draggableGridConfig.rows
 	if (!w) w = draggableGridConfig.cols
+	if (!x) x = 0
+	if (!y) y = 0
 
 	const id = generateUUID()
 	return {
 		layout: {
 			i: id,
-			x: 0, y: 0, w, h,
+			x, y, w, h,
 			minH: 1, maxH: 2,
 			forceRender: 0
 		},

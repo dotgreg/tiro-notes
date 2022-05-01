@@ -38,7 +38,6 @@ export const DualViewer = (p: {
 	// calculate max Y for custom scroller bar
 	const [maxY, setMaxY] = useState(0)
 	const updateMaxY = (newMaxY) => {
-		console.log(6662, 'compa', newMaxY, maxY, p.file.name);
 		if (newMaxY > maxY) setMaxY(newMaxY)
 	}
 
