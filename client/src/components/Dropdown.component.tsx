@@ -61,8 +61,8 @@ export const dropdownCss = `
 
 
 						position: absolute;
-						//display: none;
-						min-width: 180px;
+						display: none;
+						//min-width: 180px;
 						padding: 10px;
 						border-radius: 5px;
 						background: white;
