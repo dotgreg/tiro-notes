@@ -10,7 +10,7 @@ import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
-import { calculateNewWindowPosAndSize } from '../../managers/draggableGrid.manager';
+import { calculateNewWindowPosAndSize, searchAlternativeLayout } from '../../managers/draggableGrid.manager';
 
 
 
@@ -161,6 +161,7 @@ export const DraggableGrid = (p: {
 	// 
 	const updateLayoutLogic = (newLayout) => {
 		//if (intLayout.length !== intContent.length) return
+		console.log('0035', 111, newLayout);
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
 			setIntLayout(nlayout)
@@ -168,13 +169,16 @@ export const DraggableGrid = (p: {
 			onGridUpdate(nlayout, intContent)
 		} else {
 			if (!lastGoodLayout.current) return
-			const nLayout = cloneDeep(lastGoodLayout.current)
+			let altgoodLayout = searchAlternativeLayout(newLayout)
+			if (altgoodLayout) updateLastGood(altgoodLayout)
+			let goodLayout = altgoodLayout ? altgoodLayout : lastGoodLayout.current
+			console.log('00351', goodLayout);
+			const nLayout = cloneDeep(goodLayout)
 			each(nLayout, window => {
 				window.refresh = increment(window.refresh)
 			})
 			setIntLayout(nLayout)
 			onGridUpdate(nLayout, intContent)
-
 		}
 	}
 
@@ -191,7 +195,9 @@ export const DraggableGrid = (p: {
 			if (el.y > 1) allGood = false
 			// if h is 2, y should be 0
 			if (el.h > 1 && el.y > 0) allGood = false
+
 		}
+		console.log("0013", nlayout, allGood);
 		return allGood;
 	}
 

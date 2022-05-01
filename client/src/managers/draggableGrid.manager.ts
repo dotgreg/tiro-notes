@@ -1,4 +1,4 @@
-import { each } from "lodash"
+import { cloneDeep, each } from "lodash"
 import { iWindow } from "../../../shared/types.shared"
 import { draggableGridConfig } from "../components/windowGrid/DraggableGrid.component"
 
@@ -51,4 +51,62 @@ export const calculateNewWindowPosAndSize = (layout: iWindow[]) => {
 
 	//console.log(6664, first, last, gridState, res);
 	return res
+}
+
+
+
+
+
+// l.length === 2 &&
+// 	checkIfOneWindowIs(l, [cols / 2, rows], [0, 0]) &&
+// 	checkIfOneWindowIs(l, [cols / 2 + 1, rows], [cols / 2 - 1, rows]) &&
+// 	l.length === 2 &&
+// 	checkIfOneWindowIs(l, [cols - 1, rows], [0, 0]) &&
+// 	checkIfOneWindowIs(l, [cols - 1, rows], [cols / 2, rows]) &&
+
+export const searchAlternativeLayout = (nlayout: iWindow[]) => {
+	const l = nlayout
+	const conf = draggableGridConfig
+	let alternativeLayout: iWindow[] | null = null
+	console.log('0035', l);
+	// resize i|iii  to  ii|ii
+	if (
+		l.length === 2 && (
+			(l[0].w === conf.cols - 1 && l[0].h === conf.rows
+				&& l[1].w === conf.cols / 2 && l[1].h === conf.rows) ||
+			(l[1].w === conf.cols - 1 && l[1].h === conf.rows
+				&& l[0].w === conf.cols / 2 && l[0].h === conf.rows)
+		)
+	) {
+		console.log(`[ALT LAYOUT] 0035 found i|iii to ii|ii`);
+		alternativeLayout = cloneDeep(nlayout)
+		let a = alternativeLayout
+		each(alternativeLayout, (w, i) => {
+			w.w = conf.cols / 2
+			w.y = 0
+			if (i === 1) w.x = conf.cols / 2
+		})
+	}
+
+
+	// resize ii|ii  to  iii|i
+	else if (
+		l.length === 2 && (
+			(l[0].w === conf.cols - 1 && l[0].h === conf.rows
+				&& l[1].w === conf.cols / 2 && l[1].h === conf.rows) ||
+			(l[1].w === conf.cols - 1 && l[1].h === conf.rows
+				&& l[0].w === conf.cols / 2 && l[0].h === conf.rows)
+		)
+	) {
+		console.log(`[ALT LAYOUT] 0035 found i|iii to ii|ii`);
+		alternativeLayout = cloneDeep(nlayout)
+		let a = alternativeLayout
+		each(alternativeLayout, (w, i) => {
+			w.w = conf.cols / 2
+			w.y = 0
+			if (i === 1) w.x = conf.cols / 2
+		})
+	}
+
+	return alternativeLayout
 }
