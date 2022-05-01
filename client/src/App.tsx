@@ -196,6 +196,7 @@ export const App = () => {
 		onLoginSuccess: () => {
 			reactToUrl()
 			refreshTabsFromBackend();
+			refreshUserSettingsFromBackend();
 
 		}
 	})
@@ -203,18 +204,15 @@ export const App = () => {
 	// user settings!
 
 	const {
-		userSettings,
+		getUserSetting,
 		updateUserSetting,
 		refreshUserSettingsFromBackend
 	} = useUserSettings();
 
 
 	// Toggle sidebar 
-	const [showSidebar, setShowSidebar] = useState(true);
 	const toggleSidebar = () => {
-		//setShowSidebar(!showSidebar)
-		let res = userSettings.ui_sidebar ? !userSettings.ui_sidebar : true
-		updateUserSetting('ui_sidebar', res)
+		updateUserSetting('ui_sidebar', !getUserSetting('ui_sidebar'))
 	}
 
 
@@ -238,7 +236,7 @@ export const App = () => {
 				askForFileContent(files[i + 1])
 			}
 		})
-	}, [activeFileIndex, userSettings.ui_sidebar])
+	}, [activeFileIndex, getUserSetting('ui_sidebar')])
 
 	const [files, setFiles] = useState<iFile[]>([])
 
@@ -460,7 +458,7 @@ export const App = () => {
 					<Global styles={GlobalCssApp} />
 					<div role="dialog" className={`
 								main-wrapper
-								${userSettings.ui_sidebar ? "with-sidebar" : "without-sidebar"}
+								${getUserSetting('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
 								view-${currentAppView}
 								device-view-${deviceType()}`}>
 						{
@@ -578,7 +576,7 @@ export const App = () => {
 													icon: 'faThumbtack',
 													title: 'Toggle Sidebar',
 													action: e => { toggleSidebar(); refreshWindowGrid(); },
-													active: userSettings.ui_sidebar === true
+													active: getUserSetting('ui_sidebar') === true
 												}]} colors={["#d4d1d1", "#615f5f"]} size={0.8} />
 											</div>
 
