@@ -46,7 +46,6 @@ export const PreviewArea = (p: {
 		const d = previewAreaRefs.main.current
 		const height = d?.clientHeight
 		const max = height || 3000
-		console.log(6663, max);
 		return max
 	}
 

@@ -10,6 +10,7 @@ import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { calculateNewWindowPosAndSize } from '../../managers/draggableGrid.manager';
 
 
 
@@ -68,7 +69,17 @@ export const DraggableGrid = (p: {
 	const addNewWindow = () => {
 		const copiedFile = intContent[0].file
 		if (!copiedFile) return
-		const nWindow = addNewWindowConfig({ file: copiedFile, w: 1, h: 1 })
+
+		// calculate position new window to fill
+		const dims = calculateNewWindowPosAndSize(intLayout)
+
+		const nWindow = addNewWindowConfig({
+			file: copiedFile,
+			w: dims.w,
+			h: dims.h,
+			x: dims.x,
+			y: dims.y,
+		})
 		const nLayout = cloneDeep(intLayout)
 		nLayout.push(nWindow.layout)
 		if (isItAllGoody(nLayout)) {
@@ -93,6 +104,7 @@ export const DraggableGrid = (p: {
 	// 
 	const [canRemove, setCanRemove] = useState(false)
 	const updateCanRemove = () => {
+		console.log(666, intLayout.length);
 		setCanRemove(intLayout.length > 1 ? true : false)
 	}
 	const removeWindow = (id: string) => {
@@ -124,6 +136,9 @@ export const DraggableGrid = (p: {
 		if (totalSize === totalAllowedSize) setCanAdd(false)
 		else setCanAdd(true)
 	}
+
+
+
 
 	// 
 	// ACTIVE WINDOW LOGIC
@@ -222,10 +237,6 @@ export const DraggableGrid = (p: {
 
 	return (
 		<div className='draggable-grid-wrapper'>
-			<div className="debug">
-				{intLayout.length} -
-				{intContent.length}
-			</div>
 			<div className="draggable-grid-wrapper" ref={divWrapper}>
 				<GridLayout
 					className="draggable-grid"
@@ -298,13 +309,6 @@ export const DraggableGrid = (p: {
 
 export const draggableGridCss = `
 .draggable-grid-wrapper {
-		 	.debug {  
-					display:none;
-				position: absolute;
-				top: 20px;
-				background: red;
-		}
-
 		// remove transition
 		.react-grid-item {
 				transition: all 0ms ease;
@@ -378,6 +382,8 @@ export const draggableGridCss = `
 										z-index:2;
 										right: 30px;
 										top: 10px;
+										.delete-button {display: none;}
+										.add-button {display: none;}
 										.drag-handle {
 												cursor: grab;
 										}
@@ -388,10 +394,8 @@ export const draggableGridCss = `
 												.add-button {display: block;}
 										}
 										&.can-remove {
-												.detele-button {display: block;}
+												.delete-button {display: block;}
 										}
-										.detele-button {display: none;}
-										.add-button {display: none;}
 								}
 
 
