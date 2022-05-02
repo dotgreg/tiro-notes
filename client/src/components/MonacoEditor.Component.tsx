@@ -153,7 +153,7 @@ export class MonacoEditorWrapper extends React.Component<{
 						selectOnLineNumbers: true,
 						minimap: { enabled: false },
 						wordWrap: 'on',
-						fontSize: 12,
+						fontSize: 11,
 						mouseWheelScrollSensitivity: 0.5,
 						lineNumbers: 'off',
 						// glyphMargin: false,

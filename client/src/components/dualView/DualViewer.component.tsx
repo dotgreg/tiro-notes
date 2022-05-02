@@ -4,9 +4,6 @@ import { EditorArea, onFileDeleteFn, onFileEditedFn, onLightboxClickFn, onSaving
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { PathModifFn } from './TitleEditor.component';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
-import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
-import { addCliCmd } from '../../managers/cliConsole.manager';
-import { addKeyAction, getKeyModif } from '../../managers/keys.manager';
 import { deviceType } from '../../managers/device.manager';
 import { clamp } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
@@ -56,11 +53,7 @@ export const DualViewer = (p: {
 
 	const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
 	const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
-	// window variables
-	addCliCmd('fileContent', {
-		description: 'live updated currentFileContent',
-		func: () => previewContent
-	})
+
 	useEffect(() => {
 		setPreviewContent(p.fileContent)
 	}, [p.fileContent])

@@ -22,6 +22,7 @@ import { findImagesFromContent } from '../../managers/images.manager';
 import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 import { Dropdown } from '../Dropdown.component';
 import { css } from '@emotion/css';
+import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -71,8 +72,6 @@ export const EditorArea = (p: {
 		onNoteContentDidLoad: () => {
 			if (!clientSocket) return
 			setInnerFileContent(p.fileContent)
-			updateUploadFolder(p.file.folder)
-			reinitUploadLogic()
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
@@ -94,14 +93,6 @@ export const EditorArea = (p: {
 		})
 	}, [p.isLeavingNote])
 
-	//  HOOK : CONTENT SAVE => REMOVED AS ITS A MESS TO USE DEBOUNCE/THROTTLE HERE :(
-	// const {
-	//   setStopDelayedNoteSave, throttledOnNoteEdited, debouncedOnNoteEdited} = useNoteSaveLogic({
-	//     onNoteSave: (path, content) => {
-	//       p.onFileEdited(path, content)
-	//     }
-	//   })
-
 	// AUTOMATIC HISTORY HOOK Every 10m
 	useIntervalNoteHistory(innerFileContent, {
 		shouldCreateIntervalNoteHistory: () => {
@@ -115,14 +106,9 @@ export const EditorArea = (p: {
 
 
 	// UPLOAD LOGIC HOOK
+	//insertTextAt(ressLinkInMd, 'currentPos')
+	// <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
 
-	const {
-		UploadDragZone, uploadButtonConfig, reinitUploadLogic, updateUploadFolder, uploadProgress
-	} = useEditorUploadLogic({
-		onUploadSuccess: ressLinkInMd => {
-			insertTextAt(ressLinkInMd, 'currentPos')
-		}
-	})
 
 	// MOBILE EDITOR LOGIC HOOK
 	let mobileTextarea = useRef<HTMLTextAreaElement>(null)
@@ -137,6 +123,7 @@ export const EditorArea = (p: {
 		editorType: deviceType(),
 		editorRef: deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
 	})
+
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
 		if (updatedText) triggerNoteEdition(updatedText)
@@ -154,206 +141,212 @@ export const EditorArea = (p: {
 
 	// TOOLBAR ACTIONS
 	const editorToolbarActions = [
-		uploadButtonConfig,
-		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
 		{
-			title: 'Insert unique id',
-			icon: 'faFingerprint',
-			action: () => {
-				let folder = `${p.file.folder}`
-				insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
-			}
+			title: 'upload files',
+			class: 'upload-button-wrapper',
+			action: () => { },
+			customHtml: <UploadButton
+				file={p.file}
+				onProgress={p => console.log(111, p)}
+				onSuccess = { p => console.log(222, p)}
+/>
 		},
-		{
-			title: 'Print/download',
-			icon: 'faFileDownload',
-			action: () => {
-				window.print()
-			}
-		},
-		{
-			title: strings.editorBar.explanation.history,
-			icon: 'faHistory',
-			action: () => {
-				setHistoryPopup(!historyPopup)
-			}
-		},
-		{
-			title: strings.editorBar.lightbox,
-			icon: 'faImages',
-			action: () => {
-				const imgs = findImagesFromContent(p.fileContent, p.file)
-				p.onLightboxClick(0, imgs)
-			}
-		},
-		{
-			title: strings.editorBar.tts,
-			icon: 'faCommentDots',
-			action: () => {
-				setTtsPopup(!ttsPopup)
-			}
-		},
+isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
+{
+	title: 'Insert unique id',
+	icon: 'faFingerprint',
+	action: () => {
+		let folder = `${p.file.folder}`
+		insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
+	}
+},
+{
+	title: 'Print/download',
+	icon: 'faFileDownload',
+	action: () => {
+		window.print()
+	}
+},
+{
+	title: strings.editorBar.explanation.history,
+	icon: 'faHistory',
+	action: () => {
+		setHistoryPopup(!historyPopup)
+	}
+},
+{
+	title: strings.editorBar.lightbox,
+	icon: 'faImages',
+	action: () => {
+		const imgs = findImagesFromContent(p.fileContent, p.file)
+		p.onLightboxClick(0, imgs)
+	}
+},
+{
+	title: strings.editorBar.tts,
+	icon: 'faCommentDots',
+	action: () => {
+		setTtsPopup(!ttsPopup)
+	}
+},
 
-		{
-			title: 'Delete note',
-			class: 'delete',
-			icon: 'faTrash',
-			action: () => {
-				if (popups.confirm) popups.confirm(`${strings.trashNote}`, () => {
-					p.onFileDelete(p.file.path)
-				})
-			}
-		},
+{
+	title: 'Delete note',
+	class: 'delete',
+	icon: 'faTrash',
+	action: () => {
+		if (popups.confirm) popups.confirm(`${strings.trashNote}`, () => {
+			p.onFileDelete(p.file.path)
+		})
+	}
+},
 	]
 
 
-	const popups = useContext(PopupContext);
-	// File History
-	const [historyPopup, setHistoryPopup] = useState(false)
+const popups = useContext(PopupContext);
+// File History
+const [historyPopup, setHistoryPopup] = useState(false)
 
-	// TTS
-	const [ttsPopup, setTtsPopup] = useState(false)
+// TTS
+const [ttsPopup, setTtsPopup] = useState(false)
 
-	const editorWrapperEl = useRef<HTMLDivElement>(null)
+const editorWrapperEl = useRef<HTMLDivElement>(null)
 
-	// calc max size for dropdown before scrolling
-	const el = editorWrapperEl.current
-	let maxDropdownHeight = 700
-	if (el) maxDropdownHeight = el.clientHeight / 1.3
+// calc max size for dropdown before scrolling
+const el = editorWrapperEl.current
+let maxDropdownHeight = 700
+if (el) maxDropdownHeight = el.clientHeight / 1.3
 
-	return (
-		// <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
-		<div
-			className={`editor-area`}
-			ref={editorWrapperEl}
-		>
-			{uploadProgress !== '' && <div className="upload-progress"> {uploadProgress}</div>}
-			{UploadDragZone}
+return (
+	<div
+		className={`editor-area`}
+		ref={editorWrapperEl}
+	>
 
-			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-			<div className="infos-editor-wrapper">
+		{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
+		<div className="infos-editor-wrapper">
 
-				<div className="file-path-wrapper">
-					{p.file.path.replace(`/${p.file.name}`, '')}
-				</div>
+			<div className="file-path-wrapper">
+				{p.file.path.replace(`/${p.file.name}`, '')}
+			</div>
 
-				<NoteTitleInput
-					title={p.file.name.replace('.md', '')}
-					onEdited={p.onFileTitleEdited}
-				/>
+			<NoteTitleInput
+				title={p.file.name.replace('.md', '')}
+				onEdited={p.onFileTitleEdited}
+			/>
 
-				<div className="toolbar-and-dates-wrapper">
+			<div className="toolbar-and-dates-wrapper">
 
-					<div className="editor-toolbar-dropdown"> 																			<Dropdown
-						hover={true}
-						dir="right"
-						maxHeight={maxDropdownHeight}
-					>
-						<>
+				<div className="editor-toolbar-dropdown"> 																			<Dropdown
+					hover={true}
+					dir="right"
+					maxHeight={maxDropdownHeight}
+				>
+					<>
 
-							<div className="view-toggler-wrapper">
-								<ButtonsToolbar
-									class='editor-view-toolbar'
-									size={0.8}
-									buttons={[
-										{
-											title: 'Editor',
-											icon: "custom_icons/view-3.svg",
-											action: () => { p.onViewToggle('editor') }
-										},
-										{
-											title: 'Editor with minimap',
-											icon: "custom_icons/view-4.svg",
-											action: () => { p.onViewToggle('editor-with-map') }
-										},
-										{
-											title: 'Dual view',
-											icon: "custom_icons/view-1.svg",
-											action: () => { p.onViewToggle('both') }
-										},
-										{
-											title: 'Render view',
-											icon: "custom_icons/view-2.svg",
-											action: () => { p.onViewToggle('preview') }
-										},
-									]}
-								/>
-							</div>
+						<div className="view-toggler-wrapper">
+							<ButtonsToolbar
+								class='editor-view-toolbar'
+								size={0.8}
+								buttons={[
+									{
+										title: 'Editor',
+										icon: "custom_icons/view-3.svg",
+										action: () => { p.onViewToggle('editor') }
+									},
+									{
+										title: 'Editor with minimap',
+										icon: "custom_icons/view-4.svg",
+										action: () => { p.onViewToggle('editor-with-map') }
+									},
+									{
+										title: 'Dual view',
+										icon: "custom_icons/view-1.svg",
+										action: () => { p.onViewToggle('both') }
+									},
+									{
+										title: 'Render view',
+										icon: "custom_icons/view-2.svg",
+										action: () => { p.onViewToggle('preview') }
+									},
+								]}
+							/>
+						</div>
 
-							<div className='toolbar-wrapper'>
-								<ButtonsToolbar
-									class='editor-main-toolbar'
-									design="vertical"
-									size={0.8}
-									buttons={editorToolbarActions}
-								/>
-							</div>
+						<div className='toolbar-wrapper'>
+							<ButtonsToolbar
+								class='editor-main-toolbar'
+								design="vertical"
+								size={0.8}
+								buttons={editorToolbarActions}
+							/>
+						</div>
 
-							<div className="dates-wrapper">
-								<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-								<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-							</div>
-						</>
-					</Dropdown >
-					</div>
-
+						<div className="dates-wrapper">
+							<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+							<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+						</div>
+					</>
+				</Dropdown >
 				</div>
 
 			</div>
 
-
-			{/* {MAIN EDITOR AREA} */}
-			<div className="main-editor-wrapper">
-				{
-					deviceType() === 'desktop' &&
-					<MonacoEditorWrapper
-						value={innerFileContent}
-						vimMode={vimMode}
-						readOnly={!p.canEdit}
-						ref={monacoEditorComp}
-						onChange={triggerNoteEdition}
-						onScroll={p.onScroll}
-						posY={p.posY}
-					/>
-					// <MonacoEditor2
-					//   value={innerFileContent}
-					// />
-				}
-				{
-					deviceType() !== 'desktop' &&
-					<textarea
-						className='textarea-editor'
-						ref={mobileTextarea}
-						readOnly={!p.canEdit}
-						value={innerFileContent}
-						onScroll={(e: any) => {
-							p.onScroll(e)
-							onTextareaScroll(e)
-						}}
-						onChange={onTextareaChange}
-					/>
-				}
-			</div>
+		</div>
 
 
+		{/* {MAIN EDITOR AREA} */}
+		<div className="main-editor-wrapper">
 			{
-				// BOTTOM MOBILE TOOLBAR
+				deviceType() === 'desktop' &&
+				<MonacoEditorWrapper
+					value={innerFileContent}
+					vimMode={vimMode}
+					readOnly={!p.canEdit}
+					ref={monacoEditorComp}
+					onChange={triggerNoteEdition}
+					onScroll={p.onScroll}
+					posY={p.posY}
+				/>
+				// <MonacoEditor2
+				//   value={innerFileContent}
+				// />
+			}
+			{
 				deviceType() !== 'desktop' &&
-				<NoteMobileToolbar
-					onButtonClicked={action => {
-						let updatedText = applyTextModifAction(action)
-						if (updatedText) triggerNoteEdition(updatedText)
+				<textarea
+					className='textarea-editor'
+					ref={mobileTextarea}
+					readOnly={!p.canEdit}
+					value={innerFileContent}
+					onScroll={(e: any) => {
+						p.onScroll(e)
+						onTextareaScroll(e)
 					}}
+					onChange={onTextareaChange}
 				/>
 			}
-
-			{askForPassword && APasswordPopup}
-
-			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
-
-			{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
-	)
+
+
+		{
+			// BOTTOM MOBILE TOOLBAR
+			deviceType() !== 'desktop' &&
+			<NoteMobileToolbar
+				onButtonClicked={action => {
+					let updatedText = applyTextModifAction(action)
+					if (updatedText) triggerNoteEdition(updatedText)
+				}}
+			/>
+		}
+
+		{askForPassword && APasswordPopup}
+
+		{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
+
+		{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
+	</div>
+)
 }
 const test = css`
 		.test {
@@ -435,20 +428,7 @@ export const editorAreaCss = (v: MobileView) => `
       }
     }
     
-
-
-
-      .upload-button-wrapper {
-        position: relative;  
-        .input-file-hidden {
-          width: 0.1px;
-          height: 0.1px;
-          opacity: 0;
-          overflow: hidden;
-          position: absolute;
-          z-index: -1;
-        }
-      }
+		${uploadButtonCss}
     }
   }
 
@@ -474,7 +454,7 @@ export const editorAreaCss = (v: MobileView) => `
     }
   }
 }
-`
+`;
 
 
 // let pass everything for the moment

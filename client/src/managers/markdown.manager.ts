@@ -35,7 +35,7 @@ export const replaceUserCustomMdTag = (
 	const uniqMatches = uniq(matches)
 
 	// for each unique tag, replace it with its equivalent 
-	console.log(uniqMatches);
+	//console.log(uniqMatches);
 
 	const getFileContent = consoleCli['clientApiGetFileContent']
 	const renderNoteContent = consoleCli['renderNoteContent']
@@ -94,7 +94,7 @@ export const replaceCustomMdTags = (
 			}
 		})
 		let finalRes = t3.join('')
-		console.log(`[MD TAG ANALYZER] ${tag}`, t3, finalRes);
+		//console.log(`[MD TAG ANALYZER] ${tag}`, t3, finalRes);
 		res = res.replace(regex, finalRes);
 
 	};

@@ -14,11 +14,6 @@ export const WindowGrid = (p: {
 		<StyledDiv>
 			<div className="window-grid-wrapper"
 				onClick={() => {
-
-					//const nLayout = cloneDeep(tab.layout)
-					//nLayout[0].id = "WOOOOOOOOOOOOOP"
-					//p.onUpdateLayout(nLayout)
-
 				}}
 			>
 				<DraggableGrid

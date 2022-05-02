@@ -1,6 +1,7 @@
 import React, { useRef, useState } from "react"
 import { Icon } from "../../components/Icon.component"
 import { configClient } from "../../config"
+import { getClientApi } from "../../managers/api/api.manager"
 import { initClipboardListener } from "../../managers/clipboard.manager"
 import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { safeString } from "../../managers/string.manager"
@@ -21,11 +22,11 @@ export const useEditorUploadLogic = (p: {
 	let uploadInputRef = useRef<HTMLInputElement>(null)
 
 	const reinitUploadLogic = () => {
-		configClient.log.upload && console.log(`[UPLOAD] cleanUploadLogic`);
+		console.log(`[UPLOAD] 005666 cleanUploadLogic`);
 		clientSocket2.off(keyUploadSocketListener)
 
 		// WHEN RECEIVE FILE INFOS FROM API
-		configClient.log.upload && console.log(`[UPLOAD] initUploadLogic`);
+		console.log(`[UPLOAD] 005666 initUploadLogic`);
 
 		keyUploadSocketListener = listenOnUploadSuccess((file) => {
 			let ressourceInMd = `![${safeString(file.name)}](${file.path})\n\n`
@@ -40,7 +41,7 @@ export const useEditorUploadLogic = (p: {
 		})
 
 		// UPLOAD FROM INPUT
-		uploadInputRef.current ? uploadOnInputChange(uploadInputRef.current, onUploadProgressAction) : configClient.log.upload && console.error('[UPLOAD] uploadInputRef not detected');
+		uploadInputRef.current ? uploadOnInputChange(uploadInputRef.current, onUploadProgressAction) : console.error('[UPLOAD] 005666 uploadInputRef not detected');
 
 		// UPLOAD FROM DRAG DROP
 		if (uploadDragzoneRef.current) {
@@ -57,7 +58,7 @@ export const useEditorUploadLogic = (p: {
 	}
 
 	const updateUploadFolder = (newUploadFolder: string) => {
-		configClient.log.upload && console.log(`[UPLOAD] updateUploadFolder to ${newUploadFolder}`);
+		console.log(`[UPLOAD] 005666 updateUploadFolder to ${newUploadFolder}`);
 		debouncedUploadResourcesInfos(newUploadFolder)
 	}
 	const debouncedUploadResourcesInfos = useDebounce((newUploadFolder) => {
@@ -69,7 +70,30 @@ export const useEditorUploadLogic = (p: {
 		class: 'upload-button-wrapper',
 		action: () => { },
 		customHtml: <>
-			<input className='input-file-hidden' id="file" multiple name="file" type="file" ref={uploadInputRef} />
+			<input
+				className='input-file-hidden'
+				id="file"
+				multiple
+				name="file"
+				type="file"
+				onChange={(e: any) => {
+					console.log(
+						555,
+						e,
+						e.target.files,
+						e.dataTransfer,
+					);
+					const f = e.target.files[0]
+					getClientApi().then(api => {
+						api.upload.uploadFile({
+							file: f,
+							folderPath: '.',
+							onProgress: p => { console.log(222, p); },
+							onSuccess: p => { console.log(2223, p); }
+						})
+					})
+				}}
+			/>
 			{/* @ts-ignore  */}
 			<label for="file"
 			><Icon name="faPaperclip" /></label>

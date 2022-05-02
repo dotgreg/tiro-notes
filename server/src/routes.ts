@@ -183,6 +183,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 	serverSocket2.on('uploadResourcesInfos', async data => {
+			// should not be used anymore w new upload api
 		folderToUpload.value = data.folderpath
 	})
 

@@ -114,6 +114,7 @@ export const previewAreaCss = (v: MobileView) => `
     position: relative;
     display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
     // overflow: ${isIpad() ? 'scroll' : 'hidden'};
+		line-height: 19px;
 
     ${commonCssEditors}
 
@@ -150,6 +151,13 @@ export const previewAreaCss = (v: MobileView) => `
     color: ${cssVars.colors.editor.font};
     h1, h2, h3, h4, h5, h6 {
         color: ${cssVars.colors.main};
+				margin-top: 0px;
+    }
+    h1 {
+				margin-bottom: 20px;
+		}
+		h2, h3, h4, h5, h6 {
+				margin-bottom: 15px;
     }
     .preview-link {
       font-weight: 800;
@@ -241,67 +249,73 @@ export const previewAreaCss = (v: MobileView) => `
         margin-bottom: 1em;
     }
     .preview-content {
-	counter-reset: sh1;
-			overflow-wrap: break-word;
+				counter-reset: sh1;
+				overflow-wrap: break-word;
 
-h1:before {
-	content: ""counter(sh1)" ∙ ";
-	counter-increment: sh1;
-}
-h1 {
-	counter-reset: sh2;
-}
-h2:before {
-	content: ""counter(sh1)"." counter(sh2)" ∙  ";
-	counter-increment: sh2;
-}
-h3 {
-	counter-reset: sh3;
-}
-h3:before {
-	content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
-	counter-increment: sh3;
-}
+		h1:before {
+				content: ""counter(sh1)" ∙ ";
+				counter-increment: sh1;
+		}
+		h1 {
+				counter-reset: sh2;
+		}
+		h2:before {
+				content: ""counter(sh1)"." counter(sh2)" ∙  ";
+				counter-increment: sh2;
+		}
+		h3 {
+				counter-reset: sh3;
+		}
+		h3:before {
+				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
+				counter-increment: sh3;
+		}
 
-				ul {
-						list-style-image: "./custom_icons/view-1.svg"; 
-						list-style: none; 
-						li {
-								background-image: url(./custom_icons/line.svg);
-								background-repeat: no-repeat;
-								background-position: -3px 4px;
-								background-size: 11px;
-								padding-left: 12px;
+		ul {
+				padding: 0px;
+				list-style-image: "./custom_icons/view-1.svg"; 
+				list-style: none; 
+
+				li {
+						background-image: url(./custom_icons/line.svg);
+						background-repeat: no-repeat;
+						background-position: -3px 4px;
+						background-size: 11px;
+						padding-left: 12px;
+						p {
+								margin: 0px;
 						}
-input[type=checkbox] {
-		position: relative;
-		width: 0px;
-		height: 10px;
-		margin-right: 9px
-}
-input[type=checkbox]:before {
-		content: "";
-    display: block;
-    position: absolute;
-    width: 15px;
-    height: 15px;
-    top: 0px;
-    left: -4px;
-    background-image: url(./custom_icons/check.svg);
-    background-repeat: no-repeat;
-    background-position: -2px -1px;
-    background-size: contain;
-}
-input[type=checkbox]:checked:before {
-background-image: url(./custom_icons/uncheck.svg);
-}
 				}
 
-				table {
-						margin: 10px 0px;
-						padding 15px;
-						border-spacing: 0;
-						border-collapse: collapse;
+		input[type=checkbox] {
+				position: relative;
+				width: 0px;
+				height: 10px;
+				margin-right: 9px
+		}
+		input[type=checkbox]:before {
+				content: "";
+				display: block;
+				position: absolute;
+				width: 15px;
+				height: 15px;
+				top: 0px;
+				left: -4px;
+				background-image: url(./custom_icons/check.svg);
+				background-repeat: no-repeat;
+				background-position: -2px -1px;
+				background-size: contain;
+		}
+		input[type=checkbox]:checked:before {
+				background-image: url(./custom_icons/uncheck.svg);
+		}
+						}
+
+		table {
+				margin: 10px 0px;
+				padding 15px;
+				border-spacing: 0;
+				border-collapse: collapse;
 
 				tr:first-child th:first-child { border-top-left-radius: 10px; }
 				tr:first-child th:last-child { border-top-right-radius: 10px; }

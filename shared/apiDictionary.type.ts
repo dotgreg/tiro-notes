@@ -23,7 +23,7 @@ export interface iApiDictionary {
 	moveFolder: { initPath: string, endPath: string }
 
 	searchFor: { term: string, type: iAppView }
-	getUploadedFile: { name: string, path: string }
+	getUploadedFile: { name: string, path: string, idReq: string }
 
 	askFolderHierarchy: { folderPath: string }
 	getFolderHierarchy: { folder: iFolder, pathBase: string }

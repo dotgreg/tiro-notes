@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
-import { getClientApi } from "./app/clientApi.hook";
+import { getClientApi } from "../managers/api/api.manager";
 import { getLoginToken } from "./app/loginToken.hook";
 
 export function useBackendState<T>(key: string, initialValue: T): [T, (value: T) => void, Function] {
@@ -23,13 +23,13 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 	const setValue = value => {
 		setStoredValue(value)
 		getClientApi().then(api => {
-			api.saveFileContent(pathToNote, JSON.stringify(value))
+			api.file.saveContent(pathToNote, JSON.stringify(value))
 		})
 	}
 
 	const refreshValFromBackend = () => {
 		getClientApi().then(api => {
-			api.getFileContent(pathToNote, raw => {
+			api.file.getContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)
 				console.log(`[BACKEND STATE] ${key} => `, obj);
 				setStoredValue(obj);

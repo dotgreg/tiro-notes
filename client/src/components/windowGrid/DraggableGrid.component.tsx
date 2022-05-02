@@ -467,7 +467,7 @@ export const draggableGridCss = `
 																background: #F7F7F7;
 														}
 														.preview-area {
-																padding: 10px;
+																padding: 10px 10px 10px 10px;
 														}
 										 }
 
