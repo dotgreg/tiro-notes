@@ -31,6 +31,10 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		if (!e.file) return log(`file could not be uploaded`)
 		// e.file.path => is with ../../data 
 		let finfos = getFileInfos(e.file.pathName)
+		//console.log(2222, JSON.stringify(e.file));
+		const idReq = (e.file.meta && e.file.meta.idReq) ? e.file.meta.idReq : false
+		const pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
+		if (!idReq || !pathToUpload) return console.log('[UPLOAD] NO IDREQ/PATHTOUPLOAD, cancelling upload', JSON.stringify(e.file.meta), idReq, pathToUpload)
 
 		// do modification => namefile to unique ID here
 		let oldPath = `${e.file.pathName}`
@@ -41,7 +45,8 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		// if md, upload directly in directory
 		if (finfos.extension === 'md') newRelPath = cleanPath(`${newName}`)
 
-		let newAbsPath = cleanPath(`${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`)
+		//let newAbsPath = cleanPath(`${backConfig.dataFolder}/${folderToUpload.value}/${newRelPath}`)
+		let newAbsPath = cleanPath(`${backConfig.dataFolder}/${pathToUpload}/${newRelPath}`)
 		log({ oldPath, newAbsPath });
 
 		await upsertRecursivelyFolders(newAbsPath)
@@ -51,7 +56,7 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 			// debounce()
 			rescanEmitDirForFiles(socket)
 		} else {
-			socket.emit('getUploadedFile', { name: displayName, path: newRelPath })
+			socket.emit('getUploadedFile', { name: displayName, path: newRelPath, idReq })
 		}
 
 	})

@@ -40,16 +40,37 @@ export const startProgressTracker = (instanceFile: any, onProgress: Function) =>
 	})
 }
 
-export const uploadFile = (file: any, onProgress: Function) => {
+
+export const uploadFileInt = (p: {
+	file: File,
+	path: string,
+	idReq: string,
+	onProgress: Function
+}) => {
+	const { file, path, idReq, onProgress } = { ...p }
 	var instanceFile = new siofu(clientSocket);
+	instanceFile.addEventListener("start", event => {
+		event.file.meta.idReq = idReq
+		event.file.meta.path = path
+	});
+	instanceFile.submitFiles([file]);
+	startProgressTracker(instanceFile, onProgress);
+}
+
+export const uploadFile = (file: File, onProgress: Function) => {
+	var instanceFile = new siofu(clientSocket);
+	instanceFile.addEventListener("start", event => {
+		event.file.meta.hello = "world";
+	});
 	instanceFile.submitFiles([file]);
 	startProgressTracker(instanceFile, onProgress);
 }
 
 export const uploadOnInputChange = (el: HTMLInputElement, onProgress: Function) => {
-	var instance = new siofu(clientSocket);
-	instance.listenOnInput(el);
-	startProgressTracker(instance, onProgress);
+	// var instance = new siofu(clientSocket);
+	// 	instance.listenOnInput(el);
+	// 	startProgressTracker(instance, onProgress);
+
 }
 
 

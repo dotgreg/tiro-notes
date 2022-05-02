@@ -31,7 +31,6 @@ import { useAppViewType } from './hooks/app/appView.hook';
 import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
-import { initClientApi } from './hooks/app/clientApi.hook';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
@@ -39,6 +38,7 @@ import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
+import { initClientApi } from './managers/api/api.manager';
 
 
 

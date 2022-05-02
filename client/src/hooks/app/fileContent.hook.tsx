@@ -55,19 +55,26 @@ export const useFileContent = (
 	}, [])
 
 	const onFileEditedSaveIt = (filepath, content) => {
+
+
+		// META MANAGEMENT
 		// before saving, reconstitute metas into content
 		const nFileMeta = cloneDeep(fileMetas)
-
 		// all of that complex system for that line to work...
-		// if we dont have created, take it from file stats, otherwise do not touch it
 		if (!nFileMeta.created) nFileMeta.created = toTimeStampInS(activeFile && activeFile.created ? activeFile.created : Date.now())
 		// update the modified field everytime it is edited
 		nFileMeta.modified = toTimeStampInS(Date.now())
-
 		const contentWithMeta = `${metasObjToHeaderString(nFileMeta)}${content}`
-		console.log(`[FILE CONTENT] API -> ask for file save`, { filepath, contentWithMeta });
 
-		clientSocket2.emit('saveFileContent', { filePath: filepath, newFileContent: contentWithMeta, token: getLoginToken() })
+
+
+			// SAVING MECHANISME
+		console.log(`[FILE CONTENT] API -> ask for file save`, { filepath, contentWithMeta });
+		clientSocket2.emit('saveFileContent', {
+			filePath: filepath,
+			newFileContent: contentWithMeta,
+			token: getLoginToken()
+		})
 	}
 
 	const askForFileContent = (file: iFile) => {
