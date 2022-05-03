@@ -22,7 +22,7 @@ import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 import { Dropdown } from '../Dropdown.component';
 import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
-import { UploadUpdateContext } from '../windowGrid/WindowGrid.component';
+import { GridContext } from '../windowGrid/WindowGrid.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -141,18 +141,18 @@ export const EditorArea = (p: {
 	//
 	// MANAGE UPLOAD / PROGRESS
 	//
-	const uploadUpdate = useContext(UploadUpdateContext)
+	const gridContext = useContext(GridContext)
 	const [progressUpload, setProgressUpload] = useState(-1)
 	useEffect(() => {
-		if (uploadUpdate.progress && p.isActive) {
-			setProgressUpload(uploadUpdate.progress)
+		if (gridContext.upload.progress && p.isActive) {
+			setProgressUpload(gridContext.upload.progress)
 		}
-		if (uploadUpdate.file && p.isActive) {
-			const { name, path } = { ...uploadUpdate.file }
+		if (gridContext.upload.file && p.isActive) {
+			const { name, path } = { ...gridContext.upload.file }
 			insertTextAt(`![${name}](${path})`, 'currentPos')
 		}
 
-	}, [uploadUpdate])
+	}, [gridContext.upload])
 
 
 	//
