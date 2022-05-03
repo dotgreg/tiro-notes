@@ -10,13 +10,31 @@ import { iUploadedFile } from '../../managers/upload.manager';
 import { DraggableGrid } from './DraggableGrid.component';
 
 
-export interface iUploadUpdate {
+//
+// CONTEXT 
+//
+interface iUploadUpdate {
 	file?: iUploadedFile
 	progress?: number
 	uploadCounter: number
 }
-const uploadUpdateInit: iUploadUpdate = { uploadCounter: 0 }
-export const UploadUpdateContext = React.createContext<iUploadUpdate>(uploadUpdateInit);
+
+export interface iGridContext {
+	upload: iUploadUpdate
+}
+
+const gridContextInit: iGridContext = {
+	upload: {
+		uploadCounter: 0
+	}
+}
+export const GridContext = React.createContext<iGridContext>(gridContextInit);
+
+
+
+//
+// COMPONENT 
+//
 
 export const WindowGrid = (p: {
 	tab: iTab
@@ -29,7 +47,8 @@ export const WindowGrid = (p: {
 	//
 	// REACT TO DROP & CLIPBOARD
 	//
-	const [uploadUpdate, setUploadUpdate] = useState<iUploadUpdate>(uploadUpdateInit)
+	const [gridContext, setGridContext] = useState<iGridContext>(gridContextInit)
+
 	useEffect(() => {
 		const handleUpload = file => {
 			const mdFile = getActiveWindowContent(tab)?.file
@@ -40,17 +59,17 @@ export const WindowGrid = (p: {
 				file,
 				folderPath: mdFile.folder,
 				onSuccess: res => {
-					const nUpdate = cloneDeep(uploadUpdate)
-					nUpdate.uploadCounter = nUpdate.uploadCounter + 1
-					nUpdate.file = res
-					delete nUpdate.progress
-					setUploadUpdate(nUpdate)
+					const nCtx = cloneDeep(gridContext)
+					nCtx.upload.uploadCounter = nCtx.upload.uploadCounter + 1
+					nCtx.upload.file = res
+					delete nCtx.upload.progress
+					setGridContext(nCtx)
 				},
 				onProgress: res => {
-					const nUpdate = cloneDeep(uploadUpdate)
-					delete nUpdate.file
-					nUpdate.progress = res
-					setUploadUpdate(nUpdate)
+					const nCtx = cloneDeep(gridContext)
+					delete nCtx.upload.file
+					nCtx.upload.progress = res
+					setGridContext(nCtx)
 				}
 			})
 		}
@@ -73,36 +92,18 @@ export const WindowGrid = (p: {
 	}, [p.tab])
 
 
-	// is title edited
-	// titleInput > editorArea > dualwrapper > windowEditor > draggable > windowGrid > app.tsx
-
-	// v1
-	// titleInput > editorarea > api.moveFile + 
-
-	// v2
-	// titleInput > editorarea >  windowEditor > draggable > windowGrid
-
-	// v3
-	// on windowGrid TitleUpdateContext onTitleUpdate
-	// titleInput TitleUpdate
-
-	// v4
-	// on windowGrid
-	// FileActionsContext 
-	// => 
-
 	return (//jsx
 		<StyledDiv>
 			<div className="window-grid-wrapper"
 				onClick={() => {
 				}}
 			>
-				<UploadUpdateContext.Provider value={uploadUpdate}>
+				<GridContext.Provider value={gridContext}>
 					<DraggableGrid refresh={tab.refresh || 0}
 						grid={tab.grid}
 						onGridUpdate={p.onGridUpdate}
 					/>
-				</UploadUpdateContext.Provider>
+				</GridContext.Provider>
 			</div>
 		</StyledDiv>
 	)//jsx
