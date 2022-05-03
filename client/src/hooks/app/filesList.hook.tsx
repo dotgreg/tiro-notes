@@ -3,8 +3,9 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 import { iFile, iFilePreview, iTab } from '../../../../shared/types.shared';
 import { Icon } from '../../components/Icon.component';
-import { List, onFileDragStartFn, SortModes, SortModesLabels } from '../../components/List.component';
+import { List, onFileDragStartFn } from '../../components/List.component';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { sortFiles, SortModes, SortModesLabels } from '../../managers/sort.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
@@ -14,8 +15,8 @@ export type onFilesReceivedFn = (files: iFile[], temporaryResults: boolean, init
 export interface FilesPreviewObject { [path: string]: iFilePreview }
 
 export const useAppFilesList = (
-		files: iFile[],
-		setFiles: Function,
+	files: iFile[],
+	setFiles: Function,
 	activeFileIndex: number,
 	setActiveFileIndex: Function,
 	tabs: iTab[],
@@ -40,7 +41,7 @@ export const useAppFilesList = (
 	}, [tabs])
 
 	const askForFolderFiles = (folderPath: string) => {
-		clientSocket2.emit('askForFiles', { folderPath: folderPath, token: getLoginToken() })
+		clientSocket2.emit('askForFiles', { folderPath: folderPath, token: getLoginToken(), idReq: `-` })
 	}
 
 
@@ -132,32 +133,6 @@ export const useAppFilesList = (
 		)
 
 	}
-
-
-	// RENDERING FUNCTIONS & COMPONENT
-	const sortFiles = (files: iFile[], sortMode: any): iFile[] => {
-		let sortedFiles
-		switch (SortModes[sortMode]) {
-			case 'alphabetical':
-				sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
-				break;
-			case 'created':
-				sortedFiles = sortBy(files, ['created']).reverse()
-				break;
-			case 'modified':
-				sortedFiles = sortBy(files, ['modified']).reverse()
-				break;
-
-			default:
-				sortedFiles = sortBy(files, [file => file.realname.toLocaleLowerCase()])
-				break;
-		}
-
-		return sortedFiles
-	}
-
-
-
 
 
 	const FilesListComponent = (p: {

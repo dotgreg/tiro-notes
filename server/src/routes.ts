@@ -33,7 +33,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			titleSearch: false,
 			recursive: false,
 			onSearchEnded: async res => {
-				if (res.files) await serverSocket2.emit('getFiles', { files: res.files })
+				if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 			}
 		})
 	})
@@ -66,7 +66,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				titleSearch: termObj.titleSearch,
 				recursive: true,
 				onSearchEnded: async res => {
-					if (res.files) await serverSocket2.emit('getFiles', { files: res.files })
+					if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 				}
 			})
 		}
@@ -123,7 +123,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
 
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
-		serverSocket2.emit('getFiles', { files: apiAnswer })
+		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: '-' })
 	})
 
 	serverSocket2.on('moveFile', async data => {
@@ -140,7 +140,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		// rescan the current dir
 		log(`===> 4/4 debouncedScanAfterMove`);
-		await debouncedFolderScan(serverSocket2, data.initPath)
+		await debouncedFolderScan(serverSocket2, data.initPath, data.idReq)
 		// await debouncedHierarchyScan(socket)
 	})
 
@@ -183,7 +183,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 	serverSocket2.on('uploadResourcesInfos', async data => {
-			// should not be used anymore w new upload api
+		// should not be used anymore w new upload api
 		folderToUpload.value = data.folderpath
 	})
 

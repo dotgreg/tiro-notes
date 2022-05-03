@@ -16,7 +16,7 @@ export const useFileMove = (
 
 	const askForMoveFile = (initPath: string, endPath: string) => {
 		console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
-		clientSocket2.emit('moveFile', { initPath, endPath, token: getLoginToken() })
+		clientSocket2.emit('moveFile', { initPath, endPath, idReq: '-', token: getLoginToken() })
 	}
 
 	const askForMoveFolder = (initPath: string, endPath: string) => {

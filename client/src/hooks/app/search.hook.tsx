@@ -32,7 +32,7 @@ export const useAppSearch = (
         setSearchTerm(term)
         setIsSearching(true)
         shouldLoadNoteIndex.current = 0
-        clientSocket2.emit('searchFor', {term, token: getLoginToken(), type:currentAppView}) 
+      clientSocket2.emit('searchFor', {term, token: getLoginToken(), type:currentAppView, idReq:'-'}) 
         cleanListAndFileContent()
     }
 

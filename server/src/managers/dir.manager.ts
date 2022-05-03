@@ -112,7 +112,7 @@ export const lastFolderFilesScanned = { value: "" }
 export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<iApiDictionary>) => {
 	let apiAnswer = await scanDirForFiles(lastFolderFilesScanned.value)
 	if (typeof (apiAnswer) === 'string') return log(apiAnswer)
-	serverSocket2.emit('getFiles', { files: apiAnswer })
+	serverSocket2.emit('getFiles', { files: apiAnswer, idReq: '-' })
 }
 
 export const scanDirForFiles = async (path: string): Promise<iFile[] | string> => {

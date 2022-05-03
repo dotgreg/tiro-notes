@@ -12,10 +12,8 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { deviceType, isA } from '../managers/device.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getKeyModif } from '../managers/keys.manager';
+import { SortModes } from '../managers/sort.manager';
 
-export type SortMode = 'alphabetical' | 'created' | 'modified'
-export const SortModesLabels = ['Az', 'Crea', 'Modif']
-export const SortModes = ['alphabetical', 'created', 'modified']
 
 // export const SortModeArr = ['none','alphabetical','created','modified']
 export type onFileDragStartFn = (files: iFile[]) => void

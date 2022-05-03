@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
+import { iFilesApi, useFilesApi } from './files.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 
@@ -20,6 +21,7 @@ export interface iClientApi {
 	upload: iUploadApi
 	popup: iPopupApi
 	move: iMoveApi
+	files: iFilesApi
 }
 
 
@@ -88,6 +90,7 @@ export const useClientApi = (p: {
 
 
 	const fileApi = useFileApi({ eventBus });
+	const filesApi = useFilesApi({ eventBus });
 	const uploadApi = useUploadApi({ eventBus });
 	const moveApi = useMoveApi({ eventBus });
 
@@ -96,6 +99,7 @@ export const useClientApi = (p: {
 	// 
 	const clientApi: iClientApi = {
 		file: fileApi,
+		files: filesApi,
 		popup: p.popupApi,
 		upload: uploadApi,
 		move: moveApi
