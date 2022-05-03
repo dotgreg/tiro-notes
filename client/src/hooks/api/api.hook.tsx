@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
+import { iMoveApi, useMoveApi } from './move.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 
 //
@@ -18,6 +19,7 @@ export interface iClientApi {
 	file: iFileApi
 	upload: iUploadApi
 	popup: iPopupApi
+	move: iMoveApi
 }
 
 
@@ -85,11 +87,9 @@ export const useClientApi = (p: {
 	}, [])
 
 
-	// FILE API IMPORT
 	const fileApi = useFileApi({ eventBus });
-
-	// UPLOAD API
 	const uploadApi = useUploadApi({ eventBus });
+	const moveApi = useMoveApi({ eventBus });
 
 	// 
 	// FINAL EXPORT
@@ -97,7 +97,8 @@ export const useClientApi = (p: {
 	const clientApi: iClientApi = {
 		file: fileApi,
 		popup: p.popupApi,
-		upload: uploadApi
+		upload: uploadApi,
+		move: moveApi
 	}
 	const clientApiRef = useRef<iClientApi>(clientApi)
 	clientApiInt = clientApi
@@ -121,3 +122,40 @@ const api = useContext(ClientApiContext)
 export const genIdReq = (type: string): string => {
 	return `client-api-${type}-req-${generateUUID()}`;
 }
+
+
+
+
+
+
+
+
+
+
+/*
+import React, { useEffect, useRef } from 'react';
+import { iApiEventBus } from './api.hook';
+
+//
+// INTERFACES
+//
+export interface iMoveApi {
+}
+
+export const useMoveApi = (p: {
+	eventBus: iApiEventBus
+}) => {
+
+	//
+	// FUNCTIONS
+	// 
+
+	//
+	// EXPORTS
+	//
+	const api: iMoveApi = {
+	}
+
+	return api
+}
+*/

@@ -26,7 +26,7 @@ export const useUserSettings = () => {
 		// if settings not configured, return default
 		let res = defaultVals[name]
 		if (name in userSettings) res = userSettings[name]
-		console.log(`[USER SETTINGS] 0011 : get ${name} > ${res}`);
+		// console.log(`[USER SETTINGS] 0011 : get ${name} > ${res}`);
 		return res
 	}
 
