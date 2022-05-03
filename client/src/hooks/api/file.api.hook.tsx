@@ -1,10 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
-import { genIdReq } from '../../managers/api/api.manager';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
-import { iApiEventBus } from './clientApi.hook';
+import { genIdReq, iApiEventBus } from './api.hook';
 
 
 //

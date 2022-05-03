@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { genIdReq } from '../../managers/api/api.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { uploadFileInt } from '../../managers/upload.manager';
-import { iApiEventBus } from './clientApi.hook';
+import { genIdReq, iApiEventBus } from './api.hook';
 
 //
 // INTERFACES
