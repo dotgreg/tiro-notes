@@ -16,7 +16,7 @@ export interface iFileApi {
 }
 
 export const useFileApi = (p: {
-	eventsBus: iApiEventBus
+	eventBus: iApiEventBus
 }) => {
 
 	//
@@ -25,7 +25,7 @@ export const useFileApi = (p: {
 	useEffect(() => {
 		clientSocket2.on('getFileContent', data => {
 			let filterRes = filterMetaFromFileContent(data.fileContent)
-			p.eventsBus.notify(data.idReq, filterRes.content)
+			p.eventBus.notify(data.idReq, filterRes.content)
 		})
 	}, [])
 
@@ -39,7 +39,7 @@ export const useFileApi = (p: {
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
-		p.eventsBus.subscribe(idReq, cb);
+		p.eventBus.subscribe(idReq, cb);
 		// 2. emit request 
 		clientSocket2.emit('askForFileContent', {
 			filePath,

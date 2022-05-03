@@ -1,7 +1,8 @@
 import { each } from 'lodash';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
+import { iUploadApi, useUploadApi } from './upload.api.hook';
 
 //
 // INTERFACES
@@ -14,7 +15,31 @@ export interface iApiEventBus {
 }
 export interface iClientApi {
 	file: iFileApi
+	upload: iUploadApi
 	popup: iPopupApi
+}
+
+
+//
+// OUTSIDE OF REACT
+// can also get client api outside of react,
+// we should avoid it, but required for some processes
+// bootstrapping before that hook... like useBackendState
+// feeling kindda bad, feels like a bad design pattern
+//
+let clientApiInt: iClientApi | null = null
+export const getClientApi2 = (): Promise<iClientApi> => {
+	return new Promise((res, rej) => {
+		if (clientApiInt) return res(clientApiInt)
+		else {
+			let intId = setInterval(() => {
+				if (clientApiInt) {
+					clearInterval(intId)
+					return res(clientApiInt)
+				}
+			}, 200)
+		}
+	})
 }
 
 //
@@ -31,6 +56,8 @@ export const useClientApi = (p: {
 	//
 	const subscribers = useRef<iEventBusSubscribers>({})
 	const subscribe: iApiEventBus['subscribe'] = (reqId, cb) => {
+
+
 		subscribers.current[reqId] = cb
 	}
 	const unsubscribe: iApiEventBus['unsubscribe'] = reqId => {
@@ -46,34 +73,38 @@ export const useClientApi = (p: {
 		});
 	}
 
-	const eventsBus: iApiEventBus = {
+	const eventBus: iApiEventBus = {
 		subscribe,
 		unsubscribe,
 		notify
 	}
 
+	useEffect(() => {
+		console.log('INIT CLIENT API');
+	}, [])
 
 
 	// FILE API IMPORT
-	const fileApi = useFileApi({ eventsBus });
+	const fileApi = useFileApi({ eventBus });
 
 	// UPLOAD API
-	const fileApi = useFileApi({ eventsBus });
+	const uploadApi = useUploadApi({ eventBus });
 
 	// 
 	// FINAL EXPORT
 	// 
 	const clientApi: iClientApi = {
 		file: fileApi,
-		popup: p.popupApi
+		popup: p.popupApi,
+		upload: uploadApi
 	}
+	const clientApiRef = useRef<iClientApi>(clientApi)
+	clientApiInt = clientApi
 
-	return clientApi
+	return { clientApi, clientApiRef }
 }
 
-// export const getClientApi = () => {
-// 	return useContext(ClientApiContext)
-// }
+
 
 /*
 const api = useContext(ClientApiContext)

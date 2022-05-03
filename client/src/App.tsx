@@ -449,7 +449,7 @@ export const App = () => {
 
 
 	// Client API 
-	const clientApi = useClientApi({
+	const {clientApi, clientApiRef} = useClientApi({
 		popupApi
 	})
 

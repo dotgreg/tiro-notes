@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { iWindowContent } from '../../../../shared/types.shared';
-import { getClientApi } from '../../managers/api/api.manager';
+import { ClientApiContext } from '../../hooks/api/clientApi.hook';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
 export const WindowEditor = (p: {
@@ -13,57 +13,55 @@ export const WindowEditor = (p: {
 
 	const [fileContent, setFileContent] = useState('')
 
+	const api = useContext(ClientApiContext);
+
 
 	//
 	// GET CONTENT 
 	//
 	useEffect(() => {
 		if (!file) return
-		getClientApi().then(api => {
-			api.file.getContent(file.path, content => {
-				setFileContent(content)
-			})
+		api && api.file.getContent(file.path, content => {
+			setFileContent(content)
 		})
-	}, [file])
+}, [file])
 
 
-	//
-	// UPDATE CONTENT 
-	//
-	const onFileEditedSaveIt = (filepath: string, content: string) => {
-		getClientApi().then(api => {
-			api.file.saveContent(filepath, content)
-		})
-	}
+//
+// UPDATE CONTENT 
+//
+const onFileEditedSaveIt = (filepath: string, content: string) => {
+	api && api.file.saveContent(filepath, content)
+}
 
-	const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
+const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
 
 
 
 
-	return (//jsx
-		<>
-			{
-				file &&
-				<div className="window-editor-wrapper">
-					<DualViewer
-						file={file}
-						fileContent={fileContent}
-						canEdit={true}
-						isActive={active}
-						isLeavingNote={false}
-						viewType={view}
-						onViewChange={p.onViewChange}
-						onFileEdited={debouncedOnFileEditedSaveIt}
-						onFileTitleEdited={() => { }}
-						onSavingHistoryFile={() => { }}
-						onFileDelete={() => { }}
-						onLightboxClick={() => { }}
-						onBackButton={() => { }}
-						onToggleSidebarButton={() => { }}
-					/>
-				</div>
-			}
-		</>)//jsx
+return (//jsx
+	<>
+		{
+			file &&
+			<div className="window-editor-wrapper">
+				<DualViewer
+					file={file}
+					fileContent={fileContent}
+					canEdit={true}
+					isActive={active}
+					isLeavingNote={false}
+					viewType={view}
+					onViewChange={p.onViewChange}
+					onFileEdited={debouncedOnFileEditedSaveIt}
+					onFileTitleEdited={() => { }}
+					onSavingHistoryFile={() => { }}
+					onFileDelete={() => { }}
+					onLightboxClick={() => { }}
+					onBackButton={() => { }}
+					onToggleSidebarButton={() => { }}
+				/>
+			</div>
+		}
+	</>)//jsx
 
 }
