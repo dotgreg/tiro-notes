@@ -8,8 +8,14 @@ import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
-
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
+export type iTabsApi = {
+	get: () => iTab[]
+	openInNewTab: (file: iFile) => void
+	updateActiveWindowContent: (file: iFile) => void
+}
+
+
 
 export const addNewWindowConfig = (p: {
 	file: iFile,
@@ -52,6 +58,18 @@ export const useTabs = (p: {
 		setTabsInt(nTabs)
 	}
 
+	const getTabs: iTabsApi['get'] = () => {
+		return tabs
+	}
+
+	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
+		const nTab = generateNewTab({ fullWindowFile: file })
+		if (!nTab) return
+		const nTabs = [...tabs, nTab]
+		const nTabs2 = setActiveTab(nTab.id, nTabs)
+		setTabs(nTabs2)
+	}
+
 	const updateTab: onTabUpdateFn = (type, tab) => {
 		console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
 
@@ -59,11 +77,7 @@ export const useTabs = (p: {
 			// if active tab exists, copy it in new one
 			//const nTab = generateNewTab(getActiveTab(tabs))
 			//tab with one window
-			const nTab = generateNewTab({ fullWindowFile: p.activeFile })
-			if (!nTab) return
-			const nTabs = [...tabs, nTab]
-			const nTabs2 = setActiveTab(nTab.id, nTabs)
-			setTabs(nTabs2)
+			openInNewTab(p.activeFile)
 
 		} else if (type === 'close') {
 			if (!tab) return
@@ -112,7 +126,7 @@ export const useTabs = (p: {
 	}
 
 	// changing active window file
-	const updateActiveWindowContent = (nFile: iFile) => {
+	const updateActiveWindowContent: iTabsApi['updateActiveWindowContent'] = (nFile) => {
 		if (!nFile) return
 		// get active tab
 		const nTabs = cloneDeep(tabs)
@@ -128,7 +142,7 @@ export const useTabs = (p: {
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
 
-		aTab.name = nFile.name.length > 10 ? `${nFile.name.substring(0, 10)}..` : nFile.name
+		aTab.name = createTabNameFromFile(nFile)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
 
@@ -143,19 +157,22 @@ export const useTabs = (p: {
 		})
 		return tabs
 	}
+
  */
+	const tabsApi: iTabsApi = {
+		get: getTabs,
+		openInNewTab,
+		updateActiveWindowContent
+	}
 
 	return {
 		tabs,
-		refreshTabsFromBackend,
-		getActiveTab,
-
 		updateTab,
-
+		refreshTabsFromBackend,
 		updateActiveTabGrid,
-		updateActiveWindowContent,
-
 		refreshWindowGrid,
+
+		tabsApi
 	}
 }
 
@@ -165,6 +182,10 @@ const refreshTabsViews = (tabs: iTab[]): iTab[] => {
 	const nTabs = cloneDeep(tabs)
 	each(nTabs, tab => { tab.refresh = increment(tab.refresh) })
 	return nTabs
+}
+
+const createTabNameFromFile = (file: iFile): string => {
+	return file.name.length > 10 ? `${file.name.substring(0, 10)}..` : file.name
 }
 
 export const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
@@ -210,7 +231,7 @@ const generateNewTab = (p: {
 
 		return {
 			id: generateUUID(),
-			name: strings.tabs.newTab,
+			name: createTabNameFromFile(p.fullWindowFile),
 			active: true,
 			// generate a full window
 			grid: {

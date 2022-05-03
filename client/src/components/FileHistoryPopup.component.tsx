@@ -1,7 +1,8 @@
 import styled from '@emotion/styled';
 import { orderBy, sortBy } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { iFile } from '../../../shared/types.shared';
+import { ClientApiContext } from '../hooks/api/api.hook';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { formatDateList } from '../managers/date.manager';
 import { detachNote } from '../managers/detachNote.manager';
@@ -10,53 +11,58 @@ import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { Popup } from './Popup.component';
 
-export const FileHistoryPopup = (p:{
-    file: iFile
-    onClose: Function
+export const FileHistoryPopup = (p: {
+	file: iFile
+	onClose: Function
 }) => {
 
-    const [files, setFiles] = useState<iFile[]>([])
+	const [files, setFiles] = useState<iFile[]>([])
 
-    useEffect(() => {
-        clientSocket2.emit('askFileHistory', {filepath: p.file.path, token:getLoginToken()})
-        const listenerId = clientSocket2.on('getFileHistory', data => {
-            const filesSorted = orderBy(data.files, ['created'], ['desc']);
-            setFiles(filesSorted)
-        })
-        return () => {
-            clientSocket2.off(listenerId)
-        }
-    }, [])
- 
-    return (
-        <StyledDiv>
-            <Popup
-                title={`${strings.historyPopup.title}"${p.file.realname}"`}
-                onClose={() => {p.onClose()}}
-            >
-                <div className="table-wrapper">
-                    <table> 
-                        <thead>
-                            <tr>
-                                <th>{strings.historyPopup.thead.name}</th>
-                                <th>{strings.historyPopup.thead.date}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                files.map(file =>
-                                    <tr onClick={() => {detachNote(file)}}>
-                                        <td> {file.realname} </td>
-                                        <td> {formatDateList(new Date(file.created || 0))} </td>
-                                    </tr>
-                                    )
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </Popup>
-        </StyledDiv>
-    )
+	useEffect(() => {
+		clientSocket2.emit('askFileHistory', { filepath: p.file.path, token: getLoginToken() })
+		const listenerId = clientSocket2.on('getFileHistory', data => {
+			const filesSorted = orderBy(data.files, ['created'], ['desc']);
+			setFiles(filesSorted)
+		})
+		return () => {
+			clientSocket2.off(listenerId)
+		}
+	}, [])
+
+	const api = useContext(ClientApiContext);
+	const openHistoryFile = (file: iFile) => {
+		api && api.tabs.openInNewTab(file)
+	}
+
+	return (
+		<StyledDiv>
+			<Popup
+				title={`${strings.historyPopup.title}"${p.file.realname}"`}
+				onClose={() => { p.onClose() }}
+			>
+				<div className="table-wrapper">
+					<table>
+						<thead>
+							<tr>
+								<th>{strings.historyPopup.thead.name}</th>
+								<th>{strings.historyPopup.thead.date}</th>
+							</tr>
+						</thead>
+						<tbody>
+							{
+								files.map(file =>
+									<tr onClick={() => { openHistoryFile(file) }}>
+										<td> {file.realname} </td>
+										<td> {formatDateList(new Date(file.created || 0))} </td>
+									</tr>
+								)
+							}
+						</tbody>
+					</table>
+				</div>
+			</Popup>
+		</StyledDiv>
+	)
 }
 
 export const StyledDiv = styled.div`

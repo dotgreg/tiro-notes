@@ -1,6 +1,7 @@
 import { each } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
+import { iTabsApi } from '../app/tabs.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
@@ -22,6 +23,7 @@ export interface iClientApi {
 	popup: iPopupApi
 	move: iMoveApi
 	files: iFilesApi
+	tabs: iTabsApi
 }
 
 
@@ -54,6 +56,7 @@ export const ClientApiContext = React.createContext<iClientApi | null>(null);
 
 export const useClientApi = (p: {
 	popupApi: iPopupApi
+	tabsApi: iTabsApi
 }) => {
 
 	//
@@ -102,12 +105,13 @@ export const useClientApi = (p: {
 		files: filesApi,
 		popup: p.popupApi,
 		upload: uploadApi,
+		tabs: p.tabsApi,
 		move: moveApi
 	}
-	const clientApiRef = useRef<iClientApi>(clientApi)
+	// outside of react too
 	clientApiInt = clientApi
 
-	return { clientApi, clientApiRef }
+	return clientApi
 }
 
 
