@@ -10,7 +10,7 @@ import { genIdReq, iApiEventBus } from './api.hook';
 // INTERFACES
 //
 export interface iFileApi {
-	getContent: (noteLink: string, cb: Function) => void
+	getContent: (noteLink: string, cb: (noteContent:string) => void) => void
 	saveContent: (noteLink: string, content: string) => void
 }
 

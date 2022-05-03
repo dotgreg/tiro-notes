@@ -8,8 +8,8 @@ export interface iApiDictionary {
 	reconnect: {}
 	connectionSuccess: { isRgGood: boolean }
 
-	askForFiles: { folderPath: string, token: string }
-	getFiles: { files: iFile[], temporaryResults?: boolean, initialResults?: boolean }
+	askForFiles: { folderPath: string, token: string, idReq: string }
+	getFiles: { files: iFile[], temporaryResults?: boolean, initialResults?: boolean, idReq: string }
 
 	askForImages: { folderPath: string, token: string }
 	getImages: { images: iFileImage[] }
@@ -19,10 +19,10 @@ export interface iApiDictionary {
 
 	saveFileContent: { filePath: string, newFileContent: string }
 
-	moveFile: { initPath: string, endPath: string }
+	moveFile: { initPath: string, endPath: string, idReq:string }
 	moveFolder: { initPath: string, endPath: string }
 
-	searchFor: { term: string, type: iAppView }
+	searchFor: { term: string, type: iAppView, idReq: string }
 	getUploadedFile: { name: string, path: string, idReq: string }
 
 	askFolderHierarchy: { folderPath: string }
