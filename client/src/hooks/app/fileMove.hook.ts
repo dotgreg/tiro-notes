@@ -11,7 +11,7 @@ export const useFileMove = (
 	cleanFilesList,
 	cleanFolderHierarchy,
 	askForFolderScan,
-	popups: iPopupApi
+	popupApi: iPopupApi
 ) => {
 
 	const askForMoveFile = (initPath: string, endPath: string) => {
@@ -26,7 +26,7 @@ export const useFileMove = (
 	}
 
 	const promptAndBatchMoveFiles = (files: iFile[], folderToDropInto: iFolder) => {
-		if (popups.confirm) popups.confirm(
+		if (popupApi.confirm) popupApi.confirm(
 			`move ${files?.length} files to "${folderToDropInto.key}"? (example: "${files[0].path}" to "${folderToDropInto.key}/${files[0].name}"`,
 			() => {
 				for (let i = 0; i < files.length; i++) {
@@ -59,7 +59,7 @@ export const useFileMove = (
 		let initPath = `${folderBasePath}/${rels[0]}`
 		let endPath = `${folderBasePath}/${rels[1]}`
 
-		if (popups.confirm) popups.confirm(
+		if (popupApi.confirm) popupApi.confirm(
 			`${strings.moveFolderPrompt} ${initPath} to ${endPath}?`,
 			() => {
 				askForMoveFolder(initPath, endPath)

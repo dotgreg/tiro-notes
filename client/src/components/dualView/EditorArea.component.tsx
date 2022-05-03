@@ -252,7 +252,7 @@ export const EditorArea = (p: {
 
 
 				<NoteTitleInput
-					title={p.file.name.replace('', '')}
+						title={p.file.name.replace('.md', '')}
 					onEdited={gridContext.title.onTitleUpdate}
 				/>
 

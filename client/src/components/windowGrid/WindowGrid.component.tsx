@@ -60,7 +60,19 @@ export const WindowGrid = (p: {
 	//
 	useEffect(() => {
 		gridContext.title.onTitleUpdate = (oPath, nPath) => {
+			if (!api) return
 			console.log('hello from window grid, new title: ', oPath, nPath);
+			const cfile = getActiveWindowContent(tab)?.file
+			if (!cfile) return
+			api.popup.confirm(
+				`
+${cfile.folder}
+${oPath} -> ${nPath}
+are you sure?
+					`,
+				() => {
+					api.move.file(oPath, nPath)
+				})
 		}
 		setGridContext(gridContext)
 	}, [])

@@ -181,7 +181,7 @@ export const getActiveTab = (tabs: iTab[]): iTab | undefined => {
 
 export const getActiveWindowContent = (aTab: iTab): iWindowContent | undefined => {
 	let nCon: iWindowContent | undefined = undefined
-	each(aTab.grid.content, con => { if (con.active) { nCon = con }})
+	each(aTab.grid.content, con => { if (con.active) { nCon = con } })
 	return nCon
 }
 
