@@ -63,9 +63,9 @@ export const DraggableGrid = (p: {
 	}
 
 
-	// 
+	//
 	// ADDING LOGIC
-	// 
+	//
 	const addNewWindow = () => {
 		const copiedFile = intContent[0].file
 		if (!copiedFile) return
@@ -99,9 +99,9 @@ export const DraggableGrid = (p: {
 
 	}
 
-	// 
+	//
 	// REMOVING LOGIC
-	// 
+	//
 	const [canRemove, setCanRemove] = useState(false)
 	const updateCanRemove = () => {
 		console.log(666, intLayout.length);
@@ -121,9 +121,9 @@ export const DraggableGrid = (p: {
 		onGridUpdate(nLayout, intContent)
 	}
 
-	// 
+	//
 	// LIMIT ADDING LOGIC
-	// 
+	//
 	const [canAdd, setCanAdd] = useState(false)
 	const updateCanAdd = () => {
 		// get all blocks
@@ -140,9 +140,9 @@ export const DraggableGrid = (p: {
 
 
 
-	// 
+	//
 	// ACTIVE WINDOW LOGIC
-	// 
+	//
 	const makeWindowActiveInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
 		const nContent = cloneDeep(content);
 		each(nContent, c => {
@@ -156,9 +156,9 @@ export const DraggableGrid = (p: {
 		onGridUpdate(intLayout, nContent)
 	}
 
-	// 
+	//
 	// LIMIT RESIZING LOGIC
-	// 
+	//
 	const updateLayoutLogic = (newLayout) => {
 		//if (intLayout.length !== intContent.length) return
 		console.log('0035', 111, newLayout);
@@ -201,9 +201,9 @@ export const DraggableGrid = (p: {
 		return allGood;
 	}
 
-	// 
+	//
 	// RESIZING LOGIC
-	// 
+	//
 	useResize();
 	useEffect(() => {
 		const e = divWrapper.current
@@ -227,10 +227,6 @@ export const DraggableGrid = (p: {
 		s.height = divWrapper.current.clientHeight - d.decalBottom
 	}
 
-
-
-
-
 	//
 	// view change in editor
 	//
@@ -241,7 +237,8 @@ export const DraggableGrid = (p: {
 		onGridUpdate(intLayout, nContent);
 	}
 
-	return (
+
+	return (//jsx
 		<div className='draggable-grid-wrapper'>
 			<div className="draggable-grid-wrapper" ref={divWrapper}>
 				<GridLayout
@@ -300,8 +297,7 @@ export const DraggableGrid = (p: {
 
 								<div className="note-wrapper">
 									<WindowEditor
-										file={intContent[i] && intContent[i].file}
-										view={intContent[i] && intContent[i].view}
+										content={intContent[i] && intContent[i]}
 										onViewChange={(nView) => { viewTypeChange(nView, i) }}
 									/>
 								</div>
@@ -311,11 +307,11 @@ export const DraggableGrid = (p: {
 				</GridLayout>
 			</div >
 		</div >
-	)
+	)//jsx
 }
 
-export const draggableGridCss = `
-.draggable-grid-wrapper {
+export const draggableGridCss = `//css
+		.draggable-grid-wrapper {
 		// remove transition
 		.react-grid-item {
 				transition: all 0ms ease;
@@ -347,14 +343,13 @@ export const draggableGridCss = `
 
 								// height 100% everywhere
 								.note-wrapper,
-								.window-editor-wrapper, 
-								.dual-view-wrapper, 
+								.window-editor-wrapper,
+								.dual-view-wrapper,
 								.editor-area,
 								.preview-area-wrapper,
 								.preview-area,
 								.main-editor-wrapper{
 										height: 100%;
-
 								}
 
 								.content-wrapper {
@@ -371,7 +366,7 @@ export const draggableGridCss = `
 										.dual-view-wrapper
 										.editor-area
 										.infos-editor-wrapper
-										.title-input-wrapper 
+										.title-input-wrapper
 										.big-title {
 												color: ${cssVars.colors.main};
 
@@ -412,7 +407,7 @@ export const draggableGridCss = `
 								}
 
 
-								
+
 								// content css modification
 								.dual-view-wrapper {
 										.file-path-wrapper {
@@ -457,9 +452,9 @@ export const draggableGridCss = `
 												}
 										}
 
-										 // 
+										 //
 										 // ALL
-										 // 
+										 //
 										 &.device-desktop {
 														.preview-area-wrapper {
 																margin-top: 33px;
@@ -471,9 +466,9 @@ export const draggableGridCss = `
 														}
 										 }
 
-										 // 
+										 //
 										 // FULL PREVIEW
-										 // 
+										 //
 										 &.device-desktop.view-preview {
 														.editor-area {
 																width: 100%
@@ -482,9 +477,9 @@ export const draggableGridCss = `
 														}
 										 }
 
-										 // 
+										 //
 										 // FULL EDITOR
-										 // 
+										 //
 										 &.device-desktop.view-editor {
 												.preview-area-wrapper {
 												}
@@ -498,4 +493,4 @@ export const draggableGridCss = `
 				}
 		}
 }
-`;
+`//css

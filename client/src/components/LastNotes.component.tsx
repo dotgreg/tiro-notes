@@ -74,4 +74,4 @@ export const lastNotesCss = `
         }
     }
 }
-`
+`;

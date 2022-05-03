@@ -22,7 +22,7 @@ export const getBackendUrl = () => {
 
 
 
-export const initSocketConnection = (): Promise<SocketIOClient.Socket> => {
+export const initSocketConnexion = (): Promise<SocketIOClient.Socket> => {
 	return new Promise((resolve, reject) => {
 		if (clientSocket) return
 

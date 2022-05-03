@@ -8,7 +8,6 @@ import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.h
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
 import { useIntervalNoteHistory } from '../../hooks/editor/noteHistory.hook';
 import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
-import { useEditorUploadLogic } from '../../hooks/editor/editorUpload.hook';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { formatDateList } from '../../managers/date.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -21,8 +20,9 @@ import { NoteMobileToolbar } from './NoteToolbar.component';
 import { findImagesFromContent } from '../../managers/images.manager';
 import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 import { Dropdown } from '../Dropdown.component';
-import { css } from '@emotion/css';
 import { UploadButton, uploadButtonCss } from '../UploadButton.component';
+import { UploadProgressBar } from '../UploadProgressBar.component';
+import { UploadUpdateContext } from '../windowGrid/WindowGrid.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -34,8 +34,9 @@ export const EditorArea = (p: {
 	file: iFile
 	posY: number
 	fileContent: string
-	canEdit: boolean
 
+	isActive: boolean
+	canEdit: boolean
 	isLeavingNote: boolean
 
 	onScroll: onScrollFn
@@ -105,11 +106,6 @@ export const EditorArea = (p: {
 	})
 
 
-	// UPLOAD LOGIC HOOK
-	//insertTextAt(ressLinkInMd, 'currentPos')
-	// <div className={`editor-area ${p.previewEnabled ? 'active' : 'inactive'}`}>
-
-
 	// MOBILE EDITOR LOGIC HOOK
 	let mobileTextarea = useRef<HTMLTextAreaElement>(null)
 	const { onTextareaChange, onTextareaScroll } = useMobileTextAreaLogic(innerFileContent, {
@@ -139,7 +135,29 @@ export const EditorArea = (p: {
 		onTextDecrypted: triggerNoteEdition
 	})
 
+
+
+
+	//
+	// MANAGE UPLOAD / PROGRESS
+	//
+	const uploadUpdate = useContext(UploadUpdateContext)
+	const [progressUpload, setProgressUpload] = useState(-1)
+	useEffect(() => {
+		if (uploadUpdate.progress && p.isActive) {
+			setProgressUpload(uploadUpdate.progress)
+		}
+		if (uploadUpdate.file && p.isActive) {
+			const { name, path } = { ...uploadUpdate.file }
+			insertTextAt(`![${name}](${path})`, 'currentPos')
+		}
+
+	}, [uploadUpdate])
+
+
+	//
 	// TOOLBAR ACTIONS
+	//
 	const editorToolbarActions = [
 		{
 			title: 'upload files',
@@ -147,218 +165,213 @@ export const EditorArea = (p: {
 			action: () => { },
 			customHtml: <UploadButton
 				file={p.file}
-				onProgress={p => console.log(111, p)}
-				onSuccess = { p => console.log(222, p)}
-/>
+				onProgress={p => (setProgressUpload(p))}
+				onSuccess={p => {
+					insertTextAt(`![${p.name}](${p.path})`, 'currentPos')
+				}}
+			/>
 		},
-isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-{
-	title: 'Insert unique id',
-	icon: 'faFingerprint',
-	action: () => {
-		let folder = `${p.file.folder}`
-		insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
-	}
-},
-{
-	title: 'Print/download',
-	icon: 'faFileDownload',
-	action: () => {
-		window.print()
-	}
-},
-{
-	title: strings.editorBar.explanation.history,
-	icon: 'faHistory',
-	action: () => {
-		setHistoryPopup(!historyPopup)
-	}
-},
-{
-	title: strings.editorBar.lightbox,
-	icon: 'faImages',
-	action: () => {
-		const imgs = findImagesFromContent(p.fileContent, p.file)
-		p.onLightboxClick(0, imgs)
-	}
-},
-{
-	title: strings.editorBar.tts,
-	icon: 'faCommentDots',
-	action: () => {
-		setTtsPopup(!ttsPopup)
-	}
-},
+		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
+		{
+			title: 'Insert unique id',
+			icon: 'faFingerprint',
+			action: () => {
+				let folder = `${p.file.folder}`
+				insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
+			}
+		},
+		{
+			title: 'Print/download',
+			icon: 'faFileDownload',
+			action: () => {
+				window.print()
+			}
+		},
+		{
+			title: strings.editorBar.explanation.history,
+			icon: 'faHistory',
+			action: () => {
+				setHistoryPopup(!historyPopup)
+			}
+		},
+		{
+			title: strings.editorBar.lightbox,
+			icon: 'faImages',
+			action: () => {
+				const imgs = findImagesFromContent(p.fileContent, p.file)
+				p.onLightboxClick(0, imgs)
+			}
+		},
+		{
+			title: strings.editorBar.tts,
+			icon: 'faCommentDots',
+			action: () => {
+				setTtsPopup(!ttsPopup)
+			}
+		},
 
-{
-	title: 'Delete note',
-	class: 'delete',
-	icon: 'faTrash',
-	action: () => {
-		if (popups.confirm) popups.confirm(`${strings.trashNote}`, () => {
-			p.onFileDelete(p.file.path)
-		})
-	}
-},
+		{
+			title: 'Delete note',
+			class: 'delete',
+			icon: 'faTrash',
+			action: () => {
+				popupApi && popupApi.confirm(`${strings.trashNote}`, () => {
+					p.onFileDelete(p.file.path)
+				})
+			}
+		},
 	]
 
 
-const popups = useContext(PopupContext);
-// File History
-const [historyPopup, setHistoryPopup] = useState(false)
+	const popupApi = useContext(PopupContext);
+	// File History
+	const [historyPopup, setHistoryPopup] = useState(false)
 
-// TTS
-const [ttsPopup, setTtsPopup] = useState(false)
+	// TTS
+	const [ttsPopup, setTtsPopup] = useState(false)
 
-const editorWrapperEl = useRef<HTMLDivElement>(null)
+	const editorWrapperEl = useRef<HTMLDivElement>(null)
 
-// calc max size for dropdown before scrolling
-const el = editorWrapperEl.current
-let maxDropdownHeight = 700
-if (el) maxDropdownHeight = el.clientHeight / 1.3
+	// calc max size for dropdown before scrolling
+	const el = editorWrapperEl.current
+	let maxDropdownHeight = 700
+	if (el) maxDropdownHeight = el.clientHeight / 1.3
 
-return (
-	<div
-		className={`editor-area`}
-		ref={editorWrapperEl}
-	>
+	return (//jsx
+		<div
+			className={`editor-area`}
+			ref={editorWrapperEl}
+		>
 
-		{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-		<div className="infos-editor-wrapper">
+			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
+			<div className="infos-editor-wrapper">
 
-			<div className="file-path-wrapper">
-				{p.file.path.replace(`/${p.file.name}`, '')}
-			</div>
+				<div className="file-path-wrapper">
+					{p.file.path.replace(`/${p.file.name}`, '')}
+				</div>
 
-			<NoteTitleInput
-				title={p.file.name.replace('.md', '')}
-				onEdited={p.onFileTitleEdited}
-			/>
 
-			<div className="toolbar-and-dates-wrapper">
+				<NoteTitleInput
+					title={p.file.name.replace('', '')}
+					onEdited={p.onFileTitleEdited}
+				/>
 
-				<div className="editor-toolbar-dropdown"> 																			<Dropdown
-					hover={true}
-					dir="right"
-					maxHeight={maxDropdownHeight}
-				>
-					<>
+				<div className="toolbar-and-dates-wrapper">
 
-						<div className="view-toggler-wrapper">
-							<ButtonsToolbar
-								class='editor-view-toolbar'
-								size={0.8}
-								buttons={[
-									{
-										title: 'Editor',
-										icon: "custom_icons/view-3.svg",
-										action: () => { p.onViewToggle('editor') }
-									},
-									{
-										title: 'Editor with minimap',
-										icon: "custom_icons/view-4.svg",
-										action: () => { p.onViewToggle('editor-with-map') }
-									},
-									{
-										title: 'Dual view',
-										icon: "custom_icons/view-1.svg",
-										action: () => { p.onViewToggle('both') }
-									},
-									{
-										title: 'Render view',
-										icon: "custom_icons/view-2.svg",
-										action: () => { p.onViewToggle('preview') }
-									},
-								]}
-							/>
-						</div>
+					<div className="editor-toolbar-dropdown">
+						<Dropdown
+							hover={true}
+							dir="right"
+							maxHeight={maxDropdownHeight}
+						>
+							<>
 
-						<div className='toolbar-wrapper'>
-							<ButtonsToolbar
-								class='editor-main-toolbar'
-								design="vertical"
-								size={0.8}
-								buttons={editorToolbarActions}
-							/>
-						</div>
+								<div className="view-toggler-wrapper">
+									<ButtonsToolbar
+										class='editor-view-toolbar'
+										size={0.8}
+										buttons={[
+											{
+												title: 'Editor',
+												icon: "custom_icons/view-3.svg",
+												action: () => { p.onViewToggle('editor') }
+											},
+											{
+												title: 'Editor with minimap',
+												icon: "custom_icons/view-4.svg",
+												action: () => { p.onViewToggle('editor-with-map') }
+											},
+											{
+												title: 'Dual view',
+												icon: "custom_icons/view-1.svg",
+												action: () => { p.onViewToggle('both') }
+											},
+											{
+												title: 'Render view',
+												icon: "custom_icons/view-2.svg",
+												action: () => { p.onViewToggle('preview') }
+											},
+										]}
+									/>
+								</div>
 
-						<div className="dates-wrapper">
-							<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-							<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-						</div>
-					</>
-				</Dropdown >
+								<div className='toolbar-wrapper'>
+									<ButtonsToolbar
+										class='editor-main-toolbar'
+										design="vertical"
+										size={0.8}
+										buttons={editorToolbarActions}
+									/>
+								</div>
+
+								<div className="dates-wrapper">
+									<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+									<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+								</div>
+							</>
+						</Dropdown >
+					</div>
+
 				</div>
 
 			</div>
 
-		</div>
+			{/* UPLOAD BAR FOR EACH EDITOR */}
+			<UploadProgressBar progress={progressUpload} />
 
 
-		{/* {MAIN EDITOR AREA} */}
-		<div className="main-editor-wrapper">
+			{/* {MAIN EDITOR AREA} */}
+			<div className="main-editor-wrapper">
+				{
+					deviceType() === 'desktop' &&
+					<MonacoEditorWrapper
+						value={innerFileContent}
+						vimMode={vimMode}
+						readOnly={!p.canEdit}
+						ref={monacoEditorComp}
+						onChange={triggerNoteEdition}
+						onScroll={p.onScroll}
+						posY={p.posY}
+					/>
+				}
+				{
+					deviceType() !== 'desktop' &&
+					<textarea
+						className='textarea-editor'
+						ref={mobileTextarea}
+						readOnly={!p.canEdit}
+						value={innerFileContent}
+						onScroll={(e: any) => {
+							p.onScroll(e)
+							onTextareaScroll(e)
+						}}
+						onChange={onTextareaChange}
+					/>
+				}
+			</div>
+
+
 			{
-				deviceType() === 'desktop' &&
-				<MonacoEditorWrapper
-					value={innerFileContent}
-					vimMode={vimMode}
-					readOnly={!p.canEdit}
-					ref={monacoEditorComp}
-					onChange={triggerNoteEdition}
-					onScroll={p.onScroll}
-					posY={p.posY}
-				/>
-				// <MonacoEditor2
-				//   value={innerFileContent}
-				// />
-			}
-			{
+				// BOTTOM MOBILE TOOLBAR
 				deviceType() !== 'desktop' &&
-				<textarea
-					className='textarea-editor'
-					ref={mobileTextarea}
-					readOnly={!p.canEdit}
-					value={innerFileContent}
-					onScroll={(e: any) => {
-						p.onScroll(e)
-						onTextareaScroll(e)
+				<NoteMobileToolbar
+					onButtonClicked={action => {
+						let updatedText = applyTextModifAction(action)
+						if (updatedText) triggerNoteEdition(updatedText)
 					}}
-					onChange={onTextareaChange}
 				/>
 			}
+
+			{askForPassword && APasswordPopup}
+
+			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
+
+			{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
-
-
-		{
-			// BOTTOM MOBILE TOOLBAR
-			deviceType() !== 'desktop' &&
-			<NoteMobileToolbar
-				onButtonClicked={action => {
-					let updatedText = applyTextModifAction(action)
-					if (updatedText) triggerNoteEdition(updatedText)
-				}}
-			/>
-		}
-
-		{askForPassword && APasswordPopup}
-
-		{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
-
-		{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
-	</div>
-)
+	)//jsx
 }
-const test = css`
-		.test {
-				background: red;
-		}
 
-`
-const test2 = `
-the color changed everywhere;
-`
-
-export const commonCssEditors = `
+export const commonCssEditors = `//css
 .file-path-wrapper {
   padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
   font-size: 13px;
@@ -381,9 +394,9 @@ export const commonCssEditors = `
       color: grey;
     }
   }
-`
+`//css
 
-export const editorAreaCss = (v: MobileView) => `
+export const editorAreaCss = (v: MobileView) => `//css
 .editor-area {
   width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
   display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'block' : 'none')};
@@ -454,7 +467,7 @@ export const editorAreaCss = (v: MobileView) => `
     }
   }
 }
-`;
+`//css
 
 
 // let pass everything for the moment

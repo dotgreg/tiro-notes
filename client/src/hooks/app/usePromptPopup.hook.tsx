@@ -1,23 +1,5 @@
-/* REQ promptPopup('text', ()=>{})
- * => create popup
-	 => cb on finished
-
-	 D1 usePromptCompo
-	 => create promptCompo + promptTitle + isPromptShown
-	 => triggerPrompt (text, cb)
-	   => window.triggerPrompt = ca...
-				-> superBOOOF
-
-	 D2 usePromptCompo
-	 => kiff kiff
-	 => window.triggerPrompt if needed
-	 => but usually works with triggerPrompt
-*
-*/
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Popup } from '../../components/Popup.component';
-import { addCliCmd } from '../../managers/cliConsole.manager';
 import { strings } from '../../managers/strings.manager';
 
 
@@ -36,8 +18,8 @@ export type iPrompt = (p: {
 	onRefuse?: Function
 }) => void
 export type iConfirmPopup = (text: string, cb: Function) => void
-export type iPopupsContext = { confirm?: iConfirmPopup, prompt?: iPrompt }
-export const PopupContext = React.createContext<iPopupsContext>({});
+export type iPopupApi = { confirm: iConfirmPopup, prompt: iPrompt }
+export const PopupContext = React.createContext<iPopupApi | null>(null);
 
 export const usePromptPopup = (p: {
 }) => {
@@ -75,17 +57,6 @@ export const usePromptPopup = (p: {
 		setDisplayPromptPopup(false)
 	}
 
-	addCliCmd('promptPopup', {
-		description: 'promptPopup',
-		func: promptPopup
-	})
-	addCliCmd('confirmPopup', {
-		description: 'confirmPopup',
-		func: confirmPopup
-	})
-	// window.tiroCli.triggerPromptPopup.f({ text: 'wppp', onAccept: () => { console.log('wpppp'); } })
-
-
 	const PromptPopupComponent = () => <>
 		{displayPromptPopup &&
 			<div className="prompt-popup-component">
@@ -119,9 +90,12 @@ export const usePromptPopup = (p: {
 			</div>}
 	</>
 
+	const popupApi: iPopupApi = {
+		confirm: confirmPopup,
+		prompt: promptPopup
+	}
 	return {
-		promptPopup,
-		confirmPopup,
+		popupApi,
 		PromptPopupComponent
 	}
 }

@@ -68,7 +68,7 @@ export const useFileContent = (
 
 
 
-			// SAVING MECHANISME
+		// SAVING MECHANISME
 		console.log(`[FILE CONTENT] API -> ask for file save`, { filepath, contentWithMeta });
 		clientSocket2.emit('saveFileContent', {
 			filePath: filepath,
@@ -95,61 +95,59 @@ export const useFileContent = (
 		onLightboxClick: onLightboxClickFn
 		forceRender: boolean
 	}) =>
-		useStatMemo(
-			<div className="note-wrapper">
-				{
-					(activeFile) &&
-					<DualViewer
-						file={activeFile}
-						canEdit={canEdit}
-						isLeavingNote={p.isLeavingNote}
-						// viewType={p.viewType}
-						forceRender={p.forceRender}
-						fileContent={fileContent ? fileContent : ''}
+		<></>
 
-						onFileEdited={onFileEditedSaveIt}
-						onFileTitleEdited={(initTitle, endTitle) => {
-							let initPath = `${activeFile.folder}/${initTitle}.md`
-							let endPath = `${activeFile.folder}/${endTitle}.md`
-							console.log(`[FILE CONTENT] onFileTitleEdited =>`, { initPath, endPath });
-							askForMoveFile(initPath, endPath)
-							shouldLoadNoteIndex.current = 0
-						}}
-						onSavingHistoryFile={(filePath, content, historyFileType) => {
-							console.log(`[FILE CONTENT] onSavingHistoryFile ${historyFileType} => ${filePath}`);
-							clientSocket2.emit('createHistoryFile', { filePath, content, historyFileType, token: getLoginToken() })
-						}}
-						onFileDelete={(filepath) => {
-							console.log(`[FILE CONTENT] onFileDelete => ${filepath}`);
+		// useStatMemo(
+		// 	<div className="note-wrapper">
+		// 		{
+		// 			(activeFile) &&
+		// 			<DualViewer
+		// 				file={activeFile}
+		// 				canEdit={canEdit}
+		// 				isLeavingNote={p.isLeavingNote}
+		// 				// viewType={p.viewType}
+		// 				fileContent={fileContent ? fileContent : ''}
+		// 				onFileEdited={onFileEditedSaveIt}
+		// 				onFileTitleEdited={(initTitle, endTitle) => {
+		// 					let initPath = `${activeFile.folder}/${initTitle}.md`
+		// 					let endPath = `${activeFile.folder}/${endTitle}.md`
+		// 					console.log(`[FILE CONTENT] onFileTitleEdited =>`, { initPath, endPath });
+		// 					askForMoveFile(initPath, endPath)
+		// 					shouldLoadNoteIndex.current = 0
+		// 				}}
+		// 				onSavingHistoryFile={(filePath, content, historyFileType) => {
+		// 					console.log(`[FILE CONTENT] onSavingHistoryFile ${historyFileType} => ${filePath}`);
+		// 					clientSocket2.emit('createHistoryFile', { filePath, content, historyFileType, token: getLoginToken() })
+		// 				}}
+		// 				onFileDelete={(filepath) => {
+		// 					console.log(`[FILE CONTENT] onFileDelete => ${filepath}`);
+		// 					let i = activeFileIndex
+		// 					if (i > 0) shouldLoadNoteIndex.current = i - 1
+		// 					else if (i === 0 && files.length > 0) shouldLoadNoteIndex.current = 0
+		// 					// else if (i < files.length - 2) shouldLoadNoteIndex.current = i+1
+		// 					else cleanFileDetails()
+		// 					clientSocket2.emit('onFileDelete', { filepath, token: getLoginToken() })
+		// 					askForFolderFiles(selectedFolder)
+		// 				}}
+		// 				onLightboxClick={p.onLightboxClick}
+		// 				onBackButton={p.onBackButton}
+		// 				onToggleSidebarButton={p.onToggleSidebarButton}
+		// 			/>
+		// 		}
+		// 		{
+		// 			!activeFile &&
+		// 			<div className='no-file'>No file</div>
+		// 		}
+		// 	</div>
+		// 		, [fileContent, activeFile, canEdit, p.isLeavingNote, p.forceRender, p.onToggleSidebarButton]
 
-							let i = activeFileIndex
-							if (i > 0) shouldLoadNoteIndex.current = i - 1
-							else if (i === 0 && files.length > 0) shouldLoadNoteIndex.current = 0
-							// else if (i < files.length - 2) shouldLoadNoteIndex.current = i+1
-							else cleanFileDetails()
 
-							clientSocket2.emit('onFileDelete', { filepath, token: getLoginToken() })
-
-							askForFolderFiles(selectedFolder)
-						}}
-						onLightboxClick={p.onLightboxClick}
-						onBackButton={p.onBackButton}
-						onToggleSidebarButton={p.onToggleSidebarButton}
-					/>
-				}
-				{
-					!activeFile &&
-					<div className='no-file'>No file</div>
-				}
-			</div>
-			, [fileContent, activeFile, canEdit, p.isLeavingNote, p.forceRender, p.onToggleSidebarButton])
-
-	return {
-		setFileContent, fileContent,
-		setCanEdit,
-		askForFileContent,
-		DualViewerComponent
-	}
+return {
+	setFileContent, fileContent,
+	setCanEdit,
+	askForFileContent,
+	DualViewerComponent
+}
 }
 
 
