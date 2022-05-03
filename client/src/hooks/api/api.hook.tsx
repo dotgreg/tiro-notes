@@ -1,5 +1,6 @@
 import { each } from 'lodash';
 import React, { useEffect, useRef } from 'react';
+import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
@@ -109,8 +110,14 @@ export const useClientApi = (p: {
 /*
 const api = useContext(ClientApiContext)
 */
-	// useEffect(() => {
-	// 	api && api.popup.prompt({
-	// 		text: 'wooop'
-	// 	})
-	// }, [])
+// useEffect(() => {
+// 	api && api.popup.prompt({
+// 		text: 'wooop'
+// 	})
+// }, [])
+// 
+// SUPPORT FUNCTION
+// 
+export const genIdReq = (type: string): string => {
+	return `client-api-${type}-req-${generateUUID()}`;
+}

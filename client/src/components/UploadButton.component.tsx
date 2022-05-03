@@ -1,8 +1,8 @@
 import { each } from "lodash"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { iFile } from "../../../shared/types.shared"
-import { ClientApiContext } from "../hooks/api/clientApi.hook"
-import { onUploadProgressFn, onUploadSuccessFn } from "../managers/api/upload.api.manager"
+import { ClientApiContext } from "../hooks/api/api.hook"
+import { onUploadProgressFn, onUploadSuccessFn } from "../hooks/api/upload.api.hook"
 import { Icon } from "./Icon.component"
 
 export const UploadButton = (p: {
@@ -24,14 +24,14 @@ export const UploadButton = (p: {
 				onChange={(e: any) => {
 					const files = e.target.files as File[]
 					if (files.length === 0) return
-						each(files, file => {
-							api && api.upload.uploadFile({
-								file,
-								folderPath: p.file.folder,
-								onProgress: p.onProgress,
-								onSuccess: p.onSuccess
-							})
+					each(files, file => {
+						api && api.upload.uploadFile({
+							file,
+							folderPath: p.file.folder,
+							onProgress: p.onProgress,
+							onSuccess: p.onSuccess
 						})
+					})
 				}}
 			/>
 			{/* @ts-ignore  */}

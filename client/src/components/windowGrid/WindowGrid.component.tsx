@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { cloneDeep } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { iGrid, iTab, iWindow } from '../../../../shared/types.shared';
-import { ClientApiContext } from '../../hooks/api/clientApi.hook';
+import { ClientApiContext } from '../../hooks/api/api.hook';
 import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { initClipboardListener } from '../../managers/clipboard.manager';
 import { initDragDropListener } from '../../managers/dragDrop.manager';
@@ -52,60 +52,60 @@ export const WindowGrid = (p: {
 					nUpdate.progress = res
 					setUploadUpdate(nUpdate)
 				}
+			})
+		}
+
+		const cleanDragDrop = initDragDropListener({
+			onDropped: handleUpload,
+			onDragEnd: () => { console.log('003442 onDragEnd'); }
 		})
-}
 
-const cleanDragDrop = initDragDropListener({
-	onDropped: handleUpload,
-	onDragEnd: () => { console.log('003442 onDragEnd'); }
-})
+		const cleanClipBoard = initClipboardListener({
+			onImagePasted: handleUpload
+		})
 
-const cleanClipBoard = initClipboardListener({
-	onImagePasted: handleUpload
-})
-
-return () => {
-	// cleanup events
-	cleanClipBoard();
-	cleanDragDrop();
-}
+		return () => {
+			// cleanup events
+			cleanClipBoard();
+			cleanDragDrop();
+		}
 
 	}, [p.tab])
 
 
-// is title edited
-// titleInput > editorArea > dualwrapper > windowEditor > draggable > windowGrid > app.tsx
+	// is title edited
+	// titleInput > editorArea > dualwrapper > windowEditor > draggable > windowGrid > app.tsx
 
-// v1
-// titleInput > editorarea > api.moveFile + 
+	// v1
+	// titleInput > editorarea > api.moveFile + 
 
-// v2
-// titleInput > editorarea >  windowEditor > draggable > windowGrid
+	// v2
+	// titleInput > editorarea >  windowEditor > draggable > windowGrid
 
-// v3
-// on windowGrid TitleUpdateContext onTitleUpdate
-// titleInput TitleUpdate
+	// v3
+	// on windowGrid TitleUpdateContext onTitleUpdate
+	// titleInput TitleUpdate
 
-// v4
-// on windowGrid
-// FileActionsContext 
-// => 
+	// v4
+	// on windowGrid
+	// FileActionsContext 
+	// => 
 
-return (//jsx
-	<StyledDiv>
-		<div className="window-grid-wrapper"
-			onClick={() => {
-			}}
-		>
-			<UploadUpdateContext.Provider value={uploadUpdate}>
-				<DraggableGrid refresh={tab.refresh || 0}
-					grid={tab.grid}
-					onGridUpdate={p.onGridUpdate}
-				/>
-			</UploadUpdateContext.Provider>
-		</div>
-	</StyledDiv>
-)//jsx
+	return (//jsx
+		<StyledDiv>
+			<div className="window-grid-wrapper"
+				onClick={() => {
+				}}
+			>
+				<UploadUpdateContext.Provider value={uploadUpdate}>
+					<DraggableGrid refresh={tab.refresh || 0}
+						grid={tab.grid}
+						onGridUpdate={p.onGridUpdate}
+					/>
+				</UploadUpdateContext.Provider>
+			</div>
+		</StyledDiv>
+	)//jsx
 }
 export const StyledDiv = styled.div`//css
 		height: 100%;
