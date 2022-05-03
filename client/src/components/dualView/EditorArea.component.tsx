@@ -253,7 +253,7 @@ export const EditorArea = (p: {
 
 				<NoteTitleInput
 					title={p.file.name.replace('', '')}
-					onEdited={p.onFileTitleEdited}
+					onEdited={gridContext.title.onTitleUpdate}
 				/>
 
 				<div className="toolbar-and-dates-wrapper">

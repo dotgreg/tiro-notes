@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { cloneDeep } from 'lodash';
+import { title } from 'process';
 import React, { useContext, useEffect, useState } from 'react';
 import { iGrid, iTab, iWindow } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
@@ -7,6 +8,7 @@ import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { initClipboardListener } from '../../managers/clipboard.manager';
 import { initDragDropListener } from '../../managers/dragDrop.manager';
 import { iUploadedFile } from '../../managers/upload.manager';
+import { PathModifFn } from '../dualView/TitleEditor.component';
 import { DraggableGrid } from './DraggableGrid.component';
 
 
@@ -18,14 +20,21 @@ interface iUploadUpdate {
 	progress?: number
 	uploadCounter: number
 }
+interface iTitleGridContext {
+	onTitleUpdate: PathModifFn
+}
 
 export interface iGridContext {
 	upload: iUploadUpdate
+	title: iTitleGridContext
 }
 
 const gridContextInit: iGridContext = {
 	upload: {
 		uploadCounter: 0
+	},
+	title: {
+		onTitleUpdate: (oPath, nPath) => { }
 	}
 }
 export const GridContext = React.createContext<iGridContext>(gridContextInit);
@@ -44,10 +53,23 @@ export const WindowGrid = (p: {
 
 	const api = useContext(ClientApiContext);
 
+	const [gridContext, setGridContext] = useState<iGridContext>(gridContextInit)
+
+	//
+	// ON TITLE UPDATE
+	//
+	useEffect(() => {
+		gridContext.title.onTitleUpdate = (oPath, nPath) => {
+			console.log('hello from window grid, new title: ', oPath, nPath);
+		}
+		setGridContext(gridContext)
+	}, [])
+
+
+
 	//
 	// REACT TO DROP & CLIPBOARD
 	//
-	const [gridContext, setGridContext] = useState<iGridContext>(gridContextInit)
 
 	useEffect(() => {
 		const handleUpload = file => {
