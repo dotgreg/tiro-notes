@@ -1,8 +1,5 @@
-import { Global } from '@emotion/react'
 import { css, cx } from '@emotion/css'
-import styled from '@emotion/styled';
 import { deviceType, MobileView, DeviceType } from '../device.manager';
-import { DragzoneCss } from '../../hooks/editor/editorUpload.hook'
 import { cssVars } from './vars.style.manager';
 import { editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -16,7 +13,6 @@ import { folderTreeCss } from '../../components/TreeView.Component';
 import { lastNotesCss } from '../../components/LastNotes.component';
 import { setupConfigCss } from '../../hooks/app/setupConfig.hook';
 import { inputComponentCss } from '../../components/Input.component';
-import { PopupWrapperCss } from '../../components/Popup.component';
 import { AppViewSwitcherComponentCss, GlobalAppViewCss } from '../../hooks/app/appView.hook';
 import { searchBarCss } from '../../components/SearchBar.component';
 import { imageGalleryCss } from '../../components/ImageGallery.component';
@@ -27,6 +23,8 @@ import { scrollingBarCss } from '../../components/dualView/Scroller.component';
 import { draggableGridCss } from '../../components/windowGrid/DraggableGrid.component';
 import { tabsCss } from '../../components/tabs/TabList.component';
 import { dropdownCss } from '../../components/Dropdown.component';
+import { uploadButtonCss } from '../../components/UploadButton.component';
+import { uploadProgressBarCss } from '../../components/UploadProgressBar.component';
 
 
 export const css2 = (css: string) => css
@@ -38,7 +36,7 @@ export const CssApp2 = (
 	mobileView: MobileView,
 ) => {
 
-	const cssString = `
+	const cssString = ` //css
 .content-image {
     width: 90%;
   }
@@ -368,8 +366,6 @@ ${ButtonsToolbarCss}
         
         
         
-        ${DragzoneCss}
-        
 
         ${editorAreaCss(mobileView)}
 
@@ -377,6 +373,9 @@ ${ButtonsToolbarCss}
         ${monacoEditorCss}
 
         ${previewAreaCss(mobileView)}
+
+				${uploadButtonCss}
+				${uploadProgressBarCss}
         
       }
         
@@ -416,7 +415,7 @@ ${ButtonsToolbarCss}
 }
 
 
-`;
+`//css
 
 	return css`${cssString}`
 }

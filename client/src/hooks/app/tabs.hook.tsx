@@ -1,5 +1,5 @@
 import React from 'react';
-import { iFile, iGrid, iTab, iViewType } from '../../../../shared/types.shared';
+import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
 import { strings } from '../../managers/strings.manager';
@@ -167,16 +167,22 @@ const refreshTabsViews = (tabs: iTab[]): iTab[] => {
 	return nTabs
 }
 
-const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
+export const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
 	let res: number | undefined = undefined
 	each(tabs, (tab, index) => { if (tab.active) { res = index } })
 	return res
 }
 
-const getActiveTab = (tabs: iTab[]): iTab | undefined => {
+export const getActiveTab = (tabs: iTab[]): iTab | undefined => {
 	let aTab: iTab | undefined = undefined
 	each(tabs, tab => { if (tab.active) { aTab = tab } })
 	return aTab
+}
+
+export const getActiveWindowContent = (aTab: iTab): iWindowContent | undefined => {
+	let nCon: iWindowContent | undefined = undefined
+	each(aTab.grid.content, con => { if (con.active) { nCon = con }})
+	return nCon
 }
 
 const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {

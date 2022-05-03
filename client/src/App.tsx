@@ -1,7 +1,7 @@
 import { css, Global } from '@emotion/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
-import { clientSocket2, initSocketConnection } from './managers/sockets/socket.manager';
+import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
 import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
 import { onFilesReceivedFn, useAppFilesList } from './hooks/app/filesList.hook';
@@ -31,6 +31,7 @@ import { useAppViewType } from './hooks/app/appView.hook';
 import { ImageGallery } from './components/ImageGallery.component';
 import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
+import { initClientApi } from './managers/api/api.manager';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
@@ -38,7 +39,7 @@ import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
-import { initClientApi } from './managers/api/api.manager';
+import { ClientApiContext, useClientApi } from './hooks/api/clientApi.hook';
 
 
 
@@ -50,7 +51,7 @@ export const App = () => {
 		// COMPONENT DID MOUNT didmount
 		console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
 
-		initSocketConnection().then(() => {
+		initSocketConnexion().then(() => {
 			initClientApi(clientSocket2)
 			toggleSocketConnection(true)
 			askForFolderScan(openFolders)
@@ -317,8 +318,8 @@ export const App = () => {
 		MobileToolbarComponent
 	} = useMobileView()
 
-	// PROMPT AND CONFIRM POPUPS
-	const { PromptPopupComponent, promptPopup, confirmPopup } = usePromptPopup({})
+	// PROMPT AND CONFIRM POPUPAPI
+	const { PromptPopupComponent, popupApi } = usePromptPopup({})
 
 	// fileMove logic
 	const {
@@ -330,7 +331,7 @@ export const App = () => {
 		cleanFilesList,
 		cleanFolderHierarchy,
 		askForFolderScan,
-		{ confirm: confirmPopup }
+		popupApi
 	)
 
 
@@ -446,14 +447,17 @@ export const App = () => {
 		setLigthboxIndex(0)
 	}
 
-	// Client API (functions added to window.tiroCli)
 
+	// Client API 
+	const clientApi = useClientApi({
+		popupApi
+	})
 
-	return (
+	return (//jsx
 		<div className={CssApp2(mobileView)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
 
-				<PopupContext.Provider value={{ confirm: confirmPopup, prompt: promptPopup }} >
+				<ClientApiContext.Provider value={clientApi} >
 
 					<Global styles={GlobalCssApp} />
 					<div role="dialog" className={`
@@ -547,7 +551,7 @@ export const App = () => {
 												onFolderDrop: folderDroppedInto => {
 													processDragDropAction(folderDroppedInto)
 												},
-												confirmPopup,
+												confirmPopup: popupApi.confirm,
 											})
 										}
 									</div>
@@ -670,7 +674,7 @@ export const App = () => {
  */}
 						</div>
 					</div>
-				</PopupContext.Provider>
+				</ClientApiContext.Provider>
 			</div >
 
 			{
@@ -682,6 +686,6 @@ export const App = () => {
 				/>
 			}
 		</div >
-	)
+	)//jsx
 }
 

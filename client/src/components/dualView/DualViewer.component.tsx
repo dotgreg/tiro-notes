@@ -14,7 +14,7 @@ export const DualViewer = (p: {
 	file: iFile
 	fileContent: string
 	canEdit: boolean
-	forceRender: boolean
+	isActive: boolean
 	isLeavingNote: boolean
 
 	viewType?: iViewType
@@ -73,6 +73,7 @@ export const DualViewer = (p: {
 			posY={syncScrollY}
 			fileContent={p.fileContent}
 			canEdit={p.canEdit}
+			isActive={p.isActive}
 
 
 			isLeavingNote={p.isLeavingNote}

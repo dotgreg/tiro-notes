@@ -4,14 +4,14 @@ import { clientSocket, clientSocket2 } from "../../managers/sockets/socket.manag
 import { strings } from "../../managers/strings.manager";
 import { updateUrl } from "../../managers/url.manager";
 import { getLoginToken } from "./loginToken.hook";
-import { iPopupsContext, PopupContext } from "./usePromptPopup.hook";
+import { iPopupApi } from "./usePromptPopup.hook";
 
 export const useFileMove = (
 	emptyFileDetails,
 	cleanFilesList,
 	cleanFolderHierarchy,
 	askForFolderScan,
-	popups: iPopupsContext
+	popups: iPopupApi
 ) => {
 
 	const askForMoveFile = (initPath: string, endPath: string) => {
