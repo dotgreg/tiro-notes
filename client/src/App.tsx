@@ -33,7 +33,7 @@ import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
-import { useTabs } from './hooks/app/tabs.hook';
+import { getActiveTab, useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
@@ -150,8 +150,7 @@ export const App = () => {
 				let noteIndex = shouldLoadNoteIndex.current
 				if (newFiles.length >= noteIndex + 1) {
 					setActiveFileIndex(noteIndex)
-					console.log('TAB LAYOUT 10000000001');
-					updateActiveWindowContent(newFiles[noteIndex])
+					tabsApi.updateActiveWindowContent(newFiles[noteIndex])
 					askForFileContent(newFiles[noteIndex])
 				}
 				shouldLoadNoteIndex.current = null
@@ -172,7 +171,7 @@ export const App = () => {
 				if (indexSearch !== -1) {
 					if (newFiles[indexSearch]) {
 						setActiveFileIndex(indexSearch)
-						updateActiveWindowContent(files[indexSearch])
+						tabsApi.updateActiveWindowContent(files[indexSearch])
 						askForFileContent(newFiles[indexSearch])
 					}
 				}
@@ -239,13 +238,15 @@ export const App = () => {
 
 	const [files, setFiles] = useState<iFile[]>([])
 
+
+
 	// Tabs system
 	const {
 		tabs, updateTab,
 		refreshTabsFromBackend,
-		getActiveTab,
-		updateActiveTabGrid, updateActiveWindowContent,
-		refreshWindowGrid
+		updateActiveTabGrid,
+		refreshWindowGrid,
+		tabsApi
 	} = useTabs({ activeFile: files[activeFileIndex] });
 	const activeTab = getActiveTab(tabs);
 
@@ -447,8 +448,9 @@ export const App = () => {
 
 
 	// Client API 
-	const { clientApi, clientApiRef } = useClientApi({
-		popupApi
+	const clientApi = useClientApi({
+		popupApi,
+		tabsApi
 	})
 
 	return (//jsx
@@ -598,7 +600,7 @@ export const App = () => {
 												onFileClicked: fileIndex => {
 													setActiveFileIndex(fileIndex)
 													askForFileContent(files[fileIndex])
-													updateActiveWindowContent(files[fileIndex])
+													tabsApi.updateActiveWindowContent(files[fileIndex])
 												},
 												onFileDragStart: files => {
 													console.log(`[DRAG MOVE] onFileDragStart`, files);
