@@ -36,7 +36,11 @@ export const searchWithRipGrep = async (params: {
 }): Promise<void> => {
 
 	let processTerm = params.term.split('-').join('\\-')
-	const folderToSearch = `${backConfig.dataFolder + params.folder}`;
+
+	// if backconfigFolder doesnt exists, add it
+	const relativeFolder = params.folder.split(backConfig.dataFolder).join('')
+	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
+
 	const perfs = { init: Date.now(), cmd1: Date.now(), cmd2: Date.now() }
 	const searchType = (params.term === '') ? 'folder' : 'term'
 
@@ -77,12 +81,12 @@ export const searchWithRipGrep = async (params: {
 			resultsRawArr.push(...rawMetaArr)
 		})
 		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-			const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, params.folder, true);
+			const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
 			// if (debugMode) log(11, resultsRawArr, 'to', metasFilesObj)
 			const scannedFilesObj: iFilesObj = {}
 			let index = 0
 			each(metasFilesObj, (metaObj, fileName) => {
-				const file = processRawPathToFile(fileName, params.folder, index, titleFilter)
+				const file = processRawPathToFile(fileName, relativeFolder, index, titleFilter)
 				if (file && file.name) {
 					if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
 						scannedFilesObj[file.name] = file
@@ -125,7 +129,7 @@ export const searchWithRipGrep = async (params: {
 		const filesScannedObj: iFilesObj = {}
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
 			let data = dataRaw.toString()
-			const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', params.folder)
+			const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', relativeFolder)
 			each(files, file => {
 				if (file && file.name) {
 					filesScannedObj[file.name] = file
@@ -151,7 +155,7 @@ export const searchWithRipGrep = async (params: {
 		ripGrepStreamProcess2.stdout.on('close', dataRaw => {
 			// process raw strings to meta objs
 
-			metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, params.folder)
+			metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
 			log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
 			perfs.cmd2 = Date.now()
 			triggerAggregationIfEnded()
@@ -196,7 +200,7 @@ export const searchWithRipGrep = async (params: {
 			rawStrings.push(...partialRawStringsArr)
 		})
 		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
-			const images = processRawStringsToImagesArr(rawStrings, params.folder, titleFilter);
+			const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
 			log(`[RIPGREP SEARCH] TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
 			params.onSearchEnded({ images })
 		})
@@ -220,7 +224,7 @@ export const searchWithRipGrep = async (params: {
 			rawStrings.push(...partialRawStringsArr)
 		})
 		ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
-			const images = processRawStringsToImagesArr(rawStrings, params.folder);
+			const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
 			log(`[RIPGREP SEARCH] IMAGE FOLDER => ENDED ${images.length}`);
 			params.onSearchEnded({ images })
 		})

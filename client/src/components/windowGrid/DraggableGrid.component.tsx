@@ -104,7 +104,6 @@ export const DraggableGrid = (p: {
 	//
 	const [canRemove, setCanRemove] = useState(false)
 	const updateCanRemove = () => {
-		console.log(666, intLayout.length);
 		setCanRemove(intLayout.length > 1 ? true : false)
 	}
 	const removeWindow = (id: string) => {
@@ -161,7 +160,6 @@ export const DraggableGrid = (p: {
 	//
 	const updateLayoutLogic = (newLayout) => {
 		//if (intLayout.length !== intContent.length) return
-		console.log('0035', 111, newLayout);
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
 			setIntLayout(nlayout)
@@ -172,7 +170,6 @@ export const DraggableGrid = (p: {
 			let altgoodLayout = searchAlternativeLayout(newLayout)
 			if (altgoodLayout) updateLastGood(altgoodLayout)
 			let goodLayout = altgoodLayout ? altgoodLayout : lastGoodLayout.current
-			console.log('00351', goodLayout);
 			const nLayout = cloneDeep(goodLayout)
 			each(nLayout, window => {
 				window.refresh = increment(window.refresh)
@@ -197,7 +194,6 @@ export const DraggableGrid = (p: {
 			if (el.h > 1 && el.y > 0) allGood = false
 
 		}
-		console.log("0013", nlayout, allGood);
 		return allGood;
 	}
 

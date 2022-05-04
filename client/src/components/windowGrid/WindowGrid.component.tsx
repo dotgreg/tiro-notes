@@ -66,10 +66,18 @@ export const WindowGrid = (p: {
 		if (!api) return
 		// ask for confirm
 		api.popup.confirm(`${strings.trashNote}`, () => {
-			// send delete
-			console.log(`[FILE DELETE] 0046 deleting file ${filePath}`)
+			const h = `[FILE DELETE] 0046`
+			console.log(`${h} deleting file ${filePath}`)
 			// get active tab, if several window, close current one
-			// if one window, close the tab
+			const c = getActiveWindowContent(tab)
+			if (!c || !c.file) return
+			if (tab.grid.content.length === 1) {
+				console.log(`${h} one window only, closing tab`);
+				api.tabs.close(tab.id)
+			} else {
+				console.log(`${h} more than one window, closing only window`);
+				api.ui.windows.close(c.i)
+			}
 		})
 	}
 
@@ -78,7 +86,6 @@ export const WindowGrid = (p: {
 	//
 	const onTitleUpdate = (oPath, nPath) => {
 		if (!api) return
-		console.log('hello from window grid, new title: ', oPath, nPath);
 		const c = getActiveWindowContent(tab)
 		if (!c || !c.file) return
 		oPath = `${c.file.folder}${oPath}.md`
@@ -90,20 +97,20 @@ export const WindowGrid = (p: {
 			let nFileContent: iFile | null = null
 			each(nfiles, file => { if (file.path === nPath) nFileContent = file })
 			if (!nFileContent) return
-			c.file = nFileContent
-			console.log('[FILE TITLE] 0045 renaming file title and updating current grid');
+			c.file = nFileContent as iFile
+			console.log('[FILE TITLE] 0045 SUCCESS IN RENAMING');
 			p.onGridUpdate(tab.grid)
-			// TODO ask for file list refresh
-			//api.uiFilesList.reload()
+			// UI L ask for file list refresh if filesList same folder
+			const selectedFolder = api.ui.folders.selectedFolder
+			if (selectedFolder === c.file.folder) {
+				api.ui.folders.changeTo(selectedFolder)
+			}
 		})
 	}
 
-	useEffect(() => {
-		gridContext.file.onTitleUpdate = onTitleUpdate
-		gridContext.file.onFileDelete = onFileDelete
-		setGridContext(gridContext)
-	}, [])
-
+	const nGridContext: iGridContext = cloneDeep(gridContext)
+	nGridContext.file.onFileDelete = onFileDelete
+	nGridContext.file.onTitleUpdate = onTitleUpdate
 
 
 	//
@@ -155,11 +162,8 @@ export const WindowGrid = (p: {
 
 	return (//jsx
 		<StyledDiv>
-			<div className="window-grid-wrapper"
-				onClick={() => {
-				}}
-			>
-				<GridContext.Provider value={gridContext}>
+			<div className="window-grid-wrapper">
+				<GridContext.Provider value={nGridContext}>
 					<DraggableGrid refresh={tab.refresh || 0}
 						grid={tab.grid}
 						onGridUpdate={p.onGridUpdate}

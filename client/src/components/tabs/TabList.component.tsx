@@ -13,8 +13,9 @@ export const TabList = (p: {
 	return (
 		<div className="tab-list-wrapper">
 			{/* ALL TABS LIST*/}
-			{p.tabs.map(tab =>
+			{p.tabs.map((tab, i) =>
 				<Tab
+					key={i}
 					tab={tab}
 					onUpdate={p.onUpdate}
 				/>
@@ -49,7 +50,7 @@ const Tab = (p: {
 	if (nbLay === 5) iconName = 'Five'
 	iconName = `faDice${iconName}`
 
-	return (
+	return (//jsx
 		<div
 			className={`tab-wrapper ${tab.active ? 'active' : ''}`}
 		>
@@ -62,8 +63,8 @@ const Tab = (p: {
 			{
 				tab.grid.layout.length > 1 &&
 				<div
-						className="tab-nb-windows"
-				onClick={() => { p.onUpdate('activate', tab) }}
+					className="tab-nb-windows"
+					onClick={() => { p.onUpdate('activate', tab) }}
 				>
 					<Icon name={iconName} color={`#b2b2b2`} />
 				</div>
@@ -73,10 +74,10 @@ const Tab = (p: {
 				<Icon name="faPlus" color={`#b2b2b2`} />
 			</div>
 		</div >
-	)
+	)//jsx
 }
 
-export const tabsCss = `
+export const tabsCss = `//css
     .tab-list-wrapper {
 				padding: 7px 0px 0px 13px;
 				display: flex;
@@ -152,4 +153,4 @@ export const tabsCss = `
 						}
 				}
 		}
-`
+`//css

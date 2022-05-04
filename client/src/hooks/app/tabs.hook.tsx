@@ -1,8 +1,7 @@
 import React from 'react';
-import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
+import { iFile, iGrid, iTab, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
-import { strings } from '../../managers/strings.manager';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
@@ -11,10 +10,13 @@ export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
 export type iTabsApi = {
 	get: () => iTab[]
+	close: (tabId: string) => void
 	openInNewTab: (file: iFile) => void
-	updateActiveWindowContent: (file: iFile) => void
 }
-
+export type iWindowsApi = {
+	close: (windowId: string) => void
+	updateActive: (file: iFile) => void
+}
 
 
 export const addNewWindowConfig = (p: {
@@ -51,6 +53,7 @@ export const addNewWindowConfig = (p: {
 export const useTabs = (p: {
 	activeFile: iFile
 }) => {
+	const h = `[TABS] 00542`
 
 	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
 	const setTabs = (nTabs: iTab[]) => {
@@ -69,6 +72,16 @@ export const useTabs = (p: {
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
 		setTabs(nTabs2)
 	}
+	const closeTab: iTabsApi['close'] = tabId => {
+		console.log(`${h} closing tab: ${tabId}`);
+		const nTabs: iTab[] = []
+		const oTabs = cloneDeep(tabs)
+		each(oTabs, (otab, index) => {
+			if (otab.id !== tabId) nTabs.push(otab)
+		})
+		setTabs(nTabs);
+
+	}
 
 	const updateTab: onTabUpdateFn = (type, tab) => {
 		console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
@@ -81,13 +94,7 @@ export const useTabs = (p: {
 
 		} else if (type === 'close') {
 			if (!tab) return
-			const nTabs: iTab[] = []
-			const oTabs = cloneDeep(tabs)
-			each(oTabs, (otab, index) => {
-				if (otab.id !== tab.id) nTabs.push(otab)
-			})
-			setTabs(nTabs);
-
+			closeTab(tab.id)
 		} else if (type === 'rename') {
 
 		} else if (type === 'activate') {
@@ -102,8 +109,6 @@ export const useTabs = (p: {
 			setTabs(nTabs2)
 
 		} else if (type === 'move') {
-
-
 		}
 	}
 
@@ -125,8 +130,43 @@ export const useTabs = (p: {
 		setTabs(nTabs)
 	}
 
+
+
+
+
+
+
+
+
+
+	//
+	// WINDOWS MANAGEMENT
+	//
+	const h2 = `[WINDOWS] 00543`
+
+
+	// close
+	const closeWindow: iWindowsApi['close'] = wid => {
+		const nTabs = cloneDeep(tabs)
+		const nTabs2: iTab[] = []
+		each(nTabs, (tab, i) => {
+
+			for (let j = 0; j < tab.grid.content.length; j++) {
+				const c = tab.grid.content[j];
+				const l = tab.grid.layout[j];
+				if (c.i === wid) tab.grid.content.splice(j, 1)
+				if (l.i === wid) tab.grid.layout.splice(j, 1)
+			}
+		})
+		setTabs(nTabs)
+	}
+
+	//@ts-ignore
+	window.tabs = tabs
+
+
 	// changing active window file
-	const updateActiveWindowContent: iTabsApi['updateActiveWindowContent'] = (nFile) => {
+	const updateActiveWindowContent: iWindowsApi['updateActive'] = (nFile) => {
 		if (!nFile) return
 		// get active tab
 		const nTabs = cloneDeep(tabs)
@@ -144,16 +184,32 @@ export const useTabs = (p: {
 		aTab.name = createTabNameFromFile(nFile)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
-		console.log(`[TAB LAYOUT] 00113 active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
+		console.log(`${h2} active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
 		// save tabs
+		//console.log('0045', nFile.folder, nTabs2);
 		setTabs(nTabs2)
 	}
 
+
+
+
+
+
+	//
+	// EXPORTS
+	//
+
 	const tabsApi: iTabsApi = {
 		get: getTabs,
+		close: closeTab,
 		openInNewTab,
-		updateActiveWindowContent
 	}
+
+	const windowsApi: iWindowsApi = {
+		close: closeWindow,
+		updateActive: updateActiveWindowContent
+	}
+
 
 	return {
 		tabs,
@@ -162,12 +218,22 @@ export const useTabs = (p: {
 		updateActiveTabGrid,
 		refreshWindowGrid,
 
-		tabsApi
+		tabsApi,
+		windowsApi
 	}
 }
 
 
 // SUPPORT FUNCTION
+
+export const getActiveWindowContent = (aTab: iTab): iWindowContent | undefined => {
+	let nCon: iWindowContent | undefined = undefined
+	each(aTab.grid.content, con => { if (con.active) { nCon = con } })
+	// if none, get first one
+	if (!nCon) nCon = aTab.grid.content[0]
+	return nCon
+}
+
 const refreshTabsViews = (tabs: iTab[]): iTab[] => {
 	const nTabs = cloneDeep(tabs)
 	each(nTabs, tab => { tab.refresh = increment(tab.refresh) })
@@ -188,12 +254,6 @@ export const getActiveTab = (tabs: iTab[]): iTab | undefined => {
 	let aTab: iTab | undefined = undefined
 	each(tabs, tab => { if (tab.active) { aTab = tab } })
 	return aTab
-}
-
-export const getActiveWindowContent = (aTab: iTab): iWindowContent | undefined => {
-	let nCon: iWindowContent | undefined = undefined
-	each(aTab.grid.content, con => { if (con.active) { nCon = con } })
-	return nCon
 }
 
 const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
@@ -235,7 +295,6 @@ const generateNewTab = (p: {
 		}
 
 	}
-
 }
 
 

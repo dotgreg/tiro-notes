@@ -1,7 +1,8 @@
 import { each } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
-import { iTabsApi } from '../app/tabs.hook';
+import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
+import { iFoldersUiApi } from '../app/treeFolder.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
@@ -24,6 +25,10 @@ export interface iClientApi {
 	files: iFilesApi
 	tabs: iTabsApi
 	userSettings: iUserSettingsApi
+	ui: {
+		folders: iFoldersUiApi
+		windows: iWindowsApi
+	}
 }
 
 
@@ -58,6 +63,8 @@ export const useClientApi = (p: {
 	popupApi: iPopupApi
 	tabsApi: iTabsApi
 	userSettingsApi: iUserSettingsApi
+	foldersUiApi: iFoldersUiApi
+	windowsApi: iWindowsApi
 }) => {
 
 	//
@@ -106,7 +113,11 @@ export const useClientApi = (p: {
 		popup: p.popupApi,
 		upload: uploadApi,
 		tabs: p.tabsApi,
-		userSettings: p.userSettingsApi
+		userSettings: p.userSettingsApi,
+		ui: {
+			folders: p.foldersUiApi,
+			windows: p.windowsApi
+		}
 	}
 	// outside of react too
 	clientApiInt = clientApi
