@@ -164,7 +164,8 @@ export const WindowGrid = (p: {
 		<StyledDiv>
 			<div className="window-grid-wrapper">
 				<GridContext.Provider value={nGridContext}>
-					<DraggableGrid refresh={tab.refresh || 0}
+						<DraggableGrid
+								refresh={tab.refresh || 0}
 						grid={tab.grid}
 						onGridUpdate={p.onGridUpdate}
 					/>

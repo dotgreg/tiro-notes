@@ -148,7 +148,6 @@ export const useTabs = (p: {
 	// close
 	const closeWindow: iWindowsApi['close'] = wid => {
 		const nTabs = cloneDeep(tabs)
-		const nTabs2: iTab[] = []
 		each(nTabs, (tab, i) => {
 
 			for (let j = 0; j < tab.grid.content.length; j++) {
@@ -158,7 +157,8 @@ export const useTabs = (p: {
 				if (l.i === wid) tab.grid.layout.splice(j, 1)
 			}
 		})
-		setTabs(nTabs)
+		const nTabs2 = refreshTabsViews(nTabs)
+		setTabs(nTabs2)
 	}
 
 	//@ts-ignore
