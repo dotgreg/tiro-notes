@@ -172,6 +172,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		let fileName = fileNameFromFilePath(data.filepath)
 		await moveFile(`${backConfig.dataFolder}${data.filepath}`, `${trashFolder}/${fileName}`)
+		
 	})
 
 	serverSocket2.on('askForExplorer', async data => {
@@ -193,7 +194,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askFilesPreview', async data => {
 		let res = await getFilesPreviewLogic(data)
-		serverSocket2.emit('getFilesPreview', { filesPreview: res })
+		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
 	})
 
 	serverSocket2.on('askFolderCreate', async data => {

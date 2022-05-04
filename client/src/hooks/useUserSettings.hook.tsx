@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useBackendState } from './useBackendState.hook';
 
 type iUserSettingName =
+	'ui_filesList_sortMode' |
 	'ui_sidebar' |
 	'ui_other'
 
@@ -13,7 +14,8 @@ export type iUserSettingsApi = {
 }
 
 const defaultVals: iUserSettings = {
-	ui_sidebar: true
+	ui_sidebar: true,
+	ui_filesList_sortMode : 2
 }
 
 export const useUserSettings = () => {

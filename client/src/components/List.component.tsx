@@ -1,10 +1,8 @@
 import React from 'react';
 import styled from '@emotion/styled'
-import { iFile, iFilePreview } from '../../../shared/types.shared';
+import { iFile } from '../../../shared/types.shared';
 import { cloneDeep, debounce, isEqual, isNumber, max } from 'lodash';
-import { getAllNumbersBetween, removeFromNumberArray } from '../managers/math.manager';
 import { formatDateList } from '../managers/date.manager';
-import { FilesPreviewObject } from '../hooks/app/filesList.hook';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { FixedSizeList } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
@@ -13,6 +11,7 @@ import { deviceType, isA } from '../managers/device.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getKeyModif } from '../managers/keys.manager';
 import { SortModes } from '../managers/sort.manager';
+import { FilesPreviewObject } from '../hooks/api/files.api.hook';
 
 
 // export const SortModeArr = ['none','alphabetical','created','modified']

@@ -4,7 +4,6 @@ import { deviceType } from './managers/device.manager';
 import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
 import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
-import { onFilesReceivedFn, useAppFilesList } from './hooks/app/filesList.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
@@ -39,6 +38,8 @@ import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
 import { ClientApiContext, useClientApi } from './hooks/api/api.hook';
+import { sortFiles } from './managers/sort.manager';
+import { FilesList } from './components/fileList.component';
 
 
 
@@ -100,6 +101,10 @@ export const App = () => {
 	}
 
 
+	const debounceStopIsSearching = debounce(() => {
+		setIsSearching(false)
+	}, 100)
+
 	const changeToFolder = (folderPath: string, appView: iAppView, loadFirstNote: boolean = true) => {
 		if (folderPath === "") return
 		folderPath = cleanPath(folderPath)
@@ -111,9 +116,13 @@ export const App = () => {
 
 		if (appView === 'text') {
 			clientApi.files.get(folderPath, nfiles => {
-				setActiveFileIndex(0)
-				tabsApi.updateActiveWindowContent(nfiles[0])
-				setFiles(nfiles)
+				// when receiving results
+				debounceStopIsSearching()
+				setActiveFileIndex(0);
+				const sortMode = clientApi.userSettings.get('ui_filesList_sortMode')
+				const nfilesSorted = sortFiles(nfiles, sortMode)
+				tabsApi.updateActiveWindowContent(nfilesSorted[0])
+				setFiles(nfilesSorted)
 			})
 		} else if (appView === 'image') {
 			setSelectedFolder(folderPath)
@@ -246,14 +255,6 @@ export const App = () => {
 	} = useTabs({ activeFile: files[activeFileIndex] });
 	const activeTab = getActiveTab(tabs);
 
-	// Files List
-	const {
-		FilesListComponent,
-	} = useAppFilesList(
-		files, setFiles,
-		activeFileIndex, setActiveFileIndex,
-		tabs
-	)
 
 	/**
 	 * Images List
@@ -578,25 +579,28 @@ export const App = () => {
 										}
 									</div>
 									<div className="files-list-wrapper">
-										{
-											FilesListComponent({
-												selectedFolder: selectedFolder,
-												searchTerm: searchTerm,
-												onFileClicked: fileIndex => {
-													setActiveFileIndex(fileIndex)
-													askForFileContent(files[fileIndex])
-													tabsApi.updateActiveWindowContent(files[fileIndex])
-												},
-												onFileDragStart: files => {
-													console.log(`[DRAG MOVE] onFileDragStart`, files);
-													draggedItems.current = [{ type: 'file', files: files }]
-												},
-												onFileDragEnd: () => {
-													console.log(`[DRAG MOVE] onFileDragEnd`);
-													draggedItems.current = []
-												},
-											})
-										}
+
+										<FilesList
+											files={files}
+											activeFileIndex={activeFileIndex}
+
+											onSortFiles={filesSorted => {
+												setFiles(filesSorted)
+											}}
+											onFileClicked={fileIndex => {
+												setActiveFileIndex(fileIndex)
+												askForFileContent(files[fileIndex])
+												tabsApi.updateActiveWindowContent(files[fileIndex])
+											}}
+											onFileDragStart={files => {
+												console.log(`[DRAG MOVE] onFileDragStart`, files);
+												draggedItems.current = [{ type: 'file', files: files }]
+											}}
+											onFileDragEnd={() => {
+												console.log(`[DRAG MOVE] onFileDragEnd`);
+												draggedItems.current = []
+											}}
+										/>
 									</div>
 								</div>
 							</div>
