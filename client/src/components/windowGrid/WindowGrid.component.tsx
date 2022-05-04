@@ -1,7 +1,7 @@
 import styled from '@emotion/styled';
 import { cloneDeep, each } from 'lodash';
 import { title } from 'process';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { iFile, iGrid, iTab, iWindow } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
@@ -12,11 +12,28 @@ import { iUploadedFile } from '../../managers/upload.manager';
 import { PathModifFn } from '../dualView/TitleEditor.component';
 import { DraggableGrid } from './DraggableGrid.component';
 
+const useNextState = () => {
+	const [refresh, setRefresh] = useState<{ data: any, counter: number }>({ data: {}, counter: 0 })
+	const cbRef = useRef<any>(null)
+	const triggerNextState = (cb) => {
+		console.log('0046 1 triggernextstate');
+		cbRef.current = cb
+		const nR = cloneDeep(refresh)
+		nR.counter = nR.counter + 1
+		setRefresh(nR)
+	}
+	useEffect(() => {
+		console.log('0046 2 refresh useeffet');
+		if (cbRef.current) cbRef.current()
+	}, [refresh])
+	return { triggerNextState }
+}
+
 
 //
 // CONTEXT 
 //
-export type onFileDeleteFn = (filepath: string) => void
+export type onFileDeleteFn = (file: iFile) => void
 interface iUploadUpdate {
 	file?: iUploadedFile
 	progress?: number
@@ -59,23 +76,10 @@ export const WindowGrid = (p: {
 
 	const [gridContext, setGridContext] = useState<iGridContext>(gridContextInit)
 
+
 	//
-	// ON FILE DELETE
+	// IF NO WINDOW, CLOSE IT
 	//
-	const onFileDelete: onFileDeleteFn = filePath => {
-		if (!api) return
-		// ask for confirm
-		api.popup.confirm(`${strings.trashNote}`, () => {
-			const h = `[FILE DELETE] 0046`
-			console.log(`${h} deleting file ${filePath}`)
-
-			// get all the windows that share the same path
-			const idsToRemove = api.ui.windows.getIdsFromFile(filePath)
-			api.ui.windows.close(idsToRemove)
-
-		})
-	}
-
 	useEffect(() => {
 		if (tab.grid.content.length === 0) {
 			if (!api) return
@@ -84,33 +88,67 @@ export const WindowGrid = (p: {
 		}
 	}, [tab])
 
+
+	//
+	// ON FILE DELETE 
+	//
+	const onFileDelete: onFileDeleteFn = file => {
+		if (!api) return
+		// ask for confirm
+		api.popup.confirm(`${strings.trashNote}`, () => {
+			const h = `[FILE DELETE] 0046`
+
+			// remove all windows having the same file
+			const idsToRemove = api.ui.windows.getIdsFromFile(file.path)
+			api.ui.windows.close(idsToRemove)
+
+			console.log(`${h} deleting file ${file.path}`, idsToRemove)
+
+			// need to refresh state, then refresh list
+			setNextStateAction({ type: 'refreshFolderList', file })
+		})
+	}
+
+	// FILES LIST REFRESH once update (delete/title) is done 
+	const [nextAction, setNextStateAction] = useState<any>(null);
+	useEffect(() => {
+		if (!api || !nextAction) return
+		if (nextAction.type === 'refreshFolderList') {
+			const selectedFolder = api.ui.folders.selectedFolder
+			if (selectedFolder === nextAction.file.folder) {
+				api.ui.folders.changeTo(selectedFolder)
+			}
+		}
+	}, [nextAction])
+
 	//
 	// ON TITLE UPDATE
 	//
 	const onTitleUpdate = (oPath, nPath) => {
+		const h = `[RENAME TITLE] 0046`
 		if (!api) return
-		const c = getActiveWindowContent(tab)
-		if (!c || !c.file) return
-		oPath = `${c.file.folder}${oPath}.md`
-		nPath = `${c.file.folder}${nPath}.md`
 		api.file.move(oPath, nPath, nfiles => {
-			// get files scanned after the move is completed
-			if (!c || !c.file) return
-			// update file of active window
-			let nFileContent: iFile | null = null
-			each(nfiles, file => { if (file.path === nPath) nFileContent = file })
-			if (!nFileContent) return
-			c.file = nFileContent as iFile
-			console.log('[FILE TITLE] 0045 SUCCESS IN RENAMING');
-			p.onGridUpdate(tab.grid)
-			// UI L ask for file list refresh if filesList same folder
-			const selectedFolder = api.ui.folders.selectedFolder
-			if (selectedFolder === c.file.folder) {
-				api.ui.folders.changeTo(selectedFolder)
-			}
+			console.log(`${h} SUCCESS IN RENAMING`);
+
+			console.log(`${h} 2`);
+			// get new file from backend
+			let nFile: iFile | null = null
+			each(nfiles, file => { if (file.path === nPath) nFile = file })
+			if (!nFile) return
+			console.log(`${h} 3`, nFile);
+			nFile = nFile as iFile
+
+			// once move is done, get all windows Ids from that oldpath
+			const idsToUpdate = api.ui.windows.getIdsFromFile(oPath)
+			api.ui.windows.updateWindows(idsToUpdate, nFile)
+
+			// need to refresh state, then refresh Folder list
+			setNextStateAction({ type: 'refreshFolderList', file: nFile })
 		})
 	}
 
+
+	// UPDATING CONTEXT FUNCTIONS
 	const nGridContext: iGridContext = cloneDeep(gridContext)
 	nGridContext.file.onFileDelete = onFileDelete
 	nGridContext.file.onTitleUpdate = onTitleUpdate

@@ -67,9 +67,9 @@ export const useFileApi = (p: {
 	}
 
 	// 3. DELETE
-	const deleteFile: iFileApi['delete'] = filepath => {
-		console.log(`[CLIENT API] 005363 delete file ${filepath}`);
-		clientSocket2.emit('onFileDelete', { filepath, token: getLoginToken() })
+	const deleteFile: iFileApi['delete'] = file => {
+		console.log(`[CLIENT API] 005363 delete file ${file.path}`);
+		clientSocket2.emit('onFileDelete', { filepath: file.path, token: getLoginToken() })
 	}
 
 

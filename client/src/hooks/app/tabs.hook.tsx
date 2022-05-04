@@ -16,6 +16,7 @@ export type iTabsApi = {
 export type iWindowsApi = {
 	close: (windowIds: string[]) => void
 	updateActive: (file: iFile) => void
+	updateWindows: (windowIds: string[], file: iFile) => void
 	getIdsFromFile: (filepath: string) => string[]
 }
 
@@ -73,6 +74,7 @@ export const useTabs = (p: {
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
 		setTabs(nTabs2)
 	}
+
 	const closeTab: iTabsApi['close'] = tabId => {
 		console.log(`${h} closing tab: ${tabId}`);
 		const nTabs: iTab[] = []
@@ -81,7 +83,6 @@ export const useTabs = (p: {
 			if (otab.id !== tabId) nTabs.push(otab)
 		})
 		setTabs(nTabs);
-
 	}
 
 	const updateTab: onTabUpdateFn = (type, tab) => {
@@ -160,7 +161,6 @@ export const useTabs = (p: {
 	// close
 	const closeWindows: iWindowsApi['close'] = ids => {
 		const nTabs = cloneDeep(tabs)
-		let cn = 0
 		each(ids, id => {
 			each(nTabs, (tab, i) => {
 				for (let j = 0; j < tab.grid.content.length; j++) {
@@ -169,16 +169,30 @@ export const useTabs = (p: {
 					if (c.i === id) tab.grid.content.splice(j, 1)
 					if (l.i === id) tab.grid.layout.splice(j, 1)
 				}
-				cn = cn + tab.grid.content.length;
 			})
 		})
-		console.log(`${h2} closing window: wins:${cn}`);
+		console.log(`${h2} closing window`);
+		const nTabs2 = refreshTabsViews(nTabs)
+		setTabs(nTabs2)
+	}
+
+	const updateWindows: iWindowsApi['updateWindows'] = (ids, file) => {
+		const nTabs = cloneDeep(tabs)
+		each(ids, id => {
+			each(nTabs, (tab, i) => {
+				each(tab.grid.content, wcontent => {
+					if (wcontent.i === id) wcontent.file = file
+				})
+			})
+		})
+		console.log(`${h2} updating windows with file ${file.name}`);
 		const nTabs2 = refreshTabsViews(nTabs)
 		setTabs(nTabs2)
 	}
 
 	//@ts-ignore
 	window.tabs = tabs
+
 
 
 	// changing active window file
@@ -192,6 +206,7 @@ export const useTabs = (p: {
 		const aTab = nTabs[aId]
 		const aContent = aTab.grid.content
 		if (aContent.length < 1) return
+		console.log('0046', aContent);
 		let aWindowIndex = 0
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 		// change awindow.file
@@ -209,8 +224,6 @@ export const useTabs = (p: {
 
 
 
-
-
 	//
 	// EXPORTS
 	//
@@ -224,6 +237,7 @@ export const useTabs = (p: {
 	const windowsApi: iWindowsApi = {
 		close: closeWindows,
 		updateActive: updateActiveWindowContent,
+		updateWindows,
 		getIdsFromFile
 	}
 
