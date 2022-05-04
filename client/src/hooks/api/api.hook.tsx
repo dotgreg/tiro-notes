@@ -3,9 +3,9 @@ import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iTabsApi } from '../app/tabs.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
+import { iUserSettingsApi } from '../useUserSettings.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
-import { iMoveApi, useMoveApi } from './move.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 
 //
@@ -21,9 +21,9 @@ export interface iClientApi {
 	file: iFileApi
 	upload: iUploadApi
 	popup: iPopupApi
-	move: iMoveApi
 	files: iFilesApi
 	tabs: iTabsApi
+	userSettings: iUserSettingsApi
 }
 
 
@@ -57,6 +57,7 @@ export const ClientApiContext = React.createContext<iClientApi | null>(null);
 export const useClientApi = (p: {
 	popupApi: iPopupApi
 	tabsApi: iTabsApi
+	userSettingsApi: iUserSettingsApi
 }) => {
 
 	//
@@ -95,7 +96,6 @@ export const useClientApi = (p: {
 	const fileApi = useFileApi({ eventBus });
 	const filesApi = useFilesApi({ eventBus });
 	const uploadApi = useUploadApi({ eventBus });
-	const moveApi = useMoveApi({ eventBus });
 
 	// 
 	// FINAL EXPORT
@@ -106,7 +106,7 @@ export const useClientApi = (p: {
 		popup: p.popupApi,
 		upload: uploadApi,
 		tabs: p.tabsApi,
-		move: moveApi
+		userSettings: p.userSettingsApi
 	}
 	// outside of react too
 	clientApiInt = clientApi

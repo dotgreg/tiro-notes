@@ -15,34 +15,15 @@ export type onFilesReceivedFn = (files: iFile[], temporaryResults: boolean, init
 export interface FilesPreviewObject { [path: string]: iFilePreview }
 
 export const useAppFilesList = (
-	files: iFile[],
-	setFiles: Function,
+	files: iFile[], setFiles: Function,
 	activeFileIndex: number,
 	setActiveFileIndex: Function,
 	tabs: iTab[],
-	onFilesReceivedCallback: onFilesReceivedFn
 ) => {
 
 	const [sortMode, setSortMode] = useLocalStorage<number>('sortMode', 2)
 	const [forceListUpdate, setForceListUpdate] = useState(1)
 
-
-	const listenerId = useRef<number>(0)
-	// SOCKET INTERACTIONS
-	useEffect(() => {
-		console.log(`[FILES LIST] init socket listener`);
-		listenerId.current = clientSocket2.on('getFiles', data => {
-			onFolderFilesReceived(data)
-		})
-		return () => {
-			console.log(`[FILES LIST] clean socket listener`);
-			clientSocket2.off(listenerId.current)
-		}
-	}, [tabs])
-
-	const askForFolderFiles = (folderPath: string) => {
-		clientSocket2.emit('askForFiles', { folderPath: folderPath, token: getLoginToken(), idReq: `-` })
-	}
 
 
 
@@ -57,6 +38,25 @@ export const useAppFilesList = (
 	// FILES PREVIEWS
 	//
 	const [filesPreviewObj, setFilesPreviewObj] = useState<FilesPreviewObject>({})
+	const listenerId = useRef<number>(0)
+	useEffect(() => {
+		listenerId2.current = clientSocket2.on('getFilesPreview', processFilesPreview)
+		return () => {
+			clientSocket2.off(listenerId2.current)
+		}
+	}, [filesPreviewObj])
+
+	useEffect(() => {
+		setFilesPreviewObj({})
+	}, [files])
+	const processFilesPreview = (data: iApiDictionary['getFilesPreview']) => {
+		let newFilesPreviewObj: FilesPreviewObject = cloneDeep(filesPreviewObj)
+		for (let i = 0; i < data.filesPreview.length; i++) {
+			const filePreview = data.filesPreview[i];
+			newFilesPreviewObj[filePreview.path] = filePreview
+		}
+		setFilesPreviewObj(newFilesPreviewObj)
+	}
 	const listenerId2 = useRef<number>(0)
 
 	const askFilesPreview = (filesPath: string[]) => {
@@ -76,25 +76,6 @@ export const useAppFilesList = (
 		}
 	}
 
-	useEffect(() => {
-		listenerId2.current = clientSocket2.on('getFilesPreview', processFilesPreview)
-		return () => {
-			clientSocket2.off(listenerId2.current)
-		}
-	}, [filesPreviewObj])
-
-	useEffect(() => {
-		setFilesPreviewObj({})
-	}, [files])
-
-	const processFilesPreview = (data: iApiDictionary['getFilesPreview']) => {
-		let newFilesPreviewObj: FilesPreviewObject = cloneDeep(filesPreviewObj)
-		for (let i = 0; i < data.filesPreview.length; i++) {
-			const filePreview = data.filesPreview[i];
-			newFilesPreviewObj[filePreview.path] = filePreview
-		}
-		setFilesPreviewObj(newFilesPreviewObj)
-	}
 
 
 
@@ -106,33 +87,44 @@ export const useAppFilesList = (
 
 
 
-
-	// DATA PROCESSING FUNCTIONS
-	const filesRef = useRef<iFile[]>([])
-	const onFolderFilesReceived = (data: iApiDictionary['getFiles']) => {
-
-		if (data.initialResults) {
-			filesRef.current = []
-		}
-		else if (data.temporaryResults) {
-			filesRef.current = [...filesRef.current, ...data.files]
-		} else {
-			filesRef.current = cloneDeep(data.files)
-		}
-
-		// sort them
-		// console.log(`[SORT] sorting received files with sort mode ${sortMode} : ${SortModes[sortMode]}`);
-		filesRef.current = sortFiles(filesRef.current, sortMode)
-
-		setFiles(filesRef.current)
-
-		onFilesReceivedCallback(
-			filesRef.current,
-			data.temporaryResults || false,
-			data.initialResults || false
-		)
-
-	}
+	//
+	// receiving and processing files logic
+	//
+	// // SOCKET INTERACTIONS
+	// useEffect(() => {
+	// 	console.log(`[FILES LIST] init socket listener`);
+	// 	listenerId.current = clientSocket2.on('getFiles', data => {
+	// 		onFolderFilesReceived(data)
+	// 	})
+	// 	return () => {
+	// 		console.log(`[FILES LIST] clean socket listener`);
+	// 		clientSocket2.off(listenerId.current)
+	// 	}
+	// }, [tabs])
+	// const askForFolderFiles = (folderPath: string) => {
+	// 	clientSocket2.emit('askForFiles', { folderPath: folderPath, token: getLoginToken(), idReq: `-` })
+	// }
+	// // DATA PROCESSING FUNCTIONS
+	// const filesRef = useRef<iFile[]>([])
+	// const onFolderFilesReceived = (data: iApiDictionary['getFiles']) => {
+	// 	if (data.initialResults) {
+	// 		filesRef.current = []
+	// 	}
+	// 	else if (data.temporaryResults) {
+	// 		filesRef.current = [...filesRef.current, ...data.files]
+	// 	} else {
+	// 		filesRef.current = cloneDeep(data.files)
+	// 	}
+	// 	// sort them
+	// 	// console.log(`[SORT] sorting received files with sort mode ${sortMode} : ${SortModes[sortMode]}`);
+	// 	filesRef.current = sortFiles(filesRef.current, sortMode)
+	// 	setFiles(filesRef.current)
+	// 	onFilesReceivedCallback(
+	// 		filesRef.current,
+	// 		data.temporaryResults || false,
+	// 		data.initialResults || false
+	// 	)
+	// }
 
 
 	const FilesListComponent = (p: {
@@ -200,7 +192,6 @@ export const useAppFilesList = (
 	return {
 		activeFileIndex, setActiveFileIndex,
 		files, setFiles,
-		askForFolderFiles,
 		FilesListComponent,
 	}
 } 

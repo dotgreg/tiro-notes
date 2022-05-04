@@ -1,18 +1,23 @@
 import React, { useEffect, useRef } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
+import { onFileDeleteFn } from '../../components/windowGrid/WindowGrid.component';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { iMoveApi, useMoveApi } from './move.api.hook';
 
 
 //
 // INTERFACES
 //
 export interface iFileApi {
-	getContent: (noteLink: string, cb: (noteContent:string) => void) => void
+	getContent: (noteLink: string, cb: (noteContent: string) => void) => void
 	saveContent: (noteLink: string, content: string) => void
+	delete: onFileDeleteFn
+	move: iMoveApi['file']
 }
+
 
 export const useFileApi = (p: {
 	eventBus: iApiEventBus
@@ -34,7 +39,7 @@ export const useFileApi = (p: {
 
 	// 1. GET CONTENT
 	const apiGetFileContent: iFileApi['getContent'] = (noteLink, cb) => {
-		console.log(`[CLIENT API] 005363 get file content`);
+		console.log(`[CLIENT API] 005363 get file content ${noteLink}`);
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
@@ -53,13 +58,23 @@ export const useFileApi = (p: {
 		noteLink: string,
 		content: string
 	) => {
-		console.log(`[CLIENT API] 005363 save file content`);
+		console.log(`[CLIENT API] 005363 save file content ${noteLink}`);
 		const filePath = noteLinkToPath(noteLink);
 		clientSocket2.emit('saveFileContent', {
 			filePath, newFileContent: content,
 			token: getLoginToken()
 		})
 	}
+
+	// 3. DELETE
+	const deleteFile: iFileApi['delete'] = filepath => {
+		console.log(`[CLIENT API] 005363 delete file ${filepath}`);
+		clientSocket2.emit('onFileDelete', { filepath, token: getLoginToken() })
+	}
+
+
+	// IMPORTS
+	const moveApi = useMoveApi({ eventBus: p.eventBus });
 
 
 	//
@@ -68,7 +83,8 @@ export const useFileApi = (p: {
 	const fileApi: iFileApi = {
 		getContent: apiGetFileContent,
 		saveContent: apiSaveFileContent,
-
+		delete: deleteFile,
+		move: moveApi.file
 	}
 
 	return fileApi

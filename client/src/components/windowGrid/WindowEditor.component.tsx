@@ -15,16 +15,16 @@ export const WindowEditor = (p: {
 
 	const api = useContext(ClientApiContext);
 
-
 	//
 	// GET CONTENT 
 	//
 	useEffect(() => {
 		if (!file) return
+		console.log(file.path);
 		api && api.file.getContent(file.path, content => {
 			setFileContent(content)
 		})
-	}, [file])
+	}, [file?.path])
 
 
 	//
@@ -53,9 +53,7 @@ export const WindowEditor = (p: {
 						viewType={view}
 						onViewChange={p.onViewChange}
 						onFileEdited={debouncedOnFileEditedSaveIt}
-						onFileTitleEdited={() => { }}
 						onSavingHistoryFile={() => { }}
-						onFileDelete={() => { }}
 						onLightboxClick={() => { }}
 						onBackButton={() => { }}
 						onToggleSidebarButton={() => { }}
