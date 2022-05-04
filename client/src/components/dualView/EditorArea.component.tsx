@@ -211,7 +211,7 @@ export const EditorArea = (p: {
 			class: 'delete',
 			icon: 'faTrash',
 			action: () => {
-				gridContext.file.onFileDelete(p.file.path)
+				gridContext.file.onFileDelete(p.file)
 			}
 		},
 	]
@@ -246,7 +246,11 @@ export const EditorArea = (p: {
 
 				<NoteTitleInput
 					title={p.file.name.replace('.md', '')}
-					onEdited={gridContext.file.onTitleUpdate}
+					onEdited={(o, n) => {
+						const oPath = `${p.file.folder}${o}.md`
+						const nPath = `${p.file.folder}${n}.md`
+								gridContext.file.onTitleUpdate(oPath, nPath)
+					}}
 				/>
 
 				<div className="toolbar-and-dates-wrapper">
