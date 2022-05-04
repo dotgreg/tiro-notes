@@ -14,8 +14,9 @@ export type iTabsApi = {
 	openInNewTab: (file: iFile) => void
 }
 export type iWindowsApi = {
-	close: (windowId: string) => void
+	close: (windowIds: string[]) => void
 	updateActive: (file: iFile) => void
+	getIdsFromFile: (filepath: string) => string[]
 }
 
 
@@ -145,18 +146,33 @@ export const useTabs = (p: {
 	const h2 = `[WINDOWS] 00543`
 
 
-	// close
-	const closeWindow: iWindowsApi['close'] = wid => {
-		const nTabs = cloneDeep(tabs)
-		each(nTabs, (tab, i) => {
-
-			for (let j = 0; j < tab.grid.content.length; j++) {
-				const c = tab.grid.content[j];
-				const l = tab.grid.layout[j];
-				if (c.i === wid) tab.grid.content.splice(j, 1)
-				if (l.i === wid) tab.grid.layout.splice(j, 1)
-			}
+	// get all ids from a single FilePath
+	const getIdsFromFile: iWindowsApi['getIdsFromFile'] = filePath => {
+		const ids: string[] = []
+		each(tabs, tab => {
+			each(tab.grid.content, window => {
+				if (window.file && window.file.path === filePath) ids.push(window.i)
+			})
 		})
+		return ids
+	}
+
+	// close
+	const closeWindows: iWindowsApi['close'] = ids => {
+		const nTabs = cloneDeep(tabs)
+		let cn = 0
+		each(ids, id => {
+			each(nTabs, (tab, i) => {
+				for (let j = 0; j < tab.grid.content.length; j++) {
+					const c = tab.grid.content[j];
+					const l = tab.grid.layout[j];
+					if (c.i === id) tab.grid.content.splice(j, 1)
+					if (l.i === id) tab.grid.layout.splice(j, 1)
+				}
+				cn = cn + tab.grid.content.length;
+			})
+		})
+		console.log(`${h2} closing window: wins:${cn}`);
 		const nTabs2 = refreshTabsViews(nTabs)
 		setTabs(nTabs2)
 	}
@@ -206,8 +222,9 @@ export const useTabs = (p: {
 	}
 
 	const windowsApi: iWindowsApi = {
-		close: closeWindow,
-		updateActive: updateActiveWindowContent
+		close: closeWindows,
+		updateActive: updateActiveWindowContent,
+		getIdsFromFile
 	}
 
 

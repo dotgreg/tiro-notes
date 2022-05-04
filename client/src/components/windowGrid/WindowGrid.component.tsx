@@ -68,18 +68,21 @@ export const WindowGrid = (p: {
 		api.popup.confirm(`${strings.trashNote}`, () => {
 			const h = `[FILE DELETE] 0046`
 			console.log(`${h} deleting file ${filePath}`)
-			// get active tab, if several window, close current one
-			const c = getActiveWindowContent(tab)
-			if (!c || !c.file) return
-			if (tab.grid.content.length === 1) {
-				console.log(`${h} one window only, closing tab`);
-				api.tabs.close(tab.id)
-			} else {
-				console.log(`${h} more than one window, closing only window`);
-				api.ui.windows.close(c.i)
-			}
+
+			// get all the windows that share the same path
+			const idsToRemove = api.ui.windows.getIdsFromFile(filePath)
+			api.ui.windows.close(idsToRemove)
+
 		})
 	}
+
+	useEffect(() => {
+		if (tab.grid.content.length === 0) {
+			if (!api) return
+			console.log(`0046 if tab has no window, close it`);
+			api.tabs.close(tab.id)
+		}
+	}, [tab])
 
 	//
 	// ON TITLE UPDATE
@@ -164,8 +167,8 @@ export const WindowGrid = (p: {
 		<StyledDiv>
 			<div className="window-grid-wrapper">
 				<GridContext.Provider value={nGridContext}>
-						<DraggableGrid
-								refresh={tab.refresh || 0}
+					<DraggableGrid
+						refresh={tab.refresh || 0}
 						grid={tab.grid}
 						onGridUpdate={p.onGridUpdate}
 					/>
