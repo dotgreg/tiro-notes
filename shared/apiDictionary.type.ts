@@ -19,7 +19,7 @@ export interface iApiDictionary {
 
 	saveFileContent: { filePath: string, newFileContent: string }
 
-	moveFile: { initPath: string, endPath: string, idReq:string }
+	moveFile: { initPath: string, endPath: string, idReq: string }
 	moveFolder: { initPath: string, endPath: string }
 
 	searchFor: { term: string, type: iAppView, idReq: string }
@@ -37,8 +37,8 @@ export interface iApiDictionary {
 
 	uploadResourcesInfos: { folderpath: string }
 
-	askFilesPreview: { filesPath: string[] }
-	getFilesPreview: { filesPreview: iFilePreview[] }
+	askFilesPreview: { filesPath: string[], idReq: string }
+	getFilesPreview: { filesPreview: iFilePreview[], idReq: string }
 
 	askFoldersScan: { foldersPaths: string[] }
 	getFoldersScan: { folders: iFolder[], pathBase: string }

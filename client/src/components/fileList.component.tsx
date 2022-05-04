@@ -1,80 +1,107 @@
-export const vide = () => {}
+import { each } from 'lodash';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { iFile, iFilePreview } from '../../../shared/types.shared';
+import { ClientApiContext } from '../hooks/api/api.hook';
+import { FilesPreviewObject } from '../hooks/api/files.api.hook';
+import { sortFiles, SortModes, SortModesLabels } from '../managers/sort.manager';
+import { cssVars } from '../managers/style/vars.style.manager';
+import { Icon } from './Icon.component';
+import { List, onFileDragStartFn } from "./List.component"
 
-// import React, {  useEffect, useLayoutEffect, useRef, useState } from 'react';
-// import { iFile } from "../../../shared/types.shared"
-// import { FilesPreviewObject } from "../hooks/app/filesList.hook"
-// import { useStatMemo } from "../hooks/useStatMemo.hook"
-// import { onFileDragStartFn } from "./List.component"
+export const FilesList = (p: {
+	files: iFile[]
+	activeFileIndex: number,
 
-// export const FilesList = (p:{
-//     searchTerm: string
-//     selectedFolder: string
-//     filesPreviewObj: FilesPreviewObject
-//     files: iFile[]
-//     askFilesPreview
+	onSortFiles: (files: iFile[]) => void
+	onFileClicked: (fileIndex: number) => void
+	onFileDragStart: onFileDragStartFn
+	onFileDragEnd: () => void
+}) => {
 
-//     onFileClicked: (fileIndex:number)=>void
-//     onFileDragStart: onFileDragStartFn
-//     onFileDragEnd: ()=>void
-// }) => useStatMemo(
-//     <div className="files-list-component">
-//         <div className='list-toolbar'>
-//             <button 
-//                 type="button" 
-//                 title='sort'
-//                 onClick={e => {
-//                     let newMode = sortMode + 1 >= SortModes.length ? 0 : sortMode + 1
-//                     setSortMode(newMode)
-//                     setFiles(sortFiles(files, newMode))
-//                 }}
-//             > 
-//                 <span> { files.length > 0 && <span className='list-count'>({files.length})</span>} { SortModesLabels[sortMode] } </span> 
-//                 <Icon name="faSort" color={cssVars.colors.l2.text} /> 
-//             </button>
-
-//             {/* { files.length > 0 &&
-//                 <span className='items-list-count'>{files.length} els</span>
-//             } */}
-            
-
-//         </div>
+	const api = useContext(ClientApiContext);
 
 
+	//
+	// FILES PREVIEW
+	//
+	const [filesPreviewObj, setFilesPreviewObj] = useState<FilesPreviewObject>({})
 
-//         {
-//         /////////////////////////////
-//         // LIST
-//         /////////////////////////////
-//         }
-//         <div 
-//             className="list-wrapper"
-//             // onScroll={(e) => {
-//             //     console.log('scrollOnList', );
-                
-//             // }}
-//         >
-//             <List
-//                 files={files} 
-//                 filesPreview={filesPreviewObj}
+	useEffect(() => {
+		setFilesPreviewObj({})
+	}, [p.files])
 
-//                 hoverMode={false}
-//                 activeFileIndex={activeFileIndex}
-//                 modifierPressed={modifierPressed}
 
-//                 sortMode={sortMode}
+	const askFilesPreview = (filesPath: string[]) => {
+		if (!api) return
 
-//                 onFileClicked={(fileIndex) => {
-//                     setActiveFileIndex(fileIndex)
-//                     p.onFileClicked(fileIndex)
-//                 }}
+		// CACHING : do not ask again if file already has been fetched
+		let newFilesPathArr: string[] = []
+		for (let i = 0; i < filesPath.length; i++) {
+			const path = filesPath[i];
+			if (!filesPreviewObj[path]) newFilesPathArr.push(path)
+		}
 
-//                 onFileDragStart={p.onFileDragStart}
-//                 onFileDragEnd={p.onFileDragEnd}
+		// ask and fetch previews
+		if (newFilesPathArr.length > 1) {
+			api.files.getPreviews(newFilesPathArr, previews => {
+				each(previews, preview => { filesPreviewObj[preview.path] = preview })
+				setFilesPreviewObj(filesPreviewObj)
+			})
+		}
 
-//                 onVisibleItemsChange={visibleFilesPath => {
-//                     askFilesPreview(visibleFilesPath)
-//                 }}
-//                 />
-//             </div>
-//         </div>
-// , [files, activeFileIndex, sortMode, forceListUpdate, modifierPressed, filesPreviewObj])
+	}
+
+
+	//
+	// SORTING LOGIC
+	//
+	const cSortMode = api ? api.userSettings.get('ui_filesList_sortMode') : 2
+	const onSortChange = () => {
+		if (!api) return
+		let newMode = cSortMode + 1 >= SortModes.length ? 0 : cSortMode + 1
+		api.userSettings.set('ui_filesList_sortMode', newMode)
+		p.onSortFiles(sortFiles(p.files, newMode))
+	}
+
+	return (//jsx
+		<div className="files-list-component">
+			<div className='list-toolbar'>
+				<button
+					type="button"
+					title='sort'
+					onClick={onSortChange}
+				>
+					<span>
+						{p.files.length > 0 &&
+							<span className='list-count'>({p.files.length})</span>
+						}
+						{SortModesLabels[cSortMode]}
+					</span>
+					<Icon name="faSort" color={cssVars.colors.l2.text} />
+				</button>
+			</div>
+			{
+				// LIST
+			}
+			<div
+				className="list-wrapper"
+			>
+				<List
+					files={p.files}
+					filesPreview={filesPreviewObj}
+					hoverMode={false}
+					activeFileIndex={p.activeFileIndex}
+					sortMode={cSortMode}
+					onFileClicked={(fileIndex) => {
+						p.onFileClicked(fileIndex)
+					}}
+					onFileDragStart={p.onFileDragStart}
+					onFileDragEnd={p.onFileDragEnd}
+					onVisibleItemsChange={visibleFilesPath => {
+						askFilesPreview(visibleFilesPath)
+					}}
+				/>
+			</div>
+		</div>
+	)//jsx
+}
