@@ -1,16 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import styled from '@emotion/styled'
+import React, { useContext, useEffect, useState } from 'react';
 import { iFolder } from '../../../shared/types.shared';
-import { iconFolder } from '../managers/icons.manager';
 import { onFolderClickedFn } from '../hooks/app/treeFolder.hook';
-import { random } from 'lodash';
 import { useLocalStorage } from '../hooks/useLocalStorage.hook';
 import { Icon } from './Icon.component';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { strings } from '../managers/strings.manager';
-import { getFolderParentPath } from '../managers/folder.manager';
 import { isA, isIpad } from '../managers/device.manager';
-import { iConfirmPopup } from '../hooks/app/usePromptPopup.hook';
+import { ClientApiContext } from '../hooks/api/api.hook';
 
 export type onFolderDragStartFn = (folder: iFolder) => void
 export type onFolderDropFn = (folder: iFolder) => void
@@ -31,8 +27,6 @@ export const TreeView = (p: {
 	onFolderDragStart: onFolderDragStartFn
 	onFolderDragEnd: () => void
 	onFolderDrop: onFolderDropFn
-
-	confirmPopup: iConfirmPopup
 }) => {
 	return (
 		<div className="folder-tree-view-component">
@@ -48,8 +42,6 @@ export const TreeView = (p: {
 				onFolderDragStart={p.onFolderDragStart}
 				onFolderDragEnd={p.onFolderDragEnd}
 				onFolderDrop={p.onFolderDrop}
-
-				confirmPopup={p.confirmPopup}
 			/>
 		</div>
 	)
@@ -73,9 +65,11 @@ export const FolderView = (p: {
 	onFolderDragStart: onFolderDragStartFn
 	onFolderDragEnd: () => void
 	onFolderDrop: onFolderDropFn
-
-	confirmPopup: iConfirmPopup
 }) => {
+
+	const api = useContext(ClientApiContext);
+
+
 	const [isOpen, setIsOpen] = useLocalStorage(`treeview-${(p.folder.key === '/' || p.folder.key === '') ? 'root' : p.folder.key}`, false)
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 
@@ -147,9 +141,10 @@ export const FolderView = (p: {
 
 								{p.folder.path.indexOf('.tiro/.trash') === -1 &&
 									<li onClick={() => {
+										if (!api) return
 										if (p.folder.path === '') return setIsMenuOpened(false)
 										setIsMenuOpened(false)
-										p.confirmPopup(
+										api.popup.confirm(
 											`${strings.moveToTrash} "${p.folder.path}"?`, () => {
 												p.onFolderMenuAction('moveToTrash', p.folder)
 											});
@@ -158,9 +153,10 @@ export const FolderView = (p: {
 
 								{p.folder.path.indexOf('.tiro/.trash') !== -1 &&
 									<li onClick={() => {
+										if (!api) return
 										if (p.folder.path === '') return setIsMenuOpened(false)
 										setIsMenuOpened(false)
-										p.confirmPopup(
+										api.popup.confirm(
 											`${strings.deleteFolderPrompt} "${p.folder.path}"?`, () => {
 												p.onFolderMenuAction('delete', p.folder)
 											});
@@ -189,7 +185,6 @@ export const FolderView = (p: {
 								onFolderDragStart={p.onFolderDragStart}
 								onFolderDragEnd={p.onFolderDragEnd}
 								onFolderDrop={p.onFolderDrop}
-								confirmPopup={p.confirmPopup}
 							/>
 						)
 					}

@@ -3,18 +3,24 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iAppView, iFolder } from '../../../../shared/types.shared';
 import { onFolderDragStartFn, onFolderDropFn, onFolderMenuActionFn, TreeView } from "../../components/TreeView.Component"
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { useBackendState } from '../useBackendState.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
-import { iConfirmPopup } from './usePromptPopup.hook';
 
 export type onFolderClickedFn = (folderPath: string) => void
 export const defaultFolderVal: iFolder = { title: '', key: '', path: '' }
 
-
+export interface iFoldersUiApi {
+	selectedFolder: string,
+	changeTo: (folderPath: string, appView?: iAppView) => void
+}
 
 export const useAppTreeFolder = (currentAppView: iAppView) => {
-	/* const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', []) */
+
+
+
+
 	// STORAGE
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
 	const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
@@ -23,12 +29,14 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 
 	// CURRENT POSITION
 	const [folderBasePath, setFolderBasePath] = useState('')
-	const [selectedFolder, setSelectedFolder] = useState<string>('')
+	const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selected-folder', '')
 
-	/* const [folderBasePath, setFolderBasePath] = useLocalStorage('folderBasePath', '')
-	const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selectedFolder', '')
-	const [openFolders, setOpenFolders] = useLocalStorage<string[]>('openFolders', ['/'])
- */
+
+
+
+
+
+
 	const listenerId = useRef<number>(0)
 	useEffect(() => {
 		console.log(`[TREE FOLDER] init socket listener`);
@@ -49,18 +57,6 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 		}
 	}, [])
 
-	// FOLDERS MANIPULATION
-
-	// const renameFolder = (folder:iFolder, newName:string) => {
-	//     let initPath = `${folderPathBase}/${rels[0]}`
-	//     let endPath = `${folderPathBase}/${rels[1]}`
-	//     askForMoveFolder(initPath, endPath)
-	//     emptyFileDetails()
-	//     cleanFilesList()
-	//     cleanFolderHierarchy()
-	//     updateUrl({})
-	//     askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
-	// }
 
 
 	// OPEN TREE FOLDER MANAGEMENT
@@ -95,7 +91,6 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 		onFolderDragStart: onFolderDragStartFn,
 		onFolderDragEnd,
 		onFolderDrop: onFolderDropFn
-		confirmPopup: iConfirmPopup
 	}) =>
 		useStatMemo(
 			<TreeView
@@ -108,7 +103,6 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 				onFolderDragStart={p.onFolderDragStart}
 				onFolderDragEnd={p.onFolderDragEnd}
 				onFolderDrop={p.onFolderDrop}
-				confirmPopup={p.confirmPopup}
 			/>
 			, [folderHierarchy, openFolders, selectedFolder, currentAppView]
 		)

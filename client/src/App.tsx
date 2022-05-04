@@ -3,17 +3,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
 import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
-import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
+import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete, iFoldersUiApi } from './hooks/app/treeFolder.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
-import { useUrlLogic } from './hooks/app/urlLogic.hook';
 import { debounce, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
-import { addCliCmd } from './managers/cliConsole.manager';
-import { configClient } from './config';
 import { iAppView, iFile, iFileImage, iFolder } from '../../shared/types.shared';
 import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
@@ -105,30 +102,39 @@ export const App = () => {
 		setIsSearching(false)
 	}, 100)
 
-	const changeToFolder = (folderPath: string, appView: iAppView, loadFirstNote: boolean = true) => {
-		if (folderPath === "") return
-		folderPath = cleanPath(folderPath)
-		console.log(`[FOLDER CHANGED] to ${folderPath} with view ${appView}`);
-		// NORMAL CHANGE FOLDER LOGIC
-		setSearchTerm('')
-		setSelectedFolder(folderPath)
-		cleanListAndFileContent()
 
-		if (appView === 'text') {
-			clientApi.files.get(folderPath, nfiles => {
-				// when receiving results
-				debounceStopIsSearching()
-				setActiveFileIndex(0);
-				const sortMode = clientApi.userSettings.get('ui_filesList_sortMode')
-				const nfilesSorted = sortFiles(nfiles, sortMode)
-				tabsApi.updateActiveWindowContent(nfilesSorted[0])
-				setFiles(nfilesSorted)
-			})
-		} else if (appView === 'image') {
+
+
+	//
+	// FOLDERS API
+	//
+
+	const changeToFolder: iFoldersUiApi['changeTo'] =
+		(folderPath, appView?) => {
+			appView = appView ? appView : currentAppView
+			if (folderPath === "") return
+			folderPath = cleanPath(`${folderPath}/`)
+			console.log(`[FOLDER CHANGED] to ${folderPath} with view ${appView}`);
+			// NORMAL CHANGE FOLDER LOGIC
+			setSearchTerm('')
 			setSelectedFolder(folderPath)
-			askForFolderImages(folderPath)
+			cleanListAndFileContent()
+
+			if (appView === 'text') {
+				clientApi.files.get(folderPath, nfiles => {
+					// when receiving results
+					debounceStopIsSearching()
+					setActiveFileIndex(0);
+					const sortMode = clientApi.userSettings.get('ui_filesList_sortMode')
+					const nfilesSorted = sortFiles(nfiles, sortMode)
+					windowsApi.updateActive(nfilesSorted[0])
+					setFiles(nfilesSorted)
+				})
+			} else if (appView === 'image') {
+				setSelectedFolder(folderPath)
+				askForFolderImages(folderPath)
+			}
 		}
-	}
 
 
 	// const debounceStopIsSearching = debounce(() => {
@@ -156,7 +162,7 @@ export const App = () => {
 	// 			let noteIndex = shouldLoadNoteIndex.current
 	// 			if (newFiles.length >= noteIndex + 1) {
 	// 				setActiveFileIndex(noteIndex)
-	// 				tabsApi.updateActiveWindowContent(newFiles[noteIndex])
+	// 				windowsApi.updateActive(newFiles[noteIndex])
 	// 				askForFileContent(newFiles[noteIndex])
 	// 			}
 	// 			shouldLoadNoteIndex.current = null
@@ -177,7 +183,7 @@ export const App = () => {
 	// 			if (indexSearch !== -1) {
 	// 				if (newFiles[indexSearch]) {
 	// 					setActiveFileIndex(indexSearch)
-	// 					tabsApi.updateActiveWindowContent(files[indexSearch])
+	// 					windowsApi.updateActive(files[indexSearch])
 	// 					askForFileContent(newFiles[indexSearch])
 	// 				}
 	// 			}
@@ -251,7 +257,8 @@ export const App = () => {
 		refreshTabsFromBackend,
 		updateActiveTabGrid,
 		refreshWindowGrid,
-		tabsApi
+		tabsApi,
+		windowsApi
 	} = useTabs({ activeFile: files[activeFileIndex] });
 	const activeTab = getActiveTab(tabs);
 
@@ -278,7 +285,7 @@ export const App = () => {
 		AppViewSwitcherComponent
 	} = useAppViewType({
 		onViewSwitched: nView => {
-			changeToFolder(selectedFolder, nView)
+			clientApi.ui.folders.changeTo(selectedFolder, nView)
 		}
 	})
 
@@ -294,6 +301,17 @@ export const App = () => {
 		FolderTreeComponent,
 		cleanFolderHierarchy
 	} = useAppTreeFolder(currentAppView)
+
+	// on selectedFolder change, trigger update folders/file ui
+	useEffect(() => {
+		clientApi.ui.folders.changeTo(selectedFolder, currentAppView)
+	}, [selectedFolder])
+
+	// Folders Api
+	const foldersUiApi: iFoldersUiApi = {
+		changeTo: changeToFolder,
+		selectedFolder
+	}
 
 	// Search 
 	const {
@@ -395,7 +413,6 @@ export const App = () => {
 
 	// DRAG/DROP FOLDER/FILES MOVING LOGIC
 	interface iDraggedItem { type: 'file' | 'folder', files?: iFile[], folder?: iFolder }
-	// const [draggedItems,setDraggedItems] = useState<iDraggedItem[]>([])
 	const draggedItems = useRef<iDraggedItem[]>([])
 
 	const processDragDropAction = (folderToDropInto: iFolder) => {
@@ -432,17 +449,21 @@ export const App = () => {
 	}
 
 
+
 	// Client API 
 	const clientApi = useClientApi({
 		popupApi,
 		tabsApi,
-		userSettingsApi
+		userSettingsApi,
+		foldersUiApi,
+		windowsApi
 	})
 
 	return (//jsx
 		<div className={CssApp2(mobileView)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
 
+				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
 
 					<Global styles={GlobalCssApp} />
@@ -498,7 +519,7 @@ export const App = () => {
 											FolderTreeComponent({
 												onFolderClicked: folderPath => {
 													setIsSearching(true)
-													changeToFolder(folderPath, currentAppView)
+													clientApi.ui.folders.changeTo(folderPath, currentAppView)
 												},
 												onFolderMenuAction: (action, folder, newTitle) => {
 													if (action === 'rename' && newTitle) {
@@ -537,7 +558,6 @@ export const App = () => {
 												onFolderDrop: folderDroppedInto => {
 													processDragDropAction(folderDroppedInto)
 												},
-												confirmPopup: popupApi.confirm,
 											})
 										}
 									</div>
@@ -589,8 +609,7 @@ export const App = () => {
 											}}
 											onFileClicked={fileIndex => {
 												setActiveFileIndex(fileIndex)
-												askForFileContent(files[fileIndex])
-												tabsApi.updateActiveWindowContent(files[fileIndex])
+												windowsApi.updateActive(files[fileIndex])
 											}}
 											onFileDragStart={files => {
 												console.log(`[DRAG MOVE] onFileDragStart`, files);

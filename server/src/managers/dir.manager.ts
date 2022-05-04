@@ -11,6 +11,7 @@ import { fileExists, fileStats, isDir } from "./fs.manager";
 import { log } from "./log.manager";
 import { p } from "./path.manager";
 import { getPlatform } from "./platform.manager";
+import { searchWithRipGrep } from "./search/search-ripgrep.manager";
 import { ServerSocketManager } from './socket.manager'
 
 var fs = require('fs')
@@ -116,78 +117,16 @@ export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<i
 }
 
 export const scanDirForFiles = async (path: string): Promise<iFile[] | string> => {
-	path = p(path)
-
-	lastFolderFilesScanned.value = path
-	const blacklist = dirDefaultBlacklist
-	const taskId = random(0, 10000)
-	setServerTaskId(taskId)
-
-	log(`[scanDirForFiles] path : ${path} w taskid ${taskId}`);
-
-	return new Promise((resolve, reject) => {
-		let filesScanned: iFile[] = []
-		fs.readdir(path, async (err, files) => {
-			if (!files) return reject(err.message)
-			let counterFilesStats = 0
-			if (files.length === 0) resolve([])
-			for (let i = 0; i < files.length; i++) {
-
-				// if taskId changed, stop the for loop
-				if (taskId !== getServerTaskId()) {
-					log(`[SCANDIRFORFILE] taskId changed, stopping it, scanId ${taskId} !== ${getServerTaskId()}`)
-					break;
-				}
-
-				const fileName = files[i];
-				let filePath = `${path}/${fileName}`
-				const stats = fileStats(filePath)
-				if (!fileExists(filePath) || !stats) {
-					counterFilesStats++
-					if (counterFilesStats === files.length) resolve(filesScanned)
-				} else {
-					// ON LINUX ONLY, MAKE SURE CREATION DATE IS IN RIGHT 
-					let createdDate = stats.atimeMs
-					if (getPlatform() === 'linux') {
-						if (stats.mtimeMs < stats.atimeMs) {
-							createdDate = stats.mtimeMs
-							const ndate = new Date(stats.mtimeMs)
-							const touchDateFormat = ndate.getFullYear() + '' + ('0' + ndate.getMonth()).slice(-2) + '' + ('0' + ndate.getDay()).slice(-2) + ('0' + ndate.getHours()).slice(-2) + ('0' + ndate.getMinutes()).slice(-2)
-							const cmd = `touch -t ${touchDateFormat} '${filePath}'`
-							log(`[scanDirForFiles > STAT] ${filePath} stats.mtimeMs < stats.atimeMs => equalize : ${cmd}`);
-							execa.command(cmd)
-						}
-					}
-
-
-					// counter++
-					let extensionArr = fileName.split('.')
-					let extension = extensionArr[extensionArr.length - 1]
-					let folder = path.replace(backConfig.dataFolder, '').replace('//', '/')
-
-					// packs everything
-					let fileObj: iFile = {
-						nature: isDir(`${path}/${fileName}`) ? 'folder' : 'file',
-						name: fileName,
-						realname: fileName,
-						index: i,
-						extension,
-						folder,
-						created: Math.round(createdDate),
-						modified: Math.round(stats.ctimeMs),
-						path: `${folder}/${fileName}`,
-					}
-					if (blacklist.indexOf(fileName) === -1) {
-						filesScanned.push(fileObj)
-					}
-
-					counterFilesStats++
-					if (counterFilesStats === files.length) {
-						setServerTaskId(-1)
-						resolve(filesScanned)
-					}
-				}
+	console.log(123123, path);
+	return new Promise((res, rej) => {
+		searchWithRipGrep({
+			term: '',
+			folder: path,
+			titleSearch: false,
+			recursive: false,
+			onSearchEnded: async answer => {
+				res(answer.files)
 			}
-		});
+		})
 	})
 }
