@@ -2,10 +2,8 @@ import { cloneDeep } from 'lodash';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { iFile, iFileMetas } from '../../../../shared/types.shared';
 import { toTimeStampInS } from '../../../../shared/helpers/timestamp.helper';
-import { DualViewer } from '../../components/dualView/DualViewer.component';
 import { filterMetaFromFileContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
-import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
 import { onLightboxClickFn } from '../../components/dualView/EditorArea.component';
 
@@ -15,10 +13,8 @@ export const useFileContent = (
 	selectedFolder: string,
 	files: iFile[],
 	shouldLoadNoteIndex: any,
-
 	cleanFileDetails: Function,
 	askForMoveFile: Function,
-	askForFolderFiles: Function,
 ) => {
 
 	// STATE

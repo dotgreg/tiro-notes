@@ -104,79 +104,76 @@ export const App = () => {
 		if (folderPath === "") return
 		folderPath = cleanPath(folderPath)
 		console.log(`[FOLDER CHANGED] to ${folderPath} with view ${appView}`);
+		// NORMAL CHANGE FOLDER LOGIC
+		setSearchTerm('')
+		setSelectedFolder(folderPath)
+		cleanListAndFileContent()
 
-		// SEND FIRST isLeavingNote signal for leaving logic like encryption
-		setIsLeavingNote(true)
-		setTimeout(() => {
-			// NORMAL CHANGE FOLDER LOGIC
-			setSearchTerm('')
+		if (appView === 'text') {
+			clientApi.files.get(folderPath, nfiles => {
+				setActiveFileIndex(0)
+				tabsApi.updateActiveWindowContent(nfiles[0])
+				setFiles(nfiles)
+			})
+		} else if (appView === 'image') {
 			setSelectedFolder(folderPath)
-			cleanListAndFileContent()
-
-			if (appView === 'text') {
-				if (loadFirstNote) shouldLoadNoteIndex.current = 0
-				askForFolderFiles(folderPath)
-				setIsLeavingNote(false)
-			} else if (appView === 'image') {
-				setSelectedFolder(folderPath)
-				askForFolderImages(folderPath)
-			}
-		})
+			askForFolderImages(folderPath)
+		}
 	}
 
 
-	const debounceStopIsSearching = debounce(() => {
-		setIsSearching(false)
-	}, 100)
+	// const debounceStopIsSearching = debounce(() => {
+	// 	setIsSearching(false)
+	// }, 100)
 
-	const onFilesReceivedCallback: onFilesReceivedFn =
-		(newFiles, isTemporaryResult, isInitialResults) => {
+	// const onFilesReceivedCallback: onFilesReceivedFn =
+	// 	(newFiles, isTemporaryResult, isInitialResults) => {
 
-			if (!isTemporaryResult) {
-				debounceStopIsSearching()
-			} else {
-				setIsSearching(isTemporaryResult)
-			}
+	// 		if (!isTemporaryResult) {
+	// 			debounceStopIsSearching()
+	// 		} else {
+	// 			setIsSearching(isTemporaryResult)
+	// 		}
 
-			// only continue if newFiles > 0 files
-			if (newFiles.length === 0) return
+	// 		// only continue if newFiles > 0 files
+	// 		if (newFiles.length === 0) return
 
-			// if activeFileIndex exists + is in length of files, load it
-			if (activeFileIndex !== -1 && activeFileIndex < newFiles.length) {
-				askForFileContent(newFiles[activeFileIndex])
-			}
-			if (isNumber(shouldLoadNoteIndex.current)) {
-				console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
-				let noteIndex = shouldLoadNoteIndex.current
-				if (newFiles.length >= noteIndex + 1) {
-					setActiveFileIndex(noteIndex)
-					tabsApi.updateActiveWindowContent(newFiles[noteIndex])
-					askForFileContent(newFiles[noteIndex])
-				}
-				shouldLoadNoteIndex.current = null
-			}
-			// ON LIST ITEMS CHANGES
-			if (selectedFolder !== lastFolderIn.current || searchTerm !== lastSearchIn.current) {
-				// Load first item list 
-				newFiles.length >= 1 && askForFileContent(newFiles[0])
-				setActiveFileIndex(0)
-				//updateActiveWindowContent(files[0])
-				lastFolderIn.current = selectedFolder
-				lastSearchIn.current = searchTerm
-			}
+	// 		// if activeFileIndex exists + is in length of files, load it
+	// 		if (activeFileIndex !== -1 && activeFileIndex < newFiles.length) {
+	// 			askForFileContent(newFiles[activeFileIndex])
+	// 		}
+	// 		if (isNumber(shouldLoadNoteIndex.current)) {
+	// 			console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
+	// 			let noteIndex = shouldLoadNoteIndex.current
+	// 			if (newFiles.length >= noteIndex + 1) {
+	// 				setActiveFileIndex(noteIndex)
+	// 				tabsApi.updateActiveWindowContent(newFiles[noteIndex])
+	// 				askForFileContent(newFiles[noteIndex])
+	// 			}
+	// 			shouldLoadNoteIndex.current = null
+	// 		}
+	// 		// ON LIST ITEMS CHANGES
+	// 		if (selectedFolder !== lastFolderIn.current || searchTerm !== lastSearchIn.current) {
+	// 			// Load first item list 
+	// 			newFiles.length >= 1 && askForFileContent(newFiles[0])
+	// 			setActiveFileIndex(0)
+	// 			//updateActiveWindowContent(files[0])
+	// 			lastFolderIn.current = selectedFolder
+	// 			lastSearchIn.current = searchTerm
+	// 		}
 
-			// at the end, search for title
-			if (!isTemporaryResult && !isInitialResults) {
-				const indexSearch = getSearchedTitleFileIndex(newFiles)
-				if (indexSearch !== -1) {
-					if (newFiles[indexSearch]) {
-						setActiveFileIndex(indexSearch)
-						tabsApi.updateActiveWindowContent(files[indexSearch])
-						askForFileContent(newFiles[indexSearch])
-					}
-				}
-			}
-		}
+	// 		// at the end, search for title
+	// 		if (!isTemporaryResult && !isInitialResults) {
+	// 			const indexSearch = getSearchedTitleFileIndex(newFiles)
+	// 			if (indexSearch !== -1) {
+	// 				if (newFiles[indexSearch]) {
+	// 					setActiveFileIndex(indexSearch)
+	// 					tabsApi.updateActiveWindowContent(files[indexSearch])
+	// 					askForFileContent(newFiles[indexSearch])
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
 
 	//
@@ -192,7 +189,7 @@ export const App = () => {
 			cleanListAndFileContent()
 		},
 		onLoginSuccess: () => {
-			reactToUrl()
+			//reactToUrl()
 			refreshTabsFromBackend();
 			refreshUserSettingsFromBackend();
 
@@ -202,15 +199,14 @@ export const App = () => {
 	// user settings!
 
 	const {
-		getUserSetting,
-		updateUserSetting,
+		userSettingsApi,
 		refreshUserSettingsFromBackend
 	} = useUserSettings();
 
 
 	// Toggle sidebar 
 	const toggleSidebar = () => {
-		updateUserSetting('ui_sidebar', !getUserSetting('ui_sidebar'))
+		userSettingsApi.set('ui_sidebar', !userSettingsApi.get('ui_sidebar'))
 	}
 
 
@@ -234,7 +230,7 @@ export const App = () => {
 				askForFileContent(files[i + 1])
 			}
 		})
-	}, [activeFileIndex, getUserSetting('ui_sidebar')])
+	}, [activeFileIndex, userSettingsApi.get('ui_sidebar')])
 
 	const [files, setFiles] = useState<iFile[]>([])
 
@@ -252,12 +248,11 @@ export const App = () => {
 
 	// Files List
 	const {
-		askForFolderFiles,
 		FilesListComponent,
 	} = useAppFilesList(
 		files, setFiles,
 		activeFileIndex, setActiveFileIndex,
-		tabs, onFilesReceivedCallback
+		tabs
 	)
 
 	/**
@@ -347,7 +342,7 @@ export const App = () => {
 		DualViewerComponent
 	} = useFileContent(
 		activeFile, activeFileIndex, selectedFolder, files, shouldLoadNoteIndex,
-		cleanFileDetails, askForMoveFile, askForFolderFiles
+		cleanFileDetails, askForMoveFile
 	)
 
 	// last Note + files history array
@@ -363,36 +358,36 @@ export const App = () => {
 	// make sure the interface doesnt scroll
 	useFixScrollTop()
 
-	// url routing/react logic
-	const { reactToUrl } = useUrlLogic(
-		isSearching, searchTerm,
-		selectedFolder, activeFile,
-		activeFileIndex,
-		currentAppView,
-		{
-			reactToUrlParams: newUrlParams => {
-				// timeout of 1000 as sometimes when loading is too long, not working
-				//setTimeout(() => {
-				// new way
-				console.log(`[URL] REACTING TO <== ${JSON.stringify(newUrlParams)}`);
+	// // url routing/react logic
+	// const { reactToUrl } = useUrlLogic(
+	// 	isSearching, searchTerm,
+	// 	selectedFolder, activeFile,
+	// 	activeFileIndex,
+	// 	currentAppView,
+	// 	{
+	// 		reactToUrlParams: newUrlParams => {
+	// 			// timeout of 1000 as sometimes when loading is too long, not working
+	// 			//setTimeout(() => {
+	// 			// new way
+	// 			console.log(`[URL] REACTING TO <== ${JSON.stringify(newUrlParams)}`);
 
-				if (newUrlParams.folder && newUrlParams.title) {
-					searchFileFromTitle(newUrlParams.title, newUrlParams.folder)
-				}
-				if (newUrlParams.search) {
-					console.log('reactToUrlParams -> triggersearch');
-					triggerSearch(newUrlParams.search)
-				}
-				if (newUrlParams.mobileview) {
-					setMobileView(newUrlParams.mobileview)
-				}
-				if (newUrlParams.appview) {
-					switchAppView(newUrlParams.appview)
-				}
-				//}, 1000)
-			}
-		}
-	)
+	// 			if (newUrlParams.folder && newUrlParams.title) {
+	// 				searchFileFromTitle(newUrlParams.title, newUrlParams.folder)
+	// 			}
+	// 			if (newUrlParams.search) {
+	// 				console.log('reactToUrlParams -> triggersearch');
+	// 				triggerSearch(newUrlParams.search)
+	// 			}
+	// 			if (newUrlParams.mobileview) {
+	// 				setMobileView(newUrlParams.mobileview)
+	// 			}
+	// 			if (newUrlParams.appview) {
+	// 				switchAppView(newUrlParams.appview)
+	// 			}
+	// 			//}, 1000)
+	// 		}
+	// 	}
+	// )
 
 	// DYNAMIC RESPONSIVE RERENDER (ON DEBOUNCE)
 	const { forceResponsiveRender } = useDynamicResponsive()
@@ -411,17 +406,6 @@ export const App = () => {
 			promptAndMoveFolder({ folder: item.folder, folderToDropInto, folderBasePath })
 		}
 	}
-
-	// window variables
-	addCliCmd('variables', {
-		description: 'variables for script uses',
-		func: () => {
-			return {
-				file: files[activeFileIndex],
-				config: configClient
-			}
-		}
-	})
 
 	// Send Note Leaving Signal
 	const [isLeavingNote, setIsLeavingNote] = useState(false)
@@ -450,7 +434,8 @@ export const App = () => {
 	// Client API 
 	const clientApi = useClientApi({
 		popupApi,
-		tabsApi
+		tabsApi,
+		userSettingsApi
 	})
 
 	return (//jsx
@@ -462,7 +447,7 @@ export const App = () => {
 					<Global styles={GlobalCssApp} />
 					<div role="dialog" className={`
 								main-wrapper
-								${getUserSetting('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
+								${clientApi.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
 								view-${currentAppView}
 								device-view-${deviceType()}`}>
 						{
@@ -580,7 +565,7 @@ export const App = () => {
 													icon: 'faThumbtack',
 													title: 'Toggle Sidebar',
 													action: e => { toggleSidebar(); refreshWindowGrid(); },
-													active: getUserSetting('ui_sidebar') === true
+													active: clientApi.userSettings.get('ui_sidebar') === true
 												}]} colors={["#d4d1d1", "#615f5f"]} size={0.8} />
 											</div>
 
@@ -663,7 +648,6 @@ export const App = () => {
 										toggleSidebar()
 									},
 									onBackButton: () => {
-										console.log('woooop', filesHistory, filesHistory[0].name, filesHistory[1].name);
 										let fileToGo = filesHistory[1]
 										if (!fileToGo) return
 										console.log('BACK BUTTON to', fileToGo.name);

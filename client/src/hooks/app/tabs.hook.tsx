@@ -127,6 +127,7 @@ export const useTabs = (p: {
 
 	// changing active window file
 	const updateActiveWindowContent: iTabsApi['updateActiveWindowContent'] = (nFile) => {
+		console.log('00111', nFile);
 		if (!nFile) return
 		// get active tab
 		const nTabs = cloneDeep(tabs)
@@ -136,17 +137,17 @@ export const useTabs = (p: {
 		const aTab = nTabs[aId]
 		const aContent = aTab.grid.content
 		if (aContent.length < 1) return
+		console.log('00112', nFile);
 		let aWindowIndex = 0
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
-
 		aTab.name = createTabNameFromFile(nFile)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
 
-		console.log(`[TAB LAYOUT] active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
+		console.log(`[TAB LAYOUT] 00113 active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
 		// save tabs
 		setTabs(nTabs2)
 	}

@@ -18,7 +18,6 @@ import { TtsPopup } from '../TtsPopup.component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { NoteMobileToolbar } from './NoteToolbar.component';
 import { findImagesFromContent } from '../../managers/images.manager';
-import { PopupContext } from '../../hooks/app/usePromptPopup.hook';
 import { Dropdown } from '../Dropdown.component';
 import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
@@ -26,7 +25,6 @@ import { GridContext } from '../windowGrid/WindowGrid.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
-export type onFileDeleteFn = (filepath: string) => void
 export type onScrollFn = (newYpercent: number) => void
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 
@@ -40,10 +38,8 @@ export const EditorArea = (p: {
 	isLeavingNote: boolean
 
 	onScroll: onScrollFn
-	onFileTitleEdited: PathModifFn
 	onSavingHistoryFile: onSavingHistoryFileFn
 	onFileEdited: onFileEditedFn
-	onFileDelete: onFileDeleteFn
 	onLightboxClick: onLightboxClickFn
 
 	onBackButton: Function
@@ -215,15 +211,12 @@ export const EditorArea = (p: {
 			class: 'delete',
 			icon: 'faTrash',
 			action: () => {
-				popupApi && popupApi.confirm(`${strings.trashNote}`, () => {
-					p.onFileDelete(p.file.path)
-				})
+				gridContext.file.onFileDelete(p.file.path)
 			}
 		},
 	]
 
 
-	const popupApi = useContext(PopupContext);
 	// File History
 	const [historyPopup, setHistoryPopup] = useState(false)
 
@@ -252,8 +245,8 @@ export const EditorArea = (p: {
 
 
 				<NoteTitleInput
-						title={p.file.name.replace('.md', '')}
-					onEdited={gridContext.title.onTitleUpdate}
+					title={p.file.name.replace('.md', '')}
+					onEdited={gridContext.file.onTitleUpdate}
 				/>
 
 				<div className="toolbar-and-dates-wrapper">

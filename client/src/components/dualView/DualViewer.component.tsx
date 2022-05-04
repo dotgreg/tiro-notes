@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
-import { EditorArea, onFileDeleteFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
+import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { PathModifFn } from './TitleEditor.component';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
@@ -21,9 +21,7 @@ export const DualViewer = (p: {
 	onViewChange?: onViewChangeFn
 
 	onFileEdited: onFileEditedFn
-	onFileTitleEdited: PathModifFn
 	onSavingHistoryFile: onSavingHistoryFileFn
-	onFileDelete: onFileDeleteFn
 	onLightboxClick: onLightboxClickFn
 	onBackButton: Function
 	onToggleSidebarButton: Function
@@ -79,13 +77,11 @@ export const DualViewer = (p: {
 			isLeavingNote={p.isLeavingNote}
 
 			onScroll={newYPercent => { }}
-			onFileTitleEdited={p.onFileTitleEdited}
 			onSavingHistoryFile={p.onSavingHistoryFile}
 			onFileEdited={(path, content) => {
 				p.onFileEdited(path, content)
 				setPreviewContent(content)
 			}}
-			onFileDelete={p.onFileDelete}
 			onBackButton={p.onBackButton}
 			onToggleSidebarButton={p.onToggleSidebarButton}
 			onLightboxClick={p.onLightboxClick}

@@ -7,6 +7,7 @@ import { ClientApiContext } from '../../hooks/api/api.hook';
 import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { initClipboardListener } from '../../managers/clipboard.manager';
 import { initDragDropListener } from '../../managers/dragDrop.manager';
+import { strings } from '../../managers/strings.manager';
 import { iUploadedFile } from '../../managers/upload.manager';
 import { PathModifFn } from '../dualView/TitleEditor.component';
 import { DraggableGrid } from './DraggableGrid.component';
@@ -15,26 +16,29 @@ import { DraggableGrid } from './DraggableGrid.component';
 //
 // CONTEXT 
 //
+export type onFileDeleteFn = (filepath: string) => void
 interface iUploadUpdate {
 	file?: iUploadedFile
 	progress?: number
 	uploadCounter: number
 }
-interface iTitleGridContext {
+interface iFileActionsGridContext {
 	onTitleUpdate: PathModifFn
+	onFileDelete: onFileDeleteFn
 }
 
 export interface iGridContext {
 	upload: iUploadUpdate
-	title: iTitleGridContext
+	file: iFileActionsGridContext
 }
 
 const gridContextInit: iGridContext = {
 	upload: {
 		uploadCounter: 0
 	},
-	title: {
-		onTitleUpdate: (oPath, nPath) => { }
+	file: {
+		onTitleUpdate: (oPath, nPath) => { },
+		onFileDelete: filePath => { }
 	}
 }
 export const GridContext = React.createContext<iGridContext>(gridContextInit);
@@ -56,9 +60,22 @@ export const WindowGrid = (p: {
 	const [gridContext, setGridContext] = useState<iGridContext>(gridContextInit)
 
 	//
+	// ON FILE DELETE
+	//
+	const onFileDelete: onFileDeleteFn = filePath => {
+		if (!api) return
+		// ask for confirm
+		api.popup.confirm(`${strings.trashNote}`, () => {
+			// send delete
+			console.log(`[FILE DELETE] 0046 deleting file ${filePath}`)
+			// get active tab, if several window, close current one
+			// if one window, close the tab
+		})
+	}
+
+	//
 	// ON TITLE UPDATE
 	//
-
 	const onTitleUpdate = (oPath, nPath) => {
 		if (!api) return
 		console.log('hello from window grid, new title: ', oPath, nPath);
@@ -66,7 +83,7 @@ export const WindowGrid = (p: {
 		if (!c || !c.file) return
 		oPath = `${c.file.folder}${oPath}.md`
 		nPath = `${c.file.folder}${nPath}.md`
-		api.move.file(oPath, nPath, nfiles => {
+		api.file.move(oPath, nPath, nfiles => {
 			// get files scanned after the move is completed
 			if (!c || !c.file) return
 			// update file of active window
@@ -82,7 +99,8 @@ export const WindowGrid = (p: {
 	}
 
 	useEffect(() => {
-		gridContext.title.onTitleUpdate = onTitleUpdate
+		gridContext.file.onTitleUpdate = onTitleUpdate
+		gridContext.file.onFileDelete = onFileDelete
 		setGridContext(gridContext)
 	}, [])
 
