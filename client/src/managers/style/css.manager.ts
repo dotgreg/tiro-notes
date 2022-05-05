@@ -36,7 +36,7 @@ export const CssApp2 = (
 	mobileView: MobileView,
 ) => {
 
-	const cssString = ` //css
+	const cssString = `//css
 .content-image {
     width: 90%;
   }
@@ -150,10 +150,17 @@ ${ButtonsToolbarCss}
       ${lastNotesCss}
 
       ${folderTreeCss}
+
+			h3.subtitle {
+				margin: 0px 0px 15px;
+				font-family: "Open sans", sans-serif;
+				text-transform: uppercase;
+				font-size: 14px;
+				font-weight: 800;
+				font-style: italic;
+				color: ${colors.main};
+			}
     }
-
-
-
 
 
     ////////////////////////////////////////////v 

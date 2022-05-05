@@ -16,7 +16,7 @@ export type iGetFilesCb = (files: iFile[]) => void
 
 export interface iFileApi {
 	getContent: (noteLink: string, cb: (noteContent: string) => void) => void
-	saveContent: (noteLink: string, content: string) => void
+	saveContent: (noteLink: string, content: string, options?: { history?: boolean }) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
 	move: iMoveApi['file']
 	create: (folderPath: string, cb: iGetFilesCb) => void
@@ -26,6 +26,7 @@ export interface iFileApi {
 export const useFileApi = (p: {
 	eventBus: iApiEventBus
 }) => {
+	const h = `[FILE API] 005363 `
 
 	//
 	// LISTEN TO SOCKET
@@ -42,8 +43,8 @@ export const useFileApi = (p: {
 	// 
 
 	// 1. GET CONTENT
-	const apiGetFileContent: iFileApi['getContent'] = (noteLink, cb) => {
-		console.log(`[CLIENT API] 005363 get file content ${noteLink}`);
+	const getFileContent: iFileApi['getContent'] = (noteLink, cb) => {
+		console.log(`${h} get file content ${noteLink}`);
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
@@ -58,22 +59,23 @@ export const useFileApi = (p: {
 
 
 	// 2. SET CONTENT
-	const apiSaveFileContent: iFileApi['saveContent'] = (
-		noteLink: string,
-		content: string
-	) => {
-		console.log(`[CLIENT API] 005363 save file content ${noteLink}`);
+	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options) => {
+		const history = (options && options.history) ? options.history : false
+		console.log(`${h} save file content ${noteLink}`);
 		const filePath = noteLinkToPath(noteLink);
 		clientSocket2.emit('saveFileContent', {
 			filePath, newFileContent: content,
 			token: getLoginToken()
 		})
+		if (history) {
+			saveIntervalNoteHistory(noteLink, content)
+		}
 	}
 
 	// 3. DELETE
-	const deleteFile: iFileApi['delete'] = (file,cb) => {
+	const deleteFile: iFileApi['delete'] = (file, cb) => {
 		const idReq = genIdReq('delete-file');
-		console.log(`[CLIENT API] 005363 delete file ${file.path}`);
+		console.log(`${h} delete file ${file.path}`);
 		p.eventBus.subscribe(idReq, cb);
 		clientSocket2.emit('onFileDelete', { filepath: file.path, idReq, token: getLoginToken() })
 	}
@@ -81,9 +83,44 @@ export const useFileApi = (p: {
 	// 4. CREATE
 	const createFile: iFileApi['create'] = (folderPath, cb) => {
 		const idReq = genIdReq('create-file');
-		console.log(`[CLIENT API] 005363 create file in ${folderPath}`);
+		console.log(`${h} create file in ${folderPath}`);
 		p.eventBus.subscribe(idReq, cb);
 		clientSocket2.emit('createNote', { folderPath, idReq, token: getLoginToken() })
+	}
+
+
+
+	// 5. ON SAVE, AUTOMATIC HISTORY CALL EVERY 10m OR WHEN FILE CHANGE
+	interface iNotesLastHistory {
+		[notepath: string]: number
+	}
+	const notesLastHistory = useRef<iNotesLastHistory>({})
+	const getNow = () => new Date().getTime()
+	let histDelayInMin = 1
+	let histDelayInMs = histDelayInMin * 60 * 1000
+
+	const saveNoteHistory = (filePath: string, content: string) => {
+		console.log(`${h} saveNoteHistory ${filePath}`);
+		clientSocket2.emit('createHistoryFile', {
+			filePath,
+			content,
+			historyFileType: '',
+			token: getLoginToken()
+		})
+	}
+
+	const saveIntervalNoteHistory = (filepath: string, content: string) => {
+		const fileLastHistory = notesLastHistory.current[filepath]
+
+		if (
+			!fileLastHistory ||
+			(fileLastHistory && fileLastHistory + histDelayInMs < getNow())
+		) {
+			console.log(`${h} ${filepath}, time ${histDelayInMin} expired/inexistand, PROCEED BACKUP`);
+			saveNoteHistory(filepath, content)
+			notesLastHistory.current[filepath] = getNow()
+		}
+
 	}
 
 
@@ -95,8 +132,8 @@ export const useFileApi = (p: {
 	// EXPORTS
 	//
 	const fileApi: iFileApi = {
-		getContent: apiGetFileContent,
-		saveContent: apiSaveFileContent,
+		getContent: getFileContent,
+		saveContent: saveFileContent,
 		delete: deleteFile,
 		move: moveApi.file,
 		create: createFile,

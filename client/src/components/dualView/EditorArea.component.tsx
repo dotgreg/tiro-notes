@@ -66,8 +66,14 @@ export const EditorArea = (p: {
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
+			//isFirstEdition && console.log('first edition', { p.fileContent }, { newContent })
 			// reaction from triggerNoteEdition
 			// if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
+			// IF FIRST EDITION
+
+			isFirstEdition && alert('first edition')
+
+			
 			setInnerFileContent(newContent)
 			p.onFileEdited(p.file.path, newContent)
 		},
@@ -77,18 +83,6 @@ export const EditorArea = (p: {
 			ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
 		}
 	})
-
-	// // AUTOMATIC HISTORY HOOK Every 10m
-	// useIntervalNoteHistory(innerFileContent, {
-	// 	shouldCreateIntervalNoteHistory: () => {
-	// 		if (noHistoryBackupWhenDecrypted) return console.log('[HISTORY FILE] : noHistoryBackupWhenDecrypted')
-	// 		else {
-	// 			p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
-	// 			console.log(`[HISTORY FILE] : creating history file for ${p.file.path}`)
-	// 		}
-	// 	}
-	// })
-
 
 	// MOBILE EDITOR LOGIC HOOK
 	let mobileTextarea = useRef<HTMLTextAreaElement>(null)

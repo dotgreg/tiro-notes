@@ -1,5 +1,5 @@
-import { debounce } from 'lodash';
-import React, { useContext, useEffect, useState } from 'react';
+import { debounce, throttle } from 'lodash';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iWindowContent } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
@@ -31,13 +31,24 @@ export const WindowEditor = (p: {
 	// UPDATE CONTENT 
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
-		api && api.file.saveContent(filepath, content)
+		console.log('0046 save content');
+		api && api.file.saveContent(filepath, content, { history: true })
 	}
-
 	const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
 
+	//
+	// FORCE LIST FILES REFRESH
+	//
+	const leading = useRef(true)
+	useEffect(() => {
+		leading.current = true
+	}, [file?.path])
 
-
+	const refreshFilesList = () => {
+		console.log('0046 refresh list after file edit');
+		api && api.ui.browser.goTo(api.ui.browser.selectedFolder)
+	}
+	const debouncedRefreshList = debounce(refreshFilesList, 5000)
 
 	return (//jsx
 		<>
@@ -52,7 +63,13 @@ export const WindowEditor = (p: {
 						viewType={view}
 						onViewChange={p.onViewChange}
 
-						onFileEdited={debouncedOnFileEditedSaveIt}
+						onFileEdited={(path, content) => {
+							//debouncedOnFileEditedSaveIt(path, content)
+							onFileEditedSaveIt(path, content);
+							//throttRefresh()
+							// debouncedRefreshList();
+							//updateRefreshList();
+						}}
 					/>
 				</div>
 			}

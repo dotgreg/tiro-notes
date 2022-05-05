@@ -1,10 +1,11 @@
 import React, {  useEffect } from 'react';
 import { iFile } from "../../../../shared/types.shared"
 import { useDebounce } from '../lodash.hooks';
+import { useBackendState } from '../useBackendState.hook';
 import { useLocalStorage } from "../useLocalStorage.hook"
 
 export const useLastFilesHistory = (activeFile: iFile|null) => {
-    const [filesHistory, setFilesHistory] = useLocalStorage<iFile[]>('filesHistory',[])
+  const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history',[])
     // const [filesHistory, setFilesHistory] = useState<iFile[]>([])
     
     useEffect(() => {
@@ -39,5 +40,5 @@ export const useLastFilesHistory = (activeFile: iFile|null) => {
     }
     const debouncedAddToHistory = useDebounce(addToHistory, 1000)
 
-    return {filesHistory, cleanLastFilesHistory}
+  return {filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend}
 }

@@ -9,7 +9,6 @@ export const useResize = () => {
 		let debouncedResponsiveRender = debounce(() => {
 			resizeCount.current = resizeCount.current + 1
 			setResizeState(true)
-			console.log(11, resizeState);
 			setTimeout(() => {
 				setResizeState(false)
 			}, 200)

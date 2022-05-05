@@ -3,10 +3,10 @@ import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iStatusApi } from '../app/connectionIndicator.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
-import { iFoldersUiApi } from '../app/treeFolder.hook';
 import { iLightboxApi } from '../app/useLightbox.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
+import { iBrowserApi } from './browser.api.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
@@ -28,7 +28,7 @@ export interface iClientApi {
 	tabs: iTabsApi
 	userSettings: iUserSettingsApi
 	ui: {
-		folders: iFoldersUiApi
+		browser: iBrowserApi
 		windows: iWindowsApi
 		lightbox: iLightboxApi
 	}
@@ -67,7 +67,7 @@ export const useClientApi = (p: {
 	popupApi: iPopupApi
 	tabsApi: iTabsApi
 	userSettingsApi: iUserSettingsApi
-	foldersUiApi: iFoldersUiApi
+	browserApi: iBrowserApi
 	windowsApi: iWindowsApi
 	statusApi: iStatusApi
 	lightboxApi: iLightboxApi
@@ -110,6 +110,7 @@ export const useClientApi = (p: {
 	const filesApi = useFilesApi({ eventBus });
 	const uploadApi = useUploadApi({ eventBus });
 
+
 	// 
 	// FINAL EXPORT
 	// 
@@ -121,7 +122,7 @@ export const useClientApi = (p: {
 		tabs: p.tabsApi,
 		userSettings: p.userSettingsApi,
 		ui: {
-			folders: p.foldersUiApi,
+			browser: p.browserApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi
 		},

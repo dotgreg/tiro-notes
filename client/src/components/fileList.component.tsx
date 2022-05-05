@@ -1,5 +1,5 @@
 import { each } from 'lodash';
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { iFile, iFilePreview } from '../../../shared/types.shared';
 import { ClientApiContext } from '../hooks/api/api.hook';
 import { FilesPreviewObject } from '../hooks/api/files.api.hook';
@@ -30,8 +30,9 @@ export const FilesList = (p: {
 		setFilesPreviewObj({})
 	}, [p.files])
 
+const [, forceUpdate] = useReducer(x => x + 1, 0);
 
-	const askFilesPreview = (filesPath: string[]) => {
+	const askFilesPreview = (filesPath: string[], skipCache: boolean = false) => {
 		if (!api) return
 
 		// CACHING : do not ask again if file already has been fetched
@@ -46,9 +47,9 @@ export const FilesList = (p: {
 			api.files.getPreviews(newFilesPathArr, previews => {
 				each(previews, preview => { filesPreviewObj[preview.path] = preview })
 				setFilesPreviewObj(filesPreviewObj)
+				forceUpdate()
 			})
 		}
-
 	}
 
 
