@@ -1,7 +1,7 @@
-import styled from '@emotion/styled';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
-import { onTabUpdateFn } from '../../hooks/app/tabs.hook';
+import { ClientApiContext } from '../../hooks/api/api.hook';
+import {  onTabUpdateFn } from '../../hooks/app/tabs.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
@@ -10,6 +10,10 @@ export const TabList = (p: {
 	onUpdate: onTabUpdateFn
 }) => {
 
+	const api = useContext(ClientApiContext);
+
+	const [dragId, setDragId] = useState(-1)
+
 	return (
 		<div className="tab-list-wrapper">
 			{/* ALL TABS LIST*/}
@@ -17,6 +21,17 @@ export const TabList = (p: {
 				<Tab
 					key={i}
 					tab={tab}
+
+
+					onDrop={pos => { setDragId(pos) }}
+					onDragEnter={pos => { setDragId(pos) }}
+					onDragEnd={pos => {
+						api && api.tabs.reorder(pos, dragId)
+						setDragId(-1)
+					}}
+					showDragIndic={dragId === i}
+					pos={i}
+
 					onUpdate={p.onUpdate}
 				/>
 			)}
@@ -39,8 +54,15 @@ export const TabList = (p: {
 const Tab = (p: {
 	tab: iTab
 	onUpdate: onTabUpdateFn
+
+	onDragEnter: Function
+	onDragEnd: Function
+	onDrop: Function
+
+	pos: number
+	showDragIndic: boolean
 }) => {
-	const { tab } = { ...p }
+	const { tab, pos } = { ...p }
 
 	let iconName = `Six`
 	const nbLay = tab.grid.layout.length
@@ -51,28 +73,41 @@ const Tab = (p: {
 	iconName = `faDice${iconName}`
 
 	return (//jsx
-		<div
-			className={`tab-wrapper ${tab.active ? 'active' : ''}`}
-		>
-			<div className="active-ribbon"></div>
-			<div className="tab-name"
-				onClick={() => { p.onUpdate('activate', tab) }}
-			> {tab.name}
-			</div>
-
+		<div className="tab-and-drag-wrapper">
 			{
-				tab.grid.layout.length > 1 &&
-				<div
-					className="tab-nb-windows"
-					onClick={() => { p.onUpdate('activate', tab) }}
-				>
-					<Icon name={iconName} color={`#b2b2b2`} />
+				p.showDragIndic && <div className="drag-indic">
+					{/* <Icon name="faPlusCircle" color={`#b2b2b2`} />*/}
+					▼
 				</div>
 			}
-			<div className="tab-close"
-				onClick={() => p.onUpdate('close', tab)}>
-				<Icon name="faPlus" color={`#b2b2b2`} />
-			</div>
+			<div
+				className={`tab-wrapper ${tab.active ? 'active' : ''}`}
+				draggable={true}
+				onDragEnter={() => { p.onDragEnter(pos) }}
+				onDrop={() => { p.onDrop(pos) }}
+				onDragEnd={() => { p.onDragEnd(pos) }}
+			>
+
+				<div className="active-ribbon"></div>
+				<div className="tab-name"
+					onClick={() => { p.onUpdate('activate', tab) }}
+				> {tab.name}
+				</div>
+
+				{
+					tab.grid.layout.length > 1 &&
+					<div
+						className="tab-nb-windows"
+						onClick={() => { p.onUpdate('activate', tab) }}
+					>
+						<Icon name={iconName} color={`#b2b2b2`} />
+					</div>
+				}
+				<div className="tab-close"
+					onClick={() => p.onUpdate('close', tab)}>
+					<Icon name="faPlus" color={`#b2b2b2`} />
+				</div>
+			</div >
 		</div >
 	)//jsx
 }
@@ -85,6 +120,20 @@ export const tabsCss = `//css
 				width: 100%;
 				overflow-x: scroll;
 				border-radius: 0px 0px 0px 5px;
+				position: relative;
+				.tab-and-drag-wrapper {
+						position:relative;
+					.drag-indic {
+						z-index: 2;
+						position: absolute;
+						top: -8px;
+						left: -6px;
+						width: 20px;
+						height: 20px;
+						color: #aaaaaa;
+						font-size: 8px;
+					}
+				}
 				.tab-wrapper {
 						position: relative;
 						align-items:center;

@@ -3,7 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iAppView, iFolder } from '../../../../shared/types.shared';
 import { onFolderDragStartFn, onFolderDropFn, onFolderMenuActionFn, TreeView } from "../../components/TreeView.Component"
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
-import { useBackendState } from '../useBackendState.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
@@ -11,10 +10,6 @@ import { getLoginToken } from './loginToken.hook';
 export type onFolderClickedFn = (folderPath: string) => void
 export const defaultFolderVal: iFolder = { title: '', key: '', path: '' }
 
-export interface iFoldersUiApi {
-	selectedFolder: string,
-	changeTo: (folderPath: string, appView?: iAppView) => void
-}
 
 export const useAppTreeFolder = (currentAppView: iAppView) => {
 

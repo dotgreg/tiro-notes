@@ -8,10 +8,12 @@ import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.c
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
+
 export type iTabsApi = {
 	get: () => iTab[]
 	close: (tabId: string) => void
 	openInNewTab: (file: iFile) => void
+	reorder: (oldPos, newPos) => void
 }
 export type iWindowsApi = {
 	close: (windowIds: string[]) => void
@@ -83,6 +85,18 @@ export const useTabs = (p: {
 			if (otab.id !== tabId) nTabs.push(otab)
 		})
 		setTabs(nTabs);
+	}
+
+
+	const reorderTabs: iTabsApi['reorder'] = (oldPos, newPos) => {
+		const nTabs = cloneDeep(tabs)
+		console.log(`${h} reordering tab ${oldPos} -> ${newPos}`);
+		const elToMove = nTabs[oldPos]
+		// remove el from array
+		nTabs.splice(oldPos, 1)
+		// add to new location 
+		nTabs.splice(newPos, 0, elToMove)
+		setTabs(nTabs)
 	}
 
 	const updateTab: onTabUpdateFn = (type, tab) => {
@@ -232,6 +246,7 @@ export const useTabs = (p: {
 		get: getTabs,
 		close: closeTab,
 		openInNewTab,
+		reorder: reorderTabs
 	}
 
 	const windowsApi: iWindowsApi = {

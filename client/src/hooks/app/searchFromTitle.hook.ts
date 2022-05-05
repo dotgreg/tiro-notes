@@ -34,13 +34,5 @@ export const useSearchFromTitle = (p:{
         return res
     } 
     
-    addCliCmd('searchFileFromTitle', {
-        description: 'searchFileFromTitle',
-        func: (title, folder) => {
-            console.log('[searchFileFromTitle]');
-            searchFileFromTitle(title, folder)
-        }  
-    })
-
     return {searchedFileTitle, getSearchedTitleFileIndex, searchFileFromTitle}
 }

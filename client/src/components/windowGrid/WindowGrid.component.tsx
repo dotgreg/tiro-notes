@@ -1,8 +1,7 @@
 import styled from '@emotion/styled';
 import { cloneDeep, each } from 'lodash';
-import { title } from 'process';
-import React, { useContext, useEffect, useReducer, useRef, useState } from 'react';
-import { iFile, iGrid, iTab, iWindow } from '../../../../shared/types.shared';
+import React, { useContext, useEffect, useState } from 'react';
+import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { useNextState } from '../../hooks/useNextStateAction.hook';
@@ -109,10 +108,10 @@ export const WindowGrid = (p: {
 
 	// need to perform some actions after updated state
 	addNextStateAction('refreshFolderList', (api, data) => {
-		const selectedFolder = api.ui.folders.selectedFolder
+		const selectedFolder = api.ui.browser.selectedFolder
 		if (selectedFolder === data.folder) {
 			console.log(`0046 refreshFolderList ${selectedFolder}`);
-			api.ui.folders.changeTo(selectedFolder)
+			api.ui.browser.goTo(selectedFolder)
 			onNextStateTrigger({ name: 'checkIfNoWindows' })
 		}
 	})

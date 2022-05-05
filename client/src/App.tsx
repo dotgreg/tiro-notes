@@ -3,11 +3,11 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
 import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
-import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete, iFoldersUiApi } from './hooks/app/treeFolder.hook';
+import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
 import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
-import { debounce, isNumber } from 'lodash';
+import { debounce, each, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { iStatusApi, useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
@@ -38,6 +38,7 @@ import { ClientApiContext, useClientApi } from './hooks/api/api.hook';
 import { useLightbox } from './hooks/app/useLightbox.hook';
 import { sortFiles } from './managers/sort.manager';
 import { FilesList } from './components/fileList.component';
+import { iBrowserApi, useBrowserApi } from './hooks/api/browser.api.hook';
 
 
 
@@ -109,50 +110,18 @@ export const App = () => {
 	// FOLDERS API
 	//
 
-	const changeToFolder: iFoldersUiApi['changeTo'] =
-		(folderPath, appView?) => {
-			appView = appView ? appView : currentAppView
-			if (folderPath === "") return
-			folderPath = cleanPath(`${folderPath}/`)
-			console.log(`[FOLDER CHANGED] to ${folderPath} with view ${appView}`);
-			// NORMAL CHANGE FOLDER LOGIC
-			setSearchTerm('')
-			setSelectedFolder(folderPath)
-			cleanListAndFileContent()
-
-			if (appView === 'text') {
-				clientApi.files.get(folderPath, nfiles => {
-					// when receiving results
-					debounceStopIsSearching()
-					setActiveFileIndex(0);
-					const sortMode = clientApi.userSettings.get('ui_filesList_sortMode')
-					const nfilesSorted = sortFiles(nfiles, sortMode)
-					windowsApi.updateActive(nfilesSorted[0])
-					setFiles(nfilesSorted)
-				})
-			} else if (appView === 'image') {
-				setSelectedFolder(folderPath)
-				askForFolderImages(folderPath)
-			}
-		}
-
-
 	// const debounceStopIsSearching = debounce(() => {
 	// 	setIsSearching(false)
 	// }, 100)
-
 	// const onFilesReceivedCallback: onFilesReceivedFn =
 	// 	(newFiles, isTemporaryResult, isInitialResults) => {
-
 	// 		if (!isTemporaryResult) {
 	// 			debounceStopIsSearching()
 	// 		} else {
 	// 			setIsSearching(isTemporaryResult)
 	// 		}
-
 	// 		// only continue if newFiles > 0 files
 	// 		if (newFiles.length === 0) return
-
 	// 		// if activeFileIndex exists + is in length of files, load it
 	// 		if (activeFileIndex !== -1 && activeFileIndex < newFiles.length) {
 	// 			askForFileContent(newFiles[activeFileIndex])
@@ -176,7 +145,6 @@ export const App = () => {
 	// 			lastFolderIn.current = selectedFolder
 	// 			lastSearchIn.current = searchTerm
 	// 		}
-
 	// 		// at the end, search for title
 	// 		if (!isTemporaryResult && !isInitialResults) {
 	// 			const indexSearch = getSearchedTitleFileIndex(newFiles)
@@ -204,15 +172,13 @@ export const App = () => {
 			cleanListAndFileContent()
 		},
 		onLoginSuccess: () => {
-			//reactToUrl()
 			refreshTabsFromBackend();
 			refreshUserSettingsFromBackend();
-
+			refreshFilesHistoryFromBackend();
 		}
 	})
 
-	// user settings!
-
+	// User settings!
 	const {
 		userSettingsApi,
 		refreshUserSettingsFromBackend
@@ -285,7 +251,7 @@ export const App = () => {
 		AppViewSwitcherComponent
 	} = useAppViewType({
 		onViewSwitched: nView => {
-			clientApi.ui.folders.changeTo(selectedFolder, nView)
+			clientApi.ui.browser.goTo(selectedFolder, null, { appView: nView })
 		}
 	})
 
@@ -304,14 +270,9 @@ export const App = () => {
 
 	// on selectedFolder change, trigger update folders/file ui
 	useEffect(() => {
-		clientApi.ui.folders.changeTo(selectedFolder, currentAppView)
+		clientApi.ui.browser.goTo(selectedFolder, null, { appView: currentAppView })
 	}, [selectedFolder])
 
-	// Folders Api
-	const foldersUiApi: iFoldersUiApi = {
-		changeTo: changeToFolder,
-		selectedFolder
-	}
 
 	// Search 
 	const {
@@ -349,7 +310,7 @@ export const App = () => {
 
 
 	// Search Note from title
-	const { getSearchedTitleFileIndex, searchFileFromTitle } = useSearchFromTitle({ changeToFolder, currentAppView })
+	// const { getSearchedTitleFileIndex, searchFileFromTitle } = useSearchFromTitle({ goTo, currentAppView })
 
 	// File Content + Dual Viewer
 	let activeFile = files[activeFileIndex]
@@ -365,7 +326,7 @@ export const App = () => {
 	)
 
 	// last Note + files history array
-	const { filesHistory, cleanLastFilesHistory } = useLastFilesHistory(activeFile)
+	const { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend } = useLastFilesHistory(activeFile)
 
 
 	// CONNECTION INDICATOR
@@ -441,15 +402,66 @@ export const App = () => {
 	// LIGHTBOX SYSTEM
 	const { lightboxApi, lightboxImages, lightboxIndex } = useLightbox();
 
+	//
+	// BROWSER API
+	//
+	const goTo: iBrowserApi['goTo'] =
+		(folderPath, fileTitle, opts) => {
+			const appView = (opts && opts.appView) ? opts.appView : currentAppView
+			if (folderPath === "") return
+			folderPath = cleanPath(`${folderPath}/`)
+			const h = `[BROWSER GO TO] 00722 `
+			console.log(`${h} ${folderPath} ${fileTitle} ${appView}`);
+			// NORMAL CHANGE FOLDER LOGIC
+			setSearchTerm('')
+			setSelectedFolder(folderPath)
+			cleanListAndFileContent()
 
-	// Client API 
+			if (appView === 'text') {
+				clientApi.files.get(folderPath, nfiles => {
+					// when receiving results
+					debounceStopIsSearching()
+
+					// sort them
+					const sortMode = clientApi.userSettings.get('ui_filesList_sortMode')
+					const nfilesSorted = sortFiles(nfiles, sortMode)
+					let activeIndex = 0
+
+					// if search for a file title 
+					if (fileTitle) {
+						each(nfilesSorted, (file, i) => {
+							if (file.name === fileTitle) {
+								activeIndex = i
+							}
+						})
+						console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
+					}
+
+					setActiveFileIndex(activeIndex);
+					windowsApi.updateActive(nfilesSorted[activeIndex])
+					setFiles(nfilesSorted)
+				})
+			} else if (appView === 'image') {
+				setSelectedFolder(folderPath)
+				askForFolderImages(folderPath)
+			}
+		}
+
+	const browserApi: iBrowserApi = useBrowserApi({
+		goTo,
+		selectedFolder
+	})
+
+	//
+	// CLIENT API
+	//
 	const clientApi = useClientApi({
 		popupApi,
 		tabsApi,
 		userSettingsApi,
-		foldersUiApi,
 		windowsApi,
 		statusApi,
+		browserApi,
 		lightboxApi
 	})
 
@@ -495,7 +507,7 @@ export const App = () => {
 												onNewFile={() => {
 													clientApi.file.create(selectedFolder, files => {
 														// reload list
-														clientApi.ui.folders.changeTo(selectedFolder)
+														clientApi.ui.browser.goTo(selectedFolder)
 													})
 												}}
 											/>
@@ -505,7 +517,8 @@ export const App = () => {
 											<LastNotes
 												files={filesHistory}
 												onClick={file => {
-													searchFileFromTitle(file.name, file.folder)
+													//searchFileFromTitle(file.name, file.folder)
+													clientApi.ui.browser.goTo(file.folder, file.name)
 												}}
 											/>
 										}
@@ -515,7 +528,7 @@ export const App = () => {
 											FolderTreeComponent({
 												onFolderClicked: folderPath => {
 													setIsSearching(true)
-													clientApi.ui.folders.changeTo(folderPath, currentAppView)
+													clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
 												},
 												onFolderMenuAction: (action, folder, newTitle) => {
 													if (action === 'rename' && newTitle) {
