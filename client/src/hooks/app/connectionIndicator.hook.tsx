@@ -1,95 +1,101 @@
-import React, { useEffect, useRef, useState }  from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { configClient } from "../../config"
 import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useInterval } from '../interval.hook';
 
-const generateTitle = ():string => {
-  let newTitle = ''
-  // if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
-  // else newTitle = `/!\\ DEV /!\\`
-  newTitle = `Tiro (${configClient.version})`
-  return newTitle
+export interface iStatusApi {
+	isConnected: boolean
 }
 
-export const useConnectionIndicator = (setCanEdit:Function) => {
-  const listenerIds = useRef<number[]>([])
-  const [isSocketConnected, setIsSocketConnected] = useState(false)
-  const [backOnline, setBackOnline] = useState(false)
-    
+const generateTitle = (): string => {
+	let newTitle = ''
+	// if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
+	// else newTitle = `/!\\ DEV /!\\`
+	newTitle = `Tiro (${configClient.version})`
+	return newTitle
+}
 
-  // DURING WHOLE LIFECYCLE APP, UPDATE TITLE ACCORDING 
-  // TO CONNECTION STATUS
-  let warning1 = '(DISCONNECTED)'
-  let warning2 = '(/!\\ DISCONNECTED /!\\)'
-  const warning = useRef(warning1)
-  useInterval(() => {
-    warning.current = (warning.current === warning1) ? warning2 : warning1
-    let title = isSocketConnected ?  
-      `${generateTitle()} (Connected)` :
-      `${generateTitle()} ${warning.current}`
-    document.title = title
-  }, 1000)
+export const useConnectionIndicator = (setCanEdit: Function) => {
+	const listenerIds = useRef<number[]>([])
+	const [isSocketConnected, setIsSocketConnected] = useState(false)
+	const [backOnline, setBackOnline] = useState(false)
 
 
-  // LIFECYCLE EVENTS
-  useEffect(() => {
-    // LISTENING TO SOCKET LIFECYCLE EVENTS
-    listenerIds.current[0] = clientSocket2.on('disconnect', 
-      () => { toggleSocketConnection(false); setCanEdit(false); }
-    )
-    listenerIds.current[1] = clientSocket2.on('reconnect', 
-      () => {
-        toggleSocketConnection(true); 
-        setBackOnline(true)
-        setTimeout(() => {setBackOnline(false)}, 1000)
-        setCanEdit(true);
-      }
-    )
-    listenerIds.current[2] = clientSocket2.on('connect', 
-      () => {
-        toggleSocketConnection(true); 
-        setBackOnline(true)
-        setTimeout(() => {setBackOnline(false)}, 1000)
-        setCanEdit(true); 
-      }
-    )
+	// DURING WHOLE LIFECYCLE APP, UPDATE TITLE ACCORDING 
+	// TO CONNECTION STATUS
+	let warning1 = '(DISCONNECTED)'
+	let warning2 = '(/!\\ DISCONNECTED /!\\)'
+	const warning = useRef(warning1)
+	useInterval(() => {
+		warning.current = (warning.current === warning1) ? warning2 : warning1
+		let title = isSocketConnected ?
+			`${generateTitle()} (Connected)` :
+			`${generateTitle()} ${warning.current}`
+		document.title = title
+	}, 1000)
 
-    return () => {
-      listenerIds.current.forEach((id) => {
-        clientSocket2.off(id)
-      })
-    }
-  }, [])
-      
-  const toggleSocketConnection = (state: boolean) => {
-    console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
-    setIsSocketConnected(state)
-  }
-  
 
-  const connectionStatusComponent = () => {
-    let res = ['connected', 'connected']
-    if (backOnline) res = ['back-online', 'back online']
-    if (!isSocketConnected) res = ['disconnected', 'disconnected']
+	// LIFECYCLE EVENTS
+	useEffect(() => {
+		// LISTENING TO SOCKET LIFECYCLE EVENTS
+		listenerIds.current[0] = clientSocket2.on('disconnect',
+			() => { toggleSocketConnection(false); setCanEdit(false); }
+		)
+		listenerIds.current[1] = clientSocket2.on('reconnect',
+			() => {
+				toggleSocketConnection(true);
+				setBackOnline(true)
+				setTimeout(() => { setBackOnline(false) }, 1000)
+				setCanEdit(true);
+			}
+		)
+		listenerIds.current[2] = clientSocket2.on('connect',
+			() => {
+				toggleSocketConnection(true);
+				setBackOnline(true)
+				setTimeout(() => { setBackOnline(false) }, 1000)
+				setCanEdit(true);
+			}
+		)
 
-    return (
-      <div className="connection-status">
-          <div className={res[0]}>{res[1]} 
-            {!isSocketConnected && 
-              <a href={`${getBackendUrl()}/socket.io/`} target="_blank">
-                {strings.clickHereDisconnected}
-              </a>
-            }
-          </div>
-      </div>
-    )}
-  
-  return {
-    connectionStatusComponent,
-    toggleSocketConnection
-  }
+		return () => {
+			listenerIds.current.forEach((id) => {
+				clientSocket2.off(id)
+			})
+		}
+	}, [])
+
+	const toggleSocketConnection = (state: boolean) => {
+		console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
+		setIsSocketConnected(state)
+	}
+
+
+	const connectionStatusComponent = () => {
+		let res = ['connected', 'connected']
+		if (backOnline) res = ['back-online', 'back online']
+		if (!isSocketConnected) res = ['disconnected', 'disconnected']
+
+		return (
+			<div className="connection-status">
+				<div className={res[0]}>{res[1]}
+					{!isSocketConnected &&
+						<a href={`${getBackendUrl()}/socket.io/`} target="_blank">
+							{strings.clickHereDisconnected}
+						</a>
+					}
+				</div>
+			</div>
+		)
+	}
+
+	return {
+		isConnected: isSocketConnected,
+		connectionStatusComponent,
+		toggleSocketConnection
+	}
 
 }
 

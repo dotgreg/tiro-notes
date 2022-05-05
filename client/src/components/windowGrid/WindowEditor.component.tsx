@@ -47,16 +47,12 @@ export const WindowEditor = (p: {
 					<DualViewer
 						file={file}
 						fileContent={fileContent}
-						canEdit={true}
 						isActive={active}
-						isLeavingNote={false}
+
 						viewType={view}
 						onViewChange={p.onViewChange}
+
 						onFileEdited={debouncedOnFileEditedSaveIt}
-						onSavingHistoryFile={() => { }}
-						onLightboxClick={() => { }}
-						onBackButton={() => { }}
-						onToggleSidebarButton={() => { }}
 					/>
 				</div>
 			}

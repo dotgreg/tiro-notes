@@ -22,6 +22,7 @@ import { Dropdown } from '../Dropdown.component';
 import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
+import { ClientApiContext } from '../../hooks/api/api.hook';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -30,36 +31,30 @@ export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 
 export const EditorArea = (p: {
 	file: iFile
-	posY: number
 	fileContent: string
-
 	isActive: boolean
-	canEdit: boolean
-	isLeavingNote: boolean
 
 	onScroll: onScrollFn
-	onSavingHistoryFile: onSavingHistoryFileFn
-	onFileEdited: onFileEditedFn
-	onLightboxClick: onLightboxClickFn
-
-	onBackButton: Function
-	onToggleSidebarButton: Function
-	onViewToggle: (view: iViewType) => void
 	onMaxYUpdate: (maxY: number) => void
+	posY: number
+
+	onFileEdited: onFileEditedFn
+	onViewToggle: (view: iViewType) => void
 
 }) => {
 
 	const [vimMode, setVimMode] = useState(false)
 	const [innerFileContent, setInnerFileContent] = useState('')
 	let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
-	//@ts-ignore
-	window.monacoEditComp = monacoEditorComp
+
+	const api = useContext(ClientApiContext);
+	const canEdit = api && api.status.isConnected || false
 
 	// LIFECYCLE EVENTS MANAGER HOOK
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
-		canEdit: p.canEdit,
+		canEdit: canEdit,
 
 		onEditorDidMount: () => {
 		},
@@ -73,7 +68,7 @@ export const EditorArea = (p: {
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
 			// reaction from triggerNoteEdition
-			if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
+			// if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
 			setInnerFileContent(newContent)
 			p.onFileEdited(p.file.path, newContent)
 		},
@@ -84,22 +79,16 @@ export const EditorArea = (p: {
 		}
 	})
 
-	useEffect(() => {
-		ifEncryptOnLeave((encryptedText) => {
-			p.onFileEdited(p.file.path, encryptedText)
-		})
-	}, [p.isLeavingNote])
-
-	// AUTOMATIC HISTORY HOOK Every 10m
-	useIntervalNoteHistory(innerFileContent, {
-		shouldCreateIntervalNoteHistory: () => {
-			if (noHistoryBackupWhenDecrypted) return console.log('[HISTORY FILE] : noHistoryBackupWhenDecrypted')
-			else {
-				p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
-				console.log(`[HISTORY FILE] : creating history file for ${p.file.path}`)
-			}
-		}
-	})
+	// // AUTOMATIC HISTORY HOOK Every 10m
+	// useIntervalNoteHistory(innerFileContent, {
+	// 	shouldCreateIntervalNoteHistory: () => {
+	// 		if (noHistoryBackupWhenDecrypted) return console.log('[HISTORY FILE] : noHistoryBackupWhenDecrypted')
+	// 		else {
+	// 			p.onSavingHistoryFile(p.file.path, innerFileContent, 'int')
+	// 			console.log(`[HISTORY FILE] : creating history file for ${p.file.path}`)
+	// 		}
+	// 	}
+	// })
 
 
 	// MOBILE EDITOR LOGIC HOOK
@@ -195,7 +184,7 @@ export const EditorArea = (p: {
 			icon: 'faImages',
 			action: () => {
 				const imgs = findImagesFromContent(p.fileContent, p.file)
-				p.onLightboxClick(0, imgs)
+				// p.onLightboxClick(0, imgs)
 			}
 		},
 		{
@@ -249,7 +238,7 @@ export const EditorArea = (p: {
 					onEdited={(o, n) => {
 						const oPath = `${p.file.folder}${o}.md`
 						const nPath = `${p.file.folder}${n}.md`
-								gridContext.file.onTitleUpdate(oPath, nPath)
+						gridContext.file.onTitleUpdate(oPath, nPath)
 					}}
 				/>
 
@@ -324,7 +313,7 @@ export const EditorArea = (p: {
 					<MonacoEditorWrapper
 						value={innerFileContent}
 						vimMode={vimMode}
-						readOnly={!p.canEdit}
+						readOnly={!canEdit}
 						ref={monacoEditorComp}
 						onChange={triggerNoteEdition}
 						onScroll={p.onScroll}
@@ -336,7 +325,7 @@ export const EditorArea = (p: {
 					<textarea
 						className='textarea-editor'
 						ref={mobileTextarea}
-						readOnly={!p.canEdit}
+						readOnly={!canEdit}
 						value={innerFileContent}
 						onScroll={(e: any) => {
 							p.onScroll(e)
