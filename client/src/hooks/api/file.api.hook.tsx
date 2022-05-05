@@ -6,6 +6,7 @@ import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 
 
@@ -25,6 +26,7 @@ export interface iFileApi {
 
 export const useFileApi = (p: {
 	eventBus: iApiEventBus
+	historyApi: iNoteHistoryApi
 }) => {
 	const h = `[FILE API] 005363 `
 
@@ -68,7 +70,7 @@ export const useFileApi = (p: {
 			token: getLoginToken()
 		})
 		if (history) {
-			saveIntervalNoteHistory(noteLink, content)
+			p.historyApi.intervalSave(noteLink, content)
 		}
 	}
 
@@ -90,38 +92,6 @@ export const useFileApi = (p: {
 
 
 
-	// 5. ON SAVE, AUTOMATIC HISTORY CALL EVERY 10m OR WHEN FILE CHANGE
-	interface iNotesLastHistory {
-		[notepath: string]: number
-	}
-	const notesLastHistory = useRef<iNotesLastHistory>({})
-	const getNow = () => new Date().getTime()
-	let histDelayInMin = 1
-	let histDelayInMs = histDelayInMin * 60 * 1000
-
-	const saveNoteHistory = (filePath: string, content: string) => {
-		console.log(`${h} saveNoteHistory ${filePath}`);
-		clientSocket2.emit('createHistoryFile', {
-			filePath,
-			content,
-			historyFileType: '',
-			token: getLoginToken()
-		})
-	}
-
-	const saveIntervalNoteHistory = (filepath: string, content: string) => {
-		const fileLastHistory = notesLastHistory.current[filepath]
-
-		if (
-			!fileLastHistory ||
-			(fileLastHistory && fileLastHistory + histDelayInMs < getNow())
-		) {
-			console.log(`${h} ${filepath}, time ${histDelayInMin} expired/inexistand, PROCEED BACKUP`);
-			saveNoteHistory(filepath, content)
-			notesLastHistory.current[filepath] = getNow()
-		}
-
-	}
 
 
 	// IMPORTS

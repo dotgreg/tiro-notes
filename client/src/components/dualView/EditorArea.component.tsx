@@ -66,14 +66,11 @@ export const EditorArea = (p: {
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
-			//isFirstEdition && console.log('first edition', { p.fileContent }, { newContent })
-			// reaction from triggerNoteEdition
-			// if (isFirstEdition) p.onSavingHistoryFile(p.file.path, p.fileContent /* still the old */, 'enter')
-			// IF FIRST EDITION
+			// IF FIRST EDITION, backup old file
+			if (isFirstEdition && api) {
+				api.history.save(p.file.path, p.fileContent, 'enter')
+			}
 
-			isFirstEdition && alert('first edition')
-
-			
 			setInnerFileContent(newContent)
 			p.onFileEdited(p.file.path, newContent)
 		},
