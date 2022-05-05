@@ -5,6 +5,7 @@ import { iFile, iFileImage } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { fileExists } from "../fs.manager";
 import { log } from "../log.manager";
+import { getRelativePath } from "../path.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
@@ -38,7 +39,7 @@ export const searchWithRipGrep = async (params: {
 	let processTerm = params.term.split('-').join('\\-')
 
 	// if backconfigFolder doesnt exists, add it
-	const relativeFolder = params.folder.split(backConfig.dataFolder).join('')
+	const relativeFolder = getRelativePath(params.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
 
 	const perfs = { init: Date.now(), cmd1: Date.now(), cmd2: Date.now() }

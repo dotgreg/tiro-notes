@@ -28,11 +28,11 @@ export interface iApiDictionary {
 	askFolderHierarchy: { folderPath: string }
 	getFolderHierarchy: { folder: iFolder, pathBase: string }
 
-	createNote: { folderPath: string }
+	createNote: { folderPath: string, idReq: string }
 
 	createHistoryFile: { filePath: string, content: string, historyFileType: string }
 
-	onFileDelete: { filepath: string }
+	onFileDelete: { filepath: string, idReq: string }
 	askForExplorer: { folderpath: string }
 
 	uploadResourcesInfos: { folderpath: string }

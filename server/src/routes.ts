@@ -16,6 +16,7 @@ import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager"
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
 import { debounceCleanHistoryFolder } from "./managers/history.manager";
+import { getFolderPath } from "./managers/path.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -120,10 +121,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		log(`CREATING ${notePath}`);
 		await saveFile(`${notePath}`, ``)
 
+		// rescan folder files list
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
-
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
-		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: '-' })
+		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 	})
 
 	serverSocket2.on('moveFile', async data => {
@@ -172,7 +173,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		let fileName = fileNameFromFilePath(data.filepath)
 		await moveFile(`${backConfig.dataFolder}${data.filepath}`, `${trashFolder}/${fileName}`)
-		
+
+		// rescan folder files list
+		const folderPath = getFolderPath(data.filepath)
+		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
+		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
+		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 	})
 
 	serverSocket2.on('askForExplorer', async data => {
