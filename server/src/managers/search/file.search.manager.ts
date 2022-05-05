@@ -3,7 +3,7 @@ import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { fileStats } from "../fs.manager";
 import { log } from "../log.manager";
-import { anyToRelPath } from "../path.manager";
+import { getRelativePath } from "../path.manager";
 
 export const cleanFilePath = (rawString: string, folder) => {
 	rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
@@ -55,7 +55,7 @@ export const processRawDataToFiles = (dataRaw: string, titleFilter: string = '',
 
 
 export const createIFile = (name: string, folder: string, index: number, stats: any): iFile => {
-	folder = anyToRelPath(folder)
+	folder = getRelativePath(folder)
 	// clean name of possibe path inside
 	const nameArr = name.split('/')
 	let realName = nameArr.pop()

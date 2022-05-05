@@ -499,8 +499,10 @@ export const App = () => {
 										{currentAppView === 'text' &&
 											<NewFileButton
 												onNewFile={() => {
-													clientSocket2.emit('createNote', { folderPath: selectedFolder, token: getLoginToken() })
-													shouldLoadNoteIndex.current = 0
+													clientApi.file.create(selectedFolder, files => {
+														// reload list
+														clientApi.ui.folders.changeTo(selectedFolder)
+													})
 												}}
 											/>
 										}
@@ -662,23 +664,6 @@ export const App = () => {
 							}
 
 
-							{/* {
-								DualViewerComponent({
-									isLeavingNote,
-									forceRender: forceResponsiveRender,
-									onLightboxClick: openLightbox,
-									onToggleSidebarButton: () => {
-										toggleSidebar()
-									},
-									onBackButton: () => {
-										let fileToGo = filesHistory[1]
-										if (!fileToGo) return
-										console.log('BACK BUTTON to', fileToGo.name);
-										searchFileFromTitle(fileToGo.name, fileToGo.folder)
-									}
-								})
-							}
- */}
 						</div>
 					</div>
 				</ClientApiContext.Provider>

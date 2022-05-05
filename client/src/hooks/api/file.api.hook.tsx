@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
+import { iFile } from '../../../../shared/types.shared';
 import { onFileDeleteFn } from '../../components/windowGrid/WindowGrid.component';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
@@ -11,11 +12,14 @@ import { iMoveApi, useMoveApi } from './move.api.hook';
 //
 // INTERFACES
 //
+export type iGetFilesCb = (files: iFile[]) => void
+
 export interface iFileApi {
 	getContent: (noteLink: string, cb: (noteContent: string) => void) => void
 	saveContent: (noteLink: string, content: string) => void
-	delete: onFileDeleteFn
+	delete: (file: iFile, cb: iGetFilesCb) => void
 	move: iMoveApi['file']
+	create: (folderPath: string, cb: iGetFilesCb) => void
 }
 
 
@@ -67,9 +71,19 @@ export const useFileApi = (p: {
 	}
 
 	// 3. DELETE
-	const deleteFile: iFileApi['delete'] = file => {
+	const deleteFile: iFileApi['delete'] = (file,cb) => {
+		const idReq = genIdReq('delete-file');
 		console.log(`[CLIENT API] 005363 delete file ${file.path}`);
-		clientSocket2.emit('onFileDelete', { filepath: file.path, token: getLoginToken() })
+		p.eventBus.subscribe(idReq, cb);
+		clientSocket2.emit('onFileDelete', { filepath: file.path, idReq, token: getLoginToken() })
+	}
+
+	// 4. CREATE
+	const createFile: iFileApi['create'] = (folderPath, cb) => {
+		const idReq = genIdReq('create-file');
+		console.log(`[CLIENT API] 005363 create file in ${folderPath}`);
+		p.eventBus.subscribe(idReq, cb);
+		clientSocket2.emit('createNote', { folderPath, idReq, token: getLoginToken() })
 	}
 
 
@@ -84,7 +98,8 @@ export const useFileApi = (p: {
 		getContent: apiGetFileContent,
 		saveContent: apiSaveFileContent,
 		delete: deleteFile,
-		move: moveApi.file
+		move: moveApi.file,
+		create: createFile,
 	}
 
 	return fileApi
