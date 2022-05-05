@@ -39,6 +39,7 @@ import { useLightbox } from './hooks/app/useLightbox.hook';
 import { sortFiles } from './managers/sort.manager';
 import { FilesList } from './components/fileList.component';
 import { iBrowserApi, useBrowserApi } from './hooks/api/browser.api.hook';
+import { useNoteHistoryApi } from './hooks/api/history.api.hook';
 
 
 
@@ -452,6 +453,10 @@ export const App = () => {
 		selectedFolder
 	})
 
+
+	// NOTE HISTORY HOOK
+	const historyApi = useNoteHistoryApi()
+
 	//
 	// CLIENT API
 	//
@@ -462,6 +467,7 @@ export const App = () => {
 		windowsApi,
 		statusApi,
 		browserApi,
+		historyApi,
 		lightboxApi
 	})
 

@@ -9,6 +9,7 @@ import { iUserSettingsApi } from '../useUserSettings.hook';
 import { iBrowserApi } from './browser.api.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
+import { iNoteHistoryApi } from './history.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 
 //
@@ -27,6 +28,7 @@ export interface iClientApi {
 	files: iFilesApi
 	tabs: iTabsApi
 	userSettings: iUserSettingsApi
+	history: iNoteHistoryApi
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -71,6 +73,7 @@ export const useClientApi = (p: {
 	windowsApi: iWindowsApi
 	statusApi: iStatusApi
 	lightboxApi: iLightboxApi
+	historyApi: iNoteHistoryApi
 }) => {
 
 	//
@@ -106,7 +109,7 @@ export const useClientApi = (p: {
 	}, [])
 
 
-	const fileApi = useFileApi({ eventBus });
+	const fileApi = useFileApi({ eventBus, historyApi: p.historyApi });
 	const filesApi = useFilesApi({ eventBus });
 	const uploadApi = useUploadApi({ eventBus });
 
@@ -121,6 +124,7 @@ export const useClientApi = (p: {
 		upload: uploadApi,
 		tabs: p.tabsApi,
 		userSettings: p.userSettingsApi,
+		history: p.historyApi,
 		ui: {
 			browser: p.browserApi,
 			windows: p.windowsApi,

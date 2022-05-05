@@ -11,7 +11,7 @@ export interface iNoteHistoryApi {
 }
 
 
-export const useNoteHistoryApi = (p: {}):iNoteHistoryApi => {
+export const useNoteHistoryApi = (): iNoteHistoryApi => {
 	const h = `[NOTE HISTORY] 0047 `
 
 	// 5. ON SAVE, AUTOMATIC HISTORY CALL EVERY 10m OR WHEN FILE CHANGE
@@ -28,7 +28,7 @@ export const useNoteHistoryApi = (p: {}):iNoteHistoryApi => {
 		clientSocket2.emit('createHistoryFile', {
 			filePath,
 			content,
-			historyFileType: '',
+			historyFileType: type,
 			token: getLoginToken()
 		})
 	}
