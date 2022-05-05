@@ -9,7 +9,7 @@ import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { debounce, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
-import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
+import { iStatusApi, useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { iAppView, iFile, iFileImage, iFolder } from '../../shared/types.shared';
 import { cleanPath } from '../../shared/helpers/filename.helper';
@@ -101,7 +101,6 @@ export const App = () => {
 	const debounceStopIsSearching = debounce(() => {
 		setIsSearching(false)
 	}, 100)
-
 
 
 
@@ -370,9 +369,15 @@ export const App = () => {
 
 	// CONNECTION INDICATOR
 	const {
+		isConnected,
 		connectionStatusComponent,
 		toggleSocketConnection
 	} = useConnectionIndicator(setCanEdit)
+
+	const statusApi: iStatusApi = {
+		isConnected
+	}
+
 
 	// make sure the interface doesnt scroll
 	useFixScrollTop()
@@ -456,7 +461,8 @@ export const App = () => {
 		tabsApi,
 		userSettingsApi,
 		foldersUiApi,
-		windowsApi
+		windowsApi,
+		statusApi
 	})
 
 	return (//jsx

@@ -1,6 +1,7 @@
 import { each } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
+import { iStatusApi } from '../app/connectionIndicator.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iFoldersUiApi } from '../app/treeFolder.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
@@ -29,6 +30,7 @@ export interface iClientApi {
 		folders: iFoldersUiApi
 		windows: iWindowsApi
 	}
+	status: iStatusApi
 }
 
 
@@ -65,6 +67,7 @@ export const useClientApi = (p: {
 	userSettingsApi: iUserSettingsApi
 	foldersUiApi: iFoldersUiApi
 	windowsApi: iWindowsApi
+	statusApi: iStatusApi
 }) => {
 
 	//
@@ -117,7 +120,8 @@ export const useClientApi = (p: {
 		ui: {
 			folders: p.foldersUiApi,
 			windows: p.windowsApi
-		}
+		},
+		status: p.statusApi
 	}
 	// outside of react too
 	clientApiInt = clientApi

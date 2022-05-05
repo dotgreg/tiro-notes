@@ -13,18 +13,12 @@ export type onViewChangeFn = (nView: iViewType) => void
 export const DualViewer = (p: {
 	file: iFile
 	fileContent: string
-	canEdit: boolean
 	isActive: boolean
-	isLeavingNote: boolean
 
 	viewType?: iViewType
 	onViewChange?: onViewChangeFn
 
 	onFileEdited: onFileEditedFn
-	onSavingHistoryFile: onSavingHistoryFileFn
-	onLightboxClick: onLightboxClickFn
-	onBackButton: Function
-	onToggleSidebarButton: Function
 }) => {
 
 
@@ -68,26 +62,19 @@ export const DualViewer = (p: {
 	>
 		<EditorArea
 			file={p.file}
-			posY={syncScrollY}
 			fileContent={p.fileContent}
-			canEdit={p.canEdit}
 			isActive={p.isActive}
 
-
-			isLeavingNote={p.isLeavingNote}
-
+			posY={syncScrollY}
 			onScroll={newYPercent => { }}
-			onSavingHistoryFile={p.onSavingHistoryFile}
+			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
+
 			onFileEdited={(path, content) => {
 				p.onFileEdited(path, content)
 				setPreviewContent(content)
 			}}
-			onBackButton={p.onBackButton}
-			onToggleSidebarButton={p.onToggleSidebarButton}
-			onLightboxClick={p.onLightboxClick}
-			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
 
-			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
+			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
 		/>
 
 		<PreviewArea
