@@ -6,7 +6,6 @@ import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
-import { useIntervalNoteHistory } from '../../hooks/editor/noteHistory.hook';
 import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { formatDateList } from '../../managers/date.manager';
@@ -183,8 +182,9 @@ export const EditorArea = (p: {
 			title: strings.editorBar.lightbox,
 			icon: 'faImages',
 			action: () => {
-				const imgs = findImagesFromContent(p.fileContent, p.file)
-				// p.onLightboxClick(0, imgs)
+				const imgs = findImagesFromContent(innerFileContent, p.file)
+				if (!api) return
+				api.ui.lightbox.open(0, imgs)
 			}
 		},
 		{

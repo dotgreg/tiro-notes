@@ -11,7 +11,7 @@ import { debounce, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { iStatusApi, useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
-import { iAppView, iFile, iFileImage, iFolder } from '../../shared/types.shared';
+import { iFile, iFolder } from '../../shared/types.shared';
 import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
@@ -35,6 +35,7 @@ import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
 import { ClientApiContext, useClientApi } from './hooks/api/api.hook';
+import { useLightbox } from './hooks/app/useLightbox.hook';
 import { sortFiles } from './managers/sort.manager';
 import { FilesList } from './components/fileList.component';
 
@@ -437,22 +438,8 @@ export const App = () => {
 	const [showSettingsPopup, setShowSettingsPopup] = useState(false)
 
 
-	/**
-	 * LIGHTBOX SYSTEM
-	 */
-	const [lightboxImages, setLightboxImages] = useState<iFileImage[]>([])
-	const [ligthboxIndex, setLigthboxIndex] = useState(0)
-	const openLightbox = (index: number, images: iFileImage[]) => {
-		console.log(`[LIGHTBOX] open ${images.length} images to index ${index}`, { images });
-		setLightboxImages(images)
-		setLigthboxIndex(index)
-	}
-	const closeLightbox = (index: number, images: iFileImage[]) => {
-		console.log(`[LIGHTBOX] close`);
-		setLightboxImages([])
-		setLigthboxIndex(0)
-	}
-
+	// LIGHTBOX SYSTEM
+	const { lightboxApi, lightboxImages, lightboxIndex } = useLightbox();
 
 
 	// Client API 
@@ -462,7 +449,8 @@ export const App = () => {
 		userSettingsApi,
 		foldersUiApi,
 		windowsApi,
-		statusApi
+		statusApi,
+		lightboxApi
 	})
 
 	return (//jsx
@@ -649,7 +637,7 @@ export const App = () => {
 							</div>
 							<ImageGallery
 								images={images}
-								onImageClicked={openLightbox}
+								onImageClicked={clientApi.ui.lightbox.open}
 								forceRender={forceResponsiveRender} />
 						</div>
 
@@ -679,8 +667,8 @@ export const App = () => {
 				lightboxImages.length > 0 &&
 				<Lightbox
 					images={lightboxImages}
-					startingIndex={ligthboxIndex}
-					onClose={closeLightbox}
+					startingIndex={lightboxIndex}
+					onClose={clientApi.ui.lightbox.close}
 				/>
 			}
 		</div >
