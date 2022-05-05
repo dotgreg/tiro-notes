@@ -4,6 +4,7 @@ import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iStatusApi } from '../app/connectionIndicator.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iFoldersUiApi } from '../app/treeFolder.hook';
+import { iLightboxApi } from '../app/useLightbox.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
@@ -29,6 +30,7 @@ export interface iClientApi {
 	ui: {
 		folders: iFoldersUiApi
 		windows: iWindowsApi
+		lightbox: iLightboxApi
 	}
 	status: iStatusApi
 }
@@ -68,6 +70,7 @@ export const useClientApi = (p: {
 	foldersUiApi: iFoldersUiApi
 	windowsApi: iWindowsApi
 	statusApi: iStatusApi
+	lightboxApi: iLightboxApi
 }) => {
 
 	//
@@ -119,7 +122,8 @@ export const useClientApi = (p: {
 		userSettings: p.userSettingsApi,
 		ui: {
 			folders: p.foldersUiApi,
-			windows: p.windowsApi
+			windows: p.windowsApi,
+			lightbox: p.lightboxApi
 		},
 		status: p.statusApi
 	}
