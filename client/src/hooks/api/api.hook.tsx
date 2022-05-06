@@ -10,6 +10,7 @@ import { iBrowserApi } from './browser.api.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
+import { iSearchApi } from './search.hook.api';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 
 //
@@ -33,6 +34,7 @@ export interface iClientApi {
 		browser: iBrowserApi
 		windows: iWindowsApi
 		lightbox: iLightboxApi
+		search: iSearchApi['ui']
 	}
 	status: iStatusApi
 }
@@ -74,6 +76,7 @@ export const useClientApi = (p: {
 	statusApi: iStatusApi
 	lightboxApi: iLightboxApi
 	historyApi: iNoteHistoryApi
+	searchApi: iSearchApi
 }) => {
 
 	//
@@ -110,7 +113,7 @@ export const useClientApi = (p: {
 
 
 	const fileApi = useFileApi({ eventBus, historyApi: p.historyApi });
-	const filesApi = useFilesApi({ eventBus });
+	const filesApi = useFilesApi({ eventBus, searchApi: p.searchApi });
 	const uploadApi = useUploadApi({ eventBus });
 
 
@@ -125,12 +128,13 @@ export const useClientApi = (p: {
 		tabs: p.tabsApi,
 		userSettings: p.userSettingsApi,
 		history: p.historyApi,
+		status: p.statusApi,
 		ui: {
 			browser: p.browserApi,
 			windows: p.windowsApi,
-			lightbox: p.lightboxApi
+			lightbox: p.lightboxApi,
+			search: p.searchApi.ui
 		},
-		status: p.statusApi
 	}
 	// outside of react too
 	clientApiInt = clientApi

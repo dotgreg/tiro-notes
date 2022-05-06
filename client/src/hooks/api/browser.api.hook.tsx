@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { iFile } from '../../../../shared/types.shared';
 
 //
 // INTERFACES
@@ -15,18 +16,33 @@ export interface iBrowserApi {
 			appView: 'text' | 'image'
 		}
 	) => void
-	selectedFolder: string,
+	files: {
+		set: (nFiles: iFile[]) => void,
+		//get: iFile[]
+	},
+	folders: {
+		current: {
+			//set: (nFolder:string) => void,
+			get: string
+		}
+	}
 }
 
 export const useBrowserApi = (p: {
 	goTo: iBrowserApi['goTo']
-	selectedFolder: iBrowserApi['selectedFolder']
-}) => {
-	const { goTo, selectedFolder } = { ...p }
+	selectedFolder: string,
+	setFiles: iBrowserApi['files']['set']
+}): iBrowserApi => {
 
-	const browserApi: iBrowserApi = {
-		goTo,
-		selectedFolder
+	return {
+		goTo: p.goTo,
+		files: {
+			set: p.setFiles
+		},
+		folders: {
+			current: {
+				get: p.selectedFolder
+			}
+		}
 	}
-	return browserApi
 }

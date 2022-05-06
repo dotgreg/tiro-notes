@@ -5,7 +5,6 @@ import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.ma
 import { CssApp2 } from './managers/style/css.manager';
 import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
 import { useFileContent } from './hooks/app/fileContent.hook';
-import { useAppSearch } from './hooks/app/search.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { debounce, each, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
@@ -40,6 +39,8 @@ import { sortFiles } from './managers/sort.manager';
 import { FilesList } from './components/fileList.component';
 import { iBrowserApi, useBrowserApi } from './hooks/api/browser.api.hook';
 import { useNoteHistoryApi } from './hooks/api/history.api.hook';
+import { useSearchApi } from './hooks/api/search.hook.api';
+import { SearchBar2 } from './components/SearchBar.component';
 
 
 
@@ -102,7 +103,7 @@ export const App = () => {
 
 
 	const debounceStopIsSearching = debounce(() => {
-		setIsSearching(false)
+		//setIsSearching(false)
 	}, 100)
 
 
@@ -111,56 +112,6 @@ export const App = () => {
 	// FOLDERS API
 	//
 
-	// const debounceStopIsSearching = debounce(() => {
-	// 	setIsSearching(false)
-	// }, 100)
-	// const onFilesReceivedCallback: onFilesReceivedFn =
-	// 	(newFiles, isTemporaryResult, isInitialResults) => {
-	// 		if (!isTemporaryResult) {
-	// 			debounceStopIsSearching()
-	// 		} else {
-	// 			setIsSearching(isTemporaryResult)
-	// 		}
-	// 		// only continue if newFiles > 0 files
-	// 		if (newFiles.length === 0) return
-	// 		// if activeFileIndex exists + is in length of files, load it
-	// 		if (activeFileIndex !== -1 && activeFileIndex < newFiles.length) {
-	// 			askForFileContent(newFiles[activeFileIndex])
-	// 		}
-	// 		if (isNumber(shouldLoadNoteIndex.current)) {
-	// 			console.log(`[LOAD] shouldLoadNoteIndex detected, loading note ${shouldLoadNoteIndex.current}`);
-	// 			let noteIndex = shouldLoadNoteIndex.current
-	// 			if (newFiles.length >= noteIndex + 1) {
-	// 				setActiveFileIndex(noteIndex)
-	// 				windowsApi.updateActive(newFiles[noteIndex])
-	// 				askForFileContent(newFiles[noteIndex])
-	// 			}
-	// 			shouldLoadNoteIndex.current = null
-	// 		}
-	// 		// ON LIST ITEMS CHANGES
-	// 		if (selectedFolder !== lastFolderIn.current || searchTerm !== lastSearchIn.current) {
-	// 			// Load first item list 
-	// 			newFiles.length >= 1 && askForFileContent(newFiles[0])
-	// 			setActiveFileIndex(0)
-	// 			//updateActiveWindowContent(files[0])
-	// 			lastFolderIn.current = selectedFolder
-	// 			lastSearchIn.current = searchTerm
-	// 		}
-	// 		// at the end, search for title
-	// 		if (!isTemporaryResult && !isInitialResults) {
-	// 			const indexSearch = getSearchedTitleFileIndex(newFiles)
-	// 			if (indexSearch !== -1) {
-	// 				if (newFiles[indexSearch]) {
-	// 					setActiveFileIndex(indexSearch)
-	// 					windowsApi.updateActive(files[indexSearch])
-	// 					askForFileContent(newFiles[indexSearch])
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-
-
-	//
 	// HOOKS
 	//
 
@@ -235,7 +186,7 @@ export const App = () => {
 	 */
 	const onImagesReceivedCallback: onImagesReceivedFn = images => {
 		console.log(`[IMAGES CALLBACK] images nb: ${images.length}`)
-		setIsSearching(false)
+		//setIsSearching(false)
 	}
 
 	const {
@@ -275,17 +226,16 @@ export const App = () => {
 	}, [selectedFolder])
 
 
-	// Search 
-	const {
-		isSearching, setIsSearching,
-		searchTerm, setSearchTerm,
-		triggerSearch,
-		SearchBarComponent,
-	} = useAppSearch(
-		shouldLoadNoteIndex,
-		cleanListAndFileContent,
-		currentAppView
-	)
+	// // Search 
+	// const {
+	// 	setIsSearching,
+	// 	setSearchTerm,
+	// 	SearchBarComponent,
+	// } = useAppSearch(
+	// 	shouldLoadNoteIndex,
+	// 	cleanListAndFileContent,
+	// 	currentAppView
+	// )
 
 	// Mobile view
 	const {
@@ -414,7 +364,7 @@ export const App = () => {
 			const h = `[BROWSER GO TO] 00722 `
 			console.log(`${h} ${folderPath} ${fileTitle} ${appView}`);
 			// NORMAL CHANGE FOLDER LOGIC
-			setSearchTerm('')
+			//setSearchTerm('')
 			setSelectedFolder(folderPath)
 			cleanListAndFileContent()
 
@@ -439,7 +389,7 @@ export const App = () => {
 					}
 
 					setActiveFileIndex(activeIndex);
-					windowsApi.updateActive(nfilesSorted[activeIndex])
+					//windowsApi.updateActive(nfilesSorted[activeIndex])
 					setFiles(nfilesSorted)
 				})
 			} else if (appView === 'image') {
@@ -449,6 +399,7 @@ export const App = () => {
 		}
 
 	const browserApi: iBrowserApi = useBrowserApi({
+		setFiles,
 		goTo,
 		selectedFolder
 	})
@@ -456,6 +407,9 @@ export const App = () => {
 
 	// NOTE HISTORY HOOK
 	const historyApi = useNoteHistoryApi()
+
+	// SEARCH API HOOK
+	const searchApi = useSearchApi({ browserApi });
 
 	//
 	// CLIENT API
@@ -468,8 +422,11 @@ export const App = () => {
 		statusApi,
 		browserApi,
 		historyApi,
-		lightboxApi
+		lightboxApi,
+		searchApi
 	})
+
+
 
 	return (//jsx
 		<div className={CssApp2(mobileView)} >
@@ -523,7 +480,6 @@ export const App = () => {
 											<LastNotes
 												files={filesHistory}
 												onClick={file => {
-													//searchFileFromTitle(file.name, file.folder)
 													clientApi.ui.browser.goTo(file.folder, file.name)
 												}}
 											/>
@@ -533,7 +489,7 @@ export const App = () => {
 										{
 											FolderTreeComponent({
 												onFolderClicked: folderPath => {
-													setIsSearching(true)
+													//setIsSearching(true)
 													clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
 												},
 												onFolderMenuAction: (action, folder, newTitle) => {
@@ -609,9 +565,7 @@ export const App = () => {
 											<AppViewSwitcherComponent />
 
 										</div>
-										{
-											SearchBarComponent({ selectedFolder })
-										}
+										<SearchBar2 term={clientApi.ui.search.term.get} />
 									</div>
 									<div className="files-list-wrapper">
 
@@ -650,9 +604,7 @@ export const App = () => {
 								<div className="subtitle-wrapper">
 									<AppViewSwitcherComponent />
 								</div>
-								{
-									SearchBarComponent({ selectedFolder })
-								}
+								<SearchBar2 term={clientApi.ui.search.term.get} />
 							</div>
 							<ImageGallery
 								images={images}
