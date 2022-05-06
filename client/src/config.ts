@@ -1,5 +1,7 @@
 import { sharedConfig } from '../../shared/shared.config';
 
+console.log('hwllo');
+
 export const configClient = {
 	...sharedConfig.client,
 	global: {

@@ -220,7 +220,6 @@ export const useTabs = (p: {
 		const aTab = nTabs[aId]
 		const aContent = aTab.grid.content
 		if (aContent.length < 1) return
-		console.log('0046', aContent);
 		let aWindowIndex = 0
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 		// change awindow.file

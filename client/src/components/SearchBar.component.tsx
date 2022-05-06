@@ -1,55 +1,65 @@
-import React, { Ref } from 'react';
-import styled from '@emotion/styled'
+import React, { Ref, useContext } from 'react';
+import { ClientApiContext } from '../hooks/api/api.hook';
 import { strings } from '../managers/strings.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
-import { css } from '@emotion/css';
-import { css2 } from '../managers/style/css.manager';
 
-export class SearchBar extends React.Component<{
-	isSearching: boolean
-	searchTerm: string
-	onSearchTermUpdate: (term: string, inputEl: HTMLInputElement | null) => void
-	onSearchSubmit: () => void
-}, {
-	// search: string
-}> {
 
-	inputRef: Ref<HTMLInputElement>
-	constructor(props: any) {
-		super(props)
-		this.state = {
-			search: '',
-		}
-		this.inputRef = React.createRef()
-	}
-	submitOnEnter = (event: any) => {
+export const SearchBar2 = (p: {
+	term: string
+}) => {
+
+
+
+	const api = useContext(ClientApiContext)
+
+	const submitOnEnter = (event: any) => {
 		if (event.key === 'Enter') {
-			if (this.props.searchTerm.length < 3) return
-			this.props.onSearchSubmit()
+			if (p.term.length < 3) return
+
 		}
 	}
-	render() {
-		return (
-			<>
-				<div className="search-bar-component">
-					<input
-						type="text"
-						placeholder={strings.searchPlaceholder}
-						ref={this.inputRef}
-						value={this.props.searchTerm}
-						onKeyDown={this.submitOnEnter}
-						onChange={(e) => {
-							this.props.onSearchTermUpdate(e.target.value, e.target)
-						}}
-					/>
-					<div className="search-status">
-						{this.props.isSearching && strings.searchingLabel}
-					</div>
-				</div>
-			</>
-		);
+
+
+	const onChange = (nVal: string, input: any) => {
+		if (!api) return
+		const selectedFolder = api.ui.browser.folders.current.get
+		// if in folder, automatically add /current/path in it
+		if (p.term === '' && selectedFolder !== '') {
+			nVal = nVal + ' ' + selectedFolder
+			if (input) {
+				setTimeout(() => {
+					let newCursorPos = (input.selectionStart || 0) - selectedFolder.length - 1
+					input.selectionStart = newCursorPos
+					input.selectionEnd = newCursorPos
+				}, 10)
+			}
+		}
+		api.ui.search.term.set(nVal)
 	}
+
+
+	return (//jsx
+		<>
+			<div className="search-bar-component">
+				<input
+					type="text"
+					placeholder={strings.searchPlaceholder}
+					value={p.term}
+					onKeyDown={submitOnEnter}
+					onChange={(e) => {
+						onChange(e.target.value, e.target)
+					}}
+				/>
+				<div className="search-status">
+				</div>
+			</div>
+		</>
+	)//jsx
 }
+
+
+					//p.isSearching && strings.searchingLabel}
+
 
 export const searchBarCss = `
     .search-bar-component {
@@ -73,3 +83,49 @@ export const searchBarCss = `
         }
     }
 `
+
+
+// export class SearchBar extends React.Component<{
+// 	isSearching: boolean
+// 	searchTerm: string
+// 	onSearchTermUpdate: (term: string, inputEl: HTMLInputElement | null) => void
+// 	onSearchSubmit: () => void
+// }, {
+// 	// search: string
+// }> {
+// 	inputRef: Ref<HTMLInputElement>
+// 	constructor(props: any) {
+// 		super(props)
+// 		this.state = {
+// 			search: '',
+// 		}
+// 		this.inputRef = React.createRef()
+// 	}
+// 	submitOnEnter = (event: any) => {
+// 		if (event.key === 'Enter') {
+// 			if (this.props.searchTerm.length < 3) return
+// 			this.props.onSearchSubmit()
+// 		}
+// 	}
+// 	render() {
+// 		return (
+// 			<>
+// 				<div className="search-bar-component">
+// 					<input
+// 						type="text"
+// 						placeholder={strings.searchPlaceholder}
+// 						ref={this.inputRef}
+// 						value={this.props.searchTerm}
+// 						onKeyDown={this.submitOnEnter}
+// 						onChange={(e) => {
+// 							this.props.onSearchTermUpdate(e.target.value, e.target)
+// 						}}
+// 					/>
+// 					<div className="search-status">
+// 						{this.props.isSearching && strings.searchingLabel}
+// 					</div>
+// 				</div>
+// 			</>
+// 		);
+// 	}
+// }

@@ -108,7 +108,7 @@ export const WindowGrid = (p: {
 
 	// need to perform some actions after updated state
 	addNextStateAction('refreshFolderList', (api, data) => {
-		const selectedFolder = api.ui.browser.selectedFolder
+		const selectedFolder = api.ui.browser.folders.current.get
 		if (selectedFolder === data.folder) {
 			console.log(`0046 refreshFolderList ${selectedFolder}`);
 			api.ui.browser.goTo(selectedFolder)

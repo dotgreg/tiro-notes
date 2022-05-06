@@ -3,25 +3,32 @@ import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { iSearchApi } from './search.hook.api';
 
 //
 // INTERFACES
 //
 
-	export interface FilesPreviewObject { [path: string]: iFilePreview }
+export interface FilesPreviewObject { [path: string]: iFilePreview }
+
 export interface iFilesApi {
+
 	get: (
 		folderPath: string,
 		cb: (files: iFile[]) => void
 	) => void
+
 	getPreviews: (
 		filesPath: string[],
 		cb: (previews: iFilePreview[]) => void
 	) => void
+
+	search: iSearchApi['files']['search']
 }
 
 export const useFilesApi = (p: {
-	eventBus: iApiEventBus
+	eventBus: iApiEventBus,
+	searchApi: iSearchApi
 }) => {
 
 	//
@@ -78,7 +85,8 @@ export const useFilesApi = (p: {
 	//
 	const api: iFilesApi = {
 		get: getFiles,
-		getPreviews: getFilesPreview
+		getPreviews: getFilesPreview,
+		search: p.searchApi.files.search
 	}
 
 	return api

@@ -46,7 +46,7 @@ export const WindowEditor = (p: {
 
 	const refreshFilesList = () => {
 		console.log('0046 refresh list after file edit');
-		api && api.ui.browser.goTo(api.ui.browser.selectedFolder)
+		api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
 	}
 	const debouncedRefreshList = debounce(refreshFilesList, 5000)
 
