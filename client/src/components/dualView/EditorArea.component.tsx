@@ -66,13 +66,13 @@ export const EditorArea = (p: {
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
+			setInnerFileContent(newContent)
+			p.onFileEdited(p.file.path, newContent)
+
 			// IF FIRST EDITION, backup old file
 			if (isFirstEdition && api) {
 				api.history.save(p.file.path, p.fileContent, 'enter')
 			}
-
-			setInnerFileContent(newContent)
-			p.onFileEdited(p.file.path, newContent)
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
@@ -135,7 +135,7 @@ export const EditorArea = (p: {
 	//
 	const editorToolbarActions = [
 		{
-			title: 'upload files',
+			title: '',
 			class: 'upload-button-wrapper',
 			action: () => { },
 			customHtml: <UploadButton
@@ -282,8 +282,18 @@ export const EditorArea = (p: {
 								</div>
 
 								<div className="dates-wrapper">
-									<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-									<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+									<div className='date modified'>Modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+									<div className='date created'>Created: {formatDateList(new Date(p.file.created || 0))}</div>
+								</div>
+
+								<div className="path-wrapper">
+									<div className='path'>
+										Path:
+										<span className="path-link" onClick={() => {
+											api?.ui.browser.goTo(p.file.folder, p.file.name)
+										}}
+										> {p.file.folder} </span>
+									</div>
 								</div>
 							</>
 						</Dropdown >
@@ -369,6 +379,15 @@ export const commonCssEditors = `//css
     color: ${cssVars.colors.editor.interfaceGrey};
     .modified {
       color: grey;
+    }
+  }
+
+.path-wrapper {
+    color: ${cssVars.colors.editor.interfaceGrey};
+    .path-link {
+				color: ${cssVars.colors.main};
+				font-weight: bold;
+				cursor: pointer;
     }
   }
 `//css

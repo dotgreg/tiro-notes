@@ -13,7 +13,8 @@ export const transformUrlInLinks = (bodyRaw: string): string => {
 }
 
 export const transformTitleSearchLinks = (bodyRaw: string): string => {
-	const subst = `<a class="title-search-link preview-link" href="javascript:window.tiroCli.searchFileFromTitle.func('$1','$2');">$1</a>`;
+	//const subst = `<a class="title-search-link preview-link" href="javascript:window.tiroCli.searchFileFromTitle.func('$1','$2');">$1</a>`;
+	const subst = `<a class="title-search-link preview-link" data-file="$1" data-folder="$2" >$1</a>`;
 	return bodyRaw.replace(regexs.linklink, subst);
 }
 export const transformSearchLinks = (bodyRaw: string): string => {

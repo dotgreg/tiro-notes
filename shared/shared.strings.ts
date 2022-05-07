@@ -57,7 +57,7 @@ export const sharedStrings = {
 		explanation: {
 			history: 'File history'
 		},
-		lightbox: 'Show Images in Slider'
+		lightbox: 'Show Images'
 	},
 	ttsPopup: {
 		title: 'Text to speech',

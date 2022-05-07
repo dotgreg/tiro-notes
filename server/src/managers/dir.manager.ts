@@ -117,7 +117,6 @@ export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<i
 }
 
 export const scanDirForFiles = async (path: string): Promise<iFile[] | string> => {
-	console.log(123123, path);
 	return new Promise((res, rej) => {
 		searchWithRipGrep({
 			term: '',

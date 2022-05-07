@@ -1,7 +1,7 @@
-import { clamp } from 'lodash';
-import React, { Ref, useEffect, useRef, useState } from 'react';
+import { clamp, each } from 'lodash';
+import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
-import { addCliCmd } from '../../managers/cliConsole.manager';
+import { ClientApiContext } from '../../hooks/api/api.hook';
 import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
 import { transformLatex } from '../../managers/latex.manager';
@@ -19,6 +19,8 @@ export const PreviewArea = (p: {
 	fileContent: string
 	onMaxYUpdate: (maxY: number) => void
 }) => {
+
+	const api = useContext(ClientApiContext);
 
 	const previewAreaRefs = {
 		wrapper: useRef<HTMLDivElement>(null),
@@ -39,8 +41,23 @@ export const PreviewArea = (p: {
 		setTimeout(() => {
 			p.onMaxYUpdate(calculateYMax())
 		}, 1000)
+
+		injectLogicToHtml()
+
 	}, [p.fileContent])
 
+	const injectLogicToHtml = () => {
+		// title search links
+		const els = document.getElementsByClassName('title-search-link')
+		each(els, (el: any) => {
+			el.onclick = () => {
+				const file = el.dataset.file
+				const folder = el.dataset.folder
+				//console.log('woooop', file, folder);
+				api?.ui.browser.goTo(folder, file)
+			}
+		})
+	}
 
 	const calculateYMax = () => {
 		const d = previewAreaRefs.main.current
@@ -104,7 +121,7 @@ export const PreviewArea = (p: {
 }
 
 
-export const previewAreaCss = (v: MobileView) => `
+export const previewAreaCss = (v: MobileView) => `//css
 .preview-area-wrapper {
     overflow: ${isIpad() ? 'scroll' : isA('mobile') ? 'scroll' : 'hidden'};
     height: ${isA('desktop') ? '100vh' : '100vh'};
@@ -177,6 +194,7 @@ export const previewAreaCss = (v: MobileView) => `
         &.title-search-link {
             color: ${cssVars.colors.main};
             background-image: url(${cssVars.assets.linkIcon});
+						cursor: pointer;
         }
         &.resource-link {
           color: ${cssVars.colors.main};
@@ -346,7 +364,7 @@ export const previewAreaCss = (v: MobileView) => `
       }
     }
   }
-`
+`//css
 
 
 

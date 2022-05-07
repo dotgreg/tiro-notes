@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { iFile, iGrid, iTab, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
+import { ClientApiContext, getClientApi2 } from '../api/api.hook';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
@@ -54,9 +55,7 @@ export const addNewWindowConfig = (p: {
 }
 
 
-export const useTabs = (p: {
-	activeFile: iFile
-}) => {
+export const useTabs = () => {
 	const h = `[TABS] 00542`
 
 	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
@@ -106,7 +105,9 @@ export const useTabs = (p: {
 			// if active tab exists, copy it in new one
 			//const nTab = generateNewTab(getActiveTab(tabs))
 			//tab with one window
-			openInNewTab(p.activeFile)
+			getClientApi2().then(api => {
+				openInNewTab(api.ui.browser.files.active.get)
+			})
 
 		} else if (type === 'close') {
 			if (!tab) return

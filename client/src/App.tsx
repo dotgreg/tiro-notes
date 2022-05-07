@@ -8,7 +8,7 @@ import { useFileContent } from './hooks/app/fileContent.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { debounce, each, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
-import { iStatusApi, useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
+import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { iFile, iFolder } from '../../shared/types.shared';
 import { cleanPath } from '../../shared/helpers/filename.helper';
@@ -41,6 +41,8 @@ import { iBrowserApi, useBrowserApi } from './hooks/api/browser.api.hook';
 import { useNoteHistoryApi } from './hooks/api/history.api.hook';
 import { useSearchApi } from './hooks/api/search.hook.api';
 import { SearchBar2 } from './components/SearchBar.component';
+import { useStatusApi } from './hooks/api/status.api.hook';
+import { fileURLToPath } from 'url';
 
 
 
@@ -73,12 +75,11 @@ export const App = () => {
 	const lastSearchIn = useRef('')
 
 	const cleanFileDetails = () => {
-		setActiveFileIndex(-1)
-		setFileContent(null)
+		filesUiApi.active.set(-1)
 	}
 
 	const cleanFilesList = () => {
-		setFiles([])
+		clientApi.ui.browser.files.set([])
 	}
 
 	const cleanImagesList = () => {
@@ -124,11 +125,16 @@ export const App = () => {
 			cleanListAndFileContent()
 		},
 		onLoginSuccess: () => {
+			askForFolderScan(['/'])
 			refreshTabsFromBackend();
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
 		}
 	})
+
+	// useEffect(() => {
+	// 	//askForFolderScan(['/'])
+	// }, [])
 
 	// User settings!
 	const {
@@ -144,28 +150,23 @@ export const App = () => {
 
 
 
-	const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
 
-	// KEY ACTIONS
-	useEffect(() => {
-		addKeyAction('up', () => {
-			let i = activeFileIndex
-			if (i > 0) {
-				setActiveFileIndex(i - 1)
-				askForFileContent(files[i - 1])
-			}
-		})
-		addKeyAction('1', () => { if (getKeyModif('ctrl')) toggleSidebar() })
-		addKeyAction('down', () => {
-			let i = activeFileIndex
-			if (i < files.length - 1) {
-				setActiveFileIndex(i + 1)
-				askForFileContent(files[i + 1])
-			}
-		})
-	}, [activeFileIndex, userSettingsApi.get('ui_sidebar')])
-
-	const [files, setFiles] = useState<iFile[]>([])
+	// // KEY ACTIONS
+	// useEffect(() => {
+	// 	addKeyAction('up', () => {
+	// 		let i = filesUiApi.active.get
+	// 		if (i > 0) {
+	// 			setActiveFileIndex(i - 1)
+	// 		}
+	// 	})
+	// 	addKeyAction('1', () => { if (getKeyModif('ctrl')) toggleSidebar() })
+	// 	addKeyAction('down', () => {
+	// 		let i = filesUiApi.active.get
+	// 		// if (i < files.length - 1) {
+	// 		// 	setActiveFileIndex(i + 1)
+	// 		// }
+	// 	})
+	// }, [filesUiApi.active.get, userSettingsApi.get('ui_sidebar')])
 
 
 
@@ -177,7 +178,7 @@ export const App = () => {
 		refreshWindowGrid,
 		tabsApi,
 		windowsApi
-	} = useTabs({ activeFile: files[activeFileIndex] });
+	} = useTabs();
 	const activeTab = getActiveTab(tabs);
 
 
@@ -203,6 +204,7 @@ export const App = () => {
 		AppViewSwitcherComponent
 	} = useAppViewType({
 		onViewSwitched: nView => {
+			const selectedFolder = clientApi.ui.browser.folders.current.get
 			clientApi.ui.browser.goTo(selectedFolder, null, { appView: nView })
 		}
 	})
@@ -214,16 +216,15 @@ export const App = () => {
 		removeToOpenedFolders,
 
 		folderBasePath,
-		selectedFolder, setSelectedFolder,
 		askForFolderScan,
 		FolderTreeComponent,
 		cleanFolderHierarchy
 	} = useAppTreeFolder(currentAppView)
 
-	// on selectedFolder change, trigger update folders/file ui
-	useEffect(() => {
-		clientApi.ui.browser.goTo(selectedFolder, null, { appView: currentAppView })
-	}, [selectedFolder])
+	// // on selectedFolder change, trigger update folders/file ui
+	// useEffect(() => {
+	// 	clientApi.ui.browser.goTo(selectedFolder, null, { appView: currentAppView })
+	// }, [selectedFolder])
 
 
 	// // Search 
@@ -264,20 +265,18 @@ export const App = () => {
 	// const { getSearchedTitleFileIndex, searchFileFromTitle } = useSearchFromTitle({ goTo, currentAppView })
 
 	// File Content + Dual Viewer
-	let activeFile = files[activeFileIndex]
-	const {
-		fileContent,
-		setFileContent,
-		setCanEdit,
-		askForFileContent,
-		DualViewerComponent
-	} = useFileContent(
-		activeFile, activeFileIndex, selectedFolder, files, shouldLoadNoteIndex,
-		cleanFileDetails, askForMoveFile
-	)
+	// let activeFile = files[activeFileIndex]
 
-	// last Note + files history array
-	const { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend } = useLastFilesHistory(activeFile)
+	// const {
+	// 	fileContent,
+	// 	setFileContent,
+	// 	setCanEdit,
+	// 	askForFileContent,
+	// 	DualViewerComponent
+	// } = useFileContent(
+	// 	activeFile, activeFileIndex, selectedFolder, files, shouldLoadNoteIndex,
+	// 	cleanFileDetails, askForMoveFile
+	// )
 
 
 	// CONNECTION INDICATOR
@@ -285,46 +284,12 @@ export const App = () => {
 		isConnected,
 		connectionStatusComponent,
 		toggleSocketConnection
-	} = useConnectionIndicator(setCanEdit)
+	} = useConnectionIndicator()
 
-	const statusApi: iStatusApi = {
-		isConnected
-	}
 
 
 	// make sure the interface doesnt scroll
 	useFixScrollTop()
-
-	// // url routing/react logic
-	// const { reactToUrl } = useUrlLogic(
-	// 	isSearching, searchTerm,
-	// 	selectedFolder, activeFile,
-	// 	activeFileIndex,
-	// 	currentAppView,
-	// 	{
-	// 		reactToUrlParams: newUrlParams => {
-	// 			// timeout of 1000 as sometimes when loading is too long, not working
-	// 			//setTimeout(() => {
-	// 			// new way
-	// 			console.log(`[URL] REACTING TO <== ${JSON.stringify(newUrlParams)}`);
-
-	// 			if (newUrlParams.folder && newUrlParams.title) {
-	// 				searchFileFromTitle(newUrlParams.title, newUrlParams.folder)
-	// 			}
-	// 			if (newUrlParams.search) {
-	// 				console.log('reactToUrlParams -> triggersearch');
-	// 				triggerSearch(newUrlParams.search)
-	// 			}
-	// 			if (newUrlParams.mobileview) {
-	// 				setMobileView(newUrlParams.mobileview)
-	// 			}
-	// 			if (newUrlParams.appview) {
-	// 				switchAppView(newUrlParams.appview)
-	// 			}
-	// 			//}, 1000)
-	// 		}
-	// 	}
-	// )
 
 	// DYNAMIC RESPONSIVE RERENDER (ON DEBOUNCE)
 	const { forceResponsiveRender } = useDynamicResponsive()
@@ -343,9 +308,6 @@ export const App = () => {
 		}
 	}
 
-	// Send Note Leaving Signal
-	const [isLeavingNote, setIsLeavingNote] = useState(false)
-
 	// Show settings panel
 	const [showSettingsPopup, setShowSettingsPopup] = useState(false)
 
@@ -354,62 +316,16 @@ export const App = () => {
 	const { lightboxApi, lightboxImages, lightboxIndex } = useLightbox();
 
 	//
-	// BROWSER API
+	// CLIENT API 
 	//
-	const goTo: iBrowserApi['goTo'] =
-		(folderPath, fileTitle, opts) => {
-			const appView = (opts && opts.appView) ? opts.appView : currentAppView
-			if (folderPath === "") return
-			folderPath = cleanPath(`${folderPath}/`)
-			const h = `[BROWSER GO TO] 00722 `
-			console.log(`${h} ${folderPath} ${fileTitle} ${appView}`);
-			// NORMAL CHANGE FOLDER LOGIC
-			//setSearchTerm('')
-			setSelectedFolder(folderPath)
-			cleanListAndFileContent()
 
-			if (appView === 'text') {
-				clientApi.files.get(folderPath, nfiles => {
-					// when receiving results
-					debounceStopIsSearching()
-
-					// sort them
-					const sortMode = clientApi.userSettings.get('ui_filesList_sortMode')
-					const nfilesSorted = sortFiles(nfiles, sortMode)
-					let activeIndex = 0
-
-					// if search for a file title 
-					if (fileTitle) {
-						each(nfilesSorted, (file, i) => {
-							if (file.name === fileTitle) {
-								activeIndex = i
-							}
-						})
-						console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
-					}
-
-					setActiveFileIndex(activeIndex);
-					//windowsApi.updateActive(nfilesSorted[activeIndex])
-					setFiles(nfilesSorted)
-				})
-			} else if (appView === 'image') {
-				setSelectedFolder(folderPath)
-				askForFolderImages(folderPath)
-			}
-		}
-
-	const browserApi: iBrowserApi = useBrowserApi({
-		setFiles,
-		goTo,
-		selectedFolder
+	// status api
+	const statusApi = useStatusApi({
+		isConnected
 	})
-
 
 	// NOTE HISTORY HOOK
 	const historyApi = useNoteHistoryApi()
-
-	// SEARCH API HOOK
-	const searchApi = useSearchApi({ browserApi });
 
 	//
 	// CLIENT API
@@ -420,12 +336,16 @@ export const App = () => {
 		userSettingsApi,
 		windowsApi,
 		statusApi,
-		browserApi,
 		historyApi,
-		lightboxApi,
-		searchApi
+		lightboxApi
 	})
 
+
+	const api = clientApi
+	const filesUiApi = api.ui.browser.files
+
+	// last Note + files history array
+	const { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend } = useLastFilesHistory(filesUiApi.active.get)
 
 
 	return (//jsx
@@ -438,7 +358,7 @@ export const App = () => {
 					<Global styles={GlobalCssApp} />
 					<div role="dialog" className={`
 								main-wrapper
-								${clientApi.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
+								${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
 								view-${currentAppView}
 								device-view-${deviceType()}`}>
 						{
@@ -468,6 +388,7 @@ export const App = () => {
 										{currentAppView === 'text' &&
 											<NewFileButton
 												onNewFile={() => {
+													const selectedFolder = clientApi.ui.browser.folders.current.get
 													clientApi.file.create(selectedFolder, files => {
 														// reload list
 														clientApi.ui.browser.goTo(selectedFolder)
@@ -485,11 +406,9 @@ export const App = () => {
 											/>
 										}
 
-
 										{
 											FolderTreeComponent({
 												onFolderClicked: folderPath => {
-													//setIsSearching(true)
 													clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
 												},
 												onFolderMenuAction: (action, folder, newTitle) => {
@@ -531,6 +450,7 @@ export const App = () => {
 												},
 											})
 										}
+
 									</div>
 
 									<div className="settings-button" onClick={() => {
@@ -570,15 +490,15 @@ export const App = () => {
 									<div className="files-list-wrapper">
 
 										<FilesList
-											files={files}
-											activeFileIndex={activeFileIndex}
+											files={filesUiApi.get}
+											activeFileIndex={filesUiApi.active.getIndex}
 
 											onSortFiles={filesSorted => {
-												setFiles(filesSorted)
+												clientApi.ui.browser.files.set(filesSorted)
 											}}
 											onFileClicked={fileIndex => {
-												setActiveFileIndex(fileIndex)
-												windowsApi.updateActive(files[fileIndex])
+												filesUiApi.active.set(fileIndex)
+												windowsApi.updateActive(filesUiApi.active.get)
 											}}
 											onFileDragStart={files => {
 												console.log(`[DRAG MOVE] onFileDragStart`, files);

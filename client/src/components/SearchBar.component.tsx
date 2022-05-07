@@ -15,10 +15,9 @@ export const SearchBar2 = (p: {
 	const submitOnEnter = (event: any) => {
 		if (event.key === 'Enter') {
 			if (p.term.length < 3) return
-
+			api && api.ui.search.search(p.term)
 		}
 	}
-
 
 	const onChange = (nVal: string, input: any) => {
 		if (!api) return
@@ -37,6 +36,7 @@ export const SearchBar2 = (p: {
 		api.ui.search.term.set(nVal)
 	}
 
+	const isSearching = api ? api.status.searching.get : false
 
 	return (//jsx
 		<>
@@ -51,6 +51,7 @@ export const SearchBar2 = (p: {
 					}}
 				/>
 				<div className="search-status">
+					{isSearching && strings.searchingLabel}
 				</div>
 			</div>
 		</>
@@ -58,7 +59,6 @@ export const SearchBar2 = (p: {
 }
 
 
-					//p.isSearching && strings.searchingLabel}
 
 
 export const searchBarCss = `
@@ -83,49 +83,3 @@ export const searchBarCss = `
         }
     }
 `
-
-
-// export class SearchBar extends React.Component<{
-// 	isSearching: boolean
-// 	searchTerm: string
-// 	onSearchTermUpdate: (term: string, inputEl: HTMLInputElement | null) => void
-// 	onSearchSubmit: () => void
-// }, {
-// 	// search: string
-// }> {
-// 	inputRef: Ref<HTMLInputElement>
-// 	constructor(props: any) {
-// 		super(props)
-// 		this.state = {
-// 			search: '',
-// 		}
-// 		this.inputRef = React.createRef()
-// 	}
-// 	submitOnEnter = (event: any) => {
-// 		if (event.key === 'Enter') {
-// 			if (this.props.searchTerm.length < 3) return
-// 			this.props.onSearchSubmit()
-// 		}
-// 	}
-// 	render() {
-// 		return (
-// 			<>
-// 				<div className="search-bar-component">
-// 					<input
-// 						type="text"
-// 						placeholder={strings.searchPlaceholder}
-// 						ref={this.inputRef}
-// 						value={this.props.searchTerm}
-// 						onKeyDown={this.submitOnEnter}
-// 						onChange={(e) => {
-// 							this.props.onSearchTermUpdate(e.target.value, e.target)
-// 						}}
-// 					/>
-// 					<div className="search-status">
-// 						{this.props.isSearching && strings.searchingLabel}
-// 					</div>
-// 				</div>
-// 			</>
-// 		);
-// 	}
-// }

@@ -1,31 +1,37 @@
-export const cleanPath = (path:string):string => {
-    path = path.split('//').join('/')
-    path = path.split('\\').join('/')
-    path = path.split('//').join('/')
-    return path
+export const cleanPath = (path: string): string => {
+	path = path.split('//').join('/')
+	path = path.split('\\').join('/')
+	path = path.split('//').join('/')
+	return path
 }
-export const getFileInfos = (path:string):{
-    path: string,
-    folder: string,
-    filename:string, 
-    filenameWithoutExt:string, 
-    extension:string
+export const getFileInfos = (path: string): {
+	path: string,
+	folder: string,
+	filename: string,
+	filenameWithoutExt: string,
+	extension: string
 } => {
 
-    let pathArr1 = path.split('/')
-    let pathArr2 = path.split('\\')
-    let pathArr = pathArr1.length > pathArr2.length ? pathArr1 : pathArr2
+	let pathArr1 = path.split('/')
+	let pathArr2 = path.split('\\')
+	let pathArr = pathArr1.length > pathArr2.length ? pathArr1 : pathArr2
 
-    let filename = pathArr[pathArr.length-1]
-    let extensionArr = filename.split('.')
+	let filename = pathArr[pathArr.length - 1]
+	let extensionArr = filename.split('.')
 
-    
-    let folder = path.replace(filename, '')
-    
-    let extension = ''
-    if (extensionArr.length > 1) extension = extensionArr[extensionArr.length-1]
 
-    let filenameWithoutExt = filename.replace(`.${extension}`,'')
-    
-    return {filename, extension, path, folder, filenameWithoutExt}
+	let folder = path.replace(filename, '')
+
+	let extension = ''
+	if (extensionArr.length > 1) extension = extensionArr[extensionArr.length - 1]
+
+	let filenameWithoutExt = filename.replace(`.${extension}`, '')
+
+	return { filename, extension, path, folder, filenameWithoutExt }
+}
+
+export const getFolderPath = (filename: string): string => {
+	const d = filename.match(/(.*)[\/\\]/)
+	var dirname = d ? d[1] + '/' : ''
+	return cleanPath(dirname)
 }

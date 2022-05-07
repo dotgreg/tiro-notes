@@ -90,7 +90,11 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		for (let i = 0; i < data.foldersPaths.length; i++) {
 			folders.push(scanDirForFolders(data.foldersPaths[i]))
 		}
-		serverSocket2.emit('getFoldersScan', { folders, pathBase: backConfig.dataFolder })
+		serverSocket2.emit('getFoldersScan', {
+			folders,
+			idReq: data.idReq,
+			pathBase: backConfig.dataFolder
+		})
 	})
 
 	serverSocket2.on('saveFileContent', async data => {
@@ -224,9 +228,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		} else {
 			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getLoginToken() })
 
-			// do also a root scan for first time
-			let folders = [scanDirForFolders('/')]
-			serverSocket2.emit('getFoldersScan', { folders, pathBase: backConfig.dataFolder })
+			// // do also a root scan for first time
+			// let folders = [scanDirForFolders('/')]
+			// serverSocket2.emit('getFoldersScan', {
+			// 	folders,
+			// 	pathBase: backConfig.dataFolder
+			// })
 		}
 	}, { bypassLoginTokenCheck: true, disableDataLog: true })
 

@@ -40,8 +40,8 @@ export interface iApiDictionary {
 	askFilesPreview: { filesPath: string[], idReq: string }
 	getFilesPreview: { filesPreview: iFilePreview[], idReq: string }
 
-	askFoldersScan: { foldersPaths: string[] }
-	getFoldersScan: { folders: iFolder[], pathBase: string }
+	askFoldersScan: { foldersPaths: string[], idReq: string}
+	getFoldersScan: { folders: iFolder[], pathBase: string, idReq:string }
 
 	askFolderCreate: { newFolderName: string, parent: iFolder }
 	askFolderDelete: { folderToDelete: iFolder }
