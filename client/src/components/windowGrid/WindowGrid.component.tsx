@@ -20,6 +20,7 @@ interface iUploadUpdate {
 	file?: iUploadedFile
 	progress?: number
 	uploadCounter: number
+	reinit: Function
 }
 interface iFileActionsGridContext {
 	onTitleUpdate: PathModifFn
@@ -33,12 +34,13 @@ export interface iGridContext {
 
 const gridContextInit: iGridContext = {
 	upload: {
-		uploadCounter: 0
+		uploadCounter: 0,
+		reinit: () => { }
 	},
-	file: {
-		onTitleUpdate: (oPath, nPath) => { },
+file: {
+	onTitleUpdate: (oPath, nPath) => { },
 		onFileDelete: filePath => { }
-	}
+}
 }
 export const GridContext = React.createContext<iGridContext>(gridContextInit);
 
@@ -127,6 +129,12 @@ export const WindowGrid = (p: {
 	const nGridContext: iGridContext = cloneDeep(gridContext)
 	nGridContext.file.onFileDelete = onFileDelete
 	nGridContext.file.onTitleUpdate = onTitleUpdate
+
+	nGridContext.upload.reinit = () => {
+		const nCtx = cloneDeep(gridContext)
+		delete nCtx.upload.file
+		setGridContext(nCtx)
+	}
 
 
 	//

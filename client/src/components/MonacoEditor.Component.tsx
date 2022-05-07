@@ -82,6 +82,7 @@ export class MonacoEditorWrapper extends React.Component<{
 
 	resetMonacoSelection = () => {
 		const sel = this.editor.getSelection()
+		if (!sel) return
 		let selection = {
 			endColumn: sel.startColumn,
 			endLineNumber: sel.startLineNumber,
