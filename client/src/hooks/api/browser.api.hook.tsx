@@ -63,6 +63,13 @@ export const useBrowserApi = (p: {
 
 	const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selected-folder', '')
 
+	//
+	// EFFECTs
+	//
+	// on loading selected folder, load files (usually first time)
+	useEffect(() => {
+		goTo(selectedFolder)
+	}, [selectedFolder])
 
 	//
 	// Goto
@@ -123,8 +130,8 @@ export const useBrowserApi = (p: {
 
 	// STORAGES
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
-	// const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
-	const [foldersFlat, setFoldersFlat] = useState<iFolder[]>([])
+	const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
+	//const [foldersFlat, setFoldersFlat] = useState<iFolder[]>([])
 	const [folderBasePath, setFolderBasePath] = useState('')
 
 
@@ -157,15 +164,10 @@ export const useBrowserApi = (p: {
 			for (let i = 0; i < data.folders.length; i++) {
 				if (data.folders[i]) newflatStruct = upsertFlatStructure(data.folders[i], newflatStruct);
 			}
-			console.log('0044', newflatStruct);
 			setFoldersFlat(newflatStruct)
-			console.log('00441', newflatStruct);
-
 			let newTreeStruct = buildTreeFolder('/', newflatStruct)
-			console.log('00442', newTreeStruct);
 			if (newTreeStruct) setFolderHierarchy(newTreeStruct)
 			setFolderBasePath(data.pathBase)
-			console.log('wooooooooooop 0044', newTreeStruct);
 		})
 	}
 
