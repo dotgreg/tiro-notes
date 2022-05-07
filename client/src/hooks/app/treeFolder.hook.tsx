@@ -1,8 +1,9 @@
 import { cloneDeep, isArray } from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iAppView, iFolder } from '../../../../shared/types.shared';
 import { onFolderDragStartFn, onFolderDropFn, onFolderMenuActionFn, TreeView } from "../../components/TreeView.Component"
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { ClientApiContext, getClientApi2 } from '../api/api.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from '../useStatMemo.hook';
 import { getLoginToken } from './loginToken.hook';
@@ -24,33 +25,12 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 
 	// CURRENT POSITION
 	const [folderBasePath, setFolderBasePath] = useState('')
-	const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selected-folder', '')
 
 
 
 
 
 
-
-	const listenerId = useRef<number>(0)
-	useEffect(() => {
-		console.log(`[TREE FOLDER] init socket listener`);
-		listenerId.current = clientSocket2.on('getFoldersScan', data => {
-			let newflatStruct: iFolder[] = foldersFlat
-			for (let i = 0; i < data.folders.length; i++) {
-				if (data.folders[i]) newflatStruct = upsertFlatStructure(data.folders[i], newflatStruct);
-			}
-			setFoldersFlat(newflatStruct)
-
-			let newTreeStruct = buildTreeFolder('/', newflatStruct)
-			if (newTreeStruct) setFolderHierarchy(newTreeStruct)
-			setFolderBasePath(data.pathBase)
-		})
-		return () => {
-			console.log(`[TREE FOLDER] clean socket listener`);
-			clientSocket2.off(listenerId.current)
-		}
-	}, [])
 
 
 
@@ -71,11 +51,27 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 		setFolderHierarchy(defaultFolderVal)
 	}
 
+
 	// FOLDER SCAN
 	const askForFolderScan = (foldersPaths: string[]) => {
-		console.log(`[TREE FOLDER] askForFolderScan with foldersPaths:`, { foldersPaths });
-		clientSocket2.emit('askFoldersScan', { foldersPaths, token: getLoginToken() })
+		getClientApi2().then(api => {
+			api.folders.get(foldersPaths, (folders, pathBase) => {
+				let newflatStruct: iFolder[] = foldersFlat
+				for (let i = 0; i < folders.length; i++) {
+					if (folders[i]) newflatStruct = upsertFlatStructure(folders[i], newflatStruct);
+				}
+				setFoldersFlat(newflatStruct)
+
+				let newTreeStruct = buildTreeFolder('/', newflatStruct)
+				if (newTreeStruct) setFolderHierarchy(newTreeStruct)
+				setFolderBasePath(pathBase)
+			})
+		})
 	}
+
+	const api = useContext(ClientApiContext);
+	const currentFolder = api?.ui.browser.folders.current.get || ''
+	console.log('00345', currentFolder);
 
 	// COMPONENTS
 	const FolderTreeComponent = (p: {
@@ -88,18 +84,22 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 		onFolderDrop: onFolderDropFn
 	}) =>
 		useStatMemo(
-			<TreeView
-				current={selectedFolder}
-				folder={folderHierarchy}
-				onFolderClicked={p.onFolderClicked}
-				onFolderMenuAction={p.onFolderMenuAction}
-				onFolderOpen={p.onFolderOpen}
-				onFolderClose={p.onFolderClose}
-				onFolderDragStart={p.onFolderDragStart}
-				onFolderDragEnd={p.onFolderDragEnd}
-				onFolderDrop={p.onFolderDrop}
-			/>
-			, [folderHierarchy, openFolders, selectedFolder, currentAppView]
+			<>
+				{currentFolder}
+				{api && api.ui.browser.folders.current.get}
+				< TreeView
+					current={currentFolder}
+					folder={folderHierarchy}
+					onFolderClicked={p.onFolderClicked}
+					onFolderMenuAction={p.onFolderMenuAction}
+					onFolderOpen={p.onFolderOpen}
+					onFolderClose={p.onFolderClose}
+					onFolderDragStart={p.onFolderDragStart}
+					onFolderDragEnd={p.onFolderDragEnd}
+					onFolderDrop={p.onFolderDrop}
+				/>
+			</>
+			, [folderHierarchy, currentFolder, openFolders, currentAppView]
 		)
 
 
@@ -109,7 +109,6 @@ export const useAppTreeFolder = (currentAppView: iAppView) => {
 		removeToOpenedFolders,
 
 		folderBasePath,
-		selectedFolder, setSelectedFolder,
 		cleanFolderHierarchy,
 		askForFolderScan,
 		FolderTreeComponent

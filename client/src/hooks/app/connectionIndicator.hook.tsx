@@ -5,9 +5,6 @@ import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useInterval } from '../interval.hook';
 
-export interface iStatusApi {
-	isConnected: boolean
-}
 
 const generateTitle = (): string => {
 	let newTitle = ''
@@ -17,7 +14,7 @@ const generateTitle = (): string => {
 	return newTitle
 }
 
-export const useConnectionIndicator = (setCanEdit: Function) => {
+export const useConnectionIndicator = () => {
 	const listenerIds = useRef<number[]>([])
 	const [isSocketConnected, setIsSocketConnected] = useState(false)
 	const [backOnline, setBackOnline] = useState(false)
@@ -41,14 +38,13 @@ export const useConnectionIndicator = (setCanEdit: Function) => {
 	useEffect(() => {
 		// LISTENING TO SOCKET LIFECYCLE EVENTS
 		listenerIds.current[0] = clientSocket2.on('disconnect',
-			() => { toggleSocketConnection(false); setCanEdit(false); }
+			() => { toggleSocketConnection(false); }
 		)
 		listenerIds.current[1] = clientSocket2.on('reconnect',
 			() => {
 				toggleSocketConnection(true);
 				setBackOnline(true)
 				setTimeout(() => { setBackOnline(false) }, 1000)
-				setCanEdit(true);
 			}
 		)
 		listenerIds.current[2] = clientSocket2.on('connect',
@@ -56,7 +52,6 @@ export const useConnectionIndicator = (setCanEdit: Function) => {
 				toggleSocketConnection(true);
 				setBackOnline(true)
 				setTimeout(() => { setBackOnline(false) }, 1000)
-				setCanEdit(true);
 			}
 		)
 

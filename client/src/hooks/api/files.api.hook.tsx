@@ -4,6 +4,7 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 import { iSearchApi } from './search.hook.api';
+import { iStatusApi } from './status.api.hook';
 
 //
 // INTERFACES
@@ -28,7 +29,8 @@ export interface iFilesApi {
 
 export const useFilesApi = (p: {
 	eventBus: iApiEventBus,
-	searchApi: iSearchApi
+	searchApi: iSearchApi,
+	statusApi: iStatusApi
 }) => {
 
 	//
@@ -53,8 +55,12 @@ export const useFilesApi = (p: {
 	const getFiles: iFilesApi['get'] = (folderPath, cb) => {
 		console.log(`[CLIENT API] 002104 get files ${folderPath}`);
 		const idReq = genIdReq('get-files-');
+		p.statusApi.searching.set(true)
 		// 1. add a listener function
-		p.eventBus.subscribe(idReq, cb);
+		p.eventBus.subscribe(idReq, nFiles => {
+			p.statusApi.searching.set(false)
+			cb(nFiles)
+		});
 		// 2. emit request 
 		clientSocket2.emit('askForFiles', {
 			folderPath,

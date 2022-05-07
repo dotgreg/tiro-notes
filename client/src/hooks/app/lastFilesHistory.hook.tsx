@@ -4,7 +4,7 @@ import { useDebounce } from '../lodash.hooks';
 import { useBackendState } from '../useBackendState.hook';
 import { useLocalStorage } from "../useLocalStorage.hook"
 
-export const useLastFilesHistory = (activeFile: iFile|null) => {
+export const useLastFilesHistory = (activeFile: iFile) => {
   const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history',[])
     // const [filesHistory, setFilesHistory] = useState<iFile[]>([])
     

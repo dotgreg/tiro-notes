@@ -39,11 +39,6 @@ export const WindowEditor = (p: {
 	//
 	// FORCE LIST FILES REFRESH
 	//
-	const leading = useRef(true)
-	useEffect(() => {
-		leading.current = true
-	}, [file?.path])
-
 	const refreshFilesList = () => {
 		console.log('0046 refresh list after file edit');
 		api && api.ui.browser.goTo(api.ui.browser.folders.current.get)

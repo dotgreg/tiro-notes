@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from "react"
 import { iFile } from "../../../shared/types.shared"
 import { ClientApiContext } from "../hooks/api/api.hook"
 import { onUploadProgressFn, onUploadSuccessFn } from "../hooks/api/upload.api.hook"
+import { cssVars } from "../managers/style/vars.style.manager"
 import { Icon } from "./Icon.component"
 
 export const UploadButton = (p: {
@@ -14,7 +15,7 @@ export const UploadButton = (p: {
 	const api = useContext(ClientApiContext);
 
 	return (
-		<>
+		<div className="upload-button-component">
 			<input
 				className='input-file-hidden'
 				id="file"
@@ -37,21 +38,40 @@ export const UploadButton = (p: {
 			{/* @ts-ignore  */}
 			<label for="file">
 				<Icon name="faPaperclip" />
+				<span className="label-text">Upload files </span>
 			</label>
-		</>
+		</div>
 	)
 }
 
-export const uploadButtonCss = `
+export const uploadButtonCss = `//css
 				.upload-button-wrapper {
-					position: relative;
-				.input-file-hidden {
-					width: 0.1px;
-				height: 0.1px;
-				opacity: 0;
-				overflow: hidden;
-				position: absolute;
-				z-index: -1;
-        }
-      }
-				`;
+						width: 100%;
+						cursor: pointer;
+						.inside-html-wrapper {
+							width: 100%;
+						}
+						&:hover {
+								.label-text { color :${cssVars.colors.main}; }
+						}
+					.upload-button-component {
+							cursor: pointer;
+							display: flex;
+							position: relative;
+							width: 100%;
+						.input-file-hidden {
+							width: 0.1px;
+							height: 0.1px;
+							opacity: 0;
+							overflow: hidden;
+							position: absolute;
+							z-index: -1;
+						}
+						.label-text {
+								margin-left: 18px;
+								font-size: 10px;
+								font-weight: 400;
+						}
+					}
+				}
+				`//css;

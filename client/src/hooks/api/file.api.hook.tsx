@@ -1,11 +1,14 @@
 import React, { useEffect, useRef } from 'react';
+import { getFolderPath } from '../../../../shared/helpers/filename.helper';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { iFile } from '../../../../shared/types.shared';
 import { onFileDeleteFn } from '../../components/windowGrid/WindowGrid.component';
+import { getFolderParentPath } from '../../managers/folder.manager';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
-import { genIdReq, iApiEventBus } from './api.hook';
+import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
+import { iBrowserApi } from './browser.api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 
@@ -61,16 +64,31 @@ export const useFileApi = (p: {
 
 
 	// 2. SET CONTENT
+	const lastNoteWHistory = useRef('');
 	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options) => {
 		const history = (options && options.history) ? options.history : false
 		console.log(`${h} save file content ${noteLink}`);
+
 		const filePath = noteLinkToPath(noteLink);
 		clientSocket2.emit('saveFileContent', {
 			filePath, newFileContent: content,
 			token: getLoginToken()
 		})
+
 		if (history) {
+			if (noteLink !== lastNoteWHistory.current) {
+				getClientApi2().then(api => {
+					const browserFolder = api.ui.browser.folders.current.get
+					const currFolder = getFolderPath(noteLink)
+					console.log('0038 CHANGED NOTE', browserFolder, currFolder);
+					if (browserFolder === currFolder) {
+						// update browser list if same path than edited file
+						api.ui.browser.goTo(browserFolder)
+					}
+				})
+			}
 			p.historyApi.intervalSave(noteLink, content)
+			lastNoteWHistory.current = noteLink
 		}
 	}
 

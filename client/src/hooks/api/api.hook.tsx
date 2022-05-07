@@ -1,16 +1,17 @@
 import { each } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
-import { iStatusApi } from '../app/connectionIndicator.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iLightboxApi } from '../app/useLightbox.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
-import { iBrowserApi } from './browser.api.hook';
+import { iBrowserApi, useBrowserApi } from './browser.api.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
+import { iFoldersApi, useFoldersApi } from './folders.api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
-import { iSearchApi } from './search.hook.api';
+import { iSearchApi, useSearchApi } from './search.hook.api';
+import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 
 //
@@ -27,6 +28,7 @@ export interface iClientApi {
 	upload: iUploadApi
 	popup: iPopupApi
 	files: iFilesApi
+	folders: iFoldersApi
 	tabs: iTabsApi
 	userSettings: iUserSettingsApi
 	history: iNoteHistoryApi
@@ -71,12 +73,10 @@ export const useClientApi = (p: {
 	popupApi: iPopupApi
 	tabsApi: iTabsApi
 	userSettingsApi: iUserSettingsApi
-	browserApi: iBrowserApi
 	windowsApi: iWindowsApi
 	statusApi: iStatusApi
 	lightboxApi: iLightboxApi
 	historyApi: iNoteHistoryApi
-	searchApi: iSearchApi
 }) => {
 
 	//
@@ -112,10 +112,30 @@ export const useClientApi = (p: {
 	}, [])
 
 
-	const fileApi = useFileApi({ eventBus, historyApi: p.historyApi });
-	const filesApi = useFilesApi({ eventBus, searchApi: p.searchApi });
+	const searchApi = useSearchApi({
+		eventBus,
+		statusApi: p.statusApi
+	});
+	const fileApi = useFileApi({
+		eventBus,
+		historyApi: p.historyApi
+	});
+	const filesApi = useFilesApi({
+		eventBus,
+		searchApi,
+		statusApi: p.statusApi
+	});
 	const uploadApi = useUploadApi({ eventBus });
+	const foldersApi = useFoldersApi({ eventBus });
 
+
+	const browserApi = useBrowserApi({
+		searchUiApi: searchApi.ui,
+		statusApi: p.statusApi,
+		filesApi,
+		foldersApi,
+		userSettingsApi: p.userSettingsApi
+	})
 
 	// 
 	// FINAL EXPORT
@@ -126,14 +146,15 @@ export const useClientApi = (p: {
 		popup: p.popupApi,
 		upload: uploadApi,
 		tabs: p.tabsApi,
+		folders: foldersApi,
 		userSettings: p.userSettingsApi,
 		history: p.historyApi,
 		status: p.statusApi,
 		ui: {
-			browser: p.browserApi,
+			browser: browserApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi,
-			search: p.searchApi.ui
+			search: searchApi.ui
 		},
 	}
 	// outside of react too
