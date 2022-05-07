@@ -126,7 +126,6 @@ export const EditorArea = (p: {
 		}
 		if (gridContext.upload.file && p.isActive) {
 			const { name, path } = { ...gridContext.upload.file }
-			console.log('INSERTTEXT 1');
 			gridContext.upload.reinit();
 			insertTextAt(`![${name}](${path})`, 'currentPos')
 		}
@@ -146,7 +145,6 @@ export const EditorArea = (p: {
 				file={p.file}
 				onProgress={p => (setProgressUpload(p))}
 				onSuccess={p => {
-					console.log('INSERTTEXT 12');
 					insertTextAt(`![${p.name}](${p.path})`, 'currentPos')
 				}}
 			/>
@@ -157,7 +155,6 @@ export const EditorArea = (p: {
 			icon: 'faFingerprint',
 			action: () => {
 				let folder = `${p.file.folder}`
-				console.log('INSERTTEXT 13');
 				insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
 			}
 		},
@@ -297,6 +294,7 @@ export const EditorArea = (p: {
 										Path:
 										<span className="path-link" onClick={() => {
 											api?.ui.browser.goTo(p.file.folder, p.file.name)
+												console.log(p.file.folder, p.file.name);
 										}}
 										> {p.file.folder} </span>
 									</div>
