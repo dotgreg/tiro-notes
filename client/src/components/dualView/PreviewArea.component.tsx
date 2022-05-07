@@ -54,7 +54,7 @@ export const PreviewArea = (p: {
 				const file = el.dataset.file
 				const folder = el.dataset.folder
 				//console.log('woooop', file, folder);
-				api?.ui.browser.goTo(folder, file)
+				api?.ui.browser.goTo(folder, file, {open: true})
 			}
 		})
 	}
