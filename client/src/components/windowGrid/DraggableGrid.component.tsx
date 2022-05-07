@@ -108,6 +108,15 @@ export const DraggableGrid = (p: {
 	}
 	const removeWindow = (id: string) => {
 		const nLayout = filter(cloneDeep(intLayout), window => window.i !== id)
+
+		// if only one window left, make it fullsize
+		if (nLayout.length === 1) {
+			nLayout[0].x = 0
+			nLayout[0].y = 0
+			nLayout[0].h = d.rows
+			nLayout[0].w = d.cols
+		}
+
 		setIntLayout(nLayout)
 
 		// required to deplay the content update behind the layout because of react-grid...

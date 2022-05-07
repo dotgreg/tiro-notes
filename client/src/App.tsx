@@ -63,6 +63,9 @@ export const App = () => {
 		}
 	}, [])
 
+
+
+
 	// APP-WIDE MULTI-AREA LOGIC
 	const shouldLoadNoteIndex = useRef<null | number>(null)
 	const lastFolderIn = useRef('')
@@ -503,7 +506,8 @@ export const App = () => {
 											}}
 											onFileClicked={fileIndex => {
 												filesUiApi.active.set(fileIndex)
-												windowsApi.updateActive(filesUiApi.active.get)
+														const nFile = filesUiApi.get[fileIndex]
+												windowsApi.updateActive(nFile)
 											}}
 											onFileDragStart={files => {
 												console.log(`[DRAG MOVE] onFileDragStart`, files);

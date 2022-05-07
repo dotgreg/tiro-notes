@@ -43,24 +43,65 @@ export const getUrlTokenParam = (): string => {
 //  @TODO
 // add folderPath that ./.resources/image.jpg becomes localhost:8082/dir1/dir2/dir3/.resources/image.jpg
 export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: string): string => {
-	let res = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
+
+	// 1. check pdf links and open them as iframe by default
+
+	// 	let res1 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
+	// 		const link = input.split('](')[1].slice(0, -1);
+	// 		const name = input.split('](')[0].replace('![', '');
+	// 		let t1 = link.split('.');
+	// 		let filetype = t1[t1.length - 1];
+	// 		if (filetype === '7z') filetype = 'd7z';
+	// 		const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/${link}${getUrlTokenParam()}`
+	// 		const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=800,height=1000');"`
+	// 		const subst = `
+	// <div class="resource-link-wrapper">
+	// <div class="resource-link-icon ${filetype}"></div>
+	// <a class="resource-link preview-link" href="#" ${codeOpenPopup}>${name} (${filetype})</a>
+	// </div>`;
+	// 		return subst
+	// 	});
+
+
+	// 2. create rest
+	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
 		const link = input.split('](')[1].slice(0, -1);
 		const name = input.split('](')[0].replace('![', '');
 		let t1 = link.split('.');
 		let filetype = t1[t1.length - 1];
 		if (filetype === '7z') filetype = 'd7z';
+		let htmlAdded = ''
 
 		const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/${link}${getUrlTokenParam()}`
-		const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=800,height=1000');"`
-		const subst = `
-<div class="resource-link-wrapper">
-<div class="resource-link-icon ${filetype}"></div>
-<a class="resource-link preview-link" href="#" ${codeOpenPopup}>${name} (${filetype})</a>
+
+		const shouldBeOpen = name.includes('|open')
+		let subst = ''
+
+		if (shouldBeOpen) {
+			subst =
+				`
+<div class="iframe-ressource-wrapper">
+	<iframe src="${ressLink}" style="width: 100%; height:500px; border: none;"></iframe>
+</div>
+`
+		} else {
+
+			subst = `<div class="resource-link-wrapper">
+	<div class="resource-link-icon ${filetype}"></div>
+	<a class="resource-link preview-link"
+		href="${ressLink}"
+		download="wppp-${name}.${filetype}"
+	>
+		${name} (${filetype})
+	</a>
 </div>`;
+		}
+
 
 		return subst
 	});
-	return res;
+
+	return res2;
 };
 
 // export const transformRessourcesInHTML2 = (currentFolderPath: string, bodyRaw: string): string => {

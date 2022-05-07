@@ -123,6 +123,11 @@ export const useTabs = () => {
 			// refresh all tabs to view changes
 			const nTabs2 = refreshTabsViews(nTabs)
 
+			// disable active list item
+			getClientApi2().then(api => {
+				api.ui.browser.files.active.set(-1)
+			})
+
 			setTabs(nTabs2)
 
 		} else if (type === 'move') {
