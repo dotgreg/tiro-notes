@@ -35,3 +35,7 @@ export const getFolderPath = (filename: string): string => {
 	var dirname = d ? d[1] + '/' : ''
 	return cleanPath(dirname)
 }
+
+export const areSamePaths = (path1: string, path2: string): boolean => {
+	return cleanPath(path1 + '/') === cleanPath(path2 + '/')
+}

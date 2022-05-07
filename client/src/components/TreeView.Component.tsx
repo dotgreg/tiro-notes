@@ -7,6 +7,7 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { strings } from '../managers/strings.manager';
 import { isA, isIpad } from '../managers/device.manager';
 import { ClientApiContext } from '../hooks/api/api.hook';
+import { areSamePaths, cleanPath } from '../../../shared/helpers/filename.helper';
 
 export type onFolderDragStartFn = (folder: iFolder) => void
 export type onFolderDropFn = (folder: iFolder) => void
@@ -29,20 +30,8 @@ export const TreeView = (p: {
 	onFolderDrop: onFolderDropFn
 }) => {
 
-	const [openFolders, setOpenFolders] = useLocalStorage<string[]>('openFolders', ['/'])
-
-	// OPEN TREE FOLDER MANAGEMENT
-	const addToOpenedFolders = (folderPath: string) => {
-		setOpenFolders([...openFolders, folderPath])
-	}
-	const removeToOpenedFolders = (folderPath: string) => {
-		const newopenFolders = openFolders
-		const index = newopenFolders.indexOf(folderPath);
-		if (index > -1) {
-			newopenFolders.splice(index, 1);
-		}
-		setOpenFolders(newopenFolders)
-	}
+	const api = useContext(ClientApiContext);
+	const fApi = api ? api.ui.browser.folders : null
 
 	return (
 		<div className="folder-tree-view-component">
@@ -53,14 +42,13 @@ export const TreeView = (p: {
 				onFolderClicked={p.onFolderClicked}
 				onFolderMenuAction={p.onFolderMenuAction}
 				onFolderOpen={folderPath => {
-					addToOpenedFolders(folderPath)
+					fApi && fApi.open.add(folderPath)
 					p.onFolderOpen(folderPath)
 				}}
-		onFolderClose={folderPath => {
-															removeToOpenedFolders(folderPath)
-
-			p.onFolderClose(folderPath)
-		}}
+				onFolderClose={folderPath => {
+					fApi && fApi.open.remove(folderPath)
+					p.onFolderClose(folderPath)
+				}}
 
 				onFolderDragStart={p.onFolderDragStart}
 				onFolderDragEnd={p.onFolderDragEnd}
@@ -96,7 +84,7 @@ export const FolderView = (p: {
 	const [isOpen, setIsOpen] = useLocalStorage(`treeview-${(p.folder.key === '/' || p.folder.key === '') ? 'root' : p.folder.key}`, false)
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 
-	const isCurrentFolder = p.current === p.folder.key
+	const isCurrentFolder = areSamePaths(p.current, p.folder.key)
 	return (
 		<li
 			className={`folder-wrapper ${isCurrentFolder ? 'current' : ''}`}
