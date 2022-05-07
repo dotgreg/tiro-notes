@@ -38,6 +38,11 @@ export interface iBrowserApi {
 		get: iFolder
 		clean: Function
 		scan: (foldersPath: string[]) => void
+		open: {
+			get: string[]
+			add: (f: string) => void
+			remove: (f: string) => void
+		}
 		current: {
 			set: (nFolder: string) => void
 			get: string
@@ -115,39 +120,35 @@ export const useBrowserApi = (p: {
 	//
 	// FOLDERS LOGIC
 	//
-	// CURRENT POSITION
+
+	// STORAGES
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
 	const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
-
-
-
-
-	// const [openFolders, setOpenFolders] = useLocalStorage<string[]>('openFolders', ['/'])
-	// // OPEN TREE FOLDER MANAGEMENT
-	// const addToOpenedFolders = (folderPath: string) => {
-	// 	setOpenFolders([...openFolders, folderPath])
-	// }
-	// const removeToOpenedFolders = (folderPath: string) => {
-	// 	const newopenFolders = openFolders
-	// 	const index = newopenFolders.indexOf(folderPath);
-	// 	if (index > -1) {
-	// 		newopenFolders.splice(index, 1);
-	// 	}
-	// 	setOpenFolders(newopenFolders)
-	// }
+	const [folderBasePath, setFolderBasePath] = useState('')
 
 
 
 
 
+	// OPEN TREE FOLDER MANAGEMENT
+	const [openFolders, setOpenFolders] = useLocalStorage<string[]>('openFolders', ['/'])
+	const addToOpenedFolders = (folderPath: string) => {
+		setOpenFolders([...openFolders, folderPath])
+	}
+	const removeToOpenedFolders = (folderPath: string) => {
+		const newopenFolders = openFolders
+		const index = newopenFolders.indexOf(folderPath);
+		if (index > -1) {
+			newopenFolders.splice(index, 1);
+		}
+		setOpenFolders(newopenFolders)
+	}
 
 
 
 	const cleanFolderHierarchy = () => {
 		setFolderHierarchy(defaultFolderVal)
 	}
-	// CURRENT POSITION
-	const [folderBasePath, setFolderBasePath] = useState('')
 
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths: string[]) => {
 		p.foldersApi.get(foldersPaths, (folders, pathBase) => {
@@ -180,6 +181,11 @@ export const useBrowserApi = (p: {
 			get: folderHierarchy,
 			clean: cleanFolderHierarchy,
 			scan: scanFolders,
+			open: {
+				get: openFolders,
+				add: addToOpenedFolders,
+				remove: removeToOpenedFolders
+			},
 			current: {
 				get: selectedFolder,
 				set: setSelectedFolder
@@ -188,6 +194,25 @@ export const useBrowserApi = (p: {
 	}
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

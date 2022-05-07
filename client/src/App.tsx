@@ -43,6 +43,7 @@ import { useSearchApi } from './hooks/api/search.hook.api';
 import { SearchBar2 } from './components/SearchBar.component';
 import { useStatusApi } from './hooks/api/status.api.hook';
 import { fileURLToPath } from 'url';
+import { TreeView } from './components/TreeView.Component';
 
 
 
@@ -210,16 +211,16 @@ export const App = () => {
 	})
 
 	// Tree Folder
-	const {
-		openFolders,
-		addToOpenedFolders,
-		removeToOpenedFolders,
+	// const {
+	// 	openFolders,
+	// 	addToOpenedFolders,
+	// 	removeToOpenedFolders,
 
-		folderBasePath,
-		askForFolderScan,
-		FolderTreeComponent,
-		cleanFolderHierarchy
-	} = useAppTreeFolder(currentAppView)
+	// 	folderBasePath,
+	// 	askForFolderScan,
+	// 	FolderTreeComponent,
+	// 	cleanFolderHierarchy
+	// } = useAppTreeFolder(currentAppView)
 
 	// // on selectedFolder change, trigger update folders/file ui
 	// useEffect(() => {
@@ -246,19 +247,6 @@ export const App = () => {
 
 	// PROMPT AND CONFIRM POPUPAPI
 	const { PromptPopupComponent, popupApi } = usePromptPopup({})
-
-	// fileMove logic
-	const {
-		askForMoveFile,
-		promptAndMoveFolder,
-		promptAndBatchMoveFiles
-	} = useFileMove(
-		cleanFileDetails,
-		cleanFilesList,
-		cleanFolderHierarchy,
-		askForFolderScan,
-		popupApi
-	)
 
 
 	// Search Note from title
@@ -343,9 +331,27 @@ export const App = () => {
 
 	const api = clientApi
 	const filesUiApi = api.ui.browser.files
+	const foldersUiApi = api.ui.browser.folders
+	const askForFolderScan = foldersUiApi.scan
+	const cleanFolderHierarchy = foldersUiApi.clean
+	const folderBasePath = foldersUiApi.base
+	const openFolders = foldersUiApi.open.get
 
 	// last Note + files history array
 	const { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend } = useLastFilesHistory(filesUiApi.active.get)
+
+	// fileMove logic
+	const {
+		askForMoveFile,
+		promptAndMoveFolder,
+		promptAndBatchMoveFiles
+	} = useFileMove(
+		cleanFileDetails,
+		cleanFilesList,
+		cleanFolderHierarchy,
+		askForFolderScan,
+		popupApi
+	)
 
 
 	return (//jsx
@@ -406,50 +412,56 @@ export const App = () => {
 											/>
 										}
 
-										{
-											FolderTreeComponent({
-												onFolderClicked: folderPath => {
-													clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
-												},
-												onFolderMenuAction: (action, folder, newTitle) => {
-													if (action === 'rename' && newTitle) {
-														promptAndMoveFolder({
-															folder,
-															folderToDropInto: folder,
-															folderBasePath,
-															newTitle,
-															renameOnly: true
-														})
-													} else if (action === 'create' && newTitle) {
-														askFolderCreate(newTitle, folder)
-														askForFolderScan([folder.path])
-													} else if (action === 'moveToTrash') {
-														promptAndMoveFolder({ folder, folderToDropInto: defaultTrashFolder, folderBasePath, newTitle })
-													} else if (action === 'delete') {
-														askFolderDelete(folder)
-														askForFolderScan([folder.path])
-													}
-												},
-												onFolderOpen: folderPath => {
-													addToOpenedFolders(folderPath)
-													askForFolderScan([folderPath])
-												},
-												onFolderClose: folderPath => {
-													removeToOpenedFolders(folderPath)
-												},
-												onFolderDragStart: draggedFolder => {
-													console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
-													draggedItems.current = [{ type: 'folder', folder: draggedFolder }]
-												},
-												onFolderDragEnd: () => {
-													console.log(`[DRAG MOVE] onFolderDragEnd`);
-													draggedItems.current = []
-												},
-												onFolderDrop: folderDroppedInto => {
-													processDragDropAction(folderDroppedInto)
-												},
-											})
-										}
+
+										<TreeView
+											current={foldersUiApi.current.get}
+											folder={foldersUiApi.get}
+											onFolderClicked={folderPath => {
+												clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
+											}}
+											onFolderMenuAction={(action, folder, newTitle) => {
+												if (action === 'rename' && newTitle) {
+													promptAndMoveFolder({
+														folder,
+														folderToDropInto: folder,
+														folderBasePath,
+														newTitle,
+														renameOnly: true
+													})
+												} else if (action === 'create' && newTitle) {
+													askFolderCreate(newTitle, folder)
+													askForFolderScan([folder.path])
+												} else if (action === 'moveToTrash') {
+													promptAndMoveFolder({
+														folder,
+														folderToDropInto: defaultTrashFolder,
+														folderBasePath,
+														newTitle
+													})
+												} else if (action === 'delete') {
+													askFolderDelete(folder)
+													askForFolderScan([folder.path])
+												}
+											}}
+											onFolderOpen={folderPath => {
+												askForFolderScan([folderPath])
+											}}
+											onFolderClose={folderPath => {
+											}}
+											onFolderDragStart={draggedFolder => {
+												console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
+												draggedItems.current = [{ type: 'folder', folder: draggedFolder }]
+											}}
+											onFolderDragEnd={() => {
+												console.log(`[DRAG MOVE] onFolderDragEnd`);
+												draggedItems.current = []
+											}}
+											onFolderDrop={folderDroppedInto => {
+												processDragDropAction(folderDroppedInto)
+											}}
+
+										/>
+
 
 									</div>
 
