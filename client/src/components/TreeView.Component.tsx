@@ -28,6 +28,22 @@ export const TreeView = (p: {
 	onFolderDragEnd: () => void
 	onFolderDrop: onFolderDropFn
 }) => {
+
+	const [openFolders, setOpenFolders] = useLocalStorage<string[]>('openFolders', ['/'])
+
+	// OPEN TREE FOLDER MANAGEMENT
+	const addToOpenedFolders = (folderPath: string) => {
+		setOpenFolders([...openFolders, folderPath])
+	}
+	const removeToOpenedFolders = (folderPath: string) => {
+		const newopenFolders = openFolders
+		const index = newopenFolders.indexOf(folderPath);
+		if (index > -1) {
+			newopenFolders.splice(index, 1);
+		}
+		setOpenFolders(newopenFolders)
+	}
+
 	return (
 		<div className="folder-tree-view-component">
 			<h3 className='subtitle'>{strings.folders}</h3>
@@ -36,8 +52,15 @@ export const TreeView = (p: {
 				current={p.current}
 				onFolderClicked={p.onFolderClicked}
 				onFolderMenuAction={p.onFolderMenuAction}
-				onFolderOpen={p.onFolderOpen}
-				onFolderClose={p.onFolderClose}
+				onFolderOpen={folderPath => {
+					addToOpenedFolders(folderPath)
+					p.onFolderOpen(folderPath)
+				}}
+		onFolderClose={folderPath => {
+															removeToOpenedFolders(folderPath)
+
+			p.onFolderClose(folderPath)
+		}}
 
 				onFolderDragStart={p.onFolderDragStart}
 				onFolderDragEnd={p.onFolderDragEnd}
