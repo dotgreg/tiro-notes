@@ -14,6 +14,7 @@ import { commonCssEditors } from './EditorArea.component';
 
 
 export const PreviewArea = (p: {
+	windowId: string
 	file: iFile,
 	posY: number,
 	fileContent: string
@@ -53,8 +54,13 @@ export const PreviewArea = (p: {
 			el.onclick = () => {
 				const file = el.dataset.file
 				const folder = el.dataset.folder
+				const windowId = el.dataset.windowid
 				//console.log('woooop', file, folder);
-				api?.ui.browser.goTo(folder, file, {open: true})
+				api?.ui.browser.goTo(
+					folder,
+					file, {
+					openIn: windowId
+				})
 			}
 		})
 	}
@@ -76,7 +82,7 @@ export const PreviewArea = (p: {
 			transformRessourcesInHTML(currentFolder,
 				transformImagesInHTML(currentFolder,
 					transformSearchLinks(
-						transformTitleSearchLinks(
+						transformTitleSearchLinks(p.windowId,
 							transformUrlInLinks(
 								transformMarkdownScripts(
 									replaceUserCustomMdTag(

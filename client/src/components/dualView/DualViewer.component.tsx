@@ -11,6 +11,7 @@ import { ScrollingBar } from './Scroller.component';
 export type onViewChangeFn = (nView: iViewType) => void
 
 export const DualViewer = (p: {
+	windowId: string
 	file: iFile
 	fileContent: string
 	isActive: boolean
@@ -78,6 +79,7 @@ export const DualViewer = (p: {
 		/>
 
 		<PreviewArea
+	windowId={p.windowId}
 			file={p.file}
 			posY={syncScrollY}
 			fileContent={previewContent}

@@ -9,7 +9,7 @@ export const WindowEditor = (p: {
 	onViewChange: onViewChangeFn
 }) => {
 
-	const { file, view, active } = { ...p.content }
+	const { file, view, active, i } = { ...p.content }
 
 	const [fileContent, setFileContent] = useState('')
 
@@ -51,6 +51,7 @@ export const WindowEditor = (p: {
 				file &&
 				<div className="window-editor-wrapper">
 					<DualViewer
+							windowId={i}
 						file={file}
 						fileContent={fileContent}
 						isActive={active}

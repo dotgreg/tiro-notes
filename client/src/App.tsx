@@ -403,11 +403,11 @@ export const App = () => {
 											<LastNotes
 												files={filesHistory}
 												onClick={file => {
-															clientApi.ui.browser.goTo(
-															file.folder,
-															file.name,
-															{open: true}
-															)
+													clientApi.ui.browser.goTo(
+														file.folder,
+														file.name,
+														{ openIn: 'active' }
+													)
 												}}
 											/>
 										}
