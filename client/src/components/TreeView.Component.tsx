@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { iFolder } from '../../../shared/types.shared';
-import { onFolderClickedFn } from '../hooks/app/treeFolder.hook';
 import { useLocalStorage } from '../hooks/useLocalStorage.hook';
 import { Icon } from './Icon.component';
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -9,6 +8,7 @@ import { isA, isIpad } from '../managers/device.manager';
 import { ClientApiContext } from '../hooks/api/api.hook';
 import { areSamePaths, cleanPath } from '../../../shared/helpers/filename.helper';
 
+export type onFolderClickedFn = (folderPath: string) => void
 export type onFolderDragStartFn = (folder: iFolder) => void
 export type onFolderDropFn = (folder: iFolder) => void
 export type onFolderMenuActionFn = (
@@ -213,7 +213,7 @@ export const l1Subtitle = `
   }
 `
 
-export const folderTreeCss = `
+export const folderTreeCss = `//css
 .folder-tree-view-component {
   padding: ${cssVars.sizes.block}px;
   padding-right: 0px;
@@ -234,9 +234,10 @@ export const folderTreeCss = `
     cursor: pointer;
 
     .context-menu-wrapper {
-      position: absolute;
-      right: 30px;
-      top: 5px;
+			position: absolute;
+			right: 0px;
+			top: -10px;
+			padding: 10px;
       display:none;
       .context-menu {
         position: absolute;
@@ -287,4 +288,4 @@ export const folderTreeCss = `
   }
   
 }
-`
+`//css

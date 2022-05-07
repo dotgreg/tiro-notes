@@ -11,7 +11,7 @@ import { genIdReq, iApiEventBus } from './api.hook';
 export interface iFoldersApi {
 	get: (
 		folderPaths: string[],
-		cb: (folders: iFolder[], pathBase: string) => void
+		cb: (data: { folders: iFolder[], pathBase: string }) => void
 	) => void
 }
 

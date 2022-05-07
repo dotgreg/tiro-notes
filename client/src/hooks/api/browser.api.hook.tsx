@@ -1,6 +1,6 @@
 import { cloneDeep, each, isArray } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
-import { cleanPath } from '../../../../shared/helpers/filename.helper';
+import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { iAppView, iFile, iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
@@ -123,7 +123,8 @@ export const useBrowserApi = (p: {
 
 	// STORAGES
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
-	const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
+	// const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
+	const [foldersFlat, setFoldersFlat] = useState<iFolder[]>([])
 	const [folderBasePath, setFolderBasePath] = useState('')
 
 
@@ -151,16 +152,20 @@ export const useBrowserApi = (p: {
 	}
 
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths: string[]) => {
-		p.foldersApi.get(foldersPaths, (folders, pathBase) => {
+		p.foldersApi.get(foldersPaths, data => {
 			let newflatStruct: iFolder[] = foldersFlat
-			for (let i = 0; i < folders.length; i++) {
-				if (folders[i]) newflatStruct = upsertFlatStructure(folders[i], newflatStruct);
+			for (let i = 0; i < data.folders.length; i++) {
+				if (data.folders[i]) newflatStruct = upsertFlatStructure(data.folders[i], newflatStruct);
 			}
+			console.log('0044', newflatStruct);
 			setFoldersFlat(newflatStruct)
+			console.log('00441', newflatStruct);
 
 			let newTreeStruct = buildTreeFolder('/', newflatStruct)
+			console.log('00442', newTreeStruct);
 			if (newTreeStruct) setFolderHierarchy(newTreeStruct)
-			setFolderBasePath(pathBase)
+			setFolderBasePath(data.pathBase)
+			console.log('wooooooooooop 0044', newTreeStruct);
 		})
 	}
 
@@ -221,15 +226,16 @@ export const useBrowserApi = (p: {
 // FOLDERS SUPPORT FUNCTIONS
 //
 
-type onFolderClickedFn = (folderPath: string) => void
 const defaultFolderVal: iFolder = { title: '', key: '', path: '' }
+
 const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
+	console.log('13131310 ', path, folders);
 	let res
 	for (let i = 0; i < folders.length; i++) {
-		if (folders[i].path === path) {
-			// console.log('131313 FOUND', path, folders[i]);
+		console.log('1313131 ', folders[i]);
+		if (areSamePaths(folders[i].path, path)) {
+			//console.log('131313 FOUND', path, folders[i]);
 			res = cloneDeep(folders[i])
-
 			const children = folders[i].children
 			if (isArray(children)) {
 				for (let y = 0; y < children.length; y++) {
@@ -244,8 +250,10 @@ const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
 
 const upsertFlatStructure = (newFolder: iFolder, flatStructure: iFolder[]): iFolder[] => {
 	let updateType = 'add'
+	console.log('044-2', flatStructure);
 	for (let i = 0; i < flatStructure.length; i++) {
-		if (newFolder.path === flatStructure[i].path) {
+		console.log('044-1', areSamePaths(newFolder.path, flatStructure[i].path), newFolder.path, flatStructure[i].path);
+		if (areSamePaths(newFolder.path, flatStructure[i].path)) {
 			flatStructure[i] = newFolder
 			updateType = 'update'
 		}
@@ -258,14 +266,14 @@ const upsertFlatStructure = (newFolder: iFolder, flatStructure: iFolder[]): iFol
 	return flatStructure
 }
 
-const defaultTrashFolder: iFolder = { title: '.trash', key: '/.tiro/.trash', path: '/.tiro/.trash' }
+export const defaultTrashFolder: iFolder = { title: '.trash', key: '/.tiro/.trash', path: '/.tiro/.trash' }
 
-const askFolderCreate = (newFolderName: string, parent: iFolder) => {
+export const askFolderCreate = (newFolderName: string, parent: iFolder) => {
 	console.log(`[askFolderCreate]`, newFolderName, parent);
 	clientSocket2.emit('askFolderCreate', { newFolderName, parent, token: getLoginToken() })
 }
 
-const askFolderDelete = (folderToDelete: iFolder) => {
+export const askFolderDelete = (folderToDelete: iFolder) => {
 	console.log(`[askFolderDelete]`, folderToDelete);
 	clientSocket2.emit('askFolderDelete', { folderToDelete, token: getLoginToken() })
 }

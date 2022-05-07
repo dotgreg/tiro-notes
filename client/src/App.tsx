@@ -3,18 +3,14 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
 import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
-import { useAppTreeFolder, defaultTrashFolder, askFolderCreate, askFolderDelete } from './hooks/app/treeFolder.hook';
-import { useFileContent } from './hooks/app/fileContent.hook';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { debounce, each, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { iFile, iFolder } from '../../shared/types.shared';
-import { cleanPath } from '../../shared/helpers/filename.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
-import { useSearchFromTitle } from './hooks/app/searchFromTitle.hook';
 import { LastNotes } from './components/LastNotes.component';
 import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
@@ -35,15 +31,12 @@ import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
 import { ClientApiContext, useClientApi } from './hooks/api/api.hook';
 import { useLightbox } from './hooks/app/useLightbox.hook';
-import { sortFiles } from './managers/sort.manager';
 import { FilesList } from './components/fileList.component';
-import { iBrowserApi, useBrowserApi } from './hooks/api/browser.api.hook';
 import { useNoteHistoryApi } from './hooks/api/history.api.hook';
-import { useSearchApi } from './hooks/api/search.hook.api';
 import { SearchBar2 } from './components/SearchBar.component';
 import { useStatusApi } from './hooks/api/status.api.hook';
-import { fileURLToPath } from 'url';
 import { TreeView } from './components/TreeView.Component';
+import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 
 
 
@@ -414,8 +407,8 @@ export const App = () => {
 
 
 										<TreeView
-											current={foldersUiApi.current.get}
 											folder={foldersUiApi.get}
+											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
 												clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
 											}}
