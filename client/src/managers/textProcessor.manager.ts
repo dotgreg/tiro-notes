@@ -5,6 +5,7 @@ import { replaceAll } from './string.manager';
 import { getBackendUrl } from './sockets/socket.manager';
 import { replaceRegexInMd } from './markdown.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { iFile } from '../../../shared/types.shared';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -12,9 +13,12 @@ export const transformUrlInLinks = (bodyRaw: string): string => {
 	return bodyRaw.replace(regexs.url2transform, subst);
 }
 
-export const transformTitleSearchLinks = (bodyRaw: string): string => {
+export const transformTitleSearchLinks = (
+	windowId: string,
+	bodyRaw: string
+): string => {
 	//const subst = `<a class="title-search-link preview-link" href="javascript:window.tiroCli.searchFileFromTitle.func('$1','$2');">$1</a>`;
-	const subst = `<a class="title-search-link preview-link" data-file="$1" data-folder="$2" >$1</a>`;
+	const subst = `<a class="title-search-link preview-link" data-file="$1" data-folder="$2" data-windowid="${windowId}">$1</a>`;
 	return bodyRaw.replace(regexs.linklink, subst);
 }
 export const transformSearchLinks = (bodyRaw: string): string => {

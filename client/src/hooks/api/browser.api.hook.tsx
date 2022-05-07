@@ -23,7 +23,7 @@ export interface iBrowserApi {
 		fileTitle?: string | null,
 		options?: {
 			appView?: 'text' | 'image'
-			open?: boolean
+			openIn?: string
 		}
 	) => void
 	files: {
@@ -116,8 +116,13 @@ export const useBrowserApi = (p: {
 
 
 					// if asked to open it in window
-					if (opts && opts.open) {
-						p.windowApi.updateActive(nfilesSorted[activeIndex])
+					if (opts && opts.openIn) {
+						const fileToOpen = nfilesSorted[activeIndex]
+						if (opts.openIn === 'active') {
+							p.windowApi.updateActive(fileToOpen)
+						} else {
+							p.windowApi.updateWindows([opts.openIn], fileToOpen)
+						}
 					}
 				});
 			} else if (appView === 'image') {
