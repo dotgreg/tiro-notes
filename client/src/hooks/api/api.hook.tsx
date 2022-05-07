@@ -134,6 +134,7 @@ export const useClientApi = (p: {
 		statusApi: p.statusApi,
 		filesApi,
 		foldersApi,
+		windowApi: p.windowsApi,
 		userSettingsApi: p.userSettingsApi
 	})
 

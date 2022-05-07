@@ -403,7 +403,11 @@ export const App = () => {
 											<LastNotes
 												files={filesHistory}
 												onClick={file => {
-													clientApi.ui.browser.goTo(file.folder, file.name)
+															clientApi.ui.browser.goTo(
+															file.folder,
+															file.name,
+															{open: true}
+															)
 												}}
 											/>
 										}
@@ -506,7 +510,7 @@ export const App = () => {
 											}}
 											onFileClicked={fileIndex => {
 												filesUiApi.active.set(fileIndex)
-														const nFile = filesUiApi.get[fileIndex]
+												const nFile = filesUiApi.get[fileIndex]
 												windowsApi.updateActive(nFile)
 											}}
 											onFileDragStart={files => {
