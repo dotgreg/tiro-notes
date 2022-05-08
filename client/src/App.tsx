@@ -275,8 +275,8 @@ export const App = () => {
 	// make sure the interface doesnt scroll
 	useFixScrollTop()
 
-	// DYNAMIC RESPONSIVE RERENDER (ON DEBOUNCE)
-	const { forceResponsiveRender } = useDynamicResponsive()
+	// DYNAMIC RESPONSIVE RERENDER (ON DEBOUNCEe
+	const { forceResponsiveRender, responsiveRefreshCounter } = useDynamicResponsive()
 
 	// DRAG/DROP FOLDER/FILES MOVING LOGIC
 	interface iDraggedItem { type: 'file' | 'folder', files?: iFile[], folder?: iFolder }
@@ -305,7 +305,8 @@ export const App = () => {
 
 	// status api
 	const statusApi = useStatusApi({
-		isConnected
+		isConnected,
+		responsiveRefresh: responsiveRefreshCounter
 	})
 
 	// NOTE HISTORY HOOK

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { cloneDeep, each, filter } from 'lodash'
 import GridLayout from "react-grid-layout";
 import '../../../node_modules/react-grid-layout/css/styles.css'
@@ -11,6 +11,8 @@ import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
+import { ClientApiContext } from '../../hooks/api/api.hook';
+import { deviceType } from '../../managers/device.manager';
 
 
 
@@ -239,74 +241,114 @@ export const DraggableGrid = (p: {
 		onGridUpdate(intLayout, nContent);
 	}
 
+	const api = useContext(ClientApiContext)
+	const responsiveRefresh = api?.status.responsiveRefresh
+	useEffect(() => {
+		console.log(deviceType());
+		// make first window active if mobile
+		if (deviceType() === 'mobile' && intLayout[0]) {
+			const wid = intLayout[0].i
+			makeWindowActive(wid);
+		}
+	}, [responsiveRefresh])
+
+
+	const WindowTools = (window, i) => {
+		return (//jsx
+			<>
+				<div className="note-active-ribbon"></div>
+				<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
+					<ButtonsToolbar
+						design="horizontal"
+						popup={false}
+						buttons={[
+							{
+								icon: 'faGripVertical',
+								title: 'Move Window',
+								class: 'drag-handle',
+								action: () => { }
+							},
+							{
+								icon: 'faPlus',
+								title: 'Add Window',
+								class: 'add-button',
+								action: () => { addNewWindow() }
+							},
+							{
+								icon: 'faPlus',
+								title: 'Delete Window',
+								class: 'delete-button',
+								action: () => { removeWindow(window.i) }
+							}
+						]}
+						colors={["#d4d1d1", "#615f5f"]}
+						size={0.8} />
+				</div>
+			</>
+		)//jsx
+	}
+
 
 	return (//jsx
 		<div className='draggable-grid-wrapper'>
 			<div className="draggable-grid-wrapper" ref={divWrapper}>
-				<GridLayout
-					className="draggable-grid"
-					autoSize={false}
-					layout={intLayout}
-					onLayoutChange={updateLayoutLogic}
-					cols={d.cols}
-					compactType="horizontal"
-					useCSSTransforms={true}
-					rowHeight={rh()}
-					draggableHandle=".drag-handle"
-					width={s.width}
-					margin={[d.m, d.m]}
-				>
-					{
-						intLayout.map((window, i) =>
-							<div
-								key={window.i}
-								className={`${intContent[i] && intContent[i].active ? 'active' : ''} window-wrapper`}
-								onClick={() => {
-									if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i)
-								}}
-							>
 
-								<div className="note-active-ribbon"></div>
+				{deviceType() !== 'mobile' &&
 
-								<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
-									<ButtonsToolbar
-										design="horizontal"
-										popup={false}
-										buttons={[
-											{
-												icon: 'faGripVertical',
-												title: 'Move Window',
-												class: 'drag-handle',
-												action: () => { }
-											},
-											{
-												icon: 'faPlus',
-												title: 'Add Window',
-												class: 'add-button',
-												action: () => { addNewWindow() }
-											},
-											{
-												icon: 'faPlus',
-												title: 'Delete Window',
-												class: 'delete-button',
-												action: () => { removeWindow(window.i) }
-											}
-										]}
-										colors={["#d4d1d1", "#615f5f"]}
-										size={0.8} />
+					<GridLayout
+						className="draggable-grid"
+						autoSize={false}
+						layout={intLayout}
+						onLayoutChange={updateLayoutLogic}
+						cols={d.cols}
+						compactType="horizontal"
+						useCSSTransforms={true}
+						rowHeight={rh()}
+						draggableHandle=".drag-handle"
+						width={s.width}
+						margin={[d.m, d.m]}
+					>
+						{
+							intLayout.map((window, i) =>
+								<div
+									key={window.i}
+									className={`
+											${intContent[i] && intContent[i].active ? 'active' : ''}
+											window-wrapper
+											`}
+									onClick={() => {
+										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i)
+									}}
+								>
+									{WindowTools(window, i)}
+
+									<div className="note-wrapper">
+										<WindowEditor
+											content={p.grid.content[i] && p.grid.content[i]}
+											onViewChange={(nView) => { viewTypeChange(nView, i) }}
+										/>
+									</div>
 								</div>
+							)
+						}
+					</GridLayout>
+				}
+
+				{deviceType() === 'mobile' &&
+					<div className="mobile-window-editor-wrapper window-wrapper">
+
+						{WindowTools(intLayout[0], 0)}
+
+						<div className="note-wrapper">
+							<WindowEditor
+								content={p.grid.content[0] && p.grid.content[0]}
+								onViewChange={(nView) => { viewTypeChange(nView, 0) }}
+							/>
+						</div>
+					</div>
+				}
 
 
-								<div className="note-wrapper">
-									<WindowEditor
-										content={p.grid.content[i] && p.grid.content[i]}
-										onViewChange={(nView) => { viewTypeChange(nView, i) }}
-									/>
-								</div>
-							</div>
-						)
-					}
-				</GridLayout>
 			</div >
 		</div >
 	)//jsx
@@ -334,165 +376,168 @@ export const draggableGridCss = `//css
 						height: 100%;
 						width: 100%;
 						height: 100%;
-						.window-wrapper {
-								//overflow: hidden;
-								border-radius: 5px;
-								background: white;
-								box-shadow: 0px 0px 5px rgba(0,0,0,.1);
-								overflow-y: hidden;
-								overflow-x: hidden;
-								height:100%;
-
-								// height 100% everywhere
-								.note-wrapper,
-								.window-editor-wrapper,
-								.dual-view-wrapper,
-								.editor-area,
-								.preview-area-wrapper,
-								.preview-area,
-								.main-editor-wrapper{
-										height: 100%;
-								}
-
-								.content-wrapper {
-										height:100%;
-								}
-								.note-active-ribbon {
-										height: 2px;
-										width: 100%;
-								}
-								&.active {
-										.note-active-ribbon {
-												//background:${cssVars.colors.main};
-										}
-										.dual-view-wrapper
-										.editor-area
-										.infos-editor-wrapper
-										.title-input-wrapper
-										.big-title {
-												color: ${cssVars.colors.main};
-
-										}
-								}
-
-								.note-wrapper {
-										.editor-toolbar-dropdown {
-												position: absolute;
-												top: 10px;
-												right: 0px;
-										}
-								}
-
-
-
-
-
-								.window-buttons-bar {
-										position: absolute;
-										z-index:2;
-										right: 30px;
-										top: 10px;
-										.delete-button {display: none;}
-										.add-button {display: none;}
-										.drag-handle {
-												cursor: grab;
-										}
-										.delete-button svg {
-												transform: rotate(45deg);
-										}
-										&.can-add {
-												.add-button {display: block;}
-										}
-										&.can-remove {
-												.delete-button {display: block;}
-										}
-								}
-
-
-
-								// content css modification
-								.dual-view-wrapper {
-										.file-path-wrapper {
-												display:none;
-										}
-										 .editor-area {
-												position:initial;
-												.infos-editor-wrapper {
-														z-index: 1;
-														position:absolute;
-														top: 0px;
-														left: 0px;
-														width: 100%;
-														border-bottom: 1px solid rgba(0 0 0 / 5%);
-														//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
-														height: 32px;
-														padding: 0px;
-												}
-												.main-editor-wrapper,
-												.infos-editor-wrapper {
-														padding-left: 10px;
-														padding-rigth: 10px;
-														width: calc(100% - 20px);
-														.title-input-wrapper {
-																padding-left: 10px;
-																.press-to-save {
-																		top: -6px;
-																		left: -6px;
-																		right: initial;
-																		opacity: 0.5;
-																}
-																.big-title {
-																		width: calc(100% - 65px);
-																		font-family: ${cssVars.font.editor};
-																		color: grey;
-																		font-size: 15px;
-																}
-														}
-												}
-												.main-editor-wrapper {
-														margin-top: 43px;
-												}
-										}
-
-										 //
-										 // ALL
-										 //
-										 &.device-desktop {
-														.preview-area-wrapper {
-																margin-top: 33px;
-																padding: 5px 5px 5px 5px;
-																background: #F7F7F7;
-														}
-														.preview-area {
-																padding: 10px 10px 10px 10px;
-														}
-										 }
-
-										 //
-										 // FULL PREVIEW
-										 //
-										 &.device-desktop.view-preview {
-														.editor-area {
-																width: 100%
-														}
-														.preview-area-wrapper {
-														}
-										 }
-
-										 //
-										 // FULL EDITOR
-										 //
-										 &.device-desktop.view-editor {
-												.preview-area-wrapper {
-												}
-										 }
-
-										 .scrolling-bar-wrapper {
-														top: 33px;
-										 }
-								}
-						}
 				}
 		}
+
+
+		.window-wrapper {
+				//overflow: hidden;
+				border-radius: 5px;
+				background: white;
+				box-shadow: 0px 0px 5px rgba(0,0,0,.1);
+				overflow-y: hidden;
+				overflow-x: hidden;
+				height:100%;
+
+				// height 100% everywhere
+				.note-wrapper,
+				.window-editor-wrapper,
+				.dual-view-wrapper,
+				.editor-area,
+				.preview-area-wrapper,
+				.preview-area,
+				.main-editor-wrapper{
+						height: 100%;
+				}
+
+				.content-wrapper {
+						height:100%;
+				}
+				.note-active-ribbon {
+						height: 2px;
+						width: 100%;
+				}
+				&.active {
+						.note-active-ribbon {
+								//background:${cssVars.colors.main};
+						}
+						.dual-view-wrapper
+						.editor-area
+						.infos-editor-wrapper
+						.title-input-wrapper
+						.big-title {
+								color: ${cssVars.colors.main};
+
+						}
+				}
+
+				.note-wrapper {
+						.editor-toolbar-dropdown {
+								position: absolute;
+								top: 10px;
+								right: 0px;
+						}
+				}
+
+
+
+
+
+				.window-buttons-bar {
+						position: absolute;
+						z-index:2;
+						right: 30px;
+						top: 10px;
+						.delete-button {display: none;}
+						.add-button {display: none;}
+						.drag-handle {
+								cursor: grab;
+						}
+						.delete-button svg {
+								transform: rotate(45deg);
+						}
+						&.can-add {
+								.add-button {display: block;}
+						}
+						&.can-remove {
+								.delete-button {display: block;}
+						}
+				}
+
+
+
+				// content css modification
+				.dual-view-wrapper {
+						.file-path-wrapper {
+								display:none;
+						}
+							.editor-area {
+								position:initial;
+								.infos-editor-wrapper {
+										z-index: 1;
+										position:absolute;
+										top: 0px;
+										left: 0px;
+										width: 100%;
+										border-bottom: 1px solid rgba(0 0 0 / 5%);
+										//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+										height: 32px;
+										padding: 0px;
+								}
+								.main-editor-wrapper,
+								.infos-editor-wrapper {
+										padding-left: 10px;
+										padding-rigth: 10px;
+										width: calc(100% - 20px);
+										.title-input-wrapper {
+												padding-left: 10px;
+												.press-to-save {
+														top: -6px;
+														left: -6px;
+														right: initial;
+														opacity: 0.5;
+												}
+												.big-title {
+														width: calc(100% - 65px);
+														font-family: ${cssVars.font.editor};
+														color: grey;
+														font-size: 15px;
+												}
+										}
+								}
+								.main-editor-wrapper {
+										margin-top: 43px;
+								}
+						}
+
+							//
+							// ALL
+							//
+							&.device-desktop {
+										.preview-area-wrapper {
+												margin-top: 33px;
+												padding: 5px 5px 5px 5px;
+												background: #F7F7F7;
+										}
+										.preview-area {
+												padding: 10px 10px 10px 10px;
+										}
+							}
+
+							//
+							// FULL PREVIEW
+							//
+							&.device-desktop.view-preview {
+										.editor-area {
+												width: 100%
+										}
+										.preview-area-wrapper {
+										}
+							}
+
+							//
+							// FULL EDITOR
+							//
+							&.device-desktop.view-editor {
+								.preview-area-wrapper {
+								}
+							}
+
+							.scrolling-bar-wrapper {
+										top: 33px;
+							}
+				}
+		}
+
 }
 `//css

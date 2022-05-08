@@ -6,10 +6,12 @@ export interface iStatusApi {
 		get: boolean
 		set: (isSearching: boolean) => void
 	}
+	responsiveRefresh: number
 }
 
 export const useStatusApi = (p: {
 	isConnected: boolean
+	responsiveRefresh: number
 }): iStatusApi => {
 
 
@@ -17,6 +19,7 @@ export const useStatusApi = (p: {
 
 	return {
 		isConnected: p.isConnected,
-		searching: { get: isSearching, set: setIsSearching }
+		searching: { get: isSearching, set: setIsSearching },
+		responsiveRefresh: p.responsiveRefresh
 	}
 }

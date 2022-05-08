@@ -56,35 +56,44 @@ export const DualViewer = (p: {
 		setPosY(1);
 	}, [p.file.path])
 
+	// for performance reasons, only show editor/preview when needed
+	//const showEditor = !(p.viewType === 'preview')
+	// dang, editor is required... cuz of dropdown menu
+	const showEditor = true
+	const showPreview = !(p.viewType === 'editor')
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
 		onWheelCapture={e => { updateSyncScroll(e.deltaY) }}
 	>
-		<EditorArea
-			file={p.file}
-			fileContent={p.fileContent}
-			isActive={p.isActive}
+		{showEditor &&
+			<EditorArea
+				file={p.file}
+				fileContent={p.fileContent}
+				isActive={p.isActive}
 
-			posY={syncScrollY}
-			onScroll={newYPercent => { }}
-			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
+				posY={syncScrollY}
+				onScroll={newYPercent => { }}
+				onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
 
-			onFileEdited={(path, content) => {
-				p.onFileEdited(path, content)
-				setPreviewContent(content)
-			}}
+				onFileEdited={(path, content) => {
+					p.onFileEdited(path, content)
+					setPreviewContent(content)
+				}}
 
-			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
-		/>
+				onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
+			/>
+		}
 
-		<PreviewArea
-	windowId={p.windowId}
-			file={p.file}
-			posY={syncScrollY}
-			fileContent={previewContent}
-			onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
-		/>
+		{showPreview &&
+			<PreviewArea
+				windowId={p.windowId}
+				file={p.file}
+				posY={syncScrollY}
+				fileContent={previewContent}
+				onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
+			/>
+		}
 
 
 		<ScrollingBar
