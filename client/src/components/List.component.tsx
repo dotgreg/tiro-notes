@@ -186,18 +186,19 @@ export class List extends React.Component<{
 												this.props.onFileDragEnd()
 											}}
 											onClick={(e) => {
-												if (getKeyModif('shift')) {
-													let edges: [number, number] = [this.props.activeFileIndex, index]
-													edges.sort()
 
-													console.log(`[MULTIARR]`, edges);
-													this.setState({ selectionEdges: edges })
+												// if (getKeyModif('shift')) {
+												// 	let edges: [number, number] = [this.props.activeFileIndex, index]
+												// 	edges.sort()
+												// 	console.log(`[MULTIARR]`, edges);
+												// 	this.setState({ selectionEdges: edges })
+												// } else {
+												// 	this.props.onFileClicked(index)
+												// 	this.setState({ selectionEdges: [-1, -1] })
+												// }
 
-												} else {
 													this.props.onFileClicked(index)
 													this.setState({ selectionEdges: [-1, -1] })
-												}
-
 											}}
 										>
 											<div className="left">

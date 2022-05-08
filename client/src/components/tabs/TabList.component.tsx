@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
-import {  onTabUpdateFn } from '../../hooks/app/tabs.hook';
+import { onTabUpdateFn } from '../../hooks/app/tabs.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
@@ -91,7 +91,17 @@ const Tab = (p: {
 				<div className="active-ribbon"></div>
 				<div className="tab-name"
 					onClick={() => { p.onUpdate('activate', tab) }}
-				> {tab.name}
+				>
+
+					<input
+						type="text"
+						className="tab-input-text"
+						value={tab.name}
+						onChange={e => {
+							p.onUpdate('rename', tab, e.target.value)
+						}}
+					/>
+
 				</div>
 
 				{
@@ -184,6 +194,16 @@ export const tabsCss = `//css
 						}
 						.tab-name {
 								padding: 10px 0px 10px 10px;
+
+								input {
+										color: #aaaaaa;
+										font-size: 11px;
+										background: none;
+										border: none;
+										font-weight: 400;
+										color: ${cssVars.colors.grey1};
+										font-family: ${cssVars.font.editor};
+								}
 
 						}
 						.tab-nb-windows {

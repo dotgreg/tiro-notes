@@ -22,6 +22,7 @@ import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
+import { copyToClickBoard } from '../../managers/clipboard.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -132,6 +133,7 @@ export const EditorArea = (p: {
 
 	}, [gridContext.upload])
 
+	const idNote = `[link|${p.file.realname} ${p.file.folder}]\n`
 
 	//
 	// TOOLBAR ACTIONS
@@ -150,14 +152,13 @@ export const EditorArea = (p: {
 			/>
 		},
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-		{
-			title: 'Insert unique id',
-			icon: 'faFingerprint',
-			action: () => {
-				let folder = `${p.file.folder}`
-				insertTextAt(`[link|${p.file.realname} ${folder}]\n`, 0)
-			}
-		},
+		// {
+		// 	title: 'Insert unique id',
+		// 	icon: 'faFingerprint',
+		// 	action: () => {
+		// 		insertTextAt(`${idNote}\n`, 0)
+		// 	}
+		// },
 		{
 			title: 'Print/download',
 			icon: 'faFileDownload',
@@ -213,6 +214,10 @@ export const EditorArea = (p: {
 	let maxDropdownHeight = 700
 	if (el) maxDropdownHeight = el.clientHeight / 1.3
 
+
+	// // Id note ref
+	const idInputRef = useRef<HTMLInputElement>(null)
+
 	return (//jsx
 		<div
 			className={`editor-area`}
@@ -225,7 +230,6 @@ export const EditorArea = (p: {
 				<div className="file-path-wrapper">
 					{p.file.path.replace(`/${p.file.name}`, '')}
 				</div>
-
 
 				<NoteTitleInput
 					title={p.file.name.replace('.md', '')}
@@ -284,21 +288,62 @@ export const EditorArea = (p: {
 									/>
 								</div>
 
+								<div className="separation-bar"></div>
+
 								<div className="dates-wrapper">
-									<div className='date modified'>Modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-									<div className='date created'>Created: {formatDateList(new Date(p.file.created || 0))}</div>
+									<div className='date modified'>
+										<h4>Modified</h4>
+										{formatDateList(new Date(p.file.modified || 0))}
+									</div>
+									<div className='date created'>
+										<h4>Created</h4>
+										{formatDateList(new Date(p.file.created || 0))}
+									</div>
 								</div>
 
 								<div className="path-wrapper">
 									<div className='path'>
-										Path:
+										<h4>Path</h4>
 										<span className="path-link" onClick={() => {
 											api?.ui.browser.goTo(p.file.folder, p.file.name)
-												console.log(p.file.folder, p.file.name);
+											console.log(p.file.folder, p.file.name);
 										}}
 										> {p.file.folder} </span>
 									</div>
 								</div>
+
+								<div className="note-id-wrapper">
+									<h4>Node Id</h4>
+									<div className="note-id-form">
+										<input
+											type="text"
+											ref={idInputRef}
+											onClick={e => {
+												const el = e.target
+												// @ts-ignore
+												el.setSelectionRange(0, el.value.length)
+											}}
+											value={idNote}
+										/>
+										<ButtonsToolbar
+											class='note-id-toolbar'
+											size={1}
+											buttons={[
+												{
+													title: 'Copy note ID',
+													icon: "faClipboard",
+													action: () => {
+														const el = idInputRef.current;
+														if (!el) return
+														copyToClickBoard(el)
+													}
+												},
+											]}
+										/>
+
+									</div>
+								</div>
+
 							</>
 						</Dropdown >
 					</div>
@@ -379,21 +424,63 @@ export const commonCssEditors = `//css
   text-transform: uppercase;
 }
 
+.separation-bar {
+		width: 86%;
+    height: 1px;
+    background: #e6e6e6;
+    margin: 10px 6%;
+}
+
 .dates-wrapper {
-    color: ${cssVars.colors.editor.interfaceGrey};
+		position: relative;
+		margin: 0px 0px 5px 0px;
     .modified {
-      color: grey;
+			text-align: right;
+			position: absolute;
+			top: 0px;
+			right: 0px;
+    color: ${cssVars.colors.editor.interfaceGrey};
     }
+		.created {
+      color: grey;
+			text-align: left;
+		}
   }
 
 .path-wrapper {
-    color: ${cssVars.colors.editor.interfaceGrey};
+		color: grey;
+    text-align: left;
+		padding: 0px 0px 5px 0px;
     .path-link {
 				color: ${cssVars.colors.main};
 				font-weight: bold;
 				cursor: pointer;
     }
   }
+
+.note-id-wrapper {
+		color: grey;
+    text-align: left;
+		.note-id-form {
+				display:flex;
+				input {
+					border: none;
+					padding: 5px;
+					background: #ebebeb;
+					border-radius: 3px;
+					font-size: 9px;
+					font-weight: 400;
+				}
+		}
+  }
+.toolbar-and-dates-wrapper {
+		h4 {
+				margin: 0px;
+
+		}
+}
+
+
 `//css
 
 export const editorAreaCss = (v: MobileView) => `//css
@@ -435,9 +522,7 @@ export const editorAreaCss = (v: MobileView) => `//css
 
     .dates-wrapper {
       display: ${isA('desktop') ? 'block' : 'none'};
-      margin: ${cssVars.sizes.block}px 0px;
       .date {
-        text-align: right;
       }
     }
     
