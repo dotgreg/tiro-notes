@@ -54,6 +54,39 @@ export const calculateNewWindowPosAndSize = (layout: iWindow[]) => {
 }
 
 
+export const updateLayout_onewindowleft_tofullsize = (nlayout: iWindow[]) => {
+	const conf = draggableGridConfig
+	// if only one window left, make it fullsize
+	if (nlayout.length === 1) {
+		nlayout[0].x = 0
+		nlayout[0].y = 0
+		nlayout[0].h = conf.rows
+		nlayout[0].w = conf.cols
+	}
+	return nlayout
+}
+
+export const updateLayout_twowindows_to_equal = (nlayout: iWindow[]) => {
+	const l = nlayout
+	const conf = draggableGridConfig
+	// resize ii|i  to  ii|ii
+	if (l.length === 2) console.log('0234 1', l[0].w, l[1].w, conf.cols / 2, conf.cols);
+	if (
+		l.length === 2 && (
+			// (l[0].w === conf.cols - 1 && l[0].h === conf.rows
+			// 	&& l[1].w === conf.cols / 2 && l[1].h === conf.rows) ||
+			// (l[1].w === conf.cols - 1 && l[1].h === conf.rows
+			// 	&& l[0].w === conf.cols / 2 && l[0].h === conf.rows)
+			(l[0].w === (conf.cols / 2) - 1 && l[1].w === conf.cols / 2) ||
+			(l[1].w === (conf.cols / 2) - 1 && l[0].w === conf.cols / 2)
+		)
+	) {
+		console.log('0234 2');
+		l[0].w = conf.cols / 2
+		l[1].w = conf.cols / 2
+	}
+	return l
+}
 
 
 
