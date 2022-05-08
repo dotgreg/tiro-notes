@@ -2,6 +2,7 @@
 export type iFileNature = 'file' | 'folder'
 
 export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
+
 export interface iWindowContent {
 	i: string
 	file?: iFile
@@ -31,6 +32,7 @@ export interface iTab {
 	grid: iGrid,
 	position?: number
 	refresh?: number
+	manualName?: boolean
 }
 
 export interface iSetupForm {

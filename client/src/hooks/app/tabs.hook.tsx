@@ -116,13 +116,12 @@ export const useTabs = () => {
 		} else if (type === 'rename') {
 
 			if (!tab) return
-			console.log('0033', newVal);
 			if (newVal.length > 15) return
 			const nTabs = cloneDeep(tabs)
 			each(nTabs, cTab => {
 				if (cTab.id === tab.id) {
-					console.log('0033 woop');
 					cTab.name = newVal
+					cTab.manualName = true
 				}
 			})
 			setTabs(nTabs)
@@ -243,8 +242,8 @@ export const useTabs = () => {
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
-		// update tab name
-		aTab.name = createTabName(nFile.name)
+		// update tab name only if tab name not manually edited
+		if (!aTab.manualName) aTab.name = createTabName(nFile.name)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
 		console.log(`${h2} active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
