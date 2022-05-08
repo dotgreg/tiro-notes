@@ -435,15 +435,15 @@ export const commonCssEditors = `//css
 		position: relative;
 		margin: 0px 0px 5px 0px;
     .modified {
+      color: grey;
+			text-align: left;
+    }
+		.created {
 			text-align: right;
 			position: absolute;
 			top: 0px;
 			right: 0px;
-    color: ${cssVars.colors.editor.interfaceGrey};
-    }
-		.created {
-      color: grey;
-			text-align: left;
+			color: ${cssVars.colors.editor.interfaceGrey};
 		}
   }
 
