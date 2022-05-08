@@ -129,6 +129,12 @@ ${ButtonsToolbarCss}
 	}
 }
 
+	.invisible-scrollbars {
+		width: 100%;
+    padding-right: 18px;
+		overflow-y: scroll;
+		height: 100vh;
+	}
 
   .left-wrapper {
     background: ${colors.l2.bg}; 
