@@ -8,6 +8,7 @@ export const initClipboardListener = (events: {
 }) => {
 
 	const onPaste = (e) => {
+		console.log('ONPASTE');
 		retrieveImageFromClipboardAsBlob(e, function (imageBlob) {
 			if (imageBlob) {
 				events.onImagePasted(imageBlob)
@@ -23,6 +24,22 @@ export const initClipboardListener = (events: {
 	}
 	return cleanUpFunc
 }
+
+export const copyToClickBoard = (el: HTMLInputElement) => {
+    // var content = document.getElementById('textArea').innerHTML;
+	const content = el.value
+
+    navigator.clipboard.writeText(content)
+        .then(() => {
+        console.log("Text copied to clipboard...")
+    })
+        .catch(err => {
+        console.log('Something went wrong', err);
+    })
+ 
+}
+
+
 
 //
 // SUPPORT FUNCTION

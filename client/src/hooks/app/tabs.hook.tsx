@@ -8,7 +8,7 @@ import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.c
 import { ClientApiContext, getClientApi2 } from '../api/api.hook';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
-export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab) => void
+export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
 
 export type iTabsApi = {
 	get: () => iTab[]
@@ -98,7 +98,7 @@ export const useTabs = () => {
 		setTabs(nTabs)
 	}
 
-	const updateTab: onTabUpdateFn = (type, tab) => {
+	const updateTab: onTabUpdateFn = (type, tab, newVal) => {
 		console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
 
 		if (type === 'add') {
@@ -112,7 +112,20 @@ export const useTabs = () => {
 		} else if (type === 'close') {
 			if (!tab) return
 			closeTab(tab.id)
+
 		} else if (type === 'rename') {
+
+			if (!tab) return
+			console.log('0033', newVal);
+			if (newVal.length > 15) return
+			const nTabs = cloneDeep(tabs)
+			each(nTabs, cTab => {
+				if (cTab.id === tab.id) {
+					console.log('0033 woop');
+					cTab.name = newVal
+				}
+			})
+			setTabs(nTabs)
 
 		} else if (type === 'activate') {
 
@@ -231,7 +244,7 @@ export const useTabs = () => {
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name
-		aTab.name = createTabNameFromFile(nFile)
+		aTab.name = createTabName(nFile.name)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
 		console.log(`${h2} active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
@@ -291,8 +304,8 @@ const refreshTabsViews = (tabs: iTab[]): iTab[] => {
 	return nTabs
 }
 
-const createTabNameFromFile = (file: iFile): string => {
-	return file.name.length > 10 ? `${file.name.substring(0, 10)}..` : file.name
+const createTabName = (str: string): string => {
+	return str.length > 15 ? `${str.substring(0, 13)}..` : str
 }
 
 export const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
@@ -332,7 +345,7 @@ const generateNewTab = (p: {
 
 		return {
 			id: generateUUID(),
-			name: createTabNameFromFile(p.fullWindowFile),
+			name: createTabName(p.fullWindowFile.name),
 			active: true,
 			// generate a full window
 			grid: {
