@@ -26,17 +26,19 @@ export const initClipboardListener = (events: {
 }
 
 export const copyToClickBoard = (el: HTMLInputElement) => {
-    // var content = document.getElementById('textArea').innerHTML;
+	// var content = document.getElementById('textArea').innerHTML;
 	const content = el.value
 
-    navigator.clipboard.writeText(content)
-        .then(() => {
-        console.log("Text copied to clipboard...")
-    })
-        .catch(err => {
-        console.log('Something went wrong', err);
-    })
- 
+	if (!navigator || !navigator.clipboard) return
+	
+	navigator.clipboard.writeText(content)
+		.then(() => {
+			console.log("Text copied to clipboard...")
+		})
+		.catch(err => {
+			console.log('Something went wrong', err);
+		})
+
 }
 
 
@@ -62,7 +64,7 @@ const retrieveImageFromClipboardAsBlob = (pasteEvent, callback) => {
 	for (var i = 0; i < items.length; i++) {
 		// Skip content if not image
 		if (items[i].type.indexOf("image") == -1) continue;
-	console.log(`[PASTE] informations on files pasted : `, pasteEvent, items, items.length);
+		console.log(`[PASTE] informations on files pasted : `, pasteEvent, items, items.length);
 		var blob = items[i].getAsFile();
 		if (typeof (callback) == "function") {
 			callback(blob);

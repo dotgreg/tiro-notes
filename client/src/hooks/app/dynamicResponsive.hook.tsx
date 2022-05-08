@@ -9,7 +9,7 @@ export const useDynamicResponsive = () => {
 	useEffect(() => {
 		let debouncedResponsiveRender = debounce(() => {
 			frr.current = frr.current + 1
-			setResponsiveRefresh(frr.current)
+			setResponsiveRefresh(responsiveRefreshCounter + 1)
 			setForceResponsiveRender(true)
 			setTimeout(() => {
 				setForceResponsiveRender(false)
@@ -26,5 +26,5 @@ export const useDynamicResponsive = () => {
 			})
 		}
 	}, [])
-	return { forceResponsiveRender, frr, responsiveRefreshCounter}
+	return { forceResponsiveRender, frr, responsiveRefreshCounter, setResponsiveRefresh }
 }

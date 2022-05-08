@@ -213,6 +213,7 @@ export const EditorArea = (p: {
 	const el = editorWrapperEl.current
 	let maxDropdownHeight = 700
 	if (el) maxDropdownHeight = el.clientHeight / 1.3
+	if (deviceType() === 'mobile') maxDropdownHeight = window.innerHeight
 
 
 	// // Id note ref
@@ -251,32 +252,34 @@ export const EditorArea = (p: {
 							<>
 
 								<div className="view-toggler-wrapper">
-									<ButtonsToolbar
-										class='editor-view-toolbar'
-										size={0.8}
-										buttons={[
-											{
-												title: 'Editor',
-												icon: "custom_icons/view-3.svg",
-												action: () => { p.onViewToggle('editor') }
-											},
-											{
-												title: 'Editor with minimap',
-												icon: "custom_icons/view-4.svg",
-												action: () => { p.onViewToggle('editor-with-map') }
-											},
-											{
-												title: 'Dual view',
-												icon: "custom_icons/view-1.svg",
-												action: () => { p.onViewToggle('both') }
-											},
-											{
-												title: 'Render view',
-												icon: "custom_icons/view-2.svg",
-												action: () => { p.onViewToggle('preview') }
-											},
-										]}
-									/>
+									{deviceType() !== 'mobile' &&
+										<ButtonsToolbar
+											class='editor-view-toolbar'
+											size={0.8}
+											buttons={[
+												{
+													title: 'Editor',
+													icon: "custom_icons/view-3.svg",
+													action: () => { p.onViewToggle('editor') }
+												},
+												{
+													title: 'Editor with minimap',
+													icon: "custom_icons/view-4.svg",
+													action: () => { p.onViewToggle('editor-with-map') }
+												},
+												{
+													title: 'Dual view',
+													icon: "custom_icons/view-1.svg",
+													action: () => { p.onViewToggle('both') }
+												},
+												{
+													title: 'Render view',
+													icon: "custom_icons/view-2.svg",
+													action: () => { p.onViewToggle('preview') }
+												},
+											]}
+										/>
+									}
 								</div>
 
 								<div className='toolbar-wrapper'>

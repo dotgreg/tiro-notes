@@ -60,7 +60,7 @@ export const DualViewer = (p: {
 	//const showEditor = !(p.viewType === 'preview')
 	// dang, editor is required... cuz of dropdown menu
 	const showEditor = true
-	const showPreview = !(p.viewType === 'editor')
+	const showPreview = !(p.viewType === 'editor' && deviceType() !== 'mobile')
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
