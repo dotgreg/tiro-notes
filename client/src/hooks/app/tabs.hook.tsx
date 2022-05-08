@@ -69,8 +69,11 @@ export const useTabs = () => {
 	}
 
 	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
+		console.log(11111, file);
 		const nTab = generateNewTab({ fullWindowFile: file })
+		console.log(2222, nTab);
 		if (!nTab) return
+		console.log(3333);
 		const nTabs = [...tabs, nTab]
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
 		setTabs(nTabs2)
@@ -106,6 +109,8 @@ export const useTabs = () => {
 			//const nTab = generateNewTab(getActiveTab(tabs))
 			//tab with one window
 			getClientApi2().then(api => {
+
+				console.log('ADDDDDDD2');
 				openInNewTab(api.ui.browser.files.active.get)
 			})
 

@@ -235,12 +235,6 @@ export const App = () => {
 	// 	currentAppView
 	// )
 
-	// Mobile view
-	const {
-		mobileView, setMobileView,
-		MobileToolbarComponent
-	} = useMobileView()
-
 	// PROMPT AND CONFIRM POPUPAPI
 	const { PromptPopupComponent, popupApi } = usePromptPopup({})
 
@@ -276,7 +270,7 @@ export const App = () => {
 	useFixScrollTop()
 
 	// DYNAMIC RESPONSIVE RERENDER (ON DEBOUNCEe
-	const { forceResponsiveRender, responsiveRefreshCounter } = useDynamicResponsive()
+	const { forceResponsiveRender, responsiveRefreshCounter, setResponsiveRefresh } = useDynamicResponsive()
 
 	// DRAG/DROP FOLDER/FILES MOVING LOGIC
 	interface iDraggedItem { type: 'file' | 'folder', files?: iFile[], folder?: iFolder }
@@ -306,7 +300,10 @@ export const App = () => {
 	// status api
 	const statusApi = useStatusApi({
 		isConnected,
-		responsiveRefresh: responsiveRefreshCounter
+		refresh: {
+			get: responsiveRefreshCounter,
+			set: setResponsiveRefresh,
+		}
 	})
 
 	// NOTE HISTORY HOOK
@@ -350,6 +347,18 @@ export const App = () => {
 		popupApi
 	)
 
+	// Mobile view
+	const {
+		mobileView,
+		MobileToolbarComponent
+	} = useMobileView()
+	// create a refresh on mobile view toggle
+	// useEffect(() => {
+	// 	api.status.refresh.increment()
+	// }, [mobileView])
+
+	//@ts-ignore
+	window.api = api
 
 	return (//jsx
 		<div className={CssApp2(mobileView)} >
@@ -486,12 +495,17 @@ export const App = () => {
 
 											{/* SIDEBAR TOGGLER */}
 											<div className="toggle-sidebar-btn">
-												<ButtonsToolbar buttons={[{
-													icon: 'faThumbtack',
-													title: 'Toggle Sidebar',
-													action: e => { toggleSidebar(); refreshWindowGrid(); },
-													active: clientApi.userSettings.get('ui_sidebar') === true
-												}]} colors={["#d4d1d1", "#615f5f"]} size={0.8} />
+												<ButtonsToolbar
+													popup={false}
+													buttons={[{
+														icon: 'faThumbtack',
+														title: 'Toggle Sidebar',
+														action: e => { toggleSidebar(); refreshWindowGrid(); },
+														active: clientApi.userSettings.get('ui_sidebar') === true
+														}]}
+																colors={["#d4d1d1", "#615f5f"]}
+																size={0.8}
+												/>
 											</div>
 
 											{/* <h3 className="subtitle">{strings.files}</h3> */}

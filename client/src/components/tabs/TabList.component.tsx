@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { onTabUpdateFn } from '../../hooks/app/tabs.hook';
+import { deviceType } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
@@ -37,6 +38,8 @@ export const TabList = (p: {
 			)}
 
 			{/* ADD NEW TAB BUTTON*/}
+						{api?.ui.browser.files.active.get &&
+
 			<div
 				className="tab-wrapper tab-more"
 				onClick={e => {
@@ -45,6 +48,8 @@ export const TabList = (p: {
 			>
 				+
 			</div>
+							}
+
 		</div>
 	)
 
@@ -72,6 +77,8 @@ const Tab = (p: {
 	if (nbLay === 5) iconName = 'Five'
 	iconName = `faDice${iconName}`
 
+
+
 	return (//jsx
 		<div className="tab-and-drag-wrapper">
 			{
@@ -93,14 +100,20 @@ const Tab = (p: {
 					onClick={() => { p.onUpdate('activate', tab) }}
 				>
 
-					<input
-						type="text"
-						className="tab-input-text"
-						value={tab.name}
-						onChange={e => {
-							p.onUpdate('rename', tab, e.target.value)
-						}}
-					/>
+					{deviceType() !== 'mobile' &&
+						< input
+							type="text"
+							className="tab-input-text"
+							value={tab.name}
+							onChange={e => {
+								p.onUpdate('rename', tab, e.target.value)
+							}}
+						/>
+					}
+					{deviceType() === 'mobile' &&
+						<>{tab.name}</>
+					}
+
 
 				</div>
 
@@ -113,10 +126,12 @@ const Tab = (p: {
 						<Icon name={iconName} color={`#b2b2b2`} />
 					</div>
 				}
-				<div className="tab-close"
+
+				< div className="tab-close"
 					onClick={() => p.onUpdate('close', tab)}>
 					<Icon name="faPlus" color={`#b2b2b2`} />
 				</div>
+
 			</div >
 		</div >
 	)//jsx

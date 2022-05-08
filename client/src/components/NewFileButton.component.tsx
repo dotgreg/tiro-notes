@@ -17,17 +17,17 @@ export const NewFileButton = (p: {
 		<span>{strings.newNote}</span>
 	</button>
 
-export const newFileButtonCss = `
+export const newFileButtonCss = `//css
     .new-file-button {
         ${cssVars.els.redButton}
         ${cssVars.font.main};
         padding: ${isA('desktop') ? `14px 5px` : `13px 7px`};
         margin: 13px 15px 15px 15px;
-        width: calc(100% - ${cssVars.sizes.block * (isA('desktop') && !isIpad() ? 4 : 4)}px );
+				width: calc(100% - 30px); 
         font-size: ${isA('desktop') ? 11 : 11}px;
         svg {
             margin-right: ${isA('desktop') ? `10px` : `5px`};
         }
         
     }
-`
+`//css

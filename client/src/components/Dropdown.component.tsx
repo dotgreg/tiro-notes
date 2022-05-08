@@ -1,4 +1,4 @@
-import React, { ReactElement, useState } from "react"
+import React, { ReactElement, useEffect, useState } from "react"
 import { cssVars } from "../managers/style/vars.style.manager"
 import { Icon } from "./Icon.component"
 
@@ -12,6 +12,7 @@ export const Dropdown = (p: {
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 	const dir = p.dir ? p.dir : 'left'
 	const maxHeight = p.maxHeight ? p.maxHeight : 50
+
 
 	return (
 		<div className={`dropdown-wrapper ${dir} ${p.hover ? 'hover-active' : ''}`}>
@@ -59,7 +60,7 @@ export const dropdownCss = `
 				.context-menu {
 						overflow-y: scroll;
 						z-index: 100;
-						right: 0px;
+						right: 10px;
 						top: 20px;
 
 
@@ -74,7 +75,7 @@ export const dropdownCss = `
 
 				&.right {
 						.dropdown-icon {
-								right: -10px;
+								right: 0px;
 						}
 				}
 		}
