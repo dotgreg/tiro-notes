@@ -38,17 +38,17 @@ export const TabList = (p: {
 			)}
 
 			{/* ADD NEW TAB BUTTON*/}
-						{api?.ui.browser.files.active.get &&
+			{api?.ui.browser.files.active.get &&
 
-			<div
-				className="tab-wrapper tab-more"
-				onClick={e => {
-					p.onUpdate('add')
-				}}
-			>
-				+
-			</div>
-							}
+				<div
+					className="tab-wrapper tab-more"
+					onClick={e => {
+						p.onUpdate('add')
+					}}
+				>
+					+
+				</div>
+			}
 
 		</div>
 	)
@@ -146,6 +146,9 @@ export const tabsCss = `//css
 				overflow-x: scroll;
 				border-radius: 0px 0px 0px 5px;
 				position: relative;
+				&>div:last-child {
+						margin-right: 30px;
+				}
 				.tab-and-drag-wrapper {
 						position:relative;
 					.drag-indic {
