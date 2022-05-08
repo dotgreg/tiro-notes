@@ -10,7 +10,7 @@ import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
-import { calculateNewWindowPosAndSize, searchAlternativeLayout } from '../../managers/draggableGrid.manager';
+import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 
 
 
@@ -110,14 +110,9 @@ export const DraggableGrid = (p: {
 		const nLayout = filter(cloneDeep(intLayout), window => window.i !== id)
 
 		// if only one window left, make it fullsize
-		if (nLayout.length === 1) {
-			nLayout[0].x = 0
-			nLayout[0].y = 0
-			nLayout[0].h = d.rows
-			nLayout[0].w = d.cols
-		}
+		const nLayout2 = updateLayout_onewindowleft_tofullsize(nLayout);
 
-		setIntLayout(nLayout)
+		setIntLayout(nLayout2)
 
 		// required to deplay the content update behind the layout because of react-grid...
 		setTimeout(() => {
@@ -171,9 +166,11 @@ export const DraggableGrid = (p: {
 		//if (intLayout.length !== intContent.length) return
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
-			setIntLayout(nlayout)
-			updateLastGood(nlayout)
-			onGridUpdate(nlayout, intContent)
+			console.log('0234');
+			const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
+			updateLastGood(nlayout2)
+			setIntLayout(nlayout2)
+			onGridUpdate(nlayout2, intContent)
 		} else {
 			if (!lastGoodLayout.current) return
 			let altgoodLayout = searchAlternativeLayout(newLayout)
