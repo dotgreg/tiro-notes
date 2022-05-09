@@ -1,10 +1,7 @@
-import React, { useContext } from 'react';
-import ReactDOM from 'react-dom';
 import { each, isObject, random, uniq } from "lodash";
 import { generateUUID } from "../../../shared/helpers/id.helper";
 import { getCustomMdTagRegex, regexs } from "../../../shared/helpers/regexs.helper";
 import { getClientApi2 } from "../hooks/api/api.hook";
-import { TestComp } from "../hooks/app/tabs.hook";
 import { noteApi } from "./renderNote.manager";
 
 const marked = require('marked');
@@ -43,7 +40,7 @@ export const cleanCustomTagsCache = () => {
 		delete customTagsCache[key];
 	}
 }
-let once = false
+
 // CUSTOM TAGS LOGIC
 // replace [[calendar]] by the content of /.tiro/tags/calendar.md note
 export const replaceUserCustomMdTag = (p: {
@@ -111,24 +108,12 @@ export const replaceUserCustomMdTag = (p: {
 					})
 				}
 
-				//return `<iframe src="/custom-tag-iframe.html" sandbox="allow-scripts"></iframe>`
-				setTimeout(() => {
-					if (once) return
-						once = true
-					const el = document.getElementById(id)
-					if (!el) return
-					ReactDOM.render(
-						<TestComp />,
-						el
-					)
-				})
-				return `<div class="custom-tag-content" id="${id}"></div>`
-				// return `<div class="custom-tag-wrapper">
-				// 		<div class="custom-tag-content" id="${id}">
-				// 			${cachedContent}
-				// 		</div>
-				// 		<div class="custom-tag-refresh">r</div>
-				// 	</div>`
+				return `<div class="custom-tag-wrapper">
+						<div class="custom-tag-content" id="${id}">
+							${cachedContent}
+						</div>
+						<div class="custom-tag-refresh">r</div>
+					</div>`
 			});
 	})
 
