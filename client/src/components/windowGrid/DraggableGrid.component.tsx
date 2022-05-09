@@ -168,7 +168,6 @@ export const DraggableGrid = (p: {
 		//if (intLayout.length !== intContent.length) return
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
-			console.log('0234');
 			const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
 			updateLastGood(nlayout2)
 			setIntLayout(nlayout2)
@@ -244,7 +243,6 @@ export const DraggableGrid = (p: {
 	const api = useContext(ClientApiContext)
 	const refresh = api?.status.refresh.get
 	useEffect(() => {
-		console.log(deviceType());
 		// make first window active if mobile
 		if (deviceType() === 'mobile' && intLayout[0]) {
 			const wid = intLayout[0].i
@@ -402,7 +400,6 @@ const GridMobileCss = `//css
 									margin-bottom: 10px;
 								}
 								.dates-wrapper {
-									display: none;
 								}
 								.preview-content {
 									padding: 0px 0px 50px 0px;
@@ -540,7 +537,7 @@ export const draggableGridCss = `//css
 														}
 														.main-editor-wrapper,
 														.infos-editor-wrapper {
-																padding-left: 10px;
+																padding-left: 3px;
 																padding-rigth: 10px;
 																width: calc(100% - 10px);
 																.title-input-wrapper {

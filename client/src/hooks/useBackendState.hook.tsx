@@ -32,7 +32,7 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 		getClientApi2().then(api => {
 			api.file.getContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)
-				console.log(`[BACKEND STATE] ${key} => `, obj);
+				//console.log(`[BACKEND STATE] ${key} => `, obj);
 				setStoredValue(obj);
 			})
 		})

@@ -111,7 +111,7 @@ export const useBrowserApi = (p: {
 					}
 
 
-						setActiveFileIndex(activeIndex);
+					setActiveFileIndex(activeIndex);
 					setFiles(nfilesSorted)
 
 
@@ -245,10 +245,8 @@ export const useBrowserApi = (p: {
 const defaultFolderVal: iFolder = { title: '', key: '', path: '' }
 
 const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
-	console.log('13131310 ', path, folders);
 	let res
 	for (let i = 0; i < folders.length; i++) {
-		console.log('1313131 ', folders[i]);
 		if (areSamePaths(folders[i].path, path)) {
 			//console.log('131313 FOUND', path, folders[i]);
 			res = cloneDeep(folders[i])
@@ -266,9 +264,7 @@ const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
 
 const upsertFlatStructure = (newFolder: iFolder, flatStructure: iFolder[]): iFolder[] => {
 	let updateType = 'add'
-	console.log('044-2', flatStructure);
 	for (let i = 0; i < flatStructure.length; i++) {
-		console.log('044-1', areSamePaths(newFolder.path, flatStructure[i].path), newFolder.path, flatStructure[i].path);
 		if (areSamePaths(newFolder.path, flatStructure[i].path)) {
 			flatStructure[i] = newFolder
 			updateType = 'update'

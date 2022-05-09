@@ -494,20 +494,20 @@ export const App = () => {
 										<div className="subtitle-wrapper">
 
 											{/* SIDEBAR TOGGLER */}
-												{deviceType() !== 'mobile' &&
-											<div className="toggle-sidebar-btn">
-												<ButtonsToolbar
-													popup={false}
-													buttons={[{
-														icon: 'faThumbtack',
-														title: 'Toggle Sidebar',
-														action: e => { toggleSidebar(); refreshWindowGrid(); },
-														active: clientApi.userSettings.get('ui_sidebar') === true
-													}]}
-													colors={["#d4d1d1", "#615f5f"]}
-													size={0.8}
-												/>
-											</div>
+											{deviceType() !== 'mobile' &&
+												<div className="toggle-sidebar-btn">
+													<ButtonsToolbar
+														popup={false}
+														buttons={[{
+															icon: 'faThumbtack',
+															title: 'Toggle Sidebar',
+															action: e => { toggleSidebar(); refreshWindowGrid(); },
+															active: clientApi.userSettings.get('ui_sidebar') === true
+														}]}
+														colors={["#d4d1d1", "#615f5f"]}
+														size={0.8}
+													/>
+												</div>
 											}
 
 											{/* <h3 className="subtitle">{strings.files}</h3> */}
@@ -528,7 +528,10 @@ export const App = () => {
 											onFileClicked={fileIndex => {
 												filesUiApi.active.set(fileIndex)
 												const nFile = filesUiApi.get[fileIndex]
-												windowsApi.updateActive(nFile)
+												// if no tab opened, create new tab/window
+												const noTab = api.tabs.get().length === 0
+												if (noTab) api.tabs.openInNewTab(nFile)
+												else windowsApi.updateActive(nFile)
 											}}
 											onFileDragStart={files => {
 												console.log(`[DRAG MOVE] onFileDragStart`, files);
