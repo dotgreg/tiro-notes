@@ -33,7 +33,7 @@ export const Dropdown = (p: {
 	)
 }
 
-export const dropdownCss = `
+export const dropdownCss = `//css
 		.dropdown-wrapper {
 				
 				position: relative;
@@ -66,7 +66,7 @@ export const dropdownCss = `
 
 						position: absolute;
 						display: none;
-						//min-width: 180px;
+						min-width: 140px;
 						padding: 10px;
 						border-radius: 5px;
 						background: white;
@@ -79,4 +79,4 @@ export const dropdownCss = `
 						}
 				}
 		}
-`
+`//css

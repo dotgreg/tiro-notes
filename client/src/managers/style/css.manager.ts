@@ -343,7 +343,7 @@ ${ButtonsToolbarCss}
 						opacity: 1;
 						box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
 						.preview-area {
-							width: 60%;
+							width: 56%;
 							padding: 20px;
 						}
 				}
@@ -352,10 +352,12 @@ ${ButtonsToolbarCss}
 							transform-origin: 0px 0px;
 							position: absolute;
 							width: 100%;
-							right: -80%;
+							right: calc(-80% - 20px);
 							height: 500vh;
 						.preview-area {
 							padding: 80px;
+							padding-right: 140px;
+							padding-left: 40px;
 						}
           }
         }

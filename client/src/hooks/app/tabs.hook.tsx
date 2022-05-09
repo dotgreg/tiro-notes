@@ -49,7 +49,7 @@ export const addNewWindowConfig = (p: {
 			i: id,
 			active: false,
 			file: file,
-			view: 'editor' as iViewType
+			view: 'both' as iViewType
 		}
 	}
 }
@@ -109,8 +109,6 @@ export const useTabs = () => {
 			//const nTab = generateNewTab(getActiveTab(tabs))
 			//tab with one window
 			getClientApi2().then(api => {
-
-				console.log('ADDDDDDD2');
 				openInNewTab(api.ui.browser.files.active.get)
 			})
 

@@ -437,6 +437,7 @@ export const commonCssEditors = `//css
 .dates-wrapper {
 		position: relative;
 		margin: 0px 0px 5px 0px;
+		display: block!important;
     .modified {
       color: grey;
 			text-align: left;

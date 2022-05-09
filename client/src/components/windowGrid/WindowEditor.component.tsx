@@ -20,7 +20,6 @@ export const WindowEditor = (p: {
 	//
 	useEffect(() => {
 		if (!file) return
-		console.log(file.path);
 		api && api.file.getContent(file.path, content => {
 			setFileContent(content)
 		})
@@ -51,7 +50,7 @@ export const WindowEditor = (p: {
 				file &&
 				<div className="window-editor-wrapper">
 					<DualViewer
-							windowId={i}
+						windowId={i}
 						file={file}
 						fileContent={fileContent}
 						isActive={active}
