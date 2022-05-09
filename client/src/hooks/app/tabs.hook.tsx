@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import ReactDOM from 'react-dom';
 import { iFile, iGrid, iTab, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
@@ -69,11 +70,8 @@ export const useTabs = () => {
 	}
 
 	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
-		console.log(11111, file);
 		const nTab = generateNewTab({ fullWindowFile: file })
-		console.log(2222, nTab);
 		if (!nTab) return
-		console.log(3333);
 		const nTabs = [...tabs, nTab]
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
 		setTabs(nTabs2)
@@ -376,3 +374,25 @@ const incrementName = (cName: string): string => {
 	}
 	return nName
 }
+
+
+
+export const TestComp = () => {
+	return (
+		<div>hello world
+			<iframe
+				src="/custom-tag-iframe.html"
+				sandbox="allow-scripts"
+			>
+			</iframe>
+
+		</div>
+	)
+}
+
+//@ts-ignore
+window.testcomp = TestComp
+//@ts-ignore
+window.react = React
+//@ts-ignore
+window.reactdom = ReactDOM

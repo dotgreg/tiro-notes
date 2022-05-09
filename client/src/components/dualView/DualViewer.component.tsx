@@ -7,6 +7,7 @@ import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
 import { clamp } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
+import { noteApi } from '../../managers/renderNote.manager';
 
 export type onViewChangeFn = (nView: iViewType) => void
 
@@ -15,6 +16,7 @@ export const DualViewer = (p: {
 	file: iFile
 	fileContent: string
 	isActive: boolean
+		canEdit: boolean
 
 	viewType?: iViewType
 	onViewChange?: onViewChangeFn
@@ -27,8 +29,10 @@ export const DualViewer = (p: {
 
 	// calculate max Y for custom scroller bar
 	const [maxY, setMaxY] = useState(0)
-	const updateMaxY = (newMaxY) => {
-		if (newMaxY > maxY) setMaxY(newMaxY)
+	const maxYRef = useRef(0)
+	const updateMaxY = (newMaxY: number) => {
+		if (newMaxY > maxYRef.current) maxYRef.current = newMaxY
+		setMaxY(maxYRef.current)
 	}
 
 
@@ -56,6 +60,11 @@ export const DualViewer = (p: {
 		setPosY(1);
 	}, [p.file.path])
 
+	// clean custom tags cache on file change only
+	useEffect(() => {
+		noteApi.customTags.cache.clean();
+	}, [p.file.path])
+
 	// for performance reasons, only show editor/preview when needed
 	//const showEditor = !(p.viewType === 'preview')
 	// dang, editor is required... cuz of dropdown menu
@@ -66,15 +75,17 @@ export const DualViewer = (p: {
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
 		onWheelCapture={e => { updateSyncScroll(e.deltaY) }}
 	>
+
 		{showEditor &&
 			<EditorArea
 				file={p.file}
+				canEdit={p.canEdit}
 				fileContent={p.fileContent}
 				isActive={p.isActive}
 
 				posY={syncScrollY}
 				onScroll={newYPercent => { }}
-				onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
+				onMaxYUpdate={updateMaxY}
 
 				onFileEdited={(path, content) => {
 					p.onFileEdited(path, content)
@@ -91,7 +102,7 @@ export const DualViewer = (p: {
 				file={p.file}
 				posY={syncScrollY}
 				fileContent={previewContent}
-				onMaxYUpdate={(maxY) => { updateMaxY(maxY) }}
+				onMaxYUpdate={updateMaxY}
 			/>
 		}
 

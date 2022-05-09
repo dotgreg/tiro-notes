@@ -1,4 +1,4 @@
-import { replaceCustomMdTags, replaceUserCustomMdTag } from "./markdown.manager";
+import { replaceCustomMdTags } from "./markdown.manager";
 import { addCliCmd } from "./cliConsole.manager";
 import { each } from "lodash";
 import * as _ from "lodash"
@@ -52,18 +52,18 @@ addCliCmd('lodash', {
 // TRANSFORM TEXT IN SCRIPTS
 //
 export const transformMarkdownScripts = (bodyRaw: string): string => {
-	let res = replaceCustomMdTags(bodyRaw, '[[script]]', (input: string) => {
-		const func = `
-				const toeval = function () {
-				${input};
-				}
-				toeval();
-		`;
-		try {
-			return eval(func)
-		} catch {
-		}
-	});
+	let res = replaceCustomMdTags(
+		bodyRaw,
+		'[[script]]',
+
+		(UNSAFE_user_script: string) => {
+			try {
+				// using Function instead of eval to isolate the execution scope
+				return new Function(`"use strict";  ${UNSAFE_user_script}`)()
+			} catch (e: any) {
+				console.log(`[SCRIPT IN MD] error: ${e}`)
+			}
+		});
 	return res;
 };
 
