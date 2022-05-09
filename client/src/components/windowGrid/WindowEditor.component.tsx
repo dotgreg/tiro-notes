@@ -19,18 +19,24 @@ export const WindowEditor = (p: {
 	// GET CONTENT 
 	//
 	useEffect(() => {
+		// on content loading, display loading... and cannot edit
+		setFileContent('loading...')
+			setCanEdit(false)
+
 		if (!file) return
 		api && api.file.getContent(file.path, content => {
 			setFileContent(content)
+			setCanEdit(true)
 		})
 	}, [file?.path])
 
+	// can edit locally if file loading/not
+	const [canEdit, setCanEdit] = useState(false)
 
 	//
 	// UPDATE CONTENT 
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
-		console.log('0046 save content');
 		api && api.file.saveContent(filepath, content, { history: true })
 	}
 	const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
@@ -54,6 +60,7 @@ export const WindowEditor = (p: {
 						file={file}
 						fileContent={fileContent}
 						isActive={active}
+						canEdit={canEdit}
 
 						viewType={view}
 						onViewChange={p.onViewChange}

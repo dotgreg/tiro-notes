@@ -29,7 +29,7 @@ import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
-import { ClientApiContext, useClientApi } from './hooks/api/api.hook';
+import { ClientApiContext, getClientApi2, useClientApi } from './hooks/api/api.hook';
 import { useLightbox } from './hooks/app/useLightbox.hook';
 import { FilesList } from './components/fileList.component';
 import { useNoteHistoryApi } from './hooks/api/history.api.hook';
@@ -40,9 +40,7 @@ import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/ap
 
 
 
-
 export const App = () => {
-
 
 	useEffect(() => {
 		// COMPONENT DID MOUNT didmount
@@ -67,9 +65,6 @@ export const App = () => {
 
 
 	// APP-WIDE MULTI-AREA LOGIC
-	const shouldLoadNoteIndex = useRef<null | number>(null)
-	const lastFolderIn = useRef('')
-	const lastSearchIn = useRef('')
 
 	const cleanFileDetails = () => {
 		filesUiApi.active.set(-1)
@@ -144,9 +139,6 @@ export const App = () => {
 	const toggleSidebar = () => {
 		userSettingsApi.set('ui_sidebar', !userSettingsApi.get('ui_sidebar'))
 	}
-
-
-
 
 	// // KEY ACTIONS
 	// useEffect(() => {
@@ -323,6 +315,7 @@ export const App = () => {
 	})
 
 
+	// shortcuts
 	const api = clientApi
 	const filesUiApi = api.ui.browser.files
 	const foldersUiApi = api.ui.browser.folders

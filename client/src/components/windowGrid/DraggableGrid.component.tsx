@@ -544,7 +544,7 @@ export const draggableGridCss = `//css
 																		padding-left: 10px;
 																		.press-to-save {
 																				top: -6px;
-																				left: -6px;
+																				left: 0px;
 																				right: initial;
 																				opacity: 0.5;
 																		}

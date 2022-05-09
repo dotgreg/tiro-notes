@@ -4,11 +4,8 @@ import { iFile } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
-import { transformLatex } from '../../managers/latex.manager';
-import { md2html, replaceUserCustomMdTag } from '../../managers/markdown.manager';
-import { transformMarkdownScripts } from '../../managers/scriptsInMarkdown.manager';
+import { noteApi } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { transformSearchLinks, transformImagesInHTML, transformRessourcesInHTML, transformUrlInLinks, transformTitleSearchLinks } from '../../managers/textProcessor.manager';
 import { commonCssEditors } from './EditorArea.component';
 
 
@@ -33,37 +30,14 @@ export const PreviewArea = (p: {
 	let currentFolder = currentFolderArr.join('/')
 
 	useEffect(() => {
-		// @ts-ignore
-		window.previewHtmlOutput = '';
-	}, [p.file.path])
-
-	useEffect(() => {
-		p.onMaxYUpdate(calculateYMax())
 		setTimeout(() => {
 			p.onMaxYUpdate(calculateYMax())
 		}, 1000)
 
-		injectLogicToHtml()
+		noteApi.injectLogic()
 
 	}, [p.fileContent])
 
-	const injectLogicToHtml = () => {
-		// title search links
-		const els = document.getElementsByClassName('title-search-link')
-		each(els, (el: any) => {
-			el.onclick = () => {
-				const file = el.dataset.file
-				const folder = el.dataset.folder
-				const windowId = el.dataset.windowid
-				//console.log('woooop', file, folder);
-				api?.ui.browser.goTo(
-					folder,
-					file, {
-					openIn: windowId
-				})
-			}
-		})
-	}
 
 	const calculateYMax = () => {
 		const d = previewAreaRefs.main.current
@@ -77,19 +51,6 @@ export const PreviewArea = (p: {
 		return clamp(p.posY, 0, max)
 	}
 
-	const renderNoteContent = (raw: string): string => {
-		return md2html(
-			transformRessourcesInHTML(currentFolder,
-				transformImagesInHTML(currentFolder,
-					transformSearchLinks(
-						transformTitleSearchLinks(p.windowId,
-							transformUrlInLinks(
-								transformMarkdownScripts(
-									replaceUserCustomMdTag(
-										transformLatex(
-											raw
-										)))))))))
-	}
 
 	return (
 		<div className={`preview-area-wrapper`}>
@@ -118,7 +79,13 @@ export const PreviewArea = (p: {
 				<div
 					className='preview-content'
 					ref={previewAreaRefs.main}
-					dangerouslySetInnerHTML={{ __html: renderNoteContent(p.fileContent) }}>
+					dangerouslySetInnerHTML={{
+						__html: noteApi.render({
+							raw: p.fileContent,
+							currentFolder,
+							windowId: p.windowId
+						})
+					}}>
 				</div>
 
 			</div>
@@ -270,7 +237,7 @@ export const previewAreaCss = (v: MobileView) => `//css
 
     p {
         margin-top: 0px;
-        margin-bottom: 1em;
+        margin-bottom: 10px;
     }
     .preview-content {
 				counter-reset: sh1;

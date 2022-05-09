@@ -26,6 +26,7 @@ export class MonacoEditorWrapper extends React.Component<{
 	onChange: (text: string) => void
 	onScroll: onScrollFn
 	insertUnderCaret?: string
+	onMaxYUpdate?: Function
 }, {}> {
 	reactComp: any
 	vimStatusBar: any
@@ -122,6 +123,20 @@ export class MonacoEditorWrapper extends React.Component<{
 			setTimeout(() => {
 				this.resetMonacoSelection();
 			}, 1)
+
+			// update maxHeight when content updates
+			const editor = this.reactComp.current
+			if (editor && editor.containerElement) {
+				const contentContainer = this.reactComp.current.containerElement.querySelectorAll('.view-lines')[0]
+				setTimeout(() => {
+					if (this.props.onMaxYUpdate) {
+						const height = contentContainer.clientHeight
+						// console.log('00331', height);
+						this.props.onMaxYUpdate(height)
+					}
+				}, 1000)
+			}
+
 		}
 
 		// if (this.props.insertUnderCaret !== nextProps.insertUnderCaret && nextProps.insertUnderCaret !== '') {

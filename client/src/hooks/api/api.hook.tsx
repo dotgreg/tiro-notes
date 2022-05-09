@@ -1,6 +1,7 @@
 import { each } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
+import { iNoteApi, noteApi } from '../../managers/renderNote.manager';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iLightboxApi } from '../app/useLightbox.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
@@ -32,6 +33,7 @@ export interface iClientApi {
 	tabs: iTabsApi
 	userSettings: iUserSettingsApi
 	history: iNoteHistoryApi
+	note: iNoteApi
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -151,6 +153,7 @@ export const useClientApi = (p: {
 		userSettings: p.userSettingsApi,
 		history: p.historyApi,
 		status: p.statusApi,
+		note: noteApi,
 		ui: {
 			browser: browserApi,
 			windows: p.windowsApi,

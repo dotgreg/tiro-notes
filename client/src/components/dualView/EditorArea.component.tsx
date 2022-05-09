@@ -33,6 +33,7 @@ export const EditorArea = (p: {
 	file: iFile
 	fileContent: string
 	isActive: boolean
+	canEdit: boolean
 
 	onScroll: onScrollFn
 	onMaxYUpdate: (maxY: number) => void
@@ -48,7 +49,11 @@ export const EditorArea = (p: {
 	let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
 
 	const api = useContext(ClientApiContext);
-	const canEdit = api && api.status.isConnected || false
+
+	let canEdit = true
+	if (p.canEdit === false) canEdit = false
+	if (api && api.status.isConnected === false) canEdit = false
+
 
 	// LIFECYCLE EVENTS MANAGER HOOK
 	const { triggerNoteEdition } = useNoteEditorEvents({
@@ -128,7 +133,7 @@ export const EditorArea = (p: {
 		if (gridContext.upload.file && p.isActive) {
 			const { name, path } = { ...gridContext.upload.file }
 			gridContext.upload.reinit();
-			insertTextAt(`![${name}](${path})`, 'currentPos')
+			insertTextAt(`\n![${name}](${path})\n`, 'currentPos')
 		}
 
 	}, [gridContext.upload])
@@ -147,7 +152,7 @@ export const EditorArea = (p: {
 				file={p.file}
 				onProgress={p => (setProgressUpload(p))}
 				onSuccess={p => {
-					insertTextAt(`![${p.name}](${p.path})`, 'currentPos')
+					insertTextAt(`\n![${p.name}](${p.path})\n`, 'currentPos')
 				}}
 			/>
 		},
@@ -361,6 +366,7 @@ export const EditorArea = (p: {
 
 			{/* {MAIN EDITOR AREA} */}
 			<div className="main-editor-wrapper">
+
 				{
 					deviceType() === 'desktop' &&
 					<MonacoEditorWrapper
@@ -371,6 +377,7 @@ export const EditorArea = (p: {
 						onChange={triggerNoteEdition}
 						onScroll={p.onScroll}
 						posY={p.posY}
+						onMaxYUpdate={p.onMaxYUpdate}
 					/>
 				}
 				{
