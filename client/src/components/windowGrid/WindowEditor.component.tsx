@@ -21,7 +21,7 @@ export const WindowEditor = (p: {
 	useEffect(() => {
 		// on content loading, display loading... and cannot edit
 		setFileContent('loading...')
-			setCanEdit(false)
+		setCanEdit(false)
 
 		if (!file) return
 		api && api.file.getContent(file.path, content => {

@@ -52,6 +52,8 @@ export const replaceUserCustomMdTag = (p: {
 	const regex = regexs.userCustomTag3;
 	const matches = body.match(regex) || '';
 
+	const m2 = body.split(/\[\[[a-zA-Z-_\/]*\]\]/);
+	console.log(matches, m2);
 	// gather all different user custom tags
 	const uniqMatches = uniq(matches) as string[]
 

@@ -1,10 +1,11 @@
 import { clamp, each } from 'lodash';
 import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
+import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { iFile } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
-import { noteApi } from '../../managers/renderNote.manager';
+import { getContentChunks, noteApi } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors } from './EditorArea.component';
 
@@ -51,6 +52,16 @@ export const PreviewArea = (p: {
 		return clamp(p.posY, 0, max)
 	}
 
+	const [contentBlocks, setContentBlocks] = useState<string[]>([])
+	useEffect(() => {
+		setContentBlocks(p.fileContent.split('\n'))
+
+
+		getContentChunks(p.fileContent)
+
+
+	}, [p.fileContent])
+
 
 	return (
 		<div className={`preview-area-wrapper`}>
@@ -75,18 +86,7 @@ export const PreviewArea = (p: {
 					</div>
 				</div>
 
-				<div id='preview-script-area'></div>
-				<div
-					className='preview-content'
-					ref={previewAreaRefs.main}
-					dangerouslySetInnerHTML={{
-						__html: noteApi.render({
-							raw: p.fileContent,
-							currentFolder,
-							windowId: p.windowId
-						})
-					}}>
-				</div>
+				<div>hello world</div>
 
 			</div>
 		</div>
@@ -237,7 +237,7 @@ export const previewAreaCss = (v: MobileView) => `//css
 
     p {
         margin-top: 0px;
-        margin-bottom: 10px;
+        margin-bottom: 1em;
     }
     .preview-content {
 				counter-reset: sh1;
@@ -338,15 +338,3 @@ export const previewAreaCss = (v: MobileView) => `//css
     }
   }
 `//css
-
-
-
-const PreviewRenderer = React.memo((p: { filecontent: string, currentFolder: string }) => {
-
-
-	return (
-		<>
-		</>
-
-	)
-})
