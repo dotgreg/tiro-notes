@@ -4,7 +4,8 @@ import { sharedConfig } from '../shared.config';
 const v = {
 	img: VerEx().find('.').then('jpg').or('jpeg').or('png').or('gif').or('webm').or('svg').or('webp'),
 	imgMdConfig: VerEx().anythingBut('[]|').maybe('|').beginCapture().anythingBut('[]|').endCapture().maybe('|').beginCapture().anythingBut('[]|').endCapture(),
-	customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]')
+	customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
+	userCustomTagManual: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
 }
 
 
@@ -35,7 +36,8 @@ export const regexs = {
 	userCustomTagFull: VerEx().find(v.customTag).beginCapture().anythingBut('').endCapture().then(v.customTag),
 	userCustomTagFull2: VerEx().beginCapture().find(v.customTag).endCapture(),
 	//userCustomTag3: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
-	userCustomTag3: VerEx().find('[[').beginCapture().then(/[a-zA-Z-_\/]/).oneOrMore().maybe("-").endCapture().then(']]'),
+	userCustomTag3: VerEx().beginCapture().then(v.userCustomTagManual).endCapture(),
+	userCustomTagManual: v.userCustomTagManual,
 
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 

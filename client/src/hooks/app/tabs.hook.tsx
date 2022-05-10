@@ -377,22 +377,4 @@ const incrementName = (cName: string): string => {
 
 
 
-export const TestComp = () => {
-	return (
-		<div>hello world
-			<iframe
-				src="/custom-tag-iframe.html"
-				sandbox="allow-scripts"
-			>
-			</iframe>
 
-		</div>
-	)
-}
-
-//@ts-ignore
-window.testcomp = TestComp
-//@ts-ignore
-window.react = React
-//@ts-ignore
-window.reactdom = ReactDOM

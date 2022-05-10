@@ -11,7 +11,7 @@ export const initLatex = () => {
 	script.crossorigin = "anonymous"
 	document.body.appendChild(script);
 	isLatexInit = true;
-	console.log("INIT LATEX");
+	// console.log("INIT LATEX");
 	script.onload = () => {
 		// @ts-ignore
 		katex = window.katex;

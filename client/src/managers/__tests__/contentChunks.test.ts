@@ -1,28 +1,80 @@
 import { getContentChunks } from "../renderNote.manager";
 
-test('contentChunk : does it chunk well', () => {
-	const chunks = getContentChunks(t1)
-	expect(chunks).toEqual([]);
+const equalObj = (o1: any, o2: any) => {
+	const jo1 = JSON.stringify(o1)
+	const jo2 = JSON.stringify(o2)
+	//console.log('equalObj', jo1, jo2);
+	return jo1 === jo2
+}
+
+
+test('contentChunk : first el should be a tag', () => {
+	// const chunks = getContentChunks(textSeveralOneTag, true)
+	const chunks = getContentChunks(t2)
+	expect(chunks[0].type).toEqual("tag");
+});
+
+test('contentChunk : first el should be a text', () => {
+	// const chunks = getContentChunks(textSeveralOneTag, true)
+	const chunks = getContentChunks("starting text" + t2)
+	expect(chunks[0].type).toEqual("text");
+});
+
+
+
+test('contentChunk : several unclosed tags => list nb', () => {
+	// const chunks = getContentChunks(textSeveralOneTag, true)
+	const chunks = getContentChunks(textSeveralOneTag)
+	expect(chunks.length).toEqual(3);
+});
+
+
+test('contentChunk : one unclosed tags => output length', () => {
+	const chunks = getContentChunks(textOneTag)
+	expect(chunks[0].content.length).toEqual(textOneTag.length);
+});
+
+
+
+
+test('contentChunk : no tags', () => {
+	const chunks = getContentChunks(textNoTags)
+	expect(chunks.length).toEqual(1);
+});
+
+test('contentChunk : no tags => content size check', () => {
+	const chunks = getContentChunks(textNoTags)
+	expect(chunks[0].content.length).toEqual(textNoTags.length);
 });
 
 
 
 
 
+test('contentChunk : length result', () => {
+	const chunks = getContentChunks(t1)
+	expect(chunks.length).toEqual(13);
+});
+
+test('contentChunk : last object', () => {
+	const chunks = getContentChunks(t1)
+	expect(equalObj(
+		chunks[chunks.length - 1],
+		{ type: 'text', content: '\n\n\nOUT8\nOUT9\n', start: 16, end: 17 }
+	)).toEqual(true);
+});
 
 
 
-
-const t1 = `
-[[ctag3]] 
-qooooooooooow
+const t2 = `[[ctag3]] 
+qoooooooooooweeeeeeee
 [[script]]
 woop
 [[script]]
-fdafdsfadsfdsa
+fdafdsfadsfdsadddddddd
 [[ctag3]]
 
-fdsafdasdfsaf
+1111111111111
 
 [[ctag2]] 
 qooooooooooow
@@ -57,6 +109,173 @@ resdfffffffffffffffffffffffffff
 resdfffffffffffffffffffffffffff
 resdfffffffffffffffffffffffffff
 resdfffffffffffffffffffffffffff
+`
+
+
+
+
+const textNoTags = `
+Hello world1
+Hello world1
+Hello world1
+Hello world1
+Hello world1
+Hello world1
+Hello world1
+Hello world1
+
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+
+Hello world123
+Hello world12
+Hello world12
+Hello world12
+Hello world12
+`
+
+
+
+
+
+const textSeveralOneTag = `
+ no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+no several closed no several closed1
+[[imnoseveralclosed]]
+
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+no several closed no several closed12
+[[imclosed2]]
+IN1
+[[imclosed2]]
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+no several closed no several closed123
+[[imno severalclosed2]]
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+no several closed no several closed1234
+`
+
+const textOneTag = `
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+not closed not closed1
+[[imnotclosed]]
+
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+not closed not closed12
+`
+
+
+
+const t1 = `
+[[ctag3]] 
+IN1
+[[script]]
+IN2
+[[script]]
+IN3
+[[ctag3]]
+
+OUT1
+
+[[ctag2]] 
+IN4
+[[ctag2]]
+OUT2
+
+[[ctag2]] 
+IN5
+[[ctag2]] 
+OUT3
+
+[[ctag]] IN6 [[script]] [[script]] IN7
+
+[[ctag]]OUT4 
+
+OUT5
+[[hellow]] 
+IN8
+
+[[hellow]]
+OUT6
+OUT7
+
+[[world]] 
+IN9
+
+[[world]]
+
+
+OUT8
+OUT9
 `
 
 
