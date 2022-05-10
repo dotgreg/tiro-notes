@@ -48,7 +48,10 @@ export const regexs = {
 }
 
 export const getCustomMdTagRegex = (tag: string) => {
-	return VerEx().find(tag).beginCapture().anythingBut('').endCapture().then(tag)
+	const regex = VerEx().find(tag).beginCapture().anythingBut('').endCapture().then(tag)
+	return regex
 }
 
+//@ts-ignore
+window.mdregex = getCustomMdTagRegex
 // console.log(regexs);

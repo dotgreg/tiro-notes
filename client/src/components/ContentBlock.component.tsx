@@ -4,6 +4,7 @@ import { iFile } from '../../../shared/types.shared';
 import { iContentChunk, noteApi } from '../managers/renderNote.manager'
 import { iframeManager, iIframeData } from '../managers/iframe.manager'
 import { getClientApi2 } from '../hooks/api/api.hook';
+import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 
 
 export const ContentBlock = (p: {
@@ -19,7 +20,9 @@ export const ContentBlock = (p: {
 	// IFRAME TAG LOGIC
 	//
 
+	const h = `[IFRAME COMPONENT] 00562`
 	const [iframeId, setIframeId] = useState('')
+	const [iframeHeight, setIframeHeight] = useState(200)
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	useEffect(() => {
 		if (!isTag) return
@@ -41,11 +44,26 @@ export const ContentBlock = (p: {
 
 				// generate html content
 				const iframeHtml = iframeManager.generateIframeHtml(formatedNoteTagContent)
-				setHtmlContent(iframeHtml)
+				//iframeHtml.innerTag
+				const fullHtml = `
+						<div class="simple-css-wrapper">
+							${iframeHtml}
+						</div>
+						<style>
+							${previewAreaSimpleCss()}
+						</style>
+				`.replace('{{innerTag}}', p.block.content)
+
+
+				setHtmlContent(fullHtml)
 
 				// listen to iframe 
 				iframeManager.subscribe(nid, m => {
-					console.log('00563', 121212, m);
+					if (m.action === 'resize') {
+						const data: iIframeData['resize'] = m.data
+						console.log(h, 'resizing to', data.height);
+						setIframeHeight(data.height);
+					}
 				})
 
 				// send an init message with all datas
@@ -118,6 +136,8 @@ export const ContentBlock = (p: {
 					id={iframeId}
 					title={iframeId}
 					srcDoc={htmlContent}
+					className="tag-iframe"
+				style={{height: iframeHeight}}
 					sandbox="allow-scripts"
 				>
 				</iframe>

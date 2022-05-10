@@ -14,6 +14,7 @@ import { ContentBlock } from '../ContentBlock.component';
 
 export const PreviewArea = (p: {
 				windowId: string
+
 									file: iFile
 												posY: number
 															fileContent: string
@@ -83,6 +84,7 @@ export const PreviewArea = (p: {
 																																																																																											 </div>
 
 																																																																																											 <div className="content-blocks-wrapper">
+																																																																																											 <div className="simple-css-wrapper">
 				{
 						contentBlocks.map(block =>
 															<>
@@ -95,6 +97,7 @@ export const PreviewArea = (p: {
 )
 				}
 				</div>
+				</div>
 
 				</div>
 				</div>
@@ -105,21 +108,31 @@ export const PreviewArea = (p: {
 export const previewAreaSimpleCss = () => {
 
 		const d = {
-				w: '.content-blocks-wrapper',
+				w: '.simple-css-wrapper',
 					 pl: '.preview-link',
 							 r: '.resource-link-icon'
 		}
 
 		const css = `
-
 		${d.w} {
 				color: ${cssVars.colors.editor.font};
 				line-height: 19px;
+				font-size: 11px;
+				font-family:${cssVars.font.main};
 		}
 
+		button,
+		input {
+				font-family:${cssVars.font.main};
+				font-weight: 700;
+				color: ${cssVars.colors.l2.title};
+		}
 
-		////////////////////////////////////////
+		/**********************************************************
+
 		// COUNTER TITLES
+
+**********************************************************/
 
 		${d.w} {
 				counter-reset: sh1;
@@ -147,8 +160,12 @@ export const previewAreaSimpleCss = () => {
 
 
 
-		////////////////////////////////////////
+		/**********************************************************
+
 		// BASIC STYLE
+
+**********************************************************/
+
 		.title {
 				margin: 0px 0px;
 		}
@@ -175,8 +192,12 @@ export const previewAreaSimpleCss = () => {
     }
 
 
-		////////////////////////////////////////
+		/**********************************************************
+
 		// LIST
+
+**********************************************************/
+
 		ul {
 				padding: 0px;
 				list-style-image: "./custom_icons/view-1.svg"; 
@@ -217,12 +238,14 @@ export const previewAreaSimpleCss = () => {
 				background-image: url(./custom_icons/uncheck.svg);
 		}
 
-		////////////////////////////////////////
-		// PREVIEW LINK
+		/**********************************************************
+
+		 PREVIEW LINK
+
+**********************************************************/
 
 		.preview-link {							
 				font-weight: 800;
-				
 				background-repeat: no-repeat;
 				background-position: 4px 2px;
 				padding-left: 20px;
@@ -245,8 +268,11 @@ export const previewAreaSimpleCss = () => {
 				color: ${cssVars.colors.main};
 		} 
 
-		////////////////////////////////////////
+		/**********************************************************
+
 		// TABLE
+
+**********************************************************/
 
 		table {
 				margin: 10px 0px;
@@ -275,8 +301,11 @@ export const previewAreaSimpleCss = () => {
 				tr:nth-child(odd) {background: #EEE}
 		}
 
-		////////////////////////////////////////
+		/**********************************************************
+
 		// RESSOURCE LINK
+
+**********************************************************/
 
 		.resource-link-wrapper {
 				background: #f7f6f6;
@@ -356,6 +385,12 @@ export const previewAreaCss = () => `
     ${commonCssEditors}
 
 		${previewAreaSimpleCss()}
+
+		.tag-iframe {
+				width: calc(100% - 6px);
+				border: 2px #eaeaea solid;
+				border-radius: 5px;
+		}
 
 
     .infos-preview-wrapper {
