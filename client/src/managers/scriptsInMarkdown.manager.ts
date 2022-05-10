@@ -1,7 +1,5 @@
 import { replaceCustomMdTags } from "./markdown.manager";
-import { addCliCmd } from "./cliConsole.manager";
 import { each } from "lodash";
-import * as _ from "lodash"
 
 //
 // LOAD EXTERNAL SCRIPTS
@@ -28,25 +26,6 @@ export const loadScripts = (scripts: string[], cb: Function) => {
 		if (el) el.appendChild(s)
 	})
 }
-
-addCliCmd('loadScripts', {
-	description: `
-Load scripts and css then execute the callback
-==
-params
-	scripts: strings[] (can be external https scripts or css)
-	callback?: Function
-==
-${loadScripts}`,
-	func: loadScripts,
-	f: loadScripts
-})
-
-addCliCmd('lodash', {
-	description: ``,
-	func: () => _,
-	f: () => _
-})
 
 //
 // TRANSFORM TEXT IN SCRIPTS

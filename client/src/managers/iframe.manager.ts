@@ -1,7 +1,8 @@
 import { each } from "lodash";
 import { iFile } from "../../../shared/types.shared";
+import { replaceCustomMdTags } from "./markdown.manager";
 
-type iIframeActions = 'init' | 'api'
+type iIframeActions = 'init' | 'api' | 'resize'
 
 export interface iIframeData {
 	init: {
@@ -10,6 +11,9 @@ export interface iIframeData {
 		tagName: string
 		tagContent: string
 		frameId: string
+	}
+	resize: {
+		height: number
 	}
 }
 
@@ -47,7 +51,7 @@ const notify = (message: iIframeMessage) => {
 		}
 	});
 }
-const subscribe = (id: string, cb: Function) => {
+const subscribe = (id: string, cb: (message: iIframeMessage) => void) => {
 	subscribers[id] = cb
 }
 const unsubscribe = (id: string) => {
@@ -67,10 +71,15 @@ const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => 
 const generateIframeHtml = (tagContent: string) => {
 	const html = `
 <html>
-		${tagContent}
+		<div id="content-wrapper">
+				${tagContent}
+		</div>
 		<script>
-		const main = ${iframeCode.toString()};
-		main()
+		const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
+		const main = ${iframeMainCode.toString()};
+		main({
+				replaceCustomMdTags: IMPORTED_replaceCustomMdTags
+		})
 		</script>
 </html>
 `
@@ -83,8 +92,11 @@ const generateIframeHtml = (tagContent: string) => {
 // JAVASCRIPT CODE EXECUTED IN IFRAME
 // Doesnt have access to any library of the project
 //
-const iframeCode = () => {
+const iframeMainCode = (p: {
+	replaceCustomMdTags
+}) => {
 	const h = '[IFRAME child] 00564'
+
 
 	// 
 	// STORAGE
@@ -117,11 +129,34 @@ const iframeCode = () => {
 		}
 	}
 
+	const transformMarkdownScripts = (bodyRaw: string): string => {
+		let res = p.replaceCustomMdTags(
+			bodyRaw,
+			'[[script]]',
+			(UNSAFE_user_script: string) => {
+				console.log(h, UNSAFE_user_script);
+				const scriptTxt = ` ${UNSAFE_user_script}`.replace('<br>', '')
+				try {
+					// using Function instead of eval to isolate the execution scope
+					return new Function(scriptTxt)()
+				} catch (e: any) {
+					console.warn(h, `[SCRIPT] error: ${e}`, scriptTxt)
+				}
+			});
+		return res;
+	};
+
+	const getIframeHeight = () => {
+
+	}
+
 	//
 	// EXECUTION LOGIC
 	//
 	on({
 		init: (m: iIframeData['init']) => {
+			// BOOTING
+			// When iframe receive infos from parent 
 			console.log(h, 'init inside iframe!');
 			d.frameId = m.frameId
 			d.innerTag = m.innerTag
@@ -129,19 +164,28 @@ const iframeCode = () => {
 			d.tagName = m.tagName
 			d.file = m.file
 
+			// get content and replace script tags
+			const el = document.getElementById('content-wrapper')
+			if (el) {
+				const newHtml = transformMarkdownScripts(el.innerHTML)
+				console.log(h, 'wooooo', newHtml);
+				el.innerHTML = newHtml
 
-			// sending back sthg
-			setTimeout(() => {
-				send({
-					frameId: d.frameId,
-					action: 'api',
-					data: {
-						woop: 'woop'
+
+				// sending height back for resizing sthg
+				setTimeout(() => {
+					const data: iIframeData['resize'] = {
+						height: el.clientHeight + 20
 					}
-				})
-			}, 100)
+					send({ frameId: d.frameId, action: 'resize', data })
+				}, 100)
+			}
+
 		},
 		api: m => {
+
+		},
+		resize: () => {
 
 		}
 	})
