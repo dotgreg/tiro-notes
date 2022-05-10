@@ -16,7 +16,7 @@ export const DualViewer = (p: {
 	file: iFile
 	fileContent: string
 	isActive: boolean
-		canEdit: boolean
+	canEdit: boolean
 
 	viewType?: iViewType
 	onViewChange?: onViewChangeFn

@@ -90,6 +90,8 @@ export const useBrowserApi = (p: {
 			setSelectedFolder(folderPath)
 			//cleanListAndFileContent()
 
+
+
 			if (appView === 'text') {
 				p.filesApi.get(folderPath, nfiles => {
 					// when receiving results
