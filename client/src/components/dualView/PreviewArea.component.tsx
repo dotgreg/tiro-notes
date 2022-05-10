@@ -105,20 +105,26 @@ export const PreviewArea = (p: {
 export const previewAreaSimpleCss = () => {
 
 		const d = {
-				w: '.preview-wrapper',
-					 pl: '.preview-link'
+				w: '.content-blocks-wrapper',
+					 pl: '.preview-link',
+							 r: '.resource-link-icon'
 		}
 
 		const css = `
 
 		${d.w} {
 				color: ${cssVars.colors.editor.font};
+				line-height: 19px;
+		}
+
+
+		////////////////////////////////////////
+		// COUNTER TITLES
+
+		${d.w} {
 				counter-reset: sh1;
 				overflow-wrap: break-word;
 		}
-
-		////////////////////////////////////////
-		// TITLES 
 
 		h1:before {
 				content: ""counter(sh1)" ∙ ";
@@ -127,26 +133,22 @@ export const previewAreaSimpleCss = () => {
 		h1 {
 				counter-reset: sh2;
 		}
-
-
 		h2:before {
 				content: ""counter(sh1)"." counter(sh2)" ∙  ";
 				counter-increment: sh2;
 		}
-		h2 {
+		h3 {
 				counter-reset: sh3;
 		}
-
-
-
 		h3:before {
 				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
 				counter-increment: sh3;
 		}
-		h3 {
-				counter-reset: sh3;
-		}
 
+
+
+		////////////////////////////////////////
+		// BASIC STYLE
 		.title {
 				margin: 0px 0px;
 		}
@@ -172,8 +174,51 @@ export const previewAreaSimpleCss = () => {
         margin-bottom: 1em;
     }
 
+
 		////////////////////////////////////////
-		// PREVIEW LINK 
+		// LIST
+		ul {
+				padding: 0px;
+				list-style-image: "./custom_icons/view-1.svg"; 
+				list-style: none; 
+		}
+
+		ul li {
+				background-image: url(./custom_icons/line.svg);
+				background-repeat: no-repeat;
+				background-position: -3px 4px;
+				background-size: 11px;
+				padding-left: 12px;
+		}
+		ul li p {
+				margin: 0px;
+		}
+
+		ul input[type=checkbox] {
+				position: relative;
+				width: 0px;
+				height: 10px;
+				margin-right: 9px
+		}
+		ul input[type=checkbox]:before {
+				content: "";
+				display: block;
+				position: absolute;
+				width: 15px;
+				height: 15px;
+				top: 0px;
+				left: -4px;
+				background-image: url(./custom_icons/check.svg);
+				background-repeat: no-repeat;
+				background-position: -2px -1px;
+				background-size: contain;
+		}
+		ul input[type=checkbox]:checked:before {
+				background-image: url(./custom_icons/uncheck.svg);
+		}
+
+		////////////////////////////////////////
+		// PREVIEW LINK
 
 		.preview-link {							
 				font-weight: 800;
@@ -200,9 +245,100 @@ export const previewAreaSimpleCss = () => {
 				color: ${cssVars.colors.main};
 		} 
 
+		////////////////////////////////////////
+		// TABLE
+
+		table {
+				margin: 10px 0px;
+				padding 15px;
+				border-spacing: 0;
+				border-collapse: collapse;
+		}
+
+		tr:first-child th:first-child { border-top-left-radius: 10px; }
+		tr:first-child th:last-child { border-top-right-radius: 10px; }
+		tr:last-child td:first-child { border-bottom-left-radius: 10px; }
+		tr:last-child td:last-child { border-bottom-right-radius: 10px; }
+
+		th {
+				text-align: left;
+				padding: 10px 10px;
+		}
+		td {
+				padding: 5px 10px;
+		}
+		thead tr {
+				background: #CCC
+		}
+		tbody {
+				tr:nth-child(even) {background: #CCC}
+				tr:nth-child(odd) {background: #EEE}
+		}
+
+		////////////////////////////////////////
+		// RESSOURCE LINK
+
+		.resource-link-wrapper {
+				background: #f7f6f6;
+				padding: 20px;
+				border-radius: 10px;
+				position: relative;
+				margin: 5px 0px;
+		}
+
+		.resource-link-icon {
+				top: 14px;
+				left: 19px;
+				width: 21px;
+				height: 27px;
+				display: inline-block;
+				background-image: url(/static/media/file-solid.6415173e.svg);
+				opacity: 0.08;
+				position: absolute;
+				background-repeat: no-repeat;
+				transform: scale(1.5);
+				background-image: url(${cssVars.assets.fileIcon});
+		}
+
+		${d.r}.epub, ${d.r}.cbr, ${d.r}.cbz,${d.r}.mobi, ${d.r}.azw, ${d.r}.azw3, ${d.r}.iba { background-image: url(${cssVars.assets.bookIcon}); }
+		${d.r}.pdf
+		{ background-image: url(${cssVars.assets.pdfIcon}); }
+
+		${d.r}.xls, ${d.r}.xlsm, ${d.r}.xlsx, ${d.r}.ods
+		{ background-image: url(${cssVars.assets.excelIcon}); }
+
+		${d.r}.avi, ${d.r}.flv, ${d.r}.h264, ${d.r}.m4v, ${d.r}.mov, ${d.r}.mp4, ${d.r}.mpg, ${d.r}.mpeg, ${d.r}.rm, ${d.r}.swf, ${d.r}.vob, ${d.r}.wmv, ${d.r}.mkv
+		{ background-image: url(${cssVars.assets.videoIcon}); }
+
+		${d.r}.d7z, ${d.r}.arj, ${d.r}.deb, ${d.r}.rar, ${d.r}.gz, ${d.r}.zip, ${d.r}.rpm, ${d.r}.pkg
+		{ background-image: url(${cssVars.assets.archiveIcon});}
+
+		${d.r}.aif, ${d.r}.mp3, ${d.r}.cda, ${d.r}.mid, ${d.r}.mpa, ${d.r}.ogg, ${d.r}.wav, ${d.r}.wpl, ${d.r}.wma, ${d.r}.midi
+		{ background-image: url(${cssVars.assets.audioIcon}); }
+
+		${d.r}.doc, ${d.r}.docx, ${d.r}.odt
+		{ background-image: url(${cssVars.assets.wordIcon}); }
+
+		${d.r}.bin, ${d.r}.dmg, ${d.r}.iso, ${d.r}.toast, ${d.r}.vcd
+		{
+				top: 19px;
+				transform: scale(1.8);
+				background-image: url(${cssVars.assets.diskIcon});
+		}
+
+		${d.r}.ppt, ${d.r}.pptx, ${d.r}.odp, ${d.r}.key, ${d.r}.pps
+		{ background-image: url(${cssVars.assets.presIcon}); }
 
 
+		pre  {
+		}
 
+		pre code {
+				display: block;
+				border-radius: 8px;
+				background: #d2d2d2;
+				padding: 11px 23px;
+		}
 		`
 		return css
 }
@@ -216,7 +352,6 @@ export const previewAreaCss = () => `
 .preview-area {
     position: relative;
     display: block;
-		line-height: 19px;
 
     ${commonCssEditors}
 
@@ -227,135 +362,5 @@ export const previewAreaCss = () => `
         display: ${isA('desktop') ? 'none' : 'block'};
     }
 
-
-		.resource-link-wrapper {
-				background: #f7f6f6;
-				padding: 20px;
-				border-radius: 10px;
-				position: relative;
-				margin: 5px 0px;
-
-				.resource-link-icon {
-						background-image: url(${cssVars.assets.fileIcon});
-						&.epub, &.cbr, &.cbz,&.mobi, &.azw, &.azw3, &.iba,  
-						{ background-image: url(${cssVars.assets.bookIcon}); }
-						&.pdf
-						{ background-image: url(${cssVars.assets.pdfIcon}); }
-
-						&.xls, &.xlsm, &.xlsx, &.ods
-						{ background-image: url(${cssVars.assets.excelIcon}); }
-
-						&.avi, &.flv, &.h264, &.m4v, &.mov, &.mp4, &.mpg, &.mpeg, &.rm, &.swf, &.vob, &.wmv, &.mkv
-						{ background-image: url(${cssVars.assets.videoIcon}); }
-
-						&.d7z, &.arj, &.deb, &.rar, &.gz, &.zip, &.rpm, &.pkg
-						{ background-image: url(${cssVars.assets.archiveIcon});}
-
-						&.aif, &.mp3, &.cda, &.mid, &.mpa, &.ogg, &.wav, &.wpl, &.wma, &.midi
-						{ background-image: url(${cssVars.assets.audioIcon}); }
-
-						&.doc, &.docx, &.odt
-						{ background-image: url(${cssVars.assets.wordIcon}); }
-
-						&.bin, &.dmg, &.iso, &.toast, &.vcd
-						{
-								top: 19px;
-								transform: scale(1.8);
-								background-image: url(${cssVars.assets.diskIcon});
-						}
-
-						&.ppt, &.pptx, &.odp, &.key, &.pps
-						{ background-image: url(${cssVars.assets.presIcon}); }
-
-						top: 14px;
-						left: 19px;
-						width: 21px;
-						height: 27px;
-						display: inline-block;
-						background-image: url(/static/media/file-solid.6415173e.svg);
-						opacity: 0.08;
-						position: absolute;
-						background-repeat: no-repeat;
-						transform: scale(1.5);
-				}
-				.resource-link {
-				}
-		}
-
-
-
-		ul {
-				padding: 0px;
-				list-style-image: "./custom_icons/view-1.svg"; 
-				list-style: none; 
-
-				li {
-						background-image: url(./custom_icons/line.svg);
-						background-repeat: no-repeat;
-						background-position: -3px 4px;
-						background-size: 11px;
-						padding-left: 12px;
-						p {
-								margin: 0px;
-						}
-				}
-
-				input[type=checkbox] {
-						position: relative;
-						width: 0px;
-						height: 10px;
-						margin-right: 9px
-				}
-				input[type=checkbox]:before {
-						content: "";
-						display: block;
-						position: absolute;
-						width: 15px;
-						height: 15px;
-						top: 0px;
-						left: -4px;
-						background-image: url(./custom_icons/check.svg);
-						background-repeat: no-repeat;
-						background-position: -2px -1px;
-						background-size: contain;
-				}
-				input[type=checkbox]:checked:before {
-						background-image: url(./custom_icons/uncheck.svg);
-				}
-		}
-
-		table {
-				margin: 10px 0px;
-				padding 15px;
-				border-spacing: 0;
-				border-collapse: collapse;
-
-				tr:first-child th:first-child { border-top-left-radius: 10px; }
-				tr:first-child th:last-child { border-top-right-radius: 10px; }
-				tr:last-child td:first-child { border-bottom-left-radius: 10px; }
-				tr:last-child td:last-child { border-bottom-right-radius: 10px; }
-
-				th {
-						text-align: left;
-						padding: 10px 10px;
-				}
-				td {
-						padding: 5px 10px;
-				}
-				thead tr {
-						background: #CCC
-				}
-				tbody {
-						tr:nth-child(even) {background: #CCC}
-						tr:nth-child(odd) {background: #EEE}
-				}
-		}
-}
-pre {
-		code {
-				display: block;
-				border-radius: 8px;
-				padding: 10px;
-		}
 }
 `

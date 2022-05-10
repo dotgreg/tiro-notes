@@ -9,8 +9,9 @@ const marked = require('marked');
 export const md2html = (raw: string): string => {
 	let res = marked(raw);
 
-	res = res.replaceAll('\n', '<br>')
-	res = res.replaceAll('\r', '<br>')
+	// res = res.replaceAll('\n', '<br>')
+	// res = res.replaceAll('\r', '<br>')
+	// 
 
 	return res;
 }
