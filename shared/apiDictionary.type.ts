@@ -15,7 +15,7 @@ export interface iApiDictionary {
 	getImages: { images: iFileImage[] }
 
 	askForFileContent: { filePath: string, idReq: string }
-	getFileContent: { fileContent: string, filePath: string, idReq: string }
+	getFileContent: { fileContent: string, filePath: string, idReq: string, error?:string }
 
 	saveFileContent: { filePath: string, newFileContent: string }
 

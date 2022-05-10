@@ -48,7 +48,7 @@ export const openFile = async (path: string): Promise<string> => {
 
 	return new Promise((resolve, reject) => {
 		fs.readFile(path, 'utf8', (err, data: string) => {
-			if (err) { log(`[READFILE] could not read ${path}`); }
+			if (err) { log(`[READFILE] could not read ${path}`); reject('NO_FILE') }
 			else resolve(data)
 		});
 	})

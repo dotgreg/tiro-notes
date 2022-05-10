@@ -387,7 +387,7 @@ ${ButtonsToolbarCss}
         ${monacoColorsCss}
         ${monacoEditorCss}
 
-        ${previewAreaCss(mobileView)}
+        ${previewAreaCss()}
 
 				${uploadButtonCss}
 				${uploadProgressBarCss}
