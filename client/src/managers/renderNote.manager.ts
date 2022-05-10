@@ -29,11 +29,8 @@ const renderNoteContent: iNoteApi['render'] = p => {
 				transformSearchLinks(
 					transformTitleSearchLinks(windowId,
 						transformUrlInLinks(
-							transformMarkdownScripts(
-								replaceUserCustomMdTag({ currentFolder, windowId },
-									transformLatex(
-										raw
-									)))))))))
+							raw
+						))))))
 
 }
 const bindToElClass = (classn: string, cb: (el: any) => void) => {

@@ -19,7 +19,13 @@ import { iMoveApi, useMoveApi } from './move.api.hook';
 export type iGetFilesCb = (files: iFile[]) => void
 
 export interface iFileApi {
-	getContent: (noteLink: string, cb: (noteContent: string) => void) => void
+	getContent: (
+		noteLink: string,
+		cb: (noteContent: string) => void,
+		options?: {
+			onError?: Function
+		}
+	) => void
 	saveContent: (noteLink: string, content: string, options?: { history?: boolean }) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
 	move: iMoveApi['file']
@@ -38,8 +44,12 @@ export const useFileApi = (p: {
 	// 
 	useEffect(() => {
 		clientSocket2.on('getFileContent', data => {
-			let filterRes = filterMetaFromFileContent(data.fileContent)
-			p.eventBus.notify(data.idReq, filterRes.content)
+			if (data.error) {
+				p.eventBus.notify(data.idReq, { error: data.error })
+			} else {
+				let filterRes = filterMetaFromFileContent(data.fileContent)
+				p.eventBus.notify(data.idReq, { content: filterRes.content })
+			}
 		})
 	}, [])
 
@@ -48,12 +58,19 @@ export const useFileApi = (p: {
 	// 
 
 	// 1. GET CONTENT
-	const getFileContent: iFileApi['getContent'] = (noteLink, cb) => {
+	const getFileContent: iFileApi['getContent'] = (
+		noteLink,
+		cb,
+		options
+	) => {
 		console.log(`${h} get file content ${noteLink}`);
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
-		p.eventBus.subscribe(idReq, cb);
+		p.eventBus.subscribe(idReq, answer => {
+			if (answer.content) cb(answer.content)
+			if (answer.error && options && options.onError) options.onError(answer.error)
+		});
 		// 2. emit request 
 		clientSocket2.emit('askForFileContent', {
 			filePath,

@@ -13,96 +13,201 @@ import { ContentBlock } from '../ContentBlock.component';
 
 
 export const PreviewArea = (p: {
-	windowId: string
-	file: iFile
-	posY: number
-	fileContent: string
-	onMaxYUpdate: (maxY: number) => void
-}) => {
+				windowId: string
+									file: iFile
+												posY: number
+															fileContent: string
+																					 onMaxYUpdate: (maxY: number) => void
+		}) => {
 
-	const api = useContext(ClientApiContext);
+		const api = useContext(ClientApiContext);
 
-	const previewAreaRefs = {
-		wrapper: useRef<HTMLDivElement>(null),
-		main: useRef<HTMLDivElement>(null),
-	}
+		const previewAreaRefs = {
+				wrapper: useRef<HTMLDivElement>(null),
+								 main: useRef<HTMLDivElement>(null),
+		}
 
-	let currentFolderArr = p.file.path.split('/')
-	currentFolderArr.pop()
-	let currentFolder = currentFolderArr.join('/')
+		let currentFolderArr = p.file.path.split('/')
+		currentFolderArr.pop()
+		let currentFolder = currentFolderArr.join('/')
 
-	useEffect(() => {
+		useEffect(() => {
 		setTimeout(() => {
-			p.onMaxYUpdate(calculateYMax())
-		}, 1000)
+		p.onMaxYUpdate(calculateYMax())
+}, 1000)
 
 		noteApi.injectLogic()
 
-	}, [p.fileContent])
+}, [p.fileContent])
 
 
-	const calculateYMax = () => {
-		const d = previewAreaRefs.main.current
-		const height = d?.clientHeight
-		const max = height || 3000
-		return max
-	}
+		const calculateYMax = () => {
+				const d = previewAreaRefs.main.current
+				const height = d?.clientHeight
+				const max = height || 3000
+				return max
+		}
 
-	const calculateYPos = () => {
-		const max = calculateYMax();
-		return clamp(p.posY, 0, max)
-	}
+		const calculateYPos = () => {
+				const max = calculateYMax();
+				return clamp(p.posY, 0, max)
+		}
 
-	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
-	useEffect(() => {
+		const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
+		useEffect(() => {
 		setContentBlocks(getContentChunks(p.fileContent))
-	}, [p.fileContent])
+}, [p.fileContent])
 
 
-	return (
-		<div className={`preview-area-wrapper`}>
-			<div
+		return (
+				<div className={`preview-area-wrapper`}>
+				<div
 				className={`preview-area`}
 				ref={previewAreaRefs.wrapper}
 				style={{ bottom: calculateYPos() }}
-			>
+				>
 
 				<div className="infos-preview-wrapper">
-					<div className="file-path-wrapper">
-						{p.file.path.replace(`/${p.file.name}`, '')}
-					</div>
-
-					<h1 className="title big-title">
-						{p.file.name.replace('.md', '')}
-					</h1>
-
-					<div className="dates-wrapper">
-						<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-						<div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-					</div>
+				<div className="file-path-wrapper">
+				{p.file.path.replace(`/${p.file.name}`, '')}
 				</div>
 
-				<div className="content-blocks-wrapper">
-					{
-							contentBlocks.map(block =>
-									<>
-										<ContentBlock
-											block={block}
-											windowId={p.windowId}
-											file={p.file}
-										/>
-									</>
-						)
-					}
+				<h1 className="title big-title">
+				{p.file.name.replace('.md', '')}
+				</h1>
+
+				<div className="dates-wrapper">
+				<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
+																																																 <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
+																																																																																											 </div>
+																																																																																											 </div>
+
+																																																																																											 <div className="content-blocks-wrapper">
+				{
+						contentBlocks.map(block =>
+															<>
+															<ContentBlock
+															block={block}
+															windowId={p.windowId}
+															file={p.file}
+															/>
+															</>
+)
+				}
 				</div>
 
-			</div>
-		</div>
-	)
+				</div>
+				</div>
+		)
 }
 
 
-export const previewAreaCss = (v: MobileView) => `//css
+export const previewAreaSimpleCss = () => {
+
+		const d = {
+				w: '.preview-wrapper',
+					 pl: '.preview-link'
+		}
+
+		const css = `
+
+		${d.w} {
+				color: ${cssVars.colors.editor.font};
+				counter-reset: sh1;
+				overflow-wrap: break-word;
+		}
+
+		////////////////////////////////////////
+		// TITLES 
+
+		h1:before {
+				content: ""counter(sh1)" ∙ ";
+				counter-increment: sh1;
+		}
+		h1 {
+				counter-reset: sh2;
+		}
+
+
+		h2:before {
+				content: ""counter(sh1)"." counter(sh2)" ∙  ";
+				counter-increment: sh2;
+		}
+		h2 {
+				counter-reset: sh3;
+		}
+
+
+
+		h3:before {
+				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
+				counter-increment: sh3;
+		}
+		h3 {
+				counter-reset: sh3;
+		}
+
+		.title {
+				margin: 0px 0px;
+		}
+
+		h1, h2, h3, h4, h5, h6 {
+				color: ${cssVars.colors.main};
+				margin-top: 0px;
+		}
+		h1 {
+				margin-bottom: 20px;
+		}
+		h2, h3, h4, h5, h6 {
+				margin-bottom: 15px;
+		}
+
+    img,
+    .content-image {
+        ${cssVars.els.images}
+    }
+
+    p {
+        margin-top: 0px;
+        margin-bottom: 1em;
+    }
+
+		////////////////////////////////////////
+		// PREVIEW LINK 
+
+		.preview-link {							
+				font-weight: 800;
+				
+				background-repeat: no-repeat;
+				background-position: 4px 2px;
+				padding-left: 20px;
+				background-size: 10px;
+		}
+
+		${d.pl}.external-link {
+				background-image: url(${cssVars.assets.worldIcon});
+		}
+		${d.pl}.search-link {
+				color: ${cssVars.colors.main};
+				background-image: url(${cssVars.assets.searchIcon});
+		}
+		${d.pl}.title-search-link {
+				color: ${cssVars.colors.main};
+				background-image: url(${cssVars.assets.linkIcon});
+				cursor: pointer;
+		}
+		${d.pl}.resource-link {
+				color: ${cssVars.colors.main};
+		} 
+
+
+
+
+		`
+		return css
+}
+
+export const previewAreaCss = () => `
 .preview-area-wrapper {
     overflow: ${isIpad() ? 'scroll' : isA('mobile') ? 'scroll' : 'hidden'};
     height: ${isA('desktop') ? '100vh' : '100vh'};
@@ -110,77 +215,18 @@ export const previewAreaCss = (v: MobileView) => `//css
 }
 .preview-area {
     position: relative;
-    display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'none' : 'block')};
-    // overflow: ${isIpad() ? 'scroll' : 'hidden'};
+    display: block;
 		line-height: 19px;
 
     ${commonCssEditors}
+
+		${previewAreaSimpleCss()}
+
 
     .infos-preview-wrapper {
         display: ${isA('desktop') ? 'none' : 'block'};
     }
 
-    .mobile-buttons-up-down {
-        position: fixed;
-        &.right {
-            right: 0px;
-        }
-        &.left {
-            left: 0px;
-        }
-        top: 50%;
-        div {
-            background: #d6d6d6;
-            padding: 15px;
-            opacity: 0.5;
-            color:white;
-            cursor: pointer;
-        }
-    }
-
-    .title {
-        margin: 0px 0px;
-    }
-
-    .dates-wrapper {
-        margin-bottom: ${cssVars.sizes.block}px;
-    }
-
-    color: ${cssVars.colors.editor.font};
-    h1, h2, h3, h4, h5, h6 {
-        color: ${cssVars.colors.main};
-				margin-top: 0px;
-    }
-    h1 {
-				margin-bottom: 20px;
-		}
-		h2, h3, h4, h5, h6 {
-				margin-bottom: 15px;
-    }
-    .preview-link {
-      font-weight: 800;
-      
-      background-repeat: no-repeat;
-      background-position: 4px 2px;
-      padding-left: 20px;
-      background-size: 10px;
-      
-      &.external-link {
-        background-image: url(${cssVars.assets.worldIcon});
-        }
-        &.search-link {
-            color: ${cssVars.colors.main};
-            background-image: url(${cssVars.assets.searchIcon});
-        }
-        &.title-search-link {
-            color: ${cssVars.colors.main};
-            background-image: url(${cssVars.assets.linkIcon});
-						cursor: pointer;
-        }
-        &.resource-link {
-          color: ${cssVars.colors.main};
-      }
-    }
 
 		.resource-link-wrapper {
 				background: #f7f6f6;
@@ -237,38 +283,6 @@ export const previewAreaCss = (v: MobileView) => `//css
 		}
 
 
-    img,
-    .content-image {
-        ${cssVars.els.images}
-    }
-
-
-    p {
-        margin-top: 0px;
-        margin-bottom: 1em;
-    }
-    .preview-content {
-				counter-reset: sh1;
-				overflow-wrap: break-word;
-
-		h1:before {
-				content: ""counter(sh1)" ∙ ";
-				counter-increment: sh1;
-		}
-		h1 {
-				counter-reset: sh2;
-		}
-		h2:before {
-				content: ""counter(sh1)"." counter(sh2)" ∙  ";
-				counter-increment: sh2;
-		}
-		h3 {
-				counter-reset: sh3;
-		}
-		h3:before {
-				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
-				counter-increment: sh3;
-		}
 
 		ul {
 				padding: 0px;
@@ -286,29 +300,29 @@ export const previewAreaCss = (v: MobileView) => `//css
 						}
 				}
 
-		input[type=checkbox] {
-				position: relative;
-				width: 0px;
-				height: 10px;
-				margin-right: 9px
+				input[type=checkbox] {
+						position: relative;
+						width: 0px;
+						height: 10px;
+						margin-right: 9px
+				}
+				input[type=checkbox]:before {
+						content: "";
+						display: block;
+						position: absolute;
+						width: 15px;
+						height: 15px;
+						top: 0px;
+						left: -4px;
+						background-image: url(./custom_icons/check.svg);
+						background-repeat: no-repeat;
+						background-position: -2px -1px;
+						background-size: contain;
+				}
+				input[type=checkbox]:checked:before {
+						background-image: url(./custom_icons/uncheck.svg);
+				}
 		}
-		input[type=checkbox]:before {
-				content: "";
-				display: block;
-				position: absolute;
-				width: 15px;
-				height: 15px;
-				top: 0px;
-				left: -4px;
-				background-image: url(./custom_icons/check.svg);
-				background-repeat: no-repeat;
-				background-position: -2px -1px;
-				background-size: contain;
-		}
-		input[type=checkbox]:checked:before {
-				background-image: url(./custom_icons/uncheck.svg);
-		}
-						}
 
 		table {
 				margin: 10px 0px;
@@ -321,28 +335,27 @@ export const previewAreaCss = (v: MobileView) => `//css
 				tr:last-child td:first-child { border-bottom-left-radius: 10px; }
 				tr:last-child td:last-child { border-bottom-right-radius: 10px; }
 
-						th {
-								text-align: left;
-								padding: 10px 10px;
-}
-						td {
-								padding: 5px 10px;
-						}
-						thead tr {
-								background: #CCC
-						}
-						tbody {
-								tr:nth-child(even) {background: #CCC}
-								tr:nth-child(odd) {background: #EEE}
-						}
+				th {
+						text-align: left;
+						padding: 10px 10px;
 				}
-    }
-    pre {
-      code {
-        display: block;
-        border-radius: 8px;
-        padding: 10px;
-      }
-    }
-  }
-`//css
+				td {
+						padding: 5px 10px;
+				}
+				thead tr {
+						background: #CCC
+				}
+				tbody {
+						tr:nth-child(even) {background: #CCC}
+						tr:nth-child(odd) {background: #EEE}
+				}
+		}
+}
+pre {
+		code {
+				display: block;
+				border-radius: 8px;
+				padding: 10px;
+		}
+}
+`

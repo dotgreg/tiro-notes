@@ -64,10 +64,10 @@ const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => 
 //
 // IFRAME CODE
 //
-const generateIframeHtml = (text: string) => {
+const generateIframeHtml = (tagContent: string) => {
 	const html = `
 <html>
-		${text}
+		${tagContent}
 		<script>
 		const main = ${iframeCode.toString()};
 		main()
@@ -79,7 +79,7 @@ const generateIframeHtml = (text: string) => {
 
 
 
-// 
+///////////////////////////////////////////////////////////////////////// 
 // JAVASCRIPT CODE EXECUTED IN IFRAME
 // Doesnt have access to any library of the project
 //
@@ -128,22 +128,24 @@ const iframeCode = () => {
 			d.tagContent = m.tagContent
 			d.tagName = m.tagName
 			d.file = m.file
+
+
+			// sending back sthg
+			setTimeout(() => {
+				send({
+					frameId: d.frameId,
+					action: 'api',
+					data: {
+						woop: 'woop'
+					}
+				})
+			}, 100)
 		},
 		api: m => {
 
 		}
 	})
 
-	// sending back sthg
-	setTimeout(() => {
-		send({
-			frameId: d.frameId,
-			action: 'api',
-			data: {
-				woop: 'woop'
-			}
-		})
-	}, 100)
 
 }
 
