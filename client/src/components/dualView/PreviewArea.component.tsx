@@ -5,16 +5,17 @@ import { iFile } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
-import { getContentChunks, noteApi } from '../../managers/renderNote.manager';
+import { getContentChunks, iContentChunk, noteApi } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors } from './EditorArea.component';
+import { ContentBlock } from '../ContentBlock.component';
 
 
 
 export const PreviewArea = (p: {
 	windowId: string
-	file: iFile,
-	posY: number,
+	file: iFile
+	posY: number
 	fileContent: string
 	onMaxYUpdate: (maxY: number) => void
 }) => {
@@ -52,14 +53,9 @@ export const PreviewArea = (p: {
 		return clamp(p.posY, 0, max)
 	}
 
-	const [contentBlocks, setContentBlocks] = useState<string[]>([])
+	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
 	useEffect(() => {
-		setContentBlocks(p.fileContent.split('\n'))
-
-
-		getContentChunks(p.fileContent)
-
-
+		setContentBlocks(getContentChunks(p.fileContent))
 	}, [p.fileContent])
 
 
@@ -86,7 +82,19 @@ export const PreviewArea = (p: {
 					</div>
 				</div>
 
-				<div>hello world</div>
+				<div className="content-blocks-wrapper">
+					{
+							contentBlocks.map(block =>
+									<>
+										<ContentBlock
+											block={block}
+											windowId={p.windowId}
+											file={p.file}
+										/>
+									</>
+						)
+					}
+				</div>
 
 			</div>
 		</div>
