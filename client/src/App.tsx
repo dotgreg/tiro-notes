@@ -140,6 +140,7 @@ export const App = () => {
 		userSettingsApi.set('ui_sidebar', !userSettingsApi.get('ui_sidebar'))
 	}
 
+
 	// // KEY ACTIONS
 	// useEffect(() => {
 	// 	addKeyAction('up', () => {

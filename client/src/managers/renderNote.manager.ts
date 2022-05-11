@@ -3,7 +3,6 @@ import { regexs } from "../../../shared/helpers/regexs.helper"
 import { getClientApi2 } from "../hooks/api/api.hook"
 import { transformLatex } from "./latex.manager"
 import { cleanCustomTagsCache, md2html, replaceUserCustomMdTag } from "./markdown.manager"
-import { transformMarkdownScripts } from "./scriptsInMarkdown.manager"
 import { transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
 
 
@@ -29,8 +28,8 @@ const renderNoteContent: iNoteApi['render'] = p => {
 				transformSearchLinks(
 					transformTitleSearchLinks(windowId,
 						transformUrlInLinks(
-							raw
-						))))))
+								raw
+							))))))
 
 }
 const bindToElClass = (classn: string, cb: (el: any) => void) => {
