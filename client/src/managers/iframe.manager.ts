@@ -168,9 +168,8 @@ const iframeMainCode = (p: {
 			const el = document.getElementById('content-wrapper')
 			if (el) {
 				const newHtml = transformMarkdownScripts(el.innerHTML)
-				console.log(h, 'wooooo', newHtml);
+				// console.log(h, 'wooooo', newHtml);
 				el.innerHTML = newHtml
-
 
 				// sending height back for resizing sthg
 				setTimeout(() => {

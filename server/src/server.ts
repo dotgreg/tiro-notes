@@ -11,6 +11,7 @@ fileLogClean();
 
 const archi = process.arch
 
+
 log(`===== TIRO SERVER STARTING ====== `)
 log(`
 isEnvDev: ${isEnvDev()}
@@ -46,7 +47,7 @@ if (backConfig.dataFolder) {
 }
 
 
-server.listen(backConfig.port, function() {
+server.listen(backConfig.port, function () {
 	// THAT MESSAGE IS CRITICAL FOR ELECTRON TO START DISPLAYING THE WINDOW
 	let configServerStr = JSON.stringify({ https: backConfig.https, port: backConfig.port })
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);

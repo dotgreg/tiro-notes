@@ -52,6 +52,7 @@ export const getCustomMdTagRegex = (tag: string) => {
 	return regex
 }
 
+
 //@ts-ignore
-window.mdregex = getCustomMdTagRegex
+// window.mdregex = getCustomMdTagRegex
 // console.log(regexs);
