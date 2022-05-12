@@ -33,7 +33,7 @@ export const NoteMobileToolbar = (p:{
 
 
 
-export const mobileNoteToolbarCss = `
+export const mobileNoteToolbarCss = () => `
   .mobile-text-manip-toolbar {
     position: fixed;
     bottom: ${cssVars.sizes.mobile.editorBar + 10}px;

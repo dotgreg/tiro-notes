@@ -2,8 +2,8 @@ import { cloneDeep, each } from "lodash"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { getClientApi2 } from "../hooks/api/api.hook"
 import { transformLatex } from "./latex.manager"
-import { cleanCustomTagsCache, md2html, replaceUserCustomMdTag } from "./markdown.manager"
-import { transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
+import { md2html } from "./markdown.manager"
+import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
 
 
 export interface iNoteApi {
@@ -13,25 +13,53 @@ export interface iNoteApi {
 		windowId: string
 	}) => string
 	injectLogic: Function
-	customTags: {
-		cache: {
-			clean: Function
-		}
+	chunks: {
+		chunk: (fileContent: string) => iContentChunk[]
+		merge: (chunks: iContentChunk[]) => string
 	}
 }
 
+////////////////////////////////////////////////////
+// High level functions for content rendering
+//
 const renderNoteContent: iNoteApi['render'] = p => {
 	const { raw, currentFolder, windowId } = { ...p }
-	return md2html(
-		transformRessourcesInHTML(currentFolder,
-			transformImagesInHTML(currentFolder,
-				transformSearchLinks(
-					transformTitleSearchLinks(windowId,
-						transformUrlInLinks(
+	// chunk content in chunks
+	const contentChunks = getContentChunks(raw)
+	each(contentChunks, c => {
+		// transform the content of each text chunk
+		if (c.type === 'text') c.content = renderMarkdownToHtml({
+			raw: c.content,
+			currentFolder,
+			windowId
+		})
+
+		// escape the string content
+		if (c.type === 'tag') c.content = escapeHtml(c.content)
+	})
+
+	// reassemble everything
+	const mergedContent = mergeContentChunks(contentChunks)
+
+	return mergedContent
+}
+
+const renderMarkdownToHtml: iNoteApi['render'] = (p): string => {
+	const { raw, currentFolder, windowId } = { ...p }
+	return (
+
+		md2html(
+			transformRessourcesInHTML(currentFolder,
+				transformImagesInHTML(currentFolder,
+					transformSearchLinks(
+						transformTitleSearchLinks(windowId,
+							transformUrlInLinks(
 								raw
 							))))))
-
+	)
 }
+
+
 const bindToElClass = (classn: string, cb: (el: any) => void) => {
 	const els = document.getElementsByClassName(classn)
 	each(els, (el: any) => {
@@ -55,16 +83,14 @@ const injectLogicToHtml = () => {
 			})
 		})
 	})
-	// refresh custom tag link
-	bindToElClass('custom-tag-refresh', el => {
-		noteApi.customTags.cache.clean()
-	})
+
 }
 
 
 
 
-//
+////////////////////////////////////////////////////
+// CONTENT CHUNKS
 // from filecontent string to contentChunks 
 //
 
@@ -75,7 +101,8 @@ export interface iContentChunk {
 	start: number,
 	end: number
 }
-export const getContentChunks = (fileContent: string, debug = false): iContentChunk[] => {
+
+const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 	// find texts only parts
 	const textChunks = fileContent.split(regexs.userCustomTagManual);
 
@@ -171,8 +198,8 @@ export const getContentChunks = (fileContent: string, debug = false): iContentCh
 	}
 
 	const startByTag = fileContent.indexOf(tags[0]) === 0
-	debug && console.log(startByTag, fileContent, tags, closingTags, ntagsChunks, ntextChunks, positions);
-
+	// debug && console.log(startByTag, fileContent, tags, closingTags, ntagsChunks, ntextChunks, positions);
+	// 
 	// merge text and iframe together
 	const res: iContentChunk[] = []
 	each(ntextChunks, (txtChunk, i) => {
@@ -188,19 +215,28 @@ export const getContentChunks = (fileContent: string, debug = false): iContentCh
 
 	// console.log(positions, res, res.length)
 	return res
-
 }
 
 
+
+const mergeContentChunks: iNoteApi['chunks']['merge'] = chunks => {
+	let res = ''
+	each(chunks, c => {
+		if (c.type === 'text') res += c.content
+		else if (c.type === 'tag') {
+			res += `[[${c.tagName}]]${c.content}[[${c.tagName}]]`
+		}
+	})
+	return res
+}
 
 
 export const noteApi: iNoteApi = {
 	render: renderNoteContent,
 	injectLogic: injectLogicToHtml,
-	customTags: {
-		cache: {
-			clean: cleanCustomTagsCache
-		}
+	chunks: {
+		chunk: getContentChunks,
+		merge: mergeContentChunks
 	}
 }
 

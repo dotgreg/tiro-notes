@@ -25,7 +25,6 @@ export const processRawPathToFile = (
 	let res: iFile
 	let cleanedData = cleanFilePath(rawPath, folder)
 	let filePath = cleanPath(cleanedData)
-	console.log('x4x', rawPath, folder, cleanedData, filePath);
 
 	// TITLE FILTER
 	if (titleFilter !== '' && !filePath.toLowerCase().includes(titleFilter.toLowerCase())) return

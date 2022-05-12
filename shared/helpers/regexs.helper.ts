@@ -4,8 +4,9 @@ import { sharedConfig } from '../shared.config';
 const v = {
 	img: VerEx().find('.').then('jpg').or('jpeg').or('png').or('gif').or('webm').or('svg').or('webp'),
 	imgMdConfig: VerEx().anythingBut('[]|').maybe('|').beginCapture().anythingBut('[]|').endCapture().maybe('|').beginCapture().anythingBut('[]|').endCapture(),
-	customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
-	userCustomTagManual: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
+	// customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
+	//userCustomTagManual: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
+	customTag: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
 }
 
 
@@ -34,10 +35,10 @@ export const regexs = {
 	scriptTag: VerEx().find('[[script]]').beginCapture().anythingBut('').endCapture().then('[[script]]'),
 
 	userCustomTagFull: VerEx().find(v.customTag).beginCapture().anythingBut('').endCapture().then(v.customTag),
-	userCustomTagFull2: VerEx().beginCapture().find(v.customTag).endCapture(),
+	// userCustomTagFull2: VerEx().beginCapture().find(v.customTag).endCapture(),
 	//userCustomTag3: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
-	userCustomTag3: VerEx().beginCapture().then(v.userCustomTagManual).endCapture(),
-	userCustomTagManual: v.userCustomTagManual,
+	userCustomTag3: VerEx().beginCapture().then(v.customTag).endCapture(),
+	userCustomTagManual: v.customTag,
 
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 
@@ -47,8 +48,14 @@ export const regexs = {
 
 }
 
-export const getCustomMdTagRegex = (tag: string) => {
-	const regex = VerEx().find(tag).beginCapture().anythingBut('').endCapture().then(tag)
+export const getCustomMdTagRegex = (
+	tag: string,
+	options?: {
+		withWrapper: boolean
+	}
+) => {
+	let regex = VerEx().find(tag).beginCapture().anythingBut('[]').endCapture().then(tag)
+	if (options && options.withWrapper) VerEx().beginCapture().find(tag).anythingBut('[]').then(tag).endCapture()
 	return regex
 }
 

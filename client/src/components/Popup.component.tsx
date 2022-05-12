@@ -19,18 +19,19 @@ export class Popup extends React.Component
 
 	render() {
 		return (
-			<PopupWrapperCss>
+			<div className="popup-wrapper-component">
 				<div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
 					<div className="popupTitle"> {this.props.title}</div>
 					<div className="popupContent">{this.props.children}</div>
 				</div>
-			</PopupWrapperCss>
+			</div>
 		)
 	}
 }
 
-export const PopupWrapperCss = styled.div`
+export const PopupWrapperCss = () => `
+.popup-wrapper-component {
     .overlay-click-popup {
         position: fixed;
         z-index:1000;
@@ -74,6 +75,7 @@ export const PopupWrapperCss = styled.div`
             margin: 5px 5px 0px 0px;
         }
     }
+}
 `
 
 // const PopupWrapper = styled.div`

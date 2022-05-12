@@ -197,10 +197,13 @@ export class List extends React.Component<{
 												// 	this.setState({ selectionEdges: [-1, -1] })
 												// }
 
-													this.props.onFileClicked(index)
-													this.setState({ selectionEdges: [-1, -1] })
+												this.props.onFileClicked(index)
+												this.setState({ selectionEdges: [-1, -1] })
 											}}
 										>
+											<div className="background-item"></div>
+											<div className="background-item-border"></div>
+
 											<div className="left">
 												<h3
 													className='label'
@@ -252,14 +255,10 @@ export class List extends React.Component<{
 	}
 }
 
-const StyledWrapper = styled.div`
-    
-    
-  `
 
-const { els, colors, font, sizes, other } = { ...cssVars }
-export const filesListCss = `
-  .list-wrapper {
+const { els, colors, font, sizes } = { ...cssVars }
+export const filesListCss = () => `
+.list-wrapper {
     .list-wrapper-scroller{
         height: 100%;
         width: calc(100% + 20px);
@@ -285,9 +284,9 @@ export const filesListCss = `
         margin-right:20px;
         padding: 0px 0px 0px 0px;
         &.multiselect-mode {
-          li .label {
-            margin-left: 4px;
-          }
+						li .label {
+								margin-left: 4px;
+						}
         }
 
         // NORMAL
@@ -305,63 +304,79 @@ export const filesListCss = `
             &:hover,
             &.multiselected,
             &.active  {
-              background: rgba(${colors.mainRGB},0.1);
-              border-radius: 5px;
-              border: 2px rgba(${colors.mainRGB},0.3) solid;
             }
 
             display: flex;
             justify-content: center;
+						&.active .background-item-border,
+						&.active .background-item {
+								width: 100%;
+								height: 100%;
+								position: absolute;
+								top: 0px;
+								left: 0px;
+								background: ${cssVars.colors.main};
+								border-radius: 5px;
+								z-index: -1;
+								opacity: 0.2;
+						}
+						&.active .background-item-border {
+								width: calc(100% - 4px);
+								height: calc(100% - 4px);
+								background: none;
+								border: 2px ${cssVars.colors.main} solid;
+								opacity: 0.3;
+						}
             
 						h3 {
 								font-size: 12px;
 						}
             .left {
-              // width: calc(100% - ${sizes.l2.fileLi.img}px - 10px);
-              width: 100%;
-              padding-right: 10px;
+								// width: calc(100% - ${sizes.l2.fileLi.img}px - 10px);
+								width: 100%;
+								padding-right: 10px;
 
-              display:flex;
-              flex-direction:column;
+								display:flex;
+								flex-direction:column;
 
-              .label {
-                margin: 0px;
-                max-height: 35px;
-                margin-bottom: 2px;
-                overflow: hidden;
-                color: ${colors.l2.title};
-                line-break: anywhere;
-              }
-              
-              .content {
-                color: grey;
-                margin-bottom: 3px;
-                font-size: 9px;
-                overflow: hidden;
-                line-break: anywhere;
-                word-break: break-all;
-                ${isA('desktop') ? '' : 'max-height: 25px;'}
-              }
+								.label {
+										margin: 0px;
+										max-height: 35px;
+										margin-bottom: 2px;
+										overflow: hidden;
+										color: ${colors.l2.title};
+										line-break: anywhere;
+								}
+								
+								.content {
+										color: grey;
+										margin-bottom: 3px;
+										font-size: 9px;
+										overflow: hidden;
+										line-break: anywhere;
+										word-break: break-all;
+										${isA('desktop') ? '' : 'max-height: 25px;'}
+								}
 
-              .date {
-                color: ${colors.l2.date};
-                font-size: 10px;
-                font-weight: 700;
-              }
+								.date {
+										color: ${colors.l2.date};
+										font-size: 10px;
+										font-weight: 700;
+								}
             }
 
             .right {
-              .picture {
-                width: ${sizes.l2.fileLi.img}px;
-                height: ${sizes.l2.fileLi.img}px;
-                background-size: cover;
-                z-index: 1;
-                margin-top: 3px;
-                border-radius: 5px;
-                border: 2px white solid;
-              }
+								.picture {
+										width: ${sizes.l2.fileLi.img}px;
+										height: ${sizes.l2.fileLi.img}px;
+										background-size: cover;
+										z-index: 1;
+										margin-top: 3px;
+										border-radius: 5px;
+										border: 2px white solid;
+								}
             }
         }
     }
-  }
-  `
+}
+`

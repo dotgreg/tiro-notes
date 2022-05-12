@@ -92,7 +92,7 @@ export const StyledDiv = styled.div`
                         background: none;
                     }
                     &: hover {
-                        background: rgba(${cssVars.colors.mainRGB}, 0.2);
+                        background: r${cssVars.colors.main};
                     }
                     td {
                         padding: 8px;

@@ -42,7 +42,7 @@ export const LastNotes = (p:{
     )
 }
 
-export const lastNotesCss = `
+export const lastNotesCss = () => `
 .last-notes-component {
     padding: 0px ${cssVars.sizes.block}px;
     

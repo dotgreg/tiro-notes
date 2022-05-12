@@ -61,25 +61,25 @@ export const SearchBar2 = (p: {
 
 
 
-export const searchBarCss = `
-    .search-bar-component {
-        input {
-            ${cssVars.other.radius}
-            width: calc(100% - ${cssVars.sizes.block * 2 + 20}px);
-            border: none;
-            background: white;
-						padding: 18px 9px;
-						margin: 0px 15px 15px 15px;
-						box-shadow: 0px 0px 6px rgb(0 0 0 / 5%);
-						font-size: 11px;
-            margin: 0px ${cssVars.sizes.block}px ${cssVars.sizes.block}px ${cssVars.sizes.block}px; 
-            &::placeholder {
-                color: #afadad;
-            }
-        }
-        .search-status {
-            text-align: center;
-            font-size: 8px;
+export const searchBarCss = () => `
+.search-bar-component {
+    input {
+				border-radius: 5px;
+        width: calc(100% - ${cssVars.sizes.block * 2 + 20}px);
+        border: none;
+        background: white;
+				padding: 18px 9px;
+				margin: 0px 15px 15px 15px;
+				box-shadow: 0px 0px 6px rgb(0 0 0 / 5%);
+				font-size: 11px;
+        margin: 0px ${cssVars.sizes.block}px ${cssVars.sizes.block}px ${cssVars.sizes.block}px; 
+        &::placeholder {
+            color: #afadad;
         }
     }
+    .search-status {
+        text-align: center;
+        font-size: 8px;
+    }
+}
 `

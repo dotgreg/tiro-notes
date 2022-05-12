@@ -17,9 +17,9 @@ export const NewFileButton = (p: {
 		<span>{strings.newNote}</span>
 	</button>
 
-export const newFileButtonCss = `//css
+export const newFileButtonCss = () => `
     .new-file-button {
-        ${cssVars.els.redButton}
+        ${cssVars.els().redButton}
         ${cssVars.font.main};
         padding: ${isA('desktop') ? `14px 5px` : `13px 7px`};
         margin: 13px 15px 15px 15px;
@@ -30,4 +30,4 @@ export const newFileButtonCss = `//css
         }
         
     }
-`//css
+`

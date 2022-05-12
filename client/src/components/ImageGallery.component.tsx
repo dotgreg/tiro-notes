@@ -164,10 +164,10 @@ export const imageGalleryCss = () => `
         }
         .image-infos {
           display: none;
-         ${cssVars.els.imageInfos}
+         ${cssVars.els().imageInfos}
         }
         img {
-          ${cssVars.els.images}
+          ${cssVars.els().images}
         }
         margin-bottom: 10px;
       }

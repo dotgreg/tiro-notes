@@ -18,7 +18,7 @@ export const UploadProgressBar = (p: {
 	)
 }
 
-export const uploadProgressBarCss = `
+export const uploadProgressBarCss = () => `
 	.upload-progress-bar-wrapper {
 		.label {
 				position: relative;

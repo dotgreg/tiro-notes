@@ -23,16 +23,13 @@ import searchIcon from '../../assets/search-solid.svg'
 import { css } from "@emotion/react"
 
 const colors = {
-	// https://coolors.co/E86666
-	main2: '#E86666', //red orange
-	main: 'rgba(232,102,102,1)', //red orange
-	mainRGB: '232,102,102', //red orange
+	main: '#E86666', 
 
 	dev: ['#C3668B', '#A766A7', '#CE66E8', '#E4E866'],
 	compl: ['#11abf8', '#3fd7a4'],
 	pal1: ['#5c1a70', '#ffa67c', '#ffda77'],
 	grey1: '#797979',
-	grey2: '#615f5f',
+	grey2: 'red',
 
 	green: 'green',
 	l1: {
@@ -106,53 +103,45 @@ const font = {
 	main: `'Open sans', sans-serif`,
 	editor: `Consolas, monaco, monospace`
 }
-const other = {
-	radius: `border-radius: 5px;`,
-}
 
-const elsObjs = {
-	submitButton: {
-		marginTop: "10px",
-		background: 'none',
-		border: 'none',
-		padding: '10px 20px',
-	},
-}
-const els = {
-	button: `
-      background: none;
-      border: none;
+const els = () => {
+	return {
+		button: `
+		background: none;
+    border: none;
     `,
-	images: `
-      border-radius: 7px;
-      box-shadow: 0px 0px 10px rgb(0 0 0 / 10%);
-      max-width: 100%;
+		images: `
+		border-radius: 7px;
+    box-shadow: 0px 0px 10px rgb(0 0 0 / 10%);
+    max-width: 100%;
     `,
-	imageInfos: `
-      position: absolute;
-      top: 0px;
-      height: 55px;
-      left: 0px;
-      width: 100%;
-      background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%);
-      ul {
+		imageInfos: `
+								position: absolute;
+    top: 0px;
+    height: 55px;
+    left: 0px;
+    width: 100%;
+    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%);
+    ul {
         margin-top: 5px;
         justify-content: flex-end;
-      }
+    }
     `,
-	redButton: `
-      border: none;
-      background: ${colors.main};
-      &:hover {
-          background: rgba(${colors.mainRGB},0.8);
-      }
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+		redButton: `
+			border: none;
+			background: ${colors.main};
+    &:hover {
+			opacity: 0.9;
+
+    }
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     `,
+	}
 }
 
 const assets = {
@@ -177,10 +166,8 @@ const assets = {
 export const cssVars = {
 	els,
 	colors,
-	elsObjs,
 	font,
 	sizes,
-	other,
 	assets
 }
 

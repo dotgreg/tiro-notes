@@ -68,8 +68,8 @@ export const useFileApi = (p: {
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, answer => {
-			if (answer.content) cb(answer.content)
-			if (answer.error && options && options.onError) options.onError(answer.error)
+			if (!answer.error) cb(answer.content)
+			else if (answer.error && options && options.onError) options.onError(answer.error)
 		});
 		// 2. emit request 
 		clientSocket2.emit('askForFileContent', {

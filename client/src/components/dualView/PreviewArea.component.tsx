@@ -5,7 +5,7 @@ import { iFile } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
-import { getContentChunks, iContentChunk, noteApi } from '../../managers/renderNote.manager';
+import { iContentChunk, noteApi } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors } from './EditorArea.component';
 import { ContentBlock } from '../ContentBlock.component';
@@ -13,107 +13,106 @@ import { ContentBlock } from '../ContentBlock.component';
 
 
 export const PreviewArea = (p: {
-				windowId: string
+	windowId: string
 
-									file: iFile
-												posY: number
-															fileContent: string
-																					 onMaxYUpdate: (maxY: number) => void
-		}) => {
+	file: iFile
+	posY: number
+	fileContent: string
+	onMaxYUpdate: (maxY: number) => void
+}) => {
 
-		const api = useContext(ClientApiContext);
+	const api = useContext(ClientApiContext);
 
-		const previewAreaRefs = {
-				wrapper: useRef<HTMLDivElement>(null),
-								 main: useRef<HTMLDivElement>(null),
-		}
+	const previewAreaRefs = {
+		wrapper: useRef<HTMLDivElement>(null),
+		main: useRef<HTMLDivElement>(null),
+	}
 
-		let currentFolderArr = p.file.path.split('/')
-		currentFolderArr.pop()
-		let currentFolder = currentFolderArr.join('/')
+	let currentFolderArr = p.file.path.split('/')
+	currentFolderArr.pop()
+	let currentFolder = currentFolderArr.join('/')
 
-		useEffect(() => {
+	useEffect(() => {
 		setTimeout(() => {
-		p.onMaxYUpdate(calculateYMax())
-}, 1000)
+			p.onMaxYUpdate(calculateYMax())
+		}, 1000)
 
 		noteApi.injectLogic()
 
-}, [p.fileContent])
+	}, [p.fileContent])
 
 
-		const calculateYMax = () => {
-				const d = previewAreaRefs.main.current
-				const height = d?.clientHeight
-				const max = height || 3000
-				return max
-		}
+	const calculateYMax = () => {
+		const d = previewAreaRefs.main.current
+		const height = d?.clientHeight
+		const max = height || 3000
+		return max
+	}
 
-		const calculateYPos = () => {
-				const max = calculateYMax();
-				return clamp(p.posY, 0, max)
-		}
+	const calculateYPos = () => {
+		const max = calculateYMax();
+		return clamp(p.posY, 0, max)
+	}
 
-		const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
-		useEffect(() => {
-		setContentBlocks(getContentChunks(p.fileContent))
-}, [p.fileContent])
+	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
+	useEffect(() => {
+		const blocks = noteApi.chunks.chunk(p.fileContent)
+		// console.log(121212, blocks);
+		setContentBlocks(blocks)
+	}, [p.fileContent])
 
 
-		return (
-				<div className={`preview-area-wrapper`}>
-				<div
+	return (
+		<div className={`preview-area-wrapper`}>
+			<div
 				className={`preview-area`}
 				ref={previewAreaRefs.wrapper}
 				style={{ bottom: calculateYPos() }}
-				>
+			>
 
 				<div className="infos-preview-wrapper">
-				<div className="file-path-wrapper">
-				{p.file.path.replace(`/${p.file.name}`, '')}
-				</div>
+					<div className="file-path-wrapper">
+						{p.file.path.replace(`/${p.file.name}`, '')}
+					</div>
 
-				<h1 className="title big-title">
-				{p.file.name.replace('.md', '')}
-				</h1>
-
-				<div className="dates-wrapper">
-				<div className='date modified'>modified: {formatDateList(new Date(p.file.modified || 0))}</div>
-																																																 <div className='date created'>created: {formatDateList(new Date(p.file.created || 0))}</div>
-																																																																																											 </div>
-																																																																																											 </div>
-
-																																																																																											 <div className="content-blocks-wrapper">
-																																																																																											 <div className="simple-css-wrapper">
-				{
-						contentBlocks.map(block =>
-															<>
-															<ContentBlock
-															block={block}
-															windowId={p.windowId}
-															file={p.file}
-															/>
-															</>
-)
-				}
-				</div>
-				</div>
+					<h1 className="title big-title">
+						{p.file.name.replace('.md', '')}
+					</h1>
 
 				</div>
+
+				<div className="content-blocks-wrapper">
+					<div className="simple-css-wrapper">
+						{
+							contentBlocks.map(block =>
+								<>
+									<ContentBlock
+										block={block}
+										windowId={p.windowId}
+										file={p.file}
+									/>
+								</>
+							)
+						}
+					</div>
+
 				</div>
-		)
+
+			</div>
+		</div>
+	)
 }
 
 
 export const previewAreaSimpleCss = () => {
 
-		const d = {
-				w: '.simple-css-wrapper',
-					 pl: '.preview-link',
-							 r: '.resource-link-icon'
-		}
+	const d = {
+		w: '.simple-css-wrapper',
+		pl: '.preview-link',
+		r: '.resource-link-icon'
+	}
 
-		const css = `
+	const css = `
 		${d.w} {
 				color: ${cssVars.colors.editor.font};
 				line-height: 19px;
@@ -183,7 +182,7 @@ export const previewAreaSimpleCss = () => {
 
     img,
     .content-image {
-        ${cssVars.els.images}
+        ${cssVars.els().images}
     }
 
     p {
@@ -235,7 +234,15 @@ export const previewAreaSimpleCss = () => {
 				background-size: contain;
 		}
 		ul input[type=checkbox]:checked:before {
+				/* background-color: red; */
+				/* -webkit-mask-image: url(./custom_icons/uncheck.svg); */
+				/* mask-image: url(./custom_icons/uncheck.svg); */
 				background-image: url(./custom_icons/uncheck.svg);
+
+				/* background-color: red; */
+				/* -webkit-mask-image: url(./custom_icons/uncheck.svg); */
+				/* mask-image: url(./custom_icons/uncheck.svg); */
+
 		}
 
 		/**********************************************************
@@ -369,7 +376,7 @@ export const previewAreaSimpleCss = () => {
 				padding: 11px 23px;
 		}
 		`
-		return css
+	return css
 }
 
 export const previewAreaCss = () => `

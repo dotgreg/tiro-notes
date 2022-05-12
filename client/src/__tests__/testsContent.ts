@@ -1,11 +1,115 @@
 import { generateUUID } from "../../../shared/helpers/id.helper"
 import { iFile } from "../../../shared/types.shared"
 import { iContentChunk } from "../managers/renderNote.manager"
+import { testsContentNoteContents } from "../managers/__tests__/contentChunks.test"
 
 //////////////////////////////////////////////////////
 // NOTE
 const note = {
-	oneScriptTag: `
+
+	severalScriptsTag: `
+				=========
+				[link|22a long long note in journal.md /other-data/data2/journal/]
+				message d'outre tombe :
+
+				innerTag est : {{innerTag}}
+
+				js : 
+
+				[[script]] 
+				var res = Math.round(Math.random() * 100000)
+				var test2 = res 
+				return  test2
+				[[script]]
+
+
+				another js2 : 
+				[[script]] 
+				var res = '{{innerTag}}'
+				var arr = res.split('\n')
+				console.log(1122233, arr)
+				const nObj = {}
+				for(var i = 0; i<arr.length; i++) {
+						const item = arr[i].split(':')
+						nObj[item[0]] = item[1]
+				}
+				return  JSON.stringify(nObj)
+				[[script]]
+
+				another js3 : 
+				[[script]]
+				return 'yeahmannn'  
+				[[script]]
+				# hello title
+
+				![dfsafdasfdsa](fdsafdasdfsa.pdf)
+
+				woop wopppppp  
+				console.log('hellloooooooo')
+				pre code {
+						display: block;
+						border-radius: 8px;
+						background: #d2d2d2;
+						padding: 2px 8px;
+				}  
+
+				test|sad|dasdsa
+				-|-|-
+				dfslkfj|fdslkjfds|fdslkjfds
+				dfslkfj|fdslkjfds|fdslkjfds
+				dfslkfj|fdslkjfds|fdslkjfds
+				dfslkfj|fdslkjfds|fdslkjfds
+
+				# Hello world2
+				## Hello world 1
+				## Hello world 2
+				# 222222
+				## 3333
+				## 4444
+
+
+				=========
+	`,
+
+	twoScriptClosedTag: `
+hello world1
+hello world1
+hello world1
+hello world1
+hello world1
+
+[[script]] 
+var res = '{{innerTag}}'
+var arr = res.split('\n')
+console.log(1122233, arr)
+const nObj = {}
+for(var i = 0; i<arr.length; i++) {
+		const item = arr[i].split(':')
+		nObj[item[0]] = item[1]
+}
+return  JSON.stringify(nObj)
+[[script]]
+
+hello world12
+hello world12
+hello world12
+hello world12
+[[script]] 
+// SCRIPT 2
+var res = '{{innerTag}}'
+var arr = res.split('\n')
+console.log(1122233, arr)
+const nObj = {}
+for(var i = 0; i<arr.length; i++) {
+		const item = arr[i].split(':')
+		nObj[item[0]] = item[1]
+}
+return  JSON.stringify(nObj)
+[[script]]
+hello world123
+hello world123
+`,
+	oneScriptNotClosedTag: `
 hello world1
 hello world1
 hello world1
@@ -14,7 +118,6 @@ hello world1
 
 [[script]]
 return woop wopp
-[[script]]
 
 hello world12
 hello world12
@@ -22,7 +125,8 @@ hello world12
 hello world12
 hello world12
 hello world12
-`
+`,
+	...testsContentNoteContents
 }
 
 //////////////////////////////////////////////////////
@@ -75,7 +179,7 @@ export const testsContent = {
 	note,
 	file,
 	contentChunk,
-	window
+	window,
 }
 
 export const tc = testsContent

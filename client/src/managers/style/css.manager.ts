@@ -25,17 +25,18 @@ import { tabsCss } from '../../components/tabs/TabList.component';
 import { dropdownCss } from '../../components/Dropdown.component';
 import { uploadButtonCss } from '../../components/UploadButton.component';
 import { uploadProgressBarCss } from '../../components/UploadProgressBar.component';
+import { PopupWrapperCss } from '../../components/Popup.component';
 
 
 export const css2 = (css: string) => css
 
 let d = deviceType()
-const { els, colors, font, sizes, other } = { ...cssVars }
+const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
 	mobileView: MobileView,
+	refreshCss: number
 ) => {
-
 	const cssString = `//css
 .content-image {
     width: 90%;
@@ -57,24 +58,24 @@ ${ButtonsToolbarCss}
 
   ${imageGalleryCss()}
 
-  ${dropdownCss}
+  ${dropdownCss()}
 
-  ${searchBarCss}
+  ${searchBarCss()}
 
-  ${mobileViewMenuCss}
+  ${mobileViewMenuCss()}
 
-  ${connectionIndicatorCss}
+  ${connectionIndicatorCss()}
 
-  ${setupConfigCss}
+  ${setupConfigCss()}
 
-  ${inputComponentCss}
+  ${inputComponentCss()}
 
   .no-file {
     text-align: center;
     margin-top: 49vh;
   }
 
-
+		${PopupWrapperCss()}
 
 
 
@@ -88,7 +89,7 @@ ${ButtonsToolbarCss}
   // LEFT 1
   ////////////////////////////////////////////v
   
-  ${newFileButtonCss}
+  ${newFileButtonCss()}
 
   .settings-button {
     position: fixed;
@@ -153,9 +154,9 @@ ${ButtonsToolbarCss}
       height:100vh;
       position: relative;
 
-      ${lastNotesCss}
+      ${lastNotesCss()}
 
-      ${folderTreeCss}
+      ${folderTreeCss()}
 
 			h3.subtitle {
 				margin: 0px 0px 15px;
@@ -224,7 +225,7 @@ ${ButtonsToolbarCss}
       color: ${colors.l2.text};
       button {
         color: ${colors.l2.text};
-        ${els.button}
+        ${els().button}
         padding: 0px;
         margin-right: ${sizes.block}px; 
         font-size: 10px;
@@ -244,7 +245,7 @@ ${ButtonsToolbarCss}
     }
 
     
-    ${filesListCss}
+    ${filesListCss()}
 
     
   }
@@ -283,10 +284,10 @@ ${ButtonsToolbarCss}
   ////////////////////////////////////////////v 
   // TEXT VIEW : RIGHT
   ////////////////////////////////////////////v 
-		${tabsCss}
-		${draggableGridCss}
+		${tabsCss()}
+		${draggableGridCss()}
 
-  ${mobileNoteToolbarCss}
+  ${mobileNoteToolbarCss()}
 	${scrollingBarCss()}
 
 	&.without-sidebar.device-view-desktop.view-text {
@@ -384,13 +385,13 @@ ${ButtonsToolbarCss}
 
         ${editorAreaCss(mobileView)}
 
-        ${monacoColorsCss}
-        ${monacoEditorCss}
+        ${monacoColorsCss()}
+        ${monacoEditorCss()}
 
         ${previewAreaCss()}
 
-				${uploadButtonCss}
-				${uploadProgressBarCss}
+				${uploadButtonCss()}
+				${uploadProgressBarCss()}
         
       }
         

@@ -64,7 +64,7 @@ export const useSetupConfig = (p: {
 								label={strings.setupForm.user}
 								explanation={strings.setupForm.userExplanation}
 								onChange={e => { setUser(e) }}
-							shouldNotSelectOnClick={true}
+								shouldNotSelectOnClick={true}
 							/>
 							<Input
 								value={password}
@@ -72,14 +72,14 @@ export const useSetupConfig = (p: {
 								type={'password'}
 								explanation={strings.setupForm.passwordExplanation}
 								onChange={e => { setPassword(e) }}
-							shouldNotSelectOnClick={true}
+								shouldNotSelectOnClick={true}
 							/>
 							<Input
 								value={dataFolder}
 								label={strings.setupForm.dataFolder}
 								explanation={strings.setupForm.folderExplanation}
 								onChange={e => { setDataFolder(e) }}
-							shouldNotSelectOnClick={true}
+								shouldNotSelectOnClick={true}
 							/>
 
 
@@ -106,11 +106,11 @@ export const useSetupConfig = (p: {
 	}
 }
 
-export const setupConfigCss = `
+export const setupConfigCss = () => `
     .setup-popup-component {
         .submit-button {
             margin-top: 10px;
-            ${cssVars.els.redButton};
+            ${cssVars.els().redButton};
             padding: 10px 20px;
         }
         .error {

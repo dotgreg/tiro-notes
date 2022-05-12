@@ -1,36 +1,30 @@
-import { getContentChunks } from "../renderNote.manager";
-
-const equalObj = (o1: any, o2: any) => {
-	const jo1 = JSON.stringify(o1)
-	const jo2 = JSON.stringify(o2)
-	//console.log('equalObj', jo1, jo2);
-	return jo1 === jo2
-}
+import { tu } from '../../__tests__/testsUtils'
+import { noteApi } from '../renderNote.manager';
 
 
 test('contentChunk : first el should be a tag', () => {
-	// const chunks = getContentChunks(textSeveralOneTag, true)
-	const chunks = getContentChunks(t2)
+	// const chunks = noteApi.chunks.get(textSeveralOneTag, true)
+	const chunks = noteApi.chunks.get(t2)
 	expect(chunks[0].type).toEqual("tag");
 });
 
 test('contentChunk : first el should be a text', () => {
-	// const chunks = getContentChunks(textSeveralOneTag, true)
-	const chunks = getContentChunks("starting text" + t2)
+	// const chunks = noteApi.chunks.get(textSeveralOneTag, true)
+	const chunks = noteApi.chunks.get("starting text" + t2)
 	expect(chunks[0].type).toEqual("text");
 });
 
 
 
 test('contentChunk : several unclosed tags => list nb', () => {
-	// const chunks = getContentChunks(textSeveralOneTag, true)
-	const chunks = getContentChunks(textSeveralOneTag)
+	// const chunks = noteApi.chunks.get(textSeveralOneTag, true)
+	const chunks = noteApi.chunks.get(textSeveralOneTag)
 	expect(chunks.length).toEqual(3);
 });
 
 
 test('contentChunk : one unclosed tags => output length', () => {
-	const chunks = getContentChunks(textOneTag)
+	const chunks = noteApi.chunks.get(textOneTag)
 	expect(chunks[0].content.length).toEqual(textOneTag.length);
 });
 
@@ -38,12 +32,12 @@ test('contentChunk : one unclosed tags => output length', () => {
 
 
 test('contentChunk : no tags', () => {
-	const chunks = getContentChunks(textNoTags)
+	const chunks = noteApi.chunks.get(textNoTags)
 	expect(chunks.length).toEqual(1);
 });
 
 test('contentChunk : no tags => content size check', () => {
-	const chunks = getContentChunks(textNoTags)
+	const chunks = noteApi.chunks.get(textNoTags)
 	expect(chunks[0].content.length).toEqual(textNoTags.length);
 });
 
@@ -52,18 +46,17 @@ test('contentChunk : no tags => content size check', () => {
 
 
 test('contentChunk : length result', () => {
-	const chunks = getContentChunks(t1)
+	const chunks = noteApi.chunks.get(t1)
 	expect(chunks.length).toEqual(13);
 });
 
 test('contentChunk : last object', () => {
-	const chunks = getContentChunks(t1)
-	expect(equalObj(
+	const chunks = noteApi.chunks.get(t1)
+	expect(tu.equalObj(
 		chunks[chunks.length - 1],
 		{ type: 'text', content: '\n\n\nOUT8\nOUT9\n', start: 16, end: 17 }
 	)).toEqual(true);
 });
-
 
 
 const t2 = `[[ctag3]] 
@@ -281,3 +274,11 @@ OUT9
 
 
 
+
+export const testsContentNoteContents = {
+		t1,
+		t2,
+		textNoTags,
+		textOneTag,
+		textSeveralOneTag,
+}

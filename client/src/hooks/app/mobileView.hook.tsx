@@ -1,4 +1,4 @@
-import React, { useState }  from 'react';
+import React, { useState } from 'react';
 import { ButtonsToolbar } from '../../components/ButtonsToolbar.component';
 import { deviceType, MobileView } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -7,30 +7,30 @@ import { useStatMemo } from "../useStatMemo.hook"
 
 export const useMobileView = () => {
 
-    const [mobileView, setMobileView] = useState<MobileView>('navigator')
+	const [mobileView, setMobileView] = useState<MobileView>('navigator')
 
-    const MobileToolbarComponent = (forceRerender: boolean) => useStatMemo(
-        <>
-            { 
-                deviceType() !== 'desktop' &&
-                <ButtonsToolbar
-                    class='mobile-view-toggler'
-                    buttons={[
-                        {icon: 'faStream', class:`${mobileView === 'navigator' ? 'active' : ''}`, action: () => {setMobileView('navigator')} },
-                        {icon: 'faPenNib', class:`${mobileView === 'editor' ? 'active' : ''}`, action: () => {setMobileView('editor')} },
-                        {icon: 'faEye', class:`${mobileView === 'preview' ? 'active' : ''}`, action: () => {setMobileView('preview')} },
-                    ]}
-                />
-            }
-        </>, [mobileView, forceRerender])
+	const MobileToolbarComponent = (forceRerender: boolean) => useStatMemo(
+		<>
+			{
+				deviceType() !== 'desktop' &&
+				<ButtonsToolbar
+					class='mobile-view-toggler'
+					buttons={[
+						{ icon: 'faStream', class: `${mobileView === 'navigator' ? 'active' : ''}`, action: () => { setMobileView('navigator') } },
+						{ icon: 'faPenNib', class: `${mobileView === 'editor' ? 'active' : ''}`, action: () => { setMobileView('editor') } },
+						{ icon: 'faEye', class: `${mobileView === 'preview' ? 'active' : ''}`, action: () => { setMobileView('preview') } },
+					]}
+				/>
+			}
+		</>, [mobileView, forceRerender])
 
-    return {
-        mobileView, setMobileView,
-        MobileToolbarComponent
-    }
+	return {
+		mobileView, setMobileView,
+		MobileToolbarComponent
+	}
 }
 
-export const mobileViewMenuCss = `
+export const mobileViewMenuCss = () => `
 .mobile-view-toggler {
     position: fixed;
     bottom: 0px;
@@ -45,7 +45,7 @@ export const mobileViewMenuCss = `
     li {
         flex: 1 1 auto;
         button {
-            ${cssVars.els.button};
+            ${cssVars.els().button};
             padding: 8px;
             width: 100%;
             svg {

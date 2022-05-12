@@ -37,7 +37,11 @@ export const debouncedFolderScan = debounce(
 export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPath: string, simulate: boolean = false) => {
 	if (simulate) log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);
 
-	let filecontent = await openFile(`${backConfig.dataFolder}/${initPath}`)
+	let filecontent = null
+	try {
+	filecontent = await openFile(`${backConfig.dataFolder}/${initPath}`)
+			} catch {}
+	if (!filecontent) return
 
 	let initFolderPathArr = initPath.split('/')
 	initFolderPathArr.pop()
