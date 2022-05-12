@@ -1,11 +1,9 @@
 import { sharedConfig } from '../../../shared/shared.config'
-import { configClient } from '../config';
-import { regexs } from '../../../shared/helpers/regexs.helper';
+import { getCustomMdTagRegex, regexs } from '../../../shared/helpers/regexs.helper';
 import { replaceAll } from './string.manager';
 import { getBackendUrl } from './sockets/socket.manager';
 import { replaceRegexInMd } from './markdown.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
-import { iFile } from '../../../shared/types.shared';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -127,4 +125,26 @@ export const transformImagesInHTML = (currentFolderPath: string, bodyRaw: string
 	return bodyRaw.replace(regexs.imageAndConfig, subst);
 }
 
-// console.log(transformImagesInHTML(txt));
+
+
+
+export const escapeHtml = (rawString: string): string => {
+	return rawString
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#039;");
+}
+
+
+export const unescapeHtml = (rawString: string): string => {
+	return rawString
+		.replace(/&amp;/g, "&")
+		.replace(/&lt;/g, "<")
+		.replace(/&gt;/g, ">")
+		.replace(/&quot;/g, '"')
+		.replace(/&#039;/g, "'");
+}
+
+

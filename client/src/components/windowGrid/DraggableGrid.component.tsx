@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { cloneDeep, each, filter } from 'lodash'
-																	 import GridLayout from "react-grid-layout";
+import GridLayout from "react-grid-layout";
 import '../../../node_modules/react-grid-layout/css/styles.css'
 import '../../../node_modules/react-resizable/css/styles.css'
 import { iGrid, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
@@ -17,338 +17,338 @@ import { deviceType } from '../../managers/device.manager';
 
 
 export const draggableGridConfig = {
-		rows: 2,
-					cols: 4
+	rows: 2,
+	cols: 4
 }
 
 const d = {
-		m: 10,
-			 rows: draggableGridConfig.rows,
-						 cols: draggableGridConfig.cols,
-									 decalBottom: 10
+	m: 10,
+	rows: draggableGridConfig.rows,
+	cols: draggableGridConfig.cols,
+	decalBottom: 10
 }
 
 export const DraggableGrid = (p: {
-				refresh: number
-								 grid: iGrid
-											 onGridUpdate: (grid: iGrid) => void
-		}) => {
+	refresh: number
+	grid: iGrid
+	onGridUpdate: (grid: iGrid) => void
+}) => {
 
-		const [intContent, setIntContent] = useState<iWindowContent[]>([])
-		const [intLayout, setIntLayout] = useState<iWindow[]>([])
-		const lastGoodLayout = useRef<iWindow[]>();
+	const [intContent, setIntContent] = useState<iWindowContent[]>([])
+	const [intLayout, setIntLayout] = useState<iWindow[]>([])
+	const lastGoodLayout = useRef<iWindow[]>();
 
-		// ONLY WHEN TABID CHANGE
-		// receiving different layout from parent
-		useEffect(() => {
+	// ONLY WHEN TABID CHANGE
+	// receiving different layout from parent
+	useEffect(() => {
 		if (!p.grid || !p.grid.layout) return
 		setIntLayout(p.grid.layout)
 		setIntContent(p.grid.content)
-}, [p.refresh])
+	}, [p.refresh])
 
 
 
-		// on content modification, mainly active state toggling
-																			 /* useEffect(() => {
-		p.onGridUpdate({ layout: intLayout, content: intContent })
-	}, [intContent])
-																			*/
-																			 // on layout modification
-																			 useEffect(() => {
+	// on content modification, mainly active state toggling
+	/* useEffect(() => {
+p.onGridUpdate({ layout: intLayout, content: intContent })
+}, [intContent])
+ */
+	// on layout modification
+	useEffect(() => {
 		updateCanAdd();
 		updateCanRemove();
-}, [intLayout])
+	}, [intLayout])
 
 
-																			 const onGridUpdate = (layout: iWindow[], content: iWindowContent[]) => {
-				p.onGridUpdate({ layout, content })
-		}
+	const onGridUpdate = (layout: iWindow[], content: iWindowContent[]) => {
+		p.onGridUpdate({ layout, content })
+	}
 
 
-		//
-		// ADDING LOGIC
-		//
-		const addNewWindow = () => {
-				const copiedFile = intContent[0].file
-				if (!copiedFile) return
+	//
+	// ADDING LOGIC
+	//
+	const addNewWindow = () => {
+		const copiedFile = intContent[0].file
+		if (!copiedFile) return
 
-				// calculate position new window to fill
-				const dims = calculateNewWindowPosAndSize(intLayout)
+		// calculate position new window to fill
+		const dims = calculateNewWindowPosAndSize(intLayout)
 
-				const nWindow = addNewWindowConfig({
-				file: copiedFile,
-							w: dims.w,
-								 h: dims.h,
-										x: dims.x,
-											 y: dims.y,
+		const nWindow = addNewWindowConfig({
+			file: copiedFile,
+			w: dims.w,
+			h: dims.h,
+			x: dims.x,
+			y: dims.y,
 		})
-				const nLayout = cloneDeep(intLayout)
-				nLayout.push(nWindow.layout)
-				if (isItAllGoody(nLayout)) {
-						setIntLayout(nLayout)
+		const nLayout = cloneDeep(intLayout)
+		nLayout.push(nWindow.layout)
+		if (isItAllGoody(nLayout)) {
+			setIntLayout(nLayout)
 
-						// required to deplay the content update behind the layout because of react-grid...
-						setTimeout(() => {
-		const nContent = cloneDeep(intContent)
-		nContent.push(nWindow.content)
-		const nContent2 = makeWindowActiveInt(nWindow.content.i, nContent)
-		setIntContent(nContent2)
-		onGridUpdate(nLayout, nContent2)
-});
+			// required to deplay the content update behind the layout because of react-grid...
+			setTimeout(() => {
+				const nContent = cloneDeep(intContent)
+				nContent.push(nWindow.content)
+				const nContent2 = makeWindowActiveInt(nWindow.content.i, nContent)
+				setIntContent(nContent2)
+				onGridUpdate(nLayout, nContent2)
+			});
 
-						onGridUpdate(nLayout, intContent)
-				}
-
+			onGridUpdate(nLayout, intContent)
 		}
 
-		//
-		// REMOVING LOGIC
-		//
-		const [canRemove, setCanRemove] = useState(false)
-		const updateCanRemove = () => {
-				setCanRemove(intLayout.length > 1 ? true : false)
-		}
-		const removeWindow = (id: string) => {
-				const nLayout = filter(cloneDeep(intLayout), window => window.i !== id)
+	}
 
-				// if only one window left, make it fullsize
-																				 const nLayout2 = updateLayout_onewindowleft_tofullsize(nLayout);
+	//
+	// REMOVING LOGIC
+	//
+	const [canRemove, setCanRemove] = useState(false)
+	const updateCanRemove = () => {
+		setCanRemove(intLayout.length > 1 ? true : false)
+	}
+	const removeWindow = (id: string) => {
+		const nLayout = filter(cloneDeep(intLayout), window => window.i !== id)
 
-				setIntLayout(nLayout2)
+		// if only one window left, make it fullsize
+		const nLayout2 = updateLayout_onewindowleft_tofullsize(nLayout);
 
-				// required to deplay the content update behind the layout because of react-grid...
-				setTimeout(() => {
-		const nContent = filter(cloneDeep(intContent), c => c.i !== id)
+		setIntLayout(nLayout2)
+
+		// required to deplay the content update behind the layout because of react-grid...
+		setTimeout(() => {
+			const nContent = filter(cloneDeep(intContent), c => c.i !== id)
+			setIntContent(nContent)
+			onGridUpdate(nLayout, nContent)
+		});
+
+		onGridUpdate(nLayout, intContent)
+	}
+
+	//
+	// LIMIT ADDING LOGIC
+	//
+	const [canAdd, setCanAdd] = useState(false)
+	const updateCanAdd = () => {
+		// get all blocks
+		let totalSize = 0
+		let totalAllowedSize = d.cols * d.rows
+		each(intLayout, window => {
+			totalSize += window.w * window.h
+		})
+		// if all blocks > 6
+		if (totalSize === totalAllowedSize) setCanAdd(false)
+		else setCanAdd(true)
+	}
+
+
+
+
+	//
+	// ACTIVE WINDOW LOGIC
+	//
+	const makeWindowActiveInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
+		const nContent = cloneDeep(content);
+		each(nContent, c => {
+			c.active = (c.i === windowId) ? true : false
+		})
+		return nContent
+	}
+	const makeWindowActive = (windowId: string) => {
+		const nContent = makeWindowActiveInt(windowId, intContent)
 		setIntContent(nContent)
-		onGridUpdate(nLayout, nContent)
-});
+		onGridUpdate(intLayout, nContent)
+	}
 
-				onGridUpdate(nLayout, intContent)
-		}
-
-		//
-		// LIMIT ADDING LOGIC
-		//
-		const [canAdd, setCanAdd] = useState(false)
-		const updateCanAdd = () => {
-				// get all blocks
-				let totalSize = 0
-				let totalAllowedSize = d.cols * d.rows
-				each(intLayout, window => {
-				totalSize += window.w * window.h
-		})
-				// if all blocks > 6
-				if (totalSize === totalAllowedSize) setCanAdd(false)
-				else setCanAdd(true)
-		}
-
-
-
-
-		//
-		// ACTIVE WINDOW LOGIC
-		//
-		const makeWindowActiveInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
-				const nContent = cloneDeep(content);
-				each(nContent, c => {
-				c.active = (c.i === windowId) ? true : false
-		})
-				return nContent
-		}
-		const makeWindowActive = (windowId: string) => {
-				const nContent = makeWindowActiveInt(windowId, intContent)
-				setIntContent(nContent)
-				onGridUpdate(intLayout, nContent)
-		}
-
-		//
-		// LIMIT RESIZING LOGIC
-		//
-		const updateLayoutLogic = (newLayout) => {
-				//if (intLayout.length !== intContent.length) return
-				const nlayout = cloneDeep(newLayout);
-				if (isItAllGoody(nlayout)) {
-						const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
-						updateLastGood(nlayout2)
-						setIntLayout(nlayout2)
-						onGridUpdate(nlayout2, intContent)
-				} else {
-						if (!lastGoodLayout.current) return
-						let altgoodLayout = searchAlternativeLayout(newLayout)
-						if (altgoodLayout) updateLastGood(altgoodLayout)
-						let goodLayout = altgoodLayout ? altgoodLayout : lastGoodLayout.current
-																																 const nLayout = cloneDeep(goodLayout)
-																																 each(nLayout, window => {
+	//
+	// LIMIT RESIZING LOGIC
+	//
+	const updateLayoutLogic = (newLayout) => {
+		//if (intLayout.length !== intContent.length) return
+		const nlayout = cloneDeep(newLayout);
+		if (isItAllGoody(nlayout)) {
+			const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
+			updateLastGood(nlayout2)
+			setIntLayout(nlayout2)
+			onGridUpdate(nlayout2, intContent)
+		} else {
+			if (!lastGoodLayout.current) return
+			let altgoodLayout = searchAlternativeLayout(newLayout)
+			if (altgoodLayout) updateLastGood(altgoodLayout)
+			let goodLayout = altgoodLayout ? altgoodLayout : lastGoodLayout.current
+			const nLayout = cloneDeep(goodLayout)
+			each(nLayout, window => {
 				window.refresh = increment(window.refresh)
-		})
-																																 setIntLayout(nLayout)
-																																 onGridUpdate(nLayout, intContent)
-				}
+			})
+			setIntLayout(nLayout)
+			onGridUpdate(nLayout, intContent)
 		}
+	}
 
-		const updateLastGood = (nlayout: iWindow[]) => {
-				lastGoodLayout.current = cloneDeep(nlayout)
+	const updateLastGood = (nlayout: iWindow[]) => {
+		lastGoodLayout.current = cloneDeep(nlayout)
+	}
+
+	// check if resizing new layout is good
+	const isItAllGoody = (nlayout: iWindow[]): boolean => {
+		let allGood = true
+		for (let i = 0; i < nlayout.length; i++) {
+			const el = nlayout[i];
+			// should not be positionned below 1
+			if (el.y > 1) allGood = false
+			// if h is 2, y should be 0
+			if (el.h > 1 && el.y > 0) allGood = false
+
 		}
+		return allGood;
+	}
 
-		// check if resizing new layout is good
-		const isItAllGoody = (nlayout: iWindow[]): boolean => {
-				let allGood = true
-				for (let i = 0; i < nlayout.length; i++) {
-						const el = nlayout[i];
-						// should not be positionned below 1
-						if (el.y > 1) allGood = false
-						// if h is 2, y should be 0
-														if (el.h > 1 && el.y > 0) allGood = false
-
-				}
-				return allGood;
-		}
-
-		//
-		// RESIZING LOGIC
-		//
-		useResize();
-		useEffect(() => {
+	//
+	// RESIZING LOGIC
+	//
+	useResize();
+	useEffect(() => {
 		const e = divWrapper.current
 		if (!e) return
 		e.addEventListener('resize', () => {
 		})
 
 		return () => {
-				e.removeEventListener('resize', () => {
-		})
+			e.removeEventListener('resize', () => {
+			})
 		}
-}, [])
-		const divWrapper = useRef<HTMLDivElement>(null)
-		const s = {
-				width: 300,
-							 height: 300
-		}
-		const rh = () => (s.height / d.rows) - (d.m * (d.rows + 1))
-		if (divWrapper.current) {
-				s.width = divWrapper.current.clientWidth
-				s.height = divWrapper.current.clientHeight - d.decalBottom
-		}
+	}, [])
+	const divWrapper = useRef<HTMLDivElement>(null)
+	const s = {
+		width: 300,
+		height: 300
+	}
+	const rh = () => (s.height / d.rows) - (d.m * (d.rows + 1))
+	if (divWrapper.current) {
+		s.width = divWrapper.current.clientWidth
+		s.height = divWrapper.current.clientHeight - d.decalBottom
+	}
 
-		//
-		// view change in editor
-		//
-		const viewTypeChange = (nview: iViewType, index: number) => {
-				const nContent = cloneDeep(intContent);
-				nContent[index].view = nview
-				setIntContent(nContent);
-				onGridUpdate(intLayout, nContent);
-		}
+	//
+	// view change in editor
+	//
+	const viewTypeChange = (nview: iViewType, index: number) => {
+		const nContent = cloneDeep(intContent);
+		nContent[index].view = nview
+		setIntContent(nContent);
+		onGridUpdate(intLayout, nContent);
+	}
 
-		const api = useContext(ClientApiContext)
-		const refresh = api?.status.refresh.get
-		useEffect(() => {
+	const api = useContext(ClientApiContext)
+	const refresh = api?.status.refresh.get
+	useEffect(() => {
 		// make first window active if mobile
 		if (deviceType() === 'mobile' && intLayout[0]) {
-				const wid = intLayout[0].i
-				makeWindowActive(wid);
+			const wid = intLayout[0].i
+			makeWindowActive(wid);
 		}
-}, [refresh])
+	}, [refresh])
 
 
-		const WindowTools = (window, i) => {
-				return (//jsx
-								<>
-								<div className="note-active-ribbon"></div>
-								<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
-								<ButtonsToolbar
-								design="horizontal"
-								popup={false}
-								buttons={[
-																{
-																		icon: 'faGripVertical',
-																		title: 'Move Window',
-																		class: 'drag-handle',
-																		action: () => { }
-																},
-																{
-																		icon: 'faPlus',
-																		title: 'Add Window',
-																		class: 'add-button',
-																		action: () => { addNewWindow() }
-																},
-																{
-																		icon: 'faPlus',
-																		title: 'Delete Window',
-																		class: 'delete-button',
-																		action: () => { removeWindow(window.i) }
-																}
-														]}
-								colors={["#d4d1d1", "#615f5f"]}
-								size={0.8} />
-													 </div>
-													 </>
-)//jsx
-		}
-
-
+	const WindowTools = (window, i) => {
 		return (//jsx
-						<div className='draggable-grid-wrapper'>
-						<div className="draggable-grid-wrapper-in" ref={divWrapper}>
+			<>
+				<div className="note-active-ribbon"></div>
+				<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
+					<ButtonsToolbar
+						design="horizontal"
+						popup={false}
+						buttons={[
+							{
+								icon: 'faGripVertical',
+								title: 'Move Window',
+								class: 'drag-handle',
+								action: () => { }
+							},
+							{
+								icon: 'faPlus',
+								title: 'Add Window',
+								class: 'add-button',
+								action: () => { addNewWindow() }
+							},
+							{
+								icon: 'faPlus',
+								title: 'Delete Window',
+								class: 'delete-button',
+								action: () => { removeWindow(window.i) }
+							}
+						]}
+						colors={["#d4d1d1", "#615f5f"]}
+						size={0.8} />
+				</div>
+			</>
+		)//jsx
+	}
 
-		{deviceType() !== 'mobile' &&
 
-		 <GridLayout
-		 className="draggable-grid"
-		 autoSize={false}
-		 layout={intLayout}
-		 onLayoutChange={updateLayoutLogic}
-		 cols={d.cols}
-		 compactType="horizontal"
-		 useCSSTransforms={true}
-		 rowHeight={rh()}
-		 draggableHandle=".drag-handle"
-		 width={s.width}
-		 margin={[d.m, d.m]}
-		 >
-		 {
-				 intLayout.map((window, i) =>
-											 <div
-											 key={window.i}
-											 className={`
+	return (//jsx
+		<div className='draggable-grid-wrapper'>
+			<div className="draggable-grid-wrapper-in" ref={divWrapper}>
+
+				{deviceType() !== 'mobile' &&
+
+					<GridLayout
+						className="draggable-grid"
+						autoSize={false}
+						layout={intLayout}
+						onLayoutChange={updateLayoutLogic}
+						cols={d.cols}
+						compactType="horizontal"
+						useCSSTransforms={true}
+						rowHeight={rh()}
+						draggableHandle=".drag-handle"
+						width={s.width}
+						margin={[d.m, d.m]}
+					>
+						{
+							intLayout.map((window, i) =>
+								<div
+									key={window.i}
+									className={`
 																	${intContent[i] && intContent[i].active ? 'active' : ''}
 																	window-wrapper
 																	`}
-											 onClick={() => {
-		if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i)
-}}
-											 >
-											 {WindowTools(window, i)}
+									onClick={() => {
+										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i)
+									}}
+								>
+									{WindowTools(window, i)}
 
-											 <div className="note-wrapper">
-											 <WindowEditor
-											 content={p.grid.content[i] && p.grid.content[i]}
-											 onViewChange={(nView) => { viewTypeChange(nView, i) }}
-											 />
-											 </div>
-											 </div>
-)
-		 }
-		 </GridLayout>
-		}
-
-						{deviceType() === 'mobile' &&
-						 <div className="mobile-grid-view">
-						 <div className=" window-wrapper">
-						 <div className="note-wrapper">
-						 <WindowEditor
-						 content={p.grid.content[0] && p.grid.content[0]}
-						 onViewChange={(nView) => { viewTypeChange(nView, 0) }}
-						 />
-						 </div>
-						 </div>
-						 </div>
+									<div className="note-wrapper">
+										<WindowEditor
+											content={p.grid.content[i] && p.grid.content[i]}
+											onViewChange={(nView) => { viewTypeChange(nView, i) }}
+										/>
+									</div>
+								</div>
+							)
 						}
+					</GridLayout>
+				}
+
+				{deviceType() === 'mobile' &&
+					<div className="mobile-grid-view">
+						<div className=" window-wrapper">
+							<div className="note-wrapper">
+								<WindowEditor
+									content={p.grid.content[0] && p.grid.content[0]}
+									onViewChange={(nView) => { viewTypeChange(nView, 0) }}
+								/>
+							</div>
+						</div>
+					</div>
+				}
 
 
-						</div >
-						</div >
-)//jsx
+			</div >
+		</div >
+	)//jsx
 }
 
 
@@ -415,7 +415,7 @@ const GridMobileCss = `//css
 }
 `//css
 
-export const draggableGridCss = `//css
+export const draggableGridCss = () => `
 ${GridMobileCss}
 
 .draggable-grid-wrapper {
@@ -602,4 +602,4 @@ ${GridMobileCss}
 				}
 		}
 }
-`//css
+`

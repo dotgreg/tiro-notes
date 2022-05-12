@@ -213,7 +213,7 @@ export const l1Subtitle = `
   }
 `
 
-export const folderTreeCss = `//css
+export const folderTreeCss = () => `
 .folder-tree-view-component {
   padding: ${cssVars.sizes.block}px;
   padding-right: 0px;
@@ -258,7 +258,7 @@ export const folderTreeCss = `//css
           li {
             padding: 4px 11px;
             &:hover {
-              background: rgba(${cssVars.colors.mainRGB}, 0.2)
+								background: ${cssVars.colors.main};
             }
           }
         }
@@ -288,4 +288,4 @@ export const folderTreeCss = `//css
   }
   
 }
-`//css
+`

@@ -1,7 +1,6 @@
 import { each } from "lodash";
 import { iFile } from "../../../shared/types.shared";
 import { replaceCustomMdTags } from "./markdown.manager";
-import { unescapeHtml } from "./textProcessor.manager";
 
 type iIframeActions = 'init' | 'api' | 'resize'
 
@@ -23,13 +22,8 @@ interface iIframeMessage {
 	action: iIframeActions
 	data: any
 }
-
-///////////////////////////////////////////////////////////////////////// 
-// MANAGER EXECUTED ON PARENT
-// 
-//
-
 const h = `[IFRAME PARENT] 00563`
+
 
 //
 // LISTENING
@@ -71,26 +65,6 @@ const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => 
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///////////////////////////////////////////////////////////////////////// 
-///////////////////////////////////////////////////////////////////////// 
-// CHILD: JAVASCRIPT CODE EXECUTED IN IFRAME
-// Doesnt have access to any library of the project
-//
-
 //
 // IFRAME CODE
 //
@@ -100,16 +74,12 @@ const generateIframeHtml = (tagContent: string) => {
 		<div id="content-wrapper">
 				${tagContent}
 		</div>
-		<div id="external-scripts-wrapper"></div>
 		<script>
-				const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
-				const IMPORTED_unescapeHtml = ${unescapeHtml.toString()}
-				const main = ${iframeMainCode.toString()};
-				const {api} = main({
-						replaceCustomMdTags: IMPORTED_replaceCustomMdTags,
-						unescapeHtml: IMPORTED_unescapeHtml
-				})
-				window.api = api
+		const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
+		const main = ${iframeMainCode.toString()};
+		main({
+				replaceCustomMdTags: IMPORTED_replaceCustomMdTags
+		})
 		</script>
 </html>
 `
@@ -117,9 +87,27 @@ const generateIframeHtml = (tagContent: string) => {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////////// 
+// JAVASCRIPT CODE EXECUTED IN IFRAME
+// Doesnt have access to any library of the project
+//
 const iframeMainCode = (p: {
-	replaceCustomMdTags,
-	unescapeHtml
+	replaceCustomMdTags
 }) => {
 	const h = '[IFRAME child] 00564'
 
@@ -160,7 +148,7 @@ const iframeMainCode = (p: {
 			bodyRaw,
 			'[[script]]',
 			(UNSAFE_user_script: string) => {
-				// console.log(h, UNSAFE_user_script);
+				console.log(h, UNSAFE_user_script);
 				const scriptTxt = `${UNSAFE_user_script}`
 				try {
 					// using Function instead of eval to isolate the execution scope
@@ -182,8 +170,8 @@ const iframeMainCode = (p: {
 	on({
 		init: (m: iIframeData['init']) => {
 			// BOOTING
-			// When iframe receive infos from parent
-			// console.log(h, 'init inside iframe!');
+			// When iframe receive infos from parent 
+			console.log(h, 'init inside iframe!');
 			d.frameId = m.frameId
 			d.innerTag = m.innerTag
 			d.tagContent = m.tagContent
@@ -194,9 +182,7 @@ const iframeMainCode = (p: {
 			const el = document.getElementById('content-wrapper')
 			if (el) {
 
-				// unescape html and scripts
-				const unescHtml = p.unescapeHtml(el.innerHTML) as string
-				const newHtml = executeScriptTags(unescHtml)
+				const newHtml = executeScriptTags(el.innerHTML)
 				// console.log(h, 'transformMarkdownScript', { old: el.innerHTML, new: newHtml });
 				el.innerHTML = newHtml
 				//
@@ -219,45 +205,6 @@ const iframeMainCode = (p: {
 	})
 
 
-
-
-
-
-
-
-
-	///////////////////////////////////////////////////////////////////////// 
-	// CUSTOM TAG API FUNCTIONS
-
-	// LOAD EXTERNAL SCRIPTS
-	const loadScripts = (scripts: string[], cb: Function) => {
-		console.log(h, 'loadScripts', scripts);
-		let scriptsLoaded = 0;
-		each(scripts, scriptToLoad => {
-			const s = document.createElement('script');
-			s.src = scriptToLoad
-			s.onload = () => {
-				scriptsLoaded++
-				console.log(h, `loadScripts: ${scriptsLoaded}/${scripts.length}`);
-				if (scriptsLoaded === scripts.length) {
-					console.log(`loadScripts all scripts loaded, cb()!`);
-					try {
-						if (cb) cb()
-					} catch (e) {
-						console.log(h, `ERROR LoadScript Callback : ${e}`);
-					}
-				}
-			}
-			const el = document.getElementById('external-scripts-wrapper')
-			if (el) el.appendChild(s)
-		})
-	}
-	const api = {
-		version: 1,
-		loadScripts
-	}
-
-	return { api }
 }
 
 // END OF RESTRICTED JS IFRAME ENVIRONMENT

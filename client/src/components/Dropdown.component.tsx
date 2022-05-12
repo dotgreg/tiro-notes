@@ -33,7 +33,7 @@ export const Dropdown = (p: {
 	)
 }
 
-export const dropdownCss = `//css
+export const dropdownCss = () => `
 		.dropdown-wrapper {
 				
 				position: relative;

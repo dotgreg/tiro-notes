@@ -44,7 +44,7 @@ export const UploadButton = (p: {
 	)
 }
 
-export const uploadButtonCss = `//css
+export const uploadButtonCss = () => `
 				.upload-button-wrapper {
 						width: 100%;
 						cursor: pointer;
@@ -74,4 +74,4 @@ export const uploadButtonCss = `//css
 						}
 					}
 				}
-				`//css;
+				`

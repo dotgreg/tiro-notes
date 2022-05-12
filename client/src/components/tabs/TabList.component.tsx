@@ -137,7 +137,7 @@ const Tab = (p: {
 	)//jsx
 }
 
-export const tabsCss = `//css
+export const tabsCss = () => `
     .tab-list-wrapper {
 				padding: 7px 0px 0px 13px;
 				display: flex;
@@ -240,4 +240,4 @@ export const tabsCss = `//css
 						}
 				}
 		}
-`//css
+`

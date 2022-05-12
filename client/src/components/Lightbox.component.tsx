@@ -116,7 +116,7 @@ export const lightboxCss = () => `
                 }
             }
             .image-infos {
-                ${cssVars.els.imageInfos}
+                ${cssVars.els().imageInfos}
                 // position: relative;
                 &:hover {
                     .image-name {

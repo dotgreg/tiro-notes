@@ -1,32 +1,28 @@
 import React from 'react'
-import { render, fireEvent, waitFor, screen } from '@testing-library/react'
+import { render, fireEvent, waitFor, screen, getByTestId } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { ContentBlockTagView } from '../ContentBlock.component'
 import { tc } from '../../__tests__/testsContent'
+import { tu } from '../../__tests__/testsUtils'
 
 const h = `[CONTENT BLOCK]`
-jest.mock('../../../__mocks__/react-monaco-editor.js')
 
-test(`${h} ContentBlockTagView : testing working`, async () => {
-
-	render(<ContentBlockTagView
-		noteTagContent={tc.note.oneScriptTag}
-		windowId={tc.window.genId()}
-		block={tc.contentChunk.c1}
-		file={tc.file.file1}
-	/>
-	)
-
-
-	// fireEvent.click(screen.getByText('Load Greeting'))
-
-
-
-
-	await waitFor(() => screen.getByRole('heading'))
-
-	// expect(screen.getByRole('heading')).toHaveTextContent('hello there')
-	// expect(screen.getByRole('button')).toBeDisabled()
-})
-
-
+// test(`${h} ContentBlockTagView : testing working`, async () => {
+// 	const { container } = render(
+// 		<ContentBlockTagView
+// 			noteTagContent={tc.note.twoScriptClosedTag}
+// 			windowId={tc.window.genId()}
+// 			block={tc.contentChunk.c1}
+// 			file={tc.file.file1}
+// 		/>
+// 	)
+// 	const iframe = container.querySelector('iframe')
+// 	await tu.timeout(1000);
+// 	//@ts-ignore
+// 	// console.log(iframe.contentWindow.document.querySelectorAll('div'));
+// 	// console.log(iframe.contentWindow.document.getElementById('content-wrapper'));
+// })
+// 
+// 
+// 
+test('nothing', () => { expect(1).toEqual(1); });

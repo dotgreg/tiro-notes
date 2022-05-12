@@ -87,7 +87,7 @@ export const ButtonsToolbarCss = `
         padding: 0px;
         margin: 0px;
         button.toolbar-button {
-            ${cssVars.els.button};
+            ${cssVars.els().button};
             cursor: pointer;
         }
 				&.vertical {

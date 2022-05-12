@@ -17,21 +17,30 @@ export const ContentBlock = (p: {
 	const isTag = p.block.type === 'tag'
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
 	const [htmlTextContent, setHtmlTextContent] = useState<string | null>(null)
+
 	////////////////////////////////////////////////////
 	// IFRAME CONTENT LOGIC
 	useEffect(() => {
 		if (!isTag) return
-		if (p.block.tagName === 'script') return
-		getClientApi2().then(api => {
-			api.file.getContent(`/.tiro/tags/${p.block.tagName}.md`, noteTagContent => {
-				setNoteTagContent(noteTagContent)
-			}, {
-				onError: () => {
-					setNoteTagContent(null)
-				}
+		if (p.block.tagName === 'script') {
+			// if script, inject it inside iframe wrapping it with '[[script]]'
+			setNoteTagContent(`\n[[script]]${p.block.content}[[script]]`)
+			// and remove the innertag logic if present
+			p.block.content = ''
+		} else {
+			// if custom tag, look for its content and insert that one in the iframe
+			getClientApi2().then(api => {
+				api.file.getContent(`/.tiro/tags/${p.block.tagName}.md`, ncontent => {
+					setNoteTagContent(ncontent)
+				}, {
+					onError: () => {
+						setNoteTagContent(null)
+					}
+				})
 			})
-		})
+		}
 	}, [p.windowId, p.file, p.block.content])
+
 	////////////////////////////////////////////////////
 	// TEXT LOGIC
 	useEffect(() => {
@@ -82,7 +91,6 @@ export const ContentBlockTagView = (p: {
 }) => {
 	const { noteTagContent } = { ...p }
 
-	console.log(2222222, p.block);
 	const [htmlContent, setHtmlContent] = useState('')
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	const [iframeId, setIframeId] = useState('')
@@ -113,6 +121,7 @@ export const ContentBlockTagView = (p: {
 				`.replaceAll('{{innerTag}}', p.block.content.trim())
 
 
+		// console.log(121212, { iframeHtml, fullHtml });
 		setHtmlContent(fullHtml)
 
 		// listen to iframe 
@@ -150,6 +159,7 @@ export const ContentBlockTagView = (p: {
 		<iframe
 			ref={iframeRef}
 			id={iframeId}
+			data-testid="iframe"
 			title={iframeId}
 			srcDoc={htmlContent}
 			className="tag-iframe"

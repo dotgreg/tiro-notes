@@ -2,7 +2,7 @@ import React from 'react';
 import MonacoEditor from 'react-monaco-editor';
 import { cssVars } from '../managers/style/vars.style.manager';
 import styled from '@emotion/styled'
-import { initVimMode } from 'monaco-vim';
+// import { initVimMode } from 'monaco-vim';
 import { LineTextInfos } from '../managers/textEditor.manager';
 import { onScrollFn } from './dualView/EditorArea.component';
 
@@ -41,7 +41,7 @@ export class MonacoEditorWrapper extends React.Component<{
 	editorDidMount = (editor: any, monaco: any) => {
 		if (this.props.vimMode) {
 			console.log('[MONACO EDITOR] vim mode started', this.vimStatusBar.current);
-			initVimMode(editor, this.vimStatusBar.current)
+			// initVimMode(editor, this.vimStatusBar.current)
 		}
 		this.editor = editor
 		this.monaco = monaco
@@ -194,7 +194,7 @@ export class MonacoEditorWrapper extends React.Component<{
 	}
 }
 
-export const monacoColorsCss = `
+export const monacoColorsCss = () => `
   [class^="mtk"]:not(.mtk1) {
     // color: ${cssVars.colors.main};
     font-weight: 800;
@@ -231,7 +231,7 @@ export const monacoColorsCss = `
 		}
 `
 
-export const monacoEditorCss = `
+export const monacoEditorCss = () => `
 .monaco-editor-wrapper {
     height: 100%;
     .scroll-wrapper {

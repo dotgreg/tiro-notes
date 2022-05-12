@@ -81,7 +81,7 @@ export const Input = (p: {
 	)
 }
 
-export const inputComponentCss = `
+export const inputComponentCss = () => `
     .input-component {
         display: flex;
         align-items: center;

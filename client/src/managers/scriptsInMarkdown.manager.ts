@@ -26,24 +26,3 @@ export const loadScripts = (scripts: string[], cb: Function) => {
 		if (el) el.appendChild(s)
 	})
 }
-
-//
-// TRANSFORM TEXT IN SCRIPTS
-//
-export const transformMarkdownScripts = (bodyRaw: string): string => {
-	let res = replaceCustomMdTags(
-		bodyRaw,
-		'[[script]]',
-
-		(UNSAFE_user_script: string) => {
-			try {
-				// using Function instead of eval to isolate the execution scope
-				return new Function(`"use strict";  ${UNSAFE_user_script}`)()
-			} catch (e: any) {
-				console.log(`[SCRIPT IN MD] error: ${e}`)
-			}
-		});
-	return res;
-};
-
-

@@ -94,7 +94,7 @@ export const useConnectionIndicator = () => {
 
 }
 
-export const connectionIndicatorCss = `
+export const connectionIndicatorCss = () => `
 .connection-status {
   font-size: 9px;
   z-index: 11;

@@ -355,7 +355,7 @@ export const App = () => {
 	window.api = api
 
 	return (//jsx
-		<div className={CssApp2(mobileView)} >
+		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
 
 				{ /* API : making clientapi available everywhere */}

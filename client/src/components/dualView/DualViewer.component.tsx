@@ -60,11 +60,6 @@ export const DualViewer = (p: {
 		setPosY(1);
 	}, [p.file.path])
 
-	// clean custom tags cache on file change only
-	useEffect(() => {
-		noteApi.customTags.cache.clean();
-	}, [p.file.path])
-
 	// for performance reasons, only show editor/preview when needed
 	//const showEditor = !(p.viewType === 'preview')
 	// dang, editor is required... cuz of dropdown menu
