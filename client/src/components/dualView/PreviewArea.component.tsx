@@ -37,7 +37,6 @@ export const PreviewArea = (p: {
 			p.onMaxYUpdate(calculateYMax())
 		}, 1000)
 
-		noteApi.injectLogic()
 
 	}, [p.fileContent])
 
@@ -59,6 +58,12 @@ export const PreviewArea = (p: {
 		const blocks = noteApi.chunks.chunk(p.fileContent)
 		// console.log(121212, blocks);
 		setContentBlocks(blocks)
+
+		noteApi.injectLogic({
+			fileContent: p.fileContent,
+			file: p.file
+		})
+
 	}, [p.fileContent])
 
 
@@ -183,6 +188,7 @@ export const previewAreaSimpleCss = () => {
     img,
     .content-image {
         ${cssVars.els().images}
+				cursor: pointer;
     }
 
     p {

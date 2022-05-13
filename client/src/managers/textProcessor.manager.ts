@@ -4,6 +4,8 @@ import { replaceAll } from './string.manager';
 import { getBackendUrl } from './sockets/socket.manager';
 import { replaceRegexInMd } from './markdown.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { iFile } from '../../../shared/types.shared';
+import { findImagesFromContent } from './images.manager';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -106,26 +108,25 @@ export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: st
 	return res2;
 };
 
-// export const transformRessourcesInHTML2 = (currentFolderPath: string, bodyRaw: string): string => {
-// 	return bodyRaw.replace(regexs.ressource, subst);
-// }
-
-
-export const transformImagesInHTML = (currentFolderPath: string, bodyRaw: string): string => {
-	const subst1 = `<img class="content-image" src="$1"  />`;
-	bodyRaw = bodyRaw.replace(regexs.extimage, subst1);
-
-	const configCss = `
+export const transformImagesInHTML = (file: iFile, bodyRaw: string): string => {
+	let counterIndex = 0
+	const imgs = findImagesFromContent(bodyRaw, file)
+	const imgsArr = encodeURIComponent(JSON.stringify(imgs))
+	return replaceRegexInMd(bodyRaw, regexs.image, (input: string) => {
+		const link = input.split('](')[1].slice(0, -1);
+		// const name = input.split('](')[0].replace('![', '');
+		const configCss = `
         width: $1px;
         max-width: 100%;
         // min-height: $1px;
         transform: rotate($2deg);
     `
-	const subst = `<img class="content-image" style="${configCss}" src="${absoluteLinkPathRoot(currentFolderPath)}/$3${getUrlTokenParam()}"  />`;
-	return bodyRaw.replace(regexs.imageAndConfig, subst);
+		// console.log(407, input, link, name);
+		const subst = `<div class="content-image" data-images=${imgsArr} data-index="${counterIndex}"><img class="content-image-img"  style="${configCss}" src="${absoluteLinkPathRoot(file.folder)}/${link}${getUrlTokenParam()}"  /></div>`;
+		counterIndex++
+		return subst
+	});
 }
-
-
 
 
 export const escapeHtml = (rawString: string): string => {

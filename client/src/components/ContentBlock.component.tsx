@@ -50,7 +50,7 @@ export const ContentBlock = (p: {
 		if (isTag) return
 		let ncontent = noteApi.render({
 			raw: p.block.content,
-			currentFolder: p.file.folder,
+			file: p.file,
 			windowId: p.windowId
 		})
 		setHtmlTextContent(ncontent)
@@ -167,7 +167,7 @@ export const ContentBlockTagView = (p: {
 		const formatedNoteTagContent = noteApi.render({
 			raw: noteTagContent,
 			windowId: p.windowId,
-			currentFolder: p.file.folder
+			file: p.file
 		})
 
 		// generate html content

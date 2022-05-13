@@ -116,16 +116,6 @@ const els = () => {
     max-width: 100%;
     `,
 		imageInfos: `
-								position: absolute;
-    top: 0px;
-    height: 55px;
-    left: 0px;
-    width: 100%;
-    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 100%);
-    ul {
-        margin-top: 5px;
-        justify-content: flex-end;
-    }
     `,
 		redButton: `
 			border: none;
