@@ -26,6 +26,7 @@ import { dropdownCss } from '../../components/Dropdown.component';
 import { uploadButtonCss } from '../../components/UploadButton.component';
 import { uploadProgressBarCss } from '../../components/UploadProgressBar.component';
 import { PopupWrapperCss } from '../../components/Popup.component';
+import { contentBlockCss } from '../../components/ContentBlock.component';
 
 
 export const css2 = (css: string) => css
@@ -69,6 +70,8 @@ ${ButtonsToolbarCss}
   ${setupConfigCss()}
 
   ${inputComponentCss()}
+
+		${contentBlockCss()}
 
   .no-file {
     text-align: center;

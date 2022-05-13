@@ -5,7 +5,7 @@ import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
 
-type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize'
+type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError'
 
 export interface iIframeData {
 	init: {
@@ -17,6 +17,9 @@ export interface iIframeData {
 	}
 	resize: {
 		height: number
+	}
+	iframeError: {
+		error: string
 	}
 	apiCall: {
 		reqId: string
@@ -133,7 +136,7 @@ const iframeMainCode = (p: {
 }) => {
 	const h = '[IFRAME child] 00564'
 
-	console.log(h, 'INIT IFRAME');
+	console.log(h, 'INIT INNER IFRAME');
 
 	// 
 	// STORAGE
@@ -179,6 +182,9 @@ const iframeMainCode = (p: {
 					return new Function(scriptTxt)()
 				} catch (e: any) {
 					console.warn(h, `[SCRIPT] error: ${e}`, scriptTxt)
+					const data: iIframeData['iframeError'] = { error: `SCRIPT ERROR : ${e} in code "${scriptTxt}"` }
+					sendToParent({ action: 'iframeError', data })
+
 				}
 			});
 		return res;
@@ -200,6 +206,7 @@ const iframeMainCode = (p: {
 		d.tagContent = m.tagContent
 		d.tagName = m.tagName
 		d.file = m.file
+		console.log(h, '1/2 RECEIVED INIT EVENT', d.frameId);
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
@@ -208,7 +215,7 @@ const iframeMainCode = (p: {
 			// unescape html and scripts
 			const unescHtml = p.unescapeHtml(el.innerHTML) as string
 			const newHtml = executeScriptTags(unescHtml)
-			// console.log(h, 'transformMarkdownScript', { old: el.innerHTML, new: newHtml });
+			console.log(h, '2/2 transformMarkdownScript', { old: el.innerHTML, new: newHtml });
 			el.innerHTML = newHtml
 			//
 			// sending height back for resizing sthg
@@ -261,6 +268,7 @@ const iframeMainCode = (p: {
 
 	const callApi: iApiCall = (apiName, params, cb) => {
 		const reqId = `iframe-api-call-${p.generateUUID()}`
+
 		// listen for answer
 		subscribeOnce(reqId, res => {
 			cb(res)
@@ -271,9 +279,26 @@ const iframeMainCode = (p: {
 		sendToParent({ action: 'apiCall', data: apiData })
 	}
 
+	const divApi = () => {
+		const id = `ctag-content-wrapper-${p.generateUUID()}`
+		const updateContent = (nContent) => {
+			// @ts-ignore
+			document.getElementById(id).innerHTML = nContent;
+		}
+		return {
+			div: `<div id="${id}"></div>`,
+			updateContent
+		}
+	}
+
 	const api = {
 		version: 1,
-		call: callApi
+		call: callApi,
+		utils: {
+			loadScripts,
+			uuid: p.generateUUID,
+			createDiv: divApi
+		}
 	}
 
 	// @ts-ignore
