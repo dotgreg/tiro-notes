@@ -5,6 +5,8 @@ import { iContentChunk, noteApi } from '../managers/renderNote.manager'
 import { generateIframeHtml, iframeParentManager, iIframeData } from '../managers/iframe.manager'
 import { getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
+import { useDebounce } from '../hooks/lodash.hooks';
+import { escapeHtml } from '../managers/textProcessor.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
 
@@ -95,34 +97,12 @@ export const ContentBlockTagView = (p: {
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	const [iframeId, setIframeId] = useState('')
 	const [iframeHeight, setIframeHeight] = useState(200)
+	const [iframeError, setIframeError] = useState<string | null>(null)
 
-	useEffect(() => {
 
-		const nid = `iframe-${generateUUID()}`
+	const debounceStartIframeLogic = useDebounce((nid: string) => {
 		setIframeId(nid)
-
-		// format tag content
-		const formatedNoteTagContent = noteApi.render({
-			raw: noteTagContent,
-			windowId: p.windowId,
-			currentFolder: p.file.folder
-		})
-
-		// generate html content
-		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
-		//iframeHtml.innerTag
-		const fullHtml = `
-						<div class="simple-css-wrapper">
-							${iframeHtml}
-						</div>
-						<style>
-							${previewAreaSimpleCss()}
-						</style>
-				`.replaceAll('{{innerTag}}', p.block.content.trim())
-
-
-		// console.log(121212, { iframeHtml, fullHtml });
-		setHtmlContent(fullHtml)
+		setIframeError(null)
 
 		// listen to iframe calls
 		iframeParentManager.subscribe(nid, m => {
@@ -136,9 +116,17 @@ export const ContentBlockTagView = (p: {
 
 			// API
 			if (m.action === 'apiCall') {
-				const data: iIframeData['apiAnswer'] = { reqId: m.data.reqId, data: { woop: 'woop' } }
+				const data: iIframeData['apiAnswer'] = { reqId: m.data.reqId, data: { woop: 'woop', ...m } }
 				iframeParentManager.send(iframeRef.current, { action: 'apiAnswer', data })
 			}
+
+			// SCRIPT ERROR
+			if (m.action === 'iframeError') {
+				// const err = escapeHtml(m.data.error)
+				 const err = m.data.error
+				setIframeError(err)
+			}
+
 
 		})
 
@@ -154,6 +142,40 @@ export const ContentBlockTagView = (p: {
 
 			iframeParentManager.send(iframeRef.current, { action: 'init', data })
 		}, 100)
+
+	}, 500)
+
+
+	const updateIframeHtml = () => {
+		// format tag content
+		const formatedNoteTagContent = noteApi.render({
+			raw: noteTagContent,
+			windowId: p.windowId,
+			currentFolder: p.file.folder
+		})
+
+		// generate html content
+		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
+		//iframeHtml.innerTag
+		const fullHtml = `
+				<div class="simple-css-wrapper">
+				${iframeHtml}
+				</div>
+				<style>
+				${previewAreaSimpleCss()}
+				</style>
+				`.replaceAll('{{innerTag}}', p.block.content.trim())
+
+
+		// console.log(121212, { iframeHtml, fullHtml });
+		setHtmlContent(fullHtml)
+	}
+
+	useEffect(() => {
+		updateIframeHtml()
+
+		const nid = `iframe-${generateUUID()}`
+		debounceStartIframeLogic(nid)
 		return () => {
 			// cleaning when updating the component
 			iframeParentManager.unsubscribe(nid)
@@ -161,17 +183,45 @@ export const ContentBlockTagView = (p: {
 	}, [p.windowId, p.file, p.block.content])
 
 	return (
-		<iframe
-			ref={iframeRef}
-			id={iframeId}
-			data-testid="iframe"
-			title={iframeId}
-			srcDoc={htmlContent}
-			className="tag-iframe"
-			style={{ height: iframeHeight }}
-			sandbox="allow-scripts"
-		>
-		</iframe>
+		<div className="iframe-view-wrapper">
+			<iframe
+				ref={iframeRef}
+				id={iframeId}
+				data-testid="iframe"
+				title={iframeId}
+				srcDoc={htmlContent}
+				className="tag-iframe"
+				style={{ height: iframeHeight }}
+				sandbox="allow-scripts"
+			>
+			</iframe>
+			{iframeError &&
+				<div className="iframe-error">
+					<code><pre>
+						{iframeError}
+					</pre></code>
+				</div>
+			}
+		</div>
 	)
 
 }
+
+
+export const contentBlockCss = () => `
+					.iframe-view-wrapper {
+						iframe {
+
+					}
+					.iframe-error {
+						background: #ffddba;
+					font-size: 8px;
+					padding: 14px;
+					border: 2px #ffc080 solid;
+					border-radius: 5px;
+					line-height: 14px;
+		}
+}
+
+
+					`
