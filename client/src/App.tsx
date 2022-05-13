@@ -24,7 +24,7 @@ import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
-import { getActiveTab, useTabs } from './hooks/app/tabs.hook';
+import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
@@ -37,6 +37,7 @@ import { SearchBar2 } from './components/SearchBar.component';
 import { useStatusApi } from './hooks/api/status.api.hook';
 import { TreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
+import { getMostRecentFile } from './managers/sort.manager';
 
 
 
@@ -169,7 +170,7 @@ export const App = () => {
 		tabsApi,
 		windowsApi
 	} = useTabs();
-	const activeTab = getActiveTab(tabs);
+	const activeTab = tabsApi.active.get();
 
 
 	/**
@@ -396,8 +397,9 @@ export const App = () => {
 												onNewFile={() => {
 													const selectedFolder = clientApi.ui.browser.folders.current.get
 													clientApi.file.create(selectedFolder, files => {
-														// reload list
-														clientApi.ui.browser.goTo(selectedFolder)
+														// reload list and go to new one
+														const nFile = getMostRecentFile(files)
+														nFile && clientApi.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
 													})
 												}}
 											/>
@@ -522,10 +524,11 @@ export const App = () => {
 											onFileClicked={fileIndex => {
 												filesUiApi.active.set(fileIndex)
 												const nFile = filesUiApi.get[fileIndex]
-												// if no tab opened, create new tab/window
-												const noTab = api.tabs.get().length === 0
-												if (noTab) api.tabs.openInNewTab(nFile)
-												else windowsApi.updateActive(nFile)
+
+												// if no active tab opened, create new tab/window
+												if (!api.tabs.active.get()) api.tabs.openInNewTab(nFile)
+
+												else windowsApi.active.setContent(nFile)
 											}}
 											onFileDragStart={files => {
 												console.log(`[DRAG MOVE] onFileDragStart`, files);

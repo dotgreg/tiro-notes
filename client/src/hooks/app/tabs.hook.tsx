@@ -1,12 +1,13 @@
 import React, { useContext } from 'react';
 import ReactDOM from 'react-dom';
-import { iFile, iGrid, iTab, iViewType, iWindowContent } from '../../../../shared/types.shared';
+import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 import { ClientApiContext, getClientApi2 } from '../api/api.hook';
+import { act } from 'react-dom/test-utils';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
@@ -16,12 +17,18 @@ export type iTabsApi = {
 	close: (tabId: string) => void
 	openInNewTab: (file: iFile) => void
 	reorder: (oldPos, newPos) => void
+	active: {
+		get: () => iTab | null
+	}
 }
 export type iWindowsApi = {
 	close: (windowIds: string[]) => void
-	updateActive: (file: iFile) => void
 	updateWindows: (windowIds: string[], file: iFile) => void
 	getIdsFromFile: (filepath: string) => string[]
+	active: {
+		get: (tab: iTab) => { layout: iWindow, content: iWindowContent } | null
+		setContent: (file: iFile) => void
+	}
 }
 
 
@@ -87,6 +94,11 @@ export const useTabs = () => {
 		setTabs(nTabs);
 	}
 
+	const getActiveTab: iTabsApi['active']['get'] = () => {
+		let res: iTab | null = null
+		each(tabs, tab => { if (tab.active) res = tab })
+		return res
+	}
 
 	const reorderTabs: iTabsApi['reorder'] = (oldPos, newPos) => {
 		const nTabs = cloneDeep(tabs)
@@ -104,7 +116,6 @@ export const useTabs = () => {
 
 		if (type === 'add') {
 			// if active tab exists, copy it in new one
-			//const nTab = generateNewTab(getActiveTab(tabs))
 			//tab with one window
 			getClientApi2().then(api => {
 				openInNewTab(api.ui.browser.files.active.get)
@@ -136,12 +147,21 @@ export const useTabs = () => {
 			// refresh all tabs to view changes
 			const nTabs2 = refreshTabsViews(nTabs)
 
-			// disable active list item
-			getClientApi2().then(api => {
-				api.ui.browser.files.active.set(-1)
-			})
+			// BEHAVIOR 1: disable active list item
+			// getClientApi2().then(api => {
+			// 	api.ui.browser.files.active.set(-1)
+			// })
 
 			setTabs(nTabs2)
+
+			// BEHAVIOR 2: go to file in browser ui
+			const file = getActiveWindow(tab)?.content.file
+			console.log(344444, file, tab, getActiveWindow(tab));
+			if (!file) return
+			getClientApi2().then(api => {
+				api.ui.browser.goTo(file.folder, file.name)
+			})
+
 
 		} else if (type === 'move') {
 		}
@@ -223,13 +243,19 @@ export const useTabs = () => {
 		setTabs(nTabs2)
 	}
 
-	//@ts-ignore
-	window.tabs = tabs
 
-
+	const getActiveWindow: iWindowsApi['active']['get'] = tab => {
+		if (!tab.grid.layout[0]) return
+		const g = tab.grid
+		let res
+		each(g.content, (c, i) => {
+			if (c.active) res = { layout: g.layout[i], content: g.content[i] }
+		})
+		return res
+	}
 
 	// changing active window file
-	const updateActiveWindowContent: iWindowsApi['updateActive'] = (nFile) => {
+	const updateActiveWindowContent: iWindowsApi['active']['setContent'] = (nFile) => {
 		if (!nFile) return
 		// get active tab
 		const nTabs = cloneDeep(tabs)
@@ -264,12 +290,18 @@ export const useTabs = () => {
 		get: getTabs,
 		close: closeTab,
 		openInNewTab,
-		reorder: reorderTabs
+		reorder: reorderTabs,
+		active: {
+			get: getActiveTab
+		}
 	}
 
 	const windowsApi: iWindowsApi = {
 		close: closeWindows,
-		updateActive: updateActiveWindowContent,
+		active: {
+			get: getActiveWindow,
+			setContent: updateActiveWindowContent
+		},
 		updateWindows,
 		getIdsFromFile
 	}
@@ -314,11 +346,6 @@ export const getActiveTabIndex = (tabs: iTab[]): number | undefined => {
 	return res
 }
 
-export const getActiveTab = (tabs: iTab[]): iTab | undefined => {
-	let aTab: iTab | undefined = undefined
-	each(tabs, tab => { if (tab.active) { aTab = tab } })
-	return aTab
-}
 
 const setActiveTab = (tabId: string, tabs: iTab[]): iTab[] => {
 	const nTabs = cloneDeep(tabs)

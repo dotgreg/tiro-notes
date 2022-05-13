@@ -1,4 +1,4 @@
-import React, { useRef } from 'react'; 
+import React, { useRef } from 'react';
 import { iFile } from "../../../shared/types.shared";
 import { strings } from "../managers/strings.manager";
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -7,39 +7,39 @@ import { Icon } from './Icon.component';
 const limitTxt = 20
 const liHeight = 15
 
-export const LastNotes = (p:{
-    files:iFile[]
-    onClick: (file:iFile) => void
+export const LastNotes = (p: {
+	files: iFile[]
+	onClick: (file: iFile) => void
 }) => {
-    const {files} = {...p}
-    
-    return (
-        <>
-            { files.length > 0 &&
-                <div className="last-notes-component">
-                <h3 className="subtitle">{strings.lastNotes}</h3>
-                <ul>
-                    {
-                        files.map((file, key) => {
-                            let name = file.name.replace('.md', '')
-                            name = name.length > limitTxt ? `${name.substr(0, limitTxt)}` : name
-                            return (
-                            <li 
-                                key={key}
-                                title={name}
-                                onClick={e => {p.onClick(file)}}
-                                className="note" >
-                                <Icon name="faFile" />
-                                {name}
-                            </li>   )
-                            } 
-                        )
-                    }
-                </ul>
-            </div>
-            }
-        </>
-    )
+	const { files } = { ...p }
+
+	return (
+		<>
+			{files.length > 0 &&
+				<div className="last-notes-component">
+					<h3 className="subtitle">{strings.lastNotes}</h3>
+					<ul>
+						{
+							files.map((file, key) => {
+								let name = file.name.replace('.md', '')
+								name = name.length > limitTxt ? `${name.substr(0, limitTxt)}` : name
+								return (
+									<li
+										key={key}
+										title={name}
+										onClick={e => { p.onClick(file) }}
+										className="note" >
+										<Icon name="faFile" />
+										{name}
+									</li>)
+							}
+							)
+						}
+					</ul>
+				</div>
+			}
+		</>
+	)
 }
 
 export const lastNotesCss = () => `
@@ -50,10 +50,10 @@ export const lastNotesCss = () => `
 
     }
     ul {
-        height: ${(liHeight+7)*5}px;
+        height: ${(liHeight + 7) * 5}px;
         overflow: hidden;
         &:hover {
-            min-height: ${(liHeight+7)*5}px;
+            min-height: ${(liHeight + 7) * 5}px;
             height: auto;
         }
 

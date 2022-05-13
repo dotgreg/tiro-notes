@@ -3,7 +3,7 @@ import { cloneDeep, each, filter } from 'lodash'
 import GridLayout from "react-grid-layout";
 import '../../../node_modules/react-grid-layout/css/styles.css'
 import '../../../node_modules/react-resizable/css/styles.css'
-import { iGrid, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
+import { iFile, iGrid, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { addNewWindowConfig } from '../../hooks/app/tabs.hook';
 import { useResize } from '../../hooks/useResize.hook';
@@ -155,10 +155,14 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 		})
 		return nContent
 	}
-	const makeWindowActive = (windowId: string) => {
+	const makeWindowActive = (windowId: string, file?: iFile) => {
 		const nContent = makeWindowActiveInt(windowId, intContent)
 		setIntContent(nContent)
 		onGridUpdate(intLayout, nContent)
+
+		// on window active toggle, update browser ui 
+		file && api?.ui.browser.goTo(file.folder, file.name)
+
 	}
 
 	//
@@ -246,7 +250,7 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 		// make first window active if mobile
 		if (deviceType() === 'mobile' && intLayout[0]) {
 			const wid = intLayout[0].i
-			makeWindowActive(wid);
+			makeWindowActive(wid, intContent[0].file);
 		}
 	}, [refresh])
 
@@ -306,16 +310,17 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 						width={s.width}
 						margin={[d.m, d.m]}
 					>
+
 						{
 							intLayout.map((window, i) =>
 								<div
 									key={window.i}
 									className={`
-																	${intContent[i] && intContent[i].active ? 'active' : ''}
-																	window-wrapper
+										${intContent[i] && intContent[i].active ? 'active' : ''}
+										window-wrapper
 																	`}
 									onClick={() => {
-										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i)
+										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
 									}}
 								>
 									{WindowTools(window, i)}

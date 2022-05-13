@@ -23,7 +23,7 @@ import searchIcon from '../../assets/search-solid.svg'
 import { css } from "@emotion/react"
 
 const colors = {
-	main: '#E86666', 
+	main: '#E86666',
 
 	dev: ['#C3668B', '#A766A7', '#CE66E8', '#E4E866'],
 	compl: ['#11abf8', '#3fd7a4'],

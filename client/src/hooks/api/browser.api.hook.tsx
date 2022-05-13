@@ -5,7 +5,7 @@ import { iAppView, iFile, iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
-import { iWindowsApi } from '../app/tabs.hook';
+import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
 import { iClientApi } from './api.hook';
@@ -23,7 +23,7 @@ export interface iBrowserApi {
 		fileTitle?: string | null,
 		options?: {
 			appView?: 'text' | 'image'
-			openIn?: string
+			openIn?: string | 'activeWindow' | 'active'
 		}
 	) => void
 	files: {
@@ -58,6 +58,7 @@ export const useBrowserApi = (p: {
 	filesApi: iFilesApi
 	foldersApi: iFoldersApi
 	userSettingsApi: iUserSettingsApi
+	tabsApi: iTabsApi
 	windowApi: iWindowsApi
 }): iBrowserApi => {
 
@@ -120,8 +121,13 @@ export const useBrowserApi = (p: {
 					// if asked to open it in window
 					if (opts && opts.openIn) {
 						const fileToOpen = nfilesSorted[activeIndex]
-						if (opts.openIn === 'active') {
-							p.windowApi.updateActive(fileToOpen)
+						if (opts.openIn === 'active' || opts.openIn === 'activeWindow') {
+							// if no tab, open in new tab
+							if (!p.tabsApi.active.get()) {
+								p.tabsApi.openInNewTab(fileToOpen)
+							}
+							// open in active window
+							else p.windowApi.active.setContent(fileToOpen)
 						} else {
 							p.windowApi.updateWindows([opts.openIn], fileToOpen)
 						}

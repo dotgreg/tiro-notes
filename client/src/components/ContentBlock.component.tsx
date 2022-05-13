@@ -2,7 +2,7 @@ import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { iContentChunk, noteApi } from '../managers/renderNote.manager'
-import { iframeManager, iIframeData } from '../managers/iframe.manager'
+import { generateIframeHtml, iframeParentManager, iIframeData } from '../managers/iframe.manager'
 import { getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 
@@ -109,7 +109,7 @@ export const ContentBlockTagView = (p: {
 		})
 
 		// generate html content
-		const iframeHtml = iframeManager.generateIframeHtml(formatedNoteTagContent)
+		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
 		//iframeHtml.innerTag
 		const fullHtml = `
 						<div class="simple-css-wrapper">
@@ -124,13 +124,22 @@ export const ContentBlockTagView = (p: {
 		// console.log(121212, { iframeHtml, fullHtml });
 		setHtmlContent(fullHtml)
 
-		// listen to iframe 
-		iframeManager.subscribe(nid, m => {
+		// listen to iframe calls
+		iframeParentManager.subscribe(nid, m => {
+
+			// RESIZE
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
 				console.log(h, 'resizing to', data.height);
 				setIframeHeight(data.height);
 			}
+
+			// API
+			if (m.action === 'apiCall') {
+				const data: iIframeData['apiAnswer'] = { reqId: m.data.reqId, data: { woop: 'woop' } }
+				iframeParentManager.send(iframeRef.current, { action: 'apiAnswer', data })
+			}
+
 		})
 
 		// send an init message with all datas
@@ -143,15 +152,11 @@ export const ContentBlockTagView = (p: {
 				tagName: p.block.tagName || ''
 			}
 
-			iframeManager.send(iframeRef.current, {
-				frameId: nid,
-				action: 'init',
-				data
-			})
+			iframeParentManager.send(iframeRef.current, { action: 'init', data })
 		}, 100)
 		return () => {
 			// cleaning when updating the component
-			iframeManager.unsubscribe(nid)
+			iframeParentManager.unsubscribe(nid)
 		}
 	}, [p.windowId, p.file, p.block.content])
 
