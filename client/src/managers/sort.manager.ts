@@ -1,4 +1,4 @@
-import { sortBy } from "lodash";
+import { each, sortBy } from "lodash";
 import { iFile } from "../../../shared/types.shared";
 
 export type SortMode = 'alphabetical' | 'created' | 'modified'
@@ -27,4 +27,17 @@ export const sortFiles = (files: iFile[], sortMode: number): iFile[] => {
 
 
 
+export const getMostRecentFile = (files: iFile[]): iFile | null => {
+	let res = files[0]
+	if (!res) return null
+	each(files, file => {
+		if (
+			file.created && res.created &&
+			file.created > res.created
+		) res = file
+	})
+	console.log(files, res);
+
+	return res
+}
 

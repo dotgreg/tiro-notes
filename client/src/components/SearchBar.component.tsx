@@ -38,6 +38,7 @@ export const SearchBar2 = (p: {
 
 	const isSearching = api ? api.status.searching.get : false
 
+
 	return (//jsx
 		<>
 			<div className="search-bar-component">
@@ -80,6 +81,9 @@ export const searchBarCss = () => `
     .search-status {
         text-align: center;
         font-size: 8px;
+				position: relative;
+				bottom:9px;
+				color: grey;
     }
 }
 `

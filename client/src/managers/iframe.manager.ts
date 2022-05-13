@@ -1,9 +1,11 @@
 import { each } from "lodash";
+import { generateUUID } from "../../../shared/helpers/id.helper";
 import { iFile } from "../../../shared/types.shared";
+import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
 
-type iIframeActions = 'init' | 'api' | 'resize'
+type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize'
 
 export interface iIframeData {
 	init: {
@@ -16,20 +18,36 @@ export interface iIframeData {
 	resize: {
 		height: number
 	}
+	apiCall: {
+		reqId: string
+		apiName: string,
+		params: any
+	}
+	apiAnswer: {
+		reqId: string
+		data: any
+	}
 }
 
+
 interface iIframeMessage {
-	frameId: string
 	action: iIframeActions
 	data: any
 }
 
 ///////////////////////////////////////////////////////////////////////// 
-// MANAGER EXECUTED ON PARENT
-// 
+// PARENT CODE
 //
 
 const h = `[IFRAME PARENT] 00563`
+
+//
+// Creating an Event Bus
+//
+const { notify, subscribe, unsubscribe } = createEventBus<iIframeMessage>({
+	headerLog: h
+})
+
 
 //
 // LISTENING
@@ -37,32 +55,12 @@ const h = `[IFRAME PARENT] 00563`
 const initIframeListening = () => {
 	console.log(h, `INIT IFRAME LISTENING`);
 	window.addEventListener('message', m => {
-		notify(m.data as iIframeMessage)
+		console.log(h, 'parent <== iframe', m.data.data);
+		notify(m.data)
 	});
 }
 initIframeListening()
 
-//
-// EVENT BUS
-//
-const subscribers: { [id: string]: Function } = {}
-const notify = (message: iIframeMessage) => {
-	each(subscribers, (sCb, sId) => {
-		if (sId === message.frameId) {
-			try {
-				console.log(`${h} parent <== iframe`, message);
-				sCb(message);
-			}
-			catch (e) { console.log(`${h} error with function`, e); }
-		}
-	});
-}
-const subscribe = (id: string, cb: (message: iIframeMessage) => void) => {
-	subscribers[id] = cb
-}
-const unsubscribe = (id: string) => {
-	if (subscribers[id]) delete subscribers[id]
-}
 
 const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => {
 	if (!el || !el.contentWindow) return;
@@ -70,6 +68,14 @@ const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => 
 	el.contentWindow.postMessage(message, "*")
 }
 
+//
+// EXPORTS
+//
+export const iframeParentManager = {
+	subscribe,
+	unsubscribe,
+	send: sendToIframe,
+}
 
 
 
@@ -85,7 +91,6 @@ const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => 
 
 
 
-///////////////////////////////////////////////////////////////////////// 
 ///////////////////////////////////////////////////////////////////////// 
 // CHILD: JAVASCRIPT CODE EXECUTED IN IFRAME
 // Doesnt have access to any library of the project
@@ -94,7 +99,7 @@ const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => 
 //
 // IFRAME CODE
 //
-const generateIframeHtml = (tagContent: string) => {
+export const generateIframeHtml = (tagContent: string) => {
 	const html = `
 <html>
 		<div id="content-wrapper">
@@ -104,12 +109,15 @@ const generateIframeHtml = (tagContent: string) => {
 		<script>
 				const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
 				const IMPORTED_unescapeHtml = ${unescapeHtml.toString()}
+				const IMPORTED_createEventBus = ${createEventBus.toString()}
+				const IMPORTED_generateUUID = ${generateUUID.toString()}
 				const main = ${iframeMainCode.toString()};
-				const {api} = main({
-						replaceCustomMdTags: IMPORTED_replaceCustomMdTags,
-						unescapeHtml: IMPORTED_unescapeHtml
+				main({
+					replaceCustomMdTags: IMPORTED_replaceCustomMdTags,
+					unescapeHtml: IMPORTED_unescapeHtml,
+					createEventBus: IMPORTED_createEventBus,
+					generateUUID: IMPORTED_generateUUID
 				})
-				window.api = api
 		</script>
 </html>
 `
@@ -119,10 +127,13 @@ const generateIframeHtml = (tagContent: string) => {
 
 const iframeMainCode = (p: {
 	replaceCustomMdTags,
-	unescapeHtml
+	unescapeHtml,
+	createEventBus,
+	generateUUID
 }) => {
 	const h = '[IFRAME child] 00564'
 
+	console.log(h, 'INIT IFRAME');
 
 	// 
 	// STORAGE
@@ -138,19 +149,20 @@ const iframeMainCode = (p: {
 	//
 	// SUPPORT FUNCTIONS
 	//
-	const send = (message: iIframeMessage) => {
+	const sendToParent = (message: iIframeMessage) => {
 		if (d.frameId === '') return console.warn(h, 'NO FRAME ID, CANNOT SEND TO PARENT')
-		//@ts-ignore
-		// console.log(h, 'sending message to parent', message);
-		window.parent.postMessage(message, '*');
+		// wrap it around an event for the iframeParentManager Event Bus
+		const wrappedMessage = { subId: d.frameId, data: message }
+		window.parent.postMessage(wrappedMessage, '*');
 	}
 
-	const on = (events: { [event in iIframeActions]: Function }) => {
+	const onParentEvent = (events: { [event in iIframeActions]?: Function }) => {
 		window.onmessage = (e) => {
 			const msg = e.data as iIframeMessage
-			if (!msg || !msg.frameId) return
+			if (!msg) return
 			for (const event in events) {
-				if (event === msg.action) events[event](e.data.data)
+				// @ts-ignore
+				if (events && events[event] && event === msg.action) events[event](e.data.data)
 			}
 		}
 	}
@@ -176,58 +188,46 @@ const iframeMainCode = (p: {
 
 	}
 
-	//
-	// EXECUTION LOGIC
-	//
-	on({
-		init: (m: iIframeData['init']) => {
-			// BOOTING
-			// When iframe receive infos from parent
-			// console.log(h, 'init inside iframe!');
-			d.frameId = m.frameId
-			d.innerTag = m.innerTag
-			d.tagContent = m.tagContent
-			d.tagName = m.tagName
-			d.file = m.file
-
-			// get content and replace script tags
-			const el = document.getElementById('content-wrapper')
-			if (el) {
-
-				// unescape html and scripts
-				const unescHtml = p.unescapeHtml(el.innerHTML) as string
-				const newHtml = executeScriptTags(unescHtml)
-				// console.log(h, 'transformMarkdownScript', { old: el.innerHTML, new: newHtml });
-				el.innerHTML = newHtml
-				//
-				// sending height back for resizing sthg
-				setTimeout(() => {
-					const data: iIframeData['resize'] = {
-						height: el.clientHeight + 20
-					}
-					send({ frameId: d.frameId, action: 'resize', data })
-				}, 100)
-			}
-
-		},
-		api: m => {
-
-		},
-		resize: () => {
-
-		}
-	})
-
-
-
-
-
-
-
-
 
 	///////////////////////////////////////////////////////////////////////// 
-	// CUSTOM TAG API FUNCTIONS
+	// BOOTSTRAP LOGIC
+	const iframeInitLogic = (m: iIframeData['init']) => {
+		// BOOTING
+		// When iframe receive infos from parent
+		// console.log(h, 'init inside iframe!');
+		d.frameId = m.frameId
+		d.innerTag = m.innerTag
+		d.tagContent = m.tagContent
+		d.tagName = m.tagName
+		d.file = m.file
+
+		// get content and replace script tags
+		const el = document.getElementById('content-wrapper')
+		if (el) {
+
+			// unescape html and scripts
+			const unescHtml = p.unescapeHtml(el.innerHTML) as string
+			const newHtml = executeScriptTags(unescHtml)
+			// console.log(h, 'transformMarkdownScript', { old: el.innerHTML, new: newHtml });
+			el.innerHTML = newHtml
+			//
+			// sending height back for resizing sthg
+			setTimeout(() => {
+				const data: iIframeData['resize'] = {
+					height: el.clientHeight + 20
+				}
+				sendToParent({ action: 'resize', data })
+			}, 100)
+
+
+		}
+	}
+
+	///////////////////////////////////////////////////////////////////////// 
+	// API 
+
+	// API : CREATING EVENT BUS TO MANAGE API CALLS
+	const { subscribeOnce, notify } = p.createEventBus({ headerLog: '[FRAME API] 00567' })
 
 	// LOAD EXTERNAL SCRIPTS
 	const loadScripts = (scripts: string[], cb: Function) => {
@@ -252,12 +252,45 @@ const iframeMainCode = (p: {
 			if (el) el.appendChild(s)
 		})
 	}
-	const api = {
-		version: 1,
-		loadScripts
+
+	type iApiCall = (
+		apiName: string,
+		params: any,
+		cb: Function
+	) => void
+
+	const callApi: iApiCall = (apiName, params, cb) => {
+		const reqId = `iframe-api-call-${p.generateUUID()}`
+		// listen for answer
+		subscribeOnce(reqId, res => {
+			cb(res)
+		})
+
+		// send request
+		const apiData: iIframeData['apiCall'] = { reqId, apiName, params }
+		sendToParent({ action: 'apiCall', data: apiData })
 	}
 
-	return { api }
+	const api = {
+		version: 1,
+		call: callApi
+	}
+
+	// @ts-ignore
+	window.api = api
+
+
+	// 
+	// IFRAME EVENTS
+	// 
+	onParentEvent({
+		init: iframeInitLogic,
+		apiAnswer: m => {
+			const m2: iEventBusMessage = { subId: m.reqId, data: m.data }
+			notify(m2)
+		},
+	})
+
 }
 
 // END OF RESTRICTED JS IFRAME ENVIRONMENT
@@ -270,15 +303,6 @@ const iframeMainCode = (p: {
 
 
 
-//
-// EXPORTS
-//
-export const iframeManager = {
-	subscribe,
-	unsubscribe,
-	send: sendToIframe,
-	generateIframeHtml
-}
 
 
 
