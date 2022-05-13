@@ -38,7 +38,7 @@ export const ButtonsToolbar = (p: {
 			{
 				p.buttons.map((button, key) =>
 					button.action &&
-					<li title={button.title} key={key}>
+					<li className={button.class} title={button.title} key={key}>
 						<ToolbarButton {...button} />
 					</li>
 				)

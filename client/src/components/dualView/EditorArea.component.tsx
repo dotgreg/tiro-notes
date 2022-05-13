@@ -178,15 +178,14 @@ export const EditorArea = (p: {
 				setHistoryPopup(!historyPopup)
 			}
 		},
-		{
-			title: strings.editorBar.lightbox,
-			icon: 'faImages',
-			action: () => {
-				const imgs = findImagesFromContent(innerFileContent, p.file)
-				if (!api) return
-				api.ui.lightbox.open(0, imgs)
-			}
-		},
+		// {
+		// 	title: strings.editorBar.lightbox,
+		// 	icon: 'faImages',
+		// 	action: () => {
+		// 		const imgs = findImagesFromContent(innerFileContent, p.file)
+		// 		api?.ui.lightbox.open(0, imgs)
+		// 	}
+		// },
 		{
 			title: strings.editorBar.tts,
 			icon: 'faCommentDots',

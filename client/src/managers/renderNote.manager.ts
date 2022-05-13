@@ -1,6 +1,8 @@
-import { cloneDeep, each } from "lodash"
+import { cloneDeep, each, isNumber } from "lodash"
 import { regexs } from "../../../shared/helpers/regexs.helper"
+import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"
+import { findImagesFromContent } from "./images.manager"
 import { transformLatex } from "./latex.manager"
 import { md2html } from "./markdown.manager"
 import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
@@ -9,7 +11,7 @@ import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transform
 export interface iNoteApi {
 	render: (p: {
 		raw: string
-		currentFolder: string
+		file: iFile
 		windowId: string
 	}) => string
 	injectLogic: Function
@@ -23,14 +25,14 @@ export interface iNoteApi {
 // High level functions for content rendering
 //
 const renderNoteContent: iNoteApi['render'] = p => {
-	const { raw, currentFolder, windowId } = { ...p }
+	const { raw, file, windowId } = { ...p }
 	// chunk content in chunks
 	const contentChunks = getContentChunks(raw)
 	each(contentChunks, c => {
 		// transform the content of each text chunk
 		if (c.type === 'text') c.content = renderMarkdownToHtml({
 			raw: c.content,
-			currentFolder,
+			file,
 			windowId
 		})
 
@@ -45,12 +47,12 @@ const renderNoteContent: iNoteApi['render'] = p => {
 }
 
 const renderMarkdownToHtml: iNoteApi['render'] = (p): string => {
-	const { raw, currentFolder, windowId } = { ...p }
+	const { raw, file, windowId } = { ...p }
 	return (
 
 		md2html(
-			transformRessourcesInHTML(currentFolder,
-				transformImagesInHTML(currentFolder,
+			transformRessourcesInHTML(file.folder,
+				transformImagesInHTML(file,
 					transformSearchLinks(
 						transformTitleSearchLinks(windowId,
 							transformUrlInLinks(
@@ -69,7 +71,12 @@ const bindToElClass = (classn: string, cb: (el: any) => void) => {
 	})
 }
 
-const injectLogicToHtml = () => {
+const injectLogicToHtml = (p: {
+	fileContent: string,
+	file: iFile
+
+}) => {
+	// console.log(408, 'woop', p.fileContent);
 	// title search links
 	bindToElClass('title-search-link', el => {
 		const file = el.dataset.file
@@ -81,6 +88,19 @@ const injectLogicToHtml = () => {
 				file, {
 				openIn: windowId
 			})
+		})
+	})
+
+	bindToElClass('content-image', el => {
+		getClientApi2().then(api => {
+			let indexImage = parseInt(el.dataset.index)
+			try {
+				let images = JSON.parse(decodeURIComponent(el.dataset.images))
+				if (!isNumber(indexImage)) indexImage = 0
+				api.ui.lightbox.open(indexImage, images)
+			} catch (e) {
+				console.error(e)
+			}
 		})
 	})
 
