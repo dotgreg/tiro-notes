@@ -1,6 +1,7 @@
-import { each } from 'lodash';
+import { cloneDeep, each, isNumber } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
+import { iIframeData } from '../../managers/iframe.manager';
 import { iNoteApi, noteApi } from '../../managers/renderNote.manager';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iLightboxApi } from '../app/useLightbox.hook';
@@ -14,6 +15,7 @@ import { iNoteHistoryApi } from './history.api.hook';
 import { iSearchApi, useSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
+import { getFunctionParamNames } from '../../managers/functions.manager';
 
 //
 // INTERFACES
@@ -186,6 +188,67 @@ export const genIdReq = (type: string): string => {
 }
 
 
+type iCallApiCb = (status: 'ok' | 'nok', data?: any) => void
+export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => {
+	getClientApi2().then(api => {
+		const callNameArr = p.apiName.split('.')
+		let callingObj: any | null = api
+
+		// check if api call exists
+		each(callNameArr, prop => {
+			if (callingObj[prop]) callingObj = callingObj[prop]
+			else callingObj = null
+		})
+
+		if (!callingObj) return cb('nok', { error: `"${p.apiName}" does not exists in current api \n\nAvailable Api properties :\n\n${printObjProps('', api)}` })
+
+
+		// try to call that prop with the param
+		// files.getContent('fdlsakfdsja', cb(), options)
+		try {
+			const pos = getCallbackArgPosition(callingObj)
+			if (!pos) {
+				// non callback func simply call it
+				callingObj(...p.apiArguments)
+				return cb('nok', { error: `error when executing "${p.apiName}" with props ${p.apiArguments}` })
+			} else {
+				// cl func, inject cb inside params
+				const nargs = cloneDeep(p.apiArguments)
+				const callback = (res) => {
+					cb('ok', res)
+				}
+				nargs.splice(pos, 0, callback)
+				callingObj(...nargs)
+			}
+			// callingObj(...p.apiArguments)
+		} catch (e) {
+			return cb('nok', { error: `error when executing "${p.apiName}" with props ${p.apiArguments}` })
+		}
+	})
+}
+
+
+
+const getCallbackArgPosition = (fn: Function): number | null => {
+	const args = getFunctionParamNames(fn)
+	const index = args.indexOf('cb')
+	if (!index || index === -1) return null
+	return index
+}
+const printObjProps = (pre: string, obj: any) => {
+	let res = ``
+	for (var key in obj) {
+		if (typeof obj[key] === "object" && obj[key].constructor !== Array) {
+			if (key.length > 1 && key !== 'get') {
+				const npre = pre !== '' ? `${pre}.` : ''
+				res += printObjProps(`${npre}${key}`, obj[key]);
+			}
+		} else {
+			res = `${res}${pre}.${key}\n`
+		}
+	}
+	return res
+}
 
 
 
