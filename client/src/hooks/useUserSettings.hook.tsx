@@ -1,4 +1,4 @@
-import { cloneDeep, debounce, each, isNull } from 'lodash';
+import { cloneDeep, debounce, each, isNull, isUndefined } from 'lodash';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from './lodash.hooks';
@@ -48,7 +48,7 @@ export const useUserSettings = () => {
 		(userVar: iUserSettingName, toReplaceObj: any, toReplaceProp: string) => {
 			if (!defaultVars.current[userVar]) defaultVars.current[userVar] = toReplaceObj[toReplaceProp]
 			let val = userSettings[userVar]
-			if (isNull(val)) return
+			if (isNull(val) || isUndefined(val)) return
 			if (val === '' && defaultVars.current[userVar]) {
 				val = defaultVars.current[userVar]
 			}
