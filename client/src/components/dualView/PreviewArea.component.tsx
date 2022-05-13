@@ -393,11 +393,6 @@ export const previewAreaCss = () => `
 
 		${previewAreaSimpleCss()}
 
-		.tag-iframe {
-				width: calc(100% - 6px);
-				border: 2px #eaeaea solid;
-				border-radius: 5px;
-		}
 
 
     .infos-preview-wrapper {

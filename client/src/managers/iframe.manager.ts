@@ -24,7 +24,7 @@ export interface iIframeData {
 	apiCall: {
 		reqId: string
 		apiName: string,
-		params: any
+		apiArguments: any[]
 	}
 	apiAnswer: {
 		reqId: string
@@ -158,6 +158,10 @@ const iframeMainCode = (p: {
 		const wrappedMessage = { subId: d.frameId, data: message }
 		window.parent.postMessage(wrappedMessage, '*');
 	}
+	const sendError = (message: string) => {
+		const data: iIframeData['iframeError'] = { error: `CUSTOM TAG/SCRIPT ERROR: ${message}` }
+		sendToParent({ action: 'iframeError', data })
+	}
 
 	const onParentEvent = (events: { [event in iIframeActions]?: Function }) => {
 		window.onmessage = (e) => {
@@ -182,9 +186,7 @@ const iframeMainCode = (p: {
 					return new Function(scriptTxt)()
 				} catch (e: any) {
 					console.warn(h, `[SCRIPT] error: ${e}`, scriptTxt)
-					const data: iIframeData['iframeError'] = { error: `SCRIPT ERROR : ${e} in code "${scriptTxt}"` }
-					sendToParent({ action: 'iframeError', data })
-
+					sendError(`${e} in Code "${scriptTxt}"`)
 				}
 			});
 		return res;
@@ -220,14 +222,22 @@ const iframeMainCode = (p: {
 			//
 			// sending height back for resizing sthg
 			setTimeout(() => {
-				const data: iIframeData['resize'] = {
-					height: el.clientHeight + 20
-				}
-				sendToParent({ action: 'resize', data })
+				resizeIframe()
 			}, 100)
 
 
 		}
+	}
+
+	const resizeIframe = (height?: number) => {
+		const el = document.getElementById('content-wrapper')
+		if (!height) {
+			if (el) height = el.clientHeight + 20
+			else return
+		}
+
+		const data: iIframeData['resize'] = { height }
+		sendToParent({ action: 'resize', data })
 	}
 
 	///////////////////////////////////////////////////////////////////////// 
@@ -240,7 +250,10 @@ const iframeMainCode = (p: {
 	const loadScripts = (scripts: string[], cb: Function) => {
 		console.log(h, 'loadScripts', scripts);
 		let scriptsLoaded = 0;
-		each(scripts, scriptToLoad => {
+
+		// each(scripts, scriptToLoad => {
+		for (let i = 0; i < scripts.length; i++) {
+			const scriptToLoad = scripts[i];
 			const s = document.createElement('script');
 			s.src = scriptToLoad
 			s.onload = () => {
@@ -257,7 +270,10 @@ const iframeMainCode = (p: {
 			}
 			const el = document.getElementById('external-scripts-wrapper')
 			if (el) el.appendChild(s)
-		})
+		}
+
+		// })
+
 	}
 
 	type iApiCall = (
@@ -266,7 +282,13 @@ const iframeMainCode = (p: {
 		cb: Function
 	) => void
 
-	const callApi: iApiCall = (apiName, params, cb) => {
+	const callApi: iApiCall = (apiName, apiArguments, cb) => {
+		if (
+			!apiArguments || !apiName || !cb ||
+			apiArguments.constructor !== Array || typeof apiName !== 'string'
+		) return sendError(`Call Api : ${apiName} => wrong arguments type/number (${JSON.stringify({ apiName, apiArguments, cb })})`)
+
+
 		const reqId = `iframe-api-call-${p.generateUUID()}`
 
 		// listen for answer
@@ -275,7 +297,7 @@ const iframeMainCode = (p: {
 		})
 
 		// send request
-		const apiData: iIframeData['apiCall'] = { reqId, apiName, params }
+		const apiData: iIframeData['apiCall'] = { reqId, apiName, apiArguments }
 		sendToParent({ action: 'apiCall', data: apiData })
 	}
 
@@ -296,6 +318,7 @@ const iframeMainCode = (p: {
 		call: callApi,
 		utils: {
 			loadScripts,
+			resizeIframe,
 			uuid: p.generateUUID,
 			createDiv: divApi
 		}

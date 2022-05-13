@@ -3,10 +3,11 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { iContentChunk, noteApi } from '../managers/renderNote.manager'
 import { generateIframeHtml, iframeParentManager, iIframeData } from '../managers/iframe.manager'
-import { getClientApi2 } from '../hooks/api/api.hook';
+import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { escapeHtml } from '../managers/textProcessor.manager';
+import { isNull } from 'lodash';
 
 const h = `[IFRAME COMPONENT] 00562`
 
@@ -96,7 +97,8 @@ export const ContentBlockTagView = (p: {
 	const [htmlContent, setHtmlContent] = useState('')
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	const [iframeId, setIframeId] = useState('')
-	const [iframeHeight, setIframeHeight] = useState(200)
+	const [canShow, setCanShow] = useState(false)
+	const [iframeHeight, setIframeHeight] = useState(0)
 	const [iframeError, setIframeError] = useState<string | null>(null)
 
 
@@ -112,18 +114,32 @@ export const ContentBlockTagView = (p: {
 				const data: iIframeData['resize'] = m.data
 				console.log(h, 'resizing to', data.height);
 				setIframeHeight(data.height);
+				// only at that moment show iframe
+				setCanShow(true)
 			}
 
 			// API
 			if (m.action === 'apiCall') {
-				const data: iIframeData['apiAnswer'] = { reqId: m.data.reqId, data: { woop: 'woop', ...m } }
-				iframeParentManager.send(iframeRef.current, { action: 'apiAnswer', data })
+				const data = m.data as iIframeData['apiCall']
+
+				callApiFromString(data, (status, data) => {
+					// if no, directly return the error 
+					if (status === 'nok') return setIframeError(data.error)
+
+					// if yes send back result to iframe
+					const res: iIframeData['apiAnswer'] = { reqId: m.data.reqId, data }
+					iframeParentManager.send(iframeRef.current, { action: 'apiAnswer', data: res })
+				})
+
+
+
+
 			}
 
 			// SCRIPT ERROR
 			if (m.action === 'iframeError') {
 				// const err = escapeHtml(m.data.error)
-				 const err = m.data.error
+				const err = m.data.error
 				setIframeError(err)
 			}
 
@@ -172,6 +188,7 @@ export const ContentBlockTagView = (p: {
 	}
 
 	useEffect(() => {
+		setCanShow(false)
 		updateIframeHtml()
 
 		const nid = `iframe-${generateUUID()}`
@@ -182,8 +199,9 @@ export const ContentBlockTagView = (p: {
 		}
 	}, [p.windowId, p.file, p.block.content])
 
+
 	return (
-		<div className="iframe-view-wrapper">
+		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'}`}>
 			<iframe
 				ref={iframeRef}
 				id={iframeId}
@@ -209,19 +227,25 @@ export const ContentBlockTagView = (p: {
 
 
 export const contentBlockCss = () => `
-					.iframe-view-wrapper {
-						iframe {
-
-					}
-					.iframe-error {
-						background: #ffddba;
-					font-size: 8px;
-					padding: 14px;
-					border: 2px #ffc080 solid;
-					border-radius: 5px;
-					line-height: 14px;
+.iframe-view-wrapper {
+		&.hide iframe {
+				opacity: 0;
+		}
+		iframe {
+				transition: 0.3s all;
+				width: calc(100% - 6px);
+				border: 2px #eaeaea solid;
+				border-radius: 5px;
+		}
+		.iframe-error {
+				background: #ffddba;
+				font-size: 8px;
+				padding: 14px;
+				border: 2px #ffc080 solid;
+				border-radius: 5px;
+				line-height: 14px;
 		}
 }
 
 
-					`
+`
