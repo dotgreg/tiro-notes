@@ -60,7 +60,7 @@ export class List extends React.Component<{
 
 			this.setState({ selectionEdges: [-1, -1] })
 
-			console.log(`[LIST] reinit canAutoScroll`);
+			// console.log(`[LIST] reinit canAutoScroll`);
 			this.canAutoScroll = true
 		}
 		// const p2 = this.props

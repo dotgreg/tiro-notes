@@ -9,132 +9,147 @@ import { useBackendState } from '../../hooks/useBackendState.hook';
 import { cloneDeep, debounce, each } from 'lodash';
 
 type ConfigPanel = {
-	title: string,
-	fields: ConfigField[],
+		title: string,
+					 fields: ConfigField[],
 }
 
 type ConfigField = {
-	type: InputType,
-	var: any,
-	title: string,
-	expl?: string
-	modifier: Function
+		type: InputType,
+					var: any,
+							 title: string,
+											expl?: string
+														 modifier: Function
 }
 
 
 type SettingParam = 'backend-port' | 'backend-protocol'
 export const getSetting = (settingName: SettingParam) => {
-	return localStorage.getItem(`settings-${settingName}`)?.replaceAll("\"", "");
+		return localStorage.getItem(`settings-${settingName}`)?.replaceAll("\"", "");
 }
 
 
 export const SettingsPopup = (p: {
-	onClose: Function
-}) => {
+				onClose: Function
+		}) => {
 
 
 
 
 
 
-	//
-	// CONFIG LOGIC
-	//
-	const [backendPort, setBackendPort] = useLocalStorage<number>('settings-backend-port', -1)
-	const [backendProtocol, setBackendProtocol] = useLocalStorage<'http' | 'https' | 'same'>('settings-backend-protocol', 'same')
+		//
+		// CONFIG LOGIC
+		//
+		const [backendPort, setBackendPort] = useLocalStorage<number>('settings-backend-port', -1)
+		const [backendProtocol, setBackendProtocol] = useLocalStorage<'http' | 'https' | 'same'>('settings-backend-protocol', 'same')
 
-	const api = useContext(ClientApiContext)
-	const s = strings.settingsPopup
-	let conf: ConfigPanel[] = []
-	if (api) {
-		const us = api.userSettings
-		conf = [
-			{
-				title: "layout",
-				fields: [
-					{
-						type: 'text',
-						title: "Main color",
-						expl: "A color string like 'orange' or 'blue' or an Hex string like '#E86666' (tiro red) or '#729fc4'",
-						var: us.get('ui_layout_colors_main'),
-						modifier: val => { us.set('ui_layout_colors_main', val) }
-					},
+		const api = useContext(ClientApiContext)
+		const s = strings.settingsPopup
+		let conf: ConfigPanel[] = []
+												 if (api) {
+				const us = api.userSettings
+				conf = [
+						{
+								title: "layout",
+								fields: [
+										{
+												type: 'text',
+												title: "Main color",
+												expl: "A color string like 'orange' or 'blue' or an Hex string like '#E86666' (tiro red) or '#729fc4'",
+												var: us.get('ui_layout_colors_main'),
+												modifier: val => { us.set('ui_layout_colors_main', val) }
+										},
+								]
+						}
+						, {
+								title: "Advanced",
+								fields: [
+										{ type: 'text', var: backendPort, title: s.backend.port, expl: s.backend.portExpl, modifier: setBackendPort },
+										{ type: 'text', var: backendProtocol, title: s.backend.protocol, expl: s.backend.protocolExpl, modifier: setBackendProtocol },
+								]
+						}
 				]
-			}
-			, {
-				title: "Advanced",
-				fields: [
-					{ type: 'text', var: backendPort, title: s.backend.port, expl: s.backend.portExpl, modifier: setBackendPort },
-					{ type: 'text', var: backendProtocol, title: s.backend.protocol, expl: s.backend.protocolExpl, modifier: setBackendProtocol },
-				]
-			}
-		]
-	}
+		}
 
 
 
-	//
-	// TOGGLING PANELS LOGIC
-	//
-	const [panelsOpened, setPanelsOpened, refreshConf] = useBackendState<boolean[]>('config-panels-opened', [])
-	const togglePanel = (panelId: number) => {
-		const nP = cloneDeep(panelsOpened)
-		nP[panelId] = !nP[panelId]
-		setPanelsOpened(nP)
-	}
+		//
+		// TOGGLING PANELS LOGIC
+		//
+		const [panelsOpened, setPanelsOpened, refreshConf] = useBackendState<boolean[]>('config-panels-opened', [])
+		const togglePanel = (panelId: number) => {
+				const nP = cloneDeep(panelsOpened)
+				nP[panelId] = !nP[panelId]
+				setPanelsOpened(nP)
+		}
 
-	// const debounceOnChange = debounce((e, field) => {
-	// 	console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
-	// 	field.modifier(e)
-	// })
+		// const debounceOnChange = debounce((e, field) => {
+		// 	console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
+		// 	field.modifier(e)
+		// })
 
-	return (
-		<StyledDiv>
-			<Popup
+		return (
+				<div className="settings-popup-wrapper">
+				<Popup
 				title={`${s.title}`}
 				onClose={() => {
-					p.onClose()
-				}}
-			>
-
-
+		p.onClose()
+}}
+				>
 
 				{
-					conf.map((panel, i) =>
-						<div className="settings-panel">
-							<h3 onClick={() => { togglePanel(i) }}>
-								<div className="arrow">{panelsOpened[i] ? '▼' : '►'}</div>
-								{panel.title}
-							</h3>
-							<div className={`fields-wrapper ${panelsOpened[i] ? 'active' : ''}`} >
-								{
-									panel.fields.map(field =>
-										<div className="field-wrapper">
-											<Input
-												value={field.var}
-												label={field.title}
-												type={field.type}
-												onChange={e => {
-													// debounceOnChange(e, field)
-													console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
-													field.modifier(e)
-												}}
-											/>
-											<div className="explanation">{field.expl}</div>
-										</div>
-									)
-								}
-							</div>
+						conf.map((panel, i) =>
+										 <div className="settings-panel">
+										 <h3 onClick={() => { togglePanel(i) }}>
+										 <div className="arrow">{panelsOpened[i] ? '▼' : '►'}</div>
+{panel.title}
+										 </h3>
+										 <div className={`fields-wrapper ${panelsOpened[i] ? 'active' : ''}`} >
+										 {
+												 panel.fields.map(field =>
+																					<div className="field-wrapper">
+																					<Input
+																					value={field.var}
+																					label={field.title}
+																					type={field.type}
+																					onChange={e => {
+																													 // debounceOnChange(e, field)
+																													 console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
+																													 field.modifier(e)
+																											 }}
+																					/>
+																					<div className="explanation">{field.expl}</div>
+																					</div>
+)
+										 }
+										 </div>
 
-						</div>
-					)
+										 </div>
+)
 				}
-			</Popup>
-		</StyledDiv >
-	)
+				</Popup>
+				</div >
+		)
 }
 
-export const StyledDiv = styled.div`
+export const settingsPopupCss = () => `
+&.device-view-mobile {
+		.popup-wrapper .popupContent {
+				width: 80vw;
+				.field-wrapper {
+						display: block;
+						.explanation {
+								width: 100%;
+								padding: 5px 0px;
+						}
+						input {
+						}
+				}
+
+		}
+}
+
+
 .popup-wrapper .popupContent {
     padding: 0px 20px;
 		width: 50vw;
@@ -160,7 +175,7 @@ export const StyledDiv = styled.div`
 				&.active {
 						display: block;
 						display: block;
-						padding: 12px;
+						padding: 12px 12px 0px 12px;
 						background: #f9f9f9;
 						border-radius: 5px;
 						border: 1px #f5efef solid;
@@ -168,6 +183,7 @@ export const StyledDiv = styled.div`
 				}
 				.field-wrapper {
 						display: flex;
+						padding-bottom: 11px;
 						align-items: center;
 						.input-component {
 								flex: 1;
@@ -196,10 +212,3 @@ export const StyledDiv = styled.div`
     }
 }
 `
-
-// first attempt of auto generated settings form
-// {
-		// 	api && api.userSettings.list().map(s =>
-																					 // 		<div>{s.key} -- {s.val}</div>
-																															 // 	)
-		// }

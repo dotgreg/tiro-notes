@@ -35,8 +35,7 @@ export const UploadButton = (p: {
 					})
 				}}
 			/>
-			{/* @ts-ignore  */}
-			<label for="file">
+			<label htmlFor="file">
 				<Icon name="faPaperclip" />
 				<span className="label-text">Upload files </span>
 			</label>

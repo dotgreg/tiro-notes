@@ -22,7 +22,7 @@ export const useNoteEditorEvents = (p: {
 		setHasBeenEdited(false);
 
 		if (p.onEditorDidMount) {
-			console.log('[EVENTS EDITOR] EDITOR DID MOUNT');
+			// console.log('[EVENTS EDITOR] EDITOR DID MOUNT');
 			p.onEditorDidMount()
 		}
 
@@ -31,7 +31,7 @@ export const useNoteEditorEvents = (p: {
 
 				triggerNoteLeaveLogic()
 
-				console.log('[EVENTS EDITOR] WILL UNMOUNT');
+				// console.log('[EVENTS EDITOR] WILL UNMOUNT');
 				p.onEditorWillUnmount()
 			}
 		}
@@ -43,7 +43,7 @@ export const useNoteEditorEvents = (p: {
 
 	useEffect(() => {
 		if (p.onNoteContentDidLoad) {
-			console.log(`[EVENTS EDITOR] => on note content did load ${p.file.path}`);
+			// console.log(`[EVENTS EDITOR] => on note content did load ${p.file.path}`);
 			p.onNoteContentDidLoad()
 		}
 	}, [p.fileContent, p.file.path])
@@ -53,7 +53,7 @@ export const useNoteEditorEvents = (p: {
 
 	const triggerNoteLeaveLogic = () => {
 		if (oldPath !== '' && p.onNoteLeaving) {
-			console.log(`[EVENTS EDITOR] => leaving edited ${oldPath} to ${p.file.path}`);
+			// console.log(`[EVENTS EDITOR] => leaving edited ${oldPath} to ${p.file.path}`);
 			p.onNoteLeaving(hasBeenEdited, oldPath)
 		}
 		oldPath = p.file.path
@@ -65,12 +65,12 @@ export const useNoteEditorEvents = (p: {
 		if (!p.canEdit) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
 		if (!hasBeenEdited) {
 			if (p.onNoteEdition) {
-				console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);
+				// console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);
 				p.onNoteEdition(newContent, true)
 			}
 		} else {
 			if (p.onNoteEdition) {
-				console.log(`[EVENTS EDITOR] => onEdition (${p.file.path})`);
+				// console.log(`[EVENTS EDITOR] => onEdition (${p.file.path})`);
 				p.onNoteEdition(newContent, false)
 			}
 		}

@@ -111,6 +111,7 @@ export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: st
 export const transformImagesInHTML = (file: iFile, bodyRaw: string): string => {
 	let counterIndex = 0
 	const imgs = findImagesFromContent(bodyRaw, file)
+	if (imgs.length === 0) return bodyRaw
 	const imgsArr = encodeURIComponent(JSON.stringify(imgs))
 	return replaceRegexInMd(bodyRaw, regexs.image, (input: string) => {
 		const link = input.split('](')[1].slice(0, -1);

@@ -1,4 +1,5 @@
 import { backConfig } from "../config.back"
+
 export const log = (message: any, obj1?: any, obj2?: any, obj3?: any) => {
 	let objsStr = ''
 	if (obj1) objsStr += ',' + JSON.stringify(obj1)

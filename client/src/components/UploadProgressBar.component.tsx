@@ -19,17 +19,22 @@ export const UploadProgressBar = (p: {
 }
 
 export const uploadProgressBarCss = () => `
-	.upload-progress-bar-wrapper {
+.device-mobile {
+		.upload-progress-bar-wrapper {
+				bottom: 176px;
+		}
+}
+.upload-progress-bar-wrapper {
 		.label {
 				position: relative;
 		}
 		.bg-fill {
-			transition: 0.1s all;
-			position:absolute;
-			background: #077e00;
-			height: 100%;
-			top: 0px;
-			left: 0px;
+				transition: 0.1s all;
+				position:absolute;
+				background: #077e00;
+				height: 100%;
+				top: 0px;
+				left: 0px;
 		}
 		position:absolute;
 		bottom: 0px;
@@ -42,5 +47,5 @@ export const uploadProgressBarCss = () => `
 		z-index:3;
 		font-size: 9px;
 		padding: 5px;
-	}
+}
 `;

@@ -85,7 +85,7 @@ export const useBrowserApi = (p: {
 			if (folderPath === "") return
 			folderPath = cleanPath(`${folderPath}/`)
 			const h = `[BROWSER GO TO] 00722 `
-			console.log(`${h} ${folderPath} ${fileTitle} ${appView}`);
+			console.log(`${h} ${folderPath} ${fileTitle} ${appView}, ${JSON.stringify(opts)}`);
 			p.searchUiApi.term.set('')
 			p.statusApi.searching.set(true)
 			setSelectedFolder(folderPath)

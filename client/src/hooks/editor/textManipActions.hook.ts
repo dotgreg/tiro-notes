@@ -22,7 +22,6 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 			res = editorRefDesktop.current?.getCurrentLineInfos()
 			currentCursorPos.current = res && res.monacoPosition ? res.monacoPosition : 0
 		} else {
-			console.log(12125, p, editorRefMobile, editorRefDesktop);
 			res = editorRefMobile.current ? getTextAreaLineInfos(editorRefMobile.current) : null
 			currentCursorPos.current = res && res.currentPosition ? res.currentPosition : 0
 		}

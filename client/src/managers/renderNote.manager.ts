@@ -2,8 +2,6 @@ import { cloneDeep, each, isNumber } from "lodash"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"
-import { findImagesFromContent } from "./images.manager"
-import { transformLatex } from "./latex.manager"
 import { md2html } from "./markdown.manager"
 import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
 
@@ -62,13 +60,14 @@ const renderMarkdownToHtml: iNoteApi['render'] = (p): string => {
 }
 
 
-const bindToElClass = (classn: string, cb: (el: any) => void) => {
+export const bindToElClass = (classn: string, cb: (el: any) => void) => {
 	const els = document.getElementsByClassName(classn)
-	each(els, (el: any) => {
+	for (let i = 0; i < els.length; i++) {
+		const el: any = els[i];
 		el.onclick = () => {
 			cb(el)
 		}
-	})
+	}
 }
 
 const injectLogicToHtml = (p: {
@@ -76,7 +75,6 @@ const injectLogicToHtml = (p: {
 	file: iFile
 
 }) => {
-	// console.log(408, 'woop', p.fileContent);
 	// title search links
 	bindToElClass('title-search-link', el => {
 		const file = el.dataset.file
@@ -155,8 +153,8 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 		if (count >= 2) closingTags.push(name)
 	})
 
-	// debug && console.log(tags, tagsCount, closingTags);
-
+	// console.log(12123, fileContent, tags, tagsCount, closingTags);
+	// 
 	each(tags, (tag, i) => {
 
 		// check if tag occurence appears in pair, otherwise pass it
@@ -218,11 +216,12 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 	}
 
 	const startByTag = fileContent.indexOf(tags[0]) === 0
-	// debug && console.log(startByTag, fileContent, tags, closingTags, ntagsChunks, ntextChunks, positions);
+	// console.log(12126, startByTag, fileContent, tags, closingTags, ntagsChunks, ntextChunks, positions);
 	// 
 	// merge text and iframe together
 	const res: iContentChunk[] = []
-	each(ntextChunks, (txtChunk, i) => {
+	const length = ntagsChunks.length > ntextChunks.length ? ntagsChunks.length : ntextChunks.length
+	for (let i = 0; i < length; i++) {
 		if (startByTag) {
 			if (ntagsChunks[i]) res.push(ntagsChunks[i])
 			if (ntextChunks[i]) res.push(ntextChunks[i])
@@ -230,9 +229,9 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 			if (ntextChunks[i]) res.push(ntextChunks[i])
 			if (ntagsChunks[i]) res.push(ntagsChunks[i])
 		}
-	})
+	}
 
-
+	// console.log(12127, res, startByTag);
 	// console.log(positions, res, res.length)
 	return res
 }

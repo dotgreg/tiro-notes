@@ -10,6 +10,7 @@ import { processRawDataToFiles, processRawPathToFile } from "./file.search.manag
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
 
+const h = `[RIPGREP SEARCH] `
 const fs = require('fs')
 const execa = require('execa');
 export interface iFilesObj { [filePath: string]: iFile }
@@ -98,7 +99,7 @@ export const searchWithRipGrep = async (params: {
 			const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
 			const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
 
-			log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
+			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
 			params.onSearchEnded({ files: filesWithMetaUpdated })
 		})
 	}
@@ -138,7 +139,7 @@ export const searchWithRipGrep = async (params: {
 			})
 		})
 		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-			log(`[RIPGREP SEARCH] FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
+			log(h, ` FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
 			perfs.cmd1 = Date.now()
 			triggerAggregationIfEnded()
 		})
@@ -157,7 +158,7 @@ export const searchWithRipGrep = async (params: {
 			// process raw strings to meta objs
 
 			metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
-			log(`[RIPGREP SEARCH] FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
+			log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
 			perfs.cmd2 = Date.now()
 			triggerAggregationIfEnded()
 		})
@@ -169,7 +170,7 @@ export const searchWithRipGrep = async (params: {
 			if (counterCmdsDone === 2) {
 				const filesWithMetaUpdated = mergingMetaToFilesArr(filesScannedObj, metasFilesScanned)
 				const perfString = `tot:${Date.now() - perfs.init}ms / cmd1:${perfs.cmd1 - perfs.init}ms / cmd2:${perfs.cmd2 - perfs.init}ms`
-				log(`[RIPGREP SEARCH] FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
+				log(h, ` FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
 				params.onSearchEnded({ files: filesWithMetaUpdated })
 			}
 		}
@@ -202,7 +203,7 @@ export const searchWithRipGrep = async (params: {
 		})
 		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
-			log(`[RIPGREP SEARCH] TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
+			log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
 			params.onSearchEnded({ images })
 		})
 	}
@@ -226,7 +227,7 @@ export const searchWithRipGrep = async (params: {
 		})
 		ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
-			log(`[RIPGREP SEARCH] IMAGE FOLDER => ENDED ${images.length}`);
+			log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
 			params.onSearchEnded({ images })
 		})
 	}

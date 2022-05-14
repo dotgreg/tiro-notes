@@ -19,8 +19,6 @@ import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
 import { Icon } from './components/Icon.component';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
 import { useAppViewType } from './hooks/app/appView.hook';
-import { ImageGallery } from './components/ImageGallery.component';
-import { onImagesReceivedFn, useImagesList } from './hooks/app/imagesList.hook';
 import { Lightbox } from './components/Lightbox.component';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
@@ -75,15 +73,11 @@ export const App = () => {
 		clientApi.ui.browser.files.set([])
 	}
 
-	const cleanImagesList = () => {
-		setImages([])
-	}
 
 	const cleanListAndFileContent = () => {
 		console.log('[cleanListAndFileContent]');
 		cleanFileDetails()
 		cleanFilesList()
-		cleanImagesList()
 	}
 
 	const cleanAllApp = () => {
@@ -92,7 +86,6 @@ export const App = () => {
 		cleanFolderHierarchy()
 		cleanFileDetails()
 		cleanFilesList()
-		cleanImagesList()
 	}
 
 
@@ -159,8 +152,6 @@ export const App = () => {
 	// 	})
 	// }, [filesUiApi.active.get, userSettingsApi.get('ui_sidebar')])
 
-
-
 	// Tabs system
 	const {
 		tabs, updateTab,
@@ -173,82 +164,10 @@ export const App = () => {
 	const activeTab = tabsApi.active.get();
 
 
-	/**
-	 * Images List
-	 */
-	const onImagesReceivedCallback: onImagesReceivedFn = images => {
-		console.log(`[IMAGES CALLBACK] images nb: ${images.length}`)
-		//setIsSearching(false)
-	}
-
-	const {
-		images, setImages,
-		askForFolderImages
-	} = useImagesList(onImagesReceivedCallback)
-
-
-
-	/**
-	 *  APP VIEW SWITCHER SYSTEM (image/text)
-	 */
-	const { currentAppView, switchAppView,
-		AppViewSwitcherComponent
-	} = useAppViewType({
-		onViewSwitched: nView => {
-			const selectedFolder = clientApi.ui.browser.folders.current.get
-			clientApi.ui.browser.goTo(selectedFolder, null, { appView: nView })
-		}
-	})
-
-	// Tree Folder
-	// const {
-	// 	openFolders,
-	// 	addToOpenedFolders,
-	// 	removeToOpenedFolders,
-
-	// 	folderBasePath,
-	// 	askForFolderScan,
-	// 	FolderTreeComponent,
-	// 	cleanFolderHierarchy
-	// } = useAppTreeFolder(currentAppView)
-
-	// // on selectedFolder change, trigger update folders/file ui
-	// useEffect(() => {
-	// 	clientApi.ui.browser.goTo(selectedFolder, null, { appView: currentAppView })
-	// }, [selectedFolder])
-
-
-	// // Search 
-	// const {
-	// 	setIsSearching,
-	// 	setSearchTerm,
-	// 	SearchBarComponent,
-	// } = useAppSearch(
-	// 	shouldLoadNoteIndex,
-	// 	cleanListAndFileContent,
-	// 	currentAppView
-	// )
 
 	// PROMPT AND CONFIRM POPUPAPI
 	const { PromptPopupComponent, popupApi } = usePromptPopup({})
 
-
-	// Search Note from title
-	// const { getSearchedTitleFileIndex, searchFileFromTitle } = useSearchFromTitle({ goTo, currentAppView })
-
-	// File Content + Dual Viewer
-	// let activeFile = files[activeFileIndex]
-
-	// const {
-	// 	fileContent,
-	// 	setFileContent,
-	// 	setCanEdit,
-	// 	askForFileContent,
-	// 	DualViewerComponent
-	// } = useFileContent(
-	// 	activeFile, activeFileIndex, selectedFolder, files, shouldLoadNoteIndex,
-	// 	cleanFileDetails, askForMoveFile
-	// )
 
 
 	// CONNECTION INDICATOR
@@ -366,7 +285,6 @@ export const App = () => {
 					<div role="dialog" className={`
 								main-wrapper
 								${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
-								view-${currentAppView}
 								device-view-${deviceType()}`}>
 						{
 							PromptPopupComponent()
@@ -392,38 +310,34 @@ export const App = () => {
 							<div className="left-wrapper">
 								<div className="left-wrapper-1">
 									<div className="invisible-scrollbars">
-										{currentAppView === 'text' &&
-											<NewFileButton
-												onNewFile={() => {
-													const selectedFolder = clientApi.ui.browser.folders.current.get
-													clientApi.file.create(selectedFolder, files => {
-														// reload list and go to new one
-														const nFile = getMostRecentFile(files)
-														nFile && clientApi.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
-													})
-												}}
-											/>
-										}
+										<NewFileButton
+											onNewFile={() => {
+												const selectedFolder = clientApi.ui.browser.folders.current.get
+												clientApi.file.create(selectedFolder, files => {
+													// reload list and go to new one
+													const nFile = getMostRecentFile(files)
+													nFile && clientApi.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
+												})
+											}}
+										/>
 
-										{currentAppView === 'text' &&
-											<LastNotes
-												files={filesHistory}
-												onClick={file => {
-													clientApi.ui.browser.goTo(
-														file.folder,
-														file.name,
-														{ openIn: 'active' }
-													)
-												}}
-											/>
-										}
+										<LastNotes
+											files={filesHistory}
+											onClick={file => {
+												clientApi.ui.browser.goTo(
+													file.folder,
+													file.name,
+													{ openIn: 'active' }
+												)
+											}}
+										/>
 
 
 										<TreeView
 											folder={foldersUiApi.get}
 											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
-												clientApi.ui.browser.goTo(folderPath, null, { appView: currentAppView })
+												clientApi.ui.browser.goTo(folderPath, null)
 											}}
 											onFolderMenuAction={(action, folder, newTitle) => {
 												if (action === 'rename' && newTitle) {
@@ -489,6 +403,11 @@ export const App = () => {
 									<div className="top-files-list-wrapper">
 										<div className="subtitle-wrapper">
 
+											<div className="folder-wrapper">
+												{api && api.ui.browser.folders.current.get}
+											</div>
+
+
 											{/* SIDEBAR TOGGLER */}
 											{deviceType() !== 'mobile' &&
 												<div className="toggle-sidebar-btn">
@@ -507,8 +426,6 @@ export const App = () => {
 											}
 
 											{/* <h3 className="subtitle">{strings.files}</h3> */}
-											<AppViewSwitcherComponent />
-
 										</div>
 										<SearchBar2 term={clientApi.ui.search.term.get} />
 									</div>
@@ -547,20 +464,6 @@ export const App = () => {
 
 
 
-						<div className="right-wrapper image-gallery-view">
-
-							{/* IMAGE GALLERY */}
-							<div className="image-gallery-header">
-								<div className="subtitle-wrapper">
-									<AppViewSwitcherComponent />
-								</div>
-								<SearchBar2 term={clientApi.ui.search.term.get} />
-							</div>
-							<ImageGallery
-								images={images}
-								onImageClicked={clientApi.ui.lightbox.open}
-								forceRender={forceResponsiveRender} />
-						</div>
 
 						<div className="right-wrapper dual-viewer-view">
 
