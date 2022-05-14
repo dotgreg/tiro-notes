@@ -169,6 +169,7 @@ export const ContentBlockTagView = (p: {
 			windowId: p.windowId,
 			file: p.file
 		})
+		console.log(1212999, p.windowId);
 
 		// generate html content
 		const iframeHtml = generateIframeHtml(formatedNoteTagContent)

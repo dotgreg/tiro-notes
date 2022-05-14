@@ -36,8 +36,6 @@ export const PreviewArea = (p: {
 		setTimeout(() => {
 			p.onMaxYUpdate(calculateYMax())
 		}, 1000)
-
-
 	}, [p.fileContent])
 
 
@@ -56,13 +54,14 @@ export const PreviewArea = (p: {
 	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
 	useEffect(() => {
 		const blocks = noteApi.chunks.chunk(p.fileContent)
-		// console.log(121212, blocks);
 		setContentBlocks(blocks)
 
+		setTimeout(() => {
 		noteApi.injectLogic({
 			fileContent: p.fileContent,
 			file: p.file
 		})
+		}, 100)
 
 	}, [p.fileContent])
 
@@ -89,14 +88,15 @@ export const PreviewArea = (p: {
 				<div className="content-blocks-wrapper">
 					<div className="simple-css-wrapper">
 						{
-							contentBlocks.map(block =>
-								<>
+							contentBlocks.map((block, i) =>
+								<div key={i}>
 									<ContentBlock
+										key={i}
 										block={block}
 										windowId={p.windowId}
 										file={p.file}
 									/>
-								</>
+								</div>
 							)
 						}
 					</div>

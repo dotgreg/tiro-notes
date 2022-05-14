@@ -1,5 +1,6 @@
 import { each } from "lodash";
 import { generateUUID } from "../../../shared/helpers/id.helper";
+import { bindToElClass } from "./renderNote.manager";
 import { iFile } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
@@ -114,12 +115,14 @@ export const generateIframeHtml = (tagContent: string) => {
 				const IMPORTED_unescapeHtml = ${unescapeHtml.toString()}
 				const IMPORTED_createEventBus = ${createEventBus.toString()}
 				const IMPORTED_generateUUID = ${generateUUID.toString()}
+				const IMPORTED_bindToElClass = ${bindToElClass.toString()}
 				const main = ${iframeMainCode.toString()};
 				main({
 					replaceCustomMdTags: IMPORTED_replaceCustomMdTags,
 					unescapeHtml: IMPORTED_unescapeHtml,
 					createEventBus: IMPORTED_createEventBus,
-					generateUUID: IMPORTED_generateUUID
+					generateUUID: IMPORTED_generateUUID,
+					bindToElClass: IMPORTED_bindToElClass
 				})
 		</script>
 </html>
@@ -132,7 +135,8 @@ const iframeMainCode = (p: {
 	replaceCustomMdTags,
 	unescapeHtml,
 	createEventBus,
-	generateUUID
+	generateUUID,
+	bindToElClass
 }) => {
 	const h = '[IFRAME child] 00564'
 
@@ -192,6 +196,17 @@ const iframeMainCode = (p: {
 		return res;
 	};
 
+
+	const injectLogicToIframeHtml = () => {
+		// title search links
+		p.bindToElClass('title-search-link', el => {
+			const file = el.dataset.file
+			const folder = el.dataset.folder
+			const windowId = el.dataset.windowid
+			api.call('ui.browser.goTo', [folder, file, { openIn: windowId }])
+		})
+	}
+
 	const getIframeHeight = () => {
 
 	}
@@ -225,6 +240,8 @@ const iframeMainCode = (p: {
 				resizeIframe()
 			}, 100)
 
+			// inject logic to html
+			injectLogicToIframeHtml()
 
 		}
 	}
@@ -278,13 +295,13 @@ const iframeMainCode = (p: {
 
 	type iApiCall = (
 		apiName: string,
-		params: any,
-		cb: Function
+		apiArguments: any[],
+		cb?: Function
 	) => void
 
 	const callApi: iApiCall = (apiName, apiArguments, cb) => {
 		if (
-			!apiArguments || !apiName || !cb ||
+			!apiArguments || !apiName ||
 			apiArguments.constructor !== Array || typeof apiName !== 'string'
 		) return sendError(`Call Api : ${apiName} => wrong arguments type/number (${JSON.stringify({ apiName, apiArguments, cb })})`)
 
@@ -293,7 +310,7 @@ const iframeMainCode = (p: {
 
 		// listen for answer
 		subscribeOnce(reqId, res => {
-			cb(res)
+			if (cb) cb(res)
 		})
 
 		// send request

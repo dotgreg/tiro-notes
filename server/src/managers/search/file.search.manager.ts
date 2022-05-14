@@ -5,6 +5,7 @@ import { fileStats } from "../fs.manager";
 import { log } from "../log.manager";
 import { getRelativePath } from "../path.manager";
 
+const h = `[RIPGREP SEARCH] `
 export const cleanFilePath = (rawString: string, folder) => {
 	rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
 	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
@@ -33,7 +34,7 @@ export const processRawPathToFile = (
 		let stats = fileStats(`${backConfig.dataFolder}/${folder}/${filePath}`)
 		res = createIFile(filePath, folder, index, stats)
 	} catch (error) {
-		log('[RIPGREP SEARCH] ERROR : ', error);
+		log(h, 'ERROR : ', error);
 	}
 	return res
 }

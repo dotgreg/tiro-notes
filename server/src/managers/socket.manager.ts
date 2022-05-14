@@ -11,6 +11,7 @@ import { isRgCliWorking } from "./search/search-ripgrep.manager";
 
 interface routeOptions {
 	duringSetup?: boolean,
+	disableLog?: boolean,
 	disableDataLog?: boolean,
 	bypassLoginTokenCheck?: boolean,
 }
@@ -38,19 +39,26 @@ export const sleep = (ms) => {
 	});
 }
 
+
+const preprocessEndpointOptions = (endpoint: string, options?: routeOptions) => {
+	if (!options) options = {}
+	if (endpoint.startsWith('siofu')) {
+		options.disableDataLog = true
+		options.disableLog = true
+	}
+	return options
+}
+
 export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socket): ServerSocketManager<ApiDict> => {
 	return {
 		on: async (endpoint, callback, options) => {
 			rawServerSocket.on(endpoint, async (rawClientData: any) => {
 
-				if (endpoint.startsWith('siofu')) {
-					if (!options) options = {}
-					options.disableDataLog = true
-				}
+				options = preprocessEndpointOptions(endpoint, options)
 
 				// LOG
-				log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} `);
-				!(options?.disableDataLog) && log(`with data `, rawClientData);
+				if (!options?.disableLog) log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} ${JSON.stringify(options)}`);
+				if (!options?.disableDataLog) log(`with data `, rawClientData);
 
 
 				// IF SETUP MODE
@@ -77,7 +85,8 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
 			});
 		},
 		emit: async (endpoint, payloadToSend) => {
-			log(`[SOCKET SERV EVENT] ==> EMIT ${endpoint}`);
+			let options = preprocessEndpointOptions(endpoint)
+			if (!options?.disableLog) log(`[SOCKET SERV EVENT] ==> EMIT ${endpoint}`);
 			await rawServerSocket.emit(endpoint, payloadToSend);
 		},
 	}

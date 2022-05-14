@@ -331,6 +331,7 @@ export const EditorArea = (p: {
 												el.setSelectionRange(0, el.value.length)
 											}}
 											value={idNote}
+											readOnly={true}
 										/>
 										<ButtonsToolbar
 											class='note-id-toolbar'
@@ -416,7 +417,7 @@ export const EditorArea = (p: {
 	)//jsx
 }
 
-export const commonCssEditors = `//css
+export const commonCssEditors = () => `
 .file-path-wrapper {
   padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
   font-size: 13px;
@@ -505,7 +506,7 @@ export const editorAreaCss = (v: MobileView) => `//css
     padding: 0px ${isA('desktop') ? cssVars.sizes.block * 3 : cssVars.sizes.block * 2}px;
     position: relative;
 
-    ${commonCssEditors}
+		${commonCssEditors()}
 
     .title-input-wrapper {
       position:relative;

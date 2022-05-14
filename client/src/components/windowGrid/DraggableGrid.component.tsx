@@ -357,7 +357,7 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 }
 
 
-const GridMobileCss = `//css
+export const GridMobileCss = () => `
 .draggable-grid-wrapper 
 .draggable-grid-wrapper-in 
 .mobile-grid-view {
@@ -421,7 +421,6 @@ const GridMobileCss = `//css
 `//css
 
 export const draggableGridCss = () => `
-${GridMobileCss}
 
 .draggable-grid-wrapper {
 		// remove transition

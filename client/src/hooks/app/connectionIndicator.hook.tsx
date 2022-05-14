@@ -76,11 +76,6 @@ export const useConnectionIndicator = () => {
 		return (
 			<div className="connection-status">
 				<div className={res[0]}>{res[1]}
-					{!isSocketConnected &&
-						<a href={`${getBackendUrl()}/socket.io/`} target="_blank">
-							{strings.clickHereDisconnected}
-						</a>
-					}
 				</div>
 			</div>
 		)
