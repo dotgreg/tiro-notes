@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { useDebounce } from '../../hooks/lodash.hooks';
+import { deviceType } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { secureTitleString } from '../../managers/title.manager';
 import { Icon } from '../Icon.component';
@@ -16,6 +18,16 @@ export const NoteTitleInput = (p: {
 		setTitle(p.title)
 	}, [p.title])
 
+
+	// problem, enter key does not seem to work fine on mobile and jump,
+	// so debounce and save name for it after 2s
+	const onDebounceMobileTriggerSave = useDebounce((ntitle: string) => {
+		if (deviceType() === 'mobile') {
+			setHasBeenEdited(false)
+			p.onEdited(p.title, title)
+		}
+	}, 1000)
+
 	return (
 		<div className='title-input-wrapper'>
 			<input
@@ -26,6 +38,8 @@ export const NoteTitleInput = (p: {
 					let newTitle = secureTitleString(e.target.value)
 					setTitle(newTitle)
 					setHasBeenEdited(true)
+
+					onDebounceMobileTriggerSave(newTitle)
 				}}
 				onKeyDown={e => {
 					if (e.key === 'Enter') {
