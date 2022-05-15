@@ -156,7 +156,7 @@ export const useTabs = () => {
 
 			// BEHAVIOR 2: go to file in browser ui
 			const file = getActiveWindow(tab)?.content.file
-			console.log(344444, file, tab, getActiveWindow(tab));
+			// console.log(344444, file, tab, getActiveWindow(tab));
 			if (!file) return
 			getClientApi2().then(api => {
 				api.ui.browser.goTo(file.folder, file.name)

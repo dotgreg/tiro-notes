@@ -43,7 +43,7 @@ export const PreviewArea = (p: {
 		const d = previewAreaRefs.main.current
 		const height = d?.clientHeight
 		const max = height || 3000
-		return max
+		return max * 2
 	}
 
 	const calculateYPos = () => {
@@ -57,10 +57,10 @@ export const PreviewArea = (p: {
 		setContentBlocks(blocks)
 
 		setTimeout(() => {
-		noteApi.injectLogic({
-			fileContent: p.fileContent,
-			file: p.file
-		})
+			noteApi.injectLogic({
+				fileContent: p.fileContent,
+				file: p.file
+			})
 		}, 100)
 
 	}, [p.fileContent])
