@@ -1,11 +1,15 @@
-const rssApp = (innerTagStr) => {
-		const h = `[CTAG RSS] 0431`
+const rssApp = (innerTagStr, opts) => {
+
+		if (!opts) opts = {}
+		if (!opts.size) opts.size =  "95%"
+
+		const h = `[CTAG RSS] 0431 v1.1`
 		const api = window.api;
 		const { div, updateContent } = api.utils.createDiv();
 		const divId = `rss-${api.utils.uuid()}`;
 
 		const execRssReader = (feedsStr) => {
-				console.log(h,"12: react", React) 
+				// console.log(h,"12: react", React) 
 
 				const getFeeds = (str) => {
 						const feedsArr = str.split('\n')
@@ -128,7 +132,7 @@ const rssApp = (innerTagStr) => {
 						console.log(h,"0: react loaded, starting script with innertag:", innerTagStr) 
 						execRssReader(innerTagStr)
 						setTimeout(() => {
-								api.utils.resizeIframe('95%');
+								api.utils.resizeIframe(opts.size);
 						}, 100);
 				}
 		);
