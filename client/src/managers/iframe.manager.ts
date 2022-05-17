@@ -17,7 +17,7 @@ export interface iIframeData {
 		frameId: string
 	}
 	resize: {
-		height: number
+		height: number | string
 	}
 	iframeError: {
 		error: string

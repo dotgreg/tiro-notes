@@ -6,7 +6,7 @@ export interface iApiDictionary {
 	disconnect: {}
 	connect: {}
 	reconnect: {}
-	connectionSuccess: { isRgGood: boolean }
+	connectionSuccess: { isRgGood: boolean, ipServer: string[] }
 
 	askForFiles: { folderPath: string, token: string, idReq: string }
 	getFiles: { files: iFile[], temporaryResults?: boolean, initialResults?: boolean, idReq: string }

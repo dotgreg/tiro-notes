@@ -14,7 +14,6 @@ import { ContentBlock } from '../ContentBlock.component';
 
 export const PreviewArea = (p: {
 	windowId: string
-
 	file: iFile
 	posY: number
 	fileContent: string
@@ -95,6 +94,7 @@ export const PreviewArea = (p: {
 										block={block}
 										windowId={p.windowId}
 										file={p.file}
+										windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
 									/>
 								</div>
 							)
@@ -307,12 +307,12 @@ export const previewAreaSimpleCss = () => {
 				padding: 5px 10px;
 		}
 		thead tr {
-				background: #CCC
+				background: #CCC;
 		}
 		tbody {
-				tr:nth-child(even) {background: #CCC}
-				tr:nth-child(odd) {background: #EEE}
 		}
+		tbody tr:nth-child(even) {background: #CCC}
+		tbody tr:nth-child(odd) {background: #EEE}
 
 		/**********************************************************
 
