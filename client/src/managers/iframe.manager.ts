@@ -293,14 +293,14 @@ const iframeMainCode = (p: {
 
 	}
 	// LOAD CUSTOM TAG
-	const loadCustomTag = (url: string, innerTag: string) => {
+	const loadCustomTag = (url: string, innerTag: string, opts:any) => {
 		const { div, updateContent } = api.utils.createDiv();
 
 		api.utils.loadScripts([url],
 			() => {
 				console.log(h, `CUSTOM TAG LOADED ${url}`)
 				//@ts-ignore
-				const htmlStr = window.initCustomTag(`${innerTag}`)
+				const htmlStr = window.initCustomTag(`${innerTag}`, opts)
 				updateContent(htmlStr)
 			}
 		);
