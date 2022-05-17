@@ -11,7 +11,7 @@ const file = tc.file.file1
 const r1 = noteApi.render({
 	raw,
 	windowId,
-	currentFolder: file.folder
+	file: file
 })
 
 test(`${h} : should not transform md>html inside [[script]] tags`, () => {
