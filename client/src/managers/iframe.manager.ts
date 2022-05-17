@@ -292,6 +292,21 @@ const iframeMainCode = (p: {
 		// })
 
 	}
+	// LOAD CUSTOM TAG
+	const loadCustomTag = (url: string, innerTag: string) => {
+		const { div, updateContent } = api.utils.createDiv();
+
+		api.utils.loadScripts([url],
+			() => {
+				console.log(h, `CUSTOM TAG LOADED ${url}`)
+				//@ts-ignore
+				const htmlStr = window.initCustomTag(`${innerTag}`)
+				updateContent(htmlStr)
+			}
+		);
+
+		return div
+	}
 
 	type iApiCall = (
 		apiName: string,
@@ -303,10 +318,10 @@ const iframeMainCode = (p: {
 		if (
 			!apiArguments || !apiName ||
 			apiArguments.constructor !== Array || typeof apiName !== 'string'
-		) return sendError(`Call Api : ${apiName} => wrong arguments type/number (${JSON.stringify({ apiName, apiArguments, cb })})`)
+		) return sendError(`Call Api : ${apiName} => wrong arguments type / number(${JSON.stringify({ apiName, apiArguments, cb })})`)
 
 
-		const reqId = `iframe-api-call-${p.generateUUID()}`
+		const reqId = `iframe - api - call - ${p.generateUUID()} `
 
 		// listen for answer
 		subscribeOnce(reqId, res => {
@@ -319,7 +334,7 @@ const iframeMainCode = (p: {
 	}
 
 	const divApi = () => {
-		const id = `ctag-content-wrapper-${p.generateUUID()}`
+		const id = `ctag-content-wrapper-${p.generateUUID()} `
 		const updateContent = (nContent) => {
 			// @ts-ignore
 			document.getElementById(id).innerHTML = nContent;
@@ -336,8 +351,9 @@ const iframeMainCode = (p: {
 		utils: {
 			loadScripts,
 			resizeIframe,
+			loadCustomTag,
 			uuid: p.generateUUID,
-			createDiv: divApi
+			createDiv: divApi,
 		}
 	}
 
