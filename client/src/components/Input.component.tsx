@@ -16,6 +16,7 @@ export const Input = (p: {
 	onEnterPressed?: Function
 	shouldFocus?: boolean
 	shouldNotSelectOnClick?: boolean
+	readonly?: boolean
 }) => {
 	const { value } = { ...p }
 
@@ -45,6 +46,7 @@ export const Input = (p: {
 					ref={inputRef}
 					type={p.type ? p.type : 'text'}
 					value={p.value}
+				 readOnly={p.readonly}
 					onFocus={() => { p.onFocus && p.onFocus() }}
 					onClick={() => { !p.shouldNotSelectOnClick && inputRef.current.select() }}
 					onKeyPress={e => {

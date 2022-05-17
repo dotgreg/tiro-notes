@@ -7,7 +7,7 @@ import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { escapeHtml } from '../managers/textProcessor.manager';
-import { isNull } from 'lodash';
+import { isNull, isString } from 'lodash';
 
 const h = `[IFRAME COMPONENT] 00562`
 
@@ -15,6 +15,7 @@ export const ContentBlock = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
+	windowHeight?: number
 }) => {
 
 	const isTag = p.block.type === 'tag'
@@ -91,6 +92,7 @@ export const ContentBlockTagView = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
+	windowHeight?: number
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -98,7 +100,7 @@ export const ContentBlockTagView = (p: {
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	const [iframeId, setIframeId] = useState('')
 	const [canShow, setCanShow] = useState(false)
-	const [iframeHeight, setIframeHeight] = useState(0)
+	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
 	const [iframeError, setIframeError] = useState<string | null>(null)
 
 
@@ -112,8 +114,14 @@ export const ContentBlockTagView = (p: {
 			// RESIZE
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
-				console.log(h, 'resizing to', data.height);
-				setIframeHeight(data.height);
+				// const nheight = data.height === "100%" ? (p.windowHeight || 200) : data.height
+				let nheight = data.height
+				if (isString(nheight) && nheight.endsWith("%")) {
+					const percent = parseInt(nheight.replace("%", "")) / 100
+					nheight = (p.windowHeight || 200) / percent
+				}
+				console.log(h, 'resizing to', nheight, data.height, p.windowHeight);
+				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)
 			}
@@ -202,7 +210,7 @@ export const ContentBlockTagView = (p: {
 
 
 	return (
-		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'}`}>
+		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName}`}>
 			<iframe
 				ref={iframeRef}
 				id={iframeId}
@@ -228,6 +236,15 @@ export const ContentBlockTagView = (p: {
 
 
 export const contentBlockCss = () => `
+
+.content-blocks-wrapper,
+.simple-css-wrapper,
+.simple-css-wrapper > div,
+.content-block,
+.iframe-view-wrapper
+{
+}
+
 .iframe-view-wrapper {
 		&.hide iframe {
 				opacity: 0;
@@ -235,7 +252,8 @@ export const contentBlockCss = () => `
 		iframe {
 				transition: 0.3s all;
 				width: calc(100% - 6px);
-				border: 2px #eaeaea solid;
+				// border: 2px #eaeaea solid;
+				border: none;
 				border-radius: 5px;
 		}
 		.iframe-error {

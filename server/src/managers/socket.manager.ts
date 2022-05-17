@@ -7,6 +7,7 @@ import { getLoginToken } from "./loginToken.manager";
 import { log } from "./log.manager";
 import { getDefaultDataFolderPath } from "./fs.manager";
 import { isRgCliWorking } from "./search/search-ripgrep.manager";
+import { getServerIp } from "./ip.manager";
 
 
 interface routeOptions {
@@ -106,7 +107,7 @@ export const initSocketLogic = () => {
 			//if (!isRgGood) throw new Error(backConfig.sharedConfig.strings.rgNotWorking);
 			// do not block everything, that the UI still shows with the error in alert box
 			if (!isRgGood) log(backConfig.sharedConfig.strings.rgNotWorking);
-			ioServer.emit('connectionSuccess', { isRgGood })
+			ioServer.emit('connectionSuccess', { isRgGood, ipServer: getServerIp() })
 		})
 
 		// creating new socket for each specific client

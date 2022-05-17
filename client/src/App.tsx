@@ -45,8 +45,9 @@ export const App = () => {
 		// COMPONENT DID MOUNT didmount
 		console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
 
-		initSocketConnexion().then(() => {
+		initSocketConnexion().then(serverSocketConfig => {
 			toggleSocketConnection(true)
+			api && api.status.ipServer.set(serverSocketConfig.ipServer)
 			askForFolderScan(openFolders)
 		})
 
