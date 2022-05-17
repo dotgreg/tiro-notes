@@ -118,7 +118,7 @@ export const ContentBlockTagView = (p: {
 				let nheight = data.height
 				if (isString(nheight) && nheight.endsWith("%")) {
 					const percent = parseInt(nheight.replace("%", "")) / 100
-					nheight = (p.windowHeight || 200) / percent
+					nheight = (p.windowHeight || 200) * percent
 				}
 				console.log(h, 'resizing to', nheight, data.height, p.windowHeight);
 				setIframeHeight(nheight);

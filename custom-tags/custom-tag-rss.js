@@ -8,8 +8,9 @@ const rssApp = (innerTagStr, opts) => {
 		const { div, updateContent } = api.utils.createDiv();
 		const divId = `rss-${api.utils.uuid()}`;
 
+		console.log(h,"========= INIT with opts:", opts) 
+
 		const execRssReader = (feedsStr) => {
-				// console.log(h,"12: react", React) 
 
 				const getFeeds = (str) => {
 						const feedsArr = str.split('\n')
