@@ -2,6 +2,7 @@ const rssApp = (innerTagStr, opts) => {
 
 		if (!opts) opts = {}
 		if (!opts.size) opts.size =  "95%"
+		if (!opts.rssToJsonUrl) opts.rssToJsonUrl =   "https://api.rss2json.com/v1/api.json?rss_url="
 
 		const h = `[CTAG RSS] 0431 v1.1`
 		const api = window.api;
@@ -26,7 +27,7 @@ const rssApp = (innerTagStr, opts) => {
 
 				const getJsons = (cb) => {
 						const feedsArr = getFeeds(feedsStr)
-						const urlApi = "https://api.rss2json.com/v1/api.json?rss_url="
+						const urlApi = opts.rssToJsonUrl
 						let resItems = []
 						for(let i = 0; i < feedsArr.length; i++) {
 								fetch(`${urlApi}${feedsArr[i].url}`)
@@ -161,6 +162,7 @@ const rssApp = (innerTagStr, opts) => {
 		background: white;
 		height: calc(100% - 110px);
 		overflow-y: scroll;
+		height: 100%;
 		right: 0px;
 		top: 0px;
 		box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
@@ -198,6 +200,8 @@ const rssApp = (innerTagStr, opts) => {
 	.article-link {
 		font-size: 12px;
 		padding-bottom: 30px;
+		margin-bottom: 30px;
+    display: block;
 	}
 	.bg-image {
 		width: 30%;

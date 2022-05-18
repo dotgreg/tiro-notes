@@ -1,10 +1,14 @@
 import { each } from "lodash";
 import { generateUUID } from "../../../shared/helpers/id.helper";
 import { bindToElClass } from "./renderNote.manager";
-import { iFile } from "../../../shared/types.shared";
+import { iFile, iFileNature } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
+import { iFileApi } from "../hooks/api/file.api.hook";
+import { iFilesApi } from "../hooks/api/files.api.hook";
+import { iPopupApi } from "../hooks/app/usePromptPopup.hook";
+import { getClientApi2, iClientApi } from "../hooks/api/api.hook";
 
 type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError'
 
@@ -131,7 +135,7 @@ export const generateIframeHtml = (tagContent: string) => {
 }
 
 
-const iframeMainCode = (p: {
+export const iframeMainCode = (p: {
 	replaceCustomMdTags,
 	unescapeHtml,
 	createEventBus,
@@ -267,7 +271,6 @@ const iframeMainCode = (p: {
 	const loadScripts = (scripts: string[], cb: Function) => {
 		console.log(h, 'loadScripts', scripts);
 		let scriptsLoaded = 0;
-
 		// each(scripts, scriptToLoad => {
 		for (let i = 0; i < scripts.length; i++) {
 			const scriptToLoad = scripts[i];
@@ -288,12 +291,10 @@ const iframeMainCode = (p: {
 			const el = document.getElementById('external-scripts-wrapper')
 			if (el) el.appendChild(s)
 		}
-
-		// })
-
 	}
+
 	// LOAD CUSTOM TAG
-	const loadCustomTag = (url: string, innerTag: string, opts:any) => {
+	const loadCustomTag = (url: string, innerTag: string, opts: any) => {
 		const { div, updateContent } = api.utils.createDiv();
 
 		api.utils.loadScripts([url],
@@ -319,15 +320,11 @@ const iframeMainCode = (p: {
 			!apiArguments || !apiName ||
 			apiArguments.constructor !== Array || typeof apiName !== 'string'
 		) return sendError(`Call Api : ${apiName} => wrong arguments type / number(${JSON.stringify({ apiName, apiArguments, cb })})`)
-
-
-		const reqId = `iframe - api - call - ${p.generateUUID()} `
-
+		const reqId = `iframe-api-call-${p.generateUUID()} `
 		// listen for answer
 		subscribeOnce(reqId, res => {
 			if (cb) cb(res)
 		})
-
 		// send request
 		const apiData: iIframeData['apiCall'] = { reqId, apiName, apiArguments }
 		sendToParent({ action: 'apiCall', data: apiData })
@@ -372,17 +369,12 @@ const iframeMainCode = (p: {
 		},
 	})
 
+	return api
 }
 
 // END OF RESTRICTED JS IFRAME ENVIRONMENT
 ///////////////////////////////////////////////////////////////////////// 
 ///////////////////////////////////////////////////////////////////////// 
-
-
-
-
-
-
 
 
 
