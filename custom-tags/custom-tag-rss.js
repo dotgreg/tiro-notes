@@ -29,40 +29,70 @@ const rssApp = (innerTagStr, opts) => {
 						const feedsArr = getFeeds(feedsStr)
 						const urlApi = opts.rssToJsonUrl
 						let resItems = []
+						let count = 0
 						for(let i = 0; i < feedsArr.length; i++) {
 								fetch(`${urlApi}${feedsArr[i].url}`)
-										.then(response => response.json())
+										.then(response => {
+												return response.json()
+										})
 										.then(data => {
-												const nitems = [...data.items]
-												for(let j = 0; j < nitems.length; j++) { 
-														nitems[j].sourceRss = feedsArr[i].name
-														const timestamp = Date.parse(nitems[j].pubDate)
-														const d = new Date(timestamp)
-														//const datestring = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
-														const datestring = d.getDate()  + "/" + (d.getMonth()+1) + " " + d.getHours() + ":" + d.getMinutes();
+												count = count + 1
+												console.log(h,"1 debug els",feedsArr[i].url, data, count, feedsArr.length ) 
 
-														nitems[j].timestamp = timestamp
-														nitems[j].smallDate = datestring
-														resItems.push(nitems[j])
+												if (Array.isArray(data.items)) {
+														const nitems = [...data.items]
+														for(let j = 0; j < nitems.length; j++) { 
+																nitems[j].sourceRss = feedsArr[i].name
+																const timestamp = Date.parse(nitems[j].pubDate)
+																const d = new Date(timestamp)
+																//const datestring = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
+																const datestring = d.getDate()  + "/" + (d.getMonth()+1) + " " + d.getHours() + ":" + d.getMinutes();
+
+																nitems[j].timestamp = timestamp
+																nitems[j].smallDate = datestring
+																resItems.push(nitems[j])
+														}
 												}
-												if (i === feedsArr.length - 1) { 
+												if (count === feedsArr.length) { 
 														// sort items by time
 														console.log(h,"2: outputting elements taken from api") 
 														resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 														cb(resItems)
 												}
+
 										}); 
 						}
 				}
 
 				const c = React.createElement;
 				const ArticleDetail = (p) => {
+						const [type, setType] = React.useState("text")
+						
 						React.useEffect(() => {
+								// for mp3/podcasts
+								if (
+										p.article.enclosure.type &&
+												p.article.enclosure.type.includes("audio")
+								) setType("audio")
 						}, [p.article])
+
+
+						const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
+						const cColor = bgColors[Math.floor(Math.random()*bgColors.length)];
+						const bgImage = p.article.thumbnail || p.article.enclosure.link
+
+
 						return (
 								c('div', { className:"article-details-wrapper" }, [ 
 										c('div', { className:"article-close", onClick: () => { p.onClose()} }, [ "x" ]),
-										c('h3', { className:"article-title" }, [ p.article.title ]),
+										c('div', { className:"article-title" }, [ p.article.title ]),
+										c('div', {
+												className:"bg-image", 
+												style: {
+														backgroundImage: "url(" + bgImage + ")",
+														backgroundColor: cColor
+												}
+										}),
 										c('div', {className:"article-content-wrapper"  }, [ 
 												c('div', { className:"article-time" }, [ 
 														p.article.pubDate + " - " + p.article.sourceRss 
@@ -76,13 +106,18 @@ const rssApp = (innerTagStr, opts) => {
 														className:"article-description",
 														dangerouslySetInnerHTML:{ __html: p.article.content }
 												}),
-												c('div', {
-														className:"bg-image", 
-														src: p.article.enclosure.link,
-														style: {backgroundImage: "url(" + p.article.enclosure.link + ")" }
-												}),
 										]),
-										c('a', { className:"article-link", href:p.article.link, target:"_blank" }, [ "link" ]),
+										type !== "audio" && c('a', { className:"article-link", href:p.article.link, target:"_blank" }, [ "link" ]),
+										type === "audio" &&
+												c('div', { className:"audio-wrapper",}, [
+														c('audio', { controls:"true" }, [
+																c('source', {
+																		src:p.article.enclosure.link,
+																		type:p.article.enclosure.type
+																})
+														]),
+														c('a', { className:"article-link", href:p.article.enclosure.link, target:"_blank" }, [ "audio file" ]),
+												])
 								])
 						)
 				};
@@ -175,6 +210,8 @@ const rssApp = (innerTagStr, opts) => {
 	.article-title {
 		position: relative;
 		z-index: 1;
+    font-size: 16px;
+    font-weight: bold;
 		background: white;
 		padding: 10px;
 		margin-top: 80px;
@@ -189,6 +226,9 @@ const rssApp = (innerTagStr, opts) => {
 	}
 	.article-content-wrapper {
 			padding-top: 16px;
+				background: white;
+				position: relative;
+				padding: 18px;
 	}
 	.article-content-wrapper img { 
 			height: auto;
