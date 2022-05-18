@@ -14,6 +14,5 @@ export const getServerIp = (): string[] => {
 			}
 		}
 	}
-	console.log(results);
 	return resultsFlat
 }
