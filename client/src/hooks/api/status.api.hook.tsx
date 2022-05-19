@@ -1,10 +1,12 @@
+import { each } from "lodash"
 import { useState } from "react"
 
 export interface iStatusApi {
 	isConnected: boolean,
-	ipServer: {
+	ipsServer: {
 		get: string[]
 		set: (nIps: string[]) => void
+		getLocal: () => string
 	}
 	searching: {
 		get: boolean
@@ -27,12 +29,19 @@ export const useStatusApi = (p: {
 
 
 	const [isSearching, setIsSearching] = useState(false)
-	const [ipServer, setIpServer] = useState<string[]>([])
+	const [ipsServer, setIpsServer] = useState<string[]>([])
+	const getLocalIpServer = () => {
+		let res = ipsServer[0]
+		each(ipsServer, ip => {
+			if (ip.startsWith('192.168')) res = ip
+		})
+		return res
+	}
 
 	return {
 		isConnected: p.isConnected,
 		searching: { get: isSearching, set: setIsSearching },
-		ipServer: { get: ipServer, set: setIpServer },
+		ipsServer: { get: ipsServer, set: setIpsServer, getLocal: getLocalIpServer },
 		refresh: {
 			...p.refresh,
 			increment: () => { p.refresh.set(p.refresh.get + 1) }

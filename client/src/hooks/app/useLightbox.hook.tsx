@@ -1,8 +1,9 @@
+import { each, isString } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
-import { iFileImage } from '../../../../shared/types.shared';
+import { iFile, iFileImage } from '../../../../shared/types.shared';
 
 export interface iLightboxApi {
-	open: (index: number, images: iFileImage[]) => void
+	open: (index: number, images: iFileImage[] | string[]) => void
 	close: () => void
 }
 
@@ -13,7 +14,23 @@ export const useLightbox = () => {
 
 	const openLightbox: iLightboxApi['open'] = (index, images) => {
 		console.log(`[LIGHTBOX] open ${images.length} images to index ${index}`, { images });
-		setLightboxImages(images)
+		const imgsRes: iFileImage[] = []
+
+		// if imgs are just string, generate a empty fileImage object around it
+		each(images, img => {
+			if (isString(img)) {
+				const nImg: iFileImage = {
+					file: generateEmptyiFile(),
+					title: '',
+					url: img
+				}
+				imgsRes.push(nImg)
+			} else {
+				imgsRes.push(img as iFileImage)
+			}
+		})
+
+		setLightboxImages(imgsRes)
 		setLigthboxIndex(index)
 	}
 	const closeLightbox: iLightboxApi['close'] = () => {
@@ -32,4 +49,14 @@ export const useLightbox = () => {
 	}
 
 
+}
+
+export const generateEmptyiFile = (): iFile => {
+	return {
+		nature: 'file',
+		name: '',
+		realname: '',
+		path: '',
+		folder: '',
+	}
 }

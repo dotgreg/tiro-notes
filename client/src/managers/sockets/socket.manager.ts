@@ -23,8 +23,8 @@ export const getBackendUrl = () => {
 
 export interface iServerSocketConfig {
 	socket: SocketIOClient.Socket
-	ipServer: string[],
-		socketManager: ClientSocketManager<iApiDictionary>
+	ipsServer: string[],
+	socketManager: ClientSocketManager<iApiDictionary>
 }
 export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 	return new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 			if (!data.isRgGood) alert(strings.rgNotWorking);
 			resolve({
 				socket: clientSocket,
-				ipServer: data.ipServer,
+				ipsServer: data.ipsServer,
 				socketManager: clientSocket2
 			})
 		})

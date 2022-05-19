@@ -19,6 +19,7 @@ type ConfigField = {
 	var: any,
 	title: string,
 	modifier: Function
+	onCustomHtmlClick?: Function
 	expl?: string
 	readOnly?: boolean
 	customHtml?: string
@@ -51,8 +52,8 @@ export const SettingsPopup = (p: {
 	if (api) {
 		const us = api.userSettings
 		const currProtocol = `${window.location.protocol}//`
-		const tiroUrl = `${currProtocol}${api.status.ipServer.get[0]}${configClient.global.port}`
-		const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${tiroUrl}`
+		const tiroUrl = `${currProtocol}${api.status.ipsServer.getLocal()}${configClient.global.port}`
+		const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=50&data=${tiroUrl}`
 		conf = [
 			{
 				title: "Devices",
@@ -60,11 +61,22 @@ export const SettingsPopup = (p: {
 					{
 						type: 'text',
 						var: tiroUrl,
-						customHtml: `<div class="qrcode-wrapper"><img src="${qrcodeUrl}"/></div>`,
+						customHtml: `
+<div class="qrcode-wrapper">
+<img src="${qrcodeUrl}"/>
+<br>
+</div>`,
 						title: "Tiro Url",
 						readOnly: true,
-						expl: "Access Tiro on another device on the same wifi/local network by entering that url in a browser",
-						modifier: setBackendPort,
+						expl: `Access Tiro on another device on the <b>same wifi/local network</b> either by :
+<br>
+- Entering that url in a browser
+<br>
+- Scanning that qrcode (on desktop, go to a website like <a href='https://webqr.com/'>webqr.com </a>)`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							api.ui.lightbox.open(0, [qrcodeUrl])
+						}
 					},
 				],
 			},
@@ -143,6 +155,7 @@ export const SettingsPopup = (p: {
 													field.customHtml &&
 													<div
 														className="custom-html-wrapper"
+														onClick={e => { field.onCustomHtmlClick && field.onCustomHtmlClick() }}
 														dangerouslySetInnerHTML={{
 															__html: field.customHtml
 														}}
@@ -150,7 +163,12 @@ export const SettingsPopup = (p: {
 												}
 											</div>
 
-											<div className="explanation">{field.expl}</div>
+											<div
+												className="explanation"
+												dangerouslySetInnerHTML={{
+													__html: field.expl || ""
+												}}
+											></div>
 										</div>
 									)
 								}
@@ -159,7 +177,7 @@ export const SettingsPopup = (p: {
 						</div>
 					)
 				}
-			</Popup>
+			</Popup >
 		</div >
 	)
 }
@@ -218,6 +236,7 @@ export const settingsPopupCss = () => `
 						padding-bottom: 11px;
 						align-items: center;
 						.input-and-html-wrapper {
+								width: 50%;
 								display: flex;
 								.input-component {
 										flex: 1;
@@ -230,9 +249,11 @@ export const settingsPopupCss = () => `
 										margin-left: 20px;
 										.qrcode-wrapper {
 												img {
+														margin: 5px 25px 0px 0px;
+														cursor: pointer;
 														width: 50px;
 														&:hover {
-																width: 150px;
+																//	width: 150px;
 														}
 												}
 										}

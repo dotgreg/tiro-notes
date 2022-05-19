@@ -101,7 +101,7 @@ export const useBrowserApi = (p: {
 					// sort them
 					const sortMode = p.userSettingsApi.get('ui_filesList_sortMode')
 					const nfilesSorted = sortFiles(nfiles, sortMode)
-					let activeIndex = 0
+					let activeIndex = -1
 
 					// if search for a file title 
 					if (fileTitle) {

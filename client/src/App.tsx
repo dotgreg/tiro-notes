@@ -47,7 +47,7 @@ export const App = () => {
 
 		initSocketConnexion().then(serverSocketConfig => {
 			toggleSocketConnection(true)
-			api && api.status.ipServer.set(serverSocketConfig.ipServer)
+			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
 			askForFolderScan(openFolders)
 		})
 

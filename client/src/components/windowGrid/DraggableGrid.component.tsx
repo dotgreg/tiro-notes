@@ -5,7 +5,7 @@ import '../../../node_modules/react-grid-layout/css/styles.css'
 import '../../../node_modules/react-resizable/css/styles.css'
 import { iFile, iGrid, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { increment } from '../../../../shared/helpers/number.helper';
-import { addNewWindowConfig } from '../../hooks/app/tabs.hook';
+import { addNewWindowConfig, iWindowLayoutAndContent } from '../../hooks/app/tabs.hook';
 import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
@@ -245,15 +245,30 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 	}
 
 	const api = useContext(ClientApiContext)
-	const refresh = api?.status.refresh.get
+	// const refresh = api?.status.refresh.get
+	const [mobileWindow, setMobileWindow] = useState<iWindowLayoutAndContent | null>(null)
 	useEffect(() => {
-		// make first window active if mobile
-		if (deviceType() === 'mobile' && intLayout[0]) {
-			const wid = intLayout[0].i
-			makeWindowActive(wid, intContent[0].file);
+		// make mobile window
+		if (deviceType() === 'mobile') {
+			const activeWindow = api?.ui.windows.active.get()
+			// either the active one
+			if (activeWindow) setMobileWindow(activeWindow)
+			// the first one, then make that one active
+			else {
+				const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
+				if (first.layout && first.content && first.layout.i === first.content.i) {
+					setMobileWindow(first)
+					makeWindowActive(first.content.i)
+				}
+			}
 		}
-	}, [refresh])
+	}, [p.refresh])
 
+
+	// const mobileWindowdow:  = {
+	// 	layout: activeWindow?.layout,
+	// 	content: activeWindow?.content
+	// }
 
 	const WindowTools = (window, i) => {
 		return (//jsx
@@ -341,10 +356,25 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 					<div className="mobile-grid-view">
 						<div className=" window-wrapper">
 							<div className="note-wrapper">
-								<WindowEditor
-									content={p.grid.content[0] && p.grid.content[0]}
-									onViewChange={(nView) => { viewTypeChange(nView, 0) }}
-								/>
+								111
+								{
+									mobileWindow && mobileWindow.content.i
+								}
+								222
+								{
+									mobileWindow && mobileWindow.layout.i
+								}
+								333
+								{
+									api?.ui.windows.active.get()?.content.file?.name
+								}
+								444
+								{mobileWindow &&
+									<WindowEditor
+										content={mobileWindow.content}
+										onViewChange={(nView) => { viewTypeChange(nView, 0) }}
+									/>
+								}
 							</div>
 						</div>
 					</div>

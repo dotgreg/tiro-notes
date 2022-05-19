@@ -26,11 +26,12 @@ export type iWindowsApi = {
 	updateWindows: (windowIds: string[], file: iFile) => void
 	getIdsFromFile: (filepath: string) => string[]
 	active: {
-		get: (tab: iTab) => { layout: iWindow, content: iWindowContent } | null
+		get: (tab?: iTab) => iWindowLayoutAndContent | null
 		setContent: (file: iFile) => void
 	}
 }
 
+export interface iWindowLayoutAndContent { layout: iWindow, content: iWindowContent }
 
 export const addNewWindowConfig = (p: {
 	file: iFile,
@@ -245,6 +246,14 @@ export const useTabs = () => {
 
 
 	const getActiveWindow: iWindowsApi['active']['get'] = tab => {
+		if (!tab) {
+			// get active tab
+			const nTabs = cloneDeep(tabs)
+			const aId = getActiveTabIndex(nTabs)
+			if (!isNumber(aId)) return
+			tab = nTabs[aId]
+		}
+
 		if (!tab.grid.layout[0]) return
 		const g = tab.grid
 		let res
@@ -261,12 +270,15 @@ export const useTabs = () => {
 		const nTabs = cloneDeep(tabs)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
+
 		// get active window, if none, select first one
 		const aTab = nTabs[aId]
 		const aContent = aTab.grid.content
 		if (aContent.length < 1) return
 		let aWindowIndex = 0
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+
+		console.log(h2, "4455", aContent[aWindowIndex].i, aWindowIndex);
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name only if tab name not manually edited
