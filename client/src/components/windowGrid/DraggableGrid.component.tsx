@@ -356,19 +356,6 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 					<div className="mobile-grid-view">
 						<div className=" window-wrapper">
 							<div className="note-wrapper">
-								111
-								{
-									mobileWindow && mobileWindow.content.i
-								}
-								222
-								{
-									mobileWindow && mobileWindow.layout.i
-								}
-								333
-								{
-									api?.ui.windows.active.get()?.content.file?.name
-								}
-								444
 								{mobileWindow &&
 									<WindowEditor
 										content={mobileWindow.content}
