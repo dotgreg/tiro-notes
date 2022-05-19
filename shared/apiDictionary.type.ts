@@ -6,7 +6,7 @@ export interface iApiDictionary {
 	disconnect: {}
 	connect: {}
 	reconnect: {}
-	connectionSuccess: { isRgGood: boolean, ipServer: string[] }
+	connectionSuccess: { isRgGood: boolean, ipsServer: string[] }
 
 	askForFiles: { folderPath: string, token: string, idReq: string }
 	getFiles: { files: iFile[], temporaryResults?: boolean, initialResults?: boolean, idReq: string }
@@ -15,7 +15,7 @@ export interface iApiDictionary {
 	getImages: { images: iFileImage[] }
 
 	askForFileContent: { filePath: string, idReq: string }
-	getFileContent: { fileContent: string, filePath: string, idReq: string, error?:string }
+	getFileContent: { fileContent: string, filePath: string, idReq: string, error?: string }
 
 	saveFileContent: { filePath: string, newFileContent: string }
 
@@ -40,8 +40,8 @@ export interface iApiDictionary {
 	askFilesPreview: { filesPath: string[], idReq: string }
 	getFilesPreview: { filesPreview: iFilePreview[], idReq: string }
 
-	askFoldersScan: { foldersPaths: string[], idReq: string}
-	getFoldersScan: { folders: iFolder[], pathBase: string, idReq:string }
+	askFoldersScan: { foldersPaths: string[], idReq: string }
+	getFoldersScan: { folders: iFolder[], pathBase: string, idReq: string }
 
 	askFolderCreate: { newFolderName: string, parent: iFolder }
 	askFolderDelete: { folderToDelete: iFolder }

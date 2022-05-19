@@ -1,4 +1,6 @@
-export const getServerIp = (): string[] => {
+import { each } from "lodash";
+
+export const getServerIps = (): string[] => {
 	const { networkInterfaces } = require('os');
 	const nets = networkInterfaces();
 	const results = Object.create(null);
@@ -14,5 +16,7 @@ export const getServerIp = (): string[] => {
 			}
 		}
 	}
+
+	console.log(`[IP SCAN] => `, resultsFlat);
 	return resultsFlat
 }
