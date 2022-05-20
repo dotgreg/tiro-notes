@@ -16,9 +16,42 @@ import { iSearchApi, useSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
-import * as t from 'io-ts'
+import { z } from "zod";
 
 
+const User = z.object({
+	username: z.string()
+});
+export type iUser = z.infer<typeof User>
+
+const myFunction = z
+	.function()
+	.args(z.string(), z.number()) // accepts an arbitrary number of arguments
+	.returns(z.boolean());
+
+//@ts-ignore
+window.myfun = myFunction
+type myFunction = z.infer<typeof myFunction>;
+console.log(122222333, User, myFunction, JSON.stringify(myFunction.returnType()), myFunction.returnType()._def.typeName);
+// en gros je peux creer des types et objets
+// en deduire des types
+// et je peux generer une docuentation
+
+const nestedObj = z.object({
+	prop1: z.number(),
+	prop2: z.string(),
+})
+const myBiggerObject = z.object({
+	user: z.string(),
+	age: z.number().optional(),
+	fun: myFunction,
+	nested: nestedObj
+})
+
+//@ts-ignore
+window.test2 = myBiggerObject
+
+console.log(122222333, myBiggerObject, JSON.stringify(myBiggerObject));
 
 
 
@@ -176,14 +209,13 @@ export const useClientApi = (p: {
 }
 
 
-const User1 = t.type({
-	userId: t.number,
-	name: t.string
-})
-
-// const f2 = t.Function({
+// const User1 = t.type({
+// 	userId: t.number,
+// 	name: t.string
 // })
-
+// const f2 = t.interface({
+// 	set: t.FunctionType((hello: t.string, world: t.number) => t.string)
+// })
 
 /*
 const api = useContext(ClientApiContext)
@@ -287,6 +319,7 @@ const printObjProps = (pre: string, obj: any) => {
 
 
 	})
+	// console.log(123333, arrRes, User1, f2);
 
 	return res
 }
