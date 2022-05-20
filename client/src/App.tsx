@@ -282,7 +282,7 @@ export const App = () => {
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
 
-					<Global styles={GlobalCssApp} />
+			<Global styles={GlobalCssApp()} />
 					<div role="dialog" className={`
 								main-wrapper
 								${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}

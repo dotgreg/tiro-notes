@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-									 import { deviceType, MobileView, DeviceType } from '../device.manager';
+import { deviceType, MobileView, DeviceType } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -36,10 +36,10 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
-		mobileView: MobileView,
-		refreshCss: number
+	mobileView: MobileView,
+	refreshCss: number
 ) => {
-		const cssString = `//css
+	const cssString = `//css
 		.content-image {
 				width: 90%;
 		}
@@ -157,10 +157,10 @@ export const CssApp2 = (
 
 						.left-wrapper-1 {
 								overflow: hidden;
-								background-color: ${colors.l1.bg}; 
 								background-image: url('${cssVars.assets.decoBgMap}');
+								background: ${cssVars.colors.bgInterface2};
 								background-blend-mode: color-burn;
-								color: ${colors.l1.font};
+								color: ${cssVars.colors.fontInterface2};
 								width: ${sizes.desktop.l1}%;
 								height:100vh;
 								position: relative;
@@ -188,7 +188,7 @@ export const CssApp2 = (
 								width: ${sizes.desktop.l2}%;
 								height:100vh;
 								overflow: hidden;
-								background: #efefef;
+								background: ${cssVars.colors.bgInterface};
 
 
 
@@ -451,5 +451,5 @@ export const CssApp2 = (
 
 `//css
 
-return css`${cssString}`
+	return css`${cssString}`
 }

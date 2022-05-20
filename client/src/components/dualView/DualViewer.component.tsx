@@ -79,7 +79,11 @@ export const DualViewer = (p: {
 				isActive={p.isActive}
 
 				posY={syncScrollY}
-				onScroll={newYPercent => { }}
+				onScroll={newY => { }}
+				onUpdateY={newY => {
+					console.log(1212222, newY, syncScrollY);
+					setPosY(newY)
+				}}
 				onMaxYUpdate={updateMaxY}
 
 				onFileEdited={(path, content) => {

@@ -52,7 +52,7 @@ export const PopupWrapperCss = () => `
         width : auto;
         max-width: 90%;
         transform:translate(-50%,-50%);
-        background: white;
+				background: ${cssVars.colors.bgPopup};
         border-radius:6px;
         box-shadow: 0px 0px 5px rgba(0,0,0,.2);
         .popupTitle {

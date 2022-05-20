@@ -3,7 +3,7 @@ import { Global, css } from '@emotion/react'
 import { printCss } from "./print.style.manager";
 import { cssVars } from "./vars.style.manager";
 
-export const GlobalCssApp = css`
+export const GlobalCssApp = () => css`
 * {
   -webkit-print-color-adjust: exact !important; 
   color-adjust: exact !important;             
@@ -22,7 +22,7 @@ body {
 html, body {
   height: 100vh;
   overflow:hidden;
-	background: #efefef;
+background: ${cssVars.colors.bgInterface};
 }
 
 button,
