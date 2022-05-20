@@ -8,6 +8,7 @@ import { ClientApiContext } from '../../hooks/api/api.hook';
 import { useBackendState } from '../../hooks/useBackendState.hook';
 import { cloneDeep, debounce, each } from 'lodash';
 import { configClient } from '../../config';
+import { cssVars } from '../../managers/style/vars.style.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -62,17 +63,17 @@ export const SettingsPopup = (p: {
 						type: 'text',
 						var: tiroUrl,
 						customHtml: `
-<div class="qrcode-wrapper">
-<img src="${qrcodeUrl}"/>
-<br>
-</div>`,
+																				<div class="qrcode-wrapper">
+																				<img src="${qrcodeUrl}"/>
+																				<br>
+																				</div>`,
 						title: "Tiro Url",
 						readOnly: true,
 						expl: `Access Tiro on another device on the <b>same wifi/local network</b> either by :
-<br>
-- Entering that url in a browser
-<br>
-- Scanning that qrcode (on desktop, go to a website like <a href='https://webqr.com/'>webqr.com </a>)`,
+												<br>
+												 - Entering that url in a browser
+												 <br>
+												 - Scanning that qrcode (on desktop, go to a website like <a href='https://webqr.com/'>webqr.com </a>)`,
 						modifier: () => { },
 						onCustomHtmlClick: () => {
 							api.ui.lightbox.open(0, [qrcodeUrl])
@@ -226,9 +227,9 @@ export const settingsPopupCss = () => `
 						display: block;
 						display: block;
 						padding: 12px 12px 0px 12px;
-						background: #f9f9f9;
+						background: ${cssVars.colors.bgPopup2};
 						border-radius: 5px;
-						border: 1px #f5efef solid;
+						border: 1px ${cssVars.colors.bgPopup3} solid;
 						margin-top: 10px;
 				}
 				.field-wrapper {

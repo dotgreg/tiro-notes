@@ -7,144 +7,144 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
 export const TabList = (p: {
-	tabs: iTab[]
-	onUpdate: onTabUpdateFn
-}) => {
+				tabs: iTab[]
+							onUpdate: onTabUpdateFn
+		}) => {
 
-	const api = useContext(ClientApiContext);
+		const api = useContext(ClientApiContext);
 
-	const [dragId, setDragId] = useState(-1)
+		const [dragId, setDragId] = useState(-1)
 
-	return (
-		<div className="tab-list-scroll-wrapper">
-			<div className="tab-list-invisible-scroll">
+		return (
+				<div className="tab-list-scroll-wrapper">
+				<div className="tab-list-invisible-scroll">
 				<div className="tab-list-wrapper">
-					{/* ALL TABS LIST*/}
-					{p.tabs.map((tab, i) =>
-						<Tab
-							key={i}
-							tab={tab}
+				{/* ALL TABS LIST*/}
+				{p.tabs.map((tab, i) =>
+										<Tab
+										key={i}
+										tab={tab}
 
 
-							onDrop={pos => { setDragId(pos) }}
-							onDragEnter={pos => { setDragId(pos) }}
-							onDragEnd={pos => {
-								api && api.tabs.reorder(pos, dragId)
-								setDragId(-1)
-							}}
-							showDragIndic={dragId === i}
-							pos={i}
+										onDrop={pos => { setDragId(pos) }}
+										onDragEnter={pos => { setDragId(pos) }}
+										onDragEnd={pos => {
+																			api && api.tabs.reorder(pos, dragId)
+																			setDragId(-1)
+																	}}
+										showDragIndic={dragId === i}
+										pos={i}
 
-							onUpdate={p.onUpdate}
-						/>
-					)}
+										onUpdate={p.onUpdate}
+										/>
+)}
 
-					{/* ADD NEW TAB BUTTON*/}
-					{api?.ui.browser.files.active.get &&
+				{/* ADD NEW TAB BUTTON*/}
+				{api?.ui.browser.files.active.get &&
 
-						<div
-							className="tab-wrapper tab-more"
-							onClick={e => {
-								p.onUpdate('add')
-							}}
-						>
-							+
-						</div>
-					}
+				 <div
+				 className="tab-wrapper tab-more"
+				 onClick={e => {
+												 p.onUpdate('add')
+										 }}
+				 >
+				 +
+				 </div>
+				}
 
 				</div>
-			</div>
-		</div>
-	)
+				</div>
+				</div>
+		)
 
 }
 
 
 const Tab = (p: {
-	tab: iTab
-	onUpdate: onTabUpdateFn
+				tab: iTab
+						 onUpdate: onTabUpdateFn
 
-	onDragEnter: Function
-	onDragEnd: Function
-	onDrop: Function
+											 onDragEnter: Function
+																		onDragEnd: Function
+																							 onDrop: Function
 
-	pos: number
-	showDragIndic: boolean
-}) => {
-	const { tab, pos } = { ...p }
+																											 pos: number
+																														showDragIndic: boolean
+		}) => {
+		const { tab, pos } = { ...p }
 
-	let iconName = `Six`
-	const nbLay = tab.grid.layout.length
-	if (nbLay === 2) iconName = 'Two'
-	if (nbLay === 3) iconName = 'Three'
-	if (nbLay === 4) iconName = 'Four'
-	if (nbLay === 5) iconName = 'Five'
-	iconName = `faDice${iconName}`
+		let iconName = `Six`
+		const nbLay = tab.grid.layout.length
+		if (nbLay === 2) iconName = 'Two'
+		if (nbLay === 3) iconName = 'Three'
+		if (nbLay === 4) iconName = 'Four'
+		if (nbLay === 5) iconName = 'Five'
+		iconName = `faDice${iconName}`
 
 
 
-	return (//jsx
-		<div className="tab-and-drag-wrapper">
-			{
+		return (//jsx
+						<div className="tab-and-drag-wrapper">
+		{
 				p.showDragIndic && <div className="drag-indic">
-					{/* <Icon name="faPlusCircle" color={`#b2b2b2`} />*/}
-					▼
+				{/* <Icon name="faPlusCircle" color={`#b2b2b2`} />*/}
+				▼
 				</div>
-			}
-			<div
-				className={`tab-wrapper ${tab.active ? 'active' : ''}`}
-				draggable={true}
-				onDragEnter={() => { p.onDragEnter(pos) }}
-				onDrop={() => { p.onDrop(pos) }}
-				onDragEnd={() => { p.onDragEnd(pos) }}
-			>
+		}
+						<div
+						className={`tab-wrapper ${tab.active ? 'active' : ''}`}
+						draggable={true}
+						onDragEnter={() => { p.onDragEnter(pos) }}
+						onDrop={() => { p.onDrop(pos) }}
+						onDragEnd={() => { p.onDragEnd(pos) }}
+						>
 
-				<div className="active-ribbon"></div>
-				<div className="tab-name"
-					onClick={() => { p.onUpdate('activate', tab) }}
-				>
-
-					{deviceType() !== 'mobile' &&
-						< input
-							type="text"
-							className="tab-input-text"
-							value={tab.name}
-							onChange={e => {
-								p.onUpdate('rename', tab, e.target.value)
-							}}
-						/>
-					}
-					{deviceType() === 'mobile' &&
-						<>{tab.name}</>
-					}
-
-
-				</div>
-
-
-				{
-					tab.grid.layout.length > 1 &&
-					<div
-						className="tab-nb-windows"
+						<div className="active-ribbon"></div>
+						<div className="tab-name"
 						onClick={() => { p.onUpdate('activate', tab) }}
-					>
-						<Icon name={iconName} color={`#b2b2b2`} />
-					</div>
-				}
+						>
 
-				< div className="tab-close"
-					onClick={() => p.onUpdate('close', tab)}>
-					<Icon name="faPlus" color={`#b2b2b2`} />
-				</div>
-			</div >
-		</div >
-	)//jsx
+						{deviceType() !== 'mobile' &&
+						 < input
+						 type="text"
+						 className="tab-input-text"
+						 value={tab.name}
+						 onChange={e => {
+															p.onUpdate('rename', tab, e.target.value)
+													}}
+						 />
+						}
+						{deviceType() === 'mobile' &&
+						 <>{tab.name}</>
+						}
+
+
+						</div>
+
+
+						{
+								tab.grid.layout.length > 1 &&
+								<div
+								className="tab-nb-windows"
+								onClick={() => { p.onUpdate('activate', tab) }}
+								>
+								<Icon name={iconName} color={`#b2b2b2`} />
+																												</div>
+						}
+
+						< div className="tab-close"
+						onClick={() => p.onUpdate('close', tab)}>
+						<Icon name="faPlus" color={`#b2b2b2`} />
+																									</div>
+																									</div >
+																									</div >
+)//jsx
 }
 
 export const tabsCss = () => `
 .tab-list-scroll-wrapper {
 		height: 44px;
-		background: #D8D8D8;
+		background: ${cssVars.colors.bgTabs};
     border-radius: 0px 0px 0px 5px;
 		overflow: hidden;
 		.tab-list-invisible-scroll {
@@ -154,7 +154,7 @@ export const tabsCss = () => `
 				.tab-list-wrapper {
 						padding: 7px 0px 0px 13px;
 						display: flex;
-						background: #D8D8D8;
+						background: ${cssVars.colors.bgTabs};
 						border-radius: 0px 0px 0px 5px;
 						position: relative;
 						&>div:last-child {
@@ -179,9 +179,9 @@ export const tabsCss = () => `
 								display:flex;
 								margin-right: 5px;
 								padding: 5px;
-								background: #D0D0D0;
+								background: ${cssVars.colors.bgTab};
 								display: flex;
-								color: ${cssVars.colors.grey1};
+								color: ${cssVars.colors.fontTab};
 								font-family: ${cssVars.font.editor};
 								height: 35px;
 								box-shadow:rgb(0 0 0 / 20%) 0px -1px 2px ;
@@ -206,7 +206,7 @@ export const tabsCss = () => `
 												background: ${cssVars.colors.main};
 										}
 
-										background: #EFEFEF;
+										background: ${cssVars.colors.bgTabActive};
 										font-weight: bold
 								}
 								&.tab-more {
@@ -225,12 +225,11 @@ export const tabsCss = () => `
 										padding: 10px 0px 10px 10px;
 
 										input {
-												color: #aaaaaa;
+												color:${cssVars.colors.fontTab} ;
 												font-size: 11px;
 												background: none;
 												border: none;
 												font-weight: 400;
-												color: ${cssVars.colors.grey1};
 												font-family: ${cssVars.font.editor};
 										}
 

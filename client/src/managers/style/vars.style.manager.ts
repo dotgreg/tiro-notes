@@ -23,12 +23,59 @@ import searchIcon from '../../assets/search-solid.svg'
 import { css } from "@emotion/react"
 
 const colors = {
+	// controlable vars
 	main: '#E86666',
+
+	// // light
+
+	bgPopup: '#FFF',
+	bgPopup2: '#f9f9f9',
+	bgPopup3: '#f5efef',
+	//--
+	bgTabs: '#D8D8D8',
+	bgTab: '#D0D0D0',
+	fontTab: '#797979',
+	bgTabActive: '#EFEFEF',
+	//--
+	bgInterface: '#efefef',
+	fontInterface: '#323232',
+	//--
+	bgInterface2: '#e1e1e1',
+	fontInterface2: '#323232',
+	//--
+	bgEditor: '#FFFFFF',
+	bgPreview: '#F7F7F7',
+	fontEditor: '#323232',
+
+
+
+	// // dark
+	// bgPopup: '#414141',
+	// bgPopup2: '#232323',
+	// bgPopup3: '#575757',
+	// //--
+	// bgTabs: '#000',
+	// bgTab: '#1a1a1a',
+	// fontTab: '#797979',
+	// bgTabActive: '#242424',
+	// //--
+	// bgInterface2: '#242424',
+	// fontInterface2: '#FFF',
+	// //--
+	// bgInterface: '#222222',
+	// fontInterface: '#FFF',
+	// //--
+	// bgEditor: '#414141',
+	// bgPreview: '#000000',
+	// fontEditor: '#FFFFFF',
+
+
+
 
 	dev: ['#C3668B', '#A766A7', '#CE66E8', '#E4E866'],
 	compl: ['#11abf8', '#3fd7a4'],
 	pal1: ['#5c1a70', '#ffa67c', '#ffda77'],
-	grey1: '#797979',
+	grey1: '#797979', // some fonts
 	grey2: 'red',
 
 	green: 'green',

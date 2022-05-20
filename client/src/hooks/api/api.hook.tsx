@@ -1,4 +1,4 @@
-import { cloneDeep, each, isNumber } from 'lodash';
+import { cloneDeep, each, isFunction, isNumber } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iIframeData } from '../../managers/iframe.manager';
@@ -16,6 +16,11 @@ import { iSearchApi, useSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
+import * as t from 'io-ts'
+
+
+
+
 
 //
 // INTERFACES
@@ -171,6 +176,14 @@ export const useClientApi = (p: {
 }
 
 
+const User1 = t.type({
+	userId: t.number,
+	name: t.string
+})
+
+// const f2 = t.Function({
+// })
+
 
 /*
 const api = useContext(ClientApiContext)
@@ -247,9 +260,36 @@ const printObjProps = (pre: string, obj: any) => {
 			res = `${res}${pre}.${key}\n`
 		}
 	}
+	const rawRes = res.split("\n")
+	const arrRes: any[] = []
+
+	getClientApi2().then(api => {
+
+		each(rawRes, call => {
+			const callArr = call.split(".")
+			let obj: any = api
+			each(callArr, (prop, i) => {
+				if (obj[prop]) obj = obj[prop]
+			})
+			let type = 'var'
+			let description = ''
+			if (isFunction(obj)) {
+				type = 'Function'
+				description = obj.toString()
+			}
+			arrRes.push({
+				name: call,
+				type,
+				description
+			})
+		})
+
+
+
+	})
+
 	return res
 }
-
 
 
 

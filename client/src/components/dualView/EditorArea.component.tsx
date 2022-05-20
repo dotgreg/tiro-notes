@@ -36,6 +36,7 @@ export const EditorArea = (p: {
 	canEdit: boolean
 
 	onScroll: onScrollFn
+	onUpdateY: onScrollFn
 	onMaxYUpdate: (maxY: number) => void
 	posY: number
 
@@ -376,6 +377,7 @@ export const EditorArea = (p: {
 						ref={monacoEditorComp}
 						onChange={triggerNoteEdition}
 						onScroll={p.onScroll}
+						onUpdateY={p.onUpdateY}
 						posY={p.posY}
 						onMaxYUpdate={p.onMaxYUpdate}
 					/>

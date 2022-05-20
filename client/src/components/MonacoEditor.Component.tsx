@@ -25,6 +25,7 @@ export class MonacoEditorWrapper extends React.Component<{
 	readOnly: boolean,
 	onChange: (text: string) => void
 	onScroll: onScrollFn
+	onUpdateY: onScrollFn
 	insertUnderCaret?: string
 	onMaxYUpdate?: Function
 }, {}> {
@@ -35,6 +36,9 @@ export class MonacoEditorWrapper extends React.Component<{
 		this.reactComp = React.createRef()
 		this.vimStatusBar = React.createRef()
 	}
+
+
+
 
 	editor: any
 	monaco: any
@@ -47,8 +51,19 @@ export class MonacoEditorWrapper extends React.Component<{
 		this.monaco = monaco
 		monacoEditorInstance = editor
 
-		editor.onDidScrollChange((e) => {
-			this.props.onScroll(e.scrollTop)
+		const updatePosY = () => {
+			const nY = editor.getScrollTop()
+			this.props.onUpdateY(nY)
+		}
+
+		// // on scroll change, update Y
+		// editor.onDidScrollChange((e) => {
+		// 	updateScrollY()
+		// });
+
+		// on scroll change, update Y
+		editor.onDidChangeCursorPosition((e) => {
+			updatePosY()
 		});
 
 
@@ -62,14 +77,13 @@ export class MonacoEditorWrapper extends React.Component<{
 		monaco.editor.defineTheme('customLightTheme', {
 			base: 'vs',
 			inherit: true,
-			rules: [{ foreground: cssVars.colors.editor.font }],
+			rules: [{ foreground: cssVars.colors.fontEditor }],
 			colors: {
 				// 'editor.foreground': cssVars.colors.font.light,
 				// 'editor.background': cssVars.colors.bg.black,
 				// 'editor.foreground': ''cssVars.colors.editor.font'',
 				// 'editor.background': cssVars.colors.bg.light,
-				'editor.foreground': 'red',
-				// 'editor.background': 'red',
+				'editor.background': cssVars.colors.bgEditor,
 			}
 		});
 

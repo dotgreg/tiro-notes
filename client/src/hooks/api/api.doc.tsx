@@ -33,7 +33,7 @@ type ApiCalls =
  * @beta
  */
 export function call(nameApi: ApiCalls, y: number): void { // 
-	return 
+	return
 }
 
 /**
