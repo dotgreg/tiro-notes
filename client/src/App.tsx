@@ -21,7 +21,7 @@ import { SettingsPopup } from './components/settingsView/settingsView.component'
 import { useAppViewType } from './hooks/app/appView.hook';
 import { Lightbox } from './components/Lightbox.component';
 import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
-import { PopupContext, usePromptPopup } from './hooks/app/usePromptPopup.hook';
+import { usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
@@ -282,7 +282,7 @@ export const App = () => {
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
 
-			<Global styles={GlobalCssApp()} />
+					<Global styles={GlobalCssApp()} />
 					<div role="dialog" className={`
 								main-wrapper
 								${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
