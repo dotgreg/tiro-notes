@@ -32,7 +32,7 @@ const myFunction = z
 //@ts-ignore
 window.myfun = myFunction
 type myFunction = z.infer<typeof myFunction>;
-console.log(122222333, User, myFunction, JSON.stringify(myFunction.returnType()), myFunction.returnType()._def.typeName);
+// console.log(122222333, User, myFunction, JSON.stringify(myFunction.returnType()), myFunction.returnType()._def.typeName);
 // en gros je peux creer des types et objets
 // en deduire des types
 // et je peux generer une docuentation
@@ -51,7 +51,8 @@ const myBiggerObject = z.object({
 //@ts-ignore
 window.test2 = myBiggerObject
 
-console.log(122222333, myBiggerObject, JSON.stringify(myBiggerObject));
+// console.log(122222333,  z.(myBiggerObject));
+// console.log(122222333, typeof myBiggerObject, JSON.stringify(myBiggerObject));
 
 
 
