@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Popup } from '../../components/Popup.component';
-import z, { Function, obj, fn, string, number, boolean } from "../../managers/types.manager";
+import { strings } from '../../managers/strings.manager';
+
 
 const liveVars: {
 	onAccept: Function,
@@ -10,42 +11,15 @@ const liveVars: {
 	onRefuse: () => { },
 }
 
-
-
-// INTERFACES
-
-const zPrompt = z.function()
-	.args(z.object({
-		text: string,
-		title: string.optional(),
-		onAccept: fn.optional(),
-		onRefuse: fn.optional()
-	}))
-	.returns(z.void())
-
-const zConfirmPopup = z.function().args(z.string({ description: "woop" }), z.number({ description: "wooop2" })).returns(z.void())
-
-// const test = z.function().args(z.string().describe("woo"))
-const test = z.function().args(z.string({}))
-type iTest = z.infer<typeof test>
-
-type iPrompt = z.infer<typeof zPrompt>
-type iConfirm = z.infer<typeof zConfirmPopup>
-
+export type iPrompt = (p: {
+	text: string,
+	title?: string,
+	onAccept?: Function,
+	onRefuse?: Function
+}) => void
 export type iConfirmPopup = (text: string, cb: Function) => void
 export type iPopupApi = { confirm: iConfirmPopup, prompt: iPrompt }
-
-// old
-// export type iPrompt = (p: {
-// 	text: string,
-// 	title?: string,
-// 	onAccept?: Function,
-// 	onRefuse?: Function
-// }) => void
-
-
-
-
+export const PopupContext = React.createContext<iPopupApi | null>(null);
 
 export const usePromptPopup = (p: {
 }) => {
