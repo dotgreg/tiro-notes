@@ -276,9 +276,9 @@ OUT9
 
 
 export const testsContentNoteContents = {
-		t1,
-		t2,
-		textNoTags,
-		textOneTag,
-		textSeveralOneTag,
+	t1,
+	t2,
+	textNoTags,
+	textOneTag,
+	textSeveralOneTag,
 }

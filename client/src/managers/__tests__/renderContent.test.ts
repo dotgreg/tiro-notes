@@ -18,7 +18,7 @@ test(`${h} : should not transform md>html inside [[script]] tags`, () => {
 	// should not include transformed chars html inside script
 	let res: any = true
 	if (
-		!r1.includes('var res = &#039;{{innerTag}}&#039;') 
+		!r1.includes('var res = &#039;{{innerTag}}&#039;')
 	) res = "script is not escaped"
 
 	if (

@@ -7,7 +7,7 @@ import { getLoginToken } from "./loginToken.manager";
 import { log } from "./log.manager";
 import { getDefaultDataFolderPath } from "./fs.manager";
 import { isRgCliWorking } from "./search/search-ripgrep.manager";
-import {  getServerIps } from "./ip.manager";
+import { getServerIps } from "./ip.manager";
 
 
 interface routeOptions {
