@@ -33,35 +33,35 @@ const rssApp = (innerTagStr, opts) => {
 						let count = 0
 						for (let i = 0; i < feedsArr.length; i++) {
 								fetch(`${urlApi}${feedsArr[i].url}`)
-								.then(response => {
-				return response.json()
-		})
-								.then(data => {
-				count = count + 1
-				console.log(h, "1 debug els", feedsArr[i].url, data, count, feedsArr.length)
+										.then(response => {
+												return response.json()
+										})
+										.then(data => {
+												count = count + 1
+												console.log(h, "1 debug els", feedsArr[i].url, data, count, feedsArr.length)
 
-				if (Array.isArray(data.items)) {
-						const nitems = [...data.items]
-						for (let j = 0; j < nitems.length; j++) {
-								nitems[j].sourceRss = feedsArr[i].name
-								const timestamp = Date.parse(nitems[j].pubDate)
-								const d = new Date(timestamp)
-								//const datestring = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
-								const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
+												if (Array.isArray(data.items)) {
+														const nitems = [...data.items]
+														for (let j = 0; j < nitems.length; j++) {
+																nitems[j].sourceRss = feedsArr[i].name
+																const timestamp = Date.parse(nitems[j].pubDate)
+																const d = new Date(timestamp)
+																//const datestring = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
+																const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
 
-								nitems[j].timestamp = timestamp
-								nitems[j].smallDate = datestring
-								resItems.push(nitems[j])
-						}
-				}
-				if (count === feedsArr.length) {
-						// sort items by time
-						console.log(h, "2: outputting elements taken from api")
-						resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
-						cb(resItems)
-				}
+																nitems[j].timestamp = timestamp
+																nitems[j].smallDate = datestring
+																resItems.push(nitems[j])
+														}
+												}
+												if (count === feedsArr.length) {
+														// sort items by time
+														console.log(h, "2: outputting elements taken from api")
+														resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
+														cb(resItems)
+												}
 
-		});
+										});
 						}
 				}
 
@@ -70,12 +70,12 @@ const rssApp = (innerTagStr, opts) => {
 						const [type, setType] = React.useState("text")
 
 						React.useEffect(() => {
-		// for mp3/podcasts
-		if (
-				p.article.enclosure.type &&
-				p.article.enclosure.type.includes("audio")
-		) setType("audio")
-}, [p.article])
+								// for mp3/podcasts
+								if (
+										p.article.enclosure.type &&
+												p.article.enclosure.type.includes("audio")
+								) setType("audio")
+						}, [p.article])
 
 
 						const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
@@ -87,74 +87,114 @@ const rssApp = (innerTagStr, opts) => {
 
 						return (
 								c('div', { className: "article-details-wrapper" }, [
-											c('div', { className: "article-close", onClick: () => { p.onClose() } }, ["x"]),
-											c('div', { className: "article-title" }, [p.article.title]),
-											c('div', {
-				className: "bg-image",
-				style: {
-						backgroundImage: "url(" + bgImage + ")",
-														 backgroundColor: cColor
-				}
-		}),
-											c('div', { className: "article-content-wrapper" }, [
-														c('div', { className: "article-time" }, [
-																	p.article.pubDate + " - " + p.article.sourceRss
-															]),
-														c('div', {
-				className: "article-description",
-				dangerouslySetInnerHTML: { __html: p.article.description }
-		}),
-														c('br'),
-														p.article.content !== p.article.description && c('div', {
-				className: "article-description",
-				dangerouslySetInnerHTML: { __html: p.article.content }
-		}),
+										c('div', { className: "article-close", onClick: () => { p.onClose() } }, ["x"]),
+										c('div', { className: "article-title" }, [p.article.title]),
+										c('div', {
+												className: "bg-image",
+												style: {
+														backgroundImage: "url(" + bgImage + ")",
+														backgroundColor: cColor
+												}
+										}),
+										c('div', { className: "article-content-wrapper" }, [
+												c('div', { className: "article-time" }, [
+														p.article.pubDate + " - " + p.article.sourceRss
 												]),
-											type !== "audio" && c('a', { className: "article-link", href: p.article.link, target: "_blank" }, ["link"]),
-											type === "audio" &&
-													 c('div', { className: "audio-wrapper", }, [
-																 c('audio', { controls: "true" }, [
-																			 c('source', {
-				src: p.article.enclosure.link,
-						 type: p.article.enclosure.type
-		})
-																	 ]),
-																 c('a', { className: "article-link", href: p.article.enclosure.link, target: "_blank" }, ["audio file"]),
-														 ])
-									])
+												c('div', {
+														className: "article-description",
+														dangerouslySetInnerHTML: { __html: p.article.description }
+												}),
+												c('br'),
+												p.article.content !== p.article.description && c('div', {
+														className: "article-description",
+														dangerouslySetInnerHTML: { __html: p.article.content }
+												}),
+										]),
+										type !== "audio" && c('a', { className: "article-link", href: p.article.link, target: "_blank" }, ["link"]),
+										type === "audio" &&
+												c('div', { className: "audio-wrapper", }, [
+														c('audio', { controls: "true" }, [
+																c('source', {
+																		src: p.article.enclosure.link,
+																		type: p.article.enclosure.type
+																})
+														]),
+														c('a', { className: "article-link", href: p.article.enclosure.link, target: "_blank" }, ["audio file"]),
+												])
+								])
 						)
 				};
 
 				const App = () => {
+						const titems = React.useRef([])
 						const [items, setItems] = React.useState([])
+						const [filteredItems, setFilteredItems] = React.useState([])
 						const [itemActive, setItemActive] = React.useState(null)
+						const [feeds, setFeeds] = React.useState([])
+						const [activeFeed, setActiveFeed] = React.useState("all")
 						React.useEffect(() => {
-		getJsons(nitems => {
-				const i = [...nitems]
-				setItems(i)
-		})
-}, [])
+								getJsons(nitems => {
+										const i = [...nitems]
+										setItems(i)
+										titems.current = i
+
+										const nfeeds = []
+										for (let i = 0; i < nitems.length; i++) {
+												const it = nitems[i];
+												if (!nfeeds.includes(it.sourceRss))nfeeds.push(it.sourceRss)
+										}
+										setFeeds(nfeeds)
+										setActiveFeed(null)
+										// console.log(223331,nitems, titems.current);
+								})
+						}, [])
+
+						React.useEffect(() => {
+								const nitems = []
+								for (let i = 0; i < items.length; i++) {
+										const it = items[i];
+										if (activeFeed === null) nitems.push(it)
+										else if (it.sourceRss === activeFeed) nitems.push(it)
+								}
+								setFilteredItems(nitems)
+								// console.log(22333,nitems, activeFeed, items, titems.current);
+						},[activeFeed])
+
+
 						return (
 								c('div', { className: "rss-app-wrapper" }, [
 
-											c('div', { className: `articles-list ${itemActive ? 'item-active-open': ''}` }, [
-														items.map(item =>
-																			c('div', {
-				className: "article-list-item",
-				onClick: () => { setItemActive(item) }
-		},
-																				[`[${item.sourceRss} ${item.smallDate}] ${item.title}`]
-),
-)
+										c('div', { className: `filter-list-wrapper` }, [
+												c('select', { onChange: e => {
+														let val = e.target.value
+														if (val === "all") val = null
+														setActiveFeed(val)
+														console.log(223331,val);
+												}}, [
+														c('option', { value: "all" }, [`all`]),
+														feeds.map(feed =>
+																c('option', { value: feed }, [`${feed}`]) 
+														)
 												]),
+										]),
+										c('div', { className: `articles-list ${itemActive ? 'item-active-open': ''}` }, [
+												filteredItems.map(item =>
+														c('div', {
+																className: "article-list-item",
+																onClick: () => { setItemActive(item) }
+														},
+															[`[${item.sourceRss} ${item.smallDate}] ${item.title}`]
+														 ),
+												)
+										]),
 
-											itemActive && c(ArticleDetail, {
-				article: itemActive,
-				onClose: () => {
-						setItemActive(null)
-				}
-		}, []),
-									])
+										itemActive && c(ArticleDetail, {
+												article: itemActive,
+												onClose: () => {
+														setItemActive(null)
+												}
+										}, []),
+								])
 						);
 				}
 
@@ -173,8 +213,8 @@ const rssApp = (innerTagStr, opts) => {
 						console.log(h, "0: react loaded, starting script with innertag:", innerTagStr)
 						execRssReader(innerTagStr)
 						setTimeout(() => {
-		api.utils.resizeIframe(opts.size);
-}, 100);
+								api.utils.resizeIframe(opts.size);
+						}, 100);
 				}
 		);
 

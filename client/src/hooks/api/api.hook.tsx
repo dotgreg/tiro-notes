@@ -28,9 +28,16 @@ export interface iApiEventBus {
 	unsubscribe: (reqId: string) => void
 	notify: (reqId: string, answer: any) => void
 }
+
+/**
+ * woop woooop test2
+ */
 export interface iClientApi {
 	file: iFileApi
 	upload: iUploadApi
+/**
+ * comment3
+ */
 	popup: iPopupApi
 	files: iFilesApi
 	folders: iFoldersApi

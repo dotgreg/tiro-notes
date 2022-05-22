@@ -5,10 +5,6 @@ import { iFile, iFileNature } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
-import { iFileApi } from "../hooks/api/file.api.hook";
-import { iFilesApi } from "../hooks/api/files.api.hook";
-import { iPopupApi } from "../hooks/app/usePromptPopup.hook";
-import { getClientApi2, iClientApi } from "../hooks/api/api.hook";
 
 type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError'
 
