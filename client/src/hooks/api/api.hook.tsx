@@ -12,7 +12,7 @@ import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
 import { iFoldersApi, useFoldersApi } from './folders.api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
-import { iSearchApi, useSearchApi } from './search.hook.api';
+import { iSearchUiApi, useSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
@@ -35,9 +35,9 @@ export interface iApiEventBus {
 export interface iClientApi {
 	file: iFileApi
 	upload: iUploadApi
-/**
- * comment3
- */
+	/**
+	 * comment3
+	 */
 	popup: iPopupApi
 	files: iFilesApi
 	folders: iFoldersApi
@@ -49,7 +49,7 @@ export interface iClientApi {
 		browser: iBrowserApi
 		windows: iWindowsApi
 		lightbox: iLightboxApi
-		search: iSearchApi['ui']
+		search: iSearchUiApi
 	}
 	status: iStatusApi
 }

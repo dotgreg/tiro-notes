@@ -10,15 +10,17 @@ import { iStatusApi } from './status.api.hook';
 // INTERFACES
 //
 export interface iSearchApi {
-	files: {
-		search: (term: string, cb: (nFiles: iFile[]) => void) => void
-	}
-	ui: {
-		search: (term: string) => void
-		term: {
-			set: (nTerm: string) => void
-			get: string
-		}
+	files: iSearchFilesApi
+	ui: iSearchUiApi
+}
+export interface iSearchFilesApi {
+	search: (term: string, cb: (nFiles: iFile[]) => void) => void
+}
+export interface iSearchUiApi {
+	search: (term: string) => void
+	term: {
+		set: (nTerm: string) => void
+		get: string
 	}
 }
 
