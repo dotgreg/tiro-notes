@@ -19,6 +19,10 @@ import { iMoveApi, useMoveApi } from './move.api.hook';
 export type iGetFilesCb = (files: iFile[]) => void
 
 export interface iFileApi {
+	/**
+	 * Fetch the content of a note from its absolute link
+	 * noteLink should be relative from tiro folder 
+	 */
 	getContent: (
 		noteLink: string,
 		cb: (noteContent: string) => void,
