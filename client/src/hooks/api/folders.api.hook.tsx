@@ -8,7 +8,13 @@ import { genIdReq, iApiEventBus } from './api.hook';
 // INTERFACES
 //
 
+/**
+ * take list of folders and returns their subfolders
+ */
 export interface iFoldersApi {
+	/**
+	 * take list of folders and returns their subfolders
+	 */
 	get: (
 		folderPaths: string[],
 		cb: (data: { folders: iFolder[], pathBase: string }) => void
@@ -36,7 +42,7 @@ export const useFoldersApi = (p: {
 	// FUNCTIONS
 	// 
 
-	// get folders list scan
+	// 
 	const getFolders: iFoldersApi['get'] = (folders, cb) => {
 		console.log(`[FOLDERS API] 002104 get folders ${folders}`);
 		const idReq = genIdReq('get-folders-');

@@ -72,7 +72,7 @@ export const App = () => {
 
 	const cleanFilesList = () => {
 		clientApi.ui.browser.files.set([])
-		api.popup.confirm()
+		// api.popup.confirm()
 	}
 
 
