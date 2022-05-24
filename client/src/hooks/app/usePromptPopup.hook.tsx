@@ -11,25 +11,15 @@ const liveVars: {
 	onRefuse: () => { },
 }
 
-/**
- * comment5
- */
-export type iPrompt = (p: {
-	text: string,
-	title?: string,
-	onAccept?: Function,
-	onRefuse?: Function
-}) => void
-
-/**
- * comment4
- */
-export type iConfirmPopup = (text: string, cb: Function, onRefuse?: Function) => void
-
 
 export type iPopupApi = {
-	confirm: iConfirmPopup,
-	prompt: iPrompt
+	confirm: (text: string, cb: Function, onRefuse?: Function) => void,
+	prompt: (p: {
+		text: string,
+		title?: string,
+		onAccept?: Function,
+		onRefuse?: Function
+	}) => void
 }
 
 export const PopupContext = React.createContext<iPopupApi | null>(null);
@@ -43,7 +33,7 @@ export const usePromptPopup = (p: {
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
 
-	const confirmPopup: iConfirmPopup = (text, cb, onRefuse) => {
+	const confirmPopup: iPopupApi['confirm'] = (text, cb, onRefuse) => {
 
 		promptPopup({
 			title: strings.promptPopup.confirmTitle,
@@ -53,7 +43,7 @@ export const usePromptPopup = (p: {
 		})
 	}
 
-	const promptPopup: iPrompt = (p) => {
+	const promptPopup: iPopupApi['prompt'] = (p) => {
 		setDisplayPromptPopup(true)
 		setText(p.text);
 		if (p.title) setTitle(p.title);
