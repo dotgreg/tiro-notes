@@ -41,7 +41,7 @@ const colors = {
 	fontInterface: '#323232',
 	//--
 	bgInterface2: '#e1e1e1',
-	fontInterface2: '#323232',
+	fontInterface2: '#585757',
 	//--
 	bgEditor: '#FFFFFF',
 	bgPreview: '#F7F7F7',

@@ -200,7 +200,7 @@ export const settingsPopupCss = () => `
 		}
 }
 
-
+settings-popup-wrapper
 .popup-wrapper .popupContent {
     padding: 0px 20px;
 		width: 50vw;

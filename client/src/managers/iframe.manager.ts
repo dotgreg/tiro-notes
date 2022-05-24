@@ -152,6 +152,7 @@ export const iframeMainCode = (p: {
 		tagName: '',
 		tagContent: '',
 	}
+	const getInfos = () => d
 
 	//
 	// SUPPORT FUNCTIONS
@@ -339,9 +340,10 @@ export const iframeMainCode = (p: {
 	}
 
 	const api = {
-		version: 1,
+		version: 1.1,
 		call: callApi,
 		utils: {
+			getInfos,
 			loadScripts,
 			resizeIframe,
 			loadCustomTag,

@@ -84,6 +84,9 @@ export const CssApp2 = (
 
 				${settingsPopupCss()}
 
+								${lastNotesCss()}
+
+								${folderTreeCss()}
 
 
 
@@ -158,16 +161,13 @@ export const CssApp2 = (
 						.left-wrapper-1 {
 								overflow: hidden;
 								background-image: url('${cssVars.assets.decoBgMap}');
-								background: ${cssVars.colors.bgInterface2};
+								background-color: ${cssVars.colors.bgInterface2};
 								background-blend-mode: color-burn;
 								color: ${cssVars.colors.fontInterface2};
 								width: ${sizes.desktop.l1}%;
 								height:100vh;
 								position: relative;
 
-								${lastNotesCss()}
-
-								${folderTreeCss()}
 
 								h3.subtitle {
 										margin: 0px 0px 15px;
