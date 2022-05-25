@@ -352,8 +352,9 @@ export const iframeMainCode = (p: {
 		}
 	}
 
-	// @ts-ignore
-	window.api = api
+
+		// @ts-ignore
+		window.api = api
 
 
 	// 
@@ -375,6 +376,8 @@ export const iframeMainCode = (p: {
 ///////////////////////////////////////////////////////////////////////// 
 
 
+// export const exportedType = (api : iframeMainCode)
+export type apiType = ReturnType<typeof iframeMainCode>
 
 
 
