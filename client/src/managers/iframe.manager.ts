@@ -327,7 +327,7 @@ export const iframeMainCode = (p: {
 		sendToParent({ action: 'apiCall', data: apiData })
 	}
 
-	const divApi = () => {
+	const createDiv = () => {
 		const id = `ctag-content-wrapper-${p.generateUUID()} `
 		const updateContent = (nContent) => {
 			// @ts-ignore
@@ -348,13 +348,13 @@ export const iframeMainCode = (p: {
 			resizeIframe,
 			loadCustomTag,
 			uuid: p.generateUUID,
-			createDiv: divApi,
+			createDiv,
 		}
 	}
 
 
-		// @ts-ignore
-		window.api = api
+	// @ts-ignore
+	window.api = api
 
 
 	// 
