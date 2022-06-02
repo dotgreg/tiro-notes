@@ -1,6 +1,4 @@
-# Tiro Notes
-
-An Open-source, cross-platform and extensible web markdown editor 
+An open-source, cross-platform markdown editor designed for extensibility & flexibility
 
 ![Tiro S2](https://user-images.githubusercontent.com/2981891/161093353-e9c2df15-ffca-4d2f-839d-ced9ced659b1.jpg)
 
@@ -12,31 +10,13 @@ Tiro Notes is designed to be a viable open source alternative to proprietary sof
 
 Tiro Notes focus points are : 
 
-- 👑 **Open source & Open Data**: Code is open source, free forever. No database, no hidden ties. Markdown files only. You can edit and sync your files with external software as you need.
+- 🏋 **Extensibilitility** : Integrate functionnalities inside your markdown notes using custom tags like [[latex]], [[uml]] or [[charts]], easily add [[pdf]] or youtube [[video]] to your notes. Add [[spreadsheet]] logic to your markdown tables, extend Tiro capacities by using a [[rss]] reader or a [[calendar]].
+
+- 🏋 **Flexibility** : multi-window interface to create a custom workspace. Create multiple workspaces organized by tabs. Keep these workspaces synced accross your devices.
+
+- 👑 **Open source & Open Data**: Code is open source and free. No database required. Markdown files only. You can edit and sync your files with external software as you need.
 
 - ☁️ / 🖥️ /  💻 / 📱 **Cross-platform & Web** : Windows, macOS, Android, Linux, Web. Start an App or with CLI and access it anywhere on your local network. 
-
-- 🏋 **Extensible** : create custom markdown tag like [[calendar]], [[uml]] and other within seconds. Use [[latex]]. Create your own tag with [[script]] and the client api
-
-## MENU
-* [Why](#why)
-* [Usage](#usage)
-  + [Desktop Applications](#desktop-applications)
-  + [Command Line](#command-line)
-* [Functionalities List](#functionalities-list)
-* [Documentation](#documentation)
-    + [Available Custom Tags](#available-custom-tags)
-    + [Add scripts in your note](#add-scripts-in-your-note)
-    + [Create your own custom tags](#create-your-own-custom-tags)
-      - [1) How to create a new custom tag [[mail-address]]](#1--how-to-create-a-new-custom-tag--)
-      - [2) Using {{InnerTag}}](#2--using---innertag--)
-      - [3) Add script logic in your tag](#3--add-script-logic-in-your-tag--)
-    + [Client API](#client-api)
-* [Faq](#faq)
-  + [How can I sync my notes folder on other devices?](#how-can-i-sync-my-notes-folder-on-other-devices)
-  + [Can I edit my notes on another application?](#can-i-edit-my-notes-on-another-application)
-  + [How can I access to Tiro on my device](#how-can-i-access-to-tiro-on-my-device)
-  + [What is the current status of Tiro Notes?](#what-is-the-current-status-of-tiro-notes)
 
 ## USAGE
 
@@ -66,16 +46,17 @@ npx tiro-notes
 - 🔑 End to end (E2E) note encryption (RSA 2048)
 - 🏛 Note changes history
 - 📄 Export to PDF
-- 🏋 Embed videos and other web content (with iframe)
-- 🏋 create javascript applications within your note with [[script]] 
 - 💱 display math formulas with [[latex]] 
-- 🧬 display UML and other diagrams with [[diagram]] (custom tags)
 - (🔧) 💬 Text to Speech (beta)
-- (🔧) 📡 Server Collaborative edition (planned...)
+
+**Custom Tags**
+- 🧬 display UML and other diagrams with [[diagram]] 
+- 🏋 create javascript applications within your note with [[script]] 
+- 🏋 Embed videos and other web content (with iframe)
 
 **Search**
 - 🔍 Fast search (~2s for 30k notes)
-- 🔬 Search filters (intitle: etc...)
+- 🔬 Search filters (intitle: etc.)
 
 **Folders Tree & Notes List**
 - 🗂️ Folders management (create/rename/move/delete)
@@ -96,6 +77,69 @@ npx tiro-notes
 - ☁️ Use it as a local application, as a local or cloud server.
 - 📟 Use it on any device with a browser (Mobile, tablet and Desktop interface)
 - (🔧)📱 Install on iOS with iSH and NPX (to be tested...)
+
+
+### Client API (Beta)
+<details>
+  <summary>Expand for details</summary>
+  
+  
+  Tiro Notes provides a Client API accessible using the developer console of your browser :
+  ![Screenshot 2022-03-31 at 18 39 22](https://user-images.githubusercontent.com/2981891/161106559-b27890d1-fca4-4e66-a6ff-0bdf38f679b3.jpg)
+
+  typing ``` window.tiroCli ``` will give you the updated list of available functions. Each function has a description ```window.tiroCli.FUNCTION.description``` and can be called like that ```window.tiroCli.FUNCTION.f()```
+  
+  The Tiro Cli allows you to :
+  - fetch a note content : ```window.tiroCli.clientApiGetFileContent```
+  - modify a note content : ```window.tiroCli.clientApiSetFileContent```
+  - Load an external javascript file : ```window.tiroCli.loadScripts(['https://', 'https://', ...], function () => {})```
+  - Show the current note content : ```window.tiroCli.fileContent```
+  - Trigger a search in the interface : ```window.tiroCli.triggerSearch```
+  - Set the Dual Editor view type temporarily : ```window.tiroCli.setTempViewType ("both", "editor", "preview")```
+  
+  /!\ this API and CLI structure is meant to change in term of structure, make sure to check window.tiroCli when upgrading to a new version /!\
+  
+</details>
+
+
+
+## FAQ
+
+### How can I sync my notes folder on other devices?
+You can use any sync solution like dropbox, google drive, resilio sync, syncthings etc...
+
+### Can I edit my notes on another application?
+Yes, all the datas Tiro uses is coming from markdown notes. So you can edit your notes in other applications without any problem.
+
+### Where are located the configuration file and the logs of Tiro?
+The configuration file is located at ```~/.tiro-config.json``` for linux, mac and termux android and under ```/Users/USER_NAME/.tiro-config.json```in windows.
+The logs are also located at the same path ```.tiro-logs.txt``` if using NPX or Node directly and ```.tiro-electron-log.txt``` if using Tiro Notes Desktop Apps.
+
+### How can I use Tiro in the Web?
+1) Device where tiro is installed : http://localhost:3023 
+2) If on same Wifi/local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
+3) Not on same network : Tiro works great using SSH tunneling, AutoSSH or similar (free ssh tunnels solutions exists like https://opentunnel.net/). Npx tiro-notes also includes a --tunnel option for easy tunneling.
+4) On the cloud: You can self-host/install Tiro Notes on your server and access it from anywhere.
+
+### What is the current status of Tiro Notes? 
+I have been developing it for over a year and using it as my daily note app for over 6 months now, its core functionalities seems stable enough for my use so far.
+I haven't been loosing any data so far, and there is always the history note functionality in that case.
+
+However, I consider that application still in alpha phase, it still needs a lot of testing to be considered robust.
+So use it at your own risk, and always with data you can afford to lose.
+
+### How can I contribute?
+
+Contributions and PR are welcome! You can contact me for more details on the ROADMAP and how to be involved.
+
+Right now, Tiro Notes needs testers to stabilize the current scope of functionalities and to give feedbacks on it.
+
+Also translation can be a nice thing to have in the future.
+
+Twitter News & Updates : https://twitter.com/NotesTiro
+
+
+============ STRUCTURE
 
 
 ## DOCUMENTATION
@@ -219,61 +263,92 @@ npx tiro-notes
 </details>
 
 
-### Client API (Beta)
-<details>
-  <summary>Expand for details</summary>
-  
-  
-  Tiro Notes provides a Client API accessible using the developer console of your browser :
-  ![Screenshot 2022-03-31 at 18 39 22](https://user-images.githubusercontent.com/2981891/161106559-b27890d1-fca4-4e66-a6ff-0bdf38f679b3.jpg)
-
-  typing ``` window.tiroCli ``` will give you the updated list of available functions. Each function has a description ```window.tiroCli.FUNCTION.description``` and can be called like that ```window.tiroCli.FUNCTION.f()```
-  
-  The Tiro Cli allows you to :
-  - fetch a note content : ```window.tiroCli.clientApiGetFileContent```
-  - modify a note content : ```window.tiroCli.clientApiSetFileContent```
-  - Load an external javascript file : ```window.tiroCli.loadScripts(['https://', 'https://', ...], function () => {})```
-  - Show the current note content : ```window.tiroCli.fileContent```
-  - Trigger a search in the interface : ```window.tiroCli.triggerSearch```
-  - Set the Dual Editor view type temporarily : ```window.tiroCli.setTempViewType ("both", "editor", "preview")```
-  
-  /!\ this API and CLI structure is meant to change in term of structure, make sure to check window.tiroCli when upgrading to a new version /!\
-  
-</details>
 
 
 
-## FAQ
 
-### How can I sync my notes folder on other devices?
-You can use any sync solution like dropbox, google drive, resilio sync, syncthings etc...
+### Publish my own custom tags to tiro website
+You can do a Push Request (PR) in https://github.com/dotgreg/tiro-notes and add your own folder-name inside /custom-tags/MY_CUSTOM_TAG_NAME. Or you can email me if that last sentence sounded confusing to you :).
+=================
+		- Available Custom Tags
 
-### Can I edit my notes on another application?
-Yes, all the datas Tiro uses is coming from markdown notes. So you can edit your notes in other applications without any problem.
+# How to:
+## Install a Custom Tag
 
-### Where are located the configuration file and the logs of Tiro?
-The configuration file is located at ```~/.tiro-config.json``` for linux, mac and termux android and under ```/Users/USER_NAME/.tiro-config.json```in windows.
-The logs are also located at the same path ```.tiro-logs.txt``` if using NPX or Node directly and ```.tiro-electron-log.txt``` if using Tiro Notes Desktop Apps.
+A custom tag is a markdown note called in another markdown note.
 
-### How can I use Tiro in the Web?
-1) Device where tiro is installed : http://localhost:3023 
-2) If on same Wifi/local network: http://192.168.xx.xx:3023 where that ip is the ip of the device where tiro is installed
-3) Not on same network : Tiro works great using SSH tunneling, AutoSSH or similar (free ssh tunnels solutions exists like https://opentunnel.net/). Npx tiro-notes also includes a --tunnel option for easy tunneling.
-4) On the cloud: You can self-host/install Tiro Notes on your server and access it from anywhere.
+So you can create your own custom tag within seconds and without any coding knowledge [[LINK]], like a [[header-link]] to display a note header with some links on your notes.
 
-### What is the current status of Tiro Notes? 
-I have been developing it for over a year and using it as my daily note app for over 6 months now, its core functionalities seems stable enough for my use so far.
-I haven't been loosing any data so far, and there is always the history note functionality in that case.
+The principle is simple : To create a new custom tag [[header-link]] , create a markdown note named ```header-link``` in the ```/.tiro/.tags/```. It will then be available across your notes.
 
-However, I consider that application still in alpha phase, it still needs a lot of testing to be considered robust.
-So use it at your own risk, and always with data you can afford to lose.
+To install any of these listed custom tags, create a new note and paste the content in it.
 
-### How can I contribute?
+*For those with javascript knowledge, it is also really easy to create your own mini-apps and widgets with it leveraging the tiro client API to get/save content, use popups, tabs and windows, manipulate the interface etc. The mermaid custom tag required for instance less than 10 lines of code.
 
-Contributions and PR are welcome! You can contact me for more details on the ROADMAP and how to be involved.
+## How to update a custom tag
 
-Right now, Tiro Notes needs testers to stabilize the current scope of functionalities and to give feedbacks on it.
+It will auto-update itself if it finds a new version available.
 
-Also translation can be a nice thing to have in the future.
+If you prefer to stay at a specific version, you can replace the url ```https://tiro-notes.org/ctags/latest/rss```by the ```https://tiro-notes.org/ctags/1.0.0/rss```
 
-Twitter News & Updates : https://twitter.com/NotesTiro
+If you prefer not depending on a server/external resources, you can simply take the note content requested, in our case https://tiro-notes.org/custom-tags/latest/rss, and paste it in the note directly.
+
+## How to install third-party Custom tags
+Simply paste the provided code in the note. However make sure to trust the developer of that code as a custom tags can access to your notes content!
+
+## How to publish my own custom tags to tiro website
+You can do a Push Request (PR) in https://github.com/dotgreg/tiro-notes and add your own folder-name inside /custom-tags/MY_CUSTOM_TAG_NAME. Or you can email me if that last sentence sounded confusing to you :).
+
+# List
+## [[latex]]
+## [[mermaid]] (UML/Gantt/Flowcharts/Pies)
+## [[chart]] 
+## [[spreadsheet]]
+## [[youtube]]
+## [[rss]]
+
+### Description:
+
+A full fledge RSS reader inside Tiro Notes. Designed to work on small screens/windows as well as on desktop.
+Simply call it and paste your rss feeds with their name in it
+
+### Example :
+```
+[[rss]]
+fig_vox https://www.lefigaro.fr/rss/figaro_vox.xml
+courInt https://www.courrierinternational.com/feed/all/rss.xml
+eur1_grd https://www.europe1.fr/rss/podcasts/le-grand-rendez-vous.xml
+lemonde https://www.lemonde.fr/rss/une.xml
+korben https://korben.info/feed 
+mondiplo https://www.monde-diplomatique.fr/recents.xml
+[[rss]]
+```
+### Changelog :
+- v0.30.3 : 02/06/2022 : fixing issues 
+
+### Screenshot :
+### Install/Code : 
+```
+```
+
+============================
+
+- Getting Started
+		- Presentation
+		- Downloads => redirect to dl page? ou dl directement? => dl directement ouaiii
+		- Available Custom Tags
+
+
+============================
+
+A custom tag is a markdown note called in another markdown note.
+
+So you can create your own custom tag within seconds and without any coding knowledge [[LINK]], like a [[header-link]] to display a note header with some links on your notes.
+
+The principle is simple : To create a new custom tag [[header-link]] , create a markdown note named ```header-link``` in the ```/.tiro/.tags/```. It will then be available across your notes.
+
+To install any of these listed custom tags, create a new note and paste the content in it.
+
+*For those with javascript knowledge, it is also really easy to create your own mini-apps and widgets with it leveraging the tiro client API to get/save content, use popups, tabs and windows, manipulate the interface etc. The mermaid custom tag required for instance less than 10 lines of code.
+
+If you want to create a custom tag named [[header-link]], create a markdown note named ```header-link``` in the ```/.tiro/.tags/```. It will then be available across your notes.

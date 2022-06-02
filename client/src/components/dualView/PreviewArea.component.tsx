@@ -118,6 +118,12 @@ export const previewAreaSimpleCss = () => {
 		}
 
 		const css = `
+
+		html, body {
+				margin: 0px;
+				padding: 0px;
+		}
+
 		${d.w} {
 				color: ${cssVars.colors.editor.font};
 				line-height: 19px;

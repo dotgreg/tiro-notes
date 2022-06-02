@@ -265,6 +265,9 @@ export const iframeMainCode = (p: {
 	const { subscribeOnce, notify } = p.createEventBus({ headerLog: '[FRAME API] 00567' })
 
 	// LOAD EXTERNAL SCRIPTS
+	/**
+	 * woop
+	 */
 	const loadScripts = (scripts: string[], cb: Function) => {
 		console.log(h, 'loadScripts', scripts);
 		let scriptsLoaded = 0;
