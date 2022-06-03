@@ -1,0 +1,2119 @@
+{
+	"id": 0,
+	"name": "tiro-notes-client",
+	"kind": 1,
+	"kindString": "Project",
+	"flags": {},
+	"originalName": "",
+	"children": [
+		{
+			"id": 95,
+			"name": "<internal>",
+			"kind": 4,
+			"kindString": "Namespace",
+			"flags": {},
+			"children": [
+				{
+					"id": 104,
+					"name": "iFile",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {},
+					"children": [
+						{
+							"id": 110,
+							"name": "created",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 55,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 109,
+							"name": "extension",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 54,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 113,
+							"name": "folder",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 58,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 112,
+							"name": "index",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 57,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 111,
+							"name": "modified",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 56,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "number"
+							}
+						},
+						{
+							"id": 106,
+							"name": "name",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 51,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 105,
+							"name": "nature",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 50,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "reference",
+								"id": 123,
+								"name": "iFileNature"
+							}
+						},
+						{
+							"id": 108,
+							"name": "path",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 53,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 107,
+							"name": "realname",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 52,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								110,
+								109,
+								113,
+								112,
+								111,
+								106,
+								105,
+								108,
+								107
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "shared/types.shared.ts",
+							"line": 49,
+							"character": 17
+						}
+					]
+				},
+				{
+					"id": 120,
+					"name": "iIframeMessage",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {},
+					"children": [
+						{
+							"id": 121,
+							"name": "action",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "client/src/managers/iframe.manager.ts",
+									"line": 38,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "reference",
+								"id": 124,
+								"name": "iIframeActions"
+							}
+						},
+						{
+							"id": 122,
+							"name": "data",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "client/src/managers/iframe.manager.ts",
+									"line": 39,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								121,
+								122
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 37,
+							"character": 10
+						}
+					]
+				},
+				{
+					"id": 96,
+					"name": "ReturnType",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {
+						"isExternal": true
+					},
+					"comment": {
+						"shortText": "Obtain the return type of a function type"
+					},
+					"sources": [
+						{
+							"fileName": "docs/generator/node_modules/typescript/lib/lib.es5.d.ts",
+							"line": 1596,
+							"character": 5
+						}
+					],
+					"typeParameter": [
+						{
+							"id": 103,
+							"name": "T",
+							"kind": 131072,
+							"kindString": "Type parameter",
+							"flags": {
+								"isExternal": true
+							},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 100,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {
+										"isExternal": true
+									},
+									"sources": [
+										{
+											"fileName": "docs/generator/node_modules/typescript/lib/lib.es5.d.ts",
+											"line": 1596,
+											"character": 26
+										}
+									],
+									"signatures": [
+										{
+											"id": 101,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {
+												"isExternal": true
+											},
+											"parameters": [
+												{
+													"id": 102,
+													"name": "args",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {
+														"isExternal": true,
+														"isRest": true
+													},
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "conditional",
+						"checkType": {
+							"type": "reference",
+							"id": 103,
+							"qualifiedName": "T",
+							"package": "typescript",
+							"name": "T"
+						},
+						"extendsType": {
+							"type": "reflection",
+							"declaration": {
+								"id": 97,
+								"name": "__type",
+								"kind": 65536,
+								"kindString": "Type literal",
+								"flags": {
+									"isExternal": true
+								},
+								"sources": [
+									{
+										"fileName": "docs/generator/node_modules/typescript/lib/lib.es5.d.ts",
+										"line": 1596,
+										"character": 61
+									}
+								],
+								"signatures": [
+									{
+										"id": 98,
+										"name": "__type",
+										"kind": 4096,
+										"kindString": "Call signature",
+										"flags": {
+											"isExternal": true
+										},
+										"parameters": [
+											{
+												"id": 99,
+												"name": "args",
+												"kind": 32768,
+												"kindString": "Parameter",
+												"flags": {
+													"isExternal": true,
+													"isRest": true
+												},
+												"type": {
+													"type": "intrinsic",
+													"name": "any"
+												}
+											}
+										],
+										"type": {
+											"type": "inferred",
+											"name": "R"
+										}
+									}
+								]
+							}
+						},
+						"trueType": {
+							"type": "reference",
+							"qualifiedName": "R",
+							"package": "typescript",
+							"name": "R"
+						},
+						"falseType": {
+							"type": "intrinsic",
+							"name": "any"
+						}
+					}
+				},
+				{
+					"id": 114,
+					"name": "iApiCall",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 312,
+							"character": 6
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 115,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "client/src/managers/iframe.manager.ts",
+									"line": 312,
+									"character": 17
+								}
+							],
+							"signatures": [
+								{
+									"id": 116,
+									"name": "__type",
+									"kind": 4096,
+									"kindString": "Call signature",
+									"flags": {},
+									"parameters": [
+										{
+											"id": 117,
+											"name": "apiName",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 118,
+											"name": "apiArguments",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {},
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "intrinsic",
+													"name": "any"
+												}
+											}
+										},
+										{
+											"id": 119,
+											"name": "cb",
+											"kind": 32768,
+											"kindString": "Parameter",
+											"flags": {
+												"isOptional": true
+											},
+											"type": {
+												"type": "reference",
+												"qualifiedName": "Function",
+												"package": "typescript",
+												"name": "Function"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 123,
+					"name": "iFileNature",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "shared/types.shared.ts",
+							"line": 2,
+							"character": 12
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "literal",
+								"value": "file"
+							},
+							{
+								"type": "literal",
+								"value": "folder"
+							}
+						]
+					}
+				},
+				{
+					"id": 124,
+					"name": "iIframeActions",
+					"kind": 4194304,
+					"kindString": "Type alias",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 9,
+							"character": 5
+						}
+					],
+					"type": {
+						"type": "union",
+						"types": [
+							{
+								"type": "literal",
+								"value": "init"
+							},
+							{
+								"type": "literal",
+								"value": "apiCall"
+							},
+							{
+								"type": "literal",
+								"value": "apiAnswer"
+							},
+							{
+								"type": "literal",
+								"value": "resize"
+							},
+							{
+								"type": "literal",
+								"value": "iframeError"
+							}
+						]
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Interfaces",
+					"kind": 256,
+					"children": [
+						104,
+						120
+					]
+				},
+				{
+					"title": "Type aliases",
+					"kind": 4194304,
+					"children": [
+						96,
+						114,
+						123,
+						124
+					]
+				}
+			]
+		},
+		{
+			"id": 1,
+			"name": "iIframeData",
+			"kind": 256,
+			"kindString": "Interface",
+			"flags": {},
+			"children": [
+				{
+					"id": 20,
+					"name": "apiAnswer",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 30,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 21,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 23,
+									"name": "data",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 32,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "any"
+									}
+								},
+								{
+									"id": 22,
+									"name": "reqId",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 31,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										23,
+										22
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 15,
+					"name": "apiCall",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 25,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 16,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 19,
+									"name": "apiArguments",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 28,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "array",
+										"elementType": {
+											"type": "intrinsic",
+											"name": "any"
+										}
+									}
+								},
+								{
+									"id": 18,
+									"name": "apiName",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 27,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 17,
+									"name": "reqId",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 26,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										19,
+										18,
+										17
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 12,
+					"name": "iframeError",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 22,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 13,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 14,
+									"name": "error",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 23,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										14
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 2,
+					"name": "init",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 12,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 3,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 4,
+									"name": "file",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 13,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "literal",
+												"value": null
+											},
+											{
+												"type": "reference",
+												"id": 104,
+												"name": "iFile"
+											}
+										]
+									}
+								},
+								{
+									"id": 8,
+									"name": "frameId",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 17,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 5,
+									"name": "innerTag",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 14,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 7,
+									"name": "tagContent",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 16,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								},
+								{
+									"id": 6,
+									"name": "tagName",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 15,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "string"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										4,
+										8,
+										5,
+										7,
+										6
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 9,
+					"name": "resize",
+					"kind": 1024,
+					"kindString": "Property",
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "client/src/managers/iframe.manager.ts",
+							"line": 19,
+							"character": 1
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 10,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 11,
+									"name": "height",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 20,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "union",
+										"types": [
+											{
+												"type": "intrinsic",
+												"name": "string"
+											},
+											{
+												"type": "intrinsic",
+												"name": "number"
+											}
+										]
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										11
+									]
+								}
+							]
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"kind": 1024,
+					"children": [
+						20,
+						15,
+						12,
+						2,
+						9
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "client/src/managers/iframe.manager.ts",
+					"line": 11,
+					"character": 17
+				}
+			]
+		},
+		{
+			"id": 94,
+			"name": "apiType",
+			"kind": 4194304,
+			"kindString": "Type alias",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "client/src/managers/iframe.manager.ts",
+					"line": 383,
+					"character": 12
+				}
+			],
+			"type": {
+				"type": "reference",
+				"id": 96,
+				"typeArguments": [
+					{
+						"type": "query",
+						"queryType": {
+							"type": "reference",
+							"id": 46,
+							"name": "iframeMainCode"
+						}
+					}
+				],
+				"qualifiedName": "ReturnType",
+				"package": "typescript",
+				"name": "ReturnType"
+			}
+		},
+		{
+			"id": 24,
+			"name": "iframeParentManager",
+			"kind": 32,
+			"kindString": "Variable",
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "client/src/managers/iframe.manager.ts",
+					"line": 78,
+					"character": 13
+				}
+			],
+			"type": {
+				"type": "reflection",
+				"declaration": {
+					"id": 25,
+					"name": "__type",
+					"kind": 65536,
+					"kindString": "Type literal",
+					"flags": {},
+					"children": [
+						{
+							"id": 38,
+							"name": "send",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "client/src/managers/iframe.manager.ts",
+									"line": 81,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 39,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"signatures": [
+										{
+											"id": 40,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 41,
+													"name": "el",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "union",
+														"types": [
+															{
+																"type": "literal",
+																"value": null
+															},
+															{
+																"type": "reference",
+																"qualifiedName": "HTMLIFrameElement",
+																"package": "typescript",
+																"name": "HTMLIFrameElement"
+															}
+														]
+													}
+												},
+												{
+													"id": 42,
+													"name": "message",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "reference",
+														"id": 120,
+														"name": "iIframeMessage"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							},
+							"defaultValue": "sendToIframe"
+						},
+						{
+							"id": 26,
+							"name": "subscribe",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 27,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"signatures": [
+										{
+											"id": 28,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 29,
+													"name": "subId",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												},
+												{
+													"id": 30,
+													"name": "cb",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 31,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"signatures": [
+																{
+																	"id": 32,
+																	"name": "__type",
+																	"kind": 4096,
+																	"kindString": "Call signature",
+																	"flags": {},
+																	"parameters": [
+																		{
+																			"id": 33,
+																			"name": "data",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {},
+																			"type": {
+																				"type": "reference",
+																				"id": 120,
+																				"name": "iIframeMessage"
+																			}
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "void"
+																	}
+																}
+															]
+														}
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 34,
+							"name": "unsubscribe",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 35,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"signatures": [
+										{
+											"id": 36,
+											"name": "__type",
+											"kind": 4096,
+											"kindString": "Call signature",
+											"flags": {},
+											"parameters": [
+												{
+													"id": 37,
+													"name": "subId",
+													"kind": 32768,
+													"kindString": "Parameter",
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "string"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								38,
+								26,
+								34
+							]
+						}
+					]
+				}
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 43,
+			"name": "generateIframeHtml",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "client/src/managers/iframe.manager.ts",
+					"line": 106,
+					"character": 13
+				}
+			],
+			"signatures": [
+				{
+					"id": 44,
+					"name": "generateIframeHtml",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 45,
+							"name": "tagContent",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 46,
+			"name": "iframeMainCode",
+			"kind": 64,
+			"kindString": "Function",
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "client/src/managers/iframe.manager.ts",
+					"line": 134,
+					"character": 13
+				}
+			],
+			"signatures": [
+				{
+					"id": 47,
+					"name": "iframeMainCode",
+					"kind": 4096,
+					"kindString": "Call signature",
+					"flags": {},
+					"parameters": [
+						{
+							"id": 48,
+							"name": "p",
+							"kind": 32768,
+							"kindString": "Parameter",
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 49,
+									"name": "__type",
+									"kind": 65536,
+									"kindString": "Type literal",
+									"flags": {},
+									"children": [
+										{
+											"id": 54,
+											"name": "bindToElClass",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 139,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 52,
+											"name": "createEventBus",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 137,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 53,
+											"name": "generateUUID",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 138,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 50,
+											"name": "replaceCustomMdTags",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 135,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										},
+										{
+											"id": 51,
+											"name": "unescapeHtml",
+											"kind": 1024,
+											"kindString": "Property",
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "client/src/managers/iframe.manager.ts",
+													"line": 136,
+													"character": 1
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"kind": 1024,
+											"children": [
+												54,
+												52,
+												53,
+												50,
+												51
+											]
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 55,
+							"name": "__type",
+							"kind": 65536,
+							"kindString": "Type literal",
+							"flags": {},
+							"children": [
+								{
+									"id": 57,
+									"name": "call",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 347,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "reference",
+										"id": 114,
+										"name": "iApiCall"
+									},
+									"defaultValue": "callApi"
+								},
+								{
+									"id": 58,
+									"name": "utils",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 348,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 59,
+											"name": "__type",
+											"kind": 65536,
+											"kindString": "Type literal",
+											"flags": {},
+											"children": [
+												{
+													"id": 85,
+													"name": "createDiv",
+													"kind": 1024,
+													"kindString": "Property",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 86,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"signatures": [
+																{
+																	"id": 87,
+																	"name": "__type",
+																	"kind": 4096,
+																	"kindString": "Call signature",
+																	"flags": {},
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 88,
+																			"name": "__type",
+																			"kind": 65536,
+																			"kindString": "Type literal",
+																			"flags": {},
+																			"children": [
+																				{
+																					"id": 89,
+																					"name": "div",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "client/src/managers/iframe.manager.ts",
+																							"line": 340,
+																							"character": 3
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					},
+																					"defaultValue": "..."
+																				},
+																				{
+																					"id": 90,
+																					"name": "updateContent",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"type": {
+																						"type": "reflection",
+																						"declaration": {
+																							"id": 91,
+																							"name": "__type",
+																							"kind": 65536,
+																							"kindString": "Type literal",
+																							"flags": {},
+																							"signatures": [
+																								{
+																									"id": 92,
+																									"name": "__type",
+																									"kind": 4096,
+																									"kindString": "Call signature",
+																									"flags": {},
+																									"parameters": [
+																										{
+																											"id": 93,
+																											"name": "nContent",
+																											"kind": 32768,
+																											"kindString": "Parameter",
+																											"flags": {},
+																											"type": {
+																												"type": "intrinsic",
+																												"name": "any"
+																											}
+																										}
+																									],
+																									"type": {
+																										"type": "intrinsic",
+																										"name": "void"
+																									}
+																								}
+																							]
+																						}
+																					}
+																				}
+																			],
+																			"groups": [
+																				{
+																					"title": "Properties",
+																					"kind": 1024,
+																					"children": [
+																						89,
+																						90
+																					]
+																				}
+																			]
+																		}
+																	}
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 60,
+													"name": "getInfos",
+													"kind": 1024,
+													"kindString": "Property",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 61,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"signatures": [
+																{
+																	"id": 62,
+																	"name": "__type",
+																	"kind": 4096,
+																	"kindString": "Call signature",
+																	"flags": {},
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 63,
+																			"name": "__type",
+																			"kind": 65536,
+																			"kindString": "Type literal",
+																			"flags": {},
+																			"children": [
+																				{
+																					"id": 64,
+																					"name": "file",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "client/src/managers/iframe.manager.ts",
+																							"line": 13,
+																							"character": 2
+																						}
+																					],
+																					"type": {
+																						"type": "union",
+																						"types": [
+																							{
+																								"type": "literal",
+																								"value": null
+																							},
+																							{
+																								"type": "reference",
+																								"id": 104,
+																								"name": "iFile"
+																							}
+																						]
+																					}
+																				},
+																				{
+																					"id": 68,
+																					"name": "frameId",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "client/src/managers/iframe.manager.ts",
+																							"line": 17,
+																							"character": 2
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					}
+																				},
+																				{
+																					"id": 65,
+																					"name": "innerTag",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "client/src/managers/iframe.manager.ts",
+																							"line": 14,
+																							"character": 2
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					}
+																				},
+																				{
+																					"id": 67,
+																					"name": "tagContent",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "client/src/managers/iframe.manager.ts",
+																							"line": 16,
+																							"character": 2
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					}
+																				},
+																				{
+																					"id": 66,
+																					"name": "tagName",
+																					"kind": 1024,
+																					"kindString": "Property",
+																					"flags": {},
+																					"sources": [
+																						{
+																							"fileName": "client/src/managers/iframe.manager.ts",
+																							"line": 15,
+																							"character": 2
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "string"
+																					}
+																				}
+																			],
+																			"groups": [
+																				{
+																					"title": "Properties",
+																					"kind": 1024,
+																					"children": [
+																						64,
+																						68,
+																						65,
+																						67,
+																						66
+																					]
+																				}
+																			]
+																		}
+																	}
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 78,
+													"name": "loadCustomTag",
+													"kind": 1024,
+													"kindString": "Property",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 79,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"signatures": [
+																{
+																	"id": 80,
+																	"name": "__type",
+																	"kind": 4096,
+																	"kindString": "Call signature",
+																	"flags": {},
+																	"parameters": [
+																		{
+																			"id": 81,
+																			"name": "url",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {},
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "string"
+																			}
+																		},
+																		{
+																			"id": 82,
+																			"name": "innerTag",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {},
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "string"
+																			}
+																		},
+																		{
+																			"id": 83,
+																			"name": "opts",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {},
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "any"
+																			}
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "string"
+																	}
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 69,
+													"name": "loadScripts",
+													"kind": 1024,
+													"kindString": "Property",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 70,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"signatures": [
+																{
+																	"id": 71,
+																	"name": "__type",
+																	"kind": 4096,
+																	"kindString": "Call signature",
+																	"flags": {},
+																	"comment": {
+																		"shortText": "woop"
+																	},
+																	"parameters": [
+																		{
+																			"id": 72,
+																			"name": "scripts",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {},
+																			"type": {
+																				"type": "array",
+																				"elementType": {
+																					"type": "intrinsic",
+																					"name": "string"
+																				}
+																			}
+																		},
+																		{
+																			"id": 73,
+																			"name": "cb",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {},
+																			"type": {
+																				"type": "reference",
+																				"qualifiedName": "Function",
+																				"package": "typescript",
+																				"name": "Function"
+																			}
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "void"
+																	}
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 74,
+													"name": "resizeIframe",
+													"kind": 1024,
+													"kindString": "Property",
+													"flags": {},
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 75,
+															"name": "__type",
+															"kind": 65536,
+															"kindString": "Type literal",
+															"flags": {},
+															"signatures": [
+																{
+																	"id": 76,
+																	"name": "__type",
+																	"kind": 4096,
+																	"kindString": "Call signature",
+																	"flags": {},
+																	"parameters": [
+																		{
+																			"id": 77,
+																			"name": "height",
+																			"kind": 32768,
+																			"kindString": "Parameter",
+																			"flags": {
+																				"isOptional": true
+																			},
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "number"
+																			}
+																		}
+																	],
+																	"type": {
+																		"type": "intrinsic",
+																		"name": "void"
+																	}
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 84,
+													"name": "uuid",
+													"kind": 1024,
+													"kindString": "Property",
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "client/src/managers/iframe.manager.ts",
+															"line": 353,
+															"character": 3
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "any"
+													},
+													"defaultValue": "p.generateUUID"
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"kind": 1024,
+													"children": [
+														85,
+														60,
+														78,
+														69,
+														74,
+														84
+													]
+												}
+											]
+										}
+									},
+									"defaultValue": "..."
+								},
+								{
+									"id": 56,
+									"name": "version",
+									"kind": 1024,
+									"kindString": "Property",
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "client/src/managers/iframe.manager.ts",
+											"line": 346,
+											"character": 2
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "number"
+									},
+									"defaultValue": "1.1"
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"kind": 1024,
+									"children": [
+										57,
+										58,
+										56
+									]
+								}
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Namespaces",
+			"kind": 4,
+			"children": [
+				95
+			]
+		},
+		{
+			"title": "Interfaces",
+			"kind": 256,
+			"children": [
+				1
+			]
+		},
+		{
+			"title": "Type aliases",
+			"kind": 4194304,
+			"children": [
+				94
+			]
+		},
+		{
+			"title": "Variables",
+			"kind": 32,
+			"children": [
+				24
+			]
+		},
+		{
+			"title": "Functions",
+			"kind": 64,
+			"children": [
+				43,
+				46
+			]
+		}
+	],
+	"sources": [
+		{
+			"fileName": "client/src/managers/iframe.manager.ts",
+			"line": 1,
+			"character": 0
+		}
+	]
+}
