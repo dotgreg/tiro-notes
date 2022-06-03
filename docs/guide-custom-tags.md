@@ -15,7 +15,7 @@
   London, SW1
   ```
   
-  And your note content being
+  And your note ```/project-1/email-to-primeminister.md``` content being
     
   ```
   .... Note content ....
@@ -26,7 +26,7 @@
   
   ```
   
-  The result will give
+  Your note preview area will show :  
   
    ```
   .... Note content ....
@@ -62,7 +62,7 @@
   
   ###  Add script logic 
   
-  You can add javascript to your custom tag with the special tag [[script]]
+  You can add javascript to your custom tag with the special tag ```[[script]]```
   
   If we have ```/.tiro/tags/square-number.md``` with the following content : 
   ```
@@ -87,6 +87,7 @@ Inside your scripts and/or custom tags, you can leverage the [Client API](client
 - trigger a popup [```api.call("popup.prompt")```](client-api.md?id=popupprompt)
 - open a file in a new tab [```api.call("tabs.openInNewTab")```](client-api.md?id=tabsopeninnewtab)
 
+You can check the code of already developed custom tags [here](https://github.com/dotgreg/tiro-notes/tree/dev/custom-tags)
 
 ### Publish my custom tag to Tiro website
 You can do a Push Request (PR) in https://github.com/dotgreg/tiro-notes and add your own folder-name inside /custom-tags/MY_CUSTOM_TAG_NAME. 

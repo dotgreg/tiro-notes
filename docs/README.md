@@ -1,12 +1,11 @@
+# Tiro Notes
+
 An open-source, cross-platform markdown editor designed for extensibility & flexibility
 
 🌐 website| 📘 documentation| ⬇️ downloads| 💬 forum | 📢 news|
 -|-|-|-|-
 [tiro-notes.org](https://dotgreg.github.io/tiro-notes)|[guides](https://dotgreg.github.io/tiro-notes/#/guide-custom-tags)|[download page](https://dotgreg.github.io/tiro-notes/#/downloads)|[forum](https://github.com/dotgreg/tiro-notes/discussions)|[twitter](https://twitter.com/NotesTiro)|
 
-
->"Marcus Tullius Tiro, a learned freedman who was a member of Cicero’s household, invented the Tironian notes, the first Latin shorthand system.
-Tironian notes consist of letters of the alphabet, simplified and modified to achieve greater speed in their writing."
 
 ![Tiro 0.30](https://user-images.githubusercontent.com/2981891/171833721-2acdc59d-8c21-4280-bd62-a78023731c22.png)
 
@@ -66,3 +65,5 @@ Tiro Notes focus points are :
 - ☁️ Use it as a local application, as a local or cloud server.
 - 📟 Use it on any device with a browser (Mobile, tablet and Desktop interface)
 - (🔧)📱 Install on iOS with iSH and NPX (to be tested...)
+
+>"Marcus Tullius Tiro, a learned freedman who was a member of Cicero’s household, invented the Tironian notes, the first Latin shorthand system. Tironian notes consist of letters of the alphabet, simplified and modified to achieve greater speed in their writing."
