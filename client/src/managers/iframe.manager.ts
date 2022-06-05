@@ -334,7 +334,10 @@ export const iframeMainCode = (p: {
 		const id = `ctag-content-wrapper-${p.generateUUID()} `
 		const updateContent = (nContent) => {
 			// @ts-ignore
-			document.getElementById(id).innerHTML = nContent;
+			const el = document.getElementById(id)
+			if (el) el.innerHTML = nContent;
+			// if el not existing, wait till here
+			else { setTimeout(() => { updateContent(nContent) }, 100) }
 		}
 		return {
 			div: `<div id="${id}"></div>`,

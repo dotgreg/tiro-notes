@@ -24,6 +24,7 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 	let sign = null
 	if (p.signatures) sign = p.signatures[0]
 	if (p.type && p.type.declaration) decl = p.type.declaration
+	if (decl && decl.signatures) decl = p.type.declaration
 
 	// PATH PREPROCESSING
 	if (path) {
@@ -37,9 +38,9 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 	if (signs[0] && signs[0].comment) {
 		res.comment = signs[0].comment.shortText
 	}
-	if (p.type && p.type.declaration && p.type.declaration.signatures && ) {
-		res.comment = signs[0].comment.shortText
-	}
+	// if (p.type && p.type.declaration && p.type.declaration.signatures) {
+	// 	res.comment = signs[0].comment.shortText
+	// }
 
 	//
 	// FUNCS
