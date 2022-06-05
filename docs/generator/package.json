@@ -5,30 +5,24 @@
 		"main": "index.js",
 		"scripts": {
 				"test": "echo \"Error: no test specified\" && exit 1",
-
 				"1___JSON_GEN_STAGE__": "",
 				"gen-json-iframe-api": "npx typedoc --tsconfig ../../client/tsconfig.json --json iframe-api.json ../../client/src/managers/iframe.manager.ts",
 				"gen-json-client-api": "npx typedoc --tsconfig ../../client/tsconfig.json --json client-api.json ../../client/src/hooks/api/api.hook.tsx",
 				"gen-json": "run-s gen-json-client-api gen-json-iframe-api",
-
 				"2___MD_GEN_STAGE__": "",
-				"gen-doc": "npx ts-node doc.ts",
-
+				"gen-doc": "ts-node doc.ts",
 				"3___BUILD_ALL__": "",
 				"build": "npm run-s gen-json gen-doc",
-
 				"___UPDATING_SERVING_WEBSITE_STAGE__": "",
 				"serve-docs": "npx docsify serve ../../docs",
-
 				"serve": "run-s build serve-docs",
-
 				"___DEV__": "",
 				"dev": "nodemon  --exec node --inspect -r ts-node/register doc.ts"
 		},
 		"devDependencies": {
 				"@types/node": "^17.0.35",
 				"nodemon": "^2.0.16",
-				"ts-node": "^10.8.0",
+				"ts-node": "^10.8.1",
 				"typedoc": "^0.22.15",
 				"typedoc-plugin-missing-exports": "^0.22.6"
 		},
