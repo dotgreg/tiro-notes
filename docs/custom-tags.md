@@ -1,7 +1,7 @@
 ## Install/Update a Custom Tag
 ### Install  <!-- {docsify-ignore} -->
 
-To install the custom tag ```[[latex]]```, create a markdown note named ```latex``` in the ```/.tiro/.tags/``` folder. It will then be available across your notes.
+To install the custom tag ```[[latex]]```, create a markdown note named ```latex``` in the ```/.tiro/tags/``` folder. It will then be available across your notes.
 
 
 ### Update  <!-- {docsify-ignore} -->
@@ -45,7 +45,7 @@ x = \\pm\\sqrt{a^2 + b^2}"
 <img src="https://user-images.githubusercontent.com/2981891/171807776-baf63670-aac2-42c6-926f-547fe15f8290.png" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/latex``` and paste the following content : 
+ - create the note ```/.tiro/tags/latex``` and paste the following content : 
 ```
 [[script]]
 // latex V1.0.0
@@ -111,7 +111,7 @@ pie
 <img src="" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/mermaid``` and paste the following content : 
+ - create the note ```/.tiro/tags/mermaid``` and paste the following content : 
 ```
 [[script]]
 // MERMAID V1.0.0
@@ -150,7 +150,7 @@ task 4|32|500|=B4*C4
 <img src="https://user-images.githubusercontent.com/2981891/171697299-cfa9ad93-d3ed-4252-b716-7f8e1157908b.png" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/spreadsheet``` and paste the following content : 
+ - create the note ```/.tiro/tags/spreadsheet``` and paste the following content : 
 ```
 [[script]]
 // SPREADSHEET V1.0.0
@@ -197,7 +197,7 @@ korben https://korben.info/feed
 
 
 #### Install :
- - create the note ```/.tiro/.tags/rss``` and paste the following content : 
+ - create the note ```/.tiro/tags/rss``` and paste the following content : 
 ```
 [[script]]
 // RSS V1.0.0
