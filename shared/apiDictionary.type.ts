@@ -1,4 +1,4 @@
-import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iSetupCode, iSetupForm } from "./types.shared";
+import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -23,6 +23,10 @@ export interface iApiDictionary {
 	moveFolder: { initPath: string, endPath: string }
 
 	searchFor: { term: string, type: iAppView, idReq: string }
+
+	searchWord: { word: string, folder: string, idReq: string }
+	getWordSearch: { result: iSearchWordRes, idReq: string }
+
 	getUploadedFile: { name: string, path: string, idReq: string }
 
 	askFolderHierarchy: { folderPath: string }

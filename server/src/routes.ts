@@ -17,6 +17,7 @@ import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
 import { debounceCleanHistoryFolder } from "./managers/history.manager";
 import { getFolderPath } from "./managers/path.manager";
+import { searchWord } from "./managers/search/word.search.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -60,6 +61,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			serverSocket2.emit('getFileContent', { fileContent: '', error: 'NO_FILE', filePath: data.filePath, idReq: data.idReq })
 		}
 
+	})
+
+	serverSocket2.on('searchWord', async data => {
+		searchWord({
+			term: data.word,
+			folder: data.folder,
+			cb: res => {
+				serverSocket2.emit('getWordSearch', { result: res, idReq: data.idReq })
+			}
+		})
 	})
 
 	serverSocket2.on('searchFor', async data => {

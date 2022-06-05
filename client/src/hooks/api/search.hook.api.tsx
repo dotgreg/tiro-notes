@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { iAppView, iFile } from '../../../../shared/types.shared';
+import { iAppView, iFile, iSearchWordRes } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
@@ -9,10 +9,15 @@ import { iStatusApi } from './status.api.hook';
 //
 // INTERFACES
 //
+
+// MAIN
 export interface iSearchApi {
 	files: iSearchFilesApi
+	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void) => void
 	ui: iSearchUiApi
 }
+
+// SUB
 export interface iSearchFilesApi {
 	search: (term: string, cb: (nFiles: iFile[]) => void) => void
 }
@@ -36,6 +41,15 @@ export const useSearchApi = (p: {
 	// STATE
 	//
 	const [searchTerm, setSearchTerm] = useState('')
+
+	//
+	// LISTEN TO SOCKET
+	// 
+	useEffect(() => {
+		clientSocket2.on('getWordSearch', data => {
+			p.eventBus.notify(data.idReq, data.result)
+		})
+	}, [])
 
 	//
 	// FUNCTIONS
@@ -64,6 +78,17 @@ export const useSearchApi = (p: {
 		search(term, cb, 'text')
 	}
 
+	const searchWord: iSearchApi['word'] = (word, folder, cb) => {
+		const idReq = genIdReq(`search-word-`);
+		console.log(`${h} searching WORD ${word}`);
+
+		// subscribe
+		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { cb(res) });
+
+		// start request
+		clientSocket2.emit('searchWord', { word, folder, token: getLoginToken(), idReq })
+	}
+
 	const searchFilesAndUpdateUi: iSearchApi['ui']['search'] = term => {
 		getClientApi2().then(api => {
 			api.ui.browser.files.set([])
@@ -82,6 +107,7 @@ export const useSearchApi = (p: {
 		files: {
 			search: searchFiles
 		},
+		word: searchWord,
 		ui: {
 			search: searchFilesAndUpdateUi,
 			//status: { get: isSearching, set: setIsSearching },

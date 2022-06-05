@@ -1,4 +1,6 @@
 
+export type iSearchWordRes = { [filePath: string]: { file: iFile, results: string[] } }
+
 export type iFileNature = 'file' | 'folder'
 
 export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
