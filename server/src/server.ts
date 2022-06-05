@@ -4,11 +4,8 @@ import { getPlatform } from './managers/platform.manager';
 import { sslConfig } from './ssl.manager';
 import { isEnvDev } from './managers/path.manager';
 import { fileLogClean, log } from './managers/log.manager';
-import { cloneDeep } from 'lodash';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
-import { searchWithRgGeneric, searchWithRipGrep } from './managers/search/search-ripgrep.manager';
-import { regexs } from '../../shared/helpers/regexs.helper';
-import { searchWord } from './managers/search/allOccurences.search.manager';
+import { searchWord } from './managers/search/word.search.manager';
 
 fileLogClean();
 
@@ -56,12 +53,20 @@ server.listen(backConfig.port, function () {
 })
 
 
-searchWord({
-	term: "#[^ #]+",
-	folder: '/test_obsi/nodal_ex',
-	cb: res => {
-		console.log(333, res, 333);
-	}
-})
+// searchWord({
+// 	term: "#[^ #]+",
+// 	folder: '/test_obsi/nodal_ex',
+// 	cb: res => {
+// 		console.log(333, res, 333);
+// 	}
+// })
+
+// searchWord({
+// 	term: "marx",
+// 	folder: '/test_obsi/nodal_ex',
+// 	cb: res => {
+// 		console.log(333, res, 333);
+// 	}
+// })
 
 // GOAL IS HAVING

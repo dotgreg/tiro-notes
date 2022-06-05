@@ -276,6 +276,13 @@ export const App = () => {
 	//@ts-ignore
 	window.api = api
 
+	useEffect(() => {
+		api.search.word("#[^ #]+", '/test_obsi/nodal_ex', res => {
+			console.log(3333, res);
+		})
+	}, [])
+
+
 	return (//jsx
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>

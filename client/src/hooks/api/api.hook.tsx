@@ -12,7 +12,7 @@ import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
 import { iFoldersApi, useFoldersApi } from './folders.api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
-import { iSearchUiApi, useSearchApi } from './search.hook.api';
+import { iSearchApi, iSearchUiApi, useSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
@@ -45,6 +45,7 @@ export interface iClientApi {
 	userSettings: iUserSettingsApi
 	history: iNoteHistoryApi
 	note: iNoteApi
+	search: iSearchApi
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -166,6 +167,7 @@ export const useClientApi = (p: {
 		history: p.historyApi,
 		status: p.statusApi,
 		note: noteApi,
+		search: searchApi,
 		ui: {
 			browser: browserApi,
 			windows: p.windowsApi,
