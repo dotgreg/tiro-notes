@@ -31,8 +31,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		searchWithRipGrep({
 			term: '',
 			folder: data.folderPath,
+			typeSearch: 'folder',
 			titleSearch: false,
-			recursive: false,
 			onSearchEnded: async res => {
 				if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 			}
@@ -42,10 +42,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askForImages', async data => {
 		searchWithRipGrep({
 			term: '',
-			imageSearch: true,
+			typeSearch: 'folder-image',
 			folder: data.folderPath,
 			titleSearch: false,
-			recursive: false,
 			onSearchEnded: async res => {
 				if (res.images) await serverSocket2.emit('getImages', { images: res.images })
 			}
@@ -70,8 +69,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			searchWithRipGrep({
 				term: termObj.term,
 				folder: termObj.folderToSearch,
+				typeSearch: 'term',
 				titleSearch: termObj.titleSearch,
-				recursive: true,
 				onSearchEnded: async res => {
 					if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 				}
@@ -80,10 +79,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		else if (data.type === 'image') {
 			searchWithRipGrep({
 				term: termObj.term,
+				typeSearch: 'term-image',
 				folder: termObj.folderToSearch,
 				titleSearch: termObj.titleSearch,
-				imageSearch: true,
-				recursive: true,
 				onSearchEnded: async res => {
 					if (res.images) await serverSocket2.emit('getImages', { images: res.images })
 				}

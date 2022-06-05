@@ -27,14 +27,85 @@ export const isRgCliWorking = async (): Promise<boolean> => {
 	}
 }
 
-// SEARCH WITH RG
+
+
+
+//
+// NEW GENERIC SEARCH
+//
+type iLineRg = {
+	raw: string,
+	path: string,
+	found: string,
+	file: iFile
+}
+export const searchWithRgGeneric = async (p: {
+	term: string
+	folder: string
+
+	recursive?: boolean,
+	debug?: boolean
+
+	processRawLine?: (infos: iLineRg) => any
+	onSearchEnded: (res: any) => void
+}): Promise<void> => {
+
+	if (!p.recursive) p.recursive = true
+	if (!p.processRawLine) p.processRawLine = (r: any) => [r]
+
+	// if backconfigFolder doesnt exists, add it
+	const relativeFolder = getRelativePath(p.folder)
+	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
+
+	const searchParams = [
+		p.term,
+		folderToSearch,
+		'--ignore-case',
+		'--type',
+		'md',
+		// do not print whole line, just one match per line
+		'--only-matching',
+	]
+	p.debug && console.log(`== ============`);
+	p.debug && console.log(backConfig.rgPath, searchParams);
+	const ripGrepStream = execa(backConfig.rgPath, searchParams)
+	const resArr: string[] = []
+	ripGrepStream.stdout.on('data', async dataChunk => {
+		const rawChunk = dataChunk.toString()
+		const rawLines = rawChunk.split('\n')
+		each(rawLines, line => {
+			const processedInfos = line.split(':')
+			if (!processedInfos[0] || processedInfos[0] === '') return
+			console.log(processedInfos);
+			const processedLine = p.processRawLine({
+				file: processRawPathToFile({rawPath: processedInfos[0], folder: p.folder}),
+				raw: line,
+				path: processedInfos[0],
+				found: processedInfos[1],
+			})
+			if (processedLine) resArr.push(processedLine)
+		})
+	})
+	ripGrepStream.stdout.on('close', dataChunk => {
+		p.onSearchEnded(resArr)
+		p.debug && console.log(`============== END`);
+	})
+}
+
+
+//
+// ODL SEARCH WITH RG
+//
 export const searchWithRipGrep = async (params: {
-	term: string,
-	folder: string,
-	titleSearch: boolean,
-	imageSearch?: boolean,
-	recursive: boolean,
+	term: string
+	folder: string
+	titleSearch: boolean
+	typeSearch: 'term' | 'folder' | 'term-image' | 'folder-image' | 'folder-regex'
+
 	onSearchEnded: (res: { files?: iFile[], images?: iFileImage[] }) => Promise<void>
+
+	processRawEl?: (raw: string) => any
+	processFinalRes?: (raw: string) => any
 }): Promise<void> => {
 
 	let processTerm = params.term.split('-').join('\\-')
@@ -44,7 +115,11 @@ export const searchWithRipGrep = async (params: {
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
 
 	const perfs = { init: Date.now(), cmd1: Date.now(), cmd2: Date.now() }
-	const searchType = (params.term === '') ? 'folder' : 'term'
+
+	// let searchType = (params.term === '') ? 'folder' : 'term'
+	// searchType = (params.imageSearch) ? searchType + '-image' : 
+	// let searchType = ''
+	// if (params.term === '' && params.imageSearch) searchType = ''
 
 	const debugMode = (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
 
@@ -59,10 +134,11 @@ export const searchWithRipGrep = async (params: {
 	//////////////////////////////////////
 	// SEARCH TYPE 1 : TERM SEARCH
 	//
-	if (searchType === 'term' && !params.imageSearch) {
+	if (params.typeSearch === 'term') {
 		const titleFilter = params.titleSearch ? processTerm : ''
 		const searchedTerm = params.titleSearch ? '' : processTerm
 
+		// search term but also header time
 		const termRegex = `(${r.headerStart}${r.all}${r.headerStop})*${r.all}${searchedTerm}${r.all}(${r.headerStart}${r.all}${r.headerStop})*`
 		const normalSearchParams = [
 			termRegex,
@@ -82,13 +158,14 @@ export const searchWithRipGrep = async (params: {
 			const rawMetaArr = rawMetaString.split('\n')
 			resultsRawArr.push(...rawMetaArr)
 		})
+
 		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
 			const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
 			// if (debugMode) log(11, resultsRawArr, 'to', metasFilesObj)
 			const scannedFilesObj: iFilesObj = {}
 			let index = 0
 			each(metasFilesObj, (metaObj, fileName) => {
-				const file = processRawPathToFile(fileName, relativeFolder, index, titleFilter)
+				const file = processRawPathToFile({ rawPath: fileName, folder: relativeFolder, index, titleFilter })
 				if (file && file.name) {
 					if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
 						scannedFilesObj[file.name] = file
@@ -107,7 +184,7 @@ export const searchWithRipGrep = async (params: {
 	//////////////////////////////////////
 	// SEARCH TYPE 2 : FOLDER SEARCH
 	//
-	else if (searchType === 'folder' && !params.imageSearch) {
+	else if (params.typeSearch === 'folder') {
 		const fullFolderSearchParams = [
 			'--files',
 			folderToSearch,
@@ -179,8 +256,8 @@ export const searchWithRipGrep = async (params: {
 
 	//////////////////////////////////////
 	// SEARCH TYPE 3 : IMAGE SEARCH
-	//
-	else if (searchType === 'term' && params.imageSearch) {
+	// term in folder and its subfolders
+	else if (params.typeSearch === 'term-image') {
 		const titleFilter = params.titleSearch ? processTerm : ''
 		const searchedTerm = params.titleSearch ? '' : processTerm
 
@@ -207,7 +284,8 @@ export const searchWithRipGrep = async (params: {
 			params.onSearchEnded({ images })
 		})
 	}
-	else if (searchType === 'folder' && params.imageSearch) {
+	// IMAGE SEARCH : only in folder and NOT in subfolders
+	else if (params.typeSearch === 'folder-image') {
 		const searchParams = [
 			`${r.imageMd}`,
 			folderToSearch,
@@ -233,11 +311,69 @@ export const searchWithRipGrep = async (params: {
 	}
 
 
+	//////////////////////////////////////
+	// SEARCH TYPE 4 : GENERIC
+
+	else if (params.typeSearch === 'folder-regex') {
+		const titleFilter = params.titleSearch ? processTerm : ''
+		const searchedTerm = params.titleSearch ? '' : processTerm
+
+		const termRegex = params.term
+		const searchParams = [
+			termRegex,
+			folderToSearch,
+			'--ignore-case',
+			'--type',
+			'md',
+			'--multiline',
+		]
+		console.log(`==============`);
+		console.log(searchParams);
+		const ripGrepStreamProcessImg2 = execa(backConfig.rgPath, searchParams)
+		const rawStrings: string[] = []
+		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
+			const partialRawString = dataRaw.toString()
+			console.log(`--> `, partialRawString);
+			// split multiline strings
+			// const partialRawStringsArr = partialRawString.split('\n')
+			// rawStrings.push(...partialRawStringsArr)
+		})
+		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
+			// const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
+			// log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
+			params.onSearchEnded({})
+			console.log(`============== END`);
+
+		})
+	}
+
+	// // IMAGE SEARCH : only in folder and NOT in subfolders
+	// else if (params.typeSearch === 'term-regex') {
+	// 	const searchParams = [
+	// 		`${r.imageMd}`,
+	// 		folderToSearch,
+	// 		'--max-depth=1',
+	// 		'--ignore-case',
+	// 		'--type',
+	// 		'md',
+	// 		'--multiline',
+	// 	]
+	// 	const ripGrepStreamProcessImg1 = execa(backConfig.rgPath, searchParams)
+	// 	const rawStrings: string[] = []
+	// 	ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
+	// 		const partialRawString = dataRaw.toString()
+	// 		// split multiline strings
+	// 		const partialRawStringsArr = partialRawString.split('\n')
+	// 		rawStrings.push(...partialRawStringsArr)
+	// 	})
+	// 	ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
+	// 		const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
+	// 		log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
+	// 		params.onSearchEnded({ images })
+	// 	})
+	// }
 
 }
-
-
-
 
 
 
