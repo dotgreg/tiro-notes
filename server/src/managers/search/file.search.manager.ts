@@ -16,12 +16,22 @@ export const cleanFilePath = (rawString: string, folder) => {
 	return rawString
 }
 
-export const processRawPathToFile = (
-	rawPath: string,
-	folder: string,
-	index: number = 0,
-	titleFilter: string = ''
-): iFile => {
+// export const processRawPathToFile = (p:{
+// 	rawPath: string
+// 	folder: string
+// 	index: number = 0
+// 	titleFilter: string = ''
+// }): iFile => {
+
+export const processRawPathToFile = (p: {
+	rawPath: string
+	folder: string
+	index?: number
+	titleFilter?: string
+}): iFile => {
+	let { rawPath, folder, index, titleFilter } = { ...p }
+	if (!index) index = 0
+	if (!titleFilter) titleFilter = ''
 
 	let res: iFile
 	let cleanedData = cleanFilePath(rawPath, folder)
@@ -47,7 +57,7 @@ export const processRawDataToFiles = (dataRaw: string, titleFilter: string = '',
 
 	for (let i = 0; i < array.length; i++) {
 		let filePath = array[i];
-		const fileRes = processRawPathToFile(filePath, folder, i, titleFilter)
+		const fileRes = processRawPathToFile({rawPath: filePath, folder, index: i, titleFilter})
 		res.push(fileRes)
 	}
 	return res

@@ -121,8 +121,8 @@ export const scanDirForFiles = async (path: string): Promise<iFile[] | string> =
 		searchWithRipGrep({
 			term: '',
 			folder: path,
+			typeSearch: 'folder',
 			titleSearch: false,
-			recursive: false,
 			onSearchEnded: async answer => {
 				res(answer.files)
 			}

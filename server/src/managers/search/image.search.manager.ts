@@ -32,7 +32,7 @@ export const processRawStringsToImagesArr = (rawMetasStrings: string[], folder:s
          */
         const fileName = `${rawMetaArr2[0]}.md`;
         let cleanedFileName = cleanFilePath(fileName, folder)
-        const file = processRawPathToFile(cleanedFileName, folder)
+		const file = processRawPathToFile({rawPath: cleanedFileName, folder})
 
         if (titleFilter !== '' && !file.path.toLowerCase().includes(titleFilter.toLowerCase())) continue
 

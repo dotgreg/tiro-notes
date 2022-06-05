@@ -38,7 +38,7 @@ export const backConfig = {
 	...sharedConfig.path,
 
 	dev: {
-		disableLogin: false
+		disableLogin: true
 	},
 
 }

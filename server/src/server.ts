@@ -6,6 +6,9 @@ import { isEnvDev } from './managers/path.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { cloneDeep } from 'lodash';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
+import { searchWithRgGeneric, searchWithRipGrep } from './managers/search/search-ripgrep.manager';
+import { regexs } from '../../shared/helpers/regexs.helper';
+import { searchWord } from './managers/search/allOccurences.search.manager';
 
 fileLogClean();
 
@@ -51,3 +54,14 @@ server.listen(backConfig.port, function () {
 	let configServerStr = JSON.stringify({ https: backConfig.https, port: backConfig.port })
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
+
+
+searchWord({
+	term: "#[^ #]+",
+	folder: '/test_obsi/nodal_ex',
+	cb: res => {
+		console.log(333, res, 333);
+	}
+})
+
+// GOAL IS HAVING

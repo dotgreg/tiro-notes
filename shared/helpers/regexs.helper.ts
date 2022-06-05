@@ -44,7 +44,9 @@ export const regexs = {
 
 	searchFolder: VerEx().find(' /').anything().endOfLine(),
 	searchFolderNoSpace: VerEx().find('/').anything().endOfLine(),
-	firstPartImg: VerEx().find('![').anythingBut('[]').then('](')
+	firstPartImg: VerEx().find('![').anythingBut('[]').then(']('),
+
+	hashtag : VerEx().find('#').beginCapture().anythingBut(' ').endCapture()
 
 }
 
