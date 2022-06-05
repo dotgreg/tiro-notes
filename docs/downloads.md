@@ -1,6 +1,5 @@
 ### DESKTOP APPLICATIONS <!-- {docsify-ignore} -->
 
-Mac/Linux/Windows Applications can be downloaded [here](https://github.com/dotgreg/tiro-notes/releases/tag/production) 
 
 Version | Mac | Windows | Linux | Changelog
 -|-|-|-|-
