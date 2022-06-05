@@ -18,7 +18,9 @@
 				"build": "npm run-s gen-json gen-doc",
 
 				"___UPDATING_SERVING_WEBSITE_STAGE__": "",
-				"serve": "npx docsify serve ../../docs",
+				"serve-docs": "npx docsify serve ../../docs",
+
+				"serve": "run-s build serve-docs",
 
 				"___DEV__": "",
 				"dev": "nodemon  --exec node --inspect -r ts-node/register doc.ts"

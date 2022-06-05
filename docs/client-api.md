@@ -231,6 +231,53 @@ noteLink should be relative from tiro folder
  
 
 
+ ## Api.call : search
+ 
+
+#### <span class="render-code-wrapper">search.files.search</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. term: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.files.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">search.ui.term.get</span>
+ - Type: <span class="render-code-wrapper">string</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call("search.ui.term.get", [], (res:string) => {})</div>
+ 
+
+#### <span class="render-code-wrapper">search.ui.term.set</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. nTerm: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.ui.term.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">search.ui.search</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. term: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.ui.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">search.word</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. word: <span class="render-code-wrapper">string</span>
+       1. folder: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.word",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : status
  
 
@@ -494,6 +541,12 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;end: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;start: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper">"text" | "tag"</span>, <br/>&nbsp;&nbsp;&nbsp;tagName?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iSearchWordRes</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iViewType</span>
