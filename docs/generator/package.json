@@ -12,7 +12,7 @@
 				"2___MD_GEN_STAGE__": "",
 				"gen-doc-1": "sudo npm install -g ts-node typescript",
 				"gen-doc-2": "ts-node doc.ts",
-				"gen-doc": "run-s gen-doc-1 gen-doc-2",
+				"gen-doc": "npx ts-node doc.ts --project ./tsconfig.json",
 				"3___BUILD_ALL__": "",
 				"build": "npm run-s gen-json gen-doc",
 				"___UPDATING_SERVING_WEBSITE_STAGE__": "",
