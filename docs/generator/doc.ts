@@ -65,14 +65,15 @@ const exportDocumentationFromJson = (
 	buildExtObjs(data)
 
 	console.log("==> ANALYSING ROOT INTERFACE ");
+	console.log(p.objectToAnalyze);
 
 	// MAIN ANALYZER
 	const analyzedArr = getAnalyzedStructure(data, p.objectToAnalyze, p.blacklist)
 
 	// FROM FLAT ARR TO LAYERED FOR TITLE N STUFFS
 	const structArrs = flatToStructured(analyzedArr, 1)
-	if (p.debug) console.log(191, d(structArrs));
-
+	// if (p.debug) console.log(192, d(structArrs));
+	// if (p.debug) console.log(193, d(structArrs));
 
 
 	// RENDER LOGIC
@@ -110,7 +111,6 @@ const strIframeApi = exportDocumentationFromJson({
 		funcStart: (o2, { j }) => `api.${o2.path}(`,
 		funcDisplay: "normal"
 	},
-	debug: true
 })
 // console.log(strIframeApi);
 
@@ -141,7 +141,8 @@ const strClientApi = exportDocumentationFromJson({
 		titlePre: "Api.call : ",
 		funcStart: (o2, { j }) => `api.call(${j(3)}"${o2.path}",${j(3)} [`,
 		funcDisplay: "api.call"
-	}
+	},
+	debug: true
 })
 // updateDocFile(strClientApi)
 

@@ -200,11 +200,11 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">note.render</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span>
     - Result: <span class="render-code-wrapper">string</span> 
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"note.render",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span> ], <br/>(res:<span class="render-code-wrapper">string</span>) => {}<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"note.render",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span> ], <br/>(res:<span class="render-code-wrapper">string</span>) => {}<br/>)</div>
  
 
 
@@ -465,9 +465,9 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">upload.uploadFile</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.uploadFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.uploadFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span> ]<br/>)</div>
  
 
 
@@ -520,7 +520,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">iFile</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iGetFilesCb</span>
@@ -546,7 +546,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">iSearchWordRes</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[filePath:string]: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;results: <span class="render-code-wrapper">string[]</span><br/>}</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iViewType</span>
@@ -558,7 +558,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">iWindowContent</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;i: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;i: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iWindow</span>
@@ -576,7 +576,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">iTab</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;manualName?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;position?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;refresh?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;grid: <span class="render-code-wrapper"><a href="#client-api?id=igrid">iGrid</a></span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;manualName?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;position?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;refresh?: <span class="render-code-wrapper">number</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">onUploadProgressFn</span>
@@ -604,7 +604,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">keyVal</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;val: <span class="render-code-wrapper">any</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;key: <span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>, <br/>&nbsp;&nbsp;&nbsp;val: <span class="render-code-wrapper">any</span><br/>}</span></div>
 
 <style>
 h4 .render-code-wrapper {

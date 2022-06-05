@@ -103,11 +103,39 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 
 
 		//
+		// OBJ DIC {}
+		// like : { [filePath: string]: { file: iFile, results: string[] } }
+		//
+	} else if (
+		(
+			p.type && p.type.type === "reflection" ||
+			p.kindString === "Interface") &&
+		p.type && p.type.declaration && p.type.declaration.indexSignature && p.type.declaration.indexSignature.parameters
+	) {
+
+
+		// [filePath: string] should be like a normal obj prop
+		const b = p.type.declaration.indexSignature
+		const params = b.parameters
+		const propName = `[${params[0].name}:${params[0].type.name}]`
+		res.objprop = {}
+		res.type = "object"
+		// get subobj
+		const subObj = b.type && b.type.declaration && b.type.declaration || {}
+		console.log(d(subObj));
+		res.objprop[`${propName}`] = analyzeItem(subObj, '', { raw: false })
+		res.objprop[`${propName}`].name = propName
+
+		// if (p.name === "iSearchWordRes") console.log(192, d(res));
+		console.log(192, d(res));
+
+		//
 		// OBJ
 		//
 	} else if (
 		p.type && p.type.type === "reflection" ||
-		p.kindString === "Interface"
+		p.kindString === "Interface" ||
+		p.kindString === "Type literal"
 	) {
 
 		const getObjProps = (res: iAnalyzedObj, children: any[]) => {
@@ -116,6 +144,7 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 			const optional = {}
 			each(children, p2 => {
 				const o2 = analyzeItem(p2, '', { raw: false })
+
 				if (o2 && o2.name) {
 					if (o2.optional) optional[o2.name] = o2
 					else required[o2.name] = o2
@@ -131,9 +160,14 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 			getObjProps(res, p.type.declaration.children)
 		}
 
-		if (p.kindString === "Interface" && p.children) {
+		if ((
+			p.kindString === "Interface" ||
+			p.kindString === "Type literal"
+		) && p.children) {
 			getObjProps(res, p.children)
 		}
+
+		// console.log(193, d(res));
 
 	} else if (p.type && p.type.type) {
 
@@ -171,12 +205,12 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 		//
 		// REFERENCES TO EXT INTERVAL
 		//
-		else if (p.type.type === 'reference') {
+		else if (
+			p.type.type === 'reference'
+		) {
 			addToExtRefs(getReferenceByName(p.type.name))
-			// const r1 = getReferenceByName(p.type.name)
-			// if (r1) res = r1
-			// res.name = p.name
-			res = { name: '', type: "reference", externalRefName: p.type.name }
+			const name = p.name || ''
+			res = { name, type: "reference", externalRefName: p.type.name }
 		}
 		//
 		// UNION
