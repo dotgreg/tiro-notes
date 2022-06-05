@@ -18,7 +18,7 @@
         "server": "npm run --prefix ./server start",
         "================== PLATFORMS RELATED =================== ": "",
         "publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish-dev;",
-        "__PUBLISH_ELECTRON__": "push to master > github ci > .github/workflows/node.js.yml",
+        "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
         "================== NODE BUILD =================== ": "",
         "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server build-docs clean-prev-build export-the-build copy-build-to-electron-folder",
