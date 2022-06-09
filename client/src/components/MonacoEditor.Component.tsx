@@ -18,16 +18,24 @@ export const resetMonacoSelectionExt = () => {
 	monacoEditorInstance.setSelection(selection)
 }
 
+export type OnCursorChangeFn = (p: { word: string, line: string, position: { lineNumber: number, column: number } }) => void
+
 export class MonacoEditorWrapper extends React.Component<{
 	value: string,
 	vimMode: boolean,
 	posY: number
 	readOnly: boolean,
+	insertUnderCaret?: string
+	onMaxYUpdate?: Function
+
+
+
 	onChange: (text: string) => void
 	onScroll: onScrollFn
 	onUpdateY: onScrollFn
-	insertUnderCaret?: string
-	onMaxYUpdate?: Function
+	onCursorChange: OnCursorChangeFn
+	onKeyDown: (keyCode: string) => void
+
 }, {}> {
 	reactComp: any
 	vimStatusBar: any
@@ -42,6 +50,18 @@ export class MonacoEditorWrapper extends React.Component<{
 
 	editor: any
 	monaco: any
+
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////
+	// EDITOR MOUNTED
+	//
 	editorDidMount = (editor: any, monaco: any) => {
 		if (this.props.vimMode) {
 			console.log('[MONACO EDITOR] vim mode started', this.vimStatusBar.current);
@@ -62,10 +82,48 @@ export class MonacoEditorWrapper extends React.Component<{
 		// });
 
 		// on scroll change, update Y
+		console.log(1515, editor);
+		editor.onKeyDown((e: any) => {
+			// console.log(15154, e);
+			this.props.onKeyDown(e.code.toLowerCase())
+		})
+		editor.onDidChangeCursorPosition((e: any) => {
+			// console.log(15152, e);
+			if (e.source !== 'keyboard' && e.source !== 'mouse') return
+			const pos = e.position
+			const model = editor.getModel()
+			// console.log(1515111, pos);
+			const wordObj = model.getWordAtPosition(pos)
+			const line = model.getLineContent(pos.lineNumber)
+			// console.log(15156, e, word);
+			if (!wordObj) return
+			this.props.onCursorChange({ word: wordObj.word, line, position: pos })
+		})
+		editor.onMouseDown((e: any) => {
+			// const pos = e.target.position
+			// const model = editor.getModel()
+			// const word = model.getWordAtPosition(pos)
+			// // console.log(1414, e, pos, word);
+			// if (!word) return
+			// this.props.onWordHover(word)
+		})
+
+
+		editor.updateOptions({ wordSeparators: '`~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?' })
+		monaco.languages.setLanguageConfiguration('markdown', {
+			// Allow square brackets to be part of a word.
+			wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\{\}\\\|\;\:\"\,\.\<\>\/\?\s]+)/g,
+		})
+
+
+
 		editor.onDidChangeCursorPosition((e) => {
 			updatePosY()
 		});
 
+		// monaco.languages.setLanguageConfiguration('markdown', {
+		// 	wordPattern: /'?\w[\w\]\['-.]*[?!,;:"]*/
+		// });
 
 		//@ts-ignore
 		window.editor = editor
@@ -92,8 +150,16 @@ export class MonacoEditorWrapper extends React.Component<{
 		setTimeout(() => {
 			//this.resetMonacoSelection();
 		}, 100)
-	}
 
+	} // END ON DID MOUNT
+
+
+
+
+
+	//
+	// click on word check
+	//
 
 	resetMonacoSelection = () => {
 		const sel = this.editor.getSelection()
@@ -187,6 +253,7 @@ export class MonacoEditorWrapper extends React.Component<{
 						mouseWheelScrollSensitivity: 0.5,
 						lineNumbers: 'off',
 						// glyphMargin: false,
+
 						renderIndentGuides: false,
 						folding: false,
 						// smoothScrolling: true,

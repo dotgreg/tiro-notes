@@ -1,4 +1,5 @@
 import { each } from "lodash";
+import { dirname } from "path";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
@@ -29,11 +30,10 @@ export const isRgCliWorking = async (): Promise<boolean> => {
 
 
 
-
-//
+/////////////////////////////////////////////////////////
 // NEW GENERIC SEARCH
 //
-type iLineRg = {
+export type iLineRg = {
 	raw: string,
 	path: string,
 	found: string,
@@ -43,8 +43,9 @@ export const searchWithRgGeneric = async (p: {
 	term: string
 	folder: string
 
-	recursive?: boolean,
+	recursive?: boolean
 	debug?: boolean
+	flags?: string[]
 
 	processRawLine?: (infos: iLineRg) => any
 	onSearchEnded: (res: any) => void
@@ -53,6 +54,9 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.recursive) p.recursive = true
 	if (!p.processRawLine) p.processRawLine = (r: any) => [r]
 
+	// only-matching: do not print whole line, just one match per line
+	if (!p.flags) p.flags = ["--type", "md", "--only-matching", '--ignore-case']
+
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
@@ -60,11 +64,7 @@ export const searchWithRgGeneric = async (p: {
 	const searchParams = [
 		p.term,
 		folderToSearch,
-		'--ignore-case',
-		'--type',
-		'md',
-		// do not print whole line, just one match per line
-		'--only-matching',
+		...p.flags
 	]
 	p.debug && console.log(`== ============`);
 	p.debug && console.log(backConfig.rgPath, searchParams);
@@ -75,10 +75,10 @@ export const searchWithRgGeneric = async (p: {
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
 			const processedInfos = line.split(':')
+			const rawPath = processedInfos[0]
 			if (!processedInfos[0] || processedInfos[0] === '') return
-			console.log(processedInfos);
 			const processedLine = p.processRawLine({
-				file: processRawPathToFile({rawPath: processedInfos[0], folder: p.folder}),
+				file: processRawPathToFile({ rawPath, folder: p.folder }),
 				raw: line,
 				path: processedInfos[0],
 				found: processedInfos[1],
@@ -93,8 +93,19 @@ export const searchWithRgGeneric = async (p: {
 }
 
 
-//
-// ODL SEARCH WITH RG
+
+
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////
+// OLD SEARCH WITH RG
 //
 export const searchWithRipGrep = async (params: {
 	term: string
@@ -247,7 +258,8 @@ export const searchWithRipGrep = async (params: {
 			if (counterCmdsDone === 2) {
 				const filesWithMetaUpdated = mergingMetaToFilesArr(filesScannedObj, metasFilesScanned)
 				const perfString = `tot:${Date.now() - perfs.init}ms / cmd1:${perfs.cmd1 - perfs.init}ms / cmd2:${perfs.cmd2 - perfs.init}ms`
-				log(h, ` FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
+				// log(h, ` FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
+				log(h, ` FOLDER => BOTH CMDS => ENDED `, { perfString, perfs });
 				params.onSearchEnded({ files: filesWithMetaUpdated })
 			}
 		}

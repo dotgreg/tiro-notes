@@ -36,6 +36,7 @@ import { useStatusApi } from './hooks/api/status.api.hook';
 import { TreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
+import { SuggestPopup } from './components/SuggestPopup.component';
 
 
 
@@ -289,6 +290,8 @@ export const App = () => {
 
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
+
+			<SuggestPopup onClose={e => {}} />
 
 					<Global styles={GlobalCssApp()} />
 					<div role="dialog" className={`

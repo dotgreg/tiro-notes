@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
-import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
+import { MonacoEditorWrapper, OnCursorChangeFn, resetMonacoSelectionExt } from '../MonacoEditor.Component';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -23,6 +23,7 @@ import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
+import { addKeyAction } from '../../managers/keys.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -56,6 +57,132 @@ export const EditorArea = (p: {
 	if (api && api.status.isConnected === false) canEdit = false
 
 
+
+
+
+	/////////////////////////////////////////////////////////////////
+	// SMALLER LINKS LOGIC => requires full/contracted content
+	// 
+
+	// let clickCount = 0
+	let clickWord = ''
+	const onCursorChange: OnCursorChangeFn = p => {
+		// if word hovered is a tag, toggle contracted mode to false
+		console.log(15152, p, clickWord,);
+		if (!isContracted) return
+
+		if (p.word.startsWith('[[') || p.word.endsWith(']]')) {
+			setIsContracted(false)
+
+			// double click
+			//if (p.word === clickWord) setIsContracted(false)
+
+		} else {
+			// clickCount = 0
+			// contractContent(innerFileContent)
+			// setIsContracted(true)
+		}
+		clickWord = p.word
+		// what can i do [[when]] [[iam]] [[in]] [[such]] [[ situation I know nothing about]] know [[woop]]
+		// else setIsContracted(true)
+
+		// 1) match all possible tags => arr when,iam,in,such,situation i know nothing about
+		// 2) 
+
+
+		// contractContent(innerFileContent)
+		// console.log(1515, word, contractedContent);
+	}
+	const onKeyDown = (code: string) => {
+		console.log(15157, code);
+		if (code === "escape") {
+			contractContent(innerFileContent)
+			setIsContracted(true)
+		}
+	}
+
+	// create a contracted content
+	const [isContracted, setIsContracted] = useState(true)
+	const [contractedContent, setContractedContent] = useState('')
+
+	// create contracted content
+	const contractContent = (fullContent: string) => {
+		let res = fullContent
+		// res = 'contracted: ' + res
+		// res = 'contracted: ' + res
+		res = res.replaceAll('.md|wop/wop]]', ']]')
+		// console.log(15153, res);
+		// create that replacement array
+		setContractedContent(res)
+	}
+
+	const triggerExpandedNoteEdition = (newContent: string) => {
+		let nContent = isContracted ? getExpandedContent(newContent) : newContent
+		contractContent(nContent)
+		triggerNoteEdition(nContent)
+	}
+
+	useEffect(() => {
+		console.log('15157 contract');
+		contractContent(innerFileContent)
+	}, [innerFileContent])
+
+	useEffect(() => {
+
+	}, [innerFileContent])
+
+	// if edition on contracted mode, should reverse that 
+	const getExpandedContent = (contractedContent: string): string => {
+		// res = res.replaceAll(']]', 'woooop/wooop]]')
+		let res = contractedContent
+		res = res.replaceAll(']]', '.md|wop/wop]]')
+		return res
+		// sending back hello [[link]] world to editor
+		// editor has full "hello [[link /woop/wooop]] world"
+		// je propose donc de faire un array de remplacement
+		// ["[[link]]", "[[link /woop/wooop]]"], etc... 
+
+		// PB avec cette solution, c'est que se passe il si on intervertit 2 paragraphes, il est alors dans les chouxs
+		// il faut donc que ce replacement array aye ces replacements name uniques type [[link_1]] si conflit avec un autre deja existant
+
+		// autre pb, il faut calc la différence entre pos curseur avant et apres
+		// 
+
+		// OU autre solution => full n'est pas vraiment le full mais seulement le full du tag en dessous
+		// donc dans ce cas getExpandedContent
+
+		// il faut que onCursorChange envoie 1) sa position 2) le mot en question
+		// ensuite si le mot force a lexpansion
+		// expandWord([[link_1]]) => [[link.md /woop/woooop]] => creer un nouveau contractedContent avec ca en plus
+		// 
+
+		// triggerExpandedEdition remplace TOUT LE TEMPS [[link_1]] par leur remplacant si il les trouve
+
+		// pas de notion de isContracted donc
+
+		// ===========
+
+		// mouai bof, assez complexe alors qu'a la fin c'est juste une position de souris a decaler
+		// faire comme a present
+
+		// ah mais attends, en fait, ca devrait aller => nope, ca part en couille
+
+		// ===========
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+	/////////////////////////////////////////////////////////////////
 	// LIFECYCLE EVENTS MANAGER HOOK
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
@@ -94,7 +221,7 @@ export const EditorArea = (p: {
 	let mobileTextarea = useRef<HTMLTextAreaElement>(null)
 	const { onTextareaChange, onTextareaScroll } = useMobileTextAreaLogic(innerFileContent, {
 		mobileTextarea,
-		onMobileNoteEdition: triggerNoteEdition
+		onMobileNoteEdition: triggerExpandedNoteEdition
 	})
 
 
@@ -106,7 +233,7 @@ export const EditorArea = (p: {
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
-		if (updatedText) triggerNoteEdition(updatedText)
+		if (updatedText) triggerExpandedNoteEdition(updatedText)
 	}
 
 	// ECRYPTION FUNCTIONS HOOKS
@@ -115,8 +242,8 @@ export const EditorArea = (p: {
 		ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
 	} = useNoteEncryption({
 		fileContent: innerFileContent,
-		onTextEncrypted: triggerNoteEdition,
-		onTextDecrypted: triggerNoteEdition
+		onTextEncrypted: triggerExpandedNoteEdition,
+		onTextDecrypted: triggerExpandedNoteEdition
 	})
 
 
@@ -224,6 +351,17 @@ export const EditorArea = (p: {
 	// // Id note ref
 	const idInputRef = useRef<HTMLInputElement>(null)
 
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////
+	// RENDER
+	//
 	return (//jsx
 		<div
 			className={`editor-area`}
@@ -245,6 +383,7 @@ export const EditorArea = (p: {
 						gridContext.file.onTitleUpdate(oPath, nPath)
 					}}
 				/>
+				<div onClick={e => { setIsContracted(true) }}>{isContracted ? "contr" : "close tags"}</div>
 
 				<div className="toolbar-and-dates-wrapper">
 
@@ -371,12 +510,14 @@ export const EditorArea = (p: {
 				{
 					deviceType() === 'desktop' &&
 					<MonacoEditorWrapper
-						value={innerFileContent}
+						value={isContracted ? contractedContent : innerFileContent}
 						vimMode={vimMode}
 						readOnly={!canEdit}
 						ref={monacoEditorComp}
-						onChange={triggerNoteEdition}
+						onChange={triggerExpandedNoteEdition}
 						onScroll={p.onScroll}
+						onCursorChange={onCursorChange}
+						onKeyDown={onKeyDown}
 						onUpdateY={p.onUpdateY}
 						posY={p.posY}
 						onMaxYUpdate={p.onMaxYUpdate}
@@ -405,7 +546,7 @@ export const EditorArea = (p: {
 				<NoteMobileToolbar
 					onButtonClicked={action => {
 						let updatedText = applyTextModifAction(action)
-						if (updatedText) triggerNoteEdition(updatedText)
+						if (updatedText) triggerExpandedNoteEdition(updatedText)
 					}}
 				/>
 			}
