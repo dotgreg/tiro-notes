@@ -32,6 +32,7 @@ export const getRelativePath = (pathFile: string): string => {
 		pathFile = pathFile.split(backConfig.dataFolder).join('')
 		// pathFile = pathFile.replace(backConfig.dataFolder, '')
 	}
+
 	return pathFile
 }
 

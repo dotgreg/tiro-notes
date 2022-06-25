@@ -7,54 +7,54 @@ import { cleanFilePath } from "./file.search.manager";
 import { iFilesObj } from "./search-ripgrep.manager";
 
 export interface iMetasFiles {
-    [fileName:string]: iFileMetas
+	[fileName: string]: iFileMetas
 }
 
-export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFiles):iFile[] => {
-    const filesRes:iFile[] = []
+export const mergingMetaToFilesArr = (filesObj: iFilesObj, metasFiles: iMetasFiles): iFile[] => {
+	const filesRes: iFile[] = []
 
-     // merging meta dates into filesScannedObj
-     each(metasFiles, (metasFile, fileName) => {
-         if (filesObj[fileName]) {
-             if (metasFile['created']) filesObj[fileName].created = toTimeStampInS(metasFile['created'])*1000
-             if (metasFile['modified']) filesObj[fileName].modified = toTimeStampInS(metasFile['modified'])*1000
-         }
-    })
+	// merging meta dates into filesScannedObj
+	each(metasFiles, (metasFile, fileName) => {
+		if (filesObj[fileName]) {
+			if (metasFile['created']) filesObj[fileName].created = toTimeStampInS(metasFile['created']) * 1000
+			if (metasFile['modified']) filesObj[fileName].modified = toTimeStampInS(metasFile['modified']) * 1000
+		}
+	})
 
-    // from Files obj to Files Arr
-    each(filesObj, file => {
-        filesRes.push(file)
-    })
+	// from Files obj to Files Arr
+	each(filesObj, file => {
+		filesRes.push(file)
+	})
 
-    return filesRes
+	return filesRes
 }
 
-export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:string, debugMode: boolean = false):iMetasFiles => {
-    const res:iMetasFiles = {}
+export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder: string, debugMode: boolean = false): iMetasFiles => {
+	const res: iMetasFiles = {}
 
-    // PROCESS META FROM STRING TO iFileMetas
-    let isIndexInsideHeader = false
-    for (let i = 0; i < rawMetasStrings.length; i++) {
-        let metaStr = rawMetasStrings[i];
-        
-        // filter on string
-        metaStr = metaStr.split('\r').join('')
-        if (metaStr === '') continue
-        
-        // filter on nb results
-        const rawMetaArr2 = metaStr.split('.md:')
-        if (rawMetaArr2.length < 2) continue
+	// PROCESS META FROM STRING TO iFileMetas
+	let isIndexInsideHeader = false
+	for (let i = 0; i < rawMetasStrings.length; i++) {
+		let metaStr = rawMetasStrings[i];
 
-        // if (debugMode) console.log(12, metaStr, 'to', rawMetaArr2)
-        
-        const fileName = `${rawMetaArr2[0]}.md`;
-        let cleanedFileName = cleanFilePath(fileName, folder)
-        if (!res[cleanedFileName]) res[cleanedFileName] = {}
+		// filter on string
+		metaStr = metaStr.split('\r').join('')
+		if (metaStr === '') continue
 
-        const content = rawMetaArr2[1]
-        const meta = processStringToMeta(content)
-        
-        if (meta && meta.name) res[cleanedFileName][meta.name] = meta.value
-    }
-    return res
+		// filter on nb results
+		const rawMetaArr2 = metaStr.split('.md:')
+		if (rawMetaArr2.length < 2) continue
+
+		// if (debugMode) console.log(12, metaStr, 'to', rawMetaArr2)
+
+		const fileName = `${rawMetaArr2[0]}.md`;
+		let cleanedFileName = cleanFilePath(fileName)
+		if (!res[cleanedFileName]) res[cleanedFileName] = {}
+
+		const content = rawMetaArr2[1]
+		const meta = processStringToMeta(content)
+
+		if (meta && meta.name) res[cleanedFileName][meta.name] = meta.value
+	}
+	return res
 }

@@ -2,6 +2,7 @@ export const cleanPath = (path: string): string => {
 	path = path.split('//').join('/')
 	path = path.split('\\').join('/')
 	path = path.split('//').join('/')
+	if (!path.startsWith('/')) path = "/" + path
 	return path
 }
 export const getFileInfos = (path: string): {

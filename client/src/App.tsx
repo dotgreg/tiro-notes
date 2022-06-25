@@ -36,7 +36,7 @@ import { useStatusApi } from './hooks/api/status.api.hook';
 import { TreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
-import { SuggestPopup } from './components/SuggestPopup.component';
+import { SuggestBar } from './components/SuggestPopup.component';
 
 
 
@@ -277,11 +277,11 @@ export const App = () => {
 	//@ts-ignore
 	window.api = api
 
-	useEffect(() => {
-		api.search.word("#[^ #]+", '/test_obsi/nodal_ex', res => {
-			console.log(3333, res);
-		})
-	}, [])
+	// useEffect(() => {
+	// 	api.search.word("#[^ #]+", '/test_obsi/nodal_ex/', res => {
+	// 		console.log(3333, res);
+	// 	})
+	// }, [])
 
 
 	return (//jsx
@@ -291,7 +291,10 @@ export const App = () => {
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
 
-			<SuggestPopup onClose={e => {}} />
+					<SuggestBar
+						defaultPath="/test_obsi/nodal_ex"
+						onSelected={nPath => { console.log(333008, nPath) }}
+					/>
 
 					<Global styles={GlobalCssApp()} />
 					<div role="dialog" className={`

@@ -78,7 +78,7 @@ export const searchWithRgGeneric = async (p: {
 			const rawPath = processedInfos[0]
 			if (!processedInfos[0] || processedInfos[0] === '') return
 			const processedLine = p.processRawLine({
-				file: processRawPathToFile({ rawPath, folder: p.folder }),
+				file: processRawPathToFile({ rawPath }),
 				raw: line,
 				path: processedInfos[0],
 				found: processedInfos[1],
@@ -91,6 +91,20 @@ export const searchWithRgGeneric = async (p: {
 		p.debug && console.log(`============== END`);
 	})
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -176,7 +190,7 @@ export const searchWithRipGrep = async (params: {
 			const scannedFilesObj: iFilesObj = {}
 			let index = 0
 			each(metasFilesObj, (metaObj, fileName) => {
-				const file = processRawPathToFile({ rawPath: fileName, folder: relativeFolder, index, titleFilter })
+				const file = processRawPathToFile({ rawPath: fileName, index, titleFilter })
 				if (file && file.name) {
 					if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
 						scannedFilesObj[file.name] = file
@@ -219,7 +233,7 @@ export const searchWithRipGrep = async (params: {
 		const filesScannedObj: iFilesObj = {}
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
 			let data = dataRaw.toString()
-			const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', relativeFolder)
+			const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '')
 			each(files, file => {
 				if (file && file.name) {
 					filesScannedObj[file.name] = file

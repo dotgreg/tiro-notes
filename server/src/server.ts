@@ -8,6 +8,7 @@ import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { searchWord } from './managers/search/word.search.manager';
 import { iLineRg, searchWithRgGeneric } from './managers/search/search-ripgrep.manager';
 import { dirname } from 'path';
+import { uniq } from 'lodash';
 
 fileLogClean();
 
@@ -77,29 +78,3 @@ server.listen(backConfig.port, function () {
 
 
 
-export const isSubDirFile = (path: string, folderToSearch: string): boolean => {
-	path = path.replace(folderToSearch + "/", '')
-	const res = path.includes('/')
-	// console.log(3, res, path, folderToSearch);
-	return res
-}
-
-const res: iLineRg[] = []
-const subdirs: string[] = []
-const folderToSearch = "/test_obsi/tests"
-searchWithRgGeneric({
-	term: '',
-	folder: folderToSearch,
-	debug: true,
-	flags: ["--files", "--max-depth=2"],
-	processRawLine: l => {
-		if (isSubDirFile(l.file.path, folderToSearch)) subdirs.push(l.file.folder)
-		 else res.push(l)
-	},
-	onSearchEnded: async (r) => {
-		// p.cb(objRes)
-		// console.log(2222, r);
-		console.log();
-
-	}
-})

@@ -51,6 +51,7 @@ export interface iClientApi {
 		windows: iWindowsApi
 		lightbox: iLightboxApi
 		search: iSearchUiApi
+		note: iNoteApi["ui"]
 	}
 	status: iStatusApi
 }
@@ -172,7 +173,8 @@ export const useClientApi = (p: {
 			browser: browserApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi,
-			search: searchApi.ui
+			search: searchApi.ui,
+			note: noteApi.ui
 		},
 	}
 	// outside of react too

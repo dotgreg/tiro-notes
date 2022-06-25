@@ -24,8 +24,14 @@ export interface iFilesApi {
 		cb: (previews: iFilePreview[]) => void
 	) => void
 
+	getSuggestions: (
+		folderPath: string,
+		cb: (suggestions: string[]) => void
+	) => void
+
 	search: iSearchApi['files']['search']
 }
+const h = `[CLIENT API] 002104`
 
 export const useFilesApi = (p: {
 	eventBus: iApiEventBus,
@@ -44,6 +50,10 @@ export const useFilesApi = (p: {
 		clientSocket2.on('getFilesPreview', data => {
 			p.eventBus.notify(data.idReq, data.filesPreview)
 		})
+
+		clientSocket2.on('getSuggestions', data => {
+			p.eventBus.notify(data.idReq, data.suggestions)
+		})
 	}, [])
 
 
@@ -53,7 +63,7 @@ export const useFilesApi = (p: {
 
 	// get files list
 	const getFiles: iFilesApi['get'] = (folderPath, cb) => {
-		console.log(`[CLIENT API] 002104 get files ${folderPath}`);
+		console.log(`${h} get files ${folderPath}`);
 		const idReq = genIdReq('get-files-');
 		p.statusApi.searching.set(true)
 		// 1. add a listener function
@@ -72,13 +82,27 @@ export const useFilesApi = (p: {
 
 	// get files list preview
 	const getFilesPreview: iFilesApi['getPreviews'] = (filesPath, cb) => {
-		console.log(`[CLIENT API] 002104 get files previews for ${filesPath.length} files`);
-		const idReq = genIdReq('get-files-');
+		console.log(`${h} get files previews for ${filesPath.length} files`);
+		const idReq = genIdReq('get-files-preview-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, cb);
 		// 2. emit request 
 		clientSocket2.emit('askFilesPreview', {
 			filesPath,
+			idReq,
+			token: getLoginToken()
+		})
+	}
+
+	// get files suggestions for suggestBar
+	const getFolderSuggestions: iFilesApi['getSuggestions'] = (folderPath, cb) => {
+		console.log(`${p} get suggestions files for forder "${folderPath}"`);
+		const idReq = genIdReq('get-files-suggestions-');
+		// 1. add a listener function
+		p.eventBus.subscribe(idReq, cb);
+		// 2. emit request 
+		clientSocket2.emit('askSuggestions', {
+			folder: folderPath,
 			idReq,
 			token: getLoginToken()
 		})
@@ -92,7 +116,8 @@ export const useFilesApi = (p: {
 	const api: iFilesApi = {
 		get: getFiles,
 		getPreviews: getFilesPreview,
-		search: p.searchApi.files.search
+		search: p.searchApi.files.search,
+		getSuggestions: getFolderSuggestions,
 	}
 
 	return api

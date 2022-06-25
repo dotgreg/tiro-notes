@@ -58,4 +58,7 @@ export interface iApiDictionary {
 
 	askFileHistory: { filepath: string }
 	getFileHistory: { files: iFile[] }
+
+	askSuggestions: { folder: string, idReq: string }
+	getSuggestions: { suggestions: string[], idReq: string }
 }

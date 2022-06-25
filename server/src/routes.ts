@@ -18,6 +18,7 @@ import { log } from "./managers/log.manager";
 import { debounceCleanHistoryFolder } from "./managers/history.manager";
 import { getFolderPath } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
+import { getSuggestions } from "./managers/suggestions.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -264,6 +265,13 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			if (file.name.includes(fileNameToSearch)) historyFiles.push(file)
 		}
 		serverSocket2.emit('getFileHistory', { files: historyFiles })
+	})
+
+	serverSocket2.on('askSuggestions', async data => {
+		getSuggestions(data.folder).then(suggestions => {
+			console.log(333, data.folder, suggestions);
+			serverSocket2.emit('getSuggestions', { suggestions, idReq: data.idReq })
+		})
 	})
 }
 

@@ -142,6 +142,9 @@
 						"@emotion/babel-preset-css-prop"
 				]
 		},
+		"resolutions": {
+				"react-devtools-core": "4.24.7"
+		},
 		"devDependencies": {
 				"@babel/preset-env": "^7.17.10",
 				"@testing-library/jest-dom": "^5.11.9",

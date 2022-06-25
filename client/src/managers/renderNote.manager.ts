@@ -16,6 +16,9 @@ export interface iNoteApi {
 	chunks: {
 		chunk: (fileContent: string) => iContentChunk[]
 		merge: (chunks: iContentChunk[]) => string
+	},
+	ui: {
+		jumpToLine: (lineNb: number) => void
 	}
 }
 
@@ -249,6 +252,10 @@ const mergeContentChunks: iNoteApi['chunks']['merge'] = chunks => {
 	return res
 }
 
+const jumpToLine: iNoteApi['ui']['jumpToLine'] = lineNb => {
+	// 
+
+}
 
 export const noteApi: iNoteApi = {
 	render: renderNoteContent,
@@ -256,6 +263,9 @@ export const noteApi: iNoteApi = {
 	chunks: {
 		chunk: getContentChunks,
 		merge: mergeContentChunks
+	},
+	ui: {
+		jumpToLine
 	}
 }
 

@@ -56,6 +56,8 @@ export const CssApp2 = (
 		${ButtonsToolbarCss}
 
 		.main-wrapper {
+// display:none!important;
+
 				display: flex;
 
 				${imageGalleryCss()}
