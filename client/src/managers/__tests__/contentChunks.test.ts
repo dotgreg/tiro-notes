@@ -1,30 +1,27 @@
 import { tu } from '../../__tests__/testsUtils'
-import { noteApi } from '../renderNote.manager';
+import { noteApiFuncs } from '../renderNote.manager';
 
 
 test('contentChunk : first el should be a tag', () => {
-	// const chunks = noteApi.chunks.get(textSeveralOneTag, true)
-	const chunks = noteApi.chunks.chunk(t2)
+	const chunks = noteApiFuncs.chunks.chunk(t2)
 	expect(chunks[0].type).toEqual("tag");
 });
 
 test('contentChunk : first el should be a text', () => {
-	// const chunks = noteApi.chunks.chunk(textSeveralOneTag, true)
-	const chunks = noteApi.chunks.chunk("starting text" + t2)
+	const chunks = noteApiFuncs.chunks.chunk("starting text" + t2)
 	expect(chunks[0].type).toEqual("text");
 });
 
 
 
 test('contentChunk : several unclosed tags => list nb', () => {
-	// const chunks = noteApi.chunks.chunk(textSeveralOneTag, true)
-	const chunks = noteApi.chunks.chunk(textSeveralOneTag)
+	const chunks = noteApiFuncs.chunks.chunk(textSeveralOneTag)
 	expect(chunks.length).toEqual(3);
 });
 
 
 test('contentChunk : one unclosed tags => output length', () => {
-	const chunks = noteApi.chunks.chunk(textOneTag)
+	const chunks = noteApiFuncs.chunks.chunk(textOneTag)
 	expect(chunks[0].content.length).toEqual(textOneTag.length);
 });
 
@@ -32,12 +29,12 @@ test('contentChunk : one unclosed tags => output length', () => {
 
 
 test('contentChunk : no tags', () => {
-	const chunks = noteApi.chunks.chunk(textNoTags)
+	const chunks = noteApiFuncs.chunks.chunk(textNoTags)
 	expect(chunks.length).toEqual(1);
 });
 
 test('contentChunk : no tags => content size check', () => {
-	const chunks = noteApi.chunks.chunk(textNoTags)
+	const chunks = noteApiFuncs.chunks.chunk(textNoTags)
 	expect(chunks[0].content.length).toEqual(textNoTags.length);
 });
 
@@ -46,12 +43,12 @@ test('contentChunk : no tags => content size check', () => {
 
 
 test('contentChunk : length result', () => {
-	const chunks = noteApi.chunks.chunk(t1)
+	const chunks = noteApiFuncs.chunks.chunk(t1)
 	expect(chunks.length).toEqual(13);
 });
 
 test('contentChunk : last object', () => {
-	const chunks = noteApi.chunks.chunk(t1)
+	const chunks = noteApiFuncs.chunks.chunk(t1)
 	expect(tu.equalObj(
 		chunks[chunks.length - 1],
 		{ type: 'text', content: '\n\n\nOUT8\nOUT9\n', start: 16, end: 17 }
