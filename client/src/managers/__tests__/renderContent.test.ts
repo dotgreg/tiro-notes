@@ -1,14 +1,14 @@
 import { tu } from '../../__tests__/testsUtils'
 import { tc } from '../../__tests__/testsContent'
-import { noteApi } from '../renderNote.manager';
 import { isBoolean } from 'lodash';
+import { noteApiFuncs } from '../renderNote.manager';
 
 
 const h = `[RENDER CONTENT]`
 const raw = tc.note.twoScriptClosedTag
 const windowId = tc.window.genId()
 const file = tc.file.file1
-const r1 = noteApi.render({
+const r1 = noteApiFuncs.render({
 	raw,
 	windowId,
 	file: file

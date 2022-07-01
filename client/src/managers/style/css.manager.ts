@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-import { deviceType, MobileView, DeviceType } from '../device.manager';
+									 import { deviceType, MobileView, DeviceType } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -36,10 +36,10 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
-	mobileView: MobileView,
-	refreshCss: number
+		mobileView: MobileView,
+		refreshCss: number
 ) => {
-	const cssString = `//css
+		const cssString = `//css
 		.content-image {
 				width: 90%;
 		}
@@ -84,9 +84,9 @@ export const CssApp2 = (
 
 				${settingsPopupCss()}
 
-								${lastNotesCss()}
+				${lastNotesCss()}
 
-								${folderTreeCss()}
+				${folderTreeCss()}
 
 
 
@@ -114,7 +114,7 @@ export const CssApp2 = (
 
 
 
-				&.without-sidebar.device-view-desktop.view-text {
+				&.without-sidebar.device-view-desktop {
 						.left-sidebar-indicator {
 								display: block;
 								position: absolute;
@@ -308,7 +308,7 @@ export const CssApp2 = (
 				${mobileNoteToolbarCss()}
 				${scrollingBarCss()}
 
-				&.without-sidebar.device-view-desktop.view-text {
+				&.without-sidebar.device-view-desktop {
 						.right-wrapper.dual-viewer-view {
 								width: calc(100vw - 18px);
 								margin-left: 18px;
@@ -367,6 +367,7 @@ export const CssApp2 = (
 														}
 												}
 												.preview-area-wrapper {
+														word-break: break-word;
 														transform: scale(0.2) translateZ(0);
 														transform-origin: 0px 0px;
 														position: absolute;
@@ -451,5 +452,5 @@ export const CssApp2 = (
 
 `//css
 
-	return css`${cssString}`
+return css`${cssString}`
 }

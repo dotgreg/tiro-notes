@@ -5,7 +5,7 @@ import { iFile } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
-import { iContentChunk, noteApi } from '../../managers/renderNote.manager';
+import { iContentChunk, noteApiFuncs } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors } from './EditorArea.component';
 import { ContentBlock } from '../ContentBlock.component';
@@ -52,11 +52,11 @@ export const PreviewArea = (p: {
 
 		const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
 		useEffect(() => {
-		const blocks = noteApi.chunks.chunk(p.fileContent)
+		const blocks = noteApiFuncs.chunks.chunk(p.fileContent)
 		setContentBlocks(blocks)
 
 		setTimeout(() => {
-		noteApi.injectLogic({
+		noteApiFuncs.injectLogic({
 				fileContent: p.fileContent,
 										 file: p.file
 		})
@@ -176,6 +176,9 @@ export const previewAreaSimpleCss = () => {
 
 **********************************************************/
 
+		.main-color {
+						color: ${cssVars.colors.main};
+		}
 		.title {
 				margin: 0px 0px;
 		}

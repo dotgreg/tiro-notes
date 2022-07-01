@@ -1,13 +1,14 @@
 import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
-import { iContentChunk, noteApi } from '../managers/renderNote.manager'
+import { iContentChunk, noteApiFuncs } from '../managers/renderNote.manager'
 import { generateIframeHtml, iframeParentManager, iIframeData } from '../managers/iframe.manager'
 import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { escapeHtml } from '../managers/textProcessor.manager';
 import { isNull, isString } from 'lodash';
+import { replaceAll } from '../managers/string.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
 
@@ -49,7 +50,7 @@ export const ContentBlock = (p: {
 	// TEXT LOGIC
 	useEffect(() => {
 		if (isTag) return
-		let ncontent = noteApi.render({
+		let ncontent = noteApiFuncs.render({
 			raw: p.block.content,
 			file: p.file,
 			windowId: p.windowId
@@ -172,7 +173,7 @@ export const ContentBlockTagView = (p: {
 
 	const updateIframeHtml = () => {
 		// format tag content
-		const formatedNoteTagContent = noteApi.render({
+		const formatedNoteTagContent = noteApiFuncs.render({
 			raw: noteTagContent,
 			windowId: p.windowId,
 			file: p.file
@@ -181,15 +182,15 @@ export const ContentBlockTagView = (p: {
 		// generate html content
 		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
 		//iframeHtml.innerTag
-		const fullHtml = `
+		let fullHtml = `
 				<div class="simple-css-wrapper">
 				${iframeHtml}
 				</div>
 				<style>
 				${previewAreaSimpleCss()}
 				</style>
-				`.replaceAll('{{innerTag}}', p.block.content.trim())
-
+				`
+		fullHtml = replaceAll(fullHtml, [['{{innerTag}}', p.block.content.trim()]])
 
 		// console.log(121212, { iframeHtml, fullHtml });
 		setHtmlContent(fullHtml)

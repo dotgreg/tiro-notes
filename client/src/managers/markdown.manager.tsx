@@ -1,18 +1,9 @@
 import { each, isObject, random, uniq } from "lodash";
-import { generateUUID } from "../../../shared/helpers/id.helper";
-import { getCustomMdTagRegex, regexs } from "../../../shared/helpers/regexs.helper";
-import { getClientApi2 } from "../hooks/api/api.hook";
-import { noteApi } from "./renderNote.manager";
 
 const marked = require('marked');
 
 export const md2html = (raw: string): string => {
 	let res = marked(raw);
-
-	// res = res.replaceAll('\n', '<br>')
-	// res = res.replaceAll('\r', '<br>')
-	// 
-
 	return res;
 }
 
