@@ -84,7 +84,7 @@ generate a table of content of your note.
 ```
 [[script]]
 // toc V1.0.0
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/toc/toc.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/dc2924daf276e43da73d6d365927a2b5d842c466/custom-tags/toc/toc.js",`{{innerTag}}`)
 [[script]]
 ```
 
