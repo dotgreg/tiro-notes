@@ -39,6 +39,7 @@ export const EditorArea = (p: {
 	onUpdateY: onScrollFn
 	onMaxYUpdate: (maxY: number) => void
 	posY: number
+	jumpToLine?: number
 
 	onFileEdited: onFileEditedFn
 	onViewToggle: (view: iViewType) => void
@@ -158,13 +159,6 @@ export const EditorArea = (p: {
 			/>
 		},
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-		// {
-		// 	title: 'Insert unique id',
-		// 	icon: 'faFingerprint',
-		// 	action: () => {
-		// 		insertTextAt(`${idNote}\n`, 0)
-		// 	}
-		// },
 		{
 			title: 'Print/download',
 			icon: 'faFileDownload',
@@ -372,6 +366,7 @@ export const EditorArea = (p: {
 					deviceType() === 'desktop' &&
 					<MonacoEditorWrapper
 						value={innerFileContent}
+					jumpToLine={p.jumpToLine}
 						vimMode={vimMode}
 						readOnly={!canEdit}
 						ref={monacoEditorComp}

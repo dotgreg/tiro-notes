@@ -2,11 +2,12 @@ import { cloneDeep, each, isNumber } from "lodash"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"
+import { iNoteApi } from "../hooks/api/note.api.hook"
 import { md2html } from "./markdown.manager"
 import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
 
 
-export interface iNoteApi {
+export interface iNoteFuncsApi {
 	render: (p: {
 		raw: string
 		file: iFile
@@ -16,7 +17,7 @@ export interface iNoteApi {
 	chunks: {
 		chunk: (fileContent: string) => iContentChunk[]
 		merge: (chunks: iContentChunk[]) => string
-	}
+	},
 }
 
 ////////////////////////////////////////////////////
@@ -250,12 +251,11 @@ const mergeContentChunks: iNoteApi['chunks']['merge'] = chunks => {
 }
 
 
-export const noteApi: iNoteApi = {
+export const noteApiFuncs: iNoteFuncsApi = {
 	render: renderNoteContent,
 	injectLogic: injectLogicToHtml,
 	chunks: {
 		chunk: getContentChunks,
 		merge: mergeContentChunks
-	}
+	},
 }
-

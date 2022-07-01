@@ -3,6 +3,7 @@ import { regexs } from "../../../shared/helpers/regexs.helper";
 import { processStringToMeta } from "../../../shared/helpers/metas.helper";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iFileMetas } from "../../../shared/types.shared";
+import { replaceAll } from "./string.manager";
 
 export interface fileMetaAndContent { metas: iFileMetas, content: string }
 export const filterMetaFromFileContent = (fileContentWithMeta: string): fileMetaAndContent => {
@@ -19,7 +20,9 @@ export const filterMetaFromFileContent = (fileContentWithMeta: string): fileMeta
 	}
 
 	//remove metas block from content
-	const newContent = fileContentWithMeta.replaceAll(regexs.metas, '')
+	let newContent = fileContentWithMeta
+	let reg:any = regexs.metas 
+	newContent = replaceAll(newContent, [[reg, '']])
 
 
 	return {

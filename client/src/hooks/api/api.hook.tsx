@@ -2,7 +2,6 @@ import { cloneDeep, each, isFunction, isNumber } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iIframeData } from '../../managers/iframe.manager';
-import { iNoteApi, noteApi } from '../../managers/renderNote.manager';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iLightboxApi } from '../app/useLightbox.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
@@ -16,6 +15,7 @@ import { iSearchApi, iSearchUiApi, useSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
+import { iNoteApi, useNoteApi } from './note.api.hook';
 
 
 
@@ -51,6 +51,7 @@ export interface iClientApi {
 		windows: iWindowsApi
 		lightbox: iLightboxApi
 		search: iSearchUiApi
+		note: iNoteApi["ui"]
 	}
 	status: iStatusApi
 }
@@ -153,6 +154,8 @@ export const useClientApi = (p: {
 		userSettingsApi: p.userSettingsApi
 	})
 
+	const noteApi = useNoteApi({})
+
 	// 
 	// FINAL EXPORT
 	// 
@@ -172,7 +175,8 @@ export const useClientApi = (p: {
 			browser: browserApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi,
-			search: searchApi.ui
+			search: searchApi.ui,
+			note: noteApi.ui
 		},
 	}
 	// outside of react too
@@ -228,7 +232,7 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 			if (!pos) {
 				// non callback func simply call it
 				callingObj(...p.apiArguments)
-				return cb('nok', { error: `error when executing "${p.apiName}" with props ${p.apiArguments}` })
+				return cb('ok')
 			} else {
 				// cl func, inject cb inside params
 				const nargs = cloneDeep(p.apiArguments)
@@ -238,7 +242,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 				nargs.splice(pos, 0, callback)
 				callingObj(...nargs)
 			}
-			// callingObj(...p.apiArguments)
 		} catch (e) {
 			return cb('nok', { error: `error when executing "${p.apiName}" with props ${p.apiArguments}` })
 		}
@@ -306,27 +309,22 @@ const printObjProps = (pre: string, obj: any) => {
 /*
 import React, { useEffect, useRef } from 'react';
 import { iApiEventBus } from './api.hook';
-
 //
 // INTERFACES
 //
 export interface iMoveApi {
 }
-
 export const useMoveApi = (p: {
 	eventBus: iApiEventBus
 }) => {
-
 	//
 	// FUNCTIONS
 	// 
-
 	//
 	// EXPORTS
 	//
 	const api: iMoveApi = {
 	}
-
 	return api
 }
 */

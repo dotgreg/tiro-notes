@@ -276,12 +276,29 @@ export const App = () => {
 	//@ts-ignore
 	window.api = api
 
-	useEffect(() => {
-		api.search.word("#[^ #]+", '/test_obsi/nodal_ex', res => {
-			console.log(3333, res);
-		})
-	}, [])
+	// useEffect(() => {
+	// 	api.search.word("#[^ #]+", '/test_obsi/nodal_ex', res => {
+	// 		console.log(3333, res);
+	// 	})
+	// }, [])
 
+	// useEffect(() => {
+	// 	api.search.word("#[^ #]+", '/test_obsi/nodal_ex/', res => {
+	// 		console.log(3333, res);
+	// 	})
+	// }, [])
+
+	useEffect(() => {
+		setTimeout(() => {
+			// console.log(222, api.ui.windows.active.get());
+			getClientApi2().then(api => {
+				const activeId = api.ui.windows.active.get()?.content.i || ""
+				// console.log();
+				// console.log(234234, activeId);
+				api.ui.note.lineJump.jump({ windowId: activeId, line: 50 })
+			})
+		}, 2000)
+	}, [])
 
 	return (//jsx
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
@@ -414,6 +431,7 @@ export const App = () => {
 
 											<div className="folder-wrapper">
 												{api && api.ui.browser.folders.current.get}
+												{!api.ui.browser.folders.current.get && "/"}
 											</div>
 
 

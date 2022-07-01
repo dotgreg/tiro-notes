@@ -9,6 +9,7 @@ import { useBackendState } from '../../hooks/useBackendState.hook';
 import { cloneDeep, debounce, each } from 'lodash';
 import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { replaceAll } from '../../managers/string.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -29,7 +30,8 @@ type ConfigField = {
 
 type SettingParam = 'backend-port' | 'backend-protocol'
 export const getSetting = (settingName: SettingParam) => {
-	return localStorage.getItem(`settings-${settingName}`)?.replaceAll("\"", "");
+	let res = localStorage.getItem(`settings-${settingName}`) || ""
+	return replaceAll(res, [["\"", ""]])
 }
 
 

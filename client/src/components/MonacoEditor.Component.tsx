@@ -22,6 +22,7 @@ export class MonacoEditorWrapper extends React.Component<{
 	value: string,
 	vimMode: boolean,
 	posY: number
+	jumpToLine?: number
 	readOnly: boolean,
 	onChange: (text: string) => void
 	onScroll: onScrollFn
@@ -42,6 +43,12 @@ export class MonacoEditorWrapper extends React.Component<{
 
 	editor: any
 	monaco: any
+
+	updatePosY = () => {
+		const nY = this.editor.getScrollTop()
+		this.props.onUpdateY(nY)
+	}
+
 	editorDidMount = (editor: any, monaco: any) => {
 		if (this.props.vimMode) {
 			console.log('[MONACO EDITOR] vim mode started', this.vimStatusBar.current);
@@ -51,10 +58,6 @@ export class MonacoEditorWrapper extends React.Component<{
 		this.monaco = monaco
 		monacoEditorInstance = editor
 
-		const updatePosY = () => {
-			const nY = editor.getScrollTop()
-			this.props.onUpdateY(nY)
-		}
 
 		// // on scroll change, update Y
 		// editor.onDidScrollChange((e) => {
@@ -63,7 +66,7 @@ export class MonacoEditorWrapper extends React.Component<{
 
 		// on scroll change, update Y
 		editor.onDidChangeCursorPosition((e) => {
-			updatePosY()
+			this.updatePosY()
 		});
 
 
@@ -157,7 +160,28 @@ export class MonacoEditorWrapper extends React.Component<{
 		//   console.log(`[MONACO EDITOR] insert under Caret ${nextProps.insertUnderCaret}`);
 		//   this.editor.trigger('keyboard', 'type', {text: nextProps.insertUnderCaret});
 		// }
+		// JUMP TO LINE LOGIC
+
+		if (this.props.jumpToLine !== nextProps.jumpToLine && nextProps.jumpToLine !== -1) {
+			this.jumpToLine(nextProps.jumpToLine)
+		}
+
 		return true
+	}
+
+	//
+	// jump to line LOGIC
+	//
+	jumpToLine = (lineNb: number) => {
+		console.log("[MONACO] jumping to line :" + lineNb);
+		this.editor.revealLineInCenter(lineNb);
+		setTimeout(() => {
+			const nY = this.editor.getScrollTop()
+			this.props.onUpdateY(nY)
+			// we have to do it again to force monaco to refresh
+			this.editor.revealLineInCenter(lineNb);
+		}, 10)
+
 	}
 
 	render() {

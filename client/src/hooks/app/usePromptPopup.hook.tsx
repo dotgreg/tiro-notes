@@ -17,6 +17,7 @@ export type iPopupApi = {
 	prompt: (p: {
 		text: string,
 		title?: string,
+		userInput?: boolean,
 		onAccept?: Function,
 		onRefuse?: Function
 	}) => void
@@ -30,6 +31,7 @@ export const usePromptPopup = (p: {
 	const [displayPromptPopup, setDisplayPromptPopup] = useState(false)
 
 	const [text, setText] = useState(``)
+	const [userInput, setUserInput] = useState<string | null>(null)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
 
@@ -47,6 +49,7 @@ export const usePromptPopup = (p: {
 		setDisplayPromptPopup(true)
 		setText(p.text);
 		if (p.title) setTitle(p.title);
+		if (p.userInput) setUserInput(" ");
 		if (p.onAccept) liveVars.onAccept = p.onAccept
 		if (p.onRefuse) {
 			liveVars.onRefuse = p.onRefuse
@@ -74,17 +77,25 @@ export const usePromptPopup = (p: {
 						</div>
 						<br />
 
+						{userInput !== null &&
+							<div>
+								<input type="text" value={userInput} onChange={e => { setUserInput(e.target.value) }} />
+								<br />
+							</div>
+						}
+
+
 						<button
 							value='submit'
 							className="accept submit-button"
-							onClick={e => { liveVars.onAccept(); closePopup() }}>
+							onClick={e => { liveVars.onAccept(userInput); closePopup() }}>
 							{strings.promptPopup.accept}
 						</button>
 						{showRefuse &&
 							<button
 								value='submit'
 								className="refuse submit-button"
-								onClick={e => { liveVars.onRefuse(); closePopup() }}>
+								onClick={e => { liveVars.onRefuse(userInput); closePopup() }}>
 								{strings.promptPopup.refuse}
 							</button>
 						}

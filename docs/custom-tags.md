@@ -63,6 +63,49 @@ return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/18
 
 
 
+
+### ```[[toc]]```
+#### Description :
+generate a table of content of your note.
+
+#### Examples :
+```
+[[toc]]
+[[toc]]
+
+... note content ...
+```
+
+#### Screenshots : 
+<img src="https://user-images.githubusercontent.com/2981891/176912694-bee5b592-4f79-46c5-9ed7-116e1b80b533.png" width="200"/>
+
+#### Install : 
+ - create the note ```/.tiro/.tags/toc``` and paste the following content : 
+```
+[[script]]
+// toc V1.0.0
+return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/toc/toc.js",`{{innerTag}}`)
+[[script]]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ### ```[[mermaid]] ```
 (UML/Gantt/Flowcharts/Pies)
 
