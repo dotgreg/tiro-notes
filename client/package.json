@@ -106,7 +106,7 @@
 				"testOLD": "node scripts/test.js",
 				"test": "jest --watchAll --config ./jest.config.js",
 				"coverage": "jest --coverage --config ./jest.config.js",
-				"install-all": "npm install",
+				"install-all": "npm install --legacy-peer-deps",
 				"clean-build": "rm -r ./client/build &",
 				"install-clean-build": "run-s install-all clean-build build"
 		},
