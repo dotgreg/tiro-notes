@@ -2,9 +2,9 @@
 
 An open-source, cross-platform markdown editor designed for extensibility & flexibility
 
-🌐 website| 📘 documentation| ⬇️ downloads| 💬 forum | 📢 news|
--|-|-|-|-
-[tiro-notes.org](https://dotgreg.github.io/tiro-notes)|[guides](https://dotgreg.github.io/tiro-notes/#/guide-custom-tags)|[download page](https://dotgreg.github.io/tiro-notes/#/downloads)|[forum](https://github.com/dotgreg/tiro-notes/discussions)|[twitter](https://twitter.com/NotesTiro)|
+🌐 website| 📘 guides| ⬇️ downloads| 💬 forum | 📢 news| Version |
+-|-|-|-|-|-
+[tiro-notes.org](https://tiro-notes.org)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads)|[forum](https://github.com/dotgreg/tiro-notes/discussions)|[twitter](https://twitter.com/NotesTiro)| 0.30 (beta)
 
 
 ![Tiro 0.30](https://user-images.githubusercontent.com/2981891/171833721-2acdc59d-8c21-4280-bd62-a78023731c22.png)
@@ -12,9 +12,9 @@ An open-source, cross-platform markdown editor designed for extensibility & flex
 Tiro Notes focus points are : 
 
 - 🏋 **Extensibility** : Tiro Notes uses a system of custom tags to extend its capabilities :
-  - Add [```[[latex]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=latex), [```[[uml]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=mermaid) or [```[[charts]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=mermaid), preview your pdf, mp4 or youtube links using [```[[view]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=view). Add [```[[spreadsheet]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=spreadsheet) logic to your markdown tables.
-  - Use Tiro as an app platform with a [```[[rss]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=rss) reader or a [```[[calendar]]```](https://dotgreg.github.io/tiro-notes/#/custom-tags?id=calendar) in it.
-  - [Create your own custom tags](https://dotgreg.github.io/tiro-notes/#/guide-custom-tags) and use the [Client API](https://dotgreg.github.io/tiro-notes/#/guide-custom-tags?id=using-tiro-client-api).
+  - Add [```[[latex]]```](https://tiro-notes.org/#/custom-tags?id=latex), [```[[uml]]```](https://tiro-notes.org/#/custom-tags?id=mermaid) or [```[[charts]]```](https://tiro-notes.org/#/custom-tags?id=mermaid), preview your pdf, mp4 or youtube links using [```[[view]]```](https://tiro-notes.org/#/custom-tags?id=view). Add [```[[spreadsheet]]```](https://tiro-notes.org/#/custom-tags?id=spreadsheet) logic to your markdown tables.
+  - Use Tiro as an app platform with a [```[[rss]]```](https://tiro-notes.org/#/custom-tags?id=rss) reader or a [```[[calendar]]```](https://tiro-notes.org/#/custom-tags?id=calendar) in it.
+  - [Create your own custom tags](https://tiro-notes.org/#/guide-custom-tags) and use the [Client API](https://tiro-notes.org/#/guide-custom-tags?id=using-tiro-client-api).
 
 - 🎛️ **Flexibility** : multi-window interface to create a custom workspace. Create multiple workspaces organized by tabs. Keep these workspaces synced accross your devices.
 

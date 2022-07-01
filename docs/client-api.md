@@ -174,40 +174,6 @@ noteLink should be relative from tiro folder
  
 
 
- ## Api.call : note
- 
-
-#### <span class="render-code-wrapper">note.chunks.chunk</span>
- - Type: <span class="render-code-wrapper">Function</span> 
-    - Parameters: 
-       1. fileContent: <span class="render-code-wrapper">string</span>
-    - Result: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=icontentchunk">iContentChunk</a></span>[]</span> 
-
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"note.chunks.chunk",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ], <br/>(res:<span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=icontentchunk">iContentChunk</a></span>[]</span>) => {}<br/>)</div>
- 
-
-#### <span class="render-code-wrapper">note.chunks.merge</span>
- - Type: <span class="render-code-wrapper">Function</span> 
-    - Parameters: 
-       1. chunks: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=icontentchunk">iContentChunk</a></span>[]</span>
-    - Result: <span class="render-code-wrapper">string</span> 
-
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"note.chunks.merge",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=icontentchunk">iContentChunk</a></span>[]</span> ], <br/>(res:<span class="render-code-wrapper">string</span>) => {}<br/>)</div>
- 
-
-#### <span class="render-code-wrapper">note.render</span>
- - Type: <span class="render-code-wrapper">Function</span> 
-    - Parameters: 
-       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span>
-    - Result: <span class="render-code-wrapper">string</span> 
-
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"note.render",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span> ], <br/>(res:<span class="render-code-wrapper">string</span>) => {}<br/>)</div>
- 
-
-
  ## Api.call : popup
  
 
@@ -225,9 +191,9 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">popup.prompt</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onAccept?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;onRefuse?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;title?: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onAccept?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;onRefuse?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;title?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;userInput?: <span class="render-code-wrapper">boolean</span><br/>}</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.prompt",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onAccept?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;onRefuse?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;title?: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.prompt",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onAccept?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;onRefuse?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;title?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;userInput?: <span class="render-code-wrapper">boolean</span><br/>}</span> ]<br/>)</div>
  
 
 
@@ -391,6 +357,18 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.lightbox.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">number</span>, <span class="render-code-wrapper">"undefined" | "undefined"</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.note.lineJump.get.line</span>
+ - Type: <span class="render-code-wrapper">number</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call("ui.note.lineJump.get.line", [], (res:number) => {})</div>
+ 
+
+#### <span class="render-code-wrapper">ui.note.lineJump.get.windowId</span>
+ - Type: <span class="render-code-wrapper">string</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call("ui.note.lineJump.get.windowId", [], (res:string) => {})</div>
+ 
+
 #### <span class="render-code-wrapper">ui.search.term.get</span>
  - Type: <span class="render-code-wrapper">string</span> 
  - Example: 
@@ -535,12 +513,6 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;picture?: <span class="render-code-wrapper">string</span><br/>}</span></div>
- 
-
-#### <span class="render-code-wrapper">iContentChunk</span>
- - Type: <span class="render-code-wrapper">object</span> 
- - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;end: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;start: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper">"text" | "tag"</span>, <br/>&nbsp;&nbsp;&nbsp;tagName?: <span class="render-code-wrapper">string</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iSearchWordRes</span>
