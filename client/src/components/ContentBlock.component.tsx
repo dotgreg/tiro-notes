@@ -121,7 +121,8 @@ export const ContentBlockTagView = (p: {
 					const percent = parseInt(nheight.replace("%", "")) / 100
 					nheight = (p.windowHeight || 200) * percent
 				}
-				console.log(h, 'resizing to', nheight, data.height, p.windowHeight);
+				// console.log(h, 'resizing to', nheight, data.height, p.windowHeight);
+				console.log(h, 'resizing to', nheight);
 				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)
@@ -132,6 +133,7 @@ export const ContentBlockTagView = (p: {
 				const data = m.data as iIframeData['apiCall']
 
 				callApiFromString(data, (status, data) => {
+					console.log(h, "getting aswer from api call => ", JSON.stringify(data).substring(0, 50) + "\"");
 					// if no, directly return the error 
 					if (status === 'nok') return setIframeError(data.error)
 
