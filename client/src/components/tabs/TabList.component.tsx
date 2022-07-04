@@ -230,6 +230,7 @@ export const tabsCss = () => `
 												background: none;
 												border: none;
 												min-width: 30px;
+												max-width: 100px;
 												font-weight: 400;
 												font-family: ${cssVars.font.editor};
 										}
