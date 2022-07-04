@@ -185,23 +185,6 @@ export const useClientApi = (p: {
 	return clientApi
 }
 
-
-// const User1 = t.type({
-// 	userId: t.number,
-// 	name: t.string
-// })
-// const f2 = t.interface({
-// 	set: t.FunctionType((hello: t.string, world: t.number) => t.string)
-// })
-
-/*
-const api = useContext(ClientApiContext)
-*/
-// useEffect(() => {
-// 	api && api.popup.prompt({
-// 		text: 'wooop'
-// 	})
-// }, [])
 // 
 // SUPPORT FUNCTION
 // 
@@ -229,6 +212,7 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 		// files.getContent('fdlsakfdsja', cb(), options)
 		try {
 			const pos = getCallbackArgPosition(callingObj)
+			console.log(2223, { pos, p, cb });
 			if (!pos) {
 				// non callback func simply call it
 				callingObj(...p.apiArguments)
@@ -242,8 +226,9 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 				nargs.splice(pos, 0, callback)
 				callingObj(...nargs)
 			}
+			// callingObj(...p.apiArguments)
 		} catch (e) {
-			return cb('nok', { error: `error when executing "${p.apiName}" with props ${p.apiArguments}` })
+			return cb('nok', { error: `error "${JSON.stringify(e)}" when executing "${p.apiName}" with props ${p.apiArguments}` })
 		}
 	})
 }
@@ -252,7 +237,10 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 
 const getCallbackArgPosition = (fn: Function): number | null => {
 	const args = getFunctionParamNames(fn)
-	const index = args.indexOf('cb')
+	console.log(12344, args, fn);
+	// problem with that one is function names are compressed by webpack...
+	// mangle: {reserved: ["cb"], => has been preserved by webpack minify config
+	let index = args.indexOf('cb')
 	if (!index || index === -1) return null
 	return index
 }
@@ -295,7 +283,6 @@ const printObjProps = (pre: string, obj: any) => {
 
 
 	})
-	// console.log(123333, arrRes, User1, f2);
 
 	return res
 }
@@ -305,26 +292,3 @@ const printObjProps = (pre: string, obj: any) => {
 
 
 
-
-/*
-import React, { useEffect, useRef } from 'react';
-import { iApiEventBus } from './api.hook';
-//
-// INTERFACES
-//
-export interface iMoveApi {
-}
-export const useMoveApi = (p: {
-	eventBus: iApiEventBus
-}) => {
-	//
-	// FUNCTIONS
-	// 
-	//
-	// EXPORTS
-	//
-	const api: iMoveApi = {
-	}
-	return api
-}
-*/
