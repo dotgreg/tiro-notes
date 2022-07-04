@@ -59,7 +59,8 @@ const { notify, subscribe, unsubscribe } = createEventBus<iIframeMessage>({
 const initIframeListening = () => {
 	console.log(h, `INIT IFRAME LISTENING`);
 	window.addEventListener('message', m => {
-		console.log(h, 'parent <== iframe', m.data.data);
+		if (!m.data.subId) return
+		console.log(h, 'parent <== iframe', m.data, m.data.data);
 		notify(m.data)
 	});
 }
