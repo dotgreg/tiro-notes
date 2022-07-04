@@ -17,9 +17,6 @@ const tocApp = (innerTagStr, opts) => {
 								resArr.push({raw: line, matches:m, line:i, title: m[2], ranking:m[1].length})
 						}
 				}
-				// console.log(resArr);
-
-
 
 				let resHtml = `<div class="toc-wrapper"><ol>`
 				for (let i = 0; i < resArr.length; i++) {
@@ -72,16 +69,14 @@ ol li p {
 		display: inline-block;
 }
 </style>`
-				// console.log(resHtml);
 				updateContent(resHtml);
 				setTimeout(() => {
-						// console.log(22222222);
 						api.utils.resizeIframe();
-				}, 1000)
+				}, 100)
 		})
 
 		window.jumpTo = (lineNb) => {
-				console.log("IFRAME JUMP TO ", lineNb);
+				console.log("[TOC] IFRAME JUMP TO ", lineNb);
 				api.call('ui.note.lineJump.jump',[{windowId: 'active', line: lineNb}])
 		}
 		return div 

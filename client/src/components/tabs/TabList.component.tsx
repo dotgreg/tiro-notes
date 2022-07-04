@@ -109,6 +109,7 @@ const Tab = (p: {
 						 type="text"
 						 className="tab-input-text"
 						 value={tab.name}
+						 style={{ width: tab.name.length * 10 + "px" }}
 						 onChange={e => {
 															p.onUpdate('rename', tab, e.target.value)
 													}}
@@ -187,7 +188,6 @@ export const tabsCss = () => `
 								box-shadow:rgb(0 0 0 / 20%) 0px -1px 2px ;
 								border-radius: 5px 5px 0px 0px;
 								justify-content: space-between;
-								min-width: 120px;
 								max-height: 27px;
 								overflow: hidden;
 								text-align: center;
@@ -229,6 +229,7 @@ export const tabsCss = () => `
 												font-size: 11px;
 												background: none;
 												border: none;
+												min-width: 30px;
 												font-weight: 400;
 												font-family: ${cssVars.font.editor};
 										}
