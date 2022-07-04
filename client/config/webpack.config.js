@@ -255,6 +255,7 @@ module.exports = function (webpackEnv) {
               inline: 2,
             },
             mangle: {
+								reserved: ["cb"],
               safari10: true,
             },
             // Added for profiling in devtools

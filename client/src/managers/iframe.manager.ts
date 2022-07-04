@@ -60,7 +60,7 @@ const initIframeListening = () => {
 	console.log(h, `INIT IFRAME LISTENING`);
 	window.addEventListener('message', m => {
 		if (!m.data.subId) return
-		console.log(h, 'parent <== iframe', m.data, m.data.data);
+		console.log(h, 'parent <== iframe', m.data.data);
 		notify(m.data)
 	});
 }

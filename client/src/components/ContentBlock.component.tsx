@@ -133,7 +133,7 @@ export const ContentBlockTagView = (p: {
 				const data = m.data as iIframeData['apiCall']
 
 				callApiFromString(data, (status, data) => {
-					console.log(h, "getting aswer from api call => ", JSON.stringify(data).substring(0, 50) + "\"");
+					console.log(h, "getting aswer from api call => ", JSON.stringify({ status, data }).substring(0, 150) + "\"");
 					// if no, directly return the error 
 					if (status === 'nok') return setIframeError(data.error)
 
