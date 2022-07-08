@@ -239,7 +239,7 @@ export const iframeMainCode = (p: {
 			//
 			// sending height back for resizing sthg
 			setTimeout(() => {
-				resizeIframe()
+				resizeIframe(500)
 			}, 100)
 
 			// inject logic to html
@@ -251,6 +251,7 @@ export const iframeMainCode = (p: {
 	const resizeIframe = (height?: number) => {
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
+			console.log("22222222333333444444", el, el?.clientHeight);
 			if (el) height = el.clientHeight + 20
 			else return
 		}
@@ -298,10 +299,15 @@ export const iframeMainCode = (p: {
 	const loadCustomTag = (url: string, innerTag: string, opts: any) => {
 		const { div, updateContent } = api.utils.createDiv();
 
+		// adds to opts the url basePath if need to load more ressources from it (html/js/css/etc.)
+		if (!opts) opts = {}
+		opts.base_url = url.split("/").slice(0, -1).join("/")
+
 		api.utils.loadScripts([url],
 			() => {
 				console.log(h, `CUSTOM TAG LOADED ${url}`)
-				//@ts-ignore
+				// ON loadScript Url DONE => script provides the function initCustomTag that we execute
+				//@ts-ignore 
 				const htmlStr = window.initCustomTag(`${innerTag}`, opts)
 				updateContent(htmlStr)
 			}

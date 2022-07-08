@@ -8,7 +8,7 @@ var finalhandler = require('finalhandler')
 
 export const startSecuredStaticServer = (p: { expressApp: any, url: string, pathFolder: string }) => {
 
-	var serve = serveStatic(p.pathFolder);
+	var serve = serveStatic(p.pathFolder, {acceptRanges: true});
 
 	p.expressApp.use(p.url, (req, res) => {
 		let isTokenCorrect = false
