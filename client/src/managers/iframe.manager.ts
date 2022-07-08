@@ -239,7 +239,7 @@ export const iframeMainCode = (p: {
 			//
 			// sending height back for resizing sthg
 			setTimeout(() => {
-				resizeIframe(500)
+				resizeIframe()
 			}, 100)
 
 			// inject logic to html
@@ -251,7 +251,6 @@ export const iframeMainCode = (p: {
 	const resizeIframe = (height?: number) => {
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
-			console.log("22222222333333444444", el, el?.clientHeight);
 			if (el) height = el.clientHeight + 20
 			else return
 		}

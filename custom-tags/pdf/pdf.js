@@ -6,6 +6,9 @@ const pdfApp = (innerTagStr, opts) => {
 		//@ts-ignore
 		const api = window.api;
 		const { div, updateContent } = api.utils.createDiv();
+						setTimeout(() => {
+								api.utils.resizeIframe("80%");
+						}, 100);
 
 		// console.log(h, '1woop');
 		// const execPdfViewer = (feedsStr) => {
