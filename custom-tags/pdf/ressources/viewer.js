@@ -1275,7 +1275,7 @@
 										this.loadingBar.percent = percent;
 
 										const disableAutoFetch = this.pdfDocument?.loadingParams.disableAutoFetch ?? _app_options.AppOptions.get("disableAutoFetch");
-										console.log(2222, {disableAutoFetch});
+										// console.log(2222, {disableAutoFetch});
 
 										if (!disableAutoFetch || isNaN(percent)) {
 												return;
