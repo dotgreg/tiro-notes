@@ -7,19 +7,29 @@ const pdfApp = (innerTagStr, opts) => {
 		const api = window.api;
 		const { div, updateContent } = api.utils.createDiv();
 
-		console.log(h, '1woop');
-		const execPdfViewer = (feedsStr) => {
-				console.log(h, 'woop');
-		}
+		// console.log(h, '1woop');
+		// const execPdfViewer = (feedsStr) => {
+		// 		console.log(h, 'woop');
+		// }
 		api.utils.resizeIframe("80%");
+		const infos = api.utils.getInfos();
+		// console.log("2222222222222222222222", infos);
+
+		let url = innerTagStr.trim()
+		const isAbs = url.startsWith("http")
+		// console.log(234, url, isAbs, window.location);
+		if (isAbs === false) {
+				url = window.location.ancestorOrigins[0] + "/static/" + infos.file.folder +"/"+ url 
+		}
 
 		window.pdf_controller = {
 				disableAutoFetch: true,
 				disableStream: true,
 				debug: false,
 				workerSrc: `${ressPath}/pdf_lib.worker.js`,
-				url: innerTagStr
+				url
 		}
+		// console.log("33333333 PDF",window.pdf_controller);
 
 		const libsToLoad = 				[
 				`${ressPath}/pdf_lib.js`,
@@ -33,8 +43,7 @@ const pdfApp = (innerTagStr, opts) => {
 						api.utils.loadScripts(
 								[`${ressPath}/viewer.js`],
 								() => {
-										console.log("PDF",window.pdf_controller, pdfjsLib);
-										execPdfViewer(innerTagStr)
+										// execPdfViewer(innerTagStr)
 								})
 				}
 		);
