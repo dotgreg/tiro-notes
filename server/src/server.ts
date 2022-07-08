@@ -25,6 +25,9 @@ architecture: ${archi}
 var express = require('express');
 const app = express()
 
+var cors = require('cors')
+app.use(cors());
+
 let server
 if (backConfig.https) server = require("https").createServer(sslConfig, app)
 else server = require("http").createServer(app)
