@@ -251,7 +251,7 @@ export const iframeMainCode = (p: {
 	const resizeIframe = (height?: number) => {
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
-			if (el) height = el.clientHeight + 20
+			if (el && el.clientHeight !== 0) height = el.clientHeight + 20
 			else return
 		}
 
