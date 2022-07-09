@@ -302,12 +302,17 @@ export const iframeMainCode = (p: {
 		if (!opts) opts = {}
 		opts.base_url = url.split("/").slice(0, -1).join("/")
 
+		let hasPadding = true
+		if (opts.padding === false) hasPadding = opts.padding
+
 		api.utils.loadScripts([url],
 			() => {
 				console.log(h, `CUSTOM TAG LOADED ${url}`)
 				// ON loadScript Url DONE => script provides the function initCustomTag that we execute
 				//@ts-ignore 
-				const htmlStr = window.initCustomTag(`${innerTag}`, opts)
+				let htmlStr = window.initCustomTag(`${innerTag}`, opts)
+				if (hasPadding) htmlStr = `<div class="with-padding" style="padding: 0px 15px;">${htmlStr}</div>`
+				// htmlStr = `<div class="with-padding">${htmlStr}</div>`
 				updateContent(htmlStr)
 			}
 		);
