@@ -81,7 +81,6 @@ export const updateLayout_twowindows_to_equal = (nlayout: iWindow[]) => {
 			(l[1].w === (conf.cols / 2) - 1 && l[0].w === conf.cols / 2)
 		)
 	) {
-		console.log('0234 2');
 		l[0].w = conf.cols / 2
 		l[1].w = conf.cols / 2
 	}

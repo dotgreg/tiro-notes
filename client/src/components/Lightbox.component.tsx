@@ -6,70 +6,70 @@ import { absoluteLinkPathRoot, getUrlTokenParam } from '../managers/textProcesso
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 
 export const Lightbox = (p: {
-	images: iFileImage[]
-	startingIndex: number
-	onClose: Function
-}) => {
-	const [currIndex, setCurrIndex] = useState(0)
-	useEffect(() => {
+				images: iFileImage[]
+								startingIndex: number
+															 onClose: Function
+		}) => {
+		const [currIndex, setCurrIndex] = useState(0)
+		useEffect(() => {
 		setCurrIndex(p.startingIndex)
-	}, [p.startingIndex])
-	const incrementIndex = (direction: 1 | -1) => {
-		let nIndex = currIndex
-		if (direction === -1 && currIndex === 0) nIndex = p.images.length - 1
-		else if (direction === 1 && currIndex === p.images.length - 1) nIndex = 0
-		else nIndex = currIndex + direction
-		setCurrIndex(nIndex)
-	}
+}, [p.startingIndex])
+		const incrementIndex = (direction: 1 | -1) => {
+				let nIndex = currIndex
+				if (direction === -1 && currIndex === 0) nIndex = p.images.length - 1
+				else if (direction === 1 && currIndex === p.images.length - 1) nIndex = 0
+				else nIndex = currIndex + direction
+				setCurrIndex(nIndex)
+		}
 
-	return (
-		<div className={`lightbox-component`}>
-			<div className={`lightbox-bg`}>
-			</div>
-			<div className={`lightbox-content`}>
+		return (
+				<div className={`lightbox-component`}>
+				<div className={`lightbox-bg`}>
+				</div>
+				<div className={`lightbox-content`}>
 				{
-					p.images.map((image, key) =>
-						<div
-							key={key}
-							className={`lightbox-image`}
-							style={{ display: key === currIndex ? 'flex' : 'none' }}
-						>
-							<img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
+						p.images.map((image, key) =>
+												 <div
+												 key={key}
+												 className={`lightbox-image`}
+												 style={{ display: key === currIndex ? 'flex' : 'none' }}
+												 >
+												 <img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
 
-							<div className="image-infos">
-								<div className="image-name" onClick={e => detachNote(image.file)}>
-									{image.file.name} - {image.title}
-								</div>
-								<ButtonsToolbar
-									popup={false}
-									buttons={[
-										{
-											class: 'left',
-											title: 'left',
-											icon: 'faChevronLeft',
-											action: () => { incrementIndex(-1) }
-										},
-										{
-											class: 'close',
-											title: 'close',
-											icon: 'faTimes',
-											action: () => { p.onClose() }
-										},
-										{
-											class: 'right',
-											title: 'right',
-											icon: 'faChevronRight',
-											action: () => { incrementIndex(+1) }
-										},
-									]}
-								/>
-							</div>
-						</div>
-					)
+																																												 <div className="image-infos">
+																																												 <div className="image-name" onClick={e => detachNote(image.file)}>
+												 {image.file.name} - {image.title}
+												 </div>
+												 <ButtonsToolbar
+												 popup={false}
+												 buttons={[
+																				 {
+																						 class: 'left',
+																						 title: 'left',
+																						 icon: 'faChevronLeft',
+																						 action: () => { incrementIndex(-1) }
+																				 },
+																				 {
+																						 class: 'close',
+																						 title: 'close',
+																						 icon: 'faTimes',
+																						 action: () => { p.onClose() }
+																				 },
+																				 {
+																						 class: 'right',
+																						 title: 'right',
+																						 icon: 'faChevronRight',
+																						 action: () => { incrementIndex(+1) }
+																				 },
+																		 ]}
+												 />
+												 </div>
+												 </div>
+)
 				}
-			</div>
-		</div>
-	)
+				</div>
+				</div>
+		)
 }
 
 export const lightboxCss = () => `
@@ -147,14 +147,16 @@ export const lightboxCss = () => `
 												}
 												&.left {
 														left: 0px;
+														z-index:3;
 												}	
 												&.right {
 														right: 0px;
+														z-index:3;
 												}	
 												&.close {
 														padding: 10px;
 														position:relative;
-														z-index: 2;
+														z-index:3;
 														
 												}
 										}
@@ -179,7 +181,9 @@ export const lightboxCss = () => `
             }
             img {
                 max-width: 95vw;
-                max-height: 95vh;
+								z-index:2;
+								position: relative;
+								max-height: 95vh;
             }
         }
     }

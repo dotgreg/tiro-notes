@@ -61,7 +61,7 @@ export const ContentBlock = (p: {
 	////////////////////////////////////////////////////
 	// RENDERING
 	return (
-		<div className="content-block">
+		<div className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
 
 			{
 				isTag && noteTagContent &&
@@ -181,6 +181,7 @@ export const ContentBlockTagView = (p: {
 			file: p.file
 		})
 
+
 		// generate html content
 		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
 		//iframeHtml.innerTag
@@ -204,11 +205,12 @@ export const ContentBlockTagView = (p: {
 
 		const nid = `iframe-${generateUUID()}`
 		debounceStartIframeLogic(nid)
+		// console.log("==============================================");
 		return () => {
 			// cleaning when updating the component
 			iframeParentManager.unsubscribe(nid)
 		}
-	}, [p.windowId, p.file, p.block.content])
+	}, [p.windowId, p.block.content])
 
 
 	return (
@@ -268,5 +270,12 @@ export const contentBlockCss = () => `
 		}
 }
 
+.content-block.block-text {
+		padding: 15px;
+		padding-bottom: 0px;
+}
+.content-block.block-tag {
+		padding: 0px 0px 0px 0px;
+}
 
 `
