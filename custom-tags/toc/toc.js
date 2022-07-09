@@ -42,7 +42,7 @@ const tocApp = (innerTagStr, opts) => {
 						for (let i = 0; i < resArr.length; i++) {
 								const o = resArr[i];
 								const no = resArr[i+1];
-								const jsAction = `onClick="window.jumpTo(${o.line})"`
+								const jsAction = `onClick="event.preventDefault(); window.jumpTo(${o.line});"`
 								const sLi = `<li class="main-color">`
 								const contentLi = `<a href="#" ${jsAction}>${o.title}</a>`
 								const eLi = `</li>`
@@ -80,10 +80,12 @@ ol {
 		padding: 0px;
 		padding-left: 10px;
 }
-ol li p {
+ol li a {
 		cursor: pointer;
 		text-decoration: underline;
+		color: inherit;
 }
+
 .toc-wrapper p {
 		margin: 0px;
 		display: inline-block;
