@@ -260,28 +260,41 @@ export const iframeMainCode = (p: {
 	}
 
 	///////////////////////////////////////////////////////////////////////// 
-	// API 
+	// API => CUSTOM TAG AVAILABLE API in IFRAME
 
 	// API : CREATING EVENT BUS TO MANAGE API CALLS
 	const { subscribeOnce, notify } = p.createEventBus({ headerLog: '[FRAME API] 00567' })
 
-	// LOAD EXTERNAL SCRIPTS
-	/**
-	 * woop
-	 */
-	const loadScripts = (scripts: string[], cb: Function) => {
-		console.log(h, 'loadScripts', scripts);
-		let scriptsLoaded = 0;
-		// each(scripts, scriptToLoad => {
-		for (let i = 0; i < scripts.length; i++) {
-			const scriptToLoad = scripts[i];
-			const s = document.createElement('script');
-			s.src = scriptToLoad
-			s.onload = () => {
-				scriptsLoaded++
-				console.log(h, `loadScripts: ${scriptsLoaded}/${scripts.length}`);
-				if (scriptsLoaded === scripts.length) {
-					console.log(`loadScripts all scripts loaded, cb()!`);
+
+
+	//
+	// API : Loading and caching ressources
+	function checkUrlExists(url, onSuccess, onFail) {
+		try {
+			var http = new XMLHttpRequest();
+			http.open('HEAD', url, false);
+			http.send();
+			// return http.status != 404;
+			if (http.status !== 404) return onSuccess()
+			return onFail()
+		} catch (e) {
+			onFail(e)
+		}
+	}
+
+	const loadCachedRessources = (ressources: string[], cb: Function) => {
+		console.log(h, 'loadCachedRessources', ressources);
+
+		let ressourcesLoaded = 0;
+		for (let i = 0; i < ressources.length; i++) {
+			const ressToLoad = ressources[i];
+			const tag = document.createElement('script');
+			tag.src = ressToLoad
+			tag.onload = () => {
+				ressourcesLoaded++
+				console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
+				if (ressourcesLoaded === ressources.length) {
+					console.log(`ressources all ressources loaded, cb()!`);
 					try {
 						if (cb) cb()
 					} catch (e) {
@@ -289,9 +302,14 @@ export const iframeMainCode = (p: {
 					}
 				}
 			}
-			const el = document.getElementById('external-scripts-wrapper')
+			const el = document.getElementById('external-ressources-wrapper')
 			if (el) el.appendChild(s)
 		}
+	}
+
+
+	// LOAD EXTERNAL SCRIPTS
+	const loadScripts = (scripts: string[], cb: Function) => {
 	}
 
 	// LOAD CUSTOM TAG
