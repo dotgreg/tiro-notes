@@ -83,11 +83,16 @@ generate a table of content of your note.
  - create the note ```/.tiro/.tags/toc``` and paste the following content : 
 ```
 [[script]]
-// toc V1.0.0
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/dc2924daf276e43da73d6d365927a2b5d842c466/custom-tags/toc/toc.js",`{{innerTag}}`)
+// toc V1.0.1
+return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/3b5c4ffaafa9e4eea48cc9e94972b09dd76b96d6/custom-tags/toc/toc.js",`{{innerTag}}`, {refresh_interval: 5})
 [[script]]
 ```
+- Options
+	- refresh_interval : interval between each content refresh
 
+#### Changelog :
+ - 1.0.1 (10/07/2022) : adding autorefresh functionality + bugfix
+ - 1.0.0 : initial version
 
 
 
@@ -243,7 +248,7 @@ korben https://korben.info/feed
  - create the note ```/.tiro/.tags/rss``` and paste the following content : 
 ```
 [[script]]
-// RSS V1.0.0
+// RSS V1.0.1
 return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/rss/rss.js",`{{innerTag}}`, {size: "80%", rssToJsonUrl: "https://api.rss2json.com/v1/api.json?api_key=jiqsgkdxnqclbmppcao4wegdo9mghhmzl2ho3xdy&count=200&rss_url="})
 [[script]]
 ```
@@ -252,11 +257,7 @@ return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/18
 	- rssToJsonUrl : currently using a free limited service called https://rss2json that convert rss xml feeds to json. It is free up to 25 feeds, you can add your api key by replacing the url by https://api.rss2json.com/v1/api.json?api_key=YOUR_URL_KEY&count=200&rss_url=. You can alternatively use other xml to js service.
 
 #### Changelog :
- v0.30.3 : 02/06/2022 : fixing issues  
-
-<details>
-  <summary>Previous versions</summary>
-</details>
+ - 1.0.1 (02/06/2022) fixing issues  
 
 
 
@@ -264,30 +265,37 @@ return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/18
 
 
 
-### ```[[view]]```
+
+### ```[[pdf]]```
 #### Description :
-Display ressources in a dedicated viewer. Currently supporting the following files types
-- pdf
-- mp4
-- mp3
-
-Types support planned :
-- xls, xlsx (partial)
-
-Link can be a local file in your notes (```./.resources/myvideo.mp4```) or external (```https://awebsite.com/avideo.mp4```)
+A pdf viewer inside Tiro designed for studying large documents.
+- Cross platform : works on any browser including android chrome and apple safari .
+- Save the document page (per-device).
+- Only load the required page (only if PDF is linearized, you can use <a href="https://www.google.com/search?q=linearize+pdf+online" target="_blank">online tools</a> for that.).
 
 #### Usage :
 ```
-[[view]]
-./.resources/mydoc.pdf
-[[view]]
+[[pdf]]
+.resources/mydoc.pdf
+[[pdf]]
+
+```
+
+#### Install : 
+ - create the note ```/.tiro/.tags/pdf``` and paste the following content : 
+```
+[[script]]
+// PDF V1.0.0
+return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/3f01c21eb9dc55a72683e20ceb6dbd71635ca8eb/custom-tags/pdf/pdf.js",`{{innerTag}}`)
+[[script]]
 
 ```
 #### Screenshots : 
-<img src="https://user-images.githubusercontent.com/2981891/171811720-1ca54379-93ac-4f3e-8f0a-a8b41194a4e7.png" width="200"/>
+##### Desktop
+<img src="https://user-images.githubusercontent.com/2981891/178155769-a5b575c2-ce0f-4fc9-95ea-dede81c9e971.png" width="200"/>
 
-#### Install : 
-...wip
+##### Mobile
+<img src="https://user-images.githubusercontent.com/2981891/178155773-b677cd2d-a879-4215-940b-70b13c219849.jpg" width="100"/>
 
 
 
