@@ -422,6 +422,7 @@ export const iframeMainCode = (p: {
 		call: callApi,
 		utils: {
 			getInfos,
+			loadCachedRessources,
 			loadScripts,
 			resizeIframe,
 			loadCustomTag,

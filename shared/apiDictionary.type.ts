@@ -58,4 +58,9 @@ export interface iApiDictionary {
 
 	askFileHistory: { filepath: string }
 	getFileHistory: { files: iFile[] }
+
+	askRessourceDelete: { path: string, idReq: string }
+	askRessourceDownload: { url: string, folder:string,  idReq: string }
+	getRessourceApiAnswer: { message: string, idReq: string }
+
 }
