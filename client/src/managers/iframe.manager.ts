@@ -260,16 +260,21 @@ export const iframeMainCode = (p: {
 	}
 
 	///////////////////////////////////////////////////////////////////////// 
+	//
 	// API => CUSTOM TAG AVAILABLE API in IFRAME
+	//
 
-	// API : CREATING EVENT BUS TO MANAGE API CALLS
+	//  CREATING EVENT BUS TO MANAGE API CALLS
 	const { subscribeOnce, notify } = p.createEventBus({ headerLog: '[FRAME API] 00567' })
 
 
 
-	//
-	// API : Loading and caching ressources
-	function checkUrlExists(url, onSuccess, onFail) {
+	/////////////////////////////
+	// LOAD CACHED RESSOURCE & LOAD SCRIPTS : Loading and caching ressources
+
+	///////////
+	// SUPPORT FUNCTIONS
+	const checkUrlExists = (url, onSuccess, onFail) => {
 		try {
 			var http = new XMLHttpRequest();
 			http.open('HEAD', url, false);
@@ -282,34 +287,72 @@ export const iframeMainCode = (p: {
 		}
 	}
 
+	const loadRessourceInHtml = (url, onLoad) => {
+		let tag
+		if (url.endsWith(".js")) {
+			tag = document.createElement('script');
+			tag.src = url
+		}
+		if (url.endsWith(".css")) {
+			tag = document.createElement('link');
+			tag.href = url
+			tag.rel = "stylesheet"
+			tag.type = "text/css"
+		}
+		tag.onload = () => { onLoad() }
+		const el = document.getElementById('external-ressources-wrapper')
+		if (el) el.appendChild(tag)
+	}
+
+	const getCachedRessourcePath = (url: string): string => {
+		let idRess = url.replace(/[^\w\s]/gi, '_').replace(/(_js)/gi, '.js').replace(/(_css)/gi, '.css')
+		const path = `/static/.tiro/.tags-ressources/${idRess}`
+		return path
+	}
+
+	//////////
+	// API FUNCTIONS
 	const loadCachedRessources = (ressources: string[], cb: Function) => {
 		console.log(h, 'loadCachedRessources', ressources);
 
 		let ressourcesLoaded = 0;
-		for (let i = 0; i < ressources.length; i++) {
-			const ressToLoad = ressources[i];
-			const tag = document.createElement('script');
-			tag.src = ressToLoad
-			tag.onload = () => {
-				ressourcesLoaded++
-				console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
-				if (ressourcesLoaded === ressources.length) {
-					console.log(`ressources all ressources loaded, cb()!`);
-					try {
-						if (cb) cb()
-					} catch (e) {
-						console.log(h, `ERROR LoadScript Callback : ${e}`);
-					}
+		const onRessLoaded = () => {
+			ressourcesLoaded++
+			console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
+			if (ressourcesLoaded === ressources.length) {
+				console.log(`ressources all ressources loaded, cb()!`);
+				try {
+					if (cb) cb()
+				} catch (e) {
+					console.log(h, `ERROR LoadScript Callback : ${e}`);
 				}
 			}
-			const el = document.getElementById('external-ressources-wrapper')
-			if (el) el.appendChild(s)
+		}
+
+		for (let i = 0; i < ressources.length; i++) {
+			const ressToLoad = ressources[i];
+			const cachedRessToLoad = getCachedRessourcePath(ressToLoad)
+
+			// check if local cached URL already exists
+			checkUrlExists(cachedRessToLoad,
+				() => {
+					// == exists => create a tag (script/link) with it and include it
+					loadRessourceInHtml(ressToLoad, () => { onRessLoaded() })
+				}, () => {
+					// == does not exists,
+					// ==== send an api request for the backend to cache it
+					callApi("ressource.download", [ressToLoad], () => {
+						// ==== on cb, load that tag
+						loadRessourceInHtml(ressToLoad, () => { onRessLoaded() })
+					})
+				})
 		}
 	}
 
 
 	// LOAD EXTERNAL SCRIPTS
 	const loadScripts = (scripts: string[], cb: Function) => {
+		loadCachedRessources(scripts, cb)
 	}
 
 	// LOAD CUSTOM TAG
