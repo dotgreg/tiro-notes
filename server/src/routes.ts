@@ -56,7 +56,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		try {
 			let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
 			// setTimeout(() => {
-				serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
+			serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
 			// }, 5000)
 		} catch {
 
@@ -266,6 +266,24 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			if (file.name.includes(fileNameToSearch)) historyFiles.push(file)
 		}
 		serverSocket2.emit('getFileHistory', { files: historyFiles })
+	})
+
+
+	//
+	// RESSOURCE API
+	//
+	serverSocket2.on('askRessourceDelete', async data => {
+		// let res = await getFilesPreviewLogic(data)
+		// serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
+
+		// const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
+		// await upsertRecursivelyFolders(pathToFile)
+		// await saveFile(pathToFile, data.newFileContent)
+	})
+
+	serverSocket2.on('askRessourceDownload', async data => {
+		// createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
+
 	})
 }
 
