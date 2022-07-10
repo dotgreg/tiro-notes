@@ -212,7 +212,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 		// files.getContent('fdlsakfdsja', cb(), options)
 		try {
 			const pos = getCallbackArgPosition(callingObj)
-			console.log(2223, { pos, p, cb });
 			if (!pos) {
 				// non callback func simply call it
 				callingObj(...p.apiArguments)
@@ -237,7 +236,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 
 const getCallbackArgPosition = (fn: Function): number | null => {
 	const args = getFunctionParamNames(fn)
-	console.log(12344, args, fn);
 	// problem with that one is function names are compressed by webpack...
 	// mangle: {reserved: ["cb"], => has been preserved by webpack minify config
 	let index = args.indexOf('cb')

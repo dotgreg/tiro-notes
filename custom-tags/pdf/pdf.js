@@ -7,17 +7,11 @@ const pdfApp = (innerTagStr, opts) => {
 		const api = window.api;
 		const { div, updateContent } = api.utils.createDiv();
 
-		// console.log(h, '1woop');
-		// const execPdfViewer = (feedsStr) => {
-		// 		console.log(h, 'woop');
-		// }
 		api.utils.resizeIframe("80%");
 		const infos = api.utils.getInfos();
-		// console.log("2222222222222222222222", infos);
 
 		let url = innerTagStr.trim()
 		const isAbs = url.startsWith("http")
-		// console.log(234, url, isAbs, window.location);
 		if (isAbs === false) {
 				url = window.location.ancestorOrigins[0] + "/static/" + infos.file.folder +"/"+ url 
 		}
@@ -29,16 +23,10 @@ const pdfApp = (innerTagStr, opts) => {
 				workerSrc: `${ressPath}/pdf_lib.worker.js`,
 				url
 		}
-		// console.log("33333333 PDF",window.pdf_controller);
 
-		const libsToLoad = 				[
-				`${ressPath}/pdf_lib.js`,
-				`${ressPath}/viewer.js`
-		]
-
-		// setTimeout(() => {
 		api.utils.loadScripts(
 				[`${ressPath}/pdf_lib.js`],
+				[`${ressPath}/pdf_lib.worker.js`],
 				() => {
 						api.utils.loadScripts(
 								[`${ressPath}/viewer.js`],
@@ -47,7 +35,6 @@ const pdfApp = (innerTagStr, opts) => {
 								})
 				}
 		);
-		// }, 5000)
 
 
 		const html = `
