@@ -10,13 +10,13 @@ import { genIdReq, iApiEventBus } from './api.hook';
 export interface iRessourceApi {
 	delete: (
 		filePath: string,
-		cb: (message: string) => void
+		cb: (answer:any) => void
 	) => void,
 
 	download: (
 		url: string,
 		folder: string,
-		cb: (message: string) => void
+		cb: (answer:any) => void
 	) => void
 }
 
@@ -59,7 +59,7 @@ export const useRessourceApi = (p: {
 	//
 	// EXPORTS
 	//
-	const ressourceApi:iRessourceApi = {
+	const ressourceApi: iRessourceApi = {
 		delete: deleteRessource,
 		download: downloadRessource
 	}

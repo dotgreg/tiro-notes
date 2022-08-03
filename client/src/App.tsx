@@ -289,6 +289,13 @@ export const App = () => {
 	// }, [])
 
 	useEffect(() => {
+		const url = "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/custom-tags/rss/rss.js"
+		api.ressource.download(url, "woop/woop", (answer) => {
+			console.log(12345555555, answer);
+		})
+	}, [])
+
+	useEffect(() => {
 		setTimeout(() => {
 			// console.log(222, api.ui.windows.active.get());
 			getClientApi2().then(api => {

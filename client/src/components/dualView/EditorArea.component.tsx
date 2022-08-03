@@ -409,7 +409,7 @@ export const EditorArea = (p: {
 
 			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
 
-			{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
+		{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
 	)//jsx
 }

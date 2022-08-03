@@ -16,6 +16,7 @@ import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
 import { iNoteApi, useNoteApi } from './note.api.hook';
+import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 
 
 
@@ -30,11 +31,12 @@ export interface iApiEventBus {
 }
 
 /**
- * woop woooop test2
+ * comment test2
  */
 export interface iClientApi {
 	file: iFileApi
 	upload: iUploadApi
+	ressource: iRessourceApi
 	/**
 	 * comment3
 	 */
@@ -141,6 +143,7 @@ export const useClientApi = (p: {
 		statusApi: p.statusApi
 	});
 	const uploadApi = useUploadApi({ eventBus });
+	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
 
 
@@ -164,6 +167,7 @@ export const useClientApi = (p: {
 		files: filesApi,
 		popup: p.popupApi,
 		upload: uploadApi,
+		ressource: ressourceApi,
 		tabs: p.tabsApi,
 		folders: foldersApi,
 		userSettings: p.userSettingsApi,
