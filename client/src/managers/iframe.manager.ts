@@ -1,5 +1,5 @@
 import { each } from "lodash";
-import { generateUUID } from "../../../shared/helpers/id.helper";
+import { generateUUID, getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { bindToElClass } from "./renderNote.manager";
 import { iFile, iFileNature } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
@@ -116,6 +116,7 @@ export const generateIframeHtml = (tagContent: string) => {
 				const IMPORTED_unescapeHtml = ${unescapeHtml.toString()}
 				const IMPORTED_createEventBus = ${createEventBus.toString()}
 				const IMPORTED_generateUUID = ${generateUUID.toString()}
+				const IMPORTED_getRessourceIdFromUrl = ${getRessourceIdFromUrl.toString()}
 				const IMPORTED_bindToElClass = ${bindToElClass.toString()}
 				const main = ${iframeMainCode.toString()};
 				main({
@@ -123,6 +124,7 @@ export const generateIframeHtml = (tagContent: string) => {
 					unescapeHtml: IMPORTED_unescapeHtml,
 					createEventBus: IMPORTED_createEventBus,
 					generateUUID: IMPORTED_generateUUID,
+					getRessourceIdFromUrl: IMPORTED_getRessourceIdFromUrl,
 					bindToElClass: IMPORTED_bindToElClass
 				})
 		</script>
@@ -137,6 +139,7 @@ export const iframeMainCode = (p: {
 	unescapeHtml,
 	createEventBus,
 	generateUUID,
+	getRessourceIdFromUrl,
 	bindToElClass
 }) => {
 	const h = '[IFRAME child] 00564'
@@ -305,8 +308,7 @@ export const iframeMainCode = (p: {
 	}
 
 	const getCachedRessourcePath = (url: string): string => {
-		let idRess = url.replace(/[^\w\s]/gi, '_').replace(/(_js)/gi, '.js').replace(/(_css)/gi, '.css')
-		const path = `/static/.tiro/.tags-ressources/${idRess}`
+		const path = `/static/.tiro/.tags-ressources/${p.getRessourceIdFromUrl(url)}`
 		return path
 	}
 

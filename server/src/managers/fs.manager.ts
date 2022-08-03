@@ -1,4 +1,4 @@
-import { max } from "lodash";
+import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
@@ -12,6 +12,8 @@ var fs = require('fs');
 //////////////////////////
 // METADATA FILES
 //////////////////////////
+
+const h = `[FS FILE]`
 
 export interface iMetadataFile {
 	name: string
@@ -195,9 +197,10 @@ export const isDir = (path: string): boolean => {
 
 const isHttps = (url: string) => url.indexOf("https") === 0;
 
-export const downloadFile = async (url: string, path: string): Promise<string> => {
-	path = p(path)
-	log(`===== DL FILE ${url} ${path}`);
+export const downloadFile = async (url: string, folder: string): Promise<string> => {
+	folder = p(folder)
+	let path = `${folder}/${getRessourceIdFromUrl(url)}`
+	log(`[DOWNLOAD FILE] ${url} to folder ${folder} => ${path}`);
 	if (!url) return
 	let client = isHttps(url) ? https : http
 	return new Promise((resolve, reject) => {
@@ -206,12 +209,12 @@ export const downloadFile = async (url: string, path: string): Promise<string> =
 			response.pipe(file);
 			file.on('finish', () => {
 				file.close();  // close() is async, call cb after close completes.
-				log(`[DLFILE] downloaded ${url} to ${path}`);
+				log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);
 				resolve(path)
 			});
 		}).on('error', (err) => { // Handle errors
-			fs.unlink(path); // Delete the file async. (But we don't check the result)
-			log(`[SAVEFILE] error  ${err.message} ({url} to ${path})$`)
+			fs.unlink(path, () => {}); // Delete the file async. (But we don't check the result)
+			log(`[DOWNLOAD FILE] error  ${err.message} ({url} to ${path})$`)
 			reject(err.message);
 		});
 	})
