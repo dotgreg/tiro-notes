@@ -6,8 +6,7 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { escapeHtml } from '../managers/textProcessor.manager';
-import { isNull, isString } from 'lodash';
+import { isString } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
@@ -34,17 +33,23 @@ export const ContentBlock = (p: {
 			p.block.content = ''
 		} else {
 			// if custom tag, look for its content and insert that one in the iframe
-			getClientApi2().then(api => {
-				api.file.getContent(`/.tiro/tags/${p.block.tagName}.md`, ncontent => {
-					setNoteTagContent(ncontent)
-				}, {
-					onError: () => {
-						setNoteTagContent(null)
-					}
-				})
-			})
+			console.log("======== ", p.block.tagName);
+			debounceLoadCtag(p.block.tagName)
 		}
 	}, [p.windowId, p.file, p.block.content])
+
+	const debounceLoadCtag = useDebounce((tagName: string) => {
+		console.log("============ 3", tagName);
+		getClientApi2().then(api => {
+			api.file.getContent(`/.tiro/tags/${tagName}.md`, ncontent => {
+				setNoteTagContent(ncontent)
+			}, {
+				onError: () => {
+					setNoteTagContent(null)
+				}
+			})
+		})
+	}, 200)
 
 	////////////////////////////////////////////////////
 	// TEXT LOGIC
@@ -200,6 +205,7 @@ export const ContentBlockTagView = (p: {
 	}
 
 	useEffect(() => {
+		console.log("===== CHANGING CONTENT CTAG", p);
 		setCanShow(false)
 		updateIframeHtml()
 

@@ -62,7 +62,7 @@ const { notify, subscribe, unsubscribe } = createEventBus<iIframeMessage>({
 // LISTENING
 //
 const initIframeListening = () => {
-	console.log(h, `INIT IFRAME LISTENING`);
+	// console.log(h, `INIT IFRAME LISTENING`);
 	window.addEventListener('message', m => {
 		if (!m.data.subId) return
 		console.log(h, 'parent <== iframe', m.data.data);
@@ -155,7 +155,7 @@ export const iframeMainCode = (p: {
 }) => {
 	const h = '[IFRAME child] 00564'
 
-	console.log(h, 'INIT INNER IFRAME');
+	// console.log(h, 'INIT INNER IFRAME');
 
 	// 
 	// STORAGE
@@ -239,7 +239,7 @@ export const iframeMainCode = (p: {
 		d.tagContent = m.tagContent
 		d.tagName = m.tagName
 		d.file = m.file
-		console.log(h, '1/2 RECEIVED INIT EVENT', d.frameId);
+		// console.log(h, '1/2 RECEIVED INIT EVENT', d.frameId);
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
@@ -248,7 +248,7 @@ export const iframeMainCode = (p: {
 			// unescape html and scripts
 			const unescHtml = p.unescapeHtml(el.innerHTML) as string
 			const newHtml = executeScriptTags(unescHtml)
-			console.log(h, '2/2 transformMarkdownScript', { old: el.innerHTML, new: newHtml });
+			// console.log(h, '2/2 transformMarkdownScript', { old: el.innerHTML, new: newHtml });
 			el.innerHTML = newHtml
 			//
 			// sending height back for resizing sthg
@@ -303,9 +303,9 @@ export const iframeMainCode = (p: {
 
 	const loadLocalRessourceInHtml = (url, onLoad) => {
 		let tag
-		console.log("111111 loading", url);
+		// console.log("111111 loading", url);
 		if (url.includes(".js")) {
-			console.log("1111112 loading", url);
+			// console.log("1111112 loading", url);
 			tag = document.createElement('script');
 			tag.src = url
 		}
@@ -316,7 +316,7 @@ export const iframeMainCode = (p: {
 			tag.type = "text/css"
 		}
 		tag.onload = () => {
-			console.log("111111 onload", url);
+			// console.log("111113 LOADED!!", url);
 			onLoad()
 		}
 		const el = document.getElementById('external-ressources-wrapper')
@@ -335,14 +335,14 @@ export const iframeMainCode = (p: {
 	//////////
 	// API FUNCTIONS
 	const loadCachedRessources = (ressources: string[], cb: Function) => {
-		console.log(h, 'loadCachedRessources', ressources);
+		// console.log(h, 'loadCachedRessources', ressources);
 
 		let ressourcesLoaded = 0;
 		const onRessLoaded = () => {
 			ressourcesLoaded++
-			console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
+			// console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
 			if (ressourcesLoaded === ressources.length) {
-				console.log(`ressources all ressources loaded, cb()!`);
+				console.log(`ressources all ressources loaded, cb()!`, ressources);
 				try {
 					if (cb) cb()
 				} catch (e) {
@@ -351,27 +351,31 @@ export const iframeMainCode = (p: {
 			}
 		}
 
-		console.log("0000110", ressources);
 		for (let i = 0; i < ressources.length; i++) {
 			const ressToLoad = ressources[i];
 			const cachedRessToLoad = getCachedRessourceUrl(ressToLoad)
 
-			// check if local cached URL already exists
-			console.log("0000111", ressToLoad);
-			checkUrlExists(cachedRessToLoad,
-				() => {
-					console.log("0000112", ressToLoad);
-					// == exists => create a tag (script/link) with it and include it
+			//@ts-ignore
+			const disableCache = window.disableCache === true ? true : false
+
+			const downloadAndLoadRess = () => {
+				callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
+					// ==== on cb, load that tag
 					loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
-				}, () => {
-					console.log("0000113", ressToLoad);
-					// == does not exists,
-					// ==== send an api request for the backend to cache it
-					callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
-						// ==== on cb, load that tag
-						loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
-					})
 				})
+			}
+
+			if (disableCache) {
+				console.warn(h, "CACHE DISABLED, DOWNLOADING RESSOURCES EVERYTIME!");
+				downloadAndLoadRess()
+			} else {
+				checkUrlExists(cachedRessToLoad,
+					() => {
+						loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+					}, () => {
+						downloadAndLoadRess()
+					})
+			}
 		}
 	}
 

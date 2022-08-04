@@ -278,16 +278,13 @@ export const useTabs = () => {
 		let aWindowIndex = 0
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 
-		console.log(h2, "4455", aContent[aWindowIndex].i, aWindowIndex);
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name only if tab name not manually edited
 		if (!aTab.manualName) aTab.name = createTabName(nFile.name)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
-		console.log(`${h2} active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
 		// save tabs
-		//console.log('0045', nFile.folder, nTabs2);
 		setTabs(nTabs2)
 	}
 
