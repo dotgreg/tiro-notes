@@ -11,6 +11,9 @@ export const getLoginToken = ():string => {
     const cookie = getCookie('tiro-login-token')
     return cookie ? cookie : ''
 }
+export const getUrlTokenParam = (): string => {
+	return `?token=${getLoginToken()}`
+}
 export const setLoginToken = (token:string) => {
     setCookie('tiro-login-token', token, sharedConfig.tokenRefreshInHours)
 }

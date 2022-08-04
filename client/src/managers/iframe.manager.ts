@@ -5,6 +5,11 @@ import { iFile, iFileNature } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
+import { getUrlParams } from "./url.manager";
+import { getLoginToken } from "../hooks/app/loginToken.hook";
+import { configClient } from "../config";
+import { getSetting } from "../components/settingsView/settingsView.component";
+import { getBackendUrl } from "./sockets/socket.manager";
 
 type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError'
 
@@ -110,8 +115,10 @@ export const generateIframeHtml = (tagContent: string) => {
 		<div id="content-wrapper">
 				${tagContent}
 		</div>
-		<div id="external-scripts-wrapper"></div>
+		<div id="external-ressources-wrapper"></div>
 		<script>
+				const IMPORTED_backend_url = "${getBackendUrl()}"
+				const IMPORTED_login_token = "${getLoginToken()}"
 				const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
 				const IMPORTED_unescapeHtml = ${unescapeHtml.toString()}
 				const IMPORTED_createEventBus = ${createEventBus.toString()}
@@ -120,6 +127,8 @@ export const generateIframeHtml = (tagContent: string) => {
 				const IMPORTED_bindToElClass = ${bindToElClass.toString()}
 				const main = ${iframeMainCode.toString()};
 				main({
+					backendUrl: IMPORTED_backend_url,
+					loginToken: IMPORTED_login_token,
 					replaceCustomMdTags: IMPORTED_replaceCustomMdTags,
 					unescapeHtml: IMPORTED_unescapeHtml,
 					createEventBus: IMPORTED_createEventBus,
@@ -135,6 +144,8 @@ export const generateIframeHtml = (tagContent: string) => {
 
 
 export const iframeMainCode = (p: {
+	backendUrl,
+	loginToken,
 	replaceCustomMdTags,
 	unescapeHtml,
 	createEventBus,
@@ -290,25 +301,34 @@ export const iframeMainCode = (p: {
 		}
 	}
 
-	const loadRessourceInHtml = (url, onLoad) => {
+	const loadLocalRessourceInHtml = (url, onLoad) => {
 		let tag
-		if (url.endsWith(".js")) {
+		console.log("111111 loading", url);
+		if (url.includes(".js")) {
+			console.log("1111112 loading", url);
 			tag = document.createElement('script');
 			tag.src = url
 		}
-		if (url.endsWith(".css")) {
+		else if (url.includes(".css")) {
 			tag = document.createElement('link');
 			tag.href = url
 			tag.rel = "stylesheet"
 			tag.type = "text/css"
 		}
-		tag.onload = () => { onLoad() }
+		tag.onload = () => {
+			console.log("111111 onload", url);
+			onLoad()
+		}
 		const el = document.getElementById('external-ressources-wrapper')
-		if (el) el.appendChild(tag)
+
+		if (!el) return console.error(h, `could not load ${url} because ressource wrapper was not detected`)
+		el.appendChild(tag)
 	}
 
-	const getCachedRessourcePath = (url: string): string => {
-		const path = `/static/.tiro/.tags-ressources/${p.getRessourceIdFromUrl(url)}`
+	const getCachedRessourceFolder = () => `/.tiro/.tags-ressources/`
+	const getCachedRessourceUrl = (url: string): string => {
+		const tokenParamStr = `?token=${p.loginToken}`
+		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${p.getRessourceIdFromUrl(url)}${tokenParamStr}`
 		return path
 	}
 
@@ -331,21 +351,25 @@ export const iframeMainCode = (p: {
 			}
 		}
 
+		console.log("0000110", ressources);
 		for (let i = 0; i < ressources.length; i++) {
 			const ressToLoad = ressources[i];
-			const cachedRessToLoad = getCachedRessourcePath(ressToLoad)
+			const cachedRessToLoad = getCachedRessourceUrl(ressToLoad)
 
 			// check if local cached URL already exists
+			console.log("0000111", ressToLoad);
 			checkUrlExists(cachedRessToLoad,
 				() => {
+					console.log("0000112", ressToLoad);
 					// == exists => create a tag (script/link) with it and include it
-					loadRessourceInHtml(ressToLoad, () => { onRessLoaded() })
+					loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
 				}, () => {
+					console.log("0000113", ressToLoad);
 					// == does not exists,
 					// ==== send an api request for the backend to cache it
-					callApi("ressource.download", [ressToLoad], () => {
+					callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
 						// ==== on cb, load that tag
-						loadRessourceInHtml(ressToLoad, () => { onRessLoaded() })
+						loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
 					})
 				})
 		}
@@ -425,6 +449,7 @@ export const iframeMainCode = (p: {
 		utils: {
 			getInfos,
 			loadCachedRessources,
+			getCachedRessourceUrl,
 			loadScripts,
 			resizeIframe,
 			loadCustomTag,
