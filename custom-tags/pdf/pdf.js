@@ -20,13 +20,15 @@ const pdfApp = (innerTagStr, opts) => {
 				disableAutoFetch: true,
 				disableStream: true,
 				debug: false,
-				workerSrc: `${ressPath}/pdf_lib.worker.js`,
+				workerSrc: api.utils.getCachedRessourceUrl(`${ressPath}/pdf_lib.worker.js`),
 				url
 		}
 
 		api.utils.loadScripts(
-				[`${ressPath}/pdf_lib.js`],
-				[`${ressPath}/pdf_lib.worker.js`],
+				[
+						`${ressPath}/pdf_lib.js`,
+						`${ressPath}/pdf_lib.worker.js`
+				],
 				() => {
 						api.utils.loadScripts(
 								[`${ressPath}/viewer.js`],

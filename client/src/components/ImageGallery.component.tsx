@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { iFileImage } from '../../../shared/types.shared';
-import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { getLoginToken, getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { detachNote } from '../managers/detachNote.manager';
 import { deviceType } from '../managers/device.manager';
 import { getImageDimensions } from '../managers/imageDimensions.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
-import { absoluteLinkPathRoot, getUrlTokenParam } from '../managers/textProcessor.manager';
+import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { Icon } from './Icon.component';
 
