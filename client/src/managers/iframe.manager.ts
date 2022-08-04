@@ -20,6 +20,8 @@ export interface iIframeData {
 		tagName: string
 		tagContent: string
 		frameId: string
+		loginToken: string
+		backendUrl: string
 	}
 	resize: {
 		height: number | string
@@ -166,6 +168,8 @@ export const iframeMainCode = (p: {
 		innerTag: '',
 		tagName: '',
 		tagContent: '',
+		loginToken: p.loginToken,
+		backendUrl: p.backendUrl,
 	}
 	const getInfos = () => d
 
@@ -242,9 +246,9 @@ export const iframeMainCode = (p: {
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
-		console.log(h, 'init message from parent received in child iframe', d);
+		// console.log(h, 'init message from parent received in child iframe', d);
 		if (el) {
-			console.log(h, '222222', el);
+			// console.log(h, '222222', el);
 
 			// unescape html and scripts
 			const unescHtml = p.unescapeHtml(el.innerHTML) as string
@@ -385,6 +389,31 @@ export const iframeMainCode = (p: {
 	const loadScripts = (scripts: string[], cb: Function) => {
 		loadCachedRessources(scripts, cb)
 	}
+	const loadScriptsNoCache = (scripts: string[], cb: Function) => {
+		console.log(h, 'loadScripts', scripts);
+		let scriptsLoaded = 0;
+		// each(scripts, scriptToLoad => {
+		for (let i = 0; i < scripts.length; i++) {
+			const scriptToLoad = scripts[i];
+			const s = document.createElement('script');
+			s.src = scriptToLoad
+			s.onload = () => {
+				scriptsLoaded++
+				console.log(h, `loadScripts: ${scriptsLoaded}/${scripts.length}`);
+				if (scriptsLoaded === scripts.length) {
+					console.log(`loadScripts all scripts loaded, cb()!`);
+					try {
+						if (cb) cb()
+					} catch (e) {
+						console.log(h, `ERROR LoadScript Callback : ${e}`);
+					}
+				}
+			}
+			const el = document.getElementById('external-ressources-wrapper')
+			if (el) el.appendChild(s)
+		}
+	}
+
 
 	// LOAD CUSTOM TAG
 	const loadCustomTag = (url: string, innerTag: string, opts: any) => {
@@ -443,7 +472,7 @@ export const iframeMainCode = (p: {
 			else { setTimeout(() => { updateContent(nContent) }, 100) }
 		}
 		return {
-			div: `<div id="${id}">loading...</div>`,
+			div: `<div id="${id}"></div>`,
 			updateContent
 		}
 	}
@@ -453,9 +482,12 @@ export const iframeMainCode = (p: {
 		call: callApi,
 		utils: {
 			getInfos,
+
 			loadCachedRessources,
 			getCachedRessourceUrl,
 			loadScripts,
+			loadScriptsNoCache,
+
 			resizeIframe,
 			loadCustomTag,
 			uuid: p.generateUUID,
