@@ -8,6 +8,8 @@ import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { isString } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
+import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { getBackendUrl } from '../managers/sockets/socket.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
 
@@ -115,7 +117,7 @@ export const ContentBlockTagView = (p: {
 
 
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
-		console.log("============= DEBOUNCE START IFRAME LOGIC");
+		// console.log("============= DEBOUNCE START IFRAME LOGIC");
 		setIframeId(nid)
 		setIframeError(null)
 
@@ -143,7 +145,7 @@ export const ContentBlockTagView = (p: {
 				const data = m.data as iIframeData['apiCall']
 
 				callApiFromString(data, (status, data) => {
-					console.log(h, "getting aswer from api call => ", JSON.stringify({ status, data }).substring(0, 150) + "\"");
+					//console.log(h, "getting aswer from api call => ", JSON.stringify({ status, data }).substring(0, 150) + "\"");
 					// if no, directly return the error 
 					if (status === 'nok') return setIframeError(data.error)
 
@@ -174,7 +176,9 @@ export const ContentBlockTagView = (p: {
 				innerTag: p.block.content,
 				frameId: nid,
 				tagContent: noteTagContent,
-				tagName: p.block.tagName || ''
+				tagName: p.block.tagName || '',
+				loginToken: getLoginToken(),
+				backendUrl: getBackendUrl()
 			}
 
 			iframeParentManager.send(iframeRef.current, { action: 'init', data })
@@ -210,7 +214,7 @@ export const ContentBlockTagView = (p: {
 	}
 
 	useEffect(() => {
-		console.log("===== CHANGING CONTENT CTAG", p);
+		// console.log("===== CHANGING CONTENT CTAG", p);
 		setCanShow(false)
 		updateIframeHtml()
 

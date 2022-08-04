@@ -10,10 +10,10 @@ const pdfApp = (innerTagStr, opts) => {
 		api.utils.resizeIframe("80%");
 		const infos = api.utils.getInfos();
 
-		let url = innerTagStr.trim()
-		const isAbs = url.startsWith("http")
+		let pdf_url = innerTagStr.trim()
+		const isAbs = pdf_url.startsWith("http")
 		if (isAbs === false) {
-				url = window.location.ancestorOrigins[0] + "/static/" + infos.file.folder +"/"+ url 
+				pdf_url = infos.backendUrl + "/static/" + infos.file.folder +"/"+ pdf_url +  `?token=${infos.loginToken}`
 		}
 
 		window.pdf_controller = {
@@ -21,8 +21,9 @@ const pdfApp = (innerTagStr, opts) => {
 				disableStream: true,
 				debug: false,
 				workerSrc: api.utils.getCachedRessourceUrl(`${ressPath}/pdf_lib.worker.js`),
-				url
+				url: pdf_url
 		}
+		console.log(h, "STARTING PDF VIEWER WITH FOLLOWING PARAMS :", window.pdf_controller, infos);
 
 		api.utils.loadScripts(
 				[
