@@ -25,10 +25,12 @@ const pdfApp = (innerTagStr, opts) => {
 		}
 		console.log(h, "STARTING PDF VIEWER WITH FOLLOWING PARAMS :", window.pdf_controller, infos);
 
-		api.utils.loadScripts(
+		api.utils.loadRessources(
 				[
 						`${ressPath}/pdf_lib.js`,
-						`${ressPath}/pdf_lib.worker.js`
+						`${ressPath}/pdf_lib.worker.js`,
+						// `https://mozilla.github.io/pdf.js/web/viewer.css` // pb url(images/button) relative to new path...
+						`${ressPath}/viewer.css`,
 				],
 				() => {
 						api.utils.loadScripts(
@@ -39,7 +41,9 @@ const pdfApp = (innerTagStr, opts) => {
 				}
 		);
 
+		// <link rel="stylesheet" href="https://mozilla.github.io/pdf.js/web/viewer.css">
 
+		const rootCssImages = 'https://mozilla.github.io/pdf.js/web/'
 		const html = `
 				
 <style>
@@ -53,7 +57,6 @@ height: 600px;
 }
 </style>
 
-				<link rel="stylesheet" href="https://mozilla.github.io/pdf.js/web/viewer.css">
 
 		<div id="ctag-pdf-wrapper">
 				<div id="outerContainer">

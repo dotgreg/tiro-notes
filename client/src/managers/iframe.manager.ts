@@ -386,6 +386,9 @@ export const iframeMainCode = (p: {
 
 
 	// LOAD EXTERNAL SCRIPTS
+	const loadRessources = (ressources: string[], cb: Function) => {
+		loadCachedRessources(ressources, cb)
+	}
 	const loadScripts = (scripts: string[], cb: Function) => {
 		loadCachedRessources(scripts, cb)
 	}
@@ -486,6 +489,7 @@ export const iframeMainCode = (p: {
 			loadCachedRessources,
 			getCachedRessourceUrl,
 			loadScripts,
+			loadRessources,
 			loadScriptsNoCache,
 
 			resizeIframe,
