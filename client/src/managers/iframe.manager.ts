@@ -443,7 +443,7 @@ export const iframeMainCode = (p: {
 			else { setTimeout(() => { updateContent(nContent) }, 100) }
 		}
 		return {
-			div: `<div id="${id}"></div>`,
+			div: `<div id="${id}">loading...</div>`,
 			updateContent
 		}
 	}

@@ -131,6 +131,7 @@ export class Text2SpeechManager {
 				this.isLoaded = false
 				console.log(`[TTS] END play chunk ${this.currChunkId}`);
 				if (!this.shouldStop) {
+					// window.speechSynthesis.cancel();
 					this.currChunkId += 1
 					this.play()
 				} else {
@@ -180,7 +181,7 @@ export class Text2SpeechManager {
 	debounceRestart = debounce(() => {
 		console.log('DEBOUNCE RESTART');
 		this.stop()
-		this.shouldStop = false
+		// this.shouldStop = false
 		this.play()
 	}, 500)
 

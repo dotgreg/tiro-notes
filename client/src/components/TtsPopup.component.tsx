@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../shared/types.shared';
 import { useInterval } from '../hooks/interval.hook';
 import { useLocalStorage } from '../hooks/useLocalStorage.hook';
+import { deviceType } from '../managers/device.manager';
 import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { getAvailableVoices, Text2SpeechManager } from '../managers/tts.manager';
@@ -20,6 +21,7 @@ export const TtsPopup = (p: {
 	const [selectedVoiceId, setSelectedVoiceId] = useLocalStorage<number>('tts-selected-voice', 0)
 
 	// const [currChunk, setCurrChunk] = useState(0)
+	const [bgLock, setBgLock] = useState(false)
 	const [currChunk, setCurrChunk] = useLocalStorage<number>(`tts-pos-${p.file.name}`, 0)
 	// const [currRate, setCurrRate] = useState(1)
 	const [currRate, setCurrRate] = useLocalStorage<number>(`tts-rate`, 1)
@@ -113,15 +115,38 @@ export const TtsPopup = (p: {
 					<button onClick={e => { tts.current.goForward() }}>
 						<Icon name="faFastForward" color="black" />
 					</button>
+					{ deviceType() !== "desktop" && <button onClick={e => { setBgLock(true) }}>
+						<Icon name="faLock" color="black" />
+					</button>
+					}
 				</div>
-
-
 			</Popup>
+
+			{bgLock && <div className="bg-lock">
+				<button onClick={e => { setBgLock(false) }}>
+					<Icon name="faUnlock" color="black" />
+				</button>
+			</div>}
+
 		</StyledDiv>
 	)
 }
 
 export const StyledDiv = styled.div`
+.bg-lock {
+		position: fixed;
+		top: 0px;
+		left: 0px;
+		width: 100vw;
+		height: 100vh;
+		z-index: 1005;
+		background: rgba(0,0,0,0.3);
+		display: flex;
+		justify-content: center;
+    align-items: center;
+		button {
+		}
+}
 .popup-wrapper .popupContent {
     padding: 20px;
 		.input-component span, span {
