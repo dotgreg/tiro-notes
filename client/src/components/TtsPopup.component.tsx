@@ -23,6 +23,7 @@ export const TtsPopup = (p: {
 
 	// const [currChunk, setCurrChunk] = useState(0)
 	const [bgLock, setBgLock] = useState(false)
+	// const [lockCounter, setBgLock] = useState(false)
 	const lockBgScreen = (status: boolean) => {
 		status === true ? startScreenWakeLock() : stopScreenWakeLock()
 		setBgLock(status)
@@ -130,7 +131,8 @@ export const TtsPopup = (p: {
 			</Popup>
 
 			{bgLock && <div className="bg-lock">
-				<button onClick={e => { lockBgScreen(false) }}>
+				<button
+					onContextMenu={e => { lockBgScreen(false) }}>
 					<Icon name="faUnlock" color="black" />
 				</button>
 			</div>}
