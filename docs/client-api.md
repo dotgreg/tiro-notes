@@ -26,7 +26,7 @@
 
 #### <span class="render-code-wrapper">utils.getInfos</span>
  - Type: <span class="render-code-wrapper">Function</span> 
-    - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;frameId: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;innerTag: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span><br/>}</span> 
+    - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;backendUrl: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;frameId: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;innerTag: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;loginToken: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span><br/>}</span> 
 
  - Example: 
  <div class="render-code-wrapper">api.utils.getInfos( )</div>
@@ -64,6 +64,17 @@
 
  - Example: 
  <div class="render-code-wrapper">api.utils.loadScripts(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ 
+
+#### <span class="render-code-wrapper">utils.loadScriptsNoCache</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. scripts: <span class="render-code-wrapper">string[]</span>
+       1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.loadScriptsNoCache(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
  
 
 #### <span class="render-code-wrapper">utils.resizeIframe</span>
