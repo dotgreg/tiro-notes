@@ -21,35 +21,39 @@ export const ContentBlock = (p: {
 	const isTag = p.block.type === 'tag'
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
 	const [htmlTextContent, setHtmlTextContent] = useState<string | null>(null)
+	const [ctagStatus, setCtagStatus] = useState("null")
 
 	////////////////////////////////////////////////////
 	// IFRAME CONTENT LOGIC
 	useEffect(() => {
 		if (!isTag) return
+		setCtagStatus("loading")
 		if (p.block.tagName === 'script') {
 			// if script, inject it inside iframe wrapping it with '[[script]]'
 			setNoteTagContent(`\n[[script]]${p.block.content}[[script]]`)
+			setTimeout(() => {
+				setCtagStatus("loaded")
+			}, 100)
 			// and remove the innertag logic if present
 			p.block.content = ''
 		} else {
 			// if custom tag, look for its content and insert that one in the iframe
-			console.log("======== ", p.block.tagName);
-			debounceLoadCtag(p.block.tagName)
+			// console.log("======== ", p.block.tagName, p.block);
+			getClientApi2().then(api => {
+				api.file.getContent(`/.tiro/tags/${p.block.tagName}.md`, ncontent => {
+					setNoteTagContent(ncontent)
+					setTimeout(() => {
+						setCtagStatus("loaded")
+					}, 100)
+					// console.log("======== 333", p.block.tagName, p.block);
+				}, {
+					onError: () => {
+						setNoteTagContent(null)
+					}
+				})
+			})
 		}
 	}, [p.windowId, p.file, p.block.content])
-
-	const debounceLoadCtag = useDebounce((tagName: string) => {
-		console.log("============ 3", tagName);
-		getClientApi2().then(api => {
-			api.file.getContent(`/.tiro/tags/${tagName}.md`, ncontent => {
-				setNoteTagContent(ncontent)
-			}, {
-				onError: () => {
-					setNoteTagContent(null)
-				}
-			})
-		})
-	}, 200)
 
 	////////////////////////////////////////////////////
 	// TEXT LOGIC
@@ -69,7 +73,7 @@ export const ContentBlock = (p: {
 		<div className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
 
 			{
-				isTag && noteTagContent &&
+				ctagStatus === "loaded" && isTag && noteTagContent &&
 				<ContentBlockTagView
 					{...p}
 					noteTagContent={noteTagContent}
@@ -111,6 +115,7 @@ export const ContentBlockTagView = (p: {
 
 
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
+		console.log("============= DEBOUNCE START IFRAME LOGIC");
 		setIframeId(nid)
 		setIframeError(null)
 
@@ -216,7 +221,7 @@ export const ContentBlockTagView = (p: {
 			// cleaning when updating the component
 			iframeParentManager.unsubscribe(nid)
 		}
-	}, [p.windowId, p.block.content])
+	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent])
 
 
 	return (

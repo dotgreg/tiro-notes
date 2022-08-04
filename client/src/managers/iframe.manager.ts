@@ -155,7 +155,7 @@ export const iframeMainCode = (p: {
 }) => {
 	const h = '[IFRAME child] 00564'
 
-	// console.log(h, 'INIT INNER IFRAME');
+	console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
 
 	// 
 	// STORAGE
@@ -233,7 +233,6 @@ export const iframeMainCode = (p: {
 	const iframeInitLogic = (m: iIframeData['init']) => {
 		// BOOTING
 		// When iframe receive infos from parent
-		// console.log(h, 'init inside iframe!');
 		d.frameId = m.frameId
 		d.innerTag = m.innerTag
 		d.tagContent = m.tagContent
@@ -243,7 +242,9 @@ export const iframeMainCode = (p: {
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
+		console.log(h, 'init message from parent received in child iframe', d);
 		if (el) {
+			console.log(h, '222222', el);
 
 			// unescape html and scripts
 			const unescHtml = p.unescapeHtml(el.innerHTML) as string
