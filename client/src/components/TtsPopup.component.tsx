@@ -7,6 +7,7 @@ import { deviceType } from '../managers/device.manager';
 import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { getAvailableVoices, Text2SpeechManager } from '../managers/tts.manager';
+import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { Icon } from './Icon.component';
 import { Input, OptionObj } from './Input.component';
 import { Popup } from './Popup.component';
@@ -22,6 +23,12 @@ export const TtsPopup = (p: {
 
 	// const [currChunk, setCurrChunk] = useState(0)
 	const [bgLock, setBgLock] = useState(false)
+	const lockBgScreen = (status: boolean) => {
+		status === true ? startScreenWakeLock() : stopScreenWakeLock()
+		setBgLock(status)
+	}
+
+
 	const [currChunk, setCurrChunk] = useLocalStorage<number>(`tts-pos-${p.file.name}`, 0)
 	// const [currRate, setCurrRate] = useState(1)
 	const [currRate, setCurrRate] = useLocalStorage<number>(`tts-rate`, 1)
@@ -115,7 +122,7 @@ export const TtsPopup = (p: {
 					<button onClick={e => { tts.current.goForward() }}>
 						<Icon name="faFastForward" color="black" />
 					</button>
-					{ deviceType() !== "desktop" && <button onClick={e => { setBgLock(true) }}>
+					{deviceType() !== "desktop" && <button onClick={e => { lockBgScreen(true) }}>
 						<Icon name="faLock" color="black" />
 					</button>
 					}
@@ -123,7 +130,7 @@ export const TtsPopup = (p: {
 			</Popup>
 
 			{bgLock && <div className="bg-lock">
-				<button onClick={e => { setBgLock(false) }}>
+				<button onClick={e => { lockBgScreen(false) }}>
 					<Icon name="faUnlock" color="black" />
 				</button>
 			</div>}
