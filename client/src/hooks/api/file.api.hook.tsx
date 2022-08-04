@@ -67,7 +67,7 @@ export const useFileApi = (p: {
 		cb,
 		options
 	) => {
-		console.log(`${h} get file content ${noteLink}`);
+		// console.log(`${h} get file content ${noteLink}`);
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
@@ -91,7 +91,7 @@ export const useFileApi = (p: {
 		const history = (options && options.history) ? options.history : false
 		const withMetas = (options && options.withMetas) ? options.withMetas : true
 
-		console.log(`${h} save file content ${noteLink}`);
+		// console.log(`${h} save file content ${noteLink}`);
 
 		const filePath = noteLinkToPath(noteLink);
 		clientSocket2.emit('saveFileContent', {

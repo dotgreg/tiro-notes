@@ -4,8 +4,10 @@ import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
 import { getAppPathBase, p } from "./path.manager";
 
-var http = require('http');
-var https = require('https');
+// var http = require('http');
+// var https = require('https');
+var http = require('follow-redirects').http;
+var https = require('follow-redirects').https;
 var fs = require('fs');
 
 
@@ -200,9 +202,12 @@ const isHttps = (url: string) => url.indexOf("https") === 0;
 export const downloadFile = async (url: string, folder: string): Promise<string> => {
 	folder = p(folder)
 	let path = `${folder}/${getRessourceIdFromUrl(url)}`
-	log(`[DOWNLOAD FILE] ${url} to folder ${folder} => ${path}`);
 	if (!url) return
 	let client = isHttps(url) ? https : http
+	url = url.replace("localhost", "127.0.0.1") // otherwise would crash
+
+
+	log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
 	return new Promise((resolve, reject) => {
 		let file = fs.createWriteStream(path);
 		client.get(url, (response) => {
@@ -213,8 +218,8 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 				resolve(path)
 			});
 		}).on('error', (err) => { // Handle errors
-			fs.unlink(path, () => {}); // Delete the file async. (But we don't check the result)
-			log(`[DOWNLOAD FILE] error  ${err.message} ({url} to ${path})$`)
+			fs.unlink(path, () => { }); // Delete the file async. (But we don't check the result)
+			log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
 			reject(err.message);
 		});
 	})

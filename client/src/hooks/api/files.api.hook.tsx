@@ -72,7 +72,7 @@ export const useFilesApi = (p: {
 
 	// get files list preview
 	const getFilesPreview: iFilesApi['getPreviews'] = (filesPath, cb) => {
-		console.log(`[CLIENT API] 002104 get files previews for ${filesPath.length} files`);
+		// console.log(`[CLIENT API] 002104 get files previews for ${filesPath.length} files`);
 		const idReq = genIdReq('get-files-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, cb);
