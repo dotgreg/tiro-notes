@@ -366,7 +366,7 @@ export const EditorArea = (p: {
 					deviceType() === 'desktop' &&
 					<MonacoEditorWrapper
 						value={innerFileContent}
-					jumpToLine={p.jumpToLine}
+						jumpToLine={p.jumpToLine}
 						vimMode={vimMode}
 						readOnly={!canEdit}
 						ref={monacoEditorComp}
@@ -409,7 +409,7 @@ export const EditorArea = (p: {
 
 			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
 
-		{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
+			{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
 	)//jsx
 }

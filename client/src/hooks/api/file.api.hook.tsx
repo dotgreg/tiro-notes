@@ -30,7 +30,7 @@ export interface iFileApi {
 			onError?: Function
 		}
 	) => void
-	saveContent: (noteLink: string, content: string, options?: { withMetas?:boolean, history?: boolean }) => void
+	saveContent: (noteLink: string, content: string, options?: { withMetas?: boolean, history?: boolean }) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
 	move: iMoveApi['file']
 	create: (folderPath: string, cb: iGetFilesCb) => void
