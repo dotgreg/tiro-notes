@@ -55,7 +55,7 @@ export const ContentBlock = (p: {
 				})
 			})
 		}
-	}, [p.windowId, p.file, p.block.content])
+	}, [p.windowId, p.block.content])
 
 	////////////////////////////////////////////////////
 	// TEXT LOGIC

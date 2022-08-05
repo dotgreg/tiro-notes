@@ -1,9 +1,9 @@
 import { sharedConfig } from '../../../shared/shared.config'
-import {  regexs } from '../../../shared/helpers/regexs.helper';
+import { regexs } from '../../../shared/helpers/regexs.helper';
 import { replaceAll } from './string.manager';
 import { getBackendUrl } from './sockets/socket.manager';
 import { replaceRegexInMd } from './markdown.manager';
-import {  getUrlTokenParam } from '../hooks/app/loginToken.hook';
+import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { iFile } from '../../../shared/types.shared';
 import { findImagesFromContent } from './images.manager';
 
