@@ -55,6 +55,17 @@
  <div class="render-code-wrapper">api.utils.loadCustomTag(<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span> )</div>
  
 
+#### <span class="render-code-wrapper">utils.loadRessources</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. ressources: <span class="render-code-wrapper">string[]</span>
+       1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.loadRessources(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.loadScripts</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
