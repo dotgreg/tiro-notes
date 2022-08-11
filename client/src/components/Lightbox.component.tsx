@@ -157,7 +157,7 @@ export const lightboxCss = () => `
 												&.close {
 														padding: 10px;
 														position:relative;
-														z-index:3;
+														z-index:4;
 														
 												}
 										}

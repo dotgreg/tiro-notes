@@ -117,6 +117,15 @@ export const ContentBlockTagView = (p: {
 
 
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
+
+		iframeRef.current?.contentDocument?.addEventListener('scroll', function (event) {
+			console.log(event);
+		}, false);
+
+		iframeRef.current?.contentDocument?.addEventListener('click', function (event) {
+			console.log(22, event);
+		}, false);
+
 		// console.log("============= DEBOUNCE START IFRAME LOGIC");
 		setIframeId(nid)
 		setIframeError(null)
@@ -237,7 +246,8 @@ export const ContentBlockTagView = (p: {
 				title={iframeId}
 				srcDoc={htmlContent}
 				className="tag-iframe"
-				style={{ height: iframeHeight }}
+				style={{ height: iframeHeight, pointerEvents: "none" }}
+				// style={{ height: iframeHeight }}
 				sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
 			>
 			</iframe>
