@@ -88,13 +88,13 @@ export const PreviewArea = (p: {
 					<div className="simple-css-wrapper">
 						{
 							contentBlocks.map((block, i) =>
-									<ContentBlock
-										key={i}
-										block={block}
-										windowId={p.windowId}
-										file={p.file}
-										windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
-									/>
+								<ContentBlock
+									key={i}
+									block={block}
+									windowId={p.windowId}
+									file={p.file}
+									windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
+								/>
 							)
 						}
 					</div>
@@ -209,6 +209,10 @@ export const previewAreaSimpleCss = () => {
 		// LIST
 
 **********************************************************/
+		.no-css ul li {
+			background: none!important;
+padding: 0px;
+		}
 
 		ul {
 				padding: 0px;
