@@ -128,6 +128,13 @@ export class MonacoEditorWrapper extends React.Component<{
 		}
 	}
 
+	getScrollLine = (): number => {
+		const start = this.editor.getVisibleRanges()[0].startLineNumber
+		const end = this.editor.getVisibleRanges()[0].endLineNumber
+		const middle = start + (end - start)
+		return start
+	}
+
 	shouldComponentUpdate(nextProps: any, nextState: any, nextContext: any) {
 
 		if (this.props.posY !== nextProps.posY || this.props.value !== nextProps.value) {

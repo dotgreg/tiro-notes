@@ -246,7 +246,7 @@ export const ContentBlockTagView = (p: {
 				title={iframeId}
 				srcDoc={htmlContent}
 				className="tag-iframe"
-				style={{ height: iframeHeight, pointerEvents: "none" }}
+				style={{ height: iframeHeight  }}
 				// style={{ height: iframeHeight }}
 				sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
 			>

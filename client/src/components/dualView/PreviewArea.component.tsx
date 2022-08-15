@@ -70,7 +70,7 @@ export const PreviewArea = (p: {
 			<div
 				className={`preview-area`}
 				ref={previewAreaRefs.wrapper}
-				style={{ bottom: calculateYPos() }}
+				// style={{ bottom: calculateYPos() }}
 			>
 
 				<div className="infos-preview-wrapper">

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
@@ -218,7 +218,18 @@ export const EditorArea = (p: {
 	// // Id note ref
 	const idInputRef = useRef<HTMLInputElement>(null)
 
-	return (//jsx
+
+	//
+	// on scroll posY update
+	//
+	useEffect(() => {
+		// console.log(3, p.posY,));
+		const newLine = monacoEditorComp.current?.getScrollLine() || 0;
+		p.onScroll(newLine)
+	}, [p.posY])
+
+
+	return (
 		<div
 			className={`editor-area`}
 			ref={editorWrapperEl}
