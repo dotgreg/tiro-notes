@@ -4,9 +4,11 @@ import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } 
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
-import { clamp } from 'lodash';
+import { clamp, each } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
+import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
+import { getMdStructure, iMdPart } from '../../managers/markdown.manager';
 
 export type onViewChangeFn = (nView: iViewType) => void
 
@@ -86,13 +88,45 @@ export const DualViewer = (p: {
 	const showEditor = true
 	const showPreview = !(p.viewType === 'editor' && deviceType() !== 'mobile')
 
+	//
+	// get information on currently scrolled line
+	// to update preview scroll position on preview-scroll: follow-title
+	//
+	const initTitle = { id: "", line: 0, title: "" }
+	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
+	const updateScrolledTitle = useThrottle((scrolledLine: number) => {
+		// console.log(3, scrolledLine);
+		const struct = getMdStructure(p.fileContent)
+		// get current title
+		let cTitle: iMdPart = initTitle
+		each(struct, title => { if (scrolledLine > title.line) cTitle = title })
+
+		// setScrolledTitle(cTitle)
+
+		// update the preview scroll accordingly
+		if (cTitle.id !== "") {
+			const ePath = `.window-id-${p.windowId} #${cTitle.id}`
+			const ePathPreview = `.window-id-${p.windowId} .preview-area`
+
+			// @ts-ignore
+			const etop = document.querySelector(ePath)?.offsetTop || 0
+			// @ts-ignore
+			document.querySelector(ePathPreview).style = `bottom: ${etop}px;`
+
+			// console.log(struct, cTitle);
+			// console.log(etop, ePathPreview, ePath);
+		}
+
+	}, 200)
+
 	return <div
-		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()}`}
+		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
 		onWheelCapture={e => { updateSyncYWithDelta(e.deltaY) }}
 	>
 
 		{showEditor &&
 			<EditorArea
+
 				file={p.file}
 				canEdit={p.canEdit}
 				fileContent={p.fileContent}
@@ -101,7 +135,9 @@ export const DualViewer = (p: {
 				jumpToLine={lineToJump}
 				posY={getSyncY()}
 
-				onScroll={newY => { }}
+				onScroll={newLine => {
+					updateScrolledTitle(newLine)
+				}}
 				onUpdateY={newY => {
 					setSyncY(newY)
 					// console.log("dual1", newY, syncScrollY);

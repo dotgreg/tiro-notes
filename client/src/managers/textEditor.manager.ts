@@ -24,6 +24,7 @@ export interface LineTextInfos {
 	lineIndex: number
 	currentPosition: number
 	monacoPosition?: any
+	scrollPos?:any
 }
 
 export const getLines = (rawtext: string): string[] => {

@@ -68,6 +68,37 @@ export const replaceCustomMdTags = (
 	return res;
 };
 
+// take all the content and create a list of titles
+// [[title-id-1, 20, 200][title-id-2, 201, 300]]
+export type iMdPart = { id: string, title: string, line: number }
+export type iMdStructure = iMdPart[]
+export const getMdStructure = (noteContent: string): iMdStructure => {
+	const res: iMdStructure = []
 
+	// get raw datas
+	const lines = noteContent.split("\n")
+	const resArr: any[] = []
+	let cnt = 0;
+	for (let i = 0; i < lines.length; i++) {
+		const lineStr = lines[i]
+		const matches = [...lineStr.matchAll(/([#]{1,9})\ (.+)/gi)];
+		if (matches.length > 0) {
+			const m = matches[0]
+			const title = m[2].toLowerCase()
+			const line = i
+			let id = title.split(" ").join("-")
+			// if id already exists in resArr, adds a -1
+			let idExists = false
+			each(resArr, pTitle => { if (pTitle.id === id) idExists = true })
+			if (idExists) id = id + '-1'
+			resArr.push({ raw: lineStr, matches: m, id, line, title, ranking: m[1].length })
+			res.push({ id, title, line })
+		}
+	}
+
+	// console.log(333, resArr);
+
+	return res
+}
 
 
