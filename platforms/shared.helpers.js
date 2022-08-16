@@ -1,6 +1,7 @@
 // Logging
 const homedir = require('os').homedir();
 const electronLogFile = `${homedir}/.tiro-electron-log.txt` 
+
 const fs = require('fs')
 const cleanLog = () => {
 		fs.writeFile(electronLogFile, '', err => {})
@@ -95,10 +96,42 @@ const killPreviousInstances = (cb) => {
 		}
 }
 
+// SOME BASIC FILE MANIPULATION FOR CLI BACKUP SYSTEM
+const fileExists = (path) => {
+		try {
+				return fs.existsSync(path)
+		} catch (error) {
+				return false
+		}
+}
+
+const openFile = (path) => {
+		return new Promise((resolve, reject) => {
+				fs.readFile(path, 'utf8', (err, data) => {
+						if (err) { console.log(`[READFILE] could not read ${path}`); reject('NO_FILE') }
+						else resolve(data)
+				});
+		})
+}
+
+export const saveFile = (path, content)  => {
+		console.log(`[SAVEFILE] starting save ${path}`);
+		return new Promise((resolve, reject) => {
+				fs.writeFile(path, content, (err) => {
+						if (err) { console.log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
+						else resolve()
+				});
+		})
+}
+
+
 const e = {
 		checkAndGetTiroConfig,
 		killPreviousInstances,
-		execCmd
+		execCmd,
+		fileExists,
+		openFile,
+		saveFile
 }
 
 module.exports = e;

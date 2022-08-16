@@ -3,6 +3,7 @@
 // const isDev = false
 const isDev = process.env.ISDEV
 const tHelpers = isDev ? require('../shared.helpers.js') : require(`./shared.helpers.build.js`);
+const pathServerJs = isDev ? `${__dirname}/node-build/server/tiro-server.js` : `${__dirname}/server/tiro-server.js`
 
 
 // CLI HELP MANUAL
@@ -22,7 +23,13 @@ ARGS:
 
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
 --port/-p : port to use (number, 3023 by default)
---tunnel/-t : uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+
+--tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+
+--backup/-b : [require tar] will incrementally backup changes in archives.
+--backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
+--backup-post-script : modify script to be executed after a backup finishes. Should be a ".txt" file with your OS commands. (default: "your/path/to/tiro/data_folder"+_backup/post_backup_script.txt
+
 --help/-h : help 
 
 EXAMPLES:
@@ -48,6 +55,11 @@ function getCliArgs () {
 				port: 3023,
 				https: false,
 				help: false,
+				backup: {
+						enabled: false,
+						location: "default", 
+						scriptLocation: "default"
+				},
 				tunnel: {
             enabled: false,
         },
@@ -60,6 +72,11 @@ function getCliArgs () {
 				if (argName === 'p' || argName === 'port') argsObj.port = parseInt(argVal);
 				if (argName === 's' || argName === 'https') argsObj.https = true
 				if (argName === 'h' || argName === 'help') argsObj.help = true
+
+				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
+				if (argName === 'backup-location') argsObj.backup.location = argVal
+				if (argName === 'backup-post-script') argsObj.backup.scriptLocation = argVal 
+
 				if (argName === 't' || argName === 'tunnel') {
             const argsArr = argVal.split(':')
             if (argsArr.length > 1) {
@@ -79,17 +96,47 @@ function startTiroServer (argsObj, cb) {
 		tHelpers.killPreviousInstances(() => {
 
 				// start tiro server, detect success message and get server params
-				tHelpers.execCmd('node', [`${__dirname}/server/tiro-server.js`], {
+				tHelpers.execCmd('node', [pathServerJs], {
 						env: {
 								TIRO_PORT: argsObj.port,
 								TIRO_HTTPS: argsObj.https
 						},  
 						logName: 'tiroServer',
 						onLog: str => {
+								// we get params like dataFolder from server.js directly
 								tHelpers.checkAndGetTiroConfig(str, {platform: 'cli', cb})
 						}
 				})
 		});
+}
+
+const startBackupScript = (argsObj, dataFolder) => {
+		if (argsObj.backup.enabled) return;
+		if (!dataFolder) return console.warn ("[BACKUP] no dataFolder detected!");
+
+		// get BACKUP_FOLDER path
+		const defaultBackupFolder = dataFolder + "_backup/"
+		const backupFolder = argsObj.backup.location ? argsObj.backup.location : defaultBackupFolder
+		if (!tHelpers.fileExists(backupFolder)) return console.warn (`[BACKUP] backupFolder ${backupFolder} does not exists! stopping backup system`)
+
+		// get POST_BACKUP_SCRIPT
+		const defaultPostBackupScript = defaultBackupFolder + "post_backup_script.txt"
+		const postBackupScript =argsObj.backup.scriptLocation ? argsObj.backup.scriptLocation : defaultPostBackupScript 
+		if (!tHelpers.fileExists(postBackupScript)) return console.warn (`[BACKUP] postBackupScript ${postBackupScript} does not exists! stopping backup system`)
+
+		const timeInterval = 1000 * 60 * 60 // one hour
+
+		// every hour
+		let int = setInterval(() => {
+		// get BACKUP_FOLDER/last_backup_timestamp
+		// if > 1 day
+		// get POST_BACKUP_SCRIPT content and append it to backup CLI 
+		// append to backup CLI current timestamp to last_backup_timestamp
+		// execute cli
+
+		}, timeInterval)
+
+
 }
 
 const startSshTunnel = (argsObj) => {
@@ -135,12 +182,15 @@ function main () {
 						const c = configServerObj
 						const protocol = c.https ? 'https' : 'http'
 						const port = c.port
+						const dataFolder = c.dataFolder
 
 						// open in browser
 						openInBrowser(`${protocol}://localhost:${port}`);
 
 						// start tunnel with autossh if asked
 						startSshTunnel(argsObj);
+
+						console.log(333333, dataFolder);
 						
 				})
 		}

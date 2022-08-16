@@ -50,8 +50,8 @@ if (backConfig.dataFolder) {
 
 
 server.listen(backConfig.port, function () {
-	// THAT MESSAGE IS CRITICAL FOR ELECTRON TO START DISPLAYING THE WINDOW
-	let configServerStr = JSON.stringify({ https: backConfig.https, port: backConfig.port })
+	// THAT MESSAGE IS CRITICAL FOR ELECTRON TO START DISPLAYING THE WINDOW, AS WELL AS CLI TO GET BACKUP SYSTEM WORKING
+	let configServerStr = JSON.stringify({ https: backConfig.https, port: backConfig.port, dataFolder: backConfig.dataFolder })
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
 
