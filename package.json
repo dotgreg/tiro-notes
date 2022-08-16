@@ -17,6 +17,7 @@
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
         "================== PLATFORMS RELATED =================== ": "",
+        "cli-test": "cd ./platforms/npm-cli-module; npm run dev;",
         "cli": "npm run publish-cli",
         "publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
         "cli-dev": "npm run publish-cli-dev",
