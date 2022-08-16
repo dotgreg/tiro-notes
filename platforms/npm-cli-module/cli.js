@@ -110,32 +110,59 @@ function startTiroServer (argsObj, cb) {
 		});
 }
 
-const startBackupScript = (argsObj, dataFolder) => {
+const startBackupScript = async (argsObj, dataFolder) => {
 		if (argsObj.backup.enabled) return;
 		if (!dataFolder) return console.warn ("[BACKUP] no dataFolder detected!");
 
 		// get BACKUP_FOLDER path
 		const defaultBackupFolder = dataFolder + "_backup/"
-		const backupFolder = argsObj.backup.location ? argsObj.backup.location : defaultBackupFolder
-		if (!tHelpers.fileExists(backupFolder)) return console.warn (`[BACKUP] backupFolder ${backupFolder} does not exists! stopping backup system`)
+		const backupFolder = argsObj.backup.location !== "default" ? argsObj.backup.location : defaultBackupFolder
+		// if does not exists, create it
+		if (!tHelpers.fileExists(backupFolder)) await tHelpers.createDir(backupFolder)
+		
 
 		// get POST_BACKUP_SCRIPT
-		const defaultPostBackupScript = defaultBackupFolder + "post_backup_script.txt"
-		const postBackupScript =argsObj.backup.scriptLocation ? argsObj.backup.scriptLocation : defaultPostBackupScript 
-		if (!tHelpers.fileExists(postBackupScript)) return console.warn (`[BACKUP] postBackupScript ${postBackupScript} does not exists! stopping backup system`)
+		const defaultPostBackupScript = backupFolder + "post_backup_script.txt"
+		const postBackupScriptFile = argsObj.backup.scriptLocation !== "default" ? argsObj.backup.scriptLocation : defaultPostBackupScript 
+		// if does not exists, create it, empty
+		if (!tHelpers.fileExists(postBackupScriptFile)) await tHelpers.saveFile(postBackupScriptFile, "")
+		let postBackupScript = await tHelpers.openFile(postBackupScriptFile) 
+		if (postBackupScript) postBackupScript += ";"
 
+
+		// get LAST_BACKUP_TIMESTAMP
+		const timestampFile = backupFolder + "last_backup_timestamp.txt"
+		const now = () => new Date().getTime()
+		let lastBackupTimestamp = now()
+		// if does not exists, create it, then give a timestamp of 0
+		if (!tHelpers.fileExists(timestampFile)) await tHelpers.saveFile(timestampFile, "0")
+		let lastBackupTimestampRaw = await tHelpers.openFile(timestampFile);		
+		if (lastBackupTimestampRaw && parseInt(lastBackupTimestampRaw)) lastBackupTimestamp = parseInt(lastBackupTimestampRaw) 
+		let replaceTimestampCli = () => `echo ${now()} > '${timestampFile}'`
+		
+		// START INTERVAL
 		const timeInterval = 1000 * 60 * 60 // one hour
+		const backupInterval = 1000 * 60 * 60 * 24 // one day
+
+		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
+
+		// let backupCli = `mkdir '${backupFolder}'; cd '${backupFolder}'; echo $(ls *tar.xz) > count; tar --xz --verbose --create --file=tiro.$(cat count | wc -l).tar.xz '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${replaceTimestampCli()}; ${postBackupScript}` 
+		let backupCli = `mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${replaceTimestampCli()}; ${postBackupScript}` 
+
+		console.log(`[BACKUP] ${{backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli}}`);
+
+		// tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
+		tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
 
 		// every hour
-		let int = setInterval(() => {
-		// get BACKUP_FOLDER/last_backup_timestamp
-		// if > 1 day
-		// get POST_BACKUP_SCRIPT content and append it to backup CLI 
-		// append to backup CLI current timestamp to last_backup_timestamp
-		// execute cli
-
-		}, timeInterval)
-
+		// let int = setInterval(() => {
+		// 		// if > 1 day
+		// 		if ( backupInterval + lastBackupTimestamp < new Date().getTime()) {
+		// 				// append to backup CLI current timestamp to last_backup_timestamp
+		// 				// execute cli
+		// 				tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
+		// 		}
+		// }, timeInterval)
 
 }
 
@@ -190,6 +217,8 @@ function main () {
 						// start tunnel with autossh if asked
 						startSshTunnel(argsObj);
 
+						// start backup script
+						startBackupScript(argsObj, dataFolder);
 						console.log(333333, dataFolder);
 						
 				})
@@ -198,11 +227,14 @@ function main () {
 
 const test = () => {
 		var argsObj = getCliArgs();
-		startSshTunnel(argsObj);
+		// startSshTunnel(argsObj);
+		console.log(argsObj);
+		// startBackupScript(argsObj, "/Users/gregoirethiebault/Desktop/your markdown notes")
+		startBackupScript(argsObj, "/Users/gregoirethiebault/Desktop/nodal_ex")
 }
 
 
 // start everything
-// isDev ? test() : main();
-isDev ? main() : main();
+isDev ? test() : main();
+// isDev ? main() : main();
 
