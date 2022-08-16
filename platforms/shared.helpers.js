@@ -75,6 +75,29 @@ const execCmd = (cmd, params, p) => {
 		return child;
 }
 
+const execCmdInFile = async (cmdStr, filePath) => {
+
+		await saveFile(filePath, cmdStr)
+		
+		execCmd(`sh`, [filePath ], {
+				logName:'execCmdInFile 2/2',
+				onLog: str => {}
+		})
+		// execCmd(`echo`, [`"${cmdStr}"`,'>', filePath], {
+		// 		logName: 'execCmdInFile 1/2',
+		// 		onClose: () => {
+		// 		}
+		// })
+}
+
+// const execCmds = (cmdsStr, p) => {
+// 		// split cmds in array with ;
+// 		const cmds = cmdsStr.split(";");
+// 		for(var i = 0; i<cmds.length; i++) {
+
+// 		}
+// }
+
 const killPreviousInstances = (cb) => {
 		if (!cb) cb = () => {}
 
@@ -105,7 +128,7 @@ const fileExists = (path) => {
 		}
 }
 
-const openFile = (path) => {
+const openFile = async (path) => {
 		return new Promise((resolve, reject) => {
 				fs.readFile(path, 'utf8', (err, data) => {
 						if (err) { console.log(`[READFILE] could not read ${path}`); reject('NO_FILE') }
@@ -114,7 +137,7 @@ const openFile = (path) => {
 		})
 }
 
-export const saveFile = (path, content)  => {
+const saveFile = async (path, content)  => {
 		console.log(`[SAVEFILE] starting save ${path}`);
 		return new Promise((resolve, reject) => {
 				fs.writeFile(path, content, (err) => {
@@ -124,14 +147,29 @@ export const saveFile = (path, content)  => {
 		})
 }
 
+const createDir = async (path, mask = 0o775) => {
+		return new Promise((resolve, reject) => {
+				fs.mkdir(path, 0o775, (err) => {
+						if (err) {
+								if (err.code == 'EEXIST') resolve(null); 
+								else reject(err.message); 
+						} else {
+								resolve(null); 
+						}
+				});
+		});
+}
+
 
 const e = {
 		checkAndGetTiroConfig,
 		killPreviousInstances,
 		execCmd,
+		execCmdInFile,
 		fileExists,
 		openFile,
-		saveFile
+		saveFile,
+		createDir,
 }
 
 module.exports = e;
