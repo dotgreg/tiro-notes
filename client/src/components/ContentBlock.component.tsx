@@ -12,12 +12,16 @@ import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
+export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
 export const ContentBlock = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
 	windowHeight?: number
+
+	yCnt: number
+	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 
 	const isTag = p.block.type === 'tag'
@@ -72,8 +76,8 @@ export const ContentBlock = (p: {
 	////////////////////////////////////////////////////
 	// RENDERING
 	return (
-		<div className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
-
+		<div
+			className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
 			{
 				ctagStatus === "loaded" && isTag && noteTagContent &&
 				<ContentBlockTagView
@@ -105,6 +109,8 @@ export const ContentBlockTagView = (p: {
 	file: iFile
 	block: iContentChunk
 	windowHeight?: number
+	yCnt: number
+	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -115,18 +121,19 @@ export const ContentBlockTagView = (p: {
 	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
 	const [iframeError, setIframeError] = useState<string | null>(null)
 
+	// IFRAME SCROLLING
+	const updateScroll = () => {
+		const scrollHandler = (event: any) => {
+			p.onIframeMouseWheel(event as WheelEvent)
+		}
+		iframeRef.current?.contentDocument?.addEventListener("mousewheel", scrollHandler);
+		return () => iframeRef.current?.contentDocument?.removeEventListener("mousewheel", scrollHandler);
+	}
+	useEffect(updateScroll, [p.yCnt])
+
 
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
-
-		iframeRef.current?.contentDocument?.addEventListener('scroll', function (event) {
-			console.log(event);
-		}, false);
-
-		iframeRef.current?.contentDocument?.addEventListener('click', function (event) {
-			console.log(22, event);
-		}, false);
-
-		// console.log("============= DEBOUNCE START IFRAME LOGIC");
+		updateScroll();
 		setIframeId(nid)
 		setIframeError(null)
 
@@ -246,7 +253,7 @@ export const ContentBlockTagView = (p: {
 				title={iframeId}
 				srcDoc={htmlContent}
 				className="tag-iframe"
-				style={{ height: iframeHeight  }}
+				style={{ height: iframeHeight }}
 				// style={{ height: iframeHeight }}
 				sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
 			>

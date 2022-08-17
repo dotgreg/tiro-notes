@@ -45,6 +45,7 @@ export const DualViewer = (p: {
 	const [percentScrolled, setPercentScrolled] = useState(0)
 	const { getSyncY, setSyncY, yCnt, updateSyncYWithDelta } = useSyncScroll(maxY)
 
+
 	useEffect(() => {
 		setPercentScrolled(fromPxToPercentY(getSyncY()));
 		onSyncScroll()
@@ -74,9 +75,7 @@ export const DualViewer = (p: {
 		if (lineJumpEvent.windowId === "active") {
 			lineJumpEvent.windowId = api?.ui.windows.active.get()?.content.i || ""
 		}
-		// console.log("LINE JUMP ASKED2 ", { lineJumpEvent, currWid: p.windowId });
 		if (lineJumpEvent.windowId !== p.windowId) return
-		// console.log("GOOD, DOING LINE JUMP");
 		// LINE JUMP > EDITOR JUMP > UPDATE Y > SETPOSY HERE AGAIN
 		setLineToJump(lineJumpEvent.line)
 		// setPosY(lineJumpEvent.line * 20)
@@ -133,7 +132,6 @@ export const DualViewer = (p: {
 	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
 	const updateScrolledTitle = useThrottle((scrolledLine: number) => {
 		if (scrollMode !== "title") return;
-		// console.log(3, scrolledLine);
 		const struct = getMdStructure(p.fileContent)
 		// get current title
 		let cTitle: iMdPart = initTitle
@@ -160,7 +158,9 @@ export const DualViewer = (p: {
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
-		onWheelCapture={e => { updateSyncYWithDelta(e.deltaY) }}
+		onWheelCapture={e => {
+			updateSyncYWithDelta(e.deltaY)
+		}}
 	>
 
 		{showEditor &&
@@ -210,6 +210,10 @@ export const DualViewer = (p: {
 				posY={previewY}
 				fileContent={previewContent}
 				onMaxYUpdate={updateMaxY}
+				yCnt={yCnt}
+				onIframeMouseWheel={e => {
+					updateSyncYWithDelta(e.deltaY)
+				}}
 			/>
 		}
 
