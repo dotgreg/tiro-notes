@@ -118,7 +118,7 @@ function startTiroServer (argsObj, cb) {
 }
 
 const startBackupScript = async (argsObj, dataFolder) => {
-		if (argsObj.backup.enabled) return;
+		if (!argsObj.backup.enabled) return;
 		if (!dataFolder) return console.warn ("[BACKUP] no dataFolder detected!");
 
 		// get BACKUP_FOLDER path
@@ -152,7 +152,7 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
 
-		let backupCli = `mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${replaceTimestampCli()}; ${postBackupScript}` 
+		let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
 
 		const debugObj = {backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli}
 		console.log ("[BACKUP] starting backup logic!");

@@ -28,7 +28,7 @@
         "build-then-export": "run-s create-build-folders build-client build-server build-docs clean-prev-build export-the-build copy-build-to-electron-folder",
         "build-export-to-binaries": "run-s build-export build-binaries",
         "build-export-client": "run-s create-build-folders build-client clean-client export-client",
-        "build-export-server": "run-s create-build-folders build-server clean-server export-server",
+        "build-export-server": "run-s create-build-folders build-server clean-server nxport-server",
         "===____1_BUILD__": "",
         "create-build-folders": "npx mkdirp ./build ./build/client ./build/server",
         "build-client": "npm run --prefix ./client install-clean-build",
