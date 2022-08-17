@@ -24,10 +24,11 @@ ARGS:
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
 --port/-p : port to use (number, 3023 by default)
 --no-open/-no : do not open Tiro in browser when starting
+--verbose/-v : more verbose logs
 
 --tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
 
---backup/-b : [require tar] will incrementally backup changes in archives.
+--backup/-b : [require tar] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
 --backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
 --backup-post-script : modify script to be executed after a backup finishes. Should be a ".txt" file with your OS commands. (default: "your/path/to/tiro/data_folder"+_backup/post_backup_script.txt
 
@@ -57,6 +58,7 @@ function getCliArgs () {
 				https: false,
 				help: false,
 				open: true,
+				verbose: false,
 				backup: {
 						enabled: false,
 						location: "default", 
@@ -75,6 +77,7 @@ function getCliArgs () {
 				if (argName === 's' || argName === 'https') argsObj.https = true
 				if (argName === 'h' || argName === 'help') argsObj.help = true
 				if (argName === 'no-open' || argName === 'no') argsObj.open = false
+				if (argName === 'v' || argName === 'verbose') argsObj.verbose = true
 
 				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
 				if (argName === 'backup-location') argsObj.backup.location = argVal
@@ -100,6 +103,7 @@ function startTiroServer (argsObj, cb) {
 
 				// start tiro server, detect success message and get server params
 				tHelpers.execCmd('node', [pathServerJs], {
+						showLog: argsObj.verbose,
 						env: {
 								TIRO_PORT: argsObj.port,
 								TIRO_HTTPS: argsObj.https
@@ -150,19 +154,22 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		let backupCli = `mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${replaceTimestampCli()}; ${postBackupScript}` 
 
-
+		const debugObj = {backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli}
+		console.log ("[BACKUP] starting backup logic!");
+		console.log (debugObj);
 
 		const debugBackupNow = isDev ? false : false
 		const processBackupEveryDay = () => {
 				// if > 1 day
-				console.log({backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli});
 				const diff = backupInterval + lastBackupTimestamp - new Date().getTime()
 				const diffMin = Math.round(diff / (1000 * 60))
 				if (diff < 0 || debugBackupNow) {
 						console.log(`[BACKUP] time has come, BACKUP!`);
 						// append to backup CLI current timestamp to last_backup_timestamp
 						// execute cli
-						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
+						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {
+								showLog: argsObj.verbose
+						})
 				} else {
 						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins`);
 				}
@@ -222,14 +229,13 @@ function main () {
 						const dataFolder = c.dataFolder
 
 						// open in browser
-						if (c.open) openInBrowser(`${protocol}://localhost:${port}`);
+						if (argsObj.open) openInBrowser(`${protocol}://localhost:${port}`);
 
 						// start tunnel with autossh if asked
 						startSshTunnel(argsObj);
 
 						// start backup script
 						startBackupScript(argsObj, dataFolder);
-						// console.log(333333, dataFolder);
 						
 				})
 		}
@@ -245,6 +251,6 @@ const test = () => {
 
 
 // start everything
-isDev ? test() : main();
-// isDev ? main() : main();
+// isDev ? test() : main();
+isDev ? main() : main();
 
