@@ -8,7 +8,7 @@ import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manag
 import { iContentChunk, noteApiFuncs } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors } from './EditorArea.component';
-import { ContentBlock } from '../ContentBlock.component';
+import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 
 
 
@@ -18,6 +18,8 @@ export const PreviewArea = (p: {
 	posY: number
 	fileContent: string
 	onMaxYUpdate: (maxY: number) => void
+	yCnt: number
+	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 
 	const api = useContext(ClientApiContext);
@@ -70,7 +72,7 @@ export const PreviewArea = (p: {
 			<div
 				className={`preview-area`}
 				ref={previewAreaRefs.wrapper}
-			style={{ bottom: calculateYPos() }}
+				style={{ bottom: calculateYPos() }}
 			>
 
 				<div className="infos-preview-wrapper">
@@ -94,6 +96,8 @@ export const PreviewArea = (p: {
 									windowId={p.windowId}
 									file={p.file}
 									windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
+									yCnt={p.yCnt}
+									onIframeMouseWheel={p.onIframeMouseWheel}
 								/>
 							)
 						}

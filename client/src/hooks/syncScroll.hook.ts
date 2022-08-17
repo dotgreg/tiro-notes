@@ -20,9 +20,11 @@ export const useSyncScroll = (maxY: number) => {
 		setCnt(cnt + 1)
 	}
 	const updateSyncYWithDelta = (deltaY: number) => {
+		setCnt(cnt + 1) // should be very sensitive for iframe scrolling
 		let direction = deltaY > 0 ? 1 : -1
 		let delta = direction * Math.min(Math.abs(deltaY), 40)
 		let newY = getSyncY() + delta
+		// console.log(3, deltaY, getSyncY(), syncYRef.current, newY);
 		if (newY > -200 && newY < maxY) setSyncY(newY)
 	}
 
