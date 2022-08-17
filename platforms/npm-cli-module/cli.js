@@ -23,6 +23,7 @@ ARGS:
 
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
 --port/-p : port to use (number, 3023 by default)
+--no-open/-no : do not open Tiro in browser when starting
 
 --tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
 
@@ -55,6 +56,7 @@ function getCliArgs () {
 				port: 3023,
 				https: false,
 				help: false,
+				open: true,
 				backup: {
 						enabled: false,
 						location: "default", 
@@ -72,6 +74,7 @@ function getCliArgs () {
 				if (argName === 'p' || argName === 'port') argsObj.port = parseInt(argVal);
 				if (argName === 's' || argName === 'https') argsObj.https = true
 				if (argName === 'h' || argName === 'help') argsObj.help = true
+				if (argName === 'no-open' || argName === 'no') argsObj.open = false
 
 				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
 				if (argName === 'backup-location') argsObj.backup.location = argVal
@@ -133,11 +136,10 @@ const startBackupScript = async (argsObj, dataFolder) => {
 		// get LAST_BACKUP_TIMESTAMP
 		const timestampFile = backupFolder + "last_backup_timestamp.txt"
 		const now = () => new Date().getTime()
-		let lastBackupTimestamp = now()
 		// if does not exists, create it, then give a timestamp of 0
 		if (!tHelpers.fileExists(timestampFile)) await tHelpers.saveFile(timestampFile, "0")
 		let lastBackupTimestampRaw = await tHelpers.openFile(timestampFile);		
-		if (lastBackupTimestampRaw && parseInt(lastBackupTimestampRaw)) lastBackupTimestamp = parseInt(lastBackupTimestampRaw) 
+		let lastBackupTimestamp = parseInt(lastBackupTimestampRaw) 
 		let replaceTimestampCli = () => `echo ${now()} > '${timestampFile}'`
 		
 		// START INTERVAL
@@ -146,23 +148,31 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
 
-		// let backupCli = `mkdir '${backupFolder}'; cd '${backupFolder}'; echo $(ls *tar.xz) > count; tar --xz --verbose --create --file=tiro.$(cat count | wc -l).tar.xz '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${replaceTimestampCli()}; ${postBackupScript}` 
 		let backupCli = `mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${replaceTimestampCli()}; ${postBackupScript}` 
 
-		console.log(`[BACKUP] ${{backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli}}`);
 
-		// tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
-		tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
+
+		const debugBackupNow = isDev ? false : false
+		const processBackupEveryDay = () => {
+				// if > 1 day
+				console.log({backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli});
+				const diff = backupInterval + lastBackupTimestamp - new Date().getTime()
+				const diffMin = Math.round(diff / (1000 * 60))
+				if (diff < 0 || debugBackupNow) {
+						console.log(`[BACKUP] time has come, BACKUP!`);
+						// append to backup CLI current timestamp to last_backup_timestamp
+						// execute cli
+						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
+				} else {
+						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins`);
+				}
+		}
 
 		// every hour
-		// let int = setInterval(() => {
-		// 		// if > 1 day
-		// 		if ( backupInterval + lastBackupTimestamp < new Date().getTime()) {
-		// 				// append to backup CLI current timestamp to last_backup_timestamp
-		// 				// execute cli
-		// 				tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh")
-		// 		}
-		// }, timeInterval)
+		processBackupEveryDay();
+		let int = setInterval(() => {
+				processBackupEveryDay()
+		}, timeInterval)
 
 }
 
@@ -212,14 +222,14 @@ function main () {
 						const dataFolder = c.dataFolder
 
 						// open in browser
-						openInBrowser(`${protocol}://localhost:${port}`);
+						if (c.open) openInBrowser(`${protocol}://localhost:${port}`);
 
 						// start tunnel with autossh if asked
 						startSshTunnel(argsObj);
 
 						// start backup script
 						startBackupScript(argsObj, dataFolder);
-						console.log(333333, dataFolder);
+						// console.log(333333, dataFolder);
 						
 				})
 		}
