@@ -122,14 +122,16 @@ export const ContentBlockTagView = (p: {
 	const [iframeError, setIframeError] = useState<string | null>(null)
 
 	// IFRAME SCROLLING
+	const [canScrollIframe, setCanScrollIframe] = useState(false)
 	const updateScroll = () => {
 		const scrollHandler = (event: any) => {
+			if (!canScrollIframe) return;
 			p.onIframeMouseWheel(event as WheelEvent)
 		}
 		iframeRef.current?.contentDocument?.addEventListener("mousewheel", scrollHandler);
 		return () => iframeRef.current?.contentDocument?.removeEventListener("mousewheel", scrollHandler);
 	}
-	useEffect(updateScroll, [p.yCnt])
+	useEffect(updateScroll, [p.yCnt, canScrollIframe])
 
 
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
@@ -149,11 +151,16 @@ export const ContentBlockTagView = (p: {
 					const percent = parseInt(nheight.replace("%", "")) / 100
 					nheight = (p.windowHeight || 200) * percent
 				}
-				// console.log(h, 'resizing to', nheight, data.height, p.windowHeight);
 				console.log(h, 'resizing to', nheight);
 				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)
+			}
+
+			// CAN SCROLL IFRAME
+			if (m.action === 'canScrollIframe') {
+				const data: iIframeData['canScrollIframe'] = m.data
+				setCanScrollIframe(data.status)
 			}
 
 			// API
