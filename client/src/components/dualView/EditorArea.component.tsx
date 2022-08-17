@@ -43,6 +43,7 @@ export const EditorArea = (p: {
 
 	onFileEdited: onFileEditedFn
 	onViewToggle: (view: iViewType) => void
+	onScrollModeChange: (v: boolean) => void
 
 }) => {
 
@@ -146,6 +147,18 @@ export const EditorArea = (p: {
 	// TOOLBAR ACTIONS
 	//
 	const editorToolbarActions = [
+		{
+			title: 'Title Scrolling',
+			class: 'toggle-scroll',
+			action: () => { },
+			customHtml: <input
+				type="checkbox"
+				onChange={(e) => {
+					// console.log('wooop', e.target.checked);
+					p.onScrollModeChange(e.target.checked)
+				}}
+			/>
+		},
 		{
 			title: '',
 			class: 'upload-button-wrapper',

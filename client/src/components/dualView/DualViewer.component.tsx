@@ -47,6 +47,7 @@ export const DualViewer = (p: {
 
 	useEffect(() => {
 		setPercentScrolled(fromPxToPercentY(getSyncY()));
+		onSyncScroll()
 	}, [yCnt, maxY])
 
 	const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
@@ -88,35 +89,73 @@ export const DualViewer = (p: {
 	const showEditor = true
 	const showPreview = !(p.viewType === 'editor' && deviceType() !== 'mobile')
 
-	//
+	///////////////////////////////////////
+	// DIFFERENT SCROLLS
 	// get information on currently scrolled line
 	// to update preview scroll position on preview-scroll: follow-title
 	//
+
+	// 0) SHARED LOGIC
+	type iScrollMode = "title" | "sync"
+	const [scrollMode, setScrollMode] = useState<iScrollMode>("sync")
+	const [previewY, setPreviewY] = useState(0)
+
+	const titleY = useRef(0)
+	const offsetSyncFromTitle = useRef(0)
+
+	// const updatePreviewY = (nY: number) => {
+	// 	const ePathPreview = `.window-id-${p.windowId} .preview-area`
+	// 	// @ts-ignore
+	// 	document.querySelector(ePathPreview).style = `bottom: ${etop}px;`
+	// }
+
+
+	// 1) SIMPLE SYNC SCROLL
+	const onSyncScroll = () => {
+		if (scrollMode === "sync") {
+			setPreviewY(getSyncY())
+		} else if (scrollMode === "title") {
+			const t = titleY.current
+
+			//// 1 TRYING TO GET A SCROLL FOR LONGER THINGS
+			// const o = offsetSyncFromTitle.current
+			// const a = getSyncY() - o
+			// // const res = o + (getSyncY() - o)
+			// const res = o + a
+			// console.log({ res, t, a, sy: getSyncY(), o });
+
+			setPreviewY(t)
+		}
+	}
+
+	// 2) TITLE SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
 	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
 	const updateScrolledTitle = useThrottle((scrolledLine: number) => {
+		if (scrollMode !== "title") return;
 		// console.log(3, scrolledLine);
 		const struct = getMdStructure(p.fileContent)
 		// get current title
 		let cTitle: iMdPart = initTitle
 		each(struct, title => { if (scrolledLine > title.line) cTitle = title })
-
-		// setScrolledTitle(cTitle)
-
 		// update the preview scroll accordingly
 		if (cTitle.id !== "") {
 			const ePath = `.window-id-${p.windowId} #${cTitle.id}`
-			const ePathPreview = `.window-id-${p.windowId} .preview-area`
 
-			// @ts-ignore
-			const etop = document.querySelector(ePath)?.offsetTop || 0
-			// @ts-ignore
-			document.querySelector(ePathPreview).style = `bottom: ${etop}px;`
-
-			// console.log(struct, cTitle);
-			// console.log(etop, ePathPreview, ePath);
+			try {
+				// @ts-ignore
+				const etop = document.querySelector(ePath)?.offsetTop
+				// if (etop) setPreviewY(etop)
+				if (etop) {
+					if (etop !== titleY.current) {
+						offsetSyncFromTitle.current = getSyncY()
+					}
+					titleY.current = etop
+				}
+			} catch (e) {
+				console.error(e);
+			}
 		}
-
 	}, 200)
 
 	return <div
@@ -155,6 +194,10 @@ export const DualViewer = (p: {
 					p.onFileEdited(path, content)
 					setPreviewContent(content)
 				}}
+				onScrollModeChange={checked => {
+					const res = checked ? "title" : "sync"
+					setScrollMode(res)
+				}}
 
 				onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
 			/>
@@ -164,7 +207,7 @@ export const DualViewer = (p: {
 			<PreviewArea
 				windowId={p.windowId}
 				file={p.file}
-				posY={getSyncY()}
+				posY={previewY}
 				fileContent={previewContent}
 				onMaxYUpdate={updateMaxY}
 			/>
