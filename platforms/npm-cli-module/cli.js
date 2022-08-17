@@ -155,24 +155,28 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
 
-		let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
 
-		const debugObj = {backupFolder, postBackupScriptFile, postBackupScript, getLastTimestamp(), timeInterval, backupCli}
 		console.log ("[BACKUP] starting backup logic!");
-		console.log (debugObj);
 
 		const debugBackupNow = isDev ? false : false
-		const processBackupEveryDay = () => {
+		const processBackupEveryDay = async () => {
 				// if > 1 day
-				const diff = backupInterval + getLastTimestamp() - new Date().getTime()
+				const lastTimestamp = await getLastTimestamp()
+				const diff = backupInterval + lastTimestamp - new Date().getTime()
 				const diffMin = Math.round(diff / (1000 * 60))
 				if (diff < 0 || debugBackupNow) {
 						console.log(`[BACKUP] time has come, BACKUP!`);
+
+						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
 						// append to backup CLI current timestamp to last_backup_timestamp
 						// execute cli
 						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {
 								showLog: argsObj.verbose
 						})
+
+						const debugObj = {backupFolder, postBackupScriptFile, lastTimestamp, postBackupScript, timeInterval, backupCli}
+
+						console.log (debugObj);
 				} else {
 						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins`);
 				}
