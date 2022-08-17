@@ -6,6 +6,16 @@
  ## Api.utils
  
 
+#### <span class="render-code-wrapper">utils.canScrollIframe</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. status: <span class="render-code-wrapper">boolean</span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.canScrollIframe(<span class="render-code-wrapper">boolean</span> )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.createDiv</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;div: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;updateContent: <span class="render-code-wrapper">(nContent: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>}</span> 

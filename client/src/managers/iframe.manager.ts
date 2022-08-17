@@ -1,17 +1,13 @@
-import { each } from "lodash";
 import { generateUUID, getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { bindToElClass } from "./renderNote.manager";
-import { iFile, iFileNature } from "../../../shared/types.shared";
+import { iFile } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
-import { getUrlParams } from "./url.manager";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
-import { configClient } from "../config";
-import { getSetting } from "../components/settingsView/settingsView.component";
 import { getBackendUrl } from "./sockets/socket.manager";
 
-type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError'
+type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe'
 
 export interface iIframeData {
 	init: {
@@ -25,6 +21,9 @@ export interface iIframeData {
 	}
 	resize: {
 		height: number | string
+	}
+	canScrollIframe: {
+		status: boolean
 	}
 	iframeError: {
 		error: string
@@ -267,6 +266,11 @@ export const iframeMainCode = (p: {
 		}
 	}
 
+	const canScrollIframe = (status: boolean) => {
+		const data: iIframeData['canScrollIframe'] = { status }
+		sendToParent({ action: 'canScrollIframe', data })
+	}
+
 	const resizeIframe = (height?: number) => {
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
@@ -493,6 +497,7 @@ export const iframeMainCode = (p: {
 			loadScriptsNoCache,
 
 			resizeIframe,
+			canScrollIframe,
 			loadCustomTag,
 			uuid: p.generateUUID,
 			createDiv,

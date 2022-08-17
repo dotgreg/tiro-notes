@@ -142,8 +142,11 @@ const startBackupScript = async (argsObj, dataFolder) => {
 		const now = () => new Date().getTime()
 		// if does not exists, create it, then give a timestamp of 0
 		if (!tHelpers.fileExists(timestampFile)) await tHelpers.saveFile(timestampFile, "0")
-		let lastBackupTimestampRaw = await tHelpers.openFile(timestampFile);		
-		let lastBackupTimestamp = parseInt(lastBackupTimestampRaw) 
+		const getLastTimestamp = async () => {
+				let lastBackupTimestampRaw = await tHelpers.openFile(timestampFile);		
+				let lastBackupTimestamp = parseInt(lastBackupTimestampRaw) 
+				return lastBackupTimestamp
+		}
 		let replaceTimestampCli = () => `echo ${now()} > '${timestampFile}'`
 		
 		// START INTERVAL
@@ -154,14 +157,14 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
 
-		const debugObj = {backupFolder, postBackupScriptFile, postBackupScript, lastBackupTimestamp, timeInterval, backupCli}
+		const debugObj = {backupFolder, postBackupScriptFile, postBackupScript, getLastTimestamp(), timeInterval, backupCli}
 		console.log ("[BACKUP] starting backup logic!");
 		console.log (debugObj);
 
 		const debugBackupNow = isDev ? false : false
 		const processBackupEveryDay = () => {
 				// if > 1 day
-				const diff = backupInterval + lastBackupTimestamp - new Date().getTime()
+				const diff = backupInterval + getLastTimestamp() - new Date().getTime()
 				const diffMin = Math.round(diff / (1000 * 60))
 				if (diff < 0 || debugBackupNow) {
 						console.log(`[BACKUP] time has come, BACKUP!`);
