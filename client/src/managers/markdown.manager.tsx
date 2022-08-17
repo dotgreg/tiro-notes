@@ -1,4 +1,5 @@
 import { each, isObject, random, uniq } from "lodash";
+import { cleanPath } from "../../../shared/helpers/filename.helper";
 
 const marked = require('marked');
 
@@ -86,7 +87,8 @@ export const getMdStructure = (noteContent: string): iMdStructure => {
 			const m = matches[0]
 			const title = m[2].toLowerCase()
 			const line = i
-			let id = title.split(" ").join("-")
+			let id = title.split(" ").join("-").replace(/[^a-zA-Z0-9-_À-ú]/gi, "")
+
 			// if id already exists in resArr, adds a -1
 			let idExists = false
 			each(resArr, pTitle => { if (pTitle.id === id) idExists = true })

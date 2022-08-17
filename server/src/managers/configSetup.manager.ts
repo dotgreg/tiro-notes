@@ -26,7 +26,6 @@ export interface TiroConfig {
 // as we need to go down from sources-tiro/server/tiro-config.json to sources-tiro/tiro-config.json in dev mode
 export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 
-//export const appConfigJsonPath = !isHeroku ? p(`../tiro-config.json`) : `../../misc/heroku/tiro-heroku-config.json`;
 let cachedJsonConfigLoadResult = null
 
 export const tryLoadJsonConfig = () => {
