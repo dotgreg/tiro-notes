@@ -59,7 +59,7 @@ const execCmd = (cmd, params, p) => {
 		// try {
 		child.stdout.on( 'data', data => {
 				const str = `[${p.logName}(${cmd})] : ${data}`;
-				console.log( str );
+				if (p.showLog) console.log( str );
 				if (p && p.onLog) p.onLog(str)
 		});
 		child.stderr.on( 'data', data => {
@@ -69,34 +69,24 @@ const execCmd = (cmd, params, p) => {
 		});
 		child.on( 'close', data => {
 				const str = `[${p.logName} (${cmd}) ON CLOSE] : ${data}`;
-				console.log( str );
+				if (p.showLog) console.log( str );
 				if (p && p.onClose) p.onClose(str)
 		});
 		return child;
 }
 
-const execCmdInFile = async (cmdStr, filePath) => {
+const execCmdInFile = async (cmdStr, filePath, p) => {
+		if (!p) p = {}
+		p.logName = !p.logName ? '' : `${p.logName} `
 
 		await saveFile(filePath, cmdStr)
-		
+
 		execCmd(`sh`, [filePath ], {
-				logName:'execCmdInFile 2/2',
+				logName:`execCmdInFile [${p.logName}]`,
+				showLog: p.showLog,
 				onLog: str => {}
 		})
-		// execCmd(`echo`, [`"${cmdStr}"`,'>', filePath], {
-		// 		logName: 'execCmdInFile 1/2',
-		// 		onClose: () => {
-		// 		}
-		// })
 }
-
-// const execCmds = (cmdsStr, p) => {
-// 		// split cmds in array with ;
-// 		const cmds = cmdsStr.split(";");
-// 		for(var i = 0; i<cmds.length; i++) {
-
-// 		}
-// }
 
 const killPreviousInstances = (cb) => {
 		if (!cb) cb = () => {}
