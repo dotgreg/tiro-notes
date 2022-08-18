@@ -190,10 +190,12 @@ export const previewAreaSimpleCss = () => {
 				margin-top: 0px;
 		}
 		h1 {
+			margin-top: 25px;
 				margin-bottom: 20px;
 		}
 		h2, h3, h4, h5, h6 {
-				margin-bottom: 15px;
+			margin-bottom: 10px;
+			margin-top: 25px;
 		}
 
     img,
