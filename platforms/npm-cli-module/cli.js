@@ -167,7 +167,7 @@ const startBackupScript = async (argsObj, dataFolder) => {
 				if (diff < 0 || debugBackupNow) {
 						console.log(`[BACKUP] time has come, BACKUP!`);
 
-						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript} echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt` 
+						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
 						// append to backup CLI current timestamp to last_backup_timestamp
 						// execute cli
 						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {

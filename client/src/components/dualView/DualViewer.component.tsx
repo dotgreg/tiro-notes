@@ -102,13 +102,6 @@ export const DualViewer = (p: {
 	const titleY = useRef(0)
 	const offsetSyncFromTitle = useRef(0)
 
-	// const updatePreviewY = (nY: number) => {
-	// 	const ePathPreview = `.window-id-${p.windowId} .preview-area`
-	// 	// @ts-ignore
-	// 	document.querySelector(ePathPreview).style = `bottom: ${etop}px;`
-	// }
-
-
 	// 1) SIMPLE SYNC SCROLL
 	const onSyncScroll = () => {
 		if (scrollMode === "sync") {
@@ -132,14 +125,13 @@ export const DualViewer = (p: {
 	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
 	const updateScrolledTitle = useThrottle((scrolledLine: number) => {
 		if (scrollMode !== "title") return;
-		const struct = getMdStructure(p.fileContent)
+		const struct = getMdStructure(previewContent)
 		// get current title
 		let cTitle: iMdPart = initTitle
 		each(struct, title => { if (scrolledLine > title.line) cTitle = title })
 		// update the preview scroll accordingly
 		if (cTitle.id !== "") {
 			const ePath = `.window-id-${p.windowId} #${cTitle.id}`
-
 			try {
 				// @ts-ignore
 				const etop = document.querySelector(ePath)?.offsetTop
