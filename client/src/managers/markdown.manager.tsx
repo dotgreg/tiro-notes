@@ -3,9 +3,18 @@ import { cleanPath } from "../../../shared/helpers/filename.helper";
 
 const marked = require('marked');
 
+// marked.setOptions({
+// 	gfm: true,
+// 	breaks: true
+// })
+
 export const md2html = (raw: string): string => {
-	let res = marked(raw);
-	return res;
+	// allow more jumps to be rendered
+	let res = raw.split("\n").join("<br/>\n")
+
+
+	let res2 = marked.parse(res);
+	return res2;
 }
 
 export const replaceRegexInMd = (

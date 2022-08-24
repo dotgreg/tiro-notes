@@ -1,12 +1,25 @@
-import { each } from 'lodash';
-import { regexs } from '../../../shared/helpers/regexs.helper';
 import { replaceCustomMdTags } from './markdown.manager';
 
 let katex: any = null;
 let isLatexInit = false;
+const cssUrl = "https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.css"
+const jsUrl = "https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"
+
+const addCss = (fileName: string) => {
+
+	// var head = document.head;
+	var link = document.createElement("link");
+
+	link.type = "text/css";
+	link.rel = "stylesheet";
+	link.href = fileName;
+
+	document.body.appendChild(link);
+}
+
 export const initLatex = () => {
 	var script = document.createElement('script');
-	script.src = 'https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js';
+	script.src = jsUrl;
 	//@ts-ignore
 	script.crossorigin = "anonymous"
 	document.body.appendChild(script);
@@ -16,22 +29,27 @@ export const initLatex = () => {
 		// @ts-ignore
 		katex = window.katex;
 	};
+	addCss(cssUrl)
 }
 
 if (!isLatexInit) initLatex();
 
 export const transformLatex = (bodyRaw: string): string => {
-	const deps =
-		`<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.css" crossorigin="anonymous"/>\n`;
+	bodyRaw = bodyRaw
 
-	bodyRaw = bodyRaw + deps
-
-	let res = replaceCustomMdTags(bodyRaw, '[[latex]]', (input: string) => {
+	const replaceFn = (input: string) => {
 		if (!katex) return input;
 		return katex.renderToString(input);
-	});
+	}
+
+	let res = replaceCustomMdTags(bodyRaw, '[[latex]]', replaceFn);
+	res = replaceCustomMdTags(res, '[[l]]', replaceFn);
 
 	return res;
 
+}
 
+export const renderLatex = (str: string): string => {
+	if (!katex) return str;
+	return katex.renderToString(str);
 }

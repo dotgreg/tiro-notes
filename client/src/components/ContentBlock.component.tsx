@@ -10,8 +10,10 @@ import { isString } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
+import { renderLatex } from '../managers/latex.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
+const reservedTagNames = ["latex", "l"]
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
 export const ContentBlock = (p: {
@@ -24,7 +26,7 @@ export const ContentBlock = (p: {
 	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 
-	const isTag = p.block.type === 'tag'
+	const isTag = p.block.type === 'tag' && !reservedTagNames.includes(p.block.tagName || "")
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
 	const [htmlTextContent, setHtmlTextContent] = useState<string | null>(null)
 	const [ctagStatus, setCtagStatus] = useState("null")
@@ -65,18 +67,22 @@ export const ContentBlock = (p: {
 	// TEXT LOGIC
 	useEffect(() => {
 		if (isTag) return
+		// NORMAL RENDERING
 		let ncontent = noteApiFuncs.render({
 			raw: p.block.content,
 			file: p.file,
 			windowId: p.windowId
 		})
+		// INCLUDED RENDERINGS (LIKE LATEX)
+		if (p.block.tagName === "l" || p.block.tagName === "latex") ncontent = renderLatex(p.block.content)
+
 		setHtmlTextContent(ncontent)
 	}, [p.windowId, p.file, p.block])
 
 	////////////////////////////////////////////////////
 	// RENDERING
 	return (
-		<div
+		<span
 			className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
 			{
 				ctagStatus === "loaded" && isTag && noteTagContent &&
@@ -88,16 +94,16 @@ export const ContentBlock = (p: {
 
 			{
 				!isTag && htmlTextContent &&
-				<div
+				<span
 					className="content-block-text"
 					dangerouslySetInnerHTML={{
 						__html: htmlTextContent
 					}}
 				>
-				</div>
+				</span>
 			}
 
-		</div >
+		</span >
 	)
 }
 
@@ -280,6 +286,10 @@ export const ContentBlockTagView = (p: {
 
 export const contentBlockCss = () => `
 
+.content-blocks-wrapper {
+	padding: 15px;
+}
+
 .content-blocks-wrapper,
 .simple-css-wrapper,
 .simple-css-wrapper > div,
@@ -310,7 +320,7 @@ export const contentBlockCss = () => `
 }
 
 .content-block.block-text {
-		padding: 15px;
+		padding: 0px;
 		padding-bottom: 0px;
 }
 .content-block.block-tag {
