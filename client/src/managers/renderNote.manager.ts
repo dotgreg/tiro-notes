@@ -113,6 +113,7 @@ const injectLogicToHtml = (p: {
 // from filecontent string to contentChunks 
 //
 
+
 export interface iContentChunk {
 	type: 'tag' | 'text',
 	tagName?: string
@@ -120,6 +121,8 @@ export interface iContentChunk {
 	start: number,
 	end: number
 }
+
+// const reservedTagNames = ["[[latex]]", "[[l]]"]
 
 const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 	// find texts only parts
@@ -132,7 +135,12 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 	const regex = regexs.userCustomTag3;
 	const tagsRaw = fileContent.match(regex) || '';
 	const tags: string[] = []
-	each(tagsRaw, tag => { tags.push(tag) })
+	each(tagsRaw, tag => {
+		// console.log(333, tag);
+		// && !reservedTagNames.includes(p.block.tagName || ""
+		// if (reservedTagNames.includes(tag)) return
+		tags.push(tag)
+	})
 
 	// create from it contentChunks
 	let tagToSearch: string | null = null
@@ -154,10 +162,7 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 		if (count >= 2) closingTags.push(name)
 	})
 
-	// console.log(12123, fileContent, tags, tagsCount, closingTags);
-	// 
 	each(tags, (tag, i) => {
-
 		// check if tag occurence appears in pair, otherwise pass it
 		if (!closingTags.includes(tag)) return
 

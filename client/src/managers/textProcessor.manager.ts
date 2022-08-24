@@ -91,11 +91,11 @@ export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: st
 	<div class="resource-link-icon ${filetype}"></div>
 	<a class="resource-link preview-link"
 		href="${ressLink}"
-		download="wppp-${name}.${filetype}"
+		download="${name}.${filetype}"
 	>
 		${name} (${filetype})
 	</a>
-</div>`;
+</div>`.split("\n").join("");
 		}
 
 
