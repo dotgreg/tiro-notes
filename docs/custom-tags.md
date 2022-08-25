@@ -76,7 +76,7 @@ generate a table of content of your note.
 ```
 [[script]]
 // toc V1.0.2
-return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/3b5c4ffaafa9e4eea48cc9e94972b09dd76b96d6/custom-tags/toc/toc.js",`{{innerTag}}`, {refresh_interval: 5})
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/toc/toc.js",`{{innerTag}}`, {refresh_interval: 5})
 [[script]]
 ```
 - Options
@@ -156,7 +156,7 @@ pie
 ```
 [[script]]
 // MERMAID V1.0.0
-return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/mermaid/mermaid.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/mermaid/mermaid.js",`{{innerTag}}`)
 [[script]]
 ```
 
@@ -195,7 +195,7 @@ task 4|32|500|=B4*C4
 ```
 [[script]]
 // SPREADSHEET V1.0.0
-return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/spreadsheet/spreadsheet.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/spreadsheet/spreadsheet.js",`{{innerTag}}`)
 [[script]]
 ```
 
@@ -242,7 +242,7 @@ korben https://korben.info/feed
 ```
 [[script]]
 // RSS V1.0.1
-return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/rss/rss.js",`{{innerTag}}`, {size: "80%", rssToJsonUrl: "https://api.rss2json.com/v1/api.json?api_key=jiqsgkdxnqclbmppcao4wegdo9mghhmzl2ho3xdy&count=200&rss_url="})
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/rss/rss.js",`{{innerTag}}`, {size: "80%", rssToJsonUrl: "https://api.rss2json.com/v1/api.json?api_key=jiqsgkdxnqclbmppcao4wegdo9mghhmzl2ho3xdy&count=200&rss_url="})
 [[script]]
 ```
 - Options
@@ -279,7 +279,7 @@ A pdf viewer inside Tiro designed for studying large documents.
 ```
 [[script]]
 // PDF V1.0.0
-return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/3f01c21eb9dc55a72683e20ceb6dbd71635ca8eb/custom-tags/pdf/pdf.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/pdf/pdf.js",`{{innerTag}}`)
 [[script]]
 
 ```
@@ -302,7 +302,7 @@ A monthly calendar which displays events from a note.
 ```
 [[script]]
 api.utils.canScrollIframe(true)
-return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/feature/loadcached/custom-tags/calendar/calendar.js",`{{innerTag}}`,{size:"80%", source: "/mynotes/planning/events.md"})
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/calendar/calendar.js",`{{innerTag}}`,{size:"80%", source: "/mynotes/planning/events.md"})
 [[script]]
 ```
 - configuration
