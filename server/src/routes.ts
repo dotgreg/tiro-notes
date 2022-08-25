@@ -2,7 +2,7 @@ import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import { exec3 } from "./managers/exec.manager";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
-import { createFolder, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
+import { createFolder, downloadFile, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
@@ -56,7 +56,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		try {
 			let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
 			// setTimeout(() => {
-				serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
+			serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
 			// }, 5000)
 		} catch {
 
@@ -266,6 +266,31 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			if (file.name.includes(fileNameToSearch)) historyFiles.push(file)
 		}
 		serverSocket2.emit('getFileHistory', { files: historyFiles })
+	})
+
+
+	//
+	// RESSOURCE API
+	//
+	serverSocket2.on('askRessourceDelete', async data => {
+		// let res = await getFilesPreviewLogic(data)
+		// serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
+
+		// const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
+		// await upsertRecursivelyFolders(pathToFile)
+		// await saveFile(pathToFile, data.newFileContent)
+	})
+
+	serverSocket2.on('askRessourceDownload', async data => {
+		// createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
+		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
+		await upsertRecursivelyFolders(pathToFile)
+		downloadFile(data.url, pathToFile).then(message => {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
+		}).catch(message => {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
+		})
+
 	})
 }
 

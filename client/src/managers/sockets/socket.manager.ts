@@ -9,7 +9,8 @@ export let clientSocket: SocketIOClient.Socket
 export let clientSocket2: ClientSocketManager<iApiDictionary>
 
 export const getBackendUrl = () => {
-	let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
+	// let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
+	let protocol = configClient.global.protocol
 	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`
 
 	let socketBackend = `${protocol}${configClient.global.url}${port}`

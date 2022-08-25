@@ -16,6 +16,7 @@ import { iStatusApi } from './status.api.hook';
 import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
 import { iNoteApi, useNoteApi } from './note.api.hook';
+import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 
 
 
@@ -30,11 +31,12 @@ export interface iApiEventBus {
 }
 
 /**
- * woop woooop test2
+ * comment test2
  */
 export interface iClientApi {
 	file: iFileApi
 	upload: iUploadApi
+	ressource: iRessourceApi
 	/**
 	 * comment3
 	 */
@@ -141,6 +143,7 @@ export const useClientApi = (p: {
 		statusApi: p.statusApi
 	});
 	const uploadApi = useUploadApi({ eventBus });
+	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
 
 
@@ -164,6 +167,7 @@ export const useClientApi = (p: {
 		files: filesApi,
 		popup: p.popupApi,
 		upload: uploadApi,
+		ressource: ressourceApi,
 		tabs: p.tabsApi,
 		folders: foldersApi,
 		userSettings: p.userSettingsApi,
@@ -212,7 +216,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 		// files.getContent('fdlsakfdsja', cb(), options)
 		try {
 			const pos = getCallbackArgPosition(callingObj)
-			console.log(2223, { pos, p, cb });
 			if (!pos) {
 				// non callback func simply call it
 				callingObj(...p.apiArguments)
@@ -237,7 +240,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 
 const getCallbackArgPosition = (fn: Function): number | null => {
 	const args = getFunctionParamNames(fn)
-	console.log(12344, args, fn);
 	// problem with that one is function names are compressed by webpack...
 	// mangle: {reserved: ["cb"], => has been preserved by webpack minify config
 	let index = args.indexOf('cb')

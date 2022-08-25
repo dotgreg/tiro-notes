@@ -6,6 +6,16 @@
  ## Api.utils
  
 
+#### <span class="render-code-wrapper">utils.canScrollIframe</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. status: <span class="render-code-wrapper">boolean</span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.canScrollIframe(<span class="render-code-wrapper">boolean</span> )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.createDiv</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;div: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;updateContent: <span class="render-code-wrapper">(nContent: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>}</span> 
@@ -14,12 +24,33 @@
  <div class="render-code-wrapper">api.utils.createDiv( )</div>
  
 
+#### <span class="render-code-wrapper">utils.getCachedRessourceUrl</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. url: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">string</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.getCachedRessourceUrl(<span class="render-code-wrapper">string</span> )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.getInfos</span>
  - Type: <span class="render-code-wrapper">Function</span> 
-    - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;frameId: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;innerTag: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span><br/>}</span> 
+    - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;backendUrl: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;frameId: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;innerTag: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;loginToken: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span><br/>}</span> 
 
  - Example: 
  <div class="render-code-wrapper">api.utils.getInfos( )</div>
+ 
+
+#### <span class="render-code-wrapper">utils.loadCachedRessources</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. ressources: <span class="render-code-wrapper">string[]</span>
+       1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.loadCachedRessources(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
  
 
 #### <span class="render-code-wrapper">utils.loadCustomTag</span>
@@ -34,6 +65,17 @@
  <div class="render-code-wrapper">api.utils.loadCustomTag(<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span> )</div>
  
 
+#### <span class="render-code-wrapper">utils.loadRessources</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. ressources: <span class="render-code-wrapper">string[]</span>
+       1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.loadRessources(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.loadScripts</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -43,6 +85,17 @@
 
  - Example: 
  <div class="render-code-wrapper">api.utils.loadScripts(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ 
+
+#### <span class="render-code-wrapper">utils.loadScriptsNoCache</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. scripts: <span class="render-code-wrapper">string[]</span>
+       1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.loadScriptsNoCache(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
  
 
 #### <span class="render-code-wrapper">utils.resizeIframe</span>
@@ -194,6 +247,31 @@ noteLink should be relative from tiro folder
        1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onAccept?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;onRefuse?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;title?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;userInput?: <span class="render-code-wrapper">boolean</span><br/>}</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.prompt",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onAccept?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;onRefuse?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;title?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;userInput?: <span class="render-code-wrapper">boolean</span><br/>}</span> ]<br/>)</div>
+ 
+
+
+ ## Api.call : ressource
+ 
+
+#### <span class="render-code-wrapper">ressource.delete</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. filePath: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.delete",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ressource.download</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. url: <span class="render-code-wrapper">string</span>
+       1. folder: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.download",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 

@@ -2,7 +2,7 @@ export const generateUUID = (): string => {
 	var d = new Date().getTime();//Timestamp
 	//@ts-ignore
 	var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
 		var r = Math.random() * 16;//random number between 0 and 16
 		if (d > 0) {//Use timestamp until depleted
 			r = (d + r) % 16 | 0;
@@ -13,4 +13,17 @@ export const generateUUID = (): string => {
 		}
 		return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
 	});
+}
+
+export const getRessourceIdFromUrl = (rawUrl: string): string => {
+
+	// let idRess = url.replace(/[^\w\s]/gi, '_').replace(/(_js)/gi, '.js').replace(/(_css)/gi, '.css')
+	let urlParams = rawUrl.split("?")[1] || ""
+	let url = rawUrl.split("?")[0]
+	let ressType = url.split(".").pop()
+	let idUrl = url.replace(/[^\w\s]/gi, '_')
+	let idParams = urlParams.replace(/[^\w\s]/gi, '_')
+
+	return `${idUrl}_${idParams}.${ressType}`
+
 }

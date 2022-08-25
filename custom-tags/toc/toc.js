@@ -7,7 +7,7 @@ const tocApp = (innerTagStr, opts) => {
 		let refresh_interval = 5*1000
 		if (opts.refresh_interval) refresh_interval = opts.refresh_interval * 1000
 
-		const h = `[TOC CTAG]`
+		const h = `[TOC CTAG] 1.0.3 25/08/22`
 		console.log(h, "init TOC CTAG with refresh_interval of ", refresh_interval);
 		setTimeout(() => {updateTocFromContent()})
 		setInterval(() => {updateTocFromContent()}, refresh_interval )

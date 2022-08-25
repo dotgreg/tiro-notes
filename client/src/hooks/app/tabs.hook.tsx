@@ -86,7 +86,7 @@ export const useTabs = () => {
 	}
 
 	const closeTab: iTabsApi['close'] = tabId => {
-		console.log(`${h} closing tab: ${tabId}`);
+		// console.log(`${h} closing tab: ${tabId}`);
 		const nTabs: iTab[] = []
 		const oTabs = cloneDeep(tabs)
 		each(oTabs, (otab, index) => {
@@ -103,7 +103,7 @@ export const useTabs = () => {
 
 	const reorderTabs: iTabsApi['reorder'] = (oldPos, newPos) => {
 		const nTabs = cloneDeep(tabs)
-		console.log(`${h} reordering tab ${oldPos} -> ${newPos}`);
+		// console.log(`${h} reordering tab ${oldPos} -> ${newPos}`);
 		const elToMove = nTabs[oldPos]
 		// remove el from array
 		nTabs.splice(oldPos, 1)
@@ -113,7 +113,7 @@ export const useTabs = () => {
 	}
 
 	const updateTab: onTabUpdateFn = (type, tab, newVal) => {
-		console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
+		// console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
 
 		if (type === 'add') {
 			// if active tab exists, copy it in new one
@@ -157,7 +157,6 @@ export const useTabs = () => {
 
 			// BEHAVIOR 2: go to file in browser ui
 			const file = getActiveWindow(tab)?.content.file
-			// console.log(344444, file, tab, getActiveWindow(tab));
 			if (!file) return
 			getClientApi2().then(api => {
 				api.ui.browser.goTo(file.folder, file.name)
@@ -175,7 +174,7 @@ export const useTabs = () => {
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
 		nTabs[aId].grid = grid
-		console.log(`[TAB LAYOUT] update tab grid n:${aId}`, grid);
+		// console.log(`[TAB LAYOUT] update tab grid n:${aId}`, grid);
 		//const nTabs2 = refreshTabsViews(tabs)
 		setTabs(nTabs)
 	}
@@ -225,7 +224,7 @@ export const useTabs = () => {
 				}
 			})
 		})
-		console.log(`${h2} closing window`);
+		// console.log(`${h2} closing window`);
 		const nTabs2 = refreshTabsViews(nTabs)
 		setTabs(nTabs2)
 	}
@@ -239,7 +238,7 @@ export const useTabs = () => {
 				})
 			})
 		})
-		console.log(`${h2} updating windows with file ${file.name}`);
+		// console.log(`${h2} updating windows with file ${file.name}`);
 		const nTabs2 = refreshTabsViews(nTabs)
 		setTabs(nTabs2)
 	}
@@ -278,16 +277,13 @@ export const useTabs = () => {
 		let aWindowIndex = 0
 		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
 
-		console.log(h2, "4455", aContent[aWindowIndex].i, aWindowIndex);
 		// change awindow.file
 		aContent[aWindowIndex].file = cloneDeep(nFile)
 		// update tab name only if tab name not manually edited
 		if (!aTab.manualName) aTab.name = createTabName(nFile.name)
 		// refresh all tabs to view changes
 		const nTabs2 = refreshTabsViews(nTabs)
-		console.log(`${h2} active content => ${nFile.name} ${nTabs2[0].refresh}`, nFile);
 		// save tabs
-		//console.log('0045', nFile.folder, nTabs2);
 		setTabs(nTabs2)
 	}
 

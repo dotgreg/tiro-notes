@@ -3,6 +3,7 @@
 // const isDev = false
 const isDev = process.env.ISDEV
 const tHelpers = isDev ? require('../shared.helpers.js') : require(`./shared.helpers.build.js`);
+const pathServerJs = isDev ? `${__dirname}/node-build/server/tiro-server.js` : `${__dirname}/server/tiro-server.js`
 
 
 // CLI HELP MANUAL
@@ -22,7 +23,15 @@ ARGS:
 
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
 --port/-p : port to use (number, 3023 by default)
---tunnel/-t : uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+--no-open/-no : do not open Tiro in browser when starting
+--verbose/-v : more verbose logs
+
+--tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+
+--backup/-b : [require tar] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
+--backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
+--backup-post-script : modify script to be executed after a backup finishes. Should be a ".txt" file with your OS commands. (default: "your/path/to/tiro/data_folder"+_backup/post_backup_script.txt
+
 --help/-h : help 
 
 EXAMPLES:
@@ -48,6 +57,13 @@ function getCliArgs () {
 				port: 3023,
 				https: false,
 				help: false,
+				open: true,
+				verbose: false,
+				backup: {
+						enabled: false,
+						location: "default", 
+						scriptLocation: "default"
+				},
 				tunnel: {
             enabled: false,
         },
@@ -60,6 +76,13 @@ function getCliArgs () {
 				if (argName === 'p' || argName === 'port') argsObj.port = parseInt(argVal);
 				if (argName === 's' || argName === 'https') argsObj.https = true
 				if (argName === 'h' || argName === 'help') argsObj.help = true
+				if (argName === 'no-open' || argName === 'no') argsObj.open = false
+				if (argName === 'v' || argName === 'verbose') argsObj.verbose = true
+
+				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
+				if (argName === 'backup-location') argsObj.backup.location = argVal
+				if (argName === 'backup-post-script') argsObj.backup.scriptLocation = argVal 
+
 				if (argName === 't' || argName === 'tunnel') {
             const argsArr = argVal.split(':')
             if (argsArr.length > 1) {
@@ -79,17 +102,92 @@ function startTiroServer (argsObj, cb) {
 		tHelpers.killPreviousInstances(() => {
 
 				// start tiro server, detect success message and get server params
-				tHelpers.execCmd('node', [`${__dirname}/server/tiro-server.js`], {
+				tHelpers.execCmd('node', [pathServerJs], {
+						showLog: argsObj.verbose,
 						env: {
 								TIRO_PORT: argsObj.port,
 								TIRO_HTTPS: argsObj.https
 						},  
 						logName: 'tiroServer',
 						onLog: str => {
+								// we get params like dataFolder from server.js directly
 								tHelpers.checkAndGetTiroConfig(str, {platform: 'cli', cb})
 						}
 				})
 		});
+}
+
+const startBackupScript = async (argsObj, dataFolder) => {
+		if (!argsObj.backup.enabled) return;
+		if (!dataFolder) return console.warn ("[BACKUP] no dataFolder detected!");
+
+		// get BACKUP_FOLDER path
+		const defaultBackupFolder = dataFolder + "_backup/"
+		const backupFolder = argsObj.backup.location !== "default" ? argsObj.backup.location : defaultBackupFolder
+		// if does not exists, create it
+		if (!tHelpers.fileExists(backupFolder)) await tHelpers.createDir(backupFolder)
+		
+
+		// get POST_BACKUP_SCRIPT
+		const defaultPostBackupScript = backupFolder + "post_backup_script.txt"
+		const postBackupScriptFile = argsObj.backup.scriptLocation !== "default" ? argsObj.backup.scriptLocation : defaultPostBackupScript 
+		// if does not exists, create it, empty
+		if (!tHelpers.fileExists(postBackupScriptFile)) await tHelpers.saveFile(postBackupScriptFile, "")
+		let postBackupScript = await tHelpers.openFile(postBackupScriptFile) 
+		if (postBackupScript) postBackupScript += ";"
+
+
+		// get LAST_BACKUP_TIMESTAMP
+		const timestampFile = backupFolder + "last_backup_timestamp.txt"
+		const now = () => new Date().getTime()
+		// if does not exists, create it, then give a timestamp of 0
+		if (!tHelpers.fileExists(timestampFile)) await tHelpers.saveFile(timestampFile, "0")
+		const getLastTimestamp = async () => {
+				let lastBackupTimestampRaw = await tHelpers.openFile(timestampFile);		
+				let lastBackupTimestamp = parseInt(lastBackupTimestampRaw) 
+				return lastBackupTimestamp
+		}
+		let replaceTimestampCli = () => `echo ${now()} > '${timestampFile}'`
+		
+		// START INTERVAL
+		const timeInterval = 1000 * 60 * 60 // one hour
+		const backupInterval = 1000 * 60 * 60 * 24 // one day
+
+		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
+
+
+		console.log ("[BACKUP] starting backup logic!");
+
+		const debugBackupNow = isDev ? false : false
+		const processBackupEveryDay = async () => {
+				// if > 1 day
+				const lastTimestamp = await getLastTimestamp()
+				const diff = backupInterval + lastTimestamp - new Date().getTime()
+				const diffMin = Math.round(diff / (1000 * 60))
+				if (diff < 0 || debugBackupNow) {
+						console.log(`[BACKUP] time has come, BACKUP!`);
+
+						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
+						// append to backup CLI current timestamp to last_backup_timestamp
+						// execute cli
+						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {
+								showLog: argsObj.verbose
+						})
+
+						const debugObj = {backupFolder, postBackupScriptFile, lastTimestamp, postBackupScript, timeInterval, backupCli}
+
+						console.log (debugObj);
+				} else {
+						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins`);
+				}
+		}
+
+		// every hour
+		processBackupEveryDay();
+		let int = setInterval(() => {
+				processBackupEveryDay()
+		}, timeInterval)
+
 }
 
 const startSshTunnel = (argsObj) => {
@@ -135,12 +233,16 @@ function main () {
 						const c = configServerObj
 						const protocol = c.https ? 'https' : 'http'
 						const port = c.port
+						const dataFolder = c.dataFolder
 
 						// open in browser
-						openInBrowser(`${protocol}://localhost:${port}`);
+						if (argsObj.open) openInBrowser(`${protocol}://localhost:${port}`);
 
 						// start tunnel with autossh if asked
 						startSshTunnel(argsObj);
+
+						// start backup script
+						startBackupScript(argsObj, dataFolder);
 						
 				})
 		}
@@ -148,7 +250,10 @@ function main () {
 
 const test = () => {
 		var argsObj = getCliArgs();
-		startSshTunnel(argsObj);
+		// startSshTunnel(argsObj);
+		console.log(argsObj);
+		// startBackupScript(argsObj, "/Users/gregoirethiebault/Desktop/your markdown notes")
+		startBackupScript(argsObj, "/Users/gregoirethiebault/Desktop/nodal_ex")
 }
 
 

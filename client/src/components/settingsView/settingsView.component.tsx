@@ -47,6 +47,7 @@ export const SettingsPopup = (p: {
 	//
 	// CONFIG LOGIC
 	//
+
 	const [backendPort, setBackendPort] = useLocalStorage<number>('settings-backend-port', -1)
 	const [backendProtocol, setBackendProtocol] = useLocalStorage<'http' | 'https' | 'same'>('settings-backend-protocol', 'same')
 	const api = useContext(ClientApiContext)

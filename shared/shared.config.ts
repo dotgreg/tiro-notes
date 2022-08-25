@@ -30,11 +30,16 @@ export const sharedConfig = {
 			eventManager: true,
 			upload: false,
 		},
-		version: '0.30.4',
+		version: '0.30.42',
 		params: {
 			previewArea: {
 				scrollSpeed: 1.3
 			}
 		}
+	},
+
+	dev: {
+		disableLogin: false
 	}
+
 }

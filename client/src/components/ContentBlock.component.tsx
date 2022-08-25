@@ -6,37 +6,54 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { escapeHtml } from '../managers/textProcessor.manager';
-import { isNull, isString } from 'lodash';
+import { isString } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
+import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { getBackendUrl } from '../managers/sockets/socket.manager';
+import { renderLatex } from '../managers/latex.manager';
 
 const h = `[IFRAME COMPONENT] 00562`
+const reservedTagNames = ["latex", "l"]
+export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
 export const ContentBlock = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
 	windowHeight?: number
+
+	yCnt: number
+	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 
-	const isTag = p.block.type === 'tag'
+	const isTag = p.block.type === 'tag' && !reservedTagNames.includes(p.block.tagName || "")
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
 	const [htmlTextContent, setHtmlTextContent] = useState<string | null>(null)
+	const [ctagStatus, setCtagStatus] = useState("null")
 
 	////////////////////////////////////////////////////
 	// IFRAME CONTENT LOGIC
 	useEffect(() => {
 		if (!isTag) return
+		setCtagStatus("loading")
 		if (p.block.tagName === 'script') {
 			// if script, inject it inside iframe wrapping it with '[[script]]'
 			setNoteTagContent(`\n[[script]]${p.block.content}[[script]]`)
+			setTimeout(() => {
+				setCtagStatus("loaded")
+			}, 100)
 			// and remove the innertag logic if present
 			p.block.content = ''
 		} else {
 			// if custom tag, look for its content and insert that one in the iframe
+			// console.log("======== ", p.block.tagName, p.block);
 			getClientApi2().then(api => {
 				api.file.getContent(`/.tiro/tags/${p.block.tagName}.md`, ncontent => {
 					setNoteTagContent(ncontent)
+					setTimeout(() => {
+						setCtagStatus("loaded")
+					}, 100)
+					// console.log("======== 333", p.block.tagName, p.block);
 				}, {
 					onError: () => {
 						setNoteTagContent(null)
@@ -44,27 +61,31 @@ export const ContentBlock = (p: {
 				})
 			})
 		}
-	}, [p.windowId, p.file, p.block.content])
+	}, [p.windowId, p.block.content])
 
 	////////////////////////////////////////////////////
 	// TEXT LOGIC
 	useEffect(() => {
 		if (isTag) return
+		// NORMAL RENDERING
 		let ncontent = noteApiFuncs.render({
 			raw: p.block.content,
 			file: p.file,
 			windowId: p.windowId
 		})
+		// INCLUDED RENDERINGS (LIKE LATEX)
+		if (p.block.tagName === "l" || p.block.tagName === "latex") ncontent = renderLatex(p.block.content)
+
 		setHtmlTextContent(ncontent)
 	}, [p.windowId, p.file, p.block])
 
 	////////////////////////////////////////////////////
 	// RENDERING
 	return (
-		<div className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
-
+		<span
+			className={`content-block ${isTag ? "block-tag" : "block-text"}`}>
 			{
-				isTag && noteTagContent &&
+				ctagStatus === "loaded" && isTag && noteTagContent &&
 				<ContentBlockTagView
 					{...p}
 					noteTagContent={noteTagContent}
@@ -73,16 +94,16 @@ export const ContentBlock = (p: {
 
 			{
 				!isTag && htmlTextContent &&
-				<div
+				<span
 					className="content-block-text"
 					dangerouslySetInnerHTML={{
 						__html: htmlTextContent
 					}}
 				>
-				</div>
+				</span>
 			}
 
-		</div >
+		</span >
 	)
 }
 
@@ -94,6 +115,8 @@ export const ContentBlockTagView = (p: {
 	file: iFile
 	block: iContentChunk
 	windowHeight?: number
+	yCnt: number
+	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -104,8 +127,21 @@ export const ContentBlockTagView = (p: {
 	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
 	const [iframeError, setIframeError] = useState<string | null>(null)
 
+	// IFRAME SCROLLING
+	const [canScrollIframe, setCanScrollIframe] = useState(false)
+	const updateScroll = () => {
+		const scrollHandler = (event: any) => {
+			if (!canScrollIframe) return;
+			p.onIframeMouseWheel(event as WheelEvent)
+		}
+		iframeRef.current?.contentDocument?.addEventListener("mousewheel", scrollHandler);
+		return () => iframeRef.current?.contentDocument?.removeEventListener("mousewheel", scrollHandler);
+	}
+	useEffect(updateScroll, [p.yCnt, canScrollIframe])
+
 
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
+		updateScroll();
 		setIframeId(nid)
 		setIframeError(null)
 
@@ -121,11 +157,16 @@ export const ContentBlockTagView = (p: {
 					const percent = parseInt(nheight.replace("%", "")) / 100
 					nheight = (p.windowHeight || 200) * percent
 				}
-				// console.log(h, 'resizing to', nheight, data.height, p.windowHeight);
 				console.log(h, 'resizing to', nheight);
 				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)
+			}
+
+			// CAN SCROLL IFRAME
+			if (m.action === 'canScrollIframe') {
+				const data: iIframeData['canScrollIframe'] = m.data
+				setCanScrollIframe(data.status)
 			}
 
 			// API
@@ -133,7 +174,7 @@ export const ContentBlockTagView = (p: {
 				const data = m.data as iIframeData['apiCall']
 
 				callApiFromString(data, (status, data) => {
-					console.log(h, "getting aswer from api call => ", JSON.stringify({ status, data }).substring(0, 150) + "\"");
+					//console.log(h, "getting aswer from api call => ", JSON.stringify({ status, data }).substring(0, 150) + "\"");
 					// if no, directly return the error 
 					if (status === 'nok') return setIframeError(data.error)
 
@@ -164,7 +205,9 @@ export const ContentBlockTagView = (p: {
 				innerTag: p.block.content,
 				frameId: nid,
 				tagContent: noteTagContent,
-				tagName: p.block.tagName || ''
+				tagName: p.block.tagName || '',
+				loginToken: getLoginToken(),
+				backendUrl: getBackendUrl()
 			}
 
 			iframeParentManager.send(iframeRef.current, { action: 'init', data })
@@ -200,6 +243,7 @@ export const ContentBlockTagView = (p: {
 	}
 
 	useEffect(() => {
+		// console.log("===== CHANGING CONTENT CTAG", p);
 		setCanShow(false)
 		updateIframeHtml()
 
@@ -210,7 +254,7 @@ export const ContentBlockTagView = (p: {
 			// cleaning when updating the component
 			iframeParentManager.unsubscribe(nid)
 		}
-	}, [p.windowId, p.block.content])
+	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent])
 
 
 	return (
@@ -223,6 +267,7 @@ export const ContentBlockTagView = (p: {
 				srcDoc={htmlContent}
 				className="tag-iframe"
 				style={{ height: iframeHeight }}
+				// style={{ height: iframeHeight }}
 				sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
 			>
 			</iframe>
@@ -240,6 +285,10 @@ export const ContentBlockTagView = (p: {
 
 
 export const contentBlockCss = () => `
+
+.content-blocks-wrapper {
+	padding: 15px;
+}
 
 .content-blocks-wrapper,
 .simple-css-wrapper,
@@ -271,7 +320,7 @@ export const contentBlockCss = () => `
 }
 
 .content-block.block-text {
-		padding: 15px;
+		padding: 0px;
 		padding-bottom: 0px;
 }
 .content-block.block-tag {

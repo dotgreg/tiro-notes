@@ -7,116 +7,119 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 
 
-export const getLoginToken = ():string => {
-    const cookie = getCookie('tiro-login-token')
-    return cookie ? cookie : ''
+export const getLoginToken = (): string => {
+	const cookie = getCookie('tiro-login-token')
+	return cookie ? cookie : ''
 }
-export const setLoginToken = (token:string) => {
-    setCookie('tiro-login-token', token, sharedConfig.tokenRefreshInHours)
+export const getUrlTokenParam = (): string => {
+	return `?token=${getLoginToken()}`
+}
+export const setLoginToken = (token: string) => {
+	setCookie('tiro-login-token', token, sharedConfig.tokenRefreshInHours)
 }
 
-export const useLoginToken = (p:{
-    onLoginAsked: Function
-    onLoginSuccess: Function
+export const useLoginToken = (p: {
+	onLoginAsked: Function
+	onLoginSuccess: Function
 }) => {
 
-    const [displayLoginPopup, setDisplayLoginPopup] = useState(false)
+	const [displayLoginPopup, setDisplayLoginPopup] = useState(false)
 
-    const [user, setUser] = useState('')
-    const [password, setPassword] = useState('')
-    
-    const [formMessage, setFormMessage] = useState<['error'|'success',string]>()
+	const [user, setUser] = useState('')
+	const [password, setPassword] = useState('')
 
-    // SOCKET INTERACTIONS
-    const listenerId = useRef<number>(0)
+	const [formMessage, setFormMessage] = useState<['error' | 'success', string]>()
 
-    useEffect(() => {
-        listenerId.current = clientSocket2.on('getLoginInfos', data => {   
-           switch (data.code) {
-               case 'SUCCESS':
-                    // register token here
-                    if (!data.token) return 
-                    setLoginToken(data.token)
-                    setDisplayLoginPopup(false)
+	// SOCKET INTERACTIONS
+	const listenerId = useRef<number>(0)
 
-                    // custom logic after login success event
-                    p.onLoginSuccess()
-                   break;
-               case 'WRONG_TOKEN':
-                   setDisplayLoginPopup(true)
-                   setFormMessage(['error', strings.loginForm.wrongToken])
+	useEffect(() => {
+		listenerId.current = clientSocket2.on('getLoginInfos', data => {
+			switch (data.code) {
+				case 'SUCCESS':
+					// register token here
+					if (!data.token) return
+					setLoginToken(data.token)
+					setDisplayLoginPopup(false)
 
-                   // custom logic after LoginAsked
-                   p.onLoginAsked()
-                    break;
-               case 'WRONG_USER_PASSWORD':
-                    setFormMessage(['error', strings.loginForm.wrongUserPassword])
-                    setDisplayLoginPopup(true)
-                   break;
-           
-               default:
-                   break;
-            }    
-        })
+					// custom logic after login success event
+					p.onLoginSuccess()
+					break;
+				case 'WRONG_TOKEN':
+					setDisplayLoginPopup(true)
+					setFormMessage(['error', strings.loginForm.wrongToken])
 
-        return () => {
-            clientSocket2.off(listenerId.current)
-        }
-    }, [])
+					// custom logic after LoginAsked
+					p.onLoginAsked()
+					break;
+				case 'WRONG_USER_PASSWORD':
+					setFormMessage(['error', strings.loginForm.wrongUserPassword])
+					setDisplayLoginPopup(true)
+					break;
 
-    const submitForm = () => {
-        setFormMessage(undefined)
-        clientSocket2.emit('sendLoginInfos', { user, password, token: getLoginToken()}) 
-    }
+				default:
+					break;
+			}
+		})
 
-    const [inputFocus, setInputFocus] = useState(1)
+		return () => {
+			clientSocket2.off(listenerId.current)
+		}
+	}, [])
 
-    const LoginPopupComponent = (p:{
-        
-    }) => <>
-        {displayLoginPopup && 
-            <div className="setup-popup-component">
-                <Popup
-                    title={strings.setupForm.title}
-                    onClose={() => {}}
-                >
-                    <div>
-                        <Input
-                            shouldFocus={inputFocus === 1}
-                            value={user}
-                            onEnterPressed={() => { setInputFocus(2) }}
-                            label={strings.setupForm.user}
-                            onChange={e => {setUser(e)}}
-                            />
-                        <Input
-                            shouldFocus={inputFocus === 2}
-                            value={password}
-                            label={strings.setupForm.password}
-                            type={'password'}
-                            onEnterPressed={() => {submitForm()}}
-                            onChange={e => {setPassword(e)}}
-                        />
+	const submitForm = () => {
+		setFormMessage(undefined)
+		clientSocket2.emit('sendLoginInfos', { user, password, token: getLoginToken() })
+	}
 
-                        <button value='submit' className="submit-button" onClick={e => {submitForm()}}> 
-                            {strings.setupForm.submit} 
-                        </button>
+	const [inputFocus, setInputFocus] = useState(1)
 
-                        {
-                            formMessage && 
-                            <div className={formMessage[0]}>
-                                {formMessage[1]}
-                            </div>
-                        }
+	const LoginPopupComponent = (p: {
 
-                    </div>
-                </Popup>
-            </div>}
-        </>
+	}) => <>
+			{displayLoginPopup &&
+				<div className="setup-popup-component">
+					<Popup
+						title={strings.setupForm.title}
+						onClose={() => { }}
+					>
+						<div>
+							<Input
+								shouldFocus={inputFocus === 1}
+								value={user}
+								onEnterPressed={() => { setInputFocus(2) }}
+								label={strings.setupForm.user}
+								onChange={e => { setUser(e) }}
+							/>
+							<Input
+								shouldFocus={inputFocus === 2}
+								value={password}
+								label={strings.setupForm.password}
+								type={'password'}
+								onEnterPressed={() => { submitForm() }}
+								onChange={e => { setPassword(e) }}
+							/>
 
-    return {
-        displayLoginPopup,
-        LoginPopupComponent
-    }
+							<button value='submit' className="submit-button" onClick={e => { submitForm() }}>
+								{strings.setupForm.submit}
+							</button>
+
+							{
+								formMessage &&
+								<div className={formMessage[0]}>
+									{formMessage[1]}
+								</div>
+							}
+
+						</div>
+					</Popup>
+				</div>}
+		</>
+
+	return {
+		displayLoginPopup,
+		LoginPopupComponent
+	}
 }
 
 export const loginTokenCss = `

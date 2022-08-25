@@ -72,10 +72,11 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
 					!backConfig.askForSetup &&
 					!backConfig.dev.disableLogin &&
 					!options?.bypassLoginTokenCheck &&
+					!endpoint.startsWith('disconnect') &&
 					!endpoint.startsWith('siofu') &&
 					(!rawClientData.token || getLoginToken() !== rawClientData.token)
 				) {
-					log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`);
+					log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`, options);
 					rawServerSocket.emit('getLoginInfos', { code: 'WRONG_TOKEN' })
 				}
 

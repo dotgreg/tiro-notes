@@ -288,17 +288,24 @@ export const App = () => {
 	// 	})
 	// }, [])
 
-	useEffect(() => {
-		setTimeout(() => {
-			// console.log(222, api.ui.windows.active.get());
-			getClientApi2().then(api => {
-				const activeId = api.ui.windows.active.get()?.content.i || ""
-				// console.log();
-				// console.log(234234, activeId);
-				api.ui.note.lineJump.jump({ windowId: activeId, line: 50 })
-			})
-		}, 2000)
-	}, [])
+	// useEffect(() => {
+	// 	const url = "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/custom-tags/rss/rss.js"
+	// 	api.ressource.download(url, "woop/woop", (answer) => {
+	// 		console.log(12345555555, answer);
+	// 	})
+	// }, [])
+
+	// useEffect(() => {
+	// 	setTimeout(() => {
+	// 		// console.log(222, api.ui.windows.active.get());
+	// 		getClientApi2().then(api => {
+	// 			const activeId = api.ui.windows.active.get()?.content.i || ""
+	// 			// console.log();
+	// 			// console.log(234234, activeId);
+	// 			api.ui.note.lineJump.jump({ windowId: activeId, line: 50 })
+	// 		})
+	// 	}, 2000)
+	// }, [])
 
 	return (//jsx
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >

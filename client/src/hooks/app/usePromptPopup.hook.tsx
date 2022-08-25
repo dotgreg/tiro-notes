@@ -72,9 +72,11 @@ export const usePromptPopup = (p: {
 					canBgClose={false}
 				>
 					<div>
-						<div className="content">
-							{text}
-						</div>
+						<div className="content"
+							dangerouslySetInnerHTML={{
+								__html: text
+							}}
+						></div>
 						<br />
 
 						{userInput !== null &&
