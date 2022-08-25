@@ -3,18 +3,24 @@ import { cleanPath } from "../../../shared/helpers/filename.helper";
 
 const marked = require('marked');
 
-// marked.setOptions({
-// 	gfm: true,
-// 	breaks: true
-// })
+marked.setOptions({
+	gfm: true,
+	breaks: true,
+	headerPrefix: "t-"
+})
 
 export const md2html = (raw: string): string => {
+	let res = raw
+
 	// allow more jumps to be rendered
-	let res = raw.split("\n").join("<br/>\n")
+	// res = res.split("#").join("<br/>\n")
 
+	res = res.split("\n").join("&nbsp;\n")
+	// res = res.split("&nbsp; #").join("\n#")
+	res = res.split("&nbsp;\n#").join("\n#")
 
-	let res2 = marked.parse(res);
-	return res2;
+	res = marked.parse(res);
+	return res;
 }
 
 export const replaceRegexInMd = (
@@ -82,6 +88,28 @@ export const replaceCustomMdTags = (
 // [[title-id-1, 20, 200][title-id-2, 201, 300]]
 export type iMdPart = { id: string, title: string, line: number }
 export type iMdStructure = iMdPart[]
+
+const searchForUniqueIncrId = (resArr: iMdPart[], id: string): string => {
+	// if id already exists in resArr, adds a -1
+	let idExists = false
+	each(resArr, pTitle => { if (pTitle.id === id) idExists = true })
+	if (idExists) {
+		let alreadyIncremented = false
+		const end = [id[id.length - 2], id[id.length - 1]]
+		const baseId = id.slice(0, -2)
+		const inc = parseInt(end[1])
+		if (end[0] === "-" && !isNaN(inc)) alreadyIncremented = true
+
+
+		if (alreadyIncremented) id = `${baseId}-${inc + 1}`
+		else id = id + '-1'
+
+		return searchForUniqueIncrId(resArr, id)
+	} else {
+		return id
+	}
+}
+
 export const getMdStructure = (noteContent: string): iMdStructure => {
 	const res: iMdStructure = []
 
@@ -96,12 +124,10 @@ export const getMdStructure = (noteContent: string): iMdStructure => {
 			const m = matches[0]
 			const title = m[2].toLowerCase()
 			const line = i
-			let id = title.split(" ").join("-").replace(/[^a-zA-Z0-9-_À-ú]/gi, "")
+			let id = title.trim().split(" ").join("-").replace(/[^a-zA-Z0-9-_À-ú]/gi, "")
 
-			// if id already exists in resArr, adds a -1
-			let idExists = false
-			each(resArr, pTitle => { if (pTitle.id === id) idExists = true })
-			if (idExists) id = id + '-1'
+			id = searchForUniqueIncrId(resArr, id);
+
 			resArr.push({ raw: lineStr, matches: m, id, line, title, ranking: m[1].length })
 			res.push({ id, title, line })
 		}

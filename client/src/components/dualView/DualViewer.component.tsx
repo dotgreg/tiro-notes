@@ -78,6 +78,10 @@ export const DualViewer = (p: {
 		if (lineJumpEvent.windowId !== p.windowId) return
 		// LINE JUMP > EDITOR JUMP > UPDATE Y > SETPOSY HERE AGAIN
 		setLineToJump(lineJumpEvent.line)
+		setTimeout(() => {
+			// reinit jump
+			setLineToJump(-1)
+		}, 100)
 		// setPosY(lineJumpEvent.line * 20)
 	}, [lineJumpEvent])
 
@@ -131,7 +135,8 @@ export const DualViewer = (p: {
 		each(struct, title => { if (scrolledLine > title.line) cTitle = title })
 		// update the preview scroll accordingly
 		if (cTitle.id !== "") {
-			const ePath = `.window-id-${p.windowId} #${cTitle.id}`
+			const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
+			// console.log(123123, ePath);
 			try {
 				// @ts-ignore
 				const etop = document.querySelector(ePath)?.offsetTop
