@@ -100,7 +100,7 @@ export const DualViewer = (p: {
 
 	// 0) SHARED LOGIC
 	type iScrollMode = "title" | "sync"
-	const [scrollMode, setScrollMode] = useState<iScrollMode>("sync")
+	const [scrollMode, setScrollMode] = useState<iScrollMode>("title")
 	const [previewY, setPreviewY] = useState(0)
 
 	const titleY = useRef(0)
