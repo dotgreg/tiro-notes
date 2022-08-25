@@ -83,7 +83,7 @@ return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-n
 	- refresh_interval : interval between each content refresh
 
 #### Changelog :
- - 1.0.22 (25/08/2022) : fixing bugs when line jumping
+ - 1.0.2 (25/08/2022) : fixing bugs when line jumping
  - 1.0.1 (10/07/2022) : adding autorefresh functionality + bugfix
  - 1.0.0 : initial version
 
@@ -281,8 +281,8 @@ A pdf viewer inside Tiro designed for studying large documents.
 // PDF V1.0.0
 return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/pdf/pdf.js",`{{innerTag}}`)
 [[script]]
-
 ```
+
 #### Screenshots : 
 ##### Desktop
 <img src="https://user-images.githubusercontent.com/2981891/178155769-a5b575c2-ce0f-4fc9-95ea-dede81c9e971.png" width="200"/>
@@ -305,12 +305,14 @@ api.utils.canScrollIframe(true)
 return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/calendar/calendar.js",`{{innerTag}}`,{size:"80%", source: "/mynotes/planning/events.md"})
 [[script]]
 ```
+
 - configuration
 	- source : the note path where your events are stored, (ex => source: "/mynotes/planning/events.md")
 
 2. Create a note to store your events. For instance "/mynotes/planning/events.md".
 - Each line is a new event.
 - the line format is the following : TITLE | mm/dd/yy | POPUP DESCRIPTION
+
 ```
 meeting with john | 09/22/22 | About project 1 https://www.google.com/maps/search/chatelet,+paris 
 14h doctor appointment | 10/22/22 | bring papers!
@@ -331,7 +333,6 @@ other event | 11/22/22 | other description
 
 ## Planned
 
-#### Install : 
 
 ### ```[[nodes]]```
 #### Description :
