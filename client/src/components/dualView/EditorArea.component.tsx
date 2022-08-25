@@ -148,14 +148,15 @@ export const EditorArea = (p: {
 	//
 	const editorToolbarActions = [
 		{
-			title: 'Title Scrolling',
+			title: 'preview scroll',
 			class: 'toggle-scroll',
 			action: () => { },
 			customHtml: <input
 				type="checkbox"
+				defaultChecked={false}
 				onChange={(e) => {
 					// console.log('wooop', e.target.checked);
-					p.onScrollModeChange(e.target.checked)
+					p.onScrollModeChange(!e.target.checked)
 				}}
 			/>
 		},
