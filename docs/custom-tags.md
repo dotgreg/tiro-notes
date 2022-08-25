@@ -1,7 +1,7 @@
 ## Install/Update a Custom Tag
 ### Install  <!-- {docsify-ignore} -->
 
-To install the custom tag ```[[calendar]]```, create a markdown note named ```calendar``` in the ```/.tiro/tags/``` folder. It will then be available across your notes.
+To install the custom tag ```[[letter-header]]```, create a markdown note named ```letter-header``` in the ```/.tiro/tags/``` folder. It will then be available across your notes.
 
 
 ### Update  <!-- {docsify-ignore} -->
@@ -75,14 +75,15 @@ generate a table of content of your note.
  - create the note ```/.tiro/tags/toc``` and paste the following content : 
 ```
 [[script]]
-// toc V1.0.1
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/3b5c4ffaafa9e4eea48cc9e94972b09dd76b96d6/custom-tags/toc/toc.js",`{{innerTag}}`, {refresh_interval: 5})
+// toc V1.0.2
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/3b5c4ffaafa9e4eea48cc9e94972b09dd76b96d6/custom-tags/toc/toc.js",`{{innerTag}}`, {refresh_interval: 5})
 [[script]]
 ```
 - Options
 	- refresh_interval : interval between each content refresh
 
 #### Changelog :
+ - 1.0.22 (25/08/2022) : fixing bugs when line jumping
  - 1.0.1 (10/07/2022) : adding autorefresh functionality + bugfix
  - 1.0.0 : initial version
 
@@ -155,7 +156,7 @@ pie
 ```
 [[script]]
 // MERMAID V1.0.0
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/mermaid/mermaid.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/mermaid/mermaid.js",`{{innerTag}}`)
 [[script]]
 ```
 
@@ -194,7 +195,7 @@ task 4|32|500|=B4*C4
 ```
 [[script]]
 // SPREADSHEET V1.0.0
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/spreadsheet/spreadsheet.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/spreadsheet/spreadsheet.js",`{{innerTag}}`)
 [[script]]
 ```
 
@@ -241,7 +242,7 @@ korben https://korben.info/feed
 ```
 [[script]]
 // RSS V1.0.1
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/rss/rss.js",`{{innerTag}}`, {size: "80%", rssToJsonUrl: "https://api.rss2json.com/v1/api.json?api_key=jiqsgkdxnqclbmppcao4wegdo9mghhmzl2ho3xdy&count=200&rss_url="})
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/rss/rss.js",`{{innerTag}}`, {size: "80%", rssToJsonUrl: "https://api.rss2json.com/v1/api.json?api_key=jiqsgkdxnqclbmppcao4wegdo9mghhmzl2ho3xdy&count=200&rss_url="})
 [[script]]
 ```
 - Options
@@ -274,11 +275,11 @@ A pdf viewer inside Tiro designed for studying large documents.
 ```
 
 #### Install : 
- - create the note ```/.tiro/.tags/pdf``` and paste the following content : 
+ - create the note ```/.tiro/tags/pdf``` and paste the following content : 
 ```
 [[script]]
 // PDF V1.0.0
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/3f01c21eb9dc55a72683e20ceb6dbd71635ca8eb/custom-tags/pdf/pdf.js",`{{innerTag}}`)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/3f01c21eb9dc55a72683e20ceb6dbd71635ca8eb/custom-tags/pdf/pdf.js",`{{innerTag}}`)
 [[script]]
 
 ```
@@ -292,21 +293,43 @@ return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/3f
 
 
 
+### ```[[calendar]]```
+#### Description :
+A monthly calendar which displays events from a note.
 
+#### Install : 
+1. create the note ```/.tiro/tags/calendar``` and paste the following content : 
+```
+[[script]]
+api.utils.canScrollIframe(true)
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/feature/loadcached/custom-tags/calendar/calendar.js",`{{innerTag}}`,{size:"80%", source: "/mynotes/planning/events.md"})
+[[script]]
+```
+- configuration
+	- source : the note path where your events are stored, (ex => source: "/mynotes/planning/events.md")
+
+2. Create a note to store your events. For instance "/mynotes/planning/events.md".
+- Each line is a new event.
+- the line format is the following : TITLE | mm/dd/yy | POPUP DESCRIPTION
+```
+meeting with john | 09/22/22 | About project 1 https://www.google.com/maps/search/chatelet,+paris 
+14h doctor appointment | 10/22/22 | bring papers!
+other event | 11/22/22 | other description
+
+```
+
+#### Todo : 
+- [ ] repeat weekly, monthly and yearly events
+- [ ] events lasting more than a day
+
+#### Screenshot : 
+<img src="https://user-images.githubusercontent.com/2981891/186639094-03a3e35b-76f1-4676-8d59-6726bedbe01e.jpg" width="200"/>
 
 
 
 
 
 ## Planned
-
-### ```[[calendar]]```
-#### Description :
-A fully functional calendar which displays all your event either on a monthly calendar or a small next event widget
-
-#### Usage :
-#### Screenshot : 
-<img src="https://user-images.githubusercontent.com/2981891/171815747-c6996d43-55e9-49ee-a769-6f45b0ff2637.jpg" width="200"/>
 
 #### Install : 
 
