@@ -50,6 +50,12 @@ export const transformLatex = (bodyRaw: string): string => {
 }
 
 export const renderLatex = (str: string): string => {
-	if (!katex) return str;
-	return katex.renderToString(str);
+	let res = str
+	if (!katex) return res;
+	try {
+		res = katex.renderToString(str);
+	} catch (e) {
+		console.log("LATEX ERR:", e);
+	}
+	return res
 }
