@@ -1,9 +1,9 @@
 import { sharedConfig } from '../../../shared/shared.config'
-import { getCustomMdTagRegex, regexs } from '../../../shared/helpers/regexs.helper';
+import { regexs } from '../../../shared/helpers/regexs.helper';
 import { replaceAll } from './string.manager';
 import { getBackendUrl } from './sockets/socket.manager';
 import { replaceRegexInMd } from './markdown.manager';
-import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { iFile } from '../../../shared/types.shared';
 import { findImagesFromContent } from './images.manager';
 
@@ -40,9 +40,6 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 	return res
 }
 
-export const getUrlTokenParam = (): string => {
-	return `?token=${getLoginToken()}`
-}
 
 //  @TODO
 // add folderPath that ./.resources/image.jpg becomes localhost:8082/dir1/dir2/dir3/.resources/image.jpg
@@ -94,11 +91,11 @@ export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: st
 	<div class="resource-link-icon ${filetype}"></div>
 	<a class="resource-link preview-link"
 		href="${ressLink}"
-		download="wppp-${name}.${filetype}"
+		download="${name}.${filetype}"
 	>
 		${name} (${filetype})
 	</a>
-</div>`;
+</div>`.split("\n").join("");
 		}
 
 

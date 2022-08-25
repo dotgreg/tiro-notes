@@ -26,13 +26,15 @@ export const FilesList = (p: {
 	//
 	const [filesPreviewObj, setFilesPreviewObj] = useState<FilesPreviewObject>({})
 
+	// disable erasing files previews on files changes to avoid flicker
 	useEffect(() => {
-		setFilesPreviewObj({})
+		// setFilesPreviewObj({})
 	}, [p.files])
 
-const [, forceUpdate] = useReducer(x => x + 1, 0);
+	const [, forceUpdate] = useReducer(x => x + 1, 0);
 
 	const askFilesPreview = (filesPath: string[], skipCache: boolean = false) => {
+		// console.log("=================== ASK FILES PREVIEW");
 		if (!api) return
 
 		// CACHING : do not ask again if file already has been fetched

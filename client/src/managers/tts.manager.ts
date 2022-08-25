@@ -1,6 +1,7 @@
 import { OptionObj } from "../components/Input.component"
 import { md2html } from "./markdown.manager"
 import { regexs } from '../../../shared/helpers/regexs.helper';
+import { debounce } from "lodash";
 
 export const cleanText2Speech = (rawText: string) => {
 	let text2read = rawText
@@ -19,8 +20,8 @@ export const removeTextLineJumps = (raw: string): string => {
 
 export const getAvailableVoices = () => {
 	let newvoices: OptionObj[] = []
-	window.speechSynthesis.getVoices().forEach(function(voice, i) {
-		console.log(voice);
+	window.speechSynthesis.getVoices().forEach(function (voice, i) {
+		// console.log(voice);
 		const lang = voice.lang ? ` (${voice.lang})` : ''
 		const label = `${voice.name}${lang}`
 		newvoices.push({ key: i, label, obj: voice })
@@ -34,9 +35,10 @@ export class Text2SpeechManager {
 	text2read: string
 	chunkedText: string[]
 
-	chunkLength: number = 160
+	chunkLength: number = 1000 // 160 if tts stops (bug)
 	currChunkId: number = 0
 	currSpeechObj: any
+	speed: number = 1
 
 	isLoaded: boolean = false
 	shouldStop: boolean = false
@@ -97,6 +99,14 @@ export class Text2SpeechManager {
 		this.voice = voice
 	}
 
+
+
+	updateSpeed = (speed: number) => {
+		// window.speechSynthesis.rate = 2;
+		// this.currSpeechObj.rate = speed;
+		this.speed = speed
+	}
+
 	play = () => {
 
 		if (!this.isLoaded) {
@@ -107,6 +117,7 @@ export class Text2SpeechManager {
 			console.log(`[TTS] START play chunk ${this.currChunkId}`, { txt: this.chunkedText[this.currChunkId] });
 			this.currSpeechObj = new SpeechSynthesisUtterance();
 			this.currSpeechObj.text = this.chunkedText[this.currChunkId]
+			this.currSpeechObj.rate = this.speed
 			if (this.voice) this.currSpeechObj.voice = this.voice
 
 			// apparently important to keep that console.log...
@@ -120,6 +131,7 @@ export class Text2SpeechManager {
 				this.isLoaded = false
 				console.log(`[TTS] END play chunk ${this.currChunkId}`);
 				if (!this.shouldStop) {
+					// window.speechSynthesis.cancel();
 					this.currChunkId += 1
 					this.play()
 				} else {
@@ -144,7 +156,8 @@ export class Text2SpeechManager {
 
 	pause = () => {
 		console.log('[TTS] pause');
-		window.speechSynthesis.pause();
+		// window.speechSynthesis.pause();
+		this.stop()
 	}
 
 	stop = () => {
@@ -157,10 +170,20 @@ export class Text2SpeechManager {
 	goToChunk = (chunkNb: number) => {
 		console.log('[TTS] goToChunk', chunkNb);
 		if (chunkNb <= 0 || chunkNb > this.chunkedText.length - 1) return
-		this.stop()
 		this.currChunkId = chunkNb
-		this.play()
+
+		// IF PLAYING => stop and play one asked
+		if (this.isPlaying()) {
+			this.debounceRestart()
+		}
 	}
+
+	debounceRestart = debounce(() => {
+		console.log('DEBOUNCE RESTART');
+		this.stop()
+		// this.shouldStop = false
+		this.play()
+	}, 500)
 
 	goBack = () => {
 		console.log('[TTS] goBack', this.currChunkId);

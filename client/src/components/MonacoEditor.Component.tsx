@@ -128,6 +128,13 @@ export class MonacoEditorWrapper extends React.Component<{
 		}
 	}
 
+	getScrollLine = (): number => {
+		const start = this.editor.getVisibleRanges()[0].startLineNumber
+		const end = this.editor.getVisibleRanges()[0].endLineNumber
+		const middle = start + (end - start)
+		return start
+	}
+
 	shouldComponentUpdate(nextProps: any, nextState: any, nextContext: any) {
 
 		if (this.props.posY !== nextProps.posY || this.props.value !== nextProps.value) {
@@ -174,14 +181,15 @@ export class MonacoEditorWrapper extends React.Component<{
 	//
 	jumpToLine = (lineNb: number) => {
 		console.log("[MONACO] jumping to line :" + lineNb);
-		this.editor.revealLineInCenter(lineNb);
+		// this.editor.revealLineInCenter(lineNb);
+		this.editor.revealLineNearTop(lineNb);
 		setTimeout(() => {
 			const nY = this.editor.getScrollTop()
 			this.props.onUpdateY(nY)
 			// we have to do it again to force monaco to refresh
-			this.editor.revealLineInCenter(lineNb);
+			// this.editor.revealLineInCenter(lineNb);
+			this.editor.revealLineNearTop(lineNb);
 		}, 10)
-
 	}
 
 	render() {

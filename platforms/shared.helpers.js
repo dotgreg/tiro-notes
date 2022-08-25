@@ -1,6 +1,7 @@
 // Logging
 const homedir = require('os').homedir();
 const electronLogFile = `${homedir}/.tiro-electron-log.txt` 
+
 const fs = require('fs')
 const cleanLog = () => {
 		fs.writeFile(electronLogFile, '', err => {})
@@ -58,7 +59,7 @@ const execCmd = (cmd, params, p) => {
 		// try {
 		child.stdout.on( 'data', data => {
 				const str = `[${p.logName}(${cmd})] : ${data}`;
-				console.log( str );
+				if (p.showLog) console.log( str );
 				if (p && p.onLog) p.onLog(str)
 		});
 		child.stderr.on( 'data', data => {
@@ -68,10 +69,23 @@ const execCmd = (cmd, params, p) => {
 		});
 		child.on( 'close', data => {
 				const str = `[${p.logName} (${cmd}) ON CLOSE] : ${data}`;
-				console.log( str );
+				if (p.showLog) console.log( str );
 				if (p && p.onClose) p.onClose(str)
 		});
 		return child;
+}
+
+const execCmdInFile = async (cmdStr, filePath, p) => {
+		if (!p) p = {}
+		p.logName = !p.logName ? '' : `${p.logName} `
+
+		await saveFile(filePath, cmdStr)
+
+		execCmd(`sh`, [filePath ], {
+				logName:`execCmdInFile [${p.logName}]`,
+				showLog: p.showLog,
+				onLog: str => {}
+		})
 }
 
 const killPreviousInstances = (cb) => {
@@ -95,10 +109,57 @@ const killPreviousInstances = (cb) => {
 		}
 }
 
+// SOME BASIC FILE MANIPULATION FOR CLI BACKUP SYSTEM
+const fileExists = (path) => {
+		try {
+				return fs.existsSync(path)
+		} catch (error) {
+				return false
+		}
+}
+
+const openFile = async (path) => {
+		return new Promise((resolve, reject) => {
+				fs.readFile(path, 'utf8', (err, data) => {
+						if (err) { console.log(`[READFILE] could not read ${path}`); reject('NO_FILE') }
+						else resolve(data)
+				});
+		})
+}
+
+const saveFile = async (path, content)  => {
+		console.log(`[SAVEFILE] starting save ${path}`);
+		return new Promise((resolve, reject) => {
+				fs.writeFile(path, content, (err) => {
+						if (err) { console.log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
+						else resolve()
+				});
+		})
+}
+
+const createDir = async (path, mask = 0o775) => {
+		return new Promise((resolve, reject) => {
+				fs.mkdir(path, 0o775, (err) => {
+						if (err) {
+								if (err.code == 'EEXIST') resolve(null); 
+								else reject(err.message); 
+						} else {
+								resolve(null); 
+						}
+				});
+		});
+}
+
+
 const e = {
 		checkAndGetTiroConfig,
 		killPreviousInstances,
-		execCmd
+		execCmd,
+		execCmdInFile,
+		fileExists,
+		openFile,
+		saveFile,
+		createDir,
 }
 
 module.exports = e;

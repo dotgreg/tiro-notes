@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
@@ -43,6 +43,7 @@ export const EditorArea = (p: {
 
 	onFileEdited: onFileEditedFn
 	onViewToggle: (view: iViewType) => void
+	onScrollModeChange: (v: boolean) => void
 
 }) => {
 
@@ -147,6 +148,18 @@ export const EditorArea = (p: {
 	//
 	const editorToolbarActions = [
 		{
+			title: 'Title Scrolling',
+			class: 'toggle-scroll',
+			action: () => { },
+			customHtml: <input
+				type="checkbox"
+				onChange={(e) => {
+					// console.log('wooop', e.target.checked);
+					p.onScrollModeChange(e.target.checked)
+				}}
+			/>
+		},
+		{
 			title: '',
 			class: 'upload-button-wrapper',
 			action: () => { },
@@ -218,7 +231,18 @@ export const EditorArea = (p: {
 	// // Id note ref
 	const idInputRef = useRef<HTMLInputElement>(null)
 
-	return (//jsx
+
+	//
+	// on scroll posY update
+	//
+	useEffect(() => {
+		// console.log(3, p.posY,));
+		const newLine = monacoEditorComp.current?.getScrollLine() || 0;
+		p.onScroll(newLine)
+	}, [p.posY])
+
+
+	return (
 		<div
 			className={`editor-area`}
 			ref={editorWrapperEl}
@@ -366,7 +390,7 @@ export const EditorArea = (p: {
 					deviceType() === 'desktop' &&
 					<MonacoEditorWrapper
 						value={innerFileContent}
-					jumpToLine={p.jumpToLine}
+						jumpToLine={p.jumpToLine}
 						vimMode={vimMode}
 						readOnly={!canEdit}
 						ref={monacoEditorComp}
@@ -409,7 +433,7 @@ export const EditorArea = (p: {
 
 			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
 
-			{ttsPopup && <TtsPopup fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
+			{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
 	)//jsx
 }

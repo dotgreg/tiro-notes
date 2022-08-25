@@ -1,12 +1,13 @@
-import { each } from "lodash";
-import { generateUUID } from "../../../shared/helpers/id.helper";
+import { generateUUID, getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { bindToElClass } from "./renderNote.manager";
-import { iFile, iFileNature } from "../../../shared/types.shared";
+import { iFile } from "../../../shared/types.shared";
 import { createEventBus, iEventBusMessage } from "./eventBus.manager";
 import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
+import { getLoginToken } from "../hooks/app/loginToken.hook";
+import { getBackendUrl } from "./sockets/socket.manager";
 
-type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError'
+type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe'
 
 export interface iIframeData {
 	init: {
@@ -15,9 +16,14 @@ export interface iIframeData {
 		tagName: string
 		tagContent: string
 		frameId: string
+		loginToken: string
+		backendUrl: string
 	}
 	resize: {
 		height: number | string
+	}
+	canScrollIframe: {
+		status: boolean
 	}
 	iframeError: {
 		error: string
@@ -57,7 +63,7 @@ const { notify, subscribe, unsubscribe } = createEventBus<iIframeMessage>({
 // LISTENING
 //
 const initIframeListening = () => {
-	console.log(h, `INIT IFRAME LISTENING`);
+	// console.log(h, `INIT IFRAME LISTENING`);
 	window.addEventListener('message', m => {
 		if (!m.data.subId) return
 		console.log(h, 'parent <== iframe', m.data.data);
@@ -110,19 +116,25 @@ export const generateIframeHtml = (tagContent: string) => {
 		<div id="content-wrapper">
 				${tagContent}
 		</div>
-		<div id="external-scripts-wrapper"></div>
+		<div id="external-ressources-wrapper"></div>
 		<script>
+				const IMPORTED_backend_url = "${getBackendUrl()}"
+				const IMPORTED_login_token = "${getLoginToken()}"
 				const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
 				const IMPORTED_unescapeHtml = ${unescapeHtml.toString()}
 				const IMPORTED_createEventBus = ${createEventBus.toString()}
 				const IMPORTED_generateUUID = ${generateUUID.toString()}
+				const IMPORTED_getRessourceIdFromUrl = ${getRessourceIdFromUrl.toString()}
 				const IMPORTED_bindToElClass = ${bindToElClass.toString()}
 				const main = ${iframeMainCode.toString()};
 				main({
+					backendUrl: IMPORTED_backend_url,
+					loginToken: IMPORTED_login_token,
 					replaceCustomMdTags: IMPORTED_replaceCustomMdTags,
 					unescapeHtml: IMPORTED_unescapeHtml,
 					createEventBus: IMPORTED_createEventBus,
 					generateUUID: IMPORTED_generateUUID,
+					getRessourceIdFromUrl: IMPORTED_getRessourceIdFromUrl,
 					bindToElClass: IMPORTED_bindToElClass
 				})
 		</script>
@@ -133,15 +145,18 @@ export const generateIframeHtml = (tagContent: string) => {
 
 
 export const iframeMainCode = (p: {
+	backendUrl,
+	loginToken,
 	replaceCustomMdTags,
 	unescapeHtml,
 	createEventBus,
 	generateUUID,
+	getRessourceIdFromUrl,
 	bindToElClass
 }) => {
 	const h = '[IFRAME child] 00564'
 
-	console.log(h, 'INIT INNER IFRAME');
+	console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
 
 	// 
 	// STORAGE
@@ -152,6 +167,8 @@ export const iframeMainCode = (p: {
 		innerTag: '',
 		tagName: '',
 		tagContent: '',
+		loginToken: p.loginToken,
+		backendUrl: p.backendUrl,
 	}
 	const getInfos = () => d
 
@@ -219,22 +236,23 @@ export const iframeMainCode = (p: {
 	const iframeInitLogic = (m: iIframeData['init']) => {
 		// BOOTING
 		// When iframe receive infos from parent
-		// console.log(h, 'init inside iframe!');
 		d.frameId = m.frameId
 		d.innerTag = m.innerTag
 		d.tagContent = m.tagContent
 		d.tagName = m.tagName
 		d.file = m.file
-		console.log(h, '1/2 RECEIVED INIT EVENT', d.frameId);
+		// console.log(h, '1/2 RECEIVED INIT EVENT', d.frameId);
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
+		// console.log(h, 'init message from parent received in child iframe', d);
 		if (el) {
+			// console.log(h, '222222', el);
 
 			// unescape html and scripts
 			const unescHtml = p.unescapeHtml(el.innerHTML) as string
 			const newHtml = executeScriptTags(unescHtml)
-			console.log(h, '2/2 transformMarkdownScript', { old: el.innerHTML, new: newHtml });
+			// console.log(h, '2/2 transformMarkdownScript', { old: el.innerHTML, new: newHtml });
 			el.innerHTML = newHtml
 			//
 			// sending height back for resizing sthg
@@ -246,6 +264,11 @@ export const iframeMainCode = (p: {
 			injectLogicToIframeHtml()
 
 		}
+	}
+
+	const canScrollIframe = (status: boolean) => {
+		const data: iIframeData['canScrollIframe'] = { status }
+		sendToParent({ action: 'canScrollIframe', data })
 	}
 
 	const resizeIframe = (height?: number) => {
@@ -260,16 +283,120 @@ export const iframeMainCode = (p: {
 	}
 
 	///////////////////////////////////////////////////////////////////////// 
-	// API 
+	//
+	// API => CUSTOM TAG AVAILABLE API in IFRAME
+	//
 
-	// API : CREATING EVENT BUS TO MANAGE API CALLS
+	//  CREATING EVENT BUS TO MANAGE API CALLS
 	const { subscribeOnce, notify } = p.createEventBus({ headerLog: '[FRAME API] 00567' })
 
+
+
+	/////////////////////////////
+	// LOAD CACHED RESSOURCE & LOAD SCRIPTS : Loading and caching ressources
+
+	///////////
+	// SUPPORT FUNCTIONS
+	const checkUrlExists = (url, onSuccess, onFail) => {
+		try {
+			var http = new XMLHttpRequest();
+			http.open('HEAD', url, false);
+			http.send();
+			// return http.status != 404;
+			if (http.status !== 404) return onSuccess()
+			return onFail()
+		} catch (e) {
+			onFail(e)
+		}
+	}
+
+	const loadLocalRessourceInHtml = (url, onLoad) => {
+		let tag
+		// console.log("111111 loading", url);
+		if (url.includes(".js")) {
+			// console.log("1111112 loading", url);
+			tag = document.createElement('script');
+			tag.src = url
+		}
+		else if (url.includes(".css")) {
+			tag = document.createElement('link');
+			tag.href = url
+			tag.rel = "stylesheet"
+			tag.type = "text/css"
+		}
+		tag.onload = () => {
+			// console.log("111113 LOADED!!", url);
+			onLoad()
+		}
+		const el = document.getElementById('external-ressources-wrapper')
+
+		if (!el) return console.error(h, `could not load ${url} because ressource wrapper was not detected`)
+		el.appendChild(tag)
+	}
+
+	const getCachedRessourceFolder = () => `/.tiro/.tags-ressources/`
+	const getCachedRessourceUrl = (url: string): string => {
+		const tokenParamStr = `?token=${p.loginToken}`
+		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${p.getRessourceIdFromUrl(url)}${tokenParamStr}`
+		return path
+	}
+
+	//////////
+	// API FUNCTIONS
+	const loadCachedRessources = (ressources: string[], cb: Function) => {
+		// console.log(h, 'loadCachedRessources', ressources);
+
+		let ressourcesLoaded = 0;
+		const onRessLoaded = () => {
+			ressourcesLoaded++
+			// console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
+			if (ressourcesLoaded === ressources.length) {
+				console.log(`ressources all ressources loaded, cb()!`, ressources);
+				try {
+					if (cb) cb()
+				} catch (e) {
+					console.log(h, `ERROR LoadScript Callback : ${e}`);
+				}
+			}
+		}
+
+		for (let i = 0; i < ressources.length; i++) {
+			const ressToLoad = ressources[i];
+			const cachedRessToLoad = getCachedRessourceUrl(ressToLoad)
+
+			//@ts-ignore
+			const disableCache = window.disableCache === true ? true : false
+
+			const downloadAndLoadRess = () => {
+				callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
+					// ==== on cb, load that tag
+					loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+				})
+			}
+
+			if (disableCache) {
+				console.warn(h, "CACHE DISABLED, DOWNLOADING RESSOURCES EVERYTIME!");
+				downloadAndLoadRess()
+			} else {
+				checkUrlExists(cachedRessToLoad,
+					() => {
+						loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+					}, () => {
+						downloadAndLoadRess()
+					})
+			}
+		}
+	}
+
+
 	// LOAD EXTERNAL SCRIPTS
-	/**
-	 * woop
-	 */
+	const loadRessources = (ressources: string[], cb: Function) => {
+		loadCachedRessources(ressources, cb)
+	}
 	const loadScripts = (scripts: string[], cb: Function) => {
+		loadCachedRessources(scripts, cb)
+	}
+	const loadScriptsNoCache = (scripts: string[], cb: Function) => {
 		console.log(h, 'loadScripts', scripts);
 		let scriptsLoaded = 0;
 		// each(scripts, scriptToLoad => {
@@ -289,10 +416,11 @@ export const iframeMainCode = (p: {
 					}
 				}
 			}
-			const el = document.getElementById('external-scripts-wrapper')
+			const el = document.getElementById('external-ressources-wrapper')
 			if (el) el.appendChild(s)
 		}
 	}
+
 
 	// LOAD CUSTOM TAG
 	const loadCustomTag = (url: string, innerTag: string, opts: any) => {
@@ -361,8 +489,15 @@ export const iframeMainCode = (p: {
 		call: callApi,
 		utils: {
 			getInfos,
+
+			loadCachedRessources,
+			getCachedRessourceUrl,
 			loadScripts,
+			loadRessources,
+			loadScriptsNoCache,
+
 			resizeIframe,
+			canScrollIframe,
 			loadCustomTag,
 			uuid: p.generateUUID,
 			createDiv,

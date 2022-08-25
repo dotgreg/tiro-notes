@@ -1,7 +1,7 @@
 ## Install/Update a Custom Tag
 ### Install  <!-- {docsify-ignore} -->
 
-To install the custom tag ```[[latex]]```, create a markdown note named ```latex``` in the ```/.tiro/.tags/``` folder. It will then be available across your notes.
+To install the custom tag ```[[calendar]]```, create a markdown note named ```calendar``` in the ```/.tiro/tags/``` folder. It will then be available across your notes.
 
 
 ### Update  <!-- {docsify-ignore} -->
@@ -23,6 +23,7 @@ Simply paste the provided code in the note. However make sure to trust the devel
 ### ```[[latex]]```
 #### Description :
 Use Latex formulas inside your note.
+You can use [[l]] or [[latex]]
 
 #### Examples :
 ```
@@ -36,25 +37,16 @@ c = \\pm\\sqrt{a^2 + b^2}"
 [[latex]] 
 
 
-[[latex]]
+[[l]]
 x = \\pm\\sqrt{a^2 + b^2}"
-[[latex]] 
+[[l]] 
 ```
 
 #### Screenshots : 
 <img src="https://user-images.githubusercontent.com/2981891/171807776-baf63670-aac2-42c6-926f-547fe15f8290.png" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/latex``` and paste the following content : 
-```
-[[script]]
-// latex V1.0.0
-return api.utils.loadCustomTag("https://rawcdn.githack.com/dotgreg/tiro-notes/1826d6bf5560c8443b948c67e5f38e10cd6fe22e/custom-tags/latex/latex.js",`{{innerTag}}`)
-[[script]]
-```
-
-
-
+- Already included in Tiro notes starting 0.30.42. No install needed.
 
 
 
@@ -80,7 +72,7 @@ generate a table of content of your note.
 <img src="https://user-images.githubusercontent.com/2981891/176912694-bee5b592-4f79-46c5-9ed7-116e1b80b533.png" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/toc``` and paste the following content : 
+ - create the note ```/.tiro/tags/toc``` and paste the following content : 
 ```
 [[script]]
 // toc V1.0.1
@@ -159,7 +151,7 @@ pie
 <img src="" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/mermaid``` and paste the following content : 
+ - create the note ```/.tiro/tags/mermaid``` and paste the following content : 
 ```
 [[script]]
 // MERMAID V1.0.0
@@ -198,7 +190,7 @@ task 4|32|500|=B4*C4
 <img src="https://user-images.githubusercontent.com/2981891/171697299-cfa9ad93-d3ed-4252-b716-7f8e1157908b.png" width="200"/>
 
 #### Install : 
- - create the note ```/.tiro/.tags/spreadsheet``` and paste the following content : 
+ - create the note ```/.tiro/tags/spreadsheet``` and paste the following content : 
 ```
 [[script]]
 // SPREADSHEET V1.0.0
@@ -245,7 +237,7 @@ korben https://korben.info/feed
 
 
 #### Install :
- - create the note ```/.tiro/.tags/rss``` and paste the following content : 
+ - create the note ```/.tiro/tags/rss``` and paste the following content : 
 ```
 [[script]]
 // RSS V1.0.1
