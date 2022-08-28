@@ -55,7 +55,7 @@ const calendarApp = (innerTagStr, opts) => {
 						'Title': titleAndBody,
 						'Link': function (e) {
 							e.preventDefault();
-							api.call("popup.confirm", [urlify(body)])
+								api.call("popup.confirm", [urlify(body),""])
 						}
 					})
 

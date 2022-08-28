@@ -70,16 +70,18 @@ const graphApp = (innerTagStr, opts) => {
 			console.log(2225, node);
 
 			const parts = node.noteParts
+			const popupTitle = `Hashtag "${node.name}" Research`
 			let toShow = `
 <div id="popup-graph-wrapper">
 "${node.label}" found in ${parts.length} parts of notes : <br>
-============<br>
+<br>
 <div class="links-wrapper">
 								`
 			// console.log(2226, window.api, '${infos.windowId}')
 			const popupFunctionStr = (file) => `
 window.api.file.getContent('${file.path}', ncontent => {
-  document.getElementById('popup-part-preview').innerHTML = ncontent
+	ncontent = ncontent.replaceAll('${node.name}', '<span>${node.name}</span>')
+	document.getElementById('popup-part-preview').innerHTML = '<h3>${file.path}</h3>' + ncontent
 })
 `
 			for (let i = 0; i < parts.length; i++) {
@@ -95,6 +97,15 @@ window.api.file.getContent('${file.path}', ncontent => {
 #popup-graph-wrapper {
     text-align: left;
 }
+#popup-part-preview h3 {
+    margin-bottom: 10px;
+    margin-top: 0px;
+}
+#popup-part-preview span {
+   font-weight: bold;
+    background: #fff876;
+    padding: 2px;
+}
 #popup-part-preview {
     max-height: 50vh;
     overflow-y: scroll;
@@ -106,8 +117,7 @@ window.api.file.getContent('${file.path}', ncontent => {
 </style>
 </div>
 						`
-			// api.call("popup.confirm", [toShow])
-			api.call("popup.confirm", [toShow])
+			api.call("popup.confirm", [toShow, popupTitle])
 
 		})
 	}

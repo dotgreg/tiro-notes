@@ -65,7 +65,7 @@ export const WindowGrid = (p: {
 	//
 	const onFileDelete: onFileDeleteFn = file => {
 		if (!api) return
-		api.popup.confirm(`${strings.trashNote}`, () => {
+		api.popup.confirm(`${strings.trashNote}`,"", () => {
 			const h = `[FILE DELETE] 0046`
 
 			api.file.delete(file, nFiles => {

@@ -137,7 +137,7 @@ const Tab = (p: {
 				< div className="tab-close"
 					onClick={() => {
 						api && api.popup.confirm(
-							`${strings.deleteTabPrompt} "${tab.name}"?`, () => {
+							`${strings.deleteTabPrompt} "${tab.name}"?`,"", () => {
 								p.onUpdate('close', tab)
 							});
 					}

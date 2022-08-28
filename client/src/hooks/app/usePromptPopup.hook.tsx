@@ -14,7 +14,7 @@ const liveVars: {
 
 
 export type iPopupApi = {
-	confirm: (text: string, cb: Function, onRefuse?: Function) => void,
+	confirm: (text: string, title: string, cb: Function, onRefuse?: Function) => void,
 	prompt: (p: {
 		text: string,
 		title?: string,
@@ -37,10 +37,10 @@ export const usePromptPopup = (p: {
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
 
-	const confirmPopup: iPopupApi['confirm'] = (text, cb, onRefuse) => {
+	const confirmPopup: iPopupApi['confirm'] = (text, title, cb, onRefuse) => {
 
 		promptPopup({
-			title: strings.promptPopup.confirmTitle,
+			title, 
 			text,
 			onAccept: cb,
 			onRefuse: () => { if (onRefuse) onRefuse(); }
@@ -50,20 +50,15 @@ export const usePromptPopup = (p: {
 	const promptPopup: iPopupApi['prompt'] = (p) => {
 		setDisplayPromptPopup(true)
 		setText(p.text);
+
 		// if script present in text, extract it and execute it
-		let scriptStr = ''
-		const matchs = p.text.match(regexs.scriptHtml)
-		if (matchs && matchs[0]) {
-			scriptStr = matchs[0].replace('<script>', '').replace('</script>', '').replace("\n", '').replace('\t', '')
-			console.log(22255, scriptStr);
-			
-
-		}
-		setScript(scriptStr)
-
-
-
-
+		// let scriptStr = ''
+		// const matchs = p.text.match(regexs.scriptHtml)
+		// if (matchs && matchs[0]) {
+		// 	scriptStr = matchs[0].replace('<script>', '').replace('</script>', '').replace("\n", '').replace('\t', '')
+		// 	console.log(22255, scriptStr);
+		// }
+		// setScript(scriptStr)
 
 		if (p.title) setTitle(p.title);
 		if (p.userInput) setUserInput(" ");
