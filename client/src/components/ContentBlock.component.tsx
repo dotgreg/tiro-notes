@@ -151,7 +151,6 @@ export const ContentBlockTagView = (p: {
 			// RESIZE
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
-				// const nheight = data.height === "100%" ? (p.windowHeight || 200) : data.height
 				let nheight = data.height
 				if (isString(nheight) && nheight.endsWith("%")) {
 					const percent = parseInt(nheight.replace("%", "")) / 100
@@ -174,7 +173,6 @@ export const ContentBlockTagView = (p: {
 				const data = m.data as iIframeData['apiCall']
 
 				callApiFromString(data, (status, data) => {
-					//console.log(h, "getting aswer from api call => ", JSON.stringify({ status, data }).substring(0, 150) + "\"");
 					// if no, directly return the error 
 					if (status === 'nok') return setIframeError(data.error)
 
@@ -203,6 +201,7 @@ export const ContentBlockTagView = (p: {
 			const data: iIframeData['init'] = {
 				file: p.file,
 				innerTag: p.block.content,
+				windowId: p.windowId,
 				frameId: nid,
 				tagContent: noteTagContent,
 				tagName: p.block.tagName || '',

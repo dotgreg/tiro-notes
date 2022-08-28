@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { Popup } from '../../components/Popup.component';
 import { strings } from '../../managers/strings.manager';
 
@@ -31,6 +32,7 @@ export const usePromptPopup = (p: {
 	const [displayPromptPopup, setDisplayPromptPopup] = useState(false)
 
 	const [text, setText] = useState(``)
+	const [script, setScript] = useState(``)
 	const [userInput, setUserInput] = useState<string | null>(null)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
@@ -48,6 +50,21 @@ export const usePromptPopup = (p: {
 	const promptPopup: iPopupApi['prompt'] = (p) => {
 		setDisplayPromptPopup(true)
 		setText(p.text);
+		// if script present in text, extract it and execute it
+		let scriptStr = ''
+		const matchs = p.text.match(regexs.scriptHtml)
+		if (matchs && matchs[0]) {
+			scriptStr = matchs[0].replace('<script>', '').replace('</script>', '').replace("\n", '').replace('\t', '')
+			console.log(22255, scriptStr);
+			
+
+		}
+		setScript(scriptStr)
+
+
+
+
+
 		if (p.title) setTitle(p.title);
 		if (p.userInput) setUserInput(" ");
 		if (p.onAccept) liveVars.onAccept = p.onAccept

@@ -44,7 +44,10 @@ export const searchWithRgGeneric = async (p: {
 	folder: string
 
 	recursive?: boolean,
-	debug?: boolean
+	options?: {
+		wholeLine?: boolean,
+		debug?: boolean
+	}
 
 	processRawLine?: (infos: iLineRg) => any
 	onSearchEnded: (res: any) => void
@@ -52,10 +55,15 @@ export const searchWithRgGeneric = async (p: {
 
 	if (!p.recursive) p.recursive = true
 	if (!p.processRawLine) p.processRawLine = (r: any) => [r]
+	if (!p.options) p.options = {}
+	if (!p.options.wholeLine) p.options.wholeLine = false
+	if (!p.options.debug) p.options.debug = false
 
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
+
+	let lineParam = p.options.wholeLine ? '' : '--only-matching'
 
 	const searchParams = [
 		p.term,
@@ -64,13 +72,14 @@ export const searchWithRgGeneric = async (p: {
 		'--type',
 		'md',
 		// do not print whole line, just one match per line
-		'--only-matching',
+		lineParam
 	]
-	p.debug && console.log(`== ============`);
-	p.debug && console.log(backConfig.rgPath, searchParams);
+	p.options.debug && console.log(`== START1 ============`);
+	p.options.debug && console.log(backConfig.rgPath, searchParams);
 	const ripGrepStream = execa(backConfig.rgPath, searchParams)
 	const resArr: string[] = []
 	ripGrepStream.stdout.on('data', async dataChunk => {
+		console.log("========", dataChunk);
 		const rawChunk = dataChunk.toString()
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
@@ -78,7 +87,7 @@ export const searchWithRgGeneric = async (p: {
 			if (!processedInfos[0] || processedInfos[0] === '') return
 			console.log(processedInfos);
 			const processedLine = p.processRawLine({
-				file: processRawPathToFile({rawPath: processedInfos[0], folder: p.folder}),
+				file: processRawPathToFile({ rawPath: processedInfos[0], folder: p.folder }),
 				raw: line,
 				path: processedInfos[0],
 				found: processedInfos[1],
@@ -88,7 +97,7 @@ export const searchWithRgGeneric = async (p: {
 	})
 	ripGrepStream.stdout.on('close', dataChunk => {
 		p.onSearchEnded(resArr)
-		p.debug && console.log(`============== END`);
+		p.options.debug && console.log(`============== END`);
 	})
 }
 

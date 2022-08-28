@@ -1,6 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { iAppView, iFile, iSearchWordRes } from '../../../../shared/types.shared';
+import { getHashtags, iHashtags } from '../../managers/hashtags.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
@@ -14,6 +15,7 @@ import { iStatusApi } from './status.api.hook';
 export interface iSearchApi {
 	files: iSearchFilesApi
 	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void) => void
+	hashtags: (folder: string, cb: (res: iHashtags) => void) => void
 	ui: iSearchUiApi
 }
 
@@ -100,6 +102,14 @@ export const useSearchApi = (p: {
 	}
 
 
+	const searchHashtags: iSearchApi['hashtags'] = (folder, cb) => {
+		getHashtags(folder).then(res => {
+			cb(res)
+		})
+	}
+
+
+
 	//
 	// EXPORTS
 	//
@@ -108,6 +118,7 @@ export const useSearchApi = (p: {
 			search: searchFiles
 		},
 		word: searchWord,
+		hashtags: searchHashtags,
 		ui: {
 			search: searchFilesAndUpdateUi,
 			//status: { get: isSearching, set: setIsSearching },
