@@ -11,6 +11,7 @@ import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
 import { renderLatex } from '../managers/latex.manager';
+import { Icon } from './Icon.component';
 
 const h = `[IFRAME COMPONENT] 00562`
 const reservedTagNames = ["latex", "l"]
@@ -241,6 +242,14 @@ export const ContentBlockTagView = (p: {
 		setHtmlContent(fullHtml)
 	}
 
+	const [reload, setReload] = useState(0)
+	const [reloadIframe, setReloadIframe] = useState(false)
+	const incrementReload = () => {
+		setReload(reload + 1);
+		setReloadIframe(true)
+		setTimeout(() => { setReloadIframe(false) }, 100)
+	}
+
 	useEffect(() => {
 		// console.log("===== CHANGING CONTENT CTAG", p);
 		setCanShow(false)
@@ -253,23 +262,29 @@ export const ContentBlockTagView = (p: {
 			// cleaning when updating the component
 			iframeParentManager.unsubscribe(nid)
 		}
-	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent])
+	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent, reload])
 
 
 	return (
 		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName}`}>
-			<iframe
-				ref={iframeRef}
-				id={iframeId}
-				data-testid="iframe"
-				title={iframeId}
-				srcDoc={htmlContent}
-				className="tag-iframe"
-				style={{ height: iframeHeight }}
-				// style={{ height: iframeHeight }}
-				sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
-			>
-			</iframe>
+			<div className="ctag-reload" onClick={incrementReload}>
+				<Icon name="faRetweet" color={`#b2b2b2`} />
+			</div>
+
+			{!reloadIframe &&
+				<iframe
+					ref={iframeRef}
+					id={iframeId}
+					data-testid="iframe"
+					title={iframeId}
+					srcDoc={htmlContent}
+					className="tag-iframe"
+					style={{ height: iframeHeight }}
+					// style={{ height: iframeHeight }}
+					sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
+				>
+				</iframe>
+			}
 			{iframeError &&
 				<div className="iframe-error">
 					<code><pre>
@@ -286,7 +301,7 @@ export const ContentBlockTagView = (p: {
 export const contentBlockCss = () => `
 
 .content-blocks-wrapper {
-	padding: 15px;
+		padding: 15px;
 }
 
 .content-blocks-wrapper,
@@ -298,6 +313,21 @@ export const contentBlockCss = () => `
 }
 
 .iframe-view-wrapper {
+		position: relative;
+		.ctag-reload {
+				position: absolute;
+				top: 0px;
+				left: 0px;
+				cursor: pointer;
+				opacity: 0;
+				transition: 0.2s all; 
+		}
+		&:hover {
+				.ctag-reload {
+					opacity:0.5;
+				}
+		}
+
 		&.hide iframe {
 				opacity: 0;
 		}
