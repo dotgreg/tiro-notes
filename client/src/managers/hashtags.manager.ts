@@ -54,9 +54,15 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 							const matchTags = line.match(regexs.hashtag)
 
 							each(matchTags, tag => {
-								// if #, ##, ###, remove
+								// if #, ##, ###, return 
 								if (tag.length < 2) return
 								if (tag.substring(1).includes("#")) return
+								// if ](http inside, return 
+								if (tag.includes("](http")) return
+
+								// remove , and accents and special chars ()
+								tag = tag.replace(",", "").replace("(", "").replace(")", "")
+								// tag = tag.replace(",", "").normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z])/g, '')
 
 								if (!dic[tag]) {
 									dic[tag] = {
