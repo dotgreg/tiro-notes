@@ -217,9 +217,9 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 		try {
 			const pos = getCallbackArgPosition(callingObj)
 			if (!pos) {
-				// non callback func simply call it
-				callingObj(...p.apiArguments)
-				return cb('ok')
+				// non callback func simply call it, then take result (directly)
+				let res = callingObj(...p.apiArguments)
+				return cb('ok', res)
 			} else {
 				// cl func, inject cb inside params
 				const nargs = cloneDeep(p.apiArguments)
