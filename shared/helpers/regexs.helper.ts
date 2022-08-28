@@ -46,7 +46,10 @@ export const regexs = {
 	searchFolderNoSpace: VerEx().find('/').anything().endOfLine(),
 	firstPartImg: VerEx().find('![').anythingBut('[]').then(']('),
 
-	hashtag : VerEx().find('#').beginCapture().anythingBut(' ').endCapture()
+	hashtag: VerEx().find('#').beginCapture().anythingBut(' ').endCapture(),
+	titleMd: VerEx().startOfLine().find('#').oneOrMore().then(' ').beginCapture().anythingBut("").endCapture(),
+
+	scriptHtml: VerEx().find('<script>').beginCapture().anythingBut('').endCapture().then('</script>'),
 
 }
 

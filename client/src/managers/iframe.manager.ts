@@ -16,6 +16,7 @@ export interface iIframeData {
 		tagName: string
 		tagContent: string
 		frameId: string
+		windowId: string
 		loginToken: string
 		backendUrl: string
 	}
@@ -24,6 +25,9 @@ export interface iIframeData {
 	}
 	canScrollIframe: {
 		status: boolean
+	}
+	getScrollPos: {
+		y: number
 	}
 	iframeError: {
 		error: string
@@ -110,7 +114,10 @@ export const iframeParentManager = {
 //
 // IFRAME CODE
 //
-export const generateIframeHtml = (tagContent: string) => {
+export const generateIframeHtml = (
+	tagContent: string
+	// params: { windowId: string }
+) => {
 	const html = `
 <html>
 		<div id="content-wrapper">
@@ -164,6 +171,7 @@ export const iframeMainCode = (p: {
 	const d: iIframeData['init'] = {
 		file: null,
 		frameId: '',
+		windowId: '',
 		innerTag: '',
 		tagName: '',
 		tagContent: '',
@@ -241,20 +249,17 @@ export const iframeMainCode = (p: {
 		d.tagContent = m.tagContent
 		d.tagName = m.tagName
 		d.file = m.file
-		// console.log(h, '1/2 RECEIVED INIT EVENT', d.frameId);
+		d.windowId = m.windowId
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
-		// console.log(h, 'init message from parent received in child iframe', d);
 		if (el) {
-			// console.log(h, '222222', el);
 
 			// unescape html and scripts
 			const unescHtml = p.unescapeHtml(el.innerHTML) as string
 			const newHtml = executeScriptTags(unescHtml)
-			// console.log(h, '2/2 transformMarkdownScript', { old: el.innerHTML, new: newHtml });
 			el.innerHTML = newHtml
-			//
+
 			// sending height back for resizing sthg
 			setTimeout(() => {
 				resizeIframe()
@@ -270,6 +275,11 @@ export const iframeMainCode = (p: {
 		const data: iIframeData['canScrollIframe'] = { status }
 		sendToParent({ action: 'canScrollIframe', data })
 	}
+
+	// const askForScrollPos = () => {
+	// 	const data: iIframeData['getScrollPos'] = { status }
+	// 	sendToParent({ action: 'canScrollIframe', data })
+	// }
 
 	const resizeIframe = (height?: number) => {
 		const el = document.getElementById('content-wrapper')

@@ -14,9 +14,14 @@ export const searchWord = (p: {
 	searchWithRgGeneric({
 		term: p.term,
 		folder: p.folder,
-		// debug: true,
+
+		options: {
+			wholeLine: true,
+			debug: true,
+		},
 
 		processRawLine: lineInfos => {
+			console.log(444, lineInfos);
 			let l = lineInfos
 			if (!l.found || l.found === '') return
 			if (!objRes[l.file.path]) objRes[l.file.path] = { file: l.file, results: [] }

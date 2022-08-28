@@ -36,6 +36,7 @@ import { useStatusApi } from './hooks/api/status.api.hook';
 import { TreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
+import { getHashtags } from './managers/hashtags.manager';
 
 
 
@@ -281,6 +282,15 @@ export const App = () => {
 	// 		console.log(3333, res);
 	// 	})
 	// }, [])
+
+
+
+
+	useEffect(() => {
+		// getHashtags("/test_obsi").then(dic => {
+		// 	console.log(2221, dic);
+		// })
+	}, [])
 
 	// useEffect(() => {
 	// 	api.search.word("#[^ #]+", '/test_obsi/nodal_ex/', res => {
