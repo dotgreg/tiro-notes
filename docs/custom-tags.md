@@ -296,10 +296,12 @@ return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-n
 ### ```[[calendar]]```
 #### Description :
 A monthly calendar which displays events from a note.
+Click the event link to get a popup with the event body, hyperlinks etc.
 
 #### Install : 
 1. create the note ```/.tiro/tags/calendar``` and paste the following content : 
 ```
+//CALENDAR 1.0.0
 [[script]]
 api.utils.canScrollIframe(true)
 return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/bb7c60628a3aed2cf9ea30b1f8184fec93baddc8/custom-tags/calendar/calendar.js",`{{innerTag}}`,{size:"80%", source: "/mynotes/planning/events.md"})

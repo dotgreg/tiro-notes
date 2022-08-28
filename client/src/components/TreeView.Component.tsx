@@ -154,7 +154,7 @@ export const FolderView = (p: {
 										userInput: true,
 										onAccept: (createdFolderName) => {
 											if (!createdFolderName || createdFolderName === '') return
-												p.onFolderMenuAction('create', p.folder, createdFolderName)
+											p.onFolderMenuAction('create', p.folder, createdFolderName)
 										},
 										onRefuse: () => { }
 									});
@@ -167,7 +167,7 @@ export const FolderView = (p: {
 										if (p.folder.path === '') return setIsMenuOpened(false)
 										setIsMenuOpened(false)
 										api.popup.confirm(
-											`${strings.moveToTrash} "${p.folder.path}"?`,"", () => {
+											`${strings.moveToTrash} "${p.folder.path}"?`, () => {
 												p.onFolderMenuAction('moveToTrash', p.folder)
 											});
 									}}>{strings.moveToTrash}</li>
@@ -179,7 +179,7 @@ export const FolderView = (p: {
 										if (p.folder.path === '') return setIsMenuOpened(false)
 										setIsMenuOpened(false)
 										api.popup.confirm(
-											`${strings.deleteFolderPrompt} "${p.folder.path}"?`,"", () => {
+											`${strings.deleteFolderPrompt} "${p.folder.path}"?`, () => {
 												p.onFolderMenuAction('delete', p.folder)
 											});
 									}}>{strings.deleteFolder}</li>

@@ -14,7 +14,8 @@ const liveVars: {
 
 
 export type iPopupApi = {
-	confirm: (text: string, title: string, cb: Function, onRefuse?: Function) => void,
+	confirm: (text: string, cb: Function, onRefuse?: Function) => void,
+	show: (text: string, title: string, cb: Function) => void,
 	prompt: (p: {
 		text: string,
 		title?: string,
@@ -37,10 +38,18 @@ export const usePromptPopup = (p: {
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
 
-	const confirmPopup: iPopupApi['confirm'] = (text, title, cb, onRefuse) => {
-
+	const showPopup: iPopupApi['show'] = (text, title, cb) => {
 		promptPopup({
-			title, 
+			title,
+			text,
+			onAccept: cb,
+			onRefuse: () => { }
+		})
+	}
+	const confirmPopup: iPopupApi['confirm'] = (text, cb, onRefuse) => {
+		const title = ""
+		promptPopup({
+			title,
 			text,
 			onAccept: cb,
 			onRefuse: () => { if (onRefuse) onRefuse(); }
@@ -120,6 +129,7 @@ export const usePromptPopup = (p: {
 
 	const popupApi: iPopupApi = {
 		confirm: confirmPopup,
+		show: showPopup,
 		prompt: promptPopup
 	}
 	return {

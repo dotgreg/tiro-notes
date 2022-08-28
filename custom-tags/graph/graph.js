@@ -1,10 +1,11 @@
 const graphApp = (innerTagStr, opts) => {
+	const folderPath = innerTagStr.trim()
 	const infos = api.utils.getInfos()
 	if (!opts) opts = {}
 	if (!opts.size) opts.size = "300px"
 	const h = `[GRAPH CTAG] 1.0.0 27/08/22`
-	console.log(h, "init CTAG ");
-	const folder = "/test_obsi"
+	console.log(h, "init CTAG with folder:", folderPath);
+	// const folder = "/test_obsi"
 
 
 
@@ -55,13 +56,14 @@ const graphApp = (innerTagStr, opts) => {
 	//
 	const clamp = (val, min, max) => Math.min(Math.max(val, min), max)
 	const loadDatas = (cb) => {
-		api.call("search.hashtags", [folder], hashtags => {
+		api.call("search.hashtags", [folderPath], hashtags => {
 			const res = {}
 			// inital node to connect them all
-			const initNode = {
-				label: folder,
-				id: 0,
-			}
+			// const initNode = {
+			// 	label: folder,
+			// 	id: 0,
+			// }
+
 			// preparing nodes
 			res.nodes = hashtags.nodesArr
 			for (let i = 0; i < res.nodes.length; i++) {
@@ -73,7 +75,7 @@ const graphApp = (innerTagStr, opts) => {
 				size = clamp(size, 5, 30)
 				res.nodes[i].size = size
 			}
-			res.nodes.push(initNode)
+			// res.nodes.push(initNode)
 
 
 			// preparing edges
@@ -213,7 +215,7 @@ window.api.file.getContent('${file.path}', ncontent => {
 </style>
 </div>
 						`
-		api.call("popup.confirm", [toShow, popupTitle])
+		api.call("popup.show", [toShow, popupTitle])
 
 	}
 
