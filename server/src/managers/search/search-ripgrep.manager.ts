@@ -83,16 +83,25 @@ export const searchWithRgGeneric = async (p: {
 		const rawChunk = dataChunk.toString()
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
-			const processedInfos = line.split(':')
-			if (!processedInfos[0] || processedInfos[0] === '') return
-			console.log(processedInfos);
+			let lineRaw = line
+
+			// "path/to/file:whole line with : inside" 
+
+			// search "found word:10"
+			lineRaw = line.split(':')
+			if (!lineRaw[0] || lineRaw[0] === '') return
+			let found = lineRaw.slice(1).join(":")
+
 			const processedLine = p.processRawLine({
-				file: processRawPathToFile({ rawPath: processedInfos[0], folder: p.folder }),
+				file: processRawPathToFile({ rawPath: lineRaw[0], folder: p.folder }),
 				raw: line,
-				path: processedInfos[0],
-				found: processedInfos[1],
+				path: lineRaw[0],
+				found,
 			})
 			if (processedLine) resArr.push(processedLine)
+
+
+
 		})
 	})
 	ripGrepStream.stdout.on('close', dataChunk => {

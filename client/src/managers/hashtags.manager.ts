@@ -42,6 +42,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 
 
 					each(rawFile.results, (line, j) => {
+						// console.log(2223, line);
 
 						// if line starts with #[#5] + space, titleName changes
 						const matchTitle = line.match(regexs.titleMd)
@@ -53,6 +54,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 							// else match possible hashtags in the line
 							const matchTags = line.match(regexs.hashtag)
 
+							// console.log(2224, matchTags, line);
 							each(matchTags, tag => {
 								// if #, ##, ###, return 
 								if (tag.length < 2) return
