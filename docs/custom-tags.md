@@ -332,19 +332,56 @@ other event | 11/22/22 | other description
 
 
 
+### ```[[graph]]```
+#### Description :
+- Visualize important concepts of your notes data using a graph. Click on a graph point to check where the word is cited. 
+- Tiro version required : 30.5
+
+⚠️ That custom tag is in beta and still unstable, please update ```/.tiro/tags/graph.md``` once that ctag will be released (liste here https://tiro-notes.org/#/custom-tags) ⚠️
+
+#### Usage :
+##### 1. Visualization
+```
+[[graph]]
+/mynotes/sciences/math
+[[graph]]
+```
+- where ```/mynotes/sciences/math``` is the notes folder to be scanned.
+
+##### 2. Updating the graph
+- Inside ```/mynotes/sciences/math``` notes, mark important words to be graphed with a "#". 
+- If ```#geometry``` is inside the same note subtitle than ```#triangulation```, they will be redered and connected together on the graph
+
+```
+...
+# Geometry
+## Subtitle 2 : Triangulation Theorem
+
+Inside that text, we describe an important #geometry theorem about #triangulation
+...
+```
+
+
+#### Install : 
+ - create the note ```/.tiro/tags/graph``` and paste the following content : 
+```
+[[script]]
+// DEV GRAPH CTAG BETA 0.5.0 for Tiro Notes 0.30.5
+window.disableCache = true;
+api.utils.canScrollIframe(true);
+return api.utils.loadCustomTag("https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/custom-tags/graph/graph.js",`{{innerTag}}`)
+[[script]] 
+```
+
+#### Screenshots : 
+<img src="https://user-images.githubusercontent.com/2981891/187157496-327a4b67-9a58-4521-b4ef-a62d48fcf6d2.jpg" width="200"/>
+<img src="https://user-images.githubusercontent.com/2981891/187170819-c1461ed1-acae-429c-b3d6-5852825716c5.jpg" width="200"/>
+<img src="https://user-images.githubusercontent.com/2981891/187157510-936e26af-806a-43ce-945b-30b2004a269f.jpg" width="200"/>
+
+
 
 ## Planned
 
-
-### ```[[nodes]]```
-#### Description :
-Display the current notes folder with a nodal, structured and connected view
-
-#### Usage :
-#### Screenshot : 
-<img src="https://user-images.githubusercontent.com/2981891/171816664-563eaaf7-dfce-44fd-82d0-b3e8810d914c.jpg" width="200"/>
-
-#### Install : 
 
 ### ```[[timeline]]```
 #### Description :
