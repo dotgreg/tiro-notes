@@ -68,9 +68,11 @@ const graphApp = (innerTagStr, opts) => {
 			res.nodes = hashtags.nodesArr
 			for (let i = 0; i < res.nodes.length; i++) {
 				res.nodes[i].label = res.nodes[i].name
-				// increase group repulsion to other non connected groups
 				const nbParts = res.nodes[i].noteParts.length
+				// increase group repulsion to other non connected groups
 				const mass = 1
+				res.nodes[i].mass = mass
+				// size node according to nb of apparition
 				let size = 5 + (nbParts * 5)
 				size = clamp(size, 5, 30)
 				res.nodes[i].size = size
@@ -176,15 +178,17 @@ const graphApp = (innerTagStr, opts) => {
 <div class="links-wrapper">
 								`
 		// console.log(2226, window.api, '${infos.windowId}')
+		// const file
 		const popupFunctionStr = (file) => `
 window.api.file.getContent('${file.path}', ncontent => {
-	ncontent = ncontent.replaceAll('${node.name}', '<span>${node.name}</span>')
-	document.getElementById('popup-part-preview').innerHTML = '<h3>${file.path}</h3>' + ncontent
+ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).replaceAll('\"', '\'')}, windowId:''})
+	ncontent2 = ncontent2.replaceAll('${node.name}', '<span>${node.name}</span>')
+	document.getElementById('popup-part-preview').innerHTML = '<h3>${file.path}</h3>' + ncontent2
 })
 `
 		for (let i = 0; i < parts.length; i++) {
 			toShow += `<a href="#" onclick="${popupFunctionStr(parts[i].file)}">`
-			toShow += `${parts[i].file.path} #${parts[i].titleName} `
+			toShow += `${parts[i].file.name} #${parts[i].titleName} `
 			toShow += `</a> \n<br>`
 		}
 
@@ -194,23 +198,32 @@ window.api.file.getContent('${file.path}', ncontent => {
 <style>
 #popup-graph-wrapper {
     text-align: left;
+    
 }
-#popup-part-preview h3 {
+#popup-part-preview h3.note-title {
     margin-bottom: 10px;
     margin-top: 0px;
+}
+#popup-part-preview ul,
+#popup-part-preview li,
+#popup-part-preview p {
+		margin: 0px;
+		padding: 0px;
 }
 #popup-part-preview span {
    font-weight: bold;
     background: #fff876;
     padding: 2px;
 }
+#popup-part-preview img {
+	max-width: 300px;
+}
 #popup-part-preview {
     max-height: 50vh;
     overflow-y: scroll;
     background: gainsboro;
-    padding: 10px;
+    padding: 10px 30px;
     margin-top: 20px;
-    white-space: pre-line;
 }
 </style>
 </div>
