@@ -84,21 +84,27 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 						} // end each tag
 
 						// 2. connecting nodes per line
-						each(currentLineTags, (ctag, i) => {
-							const tags = currentLineTags
-							let ins = tags.length > i + 1 ? [i, i + 1] : null
-							// console.log(22234, ins, tags.length, i + 1, line);
-							if (ins) {
-								let id1 = tags[ins[0]].id
-								let id2 = tags[ins[1]].id
+						each(currentLineTags, (ctag1, i) => {
+							each(currentLineTags, (ctag2, j) => {
+								if (i === j) return
+								// const tags = currentLineTags
+								// let ins = tags.length > i + 1 ? [i, i + 1] : null
+								// console.log(22234, ins, tags.length, i + 1, line);
+
+								// if (ins) {
+								// let id1 = tags[ins[0]].id
+								// let id2 = tags[ins[1]].id
+								let id1 = ctag1.id
+								let id2 = ctag2.id
 								const nLink = `${id1}-${id2}`
 								const nLink2 = `${id2}-${id1}`
-								// console.log(22233, edges, nLink, nLink2);
+								// console.log(22233, edges, nLink, nLink2, line);
 								if (
 									edges.indexOf(nLink) === -1 &&
 									edges.indexOf(nLink2) === -1
 								) edges.push(nLink)
-							}
+								// }
+							})
 						})
 					})
 				}) // end each line
