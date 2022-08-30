@@ -7,6 +7,8 @@ const v = {
 	// customTag: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
 	//userCustomTagManual: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
 	customTag: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
+	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
+	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 }
 
 
@@ -46,7 +48,9 @@ export const regexs = {
 	searchFolderNoSpace: VerEx().find('/').anything().endOfLine(),
 	firstPartImg: VerEx().find('![').anythingBut('[]').then(']('),
 
-	hashtag: VerEx().find('#').beginCapture().anythingBut(' ').endCapture(),
+	// hashtag: VerEx().find('#').beginCapture().anythingBut(' ').endCapture(),
+	// hashtag2: VerEx().find(" ").or("\n").then('#').beginCapture().find(v.insideHashtag).endCapture(),
+	hashtag3: VerEx().find(/[ |\n]{1}\#([A-zÀ-ú1-9_\-]+)/gi),
 	titleMd: VerEx().startOfLine().find('#').oneOrMore().then(' ').beginCapture().anythingBut("").endCapture(),
 
 	scriptHtml: VerEx().find('<script>').beginCapture().anythingBut('').endCapture().then('</script>'),

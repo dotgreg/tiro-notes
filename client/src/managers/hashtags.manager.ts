@@ -1,4 +1,4 @@
-import { cloneDeep, each } from "lodash";
+import { cloneDeep, each, uniq } from "lodash";
 import { regexs } from "../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../shared/types.shared";
 import { getClientApi2 } from "../hooks/api/api.hook";
@@ -10,6 +10,7 @@ export interface iNotePart {
 export interface iHashtag {
 	id: number
 	name: string
+	lines: number[],
 	noteParts: iNotePart[]
 }
 // export type iHashtagLink = [number, number]
@@ -31,9 +32,11 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 		getClientApi2().then(api => {
 			api.search.word("#", path, rawResPerFile => {
 
+				const edges: iHashtagLink[] = []
 
 				const partsHashtagIds: { [partId: string]: number[] } = {}
 				each(rawResPerFile, (rawFile, i) => {
+					// console.log(22231, i, rawFile);
 					// at first, notepart titleName is null
 					const notePart: iNotePart = {
 						file: rawFile.file,
@@ -42,8 +45,8 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 
 
 					each(rawFile.results, (line, j) => {
-						// console.log(2223, line);
 
+						const currentLineTags: iHashtag[] = []
 						// if line starts with #[#5] + space, titleName changes
 						const matchTitle = line.match(regexs.titleMd)
 						if (matchTitle && matchTitle[0]) {
@@ -52,59 +55,71 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 
 						} else {
 							// else match possible hashtags in the line
-							const matchTags = line.match(regexs.hashtag)
+							const matchTags = line.match(regexs.hashtag3)
 
 							// console.log(2224, matchTags, line);
 							each(matchTags, tag => {
-								// if #, ##, ###, return 
-								if (tag.length < 2) return
-								if (tag.substring(1).includes("#")) return
-								// if ](http inside, return 
-								if (tag.includes("](http")) return
 
-								// remove , and accents and special chars ()
-								tag = tag.replace(",", "").replace("(", "").replace(")", "")
-								// tag = tag.replace(",", "").normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z])/g, '')
+								tag = tag.split("'").join("")
 
 								if (!dic[tag]) {
 									dic[tag] = {
 										id: Object.keys(dic).length + 1,
 										name: tag,
+										lines: [],
 										noteParts: []
 									}
 								}
 
 								dic[tag].noteParts.push(cloneDeep(notePart))
+								dic[tag].lines.push(j)
+								dic[tag].lines = uniq(dic[tag].lines)
 								const partId = notePart.file.name + "-" + notePart.titleName
 								if (!partsHashtagIds[partId]) partsHashtagIds[partId] = []
 								partsHashtagIds[partId].push(dic[tag].id)
+								currentLineTags.push(dic[tag])
 
 							})
-						}
+						} // end each tag
 
-
-
-						// console.log(2220, rawFile.file.name, line, notePart);
+						// 2. connecting nodes per line
+						each(currentLineTags, (ctag, i) => {
+							const tags = currentLineTags
+							let ins = tags.length > i + 1 ? [i, i + 1] : null
+							// console.log(22234, ins, tags.length, i + 1, line);
+							if (ins) {
+								let id1 = tags[ins[0]].id
+								let id2 = tags[ins[1]].id
+								const nLink = `${id1}-${id2}`
+								const nLink2 = `${id2}-${id1}`
+								// console.log(22233, edges, nLink, nLink2);
+								if (
+									edges.indexOf(nLink) === -1 &&
+									edges.indexOf(nLink2) === -1
+								) edges.push(nLink)
+							}
+						})
 					})
-				})
+				}) // end each line
 
 				each(dic, hashtag => {
 					arr.push(hashtag)
 				})
 
-				const edges: iHashtagLink[] = []
-				each(partsHashtagIds, partIds => {
+				// // 1. connecting per notePart
+				// each(partsHashtagIds, partIds => {
+				// 	each(partIds, id1 => {
+				// 		each(partIds, id2 => {
+				// 			if (id1 === id2) return
+				// 			const nLink = `${id1}-${id2}`
+				// 			const nLink2 = `${id2}-${id1}`
+				// 			if (edges.indexOf(nLink) === -1 && edges.indexOf(nLink2) === -1) edges.push(nLink)
+				// 		})
+				// 	})
+				// })
 
-					each(partIds, id1 => {
-						each(partIds, id2 => {
-							if (id1 === id2) return
-							const nLink = `${id1}-${id2}`
-							const nLink2 = `${id2}-${id1}`
-							if (edges.indexOf(nLink) === -1 && edges.indexOf(nLink2) === -1) edges.push(nLink)
-						})
-					})
 
-				})
+
 				// each
 				// RES
 				const result: iHashtags = {
@@ -112,6 +127,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 					nodesArr: arr,
 					edges
 				}
+				console.log(22232, result);
 				res(result)
 			})
 		})
