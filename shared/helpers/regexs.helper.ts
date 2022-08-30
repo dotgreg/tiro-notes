@@ -50,7 +50,7 @@ export const regexs = {
 
 	// hashtag: VerEx().find('#').beginCapture().anythingBut(' ').endCapture(),
 	// hashtag2: VerEx().find(" ").or("\n").then('#').beginCapture().find(v.insideHashtag).endCapture(),
-	hashtag3: VerEx().find(/[ |\n]{1}\#([A-zÀ-ú1-9_\-]+)/gi),
+	hashtag3: VerEx().find(/[-| |\n]{1}\#([A-zÀ-ú1-9_\-]+)/gi),
 	titleMd: VerEx().startOfLine().find('#').oneOrMore().then(' ').beginCapture().anythingBut("").endCapture(),
 
 	scriptHtml: VerEx().find('<script>').beginCapture().anythingBut('').endCapture().then('</script>'),

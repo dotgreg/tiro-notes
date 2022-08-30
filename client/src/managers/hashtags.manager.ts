@@ -60,7 +60,8 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 							// console.log(2224, matchTags, line);
 							each(matchTags, tag => {
 
-								tag = tag.split("'").join("")
+								// tag = tag.split("'").join("")
+								tag = tag.substring(1)
 
 								if (!dic[tag]) {
 									dic[tag] = {
