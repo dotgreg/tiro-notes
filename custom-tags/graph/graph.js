@@ -72,7 +72,7 @@ const graphApp = (innerTagStr, opts) => {
 								res.nodes[i].label = res.nodes[i].name
 								const nbParts = res.nodes[i].noteParts.length
 								// increase group repulsion to other non connected groups
-								const mass = 1
+								const mass = 3 
 								res.nodes[i].mass = mass
 								// size node according to nb of apparition
 								let size = 5 + (nbParts * 5)
@@ -231,11 +231,12 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
     margin-bottom: 10px;
     margin-top: 0px;
 }
-#popup-part-preview ul,
-#popup-part-preview li,
 #popup-part-preview p {
 		margin: 0px;
-		padding: 0px;
+}
+#popup-part-preview ul,
+#popup-part-preview li {
+		margin: 0px;
 }
 #popup-part-preview span {
    font-weight: bold;
