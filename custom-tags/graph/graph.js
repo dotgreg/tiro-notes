@@ -278,6 +278,7 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 <style>
 
 #network-wrapper:hover #filter-graph-wrapper{
+		opacity: 1;
 }
 #filter-graph-wrapper {
 		opacity: 0;
