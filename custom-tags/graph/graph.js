@@ -14,7 +14,6 @@ const graphApp = (innerTagStr, opts) => {
 
 
 		// TODO : to get only clicked connections highlighted https://codepen.io/pen?editors=1010
-
 		///////////////////////////////////////////////////
 		// 0. COLOR
 		//
@@ -58,13 +57,34 @@ const graphApp = (innerTagStr, opts) => {
 		//
 		const clamp = (val, min, max) => Math.min(Math.max(val, min), max)
 		const loadDatas = (cb) => {
+				const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0 
+				if (hasUserReloaded) {
+						// no cache
+						fetchAndProcessData(cb)
+				} else {
+						// try cache, el
+						getCache(
+								res => {cb(res)},
+								() => {fetchAndProcessData(cb)}
+						)
+				}
+		}
+
+		// CACHING MECHANISM
+		const cacheId = `ctag-graph-${folderPath}`
+		const getCache = (onSuccess, onFailure) => {
+				api.call("cache.get", [cacheId], content => {
+						if(content !== undefined) onSuccess(content)
+						else onFailure()
+				})
+		}
+		const setCache = (content) => {
+				api.call("cache.set", [cacheId, content])
+		}
+
+		const fetchAndProcessData = (cb) => {
 				api.call("search.hashtags", [folderPath], hashtags => {
 						const res = {}
-						// inital node to connect them all
-						// const initNode = {
-						// 	label: folder,
-						// 	id: 0,
-						// }
 
 						// preparing nodes
 						res.nodes = hashtags.nodesArr
@@ -79,8 +99,6 @@ const graphApp = (innerTagStr, opts) => {
 								size = clamp(size, 5, 30)
 								res.nodes[i].size = size
 						}
-						// res.nodes.push(initNode)
-
 
 						// preparing edges
 						res.edges = []
@@ -88,14 +106,12 @@ const graphApp = (innerTagStr, opts) => {
 						for (let y = 0; y < edges.length; y++) {
 								const edge = edges[y].split("-")
 								res.edges.push({ from: edge[0], to: edge[1] })
-
-								// all connects to 0?
-								// res.edges.push({ from: 0, to: edge[0] })
 						}
+						setCache(res)
 						cb(res)
 				});
-		}
 
+		}
 
 
 
@@ -317,7 +333,7 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 		<input
 				type="text"
 				id="filter-graph"
-				placeholder="Type to jump"
+				placeholder="Type to filter"
 		/>
    <div id="filter-best-guess"></div>
 </div>
@@ -327,7 +343,12 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 				const filterWrapper = document.getElementById('filter-graph-wrapper');
 				const filterInput = document.getElementById('filter-graph');
 				const bestGuessEl = document.getElementById('filter-best-guess');
+
+				let lastval = ''
+				let lastid = 0
 				filterInput && filterInput.addEventListener("keydown",  e => {
+						const isEnter = e.key === "Enter"
+
 						setTimeout(() => {
 								const val = normalizeStr(filterInput.value)
 								// fill probable guesses
@@ -339,12 +360,28 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 												if (cname.includes(val)) resArr.push(cnode)
 										}
 								}
-								// display it
-								const guessed = resArr[0]
-								let resGuess = ' '
+
+								// if enter press, loop results if possible
+								if (isEnter) {
+										if (lastval === val) {
+												if (resArr.length > lastid) lastid += 1
+												else lastid = 0
+										} else {
+												lastid = 0
+										}
+								} else {
+										lastid = 0
+								}
+
+								// display the guess
+								const guessed = resArr[lastid]
+
+								lastval = val
+
+								let resGuess = '[enter] to loop'
 
 								if (guessed) {
-										if (resArr.length > 0) {resGuess = `found : "${guessed.name}"`}
+										if (resArr.length > 0) {resGuess = `${lastid +1}/${resArr.length} : "${guessed.name}"`}
 										// focus and select it
 										const scale = network.getScale() < 0.1 ? 0.5 : network.getScale() 
 										network.focus(`${guessed.id}`, {scale: 0.5})
@@ -354,7 +391,7 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 										network.moveTo({position: {x: 0, y:0}, scale: 0.1})
 								}
 
-								console.log(333, resArr, val, resGuess);
+								// console.log(333, resArr, val, resGuess);
 								bestGuessEl.innerHTML = resGuess
 						}, 10)
 

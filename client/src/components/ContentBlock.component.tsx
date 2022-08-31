@@ -173,6 +173,7 @@ export const ContentBlockTagView = (p: {
 			if (m.action === 'apiCall') {
 				const data = m.data as iIframeData['apiCall']
 
+				// console.log(333566, data, m);
 				callApiFromString(data, (status, data) => {
 					// if no, directly return the error 
 					if (status === 'nok') return setIframeError(data.error)
@@ -204,6 +205,7 @@ export const ContentBlockTagView = (p: {
 				innerTag: p.block.content,
 				windowId: p.windowId,
 				frameId: nid,
+				reloadCounter: reload,
 				tagContent: noteTagContent,
 				tagName: p.block.tagName || '',
 				loginToken: getLoginToken(),
@@ -238,12 +240,12 @@ export const ContentBlockTagView = (p: {
 				`
 		fullHtml = replaceAll(fullHtml, [['{{innerTag}}', p.block.content.trim()]])
 
-		// console.log(121212, { iframeHtml, fullHtml });
 		setHtmlContent(fullHtml)
 	}
 
 	const [reload, setReload] = useState(0)
 	const [reloadIframe, setReloadIframe] = useState(false)
+
 	const incrementReload = () => {
 		setReload(reload + 1);
 		setReloadIframe(true)

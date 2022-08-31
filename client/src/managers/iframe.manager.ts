@@ -16,6 +16,7 @@ export interface iIframeData {
 		tagName: string
 		tagContent: string
 		frameId: string
+		reloadCounter: number,
 		windowId: string
 		loginToken: string
 		backendUrl: string
@@ -171,6 +172,7 @@ export const iframeMainCode = (p: {
 	const d: iIframeData['init'] = {
 		file: null,
 		frameId: '',
+		reloadCounter: 0,
 		windowId: '',
 		innerTag: '',
 		tagName: '',
@@ -249,6 +251,7 @@ export const iframeMainCode = (p: {
 		d.tagContent = m.tagContent
 		d.tagName = m.tagName
 		d.file = m.file
+		d.reloadCounter = m.reloadCounter
 		d.windowId = m.windowId
 
 		// get content and replace script tags
@@ -344,7 +347,7 @@ export const iframeMainCode = (p: {
 		el.appendChild(tag)
 	}
 
-	const getCachedRessourceFolder = () => `/.tiro/.tags-ressources/`
+	const getCachedRessourceFolder = () => `/.tiro/cache/ctag-ressources/`
 	const getCachedRessourceUrl = (url: string): string => {
 		const tokenParamStr = `?token=${p.loginToken}`
 		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${p.getRessourceIdFromUrl(url)}${tokenParamStr}`
@@ -365,7 +368,7 @@ export const iframeMainCode = (p: {
 				try {
 					if (cb) cb()
 				} catch (e) {
-					console.log(h, `ERROR LoadScript Callback : ${e}`);
+					console.error(h, `ERROR LoadScript Callback : ${e}`);
 				}
 			}
 		}
@@ -422,7 +425,7 @@ export const iframeMainCode = (p: {
 					try {
 						if (cb) cb()
 					} catch (e) {
-						console.log(h, `ERROR LoadScript Callback : ${e}`);
+						console.error(h, `ERROR LoadScript Callback : ${e}`);
 					}
 				}
 			}

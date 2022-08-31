@@ -4,24 +4,67 @@ const tocApp = (innerTagStr, opts) => {
 
 		// update content every x seconds
 		if (!opts) opts = {}
-		let refresh_interval = 5*1000
-		if (opts.refresh_interval) refresh_interval = opts.refresh_interval * 1000
+		let refresh_interval = 60 // 1min by default
+		// let refresh_interval = 5 // 1min by default
+		if (opts.refresh_interval) refresh_interval = opts.refresh_interval 
+		refresh_interval = refresh_interval * 1000
+		// adds up to 1s random to force not all processes to update togethr
+		const randomTime = Math.round(Math.random() * 10) * 100 
+		refresh_interval = refresh_interval + randomTime
 
-		const h = `[TOC CTAG] 1.0.3 25/08/22`
+		const h = `[TOC CTAG] 1.0.4 31/08/22`
 		console.log(h, "init TOC CTAG with refresh_interval of ", refresh_interval);
-		setTimeout(() => {updateTocFromContent()})
-		setInterval(() => {updateTocFromContent()}, refresh_interval )
 
-		let prevContent = '';
 
-		const updateTocFromContent = () => {
+		/////////////////////////////////////////
+		// 1. DATA MANAGEMENT
+		//
+		const getHtml = (disableCache, cb) => {
+				const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0 
+				if (disableCache || hasUserReloaded) {
+						// no cache
+						fetchAndProcessData(cb)
+				} else {
+						// try cache, el
+						console.log(h, "fetching from cache!");
+						getCache(
+								res => {cb(res)},
+								() => {fetchAndProcessData(cb)}
+						)
+				}
+		}
+
+		/////////////////////////////////////////////////////
+		// 1.1 CACHING MECHANISM
+		const cacheId = `ctag-toc-${filepath}`
+		const getCache = (onSuccess, onFailure) => {
+				api.call("cache.get", [cacheId], content => {
+						if(content !== undefined) onSuccess(content)
+						else onFailure()
+				})
+		}
+		const setCache = (content) => {
+				api.call("cache.set", [cacheId, content])
+		}
+
+		/////////////////////////////////////////////////////
+		// 1.2 FETCHING LOGIC
+		// MAIN COLOR
+		let mainColorHex = "";
+		api.call("userSettings.get", ['ui_layout_colors_main'], color => {
+				mainColorHex = color
+		});
+
+
+		let prevContent = ''
+		const fetchAndProcessData = (cb) => {
 				api.call("file.getContent", [filepath], noteContent => {
 
 						// dont do anything if content didnt change
 						if (noteContent === prevContent) return
 						prevContent = noteContent
 
-						console.log(h, "updateTocFromContent");
+						console.log(h, "fetchandprocessdata");
 						if (!noteContent) return console.warn (h, "no notecontent found for ", filepath)
 
 						/////////////////////////////// V3
@@ -66,6 +109,8 @@ const tocApp = (innerTagStr, opts) => {
 								}
 								
 						}
+
+						const colorStyle = mainColorHex === "" ? `color:inherit;`:`color:${mainColorHex};`
 						resHtml += `</ol></div>`
 						resHtml += `<style>
 ol { counter-reset: item }
@@ -83,7 +128,7 @@ ol {
 ol li a {
 		cursor: pointer;
 		text-decoration: underline;
-		color: inherit;
+		${colorStyle}
 }
 
 .toc-wrapper p {
@@ -91,15 +136,30 @@ ol li a {
 		display: inline-block;
 }
 </style>`
-						updateContent(resHtml);
-						setTimeout(() => {
-								api.utils.resizeIframe();
-						}, 100)
+						setCache(resHtml);
+						cb(resHtml);
 				});
 		}
 
-		
+		/////////////////////////////////////////
+		// 2. MAIN PROCESS LOGIC & TIME
+		//
+		setTimeout(() => {updateToc()}, randomTime)
+		setInterval(() => {updateToc(true)}, refresh_interval )
 
+		const updateToc = (disableCache=false) => {
+				getHtml(disableCache, (html) => {
+						updateContent(html);
+						setTimeout(() => {
+								api.utils.resizeIframe();
+						}, 100)
+				})
+		}
+
+
+		/////////////////////////////////////////
+		// 3. FRONT LOGIC
+		//
 		window.jumpTo = (lineNb) => {
 				const wid = api.utils.getInfos().windowId
 				// const infos = api.utils.getInfos()
@@ -107,6 +167,10 @@ ol li a {
 				api.call('ui.note.lineJump.jump',[{windowId: wid, line: lineNb}])
 		}
 		return div 
+
+
+
+
 }
 
 
