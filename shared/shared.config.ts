@@ -11,6 +11,7 @@ export const sharedConfig = {
 		defaultDataFolder: 'markdown-notes',
 		configFolder: '.tiro',
 		backendStateFolder: '.states',
+		cacheFolder: 'cache',
 		historyFolder: '.history',
 		archiveFolder: '.history_archive',
 		uploadFolder: '.resources',

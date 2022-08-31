@@ -17,6 +17,7 @@ import { iUploadApi, useUploadApi } from './upload.api.hook';
 import { getFunctionParamNames } from '../../managers/functions.manager';
 import { iNoteApi, useNoteApi } from './note.api.hook';
 import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
+import { iCacheApi, useCacheApi } from './cache.api.hook';
 
 
 
@@ -40,6 +41,7 @@ export interface iClientApi {
 	/**
 	 * comment3
 	 */
+	cache: iCacheApi
 	popup: iPopupApi
 	files: iFilesApi
 	folders: iFoldersApi
@@ -145,6 +147,7 @@ export const useClientApi = (p: {
 	const uploadApi = useUploadApi({ eventBus });
 	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
+	const cacheApi = useCacheApi({});
 
 
 	const browserApi = useBrowserApi({
@@ -163,6 +166,7 @@ export const useClientApi = (p: {
 	// FINAL EXPORT
 	// 
 	const clientApi: iClientApi = {
+		cache: cacheApi,
 		file: fileApi,
 		files: filesApi,
 		popup: p.popupApi,
@@ -209,7 +213,7 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 			else callingObj = null
 		})
 
-		if (!callingObj) return cb('nok', { error: `"${p.apiName}" does not exists in current api \n\nAvailable Api properties :\n\n${printObjProps('', api)}` })
+		if (callingObj === null) return cb('nok', { error: `"${p.apiName}" does not exists in current api \n\nAvailable Api properties :\n\n${printObjProps('', api)}` })
 
 
 		// try to call that prop with the param

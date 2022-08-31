@@ -269,6 +269,7 @@ export const App = () => {
 		mobileView,
 		MobileToolbarComponent
 	} = useMobileView()
+
 	// create a refresh on mobile view toggle
 	// useEffect(() => {
 	// 	api.status.refresh.increment()
@@ -290,6 +291,20 @@ export const App = () => {
 		// getHashtags("/test_obsi").then(dic => {
 		// 	console.log(2221, dic);
 		// })
+
+		// api.cache.get('test-woop', content => { console.log(3338, content); })
+
+		setTimeout(() => {
+			// api.cache.set('test-woop', {
+			// 	massive: [321321, 32132132, 3321, 321, 312, 3, 21, 31, 312, 321],
+			// 	hell: "fdsafdasfdsa"
+			// })
+		}, 4000)
+
+		setInterval(() => {
+			// api.cache.get('test-woop', content => { console.log(3338, content); })
+		}, 2000)
+
 	}, [])
 
 	// useEffect(() => {
