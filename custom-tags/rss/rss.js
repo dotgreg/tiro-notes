@@ -4,7 +4,7 @@ const rssApp = (innerTagStr, opts) => {
 		if (!opts.size) opts.size = "95%"
 		if (!opts.rssToJsonUrl) opts.rssToJsonUrl = "https://api.rss2json.com/v1/api.json?rss_url="
 
-		const h = `[CTAG RSS] 0431 v1.1`
+		const h = `[CTAG RSS] v1.0.2 31/08/22`
 		//@ts-ignore
 		const api = window.api;
 		const { div, updateContent } = api.utils.createDiv();
@@ -13,7 +13,6 @@ const rssApp = (innerTagStr, opts) => {
 		console.log(h, "========= INIT with opts:", opts)
 
 		const execRssReader = (feedsStr) => {
-
 				const getFeeds = (str) => {
 						const feedsArr = str.split('\n')
 						const feedsRes = []
@@ -26,6 +25,32 @@ const rssApp = (innerTagStr, opts) => {
 						return feedsRes
 				}
 
+				const cacheId = `ctag-rss-${api.utils.getInfos().file.path}`
+				
+
+				//
+				// CACHING MECHANISM
+				//
+				const getCachedJsons = (cb) => {
+						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0 
+						// first get cached, if exists
+						getCache(cb)
+						// then load final update
+						getJsons(cb)
+				}
+				const getCache = (onSuccess, onFailure) => {
+						api.call("cache.get", [cacheId], content => {
+								if(content !== undefined) onSuccess(content)
+								else onFailure()
+						})
+				}
+				const setCache = (content) => {
+						api.call("cache.set", [cacheId, content])
+				}
+
+				//
+				// FETCHING DATA
+				//
 				const getJsons = (cb) => {
 						const feedsArr = getFeeds(feedsStr)
 						const urlApi = opts.rssToJsonUrl
@@ -58,6 +83,7 @@ const rssApp = (innerTagStr, opts) => {
 														// sort items by time
 														console.log(h, "2: outputting elements taken from api")
 														resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
+														setCache(resItems)
 														cb(resItems)
 												}
 
@@ -133,7 +159,9 @@ const rssApp = (innerTagStr, opts) => {
 						const [feeds, setFeeds] = React.useState([])
 						const [activeFeed, setActiveFeed] = React.useState("all")
 						React.useEffect(() => {
-								getJsons(nitems => {
+								getCachedJsons(nitems => {
+										console.log(h, "3 updating list (should happen twice, 1st cached, second from internet");
+
 										const i = [...nitems]
 										setItems(i)
 										titems.current = i
@@ -197,6 +225,7 @@ const rssApp = (innerTagStr, opts) => {
 								])
 						);
 				}
+				// console.log(ReactDOM, React);
 
 				ReactDOM.render(
 						c(App),
