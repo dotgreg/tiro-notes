@@ -73,7 +73,9 @@ const graphApp = (innerTagStr, opts) => {
 		// CACHING MECHANISM
 		const cacheId = `ctag-graph-${folderPath}`
 		const getCache = (onSuccess, onFailure) => {
+				console.log(111, "getcache", cacheId);
 				api.call("cache.get", [cacheId], content => {
+						console.log(1122, "getcache", cacheId, content);
 						if(content !== undefined) onSuccess(content)
 						else onFailure()
 				})
@@ -421,6 +423,7 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 		)
 
 
+		// mobile, input
 		const initExperienceFromDeviceType = () => {
 				const mobileAndTabletCheck = function() {
 						let check = false;

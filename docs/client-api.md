@@ -36,7 +36,7 @@
 
 #### <span class="render-code-wrapper">utils.getInfos</span>
  - Type: <span class="render-code-wrapper">Function</span> 
-    - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;backendUrl: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;frameId: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;innerTag: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;loginToken: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span> 
+    - Result: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;backendUrl: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;frameId: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;innerTag: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;loginToken: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;reloadCounter: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;tagContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;windowId: <span class="render-code-wrapper">string</span><br/>}</span> 
 
  - Example: 
  <div class="render-code-wrapper">api.utils.getInfos( )</div>
@@ -107,6 +107,29 @@
  - Example: 
  <div class="render-code-wrapper">api.utils.resizeIframe(<span class="render-code-wrapper">number</span> )</div>
 
+ 
+
+
+ ## Api.call : cache
+ 
+
+#### <span class="render-code-wrapper">cache.get</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. cacheId: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(cacheContent: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(cacheContent: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">cache.set</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. cacheId: <span class="render-code-wrapper">string</span>
+       1. contentToCache: <span class="render-code-wrapper">any</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span> ]<br/>)</div>
  
 
 
