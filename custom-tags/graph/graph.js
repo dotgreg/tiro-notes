@@ -345,9 +345,10 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 
 								if (guessed) {
 										if (resArr.length > 0) {resGuess = `found : "${guessed.name}"`}
-										// focus on it
+										// focus and select it
 										const scale = network.getScale() < 0.1 ? 0.5 : network.getScale() 
 										network.focus(`${guessed.id}`, {scale: 0.5})
+										network.selectNodes([guessed.id])
 								} else {
 										// dezoom
 										network.moveTo({position: {x: 0, y:0}, scale: 0.1})
