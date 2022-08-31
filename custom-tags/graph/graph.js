@@ -149,8 +149,9 @@ const graphApp = (innerTagStr, opts) => {
 
 				};
 				var network = new vis.Network(container, data, options);
-				const createPopupWithData = createPopup(data)
-				network.on("click", createPopupWithData)
+				const createPopupWithData = createPopup(data);
+				network.on("click", createPopupWithData);
+				cb(network);
 		}
 
 
@@ -253,6 +254,7 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
     padding: 10px 30px;
     margin-top: 20px;
 }
+
 </style>
 </div>
 						`
@@ -268,6 +270,96 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 
 
 
+
+		///////////////////////////////////////////////////
+		// 3.1 NETWORK INPUT FILTERING AND JUMP
+		//
+		const inputFilterHtml = `
+<style>
+
+#network-wrapper:hover #filter-graph-wrapper{
+}
+#filter-graph-wrapper {
+		opacity: 0;
+    transition: all 0.2s;
+}
+
+
+#filter-graph-wrapper {
+		position: absolute;
+		right: 0px;
+		top: 0px;
+		z-index: 10;
+}
+#filter-graph::placeholder {
+		color:#a1a1a1;
+}
+#filter-graph {
+		color:#a1a1a1;
+		background: none;
+		border: none;
+		border-bottom: 1px solid #dddddd;
+		padding-bottom: 6px;
+		font-weight: 400;
+		font-size: 12px;
+		outline: none;
+}
+#filter-best-guess {
+    font-size: 10px;
+		color:#a1a1a1;
+}
+</style>
+<div id="filter-graph-wrapper">
+		<input
+				type="text"
+				id="filter-graph"
+				placeholder="Type to jump"
+		/>
+   <div id="filter-best-guess"></div>
+</div>
+`
+		const normalizeStr = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+		const initFilterInput = (data, network) => {
+				const filterInput = document.getElementById('filter-graph');
+				const bestGuessEl = document.getElementById('filter-best-guess');
+				filterInput && filterInput.addEventListener("keydown",  e => {
+						setTimeout(() => {
+								const val = normalizeStr(filterInput.value)
+								// fill probable guesses
+								const resArr = []
+								if (val.length > 2) {
+										for (let i = 0; i < data.nodes.length; i++) {
+												const cnode = data.nodes[i]
+												const cname = normalizeStr(cnode.name)
+												if (cname.includes(val)) resArr.push(cnode)
+										}
+								}
+								// display it
+								const guessed = resArr[0]
+								let resGuess = ' '
+
+								if (guessed) {
+										if (resArr.length > 0) {resGuess = `found : "${guessed.name}"`}
+										// focus on it
+										const scale = network.getScale() < 0.1 ? 0.5 : network.getScale() 
+										network.focus(`${guessed.id}`, {scale: 0.5})
+								} else {
+										// dezoom
+										network.moveTo({position: {x: 0, y:0}, scale: 0.1})
+								}
+
+								console.log(333, resArr, val, resGuess);
+								bestGuessEl.innerHTML = resGuess
+						}, 10)
+
+
+				});
+		}
+
+
+
+
+
 		///////////////////////////////////////////////////
 		// 4. LIB LOAD + CTAG BOOT
 		//
@@ -277,7 +369,9 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 				], () => {
 						loadDatas(data => {
 								api.utils.resizeIframe(opts.size);
-								initGraph(data)
+								initGraph(data, (network) => {
+										initFilterInput(data, network);
+								})
 						})
 				}
 		)
@@ -292,8 +386,11 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 		`
 		return `
 ${styleHtml}
-<div id="popup"></div>
-<div id="mynetwork"></div>
+<div id="network-wrapper">
+		<div id="popup"></div>
+		${inputFilterHtml}
+		<div id="mynetwork"></div>
+</div>
 `
 }
 
