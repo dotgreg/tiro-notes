@@ -39,7 +39,7 @@ export const useCacheApi = (p: {
 
 	const debug = false
 
-	const getCache: iCacheApi['get'] = async (cacheId, cb) => {
+	const getCache: iCacheApi['get'] = (cacheId, cb) => {
 
 		// console.log(3331, cachedRamDic.current, getCachedStorage(cacheId));
 		// if presennt in RAM
