@@ -73,9 +73,9 @@ const graphApp = (innerTagStr, opts) => {
 		// CACHING MECHANISM
 		const cacheId = `ctag-graph-${folderPath}`
 		const getCache = (onSuccess, onFailure) => {
-				console.log(111, "getcache", cacheId);
+				console.log(1111, "getcache", cacheId);
 				api.call("cache.get", [cacheId], content => {
-						console.log(1122, "getcache", cacheId, content);
+						console.log(11122, "getcache", cacheId, content);
 						if(content !== undefined) onSuccess(content)
 						else onFailure()
 				})
