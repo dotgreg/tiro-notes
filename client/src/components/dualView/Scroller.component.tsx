@@ -72,8 +72,7 @@ export const scrollingBarCss = () => `
 		position: absolute;
 		top: 33px;
 		height: calc(100% - 53px);
-		opacity: 0.3;
-		background: rgb(195,195,195);
+		background: rgb(226,226,226);
 		width: 10px;
 		right: 0px;
 		position: absolute;
@@ -81,7 +80,7 @@ export const scrollingBarCss = () => `
 
 		.scrolling-bar {
 				cursor: ns-resize;
-				background: grey;
+				background: #cdcccc;
 				height: 20px;
 
 		}

@@ -311,6 +311,9 @@ export const contentBlockCss = () => `
 .content-blocks-wrapper {
 		padding: 0px 15px;
 }
+.simple-css-wrapper {
+		/* overflow: hidden; */
+}
 
 .content-blocks-wrapper,
 .simple-css-wrapper,
