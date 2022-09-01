@@ -2,12 +2,13 @@ const graphApp = (innerTagStr, opts) => {
 		const folderPath = innerTagStr.trim()
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
-		if (!opts.size) opts.size = "300px"
+		if (!opts.size) opts.size = "100%"
 		const h = `[GRAPH CTAG] 1.0.0 27/08/22`
 
 		if (!folderPath.startsWith("/")) return console.error (h, "folderpath should start by a '/'")
 		console.log(h, "init CTAG with folder:", folderPath);
 		// const folder = "/test_obsi"
+
 
 
 
@@ -36,7 +37,6 @@ const graphApp = (innerTagStr, opts) => {
 		});
 
 		const getMainColor = (opacity, variation) => {
-				// console.log(222444, mainColorHex, opacity, hexToRgbArr(mainColorHex, opacity));
 				let rgb = hexToRgbArr(mainColorHex)
 				if (!variation) variation = [0, 0, 0]
 				let v = variation
@@ -73,9 +73,7 @@ const graphApp = (innerTagStr, opts) => {
 		// CACHING MECHANISM
 		const cacheId = `ctag-graph-${folderPath}`
 		const getCache = (onSuccess, onFailure) => {
-				console.log(1111, "getcache", cacheId);
 				api.call("cache.get", [cacheId], content => {
-						console.log(11122, "getcache", cacheId, content);
 						if(content !== undefined) onSuccess(content)
 						else onFailure()
 				})
@@ -169,7 +167,16 @@ const graphApp = (innerTagStr, opts) => {
 				var network = new vis.Network(container, data, options);
 				const createPopupWithData = createPopup(data);
 				network.on("click", createPopupWithData);
-				cb(network);
+
+				// trigger on first redraw
+				let hasStarted = false
+				network.on("afterDrawing", () => {
+						if (!hasStarted) {
+								hasStarted = true;
+								cb(network);
+						}
+				});
+				// cb(network);
 		}
 
 
@@ -197,13 +204,16 @@ const graphApp = (innerTagStr, opts) => {
 <br>
 <div class="links-wrapper">
 								`
-				// console.log(2226, window.api, '${infos.windowId}')
 				// const file
 				const popupFunctionStr = (file) => `
 window.api.file.getContent('${file.path}', ncontent => {
-ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).replaceAll('\"', '\'')}, windowId:''})
-	ncontent2 = ncontent2.replaceAll('${node.name}', '<span>${node.name}</span>')
-	document.getElementById('popup-part-preview').innerHTML = '<h3>${file.path}</h3>' + ncontent2
+		ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).replaceAll('\"', '\'')}, windowId:''})
+		ncontent2 = ncontent2.replaceAll('${node.name}', '<span>${node.name}</span>')
+		const previewEl = document.getElementById('popup-part-preview');
+		previewEl.innerHTML = '<div class=\\'file-content\\'><h3>${file.path}</h3>' + ncontent2 +'</div>';
+		setTimeout(() => {
+				document.querySelector('#popup-part-preview span').scrollIntoView();
+		}, 100)
 })
 `
 				const objsToDisplay = {}
@@ -217,7 +227,6 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 						if (parts[i].titleName !== "") objsToDisplay[parts[i].file.name].partsName.push(parts[i].titleName)
 				}
 				
-				// console.log(2225, parts, objsToDisplay);
 
 				toShow += `<ul class="notes-list">`
 				for ( let key in objsToDisplay) {
@@ -265,11 +274,14 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 #popup-part-preview img {
 	max-width: 300px;
 }
+#popup-part-preview .file-content {
+    padding: 10px 30px;
+}
 #popup-part-preview {
     max-height: 50vh;
     overflow-y: scroll;
     background: gainsboro;
-    padding: 10px 30px;
+		padding: 0px;
     margin-top: 20px;
 }
 
@@ -309,8 +321,8 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 
 #filter-graph-wrapper {
 		position: absolute;
-		right: 0px;
-		top: 0px;
+		right: 10px;
+		top: 10px;
 		z-index: 10;
 }
 #filter-graph::placeholder {
@@ -346,12 +358,26 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 				const filterInput = document.getElementById('filter-graph');
 				const bestGuessEl = document.getElementById('filter-best-guess');
 
+
+
+				// caching in LS filter
+				const graphFilterCacheId = `ctag-graph-${normalizeStr(api.utils.getInfos().innerTag)}`
+				const initValueFilter = window.localStorage.getItem(graphFilterCacheId)
+				if (initValueFilter) {
+						filterInput.value = initValueFilter
+						setTimeout(() => {
+								searchForWord()
+						}, 100)
+				}
+
+
 				let lastval = ''
 				let lastid = 0
-				filterInput && filterInput.addEventListener("keydown",  e => {
-						const isEnter = e.key === "Enter"
+				const searchForWord = e => {
+						const isEnter = e && e.key === "Enter" 
 
 						setTimeout(() => {
+								window.localStorage.setItem(graphFilterCacheId, filterInput.value)
 								const val = normalizeStr(filterInput.value)
 								// fill probable guesses
 								const resArr = []
@@ -393,12 +419,10 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 										network.moveTo({position: {x: 0, y:0}, scale: 0.1})
 								}
 
-								// console.log(333, resArr, val, resGuess);
 								bestGuessEl.innerHTML = resGuess
 						}, 10)
-
-
-				});
+				}
+				filterInput && filterInput.addEventListener("keydown", searchForWord );
 		}
 
 
@@ -435,7 +459,7 @@ ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).
 		}
 
 		const styleHtml = `<style>
-				html, body, .with-padding, #mynetwork  {
+				html, body, .with-padding, #mynetwork, .simple-css-wrapper, #content-wrapper, #network-wrapper, #content-wrapper > div  {
 						width: 100%;
 						height: ${opts.size};
 				}

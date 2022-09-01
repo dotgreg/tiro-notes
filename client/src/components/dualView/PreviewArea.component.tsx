@@ -50,9 +50,10 @@ export const PreviewArea = (p: {
 	const calculateYPos = () => {
 		const max = calculateYMax();
 		/* const offsetY = -100 */
-		const offsetY = -0
+		const offsetY = 0
 		const pY = p.posY + offsetY
-		return clamp(pY, 0, max)
+		const res = clamp(pY, 0, max)
+		return res
 	}
 
 	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
@@ -194,7 +195,7 @@ export const previewAreaSimpleCss = () => {
 				margin-top: 0px;
 		}
 		h1 {
-				margin-top: 25px;
+				margin-top: 0px;
 				margin-bottom: 20px;
 		}
 		h2, h3, h4, h5, h6 {
@@ -406,7 +407,7 @@ export const previewAreaSimpleCss = () => {
 
 export const previewAreaCss = () => `
 .view-editor-with-map .preview-area {
-	margin-top: 90px;
+	// margin-top: 90px;
 }
 .view-both .preview-area {
 	margin-top: 20px;

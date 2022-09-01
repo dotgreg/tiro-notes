@@ -85,7 +85,7 @@ const calendarApp = (innerTagStr, opts) => {
 
 		const styleHtml = `<style>
 		#caleandar {
-				padding-top: 20px;
+				padding-top: 0px;
 		}
 
 		#caleandar .cld-main {

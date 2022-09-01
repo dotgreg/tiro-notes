@@ -319,7 +319,7 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 						onLayoutChange={updateLayoutLogic}
 						cols={d.cols}
 						compactType="horizontal"
-						useCSSTransforms={true}
+						useCSSTransforms={false}
 						rowHeight={rh()}
 						draggableHandle=".drag-handle"
 						width={s.width}

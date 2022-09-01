@@ -28,6 +28,7 @@ import { uploadProgressBarCss } from '../../components/UploadProgressBar.compone
 import { PopupWrapperCss } from '../../components/Popup.component';
 import { contentBlockCss } from '../../components/ContentBlock.component';
 import { settingsPopupCss } from '../../components/settingsView/settingsView.component';
+import { codeMirrorEditorCss } from '../../components/dualView/CodeMirrorEditor.component';
 
 
 export const css2 = (css: string) => css
@@ -403,6 +404,7 @@ export const CssApp2 = (
 										
 
 										${editorAreaCss(mobileView)}
+										${codeMirrorEditorCss()}
 
 										${monacoColorsCss()}
 										${monacoEditorCss()}
