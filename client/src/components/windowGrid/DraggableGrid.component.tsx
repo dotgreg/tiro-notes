@@ -404,7 +404,8 @@ export const GridMobileCss = () => `
 										}
 										.main-editor-wrapper {
 												.textarea-editor {
-														height: calc(100% - 266px);
+														// height: calc(100% - 266px);
+														height: calc(100% - 300px);
 														padding: 20px 20px 70px 20px;
 														width: calc(100% - 40px);
 														resize: none;

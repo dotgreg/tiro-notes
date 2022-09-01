@@ -124,7 +124,7 @@ export const updateTextFromLetterInput = (
 
 
 
-export type TextModifAction = '->' | '<-' | '[x]' | '^' | 'v' | 'X' | 'insertAt' | 'insertAtCurrentPos'
+export type TextModifAction = '->' | '<-' | '[x]' | '^' | 'v' | 'X' | 'C' | 'insertAt' | 'insertAtCurrentPos'
 export interface TextModifActionParams {
 	textToInsert: string
 	insertPosition: number | 'currentPos'
@@ -154,8 +154,20 @@ export const triggerTextModifAction = (
 	}
 	if (action === 'X') {
 		let lineLength = lines[infos.lineIndex].length
-		lines.splice(infos.lineIndex, 1)
-		cb(-lineLength - 1)
+		let startOfLinePos = [...lines].splice(0, infos.lineIndex).join('\n').length
+		let decal = startOfLinePos + 1 - infos.currentPosition
+		lines[infos.lineIndex] = ''
+		cb(decal)
+	}
+	if (action === 'C') {
+		let lineLength = lines[infos.lineIndex].length
+		// let startOfLinePos = [...lines].splice(0, infos.lineIndex).join('\n').length
+		// let decal = startOfLinePos + 1 - infos.currentPosition
+		let lineToClone = lines[infos.lineIndex]
+		lines.splice(infos.lineIndex, 0, lineToClone)
+		// lines[infos.lineIndex] = ''
+		// console.log(startOfLinePos, infos, decal);
+		cb(lineLength + 1)
 	}
 
 	if (action === '->') {
