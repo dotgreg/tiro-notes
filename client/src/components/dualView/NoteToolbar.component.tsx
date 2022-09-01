@@ -1,8 +1,5 @@
-import React, { ReactElement } from 'react';
-import styled from '@emotion/styled'
+import React  from 'react';
 import { TextModifAction } from '../../managers/textEditor.manager';
-import { Icon, IconSizeProp } from '../Icon.component';
-import { textToId } from '../../managers/string.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 
@@ -12,23 +9,24 @@ import { ButtonsToolbar } from '../ButtonsToolbar.component';
 // MOBILE TOOLBAR
 //
 
-export const NoteMobileToolbar = (p:{
-  onButtonClicked: (action:TextModifAction)=>void
+export const NoteMobileToolbar = (p: {
+	onButtonClicked: (action: TextModifAction) => void
 }) => {
-  return <div>
-    <ButtonsToolbar
-      class='mobile-text-manip-toolbar'
-      colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
-      buttons={[
-        { icon: 'faAngleLeft', action: () => p.onButtonClicked('<-') },
-        { icon: 'faAngleRight', action: () => p.onButtonClicked('->') },
-        { icon: 'faCheckSquare', action: () => p.onButtonClicked('[x]') },
-        { icon: 'faAngleUp', action: () => p.onButtonClicked('^') },
-        { icon: 'faAngleDown', action: () => p.onButtonClicked('v') },
-        { icon: 'faEraser', action: () => p.onButtonClicked('X') },
-      ]}
-    />
-  </div>
+	return <div>
+		<ButtonsToolbar
+			class='mobile-text-manip-toolbar'
+			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
+			buttons={[
+				{ icon: 'faAngleLeft', action: () => p.onButtonClicked('<-') },
+				{ icon: 'faAngleRight', action: () => p.onButtonClicked('->') },
+				{ icon: 'faCheckSquare', action: () => p.onButtonClicked('[x]') },
+				{ icon: 'faAngleUp', action: () => p.onButtonClicked('^') },
+				{ icon: 'faAngleDown', action: () => p.onButtonClicked('v') },
+				{ icon: 'faEraser', action: () => p.onButtonClicked('X') },
+				{ icon: 'faClone', action: () => p.onButtonClicked('C') },
+			]}
+		/>
+	</div>
 }
 
 

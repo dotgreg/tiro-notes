@@ -111,6 +111,8 @@ export const CodeMirrorEditor = (p: {
 // />
 
 export const codeMirrorEditorCss = () => `
+`
+export const codeMirrorEditorCss2 = () => `
 	.main-editor-wrapper {
 		margin: 32px 0px 0px 0px!important;
     padding: 0px!important;
