@@ -4,7 +4,7 @@ const tocApp = (innerTagStr, opts) => {
 
 		// update content every x seconds
 		if (!opts) opts = {}
-		let refresh_interval = 60 // 1min by default
+		let refresh_interval = 10 // 10s by default
 		// let refresh_interval = 5 // 1min by default
 		if (opts.refresh_interval) refresh_interval = opts.refresh_interval 
 		refresh_interval = refresh_interval * 1000
