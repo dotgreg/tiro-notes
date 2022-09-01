@@ -92,7 +92,7 @@ export const FileHistoryPopup = (p: {
 
 export const StyledDiv = styled.div`
  .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
-	width: 90%;
+	// width: 90%;
 }
 .popup-wrapper .popupContent {
 		max-height: 70vh;

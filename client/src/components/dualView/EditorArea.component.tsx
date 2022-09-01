@@ -23,6 +23,7 @@ import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
+import { CodeMirrorEditor } from './CodeMirrorEditor.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -77,8 +78,6 @@ export const EditorArea = (p: {
 		onNoteEdition: (newContent, isFirstEdition) => {
 			setInnerFileContent(newContent)
 			p.onFileEdited(p.file.path, newContent)
-
-			//api?.tabs.openInNewTab(p.file)
 
 			// IF FIRST EDITION, backup old file
 			if (isFirstEdition && api) {
@@ -389,6 +388,9 @@ export const EditorArea = (p: {
 
 				{
 					deviceType() === 'desktop' &&
+					// <CodeMirrorEditor
+					// 	value={innerFileContent}
+					// />
 					<MonacoEditorWrapper
 						value={innerFileContent}
 						jumpToLine={p.jumpToLine}

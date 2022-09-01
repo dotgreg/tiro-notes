@@ -4,7 +4,7 @@ import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } 
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
-import { clamp, each } from 'lodash';
+import { clamp, each, isNumber } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
@@ -136,12 +136,16 @@ export const DualViewer = (p: {
 		// update the preview scroll accordingly
 		if (cTitle.id !== "") {
 			const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
-			// console.log(123123, ePath);
 			try {
+				let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
+
 				// @ts-ignore
-				const etop = document.querySelector(ePath)?.offsetTop
+				let etop = document.querySelector(ePath)?.offsetTop
+
 				// if (etop) setPreviewY(etop)
-				if (etop) {
+				if (isNumber(etop)) {
+					const withMapOffset = isViewWithMap ? -80 : 0
+					etop = etop - 10 + withMapOffset
 					if (etop !== titleY.current) {
 						offsetSyncFromTitle.current = getSyncY()
 					}
