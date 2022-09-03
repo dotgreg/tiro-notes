@@ -6,6 +6,7 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
+import { useBackendState } from '../useBackendState.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
 import { iClientApi } from './api.hook';
@@ -152,7 +153,8 @@ export const useBrowserApi = (p: {
 
 	// STORAGES
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
-	const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
+	const [foldersFlat, setFoldersFlat] = useBackendState<iFolder[]>('foldersFlat', [])
+	// const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
 	//const [foldersFlat, setFoldersFlat] = useState<iFolder[]>([])
 	const [folderBasePath, setFolderBasePath] = useState('')
 
@@ -161,20 +163,23 @@ export const useBrowserApi = (p: {
 
 
 	// OPEN TREE FOLDER MANAGEMENT
-	const [openFolders, setOpenFolders] = useLocalStorage<string[]>('openFolders', ['/'])
+	const [openFolders, setOpenFolders] = useBackendState<string[]>('folders-open', ['/'])
 	const addToOpenedFolders = (folderPath: string) => {
 		setOpenFolders([...openFolders, folderPath])
 	}
 	const removeToOpenedFolders = (folderPath: string) => {
-		const newopenFolders = openFolders
-		const index = newopenFolders.indexOf(folderPath);
+		// console.log(4444, folderPath, openFolders.length);
+		const nOpenFolders = cloneDeep(openFolders)
+		const index = nOpenFolders.indexOf(folderPath);
 		if (index > -1) {
-			newopenFolders.splice(index, 1);
+			nOpenFolders.splice(index, 1);
 		}
-		setOpenFolders(newopenFolders)
+		setOpenFolders(nOpenFolders)
 	}
 
-
+	useEffect(() => {
+		scanFolders(openFolders)
+	}, [openFolders])
 
 	const cleanFolderHierarchy = () => {
 		setFolderHierarchy(defaultFolderVal)

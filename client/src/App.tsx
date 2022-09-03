@@ -14,13 +14,12 @@ import { NewFileButton } from './components/NewFileButton.component';
 import { LastNotes } from './components/LastNotes.component';
 import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
-import { getLoginToken, useLoginToken } from './hooks/app/loginToken.hook';
+import { useLoginToken } from './hooks/app/loginToken.hook';
 import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
 import { Icon } from './components/Icon.component';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
-import { useAppViewType } from './hooks/app/appView.hook';
 import { Lightbox } from './components/Lightbox.component';
-import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
+import { startListeningToKeys } from './managers/keys.manager';
 import { usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
@@ -33,10 +32,9 @@ import { FilesList } from './components/fileList.component';
 import { useNoteHistoryApi } from './hooks/api/history.api.hook';
 import { SearchBar2 } from './components/SearchBar.component';
 import { useStatusApi } from './hooks/api/status.api.hook';
-import { TreeView } from './components/TreeView.Component';
+import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
-import { getHashtags } from './managers/hashtags.manager';
 
 
 
@@ -49,7 +47,6 @@ export const App = () => {
 		initSocketConnexion().then(serverSocketConfig => {
 			toggleSocketConnection(true)
 			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
-			askForFolderScan(openFolders)
 		})
 
 
@@ -248,6 +245,7 @@ export const App = () => {
 	const folderBasePath = foldersUiApi.base
 	const openFolders = foldersUiApi.open.get
 
+
 	// last Note + files history array
 	const { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend } = useLastFilesHistory(filesUiApi.active.get)
 
@@ -393,7 +391,8 @@ export const App = () => {
 										/>
 
 
-										<TreeView
+										<FoldersTreeView
+											openFolders={foldersUiApi.open.get}
 											folder={foldersUiApi.get}
 											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
@@ -427,6 +426,8 @@ export const App = () => {
 												askForFolderScan([folderPath])
 											}}
 											onFolderClose={folderPath => {
+
+
 											}}
 											onFolderDragStart={draggedFolder => {
 												console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
