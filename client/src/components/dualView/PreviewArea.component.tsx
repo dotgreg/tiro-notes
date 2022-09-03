@@ -79,37 +79,37 @@ export const PreviewArea = (p: {
 				ref={previewAreaRefs.wrapper}
 				style={{ bottom: calculateYPos() }}
 			>
-			<div className="preview-area-transitions">
+				<div className="preview-area-transitions">
 
-				<div className="infos-preview-wrapper">
-					<div className="file-path-wrapper">
-						{p.file.path.replace(`/${p.file.name}`, '')}
+					<div className="infos-preview-wrapper">
+						<div className="file-path-wrapper">
+							{p.file.path.replace(`/${p.file.name}`, '')}
+						</div>
+
+						<h1 className="title big-title">
+							{p.file.name.replace('.md', '')}
+						</h1>
+
 					</div>
 
-					<h1 className="title big-title">
-						{p.file.name.replace('.md', '')}
-					</h1>
+					<div className="content-blocks-wrapper">
+						<div className="simple-css-wrapper">
+							{
+								contentBlocks.map((block, i) =>
+									<ContentBlock
+										key={i}
+										block={block}
+										windowId={p.windowId}
+										file={p.file}
+										windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
+										yCnt={p.yCnt}
+										onIframeMouseWheel={p.onIframeMouseWheel}
+									/>
+								)
+							}
+						</div>
 
-				</div>
-
-				<div className="content-blocks-wrapper">
-					<div className="simple-css-wrapper">
-						{
-							contentBlocks.map((block, i) =>
-								<ContentBlock
-									key={i}
-									block={block}
-									windowId={p.windowId}
-									file={p.file}
-									windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
-									yCnt={p.yCnt}
-									onIframeMouseWheel={p.onIframeMouseWheel}
-								/>
-							)
-						}
 					</div>
-
-				</div>
 				</div>
 
 			</div>
@@ -151,12 +151,13 @@ export const previewAreaSimpleCss = () => {
 
 		// COUNTER TITLES
 
-*********************************************************
+*********************************************************/
 
 		${d.w} {
-				counter-reset: sh1;
 				overflow-wrap: break-word;
+				counter-reset: sh1 ;
 		}
+
 
 		h1:before {
 				content: ""counter(sh1)" ∙ ";
@@ -165,16 +166,20 @@ export const previewAreaSimpleCss = () => {
 		h1 {
 				counter-reset: sh2;
 		}
+
 		h2:before {
 				content: ""counter(sh1)"." counter(sh2)" ∙  ";
 				counter-increment: sh2;
 		}
-		h3 {
+		h2 {
 				counter-reset: sh3;
 		}
+
 		h3:before {
 				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
 				counter-increment: sh3;
+		}
+		h3 {
 		}
 
 
@@ -195,10 +200,18 @@ export const previewAreaSimpleCss = () => {
 		h1, h2, h3, h4, h5, h6 {
 				color: ${cssVars.colors.main};
 				margin-top: 0px;
+				line-height: normal;
+				margin-right: 10px;
 		}
 		h1 {
-				margin-top: 0px;
+				padding: 5px;
+				border-bottom: 2px solid;
+				margin-top: 30px;
 				margin-bottom: 20px;
+		}
+		h2 {
+				padding: 5px;
+				border-bottom: 1px solid;
 		}
 		h2, h3, h4, h5, h6 {
 				margin-bottom: 10px;

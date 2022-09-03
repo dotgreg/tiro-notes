@@ -76,7 +76,6 @@ export const scrollingBarCss = () => `
 		width: 10px;
 		right: 0px;
 		position: absolute;
-		z-index: 101;
 
 		.scrolling-bar {
 				cursor: ns-resize;
