@@ -15,9 +15,30 @@ export const md2html = (raw: string): string => {
 	// allow more jumps to be rendered
 	// res = res.split("#").join("<br/>\n")
 
-	res = res.split("\n").join("&nbsp;\n")
+	console.log(3331, res);
+	// res = res.split("\n\n").join("\n\n<br/>")
+
+	// res = res.split("\n\n").join("\n\n<p>oo</p>")
+	// res = res.split(/\\n\\n/gi).join("\n\n<br>\\");
+	// res = res.split(/\\n/gi).join("oo");
+
 	// res = res.split("&nbsp; #").join("\n#")
-	res = res.split("&nbsp;\n#").join("\n#")
+	// res = res.split("&nbsp;\n#").join("\n#")
+
+
+
+
+	// 
+	// FAILED ATTEMPS: allows double jump to be taken in account
+	// 
+	// working with [[l]] inline
+	// res = res.replaceAll(/\n\n\n/gi, "\n\n\n<br>");
+
+	// res = res.replaceAll(/\n\n/gi, "\n<br/><br/>\n");
+
+
+
+	console.log(333, res);
 
 	res = marked.parse(res);
 	return res;
