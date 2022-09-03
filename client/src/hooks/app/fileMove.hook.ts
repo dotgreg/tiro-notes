@@ -1,9 +1,8 @@
 import { iFile, iFolder } from "../../../../shared/types.shared";
 import { getFolderParentPath } from "../../managers/folder.manager";
-import { clientSocket, clientSocket2 } from "../../managers/sockets/socket.manager";
 import { strings } from "../../managers/strings.manager";
 import { updateUrl } from "../../managers/url.manager";
-import { getLoginToken } from "./loginToken.hook";
+import { getClientApi2 } from "../api/api.hook";
 import { iPopupApi } from "./usePromptPopup.hook";
 
 export const useFileMove = (
@@ -16,18 +15,33 @@ export const useFileMove = (
 
 	const askForMoveFile = (initPath: string, endPath: string) => {
 		console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
-		clientSocket2.emit('moveFile', { initPath, endPath, idReq: '-', token: getLoginToken() })
+		// clientSocket2.emit('moveFile', { initPath, endPath, idReq: '-', token: getLoginToken() })
+
+		// move then reload browser
+		getClientApi2().then(api => {
+			api.file.move(initPath, endPath, () => {
+				api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
+			})
+		})
 	}
 
 	const askForMoveFolder = (initPath: string, endPath: string) => {
 		console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
 		// back will then scan and send back whole hierarchy... maybe doing it here is better
-		clientSocket2.emit('moveFolder', { initPath, endPath, token: getLoginToken() })
+		// clientSocket2.emit('moveFolder', { initPath, endPath, token: getLoginToken() })
+		getClientApi2().then(api => {
+			api.folders.move(initPath, endPath, () => {
+				api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
+			})
+		})
 	}
 
 	const promptAndBatchMoveFiles = (files: iFile[], folderToDropInto: iFolder) => {
 		if (popupApi.confirm) popupApi.confirm(
-			`move ${files?.length} files to "${folderToDropInto.key}"? (example: "${files[0].path}" to "${folderToDropInto.key}/${files[0].name}"`,
+			`
+Move ${files?.length} file(s) to "${folderToDropInto.key}"?<br>
+Ressources links will be automatically updated<br>
+(example: "${files[0].path}" to "${folderToDropInto.key}/${files[0].name}") `,
 			() => {
 				for (let i = 0; i < files.length; i++) {
 					const file = files[i];
@@ -60,7 +74,7 @@ export const useFileMove = (
 		let endPath = `${folderBasePath}/${rels[1]}`
 
 		if (popupApi.confirm) popupApi.confirm(
-			`${strings.moveFolderPrompt} ${initPath} to ${endPath}?`, 
+			`${strings.moveFolderPrompt} ${initPath} to ${endPath}?`,
 			() => {
 				askForMoveFolder(initPath, endPath)
 				emptyFileDetails()

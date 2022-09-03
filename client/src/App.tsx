@@ -292,6 +292,7 @@ export const App = () => {
 		// 	console.log(2221, dic);
 		// })
 
+		api.folders.get(["--test--"], () => { })
 		// api.cache.get('test-woop', content => { console.log(3338, content); })
 
 		setTimeout(() => {
@@ -303,6 +304,7 @@ export const App = () => {
 
 		setInterval(() => {
 			// api.cache.get('test-woop', content => { console.log(3338, content); })
+
 		}, 2000)
 
 	}, [])

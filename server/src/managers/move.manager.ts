@@ -1,5 +1,7 @@
+import { info } from "console"
 import { debounce, random } from "lodash"
 import { iApiDictionary } from "../../../shared/apiDictionary.type"
+import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
@@ -10,6 +12,25 @@ import { log } from "./log.manager"
 import { ServerSocketManager } from "./socket.manager"
 
 export const generateNewFileName = (actualFileName: string): string => `${removeSpecialChars(normalizeString(actualFileName))}-${random(0, 1000)}`
+
+export const generateUniqueAbsFilePath = (absFilePath: string, increment?: number): string => {
+	if (!increment) increment = 0
+	let res = ''
+	let finfos = getFileInfos(absFilePath)
+
+	// first check if that file exists
+	const incrementStr = increment !== 0 ? `-${increment}` : ''
+	const processedFileName = removeSpecialChars(normalizeString(finfos.filenameWithoutExt))
+	let newAbsPathToTest = `${finfos.folder}${processedFileName}${incrementStr}.${finfos.extension}`
+
+	if (fileExists(newAbsPathToTest)) {
+		console.log(665, finfos, incrementStr, newAbsPathToTest);
+		return generateUniqueAbsFilePath(absFilePath, increment + 1)
+	} else {
+		console.log(666, finfos, incrementStr, newAbsPathToTest);
+		return newAbsPathToTest
+	}
+}
 
 
 
@@ -39,8 +60,8 @@ export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPat
 
 	let filecontent = null
 	try {
-	filecontent = await openFile(`${backConfig.dataFolder}/${initPath}`)
-			} catch {}
+		filecontent = await openFile(`${backConfig.dataFolder}/${initPath}`)
+	} catch { }
 	if (!filecontent) return
 
 	let initFolderPathArr = initPath.split('/')
@@ -75,15 +96,20 @@ export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPat
 				let filenameArr = initResourcePathArr.pop().split('.')
 				let extension = filenameArr[filenameArr.length - 1]
 
-				let newFilename = `${generateNewFileName(nameResource)}.${extension}`
+				// let newFilename = `${generateNewFileName(nameResource)}.${extension}`
+				let endFolderPathAbs = cleanPath(`${backConfig.dataFolder}/${endFolderPath}/`)
+				let uncheckedEndResourcePath = `${endFolderPathAbs}${backConfig.relativeUploadFolderName}/${nameResource}.${extension}`
+				let checkedEndResourcePath = generateUniqueAbsFilePath(uncheckedEndResourcePath)
+				let checkedEndResourceRelPath = checkedEndResourcePath.replace(endFolderPathAbs, '')
 
-				let endResourcePath = `${backConfig.dataFolder}/${endFolderPath}/${backConfig.relativeUploadFolderName}/${newFilename}`
-				let moveSumup = `[MOVE] Resource note move:  ${pathsToCheck[y]} (exists) -> ${endResourcePath}`
-				await upsertRecursivelyFolders(endResourcePath)
+
+
+				let moveSumup = `[MOVE] Resource note move:  ${pathsToCheck[y]} (exists) -> ${checkedEndResourcePath}`
+				await upsertRecursivelyFolders(checkedEndResourcePath)
 				if (!simulate) {
-					await moveFile(pathsToCheck[y], endResourcePath)
+					await moveFile(pathsToCheck[y], checkedEndResourcePath)
 					// change contentfile
-					let mdResource = `![${nameResource}](./${backConfig.relativeUploadFolderName}/${newFilename})`
+					let mdResource = `![${nameResource}](${checkedEndResourceRelPath})`
 					newFileContent = newFileContent.replace(matches[i], mdResource)
 				}
 			}

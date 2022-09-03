@@ -14,6 +14,11 @@ export interface iMoveApi {
 		cb?: (files: iFile[]) => void
 	) => void
 
+	folder: (
+		initPath: string,
+		endPath: string,
+		cb?: (files: iFile[]) => void
+	) => void
 }
 
 export const useMoveApi = (p: {
@@ -29,18 +34,28 @@ export const useMoveApi = (p: {
 		cb
 	) => {
 		const idReq = genIdReq('move-file-get-files');
-		// 1. add a listener function, we are already listening to get-files w files.api.hook.ts
 		p.eventBus.subscribe(idReq, cb ? cb : () => { });
-		// 2. move file
 		console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
 		clientSocket2.emit('moveFile', { initPath, endPath, idReq, token: getLoginToken() })
+	}
+
+	const moveFolder: iMoveApi['folder'] = (
+		initPath,
+		endPath,
+		cb
+	) => {
+		const idReq = genIdReq('move-folder-get-files');
+		p.eventBus.subscribe(idReq, cb ? cb : () => { });
+		console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
+		clientSocket2.emit('moveFolder', { initPath, endPath, idReq, token: getLoginToken() })
 	}
 
 	//
 	// EXPORTS
 	//
 	const api: iMoveApi = {
-		file: moveFile
+		file: moveFile,
+		folder: moveFolder
 	}
 
 	return api

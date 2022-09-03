@@ -110,15 +110,16 @@ export const transformImagesInHTML = (file: iFile, bodyRaw: string): string => {
 	const imgs = findImagesFromContent(bodyRaw, file)
 	if (imgs.length === 0) return bodyRaw
 	const imgsArr = encodeURIComponent(JSON.stringify(imgs))
+
 	return replaceRegexInMd(bodyRaw, regexs.image, (input: string) => {
 		const link = input.split('](')[1].slice(0, -1);
-		// const name = input.split('](')[0].replace('![', '');
-		const configCss = `
-        width: $1px;
-        max-width: 100%;
-        // min-height: $1px;
-        transform: rotate($2deg);
-    `
+
+		let widthRaw = input.match(/w_([0-9]+)/)
+		let rotateRaw = input.match(/r_([0-9]+)/)
+		let width = widthRaw ? `width: ${widthRaw[1]}px;` : ''
+		let rotate = rotateRaw ? `transform:rotate(${rotateRaw[1]}deg);` : ''
+		console.log(55555, input, link, width, rotate);
+		const configCss = `max-width: 100%; ${width} ${rotate} `
 		// console.log(407, input, link, name);
 		const subst = `<div class="content-image" data-images=${imgsArr} data-index="${counterIndex}"><img class="content-image-img"  style="${configCss}" src="${absoluteLinkPathRoot(file.folder)}/${link}${getUrlTokenParam()}"  /></div>`;
 		counterIndex++

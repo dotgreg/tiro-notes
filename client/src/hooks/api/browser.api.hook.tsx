@@ -110,7 +110,7 @@ export const useBrowserApi = (p: {
 								activeIndex = i
 							}
 						})
-						console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
+						// console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
 					}
 
 
