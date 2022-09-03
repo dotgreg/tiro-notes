@@ -106,12 +106,15 @@ export class List extends React.Component<{
 
 
 	isMultiSelected = (i: number): boolean => {
+		let res = false
 		if (
 			this.state.selectionEdges[0] <= i &&
 			this.state.selectionEdges[1] >= i
-		) return true
-		return false
+		) res = true
+		// if (res) console.log(666, i, res, this.state.selectionEdges);
+		return res
 	}
+
 
 	itemToScroll: number = 0
 	autoScrollToItem = (nb: number, isAbs = true) => {
@@ -166,7 +169,7 @@ export class List extends React.Component<{
 											className={[
 												'file-element-list',
 												`element-${index}`,
-												`${this.isMultiSelected(index) ? 'multiselected' : ''}`,
+												`${this.isMultiSelected(index) ? 'active' : ''}`,
 												`${index === this.props.activeFileIndex ? 'active' : ''}`,
 												`${filePreview && filePreview.picture ? 'with-image' : ''}`
 											].join(' ')}
@@ -187,18 +190,20 @@ export class List extends React.Component<{
 											}}
 											onClick={(e) => {
 
-												// if (getKeyModif('shift')) {
-												// 	let edges: [number, number] = [this.props.activeFileIndex, index]
-												// 	edges.sort()
-												// 	console.log(`[MULTIARR]`, edges);
-												// 	this.setState({ selectionEdges: edges })
-												// } else {
-												// 	this.props.onFileClicked(index)
-												// 	this.setState({ selectionEdges: [-1, -1] })
-												// }
+												console.log(6666, getKeyModif('shift'));
+												if (getKeyModif('shift')) {
+													let edges: [number, number] = [this.props.activeFileIndex, index]
+													edges.sort()
+													console.log(`666 [MULTIARR]`, edges);
+													this.setState({ selectionEdges: edges })
+												} else {
+													console.log(`6662 cancel multiarr`);
+													this.props.onFileClicked(index)
+													this.setState({ selectionEdges: [-1, -1] })
+												}
 
 												this.props.onFileClicked(index)
-												this.setState({ selectionEdges: [-1, -1] })
+												// this.setState({ selectionEdges: [-1, -1] })
 											}}
 										>
 											<div className="background-item"></div>

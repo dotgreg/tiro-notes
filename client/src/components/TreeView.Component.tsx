@@ -169,10 +169,10 @@ export const FolderView = (p: {
 										if (!api) return
 										if (p.folder.path === '') return setIsMenuOpened(false)
 										setIsMenuOpened(false)
-										api.popup.confirm(
-											`${strings.moveToTrash} "${p.folder.path}"?`, () => {
+										// api.popup.confirm(
+											// `${strings.moveToTrash} "${p.folder.path}"?`, () => {
 												p.onFolderMenuAction('moveToTrash', p.folder)
-											});
+											// });
 									}}>{strings.moveToTrash}</li>
 								}
 
