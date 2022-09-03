@@ -7,6 +7,7 @@ import { strings } from '../managers/strings.manager';
 import { isA, isIpad } from '../managers/device.manager';
 import { ClientApiContext } from '../hooks/api/api.hook';
 import { areSamePaths, cleanPath } from '../../../shared/helpers/filename.helper';
+import { useBackendState } from '../hooks/useBackendState.hook';
 
 export type onFolderClickedFn = (folderPath: string) => void
 export type onFolderDragStartFn = (folder: iFolder) => void
@@ -18,7 +19,8 @@ export type onFolderMenuActionFn = (
 ) => void
 
 
-export const TreeView = (p: {
+export const FoldersTreeView = (p: {
+	openFolders: string[],
 	folder: iFolder,
 	current: string,
 
@@ -38,6 +40,7 @@ export const TreeView = (p: {
 		<div className="folder-tree-view-component">
 			<h3 className='subtitle'>{strings.folders}</h3>
 			<FolderView
+				openFolders={p.openFolders}
 				folder={p.folder}
 				current={p.current}
 				onFolderClicked={p.onFolderClicked}
@@ -67,6 +70,7 @@ export const TreeView = (p: {
 
 
 export const FolderView = (p: {
+	openFolders: string[],
 	folder: iFolder,
 	current: string,
 
@@ -80,9 +84,8 @@ export const FolderView = (p: {
 }) => {
 
 	const api = useContext(ClientApiContext);
+	const isOpen = p.openFolders.includes(p.folder.path)
 
-
-	const [isOpen, setIsOpen] = useLocalStorage(`treeview-${(p.folder.key === '/' || p.folder.key === '') ? 'root' : p.folder.key}`, false)
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 
 	const isCurrentFolder = areSamePaths(p.current, p.folder.key)
@@ -111,7 +114,7 @@ export const FolderView = (p: {
 			<div className="folder-title">
 				<span className="icon" onClick={e => {
 					isOpen ? p.onFolderClose(p.folder.key) : p.onFolderOpen(p.folder.key)
-					setIsOpen(!isOpen)
+					// setIsOpen(!isOpen)
 				}}>
 					{
 						p.folder.hasChildren &&
@@ -197,6 +200,7 @@ export const FolderView = (p: {
 					{
 						p.folder.children && p.folder.children.map((child, key) =>
 							<FolderView
+								openFolders={p.openFolders}
 								key={key}
 								folder={child}
 								current={p.current}
