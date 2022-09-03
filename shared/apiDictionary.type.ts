@@ -20,7 +20,7 @@ export interface iApiDictionary {
 	saveFileContent: { filePath: string, newFileContent: string }
 
 	moveFile: { initPath: string, endPath: string, idReq: string }
-	moveFolder: { initPath: string, endPath: string }
+	moveFolder: { initPath: string, endPath: string, idReq: string}
 
 	searchFor: { term: string, type: iAppView, idReq: string }
 

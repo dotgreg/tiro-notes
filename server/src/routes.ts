@@ -168,6 +168,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('moveFolder', async data => {
 		log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
+		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
 	})

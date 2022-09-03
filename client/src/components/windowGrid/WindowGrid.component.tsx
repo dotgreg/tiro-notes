@@ -69,12 +69,20 @@ export const WindowGrid = (p: {
 			const h = `[FILE DELETE] 0046`
 
 			api.file.delete(file, nFiles => {
-				const idsToRemove = api.ui.windows.getIdsFromFile(file.path)
-				api.ui.windows.close(idsToRemove)
-				console.log(`${h} SUCCESS DELETING FILE, => remove all windows having the same file ${file.path}`, idsToRemove)
+				const widToReplace = api.ui.windows.getIdsFromFile(file.path)
+				// api.ui.windows.close(idsToRemove)
+				// console.log(`${h} SUCCESS DELETING FILE, => remove all windows having the same file ${file.path}`, idsToRemove)
+
+				// console.log(222, nFiles[nFiles.length - 1].name, nFiles);
+				// api.ui.windows.updateWindows()
+				// load first note 
+				const nFile = nFiles[nFiles.length - 1]
+				let lastFile: iFile = nFiles[0]
+				each(nFiles, f => { if ((f.modified && lastFile.modified) && f.modified > lastFile.modified) lastFile = f })
+				// console.log(`${h} update to last window`);
 
 				// need to refresh state, then refresh list
-				onNextStateTrigger({ name: 'refreshFolderList', data: file })
+				onNextStateTrigger({ name: 'refreshFolderList', data: lastFile })
 			})
 		})
 	}
@@ -86,7 +94,7 @@ export const WindowGrid = (p: {
 		const h = `[RENAME TITLE] 0046`
 		if (!api) return
 		api.file.move(oPath, nPath, nfiles => {
-			console.log(`${h} SUCCESS IN RENAMING`);
+			// console.log(`${h} SUCCESS IN RENAMING`);
 
 			let nFile: iFile | null = null
 			each(nfiles, file => { if (file.path === nPath) nFile = file })
@@ -94,7 +102,7 @@ export const WindowGrid = (p: {
 			nFile = nFile as iFile
 
 			// 
-			console.log(`${h} get new file from backend`);
+			// console.log(`${h} get new file from backend`);
 			const idsToUpdate = api.ui.windows.getIdsFromFile(oPath)
 			api.ui.windows.updateWindows(idsToUpdate, nFile)
 
@@ -112,15 +120,14 @@ export const WindowGrid = (p: {
 	addNextStateAction('refreshFolderList', (api, data) => {
 		const selectedFolder = api.ui.browser.folders.current.get
 		if (selectedFolder === data.folder) {
-			console.log(`0046 refreshFolderList ${selectedFolder}`);
-			api.ui.browser.goTo(selectedFolder)
+			api.ui.browser.goTo(selectedFolder, data.name, { openIn: 'activeWindow' })
 			onNextStateTrigger({ name: 'checkIfNoWindows' })
 		}
 	})
 
 	addNextStateAction('checkIfNoWindows', api => {
 		if (tab.grid.content.length === 0) {
-			console.log(`0046 tab "${tab.name}" has no window, close it`);
+			// console.log(`0046 tab "${tab.name}" has no window, close it`);
 			api.tabs.close(tab.id)
 		}
 	})

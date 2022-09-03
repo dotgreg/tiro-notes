@@ -3,6 +3,7 @@ import { iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { iMoveApi, useMoveApi } from './move.api.hook';
 
 //
 // INTERFACES
@@ -19,6 +20,7 @@ export interface iFoldersApi {
 		folderPaths: string[],
 		cb: (data: { folders: iFolder[], pathBase: string }) => void
 	) => void
+	move: iMoveApi['folder']
 }
 
 export const useFoldersApi = (p: {
@@ -56,12 +58,15 @@ export const useFoldersApi = (p: {
 		})
 	}
 
+	const moveApi = useMoveApi({ eventBus: p.eventBus });
+
 
 	//
 	// EXPORTS
 	//
 
 	return {
-		get: getFolders
+		get: getFolders,
+		move: moveApi.folder,
 	}
 }
