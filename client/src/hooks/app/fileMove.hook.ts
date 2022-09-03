@@ -1,16 +1,26 @@
 import { iFile, iFolder } from "../../../../shared/types.shared";
 import { getFolderParentPath } from "../../managers/folder.manager";
 import { strings } from "../../managers/strings.manager";
-import { updateUrl } from "../../managers/url.manager";
 import { getClientApi2 } from "../api/api.hook";
-import { iPopupApi } from "./usePromptPopup.hook";
+
+
+
+const popupCommonStyle = `
+<style>
+.popupContent p {
+		background: #dadada;
+    padding: 3px 5px;
+		margin: 0px 4px;
+		display: inline-block;
+}
+</style>
+`
 
 export const useFileMove = (
 	emptyFileDetails,
 	cleanFilesList,
 	cleanFolderHierarchy,
 	askForFolderScan,
-	popupApi: iPopupApi
 ) => {
 
 	const askForMoveFile = (initPath: string, endPath: string) => {
@@ -37,21 +47,25 @@ export const useFileMove = (
 	}
 
 	const promptAndBatchMoveFiles = (files: iFile[], folderToDropInto: iFolder) => {
-		if (popupApi.confirm) popupApi.confirm(
-			`
-Move ${files?.length} file(s) to "${folderToDropInto.key}"?<br>
+		getClientApi2().then(api => {
+			api.popup.confirm(
+				`Move <p>${files?.length}</p> file(s) to <p>"${folderToDropInto.key}"</p>?
+<br>
+<br>
 Ressources links will be automatically updated<br>
-(example: "${files[0].path}" to "${folderToDropInto.key}/${files[0].name}") `,
-			() => {
-				for (let i = 0; i < files.length; i++) {
-					const file = files[i];
-					let initPath = `${file.path}`
-					let endPath = `${folderToDropInto.key}/${file.name}`
-					askForMoveFile(initPath, endPath)
-					emptyFileDetails()
+${popupCommonStyle}
+`,
+				() => {
+					for (let i = 0; i < files.length; i++) {
+						const file = files[i];
+						let initPath = `${file.path}`
+						let endPath = `${folderToDropInto.key}/${file.name}`
+						askForMoveFile(initPath, endPath)
+						emptyFileDetails()
+					}
 				}
-			}
-		);
+			);
+		});
 	}
 
 
@@ -63,6 +77,7 @@ Ressources links will be automatically updated<br>
 		newTitle?: string
 		renameOnly?: boolean
 	}) => {
+		console.log(777, p);
 		const { folder, folderToDropInto, folderBasePath, newTitle, renameOnly } = { ...p }
 
 		let rels = [
@@ -73,20 +88,25 @@ Ressources links will be automatically updated<br>
 		let initPath = `${folderBasePath}/${rels[0]}`
 		let endPath = `${folderBasePath}/${rels[1]}`
 
-		if (popupApi.confirm) popupApi.confirm(
-			`${strings.moveFolderPrompt} ${initPath} to ${endPath}?`,
-			() => {
-				askForMoveFolder(initPath, endPath)
-				emptyFileDetails()
-				cleanFilesList()
-				cleanFolderHierarchy()
-				updateUrl({})
-				askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
-				setTimeout(() => {
+		getClientApi2().then(api => {
+			api.popup.confirm(
+				`
+${strings.moveFolderPrompt} <p>${rels[0]}</p> to <p>${rels[1]}</p>?
+${popupCommonStyle}
+`,
+				() => {
+					console.log("CONFIRM, DO IT");
+					askForMoveFolder(initPath, endPath)
+					emptyFileDetails()
+					cleanFilesList()
+					cleanFolderHierarchy()
 					askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
-				}, 1000)
-			}
-		);
+					setTimeout(() => {
+						askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
+					}, 1000)
+				}
+			);
+		})
 	}
 
 	// let warn = `You are about to move the ${item.type} ${item.folder?.path} to ${folderToDropInto}${item.folder?.path}`

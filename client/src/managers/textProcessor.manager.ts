@@ -118,7 +118,6 @@ export const transformImagesInHTML = (file: iFile, bodyRaw: string): string => {
 		let rotateRaw = input.match(/r_([0-9]+)/)
 		let width = widthRaw ? `width: ${widthRaw[1]}px;` : ''
 		let rotate = rotateRaw ? `transform:rotate(${rotateRaw[1]}deg);` : ''
-		console.log(55555, input, link, width, rotate);
 		const configCss = `max-width: 100%; ${width} ${rotate} `
 		// console.log(407, input, link, name);
 		const subst = `<div class="content-image" data-images=${imgsArr} data-index="${counterIndex}"><img class="content-image-img"  style="${configCss}" src="${absoluteLinkPathRoot(file.folder)}/${link}${getUrlTokenParam()}"  /></div>`;

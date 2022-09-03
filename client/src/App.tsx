@@ -258,8 +258,7 @@ export const App = () => {
 		cleanFileDetails,
 		cleanFilesList,
 		cleanFolderHierarchy,
-		askForFolderScan,
-		popupApi
+		askForFolderScan
 	)
 
 	// Mobile view

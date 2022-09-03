@@ -130,7 +130,7 @@ export const CssApp2 = (
 								.left-wrapper {
 										box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 										transition: 0.2s all;
-										transition-delay: 0s;
+										transition-delay: ${cssVars.anim.time};
 										position: absolute;
 										left: -${sizes.desktop.l}vw;
 										top: 0px;
@@ -358,16 +358,21 @@ export const CssApp2 = (
 												.__MINIMAP_DESIGN HERE__ {}
 
 												.preview-area-wrapper:hover {
+														
+
 														transform: scale(0.8);
 														right: -50%;
 														opacity: 1;
 														box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
-														.preview-area {
+														.preview-area-transitions {
 																width: 56%;
 																padding: 20px;
 														}
 												}
 												.preview-area-wrapper {
+														transition-delay: ${cssVars.anim.time};
+														/* transition-delay: 0ms; */
+														/* transition-property: bottom; */
 														word-break: break-word;
 														transform: scale(0.2) translateZ(0);
 														transform-origin: 0px 0px;
@@ -375,7 +380,21 @@ export const CssApp2 = (
 														width: 100%;
 														right: calc(-80% - 20px);
 														height: 500vh;
-														.preview-area {
+														.preview-area-transitions {
+
+																/* transition-delay: 0ms; */
+																/* transition-property: bottom; */
+
+																/* transition-delay:${cssVars.anim.time};  */
+																/* transition-property: padding; */
+
+																transition-delay:${cssVars.anim.time}; 
+																/* transition-property: all; */
+
+																/* transition-delay: 0ms; */
+																/* transition-property: bottom; */
+
+																width: 73%;
 																padding: 80px;
 																padding-right: 140px;
 																padding-left: 40px;

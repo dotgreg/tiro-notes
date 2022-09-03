@@ -27,9 +27,9 @@ export const sharedConfig = {
 
 	client: {
 		log: {
-			socket: true,
-			eventManager: true,
+			socket: false,
 			upload: false,
+			eventManager: true,
 		},
 		version: '0.30.5',
 		params: {

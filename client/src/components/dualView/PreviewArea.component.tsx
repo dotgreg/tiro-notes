@@ -13,118 +13,120 @@ import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 
 
 export const PreviewArea = (p: {
-				windowId: string
-									file: iFile
-												posY: number
-															fileContent: string
-																					 onMaxYUpdate: (maxY: number) => void
-																												 yCnt: number
-																															 onIframeMouseWheel: onIframeMouseWheelFn
-		}) => {
+	windowId: string
+	file: iFile
+	posY: number
+	fileContent: string
+	onMaxYUpdate: (maxY: number) => void
+	yCnt: number
+	onIframeMouseWheel: onIframeMouseWheelFn
+}) => {
 
-		const api = useContext(ClientApiContext);
+	const api = useContext(ClientApiContext);
 
-		const previewAreaRefs = {
-				wrapper: useRef<HTMLDivElement>(null),
-								 main: useRef<HTMLDivElement>(null),
-		}
+	const previewAreaRefs = {
+		wrapper: useRef<HTMLDivElement>(null),
+		main: useRef<HTMLDivElement>(null),
+	}
 
-		let currentFolderArr = p.file.path.split('/')
-		currentFolderArr.pop()
-		let currentFolder = currentFolderArr.join('/')
+	let currentFolderArr = p.file.path.split('/')
+	currentFolderArr.pop()
+	let currentFolder = currentFolderArr.join('/')
 
-		useEffect(() => {
+	useEffect(() => {
 		setTimeout(() => {
-		p.onMaxYUpdate(calculateYMax())
-}, 1000)
-}, [p.fileContent])
+			p.onMaxYUpdate(calculateYMax())
+		}, 1000)
+	}, [p.fileContent])
 
 
-		const calculateYMax = () => {
-				const d = previewAreaRefs.main.current
-				const height = d?.clientHeight
-				const max = height || 3000
-				return max * 2
-		}
+	const calculateYMax = () => {
+		const d = previewAreaRefs.main.current
+		const height = d?.clientHeight
+		const max = height || 3000
+		return max * 2
+	}
 
-		const calculateYPos = () => {
-				const max = calculateYMax();
-				/* const offsetY = -100 */
-				const offsetY = 0
-				const pY = p.posY + offsetY
-				const res = clamp(pY, 0, max)
-				return res
-		}
+	const calculateYPos = () => {
+		const max = calculateYMax();
+		/* const offsetY = -100 */
+		const offsetY = 0
+		const pY = p.posY + offsetY
+		const res = clamp(pY, 0, max)
+		return res
+	}
 
-		const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
-		useEffect(() => {
+	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
+	useEffect(() => {
 		const blocks = noteApiFuncs.chunks.chunk(p.fileContent)
 		setContentBlocks(blocks)
 
 		setTimeout(() => {
-		noteApiFuncs.injectLogic({
+			noteApiFuncs.injectLogic({
 				fileContent: p.fileContent,
-										 file: p.file
-		})
-}, 100)
+				file: p.file
+			})
+		}, 100)
 
-}, [p.fileContent])
+	}, [p.fileContent])
 
 
 
-		return (
-				<div className={`preview-area-wrapper`}>
-				<div
+	return (
+		<div className={`preview-area-wrapper`}>
+			<div
 				className={`preview-area`}
 				ref={previewAreaRefs.wrapper}
 				style={{ bottom: calculateYPos() }}
-				>
+			>
+			<div className="preview-area-transitions">
 
 				<div className="infos-preview-wrapper">
-				<div className="file-path-wrapper">
-				{p.file.path.replace(`/${p.file.name}`, '')}
-				</div>
+					<div className="file-path-wrapper">
+						{p.file.path.replace(`/${p.file.name}`, '')}
+					</div>
 
-				<h1 className="title big-title">
-				{p.file.name.replace('.md', '')}
-				</h1>
+					<h1 className="title big-title">
+						{p.file.name.replace('.md', '')}
+					</h1>
 
 				</div>
 
 				<div className="content-blocks-wrapper">
-				<div className="simple-css-wrapper">
-				{
-						contentBlocks.map((block, i) =>
-															<ContentBlock
-															key={i}
-															block={block}
-															windowId={p.windowId}
-															file={p.file}
-															windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
-															yCnt={p.yCnt}
-															onIframeMouseWheel={p.onIframeMouseWheel}
-															/>
-)
-				}
-				</div>
+					<div className="simple-css-wrapper">
+						{
+							contentBlocks.map((block, i) =>
+								<ContentBlock
+									key={i}
+									block={block}
+									windowId={p.windowId}
+									file={p.file}
+									windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
+									yCnt={p.yCnt}
+									onIframeMouseWheel={p.onIframeMouseWheel}
+								/>
+							)
+						}
+					</div>
 
 				</div>
+				</div>
 
-				</div>
-				</div>
-		)
+			</div>
+		</div>
+	)
 }
 
 
 export const previewAreaSimpleCss = () => {
 
-		const d = {
-				w: '.simple-css-wrapper',
-					 pl: '.preview-link',
-							 r: '.resource-link-icon'
-		}
+	const d = {
+		w: '.simple-css-wrapper',
+		pl: '.preview-link',
+		r: '.resource-link-icon'
+	}
 
-		const css = `
+	const css = `
 
 		html, body {
 				margin: 0px;
@@ -205,7 +207,7 @@ export const previewAreaSimpleCss = () => {
 
     img,
     .content-image {
-						cursor: pointer;
+				cursor: pointer;
 				.content-image-img {
 						${cssVars.els().images}
 						cursor: pointer;
@@ -433,7 +435,7 @@ export const previewAreaSimpleCss = () => {
 				padding: 11px 23px;
 		}
 		`
-		return css
+	return css
 }
 
 export const previewAreaCss = () => `
