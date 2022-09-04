@@ -1,21 +1,5 @@
 import { isNumber, isString } from "lodash";
 
-export const insertAtCaret = (textarea: HTMLTextAreaElement, text: string) => {
-	text = text || '';
-	if (textarea.selectionStart || textarea.selectionStart === 0) {
-		// Others
-		var startPos = textarea.selectionStart;
-		var endPos = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, startPos) +
-			text +
-			textarea.value.substring(endPos, textarea.value.length);
-		textarea.selectionStart = startPos + text.length;
-		textarea.selectionEnd = startPos + text.length;
-	} else {
-		textarea.value += text;
-	}
-};
-
 
 
 export interface LineTextInfos {

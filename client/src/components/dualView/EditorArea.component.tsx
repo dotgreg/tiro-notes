@@ -3,7 +3,7 @@ import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
-import { useTextManipActions } from '../../hooks/editor/textManipActions.hook';
+import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
 import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
@@ -31,6 +31,8 @@ export type onScrollFn = (newYpercent: number) => void
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 
 export const EditorArea = (p: {
+	editorType: iEditorType
+
 	file: iFile
 	fileContent: string
 	isActive: boolean
@@ -100,9 +102,16 @@ export const EditorArea = (p: {
 
 
 	// TEXT MANIPULATION HOOK
+
+	let codeMirrorComp = useRef<any>(null)
+
+	let editorRef = deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
+	if (p.editorType === "codemirror") editorRef = codeMirrorComp
+
 	const { applyTextModifAction } = useTextManipActions({
-		editorType: deviceType(),
-		editorRef: deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
+		editorType: p.editorType,
+		deviceType: deviceType(),
+		editorRef
 	})
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
@@ -240,6 +249,13 @@ export const EditorArea = (p: {
 		const newLine = monacoEditorComp.current?.getScrollLine() || 0;
 		p.onScroll(newLine)
 	}, [p.posY])
+
+
+	//
+	// new CODEMIRROR code adaptation
+	//
+	// console.log(4442, codeMirrorComp);
+
 
 
 	return (
@@ -386,12 +402,19 @@ export const EditorArea = (p: {
 			{/* {MAIN EDITOR AREA} */}
 			<div className="main-editor-wrapper">
 
+				{p.editorType === 'codemirror' &&
+					<CodeMirrorEditor
+						value={innerFileContent}
+						onChange={triggerNoteEdition}
+						ref={codeMirrorComp}
+					/>
+					
+				}
+
 				{
+					p.editorType === 'monaco-textarea' &&
 					deviceType() === 'desktop' &&
-					// <CodeMirrorEditor
-					// 	value={innerFileContent}
-					// />
-					<MonacoEditorWrapper
+<MonacoEditorWrapper
 						value={innerFileContent}
 						jumpToLine={p.jumpToLine}
 						vimMode={vimMode}
@@ -405,6 +428,7 @@ export const EditorArea = (p: {
 					/>
 				}
 				{
+					p.editorType === 'monaco-textarea' &&
 					deviceType() !== 'desktop' &&
 					<textarea
 						className='textarea-editor'
