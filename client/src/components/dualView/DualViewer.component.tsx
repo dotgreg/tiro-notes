@@ -166,6 +166,8 @@ export const DualViewer = (p: {
 
 		{showEditor &&
 			<EditorArea
+				// editorType='monaco-textarea'
+				editorType='codemirror'
 
 				file={p.file}
 				canEdit={p.canEdit}

@@ -15,7 +15,7 @@ export const md2html = (raw: string): string => {
 	// allow more jumps to be rendered
 	// res = res.split("#").join("<br/>\n")
 
-	console.log(3331, res);
+	// console.log(3331, res);
 	// res = res.split("\n\n").join("\n\n<br/>")
 
 	// res = res.split("\n\n").join("\n\n<p>oo</p>")
@@ -38,7 +38,7 @@ export const md2html = (raw: string): string => {
 
 
 
-	console.log(333, res);
+	// console.log(333, res);
 
 	res = marked.parse(res);
 	return res;

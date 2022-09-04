@@ -1,15 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { useCodeMirror } from '@uiw/react-codemirror';
+import { EditorSelection, EditorState } from "@codemirror/state";
 import { languages } from "@codemirror/language-data";
 import { createTheme } from "@uiw/codemirror-themes";
 import { tags as t } from "@lezer/highlight";
 import { autocompletion } from "@codemirror/autocomplete";
+import { LineTextInfos } from "../../managers/textEditor.manager";
 
-export const CodeMirrorEditor = (p: {
+export const CodeMirrorEditor = forwardRef((p: {
 	value: string,
-}) => {
+	onChange: (text: string) => void
+}, forwardedRef) => {
 
 	const myCompletionsWordsGeneric = (wordsSugg) => (context) => {
 		let before = context.matchBefore(/[-'0-9a-zÀ-ÿ]{2,15}/);
@@ -33,9 +36,16 @@ export const CodeMirrorEditor = (p: {
 	const [val, setVal] = useState(code);
 
 	useEffect(() => {
+		// console.log(444, p.value.length);
+	}, [p.value]);
+
+	useEffect(() => {
+
 		if (val.length > 10000) return;
 		const wordsSugg = getLinesAndWordsSuggestions(val);
 		completionFn.current = myCompletionsWordsGeneric(wordsSugg);
+		// forwardedRef?.cur
+
 	}, [val]);
 
 	//const completionFromLine = myCompletionsWord(code)
@@ -60,12 +70,28 @@ export const CodeMirrorEditor = (p: {
 	// 		cm.setContainer(editor.current);
 	// 	}
 	// }, [editor.current]);
+	// getCurrentLineInfosCodemirror({})
+
+	// @ts-ignore
+	window.teditor = forwardedRef
+
+	// @ts-ignore
+	window.ns = EditorSelection
+
+
+
+
+	// @ts-ignore
+	// window.hello = editor
+	// new EditorSelection
+
+
 
 	return (
 		<div ref={wrapperRef} className="codemirror-editor-wrapper">
 			<CodeMirror
 				value={p.value}
-				// ref={editor}
+				ref={forwardedRef as any}
 				theme={myTheme}
 				basicSetup={{
 					foldGutter: false,
@@ -77,6 +103,8 @@ export const CodeMirrorEditor = (p: {
 				}}
 				onChange={(e) => {
 					setVal(e);
+					p.onChange(e)
+
 				}}
 				extensions={[
 					autocompletion({ override: [completionFn.current, myCompletionsTags] }),
@@ -85,7 +113,74 @@ export const CodeMirrorEditor = (p: {
 			/>
 		</div>
 	);
+})
+
+
+
+
+
+
+
+
+
+
+export const getCurrentLineInfosCodemirror = (editor: any): LineTextInfos => {
+
+
+	console.log(444, editor);
+	return {
+		lines: [],
+		currentPosition: 0,
+		activeLine: "",
+		lineIndex: 0
+	}
 }
+
+// getCurrentLineInfos = (): LineTextInfos => {
+// 	let position = this.editor.getPosition();
+// 	let text = this.editor.getValue(position) as string;
+// 	let splitedText = text.split("\n");
+// 	// this.editor.getPosition()
+// 	let currentPosition = splitedText.slice(0, position.lineNumber - 1).join('\n').length + position.column - 1
+// 	return {
+// 		monacoPosition: this.editor.getPosition(),
+// 		lines: splitedText,
+// 		currentPosition,
+// 		activeLine: splitedText[position.lineNumber - 1],
+// 		lineIndex: position.lineNumber - 1
+// 	}
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // <div ref={editor} ></div>
@@ -178,7 +273,6 @@ const getLinesAndWordsSuggestions = (content) => {
 	}
 	// words
 	const words = content.split(/( |\n)/);
-	//console.log(3331, words)
 	let resWords: any = [];
 	for (let i = 0; i < words.length; i++) {
 		const word = words[i];
