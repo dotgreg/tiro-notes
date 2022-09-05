@@ -62,10 +62,11 @@ export const EditorArea = (p: {
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
+	// console.log(55510, canEdit);
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
-		canEdit: canEdit,
+		canEdit: true,
 
 		onEditorDidMount: () => {
 		},
@@ -75,6 +76,9 @@ export const EditorArea = (p: {
 		onNoteContentDidLoad: () => {
 			if (!clientSocket) return
 			setInnerFileContent(p.fileContent)
+			// setInterval(() => {
+			// setInnerFileContent("22222 " + p.fileContent)
+			// }, 5000)
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
@@ -103,10 +107,10 @@ export const EditorArea = (p: {
 
 	// TEXT MANIPULATION HOOK
 
-	let codeMirrorComp = useRef<any>(null)
+	let codeMirrorEditorView = useRef<any>(null)
 
 	let editorRef = deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
-	if (p.editorType === "codemirror") editorRef = codeMirrorComp
+	if (p.editorType === "codemirror") editorRef = codeMirrorEditorView
 
 	const { applyTextModifAction } = useTextManipActions({
 		editorType: p.editorType,
@@ -254,7 +258,7 @@ export const EditorArea = (p: {
 	//
 	// new CODEMIRROR code adaptation
 	//
-	// console.log(4442, codeMirrorComp);
+	// console.log(4442, codeMirrorEditorView);
 
 
 
@@ -406,15 +410,15 @@ export const EditorArea = (p: {
 					<CodeMirrorEditor
 						value={innerFileContent}
 						onChange={triggerNoteEdition}
-						ref={codeMirrorComp}
+						ref={codeMirrorEditorView}
 					/>
-					
+
 				}
 
 				{
 					p.editorType === 'monaco-textarea' &&
 					deviceType() === 'desktop' &&
-<MonacoEditorWrapper
+					<MonacoEditorWrapper
 						value={innerFileContent}
 						jumpToLine={p.jumpToLine}
 						vimMode={vimMode}

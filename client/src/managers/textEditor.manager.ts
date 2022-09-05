@@ -199,6 +199,9 @@ export const triggerTextModifAction = (
 			text.slice(insertPos)
 		].join('')
 		lines = text2.split('\n')
+
+		// decal char of 0
+		// cb(0)
 	}
 
 
