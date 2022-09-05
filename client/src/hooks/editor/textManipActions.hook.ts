@@ -1,6 +1,6 @@
 import { log } from 'console';
 import React, { useState, useEffect, useRef } from 'react';
-import { getCurrentLineInfosCodemirror } from '../../components/dualView/CodeMirrorEditor.component';
+import { CodeMirrorUtils } from '../../components/dualView/CodeMirrorEditor.component';
 import { MonacoEditorWrapper } from '../../components/MonacoEditor.Component';
 import { DeviceType, deviceType, isA } from '../../managers/device.manager';
 import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
@@ -12,20 +12,26 @@ export interface TextManipActionsHookParams {
 	editorRef: React.RefObject<HTMLTextAreaElement | MonacoEditorWrapper | any>
 }
 export const useTextManipActions = (p: TextManipActionsHookParams) => {
-	// const [currentCursorPos, saveCursorPosition] = useState<any>(0)
 	const currentCursorPos = useRef<any>(0)
 
-	let editorRefCodemirror = p.editorRef as React.RefObject<MonacoEditorWrapper>
+	let CMEditorObjRef = p.editorRef as React.RefObject<any> // codemirror editor view obj
 	let editorRefDesktop = p.editorRef as React.RefObject<MonacoEditorWrapper>
 	let editorRefMobile = p.editorRef as React.RefObject<HTMLTextAreaElement>
 
 	const getLineTextInfos = (): LineTextInfos | null => {
 		let res
 
+		//
+		// LOGIC FOR UNIFIED CODEMIRROR
+		//
 		if (p.editorType === 'codemirror') {
-			getCurrentLineInfosCodemirror({})
-			res = editorRefCodemirror.current?.getCurrentLineInfos()
-			currentCursorPos.current = res && res.monacoPosition ? res.monacoPosition : 0
+			let lineInfo = CodeMirrorUtils.getCurrentLineInfos(CMEditorObjRef.current)
+			res = lineInfo
+			currentCursorPos.current = lineInfo.currentPosition
+
+			//
+			// LOGIC FOR OLD MONACO / TEXTAREA
+			//
 		} else if (p.editorType === 'monaco-textarea') {
 			if (p.deviceType === 'desktop') {
 				res = editorRefDesktop.current?.getCurrentLineInfos()
@@ -35,7 +41,7 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 				currentCursorPos.current = res && res.currentPosition ? res.currentPosition : 0
 			}
 		}
-		console.log(555, res);
+		// console.log(555, res);
 		return res
 	}
 
@@ -43,32 +49,55 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 	const resetCursorPosition = (decal: number) => {
 		let newPos = currentCursorPos.current + decal
 		console.log('resetCursorPosition to ', newPos);
-		if (isA('desktop')) {
-			editorRefDesktop.current?.editor.setPosition(newPos);
-		} else {
-			let textarea = editorRefMobile.current
-			if (!textarea) return
-			textarea.focus()
-			// should wait abit, otherwise, will jump back to bottom of textarea in mobile
-			setTimeout(() => {
+		//
+		// LOGIC FOR UNIFIED CODEMIRROR
+		//
+		if (p.editorType === 'codemirror') {
+			// let lineInfo = CodeMirrorUtils.getCurrentLineInfos(CMEditorObjRef.current)
+			// newPos = lineInfo.currentPosition + decal
+			// newPos = lineInfo.currentPosition + decal
+			CodeMirrorUtils.update.cursor(CMEditorObjRef.current, newPos)
+			console.log(555, "resetCurpos", newPos);
+		}
+
+
+		//
+		// LOGIC FOR OLD MONACO / TEXTAREA
+		//
+		else {
+			if (isA('desktop')) {
+				editorRefDesktop.current?.editor.setPosition(newPos);
+			} else {
+				let textarea = editorRefMobile.current
 				if (!textarea) return
-				textarea.selectionStart = newPos
-				textarea.selectionEnd = newPos
-			})
+				textarea.focus()
+				// should wait abit, otherwise, will jump back to bottom of textarea in mobile
+				setTimeout(() => {
+					if (!textarea) return
+					textarea.selectionStart = newPos
+					textarea.selectionEnd = newPos
+				})
+			}
 		}
 	}
 
+
+
+	///////////////////////////////////
+	// FINAL FUNCTION
+	//
 	const applyTextModifAction = (
 		action: TextModifAction,
 		actionsParams?: TextModifActionParams
 	): string | null => {
 		let linesInfos = getLineTextInfos()
 		if (!linesInfos) return null
+		console.log(555, "APPLY TEXTMODIFS", linesInfos);
 		let newText = triggerTextModifAction(
 			action,
 			linesInfos,
 			charDecal => {
-				console.log('applyTextModifAction cb charDecal:', charDecal);
+				console.log(555, 'applyTextModifAction cb charDecal:', charDecal);
 				resetCursorPosition(charDecal)
 			},
 			actionsParams

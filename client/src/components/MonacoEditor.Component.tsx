@@ -27,7 +27,6 @@ export class MonacoEditorWrapper extends React.Component<{
 	onChange: (text: string) => void
 	onScroll: onScrollFn
 	onUpdateY: onScrollFn
-	insertUnderCaret?: string
 	onMaxYUpdate?: Function
 }, {}> {
 	reactComp: any
@@ -138,7 +137,7 @@ export class MonacoEditorWrapper extends React.Component<{
 	shouldComponentUpdate(nextProps: any, nextState: any, nextContext: any) {
 
 		if (this.props.value !== nextProps.value) {
-			console.log(33333333, nextProps.value.length);
+			// console.log(33333333, nextProps.value.length);
 		}
 		if (this.props.posY !== nextProps.posY || this.props.value !== nextProps.value) {
 			this.editor.setScrollPosition({ scrollTop: this.props.posY });

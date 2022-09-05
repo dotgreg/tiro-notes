@@ -1,115 +1,100 @@
 import React, { forwardRef, useCallback, useEffect, useRef, useState } from "react";
-import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { useCodeMirror } from '@uiw/react-codemirror';
-import { EditorSelection, EditorState } from "@codemirror/state";
 import { languages } from "@codemirror/language-data";
-import { createTheme } from "@uiw/codemirror-themes";
-import { tags as t } from "@lezer/highlight";
 import { autocompletion } from "@codemirror/autocomplete";
+
 import { LineTextInfos } from "../../managers/textEditor.manager";
+import { tags as t } from "@lezer/highlight";
+
+import { createTheme } from "@uiw/codemirror-themes";
+import { EditorSelection, EditorState } from "@codemirror/state";
+import CodeMirror from "@uiw/react-codemirror";
+
+
 
 export const CodeMirrorEditor = forwardRef((p: {
 	value: string,
 	onChange: (text: string) => void
+
+	// onInit: (CMObj: any) => void
 }, forwardedRef) => {
 
-	const myCompletionsWordsGeneric = (wordsSugg) => (context) => {
-		let before = context.matchBefore(/[-'0-9a-zÀ-ÿ]{2,15}/);
-		if (!context.explicit && !before) return null;
-		return {
-			from: before ? before.from : context.pos,
-			options: wordsSugg,
-			validFor: /^\w*$/
-		};
-	};
+	// useEffect(() => {
+	// 	console.log(5557, editorRef.current);
+	// }, [])
 
-	const completionFn = useRef<any>(() => { });
+	// @ts-ignore
+	// window.cmobj = forwardedRef.current
+
+	// ON EDIT, SHOULD DISPATCH A MODIF
+	// const initVal = useRef("")
+
+	const ignoreChange = useRef(false)
+	const innerVal = useRef("")
+
+
 
 	useEffect(() => {
-		let totLorem = "";
-		for (let i = 0; i < 10000; i++) {
-			// totLorem += i + " == > " + lorem;
+		// @ts-ignore
+		const f: any = forwardedRef.current
+		if (f && f.state) {
+			if (p.value === innerVal.current) return
+			innerVal.current = p.value
+			console.log(5556, 'UPDATE FROM OUTSIDE', innerVal.current);
+			CodeMirrorUtils.update.text(f, innerVal.current)
+			ignoreChange.current = true
 		}
-		setVal(code + totLorem);
-	}, []);
-	const [val, setVal] = useState(code);
-
-	useEffect(() => {
-		// console.log(444, p.value.length);
 	}, [p.value]);
 
-	useEffect(() => {
-
-		if (val.length > 10000) return;
-		const wordsSugg = getLinesAndWordsSuggestions(val);
-		completionFn.current = myCompletionsWordsGeneric(wordsSugg);
-		// forwardedRef?.cur
-
-	}, [val]);
-
-	//const completionFromLine = myCompletionsWord(code)
 
 
-	const wrapperRef = useRef<any>()
-	// const cmRef = useRef<ReactCodeMirrorRef | null>(null)
-	// console.log();
-	// cmRef.current?.view?.lineWrapping = false
+	// ON UPDATE
+	const onChange = React.useCallback((value, viewUpdate) => {
+		if (ignoreChange.current) {
+			ignoreChange.current = false
+		} else {
+			console.log('55577 ONEDIT', p.value, value);
+			p.onChange(value)
+		}
+	}, []);
 
-	// const extensions = [];
-	// const editor = useRef<any>(null)
-	// const cm = useCodeMirror({
-	// 	container: editor.current,
-	// 	extensions,
-	// 	value: code,
-	// });
+	// const recordedCursorPos = useRef(0)
 
-	// console.log(2222, cm.view);
 	// useEffect(() => {
-	// 	if (editor.current) {
-	// 		cm.setContainer(editor.current);
+	// 	// @ts-ignore
+	// 	const f: any = forwardedRef.current
+
+	// 	if (f && f.state) {
+	// 		console.log(55592, recordedCursorPos.current);
+	// 		CodeMirrorUtils.updateCursorPosition(f, recordedCursorPos.current)
 	// 	}
-	// }, [editor.current]);
-	// getCurrentLineInfosCodemirror({})
+	// }, [p.value]);
 
-	// @ts-ignore
-	window.teditor = forwardedRef
+	// const onChange = React.useCallback((value, viewUpdate) => {
+	// 	p.onChange(value)
 
-	// @ts-ignore
-	window.ns = EditorSelection
+	// 	// @ts-ignore
+	// 	const f: any = forwardedRef.current
 
-
-
-
-	// @ts-ignore
-	// window.hello = editor
-	// new EditorSelection
-
-
+	// 	if (f && f.state) {
+	// 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
+	// 		if (cPos !== 0) {
+	// 			recordedCursorPos.current = cPos
+	// 			console.log(5559, recordedCursorPos.current);
+	// 		}
+	// 	}
+	// }, []);
 
 	return (
-		<div ref={wrapperRef} className="codemirror-editor-wrapper">
+		<div className="codemirror-editor-wrapper">
 			<CodeMirror
-				value={p.value}
+				value=""
 				ref={forwardedRef as any}
+				// ref={forwardedRef as any}
 				theme={myTheme}
-				basicSetup={{
-					foldGutter: false,
-					dropCursor: false,
-					allowMultipleSelections: false,
-					indentOnInput: false,
-					closeBrackets: false,
-					lineNumbers: false
-				}}
-				onChange={(e) => {
-					setVal(e);
-					p.onChange(e)
-
-				}}
-				extensions={[
-					autocompletion({ override: [completionFn.current, myCompletionsTags] }),
-					markdown({ base: markdownLanguage, codeLanguages: languages })
-				]}
+				onChange={onChange}
 			/>
 		</div>
 	);
@@ -121,35 +106,63 @@ export const CodeMirrorEditor = forwardRef((p: {
 
 
 
+///////////////////////////////////////////////////
+// UTILS FUNCTIONS FOR MANIP AND CURSOR WORK
+//
+const updateText2 = (CMObj: any, newText: string) => {
+	// @ts-ignore
+	// window.cmobj = CMObj;
+	const vstate = CMObj.view.state
+	const vtxt = vstate.doc.toString()
+	const length = vtxt.length
 
+	const dstate = CMObj.state
+	const dtxt = dstate.doc.toString()
+	const dlen = dtxt.length
+	// console.log(55512, vtxt, dtxt, newText);
 
+	CMObj.view.dispatch(
+		CMObj.view.state.update(
+			{ changes: { from: 0, to: length, insert: newText } }
+		)
+	)
+}
+const updateCursorPosition = (CMObj: any, newPos: number) => {
+	console.log(555, "CM update cursor", newPos);
+	setTimeout(() => {
+		CMObj.view.dispatch(
+			CMObj.view.state.update(
+				{ selection: EditorSelection.cursor(newPos) }
+			)
+		)
+	}, 100)
+}
 
-export const getCurrentLineInfosCodemirror = (editor: any): LineTextInfos => {
+const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
+	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number
+	const currentPosition = CMObj.view.state.selection.ranges[0].from
+	const currentText = CMObj.view.state.doc.toString()
+	let splitedText = currentText.split("\n");
 
+	let res = {
+		lines: splitedText,
+		currentPosition,
+		activeLine: splitedText[currentLineIndex] || "",
+		lineIndex: currentLineIndex
+	}
 
-	console.log(444, editor);
-	return {
-		lines: [],
-		currentPosition: 0,
-		activeLine: "",
-		lineIndex: 0
+	console.log(555, "CM getInfos", res);
+	return res
+}
+
+export const CodeMirrorUtils = {
+	getCurrentLineInfos,
+	update: {
+		cursor: updateCursorPosition,
+		text: updateText2
 	}
 }
 
-// getCurrentLineInfos = (): LineTextInfos => {
-// 	let position = this.editor.getPosition();
-// 	let text = this.editor.getValue(position) as string;
-// 	let splitedText = text.split("\n");
-// 	// this.editor.getPosition()
-// 	let currentPosition = splitedText.slice(0, position.lineNumber - 1).join('\n').length + position.column - 1
-// 	return {
-// 		monacoPosition: this.editor.getPosition(),
-// 		lines: splitedText,
-// 		currentPosition,
-// 		activeLine: splitedText[position.lineNumber - 1],
-// 		lineIndex: position.lineNumber - 1
-// 	}
-// }
 
 
 
@@ -181,29 +194,6 @@ export const getCurrentLineInfosCodemirror = (editor: any): LineTextInfos => {
 
 
 
-
-
-// <div ref={editor} ></div>
-// <CodeMirror
-// 	value={val}
-// 	ref={editor}
-// 	theme={myTheme}
-// 	basicSetup={{
-// 		foldGutter: false,
-// 		dropCursor: false,
-// 		allowMultipleSelections: false,
-// 		indentOnInput: false,
-// 		closeBrackets: false,
-// 		lineNumbers: false
-// 	}}
-// 	onChange={(e) => {
-// 		setVal(e);
-// 	}}
-// 	extensions={[
-// 		autocompletion({override: [completionFn.current, myCompletionsTags] }),
-// 		markdown({base: markdownLanguage, codeLanguages: languages })
-// 	]}
-// />
 
 export const codeMirrorEditorCss = () => `
 `
@@ -228,8 +218,6 @@ width: 100%;
 				white-space: pre-wrap;
 	}
 `
-
-// npm i @codemirror/lang-markdown @codemirror/language-data @uiw/codemirror-themes @lezer/highlight @codemirror/autocomplete --save --legacy-peer-deps 
 
 
 const completionsTags = [
@@ -286,8 +274,6 @@ const getLinesAndWordsSuggestions = (content) => {
 			});
 		}
 	}
-	//console.log(3332, resWords)
-
 	return [...resWords, ...res];
 };
 
@@ -305,35 +291,6 @@ const myCompletionsWord = (content) => (context) => {
 	};
 };
 
-const lorem = `Lorem ipsum dolor sit amet,\n consectetur adipiscing elit\n, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n`;
-
-const code = `## Title
-
-\`\`\`jsx
-function Demo() {
-		return <div>demo</div>
-}
-\`\`\`
-- [ ] [[hello]]
-
-\`\`\`bash
-# Not dependent on uiw.
-npm install @codemirror/lang-markdown --save
-npm install @codemirror/language-data --save
-\`\`\`
-
-bonjour je m'appelle machin truc bidule
-
-[weisit ulr](https://uiwjs.github.io/react-codemirror/)
-
-\`\`\`go
-package main
-import "fmt"
-func main() {
-  fmt.Println("Hello, 世界")
-}
-\`\`\`
-`;
 
 const myTheme = createTheme({
 	theme: "light",
