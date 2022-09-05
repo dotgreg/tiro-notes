@@ -380,7 +380,7 @@ const getCustomTheme = () => createTheme({
 		gutterBackground: "#FFFFFF",
 		gutterForeground: "#4D4D4C",
 		gutterBorder: "#ddd",
-		lineHighlight: "#fff"
+		lineHighlight: "#fff",
 	},
 	styles: [
 		{ tag: t.comment, color: "#787b80" },
@@ -396,7 +396,7 @@ const getCustomTheme = () => createTheme({
 		{ tag: t.heading4, color: cssVars.colors.main },
 		{ tag: t.heading5, color: cssVars.colors.main },
 		{ tag: t.heading6, color: cssVars.colors.main },
-		{ tag: t.string, color: cssVars.colors.main }
+		{ tag: t.content, fontSize: "10px" }
 	]
 });
 
