@@ -259,6 +259,7 @@ export const EditorArea = (p: {
 	// new CODEMIRROR code adaptation
 	//
 	// console.log(4442, codeMirrorEditorView);
+	// useEffect(() => { console.log(5550, innerFileContent); }, [innerFileContent])
 
 
 

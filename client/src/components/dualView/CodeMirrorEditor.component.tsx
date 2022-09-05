@@ -11,6 +11,7 @@ import { tags as t } from "@lezer/highlight";
 import { createTheme } from "@uiw/codemirror-themes";
 import { EditorSelection, EditorState } from "@codemirror/state";
 import CodeMirror from "@uiw/react-codemirror";
+import { debounce, throttle } from "lodash";
 
 
 
@@ -21,44 +22,93 @@ export const CodeMirrorEditor = forwardRef((p: {
 	// onInit: (CMObj: any) => void
 }, forwardedRef) => {
 
-	// useEffect(() => {
-	// 	console.log(5557, editorRef.current);
-	// }, [])
+	///////////////////////////////////
+	// v3 => working with no state and dispatch only => KEEPING CURSOR MAIS PERDS SI PLUSIEURS IMGS UPLOADED...
 
-	// @ts-ignore
-	// window.cmobj = forwardedRef.current
+	// => pb parfois quand currentPosition, celui-ci renvoie 0, est perdu
+	// => S1 => fixer cpos => nope, ca donne meme result, a un moment il insere a 0
 
-	// ON EDIT, SHOULD DISPATCH A MODIF
-	// const initVal = useRef("")
-
-	const ignoreChange = useRef(false)
-	const innerVal = useRef("")
+	// => S2 => BOOOOF ralentir quand insertAt avec un setTimeout tt 100ms?
+	// => S3 => si on stabilise lineInfos, est-ce stable? => OUIII
+	// => S3b => du coup, cacher les vals, 1ere val on prend direct, puis tt autres req retourne cette cached avec un debounce update
 
 
-
+	const histVal = useRef("")
 	useEffect(() => {
 		// @ts-ignore
 		const f: any = forwardedRef.current
 		if (f && f.state) {
-			if (p.value === innerVal.current) return
-			innerVal.current = p.value
-			console.log(5556, 'UPDATE FROM OUTSIDE', innerVal.current);
-			CodeMirrorUtils.update.text(f, innerVal.current)
-			ignoreChange.current = true
+			if (p.value === histVal.current) return
+			if (p.value === "loading...") return
+			if (f.view.state.doc.toString() === p.value) return
+			const li = CodeMirrorUtils.getCurrentLineInfos(f)
+			const cpos = li.currentPosition
+			// const cpos = 100
+			// console.log(55567, li.currentPosition, cpos);
+			console.log(5556, 'UPDATE FROM OUTSIDE', p.value, cpos)
+			CodeMirrorUtils.updateText(f, p.value, cpos)
+			CodeMirrorUtils.updateCursor(f, cpos)
+
+			histVal.current = p.value
 		}
 	}, [p.value]);
+
+	const onChange = (value, viewUpdate) => {
+		if (value === p.value) return
+		console.log(5554, "on change update, new val=>", value, p.value);
+		p.onChange(value)
+		histVal.current = value
+	}
+
+	///////////////////////////////////
+	// v2 => working fine, but linejump on imageupload
+	//
+	// const onChange = (value, viewUpdate) => {
+	// 	if (value === p.value) return
+	// 	console.log(444, "on change update, new val=>", value, p.value);
+	// 	p.onChange(value)
+	// }
+
+
+	///////////////////////////////////
+	// v1 => intervertissement quand note switch...
+	//
+	// const ignoreChange = useRef(false)
+	// const innerVal = useRef("")
+	// useEffect(() => {
+	// 	// @ts-ignore
+	// 	const f: any = forwardedRef.current
+	// 	if (f && f.state) {
+	// 		if (p.value === innerVal.current) return
+	// 		innerVal.current = p.value
+	// 		console.log(5556, 'UPDATE FROM OUTSIDE', innerVal.current);
+	// 		CodeMirrorUtils.update.text(f, innerVal.current)
+	// 		ignoreChange.current = true
+	// 	}
+	// }, [p.value]);
 
 
 
 	// ON UPDATE
-	const onChange = React.useCallback((value, viewUpdate) => {
-		if (ignoreChange.current) {
-			ignoreChange.current = false
-		} else {
-			console.log('55577 ONEDIT', p.value, value);
-			p.onChange(value)
-		}
-	}, []);
+	// const onChange = React.useCallback((value, viewUpdate) => {
+	// 	if (ignoreChange.current) {
+	// 		ignoreChange.current = false
+	// 	} else {
+	// 		console.log('55577 ONEDIT', p.value, value);
+	// 		p.onChange(value)
+	// 	}
+	// }, []);
+
+
+
+
+
+
+
+
+	/////
+	// v0
+	//
 
 	// const recordedCursorPos = useRef(0)
 
@@ -90,6 +140,7 @@ export const CodeMirrorEditor = forwardRef((p: {
 	return (
 		<div className="codemirror-editor-wrapper">
 			<CodeMirror
+				// value={p.value}
 				value=""
 				ref={forwardedRef as any}
 				// ref={forwardedRef as any}
@@ -109,7 +160,7 @@ export const CodeMirrorEditor = forwardRef((p: {
 ///////////////////////////////////////////////////
 // UTILS FUNCTIONS FOR MANIP AND CURSOR WORK
 //
-const updateText2 = (CMObj: any, newText: string) => {
+const updateText = (CMObj: any, newText: string, charPos: number) => {
 	// @ts-ignore
 	// window.cmobj = CMObj;
 	const vstate = CMObj.view.state
@@ -123,24 +174,40 @@ const updateText2 = (CMObj: any, newText: string) => {
 
 	CMObj.view.dispatch(
 		CMObj.view.state.update(
-			{ changes: { from: 0, to: length, insert: newText } }
+			{ changes: { from: 0, to: length, insert: newText } },
+			// { selection: EditorSelection.single(charPos) }
 		)
 	)
 }
-const updateCursorPosition = (CMObj: any, newPos: number) => {
+const updateCursor = (CMObj: any, newPos: number) => {
 	console.log(555, "CM update cursor", newPos);
 	setTimeout(() => {
-		CMObj.view.dispatch(
-			CMObj.view.state.update(
-				{ selection: EditorSelection.cursor(newPos) }
+		try {
+			CMObj.view.dispatch(
+				CMObj.view.state.update(
+					{ selection: EditorSelection.cursor(newPos) }
+				)
 			)
-		)
-	}, 100)
+		} catch (e) {
+			console.warn("update Cursor", e)
+		}
+	}, 10)
 }
 
+
+
+// as getPosition is quite unstable, cache it to stabilize it
+let cachedPosition = 0
+const throt = throttle((CMObj) => {
+	cachedPosition = CMObj.view.state.selection.ranges[0].from
+}, 1000)
+const getCachedPosition = (CMObj: any) => {
+	throt(CMObj)
+	return cachedPosition
+}
 const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
 	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number
-	const currentPosition = CMObj.view.state.selection.ranges[0].from
+	const currentPosition = getCachedPosition(CMObj)
 	const currentText = CMObj.view.state.doc.toString()
 	let splitedText = currentText.split("\n");
 
@@ -158,9 +225,11 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
 export const CodeMirrorUtils = {
 	getCurrentLineInfos,
 	update: {
-		cursor: updateCursorPosition,
-		text: updateText2
-	}
+		cursor: updateCursor,
+		text: updateText
+	},
+	updateCursor,
+	updateText
 }
 
 

@@ -190,14 +190,14 @@ export class List extends React.Component<{
 											}}
 											onClick={(e) => {
 
-												console.log(6666, getKeyModif('shift'));
+												// console.log(6666, getKeyModif('shift'));
 												if (getKeyModif('shift')) {
 													let edges: [number, number] = [this.props.activeFileIndex, index]
 													edges.sort()
-													console.log(`666 [MULTIARR]`, edges);
+													// console.log(`666 [MULTIARR]`, edges);
 													this.setState({ selectionEdges: edges })
 												} else {
-													console.log(`6662 cancel multiarr`);
+													// console.log(`6662 cancel multiarr`);
 													this.props.onFileClicked(index)
 													this.setState({ selectionEdges: [-1, -1] })
 												}
