@@ -23,7 +23,8 @@ import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
-import { CodeMirrorEditor } from './CodeMirrorEditor.component';
+import { CodeMirrorEditor, CodeMirrorUtils } from './CodeMirrorEditor.component';
+import { debounce } from 'lodash';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -32,6 +33,7 @@ export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 
 export const EditorArea = (p: {
 	editorType: iEditorType
+	windowId: string
 
 	file: iFile
 	fileContent: string
@@ -76,9 +78,6 @@ export const EditorArea = (p: {
 		onNoteContentDidLoad: () => {
 			if (!clientSocket) return
 			setInnerFileContent(p.fileContent)
-			// setInterval(() => {
-			// setInnerFileContent("22222 " + p.fileContent)
-			// }, 5000)
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
@@ -120,7 +119,10 @@ export const EditorArea = (p: {
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
-		if (updatedText) triggerNoteEdition(updatedText)
+		if (updatedText) {
+			triggerNoteEdition(updatedText)
+			forceCmRender()
+		}
 	}
 
 	// ECRYPTION FUNCTIONS HOOKS
@@ -248,11 +250,34 @@ export const EditorArea = (p: {
 	//
 	// on scroll posY update
 	//
+	const getCurrentLine = () => {
+		let newLine
+		if (p.editorType === "codemirror") {
+			newLine = CodeMirrorUtils.getScrolledLine(codeMirrorEditorView.current)
+			if (newLine > 1) newLine -= 1
+		} else {
+			newLine = monacoEditorComp.current?.getScrollLine() || 0;
+		}
+		return newLine
+	}
+
 	useEffect(() => {
-		// console.log(3, p.posY,));
-		const newLine = monacoEditorComp.current?.getScrollLine() || 0;
-		p.onScroll(newLine)
+		// IMPORTANT for title scrolling
+		// p.onScroll(getCurrentLine())
+		// debounce(() => {
+		// 	p.onScroll(getCurrentLine())
+		// }, 1000)
 	}, [p.posY])
+
+	useEffect(() => {
+		// IMPORTANT for title scrolling
+		// p.onScroll(getCurrentLine())
+		// debounce(() => {
+		// 	p.onScroll(getCurrentLine())
+		// }, 1000)
+		// console.log(333, p.fileContent.length);
+		forceCmRender()
+	}, [p.fileContent])
 
 
 	//
@@ -260,6 +285,8 @@ export const EditorArea = (p: {
 	//
 	// console.log(4442, codeMirrorEditorView);
 	// useEffect(() => { console.log(5550, innerFileContent); }, [innerFileContent])
+	const [cmRender, setCmRender] = useState(0)
+	const forceCmRender = () => { setCmRender(cmRender + 1) }
 
 
 
@@ -409,9 +436,17 @@ export const EditorArea = (p: {
 
 				{p.editorType === 'codemirror' &&
 					<CodeMirrorEditor
+						windowId={p.windowId}
+						ref={codeMirrorEditorView}
+
+						// initValue={innerFileContent}
 						value={innerFileContent}
 						onChange={triggerNoteEdition}
-						ref={codeMirrorEditorView}
+
+						posY={p.posY}
+						jumpToLine={p.jumpToLine || 0}
+
+						forceRender={cmRender}
 					/>
 
 				}
@@ -471,6 +506,7 @@ export const EditorArea = (p: {
 }
 
 export const commonCssEditors = () => `
+
 .file-path-wrapper {
   padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
   font-size: 13px;

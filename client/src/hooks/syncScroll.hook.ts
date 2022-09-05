@@ -1,5 +1,64 @@
 import { useRef, useState } from 'react';
 
+
+// let baseY = 0
+// let scrollByEditor = 0
+interface iScrollConfig {
+	baseY: number
+	editorY: number
+	previewEl: any
+	editorEl: any
+}
+
+interface iDbScroll {
+	[wid: string]: iScrollConfig
+}
+
+let db: iDbScroll = {}
+export const cleanDb = () => {
+	console.log("syncScroll => cleaning db");
+	db = {}
+}
+const getScrollObj = (wid) => {
+	const previewEl = document.querySelector(`.window-id-${wid} .preview-area-wrapper`)
+	const editorEl = document.querySelector(`.window-id-${wid} .cm-scroller`)
+	if (!db[wid]) {
+		db[wid] = {
+			baseY: 0,
+			editorY: 0,
+			previewEl,
+			editorEl,
+		}
+	}
+	return db[wid]
+}
+
+
+//
+// NEW NATURAL SYNC SCROLL SYSTEM WITHOUT REACT, MUCH FASTER
+//
+export const syncScroll2 = {
+	cleanDb,
+	editorToPreview: (wid: string) => {
+		// console.log(111, wid);
+		const c = getScrollObj(wid)
+		if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
+		c.editorY = c.editorEl.scrollTop
+		c.previewEl.scrollTop = c.editorY + c.baseY
+		// console.log(c);
+	},
+	previewToEditor: (wid: string) => {
+		// console.log(222, wid);
+		const c = getScrollObj(wid)
+		if (!c.editorEl || !c.previewEl) return console.warn('no wid 2: ', wid)
+		c.baseY = c.previewEl.scrollTop - c.editorY
+	}
+}
+
+
+
+
+
 export const useSyncScroll = (maxY: number) => {
 	// // scrolling logic
 	// const updateSyncScroll = (deltaY: number) => {

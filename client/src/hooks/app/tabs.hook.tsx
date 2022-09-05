@@ -8,6 +8,7 @@ import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 import { ClientApiContext, getClientApi2 } from '../api/api.hook';
 import { act } from 'react-dom/test-utils';
+import { syncScroll2 } from '../syncScroll.hook';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
@@ -140,6 +141,8 @@ export const useTabs = () => {
 			setTabs(nTabs)
 
 		} else if (type === 'activate') {
+			// cleaning scrolling sync caching db
+			syncScroll2.cleanDb();
 
 			// change tab
 			if (!tab) return

@@ -19662,7 +19662,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/tabs.hook.tsx",
-									"line": 34,
+									"line": 35,
 									"character": 60
 								}
 							],
@@ -19681,7 +19681,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/tabs.hook.tsx",
-									"line": 34,
+									"line": 35,
 									"character": 43
 								}
 							],
@@ -19705,7 +19705,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/app/tabs.hook.tsx",
-							"line": 34,
+							"line": 35,
 							"character": 17
 						}
 					]
@@ -21728,7 +21728,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/app/tabs.hook.tsx",
-							"line": 15,
+							"line": 16,
 							"character": 12
 						}
 					],
@@ -21750,7 +21750,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 20,
+											"line": 21,
 											"character": 1
 										}
 									],
@@ -21772,7 +21772,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/app/tabs.hook.tsx",
-															"line": 21,
+															"line": 22,
 															"character": 2
 														}
 													],
@@ -21813,7 +21813,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/app/tabs.hook.tsx",
-													"line": 20,
+													"line": 21,
 													"character": 9
 												}
 											]
@@ -21829,7 +21829,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 17,
+											"line": 18,
 											"character": 1
 										}
 									],
@@ -21869,7 +21869,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 16,
+											"line": 17,
 											"character": 1
 										}
 									],
@@ -21900,7 +21900,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 18,
+											"line": 19,
 											"character": 1
 										}
 									],
@@ -21941,7 +21941,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 19,
+											"line": 20,
 											"character": 1
 										}
 									],
@@ -22006,7 +22006,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/tabs.hook.tsx",
-									"line": 15,
+									"line": 16,
 									"character": 23
 								}
 							]
@@ -22369,7 +22369,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/app/tabs.hook.tsx",
-							"line": 24,
+							"line": 25,
 							"character": 12
 						}
 					],
@@ -22391,7 +22391,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 28,
+											"line": 29,
 											"character": 1
 										}
 									],
@@ -22413,7 +22413,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/app/tabs.hook.tsx",
-															"line": 29,
+															"line": 30,
 															"character": 2
 														}
 													],
@@ -22466,7 +22466,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/app/tabs.hook.tsx",
-															"line": 30,
+															"line": 31,
 															"character": 2
 														}
 													],
@@ -22512,7 +22512,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/app/tabs.hook.tsx",
-													"line": 28,
+													"line": 29,
 													"character": 9
 												}
 											]
@@ -22528,7 +22528,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 25,
+											"line": 26,
 											"character": 1
 										}
 									],
@@ -22571,7 +22571,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 27,
+											"line": 28,
 											"character": 1
 										}
 									],
@@ -22614,7 +22614,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/app/tabs.hook.tsx",
-											"line": 26,
+											"line": 27,
 											"character": 1
 										}
 									],
@@ -22682,7 +22682,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/tabs.hook.tsx",
-									"line": 24,
+									"line": 25,
 									"character": 26
 								}
 							]

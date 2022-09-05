@@ -53,11 +53,8 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 		// LOGIC FOR UNIFIED CODEMIRROR
 		//
 		if (p.editorType === 'codemirror') {
-			// let lineInfo = CodeMirrorUtils.getCurrentLineInfos(CMEditorObjRef.current)
-			// newPos = lineInfo.currentPosition + decal
-			// newPos = lineInfo.currentPosition + decal
-			CodeMirrorUtils.update.cursor(CMEditorObjRef.current, newPos)
-			console.log(555, "resetCurpos", newPos);
+			CodeMirrorUtils.updateCursor(CMEditorObjRef.current, newPos)
+			// console.log(555, "resetCurpos", newPos);
 		}
 
 
