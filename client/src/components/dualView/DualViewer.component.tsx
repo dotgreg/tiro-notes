@@ -4,7 +4,7 @@ import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } 
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { useSyncScroll } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
-import { clamp, each, isNumber } from 'lodash';
+import { clamp, debounce, each, isNumber, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
@@ -126,13 +126,13 @@ export const DualViewer = (p: {
 
 	// 2) TITLE SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
-	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
-	const updateScrolledTitle = useThrottle((scrolledLine: number) => {
+
+	const updateScrolledTitleInt = (scrolledLine: number) => {
 		if (scrollMode !== "title") return;
 		const struct = getMdStructure(previewContent)
 		// get current title
 		let cTitle: iMdPart = initTitle
-		each(struct, title => { if (scrolledLine > title.line) cTitle = title })
+		each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
 		// update the preview scroll accordingly
 		if (cTitle.id !== "") {
 			const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
@@ -155,17 +155,26 @@ export const DualViewer = (p: {
 				console.error(e);
 			}
 		}
-	}, 200)
+	}
+	const t1 = useThrottle(updateScrolledTitleInt, 200)
+	const t2 = useDebounce(updateScrolledTitleInt, 500)
+
+	const updateScrolledTitle = (newLine) => {
+		t1(newLine)
+		t2(newLine)
+	}
+	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
 		onWheelCapture={e => {
-			updateSyncYWithDelta(e.deltaY)
+			// updateSyncYWithDelta(e.deltaY)
 		}}
 	>
 
 		{showEditor &&
 			<EditorArea
+				windowId={p.windowId}
 				// editorType='monaco-textarea'
 				editorType='codemirror'
 
@@ -178,6 +187,7 @@ export const DualViewer = (p: {
 				posY={getSyncY()}
 
 				onScroll={newLine => {
+					console.log(333);
 					updateScrolledTitle(newLine)
 				}}
 				onUpdateY={newY => {

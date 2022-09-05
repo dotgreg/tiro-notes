@@ -10,16 +10,23 @@ import { tags as t } from "@lezer/highlight";
 
 import { createTheme } from "@uiw/codemirror-themes";
 import { EditorSelection, EditorState } from "@codemirror/state";
+import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
-import { debounce, throttle } from "lodash";
+import { debounce, random, throttle } from "lodash";
+import { cssVars } from "../../managers/style/vars.style.manager";
+import { syncScroll2 } from "../../hooks/syncScroll.hook";
 
 
+const CodeMirrorEditorInt = forwardRef((p: {
+	windowId: string,
 
-export const CodeMirrorEditor = forwardRef((p: {
 	value: string,
 	onChange: (text: string) => void
 
-	// onInit: (CMObj: any) => void
+	posY: number
+	jumpToLine: number
+
+	forceRender: number
 }, forwardedRef) => {
 
 	///////////////////////////////////
@@ -33,124 +40,180 @@ export const CodeMirrorEditor = forwardRef((p: {
 	// => S3b => du coup, cacher les vals, 1ere val on prend direct, puis tt autres req retourne cette cached avec un debounce update
 
 
-	const histVal = useRef("")
-	useEffect(() => {
+	const getEditorObj = (): any => {
 		// @ts-ignore
 		const f: any = forwardedRef.current
-		if (f && f.state) {
-			if (p.value === histVal.current) return
-			if (p.value === "loading...") return
-			if (f.view.state.doc.toString() === p.value) return
-			const li = CodeMirrorUtils.getCurrentLineInfos(f)
-			const cpos = li.currentPosition
-			// const cpos = 100
-			// console.log(55567, li.currentPosition, cpos);
-			console.log(5556, 'UPDATE FROM OUTSIDE', p.value, cpos)
-			CodeMirrorUtils.updateText(f, p.value, cpos)
-			CodeMirrorUtils.updateCursor(f, cpos)
+		if (!f || !f.state) return null
+		return f
+	}
 
-			histVal.current = p.value
-		}
+	// useEffect(() => {
+	// 	console.log(3332);
+	// }, [p.onChange]);
+
+	// useEffect(() => {
+	// 	const f = getEditorObj()
+	// 	f.view.contentAttrs.autocorrect = false
+	// 	f.view.contentAttrs.contenteditable = false
+	// }, []);
+
+
+	const histVal = useRef("")
+	useEffect(() => {
+		const f = getEditorObj()
+		// @ts-ignore
+		window.cmobj = f
+		if (!f) return
+		// f.view.contentAttrs.autocorrect = false
+		// f.view.contentAttrs.contenteditable = "false"
+
+		// document.querySelector(".cm-content").
+		// @ts-ignore
+		document.querySelector(".cm-content").contentEditable = true
+		// @ts-ignore
+		document.querySelector(".cm-content").autoCorrect = false
+
+
+		if (p.value === histVal.current) return
+		if (p.value === "loading...") return
+		if (f.view.state.doc.toString() === p.value) return
+		const li = CodeMirrorUtils.getCurrentLineInfos(f)
+		const cpos = li.currentPosition
+		CodeMirrorUtils.updateText(f, p.value, cpos)
+		CodeMirrorUtils.updateCursor(f, cpos)
+
+		histVal.current = p.value
 	}, [p.value]);
 
 	const onChange = (value, viewUpdate) => {
-		if (value === p.value) return
-		console.log(5554, "on change update, new val=>", value, p.value);
 		p.onChange(value)
-		histVal.current = value
 	}
 
-	///////////////////////////////////
-	// v2 => working fine, but linejump on imageupload
-	//
-	// const onChange = (value, viewUpdate) => {
-	// 	if (value === p.value) return
-	// 	console.log(444, "on change update, new val=>", value, p.value);
-	// 	p.onChange(value)
-	// }
-
-
-	///////////////////////////////////
-	// v1 => intervertissement quand note switch...
-	//
-	// const ignoreChange = useRef(false)
-	// const innerVal = useRef("")
-	// useEffect(() => {
-	// 	// @ts-ignore
-	// 	const f: any = forwardedRef.current
-	// 	if (f && f.state) {
-	// 		if (p.value === innerVal.current) return
-	// 		innerVal.current = p.value
-	// 		console.log(5556, 'UPDATE FROM OUTSIDE', innerVal.current);
-	// 		CodeMirrorUtils.update.text(f, innerVal.current)
-	// 		ignoreChange.current = true
-	// 	}
-	// }, [p.value]);
 
 
 
-	// ON UPDATE
-	// const onChange = React.useCallback((value, viewUpdate) => {
-	// 	if (ignoreChange.current) {
-	// 		ignoreChange.current = false
-	// 	} else {
-	// 		console.log('55577 ONEDIT', p.value, value);
-	// 		p.onChange(value)
-	// 	}
-	// }, []);
+	useEffect(() => {
+		const f = getEditorObj()
+		if (!f) return
+		if (p.posY <= -10) return
+		// f.view.scrollDOM.scrollTop = p.posY
+		// f.view.scrollDOM.scrollTop = p.posY
+		// CodeMirrorUtils.scrollTo(f, p.posY)
+	}, [p.posY])
+
+
+	useEffect(() => {
+		console.log("JUMP COODEMIRROR", p.jumpToLine);
+		if (p.jumpToLine === -1) return
+		const f = getEditorObj()
+		if (!f) return
+		if (p.posY <= -10) return
+		// f.view.scrollDOM.scrollTop = p.posY
+		// f.view.scrollDOM.scrollTop = 200
+		// CodeMirrorUtils.scrollTo(f, 200)
+		CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
+	}, [p.jumpToLine])
 
 
 
 
-
-
-
-
-	/////
-	// v0
-	//
-
-	// const recordedCursorPos = useRef(0)
-
-	// useEffect(() => {
-	// 	// @ts-ignore
-	// 	const f: any = forwardedRef.current
-
-	// 	if (f && f.state) {
-	// 		console.log(55592, recordedCursorPos.current);
-	// 		CodeMirrorUtils.updateCursorPosition(f, recordedCursorPos.current)
-	// 	}
-	// }, [p.value]);
-
-	// const onChange = React.useCallback((value, viewUpdate) => {
-	// 	p.onChange(value)
-
-	// 	// @ts-ignore
-	// 	const f: any = forwardedRef.current
-
-	// 	if (f && f.state) {
-	// 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
-	// 		if (cPos !== 0) {
-	// 			recordedCursorPos.current = cPos
-	// 			console.log(5559, recordedCursorPos.current);
-	// 		}
-	// 	}
-	// }, []);
 
 	return (
 		<div className="codemirror-editor-wrapper">
 			<CodeMirror
-				// value={p.value}
 				value=""
 				ref={forwardedRef as any}
-				// ref={forwardedRef as any}
-				theme={myTheme}
+				theme={getCustomTheme()}
 				onChange={onChange}
+
+				basicSetup={{
+					foldGutter: false,
+					dropCursor: false,
+					// scrollBarStyle: null,
+					allowMultipleSelections: false,
+					indentOnInput: false,
+					closeBrackets: false,
+					lineNumbers: false,
+
+				}}
+				extensions={[
+					autocompletion({ override: [myCompletionsTags] }),
+					markdown({ base: markdownLanguage, codeLanguages: languages }),
+					EditorView.domEventHandlers({
+						scroll(event, view) {
+							// @ts-ignore
+							syncScroll2.editorToPreview(p.windowId)
+						}
+					}),
+					// EditorView.contentAttributes({autocorrect: "off"})
+				]}
 			/>
 		</div>
 	);
 })
+export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
+	(np, pp) => {
+		// console.log(np.value.length - pp.value.length);
+		// console.log(np.value, pp.value);
+		// console.log(np, pp);
+		// if edition diff is more than 2 chars, reupdate content 
+		// if (Math.abs(np.value.length - pp.value.length) > 10) {
+		// return false // updaaaaate
+		// }
+		if (
+			np.value !== pp.value &&
+			np.forceRender !== pp.forceRender
+		) return false
 
+		if (np.jumpToLine !== pp.jumpToLine) return false
+		return true
+	})
+
+
+// export const codeMirrorEditorCss = () => `
+// `
+export const codeMirrorEditorCss = () => `
+.cm-matchingBracket {
+	background-color: rgba(0,0,0,0)!important;
+}
+
+
+.cm-content {
+	// font-family: 'Open sans', sans-serif;
+	font-family: Consolas, monaco, monospace;
+	font-size: 11px;
+}
+
+.cm-focused {
+outline: none!important;
+}
+.main-editor-wrapper {
+		margin: 32px 0px 0px 0px!important;
+    padding: 0px!important;
+		width:100%!important;
+		height: calc(100% - 32px)!important;
+}
+
+.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
+		height: calc(100% - 30px);
+}
+.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
+		height: 100% ;
+		overflow:hidden;
+		padding: 3px;
+}
+.cm-content {
+		width: 100%;
+		overflow:hidden;
+		white-space: pre-wrap;
+}
+.cm-scroller {
+		/* display: none!important; */
+		// overflow: hidden;
+    left: 15px;
+    padding-right: 18px;
+}
+`
 
 
 
@@ -160,6 +223,11 @@ export const CodeMirrorEditor = forwardRef((p: {
 ///////////////////////////////////////////////////
 // UTILS FUNCTIONS FOR MANIP AND CURSOR WORK
 //
+
+
+//
+// UPDATING TEXT
+// 
 const updateText = (CMObj: any, newText: string, charPos: number) => {
 	// @ts-ignore
 	// window.cmobj = CMObj;
@@ -182,6 +250,8 @@ const updateText = (CMObj: any, newText: string, charPos: number) => {
 const updateCursor = (CMObj: any, newPos: number) => {
 	console.log(555, "CM update cursor", newPos);
 	setTimeout(() => {
+
+		// CMObj.view.focus()
 		try {
 			CMObj.view.dispatch(
 				CMObj.view.state.update(
@@ -196,6 +266,9 @@ const updateCursor = (CMObj: any, newPos: number) => {
 
 
 
+//
+// GET CURRENT POS AND LINE
+// 
 // as getPosition is quite unstable, cache it to stabilize it
 let cachedPosition = 0
 const throt = throttle((CMObj) => {
@@ -217,19 +290,126 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
 		activeLine: splitedText[currentLineIndex] || "",
 		lineIndex: currentLineIndex
 	}
-
-	console.log(555, "CM getInfos", res);
+	// console.log(555, "CM getInfos", res);
 	return res
 }
 
+
+//
+// GET SCROLLING LINE
+// 
+let cachedLine = 0
+const getScrolledLine = (CMObj) => {
+	intGetLine(CMObj)
+	return cachedLine
+}
+
+const intGetLine = (CMObj: any) => {
+	if (!CMObj.view) return -1
+
+	const currentText = CMObj.view.state.doc.toString()
+	const lineAtHeight = CMObj.view.elementAtHeight(CMObj.view.scrollDOM.scrollTop)
+	const lineStart = lineAtHeight.from
+	// split the text to lines
+	const splitText = currentText.split('\n')
+
+	let lengthFromBegin = 0
+	let line = 0
+	// for each line, add its length to tot length, till it is > from found
+	for (let i = 0; i < splitText.length; i++) {
+		lengthFromBegin += splitText[i].length
+		if (lengthFromBegin < lineStart) line = i
+		else break
+	}
+
+	cachedLine = line
+}
+const bgGetLine = throttle(intGetLine, 100)
+const bgGetLine2 = debounce(intGetLine, 200)
+
+
+//
+// SCROLLTOLINE
+//
+const scrollToLine = (CMObj: any, lineToJump: number) => {
+	// const lineAtHeight = CMObj.view.elementAtHeight(CMObj.view.scrollDOM.scrollTop)
+	// find the char to jump to 
+	const currentText = CMObj.view.state.doc.toString()
+	const splitText = currentText.split('\n')
+	let lengthFromBegin = 0
+	// for each line, add its length to tot length, till it is > from found
+	for (let i = 0; i < lineToJump + 1; i++) {
+		lengthFromBegin += splitText[i].length
+	}
+	// console.log(666, lineToJump, lengthFromBegin);
+	// scrollTo(CMObj, lengthFromBegin)
+	updateCursor(CMObj, lengthFromBegin + 2)
+
+	setTimeout(() => {
+		const cPosCursor = CMObj.view.state.selection.ranges[0].from
+		scrollTo(CMObj, cPosCursor)
+
+	}, 10)
+
+
+}
+
+
+//
+// SCROLLTO (quite slow)
+//
+const scrollTo = (CMObj: any, posY: number) => {
+	if (!CMObj.view) return -1
+	CMObj.view.dispatch({
+		effects: EditorView.scrollIntoView(posY, { y: "start" }),
+	})
+}
+
+
+//
+// THEMING
+//
+const getCustomTheme = () => createTheme({
+	theme: "light",
+	settings: {
+		background: "#ffffff",
+		foreground: "#4D4D4C",
+		caret: "#AEAFAD",
+		selection: "#D6D6D6",
+		selectionMatch: "#D6D6D6",
+		gutterBackground: "#FFFFFF",
+		gutterForeground: "#4D4D4C",
+		gutterBorder: "#ddd",
+		lineHighlight: "#fff"
+	},
+	styles: [
+		{ tag: t.comment, color: "#787b80" },
+		{ tag: t.definition(t.typeName), color: "#194a7b" },
+		{ tag: t.typeName, color: "#194a7b" },
+		{ tag: t.tagName, color: "#008a02" },
+		{ tag: t.variableName, color: "#1a00db" },
+		{ tag: t.heading, color: cssVars.colors.main },
+		{ tag: t.heading1, color: cssVars.colors.main, fontSize: "15px", fontWeight: "bold", textDecoration: "underline" },
+		{ tag: t.heading2, color: cssVars.colors.main, fontSize: "13px", fontWeight: "normal", textDecoration: "underline" },
+		{ tag: t.heading3, color: cssVars.colors.main, fontSize: "12px" },
+		// { tag: t.lineHighlight, color: cssVars.colors.main, fontSize: "12px" },
+		{ tag: t.heading4, color: cssVars.colors.main },
+		{ tag: t.heading5, color: cssVars.colors.main },
+		{ tag: t.heading6, color: cssVars.colors.main },
+		{ tag: t.string, color: cssVars.colors.main }
+	]
+});
+
+
+
 export const CodeMirrorUtils = {
 	getCurrentLineInfos,
-	update: {
-		cursor: updateCursor,
-		text: updateText
-	},
+	getScrolledLine,
 	updateCursor,
-	updateText
+	updateText,
+	scrollTo,
+	scrollToLine,
+	getCustomTheme
 }
 
 
@@ -262,31 +442,6 @@ export const CodeMirrorUtils = {
 
 
 
-
-
-export const codeMirrorEditorCss = () => `
-`
-export const codeMirrorEditorCss2 = () => `
-	.main-editor-wrapper {
-		margin: 32px 0px 0px 0px!important;
-    padding: 0px!important;
-		width:100%!important;
-		height: calc(100% - 32px)!important;
-	}
-
-	.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-			height: calc(100% - 30px);
-}
-		.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-			height: 100% ;
-			overflow:hidden;
-		}
-	.cm-content {
-width: 100%;
-			overflow:hidden;
-				white-space: pre-wrap;
-	}
-`
 
 
 const completionsTags = [
@@ -335,7 +490,6 @@ const getLinesAndWordsSuggestions = (content) => {
 		const word = words[i];
 		let isWordArr = word.match(/[-'0-9a-zÀ-ÿ]+/gi);
 		let isWord = isWordArr && isWordArr.length === 1 ? true : false;
-		//if (isWord) console.log(333, word, isWord, isWordArr)
 		if (word.length > 1) {
 			resWords.push({
 				label: word + " (word)",
@@ -361,31 +515,3 @@ const myCompletionsWord = (content) => (context) => {
 };
 
 
-const myTheme = createTheme({
-	theme: "light",
-	settings: {
-		background: "#ffffff",
-		foreground: "#4D4D4C",
-		caret: "#AEAFAD",
-		selection: "#D6D6D6",
-		selectionMatch: "#D6D6D6",
-		gutterBackground: "#FFFFFF",
-		gutterForeground: "#4D4D4C",
-		gutterBorder: "#ddd",
-		lineHighlight: "#EFEFEF"
-	},
-	styles: [
-		{ tag: t.comment, color: "#787b80" },
-		{ tag: t.definition(t.typeName), color: "#194a7b" },
-		{ tag: t.typeName, color: "#194a7b" },
-		{ tag: t.tagName, color: "#008a02" },
-		{ tag: t.variableName, color: "#1a00db" },
-		{ tag: t.heading, color: "red" },
-		{ tag: t.heading1, color: "red" },
-		{ tag: t.heading2, color: "red" },
-		{ tag: t.heading3, color: "red" },
-		{ tag: t.heading4, color: "red" },
-		{ tag: t.heading5, color: "red" },
-		{ tag: t.heading6, color: "red" }
-	]
-});
