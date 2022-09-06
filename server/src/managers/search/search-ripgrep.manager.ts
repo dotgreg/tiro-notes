@@ -11,6 +11,8 @@ import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
 
 const h = `[RIPGREP SEARCH] `
+const shouldLog = sharedConfig.server.log.ripgrep
+
 const fs = require('fs')
 const execa = require('execa');
 export interface iFilesObj { [filePath: string]: iFile }
@@ -74,12 +76,12 @@ export const searchWithRgGeneric = async (p: {
 		// do not print whole line, just one match per line
 		lineParam
 	]
-	p.options.debug && console.log(`== START1 ============`);
-	p.options.debug && console.log(backConfig.rgPath, searchParams);
+	// p.options.debug && console.log(`== START1 ============`);
+	// p.options.debug && console.log(backConfig.rgPath, searchParams);
 	const ripGrepStream = execa(backConfig.rgPath, searchParams)
 	const resArr: string[] = []
 	ripGrepStream.stdout.on('data', async dataChunk => {
-		console.log("========", dataChunk);
+		// console.log("========", dataChunk);
 		const rawChunk = dataChunk.toString()
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
@@ -106,7 +108,7 @@ export const searchWithRgGeneric = async (p: {
 	})
 	ripGrepStream.stdout.on('close', dataChunk => {
 		p.onSearchEnded(resArr)
-		p.options.debug && console.log(`============== END`);
+		// p.options.debug && console.log(`============== END`);
 	})
 }
 
@@ -179,7 +181,6 @@ export const searchWithRipGrep = async (params: {
 
 		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
 			const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
-			// if (debugMode) log(11, resultsRawArr, 'to', metasFilesObj)
 			const scannedFilesObj: iFilesObj = {}
 			let index = 0
 			each(metasFilesObj, (metaObj, fileName) => {
@@ -234,7 +235,7 @@ export const searchWithRipGrep = async (params: {
 			})
 		})
 		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-			log(h, ` FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
+			shouldLog && log(h, ` FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
 			perfs.cmd1 = Date.now()
 			triggerAggregationIfEnded()
 		})
@@ -253,7 +254,7 @@ export const searchWithRipGrep = async (params: {
 			// process raw strings to meta objs
 
 			metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
-			log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
+			shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
 			perfs.cmd2 = Date.now()
 			triggerAggregationIfEnded()
 		})
@@ -265,7 +266,7 @@ export const searchWithRipGrep = async (params: {
 			if (counterCmdsDone === 2) {
 				const filesWithMetaUpdated = mergingMetaToFilesArr(filesScannedObj, metasFilesScanned)
 				const perfString = `tot:${Date.now() - perfs.init}ms / cmd1:${perfs.cmd1 - perfs.init}ms / cmd2:${perfs.cmd2 - perfs.init}ms`
-				log(h, ` FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
+				shouldLog && log(h, ` FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
 				params.onSearchEnded({ files: filesWithMetaUpdated })
 			}
 		}
@@ -298,7 +299,7 @@ export const searchWithRipGrep = async (params: {
 		})
 		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
-			log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
+			shouldLog && log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
 			params.onSearchEnded({ images })
 		})
 	}
@@ -323,7 +324,7 @@ export const searchWithRipGrep = async (params: {
 		})
 		ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
-			log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
+			shouldLog && log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
 			params.onSearchEnded({ images })
 		})
 	}
@@ -345,23 +346,15 @@ export const searchWithRipGrep = async (params: {
 			'md',
 			'--multiline',
 		]
-		console.log(`==============`);
-		console.log(searchParams);
+		// console.log(`==============`);
+		// console.log(searchParams);
 		const ripGrepStreamProcessImg2 = execa(backConfig.rgPath, searchParams)
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
 			const partialRawString = dataRaw.toString()
-			console.log(`--> `, partialRawString);
-			// split multiline strings
-			// const partialRawStringsArr = partialRawString.split('\n')
-			// rawStrings.push(...partialRawStringsArr)
 		})
 		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
-			// const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
-			// log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
 			params.onSearchEnded({})
-			console.log(`============== END`);
-
 		})
 	}
 

@@ -14,7 +14,7 @@ export let folderToUpload = { value: '' }
 
 export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictionary>) => {
 	// file upload starts listening
-	log('[initUploadFileRoute]');
+	// log('[initUploadFileRoute]');
 
 	var uploader = new siofu();
 	let initialUploadPath = `${backConfig.dataFolder}/${backConfig.uploadFolder}`
