@@ -134,7 +134,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 					nodesArr: arr,
 					edges
 				}
-				console.log(22232, result);
+				// console.log(22232, result);
 				res(result)
 			})
 		})

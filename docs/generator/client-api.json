@@ -7533,13 +7533,13 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"name": "Array.__@iterator@981"
+										"name": "Array.__@iterator@979"
 									}
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "Array.__@iterator@981"
+								"name": "Array.__@iterator@979"
 							}
 						},
 						{
@@ -7733,13 +7733,13 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"name": "Array.__@unscopables@983"
+										"name": "Array.__@unscopables@981"
 									}
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "Array.__@unscopables@983"
+								"name": "Array.__@unscopables@981"
 							}
 						},
 						{
@@ -14080,7 +14080,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-									"line": 30,
+									"line": 31,
 									"character": 1
 								}
 							],
@@ -14102,7 +14102,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 33,
+													"line": 34,
 													"character": 2
 												}
 											],
@@ -14124,7 +14124,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 36,
+																	"line": 37,
 																	"character": 3
 																}
 															],
@@ -14143,7 +14143,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 35,
+																	"line": 36,
 																	"character": 3
 																}
 															],
@@ -14161,7 +14161,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 34,
+																	"line": 35,
 																	"character": 3
 																}
 															],
@@ -14222,7 +14222,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 32,
+													"line": 33,
 													"character": 2
 												}
 											],
@@ -14244,7 +14244,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 31,
+													"line": 32,
 													"character": 2
 												}
 											],
@@ -14309,7 +14309,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-									"line": 39,
+									"line": 40,
 									"character": 1
 								}
 							],
@@ -14331,7 +14331,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 40,
+													"line": 41,
 													"character": 2
 												}
 											],
@@ -14349,7 +14349,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 42,
+													"line": 43,
 													"character": 2
 												}
 											],
@@ -14369,7 +14369,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 49,
+													"line": 50,
 													"character": 2
 												}
 											],
@@ -14391,7 +14391,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 51,
+																	"line": 52,
 																	"character": 3
 																}
 															],
@@ -14409,7 +14409,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 50,
+																	"line": 51,
 																	"character": 3
 																}
 															],
@@ -14469,7 +14469,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 41,
+													"line": 42,
 													"character": 2
 												}
 											],
@@ -14488,7 +14488,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 44,
+													"line": 45,
 													"character": 2
 												}
 											],
@@ -14510,7 +14510,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 45,
+																	"line": 46,
 																	"character": 3
 																}
 															],
@@ -14531,7 +14531,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 46,
+																	"line": 47,
 																	"character": 3
 																}
 															],
@@ -14571,7 +14571,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 47,
+																	"line": 48,
 																	"character": 3
 																}
 															],
@@ -14632,7 +14632,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-													"line": 43,
+													"line": 44,
 													"character": 2
 												}
 											],
@@ -14699,7 +14699,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-									"line": 22,
+									"line": 23,
 									"character": 1
 								}
 							],
@@ -14772,7 +14772,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 26,
+																	"line": 27,
 																	"character": 3
 																}
 															],
@@ -14801,7 +14801,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-																	"line": 27,
+																	"line": 28,
 																	"character": 3
 																}
 															],
@@ -14853,7 +14853,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-							"line": 21,
+							"line": 22,
 							"character": 17
 						}
 					]
@@ -16064,7 +16064,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/files.api.hook.tsx",
-									"line": 27,
+									"line": 28,
 									"character": 1
 								}
 							],
@@ -16161,7 +16161,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/files.api.hook.tsx",
-									"line": 17,
+									"line": 18,
 									"character": 1
 								}
 							],
@@ -16248,7 +16248,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/files.api.hook.tsx",
-									"line": 22,
+									"line": 23,
 									"character": 1
 								}
 							],
@@ -16350,7 +16350,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/files.api.hook.tsx",
-							"line": 15,
+							"line": 16,
 							"character": 17
 						}
 					]
@@ -16501,7 +16501,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/folders.api.hook.tsx",
-									"line": 23,
+									"line": 24,
 									"character": 1
 								}
 							],
@@ -16611,7 +16611,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/folders.api.hook.tsx",
-									"line": 19,
+									"line": 20,
 									"character": 1
 								}
 							],
@@ -16686,7 +16686,7 @@
 																					"sources": [
 																						{
 																							"fileName": "client/src/hooks/api/folders.api.hook.tsx",
-																							"line": 21,
+																							"line": 22,
 																							"character": 15
 																						}
 																					],
@@ -16708,7 +16708,7 @@
 																					"sources": [
 																						{
 																							"fileName": "client/src/hooks/api/folders.api.hook.tsx",
-																							"line": 21,
+																							"line": 22,
 																							"character": 35
 																						}
 																					],
@@ -16769,7 +16769,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/folders.api.hook.tsx",
-							"line": 15,
+							"line": 16,
 							"character": 17
 						}
 					]
@@ -17564,7 +17564,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/history.api.hook.tsx",
-									"line": 10,
+									"line": 11,
 									"character": 1
 								}
 							],
@@ -17615,7 +17615,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/history.api.hook.tsx",
-									"line": 9,
+									"line": 10,
 									"character": 1
 								}
 							],
@@ -17691,7 +17691,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/history.api.hook.tsx",
-							"line": 8,
+							"line": 9,
 							"character": 17
 						}
 					]
@@ -21052,7 +21052,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 204,
+							"line": 206,
 							"character": 5
 						}
 					],
@@ -21067,7 +21067,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/api.hook.tsx",
-									"line": 204,
+									"line": 206,
 									"character": 18
 								}
 							],
@@ -22022,7 +22022,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-							"line": 7,
+							"line": 8,
 							"character": 5
 						}
 					],
@@ -22057,7 +22057,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-							"line": 15,
+							"line": 16,
 							"character": 12
 						}
 					],
@@ -22079,7 +22079,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 19,
+											"line": 20,
 											"character": 1
 										}
 									],
@@ -22101,7 +22101,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-															"line": 20,
+															"line": 21,
 															"character": 2
 														}
 													],
@@ -22123,7 +22123,7 @@
 																	"sources": [
 																		{
 																			"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-																			"line": 20,
+																			"line": 21,
 																			"character": 9
 																		}
 																	],
@@ -22145,7 +22145,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-																	"line": 20,
+																	"line": 21,
 																	"character": 7
 																}
 															]
@@ -22165,7 +22165,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-													"line": 19,
+													"line": 20,
 													"character": 10
 												}
 											]
@@ -22181,7 +22181,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 16,
+											"line": 17,
 											"character": 1
 										}
 									],
@@ -22222,7 +22222,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 18,
+											"line": 19,
 											"character": 1
 										}
 									],
@@ -22253,7 +22253,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 17,
+											"line": 18,
 											"character": 1
 										}
 									],
@@ -22318,7 +22318,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-									"line": 15,
+									"line": 16,
 									"character": 31
 								}
 							]
@@ -22698,7 +22698,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-							"line": 13,
+							"line": 14,
 							"character": 5
 						}
 					],
@@ -22720,7 +22720,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 13,
+											"line": 14,
 											"character": 16
 										}
 									],
@@ -22739,7 +22739,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 13,
+											"line": 14,
 											"character": 39
 										}
 									],
@@ -22762,7 +22762,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-									"line": 13,
+									"line": 14,
 									"character": 14
 								}
 							]
@@ -23558,7 +23558,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 31,
+							"line": 32,
 							"character": 1
 						}
 					],
@@ -23609,7 +23609,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 29,
+							"line": 30,
 							"character": 1
 						}
 					],
@@ -23662,7 +23662,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 30,
+							"line": 31,
 							"character": 1
 						}
 					],
@@ -23708,7 +23708,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 28,
+					"line": 29,
 					"character": 17
 				}
 			]
@@ -23735,7 +23735,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 44,
+							"line": 45,
 							"character": 1
 						}
 					],
@@ -23754,7 +23754,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 38,
+							"line": 39,
 							"character": 1
 						}
 					],
@@ -23773,7 +23773,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 46,
+							"line": 47,
 							"character": 1
 						}
 					],
@@ -23792,7 +23792,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 47,
+							"line": 48,
 							"character": 1
 						}
 					],
@@ -23811,7 +23811,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 50,
+							"line": 51,
 							"character": 1
 						}
 					],
@@ -23830,7 +23830,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 51,
+							"line": 52,
 							"character": 1
 						}
 					],
@@ -23849,7 +23849,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 45,
+							"line": 46,
 							"character": 1
 						}
 					],
@@ -23868,7 +23868,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 40,
+							"line": 41,
 							"character": 1
 						}
 					],
@@ -23887,7 +23887,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 52,
+							"line": 53,
 							"character": 1
 						}
 					],
@@ -23906,7 +23906,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 60,
+							"line": 61,
 							"character": 1
 						}
 					],
@@ -23925,7 +23925,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 48,
+							"line": 49,
 							"character": 1
 						}
 					],
@@ -23944,7 +23944,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 53,
+							"line": 54,
 							"character": 1
 						}
 					],
@@ -23966,7 +23966,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/api.hook.tsx",
-											"line": 54,
+											"line": 55,
 											"character": 2
 										}
 									],
@@ -23985,7 +23985,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/api.hook.tsx",
-											"line": 56,
+											"line": 57,
 											"character": 2
 										}
 									],
@@ -24004,7 +24004,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/api.hook.tsx",
-											"line": 58,
+											"line": 59,
 											"character": 2
 										}
 									],
@@ -24143,7 +24143,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/api.hook.tsx",
-											"line": 57,
+											"line": 58,
 											"character": 2
 										}
 									],
@@ -24162,7 +24162,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/api.hook.tsx",
-											"line": 55,
+											"line": 56,
 											"character": 2
 										}
 									],
@@ -24198,7 +24198,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 39,
+							"line": 40,
 							"character": 1
 						}
 					],
@@ -24217,7 +24217,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/api.hook.tsx",
-							"line": 49,
+							"line": 50,
 							"character": 1
 						}
 					],
@@ -24253,7 +24253,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 37,
+					"line": 38,
 					"character": 17
 				}
 			]
@@ -24269,7 +24269,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 89,
+					"line": 90,
 					"character": 13
 				}
 			],
@@ -24307,7 +24307,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 205,
+					"line": 207,
 					"character": 13
 				}
 			],
@@ -24343,7 +24343,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 39,
+													"line": 40,
 													"character": 2
 												}
 											],
@@ -24364,7 +24364,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 38,
+													"line": 39,
 													"character": 2
 												}
 											],
@@ -24382,7 +24382,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 37,
+													"line": 38,
 													"character": 2
 												}
 											],
@@ -24435,7 +24435,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 199,
+					"line": 201,
 					"character": 13
 				}
 			],
@@ -24475,7 +24475,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 72,
+					"line": 73,
 					"character": 13
 				}
 			],
@@ -24511,7 +24511,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/hooks/api/api.hook.tsx",
-					"line": 91,
+					"line": 92,
 					"character": 13
 				}
 			],
@@ -24547,7 +24547,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 98,
+													"line": 99,
 													"character": 1
 												}
 											],
@@ -24566,7 +24566,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 97,
+													"line": 98,
 													"character": 1
 												}
 											],
@@ -24585,7 +24585,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 92,
+													"line": 93,
 													"character": 1
 												}
 											],
@@ -24604,7 +24604,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 96,
+													"line": 97,
 													"character": 1
 												}
 											],
@@ -24623,7 +24623,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 93,
+													"line": 94,
 													"character": 1
 												}
 											],
@@ -24642,7 +24642,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 94,
+													"line": 95,
 													"character": 1
 												}
 											],
@@ -24661,7 +24661,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/api.hook.tsx",
-													"line": 95,
+													"line": 96,
 													"character": 1
 												}
 											],

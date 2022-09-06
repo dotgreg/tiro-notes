@@ -357,9 +357,8 @@ export const CssApp2 = (
 												.__MINIMAP_DESIGN HERE__ {}
 
 												.preview-area-wrapper:hover {
-														
-
-														transform: scale(0.8);
+														height: calc(100% - 30px);
+														transform: scale(1);
 														right: -50%;
 														opacity: 1;
 														box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
