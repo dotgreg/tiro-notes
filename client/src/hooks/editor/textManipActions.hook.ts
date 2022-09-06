@@ -1,7 +1,6 @@
 import { log } from 'console';
 import React, { useState, useEffect, useRef } from 'react';
 import { CodeMirrorUtils } from '../../components/dualView/CodeMirrorEditor.component';
-import { MonacoEditorWrapper } from '../../components/MonacoEditor.Component';
 import { DeviceType, deviceType, isA } from '../../managers/device.manager';
 import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
 
@@ -11,13 +10,13 @@ export type iEditorType = 'monaco-textarea' | 'codemirror'
 export interface TextManipActionsHookParams {
 	editorType: iEditorType
 	deviceType: DeviceType
-	editorRef: React.RefObject<HTMLTextAreaElement | MonacoEditorWrapper | any>
+	editorRef: React.RefObject<HTMLTextAreaElement  | any>
 }
 export const useTextManipActions = (p: TextManipActionsHookParams) => {
 	const currentCursorPos = useRef<any>(0)
 
 	let CMEditorObjRef = p.editorRef as React.RefObject<any> // codemirror editor view obj
-	let editorRefDesktop = p.editorRef as React.RefObject<MonacoEditorWrapper>
+	let editorRefDesktop = p.editorRef as React.RefObject<any>
 	let editorRefMobile = p.editorRef as React.RefObject<HTMLTextAreaElement>
 
 	const getLineTextInfos = (): LineTextInfos | null => {

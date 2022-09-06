@@ -3,7 +3,6 @@ import { css, cx } from '@emotion/css'
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
-import { monacoColorsCss, monacoEditorCss } from '../../components/MonacoEditor.Component';
 import { mobileViewMenuCss } from '../../hooks/app/mobileView.hook';
 import { connectionIndicatorCss } from '../../hooks/app/connectionIndicator.hook';
 import { newFileButtonCss } from '../../components/NewFileButton.component';
@@ -425,8 +424,6 @@ export const CssApp2 = (
 										${editorAreaCss(mobileView)}
 										${codeMirrorEditorCss()}
 
-										${monacoColorsCss()}
-										${monacoEditorCss()}
 
 										${previewAreaCss()}
 
