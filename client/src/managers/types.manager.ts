@@ -1,13 +1,13 @@
-import { z } from "zod";
+// import { z } from "zod";
 
 // override Function type to be compatible with zod infered ts 
 
-export const obj = z.object
-export const string = z.string()
-export const number = z.number()
-export const boolean = z.boolean()
-export const fn = z.function()
-export type Function = z.infer<typeof fn>
+// export const obj = z.object
+// export const string = z.string()
+// export const number = z.number()
+// export const boolean = z.boolean()
+// export const fn = z.function()
+// export type Function = z.infer<typeof fn>
 
 // export const func = (args, res) => {
 // 	return z.function()
@@ -20,4 +20,5 @@ export type Function = z.infer<typeof fn>
 
 
 // exporting z
-export default z  
+// export default z  
+export default  {} 

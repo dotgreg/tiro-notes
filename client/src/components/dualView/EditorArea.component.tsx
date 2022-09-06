@@ -1,7 +1,6 @@
 import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
-import { MonacoEditorWrapper, resetMonacoSelectionExt } from '../MonacoEditor.Component';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -55,7 +54,7 @@ export const EditorArea = (p: {
 
 	const [vimMode, setVimMode] = useState(false)
 	const [innerFileContent, setInnerFileContent] = useState('')
-	let monacoEditorComp = useRef<MonacoEditorWrapper>(null)
+	let monacoEditorComp = useRef<any>(null)
 
 	const api = useContext(ClientApiContext);
 
@@ -92,7 +91,7 @@ export const EditorArea = (p: {
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
-			if (isA('desktop')) resetMonacoSelectionExt()
+			// if (isA('desktop')) resetMonacoSelectionExt()
 			ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
 		}
 	})
@@ -458,37 +457,6 @@ export const EditorArea = (p: {
 
 				}
 
-				{
-					p.editorType === 'monaco-textarea' &&
-					deviceType() === 'desktop' &&
-					<MonacoEditorWrapper
-						value={innerFileContent}
-						jumpToLine={p.jumpToLine}
-						vimMode={vimMode}
-						readOnly={!canEdit}
-						ref={monacoEditorComp}
-						onChange={triggerNoteEdition}
-						onScroll={p.onScroll}
-						onUpdateY={p.onUpdateY}
-						posY={p.posY}
-						onMaxYUpdate={p.onMaxYUpdate}
-					/>
-				}
-				{
-					p.editorType === 'monaco-textarea' &&
-					deviceType() !== 'desktop' &&
-					<textarea
-						className='textarea-editor'
-						ref={mobileTextarea}
-						readOnly={!canEdit}
-						value={innerFileContent}
-						onScroll={(e: any) => {
-							p.onScroll(e)
-							onTextareaScroll(e)
-						}}
-						onChange={onTextareaChange}
-					/>
-				}
 			</div>
 
 

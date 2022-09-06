@@ -56,7 +56,7 @@ interface iIframeMessage {
 //
 
 const h = `[IFRAME PARENT] 00563`
-const log = sharedConfig.client.log.iframe 
+const log = sharedConfig.client.log.iframe
 
 //
 // Creating an Event Bus
@@ -165,6 +165,7 @@ export const iframeMainCode = (p: {
 }) => {
 	const h = '[IFRAME child] 00564'
 
+	const log = true
 	log && console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
 
 	// 
