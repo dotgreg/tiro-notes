@@ -25,6 +25,14 @@ export const sharedConfig = {
 
 	strings: sharedStrings,
 
+	server: {
+		log: {
+			socket: false,
+			verbose: false,
+			fs: false,
+			ripgrep: false,
+		}
+	},
 	client: {
 		log: {
 			verbose: false,

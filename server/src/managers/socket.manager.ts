@@ -8,6 +8,7 @@ import { log } from "./log.manager";
 import { getDefaultDataFolderPath } from "./fs.manager";
 import { isRgCliWorking } from "./search/search-ripgrep.manager";
 import { getServerIps } from "./ip.manager";
+import { sharedConfig } from "../../../shared/shared.config";
 
 
 interface routeOptions {
@@ -50,6 +51,8 @@ const preprocessEndpointOptions = (endpoint: string, options?: routeOptions) => 
 	return options
 }
 
+
+const shouldlog = sharedConfig.server.log.socket
 export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socket): ServerSocketManager<ApiDict> => {
 	return {
 		on: async (endpoint, callback, options) => {
@@ -58,13 +61,13 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
 				options = preprocessEndpointOptions(endpoint, options)
 
 				// LOG
-				if (!options?.disableLog) log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} ${JSON.stringify(options)}`);
-				if (!options?.disableDataLog) log(`with data `, rawClientData);
+				if (!options?.disableLog && shouldlog) log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} ${JSON.stringify(options)}`);
+				if (!options?.disableDataLog && shouldlog) log(`with data `, rawClientData);
 
 
 				// IF SETUP MODE
 				if (backConfig.askForSetup && !options?.duringSetup) {
-					log(`[SOCKET SERV EVENT] BLOCKED AS DURING SETUP --> ${endpoint} `);
+					shouldlog && log(`[SOCKET SERV EVENT] BLOCKED AS DURING SETUP --> ${endpoint} `);
 				}
 
 				// IF WRONG/NULL TOKEN 
@@ -76,7 +79,7 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
 					!endpoint.startsWith('siofu') &&
 					(!rawClientData.token || getLoginToken() !== rawClientData.token)
 				) {
-					log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`, options);
+					shouldlog && log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`, options);
 					rawServerSocket.emit('getLoginInfos', { code: 'WRONG_TOKEN' })
 				}
 
@@ -88,7 +91,7 @@ export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socke
 		},
 		emit: async (endpoint, payloadToSend) => {
 			let options = preprocessEndpointOptions(endpoint)
-			if (!options?.disableLog) log(`[SOCKET SERV EVENT] ==> EMIT ${endpoint}`);
+			if (!options?.disableLog) shouldlog && log(`[SOCKET SERV EVENT] ==> EMIT ${endpoint}`);
 			await rawServerSocket.emit(endpoint, payloadToSend);
 		},
 	}
@@ -100,7 +103,7 @@ export const initSocketLogic = () => {
 
 	// ON NEW CLIENT CONNECTION
 	ioServer.on('connection', (socket, params) => {
-		log(`[CONNECTION] new client connected`);
+		shouldlog && log(`[CONNECTION] new client connected`);
 
 		// check if rg path is working
 
@@ -122,7 +125,7 @@ export const initSocketLogic = () => {
 
 		if (!backConfig.askForSetup) initUploadFileRoute(serverSocket2);
 
-		log('INIT SOCKET ENDPOINTS');
+		shouldlog && log('INIT SOCKET ENDPOINTS');
 
 		listenSocketEndpoints(serverSocket2)
 

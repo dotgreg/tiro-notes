@@ -1,5 +1,6 @@
 import { log } from "console";
 import { debounce, each } from "lodash";
+import { sharedConfig } from "../../../shared/shared.config";
 import { backConfig } from "../config.back";
 import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
 
@@ -16,8 +17,9 @@ const config = {
 //
 
 // only execute it every x hours using debounce
+const shouldLog = sharedConfig.server.log.verbose
 export const debounceCleanHistoryFolder = debounce(() => {
-	log(`[HISTORY CLEAN] debounce Clean History Folder`);
+	shouldLog && log(`[HISTORY CLEAN] debounce Clean History Folder`);
 	cleanHistoryFolder(config.days)
 }, config.delay)
 

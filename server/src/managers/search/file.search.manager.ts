@@ -1,4 +1,5 @@
 import { cleanPath } from "../../../../shared/helpers/filename.helper";
+import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { fileStats } from "../fs.manager";
@@ -6,6 +7,8 @@ import { log } from "../log.manager";
 import { getRelativePath } from "../path.manager";
 
 const h = `[RIPGREP SEARCH] `
+const shouldLog = sharedConfig.server.log.ripgrep
+
 export const cleanFilePath = (rawString: string, folder) => {
 	rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
 	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
@@ -44,7 +47,7 @@ export const processRawPathToFile = (p: {
 		let stats = fileStats(`${backConfig.dataFolder}/${folder}/${filePath}`)
 		res = createIFile(filePath, folder, index, stats)
 	} catch (error) {
-		log(h, 'ERROR : ', error);
+		shouldLog && log(h, 'ERROR : ', error);
 	}
 	return res
 }
@@ -57,7 +60,7 @@ export const processRawDataToFiles = (dataRaw: string, titleFilter: string = '',
 
 	for (let i = 0; i < array.length; i++) {
 		let filePath = array[i];
-		const fileRes = processRawPathToFile({rawPath: filePath, folder, index: i, titleFilter})
+		const fileRes = processRawPathToFile({ rawPath: filePath, folder, index: i, titleFilter })
 		res.push(fileRes)
 	}
 	return res

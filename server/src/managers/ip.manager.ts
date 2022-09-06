@@ -1,5 +1,7 @@
 import { each } from "lodash";
+import { sharedConfig } from "../../../shared/shared.config";
 
+const shouldLog = sharedConfig.server.log.verbose
 export const getServerIps = (): string[] => {
 	const { networkInterfaces } = require('os');
 	const nets = networkInterfaces();
@@ -17,6 +19,6 @@ export const getServerIps = (): string[] => {
 		}
 	}
 
-	console.log(`[IP SCAN] => `, resultsFlat);
+	shouldLog && console.log(`[IP SCAN] => `, resultsFlat);
 	return resultsFlat
 }

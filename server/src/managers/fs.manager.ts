@@ -1,4 +1,5 @@
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
+import { sharedConfig } from "../../../shared/shared.config";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
@@ -16,6 +17,7 @@ var fs = require('fs');
 //////////////////////////
 
 const h = `[FS FILE]`
+const shouldLog = sharedConfig.server.log.fs
 
 export interface iMetadataFile {
 	name: string
@@ -52,7 +54,7 @@ export const openFile = async (path: string): Promise<string> => {
 
 	return new Promise((resolve, reject) => {
 		fs.readFile(path, 'utf8', (err, data: string) => {
-			if (err) { log(`[READFILE] could not read ${path}`); reject('NO_FILE') }
+			if (err) { shouldLog && log(`[READFILE] could not read ${path}`); reject('NO_FILE') }
 			else resolve(data)
 		});
 	})
@@ -69,15 +71,15 @@ export const upsertRecursivelyFolders = async (fullPathToCheck: string) => {
 
 	let createFoldersRecursively = async (path: string, pathArray: string[]) => {
 		let fullPath = `${p(path)}/${pathArray[0]}`
-		log(`createFoldersRecursively`, { path, pathArr, fullPath });
+		shouldLog && log(`createFoldersRecursively`, { path, pathArr, fullPath });
 		if (!fileExists(fullPath)) {
-			log('doesnt exists create it');
+			shouldLog && log('doesnt exists create it');
 			await createDir(fullPath)
 		}
 
 		if (pathArr.length > 1) {
 			pathArr.shift()
-			log('pathArr > 1, new ', { pathArr });
+			shouldLog && log('pathArr > 1, new ', { pathArr });
 			await createFoldersRecursively(fullPath, pathArr)
 		}
 	}
@@ -90,13 +92,13 @@ export const moveFile = async (pathInit: string, pathEnd: string): Promise<void>
 	pathEnd = p(pathEnd)
 	// check if file exists/not
 	if (!fileExists(pathInit)) {
-		log(`[MOVEFILE] ERROR : PATHINIT ${pathInit} DOESNT EXISTS`);
+		shouldLog && log(`[MOVEFILE] ERROR : PATHINIT ${pathInit} DOESNT EXISTS`);
 	} else {
-		log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
+		shouldLog && log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
 
 		return new Promise(async (resolve, reject) => {
 			fs.rename(pathInit, pathEnd, (err) => {
-				if (err) { log(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject() }
+				if (err) { shouldLog && log(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject() }
 				else resolve()
 			});
 		})
@@ -106,7 +108,7 @@ export const moveFile = async (pathInit: string, pathEnd: string): Promise<void>
 
 export const saveFile = async (path: string, content: string): Promise<void> => {
 	path = p(path)
-	log(`[SAVEFILE] starting save ${path}`);
+	shouldLog && log(`[SAVEFILE] starting save ${path}`);
 	return new Promise((resolve, reject) => {
 		// fs.truncateSync(path)
 		// fs.appendFile(path, content, (err) => {
@@ -114,7 +116,7 @@ export const saveFile = async (path: string, content: string): Promise<void> => 
 		//     else resolve()
 		// }); 
 		fs.writeFile(path, content, (err) => {
-			if (err) { log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
+			if (err) { shouldLog && log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
 			else resolve()
 		});
 	})
@@ -123,10 +125,10 @@ export const saveFile = async (path: string, content: string): Promise<void> => 
 export const createFolder = async (path: string): Promise<void> => {
 	path = p(path)
 
-	log(`[CREATEFOLDER] at ${path}`);
+	shouldLog && log(`[CREATEFOLDER] at ${path}`);
 	return new Promise((resolve, reject) => {
 		fs.mkdir(path, (err) => {
-			if (err) { log(`[CREATEFOLDER] Error ${err.message} (${path})`); reject() }
+			if (err) { shouldLog && log(`[CREATEFOLDER] Error ${err.message} (${path})`); reject() }
 			else resolve()
 		});
 	})
@@ -138,7 +140,7 @@ export const copyFile = async (pathOriginal: string, pathDestination: string): P
 
 	return new Promise((resolve, reject) => {
 		fs.copyFile(pathOriginal, pathDestination, (err) => {
-			if (err) { log(`[COPYFILE] Error ${err.message}`); reject() }
+			if (err) { shouldLog && log(`[COPYFILE] Error ${err.message}`); reject() }
 			else resolve()
 		});
 	})
@@ -148,7 +150,7 @@ export const removeFile = async (filepath: string): Promise<void> => {
 	filepath = p(filepath)
 	return new Promise((resolve, reject) => {
 		fs.unlink(filepath, (err) => {
-			if (err) { log(`[REMOVE FILE] Error ${err.message}`); reject() }
+			if (err) { shouldLog && log(`[REMOVE FILE] Error ${err.message}`); reject() }
 			else resolve()
 		});
 	})
@@ -159,7 +161,7 @@ export const fileExists = (path: string): boolean => {
 	try {
 		return fs.existsSync(path)
 	} catch (error) {
-		log(`[fileExists] error : `, error);
+		shouldLog && log(`[fileExists] error : `, error);
 
 		return false
 	}
@@ -207,19 +209,19 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 	url = url.replace("localhost", "127.0.0.1") // otherwise would crash
 
 
-	log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
+	shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
 	return new Promise((resolve, reject) => {
 		let file = fs.createWriteStream(path);
 		client.get(url, (response) => {
 			response.pipe(file);
 			file.on('finish', () => {
 				file.close();  // close() is async, call cb after close completes.
-				log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);
+				shouldLog && log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);
 				resolve(path)
 			});
 		}).on('error', (err) => { // Handle errors
 			fs.unlink(path, () => { }); // Delete the file async. (But we don't check the result)
-			log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
+			shouldLog && log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
 			reject(err.message);
 		});
 	})
