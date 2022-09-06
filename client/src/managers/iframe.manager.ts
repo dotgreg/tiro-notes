@@ -165,7 +165,7 @@ export const iframeMainCode = (p: {
 }) => {
 	const h = '[IFRAME child] 00564'
 
-	const log = true
+	const log = false
 	log && console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
 
 	// 

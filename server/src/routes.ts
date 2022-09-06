@@ -114,14 +114,20 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		})
 	})
 
+
+
+
+
 	serverSocket2.on('saveFileContent', async data => {
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
-		// log(`SAVING ${pathToFile} with new content`);
 		await upsertRecursivelyFolders(pathToFile)
 		await saveFile(pathToFile, data.newFileContent)
 		// sends back to all sockets the updated content
 		// ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
 	}, { disableDataLog: true })
+
+
+
 
 	serverSocket2.on('createNote', async data => {
 		const checkAndGenNewNoteName = (): string => {

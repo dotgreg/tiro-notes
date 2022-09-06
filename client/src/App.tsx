@@ -35,12 +35,17 @@ import { useStatusApi } from './hooks/api/status.api.hook';
 import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
+import { initPWA } from './managers/pwa.manager';
 
 
 
 export const App = () => {
 
 	useEffect(() => {
+
+		// PWA
+		initPWA()
+
 		// COMPONENT DID MOUNT didmount
 		console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
 
