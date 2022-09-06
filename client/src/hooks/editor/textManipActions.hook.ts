@@ -5,6 +5,8 @@ import { MonacoEditorWrapper } from '../../components/MonacoEditor.Component';
 import { DeviceType, deviceType, isA } from '../../managers/device.manager';
 import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
 
+const h = `[TEXT MANIP ACTION]`
+
 export type iEditorType = 'monaco-textarea' | 'codemirror'
 export interface TextManipActionsHookParams {
 	editorType: iEditorType
@@ -41,20 +43,17 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 				currentCursorPos.current = res && res.currentPosition ? res.currentPosition : 0
 			}
 		}
-		// console.log(555, res);
 		return res
 	}
 
 
 	const resetCursorPosition = (decal: number) => {
 		let newPos = currentCursorPos.current + decal
-		console.log('resetCursorPosition to ', newPos);
 		//
 		// LOGIC FOR UNIFIED CODEMIRROR
 		//
 		if (p.editorType === 'codemirror') {
 			CodeMirrorUtils.updateCursor(CMEditorObjRef.current, newPos)
-			// console.log(555, "resetCurpos", newPos);
 		}
 
 
@@ -89,12 +88,12 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 	): string | null => {
 		let linesInfos = getLineTextInfos()
 		if (!linesInfos) return null
-		console.log(555, "APPLY TEXTMODIFS", linesInfos);
+		console.log(h, "applying =>", action, actionsParams);
 		let newText = triggerTextModifAction(
 			action,
 			linesInfos,
 			charDecal => {
-				console.log(555, 'applyTextModifAction cb charDecal:', charDecal);
+				console.log(h, 'applying a decal of cursor of :', charDecal);
 				resetCursorPosition(charDecal)
 			},
 			actionsParams

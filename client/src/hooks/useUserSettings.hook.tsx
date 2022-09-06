@@ -1,5 +1,6 @@
 import { cloneDeep, debounce, each, isNull, isUndefined } from 'lodash';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
+import { sharedConfig } from '../../../shared/shared.config';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
@@ -26,7 +27,9 @@ const defaultVals: iUserSettings = {
 	ui_filesList_sortMode: 2
 }
 
-const h = `[USER SETTINGS] 0011 :`
+const h = `[USER SETTINGS] :`
+const log = sharedConfig.client.log.verbose
+
 export const useUserSettings = () => {
 
 	// storage
@@ -60,8 +63,7 @@ export const useUserSettings = () => {
 	}, [userSettings])
 
 	const debounceChange = useDebounce(() => {
-		console.log(h, 'UPDATE!', userSettings, refreshCss);
-		// if (userSettings.ui_layout_colors_main) cssVars.colors.main = userSettings.ui_layout_colors_main
+		log && console.log(h, 'UPDATE!', userSettings, refreshCss);
 		replaceDefaultByUserVar('ui_layout_colors_main', cssVars.colors, 'main')
 
 		triggerRefresh()
@@ -75,7 +77,7 @@ export const useUserSettings = () => {
 	// api
 	const userSettingsApi: iUserSettingsApi = {
 		set: (name, value) => {
-			console.log(h, `updateUserSettings ${name} to ${value}`);
+			log && console.log(h, `updateUserSettings ${name} to ${value}`);
 			const nSettings = cloneDeep(userSettings)
 			nSettings[name] = value
 			setUserSettings(nSettings)
@@ -85,7 +87,6 @@ export const useUserSettings = () => {
 			// if settings not configured, return default
 			let res = defaultVals[name]
 			if (name in userSettings) res = userSettings[name]
-			// console.log(`[USER SETTINGS] 0011 : get ${name} > ${res}`);
 			return res
 		},
 		list: () => {

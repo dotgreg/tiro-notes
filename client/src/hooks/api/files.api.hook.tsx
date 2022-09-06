@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFilePreview } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -53,7 +54,7 @@ export const useFilesApi = (p: {
 
 	// get files list
 	const getFiles: iFilesApi['get'] = (folderPath, cb) => {
-		console.log(`[CLIENT API] 002104 get files ${folderPath}`);
+		if (sharedConfig.client.log.socket) console.log(`[CLIENT API] get files ${folderPath}`);
 		const idReq = genIdReq('get-files-');
 		p.statusApi.searching.set(true)
 		// 1. add a listener function
@@ -72,7 +73,6 @@ export const useFilesApi = (p: {
 
 	// get files list preview
 	const getFilesPreview: iFilesApi['getPreviews'] = (filesPath, cb) => {
-		// console.log(`[CLIENT API] 002104 get files previews for ${filesPath.length} files`);
 		const idReq = genIdReq('get-files-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, cb);

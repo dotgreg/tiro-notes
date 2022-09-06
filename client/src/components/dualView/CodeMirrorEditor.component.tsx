@@ -17,6 +17,7 @@ import { cssVars } from "../../managers/style/vars.style.manager";
 import { syncScroll2 } from "../../hooks/syncScroll.hook";
 
 
+const h = `[Code Mirror]`
 const CodeMirrorEditorInt = forwardRef((p: {
 	windowId: string,
 
@@ -29,16 +30,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	forceRender: number
 }, forwardedRef) => {
 
-	///////////////////////////////////
-	// v3 => working with no state and dispatch only => KEEPING CURSOR MAIS PERDS SI PLUSIEURS IMGS UPLOADED...
-
-	// => pb parfois quand currentPosition, celui-ci renvoie 0, est perdu
-	// => S1 => fixer cpos => nope, ca donne meme result, a un moment il insere a 0
-
-	// => S2 => BOOOOF ralentir quand insertAt avec un setTimeout tt 100ms?
-	// => S3 => si on stabilise lineInfos, est-ce stable? => OUIII
-	// => S3b => du coup, cacher les vals, 1ere val on prend direct, puis tt autres req retourne cette cached avec un debounce update
-
 
 	const getEditorObj = (): any => {
 		// @ts-ignore
@@ -47,31 +38,17 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		return f
 	}
 
-	// useEffect(() => {
-	// 	console.log(3332);
-	// }, [p.onChange]);
-
-	// useEffect(() => {
-	// 	const f = getEditorObj()
-	// 	f.view.contentAttrs.autocorrect = false
-	// 	f.view.contentAttrs.contenteditable = false
-	// }, []);
-
-
 	const histVal = useRef("")
 	useEffect(() => {
 		const f = getEditorObj()
 		// @ts-ignore
 		window.cmobj = f
 		if (!f) return
-		// f.view.contentAttrs.autocorrect = false
-		// f.view.contentAttrs.contenteditable = "false"
 
-		// document.querySelector(".cm-content").
-		// @ts-ignore
-		document.querySelector(".cm-content").contentEditable = true
-		// @ts-ignore
-		document.querySelector(".cm-content").autoCorrect = false
+		// // @ts-ignore
+		// document.querySelector(".cm-content").contentEditable = true
+		// // @ts-ignore
+		// document.querySelector(".cm-content").autoCorrect = false
 
 
 		if (p.value === histVal.current) return
@@ -80,7 +57,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const li = CodeMirrorUtils.getCurrentLineInfos(f)
 		const cpos = li.currentPosition
 		CodeMirrorUtils.updateText(f, p.value, cpos)
-		CodeMirrorUtils.updateCursor(f, cpos)
+
+		// was just for not losing cursor after upload, but did it directly there
+		// CodeMirrorUtils.updateCursor(f, cpos)
 
 		histVal.current = p.value
 	}, [p.value]);
@@ -90,27 +69,15 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 
 
-
-
+	//
+	// JUMP TO LINE
+	//
 	useEffect(() => {
-		const f = getEditorObj()
-		if (!f) return
-		if (p.posY <= -10) return
-		// f.view.scrollDOM.scrollTop = p.posY
-		// f.view.scrollDOM.scrollTop = p.posY
-		// CodeMirrorUtils.scrollTo(f, p.posY)
-	}, [p.posY])
-
-
-	useEffect(() => {
-		console.log("JUMP COODEMIRROR", p.jumpToLine);
+		console.log(h, "JUMP to line :", p.jumpToLine);
 		if (p.jumpToLine === -1) return
 		const f = getEditorObj()
 		if (!f) return
 		if (p.posY <= -10) return
-		// f.view.scrollDOM.scrollTop = p.posY
-		// f.view.scrollDOM.scrollTop = 200
-		// CodeMirrorUtils.scrollTo(f, 200)
 		CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
 	}, [p.jumpToLine])
 
@@ -153,13 +120,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 })
 export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 	(np, pp) => {
-		// console.log(np.value.length - pp.value.length);
-		// console.log(np.value, pp.value);
-		// console.log(np, pp);
-		// if edition diff is more than 2 chars, reupdate content 
-		// if (Math.abs(np.value.length - pp.value.length) > 10) {
-		// return false // updaaaaate
-		// }
 		if (
 			np.value !== pp.value &&
 			np.forceRender !== pp.forceRender
@@ -170,8 +130,6 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 	})
 
 
-// export const codeMirrorEditorCss = () => `
-// `
 export const codeMirrorEditorCss = () => `
 .cm-matchingBracket {
 	background-color: rgba(0,0,0,0)!important;
@@ -229,26 +187,18 @@ outline: none!important;
 // UPDATING TEXT
 // 
 const updateText = (CMObj: any, newText: string, charPos: number) => {
-	// @ts-ignore
-	// window.cmobj = CMObj;
 	const vstate = CMObj.view.state
 	const vtxt = vstate.doc.toString()
 	const length = vtxt.length
 
-	const dstate = CMObj.state
-	const dtxt = dstate.doc.toString()
-	const dlen = dtxt.length
-	// console.log(55512, vtxt, dtxt, newText);
-
 	CMObj.view.dispatch(
 		CMObj.view.state.update(
 			{ changes: { from: 0, to: length, insert: newText } },
-			// { selection: EditorSelection.single(charPos) }
 		)
 	)
 }
 const updateCursor = (CMObj: any, newPos: number) => {
-	console.log(555, "CM update cursor", newPos);
+	console.log(h, " update cursor", newPos);
 	setTimeout(() => {
 
 		// CMObj.view.focus()
@@ -259,7 +209,7 @@ const updateCursor = (CMObj: any, newPos: number) => {
 				)
 			)
 		} catch (e) {
-			console.warn("update Cursor", e)
+			console.warn(h, "update Cursor error", e)
 		}
 	}, 10)
 }
@@ -269,17 +219,18 @@ const updateCursor = (CMObj: any, newPos: number) => {
 //
 // GET CURRENT POS AND LINE
 // 
-// as getPosition is quite unstable, cache it to stabilize it
-let cachedPosition = 0
-const throt = throttle((CMObj) => {
-	cachedPosition = CMObj.view.state.selection.ranges[0].from
-}, 1000)
+
+// let cachedPosition = 0
+// const throt = throttle((CMObj) => {
+// 	cachedPosition = CMObj.view.state.selection.ranges[0].from
+// }, 1000)
 const getCachedPosition = (CMObj: any) => {
-	throt(CMObj)
-	return cachedPosition
+	// throt(CMObj)
+	// cachedPosition = CMObj.view.state.selection.ranges[0].from
+	return CMObj.view.state.selection.ranges[0].from
 }
 const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
-	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number
+	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1
 	const currentPosition = getCachedPosition(CMObj)
 	const currentText = CMObj.view.state.doc.toString()
 	let splitedText = currentText.split("\n");
@@ -290,7 +241,6 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
 		activeLine: splitedText[currentLineIndex] || "",
 		lineIndex: currentLineIndex
 	}
-	// console.log(555, "CM getInfos", res);
 	return res
 }
 
@@ -341,8 +291,7 @@ const scrollToLine = (CMObj: any, lineToJump: number) => {
 	for (let i = 0; i < lineToJump + 1; i++) {
 		lengthFromBegin += splitText[i].length
 	}
-	// console.log(666, lineToJump, lengthFromBegin);
-	// scrollTo(CMObj, lengthFromBegin)
+
 	updateCursor(CMObj, lengthFromBegin + 2)
 
 	setTimeout(() => {

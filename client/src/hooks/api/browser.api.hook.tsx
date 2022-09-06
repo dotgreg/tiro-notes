@@ -1,6 +1,7 @@
 import { cloneDeep, each, isArray } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { iAppView, iFile, iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
@@ -85,8 +86,9 @@ export const useBrowserApi = (p: {
 			const appView = 'text'
 			if (folderPath === "") return
 			folderPath = cleanPath(`${folderPath}/`)
-			const h = `[BROWSER GO TO] 00722 `
-			console.log(`${h} ${folderPath} ${fileTitle} ${appView}, ${JSON.stringify(opts)}`);
+			const h = `[BROWSER GO TO] `
+			const log = sharedConfig.client.log.verbose
+			log && console.log(`${h} ${folderPath} ${fileTitle} ${appView}, ${JSON.stringify(opts)}`);
 			p.searchUiApi.term.set('')
 			p.statusApi.searching.set(true)
 			setSelectedFolder(folderPath)

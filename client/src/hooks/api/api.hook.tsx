@@ -18,6 +18,7 @@ import { getFunctionParamNames } from '../../managers/functions.manager';
 import { iNoteApi, useNoteApi } from './note.api.hook';
 import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 import { iCacheApi, useCacheApi } from './cache.api.hook';
+import { sharedConfig } from '../../../../shared/shared.config';
 
 
 
@@ -127,7 +128,8 @@ export const useClientApi = (p: {
 	}
 
 	useEffect(() => {
-		console.log('INIT CLIENT API');
+		const log = sharedConfig.client.log.verbose
+		log && console.log('[CLIENT API ]INIT ');
 	}, [])
 
 

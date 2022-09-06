@@ -370,8 +370,9 @@ p.onGridUpdate({ layout: intLayout, content: intContent })
 
 						</div >
 						</div >
-)//jsx
+)
 }
+
 
 
 export const GridMobileCss = () => `
@@ -388,8 +389,7 @@ export const GridMobileCss = () => `
 						.dual-view-wrapper {
 								.editor-area {
 										.infos-editor-wrapper {
-																										margin-top: 10px;
-
+												margin-top: 10px;
 												top: -33px;
 												.title-input-wrapper {
 														input {
