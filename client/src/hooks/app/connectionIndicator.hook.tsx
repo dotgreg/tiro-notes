@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { configClient } from "../../config"
 import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
@@ -63,7 +64,8 @@ export const useConnectionIndicator = () => {
 	}, [])
 
 	const toggleSocketConnection = (state: boolean) => {
-		console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
+		const log = sharedConfig.client.log.verbose
+		log && console.log(`[SOCKET CONNECTION TOGGLE] to ${state}`);
 		setIsSocketConnected(state)
 	}
 

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { sharedConfig } from '../../../shared/shared.config';
 
 
 // let baseY = 0
@@ -14,9 +15,10 @@ interface iDbScroll {
 	[wid: string]: iScrollConfig
 }
 
+const log = sharedConfig.client.log.verbose
 let db: iDbScroll = {}
 export const cleanDb = () => {
-	console.log("syncScroll => cleaning db");
+	log && console.log("[syncScroll] => cleaning db");
 	db = {}
 }
 const getScrollObj = (wid) => {

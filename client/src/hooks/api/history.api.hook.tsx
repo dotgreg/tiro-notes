@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 
@@ -12,7 +13,8 @@ export interface iNoteHistoryApi {
 
 
 export const useNoteHistoryApi = (): iNoteHistoryApi => {
-	const h = `[NOTE HISTORY] 0047 `
+	const h = `[NOTE HISTORY]  `
+const log = sharedConfig.client.log.verbose
 
 	// 5. ON SAVE, AUTOMATIC HISTORY CALL EVERY 10m OR WHEN FILE CHANGE
 	interface iNotesLastHistory {
@@ -24,7 +26,7 @@ export const useNoteHistoryApi = (): iNoteHistoryApi => {
 	let histDelayInMs = histDelayInMin * 60 * 1000
 
 	const saveNoteHistory: iNoteHistoryApi['save'] = (filePath, content, type) => {
-		console.log(`${h} saveNoteHistory ${filePath}`);
+		log && console.log(`${h} saveNoteHistory ${filePath}`);
 		clientSocket2.emit('createHistoryFile', {
 			filePath,
 			content,
@@ -40,7 +42,7 @@ export const useNoteHistoryApi = (): iNoteHistoryApi => {
 			!fileLastHistory ||
 			(fileLastHistory && fileLastHistory + histDelayInMs < getNow())
 		) {
-			console.log(`${h} ${filepath}, time ${histDelayInMin} expired/inexistand, PROCEED BACKUP`);
+			log && console.log(`${h} ${filepath}, time ${histDelayInMin} expired/inexistand, PROCEED BACKUP`);
 			saveNoteHistory(filepath, content, 'int')
 			notesLastHistory.current[filepath] = getNow()
 		}

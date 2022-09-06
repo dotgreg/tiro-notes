@@ -6,6 +6,7 @@ import { replaceCustomMdTags } from "./markdown.manager";
 import { unescapeHtml } from "./textProcessor.manager";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
 import { getBackendUrl } from "./sockets/socket.manager";
+import { sharedConfig } from "../../../shared/shared.config";
 
 type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe'
 
@@ -55,6 +56,7 @@ interface iIframeMessage {
 //
 
 const h = `[IFRAME PARENT] 00563`
+const log = sharedConfig.client.log.iframe 
 
 //
 // Creating an Event Bus
@@ -68,10 +70,9 @@ const { notify, subscribe, unsubscribe } = createEventBus<iIframeMessage>({
 // LISTENING
 //
 const initIframeListening = () => {
-	// console.log(h, `INIT IFRAME LISTENING`);
 	window.addEventListener('message', m => {
 		if (!m.data.subId) return
-		console.log(h, 'parent <== iframe', m.data.data);
+		log && console.log(h, 'parent <== iframe', m.data.data);
 		notify(m.data)
 	});
 }
@@ -80,7 +81,7 @@ initIframeListening()
 
 const sendToIframe = (el: HTMLIFrameElement | null, message: iIframeMessage) => {
 	if (!el || !el.contentWindow) return;
-	console.log(h, `parent ==> iframe`, message);
+	log && console.log(h, `parent ==> iframe`, message);
 	el.contentWindow.postMessage(message, "*")
 }
 
@@ -164,7 +165,7 @@ export const iframeMainCode = (p: {
 }) => {
 	const h = '[IFRAME child] 00564'
 
-	console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
+	log && console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
 
 	// 
 	// STORAGE
@@ -212,7 +213,6 @@ export const iframeMainCode = (p: {
 			bodyRaw,
 			'[[script]]',
 			(UNSAFE_user_script: string) => {
-				// console.log(h, UNSAFE_user_script);
 				const scriptTxt = `${UNSAFE_user_script}`
 				try {
 					// using Function instead of eval to isolate the execution scope
@@ -325,9 +325,7 @@ export const iframeMainCode = (p: {
 
 	const loadLocalRessourceInHtml = (url, onLoad) => {
 		let tag
-		// console.log("111111 loading", url);
 		if (url.includes(".js")) {
-			// console.log("1111112 loading", url);
 			tag = document.createElement('script');
 			tag.src = url
 		}
@@ -338,7 +336,6 @@ export const iframeMainCode = (p: {
 			tag.type = "text/css"
 		}
 		tag.onload = () => {
-			// console.log("111113 LOADED!!", url);
 			onLoad()
 		}
 		const el = document.getElementById('external-ressources-wrapper')
@@ -357,14 +354,12 @@ export const iframeMainCode = (p: {
 	//////////
 	// API FUNCTIONS
 	const loadCachedRessources = (ressources: string[], cb: Function) => {
-		// console.log(h, 'loadCachedRessources', ressources);
 
 		let ressourcesLoaded = 0;
 		const onRessLoaded = () => {
 			ressourcesLoaded++
-			// console.log(h, `ressources: ${ressourcesLoaded}/${ressources.length}`);
 			if (ressourcesLoaded === ressources.length) {
-				console.log(`ressources all ressources loaded, cb()!`, ressources);
+				log && console.log(h, `ressources all ressources loaded, cb()!`, ressources);
 				try {
 					if (cb) cb()
 				} catch (e) {
@@ -410,7 +405,7 @@ export const iframeMainCode = (p: {
 		loadCachedRessources(scripts, cb)
 	}
 	const loadScriptsNoCache = (scripts: string[], cb: Function) => {
-		console.log(h, 'loadScripts', scripts);
+		log && console.log(h, 'loadScripts', scripts);
 		let scriptsLoaded = 0;
 		// each(scripts, scriptToLoad => {
 		for (let i = 0; i < scripts.length; i++) {
@@ -419,9 +414,9 @@ export const iframeMainCode = (p: {
 			s.src = scriptToLoad
 			s.onload = () => {
 				scriptsLoaded++
-				console.log(h, `loadScripts: ${scriptsLoaded}/${scripts.length}`);
+				log && console.log(h, `loadScripts: ${scriptsLoaded}/${scripts.length}`);
 				if (scriptsLoaded === scripts.length) {
-					console.log(`loadScripts all scripts loaded, cb()!`);
+					log && console.log(`loadScripts all scripts loaded, cb()!`);
 					try {
 						if (cb) cb()
 					} catch (e) {
@@ -448,7 +443,7 @@ export const iframeMainCode = (p: {
 
 		api.utils.loadScripts([url],
 			() => {
-				console.log(h, `CUSTOM TAG LOADED ${url}`)
+				log && console.log(h, `CUSTOM TAG LOADED ${url}`)
 				// ON loadScript Url DONE => script provides the function initCustomTag that we execute
 				//@ts-ignore 
 				let htmlStr = window.initCustomTag(`${innerTag}`, opts)

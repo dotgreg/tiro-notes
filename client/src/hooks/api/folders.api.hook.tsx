@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -46,7 +47,7 @@ export const useFoldersApi = (p: {
 
 	// 
 	const getFolders: iFoldersApi['get'] = (folders, cb) => {
-		console.log(`[FOLDERS API] 002104 get folders ${folders}`);
+		if (sharedConfig.client.log.socket) console.log(`[FOLDERS API] get folders `);
 		const idReq = genIdReq('get-folders-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, cb);

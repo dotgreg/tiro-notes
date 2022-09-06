@@ -25,6 +25,7 @@ import { ClientApiContext } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
 import { CodeMirrorEditor, CodeMirrorUtils } from './CodeMirrorEditor.component';
 import { debounce } from 'lodash';
+import { useDebounce } from '../../hooks/lodash.hooks';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -150,10 +151,24 @@ export const EditorArea = (p: {
 		if (gridContext.upload.file && p.isActive) {
 			const { name, path } = { ...gridContext.upload.file }
 			gridContext.upload.reinit();
-			insertTextAt(`\n![${name}](${path})\n`, 'currentPos')
+			stringToInsertUpload.current += `![${name}](${path})\n`
+			debouncedUploadInsert()
 		}
 
 	}, [gridContext.upload])
+
+
+	const stringToInsertUpload = useRef('')
+	const debouncedUploadInsert = useDebounce(() => {
+		const f = codeMirrorEditorView.current
+		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
+
+
+		insertTextAt(stringToInsertUpload.current, 'currentPos')
+		stringToInsertUpload.current = ''
+
+		CodeMirrorUtils.updateCursor(f, cPos)
+	}, 300)
 
 	const idNote = `[link|${p.file.realname} ${p.file.folder}]\n`
 
@@ -161,19 +176,19 @@ export const EditorArea = (p: {
 	// TOOLBAR ACTIONS
 	//
 	const editorToolbarActions = [
-		{
-			title: 'preview scroll',
-			class: 'toggle-scroll',
-			action: () => { },
-			customHtml: <input
-				type="checkbox"
-				defaultChecked={false}
-				onChange={(e) => {
-					// console.log('wooop', e.target.checked);
-					p.onScrollModeChange(!e.target.checked)
-				}}
-			/>
-		},
+		// {
+		// 	title: 'preview scroll',
+		// 	class: 'toggle-scroll',
+		// 	action: () => { },
+		// 	customHtml: <input
+		// 		type="checkbox"
+		// 		defaultChecked={false}
+		// 		onChange={(e) => {
+		// 			// console.log('wooop', e.target.checked);
+		// 			p.onScrollModeChange(!e.target.checked)
+		// 		}}
+		// 	/>
+		// },
 		{
 			title: '',
 			class: 'upload-button-wrapper',
@@ -201,14 +216,6 @@ export const EditorArea = (p: {
 				setHistoryPopup(!historyPopup)
 			}
 		},
-		// {
-		// 	title: strings.editorBar.lightbox,
-		// 	icon: 'faImages',
-		// 	action: () => {
-		// 		const imgs = findImagesFromContent(innerFileContent, p.file)
-		// 		api?.ui.lightbox.open(0, imgs)
-		// 	}
-		// },
 		{
 			title: strings.editorBar.tts,
 			icon: 'faCommentDots',
@@ -491,7 +498,10 @@ export const EditorArea = (p: {
 				<NoteMobileToolbar
 					onButtonClicked={action => {
 						let updatedText = applyTextModifAction(action)
-						if (updatedText) triggerNoteEdition(updatedText)
+						if (updatedText) {
+							triggerNoteEdition(updatedText)
+							forceCmRender()
+						}
 					}}
 				/>
 			}
@@ -506,6 +516,11 @@ export const EditorArea = (p: {
 }
 
 export const commonCssEditors = () => `
+.mobile-text-manip-toolbar {
+	.toolbar-button {
+		padding: 13px 20px;
+	}
+}
 
 .file-path-wrapper {
   padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
