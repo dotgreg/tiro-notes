@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { iSetupForm } from '../../../../shared/types.shared';
+import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
 import { Popup } from '../../components/Popup.component';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { useStatMemo } from "../useStatMemo.hook"
 import { getLoginToken } from './loginToken.hook';
 
 export const useSetupConfig = (p: {
@@ -20,10 +19,14 @@ export const useSetupConfig = (p: {
 
 	const [formMessage, setFormMessage] = useState<['error' | 'success', string]>()
 
+	const h = `[SETUP CONFIG]`
+	const log = sharedConfig.client.log.verbose
+
+
 	// SOCKET INTERACTIONS
 	const listenerId = useRef<number>(0)
 	useEffect(() => {
-		console.log(`[SETUP CONFIG] init socket listener`);
+		log && console.log(h,` init socket listener`);
 		listenerId.current = clientSocket2.on('getSetupInfos', data => {
 			if (data.code === 'SUCCESS_CONFIG_CREATION') {
 				setFormMessage(['success', `${strings.setupForm.successReload}`])
@@ -43,7 +46,7 @@ export const useSetupConfig = (p: {
 		}
 		)
 		return () => {
-			console.log(`[SETUP CONFIG] clean socket listener`);
+			log &&		console.log(h, ` clean socket listener`);
 			clientSocket2.off(listenerId.current)
 		}
 	}, [])
