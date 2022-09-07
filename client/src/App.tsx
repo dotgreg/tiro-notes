@@ -248,7 +248,6 @@ export const App = () => {
 	const askForFolderScan = foldersUiApi.scan
 	const cleanFolderHierarchy = foldersUiApi.clean
 	const folderBasePath = foldersUiApi.base
-	const openFolders = foldersUiApi.open.get
 
 
 	// last Note + files history array
@@ -272,71 +271,10 @@ export const App = () => {
 		MobileToolbarComponent
 	} = useMobileView()
 
-	// create a refresh on mobile view toggle
-	// useEffect(() => {
-	// 	api.status.refresh.increment()
-	// }, [mobileView])
-
 	//@ts-ignore
 	window.api = api
 
-	// useEffect(() => {
-	// 	api.search.word("#[^ #]+", '/test_obsi/nodal_ex', res => {
-	// 		console.log(3333, res);
-	// 	})
-	// }, [])
-
-
-
-
-	useEffect(() => {
-		// getHashtags("/test_obsi").then(dic => {
-		// 	console.log(2221, dic);
-		// })
-
-		api.folders.get(["--test--"], () => { })
-		// api.cache.get('test-woop', content => { console.log(3338, content); })
-
-		setTimeout(() => {
-			// api.cache.set('test-woop', {
-			// 	massive: [321321, 32132132, 3321, 321, 312, 3, 21, 31, 312, 321],
-			// 	hell: "fdsafdasfdsa"
-			// })
-		}, 4000)
-
-		setInterval(() => {
-			// api.cache.get('test-woop', content => { console.log(3338, content); })
-
-		}, 2000)
-
-	}, [])
-
-	// useEffect(() => {
-	// 	api.search.word("#[^ #]+", '/test_obsi/nodal_ex/', res => {
-	// 		console.log(3333, res);
-	// 	})
-	// }, [])
-
-	// useEffect(() => {
-	// 	const url = "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/custom-tags/rss/rss.js"
-	// 	api.ressource.download(url, "woop/woop", (answer) => {
-	// 		console.log(12345555555, answer);
-	// 	})
-	// }, [])
-
-	// useEffect(() => {
-	// 	setTimeout(() => {
-	// 		// console.log(222, api.ui.windows.active.get());
-	// 		getClientApi2().then(api => {
-	// 			const activeId = api.ui.windows.active.get()?.content.i || ""
-	// 			// console.log();
-	// 			// console.log(234234, activeId);
-	// 			api.ui.note.lineJump.jump({ windowId: activeId, line: 50 })
-	// 		})
-	// 	}, 2000)
-	// }, [])
-
-	return (//jsx
+	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
 
@@ -378,6 +316,8 @@ export const App = () => {
 												clientApi.file.create(selectedFolder, files => {
 													// reload list and go to new one
 													const nFile = getMostRecentFile(files)
+													console.log(1112);
+
 													nFile && clientApi.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
 												})
 											}}
@@ -386,6 +326,7 @@ export const App = () => {
 										<LastNotes
 											files={filesHistory}
 											onClick={file => {
+												console.log(777);
 												clientApi.ui.browser.goTo(
 													file.folder,
 													file.name,
@@ -400,6 +341,7 @@ export const App = () => {
 											folder={foldersUiApi.get}
 											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
+												console.log(111);
 												clientApi.ui.browser.goTo(folderPath, null)
 											}}
 											onFolderMenuAction={(action, folder, newTitle) => {

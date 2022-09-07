@@ -1,4 +1,4 @@
-import { each } from 'lodash';
+import { each, random } from 'lodash';
 import React, { useContext, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { iFile, iFilePreview } from '../../../shared/types.shared';
 import { ClientApiContext } from '../hooks/api/api.hook';
@@ -34,7 +34,6 @@ export const FilesList = (p: {
 	const [, forceUpdate] = useReducer(x => x + 1, 0);
 
 	const askFilesPreview = (filesPath: string[], skipCache: boolean = false) => {
-		// console.log("=================== ASK FILES PREVIEW");
 		if (!api) return
 
 		// CACHING : do not ask again if file already has been fetched
@@ -66,8 +65,10 @@ export const FilesList = (p: {
 		p.onSortFiles(sortFiles(p.files, newMode))
 	}
 
-	return (//jsx
-		<div className="files-list-component">
+	return (
+
+		< div className="files-list-component" >
+
 			<div className='list-toolbar'>
 				<button
 					type="button"
@@ -105,6 +106,6 @@ export const FilesList = (p: {
 					}}
 				/>
 			</div>
-		</div>
+		</div >
 	)//jsx
 }

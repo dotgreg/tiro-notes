@@ -7,7 +7,7 @@ import { formatDateList } from '../../managers/date.manager';
 import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
 import { iContentChunk, noteApiFuncs } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { commonCssEditors } from './EditorArea.component';
+import { commonCssEditors, EditorArea } from './EditorArea.component';
 import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 import { syncScroll2 } from '../../hooks/syncScroll.hook';
 
@@ -72,15 +72,23 @@ export const PreviewArea = (p: {
 	}, [p.fileContent])
 
 
+	const getWindowHeight = (): number => {
+		let res = 0
+		const el = document.querySelector(`.window-id-${p.windowId}`)
+		if (el) res = el.clientHeight
+		// if it is mobile, windows are sometimes hidden = height 0
+		if (deviceType() === "mobile" && res === 0) { res = document.body.clientHeight - 120 }
+		return res
+	}
 
 	return (
 		<div
-			className={`preview-area-wrapper`}
+			className={`preview-area-wrapper render-latex`}
 			onWheelCapture={(e) => {
 				// console.log(555, e);
 				// @ts-ignore
 				// console.log();
-				syncScroll2.previewToEditor(p.windowId)
+				syncScroll2.syncPreviewOffset(p.windowId)
 
 
 			}}
@@ -113,7 +121,7 @@ export const PreviewArea = (p: {
 										block={block}
 										windowId={p.windowId}
 										file={p.file}
-										windowHeight={previewAreaRefs.wrapper.current?.clientHeight}
+										windowHeight={getWindowHeight()}
 										yCnt={p.yCnt}
 										onIframeMouseWheel={p.onIframeMouseWheel}
 									/>
@@ -484,18 +492,13 @@ export const previewAreaSimpleCss = () => {
 }
 
 export const previewAreaCss = () => `
-.view-editor-with-map .preview-area {
-		// margin-top: 90px;
-}
-.view-both .preview-area {
-		margin-top: 20px;
-}
-
-.preview-area-wrapper {
-    // overflow: ${isIpad() ? 'scroll' : isA('mobile') ? 'scroll' : 'hidden'};
-    height: ${isA('desktop') ? '100vh' : '100vh'};
-		overflow: scroll; 
-    margin-top: ${isA('desktop') ? '140' : '0'}px;
+.preview-area {
+		margin-top: 5px;
+    .infos-preview-wrapper {
+				border-bottom: 1px solid rgba(0 0 0 / 5%);
+        display: ${isA('desktop') ? 'none' : 'block'};
+				padding: 5px 0px 12px 0px;
+		}
 }
 .preview-area {
     position: relative;
@@ -503,13 +506,28 @@ export const previewAreaCss = () => `
 
     ${commonCssEditors}
 
-		${previewAreaSimpleCss()}
-
-
-
     .infos-preview-wrapper {
-        display: ${isA('desktop') ? 'none' : 'block'};
     }
-
+		.infos-preview-wrapper h1.big-title {
+				width: calc(100% - 65px);
+				font-family: ${cssVars.font.editor};
+				color: grey;
+				font-size: 15px;
+				margin: 0px;
+				padding: 0px 14px;
+		}
 }
+.content-blocks-wrapper {
+		${previewAreaSimpleCss()}
+}
+.view-both .preview-area {
+		margin-top: 20px;
+}
+
+.preview-area-wrapper {
+    height: ${isA('desktop') ? '100vh' : '100vh'};
+		overflow: scroll; 
+    margin-top: ${isA('desktop') ? '140' : '0'}px;
+}
+
 `

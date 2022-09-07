@@ -87,7 +87,7 @@ const tocApp = (innerTagStr, opts) => {
 								const no = resArr[i+1];
 								const jsAction = `onClick="event.preventDefault(); window.jumpTo(${o.line});"`
 								const sLi = `<li class="main-color">`
-								const contentLi = `<a href="#" ${jsAction}>${o.title}</a>`
+								const contentLi = `<a href="#/" ${jsAction}>${o.title}</a>`
 								const eLi = `</li>`
 								if (no) {
 										// if next one exists

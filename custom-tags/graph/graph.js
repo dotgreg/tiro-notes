@@ -205,17 +205,22 @@ const graphApp = (innerTagStr, opts) => {
 <div class="links-wrapper">
 								`
 				// const file
+				//
+				// JS RELATED FUNCTIONS
+				//
 				const popupFunctionStr = (file) => `
 window.api.file.getContent('${file.path}', ncontent => {
 		ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).replaceAll('\"', '\'')}, windowId:''})
-		ncontent2 = ncontent2.replaceAll('${node.name}', '<span>${node.name}</span>')
+		ncontent2 = ncontent2.replaceAll('${node.name}', '<span class=\\'found-word\\'>${node.name}</span>')
 		const previewEl = document.getElementById('popup-part-preview');
-		previewEl.innerHTML = '<div class=\\'file-content\\'><h3>${file.path}</h3>' + ncontent2 +'</div>';
+		previewEl.innerHTML = '<div class=\\'file-content render-latex\\'><h3>${file.path}</h3>' + ncontent2 +'</div>';
 		setTimeout(() => {
-				document.querySelector('#popup-part-preview span').scrollIntoView();
+				document.querySelector('#popup-part-preview .found-word').scrollIntoView();
 		}, 100)
 })
 `
+				const openInActiveWindowStr = (file) => `window.api.ui.windows.active.setContent(${JSON.stringify(file).replaceAll('\"', '\'')}); `
+
 				const objsToDisplay = {}
 				for (let i = 0; i < parts.length; i++) {
 						if (!objsToDisplay[parts[i].file.name]) {
@@ -231,17 +236,13 @@ window.api.file.getContent('${file.path}', ncontent => {
 				toShow += `<ul class="notes-list">`
 				for ( let key in objsToDisplay) {
 						const obj = objsToDisplay[key]
-						toShow += `<li><a href="#" onclick="${popupFunctionStr(obj.file)}">`
+						toShow += `<li><a href="#/" onclick="${popupFunctionStr(obj.file)}">`
 						toShow += `${obj.file.name}${obj.partsName.length === 0 ? "": " in #"}${obj.partsName.join(" ,#")}`
-						toShow += `</a></li>`
+						toShow += `</a> | `
+						toShow += `<a href="#/" onclick="${openInActiveWindowStr(obj.file)}"> > </a></li>`
 				}
 				toShow += `</ul>`
 
-				// for (let i = 0; i < parts.length; i++) {
-				// 		toShow += `<a href="#" onclick="${popupFunctionStr(parts[i].file)}">`
-				// 		toShow += `${parts[i].file.name} #${parts[i].titleName} `
-				// 		toShow += `</a> \n<br>`
-				// }
 
 				toShow += `</div>
 <div id="popup-part-preview">
@@ -266,7 +267,7 @@ window.api.file.getContent('${file.path}', ncontent => {
 #popup-part-preview li {
 		margin: 0px;
 }
-#popup-part-preview span {
+#popup-part-preview .found-word {
    font-weight: bold;
     background: #fff876;
     padding: 2px;

@@ -127,6 +127,7 @@ export const triggerTextModifAction = (
 		let currLine = lines[infos.lineIndex]
 		lines[infos.lineIndex] = prevLine
 		lines[infos.lineIndex - 1] = currLine
+		// console.log();
 		cb(-prevLine.length - 1)
 	}
 	if (action === 'v') {

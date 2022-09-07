@@ -9,7 +9,7 @@ import { findImagesFromContent } from './images.manager';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
-	const subst = `<a class="external-link preview-link" href="#" ${codeOpenPopup}>$2</a>`;
+	const subst = `<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
 	return bodyRaw.replace(regexs.url2transform, subst);
 }
 

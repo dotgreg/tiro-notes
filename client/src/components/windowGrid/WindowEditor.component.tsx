@@ -39,18 +39,24 @@ export const WindowEditor = (p: {
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
 		api && api.file.saveContent(filepath, content, { history: true })
 	}
-	const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
+	// const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
 
 	//
 	// FORCE LIST FILES REFRESH
 	//
-	const refreshFilesList = () => {
-		console.log('0046 refresh list after file edit');
-		api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
-	}
-	const debouncedRefreshList = debounce(refreshFilesList, 5000)
+	// const refreshFilesList = () => {
+	// 	console.log(444);
+	// 	api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
+	// }
+	// const debouncedRefreshList = debounce(refreshFilesList, 5000)
 
-	return (//jsx
+	// ON ACTIVE, LOAD LIST
+	useEffect(() => {
+			if (!file) return
+			api && api.ui.browser.goTo(file.folder, file.name)
+	}, [active])
+
+	return (
 		<>
 			{
 				file &&
@@ -66,15 +72,11 @@ export const WindowEditor = (p: {
 						onViewChange={p.onViewChange}
 
 						onFileEdited={(path, content) => {
-							//debouncedOnFileEditedSaveIt(path, content)
 							onFileEditedSaveIt(path, content);
-							//throttRefresh()
-							// debouncedRefreshList();
-							//updateRefreshList();
 						}}
 					/>
 				</div>
 			}
-		</>)//jsx
+		</>)
 
 }
