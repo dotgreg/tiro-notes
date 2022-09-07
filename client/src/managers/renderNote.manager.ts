@@ -1,8 +1,9 @@
-import { cloneDeep, each, isNumber } from "lodash"
+import { cloneDeep, each, isNumber, random } from "lodash"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"
 import { iNoteApi } from "../hooks/api/note.api.hook"
+import {  refreshRenderLatexGlobally } from "./latex.manager"
 import { md2html } from "./markdown.manager"
 import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
 
@@ -47,17 +48,23 @@ const renderNoteContent: iNoteApi['render'] = p => {
 
 const renderMarkdownToHtml: iNoteApi['render'] = (p): string => {
 	const { raw, file, windowId } = { ...p }
-	return (
-
-		md2html(
-			transformRessourcesInHTML(file.folder,
-				transformImagesInHTML(file,
-					transformSearchLinks(
-						transformTitleSearchLinks(windowId,
-							transformUrlInLinks(
-								raw
-							))))))
+	let html = (md2html(
+		transformRessourcesInHTML(file.folder,
+			transformImagesInHTML(file,
+				transformSearchLinks(
+					transformTitleSearchLinks(windowId,
+						transformUrlInLinks(
+							raw
+						))))))
 	)
+
+
+	// let idWrapper = `renderWrapper-${random(0, 1000)}`
+	// html = `<div id="${idWrapper}">${html}</div>`
+	// initRenderLatexInText(`#${idWrapper}`)
+	// initRenderLatexInText(".preview-area-wrapper")
+	refreshRenderLatexGlobally()
+	return html
 }
 
 

@@ -21,4 +21,4 @@
 
 // exporting z
 // export default z  
-export default  {} 
+export default {} 

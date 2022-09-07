@@ -104,10 +104,14 @@ export const useFileApi = (p: {
 				getClientApi2().then(api => {
 					const browserFolder = api.ui.browser.folders.current.get
 					const currFolder = getFolderPath(noteLink)
-					// console.log('0038 CHANGED NOTE', browserFolder, currFolder);
 					if (browserFolder === currFolder) {
+
 						// update browser list if same path than edited file
-						api.ui.browser.goTo(browserFolder)
+						let fileTitle = ""
+						const aWindow = api.ui.windows.active.get()
+						if (aWindow) { fileTitle = aWindow.content.file?.name || "" }
+
+						api.ui.browser.goTo(browserFolder, fileTitle)
 					}
 				})
 			}

@@ -26,7 +26,7 @@ export const useSetupConfig = (p: {
 	// SOCKET INTERACTIONS
 	const listenerId = useRef<number>(0)
 	useEffect(() => {
-		log && console.log(h,` init socket listener`);
+		log && console.log(h, ` init socket listener`);
 		listenerId.current = clientSocket2.on('getSetupInfos', data => {
 			if (data.code === 'SUCCESS_CONFIG_CREATION') {
 				setFormMessage(['success', `${strings.setupForm.successReload}`])
@@ -46,7 +46,7 @@ export const useSetupConfig = (p: {
 		}
 		)
 		return () => {
-			log &&		console.log(h, ` clean socket listener`);
+			log && console.log(h, ` clean socket listener`);
 			clientSocket2.off(listenerId.current)
 		}
 	}, [])

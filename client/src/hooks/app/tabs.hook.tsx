@@ -158,12 +158,12 @@ export const useTabs = () => {
 
 			setTabs(nTabs2)
 
-			// BEHAVIOR 2: go to file in browser ui
-			const file = getActiveWindow(tab)?.content.file
-			if (!file) return
-			getClientApi2().then(api => {
-				api.ui.browser.goTo(file.folder, file.name)
-			})
+			// BEHAVIOR 2: go to file in browser ui => it is done directly on the window part
+			// const file = getActiveWindow(tab)?.content.file
+			// if (!file) return
+			// getClientApi2().then(api => {
+			// 	api.ui.browser.goTo(file.folder, file.name)
+			// })
 
 
 		} else if (type === 'move') {

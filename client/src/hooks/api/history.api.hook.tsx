@@ -14,7 +14,7 @@ export interface iNoteHistoryApi {
 
 export const useNoteHistoryApi = (): iNoteHistoryApi => {
 	const h = `[NOTE HISTORY]  `
-const log = sharedConfig.client.log.verbose
+	const log = sharedConfig.client.log.verbose
 
 	// 5. ON SAVE, AUTOMATIC HISTORY CALL EVERY 10m OR WHEN FILE CHANGE
 	interface iNotesLastHistory {

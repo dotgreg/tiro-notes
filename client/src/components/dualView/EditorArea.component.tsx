@@ -2,6 +2,7 @@ import React, { forwardRef, useContext, useEffect, useRef, useState } from 'reac
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
+
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
@@ -15,7 +16,6 @@ import { FileHistoryPopup } from '../FileHistoryPopup.component';
 import { TtsPopup } from '../TtsPopup.component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { NoteMobileToolbar } from './NoteToolbar.component';
-import { findImagesFromContent } from '../../managers/images.manager';
 import { Dropdown } from '../Dropdown.component';
 import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
@@ -23,7 +23,6 @@ import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
 import { CodeMirrorEditor, CodeMirrorUtils } from './CodeMirrorEditor.component';
-import { debounce } from 'lodash';
 import { useDebounce } from '../../hooks/lodash.hooks';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
@@ -64,7 +63,6 @@ export const EditorArea = (p: {
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
-	// console.log(55510, canEdit);
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
@@ -281,7 +279,6 @@ export const EditorArea = (p: {
 		// debounce(() => {
 		// 	p.onScroll(getCurrentLine())
 		// }, 1000)
-		// console.log(333, p.fileContent.length);
 		forceCmRender()
 	}, [p.fileContent])
 
@@ -289,8 +286,6 @@ export const EditorArea = (p: {
 	//
 	// new CODEMIRROR code adaptation
 	//
-	// console.log(4442, codeMirrorEditorView);
-	// useEffect(() => { console.log(5550, innerFileContent); }, [innerFileContent])
 	const [cmRender, setCmRender] = useState(0)
 	const forceCmRender = () => { setCmRender(cmRender + 1) }
 
@@ -385,8 +380,8 @@ export const EditorArea = (p: {
 									<div className='path'>
 										<h4>Path</h4>
 										<span className="path-link" onClick={() => {
+											console.log(1010);
 											api?.ui.browser.goTo(p.file.folder, p.file.name)
-											console.log(p.file.folder, p.file.name);
 										}}
 										> {p.file.folder} </span>
 									</div>
@@ -453,6 +448,7 @@ export const EditorArea = (p: {
 						jumpToLine={p.jumpToLine || 0}
 
 						forceRender={cmRender}
+						onScroll={p.onScroll}
 					/>
 
 				}
@@ -485,25 +481,25 @@ export const EditorArea = (p: {
 
 export const commonCssEditors = () => `
 .mobile-text-manip-toolbar {
-	.toolbar-button {
-		padding: 13px 20px;
-	}
+		.toolbar-button {
+				padding: 13px 20px;
+		}
 }
 
 .file-path-wrapper {
-  padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
-  font-size: 13px;
-  font-weight: 700;
-  color: #b6b5b5;
-  cursor: pointer;
-  text-transform: capitalize;
+		padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
+		font-size: 13px;
+		font-weight: 700;
+		color: #b6b5b5;
+		cursor: pointer;
+		text-transform: capitalize;
 }
 .big-title {
-  color: ${cssVars.colors.main};
-  font-size: 30px;
-  font-weight: 800;
-  width: 100%;
-  text-transform: uppercase;
+		color: ${cssVars.colors.main};
+		font-size: 30px;
+		font-weight: 800;
+		width: 100%;
+		text-transform: uppercase;
 }
 
 .separation-bar {
@@ -518,17 +514,17 @@ export const commonCssEditors = () => `
 		margin: 0px 0px 5px 0px;
 		display: block!important;
     .modified {
-      color: grey;
-			text-align: left;
+				color: grey;
+				text-align: left;
     }
 		.created {
-			text-align: right;
-			position: absolute;
-			top: 0px;
-			right: 0px;
-			color: ${cssVars.colors.editor.interfaceGrey};
+				text-align: right;
+				position: absolute;
+				top: 0px;
+				right: 0px;
+				color: ${cssVars.colors.editor.interfaceGrey};
 		}
-  }
+}
 
 .path-wrapper {
 		color: grey;
@@ -539,7 +535,7 @@ export const commonCssEditors = () => `
 				font-weight: bold;
 				cursor: pointer;
     }
-  }
+}
 
 .note-id-wrapper {
 		color: grey;
@@ -547,15 +543,15 @@ export const commonCssEditors = () => `
 		.note-id-form {
 				display:flex;
 				input {
-					border: none;
-					padding: 5px;
-					background: #ebebeb;
-					border-radius: 3px;
-					font-size: 9px;
-					font-weight: 400;
+						border: none;
+						padding: 5px;
+						background: #ebebeb;
+						border-radius: 3px;
+						font-size: 9px;
+						font-weight: 400;
 				}
 		}
-  }
+}
 .toolbar-and-dates-wrapper {
 		h4 {
 				margin: 0px;
@@ -564,84 +560,72 @@ export const commonCssEditors = () => `
 }
 
 
-`//css
+`
 
-export const editorAreaCss = (v: MobileView) => `//css
+export const editorAreaCss = (v: MobileView) => `
+
 .editor-area {
-  width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
-  display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'block' : 'none')};
-  position: relative;
+		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
+		display: ${isA('desktop') ? 'block' : (v === 'editor' ? 'block' : 'none')};
+		position: relative;
 
-  .infos-editor-wrapper {
-    ${isA('desktop') ? '' : `height: ${cssVars.sizes.mobile.editorTopWrapper}px;`}
-    ${isA('desktop') ? `width: calc(200% - ${(cssVars.sizes.block * 3) * 2}px);` : ``}
-    padding: 0px ${isA('desktop') ? cssVars.sizes.block * 3 : cssVars.sizes.block * 2}px;
-    position: relative;
+		.infos-editor-wrapper {
+				${isA('desktop') ? '' : `height: ${cssVars.sizes.mobile.editorTopWrapper}px;`}
+				${isA('desktop') ? `width: calc(200% - ${(cssVars.sizes.block * 3) * 2}px);` : ``}
+				padding: 0px ${isA('desktop') ? cssVars.sizes.block * 3 : cssVars.sizes.block * 2}px;
+				position: relative;
 
-		${commonCssEditors()}
+				${commonCssEditors()}
 
-    .title-input-wrapper {
-      position:relative;
-      margin-top: ${isA("desktop") ? 6 : 0}px;
-      .press-to-save {
-        position: absolute;
-        top: 39px;
-        font-size: 8px;
-        color: ${cssVars.colors.main};
-        right: 0px;
-      }
-      input {
-        padding: 0px;
-        border: none;
-        background: none;
-      }
+				.title-input-wrapper {
+						position:relative;
+						margin-top: ${isA("desktop") ? 6 : 0}px;
+						.press-to-save {
+								position: absolute;
+								top: 39px;
+								font-size: 8px;
+								color: ${cssVars.colors.main};
+								right: 0px;
+						}
+						input {
+								padding: 0px;
+								border: none;
+								background: none;
+						}
+				}
+
+				
+
+				.toolbar-and-dates-wrapper {
+						display: flex;
+				}
+
+				.dates-wrapper {
+						display: ${isA('desktop') ? 'block' : 'none'};
+						.date {
+						}
+				}
+				
+				${uploadButtonCss}
     }
-
-    
-
-    .toolbar-and-dates-wrapper {
-      display: flex;
-    }
-
-    .dates-wrapper {
-      display: ${isA('desktop') ? 'block' : 'none'};
-      .date {
-      }
-    }
-    
-		${uploadButtonCss}
-    }
-  }
+}
 
 
 
 
-  .main-editor-wrapper {
-    // 10 = monaco browser gutter
-    // padding: 0px ${isA('desktop') ? (cssVars.sizes.block * 3) - 10 : cssVars.sizes.block * 2}px;
-    ${isA('desktop') ? `padding: 0px ${(cssVars.sizes.block * 3) / 2}px 0px ${(cssVars.sizes.block * 3) - 10}px;` : ''}
+.main-editor-wrapper {
     ${!isA('desktop') ? `padding: 0px ${cssVars.sizes.block * 2}px 0px ${cssVars.sizes.block * 2}px;` : ''}
     ${!isA('desktop') ? `margin: 0px 0px ${cssVars.sizes.mobile.bottomBarHeight}px 0px;` : ''}
     .monaco-editor {
-      margin: 0px;
+				margin: 0px;
     }
     .textarea-editor {
-      border: none;
-      width: 100%;
-      height: calc(100vh - ${cssVars.sizes.mobile.editorTopWrapper + cssVars.sizes.mobile.editorBar + cssVars.sizes.mobile.bottomBarHeight * 2}px);
-      margin: 0px;
-      padding: 0px;
-      background: rgba(255,255,255,0.7);
+				border: none;
+				width: 100%;
+				height: calc(100vh - ${cssVars.sizes.mobile.editorTopWrapper + cssVars.sizes.mobile.editorBar + cssVars.sizes.mobile.bottomBarHeight * 2}px);
+				margin: 0px;
+				padding: 0px;
+				background: rgba(255,255,255,0.7);
     }
-  }
 }
-`//css
-
-
-// let pass everything for the moment
-// export const EditorArea = React.memo(EditorAreaInternal, (props, nextProps) => {
-//   if(props.file.path === nextProps.file.path) {
-//     return false
-//   }
-//   return false
-// })
+`

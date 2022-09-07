@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-									 import { deviceType, MobileView, DeviceType } from '../device.manager';
+import { deviceType, MobileView, DeviceType } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -28,6 +28,7 @@ import { PopupWrapperCss } from '../../components/Popup.component';
 import { contentBlockCss } from '../../components/ContentBlock.component';
 import { settingsPopupCss } from '../../components/settingsView/settingsView.component';
 import { codeMirrorEditorCss } from '../../components/dualView/CodeMirrorEditor.component';
+import { latexCss } from '../latex.manager';
 
 
 export const css2 = (css: string) => css
@@ -36,10 +37,10 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
-		mobileView: MobileView,
-		refreshCss: number
+	mobileView: MobileView,
+	refreshCss: number
 ) => {
-		const cssString = `//css
+	const cssString = `//css
 		.content-image {
 				width: 90%;
 		}
@@ -49,6 +50,7 @@ export const CssApp2 = (
 		}
 
 		${GlobalAppViewCss()}
+		${latexCss()}
 		${lightboxCss()}
 		${promptPopupCss()}
 
@@ -469,5 +471,5 @@ export const CssApp2 = (
 
 `//css
 
-return css`${cssString}`
+	return css`${cssString}`
 }

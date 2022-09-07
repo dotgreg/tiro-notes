@@ -10,7 +10,7 @@ export type iEditorType = 'monaco-textarea' | 'codemirror'
 export interface TextManipActionsHookParams {
 	editorType: iEditorType
 	deviceType: DeviceType
-	editorRef: React.RefObject<HTMLTextAreaElement  | any>
+	editorRef: React.RefObject<HTMLTextAreaElement | any>
 }
 export const useTextManipActions = (p: TextManipActionsHookParams) => {
 	const currentCursorPos = useRef<any>(0)

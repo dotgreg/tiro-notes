@@ -1,6 +1,5 @@
-import { cloneDeep } from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
-import { iContentChunk, iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
+import React, { useState } from 'react';
+import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 
 export interface iLineJump {
 	windowId: string
@@ -18,8 +17,6 @@ interface iNoteUiApi {
 
 export type iNoteApi = iNoteUiApi & iNoteFuncsApi
 
-// const test: iNoteApi['  = ''
-
 export const useNoteApi = (p: {
 }): iNoteApi => {
 	const h = `[NOTE API] 00568 `
@@ -28,14 +25,6 @@ export const useNoteApi = (p: {
 	// STATE
 	//
 	const [lineJump, setLineJump] = useState<iLineJump>()
-
-	// const jump = (jObj:iLineJump) => {
-	// 	const nObj = cloneDeep(jObj)
-	// 	if (nObj.windowId === "active") {
-	// 		nObj.windowId = 
-	// 	}
-	// }
-
 	//
 	// EXPORTS
 	//

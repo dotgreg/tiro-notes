@@ -12,9 +12,11 @@ import { createTheme } from "@uiw/codemirror-themes";
 import { EditorSelection, EditorState } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
-import { debounce, random, throttle } from "lodash";
+import { debounce, each, random, throttle } from "lodash";
 import { cssVars } from "../../managers/style/vars.style.manager";
 import { syncScroll2 } from "../../hooks/syncScroll.hook";
+import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
+import { isA } from "../../managers/device.manager";
 
 
 const h = `[Code Mirror]`
@@ -28,6 +30,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	jumpToLine: number
 
 	forceRender: number
+
+	// using it for title scrolling, right now its more title clicking
+	onScroll: (lineNb: number) => void
 }, forwardedRef) => {
 
 
@@ -65,6 +70,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}, [p.value]);
 
 	const onChange = (value, viewUpdate) => {
+		// do not trigger change if value didnt changed from p.value (on file entering)
+		if (value === p.value) return
+		debouncedActivateTitles()
 		p.onChange(value)
 	}
 
@@ -85,6 +93,36 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 
+
+	//
+	// ON TITLE HOVER, CREATE A LINK
+	//
+
+	const onAction2 = () => { }
+	const onAction = (event) => {
+		let title = event.target.innerHTML.replace(/^#{1,6} /, "");
+		const f = getEditorObj()
+		if (!f) return
+		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
+		console.log(h, "CLICK ON TITLE DETECTED", title, infs);
+		p.onScroll(infs.lineIndex)
+	}
+
+	const activateTitleInt = () => {
+		const els = document.querySelectorAll(".actionable-title")
+		each(els, el => {
+			el.addEventListener('click', onAction)
+		})
+	}
+
+	const debouncedActivateTitles = useDebounce(() => { activateTitleInt() }, 500)
+	const throttleActivateTitles = useThrottle(() => { activateTitleInt() }, 500)
+
+	useEffect(() => {
+		debouncedActivateTitles()
+	}, [p.value])
+
+
 	return (
 		<div className="codemirror-editor-wrapper">
 			<CodeMirror
@@ -96,7 +134,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				basicSetup={{
 					foldGutter: false,
 					dropCursor: false,
-					// scrollBarStyle: null,
 					allowMultipleSelections: false,
 					indentOnInput: false,
 					closeBrackets: false,
@@ -110,14 +147,19 @@ const CodeMirrorEditorInt = forwardRef((p: {
 						scroll(event, view) {
 							// @ts-ignore
 							syncScroll2.editorToPreview(p.windowId)
+
+							debouncedActivateTitles();
+							throttleActivateTitles();
 						}
 					}),
-					// EditorView.contentAttributes({autocorrect: "off"})
 				]}
 			/>
 		</div>
 	);
 })
+
+//
+// CACHING MECHANISM
 export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 	(np, pp) => {
 		if (
@@ -130,26 +172,92 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 	})
 
 
+//
+// THEMING
+//
+const getCustomTheme = () => createTheme({
+	theme: "light",
+	settings: {
+		background: "#ffffff",
+		foreground: "#4D4D4C",
+		caret: "#AEAFAD",
+		selection: "#D6D6D6",
+		selectionMatch: "#D6D6D6",
+		gutterBackground: "#FFFFFF",
+		gutterForeground: "#4D4D4C",
+		gutterBorder: "#ddd",
+		lineHighlight: "#fff",
+	},
+	styles: [
+		{ tag: t.comment, color: "#787b80" },
+		{ tag: t.definition(t.typeName), color: "#194a7b" },
+		{ tag: t.typeName, color: "#194a7b" },
+		{ tag: t.tagName, color: "#008a02" },
+		{ tag: t.variableName, color: "#1a00db" },
+		{ tag: t.heading, color: cssVars.colors.main },
+		{
+			tag: t.heading1,
+			class: "actionable-title h1"
+		},
+		{
+			tag: t.heading2,
+			class: "actionable-title h2"
+		},
+		{
+			tag: t.heading3,
+			class: "actionable-title h3"
+		},
+		{ tag: t.heading4, class: "actionable-title h4" },
+		{ tag: t.heading5, class: "actionable-title h5" },
+		{ tag: t.heading6, class: "actionable-title h6" },
+		{ tag: t.content, fontSize: "10px" }
+	]
+});
+
+
 export const codeMirrorEditorCss = () => `
+.actionable-title {
+		color: ${cssVars.colors.main};
+		&.h1 {
+				font-size: 15px;
+				font-weight: bold;
+				text-decoration: underline;
+
+		}
+		&.h2 {
+				font-size: 13px;
+				text-decoration: underline;
+
+		}
+		&.h3 {
+				font-size: 12px;
+		}
+
+}
+
+.main-title:before {
+		content:'x<div class="woop">ww</div>';
+}
+
 .cm-matchingBracket {
-	background-color: rgba(0,0,0,0)!important;
+		background-color: rgba(0,0,0,0)!important;
 }
 
 
 .cm-content {
-	// font-family: 'Open sans', sans-serif;
-	font-family: Consolas, monaco, monospace;
-	font-size: 11px;
+		// font-family: 'Open sans', sans-serif;
+		font-family: Consolas, monaco, monospace;
+		font-size: 11px;
 }
 
 .cm-focused {
-outline: none!important;
+		outline: none!important;
 }
 .main-editor-wrapper {
-		margin: 32px 0px 0px 0px!important;
-    padding: 0px!important;
-		width:100%!important;
-		height: calc(100% - 32px)!important;
+		margin: 32px 0px 0px 0px;
+    padding: 0px;
+		width:100%;
+		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 140px);'}; 
 }
 
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
@@ -314,40 +422,6 @@ const scrollTo = (CMObj: any, posY: number) => {
 	})
 }
 
-
-//
-// THEMING
-//
-const getCustomTheme = () => createTheme({
-	theme: "light",
-	settings: {
-		background: "#ffffff",
-		foreground: "#4D4D4C",
-		caret: "#AEAFAD",
-		selection: "#D6D6D6",
-		selectionMatch: "#D6D6D6",
-		gutterBackground: "#FFFFFF",
-		gutterForeground: "#4D4D4C",
-		gutterBorder: "#ddd",
-		lineHighlight: "#fff",
-	},
-	styles: [
-		{ tag: t.comment, color: "#787b80" },
-		{ tag: t.definition(t.typeName), color: "#194a7b" },
-		{ tag: t.typeName, color: "#194a7b" },
-		{ tag: t.tagName, color: "#008a02" },
-		{ tag: t.variableName, color: "#1a00db" },
-		{ tag: t.heading, color: cssVars.colors.main },
-		{ tag: t.heading1, color: cssVars.colors.main, fontSize: "15px", fontWeight: "bold", textDecoration: "underline" },
-		{ tag: t.heading2, color: cssVars.colors.main, fontSize: "13px", fontWeight: "normal", textDecoration: "underline" },
-		{ tag: t.heading3, color: cssVars.colors.main, fontSize: "12px" },
-		// { tag: t.lineHighlight, color: cssVars.colors.main, fontSize: "12px" },
-		{ tag: t.heading4, color: cssVars.colors.main },
-		{ tag: t.heading5, color: cssVars.colors.main },
-		{ tag: t.heading6, color: cssVars.colors.main },
-		{ tag: t.content, fontSize: "10px" }
-	]
-});
 
 
 

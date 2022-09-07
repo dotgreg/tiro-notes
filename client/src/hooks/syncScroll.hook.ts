@@ -39,6 +39,7 @@ const getScrollObj = (wid) => {
 //
 // NEW NATURAL SYNC SCROLL SYSTEM WITHOUT REACT, MUCH FASTER
 //
+const h = `[SYNC SCROLL 2]`
 export const syncScroll2 = {
 	cleanDb,
 	editorToPreview: (wid: string) => {
@@ -49,11 +50,18 @@ export const syncScroll2 = {
 		c.previewEl.scrollTop = c.editorY + c.baseY
 		// console.log(c);
 	},
-	previewToEditor: (wid: string) => {
+	syncPreviewOffset: (wid: string) => {
 		// console.log(222, wid);
 		const c = getScrollObj(wid)
 		if (!c.editorEl || !c.previewEl) return console.warn('no wid 2: ', wid)
 		c.baseY = c.previewEl.scrollTop - c.editorY
+	},
+	updatePreviewOffset: (wid: string, nOffset: number) => {
+		const c = getScrollObj(wid)
+		if (!c.editorEl || !c.previewEl) return console.warn('no wid 3: ', wid)
+		c.baseY = nOffset - c.editorY
+		console.log(h, "update preview offset to ", nOffset);
+		c.previewEl.scrollTop = c.editorY + c.baseY
 	}
 }
 

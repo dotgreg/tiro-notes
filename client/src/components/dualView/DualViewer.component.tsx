@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
-import { useSyncScroll } from '../../hooks/syncScroll.hook';
+import { syncScroll2, useSyncScroll } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
@@ -126,9 +126,8 @@ export const DualViewer = (p: {
 
 	// 2) TITLE SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
-
 	const updateScrolledTitleInt = (scrolledLine: number) => {
-		if (scrollMode !== "title") return;
+		// if (scrollMode !== "title") return;
 		const struct = getMdStructure(previewContent)
 		// get current title
 		let cTitle: iMdPart = initTitle
@@ -142,14 +141,8 @@ export const DualViewer = (p: {
 				// @ts-ignore
 				let etop = document.querySelector(ePath)?.offsetTop
 
-				// if (etop) setPreviewY(etop)
 				if (isNumber(etop)) {
-					const withMapOffset = isViewWithMap ? -80 : 0
-					etop = etop - 10 + withMapOffset
-					if (etop !== titleY.current) {
-						offsetSyncFromTitle.current = getSyncY()
-					}
-					titleY.current = etop
+					syncScroll2.updatePreviewOffset(p.windowId, etop)
 				}
 			} catch (e) {
 				console.error(e);
@@ -163,19 +156,14 @@ export const DualViewer = (p: {
 		t1(newLine)
 		t2(newLine)
 	}
-	// const [scrolledTitle, setScrolledTitle] = useState<iMdPart>(initTitle)
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
-		onWheelCapture={e => {
-			// updateSyncYWithDelta(e.deltaY)
-		}}
 	>
 
 		{showEditor &&
 			<EditorArea
 				windowId={p.windowId}
-				// editorType='monaco-textarea'
 				editorType='codemirror'
 
 				file={p.file}
@@ -187,19 +175,10 @@ export const DualViewer = (p: {
 				posY={getSyncY()}
 
 				onScroll={newLine => {
-					console.log(333);
 					updateScrolledTitle(newLine)
 				}}
 				onUpdateY={newY => {
 					setSyncY(newY)
-					// console.log("dual1", newY, syncScrollY);
-					// setPosY(newY)
-					// setTimeout(() => {
-					// 	setPosY(newY)
-					// })
-					// setTimeout(() => {
-					// console.log("dual2", syncScrollY, posY);
-					// }, 100)
 				}}
 				onMaxYUpdate={updateMaxY}
 
