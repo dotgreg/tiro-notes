@@ -1,10 +1,10 @@
-import { debounce, throttle } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iWindowContent } from '../../../../shared/types.shared';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
-export const WindowEditor = (p: {
+export const WindowEditor = React.memo((p: {
+// export const WindowEditor = React.memo((p: {
 	content: iWindowContent
 	onViewChange: onViewChangeFn
 }) => {
@@ -13,20 +13,20 @@ export const WindowEditor = (p: {
 
 	const [fileContent, setFileContent] = useState('')
 
-	const api = useContext(ClientApiContext);
-
 	//
 	// GET CONTENT 
 	//
 	useEffect(() => {
 		// on content loading, display loading... and cannot edit
-		setFileContent('loading...')
+		// setFileContent('loading...')
 		setCanEdit(false)
 
 		if (!file) return
-		api && api.file.getContent(file.path, content => {
-			setFileContent(content)
-			setCanEdit(true)
+		getApi(api => {
+			api.file.getContent(file.path, content => {
+				setFileContent(content)
+				setCanEdit(true)
+			})
 		})
 	}, [file?.path])
 
@@ -37,27 +37,24 @@ export const WindowEditor = (p: {
 	// UPDATE CONTENT 
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
-		api && api.file.saveContent(filepath, content, { history: true })
-	}
-	// const debouncedOnFileEditedSaveIt = debounce(onFileEditedSaveIt, 1000)
+		getApi(api => {
+			api.file.saveContent(filepath, content, { history: true })
+		})
 
-	//
-	// FORCE LIST FILES REFRESH
-	//
-	// const refreshFilesList = () => {
-	// 	console.log(444);
-	// 	api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
-	// }
-	// const debouncedRefreshList = debounce(refreshFilesList, 5000)
+	}
+
 
 	// ON ACTIVE, LOAD LIST
 	useEffect(() => {
-			if (!file) return
-			api && api.ui.browser.goTo(file.folder, file.name)
+		if (!file || !active) return
+		getApi(api => {
+			api.ui.browser.goTo(file.folder, file.name)
+		})
 	}, [active])
 
 	return (
 		<>
+
 			{
 				file &&
 				<div className="window-editor-wrapper">
@@ -79,4 +76,12 @@ export const WindowEditor = (p: {
 			}
 		</>)
 
-}
+}, (np, pp) => {
+	return false
+	let c1 = JSON.stringify(np)
+	let c2 = JSON.stringify(pp)
+	// console.log(c1, c2, c1 === c2);
+	let res = true
+	if (c1 !== c2) res = false
+	return res
+})

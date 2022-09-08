@@ -121,7 +121,6 @@ export class List extends React.Component<{
 		this.itemToScroll = isAbs ? nb : this.itemToScroll + nb
 		if (this.itemToScroll < 0) this.itemToScroll = 0
 		if (this.itemToScroll > this.props.files.length) this.itemToScroll = this.props.files.length
-		// console.log('scroll to item: ', this.itemToScroll);
 		this.scrollerListRef.current.scrollToItem(this.itemToScroll)
 	}
 

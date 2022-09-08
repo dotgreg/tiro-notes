@@ -1,18 +1,18 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, useSyncScroll } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
-import { clamp, debounce, each, isNumber, throttle } from 'lodash';
+import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
 import { getMdStructure, iMdPart } from '../../managers/markdown.manager';
+import { iLineJump } from '../../hooks/api/note.api.hook';
 
 export type onViewChangeFn = (nView: iViewType) => void
-
-export const DualViewer = (p: {
+interface iDualViewProps {
 	windowId: string
 	file: iFile
 	fileContent: string
@@ -23,7 +23,11 @@ export const DualViewer = (p: {
 	onViewChange?: onViewChangeFn
 
 	onFileEdited: onFileEditedFn
-}) => {
+}
+
+const DualViewerInt = (
+	p: iDualViewProps & { lineJumpEvent?: iLineJump }
+) => {
 
 
 	const [previewContent, setPreviewContent] = useState('')
@@ -66,24 +70,16 @@ export const DualViewer = (p: {
 
 	//
 	// JUMP TO LINE ACTIONS
-	const api = useContext(ClientApiContext);
-	const lineJumpEvent = api?.ui.note.lineJump.get
 	const [lineToJump, setLineToJump] = useState(-1)
 	useEffect(() => {
-		// console.log("LINE JUMP ASKED", { lineJumpEvent, currWid: p.windowId });
-		if (!lineJumpEvent) return
-		if (lineJumpEvent.windowId === "active") {
-			lineJumpEvent.windowId = api?.ui.windows.active.get()?.content.i || ""
-		}
-		if (lineJumpEvent.windowId !== p.windowId) return
-		// LINE JUMP > EDITOR JUMP > UPDATE Y > SETPOSY HERE AGAIN
-		setLineToJump(lineJumpEvent.line)
+		if (!p.lineJumpEvent) return
+		if (p.lineJumpEvent.windowId === "active" && !p.isActive) return
+		if (p.lineJumpEvent.windowId !== "active" && p.lineJumpEvent.windowId !== p.windowId) return
+		setLineToJump(p.lineJumpEvent.line)
 		setTimeout(() => {
-			// reinit jump
 			setLineToJump(-1)
 		}, 100)
-		// setPosY(lineJumpEvent.line * 20)
-	}, [lineJumpEvent])
+	}, [p.lineJumpEvent])
 
 
 	// for performance reasons, only show editor/preview when needed
@@ -112,13 +108,6 @@ export const DualViewer = (p: {
 			setPreviewY(getSyncY())
 		} else if (scrollMode === "title") {
 			const t = titleY.current
-
-			//// 1 TRYING TO GET A SCROLL FOR LONGER THINGS
-			// const o = offsetSyncFromTitle.current
-			// const a = getSyncY() - o
-			// // const res = o + (getSyncY() - o)
-			// const res = o + a
-			// console.log({ res, t, a, sy: getSyncY(), o });
 
 			setPreviewY(t)
 		}
@@ -160,6 +149,7 @@ export const DualViewer = (p: {
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
 	>
+
 
 		{showEditor &&
 			<EditorArea
@@ -221,8 +211,16 @@ export const DualViewer = (p: {
 	</div>
 }
 
+export const DualViewer = (p: iDualViewProps) => {
+	const api = useContext(ClientApiContext);
+	const lineJumpEvent = api?.ui.note.lineJump.get
 
+	// useEffect(() => {
+	// 	console.log(lineJumpEvent);
+	// }, [lineJumpEvent])
 
-
-
+	// return useMemo(() => {
+		return <DualViewerInt {...p} lineJumpEvent={lineJumpEvent} />
+	// }, [lineJumpEvent, p.file, p.fileContent, p.isActive])
+}
 

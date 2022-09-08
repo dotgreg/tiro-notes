@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { cloneDeep, each } from 'lodash';
+import { cloneDeep, each, random } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
 import { ClientApiContext } from '../../hooks/api/api.hook';
@@ -193,6 +193,7 @@ export const WindowGrid = (p: {
 
 	return (//jsx
 		<StyledDiv>
+			{random(0, 1000)}
 			<div className="window-grid-wrapper">
 				<GridContext.Provider value={nGridContext}>
 					<DraggableGrid

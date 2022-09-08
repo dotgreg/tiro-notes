@@ -1,7 +1,7 @@
 import { each, random } from 'lodash';
 import React, { useContext, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { iFile, iFilePreview } from '../../../shared/types.shared';
-import { ClientApiContext } from '../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../hooks/api/api.hook';
 import { FilesPreviewObject } from '../hooks/api/files.api.hook';
 import { sortFiles, SortModes, SortModesLabels } from '../managers/sort.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -18,7 +18,6 @@ export const FilesList = (p: {
 	onFileDragEnd: () => void
 }) => {
 
-	const api = useContext(ClientApiContext);
 
 
 	//
@@ -34,7 +33,6 @@ export const FilesList = (p: {
 	const [, forceUpdate] = useReducer(x => x + 1, 0);
 
 	const askFilesPreview = (filesPath: string[], skipCache: boolean = false) => {
-		if (!api) return
 
 		// CACHING : do not ask again if file already has been fetched
 		let newFilesPathArr: string[] = []
@@ -45,10 +43,12 @@ export const FilesList = (p: {
 
 		// ask and fetch previews
 		if (newFilesPathArr.length > 1) {
-			api.files.getPreviews(newFilesPathArr, previews => {
-				each(previews, preview => { filesPreviewObj[preview.path] = preview })
-				setFilesPreviewObj(filesPreviewObj)
-				forceUpdate()
+			getApi(api => {
+				api.files.getPreviews(newFilesPathArr, previews => {
+					each(previews, preview => { filesPreviewObj[preview.path] = preview })
+					setFilesPreviewObj(filesPreviewObj)
+					forceUpdate()
+				})
 			})
 		}
 	}
@@ -57,12 +57,23 @@ export const FilesList = (p: {
 	//
 	// SORTING LOGIC
 	//
-	const cSortMode = api ? api.userSettings.get('ui_filesList_sortMode') : 2
+	// let cSortMode = api ? api.userSettings.get('ui_filesList_sortMode') : 2
+	// cSortMode = api ? api.userSettings.get('ui_filesList_sortMode') : 2
+
+	const [cSortMode, setSortMode] = useState(2)
+	useEffect(() => {
+		getApi(api => {
+			setSortMode(api.userSettings.get('ui_filesList_sortMode'))
+		})
+	}, [])
+
 	const onSortChange = () => {
-		if (!api) return
 		let newMode = cSortMode + 1 >= SortModes.length ? 0 : cSortMode + 1
-		api.userSettings.set('ui_filesList_sortMode', newMode)
-		p.onSortFiles(sortFiles(p.files, newMode))
+		getApi(api => {
+			api.userSettings.set('ui_filesList_sortMode', newMode)
+			setSortMode(newMode)
+			p.onSortFiles(sortFiles(p.files, newMode))
+		})
 	}
 
 	return (
