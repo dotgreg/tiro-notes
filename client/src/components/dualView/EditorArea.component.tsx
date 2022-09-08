@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
@@ -20,17 +20,17 @@ import { Dropdown } from '../Dropdown.component';
 import { UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
 import { CodeMirrorEditor, CodeMirrorUtils } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
+import { random } from 'lodash';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
 export type onScrollFn = (newYpercent: number) => void
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
-
-export const EditorArea = (p: {
+interface iEditorProps {
 	editorType: iEditorType
 	windowId: string
 
@@ -48,25 +48,26 @@ export const EditorArea = (p: {
 	onFileEdited: onFileEditedFn
 	onViewToggle: (view: iViewType) => void
 	onScrollModeChange: (v: boolean) => void
+}
 
-}) => {
+const EditorAreaInt = React.memo((
+	p: iEditorProps & { isConnected: boolean }
+) => {
 
-	const [vimMode, setVimMode] = useState(false)
 	const [innerFileContent, setInnerFileContent] = useState('')
 	let monacoEditorComp = useRef<any>(null)
 
-	const api = useContext(ClientApiContext);
 
 	let canEdit = true
 	if (p.canEdit === false) canEdit = false
-	if (api && api.status.isConnected === false) canEdit = false
+	if (p.isConnected === false) canEdit = false
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
-		canEdit: true,
+		canEdit: canEdit,
 
 		onEditorDidMount: () => {
 		},
@@ -83,8 +84,10 @@ export const EditorArea = (p: {
 			p.onFileEdited(p.file.path, newContent)
 
 			// IF FIRST EDITION, backup old file
-			if (isFirstEdition && api) {
-				api.history.save(p.file.path, p.fileContent, 'enter')
+			if (isFirstEdition) {
+				getApi(api => {
+					api.history.save(p.file.path, p.fileContent, 'enter')
+				})
 			}
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
@@ -296,6 +299,7 @@ export const EditorArea = (p: {
 			className={`editor-area`}
 			ref={editorWrapperEl}
 		>
+			{random(0, 1000)}
 
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
 			<div className="infos-editor-wrapper">
@@ -380,8 +384,7 @@ export const EditorArea = (p: {
 									<div className='path'>
 										<h4>Path</h4>
 										<span className="path-link" onClick={() => {
-											console.log(1010);
-											api?.ui.browser.goTo(p.file.folder, p.file.name)
+											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
 										}}
 										> {p.file.folder} </span>
 									</div>
@@ -476,8 +479,23 @@ export const EditorArea = (p: {
 
 			{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
-	)//jsx
-}
+	)
+}, (np, pp) => {
+	let res = false
+	// only compare tab struct, not content/layout
+	// const t: any = cloneDeep({ n: np.tab, p: pp.tab })
+	// t.n.grid = t.p.grid = {}
+	// t.n.refresh = t.p.refresh = ""
+	// let t1 = JSON.stringify(t.p)
+	// let t2 = JSON.stringify(t.n)
+
+	// if (t1 !== t2) res = false
+	// if (pp.pos !== np.pos) res = false
+	// if (pp.dragIndic !== np.dragIndic) res = false
+	return res
+})
+
+
 
 export const commonCssEditors = () => `
 .mobile-text-manip-toolbar {
@@ -629,3 +647,12 @@ export const editorAreaCss = (v: MobileView) => `
     }
 }
 `
+
+export const EditorArea = (p: iEditorProps) => {
+	const api = useContext(ClientApiContext);
+	const isConnected = api?.status.isConnected || false
+
+	return useMemo(() => {
+		return <EditorAreaInt {...p} isConnected={isConnected} />
+	}, [isConnected, p.canEdit, p.editorType, p.file, p.fileContent, p.isActive, p.jumpToLine])
+}

@@ -1,13 +1,14 @@
+import { cloneDeep, random } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { onTabUpdateFn } from '../../hooks/app/tabs.hook';
 import { deviceType } from '../../managers/device.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
-export const TabList = (p: {
+export const TabList = React.memo((p: {
 	tabs: iTab[]
 	onUpdate: onTabUpdateFn
 }) => {
@@ -33,7 +34,7 @@ export const TabList = (p: {
 								api && api.tabs.reorder(pos, dragId)
 								setDragId(-1)
 							}}
-							showDragIndic={dragId === i}
+							dragIndic={dragId}
 							pos={i}
 
 							onUpdate={p.onUpdate}
@@ -58,10 +59,14 @@ export const TabList = (p: {
 		</div>
 	)
 
-}
+}, (np, pp) => {
+	if (JSON.stringify(np.tabs) !== JSON.stringify(pp.tabs)) return false
+	return true
+})
 
 
-const Tab = (p: {
+
+const Tab = React.memo((p: {
 	tab: iTab
 	onUpdate: onTabUpdateFn
 
@@ -70,7 +75,7 @@ const Tab = (p: {
 	onDrop: Function
 
 	pos: number
-	showDragIndic: boolean
+	dragIndic: number
 }) => {
 	const { tab, pos } = { ...p }
 
@@ -82,13 +87,10 @@ const Tab = (p: {
 	if (nbLay === 5) iconName = 'Five'
 	iconName = `faDice${iconName}`
 
-	const api = useContext(ClientApiContext);
-
-	return (//jsx
+	return (
 		<div className="tab-and-drag-wrapper">
 			{
-				p.showDragIndic && <div className="drag-indic">
-					{/* <Icon name="faPlusCircle" color={`#b2b2b2`} />*/}
+				p.dragIndic === pos && <div className="drag-indic">
 					▼
 				</div>
 			}
@@ -136,18 +138,33 @@ const Tab = (p: {
 
 				< div className="tab-close"
 					onClick={() => {
-						api && api.popup.confirm(
-							`${strings.deleteTabPrompt} "${tab.name}"?`, () => {
-								p.onUpdate('close', tab)
-							});
-					}
-					}>
+						getApi(api => {
+							api.popup.confirm(
+								`${strings.deleteTabPrompt} "${tab.name}"?`, () => {
+									p.onUpdate('close', tab)
+								});
+						})
+					}}
+				>
 					<Icon name="faPlus" color={`#b2b2b2`} />
 				</div>
 			</div >
 		</div >
-	)//jsx
-}
+	)
+}, (np, pp) => {
+	let res = true
+	// only compare tab struct, not content/layout
+	const t: any = cloneDeep({ n: np.tab, p: pp.tab })
+	t.n.grid = t.p.grid = {}
+	t.n.refresh = t.p.refresh = ""
+	let t1 = JSON.stringify(t.p)
+	let t2 = JSON.stringify(t.n)
+
+	if (t1 !== t2) res = false
+	if (pp.pos !== np.pos) res = false
+	if (pp.dragIndic !== np.dragIndic) res = false
+	return res
+})
 
 export const tabsCss = () => `
 .tab-list-scroll-wrapper {

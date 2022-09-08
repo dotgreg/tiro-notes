@@ -525,7 +525,7 @@ export const previewAreaCss = () => `
 }
 
 .preview-area-wrapper {
-    height: ${isA('desktop') ? '100vh' : '100vh'};
+		height: calc(100% - 35px);
 		overflow: scroll; 
     margin-top: ${isA('desktop') ? '140' : '0'}px;
 }

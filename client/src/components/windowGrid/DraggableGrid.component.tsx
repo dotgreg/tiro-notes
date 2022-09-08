@@ -578,7 +578,7 @@ export const draggableGridCss = () => `
 														}
 												}
 												.main-editor-wrapper {
-														margin-top: 43px;
+														margin-top: 33px;
 												}
 										}
 

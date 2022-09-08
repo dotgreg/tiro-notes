@@ -14,7 +14,6 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 
 	useEffect(() => {
 		log && console.log(h, ' activeFile changed!', activeFile);
-		// activeFile && addToHistory(activeFile)
 		activeFile && debouncedAddToHistory(activeFile)
 		activeFile && debouncedAddToHistory(activeFile)
 	}, [activeFile])

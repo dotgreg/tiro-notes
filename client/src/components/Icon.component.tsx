@@ -1,6 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as fa from '@fortawesome/free-solid-svg-icons'
+import { random } from 'lodash';
 
 // fa.faCheckDouble 
 export type IconSizeProp =
@@ -18,7 +19,8 @@ export type IconSizeProp =
 	| "9x"
 	| "10x";
 
-export class Icon extends React.Component<{
+
+class IconInt extends React.Component<{
 	name: string
 	color?: string
 	size?: number
@@ -31,6 +33,7 @@ export class Icon extends React.Component<{
 				transform: `scale(${this.size})`,
 				display: 'inline-block'
 			}}>
+
 				{!this.isLocal &&
 					<FontAwesomeIcon
 						icon={fa[this.props.name]}
@@ -52,4 +55,9 @@ export class Icon extends React.Component<{
 			</span>
 		);
 	}
-} 
+}
+
+export const Icon = React.memo(IconInt, (np, pp) => {
+	if (JSON.stringify(np) !== JSON.stringify(pp)) return false
+	return true
+})

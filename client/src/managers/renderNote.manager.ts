@@ -3,7 +3,7 @@ import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"
 import { iNoteApi } from "../hooks/api/note.api.hook"
-import {  refreshRenderLatexGlobally } from "./latex.manager"
+import { refreshRenderLatexGlobally } from "./latex.manager"
 import { md2html } from "./markdown.manager"
 import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
 

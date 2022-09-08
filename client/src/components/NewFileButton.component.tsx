@@ -4,7 +4,7 @@ import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { deviceType, isA, isIpad } from "../managers/device.manager";
 
-export const NewFileButton = (p: {
+export const NewFileButton = React.memo((p: {
 	onNewFile: () => void
 }) =>
 	<button
@@ -16,6 +16,9 @@ export const NewFileButton = (p: {
 		<Icon name="faPlusCircle" color="white" />
 		<span>{strings.newNote}</span>
 	</button>
+	, (np, pp) => {
+		return true
+	})
 
 export const newFileButtonCss = () => `
     .new-file-button {

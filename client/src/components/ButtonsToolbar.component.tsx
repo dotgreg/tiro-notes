@@ -1,8 +1,10 @@
-import React, { ReactElement, useState } from 'react';
+import React, { ReactElement, useMemo, useState } from 'react';
 import { css, cx } from '@emotion/css'
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
+import { random } from 'lodash';
 
+// export const ButtonsToolbar = React.memo((p: {
 export const ButtonsToolbar = (p: {
 	class?: string
 	colors?: [string, string]
@@ -33,8 +35,12 @@ export const ButtonsToolbar = (p: {
 				}
     `
 
-	return <div className={customCss}>
+	// return  <div className={customCss}>
+	// memo here seems quite efficient = cut half rerender
+	return useMemo(() => <div className={customCss}>
 		<ul className={`buttons-toolbar-component ${p.class} ${design} ${popup ? 'with-popup' : 'no-popup'}`}>
+			{random(0, 1000)}
+
 			{
 				p.buttons.map((button, key) =>
 					button.action &&
@@ -44,8 +50,16 @@ export const ButtonsToolbar = (p: {
 				)
 			}
 		</ul>
-	</div>
+	</div>, [p.buttons])
+	// </div>
 }
+
+// }, (np, pp) => {
+// 	let res = false
+// 	// that component is so much used  
+// 	return res
+// })
+
 
 
 export interface iToolbarButton {

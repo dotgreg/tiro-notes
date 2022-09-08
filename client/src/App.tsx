@@ -316,8 +316,6 @@ export const App = () => {
 												clientApi.file.create(selectedFolder, files => {
 													// reload list and go to new one
 													const nFile = getMostRecentFile(files)
-													console.log(1112);
-
 													nFile && clientApi.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
 												})
 											}}
@@ -326,7 +324,6 @@ export const App = () => {
 										<LastNotes
 											files={filesHistory}
 											onClick={file => {
-												console.log(777);
 												clientApi.ui.browser.goTo(
 													file.folder,
 													file.name,
@@ -341,7 +338,6 @@ export const App = () => {
 											folder={foldersUiApi.get}
 											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
-												console.log(111);
 												clientApi.ui.browser.goTo(folderPath, null)
 											}}
 											onFolderMenuAction={(action, folder, newTitle) => {

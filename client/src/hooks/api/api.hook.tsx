@@ -83,6 +83,9 @@ export const getClientApi2 = (): Promise<iClientApi> => {
 		}
 	})
 }
+export const getApi = (cb: (api: iClientApi) => void) => {
+	getClientApi2().then(api => { cb(api) })
+}
 
 //
 // CONTEXT

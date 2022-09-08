@@ -70,7 +70,7 @@ export const updateLayout_twowindows_to_equal = (nlayout: iWindow[]) => {
 	const l = nlayout
 	const conf = draggableGridConfig
 	// resize ii|i  to  ii|ii
-	if (l.length === 2) {}//console.log('0234 1', l[0].w, l[1].w, conf.cols / 2, conf.cols);
+	if (l.length === 2) { }//console.log('0234 1', l[0].w, l[1].w, conf.cols / 2, conf.cols);
 	if (
 		l.length === 2 && (
 			// (l[0].w === conf.cols - 1 && l[0].h === conf.rows
