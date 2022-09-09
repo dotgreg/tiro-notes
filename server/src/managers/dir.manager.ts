@@ -218,6 +218,7 @@ export const scanDirForFolders3 = (folderPath: string): any => {
 const h = `[DIR SCAN]`
 const shouldLog = sharedConfig.server.log.verbose
 
+
 export const scanDirForFolders = (folderPath: string): iFolder => {
 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
 
@@ -241,8 +242,14 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 
 			try {
 				let childStats = fileStats(fullChildPath)
-				if (childStats.isDirectory() && dirDefaultBlacklist.indexOf(path.basename(child)) === -1) {
+				if (
+					childStats.isDirectory() &&
+					dirDefaultBlacklist.indexOf(path.basename(child)) === -1
+				) {
 					let relativeChildFolder = cleanPath(fullChildPath).replace(cleanPath(backConfig.dataFolder), '')
+
+					const isFolder = isChildAFolder(child, fullFolderPath)
+					if (isFolder) { resultFolder.hasFolderChildren = true }
 
 					let childFolder: iFolder = {
 						hasChildren: false,
@@ -264,19 +271,11 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 						// const child2 = subchildren[i];
 						// let fullChild2Path = fullChildPafullChildPathth + '/' + child2
 
-
-						// take in account .folder like .tiro and .trash
-						let child2temp = child2[0] === '.' ? child2.substr(1) : child2
-						const hasExtension = child2temp.split('.').length > 1
-
-						if (
-							dirDefaultBlacklist.indexOf(path.basename(child2)) === -1 &&
-							!hasExtension
-						) {
-							// shouldLog && console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", child2, "in", fullChildPath);
-							console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", child2, "in", fullChildPath);
-							childFolder.hasChildren = true
-							// break;
+						const isFolder = isChildAFolder(child2, fullChildPath)
+						if (isFolder) {
+							childFolder.hasFolderChildren = true
+							// break; 
+							// breaking each lodash
 							return false;
 						}
 
@@ -298,6 +297,39 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 	console.log(h, folderPath, (Date.now() - start) / 1000);
 	return resultFolder
 }
+
+
+const isChildAFolder = (childPath: string, parentPath: string): boolean => {
+	// take in account .folder like .tiro and .trash
+	let child2temp = childPath[0] === '.' ? childPath.substr(1) : childPath
+	const hasExtension = child2temp.split('.').length > 1
+
+	if (
+		dirDefaultBlacklist.indexOf(path.basename(childPath)) === -1 &&
+		!hasExtension
+	) {
+		// check if it is a folder for real
+		// (expensive but should not happen often so thats ok
+		if (isDir(parentPath + "/" + childPath)) {
+			if (parentPath.includes("2222")) console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", childPath, "in", parentPath);
+			// if (parentPath.includes("222")) {
+			// }
+			// childFolder.hasChildren = 
+			return true
+		}
+	}
+	return false
+}
+
+
+
+
+
+
+
+
+
+
 
 export const lastFolderFilesScanned = { value: "" }
 export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<iApiDictionary>) => {

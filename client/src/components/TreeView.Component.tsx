@@ -30,7 +30,7 @@ const FoldersTreeViewInt = (p: {
 	onFolderDrop: onFolderDropFn
 }) => {
 	useEffect(() => {
-		console.log(333, {of: p.openFolders, fs: p.folder, c: p.current});
+		console.log(333, { of: p.openFolders, fs: p.folder, c: p.current });
 	})
 
 
@@ -86,7 +86,7 @@ export const FolderView = (p: {
 	onFolderDrop: onFolderDropFn
 }) => {
 
-	const isOpen = p.openFolders.includes(p.folder.path)
+	const isOpen = p.openFolders.includes(p.folder.path) && p.folder.hasFolderChildren
 
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 	const [dragClass, setDragClass] = useState("")
@@ -132,7 +132,7 @@ export const FolderView = (p: {
 					// setIsOpen(!isOpen)
 				}}>
 					{
-						p.folder.hasChildren &&
+						p.folder.hasFolderChildren &&
 						<Icon
 							name={isOpen ? 'faCaretDown' : 'faCaretRight'}
 							color={cssVars.colors.main}

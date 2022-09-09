@@ -84,6 +84,7 @@ export interface iFolder {
 	key: string
 	path: string
 	hasChildren?: boolean
+	hasFolderChildren?: boolean
 	children?: iFolder[]
 }
 export type iSetupCode =
