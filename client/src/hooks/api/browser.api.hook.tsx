@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iAppView, iFile, iFolder } from '../../../../shared/types.shared';
+import { newFileButtonCss } from '../../components/NewFileButton.component';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -189,12 +190,22 @@ export const useBrowserApi = (p: {
 
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths: string[]) => {
 		p.foldersApi.get(foldersPaths, data => {
-			let newflatStruct: iFolder[] = foldersFlat
-			for (let i = 0; i < data.folders.length; i++) {
-				if (data.folders[i]) newflatStruct = upsertFlatStructure(data.folders[i], newflatStruct);
-			}
+			let newflatStruct: iFolder[] = cloneDeep(foldersFlat)
+
+			// console.log(34440, cloneDeep(data.folders));
+			let nf = { current: newflatStruct }
+			each(data.folders, nfolder => {
+				// first replace old results by new ones
+				nf.current = nf.current.filter(folder => nfolder.path !== folder.path)
+			})
+			each(data.folders, nfolder => {
+				if (nfolder) nf.current = upsertFlatStructure(nfolder, nf.current);
+			})
+			newflatStruct = nf.current
+
 			setFoldersFlat(newflatStruct)
 			let newTreeStruct = buildTreeFolder('/', newflatStruct)
+
 			if (newTreeStruct) setFolderHierarchy(newTreeStruct)
 			setFolderBasePath(data.pathBase)
 		})
