@@ -4,8 +4,8 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
 import { random } from 'lodash';
 
-// export const ButtonsToolbar = React.memo((p: {
-export const ButtonsToolbar = (p: {
+export const ButtonsToolbar = React.memo((p: {
+	// export const ButtonsToolbar = (p: {
 	class?: string
 	colors?: [string, string]
 	size?: number
@@ -39,8 +39,6 @@ export const ButtonsToolbar = (p: {
 	// memo here seems quite efficient = cut half rerender
 	return useMemo(() => <div className={customCss}>
 		<ul className={`buttons-toolbar-component ${p.class} ${design} ${popup ? 'with-popup' : 'no-popup'}`}>
-			{random(0, 1000)}
-
 			{
 				p.buttons.map((button, key) =>
 					button.action &&
@@ -52,13 +50,17 @@ export const ButtonsToolbar = (p: {
 		</ul>
 	</div>, [p.buttons])
 	// </div>
-}
+	// }
 
-// }, (np, pp) => {
-// 	let res = false
-// 	// that component is so much used  
-// 	return res
-// })
+}, (np, pp) => {
+	let res = false
+	// let res = true
+	// that component is so much used  
+	// if (!np.buttons || !pp.buttons) return false
+	// console.log(np.buttons, pp.buttons);
+	// if (JSON.stringify(np.buttons) !== JSON.stringify(pp.buttons)) res = false
+	return res
+})
 
 
 
@@ -95,7 +97,7 @@ export const ToolbarButton = (p: iToolbarButton) => {
 }
 
 
-export const ButtonsToolbarCss = `
+export const ButtonsToolbarCss = () => `
     ul.buttons-toolbar-component {
         list-style: none;
         padding: 0px;

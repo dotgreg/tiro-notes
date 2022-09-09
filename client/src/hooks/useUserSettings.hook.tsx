@@ -65,7 +65,6 @@ export const useUserSettings = () => {
 	const debounceChange = useDebounce(() => {
 		log && console.log(h, 'UPDATE!', userSettings, refreshCss);
 		replaceDefaultByUserVar('ui_layout_colors_main', cssVars.colors, 'main')
-
 		triggerRefresh()
 	}, 1000)
 

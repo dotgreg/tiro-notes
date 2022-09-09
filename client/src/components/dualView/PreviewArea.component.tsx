@@ -210,7 +210,11 @@ export const previewAreaSimpleCss = () => {
 
 **********************************************************/
 
-		.main-color {
+		a {
+				color: ${cssVars.colors.main};
+			}
+
+		.main-color, .main-color:before, .main-color:after {
 				color: ${cssVars.colors.main};
 		}
 		.title {
@@ -476,6 +480,7 @@ export const previewAreaSimpleCss = () => {
 
 		${d.r}.ppt, ${d.r}.pptx, ${d.r}.odp, ${d.r}.key, ${d.r}.pps
 		{ background-image: url(${cssVars.assets.presIcon}); }
+
 
 
 		pre  {

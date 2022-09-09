@@ -8,7 +8,8 @@ import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
-export const TabList = React.memo((p: {
+// export const TabList = React.memo((p: {
+export const TabList = (p: {
 	tabs: iTab[]
 	onUpdate: onTabUpdateFn
 }) => {
@@ -59,10 +60,12 @@ export const TabList = React.memo((p: {
 		</div>
 	)
 
-}, (np, pp) => {
-	if (JSON.stringify(np.tabs) !== JSON.stringify(pp.tabs)) return false
-	return true
-})
+}
+
+// }, (np, pp) => {
+// 	if (JSON.stringify(np.tabs) !== JSON.stringify(pp.tabs)) return false
+// 	return true
+// })
 
 
 
@@ -153,16 +156,33 @@ const Tab = React.memo((p: {
 	)
 }, (np, pp) => {
 	let res = true
-	// only compare tab struct, not content/layout
+
+
+	// 1. only compare tab struct, not content/layout
 	const t: any = cloneDeep({ n: np.tab, p: pp.tab })
 	t.n.grid = t.p.grid = {}
 	t.n.refresh = t.p.refresh = ""
 	let t1 = JSON.stringify(t.p)
 	let t2 = JSON.stringify(t.n)
-
 	if (t1 !== t2) res = false
+
+
+	// 2. 
 	if (pp.pos !== np.pos) res = false
 	if (pp.dragIndic !== np.dragIndic) res = false
+	if (pp.tab.active !== np.tab.active) res = false
+
+	// 3.
+	// if (pp.tab.grid.content[0]?.file?.name !== np.tab.grid.content[0]?.file?.name) res = false
+	if (pp.onUpdate !== np.onUpdate) res = false
+	// console.log(1, res);
+	// // console.log(2, t);
+	// let t1 = JSON.stringify(t.p)
+	// let t2 = JSON.stringify(t.n)
+
+	// if (t1 !== t2) res = false
+	// if (pp.pos !== np.pos) res = false
+	// if (pp.dragIndic !== np.dragIndic) res = false
 	return res
 })
 

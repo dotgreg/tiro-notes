@@ -65,8 +65,7 @@ export const renderLatex = (str: string): string => {
 //
 export const refreshRenderLatexGlobally = debounce(() => {
 
-	// log && console.log(h, "REFRESH");
-	console.log(h, "REFRESH");
+	log && console.log(h, "REFRESH");
 	initRenderLatexInText(".render-latex")
 }, 100)
 

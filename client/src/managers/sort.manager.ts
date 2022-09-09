@@ -36,7 +36,6 @@ export const getMostRecentFile = (files: iFile[]): iFile | null => {
 			file.created > res.created
 		) res = file
 	})
-	console.log(files, res);
 
 	return res
 }

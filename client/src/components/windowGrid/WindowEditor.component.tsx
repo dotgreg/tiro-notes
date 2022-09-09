@@ -4,7 +4,7 @@ import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
 export const WindowEditor = React.memo((p: {
-// export const WindowEditor = React.memo((p: {
+	// export const WindowEditor = React.memo((p: {
 	content: iWindowContent
 	onViewChange: onViewChangeFn
 }) => {
@@ -25,6 +25,7 @@ export const WindowEditor = React.memo((p: {
 		getApi(api => {
 			api.file.getContent(file.path, content => {
 				setFileContent(content)
+				// console.log(22222, content);
 				setCanEdit(true)
 			})
 		})

@@ -193,7 +193,6 @@ export const WindowGrid = (p: {
 
 	return (//jsx
 		<StyledDiv>
-			{random(0, 1000)}
 			<div className="window-grid-wrapper">
 				<GridContext.Provider value={nGridContext}>
 					<DraggableGrid

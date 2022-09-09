@@ -35,8 +35,8 @@ export const sharedConfig = {
 	},
 	client: {
 		log: {
-			verbose: true,
-			socket: false,
+			verbose: false,
+			socket: true,
 			upload: false,
 			iframe: false,
 			eventManager: true,

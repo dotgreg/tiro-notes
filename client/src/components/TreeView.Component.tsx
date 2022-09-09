@@ -29,6 +29,10 @@ const FoldersTreeViewInt = (p: {
 	onFolderDragEnd: () => void
 	onFolderDrop: onFolderDropFn
 }) => {
+	useEffect(() => {
+		console.log(333, {of: p.openFolders, fs: p.folder, c: p.current});
+	})
+
 
 
 	return (
@@ -136,8 +140,10 @@ export const FolderView = (p: {
 					}
 				</span>
 				<span className="title" onClick={e => { p.onFolderClicked(p.folder.key) }}>
-					{p.folder.title}
+
+
 					<div className="title-drag-bg"></div>
+					<div className="title-label"> {p.folder.title}</div>
 				</span>
 				<span
 					onClick={() => {
@@ -147,7 +153,7 @@ export const FolderView = (p: {
 					className="context-menu-wrapper">
 					<Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
 					{isMenuOpened &&
-						<div className="context-menu">
+						<div className="context-menu context-menu-folders">
 							<ul>
 
 								<li onClick={() => {
@@ -158,6 +164,7 @@ export const FolderView = (p: {
 									}
 									setIsMenuOpened(false)
 								}}>{strings.renameFolder}</li>
+
 
 								<li onClick={() => {
 									if (p.folder.path === '') return setIsMenuOpened(false)
@@ -232,14 +239,16 @@ export const FolderView = (p: {
 // refresh all time
 export const FoldersTreeView = React.memo(FoldersTreeViewInt,
 	(np, pp) => {
+		let res = true
 		if (
 			np.openFolders !== pp.openFolders ||
 			np.folder !== pp.folder ||
 			np.current !== pp.current
+			// np.onFolderClicked !== pp.onFolderClicked
 		) {
-			return false
+			res = false
 		}
-		return true
+		return res
 	}
 )
 
@@ -301,7 +310,7 @@ export const folderTreeCss = () => `
 								color: black;
 								padding: 0px 0px;
 								width: 100px;
-								z-index: 10;
+								z-index: 100;
 								border-radius: 4px;
 								font-size: 10px;
 								ul {
@@ -327,7 +336,12 @@ export const folderTreeCss = () => `
 				}
 				.folder-title {
 						position: relative;
-						z-index: 1;
+
+						.title-label {
+								position: relative;
+								z-index: 0;
+
+						}
 
 						.title-drag-bg {
 								border-radius: 5px;
@@ -340,9 +354,12 @@ export const folderTreeCss = () => `
 								left: -5px;
 								transition: 50ms;
 								background: rgba(255,255,255,0);
+								z-index:0;
+								pointer-events: none;
 						}
 						&.drag .title-drag-bg {
 								background: rgba(255,255,255,0.6);
+								pointer-events: all;
 						}
 
 						padding: 1px;
@@ -354,6 +371,9 @@ export const folderTreeCss = () => `
 								cursor: pointer;
 								padding: 1px;
 								top: 0px;
+								svg {
+										color: ${cssVars.colors.main};
+								}
 						}
 						
 				}
