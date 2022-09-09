@@ -36,12 +36,12 @@ export const sharedConfig = {
 	client: {
 		log: {
 			verbose: false,
-			socket: true,
+			socket: false,
 			upload: false,
 			iframe: false,
-			eventManager: true,
+			eventManager: false,
 		},
-		version: '0.30.51',
+		version: '0.30.52',
 		params: {
 			previewArea: {
 				scrollSpeed: 1.3

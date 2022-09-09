@@ -28,6 +28,17 @@ self.addEventListener('activate', (event) => {
 		self.clients.claim();
 });
 
+
+self.addEventListener('init', () => {
+		document.body.addEventListener('onscroll', () => {
+				console.log("test");
+		})
+})
+
+
+
+
+
 self.addEventListener('fetch', function(event) {
 		// console.log('[Service Worker] Fetch', event.request.url);
 		if (event.request.mode === 'navigate') {

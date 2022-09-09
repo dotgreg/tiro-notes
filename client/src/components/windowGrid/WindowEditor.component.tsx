@@ -3,8 +3,7 @@ import { iWindowContent } from '../../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
-export const WindowEditor = React.memo((p: {
-	// export const WindowEditor = React.memo((p: {
+export const WindowEditorInt = (p: {
 	content: iWindowContent
 	onViewChange: onViewChangeFn
 }) => {
@@ -77,12 +76,17 @@ export const WindowEditor = React.memo((p: {
 			}
 		</>)
 
-}, (np, pp) => {
-	return false
-	let c1 = JSON.stringify(np)
-	let c2 = JSON.stringify(pp)
-	// console.log(c1, c2, c1 === c2);
-	let res = true
-	if (c1 !== c2) res = false
-	return res
-})
+}
+
+
+export const WindowEditor = React.memo(
+	WindowEditorInt,
+	(np, pp) => {
+		return false
+		let c1 = JSON.stringify(np)
+		let c2 = JSON.stringify(pp)
+		// console.log(c1, c2, c1 === c2);
+		let res = true
+		if (c1 !== c2) res = false
+		return res
+	})

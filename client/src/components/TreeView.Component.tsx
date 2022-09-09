@@ -29,9 +29,6 @@ const FoldersTreeViewInt = (p: {
 	onFolderDragEnd: () => void
 	onFolderDrop: onFolderDropFn
 }) => {
-	useEffect(() => {
-		console.log(333, { of: p.openFolders, fs: p.folder, c: p.current });
-	})
 
 
 

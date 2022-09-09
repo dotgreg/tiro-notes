@@ -7,6 +7,7 @@ import { Icon } from '../Icon.component';
 
 export type PathModifFn = (initPath: string, endPath: string) => void
 
+// export const NoteTitleInput = React.memo((p: {
 export const NoteTitleInput = React.memo((p: {
 	title: string,
 	onEdited: PathModifFn

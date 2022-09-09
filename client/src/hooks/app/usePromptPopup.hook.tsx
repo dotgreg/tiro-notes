@@ -70,7 +70,7 @@ export const usePromptPopup = (p: {
 		// setScript(scriptStr)
 
 		if (p.title) setTitle(p.title);
-		if (p.userInput) setUserInput(" ");
+		if (p.userInput) setUserInput("");
 		if (p.onAccept) liveVars.onAccept = p.onAccept
 		if (p.onRefuse) {
 			liveVars.onRefuse = p.onRefuse

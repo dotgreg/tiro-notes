@@ -32,7 +32,10 @@ interface iCachedDic {
 }
 
 const h = `[CACHE API]`
-const log = sharedConfig.client.log.verbose
+// const log = sharedConfig.client.log.verbose
+const log = true
+
+
 const now = () => new Date().getTime()
 const getDateUntil = (minutes: number): number => {
 	let res = now() + (minutes * 60 * 1000)
@@ -50,7 +53,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	// RAM
 	//
-	const getCachedStorage = (cacheId:string) => `${cacheFolderPath}/cache-api-storage-${safeString(cacheId)}.md`
+	const getCachedStorage = (cacheId: string) => `${cacheFolderPath}/cache-api-storage-${safeString(cacheId)}.md`
 	const cachedRamDic = useRef<iCachedDic>({})
 
 	//
