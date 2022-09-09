@@ -47,41 +47,40 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 					each(rawFile.results, (line, j) => {
 
 						const currentLineTags: iHashtag[] = []
+
 						// if line starts with #[#5] + space, titleName changes
 						const matchTitle = line.match(regexs.titleMd)
 						if (matchTitle && matchTitle[0]) {
 							const title = matchTitle[0].split("#").join('').trim()
 							notePart.titleName = title
+						}
 
-						} else {
-							// else match possible hashtags in the line
-							const matchTags = line.match(regexs.hashtag3)
+						// + match possible hashtags in the line (then it can be inside the title)
+						const matchTags = line.match(regexs.hashtag3)
+						each(matchTags, tag => {
 
-							// console.log(2224, matchTags, line);
-							each(matchTags, tag => {
+							// tag = tag.split("'").join("")
+							tag = tag.substring(1)
 
-								// tag = tag.split("'").join("")
-								tag = tag.substring(1)
-
-								if (!dic[tag]) {
-									dic[tag] = {
-										id: Object.keys(dic).length + 1,
-										name: tag,
-										lines: [],
-										noteParts: []
-									}
+							if (!dic[tag]) {
+								dic[tag] = {
+									id: Object.keys(dic).length + 1,
+									name: tag,
+									lines: [],
+									noteParts: []
 								}
+							}
 
-								dic[tag].noteParts.push(cloneDeep(notePart))
-								dic[tag].lines.push(j)
-								dic[tag].lines = uniq(dic[tag].lines)
-								const partId = notePart.file.name + "-" + notePart.titleName
-								if (!partsHashtagIds[partId]) partsHashtagIds[partId] = []
-								partsHashtagIds[partId].push(dic[tag].id)
-								currentLineTags.push(dic[tag])
+							dic[tag].noteParts.push(cloneDeep(notePart))
+							dic[tag].lines.push(j)
+							dic[tag].lines = uniq(dic[tag].lines)
+							const partId = notePart.file.name + "-" + notePart.titleName
+							if (!partsHashtagIds[partId]) partsHashtagIds[partId] = []
+							partsHashtagIds[partId].push(dic[tag].id)
+							currentLineTags.push(dic[tag])
 
-							})
-						} // end each tag
+						})
+						// } // end each tag
 
 						// 2. connecting nodes per line
 						each(currentLineTags, (ctag1, i) => {

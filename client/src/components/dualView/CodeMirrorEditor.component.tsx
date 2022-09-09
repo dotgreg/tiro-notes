@@ -3,7 +3,7 @@ import React, { forwardRef, useCallback, useEffect, useRef, useState } from "rea
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { useCodeMirror } from '@uiw/react-codemirror';
 import { languages } from "@codemirror/language-data";
-import { autocompletion } from "@codemirror/autocomplete";
+import { autocompletion, CompletionSource } from "@codemirror/autocomplete";
 
 import { LineTextInfos } from "../../managers/textEditor.manager";
 import { tags as t } from "@lezer/highlight";
@@ -18,6 +18,8 @@ import { syncScroll2 } from "../../hooks/syncScroll.hook";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { isA } from "../../managers/device.manager";
 import { sharedConfig } from "../../../../shared/shared.config";
+import { getApi } from "../../hooks/api/api.hook";
+import { iFile } from "../../../../shared/types.shared";
 
 
 const h = `[Code Mirror]`
@@ -33,6 +35,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	jumpToLine: number
 
 	forceRender: number
+	file: iFile
 
 	// using it for title scrolling, right now its more title clicking
 	onScroll: (lineNb: number) => void
@@ -46,12 +49,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		return f
 	}
 
-	const histVal = useRef("")
+	const histVal = useRef<null | string>(null)
 	useEffect(() => {
+		// console.log(4440);
 		const f = getEditorObj()
 		// @ts-ignore
 		window.cmobj = f
 		if (!f) return
+		// console.log(444, p.value, histVal.current, f.view.state.doc.toString());
 
 		// // @ts-ignore
 		// document.querySelector(".cm-content").contentEditable = true
@@ -63,7 +68,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (p.value === histVal.current) return
 		if (p.value === "loading...") return
 		if (f.view.state.doc.toString() === p.value) return
-		// console.log(3332, p.value);
+		// console.log(3332, p.value,);
 		const li = CodeMirrorUtils.getCurrentLineInfos(f)
 		const cpos = li.currentPosition
 		CodeMirrorUtils.updateText(f, p.value, cpos)
@@ -72,12 +77,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// CodeMirrorUtils.updateCursor(f, cpos)
 
 		histVal.current = p.value
-	}, [p.value]);
+	}, [p.value, p.forceRender]);
 
 	const onChange = (value, viewUpdate) => {
 		// do not trigger change if value didnt changed from p.value (on file entering)
 		if (value === p.value) return
 		debouncedActivateTitles()
+		histVal.current = value
 		p.onChange(value)
 	}
 
@@ -146,7 +152,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 				}}
 				extensions={[
-					autocompletion({ override: [myCompletionsTags] }),
+					autocompletion({ override: getAllCompletionSources(p.file) }),
 					markdown({ base: markdownLanguage, codeLanguages: languages }),
 					EditorView.domEventHandlers({
 						scroll(event, view) {
@@ -165,19 +171,20 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 //
 // CACHING MECHANISM
+
+// export const CodeMirrorEditor = CodeMirrorEditorInt
+
 export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 	(np, pp) => {
-		if (
-			np.value !== pp.value &&
-			np.forceRender !== pp.forceRender
-		) return false
-
-		if (np.jumpToLine !== pp.jumpToLine) return false
-		return true
+		let res = true
+		if (np.forceRender !== pp.forceRender) res = false
+		if (np.jumpToLine !== pp.jumpToLine) res = false
+		// console.log("rerendercontrol cm", res);
+		return res
 	})
 
 
-//
+
 // THEMING
 //
 const getCustomTheme = () => createTheme({
@@ -290,9 +297,11 @@ export const codeMirrorEditorCss = () => `
     padding-right: 15px;
 }
 .cm-line {
-	padding: 0px;
+}
+.cm-cursor {
 }
 `
+
 
 
 
@@ -505,6 +514,117 @@ function myCompletionsTags(context) {
 		options: completionsTags,
 		validFor: /^\w*$/
 	};
+}
+
+interface iCompletionTerm { label: string, type: string, info?: string, apply: string, detail?: string, boost?: number }
+const createCompletionTerm = (label: string, toInsert?: string, info?: string, boost?: number, detail?: string): iCompletionTerm => {
+	let type = "tag"
+	return {
+		label,
+		apply: toInsert || label,
+		// apply: testapply,
+		info,
+		// detail: info,
+		type,
+		boost: boost || 0
+	}
+}
+
+// const ra
+// cached in ram + file + update
+const getAllCompletionSources = (file: iFile): CompletionSource[] => {
+	const completionSourceHashtags: any = getCompletionSourceHashtags(file)
+	return [
+		completionSourceCtag,
+		completionSourceHashtags
+	]
+}
+
+const getCompletionSourceHashtags = (file: iFile) => (context) => {
+	let before = context.matchBefore(/\#/);
+	if (!context.explicit && !before) return null;
+	return new Promise((reso, rej) => {
+		const path = "/.tiro/tags"
+		getApi(api => {
+			// console.log(333, file.folder);
+			api.search.hashtags(file.folder, hashs => {
+				const arr: iCompletionTerm[] = []
+				each(hashs.nodesArr, hash => {
+					arr.push(createCompletionTerm(hash.name, hash.name))
+				})
+				let res = {
+					from: before ? before.from : context.pos,
+					options: arr,
+					validFor: /.*/
+				};
+				reso(res)
+			})
+		})
+	})
+}
+
+const completionSourceCtag: CompletionSource = (context) => {
+	let before = context.matchBefore(/\[\[/);
+	if (!context.explicit && !before) return null;
+	return new Promise((reso, rej) => {
+		const path = "/.tiro/tags"
+		getApi(api => {
+			api.files.get(path, files => {
+				const tags: iCompletionTerm[] = []
+				let cnt = 0
+				each(files, f => {
+					const name = f.name.replace(".md", "")
+					const tagname = `[[${name}]]`
+					const fulltagname = `${tagname} ${tagname}`
+					let completion = fulltagname
+					let info = `Insert installed custom tag ${tagname}`
+					let boost = 0
+					api.file.getContent(f.path, content => {
+						const lines = content.split("\n")
+						let headerInsert = "// --insert:"
+						let headerComment = "// --comment:"
+						let headerBoost = "// --boost:"
+						each(lines, line => {
+							line = line.split("\\n").join("\n")
+							if (line.startsWith(headerInsert)) {
+								completion = line.replace(headerInsert, "")
+							}
+							if (line.startsWith(headerComment)) {
+								info = line.replace(headerComment, "")
+							}
+							if (line.startsWith(headerBoost)) boost = parseInt(line.replace(headerBoost, ""))
+						})
+						tags.push(createCompletionTerm(tagname, completion, info, boost))
+						cnt++
+						if (cnt === files.length) triggerRes(tags)
+					})
+				})
+			})
+
+			const triggerRes = (tags: iCompletionTerm[]) => {
+				let res = {
+					from: before ? before.from : context.pos,
+					options: tags,
+					// validFor: /^\w*$/
+					validFor: /.*/
+				};
+				console.log(res);
+				reso(res)
+			}
+		})
+
+		// if # scan for hashtags inside file + folder + caching
+
+		// let res = {
+		// 	from: before ? before.from : context.pos,
+		// 	options: completionsTags,
+		// 	validFor: /^\w*$/
+		// };
+		// setTimeout(() => {
+		// 	reso(res)
+		// }, 1000)
+
+	})
 }
 
 const getLinesAndWordsSuggestions = (content) => {

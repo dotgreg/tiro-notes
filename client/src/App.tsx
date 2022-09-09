@@ -271,6 +271,13 @@ export const App = () => {
 	//@ts-ignore
 	window.api = api
 
+	// useEffect(() => {
+	// 	getApi(api => {
+	// 		api.search.hashtags('/test_obsi/testh2', res => {
+	// 			console.log(345, res);
+	// 		})
+	// 	})
+	// }, [])
 
 	// 
 	// const canShowApp = api.userSettings.refresh.css.get > 0

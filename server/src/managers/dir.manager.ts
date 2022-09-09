@@ -294,7 +294,7 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 			}
 		});
 	}
-	console.log(h, folderPath, (Date.now() - start) / 1000);
+	// console.log(h, folderPath, (Date.now() - start) / 1000);
 	return resultFolder
 }
 

@@ -274,14 +274,17 @@ const EditorAreaInt = React.memo((
 		// 	p.onScroll(getCurrentLine())
 		// }, 1000)
 		forceCmRender()
-	}, [p.fileContent])
+	}, [p.fileContent, p.file.path])
 
 
 	//
 	// new CODEMIRROR code adaptation
 	//
 	const [cmRender, setCmRender] = useState(0)
-	const forceCmRender = () => { setCmRender(cmRender + 1) }
+	const forceCmRender = () => {
+		setCmRender(cmRender + 1)
+		// console.log(566, cmRender + 1);
+	}
 
 
 
@@ -303,6 +306,8 @@ const EditorAreaInt = React.memo((
 						const oPath = `${p.file.folder}${o}.md`
 						const nPath = `${p.file.folder}${n}.md`
 						gridContext.file.onTitleUpdate(oPath, nPath)
+						// 
+						forceCmRender()
 					}}
 				/>
 
@@ -441,6 +446,8 @@ const EditorAreaInt = React.memo((
 
 						forceRender={cmRender}
 						onScroll={p.onScroll}
+
+				 file={p.file}
 					/>
 
 				}

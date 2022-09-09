@@ -1,113 +1,113 @@
 const spreadSheetApp = (innerTagStr, opts) => {
-	if (!opts) opts = {}
+		if (!opts) opts = {}
 
-	const h = `[CTAG SPREADSHEET] 04111 v1.0`
-	const api = window.api;
-	const { div, updateContent } = api.utils.createDiv();
-	const classId = `spreadsheet-${api.utils.uuid()}`;
+		const h = `[CTAG SPREADSHEET] 04111 v1.0`
+		const api = window.api;
+		const { div, updateContent } = api.utils.createDiv();
+		const classId = `spreadsheet-${api.utils.uuid()}`;
 
-	console.log(h, "========= INIT with opts:", opts)
+		console.log(h, "========= INIT with opts:", opts)
 
-	//
-	// CHUNK INNERTAG ARRAY
-	//
+		//
+		// CHUNK INNERTAG ARRAY
+		//
 
-	const innertag = innerTagStr
-	// const innertag = `
-	//     hello|world|woop|wooop
-	//     -|-|-|-
-	//     11|12|13|=SUM(A1:C1)
-	//     21|22|23|=SUM(A2:C2)
-	//     31|32|33|=SUM(A1:C3)
-	//     `;
+		const innertag = innerTagStr
+		// const innertag = `
+		//     hello|world|woop|wooop
+		//     -|-|-|-
+		//     11|12|13|=SUM(A1:C1)
+		//     21|22|23|=SUM(A2:C2)
+		//     31|32|33|=SUM(A1:C3)
+		//     `;
 
-	const tableMdToArray = (str) => {
-		const arr1 = str.split("\n");
-		const arr3 = [];
-		for (let i = 0; i < arr1.length; i++) {
-			const arr2 = arr1[i].split("|");
-			if (arr2.length === 1 && arr2[0] === "") continue;
-			for (let y = 0; y < arr2.length; y++) {
-				arr2[y] = arr2[y].trim();
-			}
-			arr3.push(arr2);
-		}
-		const headArr = arr3[0];
-		const bodyArr = arr3.slice(2);
-		console.log(1044, "woop", { arr3, headArr, bodyArr });
-		return { headArr, bodyArr };
-	};
-
-	//
-	// CALC & RENDER ARRAY HTML
-	//
-
-	const renderTable = (bodyArr, headArr) => {
-		const hf = window.HyperFormula.buildEmpty({
-			precisionRounding: 10,
-			licenseKey: "gpl-v3"
-		});
-
-		// Add a new sheet and get its id.
-		const sheetName = hf.addSheet("main");
-		const sheetId = hf.getSheetId(sheetName);
-
-		// Fill the HyperFormula sheet with data.
-		hf.setCellContents(
-			{
-				row: 0,
-				col: 0,
-				sheet: sheetId
-			},
-			bodyArr
-		);
-
-		const { height, width } = hf.getSheetDimensions(sheetId);
-		let newTheadHTML = "";
-		let newTbodyHTML = "";
-
-		for (let row = -1; row < height; row++) {
-			for (let col = 0; col < width; col++) {
-				if (row === -1) {
-					newTheadHTML += `<th><span>${headArr[col]}</span></th>`;
-					continue;
+		const tableMdToArray = (str) => {
+				const arr1 = str.split("\n");
+				const arr3 = [];
+				for (let i = 0; i < arr1.length; i++) {
+						const arr2 = arr1[i].split("|");
+						if (arr2.length === 1 && arr2[0] === "") continue;
+						for (let y = 0; y < arr2.length; y++) {
+								arr2[y] = arr2[y].trim();
+						}
+						arr3.push(arr2);
 				}
+				const headArr = arr3[0];
+				const bodyArr = arr3.slice(2);
+				console.log(1044, "woop", { arr3, headArr, bodyArr });
+				return { headArr, bodyArr };
+		};
 
-				const cellAddress = { sheet: sheetId, col, row };
-				const cellHasFormula = hf.doesCellHaveFormula(cellAddress);
-				let cellValue = "";
+		//
+		// CALC & RENDER ARRAY HTML
+		//
 
-				if (!hf.isCellEmpty(cellAddress) && !cellHasFormula) {
-					cellValue = hf.getCellValue(cellAddress);
-				} else {
-					cellValue = hf.getCellValue(cellAddress);
-				}
+		const renderTable = (bodyArr, headArr) => {
+				const hf = window.HyperFormula.buildEmpty({
+						precisionRounding: 10,
+						licenseKey: "gpl-v3"
+				});
 
-				newTbodyHTML += `<td><span>
+				// Add a new sheet and get its id.
+				const sheetName = hf.addSheet("main");
+				const sheetId = hf.getSheetId(sheetName);
+
+				// Fill the HyperFormula sheet with data.
+				hf.setCellContents(
+						{
+								row: 0,
+								col: 0,
+								sheet: sheetId
+						},
+						bodyArr
+				);
+
+				const { height, width } = hf.getSheetDimensions(sheetId);
+				let newTheadHTML = "";
+				let newTbodyHTML = "";
+
+				for (let row = -1; row < height; row++) {
+						for (let col = 0; col < width; col++) {
+								if (row === -1) {
+										newTheadHTML += `<th><span>${headArr[col]}</span></th>`;
+										continue;
+								}
+
+								const cellAddress = { sheet: sheetId, col, row };
+								const cellHasFormula = hf.doesCellHaveFormula(cellAddress);
+								let cellValue = "";
+
+								if (!hf.isCellEmpty(cellAddress) && !cellHasFormula) {
+										cellValue = hf.getCellValue(cellAddress);
+								} else {
+										cellValue = hf.getCellValue(cellAddress);
+								}
+
+								newTbodyHTML += `<td><span>
         ${cellValue}
         </span></td>`;
-			}
+						}
 
-			newTbodyHTML += "</tr>";
-		}
+						newTbodyHTML += "</tr>";
+				}
 
-		const head = newTheadHTML;
-		const body = newTbodyHTML;
-		const htmlRes = `
+				const head = newTheadHTML;
+				const body = newTbodyHTML;
+				const htmlRes = `
     <table>
         <thead>${head}</thead>
         <tbody>${body}</tbody>
     </table>
     `;
-		return htmlRes;
-	};
+				return htmlRes;
+		};
 
-	api.utils.loadScripts(
-		["https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js"],
-		() => {
-			const { headArr, bodyArr } = tableMdToArray(innertag);
-			const renderedRes = `${renderTable(bodyArr, headArr)}`;
-			updateContent(`
+		api.utils.loadScripts(
+				["https://cdn.jsdelivr.net/npm/hyperformula/dist/hyperformula.full.min.js"],
+				() => {
+						const { headArr, bodyArr } = tableMdToArray(innertag);
+						const renderedRes = `${renderTable(bodyArr, headArr)}`;
+						updateContent(`
     <div class="${classId}"> 
         ${renderedRes}
     </div>
@@ -115,13 +115,13 @@ const spreadSheetApp = (innerTagStr, opts) => {
         ${styleTable}
     </style>
     `);
-			setTimeout(() => {
-				api.utils.resizeIframe();
-			}, 100);
-		}
-	);
+						setTimeout(() => {
+								api.utils.resizeIframe();
+						}, 100);
+				}
+		);
 
-	const styleTable = `
+		const styleTable = `
 body {
   font-family: sans-serif;
   counter-reset: row-counter col-counter;
@@ -202,7 +202,7 @@ p.data-label {
 
 `;
 
-	return div
+		return div
 }
 
 window.initCustomTag = spreadSheetApp
