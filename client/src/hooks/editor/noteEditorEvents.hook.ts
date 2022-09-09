@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 
 let oldPath: string = ''
@@ -17,6 +17,9 @@ export const useNoteEditorEvents = (p: {
 }) => {
 
 	const [hasBeenEdited, setHasBeenEdited] = useState(false)
+	// console.log(3333, p.canEdit);
+	const canEditRef = useRef(false)
+	useEffect(() => { canEditRef.current = p.canEdit }, [p.canEdit])
 
 	useEffect(() => {
 		setHasBeenEdited(false);
@@ -62,7 +65,7 @@ export const useNoteEditorEvents = (p: {
 
 	// EVENT => EDITING
 	const triggerNoteEdition = (newContent: string) => {
-		if (!p.canEdit) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
+		if (!canEditRef.current) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
 		if (!hasBeenEdited) {
 			if (p.onNoteEdition) {
 				// console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);

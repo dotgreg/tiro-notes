@@ -43,15 +43,12 @@ const h = `[SYNC SCROLL 2]`
 export const syncScroll2 = {
 	cleanDb,
 	editorToPreview: (wid: string) => {
-		// console.log(111, wid);
 		const c = getScrollObj(wid)
 		if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
 		c.editorY = c.editorEl.scrollTop
 		c.previewEl.scrollTop = c.editorY + c.baseY
-		// console.log(c);
 	},
 	syncPreviewOffset: (wid: string) => {
-		// console.log(222, wid);
 		const c = getScrollObj(wid)
 		if (!c.editorEl || !c.previewEl) return console.warn('no wid 2: ', wid)
 		c.baseY = c.previewEl.scrollTop - c.editorY
@@ -60,7 +57,7 @@ export const syncScroll2 = {
 		const c = getScrollObj(wid)
 		if (!c.editorEl || !c.previewEl) return console.warn('no wid 3: ', wid)
 		c.baseY = nOffset - c.editorY
-		console.log(h, "update preview offset to ", nOffset);
+		log && console.log(h, "update preview offset to ", nOffset);
 		c.previewEl.scrollTop = c.editorY + c.baseY
 	}
 }
@@ -93,7 +90,6 @@ export const useSyncScroll = (maxY: number) => {
 		let direction = deltaY > 0 ? 1 : -1
 		let delta = direction * Math.min(Math.abs(deltaY), 40)
 		let newY = getSyncY() + delta
-		// console.log(3, deltaY, getSyncY(), syncYRef.current, newY);
 		if (newY > -200 && newY < maxY) setSyncY(newY)
 	}
 

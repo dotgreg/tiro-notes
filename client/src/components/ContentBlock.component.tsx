@@ -6,22 +6,21 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { isString } from 'lodash';
+import { isString, random } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
-import { renderLatex } from '../managers/latex.manager';
 import { Icon } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
 
 
-const h = `[IFRAME COMPONENT] 00562`
+const h = `[IFRAME COMPONENT]`
 const log = sharedConfig.client.log.verbose
 
 const reservedTagNames = ["latex", "l"]
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
-export const ContentBlock = (p: {
+export const ContentBlock = React.memo((p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
@@ -115,7 +114,11 @@ export const ContentBlock = (p: {
 
 		</span >
 	)
-}
+}, (np, pp) => {
+	let res = true
+	if (np.block.content !== pp.block.content) res = false
+	return res
+})
 
 
 

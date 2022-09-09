@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-import { deviceType, MobileView, DeviceType } from '../device.manager';
+									 import { deviceType, MobileView, DeviceType } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -37,10 +37,10 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
-	mobileView: MobileView,
-	refreshCss: number
+		mobileView: MobileView,
+		refreshCss: number
 ) => {
-	const cssString = `//css
+		const cssString = `//css
 		.content-image {
 				width: 90%;
 		}
@@ -54,8 +54,8 @@ export const CssApp2 = (
 		${lightboxCss()}
 		${promptPopupCss()}
 
-		${AppViewSwitcherComponentCss}
-		${ButtonsToolbarCss}
+		${AppViewSwitcherComponentCss()}
+		${ButtonsToolbarCss()}
 
 		.main-wrapper {
 				display: flex;
@@ -150,7 +150,7 @@ export const CssApp2 = (
 						width: 100%;
 						padding-right: 18px;
 						overflow-y: scroll;
-						height: 100vh;
+						height: ${deviceType() === 'desktop'? "100vh" : "calc(100vh - 48px)"}; 
 				}
 
 				.left-wrapper {
@@ -365,8 +365,8 @@ export const CssApp2 = (
 														opacity: 1;
 														box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
 														.preview-area-transitions {
-																width: 56%;
-																padding: 20px;
+																width: 50%;
+																padding: 0px;
 														}
 												}
 												.preview-area-wrapper {
@@ -378,7 +378,7 @@ export const CssApp2 = (
 														transform-origin: 0px 0px;
 														position: absolute;
 														width: 100%;
-														right: calc(-80% - 20px);
+														right: calc(-80%);
 														height: 500vh;
 														.preview-area-transitions {
 
@@ -471,5 +471,5 @@ export const CssApp2 = (
 
 `//css
 
-	return css`${cssString}`
+return css`${cssString}`
 }

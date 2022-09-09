@@ -26,7 +26,7 @@ import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
 import { useUserSettings } from './hooks/useUserSettings.hook';
-import { ClientApiContext, getClientApi2, useClientApi } from './hooks/api/api.hook';
+import { ClientApiContext, getApi, getClientApi2, useClientApi } from './hooks/api/api.hook';
 import { useLightbox } from './hooks/app/useLightbox.hook';
 import { FilesList } from './components/fileList.component';
 import { useNoteHistoryApi } from './hooks/api/history.api.hook';
@@ -120,12 +120,9 @@ export const App = () => {
 			refreshTabsFromBackend();
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
+			getApi(api => { api.ui.browser.folders.refreshFromBackend() })
 		}
 	})
-
-	// useEffect(() => {
-	// 	//askForFolderScan(['/'])
-	// }, [])
 
 	// User settings!
 	const {
@@ -274,6 +271,10 @@ export const App = () => {
 	//@ts-ignore
 	window.api = api
 
+
+	// 
+	// const canShowApp = api.userSettings.refresh.css.get > 0
+
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
@@ -312,11 +313,12 @@ export const App = () => {
 									<div className="invisible-scrollbars">
 										<NewFileButton
 											onNewFile={() => {
-												const selectedFolder = clientApi.ui.browser.folders.current.get
-												clientApi.file.create(selectedFolder, files => {
-													// reload list and go to new one
-													const nFile = getMostRecentFile(files)
-													nFile && clientApi.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
+												getApi(api => {
+													const selectedFolder = api.ui.browser.folders.current.get
+													api.file.create(selectedFolder, files => {
+														const nFile = getMostRecentFile(files)
+														nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
+													})
 												})
 											}}
 										/>

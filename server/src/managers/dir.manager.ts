@@ -18,7 +18,7 @@ import { ServerSocketManager } from './socket.manager'
 var fs = require('fs')
 const path = require('path')
 
-export let dirDefaultBlacklist = ['.resources', '_resources']
+export let dirDefaultBlacklist = ['.resources', '_resources', '.DS_Store']
 
 export const createDir = async (path: string, mask: number = 0o775): Promise<null | string> => {
 	return new Promise((resolve, reject) => {
@@ -44,10 +44,10 @@ export const fileNameFromFilePath = (path: string): string => {
 // sans processing 0.367 avec 0.377, mhhh
 // sans processing 0.367 CONSOLELOG et avec 0.407
 // sans processing 0.367 CONSOLELOG et OBJ ordering 0.389
-const h = `=============`
+// const h = `=============`
 export const scanDirForFolders3 = (folderPath: string): any => {
 	if (folderPath !== "--test--") return
-	console.log(h, "woooop", folderPath);
+	// console.log(h, "woooop", folderPath);
 	const normalSearchParams = [
 		backConfig.dataFolder,
 		'--files',
@@ -214,6 +214,10 @@ export const scanDirForFolders3 = (folderPath: string): any => {
 	return {}
 }
 
+
+const h = `[DIR SCAN]`
+const shouldLog = sharedConfig.server.log.verbose
+
 export const scanDirForFolders = (folderPath: string): iFolder => {
 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
 
@@ -238,7 +242,6 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 			try {
 				let childStats = fileStats(fullChildPath)
 				if (childStats.isDirectory() && dirDefaultBlacklist.indexOf(path.basename(child)) === -1) {
-					// if (fullChildPath.indexOf('.tiro') !== -1) log('1212', fullChildPath)
 					let relativeChildFolder = cleanPath(fullChildPath).replace(cleanPath(backConfig.dataFolder), '')
 
 					let childFolder: iFolder = {
@@ -256,17 +259,25 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 					// LAST + LOG EACH ITE = 4s = PERFS /100!!!
 
 					const subchildren: string[] = fs.readdirSync(fullChildPath)
-					for (let i = 0; i < subchildren.length; i++) {
-						const child2 = subchildren[i];
-						let fullChild2Path = fullChildPath + '/' + child2
+					// for (let i = 0; i < subchildren.length; i++) {
+					each(subchildren, child2 => {
+						// const child2 = subchildren[i];
+						// let fullChild2Path = fullChildPafullChildPathth + '/' + child2
+
 
 						// take in account .folder like .tiro and .trash
 						let child2temp = child2[0] === '.' ? child2.substr(1) : child2
 						const hasExtension = child2temp.split('.').length > 1
 
-						if (dirDefaultBlacklist.indexOf(path.basename(child2)) === -1 && !hasExtension) {
+						if (
+							dirDefaultBlacklist.indexOf(path.basename(child2)) === -1 &&
+							!hasExtension
+						) {
+							// shouldLog && console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", child2, "in", fullChildPath);
+							console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", child2, "in", fullChildPath);
 							childFolder.hasChildren = true
-							break;
+							// break;
+							return false;
 						}
 
 						// 10x times slower
@@ -275,7 +286,7 @@ export const scanDirForFolders = (folderPath: string): iFolder => {
 						//     childFolder.hasChildren = true
 						//     break;
 						// }
-					}
+					})
 
 					resultFolder.children.push(childFolder)
 				}

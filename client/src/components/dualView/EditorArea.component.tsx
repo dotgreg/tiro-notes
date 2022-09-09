@@ -62,6 +62,10 @@ const EditorAreaInt = React.memo((
 	if (p.canEdit === false) canEdit = false
 	if (p.isConnected === false) canEdit = false
 
+	useEffect(() => {
+		setInnerFileContent('')
+	}, [p.file.path])
+
 
 	// LIFECYCLE EVENTS MANAGER HOOK
 	const { triggerNoteEdition } = useNoteEditorEvents({
@@ -176,19 +180,6 @@ const EditorAreaInt = React.memo((
 	// TOOLBAR ACTIONS
 	//
 	const editorToolbarActions = [
-		// {
-		// 	title: 'preview scroll',
-		// 	class: 'toggle-scroll',
-		// 	action: () => { },
-		// 	customHtml: <input
-		// 		type="checkbox"
-		// 		defaultChecked={false}
-		// 		onChange={(e) => {
-		// 			// console.log('wooop', e.target.checked);
-		// 			p.onScrollModeChange(!e.target.checked)
-		// 		}}
-		// 	/>
-		// },
 		{
 			title: '',
 			class: 'upload-button-wrapper',
@@ -299,8 +290,6 @@ const EditorAreaInt = React.memo((
 			className={`editor-area`}
 			ref={editorWrapperEl}
 		>
-			{random(0, 1000)}
-
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
 			<div className="infos-editor-wrapper">
 

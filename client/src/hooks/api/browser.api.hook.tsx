@@ -37,6 +37,7 @@ export interface iBrowserApi {
 		}
 	},
 	folders: {
+		refreshFromBackend: Function
 		base: string
 		get: iFolder
 		clean: Function
@@ -151,17 +152,20 @@ export const useBrowserApi = (p: {
 
 	// STORAGES
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
-	const [foldersFlat, setFoldersFlat] = useBackendState<iFolder[]>('foldersFlat', [])
+	const [foldersFlat, setFoldersFlat, refreshBack1] = useBackendState<iFolder[]>('foldersFlat', [])
 	// const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
 	//const [foldersFlat, setFoldersFlat] = useState<iFolder[]>([])
 	const [folderBasePath, setFolderBasePath] = useState('')
 
-
+	const refreshBackendFolders = () => {
+		refreshBack1()
+		refreshBack2()
+	}
 
 
 
 	// OPEN TREE FOLDER MANAGEMENT
-	const [openFolders, setOpenFolders] = useBackendState<string[]>('folders-open', ['/'])
+	const [openFolders, setOpenFolders, refreshBack2] = useBackendState<string[]>('folders-open', ['/'])
 	const addToOpenedFolders = (folderPath: string) => {
 		setOpenFolders([...openFolders, folderPath])
 	}
@@ -209,6 +213,7 @@ export const useBrowserApi = (p: {
 			get: files
 		},
 		folders: {
+			refreshFromBackend: refreshBackendFolders,
 			base: folderBasePath,
 			get: folderHierarchy,
 			clean: cleanFolderHierarchy,

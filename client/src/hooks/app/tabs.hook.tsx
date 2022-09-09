@@ -6,9 +6,10 @@ import { cloneDeep, each, isNumber } from 'lodash';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
-import { ClientApiContext, getClientApi2 } from '../api/api.hook';
+import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
 import { act } from 'react-dom/test-utils';
 import { syncScroll2 } from '../syncScroll.hook';
+import { deviceType } from '../../managers/device.manager';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
@@ -159,11 +160,14 @@ export const useTabs = () => {
 			setTabs(nTabs2)
 
 			// BEHAVIOR 2: go to file in browser ui => it is done directly on the window part
-			// const file = getActiveWindow(tab)?.content.file
-			// if (!file) return
-			// getClientApi2().then(api => {
-			// 	api.ui.browser.goTo(file.folder, file.name)
-			// })
+			// BEHAVIOR 2: BUT still done for mobile 
+			if (deviceType() !== "desktop") {
+			const file = getActiveWindow(tab)?.content.file
+			if (!file) return
+			getApi(api => {
+				api.ui.browser.goTo(file.folder, file.name)
+			})
+			}
 
 
 		} else if (type === 'move') {

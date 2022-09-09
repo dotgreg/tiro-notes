@@ -54,7 +54,7 @@ export const useAppViewType = (p: {
 }
 
 
-export const AppViewSwitcherComponentCss = `
+export const AppViewSwitcherComponentCss = () => `
     .app-view-switcher-component {
         margin: 0px 10px 10px 10px;
         ul.buttons-toolbar-component {

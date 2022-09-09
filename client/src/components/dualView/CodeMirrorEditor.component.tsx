@@ -17,9 +17,12 @@ import { cssVars } from "../../managers/style/vars.style.manager";
 import { syncScroll2 } from "../../hooks/syncScroll.hook";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { isA } from "../../managers/device.manager";
+import { sharedConfig } from "../../../../shared/shared.config";
 
 
 const h = `[Code Mirror]`
+const log = sharedConfig.client.log.verbose
+
 const CodeMirrorEditorInt = forwardRef((p: {
 	windowId: string,
 
@@ -56,9 +59,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// document.querySelector(".cm-content").autoCorrect = false
 
 
+		// console.log(3331, p.value);
 		if (p.value === histVal.current) return
 		if (p.value === "loading...") return
 		if (f.view.state.doc.toString() === p.value) return
+		// console.log(3332, p.value);
 		const li = CodeMirrorUtils.getCurrentLineInfos(f)
 		const cpos = li.currentPosition
 		CodeMirrorUtils.updateText(f, p.value, cpos)
@@ -81,7 +86,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// JUMP TO LINE
 	//
 	useEffect(() => {
-		console.log(h, "JUMP to line :", p.jumpToLine);
+		log && console.log(h, "JUMP to line :", p.jumpToLine);
 		if (p.jumpToLine === -1) return
 		const f = getEditorObj()
 		if (!f) return
@@ -104,7 +109,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
-		console.log(h, "CLICK ON TITLE DETECTED", title, infs);
+		log && console.log(h, "CLICK ON TITLE DETECTED", title, infs);
 		p.onScroll(infs.lineIndex)
 	}
 
@@ -254,19 +259,26 @@ export const codeMirrorEditorCss = () => `
 		outline: none!important;
 }
 .main-editor-wrapper {
+    width: calc(100% + 18px);
 		margin: 32px 0px 0px 0px;
     padding: 0px;
 		width:100%;
-		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 140px);'}; 
+		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 166px);'}; 
 }
 
+.codemirror-editor-wrapper {
+	margin-right: 18px;
+}
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
 		height: calc(100% - 30px);
 }
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
 		height: 100% ;
 		overflow:hidden;
-		padding: 3px;
+		padding: 0px;
+}
+.cm-editor {
+    word-break: break-all;
 }
 .cm-content {
 		width: 100%;
@@ -274,10 +286,11 @@ export const codeMirrorEditorCss = () => `
 		white-space: pre-wrap;
 }
 .cm-scroller {
-		/* display: none!important; */
-		// overflow: hidden;
     left: 15px;
-    padding-right: 18px;
+    padding-right: 15px;
+}
+.cm-line {
+	padding: 0px;
 }
 `
 
@@ -306,7 +319,7 @@ const updateText = (CMObj: any, newText: string, charPos: number) => {
 	)
 }
 const updateCursor = (CMObj: any, newPos: number) => {
-	console.log(h, " update cursor", newPos);
+	log && console.log(h, " update cursor", newPos);
 	setTimeout(() => {
 
 		// CMObj.view.focus()
