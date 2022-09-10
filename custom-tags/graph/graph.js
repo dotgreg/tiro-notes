@@ -3,7 +3,7 @@ const graphApp = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
 		if (!opts.size) opts.size = "100%"
-		const h = `[GRAPH CTAG] 1.0.0 27/08/22`
+		const h = `[GRAPH CTAG] 1.0.1 10/09/22`
 
 		if (!folderPath.startsWith("/")) return console.error (h, "folderpath should start by a '/'")
 		console.log(h, "init CTAG with folder:", folderPath);
@@ -18,29 +18,21 @@ const graphApp = (innerTagStr, opts) => {
 		///////////////////////////////////////////////////
 		// 0. COLOR
 		//
-		function hexToRgbArr(hex) {
-				var c;
-				if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
-						c = hex.substring(1).split('');
-						if (c.length == 3) {
-								c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-						}
-						c = '0x' + c.join('');
-						return [(c >> 16) & 255, (c >> 8) & 255, c & 255];
-				}
-				throw new Error('Bad Hex');
+
+		let mainColor = "";
+		const initFetchUserColor = (cb) => {
+				api.call("userSettings.get", ['ui_layout_colors_main'], color => {
+						mainColor = new Color(color); 
+						cb()
+				});
 		}
 
-		let mainColorHex = "";
-		api.call("userSettings.get", ['ui_layout_colors_main'], color => {
-				mainColorHex = color
-		});
-
 		const getMainColor = (opacity, variation) => {
-				let rgb = hexToRgbArr(mainColorHex)
+				console.log(mainColor);
+				let rgb = [mainColor.srgb.r * 100, mainColor.srgb.g * 100,mainColor.srgb.b * 100]
 				if (!variation) variation = [0, 0, 0]
 				let v = variation
-				let str = `rgba(${rgb[0] + v[0]},${rgb[1] + v[1]},${rgb[2] + v[2]},${opacity})`
+				let str = `rgba(${rgb[0] + v[0]}%,${rgb[1] + v[1]}%,${rgb[2] + v[2]}%,${opacity})`
 				return str
 		}
 
@@ -155,7 +147,7 @@ const graphApp = (innerTagStr, opts) => {
 								size: 16,
 								color: {
 										border: getMainColor(1),
-										background: getMainColor(1, [0, 0, 50]),
+										background: getMainColor(1, [0, 0, 10]),
 										// highlight: {
 										// 	border: "#ff0000",
 										// 	background: "#ff0000",
@@ -435,14 +427,17 @@ window.api.file.getContent('${file.path}', ncontent => {
 		//
 		api.utils.loadRessources(
 				[
+						'https://colorjs.io/dist/color.global.js',
 						'https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js',
 				], () => {
 						loadDatas(data => {
-								api.utils.resizeIframe(opts.size);
-								initGraph(data, (network) => {
-										initFilterInput(data, network);
-										initExperienceFromDeviceType();
+								initFetchUserColor(() => {
+										initGraph(data, (network) => {
+												initFilterInput(data, network);
+												initExperienceFromDeviceType();
+										})
 								})
+								api.utils.resizeIframe(opts.size);
 						})
 				}
 		)
