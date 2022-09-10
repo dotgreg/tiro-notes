@@ -286,6 +286,27 @@ const EditorAreaInt = React.memo((
 		// console.log(566, cmRender + 1);
 	}
 
+	//
+	// SIMPLE NOTE FALLBACK IF TOOLONG
+	//
+	let simpleFallback = innerFileContent.length > 30000 && deviceType() !== "desktop"
+	// const [simpleFallback, setSimpleFallback] = useState(false)
+	// useEffect(() => {
+	// 	if (p.value.length > 30000 && deviceType() !== "desktop") {
+	// 		console.log(22222, p.value.length);
+	// 		setSimpleFallback(true)
+	// 	}
+	// 	else setSimpleFallback(false)
+	// }, [p.value, p.forceRender]);
+	// useEffect(() => {
+	// 	if (!simpleFallback) {
+	// 		const f = getEditorObj()
+	// 		if (!f) return
+	// 		CodeMirrorUtils.updateText(f, p.value, 0)
+	// 	}
+	// }, [simpleFallback]);
+
+
 
 
 	return (
@@ -432,12 +453,11 @@ const EditorAreaInt = React.memo((
 			{/* {MAIN EDITOR AREA} */}
 			<div className="main-editor-wrapper">
 
-				{p.editorType === 'codemirror' &&
+				{!simpleFallback && p.editorType === 'codemirror' &&
 					<CodeMirrorEditor
 						windowId={p.windowId}
 						ref={codeMirrorEditorView}
 
-						// initValue={innerFileContent}
 						value={innerFileContent}
 						onChange={triggerNoteEdition}
 
@@ -447,10 +467,21 @@ const EditorAreaInt = React.memo((
 						forceRender={cmRender}
 						onScroll={p.onScroll}
 
-				 file={p.file}
+						file={p.file}
 					/>
 
 				}
+
+				{simpleFallback &&
+					<div className="codemirror-mobile-fallback">
+						<p> note is too long for mobile, we disabled the advanced edition system </p>
+						<textarea
+							defaultValue={innerFileContent}
+							onChange={e => { triggerNoteEdition(e.target.value) }}
+						/>
+					</div>
+				}
+
 
 			</div>
 
