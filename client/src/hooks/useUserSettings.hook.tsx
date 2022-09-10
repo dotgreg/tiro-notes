@@ -24,7 +24,8 @@ export type iUserSettingsApi = {
 
 const defaultVals: iUserSettings = {
 	ui_sidebar: true,
-	ui_filesList_sortMode: 2
+	ui_filesList_sortMode: 2,
+	ui_layout_colors_main: "#E86666",
 }
 
 const h = `[USER SETTINGS] :`
@@ -44,8 +45,6 @@ export const useUserSettings = () => {
 	//
 	// DEFAULT VALS OVERRIDING LOGIC
 	//
-
-
 	const defaultVars = useRef<any[]>([])
 	const replaceDefaultByUserVar =
 		(userVar: iUserSettingName, toReplaceObj: any, toReplaceProp: string) => {
@@ -84,8 +83,10 @@ export const useUserSettings = () => {
 
 		get: name => {
 			// if settings not configured, return default
-			let res = defaultVals[name]
+			let resDefault = defaultVals[name]
+			let res = resDefault
 			if (name in userSettings) res = userSettings[name]
+			if (res === '') res = resDefault
 			return res
 		},
 		list: () => {
