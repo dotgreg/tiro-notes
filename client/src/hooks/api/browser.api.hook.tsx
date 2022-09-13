@@ -196,6 +196,8 @@ export const useBrowserApi = (p: {
 			let nf = { current: newflatStruct }
 			each(data.folders, nfolder => {
 				// first replace old results by new ones
+				// console.log(nf.current, nfolder);
+				if (!nfolder) return
 				nf.current = nf.current.filter(folder => nfolder.path !== folder.path)
 			})
 			each(data.folders, nfolder => {

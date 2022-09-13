@@ -2,12 +2,17 @@ import React, { useState } from 'react';
 import { ButtonsToolbar } from '../../components/ButtonsToolbar.component';
 import { deviceType, MobileView } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { syncScroll2 } from '../syncScroll.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from "../useStatMemo.hook"
 
 export const useMobileView = () => {
 
 	const [mobileView, setMobileView] = useState<MobileView>('navigator')
+	const updateMobileView = (v:MobileView) => {
+		setMobileView(v)
+		// syncScroll2.editorToPreview()
+	}
 
 	const MobileToolbarComponent = (forceRerender: boolean) => useStatMemo(
 		<>
@@ -16,9 +21,23 @@ export const useMobileView = () => {
 				<ButtonsToolbar
 					class='mobile-view-toggler'
 					buttons={[
-						{ icon: 'faStream', class: `${mobileView === 'navigator' ? 'active' : ''}`, action: () => { setMobileView('navigator') } },
-						{ icon: 'faPenNib', class: `${mobileView === 'editor' ? 'active' : ''}`, action: () => { setMobileView('editor') } },
-						{ icon: 'faEye', class: `${mobileView === 'preview' ? 'active' : ''}`, action: () => { setMobileView('preview') } },
+						{
+							icon: 'faStream',
+							class: `${mobileView === 'navigator' ? 'active' : ''}`,
+							action: () => {
+								setMobileView('navigator')
+							}
+						},
+						{
+							icon: 'faPenNib',
+							class: `${mobileView === 'editor' ? 'active' : ''}`,
+							action: () => { setMobileView('editor') }
+						},
+						{
+							icon: 'faEye',
+							class: `${mobileView === 'preview' ? 'active' : ''}`,
+							action: () => { setMobileView('preview') }
+						},
 					]}
 				/>
 			}

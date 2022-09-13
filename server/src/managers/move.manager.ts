@@ -80,7 +80,7 @@ export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPat
 	for (let i = 0; i < matches.length; i++) {
 		const rawResource = matches[i];
 
-		const nameResource = rawResource.replace(regexs.ressource, '$1')
+		const nameResourceMd = rawResource.replace(regexs.ressource, '$1')
 		const pathResource = rawResource.replace(regexs.ressource, '$2')
 		let pathsToCheck = [
 			`${backConfig.dataFolder}/${pathResource}`,
@@ -91,16 +91,19 @@ export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPat
 			let fileDoesExist = fileExists(pathsToCheck[y])
 			!fileDoesExist && log(`===> ${pathsToCheck[y]} not found`);
 			if (fileDoesExist) {
-				// if yes, move it to endPath/.resources/UNIQUEID.jpg
-				let initResourcePathArr = pathsToCheck[y].split('/')
-				let filenameArr = initResourcePathArr.pop().split('.')
-				let extension = filenameArr[filenameArr.length - 1]
+				// let initResourcePathArr = pathsToCheck[y].split('/')
+				// let filenameArr = initResourcePathArr.pop().split('.')
+				// let extension = filenameArr[filenameArr.length - 1]
 
-				// let newFilename = `${generateNewFileName(nameResource)}.${extension}`
+				let initFileInfos = getFileInfos(pathsToCheck[y])
+
+				// if yes, move it to endPath/.resources/UNIQUEID.jpg
 				let endFolderPathAbs = cleanPath(`${backConfig.dataFolder}/${endFolderPath}/`)
-				let uncheckedEndResourcePath = `${endFolderPathAbs}${backConfig.relativeUploadFolderName}/${nameResource}.${extension}`
+				let uncheckedEndResourcePath = `${endFolderPathAbs}${backConfig.relativeUploadFolderName}/${initFileInfos.filename}`
 				let checkedEndResourcePath = generateUniqueAbsFilePath(uncheckedEndResourcePath)
 				let checkedEndResourceRelPath = checkedEndResourcePath.replace(endFolderPathAbs, '')
+
+
 
 
 
@@ -109,7 +112,7 @@ export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPat
 				if (!simulate) {
 					await moveFile(pathsToCheck[y], checkedEndResourcePath)
 					// change contentfile
-					let mdResource = `![${nameResource}](${checkedEndResourceRelPath})`
+					let mdResource = `![${nameResourceMd}](${checkedEndResourceRelPath})`
 					newFileContent = newFileContent.replace(matches[i], mdResource)
 				}
 			}

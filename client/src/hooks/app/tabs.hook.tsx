@@ -143,7 +143,7 @@ export const useTabs = () => {
 
 		} else if (type === 'activate') {
 			// cleaning scrolling sync caching db
-			syncScroll2.cleanDb();
+			// syncScroll2.cleanDb();
 
 			// change tab
 			if (!tab) return
@@ -162,11 +162,11 @@ export const useTabs = () => {
 			// BEHAVIOR 2: go to file in browser ui => it is done directly on the window part
 			// BEHAVIOR 2: BUT still done for mobile 
 			if (deviceType() !== "desktop") {
-			const file = getActiveWindow(tab)?.content.file
-			if (!file) return
-			getApi(api => {
-				api.ui.browser.goTo(file.folder, file.name)
-			})
+				const file = getActiveWindow(tab)?.content.file
+				if (!file) return
+				getApi(api => {
+					api.ui.browser.goTo(file.folder, file.name)
+				})
 			}
 
 

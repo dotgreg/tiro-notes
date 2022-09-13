@@ -4,7 +4,7 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
 import { random } from 'lodash';
 
-export const ButtonsToolbar = React.memo((p: {
+export const ButtonsToolbarInt = (p: {
 	// export const ButtonsToolbar = (p: {
 	class?: string
 	colors?: [string, string]
@@ -52,7 +52,9 @@ export const ButtonsToolbar = React.memo((p: {
 	// </div>
 	// }
 
-}, (np, pp) => {
+}
+
+export const ButtonsToolbar = React.memo(ButtonsToolbarInt, (np, pp) => {
 	let res = false
 	// let res = true
 	// that component is so much used  
@@ -80,6 +82,7 @@ export const ToolbarButton = (p: iToolbarButton) => {
 	if (p.customHtml) insideHtml = p.customHtml
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
 
+	// {random(0, 1000)}
 	return (
 		<button
 			className={classes}

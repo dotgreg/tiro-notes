@@ -36,6 +36,7 @@ import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
+import { settings } from 'cluster';
 
 
 
@@ -120,7 +121,11 @@ export const App = () => {
 			refreshTabsFromBackend();
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
-			getApi(api => { api.ui.browser.folders.refreshFromBackend() })
+
+				getApi(api => {
+					api.ui.browser.folders.refreshFromBackend()
+				})
+
 		}
 	})
 
@@ -270,17 +275,6 @@ export const App = () => {
 
 	//@ts-ignore
 	window.api = api
-
-	// useEffect(() => {
-	// 	getApi(api => {
-	// 		api.search.hashtags('/test_obsi/testh2', res => {
-	// 			console.log(345, res);
-	// 		})
-	// 	})
-	// }, [])
-
-	// 
-	// const canShowApp = api.userSettings.refresh.css.get > 0
 
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >

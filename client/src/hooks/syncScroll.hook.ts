@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
 import { sharedConfig } from '../../../shared/shared.config';
+import { getApi } from './api/api.hook';
+import { getActiveTabIndex } from './app/tabs.hook';
 
 
 // let baseY = 0
@@ -9,6 +11,7 @@ interface iScrollConfig {
 	editorY: number
 	previewEl: any
 	editorEl: any
+	line: number
 }
 
 interface iDbScroll {
@@ -18,9 +21,12 @@ interface iDbScroll {
 const log = sharedConfig.client.log.verbose
 let db: iDbScroll = {}
 export const cleanDb = () => {
-	log && console.log("[syncScroll] => cleaning db");
+	console.log("[syncScroll] => cleaning db");
 	db = {}
 }
+// @ts-ignore
+window.dbscroll = db
+
 const getScrollObj = (wid) => {
 	const previewEl = document.querySelector(`.window-id-${wid} .preview-area-wrapper`)
 	const editorEl = document.querySelector(`.window-id-${wid} .cm-scroller`)
@@ -30,8 +36,11 @@ const getScrollObj = (wid) => {
 			editorY: 0,
 			previewEl,
 			editorEl,
+			line: 0
 		}
 	}
+	db[wid].previewEl = previewEl
+	db[wid].editorEl = editorEl
 	return db[wid]
 }
 
@@ -42,9 +51,31 @@ const getScrollObj = (wid) => {
 const h = `[SYNC SCROLL 2]`
 export const syncScroll2 = {
 	cleanDb,
-	editorToPreview: (wid: string) => {
+
+	// updateLine: (wid: string, line: number) => {
+	// 	console.log("liiiiiine", line, wid);
+	// 	const c = getScrollObj(wid)
+	// 	if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
+	// 	c.line = line
+	// },
+	reinitPos: (wid: string) => {
 		const c = getScrollObj(wid)
 		if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
+		console.log(3333, c.editorY, c.baseY, c.line);
+		c.previewEl.scrollTop = c.editorY + c.baseY
+		c.editorEl.scrollTop = c.editorY
+		// getApi(api => {
+		// api.ui.note.lineJump.jump({ windowId: wid, line: c.line })
+		// })
+	},
+	editorToPreview: (wid: string) => {
+		// console.log(111);
+		const c = getScrollObj(wid)
+		if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
+		// console.log(222, c.previewEl.scrollTop);
+		// @ts-ignore
+		window.pel = c.previewEl
+
 		c.editorY = c.editorEl.scrollTop
 		c.previewEl.scrollTop = c.editorY + c.baseY
 	},

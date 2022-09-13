@@ -8,7 +8,7 @@ import { Icon } from './Icon.component';
 const limitTxt = 20
 const liHeight = 15
 
-export const LastNotes = React.memo((p: {
+export const LastNotesInt = (p: {
 	files: iFile[]
 	onClick: (file: iFile) => void
 }) => {
@@ -41,7 +41,9 @@ export const LastNotes = React.memo((p: {
 			}
 		</>
 	)
-}, (np, pp) => {
+}
+
+export const LastNotes = React.memo(LastNotesInt, (np, pp) => {
 	if (np.files !== pp.files) return false
 	return true
 })
