@@ -77,11 +77,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// INIT VAL MECHANISME
 	//
 	useEffect(() => {
-		setTimeout(() => {
-			// need to wait for 100ms to get codemirror object, need to refactor that
-			// console.log(res, 4440, p.value, p.forceRender);
-			let res = initVal()
-		}, 100)
+		// setTimeout(() => {
+		// need to wait for 100ms to get codemirror object, need to refactor that
+		// console.log(res, 4440, p.value, p.forceRender);
+		let res = initVal()
+		// }, 100)
 	}, [p.value, p.forceRender]);
 
 
@@ -276,7 +276,7 @@ export const codeMirrorEditorCss = () => `
 		margin: 32px 0px 0px 0px;
     padding: 0px;
 		width:100%;
-		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 166px);'}; 
+		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 280px);'}; 
 }
 
 .codemirror-editor-wrapper {

@@ -60,12 +60,16 @@ const DualViewerInt = (
 
 	useEffect(() => {
 		setPreviewContent(p.fileContent)
-	}, [p.fileContent])
+	}, [p.fileContent, p.file.path])
 
-	// back to top when change file
 	useEffect(() => {
 		// setPosY(1);
-		setSyncY(1)
+		// setSyncY(1)
+		setTimeout(() => {
+			console.log(222222, p.file.path);
+			syncScroll2.reinitPos(p.windowId)
+		}, 500)
+
 	}, [p.file.path])
 
 	//
@@ -81,12 +85,6 @@ const DualViewerInt = (
 		}, 100)
 	}, [p.lineJumpEvent])
 
-
-	// for performance reasons, only show editor/preview when needed
-	//const showEditor = !(p.viewType === 'preview')
-	// dang, editor is required... cuz of dropdown menu
-	const showEditor = true
-	const showPreview = !(p.viewType === 'editor' && deviceType() !== 'mobile')
 
 	///////////////////////////////////////
 	// DIFFERENT SCROLLS
@@ -151,53 +149,49 @@ const DualViewerInt = (
 	>
 
 
-		{showEditor &&
-			<EditorArea
-				windowId={p.windowId}
-				editorType='codemirror'
+		<EditorArea
+			windowId={p.windowId}
+			editorType='codemirror'
 
-				file={p.file}
-				canEdit={p.canEdit}
-				fileContent={p.fileContent}
-				isActive={p.isActive}
+			file={p.file}
+			canEdit={p.canEdit}
+			fileContent={p.fileContent}
+			isActive={p.isActive}
 
-				jumpToLine={lineToJump}
-				posY={getSyncY()}
+			jumpToLine={lineToJump}
+			posY={getSyncY()}
 
-				onScroll={newLine => {
-					updateScrolledTitle(newLine)
-				}}
-				onUpdateY={newY => {
-					setSyncY(newY)
-				}}
-				onMaxYUpdate={updateMaxY}
+			onScroll={newLine => {
+				updateScrolledTitle(newLine)
+			}}
+			onUpdateY={newY => {
+				setSyncY(newY)
+			}}
+			onMaxYUpdate={updateMaxY}
 
-				onFileEdited={(path, content) => {
-					p.onFileEdited(path, content)
-					setPreviewContent(content)
-				}}
-				onScrollModeChange={checked => {
-					const res = checked ? "title" : "sync"
-					setScrollMode(res)
-				}}
+			onFileEdited={(path, content) => {
+				p.onFileEdited(path, content)
+				setPreviewContent(content)
+			}}
+			onScrollModeChange={checked => {
+				const res = checked ? "title" : "sync"
+				setScrollMode(res)
+			}}
 
-				onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
-			/>
-		}
+			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
+		/>
 
-		{showPreview &&
-			<PreviewArea
-				windowId={p.windowId}
-				file={p.file}
-				posY={previewY}
-				fileContent={previewContent}
-				onMaxYUpdate={updateMaxY}
-				yCnt={yCnt}
-				onIframeMouseWheel={e => {
-					updateSyncYWithDelta(e.deltaY)
-				}}
-			/>
-		}
+		<PreviewArea
+			windowId={p.windowId}
+			file={p.file}
+			posY={previewY}
+			fileContent={previewContent}
+			onMaxYUpdate={updateMaxY}
+			yCnt={yCnt}
+			onIframeMouseWheel={e => {
+				updateSyncYWithDelta(e.deltaY)
+			}}
+		/>
 
 
 		<ScrollingBar
@@ -220,7 +214,7 @@ export const DualViewer = (p: iDualViewProps) => {
 	// }, [lineJumpEvent])
 
 	// return useMemo(() => {
-		return <DualViewerInt {...p} lineJumpEvent={lineJumpEvent} />
+	return <DualViewerInt {...p} lineJumpEvent={lineJumpEvent} />
 	// }, [lineJumpEvent, p.file, p.fileContent, p.isActive])
 }
 

@@ -79,9 +79,7 @@ export const WindowEditorInt = (p: {
 }
 
 
-export const WindowEditor = React.memo(
-	WindowEditorInt,
-	(np, pp) => {
+export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
 		return false
 		let c1 = JSON.stringify(np)
 		let c2 = JSON.stringify(pp)

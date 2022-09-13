@@ -415,7 +415,7 @@ export const GridMobileCss = () => `
 										}
 								}
 								.preview-area-wrapper {
-										height: calc(100% - 95px);
+										height: calc(100% - 165px);
 										.preview-area {
 												top: 0px!important;
 												bottom: 0px!important;
@@ -607,7 +607,7 @@ export const draggableGridCss = () => `
 										//
 										&.device-desktop.view-preview {
 												.editor-area {
-														width: 100%
+														width: 0%;
 												}
 												.preview-area-wrapper {
 												}

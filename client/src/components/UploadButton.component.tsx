@@ -1,46 +1,64 @@
-import { each } from "lodash"
-								import React, { useContext, useEffect, useRef, useState } from "react"
-																																					import { iFile } from "../../../shared/types.shared"
-																																													 import { ClientApiContext } from "../hooks/api/api.hook"
-																																																											 import { onUploadProgressFn, onUploadSuccessFn } from "../hooks/api/upload.api.hook"
-																																																																																				import { cssVars } from "../managers/style/vars.style.manager"
-																																																																																													 import { Icon } from "./Icon.component"
+import { each, uniqueId } from "lodash"
+import React, { useContext, useEffect, useRef, useState } from "react"
+import { iFile } from "../../../shared/types.shared"
+import { ClientApiContext, getApi } from "../hooks/api/api.hook"
+import { onUploadProgressFn, onUploadSuccessFn } from "../hooks/api/upload.api.hook"
+import { cssVars } from "../managers/style/vars.style.manager"
+import { Icon } from "./Icon.component"
 
-																																																																																																					 export const UploadButton = (p: {
-				onProgress: onUploadProgressFn
-										onSuccess: onUploadSuccessFn
-															 file: iFile
-		}) => {
+export type iUploadType = 'all' | 'image' | 'camera' | 'microphone'
 
-		const api = useContext(ClientApiContext);
+export const UploadButton = (p: {
+	onProgress: onUploadProgressFn
+	onSuccess: onUploadSuccessFn
+	file: iFile
+	type: iUploadType
+	label: string
+}) => {
+	let icon = "faPaperclip"
+	if (p.type === "image") icon = "faImage"
+	if (p.type === "camera") icon = "faCamera"
+	if (p.type === "microphone") icon = "faMicrophone"
 
-		return (
-				<div className="upload-button-component">
-				<input
+	let accept = "*"
+	if (p.type === "image") accept = "image/*"
+	if (p.type === "camera") accept = "image/*"
+	if (p.type === "microphone") accept = "audio/*"
+
+	const id = uniqueId()
+
+	return (
+		<div className="upload-button-component">
+			<input
 				className='input-file-hidden'
-				id="file"
+				id={`file-${id}`}
 				multiple
-				name="file"
+				name={`file-${id}`}
 				type="file"
+				capture={p.type === "camera" || p.type === "microphone"}
+				accept={accept}
 				onChange={(e: any) => {
-		const files = e.target.files as File[]
-		if (files.length === 0) return
-		each(files, file => {
-				api && api.upload.uploadFile({
-				file,
-				folderPath: p.file.folder,
-										onProgress: p.onProgress,
-																onSuccess: p.onSuccess
-		})
-		})
-}}
-				/>
-				<label htmlFor="file">
-				<Icon name="faPaperclip" />
-				<span className="label-text">Upload files </span>
-				</label>
-				</div>
-		)
+					const files = e.target.files as File[]
+					if (files.length === 0) return
+					each(files, file => {
+						// alert(JSON.stringify(file));
+						getApi(api => {
+							api.upload.uploadFile({
+								file,
+								folderPath: p.file.folder,
+								onProgress: p.onProgress,
+								onSuccess: p.onSuccess
+							})
+						})
+					})
+				}}
+			/>
+			<label htmlFor={`file-${id}`}>
+				<Icon name={icon} />
+				<span className="label-text">{p.label}</span>
+			</label>
+		</div>
+	)
 }
 
 export const uploadButtonCss = () => `

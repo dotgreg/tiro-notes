@@ -20,7 +20,7 @@ const log = sharedConfig.client.log.verbose
 const reservedTagNames = ["latex", "l"]
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
-export const ContentBlock = React.memo((p: {
+export const ContentBlockInt = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
@@ -114,9 +114,13 @@ export const ContentBlock = React.memo((p: {
 
 		</span >
 	)
-}, (np, pp) => {
+}
+
+export const ContentBlock = React.memo(ContentBlockInt, (np, pp) => {
 	let res = true
+	if (JSON.stringify(np.block) !== JSON.stringify(pp.block)) res = false
 	if (np.block.content !== pp.block.content) res = false
+	if (np.file.path !== pp.file.path) res = false
 	return res
 })
 

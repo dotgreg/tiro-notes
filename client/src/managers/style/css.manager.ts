@@ -347,7 +347,9 @@ export const CssApp2 = (
 												}
 
 												.preview-area-wrapper {
-														display:none
+														/* display:none */
+														position: absolute;
+														left: -9999px;
 												}
 										}
 
@@ -404,9 +406,11 @@ export const CssApp2 = (
 
 										&.view-preview.device-desktop {
 												.editor-area {
-														position: absolute;
+														width: 0%;
 														.main-editor-wrapper {
-																display:none;
+																position: absolute;
+																left: -9999px;
+																/* display:none; */
 														}
 												}
 												.preview-area-wrapper {

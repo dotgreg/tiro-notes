@@ -23,7 +23,7 @@ export const PreviewArea = (p: {
 	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
 
-	const api = useContext(ClientApiContext);
+	// const api = useContext(ClientApiContext);
 
 	const previewAreaRefs = {
 		wrapper: useRef<HTMLDivElement>(null),

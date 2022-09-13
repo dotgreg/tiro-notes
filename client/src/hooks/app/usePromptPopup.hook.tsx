@@ -33,10 +33,16 @@ export const usePromptPopup = (p: {
 	const [displayPromptPopup, setDisplayPromptPopup] = useState(false)
 
 	const [text, setText] = useState(``)
-	const [script, setScript] = useState(``)
 	const [userInput, setUserInput] = useState<string | null>(null)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
+
+	const reinitPopup = () => {
+		setUserInput(null)
+		setTitle("")
+		setText("")
+		setShowRefuse(false)
+	}
 
 	const showPopup: iPopupApi['show'] = (text, title, cb) => {
 		promptPopup({
@@ -82,6 +88,7 @@ export const usePromptPopup = (p: {
 
 	const closePopup = () => {
 		setDisplayPromptPopup(false)
+		reinitPopup()
 	}
 
 	const PromptPopupComponent = () => <>

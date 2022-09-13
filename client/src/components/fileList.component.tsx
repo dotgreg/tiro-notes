@@ -38,7 +38,7 @@ export const FilesList = (p: {
 		let newFilesPathArr: string[] = []
 		for (let i = 0; i < filesPath.length; i++) {
 			const path = filesPath[i];
-			if (!filesPreviewObj[path]) newFilesPathArr.push(path)
+			if (!filesPreviewObj[path] || skipCache) newFilesPathArr.push(path)
 		}
 
 		// ask and fetch previews
@@ -113,7 +113,7 @@ export const FilesList = (p: {
 					onFileDragStart={p.onFileDragStart}
 					onFileDragEnd={p.onFileDragEnd}
 					onVisibleItemsChange={visibleFilesPath => {
-						askFilesPreview(visibleFilesPath)
+						askFilesPreview(visibleFilesPath, true)
 					}}
 				/>
 			</div>

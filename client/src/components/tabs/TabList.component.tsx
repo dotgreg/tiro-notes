@@ -8,7 +8,6 @@ import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon } from '../Icon.component';
 
-// export const TabList = React.memo((p: {
 export const TabList = (p: {
 	tabs: iTab[]
 	onUpdate: onTabUpdateFn
@@ -69,7 +68,7 @@ export const TabList = (p: {
 
 
 
-const Tab = React.memo((p: {
+const TabInt = (p: {
 	tab: iTab
 	onUpdate: onTabUpdateFn
 
@@ -154,9 +153,11 @@ const Tab = React.memo((p: {
 			</div >
 		</div >
 	)
-}, (np, pp) => {
-	let res = true
+}
 
+
+export const Tab = React.memo(TabInt, (np, pp) => {
+	let res = true
 
 	// 1. only compare tab struct, not content/layout
 	const t: any = cloneDeep({ n: np.tab, p: pp.tab })

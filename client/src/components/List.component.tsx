@@ -17,7 +17,9 @@ import { FilesPreviewObject } from '../hooks/api/files.api.hook';
 // export const SortModeArr = ['none','alphabetical','created','modified']
 export type onFileDragStartFn = (files: iFile[]) => void
 
-export class List extends React.Component<{
+
+
+class ListInt extends React.Component<{
 	files: iFile[]
 	filesPreview: FilesPreviewObject
 
@@ -56,6 +58,8 @@ export class List extends React.Component<{
 			for (let i = 0; i < props.files.length; i++) {
 				this.liRefs.push(React.createRef())
 			}
+			// console.log(555555);
+			// console.log(4444);
 			this.getVisibleItemsDebounced()
 
 			this.setState({ selectionEdges: [-1, -1] })
@@ -75,7 +79,6 @@ export class List extends React.Component<{
 	}
 
 	getVisibleItemsDebounced = debounce(() => {
-
 		let wrapper = this.scrollerWrapperRef.current
 		if (!wrapper) return
 		let wrapperHeight = wrapper.getBoundingClientRect().height
@@ -257,6 +260,13 @@ export class List extends React.Component<{
 		);
 	}
 }
+
+export const List = React.memo(ListInt, (np, pp) => {
+	// if 
+
+	return false
+})
+
 
 
 const { els, colors, font, sizes } = { ...cssVars }
