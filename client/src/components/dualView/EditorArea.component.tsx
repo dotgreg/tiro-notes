@@ -3,7 +3,7 @@ import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 
-																			 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
+import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
 import { useNoteEncryption } from '../../hooks/editor/noteEncryption.hook';
@@ -28,526 +28,516 @@ import { random } from 'lodash';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
-export type onScrollFn = (newYpercent: number) => void
+export type onTitleClickFn = (newYpercent: number) => void
 
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 interface iEditorProps {
-		editorType: iEditorType
-								windowId: string
+	editorType: iEditorType
+	windowId: string
 
-													file: iFile
-																fileContent: string
-																						 isActive: boolean
-																											 canEdit: boolean
+	file: iFile
+	fileContent: string
+	isActive: boolean
+	canEdit: boolean
 
-																																onScroll: onScrollFn
-																																					onUpdateY: onScrollFn
-																																										 onMaxYUpdate: (maxY: number) => void
-																																																	 posY: number
-																																																				 jumpToLine?: number
+	onScroll: Function
+	onTitleClick: onTitleClickFn
 
-																																																											onFileEdited: onFileEditedFn
-																																																																		onViewToggle: (view: iViewType) => void
-																																																																									onScrollModeChange: (v: boolean) => void
+	onUpdateY: onTitleClickFn
+	onMaxYUpdate: (maxY: number) => void
+	posY: number
+	jumpToLine?: number
+
+	onFileEdited: onFileEditedFn
+	onViewToggle: (view: iViewType) => void
+	onScrollModeChange: (v: boolean) => void
 }
 
 const EditorAreaInt = (
-		p: iEditorProps & { isConnected: boolean }
+	p: iEditorProps & { isConnected: boolean }
 ) => {
 
-		const [innerFileContent, setInnerFileContent] = useState('')
-		let monacoEditorComp = useRef<any>(null)
+	const [innerFileContent, setInnerFileContent] = useState('')
+	let monacoEditorComp = useRef<any>(null)
 
 
-		let canEdit = true
-		if (p.canEdit === false) canEdit = false
-		if (p.isConnected === false) canEdit = false
+	let canEdit = true
+	if (p.canEdit === false) canEdit = false
+	if (p.isConnected === false) canEdit = false
 
-		useEffect(() => {
+	useEffect(() => {
 		setInnerFileContent('')
-}, [p.file.path])
+	}, [p.file.path])
 
 
-		// LIFECYCLE EVENTS MANAGER HOOK
-		const { triggerNoteEdition } = useNoteEditorEvents({
-				file: p.file,
-				fileContent: p.fileContent,
-				canEdit: canEdit,
+	// LIFECYCLE EVENTS MANAGER HOOK
+	const { triggerNoteEdition } = useNoteEditorEvents({
+		file: p.file,
+		fileContent: p.fileContent,
+		canEdit: canEdit,
 
-				onEditorDidMount: () => {
-				},
-				onEditorWillUnmount: () => {
+		onEditorDidMount: () => {
+		},
+		onEditorWillUnmount: () => {
 
-				},
-				onNoteContentDidLoad: () => {
-						if (!clientSocket) return
-						setInnerFileContent(p.fileContent)
-				}
-				,
-				onNoteEdition: (newContent, isFirstEdition) => {
-						setInnerFileContent(newContent)
-						p.onFileEdited(p.file.path, newContent)
-
-						// IF FIRST EDITION, backup old file
-																				if (isFirstEdition) {
-								getApi(api => {
-				api.history.save(p.file.path, p.fileContent, 'enter')
-		})
-						}
-				},
-				onNoteLeaving: (isEdited, oldPath) => {
-						// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
-						// if (isA('desktop')) resetMonacoSelectionExt()
-						ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
-				}
-		})
-
-																 // MOBILE EDITOR LOGIC HOOK
-																 let mobileTextarea = useRef<HTMLTextAreaElement>(null)
-																 const { onTextareaChange, onTextareaScroll } = useMobileTextAreaLogic(innerFileContent, {
-				mobileTextarea,
-				onMobileNoteEdition: triggerNoteEdition
-		})
-
-
-																																							// TEXT MANIPULATION HOOK
-
-																																							let codeMirrorEditorView = useRef<any>(null)
-
-																																							let editorRef = deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
-																																																																								if (p.editorType === "codemirror") editorRef = codeMirrorEditorView
-
-																																																																								const { applyTextModifAction } = useTextManipActions({
-				editorType: p.editorType,
-										deviceType: deviceType(),
-																editorRef
-		})
-
-																																																																																							 const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
-				let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
-				if (updatedText) {
-						triggerNoteEdition(updatedText)
-						forceCmRender()
-				}
+		},
+		onNoteContentDidLoad: () => {
+			if (!clientSocket) return
+			setInnerFileContent(p.fileContent)
 		}
+		,
+		onNoteEdition: (newContent, isFirstEdition) => {
+			setInnerFileContent(newContent)
+			p.onFileEdited(p.file.path, newContent)
 
-		// ECRYPTION FUNCTIONS HOOKS
-		const { APasswordPopup, askForPassword,
-						decryptButtonConfig, encryptButtonConfig,
-						ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
-					} = useNoteEncryption({
-				fileContent: innerFileContent,
-										 onTextEncrypted: triggerNoteEdition,
-																			onTextDecrypted: triggerNoteEdition
-		})
+			// IF FIRST EDITION, backup old file
+			if (isFirstEdition) {
+				getApi(api => {
+					api.history.save(p.file.path, p.fileContent, 'enter')
+				})
+			}
+		},
+		onNoteLeaving: (isEdited, oldPath) => {
+			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
+			// if (isA('desktop')) resetMonacoSelectionExt()
+			ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
+		}
+	})
+
+	// MOBILE EDITOR LOGIC HOOK
+	let mobileTextarea = useRef<HTMLTextAreaElement>(null)
+	const { onTextareaChange, onTextareaScroll } = useMobileTextAreaLogic(innerFileContent, {
+		mobileTextarea,
+		onMobileNoteEdition: triggerNoteEdition
+	})
+
+
+	// TEXT MANIPULATION HOOK
+
+	let codeMirrorEditorView = useRef<any>(null)
+
+	let editorRef = deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
+	if (p.editorType === "codemirror") editorRef = codeMirrorEditorView
+
+	const { applyTextModifAction } = useTextManipActions({
+		editorType: p.editorType,
+		deviceType: deviceType(),
+		editorRef
+	})
+
+	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
+		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
+		if (updatedText) {
+			triggerNoteEdition(updatedText)
+			forceCmRender()
+		}
+	}
+
+	// ECRYPTION FUNCTIONS HOOKS
+	const { APasswordPopup, askForPassword,
+		decryptButtonConfig, encryptButtonConfig,
+		ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
+	} = useNoteEncryption({
+		fileContent: innerFileContent,
+		onTextEncrypted: triggerNoteEdition,
+		onTextDecrypted: triggerNoteEdition
+	})
 
 
 
 
-						//
-						// MANAGE UPLOAD / PROGRESS
-						//
-						const gridContext = useContext(GridContext)
-						const [progressUpload, setProgressUpload] = useState(-1)
-						useEffect(() => {
+	//
+	// MANAGE UPLOAD / PROGRESS
+	//
+	const gridContext = useContext(GridContext)
+	const [progressUpload, setProgressUpload] = useState(-1)
+	useEffect(() => {
 		if (gridContext.upload.progress && p.isActive) {
-				setProgressUpload(gridContext.upload.progress)
+			setProgressUpload(gridContext.upload.progress)
 		}
 		if (gridContext.upload.file && p.isActive) {
-				const { name, path } = { ...gridContext.upload.file }
-				gridContext.upload.reinit();
-				insertImage(name, path)
+			const { name, path } = { ...gridContext.upload.file }
+			gridContext.upload.reinit();
+			insertImage(name, path)
 		}
-}, [gridContext.upload])
+	}, [gridContext.upload])
 
 
-						//
-						// IMAGE INSERTION
-						//
-						const insertImage = (name: string, path: string) => {
-				console.log(11111111, stringToInsertUpload.current);
-				stringToInsertUpload.current += `![${name}](${path})\n`
-				debouncedUploadInsert()
-		}
-		const stringToInsertUpload = useRef('')
-		const debouncedUploadInsert = useDebounce(() => {
+	//
+	// IMAGE INSERTION
+	//
+	const insertImage = (name: string, path: string) => {
+		console.log(11111111, stringToInsertUpload.current);
+		stringToInsertUpload.current += `![${name}](${path})\n`
+		debouncedUploadInsert()
+	}
+	const stringToInsertUpload = useRef('')
+	const debouncedUploadInsert = useDebounce(() => {
 		const f = codeMirrorEditorView.current
 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
 		console.log(2222222, stringToInsertUpload.current);
 		insertTextAt(stringToInsertUpload.current, 'currentPos')
 		stringToInsertUpload.current = ''
 		CodeMirrorUtils.updateCursor(f, cPos)
-}, 500)
+	}, 500)
 
-		const idNote = `[link|${p.file.realname} ${p.file.folder}]\n`
+	const idNote = `[link|${p.file.realname} ${p.file.folder}]\n`
 
 
-		//
-		// UPLOAD BTN
-		//
-		const genUploadBtn = (type: iUploadType, label: string) => {
-				return {
-						title: '',
-						class: 'upload-button-wrapper',
-						action: () => { },
-						customHtml: <UploadButton
-												 file={p.file}
-						type={type}
-						label={label}
-						onProgress={p => (setProgressUpload(p))}
-						onSuccess={p => {
-															insertImage(p.name, p.path)
-													}}
-						/>
-				}
+	//
+	// UPLOAD BTN
+	//
+	const genUploadBtn = (type: iUploadType, label: string) => {
+		return {
+			title: '',
+			class: 'upload-button-wrapper',
+			action: () => { },
+			customHtml: <UploadButton
+				file={p.file}
+				type={type}
+				label={label}
+				onProgress={p => (setProgressUpload(p))}
+				onSuccess={p => {
+					insertImage(p.name, p.path)
+				}}
+			/>
 		}
+	}
 
-		const uploadBtns = () => {
-				let res: any = [genUploadBtn("all", "Upload files")]
-										 if (deviceType() !== "desktop") {
-						res.push(genUploadBtn("image", "Upload Gallery"))
-						res.push(genUploadBtn("camera", "Capture"))
-						res.push(genUploadBtn("microphone", "Record"))
-				}
-				// console.log(333, res);
-				return res
+	const uploadBtns = () => {
+		let res: any = [genUploadBtn("all", "Upload files")]
+		if (deviceType() !== "desktop") {
+			res.push(genUploadBtn("image", "Upload Gallery"))
+			res.push(genUploadBtn("camera", "Capture"))
+			res.push(genUploadBtn("microphone", "Record"))
 		}
+		// console.log(333, res);
+		return res
+	}
 
-		//
-		// TOOLBAR ACTIONS
-		//
-		const editorToolbarActions = [
-				...uploadBtns(),
-				isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
-				{
-						title: 'Print/download',
-						icon: 'faFileDownload',
-						action: () => {
-								window.print()
-						}
-				},
-				{
-						title: strings.editorBar.explanation.history,
-						icon: 'faHistory',
-						action: () => {
-								setHistoryPopup(!historyPopup)
-						}
-				},
-				{
-						title: strings.editorBar.tts,
-						icon: 'faCommentDots',
-						action: () => {
-								setTtsPopup(!ttsPopup)
-						}
-				},
+	//
+	// TOOLBAR ACTIONS
+	//
+	const editorToolbarActions = [
+		...uploadBtns(),
+		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
+		{
+			title: 'Print/download',
+			icon: 'faFileDownload',
+			action: () => {
+				window.print()
+			}
+		},
+		{
+			title: strings.editorBar.explanation.history,
+			icon: 'faHistory',
+			action: () => {
+				setHistoryPopup(!historyPopup)
+			}
+		},
+		{
+			title: strings.editorBar.tts,
+			icon: 'faCommentDots',
+			action: () => {
+				setTtsPopup(!ttsPopup)
+			}
+		},
 
-				{
-						title: 'Delete note',
-						class: 'delete',
-						icon: 'faTrash',
-						action: () => {
-								gridContext.file.onFileDelete(p.file)
-						}
-				},
-		]
-
-
-		// File History
-		const [historyPopup, setHistoryPopup] = useState(false)
-
-		// TTS
-		const [ttsPopup, setTtsPopup] = useState(false)
-
-		const editorWrapperEl = useRef<HTMLDivElement>(null)
-
-		// calc max size for dropdown before scrolling
-		const el = editorWrapperEl.current
-		let maxDropdownHeight = 700
-		if (el) maxDropdownHeight = el.clientHeight / 1.3
-		if (deviceType() === 'mobile') maxDropdownHeight = window.innerHeight
+		{
+			title: 'Delete note',
+			class: 'delete',
+			icon: 'faTrash',
+			action: () => {
+				gridContext.file.onFileDelete(p.file)
+			}
+		},
+	]
 
 
-		// // Id note ref
-		const idInputRef = useRef<HTMLInputElement>(null)
+	// File History
+	const [historyPopup, setHistoryPopup] = useState(false)
+
+	// TTS
+	const [ttsPopup, setTtsPopup] = useState(false)
+
+	const editorWrapperEl = useRef<HTMLDivElement>(null)
+
+	// calc max size for dropdown before scrolling
+	const el = editorWrapperEl.current
+	let maxDropdownHeight = 700
+	if (el) maxDropdownHeight = el.clientHeight / 1.3
+	if (deviceType() === 'mobile') maxDropdownHeight = window.innerHeight
 
 
-		//
-		// on scroll posY update
-		//
-		const getCurrentLine = () => {
-				let newLine
-				if (p.editorType === "codemirror") {
-						newLine = CodeMirrorUtils.getScrolledLine(codeMirrorEditorView.current)
-						if (newLine > 1) newLine -= 1
-				} else {
-						newLine = monacoEditorComp.current?.getScrollLine() || 0;
-				}
-				return newLine
-		}
+	// // Id note ref
+	const idInputRef = useRef<HTMLInputElement>(null)
 
-		useEffect(() => {
-		// IMPORTANT for title scrolling
-		// p.onScroll(getCurrentLine())
-		// debounce(() => {
-		// 	p.onScroll(getCurrentLine())
-		// }, 1000)
-}, [p.posY])
 
-		useEffect(() => {
-		// IMPORTANT for title scrolling
-		// p.onScroll(getCurrentLine())
-		// debounce(() => {
-		// 	p.onScroll(getCurrentLine())
-		// }, 1000)
+	//
+	// on scroll posY update
+	//
+	// const getCurrentLine = () => {
+	// 	let newLine
+	// 	if (p.editorType === "codemirror") {
+	// 		newLine = CodeMirrorUtils.getScrolledLine(codeMirrorEditorView.current)
+	// 		if (newLine > 1) newLine -= 1
+	// 	} else {
+	// 		newLine = monacoEditorComp.current?.getScrollLine() || 0;
+	// 	}
+	// 	return newLine
+	// }
+
+	useEffect(() => {
 		forceCmRender()
-}, [p.fileContent, p.file.path])
+	}, [p.fileContent, p.file.path])
 
 
-		//
-		// new CODEMIRROR code adaptation
-		//
-		const [cmRender, setCmRender] = useState(0)
-		const forceCmRender = () => {
-				setCmRender(cmRender + 1)
-				// console.log(566, cmRender + 1);
-		}
+	//
+	// new CODEMIRROR code adaptation
+	//
+	const [cmRender, setCmRender] = useState(0)
+	const forceCmRender = () => {
+		setCmRender(cmRender + 1)
+		// console.log(566, cmRender + 1);
+	}
 
-		//
-		// SIMPLE NOTE FALLBACK IF TOOLONG
-		//
-		let simpleFallback = innerFileContent.length > 30000 && deviceType() !== "desktop"
-		// const [simpleFallback, setSimpleFallback] = useState(false)
-		// useEffect(() => {
-		// 	if (p.value.length > 30000 && deviceType() !== "desktop") {
-				// 		console.log(22222, p.value.length);
-				// 		setSimpleFallback(true)
-				// 	}
-		// 	else setSimpleFallback(false)
-		// }, [p.value, p.forceRender]);
-		// useEffect(() => {
-		// 	if (!simpleFallback) {
-				// 		const f = getEditorObj()
-				// 		if (!f) return
-				// 		CodeMirrorUtils.updateText(f, p.value, 0)
-				// 	}
-		// }, [simpleFallback]);
-
-
+	//
+	// SIMPLE NOTE FALLBACK IF TOOLONG
+	//
+	let simpleFallback = innerFileContent.length > 30000 && deviceType() !== "desktop"
+	// const [simpleFallback, setSimpleFallback] = useState(false)
+	// useEffect(() => {
+	// 	if (p.value.length > 30000 && deviceType() !== "desktop") {
+	// 		console.log(22222, p.value.length);
+	// 		setSimpleFallback(true)
+	// 	}
+	// 	else setSimpleFallback(false)
+	// }, [p.value, p.forceRender]);
+	// useEffect(() => {
+	// 	if (!simpleFallback) {
+	// 		const f = getEditorObj()
+	// 		if (!f) return
+	// 		CodeMirrorUtils.updateText(f, p.value, 0)
+	// 	}
+	// }, [simpleFallback]);
 
 
-		return (
-				<div
-				className={`editor-area`}
-				ref={editorWrapperEl}
-				>
-				{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-				<div className="infos-editor-wrapper">
+
+
+	return (
+		<div
+			className={`editor-area`}
+			ref={editorWrapperEl}
+		>
+			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
+			<div className="infos-editor-wrapper">
 
 				<div className="file-path-wrapper">
-				{p.file.path.replace(`/${p.file.name}`, '')}
+					{p.file.path.replace(`/${p.file.name}`, '')}
 				</div>
 
 				<NoteTitleInput
-				title={p.file.name.replace('.md', '')}
-				onEdited={(o, n) => {
-		const oPath = `${p.file.folder}${o}.md`
-		const nPath = `${p.file.folder}${n}.md`
-		gridContext.file.onTitleUpdate(oPath, nPath)
-		// 
-		forceCmRender()
-}}
+					title={p.file.name.replace('.md', '')}
+					onEdited={(o, n) => {
+						const oPath = `${p.file.folder}${o}.md`
+						const nPath = `${p.file.folder}${n}.md`
+						gridContext.file.onTitleUpdate(oPath, nPath)
+						// 
+						forceCmRender()
+					}}
 				/>
 
 				<div className="toolbar-and-dates-wrapper">
 
-				<div className="editor-toolbar-dropdown">
-				<Dropdown
-				hover={true}
-				dir="right"
-				maxHeight={maxDropdownHeight}
-				>
-				<>
+					<div className="editor-toolbar-dropdown">
+						<Dropdown
+							hover={true}
+							dir="right"
+							maxHeight={maxDropdownHeight}
+						>
+							<>
 
-				<div className="view-toggler-wrapper">
-				{deviceType() !== 'mobile' &&
-				 <ButtonsToolbar
-				 class='editor-view-toolbar'
-				 size={0.8}
-				 buttons={[
-												 {
-														 title: 'Editor',
-														 icon: "custom_icons/view-3.svg",
-														 action: () => { p.onViewToggle('editor') }
-												 },
-												 {
-														 title: 'Editor with minimap',
-														 icon: "custom_icons/view-4.svg",
-														 action: () => { p.onViewToggle('editor-with-map') }
-												 },
-												 {
-														 title: 'Dual view',
-														 icon: "custom_icons/view-1.svg",
-														 action: () => { p.onViewToggle('both') }
-												 },
-												 {
-														 title: 'Render view',
-														 icon: "custom_icons/view-2.svg",
-														 action: () => { p.onViewToggle('preview') }
-												 },
-										 ]}
-				 />
-				}
-				</div>
+								<div className="view-toggler-wrapper">
+									{deviceType() !== 'mobile' &&
+										<ButtonsToolbar
+											class='editor-view-toolbar'
+											size={0.8}
+											buttons={[
+												{
+													title: 'Editor',
+													icon: "custom_icons/view-3.svg",
+													action: () => { p.onViewToggle('editor') }
+												},
+												{
+													title: 'Editor with minimap',
+													icon: "custom_icons/view-4.svg",
+													action: () => { p.onViewToggle('editor-with-map') }
+												},
+												{
+													title: 'Dual view',
+													icon: "custom_icons/view-1.svg",
+													action: () => { p.onViewToggle('both') }
+												},
+												{
+													title: 'Render view',
+													icon: "custom_icons/view-2.svg",
+													action: () => { p.onViewToggle('preview') }
+												},
+											]}
+										/>
+									}
+								</div>
 
-				<div className='toolbar-wrapper'>
-				<ButtonsToolbar
-				class='editor-main-toolbar'
-				design="vertical"
-				size={0.8}
-				buttons={editorToolbarActions}
-				/>
-				</div>
+								<div className='toolbar-wrapper'>
+									<ButtonsToolbar
+										class='editor-main-toolbar'
+										design="vertical"
+										size={0.8}
+										buttons={editorToolbarActions}
+									/>
+								</div>
 
-				<div className="separation-bar"></div>
+								<div className="separation-bar"></div>
 
-				<div className="dates-wrapper">
-				<div className='date modified'>
-				<h4>Modified</h4>
-				{formatDateList(new Date(p.file.modified || 0))}
-				</div>
-				<div className='date created'>
-				<h4>Created</h4>
-				{formatDateList(new Date(p.file.created || 0))}
-				</div>
-				</div>
+								<div className="dates-wrapper">
+									<div className='date modified'>
+										<h4>Modified</h4>
+										{formatDateList(new Date(p.file.modified || 0))}
+									</div>
+									<div className='date created'>
+										<h4>Created</h4>
+										{formatDateList(new Date(p.file.created || 0))}
+									</div>
+								</div>
 
-				<div className="path-wrapper">
-				<div className='path'>
-				<h4>Path</h4>
-				<span className="path-link" onClick={() => {
-		getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
-}}
-				> {p.file.folder} </span>
-													</div>
-													</div>
+								<div className="path-wrapper">
+									<div className='path'>
+										<h4>Path</h4>
+										<span className="path-link" onClick={() => {
+											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
+										}}
+										> {p.file.folder} </span>
+									</div>
+								</div>
 
-													<div className="note-id-wrapper">
-													<h4>Node Id</h4>
-													<div className="note-id-form">
-													<input
-													type="text"
-													ref={idInputRef}
-				onClick={e => {
+								<div className="note-id-wrapper">
+									<h4>Node Id</h4>
+									<div className="note-id-form">
+										<input
+											type="text"
+											ref={idInputRef}
+											onClick={e => {
 												const el = e.target
 												// @ts-ignore
 												el.setSelectionRange(0, el.value.length)
-										}}
-				value={idNote}
-				readOnly={true}
-				/>
-				<ButtonsToolbar
-				class='note-id-toolbar'
-				size={1}
-				buttons={[
+											}}
+											value={idNote}
+											readOnly={true}
+										/>
+										<ButtonsToolbar
+											class='note-id-toolbar'
+											size={1}
+											buttons={[
 												{
-														title: 'Copy note ID',
-														icon: "faClipboard",
-														action: () => {
-																const el = idInputRef.current;
-																if (!el) return
-																copyToClickBoard(el)
-														}
+													title: 'Copy note ID',
+													icon: "faClipboard",
+													action: () => {
+														const el = idInputRef.current;
+														if (!el) return
+														copyToClickBoard(el)
+													}
 												},
-										]}
-				/>
+											]}
+										/>
+
+									</div>
+								</div>
+
+							</>
+						</Dropdown >
+					</div>
 
 				</div>
-				</div>
 
-				</>
-				</Dropdown >
-				</div>
+			</div>
 
-				</div>
-
-				</div>
-
-				{/* UPLOAD BAR FOR EACH EDITOR */}
-				<UploadProgressBar progress={progressUpload} />
+			{/* UPLOAD BAR FOR EACH EDITOR */}
+			<UploadProgressBar progress={progressUpload} />
 
 
-				{/* {MAIN EDITOR AREA} */}
-				<div className="main-editor-wrapper">
+			{/* {MAIN EDITOR AREA} */}
+			<div className="main-editor-wrapper">
 
 				{!simpleFallback && p.editorType === 'codemirror' &&
-				 <CodeMirrorEditor
-				 windowId={p.windowId}
-				 ref={codeMirrorEditorView}
+					<CodeMirrorEditor
+						windowId={p.windowId}
+						ref={codeMirrorEditorView}
 
-				 value={innerFileContent}
-				 onChange={triggerNoteEdition}
+						value={innerFileContent}
+						onChange={triggerNoteEdition}
 
-				 posY={p.posY}
-				 jumpToLine={p.jumpToLine || 0}
+						posY={p.posY}
+						jumpToLine={p.jumpToLine || 0}
 
-				 forceRender={cmRender}
-				 onScroll={p.onScroll}
+						forceRender={cmRender}
+						onScroll={p.onScroll}
+						onTitleClick={p.onTitleClick}
 
-				 file={p.file}
-				 />
+						file={p.file}
+					/>
 
 				}
 
 				{simpleFallback &&
-				 <div className="codemirror-mobile-fallback">
-				 <p> note is too long for mobile, we disabled the advanced edition system </p>
-																						 <textarea
-																						 defaultValue={innerFileContent}
-				 onChange={e => { triggerNoteEdition(e.target.value) }}
-				 />
-				 </div>
-				}
-
-
-				</div>
-
-
-				{
-						// BOTTOM MOBILE TOOLBAR
-						deviceType() !== 'desktop' &&
-						<NoteMobileToolbar
-						onButtonClicked={action => {
-																		let updatedText = applyTextModifAction(action)
-																		if (updatedText) {
-																				triggerNoteEdition(updatedText)
-																				forceCmRender()
-																		}
-																}}
+					<div className="codemirror-mobile-fallback">
+						<p> note is too long for mobile, we disabled the advanced edition system </p>
+						<textarea
+							defaultValue={innerFileContent}
+							onChange={e => { triggerNoteEdition(e.target.value) }}
 						/>
+					</div>
 				}
 
-				{askForPassword && APasswordPopup}
 
-				{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
+			</div>
 
-				{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
-				</div>
-		)
+
+			{
+				// BOTTOM MOBILE TOOLBAR
+				deviceType() !== 'desktop' &&
+				<NoteMobileToolbar
+					onButtonClicked={action => {
+						let updatedText = applyTextModifAction(action)
+						if (updatedText) {
+							triggerNoteEdition(updatedText)
+							forceCmRender()
+						}
+					}}
+				/>
+			}
+
+			{askForPassword && APasswordPopup}
+
+			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
+
+			{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
+		</div>
+	)
 }
 
 // , (np, pp) => {
-		// 	let res = false
-		// 	// only compare tab struct, not content/layout
-																				// 	// const t: any = cloneDeep({ n: np.tab, p: pp.tab })
-																														// 	// t.n.grid = t.p.grid = {}
-		// 	// t.n.refresh = t.p.refresh = ""
-		// 	// let t1 = JSON.stringify(t.p)
-		// 	// let t2 = JSON.stringify(t.n)
-		// 	// if (t1 !== t2) res = false
-		// 	// if (pp.pos !== np.pos) res = false
-		// 	// if (pp.dragIndic !== np.dragIndic) res = false
-		// 	return res
-		// })
+// 	let res = false
+// 	// only compare tab struct, not content/layout
+// 	// const t: any = cloneDeep({ n: np.tab, p: pp.tab })
+// 	// t.n.grid = t.p.grid = {}
+// 	// t.n.refresh = t.p.refresh = ""
+// 	// let t1 = JSON.stringify(t.p)
+// 	// let t2 = JSON.stringify(t.n)
+// 	// if (t1 !== t2) res = false
+// 	// if (pp.pos !== np.pos) res = false
+// 	// if (pp.dragIndic !== np.dragIndic) res = false
+// 	return res
+// })
 
 
 
@@ -645,7 +635,7 @@ export const editorAreaCss = (v: MobileView) => `
 
 
 		.mobile-text-manip-toolbar {
-				display: ${v === 'editor'&& !isA('desktop') ? 'flex' : 'none'};
+				display: ${v === 'editor' && !isA('desktop') ? 'flex' : 'none'};
 		}
 
 		.infos-editor-wrapper {
@@ -710,10 +700,10 @@ export const editorAreaCss = (v: MobileView) => `
 `
 
 export const EditorArea = (p: iEditorProps) => {
-		const api = useContext(ClientApiContext);
-		const isConnected = api?.status.isConnected || false
+	const api = useContext(ClientApiContext);
+	const isConnected = api?.status.isConnected || false
 
-		return useMemo(() => {
+	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
-}, [isConnected, p.canEdit, p.editorType, p.file.path, p.file, p.fileContent, p.isActive, p.jumpToLine])
+	}, [isConnected, p.canEdit, p.editorType, p.file.path, p.file, p.fileContent, p.isActive, p.jumpToLine])
 }

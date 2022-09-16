@@ -77,31 +77,31 @@ const calendarApp = (innerTagStr, opts) => {
 				width:100%;
 		}
 		#caleandar li:before {
-									content: none;
+				content: none;
+		}
+
+
+		/* #caleandar .event-wrapper { */
+		/* 		position: relative */
+		/* } */
+		/* #caleandar .event-wrapper:hover { */
+		/* } */
+		/* #caleandar .event-wrapper:hover .body { */
+		/* 		display: absolute; */
+		/* 		top: 0px; */
+		/* } */
+		/* #caleandar .event-wrapper { */
+		/* } */
+
+		#caleandar .cld-main .cld-title {
+				font-size: 8px;
+				height: 10px;
+				overflow: hidden;
+				line-height: 9px;
+		}
+		</style>`
+		return `${styleHtml}<div id="caleandar" class="no-css"></div>`
 }
 
-
-/* #caleandar .event-wrapper { */
-/* 		position: relative */
-/* } */
-/* #caleandar .event-wrapper:hover { */
-/* } */
-/* #caleandar .event-wrapper:hover .body { */
-/* 		display: absolute; */
-/* 		top: 0px; */
-/* } */
-/* #caleandar .event-wrapper { */
-/* } */
-
-#caleandar .cld-main .cld-title {
-		font-size: 8px;
-		height: 10px;
-		overflow: hidden;
-		line-height: 9px;
-}
-</style>`
-return `${styleHtml}<div id="caleandar" class="no-css"></div>`
-}
-
- // console.log(11111111111112);
- window.initCustomTag = calendarApp
+// console.log(11111111111112);
+window.initCustomTag = calendarApp

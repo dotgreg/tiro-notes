@@ -1,130 +1,151 @@
 import { useRef, useState } from 'react';
 import { sharedConfig } from '../../../shared/shared.config';
 import { getApi } from './api/api.hook';
-import { getActiveTabIndex } from './app/tabs.hook';
 
-
-// let baseY = 0
-// let scrollByEditor = 0
+interface iDim {
+	viewport: number
+	full: number
+}
 interface iScrollConfig {
-	baseY: number
-	editorY: number
-	previewEl: any
-	editorEl: any
-	line: number
+	els: {
+		preview: any
+		editor: any
+		scroller: any
+	}
+
+	dims: {
+		preview: iDim
+		editor: iDim
+		scroller: iDim
+	}
+
+	posPercent: number
 }
 
 interface iDbScroll {
 	[wid: string]: iScrollConfig
 }
 
-const log = sharedConfig.client.log.verbose
 let db: iDbScroll = {}
-export const cleanDb = () => {
-	console.log("[syncScroll] => cleaning db");
-	db = {}
-}
+
 // @ts-ignore
 window.dbscroll = db
 
+
+
+
+
+const log = sharedConfig.client.log.verbose
+const h = `SYNCSCROLL`
+
+////////////////////////////////////////////////////////////
+// SUPPORT FUNCS
+//
+
 const getScrollObj = (wid) => {
-	const previewEl = document.querySelector(`.window-id-${wid} .preview-area-wrapper`)
-	const editorEl = document.querySelector(`.window-id-${wid} .cm-scroller`)
+	const preview = document.querySelector(`.window-id-${wid} .preview-area`)
+	const editor = document.querySelector(`.window-id-${wid} .cm-scroller`)
+	const scroller = document.querySelector(`.window-id-${wid} .scrolling-bar-wrapper`)
 	if (!db[wid]) {
 		db[wid] = {
-			baseY: 0,
-			editorY: 0,
-			previewEl,
-			editorEl,
-			line: 0
+			els: { preview, editor, scroller },
+			dims: {
+				editor: { viewport: 0, full: 0 },
+				preview: { viewport: 0, full: 0 },
+				scroller: { viewport: 0, full: 0 },
+			},
+			posPercent: 0
 		}
 	}
-	db[wid].previewEl = previewEl
-	db[wid].editorEl = editorEl
+	db[wid].els.preview = preview
+	db[wid].els.editor = editor
+	db[wid].els.scroller = scroller
 	return db[wid]
 }
 
 
-//
-// NEW NATURAL SYNC SCROLL SYSTEM WITHOUT REACT, MUCH FASTER
-//
-const h = `[SYNC SCROLL 2]`
-export const syncScroll2 = {
-	cleanDb,
 
-	// updateLine: (wid: string, line: number) => {
-	// 	console.log("liiiiiine", line, wid);
-	// 	const c = getScrollObj(wid)
-	// 	if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
-	// 	c.line = line
-	// },
-	reinitPos: (wid: string) => {
-		const c = getScrollObj(wid)
-		if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
-		console.log(3333, c.editorY, c.baseY, c.line);
-		c.previewEl.scrollTop = c.editorY + c.baseY
-		c.editorEl.scrollTop = c.editorY
-		// getApi(api => {
-		// api.ui.note.lineJump.jump({ windowId: wid, line: c.line })
-		// })
-	},
-	editorToPreview: (wid: string) => {
-		// console.log(111);
-		const c = getScrollObj(wid)
-		if (!c.editorEl || !c.previewEl) return console.warn('no wid: ', wid)
-		// console.log(222, c.previewEl.scrollTop);
-		// @ts-ignore
-		window.pel = c.previewEl
 
-		c.editorY = c.editorEl.scrollTop
-		c.previewEl.scrollTop = c.editorY + c.baseY
-	},
-	syncPreviewOffset: (wid: string) => {
+
+
+////////////////////////////////////////////////////////////
+// EXPORT
+//
+export const syncScroll3 = {
+	getScrollObj,
+	//
+	// 1. GETTING DIMS
+	//
+	updateEditorDims: (wid: string, dims: iDim) => {
 		const c = getScrollObj(wid)
-		if (!c.editorEl || !c.previewEl) return console.warn('no wid 2: ', wid)
-		c.baseY = c.previewEl.scrollTop - c.editorY
+		// viewport = viewport > full ? full : viewport
+		c.dims.editor = dims
+		console.log(h, "editor dims update", c.dims.editor);
 	},
-	updatePreviewOffset: (wid: string, nOffset: number) => {
+
+	updatePreviewDims: (wid: string) => {
 		const c = getScrollObj(wid)
-		if (!c.editorEl || !c.previewEl) return console.warn('no wid 3: ', wid)
-		c.baseY = nOffset - c.editorY
-		log && console.log(h, "update preview offset to ", nOffset);
-		c.previewEl.scrollTop = c.editorY + c.baseY
+		// c.els.preview
+		// console.log(c.els.preview);
+		// @ts-ignore 
+		// window.prev = c.els.preview
+		let full = c.els.preview.querySelector('.simple-css-wrapper').clientHeight
+		let viewport = c.els.preview.clientHeight
+		// viewport = viewport > full ? full : viewport
+		c.dims.preview = { viewport, full }
+		console.log(h, "preview dims update", c.dims.preview);
+	},
+
+	updateScrollerDims: (wid: string) => {
+		const c = getScrollObj(wid)
+		// get smaller percent ratio viewport/full
+		let ratioEditor = c.dims.editor.viewport / c.dims.editor.full || 10000000
+		let ratioPreview = c.dims.preview.viewport / c.dims.preview.full || 10000000
+		let ratio = ratioEditor < ratioPreview ? ratioEditor : ratioPreview
+		let winner = ratioEditor < ratioPreview ? "editor" : "preview"
+
+		// get scroller full size
+		let full = c.els.scroller.clientHeight
+		// calculate scrollbar height
+		let viewport = ratio * full
+		viewport = viewport > full ? full : viewport
+		let dim: iDim = { viewport, full }
+
+		// update dims
+		c.dims.scroller = dim
+		console.log(h, `scroller dim update from ${winner}`, c.dims.scroller);
+
+		// trigger react refresh?? (oula) => on pourra mettre un debounce plus tard si necess
+		let dataset = c.els.scroller.dataset
+		if (!dataset.scrollRefresh) dataset.scrollRefresh = 1
+		dataset.scrollRefresh = parseInt(dataset.scrollRefresh) + 1
 	}
+
+	//
+	// 2. EVENTS ON
+	//
 }
 
 
 
 
 
-export const useSyncScroll = (maxY: number) => {
-	// // scrolling logic
-	// const updateSyncScroll = (deltaY: number) => {
-	// 	let direction = deltaY > 0 ? 1 : -1
-	// 	let delta = direction * Math.min(Math.abs(deltaY), 40)
-	// 	let newY = posY + delta
-	// 	if (newY > -200 && newY < maxY) setPosY(newY)
-	// }
-	// const syncScrollY = posY
 
 
-	const [cnt, setCnt] = useState(0)
-	const syncYRef = useRef(0)
 
-	const getSyncY = (): number => { return syncYRef.current }
-	const setSyncY = (nY: number) => {
-		syncYRef.current = nY
-		setCnt(cnt + 1)
-	}
-	const updateSyncYWithDelta = (deltaY: number) => {
-		setCnt(cnt + 1) // should be very sensitive for iframe scrolling
-		let direction = deltaY > 0 ? 1 : -1
-		let delta = direction * Math.min(Math.abs(deltaY), 40)
-		let newY = getSyncY() + delta
-		if (newY > -200 && newY < maxY) setSyncY(newY)
-	}
 
-	const yCnt = cnt
 
-	return { getSyncY, setSyncY, yCnt, updateSyncYWithDelta }
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const syncScroll2 = {}
