@@ -100,7 +100,6 @@ export const ContentBlockInt = (p: {
 					noteTagContent={noteTagContent}
 				/>
 			}
-
 			{
 				!isTag && htmlTextContent &&
 				<span

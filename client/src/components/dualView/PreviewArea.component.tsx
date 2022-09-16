@@ -9,7 +9,7 @@ import { iContentChunk, noteApiFuncs } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors, EditorArea } from './EditorArea.component';
 import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
-import { syncScroll2 } from '../../hooks/syncScroll.hook';
+import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 
 
 
@@ -69,6 +69,9 @@ export const PreviewArea = (p: {
 			})
 		}, 100)
 
+		syncScroll3.updatePreviewDims(p.windowId)
+		syncScroll3.updateScrollerDims(p.windowId)
+
 	}, [p.fileContent])
 
 
@@ -88,9 +91,7 @@ export const PreviewArea = (p: {
 				// console.log(555, e);
 				// @ts-ignore
 				// console.log();
-				syncScroll2.syncPreviewOffset(p.windowId)
-
-
+				//syncScroll2.syncPreviewOffset(p.windowId)
 			}}
 		>
 			<div
@@ -212,7 +213,7 @@ export const previewAreaSimpleCss = () => {
 
 		a {
 				color: ${cssVars.colors.main};
-			}
+		}
 
 		.main-color, .main-color:before, .main-color:after {
 				color: ${cssVars.colors.main};
@@ -508,6 +509,9 @@ export const previewAreaCss = () => `
 .preview-area {
     position: relative;
     display: block;
+		overflow: scroll; 
+		width: calc(100% );
+    padding-right: 30px;
 
     ${commonCssEditors}
 
@@ -531,8 +535,8 @@ export const previewAreaCss = () => `
 
 .preview-area-wrapper {
 		height: calc(100% - 35px);
-		overflow: scroll; 
     margin-top: ${isA('desktop') ? '140' : '0'}px;
+
 }
 
 `

@@ -14,12 +14,13 @@ import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { debounce, each, random, throttle } from "lodash";
 import { cssVars } from "../../managers/style/vars.style.manager";
-import { syncScroll2 } from "../../hooks/syncScroll.hook";
+import { syncScroll2, syncScroll3 } from "../../hooks/syncScroll.hook";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { deviceType, isA } from "../../managers/device.manager";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { getApi } from "../../hooks/api/api.hook";
 import { iFile } from "../../../../shared/types.shared";
+import { onTitleClickFn } from "./EditorArea.component";
 
 
 const h = `[Code Mirror]`
@@ -38,7 +39,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	file: iFile
 
 	// using it for title scrolling, right now its more title clicking
-	onScroll: (lineNb: number) => void
+	onScroll: Function
+	onTitleClick: onTitleClickFn
 }, forwardedRef) => {
 
 
@@ -91,6 +93,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		debouncedActivateTitles()
 		histVal.current = value
 		p.onChange(value)
+
+		syncScrollUpdateDims()
 	}
 
 
@@ -121,7 +125,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (!f) return
 		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
 		log && console.log(h, "CLICK ON TITLE DETECTED", title, infs);
-		p.onScroll(infs.lineIndex)
+		p.onTitleClick(infs.lineIndex)
 	}
 
 	const activateTitleInt = () => {
@@ -136,7 +140,20 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	useEffect(() => {
 		debouncedActivateTitles()
+		syncScrollUpdateDims()
 	}, [p.value])
+
+
+	//
+	// SYNCSCROLL SIZE UPDATE
+	//
+	const syncScrollUpdateDims = () => {
+		const f = getEditorObj()
+		if (!f) return
+		let infs = CodeMirrorUtils.getEditorInfos(f.view)
+		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
+		syncScroll3.updateScrollerDims(p.windowId)
+	}
 
 
 	return (
@@ -162,10 +179,21 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					EditorView.domEventHandlers({
 						scroll(event, view) {
 							// @ts-ignore
-							syncScroll2.editorToPreview(p.windowId)
-
+							// let y = Math.round(view.viewState.pixelViewport.top)
+							// let cblock = view.lineBlockAtHeight(y)
+							// let cline = view.state.doc.lineAt(cblock.from).number
+							// let linesLength = p.value.split("\n").length
+							// let editorHeight = view.contentHeight
+							// syncScroll2.updateEditorInfos(p.windowId, cline, linesLength, editorHeight)
 							debouncedActivateTitles();
 							throttleActivateTitles();
+						},
+						wheel(event, view) {
+							// let linesLength = p.value.split("\n").length
+							// let infs = CodeMirrorUtils.getEditorInfos(view)
+							// syncScroll2.updateEditorInfos(p.windowId, infs.visibleFirstLine, linesLength, editorHeight)
+							// syncScroll2.editorScroll(p.windowId)
+							p.onScroll()
 						}
 					}),
 				]}
@@ -178,8 +206,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 // CACHING MECHANISM
 
 // export const CodeMirrorEditor = CodeMirrorEditorInt
-
-
 export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 	(np, pp) => {
 		let res = true
@@ -233,9 +259,26 @@ const getCustomTheme = () => createTheme({
 });
 
 
+
+
 export const codeMirrorEditorCss = () => `
 .actionable-title {
 		color: ${cssVars.colors.main};
+		position: relative;
+		&:before {
+				content: "➝";
+				position: absolute;
+				right: -20px;
+				color: #c6c6c6;
+				font-size: 18px;
+				opacity: 0;
+				transition: 0.2s all;
+		}
+		&:hover {
+				&:before {
+						opacity: 1
+				}
+		}
 		&.h1 {
 				font-size: 15px;
 				font-weight: bold;
@@ -253,9 +296,6 @@ export const codeMirrorEditorCss = () => `
 
 }
 
-.main-title:before {
-		content:'x<div class="woop">ww</div>';
-}
 
 .cm-matchingBracket {
 		background-color: rgba(0,0,0,0)!important;
@@ -339,6 +379,29 @@ export const codeMirrorEditorCss = () => `
 // UTILS FUNCTIONS FOR MANIP AND CURSOR WORK
 //
 
+interface iCodeMirrorInfos {
+	contentHeight: number
+	viewportHeight: number
+	visibleFirstLine: number
+}
+
+const getEditorInfos = (cmView: any): iCodeMirrorInfos => {
+	let view = cmView
+	let y = Math.round(view.viewState.pixelViewport.top)
+	let cblock = view.lineBlockAtHeight(y)
+	let visibleFirstLine = view.state.doc.lineAt(cblock.from).number
+	let contentHeight = view.contentHeight
+	console.log(view);
+	let viewportHeight = view.viewState.editorHeight
+
+	return {
+		viewportHeight,
+		contentHeight,
+		visibleFirstLine
+	}
+
+}
+
 
 //
 // UPDATING TEXT
@@ -403,7 +466,7 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
 
 
 //
-// GET SCROLLING LINE
+// GET SCROLLING LINE -> NOT USED, SHOULD BE UPDATED
 // 
 let cachedLine = 0
 const getScrolledLine = (CMObj) => {
@@ -412,6 +475,7 @@ const getScrolledLine = (CMObj) => {
 }
 
 const intGetLine = (CMObj: any) => {
+	console.log("GET SCROLLING LINE -> NOT USED, SHOULD BE UPDATED");
 	if (!CMObj.view) return -1
 
 	const currentText = CMObj.view.state.doc.toString()
@@ -431,30 +495,21 @@ const intGetLine = (CMObj: any) => {
 
 	cachedLine = line
 }
-const bgGetLine = throttle(intGetLine, 100)
-const bgGetLine2 = debounce(intGetLine, 200)
+// const bgGetLine = throttle(intGetLine, 100)
+// const bgGetLine2 = debounce(intGetLine, 200)
 
 
 //
 // SCROLLTOLINE
 //
 const scrollToLine = (CMObj: any, lineToJump: number) => {
-	// const lineAtHeight = CMObj.view.elementAtHeight(CMObj.view.scrollDOM.scrollTop)
-	// find the char to jump to 
-	const currentText = CMObj.view.state.doc.toString()
-	const splitText = currentText.split('\n')
-	let lengthFromBegin = 0
-	// for each line, add its length to tot length, till it is > from found
-	for (let i = 0; i < lineToJump + 1; i++) {
-		lengthFromBegin += splitText[i].length
-	}
-
-	updateCursor(CMObj, lengthFromBegin + 2)
+	let line = CMObj.view.state.doc.line(lineToJump)
+	updateCursor(CMObj, line.from)
 
 	setTimeout(() => {
 		const cPosCursor = CMObj.view.state.selection.ranges[0].from
+		console.log(33334, cPosCursor);
 		scrollTo(CMObj, cPosCursor)
-
 	}, 10)
 
 
@@ -475,6 +530,7 @@ const scrollTo = (CMObj: any, posY: number) => {
 
 
 export const CodeMirrorUtils = {
+	getEditorInfos,
 	getCurrentLineInfos,
 	getScrolledLine,
 	updateCursor,

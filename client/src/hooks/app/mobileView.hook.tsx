@@ -9,10 +9,10 @@ import { useStatMemo } from "../useStatMemo.hook"
 export const useMobileView = () => {
 
 	const [mobileView, setMobileView] = useState<MobileView>('navigator')
-	const updateMobileView = (v:MobileView) => {
-		setMobileView(v)
-		// syncScroll2.editorToPreview()
-	}
+	// const updateMobileView = (v: MobileView) => {
+	// 	setMobileView(v)
+	// 	// syncScroll2.editorToPreview()
+	// }
 
 	const MobileToolbarComponent = (forceRerender: boolean) => useStatMemo(
 		<>

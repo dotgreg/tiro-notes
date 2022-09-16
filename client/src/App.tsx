@@ -122,9 +122,9 @@ export const App = () => {
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
 
-				getApi(api => {
-					api.ui.browser.folders.refreshFromBackend()
-				})
+			getApi(api => {
+				api.ui.browser.folders.refreshFromBackend()
+			})
 
 		}
 	})

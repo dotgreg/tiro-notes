@@ -5,7 +5,7 @@ const log = sharedConfig.client.log.verbose
 
 export const initPWA = () => {
 
-	log && console.log(h,' init');
+	log && console.log(h, ' init');
 
 	/* Only register a service worker if it's supported */
 	if ('serviceWorker' in navigator) {
@@ -15,7 +15,7 @@ export const initPWA = () => {
 	window.addEventListener('beforeinstallprompt', (event) => {
 		// Prevent the mini-infobar from appearing on mobile.
 		event.preventDefault();
-		log && console.log(h,' beforeinstallprompt WORKING=>', event);
+		log && console.log(h, ' beforeinstallprompt WORKING=>', event);
 		// Stash the event so it can be triggered later.
 		// @ts-ignore
 		window.deferredPrompt = event;

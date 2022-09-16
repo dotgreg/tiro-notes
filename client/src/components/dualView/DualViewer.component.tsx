@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
-import { syncScroll2, useSyncScroll } from '../../hooks/syncScroll.hook';
+import { syncScroll2 } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
@@ -46,31 +46,31 @@ const DualViewerInt = (
 	}, [p.fileContent])
 
 	// calculate percent scrolled by natural scroll
-	const [percentScrolled, setPercentScrolled] = useState(0)
-	const { getSyncY, setSyncY, yCnt, updateSyncYWithDelta } = useSyncScroll(maxY)
+	// const [percentScrolled, setPercentScrolled] = useState(0)
+	// const { getSyncY, setSyncY, yCnt, updateSyncYWithDelta } = useSyncScroll(maxY)
 
 
-	useEffect(() => {
-		setPercentScrolled(fromPxToPercentY(getSyncY()));
-		onSyncScroll()
-	}, [yCnt, maxY])
+	// useEffect(() => {
+	// 	// setPercentScrolled(fromPxToPercentY(getSyncY()));
+	// 	onSyncScroll()
+	// }, [yCnt, maxY])
 
-	const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
-	const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
+	// const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
+	// const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
 
 	useEffect(() => {
 		setPreviewContent(p.fileContent)
 	}, [p.fileContent, p.file.path])
 
-	useEffect(() => {
-		// setPosY(1);
-		// setSyncY(1)
-		setTimeout(() => {
-			console.log(222222, p.file.path);
-			syncScroll2.reinitPos(p.windowId)
-		}, 500)
-
-	}, [p.file.path])
+	// KEEP POSITION ON TAB TOGGLING
+	// useEffect(() => {
+	// setPosY(1);
+	// setSyncY(1)
+	// setTimeout(() => {
+	// console.log(222222, p.file.path);
+	// syncScroll2.reinitPos(p.windowId)
+	// }, 500)
+	// }, [p.file.path])
 
 	//
 	// JUMP TO LINE ACTIONS
@@ -93,23 +93,23 @@ const DualViewerInt = (
 	//
 
 	// 0) SHARED LOGIC
-	type iScrollMode = "title" | "sync"
-	const [scrollMode, setScrollMode] = useState<iScrollMode>("title")
-	const [previewY, setPreviewY] = useState(0)
+	// type iScrollMode = "title" | "sync"
+	// const [scrollMode, setScrollMode] = useState<iScrollMode>("title")
+	// const [previewY, setPreviewY] = useState(0)
 
-	const titleY = useRef(0)
-	const offsetSyncFromTitle = useRef(0)
+	// const titleY = useRef(0)
+	// const offsetSyncFromTitle = useRef(0)
 
 	// 1) SIMPLE SYNC SCROLL
-	const onSyncScroll = () => {
-		if (scrollMode === "sync") {
-			setPreviewY(getSyncY())
-		} else if (scrollMode === "title") {
-			const t = titleY.current
+	// const onSyncScroll = () => {
+	// 	if (scrollMode === "sync") {
+	// 		setPreviewY(getSyncY())
+	// 	} else if (scrollMode === "title") {
+	// 		const t = titleY.current
 
-			setPreviewY(t)
-		}
-	}
+	// 		setPreviewY(t)
+	// 	}
+	// }
 
 	// 2) TITLE SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
@@ -129,7 +129,7 @@ const DualViewerInt = (
 				let etop = document.querySelector(ePath)?.offsetTop
 
 				if (isNumber(etop)) {
-					syncScroll2.updatePreviewOffset(p.windowId, etop)
+					// syncScroll2.updatePreviewOffset(p.windowId, etop)
 				}
 			} catch (e) {
 				console.error(e);
@@ -143,6 +143,8 @@ const DualViewerInt = (
 		t1(newLine)
 		t2(newLine)
 	}
+
+	// const [scrollerPos, setScrollerPos] = useState(0)
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
@@ -159,13 +161,17 @@ const DualViewerInt = (
 			isActive={p.isActive}
 
 			jumpToLine={lineToJump}
-			posY={getSyncY()}
+			// posY={getSyncY()}
+			posY={0}
 
-			onScroll={newLine => {
+			onTitleClick={newLine => {
 				updateScrolledTitle(newLine)
 			}}
+			onScroll={percent => {
+				// setScrollerPos(percent)
+			}}
 			onUpdateY={newY => {
-				setSyncY(newY)
+				// setSyncY(newY)
 			}}
 			onMaxYUpdate={updateMaxY}
 
@@ -174,8 +180,8 @@ const DualViewerInt = (
 				setPreviewContent(content)
 			}}
 			onScrollModeChange={checked => {
-				const res = checked ? "title" : "sync"
-				setScrollMode(res)
+				// const res = checked ? "title" : "sync"
+				// setScrollMode(res)
 			}}
 
 			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
@@ -184,23 +190,24 @@ const DualViewerInt = (
 		<PreviewArea
 			windowId={p.windowId}
 			file={p.file}
-			posY={previewY}
+			// posY={previewY}
+			posY={0}
 			fileContent={previewContent}
 			onMaxYUpdate={updateMaxY}
-			yCnt={yCnt}
+			// yCnt={yCnt}
+			yCnt={0}
 			onIframeMouseWheel={e => {
-				updateSyncYWithDelta(e.deltaY)
+				// updateSyncYWithDelta(e.deltaY)
 			}}
 		/>
 
 
 		<ScrollingBar
-			percent={percentScrolled}
-			onUpdated={(percent: number) => {
-				// setPosY(fromPercentToPxY(percent))
-				setSyncY(fromPercentToPxY(percent))
-
-			}} />
+			windowId={p.windowId}
+		// onScroll={(percent: number) => {
+		//syncScroll2.scrollerScroll(p.windowId)
+		// }}
+		/>
 
 	</div>
 }

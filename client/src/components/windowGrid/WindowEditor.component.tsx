@@ -80,11 +80,11 @@ export const WindowEditorInt = (p: {
 
 
 export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
-		return false
-		let c1 = JSON.stringify(np)
-		let c2 = JSON.stringify(pp)
-		// console.log(c1, c2, c1 === c2);
-		let res = true
-		if (c1 !== c2) res = false
-		return res
-	})
+	return false
+	let c1 = JSON.stringify(np)
+	let c2 = JSON.stringify(pp)
+	// console.log(c1, c2, c1 === c2);
+	let res = true
+	if (c1 !== c2) res = false
+	return res
+})
