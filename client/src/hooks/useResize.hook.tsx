@@ -26,3 +26,29 @@ export const useResize = () => {
 	}, [])
 	return { resizeState, resizeCount }
 }
+
+export const useElResize = (elPath: string) => {
+	const [resizeState, setResizeState] = useState(false)
+
+	useEffect(() => {
+		let debouncedResponsiveRender = debounce(() => {
+			setResizeState(true)
+			setTimeout(() => {
+				setResizeState(false)
+			console.log("wooop");
+			}, 200)
+		}, 200)
+
+		let el = document.querySelector(elPath)
+		if (!el) return
+		let obs = new ResizeObserver(entries => {
+			debouncedResponsiveRender()
+		});
+		obs.observe(el)
+
+		return () => {
+			obs.disconnect()
+		}
+	}, [])
+	return { resizeState }
+}

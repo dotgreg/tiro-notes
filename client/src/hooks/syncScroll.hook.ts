@@ -1,6 +1,4 @@
-import { useRef, useState } from 'react';
 import { sharedConfig } from '../../../shared/shared.config';
-import { getApi } from './api/api.hook';
 
 interface iDim {
 	viewport: number
@@ -72,21 +70,24 @@ const getScrollObj = (wid) => {
 //
 const updateEditorDims = (wid: string, dims: iDim) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	// viewport = viewport > full ? full : viewport
 	c.dims.editor = dims
-	console.log(h, "editor dims update", c.dims.editor);
+	// console.log(h, "editor dims update", c.dims.editor);
 }
 
 const updatePreviewDims = (wid: string) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	let full = c.els.preview.querySelector('.simple-css-wrapper').clientHeight
 	let viewport = c.els.preview.clientHeight
 	c.dims.preview = { viewport, full }
-	console.log(h, "preview dims update", c.dims.preview);
+	// console.log(h, "preview dims update", c.dims.preview);
 }
 
 const updateScrollerDims = (wid: string) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	// get smaller percent ratio viewport/full
 	let ratioEditor = c.dims.editor.viewport / c.dims.editor.full || 10000000
 	let ratioPreview = c.dims.preview.viewport / c.dims.preview.full || 10000000
@@ -102,7 +103,7 @@ const updateScrollerDims = (wid: string) => {
 
 	// update dims
 	c.dims.scroller = dim
-	console.log(h, `scroller dim update from ${winner}`, c.dims.scroller);
+	// console.log(h, `scroller dim update from ${winner}`, c.dims.scroller);
 
 	// trigger react refresh?? (oula) => on pourra mettre un debounce plus tard si necess
 	let dataset = c.els.scroller.dataset
@@ -113,8 +114,10 @@ const updateScrollerDims = (wid: string) => {
 //
 // 2. SCROLL UPDATERS
 //
-const scrollScroller = (wid: string, percent: number) => {
+const scrollScroller = (wid: string, percent?: number) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
+	if (!percent) percent = c.posPercent
 
 	// just ask for a refresh, bar position in calculated in component in react
 	let dataset = c.els.scroller.dataset
@@ -122,16 +125,20 @@ const scrollScroller = (wid: string, percent: number) => {
 	dataset.scrollRefresh = parseInt(dataset.scrollRefresh) + 1
 }
 
-const scrollEditor = (wid: string, percent: number) => {
+const scrollEditor = (wid: string, percent?: number) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	let e = c.dims.editor
+	if (!percent) percent = c.posPercent
 	let percentPxEditor = (e.full - e.viewport) / 100
 	c.els.editor.scrollTop = percentPxEditor * percent
 }
 
-const scrollPreview = (wid: string, percent: number) => {
+const scrollPreview = (wid: string, percent?: number) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	let d = c.dims.preview
+	if (!percent) percent = c.posPercent
 	let percentPxPreview = (d.full) / 100
 	let newY = Math.round(percentPxPreview * percent)
 
@@ -144,6 +151,7 @@ const scrollPreview = (wid: string, percent: number) => {
 //
 const onEditorScroll = (wid: string, percent: number) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	c.posPercent = percent
 
 	scrollScroller(wid, percent)
@@ -152,6 +160,7 @@ const onEditorScroll = (wid: string, percent: number) => {
 
 const onScrollerScroll = (wid: string, percent: number) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	c.posPercent = percent
 
 	scrollEditor(wid, percent)
@@ -160,14 +169,37 @@ const onScrollerScroll = (wid: string, percent: number) => {
 
 const onPreviewScroll = (wid: string) => {
 	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
+	let previewY = c.els.preview.scrollTop
+	updatePreviewOffset(wid, previewY)
+}
+
+const onWindowLoad = (wid: string) => {
+	// reinit older positions if they exists
+	if (db[wid]) {
+		const c = getScrollObj(wid)
+	if (!c.els.editor) return;
+		let percent = c.posPercent
+		scrollScroller(wid, percent)
+		scrollEditor(wid, percent)
+		scrollPreview(wid, percent)
+	}
+}
+
+
+//
+// ELSE
+//
+const updatePreviewOffset = (wid: string, newY: number) => {
+	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
 	let d = c.dims.preview
 	let percentPxPreview = (d.full) / 100
 	let normalY = Math.round(percentPxPreview * c.posPercent)
-	let currY = c.els.preview.scrollTop
-	let offset = currY - normalY
-	console.log(offset);
+	let offset = newY - normalY
 	c.previewOffsetY = offset
 }
+
 
 ////////////////////////////////////////////////////////////
 // EXPORT
@@ -179,10 +211,18 @@ export const syncScroll3 = {
 	updatePreviewDims,
 	updateScrollerDims,
 
+	updatePreviewOffset,
+
 
 	onEditorScroll,
 	onScrollerScroll,
-	onPreviewScroll
+	onPreviewScroll,
+
+	onWindowLoad,
+
+	scrollEditor,
+	scrollPreview,
+	scrollScroller,
 }
 
 

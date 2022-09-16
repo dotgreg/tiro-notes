@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
-import { syncScroll2 } from '../../hooks/syncScroll.hook';
+import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
@@ -63,14 +63,11 @@ const DualViewerInt = (
 	}, [p.fileContent, p.file.path])
 
 	// KEEP POSITION ON TAB TOGGLING
-	// useEffect(() => {
-	// setPosY(1);
-	// setSyncY(1)
-	// setTimeout(() => {
-	// console.log(222222, p.file.path);
-	// syncScroll2.reinitPos(p.windowId)
-	// }, 500)
-	// }, [p.file.path])
+	useEffect(() => {
+		setTimeout(() => {
+			syncScroll3.onWindowLoad(p.windowId)
+		}, 500)
+	}, [p.file.path])
 
 	//
 	// JUMP TO LINE ACTIONS
@@ -123,13 +120,13 @@ const DualViewerInt = (
 		if (cTitle.id !== "") {
 			const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
 			try {
-				let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
-
+				// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
 				// @ts-ignore
 				let etop = document.querySelector(ePath)?.offsetTop
-
 				if (isNumber(etop)) {
-					// syncScroll2.updatePreviewOffset(p.windowId, etop)
+					// console.log(333, etop);
+					syncScroll3.updatePreviewOffset(p.windowId, etop)
+					syncScroll3.scrollPreview(p.windowId)
 				}
 			} catch (e) {
 				console.error(e);
@@ -165,6 +162,7 @@ const DualViewerInt = (
 			posY={0}
 
 			onTitleClick={newLine => {
+				// console.log("NEWLINE", newLine);
 				updateScrolledTitle(newLine)
 			}}
 			onScroll={percent => {
