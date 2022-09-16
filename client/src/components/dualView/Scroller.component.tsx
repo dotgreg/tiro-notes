@@ -43,7 +43,7 @@ export const ScrollingBar = (p: {
 					// first set height of bar
 					let o = syncScroll3.getScrollObj(p.windowId)
 					let height = o.dims.scroller.viewport
-					if (height < 20) height = 20
+					if (height < 20) height = 20 // 
 					setScrollBarHeight(height)
 
 					// then update position bar
@@ -66,7 +66,7 @@ export const ScrollingBar = (p: {
 	>
 		<Draggable
 			onDrag={(a: any) => {
-				console.log(getStats().percent);
+				// console.log(getStats().percent);
 				syncScroll3.onScrollerScroll(p.windowId, getStats().percent);
 				// p.onScroll(getStats().percent)
 			}}
