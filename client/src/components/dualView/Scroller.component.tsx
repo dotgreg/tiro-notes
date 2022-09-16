@@ -24,7 +24,7 @@ export const ScrollingBar = (p: {
 		const decalTopW = w.getBoundingClientRect().y
 		res.maxY = w.getBoundingClientRect().height - size
 		res.y = s.getBoundingClientRect().y - decalTopW
-		res.percent = Math.round((res.y / res.maxY) * 100)
+		res.percent = (res.y / res.maxY) * 100
 		return res
 	}
 
@@ -40,15 +40,17 @@ export const ScrollingBar = (p: {
 		let observer = new MutationObserver(function (mutationsList, observer) {
 			for (var mutation of mutationsList) {
 				if (mutation.attributeName === "data-scroll-refresh") {
-					let scrollObj = syncScroll3.getScrollObj(p.windowId)
-					setScrollBarHeight(scrollObj.dims.scroller.viewport)
-				}
+					// first set height of bar
+					let o = syncScroll3.getScrollObj(p.windowId)
+					let height = o.dims.scroller.viewport
+					if (height < 20) height = 20
+					setScrollBarHeight(height)
 
-				if (mutation.attributeName === "data-scroll-y") {
-					const newY = parseInt(s.dataset.scrollY || "")
-					if (!isNaN(newY)) setBarY(newY)
+					// then update position bar
+					let percentPx = (o.dims.scroller.full - o.dims.scroller.viewport) / 100
+					let newY = o.posPercent * percentPx
+					setBarY(newY)
 				}
-
 			}
 		});
 		observer.observe(s, { attributes: true });
@@ -64,6 +66,8 @@ export const ScrollingBar = (p: {
 	>
 		<Draggable
 			onDrag={(a: any) => {
+				console.log(getStats().percent);
+				syncScroll3.onScrollerScroll(p.windowId, getStats().percent);
 				// p.onScroll(getStats().percent)
 			}}
 			onStop={() => {
@@ -86,6 +90,7 @@ export const scrollingBarCss = () => `
 }
 
 .scrolling-bar-wrapper {
+		overflow: hidden;
 		position: absolute;
 		top: 33px;
 		height: calc(100% - 53px);
@@ -117,63 +122,3 @@ export const scrollingBarCss = () => `
 
 
 
-
-// export const ScrollingBar2 = (p: {
-// 	percent: number
-// 	onUpdated: (percent: number) => void
-// }) => {
-
-// 	const [barY, setBarY] = useState(0)
-
-// 	const { frr, forceResponsiveRender } = useDynamicResponsive();
-// 	let scrollBarEl = useRef<HTMLDivElement>(null)
-// 	let scrollBarWrapperEl = useRef<HTMLDivElement>(null)
-
-// 	useEffect(() => {
-// 		replaceScrollBar(getStats().percent);
-// 	}, [forceResponsiveRender]);
-
-// 	useEffect(() => {
-// 		replaceScrollBar(p.percent);
-// 	}, [p.percent]);
-
-// 	const getStats = (): { maxY: number, y: number, percent: number } => {
-// 		const res = { maxY: 0, y: 0, percent: 0 };
-// 		const w = scrollBarWrapperEl.current ? scrollBarWrapperEl.current : null
-// 		const s = scrollBarEl.current ? scrollBarEl.current : null
-// 		if (!s || !w) return res;
-// 		const size = s.getBoundingClientRect().height
-// 		const decalTopW = w.getBoundingClientRect().y
-// 		res.maxY = w.getBoundingClientRect().height - size
-// 		res.y = s.getBoundingClientRect().y - decalTopW
-// 		res.percent = (res.y / res.maxY)
-// 		return res
-// 	}
-
-// 	const replaceScrollBar = (percent: number) => {
-// 		let p = clamp(percent, 0, 100);
-// 		p = p / 100
-// 		const st = getStats();
-// 		let nY = p * st.maxY
-// 		setBarY(nY);
-// 	}
-
-// 	return <div
-// 		className="scrolling-bar-wrapper"
-// 		ref={scrollBarWrapperEl}
-// 	>
-// 		<Draggable
-// 			onDrag={(a: any) => {
-// 				replaceScrollBar(getStats().percent)
-// 				// p.onUpdated(getStats().percent)
-// 			}}
-// 			position={{ x: 0, y: barY }}
-// 			axis="y"
-// 			bounds="parent">
-// 			<div
-// 				ref={scrollBarEl}
-// 				className="scrolling-bar">
-// 			</div>
-// 		</Draggable>
-// 	</div>
-// }

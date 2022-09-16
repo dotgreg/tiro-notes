@@ -69,8 +69,11 @@ export const PreviewArea = (p: {
 			})
 		}, 100)
 
-		syncScroll3.updatePreviewDims(p.windowId)
-		syncScroll3.updateScrollerDims(p.windowId)
+
+		setTimeout(() => {
+			syncScroll3.updatePreviewDims(p.windowId)
+			syncScroll3.updateScrollerDims(p.windowId)
+		}, 100)
 
 	}, [p.fileContent])
 
@@ -92,6 +95,7 @@ export const PreviewArea = (p: {
 				// @ts-ignore
 				// console.log();
 				//syncScroll2.syncPreviewOffset(p.windowId)
+				syncScroll3.onPreviewScroll(p.windowId)
 			}}
 		>
 			<div

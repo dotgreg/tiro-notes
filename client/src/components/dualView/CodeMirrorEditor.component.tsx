@@ -21,6 +21,7 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { getApi } from "../../hooks/api/api.hook";
 import { iFile } from "../../../../shared/types.shared";
 import { onTitleClickFn } from "./EditorArea.component";
+import { useResize } from "../../hooks/useResize.hook";
 
 
 const h = `[Code Mirror]`
@@ -144,6 +145,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}, [p.value])
 
 
+	const { resizeState } = useResize()
+	useEffect(() => {
+		syncScrollUpdateDims()
+	}, [resizeState])
+
 	//
 	// SYNCSCROLL SIZE UPDATE
 	//
@@ -151,6 +157,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		let infs = CodeMirrorUtils.getEditorInfos(f.view)
+		console.log(infs);
 		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
@@ -189,10 +196,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 							throttleActivateTitles();
 						},
 						wheel(event, view) {
-							// let linesLength = p.value.split("\n").length
-							// let infs = CodeMirrorUtils.getEditorInfos(view)
-							// syncScroll2.updateEditorInfos(p.windowId, infs.visibleFirstLine, linesLength, editorHeight)
-							// syncScroll2.editorScroll(p.windowId)
+							let infs = CodeMirrorUtils.getEditorInfos(view)
+							syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
 							p.onScroll()
 						}
 					}),
@@ -379,25 +384,32 @@ export const codeMirrorEditorCss = () => `
 // UTILS FUNCTIONS FOR MANIP AND CURSOR WORK
 //
 
-interface iCodeMirrorInfos {
-	contentHeight: number
-	viewportHeight: number
-	visibleFirstLine: number
-}
+// interface iCodeMirrorInfos {
+// 	contentHeight: number
+// 	viewportHeight: number
+// 	visibleFirstLine: number
+// }
 
-const getEditorInfos = (cmView: any): iCodeMirrorInfos => {
+// const getEditorInfos = (cmView: any): iCodeMirrorInfos => {
+const getEditorInfos = (cmView: any) => {
 	let view = cmView
 	let y = Math.round(view.viewState.pixelViewport.top)
 	let cblock = view.lineBlockAtHeight(y)
 	let visibleFirstLine = view.state.doc.lineAt(cblock.from).number
 	let contentHeight = view.contentHeight
-	console.log(view);
+	// console.log(view);
 	let viewportHeight = view.viewState.editorHeight
+	let percentPx = (contentHeight - viewportHeight) / 100
+
+	let currentPercentScrolled = view.viewState.pixelViewport.top / percentPx
 
 	return {
 		viewportHeight,
 		contentHeight,
-		visibleFirstLine
+		visibleFirstLine,
+		percentPx,
+		currentPercentScrolled
+
 	}
 
 }
