@@ -174,7 +174,6 @@ const graphApp = (innerTagStr, opts) => {
 		}
 		var network = new vis.Network(container, d2, options);
 		// GET POSITION AFTER FIRST STABIL, then set it to cache
-		let wbEl = document.querySelector("#waiting-bar");
 		network.on('stabilized', () => {
 			console.log(h, "STABILIZED! caching data + positions for faster usage");
 			network.storePositions()
@@ -183,15 +182,7 @@ const graphApp = (innerTagStr, opts) => {
 		})
 		network.on('stabilizationProgress', (e) => {
 			let percent = Math.round((e.iterations / e.total) * 100)
-			let str = `Graph stabilization: ${percent}%`
-			console.log(str, e);
-			if (percent > 90 || percent < 5) {
-				wbEl.innerHTML = ""
-				wbEl.classList.add('hidden');
-			} else {
-				wbEl.innerHTML = str
-				wbEl.classList.remove('hidden');
-			}
+			updateLoadingPopup(percent);
 		})
 
 		// INIT POPUP
@@ -210,6 +201,34 @@ const graphApp = (innerTagStr, opts) => {
 	}
 
 
+	//
+	// LOADING INITIAL POPUP MANAGEMENT
+	//
+	function debounce(func, timeout = 300) {
+		let timer;
+		return (...args) => {
+			clearTimeout(timer);
+			timer = setTimeout(() => { func.apply(this, args); }, timeout);
+		};
+	}
+	const debounceHideLoadingPopup = debounce(() => {
+		console.log("DEBOUNCED");
+		let wbEl = document.querySelector("#waiting-bar");
+		wbEl.classList.add('hidden');
+	}, 500)
+
+	const updateLoadingPopup = (percent) => {
+		let str = `Graph stabilization: ${percent}%`
+		let wbEl = document.querySelector("#waiting-bar");
+		// console.log(str, e);
+		debounceHideLoadingPopup()
+		if (percent > 95 || percent < 5) {
+			debounceHideLoadingPopup()
+		} else {
+			wbEl.innerHTML = str
+			wbEl.classList.remove('hidden');
+		}
+	}
 
 
 
