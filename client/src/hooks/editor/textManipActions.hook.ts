@@ -1,6 +1,6 @@
 import { log } from 'console';
 import React, { useState, useEffect, useRef } from 'react';
-import { CodeMirrorUtils } from '../../components/dualView/CodeMirrorEditor.component';
+import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { DeviceType, deviceType, isA } from '../../managers/device.manager';
 import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
 

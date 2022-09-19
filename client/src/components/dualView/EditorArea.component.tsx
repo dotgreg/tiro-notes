@@ -22,9 +22,10 @@ import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
-import { CodeMirrorEditor, CodeMirrorUtils } from './CodeMirrorEditor.component';
+import { CodeMirrorEditor } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { random } from 'lodash';
+import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -167,7 +168,6 @@ const EditorAreaInt = (
 	// IMAGE INSERTION
 	//
 	const insertImage = (name: string, path: string) => {
-		console.log(11111111, stringToInsertUpload.current);
 		stringToInsertUpload.current += `![${name}](${path})\n`
 		debouncedUploadInsert()
 	}
@@ -175,7 +175,6 @@ const EditorAreaInt = (
 	const debouncedUploadInsert = useDebounce(() => {
 		const f = codeMirrorEditorView.current
 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
-		console.log(2222222, stringToInsertUpload.current);
 		insertTextAt(stringToInsertUpload.current, 'currentPos')
 		stringToInsertUpload.current = ''
 		CodeMirrorUtils.updateCursor(f, cPos)
