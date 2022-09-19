@@ -3,7 +3,9 @@ const graphApp = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
 		if (!opts.size) opts.size = "100%"
-		const h = `[GRAPH CTAG] 1.0.1 10/09/22`
+		// alert('t');
+		// console.log("2222222");
+		const h = `[GRAPH CTAG] 1.0.2 19/09/22`
 
 		if (!folderPath.startsWith("/")) return console.error (h, "folderpath should start by a '/'")
 		console.log(h, "init CTAG with folder:", folderPath);
@@ -66,8 +68,12 @@ const graphApp = (innerTagStr, opts) => {
 		const cacheId = `ctag-graph-${folderPath}`
 		const getCache = (onSuccess, onFailure) => {
 				api.call("cache.get", [cacheId], content => {
-						if(content !== undefined) onSuccess(content)
-						else onFailure()
+						if(content !== undefined) {
+								onSuccess(content)
+						}
+						else {
+								onFailure()
+						}
 				})
 		}
 		const setCache = (content) => {
@@ -99,7 +105,8 @@ const graphApp = (innerTagStr, opts) => {
 								const edge = edges[y].split("-")
 								res.edges.push({ from: edge[0], to: edge[1] })
 						}
-						setCache(res)
+						// we set cache later, when we get positions
+						// setCache(res)
 						cb(res)
 				});
 
@@ -126,7 +133,7 @@ const graphApp = (innerTagStr, opts) => {
 						// clickToUse: true,
 						layout: {
 								randomSeed: "dfsapoin2",
-								improvedLayout: true,
+								improvedLayout: false,
 								hierarchical: {
 										enabled: false,
 								}
@@ -137,6 +144,8 @@ const graphApp = (innerTagStr, opts) => {
 						width: '100%',
 						physics: {
 								enabled: true,
+								stabilization: true
+
 						},
 						edges: {
 								smooth: false,
@@ -156,7 +165,28 @@ const graphApp = (innerTagStr, opts) => {
 						},
 
 				};
-				var network = new vis.Network(container, data, options);
+
+
+				//
+				// DATA MANAGEMENT
+				//
+				let d2 = {
+						nodes: new vis.DataSet(data.nodes),
+						edges: new vis.DataSet(data.edges)
+				}
+				var network = new vis.Network(container, d2, options);
+				// GET POSITION AFTER FIRST STABIL, then set it to cache
+				network.on('stabilized', () => {
+						console.log(h, "STABILIZED! caching data + positions for faster usage");
+						network.storePositions()
+						let dataCache = {nodes: d2.nodes.get(), edges:d2.edges.get()}
+						setCache(dataCache)
+				})
+				network.on('stabilizationProgress', (e) => {
+						console.log("stabilization...", e);
+				})
+
+				// INIT POPUP
 				const createPopupWithData = createPopup(data);
 				network.on("click", createPopupWithData);
 
@@ -396,11 +426,8 @@ window.api.file.getContent('${file.path}', ncontent => {
 
 								// display the guess
 								const guessed = resArr[lastid]
-
 								lastval = val
-
 								let resGuess = '[enter] to loop'
-
 								if (guessed) {
 										if (resArr.length > 0) {resGuess = `${lastid +1}/${resArr.length} : "${guessed.name}"`}
 										// focus and select it
@@ -411,7 +438,6 @@ window.api.file.getContent('${file.path}', ncontent => {
 										// dezoom
 										network.moveTo({position: {x: 0, y:0}, scale: 0.1})
 								}
-
 								bestGuessEl.innerHTML = resGuess
 						}, 10)
 				}
