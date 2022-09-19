@@ -29,6 +29,7 @@ export const regexs = {
 	image: VerEx().find('![').anythingBut('[]').then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	fullImageMd: VerEx().beginCapture().find('![').anythingBut('[]').then('](').anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	imageAndTitleCapture: VerEx().find('![').beginCapture().anythingBut('[]').endCapture().then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
+	imageAndTitleCapture2: /\!\[([^\[\]]+)\]\(([^\(\)]+)\)/gi,
 	imageAndConfig: VerEx().find('![').then(v.imgMdConfig).then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 
 	searchlink: VerEx().find('[search|').beginCapture().anythingBut('[]').endCapture().then(']'),

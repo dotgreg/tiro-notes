@@ -1,0 +1,220 @@
+import { createTheme } from "@uiw/codemirror-themes";
+import { styleTags, Tag, tags as t } from "@lezer/highlight";
+import { MarkdownConfig } from "@lezer/markdown";
+import { cssVars } from "../style/vars.style.manager";
+
+export const getCustomTheme = () => createTheme({
+	theme: "light",
+	// tokenTable: {
+
+	// },
+	settings: {
+		background: "#ffffff",
+		foreground: "#4D4D4C",
+		caret: "#AEAFAD",
+		selection: "#D6D6D6",
+		selectionMatch: "#D6D6D6",
+		gutterBackground: "#FFFFFF",
+		gutterForeground: "#4D4D4C",
+		gutterBorder: "#ddd",
+		lineHighlight: "#fff",
+	},
+	styles: [
+		{ tag: t.comment, color: "#787b80" },
+		{ tag: t.definition(t.typeName), color: "#194a7b" },
+		{ tag: t.typeName, color: "#194a7b" },
+		{ tag: t.tagName, color: "#008a02" },
+		{ tag: t.variableName, color: "#1a00db" },
+		{ tag: t.heading, color: cssVars.colors.main },
+
+		{ tag: customTags.Image, color: "red", class: "tiro-image" },
+		// { tag: realCustomTags.ImageTwo, color: "blue", class: "test-success" },
+		// { tag: realCustomTags.ImageTwoMark, color: "blue", class: "test-success" },
+
+		// { tag: t.image, color: "orange" },
+		// { tag: customTags.headingMark, color: "red" },
+		// { tag: customTags.LinkTitle, color: "red", class: "lt" },
+		// { tag: customTags.LinkLabel, color: "red", class: "ll" },
+		// { tag: customTags.ListItem, color: "red", class: "wooooop6" },
+		// { tag: customTags.LinkReference, color: "red", class: "wooooop7" },
+		// { tag: customTags.Link, color: "red", class: "wooooop3" },
+		// { tag: customTags.LinkMark, color: "red", class: "wooooop4" },
+		// { tag: customTags.BulletList, color: "red", class: "wooooop" },
+		{
+			tag: t.heading1,
+			class: "actionable-title h1"
+		},
+		{
+			tag: t.heading2,
+			class: "actionable-title h2"
+		},
+		{
+			tag: t.heading3,
+			class: "actionable-title h3"
+		},
+		{ tag: t.heading4, class: "actionable-title h4" },
+		{ tag: t.heading5, class: "actionable-title h5" },
+		{ tag: t.heading6, class: "actionable-title h6" },
+		{ tag: t.content, fontSize: "10px" }
+	]
+});
+
+
+// import {parser} from "./parser.js"
+
+
+// const 
+
+// const customizedMarkdownLanguage = markdownLanguage
+// const customizedMarkdownLanguage = markdown.,
+// const customizedMarkdownLanguage = markdownLanguage.parser.createParse(
+// let md = markdown({
+// })
+// markdownLanguage.parser.configure({})
+// markdown.con
+
+// V6
+export const realCustomTags = {
+	ImageTwo: Tag.define(),
+	// ImageTwoMark: Tag.define(),
+};
+const ImageTwoDelim = { resolve: "ImageTwo" };
+export const ImageTwo = {
+	defineNodes: ["ImageTwo"],
+	parseInline: [{
+		name: "ImageTwo",
+		parse(cx, next, pos) {
+			// if (next != 126 /* '~' */ || cx.char(pos + 1) != 126) {
+			//https://software.hixie.ch/utilities/cgi/unicode-decoder/character-identifier?characters=%24
+			// if (next != 33 /* '![' */ || cx.char(pos + 1) != 91) {
+			// 	return -1;
+			// }
+			// return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, true);
+
+
+			// ![
+			// if (cx.char(pos + 1) === 33) {
+			// if (cx.char(pos + 1) === 33 && cx.char(pos + 2) === 91) {
+			if (next === 33 && cx.char(pos + 1) === 91) {
+				let isBegin = false
+				if (!cx.char(pos - 1)) isBegin = true
+				// console.log(next, cx.char(pos + 1), pos, isBegin, cx);
+				return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, false);
+				// return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, true);
+			}
+			else if (next === 41) {
+				// return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, false);
+				return cx.addDelimiter(ImageTwoDelim, pos, pos + 1, false, true);
+			}
+			// )
+			// else if (next === 40) {
+			// 	return cx.addDelimiter(ImageTwoDelim, pos, pos, false, true);
+			// }
+			else {
+				return -1
+			}
+		},
+		after: "Emphasis"
+	}],
+	props: [
+		styleTags({
+			ImageTwo: realCustomTags.ImageTwo,
+			// ImageTwoMark: realCustomTags.ImageTwoMark,
+			// ImageTwoMark: t.processingInstruction,
+			'Strikethrough/...': realCustomTags.ImageTwo
+		})
+	]
+}
+
+
+// V5 custom tags => WORKING PB actuellement delimiter avant et arriere doit etre mm
+// export const realCustomTags = {
+// 	ImageTwo: Tag.define(),
+// };
+// const ImageTwoDelim = { resolve: "ImageTwo", mark: "ImageTwoMark" };
+// export const ImageTwo = {
+// 	defineNodes: ["ImageTwo", "ImageTwoMark"],
+// 	parseInline: [{
+// 		name: "ImageTwo",
+// 		parse(cx, next, pos) {
+// 			// if (next != 126 /* '~' */ || cx.char(pos + 1) != 126) {
+// 			if (next != 36 /* '$' */ || cx.char(pos + 1) != 36) {
+// 				return -1;
+// 			}
+// 			return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, true);
+// 		},
+// 		after: "Emphasis"
+// 	}],
+// 	props: [
+// 		styleTags({
+// 			ImageTwo: realCustomTags.ImageTwo,
+// 			ImageTwoMark: t.processingInstruction,
+// 			'Strikethrough/...': realCustomTags.ImageTwo
+// 		})
+// 	]
+// }
+
+
+// v4 : with what we already have as tags
+export const customTags = {
+	ListItem: Tag.define(),
+	headingMark: Tag.define(),
+	LinkReference: Tag.define(),
+	Image: Tag.define(),
+	LinkTitle: Tag.define(),
+	LinkLabel: Tag.define(),
+	Link: Tag.define(),
+	LinkMark: Tag.define(),
+	BulletList: Tag.define(),
+};
+const MarkStylingExtension: MarkdownConfig = {
+	props: [
+		styleTags({
+			LinkReference: customTags.LinkReference,
+			ListItem: customTags.ListItem,
+			Link: customTags.Link,
+			Image: customTags.Image,
+			LinkTitle: customTags.LinkTitle,
+			LinkLabel: customTags.LinkLabel,
+			LinkMark: customTags.LinkMark,
+			BulletList: customTags.BulletList,
+		}),
+	],
+};
+// @ts-ignore
+window.hell = MarkStylingExtension
+
+//v3 
+// import { LRLanguage, Language } from "@codemirror/language"
+// import * as md from "@lezer/markdown"
+// export const exampleLanguage = LRLanguage.define({
+// 	parser: md.parser,
+// 	languageData: {
+// 		commentTokens: { line: ";" }
+// 	}
+// })
+
+
+//v2 => error
+// import { LRLanguage, Language } from "@codemirror/language"
+// import * as md from "@lezer/markdown"
+
+// export const exampleLanguage = LRLanguage.define({
+// 	parser: md.parser,
+// 	languageData: {
+// 		commentTokens: { line: ";" }
+// 	}
+// })
+
+
+
+// V1
+// import { LRLanguage, Language } from "@codemirror/language"
+// export const exampleLanguage = LRLanguage.define({
+// 	parser: markdownLanguage.parser,
+// 	languageData: {
+// 		commentTokens: { line: ";" }
+// 	}
+// })
+// export const exampleLanguage = Language
+// markdownLanguage.parser.parse(
