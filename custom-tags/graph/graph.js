@@ -3,9 +3,7 @@ const graphApp = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
 		if (!opts.size) opts.size = "100%"
-		// alert('t');
-		// console.log("2222222");
-		const h = `[GRAPH CTAG] 1.0.2 19/09/22`
+		const h = `[GRAPH CTAG] 1.0.2 19/09/22 =>`
 
 		if (!folderPath.startsWith("/")) return console.error (h, "folderpath should start by a '/'")
 		console.log(h, "init CTAG with folder:", folderPath);
@@ -30,7 +28,7 @@ const graphApp = (innerTagStr, opts) => {
 		}
 
 		const getMainColor = (opacity, variation) => {
-				console.log(mainColor);
+				// console.log(mainColor);
 				let rgb = [mainColor.srgb.r * 100, mainColor.srgb.g * 100,mainColor.srgb.b * 100]
 				if (!variation) variation = [0, 0, 0]
 				let v = variation
@@ -77,7 +75,7 @@ const graphApp = (innerTagStr, opts) => {
 				})
 		}
 		const setCache = (content) => {
-				api.call("cache.set", [cacheId, content])
+				api.call("cache.set", [cacheId, content, 10000000])
 		}
 
 		const fetchAndProcessData = (cb) => {
@@ -182,7 +180,7 @@ const graphApp = (innerTagStr, opts) => {
 						let dataCache = {nodes: d2.nodes.get(), edges:d2.edges.get()}
 						setCache(dataCache)
 				})
-				network.on('stabilizationProgress', (e) => {
+				network.on(h, 'stabilizationProgress', (e) => {
 						console.log("stabilization...", e);
 				})
 
