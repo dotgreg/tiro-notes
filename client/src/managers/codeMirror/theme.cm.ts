@@ -2,6 +2,7 @@ import { createTheme } from "@uiw/codemirror-themes";
 import { styleTags, Tag, tags as t } from "@lezer/highlight";
 import { MarkdownConfig } from "@lezer/markdown";
 import { cssVars } from "../style/vars.style.manager";
+import { MdCustomTags } from "./markdownPreviewPlugin.cm";
 
 export const getCustomTheme = () => createTheme({
 	theme: "light",
@@ -28,6 +29,8 @@ export const getCustomTheme = () => createTheme({
 		{ tag: t.heading, color: cssVars.colors.main },
 
 		{ tag: customTags.Image, color: "red", class: "tiro-image" },
+		{ tag: MdCustomTags.ImageMdEl, class: "cm-mdpreview-image-code mdpreview-source" },
+		{ tag: MdCustomTags.LatexMdEl, class: "cm-mdpreview-latex-code mdpreview-source" },
 		// { tag: realCustomTags.ImageTwo, color: "blue", class: "test-success" },
 		// { tag: realCustomTags.ImageTwoMark, color: "blue", class: "test-success" },
 
@@ -76,7 +79,7 @@ export const getCustomTheme = () => createTheme({
 // V6
 export const realCustomTags = {
 	ImageTwo: Tag.define(),
-	// ImageTwoMark: Tag.define(),
+	// Imag: Tag.define(),
 };
 const ImageTwoDelim = { resolve: "ImageTwo" };
 export const ImageTwo = {

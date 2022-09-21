@@ -16,7 +16,8 @@ import { getCustomTheme } from "../../managers/codeMirror/theme.cm";
 import { getAllCompletionSources } from "../../managers/codeMirror/completion.cm";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { each } from "lodash";
-import { ImageMdEl, markdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
+import { ImageMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
+import { linksPreviewMdCss, linksPreviewPlugin } from "../../managers/codeMirror/linksPreviewPlugin.cm";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -177,6 +178,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
 
+	const markdownPreviewPluginWFile = markdownPreviewPlugin(p.file)
 
 	return (
 		<div className="codemirror-editor-wrapper">
@@ -207,7 +209,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 							ImageMdEl
 						]
 					}),
-					markdownPreviewPlugin,
+					markdownPreviewPluginWFile,
+					linksPreviewPlugin,
 					EditorView.domEventHandlers({
 						scroll(event, view) {
 							// @ts-ignore
@@ -250,140 +253,142 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
-																	 .actionable-title {
-																			 color: ${cssVars.colors.main};
-																			 position: relative;
-																			 &:before {
-																					 content: "➝";
-																					 position: absolute;
-																					 right: -20px;
-																					 color: #c6c6c6;
-																					 font-size: 18px;
-																					 opacity: 0;
-																					 transition: 0.2s all;
-																					 bottom: -3px;
-																			 }
-																			 &:hover {
-																					 &:before {
-																							 opacity: 1
-																					 }
-																			 }
-																			 &.h1 {
-																					 font-size: 15px;
-																					 font-weight: bold;
-																					 text-decoration: underline;
-
-																			 }
-																			 &.h2 {
-																					 font-size: 13px;
-																					 text-decoration: underline;
-
-																			 }
-																			 &.h3 {
-																					 font-size: 12px;
-																			 }
-
-																	 }
 
 
-																	 .cm-matchingBracket {
-																			 background-color: rgba(0,0,0,0)!important;
-																	 }
+.actionable-title {
+		color: ${cssVars.colors.main};
+		position: relative;
+		&:before {
+				content: "➝";
+				position: absolute;
+				right: -20px;
+				color: #c6c6c6;
+				font-size: 18px;
+				opacity: 0;
+				transition: 0.2s all;
+				bottom: -3px;
+		}
+		&:hover {
+				&:before {
+						opacity: 1
+				}
+		}
+		&.h1 {
+				font-size: 15px;
+				font-weight: bold;
+				text-decoration: underline;
 
+		}
+		&.h2 {
+				font-size: 13px;
+				text-decoration: underline;
 
-																	 .cm-content {
-																			 // font-family: 'Open sans', sans-serif;
-																			 font-family: Consolas, monaco, monospace;
-																			 font-size: 11px;
-																	 }
+		}
+		&.h3 {
+				font-size: 12px;
+		}
 
-																	 .cm-focused {
-																			 outline: none!important;
-																	 }
-																	 .main-editor-wrapper {
-																			 width: calc(100% + 18px);
-																			 margin: 32px 0px 0px 0px;
-																			 padding: 0px;
-																			 width:100%;
-																			 height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 280px);'}; 
-																	 }
-
-																	 .codemirror-editor-wrapper {
-																			 margin-right: 18px;
-																	 }
-																	 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-																			 height: calc(100% - 30px);
-																	 }
-																	 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-																			 height: 100% ;
-																			 overflow:hidden;
-																			 padding: 0px;
-																	 }
-																	 .cm-editor {
-																			 word-break: break-all;
-																	 }
-																	 .cm-content {
-																			 width: 100%;
-																			 overflow:hidden;
-																			 white-space: pre-wrap;
-																	 }
-																	 .cm-scroller {
-																			 left: 15px;
-																			 padding-right: 15px;
-																	 }
-																	 .cm-line {
-																	 }
-																	 .cm-cursor {
-																	 }
-
-																	 .cm-tooltip-autocomplete {
-																			 padding: 10px 5px;
-																			 background: white;
-																			 border-radius: 5px;
-																			 border: none;
-																			 box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-																			 [aria-selected="true"]{
-																					 background: ${cssVars.colors.main};
-																					 border-radius: 2px;
-																			 }
-
-																	 }
-
-																	 .codemirror-mobile-fallback {
-																			 margin: 10px;
-																			 textarea {
-																					 width: calc(100% - 20px);
-																					 height: calc(100vh - 350px);
-																			 }
-																	 }
-
-																	 .test-success {
-background: orange;
-    color: red;
-    display: block;
-    padding-top: 50px;
 }
-																	 .tiro-image {
-																			 color: red;
-																			 display: block;
+
+
+.cm-matchingBracket {
+		background-color: rgba(0,0,0,0)!important;
+}
+
+
+.cm-content {
+		// font-family: 'Open sans', sans-serif;
+		font-family: Consolas, monaco, monospace;
+		font-size: 11px;
+}
+
+.cm-focused {
+		outline: none!important;
+}
+.main-editor-wrapper {
+		width: calc(100% + 18px);
+		margin: 32px 0px 0px 0px;
+		padding: 0px;
+		width:100%;
+		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 280px);'}; 
+}
+
+.codemirror-editor-wrapper {
+		margin-right: 18px;
+}
+.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
+		height: calc(100% - 30px);
+}
+.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
+		height: 100% ;
+		overflow:hidden;
+		padding: 0px;
+}
+.cm-editor {
+		word-break: break-all;
+}
+.cm-content {
+		width: 100%;
+		overflow:hidden;
+		white-space: pre-wrap;
+}
+.cm-scroller {
+		left: 15px;
+		padding-right: 15px;
+}
+.cm-line {
+}
+.cm-cursor {
+}
+
+.cm-tooltip-autocomplete {
+		padding: 10px 5px;
+		background: white;
+		border-radius: 5px;
+		border: none;
+		box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+		[aria-selected="true"]{
+				background: ${cssVars.colors.main};
+				border-radius: 2px;
+		}
+
+}
+
+.codemirror-mobile-fallback {
+		margin: 10px;
+		textarea {
+				width: calc(100% - 20px);
+				height: calc(100vh - 350px);
+		}
+}
+
+.test-success {
+background: orange;
+color: red;
+display: block;
+padding-top: 50px;
+}
+.tiro-image {
+		color: red;
+		display: block;
 padding: 20px;
-																	 }
-																	 .tiro-image-wrapper{
-																			 position: relative;
-																			 /* &:hover { */
+}
+.tiro-image-wrapper{
+		position: relative;
 
-																			 &:before {
-																					 position: absolute;
-																					 top: 0px;
-																					 left: 50%;
-																					 content: "x";
-																					 width: 50%;
-																					 height: 100px;
-																					 display:block;
-																					 background: orange;
+		&:before {
+				position: absolute;
+				top: 0px;
+				left: 50%;
+				content: "x";
+				width: 50%;
+				height: 100px;
+				display:block;
+				background: orange;
 
-																			 }
-																			 /* } */
-																	 }
+		}
+}
 
-																	 `
+${linksPreviewMdCss()}
+
+`
