@@ -35,7 +35,6 @@ export const useElResize = (elPath: string) => {
 			setResizeState(true)
 			setTimeout(() => {
 				setResizeState(false)
-			console.log("wooop");
 			}, 200)
 		}, 200)
 

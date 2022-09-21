@@ -48,9 +48,12 @@ export const initLatex = () => {
 if (!isLatexInit) initLatex();
 
 export const renderLatex = (str: string): string => {
+	str = str.replaceAll('$', '')
 	let res = str
 	if (!katex) return res;
 	try {
+		// @ts-ignore
+		window.ka = katex
 		res = katex.renderToString(str);
 	} catch (e) {
 		log && console.log("LATEX ERR:", e);
@@ -64,12 +67,16 @@ export const renderLatex = (str: string): string => {
 // GLOBAL LATEX SYSTEM
 //
 export const refreshRenderLatexGlobally = debounce(() => {
-
 	log && console.log(h, "REFRESH");
 	initRenderLatexInText(".render-latex")
 }, 100)
 
-const initRenderLatexInText = (elPath: string) => {
+// export const refreshRenderLatexGlobally = () => {
+// 	log && console.log(h, "REFRESH");
+// 	initRenderLatexInText(".render-latex")
+// }
+
+export const initRenderLatexInText = (elPath: string) => {
 	if (!renderMathInElement) return;
 	const els = document.querySelectorAll(elPath)
 	if (!els) return console.warn(h, "no el found :", elPath)

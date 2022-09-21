@@ -29,7 +29,7 @@ export const regexs = {
 	image: VerEx().find('![').anythingBut('[]').then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	fullImageMd: VerEx().beginCapture().find('![').anythingBut('[]').then('](').anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	imageAndTitleCapture: VerEx().find('![').beginCapture().anythingBut('[]').endCapture().then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
-	imageAndTitleCapture2: /\!\[([^\[\]]+)\]\(([^\(\)]+)\)/gi,
+	imageAndTitleCapture2: /\!\[([^\[\]]+)\]\(([^\(\)]+\.(jpg|jpeg|png|gif|webm|svg|webp))\)/gi,
 	imageAndConfig: VerEx().find('![').then(v.imgMdConfig).then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 
 	searchlink: VerEx().find('[search|').beginCapture().anythingBut('[]').endCapture().then(']'),
@@ -44,6 +44,14 @@ export const regexs = {
 	userCustomTag3: VerEx().beginCapture().then(v.customTag).endCapture(),
 	userCustomTagManual: v.customTag,
 
+	// externalLink: VerEx().beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
+	externalLink: VerEx().beginCapture()
+		.find('http').maybe('s').then('://')
+		.beginCapture().anythingBut("/").endCapture()
+		.beginCapture().anything()
+		.then("/").beginCapture().anythingBut("?").endCapture()
+		.anything().endCapture()
+		.endCapture(),
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 
 	searchFolder: VerEx().find(' /').anything().endOfLine(),
