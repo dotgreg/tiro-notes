@@ -9,6 +9,10 @@ type iUserSettingName =
 	'ui_filesList_sortMode' |
 	'ui_layout_colors_main' |
 	'ui_sidebar' |
+
+	'ui_editor_links_as_button' |
+	'ui_editor_markdown_preview' |
+
 	'ui_other'
 
 type keyVal = { key: iUserSettingName, val: any }
@@ -26,6 +30,8 @@ const defaultVals: iUserSettings = {
 	ui_sidebar: true,
 	ui_filesList_sortMode: 2,
 	ui_layout_colors_main: "#E86666",
+	ui_editor_markdown_preview: true,
+	ui_editor_links_as_button: true,
 }
 
 const h = `[USER SETTINGS] :`
@@ -106,6 +112,7 @@ export const useUserSettings = () => {
 	}
 
 	return {
+		userSettings,
 		userSettingsApi,
 		refreshUserSettingsFromBackend
 	}
