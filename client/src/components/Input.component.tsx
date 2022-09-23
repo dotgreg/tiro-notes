@@ -1,7 +1,8 @@
+import { isBoolean } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
-export type InputType = 'password' | 'text' | 'select'
+export type InputType = 'password' | 'text' | 'select' | 'checkbox'
 
 export const Input = (p: {
 	id?: string
@@ -9,8 +10,9 @@ export const Input = (p: {
 	type?: InputType
 	list?: OptionObj[]
 	explanation?: string
-	value?: string | number
+	value?: string | number | boolean
 	onChange?: (res: string) => void
+	onCheckedChange?: (res: boolean) => void
 	onSelectChange?: (res: string) => void
 	onFocus?: Function
 	onEnterPressed?: Function
@@ -18,7 +20,6 @@ export const Input = (p: {
 	shouldNotSelectOnClick?: boolean
 	readonly?: boolean
 }) => {
-	const { value } = { ...p }
 
 	const inputRef = useRef<any>()
 	const focusToInput = () => {
@@ -35,6 +36,10 @@ export const Input = (p: {
 		focusToInput()
 	}, [])
 
+	let isChecked = p.type === "checkbox" && (p.value === true || p.value === 'true')
+	let value = p.value
+	if (isBoolean(value)) value = ""
+
 	return (
 		<div className={`input-component ${p.id ? p.id : ''} ${p.type}`}>
 
@@ -45,8 +50,9 @@ export const Input = (p: {
 				{p.type !== 'select' && <input
 					ref={inputRef}
 					type={p.type ? p.type : 'text'}
-					value={p.value}
-				 readOnly={p.readonly}
+					value={value}
+					checked={isChecked}
+					readOnly={p.readonly}
 					onFocus={() => { p.onFocus && p.onFocus() }}
 					onClick={() => { !p.shouldNotSelectOnClick && inputRef.current.select() }}
 					onKeyPress={e => {
@@ -55,12 +61,13 @@ export const Input = (p: {
 						if (keyCode == 'Enter' && p.onEnterPressed) p.onEnterPressed()
 					}}
 					onChange={(e) => {
+						p.onCheckedChange && p.onCheckedChange(e.target.checked)
 						p.onChange && p.onChange(e.target.value)
 					}} />}
 
 				{p.type === 'select' &&
 					<select
-						value={p.value}
+						value={value}
 						onChange={(e) => {
 							p.onSelectChange && p.onSelectChange(e.target.value)
 						}}>

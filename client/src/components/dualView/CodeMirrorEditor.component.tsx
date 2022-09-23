@@ -18,6 +18,8 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { each } from "lodash";
 import { ImageMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
 import { linksPreviewMdCss, linksPreviewPlugin } from "../../managers/codeMirror/linksPreviewPlugin.cm";
+import { useUserSettings } from "../../hooks/useUserSettings.hook";
+import { Extension } from "@codemirror/state";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -106,9 +108,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 	//
-	// ON TITLE HOVER, CREATE A LINK
+	// ON TITLE HOVER, CREATE A LINK => should do it in CM logic instead
 	//
-
 	const onAction = (event) => {
 		let title = event.target.innerHTML.replace(/^#{1,6} /, "");
 		const f = getEditorObj()
@@ -116,7 +117,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
 		log && console.log(h, "CLICK ON TITLE DETECTED", title, infs);
 		p.onTitleClick(infs.lineIndex)
-		// console.log(1, "TITLE CLICK");
 	}
 
 	const activateTitleInt = () => {
@@ -125,27 +125,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		each(els, el => {
 			el.addEventListener('click', onAction)
 		})
-		each(els2, el => {
-			// console.log(333, el);
-			if (!el) return
-			// @ts-ignore
-			el.style["background"] = "blue"
-
-			// if (!el) return
-			// const pEl = el.parentElement
-			// pEl?.classList.add("tiro-image-wrapper")
-
-			// const html = pEl?.innerHTML
-			// console.log(333, html);
-			// const node = document.createElement("div");
-			// node.classList.add("image-wrapper")
-			// node.innerHTML = "hello world"
-			// if (pEl) pEl.innerHTML = "<div class='img-test'></div>" + pEl.innerHTML
-			// @ts-ignore
-			// if (pEl) pEl.appendChild(node);
-			// el.addEventListener('click', onAction)
-		})
-		// const els3 = document.querySelectorAll(".tiro-image-wrapper")
 	}
 
 	const debouncedActivateTitles = useDebounce(() => { activateTitleInt() }, 500)
@@ -159,7 +138,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		debouncedActivateTitles()
 		syncScrollUpdateDims()
 	}, [])
-
+	// END OF TODO
 
 	const { resizeState } = useElResize(`.window-id-${p.windowId}`)
 	useEffect(() => {
@@ -180,6 +159,44 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const markdownPreviewPluginWFile = markdownPreviewPlugin(p.file)
 
+
+
+	//
+	// CM CONFIG MODIF ACCORDING TO USER PREFS
+	//
+	const codemirrorExtensions: Extension[] = [
+		autocompletion({ override: getAllCompletionSources(p.file) }),
+		EditorView.domEventHandlers({
+			scroll(event, view) {
+				debouncedActivateTitles();
+				throttleActivateTitles();
+			},
+			wheel(event, view) {
+				let infs = CodeMirrorUtils.getEditorInfos(view)
+				syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
+				p.onScroll()
+			}
+		})
+	]
+	const markdownExtensionCnf: any = {
+		base: markdownLanguage,
+		codeLanguages: languages,
+		extensions: []
+	}
+
+
+	const { userSettingsApi } = useUserSettings()
+	const ua = userSettingsApi
+	if (ua.get("ui_editor_links_as_button")) {
+		codemirrorExtensions.push(linksPreviewPlugin)
+	}
+	if (ua.get("ui_editor_markdown_preview")) {
+		codemirrorExtensions.push(markdownPreviewPluginWFile)
+		markdownExtensionCnf.extensions.push(ImageMdEl)
+	}
+	codemirrorExtensions.push(markdown(markdownExtensionCnf))
+
+
 	return (
 		<div className="codemirror-editor-wrapper">
 			<CodeMirror
@@ -196,41 +213,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					closeBrackets: false,
 					bracketMatching: false,
 					lineNumbers: false,
-
 				}}
-				extensions={[
-					autocompletion({ override: getAllCompletionSources(p.file) }),
-					markdown({
-						base: markdownLanguage,
-						codeLanguages: languages,
-						extensions: [
-							// MarkStylingExtension,
-							// ImageTwo,
-							ImageMdEl
-						]
-					}),
-					markdownPreviewPluginWFile,
-					linksPreviewPlugin,
-					EditorView.domEventHandlers({
-						scroll(event, view) {
-							// @ts-ignore
-							// let y = Math.round(view.viewState.pixelViewport.top)
-							// let cblock = view.lineBlockAtHeight(y)
-							// let cline = view.state.doc.lineAt(cblock.from).number
-							// let linesLength = p.value.split("\n").length
-							// let editorHeight = view.contentHeight
-							// syncScroll2.updateEditorInfos(p.windowId, cline, linesLength, editorHeight)
-							// activateTitleInt();
-							debouncedActivateTitles();
-							throttleActivateTitles();
-						},
-						wheel(event, view) {
-							let infs = CodeMirrorUtils.getEditorInfos(view)
-							syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
-							p.onScroll()
-						}
-					}),
-				]}
+				extensions={codemirrorExtensions}
 			/>
 		</div>
 	);
@@ -389,6 +373,6 @@ padding: 20px;
 		}
 }
 
-${linksPreviewMdCss()}
+${styleCodeMirrorMarkdownPreviewPlugin()}
 
 `

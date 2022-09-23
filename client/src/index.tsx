@@ -1,16 +1,5 @@
-import React from 'react';
-// import ReactDOM from 'react-dom';
+import React from "react";
 import { App } from './App';
-import { Test } from './Test';
+import { renderReactComponent } from './managers/reactRenderer.manager';
 
-import { createRoot } from 'react-dom/client';
-const container = document.getElementById('root');
-const root = createRoot(container); // createRoot(container!) if you use TypeScript
-root.render(<App />);
-// root.render(<Test />);
-
-// ReactDOM.render(
-// 	<App />,
-// 	document.getElementById('root')
-// );
-
+renderReactComponent(<App />, document.getElementById('root'))

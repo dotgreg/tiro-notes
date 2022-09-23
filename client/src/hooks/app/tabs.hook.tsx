@@ -1,5 +1,3 @@
-import React, { useContext } from 'react';
-import ReactDOM from 'react-dom';
 import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { cloneDeep, each, isNumber } from 'lodash';
@@ -7,8 +5,6 @@ import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
-import { act } from 'react-dom/test-utils';
-import { syncScroll2 } from '../syncScroll.hook';
 import { deviceType } from '../../managers/device.manager';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'

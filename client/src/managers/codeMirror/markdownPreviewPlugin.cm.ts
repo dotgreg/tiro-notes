@@ -16,6 +16,7 @@ import { getApi } from "../../hooks/api/api.hook";
 import { renderLatex } from "../latex.manager";
 import { isString } from "lodash";
 import { linksPreviewMdCss } from "./linksPreviewPlugin.cm";
+import { AnchorHTMLAttributes } from "react";
 
 /*************************************
  *  1. NEW MD PARSER TO DETECT ELEMENTS LIKE IMAGE
@@ -155,18 +156,17 @@ export const markdownPreviewPlugin = (file: iFile) => ViewPlugin.fromClass(
 		eventHandlers: {
 			mousedown: (e, view) => {
 				let el = e.target as HTMLElement;
-				// 	if (
-				// 		target.nodeName == "INPUT" &&
-				// 		target.parentElement!.classList.contains("cm-boolean-toggle")
-				// 	)
-				// 		// return toggleBoolean(view, view.posAtDOM(target));
-				// 		return false
+				// LINK
+				if (el.classList.contains("link-mdpreview")) {
+					// @ts-ignore
+					let url = el.href
+					window.open(url, '_blank')?.focus();
+				}
 
-				// console.log(el.querySelector('img')?.src);
 
-				console.log(el);
+				// IMAGE POPUP
 				let url = el.querySelector('img')?.src as string
-				if (!isString(url)) return;
+				if (!isString(url) || !url.startsWith("http")) return;
 				url = url.replace(getUrlTokenParam(), '')
 				getApi(api => {
 					api.ui.lightbox.open(0, [url])
@@ -181,16 +181,13 @@ export const markdownPreviewPlugin = (file: iFile) => ViewPlugin.fromClass(
  * 4. Styling
  */
 export const styleCodeMirrorMarkdownPreviewPlugin = () => `
-
-${linksPreviewMdCss()}
-
 .latex-height {
 		height: 20px;
 		overflow: scroll;
 		line-height: initial;
 		background: rgb(247,247,247);
 		padding: 10px;
-		border-radius:5px;
+		border-radius: 5px;
 		color: rgba(0,0,0,0);
 		transition: all 0.2s;
 		.katex, .katex span {
@@ -200,7 +197,7 @@ ${linksPreviewMdCss()}
 
 .mdpreview-source {
 		font-weight: bold;
-		color: #b4b4b4!important;
+		color: #b4b4b4;
 		font-size: 9px;
 		display: block;
 }
@@ -238,4 +235,6 @@ ${linksPreviewMdCss()}
 				}
 		}
 }
+
+${linksPreviewMdCss()}
 `

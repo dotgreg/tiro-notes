@@ -10,6 +10,7 @@ import { cloneDeep, debounce, each } from 'lodash';
 import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
+import { ButtonsToolbar } from '../ButtonsToolbar.component';
 
 type ConfigPanel = {
 	title: string,
@@ -66,10 +67,10 @@ export const SettingsPopup = (p: {
 						type: 'text',
 						var: tiroUrl,
 						customHtml: `
-																				<div class="qrcode-wrapper">
-																				<img src="${qrcodeUrl}"/>
-																				<br>
-																				</div>`,
+						<div class="qrcode-wrapper">
+						<img src="${qrcodeUrl}"/>
+						<br>
+						</div>`,
 						title: "Tiro Url",
 						readOnly: true,
 						expl: `Access Tiro on another device on the <b>same wifi/local network</b> either by :
@@ -95,8 +96,33 @@ export const SettingsPopup = (p: {
 						modifier: val => { us.set('ui_layout_colors_main', val) }
 					},
 				]
-			}
-			, {
+			},
+			{
+				title: "editor",
+				fields: [
+					{
+						type: 'checkbox',
+						title: "Markdown Preview",
+						expl: "Preview Images and Latex in the editor",
+						var: us.get('ui_editor_markdown_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Links button",
+						expl: "Replace http links into buttons in the editor",
+						var: us.get('ui_editor_links_as_button'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_links_as_button', val)
+						}
+					},
+				]
+			},
+			{
 				title: "Advanced",
 				fields: [
 					{ type: 'text', var: backendPort, title: s.backend.port, expl: s.backend.portExpl, modifier: setBackendPort },
@@ -122,6 +148,7 @@ export const SettingsPopup = (p: {
 	// 	console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
 	// 	field.modifier(e)
 	// })
+	const [displayReload, setDisplayReload] = useState(false)
 
 	return (
 		<div className="settings-popup-wrapper">
@@ -150,8 +177,13 @@ export const SettingsPopup = (p: {
 													type={field.type}
 													readonly={field.readOnly}
 													onChange={e => {
-														// debounceOnChange(e, field)
-														console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
+														if (field.type === "checkbox") return
+														// console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
+														field.modifier(e)
+													}}
+													onCheckedChange={e => {
+														if (field.type !== "checkbox") return
+														// console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
 														field.modifier(e)
 													}}
 												/>
@@ -180,6 +212,9 @@ export const SettingsPopup = (p: {
 
 						</div>
 					)
+				}
+				{displayReload &&
+					<button onClick={e => { window.location.reload() }}>Reload App</button>
 				}
 			</Popup >
 		</div >

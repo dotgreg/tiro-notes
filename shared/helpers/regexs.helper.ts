@@ -45,13 +45,17 @@ export const regexs = {
 	userCustomTagManual: v.customTag,
 
 	// externalLink: VerEx().beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
-	externalLink: VerEx().beginCapture()
+	externalLink: VerEx()
+		.find(VerEx().find(" ").or("\n"))
 		.find('http').maybe('s').then('://')
-		.beginCapture().anythingBut("/").endCapture()
-		.beginCapture().anything()
-		.then("/").beginCapture().anythingBut("?").endCapture()
-		.anything().endCapture()
+		.beginCapture().anythingBut("/ ").endCapture()
+		.beginCapture()
+		.anythingBut(" ")
+		.then("/")
+		.beginCapture().anythingBut("? ").endCapture()
+		.anythingBut(" ")
 		.endCapture(),
+
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 
 	searchFolder: VerEx().find(' /').anything().endOfLine(),
