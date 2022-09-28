@@ -1,3 +1,4 @@
+import React from 'react';
 import { sharedConfig } from '../../../shared/shared.config'
 import { regexs } from '../../../shared/helpers/regexs.helper';
 import { replaceAll } from './string.manager';
@@ -6,6 +7,8 @@ import { replaceRegexInMd } from './markdown.manager';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { iFile } from '../../../shared/types.shared';
 import { findImagesFromContent } from './images.manager';
+import { RessourcePreview } from '../components/RessourcePreview.component';
+import { renderReactToId } from './reactRenderer.manager';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -66,39 +69,10 @@ export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: st
 
 	// 2. create rest
 	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
-		const link = input.split('](')[1].slice(0, -1);
-		const name = input.split('](')[0].replace('![', '');
-		let t1 = link.split('.');
-		let filetype = t1[t1.length - 1];
-		if (filetype === '7z') filetype = 'd7z';
-		let htmlAdded = ''
-
-		const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/${link}${getUrlTokenParam()}`
-
-		const shouldBeOpen = name.includes('|open')
-		let subst = ''
-
-		if (shouldBeOpen) {
-			subst =
-				`
-<div class="iframe-ressource-wrapper">
-	<iframe src="${ressLink}" style="width: 100%; height:500px; border: none;"></iframe>
-</div>
-`
-		} else {
-
-			subst = `<div class="resource-link-wrapper">
-	<div class="resource-link-icon ${filetype}"></div>
-	<a class="resource-link preview-link"
-		href="${ressLink}"
-		download="${name}.${filetype}"
-	>
-		${name} (${filetype})
-	</a>
-</div>`.split("\n").join("");
-		}
-
-
+		let idEl = renderReactToId(
+			<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />
+		)
+		let subst = `<div id="${idEl}"> </div> `;
 		return subst
 	});
 

@@ -10,6 +10,7 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors, EditorArea } from './EditorArea.component';
 import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
+import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 
 
 
@@ -434,59 +435,7 @@ export const previewAreaSimpleCss = () => {
 		// RESSOURCE LINK
 
 **********************************************************/
-
-		.resource-link-wrapper {
-				background: #f7f6f6;
-				padding: 20px;
-				border-radius: 10px;
-				position: relative;
-				margin: 5px 0px;
-		}
-
-		.resource-link-icon {
-				top: 14px;
-				left: 19px;
-				width: 21px;
-				height: 27px;
-				display: inline-block;
-				background-image: url(/static/media/file-solid.6415173e.svg);
-				opacity: 0.08;
-				position: absolute;
-				background-repeat: no-repeat;
-				transform: scale(1.5);
-				background-image: url(${cssVars.assets.fileIcon});
-		}
-
-		${d.r}.epub, ${d.r}.cbr, ${d.r}.cbz,${d.r}.mobi, ${d.r}.azw, ${d.r}.azw3, ${d.r}.iba { background-image: url(${cssVars.assets.bookIcon}); }
-		${d.r}.pdf
-		{ background-image: url(${cssVars.assets.pdfIcon}); }
-
-		${d.r}.xls, ${d.r}.xlsm, ${d.r}.xlsx, ${d.r}.ods
-		{ background-image: url(${cssVars.assets.excelIcon}); }
-
-		${d.r}.avi, ${d.r}.flv, ${d.r}.h264, ${d.r}.m4v, ${d.r}.mov, ${d.r}.mp4, ${d.r}.mpg, ${d.r}.mpeg, ${d.r}.rm, ${d.r}.swf, ${d.r}.vob, ${d.r}.wmv, ${d.r}.mkv
-		{ background-image: url(${cssVars.assets.videoIcon}); }
-
-		${d.r}.d7z, ${d.r}.arj, ${d.r}.deb, ${d.r}.rar, ${d.r}.gz, ${d.r}.zip, ${d.r}.rpm, ${d.r}.pkg
-		{ background-image: url(${cssVars.assets.archiveIcon});}
-
-		${d.r}.aif, ${d.r}.mp3, ${d.r}.cda, ${d.r}.mid, ${d.r}.mpa, ${d.r}.ogg, ${d.r}.wav, ${d.r}.wpl, ${d.r}.wma, ${d.r}.midi
-		{ background-image: url(${cssVars.assets.audioIcon}); }
-
-		${d.r}.doc, ${d.r}.docx, ${d.r}.odt
-		{ background-image: url(${cssVars.assets.wordIcon}); }
-
-		${d.r}.bin, ${d.r}.dmg, ${d.r}.iso, ${d.r}.toast, ${d.r}.vcd
-		{
-				top: 19px;
-				transform: scale(1.8);
-				background-image: url(${cssVars.assets.diskIcon});
-		}
-
-		${d.r}.ppt, ${d.r}.pptx, ${d.r}.odp, ${d.r}.key, ${d.r}.pps
-		{ background-image: url(${cssVars.assets.presIcon}); }
-
-
+${ressourcePreviewSimpleCss(d)}
 
 		pre  {
 		}

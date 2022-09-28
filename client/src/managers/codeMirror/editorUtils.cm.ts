@@ -3,9 +3,11 @@ import { EditorSelection } from "@codemirror/state";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { LineTextInfos } from "../textEditor.manager";
 import { getCustomTheme } from "./theme.cm";
+import { cloneDeep } from "lodash";
 
 const h = `[Code Mirror]`
-const log = sharedConfig.client.log.verbose
+// const log = sharedConfig.client.log.verbose
+const log = true
 
 ///////////////////////////////////////////////////
 // UTILS FUNCTIONS FOR MANIP AND CURSOR WORK
@@ -50,27 +52,99 @@ const updateText = (CMObj: any, newText: string, charPos: number) => {
 	const vtxt = vstate.doc.toString()
 	const length = vtxt.length
 
+	const oldCursor = CMObj.view.state.selection.ranges[0].from
+
+	// let oldScroll = CMObj.view.scrollDOM.scrollTop
+	// if (oldScroll < 0) oldScroll = 0
+	// // seems following decalled line, which is ok
+	// let o2 = oldScroll + window.innerHeight / 2
+
 	CMObj.view.dispatch(
 		CMObj.view.state.update(
 			{ changes: { from: 0, to: length, insert: newText } },
 		)
 	)
-}
-const updateCursor = (CMObj: any, newPos: number) => {
-	log && console.log(h, " update cursor", newPos);
-	setTimeout(() => {
+	updateCursor(CMObj, oldCursor, true)
+	// CMObj.view.dispatch(
+	// 	CMObj.view.state.update(
+	// 		{ selection: EditorSelection.cursor(oldCursor) },
+	// 		{ effects: EditorView.scrollIntoView(o2, { y: "start" }) },
+	// 	)
+	// )
 
-		// CMObj.view.focus()
-		try {
+	// setTimeout(() => {
+	// 	let oldScroll = CMObj.view.scrollDOM.scrollTop
+	// 	if (oldScroll < 0) oldScroll = 0
+	// 	console.log(333344, oldScroll);
+	// }, 1000)
+
+}
+const updateCursor = (CMObj: any, newPos: number, scrollTo: boolean = false) => {
+	log && console.log(h, " update cursor", newPos, CMObj);
+	try {
+		// CMObj.view.dispatch(
+		// 	CMObj.view.state.update(
+		// 		{ selection: EditorSelection.cursor(newPos) }
+		// 	)
+		// )
+		// if (scrollTo) {
+		// 	setTimeout(() => {
+		// 		CMObj.view.dispatch({
+		// 			effects: EditorView.scrollIntoView(newPos, { y: "start" }),
+		// 		})
+		// 	})
+		// }
+
+		if (!scrollTo) {
+
+			// CMObj.view.dispatch(
+			// 	CMObj.view.state.update(
+			// 		{ selection: EditorSelection.cursor(newPos) }
+			// 	)
+			// )
+		} else {
+			// CMObj.view.dispatch(
+			// 	{ effects: EditorView.scrollIntoView(newPos, { y: "start" }) },
+			// 	CMObj.view.state.update(
+			// 		{ selection: EditorSelection.cursor(newPos) },
+			// 	)
+			// )
+
+			// CMObj.view.dispatch(
+			// 	// { effects: EditorView.scrollIntoView(newPos, { y: "center" }) },
+			// 	// { selection: EditorSelection.cursor(newPos), scrollIntoView: true },
+			// 	{
+			// 		selection: EditorSelection.cursor(newPos),
+			// 		effects: EditorView.scrollIntoView(newPos, { y: "start" })
+			// 	},
+			// )
+
+			// console.log(CMObj.view.dispatch);
 			CMObj.view.dispatch(
-				CMObj.view.state.update(
-					{ selection: EditorSelection.cursor(newPos) }
-				)
+				{
+					selection: { anchor: newPos, head: newPos },
+					scrollIntoView: true
+				}
 			)
-		} catch (e) {
-			console.warn(h, "update Cursor error", e)
+
+
+
+
+			// 		selection: EditorSelection.cursor(newPos),
+			// 		effects: EditorView.scrollIntoView(newPos, { y: "start" })
+			// 	},
+			// )
+
 		}
-	}, 10)
+		// setTimeout(() => {
+		// 	CMObj.view.dispatch({
+		// 		effects: EditorView.scrollIntoView(newPos, { y: "start" }),
+		// 	})
+		// })
+
+	} catch (e) {
+		console.warn(h, "update Cursor error", e)
+	}
 }
 
 
@@ -143,13 +217,13 @@ const intGetLine = (CMObj: any) => {
 //
 const scrollToLine = (CMObj: any, lineToJump: number) => {
 	let line = CMObj.view.state.doc.line(lineToJump)
-	updateCursor(CMObj, line.from)
+	updateCursor(CMObj, line.from, true)
 
-	setTimeout(() => {
-		const cPosCursor = CMObj.view.state.selection.ranges[0].from
-		// console.log(33334, cPosCursor);
-		scrollTo(CMObj, cPosCursor)
-	}, 10)
+	// setTimeout(() => {
+	// 	const cPosCursor = CMObj.view.state.selection.ranges[0].from
+	// 	// console.log(33334, cPosCursor);
+	// 	scrollTo(CMObj, cPosCursor)
+	// }, 10)
 
 
 }
@@ -160,9 +234,10 @@ const scrollToLine = (CMObj: any, lineToJump: number) => {
 //
 const scrollTo = (CMObj: any, posY: number) => {
 	if (!CMObj.view) return -1
-	CMObj.view.dispatch({
-		effects: EditorView.scrollIntoView(posY, { y: "start" }),
-	})
+	// CMObj.view.dispatch({
+	// 	effects: EditorView.scrollIntoView(posY, { y: "start" }),
+	// })
+	updateCursor(CMObj, posY, true)
 }
 
 

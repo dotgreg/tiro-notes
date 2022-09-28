@@ -39,6 +39,8 @@ export const regexs = {
 	scriptTag: VerEx().find('[[script]]').beginCapture().anythingBut('').endCapture().then('[[script]]'),
 
 	userCustomTagFull: VerEx().find(v.customTag).beginCapture().anythingBut('').endCapture().then(v.customTag),
+	userCustomTagFull2: VerEx().beginCapture().beginCapture().find(v.customTag).endCapture().anythingBut('').beginCapture().then(v.customTag).endCapture().endCapture(),
+	userCustomTagFull3: VerEx().beginCapture().find(v.customTag).endCapture(),
 	// userCustomTagFull2: VerEx().beginCapture().find(v.customTag).endCapture(),
 	//userCustomTag3: VerEx().find('[[').beginCapture().range('a', 'z').oneOrMore().endCapture().then(']]'),
 	userCustomTag3: VerEx().beginCapture().then(v.customTag).endCapture(),
@@ -46,7 +48,7 @@ export const regexs = {
 
 	// externalLink: VerEx().beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
 	externalLink: VerEx()
-		.find(VerEx().find(" ").or("\n"))
+		// .find(VerEx().find(" ").or("\n"))
 		.find('http').maybe('s').then('://')
 		.beginCapture().anythingBut("/ ").endCapture()
 		.beginCapture()
@@ -54,6 +56,7 @@ export const regexs = {
 		.then("/")
 		.beginCapture().anythingBut("? ").endCapture()
 		.anythingBut(" ")
+		.then(" ")
 		.endCapture(),
 
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),

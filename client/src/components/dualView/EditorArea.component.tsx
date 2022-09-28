@@ -177,7 +177,10 @@ const EditorAreaInt = (
 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
 		insertTextAt(stringToInsertUpload.current, 'currentPos')
 		stringToInsertUpload.current = ''
-		CodeMirrorUtils.updateCursor(f, cPos)
+		CodeMirrorUtils.updateCursor(f, cPos, true)
+		// setTimeout(() => {
+		// 	CodeMirrorUtils.scrollTo(f, cPos)
+		// }, 10)
 	}, 500)
 
 	const idNote = `[link|${p.file.realname} ${p.file.folder}]\n`

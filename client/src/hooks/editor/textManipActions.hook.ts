@@ -52,7 +52,7 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 		// LOGIC FOR UNIFIED CODEMIRROR
 		//
 		if (p.editorType === 'codemirror') {
-			CodeMirrorUtils.updateCursor(CMEditorObjRef.current, newPos)
+			CodeMirrorUtils.updateCursor(CMEditorObjRef.current, newPos, true)
 		}
 
 
