@@ -6,7 +6,6 @@ import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { cssVars } from "../../managers/style/vars.style.manager";
 import { syncScroll3 } from "../../hooks/syncScroll.hook";
-import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { isA } from "../../managers/device.manager";
 import { iFile } from "../../../../shared/types.shared";
 import { onTitleClickFn } from "./EditorArea.component";
@@ -15,11 +14,10 @@ import { CodeMirrorUtils } from "../../managers/codeMirror/editorUtils.cm";
 import { getCustomTheme } from "../../managers/codeMirror/theme.cm";
 import { getAllCompletionSources } from "../../managers/codeMirror/completion.cm";
 import { sharedConfig } from "../../../../shared/shared.config";
-import { each } from "lodash";
 import { ImageMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
-import { linksPreviewMdCss, linksPreviewPlugin } from "../../managers/codeMirror/linksPreviewPlugin.cm";
 import { useUserSettings } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
+import { ctagPreviewPlugin, linksPreviewPlugin } from "../../managers/codeMirror/replacements.cm";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -79,7 +77,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 	const onChange = (value, viewUpdate) => {
-		activateTitleInt()
+		// activateTitleInt()
 		// do not trigger change if value didnt changed from p.value (on file entering)
 		if (value === p.value) return
 		// debouncedActivateTitles()
@@ -110,32 +108,31 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// ON TITLE HOVER, CREATE A LINK => should do it in CM logic instead
 	//
-	const onAction = (event) => {
-		let title = event.target.innerHTML.replace(/^#{1,6} /, "");
+	const onTitleClick = (titleStr: string) => {
 		const f = getEditorObj()
 		if (!f) return
 		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
-		log && console.log(h, "CLICK ON TITLE DETECTED", title, infs);
+		log && console.log(h, "CLICK ON TITLE DETECTED", titleStr, infs);
 		p.onTitleClick(infs.lineIndex)
 	}
 
-	const activateTitleInt = () => {
-		const els = document.querySelectorAll(".actionable-title")
-		const els2 = document.querySelectorAll(".test-success")
-		each(els, el => {
-			el.addEventListener('click', onAction)
-		})
-	}
+	// const activateTitleInt = () => {
+	// 	const els = document.querySelectorAll(".actionable-title")
+	// 	const els2 = document.querySelectorAll(".test-success")
+	// 	each(els, el => {
+	// 		el.addEventListener('click', onAction)
+	// 	})
+	// }
 
-	const debouncedActivateTitles = useDebounce(() => { activateTitleInt() }, 500)
-	const throttleActivateTitles = useThrottle(() => { activateTitleInt() }, 500)
+	// const debouncedActivateTitles = useDebounce(() => { activateTitleInt() }, 500)
+	// const throttleActivateTitles = useThrottle(() => { activateTitleInt() }, 500)
 
 	useEffect(() => {
-		debouncedActivateTitles()
+		// debouncedActivateTitles()
 		syncScrollUpdateDims()
 	}, [p.value])
 	useEffect(() => {
-		debouncedActivateTitles()
+		// debouncedActivateTitles()
 		syncScrollUpdateDims()
 	}, [])
 	// END OF TODO
@@ -157,7 +154,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
 
-	const markdownPreviewPluginWFile = markdownPreviewPlugin(p.file)
+	const markdownPreviewPluginWFile = markdownPreviewPlugin({
+		file: p.file,
+		onTitleClick: (title: string) => { onTitleClick(title) }
+	})
 
 
 
@@ -168,8 +168,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		autocompletion({ override: getAllCompletionSources(p.file) }),
 		EditorView.domEventHandlers({
 			scroll(event, view) {
-				debouncedActivateTitles();
-				throttleActivateTitles();
+				// debouncedActivateTitles();
+				// throttleActivateTitles();
 			},
 			wheel(event, view) {
 				let infs = CodeMirrorUtils.getEditorInfos(view)
@@ -189,6 +189,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const ua = userSettingsApi
 	if (ua.get("ui_editor_links_as_button")) {
 		codemirrorExtensions.push(linksPreviewPlugin)
+		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
 	if (ua.get("ui_editor_markdown_preview")) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)

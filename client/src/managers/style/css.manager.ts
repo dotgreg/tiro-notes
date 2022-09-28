@@ -29,6 +29,7 @@ import { contentBlockCss } from '../../components/ContentBlock.component';
 import { settingsPopupCss } from '../../components/settingsView/settingsView.component';
 import { codeMirrorEditorCss } from '../../components/dualView/CodeMirrorEditor.component';
 import { latexCss } from '../latex.manager';
+import { ressourcePreviewCss } from '../../components/RessourcePreview.component';
 
 
 export const css2 = (css: string) => css
@@ -52,6 +53,7 @@ export const CssApp2 = (
 		${GlobalAppViewCss()}
 		${latexCss()}
 		${lightboxCss()}
+		${ressourcePreviewCss()}
 		${promptPopupCss()}
 
 		${AppViewSwitcherComponentCss()}

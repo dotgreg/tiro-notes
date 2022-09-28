@@ -28,7 +28,7 @@ export const sharedConfig = {
 	server: {
 		log: {
 			socket: false,
-			verbose: true,
+			verbose: false,
 			fs: false,
 			ripgrep: false,
 		}
@@ -41,7 +41,7 @@ export const sharedConfig = {
 			iframe: false,
 			eventManager: false,
 		},
-		version: '0.30.52',
+		version: '0.30.83',
 		params: {
 			previewArea: {
 				scrollSpeed: 1.3
@@ -50,7 +50,7 @@ export const sharedConfig = {
 	},
 
 	dev: {
-		disableLogin: false
+		disableLogin: true
 	}
 
 }

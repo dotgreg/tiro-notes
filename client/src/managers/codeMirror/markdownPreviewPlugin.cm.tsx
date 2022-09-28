@@ -1,3 +1,4 @@
+import React from "react";
 import {
 	EditorView,
 	ViewPlugin,
@@ -15,8 +16,10 @@ import { iFile } from "../../../../shared/types.shared";
 import { getApi } from "../../hooks/api/api.hook";
 import { renderLatex } from "../latex.manager";
 import { isString } from "lodash";
-import { linksPreviewMdCss } from "./linksPreviewPlugin.cm";
-import { AnchorHTMLAttributes } from "react";
+import { renderToString } from "react-dom/server";
+import { Icon } from '../../components/Icon.component';
+import { linksPreviewMdCss } from "./replacements.cm";
+
 
 /*************************************
  *  1. NEW MD PARSER TO DETECT ELEMENTS LIKE IMAGE
@@ -80,9 +83,17 @@ class ImageMdWidget extends WidgetType {
 		resEl.classList.add('image-wrapper')
 		resEl.onclick = () => {
 		}
-		resEl.innerHTML = `
-				<div class="cm-mdpreview-image" ><img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>
-				`
+
+		let btnEnlarge = renderToString(
+			<div className="enlarge" data-src={url}>
+				<Icon name="faExpand" color={`white`} />
+			</div>
+		)
+
+		// should be inline otherwise create whitespace
+		resEl.innerHTML = `<div class="cm-mdpreview-image" >${btnEnlarge}<img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>`
+
+
 		return resEl;
 	}
 }
@@ -141,13 +152,16 @@ function insertMdWidgets(view: EditorView, file: iFile) {
 	return Decoration.set(widgets);
 }
 
-export const markdownPreviewPlugin = (file: iFile) => ViewPlugin.fromClass(
+export const markdownPreviewPlugin = (p: {
+	file: iFile
+	onTitleClick: Function
+}) => ViewPlugin.fromClass(
 	class {
 		decorations: DecorationSet;
-		constructor(view: EditorView) { this.decorations = insertMdWidgets(view, file); }
+		constructor(view: EditorView) { this.decorations = insertMdWidgets(view, p.file); }
 		update(update: ViewUpdate) {
 			if (update.docChanged || update.viewportChanged) {
-				this.decorations = insertMdWidgets(update.view, file);
+				this.decorations = insertMdWidgets(update.view, p.file);
 			}
 		}
 	},
@@ -156,6 +170,7 @@ export const markdownPreviewPlugin = (file: iFile) => ViewPlugin.fromClass(
 		eventHandlers: {
 			mousedown: (e, view) => {
 				let el = e.target as HTMLElement;
+
 				// LINK
 				if (el.classList.contains("link-mdpreview")) {
 					// @ts-ignore
@@ -163,14 +178,23 @@ export const markdownPreviewPlugin = (file: iFile) => ViewPlugin.fromClass(
 					window.open(url, '_blank')?.focus();
 				}
 
+				// TITLE ACTION
+				if (el.classList.contains("actionable-title")) {
+					let title = el.innerHTML.replace(/^#{1,6} /, "");
+					p.onTitleClick(title)
+				}
 
 				// IMAGE POPUP
-				let url = el.querySelector('img')?.src as string
-				if (!isString(url) || !url.startsWith("http")) return;
-				url = url.replace(getUrlTokenParam(), '')
-				getApi(api => {
-					api.ui.lightbox.open(0, [url])
-				})
+				if (el.classList.contains("enlarge")) {
+					// @ts-ignore
+					let url = el.parentNode.querySelector("img")?.src as string
+					// let url = el.parentNode.dataset.src as string
+					if (!isString(url) || !url.startsWith("http")) return;
+					url = url.replace(getUrlTokenParam(), '')
+					getApi(api => {
+						api.ui.lightbox.open(0, [url])
+					})
+				}
 			}
 		}
 	}
@@ -211,18 +235,12 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 				display: inline-block;
 		}
 		&.image-wrapper {
-				max-height: 160px;
+				/* max-height: 160px; */
 		}
 
 		.cm-mdpreview-image {
-				// width: 100%;
-				// height: auto;
-				// background-color: rgb(247,247,247);
-				// background-size: contain;
-				// background-repeat: no-repeat;
-				cursor: pointer;
 				position: relative;
-				// top: -15px;
+				display: inline-block;
 
 				img {
 						margin: 5px 0px;
@@ -230,11 +248,34 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 						box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 						max-width: calc(100% - 20px);
 						border-radius: 5px;
-						max-height: 150px;
-						cursor: pointer;
+						max-height: 220px;
 				}
+				.enlarge {
+						opacity: 0;
+						transition: 0.2s all;
+						position: absolute;
+						top: 8px;
+						right: 23px;
+						z-index: 2;
+						padding: 6px;
+						cursor: pointer;
+						background: rgba(0,0,0,0.6);
+						border-radius: 19px;
+				}
+				svg, span {
+						pointer-events: none;
+				}
+				svg {
+						box-shadow: 0 0 0 rgba(0,0,0,0.4);
+				}
+
+		}
+		&:hover .enlarge {
+				opacity: 0.3;
+				/* pointer-events: all; */
 		}
 }
+}
 
-${linksPreviewMdCss()}
-`
+ ${linksPreviewMdCss()}
+ `
