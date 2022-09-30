@@ -9,6 +9,8 @@ import { iFile } from '../../../shared/types.shared';
 import { findImagesFromContent } from './images.manager';
 import { RessourcePreview } from '../components/RessourcePreview.component';
 import { renderReactToId } from './reactRenderer.manager';
+import { debounce } from 'lodash';
+import { renderToString } from 'react-dom/server';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -43,36 +45,25 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 	return res
 }
 
+// const debounceRenderReact = debounce((idEl, input, currentFolderPath) => {
+// 	renderReactToId(
+// 		<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl)
+// }, 1)
 
-//  @TODO
-// add folderPath that ./.resources/image.jpg becomes localhost:8082/dir1/dir2/dir3/.resources/image.jpg
-export const transformRessourcesInHTML = (currentFolderPath: string, bodyRaw: string): string => {
-
-	// 1. check pdf links and open them as iframe by default
-
-	// 	let res1 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
-	// 		const link = input.split('](')[1].slice(0, -1);
-	// 		const name = input.split('](')[0].replace('![', '');
-	// 		let t1 = link.split('.');
-	// 		let filetype = t1[t1.length - 1];
-	// 		if (filetype === '7z') filetype = 'd7z';
-	// 		const ressLink = `${absoluteLinkPathRoot(currentFolderPath)}/${link}${getUrlTokenParam()}`
-	// 		const codeOpenPopup = `onclick="window.open('${ressLink}','popupdl','width=800,height=1000');"`
-	// 		const subst = `
-	// <div class="resource-link-wrapper">
-	// <div class="resource-link-icon ${filetype}"></div>
-	// <a class="resource-link preview-link" href="#" ${codeOpenPopup}>${name} (${filetype})</a>
-	// </div>`;
-	// 		return subst
-	// 	});
-
-
-	// 2. create rest
+export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string => {
+	let i = 0
 	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
-		let idEl = renderReactToId(
-			<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />
-		)
-		let subst = `<div id="${idEl}"> </div> `;
+		i++;
+		let idEl = `${input}-${i}`
+		// debounceRenderReact(idEl, input, currentFolderPath)
+		// renderReactToId(
+		// 	<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl)
+		let compoHtml = renderToString(<RessourcePreview markdownTag={input} file={file} />)
+
+		// renderReactToId(
+		// 	<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl
+		// 	, { height: 80 })
+		let subst = `${compoHtml} `;
 		return subst
 	});
 

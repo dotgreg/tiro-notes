@@ -204,6 +204,7 @@ const isHttps = (url: string) => url.indexOf("https") === 0;
 export const downloadFile = async (url: string, folder: string): Promise<string> => {
 	folder = p(folder)
 	let path = `${folder}/${getRessourceIdFromUrl(url)}`
+
 	if (!url) return
 	let client = isHttps(url) ? https : http
 	url = url.replace("localhost", "127.0.0.1") // otherwise would crash

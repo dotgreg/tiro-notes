@@ -9,8 +9,10 @@ const v = {
 	customTag: /\[\[[a-zA-Z0-9-\ _\/]*\]\]/,
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
+	// titleHtml: /(\<title\/\>)[^<](/,
 }
 
+// const getRegexHtmlTag = (tagName:string) => /$/
 
 export const regexs = {
 	// .anythingBut(`[${sharedConfig.metas.headerEnd}]`)
@@ -20,6 +22,10 @@ export const regexs = {
 	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().anything().not(sharedConfig.metas.headerEnd).endCapture().then(sharedConfig.metas.headerEnd),
 	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().not(sharedConfig.metas.headerEnd).endCapture().then(sharedConfig.metas.headerEnd),
 
+	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
+	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
+
+	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,
 	baliseHtml: VerEx().find('<').anythingBut('<>').then('>'),
 
 	ressource: VerEx().find('![').beginCapture().anythingBut('[]').endCapture().then('](').beginCapture().anythingBut('()').endCapture().then(')'),

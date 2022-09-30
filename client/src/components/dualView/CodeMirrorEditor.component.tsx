@@ -17,7 +17,8 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { ImageMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
 import { useUserSettings } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
-import { ctagPreviewPlugin, linksPreviewPlugin } from "../../managers/codeMirror/replacements.cm";
+import { ctagPreviewPlugin, filePreviewPlugin, imagePreviewPlugin, linksPreviewPlugin } from "../../managers/codeMirror/replacements.cm";
+import { ressourcePreviewSimpleCss } from "../RessourcePreview.component";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -193,7 +194,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	if (ua.get("ui_editor_markdown_preview")) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		markdownExtensionCnf.extensions.push(ImageMdEl)
+		// markdownExtensionCnf.extensions.push(ImageMdEl)
+		codemirrorExtensions.push(imagePreviewPlugin(p.file))
+		codemirrorExtensions.push(filePreviewPlugin(p.file))
 	}
 	codemirrorExtensions.push(markdown(markdownExtensionCnf))
 
@@ -375,5 +378,6 @@ padding: 20px;
 }
 
 ${styleCodeMirrorMarkdownPreviewPlugin()}
+${ressourcePreviewSimpleCss()}
 
 `

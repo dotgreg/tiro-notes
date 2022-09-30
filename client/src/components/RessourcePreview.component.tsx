@@ -1,13 +1,25 @@
 import { each } from 'lodash';
 import React, { useState } from 'react';
+import { generateUUID } from '../../../shared/helpers/id.helper';
+import { iFile } from '../../../shared/types.shared';
+import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
+import { deviceType } from '../managers/device.manager';
+import { renderReactToId } from '../managers/reactRenderer.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { ButtonsToolbar, iToolbarButton } from './ButtonsToolbar.component';
+import { ContentBlock } from './ContentBlock.component';
+
+
+const heightIframe = {
+	big: 400,
+	small: 200
+}
 
 export const RessourcePreview = (p: {
 	markdownTag: string
-	folderPath: string
+	file: iFile
 }) => {
 	const [iframeOpen, setIframeOpen] = useState(false)
 
@@ -16,7 +28,7 @@ export const RessourcePreview = (p: {
 	let t1 = link.split('.');
 	let filetype = t1[t1.length - 1];
 	if (filetype === '7z') filetype = 'd7z';
-	const ressLink = `${absoluteLinkPathRoot(p.folderPath)}/${link}${getUrlTokenParam()}`
+	const ressLink = `${absoluteLinkPathRoot(p.file.folder)}/${link}${getUrlTokenParam()}`
 	let downloadName = `${name}.${filetype}`
 
 	//
@@ -41,81 +53,158 @@ export const RessourcePreview = (p: {
 	let cOrigin = window.location.origin
 	let onlinePreviewFormats = ["ppt", "pptx", "doc", "docx", "xls", "xlsx"]
 	let canBePreviewedOnline = onlinePreviewFormats.includes(filetype.toLowerCase())
+	let bigIframe = canBePreviewedOnline || filetype.toLowerCase() === "pdf"
 	let localOrigins = ["localhost", "192.168"]
 	let isLocal = inArray(cOrigin, localOrigins)
 	let previewLink = ressLink
-	if (!isLocal && canBePreviewedOnline) previewLink = `https://docs.google.com/gview?url=${ressLink}`
+	if (!isLocal && canBePreviewedOnline) previewLink = `https://docs.google.com/gview?url=${ressLink}&embedded=true`
+	let shouldBeOnlineToView = isLocal && canBePreviewedOnline
+	let header = shouldBeOnlineToView ? `[REQUIRES NON LOCAL TIRO URL] ` : ''
 
-	if (canBePreviewed || (!isLocal && canBePreviewedOnline)) {
+	if (canBePreviewed || canBePreviewedOnline) {
 		buttons.unshift({
-			title: 'Open in detached window',
+			title: header + 'Open in detached window',
 			icon: 'faExternalLinkAlt',
 			action: () => {
+				if (isLocal && canBePreviewedOnline) return
 				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
 			}
 		})
 		buttons.unshift({
-			title: !iframeOpen ? 'Preview' : 'Close Preview',
+			title: !iframeOpen ? header + 'Preview' : 'Close Preview',
 			icon: !iframeOpen ? 'faEye' : 'faEyeSlash',
-			action: () => { setIframeOpen(!iframeOpen) }
+			action: () => {
+				if (isLocal && canBePreviewedOnline) return
+				setIframeOpen(!iframeOpen)
+			}
 		})
 	}
 
+	//
+	// JS PURE SSR LOGIC
+	//
+	let elId = `id-${generateUUID()}`
+	const ssrOnClick = (query: string, action: Function) => {
+		let el = document.querySelector(query)
+		el?.addEventListener("click", e => { action(e) })
+	}
+	const ssrOpenPdfCtag = () => {
+		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
+		if (!elIframe) return
+		let isIframeOpen = elIframe.querySelector(`iframe`)
+		let idEl = renderReactToId(<ContentBlock
+			file={p.file}
+			block={{ type: 'tag', tagName: 'pdf', content: previewLink, start: 0, end: 0 }}
+			windowHeight={heightIframe.big + 75}
+
+			windowId="null"
+			yCnt={0}
+			onIframeMouseWheel={() => { }}
+		/>, { delay: 100 });
+		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"></div>`
+		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
+	}
+	const ssrOpenIframe = () => {
+		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
+		let isIframeOpen = elIframe?.querySelector(`iframe`)
+		let height = bigIframe ? heightIframe.big : heightIframe.small
+		let iframeHtml = `<iframe
+				src='${previewLink}'
+				title='${previewLink}'
+				allowFullScreen
+				class="resource-link-iframe"
+				style="height:${height}px"
+				/>`
+		if (!elIframe) return
+		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
+	}
+
+	// INIT SSR
+	const ssrInitLogic = () => {
+		setTimeout(() => {
+			let barPath = `.${elId} ul.buttons-toolbar-component`
+			ssrOnClick(`${barPath} .btn-preview`, () => {
+				if (isLocal && canBePreviewedOnline) return
+				if (filetype.toLocaleLowerCase() === "pdf") {
+					// if we detect the ctag pdf, replace preview iframe by ctag
+					getApi(api => {
+						api.file.getContent("/.tiro/tags/pdf.md", content => {
+							ssrOpenPdfCtag()
+						}, {
+							onError: err => {
+								ssrOpenIframe()
+							}
+						})
+					})
+				} else {
+					ssrOpenIframe()
+				}
+			})
+			ssrOnClick(`${barPath} .btn-open`, () => {
+				if (isLocal && canBePreviewedOnline) return
+				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
+			})
+			ssrOnClick(`${barPath} .btn-download`, () => {
+				downloadFile(downloadName, ressLink)
+			})
+		}, 100)
+	}
+	ssrInitLogic()
+
 	return (
-		<div className="resource-link-wrapper">
-			<div className={`resource-link-icon ${filetype}`}></div>
-			<div className={`resource-link-content-wrapper`}>
-				<a className="resource-link preview-link"
-					href={ressLink}
-					download={downloadFile}
-				>
-					{name} ({filetype})
-				</a>
+		<div className={`${elId} resource-link-iframe-wrapper`}>
+			<div className={` resource-link-wrapper device-${deviceType()}`}>
+				<div className={`resource-link-icon ${filetype}`}></div>
+				<div className={`resource-link-content-wrapper`}>
+					<a className="resource-link preview-link"
+						href={ressLink}
+						download={downloadFile}
+					>
+						{name} ({filetype})
+					</a>
 
-				<ButtonsToolbar
-					buttons={buttons}
-					size={1}
-				/>
+					<ButtonsToolbar
+						buttons={buttons}
+						size={1}
+					/>
+				</div>
+
 			</div>
-
-			{
-				iframeOpen &&
-				<iframe
-					src={previewLink}
-					title={previewLink}
-					allowFullScreen
-					className="resource-link-iframe"
-				/>
-			}
+			<div className="iframe-wrapper"></div>
 		</div>
 	)
 }
+//  {type: 'tag', tagName: 'pdf', content: ' wwwwww ', start: 2, end: 3}
 
-export const ressourcePreviewCss = () => `
-
-`
 let w = '.resource-link-icon'
-export const ressourcePreviewSimpleCss = (d) => `
-.resource-link-iframe iframe{
-		border-radius: 5px;
+export const ressourcePreviewSimpleCss = () => `
+.resource-link-ctag {
+		height: ${heightIframe.big}px;
+		overflow:hidden;
+		width: 100%;
+		border:none;
 }
 .resource-link-iframe {
-		border: 2px solid rgba(0,0,0,0.1);
-		border-radius: 5px;
-		width: calc(100% - 20px);
-		margin: 10px;
-		margin-top: 20px;
-		margin-left: 0px;
-		padding: 4px;
-		height: 50vh;
-		
+		border: none;
+		width: 100%;
+}
+
+.resource-link-wrapper,
+.resource-link-wrapper a {
+		color: ${cssVars.colors.main};
+}
+.resource-link-iframe-wrapper {
+		background: #f7f6f6;
+		 border-radius: 5px;
+overflow:hidden;
 }
 .resource-link-wrapper {
-		background: #f7f6f6;
 		padding: 20px;
 		border-radius: 10px;
 		position: relative;
 		margin: 5px 0px;
+		// height: 20px;
+
 }
 
 .resource-link-icon {
@@ -132,27 +221,27 @@ export const ressourcePreviewSimpleCss = (d) => `
 		background-image: url(${cssVars.assets.fileIcon});
 }
 
-${w}.epub, ${w}.cbr, ${w}.cbz,${w}.mobi, ${w}.azw, ${w}.azw3, ${w}.iba { background-image: url(${cssVars.assets.bookIcon}); }
+${w}.epub, ${w}.cbr, ${w}.cbz,${w}.mobi, ${w}.azw, ${w}.azw3, ${w}.iba {background - image: url(${cssVars.assets.bookIcon}); }
 ${w}.pdf
-{ background-image: url(${cssVars.assets.pdfIcon}); }
+{background - image: url(${cssVars.assets.pdfIcon}); }
 
 ${w}.xls, ${w}.xlsm, ${w}.xlsx, ${w}.ods
-{ background-image: url(${cssVars.assets.excelIcon}); }
+{background - image: url(${cssVars.assets.excelIcon}); }
 
 ${w}.avi, ${w}.flv, ${w}.h264, ${w}.m4v, ${w}.mov, ${w}.mp4, ${w}.mpg, ${w}.mpeg, ${w}.rm, ${w}.swf, ${w}.vob, ${w}.wmv, ${w}.mkv
-{ background-image: url(${cssVars.assets.videoIcon}); }
+{background - image: url(${cssVars.assets.videoIcon}); }
 
 ${w}.d7z, ${w}.arj, ${w}.deb, ${w}.rar, ${w}.gz, ${w}.zip, ${w}.rpm, ${w}.pkg
-{ background-image: url(${cssVars.assets.archiveIcon});}
+{background - image: url(${cssVars.assets.archiveIcon});}
 
 ${w}.aif, ${w}.mp3, ${w}.cda, ${w}.mid, ${w}.mpa, ${w}.ogg, ${w}.wav, ${w}.wpl, ${w}.wma, ${w}.midi
-{ background-image: url(${cssVars.assets.audioIcon}); }
+{background - image: url(${cssVars.assets.audioIcon}); }
 
 ${w}.doc, ${w}.docx, ${w}.odt, ${w}.txt
-{ background-image: url(${cssVars.assets.wordIcon}); }
+{background - image: url(${cssVars.assets.wordIcon}); }
 
-${w}.html, ${w}.css, ${w}.js, ${w}.json, ${w}.ts, ${w}.jsx, ${w}.tsx 
-{ background-image: url(${cssVars.assets.codeIcon}); }
+${w}.html, ${w}.css, ${w}.js, ${w}.json, ${w}.ts, ${w}.jsx, ${w}.tsx
+{background - image: url(${cssVars.assets.codeIcon}); }
 
 ${w}.bin, ${w}.dmg, ${w}.iso, ${w}.toast, ${w}.vcd
 {
@@ -162,32 +251,39 @@ ${w}.bin, ${w}.dmg, ${w}.iso, ${w}.toast, ${w}.vcd
 }
 
 ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
-{ background-image: url(${cssVars.assets.presIcon}); }
+{background - image: url(${cssVars.assets.presIcon}); }
 
 
 .resource-link-content-wrapper {
 		display: flex;
+		justify-content: space-between;
 }
 
 .resource-link-content-wrapper {
 }
 
-.resource-link-wrapper:hover .resource-link-content-wrapper ul {
-		opacity:1;
-		pointer-events: all;
-}
 .resource-link-content-wrapper ul  {
-		padding-left: 7px;
-		opacity: 0;
-		transition: 0.2s all;
-		pointer-events: none;
+		padding - left: 7px;
 }
 .resource-link-content-wrapper ul li {
-		padding-left: 0px;
+		padding - left: 0px;
 }
 .resource-link-content-wrapper ul li:before {
 		display: none;
 }
+
+
+// HIDING IT ON DESKTOP 
+.device-desktop .resource-link-wrapper:hover .resource-link-content-wrapper ul {
+		opacity:1;
+		pointer-events: all;
+}
+.device-desktop .resource-link-content-wrapper ul  {
+		opacity: 0;
+		transition: 0.2s all;
+		pointer-events: none;
+}
+
 
 `
 

@@ -1,7 +1,7 @@
 import { css, Global } from '@emotion/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
-import { clientSocket2, initSocketConnexion } from './managers/sockets/socket.manager';
+import { clientSocket2, getBackendUrl, initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { debounce, each, isNumber } from 'lodash';
@@ -37,6 +37,12 @@ import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/ap
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
 import { settings } from 'cluster';
+import { regexs } from '../../shared/helpers/regexs.helper';
+import { configClient } from './config';
+import { sharedConfig } from '../../shared/shared.config';
+import { getRessourceIdFromUrl } from '../../shared/helpers/id.helper';
+import { getUrlParams } from './managers/url.manager';
+import { getUrlPreview } from './managers/previewUrl.manager';
 
 
 
@@ -275,6 +281,8 @@ export const App = () => {
 
 	//@ts-ignore
 	window.api = api
+
+
 
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >

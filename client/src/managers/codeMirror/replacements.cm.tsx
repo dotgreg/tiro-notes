@@ -10,8 +10,14 @@ import {
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
+import { iFile } from "../../../../shared/types.shared";
 import { Icon } from "../../components/Icon.component";
+import { LinkPreview, LinkPreviewCss } from "../../components/LinkPreview.component";
+import { RessourcePreview } from "../../components/RessourcePreview.component";
+import { getUrlTokenParam } from "../../hooks/app/loginToken.hook";
+import { renderReactToId } from "../reactRenderer.manager";
 import { cssVars } from "../style/vars.style.manager";
+import { absoluteLinkPathRoot } from "../textProcessor.manager";
 
 
 ////////////////////// 
@@ -77,8 +83,53 @@ export const ctagPreviewPlugin = genericReplacementPlugin({
 
 
 
+///////////////////////////////////
+// FILES
+//
+export const imagePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
+	pattern: regexs.image,
+	replacement: matchs => {
+
+		let full = matchs[0]
+		let sourceHtml = `<div class="mdpreview-source">${full}</div>`
+		let resEl = document.createElement("div");
+		let url = `${absoluteLinkPathRoot(cFile.folder)}/${matchs[1]}`
+		resEl.classList.add('cm-mdpreview-wrapper')
+		resEl.classList.add('image-wrapper')
+		let btnEnlarge = renderToString(
+			<div className="enlarge" data-src={url}>
+				<Icon name="faExpand" color={`white`} />
+			</div>
+		)
+
+		resEl.innerHTML = `<div class="cm-mdpreview-image" >${btnEnlarge}<img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>${sourceHtml}`
+
+		return resEl;
+	}
+})
+
+export const filePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
+	pattern: regexs.ressource,
+	replacement: matchs => {
+		let full = matchs[0]
+		let sourceHtml = `<div class="mdpreview-source">${full}</div>`
+		let resEl = document.createElement("span");
+		let compoHtml = renderToString(<RessourcePreview markdownTag={full} file={cFile} />)
+		resEl.innerHTML = `${compoHtml} ${sourceHtml}`;
+		return resEl
+	}
+})
 
 
+
+export const imagePreviewCss = () => `
+.cm-mdpreview-wrapper.image-wrapper {
+		.mdpreview-source {
+				line-height: initial;
+		}
+}
+
+`
 
 
 
@@ -101,24 +152,43 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
 
 		let previewStr = ` ${website}:${artTitle}`
-		let html = renderToString(
-			<a
-				href={fullLink}
-				className="link-mdpreview"
-				title={fullLink}
-				target="_blank"
-				rel="noreferrer">
-				<Icon name="faLink" color={cssVars.colors.main} />
-				{previewStr}
-			</a>)
-		resEl.innerHTML = `${html}`;
 
+		// let idW = renderReactToId(<LinkPreview url={fullLink} />)
+		let idW = ""
+
+		let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)} ${previewStr} </a> <div class="links-infos-wrapper" id=${idW}> </div> `
+		resEl.innerHTML = `${html}`;
 		return resEl
 	}
 })
 
+
 export const linksPreviewMdCss = () => `
 .link-mdpreview-wrapper {
+		position: relative;
+		&:hover {
+				.links-infos {
+						opacity: 1;
+						pointer-events: all;
+				}
+		}
+		.links-infos {
+				transition: 0.2s all;
+				transition-delay: 1s;
+				position: absolute;
+				bottom: -50px;
+				opacity: 0;
+				pointer-events: none;
+				background: white;
+				border-radius: 5px;
+				padding: 8px;
+				box-shadow: 0 0 5px rgba(0,0,0,0.4);
+				${LinkPreviewCss()}
+				font-size: 8px;
+
+
+		}
+
 		.link-mdpreview {
 				opacity: 0.6;
 				transition: 0.2s all;

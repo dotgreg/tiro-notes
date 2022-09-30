@@ -29,7 +29,6 @@ export const ContentBlockInt = (p: {
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
-
 	const isTag = p.block.type === 'tag' && !reservedTagNames.includes(p.block.tagName || "")
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
 	const [htmlTextContent, setHtmlTextContent] = useState<string | null>(null)
@@ -173,6 +172,7 @@ export const ContentBlockTagView = (p: {
 					nheight = (p.windowHeight || 200) * percent
 				}
 				log && console.log(h, 'resizing to', nheight);
+				console.log(h, '2222222 resizing to', nheight);
 				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)

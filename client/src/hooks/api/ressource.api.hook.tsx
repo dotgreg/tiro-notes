@@ -49,7 +49,7 @@ export const useRessourceApi = (p: {
 	}
 
 	const downloadRessource: iRessourceApi['download'] = (url, folder, cb) => {
-		const idReq = genIdReq('delete-ressource');
+		const idReq = genIdReq('download-ressource');
 		console.log(`${h} downloading ressource url ${url} to folder ${folder}`);
 		// execute callback on answer
 		p.eventBus.subscribe(idReq, cb);
