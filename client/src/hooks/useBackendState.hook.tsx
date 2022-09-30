@@ -1,5 +1,6 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
+import { iFile } from "../../../shared/types.shared";
 import { getClientApi2 } from "./api/api.hook";
 
 export function useBackendState<T>(key: string, initialValue: T): [T, (value: T) => void, Function] {
@@ -13,6 +14,8 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 
 	const errorMsg = `[BACKEND STATE] "${key}" clientApi not loaded! Persistance system will not work correctly`
 
+	// let file:iFile
+	// file.
 	// fetch content on initial loading
 	useEffect(() => {
 		refreshValFromBackend();

@@ -18,7 +18,7 @@ import { renderLatex } from "../latex.manager";
 import { isString } from "lodash";
 import { renderToString } from "react-dom/server";
 import { Icon } from '../../components/Icon.component';
-import { imagePreviewCss, linksPreviewMdCss } from "./replacements.cm";
+import { imagePreviewCss, linkActionClick, linksPreviewMdCss } from "./replacements.cm";
 
 
 /*************************************
@@ -171,12 +171,8 @@ export const markdownPreviewPlugin = (p: {
 			mousedown: (e, view) => {
 				let el = e.target as HTMLElement;
 
-				// LINK
-				if (el.classList.contains("link-mdpreview")) {
-					// @ts-ignore
-					let url = el.href
-					window.open(url, '_blank')?.focus();
-				}
+				linkActionClick(el)
+
 
 				// TITLE ACTION
 				if (el.classList.contains("actionable-title")) {

@@ -11,6 +11,8 @@ import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { renderToString } from 'react-dom/server';
+import { Icon } from '../Icon.component';
 
 type ConfigPanel = {
 	title: string,
@@ -18,7 +20,7 @@ type ConfigPanel = {
 }
 
 type ConfigField = {
-	type: InputType,
+	type: InputType | "none",
 	var: any,
 	title: string,
 	modifier: Function
@@ -81,6 +83,22 @@ export const SettingsPopup = (p: {
 						modifier: () => { },
 						onCustomHtmlClick: () => {
 							api.ui.lightbox.open(0, [qrcodeUrl])
+						}
+					},
+					{
+						type: 'none',
+						var: "",
+						// customHtml: `${renderToString(<Icon name="faLink" />)}`,
+						customHtml: `<button> Open Tiro Window </button>`,
+						title: "Open Tiro Window",
+						readOnly: true,
+						expl: `Open Tiro in a separate window (Desktop only)`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							window.open(window.location.href, `popup-tiro`, 'width=800,height=1000')
+							// window.close();
+							// @ts-ignore
+							window.open('', '_self').close();
 						}
 					},
 				],
@@ -171,22 +189,27 @@ export const SettingsPopup = (p: {
 									panel.fields.map(field =>
 										<div className="field-wrapper">
 											<div className="input-and-html-wrapper">
-												<Input
-													value={field.var}
-													label={field.title}
-													type={field.type}
-													readonly={field.readOnly}
-													onChange={e => {
-														if (field.type === "checkbox") return
-														// console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
-														field.modifier(e)
-													}}
-													onCheckedChange={e => {
-														if (field.type !== "checkbox") return
-														// console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
-														field.modifier(e)
-													}}
-												/>
+												{field.type === "none" &&
+													<span>{field.title}</span>
+												}
+												{field.type !== "none" &&
+													< Input
+														value={field.var}
+														label={field.title}
+														type={field.type}
+														readonly={field.readOnly}
+														onChange={e => {
+															if (field.type === "checkbox") return
+															// console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
+															field.modifier(e)
+														}}
+														onCheckedChange={e => {
+															if (field.type !== "checkbox") return
+															// console.log(`[SETTINGS] frontend setting ${field.title} changed for ${e}`);
+															field.modifier(e)
+														}}
+													/>
+												}
 												{
 													field.customHtml &&
 													<div

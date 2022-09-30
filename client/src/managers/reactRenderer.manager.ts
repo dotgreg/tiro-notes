@@ -24,6 +24,7 @@ export const renderReactToId = (
 		let int = setInterval(() => {
 			let el = document.getElementById(idEl)
 			if (el) {
+				el.innerHTML = ""
 				el.appendChild(compo)
 				clearInterval(int)
 			}

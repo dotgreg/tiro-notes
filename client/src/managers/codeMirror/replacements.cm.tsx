@@ -156,22 +156,55 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		// let idW = renderReactToId(<LinkPreview url={fullLink} />)
 		let idW = ""
 
-		let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)} ${previewStr} </a> <div class="links-infos-wrapper" id=${idW}> </div> `
+		// let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)} ${previewStr} </a> <div class="links-infos-wrapper" id=${idW}> </div> `
+		let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
+		let openWindow = `<span class="link-openwindow" data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
+		let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow}`
 		resEl.innerHTML = `${html}`;
 		return resEl
 	}
 })
 
+export const linkActionClick = (el: HTMLElement) => {
+	// LINK
+	if (el.classList.contains("link-openwindow")) {
+		let link = el.dataset.link
+		window.open(link, `popup-preview-link`, 'width=800,height=1000')
+	}
+	if (el.classList.contains("link-mdpreview")) {
+		// @ts-ignore
+		// let url = el.href
+		// window.open(url, '_blank')?.focus();
+	}
+}
 
 export const linksPreviewMdCss = () => `
 .link-mdpreview-wrapper {
 		position: relative;
 		&:hover {
+				.link-openwindow,
 				.links-infos {
 						opacity: 1;
 						pointer-events: all;
 				}
+				.link-openwindow {
+						opacity: 0.1
+				}
 		}
+
+		.link-openwindow {
+				cursor: pointer;
+				position: absolute;
+				right: 0px;
+				top: 0px;
+				opacity: 0;
+				transition: 0.2s all;
+				pointer-events: none;
+				svg, span, div {
+						pointer-events:none;
+				}
+		}
+
 		.links-infos {
 				transition: 0.2s all;
 				transition-delay: 1s;
