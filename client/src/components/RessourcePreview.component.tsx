@@ -101,7 +101,7 @@ export const RessourcePreview = (p: {
 			yCnt={0}
 			onIframeMouseWheel={() => { }}
 		/>, { delay: 100 });
-		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"></div>`
+		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
 		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
 	}
 	const ssrOpenIframe = () => {
@@ -178,6 +178,10 @@ export const RessourcePreview = (p: {
 
 let w = '.resource-link-icon'
 export const ressourcePreviewSimpleCss = () => `
+.loading-string {
+    text-align: center;
+    padding: 50px;
+}
 .resource-link-ctag {
 		height: ${heightIframe.big}px;
 		overflow:hidden;
@@ -198,6 +202,7 @@ export const ressourcePreviewSimpleCss = () => `
 		 border-radius: 5px;
 overflow:hidden;
 }
+
 .resource-link-wrapper {
 		padding: 20px;
 		border-radius: 10px;
