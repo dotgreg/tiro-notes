@@ -18,7 +18,7 @@ import { renderLatex } from "../latex.manager";
 import { isString } from "lodash";
 import { renderToString } from "react-dom/server";
 import { Icon } from '../../components/Icon.component';
-import { linksPreviewMdCss } from "./replacements.cm";
+import { imagePreviewCss, linksPreviewMdCss } from "./replacements.cm";
 
 
 /*************************************
@@ -278,4 +278,5 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 }
 
  ${linksPreviewMdCss()}
+ ${imagePreviewCss()}
  `

@@ -16,14 +16,16 @@ export const generateUUID = (): string => {
 }
 
 export const getRessourceIdFromUrl = (rawUrl: string): string => {
-
 	// let idRess = url.replace(/[^\w\s]/gi, '_').replace(/(_js)/gi, '.js').replace(/(_css)/gi, '.css')
 	let urlParams = rawUrl.split("?")[1] || ""
 	let url = rawUrl.split("?")[0]
-	let ressType = url.split(".").pop()
+
 	let idUrl = url.replace(/[^\w\s]/gi, '_')
 	let idParams = urlParams.replace(/[^\w\s]/gi, '_')
 
-	return `${idUrl}_${idParams}.${ressType}`
+	let ressType = url.split(".").pop() || ""
+	ressType = "." + ressType.replace(/[^\w\s]/gi, '_')
+	if (ressType.length > 6 || ressType.length <= 1) ressType = ""
 
+	return `${idUrl}_${idParams}${ressType}`
 }

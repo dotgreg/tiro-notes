@@ -42,7 +42,7 @@ export const ButtonsToolbarInt = (p: {
 			{
 				p.buttons.map((button, key) =>
 					button.action &&
-					<li className={button.class} title={button.title} key={key}>
+					<li className={`${button.class} btn-${button.title?.toLowerCase()}`} title={button.title} key={key}>
 						<ToolbarButton {...button} />
 					</li>
 				)

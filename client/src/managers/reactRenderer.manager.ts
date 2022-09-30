@@ -10,16 +10,32 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
  * 		let idEl = renderReactToId(<RessourcePreview url="" />)
  *		subst = `<div id="${idEl}" class="resource-link-wrapper"> ...
 */
-export const renderReactToId = (Component: ReactElement): string => {
+// let compo: any = null
+export const renderReactToId = (
+	Component: ReactElement,
+	options?: { delay?: number }
+): string => {
 	let idEl = `render-react-wrapper-${generateUUID()}`
-	let compo = renderReactComponent(Component)
-	let int = setInterval(() => {
-		let el = document.getElementById(idEl)
-		if (el) {
-			el.appendChild(compo)
-			clearInterval(int)
-		}
-	}, 10)
+
+
+	// if (!compo) compo = renderReactComponent(Component)
+	const render = () => {
+		let compo = renderReactComponent(Component)
+		let int = setInterval(() => {
+			let el = document.getElementById(idEl)
+			if (el) {
+				el.appendChild(compo)
+				clearInterval(int)
+			}
+		}, 10)
+	}
+
+
+	if (options && options.delay) {
+		setTimeout(render, options.delay)
+	} else {
+		render()
+	}
 	return idEl
 }
 

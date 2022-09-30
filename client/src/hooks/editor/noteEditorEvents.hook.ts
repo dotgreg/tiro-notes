@@ -17,7 +17,6 @@ export const useNoteEditorEvents = (p: {
 }) => {
 
 	const [hasBeenEdited, setHasBeenEdited] = useState(false)
-	// console.log(3333, p.canEdit);
 	const canEditRef = useRef(false)
 	useEffect(() => { canEditRef.current = p.canEdit }, [p.canEdit])
 

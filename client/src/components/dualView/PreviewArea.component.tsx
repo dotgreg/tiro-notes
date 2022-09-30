@@ -1,15 +1,12 @@
 import { clamp, each, random } from 'lodash';
 import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
-import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { iFile } from '../../../../shared/types.shared';
-import { ClientApiContext } from '../../hooks/api/api.hook';
-import { formatDateList } from '../../managers/date.manager';
-import { deviceType, isA, isIpad, MobileView } from '../../managers/device.manager';
+import { deviceType, isA} from '../../managers/device.manager';
 import { iContentChunk, noteApiFuncs } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { commonCssEditors, EditorArea } from './EditorArea.component';
+import { commonCssEditors } from './EditorArea.component';
 import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
-import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
+import {   syncScroll3 } from '../../hooks/syncScroll.hook';
 import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 
 
@@ -435,7 +432,7 @@ export const previewAreaSimpleCss = () => {
 		// RESSOURCE LINK
 
 **********************************************************/
-${ressourcePreviewSimpleCss(d)}
+		${ressourcePreviewSimpleCss()}
 
 		pre  {
 		}
