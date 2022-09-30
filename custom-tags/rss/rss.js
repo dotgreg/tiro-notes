@@ -236,21 +236,23 @@ const rssApp = (innerTagStr, opts) => {
 						const [feeds, setFeeds] = React.useState([])
 						const [activeFeed, setActiveFeed] = React.useState("all")
 						React.useEffect(() => {
-								getCachedJsons(nitems => {
-										console.log(h, "3 updating list (should happen twice, 1st cached, second from internet");
+								getBookmarks(() => {
+										getCachedJsons(nitems => {
+												console.log(h, "3 updating list (should happen twice, 1st cached, second from internet");
 
-										const i = [...nitems]
-										setItems(i)
-										titems.current = i
+												const i = [...nitems]
+												setItems(i)
+												titems.current = i
 
-										const nfeeds = []
-										for (let i = 0; i < nitems.length; i++) {
-												const it = nitems[i];
-												if (!nfeeds.includes(it.sourceRss)) nfeeds.push(it.sourceRss)
-										}
-										setFeeds(nfeeds)
-										setActiveFeed(null)
-										// console.log(223331,nitems, titems.current);
+												const nfeeds = []
+												for (let i = 0; i < nitems.length; i++) {
+														const it = nitems[i];
+														if (!nfeeds.includes(it.sourceRss)) nfeeds.push(it.sourceRss)
+												}
+												setFeeds(nfeeds)
+												setActiveFeed(null)
+												// console.log(223331,nitems, titems.current);
+										})
 								})
 						}, [])
 
