@@ -25,37 +25,24 @@ import { imagePreviewCss, linkActionClick, linksPreviewMdCss } from "./replaceme
  *  1. NEW MD PARSER TO DETECT ELEMENTS LIKE IMAGE
  */
 export const MdCustomTags = {
-	ImageMdEl: Tag.define(),
 	LatexMdEl: Tag.define()
 };
-const ImageMdElDelim = { resolve: "ImageMdEl" };
 const LatexMdElDelim = { resolve: "LatexMdEl" };
-export const ImageMdEl = {
-	defineNodes: ["ImageMdEl", "LatexMdEl"],
+export const LatexMdEl = {
+	defineNodes: ["LatexMdEl"],
 	parseInline: [{
 		name: "MdCustomTagsParser",
 		parse(cx, next, pos) {
-			// IMAGE
-			if (next === 33 && cx.char(pos + 1) === 91) {// ![
-				return cx.addDelimiter(ImageMdElDelim, pos, pos + 2, true, false);
-			}
-			else if (next === 41) { //)
-				return cx.addDelimiter(ImageMdElDelim, pos, pos + 1, false, true);
-			}
 			// LATEX
-			else if (next === 36) {/* $ */
+			if (next === 36) {/* $ */
 				return cx.addDelimiter(LatexMdElDelim, pos, pos + 1, true, true);
 			}
-			// else if (next === 46) {/* $ */
-			// 	return cx.addDelimiter(LatexMdElDelim, pos, pos + 1, false, true);
-			// }
 			else { return -1 }
 		},
 		after: "Emphasis"
 	}],
 	props: [
 		styleTags({
-			ImageMdEl: MdCustomTags.ImageMdEl,
 			LatexMdEl: MdCustomTags.LatexMdEl,
 		})
 	]

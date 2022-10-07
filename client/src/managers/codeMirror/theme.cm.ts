@@ -29,7 +29,7 @@ export const getCustomTheme = () => createTheme({
 		{ tag: t.heading, color: cssVars.colors.main },
 
 		{ tag: customTags.Image, color: "red", class: "tiro-image" },
-		{ tag: MdCustomTags.ImageMdEl, class: "cm-mdpreview-image-code mdpreview-source" },
+		// { tag: MdCustomTags.ImageMdEl, class: "cm-mdpreview-image-code mdpreview-source" },
 		{ tag: MdCustomTags.LatexMdEl, class: "cm-mdpreview-latex-code mdpreview-source" },
 		// { tag: realCustomTags.ImageTwo, color: "blue", class: "test-success" },
 		// { tag: realCustomTags.ImageTwoMark, color: "blue", class: "test-success" },
