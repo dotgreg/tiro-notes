@@ -14,7 +14,7 @@ import { CodeMirrorUtils } from "../../managers/codeMirror/editorUtils.cm";
 import { getCustomTheme } from "../../managers/codeMirror/theme.cm";
 import { getAllCompletionSources } from "../../managers/codeMirror/completion.cm";
 import { sharedConfig } from "../../../../shared/shared.config";
-import { ImageMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
+import {  LatexMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
 import { useUserSettings } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
 import { ctagPreviewPlugin, filePreviewPlugin, imagePreviewPlugin, linksPreviewPlugin } from "../../managers/codeMirror/replacements.cm";
@@ -194,7 +194,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	if (ua.get("ui_editor_markdown_preview")) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		// markdownExtensionCnf.extensions.push(ImageMdEl)
+		markdownExtensionCnf.extensions.push(LatexMdEl)
 		codemirrorExtensions.push(imagePreviewPlugin(p.file))
 		codemirrorExtensions.push(filePreviewPlugin(p.file))
 	}

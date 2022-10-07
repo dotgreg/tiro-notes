@@ -12,10 +12,9 @@ import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { Icon } from "../../components/Icon.component";
-import { LinkPreview, LinkPreviewCss } from "../../components/LinkPreview.component";
+import { LinkPreviewCss } from "../../components/LinkPreview.component";
 import { RessourcePreview } from "../../components/RessourcePreview.component";
 import { getUrlTokenParam } from "../../hooks/app/loginToken.hook";
-import { renderReactToId } from "../reactRenderer.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { absoluteLinkPathRoot } from "../textProcessor.manager";
 
@@ -65,7 +64,17 @@ export const genericReplacementPlugin = (p: {
 
 
 
-
+///////////////////////////////////
+// LATEX
+//
+// export const tagPreviewPlugin = genericReplacementPlugin({
+// 	pattern: regexs.userCustomTagFull2,
+// 	replacement: matchs => {
+// 		let resEl = document.createElement("span");
+// 		resEl.innerHTML = `||wooooooooooooooo||`;
+// 		return resEl
+// 	}
+// })
 
 
 
