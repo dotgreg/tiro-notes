@@ -35,6 +35,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 				const edges: iHashtagLink[] = []
 
 				const partsHashtagIds: { [partId: string]: number[] } = {}
+					console.log(rawResPerFile);
 				each(rawResPerFile, (rawFile, i) => {
 					// console.log(22231, i, rawFile);
 					// at first, notepart titleName is null
@@ -133,7 +134,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 					nodesArr: arr,
 					edges
 				}
-				// console.log(22232, result);
+				console.log(22232, result);
 				res(result)
 			})
 		})
