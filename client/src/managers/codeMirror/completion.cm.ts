@@ -3,6 +3,7 @@ import { each } from "lodash"
 import { sharedConfig } from "../../../../shared/shared.config"
 import { iFile } from "../../../../shared/types.shared"
 import { getApi } from "../../hooks/api/api.hook"
+import { getParentFolder } from "../folder.manager"
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -83,7 +84,15 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 	if (!context.explicit && !before) return null;
 	return new Promise((reso, rej) => {
 		getApi(api => {
-			api.search.hashtags(file.folder, hashs => {
+			// let parentFolder = getFolderParentPath(file)
+			// let p1 = getParentFolder(file.folder)
+			// let p2 = getParentFolder(p1)
+			// console.log(3333333, p1, p2, file, file.folder);
+			// let folder = getParentFolder(file.folder)
+			let folder = getParentFolder(getParentFolder(file.folder))
+			// let folder = file.folder
+			api.search.hashtags(folder, hashs => {
+				console.log(folder, hashs);
 				const arr: iCompletionTerm[] = []
 				each(hashs.nodesArr, hash => {
 					arr.push(createCompletionTerm(hash.name, hash.name))
@@ -93,6 +102,7 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 					options: arr,
 					validFor: /.*/
 				};
+				console.log(res);
 				reso(res)
 			})
 		})

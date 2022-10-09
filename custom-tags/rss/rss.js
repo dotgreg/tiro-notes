@@ -104,7 +104,7 @@ const rssApp = (innerTagStr, opts) => {
 						let res = false
 						let favFilter = bookmarks.current.filter(i => i.link === item.link)
 						if (favFilter.length > 0) res = true
-						console.log("IS bookmarks", item, res);
+						// console.log("IS bookmarks", item, res);
 						return res
 				}
 				// init
