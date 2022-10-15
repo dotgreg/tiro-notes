@@ -35,7 +35,7 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 				const edges: iHashtagLink[] = []
 
 				const partsHashtagIds: { [partId: string]: number[] } = {}
-					console.log(rawResPerFile);
+				console.log(rawResPerFile);
 				each(rawResPerFile, (rawFile, i) => {
 					// console.log(22231, i, rawFile);
 					// at first, notepart titleName is null
