@@ -14,7 +14,7 @@ import { CodeMirrorUtils } from "../../managers/codeMirror/editorUtils.cm";
 import { getCustomTheme } from "../../managers/codeMirror/theme.cm";
 import { getAllCompletionSources } from "../../managers/codeMirror/completion.cm";
 import { sharedConfig } from "../../../../shared/shared.config";
-import {  LatexMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
+import { LatexMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
 import { useUserSettings } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
 import { ctagPreviewPlugin, filePreviewPlugin, imagePreviewPlugin, linksPreviewPlugin } from "../../managers/codeMirror/replacements.cm";
