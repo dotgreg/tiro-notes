@@ -20,6 +20,7 @@ import { renderToString } from "react-dom/server";
 import { Icon } from '../../components/Icon.component';
 import { linkActionClick, linksPreviewMdCss } from "./urlLink.plugin.cm";
 import { imagePreviewCss } from "./image.plugin.cm";
+import { noteLinkActionClick } from "./noteLink.plugin.cm";
 
 
 /*************************************
@@ -159,7 +160,11 @@ export const markdownPreviewPlugin = (p: {
 			mousedown: (e, view) => {
 				let el = e.target as HTMLElement;
 
+				// URL LINK
 				linkActionClick(el)
+
+				// NOTE LINK
+				noteLinkActionClick(el)
 
 
 				// TITLE ACTION

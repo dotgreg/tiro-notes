@@ -19,8 +19,9 @@ import { useUserSettings } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
 import { ressourcePreviewSimpleCss } from "../RessourcePreview.component";
 import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm";
-import { noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
-import { filePreviewPlugin, imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
+import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
+import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
+import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -119,17 +120,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		p.onTitleClick(infs.lineIndex)
 	}
 
-	// const activateTitleInt = () => {
-	// 	const els = document.querySelectorAll(".actionable-title")
-	// 	const els2 = document.querySelectorAll(".test-success")
-	// 	each(els, el => {
-	// 		el.addEventListener('click', onAction)
-	// 	})
-	// }
-
-	// const debouncedActivateTitles = useDebounce(() => { activateTitleInt() }, 500)
-	// const throttleActivateTitles = useThrottle(() => { activateTitleInt() }, 500)
-
 	useEffect(() => {
 		// debouncedActivateTitles()
 		syncScrollUpdateDims()
@@ -192,7 +182,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const ua = userSettingsApi
 	if (ua.get("ui_editor_links_as_button")) {
 		codemirrorExtensions.push(linksPreviewPlugin)
-		codemirrorExtensions.push(noteLinkPreviewPlugin)
+		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
 		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
 	if (ua.get("ui_editor_markdown_preview")) {
@@ -381,6 +371,11 @@ padding: 20px;
 }
 
 ${styleCodeMirrorMarkdownPreviewPlugin()}
+
+// FILE RESSOURCE PREVIEW
 ${ressourcePreviewSimpleCss()}
+
+// PREVIEW LINK
+${noteLinkCss()}
 
 `

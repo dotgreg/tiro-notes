@@ -8,6 +8,7 @@ import { commonCssEditors } from './EditorArea.component';
 import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 import {   syncScroll3 } from '../../hooks/syncScroll.hook';
 import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
+import { noteLinkCss } from '../../managers/codeMirror/noteLink.plugin.cm';
 
 
 
@@ -371,29 +372,8 @@ export const previewAreaSimpleCss = () => {
 
 **********************************************************/
 
-		.preview-link {							
-				font-weight: 800;
-				background-repeat: no-repeat;
-				background-position: 4px 2px;
-				padding-left: 20px;
-				background-size: 10px;
-		}
 
-		${d.pl}.external-link {
-				background-image: url(${cssVars.assets.worldIcon});
-		}
-		${d.pl}.search-link {
-				color: ${cssVars.colors.main};
-				background-image: url(${cssVars.assets.searchIcon});
-		}
-		${d.pl}.title-search-link {
-				color: ${cssVars.colors.main};
-				background-image: url(${cssVars.assets.linkIcon});
-				cursor: pointer;
-		}
-		${d.pl}.resource-link {
-				color: ${cssVars.colors.main};
-		} 
+		${noteLinkCss(d.pl)}
 
 		/**********************************************************
 
