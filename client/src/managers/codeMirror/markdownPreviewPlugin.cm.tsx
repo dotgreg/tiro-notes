@@ -18,7 +18,8 @@ import { renderLatex } from "../latex.manager";
 import { isString } from "lodash";
 import { renderToString } from "react-dom/server";
 import { Icon } from '../../components/Icon.component';
-import { imagePreviewCss, linkActionClick, linksPreviewMdCss } from "./replacements.cm";
+import { linkActionClick, linksPreviewMdCss } from "./urlLink.plugin.cm";
+import { imagePreviewCss } from "./image.plugin.cm";
 
 
 /*************************************

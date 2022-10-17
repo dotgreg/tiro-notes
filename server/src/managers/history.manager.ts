@@ -30,11 +30,11 @@ export const debounceCleanHistoryFolder = debounce(() => {
 const cleanHistoryFolder = async (retainDays: number) => {
 
 	const historyPathFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
-	handleOlderFiles({
-		folder: historyPathFolder,
-		retainDays,
-		action: 'archive',
-	});
+	// handleOlderFiles({
+	// 	folder: historyPathFolder,
+	// 	retainDays,
+	// 	action: 'archive',
+	// });
 
 }
 

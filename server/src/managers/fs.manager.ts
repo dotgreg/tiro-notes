@@ -146,15 +146,15 @@ export const copyFile = async (pathOriginal: string, pathDestination: string): P
 	})
 }
 
-export const removeFile = async (filepath: string): Promise<void> => {
-	filepath = p(filepath)
-	return new Promise((resolve, reject) => {
-		fs.unlink(filepath, (err) => {
-			if (err) { shouldLog && log(`[REMOVE FILE] Error ${err.message}`); reject() }
-			else resolve()
-		});
-	})
-}
+// export const removeFile = async (filepath: string): Promise<void> => {
+// 	filepath = p(filepath)
+// 	return new Promise((resolve, reject) => {
+// 		fs.unlink(filepath, (err) => {
+// 			if (err) { shouldLog && log(`[REMOVE FILE] Error ${err.message}`); reject() }
+// 			else resolve()
+// 		});
+// 	})
+// }
 
 export const fileExists = (path: string): boolean => {
 	path = p(path)

@@ -17,8 +17,10 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { LatexMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
 import { useUserSettings } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
-import { ctagPreviewPlugin, filePreviewPlugin, imagePreviewPlugin, linksPreviewPlugin } from "../../managers/codeMirror/replacements.cm";
 import { ressourcePreviewSimpleCss } from "../RessourcePreview.component";
+import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm";
+import { noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
+import { filePreviewPlugin, imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -190,6 +192,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const ua = userSettingsApi
 	if (ua.get("ui_editor_links_as_button")) {
 		codemirrorExtensions.push(linksPreviewPlugin)
+		codemirrorExtensions.push(noteLinkPreviewPlugin)
 		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
 	if (ua.get("ui_editor_markdown_preview")) {
