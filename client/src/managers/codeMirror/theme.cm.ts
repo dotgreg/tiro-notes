@@ -29,20 +29,7 @@ export const getCustomTheme = () => createTheme({
 		{ tag: t.heading, color: cssVars.colors.main },
 
 		{ tag: customTags.Image, color: "red", class: "tiro-image" },
-		// { tag: MdCustomTags.ImageMdEl, class: "cm-mdpreview-image-code mdpreview-source" },
 		{ tag: MdCustomTags.LatexMdEl, class: "cm-mdpreview-latex-code mdpreview-source" },
-		// { tag: realCustomTags.ImageTwo, color: "blue", class: "test-success" },
-		// { tag: realCustomTags.ImageTwoMark, color: "blue", class: "test-success" },
-
-		// { tag: t.image, color: "orange" },
-		// { tag: customTags.headingMark, color: "red" },
-		// { tag: customTags.LinkTitle, color: "red", class: "lt" },
-		// { tag: customTags.LinkLabel, color: "red", class: "ll" },
-		// { tag: customTags.ListItem, color: "red", class: "wooooop6" },
-		// { tag: customTags.LinkReference, color: "red", class: "wooooop7" },
-		// { tag: customTags.Link, color: "red", class: "wooooop3" },
-		// { tag: customTags.LinkMark, color: "red", class: "wooooop4" },
-		// { tag: customTags.BulletList, color: "red", class: "wooooop" },
 		{
 			tag: t.heading1,
 			class: "actionable-title h1"
@@ -61,20 +48,6 @@ export const getCustomTheme = () => createTheme({
 		{ tag: t.content, fontSize: "10px" }
 	]
 });
-
-
-// import {parser} from "./parser.js"
-
-
-// const 
-
-// const customizedMarkdownLanguage = markdownLanguage
-// const customizedMarkdownLanguage = markdown.,
-// const customizedMarkdownLanguage = markdownLanguage.parser.createParse(
-// let md = markdown({
-// })
-// markdownLanguage.parser.configure({})
-// markdown.con
 
 // V6
 export const realCustomTags = {
@@ -129,35 +102,6 @@ export const ImageTwo = {
 	]
 }
 
-
-// V5 custom tags => WORKING PB actuellement delimiter avant et arriere doit etre mm
-// export const realCustomTags = {
-// 	ImageTwo: Tag.define(),
-// };
-// const ImageTwoDelim = { resolve: "ImageTwo", mark: "ImageTwoMark" };
-// export const ImageTwo = {
-// 	defineNodes: ["ImageTwo", "ImageTwoMark"],
-// 	parseInline: [{
-// 		name: "ImageTwo",
-// 		parse(cx, next, pos) {
-// 			// if (next != 126 /* '~' */ || cx.char(pos + 1) != 126) {
-// 			if (next != 36 /* '$' */ || cx.char(pos + 1) != 36) {
-// 				return -1;
-// 			}
-// 			return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, true);
-// 		},
-// 		after: "Emphasis"
-// 	}],
-// 	props: [
-// 		styleTags({
-// 			ImageTwo: realCustomTags.ImageTwo,
-// 			ImageTwoMark: t.processingInstruction,
-// 			'Strikethrough/...': realCustomTags.ImageTwo
-// 		})
-// 	]
-// }
-
-
 // v4 : with what we already have as tags
 export const customTags = {
 	ListItem: Tag.define(),
@@ -184,40 +128,3 @@ const MarkStylingExtension: MarkdownConfig = {
 		}),
 	],
 };
-// @ts-ignore
-window.hell = MarkStylingExtension
-
-//v3 
-// import { LRLanguage, Language } from "@codemirror/language"
-// import * as md from "@lezer/markdown"
-// export const exampleLanguage = LRLanguage.define({
-// 	parser: md.parser,
-// 	languageData: {
-// 		commentTokens: { line: ";" }
-// 	}
-// })
-
-
-//v2 => error
-// import { LRLanguage, Language } from "@codemirror/language"
-// import * as md from "@lezer/markdown"
-
-// export const exampleLanguage = LRLanguage.define({
-// 	parser: md.parser,
-// 	languageData: {
-// 		commentTokens: { line: ";" }
-// 	}
-// })
-
-
-
-// V1
-// import { LRLanguage, Language } from "@codemirror/language"
-// export const exampleLanguage = LRLanguage.define({
-// 	parser: markdownLanguage.parser,
-// 	languageData: {
-// 		commentTokens: { line: ";" }
-// 	}
-// })
-// export const exampleLanguage = Language
-// markdownLanguage.parser.parse(
