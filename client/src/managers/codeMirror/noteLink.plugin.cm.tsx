@@ -1,45 +1,31 @@
 import { regexs } from "../../../../shared/helpers/regexs.helper";
+import { getClientApi2 } from "../../hooks/api/api.hook";
+import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
-export const noteLinkPreviewPlugin = genericReplacementPlugin({
+export const noteLinkPreviewPlugin = (windowId: string) => genericReplacementPlugin({
 	pattern: regexs.linklink,
 	replacement: matchs => {
 		let resEl = document.createElement("span");
 		resEl.classList.add('note-link-mdpreview-wrapper')
 		resEl.classList.add('note-link-wrapper')
 
-		console.log(4444444444, matchs);
+		let notePath = matchs[1]
+		let noteTitle = matchs[2]
+		let html = generateNoteLink(notePath, noteTitle, windowId);
 
-		// let limitChar = 20
-		// let fullLink = matchs[0]
-		// let website = matchs[1].replace("www.", "")
-		// if (website.length > limitChar) website = website.substring(website.length - limitChar)
-		// let artTitle = matchs[3]
-		// if (artTitle === "" || !artTitle) artTitle = matchs[2]
-		// if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
-
-		// let previewStr = ` ${website}:${artTitle}`
-
-		// let idW = ""
-		// let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
-		// let openWindow = `<span class="link-openwindow" data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
-		// let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow}`
-		// resEl.innerHTML = `${html}`;
-		resEl.innerHTML = `hello world`;
+		resEl.innerHTML = `${html}`;
 		return resEl
 	}
 })
 
 export const noteLinkActionClick = (el: HTMLElement) => {
 	// LINK
-	if (el.classList.contains("link-openwindow")) {
-		let link = el.dataset.link
-		window.open(link, `popup-preview-link`, 'width=800,height=1000')
-	}
-	if (el.classList.contains("link-mdpreview")) {
-		// @ts-ignore
-		// let url = el.href
-		// window.open(url, '_blank')?.focus();
+	if (el.classList.contains("title-search-link")) {
+		console.log(23333333334);
+		noteLinkClickJSLogic(el)
+		// let link = el.dataset.link
+		// window.open(link, `popup-preview-link`, 'width=800,height=1000')
 	}
 }
 
@@ -47,3 +33,62 @@ export const noteLinkPreviewMdCss = () => `
 .note-link-mdpreview-wrapper {
 }
 `
+
+//
+// COMMON HTML/CSS/JS NOTE LINK GENERATOR
+//
+export const generateNoteLink = (
+	noteTitle: string,
+	notePath: string,
+	windowId: string
+): string => {
+
+	const subst = `<a class="title-search-link preview-link" data-file="${noteTitle}" data-folder="${notePath}" data-windowid="${windowId}">${noteTitle}</a>`;
+
+	return subst
+}
+
+// CSS
+export const noteLinkCss = (classStr?: string) => {
+	if (!classStr) classStr = ""
+	const css = `
+			.preview-link {							
+				font-weight: 800;
+				background-repeat: no-repeat;
+				background-position: 4px 2px;
+				padding-left: 20px;
+				background-size: 10px;
+		}
+
+		${classStr}.external-link {
+				background-image: url(${cssVars.assets.worldIcon});
+		}
+		${classStr}.search-link {
+				color: ${cssVars.colors.main};
+				background-image: url(${cssVars.assets.searchIcon});
+		}
+		${classStr}.title-search-link {
+				color: ${cssVars.colors.main};
+				background-image: url(${cssVars.assets.linkIcon});
+				cursor: pointer;
+		}
+		${classStr}.resource-link {
+				color: ${cssVars.colors.main};
+		} `
+	return css
+}
+
+// JS
+export const noteLinkClickJSLogic = (el: HTMLElement) => {
+	const file = el.dataset.file
+	const folder = el.dataset.folder
+	const windowId = el.dataset.windowid
+	if (!file || !folder) return
+	getClientApi2().then(api => {
+		api.ui.browser.goTo(
+			folder,
+			file, {
+			openIn: windowId
+		})
+	})
+}

@@ -8,9 +8,8 @@ import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { iFile } from '../../../shared/types.shared';
 import { findImagesFromContent } from './images.manager';
 import { RessourcePreview } from '../components/RessourcePreview.component';
-import { renderReactToId } from './reactRenderer.manager';
-import { debounce } from 'lodash';
 import { renderToString } from 'react-dom/server';
+import { generateNoteLink } from './codeMirror/noteLink.plugin.cm';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -22,10 +21,14 @@ export const transformTitleSearchLinks = (
 	windowId: string,
 	bodyRaw: string
 ): string => {
-	//const subst = `<a class="title-search-link preview-link" href="javascript:window.tiroCli.searchFileFromTitle.func('$1','$2');">$1</a>`;
-	const subst = `<a class="title-search-link preview-link" data-file="$1" data-folder="$2" data-windowid="${windowId}">$1</a>`;
+	const subst = generateNoteLink("$1", "$2", windowId)
 	return bodyRaw.replace(regexs.linklink, subst);
 }
+
+
+
+
+
 export const transformSearchLinks = (bodyRaw: string): string => {
 	const subst = `<a class="search-link preview-link" href="javascript:window.tiroCli.triggerSearch.func('$1$2');">$1</a>`;
 	let body = bodyRaw.replace(regexs.searchlink, subst);

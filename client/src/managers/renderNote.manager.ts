@@ -3,6 +3,7 @@ import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"
 import { iNoteApi } from "../hooks/api/note.api.hook"
+import { noteLinkActionClick, noteLinkClickJSLogic } from "./codeMirror/noteLink.plugin.cm"
 import { refreshRenderLatexGlobally } from "./latex.manager"
 import { md2html } from "./markdown.manager"
 import { escapeHtml, transformImagesInHTML, transformRessourcesInHTML, transformSearchLinks, transformTitleSearchLinks, transformUrlInLinks } from "./textProcessor.manager"
@@ -84,18 +85,7 @@ const injectLogicToHtml = (p: {
 
 }) => {
 	// title search links
-	bindToElClass('title-search-link', el => {
-		const file = el.dataset.file
-		const folder = el.dataset.folder
-		const windowId = el.dataset.windowid
-		getClientApi2().then(api => {
-			api.ui.browser.goTo(
-				folder,
-				file, {
-				openIn: windowId
-			})
-		})
-	})
+	bindToElClass('title-search-link', noteLinkClickJSLogic)
 
 	bindToElClass('content-image', el => {
 		getClientApi2().then(api => {
