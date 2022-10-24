@@ -10,9 +10,6 @@ import { cloneDeep, debounce, each } from 'lodash';
 import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
-import { ButtonsToolbar } from '../ButtonsToolbar.component';
-import { renderToString } from 'react-dom/server';
-import { Icon } from '../Icon.component';
 
 type ConfigPanel = {
 	title: string,
@@ -47,7 +44,15 @@ export const SettingsPopup = (p: {
 
 
 
-	//
+
+
+
+
+
+
+
+
+	/////////////////////////////////////////////////////////////////////////////////
 	// CONFIG LOGIC
 	//
 
@@ -69,10 +74,10 @@ export const SettingsPopup = (p: {
 						type: 'text',
 						var: tiroUrl,
 						customHtml: `
-						<div class="qrcode-wrapper">
-						<img src="${qrcodeUrl}"/>
-						<br>
-						</div>`,
+																				<div class="qrcode-wrapper">
+																				<img src="${qrcodeUrl}"/>
+																				<br>
+																				</div>`,
 						title: "Tiro Url",
 						readOnly: true,
 						expl: `Access Tiro on another device on the <b>same wifi/local network</b> either by :
@@ -136,6 +141,28 @@ export const SettingsPopup = (p: {
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_links_as_button', val)
+						}
+					},
+				]
+			},
+			{
+				title: "Users and Rights",
+				fields: [
+					{
+						type: 'checkbox',
+						title: "Enable read-only viewer",
+						expl: "Create a \"viewer\" user that can read but not edit the content",
+						var: us.get('users_viewer_user_enable'),
+						modifier: val => {
+							us.set('users_viewer_user_enable', val, { writeInSetupJson: true })
+						},
+					}, {
+						type: 'text',
+						title: "Viewer user password",
+						expl: "Define the \"viewer\" user password",
+						var: us.get('users_viewer_user_password'),
+						modifier: val => {
+							us.set('users_viewer_user_password', val, { writeInSetupJson: true })
 						}
 					},
 				]
@@ -261,8 +288,7 @@ export const settingsPopupCss = () => `
 		}
 }
 
-settings-popup-wrapper
-.popup-wrapper .popupContent {
+.settings-popup-wrapper .popup-wrapper .popupContent {
     padding: 0px 20px;
 		width: 50vw;
 		min-height: 50vh;
@@ -272,7 +298,9 @@ settings-popup-wrapper
 }
 
 .settings-panel {
+
 		h3 {
+				cursor: pointer;
 				text-transform: uppercase;
 				.arrow {
 						display: inline-block;

@@ -189,6 +189,7 @@ export const useBrowserApi = (p: {
 	}
 
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths: string[]) => {
+		console.error("ASK FOR FOLDER SCAN ", foldersPaths);
 		p.foldersApi.get(foldersPaths, data => {
 			let newflatStruct: iFolder[] = cloneDeep(foldersFlat)
 

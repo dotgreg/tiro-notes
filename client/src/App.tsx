@@ -61,8 +61,6 @@ export const App = () => {
 			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
 		})
 
-
-
 		startListeningToKeys();
 
 		return () => {
@@ -123,7 +121,6 @@ export const App = () => {
 			cleanListAndFileContent()
 		},
 		onLoginSuccess: () => {
-			askForFolderScan(['/'])
 			refreshTabsFromBackend();
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
@@ -131,6 +128,12 @@ export const App = () => {
 			getApi(api => {
 				api.ui.browser.folders.refreshFromBackend()
 			})
+
+			// seems blocking the initial loading of a few seconds, so starts it 10s after
+				askForFolderScan(['/'])
+			// console.log(123123123);
+			// setTimeout(() => {
+			// }, 10000)
 
 		}
 	})

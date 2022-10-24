@@ -20,7 +20,7 @@ export interface iApiDictionary {
 	saveFileContent: { filePath: string, newFileContent: string }
 
 	moveFile: { initPath: string, endPath: string, idReq: string }
-	moveFolder: { initPath: string, endPath: string, idReq: string}
+	moveFolder: { initPath: string, endPath: string, idReq: string }
 
 	searchFor: { term: string, type: iAppView, idReq: string }
 
@@ -62,5 +62,7 @@ export interface iApiDictionary {
 	askRessourceDelete: { path: string, idReq: string }
 	askRessourceDownload: { url: string, folder: string, idReq: string }
 	getRessourceApiAnswer: { status: string, message: string, idReq: string }
+
+	updateSetupJson: { paramName: string, paramValue: string, idReq: string }
 
 }
