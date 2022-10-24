@@ -1,9 +1,8 @@
-import { cloneDeep, each, isArray } from 'lodash';
-import React, { useEffect, useRef, useState } from 'react';
+import { cloneDeep, each, isArray, random } from 'lodash';
+import React, { useEffect, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
-import { iAppView, iFile, iFolder } from '../../../../shared/types.shared';
-import { newFileButtonCss } from '../../components/NewFileButton.component';
+import { iFile, iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -11,7 +10,7 @@ import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { useBackendState } from '../useBackendState.hook';
 import { useLocalStorage } from '../useLocalStorage.hook';
 import { iUserSettingsApi } from '../useUserSettings.hook';
-import { getClientApi2, iClientApi } from './api.hook';
+import { getApi, iClientApi } from './api.hook';
 import { iFilesApi } from './files.api.hook';
 import { iFoldersApi } from './folders.api.hook';
 import { iStatusApi } from './status.api.hook';
@@ -42,7 +41,10 @@ export interface iBrowserApi {
 		base: string
 		get: iFolder
 		clean: Function
-		scan: (foldersPath: string[]) => void
+		scan: (
+			foldersPath: string[],
+			opts?: { cache?: boolean }
+		) => void
 		open: {
 			get: string[]
 			add: (f: string) => void
@@ -188,30 +190,66 @@ export const useBrowserApi = (p: {
 		setFolderHierarchy(defaultFolderVal)
 	}
 
-	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths: string[]) => {
-		console.error("ASK FOR FOLDER SCAN ", foldersPaths);
-		p.foldersApi.get(foldersPaths, data => {
-			let newflatStruct: iFolder[] = cloneDeep(foldersFlat)
+	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths, opts) => {
+		if (!opts) opts = {}
+		if (!opts.cache) opts.cache = true
 
-			// console.log(34440, cloneDeep(data.folders));
-			let nf = { current: newflatStruct }
-			each(data.folders, nfolder => {
-				// first replace old results by new ones
-				// console.log(nf.current, nfolder);
-				if (!nfolder) return
-				nf.current = nf.current.filter(folder => nfolder.path !== folder.path)
-			})
-			each(data.folders, nfolder => {
-				if (nfolder) nf.current = upsertFlatStructure(nfolder, nf.current);
-			})
-			newflatStruct = nf.current
+		const cacheId = `folder-scan-${foldersPaths.join("-")}`
 
-			setFoldersFlat(newflatStruct)
-			let newTreeStruct = buildTreeFolder('/', newflatStruct)
+		getApi(api => {
+			const askForScanApi = () => {
+				api.folders.get(foldersPaths, data => {
+					console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
+					processScannedFolders(data.pathBase, data.folders)
+					api.cache.set(cacheId, data, 999999)
+				})
+			}
 
-			if (newTreeStruct) setFolderHierarchy(newTreeStruct)
-			setFolderBasePath(data.pathBase)
+			//
+			// IF cached, first get initial, cached result
+			//
+			if (opts && opts.cache) {
+				api.cache.get(cacheId, cachedData => {
+					console.log("[FOLDER SCAN] getting cached results =>", foldersPaths);
+					if (!cachedData.pathBase) return 
+					processScannedFolders(cachedData.pathBase, cachedData.folders)
+				})
+				// then ask for new scan abit later
+				setTimeout(() => { askForScanApi() }, random(0, 1000))
+			}
+
+			//
+			// if NO CACHE, scan it directly
+			//
+			else {
+				askForScanApi()
+			}
+
 		})
+	}
+
+
+	const processScannedFolders = (pathBase: string, folders: iFolder[]) => {
+		let newflatStruct: iFolder[] = cloneDeep(foldersFlat)
+
+		let nf = { current: newflatStruct }
+		each(folders, nfolder => {
+			// first replace old results by new ones
+			// console.log(nf.current, nfolder);
+			if (!nfolder) return
+			nf.current = nf.current.filter(folder => nfolder.path !== folder.path)
+		})
+		each(folders, nfolder => {
+			if (nfolder) nf.current = upsertFlatStructure(nfolder, nf.current);
+		})
+		newflatStruct = nf.current
+
+		setFoldersFlat(newflatStruct)
+		let newTreeStruct = buildTreeFolder('/', newflatStruct)
+
+		if (newTreeStruct) setFolderHierarchy(newTreeStruct)
+		setFolderBasePath(pathBase)
+
 	}
 
 
