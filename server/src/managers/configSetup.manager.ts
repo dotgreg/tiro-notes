@@ -8,7 +8,9 @@ import { p, relativeToAbsolutePath } from './path.manager';
 var fs = require('fs')
 
 // LOADING CONFIG FILE
+// type TiroConfigDic = { [name: string]: string }
 export interface TiroConfig {
+	[name: string]: string
 	user: string
 	password: string
 	dataFolder: string
@@ -19,6 +21,8 @@ export interface TiroConfig {
 
 
 
+
+
 /*
 * PART 1 LOADING JSON CONFIG FILE
 */
@@ -26,8 +30,14 @@ export interface TiroConfig {
 // as we need to go down from sources-tiro/server/tiro-config.json to sources-tiro/tiro-config.json in dev mode
 export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 
-let cachedJsonConfigLoadResult = null
 
+
+
+
+//
+// READ JSON
+//
+let cachedJsonConfigLoadResult = null
 export const tryLoadJsonConfig = () => {
 	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as TiroConfig
 
@@ -41,10 +51,16 @@ export const tryLoadJsonConfig = () => {
 		return null
 	}
 }
+
 export const getDataFolder = () => {
 	const jsonConfig = tryLoadJsonConfig();
 	return (jsonConfig && jsonConfig.dataFolder) ? relativeToAbsolutePath(jsonConfig.dataFolder) : undefined
 }
+
+
+//
+// ASK FOR SETUP?
+//
 export const shouldAskForSetup = () => {
 	const jsonConfig = tryLoadJsonConfig();
 	if (!jsonConfig || !jsonConfig.user || !jsonConfig.password || !jsonConfig.dataFolder) {
@@ -57,8 +73,6 @@ export const shouldAskForSetup = () => {
 	}
 	return false
 }
-
-
 
 export const processClientSetup = async (data: iApiDictionary['sendSetupInfos']): Promise<iApiDictionary['getSetupInfos']> => {
 	let answer: iApiDictionary['getSetupInfos']
@@ -81,9 +95,25 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 			dataFolder: data.form.dataFolder,
 		}
 
-		await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
 		answer = { code: 'SUCCESS_CONFIG_CREATION' }
 	}
 
 	return answer
+}
+
+
+
+export const saveSetupJson = async (newConfig: TiroConfig) => {
+	await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
+}
+
+export const updateSetupJsonParam = (name: string, value: string) => {
+	// get json current infos in 
+	let jsonObj = tryLoadJsonConfig()
+	if (!jsonObj) return
+
+	jsonObj[name] = value
+
+	saveSetupJson(jsonObj)
+
 }

@@ -10,7 +10,7 @@ import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./manage
 import { folderToUpload } from "./managers/upload.manager";
 import { iFile, iFolder } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
-import { processClientSetup } from "./managers/configSetup.manager";
+import { processClientSetup, updateSetupJsonParam } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
@@ -299,5 +299,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		})
 
 	})
+
+
+
+
+	//
+	// SETUP JSON 
+	// 
+	serverSocket2.on('updateSetupJson', async data => {
+		updateSetupJsonParam(data.paramName, data.paramValue)
+	})
+
 }
 

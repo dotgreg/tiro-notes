@@ -108,6 +108,7 @@ export const CssApp2 = (
 
 				}
 				.settings-button {
+						cursor: pointer;
 						position: fixed;
 						bottom: 10px;
 						left: 10px;
