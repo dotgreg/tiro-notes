@@ -1,7 +1,7 @@
 import { css, Global } from '@emotion/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
-import { clientSocket2, getBackendUrl, initSocketConnexion } from './managers/sockets/socket.manager';
+import { initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { debounce, each, isNumber } from 'lodash';
@@ -36,15 +36,6 @@ import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
-import { settings } from 'cluster';
-import { regexs } from '../../shared/helpers/regexs.helper';
-import { configClient } from './config';
-import { sharedConfig } from '../../shared/shared.config';
-import { getRessourceIdFromUrl } from '../../shared/helpers/id.helper';
-import { getUrlParams } from './managers/url.manager';
-import { getUrlPreview } from './managers/previewUrl.manager';
-
-
 
 export const App = () => {
 
@@ -130,7 +121,7 @@ export const App = () => {
 			})
 
 			// seems blocking the initial loading of a few seconds, so starts it 10s after
-				askForFolderScan(['/'])
+			askForFolderScan(['/'])
 			// console.log(123123123);
 			// setTimeout(() => {
 			// }, 10000)
@@ -365,7 +356,7 @@ export const App = () => {
 													})
 												} else if (action === 'create' && newTitle) {
 													askFolderCreate(newTitle, folder)
-													askForFolderScan([folder.path])
+													askForFolderScan([folder.path], { cache: false })
 												} else if (action === 'moveToTrash') {
 													promptAndMoveFolder({
 														folder,
@@ -375,7 +366,7 @@ export const App = () => {
 													})
 												} else if (action === 'delete') {
 													askFolderDelete(folder)
-													askForFolderScan([folder.path])
+													askForFolderScan([folder.path], { cache: false })
 												}
 											}}
 											onFolderOpen={folderPath => {
