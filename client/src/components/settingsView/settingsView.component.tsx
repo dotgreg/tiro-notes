@@ -4,12 +4,14 @@ import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
 import { strings } from '../../managers/strings.manager';
 import { Popup } from '../Popup.component';
 import { Input, InputType } from '../Input.component';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { useBackendState } from '../../hooks/useBackendState.hook';
 import { cloneDeep, debounce, each } from 'lodash';
 import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
+import { disconnectUser } from '../../hooks/app/loginToken.hook';
+import { getActiveTabIndex } from '../../hooks/app/tabs.hook';
 
 type ConfigPanel = {
 	title: string,
@@ -163,6 +165,21 @@ export const SettingsPopup = (p: {
 						var: us.get('users_viewer_user_password'),
 						modifier: val => {
 							us.set('users_viewer_user_password', val, { writeInSetupJson: true })
+						}
+					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> Logout </button>`,
+						title: "Logout current User",
+						readOnly: true,
+						expl: `Logout Current User`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							disconnectUser()
+							p.onClose()
+							// random api call to retrigger login popup
+							getApi(api => { api.folders.get(['/'], () => { }) })
 						}
 					},
 				]
