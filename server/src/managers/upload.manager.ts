@@ -7,6 +7,7 @@ import { iApiDictionary } from "../../../shared/apiDictionary.type";
 import { rescanEmitDirForFiles } from "./dir.manager";
 import { debounce } from "lodash";
 import { log } from "./log.manager";
+import { getUserFromToken } from "./loginToken.manager";
 
 var siofu = require("socketio-file-upload");
 
@@ -27,14 +28,17 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		log('FILE UPLOAD STARTED', e);
 	})
 	uploader.on('complete', async (e) => {
-		// log('FILE UPLOAD COMPLETED', e);
 		if (!e.file) return log(`file could not be uploaded`)
-		// e.file.path => is with ../../data 
 		let finfos = getFileInfos(e.file.pathName)
-		//console.log(2222, JSON.stringify(e.file));
 		const idReq = (e.file.meta && e.file.meta.idReq) ? e.file.meta.idReq : false
 		const pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
+		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
+		let user = getUserFromToken(loginToken)
+		let hasEditorRole = user && user.roles.includes("editor")
+
 		if (!idReq || !pathToUpload) return console.log('[UPLOAD] NO IDREQ/PATHTOUPLOAD, cancelling upload', JSON.stringify(e.file.meta), idReq, pathToUpload)
+
+		if (!hasEditorRole) return console.log('[UPLOAD] no editor role, cancelling upload', JSON.stringify({ meta: e.file.meta, user }), pathToUpload)
 
 		// do modification => namefile to unique ID here
 		let oldPath = `${e.file.pathName}`

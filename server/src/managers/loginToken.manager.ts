@@ -57,6 +57,7 @@ export const getUserFromToken = (clientToken: string): iUser | false => {
 //
 // ROUGH AND BASIC ROLE MANAGEMENT 
 //
+
 export type iRole = "editor" | "viewer"
 interface iUser {
 	name: string
