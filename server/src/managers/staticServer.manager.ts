@@ -1,6 +1,6 @@
 import { backConfig } from "../config.back";
 import { log } from "./log.manager";
-import { getLoginToken } from "./loginToken.manager";
+import { getUserFromToken } from "./loginToken.manager";
 
 
 var serveStatic = require('serve-static');
@@ -12,7 +12,9 @@ export const startSecuredStaticServer = (p: { expressApp: any, url: string, path
 
 	p.expressApp.use(p.url, (req, res) => {
 		let isTokenCorrect = false
-		if (req.query.token && req.query.token === getLoginToken()) isTokenCorrect = true
+		// should include a token (viewer or editor are good)
+		let user = getUserFromToken(req.query.token)
+		if (req.query.token && user && user.roles.includes("viewer")) isTokenCorrect = true
 
 		if (isTokenCorrect || backConfig.dev.disableLogin) {
 			serve(req, res, finalhandler(req, res))

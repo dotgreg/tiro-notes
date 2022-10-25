@@ -12,7 +12,7 @@ import { iFile, iFolder } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import { processClientSetup, updateSetupJsonParam } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
-import { checkUserPassword, getLoginToken } from "./managers/loginToken.manager";
+import { checkUserPassword, getUserToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
 import { debounceCleanHistoryFolder } from "./managers/history.manager";
@@ -124,7 +124,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		await saveFile(pathToFile, data.newFileContent)
 		// sends back to all sockets the updated content
 		// ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
-	}, { disableDataLog: true })
+	}, { disableDataLog: true, checkRole: "editor" })
 
 
 
@@ -152,7 +152,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFile', async data => {
 		log(`=> MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
@@ -170,14 +170,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		log(`===> 4/4 debouncedScanAfterMove`);
 		await debouncedFolderScan(serverSocket2, data.initPath, data.idReq)
 		// await debouncedHierarchyScan(socket)
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFolder', async data => {
 		log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('createHistoryFile', async data => {
 		let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
@@ -191,7 +191,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// only keep up to x days of history files
 		debounceCleanHistoryFolder()
 
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('onFileDelete', async data => {
 		log(`DELETING ${backConfig.dataFolder}${data.filepath}`);
@@ -207,7 +207,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('askForExplorer', async data => {
 		let fullPath = `${data.folderpath}`
@@ -220,7 +220,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('uploadResourcesInfos', async data => {
 		// should not be used anymore w new upload api
 		folderToUpload.value = data.folderpath
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('disconnect', async data => {
 
@@ -233,7 +233,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askFolderCreate', async data => {
 		createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('sendSetupInfos', async data => {
 		const answer = await processClientSetup(data)
@@ -250,7 +250,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (!areClientInfosCorrect) {
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
 		} else {
-			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getLoginToken() })
+			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
 
 			// // do also a root scan for first time
 			// let folders = [scanDirForFolders('/')]
@@ -286,7 +286,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		// await upsertRecursivelyFolders(pathToFile)
 		// await saveFile(pathToFile, data.newFileContent)
-	})
+	}, { checkRole: "editor" })
 
 	serverSocket2.on('askRessourceDownload', async data => {
 		// createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
@@ -308,7 +308,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// 
 	serverSocket2.on('updateSetupJson', async data => {
 		updateSetupJsonParam(data.paramName, data.paramValue)
-	})
+	},{ checkRole: "editor"})
 
 }
 

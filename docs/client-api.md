@@ -604,8 +604,18 @@ noteLink should be relative from tiro folder
     - Parameters: 
        1. name: <span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>
        1. val: <span class="render-code-wrapper">any</span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;writeInSetupJson?: <span class="render-code-wrapper">boolean</span><br/>}</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>, <span class="render-code-wrapper">any</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;writeInSetupJson?: <span class="render-code-wrapper">boolean</span><br/>}</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">userSettings.updateSetupJson</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. paramName: <span class="render-code-wrapper">string</span>
+       1. paramValue: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.updateSetupJson",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ]<br/>)</div>
  
 
 
@@ -721,7 +731,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">keyVal</span>

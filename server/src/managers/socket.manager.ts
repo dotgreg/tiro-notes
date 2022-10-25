@@ -3,7 +3,7 @@ import { ioServer } from '../server';
 import { listenSocketEndpoints } from "../routes";
 import { initUploadFileRoute } from "./upload.manager";
 import { backConfig } from "../config.back";
-import { getLoginToken } from "./loginToken.manager";
+import { getUserFromToken, iRole } from "./loginToken.manager";
 import { log } from "./log.manager";
 import { getDefaultDataFolderPath } from "./fs.manager";
 import { isRgCliWorking } from "./search/search-ripgrep.manager";
@@ -16,7 +16,10 @@ interface routeOptions {
 	disableLog?: boolean,
 	disableDataLog?: boolean,
 	bypassLoginTokenCheck?: boolean,
+	checkRole?: iRole
 }
+
+const h = `[SOCKET SERV EVENT]`
 
 type ApiOnFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
 	(
@@ -53,49 +56,67 @@ const preprocessEndpointOptions = (endpoint: string, options?: routeOptions) => 
 
 
 const shouldlog = sharedConfig.server.log.socket
-export const initServerSocketManager = <ApiDict>(rawServerSocket: SocketIO.Socket): ServerSocketManager<ApiDict> => {
-	return {
-		on: async (endpoint, callback, options) => {
-			rawServerSocket.on(endpoint, async (rawClientData: any) => {
+export const initServerSocketManager =
+	<ApiDict>(rawServerSocket: SocketIO.Socket):
+		ServerSocketManager<ApiDict> => {
+		return {
+			on: async (endpoint, callback, options) => {
+				rawServerSocket.on(endpoint, async (rawClientData: any) => {
 
-				options = preprocessEndpointOptions(endpoint, options)
+					options = preprocessEndpointOptions(endpoint, options)
 
-				// LOG
-				if (!options?.disableLog && shouldlog) log(`[SOCKET SERV EVENT] <== RECEIVE ${endpoint} ${JSON.stringify(options)}`);
-				if (!options?.disableDataLog && shouldlog) log(`with data `, rawClientData);
+					// VARS
+					const tokenUser = getUserFromToken(rawClientData.token)
+
+					// LOG
+					if (!options?.disableLog && shouldlog) log(`${h} <== RECEIVE ${endpoint} ${JSON.stringify(options)}`);
+					if (!options?.disableDataLog && shouldlog) log(`with data `, rawClientData);
 
 
-				// IF SETUP MODE
-				if (backConfig.askForSetup && !options?.duringSetup) {
-					shouldlog && log(`[SOCKET SERV EVENT] BLOCKED AS DURING SETUP --> ${endpoint} `);
-				}
+					// IF SETUP MODE
+					if (backConfig.askForSetup && !options?.duringSetup) {
+						shouldlog && log(`${h} BLOCKED AS DURING SETUP --> ${endpoint} `);
+					}
 
-				// IF WRONG/NULL TOKEN 
-				else if (
-					!backConfig.askForSetup &&
-					!backConfig.dev.disableLogin &&
-					!options?.bypassLoginTokenCheck &&
-					!endpoint.startsWith('disconnect') &&
-					!endpoint.startsWith('siofu') &&
-					(!rawClientData.token || getLoginToken() !== rawClientData.token)
-				) {
-					shouldlog && log(`[SOCKET SERV EVENT] <== WRONG TOKEN given by client (${endpoint})`, options);
-					rawServerSocket.emit('getLoginInfos', { code: 'WRONG_TOKEN' })
-				}
+					// IF WRONG/NULL TOKEN 
+					else if (
+						!backConfig.askForSetup &&
+						!backConfig.dev.disableLogin &&
+						!options?.bypassLoginTokenCheck &&
+						!endpoint.startsWith('disconnect') &&
+						!endpoint.startsWith('siofu') &&
+						// @TOKEN here take ROLE in
+						// OPTION and check if current token has it or not
+						// create new condition, if viewer try an EDIT API, returns nothing, so nothing happens
+						(!rawClientData.token || !getUserFromToken(rawClientData.token))
+					) {
+						shouldlog && log(`${h} <== WRONG TOKEN given by client (${endpoint})`, options);
+						rawServerSocket.emit('getLoginInfos', { code: 'WRONG_TOKEN' })
+					}
 
-				// ELSE PROCESS TO NORMAL CALL
-				else {
-					await callback(rawClientData)
-				}
-			});
-		},
-		emit: async (endpoint, payloadToSend) => {
-			let options = preprocessEndpointOptions(endpoint)
-			if (!options?.disableLog) shouldlog && log(`[SOCKET SERV EVENT] ==> EMIT ${endpoint}`);
-			await rawServerSocket.emit(endpoint, payloadToSend);
-		},
+					// ROLE CHECK (If fail)
+					else if (
+						options?.checkRole &&
+						(!tokenUser || !tokenUser.roles.includes(options.checkRole))
+					) {
+						shouldlog && log(`${h} <== WRONG ROLE (${options.checkRole} asked by user ${JSON.stringify(tokenUser)} for "${endpoint}" `);
+						rawServerSocket.emit('getLoginInfos', { code: 'WRONG_ROLE' })
+					}
+
+
+					// ELSE PROCESS TO NORMAL CALL
+					else {
+						await callback(rawClientData)
+					}
+				});
+			},
+			emit: async (endpoint, payloadToSend) => {
+				let options = preprocessEndpointOptions(endpoint)
+				if (!options?.disableLog) shouldlog && log(`${h} ==> EMIT ${endpoint}`);
+				await rawServerSocket.emit(endpoint, payloadToSend);
+			},
+		}
 	}
-}
 
 // export let serverSocket2:ServerSocketManager<iApiDictionary> 
 

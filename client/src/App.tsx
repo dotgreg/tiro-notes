@@ -370,7 +370,7 @@ export const App = () => {
 												}
 											}}
 											onFolderOpen={folderPath => {
-												askForFolderScan([folderPath])
+												askForFolderScan([folderPath], {cache:false})
 											}}
 											onFolderClose={folderPath => {
 
