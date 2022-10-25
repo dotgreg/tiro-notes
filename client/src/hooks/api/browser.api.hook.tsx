@@ -1,4 +1,4 @@
-import { cloneDeep, each, isArray, random } from 'lodash';
+import { cloneDeep, each, isArray, isBoolean, random } from 'lodash';
 import React, { useEffect, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
@@ -192,9 +192,13 @@ export const useBrowserApi = (p: {
 
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths, opts) => {
 		if (!opts) opts = {}
-		if (!opts.cache) opts.cache = true
+		if (!isBoolean(opts.cache)) opts.cache = true
 
-		const cacheId = `folder-scan-${foldersPaths.join("-")}`
+		let pathMerged = foldersPaths.join("-")
+		let lg = pathMerged.length
+		pathMerged = pathMerged.substring(0, 30) + "-" + lg
+		const cacheId = `folder-scan-${pathMerged}`
+		console.log("[FOLDER SCAN] cache =>", opts);
 
 		getApi(api => {
 			const askForScanApi = () => {
@@ -205,23 +209,18 @@ export const useBrowserApi = (p: {
 				})
 			}
 
-			//
 			// IF cached, first get initial, cached result
-			//
 			if (opts && opts.cache) {
 				api.cache.get(cacheId, cachedData => {
-					console.log("[FOLDER SCAN] getting cached results =>", foldersPaths);
-					if (!cachedData.pathBase) return 
-					processScannedFolders(cachedData.pathBase, cachedData.folders)
+					console.log("[FOLDER SCAN] getting cached results =>", foldersPaths, cachedData);
+					if (!cachedData) {
+						askForScanApi()
+					} else {
+						processScannedFolders(cachedData.pathBase, cachedData.folders)
+						// setTimeout(() => { askForScanApi() }, random(5000, 10000))
+					}
 				})
-				// then ask for new scan abit later
-				setTimeout(() => { askForScanApi() }, random(0, 1000))
-			}
-
-			//
-			// if NO CACHE, scan it directly
-			//
-			else {
+			} else {
 				askForScanApi()
 			}
 

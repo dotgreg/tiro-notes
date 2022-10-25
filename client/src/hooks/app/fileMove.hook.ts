@@ -101,7 +101,10 @@ ${popupCommonStyle}
 					cleanFilesList()
 					cleanFolderHierarchy()
 					setTimeout(() => {
-					askForFolderScan([getFolderParentPath(folder), folderToDropInto.path], { cache: false })
+						askForFolderScan(
+							[getFolderParentPath(folder), folderToDropInto.path],
+							{ cache: false }
+						)
 					}, 100)
 					// setTimeout(() => {
 					// 	askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
