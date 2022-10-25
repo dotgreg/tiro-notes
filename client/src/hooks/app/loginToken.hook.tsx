@@ -17,6 +17,9 @@ export const getUrlTokenParam = (): string => {
 export const setLoginToken = (token: string) => {
 	setCookie('tiro-login-token', token, sharedConfig.tokenRefreshInHours)
 }
+export const disconnectUser = () => {
+	setLoginToken('')
+}
 
 export const useLoginToken = (p: {
 	onLoginAsked: Function
