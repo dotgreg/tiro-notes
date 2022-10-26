@@ -54,7 +54,15 @@ export interface iApiDictionary {
 	getSetupInfos: { code: iSetupCode, defaultFolder?: string, message?: string }
 
 	sendLoginInfos: { user: string, password: string }
-	getLoginInfos: { code: 'WRONG_TOKEN' | 'WRONG_USER_PASSWORD' | 'SUCCESS', token?: string },
+	getLoginInfos: {
+		code: 'WRONG_TOKEN' | 'WRONG_USER_PASSWORD' | 'SUCCESS',
+		token?: string
+		loginInfos?: {
+							viewer_enabled: boolean 
+							viewer_password: string
+							demo_mode: boolean
+		}
+	},
 
 	askFileHistory: { filepath: string }
 	getFileHistory: { files: iFile[] }

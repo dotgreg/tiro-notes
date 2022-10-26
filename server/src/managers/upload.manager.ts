@@ -32,6 +32,8 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		let finfos = getFileInfos(e.file.pathName)
 		const idReq = (e.file.meta && e.file.meta.idReq) ? e.file.meta.idReq : false
 		const pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
+
+
 		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
 		let user = getUserFromToken(loginToken)
 		let hasEditorRole = user && user.roles.includes("editor")

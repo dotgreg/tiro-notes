@@ -168,6 +168,15 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
+						type: 'checkbox',
+						title: "Demo Mode",
+						expl: "Autofill the 'viewer' user and password on login popup for easier access during a demo mode",
+						var: us.get('demo_mode_enable'),
+						modifier: val => {
+							us.set('demo_mode_enable', val, {writeInSetupJson: true})
+						},
+					},
+					{
 						type: 'none',
 						var: "",
 						customHtml: `<button> Logout </button>`,

@@ -5,6 +5,7 @@ import { Popup } from '../../components/Popup.component';
 import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { getApi } from '../api/api.hook';
 import { getLoginToken } from './loginToken.hook';
 
 export const useSetupConfig = (p: {
@@ -18,6 +19,7 @@ export const useSetupConfig = (p: {
 	const [dataFolder, setDataFolder] = useState('')
 
 	const [formMessage, setFormMessage] = useState<['error' | 'success', string]>()
+
 
 	const h = `[SETUP CONFIG]`
 	const log = sharedConfig.client.log.verbose
@@ -53,7 +55,10 @@ export const useSetupConfig = (p: {
 
 	const SetupPopupComponent = (p: {
 
-	}) => <>
+	}) => {
+
+
+		return (<>
 			{displayWelcomePopup &&
 				<div className="setup-popup-component">
 					<Popup
@@ -101,7 +106,8 @@ export const useSetupConfig = (p: {
 						</div>
 					</Popup>
 				</div>}
-		</>
+		</>)
+	}
 
 	return {
 		displayWelcomePopup,
