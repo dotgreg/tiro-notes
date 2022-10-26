@@ -39,6 +39,7 @@ export const generateNewToken = () => {
 	return newToken
 }
 export const regenerateTokensInMemory = () => {
+	if (!backConfig || !backConfig.jsonConfig || !backConfig.jsonConfig.user) return
 	let userName = backConfig.jsonConfig.user
 	let hasViewerUser = backConfig.jsonConfig.users_viewer_user_enable === "true"
 	memoryTokens[userName] = generateNewToken()

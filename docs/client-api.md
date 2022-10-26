@@ -731,7 +731,7 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "demo_mode_enable" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">keyVal</span>
