@@ -54,7 +54,6 @@ export const useLoginToken = (p: {
 
 					// DEMO PREFILL MODE
 					let infos = data.loginInfos
-					console.log(3333333333, infos);
 					if (infos?.demo_mode) {
 						setUser("viewer")
 						setPassword(infos.viewer_password)
