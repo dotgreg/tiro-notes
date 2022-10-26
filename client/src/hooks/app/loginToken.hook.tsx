@@ -52,6 +52,14 @@ export const useLoginToken = (p: {
 					setDisplayLoginPopup(true)
 					setFormMessage(['error', strings.loginForm.wrongToken])
 
+					// DEMO PREFILL MODE
+					let infos = data.loginInfos
+					console.log(3333333333, infos);
+					if (infos?.demo_mode) {
+						setUser("viewer")
+						setPassword(infos.viewer_password)
+					}
+
 					// custom logic after LoginAsked
 					p.onLoginAsked()
 					break;

@@ -19,6 +19,8 @@ type iUserSettingName =
 	'users_viewer_user_enable' |
 	'users_viewer_user_password' |
 
+	'demo_mode_enable' |
+
 	'ui_other'
 
 type keyVal = { key: iUserSettingName, val: any }

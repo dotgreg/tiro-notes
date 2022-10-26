@@ -91,7 +91,14 @@ export const initServerSocketManager =
 						(!rawClientData.token || !getUserFromToken(rawClientData.token))
 					) {
 						shouldlog && log(`${h} <== WRONG TOKEN given by client (${endpoint})`, options);
-						rawServerSocket.emit('getLoginInfos', { code: 'WRONG_TOKEN' })
+						rawServerSocket.emit('getLoginInfos', {
+							code: 'WRONG_TOKEN',
+							loginInfos: {
+								viewer_enabled: backConfig.jsonConfig.users_viewer_user_enable === "true",
+								viewer_password: backConfig.jsonConfig.users_viewer_user_password,
+								demo_mode: backConfig.jsonConfig.demo_mode_enable === "true",
+							}
+						})
 					}
 
 					// ROLE CHECK (If fail)
