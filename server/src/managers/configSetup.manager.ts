@@ -94,6 +94,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 			password: await hashPassword(data.form.password),
 			dataFolder: data.form.dataFolder,
 		}
+	saveSetupJson(newConfig)
 
 		answer = { code: 'SUCCESS_CONFIG_CREATION' }
 	}
