@@ -247,6 +247,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('sendLoginInfos', async data => {
 		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
+		// console.log(12333333333333, areClientInfosCorrect);
 		if (!areClientInfosCorrect) {
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
 		} else {
@@ -308,7 +309,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// 
 	serverSocket2.on('updateSetupJson', async data => {
 		updateSetupJsonParam(data.paramName, data.paramValue)
-	},{ checkRole: "editor"})
+	}, { checkRole: "editor" })
 
 }
 
