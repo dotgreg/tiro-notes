@@ -419,6 +419,7 @@ const graphApp = (innerTagStr, opts) => {
 				// const graphFilterCacheId = `ctag-graph-${normalizeStr(api.utils.getInfos().innerTag)}`
 				const filterIdCache = "filter-cache"
 				// const initValueFilter = window.localStorage.getItem(graphFilterCacheId)
+				setTimeout(()=>{
 				getCache(initValueFilter => {
 						if (initValueFilter) {
 								filterInput.value = initValueFilter
@@ -427,6 +428,7 @@ const graphApp = (innerTagStr, opts) => {
 								}, 100)
 						}
 				}, () => {}, filterIdCache)
+								}, 100)
 				
 
 
