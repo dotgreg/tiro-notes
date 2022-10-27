@@ -619,6 +619,23 @@ noteLink should be relative from tiro folder
  
 
 
+ ## Api.call : watch
+ 
+
+#### <span class="render-code-wrapper">watch.file</span>
+ - Description: 
+Watch for file changes
+
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. notePath: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(newNoteContent: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"watch.file",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(newNoteContent: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : _References
  
 

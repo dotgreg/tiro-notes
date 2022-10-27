@@ -31,7 +31,7 @@ interface iEventBusSubscribers {
 	[reqId: string]: {
 		cb: Function,
 		options: iEventBusOptions
-	}
+	}[]
 }
 export interface iApiEventBus {
 	subscribe: (reqId: string, cb: Function, options?: iEventBusOptions) => void
@@ -116,7 +116,8 @@ export const useClientApi = (p: {
 	const subscribers = useRef<iEventBusSubscribers>({})
 	const subscribe: iApiEventBus['subscribe'] = (reqId, cb, options) => {
 		if (!options) options = {}
-		subscribers.current[reqId] = { cb, options }
+		if (!subscribers.current[reqId]) subscribers.current[reqId] = []
+		subscribers.current[reqId].push({ cb, options })
 	}
 	const unsubscribe: iApiEventBus['unsubscribe'] = reqId => {
 		delete subscribers.current[reqId]
@@ -124,9 +125,11 @@ export const useClientApi = (p: {
 	const notify: iApiEventBus['notify'] = (reqId, dataAnswer) => {
 		each(subscribers.current, (subObj, sReqId) => {
 			if (sReqId === reqId) {
-				try { subObj.cb(dataAnswer); }
-				catch (e) { console.log('[CLIENT API] error with function', e); }
-				if (!subObj.options.persistent) unsubscribe(reqId)
+				each(subObj, cbObj => {
+					try { cbObj.cb(dataAnswer); }
+					catch (e) { console.log('[CLIENT API] error with function', e); }
+					if (!cbObj.options.persistent) unsubscribe(reqId)
+				})
 			}
 		});
 	}

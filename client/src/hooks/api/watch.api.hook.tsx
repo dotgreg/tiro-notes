@@ -18,6 +18,7 @@ export interface iWatchApi {
 	) => void
 }
 
+// let watchCounter
 
 export const useWatchApi = (p: {
 	eventBus: iApiEventBus
