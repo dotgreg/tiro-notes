@@ -418,6 +418,7 @@ const graphApp = (innerTagStr, opts) => {
 				// caching in LS filter
 				const filterIdCache = "filter-cache"
 				const fetchFilterValue = () => {
+						console.log(h, "=> fetch filter value from backend");
 						getCache(initValueFilter => {
 								if (initValueFilter) {
 										const filterInput = document.getElementById('filter-graph');
@@ -433,6 +434,9 @@ const graphApp = (innerTagStr, opts) => {
 						fetchFilterValue()
 						setTimeout(()=>{
 								fetchFilterValue()
+								setTimeout(()=>{
+										fetchFilterValue()
+								}, 1000)
 						}, 1000)
 				}, 100)
 				
