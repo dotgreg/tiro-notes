@@ -3,7 +3,7 @@ const graphApp = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
 		if (!opts.size) opts.size = "100%"
-		const h = `[GRAPH CTAG] 1.0.2 19/09/22 =>`
+		const h = `[GRAPH CTAG] 1.0.3 27/10/22 =>`
 
 		if (!folderPath.startsWith("/")) return console.error(h, "folderpath should start by a '/'")
 		console.log(h, "init CTAG with folder:", folderPath);

@@ -16,16 +16,21 @@ export const WindowEditorInt = (p: {
 	// GET CONTENT 
 	//
 	useEffect(() => {
-		// on content loading, display loading... and cannot edit
-		// setFileContent('loading...')
 		setCanEdit(false)
 
 		if (!file) return
 		getApi(api => {
+			// LOAD CONTENT FIRST
 			api.file.getContent(file.path, content => {
 				setFileContent(content)
-				// console.log(22222, content);
 				setCanEdit(true)
+			})
+
+
+			// THEN WATCH FOR UPDATE BY OTHER CLIENTS
+			api.watch.file(file.path, content => {
+				setFileContent(content)
+				// console.log(2222222222222, content, file.path);
 			})
 		})
 	}, [file?.path])

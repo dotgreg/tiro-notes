@@ -83,6 +83,9 @@ const DualViewerInt = (
 	}, [p.lineJumpEvent])
 
 
+
+
+
 	///////////////////////////////////////
 	// DIFFERENT SCROLLS
 	// get information on currently scrolled line
