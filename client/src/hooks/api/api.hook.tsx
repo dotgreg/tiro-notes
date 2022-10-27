@@ -19,15 +19,22 @@ import { iNoteApi, useNoteApi } from './note.api.hook';
 import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 import { iCacheApi, useCacheApi } from './cache.api.hook';
 import { sharedConfig } from '../../../../shared/shared.config';
+import { iWatchApi, useWatchApi } from './watch.api.hook';
 
 
 
 //
 // INTERFACES
 //
-interface iEventBusSubscribers { [reqId: string]: Function }
+interface iEventBusOptions { persistent?: boolean }
+interface iEventBusSubscribers {
+	[reqId: string]: {
+		cb: Function,
+		options: iEventBusOptions
+	}
+}
 export interface iApiEventBus {
-	subscribe: (reqId: string, cb: Function) => void
+	subscribe: (reqId: string, cb: Function, options?: iEventBusOptions) => void
 	unsubscribe: (reqId: string) => void
 	notify: (reqId: string, answer: any) => void
 }
@@ -42,6 +49,7 @@ export interface iClientApi {
 	/**
 	 * comment3
 	 */
+	watch: iWatchApi
 	cache: iCacheApi
 	popup: iPopupApi
 	files: iFilesApi
@@ -106,20 +114,19 @@ export const useClientApi = (p: {
 	// EVENT/LISTENER BUS MANAGEMENT
 	//
 	const subscribers = useRef<iEventBusSubscribers>({})
-	const subscribe: iApiEventBus['subscribe'] = (reqId, cb) => {
-
-
-		subscribers.current[reqId] = cb
+	const subscribe: iApiEventBus['subscribe'] = (reqId, cb, options) => {
+		if (!options) options = {}
+		subscribers.current[reqId] = { cb, options }
 	}
 	const unsubscribe: iApiEventBus['unsubscribe'] = reqId => {
 		delete subscribers.current[reqId]
 	}
 	const notify: iApiEventBus['notify'] = (reqId, dataAnswer) => {
-		each(subscribers.current, (sCb, sReqId) => {
+		each(subscribers.current, (subObj, sReqId) => {
 			if (sReqId === reqId) {
-				try { sCb(dataAnswer); }
+				try { subObj.cb(dataAnswer); }
 				catch (e) { console.log('[CLIENT API] error with function', e); }
-				unsubscribe(reqId)
+				if (!subObj.options.persistent) unsubscribe(reqId)
 			}
 		});
 	}
@@ -136,6 +143,7 @@ export const useClientApi = (p: {
 	}, [])
 
 
+	const watchApi = useWatchApi({ eventBus });
 	const searchApi = useSearchApi({
 		eventBus,
 		statusApi: p.statusApi
@@ -184,6 +192,7 @@ export const useClientApi = (p: {
 		status: p.statusApi,
 		note: noteApi,
 		search: searchApi,
+		watch: watchApi,
 		ui: {
 			browser: browserApi,
 			windows: p.windowsApi,

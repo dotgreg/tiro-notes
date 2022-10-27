@@ -18,6 +18,7 @@ import { log } from "./managers/log.manager";
 import { debounceCleanHistoryFolder } from "./managers/history.manager";
 import { getFolderPath } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
+import { ioServer } from "./server";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -122,8 +123,17 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		await upsertRecursivelyFolders(pathToFile)
 		await saveFile(pathToFile, data.newFileContent)
-		// sends back to all sockets the updated content
+
 		// ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
+
+		// sends back to all sockets the updated content
+		if (!pathToFile.includes("/.tiro/")) {
+			console.log("=========================== WATCH UPDATE", pathToFile);
+			ioServer.emit('onNoteWatchUpdate', {
+				filePath: data.filePath,
+				fileContent: data.newFileContent
+			})
+		}
 	}, { disableDataLog: true, checkRole: "editor" })
 
 
@@ -191,7 +201,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// only keep up to x days of history files
 		debounceCleanHistoryFolder()
 
-	}, { checkRole: "editor" })
+	}, { checkRole: "editor", disableDataLog: true })
 
 	serverSocket2.on('onFileDelete', async data => {
 		log(`DELETING ${backConfig.dataFolder}${data.filepath}`);

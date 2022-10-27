@@ -58,9 +58,9 @@ export interface iApiDictionary {
 		code: 'WRONG_TOKEN' | 'WRONG_USER_PASSWORD' | 'SUCCESS',
 		token?: string
 		loginInfos?: {
-							viewer_enabled: boolean 
-							viewer_password: string
-							demo_mode: boolean
+			viewer_enabled: boolean
+			viewer_password: string
+			demo_mode: boolean
 		}
 	},
 
@@ -73,4 +73,5 @@ export interface iApiDictionary {
 
 	updateSetupJson: { paramName: string, paramValue: string, idReq: string }
 
+	onNoteWatchUpdate: { filePath: string, fileContent: string }
 }
