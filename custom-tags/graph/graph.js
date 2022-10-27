@@ -416,19 +416,25 @@ const graphApp = (innerTagStr, opts) => {
 
 
 				// caching in LS filter
-				// const graphFilterCacheId = `ctag-graph-${normalizeStr(api.utils.getInfos().innerTag)}`
 				const filterIdCache = "filter-cache"
-				// const initValueFilter = window.localStorage.getItem(graphFilterCacheId)
+				const fetchFilterValue = () => {
+						getCache(initValueFilter => {
+								if (initValueFilter) {
+										const filterInput = document.getElementById('filter-graph');
+										filterInput.value = initValueFilter
+										setTimeout(() => {
+												searchForWord()
+										}, 100)
+								}
+						}, () => {}, filterIdCache)
+				}
+				// try fetching several times at beginning
 				setTimeout(()=>{
-				getCache(initValueFilter => {
-						if (initValueFilter) {
-								filterInput.value = initValueFilter
-								setTimeout(() => {
-										searchForWord()
-								}, 100)
-						}
-				}, () => {}, filterIdCache)
-								}, 100)
+						fetchFilterValue()
+						setTimeout(()=>{
+								fetchFilterValue()
+						}, 1000)
+				}, 100)
 				
 
 
