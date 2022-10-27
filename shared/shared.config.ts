@@ -35,11 +35,11 @@ export const sharedConfig = {
 	},
 	client: {
 		log: {
-			verbose: false,
-			socket: false,
-			upload: false,
-			iframe: false,
-			eventManager: false,
+			verbose: true,
+			socket: true,
+			upload: true,
+			iframe: true,
+			eventManager: true,
 		},
 		version: '0.30.95',
 		params: {
