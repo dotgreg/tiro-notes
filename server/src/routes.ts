@@ -129,7 +129,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// sends back to all sockets the updated content
 		if (!pathToFile.includes("/.tiro/")) {
 			console.log("=========================== WATCH UPDATE", pathToFile);
-			ioServer.emit('onNoteWatchUpdate', {
+			// send to everybody but the sender
+			serverSocket2.raw.broadcast.emit('onNoteWatchUpdate', {
+				// ioServer.emit('onNoteWatchUpdate', {
 				filePath: data.filePath,
 				fileContent: data.newFileContent
 			})
@@ -257,7 +259,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('sendLoginInfos', async data => {
 		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
-		// console.log(12333333333333, areClientInfosCorrect);
 		if (!areClientInfosCorrect) {
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
 		} else {
