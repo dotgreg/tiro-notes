@@ -36,6 +36,7 @@ type ApiEmitFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
 export type ServerSocketManager<ApiDict> = {
 	on: ApiOnFn<ApiDict>
 	emit: ApiEmitFn<ApiDict>
+	raw: any
 }
 
 export const sleep = (ms) => {
@@ -122,6 +123,7 @@ export const initServerSocketManager =
 				if (!options?.disableLog) shouldlog && log(`${h} ==> EMIT ${endpoint}`);
 				await rawServerSocket.emit(endpoint, payloadToSend);
 			},
+			raw: rawServerSocket
 		}
 	}
 
