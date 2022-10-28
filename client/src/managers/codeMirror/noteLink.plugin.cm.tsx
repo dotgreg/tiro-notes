@@ -22,7 +22,6 @@ export const noteLinkPreviewPlugin = (windowId: string) => genericReplacementPlu
 export const noteLinkActionClick = (el: HTMLElement) => {
 	// LINK
 	if (el.classList.contains("title-search-link")) {
-		console.log(23333333334);
 		noteLinkClickJSLogic(el)
 		// let link = el.dataset.link
 		// window.open(link, `popup-preview-link`, 'width=800,height=1000')
