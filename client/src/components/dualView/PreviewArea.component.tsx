@@ -1,12 +1,12 @@
 import { clamp, each, random } from 'lodash';
 import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
-import { deviceType, isA} from '../../managers/device.manager';
+import { deviceType, isA } from '../../managers/device.manager';
 import { iContentChunk, noteApiFuncs } from '../../managers/renderNote.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { commonCssEditors } from './EditorArea.component';
 import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
-import {   syncScroll3 } from '../../hooks/syncScroll.hook';
+import { syncScroll3 } from '../../hooks/syncScroll.hook';
 import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 import { noteLinkCss } from '../../managers/codeMirror/noteLink.plugin.cm';
 
@@ -142,9 +142,9 @@ export const PreviewArea = (p: {
 }
 
 
-export const previewAreaSimpleCss = () => {
+export const previewAreaSimpleCss = (d?: any) => {
 
-	const d = {
+	if (!d) d = {
 		w: '.simple-css-wrapper',
 		pl: '.preview-link',
 		r: '.resource-link-icon'
@@ -269,11 +269,11 @@ export const previewAreaSimpleCss = () => {
     img,
     .content-image {
 				cursor: pointer;
-				.content-image-img {
-						${cssVars.els().images}
-						cursor: pointer;
-				}
     }
+			.content-image-img {
+					${cssVars.els().images}
+					cursor: pointer;
+			}
 
     p {
 				display: inline;

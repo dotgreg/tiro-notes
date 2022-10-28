@@ -28,9 +28,10 @@ export const WindowEditorInt = (p: {
 
 
 			// THEN WATCH FOR UPDATE BY OTHER CLIENTS
-			api.watch.file(file.path, content => {
-				console.log(2222222222222, content, file.path);
-				setFileContent(content)
+			api.watch.file(file.path, watchUpdate => {
+				if (file.path === watchUpdate.filePath) {
+					setFileContent(watchUpdate.fileContent)
+				}
 			})
 		})
 	}, [file?.path])

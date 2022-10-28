@@ -8,13 +8,14 @@ import { iApiEventBus } from './api.hook';
 //
 // INTERFACES
 //
+type iWatchUpdate =  { filePath: string, fileContent: string }
 export interface iWatchApi {
 	/**
 	 * Watch for file changes
 	 */
 	file: (
 		notePath: string,
-		cb: (newNoteContent: string) => void,
+		cb: (res:iWatchUpdate) => void,
 	) => void
 }
 
@@ -44,7 +45,7 @@ export const useWatchApi = (p: {
 		// 1. add a PERSISTENT listener function
 		p.eventBus.subscribe(uniqueIdReq, answer => {
 			if (noteLink === answer.filePath) {
-				cb(answer.fileContent)
+				cb(answer)
 			}
 		}, { persistent: true });
 	}

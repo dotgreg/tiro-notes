@@ -32,9 +32,9 @@ input {
   color: ${cssVars.colors.l2.title};
 }
 
-@media print {
-  ${printCss}
-}
+
+${printCss}
+
 
 body {
   position: relative;

@@ -26,6 +26,7 @@ import { CodeMirrorEditor } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { random } from 'lodash';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
+import { printFileContent } from '../../managers/print-pdf.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -224,10 +225,11 @@ const EditorAreaInt = (
 		...uploadBtns(),
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
 		{
-			title: 'Print/download',
+			title: 'Print/PDF',
 			icon: 'faFileDownload',
 			action: () => {
-				window.print()
+				// hide everything but the preview of current window
+				printFileContent(p.windowId, p.file)
 			}
 		},
 		{
