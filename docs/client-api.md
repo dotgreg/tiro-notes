@@ -629,10 +629,10 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. notePath: <span class="render-code-wrapper">string</span>
-    - Result: <span class="render-code-wrapper">(newNoteContent: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=iwatchupdate">iWatchUpdate</a></span>) => <span class="render-code-wrapper">void</span></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"watch.file",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(newNoteContent: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"watch.file",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=iwatchupdate">iWatchUpdate</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 
@@ -755,6 +755,12 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;key: <span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>, <br/>&nbsp;&nbsp;&nbsp;val: <span class="render-code-wrapper">any</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iWatchUpdate</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fileContent: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;filePath: <span class="render-code-wrapper">string</span><br/>}</span></div>
 
 <style>
 h4 .render-code-wrapper {

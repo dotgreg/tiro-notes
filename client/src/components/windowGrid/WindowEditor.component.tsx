@@ -15,7 +15,11 @@ export const WindowEditorInt = (p: {
 	//
 	// GET CONTENT 
 	//
+	let filePathRef = useRef<string>(file?.path || "")
+
 	useEffect(() => {
+		filePathRef.current = file?.path || ""
+
 		setCanEdit(false)
 
 		if (!file) return
@@ -29,7 +33,7 @@ export const WindowEditorInt = (p: {
 
 			// THEN WATCH FOR UPDATE BY OTHER CLIENTS
 			api.watch.file(file.path, watchUpdate => {
-				if (file.path === watchUpdate.filePath) {
+				if (filePathRef.current === watchUpdate.filePath) {
 					setFileContent(watchUpdate.fileContent)
 				}
 			})
