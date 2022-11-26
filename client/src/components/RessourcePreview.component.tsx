@@ -12,6 +12,10 @@ import { ButtonsToolbar, iToolbarButton } from './ButtonsToolbar.component';
 import { ContentBlock } from './ContentBlock.component';
 
 
+//
+// Most of the logic here is not react but SSR, direct js binding
+//
+
 const heightIframe = {
 	big: 400,
 	small: 200
@@ -46,7 +50,7 @@ export const RessourcePreview = (p: {
 	// IF CAN BE PREVIEWED
 	//
 	let canBePreviewed = false
-	let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html"]
+	let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub"]
 	if (previewFormats.includes(filetype.toLowerCase())) canBePreviewed = true
 
 	// for doc/docx/xls/xlsx/ppt/pptx + if window.location is not ip OR localhost, open it with google preview
@@ -88,6 +92,23 @@ export const RessourcePreview = (p: {
 		let el = document.querySelector(query)
 		el?.addEventListener("click", e => { action(e) })
 	}
+	const ssrOpenEpubCtag = () => {
+		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
+		if (!elIframe) return
+		let isIframeOpen = elIframe.querySelector(`iframe`)
+		let idEl = renderReactToId(<ContentBlock
+			file={p.file}
+			block={{ type: 'tag', tagName: 'epub', content: previewLink, start: 0, end: 0 }}
+			windowHeight={heightIframe.big + 75}
+
+			windowId="null"
+			yCnt={0}
+			onIframeMouseWheel={() => { }}
+		/>, { delay: 100 });
+		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
+		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
+	}
+
 	const ssrOpenPdfCtag = () => {
 		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
 		if (!elIframe) return
@@ -119,13 +140,30 @@ export const RessourcePreview = (p: {
 		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
 	}
 
-	// INIT SSR
+
+
+
+
+
+
+
+
+
+	// INIT SSR (server side rendering, no react)
 	const ssrInitLogic = () => {
 		setTimeout(() => {
 			let barPath = `.${elId} ul.buttons-toolbar-component`
 			ssrOnClick(`${barPath} .btn-preview`, () => {
 				if (isLocal && canBePreviewedOnline) return
-				if (filetype.toLocaleLowerCase() === "pdf") {
+				if (filetype.toLocaleLowerCase() === "epub") {
+
+					getApi(api => {
+						api.file.getContent("/.tiro/tags/epub.md", content => {
+							ssrOpenEpubCtag()
+						}, { onError: err => { } })
+					})
+
+				} else if (filetype.toLocaleLowerCase() === "pdf") {
 					// if we detect the ctag pdf, replace preview iframe by ctag
 					getApi(api => {
 						api.file.getContent("/.tiro/tags/pdf.md", content => {

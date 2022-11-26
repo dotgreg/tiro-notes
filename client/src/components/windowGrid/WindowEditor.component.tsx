@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { iWindowContent } from '../../../../shared/types.shared';
-import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
+import { iViewType, iWindowContent } from '../../../../shared/types.shared';
+import { getApi } from '../../hooks/api/api.hook';
+import { getContentViewTag, getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
 export const WindowEditorInt = (p: {
@@ -11,6 +12,10 @@ export const WindowEditorInt = (p: {
 	const { file, view, active, i } = { ...p.content }
 
 	const [fileContent, setFileContent] = useState('')
+	const [intViewType, setIntViewType] = useState<iViewType>()
+	useEffect(() => {
+		setIntViewType(view)
+	}, [view])
 
 	//
 	// GET CONTENT 
@@ -26,6 +31,15 @@ export const WindowEditorInt = (p: {
 		getApi(api => {
 			// LOAD CONTENT FIRST
 			api.file.getContent(file.path, content => {
+
+				// IF '--view-IVIEWTYPE' like '--view-editor' found inside the content,
+				// change the window view else come back to lastViewType
+				// let contentViewType = getContentViewTag(content)
+				// contentViewType ? setIntViewType(contentViewType) : setIntViewType(view)
+				getNoteView(file.path).then(res => {
+					if (res) setIntViewType(res)
+				})
+
 				setFileContent(content)
 				setCanEdit(true)
 			})
@@ -38,7 +52,7 @@ export const WindowEditorInt = (p: {
 				}
 			})
 		})
-	}, [file?.path])
+	}, [file?.path, fileContent])
 
 	// can edit locally if file loading/not
 	const [canEdit, setCanEdit] = useState(false)
@@ -75,7 +89,7 @@ export const WindowEditorInt = (p: {
 						isActive={active}
 						canEdit={canEdit}
 
-						viewType={view}
+						viewType={intViewType}
 						onViewChange={p.onViewChange}
 
 						onFileEdited={(path, content) => {

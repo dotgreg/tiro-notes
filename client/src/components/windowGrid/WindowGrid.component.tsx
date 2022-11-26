@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import { cloneDeep, each, random } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { useNextState } from '../../hooks/useNextStateAction.hook';
 import { initClipboardListener } from '../../managers/clipboard.manager';
@@ -182,6 +182,10 @@ export const WindowGrid = (p: {
 			onImagePasted: handleUpload
 		})
 
+		// getApi(api => {
+		// 	api.tabs.
+		// })
+
 		return () => {
 			// cleanup events
 			cleanClipBoard();
@@ -189,6 +193,7 @@ export const WindowGrid = (p: {
 		}
 
 	}, [p.tab])
+
 
 
 	return (//jsx

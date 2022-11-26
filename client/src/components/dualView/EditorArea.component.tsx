@@ -27,6 +27,7 @@ import { useDebounce } from '../../hooks/lodash.hooks';
 import { random } from 'lodash';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
+import { setNoteView } from '../../managers/windowViewType.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -326,6 +327,13 @@ const EditorAreaInt = (
 	// }, [simpleFallback]);
 
 
+	//
+	// VIEW TOGGLE
+	//
+	const viewToggle = (nView: iViewType) => {
+		setNoteView(p.file.path, nView)
+		p.onViewToggle(nView)
+	}
 
 
 	return (
@@ -370,22 +378,22 @@ const EditorAreaInt = (
 												{
 													title: 'Editor',
 													icon: "custom_icons/view-3.svg",
-													action: () => { p.onViewToggle('editor') }
+													action: () => { viewToggle('editor') }
 												},
 												{
 													title: 'Editor with minimap',
 													icon: "custom_icons/view-4.svg",
-													action: () => { p.onViewToggle('editor-with-map') }
+													action: () => { viewToggle('editor-with-map') }
 												},
 												{
 													title: 'Dual view',
 													icon: "custom_icons/view-1.svg",
-													action: () => { p.onViewToggle('both') }
+													action: () => { viewToggle('both') }
 												},
 												{
 													title: 'Render view',
 													icon: "custom_icons/view-2.svg",
-													action: () => { p.onViewToggle('preview') }
+													action: () => { viewToggle('preview') }
 												},
 											]}
 										/>
@@ -707,7 +715,16 @@ export const EditorArea = (p: iEditorProps) => {
 	const api = useContext(ClientApiContext);
 	const isConnected = api?.status.isConnected || false
 
+	// return <EditorAreaInt {...p} isConnected={isConnected} />
 	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
-	}, [isConnected, p.canEdit, p.editorType, p.file.path, p.file, p.fileContent, p.isActive, p.jumpToLine])
+	}, [
+		isConnected,
+		p.canEdit,
+		p.editorType,
+		p.file.path,
+		p.file,
+		p.fileContent,
+		p.isActive,
+		p.jumpToLine])
 }

@@ -63,7 +63,7 @@ export const addNewWindowConfig = (p: {
 
 
 export const useTabs = () => {
-	const h = `[TABS] 00542`
+	const h = `[TABS]`
 
 	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
 	const setTabs = (nTabs: iTab[]) => {
@@ -173,12 +173,14 @@ export const useTabs = () => {
 
 	// on layout resizing, adding/removing windows etc...
 	const updateActiveTabGrid = (grid: iGrid) => {
+		console.log("345- UPDATE WINDOW GRID", grid);
 		const nTabs = cloneDeep(tabs)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
 		nTabs[aId].grid = grid
 		// console.log(`[TAB LAYOUT] update tab grid n:${aId}`, grid);
-		//const nTabs2 = refreshTabsViews(tabs)
+		// const nTabs2 = refreshTabsViews(nTabs)
+		// setTabs(nTabs2)
 		setTabs(nTabs)
 	}
 

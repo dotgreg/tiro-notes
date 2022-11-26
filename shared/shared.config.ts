@@ -27,19 +27,19 @@ export const sharedConfig = {
 
 	server: {
 		log: {
-			socket: true,
-			verbose: true,
-			fs: true,
-			ripgrep: true,
+			socket: false,
+			verbose: false,
+			fs: false,
+			ripgrep: false,
 		}
 	},
 	client: {
 		log: {
-			verbose: true,
-			socket: true,
-			upload: true,
-			iframe: true,
-			eventManager: true,
+			verbose: false,
+			socket: false,
+			upload: false,
+			iframe: false,
+			eventManager: false,
 		},
 		version: '0.30.95',
 		params: {

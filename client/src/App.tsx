@@ -54,10 +54,23 @@ export const App = () => {
 
 		startListeningToKeys();
 
+		// setInterval(() => {
+		// 	// document.getElementById("root")?.style?.top = 10
+		// 	// document.getElementById("root")!.style['-o-transform-origin'] = ""
+		// 	let root = document.getElementById("root")
+		// 	if (root) {
+		// 		// root.style["top"] = "100px"
+		// 		// root.style["position"] = "absolute"
+		// 		console.log(root.clientTop);
+		// 	}
+		// }, 1000)
+
 		return () => {
 			// COMPONENT will unmount
 			console.log('app will unmount');
 		}
+
+
 	}, [])
 
 
@@ -278,6 +291,7 @@ export const App = () => {
 
 
 
+
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
@@ -370,7 +384,7 @@ export const App = () => {
 												}
 											}}
 											onFolderOpen={folderPath => {
-												askForFolderScan([folderPath], {cache:false})
+												askForFolderScan([folderPath])
 											}}
 											onFolderClose={folderPath => {
 
@@ -505,6 +519,6 @@ export const App = () => {
 				/>
 			}
 		</div >
-	)//jsx
+	)
 }
 
