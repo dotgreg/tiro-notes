@@ -1,25 +1,4 @@
 
-export const printCssOLD2 = `
-@media print {
-		body * {
-				display: none;
-		}
-		.print-wrapper, print-wrapper * {
-				display: block;
-		}
-		.print-wrapper {
-				overflow: hidden;
-				position: fixed;
-				left: 0;
-				top: 0;
-				width: 100%!important;
-				height: 1000vh!important;
-				z-index: 10000000000000;
-				background-color: red;
-		}
-}
-`
-
 export const printCss = `
 @page {
     margin: 0;
@@ -29,8 +8,10 @@ export const printCss = `
 .main-wrapper,
 #root,
 .print-body {
-		height: 1000vh;
-		overflow: scroll;
+	// position: absolute;
+// top: 22px;
+		// height: 1000vh;
+		// overflow: scroll;
 }
 
 .print-wrapper {
