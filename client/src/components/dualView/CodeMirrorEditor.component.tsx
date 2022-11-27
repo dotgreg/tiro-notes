@@ -234,6 +234,13 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.cm-selectionLayer {
+    pointer-events: none;
+	z-index:0!important;
+}
+.cm-selectionBackground {
+	background: rgba(0,0,0,0.1);
+}
 
 
 .actionable-title {
