@@ -10,23 +10,31 @@ import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
 export const linksPreviewPlugin = genericReplacementPlugin({
-	pattern: regexs.externalLink,
+	pattern: regexs.externalLink3,
 	replacement: matchs => {
+		console.log(matchs);
 		let resEl = document.createElement("span");
+
+
+		let fullLink = matchs[0].slice(0, -1) // removing last /
+		let website = matchs[1].replace("www.", "")
+		let firstSlash = matchs[3]
+		let secondSlash = matchs[4]
+
+		// return resEl;
 		resEl.classList.add('link-mdpreview-wrapper')
 		resEl.classList.add('link-wrapper')
 
 		let limitChar = 20
-		let fullLink = matchs[0]
-		let website = matchs[1].replace("www.", "")
 		if (website.length > limitChar) website = website.substring(website.length - limitChar)
-		let artTitle = matchs[3]
-		if (artTitle === "" || !artTitle) artTitle = matchs[2]
+		let artTitle = firstSlash
+		if (artTitle === "" || !artTitle) artTitle = secondSlash
 		if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
 
-		let previewStr = ` ${website}:${artTitle}`
+		artTitle = (artTitle.length !== 0) ? `:${artTitle}` : ``
 
-		let idW = ""
+		let previewStr = `${website}${artTitle}`
+
 		let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
 		let openWindow = `<span class="link-openwindow" data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
 		let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow}`

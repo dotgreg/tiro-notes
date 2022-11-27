@@ -2,7 +2,6 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import { css, cx } from '@emotion/css'
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
-import { random } from 'lodash';
 
 export const ButtonsToolbarInt = (p: {
 	// export const ButtonsToolbar = (p: {

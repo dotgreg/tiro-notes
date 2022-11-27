@@ -24,6 +24,8 @@ export const regexs = {
 
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
+	externalLink2: /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/gm,
+	externalLink3: /https?:\/\/((www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-Z0-9()@:%_\+.~#?&=]*\/)?([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)\/(\n| |$)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,
 	baliseHtml: VerEx().find('<').anythingBut('<>').then('>'),
@@ -61,8 +63,10 @@ export const regexs = {
 		.anythingBut(" ")
 		.then("/")
 		.beginCapture().anythingBut("? ").endCapture()
-		.anythingBut(" ")
-		.then(" ")
+		.anythingBut(" \n")
+		// .then("/")
+		// .then("/").or("\n")
+		.then("\\n")
 		.endCapture(),
 
 	url2transform: VerEx().find('!').beginCapture().find('http').maybe('s').then('://').beginCapture().anything().endCapture().endCapture(),
