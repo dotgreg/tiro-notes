@@ -107,10 +107,12 @@ export const RessourcePreview = (p: {
 		/>, { delay: 100 });
 		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
 		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
+		setStatus(!isIframeOpen ? "open" : "closed")
 	}
 
 	const ssrOpenPdfCtag = () => {
 		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
+		console.log("WTFFFFFFFF");
 		if (!elIframe) return
 		let isIframeOpen = elIframe.querySelector(`iframe`)
 		let idEl = renderReactToId(<ContentBlock
@@ -124,6 +126,7 @@ export const RessourcePreview = (p: {
 		/>, { delay: 100 });
 		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
 		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
+		setStatus(!isIframeOpen ? "open" : "closed")
 	}
 	const ssrOpenIframe = () => {
 		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
@@ -138,12 +141,62 @@ export const RessourcePreview = (p: {
 				/>`
 		if (!elIframe) return
 		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
+		setStatus(!isIframeOpen ? "open" : "closed")
 	}
 
 
 
+	const ssrOpenPreview = () => {
+		console.log("CLICK PREV");
+		if (isLocal && canBePreviewedOnline) return
+		if (filetype.toLocaleLowerCase() === "epub") {
+
+			getApi(api => {
+				api.file.getContent("/.tiro/tags/epub.md", content => {
+					ssrOpenEpubCtag()
+				}, { onError: err => { } })
+			})
+
+		} else if (filetype.toLocaleLowerCase() === "pdf") {
+			// if we detect the ctag pdf, replace preview iframe by ctag
+			getApi(api => {
+				api.file.getContent("/.tiro/tags/pdf.md", content => {
+					ssrOpenPdfCtag()
+				}, {
+					onError: err => {
+						ssrOpenIframe()
+					}
+				})
+			})
+		} else {
+			ssrOpenIframe()
+		}
+	}
 
 
+	let cacheId = `ressource-preview-status`
+	let idRess = `${p.file.path}-${link}`
+	type cachedStatus = "open" | "closed"
+	const setStatus = (status: cachedStatus) => {
+		console.log("SET STATUS", status, idRess);
+		getApi(api => {
+			api.cache.get(cacheId, res => {
+				if (!res) res = {}
+				res[idRess] = status
+				api.cache.set(cacheId, res, 100000000000000000)
+			})
+		})
+	}
+	const getStatus = (cb: (status: cachedStatus) => void) => {
+		getApi(api => {
+			api.cache.get(cacheId, res => {
+				if (!res) return
+				let r = res[idRess] ? res[idRess] : "closed"
+				cb(r)
+			})
+		})
+
+	}
 
 
 
@@ -152,32 +205,15 @@ export const RessourcePreview = (p: {
 	// INIT SSR (server side rendering, no react)
 	const ssrInitLogic = () => {
 		setTimeout(() => {
-			let barPath = `.${elId} ul.buttons-toolbar-component`
-			ssrOnClick(`${barPath} .btn-preview`, () => {
-				if (isLocal && canBePreviewedOnline) return
-				if (filetype.toLocaleLowerCase() === "epub") {
 
-					getApi(api => {
-						api.file.getContent("/.tiro/tags/epub.md", content => {
-							ssrOpenEpubCtag()
-						}, { onError: err => { } })
-					})
-
-				} else if (filetype.toLocaleLowerCase() === "pdf") {
-					// if we detect the ctag pdf, replace preview iframe by ctag
-					getApi(api => {
-						api.file.getContent("/.tiro/tags/pdf.md", content => {
-							ssrOpenPdfCtag()
-						}, {
-							onError: err => {
-								ssrOpenIframe()
-							}
-						})
-					})
-				} else {
-					ssrOpenIframe()
-				}
+			getStatus(status => {
+				if (status === "open") ssrOpenPreview()
 			})
+
+
+			// ADD JS LOGIC TO BUTTONS
+			let barPath = `.${elId} ul.buttons-toolbar-component`
+			ssrOnClick(`${barPath} .btn-preview`, ssrOpenPreview)
 			ssrOnClick(`${barPath} .btn-open`, () => {
 				if (isLocal && canBePreviewedOnline) return
 				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
@@ -188,6 +224,7 @@ export const RessourcePreview = (p: {
 		}, 100)
 	}
 	ssrInitLogic()
+	// console.log(downloadFile);
 
 	return (
 		<div className={`${elId} resource-link-iframe-wrapper`}>
@@ -196,7 +233,7 @@ export const RessourcePreview = (p: {
 				<div className={`resource-link-content-wrapper`}>
 					<a className="resource-link preview-link"
 						href={ressLink}
-						download={downloadFile}
+						download
 					>
 						{name} ({filetype})
 					</a>

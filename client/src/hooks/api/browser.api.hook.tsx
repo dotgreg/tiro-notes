@@ -43,7 +43,7 @@ export interface iBrowserApi {
 		clean: Function
 		scan: (
 			foldersPath: string[],
-			opts?: { cache?: boolean }
+			opts?: { cache?: boolean, background?: boolean }
 		) => void
 		open: {
 			get: string[]
@@ -193,18 +193,20 @@ export const useBrowserApi = (p: {
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths, opts) => {
 		if (!opts) opts = {}
 		if (!isBoolean(opts.cache)) opts.cache = true
+		let bg = !isBoolean(opts.background) ? false : opts.background
 
 		let pathMerged = foldersPaths.join("-")
 		let lg = pathMerged.length
 		pathMerged = pathMerged.substring(0, 30) + "-" + lg
 		const cacheId = `folder-scan-${pathMerged}`
-		console.log("[FOLDER SCAN] cache =>", opts);
+		// console.log("[FOLDER SCAN] cache =>", opts);
 
 		getApi(api => {
+
 			const askForScanApi = () => {
 				api.folders.get(foldersPaths, data => {
-					console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
-					processScannedFolders(data.pathBase, data.folders)
+					// console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
+					!bg && processScannedFolders(data.pathBase, data.folders)
 					api.cache.set(cacheId, data, 999999)
 				})
 			}
@@ -212,18 +214,17 @@ export const useBrowserApi = (p: {
 			// IF cached, first get initial, cached result
 			if (opts && opts.cache) {
 				api.cache.get(cacheId, cachedData => {
-					console.log("[FOLDER SCAN] getting cached results =>", foldersPaths, cachedData);
+					// console.log("[FOLDER SCAN] getting cached results =>", foldersPaths, cachedData);
 					if (!cachedData) {
 						askForScanApi()
 					} else {
-						processScannedFolders(cachedData.pathBase, cachedData.folders)
+						!bg && processScannedFolders(cachedData.pathBase, cachedData.folders)
 						// setTimeout(() => { askForScanApi() }, random(5000, 10000))
 					}
 				})
 			} else {
 				askForScanApi()
 			}
-
 		})
 	}
 

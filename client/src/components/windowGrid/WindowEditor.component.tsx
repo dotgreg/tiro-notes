@@ -13,9 +13,10 @@ export const WindowEditorInt = (p: {
 
 	const [fileContent, setFileContent] = useState('')
 	const [intViewType, setIntViewType] = useState<iViewType>()
+
 	useEffect(() => {
 		setIntViewType(view)
-	}, [view])
+	}, [view, file?.path])
 
 	//
 	// GET CONTENT 

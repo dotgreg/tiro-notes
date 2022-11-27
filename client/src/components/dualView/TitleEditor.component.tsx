@@ -63,8 +63,9 @@ export const NoteTitleInputInt = (p: {
 
 
 
+// disabling memoizing as when editing title, tabs/windows would come back to init pos
 export const NoteTitleInput = React.memo(NoteTitleInputInt, (np, pp) => {
-	let res = true
+	let res = false
 	if (np.title !== pp.title) res = false
 	return res
 })
