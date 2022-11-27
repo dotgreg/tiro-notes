@@ -16,7 +16,6 @@ export const getContentViewTag = (content: string): iViewType | false => {
 
 const cacheId = `notes-view-type`
 export const getNoteView = (notePath: string): Promise<iViewType | false> => {
-	console.log(notePath);
 	return new Promise((res, rej) => {
 		getApi(api => {
 			api.cache.get(cacheId, content => {

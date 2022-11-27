@@ -4,6 +4,7 @@
 		"private": true,
 		"dependencies": {
 				"@babel/core": "7.12.3",
+				"@babel/runtime": "^7.20.1",
 				"@codemirror/autocomplete": "^6.1.0",
 				"@codemirror/lang-markdown": "^6.0.1",
 				"@codemirror/language-data": "^6.1.0",

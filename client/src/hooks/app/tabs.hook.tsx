@@ -173,7 +173,7 @@ export const useTabs = () => {
 
 	// on layout resizing, adding/removing windows etc...
 	const updateActiveTabGrid = (grid: iGrid) => {
-		console.log("345- UPDATE WINDOW GRID", grid);
+		// console.log("345- UPDATE WINDOW GRID", grid);
 		const nTabs = cloneDeep(tabs)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
@@ -235,6 +235,7 @@ export const useTabs = () => {
 	}
 
 	const updateWindows: iWindowsApi['updateWindows'] = (ids, file) => {
+		// console.log("345 777", tabs[1].grid);
 		const nTabs = cloneDeep(tabs)
 		each(ids, id => {
 			each(nTabs, (tab, i) => {

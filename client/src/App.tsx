@@ -368,6 +368,7 @@ export const App = () => {
 														newTitle,
 														renameOnly: true
 													})
+													askForFolderScan([folder.path], { cache: false })
 												} else if (action === 'create' && newTitle) {
 													askFolderCreate(newTitle, folder)
 													askForFolderScan([folder.path], { cache: false })
@@ -378,13 +379,16 @@ export const App = () => {
 														folderBasePath,
 														newTitle
 													})
+													askForFolderScan([folder.path], { cache: false })
 												} else if (action === 'delete') {
 													askFolderDelete(folder)
 													askForFolderScan([folder.path], { cache: false })
 												}
+												// in any cases, ask for whole rescan in background
+												askForFolderScan(foldersUiApi.open.get, { cache: false, background: true })
 											}}
 											onFolderOpen={folderPath => {
-												askForFolderScan([folderPath])
+												askForFolderScan([folderPath], { cache: false })
 											}}
 											onFolderClose={folderPath => {
 

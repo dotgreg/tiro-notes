@@ -32,8 +32,8 @@ interface iCachedDic {
 }
 
 const h = `[CACHE API]`
-// const log = sharedConfig.client.log.verbose
-const log = true
+const log = sharedConfig.client.log.verbose
+// const log = false
 
 
 const now = () => new Date().getTime()

@@ -6,8 +6,8 @@ import { getCustomTheme } from "./theme.cm";
 import { cloneDeep } from "lodash";
 
 const h = `[Code Mirror]`
-// const log = sharedConfig.client.log.verbose
-const log = true
+const log = sharedConfig.client.log.verbose
+// const log = true
 
 ///////////////////////////////////////////////////
 // UTILS FUNCTIONS FOR MANIP AND CURSOR WORK

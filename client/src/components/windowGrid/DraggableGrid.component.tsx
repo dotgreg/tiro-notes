@@ -55,7 +55,7 @@ export const DraggableGrid = (p: {
 
 
 	const onGridUpdate = (layout: iWindow[], content: iWindowContent[]) => {
-		console.log("345- ON GRID UPDATE", layout, content);
+		// console.log("345- ON GRID UPDATE", layout, content);
 		p.onGridUpdate({ layout, content })
 	}
 
@@ -89,7 +89,7 @@ export const DraggableGrid = (p: {
 				const nContent2 = makeWindowActiveInt(nWindow.content.i, nContent)
 				setIntContent(nContent2)
 				//1 
-				console.log("345- 1");
+				// console.log("345- 1");
 				onGridUpdate(nLayout, nContent2)
 			});
 
@@ -118,7 +118,7 @@ export const DraggableGrid = (p: {
 			const nContent = filter(cloneDeep(intContent), c => c.i !== id)
 			setIntContent(nContent)
 			//2
-			console.log("345- 2");
+			// console.log("345- 2");
 			onGridUpdate(nLayout, nContent)
 		});
 
@@ -158,7 +158,7 @@ export const DraggableGrid = (p: {
 		const nContent = makeWindowActiveInt(windowId, intContent)
 		setIntContent(nContent)
 		//3
-		console.log("345- 3");
+		// console.log("345- 3");
 		onGridUpdate(intLayout, nContent)
 
 		// on window active toggle, update browser ui 
@@ -171,14 +171,14 @@ export const DraggableGrid = (p: {
 	//
 	const updateLayoutLogic = (newLayout: iWindow[]) => {
 		//if (intLayout.length !== intContent.length) return
-		console.log("345- 41", newLayout);
+		// console.log("345- 41", newLayout);
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
 			const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
 			updateLastGood(nlayout2)
 			setIntLayout(nlayout2)
 			//4
-			console.log("345- 4");
+			// console.log("345- 4");
 			onGridUpdate(nlayout2, intContent)
 		} else {
 			if (!lastGoodLayout.current) return
@@ -245,8 +245,7 @@ export const DraggableGrid = (p: {
 		const nContent = cloneDeep(intContent);
 		nContent[index].view = nview
 		setIntContent(nContent);
-		//5
-		console.log("345- 5");
+		// console.log("345- 5");
 		onGridUpdate(intLayout, nContent);
 	}
 
