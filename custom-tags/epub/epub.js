@@ -1,329 +1,331 @@
 
 const epubApp = (innerTagStr, opts) => {
-	if (!opts) opts = {}
-	if (!opts.open) opts.open = false
+		if (!opts) opts = {}
+		if (!opts.open) opts.open = false
 
-	const ressPath = opts.base_url + "/ressources"
+		const ressPath = opts.base_url + "/ressources"
 
-	//
-	// INITIALIZATION
-	//
-	//@ts-ignore
-	const api = window.api;
-	const { div, updateContent } = api.utils.createDiv();
-	const infos = api.utils.getInfos();
-	let epubUrl = innerTagStr.trim()
-	let epubName = epubUrl.split("/").slice(-1)[0]
-	const isAbs = epubUrl.startsWith("http")
-	if (isAbs === false) {
-		epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
-	}
-
-	const h = `[CTAG EPUB VIEWER v1]`
-
-	//
-	// CACHE FUNCTIONS
-	//
-	const cacheId = `ctag-epub-${epubName}`
-	const getCache = (id, onSuccess, onFailure) => {
-		api.call("cache.get", [cacheId + id], content => {
-			if (content !== undefined) onSuccess(content)
-			else onFailure()
-		})
-	}
-	const setCache = (id, content) => {
-		// console.log("CACHE set", id, content);
-		api.call("cache.set", [cacheId + id, content, 10000000000000])
-	}
-
-	let ctagHeight = 400
-
-	//
-	// STARTING EPUB LOGIC
-	//
-	window.startEpubLogic = () => {
-		setTimeout(() => {
-			api.utils.loadRessources(
-				[
-					`https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js`,
-					`https://cdn.jsdelivr.net/npm/epubjs@0.3.77/dist/epub.min.js`,
-				],
-				() => {
-					api.utils.resizeIframe(ctagHeight + "px");
-					// api.utils.resizeIframe(800);
-					initEpubReader()
-				}
-			);
-		}, 100)
-		updateContent(htmlEpub())
-	}
-
-
-
-	//
-	// MAIN LOGIC EXECUTION
-	//
-
-	const wh = ctagHeight - 50
-	const p = {
-		w: "100%",
-		h: wh - 50,
-		url: epubUrl
-	}
-
-	const initEpubReader = () => {
-		var params = URLSearchParams && new URLSearchParams(document.location.search.substring(1));
-		var url = params && params.get("url") && decodeURIComponent(params.get("url"));
-		// var currentSectionIndex = (params && params.get("loc")) ? params.get("loc") : undefined;
-		var currentSectionIndex = 2
-
-		// Load the opf
-
-		var book = ePub(p.url);
-		var rendition = book.renderTo("viewer", {
-			width: p.w,
-			height: p.h,
-			spread: "always"
-		});
-		console.log(34555555555);
-
-
-		// EXT API
 		//
-		const jumpToPage = (pageNb) => {
-			if (pageNb < 0) pageNb = 0
-			let cfi = book.locations.cfiFromLocation(pageNb)
-			console.log(h, "JUMPING PAGE", pageNb, cfi);
-			rendition.display(cfi);
+		// INITIALIZATION
+		//
+		//@ts-ignore
+		const api = window.api;
+		const { div, updateContent } = api.utils.createDiv();
+		const infos = api.utils.getInfos();
+		let epubUrl = innerTagStr.trim()
+		let epubName = epubUrl.split("/").slice(-1)[0]
+		const isAbs = epubUrl.startsWith("http")
+		if (isAbs === false) {
+				epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
 		}
-		const getPage = () => {
-			return rendition.currentLocation()?.start?.location || 0
+
+		const h = `[CTAG EPUB VIEWER v1]`
+
+		//
+		// CACHE FUNCTIONS
+		//
+		const cacheId = `ctag-epub-${epubName}`
+		const getCache = (id, onSuccess, onFailure) => {
+				api.call("cache.get", [cacheId + id], content => {
+						if (content !== undefined) onSuccess(content)
+						else onFailure()
+				})
 		}
-		const updateUI = (pageNb, p) => {
-			const main = () => {
-				// console.log("UPDATE UI", { pageNb, p });
-				if (!p) p = {}
-				if (p.pager !== false) p.pager = true
-				if (p.cachePage !== false) p.cachePage = true
+		const setCache = (id, content) => {
+				// console.log("CACHE set", id, content);
+				api.call("cache.set", [cacheId + id, content, 10000000000000])
+		}
 
-				window.updateTot()
-				if (p.pager) window.updatePager(pageNb)
-				if (p.cachePage) setCache("page", getPage())
-			}
+		let ctagHeight = 400
 
-			if (!pageNb) {
+		//
+		// STARTING EPUB LOGIC
+		//
+		window.startEpubLogic = () => {
 				setTimeout(() => {
-					pageNb = getPage()
-					main()
+						api.utils.loadRessources(
+								[
+										`https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.5/jszip.min.js`,
+										`https://cdn.jsdelivr.net/npm/epubjs@0.3.77/dist/epub.min.js`,
+								],
+								() => {
+										api.utils.resizeIframe(ctagHeight + "px");
+										// api.utils.resizeIframe(800);
+										initEpubReader()
+								}
+						);
 				}, 100)
+				updateContent(htmlEpub())
+		}
 
-			} else {
-				main()
-			}
+
+
+		//
+		// MAIN LOGIC EXECUTION
+		//
+
+		const wh = ctagHeight - 50
+		const p = {
+				w: "100%",
+				h: wh - 50,
+				url: epubUrl
 		}
-		const getBookInfos = () => {
-			let tot = book.locations.length()
-			return { tot }
-		}
-		const scanBook = (onDone) => {
-			window.updateStatus("scanning book...")
-			const cacheLocation = "locations"
-			getCache(cacheLocation, locations => {
-				// console.log(1, "LOCATIONS FOUND!", locations);
-				book.locations.load(locations)
-				window.updateStatus("")
-				onDone()
-			}, () => {
-				book.locations.generate(600).then(() => {
-					let nLocs = book.locations._locations
-					// console.log(2, nLocs);
-					setCache(cacheLocation, nLocs)
-					window.updateStatus("")
-					onDone()
+
+		const initEpubReader = () => {
+				var params = URLSearchParams && new URLSearchParams(document.location.search.substring(1));
+				var url = params && params.get("url") && decodeURIComponent(params.get("url"));
+				// var currentSectionIndex = (params && params.get("loc")) ? params.get("loc") : undefined;
+				var currentSectionIndex = 2
+
+				// Load the opf
+
+				var book = ePub(p.url);
+				var rendition = book.renderTo("viewer", {
+						width: p.w,
+						height: p.h,
+						spread: "always"
 				});
-			})
-		}
 
-		window.epubApi = {
-			jumpToPage,
-			getPage,
-			updateUI,
-			getBookInfos,
-			scanBook
-		}
-
-		// window.jumpTo = jumpToPage
+				rendition.themes.default({ "p": { "font-size": "smaller !important"}})
 
 
-		//
-		// WHEN READY
-		//
-
-		book.ready.then(() => {
-
-			let eapi = window.epubApi
-
-			//
-			// INITAL page jump
-			//
-			eapi.scanBook(() => {
-				getCache("page", page => {
-					// console.log(h, "getting page", page);
-					eapi.jumpToPage(page)
-					eapi.updateUI(page, { cachePage: false })
-				}, () => { })
-			})
-
-			// eapi.jumpToPage(10)
-			// eapi.updateUI(10)
-
-			var next = document.getElementById("next");
-
-			next.addEventListener("click", function (e) {
-				book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
-				eapi.updateUI()
-				e.preventDefault();
-			}, false);
-
-			var prev = document.getElementById("prev");
-			prev.addEventListener("click", function (e) {
-				book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
-				eapi.updateUI()
-				e.preventDefault();
-			}, false);
-
-			var keyListener = function (e) {
-
-				// Left Key
-				if ((e.keyCode || e.which) == 37) {
-					book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+				// EXT API
+				//
+				const jumpToPage = (pageNb) => {
+						if (pageNb < 0) pageNb = 0
+						let cfi = book.locations.cfiFromLocation(pageNb)
+						console.log(h, "JUMPING PAGE", pageNb, cfi);
+						rendition.display(cfi);
 				}
-
-				// Right Key
-				if ((e.keyCode || e.which) == 39) {
-					book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+				const getPage = () => {
+						return rendition.currentLocation()?.start?.location || 0
 				}
+				const updateUI = (pageNb, p) => {
+						const main = () => {
+								// console.log("UPDATE UI", { pageNb, p });
+								if (!p) p = {}
+								if (p.pager !== false) p.pager = true
+								if (p.cachePage !== false) p.cachePage = true
 
-			};
-
-			rendition.on("keyup", keyListener);
-			document.addEventListener("keyup", keyListener, false);
-
-			var title = document.getElementById("title");
-
-			rendition.on("rendered", function (section) {
-				var current = book.navigation && book.navigation.get(section.href);
-
-				if (current) {
-					// var $page = document.getElementById("page");
-
-
-					var $select = document.getElementById("toc");
-					var $selected = $select.querySelector("option[selected]");
-					if ($selected) {
-						$selected.removeAttribute("selected");
-					}
-
-					var $options = $select.querySelectorAll("option");
-					for (var i = 0; i < $options.length; ++i) {
-						let selected = $options[i].getAttribute("ref") === current.href;
-						if (selected) {
-							$options[i].setAttribute("selected", "");
+								window.updateTot()
+								if (p.pager) window.updatePager(pageNb)
+								if (p.cachePage) setCache("page", getPage())
 						}
-					}
+
+						if (!pageNb) {
+								setTimeout(() => {
+										pageNb = getPage()
+										main()
+								}, 100)
+
+						} else {
+								main()
+						}
+				}
+				const getBookInfos = () => {
+						let tot = book.locations.length()
+						return { tot }
+				}
+				const scanBook = (onDone) => {
+						window.updateStatus("scanning book...")
+						const cacheLocation = "locations"
+						getCache(cacheLocation, locations => {
+								// console.log(1, "LOCATIONS FOUND!", locations);
+								book.locations.load(locations)
+								window.updateStatus("")
+								onDone()
+						}, () => {
+								book.locations.generate(600).then(() => {
+										let nLocs = book.locations._locations
+										// console.log(2, nLocs);
+										setCache(cacheLocation, nLocs)
+										window.updateStatus("")
+										onDone()
+								});
+						})
 				}
 
-			});
-
-			rendition.on("relocated", function (location) {
-				eapi.updateUI()
-
-
-				var next = book.package.metadata.direction === "rtl" ? document.getElementById("prev") : document.getElementById("next");
-				var prev = book.package.metadata.direction === "rtl" ? document.getElementById("next") : document.getElementById("prev");
-
-				if (location.atEnd) {
-					next.style.visibility = "hidden";
-				} else {
-					next.style.visibility = "visible";
+				window.epubApi = {
+						jumpToPage,
+						getPage,
+						updateUI,
+						getBookInfos,
+						scanBook
 				}
 
-				if (location.atStart) {
-					prev.style.visibility = "hidden";
-				} else {
-					prev.style.visibility = "visible";
+				// window.jumpTo = jumpToPage
+
+
+				//
+				// WHEN READY
+				//
+
+				book.ready.then(() => {
+
+						let eapi = window.epubApi
+
+						//
+						// INITAL page jump
+						//
+						eapi.scanBook(() => {
+								getCache("page", page => {
+										// console.log(h, "getting page", page);
+										eapi.jumpToPage(page)
+										eapi.updateUI(page, { cachePage: false })
+								}, () => { })
+						})
+
+						// eapi.jumpToPage(10)
+						// eapi.updateUI(10)
+
+						var next = document.getElementById("next");
+
+						next.addEventListener("click", function (e) {
+								book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+								eapi.updateUI()
+								e.preventDefault();
+						}, false);
+
+						var prev = document.getElementById("prev");
+						prev.addEventListener("click", function (e) {
+								book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+								eapi.updateUI()
+								e.preventDefault();
+						}, false);
+
+						var keyListener = function (e) {
+
+								// Left Key
+								if ((e.keyCode || e.which) == 37) {
+										book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+								}
+
+								// Right Key
+								if ((e.keyCode || e.which) == 39) {
+										book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+								}
+
+						};
+
+						rendition.on("keyup", keyListener);
+						document.addEventListener("keyup", keyListener, false);
+
+						var title = document.getElementById("title");
+
+						rendition.on("rendered", function (section) {
+								var current = book.navigation && book.navigation.get(section.href);
+
+								if (current) {
+										// var $page = document.getElementById("page");
+
+
+										var $select = document.getElementById("toc");
+										var $selected = $select.querySelector("option[selected]");
+										if ($selected) {
+												$selected.removeAttribute("selected");
+										}
+
+										var $options = $select.querySelectorAll("option");
+										for (var i = 0; i < $options.length; ++i) {
+												let selected = $options[i].getAttribute("ref") === current.href;
+												if (selected) {
+														$options[i].setAttribute("selected", "");
+												}
+										}
+								}
+
+						});
+
+						rendition.on("relocated", function (location) {
+								eapi.updateUI()
+
+
+								var next = book.package.metadata.direction === "rtl" ? document.getElementById("prev") : document.getElementById("next");
+								var prev = book.package.metadata.direction === "rtl" ? document.getElementById("next") : document.getElementById("prev");
+
+								if (location.atEnd) {
+										next.style.visibility = "hidden";
+								} else {
+										next.style.visibility = "visible";
+								}
+
+								if (location.atStart) {
+										prev.style.visibility = "hidden";
+								} else {
+										prev.style.visibility = "visible";
+								}
+
+						});
+
+						rendition.on("layout", function (layout) {
+								let viewer = document.getElementById("viewer");
+
+								if (layout.spread) {
+										viewer.classList.remove('single');
+								} else {
+										viewer.classList.add('single');
+								}
+						});
+
+						window.addEventListener("unload", function () {
+								// console.log(h, "unloading");
+								this.book.destroy();
+						});
+
+						book.loaded.navigation.then(function (toc) {
+								var $select = document.getElementById("toc"),
+										docfrag = document.createDocumentFragment();
+
+								toc.forEach(function (chapter) {
+										var option = document.createElement("option");
+										option.textContent = chapter.label;
+										option.setAttribute("ref", chapter.href);
+
+										docfrag.appendChild(option);
+								});
+
+								$select.appendChild(docfrag);
+
+								$select.onchange = function () {
+										var index = $select.selectedIndex,
+												url = $select.options[index].getAttribute("ref");
+										rendition.display(url);
+										eapi.updateUI()
+
+										return false;
+								};
+
+						});
+
+
+				})
+
+
+
+				const status = document.getElementById("status")
+				const pager = document.getElementById("page")
+				const tot = document.getElementById("tot")
+				const onPagerChange = (e) => {
+						const nPage = e.target.value
+						window.epubApi.jumpToPage(nPage)
+						window.epubApi.updateUI(nPage, { pager: false })
 				}
 
-			});
+				pager.onchange = onPagerChange
+				pager.onkeyup = onPagerChange
 
-			rendition.on("layout", function (layout) {
-				let viewer = document.getElementById("viewer");
-
-				if (layout.spread) {
-					viewer.classList.remove('single');
-				} else {
-					viewer.classList.add('single');
+				window.updatePager = (nPage) => {
+						pager.value = nPage
 				}
-			});
+				window.updateTot = () => {
+						tot.innerHTML = window.epubApi.getBookInfos().tot
+				}
+				window.updateStatus = (text) => {
+						status.innerHTML = text
+				}
 
-			window.addEventListener("unload", function () {
-				// console.log(h, "unloading");
-				this.book.destroy();
-			});
-
-			book.loaded.navigation.then(function (toc) {
-				var $select = document.getElementById("toc"),
-					docfrag = document.createDocumentFragment();
-
-				toc.forEach(function (chapter) {
-					var option = document.createElement("option");
-					option.textContent = chapter.label;
-					option.setAttribute("ref", chapter.href);
-
-					docfrag.appendChild(option);
-				});
-
-				$select.appendChild(docfrag);
-
-				$select.onchange = function () {
-					var index = $select.selectedIndex,
-						url = $select.options[index].getAttribute("ref");
-					rendition.display(url);
-					eapi.updateUI()
-
-					return false;
-				};
-
-			});
-
-
-		})
-
-
-
-		const status = document.getElementById("status")
-		const pager = document.getElementById("page")
-		const tot = document.getElementById("tot")
-		const onPagerChange = (e) => {
-			const nPage = e.target.value
-			window.epubApi.jumpToPage(nPage)
-			window.epubApi.updateUI(nPage, { pager: false })
 		}
 
-		pager.onchange = onPagerChange
-		pager.onkeyup = onPagerChange
-
-		window.updatePager = (nPage) => {
-			pager.value = nPage
-		}
-		window.updateTot = () => {
-			tot.innerHTML = window.epubApi.getBookInfos().tot
-		}
-		window.updateStatus = (text) => {
-			status.innerHTML = text
-		}
-
-	}
 
 
 
@@ -341,16 +343,15 @@ const epubApp = (innerTagStr, opts) => {
 
 
 
+		//
+		// BUTTON OR DIRECT DISPLAY READER
+		//
+		if (opts.open) {
 
-	//
-	// BUTTON OR DIRECT DISPLAY READER
-	//
-	if (opts.open) {
+				window.startEpubLogic()
 
-		window.startEpubLogic()
-
-	} else {
-		const html_button = `
+		} else {
+				const html_button = `
 				<div class="button-open-epub">
 				<div class="resource-link-wrapper">
 				<div class="resource-link-icon epub"></div>
@@ -371,10 +372,10 @@ const epubApp = (innerTagStr, opts) => {
 				}
 				</style>
 				`
-		updateContent(html_button)
-	}
+				updateContent(html_button)
+		}
 
-	return div
+		return div
 }
 
 window.initCustomTag = epubApp
