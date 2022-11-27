@@ -67,13 +67,10 @@ export const genericReplacementPlugin = (p: {
 	return ViewPlugin.fromClass(class {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
-			// console.log("PLUGIN REPLACEMENT", p.pattern);
 			this.decorations = matcher(p.pattern, p.replacement).createDeco(view)
 		}
 		update(update: ViewUpdate) {
-			// console.log("222PLUGIN REPLACEMENT", p.pattern);
 			try {
-				console.log(222222, matcher(p.pattern, p.replacement));
 				this.decorations = matcher(p.pattern, p.replacement).updateDeco(update, this.decorations)
 			} catch (e) {
 				console.warn("[ERROR VIEWPLUGIN CM]", e, update);
