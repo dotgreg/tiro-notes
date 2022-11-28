@@ -10,15 +10,9 @@ import {
 import { syntaxTree } from "@codemirror/language";
 import { styleTags, Tag } from "@lezer/highlight";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
-import { absoluteLinkPathRoot } from "../textProcessor.manager";
-import { getUrlTokenParam } from "../../hooks/app/loginToken.hook";
 import { iFile } from "../../../../shared/types.shared";
-import { getApi } from "../../hooks/api/api.hook";
 import { renderLatex } from "../latex.manager";
-import { isString } from "lodash";
-import { renderToString } from "react-dom/server";
-import { Icon } from '../../components/Icon.component';
-import { linkActionClick, linksPreviewMdCss } from "./urlLink.plugin.cm";
+import { linksPreviewMdCss } from "./urlLink.plugin.cm";
 import { imagePreviewCss } from "./image.plugin.cm";
 import { noteLinkActionClick } from "./noteLink.plugin.cm";
 
@@ -58,34 +52,34 @@ export const LatexMdEl = {
  * - when find one of the parsed new el,
  * - inject our custom widgets
  */
-class ImageMdWidget extends WidgetType {
-	constructor(
-		readonly imgName: string,
-		readonly imgUrl: string,
-		readonly file: iFile
-	) { super(); }
-	ignoreEvent() { return false; }
-	toDOM() {
-		let resEl = document.createElement("div");
-		let url = `${absoluteLinkPathRoot(this.file.folder)}/${this.imgUrl}`
-		resEl.classList.add('cm-mdpreview-wrapper')
-		resEl.classList.add('image-wrapper')
-		resEl.onclick = () => {
-		}
+// class ImageMdWidget extends WidgetType {
+// 	constructor(
+// 		readonly imgName: string,
+// 		readonly imgUrl: string,
+// 		readonly file: iFile
+// 	) { super(); }
+// 	ignoreEvent() { return false; }
+// 	toDOM() {
+// 		let resEl = document.createElement("div");
+// 		let url = `${absoluteLinkPathRoot(this.file.folder)}/${this.imgUrl}`
+// 		resEl.classList.add('cm-mdpreview-wrapper')
+// 		resEl.classList.add('image-wrapper')
+// 		resEl.onclick = () => {
+// 		}
 
-		let btnEnlarge = renderToString(
-			<div className="enlarge" data-src={url}>
-				<Icon name="faExpand" color={`white`} />
-			</div>
-		)
+// 		let btnEnlarge = renderToString(
+// 			<div className="enlarge" data-src={url}>
+// 				<Icon name="faExpand" color={`white`} />
+// 			</div>
+// 		)
 
-		// should be inline otherwise create whitespace
-		resEl.innerHTML = `<div class="cm-mdpreview-image" >${btnEnlarge}<img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>`
+// 		// should be inline otherwise create whitespace
+// 		resEl.innerHTML = `<div class="cm-mdpreview-image" >${btnEnlarge}<img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>`
 
 
-		return resEl;
-	}
-}
+// 		return resEl;
+// 	}
+// }
 
 class LatexMdWidget extends WidgetType {
 	constructor(readonly str: string,) { super(); }
@@ -113,20 +107,20 @@ function insertMdWidgets(view: EditorView, file: iFile) {
 	for (let { from, to } of view.visibleRanges) {
 		syntaxTree(view.state).iterate({
 			from, to, enter: (node: any) => {
-				if (node.name === "ImageMdEl") {
-					let rawStr = view.state.doc.sliceString(node.from, node.to)
-					let matches: any = [...rawStr.matchAll(regexs.imageAndTitleCapture2)]
-					if (!matches || !matches[0]) return
-					matches = matches[0]
-					if (!matches[1] || !matches[2]) return
-					let imgName = matches[1]
-					let imgUrl = matches[2]
-					let deco = Decoration.widget({
-						widget:
-							new ImageMdWidget(imgName, imgUrl, file), side: 1
-					});
-					widgets.push(deco.range(node.from));
-				}
+				// if (node.name === "ImageMdEl") {
+				// 	let rawStr = view.state.doc.sliceString(node.from, node.to)
+				// 	let matches: any = [...rawStr.matchAll(regexs.imageAndTitleCapture2)]
+				// 	if (!matches || !matches[0]) return
+				// 	matches = matches[0]
+				// 	if (!matches[1] || !matches[2]) return
+				// 	let imgName = matches[1]
+				// 	let imgUrl = matches[2]
+				// 	let deco = Decoration.widget({
+				// 		widget:
+				// 			new ImageMdWidget(imgName, imgUrl, file), side: 1
+				// 	});
+				// 	widgets.push(deco.range(node.from));
+				// }
 				if (node.name === "LatexMdEl") {
 					let rawStr = view.state.doc.sliceString(node.from, node.to)
 					let deco = Decoration.widget({
@@ -161,7 +155,7 @@ export const markdownPreviewPlugin = (p: {
 				let el = e.target as HTMLElement;
 
 				// URL LINK
-				linkActionClick(el)
+				// linkActionClick(el)
 
 				// NOTE LINK
 				noteLinkActionClick(el)
@@ -174,16 +168,16 @@ export const markdownPreviewPlugin = (p: {
 				}
 
 				// IMAGE POPUP
-				if (el.classList.contains("enlarge")) {
-					// @ts-ignore
-					let url = el.parentNode.querySelector("img")?.src as string
-					// let url = el.parentNode.dataset.src as string
-					if (!isString(url) || !url.startsWith("http")) return;
-					url = url.replace(getUrlTokenParam(), '')
-					getApi(api => {
-						api.ui.lightbox.open(0, [url])
-					})
-				}
+				// if (el.classList.contains("enlarge")) {
+				// 	// @ts-ignore
+				// 	let url = el.parentNode.querySelector("img")?.src as string
+				// 	// let url = el.parentNode.dataset.src as string
+				// 	if (!isString(url) || !url.startsWith("http")) return;
+				// 	url = url.replace(getUrlTokenParam(), '')
+				// 	getApi(api => {
+				// 		api.ui.lightbox.open(0, [url])
+				// 	})
+				// }
 			}
 		}
 	}
@@ -240,6 +234,7 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 						max-height: 220px;
 				}
 				.enlarge {
+						width: 10px;
 						opacity: 0;
 						transition: 0.2s all;
 						position: absolute;
