@@ -6,6 +6,7 @@ import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { Icon } from "../../components/Icon.component";
 import { LinkPreviewCss } from "../../components/LinkPreview.component";
+import { ssrOnClick } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
@@ -39,22 +40,40 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		let openWindow = `<span class="link-openwindow" data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
 		let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow}`
 		resEl.innerHTML = `${html}`;
+
+		initSSRLogic()
+
 		return resEl
 	}
 })
 
-export const linkActionClick = (el: HTMLElement) => {
-	// LINK
-	if (el.classList.contains("link-openwindow")) {
-		let link = el.dataset.link
-		window.open(link, `popup-preview-link`, 'width=800,height=1000')
-	}
-	if (el.classList.contains("link-mdpreview")) {
-		// @ts-ignore
-		// let url = el.href
-		// window.open(url, '_blank')?.focus();
-	}
+
+//
+// CLICK MANAGEMENT
+//
+const initSSRLogic = () => {
+	setTimeout(() => {
+		ssrOnClick(`.link-openwindow`, el => {
+			if (!el) return
+			let link = el.dataset.link
+			window.open(link, `popup-preview-link`, 'width=800,height=1000')
+		})
+	}, 100)
 }
+
+// OLD
+// export const linkActionClick = (el: HTMLElement) => {
+// 	// LINK
+// 	if (el.classList.contains("link-openwindow")) {
+// 		let link = el.dataset.link
+// 		window.open(link, `popup-preview-link`, 'width=800,height=1000')
+// 	}
+// 	if (el.classList.contains("link-mdpreview")) {
+// 		// @ts-ignore
+// 		// let url = el.href
+// 		// window.open(url, '_blank')?.focus();
+// 	}
+// }
 
 export const linksPreviewMdCss = () => `
 .link-mdpreview-wrapper {

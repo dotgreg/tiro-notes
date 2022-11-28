@@ -58,6 +58,7 @@ export const processRawDataToFiles = (dataRaw: string, titleFilter: string = '',
 	let cleanedData = cleanFilePath(dataRaw, folder)
 	var array = cleanedData.match(/[^\r\n]+/g); // split string in array
 
+	if (!array || array.length ===0) return res
 	for (let i = 0; i < array.length; i++) {
 		let filePath = array[i];
 		const fileRes = processRawPathToFile({ rawPath: filePath, folder, index: i, titleFilter })
