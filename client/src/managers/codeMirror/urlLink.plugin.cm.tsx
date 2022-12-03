@@ -32,7 +32,7 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		if (artTitle === "" || !artTitle) artTitle = secondSlash
 		if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
 
-		artTitle = (artTitle.length !== 0) ? `:${artTitle}` : ``
+		artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
 
 		let previewStr = `${website}${artTitle}`
 
