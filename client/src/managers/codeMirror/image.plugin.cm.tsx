@@ -29,14 +29,7 @@ export const imagePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
 			<Icon name="faExpand" color={`white`} />
 		)
 
-		resEl.innerHTML = `
-	<div class="cm-mdpreview-image" >
-		<div class="enlarge" data-src=${url}>
-			${btnEnlarge}
-		</div>
-		<img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" />
-	</div>${sourceHtml}`
-		// resEl.innerHTML = `dddddddd`
+		resEl.innerHTML = `<div class="cm-mdpreview-image"><div class="enlarge" data-src=${url}> ${btnEnlarge}</div><img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>${sourceHtml}`
 
 		initSSRLogic()
 		return resEl;
