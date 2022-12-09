@@ -130,11 +130,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (!pathToFile.includes("/.tiro/")) {
 			console.log("=========================== WATCH UPDATE", pathToFile);
 			// send to everybody but the sender
-			serverSocket2.raw.broadcast.emit('onNoteWatchUpdate', {
-				// ioServer.emit('onNoteWatchUpdate', {
+			// serverSocket2.raw.broadcast.emit('onNoteWatchUpdate', {
+
+			// actually send to to everybody and apply a smart behavior on frontend
+			ioServer.emit('onNoteWatchUpdate', {
 				filePath: data.filePath,
 				fileContent: data.newFileContent
 			})
+
 		}
 	}, { disableDataLog: true, checkRole: "editor" })
 

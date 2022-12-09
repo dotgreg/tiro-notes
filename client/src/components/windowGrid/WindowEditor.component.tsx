@@ -1,6 +1,8 @@
+import { isBoolean } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
+import { useDebounce } from '../../hooks/lodash.hooks';
 import { getContentViewTag, getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
@@ -15,7 +17,14 @@ export const WindowEditorInt = (p: {
 	const [intViewType, setIntViewType] = useState<iViewType>()
 
 	useEffect(() => {
+		// if (blockViewUpdate.current === false) {
 		setIntViewType(view)
+		// }
+		// get the backend cached view type
+		getNoteView(file?.path as string).then(res => {
+			if (res) setIntViewType(res)
+		})
+
 	}, [view, file?.path])
 
 	//
@@ -32,24 +41,22 @@ export const WindowEditorInt = (p: {
 		getApi(api => {
 			// LOAD CONTENT FIRST
 			api.file.getContent(file.path, content => {
-
-				// IF '--view-IVIEWTYPE' like '--view-editor' found inside the content,
-				// change the window view else come back to lastViewType
-				// let contentViewType = getContentViewTag(content)
-				// contentViewType ? setIntViewType(contentViewType) : setIntViewType(view)
-				getNoteView(file.path).then(res => {
-					if (res) setIntViewType(res)
-				})
-
 				setFileContent(content)
 				setCanEdit(true)
 			})
 
 
-			// THEN WATCH FOR UPDATE BY OTHER CLIENTS
+			// WATCH LOGIC
 			api.watch.file(file.path, watchUpdate => {
+				// THEN WATCH FOR UPDATE BY OTHER CLIENTS
 				if (filePathRef.current === watchUpdate.filePath) {
-					setFileContent(watchUpdate.fileContent)
+					if (isBeingEdited.current === true) {
+						// if watcher gives an update to a file we are currently editing
+						// make it inside a debounce
+						waitingContentUpdate.current = watchUpdate.fileContent
+					} else {
+						setFileContent(watchUpdate.fileContent)
+					}
 				}
 			})
 		})
@@ -65,8 +72,24 @@ export const WindowEditorInt = (p: {
 		getApi(api => {
 			api.file.saveContent(filepath, content, { history: true })
 		})
-
+		isBeingEdited.current = true
+		isEditedDebounce()
 	}
+
+	const waitingContentUpdate = useRef<string | false>(false)
+	const blockViewUpdate = useRef<boolean>(false)
+	const blockViewUpdateDebounce = useDebounce(() => { blockViewUpdate.current = false }, 2000)
+	const isBeingEdited = useRef<boolean>(false)
+	const isEditedDebounce = useDebounce(() => {
+		if (isBoolean(waitingContentUpdate.current)) return
+		setFileContent(waitingContentUpdate.current)
+		waitingContentUpdate.current = false
+
+		// block view update mecanism
+		blockViewUpdate.current = true
+		blockViewUpdateDebounce()
+	}, 2000)
+
 
 
 	// ON ACTIVE, LOAD LIST
