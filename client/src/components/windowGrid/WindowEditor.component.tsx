@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
+import { deviceType } from '../../managers/device.manager';
 import { getContentViewTag, getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
@@ -17,9 +18,7 @@ export const WindowEditorInt = (p: {
 	const [intViewType, setIntViewType] = useState<iViewType>()
 
 	useEffect(() => {
-		// if (blockViewUpdate.current === false) {
 		setIntViewType(view)
-		// }
 		// get the backend cached view type
 		getNoteView(file?.path as string).then(res => {
 			if (res) setIntViewType(res)
@@ -49,15 +48,17 @@ export const WindowEditorInt = (p: {
 			// WATCH LOGIC
 			api.watch.file(file.path, watchUpdate => {
 				// THEN WATCH FOR UPDATE BY OTHER CLIENTS
-				if (filePathRef.current === watchUpdate.filePath) {
-					if (isBeingEdited.current === true) {
-						// if watcher gives an update to a file we are currently editing
-						// make it inside a debounce
-						waitingContentUpdate.current = watchUpdate.fileContent
-					} else {
-						setFileContent(watchUpdate.fileContent)
-					}
-				}
+				if (filePathRef.current !== watchUpdate.filePath) return
+				// if (deviceType() !== "desktop") return
+
+
+				// if watcher gives an update to a file we are currently editing
+				// make it inside a debounce, only for desktop
+				if (
+					isBeingEdited.current === true
+				) return waitingContentUpdate.current = watchUpdate.fileContent
+
+				setFileContent(watchUpdate.fileContent)
 			})
 		})
 	}, [file?.path, fileContent])
@@ -77,17 +78,20 @@ export const WindowEditorInt = (p: {
 	}
 
 	const waitingContentUpdate = useRef<string | false>(false)
-	const blockViewUpdate = useRef<boolean>(false)
-	const blockViewUpdateDebounce = useDebounce(() => { blockViewUpdate.current = false }, 2000)
+	// const blockViewUpdate = useRef<boolean>(false)
+	// const blockViewUpdateDebounce = useDebounce(() => { blockViewUpdate.current = false }, 2000)
 	const isBeingEdited = useRef<boolean>(false)
 	const isEditedDebounce = useDebounce(() => {
+		isBeingEdited.current = false
+
+		// only if we have some modification to update
 		if (isBoolean(waitingContentUpdate.current)) return
 		setFileContent(waitingContentUpdate.current)
 		waitingContentUpdate.current = false
 
 		// block view update mecanism
-		blockViewUpdate.current = true
-		blockViewUpdateDebounce()
+		// blockViewUpdate.current = true
+		// blockViewUpdateDebounce()
 	}, 2000)
 
 
@@ -100,6 +104,8 @@ export const WindowEditorInt = (p: {
 		})
 	}, [active])
 
+	// {isBeingEdited.current && "EDITED"}
+	// {!isBeingEdited.current && "not EDITED"}
 	return (
 		<>
 
