@@ -39,12 +39,14 @@ export const getEventKeyName = (e: any): string => {
 export const startListeningToKeys = () => {
 	window.onkeydown = (e: any) => {
 		const keyName = getEventKeyName(e)
+		console.log(2, e, keyName);
 		if (!isNull(modifs[keyName])) modifs[keyName] = true
 		const actionName = `${keyName}-down`;
 		if (allKeyActions[actionName]) allKeyActions[actionName]();
 		//console.log(123123, actionName, modifs, modifs[keyName]);
 	}
 	window.onkeyup = (e: any) => {
+		console.log(1, e);
 		const keyName = getEventKeyName(e)
 		if (!isNull(modifs[keyName])) modifs[keyName] = false
 		const actionName = `${keyName}-up`;
@@ -56,7 +58,7 @@ export const startListeningToKeys = () => {
 
 const allKeyActions: { [keyAndState: string]: Function } = {}
 
-export const addKeyAction = (keyName: iKey, action: Function, pressState: 'up' | 'down' = 'down') => {
+export const addKeyAction = (keyName: string, action: Function, pressState: 'up' | 'down' = 'down') => {
 	allKeyActions[`${keyName}-${pressState}`] = action
 }
 

@@ -10,12 +10,9 @@ const log = sharedConfig.client.log.verbose
 
 export const useLastFilesHistory = (activeFile: iFile) => {
 	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [])
-	// const [filesHistory, setFilesHistory] = useState<iFile[]>([])
 
 	useEffect(() => {
 		log && console.log(h, ' activeFile changed!', activeFile);
-		// activeFile && debouncedAddToHistory(activeFile)
-		// activeFile && debouncedAddToHistory(activeFile)
 		activeFile && addToHistory(activeFile)
 	}, [activeFile])
 
@@ -38,11 +35,13 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		}
 
 		if (!shouldAddToHistory) newfilesHistory.splice(indexOldPos, 1)
-		newfilesHistory = newfilesHistory.slice(0, 20)
+		newfilesHistory = newfilesHistory.slice(0, 200)
 		newfilesHistory.unshift(file)
 		setFilesHistory(newfilesHistory)
+		console.log("FILES HISTORY", { newfilesHistory });
 	}
 	const debouncedAddToHistory = useDebounce(addToHistory, 1000)
 
 	return { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend }
 }
+
