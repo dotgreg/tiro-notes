@@ -6,65 +6,65 @@ import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 
 const optionsStart = [
-	{ value: 'chocolate', label: 'Chocolate' },
-	{ value: 'strawberry', label: 'Strawberry' },
-	{ value: 'vanilla', label: 'Vanilla' },
+		{ value: 'chocolate', label: 'Chocolate' },
+		{ value: 'strawberry', label: 'Strawberry' },
+		{ value: 'vanilla', label: 'Vanilla' },
 ];
 
 // const optionsSecond = [
-// 	{ value: 'sub11/', label: 'sub11/' },
-// 	{ value: 'sub12/', label: 'sub12/' },
-// 	{ value: 'sub13/', label: 'sub13/' },
-// 	{ value: 'f1.md', label: 'f1.md' },
-// 	{ value: 'f2.md', label: 'f2.md' },
-// ];
+		// 	{ value: 'sub11/', label: 'sub11/' },
+		// 	{ value: 'sub12/', label: 'sub12/' },
+		// 	{ value: 'sub13/', label: 'sub13/' },
+		// 	{ value: 'f1.md', label: 'f1.md' },
+		// 	{ value: 'f2.md', label: 'f2.md' },
+		// ];
 // const optionsLoading = [
-// 	// { value: "loading...", label: "loading..." }
-// ]
+		// 	// { value: "loading...", label: "loading..." }
+		// ]
 
 
 
 
 interface iOptionSuggest {
-	value: string
-	label: string
-	// type: "filePath" | "folder"
-	payload?: {
-		file?: iFile
-	}
+		value: string
+							 label: string
+													// type: "filePath" | "folder"
+																							payload?: {
+				file?: iFile
+		}
 }
 
 
 export const SuggestPopup = (p: {
-	onClose: Function
-	lastNotes: iFile[]
-}) => {
+				onClose: Function
+								 lastNotes: iFile[]
+		}) => {
 
 
-	const [selectedOption, setSelectedOption] = useState<any>(null);
-	const [options, setOptions] = useState<any[]>(optionsStart);
-	const [noOptionLabel, setNoOptionLabel] = useState("No Options")
+		const [selectedOption, setSelectedOption] = useState<any>(null);
+		const [options, setOptions] = useState<any[]>(optionsStart);
+		const [noOptionLabel, setNoOptionLabel] = useState("No Options")
 
-	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
-		let res: iOptionSuggest[] = []
-		each(files, file => {
-			let nOption: iOptionSuggest = {
-				value: file.path,
-				label: file.path,
-				payload: { file }
-			}
-			res.push(nOption)
+		const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
+				let res: iOptionSuggest[] = []
+															 each(files, file => {
+				let nOption: iOptionSuggest = {
+						value: file.path,
+						label: file.path,
+						payload: { file }
+				}
+				res.push(nOption)
 		})
-		return res
-	}
+															 return res
+		}
 
 
-	useEffect(() => {
+		useEffect(() => {
 		let nOptions = filesToOptions(p.lastNotes)
 		setOptions(nOptions)
-	}, [p.lastNotes])
+}, [p.lastNotes])
 
-	// useEffect(() => {
+		// useEffect(() => {
 		// let noOptions = false
 		// //if (selectedOption && selectedOption.length >= 3) noOptions = true
 		// const s = selectedOption
@@ -72,105 +72,116 @@ export const SuggestPopup = (p: {
 		// else noOptions = false
 		// LOAD OPTIONS ACCORDING TO VALUE
 		// if (s && s[0] && s[0].value === "chocolate") {
-		// 	setOptions(!noOptions ? optionsLoading : [])
+				// 	setOptions(!noOptions ? optionsLoading : [])
 
-		// 	if (noOptions) return
-		// 	setNoOptionLabel("loading...")
-		// 	setTimeout(() => {
+				// 	if (noOptions) return
+				// 	setNoOptionLabel("loading...")
+				// 	setTimeout(() => {
 		// 		setOptions(!noOptions ? optionsSecond : [])
 		// 		setNoOptionLabel("No Options")
 		// 	}, 1000)
-		// }
-	// }, [selectedOption])
+				// }
+		// }, [selectedOption])
 
-	const styles: any = {
-		multiValue: (base, state) => {
-			// console.log(333002, base, state.data);
-			return !state.data.editable ? { ...base, backgroundColor: 'gray' } : base;
-		},
-		multiValueRemove: (base, state) => {
-			return !state.data.editable ? { ...base, display: 'none' } : base;
-		},
-		// indicatorsContainer: (base, state) => {
-		// 	return { ...base, display: 'none' }
-		// }
-	}
-
-
-
-	const onChange = (nOptions: any, actionObj: any) => {
-		if (actionObj.action === 'remove-value' && !actionObj.removedValue?.editable) return false
-
-		// MODIFY SELECTED OPTIONS, only last is modifiable
-		each(nOptions, (o: any, i: number) => {
-			// console.log(33332, o.value, i, nOptions.length);
-			o.editable = false
-			if (i === nOptions.length - 1) {
-				// console.log(333004, "LAST EL IS", o.value);
-				o.editable = true
-			}
-		})
-
-
-		//
-		// SELECTING LAST NOTE
-		//
-		// if ( === null) return
-		console.log(333333, nOptions);
-		let s = nOptions[0]
-
-		if (s && s.payload && s.payload.file) {
-			let file = s.payload.file
-			getApi(api => {
-				console.log(444444, api, file);
-				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
-				p.onClose()
-			})
-			nOptions = []
+		const styles: any = {
+				multiValue: (base, state) => {
+						// console.log(333002, base, state.data);
+						return !state.data.editable ? { ...base, backgroundColor: 'gray' } : base;
+				},
+				multiValueRemove: (base, state) => {
+						return !state.data.editable ? { ...base, display: 'none' } : base;
+				},
+				// indicatorsContainer: (base, state) => {
+						// 	return { ...base, display: 'none' }
+						// }
 		}
 
 
-		// update it
-		setSelectedOption(nOptions)
-	}
 
-	const selectRef = useRef<any>()
-	useEffect(() => {
+		const onChange = (nOptions: any, actionObj: any) => {
+				if (actionObj.action === 'remove-value' && !actionObj.removedValue?.editable) return false
+
+				// MODIFY SELECTED OPTIONS, only last is modifiable
+																				 each(nOptions, (o: any, i: number) => {
+				// console.log(33332, o.value, i, nOptions.length);
+				o.editable = false
+				if (i === nOptions.length - 1) {
+						// console.log(333004, "LAST EL IS", o.value);
+						o.editable = true
+				}
+		})
+
+
+																				 //
+																				 // SELECTING LAST NOTE
+																				 //
+																				 // if ( === null) return
+																				 console.log(333333, nOptions);
+				let s = nOptions[0]
+
+				if (s && s.payload && s.payload.file) {
+						let file = s.payload.file
+						getApi(api => {
+				console.log(444444, api, file);
+				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+				p.onClose()
+		})
+						nOptions = []
+				}
+
+
+				// update it
+				setSelectedOption(nOptions)
+		}
+
+		const selectRef = useRef<any>()
+		useEffect(() => {
 		selectRef.current.focus()
-	}, [])
+}, [])
 
-	return (
-		<div className="suggest-popup-wrapper">
-			<Popup title={``} onClose={() => { p.onClose() }} >
+		return (
+				<div className="suggest-popup-bg">
+				<div className="suggest-popup-wrapper">
+				<Popup title={``} onClose={() => { p.onClose() }} >
 
-				<Select
-					isMulti
-					ref={selectRef}
-					menuIsOpen={true}
-					value={selectedOption}
-					onChange={onChange}
-					options={options}
-					// isClearable={false}
-					styles={styles}
-					noOptionsMessage={() => noOptionLabel}
+																													<Select
+																													isMulti
+																													ref={selectRef}
+				menuIsOpen={true}
+				value={selectedOption}
+				onChange={onChange}
+				options={options}
+				// isClearable={false}
+				styles={styles}
+				noOptionsMessage={() => noOptionLabel}
 				/>
 
-			</Popup >
-		</div >
-	)
+				</Popup >
+				</div >
+				</div >
+		)
 }
 
 export const suggestPopupCss = () => `
 &.device-view-mobile {
 }
 
+.suggest-popup-bg {
+		background: rgba(0,0,0,0.5);
+		top: 0px;
+		left: 0px;
+		width: 100vw;
+		height: 100vh;
+		z-index: 1000;
+		position: absolute;
+}
 .suggest-popup-wrapper {
-	width: 70%;
-	margin: 0 auto;
-	z-index: 100;
-	position: absolute;
-	left: 50%;
-	transform: translate(-50%);
-	top: 22px;
+		width: 70%;
+		margin: 0 auto;
+		z-index: 100;
+		position: absolute;
+		left: 50%;
+		transform: translate(-50%);
+		top: 22px;
 }
 `
