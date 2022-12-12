@@ -1,26 +1,32 @@
 ///////////////////////////////////
 // URL LINK
 
+import { random } from "lodash";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { Icon } from "../../components/Icon.component";
 import { LinkPreviewCss } from "../../components/LinkPreview.component";
-import { ssrOnClick } from "../ssr.manager";
+import { ssrOnClick, ssrOpenIframe } from "../ssr.manager";
+import { safeString, textToId } from "../string.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
+
+let inc = 0
 
 export const linksPreviewPlugin = genericReplacementPlugin({
 	pattern: regexs.externalLink3,
 	replacement: matchs => {
-		console.log(matchs);
 		let resEl = document.createElement("span");
+		let linkId = `linkid${random(0, 10000000)}`
 
 
 		let fullLink = matchs[0].slice(0, -1) // removing last /
 		let website = matchs[1].replace("www.", "")
 		let firstSlash = matchs[3]
 		let secondSlash = matchs[4]
+		// let id = safeString(fullLink).substring(0, 30) + "" + fullLink.length + "" + inc
+		let id = linkId
 
 		// return resEl;
 		resEl.classList.add('link-mdpreview-wrapper')
@@ -35,13 +41,15 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
 
 		let previewStr = `${website}${artTitle}`
-
 		let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
-		let openWindow = `<span class="link-openwindow" data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
-		let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow}`
+		let openWindow = `<span class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
+		let openPreview = `<span class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
+		let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
+		let html = `<span class="link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow} ${openPreview} ${iframeWrapper}</span>`
 		resEl.innerHTML = `${html}`;
 
-		initSSRLogic()
+		initSSRLogic(linkId)
+		// setTimeout(() => { initSSRLogic() }, 1000)
 
 		return resEl
 	}
@@ -51,12 +59,18 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 //
 // CLICK MANAGEMENT
 //
-const initSSRLogic = () => {
+const initSSRLogic = (id: string) => {
 	setTimeout(() => {
-		ssrOnClick(`.link-openwindow`, el => {
+		ssrOnClick(`.${id} .link-openwindow`, el => {
 			if (!el) return
 			let link = el.dataset.link
 			window.open(link, `popup-preview-link`, 'width=800,height=1000')
+		})
+		ssrOnClick(`.${id} .link-openpreview`, el => {
+			if (!el) return
+			let link = el.dataset.link
+			let id = el.dataset.id
+			ssrOpenIframe(`.${id}.link-iframe-wrapper`, link)
 		})
 	}, 100)
 }
@@ -79,20 +93,20 @@ export const linksPreviewMdCss = () => `
 .link-mdpreview-wrapper {
 		position: relative;
 		&:hover {
-				.link-openwindow,
+				.link-action,
 				.links-infos {
 						opacity: 1;
 						pointer-events: all;
 				}
-				.link-openwindow {
+				.link-action {
 						opacity: 0.1
 				}
 		}
 
-		.link-openwindow {
+		.link-action {
 				cursor: pointer;
-				position: absolute;
-				right: 0px;
+				position: relative;
+				right: 6px;
 				top: 0px;
 				opacity: 0;
 				transition: 0.2s all;
@@ -118,7 +132,24 @@ export const linksPreviewMdCss = () => `
 
 
 		}
+		.link-iframe-wrapper.open {
+				height: 330px!important;
+				// background: red;
+		}
+.link-iframe-wrapper iframe {
+				border-radius: 7px;
+				overflow:hidden;
+				box-shadow: 0 0 4px rgba(0,0,0,0.3);
+				width: 150%!important;
+				transform-origin:top left;
+				transform: scale(0.65);
+				height: 500px!important;
+				// background: orange;
+}
 
+		.link-mdpreview-wrapper {
+
+		}
 		.link-mdpreview {
 				opacity: 0.6;
 				transition: 0.2s all;

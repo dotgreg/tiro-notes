@@ -19,7 +19,7 @@ import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
 import { Icon } from './components/Icon.component';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
 import { Lightbox } from './components/Lightbox.component';
-import { startListeningToKeys } from './managers/keys.manager';
+import { addKeyAction, getKeyModif, startListeningToKeys } from './managers/keys.manager';
 import { usePromptPopup } from './hooks/app/usePromptPopup.hook';
 import { useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
@@ -36,6 +36,7 @@ import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
+import { SuggestPopup } from './components/SuggestPopup.component';
 
 export const App = () => {
 
@@ -291,6 +292,19 @@ export const App = () => {
 
 
 
+	const [suggestOpen, setSuggestOpen] = useState(false)
+	useEffect(() => {
+		addKeyAction('d', () => {
+			let ctrl = getKeyModif('ctrl')
+			let opt = getKeyModif('opt')
+			let alt = getKeyModif('alt')
+			console.log("UPPPPPPP", ctrl, opt, alt);
+			setSuggestOpen(!suggestOpen)
+		}, "up")
+		addKeyAction('Escape', () => {
+			setSuggestOpen(false)
+		}, "up")
+	}, [filesHistory])
 
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
@@ -298,6 +312,13 @@ export const App = () => {
 
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
+
+					{suggestOpen &&
+						<SuggestPopup
+							lastNotes={filesHistory}
+					 onClose={e => {setSuggestOpen(false) }}
+						/>
+					}
 
 					<Global styles={GlobalCssApp()} />
 					<div role="dialog" className={`

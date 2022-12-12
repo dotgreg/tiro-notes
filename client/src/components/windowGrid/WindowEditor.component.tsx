@@ -86,7 +86,7 @@ export const WindowEditorInt = (p: {
 
 		// only if we have some modification to update
 		if (isBoolean(waitingContentUpdate.current)) return
-		setFileContent(waitingContentUpdate.current)
+		// setFileContent(waitingContentUpdate.current)
 		waitingContentUpdate.current = false
 
 		// block view update mecanism
@@ -104,8 +104,6 @@ export const WindowEditorInt = (p: {
 		})
 	}, [active])
 
-	// {isBeingEdited.current && "EDITED"}
-	// {!isBeingEdited.current && "not EDITED"}
 	return (
 		<>
 

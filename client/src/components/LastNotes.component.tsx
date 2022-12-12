@@ -12,16 +12,18 @@ export const LastNotesInt = (p: {
 	files: iFile[]
 	onClick: (file: iFile) => void
 }) => {
+
 	const { files } = { ...p }
+	let filesCut = files.slice(0, 20)
 
 	return (
 		<>
-			{files.length > 0 &&
+			{filesCut.length > 0 &&
 				<div className="last-notes-component">
 					<h3 className="subtitle">{strings.lastNotes}</h3>
 					<ul>
 						{
-							files.map((file, key) => {
+							filesCut.map((file, key) => {
 								let name = file.name.replace('.md', '')
 								name = name.length > limitTxt ? `${name.substr(0, limitTxt)}` : name
 								return (

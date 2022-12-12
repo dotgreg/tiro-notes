@@ -112,7 +112,6 @@ export const RessourcePreview = (p: {
 
 	const ssrOpenPdfCtag = () => {
 		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
-		console.log("WTFFFFFFFF");
 		if (!elIframe) return
 		let isIframeOpen = elIframe.querySelector(`iframe`)
 		let idEl = renderReactToId(<ContentBlock
@@ -147,7 +146,6 @@ export const RessourcePreview = (p: {
 
 
 	const ssrOpenPreview = () => {
-		console.log("CLICK PREV");
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {
 
@@ -178,7 +176,6 @@ export const RessourcePreview = (p: {
 	let idRess = `${p.file.path}-${link}`
 	type cachedStatus = "open" | "closed"
 	const setStatus = (status: cachedStatus) => {
-		console.log("SET STATUS", status, idRess);
 		getApi(api => {
 			api.cache.get(cacheId, res => {
 				if (!res) res = {}
