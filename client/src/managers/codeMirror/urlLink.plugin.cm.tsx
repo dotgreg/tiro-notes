@@ -44,7 +44,7 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
 		let openWindow = `<span class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
 		let openPreview = `<span class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
-		let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
+		let iframeWrapper = `<span class="${id} link-iframe-wrapper"></span>`
 		let html = `<span class="link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow} ${openPreview} ${iframeWrapper}</span>`
 		resEl.innerHTML = `${html}`;
 
