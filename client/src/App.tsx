@@ -294,16 +294,16 @@ export const App = () => {
 
 	const [suggestOpen, setSuggestOpen] = useState(false)
 	useEffect(() => {
-		addKeyAction('d', () => {
-			let ctrl = getKeyModif('ctrl')
-			let opt = getKeyModif('opt')
-			let alt = getKeyModif('alt')
-			console.log("UPPPPPPP", ctrl, opt, alt);
-			setSuggestOpen(!suggestOpen)
-		}, "up")
+		// addKeyAction('Î', () => {
+			// let ctrl = getKeyModif('ctrl')
+			// let opt = getKeyModif('opt')
+			// let alt = getKeyModif('alt')
+			// console.log("UPPPPPPP", ctrl, opt, alt);
+			// setSuggestOpen(true)
+		// }, "up")
 		addKeyAction('Escape', () => {
-			setSuggestOpen(false)
-		}, "up")
+			setSuggestOpen(!suggestOpen)
+		}, "down")
 	}, [filesHistory])
 
 	return (
@@ -316,7 +316,7 @@ export const App = () => {
 					{suggestOpen &&
 						<SuggestPopup
 							lastNotes={filesHistory}
-					 onClose={e => {setSuggestOpen(false) }}
+							onClose={e => { setSuggestOpen(false) }}
 						/>
 					}
 
