@@ -5,11 +5,11 @@ import { each } from 'lodash';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 
-const optionsStart = [
-	{ value: 'chocolate', label: 'Chocolate' },
-	{ value: 'strawberry', label: 'Strawberry' },
-	{ value: 'vanilla', label: 'Vanilla' },
-];
+// const optionsStart = [
+// 	{ value: 'chocolate', label: 'Chocolate' },
+// 	{ value: 'strawberry', label: 'Strawberry' },
+// 	{ value: 'vanilla', label: 'Vanilla' },
+// ];
 
 // const optionsSecond = [
 // 	{ value: 'sub11/', label: 'sub11/' },
@@ -42,7 +42,7 @@ export const SuggestPopup = (p: {
 
 
 	const [selectedOption, setSelectedOption] = useState<any>(null);
-	const [options, setOptions] = useState<any[]>(optionsStart);
+	const [options, setOptions] = useState<any[]>([]);
 	const [noOptionLabel, setNoOptionLabel] = useState("No Options")
 
 	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
