@@ -36,6 +36,8 @@ import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
+import * as k from 'keyboardjs';
+// import
 import { SuggestPopup } from './components/SuggestPopup.component';
 
 export const App = () => {
@@ -65,6 +67,7 @@ export const App = () => {
 		// 		console.log(root.clientTop);
 		// 	}
 		// }, 1000)
+
 
 		return () => {
 			// COMPONENT will unmount
@@ -295,15 +298,39 @@ export const App = () => {
 	const [suggestOpen, setSuggestOpen] = useState(false)
 	useEffect(() => {
 		// addKeyAction('Î', () => {
-			// let ctrl = getKeyModif('ctrl')
-			// let opt = getKeyModif('opt')
-			// let alt = getKeyModif('alt')
-			// console.log("UPPPPPPP", ctrl, opt, alt);
-			// setSuggestOpen(true)
+		// let ctrl = getKeyModif('ctrl')
+		// let opt = getKeyModif('opt')
+		// let alt = getKeyModif('alt')
+		// console.log("UPPPPPPP", ctrl, opt, alt);
+		// setSuggestOpen(true)
 		// }, "up")
-		addKeyAction('Escape', () => {
-			setSuggestOpen(!suggestOpen)
-		}, "down")
+		// addKeyAction('Escape', () => {
+		// 	setSuggestOpen(!suggestOpen)
+		// }, "down")
+
+		// k.Keyboard.bind('', (e) => {
+		// 	console.log('any key was pressed');
+		// });
+
+		// k.Keyboard.watch('a', (e) => {
+		// k.Keyboard.bind('a', (e) => {
+		// 	console.log('a is pressed');
+		// });
+		// k.Keyboard.bind('a + b', (e) => {
+		// 	console.log('a and b is pressed');
+		// });
+		// k.Keyboard.bind('a + b > c', (e) => {
+		// 	console.log('a and b then c is pressed');
+		// });
+
+
+		const openOmni = () => { setSuggestOpen(true) }
+		const closeOmni = () => { setSuggestOpen(false) }
+		k.bind('alt + spacebar', openOmni);
+		k.bind('esc', closeOmni);
+		return () => {k.releaseAllKeys();}
+
+
 	}, [filesHistory])
 
 	return (

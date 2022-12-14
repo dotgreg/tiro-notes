@@ -3,7 +3,6 @@ import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile } from "../../../../shared/types.shared"
 import { useDebounce } from '../lodash.hooks';
 import { useBackendState } from '../useBackendState.hook';
-import { useLocalStorage } from "../useLocalStorage.hook"
 
 const h = `[LAST FILE]`
 const log = sharedConfig.client.log.verbose

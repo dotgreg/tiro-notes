@@ -4,7 +4,7 @@ const rssApp = (innerTagStr, opts) => {
 		if (!opts.size) opts.size = "95%"
 		if (!opts.rssToJsonUrl) opts.rssToJsonUrl = "https://api.rss2json.com/v1/api.json?rss_url="
 
-		const h = `[CTAG RSS] v1.0.4 30/09/22`
+		const h = `[CTAG RSS] v1.0.5 14/12/22`
 		//@ts-ignore
 		const api = window.api;
 		const { div, updateContent } = api.utils.createDiv();
@@ -231,10 +231,30 @@ const rssApp = (innerTagStr, opts) => {
 				const App = () => {
 						const titems = React.useRef([])
 						const [items, setItems] = React.useState([])
+
+						const [search, setSearch] = React.useState("")
+						const [searchItems, setSearchItems] = React.useState([])
+
 						const [filteredItems, setFilteredItems] = React.useState([])
 						const [itemActive, setItemActive] = React.useState(null)
 						const [feeds, setFeeds] = React.useState([])
 						const [activeFeed, setActiveFeed] = React.useState("all")
+
+						React.useEffect(() => {
+								let nItems = []
+								if (filteredItems.length === 0) return
+								for (let i = 0; i < filteredItems.length; i++) {
+										let a = filteredItems[i]
+										console.log(filteredItems);
+										let searchee = a.title.toLowerCase() + a.content.toLowerCase()+ a.sourceRss.toLowerCase()
+										if (searchee.includes(search.toLowerCase())) {
+												nItems.push(a)
+										}
+								}
+								setSearchItems(nItems)
+						}, [search, filteredItems])
+
+
 						React.useEffect(() => {
 								getBookmarks(() => {
 										getCachedJsons(nitems => {
@@ -274,17 +294,19 @@ const rssApp = (innerTagStr, opts) => {
 						}, [activeFeed, refresh])
 
 
+						let finalItems = search !== "" ? searchItems : filteredItems
 
 						return (
 								c('div', { className: "rss-app-wrapper" }, [
 
+										c('div', { className: `filter-input-wrapper` }, [
+										]),
 										c('div', { className: `filter-list-wrapper` }, [
 												c('select', {
 														onChange: e => {
 																let val = e.target.value
 																if (val === "all") val = null
 																setActiveFeed(val)
-																console.log(223331, val);
 														}
 												}, [
 														c('option', { value: "all" }, [`-- all -- `]),
@@ -293,9 +315,17 @@ const rssApp = (innerTagStr, opts) => {
 																c('option', { value: feed }, [`${feed}`])
 														)
 												]),
+												c('input', {
+														className: `filter-input`,
+														onChange: e => {
+																let val = e.target.value
+																console.log(123, val, filteredItems);
+																setSearch(val)
+														}
+												}),
 										]),
 										c('div', { className: `articles-list ${itemActive ? 'item-active-open' : ''}` }, [
-												filteredItems.map(item =>
+												finalItems.map(item =>
 														c('div', {
 																className: "article-list-item",
 																onClick: () => { setItemActive(item) }
@@ -487,6 +517,15 @@ const rssApp = (innerTagStr, opts) => {
 		}
 		.article-list-item:nth-child(even) {background: #CCC}
 		.article-list-item:nth-child(odd) {background: #EEE}
+
+.filter-input {
+  width: 30%;
+  margin-right: 10px;
+  border: 0px;
+  box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+  border-radius: 5px;
+}
+
 		`;
 
 		return `

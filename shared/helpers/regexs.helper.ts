@@ -24,7 +24,7 @@ export const regexs = {
 
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
-	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[a-zÀ-úA-Z0-9()@:%_\+.~#?&=]*\/)?([-a-zA-ZÀ-ú0-9()@:%_\+.~#?&\/=]*)\/(\n| |$)/gmi,
+	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[a-zÀ-úA-Z0-9()@:%_\-\+.,~#?&=]*\/)?([-a-zA-ZÀ-ú0-9()@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,
 	baliseHtml: VerEx().find('<').anythingBut('<>').then('>'),
