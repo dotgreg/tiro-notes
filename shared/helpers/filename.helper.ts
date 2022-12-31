@@ -1,3 +1,5 @@
+import { iFile, iFileNature } from "../types.shared"
+
 export const cleanPath = (path: string): string => {
 	path = path.split('//').join('/')
 	path = path.split('\\').join('/')
@@ -28,6 +30,21 @@ export const getFileInfos = (path: string): {
 	let filenameWithoutExt = filename.replace(`.${extension}`, '')
 
 	return { filename, extension, path, folder, filenameWithoutExt }
+}
+
+export const pathToIfile = (path: string): iFile => {
+	let infos = getFileInfos(path)
+	let nature: iFileNature = infos.extension ? "file" : "folder"
+	let res: iFile = {
+		path,
+		realname: infos.filename,
+		nature,
+		name: infos.filename,
+		extension: infos.extension,
+		folder: infos.folder
+	}
+	return res
+
 }
 
 export const getFolderPath = (filename: string): string => {
