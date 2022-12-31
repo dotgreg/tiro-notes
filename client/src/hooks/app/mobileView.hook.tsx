@@ -14,7 +14,10 @@ export const useMobileView = () => {
 	// 	// syncScroll2.editorToPreview()
 	// }
 
-	const MobileToolbarComponent = (forceRerender: boolean) => useStatMemo(
+	const MobileToolbarComponent = (p: {
+		forceRerender: boolean,
+		onButtons: Function[]
+	}) => useStatMemo(
 		<>
 			{
 				deviceType() !== 'desktop' &&
@@ -38,10 +41,15 @@ export const useMobileView = () => {
 							class: `${mobileView === 'preview' ? 'active' : ''}`,
 							action: () => { setMobileView('preview') }
 						},
+						{
+							icon: 'faSearch',
+							class: ``,
+							action: () => { if (p.onButtons[0]) p.onButtons[0]() }
+						},
 					]}
 				/>
 			}
-		</>, [mobileView, forceRerender])
+		</>, [mobileView, p.forceRerender])
 
 	return {
 		mobileView, setMobileView,
@@ -71,7 +79,7 @@ export const mobileViewMenuCss = () => `
                 color: white;
                 transform: scale(1.1);
                 background: rgba(255,255,255,0);
-                padding: 10px 40px;
+                padding: 10px 27px;
                 border-radius: 6px;
             }
             &:hover {

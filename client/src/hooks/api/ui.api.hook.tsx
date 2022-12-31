@@ -4,7 +4,7 @@ import { iBrowserApi } from "./browser.api.hook";
 import { iNoteApi } from "./note.api.hook";
 import { iSearchUiApi } from "./search.hook.api";
 
-export interface iUiApi {
+export interface iUiApi2 {
 	browser: iBrowserApi
 	windows: iWindowsApi
 	lightbox: iLightboxApi
