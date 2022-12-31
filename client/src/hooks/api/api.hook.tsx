@@ -20,6 +20,7 @@ import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 import { iCacheApi, useCacheApi } from './cache.api.hook';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iWatchApi, useWatchApi } from './watch.api.hook';
+import { iUiApi } from './ui.api.hook';
 
 
 
@@ -59,13 +60,7 @@ export interface iClientApi {
 	history: iNoteHistoryApi
 	note: iNoteApi
 	search: iSearchApi
-	ui: {
-		browser: iBrowserApi
-		windows: iWindowsApi
-		lightbox: iLightboxApi
-		search: iSearchUiApi
-		note: iNoteApi["ui"]
-	}
+	ui: iUiApi
 	status: iStatusApi
 }
 
