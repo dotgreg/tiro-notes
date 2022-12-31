@@ -5,26 +5,36 @@ import { RenderedNote } from './RenderedNote.component';
 
 
 export const Shortcuts = (p: {
-	filePath: string,
-	onClick: (file: iFile) => void
-}) => {
+				filePath: string,
+									onClick: (file: iFile) => void
+		}) => {
 
-	return (
-		<>
-			<div className="shortcut-component">
+		return (
+				<>
+				<div className="shortcut-component">
 				<h3 className="subtitle">shortcuts</h3>
 
 				<RenderedNote filePath={p.filePath} />
-			</div>
-		</>
-	)
+																						</div>
+																						</>
+		)
 }
 
 
 export const shortcutCompCss = () => `
 .shortcut-component {
-		padding: 0px ${cssVars.sizes.block}px;
-padding-bottom: 10px;
-
+		margin: 0px ${cssVars.sizes.block}px;
+		margin-bottom: 10px;
+		overflow: hidden;
+		.rendered-note-component {
+				width: 800px;
+				.preview-link {
+						color: #585757!important;
+				}
+				.preview-link {
+						font-weight: 400!important;
+				}
+				
+		}
 }
 `;

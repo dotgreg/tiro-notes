@@ -295,43 +295,16 @@ export const App = () => {
 	window.api = api
 
 
-
+	//
+	// OMNI SUGGEST BAR 
+	//
 	const [suggestOpen, setSuggestOpen] = useState(false)
 	useEffect(() => {
-		// addKeyAction('Î', () => {
-		// let ctrl = getKeyModif('ctrl')
-		// let opt = getKeyModif('opt')
-		// let alt = getKeyModif('alt')
-		// console.log("UPPPPPPP", ctrl, opt, alt);
-		// setSuggestOpen(true)
-		// }, "up")
-		// addKeyAction('Escape', () => {
-		// 	setSuggestOpen(!suggestOpen)
-		// }, "down")
-
-		// k.Keyboard.bind('', (e) => {
-		// 	console.log('any key was pressed');
-		// });
-
-		// k.Keyboard.watch('a', (e) => {
-		// k.Keyboard.bind('a', (e) => {
-		// 	console.log('a is pressed');
-		// });
-		// k.Keyboard.bind('a + b', (e) => {
-		// 	console.log('a and b is pressed');
-		// });
-		// k.Keyboard.bind('a + b > c', (e) => {
-		// 	console.log('a and b then c is pressed');
-		// });
-
-
 		const openOmni = () => { setSuggestOpen(true) }
 		const closeOmni = () => { setSuggestOpen(false) }
 		k.bind('alt + spacebar', openOmni);
 		k.bind('esc', closeOmni);
 		return () => { k.releaseAllKeys(); }
-
-
 	}, [filesHistory])
 
 
@@ -372,7 +345,15 @@ export const App = () => {
 						}
 
 						{
-							MobileToolbarComponent(forceResponsiveRender)
+							MobileToolbarComponent({
+								forceRerender: forceResponsiveRender,
+								onButtons: [
+									() => {
+										let nState = suggestOpen ? false : true
+										setSuggestOpen(nState)
+									}
+								]
+							})
 						}
 
 						<div className="left-sidebar-indicator">
@@ -391,15 +372,15 @@ export const App = () => {
 											}}
 										/>
 
-			{								api.userSettings.get('ui_layout_shortcuts_panel') &&
+										{api.userSettings.get('ui_layout_shortcuts_panel') &&
 
-										<Shortcuts
-											filePath={`.tiro/shortcuts.md`}
-											onClick={() => {
+											<Shortcuts
+												filePath={`.tiro/shortcuts.md`}
+												onClick={() => {
 
-											}}
-										/>
-	}
+												}}
+											/>
+										}
 
 										<LastNotes
 											files={filesHistory}
