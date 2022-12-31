@@ -120,6 +120,13 @@ export const SettingsPopup = (p: {
 						var: us.get('ui_layout_colors_main'),
 						modifier: val => { us.set('ui_layout_colors_main', val) }
 					},
+					{
+						type: 'checkbox',
+						title: "Sidebar Shortcut Panel",
+						expl: "Adds a shortcuts/scratchpad space in the sidebar. To edit it, create a note in '.tiro/shortcuts.md'",
+						var: us.get('ui_layout_shortcuts_panel'),
+						modifier: val => { us.set('ui_layout_shortcuts_panel', val) }
+					},
 				]
 			},
 			{
@@ -173,7 +180,7 @@ export const SettingsPopup = (p: {
 						expl: "Autofill the 'viewer' user and password on login popup for easier access during a demo mode",
 						var: us.get('demo_mode_enable'),
 						modifier: val => {
-							us.set('demo_mode_enable', val, {writeInSetupJson: true})
+							us.set('demo_mode_enable', val, { writeInSetupJson: true })
 						},
 					},
 					{

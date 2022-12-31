@@ -30,6 +30,8 @@ import { settingsPopupCss } from '../../components/settingsView/settingsView.com
 import { codeMirrorEditorCss } from '../../components/dualView/CodeMirrorEditor.component';
 import { latexCss } from '../latex.manager';
 import { suggestPopupCss } from '../../components/SuggestPopup.component';
+import { shortcutCompCss } from '../../components/Shortcuts.component';
+import { renderedNoteCompCss } from '../../components/RenderedNote.component';
 
 
 export const css2 = (css: string) => css
@@ -89,6 +91,8 @@ export const CssApp2 = (
 				${settingsPopupCss()}
 
 				${lastNotesCss()}
+				${shortcutCompCss()}
+				${renderedNoteCompCss()}
 
 				${folderTreeCss()}
 

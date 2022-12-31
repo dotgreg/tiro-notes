@@ -39,6 +39,7 @@ import { initPWA } from './managers/pwa.manager';
 import * as k from 'keyboardjs';
 // import
 import { SuggestPopup } from './components/SuggestPopup.component';
+import { Shortcuts } from './components/Shortcuts.component';
 
 export const App = () => {
 
@@ -328,10 +329,12 @@ export const App = () => {
 		const closeOmni = () => { setSuggestOpen(false) }
 		k.bind('alt + spacebar', openOmni);
 		k.bind('esc', closeOmni);
-		return () => {k.releaseAllKeys();}
+		return () => { k.releaseAllKeys(); }
 
 
 	}, [filesHistory])
+
+
 
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
@@ -387,6 +390,16 @@ export const App = () => {
 												})
 											}}
 										/>
+
+			{								api.userSettings.get('ui_layout_shortcuts_panel') &&
+
+										<Shortcuts
+											filePath={`.tiro/shortcuts.md`}
+											onClick={() => {
+
+											}}
+										/>
+	}
 
 										<LastNotes
 											files={filesHistory}

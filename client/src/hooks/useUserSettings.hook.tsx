@@ -11,6 +11,7 @@ import { useBackendState } from './useBackendState.hook';
 type iUserSettingName =
 	'ui_filesList_sortMode' |
 	'ui_layout_colors_main' |
+	'ui_layout_shortcuts_panel' |
 	'ui_sidebar' |
 
 	'ui_editor_links_as_button' |

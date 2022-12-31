@@ -13,7 +13,7 @@ export interface iNoteFuncsApi {
 	render: (p: {
 		raw: string
 		file: iFile
-		windowId: string
+		windowId?: string
 	}) => string
 	injectLogic: Function
 	chunks: {
@@ -26,7 +26,8 @@ export interface iNoteFuncsApi {
 // High level functions for content rendering
 //
 const renderNoteContent: iNoteApi['render'] = p => {
-	const { raw, file, windowId } = { ...p }
+	let { raw, file, windowId } = { ...p }
+	if (!windowId) windowId = ''
 	// chunk content in chunks
 	const contentChunks = getContentChunks(raw)
 	each(contentChunks, c => {
@@ -48,7 +49,8 @@ const renderNoteContent: iNoteApi['render'] = p => {
 }
 
 const renderMarkdownToHtml: iNoteApi['render'] = (p): string => {
-	const { raw, file, windowId } = { ...p }
+	let { raw, file, windowId } = { ...p }
+	if (!windowId) windowId = ''
 	let html = (md2html(
 		transformRessourcesInHTML(file,
 			transformImagesInHTML(file,

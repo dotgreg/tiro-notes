@@ -81,7 +81,7 @@ export const noteLinkCss = (classStr?: string) => {
 export const noteLinkClickJSLogic = (el: HTMLElement) => {
 	const file = el.dataset.file
 	const folder = el.dataset.folder
-	const windowId = el.dataset.windowid
+	const windowId = el.dataset.windowid === '' ? 'active' :  el.dataset.windowid
 	if (!file || !folder) return
 	getClientApi2().then(api => {
 		api.ui.browser.goTo(
