@@ -227,6 +227,9 @@ export const ContentBlockTagView = (p: {
 			}
 
 			iframeParentManager.send(iframeRef.current, { action: 'init', data })
+
+			// setTimeout(() => {
+			// }, 3000)
 		}, 100)
 
 	}, 500)
@@ -279,11 +282,23 @@ export const ContentBlockTagView = (p: {
 		}
 	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent, reload])
 
+	const askFullscreen = () => {
+		iframeParentManager.send(iframeRef.current, {
+			action: 'askFullscreen', data: {}
+		})
+	}
 
 	return (
 		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName}`}>
-			<div className="ctag-reload" onClick={incrementReload}>
-				<Icon name="faRetweet" color={`#b2b2b2`} />
+
+			<div className="ctag-menu" >
+				<Icon name="faEllipsisH" color={`#b2b2b2`} />
+				<div className="ctag-menu-button ctag-reload" onClick={incrementReload}>
+					<Icon name="faRetweet" color={`#b2b2b2`} />
+				</div>
+				<div className="ctag-menu-button ctag-fullscreen" onClick={askFullscreen}>
+					<Icon name="faExpand" color={`#b2b2b2`} />
+				</div>
 			</div>
 
 			{!reloadIframe &&
@@ -332,17 +347,32 @@ export const contentBlockCss = () => `
 
 .iframe-view-wrapper {
 		position: relative;
-		.ctag-reload {
+		.ctag-menu {
 				position: absolute;
-				top: 4px;
-				left: 10px;
+				top: 3px;
+				left: 15px;
 				cursor: pointer;
 				opacity: 0;
 				transition: 0.2s all; 
+				display: flex;
+				padding: 2px;
+		}
+		.ctag-menu .ctag-menu-button {
+				display: none;
 		}
 		&:hover {
-				.ctag-reload {
+				.ctag-menu {
 						opacity:0.5;
+				}
+				.ctag-menu:hover {
+						opacity:1;
+						background: white;
+						box-shadow: 0px 0px 3px rgba(0,0,0,.1);
+						border-radius: 5px;
+						.ctag-menu-button {
+								margin-left: 5px;
+								display: block;
+						}
 				}
 		}
 
