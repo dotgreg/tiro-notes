@@ -389,6 +389,10 @@ export const contentBlockCss = () => `
 		&.hide iframe {
 				opacity: 0;
 		}
+		iframe::backdrop {
+				background-color: rgba(255,255,255,1);
+		}
+
 		iframe {
 				transition: 0.3s all;
 				width: calc(100% );

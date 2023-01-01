@@ -20,6 +20,7 @@ import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 import { iCacheApi, useCacheApi } from './cache.api.hook';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iWatchApi, useWatchApi } from './watch.api.hook';
+import { iTtsApi } from '../app/useTtsPopup.hook';
 
 
 //
@@ -62,6 +63,7 @@ export interface iClientApi {
 		browser: iBrowserApi
 		windows: iWindowsApi
 		lightbox: iLightboxApi
+		textToSpeechPopup: iTtsApi
 		search: iSearchUiApi
 		note: iNoteApi["ui"]
 	}
@@ -106,6 +108,7 @@ export const useClientApi = (p: {
 	windowsApi: iWindowsApi
 	statusApi: iStatusApi
 	lightboxApi: iLightboxApi
+	ttsApi: iTtsApi
 	historyApi: iNoteHistoryApi
 }) => {
 
@@ -199,6 +202,7 @@ export const useClientApi = (p: {
 			browser: browserApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi,
+			textToSpeechPopup: p.ttsApi,
 			search: searchApi.ui,
 			note: noteApi.ui
 		},

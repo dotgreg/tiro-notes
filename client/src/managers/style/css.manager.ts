@@ -61,44 +61,41 @@ export const CssApp2 = (
 		${AppViewSwitcherComponentCss()}
 		${ButtonsToolbarCss()}
 
+		${PopupWrapperCss()}
+
+		${imageGalleryCss()}
+
+		${dropdownCss()}
+
+		${searchBarCss()}
+
+		${mobileViewMenuCss()}
+
+		${connectionIndicatorCss()}
+
+		${setupConfigCss()}
+
+		${inputComponentCss()}
+
+		${contentBlockCss()}
+
+		.no-file {
+				text-align: center;
+				margin-top: 49vh;
+		}
+
+
+
+		${settingsPopupCss()}
+
+		${lastNotesCss()}
+		${shortcutCompCss()}
+		${renderedNoteCompCss()}
+
+		${folderTreeCss()}
+
 		.main-wrapper {
 				display: flex;
-
-				${imageGalleryCss()}
-
-				${dropdownCss()}
-
-				${searchBarCss()}
-
-				${mobileViewMenuCss()}
-
-				${connectionIndicatorCss()}
-
-				${setupConfigCss()}
-
-				${inputComponentCss()}
-
-				${contentBlockCss()}
-
-				.no-file {
-						text-align: center;
-						margin-top: 49vh;
-				}
-
-				${PopupWrapperCss()}
-
-
-				${settingsPopupCss()}
-
-				${lastNotesCss()}
-				${shortcutCompCss()}
-				${renderedNoteCompCss()}
-
-				${folderTreeCss()}
-
-
-
-
 
 
 				////////////////////////////////////////////v 

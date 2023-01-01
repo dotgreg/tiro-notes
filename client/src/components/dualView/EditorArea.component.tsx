@@ -28,6 +28,7 @@ import { random } from 'lodash';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
+import { unescapeHtml } from '../../managers/textProcessor.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -244,7 +245,9 @@ const EditorAreaInt = (
 			title: strings.editorBar.tts,
 			icon: 'faCommentDots',
 			action: () => {
-				setTtsPopup(!ttsPopup)
+				getApi(api => {
+					api.ui.textToSpeechPopup.open(p.file.path, p.fileContent)
+				})
 			}
 		},
 
@@ -263,7 +266,7 @@ const EditorAreaInt = (
 	const [historyPopup, setHistoryPopup] = useState(false)
 
 	// TTS
-	const [ttsPopup, setTtsPopup] = useState(false)
+	// const [ttsPopup, setTtsPopup] = useState(false)
 
 	const editorWrapperEl = useRef<HTMLDivElement>(null)
 
@@ -532,7 +535,6 @@ const EditorAreaInt = (
 
 			{historyPopup && <FileHistoryPopup file={p.file} onClose={() => { setHistoryPopup(false) }} />}
 
-			{ttsPopup && <TtsPopup file={p.file} fileContent={innerFileContent} onClose={() => { setTtsPopup(false) }} />}
 		</div>
 	)
 }

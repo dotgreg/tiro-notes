@@ -40,6 +40,8 @@ import * as k from 'keyboardjs';
 // import
 import { SuggestPopup } from './components/SuggestPopup.component';
 import { Shortcuts } from './components/Shortcuts.component';
+import { TtsPopup } from './components/TtsPopup.component';
+import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 
 export const App = () => {
 
@@ -68,6 +70,12 @@ export const App = () => {
 		// 		console.log(root.clientTop);
 		// 	}
 		// }, 1000)
+		// setTimeout(() => {
+		// 	getApi(api => {
+		// 		let test = "bonjour je mappelle gregoire"
+		// 		api.ui.textToSpeechPopup.open("/ctags/PDF diplo test.md", test)
+		// 	})
+		// }, 5000)
 
 
 		return () => {
@@ -231,6 +239,9 @@ export const App = () => {
 	// LIGHTBOX SYSTEM
 	const { lightboxApi, lightboxImages, lightboxIndex } = useLightbox();
 
+	// TTS SYSTEM
+	const { ttsApi, ttsPos, ttsPopup, setTtsPopup, ttsPopupContent, ttsPopupFile } = useTtsPopup();
+
 	//
 	// CLIENT API 
 	//
@@ -257,7 +268,8 @@ export const App = () => {
 		windowsApi,
 		statusApi,
 		historyApi,
-		lightboxApi
+		lightboxApi,
+		ttsApi
 	})
 
 
@@ -315,6 +327,7 @@ export const App = () => {
 
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
+
 
 					{suggestOpen &&
 						<SuggestPopup
@@ -564,6 +577,15 @@ export const App = () => {
 					onClose={clientApi.ui.lightbox.close}
 				/>
 			}
+
+			{ttsPopup &&
+				<TtsPopup
+					file={ttsPopupFile as iFile}
+					fileContent={ttsPopupContent}
+					startString={ttsPos}
+					onClose={() => { setTtsPopup(false) }} />
+			}
+
 		</div >
 	)
 }
