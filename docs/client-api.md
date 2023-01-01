@@ -24,6 +24,14 @@
  <div class="render-code-wrapper">api.utils.createDiv( )</div>
  
 
+#### <span class="render-code-wrapper">utils.fullscreenIframe</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result: <span class="render-code-wrapper">void</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.fullscreenIframe( )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.getCachedRessourceUrl</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
