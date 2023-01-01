@@ -1,15 +1,26 @@
 import { OptionObj } from "../components/Input.component"
 import { md2html } from "./markdown.manager"
 import { regexs } from '../../../shared/helpers/regexs.helper';
-import { debounce } from "lodash";
+import { each, debounce } from "lodash";
 
 export const cleanText2Speech = (rawText: string) => {
 	let text2read = rawText
+
+	// let el = document.createElement("div");
+	// el.innerText = el.textContent = text2read;
+	// text2read = el.innerHTML;
+	// console.log(1111, text2read);
+
 	text2read = text2read.replace(regexs.ressource, '')
 	text2read = text2read.replace(regexs.ref, '')
-	text2read = md2html(text2read)
-	console.log('222', text2read);
+	// text2read = md2html(text2read)
 	text2read = text2read.replace(regexs.baliseHtml, '')
+
+	// console.log(1122, text2read);
+	// el = document.createElement("div");
+	// el.innerText = el.textContent = text2read;
+	// text2read = el.innerHTML;
+
 	console.log('cleanText2Speech', text2read);
 	return text2read
 }
@@ -177,6 +188,43 @@ export class Text2SpeechManager {
 			this.debounceRestart()
 		}
 	}
+
+	extractToChunkPos = (extract: string): number => {
+		let extractChunks = this.chunkText(extract)
+		let toSearch: string | null = null
+		each(extractChunks, c => {
+			if (c.length > 50) {
+				toSearch = c
+				return false
+			}
+		})
+		if (!toSearch) return -1
+
+		let res = -1
+		each(this.chunkedText, (chunk, i) => {
+			if (chunk.indexOf(toSearch as string) !== -1) {
+				console.log(345, chunk, i, this.chunkedText.length);
+				res = i
+				return false
+			}
+		})
+		console.log("345 extract to pos", { extract, extractChunks, toSearch, res });
+		return res
+	}
+
+	charPosToChunkPos = (charPos: number): number => {
+		let i = 0
+		let sumChar = 0
+		while (sumChar < charPos) {
+			sumChar = sumChar + this.chunkedText[i].length
+			i++
+		}
+		if (i > 1) i = i - 1
+		console.log("345 charPosToChunkPos", charPos, i);
+		return i
+	}
+
+
 
 	debounceRestart = debounce(() => {
 		console.log('DEBOUNCE RESTART');

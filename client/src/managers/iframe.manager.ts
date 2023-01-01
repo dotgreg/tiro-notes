@@ -148,6 +148,11 @@ export const generateIframeHtml = (
 					bindToElClass: IMPORTED_bindToElClass
 				})
 		</script>
+<style>
+		body::backdrop {
+			background: #F7F7F7;
+		}
+</style>
 </html>
 `
 	return html

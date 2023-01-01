@@ -15,6 +15,7 @@ import { Popup } from './Popup.component';
 export const TtsPopup = (p: {
 	file: iFile,
 	fileContent: string
+	startString: string | null
 	onClose: Function
 }) => {
 
@@ -29,6 +30,11 @@ export const TtsPopup = (p: {
 		setBgLock(status)
 	}
 
+	// useEffect(() => {
+	// 	if (p.startString !== -1) {
+	// 		setCurrChunk(p.startString)
+	// 	}
+	// }, [p.startString])
 
 	const [currChunk, setCurrChunk] = useLocalStorage<number>(`tts-pos-${p.file.name}`, 0)
 	// const [currRate, setCurrRate] = useState(1)
@@ -61,9 +67,21 @@ export const TtsPopup = (p: {
 		tts.current.updateSpeed(currRate)
 	}, [currRate])
 
+	const initPos = useRef(false)
 	useInterval(() => {
 		setIsPlaying(tts.current.isPlaying())
-		if (tts.current.currChunkId !== 0) setCurrChunk(tts.current.currChunkId)
+		let nPos = -1
+
+
+		if (tts.current.currChunkId !== 0) nPos = tts.current.currChunkId
+		// if we have a p.startString
+		if (p.startString && !initPos.current) {
+			let chunkPos = tts.current.extractToChunkPos(p.startString)
+			nPos = chunkPos
+			tts.current.goToChunk(nPos)
+			initPos.current = true
+		}
+		if (nPos !== -1) setCurrChunk(nPos)
 		setTotChunks(tts.current.chunkedText.length)
 	}, 500)
 
