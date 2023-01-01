@@ -189,7 +189,6 @@ const epubApp = (innerTagStr, opts) => {
 						scanBook,
 						getFullBookContent,
 
-						goFullscreen,
 				}
 
 				// window.jumpTo = jumpToPage
@@ -226,11 +225,10 @@ const epubApp = (innerTagStr, opts) => {
 										el.addEventListener("click",  e => {action(e)}, false);
 								}
 						}
-						onClick(["full"], e => {
-								eapi.goFullscreen();
-								eapi.updateUI();
-								e.preventDefault();
-						})
+						// onClick(["full"], e => {
+						// 		eapi.updateUI();
+						// 		e.preventDefault();
+						// })
 						onClick(["next", "overlay-next"], e => {
 								book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
 								eapi.updateUI()
