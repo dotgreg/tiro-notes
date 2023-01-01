@@ -292,7 +292,9 @@ export const ContentBlockTagView = (p: {
 		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName}`}>
 
 			<div className="ctag-menu" >
-				<Icon name="faEllipsisH" color={`#b2b2b2`} />
+				<div className="ctag-ellipsis" >
+					<Icon name="faEllipsisH" color={`#b2b2b2`} />
+				</div>
 				<div className="ctag-menu-button ctag-reload" onClick={incrementReload}>
 					<Icon name="faRetweet" color={`#b2b2b2`} />
 				</div>
@@ -355,7 +357,15 @@ export const contentBlockCss = () => `
 				opacity: 0;
 				transition: 0.2s all; 
 				display: flex;
-				padding: 2px;
+				padding: 3px;
+				padding-left: 8px;
+
+				margin-left: 8px;
+				margin-right: 8px;
+
+				.ctag-ellipsis {
+						margin-right: 15px;
+				}
 		}
 		.ctag-menu .ctag-menu-button {
 				display: none;
@@ -370,7 +380,7 @@ export const contentBlockCss = () => `
 						box-shadow: 0px 0px 3px rgba(0,0,0,.1);
 						border-radius: 5px;
 						.ctag-menu-button {
-								margin-left: 5px;
+								margin-right: 15px;
 								display: block;
 						}
 				}
