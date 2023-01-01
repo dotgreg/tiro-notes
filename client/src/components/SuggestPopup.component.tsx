@@ -149,25 +149,25 @@ export const SuggestPopup = (p: {
 		<div className="suggest-popup-bg"
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
-				<Popup title={``} onClose={() => { p.onClose() }} >
-					<Select
-						isMulti
+					<div>
+						<Select
+							isMulti
 
-						ref={selectRef}
-						menuIsOpen={true}
-						defaultValue={defaultValue}
-						value={selectedOption}
-						autoFocus={true}
+							ref={selectRef}
+							menuIsOpen={true}
+							defaultValue={defaultValue}
+							value={selectedOption}
+							autoFocus={true}
 
-						onChange={onChange}
-						options={options}
+							onChange={onChange}
+							options={options}
 
-						// isClearable={false}
-						styles={styles}
-						noOptionsMessage={() => noOptionLabel}
-					/>
+							// isClearable={false}
+							styles={styles}
+							noOptionsMessage={() => noOptionLabel}
+						/>
 
-				</Popup >
+					</div>
 			</div >
 		</div >
 	)

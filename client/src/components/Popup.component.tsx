@@ -32,6 +32,9 @@ export class Popup extends React.Component
 
 export const PopupWrapperCss = () => `
 .popup-wrapper-component {
+				position: absolute;
+        top: 0px;
+        left: 0px;
     .overlay-click-popup {
         position: fixed;
         z-index:1000;
