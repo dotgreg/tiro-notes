@@ -155,20 +155,6 @@ const epubApp = (innerTagStr, opts) => {
 				}
 
 
-				const goFullscreen = () => {
-						const element = document.body
-						// Supports most browsers and their versions.
-						var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
-
-						if (requestMethod) { // Native full screen.
-								requestMethod.call(element);
-						} else if (typeof window.ActiveXObject !== "undefined") { // Older IE.
-								var wscript = new ActiveXObject("WScript.Shell");
-								if (wscript !== null) {
-										wscript.SendKeys("{F11}");
-								}
-						}
-				}
 				document.addEventListener('fullscreenchange', (event) => {
 						setTimeout(() => {
 								let nHeight = document.body.clientHeight - 50
@@ -457,9 +443,8 @@ const htmlEpub = () => `
 <div class="controls-wrapper">
 		<select id="toc"></select>
 		<input type="number" id="page" min="0" /> / <div id="tot">0</div>
-		<input type="button" id="prev" value="<" />
-		<input type="button" id="next" value=">" />
-		<input type="button" id="full" value="↔" />
+		<input type="button" id="prev" value=" < " />
+		<input type="button" id="next" value=" > " />
 </div>
 
 <div class="overlay-controls">
@@ -554,8 +539,12 @@ left: auto;
     background: white;
 }
 
+#prev , #next{
+		padding: 0px 10px;
+}
 #prev {
 		left: 0;
+		margin-left: 10px;
 }
 
 #next {
