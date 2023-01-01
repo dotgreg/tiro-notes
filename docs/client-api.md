@@ -522,6 +522,22 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.search.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.textToSpeechPopup.close</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.close",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.textToSpeechPopup.open</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. filePath: <span class="render-code-wrapper">string</span>
+       1. content: <span class="render-code-wrapper">string</span>
+       1. startString: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.windows.active.get</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 

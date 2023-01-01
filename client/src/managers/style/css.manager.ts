@@ -61,7 +61,6 @@ export const CssApp2 = (
 		${AppViewSwitcherComponentCss()}
 		${ButtonsToolbarCss()}
 
-		${PopupWrapperCss()}
 
 		${imageGalleryCss()}
 
@@ -79,23 +78,27 @@ export const CssApp2 = (
 
 		${contentBlockCss()}
 
-		.no-file {
-				text-align: center;
-				margin-top: 49vh;
-		}
+				${settingsPopupCss()}
 
+				${lastNotesCss()}
+				${shortcutCompCss()}
+				${renderedNoteCompCss()}
 
+				${folderTreeCss()}
 
-		${settingsPopupCss()}
-
-		${lastNotesCss()}
-		${shortcutCompCss()}
-		${renderedNoteCompCss()}
-
-		${folderTreeCss()}
-
+		${PopupWrapperCss()}
 		.main-wrapper {
 				display: flex;
+				.no-file {
+						text-align: center;
+						margin-top: 49vh;
+				}
+
+
+
+
+
+
 
 
 				////////////////////////////////////////////v 
