@@ -8,7 +8,7 @@ import { getLoginToken } from "../hooks/app/loginToken.hook";
 import { getBackendUrl } from "./sockets/socket.manager";
 import { sharedConfig } from "../../../shared/shared.config";
 
-type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe'
+type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe' | 'askFullscreen'
 
 export interface iIframeData {
 	init: {
@@ -22,6 +22,7 @@ export interface iIframeData {
 		loginToken: string
 		backendUrl: string
 	}
+	askFullscreen: {},
 	resize: {
 		height: number | string
 	}
@@ -296,6 +297,13 @@ export const iframeMainCode = (p: {
 		sendToParent({ action: 'resize', data })
 	}
 
+	const fullscreenIframe = () => {
+		const element = document.body as any
+		// Supports most browsers and their versions.
+		var requestMethod = element.requestFullScreen || element.webkitRequestFullScreen || element.mozRequestFullScreen || element.msRequestFullScreen;
+		if (requestMethod) { requestMethod.call(element); }
+	}
+
 	///////////////////////////////////////////////////////////////////////// 
 	//
 	// API => CUSTOM TAG AVAILABLE API in IFRAME
@@ -506,6 +514,7 @@ export const iframeMainCode = (p: {
 			loadScriptsNoCache,
 
 			resizeIframe,
+			fullscreenIframe,
 			canScrollIframe,
 			loadCustomTag,
 			uuid: p.generateUUID,
@@ -523,6 +532,7 @@ export const iframeMainCode = (p: {
 	// 
 	onParentEvent({
 		init: iframeInitLogic,
+		askFullscreen: fullscreenIframe,
 		apiAnswer: m => {
 			const m2: iEventBusMessage = { subId: m.reqId, data: m.data }
 			notify(m2)
