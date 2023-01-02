@@ -233,19 +233,33 @@ const epubApp = (innerTagStr, opts) => {
 				}
 
 
-				const searchText = (searchedStr, cb) => {
+				const searchText = (term, cb) => {
 						let res = [] 
 						let pagesTot = book.locations.length()
 						let j = 0
 
+						console.log(h, "search term started",{term});
 						for (let i = 0; i < pagesTot; ++i) {
 								getPageContent(i, txt => {
-										// console.log(j, i);
+										txt = txt.toLowerCase()
+										term = term.toLowerCase()
 										j++
-										if (j === pagesTot) {cb(res)}
-										if (txt.indexOf(searchedStr) !== -1) res.push(i)
+										if (j === pagesTot) {
+												console.log(h, "search term ENDED",{term, res});
+												cb(res)
+										}
+										if (txt.indexOf(term) !== -1) res.push(i)
 								})
 						}
+				}
+
+				const searchAndJumpToPage = (term, cb) => {
+						searchText(term, occurs => {
+								if (occurs[0]) {
+										jumpToPage(occurs[0])
+								}
+								if (cb) cb(occurs)
+						})
 				}
 
 
@@ -260,6 +274,7 @@ const epubApp = (innerTagStr, opts) => {
 
 						getFullBookContent,
 						searchText,
+						searchAndJumpToPage 
 
 				}
 
@@ -283,15 +298,7 @@ const epubApp = (innerTagStr, opts) => {
 								let infos = eapi.getBookInfos()
 								let textRead = ttsInfos.currentText
 								console.log(222210, ttsInfos,infos);
-								searchText(textRead, occurs => {
-										console.log(222211, occurs);
-										if (occurs[0]) eapi.jumpToPage(occurs[0])
-								})
-								// let progressTts = ttsInfos.currentChunk / ttsInfos.totalChunks
-								// let tot = infos.tot
-								// let currPageEstimated = Math.round(progressTts * tot)
-								// eapi.jumpToPage(currPageEstimated)
-								// console.log(123123, s, progressTts, infos, currPageEstimated);
+								searchAndJumpToPage(textRead)
 						})
 				}, 5000)
 
@@ -300,15 +307,6 @@ const epubApp = (innerTagStr, opts) => {
 						// to rightly provide the right content later on 
 						// related to epub.js api
 						eapi.getFullBookContent() 
-
-						// setTimeout(() => {
-						// 		let s = `méthode`
-						// 		searchText(s, res => {
-						// 				console.log(22222222, res);
-						// 		})
-						// 		// getPageContent(0, t => {console.log(2221, t)})
-						// 		// getPageContent(2022, t => {console.log(222, t)})
-						// }, 1000)
 
 						//
 						// INITAL page jump
@@ -329,6 +327,51 @@ const epubApp = (innerTagStr, opts) => {
 										el.addEventListener("click",  e => {action(e)}, false);
 								}
 						}
+
+						// SEARCH
+
+						let searchRes = []
+						let currSearchRes = -1
+						let searchTerm = ""
+						const jumpToRes = (i) => {
+								console.log(123123, i, searchRes[i], searchRes);
+								jumpToPage(searchRes[i])
+								currSearchRes = i
+
+								// showing result
+								let resEl = document.getElementById("search-result");
+								resEl.innerHTML = `${currSearchRes}/${searchRes.length} results found for "${searchTerm}"`
+						}
+						onClick(["search-next"], e => {
+								let c = currSearchRes + 1
+								if (c === -1) c = 0
+								if (c === searchRes.length) c = 0
+								jumpToRes(c)
+
+						})
+						onClick(["search-prev"], e => {
+								let c = c - 1
+								if (c === -1) c = searchRes.length
+								if (c === 0) c = searchRes.length
+								jumpToRes(c)
+						})
+
+
+						onClick(["search"], e => {
+								let wEl = document.getElementById("search-wrapper");
+								wEl.classList.toggle('show');
+						})
+						onClick(["search-submit"], e => {
+								console.log();
+								let txtEl = document.getElementById("search-text");
+								searchTerm = txtEl.value
+
+								if (searchTerm) eapi.searchText(searchTerm, ocs => {
+										searchRes = ocs
+										jumpToRes(0)
+								})
+						})
+
 						onClick(["audio"], e => {
 								let file = api.utils.getInfos().file;
 								eapi.getFullBookContent(txt => {
@@ -551,11 +594,22 @@ const htmlEpub = () => `
 <div id="status">loading...</div>
 <div id="viewer" class="spreads"></div>
 
+<div id="search-wrapper">
+<div class="flex">
+<input type="text" id="search-text" placeholder="search term" value="" />
+<input type="button" id="search-submit" value="search" />
+		<input type="button" id="search-prev" value=" < " />
+		<input type="button" id="search-next" value=" > " />
+</div>
+<div id="search-result"></div>
+</div>
+
 <div class="controls-wrapper">
 		<select id="toc"></select>
 		<input type="number" id="page" min="0" /> / <div id="tot">0</div>
 		<input type="button" id="prev" value=" < " />
 		<input type="button" id="next" value=" > " />
+		<input type="button" id="search" value=" 🔎 " />
 		<input type="button" id="audio" value=" ♫ " />
 </div>
 
@@ -602,6 +656,29 @@ height: 100vh;
 .overlay-controls #overlay-next {
 right: 0px;
 left: auto;
+}
+
+.flex {display: flex}
+#search-wrapper {
+		padding: 15px;
+		background: white;
+		box-shadow: 0px 0px 4px rgba(0,0,0,0.4);
+		border-radius: 5px;
+		margin: 10px;
+		position: absolute;
+		bottom: 90px;
+		z-index: 100000;
+		display:none;
+}
+#search-wrapper.show {
+		display:block;
+}
+#search-wrapper #search-text {
+}
+#search-wrapper #search-button {
+}
+#search {
+margin-right: 10px;
 }
 
 #title {
