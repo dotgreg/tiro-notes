@@ -203,12 +203,10 @@ export class Text2SpeechManager {
 		let res = -1
 		each(this.chunkedText, (chunk, i) => {
 			if (chunk.indexOf(toSearch as string) !== -1) {
-				console.log(345, chunk, i, this.chunkedText.length);
 				res = i
 				return false
 			}
 		})
-		// console.log("345 extract to pos", { extract, extractChunks, toSearch, res });
 		return res
 	}
 

@@ -528,6 +528,16 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.close",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.textToSpeechPopup.getStatus</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. rand: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(status: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.getStatus",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(status: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.textToSpeechPopup.open</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
