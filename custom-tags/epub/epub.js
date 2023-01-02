@@ -273,32 +273,42 @@ const epubApp = (innerTagStr, opts) => {
 				window.isTts = false
 				let eapi = window.epubApi
 
+				// Check every 5s IF tts is working
+				// if it is, check tts position, search the read text
+				// if search returns an occurence, jump to that occurence page
 				setInterval(() => {
 						if (!window.isTts) return
-						api.call("ui.textToSpeechPopup.getStatus", [], s => {
-								if (!s.isPlaying) return
-								let progressTts = s.currentChunk / s.totalChunks
+						api.call("ui.textToSpeechPopup.getStatus", [], ttsInfos => {
+								if (!ttsInfos.isPlaying) return
 								let infos = eapi.getBookInfos()
-								let tot = infos.tot
-								let currPageEstimated = Math.round(progressTts * tot)
+								let textRead = ttsInfos.currentText
+								console.log(222210, ttsInfos,infos);
+								searchText(textRead, occurs => {
+										console.log(222211, occurs);
+										if (occurs[0]) eapi.jumpToPage(occurs[0])
+								})
+								// let progressTts = ttsInfos.currentChunk / ttsInfos.totalChunks
+								// let tot = infos.tot
+								// let currPageEstimated = Math.round(progressTts * tot)
 								// eapi.jumpToPage(currPageEstimated)
-								console.log(123123, s, progressTts, infos, currPageEstimated);
+								// console.log(123123, s, progressTts, infos, currPageEstimated);
 						})
 				}, 5000)
 
 				book.ready.then(() => {
-						// weirdly need to trigger upfront for the call to rightly provide the right content later on 
+						// weirdly need to trigger upfront for the call
+						// to rightly provide the right content later on 
+						// related to epub.js api
 						eapi.getFullBookContent() 
 
-						setTimeout(() => {
-								// let s = `qui y habitent sont plus susceptibles de se remémorer davantage`
-								let s = `méthode`
-								searchText(s, res => {
-										console.log(22222222, res);
-								})
-								// getPageContent(0, t => {console.log(2221, t)})
-								// getPageContent(2022, t => {console.log(222, t)})
-						}, 1000)
+						// setTimeout(() => {
+						// 		let s = `méthode`
+						// 		searchText(s, res => {
+						// 				console.log(22222222, res);
+						// 		})
+						// 		// getPageContent(0, t => {console.log(2221, t)})
+						// 		// getPageContent(2022, t => {console.log(222, t)})
+						// }, 1000)
 
 						//
 						// INITAL page jump
