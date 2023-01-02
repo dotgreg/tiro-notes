@@ -7,12 +7,15 @@ export interface iTtsStatus {
 	isPlaying: boolean
 	totalChunks: number
 	currentChunk: number
-	currentText?: string 
+	currentText?: string
 }
 
 export interface iTtsApi {
 	open: (filePath: string, content: string, startString?: string) => void
-	getStatus: (cb: (status: iTtsStatus | null) => void) => void
+	getStatus: (
+		rand: string,
+		cb: (status: iTtsStatus) => void
+	) => void
 	close: () => void
 }
 
@@ -40,13 +43,13 @@ export const useTtsPopup = () => {
 	}
 
 	// GET STATUS PLAY TTS
-	const getStatus: iTtsApi['getStatus'] = cb => {
-		console.log(h, `getStatus`, ttsStatusInt.current, cb);
+	const getStatus: iTtsApi['getStatus'] = (rand, cb) => {
+		console.log(h, `getStatus`, ttsStatusInt.current, rand, cb, cb.toString());
 		if (ttsStatusInt.current) cb(ttsStatusInt.current)
 	}
 	const ttsStatusInt = useRef<iTtsStatus | null>(null)
 	const syncTtsStatus = (status: iTtsStatus) => {
-		console.log("synctts", status);
+		// console.log("synctts", status);
 		ttsStatusInt.current = status
 	}
 

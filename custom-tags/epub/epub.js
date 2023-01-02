@@ -293,11 +293,11 @@ const epubApp = (innerTagStr, opts) => {
 				// if search returns an occurence, jump to that occurence page
 				setInterval(() => {
 						if (!window.isTts) return
-						api.call("ui.textToSpeechPopup.getStatus", [], ttsInfos => {
+						api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
+								console.log(h,`ui.textToSpeechPopup.getStatus`, {ttsInfos});
 								if (!ttsInfos.isPlaying) return
 								let infos = eapi.getBookInfos()
 								let textRead = ttsInfos.currentText
-								console.log(222210, ttsInfos,infos);
 								searchAndJumpToPage(textRead)
 						})
 				}, 5000)
