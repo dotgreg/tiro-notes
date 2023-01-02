@@ -125,14 +125,14 @@ export class Text2SpeechManager {
 			if (this.currChunkId > this.chunkedText.length - 1) return console.log(`[TTS] finished played`)
 
 			this.isLoaded = true
-			console.log(`[TTS] START play chunk ${this.currChunkId}`, { txt: this.chunkedText[this.currChunkId] });
+			// console.log(`[TTS] START play chunk ${this.currChunkId}`, { txt: this.chunkedText[this.currChunkId] });
 			this.currSpeechObj = new SpeechSynthesisUtterance();
 			this.currSpeechObj.text = this.chunkedText[this.currChunkId]
 			this.currSpeechObj.rate = this.speed
 			if (this.voice) this.currSpeechObj.voice = this.voice
 
 			// apparently important to keep that console.log...
-			console.log(this.currSpeechObj);
+			// console.log(this.currSpeechObj);
 
 			setTimeout(() => {
 				window.speechSynthesis.speak(this.currSpeechObj);
@@ -140,7 +140,7 @@ export class Text2SpeechManager {
 
 			this.currSpeechObj.addEventListener('end', () => {
 				this.isLoaded = false
-				console.log(`[TTS] END play chunk ${this.currChunkId}`);
+				// console.log(`[TTS] END play chunk ${this.currChunkId}`);
 				if (!this.shouldStop) {
 					// window.speechSynthesis.cancel();
 					this.currChunkId += 1

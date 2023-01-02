@@ -13,7 +13,7 @@ export interface iTtsStatus {
 export interface iTtsApi {
 	open: (filePath: string, content: string, startString?: string) => void
 	getStatus: (
-		rand: string,
+		// rand: string,
 		cb: (status: iTtsStatus) => void
 	) => void
 	close: () => void
@@ -43,8 +43,8 @@ export const useTtsPopup = () => {
 	}
 
 	// GET STATUS PLAY TTS
-	const getStatus: iTtsApi['getStatus'] = (rand, cb) => {
-		console.log(h, `getStatus`, ttsStatusInt.current, rand, cb, cb.toString());
+	const getStatus: iTtsApi['getStatus'] = (cb) => {
+		console.log(h, `getStatus`, ttsStatusInt.current, cb, cb.toString());
 		if (ttsStatusInt.current) cb(ttsStatusInt.current)
 	}
 	const ttsStatusInt = useRef<iTtsStatus | null>(null)

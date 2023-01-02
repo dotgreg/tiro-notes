@@ -4,8 +4,16 @@ var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
 var ARGUMENT_NAMES = /([^\s,]+)/g;
 export const getFunctionParamNames = (fn: Function) => {
 	var fnStr = fn.toString().replace(STRIP_COMMENTS, '');
-	var result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
-	if (result === null)
-		result = [];
+
+	let result: any = null
+	if (fnStr.startsWith("cb =>")) {
+		result = ["cb"]
+	} else {
+		result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
+	}
+
+	// console.log("1238888888 DETAILS", { fnStr, fn, result });
+
+	if (result === null) result = [];
 	return result;
 }
