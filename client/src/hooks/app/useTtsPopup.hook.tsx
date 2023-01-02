@@ -3,11 +3,20 @@ import { each, isString } from 'lodash';
 import { iFile, iFileImage } from '../../../../shared/types.shared';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 
+export interface iTtsStatus {
+	isPlaying: boolean
+	totalChunks: number
+	currentChunk: number
+	currentText?: string 
+}
+
 export interface iTtsApi {
 	open: (filePath: string, content: string, startString?: string) => void
+	getStatus: (cb: (status: iTtsStatus | null) => void) => void
 	close: () => void
 }
 
+const h = `[TTS API]`
 export const useTtsPopup = () => {
 
 	const [ttsPopup, setTtsPopup] = useState(false)
@@ -16,7 +25,7 @@ export const useTtsPopup = () => {
 	const [ttsPopupContent, setTtsPopupContent] = useState("")
 
 	const openTtsPopup: iTtsApi['open'] = (filePath, content, startString) => {
-		console.log(`[TTS API] : open`, { filePath, content, startString });
+		console.log(h, `open`, { filePath, content, startString });
 		let nfile = pathToIfile(filePath)
 		if (nfile) {
 			setTtsPopupFile(nfile)
@@ -26,19 +35,33 @@ export const useTtsPopup = () => {
 		}
 	}
 	const closeTtsPopup: iTtsApi['close'] = () => {
-		console.log(`[TTS API] close`);
+		console.log(h, ` close`);
 		setTtsPopup(false)
 	}
+
+	// GET STATUS PLAY TTS
+	const getStatus: iTtsApi['getStatus'] = cb => {
+		console.log(h, `getStatus`, ttsStatusInt.current, cb);
+		if (ttsStatusInt.current) cb(ttsStatusInt.current)
+	}
+	const ttsStatusInt = useRef<iTtsStatus | null>(null)
+	const syncTtsStatus = (status: iTtsStatus) => {
+		console.log("synctts", status);
+		ttsStatusInt.current = status
+	}
+
 
 	const ttsApi: iTtsApi = {
 		open: openTtsPopup,
 		close: closeTtsPopup,
+		getStatus
 	}
 	return {
 		ttsApi,
 		ttsPopupContent, ttsPopupFile,
 		ttsPos,
-		setTtsPopup, ttsPopup
+		setTtsPopup, ttsPopup,
+		syncTtsStatus
 	}
 
 

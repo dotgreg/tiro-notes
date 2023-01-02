@@ -1,11 +1,11 @@
 import styled from '@emotion/styled';
 import React, { useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../shared/types.shared';
+import { iTtsStatus } from '../hooks/app/useTtsPopup.hook';
 import { useInterval } from '../hooks/interval.hook';
 import { useLocalStorage } from '../hooks/useLocalStorage.hook';
 import { deviceType } from '../managers/device.manager';
 import { strings } from "../managers/strings.manager";
-import { cssVars } from "../managers/style/vars.style.manager";
 import { getAvailableVoices, Text2SpeechManager } from '../managers/tts.manager';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { Icon } from './Icon.component';
@@ -16,6 +16,8 @@ export const TtsPopup = (p: {
 	file: iFile,
 	fileContent: string
 	startString: string | null
+
+	onUpdate: (status: iTtsStatus) => void
 	onClose: Function
 }) => {
 
@@ -47,7 +49,6 @@ export const TtsPopup = (p: {
 	useEffect(() => {
 		setTimeout(() => {
 			if (getAvailableVoices()[selectedVoiceId]) {
-				console.log('2voice loaded', selectedVoiceId);
 				tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
 			}
 		})
@@ -58,7 +59,6 @@ export const TtsPopup = (p: {
 
 	useEffect(() => {
 		if (getAvailableVoices()[selectedVoiceId]) {
-			console.log('voice loaded', selectedVoiceId);
 			tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
 		}
 	}, [selectedVoiceId])
@@ -85,12 +85,18 @@ export const TtsPopup = (p: {
 		setTotChunks(tts.current.chunkedText.length)
 	}, 500)
 
+	useEffect(() => {
+		let currentText = tts.current.getCurrentChunkText()
+		p.onUpdate({ totalChunks: totChunks, currentChunk: currChunk, isPlaying, currentText })
+	}, [totChunks, currChunk, isPlaying])
+
 	return (
 		<StyledDiv>
 			<Popup
 				title={`${strings.ttsPopup.title}`}
 				onClose={() => {
 					tts.current.stop()
+					p.onUpdate({ totalChunks: totChunks, currentChunk: currChunk, isPlaying: false })
 					p.onClose()
 				}}
 			>
@@ -108,7 +114,6 @@ export const TtsPopup = (p: {
 				<input type="range" value={currRate} min="0" max="3" step="0.1"
 					onChange={e => {
 						const nVal = e.target.value as any
-						console.log(nVal);
 						setCurrRate(nVal)
 					}}>
 				</input>
@@ -117,14 +122,16 @@ export const TtsPopup = (p: {
 
 				<input type="range" value={currChunk} min="0" max={totChunks}
 					onChange={e => {
-						console.log(e.target.value);
-						tts.current.goToChunk(parseInt(e.target.value))
+						let val = parseInt(e.target.value)
+						tts.current.goToChunk(val)
+						setCurrChunk(val)
 					}}>
 				</input>
 				<input type="number" value={currChunk} min="0" max={totChunks}
 					onChange={e => {
-						console.log(e.target.value);
-						tts.current.goToChunk(parseInt(e.target.value))
+						let val = parseInt(e.target.value)
+						tts.current.goToChunk(val)
+						setCurrChunk(val)
 					}}>
 				</input> / {totChunks}
 
