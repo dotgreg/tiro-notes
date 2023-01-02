@@ -208,20 +208,14 @@ export class Text2SpeechManager {
 				return false
 			}
 		})
-		console.log("345 extract to pos", { extract, extractChunks, toSearch, res });
+		// console.log("345 extract to pos", { extract, extractChunks, toSearch, res });
 		return res
 	}
 
-	charPosToChunkPos = (charPos: number): number => {
-		let i = 0
-		let sumChar = 0
-		while (sumChar < charPos) {
-			sumChar = sumChar + this.chunkedText[i].length
-			i++
-		}
-		if (i > 1) i = i - 1
-		console.log("345 charPosToChunkPos", charPos, i);
-		return i
+	getCurrentChunkText = (): string | null => {
+		let res: string | null = null
+		res = this.chunkedText[this.currChunkId]
+		return res
 	}
 
 

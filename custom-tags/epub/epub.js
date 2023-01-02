@@ -148,12 +148,18 @@ const epubApp = (innerTagStr, opts) => {
 				const getPage = () => {
 						return rendition.currentLocation()?.start?.location || 0
 				}
+				const getPageContent = (pageNb, cb) => {
+						let pagesTot = book.locations.length()
+						let a = book.locations.cfiFromLocation(pageNb)
+						book.getRange(a).then(range => {
+								let txt = range.toString()
+								cb(txt)
+						})
+				}
 				const getCurrentPageContent = (cb) => {
-						// return rendition.getContents()
-						const [a, b] = [rendition.currentLocation().start.cfi, rendition.currentLocation().end.cfi]
-						book.getRange(makeRangeCfi(a, b)).then(range => {
-								// console.log(range.toString())
-								cb(range.toString())
+						let currPage = getPage()
+						getPageContent(currPage, txt => {
+								cb(txt)
 						})
 				}
 				const updateUI = (pageNb, p) => {
@@ -180,7 +186,8 @@ const epubApp = (innerTagStr, opts) => {
 				}
 				const getBookInfos = () => {
 						let tot = book.locations.length()
-						return { tot }
+						let curr = getPage()
+						return { tot, curr }
 				}
 				const scanBook = (onDone) => {
 						window.updateStatus("scanning book...")
@@ -216,15 +223,29 @@ const epubApp = (innerTagStr, opts) => {
 						book.loaded.spine.then((spine) => {
 								spine.each((item, i) => {
 										item.load(book.load.bind(book)).then((contents) => {
-												// console.log(2222, i, spine.length, contents);
 												fulltxt = fulltxt + contents.innerText
 												if (i === spine.length - 1) {
-														// console.log(123123, fulltxt);
 														cb(fulltxt)
 												}
 										});
 								});
 						});
+				}
+
+
+				const searchText = (searchedStr, cb) => {
+						let res = [] 
+						let pagesTot = book.locations.length()
+						let j = 0
+
+						for (let i = 0; i < pagesTot; ++i) {
+								getPageContent(i, txt => {
+										// console.log(j, i);
+										j++
+										if (j === pagesTot) {cb(res)}
+										if (txt.indexOf(searchedStr) !== -1) res.push(i)
+								})
+						}
 				}
 
 
@@ -236,7 +257,9 @@ const epubApp = (innerTagStr, opts) => {
 						getBookInfos,
 						scanBook,
 
+
 						getFullBookContent,
+						searchText,
 
 				}
 
@@ -247,13 +270,35 @@ const epubApp = (innerTagStr, opts) => {
 				// WHEN READY
 				//
 
-				book.ready.then(() => {
+				window.isTts = false
+				let eapi = window.epubApi
 
-						
-						let eapi = window.epubApi
-						// eapi.getFullBookContent(txt => {
-						// 		console.log(123, txt);
-						// })
+				setInterval(() => {
+						if (!window.isTts) return
+						api.call("ui.textToSpeechPopup.getStatus", [], s => {
+								if (!s.isPlaying) return
+								let progressTts = s.currentChunk / s.totalChunks
+								let infos = eapi.getBookInfos()
+								let tot = infos.tot
+								let currPageEstimated = Math.round(progressTts * tot)
+								// eapi.jumpToPage(currPageEstimated)
+								console.log(123123, s, progressTts, infos, currPageEstimated);
+						})
+				}, 5000)
+
+				book.ready.then(() => {
+						// weirdly need to trigger upfront for the call to rightly provide the right content later on 
+						eapi.getFullBookContent() 
+
+						setTimeout(() => {
+								// let s = `qui y habitent sont plus susceptibles de se remémorer davantage`
+								let s = `méthode`
+								searchText(s, res => {
+										console.log(22222222, res);
+								})
+								// getPageContent(0, t => {console.log(2221, t)})
+								// getPageContent(2022, t => {console.log(222, t)})
+						}, 1000)
 
 						//
 						// INITAL page jump
@@ -278,7 +323,10 @@ const epubApp = (innerTagStr, opts) => {
 								let file = api.utils.getInfos().file;
 								eapi.getFullBookContent(txt => {
 										eapi.getCurrentPageContent( currSentence => {
-												api.call("ui.textToSpeechPopup.open", [file.path, txt, currSentence])
+												window.isTts = true
+												api.call("ui.textToSpeechPopup.open",
+																 [file.path, txt, currSentence]
+																)
 										});
 										e.preventDefault();
 								})
