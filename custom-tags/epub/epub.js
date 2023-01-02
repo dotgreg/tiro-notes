@@ -377,9 +377,7 @@ const epubApp = (innerTagStr, opts) => {
 								eapi.getFullBookContent(txt => {
 										eapi.getCurrentPageContent( currSentence => {
 												window.isTts = true
-												api.call("ui.textToSpeechPopup.open",
-																 [file.path, txt, currSentence]
-																)
+												api.call("ui.textToSpeechPopup.open", [file.path, txt, currSentence], () => {})
 										});
 										e.preventDefault();
 								})
