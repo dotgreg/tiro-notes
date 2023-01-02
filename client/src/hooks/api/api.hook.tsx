@@ -233,6 +233,7 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 			else callingObj = null
 		})
 
+		console.log(123333333333, p, cb, callingObj);
 		if (callingObj === null) return cb('nok', { error: `"${p.apiName}" does not exists in current api \n\nAvailable Api properties :\n\n${printObjProps('', api)}` })
 
 
@@ -240,7 +241,8 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 		// files.getContent('fdlsakfdsja', cb(), options)
 		try {
 			const pos = getCallbackArgPosition(callingObj)
-			if (!pos) {
+			console.log(12355555555, pos, callingObj);
+			if (!isNumber(pos)) {
 				// non callback func simply call it, then take result (directly)
 				let res = callingObj(...p.apiArguments)
 				return cb('ok', res)
@@ -264,10 +266,11 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 
 const getCallbackArgPosition = (fn: Function): number | null => {
 	const args = getFunctionParamNames(fn)
+	// console.log(1233333333, args, fn);
 	// problem with that one is function names are compressed by webpack...
 	// mangle: {reserved: ["cb"], => has been preserved by webpack minify config
 	let index = args.indexOf('cb')
-	if (!index || index === -1) return null
+	if (index === -1) return null
 	return index
 }
 const printObjProps = (pre: string, obj: any) => {

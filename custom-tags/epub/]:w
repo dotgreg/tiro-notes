@@ -294,7 +294,7 @@ const epubApp = (innerTagStr, opts) => {
 				setInterval(() => {
 						console.log(11111111);
 						if (!window.isTts) return
-						console.log(11111112);
+						console.log(1111111);
 						// api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
 						api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
 								console.log(h,`ui.textToSpeechPopup.getStatus`, {ttsInfos});
