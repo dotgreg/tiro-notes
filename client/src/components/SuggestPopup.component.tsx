@@ -1,28 +1,11 @@
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { Popup } from './Popup.component';
 import Select from 'react-select';
-import { each } from 'lodash';
+import { each, isArray, isNumber } from 'lodash';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
-
-// const optionsStart = [
-// 	{ value: 'chocolate', label: 'Chocolate' },
-// 	{ value: 'strawberry', label: 'Strawberry' },
-// 	{ value: 'vanilla', label: 'Vanilla' },
-// ];
-
-// const optionsSecond = [
-// 	{ value: 'sub11/', label: 'sub11/' },
-// 	{ value: 'sub12/', label: 'sub12/' },
-// 	{ value: 'sub13/', label: 'sub13/' },
-// 	{ value: 'f1.md', label: 'f1.md' },
-// 	{ value: 'f2.md', label: 'f2.md' },
-// ];
-// const optionsLoading = [
-// 	// { value: "loading...", label: "loading..." }
-// ]
-
-
+import { pathToIfile } from '../../../shared/helpers/filename.helper';
+import { cssVars } from '../managers/style/vars.style.manager';
 
 
 interface iOptionSuggest {
@@ -41,8 +24,15 @@ export const SuggestPopup = (p: {
 }) => {
 
 
-	const [selectedOption, setSelectedOption] = useState<any>(null);
+	const [selectedOption, setSelectedOptionInt] = useState<any[]>([]);
+	const selectedOptionRef = useRef<any[]>([])
+	const setSelectedOption = (nArr: any[]) => {
+		if (!isArray(nArr)) return
+		setSelectedOptionInt(nArr)
+		selectedOptionRef.current = nArr
+	}
 	const [options, setOptions] = useState<any[]>([]);
+	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
 	const [noOptionLabel, setNoOptionLabel] = useState("No Options")
 
 	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
@@ -59,115 +49,224 @@ export const SuggestPopup = (p: {
 	}
 
 
+
+
+
+
+
+	//
+	// STYLING
+	//
+	const styles: any = {
+		// indicatorContainer: (base, state) => {
+		// 	return { ...base, display: "none" }
+		// },
+		indicatorsContainer: (base, state) => {
+			return { ...base, display: "none" }
+		},
+		// IndicatorsContainer: (base, state) => {
+		// 	return { ...base, display: "none" }
+		// },
+		control: (base, state) => {
+			return { ...base, outline: "none", boxShadow: 'none', border: 0 }
+		},
+		multiValue: (base, state) => {
+			return !state.data.editable ? { ...base, backgroundColor: cssVars.colors.main } : base;
+		},
+		multiValueRemove: (base, state) => {
+			return !state.data.editable ? { ...base, display: 'none' } : base;
+		},
+	}
+
+
+
+
+
+
+
+
+
+	const onChange = (nOptions: any, actionObj: any) => {
+
+		//
+		// SELECTING LAST NOTE
+		//
+		let s = nOptions[0]
+
+		if (s && s.payload && s.payload.file) {
+			let file = s.payload.file
+			jumpToPath(file.path)
+			nOptions = []
+		}
+		// update it
+		setSelectedOption(nOptions)
+	}
+	const selectRef = useRef<any>()
+	let defaultValue = options[0] || { label: "", value: "" }
+
+
+
+
+
+
+	const jumpToPath = (filePath: string) => {
+		let file = pathToIfile(filePath)
+		getApi(api => {
+			api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+			p.onClose()
+		})
+	}
+
+	//
+	// MODE SWITCHING
+	//
+	type iMode = "explorer" | "lastNotes" | "none"
+	const [mode, setMode] = useState<iMode>("lastNotes");
+	const [inputTxt, setInputTxt] = useState("");
+	const onInputChange: any = (txt: string) => {
+		setInputTxt(txt.trim())
+		if (txt !== "woop") {
+		}
+	}
+
+
+
+	//
+	// UPDATE LOGIC
+	// 
+	const histPath = useRef("")
+	const updateFromChange = () => {
+		// at first, according to first char, switch mode
+		console.log("================================");
+		console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
+		if (selectedOptionRef.current.length === 0) {
+			if (inputTxt === "/") {
+				setMode("explorer");
+				console.log("/ mode!");
+				getApi(api => {
+					let folder = api.ui.browser.files.active.get.folder
+					triggerExplorer(folder)
+				})
+			}
+
+			if (inputTxt === "") {
+				setMode("lastNotes");
+				console.log("lastnotes mode!");
+				startLastNotesModeLogic()
+			}
+		} else {
+
+			// merge all the request
+			let finalPath = ""
+			each(selectedOptionRef.current, o => {
+				finalPath += "/" + o.value
+			})
+
+			// if ends to md, jump to it
+			// console.log(123333, selectedOption, finalPath);
+			if (finalPath.endsWith(".md")) {
+				jumpToPath(finalPath)
+			}
+
+			// else jump to that new folder
+			else if (histPath.current !== finalPath) {
+				histPath.current = finalPath
+				triggerExplorer(finalPath)
+			}
+		}
+	}
+
 	useEffect(() => {
+		updateFromChange();
+	}, [selectedOption, inputTxt])
+
+
+
+	//
+	// EXPLORER MODE
+	//
+	const triggerExplorer = (folderPath: string) => {
+		selectRef.current.setValue("")
+		getApi(api => {
+			api.folders.get([folderPath], folderHierar => {
+				let folders = folderHierar.folders[0].children
+				api.files.get(folderPath, files => {
+
+					// split folder path
+					let foldersArr = folderPath.split("/")
+
+					// create folder tags
+					let nSelec: any[] = []
+					nSelec.push({ value: "/", label: "/" })
+					each(foldersArr, f => {
+						if (f === "") return
+						nSelec.push({ value: f, label: f + "/" })
+					})
+
+					// create suggestions from folders and files
+					let nOpts: iOptionSuggest[] = []
+
+					each(folders, f => {
+						let arr = f.path.split("/")
+						let last = arr[arr.length - 1] + "/"
+						nOpts.push({ value: last, label: last })
+					})
+					each(files, f => {
+						let arr = f.path.split("/")
+						let last = arr[arr.length - 1]
+						nOpts.push({ value: last, label: last })
+					})
+
+					setSelectedOption(nSelec)
+					setOptions(nOpts)
+
+				})
+			})
+
+		})
+	}
+
+	//
+	// LAST NOTES MODE
+	//
+	const startLastNotesModeLogic = () => {
 		let nOptions = filesToOptions(p.lastNotes)
+		// console.log(123, nOptions);
+
 		// intervert el 1 and el 2
 		let o1 = nOptions.shift() as iOptionSuggest
 		let o2 = nOptions.shift() as iOptionSuggest
 		nOptions.unshift(o1)
 		nOptions.unshift(o2)
+
+		// setLastNotesOptions(nOptions)
 		setOptions(nOptions)
-		console.log(3333, nOptions, selectedOption);
-	}, [p.lastNotes])
-
-	// useEffect(() => {
-	// let noOptions = false
-	// //if (selectedOption && selectedOption.length >= 3) noOptions = true
-	// const s = selectedOption
-	// if (s && s[s.length - 1]?.value?.endsWith(".md")) noOptions = true
-	// else noOptions = false
-	// LOAD OPTIONS ACCORDING TO VALUE
-	// if (s && s[0] && s[0].value === "chocolate") {
-	// 	setOptions(!noOptions ? optionsLoading : [])
-
-	// 	if (noOptions) return
-	// 	setNoOptionLabel("loading...")
-	// 	setTimeout(() => {
-	// 		setOptions(!noOptions ? optionsSecond : [])
-	// 		setNoOptionLabel("No Options")
-	// 	}, 1000)
-	// }
-	// }, [selectedOption])
-
-	const styles: any = {
-		multiValue: (base, state) => {
-			// console.log(333002, base, state.data);
-			return !state.data.editable ? { ...base, backgroundColor: 'gray' } : base;
-		},
-		multiValueRemove: (base, state) => {
-			return !state.data.editable ? { ...base, display: 'none' } : base;
-		},
-		// indicatorsContainer: (base, state) => {
-		// 	return { ...base, display: 'none' }
-		// }
 	}
-
-
-
-	const onChange = (nOptions: any, actionObj: any) => {
-		if (actionObj.action === 'remove-value' && !actionObj.removedValue?.editable) return false
-
-		// MODIFY SELECTED OPTIONS, only last is modifiable
-		each(nOptions, (o: any, i: number) => {
-			// console.log(33332, o.value, i, nOptions.length);
-			o.editable = false
-			if (i === nOptions.length - 1) {
-				// console.log(333004, "LAST EL IS", o.value);
-				o.editable = true
-			}
-		})
-
-
-		//
-		// SELECTING LAST NOTE
-		//
-		// if ( === null) return
-		let s = nOptions[0]
-
-		if (s && s.payload && s.payload.file) {
-			let file = s.payload.file
-			getApi(api => {
-				// console.log(444444, api, file);
-				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
-				p.onClose()
-			})
-			nOptions = []
-		}
-
-
-		// update it
-		setSelectedOption(nOptions)
-	}
-
-	const selectRef = useRef<any>()
-	useEffect(() => {
-		// selectRef.current.focus()
-	}, [])
-	let defaultValue = options[0] || { label: "", value: "" }
 
 	return (
 		<div className="suggest-popup-bg"
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
-					<div>
-						<Select
-							isMulti
+				<div>
+					<Select
+						isMulti
 
-							ref={selectRef}
-							menuIsOpen={true}
-							defaultValue={defaultValue}
-							value={selectedOption}
-							autoFocus={true}
+						ref={selectRef}
+						menuIsOpen={true}
+						defaultValue={defaultValue}
+						value={selectedOption}
+						autoFocus={true}
 
-							onChange={onChange}
-							options={options}
+						onChange={onChange}
+						onInputChange={onInputChange}
+						options={options}
 
-							// isClearable={false}
-							styles={styles}
-							noOptionsMessage={() => noOptionLabel}
-						/>
+						// isClearable={false}
+						styles={styles}
+						noOptionsMessage={() => noOptionLabel}
+					/>
 
-					</div>
+				</div>
 			</div >
 		</div >
 	)

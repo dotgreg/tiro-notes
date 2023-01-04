@@ -292,9 +292,7 @@ const epubApp = (innerTagStr, opts) => {
 				// if it is, check tts position, search the read text
 				// if search returns an occurence, jump to that occurence page
 				setInterval(() => {
-						console.log(11111111);
 						if (!window.isTts) return
-						console.log(11111112);
 						// api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
 						api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
 								console.log(h,`ui.textToSpeechPopup.getStatus`, {ttsInfos});
