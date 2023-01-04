@@ -531,11 +531,10 @@ noteLink should be relative from tiro folder
 #### <span class="render-code-wrapper">ui.textToSpeechPopup.getStatus</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. rand: <span class="render-code-wrapper">string</span>
-    - Result: <span class="render-code-wrapper">(status: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span>
+    - Result: <span class="render-code-wrapper">(status: <span class="render-code-wrapper"><a href="#client-api?id=ittsstatus">iTtsStatus</a></span>) => <span class="render-code-wrapper">void</span></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.getStatus",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(status: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.textToSpeechPopup.getStatus",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(status: <span class="render-code-wrapper"><a href="#client-api?id=ittsstatus">iTtsStatus</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.textToSpeechPopup.open</span>
@@ -761,6 +760,12 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;grid: <span class="render-code-wrapper"><a href="#client-api?id=igrid">iGrid</a></span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;manualName?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;position?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;refresh?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iTtsStatus</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;currentChunk: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isPlaying: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;totalChunks: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;currentText?: <span class="render-code-wrapper">string</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">onUploadProgressFn</span>

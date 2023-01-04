@@ -148,9 +148,6 @@ export const App = () => {
 
 			// seems blocking the initial loading of a few seconds, so starts it 10s after
 			askForFolderScan(['/'])
-			// console.log(123123123);
-			// setTimeout(() => {
-			// }, 10000)
 
 		}
 	})
@@ -583,7 +580,7 @@ export const App = () => {
 					file={ttsPopupFile as iFile}
 					fileContent={ttsPopupContent}
 					startString={ttsPos}
-			 onUpdate={s => { syncTtsStatus(s)}}
+					onUpdate={s => { syncTtsStatus(s) }}
 					onClose={() => { setTtsPopup(false) }} />
 			}
 

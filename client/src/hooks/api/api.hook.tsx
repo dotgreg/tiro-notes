@@ -233,7 +233,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 			else callingObj = null
 		})
 
-		console.log(123333333333, p, cb, callingObj);
 		if (callingObj === null) return cb('nok', { error: `"${p.apiName}" does not exists in current api \n\nAvailable Api properties :\n\n${printObjProps('', api)}` })
 
 
@@ -241,7 +240,6 @@ export const callApiFromString = (p: iIframeData['apiCall'], cb: iCallApiCb) => 
 		// files.getContent('fdlsakfdsja', cb(), options)
 		try {
 			const pos = getCallbackArgPosition(callingObj)
-			console.log(12355555555, pos, callingObj);
 			if (!isNumber(pos)) {
 				// non callback func simply call it, then take result (directly)
 				let res = callingObj(...p.apiArguments)
