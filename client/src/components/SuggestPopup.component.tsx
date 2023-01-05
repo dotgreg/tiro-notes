@@ -6,6 +6,7 @@ import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
+import { useDebounce } from '../hooks/lodash.hooks';
 
 
 interface iOptionSuggest {
@@ -15,6 +16,11 @@ interface iOptionSuggest {
 	payload?: {
 		file?: iFile
 	}
+}
+
+const modeLabels = {
+	search: "[Search Mode]",
+	explorer: "[Explorer Mode]"
 }
 
 
@@ -120,18 +126,14 @@ export const SuggestPopup = (p: {
 	//
 	// MODE SWITCHING
 	//
-	type iMode = "explorer" | "lastNotes" | "none"
-	const [mode, setMode] = useState<iMode>("lastNotes");
 	const [inputTxt, setInputTxt] = useState("");
 	const onInputChange: any = (txt: string) => {
 		setInputTxt(txt.trim())
-		if (txt !== "woop") {
-		}
 	}
 
 
 
-	//
+	///////////////////////////////////////////////////////
 	// UPDATE LOGIC
 	// 
 	const histPath = useRef("")
@@ -139,26 +141,53 @@ export const SuggestPopup = (p: {
 		// at first, according to first char, switch mode
 		console.log("================================");
 		console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
-		if (selectedOptionRef.current.length === 0) {
+		let stags = selectedOptionRef.current
+
+		if (stags.length === 0) {
 			if (inputTxt === "/") {
-				setMode("explorer");
+				// setMode("explorer");
 				console.log("/ mode!");
 				getApi(api => {
 					let folder = api.ui.browser.files.active.get.folder
+					// erase /
+					selectRef.current.setValue("")
 					triggerExplorer(folder)
 				})
 			}
 
 			if (inputTxt === "") {
-				setMode("lastNotes");
-				console.log("lastnotes mode!");
 				startLastNotesModeLogic()
 			}
-		} else {
+
+			if (inputTxt === "?") {
+				startSearchModeLogic()
+			}
+
+		}
+		else if (stags[0].label === modeLabels.search) {
+
+			// IF SEARCH MODE 
+			if (!stags[1]) {
+				setHelp(`input the path to search in (ex:"/path/to/folder")`)
+				console.log(333222, stags);
+				setOptions([{ label: inputTxt }])
+			} else if (stags.length === 2) {
+				reactToSearchTyping(inputTxt, stags[1].label)
+			} else if (stags.length === 3) {
+				console.log("GOOOOOOOOOO", stags);
+				let file = stags[2].value as iFile
+				jumpToPath(file.path)
+			}
+		}
+		// IF EXPLORER MODE
+		else if (stags[0].label === modeLabels.explorer) {
+
+			// remove mode label
+			stags.shift()
 
 			// merge all the request
 			let finalPath = ""
-			each(selectedOptionRef.current, o => {
+			each(stags, o => {
 				finalPath += "/" + o.value
 			})
 
@@ -182,13 +211,22 @@ export const SuggestPopup = (p: {
 
 
 
+	const baseHelp = `"?" for search mode, "/" for explorer mode`
+	const [help, setHelp] = useState(baseHelp)
+
+	///////////////////////////////////////////////////////
+	// MODES LOGIC
+	//
+
 	//
 	// EXPLORER MODE
 	//
 	const triggerExplorer = (folderPath: string) => {
-		selectRef.current.setValue("")
+		console.log("== EXPLORER", folderPath);
 		getApi(api => {
 			api.folders.get([folderPath], folderHierar => {
+				let parent = folderHierar.folders[0]
+				if (!parent) return
 				let folders = folderHierar.folders[0].children
 				api.files.get(folderPath, files => {
 
@@ -197,6 +235,7 @@ export const SuggestPopup = (p: {
 
 					// create folder tags
 					let nSelec: any[] = []
+					nSelec.push({ value: modeLabels.explorer, label: modeLabels.explorer })
 					nSelec.push({ value: "/", label: "/" })
 					each(foldersArr, f => {
 						if (f === "") return
@@ -217,19 +256,74 @@ export const SuggestPopup = (p: {
 						nOpts.push({ value: last, label: last })
 					})
 
+					console.log(123333, nSelec, nOpts);
 					setSelectedOption(nSelec)
 					setOptions(nOpts)
 
 				})
 			})
-
 		})
 	}
+
+
+
+
+	//
+	// SEARCH MODE
+	//
+	const startSearchModeLogic = () => {
+		getApi(api => {
+			// erase ? and put instead the current folder
+			let folder = api.ui.browser.files.active.get.folder
+			console.log(2222222, folder);
+			// selectRef.current.setValue(folder)
+			// setTimeout(() => {
+			// 	selectRef.current.setValue("wwwwwww")
+			// }, 1000)
+			setSelectedOption([
+				{ value: modeLabels.search, label: modeLabels.search },
+				{ value: folder, label: folder },
+			])
+			selectRef.current.setValue("")
+		})
+	}
+
+	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string) => {
+		let path = folder
+		let input = inputTxt
+		console.log(333333, { input, path, inputTxt });
+
+		if (input && path && input.length > 2 && path.length > 0) {
+			setHelp(`Searching "${input}" in "${path}" ...`)
+			let nOpts: any = []
+			setOptions(nOpts)
+
+			getApi(api => {
+				api.search.word(input, path, res => {
+					each(res, (fileRes) => {
+						each(fileRes.results, occur => {
+							let label = `[${fileRes.file.path}] ${occur}`
+							nOpts.push({ label, value: fileRes.file })
+						})
+					})
+					setHelp(`${nOpts.length} results found for "${input}" in "${path}" `)
+					setOptions(nOpts)
+				})
+			})
+
+		} else {
+			setHelp(`Type the word searched`)
+			setOptions([])
+		}
+	}, 500)
+
+
 
 	//
 	// LAST NOTES MODE
 	//
 	const startLastNotesModeLogic = () => {
+		setHelp(baseHelp)
 		let nOptions = filesToOptions(p.lastNotes)
 		// console.log(123, nOptions);
 
@@ -248,6 +342,10 @@ export const SuggestPopup = (p: {
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
 				<div>
+					<div className="help">
+						{help}
+					</div>
+					{options.length}
 					<Select
 						isMulti
 
@@ -293,5 +391,9 @@ export const suggestPopupCss = () => `
 		left: 50%;
 		transform: translate(-50%);
 		top: 22px;
+}
+.help {
+	color:white;
+	margin-bottom: 10px;
 }
 `
