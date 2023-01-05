@@ -209,10 +209,10 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. term: <span class="render-code-wrapper">string</span>
-    - Result: <span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span>
+    - Result: <span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>, contentSearchPreview: <span class="render-code-wrapper">string[]</span>) => <span class="render-code-wrapper">void</span></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"files.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"files.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>, contentSearchPreview: <span class="render-code-wrapper">string[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">files.get</span>
@@ -325,10 +325,10 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. term: <span class="render-code-wrapper">string</span>
-    - Result: <span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span>
+    - Result: <span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>, contentSearchPreview: <span class="render-code-wrapper">string[]</span>) => <span class="render-code-wrapper">void</span></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.files.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.files.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>, contentSearchPreview: <span class="render-code-wrapper">string[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">search.ui.term.get</span>

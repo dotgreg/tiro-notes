@@ -127,8 +127,11 @@ export const SuggestPopup = (p: {
 	// MODE SWITCHING
 	//
 	const [inputTxt, setInputTxt] = useState("");
+	// const [inputValue, setInputTxt] = useState("");
+	// const onInputValueUpdate = (nVal:string) =
 	const onInputChange: any = (txt: string) => {
 		setInputTxt(txt.trim())
+		// setInputTxt(txt.trim())
 	}
 
 
@@ -139,18 +142,19 @@ export const SuggestPopup = (p: {
 	const histPath = useRef("")
 	const updateFromChange = () => {
 		// at first, according to first char, switch mode
-		console.log("================================");
-		console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
+		// console.log("================================");
+		// console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
 		let stags = selectedOptionRef.current
 
 		if (stags.length === 0) {
+			// console.log(110000, inputTxt, inputValue);
 			if (inputTxt === "/") {
-				// setMode("explorer");
-				console.log("/ mode!");
 				getApi(api => {
-					let folder = api.ui.browser.files.active.get.folder
+					console.log(1111111111);
 					// erase /
-					selectRef.current.setValue("")
+					setInputTxt("")
+
+					let folder = api.ui.browser.files.active.get.folder
 					triggerExplorer(folder)
 				})
 			}
@@ -169,12 +173,10 @@ export const SuggestPopup = (p: {
 			// IF SEARCH MODE 
 			if (!stags[1]) {
 				setHelp(`input the path to search in (ex:"/path/to/folder")`)
-				console.log(333222, stags);
-				setOptions([{ label: inputTxt }])
+				setOptions([{ label: inputTxt, value: inputTxt }])
 			} else if (stags.length === 2) {
 				reactToSearchTyping(inputTxt, stags[1].label)
 			} else if (stags.length === 3) {
-				console.log("GOOOOOOOOOO", stags);
 				let file = stags[2].value as iFile
 				jumpToPath(file.path)
 			}
@@ -182,18 +184,23 @@ export const SuggestPopup = (p: {
 		// IF EXPLORER MODE
 		else if (stags[0].label === modeLabels.explorer) {
 
-			// remove mode label
-			stags.shift()
+			const getFinalPath = () => {
+				let s = [...stags]
+				s.shift()
+				// merge all the request
+				let finalPath = ""
+				each(s, o => {
+					finalPath += "/" + o.value
+				})
+				return finalPath
+			}
 
-			// merge all the request
-			let finalPath = ""
-			each(stags, o => {
-				finalPath += "/" + o.value
-			})
 
+			let finalPath = getFinalPath()
 			// if ends to md, jump to it
-			// console.log(123333, selectedOption, finalPath);
 			if (finalPath.endsWith(".md")) {
+				// remove mode label
+				finalPath = finalPath.replace(stags[0].label, "")
 				jumpToPath(finalPath)
 			}
 
@@ -223,6 +230,7 @@ export const SuggestPopup = (p: {
 	//
 	const triggerExplorer = (folderPath: string) => {
 		console.log("== EXPLORER", folderPath);
+		if (folderPath === "") return
 		getApi(api => {
 			api.folders.get([folderPath], folderHierar => {
 				let parent = folderHierar.folders[0]
@@ -256,7 +264,7 @@ export const SuggestPopup = (p: {
 						nOpts.push({ value: last, label: last })
 					})
 
-					console.log(123333, nSelec, nOpts);
+					// console.log(123333, nSelec, nOpts);
 					setSelectedOption(nSelec)
 					setOptions(nOpts)
 
@@ -275,23 +283,16 @@ export const SuggestPopup = (p: {
 		getApi(api => {
 			// erase ? and put instead the current folder
 			let folder = api.ui.browser.files.active.get.folder
-			console.log(2222222, folder);
-			// selectRef.current.setValue(folder)
-			// setTimeout(() => {
-			// 	selectRef.current.setValue("wwwwwww")
-			// }, 1000)
 			setSelectedOption([
 				{ value: modeLabels.search, label: modeLabels.search },
-				{ value: folder, label: folder },
 			])
-			selectRef.current.setValue("")
+			setInputTxt(folder)
 		})
 	}
 
 	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string) => {
 		let path = folder
 		let input = inputTxt
-		console.log(333333, { input, path, inputTxt });
 
 		if (input && path && input.length > 2 && path.length > 0) {
 			setHelp(`Searching "${input}" in "${path}" ...`)
@@ -345,7 +346,6 @@ export const SuggestPopup = (p: {
 					<div className="help">
 						{help}
 					</div>
-					{options.length}
 					<Select
 						isMulti
 
@@ -356,7 +356,10 @@ export const SuggestPopup = (p: {
 						autoFocus={true}
 
 						onChange={onChange}
+
+						inputValue={inputTxt}
 						onInputChange={onInputChange}
+
 						options={options}
 
 						// isClearable={false}
