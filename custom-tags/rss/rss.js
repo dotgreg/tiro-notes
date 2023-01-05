@@ -204,6 +204,31 @@ const rssApp = (innerTagStr, opts) => {
 						c('div', { className: "article-time" }, [
 							p.article.pubDate + " - " + p.article.sourceRss
 						]),
+						type !== "audio" &&
+						c('div', { className: "article-links-wrapper" }, [
+							c('a', { className: "article-link", href: p.article.link, target: "_blank" }, ["link"]),
+							c('a', {
+								className: "article-link",
+								onClick: () => { openLinkNewWindow(p.article.link) }
+							}, ["open in window"]),
+						]),
+						type === "audio" &&
+						c('div', { className: "audio-wrapper", }, [
+							c('audio', { controls: "true" }, [
+								c('source', {
+									src: p.article.enclosure.link,
+									type: p.article.enclosure.type
+								})
+							]),
+
+							c('div', { className: "article-links-wrapper" }, [
+								c('a', { className: "article-link", href: p.article.enclosure.link, target: "_blank" }, ["audio file"]),
+								c('a', {
+									className: "article-link",
+									onClick: () => { openLinkNewWindow(p.article.enclosure.link) }
+								}, ["open in window"]),
+							])
+						]),
 						c('div', {
 							className: "article-description",
 							dangerouslySetInnerHTML: { __html: p.article.description }
@@ -213,32 +238,6 @@ const rssApp = (innerTagStr, opts) => {
 							className: "article-description",
 							dangerouslySetInnerHTML: { __html: p.article.content }
 						}),
-					]),
-					type !== "audio" &&
-					c('div', { className: "article-links-wrapper" }, [
-						c('a', { className: "article-link", href: p.article.link, target: "_blank" }, ["link"]),
-						c('a', {
-							className: "article-link",
-							onClick: () => { openLinkNewWindow(p.article.link) }
-						}, ["open in window"]),
-					]),
-					type === "audio" &&
-					c('div', { className: "audio-wrapper", }, [
-						c('audio', { controls: "true" }, [
-							c('source', {
-								src: p.article.enclosure.link,
-								type: p.article.enclosure.type
-							})
-						]),
-
-						c('div', { className: "article-links-wrapper" }, [
-							c('a', { className: "article-link", href: p.article.enclosure.link, target: "_blank" }, ["audio file"]),
-							c('a', {
-								className: "article-link",
-								onClick: () => { openLinkNewWindow(p.article.enclosure.link) }
-							}, ["open in window"]),
-						])
-
 					]),
 				])
 			)
@@ -450,14 +449,14 @@ const rssApp = (innerTagStr, opts) => {
 		}
 		.article-links-wrapper {
 				font-size: 12px;
-				padding-bottom: 30px;
-				margin-bottom: 30px;
+				padding-bottom: 14px;
+				margin-bottom: 0px;
 				display: flex;
 		}
 		.article-links-wrapper .article-link {
 				cursor: pointer;
 				text-decoration: underline;
-				margin-left: 10px;
+				margin-right: 10px;
 		}
 		.bg-image {
 				width: 30%;
