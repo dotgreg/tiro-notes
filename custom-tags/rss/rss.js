@@ -446,7 +446,12 @@ const rssApp = (innerTagStr, opts) => {
 		.article-description {
 				color: grey;
 				font-size: 12px;
+				margin-bottom: 70px;
 		}
+.article-description img {
+	width:100%!important;
+	height: auto!important;
+}
 		.article-links-wrapper {
 				font-size: 12px;
 				padding-bottom: 14px;
