@@ -37,7 +37,7 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		newfilesHistory = newfilesHistory.slice(0, 200)
 		newfilesHistory.unshift(file)
 		setFilesHistory(newfilesHistory)
-		console.log("FILES HISTORY", { newfilesHistory });
+		// console.log("FILES HISTORY", { newfilesHistory });
 	}
 	const debouncedAddToHistory = useDebounce(addToHistory, 1000)
 
