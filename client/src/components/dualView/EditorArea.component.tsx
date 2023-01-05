@@ -143,8 +143,8 @@ const EditorAreaInt = (
 		ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
 	} = useNoteEncryption({
 		fileContent: innerFileContent,
-		onTextEncrypted: triggerNoteEdition,
-		onTextDecrypted: triggerNoteEdition
+		onTextEncrypted: txt => { triggerNoteEdition(txt); forceCmRender(); },
+		onTextDecrypted: txt => { triggerNoteEdition(txt); forceCmRender(); }
 	})
 
 

@@ -77,6 +77,15 @@ export const App = () => {
 		// 	})
 		// }, 5000)
 
+		getApi(api => {
+			api.search.files.search("a trouver /1_test/1_1_test/", f => {
+				console.log(1233333333333, f);
+			})
+			api.search.word("a trouver", "/1_test/", f => {
+				console.log(44444444444444, f);
+			})
+		})
+
 
 		return () => {
 			// COMPONENT will unmount
@@ -315,6 +324,7 @@ export const App = () => {
 		k.bind('esc', closeOmni);
 		return () => { k.releaseAllKeys(); }
 	}, [filesHistory])
+
 
 
 

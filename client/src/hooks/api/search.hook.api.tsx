@@ -21,7 +21,10 @@ export interface iSearchApi {
 
 // SUB
 export interface iSearchFilesApi {
-	search: (term: string, cb: (nFiles: iFile[]) => void) => void
+	search: (term: string, cb: (
+		nFiles: iFile[],
+		contentSearchPreview?: string[]
+	) => void) => void
 }
 export interface iSearchUiApi {
 	search: (term: string) => void

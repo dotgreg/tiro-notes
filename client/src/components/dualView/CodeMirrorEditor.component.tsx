@@ -351,7 +351,7 @@ export const codeMirrorEditorCss = () => `
 }
 
 .test-success {
-background: orange;
+// background: orange;
 color: red;
 display: block;
 padding-top: 50px;
@@ -372,7 +372,7 @@ padding: 20px;
 				width: 50%;
 				height: 100px;
 				display:block;
-				background: orange;
+				// background: orange;
 
 		}
 }
