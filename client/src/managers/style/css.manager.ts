@@ -32,6 +32,7 @@ import { latexCss } from '../latex.manager';
 import { suggestPopupCss } from '../../components/SuggestPopup.component';
 import { shortcutCompCss } from '../../components/Shortcuts.component';
 import { renderedNoteCompCss } from '../../components/RenderedNote.component';
+import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
 
 
 export const css2 = (css: string) => css
@@ -52,6 +53,7 @@ export const CssApp2 = (
 				}
 		}
 
+		${linksPreviewMdCss()}
 		${GlobalAppViewCss()}
 		${latexCss()}
 		${lightboxCss()}
@@ -77,6 +79,7 @@ export const CssApp2 = (
 		${inputComponentCss()}
 
 		${contentBlockCss()}
+
 
 				${settingsPopupCss()}
 
