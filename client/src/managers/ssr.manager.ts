@@ -8,10 +8,8 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 }
 
 export const ssrOpenIframe = (elPath: string, url: string) => {
-	let elIframe = document.querySelector(`${elPath}`)
-	let isIframeOpen = elIframe?.querySelector(`iframe`)
-	let height = 400
-	// let height = bigIframe ? heightIframe.big : heightIframe.small
+	let elWrapper: any = document.querySelector(`${elPath}`)
+	let isIframeOpen = elWrapper?.querySelector(`iframe`)
 	let iframeHtml = `<iframe
 				src='${url}'
 				title='${url}'
@@ -19,9 +17,22 @@ export const ssrOpenIframe = (elPath: string, url: string) => {
 				class="resource-link-iframe small-iframe"
 ></iframe>
 `
-	if (!elIframe) return
-	elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
-	if (!isIframeOpen) { elIframe.classList.add("open") }
-	else { elIframe.classList.remove("open") }
-	// setStatus(!isIframeOpen ? "open" : "closed")
+	if (!elWrapper) return
+
+	// elWrapper.innerHTML = !isIframeOpen ? iframeHtml : ""
+
+	let isBig = elWrapper.classList.contains("big")
+
+	if (!isIframeOpen) {
+		elWrapper.innerHTML = iframeHtml
+		elWrapper.classList.add("open")
+	}
+	else if (isIframeOpen && !isBig) {
+		elWrapper.classList.add("big")
+	}
+	else if (isIframeOpen && isBig) {
+		elWrapper.classList.remove("open")
+		elWrapper.classList.remove("big")
+		elWrapper.innerHTML = ""
+	}
 }

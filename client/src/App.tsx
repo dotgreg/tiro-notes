@@ -60,32 +60,6 @@ export const App = () => {
 
 		startListeningToKeys();
 
-		// setInterval(() => {
-		// 	// document.getElementById("root")?.style?.top = 10
-		// 	// document.getElementById("root")!.style['-o-transform-origin'] = ""
-		// 	let root = document.getElementById("root")
-		// 	if (root) {
-		// 		// root.style["top"] = "100px"
-		// 		// root.style["position"] = "absolute"
-		// 		console.log(root.clientTop);
-		// 	}
-		// }, 1000)
-		// setTimeout(() => {
-		// 	getApi(api => {
-		// 		let test = "bonjour je mappelle gregoire"
-		// 		api.ui.textToSpeechPopup.open("/ctags/PDF diplo test.md", test)
-		// 	})
-		// }, 5000)
-
-		// getApi(api => {
-		// 	api.search.files.search("a trouver /1_test/1_1_test/", f => {
-		// 		console.log(1233333333333, f);
-		// 	})
-		// 	api.search.word("a trouver", "/1_test/", f => {
-		// 		console.log(44444444444444, f);
-		// 	})
-		// })
-
 
 		return () => {
 			// COMPONENT will unmount

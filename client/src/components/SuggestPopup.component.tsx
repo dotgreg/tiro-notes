@@ -127,11 +127,8 @@ export const SuggestPopup = (p: {
 	// MODE SWITCHING
 	//
 	const [inputTxt, setInputTxt] = useState("");
-	// const [inputValue, setInputTxt] = useState("");
-	// const onInputValueUpdate = (nVal:string) =
 	const onInputChange: any = (txt: string) => {
 		setInputTxt(txt.trim())
-		// setInputTxt(txt.trim())
 	}
 
 
@@ -147,13 +144,10 @@ export const SuggestPopup = (p: {
 		let stags = selectedOptionRef.current
 
 		if (stags.length === 0) {
-			// console.log(110000, inputTxt, inputValue);
 			if (inputTxt === "/") {
 				getApi(api => {
-					console.log(1111111111);
 					// erase /
 					setInputTxt("")
-
 					let folder = api.ui.browser.files.active.get.folder
 					triggerExplorer(folder)
 				})
@@ -172,7 +166,14 @@ export const SuggestPopup = (p: {
 
 			// IF SEARCH MODE 
 			if (!stags[1]) {
-				setHelp(`input the path to search in (ex:"/path/to/folder")`)
+				if (inputTxt === "?") {
+					// erase ? and put instead the current folder
+					getApi(api => {
+						let folder = api.ui.browser.files.active.get.folder
+						setInputTxt(folder)
+					})
+				}
+				setHelp(`Path to search (ex:"/path/to/folder") + ENTER`)
 				setOptions([{ label: inputTxt, value: inputTxt }])
 			} else if (stags.length === 2) {
 				reactToSearchTyping(inputTxt, stags[1].label)
@@ -231,6 +232,8 @@ export const SuggestPopup = (p: {
 	const triggerExplorer = (folderPath: string) => {
 		console.log("== EXPLORER", folderPath);
 		if (folderPath === "") return
+		setOptions([{ label: "loading..." }])
+
 		getApi(api => {
 			api.folders.get([folderPath], folderHierar => {
 				let parent = folderHierar.folders[0]
@@ -280,14 +283,9 @@ export const SuggestPopup = (p: {
 	// SEARCH MODE
 	//
 	const startSearchModeLogic = () => {
-		getApi(api => {
-			// erase ? and put instead the current folder
-			let folder = api.ui.browser.files.active.get.folder
-			setSelectedOption([
-				{ value: modeLabels.search, label: modeLabels.search },
-			])
-			setInputTxt(folder)
-		})
+		setSelectedOption([
+			{ value: modeLabels.search, label: modeLabels.search },
+		])
 	}
 
 	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string) => {
@@ -296,6 +294,8 @@ export const SuggestPopup = (p: {
 
 		if (input && path && input.length > 2 && path.length > 0) {
 			setHelp(`Searching "${input}" in "${path}" ...`)
+			setOptions([{ label: "loading..." }])
+
 			let nOpts: any = []
 			setOptions(nOpts)
 

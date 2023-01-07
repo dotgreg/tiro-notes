@@ -10,12 +10,28 @@ import { findImagesFromContent } from './images.manager';
 import { RessourcePreview } from '../components/RessourcePreview.component';
 import { renderToString } from 'react-dom/server';
 import { generateNoteLink } from './codeMirror/noteLink.plugin.cm';
+import { each } from 'lodash';
+import { generateHtmlLinkPreview } from './codeMirror/urlLink.plugin.cm';
+
+// export const transformUrlInLinks = (bodyRaw: string): string => {
+// 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
+// 	// const subst = `www<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
+// 	const subst = `www<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
+// 	return bodyRaw.replace(regexs.externalLink3, subst);
+// }
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
-	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
-	const subst = `<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
-	return bodyRaw.replace(regexs.url2transform, subst);
+	// const subst = `www<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
+	// return bodyRaw.replace(regexs.externalLink3, subst);
+	return replaceRegexInMd(bodyRaw, regexs.externalLink3, found => {
+		// let i2 = [...found.matchAll(regexs.externalLink3)]
+		console.log(212333, found);
+		return generateHtmlLinkPreview(found).outerHTML
+
+		// return "WOOOOOOOOPY"
+	});
 }
+
 
 export const transformTitleSearchLinks = (
 	windowId: string,
@@ -48,11 +64,6 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 	return res
 }
 
-// const debounceRenderReact = debounce((idEl, input, currentFolderPath) => {
-// 	renderReactToId(
-// 		<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl)
-// }, 1)
-
 export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string => {
 	let i = 0
 	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
@@ -62,14 +73,12 @@ export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string 
 		// renderReactToId(
 		// 	<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl)
 		let compoHtml = renderToString(<RessourcePreview markdownTag={input} file={file} />)
-
 		// renderReactToId(
 		// 	<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl
 		// 	, { height: 80 })
 		let subst = `${compoHtml} `;
 		return subst
 	});
-
 	return res2;
 };
 
@@ -78,10 +87,8 @@ export const transformImagesInHTML = (file: iFile, bodyRaw: string): string => {
 	const imgs = findImagesFromContent(bodyRaw, file)
 	if (imgs.length === 0) return bodyRaw
 	const imgsArr = encodeURIComponent(JSON.stringify(imgs))
-
 	return replaceRegexInMd(bodyRaw, regexs.image, (input: string) => {
 		const link = input.split('](')[1].slice(0, -1);
-
 		let widthRaw = input.match(/w_([0-9]+)/)
 		let rotateRaw = input.match(/r_([0-9]+)/)
 		let width = widthRaw ? `width: ${widthRaw[1]}px;` : ''

@@ -261,6 +261,5 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 }
 }
 
- ${linksPreviewMdCss()}
  ${imagePreviewCss()}
  `
