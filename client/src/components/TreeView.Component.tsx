@@ -264,7 +264,7 @@ export const folderTreeCss = () => `
 		.folder-tree-view-component {
 				li.folder-wrapper {
 						.context-menu-wrapper {
-								right: -18px;
+								right: -10px;
 								.context-menu {
 										right: 5px;
 								}
@@ -294,7 +294,7 @@ export const folderTreeCss = () => `
 
 				.context-menu-wrapper {
 						position: absolute;
-						right: 20px;
+						right: 10px;
 						top: -10px;
 						padding: 10px;
 						display:none;
