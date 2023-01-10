@@ -78,3 +78,17 @@ export const updateUrl = (urlParams: iUrlParams) => {
 	console.log(`[URL] UPDATEURL : NEW URL PUSHED => to ${JSON.stringify({ newUrl, urlParams })}`);
 	// currentUrlParams = getUrlParams()
 }
+
+
+export const checkUrlExists = (p:{url, onSuccess, onFail}) => {
+	try {
+		var http = new XMLHttpRequest();
+		http.open('HEAD', p.url, false);
+		http.send();
+		// return http.status != 404;
+		if (http.status !== 404) return p.onSuccess()
+		return p.onFail()
+	} catch (e) {
+		p.onFail(e)
+	}
+}
