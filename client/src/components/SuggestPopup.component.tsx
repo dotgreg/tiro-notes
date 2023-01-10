@@ -1,12 +1,14 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Popup } from './Popup.component';
 import Select from 'react-select';
-import { each, isArray, isNumber } from 'lodash';
+import { each, isArray, isNumber, orderBy } from 'lodash';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
+import { configClient } from '../config';
+import { sharedConfig } from '../../../shared/shared.config';
 
 
 interface iOptionSuggest {
@@ -20,9 +22,12 @@ interface iOptionSuggest {
 
 const modeLabels = {
 	search: "[Search Mode]",
-	explorer: "[Explorer Mode]"
+	explorer: "[Explorer Mode]",
+	plugin: "[Plugin Mode]"
 }
 
+
+const cachedPlugins: { value: { [name: string]: string } } = { value: {} }
 
 export const SuggestPopup = (p: {
 	onClose: Function
@@ -161,11 +166,15 @@ export const SuggestPopup = (p: {
 				startSearchModeLogic()
 			}
 
+			if (inputTxt === ":") {
+				startPluginMode()
+			}
 		}
 		else if (stags[0].label === modeLabels.search) {
 
 			// IF SEARCH MODE 
 			if (!stags[1]) {
+				// STEP 1 : add automatically editable folder
 				if (inputTxt === "?") {
 					// erase ? and put instead the current folder
 					getApi(api => {
@@ -175,10 +184,19 @@ export const SuggestPopup = (p: {
 				}
 				setHelp(`Path to search (ex:"/path/to/folder") + ENTER`)
 				setOptions([{ label: inputTxt, value: inputTxt }])
+
 			} else if (stags.length === 2) {
+				// STEP 2 : show searched results
 				reactToSearchTyping(inputTxt, stags[1].label)
-			} else if (stags.length === 3) {
-				let file = stags[2].value as iFile
+
+			} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
+				// STEP 3-1 (optional) :  filter found results
+				console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
+
+			} else if (stags.length === 3 || stags.length === 4) {
+				console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
+				let last = stags.length - 1
+				let file = stags[last].value as iFile
 				jumpToPath(file.path)
 			}
 		}
@@ -211,6 +229,9 @@ export const SuggestPopup = (p: {
 				triggerExplorer(finalPath)
 			}
 		}
+		else if (stags[0].label === modeLabels.plugin) {
+			triggerPluginLogic(inputTxt, stags)
+		}
 	}
 
 	useEffect(() => {
@@ -219,7 +240,7 @@ export const SuggestPopup = (p: {
 
 
 
-	const baseHelp = `"?" for search mode, "/" for explorer mode`
+	const baseHelp = `"?" for search mode, "/" for explorer mode, ":" for plugin mode`
 	const [help, setHelp] = useState(baseHelp)
 
 	///////////////////////////////////////////////////////
@@ -288,6 +309,7 @@ export const SuggestPopup = (p: {
 		])
 	}
 
+	const wordSearched = useRef<string | null>(null)
 	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string) => {
 		let path = folder
 		let input = inputTxt
@@ -299,8 +321,11 @@ export const SuggestPopup = (p: {
 			let nOpts: any = []
 			setOptions(nOpts)
 
+			wordSearched.current = input
+
 			getApi(api => {
 				api.search.word(input, path, res => {
+					nOpts.push({ label: `Filter results for "${wordSearched.current}"`, value: wordSearched.current })
 					each(res, (fileRes) => {
 						each(fileRes.results, occur => {
 							let label = `[${fileRes.file.path}] ${occur}`
@@ -315,6 +340,7 @@ export const SuggestPopup = (p: {
 		} else {
 			setHelp(`Type the word searched`)
 			setOptions([])
+			wordSearched.current = ""
 		}
 	}, 500)
 
@@ -338,11 +364,96 @@ export const SuggestPopup = (p: {
 		setOptions(nOptions)
 	}
 
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////////
+	// PLUGIN MODE
+	//
+	const startPluginMode = () => {
+		setSelectedOption([
+			{ value: modeLabels.plugin, label: modeLabels.plugin },
+		])
+
+	}
+
+	// const [, updateState] = useState<any>();
+	// const forceUpdate = useCallback(() => updateState({}), []);
+
+	const triggerPluginLogic = (input: string, stags: any[]) => {
+		// console.log(332, input, stags);
+
+		// STEP 1 : SELECT PLUGIN
+		if (stags.length === 1) {
+			// scan the bar_plugins folder
+			let pluginsBarFolder = `/${sharedConfig.path.configFolder}/bar_plugins/`
+
+			// setOptions(nOpts)
+			getApi(api => {
+				// let nOpts: any = []
+				let nOpts: any = []
+				api.files.get(pluginsBarFolder, files => {
+					// console.log(332, files, pluginsBarFolder);
+					each(files, f => {
+						nOpts.push({ label: f.name, value: f })
+					})
+					// order alphabetically
+					nOpts = orderBy(nOpts, ["label"])
+
+					setOptions(nOpts)
+					setInputTxt("")
+					setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
+					// forceUpdate()
+				})
+			})
+		}
+		// STEP 2 : LOAD CONTENT, EVAL INPUTTXT AND SEND IT BACK
+		else if (stags.length === 2) {
+			let file = stags[1].value
+
+			getApi(tiroApi => {
+				const execPlugin = (pluginName: string) => {
+					let pluginContent = cachedPlugins.value[pluginName]
+
+
+					//
+					// BAR API
+					//
+					const loadBarPlugin = (url: string, bApi, tApi) => {
+						tiroApi.ressource.fetch(url, txt => {
+							new Function('barApi', 'tiroApi', txt)(bApi, tApi)
+						})
+					}
+
+					let barApi = {
+						input, setInputTxt,
+						options, setOptions,
+						loadBarPlugin, cachedPlugins
+					}
+					// we directly eval it!
+					new Function('barApi', 'tiroApi', pluginContent)(barApi, tiroApi)
+
+				}
+
+
+				if (cachedPlugins.value[file.name]) {
+					execPlugin(file.name)
+				} else {
+					tiroApi.file.getContent(file.path, pluginContent => {
+						cachedPlugins.value[file.name] = pluginContent
+						execPlugin(file.name)
+					})
+				}
+			})
+		}
+	}
+
 	return (
 		<div className="suggest-popup-bg"
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
-				<div>
+				<div onClick={e => { e.stopPropagation() }}>
 					<div className="help">
 						{help}
 					</div>

@@ -25,10 +25,7 @@ export const transformUrlInLinks = (bodyRaw: string): string => {
 	// return bodyRaw.replace(regexs.externalLink3, subst);
 	return replaceRegexInMd(bodyRaw, regexs.externalLink3, found => {
 		// let i2 = [...found.matchAll(regexs.externalLink3)]
-		console.log(212333, found);
 		return generateHtmlLinkPreview(found).outerHTML
-
-		// return "WOOOOOOOOPY"
 	});
 }
 

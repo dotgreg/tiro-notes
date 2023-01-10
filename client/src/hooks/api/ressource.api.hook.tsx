@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import { clientSocket2 } from '../../managers/sockets/socket.manager';
+import { getRessourceIdFromUrl } from '../../../../shared/helpers/id.helper';
+import { sharedConfig } from '../../../../shared/shared.config';
+import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
 import { uploadFileInt } from '../../managers/upload.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
@@ -10,13 +12,18 @@ import { genIdReq, iApiEventBus } from './api.hook';
 export interface iRessourceApi {
 	delete: (
 		filePath: string,
-		cb: (answer:any) => void
+		cb: (answer: any) => void
 	) => void,
 
 	download: (
 		url: string,
 		folder: string,
-		cb: (answer:any) => void
+		cb: (answer: any) => void
+	) => void,
+
+	fetch: (
+		url: string,
+		cb: (urlContent: string) => void
 	) => void
 }
 
@@ -56,12 +63,27 @@ export const useRessourceApi = (p: {
 		clientSocket2.emit('askRessourceDownload', { url, folder, idReq, token: getLoginToken() })
 	}
 
+	const fetchRessource: iRessourceApi['fetch'] = (url, cb) => {
+		console.log(`${h} FETCHING ressource url ${url} `);
+		const folder = `/.tiro/cache/fetch/`
+		downloadRessource(url, folder, answer => {
+			if (answer.message) {
+				const staticPath = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
+				fetch(staticPath).then(function (response) {
+					return response.text();
+				}).then(function (data) {
+					cb(data)
+				})
+			}
+		})
+	}
 	//
 	// EXPORTS
 	//
 	const ressourceApi: iRessourceApi = {
 		delete: deleteRessource,
-		download: downloadRessource
+		download: downloadRessource,
+		fetch: fetchRessource
 	}
 
 	return ressourceApi
