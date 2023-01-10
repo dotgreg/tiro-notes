@@ -19,7 +19,7 @@ export const ssrOpenIframe = (elPath: string, url: string) => {
 `
 	if (!elWrapper) return
 
-	// elWrapper.innerHTML = !isIframeOpen ? iframeHtml : ""
+	elWrapper.innerHTML = !isIframeOpen ? iframeHtml : ""
 
 	let isBig = elWrapper.classList.contains("big")
 
@@ -33,6 +33,6 @@ export const ssrOpenIframe = (elPath: string, url: string) => {
 	else if (isIframeOpen && isBig) {
 		elWrapper.classList.remove("open")
 		elWrapper.classList.remove("big")
-		elWrapper.innerHTML = ""
+		// elWrapper.innerHTML = ""
 	}
 }
