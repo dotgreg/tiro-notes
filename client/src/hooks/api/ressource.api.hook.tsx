@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { getRessourceIdFromUrl } from '../../../../shared/helpers/id.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
-import { uploadFileInt } from '../../managers/upload.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { checkUrlExists } from '../../managers/url.manager'
 
 //
 // INTERFACES
@@ -23,7 +23,8 @@ export interface iRessourceApi {
 
 	fetch: (
 		url: string,
-		cb: (urlContent: string) => void
+		cb: (urlContent: string) => void,
+		options?: { disableCache?: boolean }
 	) => void
 }
 
@@ -63,20 +64,44 @@ export const useRessourceApi = (p: {
 		clientSocket2.emit('askRessourceDownload', { url, folder, idReq, token: getLoginToken() })
 	}
 
-	const fetchRessource: iRessourceApi['fetch'] = (url, cb) => {
-		console.log(`${h} FETCHING ressource url ${url} `);
+
+	const fetchRessource: iRessourceApi['fetch'] = (url, cb, options) => {
+		if (!options) options = {}
+		if (!options.disableCache) options.disableCache = false
+
 		const folder = `/.tiro/cache/fetch/`
-		downloadRessource(url, folder, answer => {
-			if (answer.message) {
-				const staticPath = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
-				fetch(staticPath).then(function (response) {
-					return response.text();
-				}).then(function (data) {
-					cb(data)
-				})
-			}
-		})
+		const staticPath = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
+
+		const returnFile = () => {
+			fetch(staticPath).then(function (response) {
+				return response.text();
+			}).then(function (data) {
+				cb(data)
+			})
+		}
+		const downloadThenReturnFile = () => {
+			downloadRessource(url, folder, answer => {
+				if (answer.message) { returnFile() }
+			})
+		}
+
+		if (options.disableCache === true) {
+			downloadThenReturnFile()
+		}
+		else {
+			checkUrlExists({
+				url: staticPath,
+				onSuccess: () => {
+					console.log(`${h} FETCHING => getting CACHED file`, { url, options });
+					returnFile()
+				},
+				onFail: () => { downloadThenReturnFile() }
+			})
+		}
 	}
+
+
+
 	//
 	// EXPORTS
 	//

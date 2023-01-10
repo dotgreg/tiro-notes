@@ -27,7 +27,15 @@ const modeLabels = {
 }
 
 
-const cachedPlugins: { value: { [name: string]: string } } = { value: {} }
+const cachedPlugins: {
+	dict: { [name: string]: string }
+	config: { enabled: boolean }
+} = { dict: {}, config: { enabled: true } }
+
+const disableCachePlugins = () => {
+	cachedPlugins.config.enabled = false
+	cachedPlugins.dict = {}
+}
 
 export const SuggestPopup = (p: {
 	onClose: Function
@@ -396,13 +404,13 @@ export const SuggestPopup = (p: {
 				api.files.get(pluginsBarFolder, files => {
 					// console.log(332, files, pluginsBarFolder);
 					each(files, f => {
-						nOpts.push({ label: f.name, value: f })
+						nOpts.push({ label: f.name.replace('.md', ''), value: f })
 					})
 					// order alphabetically
 					nOpts = orderBy(nOpts, ["label"])
 
 					setOptions(nOpts)
-					setInputTxt("")
+					if (input === ":") setInputTxt("")
 					setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
 					// forceUpdate()
 				})
@@ -414,34 +422,45 @@ export const SuggestPopup = (p: {
 
 			getApi(tiroApi => {
 				const execPlugin = (pluginName: string) => {
-					let pluginContent = cachedPlugins.value[pluginName]
-
+					let pluginContent = cachedPlugins.dict[pluginName]
 
 					//
 					// BAR API
 					//
 					const loadBarPlugin = (url: string, bApi, tApi) => {
+						let noCache = !cachedPlugins.config.enabled
 						tiroApi.ressource.fetch(url, txt => {
-							new Function('barApi', 'tiroApi', txt)(bApi, tApi)
-						})
+							try {
+								new Function('barApi', 'tiroApi', txt)(bApi, tApi)
+							} catch (e) {
+								let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
+								console.log(message);
+							}
+						}, { disableCache: noCache })
 					}
 
 					let barApi = {
 						input, setInputTxt,
 						options, setOptions,
-						loadBarPlugin, cachedPlugins
+						loadBarPlugin, disableCache: disableCachePlugins
 					}
 					// we directly eval it!
-					new Function('barApi', 'tiroApi', pluginContent)(barApi, tiroApi)
+					try {
+						new Function('barApi', 'tiroApi', pluginContent)(barApi, tiroApi)
+					} catch (e) {
+						let message = `[ERROR PLUGIN BAR]: ${JSON.stringify(e)}"`
+						console.log(message);
+					}
+
 
 				}
 
 
-				if (cachedPlugins.value[file.name]) {
+				if (cachedPlugins.dict[file.name]) {
 					execPlugin(file.name)
 				} else {
 					tiroApi.file.getContent(file.path, pluginContent => {
-						cachedPlugins.value[file.name] = pluginContent
+						cachedPlugins.dict[file.name] = pluginContent
 						execPlugin(file.name)
 					})
 				}
