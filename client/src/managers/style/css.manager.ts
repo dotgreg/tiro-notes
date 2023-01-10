@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-import { deviceType, MobileView, DeviceType } from '../device.manager';
+									 import { deviceType, MobileView, DeviceType } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -40,10 +40,10 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
-	mobileView: MobileView,
-	refreshCss: number
+		mobileView: MobileView,
+		refreshCss: number
 ) => {
-	const cssString = `//css
+		const cssString = `//css
 		.content-image {
 				width: 90%;
 		}
@@ -78,16 +78,16 @@ export const CssApp2 = (
 
 		${contentBlockCss()}
 
-				${settingsPopupCss()}
+		${settingsPopupCss()}
 
-				${lastNotesCss()}
-				${shortcutCompCss()}
-				${renderedNoteCompCss()}
+		${lastNotesCss()}
+		${shortcutCompCss()}
+		${renderedNoteCompCss()}
 
-				${folderTreeCss()}
 
 		${PopupWrapperCss()}
 		.main-wrapper {
+		${folderTreeCss()}
 				display: flex;
 				.no-file {
 						text-align: center;
@@ -483,5 +483,5 @@ export const CssApp2 = (
 
 `//css
 
-	return css`${cssString}`
+return css`${cssString}`
 }
