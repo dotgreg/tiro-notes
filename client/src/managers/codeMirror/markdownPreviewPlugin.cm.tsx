@@ -9,10 +9,8 @@ import {
 } from "@codemirror/view";
 import { syntaxTree } from "@codemirror/language";
 import { styleTags, Tag } from "@lezer/highlight";
-import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { renderLatex } from "../latex.manager";
-import { linksPreviewMdCss } from "./urlLink.plugin.cm";
 import { imagePreviewCss } from "./image.plugin.cm";
 import { noteLinkActionClick } from "./noteLink.plugin.cm";
 
