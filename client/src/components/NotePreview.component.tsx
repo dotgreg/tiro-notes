@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
+import { cleanSearchString } from '../managers/textProcessor.manager';
 
 export const NotePreview = (p: {
 	searchedString?: string
@@ -20,8 +21,9 @@ export const NotePreview = (p: {
 				})
 
 				if (p.searchedString) {
+					console.log(333333, cleanSearchString(p.searchedString));
 					ncontent2 = ncontent2.replaceAll(
-						p.searchedString,
+						cleanSearchString(p.searchedString),
 						`<span class='found-word'>${p.searchedString}</span>`)
 					setTimeout(() => {
 						document.querySelector('.note-preview-wrapper .content-preview .found-word')?.scrollIntoView();

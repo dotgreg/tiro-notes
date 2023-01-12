@@ -119,3 +119,10 @@ export const unescapeHtml = (rawString: string): string => {
 }
 
 
+export const cleanSearchString = (inp: string): string => {
+	let res = inp
+	res = res.replaceAll("#", "")
+	res = res.replaceAll("-", "")
+	res = res.trim()
+	return res
+}
