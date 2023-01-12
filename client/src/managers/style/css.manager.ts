@@ -33,6 +33,7 @@ import { suggestPopupCss } from '../../components/SuggestPopup.component';
 import { shortcutCompCss } from '../../components/Shortcuts.component';
 import { renderedNoteCompCss } from '../../components/RenderedNote.component';
 import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
+import { NotePreviewCss } from '../../components/NotePreview.component';
 
 
 export const css2 = (css: string) => css
@@ -87,6 +88,7 @@ export const CssApp2 = (
 		${renderedNoteCompCss()}
 
 
+		${NotePreviewCss()}
 		${PopupWrapperCss()}
 		.main-wrapper {
 				${folderTreeCss()}
