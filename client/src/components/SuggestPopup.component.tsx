@@ -50,7 +50,12 @@ export const SuggestPopup = (p: {
 		setSelectedOptionInt(nArr)
 		selectedOptionRef.current = nArr
 	}
-	const [options, setOptions] = useState<any[]>([]);
+	const [options, setOptionsInt] = useState<any[]>([]);
+	const setOptions = (nVal: any[]) => {
+		onOptionsChange(nVal)
+		setOptionsInt(nVal)
+	}
+
 	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
 	const [noOptionLabel, setNoOptionLabel] = useState("No Options")
 
@@ -259,6 +264,9 @@ export const SuggestPopup = (p: {
 		updateFromChange();
 	}, [selectedOption, inputTxt])
 
+	// useEffect(() => {
+	// 	console.log(1100, options, options.length);
+	// }, [options])
 
 
 	const baseHelp = `"?" for search mode, "/" for explorer mode, ":" for plugin mode`
@@ -560,7 +568,6 @@ export const SuggestPopup = (p: {
 	const onActiveOptionChange = (file: iFile, activeLine?: string) => {
 		let stags = selectedOptionRef.current
 
-		// console.log(111111111);
 		if (stags[0] && stags[0].label === modeLabels.search) {
 			// SEARCH
 			setNotePreview(file)
@@ -577,41 +584,85 @@ export const SuggestPopup = (p: {
 		}
 	}
 
-	useEffect(() => {
-		let obs: any[] = []
-		setTimeout(() => {
-			const optDivs = document.querySelectorAll("div[id*='-option']");
-			// console.log(23333333, random(0, 1000), optDivs);
+	// useEffect(() => {
+	// 	let obs: any[] = []
+	// 	// setTimeout(() => {
+	// 	const optDivs = document.querySelectorAll("div[id*='-option']");
+	// 	// console.log("111 - optsDivs", options.length, optDivs.length);
 
-			each(optDivs, (o, i) => {
-				const observerOptions = {
-					childList: true,
-					attributes: true,
-					subtree: false
+	// 	each(optDivs, (o, i) => {
+	// 		const observerOptions = {
+	// 			childList: true,
+	// 			attributes: true,
+	// 			subtree: false
+	// 		}
+	// 		const observer = new MutationObserver((e) => {
+	// 			// @ts-ignore
+	// 			console.log("112 - class change", i);
+	// 			const style = getComputedStyle(o);
+	// 			let bg = style["background-color"]
+	// 			if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
+	// 				let payload = options[i].payload
+	// 				let file = payload.file as iFile
+	// 				let line = payload.line || undefined
+	// 				console.log("113 - good change", i);
+	// 				onActiveOptionChange(file, line)
+	// 			} else {
+	// 			}
+	// 		});
+	// 		observer.observe(o, observerOptions);
+	// 		obs.push(observer)
+	// 	})
+	// 	return () => {
+	// 		each(obs, ob => {
+	// 			ob.disconnect()
+	// 		})
+	// 	}
+	// }, [options, selectedOption, inputTxt])
+
+	let obs = useRef<any[]>([])
+	const listenToOptionsClasses = (nVal: any[]) => {
+
+		// clean old observer
+		each(obs.current, ob => {
+			ob.disconnect()
+		})
+		obs.current = []
+
+		// restart listeners
+		const optDivs = document.querySelectorAll("div[id*='-option']");
+		// console.log("111 - optsDivs", options.length, optDivs.length);
+
+		each(optDivs, (o, i) => {
+			const observerOptions = {
+				childList: true,
+				attributes: true,
+				subtree: false
+			}
+			const observer = new MutationObserver((e) => {
+				// @ts-ignore
+				console.log("112 - class change", i);
+				const style = getComputedStyle(o);
+				let bg = style["background-color"]
+				if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
+					let payload = options[i].payload
+					let file = payload.file as iFile
+					let line = payload.line || undefined
+					console.log("113 - good change", i);
+					onActiveOptionChange(file, line)
+				} else {
 				}
-				const observer = new MutationObserver((e) => {
-					// @ts-ignore
-					const style = getComputedStyle(o);
-					let bg = style["background-color"]
-					if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
-						let payload = options[i].payload
-						let file = payload.file as iFile
-						let line = payload.line || undefined
-						onActiveOptionChange(file, line)
-					} else {
-					}
-				});
-				observer.observe(o, observerOptions);
-				obs.push(observer)
-			})
-		}, 100)
-		return () => {
-			each(obs, ob => {
-				ob.disconnect()
-			})
-		}
-	}, [options, selectedOption])
+			});
+			observer.observe(o, observerOptions);
+			obs.current.push(observer)
+		})
+	}
+	const onOptionsChange = useDebounce((nVal: any[]) => {
 
+		listenToOptionsClasses(nVal)
+
+		console.log(1122, nVal.length);
+	}, 100)
 
 
 
