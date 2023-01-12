@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Popup } from './Popup.component';
 import Select from 'react-select';
-import { each, isArray, isNumber, orderBy } from 'lodash';
+import { each, isArray, isNumber, orderBy, random } from 'lodash';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { configClient } from '../config';
 import { sharedConfig } from '../../../shared/shared.config';
+import { NotePreview } from './NotePreview.component';
 
 
 interface iOptionSuggest {
@@ -86,6 +86,9 @@ export const SuggestPopup = (p: {
 		// IndicatorsContainer: (base, state) => {
 		// 	return { ...base, display: "none" }
 		// },
+		menu: (base, state) => {
+			return { ...base, position: "relative", pointerEvents: "none" }
+		},
 		control: (base, state) => {
 			return { ...base, outline: "none", boxShadow: 'none', border: 0 }
 		},
@@ -106,6 +109,7 @@ export const SuggestPopup = (p: {
 
 
 	const onChange = (nOptions: any, actionObj: any) => {
+		// console.log(33333333333);
 
 		//
 		// SELECTING LAST NOTE
@@ -146,11 +150,20 @@ export const SuggestPopup = (p: {
 
 
 
+
+
+
+
+
+
+
 	///////////////////////////////////////////////////////
-	// UPDATE LOGIC
+	// @ MAIN UPDATE LOGIC
 	// 
+
 	const histPath = useRef("")
 	const updateFromChange = () => {
+		// console.log(222222222222);
 		// at first, according to first char, switch mode
 		// console.log("================================");
 		// console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
@@ -251,17 +264,47 @@ export const SuggestPopup = (p: {
 	const baseHelp = `"?" for search mode, "/" for explorer mode, ":" for plugin mode`
 	const [help, setHelp] = useState(baseHelp)
 
+
+
+
+
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////
 	// MODES LOGIC
-	//
+	///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
 
-	//
-	// EXPLORER MODE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ EXPLORER MODE
 	//
 	const triggerExplorer = (folderPath: string) => {
 		console.log("== EXPLORER", folderPath);
 		if (folderPath === "") return
 		setOptions([{ label: "loading..." }])
+		setNotePreview(null)
 
 		getApi(api => {
 			api.folders.get([folderPath], folderHierar => {
@@ -308,8 +351,15 @@ export const SuggestPopup = (p: {
 
 
 
-	//
-	// SEARCH MODE
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ SEARCH MODE
 	//
 	const startSearchModeLogic = () => {
 		setSelectedOption([
@@ -337,7 +387,12 @@ export const SuggestPopup = (p: {
 					each(res, (fileRes) => {
 						each(fileRes.results, occur => {
 							let label = `[${fileRes.file.path}] ${occur}`
-							nOpts.push({ label, value: fileRes.file })
+							nOpts.push({
+								label, value: fileRes.file, payload: {
+									file: fileRes.file,
+									line: occur
+								}
+							})
 						})
 					})
 					setHelp(`${nOpts.length} results found for "${input}" in "${path}" `)
@@ -354,8 +409,21 @@ export const SuggestPopup = (p: {
 
 
 
-	//
-	// LAST NOTES MODE
+
+
+
+
+
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ LAST NOTES MODE
 	//
 	const startLastNotesModeLogic = () => {
 		setHelp(baseHelp)
@@ -376,8 +444,18 @@ export const SuggestPopup = (p: {
 
 
 
+
+
+
+
+
+
+
+
+
+
 	///////////////////////////////////////////////////////////////////////////////
-	// PLUGIN MODE
+	// @ PLUGIN MODE
 	//
 	const startPluginMode = () => {
 		setSelectedOption([
@@ -390,7 +468,7 @@ export const SuggestPopup = (p: {
 	// const forceUpdate = useCallback(() => updateState({}), []);
 
 	const triggerPluginLogic = (input: string, stags: any[]) => {
-		// console.log(332, input, stags);
+		setNotePreview(null)
 
 		// STEP 1 : SELECT PLUGIN
 		if (stags.length === 1) {
@@ -468,11 +546,92 @@ export const SuggestPopup = (p: {
 		}
 	}
 
+
+	//////////////////////////////////////////////////////////////////////
+	// @ Note preview
+	//
+
+
+	//
+	// system to find current note highlighted... using class detection...
+	//
+	const [notePreview, setNotePreview] = useState<iFile | null>(null);
+	const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
+	const onActiveOptionChange = (file: iFile, activeLine?: string) => {
+		let stags = selectedOptionRef.current
+
+		// console.log(111111111);
+		if (stags[0] && stags[0].label === modeLabels.search) {
+			// SEARCH
+			setNotePreview(file)
+			setActiveLine(activeLine)
+			console.log("SEARCH JUMP TO", activeLine, file.path);
+
+		} else if (!stags[0]) {
+			// LAST NOTES
+			setNotePreview(file)
+
+		} else {
+			console.log("CLOSING 2");
+			setNotePreview(null)
+		}
+	}
+
+	useEffect(() => {
+		let obs: any[] = []
+		setTimeout(() => {
+			const optDivs = document.querySelectorAll("div[id*='-option']");
+			// console.log(23333333, random(0, 1000), optDivs);
+
+			each(optDivs, (o, i) => {
+				const observerOptions = {
+					childList: true,
+					attributes: true,
+					subtree: false
+				}
+				const observer = new MutationObserver((e) => {
+					// @ts-ignore
+					const style = getComputedStyle(o);
+					let bg = style["background-color"]
+					if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
+						let payload = options[i].payload
+						let file = payload.file as iFile
+						let line = payload.line || undefined
+						onActiveOptionChange(file, line)
+					} else {
+					}
+				});
+				observer.observe(o, observerOptions);
+				obs.push(observer)
+			})
+		}, 100)
+		return () => {
+			each(obs, ob => {
+				ob.disconnect()
+			})
+		}
+	}, [options, selectedOption])
+
+
+
+
+
+
+
+
+
+
+
+
+
+	//
+	// RENDERING
+	//
 	return (
 		<div className="suggest-popup-bg"
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
-				<div onClick={e => { e.stopPropagation() }}>
+				<div className="flex-wrapper" onClick={e => { e.stopPropagation() }}>
 					<div className="help">
 						{help}
 					</div>
@@ -486,6 +645,7 @@ export const SuggestPopup = (p: {
 						autoFocus={true}
 
 						onChange={onChange}
+						// components={{ Option: CustomOption }}
 
 						inputValue={inputTxt}
 						onInputChange={onInputChange}
@@ -496,6 +656,14 @@ export const SuggestPopup = (p: {
 						styles={styles}
 						noOptionsMessage={() => noOptionLabel}
 					/>
+					<div className="preview-wrapper">
+						{notePreview &&
+							<NotePreview
+								file={notePreview}
+								searchedString={activeLine}
+							/>
+						}
+					</div>
 
 				</div>
 			</div >
@@ -504,29 +672,54 @@ export const SuggestPopup = (p: {
 }
 
 export const suggestPopupCss = () => `
-&.device-view-mobile {
+						&.device-view-mobile {
+						}
+
+						.suggest-popup-bg {
+								background: rgba(0,0,0,0.5);
+								top: 0px;
+								left: 0px;
+								width: 100vw;
+								height: 100vh;
+								z-index: 1000;
+								position: absolute;
+						}
+						.suggest-popup-wrapper {
+								width: 70%;
+								margin: 0 auto;
+								z-index: 100;
+								position: absolute;
+								left: 50%;
+								transform: translate(-50%);
+								top: 22px;
+						}
+						.help {
+								color:white;
+								margin-bottom: 10px;
+						}
+
+
+						/* 						.flex-wrapper { */
+						/* 								display: flex; */
+						/* 								flex-direction: column; */
+						/* 								height: 100vh; */
+						/* 								.help { */
+						/* 								} */
+						/* 								.search-wrapper { */
+						/* 								} */
+						/* .preview-wrapper { */
+						/* flex: 1; */
+						/* } */
+						/* 						} */
+.preview-wrapper {
+	max-height: 45vh;
+		overflow-y: scroll;
+		background: white;
+		border-radius: 5px;
 }
 
-.suggest-popup-bg {
-		background: rgba(0,0,0,0.5);
-		top: 0px;
-		left: 0px;
-		width: 100vw;
-		height: 100vh;
-		z-index: 1000;
-		position: absolute;
-}
-.suggest-popup-wrapper {
-		width: 70%;
-		margin: 0 auto;
-		z-index: 100;
-		position: absolute;
-		left: 50%;
-		transform: translate(-50%);
-		top: 22px;
-}
-.help {
-	color:white;
-	margin-bottom: 10px;
-}
-`
+
+
+						`
+
+
