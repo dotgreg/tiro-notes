@@ -586,42 +586,6 @@ export const SuggestPopup = (p: {
 		}
 	}
 
-	// useEffect(() => {
-	// 	let obs: any[] = []
-	// 	// setTimeout(() => {
-	// 	const optDivs = document.querySelectorAll("div[id*='-option']");
-	// 	// console.log("111 - optsDivs", options.length, optDivs.length);
-
-	// 	each(optDivs, (o, i) => {
-	// 		const observerOptions = {
-	// 			childList: true,
-	// 			attributes: true,
-	// 			subtree: false
-	// 		}
-	// 		const observer = new MutationObserver((e) => {
-	// 			// @ts-ignore
-	// 			console.log("112 - class change", i);
-	// 			const style = getComputedStyle(o);
-	// 			let bg = style["background-color"]
-	// 			if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
-	// 				let payload = options[i].payload
-	// 				let file = payload.file as iFile
-	// 				let line = payload.line || undefined
-	// 				console.log("113 - good change", i);
-	// 				onActiveOptionChange(file, line)
-	// 			} else {
-	// 			}
-	// 		});
-	// 		observer.observe(o, observerOptions);
-	// 		obs.push(observer)
-	// 	})
-	// 	return () => {
-	// 		each(obs, ob => {
-	// 			ob.disconnect()
-	// 		})
-	// 	}
-	// }, [options, selectedOption, inputTxt])
-
 	let obs = useRef<any[]>([])
 	const listenToOptionsClasses = (nVal: any[]) => {
 
@@ -642,14 +606,15 @@ export const SuggestPopup = (p: {
 			}
 			const observer = new MutationObserver((e) => {
 				// @ts-ignore
-				// console.log("112 - class change", i);
+				let id = parseInt(o.id.split("-").pop())
+				// console.log("112 - class change", o, id);
 				const style = getComputedStyle(o);
 				let bg = style["background-color"]
-				if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
-					let payload = options[i].payload
+				if (bg !== "rgba(0, 0, 0, 0)" && options[id] && options[id].payload) {
+					let payload = options[id].payload
 					let file = payload.file as iFile
 					let line = payload.line || undefined
-					// console.log("113 - good change", i);
+					// console.log("113 - good change", id, payload.line);
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -662,6 +627,10 @@ export const SuggestPopup = (p: {
 	const onOptionsChange = useDebounce((nVal: any[]) => {
 		listenToOptionsClasses(nVal)
 	}, 100)
+	useEffect(() => {
+		// console.log(1222, options.length);
+		onOptionsChange(options)
+	}, [options, inputTxt])
 
 
 
