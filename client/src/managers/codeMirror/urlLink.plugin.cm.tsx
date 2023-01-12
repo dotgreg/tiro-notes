@@ -114,7 +114,6 @@ export const linksPreviewMdCss = () => `
 						opacity: 0.1
 				}
 		}
-}
 		.link-action {
 				cursor: pointer;
 				position: relative;

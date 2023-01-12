@@ -32,7 +32,6 @@ import { latexCss } from '../latex.manager';
 import { suggestPopupCss } from '../../components/SuggestPopup.component';
 import { shortcutCompCss } from '../../components/Shortcuts.component';
 import { renderedNoteCompCss } from '../../components/RenderedNote.component';
-import { NotePreviewCss } from '../../components/NotePreview.component';
 import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
 
 
@@ -53,9 +52,7 @@ export const CssApp2 = (
 				.content-image {
 				}
 		}
-		${linksPreviewMdCss()}
 
-		${NotePreviewCss()}
 		${GlobalAppViewCss()}
 		${latexCss()}
 		${lightboxCss()}
@@ -91,6 +88,7 @@ export const CssApp2 = (
 
 		${PopupWrapperCss()}
 		.main-wrapper {
+${linksPreviewMdCss()}
 		${folderTreeCss()}
 				display: flex;
 				.no-file {
