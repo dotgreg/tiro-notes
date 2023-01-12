@@ -32,7 +32,6 @@ import { latexCss } from '../latex.manager';
 import { suggestPopupCss } from '../../components/SuggestPopup.component';
 import { shortcutCompCss } from '../../components/Shortcuts.component';
 import { renderedNoteCompCss } from '../../components/RenderedNote.component';
-import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
 import { NotePreviewCss } from '../../components/NotePreview.component';
 
 
@@ -54,6 +53,7 @@ export const CssApp2 = (
 				}
 		}
 
+		${NotePreviewCss()}
 		${GlobalAppViewCss()}
 		${latexCss()}
 		${lightboxCss()}
@@ -77,21 +77,19 @@ export const CssApp2 = (
 		${setupConfigCss()}
 
 		${inputComponentCss()}
-		
+
 		${contentBlockCss()}
 
 		${settingsPopupCss()}
-		${linksPreviewMdCss()}
 
 		${lastNotesCss()}
 		${shortcutCompCss()}
 		${renderedNoteCompCss()}
 
 
-		${NotePreviewCss()}
 		${PopupWrapperCss()}
 		.main-wrapper {
-				${folderTreeCss()}
+		${folderTreeCss()}
 				display: flex;
 				.no-file {
 						text-align: center;
