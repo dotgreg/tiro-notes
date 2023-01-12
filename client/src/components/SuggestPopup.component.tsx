@@ -9,6 +9,7 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
 import { NotePreview } from './NotePreview.component';
+import { deviceType } from '../managers/device.manager';
 
 
 interface iOptionSuggest {
@@ -92,7 +93,8 @@ export const SuggestPopup = (p: {
 		// 	return { ...base, display: "none" }
 		// },
 		menu: (base, state) => {
-			return { ...base, position: "relative", pointerEvents: "none" }
+			let pe = deviceType() === "mobile" ? "all" : "none"
+			return { ...base, position: "relative", pointerEvents: pe }
 		},
 		control: (base, state) => {
 			return { ...base, outline: "none", boxShadow: 'none', border: 0 }
@@ -631,7 +633,6 @@ export const SuggestPopup = (p: {
 
 		// restart listeners
 		const optDivs = document.querySelectorAll("div[id*='-option']");
-		// console.log("111 - optsDivs", options.length, optDivs.length);
 
 		each(optDivs, (o, i) => {
 			const observerOptions = {
@@ -641,14 +642,14 @@ export const SuggestPopup = (p: {
 			}
 			const observer = new MutationObserver((e) => {
 				// @ts-ignore
-				console.log("112 - class change", i);
+				// console.log("112 - class change", i);
 				const style = getComputedStyle(o);
 				let bg = style["background-color"]
 				if (bg !== "rgba(0, 0, 0, 0)" && options[i] && options[i].payload) {
 					let payload = options[i].payload
 					let file = payload.file as iFile
 					let line = payload.line || undefined
-					console.log("113 - good change", i);
+					// console.log("113 - good change", i);
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -657,11 +658,9 @@ export const SuggestPopup = (p: {
 			obs.current.push(observer)
 		})
 	}
+
 	const onOptionsChange = useDebounce((nVal: any[]) => {
-
 		listenToOptionsClasses(nVal)
-
-		console.log(1122, nVal.length);
 	}, 100)
 
 
@@ -708,7 +707,7 @@ export const SuggestPopup = (p: {
 						noOptionsMessage={() => noOptionLabel}
 					/>
 					<div className="preview-wrapper">
-						{notePreview &&
+						{notePreview && deviceType() !== "mobile" &&
 							<NotePreview
 								file={notePreview}
 								searchedString={activeLine}
