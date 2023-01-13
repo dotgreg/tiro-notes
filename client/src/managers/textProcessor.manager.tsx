@@ -119,10 +119,40 @@ export const unescapeHtml = (rawString: string): string => {
 }
 
 
+const getLongestString = (str:string):string => {
+	// let res = str.replaceAll("-", "")
+	let r1 = str.split(`'`)
+	let r2:string[] = []
+	each(r1, r => {
+		let rt = r.split(`"`)
+		each(rt, rt1 => {
+			r2.push(rt1)
+		})
+	})
+
+	let longest = ""
+	each(r2, rt2 => {
+		if (rt2.length >= longest.length) longest = rt2
+	})
+
+	return longest
+
+}
+
 export const cleanSearchString = (inp: string): string => {
 	let res = inp
 	res = res.replaceAll("#", "")
 	res = res.replaceAll("-", "")
+
+	// res = res.replaceAll(`"`, `\\"`)
+	// res = res.replaceAll(`"`, `"`)
+
 	res = res.trim()
+
+
+	res = getLongestString(res)
+	// split from " and ' and take the longest string
+	// res.split("'")
+
 	return res
 }
