@@ -52,7 +52,6 @@ export const NotePreviewCss = () => `
 
 .note-preview-wrapper {
 		padding: 15px ;
-}
 ${previewAreaSimpleCss()}
 .simple-css-wrapper {
 		/* padding: 0px 0px; */
@@ -98,4 +97,5 @@ ${previewAreaSimpleCss()}
 		// 		/* max-height: 50vh; */
 		// }
 
+}
 `
