@@ -21,6 +21,8 @@ ${res}
 		border-radius: 5px;
 }
 pre code {
+				background: #393939!important;
+		color: burlywood;
 		font-size: 10px;
 		line-height: 12px;
 }

@@ -17,6 +17,10 @@ import { sharedConfig } from '../../../shared/shared.config';
 const h = `[IFRAME COMPONENT]`
 const log = sharedConfig.client.log.verbose
 
+let pinStore = {
+
+}
+
 const reservedTagNames = ["latex", "l"]
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
 
@@ -26,6 +30,7 @@ export const ContentBlockInt = (p: {
 	block: iContentChunk
 	windowHeight?: number
 
+	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
@@ -130,6 +135,7 @@ export const ContentBlockTagView = (p: {
 	file: iFile
 	block: iContentChunk
 	windowHeight?: number
+	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
 }) => {
@@ -288,8 +294,28 @@ export const ContentBlockTagView = (p: {
 		})
 	}
 
+
+
+	//
+	// pinning
+	//
+	let key = p.index || 0
+	let pinId = `${p.windowId}-${key}-${p.block.tagName}`
+	useEffect(() => {
+		if (pinStore[pinId]) {
+			setPinned(true)
+		} else {
+			pinStore = {}
+		}
+	}, [])
+	const [isPinned, setPinned] = useState(false)
+	const askPin = () => {
+		pinStore[pinId] = !isPinned
+		setPinned(!isPinned)
+	}
+
 	return (
-		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName}`}>
+		<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : ''}`}>
 
 			<div className="ctag-menu" >
 				<div className="ctag-ellipsis" >
@@ -300,6 +326,9 @@ export const ContentBlockTagView = (p: {
 				</div>
 				<div className="ctag-menu-button ctag-fullscreen" onClick={askFullscreen}>
 					<Icon name="faExpand" color={`#b2b2b2`} />
+				</div>
+				<div className="ctag-menu-button ctag-pin" onClick={askPin}>
+					<Icon name="faThumbtack" color={`#b2b2b2`} />
 				</div>
 			</div>
 
@@ -336,7 +365,6 @@ export const contentBlockCss = () => `
 		padding: 0px 15px;
 }
 .simple-css-wrapper {
-		/* overflow: hidden; */
 }
 
 .content-blocks-wrapper,
@@ -348,6 +376,21 @@ export const contentBlockCss = () => `
 }
 
 .iframe-view-wrapper {
+		&.pinned {
+				position: fixed;
+				top: 10px;
+				right: 10px;
+				z-index: 1000;
+				overflow:hidden;
+					border: 2px;
+					background: white;
+					border-radius: 12px;
+					box-shadow: 0px 0px 5px #0006;
+				iframe {
+						max-height: 90vh;
+						overflow-y: scroll;
+				}
+		}
 		position: relative;
 		.ctag-menu {
 				position: absolute;

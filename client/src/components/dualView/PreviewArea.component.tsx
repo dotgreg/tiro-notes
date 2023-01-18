@@ -122,6 +122,7 @@ export const PreviewArea = (p: {
 								contentBlocks.map((block, i) =>
 									<ContentBlock
 										key={i}
+																	index={i}
 										block={block}
 										windowId={p.windowId}
 										file={p.file}
