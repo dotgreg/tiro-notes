@@ -29,10 +29,10 @@ pre code {
 		}
 
 		api.utils.loadRessources([
-				'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js',
-				'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/agate.min.css',
+				// 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js',
+				// 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/agate.min.css',
 				'https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.3.0/math.min.js',
-				'https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.16.0/plotly.min.js',
+				// 'https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.16.0/plotly.min.js',
 		], () => {
 				// MATHJS Helpers
 				window.m = (str) => math.evaluate(str).toString()
