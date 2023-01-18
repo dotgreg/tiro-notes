@@ -4,23 +4,25 @@ const execApp = (innerTagStr, opts) => {
 		const getHtmlWrapper = (res) => {
 
 				let res2 = 		`
-<div id="exec-result-wrapper"> ============= EXEC START =============== <br>
-result: <br>
+<div id="exec-result-wrapper"> 
 <pre>
 <code class="language-json">
 ${res}
 </code>
 </pre>
-<br>
-============= EXEC END =================</div>
+</div>
+
 <style>
 #exec-result-wrapper {
-background: #eee;
-font-weight: bold;
-padding: 10px;
-margin-left: 10px;
-width: calc(100% - 40px);
-border-radius: 5px;
+		font-weight: bold;
+		padding: 3px;
+		margin-left: 0px;
+		width: calc(100% - 1px);
+		border-radius: 5px;
+}
+pre code {
+		font-size: 10px;
+		line-height: 12px;
 }
 </style> `
 				return res2

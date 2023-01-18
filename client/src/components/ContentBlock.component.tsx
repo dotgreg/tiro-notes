@@ -394,7 +394,7 @@ export const contentBlockCss = () => `
 		}
 
 		iframe {
-				transition: 0.3s all;
+				// transition: 0.3s all;
 				width: calc(100% );
 				// border: 2px #eaeaea solid;
 				border: none;
