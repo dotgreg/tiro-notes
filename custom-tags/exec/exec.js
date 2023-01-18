@@ -13,19 +13,22 @@ ${res}
 </div>
 
 <style>
-#exec-result-wrapper {
-		font-weight: bold;
-		padding: 3px;
-		margin-left: 0px;
-		width: calc(100% - 1px);
-		border-radius: 5px;
-}
-pre code {
+		#exec-result-wrapper {
+				font-weight: bold;
+				padding: 3px;
+				margin-left: 0px;
+				width: calc(100% - 1px);
+				border-radius: 5px;
+		}
+		pre code {
 				background: #393939!important;
-		color: burlywood;
-		font-size: 10px;
-		line-height: 12px;
-}
+				color: burlywood;
+				font-size: 10px;
+				line-height: 12px;
+				padding: 0px 11px 13px 11px!important;
+				overflow: scroll;
+				white-space: pre-wrap;
+		}
 </style> `
 				return res2
 		}
@@ -47,14 +50,30 @@ pre code {
 
 						// HIGHLIGHTING RESULT
 						// console.log(123412, hljs);
-						hljs.highlightAll();
+						// hljs.highlightAll();
 				})
 		})
 
 		const execExpression = () => {
 				try {
 						let resEval = Function(innerTagStr)()
+
+						// if output an object, compress the array obj displayed
+						let c = resEval
+						let c2 = {}
+						for (const key in c) {
+								let v = c[key]
+								let isA = Array.isArray(v)
+								if (isA) {
+										c2[key] = "[" + v.join(", ") + "]"
+								} else {
+										c2[key] = v
+								}
+						}
+						resEval = c2
+
 						let res = JSON.stringify( resEval, undefined, 2)
+
 						return getHtmlWrapper(res)
 				}
 				catch(e){
