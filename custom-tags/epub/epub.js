@@ -13,7 +13,7 @@ const epubApp = (innerTagStr, opts) => {
 		const { div, updateContent } = api.utils.createDiv();
 		const infos = api.utils.getInfos();
 		let epubUrl = innerTagStr.trim()
-		let epubName = epubUrl.split("/").slice(-1)[0]
+		let epubName = epubUrl.split("/").slice(-1)[0].split("?")[0]
 		const isAbs = epubUrl.startsWith("http")
 		if (isAbs === false) {
 				epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
@@ -26,13 +26,16 @@ const epubApp = (innerTagStr, opts) => {
 		//
 		const cacheId = `ctag-epub-${epubName}`
 		const getCache = (id, onSuccess, onFailure) => {
+				console.log("2222", cacheId, id);
 				api.call("cache.get", [cacheId + id], content => {
+						console.log("2222-res", cacheId, id, content);
 						if (content !== undefined) onSuccess(content)
 						else onFailure()
 				})
 		}
 		const setCache = (id, content) => {
 				// console.log("CACHE set", id, content);
+				console.log("22221 set", id, content);
 				api.call("cache.set", [cacheId + id, content, 10000000000000])
 		}
 
