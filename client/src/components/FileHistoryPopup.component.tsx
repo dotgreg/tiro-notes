@@ -2,13 +2,14 @@ import styled from '@emotion/styled';
 import { orderBy, sortBy } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile } from '../../../shared/types.shared';
-import { ClientApiContext } from '../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../hooks/api/api.hook';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { formatDateList } from '../managers/date.manager';
 import { detachNote } from '../managers/detachNote.manager';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
+import { Icon } from './Icon.component';
 import { Popup } from './Popup.component';
 
 export const FileHistoryPopup = (p: {
@@ -18,15 +19,18 @@ export const FileHistoryPopup = (p: {
 
 	const [files, setFiles] = useState<iFile[]>([])
 
-	useEffect(() => {
+
+	const refreshHistoryFiles = () => {
 		clientSocket2.emit('askFileHistory', { filepath: p.file.path, token: getLoginToken() })
 		const listenerId = clientSocket2.on('getFileHistory', data => {
 			const filesSorted = orderBy(data.files, ['created'], ['desc']);
 			setFiles(filesSorted)
-		})
-		return () => {
 			clientSocket2.off(listenerId)
-		}
+		})
+	}
+
+	useEffect(() => {
+		refreshHistoryFiles()
 	}, [])
 
 	const api = useContext(ClientApiContext);
@@ -41,6 +45,16 @@ export const FileHistoryPopup = (p: {
 			setFileHistoryContent(content)
 
 			setActiveFile(file)
+		})
+	}
+
+
+	const trashFile = (file: iFile) => {
+		const titlePopup = "Trashing File"
+		getApi(api => {
+			api.file.delete(file, (a) => {
+				refreshHistoryFiles()
+			})
 		})
 	}
 
@@ -68,6 +82,7 @@ export const FileHistoryPopup = (p: {
 										>
 											<td> {file.realname} </td>
 											<td> {formatDateList(new Date(file.created || 0))} </td>
+											<td> <div onClick={() => { trashFile(file) }}>	<Icon name="faTrash" color='grey' /> </div></td>
 										</tr>
 									)
 								}
@@ -91,8 +106,8 @@ export const FileHistoryPopup = (p: {
 
 
 export const StyledDiv = styled.div`
- .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
-	// width: 90%;
+.filemain-wrapper .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
+	width: 90%;
 }
 .popup-wrapper .popupContent {
 		max-height: 70vh;
