@@ -104,7 +104,10 @@ const EditorAreaInt = (
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
 			// if (isA('desktop')) resetMonacoSelectionExt()
-			ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
+
+
+			// disable encryption on leave as it causes encryption bleeding on other notes
+			// ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
 		}
 	})
 
@@ -143,7 +146,13 @@ const EditorAreaInt = (
 		ifEncryptOnLeave, noHistoryBackupWhenDecrypted,
 	} = useNoteEncryption({
 		fileContent: innerFileContent,
-		onTextEncrypted: txt => { triggerNoteEdition(txt); forceCmRender(); },
+		onTextEncrypted: txt => {
+			triggerNoteEdition(txt);
+			forceCmRender();
+			getApi(api => {
+				api.history.save(p.file.path, txt, "int")
+			})
+		},
 		onTextDecrypted: txt => { triggerNoteEdition(txt); forceCmRender(); }
 	})
 
