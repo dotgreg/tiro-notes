@@ -2,7 +2,7 @@ import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import { exec3 } from "./managers/exec.manager";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
-import { createFolder, downloadFile, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
+import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
@@ -222,6 +222,22 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
+	}, { checkRole: "editor" })
+
+	// DELETING TRASH
+	serverSocket2.on('askFolderDelete', async data => {
+		let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
+		log(`DELETING ${trashFolder}`);
+
+		if (!fileExists(trashFolder)) return
+
+		await deleteFolder(trashFolder)
+
+		if (!fileExists(trashFolder)) await createDir(trashFolder)
+
+		// let apiAnswer = await scanDirForFiles(trashFolder)
+		// if (typeof (apiAnswer) === 'string') return log(apiAnswer)
+		// serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('askForExplorer', async data => {
