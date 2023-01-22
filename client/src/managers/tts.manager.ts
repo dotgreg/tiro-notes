@@ -175,8 +175,14 @@ export class Text2SpeechManager {
 		console.log('[TTS] stop');
 		this.shouldStop = true
 		this.isLoaded = false
+		this.debounceReinitStop()
 		window.speechSynthesis.cancel();
 	}
+
+	// needed for edge to not stop after first sentence after a restart/gotochunk
+	debounceReinitStop = debounce(() => {
+		this.shouldStop = false
+	}, 1000)
 
 	goToChunk = (chunkNb: number) => {
 		console.log('[TTS] goToChunk', chunkNb);
