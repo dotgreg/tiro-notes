@@ -1,6 +1,6 @@
 {
 		"name": "tiro-notes",
-		"version": "0.30.97-26",		 
+		"version": "0.30.97-28",		 
 		"description": "Tiro Notes CLI to start Tiro Notes from the command line!",
 		"scripts": {
 				"dev": "ISDEV=true node cli.js",
@@ -14,7 +14,7 @@
 		"repository": {
 				"type": "git",
 				"url": "https://github.com/dotgreg/tiro"
-		},
+		}	,
 		"author": "thiebault.gregoire@gmail.com",
 		"license": "ISC",
 		"homepage": "https://github.com/dotgreg/tiro"
