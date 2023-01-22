@@ -26,16 +26,12 @@ const epubApp = (innerTagStr, opts) => {
 		//
 		const cacheId = `ctag-epub-${epubName}`
 		const getCache = (id, onSuccess, onFailure) => {
-				console.log("2222", cacheId, id);
 				api.call("cache.get", [cacheId + id], content => {
-						console.log("2222-res", cacheId, id, content);
 						if (content !== undefined) onSuccess(content)
 						else onFailure()
 				})
 		}
 		const setCache = (id, content) => {
-				// console.log("CACHE set", id, content);
-				console.log("22221 set", id, content);
 				api.call("cache.set", [cacheId + id, content, 10000000000000])
 		}
 
@@ -196,14 +192,12 @@ const epubApp = (innerTagStr, opts) => {
 						window.updateStatus("scanning book...")
 						const cacheLocation = "locations"
 						getCache(cacheLocation, locations => {
-								// console.log(1, "LOCATIONS FOUND!", locations);
 								book.locations.load(locations)
 								window.updateStatus("")
 								onDone()
 						}, () => {
 								book.locations.generate(600).then(() => {
 										let nLocs = book.locations._locations
-										// console.log(2, nLocs);
 										setCache(cacheLocation, nLocs)
 										window.updateStatus("")
 										onDone()
@@ -215,7 +209,6 @@ const epubApp = (innerTagStr, opts) => {
 				document.addEventListener('fullscreenchange', (event) => {
 						setTimeout(() => {
 								let nHeight = document.body.clientHeight - 50
-								console.log(nHeight);
 								rendition.resize("100%", nHeight)
 						}, 1000)
 				});
@@ -317,7 +310,6 @@ const epubApp = (innerTagStr, opts) => {
 						//
 						eapi.scanBook(() => {
 								getCache("page", page => {
-										// console.log(h, "getting page", page);
 										eapi.jumpToPage(page)
 										eapi.updateUI(page, { cachePage: false })
 								}, () => { })
@@ -338,7 +330,6 @@ const epubApp = (innerTagStr, opts) => {
 						let currSearchRes = -1
 						let searchTerm = ""
 						const jumpToRes = (i) => {
-								console.log(123123, i, searchRes[i], searchRes);
 								jumpToPage(searchRes[i])
 								currSearchRes = i
 
@@ -366,7 +357,6 @@ const epubApp = (innerTagStr, opts) => {
 								wEl.classList.toggle('show');
 						})
 						onClick(["search-submit"], e => {
-								console.log();
 								let txtEl = document.getElementById("search-text");
 								searchTerm = txtEl.value
 
@@ -479,7 +469,6 @@ const epubApp = (innerTagStr, opts) => {
 						});
 
 						window.addEventListener("unload", function () {
-								// console.log(h, "unloading");
 								this.book.destroy();
 						});
 
