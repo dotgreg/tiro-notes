@@ -67,6 +67,7 @@ export const FileHistoryPopup = (p: {
 					title={`${strings.historyPopup.title}"${p.file.realname}"`}
 					onClose={() => { p.onClose() }}
 				>
+					<div className="count">{files.length} backups found :</div>
 					<div className="table-wrapper">
 						<table>
 							<thead>
@@ -84,7 +85,7 @@ export const FileHistoryPopup = (p: {
 										>
 											<td> {file.realname} </td>
 											<td> {formatDateList(new Date(file.created || 0))} </td>
-											<td> <div onClick={() => { trashFile(file) }}>	<Icon name="faTrash" color='grey' /> </div></td>
+											<td> <div className="trash" onClick={() => { trashFile(file) }}>	<Icon name="faTrash" color='grey' /> </div></td>
 										</tr>
 									)
 								}
@@ -100,6 +101,7 @@ export const FileHistoryPopup = (p: {
 							/>
 						</div>
 					}
+					<div className="advice"> To disable history backup for a note, add "--disable-history--"in it</div>
 				</Popup>
 			</div>
 		</StyledDiv>
@@ -159,6 +161,14 @@ export const StyledDiv = styled.div`
 			border: none;
 			background: gainsboro;
 		}
+}
+.advice {
+	color: #a4a4a4;
+font-size: 10px;
+padding: 3px 3px;
+}
+.trash {
+margin-right: 15px;
 }
 
 `
