@@ -54,6 +54,8 @@ export const FileHistoryPopup = (p: {
 		getApi(api => {
 			api.file.delete(file, (a) => {
 				refreshHistoryFiles()
+				setActiveFile(null)
+				setFileHistoryContent("")
 			})
 		})
 	}

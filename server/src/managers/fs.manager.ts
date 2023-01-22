@@ -146,6 +146,22 @@ export const copyFile = async (pathOriginal: string, pathDestination: string): P
 	})
 }
 
+export const deleteFolder = async (path: string): Promise<void> => {
+	path = p(path)
+
+	return new Promise((resolve, reject) => {
+		try {
+			if (fs.existsSync(path)) {
+				console.log("[REMOVE FILE] Deleting folder " + path)
+				fs.rmSync(path, { recursive: true })
+				resolve()
+			}
+		} catch (error) {
+			shouldLog && log(`[REMOVE FILE] Error removing ${path} : ${error.message}`); reject()
+		}
+	})
+}
+
 // export const removeFile = async (filepath: string): Promise<void> => {
 // 	filepath = p(filepath)
 // 	return new Promise((resolve, reject) => {
