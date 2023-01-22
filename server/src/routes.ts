@@ -197,13 +197,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('createHistoryFile', async data => {
 		let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
 
+		// IF path is inside history folder, do NOT BACKUP
+		if (data.filePath.includes(historyFolder)) return
+
 		// IF data.content contains --disable-history-- do NOT BACKUP
 		const disableString = `--disable-history--`
-		console.log(11111111111111);
 		if (data.content.includes(disableString)) {
 			console.log(`[HISTORY] "${disableString}" found in data.filepath, NO HISTORY`);
 		} else {
-			console.log(222222222);
 
 			await upsertRecursivelyFolders(`${historyFolder}/`)
 
