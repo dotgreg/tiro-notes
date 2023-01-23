@@ -13,7 +13,7 @@ export const useLightbox = () => {
 	const [lightboxIndex, setLigthboxIndex] = useState(0)
 
 	const openLightbox: iLightboxApi['open'] = (index, images) => {
-		console.log(`[LIGHTBOX] open ${images.length} images to index ${index}`, { images });
+		// console.log(`[LIGHTBOX] open ${images.length} images to index ${index}`, { images });
 		const imgsRes: iFileImage[] = []
 
 		// if imgs are just string, generate a empty fileImage object around it
@@ -34,7 +34,7 @@ export const useLightbox = () => {
 		setLigthboxIndex(index)
 	}
 	const closeLightbox: iLightboxApi['close'] = () => {
-		console.log(`[LIGHTBOX] close`);
+		// console.log(`[LIGHTBOX] close`);
 		setLightboxImages([])
 		setLigthboxIndex(0)
 	}

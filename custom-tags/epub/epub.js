@@ -95,7 +95,7 @@ const epubApp = (innerTagStr, opts) => {
 				};
 
 				const userAgentString = navigator.userAgent||navigator.vendor||window.opera
-				const isEdge = () => userAgentString.toLowerCase.includes("edg")
+				const isEdge = () => userAgentString.toLowerCase().includes("edg")
 
 				const getFontSize = () =>  {
 						let res = 12

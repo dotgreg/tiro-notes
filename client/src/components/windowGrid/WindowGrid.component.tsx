@@ -153,7 +153,7 @@ export const WindowGrid = (p: {
 			const mdFile = getActiveWindowContent(tab)?.file
 			if (!mdFile) return
 
-			console.log('003441 dragdrop OR clipboard', file, mdFile.name);
+			// console.log('003441 dragdrop OR clipboard', file, mdFile.name);
 			api && api.upload.uploadFile({
 				file,
 				folderPath: mdFile.folder,

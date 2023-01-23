@@ -114,7 +114,10 @@ export const initServerSocketManager =
 
 					// ELSE PROCESS TO NORMAL CALL
 					else {
-						await callback(rawClientData)
+						// TRY CATCH for upload errors mainly
+						try {
+							await callback(rawClientData)
+						} catch (e) {console.log(`${h} ==> ERROR ${JSON.stringify(e)}`);}
 					}
 				});
 			},
@@ -154,6 +157,7 @@ export const initSocketLogic = () => {
 		}
 
 		if (!backConfig.askForSetup) initUploadFileRoute(serverSocket2);
+
 
 		shouldlog && log('INIT SOCKET ENDPOINTS');
 

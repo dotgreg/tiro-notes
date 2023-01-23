@@ -10,6 +10,7 @@ import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
 import { NotePreview } from './NotePreview.component';
 import { deviceType } from '../managers/device.manager';
+import { regexs } from '../../../shared/helpers/regexs.helper';
 
 
 interface iOptionSuggest {
@@ -386,6 +387,8 @@ export const SuggestPopup = (p: {
 			setHelp(`Searching "${input}" in "${path}" ...`)
 			setOptions([{ label: "loading..." }])
 
+			let isRegex = input.includes("*")
+
 			let nOpts: any = []
 			setOptions(nOpts)
 
@@ -393,10 +396,11 @@ export const SuggestPopup = (p: {
 
 			getApi(api => {
 				api.search.word(input, path, res => {
-					nOpts.push({ label: `Filter results for "${wordSearched.current}"`, value: wordSearched.current })
 					each(res, (fileRes) => {
 						each(fileRes.results, occur => {
-							let label = `[${fileRes.file.path}] ${occur}`
+
+							let regexLabel = isRegex ? `(${input})` : ``
+							let label = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
 							nOpts.push({
 								label, value: fileRes.file, payload: {
 									file: fileRes.file,
@@ -405,7 +409,8 @@ export const SuggestPopup = (p: {
 							})
 						})
 					})
-					setHelp(`${nOpts.length} results found for "${input}" in "${path}" `)
+					nOpts.unshift({ label: `🔎 Filter the ${nOpts.length} results for "${wordSearched.current}"`, value: wordSearched.current })
+					setHelp(`${nOpts.length - 1} results found for "${input}" in "${path}" `)
 					setOptions(nOpts)
 				})
 			})

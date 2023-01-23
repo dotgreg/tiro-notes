@@ -69,8 +69,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('searchWord', async data => {
 		// replace * by ANY word
-		let replacement = `${regexs.strings.charWithAccents}{1}`
-		data.word = data.word.replace("*", replacement)
+		// let replacement = `${regexs.strings.charWithAccents}{1}`
+		// let replacement = `${regexs.strings.charWithAccents}{1}`
+		// let replacement = `[A-zÀ-ÿ]{1}`
+		// let replacement2 = `[A-zÀ-ú]{1}`
+		data.word = data.word.split("*").join(regexs.strings.charWithAccents)
+		// console.log("SEARCHWORD ", replacement2, data.word);
 		searchWord({
 			term: data.word,
 			folder: data.folder,
