@@ -5,23 +5,9 @@ import { each, debounce } from "lodash";
 
 export const cleanText2Speech = (rawText: string) => {
 	let text2read = rawText
-
-	// let el = document.createElement("div");
-	// el.innerText = el.textContent = text2read;
-	// text2read = el.innerHTML;
-	// console.log(1111, text2read);
-
 	text2read = text2read.replace(regexs.ressource, '')
 	text2read = text2read.replace(regexs.ref, '')
-	// text2read = md2html(text2read)
 	text2read = text2read.replace(regexs.baliseHtml, '')
-
-	// console.log(1122, text2read);
-	// el = document.createElement("div");
-	// el.innerText = el.textContent = text2read;
-	// text2read = el.innerHTML;
-
-	console.log('cleanText2Speech', text2read);
 	return text2read
 }
 
@@ -88,33 +74,20 @@ export class Text2SpeechManager {
 						newSentence = ''
 					}
 				}
-				// let substrs:any = sentence.match(new RegExp(`.{1,${this.chunkLength}}`,'g'))
-				// if (substrs) {
-				//     for (let y = 0; y < substrs.length; y++) {
-				//         chunks.push(substrs[y])
-				//     }
-				// }
 			} else {
 				chunks.push(sentence)
 			}
 		}
-		console.log(chunks);
-
+		// console.log(chunks);
 		return chunks
-		// let pattRegex = new RegExp('^[\\s\\S]{' + Math.floor(this.chunkLength / 2) + ',' + this.chunkLength + '}[.!?,]{1}|^[\\s\\S]{1,' + this.chunkLength + '}$|^[\\s\\S]{1,' + this.chunkLength + '} ', 'gm');
-		// return text2chunk.match(pattRegex) || [];
 	}
 
 	loadVoice = (voice) => {
-		console.log(`[TTS] LOAD VOICE`, voice);
+		// console.log(`[TTS] LOAD VOICE`, voice);
 		this.voice = voice
 	}
 
-
-
 	updateSpeed = (speed: number) => {
-		// window.speechSynthesis.rate = 2;
-		// this.currSpeechObj.rate = speed;
 		this.speed = speed
 	}
 
@@ -151,12 +124,9 @@ export class Text2SpeechManager {
 			})
 
 		} else {
-
-			console.log(`[TTS] RESUME play chunk ${this.currChunkId}`);
+			// console.log(`[TTS] RESUME play chunk ${this.currChunkId}`);
 			window.speechSynthesis.resume();
-
 		}
-
 	}
 
 	isPlaying = (): boolean => {
@@ -166,13 +136,13 @@ export class Text2SpeechManager {
 	}
 
 	pause = () => {
-		console.log('[TTS] pause');
+		// console.log('[TTS] pause');
 		// window.speechSynthesis.pause();
 		this.stop()
 	}
 
 	stop = () => {
-		console.log('[TTS] stop');
+		// console.log('[TTS] stop');
 		this.shouldStop = true
 		this.isLoaded = false
 		this.debounceReinitStop()
@@ -185,7 +155,7 @@ export class Text2SpeechManager {
 	}, 1000)
 
 	goToChunk = (chunkNb: number) => {
-		console.log('[TTS] goToChunk', chunkNb);
+		// console.log('[TTS] goToChunk', chunkNb);
 		if (chunkNb <= 0 || chunkNb > this.chunkedText.length - 1) return
 		this.currChunkId = chunkNb
 
@@ -225,18 +195,18 @@ export class Text2SpeechManager {
 
 
 	debounceRestart = debounce(() => {
-		console.log('DEBOUNCE RESTART');
+		// console.log('DEBOUNCE RESTART');
 		this.stop()
 		// this.shouldStop = false
 		this.play()
 	}, 500)
 
 	goBack = () => {
-		console.log('[TTS] goBack', this.currChunkId);
+		// console.log('[TTS] goBack', this.currChunkId);
 		this.goToChunk(this.currChunkId - 1)
 	}
 	goForward = () => {
-		console.log('[TTS] goForward', this.currChunkId);
+		// console.log('[TTS] goForward', this.currChunkId);
 		this.goToChunk(this.currChunkId + 1)
 	}
 

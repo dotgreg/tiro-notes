@@ -12,7 +12,7 @@ const v = {
 	// titleHtml: /(\<title\/\>)[^<](/,
 }
 const vStr = {
-	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]"
+	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{1}"
 }
 
 
