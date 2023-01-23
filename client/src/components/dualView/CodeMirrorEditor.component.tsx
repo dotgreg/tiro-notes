@@ -178,19 +178,19 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 
 
-	const { userSettingsApi } = useUserSettings()
-	const ua = userSettingsApi
-	if (ua.get("ui_editor_links_as_button")) {
-		codemirrorExtensions.push(linksPreviewPlugin)
-		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
-		// codemirrorExtensions.push(ctagPreviewPlugin)
-	}
-	if (ua.get("ui_editor_markdown_preview")) {
-		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		markdownExtensionCnf.extensions.push(LatexMdEl)
-		codemirrorExtensions.push(imagePreviewPlugin(p.file))
-		codemirrorExtensions.push(filePreviewPlugin(p.file))
-	}
+	// const { userSettingsApi } = useUserSettings()
+	// const ua = userSettingsApi
+	// if (ua.get("ui_editor_links_as_button")) {
+	// 	codemirrorExtensions.push(linksPreviewPlugin)
+	// 	codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
+	// 	// codemirrorExtensions.push(ctagPreviewPlugin)
+	// }
+	// if (ua.get("ui_editor_markdown_preview")) {
+	// 	codemirrorExtensions.push(markdownPreviewPluginWFile)
+	// 	markdownExtensionCnf.extensions.push(LatexMdEl)
+	// 	codemirrorExtensions.push(imagePreviewPlugin(p.file))
+	// 	codemirrorExtensions.push(filePreviewPlugin(p.file))
+	// }
 	codemirrorExtensions.push(markdown(markdownExtensionCnf))
 
 
@@ -298,7 +298,7 @@ export const codeMirrorEditorCss = () => `
 		margin: 32px 0px 0px 0px;
 		padding: 0px;
 		width:100%;
-		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 280px);'}; 
+		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 180px);'}; 
 }
 
 .codemirror-editor-wrapper {
