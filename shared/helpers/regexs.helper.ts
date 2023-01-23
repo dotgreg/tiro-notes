@@ -11,10 +11,15 @@ const v = {
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 	// titleHtml: /(\<title\/\>)[^<](/,
 }
+const vStr = {
+	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]"
+}
+
 
 // const getRegexHtmlTag = (tagName:string) => /$/
 
 export const regexs = {
+	strings: vStr,
 	// .anythingBut(`[${sharedConfig.metas.headerEnd}]`)
 	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().then(new RegExp(/([\s\S])*/)).endCapture().then(sharedConfig.metas.headerEnd),
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
