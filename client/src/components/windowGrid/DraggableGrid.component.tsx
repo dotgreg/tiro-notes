@@ -562,7 +562,7 @@ export const draggableGridCss = () => `
 														padding: 0px;
 												}
 												.main-editor-wrapper {
-														padding-left: 3px;
+														padding-left: 0px;
 														padding-rigth: 10px;
 														margin-top: 33px;
 														width: 100%;

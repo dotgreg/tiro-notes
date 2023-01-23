@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-import { deviceType, MobileView, DeviceType } from '../device.manager';
+									 import { deviceType, MobileView, DeviceType } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -42,10 +42,10 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 export const CssApp2 = (
-	mobileView: MobileView,
-	refreshCss: number
+		mobileView: MobileView,
+		refreshCss: number
 ) => {
-	const cssString = `//css
+		const cssString = `//css
 		.content-image {
 				width: 90%;
 		}
@@ -86,12 +86,12 @@ export const CssApp2 = (
 		${shortcutCompCss()}
 		${renderedNoteCompCss()}
 
-${NotePreviewCss()}
+		${NotePreviewCss()}
 
 		${PopupWrapperCss()}
 		.main-wrapper {
-${linksPreviewMdCss()}
-		${folderTreeCss()}
+				${linksPreviewMdCss()}
+				${folderTreeCss()}
 				display: flex;
 				.no-file {
 						text-align: center;
@@ -358,9 +358,12 @@ ${linksPreviewMdCss()}
 												}
 
 												.preview-area-wrapper {
-														/* display:none */
+														/* display:none; */
 														position: absolute;
+														width: 10px;
 														left: -9999px;
+														top: -9999px;
+
 												}
 										}
 
@@ -422,7 +425,6 @@ ${linksPreviewMdCss()}
 														.main-editor-wrapper {
 																position: absolute;
 																left: -9999px;
-																/* display:none; */
 														}
 												}
 												.preview-area-wrapper {
@@ -487,5 +489,5 @@ ${linksPreviewMdCss()}
 
 `//css
 
-	return css`${cssString}`
+return css`${cssString}`
 }

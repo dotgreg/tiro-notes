@@ -303,6 +303,7 @@ export const codeMirrorEditorCss = () => `
 
 .codemirror-editor-wrapper {
 		margin-right: 18px;
+		width: calc(100% - 10px);
 }
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
 		height: calc(100% - 30px);
@@ -315,6 +316,9 @@ export const codeMirrorEditorCss = () => `
 .cm-editor {
 		word-break: break-all;
 }
+.cm-search {
+	padding: 6px 10px 11px;
+}
 .cm-content {
 		width: 100%;
 		overflow:hidden;
@@ -322,7 +326,7 @@ export const codeMirrorEditorCss = () => `
 }
 .cm-scroller {
 		left: 15px;
-		padding-right: 15px;
+		padding-right: 25px;
 }
 .cm-line {
 }
