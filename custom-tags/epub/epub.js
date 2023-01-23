@@ -99,8 +99,8 @@ const epubApp = (innerTagStr, opts) => {
 
 				const getFontSize = () =>  {
 						let res = 12
-						if(isMobile())  res = 2 
-						if(isEdge)  res = 10 
+						if(isMobile()) res = 2 
+						if(isEdge) res = 12 
 						return res
 				}
 				rendition.themes.default({ "p": { "font-size": `${getFontSize()}px !important`}})
