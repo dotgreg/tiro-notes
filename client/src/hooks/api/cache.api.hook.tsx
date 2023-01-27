@@ -106,8 +106,9 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	const setRamCache = (cacheId: string, cacheContent: any, cachedMin: number) => {
 		cachedRamDic.current[cacheId] = { content: cacheContent, until: getDateUntil(cachedMin) }
 	}
-	const setCache: iCacheApi['set'] = (cacheId, cacheContent, cachedMin?: number) => {
+	const setCache: iCacheApi['set'] = (cacheId, cacheContent, cachedMin) => {
 		if (!cachedMin) cachedMin = 60
+		if (cachedMin === -1) cachedMin = 99999999999999999999999999999999
 		setRamCache(cacheId, cacheContent, cachedMin)
 		const nObj = cachedRamDic.current[cacheId]
 
