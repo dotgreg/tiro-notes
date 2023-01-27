@@ -314,31 +314,41 @@ export const SuggestPopup = (p: {
 	///////////////////////////////////////////////////////////////////////////////
 	// @ EXPLORER MODE
 	//
+	const lastSearchId = useRef(0)
+	const lastSearch = useRef("")
 	const triggerExplorer = (folderPath: string) => {
-		console.log("== EXPLORER", folderPath);
 		if (folderPath === "") return
+		if (!folderPath.endsWith("/")) folderPath = folderPath + "/"
+
+		// do not search the same thing 2 times
+		if (folderPath === lastSearch.current) return
+		lastSearch.current = folderPath
+
+		console.log("== EXPLORER", folderPath);
+
 		setOptions([{ label: "loading..." }])
 		setNotePreview(null)
 
-		let folderId = folderPath
+		lastSearchId.current++
+		let currId = lastSearchId.current
 
 		getApi(api => {
 			let folderPathArr = [folderPath]
 			api.folders.get(folderPathArr, folderData => {
 
+				// only take in account the LAST request
+				if (currId !== lastSearchId.current) return
+
 				let folderPathAnswer1 = folderData.folderPaths.join("");
 				let folderPathAsked1 = folderPathArr.join("");
-				// console.log(2222221, { folderData, folderPath, folderPathAnswer1, folderPathAsked1 });
 				if (folderPathAnswer1 !== folderPathAsked1) return
 
 				let parent = folderData.folders[0]
 				if (!parent) return
+
 				let folders = folderData.folders[0].children
 				api.files.get(folderPath, (files, folderPathAnswer2) => {
-
-					// console.log(222222333, { files, folderPathAnswer2, folderPathAsked: folderPath });
 					if (folderPathAnswer2 !== folderPath) return
-					// console.log(22222222244444);
 
 					// split folder path
 					let foldersArr = folderPath.split("/")
