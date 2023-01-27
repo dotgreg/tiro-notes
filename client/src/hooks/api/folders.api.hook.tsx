@@ -19,7 +19,7 @@ export interface iFoldersApi {
 	 */
 	get: (
 		folderPaths: string[],
-		cb: (data: { folders: iFolder[], pathBase: string }) => void
+		cb: (data: { folders: iFolder[], pathBase: string, folderPaths: string[] }) => void
 	) => void
 	move: iMoveApi['folder']
 }
@@ -50,7 +50,11 @@ export const useFoldersApi = (p: {
 		if (sharedConfig.client.log.socket) console.log(`[FOLDERS API] get folders `);
 		const idReq = genIdReq('get-folders-');
 		// 1. add a listener function
-		p.eventBus.subscribe(idReq, cb);
+		p.eventBus.subscribe(idReq, data => {
+			let nData = { ...data }
+			nData.folderPaths = folders
+			cb(nData)
+		});
 		// 2. emit request 
 		clientSocket2.emit('askFoldersScan', {
 			foldersPaths: folders,
