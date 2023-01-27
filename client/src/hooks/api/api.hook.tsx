@@ -21,6 +21,7 @@ import { iCacheApi, useCacheApi } from './cache.api.hook';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iWatchApi, useWatchApi } from './watch.api.hook';
 import { iTtsApi } from '../app/useTtsPopup.hook';
+import { iAnalyticsApi, useAnalyticsApi } from './analytics.api.hook';
 
 
 //
@@ -59,6 +60,7 @@ export interface iClientApi {
 	history: iNoteHistoryApi
 	note: iNoteApi
 	search: iSearchApi
+	analytics: iAnalyticsApi
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -179,6 +181,7 @@ export const useClientApi = (p: {
 	})
 
 	const noteApi = useNoteApi({})
+	const analyticsApi = useAnalyticsApi({})
 
 	// 
 	// FINAL EXPORT
@@ -196,6 +199,7 @@ export const useClientApi = (p: {
 		history: p.historyApi,
 		status: p.statusApi,
 		note: noteApi,
+		analytics: analyticsApi,
 		search: searchApi,
 		watch: watchApi,
 		ui: {

@@ -11,6 +11,7 @@ import { sharedConfig } from '../../../shared/shared.config';
 import { NotePreview } from './NotePreview.component';
 import { deviceType } from '../managers/device.manager';
 import { regexs } from '../../../shared/helpers/regexs.helper';
+import { aLog } from '../hooks/api/analytics.api.hook';
 
 
 interface iOptionSuggest {
@@ -182,6 +183,7 @@ export const SuggestPopup = (p: {
 
 		if (stags.length === 0) {
 			if (inTxt === "/") {
+				aLog(`suggest_explorer`)
 				getApi(api => {
 					// erase /
 					setInputTxt("")
@@ -195,6 +197,7 @@ export const SuggestPopup = (p: {
 			}
 
 			if (inTxt === "?") {
+				aLog(`suggest_search`)
 				startSearchModeLogic()
 			}
 
@@ -576,6 +579,7 @@ export const SuggestPopup = (p: {
 				}
 
 
+						aLog(`suggest_plugin_${file.name}`)
 				if (cachedPlugins.dict[file.name]) {
 					execPlugin(file.name)
 				} else {

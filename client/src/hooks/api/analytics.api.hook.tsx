@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { getTsFromString, iADate, tsToIADate } from '../../managers/date.manager';
 import { getApi } from './api.hook';
+import { isNumber } from 'lodash'
 
 //
 // INTERFACES
@@ -8,11 +9,11 @@ import { getApi } from './api.hook';
 
 // like [2022,02,11]
 type iEventsCount = { [eventName: string]: number }
-interface iAReport {
-	start: iADate
-	end: iADate
-	eventsCount: iEventsCount
-}
+// interface iAReport {
+// 	start: iADate
+// 	end: iADate
+// 	eventsCount: iEventsCount
+// }
 interface iAnalyticsObj {
 	[year: number]: {
 		[month: number]: {
@@ -25,7 +26,12 @@ interface iAnalyticsObj {
 
 export interface iAnalyticsApi {
 	log: (logId: string) => void
-	report: (start?: iADate, end?: iADate) => iAReport
+	report: (
+		cb: (o: iAnalyticsObj) => void,
+		opt?: {
+			start?: iADate,
+			end?: iADate,
+		}) => void
 }
 
 
@@ -45,37 +51,44 @@ const setAnalytics = (newObj: iAnalyticsObj) => {
 	})
 }
 
+
+
+
+
+//
+// EXPORT 
+//
+export const aLog: iAnalyticsApi['log'] = logId => {
+	const d = tsToIADate()
+	getAnalytics(o => {
+		let no: iAnalyticsObj = { ...o }
+		if (!no[d[0]]) no[d[0]] = {}
+		if (!no[d[0]][d[1]]) no[d[0]][d[1]] = {}
+		if (!no[d[0]][d[1]][d[2]]) no[d[0]][d[1]][d[2]] = {}
+
+		if (!isNumber(no[d[0]][d[1]][d[2]][logId])) no[d[0]][d[1]][d[2]][logId] = 1
+		else no[d[0]][d[1]][d[2]][logId]++
+		// console.log(22222222222, no);
+
+		setAnalytics(no)
+	})
+}
+
+export const aReport: iAnalyticsApi['report'] = (cb, opts) => {
+	if (!opts) opts = {}
+	let start1: iADate = !opts.start ? tsToIADate(getTsFromString("lastMonth")) : opts.start
+	let end1: iADate = !opts.end ? tsToIADate() : opts.end
+
+	getAnalytics(o => {
+		// let eventsCount: iEventsCount = {}
+		cb(o)
+	})
+}
+
+//
+// API EXPORT 
+//
 export const useAnalyticsApi = (p: {}) => {
-
-	const log: iAnalyticsApi['log'] = logId => {
-		const d = tsToIADate()
-		getAnalytics(o => {
-			let no: iAnalyticsObj = { ...o }
-			if (!no[d[0]]) no[d[0]] = {}
-			if (!no[d[0]][d[1]]) no[d[0]][d[1]] = {}
-			if (!no[d[0]][d[1]][d[2]]) no[d[0]][d[1]][d[2]] = {}
-
-			if (!no[d[0]][d[1]][d[2]][logId]) no[d[0]][d[1]][d[2]][logId] = 0
-			else no[d[0]][d[1]][d[2]][logId]++
-
-
-		})
-	}
-
-	const report: iAnalyticsApi['report'] = (start, end) => {
-		let start1: iADate = !start ? tsToIADate(getTsFromString("lastMonth")) : start
-		let end1: iADate = !end ? tsToIADate() : end
-		let eventsCount: iEventsCount = {}
-		return { start: start1, end: end1, eventsCount }
-	}
-
-	//
-	// EXPORTS
-	//
-	const api: iAnalyticsApi = {
-		log,
-		report
-	}
-
+	const api: iAnalyticsApi = { log: aLog, report: aReport }
 	return api
 }
