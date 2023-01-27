@@ -17,7 +17,7 @@ export interface iFilesApi {
 
 	get: (
 		folderPath: string,
-		cb: (files: iFile[]) => void
+		cb: (files: iFile[], folderPath:string) => void
 	) => void
 
 	getPreviews: (
@@ -60,7 +60,7 @@ export const useFilesApi = (p: {
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, nFiles => {
 			p.statusApi.searching.set(false)
-			cb(nFiles)
+			cb(nFiles, folderPath)
 		});
 		// 2. emit request 
 		clientSocket2.emit('askForFiles', {

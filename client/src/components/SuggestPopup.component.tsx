@@ -153,7 +153,8 @@ export const SuggestPopup = (p: {
 	//
 	const [inputTxt, setInputTxt] = useState("");
 	const onInputChange: any = (txt: string) => {
-		setInputTxt(txt.trim())
+		// setInputTxt(txt.trim())
+		setInputTxt(txt)
 	}
 
 
@@ -176,9 +177,11 @@ export const SuggestPopup = (p: {
 		// console.log("================================");
 		// console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
 		let stags = selectedOptionRef.current
+		let inTxt = inputTxt.trim()
+		// console.log(222222233333, inTxt);
 
 		if (stags.length === 0) {
-			if (inputTxt === "/") {
+			if (inTxt === "/") {
 				getApi(api => {
 					// erase /
 					setInputTxt("")
@@ -187,15 +190,15 @@ export const SuggestPopup = (p: {
 				})
 			}
 
-			if (inputTxt === "") {
+			if (inTxt === "") {
 				startLastNotesModeLogic()
 			}
 
-			if (inputTxt === "?") {
+			if (inTxt === "?") {
 				startSearchModeLogic()
 			}
 
-			if (inputTxt === ":") {
+			if (inTxt === ":") {
 				startPluginMode()
 			}
 		}
@@ -204,7 +207,7 @@ export const SuggestPopup = (p: {
 			// IF SEARCH MODE 
 			if (!stags[1]) {
 				// STEP 1 : add automatically editable folder
-				if (inputTxt === "?") {
+				if (inTxt === "?") {
 					// erase ? and put instead the current folder
 					getApi(api => {
 						let folder = api.ui.browser.files.active.get.folder
@@ -212,11 +215,11 @@ export const SuggestPopup = (p: {
 					})
 				}
 				setHelp(`Path to search (ex:"/path/to/folder") + ENTER`)
-				setOptions([{ label: inputTxt, value: inputTxt }])
+				setOptions([{ label: inTxt, value: inTxt }])
 
 			} else if (stags.length === 2) {
 				// STEP 2 : show searched results
-				reactToSearchTyping(inputTxt, stags[1].label)
+				reactToSearchTyping(inTxt, stags[1].label)
 
 			} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
 				// STEP 3-1 (optional) :  filter found results
@@ -259,7 +262,7 @@ export const SuggestPopup = (p: {
 			}
 		}
 		else if (stags[0].label === modeLabels.plugin) {
-			triggerPluginLogic(inputTxt, stags)
+			triggerPluginLogic(inTxt, stags)
 		}
 	}
 
@@ -317,12 +320,25 @@ export const SuggestPopup = (p: {
 		setOptions([{ label: "loading..." }])
 		setNotePreview(null)
 
+		let folderId = folderPath
+
 		getApi(api => {
-			api.folders.get([folderPath], folderHierar => {
-				let parent = folderHierar.folders[0]
+			let folderPathArr = [folderPath]
+			api.folders.get(folderPathArr, folderData => {
+
+				let folderPathAnswer1 = folderData.folderPaths.join("");
+				let folderPathAsked1 = folderPathArr.join("");
+				// console.log(2222221, { folderData, folderPath, folderPathAnswer1, folderPathAsked1 });
+				if (folderPathAnswer1 !== folderPathAsked1) return
+
+				let parent = folderData.folders[0]
 				if (!parent) return
-				let folders = folderHierar.folders[0].children
-				api.files.get(folderPath, files => {
+				let folders = folderData.folders[0].children
+				api.files.get(folderPath, (files, folderPathAnswer2) => {
+
+					// console.log(222222333, { files, folderPathAnswer2, folderPathAsked: folderPath });
+					if (folderPathAnswer2 !== folderPath) return
+					// console.log(22222222244444);
 
 					// split folder path
 					let foldersArr = folderPath.split("/")
@@ -388,6 +404,7 @@ export const SuggestPopup = (p: {
 			setOptions([{ label: "loading..." }])
 
 			let isRegex = input.includes("*")
+			console.log(12223333333, isRegex, input);
 
 			let nOpts: any = []
 			setOptions(nOpts)
