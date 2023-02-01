@@ -6,11 +6,17 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { Icon } from "../../components/Icon.component";
-import { LinkPreviewCss } from "../../components/LinkPreview.component";
 import { ssrOnClick, ssrOpenIframe } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
+// export const linksPreviewPlugin = genericReplacementPlugin({
+// 	pattern: regexs.externalLink3,
+// 	// replacement: matchs => {
+// 	// 	return generateHtmlLinkPreview(matchs)
+// 	// }
+// 	classWrap: "cm-underline"
+// })
 
 export const linksPreviewPlugin = genericReplacementPlugin({
 	pattern: regexs.externalLink3,

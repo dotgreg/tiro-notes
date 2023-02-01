@@ -45,7 +45,7 @@ export const getCustomTheme = () => createTheme({
 		{ tag: t.heading4, class: "actionable-title h4" },
 		{ tag: t.heading5, class: "actionable-title h5" },
 		{ tag: t.heading6, class: "actionable-title h6" },
-		{ tag: t.content, fontSize: "10px" }
+		{ tag: t.content, fontSize: "10px", class:"woop" }
 	]
 });
 
