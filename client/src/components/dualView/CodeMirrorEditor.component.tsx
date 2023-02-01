@@ -389,4 +389,6 @@ ${ressourcePreviewSimpleCss()}
 // PREVIEW LINK
 ${noteLinkCss()}
 
+.cm-underline  {background: red}
+
 `

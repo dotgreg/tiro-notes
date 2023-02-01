@@ -95,8 +95,7 @@ export const SuggestPopup = (p: {
 		// 	return { ...base, display: "none" }
 		// },
 		menu: (base, state) => {
-			// let pe = deviceType() === "mobile" ? "all" : "none"
-			let pe = "all"
+			let pe = deviceType() === "mobile" ? "all" : "none"
 			return { ...base, position: "relative", pointerEvents: pe }
 		},
 		control: (base, state) => {
@@ -174,7 +173,7 @@ export const SuggestPopup = (p: {
 
 	const histPath = useRef("")
 	const updateFromChange = () => {
-		console.log(222222222222);
+		// console.log(222222222222);
 		// at first, according to first char, switch mode
 		// console.log("================================");
 		// console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
@@ -249,6 +248,7 @@ export const SuggestPopup = (p: {
 				})
 				return finalPath
 			}
+
 
 			let finalPath = getFinalPath()
 			// if ends to md, jump to it
@@ -382,20 +382,16 @@ export const SuggestPopup = (p: {
 						// last = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
 						nOpts.push({ value: last, label: last })
 					})
-					// console.log(34444444, files);
 					each(files, f => {
 						let arr = f.path.split("/")
 						let last: any = arr[arr.length - 1]
-						let payload = { file: f }
-
 						let lastHtml = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
-						nOpts.push({ value: last, label: lastHtml, payload })
+						nOpts.push({ value: last, label: lastHtml })
 					})
 
 					// console.log(123333, nSelec, nOpts);
 					setSelectedOption(nSelec)
 					setOptions(nOpts)
-					// setNotePreview(nSelec)
 
 				})
 			})
@@ -431,7 +427,7 @@ export const SuggestPopup = (p: {
 			setOptions([{ label: "loading..." }])
 
 			let isRegex = input.includes("*")
-			// console.log(12223333333, isRegex, input);
+			console.log(12223333333, isRegex, input);
 
 			let nOpts: any = []
 			setOptions(nOpts)
@@ -617,17 +613,10 @@ export const SuggestPopup = (p: {
 	//
 	const [notePreview, setNotePreview] = useState<iFile | null>(null);
 	const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
-
 	const onActiveOptionChange = (file: iFile, activeLine?: string) => {
 		let stags = selectedOptionRef.current
 
-		// EXPLORER
-		// console.log(222222, stags, file);
-		if (stags[0] && stags[0].label === modeLabels.explorer) {
-			setNotePreview(file)
-			// console.log(222222, file);
-
-		} else if (stags[0] && stags[0].label === modeLabels.search) {
+		if (stags[0] && stags[0].label === modeLabels.search) {
 			// SEARCH
 			setNotePreview(file)
 			setActiveLine(activeLine)
@@ -668,7 +657,6 @@ export const SuggestPopup = (p: {
 				const style = getComputedStyle(o);
 				let bg = style["background-color"]
 				if (bg !== "rgba(0, 0, 0, 0)" && options[id] && options[id].payload) {
-					console.log(11111, bg, id);
 					let payload = options[id].payload
 					let file = payload.file as iFile
 					let line = payload.line || undefined
@@ -708,12 +696,7 @@ export const SuggestPopup = (p: {
 		<div className="suggest-popup-bg"
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
-				<div className="flex-wrapper"
-					onClick={e => {
-						// alert("222")
-						e.stopPropagation()
-					}}
-				>
+				<div className="flex-wrapper" onClick={e => { e.stopPropagation() }}>
 					<div className="help">
 						{help}
 					</div>
@@ -728,13 +711,12 @@ export const SuggestPopup = (p: {
 
 						onChange={onChange}
 						// components={{ Option: CustomOption }}
-						// openMenuOnClick={e => { console.log("wooooo"); }}
-						openMenuOnClick={false}
 
 						inputValue={inputTxt}
 						onInputChange={onInputChange}
 
 						options={options}
+
 						// isClearable={false}
 						styles={styles}
 						noOptionsMessage={() => noOptionLabel}
