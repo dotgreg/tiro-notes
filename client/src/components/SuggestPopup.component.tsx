@@ -65,9 +65,14 @@ export const SuggestPopup = (p: {
 	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
 		let res: iOptionSuggest[] = []
 		each(files, file => {
+			let htmlOption = <div className="path-option-wrapper">
+				<div className="file">{file.name}</div>
+				<div className="folder">{file.folder}</div>
+			</div>
+
 			let nOption: iOptionSuggest = {
 				value: file.path,
-				label: file.path,
+				label: htmlOption,
 				payload: { file }
 			}
 			res.push(nOption)
@@ -382,14 +387,18 @@ export const SuggestPopup = (p: {
 						// last = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
 						nOpts.push({ value: last, label: last })
 					})
-					// console.log(34444444, files);
 					each(files, f => {
 						let arr = f.path.split("/")
 						let last: any = arr[arr.length - 1]
 						let payload = { file: f }
 
-						let lastHtml = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
-						nOpts.push({ value: last, label: lastHtml, payload })
+						// let lastHtml = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
+						let htmlOption = <div className="path-option-wrapper">
+							<div className="file">{f.name}</div>
+							<div className="folder">{f.folder}</div>
+						</div>
+
+						nOpts.push({ value: last, label: htmlOption, payload })
 					})
 
 					// console.log(123333, nSelec, nOpts);
@@ -431,7 +440,6 @@ export const SuggestPopup = (p: {
 			setOptions([{ label: "loading..." }])
 
 			let isRegex = input.includes("*")
-			// console.log(12223333333, isRegex, input);
 
 			let nOpts: any = []
 			setOptions(nOpts)
@@ -444,9 +452,26 @@ export const SuggestPopup = (p: {
 						each(fileRes.results, occur => {
 
 							let regexLabel = isRegex ? `(${input})` : ``
-							let label = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
+							let location = `${fileRes.file.path} ${regexLabel}`
+							// let location = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
+							// let label = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
+							occur = occur.replaceAll(input, `<b>${input}</b>`)
+
+							let htmlOption = <div className="path-option-wrapper">
+								<div className="search-location">{location}</div>
+								<div className="occur-wrapper"
+									dangerouslySetInnerHTML={{ __html: occur }} >
+								</div>
+							</div>
+
 							nOpts.push({
-								label, value: fileRes.file, payload: {
+								// label: <>{input}{location}<div>{input}</div></>,
+								label: <>{input}{location}{occur}<div>{input}</div></>,
+								// label: occur,
+								// label: <>occur</>,
+								// label: htmlOption,
+								value: fileRes.file,
+								payload: {
 									file: fileRes.file,
 									line: occur
 								}
@@ -668,11 +693,9 @@ export const SuggestPopup = (p: {
 				const style = getComputedStyle(o);
 				let bg = style["background-color"]
 				if (bg !== "rgba(0, 0, 0, 0)" && options[id] && options[id].payload) {
-					console.log(11111, bg, id);
 					let payload = options[id].payload
 					let file = payload.file as iFile
 					let line = payload.line || undefined
-					// console.log("113 - good change", id, payload.line);
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -794,42 +817,55 @@ export const suggestPopupCss = () => `
 						/* flex: 1; */
 						/* } */
 						/* 						} */
-.preview-wrapper {
-	max-height: 45vh;
-		overflow-y: scroll;
-		background: white;
-		border-radius: 5px;
+						.preview-wrapper {
+								max-height: 45vh;
+								overflow-y: scroll;
+								background: white;
+								border-radius: 5px;
+						}
+
+						.barimage {
+								height: 60px; 
+								width: 100px;
+
+						}
+
+
+						// .flex-option{
+								// flex-direction: column;
+								// 	flex-wrap: wrap;
+								// display: flex;
+								// }
+
+						div[class$='-MenuList'] {
+								// flex-direction: column;
+								flex-wrap: wrap;
+								display: flex;
+						}
+
+						.flex-option {
+								justify-content: space-between;
+								display: flex;
+
+						}
+						div[class$='-option'] {
+								width: 20%;
+								display: inline-block;
+						}
+
+						.path-option-wrapper {
+word-break: break-word;
+								.search-location {
+color: #b3b1b1;
 }
+								.folder {
+										color: grey;
+								}
+								.file {
+										font-weight: bold;
 
-.barimage {
-height: 60px; 
-width: 100px;
-
-}
-
-
-// .flex-option{
-// flex-direction: column;
-// 	flex-wrap: wrap;
-// display: flex;
-// }
-
-div[class$='-MenuList'] {
-	// flex-direction: column;
-	flex-wrap: wrap;
-	display: flex;
-}
-
-.flex-option {
-justify-content: space-between;
-display: flex;
-
-}
-div[class$='-option'] {
-width: 200px;
-display: inline-block;
-}
-
+								}
+						}
 
 						`
 

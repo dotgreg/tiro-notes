@@ -59,7 +59,9 @@ const initSSRLogic = () => {
 
 export const imagePreviewCss = () => `
 .cm-mdpreview-wrapper.image-wrapper {
-cursor:pointer;
+		.cm-mdpreview-image {
+			cursor:pointer;
+		}
 		.mdpreview-source {
 				line-height: initial;
 		}
