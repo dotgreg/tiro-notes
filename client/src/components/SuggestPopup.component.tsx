@@ -450,7 +450,7 @@ export const SuggestPopup = (p: {
 						each(fileRes.results, occur => {
 
 							let regexLabel = isRegex ? `(${input})` : ``
-							let location = `${fileRes.file.path} ${regexLabel} ${wordSearched.current}`
+							let location = `${fileRes.file.path} ${regexLabel}`
 							// let location = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
 							// let label = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
 							let index = occur.indexOf(input)
@@ -470,20 +470,7 @@ export const SuggestPopup = (p: {
 							</div>
 
 							nOpts.push({
-								// label: <>{input}{location}<div>{input}</div></>,
-								// label: <>{input}{location}{occur}<div>{input}</div></>,
-								// label: <div className="test-option">{occur}{wordSearched.current}</div>,
-								// label: <div className="test-option">{occur}{wordSearched.current}</div>,
-								// label: <>{wordSearched.current}</>,
-								// label: wordSearched.current,
-								// label: <>{occur}</>,
 								label: htmlOption,
-								// value: htmlOption,
-								// label: occur,
-								// label: htmlOption,
-								// value: fileRes.file,
-								// value: fileRes.file,
-								// value: wordSearched.current,
 								value: wordSearched.current! + fileRes.file + occur,
 								payload: {
 									file: fileRes.file,
@@ -867,10 +854,12 @@ export const suggestPopupCss = () => `
 						}
 
 						.path-option-wrapper {
-word-break: break-word;
+
+								word-break: break-word;
 								.search-location {
-color: #b3b1b1;
-}
+										color: #b3b1b1;
+										font-size: 9px;
+								}
 								.folder {
 										color: grey;
 								}
