@@ -12,7 +12,8 @@ const v = {
 	// titleHtml: /(\<title\/\>)[^<](/,
 }
 const vStr = {
-	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{1}"
+	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{1}",
+	tableLine: "([a-zÀ-úA-Z0-9@:%,\-*._\+~#= ]+\|)"
 }
 
 
@@ -20,17 +21,18 @@ const vStr = {
 
 export const regexs = {
 	strings: vStr,
-	// .anythingBut(`[${sharedConfig.metas.headerEnd}]`)
-	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().then(new RegExp(/([\s\S])*/)).endCapture().then(sharedConfig.metas.headerEnd),
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
-	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().anything().endCapture().then(sharedConfig.metas.headerEnd),
-	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().anything().not(sharedConfig.metas.headerEnd).endCapture().then(sharedConfig.metas.headerEnd),
-	// metas : VerEx().find(sharedConfig.metas.headerStart).beginCapture().not(sharedConfig.metas.headerEnd).endCapture().then(sharedConfig.metas.headerEnd),
-
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
 	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[a-zÀ-úA-Z0-9()\!@:%_\-\+.,~#?&=]*\/)?([-a-zA-ZÀ-ú0-9()\!@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
 	externalLink3Int: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[a-zÀ-úA-Z0-9()\!@:%_\-\+.,~#?&=]*\/)?([-a-zA-ZÀ-ú0-9()\!@:%_\-\+.,~#?&\/=]*)\//gmi,
+	// mdTableLine: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#= ]+\|)/gmi,
+	// mdTableLine: /(([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+)/gmi,
+	mdTableLine: /(([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+))/gmi,
+	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ])+\|/gmi,
+	// mdTableCell: /(([^|])+\|/gmi,
+	mdTableCell: /((([^|\n])+\|)|(([^|\n])+))/gmi,
+	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,
 	baliseHtml: VerEx().find('<').anythingBut('<>').then('>'),
