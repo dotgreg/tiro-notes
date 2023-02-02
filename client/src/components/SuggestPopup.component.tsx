@@ -130,6 +130,7 @@ export const SuggestPopup = (p: {
 		// SELECTING LAST NOTE
 		//
 		let s = nOptions[0]
+		console.log(111122222233333, s);
 
 		if (s && s.payload && s.payload.file) {
 			let file = s.payload.file
@@ -179,13 +180,10 @@ export const SuggestPopup = (p: {
 
 	const histPath = useRef("")
 	const updateFromChange = () => {
-		console.log(222222222222);
 		// at first, according to first char, switch mode
-		// console.log("================================");
-		// console.log(3333, selectedOption.length, selectedOptionRef.current.length, inputTxt);
 		let stags = selectedOptionRef.current
 		let inTxt = inputTxt.trim()
-		// console.log(222222233333, inTxt);
+		// console.log(inTxt, inputTxt);
 
 		if (stags.length === 0) {
 			if (inTxt === "/") {
@@ -237,7 +235,7 @@ export const SuggestPopup = (p: {
 			} else if (stags.length === 3 || stags.length === 4) {
 				console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
 				let last = stags.length - 1
-				let file = stags[last].value as iFile
+				let file = stags[last].payload.file as iFile
 				jumpToPath(file.path)
 			}
 		}
@@ -452,10 +450,17 @@ export const SuggestPopup = (p: {
 						each(fileRes.results, occur => {
 
 							let regexLabel = isRegex ? `(${input})` : ``
-							let location = `${fileRes.file.path} ${regexLabel}`
+							let location = `${fileRes.file.path} ${regexLabel} ${wordSearched.current}`
 							// let location = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
 							// let label = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
-							occur = occur.replaceAll(input, `<b>${input}</b>`)
+							let index = occur.indexOf(input)
+							let l = 100
+							let o = occur
+							o = o.replaceAll(input, `<b>${input}</b>`)
+							let start = (index > l / 2) ? index - l / 2 : 0
+							let end = index + l / 2 < o.length ? index + l / 2 : o.length
+							if (o.length > l) o = o.substring(start, end)
+							occur = o
 
 							let htmlOption = <div className="path-option-wrapper">
 								<div className="search-location">{location}</div>
@@ -466,11 +471,20 @@ export const SuggestPopup = (p: {
 
 							nOpts.push({
 								// label: <>{input}{location}<div>{input}</div></>,
-								label: <>{input}{location}{occur}<div>{input}</div></>,
+								// label: <>{input}{location}{occur}<div>{input}</div></>,
+								// label: <div className="test-option">{occur}{wordSearched.current}</div>,
+								// label: <div className="test-option">{occur}{wordSearched.current}</div>,
+								// label: <>{wordSearched.current}</>,
+								// label: wordSearched.current,
+								// label: <>{occur}</>,
+								label: htmlOption,
+								// value: htmlOption,
 								// label: occur,
-								// label: <>occur</>,
 								// label: htmlOption,
-								value: fileRes.file,
+								// value: fileRes.file,
+								// value: fileRes.file,
+								// value: wordSearched.current,
+								value: wordSearched.current! + fileRes.file + occur,
 								payload: {
 									file: fileRes.file,
 									line: occur
@@ -650,7 +664,6 @@ export const SuggestPopup = (p: {
 		// console.log(222222, stags, file);
 		if (stags[0] && stags[0].label === modeLabels.explorer) {
 			setNotePreview(file)
-			// console.log(222222, file);
 
 		} else if (stags[0] && stags[0].label === modeLabels.search) {
 			// SEARCH
