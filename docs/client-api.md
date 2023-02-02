@@ -118,6 +118,28 @@
  
 
 
+ ## Api.call : analytics
+ 
+
+#### <span class="render-code-wrapper">analytics.log</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. logId: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"analytics.log",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">analytics.report</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. opt: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;end: <span class="render-code-wrapper"><a href="#client-api?id=iadate">iADate</a></span>, <br/>&nbsp;&nbsp;&nbsp;start: <span class="render-code-wrapper"><a href="#client-api?id=iadate">iADate</a></span><br/>}</span>
+    - Result: <span class="render-code-wrapper">(o: <span class="render-code-wrapper"><a href="#client-api?id=ianalyticsobj">iAnalyticsObj</a></span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"analytics.report",<br/>&nbsp;&nbsp;&nbsp; [, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;end: <span class="render-code-wrapper"><a href="#client-api?id=iadate">iADate</a></span>, <br/>&nbsp;&nbsp;&nbsp;start: <span class="render-code-wrapper"><a href="#client-api?id=iadate">iADate</a></span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(o: <span class="render-code-wrapper"><a href="#client-api?id=ianalyticsobj">iAnalyticsObj</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : cache
  
 
@@ -681,6 +703,12 @@ Watch for file changes
 
 
  ## Api.call : _References
+ 
+
+#### <span class="render-code-wrapper">iAnalyticsObj</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iFileNature</span>

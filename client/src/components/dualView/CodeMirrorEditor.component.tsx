@@ -22,7 +22,7 @@ import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm"
 import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
 import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
-import { evenTable, markdownStylingCss, markdownStylingTable, markdownStylingTableCell } from "../../managers/codeMirror/markdownStyling.cm";
+import { evenTable, markdownStylingCss, markdownStylingTable, markdownStylingTableCell, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -190,6 +190,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
 	if (ua.get("ui_editor_markdown_preview")) {
+		codemirrorExtensions.push(markdownStylingTableLimiter)
 		codemirrorExtensions.push(markdownStylingTableCell)
 		codemirrorExtensions.push(markdownStylingTable())
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
