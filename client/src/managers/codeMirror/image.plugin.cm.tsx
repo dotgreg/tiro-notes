@@ -29,7 +29,7 @@ export const imagePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
 			<Icon name="faExpand" color={`white`} />
 		)
 
-		resEl.innerHTML = `<div class="cm-mdpreview-image"><div class="enlarge" data-src=${url}> ${btnEnlarge}</div><img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>${sourceHtml}`
+		resEl.innerHTML = `<div class="cm-mdpreview-image" data-src=${url}> <img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div>${sourceHtml}`
 
 		initSSRLogic()
 		return resEl;
@@ -43,7 +43,7 @@ export const imagePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
 //
 const initSSRLogic = () => {
 	setTimeout(() => {
-		ssrOnClick(`.cm-mdpreview-image .enlarge`, el => {
+		ssrOnClick(`.cm-mdpreview-image`, el => {
 			if (!el) return
 			// @ts-ignore
 			let url = el.parentNode.querySelector("img")?.src as string
@@ -54,11 +54,12 @@ const initSSRLogic = () => {
 				api.ui.lightbox.open(0, [url])
 			})
 		})
-	}, 1000)
+	}, 10)
 }
 
 export const imagePreviewCss = () => `
 .cm-mdpreview-wrapper.image-wrapper {
+cursor:pointer;
 		.mdpreview-source {
 				line-height: initial;
 		}

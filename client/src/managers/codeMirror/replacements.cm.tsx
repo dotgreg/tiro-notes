@@ -7,12 +7,13 @@ import {
 	Decoration,
 	DecorationSet
 } from "@codemirror/view";
-import { StateField, StateEffect } from "@codemirror/state"
 
 ////////////////////// 
 // REPLACEMENT SYSTEM ABSTRACTION
 //
 export type iReplacementFn = (matchs: string[]) => HTMLElement
+export type iClassWrapperFn = (matchs: string[]) => string
+
 class ReplacementWidget extends WidgetType {
 	constructor(readonly match: any, readonly replacement: iReplacementFn) { super(); }
 	toDOM() { return this.replacement(this.match) }
@@ -23,15 +24,17 @@ const matcher = (pattern: RegExp, replacement: iReplacementFn) => new MatchDecor
 	regexp: pattern,
 	decoration: match => Decoration.widget({ widget: new ReplacementWidget(match, replacement), })
 })
-const matcherClass = (pattern: RegExp, className: string) => new MatchDecorator({
+const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDecorator({
 	regexp: pattern,
-	decoration: match => Decoration.mark({ class: className })
+	decoration: matchs => {
+		return Decoration.mark({ class: classFn(matchs) })
+	}
 })
 
 export const genericReplacementPlugin = (p: {
 	pattern: RegExp,
 	replacement?: iReplacementFn
-	classWrap?: string
+	classWrap?: iClassWrapperFn
 	options?: {
 		isAtomic?: boolean
 	}
@@ -40,12 +43,12 @@ export const genericReplacementPlugin = (p: {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
 			if (p.replacement) this.decorations = matcher(p.pattern, p.replacement).createDeco(view)
-			else this.decorations = matcherClass(p.pattern, p.classWrap as string).createDeco(view)
+			else this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
 		}
 		update(update: ViewUpdate) {
 			try {
 				if (p.replacement) this.decorations = matcher(p.pattern, p.replacement).updateDeco(update, this.decorations)
-				else this.decorations = matcherClass(p.pattern, p.classWrap as string).updateDeco(update, this.decorations)
+				else this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).updateDeco(update, this.decorations)
 			} catch (e) {
 				console.warn("[ERROR VIEWPLUGIN CM]", e, update);
 			}

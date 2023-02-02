@@ -45,7 +45,16 @@ export const getCustomTheme = () => createTheme({
 		{ tag: t.heading4, class: "actionable-title h4" },
 		{ tag: t.heading5, class: "actionable-title h5" },
 		{ tag: t.heading6, class: "actionable-title h6" },
-		{ tag: t.content, fontSize: "10px", class:"woop" }
+		// { tag: t.separator, class: "separator" },
+		// { tag: t.operator, class: "separator" },
+		// { tag: t.punctuation, class: "separator" },
+		// { tag: t.paren, class: "separator" },
+		// { tag: t.brace, class: "separator" },
+		// { tag: t.contentSeparator, class: "separator" },
+		// { tag: t.annotation, class: "separator" },
+		// { tag: t.special, class: "separator" },
+
+		{ tag: t.content, fontSize: "10px" }
 	]
 });
 
