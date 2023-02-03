@@ -456,22 +456,23 @@ export const SuggestPopup = (p: {
 							let index = occur.indexOf(input)
 							let l = 100
 							let o = occur
-							o = o.replaceAll(input, `<b>${input}</b>`)
 							let start = (index > l / 2) ? index - l / 2 : 0
 							let end = index + l / 2 < o.length ? index + l / 2 : o.length
 							if (o.length > l) o = o.substring(start, end)
 							occur = o
+							let occurLabel = o.replaceAll(input, `<b>${input}</b>`)
+
 
 							let htmlOption = <div className="path-option-wrapper">
 								<div className="search-location">{location}</div>
 								<div className="occur-wrapper"
-									dangerouslySetInnerHTML={{ __html: occur }} >
+									dangerouslySetInnerHTML={{ __html: occurLabel }} >
 								</div>
 							</div>
 
 							nOpts.push({
 								label: htmlOption,
-								value: wordSearched.current! + fileRes.file + occur,
+								value: wordSearched.current! + fileRes.file + occur + location,
 								payload: {
 									file: fileRes.file,
 									line: occur

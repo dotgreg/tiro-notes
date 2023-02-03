@@ -15,26 +15,32 @@ export const NotePreview = (p: {
 	let loadContent = useDebounce(() => {
 		getApi(api => {
 			api.file.getContent(p.file.path, ncontent => {
-				let ncontent2 = api.note.render({
-					raw: ncontent,
-					file: p.file,
-					windowId: ''
-				})
 
 				if (p.searchedString) {
-					let string2Search = cleanSearchString(p.searchedString)
+					// let string2Search = cleanSearchString(p.searchedString)
+					let string2Search = p.searchedString
 
-					console.log({ string2Search, s1: p.searchedString });
-
-					ncontent2 = ncontent2.replaceAll(
+					console.log(22222222, { string2Search, s1: p.searchedString, content: ncontent });
+					const htmlEntities = (str) => {
+						return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+					}
+					// string2Search = htmlEntities(string2Search)
+					ncontent = ncontent.replaceAll(
 						string2Search,
 						`<span class='found-word'>${p.searchedString}</span>`)
+
+					ncontent = api.note.render({
+						raw: ncontent,
+						file: p.file,
+						windowId: ''
+					})
+
 					setTimeout(() => {
 						document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
 					}, 100)
 				}
 
-				let html = `<div class='file-content render-latex'>${ncontent2} </div>`;
+				let html = `<div class='file-content render-latex'>${ncontent} </div>`;
 				setContent(html)
 			})
 		})
