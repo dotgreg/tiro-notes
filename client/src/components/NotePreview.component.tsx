@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { cleanSearchString } from '../managers/textProcessor.manager';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 
 export const NotePreview = (p: {
@@ -15,20 +14,18 @@ export const NotePreview = (p: {
 	let loadContent = useDebounce(() => {
 		getApi(api => {
 			api.file.getContent(p.file.path, ncontent => {
-
 				if (p.searchedString) {
-					// let string2Search = cleanSearchString(p.searchedString)
 					let string2Search = p.searchedString
-
-					console.log(22222222, { string2Search, s1: p.searchedString, content: ncontent });
-					const htmlEntities = (str) => {
-						return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-					}
+					// console.log(22222222, { string2Search, s1: p.searchedString, content: ncontent });
+					// const htmlEntities = (str) => {
+					// 	return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+					// }
 					// string2Search = htmlEntities(string2Search)
 					ncontent = ncontent.replaceAll(
 						string2Search,
 						`<span class='found-word'>${p.searchedString}</span>`)
 
+				}
 					ncontent = api.note.render({
 						raw: ncontent,
 						file: p.file,
@@ -38,7 +35,6 @@ export const NotePreview = (p: {
 					setTimeout(() => {
 						document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
 					}, 100)
-				}
 
 				let html = `<div class='file-content render-latex'>${ncontent} </div>`;
 				setContent(html)
