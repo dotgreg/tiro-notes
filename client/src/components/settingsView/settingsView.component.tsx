@@ -145,7 +145,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Links button",
-						expl: "Replace http links into buttons in the editor",
+						expl: "Replace http links into buttons in the editor by adding a '/' at the end of it.",
 						var: us.get('ui_editor_links_as_button'),
 						modifier: val => {
 							setDisplayReload(true);

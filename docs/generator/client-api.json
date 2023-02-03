@@ -22099,6 +22099,10 @@
 							},
 							{
 								"type": "literal",
+								"value": "ui_editor_markdown_table_preview"
+							},
+							{
+								"type": "literal",
 								"value": "users_viewer_user_enable"
 							},
 							{
@@ -22125,7 +22129,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-							"line": 29,
+							"line": 30,
 							"character": 12
 						}
 					],
@@ -22147,7 +22151,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 33,
+											"line": 34,
 											"character": 1
 										}
 									],
@@ -22169,7 +22173,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-															"line": 34,
+															"line": 35,
 															"character": 2
 														}
 													],
@@ -22191,7 +22195,7 @@
 																	"sources": [
 																		{
 																			"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-																			"line": 34,
+																			"line": 35,
 																			"character": 9
 																		}
 																	],
@@ -22213,7 +22217,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-																	"line": 34,
+																	"line": 35,
 																	"character": 7
 																}
 															]
@@ -22233,7 +22237,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-													"line": 33,
+													"line": 34,
 													"character": 10
 												}
 											]
@@ -22249,7 +22253,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 30,
+											"line": 31,
 											"character": 1
 										}
 									],
@@ -22290,7 +22294,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 32,
+											"line": 33,
 											"character": 1
 										}
 									],
@@ -22321,7 +22325,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 31,
+											"line": 32,
 											"character": 1
 										}
 									],
@@ -22384,7 +22388,7 @@
 																	"sources": [
 																		{
 																			"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-																			"line": 31,
+																			"line": 32,
 																			"character": 53
 																		}
 																	],
@@ -22423,7 +22427,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 36,
+											"line": 37,
 											"character": 1
 										}
 									],
@@ -22488,7 +22492,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-									"line": 29,
+									"line": 30,
 									"character": 31
 								}
 							]
@@ -22947,7 +22951,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-							"line": 27,
+							"line": 28,
 							"character": 5
 						}
 					],
@@ -22969,7 +22973,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 27,
+											"line": 28,
 											"character": 16
 										}
 									],
@@ -22988,7 +22992,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-											"line": 27,
+											"line": 28,
 											"character": 39
 										}
 									],
@@ -23011,7 +23015,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/useUserSettings.hook.tsx",
-									"line": 27,
+									"line": 28,
 									"character": 14
 								}
 							]

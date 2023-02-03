@@ -25,7 +25,7 @@ export const Lightbox = (p: {
 
 	return (
 		<div className={`lightbox-component`}>
-			<div className={`lightbox-bg`}>
+			<div className={`lightbox-bg`} onClick={() => { p.onClose() }}>
 			</div>
 			<div className={`lightbox-content`}>
 				{
