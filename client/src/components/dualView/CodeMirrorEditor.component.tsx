@@ -22,7 +22,7 @@ import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm"
 import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
 import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
-import { evenTable, markdownStylingCss, markdownStylingTable, markdownStylingTableCell, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
+import { evenTable, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -189,10 +189,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
 		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
-	if (ua.get("ui_editor_markdown_preview")) {
+	if (ua.get("ui_editor_markdown_table_preview")) {
 		codemirrorExtensions.push(markdownStylingTableLimiter)
 		codemirrorExtensions.push(markdownStylingTableCell)
 		codemirrorExtensions.push(markdownStylingTable())
+	}
+	if (ua.get("ui_editor_markdown_preview")) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
 		markdownExtensionCnf.extensions.push(LatexMdEl)
 		codemirrorExtensions.push(imagePreviewPlugin(p.file))
@@ -200,9 +202,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	codemirrorExtensions.push(markdown(markdownExtensionCnf))
 
+	let classes = ``
+	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
 	return (
-		<div className="codemirror-editor-wrapper">
+		<div className={`codemirror-editor-wrapper ${classes}`}>
 			<CodeMirror
 				value=""
 				ref={forwardedRef as any}
@@ -220,7 +224,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				}}
 				extensions={codemirrorExtensions}
 			/>
-		</div>
+		</div >
 	);
 })
 
@@ -321,7 +325,7 @@ export const codeMirrorEditorCss = () => `
 		padding: 0px;
 }
 .cm-editor {
-		word-break: break-all;
+		word-break: break-word;
 }
 .cm-search {
 	padding: 6px 10px 11px;
@@ -397,5 +401,5 @@ ${ressourcePreviewSimpleCss()}
 ${noteLinkCss()}
 
 
-${markdownStylingCss()}
+${markdownStylingTableCss()}
 `

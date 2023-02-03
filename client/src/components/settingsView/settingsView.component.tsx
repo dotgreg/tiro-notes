@@ -152,6 +152,16 @@ export const SettingsPopup = (p: {
 							us.set('ui_editor_links_as_button', val)
 						}
 					},
+					{
+						type: 'checkbox',
+						title: "Improved Markdown Table",
+						expl: "Improves the display of markdown table ",
+						var: us.get('ui_editor_markdown_table_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_table_preview', val)
+						}
+					},
 				]
 			},
 			{
