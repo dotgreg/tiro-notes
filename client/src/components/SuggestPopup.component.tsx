@@ -100,8 +100,8 @@ export const SuggestPopup = (p: {
 		// 	return { ...base, display: "none" }
 		// },
 		menu: (base, state) => {
-			// let pe = deviceType() === "mobile" ? "all" : "none"
-			let pe = "all"
+			let pe = deviceType() === "mobile" ? "all" : "none"
+			// let pe = "all"
 			return { ...base, position: "relative", pointerEvents: pe }
 		},
 		control: (base, state) => {
@@ -160,11 +160,20 @@ export const SuggestPopup = (p: {
 	// MODE SWITCHING
 	//
 	const [inputTxt, setInputTxt] = useState("");
-	const onInputChange: any = (txt: string) => {
+	const onInputChange: any = (txt: string, p) => {
 		// setInputTxt(txt.trim())
-		setInputTxt(txt)
+		console.log("woooooooooppp", txt, p, p.action);
+		// if (txt !== "") setInputTxt(txt)
+		if (p.action === "input-blur" || p.action === "menu-close") {
+			console.log(11111);
+		} else {
+			setInputTxt(txt)
+		}
 	}
 
+	const onFocus = (txt) => {
+		// console.log("Onfffffffffffffffffo", txt);
+	}
 
 
 
@@ -451,8 +460,6 @@ export const SuggestPopup = (p: {
 
 							let regexLabel = isRegex ? `(${input})` : ``
 							let location = `${fileRes.file.path} ${regexLabel}`
-							// let location = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
-							// let label = `[${fileRes.file.path}] ${regexLabel} : ${occur}`
 							let index = occur.indexOf(input)
 							let l = 100
 							let o = occur
@@ -739,7 +746,6 @@ export const SuggestPopup = (p: {
 					}}
 				>
 					<div className="help">
-						{deviceType()}
 						{help}
 					</div>
 					<Select
@@ -758,6 +764,7 @@ export const SuggestPopup = (p: {
 
 						inputValue={inputTxt}
 						onInputChange={onInputChange}
+						onFocus={onFocus}
 
 						options={options}
 						// isClearable={false}
