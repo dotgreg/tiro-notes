@@ -372,7 +372,7 @@ export const filesListCss = () => `
 										font-size: 9px;
 										overflow: hidden;
 										line-break: anywhere;
-										word-break: break-all;
+										word-break: break-word;
 										${isA('desktop') ? '' : 'max-height: 25px;'}
 								}
 

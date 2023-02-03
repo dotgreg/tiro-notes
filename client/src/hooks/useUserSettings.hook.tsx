@@ -16,6 +16,7 @@ type iUserSettingName =
 
 	'ui_editor_links_as_button' |
 	'ui_editor_markdown_preview' |
+	'ui_editor_markdown_table_preview' |
 
 	'users_viewer_user_enable' |
 	'users_viewer_user_password' |
@@ -42,6 +43,7 @@ const defaultVals: iUserSettings = {
 	ui_layout_colors_main: "#E86666",
 	ui_editor_markdown_preview: true,
 	ui_editor_links_as_button: true,
+	ui_editor_markdown_table_preview: true,
 }
 
 const h = `[USER SETTINGS] :`

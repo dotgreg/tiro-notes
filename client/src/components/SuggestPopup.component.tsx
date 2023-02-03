@@ -738,6 +738,7 @@ export const SuggestPopup = (p: {
 					}}
 				>
 					<div className="help">
+						{deviceType()}
 						{help}
 					</div>
 					<Select
@@ -776,6 +777,7 @@ export const SuggestPopup = (p: {
 		</div >
 	)
 }
+
 
 export const suggestPopupCss = () => `
 						&.device-view-mobile {
@@ -831,26 +833,14 @@ export const suggestPopupCss = () => `
 						}
 
 
-						// .flex-option{
-								// flex-direction: column;
-								// 	flex-wrap: wrap;
-								// display: flex;
-								// }
-
-						div[class$='-MenuList'] {
-								// flex-direction: column;
+						div[class$='-menu']>div {
+								display: flex;
 								flex-wrap: wrap;
-								display: flex;
+								justify-content: flex-start;
 						}
 
-						.flex-option {
-								justify-content: space-between;
-								display: flex;
-
-						}
 						div[class$='-option'] {
-								width: 20%;
-								display: inline-block;
+								width: ${deviceType() === "mobile" ? "100" : "20"}%;
 						}
 
 						.path-option-wrapper {

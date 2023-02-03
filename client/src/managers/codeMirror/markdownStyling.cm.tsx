@@ -1,53 +1,55 @@
 import { debounce, floor } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper"
-									import { genericReplacementPlugin } from "./replacements.cm"
+import { genericReplacementPlugin } from "./replacements.cm"
 
-																											export const evenTable = { val: false }
+export const evenTable = { val: false }
 let even = evenTable
 
 
 export const markdownStylingTableLimiter = genericReplacementPlugin({
-				pattern: /\|/gmi,
-				classWrap: matchs => {
-						return `md-table-limiter`
-				}
-		})
+	pattern: /\|/gmi,
+	classWrap: matchs => {
+		return `md-table-limiter`
+	}
+})
 
 export const markdownStylingTableCell = genericReplacementPlugin({
-				pattern: regexs.mdTableCell,
-				classWrap: matchs => {
-						// console.log(11111111112);
-						let m = matchs[0]
-						if (m && m === "-") { return "" }
-						if (m && m === "-|") { return "" }
-						// if (m && m.includes("|")) return ""
-						return `md-table-cell`
-				}
-		})
+	pattern: regexs.mdTableCell,
+	classWrap: matchs => {
+		let m = matchs[0]
+		if (m && m === "-") { return "" }
+		if (m && m === "-|") { return "" }
+		return `md-table-cell`
+	}
+})
 
-let resetEven = debounce(() => { even.val = false }, 1)
 
 export const markdownStylingTable = () => genericReplacementPlugin({
-				pattern: regexs.mdTableLine,
-				classWrap: matchs => {
-						let nbCells = matchs[0].split("|").length
-						even.val = !even.val
-						// resetEven()
-						return `md-table-line md-table-${nbCells} ${even.val ? "even" : ""}`
-				}
-		})
+	pattern: regexs.mdTableLine,
+	classWrap: matchs => {
+		let line = matchs[0].trim()
+		if (line.startsWith("|")) line = line.substring(1)
+		if (line.endsWith("|")) line = line.substring(0, line.length - 1)
 
-export const markdownStylingCss = () => {
-		let cssLines = ``
-		for (var i = 0; i < 30; i++) {
-				let w = Math.floor(100 / i) - 2
-				cssLines += `
+		let nbCells = line.split("|").length
+		even.val = !even.val
+		// resetEven()
+		return `md-table-line md-table-${nbCells} ${even.val ? "even" : ""}`
+	}
+})
+
+export const markdownStylingTableCss = () => {
+	let cssLines = ``
+	for (var i = 0; i < 30; i++) {
+		let w = Math.floor(100 / i)
+		cssLines += `
 				&.md-table-${i} span.md-table-cell{
-						width: calc(${w}% - 13px);
+						width: calc(${w}% - 15px);
 				}`
-		}
+	}
 
-		return `
+	return `
+.md-table-preview-enabled {
 		.md-table-line {
 				&.even {
 						background: #e3e3e3;
@@ -69,6 +71,7 @@ export const markdownStylingCss = () => {
 						top: 0px;
 						right:0px;
 						color: #c8c3c3;
+						display: inline-block;
 				}
 				span.md-table-cell>span:first-child {
 						width: 100%;
@@ -77,14 +80,17 @@ export const markdownStylingCss = () => {
     }
 		.cm-activeLine {
 				.md-table-line {
-						/* background: #cecece; */
 						background: #d9d9d9;
 						span.md-table-cell span.md-table-limiter {
 								color: black;
 						}
 				}
 		}
+		.cm-line .md-table-limiter {
+				display: inline;
+		}
 
+}
 		`
 }
 
