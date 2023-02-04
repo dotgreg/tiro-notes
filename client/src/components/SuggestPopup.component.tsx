@@ -124,13 +124,11 @@ export const SuggestPopup = (p: {
 
 
 	const onChange = (nOptions: any, actionObj: any) => {
-		// console.log(33333333333);
 
 		//
 		// SELECTING LAST NOTE
 		//
 		let s = nOptions[0]
-		console.log(111122222233333, s);
 
 		if (s && s.payload && s.payload.file) {
 			let file = s.payload.file
@@ -162,18 +160,16 @@ export const SuggestPopup = (p: {
 	const [inputTxt, setInputTxt] = useState("");
 	const onInputChange: any = (txt: string, p) => {
 		// setInputTxt(txt.trim())
-		console.log("woooooooooppp", txt, p, p.action);
 		// if (txt !== "") setInputTxt(txt)
 		if (p.action === "input-blur" || p.action === "menu-close") {
-			console.log(11111);
 		} else {
 			setInputTxt(txt)
 		}
 	}
 
 	const onFocus = (txt) => {
-		// console.log("Onfffffffffffffffffo", txt);
 	}
+	// console.log("Onfffffffffffffffffo", txt);
 
 
 
@@ -240,6 +236,7 @@ export const SuggestPopup = (p: {
 			} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
 				// STEP 3-1 (optional) :  filter found results
 				console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
+
 
 			} else if (stags.length === 3 || stags.length === 4) {
 				console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
@@ -487,6 +484,7 @@ export const SuggestPopup = (p: {
 							})
 						})
 					})
+					if (nOpts.length === 0) setNotePreview(null)
 					nOpts.unshift({ label: `🔎 Filter the ${nOpts.length} results for "${wordSearched.current}"`, value: wordSearched.current })
 					setHelp(`${nOpts.length - 1} results found for "${input}" in "${path}" `)
 					setOptions(nOpts)
@@ -496,6 +494,7 @@ export const SuggestPopup = (p: {
 		} else {
 			setHelp(`Type the word searched`)
 			setOptions([])
+			setNotePreview(null)
 			wordSearched.current = ""
 		}
 	}, 500)
@@ -556,9 +555,6 @@ export const SuggestPopup = (p: {
 		])
 
 	}
-
-	// const [, updateState] = useState<any>();
-	// const forceUpdate = useCallback(() => updateState({}), []);
 
 	const triggerPluginLogic = (input: string, stags: any[]) => {
 		setNotePreview(null)
@@ -769,7 +765,10 @@ export const SuggestPopup = (p: {
 						options={options}
 						// isClearable={false}
 						styles={styles}
-						noOptionsMessage={() => noOptionLabel}
+						noOptionsMessage={() => {
+												 setNotePreview(null)
+							return noOptionLabel
+						}}
 					/>
 					<div className="preview-wrapper">
 						{notePreview && deviceType() !== "mobile" &&
