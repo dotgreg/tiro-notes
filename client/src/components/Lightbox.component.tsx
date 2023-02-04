@@ -21,13 +21,51 @@ export const Lightbox = (p: {
 		else if (direction === 1 && currIndex === p.images.length - 1) nIndex = 0
 		else nIndex = currIndex + direction
 		setCurrIndex(nIndex)
+		setZoomLevel(10)
 	}
+
+	//
+	// zooming mechanism
+	//
+	const [zoomLevel, setZoomLevel] = useState(10)
+	const zoom = (dir: -1 | 1) => {
+		let nLevel = dir + zoomLevel
+		if (nLevel < 0) nLevel = 0
+		if (nLevel > 20) nLevel = 20
+		setZoomLevel(nLevel)
+	}
+	const imgRef = useRef<any>(null)
+	const getZoomDims = () => {
+		let percent = ((zoomLevel - 10) * 50) + 99
+		if (zoomLevel < 10) percent = (-(10 - zoomLevel) * 10) + 99
+		let val = `${percent}%`
+		let res: any = { height: val }
+		if (imgRef.current) {
+			let w = imgRef.current.naturalWidth
+			let h = imgRef.current.naturalHeight
+			if (w > h) res = { width: val }
+		}
+		return res
+	}
+	const zoomContainerRef = useRef<any>(null)
+	const getLineHeight = () => {
+		let res = `0px`
+		if (zoomContainerRef.current) {
+			let h = zoomContainerRef.current.clientHeight
+			res = `${h}px`
+		}
+		return res
+	}
+	let lineHeight = getLineHeight()
 
 	return (
 		<div className={`lightbox-component`}>
 			<div className={`lightbox-bg`} onClick={() => { p.onClose() }}>
 			</div>
-			<div className={`lightbox-content`}>
+			<div
+				className={`lightbox-content images-nb-${p.images.length}`}
+				ref={zoomContainerRef}
+			>
 				{
 					p.images.map((image, key) =>
 						<div
@@ -35,8 +73,14 @@ export const Lightbox = (p: {
 							className={`lightbox-image`}
 							style={{ display: key === currIndex ? 'flex' : 'none' }}
 						>
-							<img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
-
+							<div
+								className="image-zoom-wrapper"
+								style={{ lineHeight }}>
+								<img
+									ref={imgRef}
+									style={getZoomDims()}
+									src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
+							</div>
 							<div className="image-infos">
 								<div className="image-name" onClick={e => detachNote(image.file)}>
 									{image.file.name} - {image.title}
@@ -49,6 +93,18 @@ export const Lightbox = (p: {
 											title: 'left',
 											icon: 'faChevronLeft',
 											action: () => { incrementIndex(-1) }
+										},
+										{
+											class: 'zoom',
+											title: 'zoom',
+											icon: 'faPlus',
+											action: () => { zoom(1) }
+										},
+										{
+											class: 'dezoom',
+											title: 'dezoom',
+											icon: 'faMinus',
+											action: () => { zoom(-1) }
 										},
 										{
 											class: 'close',
@@ -92,6 +148,12 @@ export const lightboxCss = () => `
     }
 
     .lightbox-content {
+				&.images-nb-1 {
+						.left, .right {
+								display: none!important;
+						}
+				}
+
 				border-radius: 9px;
 				overflow: hidden;
         position: absolute;
@@ -101,6 +163,23 @@ export const lightboxCss = () => `
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%); 
+				.zoom, .dezoom {
+						position: relative;
+						z-index: 100;
+						height: 43px;
+						margin-right: 5px;
+						svg path {
+								box-shadow: 0px 0px 5px #0006;
+						}
+				}
+				svg {
+						background: white;
+						padding: 3px;
+						border-radius: 22px;
+						width: 13px;
+						box-shadow: 0px 0px 5px #00000040;
+
+				}
 
         .lightbox-image {
             position: relative;
@@ -180,13 +259,23 @@ export const lightboxCss = () => `
                     left: 5px;
                 }
             }
-            img {
-                max-width: 95vw;
-								z-index:2;
+						.image-zoom-wrapper {
+								width: 100%;
+								height: 100%;
+								text-align: center;
+								overflow: scroll;
 								position: relative;
-								max-height: 95vh;
-            }
+								z-index: 2;
+								img {
+		vertical-align: middle;
+										/* max-width: 95vw; */
+										z-index:2;
+										/* position: relative; */
+										/* max-height: 95vh; */
+								}
+						}
         }
     }
+
 }
 `
