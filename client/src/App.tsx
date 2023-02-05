@@ -61,13 +61,23 @@ export const App = () => {
 
 		startListeningToKeys();
 
+		getApi(api => {
+			// api.c
+			let cmd = "ls -lsia"
+			console.log(111222, `${cmd} => ?`);
+			api.command.exec(cmd, res => {
+				let r = res.split("\n")
+				console.log(111222, `${cmd} => `, r);
+			})
+		})
 
-		let content = `
-const test = (input, api, cb) => {
-console.log(44444444, input, api, cb);
-cb("result PASSSSSSSSSED")
-}
-`
+
+		// 		let content = `
+		// const test = (input, api, cb) => {
+		// console.log(44444444, input, api, cb);
+		// cb("result PASSSSSSSSSED")
+		// }
+		// `
 		//@ts-ignore
 		// new Function(content)("woopy", window.api, (res) => {
 		// 	console.log(2223, res);
@@ -84,19 +94,19 @@ cb("result PASSSSSSSSSED")
 		// 		})
 
 		// V3 REMOTE CODE EXEC
-// 		let inpt = "woooooopu"
-// 		let url = "https://gist.githubusercontent.com/dotgreg/e56ce9547cd74128b3d15125870bea89/raw/c17a65aa971b9f2eecdc35f1c6e6f6cf56c8c40b/gistfile1.txt"
-// 		let content3 = `
-// api.ressource.fetch("${url}", txt => {
-// 		new Function('input', 'api', 'cb', txt)(input, api, res => {
-// 			cb(res);
-// 		})
-// })
-// `
-// 		//@ts-ignore
-// 		new Function('input', 'api', 'cb', content3)(inpt, window.api, res => {
-// 			console.log("CAME BACK FROM CB 3!!!!", res);
-// 		})
+		// 		let inpt = "woooooopu"
+		// 		let url = "https://gist.githubusercontent.com/dotgreg/e56ce9547cd74128b3d15125870bea89/raw/c17a65aa971b9f2eecdc35f1c6e6f6cf56c8c40b/gistfile1.txt"
+		// 		let content3 = `
+		// api.ressource.fetch("${url}", txt => {
+		// 		new Function('input', 'api', 'cb', txt)(input, api, res => {
+		// 			cb(res);
+		// 		})
+		// })
+		// `
+		// 		//@ts-ignore
+		// 		new Function('input', 'api', 'cb', content3)(inpt, window.api, res => {
+		// 			console.log("CAME BACK FROM CB 3!!!!", res);
+		// 		})
 
 
 		return () => {

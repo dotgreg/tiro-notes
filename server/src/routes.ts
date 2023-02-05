@@ -1,6 +1,5 @@
 import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
-import { exec3 } from "./managers/exec.manager";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
@@ -20,6 +19,7 @@ import { getFolderPath } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
+import { execString } from "./managers/exec.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -259,13 +259,13 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('askForExplorer', async data => {
-		let fullPath = `${data.folderpath}`
-		log(`ASK FOR EXPLORER ${fullPath}`);
-		fullPath = fullPath.split('/').join('\\')
-		exec3(`%windir%\\explorer.exe \"${fullPath}\"`)
-		setTimeout(() => { focusOnWinApp('explorer') }, 500)
-	})
+	// serverSocket2.on('askForExplorer', async data => {
+	// 	let fullPath = `${data.folderpath}`
+	// 	log(`ASK FOR EXPLORER ${fullPath}`);
+	// 	fullPath = fullPath.split('/').join('\\')
+	// 	exec3(`%windir%\\explorer.exe \"${fullPath}\"`)
+	// 	setTimeout(() => { focusOnWinApp('explorer') }, 500)
+	// })
 
 	serverSocket2.on('uploadResourcesInfos', async data => {
 		// should not be used anymore w new upload api
@@ -350,6 +350,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	})
 
+
+	//
+	// COMMAND EXEC
+	// 
+	serverSocket2.on('askCommandExec', async data => {
+		let res = await execString(data.commandString)
+		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
+	}, { checkRole: "editor" })
 
 
 

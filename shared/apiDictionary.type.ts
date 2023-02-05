@@ -74,4 +74,7 @@ export interface iApiDictionary {
 	updateSetupJson: { paramName: string, paramValue: string, idReq: string }
 
 	onNoteWatchUpdate: { filePath: string, fileContent: string }
+
+	askCommandExec: { commandString: string, idReq: string }
+	getCommandExec: { resultCommand: string, idReq: string }
 }
