@@ -45,6 +45,17 @@ export const Lightbox = (p: {
 			let h = imgRef.current.naturalHeight
 			if (w > h) res = { width: val }
 		}
+		if (zoomContainerRef.current) {
+			// zoomContainerRef.current.scrollTo(200, 200);
+			// setTimeout(() => {
+			// 	console.log(222222);
+			// 	zoomContainerRef.current.scrollIntoView({
+			// 		behavior: 'auto',
+			// 		block: 'center',
+			// 		inline: 'center'
+			// 	});
+			// }, 1000)
+		}
 		return res
 	}
 	const zoomContainerRef = useRef<any>(null)

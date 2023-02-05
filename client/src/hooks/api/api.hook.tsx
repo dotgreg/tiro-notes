@@ -22,6 +22,7 @@ import { sharedConfig } from '../../../../shared/shared.config';
 import { iWatchApi, useWatchApi } from './watch.api.hook';
 import { iTtsApi } from '../app/useTtsPopup.hook';
 import { iAnalyticsApi, useAnalyticsApi } from './analytics.api.hook';
+import { iCommandApi, useCommandApi } from './command.api.hook';
 
 
 //
@@ -61,6 +62,7 @@ export interface iClientApi {
 	note: iNoteApi
 	search: iSearchApi
 	analytics: iAnalyticsApi
+	command: iCommandApi
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -167,6 +169,7 @@ export const useClientApi = (p: {
 	const uploadApi = useUploadApi({ eventBus });
 	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
+	const commandApi = useCommandApi({ eventBus });
 	const cacheApi = useCacheApi({});
 
 
@@ -201,6 +204,7 @@ export const useClientApi = (p: {
 		note: noteApi,
 		analytics: analyticsApi,
 		search: searchApi,
+		command: commandApi,
 		watch: watchApi,
 		ui: {
 			browser: browserApi,
