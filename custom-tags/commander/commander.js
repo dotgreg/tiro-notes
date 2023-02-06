@@ -54,7 +54,9 @@ const commanderApp = (innerTagStr, opts) => {
 	// LOGIC
 	//
 	const exec = (cmdString, cb) => {
+		updateStatus("...")
 		api.call("command.exec", [cmdString], res => {
+			updateStatus("")
 			cb(res)
 		});
 	}
@@ -63,21 +65,23 @@ const commanderApp = (innerTagStr, opts) => {
 		let output = document.getElementById("cmd-output")
 		output.innerHTML = html + output.innerHTML
 	}
-	const updateOutput = (html) => {
-		let output = document.getElementById("cmd-output")
-		output.innerHTML = html
-	}
 
 	const execAndOutput = (cmdStr) => {
+		let date = `[${new Date().toLocaleString()}]`
+		let start = `====== ${date} ======= \n`
+		let end = `\n--- [COMMAND]:'${cmdStr}'\n`
 		exec(cmdStr, r => {
-			prependOutput(r + "\n\n")
-			let date = `[${new Date().toLocaleString()}]`
-			let title = `====== ${date} ======= \n--- [COMMAND]:'${cmdStr}'\n--- [RESULT]:\n`
-			prependOutput(title)
+			prependOutput(end)
+			prependOutput(r + "\n")
+			prependOutput(start)
 		})
 	}
 
 
+	const updateStatus = (string) => {
+		let output = document.getElementById("cmd-status")
+		output.innerHTML = string
+	}
 
 	const mainLogic = () => {
 		let scriptsObject = getConfigScripts()
@@ -116,6 +120,7 @@ const commanderApp = (innerTagStr, opts) => {
 	const getHtmlWrapper = () => {
 		let res = `
 				<div id="commander-wrapper"> 
+				<div id="cmd-status"> </div>
 
 				<div id="command-wrapper"> 
 				<textarea id="textarea-command"></textarea>
@@ -123,15 +128,17 @@ const commanderApp = (innerTagStr, opts) => {
 				</div>
 
 				<div id="output-wrapper"> 
-				<pre>
-				<code id="cmd-output" class="language-json">
-				</code>
-				</pre>
+				<pre><code id="cmd-output" class="language-json">
+				</code></pre>
 				</div>
 
 				</div>
 
 				<style>
+				#cmd-status {
+
+
+				}
 				#commander-wrapper {
 						margin-top: 30px;
 						display: flex;
@@ -147,7 +154,7 @@ const commanderApp = (innerTagStr, opts) => {
 						resize: vertical;
 						margin-right: 5px;
 						border: none;
-						min-height: 80px;
+						min-height: 40px;
 						border-radius: 7px;
 						box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
 						margin-bottom: 5px;
@@ -171,6 +178,7 @@ const commanderApp = (innerTagStr, opts) => {
 						border-radius: 7px;
 						margin: 0px;
 						margin-top: 5px;
+						padding-top: 6px;
 						background: #393939!important;
 						color: burlywood;
 						color: lime;
