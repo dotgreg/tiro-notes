@@ -16,7 +16,16 @@ export const execString = async (command: string): Promise<any> => {
 	// const {stdout} = await execa(command[0], args);
 	// return stdout 
 	// const {stdout} = await execa.command(command, { shell: true })
-	const { stdout } = await execa.command(command)
-	log(`[EXEC STRING] ${JSON.stringify(command)} => output : ${stdout}`);
-	return stdout
+	let res = ""
+	try {
+		// const { stdout } = await execa.command(command, { stdio: 'inherit' })
+	const {stdout} = await execa.command(command, { shell: true })
+		// const { stdout } = await execa.command(command)
+		res = stdout
+	}
+	catch (e) {
+		res = e
+	}
+	log(`[EXEC STRING] ${JSON.stringify(command)} => output : ${res}`);
+	return res
 }

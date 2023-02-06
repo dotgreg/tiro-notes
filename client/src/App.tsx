@@ -63,12 +63,36 @@ export const App = () => {
 
 		getApi(api => {
 			// api.c
-			let cmd = "ls -lsia"
-			console.log(111222, `${cmd} => ?`);
-			api.command.exec(cmd, res => {
-				let r = res.split("\n")
-				console.log(111222, `${cmd} => `, r);
-			})
+			// let cmd = "ls -lsia"
+			// ERROR
+			// let cmd = "ssh ubuntu@raw2.websocial.cc -tt \"ls -lsia\""
+			// let cmd = "ssh ubuntu@raw2.websocial.cc -t \'ls -lsia\'"
+			// let cmd = "ssh ubuntu@raw2.websocial.cc -t 'ls -lsia'"
+			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls -lsia"`
+
+			// UNDEFINED result
+			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls"`
+			// let cmd = `ls`
+
+			// OK CT INHERIT QUI FAISAIT FOIRER
+			// let cmd = "ls"
+
+			// Pseudo-terminal will not be allocated because stdin is not a terminal
+			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls -lsia"`
+
+			// WORKING
+			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls"`
+
+			// WORKING w shell: true
+			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls"`
+
+			// FREEAAAAAAAAAKING WOOOOOOOOOOOORKING
+			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls -lsia"`
+
+			// api.command.exec(cmd, res => {
+			// 	console.log(111222, `${cmd} => `, res);
+			// })
+
 		})
 
 
