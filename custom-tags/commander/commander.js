@@ -69,7 +69,7 @@ const commanderApp = (innerTagStr, opts) => {
 	const execAndOutput = (cmdStr) => {
 		let date = `[${new Date().toLocaleString()}]`
 		let start = `====== ${date} ======= \n`
-		let end = `\n--- [COMMAND]:'${cmdStr}'\n`
+		let end = `\n--- [COMMAND]:'${cmdStr}'\n\n`
 		exec(cmdStr, r => {
 			prependOutput(end)
 			prependOutput(r + "\n")
