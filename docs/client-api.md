@@ -164,6 +164,20 @@
  
 
 
+ ## Api.call : command
+ 
+
+#### <span class="render-code-wrapper">command.exec</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. commandString: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(resCmd: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"command.exec",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(resCmd: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : file
  
 
