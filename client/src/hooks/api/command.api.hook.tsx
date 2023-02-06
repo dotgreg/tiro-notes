@@ -1,3 +1,4 @@
+import { isString } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -32,7 +33,7 @@ export const useCommandApi = (p: {
 	const exec: iCommandApi['exec'] = (commandString, cb) => {
 		const idReq = genIdReq(`command-exec-`);
 		p.eventBus.subscribe(idReq, resCmd => {
-			resCmd = resCmd
+			if (!isString(resCmd)) resCmd = JSON.stringify(resCmd)
 			cb(resCmd)
 		});
 
