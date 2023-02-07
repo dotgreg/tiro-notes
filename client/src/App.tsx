@@ -92,6 +92,10 @@ export const App = () => {
 			// api.command.exec(cmd, res => {
 			// 	console.log(111222, `${cmd} => `, res);
 			// })
+			// api.file.saveContent("/1_test/gen.md", "hello world")
+			// api.file.getContent("/1_test/gen2.md", r => {
+			// 	console.log(2222222233333, r);
+			// })
 
 		})
 

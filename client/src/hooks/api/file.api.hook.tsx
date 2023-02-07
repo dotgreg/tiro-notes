@@ -30,7 +30,9 @@ export interface iFileApi {
 			onError?: Function
 		}
 	) => void
-	saveContent: (noteLink: string, content: string, options?: { withMetas?: boolean, history?: boolean }) => void
+	saveContent: (noteLink: string, content: string,
+		options?: { withMetas?: boolean, history?: boolean }
+	) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
 	move: iMoveApi['file']
 	create: (folderPath: string, cb: iGetFilesCb) => void
@@ -92,12 +94,11 @@ export const useFileApi = (p: {
 		const history = (options && options.history) ? options.history : false
 		const withMetas = (options && options.withMetas) ? options.withMetas : true
 
-		// console.log(`${h} save file content ${noteLink}`);
-
 		const filePath = noteLinkToPath(noteLink);
 		clientSocket2.emit('saveFileContent', {
 			filePath, newFileContent: content,
-			token: getLoginToken()
+			// options: optsApi,
+			token: getLoginToken(),
 		})
 
 		if (history) {
