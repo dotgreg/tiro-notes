@@ -31,13 +31,11 @@ const commanderApp = (innerTagStr, opts) => {
 		let raw = innerTagStr
 		let arr = raw.split("\n")
 		let res = {}
-		// console.log(2222, arr);
 		each(arr, it => {
 			// if starts with button_  create new button
 			if (it.startsWith("button_")) {
 				it = it.replace("button_", "")
 				let iArr = it.split(" ")
-				// console.log(222222, iArr);
 				let sName = iArr.shift()
 				let sContent = iArr.join(" ")
 
@@ -59,7 +57,7 @@ const commanderApp = (innerTagStr, opts) => {
 	// LOGIC
 	//
 	const exec = (cmdString, cb) => {
-		updateStatus("...")
+		updateStatus("⏳...")
 		api.call("command.exec", [cmdString], res => {
 			updateStatus("")
 			cb(res)
@@ -75,9 +73,7 @@ const commanderApp = (innerTagStr, opts) => {
 	const prependToHistoryFile = (stringToInsert, filePath) => {
 		console.log("saving to file path ", filePath);
 		api.call("file.getContent", [filePath], noteContent => {
-			console.log(233334444444, noteContent);
 			let toSave = (noteContent !== "NO_FILE") ? stringToInsert + noteContent : stringToInsert
-			console.log(23333444444455555, toSave);
 			api.call("file.saveContent", [filePath, toSave]);
 		});
 	}
@@ -122,6 +118,11 @@ const commanderApp = (innerTagStr, opts) => {
 			setTimeout(() => {
 				onClick([id], e => {
 					let userInput = document.getElementById("textarea-command").value
+					console.log(11111, userInput);
+					// userInput = userInput.split("'").join("\'")
+					userInput = userInput.replaceAll("'", "\\'")
+
+					console.log(1111122, userInput);
 					let cmd = scriptString.split(`{{input}}`).join(userInput)
 					execAndOutput(cmd)
 				})
