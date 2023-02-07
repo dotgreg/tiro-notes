@@ -1,141 +1,150 @@
 const commanderApp = (innerTagStr, opts) => {
-	const { div, updateContent } = api.utils.createDiv()
+		const { div, updateContent } = api.utils.createDiv()
 
 
-	const historyPath = { val: null }
+		const outputPaths = {  }
 
-	///////////////////////////////////////////////////
-	// SUPPORT
-	//
-	const each = (itera, cb) => {
-		if (itera.constructor === Array) {
-			for (let i = 0; i < itera.length; ++i) {
-				cb(itera[i])
-			}
-		} else {
-			for (const property in itera) {
-				cb(itera[property], property)
-			}
+		///////////////////////////////////////////////////
+		// SUPPORT
+		//
+		const each = (itera, cb) => {
+				if (itera.constructor === Array) {
+						for (let i = 0; i < itera.length; ++i) {
+								cb(itera[i])
+						}
+				} else {
+						for (const property in itera) {
+								cb(itera[property], property)
+						}
+				}
 		}
-	}
 
-	const onClick = (elIds, action) => {
-		for (var i = 0; i < elIds.length; ++i) {
-			let el = document.getElementById(elIds[i]);
-			if (!el) return console.warn(`onclick: ${elIds[i]} does not exists`)
-			el.addEventListener("click", e => { action(e) }, false);
+		const onClick = (elIds, action) => {
+				for (var i = 0; i < elIds.length; ++i) {
+						let el = document.getElementById(elIds[i]);
+						if (!el) return console.warn(`onclick: ${elIds[i]} does not exists`)
+						el.addEventListener("click", e => { action(e) }, false);
+				}
 		}
-	}
 
-	const getConfigScripts = () => {
-		let raw = innerTagStr
-		let arr = raw.split("\n")
-		let res = {}
-		each(arr, it => {
-			// if starts with button_  create new button
-			if (it.startsWith("button_")) {
-				it = it.replace("button_", "")
-				let iArr = it.split(" ")
-				let sName = iArr.shift()
-				let sContent = iArr.join(" ")
+		const getConfigScripts = () => {
+				let raw = innerTagStr
+				let arr = raw.split("\n")
+				let res = {}
+				each(arr, it => {
+						// if starts with button_  create new button
+						if (it.startsWith("button_")) {
+								it = it.replace("button_", "")
+								let iArr = it.split(" ")
+								let sName = iArr.shift()
+								let sContent = iArr.join(" ")
 
-				res[sName] = sContent
-			}
+								res[sName] = sContent
+						}
 
-			if (it.startsWith("output_file")) {
-				it = it.replace("output_file ", "")
-				historyPath.val = it
-			}
-			// if it is output, override => DO WE NEED IT REALLY?
-			// => we could put all in output and cache it + function to clean it
-		})
-		return res
-	}
-
-
-	///////////////////////////////////////////////////
-	// LOGIC
-	//
-	const exec = (cmdString, cb) => {
-		updateStatus("⏳...")
-		api.call("command.exec", [cmdString], res => {
-			updateStatus("")
-			cb(res)
-		});
-	}
-
-	const prependOutput = (html) => {
-		let output = document.getElementById("cmd-output")
-		output.innerHTML = html + output.innerHTML
-		console.log(222, historyPath);
-	}
-
-	const prependToHistoryFile = (stringToInsert, filePath) => {
-		console.log("saving to file path ", filePath);
-		api.call("file.getContent", [filePath], noteContent => {
-			let toSave = (noteContent !== "NO_FILE") ? stringToInsert + noteContent : stringToInsert
-			api.call("file.saveContent", [filePath, toSave]);
-		});
-	}
-
-	const execAndOutput = (cmdStr) => {
-		let date = `[${new Date().toLocaleString()}]`
-		let start = `====== ${date} ======= \n`
-		let end = `\n--- [COMMAND]:'${cmdStr}'\n\n`
-		exec(cmdStr, r => {
-			let out = start + r + "\n" + end
-			prependOutput(out)
-			if (historyPath.val) prependToHistoryFile(out, historyPath.val)
-		})
-	}
-
-
-	const updateStatus = (string) => {
-		let output = document.getElementById("cmd-status")
-		output.innerHTML = string
-	}
-
-	const mainLogic = () => {
-		let scriptsObject = getConfigScripts()
-		generateButtons(scriptsObject)
-	}
-
-
-
-
-	//@todo save output content?
-
-	///////////////////////////////////////////////////
-	// UI
-	//
-
-	const generateButtons = (scriptsObject) => {
-		let html = ``
-		each(scriptsObject, (scriptString, name) => {
-			let id = `button-${name}`
-			html += `<button id="${id}">${name}</button>`
-
-			setTimeout(() => {
-				onClick([id], e => {
-					let userInput = document.getElementById("textarea-command").value
-					console.log(11111, userInput);
-					// userInput = userInput.split("'").join("\'")
-					userInput = userInput.replaceAll("'", "\\'")
-
-					console.log(1111122, userInput);
-					let cmd = scriptString.split(`{{input}}`).join(userInput)
-					execAndOutput(cmd)
+						// if it is output, override => DO WE NEED IT REALLY?
+						// => we could put all in output and cache it + function to clean it
 				})
-			}, 100)
-		})
+						each(arr, it => {
+								// global output file
+								if (it.startsWith("output ")) {
+										it = it.replace("output ", "")
+										outputPaths.global = it
+								}
 
-		buttonsW = document.getElementById("buttons-wrapper")
-		buttonsW.innerHTML = html
-	}
+								// output file per script
+								if (it.startsWith("output_")) {
+										it = it.replace("output_", "")
+										let iArr = it.split(" ")
+										let oName = iArr.shift()
+										let oPath = iArr.join(" ")
+										if (res[oName]) outputPaths[oName] = oPath
+								}
+						})
+								return res
+		}
 
 
-	const getHtmlWrapper = () => {
-		let res = `
+		///////////////////////////////////////////////////
+		// LOGIC
+		//
+		const exec = (cmdString, cb) => {
+				updateStatus("⏳...")
+				api.call("command.exec", [cmdString], res => {
+						updateStatus("")
+						cb(res)
+				});
+		}
+
+		const prependOutput = (html) => {
+				let output = document.getElementById("cmd-output")
+				output.innerHTML = html + output.innerHTML
+		}
+
+		const prependToHistoryFile = (stringToInsert, filePath) => {
+				console.log("saving to file path ", filePath);
+				api.call("file.getContent", [filePath], noteContent => {
+						let toSave = (noteContent !== "NO_FILE") ? stringToInsert + noteContent : stringToInsert
+						api.call("file.saveContent", [filePath, toSave]);
+				});
+		}
+
+		const execAndOutput = (cmdStr, id) => {
+				let date = `[${new Date().toLocaleString()}]`
+				let start = `====== ${date} ======= \n`
+				let end = `\n--- [COMMAND]:'${cmdStr}'\n\n`
+				exec(cmdStr, r => {
+						let out = start + r + "\n" + end
+						prependOutput(out)
+						console.log(222222, outputPaths, outputPaths[id], id);
+						if (outputPaths[id]) prependToHistoryFile(out, outputPaths[id])
+						else if (outputPaths.global) prependToHistoryFile(out, outputPaths.global)
+				})
+		}
+
+
+		const updateStatus = (string) => {
+				let output = document.getElementById("cmd-status")
+				output.innerHTML = string
+		}
+
+		const mainLogic = () => {
+				let scriptsObject = getConfigScripts()
+				generateButtons(scriptsObject)
+		}
+
+
+
+
+		//@todo save output content?
+
+		///////////////////////////////////////////////////
+		// UI
+		//
+
+		const generateButtons = (scriptsObject) => {
+				let html = ``
+				each(scriptsObject, (scriptString, name) => {
+						let id = `button-${name}`
+						html += `<button id="${id}">${name}</button>`
+
+						setTimeout(() => {
+								onClick([id], e => {
+										let userInput = document.getElementById("textarea-command").value
+										userInput = userInput.replaceAll("'", "\\'")
+										let cmd = scriptString.split(`{{input}}`).join(userInput)
+										execAndOutput(cmd, name)
+								})
+						}, 100)
+				})
+
+						buttonsW = document.getElementById("buttons-wrapper")
+				buttonsW.innerHTML = html
+		}
+
+
+		const getHtmlWrapper = () => {
+				let res = `
 				<div id="commander-wrapper"> 
 				<div id="cmd-status"> </div>
 
@@ -213,18 +222,18 @@ const commanderApp = (innerTagStr, opts) => {
 						line-height: 11px;
 				}
 				</style> `
-		return res
-	}
+				return res
+		}
 
 
-	setTimeout(() => {
 		setTimeout(() => {
-			api.utils.resizeIframe("100%");
-		}, 100)
-		updateContent(getHtmlWrapper())
-		mainLogic()
-	})
-	return div
+				setTimeout(() => {
+						api.utils.resizeIframe("100%");
+				}, 100)
+				updateContent(getHtmlWrapper())
+				mainLogic()
+		})
+		return div
 }
 
 window.initCustomTag = commanderApp
