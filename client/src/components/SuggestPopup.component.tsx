@@ -169,7 +169,6 @@ export const SuggestPopup = (p: {
 
 	const onFocus = (txt) => {
 	}
-	// console.log("Onfffffffffffffffffo", txt);
 
 
 
@@ -188,7 +187,6 @@ export const SuggestPopup = (p: {
 		// at first, according to first char, switch mode
 		let stags = selectedOptionRef.current
 		let inTxt = inputTxt.trim()
-		// console.log(inTxt, inputTxt);
 
 		if (stags.length === 0) {
 			if (inTxt === "/") {
@@ -405,7 +403,6 @@ export const SuggestPopup = (p: {
 						nOpts.push({ value: last, label: htmlOption, payload })
 					})
 
-					// console.log(123333, nSelec, nOpts);
 					setSelectedOption(nSelec)
 					setOptions(nOpts)
 					// setNotePreview(nSelec)
@@ -520,7 +517,6 @@ export const SuggestPopup = (p: {
 	const startLastNotesModeLogic = () => {
 		setHelp(baseHelp)
 		let nOptions = filesToOptions(p.lastNotes)
-		// console.log(123, nOptions);
 
 		// intervert el 1 and el 2
 		let o1 = nOptions.shift() as iOptionSuggest
@@ -569,7 +565,6 @@ export const SuggestPopup = (p: {
 				// let nOpts: any = []
 				let nOpts: any = []
 				api.files.get(pluginsBarFolder, files => {
-					// console.log(332, files, pluginsBarFolder);
 					each(files, f => {
 						nOpts.push({ label: f.name.replace('.md', ''), value: f })
 					})
@@ -652,7 +647,6 @@ export const SuggestPopup = (p: {
 		let stags = selectedOptionRef.current
 
 		// EXPLORER
-		// console.log(222222, stags, file);
 		if (stags[0] && stags[0].label === modeLabels.explorer) {
 			setNotePreview(file)
 
@@ -667,7 +661,6 @@ export const SuggestPopup = (p: {
 			setNotePreview(file)
 
 		} else {
-			console.log("CLOSING 2");
 			setNotePreview(null)
 		}
 	}
@@ -693,7 +686,6 @@ export const SuggestPopup = (p: {
 			const observer = new MutationObserver((e) => {
 				// @ts-ignore
 				let id = parseInt(o.id.split("-").pop())
-				// console.log("112 - class change", o, id);
 				const style = getComputedStyle(o);
 				let bg = style["background-color"]
 				if (bg !== "rgba(0, 0, 0, 0)" && options[id] && options[id].payload) {
@@ -713,7 +705,6 @@ export const SuggestPopup = (p: {
 		listenToOptionsClasses(nVal)
 	}, 100)
 	useEffect(() => {
-		// console.log(1222, options.length);
 		onOptionsChange(options)
 	}, [options, inputTxt])
 
