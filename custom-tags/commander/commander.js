@@ -2,7 +2,7 @@ const commanderApp = (innerTagStr, opts) => {
 	const { div, updateContent } = api.utils.createDiv()
 
 
-	let cmd = `ls -lsia`
+	const historyPath = { val: null }
 
 	///////////////////////////////////////////////////
 	// SUPPORT
@@ -43,6 +43,11 @@ const commanderApp = (innerTagStr, opts) => {
 
 				res[sName] = sContent
 			}
+
+			if (it.startsWith("output_file")) {
+				it = it.replace("output_file ", "")
+				historyPath.val = it
+			}
 			// if it is output, override => DO WE NEED IT REALLY?
 			// => we could put all in output and cache it + function to clean it
 		})
@@ -64,6 +69,17 @@ const commanderApp = (innerTagStr, opts) => {
 	const prependOutput = (html) => {
 		let output = document.getElementById("cmd-output")
 		output.innerHTML = html + output.innerHTML
+		console.log(222, historyPath);
+	}
+
+	const prependToHistoryFile = (stringToInsert, filePath) => {
+		console.log("saving to file path ", filePath);
+		api.call("file.getContent", [filePath], noteContent => {
+			console.log(233334444444, noteContent);
+			let toSave = (noteContent !== "NO_FILE") ? stringToInsert + noteContent : stringToInsert
+			console.log(23333444444455555, toSave);
+			api.call("file.saveContent", [filePath, toSave]);
+		});
 	}
 
 	const execAndOutput = (cmdStr) => {
@@ -71,9 +87,9 @@ const commanderApp = (innerTagStr, opts) => {
 		let start = `====== ${date} ======= \n`
 		let end = `\n--- [COMMAND]:'${cmdStr}'\n\n`
 		exec(cmdStr, r => {
-			prependOutput(end)
-			prependOutput(r + "\n")
-			prependOutput(start)
+			let out = start + r + "\n" + end
+			prependOutput(out)
+			if (historyPath.val) prependToHistoryFile(out, historyPath.val)
 		})
 	}
 
