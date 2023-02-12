@@ -20,6 +20,7 @@ import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString } from "./managers/exec.manager";
+import { getFileInfos } from "../../shared/helpers/filename.helper";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -183,8 +184,15 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		log(`===> 1/4 creating folders ${data.endPath}`);
 		await upsertRecursivelyFolders(data.endPath)
 
-		log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
-		await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
+		let f1 = getFileInfos(data.initPath)
+		let f2 = getFileInfos(data.initPath)
+		if (f1.folder !== f2.folder) {
+			log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
+			await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
+		} else {
+			log(`===> 2/4 DO NOTHING, SAME FOLDER moveNoteResourcesAndUpdateContent`);
+
+		}
 
 		log(`===> 3/4 moveFile`);
 		await moveFile(`${backConfig.dataFolder}${data.initPath}`, `${backConfig.dataFolder}${data.endPath}`)

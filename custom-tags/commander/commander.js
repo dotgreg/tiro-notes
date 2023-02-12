@@ -82,7 +82,7 @@ const commanderApp = (innerTagStr, opts) => {
 		}
 
 		const prependToHistoryFile = (stringToInsert, filePath) => {
-				console.log("saving to file path ", filePath);
+				// console.log("saving to file path ", filePath);
 				api.call("file.getContent", [filePath], noteContent => {
 						let toSave = (noteContent !== "NO_FILE") ? stringToInsert + noteContent : stringToInsert
 						api.call("file.saveContent", [filePath, toSave]);
@@ -96,7 +96,7 @@ const commanderApp = (innerTagStr, opts) => {
 				exec(cmdStr, r => {
 						let out = start + r + "\n" + end
 						prependOutput(out)
-						console.log(222222, outputPaths, outputPaths[id], id);
+						// console.log(222222, outputPaths, outputPaths[id], id);
 						if (outputPaths[id]) prependToHistoryFile(out, outputPaths[id])
 						else if (outputPaths.global) prependToHistoryFile(out, outputPaths.global)
 				})
