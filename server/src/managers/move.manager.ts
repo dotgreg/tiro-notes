@@ -24,10 +24,8 @@ export const generateUniqueAbsFilePath = (absFilePath: string, increment?: numbe
 	let newAbsPathToTest = `${finfos.folder}${processedFileName}${incrementStr}.${finfos.extension}`
 
 	if (fileExists(newAbsPathToTest)) {
-		console.log(665, finfos, incrementStr, newAbsPathToTest);
 		return generateUniqueAbsFilePath(absFilePath, increment + 1)
 	} else {
-		console.log(666, finfos, incrementStr, newAbsPathToTest);
 		return newAbsPathToTest
 	}
 }
