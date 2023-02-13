@@ -188,6 +188,7 @@ export const SuggestPopup = (p: {
 		let stags = selectedOptionRef.current
 		let inTxt = inputTxt.trim()
 
+
 		if (stags.length === 0) {
 			if (inTxt === "/") {
 				aLog(`suggest_explorer`)
@@ -278,6 +279,7 @@ export const SuggestPopup = (p: {
 
 	useEffect(() => {
 		updateFromChange();
+		if (onChangeUpdatePlugin.current) onChangeUpdatePlugin.current()
 	}, [selectedOption, inputTxt])
 
 	// useEffect(() => {
@@ -604,6 +606,10 @@ export const SuggestPopup = (p: {
 					let barApi = {
 						input, setInputTxt,
 						options, setOptions,
+						onChange: onChangeUpdatePlugin,
+						selectedOptionRef,
+						setNotePreview, notePreview,
+						setHtmlPreview, htmlPreview,
 						loadBarPlugin, disableCache: disableCachePlugins
 					}
 					// we directly eval it!
@@ -630,6 +636,7 @@ export const SuggestPopup = (p: {
 			})
 		}
 	}
+	const onChangeUpdatePlugin = useRef<any>(null)
 
 
 	//////////////////////////////////////////////////////////////////////
@@ -641,6 +648,7 @@ export const SuggestPopup = (p: {
 	// system to find current note highlighted... using class detection...
 	//
 	const [notePreview, setNotePreview] = useState<iFile | null>(null);
+	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
 	const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
 
 	const onActiveOptionChange = (file: iFile, activeLine?: string) => {
@@ -715,6 +723,18 @@ export const SuggestPopup = (p: {
 
 
 
+	const [previewHeight, setPreviewHeight] = useState<number>(300);
+	const suggestWrapper = useRef<any>(null)
+	const debounceResizeHeight = useDebounce(() => {
+		if (suggestWrapper && suggestWrapper.current) {
+			let barHeight = suggestWrapper.current.clientHeight + 30
+			let windowHeight = window.innerHeight
+			// previewHeight = windowHeight - barHeight - 50
+			let nHeight = windowHeight - barHeight - 50
+			if (previewHeight !== nHeight) setPreviewHeight(nHeight)
+		}
+	}, 10)
+	debounceResizeHeight()
 
 
 
@@ -732,41 +752,57 @@ export const SuggestPopup = (p: {
 						e.stopPropagation()
 					}}
 				>
-					<div className="help">
-						{help}
+					<div ref={suggestWrapper}>
+						<div className="help">
+							{help}
+						</div>
+						<Select
+							isMulti
+
+							ref={selectRef}
+							menuIsOpen={true}
+							defaultValue={defaultValue}
+							value={selectedOption}
+							autoFocus={true}
+
+							onChange={onChange}
+							// components={{ Option: CustomOption }}
+							// openMenuOnClick={e => { console.log("wooooo"); }}
+							openMenuOnClick={false}
+
+							inputValue={inputTxt}
+							onInputChange={onInputChange}
+							onFocus={onFocus}
+
+							options={options}
+							// isClearable={false}
+							styles={styles}
+							noOptionsMessage={() => {
+								setNotePreview(null)
+								return noOptionLabel
+							}}
+						/>
 					</div>
-					<Select
-						isMulti
-
-						ref={selectRef}
-						menuIsOpen={true}
-						defaultValue={defaultValue}
-						value={selectedOption}
-						autoFocus={true}
-
-						onChange={onChange}
-						// components={{ Option: CustomOption }}
-						// openMenuOnClick={e => { console.log("wooooo"); }}
-						openMenuOnClick={false}
-
-						inputValue={inputTxt}
-						onInputChange={onInputChange}
-						onFocus={onFocus}
-
-						options={options}
-						// isClearable={false}
-						styles={styles}
-						noOptionsMessage={() => {
-												 setNotePreview(null)
-							return noOptionLabel
-						}}
-					/>
-					<div className="preview-wrapper">
+					<div className={`preview-wrapper ${notePreview ? "note-preview" : "html-preview-wrapper"}`}
+						style={{ height: previewHeight }}
+					>
 						{notePreview && deviceType() !== "mobile" &&
 							<NotePreview
 								file={notePreview}
 								searchedString={activeLine}
+								height={previewHeight}
 							/>
+						}
+						{
+							htmlPreview && deviceType() !== "mobile" &&
+							<div
+								className="html-preview"
+								dangerouslySetInnerHTML={{
+									__html: htmlPreview
+								}}
+								style={{ height: previewHeight }}
+							>
+							</div>
 						}
 					</div>
 
@@ -804,21 +840,7 @@ export const suggestPopupCss = () => `
 								margin-bottom: 10px;
 						}
 
-
-						/* 						.flex-wrapper { */
-						/* 								display: flex; */
-						/* 								flex-direction: column; */
-						/* 								height: 100vh; */
-						/* 								.help { */
-						/* 								} */
-						/* 								.search-wrapper { */
-						/* 								} */
-						/* .preview-wrapper { */
-						/* flex: 1; */
-						/* } */
-						/* 						} */
 						.preview-wrapper {
-								max-height: 45vh;
 								overflow-y: scroll;
 								background: white;
 								border-radius: 5px;
@@ -856,6 +878,19 @@ export const suggestPopupCss = () => `
 
 								}
 						}
+						.html-preview-wrapper {
+								overflow: hidden;
+								.html-preview {
+										iframe {
+												transform: scale(0.65);
+												transform-origin:top left;
+												border:none;
+												width: 155%;
+height: 155%;
+										}
+								}
+						}
+
 
 						`
 

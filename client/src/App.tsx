@@ -1,4 +1,3 @@
-
 import { css, Global } from '@emotion/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
@@ -43,9 +42,9 @@ import { SuggestPopup } from './components/SuggestPopup.component';
 import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
+import { getFileInfos } from '../../shared/helpers/filename.helper';
 
 export const App = () => {
-
 	useEffect(() => {
 
 		// PWA

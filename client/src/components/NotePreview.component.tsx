@@ -7,6 +7,7 @@ import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 export const NotePreview = (p: {
 	searchedString?: string
 	file: iFile
+	height?: number
 }) => {
 
 	const [content, setContent] = useState("");
