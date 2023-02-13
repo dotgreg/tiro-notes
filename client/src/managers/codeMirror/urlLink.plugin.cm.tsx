@@ -108,71 +108,141 @@ const initSSRLogic = (id: string) => {
 // 	}
 // }
 
+// export const linksPreviewMdSimpleCss = () => `
 export const linksPreviewMdCss = () => `
 .link-mdpreview-wrapper {
 		position: relative;
+}
+.link-mdpreview-wrapper .link-action {
+		opacity: 0.1
+}
+
+.link-mdpreview-wrapper:hover .link-action{
+		opacity: 1;
+		pointer-events: all;
+}
+.link-action 		svg,
+.link-action span,
+.link-action div {
+		pointer-events:none;
+}
+
+.link-action {
+		cursor: pointer;
+		position: relative;
+		right: 6px;
+		top: 0px;
+		opacity: 0;
+		transition: 0.2s all;
+		pointer-events: none;
+}
+.link-iframe-wrapper {
+		display: none;
+}
+.link-iframe-wrapper.open {
+		display: block;
+		height: 330px!important;
+}
+.link-iframe-wrapper iframe {
+		border-radius: 7px;
+		overflow:hidden;
+		box-shadow: 0 0 4px rgba(0,0,0,0.3);
+		width: 150%!important;
+		transform-origin:top left;
+		transform: scale(0.65);
+		height: 500px!important;
+}
+.link-iframe-wrapper.big iframe{
+		height: 900px!important;
+}
+
+.link-mdpreview-wrapper {
+
+}
+.link-mdpreview {
+		opacity: 0.6;
+		transition: 0.2s all;
 		&:hover {
-				.link-action{
-						opacity: 1;
-						pointer-events: all;
-				}
-				.link-action {
-						opacity: 0.1
-				}
+				opacity: 1;
 		}
-		.link-action {
-				cursor: pointer;
-				position: relative;
-				right: 6px;
-				top: 0px;
-				opacity: 0;
-				transition: 0.2s all;
-				pointer-events: none;
-				svg, span, div {
-						pointer-events:none;
-				}
-		}
-		.link-iframe-wrapper {
-				display: none;
-		}
-		.link-iframe-wrapper.open {
-				display: block;
-				height: 330px!important;
-		}
-		.link-iframe-wrapper iframe {
-				border-radius: 7px;
-				overflow:hidden;
-				box-shadow: 0 0 4px rgba(0,0,0,0.3);
-				width: 150%!important;
-				transform-origin:top left;
-				transform: scale(0.65);
-				height: 500px!important;
-		}
-		.link-iframe-wrapper.big iframe{
-				height: 900px!important;
-		}
-
-		.link-mdpreview-wrapper {
-
-		}
-		.link-mdpreview {
-				opacity: 0.6;
-				transition: 0.2s all;
-				&:hover {
-						opacity: 1;
-				}
-				line-height: 20px;
-				text-decoration: none;
+		line-height: 20px;
+		text-decoration: none;
+		color: ${cssVars.colors.main};
+		// border: solid 2px ${cssVars.colors.main};
+		padding: 0px 6px;
+		cursor: pointer;
+		border-radius: 5px;
+		svg {
 				color: ${cssVars.colors.main};
-				// border: solid 2px ${cssVars.colors.main};
-				padding: 0px 6px;
-				cursor: pointer;
-				border-radius: 5px;
-				svg {
-						color: ${cssVars.colors.main};
-				}
 		}
 }
-`
+ `
+
+export const linksPreviewMdCssOLD = () => `
+ .link-mdpreview-wrapper {
+		 position: relative;
+		 &:hover {
+				 .link-action{
+						 opacity: 1;
+						 pointer-events: all;
+				 }
+				 .link-action {
+						 opacity: 0.1
+				 }
+		 }
+		 .link-action {
+				 cursor: pointer;
+				 position: relative;
+				 right: 6px;
+				 top: 0px;
+				 opacity: 0;
+				 transition: 0.2s all;
+				 pointer-events: none;
+				 svg, span, div {
+						 pointer-events:none;
+				 }
+		 }
+		 .link-iframe-wrapper {
+				 display: none;
+		 }
+		 .link-iframe-wrapper.open {
+				 display: block;
+				 height: 330px!important;
+		 }
+		 .link-iframe-wrapper iframe {
+				 border-radius: 7px;
+				 overflow:hidden;
+				 box-shadow: 0 0 4px rgba(0,0,0,0.3);
+				 width: 150%!important;
+				 transform-origin:top left;
+				 transform: scale(0.65);
+				 height: 500px!important;
+		 }
+		 .link-iframe-wrapper.big iframe{
+				 height: 900px!important;
+		 }
+
+		 .link-mdpreview-wrapper {
+
+		 }
+		 .link-mdpreview {
+				 opacity: 0.6;
+				 transition: 0.2s all;
+				 &:hover {
+						 opacity: 1;
+				 }
+				 line-height: 20px;
+				 text-decoration: none;
+				 color: ${cssVars.colors.main};
+				 // border: solid 2px ${cssVars.colors.main};
+				 padding: 0px 6px;
+				 cursor: pointer;
+				 border-radius: 5px;
+				 svg {
+						 color: ${cssVars.colors.main};
+				 }
+		 }
+ }
+ `
 
 
