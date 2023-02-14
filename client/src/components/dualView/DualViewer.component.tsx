@@ -216,13 +216,6 @@ const DualViewerInt = (
 export const DualViewer = (p: iDualViewProps) => {
 	const api = useContext(ClientApiContext);
 	const lineJumpEvent = api?.ui.note.lineJump.get
-
-	// useEffect(() => {
-	// 	console.log(lineJumpEvent);
-	// }, [lineJumpEvent])
-
-	// return useMemo(() => {
 	return <DualViewerInt {...p} lineJumpEvent={lineJumpEvent} />
-	// }, [lineJumpEvent, p.file, p.fileContent, p.isActive])
 }
 
