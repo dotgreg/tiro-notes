@@ -1,10 +1,9 @@
 import { isBoolean } from 'lodash';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
-import { deviceType } from '../../managers/device.manager';
-import { getContentViewTag, getNoteView } from '../../managers/windowViewType.manager';
+import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
 export const WindowEditorInt = (p: {
@@ -51,7 +50,6 @@ export const WindowEditorInt = (p: {
 				if (filePathRef.current !== watchUpdate.filePath) return
 				// if (deviceType() !== "desktop") return
 
-
 				// if watcher gives an update to a file we are currently editing
 				// make it inside a debounce, only for desktop
 				if (
@@ -78,20 +76,13 @@ export const WindowEditorInt = (p: {
 	}
 
 	const waitingContentUpdate = useRef<string | false>(false)
-	// const blockViewUpdate = useRef<boolean>(false)
-	// const blockViewUpdateDebounce = useDebounce(() => { blockViewUpdate.current = false }, 2000)
 	const isBeingEdited = useRef<boolean>(false)
 	const isEditedDebounce = useDebounce(() => {
 		isBeingEdited.current = false
 
 		// only if we have some modification to update
 		if (isBoolean(waitingContentUpdate.current)) return
-		// setFileContent(waitingContentUpdate.current)
 		waitingContentUpdate.current = false
-
-		// block view update mecanism
-		// blockViewUpdate.current = true
-		// blockViewUpdateDebounce()
 	}, 2000)
 
 
@@ -135,7 +126,6 @@ export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
 	return false
 	let c1 = JSON.stringify(np)
 	let c2 = JSON.stringify(pp)
-	// console.log(c1, c2, c1 === c2);
 	let res = true
 	if (c1 !== c2) res = false
 	return res

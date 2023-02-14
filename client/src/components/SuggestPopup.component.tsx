@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Popup } from './Popup.component';
 import Select from 'react-select';
-import { each, isArray, isNumber, orderBy, random } from 'lodash';
+import { debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
+import * as lodash from "lodash"
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
@@ -159,13 +160,15 @@ export const SuggestPopup = (p: {
 	//
 	const [inputTxt, setInputTxt] = useState("");
 	const onInputChange: any = (txt: string, p) => {
-		// setInputTxt(txt.trim())
-		// if (txt !== "") setInputTxt(txt)
 		if (p.action === "input-blur" || p.action === "menu-close") {
 		} else {
 			setInputTxt(txt)
 		}
 	}
+	const inputTxtRef = useRef<any>(null)
+	useEffect(() => {
+		inputTxtRef.current = inputTxt
+	}, [inputTxt])
 
 	const onFocus = (txt) => {
 	}
@@ -604,10 +607,11 @@ export const SuggestPopup = (p: {
 					}
 
 					let barApi = {
-						input, setInputTxt,
+						input, setInputTxt, inputTxt, inputTxtRef,
 						options, setOptions,
 						onChange: onChangeUpdatePlugin,
-						selectedOptionRef,
+						selectedOptionRef, setSelectedOption,
+						lodash,
 						setNotePreview, notePreview,
 						setHtmlPreview, htmlPreview,
 						loadBarPlugin, disableCache: disableCachePlugins
@@ -794,7 +798,7 @@ export const SuggestPopup = (p: {
 							/>
 						}
 						{
-							htmlPreview && deviceType() !== "mobile" &&
+							htmlPreview &&
 							<div
 								className="html-preview"
 								dangerouslySetInnerHTML={{
