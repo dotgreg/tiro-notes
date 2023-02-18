@@ -693,20 +693,24 @@ const rssApp = (innerTagStr, opts) => {
 				margin-left: 11px;
 		}
 		.article-gallery-item .title  {
-				margin: 0px 0px;
-				position: absolute;
-				padding: 10px;
-				padding-top: 10px;
-				word-break: break-word;
-				width: 96%;
-				bottom: 0px;
-				font-size: 13px;
-				font-weight: 800;
-				color: #d7d6d6;
-				background: linear-gradient(to top, #000, #0000);
-				padding-top: 60px;
-				padding-bottom: 17px;
-		}
+  margin: 0px 0px;
+  position: absolute;
+  padding: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  padding-top: 10px;
+  word-break: break-word;
+  width: 93%;
+  bottom: 0px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #d7d6d6;
+  background: linear-gradient(to top, #000, #0000);
+  padding-top: 60px;
+  padding-bottom: 17px;
+  line-height: 14px;
+}
+
 		.article-gallery-item .bg-item {
 				width: 100%;
 				min-height: 170px;
