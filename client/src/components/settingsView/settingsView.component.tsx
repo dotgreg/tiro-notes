@@ -155,7 +155,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Improved Markdown Table",
-						expl: "Improves the display of markdown table ",
+						expl: "Improves the display of markdown table. Can be disabled inside a note if it includes '--no-editor-table'. ",
 						var: us.get('ui_editor_markdown_table_preview'),
 						modifier: val => {
 							setDisplayReload(true);

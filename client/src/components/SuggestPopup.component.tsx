@@ -13,6 +13,7 @@ import { NotePreview } from './NotePreview.component';
 import { deviceType } from '../managers/device.manager';
 import { regexs } from '../../../shared/helpers/regexs.helper';
 import { aLog } from '../hooks/api/analytics.api.hook';
+import { Icon } from './Icon.component';
 
 
 interface iOptionSuggest {
@@ -42,7 +43,9 @@ const disableCachePlugins = () => {
 }
 
 export const SuggestPopup = (p: {
+	show: boolean
 	onClose: Function
+	onHide: Function
 	lastNotes: iFile[]
 }) => {
 
@@ -610,6 +613,7 @@ export const SuggestPopup = (p: {
 						input, setInputTxt, inputTxt, inputTxtRef,
 						options, setOptions,
 						onChange: onChangeUpdatePlugin,
+						onClose: p.onClose, onHide: p.onHide,
 						selectedOptionRef, setSelectedOption,
 						lodash,
 						setNotePreview, notePreview,
@@ -747,18 +751,20 @@ export const SuggestPopup = (p: {
 	// RENDERING
 	//
 	return (
-		<div className="suggest-popup-bg"
+		<div className={`suggest-popup-bg ${p.show ? "" : "hide"}`}
 			onClick={e => { p.onClose() }}>
 			<div className="suggest-popup-wrapper">
 				<div className="flex-wrapper"
 					onClick={e => {
-						// alert("222")
 						e.stopPropagation()
 					}}
 				>
 					<div ref={suggestWrapper}>
 						<div className="help">
 							{help}
+						</div>
+						<div className="help-right" onClick={e => { p.onHide() }}>
+							<Icon name="faEyeSlash" color={`#b2b2b2`} />
 						</div>
 						<Select
 							isMulti
@@ -809,7 +815,6 @@ export const SuggestPopup = (p: {
 							</div>
 						}
 					</div>
-
 				</div>
 			</div >
 		</div >
@@ -821,6 +826,9 @@ export const suggestPopupCss = () => `
 						&.device-view-mobile {
 						}
 
+						.suggest-popup-bg.hide {
+								display:none;
+						}
 						.suggest-popup-bg {
 								background: rgba(0,0,0,0.5);
 								top: 0px;
@@ -831,13 +839,19 @@ export const suggestPopupCss = () => `
 								position: absolute;
 						}
 						.suggest-popup-wrapper {
-								width: 70%;
+								width: 88%;
 								margin: 0 auto;
 								z-index: 100;
 								position: absolute;
 								left: 50%;
 								transform: translate(-50%);
 								top: 22px;
+						}
+						.help-right {
+								cursor:pointer;
+								position: absolute;
+								right: 3px;
+								top: 3px;
 						}
 						.help {
 								color:white;
@@ -886,11 +900,14 @@ export const suggestPopupCss = () => `
 								overflow: hidden;
 								.html-preview {
 										iframe {
-												transform: scale(0.65);
+												// transform: scale(0.65);
+												transform: scale(0.8);
 												transform-origin:top left;
 												border:none;
-												width: 155%;
-height: 155%;
+												width: 125%;
+												height: 125%;
+												// width: 155%;
+												// height: 155%;
 										}
 								}
 						}

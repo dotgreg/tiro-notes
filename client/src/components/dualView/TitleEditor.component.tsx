@@ -16,8 +16,8 @@ export const NoteTitleInputInt = (p: {
 
 	useEffect(() => {
 		setTitle(p.title)
+		setHasBeenEdited(false)
 	}, [p.title])
-
 
 	// problem, enter key does not seem to work fine on mobile and jump,
 	// so debounce and save name for it after 2s
@@ -30,6 +30,15 @@ export const NoteTitleInputInt = (p: {
 		}
 	}, 1000)
 
+	const submitTitle = () => {
+		let ntitle = title
+		if (ntitle.length === 0) return
+		setHasBeenEdited(false)
+		p.onEdited(p.title, title)
+	}
+
+
+
 	return (
 		<div className='title-input-wrapper'>
 			<input
@@ -41,7 +50,7 @@ export const NoteTitleInputInt = (p: {
 					setTitle(newTitle)
 					setHasBeenEdited(true)
 
-					onDebounceMobileTriggerSave(newTitle)
+					// onDebounceMobileTriggerSave(newTitle)
 				}}
 				onKeyDown={e => {
 					if (e.key === 'Enter') {
@@ -57,11 +66,23 @@ export const NoteTitleInputInt = (p: {
 					<Icon name="faCircle" color={cssVars.colors.main} size={0.7} />
 				</div>
 			}
+			{
+				hasBeenEdited && deviceType() === "mobile" &&
+				<button className="buttonSaveTitleMobile" onClick={submitTitle}> Save </button>
+			}
 		</div>
 	)
 }
 
 
+export const titleEditorCss = () => `
+.buttonSaveTitleMobile {
+		position: relative;
+		right: 20px;
+
+
+}
+`
 
 // disabling memoizing as when editing title, tabs/windows would come back to init pos
 export const NoteTitleInput = React.memo(NoteTitleInputInt, (np, pp) => {
