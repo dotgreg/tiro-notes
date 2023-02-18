@@ -140,8 +140,6 @@ const rssApp = (innerTagStr, opts) => {
 					})
 					.then(data => {
 						count = count + 1
-						// console.log(h, "1 debug els", feedsArr[i].url, data, count, feedsArr.length)
-						console.log(3333332222, data);
 
 						if (Array.isArray(data.items)) {
 							const nitems = [...data.items]
@@ -166,7 +164,6 @@ const rssApp = (innerTagStr, opts) => {
 						}
 						if (count === feedsArr.length) {
 							// sort items by time
-							// console.log(h, "2: outputting elements taken from api")
 							resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 							setCache(resItems)
 							cb(resItems)
@@ -220,7 +217,7 @@ const rssApp = (innerTagStr, opts) => {
 			let isBookmark = isArticleBookmark(p.article)
 
 			return (
-				c('div', {}, [
+				c('div', { className: "article-details-prewrapper" }, [
 					c('div', { className: "article-details-bg", onClick: e => { p.onClose(); } }, []),
 					c('div', { className: "article-details-wrapper" }, [
 						c('div', { className: "article-close", onClick: () => { p.onClose() } }, ["x"]),
@@ -325,8 +322,6 @@ const rssApp = (innerTagStr, opts) => {
 			React.useEffect(() => {
 				getBookmarks(() => {
 					getCachedJsons(nitems => {
-						// console.log(h, "3 updating list (should happen twice, 1st cached, second from internet");
-
 						const i = [...nitems]
 						setItems(i)
 						titems.current = i
@@ -362,7 +357,6 @@ const rssApp = (innerTagStr, opts) => {
 
 			let finalItems = search !== "" ? searchItems : filteredItems
 
-			console.log(333333333, finalItems);
 
 			// view toggle
 			const [listView, setIntListView] = React.useState("list")
@@ -424,8 +418,8 @@ const rssApp = (innerTagStr, opts) => {
 										className: "",
 									},
 										[
-											c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceRss} - ${item.smallDate}`]),
 											c('div', { className: "title" }, [item.title]),
+											c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceRss} - ${item.smallDate}`]),
 											c('div', {
 												className: "bg-item",
 												style: {
@@ -481,7 +475,6 @@ const rssApp = (innerTagStr, opts) => {
 			"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
 		],
 		() => {
-			// console.log(h, "0: react loaded, starting script with innertag:", innerTagStr)
 			execRssReader(innerTagStr)
 			setTimeout(() => {
 				api.utils.resizeIframe(opts.size);
@@ -516,7 +509,7 @@ const rssApp = (innerTagStr, opts) => {
 				height: calc(100% - 110px);
 				overflow-y: scroll;
 				height: 100%;
-				left: 25px;
+				right: 0px;
 				top: 0px;
 				box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
 		}
@@ -532,6 +525,7 @@ const rssApp = (innerTagStr, opts) => {
 				}
 				.article-details-wrapper {
 						width: calc(100% - 50px);
+						left: 25px;
 						box-shadow: 0px 0px 8px rgba(0,0,0,0.5);
 				}
 		}
@@ -626,9 +620,15 @@ const rssApp = (innerTagStr, opts) => {
 		/* FILTER  */
 		.filter-list-wrapper {
 				display: flex;
-				flex-direction: row-reverse;
+				flex-direction: row;
 				padding-bottom: 5px;
-				padding-right: 5px;
+				padding-left: 55px;
+				width: 50%
+		}
+		@media screen and (max-width: 500px) {
+				.filter-list-wrapper {
+						width: 100%;
+				}
 		}
 		.filter-list-wrapper select {
 		}
@@ -648,7 +648,7 @@ const rssApp = (innerTagStr, opts) => {
 		}
 
 		/* list view  */
-		.articles-list.view-list.item-active-open {
+		.articles-list.item-active-open {
 				width: calc(50% - 30px);
 		}
 		@media screen and (max-width: 500px) {
@@ -689,7 +689,6 @@ const rssApp = (innerTagStr, opts) => {
 				position: absolute;
 				bottom: 2px;
 				color: #ffffff7d;
-				z-index: 2;
 				font-size: 9px;
 				margin-left: 11px;
 		}
