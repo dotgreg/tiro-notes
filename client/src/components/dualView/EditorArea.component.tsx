@@ -2,7 +2,6 @@ import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } f
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
-
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
 import { useNoteEditorEvents } from '../../hooks/editor/noteEditorEvents.hook';
@@ -13,7 +12,6 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { isTextEncrypted } from '../../managers/encryption.manager';
 import { strings } from '../../managers/strings.manager';
 import { FileHistoryPopup } from '../FileHistoryPopup.component';
-import { TtsPopup } from '../TtsPopup.component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { NoteMobileToolbar } from './NoteToolbar.component';
 import { Dropdown } from '../Dropdown.component';
@@ -24,11 +22,9 @@ import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
 import { CodeMirrorEditor } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
-import { random } from 'lodash';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
-import { unescapeHtml } from '../../managers/textProcessor.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -255,7 +251,7 @@ const EditorAreaInt = (
 			icon: 'faCommentDots',
 			action: () => {
 				getApi(api => {
-					api.ui.textToSpeechPopup.open(p.file.path, p.fileContent)
+					api.ui.textToSpeechPopup.open(p.file.path, innerFileContent)
 				})
 			}
 		},
@@ -273,9 +269,6 @@ const EditorAreaInt = (
 
 	// File History
 	const [historyPopup, setHistoryPopup] = useState(false)
-
-	// TTS
-	// const [ttsPopup, setTtsPopup] = useState(false)
 
 	const editorWrapperEl = useRef<HTMLDivElement>(null)
 

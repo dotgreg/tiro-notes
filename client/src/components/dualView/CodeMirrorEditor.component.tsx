@@ -182,6 +182,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 
 
+	// if --disable-table inside content
+	let enhancedTable = !p.value.includes("--no-editor-table")
+
 	const { userSettingsApi } = useUserSettings()
 	const ua = userSettingsApi
 	if (ua.get("ui_editor_links_as_button")) {
@@ -189,7 +192,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
 		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
-	if (ua.get("ui_editor_markdown_table_preview")) {
+	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable) {
 		codemirrorExtensions.push(markdownStylingTableLimiter)
 		codemirrorExtensions.push(markdownStylingTableCell)
 		codemirrorExtensions.push(markdownStylingTable())

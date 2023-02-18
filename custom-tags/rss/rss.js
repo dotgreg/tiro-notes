@@ -58,7 +58,15 @@ const rssApp = (innerTagStr, opts) => {
 			api.call("cache.set", [cacheId, content])
 		}
 
-		//
+
+
+
+
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////
 		// bookmarksORITES MECHANISM
 		//
 		const bookmarksId = `ctag-rss-bookmarks-${api.utils.getInfos().file.name}`
@@ -104,13 +112,20 @@ const rssApp = (innerTagStr, opts) => {
 			let res = false
 			let favFilter = bookmarks.current.filter(i => i.link === item.link)
 			if (favFilter.length > 0) res = true
-			// console.log("IS bookmarks", item, res);
 			return res
 		}
 		// init
 		getBookmarks()
 
-		//
+
+
+
+
+
+
+
+
+		//////////////////////////////////////////////////////////////////////////////////////////////////
 		// FETCHING DATA
 		//
 		const getJsons = (cb) => {
@@ -125,7 +140,8 @@ const rssApp = (innerTagStr, opts) => {
 					})
 					.then(data => {
 						count = count + 1
-						console.log(h, "1 debug els", feedsArr[i].url, data, count, feedsArr.length)
+						// console.log(h, "1 debug els", feedsArr[i].url, data, count, feedsArr.length)
+						console.log(3333332222, data);
 
 						if (Array.isArray(data.items)) {
 							const nitems = [...data.items]
@@ -136,6 +152,13 @@ const rssApp = (innerTagStr, opts) => {
 								//const datestring = d.getDate()  + "-" + (d.getMonth()+1) + "-" + d.getFullYear() + " " + d.getHours() + ":" + d.getMinutes();
 								const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
 
+								const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
+								const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+								const bgImage = nitems[j].thumbnail || nitems[j].enclosure?.link
+
+								nitems[j].bgColor = cColor
+								nitems[j].image = bgImage
+
 								nitems[j].timestamp = timestamp
 								nitems[j].smallDate = datestring
 								resItems.push(nitems[j])
@@ -143,7 +166,7 @@ const rssApp = (innerTagStr, opts) => {
 						}
 						if (count === feedsArr.length) {
 							// sort items by time
-							console.log(h, "2: outputting elements taken from api")
+							// console.log(h, "2: outputting elements taken from api")
 							resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 							setCache(resItems)
 							cb(resItems)
@@ -153,6 +176,21 @@ const rssApp = (innerTagStr, opts) => {
 			}
 		}
 
+
+
+
+
+
+
+
+
+
+
+
+
+		///////////////////////////////////////////////////////////////////////////////////////
+		// ARTICLE VIEW
+		//
 		const c = React.createElement;
 		const ArticleDetail = (p) => {
 			const [type, setType] = React.useState("text")
@@ -166,9 +204,9 @@ const rssApp = (innerTagStr, opts) => {
 			}, [p.article])
 
 
-			const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
-			const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-			const bgImage = p.article.thumbnail || p.article.enclosure.link
+			// const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
+			// const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+			// const bgImage = p.article.thumbnail || p.article.enclosure.link
 			const openLinkNewWindow = (url) => {
 				window.open(url, 'rss_window', 'location=yes,height=670,width=820,scrollbars=yes,status=no');
 			}
@@ -182,67 +220,82 @@ const rssApp = (innerTagStr, opts) => {
 			let isBookmark = isArticleBookmark(p.article)
 
 			return (
-				c('div', { className: "article-details-wrapper" }, [
-					c('div', { className: "article-close", onClick: () => { p.onClose() } }, ["x"]),
-					c('div', {
-						className: `article-bookmark-toggle ${isBookmark ? "fav" : "not-fav"}`,
-						onClick: () => {
-							if (isBookmark) removeBookmark(p.article, doRefresh)
-							else addBookmark(p.article, doRefresh)
-						}
-					},
-						`${!isBookmark ? "★" : "★"}`),
-					c('div', { className: "article-title" }, [p.article.title]),
-					c('div', {
-						className: "bg-image",
-						style: {
-							backgroundImage: "url(" + bgImage + ")",
-							backgroundColor: cColor
-						}
-					}),
-					c('div', { className: "article-content-wrapper" }, [
-						c('div', { className: "article-time" }, [
-							p.article.pubDate + " - " + p.article.sourceRss
-						]),
-						type !== "audio" &&
-						c('div', { className: "article-links-wrapper" }, [
-							c('a', { className: "article-link", href: p.article.link, target: "_blank" }, ["link"]),
-							c('a', {
-								className: "article-link",
-								onClick: () => { openLinkNewWindow(p.article.link) }
-							}, ["open in window"]),
-						]),
-						type === "audio" &&
-						c('div', { className: "audio-wrapper", }, [
-							c('audio', { controls: "true" }, [
-								c('source', {
-									src: p.article.enclosure.link,
-									type: p.article.enclosure.type
-								})
+				c('div', {}, [
+					c('div', { className: "article-details-bg", onClick: e => { p.onClose(); } }, []),
+					c('div', { className: "article-details-wrapper" }, [
+						c('div', { className: "article-close", onClick: () => { p.onClose() } }, ["x"]),
+						c('div', {
+							className: `article-bookmark-toggle ${isBookmark ? "fav" : "not-fav"}`,
+							onClick: () => {
+								if (isBookmark) removeBookmark(p.article, doRefresh)
+								else addBookmark(p.article, doRefresh)
+							}
+						},
+							`${!isBookmark ? "★" : "★"}`),
+						c('div', { className: "article-title" }, [p.article.title]),
+						c('div', {
+							className: "bg-image",
+							style: {
+								backgroundImage: "url(" + p.article.image + ")",
+								backgroundColor: p.article.bgColor
+							}
+						}),
+						c('div', { className: "article-content-wrapper" }, [
+							c('div', { className: "article-time" }, [
+								p.article.pubDate + " - " + p.article.sourceRss
 							]),
-
+							type !== "audio" &&
 							c('div', { className: "article-links-wrapper" }, [
-								c('a', { className: "article-link", href: p.article.enclosure.link, target: "_blank" }, ["audio file"]),
+								c('a', { className: "article-link", href: p.article.link, target: "_blank" }, ["link"]),
 								c('a', {
 									className: "article-link",
-									onClick: () => { openLinkNewWindow(p.article.enclosure.link) }
+									onClick: () => { openLinkNewWindow(p.article.link) }
 								}, ["open in window"]),
-							])
+							]),
+							type === "audio" &&
+							c('div', { className: "audio-wrapper", }, [
+								c('audio', { controls: "true" }, [
+									c('source', {
+										src: p.article.enclosure.link,
+										type: p.article.enclosure.type
+									})
+								]),
+
+								c('div', { className: "article-links-wrapper" }, [
+									c('a', { className: "article-link", href: p.article.enclosure.link, target: "_blank" }, ["audio file"]),
+									c('a', {
+										className: "article-link",
+										onClick: () => { openLinkNewWindow(p.article.enclosure.link) }
+									}, ["open in window"]),
+								])
+							]),
+							c('div', {
+								className: "article-description",
+								dangerouslySetInnerHTML: { __html: p.article.description }
+							}),
+							c('br'),
+							p.article.content !== p.article.description && c('div', {
+								className: "article-description",
+								dangerouslySetInnerHTML: { __html: p.article.content }
+							}),
 						]),
-						c('div', {
-							className: "article-description",
-							dangerouslySetInnerHTML: { __html: p.article.description }
-						}),
-						c('br'),
-						p.article.content !== p.article.description && c('div', {
-							className: "article-description",
-							dangerouslySetInnerHTML: { __html: p.article.content }
-						}),
-					]),
+
+					])
 				])
 			)
 		};
 
+
+
+
+
+
+
+
+
+		///////////////////////////////////////////////////////////////////////////////////////
+		// LIST VIEW
+		//
 		const App = () => {
 			const titems = React.useRef([])
 			const [items, setItems] = React.useState([])
@@ -260,7 +313,6 @@ const rssApp = (innerTagStr, opts) => {
 				if (filteredItems.length === 0) return
 				for (let i = 0; i < filteredItems.length; i++) {
 					let a = filteredItems[i]
-					// console.log(filteredItems);
 					let searchee = a.title.toLowerCase() + a.content.toLowerCase() + a.sourceRss.toLowerCase()
 					if (searchee.includes(search.toLowerCase())) {
 						nItems.push(a)
@@ -273,7 +325,7 @@ const rssApp = (innerTagStr, opts) => {
 			React.useEffect(() => {
 				getBookmarks(() => {
 					getCachedJsons(nitems => {
-						console.log(h, "3 updating list (should happen twice, 1st cached, second from internet");
+						// console.log(h, "3 updating list (should happen twice, 1st cached, second from internet");
 
 						const i = [...nitems]
 						setItems(i)
@@ -286,7 +338,6 @@ const rssApp = (innerTagStr, opts) => {
 						}
 						setFeeds(nfeeds)
 						setActiveFeed(null)
-						// console.log(223331,nitems, titems.current);
 					})
 				})
 			}, [])
@@ -296,7 +347,7 @@ const rssApp = (innerTagStr, opts) => {
 			React.useEffect(() => {
 				const nitems = []
 				if (activeFeed === "bookmarks") {
-					console.log(bookmarks.current);
+					// console.log(bookmarks.current);
 					setFilteredItems(bookmarks.current)
 				} else {
 					for (let i = 0; i < items.length; i++) {
@@ -310,6 +361,15 @@ const rssApp = (innerTagStr, opts) => {
 
 
 			let finalItems = search !== "" ? searchItems : filteredItems
+
+			console.log(333333333, finalItems);
+
+			// view toggle
+			const [listView, setIntListView] = React.useState("list")
+			const toggleListView = () => {
+				let nView = listView === "list" ? "gallery" : "list"
+				setIntListView(nView)
+			}
 
 			return (
 				c('div', { className: "rss-app-wrapper" }, [
@@ -334,19 +394,48 @@ const rssApp = (innerTagStr, opts) => {
 							className: `filter-input`,
 							onChange: e => {
 								let val = e.target.value
-								console.log(123, val, filteredItems);
 								setSearch(val)
 							}
 						}),
+						c('div', {
+							className: `filter-view`,
+							onClick: () => { toggleListView() }
+						}, [
+							listView === "list" ? `🖼️` : `📰`
+						]),
 					]),
-					c('div', { className: `articles-list ${itemActive ? 'item-active-open' : ''}` }, [
+					c('div', { className: `articles-list view-${listView} ${itemActive ? 'item-active-open' : ''}` }, [
 						finalItems.map(item =>
 							c('div', {
-								className: "article-list-item",
+								className: `article-${listView}-item`,
 								onClick: () => { setItemActive(item) }
 							},
-								[`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceRss} ${item.smallDate}] ${item.title} `]
-							),
+								[
+
+									listView === "list" &&
+									c('div', {
+										className: "",
+									}, [
+										`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceRss} ${item.smallDate}] ${item.title} `,
+									]),
+
+									listView !== "list" &&
+									c('div', {
+										className: "",
+									},
+										[
+											c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceRss} - ${item.smallDate}`]),
+											c('div', { className: "title" }, [item.title]),
+											c('div', {
+												className: "bg-item",
+												style: {
+													backgroundColor: item.bgColor,
+													backgroundImage: "url(" + item.image + ")",
+												}
+											}),
+											c('div', {}, []),
+										])
+								]),
 						)
 					]),
 
@@ -362,7 +451,23 @@ const rssApp = (innerTagStr, opts) => {
 				])
 			);
 		}
-		// console.log(ReactDOM, React);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		ReactDOM.render(
 			c(App),
@@ -376,7 +481,7 @@ const rssApp = (innerTagStr, opts) => {
 			"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
 		],
 		() => {
-			console.log(h, "0: react loaded, starting script with innertag:", innerTagStr)
+			// console.log(h, "0: react loaded, starting script with innertag:", innerTagStr)
 			execRssReader(innerTagStr)
 			setTimeout(() => {
 				api.utils.resizeIframe(opts.size);
@@ -400,6 +505,9 @@ const rssApp = (innerTagStr, opts) => {
 				height: 100%;
 		}
 		/* DETAILS  */
+		.article-details-bg {
+				/* display:none; */
+		}
 		.article-details-wrapper {
 				width: 50%;
 				padding: 15px;
@@ -408,13 +516,23 @@ const rssApp = (innerTagStr, opts) => {
 				height: calc(100% - 110px);
 				overflow-y: scroll;
 				height: 100%;
-				right: 0px;
+				left: 25px;
 				top: 0px;
 				box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
 		}
 		@media screen and (max-width: 500px) {
+				.article-details-bg {
+						cursor: pointer;
+						background: rgba(0,0,0,0.2);
+						height: 100%;
+						position: absolute;
+						width: 100%;
+						left: 0px;
+						top: 0px;
+				}
 				.article-details-wrapper {
-						width: calc(100% - 30px);
+						width: calc(100% - 50px);
+						box-shadow: 0px 0px 8px rgba(0,0,0,0.5);
 				}
 		}
 		.article-title {
@@ -448,10 +566,10 @@ const rssApp = (innerTagStr, opts) => {
 				font-size: 12px;
 				margin-bottom: 70px;
 		}
-.article-description img {
-	width:100%!important;
-	height: auto!important;
-}
+		.article-description img {
+				width:100%!important;
+				height: auto!important;
+		}
 		.article-links-wrapper {
 				font-size: 12px;
 				padding-bottom: 14px;
@@ -473,6 +591,7 @@ const rssApp = (innerTagStr, opts) => {
 				z-index: 0;
 				background-size: cover;
 				background-color: lightslategrey;
+				background-position: center;
 		}
 		.article-bookmark-toggle.fav {
 				color: #e9cd3f;
@@ -514,15 +633,23 @@ const rssApp = (innerTagStr, opts) => {
 		.filter-list-wrapper select {
 		}
 
-		/* LIST  */
-		.articles-list.item-active-open {
-				width: calc(50% - 30px);
+		.filter-view {
+				margin-right: 3px;
+				cursor: pointer;
 		}
+		/*
+				LIST
+	 */
 		.articles-list {
 				width: 100%;
 				overflow-x: hidden;
 				height: 100%;
 				overflow-y: scroll;
+		}
+
+		/* list view  */
+		.articles-list.view-list.item-active-open {
+				width: calc(50% - 30px);
 		}
 		@media screen and (max-width: 500px) {
 				.articles-list {
@@ -542,6 +669,52 @@ const rssApp = (innerTagStr, opts) => {
 		}
 		.article-list-item:nth-child(even) {background: #CCC}
 		.article-list-item:nth-child(odd) {background: #EEE}
+
+		/* gallery view  */
+		.articles-list.view-gallery {
+				display: flex;
+				flex-wrap: wrap;
+		}
+		.article-gallery-item {
+				width: calc(50% - 20px);
+				margin: 10px;
+				border-radius: 10px;
+				overflow: hidden;
+				position: relative;
+				cursor: pointer;
+
+		}
+
+		.article-gallery-item .meta  {
+				position: absolute;
+				bottom: 2px;
+				color: #ffffff7d;
+				z-index: 2;
+				font-size: 9px;
+				margin-left: 11px;
+		}
+		.article-gallery-item .title  {
+				margin: 0px 0px;
+				position: absolute;
+				padding: 10px;
+				padding-top: 10px;
+				word-break: break-word;
+				width: 96%;
+				bottom: 0px;
+				font-size: 13px;
+				font-weight: 800;
+				color: #d7d6d6;
+				background: linear-gradient(to top, #000, #0000);
+				padding-top: 60px;
+				padding-bottom: 17px;
+		}
+		.article-gallery-item .bg-item {
+				width: 100%;
+				min-height: 170px;
+				background-size: cover;
+				background-repeat: no-repeat;
+				background-position: center;
+		}
 
 		.filter-input {
 				width: 30%;

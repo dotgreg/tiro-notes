@@ -364,9 +364,10 @@ export const App = () => {
 	// OMNI SUGGEST BAR 
 	//
 	const [suggestOpen, setSuggestOpen] = useState(false)
+	const [suggestShow, setSuggestShow] = useState(false)
 	useEffect(() => {
-		const openOmni = () => { setSuggestOpen(true) }
-		const closeOmni = () => { setSuggestOpen(false) }
+		const openOmni = () => { setSuggestOpen(true); setSuggestShow(true) }
+		const closeOmni = () => { setSuggestOpen(false); }
 		k.bind('alt + spacebar', openOmni);
 		k.bind('esc', closeOmni);
 		return () => { k.releaseAllKeys(); }
@@ -385,8 +386,10 @@ export const App = () => {
 
 					{suggestOpen &&
 						<SuggestPopup
+							show={suggestShow}
 							lastNotes={filesHistory}
 							onClose={e => { setSuggestOpen(false) }}
+							onHide={e => { setSuggestShow(false) }}
 						/>
 					}
 
@@ -416,8 +419,9 @@ export const App = () => {
 								forceRerender: forceResponsiveRender,
 								onButtons: [
 									() => {
-										let nState = suggestOpen ? false : true
-										setSuggestOpen(nState)
+										// let nState = suggestOpen ? false : true
+										setSuggestShow(true)
+										setSuggestOpen(true)
 									}
 								]
 							})
