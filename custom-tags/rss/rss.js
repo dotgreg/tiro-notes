@@ -195,6 +195,7 @@ const rssApp = (innerTagStr, opts) => {
 				let res2 = xml2js(txt, { compact: true })
 				let items = res2.rss?.channel.item
 
+				if (!items) items = []
 				// allows for external processing
 				items = opts.preprocessItems(url, items)
 
