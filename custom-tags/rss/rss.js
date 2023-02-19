@@ -511,6 +511,12 @@ const rssApp = (innerTagStr, opts) => {
 			execRssReader(innerTagStr)
 			setTimeout(() => {
 				api.utils.resizeIframe(opts.size);
+			setTimeout(() => {
+				api.utils.resizeIframe(opts.size);
+			setTimeout(() => {
+				api.utils.resizeIframe(opts.size);
+			}, 100);
+			}, 100);
 			}, 100);
 		}
 	);
