@@ -66,6 +66,7 @@ export const useRessourceApi = (p: {
 
 
 	const fetchRessource: iRessourceApi['fetch'] = (url, cb, options) => {
+		console.log(`${h} FETCHING ressource url ${url} `, { url, options });
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
 
