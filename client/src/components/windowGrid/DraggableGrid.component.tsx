@@ -333,7 +333,7 @@ export const DraggableGrid = (p: {
 										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
 									}}
 									onMouseEnter={() => {
-										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
+										// if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
 
 										// refocus on parent
 										let el = document.getElementsByClassName("refocus-input")[0]
