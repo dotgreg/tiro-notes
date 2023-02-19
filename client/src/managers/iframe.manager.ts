@@ -507,13 +507,15 @@ export const iframeMainCode = (p: {
 	}
 
 	const api = {
-		version: 1.1,
+		version: 1.2,
 		call: callApi,
 		utils: {
 			getInfos,
 
 			loadCachedRessources,
 			getCachedRessourceUrl,
+			getRessourceIdFromUrl: p.getRessourceIdFromUrl,
+
 			loadScripts,
 			loadRessources,
 			loadScriptsNoCache,
