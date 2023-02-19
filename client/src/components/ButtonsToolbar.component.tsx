@@ -71,6 +71,7 @@ export interface iToolbarButton {
 	class?: string
 	customHtml?: ReactElement
 	action?: Function
+	onHover?: Function
 	active?: boolean
 }
 
@@ -85,6 +86,7 @@ export const ToolbarButton = (p: iToolbarButton) => {
 	return (
 		<button
 			className={classes}
+		onMouseEnter={e => {p.onHover && p.onHover()}}
 			onClick={e => { p.action && p.action(e) }}
 		>
 			<div className="inside-html-wrapper">

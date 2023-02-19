@@ -280,7 +280,11 @@ export const DraggableGrid = (p: {
 								icon: 'faGripVertical',
 								title: 'Move Window',
 								class: 'drag-handle',
-								action: () => { }
+								action: () => { },
+								onHover: () => {
+									console.log(32333, window);
+									if (window && !window.active) makeWindowActive(window.i, window.file)
+								}
 							},
 							{
 								icon: 'faPlus',
