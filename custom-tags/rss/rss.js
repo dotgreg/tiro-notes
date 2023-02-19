@@ -325,7 +325,6 @@ const rssApp = (innerTagStr, opts) => {
 				const i = [...nitems]
 				setItems(i)
 				titems.current = i
-
 				const nfeeds = []
 				for (let i = 0; i < nitems.length; i++) {
 						const it = nitems[i];
@@ -522,6 +521,7 @@ const rssApp = (innerTagStr, opts) => {
 						width: 100%;
 						left: 0px;
 						top: 0px;
+
 				}
 				.article-details-wrapper {
 						width: calc(100% - 50px);
@@ -586,155 +586,157 @@ const rssApp = (innerTagStr, opts) => {
 				background-size: cover;
 				background-color: lightslategrey;
 				background-position: center;
-		}
-		.article-bookmark-toggle.fav {
-				color: #e9cd3f;
-		}
-		.article-bookmark-toggle {
-				color: grey;
-				position: fixed;
-				right: 40px;
-				top: 7px;
-				cursor: pointer;
-				z-index: 2;
-				background: rgba(255,255,255,1);
-				box-shadow: 0px 0px 17px rgb(0 0 0 / 55%);
-				padding: 2px 9px;
-				border-radius: 30px;
-				font-size: 10px;
-		}
-
-		.article-close {
-				position: fixed;
-				right: 10px;
-				top: 7px;
-				cursor: pointer;
-				z-index: 2;
-				background: rgba(255,255,255,1);
-				box-shadow: 0px 0px 17px rgb(0 0 0 / 55%);
-				padding: 2px 9px;
-				border-radius: 30px;
-				color: grey;
-				font-size: 10px;
-		}
-		/* FILTER  */
-		.filter-list-wrapper {
-				display: flex;
-				flex-direction: row;
-				padding-bottom: 5px;
-				padding-left: 55px;
-				width: 50%
-		}
-		@media screen and (max-width: 500px) {
-				.filter-list-wrapper {
-						width: 100%;
-				}
-		}
-		.filter-list-wrapper select {
-		}
-
-		.filter-view {
-				margin-right: 3px;
-				cursor: pointer;
-		}
-		/*
-				LIST
-	 */
-		.articles-list {
-				width: 100%;
-				overflow-x: hidden;
-				height: 100%;
-				overflow-y: scroll;
-		}
-
-		/* list view  */
-		.articles-list.item-active-open {
-				width: calc(50% - 30px);
-		}
-		@media screen and (max-width: 500px) {
-				.articles-list {
-						width: 100%;
-				}
-		}
-
-		.article-list-item {
-				//width: 1000%;
-				padding: 5px 10px;
-				font-size: 11px;
-				line-height: 14px;
-		}
-		.article-list-item:hover {
-				color: blue;
-				cursor: pointer;
-		}
-		.article-list-item:nth-child(even) {background: #CCC}
-		.article-list-item:nth-child(odd) {background: #EEE}
-
-		/* gallery view  */
-		.articles-list.view-gallery {
-				display: flex;
-				flex-wrap: wrap;
-		}
-		.article-gallery-item {
-				width: calc(50% - 20px);
-				margin: 10px;
-				border-radius: 10px;
-				overflow: hidden;
-				position: relative;
-				cursor: pointer;
-
-		}
-
-		.article-gallery-item .meta  {
-				position: absolute;
-				bottom: 2px;
-				color: #ffffff7d;
-				font-size: 9px;
-				margin-left: 11px;
-		}
-		.article-gallery-item .title  {
-				margin: 0px 0px;
-				position: absolute;
-				padding: 10px;
-				padding-top: 10px;
-				padding-bottom: 10px;
-				padding-top: 10px;
-				word-break: break-word;
-				width: 93%;
-				bottom: 0px;
-				font-size: 12px;
-				font-weight: 800;
-				color: #d7d6d6;
-				background: linear-gradient(to top, #000, #0000);
-				padding-top: 60px;
-				padding-bottom: 17px;
-				line-height: 14px;
-		}
-
-		.article-gallery-item .bg-item {
-				width: 100%;
-				min-height: 170px;
-				background-size: cover;
 				background-repeat: no-repeat;
-				background-position: center;
 		}
-
-		.filter-input {
-				width: 30%;
-				margin-right: 10px;
-				border: 0px;
-				box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
-				border-radius: 5px;
-		}
-
-		`;
-
-		return `
-		<div id='root-react'></div>
-		<style>
-		${styleRss}
-		</style>
-		`
+}
+.article-bookmark-toggle.fav {
+		color: #e9cd3f;
+}
+.article-bookmark-toggle {
+		color: grey;
+		position: fixed;
+		right: 40px;
+		top: 7px;
+		cursor: pointer;
+		z-index: 2;
+		background: rgba(255,255,255,1);
+		box-shadow: 0px 0px 17px rgb(0 0 0 / 55%);
+		padding: 2px 9px;
+		border-radius: 30px;
+		font-size: 10px;
 }
 
-window.initCustomTag = rssApp
+.article-close {
+		position: fixed;
+		right: 10px;
+		top: 7px;
+		cursor: pointer;
+		z-index: 2;
+		background: rgba(255,255,255,1);
+		box-shadow: 0px 0px 17px rgb(0 0 0 / 55%);
+		padding: 2px 9px;
+		border-radius: 30px;
+		color: grey;
+		font-size: 10px;
+}
+/* FILTER  */
+.filter-list-wrapper {
+		display: flex;
+		flex-direction: row;
+		padding-bottom: 5px;
+		padding-left: 55px;
+		width: 50%
+}
+@media screen and (max-width: 500px) {
+		.filter-list-wrapper {
+				width: 100%;
+		}
+}
+.filter-list-wrapper select {
+}
+
+.filter-view {
+		margin-right: 3px;
+		cursor: pointer;
+}
+/*
+				LIST
+*/
+.articles-list {
+		width: 100%;
+		overflow-x: hidden;
+		height: 100%;
+		overflow-y: scroll;
+}
+
+/* list view  */
+.articles-list.item-active-open {
+		width: calc(50% - 30px);
+}
+@media screen and (max-width: 500px) {
+		.articles-list {
+				width: 100%;
+		}
+}
+
+.article-list-item {
+		//width: 1000%;
+		padding: 5px 10px;
+		font-size: 11px;
+		line-height: 14px;
+}
+.article-list-item:hover {
+		color: blue;
+		cursor: pointer;
+}
+.article-list-item:nth-child(even) {background: #CCC}
+.article-list-item:nth-child(odd) {background: #EEE}
+
+/* gallery view  */
+.articles-list.view-gallery {
+		display: flex;
+		flex-wrap: wrap;
+}
+.article-gallery-item {
+		width: calc(50% - 20px);
+		margin: 10px;
+		border-radius: 10px;
+		overflow: hidden;
+		position: relative;
+		cursor: pointer;
+
+}
+
+.article-gallery-item .meta  {
+		position: absolute;
+		bottom: 2px;
+		color: #ffffff7d;
+		font-size: 9px;
+		margin-left: 11px;
+}
+.article-gallery-item .title  {
+		margin: 0px 0px;
+		position: absolute;
+		padding: 10px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		padding-top: 10px;
+		word-break: break-word;
+		width: 93%;
+		bottom: 0px;
+		font-size: 12px;
+		font-weight: 800;
+		color: #d7d6d6;
+		background: linear-gradient(to top, #000, #0000);
+		padding-top: 60px;
+		padding-bottom: 17px;
+		line-height: 14px;
+}
+
+.article-gallery-item .bg-item {
+		width: 100%;
+		min-height: 170px;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+}
+
+.filter-input {
+		width: 30%;
+		margin-right: 10px;
+		border: 0px;
+		box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+		border-radius: 5px;
+}
+
+`;
+
+return `
+<div id='root-react'></div>
+<style>
+${styleRss}
+</style>
+`
+}
+
+ window.initCustomTag = rssApp
