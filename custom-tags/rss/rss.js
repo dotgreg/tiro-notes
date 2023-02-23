@@ -889,51 +889,45 @@ const rssApp = (innerTagStr, opts) => {
 		flex-wrap: wrap;
 		justify-content: center;
 }
+
 .article-gallery-item {
-		width: calc(50% - 12px);
-		max-width: 320px;
-		margin: 0px 6px 6px 0px;
+		width: calc(50% - 20px);
+max-width: 320px;
+		margin: 10px;
 		border-radius: 10px;
 		overflow: hidden;
 		position: relative;
 		cursor: pointer;
-		background: #dbdbdb;
-		box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
-}
-@media screen and (max-width: 1000px) {
-		.item-active .article-gallery-item {
-				width: calc(100% - 12px);
-		}
-}
-@media screen and (max-width: 500px) {
-		.article-gallery-item2 {
-				width: calc(100% - 12px);
-		}
-}
+			max-height: 190px;
+	}
 
+.article-gallery-item .meta  {
+		position: absolute;
+		bottom: 2px;
+		color: #ffffff7d;
+		font-size: 9px;
+		margin-left: 11px;
+}
 .article-gallery-item .title-wrapper  {
+}
+.article-gallery-item .title  {
 		margin: 0px 0px;
+		position: absolute;
 		padding: 10px;
 		padding-top: 10px;
 		padding-bottom: 10px;
 		padding-top: 10px;
-		padding-bottom: 10px;
-		padding-top: 10px;
 		word-break: break-word;
+		width: calc(100% - 20px);
+		bottom: 0px;
 		font-size: 12px;
 		font-weight: 800;
-		color: #595858;
+		color: #d7d6d6;
+		background: linear-gradient(to top, #000, #0000);
+		padding-top: 110px;
+		padding-bottom: 17px;
 		line-height: 14px;
 }
-.article-gallery-item .meta  {
-		color: #8c8c8c;
-		font-size: 9px;
-		font-weight: 800;
-}
-.article-gallery-item .title  {
-		padding-bottom: 5px;
-}
-
 .article-gallery-item .bg-item {
 		width: 100%;
 		min-height: 170px;
@@ -941,6 +935,13 @@ const rssApp = (innerTagStr, opts) => {
 		background-repeat: no-repeat;
 		background-position: center;
 }
+
+
+
+
+
+
+
 
 .filter-input {
 		width: 30%;
