@@ -288,12 +288,16 @@ const rssApp = (innerTagStr, opts) => {
 						c('div', {
 							className: `article-bookmark-toggle ${isBookmark ? "fav" : "not-fav"}`,
 							onClick: () => {
-								if (isBookmark) removeBookmark(p.article, doRefresh)
-								else addBookmark(p.article, doRefresh)
+								if (isBookmark) {
+									removeBookmark(p.article, doRefresh)
+								}
+								else {
+									addBookmark(p.article, doRefresh)
+								}
 							}
 						},
 							`${!isBookmark ? "★" : "★"}`),
-						c('div', { className: "article-title" }, [p.article.title]),
+						c('div', { className: "article-title" }, [`${isBookmark ? "★ " : ""}${p.article.title}`]),
 						c('div', {
 							className: "bg-image",
 							style: {
@@ -899,6 +903,9 @@ const rssApp = (innerTagStr, opts) => {
 .video-wrapper iframe {
 		width: 100%;
 		height: 250px;
+}
+.fav {
+color: #dbcd03;
 }
 
 `;
