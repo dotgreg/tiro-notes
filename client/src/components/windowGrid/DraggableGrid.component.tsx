@@ -282,7 +282,6 @@ export const DraggableGrid = (p: {
 								class: 'drag-handle',
 								action: () => { },
 								onHover: () => {
-									console.log(32333, window);
 									if (window && !window.active) makeWindowActive(window.i, window.file)
 								}
 							},

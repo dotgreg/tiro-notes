@@ -58,7 +58,7 @@ export const useRessourceApi = (p: {
 
 	const downloadRessource: iRessourceApi['download'] = (url, folder, cb) => {
 		const idReq = genIdReq('download-ressource');
-		console.log(`${h} downloading ressource url ${url} to folder ${folder}`);
+		// console.log(`${h} downloading ressource url ${url} to folder ${folder}`);
 		// execute callback on answer
 		p.eventBus.subscribe(idReq, cb);
 		clientSocket2.emit('askRessourceDownload', { url, folder, idReq, token: getLoginToken() })
@@ -66,7 +66,7 @@ export const useRessourceApi = (p: {
 
 
 	const fetchRessource: iRessourceApi['fetch'] = (url, cb, options) => {
-		console.log(`${h} FETCHING ressource url ${url} `, { url, options });
+		// console.log(`${h} FETCHING ressource url ${url} `, { url, options });
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
 
@@ -93,7 +93,7 @@ export const useRessourceApi = (p: {
 			checkUrlExists({
 				url: staticPath,
 				onSuccess: () => {
-					console.log(`${h} FETCHING => getting CACHED file`, { url, options });
+					// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
 					returnFile()
 				},
 				onFail: () => { downloadThenReturnFile() }
