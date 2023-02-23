@@ -138,6 +138,17 @@ const rssApp = (innerTagStr, opts) => {
 		//////////////////////////////////////////////////////////////////////////////////////////////////
 		// FETCHING DATA
 		//
+
+		// function debounce(func, timeout = 300) {
+		// 	let timer;
+		// 	return (...args) => {
+		// 		clearTimeout(timer);
+		// 		timer = setTimeout(() => { func.apply(this, args); }, timeout);
+		// 	};
+		// }
+		// const debounceUpdateList = debounce(() => {
+		// }, 4000)
+
 		const getJsons = (cb) => {
 			const feedsArr = getFeeds(feedsStr)
 			let resItems = []
@@ -194,12 +205,12 @@ const rssApp = (innerTagStr, opts) => {
 						feedItems = nitems
 					}
 					console.log(h, `feed loaded ${count}/${feedsArr.length} : ${feedsArr[i].name} => ${feedItems.length} els`);
-					if (count === feedsArr.length) {
-						// sort items by time
-						resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
-						setCache(resItems)
-						cb(resItems)
-					}
+					// if (count === feedsArr.length) {
+					// sort items by time
+					resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
+					setCache(resItems)
+					cb(resItems)
+					// }
 				})
 			}
 		}
