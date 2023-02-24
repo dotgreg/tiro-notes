@@ -34,7 +34,7 @@ const getVideosDetails = (vItems, cb) => {
 						each(vItems, it => {
 								if(it.contentDetails.videoId === vid.id) {
 										it.videoDetails = vid.contentDetails
-										it.videoDetails.durationMin = vid.contentDetails.duration.replaceAll("PT","").split("M")[0]
+										it.videoDetails.durationMin = vid.contentDetails.duration.replaceAll("PT","").split("M")[0] || "m"
 								}
 						})
 								})
@@ -48,7 +48,7 @@ const getItemsRecurr = (p) => {
 		let url = playlistUrl(playlistId, nextToken)
 		if (recurrCounter > 0 && !nextToken) return cb(items)
 		f(url, obj => {
-				console.log("INTERM", playlistId, recurrCounter, items.length, limitFetchNb, nextToken,  url,)
+				// console.log("INTERM", playlistId, recurrCounter, items.length, limitFetchNb, nextToken,  url,)
 				let nToken = obj.nextPageToken
 				let nitems1 = obj.items
 				getVideosDetails(nitems1, nitems2 => {
@@ -94,10 +94,11 @@ const each = (itera, cb) => {
 const processItems = items => {
 		const fitems = []
 		each(items, i => {
+				if (i.snippet.title !== "Private video") {
 				fitems.push({
-						title: `${i.snippet.title} - ${i.videoDetails.durationMin}m`,
+						title: `${i.snippet.title} - ${i.videoDetails?.durationMin} m`,
 						pubDate: i.snippet.publishedAt,
-						image: i.snippet.thumbnails.high.url,
+						image: i.snippet.thumbnails?.high?.url,
 						link: `https://youtube.com/watch?v=${i.snippet.resourceId.videoId}`,
 						description: i.snippet.description,
 						enclosure : {
@@ -107,6 +108,7 @@ const processItems = items => {
 								videoDetails: i.videoDetails
 						}
 				})
+				}
 		})
 				return fitems
 }
