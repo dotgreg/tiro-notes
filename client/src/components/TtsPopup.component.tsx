@@ -14,7 +14,7 @@ import { Popup } from './Popup.component';
 
 export const TtsPopup = (p: {
 	// allows to retain tracking 
-	id: string|null,
+	id: string | null,
 	fileContent: string
 	startString: string | null
 
@@ -40,6 +40,9 @@ export const TtsPopup = (p: {
 
 	const tts = useRef<any>()
 
+	//@ts-ignore
+	window.tts = tts
+
 	useEffect(() => {
 		setTimeout(() => {
 			if (getAvailableVoices()[selectedVoiceId]) {
@@ -48,7 +51,6 @@ export const TtsPopup = (p: {
 		})
 		tts.current = new Text2SpeechManager({ text: p.fileContent })
 		tts.current.goToChunk(currChunk)
-
 	}, [])
 
 	useEffect(() => {
@@ -68,6 +70,7 @@ export const TtsPopup = (p: {
 
 
 		if (tts.current.currChunkId !== 0) nPos = tts.current.currChunkId
+		else nPos = tts.current.currChunkId = 1
 		// if we have a p.startString
 		if (p.startString && !initPos.current) {
 			let chunkPos = tts.current.extractToChunkPos(p.startString)
@@ -135,6 +138,9 @@ export const TtsPopup = (p: {
 						<Icon name="faFastBackward" color="black" />
 					</button>
 					<button onClick={e => {
+						console.log(1234, tts.current, isPlaying);
+						tts.current.goToChunk(currChunk)
+
 						!isPlaying ? tts.current.play() : tts.current.pause()
 					}}>
 						<Icon name={!isPlaying ? "faPlay" : "faPause"} color="black" />
