@@ -737,9 +737,7 @@ const feedApp = (innerTagStr, opts) => {
 
 		// YOUTUBE feeds
 		if (opts.feedType === "youtube") {
-				toLoad = [
-						"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/custom-tags/feed/youtube-feed.js"
-				]
+				toLoad = [opts.base_url + "/youtube-feed.js"]
 		}
 
 		api.utils.loadScripts(
