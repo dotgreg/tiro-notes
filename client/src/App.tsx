@@ -293,7 +293,7 @@ export const App = () => {
 	const { lightboxApi, lightboxImages, lightboxIndex } = useLightbox();
 
 	// TTS SYSTEM
-	const { ttsApi, ttsPos, ttsPopup, setTtsPopup, ttsPopupContent, ttsPopupFile, syncTtsStatus } = useTtsPopup();
+	const { ttsApi, ttsPos, ttsPopup, setTtsPopup, ttsPopupContent, ttsPopupId, syncTtsStatus } = useTtsPopup();
 
 	//
 	// CLIENT API 
@@ -638,7 +638,7 @@ export const App = () => {
 
 			{ttsPopup &&
 				<TtsPopup
-					file={ttsPopupFile as iFile}
+					id={ttsPopupId}
 					fileContent={ttsPopupContent}
 					startString={ttsPos}
 					onUpdate={s => { syncTtsStatus(s) }}

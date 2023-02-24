@@ -251,7 +251,7 @@ const EditorAreaInt = (
 			icon: 'faCommentDots',
 			action: () => {
 				getApi(api => {
-					api.ui.textToSpeechPopup.open(p.file.path, innerFileContent)
+					api.ui.textToSpeechPopup.open(innerFileContent, { id: p.file.name })
 				})
 			}
 		},

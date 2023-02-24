@@ -13,7 +13,8 @@ import { Input, OptionObj } from './Input.component';
 import { Popup } from './Popup.component';
 
 export const TtsPopup = (p: {
-	file: iFile,
+	// allows to retain tracking 
+	id: string|null,
 	fileContent: string
 	startString: string | null
 
@@ -32,14 +33,7 @@ export const TtsPopup = (p: {
 		setBgLock(status)
 	}
 
-	// useEffect(() => {
-	// 	if (p.startString !== -1) {
-	// 		setCurrChunk(p.startString)
-	// 	}
-	// }, [p.startString])
-
-	const [currChunk, setCurrChunk] = useLocalStorage<number>(`tts-pos-${p.file.name}`, 0)
-	// const [currRate, setCurrRate] = useState(1)
+	const [currChunk, setCurrChunk] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
 	const [currRate, setCurrRate] = useLocalStorage<number>(`tts-rate`, 1)
 
 	const [totChunks, setTotChunks] = useState(0)
