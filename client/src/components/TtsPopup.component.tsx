@@ -138,7 +138,7 @@ export const TtsPopup = (p: {
 						<Icon name="faFastBackward" color="black" />
 					</button>
 					<button onClick={e => {
-						console.log(1234, tts.current, isPlaying);
+						// console.log(1234, tts.current, isPlaying);
 						tts.current.goToChunk(currChunk)
 
 						!isPlaying ? tts.current.play() : tts.current.pause()
