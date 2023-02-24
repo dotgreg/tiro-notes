@@ -1,6 +1,7 @@
 const channelUrl = (name) => {
 		name = name.substring(1)
-		return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=${name}&key=${window.youtubeKey}`}
+		console.log(33333, name);
+		return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${name}&key=${window.youtubeKey}`}
 
 
 const f = (url, cb) => {
