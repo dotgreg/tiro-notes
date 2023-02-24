@@ -1,6 +1,5 @@
 const channelUrl = (name) => {
 		name = name.substring(1)
-		console.log(33333, name);
 		return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${name}&key=${window.youtubeKey}`}
 
 
@@ -47,8 +46,9 @@ const getVideosDetails = (vItems, cb) => {
 const getItemsRecurr = (p) => {
 		let {playlistId, items, recurrCounter,  limitFetchNb, nextToken, cb} = p
 		let url = playlistUrl(playlistId, nextToken)
+		if (recurrCounter > 0 && !nextToken) return cb(items)
 		f(url, obj => {
-				// console.log("INTERM", playlistId, recurrCounter, items.length, limitFetchNb, nextToken,  url,)
+				console.log("INTERM", playlistId, recurrCounter, items.length, limitFetchNb, nextToken,  url,)
 				let nToken = obj.nextPageToken
 				let nitems1 = obj.items
 				getVideosDetails(nitems1, nitems2 => {
