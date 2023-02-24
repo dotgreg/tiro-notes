@@ -3,6 +3,7 @@ const rssApp = (innerTagStr, opts) => {
 	if (!opts) opts = {}
 	if (!opts.size) opts.size = "95%"
 	if (!opts.itemsPerFeed) opts.itemsPerFeed = 100
+	if (!opts.feedType) opts.feedType = "xml"
 	// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 	// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
@@ -727,19 +728,30 @@ const rssApp = (innerTagStr, opts) => {
 		);
 	}
 
+	// XML feeds
+	let toLoad = ["https://cdn.jsdelivr.net/npm/xml-js@1.6.9/dist/xml-js.min.js"]
+
+	// YOUTUBE feeds
+	if (opts.feedType === "youtube") {
+		toLoad = [
+			"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/custom-tags/rss/youtube-feed.js"
+		]
+	}
+
 	api.utils.loadScripts(
 		[
 			"https://unpkg.com/react@18/umd/react.production.min.js",
 			"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
-			"https://cdn.jsdelivr.net/npm/xml-js@1.6.9/dist/xml-js.min.js",
-			"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js"
+			"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js",
+			...toLoad
 		],
 		() => {
 
-			// let url = "https://www.lemonde.fr/international/article/2023/02/24/orion-un-exercice-pour-se-preparer-a-la-guerre-de-haute-intensite_6163096_3210.html"
-			// url = `https://www.lemonde.fr/les-decodeurs/article/2022/11/23/passoires-thermiques-fenetres-aides-financieres-neuf-idees-recues-sur-la-renovation-thermique-des-batiments_6151257_4355770.html`
-			// fetchArticle(url)
-
+			if (opts.feedType === "youtube") {
+				opts.fetchItems = window.fetchYoutubeItems
+				window.youtubeKey = opts.youtubeKey
+				console.log("YOUTUBE MODE", { opts });
+			}
 
 			execRssReader(innerTagStr)
 			setTimeout(() => {
