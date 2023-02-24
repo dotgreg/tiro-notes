@@ -1,5 +1,3 @@
-window.youtubeKey = `AIzaSyAJo-lbUEWpsLgErczJYH99ABfuoM81VQc`
-
 const channelUrl = (name) => {
 		name = name.substring(1)
 		return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&forUsername=${name}&key=${window.youtubeKey}`}
