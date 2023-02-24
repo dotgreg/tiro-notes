@@ -569,6 +569,10 @@ const feedApp = (innerTagStr, opts) => {
 						React.useEffect(() => {
 								const nitems = []
 								if (activeFeed === "bookmarks") {
+										for (let i = 0; i < bookmarks.current.length; i++) {
+												let b = bookmarks.current[i]
+												if (b.sourceRss) b.sourceFeed = b.sourceRss
+										}
 										setFilteredItems(bookmarks.current)
 								} else {
 										for (let i = 0; i < items.length; i++) {
