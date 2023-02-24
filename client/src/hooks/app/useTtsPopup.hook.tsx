@@ -1,7 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { each, isString } from 'lodash';
-import { iFile, iFileImage } from '../../../../shared/types.shared';
-import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 
 export interface iTtsStatus {
 	isPlaying: boolean
@@ -11,7 +8,7 @@ export interface iTtsStatus {
 }
 
 export interface iTtsApi {
-	open: (filePath: string, content: string, startString?: string) => void
+	open: (content: string, opts?: { startString?: string, id?: string }) => void
 	getStatus: (
 		// rand: string,
 		cb: (status: iTtsStatus) => void
@@ -23,28 +20,30 @@ const h = `[TTS API]`
 export const useTtsPopup = () => {
 
 	const [ttsPopup, setTtsPopup] = useState(false)
-	const [ttsPopupFile, setTtsPopupFile] = useState<iFile | null>(null)
+	const [ttsPopupId, setTtsPopupId] = useState<string | null>(null)
 	const [ttsPos, setTtsPos] = useState<string | null>(null)
 	const [ttsPopupContent, setTtsPopupContent] = useState("")
 
-	const openTtsPopup: iTtsApi['open'] = (filePath, content, startString) => {
-		console.log(h, `open`, { filePath, content, startString });
-		let nfile = pathToIfile(filePath)
-		if (nfile) {
-			setTtsPopupFile(nfile)
-			if (startString) setTtsPos(startString)
-			setTtsPopupContent(content)
-			setTtsPopup(true)
-		}
+	const openTtsPopup: iTtsApi['open'] = (content, opts) => {
+		opts = opts ? opts : {}
+		let id = opts.id ? opts.id : null
+		let startString = opts.startString ? opts.startString : null
+
+		console.log(h, `open`, { id, content, startString });
+
+		setTtsPopupId(id)
+		if (startString) setTtsPos(startString)
+		setTtsPopupContent(content)
+		setTtsPopup(true)
 	}
 	const closeTtsPopup: iTtsApi['close'] = () => {
-		console.log(h, ` close`);
+		// console.log(h, ` close`);
 		setTtsPopup(false)
 	}
 
 	// GET STATUS PLAY TTS
 	const getStatus: iTtsApi['getStatus'] = (cb) => {
-		console.log(h, `getStatus`, ttsStatusInt.current, cb, cb.toString());
+		// console.log(h, `getStatus`, ttsStatusInt.current, cb, cb.toString());
 		if (ttsStatusInt.current) cb(ttsStatusInt.current)
 	}
 	const ttsStatusInt = useRef<iTtsStatus | null>(null)
@@ -61,7 +60,7 @@ export const useTtsPopup = () => {
 	}
 	return {
 		ttsApi,
-		ttsPopupContent, ttsPopupFile,
+		ttsPopupContent, ttsPopupId,
 		ttsPos,
 		setTtsPopup, ttsPopup,
 		syncTtsStatus

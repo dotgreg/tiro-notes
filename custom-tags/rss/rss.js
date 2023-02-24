@@ -27,6 +27,29 @@ const rssApp = (innerTagStr, opts) => {
 		}
 	}
 
+	//
+	//  FETCH AND REDEABILITY
+	//
+	const fetchArticleContent = (url, cb) => {
+		api.call("ressource.fetch", [url, { disableCache: false }], txt => {
+			var doc = document.implementation.createHTMLDocument('');
+			doc.open();
+			doc.write(txt);
+			doc.close();
+			var article = new Readability(doc).parse();
+
+			let textContent = article.textContent.replaceAll(`              `, `\n`)
+			textContent = textContent.replaceAll(`          `, `\n`)
+			textContent = textContent.replaceAll(`      `, `\n`)
+			textContent = textContent.replaceAll(`    `, `\n`)
+			textContent = textContent.replaceAll(`   `, `\n`)
+
+			html = article.content
+
+			cb({ title: article.title, text: textContent, html })
+		})
+	}
+
 
 	console.log(h, "========= INIT with opts:", opts)
 
@@ -56,6 +79,9 @@ const rssApp = (innerTagStr, opts) => {
 		}
 
 		const cacheId = `ctag-rss-${api.utils.getInfos().file.path}`
+
+
+
 
 
 		//
@@ -156,21 +182,9 @@ const rssApp = (innerTagStr, opts) => {
 
 
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////
 		// FETCHING DATA
 		//
-
-		// function debounce(func, timeout = 300) {
-		// 	let timer;
-		// 	return (...args) => {
-		// 		clearTimeout(timer);
-		// 		timer = setTimeout(() => { func.apply(this, args); }, timeout);
-		// 	};
-		// }
-		// const debounceUpdateList = debounce(() => {
-		// }, 4000)
-
-
 		const getJsons = (cb) => {
 			const feedsArr = getFeeds(feedsStr)
 			let resItems = []
@@ -273,9 +287,40 @@ const rssApp = (innerTagStr, opts) => {
 		//
 		const c = React.createElement;
 		const ArticleDetail = (p) => {
-			const [type, setType] = React.useState("text")
 
+			//
+			// Article loading + TTS
+			//
+			const [fetchStatus, setFetchStatus] = React.useState("")
+			const [articleContent, setArticleContent] = React.useState(null)
+
+			const fetchArticle = (cb) => {
+				setFetchStatus("loading...")
+				fetchArticleContent(p.article.link, obj => {
+					setFetchStatus(null)
+					setArticleContent(obj)
+					cb(obj)
+				})
+			}
+			const openTTS = () => {
+				let opts = { id: p.article.link }
+				if (!articleContent) {
+					fetchArticle(obj => {
+						api.call("ui.textToSpeechPopup.open", [obj.text, opts], () => { })
+					})
+				} else {
+					api.call("ui.textToSpeechPopup.open", [articleContent.text, opts], () => { })
+				}
+			}
+
+
+			//
+			// TYPES AUDIO/VIDEO
+			//
+			const [type, setType] = React.useState("text")
 			React.useEffect(() => {
+				setArticleContent(null)
+
 				// for mp3/podcasts
 				if (
 					p.article.enclosure.type &&
@@ -288,9 +333,6 @@ const rssApp = (innerTagStr, opts) => {
 			}, [p.article])
 
 
-			// const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
-			// const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-			// const bgImage = p.article.thumbnail || p.article.enclosure.link
 			const openLinkNewWindow = (url) => {
 				window.open(url, 'rss_window', 'location=yes,height=670,width=820,scrollbars=yes,status=no');
 			}
@@ -302,6 +344,11 @@ const rssApp = (innerTagStr, opts) => {
 				p.onBookmarkToggle()
 			}
 			let isBookmark = isArticleBookmark(p.article)
+
+
+			let finalArticleContent = p.article.description
+			if (p.article.content !== p.article.description) finalArticleContent = p.article.content + p.article.description
+			// if (articleContent) finalArticleContent = articleContent
 
 			return (
 				c('div', { className: "article-details-prewrapper" }, [
@@ -343,6 +390,14 @@ const rssApp = (innerTagStr, opts) => {
 									className: "article-link",
 									onClick: () => { openLinkNewWindow(p.article.link) }
 								}, ["open in window"]),
+								c('a', {
+									className: "article-link",
+									onClick: () => { fetchArticle() }
+								}, ["load Article"]),
+								c('a', {
+									className: "article-link",
+									onClick: () => { openTTS() }
+								}, ["🎵"]),
 							]),
 							//
 							// AUDIO PLAYER
@@ -386,16 +441,17 @@ const rssApp = (innerTagStr, opts) => {
 							]),
 
 							c('div', {
-								className: "article-description",
-								dangerouslySetInnerHTML: { __html: p.article.description }
+								className: "article-status-fetch",
+							}, [fetchStatus]),
+							articleContent && c('div', {
+								className: "article-full-content",
+								dangerouslySetInnerHTML: { __html: articleContent.html.trim() }
 							}),
-							c('br'),
-							p.article.content !== p.article.description && c('div', {
+							c('div', {
 								className: "article-description",
-								dangerouslySetInnerHTML: { __html: p.article.content }
+								dangerouslySetInnerHTML: { __html: finalArticleContent.trim() }
 							}),
 						]),
-
 					])
 				])
 			)
@@ -673,9 +729,16 @@ const rssApp = (innerTagStr, opts) => {
 		[
 			"https://unpkg.com/react@18/umd/react.production.min.js",
 			"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
-			"https://cdn.jsdelivr.net/npm/xml-js@1.6.9/dist/xml-js.min.js"
+			"https://cdn.jsdelivr.net/npm/xml-js@1.6.9/dist/xml-js.min.js",
+			"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js"
 		],
 		() => {
+
+			// let url = "https://www.lemonde.fr/international/article/2023/02/24/orion-un-exercice-pour-se-preparer-a-la-guerre-de-haute-intensite_6163096_3210.html"
+			// url = `https://www.lemonde.fr/les-decodeurs/article/2022/11/23/passoires-thermiques-fenetres-aides-financieres-neuf-idees-recues-sur-la-renovation-thermique-des-batiments_6151257_4355770.html`
+			// fetchArticle(url)
+
+
 			execRssReader(innerTagStr)
 			setTimeout(() => {
 				api.utils.resizeIframe(opts.size);
@@ -767,6 +830,21 @@ const rssApp = (innerTagStr, opts) => {
 				color: grey;
 				font-size: 12px;
 				margin-bottom: 70px;
+				white-space: pre-line;
+		}
+		.article-full-content img {
+				max-width: 100%
+
+
+		}
+		.article-full-content {
+				background: #f4f4f4;
+				padding: 10px;
+				border-radius: 8px;
+				position: relative;
+				left: -20px;
+				width: calc(100% + 20px);
+				margin-bottom: 20px;
 		}
 		.article-description img {
 				width:100%!important;
@@ -892,14 +970,14 @@ const rssApp = (innerTagStr, opts) => {
 
 .article-gallery-item {
 		width: calc(50% - 20px);
-max-width: 320px;
+		max-width: 320px;
 		margin: 10px;
 		border-radius: 10px;
 		overflow: hidden;
 		position: relative;
 		cursor: pointer;
-			max-height: 190px;
-	}
+		max-height: 190px;
+}
 
 .article-gallery-item .meta  {
 		position: absolute;
@@ -976,6 +1054,10 @@ max-width: 320px;
 }
 .fav {
 		color: #dbcd03;
+}
+.article-status-fetch {
+		padding: 10px;
+		color: #b7b7b7;
 }
 
 `;
