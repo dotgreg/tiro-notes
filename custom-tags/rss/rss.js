@@ -122,7 +122,7 @@ const rssApp = (innerTagStr, opts) => {
 
 
 
-		//////////////////////////////////////////////////////////////////////////////////////////////////
+		////////////////////////////////////////////////////////////////////////////////////
 		// bookmarksORITES MECHANISM
 		//
 		const bookmarksId = `ctag-rss-bookmarks-${api.utils.getInfos().file.name}`
@@ -299,14 +299,16 @@ const rssApp = (innerTagStr, opts) => {
 				fetchArticleContent(p.article.link, obj => {
 					setFetchStatus(null)
 					setArticleContent(obj)
-					cb(obj)
+					if (cb) cb(obj)
 				})
 			}
 			const openTTS = () => {
 				let opts = { id: p.article.link }
 				if (!articleContent) {
 					fetchArticle(obj => {
+						// setTimeout(() => {
 						api.call("ui.textToSpeechPopup.open", [obj.text, opts], () => { })
+						// }, 1000)
 					})
 				} else {
 					api.call("ui.textToSpeechPopup.open", [articleContent.text, opts], () => { })

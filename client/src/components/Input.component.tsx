@@ -76,8 +76,7 @@ export const Input = (p: {
 							p.list?.map((opt, i) =>
 								<option
 									value={opt.key}
-									selected={value === opt.key ? true : false}
-								// selected={ i === 3 ? true : false}
+								// selected={value === opt.key ? true : false}
 								>{opt.label} </option>
 							)
 						}
