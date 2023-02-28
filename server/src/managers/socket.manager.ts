@@ -74,12 +74,21 @@ export const initServerSocketManager =
 					if (!options?.disableDataLog && shouldlog) log(`with data `, rawClientData);
 
 
-					// IF SETUP MODE
+					//////////////////////////////////////////////////////
+					// HANDLING REQs MIDDLEWARE
+					// 
+
+
+					//
+					// 1. IF SETUP MODE
+					//
 					if (backConfig.askForSetup && !options?.duringSetup) {
 						shouldlog && log(`${h} BLOCKED AS DURING SETUP --> ${endpoint} `);
 					}
 
-					// IF WRONG/NULL TOKEN 
+					//
+					// 2. IF WRONG/NULL TOKEN 
+					//
 					else if (
 						!backConfig.askForSetup &&
 						!backConfig.dev.disableLogin &&
@@ -102,9 +111,11 @@ export const initServerSocketManager =
 						})
 					}
 
-					// ROLE CHECK (If fail)
+					//
+					// 3. ROLE CHECK (If fail)
+					//
 					else if (
-						options?.checkRole &&
+						!sharedConfig.dev.disableLogin && options?.checkRole &&
 						(!tokenUser || !tokenUser.roles.includes(options.checkRole))
 					) {
 						shouldlog && log(`${h} <== WRONG ROLE (${options.checkRole} asked by user ${JSON.stringify(tokenUser)} for "${endpoint}" `);
@@ -112,12 +123,14 @@ export const initServerSocketManager =
 					}
 
 
-					// ELSE PROCESS TO NORMAL CALL
+					//
+					// 4. ELSE PROCESS TO NORMAL CALL
+					//
 					else {
 						// TRY CATCH for upload errors mainly
 						try {
 							await callback(rawClientData)
-						} catch (e) {console.log(`${h} ==> ERROR ${JSON.stringify(e)}`);}
+						} catch (e) { console.log(`${h} ==> ERROR ${JSON.stringify(e)}`); }
 					}
 				});
 			},
