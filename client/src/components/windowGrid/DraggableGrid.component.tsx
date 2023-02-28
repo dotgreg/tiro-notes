@@ -338,12 +338,6 @@ export const DraggableGrid = (p: {
 									onMouseEnter={() => {
 										// if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
 
-										// refocus on parent
-										let el = document.getElementsByClassName("refocus-input")[0]
-										if (el) {
-											// @ts-ignore
-											// el.focus()
-										}
 									}}
 								>
 									{WindowTools(window, i)}
@@ -359,7 +353,6 @@ export const DraggableGrid = (p: {
 						}
 					</GridLayout>
 				}
-				<input className="refocus-input" type="text" />
 
 				{deviceType() === 'mobile' &&
 					<div className="mobile-grid-view">

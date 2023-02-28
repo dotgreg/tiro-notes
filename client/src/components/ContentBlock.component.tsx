@@ -12,6 +12,7 @@ import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
 import { Icon } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
+import { defocusMouse } from '../managers/focus.manager';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -334,6 +335,7 @@ export const ContentBlockTagView = (p: {
 
 			{!reloadIframe &&
 				<iframe
+					onMouseLeave={defocusMouse}
 					ref={iframeRef}
 					id={iframeId}
 					data-testid="iframe"
@@ -353,6 +355,7 @@ export const ContentBlockTagView = (p: {
 					</pre></code>
 				</div>
 			}
+			<input className="refocus-input" type="text" />
 		</div>
 	)
 
