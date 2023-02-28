@@ -50,7 +50,7 @@ export const sharedConfig = {
 	},
 
 	dev: {
-		disableLogin: false
+		disableLogin: true
 	}
 
 }

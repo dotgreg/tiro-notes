@@ -719,7 +719,6 @@ export const EditorArea = (p: iEditorProps) => {
 	const api = useContext(ClientApiContext);
 	const isConnected = api?.status.isConnected || false
 
-	// return <EditorAreaInt {...p} isConnected={isConnected} />
 	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
 	}, [

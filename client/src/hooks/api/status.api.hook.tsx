@@ -1,5 +1,6 @@
 import { each } from "lodash"
 import { useState } from "react"
+import { iApiEventBus } from "./api.hook";
 
 export interface iStatusApi {
 	isConnected: boolean,
@@ -20,13 +21,12 @@ export interface iStatusApi {
 }
 
 export const useStatusApi = (p: {
-	isConnected: boolean
+	isConnected: boolean,
 	refresh: {
 		get: number,
 		set: Function,
 	}
 }): iStatusApi => {
-
 
 	const [isSearching, setIsSearching] = useState(false)
 	const [ipsServer, setIpsServer] = useState<string[]>([])

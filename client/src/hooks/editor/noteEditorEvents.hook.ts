@@ -64,7 +64,7 @@ export const useNoteEditorEvents = (p: {
 
 	// EVENT => EDITING
 	const triggerNoteEdition = (newContent: string) => {
-		if (!canEditRef.current) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
+		// if (!canEditRef.current) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
 		if (!hasBeenEdited) {
 			if (p.onNoteEdition) {
 				// console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);

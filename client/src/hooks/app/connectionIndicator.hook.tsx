@@ -1,8 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { configClient } from "../../config"
-import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
-import { strings } from '../../managers/strings.manager';
+import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useInterval } from '../interval.hook';
 

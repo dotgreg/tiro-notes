@@ -1,6 +1,4 @@
-import { uniqWith } from 'lodash';
-import React, { useEffect, useRef } from 'react';
-import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import React, { useEffect } from 'react';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { iApiEventBus } from './api.hook';
 
@@ -8,23 +6,61 @@ import { iApiEventBus } from './api.hook';
 //
 // INTERFACES
 //
-type iWatchUpdate =  { filePath: string, fileContent: string }
+type iWatchUpdate = { filePath: string, fileContent: string }
 export interface iWatchApi {
 	/**
 	 * Watch for file changes
 	 */
 	file: (
 		notePath: string,
-		cb: (res:iWatchUpdate) => void,
+		cb: (res: iWatchUpdate) => void,
+	) => void
+
+	/**
+	 * Watch for app status change
+	 */
+	appStatus: (
+		cb: (p: { isConnected: boolean }) => void
 	) => void
 }
 
 // let watchCounter
-
 export const useWatchApi = (p: {
 	eventBus: iApiEventBus
 }) => {
 	const h = `[WATCH API]`
+
+
+
+	//
+	// 
+	// 
+	useEffect(() => {
+		clientSocket2.on('reconnect', () => {
+			p.eventBus.notify(uniqueIdReq, { isConnected: true })
+		})
+		clientSocket2.on('reconnect', () => {
+			p.eventBus.notify(uniqueIdReq, { isConnected: true })
+		})
+		clientSocket2.on('disconnect', () => {
+			p.eventBus.notify(uniqueIdReq, { isConnected: false })
+		})
+	}, [])
+	const watchStatusIdReq = `watch-status-api-unique-id-request`
+	const watchStatus: iWatchApi['appStatus'] = (cb) => {
+		p.eventBus.subscribe(uniqueIdReq, answer => {
+			cb(answer)
+		}, { persistent: true });
+	}
+
+
+
+
+
+
+
+
+
 	const uniqueIdReq = `watch-api-unique-id-request`
 
 	//
@@ -55,6 +91,7 @@ export const useWatchApi = (p: {
 	//
 	const watchApi: iWatchApi = {
 		file: watchFile,
+		appStatus: watchStatus
 	}
 
 	return watchApi
