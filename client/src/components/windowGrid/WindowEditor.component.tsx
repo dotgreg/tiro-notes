@@ -70,40 +70,44 @@ export const WindowEditorInt = (p: {
 	//
 	// STATUS UPDATE
 	//
-	const contentToUpdateOnceOnline = useRef<string | false>(false)
-	const disconnectCounter = useRef<number>(0)
-	useEffect(() => {
-		getApi(api => {
-			api.watch.appStatus(status => {
-				if (status.isConnected === false) {
-					disconnectCounter.current = disconnectCounter.current + 1
-				} else if (status.isConnected === true) {
-					let isReconnected = disconnectCounter.current >= 1 && status.isConnected
-					if (isReconnected) {
-						console.log("RECONNECTION");
-						getApi(api => {
-							let filepath: any = file?.path
-							if (!filepath || !contentToUpdateOnceOnline.current) return
-							let content = contentToUpdateOnceOnline.current
-							console.log("UPDATE OFFLINE CONTENT", { filepath, content });
-							// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
-							api.file.saveContent(filepath, content, { history: true })
-							setTimeout(() => {
-								api.file.saveContent(filepath, content, { history: true })
-								setTimeout(() => {
-									api.file.saveContent(filepath, content, { history: true })
-									setTimeout(() => {
-										api.file.saveContent(filepath, content, { history: true })
-									}, 100)
-								}, 10)
-							}, 10)
+	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
+	// const disconnectCounter = useRef<number>(0)
+	// useEffect(() => {
+	// 	let ct = contentToUpdateOnceOnline.current
+	// 	getApi(api => {
+	// 		api.watch.appStatus(status => {
+	// 			if (status.isConnected === false) {
+	// 				disconnectCounter.current = disconnectCounter.current + 1
+	// 			} else if (status.isConnected === true) {
+	// 				let isReconnected = disconnectCounter.current >= 1 && status.isConnected
+	// 				if (isReconnected) {
+	// 					console.log("RECONNECTION");
+	// 					getApi(api => {
+	// 						let filepath: any = file?.path
+	// 						if (!filepath || !ct) return
+	// 						if (!ct.path) return
+	// 						if (filepath !== ct.path) return
+	// 						if (!ct.content) return
+	// 						let content = ct.content
+	// 						console.log("UPDATE OFFLINE CONTENT", { filepath, content });
+	// 						// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
+	// 						api.file.saveContent(filepath, content, { history: true })
+	// 						setTimeout(() => {
+	// 							api.file.saveContent(filepath, content, { history: true })
+	// 							setTimeout(() => {
+	// 								api.file.saveContent(filepath, content, { history: true })
+	// 								setTimeout(() => {
+	// 									api.file.saveContent(filepath, content, { history: true })
+	// 								}, 100)
+	// 							}, 10)
+	// 						}, 10)
 
-						})
-					}
-				}
-			})
-		})
-	}, [file?.path])
+	// 					})
+	// 				}
+	// 			}
+	// 		})
+	// 	})
+	// }, [file?.path])
 
 
 
@@ -116,7 +120,7 @@ export const WindowEditorInt = (p: {
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()
-		contentToUpdateOnceOnline.current = content
+		contentToUpdateOnceOnline.current = { content, path: file?.path }
 	}
 
 	const waitingContentUpdate = useRef<string | false>(false)

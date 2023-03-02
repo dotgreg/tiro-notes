@@ -5,9 +5,9 @@ import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
 import { ServerSocketManager } from "./socket.manager"
 import { iApiDictionary } from "../../../shared/apiDictionary.type";
 import { rescanEmitDirForFiles } from "./dir.manager";
-import { debounce } from "lodash";
 import { log } from "./log.manager";
 import { getUserFromToken } from "./loginToken.manager";
+import { sharedConfig } from "../../../shared/shared.config";
 
 var siofu = require("socketio-file-upload");
 
@@ -17,7 +17,7 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 	// file upload starts listening
 	// log('[initUploadFileRoute]');
 
-		var uploader = new siofu();
+	var uploader = new siofu();
 	let initialUploadPath = `${backConfig.dataFolder}/${backConfig.uploadFolder}`
 	log(initialUploadPath);
 
@@ -36,7 +36,7 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 
 		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
 		let user = getUserFromToken(loginToken)
-		let hasEditorRole = user && user.roles.includes("editor")
+		let hasEditorRole = user && user.roles.includes("editor") && !sharedConfig.dev.disableLogin
 
 		if (!idReq || !pathToUpload) return console.log('[UPLOAD] NO IDREQ/PATHTOUPLOAD, cancelling upload', JSON.stringify(e.file.meta), idReq, pathToUpload)
 
