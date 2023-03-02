@@ -230,7 +230,7 @@ const epubApp = (innerTagStr, opts) => {
 										item.load(book.load.bind(book)).then((contents) => {
 												fulltxt = fulltxt + contents.innerText
 												if (i === spine.length - 1) {
-														cb(fulltxt)
+														if (cb) cb(fulltxt)
 												}
 										});
 								});
