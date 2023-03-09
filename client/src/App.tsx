@@ -505,7 +505,8 @@ export const App = () => {
 												//askForFolderScan(foldersUiApi.open.get, { cache: false, background: true })
 											}}
 											onFolderOpen={folderPath => {
-												askForFolderScan([folderPath], { cache: false })
+												//console.log(33313, folderPath)
+												askForFolderScan([folderPath], { cache: true })
 											}}
 											onFolderClose={folderPath => {
 
