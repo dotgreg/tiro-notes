@@ -1,7 +1,6 @@
 import { random } from 'lodash';
 import * as io from 'socket.io-client'
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
-import { sharedConfig } from '../../../../shared/shared.config';
 import { getSetting } from '../../components/settingsView/settingsView.component';
 import { configClient } from '../../config';
 import { strings } from '../strings.manager';
@@ -12,9 +11,13 @@ export let clientSocket2: ClientSocketManager<iApiDictionary>
 export const getBackendUrl = () => {
 	// let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
 	let protocol = configClient.global.protocol
-	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`
+	let port = getSetting('backend-port') ? `${getSetting('backend-port')}` : `${configClient.global.port}`  	
+	let socketBackend = `${protocol}${configClient.global.url}:${port}` 	
+	// if port is actually an url 	
+	if (port.includes(".")) socketBackend = `${protocol}${port}` 	
+	console.log("socket backend url : ", socketBackend)
 
-	let socketBackend = `${protocol}${configClient.global.url}${port}`
+	
 	return socketBackend
 }
 
@@ -74,7 +77,7 @@ export type ClientSocketManager<ApiDict> = {
 const createLogMessage = (message: string, obj?: any) => [`%c [CLIENT SOCKET 2] ${message}`, 'background: #ccc; color: red', obj ? obj : null]
 
 const createFn = (endpoint, callback) => data => {
-	if(sharedConfig.client.log.socket) console.log(...createLogMessage(`<== ON ${endpoint} `, { ...data }));
+	console.log(...createLogMessage(`<== ON ${endpoint} `, { ...data }));
 	callback(data)
 }
 
@@ -100,7 +103,7 @@ export const initClientSocketManager = <ApiDict>(rawClientSocket: SocketIOClient
 			}
 		},
 		emit: (endpoint, payloadToSend) => {
-			if(sharedConfig.client.log.socket) console.log(...createLogMessage(`==> EMIT ${endpoint} `, { ...payloadToSend }));
+			console.log(...createLogMessage(`==> EMIT ${endpoint} `, { ...payloadToSend }));
 			rawClientSocket.emit(endpoint, payloadToSend);
 		},
 	}

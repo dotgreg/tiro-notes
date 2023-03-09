@@ -26,6 +26,15 @@ export const useMoveApi = (p: {
 }) => {
 
 	//
+	// LISTEN TO SOCKET
+	// 
+	useEffect(() => {
+		clientSocket2.on('moveFolderAnswer', data => {
+			p.eventBus.notify(data.idReq, data.idReq)
+		})
+	}, [])
+
+	//
 	// FUNCTIONS
 	// 
 	const moveFile: iMoveApi['file'] = (

@@ -35,13 +35,15 @@ export const useFileMove = (
 		})
 	}
 
-	const askForMoveFolder = (initPath: string, endPath: string) => {
+	const askForMoveFolder = (initPath: string, endPath: string, cb?:Function) => {
 		console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
 		// back will then scan and send back whole hierarchy... maybe doing it here is better
 		// clientSocket2.emit('moveFolder', { initPath, endPath, token: getLoginToken() })
 		getClientApi2().then(api => {
 			api.folders.move(initPath, endPath, () => {
+				console.log(22223);
 				api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
+				cb && cb()
 			})
 		})
 	}
@@ -74,10 +76,11 @@ ${popupCommonStyle}
 		folder: iFolder,
 		folderToDropInto: iFolder,
 		folderBasePath: string,
-		newTitle?: string
-		renameOnly?: boolean
+		newTitle?: string,
+		renameOnly?: boolean,
+		onMoveFn?: Function
 	}) => {
-		console.log(777, p);
+		
 		const { folder, folderToDropInto, folderBasePath, newTitle, renameOnly } = { ...p }
 
 		let rels = [
@@ -95,20 +98,16 @@ ${strings.moveFolderPrompt} <p>${rels[0]}</p> to <p>${rels[1]}</p>?
 ${popupCommonStyle}
 `,
 				() => {
-					console.log("CONFIRM, DO IT");
-					askForMoveFolder(initPath, endPath)
-					emptyFileDetails()
-					cleanFilesList()
-					cleanFolderHierarchy()
-					setTimeout(() => {
-						askForFolderScan(
-							[getFolderParentPath(folder), folderToDropInto.path],
-							{ cache: false }
-						)
-					}, 100)
-					// setTimeout(() => {
-					// 	askForFolderScan([getFolderParentPath(folder), folderToDropInto.path])
-					// }, 1000)
+					
+					askForMoveFolder(initPath, endPath, () => {
+						emptyFileDetails()
+						cleanFilesList()
+						//cleanFolderHierarchy()
+						console.log(22221, [getFolderParentPath(folder)])
+						askForFolderScan([getFolderParentPath(folder)],{ cache: false })
+						if (p.onMoveFn) p.onMoveFn();
+					})
+					
 				}
 			);
 		})
