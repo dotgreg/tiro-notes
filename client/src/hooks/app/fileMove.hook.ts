@@ -103,7 +103,6 @@ ${popupCommonStyle}
 						emptyFileDetails()
 						cleanFilesList()
 						//cleanFolderHierarchy()
-						console.log(22221, [getFolderParentPath(folder)])
 						askForFolderScan([getFolderParentPath(folder)],{ cache: false })
 						if (p.onMoveFn) p.onMoveFn();
 					})
