@@ -201,6 +201,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		log(`===> 4/4 debouncedScanAfterMove`);
 		await debouncedFolderScan(serverSocket2, data.initPath, data.idReq)
 		// await debouncedHierarchyScan(socket)
+
+		serverSocket2.emit('moveFileAnswer', { idReq: data.idReq })
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFolder', async data => {
@@ -208,6 +210,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
+		serverSocket2.emit('moveFolderAnswer', { idReq: data.idReq }) 
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('createHistoryFile', async data => {
@@ -232,6 +235,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			// only keep up to x days of history files
 			debounceCleanHistoryFolder()
 		}
+
+		
 
 	}, { checkRole: "editor", disableDataLog: true })
 

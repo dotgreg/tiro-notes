@@ -198,34 +198,40 @@ export const useBrowserApi = (p: {
 		let pathMerged = foldersPaths.join("-")
 		let lg = pathMerged.length
 		pathMerged = pathMerged.substring(0, 30) + "-" + lg
-		const cacheId = `folder-scan-${pathMerged}`
-		// console.log("[FOLDER SCAN] cache =>", opts);
 
-		getApi(api => {
+		const bypass:any = true
 
-			const askForScanApi = () => {
-				api.folders.get(foldersPaths, data => {
-					// console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
-					!bg && processScannedFolders(data.pathBase, data.folders)
-					api.cache.set(cacheId, data, 999999)
-				})
-			}
-
-			// IF cached, first get initial, cached result
-			if (opts && opts.cache) {
-				api.cache.get(cacheId, cachedData => {
-					// console.log("[FOLDER SCAN] getting cached results =>", foldersPaths, cachedData);
-					if (!cachedData) {
-						askForScanApi()
-					} else {
-						!bg && processScannedFolders(cachedData.pathBase, cachedData.folders)
-						// setTimeout(() => { askForScanApi() }, random(5000, 10000))
-					}
-				})
-			} else {
-				askForScanApi()
-			}
+		each(foldersPaths, p => {
+			const cacheId = `folder-scan-${p}`
+			// console.log("[FOLDER SCAN] cache =>", opts);
+	
+			getApi(api => {
+	
+				const askForScanApi = () => {
+					api.folders.get([p], data => {
+						// console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
+						!bg && processScannedFolders(data.pathBase, data.folders)
+						api.cache.set(cacheId, data, 999999)
+					})
+				}
+	
+				// IF cached, first get initial, cached result
+				if (opts && opts.cache && bypass === false) {
+					api.cache.get(cacheId, cachedData => {
+						// console.log("[FOLDER SCAN] getting cached results =>", foldersPaths, cachedData);
+						if (!cachedData) {
+							askForScanApi()
+						} else {
+							!bg && processScannedFolders(cachedData.pathBase, cachedData.folders)
+							// setTimeout(() => { askForScanApi() }, random(5000, 10000))
+						}
+					})
+				} else {
+					askForScanApi()
+				}
+			})
 		})
+		
 	}
 
 

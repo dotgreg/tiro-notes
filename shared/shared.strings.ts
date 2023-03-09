@@ -71,8 +71,8 @@ export const sharedStrings = {
 			explanation: 'Only fill if server is on another port/protocol than the client (usually in development)',
 			protocol: 'Https',
 			protocolExpl: 'https or http',
-			port: 'Port',
-			portExpl: 'Port used by backend (ex: 3023)',
+			port: 'Backend Port or URL',
+			portExpl: 'Port/Url used by backend (ex: "3023" or "backend.myurl.com" or "backend.url.com:3023")',
 		}
 	},
 	historyPopup: {

@@ -236,6 +236,7 @@ export const FolderView = (p: {
 // refresh all time
 export const FoldersTreeView = React.memo(FoldersTreeViewInt,
 	(np, pp) => {
+		//let res = true
 		let res = true
 		if (
 			np.openFolders !== pp.openFolders ||

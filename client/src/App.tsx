@@ -43,6 +43,7 @@ import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getFileInfos } from '../../shared/helpers/filename.helper';
+import { getParentFolder } from './managers/folder.manager';
 
 export const App = () => {
 	useEffect(() => {
@@ -479,9 +480,12 @@ export const App = () => {
 														folderToDropInto: folder,
 														folderBasePath,
 														newTitle,
-														renameOnly: true
+														renameOnly: true,
+														onMoveFn: () => {
+															//console.log(2222, [getParentFolder(folder.path), folder.path])
+															//askForFolderScan([getParentFolder(folder.path), folder.path], { cache: false })
+														}
 													})
-													askForFolderScan([folder.path], { cache: false })
 												} else if (action === 'create' && newTitle) {
 													askFolderCreate(newTitle, folder)
 													askForFolderScan([folder.path], { cache: false })
@@ -498,7 +502,7 @@ export const App = () => {
 													askForFolderScan([folder.path], { cache: false })
 												}
 												// in any cases, ask for whole rescan in background
-												askForFolderScan(foldersUiApi.open.get, { cache: false, background: true })
+												//askForFolderScan(foldersUiApi.open.get, { cache: false, background: true })
 											}}
 											onFolderOpen={folderPath => {
 												askForFolderScan([folderPath], { cache: false })
