@@ -61,80 +61,6 @@ export const App = () => {
 
 		startListeningToKeys();
 
-		getApi(api => {
-			// api.c
-			// let cmd = "ls -lsia"
-			// ERROR
-			// let cmd = "ssh ubuntu@raw2.websocial.cc -tt \"ls -lsia\""
-			// let cmd = "ssh ubuntu@raw2.websocial.cc -t \'ls -lsia\'"
-			// let cmd = "ssh ubuntu@raw2.websocial.cc -t 'ls -lsia'"
-			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls -lsia"`
-
-			// UNDEFINED result
-			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls"`
-			// let cmd = `ls`
-
-			// OK CT INHERIT QUI FAISAIT FOIRER
-			// let cmd = "ls"
-
-			// Pseudo-terminal will not be allocated because stdin is not a terminal
-			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls -lsia"`
-
-			// WORKING
-			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls"`
-
-			// WORKING w shell: true
-			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls"`
-
-			// FREEAAAAAAAAAKING WOOOOOOOOOOOORKING
-			// let cmd = `ssh ubuntu@raw2.websocial.cc -t "ls -lsia"`
-
-			// api.command.exec(cmd, res => {
-			// 	console.log(111222, `${cmd} => `, res);
-			// })
-			// api.file.saveContent("/1_test/gen.md", "hello world")
-			// api.file.getContent("/1_test/gen2.md", r => {
-			// 	console.log(2222222233333, r);
-			// })
-
-		})
-
-
-		// 		let content = `
-		// const test = (input, api, cb) => {
-		// console.log(44444444, input, api, cb);
-		// cb("result PASSSSSSSSSED")
-		// }
-		// `
-		//@ts-ignore
-		// new Function(content)("woopy", window.api, (res) => {
-		// 	console.log(2223, res);
-		// })
-
-		// V2 WORKING LOCAL
-		// 		let inpt = "woooooopu"
-		// 		let content2 = `
-		// cb({v1: "resuuuuuuuuuult" + input, api, input})
-		// `
-		// 		//@ts-ignore
-		// 		new Function('input', 'api', 'cb', content2)(inpt, window.api, res => {
-		// 			console.log("CAME BACK FROM CB!!!!", res);
-		// 		})
-
-		// V3 REMOTE CODE EXEC
-		// 		let inpt = "woooooopu"
-		// 		let url = "https://gist.githubusercontent.com/dotgreg/e56ce9547cd74128b3d15125870bea89/raw/c17a65aa971b9f2eecdc35f1c6e6f6cf56c8c40b/gistfile1.txt"
-		// 		let content3 = `
-		// api.ressource.fetch("${url}", txt => {
-		// 		new Function('input', 'api', 'cb', txt)(input, api, res => {
-		// 			cb(res);
-		// 		})
-		// })
-		// `
-		// 		//@ts-ignore
-		// 		new Function('input', 'api', 'cb', content3)(inpt, window.api, res => {
-		// 			console.log("CAME BACK FROM CB 3!!!!", res);
-		// 		})
 
 
 		return () => {
@@ -375,8 +301,6 @@ export const App = () => {
 	}, [filesHistory])
 
 
-
-
 	return (
 		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
@@ -468,7 +392,7 @@ export const App = () => {
 
 										<FoldersTreeView
 											openFolders={foldersUiApi.open.get}
-											folder={foldersUiApi.get}
+											folder={foldersUiApi.get()}
 											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
 												clientApi.ui.browser.goTo(folderPath, null)
@@ -483,7 +407,12 @@ export const App = () => {
 														renameOnly: true,
 														onMoveFn: () => {
 															//console.log(2222, [getParentFolder(folder.path), folder.path])
-															//askForFolderScan([getParentFolder(folder.path), folder.path], { cache: false })
+															//cleanFolderHierarchy()
+															
+															askForFolderScan([getParentFolder(folder.path)], { 
+																cache: false,
+																cleanFolder: [folder.path]
+															})
 														}
 													})
 												} else if (action === 'create' && newTitle) {
@@ -505,8 +434,8 @@ export const App = () => {
 												//askForFolderScan(foldersUiApi.open.get, { cache: false, background: true })
 											}}
 											onFolderOpen={folderPath => {
-												//console.log(33313, folderPath)
-												askForFolderScan([folderPath], { cache: true })
+												console.log("1444", folderPath)
+												askForFolderScan([folderPath], { cache: false })
 											}}
 											onFolderClose={folderPath => {
 
