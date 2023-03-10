@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { iApiEventBus } from './api.hook';
 
@@ -22,6 +22,9 @@ export interface iWatchApi {
 	appStatus: (
 		cb: (p: { isConnected: boolean }) => void
 	) => void
+	dev: {
+		toggleIsConnected: (status:boolean) => void
+	}
 }
 
 // let watchCounter
@@ -46,6 +49,12 @@ export const useWatchApi = (p: {
 			p.eventBus.notify(uniqueIdReq, { isConnected: false })
 		})
 	}, [])
+
+	const toggleIsConnected = (status) => {
+		p.eventBus.notify(uniqueIdReq, { isConnected: status })
+	}
+
+
 	const watchStatusIdReq = `watch-status-api-unique-id-request`
 	const watchStatus: iWatchApi['appStatus'] = (cb) => {
 		p.eventBus.subscribe(uniqueIdReq, answer => {
@@ -91,7 +100,10 @@ export const useWatchApi = (p: {
 	//
 	const watchApi: iWatchApi = {
 		file: watchFile,
-		appStatus: watchStatus
+		appStatus: watchStatus,
+		dev: {
+			toggleIsConnected
+		}
 	}
 
 	return watchApi

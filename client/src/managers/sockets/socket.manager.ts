@@ -14,10 +14,7 @@ export const getBackendUrl = () => {
 	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`  	
 	let socketBackend = `${protocol}${configClient.global.url}${port}` 	
 	// if port is actually an url 	
-	if (getSetting('backend-port').includes(".")) socketBackend = `${protocol}${getSetting('backend-port')}` 	
-	console.log("socket backend url : ", socketBackend)
-
-	
+	if (getSetting('backend-port').includes(".")) socketBackend = `${protocol}${getSetting('backend-port')}` 		
 	return socketBackend
 }
 

@@ -1,5 +1,5 @@
 import { cloneDeep, each, isArray, isBoolean, random } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder } from '../../../../shared/types.shared';
@@ -39,11 +39,15 @@ export interface iBrowserApi {
 	folders: {
 		refreshFromBackend: Function
 		base: string
-		get: iFolder
-		clean: Function
+		get: () => iFolder
+		clean: Function,
 		scan: (
 			foldersPath: string[],
-			opts?: { cache?: boolean, background?: boolean }
+			opts?: { 
+				cache?: boolean, 
+				background?: boolean 
+				cleanFolder?: string[]
+			}
 		) => void
 		open: {
 			get: string[]
@@ -155,17 +159,15 @@ export const useBrowserApi = (p: {
 
 	// STORAGES
 	const [folderHierarchy, setFolderHierarchy] = useState<iFolder>(defaultFolderVal)
-	const [foldersFlat, setFoldersFlat, refreshBack1] = useBackendState<iFolder[]>('foldersFlat', [])
-	// const [foldersFlat, setFoldersFlat] = useLocalStorage<iFolder[]>('foldersFlat', [])
-	//const [foldersFlat, setFoldersFlat] = useState<iFolder[]>([])
 	const [folderBasePath, setFolderBasePath] = useState('')
 
 	const refreshBackendFolders = () => {
-		refreshBack1()
 		refreshBack2()
 	}
 
-
+	const getFolderHierarchy = () => {
+		return folderHierarchy
+	}
 
 	// OPEN TREE FOLDER MANAGEMENT
 	const [openFolders, setOpenFolders, refreshBack2] = useBackendState<string[]>('folders-open', ['/'])
@@ -173,7 +175,6 @@ export const useBrowserApi = (p: {
 		setOpenFolders([...openFolders, folderPath])
 	}
 	const removeToOpenedFolders = (folderPath: string) => {
-		// console.log(4444, folderPath, openFolders.length);
 		const nOpenFolders = cloneDeep(openFolders)
 		const index = nOpenFolders.indexOf(folderPath);
 		if (index > -1) {
@@ -182,6 +183,9 @@ export const useBrowserApi = (p: {
 		setOpenFolders(nOpenFolders)
 	}
 
+	//
+	// if open folders change, scan them
+	//
 	useEffect(() => {
 		scanFolders(openFolders)
 	}, [openFolders])
@@ -195,34 +199,42 @@ export const useBrowserApi = (p: {
 		if (!isBoolean(opts.cache)) opts.cache = true
 		let bg = !isBoolean(opts.background) ? false : opts.background
 
-		let pathMerged = foldersPaths.join("-")
-		let lg = pathMerged.length
-		pathMerged = pathMerged.substring(0, 30) + "-" + lg
+		const bypass:any = false
 
-		const bypass:any = true
+		if (opts.cleanFolder) {
+			
+			let nOpenFolders = cloneDeep(openFolders)
+			console.log("Cleaning folder paths : ", nOpenFolders.length)
+			each(opts.cleanFolder, path => {
+				nOpenFolders = nOpenFolders.filter(openFolder => openFolder !== path);
+			})
+			console.log(3334, nOpenFolders.length)
+			setOpenFolders(nOpenFolders)
+		}
 
-		each(foldersPaths, p => {
-			const cacheId = `folder-scan-${p}`
+		each(foldersPaths, folderPath => {
+			const cacheId = `folder-scan-${folderPath}`
 			// console.log("[FOLDER SCAN] cache =>", opts);
 	
 			getApi(api => {
-	
 				const askForScanApi = () => {
-					api.folders.get([p], data => {
+					api.folders.get([folderPath], data => {
 						// console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
 						!bg && processScannedFolders(data.pathBase, data.folders)
-						api.cache.set(cacheId, data, 999999)
+						api.cache.set(cacheId, data, -1)
 					})
 				}
 	
 				// IF cached, first get initial, cached result
 				if (opts && opts.cache && bypass === false) {
 					api.cache.get(cacheId, cachedData => {
-						// console.log("[FOLDER SCAN] getting cached results =>", foldersPaths, cachedData);
+						//console.log("[FOLDER SCAN] getting cached results =>", folderPath, cachedData);
 						if (!cachedData) {
 							askForScanApi()
 						} else {
-							!bg && processScannedFolders(cachedData.pathBase, cachedData.folders)
+							if(!bg) {
+								processScannedFolders(cachedData.pathBase, cachedData.folders)
+							} 
 							// setTimeout(() => { askForScanApi() }, random(5000, 10000))
 						}
 					})
@@ -235,13 +247,15 @@ export const useBrowserApi = (p: {
 	}
 
 
+	
+
+
+	const newflatStructRef = useRef<iFolder[]>([])
 	const processScannedFolders = (pathBase: string, folders: iFolder[]) => {
-		let newflatStruct: iFolder[] = cloneDeep(foldersFlat)
+		let newflatStruct: iFolder[] = cloneDeep(newflatStructRef.current)
 
 		let nf = { current: newflatStruct }
 		each(folders, nfolder => {
-			// first replace old results by new ones
-			// console.log(nf.current, nfolder);
 			if (!nfolder) return
 			nf.current = nf.current.filter(folder => nfolder.path !== folder.path)
 		})
@@ -250,12 +264,14 @@ export const useBrowserApi = (p: {
 		})
 		newflatStruct = nf.current
 
-		setFoldersFlat(newflatStruct)
+		newflatStructRef.current = newflatStruct
+		//setFoldersFlat(newflatStructRef.current)
+		
 		let newTreeStruct = buildTreeFolder('/', newflatStruct)
-
 		if (newTreeStruct) setFolderHierarchy(newTreeStruct)
 		setFolderBasePath(pathBase)
 
+		console.log("FOLDER SCAN] 555", folders, newflatStruct, newTreeStruct, openFolders)
 	}
 
 
@@ -273,7 +289,7 @@ export const useBrowserApi = (p: {
 		folders: {
 			refreshFromBackend: refreshBackendFolders,
 			base: folderBasePath,
-			get: folderHierarchy,
+			get: getFolderHierarchy,
 			clean: cleanFolderHierarchy,
 			scan: scanFolders,
 			open: {
@@ -322,7 +338,7 @@ const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
 	let res
 	for (let i = 0; i < folders.length; i++) {
 		if (areSamePaths(folders[i].path, path)) {
-			//console.log('131313 FOUND', path, folders[i]);
+			//console.log('FOLDER SCAN] 131313 FOUND', path, folders[i]);
 			res = cloneDeep(folders[i])
 			const children = folders[i].children
 			if (isArray(children)) {
@@ -333,6 +349,7 @@ const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
 			}
 		}
 	}
+	//console.log('FOLDER SCAN] 22', path, res);
 	return res
 }
 

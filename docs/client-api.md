@@ -701,6 +701,14 @@ noteLink should be relative from tiro folder
  ## Api.call : watch
  
 
+#### <span class="render-code-wrapper">watch.dev.toggleIsConnected</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. status: <span class="render-code-wrapper">boolean</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"watch.dev.toggleIsConnected",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">boolean</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">watch.appStatus</span>
  - Description: 
 Watch for app status change

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { configClient } from "../../config"
-import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { getApi } from '../api/api.hook';
 import { useInterval } from '../interval.hook';
 
 
@@ -36,30 +36,17 @@ export const useConnectionIndicator = () => {
 
 	// LIFECYCLE EVENTS
 	useEffect(() => {
-		// LISTENING TO SOCKET LIFECYCLE EVENTS
-		listenerIds.current[0] = clientSocket2.on('disconnect',
-			() => { toggleSocketConnection(false); }
-		)
-		listenerIds.current[1] = clientSocket2.on('reconnect',
-			() => {
-				toggleSocketConnection(true);
-				setBackOnline(true)
-				setTimeout(() => { setBackOnline(false) }, 1000)
-			}
-		)
-		listenerIds.current[2] = clientSocket2.on('connect',
-			() => {
-				toggleSocketConnection(true);
-				setBackOnline(true)
-				setTimeout(() => { setBackOnline(false) }, 1000)
-			}
-		)
-
-		return () => {
-			listenerIds.current.forEach((id) => {
-				clientSocket2.off(id)
+		getApi(api => {
+			api.watch.appStatus(status => {
+				if (status.isConnected === false) {
+					toggleSocketConnection(false);
+				} else if (status.isConnected === true) {
+					toggleSocketConnection(true);
+					setBackOnline(true)
+					setTimeout(() => { setBackOnline(false) }, 1000)	
+				}
 			})
-		}
+		})
 	}, [])
 
 	const toggleSocketConnection = (state: boolean) => {
