@@ -185,7 +185,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		await upsertRecursivelyFolders(data.endPath)
 
 		let f1 = getFileInfos(data.initPath)
-		let f2 = getFileInfos(data.initPath)
+		let f2 = getFileInfos(data.endPath)
+		console.log(333, f1,f2)
 		if (f1.folder !== f2.folder) {
 			log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
 			await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
