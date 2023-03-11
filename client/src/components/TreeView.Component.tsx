@@ -16,7 +16,8 @@ export type onFolderMenuActionFn = (
 	newName?: string
 ) => void
 
-const FoldersTreeViewInt = (p: {
+export const FoldersTreeView = (p: {
+	// const FoldersTreeViewInt = (p: {
 	openFolders: string[],
 	folder: iFolder,
 	current: string,
@@ -49,7 +50,7 @@ const FoldersTreeViewInt = (p: {
 				}}
 				onFolderClose={folderPath => {
 					getApi(api => {
-						api.ui.browser.folders.open.remove(folderPath)
+						api.ui.browser.folders.open.remove([folderPath])
 						p.onFolderClose(folderPath)
 					})
 				}}
@@ -234,21 +235,21 @@ export const FolderView = (p: {
 }
 
 
-// refresh all time
-export const FoldersTreeView = React.memo(FoldersTreeViewInt,
-	(np, pp) => {
-		let res = true
-		if (
-			np.openFolders !== pp.openFolders ||
-			np.folder !== pp.folder ||
-			np.current !== pp.current
-			// np.onFolderClicked !== pp.onFolderClicked
-		) {
-			res = false
-		}
-		return res
-	}
-)
+// // refresh all time
+// export const FoldersTreeView = React.memo(FoldersTreeViewInt,
+// 	(np, pp) => {
+// 		let res = true
+// 		if (
+// 			np.openFolders !== pp.openFolders ||
+// 			np.folder !== pp.folder ||
+// 			np.current !== pp.current
+// 			// np.onFolderClicked !== pp.onFolderClicked
+// 		) {
+// 			res = false
+// 		}
+// 		return res
+// 	}
+// )
 
 
 export const l1Subtitle = `

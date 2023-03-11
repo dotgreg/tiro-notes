@@ -10,5 +10,6 @@ export const getParentFolder = (path: string): string => {
 	console.log(folderArr);
 	folderArr.pop()
 	let folderParent = "/" + folderArr.join("/") + "/"
+	folderParent = folderParent.replaceAll("//", "/")
 	return folderParent
 }

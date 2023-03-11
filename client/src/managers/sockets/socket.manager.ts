@@ -11,10 +11,10 @@ export let clientSocket2: ClientSocketManager<iApiDictionary>
 export const getBackendUrl = () => {
 	// let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
 	let protocol = configClient.global.protocol
-	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`  	
-	let socketBackend = `${protocol}${configClient.global.url}${port}` 	
+	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`
+	let socketBackend = `${protocol}${configClient.global.url}${port}`
 	// if port is actually an url 	
-	if (getSetting('backend-port').includes(".")) socketBackend = `${protocol}${getSetting('backend-port')}` 		
+	if (getSetting('backend-port').includes(".")) socketBackend = `${protocol}${getSetting('backend-port')}`
 	return socketBackend
 }
 
@@ -74,7 +74,7 @@ export type ClientSocketManager<ApiDict> = {
 const createLogMessage = (message: string, obj?: any) => [`%c [CLIENT SOCKET 2] ${message}`, 'background: #ccc; color: red', obj ? obj : null]
 
 const createFn = (endpoint, callback) => data => {
-	console.log(...createLogMessage(`<== ON ${endpoint} `, { ...data }));
+	configClient.log.socket && console.log(...createLogMessage(`<== ON ${endpoint} `, { ...data }));
 	callback(data)
 }
 
@@ -100,7 +100,7 @@ export const initClientSocketManager = <ApiDict>(rawClientSocket: SocketIOClient
 			}
 		},
 		emit: (endpoint, payloadToSend) => {
-			console.log(...createLogMessage(`==> EMIT ${endpoint} `, { ...payloadToSend }));
+			configClient.log.socket && console.log(...createLogMessage(`==> EMIT ${endpoint} `, { ...payloadToSend }));
 			rawClientSocket.emit(endpoint, payloadToSend);
 		},
 	}
