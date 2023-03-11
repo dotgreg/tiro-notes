@@ -47,7 +47,8 @@ export interface iBrowserApi {
 			opts?: {
 				cache?: boolean,
 				background?: boolean
-				closeFolders?: string[]
+				// closeFolders?: string[]
+				cb?: () => void
 			}
 		) => void
 		open: {
@@ -163,7 +164,11 @@ export const useBrowserApi = (p: {
 	const [folderBasePath, setFolderBasePath] = useState('')
 
 	const refreshBackendFolders = () => {
-		refreshBack2()
+		console.log(2222222);
+		getOpenFoldersFromBack(v => {
+			console.log(3333333, v);
+			openFoldersRef.current = v
+		})
 	}
 
 	const getFolderHierarchy = () => {
@@ -171,26 +176,29 @@ export const useBrowserApi = (p: {
 	}
 
 	// OPEN TREE FOLDER MANAGEMENT
-	const [openFolders, setOpenFolders, refreshBack2] = useBackendState<string[]>('folders-open', ['/'])
+	const [openFolders, setOpenFolders, getOpenFoldersFromBack] = useBackendState<string[]>('folders-open', ['/'])
+	const openFoldersRef = useRef<string[]>([])
 	const getOpenFolders = () => {
-		return openFolders
+		return openFoldersRef.current
 	}
 	const addToOpenedFolders = (folderPath: string) => {
-		setOpenFolders([...openFolders, folderPath])
+		openFoldersRef.current = [...openFoldersRef.current, folderPath]
+		setOpenFolders(openFoldersRef.current)
 	}
 
 	const removeToOpenedFolders = (folderPaths: string[]) => {
-		let nOpenFolders = cloneDeep(openFolders)
+		// let nOpenFolders = openFoldersRef.current
 		each(folderPaths, path => {
-			nOpenFolders = nOpenFolders.filter(openFolder => !openFolder.startsWith(path));
+			openFoldersRef.current = openFoldersRef.current.filter(openFolder => !openFolder.startsWith(path));
 		})
-		setOpenFolders(nOpenFolders)
+		setOpenFolders(openFoldersRef.current)
 	}
 
 	//
 	// if open folders change, scan them
 	//
 	useEffect(() => {
+		console.log(455555555, openFolders);
 		scanFolders(openFolders)
 	}, [openFolders])
 
@@ -203,22 +211,20 @@ export const useBrowserApi = (p: {
 		if (!isBoolean(opts.cache)) opts.cache = true
 		let bg = !isBoolean(opts.background) ? false : opts.background
 
-
-		// Close some old folders
-		if (opts.closeFolders) {
-			removeToOpenedFolders(opts.closeFolders)
-		}
+		let counterCb = 0
 
 		getApi(api => {
 			each(foldersPaths, folderPath => {
-				// console.log(212, folderPath);
 				const cacheId = `folder-scan-${folderPath}`
 
 				const askForScanApi = () => {
 					api.folders.get([folderPath], data => {
-						// console.log("[FOLDER SCAN] getting REAL API results =>", foldersPaths);
 						!bg && processScannedFolders(data.pathBase, data.folders)
 						api.cache.set(cacheId, data, -1)
+						counterCb++
+						if (counterCb >= foldersPaths.length) {
+							opts?.cb && opts.cb()
+						}
 					})
 				}
 
@@ -231,6 +237,10 @@ export const useBrowserApi = (p: {
 						} else {
 							if (!bg) {
 								processScannedFolders(cachedData.pathBase, cachedData.folders)
+								counterCb++
+								if (counterCb >= foldersPaths.length) {
+									opts?.cb && opts.cb()
+								}
 							}
 							// setTimeout(() => { askForScanApi() }, random(5000, 10000))
 						}
@@ -267,7 +277,7 @@ export const useBrowserApi = (p: {
 		if (newTreeStruct) setFolderHierarchy(newTreeStruct)
 		setFolderBasePath(pathBase)
 
-		// console.log("FOLDER SCAN] 555", folders[0]?.path, { folders, newflatStruct, newTreeStruct, openFolders })
+		console.log("FOLDER SCAN] 555", folders[0]?.path, { folders, newflatStruct, newTreeStruct, openFolders })
 	}
 
 

@@ -42,7 +42,6 @@ import { SuggestPopup } from './components/SuggestPopup.component';
 import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
-import { getFileInfos } from '../../shared/helpers/filename.helper';
 import { getParentFolder } from './managers/folder.manager';
 
 export const App = () => {
@@ -57,11 +56,13 @@ export const App = () => {
 		initSocketConnexion().then(serverSocketConfig => {
 			toggleSocketConnection(true)
 			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
+
+
+			getApi(api => { api.ui.browser.folders.refreshFromBackend() })
+
 		})
 
 		startListeningToKeys();
-
-
 
 		return () => {
 			// COMPONENT will unmount
@@ -99,11 +100,6 @@ export const App = () => {
 	}
 
 
-	const debounceStopIsSearching = debounce(() => {
-		//setIsSearching(false)
-	}, 100)
-
-
 
 	//
 	// FOLDERS API
@@ -125,14 +121,10 @@ export const App = () => {
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
 
-			getApi(api => {
-				api.ui.browser.folders.refreshFromBackend()
-			})
+			getApi(api => { api.ui.browser.folders.refreshFromBackend() })
 
 			// seems blocking the initial loading of a few seconds, so starts it 10s after
-			console.log("115")
 			askForFolderScan(['/'])
-
 		}
 	})
 
@@ -406,27 +398,41 @@ export const App = () => {
 														folderBasePath,
 														newTitle,
 														renameOnly: true,
+														disablePrompt: true,
 														onMoveFn: () => {
 															askForFolderScan([getParentFolder(folder.path)], {
 																cache: false,
-																closeFolders: [folder.path]
+																cb: () => {
+																	foldersUiApi.open.remove([getParentFolder(folder.path)])
+																	foldersUiApi.open.add(getParentFolder(folder.path))
+																}
 															})
 														}
 													})
 												} else if (action === 'create' && newTitle) {
 													askFolderCreate(newTitle, folder)
-													askForFolderScan([folder.path], { cache: false })
+													setTimeout(() => {
+														askForFolderScan([folder.path], { cache: false })
+													})
 												} else if (action === 'moveToTrash') {
 													promptAndMoveFolder({
 														folder,
 														folderToDropInto: defaultTrashFolder,
 														folderBasePath,
-														newTitle
+														newTitle,
+														onMoveFn: () => {
+															askForFolderScan([getParentFolder(folder.path)], {
+																cache: false,
+																// closeFolders: [folder.path],
+																cb: () => { foldersUiApi.open.add(folder.path) }
+															})
+														}
 													})
-													askForFolderScan([folder.path], { cache: false })
 												} else if (action === 'delete') {
 													askFolderDelete(folder)
-													askForFolderScan([folder.path], { cache: false })
+													setTimeout(() => {
+														askForFolderScan([folder.path], { cache: false })
+													})
 												}
 												// in any cases, ask for whole rescan in background
 												// askForFolderScan(foldersUiApi.open.get, {cache: false, background: true })
@@ -435,7 +441,6 @@ export const App = () => {
 												askForFolderScan([folderPath], { cache: false })
 											}}
 											onFolderClose={folderPath => {
-
 
 											}}
 											onFolderDragStart={draggedFolder => {
