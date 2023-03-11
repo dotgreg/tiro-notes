@@ -130,6 +130,7 @@ export const App = () => {
 			})
 
 			// seems blocking the initial loading of a few seconds, so starts it 10s after
+			console.log("115")
 			askForFolderScan(['/'])
 
 		}
@@ -391,7 +392,7 @@ export const App = () => {
 
 
 										<FoldersTreeView
-											openFolders={foldersUiApi.open.get}
+											openFolders={foldersUiApi.open.get()}
 											folder={foldersUiApi.get()}
 											current={foldersUiApi.current.get}
 											onFolderClicked={folderPath => {
@@ -406,12 +407,9 @@ export const App = () => {
 														newTitle,
 														renameOnly: true,
 														onMoveFn: () => {
-															//console.log(2222, [getParentFolder(folder.path), folder.path])
-															//cleanFolderHierarchy()
-															
-															askForFolderScan([getParentFolder(folder.path)], { 
+															askForFolderScan([getParentFolder(folder.path)], {
 																cache: false,
-																cleanFolder: [folder.path]
+																closeFolders: [folder.path]
 															})
 														}
 													})
@@ -431,10 +429,9 @@ export const App = () => {
 													askForFolderScan([folder.path], { cache: false })
 												}
 												// in any cases, ask for whole rescan in background
-												//askForFolderScan(foldersUiApi.open.get, { cache: false, background: true })
+												// askForFolderScan(foldersUiApi.open.get, {cache: false, background: true })
 											}}
 											onFolderOpen={folderPath => {
-												console.log("1444", folderPath)
 												askForFolderScan([folderPath], { cache: false })
 											}}
 											onFolderClose={folderPath => {
