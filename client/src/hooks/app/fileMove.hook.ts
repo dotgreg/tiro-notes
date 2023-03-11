@@ -35,7 +35,7 @@ export const useFileMove = (
 		})
 	}
 
-	const askForMoveFolder = (initPath: string, endPath: string, cb?:Function) => {
+	const askForMoveFolder = (initPath: string, endPath: string, cb?: Function) => {
 		console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
 		// back will then scan and send back whole hierarchy... maybe doing it here is better
 		// clientSocket2.emit('moveFolder', { initPath, endPath, token: getLoginToken() })
@@ -79,8 +79,9 @@ ${popupCommonStyle}
 		newTitle?: string,
 		renameOnly?: boolean,
 		onMoveFn?: Function
+		disablePrompt?: boolean,
 	}) => {
-		
+
 		const { folder, folderToDropInto, folderBasePath, newTitle, renameOnly } = { ...p }
 
 		let rels = [
@@ -90,30 +91,31 @@ ${popupCommonStyle}
 
 		let initPath = `${folderBasePath}/${rels[0]}`
 		let endPath = `${folderBasePath}/${rels[1]}`
-
-		getClientApi2().then(api => {
-			api.popup.confirm(
-				`
+		let confirmTxt = `
 ${strings.moveFolderPrompt} <p>${rels[0]}</p> to <p>${rels[1]}</p>?
 ${popupCommonStyle}
-`,
-				() => {
-					
-					askForMoveFolder(initPath, endPath, () => {
-						emptyFileDetails()
-						cleanFilesList()
-						//cleanFolderHierarchy()
-						// askForFolderScan([getFolderParentPath(folder)],{ cache: false })
-						if (p.onMoveFn) p.onMoveFn();
-					})
-					
-				}
-			);
-		})
+`
+
+
+		const moveFile = () => {
+			askForMoveFolder(initPath, endPath, () => {
+				emptyFileDetails()
+				cleanFilesList()
+				//cleanFolderHierarchy()
+				// askForFolderScan([getFolderParentPath(folder)],{ cache: false })
+				if (p.onMoveFn) p.onMoveFn();
+			})
+		}
+
+		if (!p.disablePrompt) {
+			getClientApi2().then(api => {
+				api.popup.confirm(confirmTxt, () => { moveFile() });
+			})
+		} else {
+			moveFile()
+		}
+
 	}
 
-	// let warn = `You are about to move the ${item.type} ${item.folder?.path} to ${folderToDropInto}${item.folder?.path}`
-	// alert(warn)
-
-	return { askForMoveFile, promptAndBatchMoveFiles, promptAndMoveFolder }
-}
+		return { askForMoveFile, promptAndBatchMoveFiles, promptAndMoveFolder }
+	}
