@@ -120,7 +120,6 @@ export const WindowEditorInt = (p: {
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()
-		console.log(22222, contentToUpdateOnceOnline.current)
 		contentToUpdateOnceOnline.current = { content, path: file?.path }
 	}
 

@@ -68,7 +68,6 @@ export const aLog: iAnalyticsApi['log'] = logId => {
 
 		if (!isNumber(no[d[0]][d[1]][d[2]][logId])) no[d[0]][d[1]][d[2]][logId] = 1
 		else no[d[0]][d[1]][d[2]][logId]++
-		// console.log(22222222222, no);
 
 		setAnalytics(no)
 	})

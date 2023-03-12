@@ -199,9 +199,24 @@ export const App = () => {
 		console.log(`[DRAG MOVE] processDragDropAction ->`, draggedItems.current, folderToDropInto);
 		let item = draggedItems.current[0]
 		if (item.type === 'file' && item.files) {
-			promptAndBatchMoveFiles(item.files, folderToDropInto)
+			promptAndBatchMoveFiles({
+				files: item.files,
+				folderToDropInto
+			})
 		} else if (item.type === 'folder' && item.folder) {
-			promptAndMoveFolder({ folder: item.folder, folderToDropInto, folderBasePath })
+			promptAndMoveFolder({
+				folder: item.folder, folderToDropInto, folderBasePath,
+				disablePrompt: true,
+				onMoveFn: () => {
+					if (!item.folder) return
+					let folderpath = item.folder.path
+					let folderpath2 = folderToDropInto.path
+					askForFolderScan([getParentFolder(folderpath), getParentFolder(folderpath2), folderpath2, folderpath], {
+						cache: false,
+						cb: () => { foldersUiApi.open.add(folderpath) }
+					})
+				}
+			})
 		}
 	}
 
