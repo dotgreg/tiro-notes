@@ -7,7 +7,6 @@ export const getFolderParentPath = (folder: iFolder): string => {
 export const getParentFolder = (path: string): string => {
 	let folderArr = path.split("/")
 	folderArr = folderArr.filter(f => f !== "")
-	console.log(folderArr);
 	folderArr.pop()
 	let folderParent = "/" + folderArr.join("/") + "/"
 	folderParent = folderParent.replaceAll("//", "/")

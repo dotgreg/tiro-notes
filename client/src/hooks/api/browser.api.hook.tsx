@@ -1,9 +1,8 @@
-import { cloneDeep, each, isArray, isBoolean, random } from 'lodash';
+import { cloneDeep, each, isArray, isBoolean, random, uniq } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder } from '../../../../shared/types.shared';
-import { getParentFolder } from '../../managers/folder.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -164,9 +163,7 @@ export const useBrowserApi = (p: {
 	const [folderBasePath, setFolderBasePath] = useState('')
 
 	const refreshBackendFolders = () => {
-		console.log(2222222);
 		getOpenFoldersFromBack(v => {
-			console.log(3333333, v);
 			openFoldersRef.current = v
 		})
 	}
@@ -176,11 +173,18 @@ export const useBrowserApi = (p: {
 	}
 
 	// OPEN TREE FOLDER MANAGEMENT
-	const [openFolders, setOpenFolders, getOpenFoldersFromBack] = useBackendState<string[]>('folders-open', ['/'])
+	const [openFolders, setOpenFoldersInt, getOpenFoldersFromBack] = useBackendState<string[]>('folders-open', ['/'])
 	const openFoldersRef = useRef<string[]>([])
+
 	const getOpenFolders = () => {
 		return openFoldersRef.current
 	}
+
+	const setOpenFolders = (folders: string[]) => {
+		folders = uniq(folders)
+		setOpenFoldersInt(folders)
+	}
+
 	const addToOpenedFolders = (folderPath: string) => {
 		openFoldersRef.current = [...openFoldersRef.current, folderPath]
 		setOpenFolders(openFoldersRef.current)
@@ -198,7 +202,7 @@ export const useBrowserApi = (p: {
 	// if open folders change, scan them
 	//
 	useEffect(() => {
-		console.log(455555555, openFolders);
+		// console.log(455555555, openFolders);
 		scanFolders(openFolders)
 	}, [openFolders])
 

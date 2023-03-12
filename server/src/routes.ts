@@ -75,7 +75,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// let replacement = `[A-zÀ-ÿ]{1}`
 		// let replacement2 = `[A-zÀ-ú]{1}`
 		data.word = data.word.split("*").join(regexs.strings.charWithAccents)
-		// console.log("SEARCHWORD ", replacement2, data.word);
 		searchWord({
 			term: data.word,
 			folder: data.folder,
@@ -186,7 +185,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		let f1 = getFileInfos(data.initPath)
 		let f2 = getFileInfos(data.endPath)
-		console.log(333, f1,f2)
 		if (f1.folder !== f2.folder) {
 			log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
 			await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)

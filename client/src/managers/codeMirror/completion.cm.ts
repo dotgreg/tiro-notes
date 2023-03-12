@@ -92,7 +92,7 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 			let folder = getParentFolder(getParentFolder(file.folder))
 			// let folder = file.folder
 			api.search.hashtags(folder, hashs => {
-				console.log(folder, hashs);
+				// console.log(folder, hashs);
 				const arr: iCompletionTerm[] = []
 				each(hashs.nodesArr, hash => {
 					arr.push(createCompletionTerm(hash.name, hash.name))
@@ -102,7 +102,7 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 					options: arr,
 					validFor: /.*/
 				};
-				console.log(res);
+				// console.log(res);
 				reso(res)
 			})
 		})

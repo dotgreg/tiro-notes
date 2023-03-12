@@ -1,7 +1,7 @@
 import { iFile, iFolder } from "../../../../shared/types.shared";
 import { getFolderParentPath } from "../../managers/folder.manager";
 import { strings } from "../../managers/strings.manager";
-import { getClientApi2 } from "../api/api.hook";
+import { getApi, getClientApi2 } from "../api/api.hook";
 
 
 
@@ -23,10 +23,15 @@ export const useFileMove = (
 	askForFolderScan,
 ) => {
 
+
+
+
+
+
+
+
 	const askForMoveFile = (initPath: string, endPath: string) => {
 		console.log(`[MOVEFILE] ${initPath} -> ${endPath}`);
-		// clientSocket2.emit('moveFile', { initPath, endPath, idReq: '-', token: getLoginToken() })
-
 		// move then reload browser
 		getClientApi2().then(api => {
 			api.file.move(initPath, endPath, () => {
@@ -35,40 +40,72 @@ export const useFileMove = (
 		})
 	}
 
+
+
+
+
+
+
+
+
+
 	const askForMoveFolder = (initPath: string, endPath: string, cb?: Function) => {
 		console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
-		// back will then scan and send back whole hierarchy... maybe doing it here is better
-		// clientSocket2.emit('moveFolder', { initPath, endPath, token: getLoginToken() })
-		getClientApi2().then(api => {
+		getApi(api => {
 			api.folders.move(initPath, endPath, () => {
-				console.log(22223);
 				api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
 				cb && cb()
 			})
 		})
 	}
 
-	const promptAndBatchMoveFiles = (files: iFile[], folderToDropInto: iFolder) => {
-		getClientApi2().then(api => {
-			api.popup.confirm(
-				`Move <p>${files?.length}</p> file(s) to <p>"${folderToDropInto.key}"</p>?
+
+
+
+
+
+
+
+
+	const promptAndBatchMoveFiles = (p: {
+		files: iFile[],
+		folderToDropInto: iFolder
+		onMoveFn?: Function
+		disablePrompt?: boolean,
+	}) => {
+		const { files, folderToDropInto } = p
+
+		const dropAsk = `Move <p>${files?.length}</p> file(s) to <p>"${folderToDropInto.key}"</p>?
 <br>
 <br>
 Ressources links will be automatically updated<br>
 ${popupCommonStyle}
-`,
-				() => {
-					for (let i = 0; i < files.length; i++) {
-						const file = files[i];
-						let initPath = `${file.path}`
-						let endPath = `${folderToDropInto.key}/${file.name}`
-						askForMoveFile(initPath, endPath)
-						emptyFileDetails()
-					}
-				}
-			);
-		});
+`
+
+		console.log(33333333333);
+		const processToFileMove = () => {
+			for (let i = 0; i < files.length; i++) {
+				const file = files[i];
+				let initPath = `${file.path}`
+				let endPath = `${folderToDropInto.key}/${file.name}`
+				askForMoveFile(initPath, endPath)
+				emptyFileDetails()
+			}
+		}
+
+			getApi(api => {
+				api.popup.confirm(dropAsk, () => { processToFileMove() });
+			});
 	}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -117,5 +154,5 @@ ${popupCommonStyle}
 
 	}
 
-		return { askForMoveFile, promptAndBatchMoveFiles, promptAndMoveFolder }
-	}
+	return { askForMoveFile, promptAndBatchMoveFiles, promptAndMoveFolder }
+}
