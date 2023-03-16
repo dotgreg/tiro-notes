@@ -7,7 +7,7 @@ const feedApp = (innerTagStr, opts) => {
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
-		// VERSION 1.0.7 24/02/23`
+		// VERSION 1.0.8 15/03/23`
 		const h = `[CTAG FEED]`
 
 		//@ts-ignore
@@ -16,6 +16,9 @@ const feedApp = (innerTagStr, opts) => {
 		const divId = `feed-${api.utils.uuid()}`;
 
 
+		//
+		// SUPPORT FUNCS
+		//
 		const each = (itera, cb) => {
 				if (itera.constructor === Array) {
 						for (let i = 0; i < itera.length; ++i) {
@@ -26,6 +29,16 @@ const feedApp = (innerTagStr, opts) => {
 								cb(itera[property], property)
 						}
 				}
+		}
+
+		
+
+		  const debounce = (func, timeout = 300) => {
+			let timer;
+			return (...args) => {
+				clearTimeout(timer);
+				timer = setTimeout(() => { func.apply(this, args); }, timeout);
+			};
 		}
 
 		//
@@ -89,20 +102,24 @@ const feedApp = (innerTagStr, opts) => {
 				// CACHING MECHANISM
 				//
 				const getCachedJsons = (cb) => {
-						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
-						if (!hasUserReloaded) {
-								// first get cached, if exists
-								getCache(content => {
-										// if cache, return content
-										cb(content)
-								}, () => {
-										// if no cache OR expired, reload from json rss
-										getJsons(cb)
-								})
-						} else {
-								// directly reload without cache
-								getJsons(cb)
-						}
+					const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
+					if (!hasUserReloaded) {
+						// first get cached, if exists
+						console.log(h, "1 getting cached json")
+						getCache(content => {
+							// if cache, return content
+							console.log(h, "2 getting cached json")
+							cb(content)
+						}, () => {
+							console.log(h, "4 getting cached json")
+							// if no cache OR expired, reload from json rss
+							getJsons(cb)
+						})
+					} else {
+						console.log(h, "3 getting cached json")
+						// directly reload without cache
+						getJsons(cb)
+					}
 				}
 
 				const getCache = (onSuccess, onFailure) => {
@@ -246,12 +263,21 @@ const feedApp = (innerTagStr, opts) => {
 										// if (count === feedsArr.length) {
 										// sort items by time
 										resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
-										setCache(resItems)
+										const lengthCache = JSON.stringify(resItems).length
+										console.log(333, lengthCache, resItems.length)
+										debounceCache(resItems)
 										cb(resItems)
 										// }
 								})
 						}
 				}
+
+				
+				
+				const debounceCache =  debounce((resItems) => {
+					//console.log("444 debounce cache start!")
+					setCache(resItems)
+				}, 2000)
 
 				const fetchFeedItems = (feed, cb) => {
 						if (opts.fetchItems) {
@@ -498,6 +524,17 @@ const feedApp = (innerTagStr, opts) => {
 						return nArr
 				}
 
+				const useDebounce = (value, delay) => {
+					const [debouncedValue, setDebouncedValue] = React.useState(value)
+					React.useEffect(() => {
+					  const timer = setTimeout(() => setDebouncedValue(value), delay || 500)
+					  return () => {
+						clearTimeout(timer)
+					  }
+					}, [value, delay])
+					return debouncedValue
+				  }
+
 				const App = () => {
 
 						const titems = React.useRef([])
@@ -606,6 +643,41 @@ const feedApp = (innerTagStr, opts) => {
 
 						let itemOpenClass = itemActive ? "item-active" : ""
 
+
+						//
+						// INFINITE SCROLL LOGIC
+						//
+						let infiniteScrollItems = [...finalItems]
+						let stepInfScroll = 30
+						const [infScrollNbEls, setInfScrollNbEls] = React.useState(stepInfScroll)
+						if (infiniteScrollItems.length > infScrollNbEls) infiniteScrollItems = finalItems.slice(0, infScrollNbEls)
+
+						const onScroll = () => {
+							infiniteScrollLogic()
+						}
+
+						const debounceUpdateInfScroll = useDebounce(() => {
+							let nVal = infScrollNbEls+stepInfScroll
+							console.log("debounceUpdateInfScroll to", nVal)
+							//setInfScrollNbEls(nVal)
+						}, 500)
+
+						const infiniteScrollLogic = () => {
+							let wrapper = document.getElementById("infinite-scroll-wrapper")
+							let inner = document.getElementById("infinite-scroll-inner")
+							if (wrapper && inner) {
+								let wh = wrapper.offsetHeight
+								let ih = inner.offsetHeight
+								let s = wrapper.scrollTop
+								let diff = -(wh-ih) - s
+								if (diff < 10) {
+									let nVal = infScrollNbEls+stepInfScroll
+									console.log("debounceUpdateInfScroll to", nVal)
+									setInfScrollNbEls(nVal)
+								}
+							} 
+						}
+
 						return (
 								c('div', { className: "feed-app-wrapper" }, [
 
@@ -666,41 +738,58 @@ const feedApp = (innerTagStr, opts) => {
 														}
 												}),
 										]),
-										c('div', { className: `articles-list ${itemOpenClass} view-${listView} ${itemActive ? 'item-active-open' : ''}` }, [
-												finalItems.map(item =>
-														c('div', {
-																className: `article-${listView}-item`,
-																onClick: () => { setItemActive(item) }
-														},
-															[
+										c('div', { 
+											onScroll,
+											id:"infinite-scroll-wrapper",
+											className: `articles-list ${itemOpenClass} view-${listView} ${itemActive ? 'item-active-open' : ''}` 
+										}, 
+											[
+												c('div', {id:"infinite-scroll-inner",},[
+													// V1
+													infiniteScrollItems.map(item =>
+															c('div', {
+																	className: `article-${listView}-item`,
+																	onClick: () => { setItemActive(item) }
+															},
+																[
 
-																	listView === "list" &&
-																			c('div', {
-																					className: "",
-																			}, [
-																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
-																			]),
-
-																	listView !== "list" &&
-																			c('div', {
-																					className: "",
-																			},
-																				[
-																						c('div', {
-																								className: "bg-item",
-																								style: {
-																										backgroundColor: item.bgColor,
-																										backgroundImage: "url(" + item.image + ")",
-																								}
-																						}),
-																						c('div', { className: "title-wrapper" }, [
-																								c('div', { className: "title" }, [item.title]),
-																								c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
-																						])
+																		listView === "list" &&
+																				c('div', {
+																						className: "",
+																				}, [
+																						`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
 																				]),
-															]),
-												)
-										]),
+
+																		listView !== "list" &&
+																				c('div', {
+																						className: "",
+																				},
+																					[
+																							c('div', {
+																									className: "bg-item",
+																									style: {
+																											backgroundColor: item.bgColor,
+																											backgroundImage: "url(" + item.image + ")",
+																									}
+																							}),
+																							c('div', { className: "title-wrapper" }, [
+																									c('div', { className: "title" }, [item.title]),
+																									c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
+																							])
+																					]),
+																]),
+													)
+													
+													// V2 TEST
+													// finalItems.map(item => 
+													// 		c('div', { className: "title" }, [item.title]),
+													// )
+
+													// V3 REACT WINDOW
+													//console.log(ReactWindow.)
+													// ReactWindowList(),
+												])
+											]),
 
 										itemActive && c(ArticleDetail, {
 												article: itemActive,
@@ -745,10 +834,11 @@ const feedApp = (innerTagStr, opts) => {
 						"https://unpkg.com/react@18/umd/react.production.min.js",
 						"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
 						"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js",
-						...toLoad
+						...toLoad,
+						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.min.js"
+						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.js"
 				],
 				() => {
-
 						if (opts.feedType === "youtube") {
 								opts.fetchItems = window.fetchYoutubeItems
 								window.youtubeKey = opts.youtubeKey
@@ -978,7 +1068,7 @@ const feedApp = (innerTagStr, opts) => {
 
 /* gallery view  */
 
-.articles-list.view-gallery {
+.articles-list.view-gallery #infinite-scroll-inner {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;

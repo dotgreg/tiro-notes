@@ -82,7 +82,6 @@ Ressources links will be automatically updated<br>
 ${popupCommonStyle}
 `
 
-		console.log(33333333333);
 		const processToFileMove = () => {
 			for (let i = 0; i < files.length; i++) {
 				const file = files[i];
