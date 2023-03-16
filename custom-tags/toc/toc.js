@@ -100,7 +100,6 @@ const tocApp = (innerTagStr, opts) => {
 												// calc the nb of </ol> to render
 												let endOl = ''
 												for (let i = 0; i < o.ranking - no.ranking; i++) {endOl += "</ol>"}
-												// console.log(3333333, endOl, o.ranking, no.ranking);
 												resHtml += `${sLi} ${contentLi} ${eLi} ${endOl} ${eLi}`
 										}
 								} else {

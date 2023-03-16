@@ -87,7 +87,6 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 			// let parentFolder = getFolderParentPath(file)
 			// let p1 = getParentFolder(file.folder)
 			// let p2 = getParentFolder(p1)
-			// console.log(3333333, p1, p2, file, file.folder);
 			// let folder = getParentFolder(file.folder)
 			let folder = getParentFolder(getParentFolder(file.folder))
 			// let folder = file.folder

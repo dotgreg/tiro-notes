@@ -131,7 +131,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		await upsertRecursivelyFolders(pathToFile)
 		await saveFile(pathToFile, data.newFileContent)
-
 		// ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
 
 		// sends back to all sockets the updated content
@@ -145,7 +144,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				filePath: data.filePath,
 				fileContent: data.newFileContent
 			})
-
 		}
 	}, { disableDataLog: true, checkRole: "editor" })
 

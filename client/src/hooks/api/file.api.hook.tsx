@@ -122,6 +122,22 @@ export const useFileApi = (p: {
 		}
 	}
 
+	//
+	// Send/Receive logic (with chunker if content too large) => NOPE, more a config pb on nginx side
+	//
+	// const saveFileContentInChunks: iFileApi['saveContent'] = (noteLink, content, options) => {
+	// 	if (content.length > 100000) {
+	// 		// chunk content in 100k blocks
+	// 		// save all contents chunks
+	// 		// the first content chunk
+	// 	} else {
+	// 		return saveFileContent(noteLink, content, options)
+	// 	}
+	// }
+	// const getFileContentInChunks: iFileApi['getContent'] = ( noteLink, cb, options ) => {
+	// 	// get the first 
+	// }
+
 	// 3. DELETE
 	const deleteFile: iFileApi['delete'] = (file, cb) => {
 		const idReq = genIdReq('delete-file');

@@ -202,7 +202,6 @@ export const useBrowserApi = (p: {
 	// if open folders change, scan them
 	//
 	useEffect(() => {
-		// console.log(455555555, openFolders);
 		scanFolders(openFolders)
 	}, [openFolders])
 
@@ -281,7 +280,7 @@ export const useBrowserApi = (p: {
 		if (newTreeStruct) setFolderHierarchy(newTreeStruct)
 		setFolderBasePath(pathBase)
 
-		console.log("FOLDER SCAN] 555", folders[0]?.path, { folders, newflatStruct, newTreeStruct, openFolders })
+		//console.log("FOLDER SCAN] 555", folders[0]?.path, { folders, newflatStruct, newTreeStruct, openFolders })
 	}
 
 
@@ -348,7 +347,6 @@ const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
 	let res
 	for (let i = 0; i < folders.length; i++) {
 		if (areSamePaths(folders[i].path, path)) {
-			//console.log('FOLDER SCAN] 131313 FOUND', path, folders[i]);
 			res = cloneDeep(folders[i])
 			const children = folders[i].children
 			if (isArray(children)) {
@@ -359,7 +357,6 @@ const buildTreeFolder = (path: string, folders: iFolder[]): iFolder | null => {
 			}
 		}
 	}
-	//console.log('FOLDER SCAN] 22', path, res);
 	return res
 }
 
