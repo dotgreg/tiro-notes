@@ -186,12 +186,10 @@ export const RessourcePreview = (p: {
 		})
 	}
 	const getStatus = (cb: (status: cachedStatus) => void) => {
-		console.log(111111111111, cacheId);
 		getApi(api => {
 			api.cache.get(cacheId, res => {
 				if (!res) return
 				let r = res[idRess] ? res[idRess] : "closed"
-				console.log(111111111222, cacheId, r);
 				cb(r)
 			})
 		})
