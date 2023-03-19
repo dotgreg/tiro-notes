@@ -374,6 +374,9 @@ const epubApp = (innerTagStr, opts) => {
 								})
 						})
 
+						onClick(["fullscreen"], e => {
+								let file = api.utils.fullscreenIframe()
+						})
 						onClick(["audio"], e => {
 								let file = api.utils.getInfos().file;
 								eapi.getFullBookContent(txt => {
@@ -609,6 +612,7 @@ const htmlEpub = () => `
 		<input type="button" id="prev" value=" < " />
 		<input type="button" id="next" value=" > " />
 		<input type="button" id="search" value=" 🔎 " />
+		<input type="button" id="fullscreen" value="⛶" />
 		<input type="button" id="audio" value=" ♫ " />
 </div>
 
@@ -675,6 +679,9 @@ left: auto;
 #search-wrapper #search-button {
 }
 #search {
+margin-right: 10px;
+}
+#fullscreen {
 margin-right: 10px;
 }
 
