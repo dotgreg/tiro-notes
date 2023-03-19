@@ -1,3 +1,4 @@
+import { isString } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { safeString } from '../../managers/string.manager';
@@ -33,7 +34,7 @@ interface iCachedDic {
 
 const h = `[CACHE API]`
 let log = sharedConfig.client.log.verbose
-// const log = true
+let logChunk = sharedConfig.client.log.verbose
 
 
 const now = () => new Date().getTime()
@@ -72,31 +73,31 @@ export const useCacheApi = (p: {}): iCacheApi => {
 		} else {
 			// else fetch it from file
 			getFileContentInChunks(cacheId, raw => {
-			// getApi(api => {
+				// getApi(api => {
 				// api.file.getContent(getCachedStorage(cacheId), raw => {
-					try {
-						const cachedObjRw = JSON.parse(raw)
-						// console.log(333312, {cachedObjRw, raw })
-						cachedRamDic.current[cacheId] = {...cachedObjRw}
+				try {
+					const cachedObjRw = JSON.parse(raw)
+					// console.log(333312, {cachedObjRw, raw })
+					cachedRamDic.current[cacheId] = { ...cachedObjRw }
 
-						// if expired, update its value
-						let cacheObj = cachedRamDic.current[cacheId]
-						let expired = isExpired(cacheObj.until)
-						if (expired) cacheObj.content = undefined
+					// if expired, update its value
+					let cacheObj = cachedRamDic.current[cacheId]
+					let expired = isExpired(cacheObj.until)
+					if (expired) cacheObj.content = undefined
 
-						log && console.log(h, 'FROM FILE', cacheId, " expired:", expired);
-						cb(cacheObj.content)
-					} catch (e) {
-						
-					}
-				},  e => {
-					// if doesnt exists, return undefined to avoid unnecessary api.getcontent calls
-					if (e === 'NO_FILE') {
-						log && console.log(h, 'FROM FILE: NO_FILE', cacheId);
-						setRamCache(cacheId, undefined, 60)
-						cb(cachedRamDic.current[cacheId].content)
-					}
+					log && console.log(h, 'FROM FILE', cacheId, " expired:", expired);
+					cb(cacheObj.content)
+				} catch (e) {
+
 				}
+			}, e => {
+				// if doesnt exists, return undefined to avoid unnecessary api.getcontent calls
+				if (e === 'NO_FILE') {
+					log && console.log(h, 'FROM FILE: NO_FILE', cacheId);
+					setRamCache(cacheId, undefined, 60)
+					cb(cachedRamDic.current[cacheId].content)
+				}
+			}
 			)
 		}
 	}
@@ -140,17 +141,16 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	const limitChunk = 500 * 1000 // first nb in KB
 	const chunkHeader = `__CHUNKED__CACHED__OBJ__SIZE:`
 	const chunkString = (str, length) => str.match(new RegExp('.{1,' + length + '}', 'g'));
-	const logChunk = true
 	const hc = `[CACHE CHUNK]`
-	  
+
 	//
 	// SET CHUNKS
 	//
 	const saveFileContentInChunks = (cacheId, obj) => {
 		const contentStr = JSON.stringify(obj)
-		
-		const saveFile = (id:string, str:string) => {
-			logChunk && console.log(hc,getCachedStorage(id), {str})
+
+		const saveFile = (id: string, str: string) => {
+			logChunk && console.log(hc, getCachedStorage(id), { str })
 			getApi(api => {
 				api.file.saveContent(getCachedStorage(id), `${str}`)
 			})
@@ -159,14 +159,14 @@ export const useCacheApi = (p: {}): iCacheApi => {
 		if (contentStr.length > limitChunk) {
 			// chunk content in 100k blocks
 			let contentArr = chunkString(contentStr, limitChunk)
-			console.log(hc, `SAVE >> TOO LARGE, split in ${contentArr.length} parts`, {cacheId, contentArr})
+			logChunk && console.log(hc, `SAVE >> TOO LARGE, split in ${contentArr.length} parts`, { cacheId, contentArr })
 			// the first content chunk
-			saveFile(cacheId,  JSON.stringify(`${chunkHeader}${contentArr.length}`))
+			saveFile(cacheId, `${chunkHeader}${contentArr.length}`)
 			for (let i = 0; i < contentArr.length; i++) {
 				// save all contents chunks
 				setTimeout(() => {
 					saveFile(`c${i}_${cacheId}`, contentArr[i])
-				}, 200*i)
+				}, 200 * i)
 			}
 		} else {
 			return saveFile(cacheId, contentStr)
@@ -176,18 +176,18 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	// GET CHUNKS
 	//
-	const getFileContentInChunks = ( cacheId, cb , err) => {
-		const getFile = (path, onSuccess, onError) => {getApi(api => {api.file.getContent(getCachedStorage(path), onSuccess, {onError})})}
+	const getFileContentInChunks = (cacheId, cb, err) => {
+		const getFile = (path, onSuccess, onError) => { getApi(api => { api.file.getContent(getCachedStorage(path), onSuccess, { onError }) }) }
 
 		// if that one is an obj with specif prop, get the nb and finally get all files and merge obj
 		const failChunkLoad = "___ERROR___CHUNK___LOADING___FAILURE"
 		const getAllChunksAndMerge = (id, nbChunks, cb1, err1) => {
-			let resAllArr:string[] = []
+			let resAllArr: string[] = []
 			const onAllChunksLoaded = () => {
 				if (resAllArr.length === nbChunks) {
 					let resMerge = resAllArr.join('')
 					let hasFailed = resMerge.includes(failChunkLoad)
-					console.log(`GET >> RESULT remerging`, {hasFailed, cacheId, nbChunks, resMerge})
+					logChunk && console.log(`GET >> RESULT remerging`, { hasFailed, cacheId, nbChunks, resMerge })
 					if (hasFailed) err1()
 					else cb1(resMerge)
 				}
@@ -196,26 +196,25 @@ export const useCacheApi = (p: {}): iCacheApi => {
 			for (let i = 0; i < nbChunks; i++) {
 				getFile(`c${i}_${cacheId}`, r => {
 					resAllArr[i] = r
-					console.log(hc, `c${i}_${cacheId}`, {nb: resAllArr.length,nbChunks, r})
+					logChunk && console.log(hc, `c${i}_${cacheId}`, { nb: resAllArr.length, nbChunks, r })
 					onAllChunksLoaded()
 				}, e => {
 					resAllArr[i] = failChunkLoad
 					onAllChunksLoaded()
 				})
-				
+
 			}
 		}
-		
+
 
 		// first el is JSON starts with chunkHeader
 		getFile(cacheId, r => {
 			try {
-				r = JSON.parse(r)
 				if (r.startsWith(chunkHeader)) {
 					let nbChunks = parseInt(r.replaceAll(chunkHeader, ""))
-					console.log(h, `GET >> remerging a ${nbChunks} part`, {cacheId})
-					getAllChunksAndMerge(cacheId, nbChunks, rAll => {cb(rAll)}, e => {err()})
-				}else {
+					logChunk && console.log(h, `GET >> remerging a ${nbChunks} part`, { cacheId })
+					getAllChunksAndMerge(cacheId, nbChunks, rAll => { cb(rAll) }, e => { err() })
+				} else {
 					cb(r)
 				}
 			} catch (error) {
