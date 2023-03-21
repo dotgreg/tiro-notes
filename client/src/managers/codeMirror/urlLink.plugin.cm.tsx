@@ -6,7 +6,8 @@ import React from "react";
 import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { Icon } from "../../components/Icon.component";
-import { ssrOnClick, ssrOpenIframe } from "../ssr.manager";
+import { getApi } from "../../hooks/api/api.hook";
+import { ssrOnClick, ssrOpenIframe, ssrOpenPreview } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
@@ -53,7 +54,7 @@ export const generateHtmlLinkPreview = (
 	resEl.classList.add('link-mdpreview-wrapper')
 	resEl.classList.add('link-wrapper')
 
-	let limitChar = 20
+	let limitChar = 17
 	if (website.length > limitChar) website = website.substring(website.length - limitChar)
 	let artTitle = firstSlash
 	if (artTitle === "" || !artTitle) artTitle = secondSlash
@@ -62,11 +63,19 @@ export const generateHtmlLinkPreview = (
 	artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
 
 	let previewStr = `${website}${artTitle}`
+	if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
+
 	let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
 	let openWindow = `<span class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
 	let openPreview = `<span class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
+	let fetchArticle = `<span class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faFont" />)}</span>`
+	let audio = `<span class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faComment" />)}</span>`
+	let btns = `<span class="link-action-wrapper">${fetchArticle} ${audio} ${openWindow} ${openPreview}</span>`
+
+
 	let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
-	let html = `<span class="link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre} ${previewStr}</a> ${openWindow} ${openPreview} ${iframeWrapper}</span>`
+	let previewWrapper = `<div class="${id} link-fetch-preview-wrapper"></div>`
+	let html = `<span class="link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>${btns}${iframeWrapper}${previewWrapper}</span>`
 	resEl.innerHTML = `${html}`;
 
 	initSSRLogic(linkId)
@@ -79,6 +88,18 @@ export const generateHtmlLinkPreview = (
 // CLICK MANAGEMENT
 //
 const initSSRLogic = (id: string) => {
+
+	const fetchArticle = (el: any, cb: Function) => {
+		let link = el.dataset.link
+		let id = el.dataset.id
+		getApi(api => {
+			api.ressource.fetchUrlArticle(link, r => {
+				ssrOpenPreview(`.${id}.link-iframe-wrapper`, r.html)
+				cb(r)
+			})
+		})
+	}
+
 	setTimeout(() => {
 		ssrOnClick(`.${id} .link-openwindow`, el => {
 			if (!el) return
@@ -90,6 +111,20 @@ const initSSRLogic = (id: string) => {
 			let link = el.dataset.link
 			let id = el.dataset.id
 			ssrOpenIframe(`.${id}.link-iframe-wrapper`, link)
+		})
+		ssrOnClick(`.${id} .link-fetcharticle`, el => {
+			if (!el) return
+			fetchArticle(el, () => { })
+		})
+		ssrOnClick(`.${id} .link-audio`, el => {
+			if (!el) return
+			fetchArticle(el, r => {
+				console.log(r.content);
+				if (!r.text) return;
+				getApi(api => {
+					api.ui.textToSpeechPopup.open(r.text)
+				})
+			})
 		})
 	}, 100)
 }
@@ -110,17 +145,44 @@ const initSSRLogic = (id: string) => {
 
 // export const linksPreviewMdSimpleCss = () => `
 export const linksPreviewMdCss = () => `
+.link-fetch-preview-wrapper {
+	background: grey;
+
+}
 .link-mdpreview-wrapper {
 		position: relative;
 }
 .link-mdpreview-wrapper .link-action {
-		opacity: 0.1
+}
+.link-fetch-preview-wrapper {
+display: none;
 }
 
-.link-mdpreview-wrapper:hover .link-action{
-		opacity: 1;
+.link-action-wrapper {
+	display:flex;
+  position: absolute;
+  left: 0px;
+  top: -29px;
+  opacity: 0;
+  transition: 0.2s all;
+  pointer-events: none;
+  background: white;
+  box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+  padding: 7px;
+  z-index: 10000;
+}
+.link-action-wrapper .link-action {
+	padding-left:4px;
+}
+
+.link-mdpreview-wrapper:hover .link-action-wrapper{
+		opacity: 0.2;
 		pointer-events: all;
 }
+.link-mdpreview-wrapper:hover .link-action-wrapper:hover {
+	opacity: 1;
+}
+
 .link-action 		svg,
 .link-action span,
 .link-action div {
@@ -128,13 +190,8 @@ export const linksPreviewMdCss = () => `
 }
 
 .link-action {
+		opacity: 0.5;
 		cursor: pointer;
-		position: relative;
-		right: 6px;
-		top: 0px;
-		opacity: 0;
-		transition: 0.2s all;
-		pointer-events: none;
 }
 .link-iframe-wrapper {
 		display: none;
@@ -169,80 +226,11 @@ export const linksPreviewMdCss = () => `
 		text-decoration: none;
 		color: ${cssVars.colors.main};
 		// border: solid 2px ${cssVars.colors.main};
-		padding: 0px 6px;
+		padding: 0px 6px 0px 0px;
 		cursor: pointer;
 		border-radius: 5px;
 		svg {
 				color: ${cssVars.colors.main};
 		}
 }
- `
-
-export const linksPreviewMdCssOLD = () => `
- .link-mdpreview-wrapper {
-		 position: relative;
-		 &:hover {
-				 .link-action{
-						 opacity: 1;
-						 pointer-events: all;
-				 }
-				 .link-action {
-						 opacity: 0.1
-				 }
-		 }
-		 .link-action {
-				 cursor: pointer;
-				 position: relative;
-				 right: 6px;
-				 top: 0px;
-				 opacity: 0;
-				 transition: 0.2s all;
-				 pointer-events: none;
-				 svg, span, div {
-						 pointer-events:none;
-				 }
-		 }
-		 .link-iframe-wrapper {
-				 display: none;
-		 }
-		 .link-iframe-wrapper.open {
-				 display: block;
-				 height: 330px!important;
-		 }
-		 .link-iframe-wrapper iframe {
-				 border-radius: 7px;
-				 overflow:hidden;
-				 box-shadow: 0 0 4px rgba(0,0,0,0.3);
-				 width: 150%!important;
-				 transform-origin:top left;
-				 transform: scale(0.65);
-				 height: 500px!important;
-		 }
-		 .link-iframe-wrapper.big iframe{
-				 height: 900px!important;
-		 }
-
-		 .link-mdpreview-wrapper {
-
-		 }
-		 .link-mdpreview {
-				 opacity: 0.6;
-				 transition: 0.2s all;
-				 &:hover {
-						 opacity: 1;
-				 }
-				 line-height: 20px;
-				 text-decoration: none;
-				 color: ${cssVars.colors.main};
-				 // border: solid 2px ${cssVars.colors.main};
-				 padding: 0px 6px;
-				 cursor: pointer;
-				 border-radius: 5px;
-				 svg {
-						 color: ${cssVars.colors.main};
-				 }
-		 }
- }
- `
-
-
+`
