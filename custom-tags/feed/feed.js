@@ -105,12 +105,15 @@ const feedApp = (innerTagStr, opts) => {
 						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
 						if (!hasUserReloaded) {
 								// first get cached, if exists
+								console.log(1233333333, cacheId);
 								getCache(content => {
 										// if cache, return content
+										console.log(123333333345,content);
 										console.log(h, "=> getting CACHED feed json")
 										cb(content)
 								}, () => {
 										// if no cache OR expired, reload from json rss
+										console.log(123333333344);
 										getJsons(cb)
 								})
 						} else {
@@ -262,6 +265,7 @@ const feedApp = (innerTagStr, opts) => {
 										// sort items by time
 										resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 										const lengthCache = JSON.stringify(resItems).length
+										console.log(333);
 										debounceCache(resItems)
 										cb(resItems)
 										// }
@@ -272,7 +276,7 @@ const feedApp = (innerTagStr, opts) => {
 				
 				
 				const debounceCache =  debounce((resItems) => {
-						//console.log("444 debounce cache start!")
+						console.log("444 debounce cache start!")
 						setCache(resItems)
 				}, 2000)
 

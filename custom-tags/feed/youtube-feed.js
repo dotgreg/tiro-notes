@@ -95,19 +95,19 @@ const processItems = items => {
 		const fitems = []
 		each(items, i => {
 				if (i.snippet.title !== "Private video") {
-				fitems.push({
-						title: `${i.snippet.title} - ${i.videoDetails?.durationMin} m`,
-						pubDate: i.snippet.publishedAt,
-						image: i.snippet.thumbnails?.high?.url,
-						link: `https://youtube.com/watch?v=${i.snippet.resourceId.videoId}`,
-						description: i.snippet.description,
-						enclosure : {
-								videoId: i.snippet.resourceId.videoId, 
-								type: "video",
-								videoUrl : `https://www.youtube.com/embed/${i.snippet.resourceId.videoId}?autoplay=1`,
-								videoDetails: i.videoDetails
-						}
-				})
+						fitems.push({
+								title: `${i.snippet.title} - ${i.videoDetails?.durationMin} m`,
+								pubDate: i.snippet.publishedAt,
+								image: i.snippet.thumbnails?.high?.url,
+								link: `https://youtube.com/watch?v=${i.snippet.resourceId.videoId}`,
+								description: i.snippet.description,
+								enclosure : {
+										videoId: i.snippet.resourceId.videoId, 
+										type: "video",
+										videoUrl : `https://www.youtube.com/embed/${i.snippet.resourceId.videoId}?autoplay=0`,
+										videoDetails: i.videoDetails
+								}
+						})
 				}
 		})
 				return fitems

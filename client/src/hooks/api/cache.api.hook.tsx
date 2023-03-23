@@ -34,7 +34,8 @@ interface iCachedDic {
 
 const h = `[CACHE API]`
 let log = sharedConfig.client.log.verbose
-let logChunk = sharedConfig.client.log.verbose
+// let logChunk = sharedConfig.client.log.verbose
+let logChunk = true
 
 
 const now = () => new Date().getTime()
