@@ -4,6 +4,14 @@ const password:{value:string|null} = {value: null}
 
 interface encryptionAnswer {status: string, cipher?:string, plaintext?:string}
 
+export interface iEncryptApi {
+    encryptText: (text:string, password:string) => encryptionAnswer,
+    decryptText: (text:string, password:string) => encryptionAnswer
+
+    encryptUrlParam: (text:string, password:string) => encryptionAnswer
+    decryptUrlParam: (text:string, password:string) => encryptionAnswer
+}
+
 var Bits = 1024; 
 export const encryptText = (text:string, password:string):encryptionAnswer => {
     var privateKey = cryptico.generateRSAKey(password, Bits);
@@ -21,6 +29,25 @@ export const decryptText = (text:string, password:string):encryptionAnswer => {
     // console.error('[DECRYPT TEXT] failed to decrypt text, return original text', results)
     return results
 }
+
+const encryptUrlParam:iEncryptApi['encryptUrlParam'] = (text, password) => {
+    let res = encryptText(text,password)
+    if (res.cipher) res.cipher = encodeURIComponent(res.cipher)
+    return res
+}
+const decryptUrlParam:iEncryptApi['decryptUrlParam'] = (text, password) => {
+    text = decodeURIComponent(text)
+    let res = decryptText(text,password)
+    return res
+}
+
+export const encryptApi:iEncryptApi = {
+    encryptText,
+    decryptText,
+    encryptUrlParam,
+    decryptUrlParam
+}
+
 
 
 

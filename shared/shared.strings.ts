@@ -29,6 +29,7 @@ export const sharedStrings = {
 	moveFolderPrompt: 'move folder',
 	setupForm: {
 		title: "Login to Tiro",
+		saveToLs: "Autologin/Save for 30 days on that device",
 		introText: `Welcome to Tiro, please fill these informations to get started`,
 		user: 'user',
 		password: 'password',

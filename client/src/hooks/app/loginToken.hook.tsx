@@ -1,3 +1,4 @@
+import { css } from '@emotion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
@@ -5,6 +6,9 @@ import { Popup } from '../../components/Popup.component';
 import { getCookie, setCookie } from '../../managers/cookie.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
+import { getUrlRawParams } from '../../managers/url.manager';
+import { getApi } from '../api/api.hook';
+import { useLocalStorage } from '../useLocalStorage.hook';
 
 
 export const getLoginToken = (): string => {
@@ -72,10 +76,39 @@ export const useLoginToken = (p: {
 			}
 		})
 
+		
+
 		return () => {
 			clientSocket2.off(listenerId.current)
 		}
 	}, [])
+
+	useEffect(() => {
+		if (displayLoginPopup) {
+			// check if user and password inside url
+			const urlParams = getUrlRawParams().dic
+			// console.log(urlParams)
+			const encryptedPassword = "__HARDCODED_LOGIN_LS_PASSWORD_0129dsfaf1029__"
+			if (
+				urlParams['l1'] && urlParams['l2'] &&
+				urlParams['l1'].value && urlParams['l2'].value
+			) {
+				getApi(api => {
+					const usr = api.encryption.decryptUrlParam(urlParams['l1'].value, encryptedPassword).plaintext 
+					const pass = api.encryption.decryptUrlParam(urlParams['l2'].value, encryptedPassword).plaintext
+					if (usr  && pass ) {
+						setUser(usr)
+						setPassword(pass)
+						setTimeout(() => {
+							console.log("success login url, submitting it",{usr,pass})
+							clientSocket2.emit('sendLoginInfos', { user:usr, password:pass, token: getLoginToken() })
+						}, 1000)
+					}
+				})
+			}
+		}
+	}, [displayLoginPopup])
+
 
 	const submitForm = () => {
 		setFormMessage(undefined)
@@ -83,6 +116,7 @@ export const useLoginToken = (p: {
 	}
 
 	const [inputFocus, setInputFocus] = useState(1)
+	const [saveToLs, setSaveToLs] = useLocalStorage("login-to-ls", false)
 
 	const LoginPopupComponent = (p: {
 
@@ -109,6 +143,16 @@ export const useLoginToken = (p: {
 								onEnterPressed={() => { submitForm() }}
 								onChange={e => { setPassword(e) }}
 							/>
+
+							{/* 
+							working frontend but disabled function
+							<Input
+								value={saveToLs}
+								label={strings.setupForm.saveToLs}
+								type={'checkbox'}
+								style={`.input-component { flex-direction: row-reverse; span {width: 90%; font-weight: 400; font-size: 10px; text-transform: lowercase;} .input-wrapper {width: 10%;}}`}
+								onChange={e => {setSaveToLs(!saveToLs) }}
+							/> */}
 
 							<button value='submit' className="submit-button" onClick={e => { submitForm() }}>
 								{strings.setupForm.submit}

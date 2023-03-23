@@ -1,7 +1,14 @@
-import { isNumber } from "lodash";
+import { each, isNumber } from "lodash";
 import { iAppView } from "../../../shared/types.shared";
 import { configClient } from "../config";
 import { isVarMobileView, MobileView } from "./device.manager";
+
+export interface iUrlRawParamDic {
+	[name: string]: iUrlRawParam
+}
+export interface iUrlRawParam {
+	name: string, value:string
+}
 
 export interface iUrlParams {
 	search?: string
@@ -28,6 +35,19 @@ export const listenToUrlChanges = (p: {
 }
 
 export const checkUrlParamsPorts = () => {
+}
+
+export const getUrlRawParams = (): {dic: iUrlRawParamDic, array:iUrlRawParam[]} => {
+	let arr: iUrlRawParam[] = []
+	let dic: iUrlRawParamDic = {}
+	const queryString = window.location.search;
+	const urlParamsSearch = new URLSearchParams(queryString);
+	let entries = urlParamsSearch.entries()
+	for(const entry of entries) {
+		arr.push({name: entry[0], value: entry[1]})
+		dic[entry[0]]={name: entry[0], value: entry[1]}
+	}
+	return {array: arr, dic}
 }
 
 export const getUrlParams = (): iUrlParams => {

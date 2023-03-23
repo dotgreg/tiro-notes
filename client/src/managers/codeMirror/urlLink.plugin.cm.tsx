@@ -7,6 +7,7 @@ import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { Icon } from "../../components/Icon.component";
 import { getApi } from "../../hooks/api/api.hook";
+import { isMobile } from "../device.manager";
 import { ssrOnClick, ssrOpenIframe, ssrOpenPreview } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
@@ -65,17 +66,21 @@ export const generateHtmlLinkPreview = (
 	let previewStr = `${website}${artTitle}`
 	if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
 
-	let iconPre = `${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}`
-	let openWindow = `<span class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
-	let openPreview = `<span class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
-	let fetchArticle = `<span class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faFont" />)}</span>`
-	let audio = `<span class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faComment" />)}</span>`
-	let btns = `<span class="link-action-wrapper">${fetchArticle} ${audio} ${openWindow} ${openPreview}</span>`
+	let iconPre = `<span class="link-deco">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}</span>`
+
+	let iconMoreBtns = ``
+
+	let openWindow = `<span title="Open link in detached window" class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
+	let openPreview = `<span title="Preview link" class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
+	let fetchArticle = `<span  title="Display url content" class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faFont" />)}</span>`
+	let audio = `<span  title="Text to speech url content" class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faComment" />)}</span>`
+	
+	let btns = `<span class="link-action-more"><span class="icon-more">${renderToString(<Icon name="faEllipsisH" />)}</span><span class="link-action-wrapper">${fetchArticle} ${audio} ${openWindow} ${openPreview}</span></span>`
 
 
 	let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
 	let previewWrapper = `<div class="${id} link-fetch-preview-wrapper"></div>`
-	let html = `<span class="link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>${btns}${iframeWrapper}${previewWrapper}</span>`
+	let html = `<span class="link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>${iconMoreBtns}${btns}${iframeWrapper}${previewWrapper}</span>`
 	resEl.innerHTML = `${html}`;
 
 	initSSRLogic(linkId)
@@ -157,12 +162,19 @@ export const linksPreviewMdCss = () => `
 .link-fetch-preview-wrapper {
 display: none;
 }
+.link-deco {
+ padding-right:2px;
+}
+.link-action-more {
+	position: relative;
+}
 
+// having it placed differently on desktop/mobile
 .link-action-wrapper {
-	display:flex;
+  display:flex;
   position: absolute;
-  left: 0px;
-  top: -29px;
+  right: ${isMobile() ? "20" :"-30"}px;
+  top: -10px;
   opacity: 0;
   transition: 0.2s all;
   pointer-events: none;
@@ -175,12 +187,23 @@ display: none;
 	padding-left:4px;
 }
 
-.link-mdpreview-wrapper:hover .link-action-wrapper{
-		opacity: 0.2;
-		pointer-events: all;
+.link-action-more  {
+	margin-right: 6px;
+	opacity: 0.3;
 }
-.link-mdpreview-wrapper:hover .link-action-wrapper:hover {
+.link-action-more .icon-more  {
+	position:relative;
+	top:1px;
+}
+.link-action-more .icon-more svg {
+	transform: scale(0.7);
+}
+.link-action-more:hover  {
 	opacity: 1;
+}
+.link-action-more:hover .link-action-wrapper {
+	opacity: 1;
+	pointer-events:all;
 }
 
 .link-action 		svg,
@@ -209,6 +232,9 @@ display: none;
 		transform: scale(0.65);
 		height: 500px!important;
 }
+.link-iframe-wrapper.big{
+	height: 600px!important;
+}
 .link-iframe-wrapper.big iframe{
 		height: 900px!important;
 }
@@ -226,7 +252,7 @@ display: none;
 		text-decoration: none;
 		color: ${cssVars.colors.main};
 		// border: solid 2px ${cssVars.colors.main};
-		padding: 0px 6px 0px 0px;
+		padding: 0px 2px 0px 0px;
 		cursor: pointer;
 		border-radius: 5px;
 		svg {
