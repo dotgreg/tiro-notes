@@ -1,3 +1,5 @@
+import { css } from '@emotion/css';
+import { SerializedStyles } from '@emotion/react';
 import { isBoolean } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 
@@ -19,6 +21,7 @@ export const Input = (p: {
 	shouldFocus?: boolean
 	shouldNotSelectOnClick?: boolean
 	readonly?: boolean
+	style?: string
 }) => {
 
 	const inputRef = useRef<any>()
@@ -40,11 +43,18 @@ export const Input = (p: {
 	let value = p.value
 	if (isBoolean(value)) value = ""
 
-	return (
-		<div className={`input-component ${p.id ? p.id : ''} ${p.type}`}>
+	const labelClicked = () => {
+		if(p.type==="checkbox") {
+			inputRef.current.checked = !inputRef.current.checked
+			p.onChange && p.onChange(inputRef.current.checked)
+		}
+	}
 
+	return (
+		<div className={`input-component-wrapper ${p.style ? css`${p.style}` : ''}`}>
+		<div className={`input-component ${p.id ? p.id : ''} ${p.type}`}>
 			{
-				p.label && <span>{p.label} :</span>
+				p.label && <span onClick={e => labelClicked()}>{p.label} </span>
 			}
 			<div className="input-wrapper">
 				{p.type !== 'select' && <input
@@ -85,6 +95,7 @@ export const Input = (p: {
 
 				{p.explanation && <div className="explanation"> {p.explanation} </div>}
 			</div>
+		</div>
 		</div>
 	)
 }

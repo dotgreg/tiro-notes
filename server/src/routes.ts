@@ -124,9 +124,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 
+  
 
-
-
+ 
 	serverSocket2.on('saveFileContent', async data => {
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		await upsertRecursivelyFolders(pathToFile)

@@ -1,9 +1,14 @@
 import { iFile, iFileNature } from "../types.shared"
 
 export const cleanPath = (path: string): string => {
+	path = path.split('://').join('__HTTP__SEP')
+
 	path = path.split('//').join('/')
 	path = path.split('\\').join('/')
 	path = path.split('//').join('/')
+
+	path = path.split('__HTTP__SEP').join('://')
+
 	return path
 }
 export const getFileInfos = (path: string): {

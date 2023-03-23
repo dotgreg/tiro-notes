@@ -5,13 +5,13 @@ import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.mana
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 import { checkUrlExists } from '../../managers/url.manager'
-import * as r from '@mozilla/readability'
+import { random } from 'lodash';
+import { cleanPath } from '../../../../shared/helpers/filename.helper';
+//import * as r from '@mozilla/readability'
 // var { Readability } = require('@mozilla/readability');
 // var Readability = require('@mozilla/readability/Readability.js');
 //@ts-ignore
-console.log(2333333, r);
 //@ts-ignore
-let Readability = r.Readability.default
 
 
 //
@@ -80,12 +80,15 @@ export const useRessourceApi = (p: {
 
 
 	const fetchRessource: iRessourceApi['fetch'] = (url, cb, options) => {
-		// console.log(`${h} FETCHING ressource url ${url} `, { url, options });
+		
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
 
 		const folder = `/.tiro/cache/fetch/`
-		const staticPath = `${getBackendUrl()}/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
+		let staticPath = `/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
+		staticPath = cleanPath(`${getBackendUrl()}${staticPath}`)
+
+		console.log(`${h} FETCHING ressource url ${url} `, { url, options, staticPath });
 
 		const returnFile = () => {
 			fetch(staticPath).then(function (response) {
@@ -107,35 +110,42 @@ export const useRessourceApi = (p: {
 			checkUrlExists({
 				url: staticPath,
 				onSuccess: () => {
-					// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
+					console.log(`${h} FETCHING => getting CACHED file`, { url, options });
 					returnFile()
 				},
-				onFail: () => { downloadThenReturnFile() }
+				onFail: () => { 
+					downloadThenReturnFile() 
+				}
 			})
 		}
 	}
 
 	const fetchUrlArticle: iRessourceApi['fetchUrlArticle'] = (url, cb, options) => {
 
-		fetchRessource(url, txt => {
-			console.log(8888, txt);
-			var doc = document.implementation.createHTMLDocument('');
-			doc.open();
-			doc.write(txt);
-			doc.close();
-			var article = new Readability(doc).parse();
-			// var article: any = {}
+		const readabilityUrl = `https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js`
+		fetchRessource(readabilityUrl, readabilityTxt => {
+			// nothing works except the eval
+			const r1 = eval(readabilityTxt)
+			
+			fetchRessource(url, txt => {
+				var doc = document.implementation.createHTMLDocument('');
+				doc.open();
+				doc.write(txt);
+				doc.close();
+				var article = new r1(doc).parse();
+				 //var article: any = {}
 
-			let textContent = article?.textContent.replaceAll(`              `, `\n`) || ""
-			textContent = textContent.replaceAll(`          `, `\n`)
-			textContent = textContent.replaceAll(`      `, `\n`)
-			textContent = textContent.replaceAll(`    `, `\n`)
-			textContent = textContent.replaceAll(`   `, `\n`)
+				let textContent = article?.textContent.replaceAll(`              `, `\n`) || ""
+				textContent = textContent.replaceAll(`          `, `\n`)
+				textContent = textContent.replaceAll(`      `, `\n`)
+				textContent = textContent.replaceAll(`    `, `\n`)
+				textContent = textContent.replaceAll(`   `, `\n`)
 
-			let articleHtml = article?.content || ""
-			let title = article?.title || ""
+				let articleHtml = article?.content || ""
+				let title = article?.title || ""
 
-			cb({ title, text: textContent, html: articleHtml, raw: txt })
+				cb({ title, text: textContent, html: articleHtml, raw: txt })
+			})
 		})
 	}
 

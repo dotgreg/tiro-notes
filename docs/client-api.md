@@ -178,6 +178,54 @@
  
 
 
+ ## Api.call : encryption
+ 
+
+#### <span class="render-code-wrapper">encryption.decryptText</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. text: <span class="render-code-wrapper">string</span>
+       1. password: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper"></span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"encryption.decryptText",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ], <br/>(res:<span class="render-code-wrapper"></span>) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">encryption.decryptUrlParam</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. text: <span class="render-code-wrapper">string</span>
+       1. password: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper"></span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"encryption.decryptUrlParam",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ], <br/>(res:<span class="render-code-wrapper"></span>) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">encryption.encryptText</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. text: <span class="render-code-wrapper">string</span>
+       1. password: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper"></span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"encryption.encryptText",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ], <br/>(res:<span class="render-code-wrapper"></span>) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">encryption.encryptUrlParam</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. text: <span class="render-code-wrapper">string</span>
+       1. password: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper"></span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"encryption.encryptUrlParam",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ], <br/>(res:<span class="render-code-wrapper"></span>) => {}<br/>)</div>
+ 
+
+
  ## Api.call : file
  
 

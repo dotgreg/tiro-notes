@@ -31,7 +31,7 @@ export const RessourcePreview = (p: {
 	const link = p.markdownTag.split('](')[1].slice(0, -1);
 	const name = p.markdownTag.split('](')[0].replace('![', '');
 	let t1 = link.split('.');
-	let filetype = t1[t1.length - 1];
+	let filetype = t1[t1.length-1];
 	if (filetype === '7z') filetype = 'd7z';
 	const ressLink = `${absoluteLinkPathRoot(p.file.folder)}/${link}${getUrlTokenParam()}`
 	let downloadName = `${name}.${filetype}`
@@ -237,6 +237,7 @@ export const RessourcePreview = (p: {
 					</a>
 
 					<ButtonsToolbar
+						popup={false}
 						buttons={buttons}
 						size={1}
 					/>
@@ -256,7 +257,7 @@ export const ressourcePreviewSimpleCss = () => `
     padding: 50px;
 }
 .resource-link-ctag {
-		height: ${heightIframe.big - 21}px;
+		height: ${heightIframe.big-21}px;
 		overflow:hidden;
 		width: 100%;
 		border:none;
@@ -281,18 +282,20 @@ export const ressourcePreviewSimpleCss = () => `
 }
 
 .resource-link-wrapper {
-		padding: 20px;
+		padding: 7px;
 		border-radius: 10px;
 		position: relative;
 		margin: 5px 0px;
-		// height: 20px;
+}
 
+.mdpreview-source {
+	display:none!important;
 }
 
 .resource-link-icon {
 		top: 14px;
 		left: 19px;
-		width: 21px;
+		width: 12px;
 		height: 27px;
 		display: inline-block;
 		background-image: url(/static/media/file-solid.6415173e.svg);
@@ -303,27 +306,27 @@ export const ressourcePreviewSimpleCss = () => `
 		background-image: url(${cssVars.assets.fileIcon});
 }
 
-${w}.epub, ${w}.cbr, ${w}.cbz,${w}.mobi, ${w}.azw, ${w}.azw3, ${w}.iba {background - image: url(${cssVars.assets.bookIcon}); }
+${w}.epub, ${w}.cbr, ${w}.cbz,${w}.mobi, ${w}.azw, ${w}.azw3, ${w}.iba {background-image: url(${cssVars.assets.bookIcon}); }
 ${w}.pdf
-{background - image: url(${cssVars.assets.pdfIcon}); }
+{background-image: url(${cssVars.assets.pdfIcon}); }
 
 ${w}.xls, ${w}.xlsm, ${w}.xlsx, ${w}.ods
-{background - image: url(${cssVars.assets.excelIcon}); }
+{background-image: url(${cssVars.assets.excelIcon}); }
 
 ${w}.avi, ${w}.flv, ${w}.h264, ${w}.m4v, ${w}.mov, ${w}.mp4, ${w}.mpg, ${w}.mpeg, ${w}.rm, ${w}.swf, ${w}.vob, ${w}.wmv, ${w}.mkv
-{background - image: url(${cssVars.assets.videoIcon}); }
+{background-image: url(${cssVars.assets.videoIcon}); }
 
 ${w}.d7z, ${w}.arj, ${w}.deb, ${w}.rar, ${w}.gz, ${w}.zip, ${w}.rpm, ${w}.pkg
-{background - image: url(${cssVars.assets.archiveIcon});}
+{background-image: url(${cssVars.assets.archiveIcon});}
 
 ${w}.aif, ${w}.mp3, ${w}.cda, ${w}.mid, ${w}.mpa, ${w}.ogg, ${w}.wav, ${w}.wpl, ${w}.wma, ${w}.midi
-{background - image: url(${cssVars.assets.audioIcon}); }
+{background-image: url(${cssVars.assets.audioIcon}); }
 
 ${w}.doc, ${w}.docx, ${w}.odt, ${w}.txt
-{background - image: url(${cssVars.assets.wordIcon}); }
+{background-image: url(${cssVars.assets.wordIcon}); }
 
 ${w}.html, ${w}.css, ${w}.js, ${w}.json, ${w}.ts, ${w}.jsx, ${w}.tsx
-{background - image: url(${cssVars.assets.codeIcon}); }
+{background-image: url(${cssVars.assets.codeIcon}); }
 
 ${w}.bin, ${w}.dmg, ${w}.iso, ${w}.toast, ${w}.vcd
 {
@@ -333,7 +336,7 @@ ${w}.bin, ${w}.dmg, ${w}.iso, ${w}.toast, ${w}.vcd
 }
 
 ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
-{background - image: url(${cssVars.assets.presIcon}); }
+{background-image: url(${cssVars.assets.presIcon}); }
 
 
 .resource-link-content-wrapper {
@@ -345,10 +348,10 @@ ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
 }
 
 .resource-link-content-wrapper ul  {
-		padding - left: 7px;
+		padding-left: 7px;
 }
 .resource-link-content-wrapper ul li {
-		padding - left: 0px;
+		padding-left: 0px;
 }
 .resource-link-content-wrapper ul li:before {
 		display: none;
@@ -358,11 +361,15 @@ ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
 // HIDING IT ON DESKTOP 
 .device-desktop .resource-link-wrapper:hover .resource-link-content-wrapper ul {
 		opacity:1;
+		width: 90px;
+		// margin-top: 15px;
 		pointer-events: all;
 }
 .device-desktop .resource-link-content-wrapper ul  {
 		opacity: 0;
+		width: 0px;
 		transition: 0.2s all;
+		transition-delay: 0.2s, 0s;
 		pointer-events: none;
 }
 
