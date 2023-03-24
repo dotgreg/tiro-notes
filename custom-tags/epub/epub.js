@@ -214,11 +214,22 @@ const epubApp = (innerTagStr, opts) => {
 				}
 
 
-				document.addEventListener('fullscreenchange', (event) => {
+				// setInterval(() => {
+				// 		let nHeight = document.body.clientHeight - 50
+				// 		console.log(h,"333", nHeight);
+				// }, 1000)
+				const triggerResize = () => {
 						setTimeout(() => {
 								let nHeight = document.body.clientHeight - 50
-								rendition.resize("100%", nHeight)
+								console.log(h,"TRIGGER RESIZE", nHeight);
+								if (nHeight)rendition.resize("100%", nHeight)
 						}, 1000)
+				}
+				window.addEventListener('resize', (event) => {
+						triggerResize()
+				});
+				document.addEventListener('fullscreenchange', (event) => {
+						triggerResize()
 				});
 
 

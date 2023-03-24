@@ -38,6 +38,29 @@ export const TtsPopup = (p: {
 
 	const [totChunks, setTotChunks] = useState(0)
 
+	const [estimatedTime, setEstimatedTime] = useState<string>("")
+	useEffect(() => {
+		let formatTime = (mins: number): string => {
+			let hours = 0
+			let res = `${Math.ceil(mins)}m`
+			if (mins > 60) {
+				hours = Math.floor(mins / 60)
+				let minsLeft = Math.ceil(mins % 60)
+				res = `${hours}h`
+			}
+			return res
+		}
+		let left = formatTime((6 * (totChunks - currChunk)) / (currRate * 60))
+		let tot = formatTime((6 * totChunks) / (currRate * 60))
+		let res = ` ${left} left of ${tot}`
+		// let max = formatTime((15 * totChunks) / (currRate * 60))
+		// let res = `${min} - ${max}`
+		// if (min === max) res = `${min}`
+		setEstimatedTime(res)
+
+	}, [totChunks, currRate, currChunk])
+
+
 	const tts = useRef<any>()
 
 	//@ts-ignore
@@ -108,29 +131,33 @@ export const TtsPopup = (p: {
 				/>
 
 				<span> SPEED : </span>
-				<input type="range" value={currRate} min="0" max="3" step="0.1"
+				<input className="speed-range" type="range" value={currRate} min="0" max="3" step="0.1"
 					onChange={e => {
 						const nVal = e.target.value as any
 						setCurrRate(nVal)
 					}}>
-				</input>
-				<br />
+				</input> ({currRate})
 				<br />
 
-				<input type="range" value={currChunk} min="0" max={totChunks}
-					onChange={e => {
-						let val = parseInt(e.target.value)
-						tts.current.goToChunk(val)
-						setCurrChunk(val)
-					}}>
-				</input>
-				<input type="number" value={currChunk} min="0" max={totChunks}
+				<br />
+				<b> SENTENCES : </b>
+				<input type="number" className="text-pos" value={currChunk} min="0" max={totChunks}
 					onChange={e => {
 						let val = parseInt(e.target.value)
 						tts.current.goToChunk(val)
 						setCurrChunk(val)
 					}}>
 				</input> / {totChunks}
+				<br />
+				<input type="range" value={currChunk} className="range-pos" min="0" max={totChunks}
+					onChange={e => {
+						let val = parseInt(e.target.value)
+						tts.current.goToChunk(val)
+						setCurrChunk(val)
+					}}>
+				</input>
+
+				<div className="estimated-time"><b>Reading Time</b> :{estimatedTime}</div>
 
 
 				<div className="buttons">
@@ -138,10 +165,8 @@ export const TtsPopup = (p: {
 						<Icon name="faFastBackward" color="black" />
 					</button>
 					<button onClick={e => {
-						// console.log(1234, tts.current, isPlaying);
-						tts.current.goToChunk(currChunk)
-
-						!isPlaying ? tts.current.play() : tts.current.pause()
+						if (!isPlaying) tts.current.goToChunk(currChunk)
+						!isPlaying ? tts.current.play() : tts.current.stop()
 					}}>
 						<Icon name={!isPlaying ? "faPlay" : "faPause"} color="black" />
 					</button>
@@ -189,14 +214,26 @@ export const StyledDiv = styled.div`
 				font-size: 12px;
 				font-weight: bold;
 		}
+		.speed-range {
+				position: relative;
+				top: 8px;
+		}
+		.range-pos {
+width: 100%;
+				margin-bottom:10px;
+		}
+		.text-pos {
+				width: 50px;
+				margin-bottom:10px;
+		}
+
 }
+.buttons {
+    display: flex;
+    padding: 20px 0px 0px 0px;
+    button {
+        width: 30%;
+        padding: 10px;
+    }
 }
- .buttons {
-     display: flex;
-     padding: 20px 0px 0px 0px;
-     button {
-         width: 30%;
-         padding: 10px;
-     }
- }
- `
+`
