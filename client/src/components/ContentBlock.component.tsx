@@ -18,9 +18,8 @@ import { defocusMouse } from '../managers/focus.manager';
 const h = `[IFRAME COMPONENT]`
 const log = sharedConfig.client.log.verbose
 
-let pinStore = {
-
-}
+let pinStore = {}
+let pinStoreFullscreen = {}
 
 const reservedTagNames = ["latex", "l"]
 export type onIframeMouseWheelFn = (e: WheelEvent) => void
@@ -303,21 +302,20 @@ export const ContentBlockTagView = (p: {
 	let key = p.index || 0
 	let pinId = `${p.windowId}-${key}-${p.block.tagName}`
 	useEffect(() => {
-		if (pinStore[pinId]) {
-			setPinned(true)
-		} else {
-			pinStore = {}
-		}
+		if (pinStore[pinId]) { setPinned(true) } else { pinStore = {} }
+		if (pinStoreFullscreen[pinId]) { setPinnedFullscreen(true) } else { pinStore = {} }
 	}, [])
 	const [isPinned, setPinned] = useState(false)
 	const [isPinnedFullscreen, setPinnedFullscreen] = useState(false)
 	const askPin = () => {
 		pinStore[pinId] = !isPinned
 		setPinned(!isPinned)
+		setPinnedFullscreen(false)
 	}
 	const askPinFullscreen = () => {
-		pinStore[pinId] = !isPinnedFullscreen
+		pinStoreFullscreen[pinId] = !isPinnedFullscreen
 		setPinnedFullscreen(!isPinnedFullscreen)
+		setPinned(false)
 	}
 
 	return (
@@ -413,6 +411,7 @@ export const contentBlockCss = () => `
 		}
 		&.pinned {
 				position: fixed;
+transform: rotate(360deg);
 				top: 10px;
 				right: 10px;
 				z-index: 1000;
