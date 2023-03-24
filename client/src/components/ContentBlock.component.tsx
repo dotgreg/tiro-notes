@@ -307,14 +307,16 @@ export const ContentBlockTagView = (p: {
 	}, [])
 	const [isPinned, setPinned] = useState(false)
 	const [isPinnedFullscreen, setPinnedFullscreen] = useState(false)
-	const askPin = () => {
-		pinStore[pinId] = !isPinned
-		setPinned(!isPinned)
+	const askPin = (status?: boolean) => {
+		if (!status) status = !isPinned
+		pinStore[pinId] = status
+		setPinned(status)
 		setPinnedFullscreen(false)
 	}
-	const askPinFullscreen = () => {
-		pinStoreFullscreen[pinId] = !isPinnedFullscreen
-		setPinnedFullscreen(!isPinnedFullscreen)
+	const askPinFullscreen = (status?: boolean) => {
+		if (!status) status = !isPinnedFullscreen
+		pinStoreFullscreen[pinId] = status
+		setPinnedFullscreen(status)
 		setPinned(false)
 	}
 
@@ -323,7 +325,7 @@ export const ContentBlockTagView = (p: {
 			{
 				isPinnedFullscreen && <div
 					className="fullscreen-pin-bg"
-					onClick={e => { setPinnedFullscreen(false) }}
+					onClick={e => { askPinFullscreen(false) }}
 				></div>
 			}
 			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : ''} ${isPinnedFullscreen ? 'pinned fullscreen' : ''}`}>
@@ -338,10 +340,10 @@ export const ContentBlockTagView = (p: {
 					<div className="ctag-menu-button ctag-fullscreen" onClick={askFullscreen}>
 						<Icon name="faExpand" color={`#b2b2b2`} />
 					</div>
-					<div className="ctag-menu-button ctag-pin" onClick={askPin}>
+					<div className="ctag-menu-button ctag-pin" onClick={e => { askPin() }}>
 						<Icon name="faThumbtack" color={`#b2b2b2`} />
 					</div>
-					<div className="ctag-menu-button ctag-pin" onClick={askPinFullscreen}>
+					<div className="ctag-menu-button ctag-pin" onClick={e => { askPinFullscreen() }}>
 						<Icon name="faExpandArrowsAlt" color={`#b2b2b2`} />
 					</div>
 				</div>

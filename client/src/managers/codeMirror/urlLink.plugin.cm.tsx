@@ -8,145 +8,164 @@ import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { Icon } from "../../components/Icon.component";
 import { getApi } from "../../hooks/api/api.hook";
 import { isMobile } from "../device.manager";
-import { ssrOnClick, ssrOpenIframe, ssrOpenPreview } from "../ssr.manager";
+import { createSsrAction, ssrOnClick, ssrOpenIframe, ssrOpenPreview } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
+import { memoize } from "lodash"
 
 // export const linksPreviewPlugin = genericReplacementPlugin({
-				// 	pattern: regexs.externalLink3,
-				// 	// replacement: matchs => {
-						// 	// 	return generateHtmlLinkPreview(matchs)
-						// 	// }
-				// 	classWrap: "cm-underline"
-											 // })
+// 	pattern: regexs.externalLink3,
+// 	// replacement: matchs => {
+// 	// 	return generateHtmlLinkPreview(matchs)
+// 	// }
+// 	classWrap: "cm-underline"
+// })
 
 export const linksPreviewPlugin = genericReplacementPlugin({
-				pattern: regexs.externalLink3,
-				replacement: matchs => {
-						return generateHtmlLinkPreview(matchs)
-				}
-		})
+	pattern: regexs.externalLink3,
+	replacement: (matchs: any) => {
+		if (isArray(matchs)) matchs = matchs[0]
+		return generateHtmlLinkPreviewInt(matchs)
+	}
+})
+
+
+
+// caching system
+// cachedUrlLinks = () => {
+
+// }
 
 //
 // HTML GENERATOR FUNC
 //
-export const generateHtmlLinkPreview = (
-		matchsOrUrl: string[] | string
+
+export const generateHtmlLinkPreviewInt = (
+	matchsOrUrl: string[] | string
 ) => {
 
-		let matchs: any[] = []
-									 if (!isArray(matchsOrUrl)) {
-				matchs = [...matchsOrUrl.matchAll(regexs.externalLink3)][0]
-		}
-		else matchs = matchsOrUrl
+	console.log(33333333, matchsOrUrl);
 
-		let resEl = document.createElement("span");
-		if (matchs.length < 3) return resEl
+	let matchs: any[] = []
+	if (!isArray(matchsOrUrl)) {
+		matchs = [...matchsOrUrl.matchAll(regexs.externalLink3)][0]
+	}
+	else matchs = matchsOrUrl
 
-		let fullLink = matchs[0].slice(0, -1) // removing last /
-		let website = matchs[1].replace("www.", "")
-		let firstSlash = matchs[3]
-		let secondSlash = matchs[4]
+	let resEl = document.createElement("span");
+	if (matchs.length < 3) return resEl
 
-		let linkId = `linkid${random(0, 10000000)}`
-		let id = linkId
-		// return resEl;
+	let fullLink = matchs[0].slice(0, -1) // removing last /
+	let website = matchs[1].replace("www.", "")
+	let firstSlash = matchs[3]
+	let secondSlash = matchs[4]
 
-		resEl.classList.add('link-mdpreview-wrapper')
-		resEl.classList.add('link-wrapper')
+	let linkId = `linkid${random(0, 10000000)}`
+	let id = linkId
+	// return resEl;
 
-		let limitChar = 17
-		if (website.length > limitChar) website = website.substring(website.length - limitChar)
-		let artTitle = firstSlash
-		if (artTitle === "" || !artTitle) artTitle = secondSlash
-		if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
+	resEl.classList.add('link-mdpreview-wrapper')
+	resEl.classList.add('link-wrapper')
 
-		artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
+	let limitChar = 17
+	if (website.length > limitChar) website = website.substring(website.length - limitChar)
+	let artTitle = firstSlash
+	if (artTitle === "" || !artTitle) artTitle = secondSlash
+	if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
 
-																														 let previewStr = `${website}${artTitle}`
-																														 if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
+	artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
 
-																														 let iconPre = `<span class="link-deco">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}</span>`
+	let previewStr = `${website}${artTitle}`
+	if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
 
-																														 let iconMoreBtns = ``
+	let iconPre = `<span class="link-deco">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}</span>`
 
-																														 let openWindow = `<span title="Open link in detached window" class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
-																														 let openPreview = `<span title="Preview link" class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
-																														 let fetchArticle = `<span  title="Display url content" class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faFont" />)}</span>`
-																														 let audio = `<span  title="Text to speech url content" class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faComment" />)}</span>`
+	let iconMoreBtns = ``
 
-																														 let btns = `<span class="link-action-more"><span class="icon-more">${renderToString(<Icon name="faEllipsisH" />)}</span><span class="link-action-wrapper">${fetchArticle} ${audio} ${openWindow} ${openPreview}</span></span>`
+	const audioClick = (el) => {
+		console.log("hello audio ", el);
+	}
+
+	let openWindow = `<span title="Open link in detached window" class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
+	let openPreview = `<span title="Preview link" class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
+	let fetchArticle = `<span  title="Display url content" class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faFont" />)}</span>`
+	let audio = `<span onclick="${createSsrAction(this, audioClick)}" title="Text to speech url content" class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faComment" />)}</span>`
+
+	let btns = `<span class="link-action-more"><span class="icon-more">${renderToString(<Icon name="faEllipsisH" />)}</span><span class="link-action-wrapper">${fetchArticle} ${audio} ${openWindow} ${openPreview}</span></span>`
 
 
-																																																																																																																															let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
-																																																																																																																															let previewWrapper = `<div class="${id} link-fetch-preview-wrapper"></div>`
-																																																																																																																															let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>${iconMoreBtns}${btns}${iframeWrapper}${previewWrapper}</span>`
-																																																																																																																															resEl.innerHTML = `${html}`;
+	let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
+	let previewWrapper = `<div class="${id} link-fetch-preview-wrapper"></div>`
+	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>${iconMoreBtns}${btns}${iframeWrapper}${previewWrapper}</span>`
+	resEl.innerHTML = `${html}`;
 
-		initSSRLogic(linkId)
-		// setTimeout(() => { initSSRLogic() }, 1000)
+	initSSRLogic(linkId)
+	// setTimeout(() => { initSSRLogic() }, 1000)
 
-		return resEl
+	return resEl
 }
+
+export const generateHtmlLinkPreview = memoize(generateHtmlLinkPreviewInt)
 
 //
 // CLICK MANAGEMENT
 //
 const initSSRLogic = (id: string) => {
+	console.log("init SSR button", id);
 
-		const fetchArticle = (el: any, cb: Function) => {
-				let link = el.dataset.link
-				let id = el.dataset.id
-				getApi(api => {
-				api.ressource.fetchUrlArticle(link, r => {
+	const fetchArticle = (el: any, cb: Function) => {
+		let link = el.dataset.link
+		let id = el.dataset.id
+		getApi(api => {
+			api.ressource.fetchUrlArticle(link, r => {
 				ssrOpenPreview(`.${id}.link-iframe-wrapper`, r.html)
 				cb(r)
+			})
 		})
-		})
-		}
+	}
 
-		setTimeout(() => {
+	setTimeout(() => {
 		ssrOnClick(`.${id} .link-openwindow`, el => {
-									 if (!el) return
-									 let link = el.dataset.link
-									 window.open(link, `popup-preview-link`, 'width=800,height=1000')
-							 })
+			if (!el) return
+			let link = el.dataset.link
+			window.open(link, `popup-preview-link`, 'width=800,height=1000')
+		})
 		ssrOnClick(`.${id} .link-openpreview`, el => {
-									 if (!el) return
-									 let link = el.dataset.link
-									 let id = el.dataset.id
-									 ssrOpenIframe(`.${id}.link-iframe-wrapper`, link)
-							 })
+			if (!el) return
+			let link = el.dataset.link
+			let id = el.dataset.id
+			ssrOpenIframe(`.${id}.link-iframe-wrapper`, link)
+		})
 		ssrOnClick(`.${id} .link-fetcharticle`, el => {
-									 if (!el) return
-									 fetchArticle(el, () => { })
-							 })
-		ssrOnClick(`.${id} .link-audio`, el => {
-									 if (!el) return
-									 fetchArticle(el, r => {
-				console.log(r.content);
-				if (!r.text) return;
-				getApi(api => {
-				api.ui.textToSpeechPopup.open(r.text)
+			if (!el) return
+			fetchArticle(el, () => { })
 		})
-		})
-							 })
-}, 100)
+		// ssrOnClick(`.${id} .link-audio`, el => {
+		// 	if (!el) return
+		// 	fetchArticle(el, r => {
+		// 		console.log(r.content);
+		// 		if (!r.text) return;
+		// 		getApi(api => {
+		// 			api.ui.textToSpeechPopup.open(r.text)
+		// 		})
+		// 	})
+		// })
+	}, 100)
 }
 
 // OLD
 // export const linkActionClick = (el: HTMLElement) => {
-		// 	// LINK
-		// 	if (el.classList.contains("link-openwindow")) {
-				// 		let link = el.dataset.link
-				// 		window.open(link, `popup-preview-link`, 'width=800,height=1000')
-				// 	}
-		// 	if (el.classList.contains("link-mdpreview")) {
-				// 		// @ts-ignore
-				// 		// let url = el.href
-				// 		// window.open(url, '_blank')?.focus();
-				// 	}
-		// }
+// 	// LINK
+// 	if (el.classList.contains("link-openwindow")) {
+// 		let link = el.dataset.link
+// 		window.open(link, `popup-preview-link`, 'width=800,height=1000')
+// 	}
+// 	if (el.classList.contains("link-mdpreview")) {
+// 		// @ts-ignore
+// 		// let url = el.href
+// 		// window.open(url, '_blank')?.focus();
+// 	}
+// }
 
 // export const linksPreviewMdSimpleCss = () => `
 export const linksPreviewMdCss = () => `
