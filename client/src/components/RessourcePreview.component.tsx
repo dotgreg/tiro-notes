@@ -1,4 +1,4 @@
-import { each } from 'lodash';
+import { each, random } from 'lodash';
 import React, { useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
@@ -31,7 +31,7 @@ export const RessourcePreview = (p: {
 	const link = p.markdownTag.split('](')[1].slice(0, -1);
 	const name = p.markdownTag.split('](')[0].replace('![', '');
 	let t1 = link.split('.');
-	let filetype = t1[t1.length-1];
+	let filetype = t1[t1.length - 1];
 	if (filetype === '7z') filetype = 'd7z';
 	const ressLink = `${absoluteLinkPathRoot(p.file.folder)}/${link}${getUrlTokenParam()}`
 	let downloadName = `${name}.${filetype}`
@@ -223,9 +223,11 @@ export const RessourcePreview = (p: {
 	}
 	ssrInitLogic()
 	// console.log(downloadFile);
+	console.log(555555555, p.file.name);
 
 	return (
 		<div className={`${elId} resource-link-iframe-wrapper`}>
+			{random(0,100000000000000000)}
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
 				<div className={`resource-link-icon ${filetype}`}></div>
 				<div className={`resource-link-content-wrapper`}>
@@ -245,7 +247,7 @@ export const RessourcePreview = (p: {
 
 			</div>
 			<div className="iframe-wrapper"></div>
-		</div>
+		</div >
 	)
 }
 //  {type: 'tag', tagName: 'pdf', content: ' wwwwww ', start: 2, end: 3}
@@ -257,7 +259,7 @@ export const ressourcePreviewSimpleCss = () => `
     padding: 50px;
 }
 .resource-link-ctag {
-		height: ${heightIframe.big-21}px;
+		height: ${heightIframe.big - 21}px;
 		overflow:hidden;
 		width: 100%;
 		border:none;

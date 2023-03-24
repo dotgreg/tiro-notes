@@ -7,6 +7,7 @@ import {
 	Decoration,
 	DecorationSet
 } from "@codemirror/view";
+import { debounce } from "lodash";
 
 ////////////////////// 
 // REPLACEMENT SYSTEM ABSTRACTION
@@ -31,6 +32,14 @@ const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDec
 	}
 })
 
+// const cnt = {value:0}
+// const incrementCnt = () => {
+
+// }
+// const resetCnt = debounce(() => {
+
+// },1000)
+
 export const genericReplacementPlugin = (p: {
 	pattern: RegExp,
 	replacement?: iReplacementFn
@@ -42,12 +51,24 @@ export const genericReplacementPlugin = (p: {
 	return ViewPlugin.fromClass(class {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
-			if (p.replacement) this.decorations = matcher(p.pattern, p.replacement).createDeco(view)
-			else this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
+			if (p.replacement) {
+				// console.log(1233444, view, );
+				// console.log(4444444444, view);
+				this.decorations = matcher(p.pattern, p.replacement).createDeco(view)
+			}
+			else {
+				this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
+			}
 		}
 		update(update: ViewUpdate) {
 			try {
-				if (p.replacement) this.decorations = matcher(p.pattern, p.replacement).updateDeco(update, this.decorations)
+				// @ts-ignore
+				if (p.replacement && update.changedRanges.length > 0) {
+					// @ts-ignore
+					// console.log(333333333, update.changedRanges);
+					this.decorations = matcher(p.pattern, p.replacement)
+						.updateDeco(update, this.decorations)
+				}
 				else this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).updateDeco(update, this.decorations)
 			} catch (e) {
 				console.warn("[ERROR VIEWPLUGIN CM]", e, update);
@@ -66,6 +87,18 @@ export const genericReplacementPlugin = (p: {
 
 
 
+// export const genericReplacementPlugin = (
+// 	p: {
+// 		pattern: RegExp,
+// 		replacement?: iReplacementFn
+// 		classWrap?: iClassWrapperFn
+// 		options?: {
+// 			isAtomic?: boolean
+// 		}
+// 	}) => {
+// 	console.log(123333, p.pattern, p.replacement);
+// 	return genericReplacementPluginInt(p)
+// }
 
 
 

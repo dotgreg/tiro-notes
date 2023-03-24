@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { ReactElement } from "react";
 import { renderToString } from 'react-dom/server'
 import { generateUUID } from '../../../shared/helpers/id.helper';
+import { memoize } from 'lodash';
 
 
 /**
@@ -56,4 +57,16 @@ export const renderReactComponent = (Component: ReactElement, containerEl?: HTML
 	return containerEl
 }
 
-export const renderToString2 = renderToString
+export const renderToMemoString = (rel: any, args: any[]) => memoize(args => {
+	return renderToString(rel)
+}, args => JSON.stringify([...args]))
+
+export const mem0 = (func: Function, args: any[]) => memoize(args => {
+	return func(...args)
+}, args => JSON.stringify([...args]))
+
+export const mem = (func: Function) => memoize(
+	(...args: any) => func(...args)
+	, args => JSON.stringify([...args]))
+
+// let html = renderToMemoString(<RessoucePreview>, [])

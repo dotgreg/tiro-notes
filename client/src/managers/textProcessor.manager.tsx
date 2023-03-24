@@ -12,6 +12,7 @@ import { renderToString } from 'react-dom/server';
 import { generateNoteLink } from './codeMirror/noteLink.plugin.cm';
 import { each } from 'lodash';
 import { generateHtmlLinkPreview } from './codeMirror/urlLink.plugin.cm';
+import { mem } from './reactRenderer.manager';
 
 // export const transformUrlInLinks = (bodyRaw: string): string => {
 // 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
@@ -61,19 +62,20 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 	return res
 }
 
+
+
+let ressCompoHtml = mem((input, file) => {
+	return renderToString(<RessourcePreview markdownTag={input} file={file} />)
+})
 export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string => {
 	let i = 0
 	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
 		i++;
 		let idEl = `${input}-${i}`
-		// debounceRenderReact(idEl, input, currentFolderPath)
-		// renderReactToId(
-		// 	<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl)
-		let compoHtml = renderToString(<RessourcePreview markdownTag={input} file={file} />)
-		// renderReactToId(
-		// 	<RessourcePreview markdownTag={input} folderPath={currentFolderPath} />, idEl
-		// 	, { height: 80 })
-		let subst = `${compoHtml} `;
+
+		// console.log(444444444, compoHtml);
+
+		let subst = `${ressCompoHtml(input, file)} `;
 		return subst
 	});
 	return res2;
@@ -119,10 +121,10 @@ export const unescapeHtml = (rawString: string): string => {
 }
 
 
-const getLongestString = (str:string):string => {
+const getLongestString = (str: string): string => {
 	// let res = str.replaceAll("-", "")
 	let r1 = str.split(`'`)
-	let r2:string[] = []
+	let r2: string[] = []
 	each(r1, r => {
 		let rt = r.split(`"`)
 		each(rt, rt1 => {
