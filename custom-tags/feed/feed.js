@@ -71,22 +71,52 @@ const feedApp = (innerTagStr, opts) => {
 
 		const execFeedReader = (feedsStr) => {
 
+				// const sortArr = (items,sortType) => {
+				// 		if (sortType === "name") {
+				// 				items.sort(function(a, b){
+				// 						if(a.firstname < b.firstname) { return -1; }
+				// 						if(a.firstname > b.firstname) { return 1; }
+				// 						return 0;
+				// 				})
+				// 		}
+				// 		return items
+				// }
 
 				const getFeeds = (str) => {
 						const feedsArr = str.split('\n')
 						const feedsRes = []
 						// console.log(feedsArr);
 						for (let i = 0; i < feedsArr.length; i++) {
-								const raw = feedsArr[i].trim().split("|")
-								if (raw.length < 2) continue
+								const feedParamsRaw = feedsArr[i].trim().split("|")
+								//
+								// PARAM 2 : categories
+								//
+								if (feedParamsRaw.length < 2) continue
 								let categories = []
-								if (raw[2]) categories = raw[2].split(",")
+								if (feedParamsRaw[2]) categories = feedParamsRaw[2].split(",")
 								for (let i = 0; i < categories.length; i++) {
 										categories[i] = categories[i].trim()
 								}
+								//
+								// PARAM 3 : custom fetch limit
+								//
 								let limitFetchNb = opts.itemsPerFeed
-								if (raw[3]) limitFetchNb = parseInt(raw[3]) || opts.itemsPerFeed
-								feedsRes.push({ name: raw[0].trim(), url: raw[1].trim(), categories, limitFetchNb })
+								if (feedParamsRaw[3]) limitFetchNb = parseInt(feedParamsRaw[3]) || opts.itemsPerFeed
+								//
+								// PARAM 4 : title-based filter UNUSED 
+								//
+								// let filterFromTitle = null
+								// if (feedParamsRaw[4]) {
+								// 		filterFromTitle = feedParamsRaw[4]
+								// }
+
+								feedsRes.push({
+										name: feedParamsRaw[0].trim(),
+										url: feedParamsRaw[1].trim(),
+										categories,
+										limitFetchNb,
+										// filterFromTitle
+								})
 						}
 						console.log(h, "1: gettings feedsRefs Arr", feedsRes)
 						return feedsRes
@@ -105,15 +135,12 @@ const feedApp = (innerTagStr, opts) => {
 						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
 						if (!hasUserReloaded) {
 								// first get cached, if exists
-								console.log(1233333333, cacheId);
 								getCache(content => {
 										// if cache, return content
-										console.log(123333333345,content);
 										console.log(h, "=> getting CACHED feed json")
 										cb(content)
 								}, () => {
 										// if no cache OR expired, reload from json rss
-										console.log(123333333344);
 										getJsons(cb)
 								})
 						} else {
@@ -280,13 +307,30 @@ const feedApp = (innerTagStr, opts) => {
 						setCache(resItems)
 				}, 2000)
 
+				const enrichItems = (items, feed) => {
+						each(items, it => {
+								it.feed = feed
+						})
+								return items
+				}
+
+				//
+				// custom fetcher possible (for youtube for instance)
+				// enrich items data with feed data
+				//
 				const fetchFeedItems = (feed, cb) => {
+						const wrappedCb = items => {
+								cb(enrichItems(items, feed))
+						}
+
 						if (opts.fetchItems) {
 								console.log(h, "CUSTOM FETCH FN detected");
-								opts.fetchItems(feed, cb)
+								opts.fetchItems(feed, wrappedCb)	
 						}
-						else getXml(feed, cb)
+						else getXml(feed, wrappedCb)
+
 				}
+
 				const getXml = (feed, cb) => {
 						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
 								let res2 = xml2js(txt, { compact: true })
@@ -294,7 +338,6 @@ const feedApp = (innerTagStr, opts) => {
 
 								if (!items) items = []
 								items = items.slice(0, feed.limitFetchNb)
-
 								cb(items)
 						})
 				}
@@ -581,19 +624,31 @@ const feedApp = (innerTagStr, opts) => {
 						React.useEffect(() => {
 								getBookmarks(() => {
 										getCachedJsons(nitems => {
-												// setCategories(feedsCategories)
 												let ncats = []
-												const i = [...nitems]
-												setItems(i)
-												titems.current = i
+												// const i = [...nitems]
+												titems.current = nitems
 												const nfeeds = []
+												const nitemsNotHidden = []
 												for (let i = 0; i < nitems.length; i++) {
 														const it = nitems[i];
+
 														if (!nfeeds.includes(it.sourceFeed)) nfeeds.push(it.sourceFeed)
+														// gather all cats together
 														each(it.categories, ct => {
 																if (ncats.indexOf(ct.trim()) === -1) ncats.push(ct.trim())
 														})
+
+																// if it.hidden, do not output it
+																if (it.hidden !== true) {
+																		nitemsNotHidden.push(it)
 																}
+
+												}
+
+												setItems(nitemsNotHidden)
+												// sorting everything
+												ncats.sort()
+												nfeeds.sort()
 												setCategories(ncats)
 												setFeeds(nfeeds)
 												setActiveFeed(null)
@@ -843,6 +898,7 @@ const feedApp = (innerTagStr, opts) => {
 						if (opts.feedType === "youtube") {
 								opts.fetchItems = window.fetchYoutubeItems
 								window.youtubeKey = opts.youtubeKey
+								window.youtubeTimeFilter = opts.youtubeTimeFilter
 								console.log("YOUTUBE MODE", { opts });
 						}
 

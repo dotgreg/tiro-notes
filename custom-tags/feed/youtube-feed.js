@@ -22,6 +22,27 @@ const playlistUrl = (playlistId, nextToken) => {
 		return `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=50&playlistId=${playlistId}&key=${window.youtubeKey}${nextTokenStr}`
 }
 
+const getVideoTime = (raw) => {
+		let res =[0,0,0]
+		let split = raw
+		if (raw.includes("H")) {
+				split = split.split("H")
+				res[0] = parseInt(split[0])
+				split = split[1]
+		}
+		if (raw.includes("M")) {
+				split = split.split("M")
+				res[1] = parseInt(split[0])
+				split = split[1]
+		}
+		if (raw.includes("S")) {
+				split = split.split("S")
+				res[2] = parseInt(split[0])
+		}
+		res = (res[0]*60*60) + (res[1]*60) + res[2]
+		return res
+}
+
 const getVideosDetails = (vItems, cb) => {
 		let idsString = ``
 		each(vItems, (i) => {
@@ -34,7 +55,18 @@ const getVideosDetails = (vItems, cb) => {
 						each(vItems, it => {
 								if(it.contentDetails.videoId === vid.id) {
 										it.videoDetails = vid.contentDetails
-										it.videoDetails.durationMin = vid.contentDetails.duration.replaceAll("PT","").split("M")[0] || "m"
+
+										let raw = vid.contentDetails.duration.replaceAll("PT","")
+										let time = getVideoTime(raw)
+										let mins = Math.round(time/60) 
+										let timeFilter = window.youtubeTimeFilter
+										if (timeFilter && Array.isArray(timeFilter)) {
+												if (mins < timeFilter[0] || mins > timeFilter[1]) {
+														console.log(`[YOUTUBE] time filtered item ${it.title}`, it);
+														it.hidden = true
+												}
+										}
+										it.videoDetails.durationMin = Math.round(time/60) 
 								}
 						})
 								})
@@ -48,7 +80,6 @@ const getItemsRecurr = (p) => {
 		let url = playlistUrl(playlistId, nextToken)
 		if (recurrCounter > 0 && !nextToken) return cb(items)
 		f(url, obj => {
-				// console.log("INTERM", playlistId, recurrCounter, items.length, limitFetchNb, nextToken,  url,)
 				let nToken = obj.nextPageToken
 				let nitems1 = obj.items
 				getVideosDetails(nitems1, nitems2 => {
@@ -91,13 +122,14 @@ const each = (itera, cb) => {
 		}
 }
 
-const processItems = items => {
+const processItems = (items) => {
 		const fitems = []
 		each(items, i => {
 				if (i.snippet.title !== "Private video") {
 						fitems.push({
-								title: `${i.snippet.title} - ${i.videoDetails?.durationMin} m`,
+								title: `${i.snippet.title} - ${i.videoDetails?.durationMin}m`,
 								pubDate: i.snippet.publishedAt,
+								hidden: i.hidden || false,
 								image: i.snippet.thumbnails?.high?.url,
 								link: `https://youtube.com/watch?v=${i.snippet.resourceId.videoId}`,
 								description: i.snippet.description,
