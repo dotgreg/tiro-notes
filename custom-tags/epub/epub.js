@@ -220,7 +220,7 @@ const epubApp = (innerTagStr, opts) => {
 				// }, 1000)
 				const triggerResize = () => {
 						setTimeout(() => {
-								let nHeight = document.body.clientHeight - 50
+								let nHeight = document.body.clientHeight - 100
 								console.log(h,"TRIGGER RESIZE", nHeight);
 								if (nHeight)rendition.resize("100%", nHeight)
 						}, 1000)
