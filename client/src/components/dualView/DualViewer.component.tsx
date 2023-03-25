@@ -59,11 +59,9 @@ const DualViewerInt = (
 	// const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
 
 	let debounceUpdatePreview = useDebounce((nt) => {
-		console.log(112);
 		setPreviewContent(nt)
 	}, isMobile() ? 3000 : 1000)
 	let throttleUpdatePreview = useThrottle((nt) => {
-		console.log(113);
 		setPreviewContent(nt)
 	}, 1000)
 	const updatePreviewContent = (nText) => {

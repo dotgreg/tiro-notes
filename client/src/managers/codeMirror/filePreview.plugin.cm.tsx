@@ -7,12 +7,13 @@ import { RessourcePreview } from "../../components/RessourcePreview.component";
 import { mem } from "../reactRenderer.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
-let compoHtml = mem((matchs, cFile) => {
+let compoHtml = (matchs, cFile) => {
 	let full = matchs[0]
 	let sourceHtml = `<div class="mdpreview-source">${full}</div>`
 	let compoHtml = renderToString(<RessourcePreview markdownTag={full} file={cFile} />)
 	return `${compoHtml} ${sourceHtml}`;
-})
+}
+
 
 export const filePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
 	pattern: regexs.ressource,

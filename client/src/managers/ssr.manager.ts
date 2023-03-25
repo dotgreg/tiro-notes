@@ -4,9 +4,12 @@
 import "@fortawesome/fontawesome-free/css/all.min.css"
 import { ssrShowIframeCtag } from "./ssr/ctag.ssr"
 export const ssrIcon = (icon: string): string => {
-	let html = `<i class="fa-solid fa-${icon}"></i>`
+	let html = `<i class="ssr-icon fa-solid fa-${icon}"></i>`
 	return html
 }
+
+export const iconSSRCss = () => `
+`
 
 
 
@@ -35,7 +38,7 @@ export const ssrFn = (id: string, action: iSSRAction): string => {
 	//@ts-ignore
 	let dic = window.ssrActionsDic
 	if (!dic[id]) {
-		console.log("SSR ACTION INIT", id, action);
+		// console.log("SSR ACTION INIT", id, action);
 		dic[id] = (el) => {
 			action(el)
 		}
