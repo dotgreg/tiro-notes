@@ -33,6 +33,8 @@ export const ContentBlockInt = (p: {
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
+
+	sandboxed?: boolean
 }) => {
 	const isTag = p.block.type === 'tag' && !reservedTagNames.includes(p.block.tagName || "")
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
@@ -138,6 +140,7 @@ export const ContentBlockTagView = (p: {
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
+	sandboxed?: boolean
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -359,7 +362,8 @@ export const ContentBlockTagView = (p: {
 						className="tag-iframe"
 						style={{ height: iframeHeight }}
 						// style={{ height: iframeHeight }}
-						sandbox="allow-scripts allow-same-origin allow-popups" // allow-same-origin required for ext js caching
+						sandbox={p.sandboxed ? "allow-scripts allow-same-origin allow-popups" : undefined} // allow-same-origin required for ext js caching
+
 					>
 					</iframe>
 				}
@@ -401,19 +405,12 @@ export const contentBlockCss = () => `
 		width: 100%;
 		height: 100%;
 		background: rgba(0,0,0,0.5);
+		z-index:101;
 }
 .iframe-view-wrapper {
-		&.fullscreen {
-				width: calc(100% - 20px);
-				height: calc(100% - 20px);
-				iframe {
-						height: 100%!important;
-						max-height: 100%!important;
-				}
-		}
 		&.pinned {
 				position: fixed;
-transform: rotate(360deg);
+				transform: rotate(360deg);
 				top: 10px;
 				right: 10px;
 				z-index: 1000;
@@ -427,10 +424,22 @@ transform: rotate(360deg);
 						overflow-y: scroll;
 				}
 		}
+		&.pinned.fullscreen {
+				top: 20px;
+				right: 20px;
+				z-index:102;
+				width: calc(100% - 40px);
+				height: calc(100% - 40px);
+				iframe {
+						height: 100vh!important;
+						max-height: 100vh!important;
+				}
+		}
 		position: relative;
 		.ctag-menu {
 				position: absolute;
 				top: 3px;
+				z-index: 10;
 				left: 15px;
 				cursor: pointer;
 				opacity: 0;

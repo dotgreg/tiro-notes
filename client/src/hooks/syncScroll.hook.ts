@@ -71,6 +71,7 @@ const getScrollObj = (wid) => {
 const updateEditorDims = (wid: string, dims: iDim) => {
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
+	if (!c.els.preview) return;
 	// viewport = viewport > full ? full : viewport
 	c.dims.editor = dims
 	// console.log(h, "editor dims update", c.dims.editor);
@@ -79,6 +80,7 @@ const updateEditorDims = (wid: string, dims: iDim) => {
 const updatePreviewDims = (wid: string) => {
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
+	if (!c.els.preview) return;
 	let full = c.els.preview.querySelector('.simple-css-wrapper').clientHeight
 	let viewport = c.els.preview.clientHeight
 	c.dims.preview = { viewport, full }
@@ -88,6 +90,7 @@ const updatePreviewDims = (wid: string) => {
 const updateScrollerDims = (wid: string) => {
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
+	if (!c.els.preview) return;
 	// get smaller percent ratio viewport/full
 	let ratioEditor = c.dims.editor.viewport / c.dims.editor.full || 10000000
 	let ratioPreview = c.dims.preview.viewport / c.dims.preview.full || 10000000
@@ -137,6 +140,7 @@ const scrollEditor = (wid: string, percent?: number) => {
 const scrollPreview = (wid: string, percent?: number) => {
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
+	if (!c.els.preview) return;
 	let d = c.dims.preview
 	if (!percent) percent = c.posPercent
 	let percentPxPreview = (d.full) / 100
@@ -178,7 +182,7 @@ const onWindowLoad = (wid: string) => {
 	// reinit older positions if they exists
 	if (db[wid]) {
 		const c = getScrollObj(wid)
-	if (!c.els.editor) return;
+		if (!c.els.editor) return;
 		let percent = c.posPercent
 		scrollScroller(wid, percent)
 		scrollEditor(wid, percent)

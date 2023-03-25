@@ -43,6 +43,7 @@ const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDec
 export const genericReplacementPlugin = (p: {
 	pattern: RegExp,
 	replacement?: iReplacementFn
+	// replacement?: any
 	classWrap?: iClassWrapperFn
 	options?: {
 		isAtomic?: boolean
@@ -52,8 +53,6 @@ export const genericReplacementPlugin = (p: {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
 			if (p.replacement) {
-				// console.log(1233444, view, );
-				// console.log(4444444444, view);
 				this.decorations = matcher(p.pattern, p.replacement).createDeco(view)
 			}
 			else {
@@ -62,12 +61,8 @@ export const genericReplacementPlugin = (p: {
 		}
 		update(update: ViewUpdate) {
 			try {
-				// @ts-ignore
-				if (p.replacement && update.changedRanges.length > 0) {
-					// @ts-ignore
-					// console.log(333333333, update.changedRanges);
-					this.decorations = matcher(p.pattern, p.replacement)
-						.updateDeco(update, this.decorations)
+				if (p.replacement && (update.docChanged || update.viewportChanged)) {
+					this.decorations = matcher(p.pattern, p.replacement).updateDeco(update, this.decorations)
 				}
 				else this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).updateDeco(update, this.decorations)
 			} catch (e) {

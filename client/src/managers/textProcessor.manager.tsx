@@ -14,19 +14,11 @@ import { each } from 'lodash';
 import { generateHtmlLinkPreview } from './codeMirror/urlLink.plugin.cm';
 import { mem } from './reactRenderer.manager';
 
-// export const transformUrlInLinks = (bodyRaw: string): string => {
-// 	const codeOpenPopup = `onclick="window.open('$1','$1','width=600,height=600');"`
-// 	// const subst = `www<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
-// 	const subst = `www<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
-// 	return bodyRaw.replace(regexs.externalLink3, subst);
-// }
-
 export const transformUrlInLinks = (bodyRaw: string): string => {
-	// const subst = `www<a class="external-link preview-link" href="#/" ${codeOpenPopup}>$2</a>`;
-	// return bodyRaw.replace(regexs.externalLink3, subst);
+	// return bodyRaw
 	return replaceRegexInMd(bodyRaw, regexs.externalLink3, found => {
-		// let i2 = [...found.matchAll(regexs.externalLink3)]
-		return generateHtmlLinkPreview(found).outerHTML
+		return generateHtmlLinkPreview(found)
+		// return "woop"
 	});
 }
 

@@ -8,7 +8,7 @@ import { checkUrlExists } from '../../managers/url.manager'
 import { random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 //import * as r from '@mozilla/readability'
-// var { Readability } = require('@mozilla/readability');
+// var { Readability } = require('@mozilla/reaability');
 // var Readability = require('@mozilla/readability/Readability.js');
 //@ts-ignore
 //@ts-ignore
@@ -80,7 +80,7 @@ export const useRessourceApi = (p: {
 
 
 	const fetchRessource: iRessourceApi['fetch'] = (url, cb, options) => {
-		
+
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
 
@@ -113,8 +113,8 @@ export const useRessourceApi = (p: {
 					console.log(`${h} FETCHING => getting CACHED file`, { url, options });
 					returnFile()
 				},
-				onFail: () => { 
-					downloadThenReturnFile() 
+				onFail: () => {
+					downloadThenReturnFile()
 				}
 			})
 		}
@@ -126,14 +126,15 @@ export const useRessourceApi = (p: {
 		fetchRessource(readabilityUrl, readabilityTxt => {
 			// nothing works except the eval
 			const r1 = eval(readabilityTxt)
-			
+
 			fetchRessource(url, txt => {
+				console.log(333111, txt);
 				var doc = document.implementation.createHTMLDocument('');
 				doc.open();
 				doc.write(txt);
 				doc.close();
 				var article = new r1(doc).parse();
-				 //var article: any = {}
+				//var article: any = {}
 
 				let textContent = article?.textContent.replaceAll(`              `, `\n`) || ""
 				textContent = textContent.replaceAll(`          `, `\n`)

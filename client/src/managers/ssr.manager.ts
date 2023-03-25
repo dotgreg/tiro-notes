@@ -1,23 +1,47 @@
-import { random } from "lodash"
+//
+// SSR ICON SYSTEM (for better perfs)
+//
+import "@fortawesome/fontawesome-free/css/all.min.css"
+import { ssrShowIframeCtag } from "./ssr/ctag.ssr"
+export const ssrIcon = (icon: string): string => {
+	let html = `<i class="fa-solid fa-${icon}"></i>`
+	return html
+}
 
+
+
+//
+// SSR ACTIONS
+//
 //@ts-ignore
 window.ssrActionsDic = {}
 
 type iSSRAction = (el: any) => void
-let addSsrAction = (id: number, action: iSSRAction) => {
+let addSsrAction = (action: iSSRAction) => {
 	//@ts-ignore
 	// window.ssrActionsDic[`${id}`] = action
-	window.ssrActionsDic[`${id}`] = (el) => {
+	window.ssrActionsDic[`audio`] = (el) => {
 		action(el)
 	}
 }
-export const createSsrAction = (el: any, action: iSSRAction): string => {
+
+export const ssrFn = (id: string, action: iSSRAction): string => {
 	// el?.setAttribute('onclick', `window.ssrActionsDic["${query}"]()`)
 	// addSsrAction(query, action, el)
-	let id = random(0, 100000000000000000)
-	addSsrAction(id, action)
+	// let id = random(0, 100000000000000000)
+	// addSsrAction(id, action)
 	let onclickString = `window.ssrActionsDic['${id}'](this)`
-	console.log(onclickString);
+
+	//@ts-ignore
+	let dic = window.ssrActionsDic
+	if (!dic[id]) {
+		console.log("SSR ACTION INIT", id, action);
+		dic[id] = (el) => {
+			action(el)
+		}
+	}
+
+	// console.log(onclickString);
 	return onclickString
 }
 
@@ -25,7 +49,7 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 	let els = document.querySelectorAll(query) as any
 	for (let i = 0; i < els.length; i++) {
 		const el = els[i];
-		// el?.addEventListener("click", e => { action(el) })
+		el?.addEventListener("click", e => { action(el) })
 		// window.ssrActionsDic
 		// addSsrAction(query, action, el)
 		//@ts-ignore
@@ -34,14 +58,36 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 }
 
 
-export const ssrOpenIframe = (elPath: string, url: string) => {
-	return ssrOpenPreview(elPath, url, { isUrl: true })
+
+
+//
+// OPENING IFRAME PREVIEW
+//
+
+// NEW 2 EL+CTAG IFRAME
+export const ssrOpenIframeEl2 = (el: any, url: string) => ssrOpenPreviewEl2(el, url, { isUrl: true })
+const ssrOpenPreviewEl2 = (elWrapper: any, content: string, opt?: { isUrl?: boolean }) => {
+	ssrShowIframeCtag(elWrapper, content)
 }
 
+// NEW EL BASED
+export const ssrOpenIframeEl = (el: any, url: string) => ssrOpenPreviewEl(el, url, { isUrl: true })
+
+
+// OLD PATH BASED
+export const ssrOpenIframe = (elPath: string, url: string) => ssrOpenPreview(elPath, url, { isUrl: true })
 
 export const ssrOpenPreview = (elPath: string, content: string, opt?: { isUrl?: boolean }) => {
 	let elWrapper: any = document.querySelector(`${elPath}`)
-	let isPreviewOpen = elWrapper?.querySelector(`iframe`)
+	return ssrOpenPreviewEl(elWrapper, content, opt)
+}
+
+//
+// INT
+//
+
+const ssrOpenPreviewEl = (elWrapper: any, content: string, opt?: { isUrl?: boolean }) => {
+	let isPreviewOpen = elWrapper.querySelector(`iframe`)
 	let previewHtml = ""
 
 	if (opt?.isUrl) {
@@ -52,6 +98,7 @@ export const ssrOpenPreview = (elPath: string, content: string, opt?: { isUrl?: 
 				allowFullScreen
 				class="resource-link-iframe small-iframe"
 				></iframe>`
+
 	} else {
 		// previewHtml = `<div class="resource-link-iframe small-iframe">${content}</div>`
 		content = content.replaceAll('"', '\'')
@@ -60,6 +107,7 @@ export const ssrOpenPreview = (elPath: string, content: string, opt?: { isUrl?: 
 				allowFullScreen
 				class="resource-link-iframe small-iframe"
 				></iframe>`
+
 	}
 
 	if (!elWrapper) return

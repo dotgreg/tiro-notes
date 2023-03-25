@@ -28,207 +28,207 @@ const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
 
 const CodeMirrorEditorInt = forwardRef((p: {
-				windowId: string,
+	windowId: string,
 
-									value: string,
-												 onChange: (text: string) => void
+	value: string,
+	onChange: (text: string) => void
 
-																	 posY: number
-																				 jumpToLine: number
+	posY: number
+	jumpToLine: number
 
-																										 forceRender: number
-																																	file: iFile
+	forceRender: number
+	file: iFile
 
-																																				// using it for title scrolling, right now its more title clicking
-																																																							 onScroll: Function
-																																																												 onTitleClick: onTitleClickFn
-		}, forwardedRef) => {
+	// using it for title scrolling, right now its more title clicking
+	onScroll: Function
+	onTitleClick: onTitleClickFn
+}, forwardedRef) => {
 
 
-		const getEditorObj = (): any => {
-				// @ts-ignore
-				const f: any = forwardedRef.current
-								 if (!f || !f.state) return null
-								 return f
-		}
+	const getEditorObj = (): any => {
+		// @ts-ignore
+		const f: any = forwardedRef.current
+		if (!f || !f.state) return null
+		return f
+	}
 
-		const histVal = useRef<null | string>(null)
-		const initVal = (): boolean => {
-				const f = getEditorObj()
-				// @ts-ignore
-				window.cmobj = f
-				if (!f) return false
+	const histVal = useRef<null | string>(null)
+	const initVal = (): boolean => {
+		const f = getEditorObj()
+		// @ts-ignore
+		window.cmobj = f
+		if (!f) return false
 
-				if (p.value === histVal.current) return false
-				if (p.value === "loading...") return false
-				if (f.view.state.doc.toString() === p.value) return false
-				const li = CodeMirrorUtils.getCurrentLineInfos(f)
-				const cpos = li.currentPosition
-				CodeMirrorUtils.updateText(f, p.value, cpos)
-				histVal.current = p.value
-				return true
-		}
+		if (p.value === histVal.current) return false
+		if (p.value === "loading...") return false
+		if (f.view.state.doc.toString() === p.value) return false
+		const li = CodeMirrorUtils.getCurrentLineInfos(f)
+		const cpos = li.currentPosition
+		CodeMirrorUtils.updateText(f, p.value, cpos)
+		histVal.current = p.value
+		return true
+	}
 
-		//
-		// INIT VAL MECHANISME
-		//
-		useEffect(() => {
+	//
+	// INIT VAL MECHANISME
+	//
+	useEffect(() => {
 		// setTimeout(() => {
 		// need to wait for 100ms to get codemirror object, need to refactor that
-																														 // console.log(res, 4440, p.value, p.forceRender);
+		// console.log(res, 4440, p.value, p.forceRender);
 		let res = initVal()
 		// }, 100)
-}, [p.value, p.forceRender]);
+	}, [p.value, p.forceRender]);
 
 
-		const onChange = (value, viewUpdate) => {
-				// activateTitleInt()
-				// do not trigger change if value didnt changed from p.value (on file entering)
-				if (value === p.value) return
-				// debouncedActivateTitles()
-				histVal.current = value
-				p.onChange(value)
-
-				//
-				evenTable.val = false
-
-				syncScrollUpdateDims()
-		}
-
+	const onChange = (value, viewUpdate) => {
+		// activateTitleInt()
+		// do not trigger change if value didnt changed from p.value (on file entering)
+		if (value === p.value) return
+		// debouncedActivateTitles()
+		histVal.current = value
+		p.onChange(value)
 
 		//
-		// JUMP TO LINE
-		//
-		useEffect(() => {
+		evenTable.val = false
+
+		syncScrollUpdateDims()
+	}
+
+
+	//
+	// JUMP TO LINE
+	//
+	useEffect(() => {
 		log && console.log(h, "JUMP to line :", p.jumpToLine);
 		if (p.jumpToLine === -1) return
 		const f = getEditorObj()
 		if (!f) return
 		if (p.posY <= -10) return
 		CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
-}, [p.jumpToLine])
+	}, [p.jumpToLine])
 
 
 
 
 
 
-		//
-		// ON TITLE HOVER, CREATE A LINK => should do it in CM logic instead
-															//
-															const onTitleClick = (titleStr: string) => {
-				const f = getEditorObj()
-				if (!f) return
-				const infs = CodeMirrorUtils.getCurrentLineInfos(f)
-				log && console.log(h, "CLICK ON TITLE DETECTED", titleStr, infs);
-				p.onTitleClick(infs.lineIndex)
-		}
+	//
+	// ON TITLE HOVER, CREATE A LINK => should do it in CM logic instead
+	//
+	const onTitleClick = (titleStr: string) => {
+		const f = getEditorObj()
+		if (!f) return
+		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
+		log && console.log(h, "CLICK ON TITLE DETECTED", titleStr, infs);
+		p.onTitleClick(infs.lineIndex)
+	}
 
-		useEffect(() => {
+	useEffect(() => {
 		// debouncedActivateTitles()
 		syncScrollUpdateDims()
-}, [p.value])
-		useEffect(() => {
+	}, [p.value])
+	useEffect(() => {
 		// debouncedActivateTitles()
 		syncScrollUpdateDims()
-}, [])
-		// END OF TODO
+	}, [])
+	// END OF TODO
 
-		const { resizeState } = useElResize(`.window-id-${p.windowId}`)
-													useEffect(() => {
+	const { resizeState } = useElResize(`.window-id-${p.windowId}`)
+	useEffect(() => {
 		syncScrollUpdateDims()
-}, [resizeState])
+	}, [resizeState])
 
-													//
-													// SYNCSCROLL SIZE UPDATE
-													//
-													const syncScrollUpdateDims = () => {
-				const f = getEditorObj()
-				if (!f) return
-				let infs = CodeMirrorUtils.getEditorInfos(f.view)
-				// console.log(infs);
-				syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
-				syncScroll3.updateScrollerDims(p.windowId)
-		}
+	//
+	// SYNCSCROLL SIZE UPDATE
+	//
+	const syncScrollUpdateDims = () => {
+		const f = getEditorObj()
+		if (!f) return
+		let infs = CodeMirrorUtils.getEditorInfos(f.view)
+		// console.log(infs);
+		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
+		syncScroll3.updateScrollerDims(p.windowId)
+	}
 
-		const markdownPreviewPluginWFile = markdownPreviewPlugin({
-				file: p.file,
-				onTitleClick: (title: string) => { onTitleClick(title) }
+	const markdownPreviewPluginWFile = markdownPreviewPlugin({
+		file: p.file,
+		onTitleClick: (title: string) => { onTitleClick(title) }
+	})
+
+
+
+	//
+	// CM CONFIG MODIF ACCORDING TO USER PREFS
+	//
+	const codemirrorExtensions: Extension[] = [
+		autocompletion({ override: getAllCompletionSources(p.file) }),
+		EditorView.domEventHandlers({
+			scroll(event, view) {
+				// debouncedActivateTitles();
+				// throttleActivateTitles();
+			},
+			wheel(event, view) {
+				let infs = CodeMirrorUtils.getEditorInfos(view)
+				syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
+				p.onScroll()
+			}
 		})
+	]
+	const markdownExtensionCnf: any = {
+		base: markdownLanguage,
+		codeLanguages: languages,
+		extensions: []
+	}
 
 
+	// if --disable-table inside content
+	let enhancedTable = !p.value.includes("--no-editor-table")
 
-		//
-		// CM CONFIG MODIF ACCORDING TO USER PREFS
-		//
-		const codemirrorExtensions: Extension[] = [
-																						 autocompletion({ override: getAllCompletionSources(p.file) }),
-																						 EditorView.domEventHandlers({
-				scroll(event, view) {
-						// debouncedActivateTitles();
-						// throttleActivateTitles();
-				},
-				wheel(event, view) {
-						let infs = CodeMirrorUtils.getEditorInfos(view)
-						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
-						p.onScroll()
-				}
-		})
-																				 ]
-																				 const markdownExtensionCnf: any = {
-				base: markdownLanguage,
-							codeLanguages: languages,
-														 extensions: []
-		}
+	const { userSettingsApi } = useUserSettings()
+	const ua = userSettingsApi
+	if (ua.get("ui_editor_links_as_button")) {
+		codemirrorExtensions.push(linksPreviewPlugin)
+		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
+		// codemirrorExtensions.push(ctagPreviewPlugin)
+	}
+	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable) {
+		codemirrorExtensions.push(markdownStylingTableLimiter)
+		codemirrorExtensions.push(markdownStylingTableCell)
+		codemirrorExtensions.push(markdownStylingTable())
+	}
+	if (ua.get("ui_editor_markdown_preview")) {
+		codemirrorExtensions.push(markdownPreviewPluginWFile)
+		markdownExtensionCnf.extensions.push(LatexMdEl)
+		codemirrorExtensions.push(imagePreviewPlugin(p.file))
+		codemirrorExtensions.push(filePreviewPlugin(p.file))
+	}
+	codemirrorExtensions.push(markdown(markdownExtensionCnf))
 
+	let classes = ``
+	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
-		// if --disable-table inside content
-		let enhancedTable = !p.value.includes("--no-editor-table")
-
-		const { userSettingsApi } = useUserSettings()
-															const ua = userSettingsApi
-															if (ua.get("ui_editor_links_as_button")) {
-				codemirrorExtensions.push(linksPreviewPlugin)
-				codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
-				// codemirrorExtensions.push(ctagPreviewPlugin)
-		}
-		if (ua.get("ui_editor_markdown_table_preview") && enhancedTable) {
-				codemirrorExtensions.push(markdownStylingTableLimiter)
-				codemirrorExtensions.push(markdownStylingTableCell)
-				codemirrorExtensions.push(markdownStylingTable())
-		}
-		if (ua.get("ui_editor_markdown_preview")) {
-				codemirrorExtensions.push(markdownPreviewPluginWFile)
-				markdownExtensionCnf.extensions.push(LatexMdEl)
-				codemirrorExtensions.push(imagePreviewPlugin(p.file))
-				codemirrorExtensions.push(filePreviewPlugin(p.file))
-		}
-		codemirrorExtensions.push(markdown(markdownExtensionCnf))
-
-		let classes = ``
-		if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
-
-		return (
-				<div className={`codemirror-editor-wrapper ${classes}`}>
-				<CodeMirror
+	return (
+		<div className={`codemirror-editor-wrapper ${classes}`}>
+			<CodeMirror
 				value=""
 				ref={forwardedRef as any}
 				theme={getCustomTheme()}
 				onChange={onChange}
 
 				basicSetup={{
-													 foldGutter: false,
-																			 dropCursor: false,
-																									 allowMultipleSelections: false,
-																																						indentOnInput: false,
-																																													 closeBrackets: false,
-																																																					bracketMatching: false,
-																																																													 lineNumbers: false,
-											 }}
+					foldGutter: false,
+					dropCursor: false,
+					allowMultipleSelections: false,
+					indentOnInput: false,
+					closeBrackets: false,
+					bracketMatching: false,
+					lineNumbers: false,
+				}}
 				extensions={codemirrorExtensions}
-				/>
-				</div >
-		);
+			/>
+		</div >
+	);
 })
 
 //
@@ -236,13 +236,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 // export const CodeMirrorEditor = CodeMirrorEditorInt
 export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
-																					 (np, pp) => {
-				let res = true
-				if (np.forceRender !== pp.forceRender) res = false
-				if (np.jumpToLine !== pp.jumpToLine) res = false
-				// console.log("rerendercontrol cm", res);
-				return res
-		})
+	(np, pp) => {
+		let res = true
+		if (np.forceRender !== pp.forceRender) res = false
+		if (np.jumpToLine !== pp.jumpToLine) res = false
+		// console.log("rerendercontrol cm", res);
+		return res
+	})
 
 
 

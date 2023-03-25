@@ -3,7 +3,7 @@ import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
-import { deviceType } from '../../managers/device.manager';
+import { deviceType, isMobile } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
@@ -58,8 +58,24 @@ const DualViewerInt = (
 	// const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
 	// const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
 
+	let debounceUpdatePreview = useDebounce((nt) => {
+		console.log(112);
+		setPreviewContent(nt)
+	}, isMobile() ? 3000 : 1000)
+	let throttleUpdatePreview = useThrottle((nt) => {
+		console.log(113);
+		setPreviewContent(nt)
+	}, 1000)
+	const updatePreviewContent = (nText) => {
+		debounceUpdatePreview(nText)
+		// throttleUpdatePreview(nText)
+	}
+
 	useEffect(() => {
-		setPreviewContent(p.fileContent)
+		updatePreviewContent(p.fileContent)
+
+
+		// setPreviewContent(p.fileContent)
 	}, [p.fileContent, p.file.path])
 
 	// KEEP POSITION ON TAB TOGGLING
@@ -152,6 +168,7 @@ const DualViewerInt = (
 
 
 		<EditorArea
+			viewType={p.viewType}
 			windowId={p.windowId}
 			editorType='codemirror'
 
@@ -178,7 +195,9 @@ const DualViewerInt = (
 
 			onFileEdited={(path, content) => {
 				p.onFileEdited(path, content)
-				setPreviewContent(content)
+				// setPreviewContent(content)
+				updatePreviewContent(content)
+
 			}}
 			onScrollModeChange={checked => {
 				// const res = checked ? "title" : "sync"
@@ -188,19 +207,21 @@ const DualViewerInt = (
 			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
 		/>
 
-		<PreviewArea
-			windowId={p.windowId}
-			file={p.file}
-			// posY={previewY}
-			posY={0}
-			fileContent={previewContent}
-			onMaxYUpdate={updateMaxY}
-			// yCnt={yCnt}
-			yCnt={0}
-			onIframeMouseWheel={e => {
-				// updateSyncYWithDelta(e.deltaY)
-			}}
-		/>
+		{p.viewType !== "editor" &&
+			<PreviewArea
+				windowId={p.windowId}
+				file={p.file}
+				// posY={previewY}
+				posY={0}
+				fileContent={previewContent}
+				onMaxYUpdate={updateMaxY}
+				// yCnt={yCnt}
+				yCnt={0}
+				onIframeMouseWheel={e => {
+					// updateSyncYWithDelta(e.deltaY)
+				}}
+			/>
+		}
 
 
 		<ScrollingBar

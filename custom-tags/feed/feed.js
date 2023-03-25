@@ -292,7 +292,6 @@ const feedApp = (innerTagStr, opts) => {
 										// sort items by time
 										resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 										const lengthCache = JSON.stringify(resItems).length
-										console.log(333);
 										debounceCache(resItems)
 										cb(resItems)
 										// }

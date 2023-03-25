@@ -6,6 +6,8 @@ import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { deviceType } from '../managers/device.manager';
 import { renderReactToId } from '../managers/reactRenderer.manager';
+import { ssrOpenIframeEl2 } from '../managers/ssr.manager';
+import { ssrGenCtag, ssrShowEpubCtag, ssrShowIframeCtag, ssrShowPdfCtag, ssrToggleCtag } from '../managers/ssr/ctag.ssr';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { ButtonsToolbar, iToolbarButton } from './ButtonsToolbar.component';
@@ -111,68 +113,54 @@ export const RessourcePreview = (p: {
 		setStatus(!isIframeOpen ? "open" : "closed")
 	}
 
-	const ssrOpenPdfCtag = () => {
-		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
-		if (!elIframe) return
-		let isIframeOpen = elIframe.querySelector(`iframe`)
-		let idEl = renderReactToId(<ContentBlock
-			file={p.file}
-			block={{ type: 'tag', tagName: 'pdf', content: previewLink, start: 0, end: 0 }}
-			windowHeight={heightIframe.big + 75}
-
-			windowId="null"
-			yCnt={0}
-			onIframeMouseWheel={() => { }}
-		/>, { delay: 100 });
-		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
-		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
-		setStatus(!isIframeOpen ? "open" : "closed")
-	}
-	const ssrOpenIframe = () => {
-		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
-		let isIframeOpen = elIframe?.querySelector(`iframe`)
-		let height = bigIframe ? heightIframe.big : heightIframe.small
-		let iframeHtml = `<iframe
-																												src='${previewLink}'
-																												title='${previewLink}'
-																												allowFullScreen
-																												class="resource-link-iframe"
-																												style="height:${height}px"
-																												/>`
-		if (!elIframe) return
-		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
-		setStatus(!isIframeOpen ? "open" : "closed")
-	}
-
-
 
 	const ssrOpenPreview = () => {
+		let el = document.querySelector(`.${elId} .iframe-wrapper`)
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {
-
-			getApi(api => {
-				api.file.getContent("/.tiro/tags/epub.md", content => {
-					ssrOpenEpubCtag()
-				}, { onError: err => { } })
-			})
-
+			ssrShowEpubCtag(el, previewLink, p.file)
 		} else if (filetype.toLocaleLowerCase() === "pdf") {
-			// if we detect the ctag pdf, replace preview iframe by ctag
-			getApi(api => {
-				api.file.getContent("/.tiro/tags/pdf.md", content => {
-					ssrOpenPdfCtag()
-				}, {
-					onError: err => {
-						ssrOpenIframe()
-					}
-				})
-			})
+			ssrShowPdfCtag(el, previewLink, p.file)
 		} else {
-			ssrOpenIframe()
+			ssrOpenIframeEl2(el, previewLink)
 		}
 	}
 
 
+
+
+
+
+	// INIT SSR (server side rendering, no react)
+	const ssrInitLogic = () => {
+		setTimeout(() => {
+			getStatus(status => {
+				if (status === "open") ssrOpenPreview()
+			})
+			// ADD JS LOGIC TO BUTTONS
+			let barPath = `.${elId} ul.buttons-toolbar-component`
+			ssrOnClick(`${barPath} .btn-preview`, ssrOpenPreview)
+			ssrOnClick(`${barPath} .btn-open`, () => {
+				if (isLocal && canBePreviewedOnline) return
+				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
+			})
+			ssrOnClick(`${barPath} .btn-download`, () => {
+				downloadFile(downloadName, ressLink)
+			})
+		}, 100)
+	}
+	ssrInitLogic()
+
+
+
+
+
+
+
+
+	//
+	// CACHING
+	//
 	let cacheId = `ressource-preview-status`
 	let idRess = `${p.file.path}-${link}`
 	type cachedStatus = "open" | "closed"
@@ -193,41 +181,13 @@ export const RessourcePreview = (p: {
 				cb(r)
 			})
 		})
-
 	}
 
 
 
-
-
-	// INIT SSR (server side rendering, no react)
-	const ssrInitLogic = () => {
-		setTimeout(() => {
-
-			getStatus(status => {
-				if (status === "open") ssrOpenPreview()
-			})
-
-
-			// ADD JS LOGIC TO BUTTONS
-			let barPath = `.${elId} ul.buttons-toolbar-component`
-			ssrOnClick(`${barPath} .btn-preview`, ssrOpenPreview)
-			ssrOnClick(`${barPath} .btn-open`, () => {
-				if (isLocal && canBePreviewedOnline) return
-				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
-			})
-			ssrOnClick(`${barPath} .btn-download`, () => {
-				downloadFile(downloadName, ressLink)
-			})
-		}, 100)
-	}
-	ssrInitLogic()
-	// console.log(downloadFile);
-	console.log(555555555, p.file.name);
 
 	return (
 		<div className={`${elId} resource-link-iframe-wrapper`}>
-			{random(0,100000000000000000)}
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
 				<div className={`resource-link-icon ${filetype}`}></div>
 				<div className={`resource-link-content-wrapper`}>
