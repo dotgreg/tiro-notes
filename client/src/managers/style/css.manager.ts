@@ -35,6 +35,7 @@ import { renderedNoteCompCss } from '../../components/RenderedNote.component';
 import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
 import { NotePreviewCss } from '../../components/NotePreview.component';
 import { titleEditorCss } from '../../components/dualView/TitleEditor.component';
+import { iconSSRCss } from '../ssr.manager';
 
 
 export const css2 = (css: string) => css
@@ -444,6 +445,7 @@ export const CssApp2 = (
 
 										${editorAreaCss(mobileView)}
 										${codeMirrorEditorCss()}
+										${iconSSRCss()}
 
 
 										${previewAreaCss()}

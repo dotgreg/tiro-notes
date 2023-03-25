@@ -62,9 +62,15 @@ export const genericReplacementPlugin = (p: {
 		update(update: ViewUpdate) {
 			try {
 				if (p.replacement && (update.docChanged || update.viewportChanged)) {
-					this.decorations = matcher(p.pattern, p.replacement).updateDeco(update, this.decorations)
+				//@ts-ignore
+				// if (p.replacement && (update.changedRanges.length > 0)) {
+					this.decorations = matcher(p.pattern, p.replacement)
+						.updateDeco(update, this.decorations)
 				}
-				else this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).updateDeco(update, this.decorations)
+				else {
+					this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn)
+						.updateDeco(update, this.decorations)
+				}
 			} catch (e) {
 				console.warn("[ERROR VIEWPLUGIN CM]", e, update);
 			}

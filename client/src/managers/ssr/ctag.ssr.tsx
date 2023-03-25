@@ -27,8 +27,8 @@ const heightIframe = {
 }
 export const ssrShowEpubCtag = (
 	elWrapper: any,
-	file: iFile,
 	previewLink: string,
+	file: iFile,
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/epub.md", content => {
@@ -43,8 +43,8 @@ export const ssrShowEpubCtag = (
 // PDF
 export const ssrShowPdfCtag = (
 	elWrapper: any,
-	file: iFile,
 	previewLink: string,
+	file: iFile,
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/pdf.md", content => {

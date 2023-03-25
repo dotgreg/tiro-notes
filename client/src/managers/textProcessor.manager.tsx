@@ -56,17 +56,14 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 
 
 
-let ressCompoHtml = mem((input, file) => {
+let ressCompoHtml = (input, file) => {
 	return renderToString(<RessourcePreview markdownTag={input} file={file} />)
-})
+}
 export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string => {
 	let i = 0
 	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
 		i++;
 		let idEl = `${input}-${i}`
-
-		// console.log(444444444, compoHtml);
-
 		let subst = `${ressCompoHtml(input, file)} `;
 		return subst
 	});

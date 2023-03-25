@@ -1,18 +1,14 @@
 import { each, random } from 'lodash';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { deviceType } from '../managers/device.manager';
-import { renderReactToId } from '../managers/reactRenderer.manager';
-import { ssrOpenIframeEl2 } from '../managers/ssr.manager';
-import { ssrGenCtag, ssrShowEpubCtag, ssrShowIframeCtag, ssrShowPdfCtag, ssrToggleCtag } from '../managers/ssr/ctag.ssr';
+import { ssrFn, ssrIcon, ssrOpenIframeEl2 } from '../managers/ssr.manager';
+import { ssrShowEpubCtag, ssrShowPdfCtag } from '../managers/ssr/ctag.ssr';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
-import { ButtonsToolbar, iToolbarButton } from './ButtonsToolbar.component';
-import { ContentBlock } from './ContentBlock.component';
-
 
 
 //
@@ -28,8 +24,6 @@ export const RessourcePreview = (p: {
 	markdownTag: string
 	file: iFile
 }) => {
-	const [iframeOpen, setIframeOpen] = useState(false)
-
 	const link = p.markdownTag.split('](')[1].slice(0, -1);
 	const name = p.markdownTag.split('](')[0].replace('![', '');
 	let t1 = link.split('.');
@@ -38,29 +32,14 @@ export const RessourcePreview = (p: {
 	const ressLink = `${absoluteLinkPathRoot(p.file.folder)}/${link}${getUrlTokenParam()}`
 	let downloadName = `${name}.${filetype}`
 
-	//
-	// TOOLBAR BUTTONS
-	//
-	let buttons: iToolbarButton[] = [
-		{
-			title: 'Download',
-			icon: 'faDownload',
-			action: () => { console.log(ressLink, downloadName); downloadFile(downloadName, ressLink) }
-		},
-	]
-
-	//
 	// IF CAN BE PREVIEWED
-	//
 	let canBePreviewed = false
 	let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub"]
 	if (previewFormats.includes(filetype.toLowerCase())) canBePreviewed = true
-
 	// for doc/docx/xls/xlsx/ppt/pptx + if window.location is not ip OR localhost, open it with google preview
 	let cOrigin = window.location.origin
 	let onlinePreviewFormats = ["ppt", "pptx", "doc", "docx", "xls", "xlsx"]
 	let canBePreviewedOnline = onlinePreviewFormats.includes(filetype.toLowerCase())
-	let bigIframe = canBePreviewedOnline || filetype.toLowerCase() === "pdf"
 	let localOrigins = ["localhost", "192.168"]
 	let isLocal = inArray(cOrigin, localOrigins)
 	let previewLink = ressLink
@@ -68,96 +47,9 @@ export const RessourcePreview = (p: {
 	let shouldBeOnlineToView = isLocal && canBePreviewedOnline
 	let header = shouldBeOnlineToView ? `[REQUIRES NON LOCAL TIRO URL] ` : ''
 
-	if (canBePreviewed || canBePreviewedOnline) {
-		buttons.unshift({
-			title: header + 'Open in detached window',
-			icon: 'faExternalLinkAlt',
-			action: () => {
-				if (isLocal && canBePreviewedOnline) return
-				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
-			}
-		})
-		buttons.unshift({
-			title: !iframeOpen ? header + 'Preview' : 'Close Preview',
-			icon: !iframeOpen ? 'faEye' : 'faEyeSlash',
-			action: () => {
-				if (isLocal && canBePreviewedOnline) return
-				setIframeOpen(!iframeOpen)
-			}
-		})
-	}
-
 	//
 	// JS PURE SSR LOGIC
 	//
-	let elId = `id-${generateUUID()}`
-	const ssrOnClick = (query: string, action: Function) => {
-		let el = document.querySelector(query)
-		el?.addEventListener("click", e => { action(e) })
-	}
-	const ssrOpenEpubCtag = () => {
-		let elIframe = document.querySelector(`.${elId} .iframe-wrapper`)
-		if (!elIframe) return
-		let isIframeOpen = elIframe.querySelector(`iframe`)
-		let idEl = renderReactToId(<ContentBlock
-			file={p.file}
-			block={{ type: 'tag', tagName: 'epub', content: previewLink, start: 0, end: 0 }}
-			windowHeight={heightIframe.big + 75}
-
-			windowId="null"
-			yCnt={0}
-			onIframeMouseWheel={() => { }}
-		/>, { delay: 100 });
-		let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
-		elIframe.innerHTML = !isIframeOpen ? iframeHtml : ""
-		setStatus(!isIframeOpen ? "open" : "closed")
-	}
-
-
-	const ssrOpenPreview = () => {
-		let el = document.querySelector(`.${elId} .iframe-wrapper`)
-		if (isLocal && canBePreviewedOnline) return
-		if (filetype.toLocaleLowerCase() === "epub") {
-			ssrShowEpubCtag(el, previewLink, p.file)
-		} else if (filetype.toLocaleLowerCase() === "pdf") {
-			ssrShowPdfCtag(el, previewLink, p.file)
-		} else {
-			ssrOpenIframeEl2(el, previewLink)
-		}
-	}
-
-
-
-
-
-
-	// INIT SSR (server side rendering, no react)
-	const ssrInitLogic = () => {
-		setTimeout(() => {
-			getStatus(status => {
-				if (status === "open") ssrOpenPreview()
-			})
-			// ADD JS LOGIC TO BUTTONS
-			let barPath = `.${elId} ul.buttons-toolbar-component`
-			ssrOnClick(`${barPath} .btn-preview`, ssrOpenPreview)
-			ssrOnClick(`${barPath} .btn-open`, () => {
-				if (isLocal && canBePreviewedOnline) return
-				window.open(previewLink, `popup-${previewLink}`, 'width=800,height=1000')
-			})
-			ssrOnClick(`${barPath} .btn-download`, () => {
-				downloadFile(downloadName, ressLink)
-			})
-		}, 100)
-	}
-	ssrInitLogic()
-
-
-
-
-
-
-
-
 	//
 	// CACHING
 	//
@@ -183,11 +75,79 @@ export const RessourcePreview = (p: {
 		})
 	}
 
+	// if cache opened
+	let id = `ress-${generateUUID()}`
 
+
+	const atStartupCheckIfOpen = () => {
+		getStatus(r => {
+			if (r === "open") {
+				setTimeout(() => {
+					let el = document.querySelector(`.${id} .iframe-wrapper`)
+					console.log(2222222, id, el, r);
+					if (!el) return
+					console.log(3333333, id, el);
+					previewLogic(el)
+				}, 500)
+			}
+		})
+	}
+	atStartupCheckIfOpen()
+
+	let i = ssrIcon
+
+	const previewLogic = (iframeEl: any) => {
+		let el = iframeEl
+		if (!el) return
+		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
+		console.log(4444, el, nStatus);
+		setStatus(nStatus)
+		if (isLocal && canBePreviewedOnline) return
+		if (filetype.toLocaleLowerCase() === "epub") {
+			ssrShowEpubCtag(el, previewLink, p.file)
+		} else if (filetype.toLocaleLowerCase() === "pdf") {
+			ssrShowPdfCtag(el, previewLink, p.file)
+		} else {
+			ssrOpenIframeEl2(el, previewLink)
+		}
+	}
+
+	// 1
+	const openWinFn = (el) => {
+		if (!el) return
+		let link = el.dataset.link
+		window.open(link, `popup-preview-link`, 'width=800,height=1000')
+	}
+	let openWindow = `<li title="Open link in detached window"
+		onclick="${ssrFn("open-win-ress", openWinFn)}"
+		data-link="${previewLink}">${i('up-right-from-square')}</li>`
+
+	// 2
+	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.parentNode.parentNode.querySelector(".iframe-wrapper")
+
+	const previewFn = (el) => {
+		if (!el) return
+		el = getIframeEl(el)
+		previewLogic(el)
+	}
+	let preview = `<li
+		onclick="${ssrFn("preview-link-ress", previewFn)}"
+		title="Preview link" data-link="${previewLink}">${i('eye')}</li>`
+
+	// 3
+	let downloadFn = (el) => {
+		console.log(ressLink, downloadName);
+		downloadFile(downloadName, ressLink)
+	}
+	let download = `<li
+		onclick="${ssrFn("download-link-ress", downloadFn)}"
+		title="Preview link" data-link="${previewLink}">${i('download')}</li>`
+
+	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
 
 	return (
-		<div className={`${elId} resource-link-iframe-wrapper`}>
+		<div className={`${id} resource-link-iframe-wrapper`}>
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
 				<div className={`resource-link-icon ${filetype}`}></div>
 				<div className={`resource-link-content-wrapper`}>
@@ -198,11 +158,10 @@ export const RessourcePreview = (p: {
 						{name} ({filetype})
 					</a>
 
-					<ButtonsToolbar
-						popup={false}
-						buttons={buttons}
-						size={1}
-					/>
+					<div
+						dangerouslySetInnerHTML={{ __html: buttonsHtml }}
+						className="buttons-wrapper">
+					</div>
 				</div>
 
 			</div>
@@ -250,12 +209,28 @@ export const ressourcePreviewSimpleCss = () => `
 		margin: 5px 0px;
 }
 
+.buttons-wrapper  {
+		position: relative;
+		top: -10px;
+		height: 10px;
+}
+.resource-link-content-wrapper .ssr-icon {
+		padding: 3px;
+		font-size: 13px;
+		margin: 0px 5px 0px 0px;
+		color: #b9b9b9;
+		cursor: pointer;
+}
+.resource-link-content-wrapper .ssr-icon:hover {
+		color:grey;
+}
+
 .mdpreview-source {
-	display:none!important;
+		display:none!important;
 }
 
 .resource-link-icon {
-		top: 14px;
+		top: 10px;
 		left: 19px;
 		width: 12px;
 		height: 27px;
@@ -311,8 +286,10 @@ ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
 
 .resource-link-content-wrapper ul  {
 		padding-left: 7px;
+		display: flex;
 }
 .resource-link-content-wrapper ul li {
+		list-style: none;
 		padding-left: 0px;
 }
 .resource-link-content-wrapper ul li:before {
