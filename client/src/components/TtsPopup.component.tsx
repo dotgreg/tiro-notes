@@ -219,7 +219,7 @@ export const StyledDiv = styled.div`
 				top: 8px;
 		}
 		.range-pos {
-width: 100%;
+				width: 100%;
 				margin-bottom:10px;
 		}
 		.text-pos {

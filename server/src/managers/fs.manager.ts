@@ -229,7 +229,18 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 	shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
 	return new Promise((resolve, reject) => {
 		let file = fs.createWriteStream(path);
-		client.get(url, (response) => {
+		const options = {
+			headers: {
+				'User-Agent': 'Mozilla/5.0'
+			}
+		}
+		client.get(url, options, (response) => {
+			let res = response
+			const contentType = res.headers['content-type'];
+			console.log(2222222, contentType);
+			// response.setEncoding('utf8');
+			// response.set({ 'content-type': 'text/html; charset=utf-8' });
+
 			response.pipe(file);
 			file.on('finish', () => {
 				file.close();  // close() is async, call cb after close completes.

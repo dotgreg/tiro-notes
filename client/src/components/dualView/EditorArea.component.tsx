@@ -32,6 +32,8 @@ export type onTitleClickFn = (newYpercent: number) => void
 
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 interface iEditorProps {
+	viewType?: iViewType
+
 	editorType: iEditorType
 	windowId: string
 
@@ -315,6 +317,7 @@ const EditorAreaInt = (
 	// SIMPLE NOTE FALLBACK IF TOOLONG
 	//
 	let simpleFallback = innerFileContent.length > 30000 && deviceType() !== "desktop"
+	// if (p.viewType === "preview") simpleFallback = true
 	// const [simpleFallback, setSimpleFallback] = useState(false)
 	// useEffect(() => {
 	// 	if (p.value.length > 30000 && deviceType() !== "desktop") {
@@ -502,7 +505,6 @@ const EditorAreaInt = (
 
 						file={p.file}
 					/>
-
 				}
 
 				{simpleFallback &&
@@ -719,9 +721,11 @@ export const EditorArea = (p: iEditorProps) => {
 	const api = useContext(ClientApiContext);
 	const isConnected = api?.status.isConnected || false
 
+	// console.log(p.viewType);
 	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
 	}, [
+		p.viewType,
 		isConnected,
 		p.canEdit,
 		p.editorType,

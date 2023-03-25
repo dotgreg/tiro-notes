@@ -2,30 +2,23 @@
 // URL LINK
 
 import { isArray, random } from "lodash";
-import React from "react";
-import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
-import { Icon } from "../../components/Icon.component";
 import { getApi } from "../../hooks/api/api.hook";
 import { isMobile } from "../device.manager";
-import { createSsrAction, ssrOnClick, ssrOpenIframe, ssrOpenPreview } from "../ssr.manager";
+import { ssrFn, ssrIcon, ssrOnClick, ssrOpenIframe, ssrOpenIframeEl, ssrOpenIframeEl2, ssrOpenPreview } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
-import { memoize } from "lodash"
+import { mem } from "../reactRenderer.manager";
+import { ssrShowIframeCtag } from "../ssr/ctag.ssr";
 
-// export const linksPreviewPlugin = genericReplacementPlugin({
-// 	pattern: regexs.externalLink3,
-// 	// replacement: matchs => {
-// 	// 	return generateHtmlLinkPreview(matchs)
-// 	// }
-// 	classWrap: "cm-underline"
-// })
+export const generateHtmlLinkPreview = mem((matchs) => generateHtmlLinkPreviewInt(matchs))
 
 export const linksPreviewPlugin = genericReplacementPlugin({
 	pattern: regexs.externalLink3,
 	replacement: (matchs: any) => {
-		if (isArray(matchs)) matchs = matchs[0]
-		return generateHtmlLinkPreviewInt(matchs)
+		let resEl = document.createElement("span");
+		resEl.innerHTML = generateHtmlLinkPreview(matchs)
+		return resEl
 	}
 })
 
@@ -41,10 +34,12 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 //
 
 export const generateHtmlLinkPreviewInt = (
+	// el: any,
 	matchsOrUrl: string[] | string
-) => {
+): string => {
 
-	console.log(33333333, matchsOrUrl);
+	// console.log("11111 gen link init", matchsOrUrl);
+	console.log("11111 gen link init");
 
 	let matchs: any[] = []
 	if (!isArray(matchsOrUrl)) {
@@ -53,7 +48,7 @@ export const generateHtmlLinkPreviewInt = (
 	else matchs = matchsOrUrl
 
 	let resEl = document.createElement("span");
-	if (matchs.length < 3) return resEl
+	// if (matchs.length < 3) return resEl
 
 	let fullLink = matchs[0].slice(0, -1) // removing last /
 	let website = matchs[1].replace("www.", "")
@@ -78,80 +73,132 @@ export const generateHtmlLinkPreviewInt = (
 	let previewStr = `${website}${artTitle}`
 	if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
 
-	let iconPre = `<span class="link-deco">${renderToString(<Icon name="faLink" color={cssVars.colors.main} />)}</span>`
 
-	let iconMoreBtns = ``
+	//
+	// JS
+	//
+	// support
+	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.querySelector(".link-iframe-wrapper")
 
-	const audioClick = (el) => {
-		console.log("hello audio ", el);
-	}
-
-	let openWindow = `<span title="Open link in detached window" class="link-action link-openwindow"  data-link="${fullLink}">${renderToString(<Icon name="faExternalLinkAlt" />)}</span>`
-	let openPreview = `<span title="Preview link" class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faEye" />)}</span>`
-	let fetchArticle = `<span  title="Display url content" class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faFont" />)}</span>`
-	let audio = `<span onclick="${createSsrAction(this, audioClick)}" title="Text to speech url content" class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${renderToString(<Icon name="faComment" />)}</span>`
-
-	let btns = `<span class="link-action-more"><span class="icon-more">${renderToString(<Icon name="faEllipsisH" />)}</span><span class="link-action-wrapper">${fetchArticle} ${audio} ${openWindow} ${openPreview}</span></span>`
-
-
-	let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
-	let previewWrapper = `<div class="${id} link-fetch-preview-wrapper"></div>`
-	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>${iconMoreBtns}${btns}${iframeWrapper}${previewWrapper}</span>`
-	resEl.innerHTML = `${html}`;
-
-	initSSRLogic(linkId)
-	// setTimeout(() => { initSSRLogic() }, 1000)
-
-	return resEl
-}
-
-export const generateHtmlLinkPreview = memoize(generateHtmlLinkPreviewInt)
-
-//
-// CLICK MANAGEMENT
-//
-const initSSRLogic = (id: string) => {
-	console.log("init SSR button", id);
 
 	const fetchArticle = (el: any, cb: Function) => {
 		let link = el.dataset.link
-		let id = el.dataset.id
 		getApi(api => {
 			api.ressource.fetchUrlArticle(link, r => {
-				ssrOpenPreview(`.${id}.link-iframe-wrapper`, r.html)
+				ssrOpenIframeEl2(getIframeEl(el), encodeURIComponent(r.html))
 				cb(r)
 			})
 		})
 	}
 
-	setTimeout(() => {
-		ssrOnClick(`.${id} .link-openwindow`, el => {
-			if (!el) return
-			let link = el.dataset.link
-			window.open(link, `popup-preview-link`, 'width=800,height=1000')
+	// function button
+	const previewFn = (el) => {
+		if (!el) return
+		let link = el.dataset.link
+		ssrOpenIframeEl2(getIframeEl(el), link)
+	}
+	const openWinFn = (el) => {
+		if (!el) return
+		let link = el.dataset.link
+		window.open(link, `popup-preview-link`, 'width=800,height=1000')
+	}
+	const fetchFn = (el) => {
+		if (!el) return
+		fetchArticle(el, () => { })
+	}
+	const audioFn = (el) => {
+		if (!el) return
+		fetchArticle(el, r => {
+			console.log(r.content);
+			if (!r.text) return;
+			getApi(api => {
+				api.ui.textToSpeechPopup.open(r.text)
+			})
 		})
-		ssrOnClick(`.${id} .link-openpreview`, el => {
-			if (!el) return
-			let link = el.dataset.link
-			let id = el.dataset.id
-			ssrOpenIframe(`.${id}.link-iframe-wrapper`, link)
-		})
-		ssrOnClick(`.${id} .link-fetcharticle`, el => {
-			if (!el) return
-			fetchArticle(el, () => { })
-		})
-		// ssrOnClick(`.${id} .link-audio`, el => {
-		// 	if (!el) return
-		// 	fetchArticle(el, r => {
-		// 		console.log(r.content);
-		// 		if (!r.text) return;
-		// 		getApi(api => {
-		// 			api.ui.textToSpeechPopup.open(r.text)
-		// 		})
-		// 	})
-		// })
-	}, 100)
+	}
+
+	// HTML
+	let i = ssrIcon
+	let openWindow = `<span title="Open link in detached window"
+onclick="${ssrFn("open-win-link", openWinFn)}"
+class="link-action link-openwindow"  data-link="${fullLink}">${i('up-right-from-square')}</span>`
+
+	let openPreview = `<span
+onclick="${ssrFn("preview-link", previewFn)}"
+title="Preview link" class="link-openpreview link-action" data-id="${id}" data-link="${fullLink}">${i('eye')}</span>`
+
+	let fetch = `<span
+onclick="${ssrFn("fetch-link", fetchFn)}"
+title="Display url content" class="link-fetcharticle link-action" data-id="${id}" data-link="${fullLink}">${i('file-lines')}</span>`
+	let audio = `<span
+onclick="${ssrFn("audio-link", audioFn)}"
+title="Text to speech url content" class="link-audio link-action" data-id="${id}" data-link="${fullLink}">${i("volume-high")}</span>`
+
+	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${openWindow} ${openPreview}</span></span>`
+
+
+	let iframeWrapper = `<div class="${id} link-iframe-wrapper"></div>`
+	let previewWrapper = `<div class="${id} link-fetch-preview-wrapper"></div>`
+	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper ${linkId}"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}${previewWrapper}</span>`
+	// let html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>`
+
+	// html = `<a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${iconPre}${previewStr}</a>`
+	// html = `${fullLink}`
+	resEl.innerHTML = `${html}`;
+
+	// initSSRLogic(linkId)
+	// setTimeout(() => { initSSRLogic() }, 1000)
+
+	return resEl.outerHTML
 }
+
+// export const generateHtmlLinkPreview = memoize(generateHtmlLinkPreviewInt)
+
+//
+// CLICK MANAGEMENT
+//
+// const initSSRLogic = (id: string) => {
+// console.log("init SSR button", id);
+
+// const fetchArticle = (el: any, cb: Function) => {
+// 	let link = el.dataset.link
+// 	let id = el.dataset.id
+// 	getApi(api => {
+// 		api.ressource.fetchUrlArticle(link, r => {
+// 			ssrOpenPreview(`.${id}.link-iframe-wrapper`, r.html)
+// 			cb(r)
+// 		})
+// 	})
+// }
+
+// setTimeout(() => {
+// 	ssrOnClick(`.${id} .link-openwindow`, el => {
+// 		if (!el) return
+// 		let link = el.dataset.link
+// 		window.open(link, `popup-preview-link`, 'width=800,height=1000')
+// 	})
+// 	ssrOnClick(`.${id} .link-openpreview`, el => {
+// 		if (!el) return
+// 		let link = el.dataset.link
+// 		let id = el.dataset.id
+// 		ssrOpenIframe(`.${id}.link-iframe-wrapper`, link)
+// 	})
+// 	ssrOnClick(`.${id} .link-fetcharticle`, el => {
+// 		if (!el) return
+// 		fetchArticle(el, () => { })
+// 	})
+// ssrOnClick(`.${id} .link-audio`, el => {
+// 	if (!el) return
+// 	fetchArticle(el, r => {
+// 		console.log(r.content);
+// 		if (!r.text) return;
+// 		getApi(api => {
+// 			api.ui.textToSpeechPopup.open(r.text)
+// 		})
+// 	})
+// })
+// }, 100)
+// }
 
 // OLD
 // export const linkActionClick = (el: HTMLElement) => {
@@ -243,13 +290,13 @@ export const linksPreviewMdCss = () => `
 		opacity: 0.5;
 		cursor: pointer;
 }
-.link-iframe-wrapper {
-		display: none;
-}
-.link-iframe-wrapper.open {
-		display: block;
-		height: 330px!important;
-}
+// .link-iframe-wrapper {
+// 		// display: none;
+// }
+// .link-iframe-wrapper.open {
+// 		display: block;
+// 		height: 330px!important;
+// }
 .link-iframe-wrapper iframe {
 		border-radius: 7px;
 		overflow:hidden;
