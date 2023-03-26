@@ -565,7 +565,7 @@ export const App = () => {
 									tab={activeTab}
 									onGridUpdate={updateActiveTabGrid}
 
-							 mobileView={mobileView}
+									mobileView={mobileView}
 								/>
 							}
 

@@ -224,7 +224,6 @@ const EditorAreaInt = (
 			res.push(genUploadBtn("camera", "Capture"))
 			res.push(genUploadBtn("microphone", "Record"))
 		}
-		// console.log(333, res);
 		return res
 	}
 
@@ -280,8 +279,6 @@ const EditorAreaInt = (
 	let maxDropdownHeight = 700
 	if (el) maxDropdownHeight = el.clientHeight / 1.3
 	if (deviceType() === 'mobile') maxDropdownHeight = window.innerHeight
-
-
 	// // Id note ref
 	const idInputRef = useRef<HTMLInputElement>(null)
 
@@ -318,13 +315,21 @@ const EditorAreaInt = (
 	// SIMPLE NOTE FALLBACK IF TOOLONG
 	//
 	const [simpleFallback, setSimpleFallback] = useState(false)
+	const [isPreview, setIsPreview] = useState(false)
 	useEffect(() => {
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
 		// if (p.viewType === "preview") nval = true
 		setSimpleFallback(nval)
 		forceCmRender()
-		// setTimeout(() => { forceCmRender() }, 200)
-	}, [innerFileContent, p.viewType])
+		let nisPreview = (deviceType() === "desktop" && p.viewType === "preview") || (deviceType() !== "desktop" && p.mobileView === "preview")
+		setIsPreview(nisPreview)
+		let histPath = p.file.path
+
+		setTimeout(() => {
+			if (histPath !== p.file.path) return
+			forceCmRender()
+		}, 100)
+	}, [innerFileContent, p.viewType, p.mobileView])
 
 	//
 	// VIEW TOGGLE
@@ -335,7 +340,6 @@ const EditorAreaInt = (
 	}
 
 
-	let isPreview = (deviceType() === "desktop" && p.viewType === "preview") || (deviceType() !== "desktop" && p.mobileView === "preview")
 
 	return (
 		<div

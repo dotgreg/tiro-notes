@@ -36,6 +36,8 @@ import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
 import { NotePreviewCss } from '../../components/NotePreview.component';
 import { titleEditorCss } from '../../components/dualView/TitleEditor.component';
 import { iconSSRCss } from '../ssr.manager';
+import { memo } from 'react';
+import { mem } from '../reactRenderer.manager';
 
 
 export const css2 = (css: string) => css
@@ -43,10 +45,12 @@ export const css2 = (css: string) => css
 let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
-export const CssApp2 = (
+export const CssApp2 = mem((a1, a2) => CssApp2Int(a1, a2))
+export const CssApp2Int = (
 	mobileView: MobileView,
 	refreshCss: number
 ) => {
+	console.log("UPDATE CSS");
 	const cssString = `//css
 		.content-image {
 				width: 90%;

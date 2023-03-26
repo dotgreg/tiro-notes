@@ -315,8 +315,8 @@ export const SettingsPopup = (p: {
 }
 
 export const settingsPopupCss = () => `
-&.device-view-mobile {
-		.popup-wrapper .popupContent {
+.device-view-mobile {
+	.settings-popup-wrapper .popup-wrapper .popupContent {
 				width: 80vw;
 				.field-wrapper {
 						display: block;
