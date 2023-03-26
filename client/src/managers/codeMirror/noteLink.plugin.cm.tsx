@@ -1,5 +1,6 @@
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { getClientApi2 } from "../../hooks/api/api.hook";
+import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
@@ -19,14 +20,14 @@ export const noteLinkPreviewPlugin = (windowId: string) => genericReplacementPlu
 	}
 })
 
-export const noteLinkActionClick = (el: HTMLElement) => {
-	// LINK
-	if (el.classList.contains("title-search-link")) {
-		noteLinkClickJSLogic(el)
-		// let link = el.dataset.link
-		// window.open(link, `popup-preview-link`, 'width=800,height=1000')
-	}
-}
+// export const noteLinkActionClick = (el: HTMLElement) => {
+// 	// LINK
+// 	if (el.classList.contains("title-search-link")) {
+// 		noteLinkClickJSLogic(el)
+// 		// let link = el.dataset.link
+// 		// window.open(link, `popup-preview-link`, 'width=800,height=1000')
+// 	}
+// }
 
 export const noteLinkPreviewMdCss = () => `
 .note-link-mdpreview-wrapper {
@@ -36,13 +37,30 @@ export const noteLinkPreviewMdCss = () => `
 //
 // COMMON HTML/CSS/JS NOTE LINK GENERATOR
 //
+export const ssrNoteLinkFn = (el: HTMLElement) => {
+	if (!el) return
+	const file = el.dataset.file
+	const folder = el.dataset.folder
+	const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
+	if (!file || !folder) return
+	getClientApi2().then(api => {
+		api.ui.browser.goTo(
+			folder,
+			file, {
+			openIn: windowId
+		})
+	})
+}
+
 export const generateNoteLink = (
 	noteTitle: string,
 	notePath: string,
 	windowId: string
 ): string => {
 
-	const subst = `<a class="title-search-link preview-link" data-file="${noteTitle}" data-folder="${notePath}" data-windowid="${windowId}">${noteTitle}</a>`;
+	const subst = `<a
+		onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
+class="title-search-link preview-link" data-file="${noteTitle}" data-folder="${notePath}" data-windowid="${windowId}">${noteTitle}</a>`;
 
 	return subst
 }
@@ -77,17 +95,3 @@ export const noteLinkCss = (classStr?: string) => {
 	return css
 }
 
-// JS
-export const noteLinkClickJSLogic = (el: HTMLElement) => {
-	const file = el.dataset.file
-	const folder = el.dataset.folder
-	const windowId = el.dataset.windowid === '' ? 'active' :  el.dataset.windowid
-	if (!file || !folder) return
-	getClientApi2().then(api => {
-		api.ui.browser.goTo(
-			folder,
-			file, {
-			openIn: windowId
-		})
-	})
-}

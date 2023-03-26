@@ -32,14 +32,6 @@ const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDec
 	}
 })
 
-// const cnt = {value:0}
-// const incrementCnt = () => {
-
-// }
-// const resetCnt = debounce(() => {
-
-// },1000)
-
 export const genericReplacementPlugin = (p: {
 	pattern: RegExp,
 	replacement?: iReplacementFn
@@ -62,8 +54,7 @@ export const genericReplacementPlugin = (p: {
 		update(update: ViewUpdate) {
 			try {
 				if (p.replacement && (update.docChanged || update.viewportChanged)) {
-				//@ts-ignore
-				// if (p.replacement && (update.changedRanges.length > 0)) {
+					//@ts-ignore
 					this.decorations = matcher(p.pattern, p.replacement)
 						.updateDeco(update, this.decorations)
 				}
