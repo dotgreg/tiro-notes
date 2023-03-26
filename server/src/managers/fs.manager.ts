@@ -108,7 +108,7 @@ export const moveFile = async (pathInit: string, pathEnd: string): Promise<void>
 
 export const saveFile = async (path: string, content: string): Promise<void> => {
 	path = p(path)
-	log(`[SAVEFILE] starting save ${path}`);
+	shouldLog && log(`[SAVEFILE] starting save ${path}`);
 	return new Promise((resolve, reject) => {
 		// fs.truncateSync(path)
 		// fs.appendFile(path, content, (err) => {
