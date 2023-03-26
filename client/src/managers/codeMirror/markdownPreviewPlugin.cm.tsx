@@ -12,7 +12,7 @@ import { styleTags, Tag } from "@lezer/highlight";
 import { iFile } from "../../../../shared/types.shared";
 import { renderLatex } from "../latex.manager";
 import { imagePreviewCss } from "./image.plugin.cm";
-import { noteLinkActionClick } from "./noteLink.plugin.cm";
+// import { noteLinkActionClick } from "./noteLink.plugin.cm";
 
 
 /*************************************
@@ -156,7 +156,7 @@ export const markdownPreviewPlugin = (p: {
 				// linkActionClick(el)
 
 				// NOTE LINK
-				noteLinkActionClick(el)
+				// noteLinkActionClick(el)
 
 
 				// TITLE ACTION

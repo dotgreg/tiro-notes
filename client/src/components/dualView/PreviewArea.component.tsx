@@ -61,6 +61,7 @@ export const PreviewArea = (p: {
 		const blocks = noteApiFuncs.chunks.chunk(p.fileContent)
 		setContentBlocks(blocks)
 
+		// @2remove
 		setTimeout(() => {
 			noteApiFuncs.injectLogic({
 				fileContent: p.fileContent,

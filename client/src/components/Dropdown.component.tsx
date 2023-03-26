@@ -15,8 +15,6 @@ export const Dropdown = (p: iDropdownP) => {
 	const dir = p.dir ? p.dir : 'left'
 	const maxHeight = p.maxHeight ? p.maxHeight : 50
 
-	console.log(22222222222);
-
 	return (
 		<div className={`dropdown-wrapper ${dir} ${p.hover ? 'hover-active' : ''}`}>
 			<span
