@@ -84,9 +84,7 @@ export const RessourcePreview = (p: {
 			if (r === "open") {
 				setTimeout(() => {
 					let el = document.querySelector(`.${id} .iframe-wrapper`)
-					console.log(2222222, id, el, r);
 					if (!el) return
-					console.log(3333333, id, el);
 					previewLogic(el)
 				}, 500)
 			}
@@ -100,7 +98,6 @@ export const RessourcePreview = (p: {
 		let el = iframeEl
 		if (!el) return
 		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
-		console.log(4444, el, nStatus);
 		setStatus(nStatus)
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {

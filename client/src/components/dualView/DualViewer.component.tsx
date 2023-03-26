@@ -3,7 +3,7 @@ import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
-import { deviceType, isMobile } from '../../managers/device.manager';
+import { deviceType, isMobile, MobileView } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
@@ -20,6 +20,8 @@ interface iDualViewProps {
 	canEdit: boolean
 
 	viewType?: iViewType
+	mobileView: MobileView
+
 	onViewChange?: onViewChangeFn
 
 	onFileEdited: onFileEditedFn
@@ -58,6 +60,10 @@ const DualViewerInt = (
 	// const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
 	// const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
 
+
+	//
+	// PREVIEW UPDATE : debounced for perfs
+	//
 	let debounceUpdatePreview = useDebounce((nt) => {
 		setPreviewContent(nt)
 	}, isMobile() ? 3000 : 1000)
@@ -68,13 +74,11 @@ const DualViewerInt = (
 		debounceUpdatePreview(nText)
 		// throttleUpdatePreview(nText)
 	}
-
 	useEffect(() => {
 		updatePreviewContent(p.fileContent)
-
-
-		// setPreviewContent(p.fileContent)
 	}, [p.fileContent, p.file.path])
+
+
 
 	// KEEP POSITION ON TAB TOGGLING
 	useEffect(() => {
@@ -159,6 +163,8 @@ const DualViewerInt = (
 	}
 
 	// const [scrollerPos, setScrollerPos] = useState(0)
+	let isEditor = (deviceType() === "desktop" && p.viewType === "editor") || (deviceType() !== "desktop" && p.mobileView === "editor")
+
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
@@ -167,6 +173,7 @@ const DualViewerInt = (
 
 		<EditorArea
 			viewType={p.viewType}
+			mobileView={p.mobileView}
 			windowId={p.windowId}
 			editorType='codemirror'
 
@@ -205,7 +212,7 @@ const DualViewerInt = (
 			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
 		/>
 
-		{p.viewType !== "editor" &&
+		{!isEditor &&
 			<PreviewArea
 				windowId={p.windowId}
 				file={p.file}

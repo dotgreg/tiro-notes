@@ -1,8 +1,9 @@
 //
 // SSR ICON SYSTEM (for better perfs)
 //
-import "@fortawesome/fontawesome-free/css/all.min.css"
+import "@fortawesome/fontawesome-free/css/all.css"
 import { ssrShowIframeCtag } from "./ssr/ctag.ssr"
+
 export const ssrIcon = (icon: string): string => {
 	let html = `<i class="ssr-icon fa-solid fa-${icon}"></i>`
 	return html
