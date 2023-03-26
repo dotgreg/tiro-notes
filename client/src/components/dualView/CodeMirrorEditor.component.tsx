@@ -6,7 +6,7 @@ import { EditorView } from "@codemirror/view";
 import CodeMirror from "@uiw/react-codemirror";
 import { cssVars } from "../../managers/style/vars.style.manager";
 import { syncScroll3 } from "../../hooks/syncScroll.hook";
-import { isA } from "../../managers/device.manager";
+import { deviceType, isA } from "../../managers/device.manager";
 import { iFile } from "../../../../shared/types.shared";
 import { onTitleClickFn } from "./EditorArea.component";
 import { useElResize } from "../../hooks/useResize.hook";
@@ -188,25 +188,33 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const { userSettingsApi } = useUserSettings()
 	const ua = userSettingsApi
-	if (ua.get("ui_editor_links_as_button")) {
+	// const disablePlugins = true
+	const disablePlugins = false
+	// disable markdown plugin on mobile as it makes it really unstable and slow
+	const disableMd = deviceType() !== "desktop"
+
+	// codemirrorExtensions.push(linksPreviewPlugin)
+	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
 		codemirrorExtensions.push(linksPreviewPlugin)
 		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
 		// codemirrorExtensions.push(ctagPreviewPlugin)
 	}
-	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable) {
+	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
 		codemirrorExtensions.push(markdownStylingTableLimiter)
 		codemirrorExtensions.push(markdownStylingTableCell)
 		codemirrorExtensions.push(markdownStylingTable())
 	}
-	if (ua.get("ui_editor_markdown_preview") && enhancedLatex) {
+	if (ua.get("ui_editor_markdown_preview") && enhancedLatex && !disablePlugins) {
 		markdownExtensionCnf.extensions.push(LatexMdEl)
 	}
-	if (ua.get("ui_editor_markdown_preview")) {
+	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
 		codemirrorExtensions.push(imagePreviewPlugin(p.file))
 		codemirrorExtensions.push(filePreviewPlugin(p.file))
 	}
-	codemirrorExtensions.push(markdown(markdownExtensionCnf))
+	if (!disablePlugins && !disableMd) {
+		codemirrorExtensions.push(markdown(markdownExtensionCnf))
+	}
 
 	let classes = ``
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"

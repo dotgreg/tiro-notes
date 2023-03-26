@@ -145,7 +145,6 @@ const DualViewerInt = (
 				// @ts-ignore
 				let etop = document.querySelector(ePath)?.offsetTop
 				if (isNumber(etop)) {
-					// console.log(333, etop);
 					syncScroll3.updatePreviewOffset(p.windowId, etop)
 					syncScroll3.scrollPreview(p.windowId)
 				}
@@ -187,7 +186,6 @@ const DualViewerInt = (
 			posY={0}
 
 			onTitleClick={newLine => {
-				// console.log("NEWLINE", newLine);
 				updateScrolledTitle(newLine)
 			}}
 			onScroll={percent => {

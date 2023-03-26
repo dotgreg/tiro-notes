@@ -124,9 +124,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 
-  
 
- 
+
+
 	serverSocket2.on('saveFileContent', async data => {
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		await upsertRecursivelyFolders(pathToFile)
@@ -207,7 +207,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
-		serverSocket2.emit('moveFolderAnswer', { idReq: data.idReq }) 
+		serverSocket2.emit('moveFolderAnswer', { idReq: data.idReq })
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('createHistoryFile', async data => {
@@ -232,10 +232,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			// only keep up to x days of history files
 			debounceCleanHistoryFolder()
 		}
-
-		
-
 	}, { checkRole: "editor", disableDataLog: true })
+
 
 	serverSocket2.on('onFileDelete', async data => {
 		log(`DELETING ${backConfig.dataFolder}${data.filepath}`);
