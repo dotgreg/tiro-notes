@@ -33,6 +33,8 @@ export type onTitleClickFn = (newYpercent: number) => void
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 interface iEditorProps {
 	viewType?: iViewType
+	mobileView: MobileView
+	onViewToggle: (view: iViewType) => void
 
 	editorType: iEditorType
 	windowId: string
@@ -51,7 +53,6 @@ interface iEditorProps {
 	jumpToLine?: number
 
 	onFileEdited: onFileEditedFn
-	onViewToggle: (view: iViewType) => void
 	onScrollModeChange: (v: boolean) => void
 }
 
@@ -287,7 +288,6 @@ const EditorAreaInt = (
 
 	//
 	// on scroll posY update
-	//
 	// const getCurrentLine = () => {
 	// 	let newLine
 	// 	if (p.editorType === "codemirror") {
@@ -307,33 +307,24 @@ const EditorAreaInt = (
 	//
 	// new CODEMIRROR code adaptation
 	//
+	const renderRef = useRef(0)
 	const [cmRender, setCmRender] = useState(0)
 	const forceCmRender = () => {
-		setCmRender(cmRender + 1)
-		// console.log(566, cmRender + 1);
+		renderRef.current = renderRef.current + 1
+		setCmRender(renderRef.current)
 	}
 
 	//
 	// SIMPLE NOTE FALLBACK IF TOOLONG
 	//
-	let simpleFallback = innerFileContent.length > 30000 && deviceType() !== "desktop"
-	// if (p.viewType === "preview") simpleFallback = true
-	// const [simpleFallback, setSimpleFallback] = useState(false)
-	// useEffect(() => {
-	// 	if (p.value.length > 30000 && deviceType() !== "desktop") {
-	// 		console.log(22222, p.value.length);
-	// 		setSimpleFallback(true)
-	// 	}
-	// 	else setSimpleFallback(false)
-	// }, [p.value, p.forceRender]);
-	// useEffect(() => {
-	// 	if (!simpleFallback) {
-	// 		const f = getEditorObj()
-	// 		if (!f) return
-	// 		CodeMirrorUtils.updateText(f, p.value, 0)
-	// 	}
-	// }, [simpleFallback]);
-
+	const [simpleFallback, setSimpleFallback] = useState(false)
+	useEffect(() => {
+		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
+		// if (p.viewType === "preview") nval = true
+		setSimpleFallback(nval)
+		forceCmRender()
+		// setTimeout(() => { forceCmRender() }, 200)
+	}, [innerFileContent, p.viewType])
 
 	//
 	// VIEW TOGGLE
@@ -343,6 +334,8 @@ const EditorAreaInt = (
 		p.onViewToggle(nView)
 	}
 
+
+	let isPreview = (deviceType() === "desktop" && p.viewType === "preview") || (deviceType() !== "desktop" && p.mobileView === "preview")
 
 	return (
 		<div
@@ -362,7 +355,6 @@ const EditorAreaInt = (
 						const oPath = `${p.file.folder}${o}.md`
 						const nPath = `${p.file.folder}${n}.md`
 						gridContext.file.onTitleUpdate(oPath, nPath)
-						// 
 						forceCmRender()
 					}}
 				/>
@@ -488,7 +480,7 @@ const EditorAreaInt = (
 			{/* {MAIN EDITOR AREA} */}
 			<div className="main-editor-wrapper">
 
-				{!simpleFallback && p.editorType === 'codemirror' &&
+				{!isPreview && !simpleFallback && p.editorType === 'codemirror' &&
 					<CodeMirrorEditor
 						windowId={p.windowId}
 						ref={codeMirrorEditorView}
@@ -507,7 +499,7 @@ const EditorAreaInt = (
 					/>
 				}
 
-				{simpleFallback &&
+				{!isPreview && simpleFallback &&
 					<div className="codemirror-mobile-fallback">
 						<p> note is too long for mobile, we disabled the advanced edition system </p>
 						<textarea
@@ -720,8 +712,6 @@ export const editorAreaCss = (v: MobileView) => `
 export const EditorArea = (p: iEditorProps) => {
 	const api = useContext(ClientApiContext);
 	const isConnected = api?.status.isConnected || false
-
-	// console.log(p.viewType);
 	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
 	}, [

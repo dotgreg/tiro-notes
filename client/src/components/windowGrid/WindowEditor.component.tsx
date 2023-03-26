@@ -3,12 +3,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
+import { MobileView } from '../../managers/device.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
 export const WindowEditorInt = (p: {
 	content: iWindowContent
 	onViewChange: onViewChangeFn
+
+	mobileView: MobileView
 }) => {
 
 	const { file, view, active, i } = { ...p.content }
@@ -158,6 +161,7 @@ export const WindowEditorInt = (p: {
 
 						viewType={intViewType}
 						onViewChange={p.onViewChange}
+								 mobileView={p.mobileView}
 
 						onFileEdited={(path, content) => {
 							onFileEditedSaveIt(path, content);

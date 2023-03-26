@@ -183,7 +183,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 	// if --disable-table inside content
-	let enhancedTable = !p.value.includes("--no-editor-table")
+	let enhancedTable = !p.value.includes("--no-editor-table") && !p.value.includes("--nt")
+	let enhancedLatex = !p.value.includes("--no-latex") && !p.value.includes("--nl")
 
 	const { userSettingsApi } = useUserSettings()
 	const ua = userSettingsApi
@@ -197,9 +198,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		codemirrorExtensions.push(markdownStylingTableCell)
 		codemirrorExtensions.push(markdownStylingTable())
 	}
+	if (ua.get("ui_editor_markdown_preview") && enhancedLatex) {
+		markdownExtensionCnf.extensions.push(LatexMdEl)
+	}
 	if (ua.get("ui_editor_markdown_preview")) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		markdownExtensionCnf.extensions.push(LatexMdEl)
 		codemirrorExtensions.push(imagePreviewPlugin(p.file))
 		codemirrorExtensions.push(filePreviewPlugin(p.file))
 	}

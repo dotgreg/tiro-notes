@@ -1,6 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as fa from '@fortawesome/free-solid-svg-icons'
+import { ssrIcon } from '../managers/ssr.manager';
 
 // fa.faCheckDouble 
 export type IconSizeProp =
@@ -34,6 +35,7 @@ class IconInt extends React.Component<{
 			}}>
 
 				{!this.isLocal &&
+					// <i className={`fa-solid fa-${this.props.name}`} ></i>
 					<FontAwesomeIcon
 						icon={fa[this.props.name]}
 						color={this.props.color || 'black'}

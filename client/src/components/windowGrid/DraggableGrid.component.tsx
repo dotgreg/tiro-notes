@@ -12,7 +12,7 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext } from '../../hooks/api/api.hook';
-import { deviceType } from '../../managers/device.manager';
+import { deviceType, MobileView } from '../../managers/device.manager';
 
 
 
@@ -32,6 +32,7 @@ export const DraggableGrid = (p: {
 	refresh: number
 	grid: iGrid
 	onGridUpdate: (grid: iGrid) => void
+	mobileView: MobileView
 }) => {
 
 	const [intContent, setIntContent] = useState<iWindowContent[]>([])
@@ -346,6 +347,7 @@ export const DraggableGrid = (p: {
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
 											onViewChange={(nView) => { viewTypeChange(nView, i) }}
+											mobileView={p.mobileView}
 										/>
 									</div>
 								</div>
@@ -362,6 +364,7 @@ export const DraggableGrid = (p: {
 									<WindowEditor
 										content={mobileWindow.content}
 										onViewChange={(nView) => { viewTypeChange(nView, 0) }}
+										mobileView={p.mobileView}
 									/>
 								}
 							</div>

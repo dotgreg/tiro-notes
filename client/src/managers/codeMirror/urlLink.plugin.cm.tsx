@@ -9,7 +9,6 @@ import { ssrFn, ssrIcon, ssrOnClick, ssrOpenIframe, ssrOpenIframeEl, ssrOpenIfra
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { mem } from "../reactRenderer.manager";
-import { ssrShowIframeCtag } from "../ssr/ctag.ssr";
 
 export const generateHtmlLinkPreview = mem((matchs) => generateHtmlLinkPreviewInt(matchs))
 
@@ -19,6 +18,7 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		let resEl = document.createElement("span");
 		resEl.innerHTML = generateHtmlLinkPreview(matchs)
 		return resEl
+		// return "woop"
 	}
 })
 
@@ -38,12 +38,12 @@ export const generateHtmlLinkPreviewInt = (
 	matchsOrUrl: string[] | string
 ): string => {
 	console.log("11111 gen link init");
-
 	let matchs: any[] = []
 	if (!isArray(matchsOrUrl)) {
 		matchs = [...matchsOrUrl.matchAll(regexs.externalLink3)][0]
 	}
 	else matchs = matchsOrUrl
+
 	let resEl = document.createElement("span");
 	let fullLink = matchs[0].slice(0, -1) // removing last /
 	let website = matchs[1].replace("www.", "")
@@ -198,20 +198,21 @@ export const linksPreviewMdCss = () => `
 		opacity: 0.5;
 		cursor: pointer;
 }
-.link-iframe-wrapper iframe {
+.link-iframe-wrapper {
+}
+.link-iframe-wrapper .resource-link-ctag {
 		border-radius: 7px;
 		overflow:hidden;
 		box-shadow: 0 0 4px rgba(0,0,0,0.3);
+}
+
+
+.link-iframe-wrapper .resource-link-ctag iframe {
 		width: 150%!important;
+		height: 590px!important;
 		transform-origin:top left;
-		transform: scale(0.65);
-		height: 500px!important;
-}
-.link-iframe-wrapper.big{
-		height: 600px!important;
-}
-.link-iframe-wrapper.big iframe{
-		height: 900px!important;
+			transform: scale(0.65);
+			margin-left: 15px;
 }
 
 .link-mdpreview-wrapper {

@@ -4,7 +4,6 @@ import { deviceType } from './managers/device.manager';
 import { initSocketConnexion } from './managers/sockets/socket.manager';
 import { CssApp2 } from './managers/style/css.manager';
 import { useMobileView } from './hooks/app/mobileView.hook';
-import { debounce, each, isNumber } from 'lodash';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
@@ -334,19 +333,15 @@ export const App = () => {
 						{
 							PromptPopupComponent()
 						}
-
 						{
 							LoginPopupComponent({})
 						}
-
 						{
 							SetupPopupComponent({})
 						}
-
 						{
 							connectionStatusComponent()
 						}
-
 						{
 							MobileToolbarComponent({
 								forceRerender: forceResponsiveRender,
@@ -569,6 +564,8 @@ export const App = () => {
 								<WindowGrid
 									tab={activeTab}
 									onGridUpdate={updateActiveTabGrid}
+
+							 mobileView={mobileView}
 								/>
 							}
 
