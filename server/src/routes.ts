@@ -135,7 +135,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		// sends back to all sockets the updated content
 		if (!pathToFile.includes("/.tiro/")) {
-			console.log("=========================== WATCH UPDATE", pathToFile);
+			// log("=========================== WATCH UPDATE", pathToFile);
 			// send to everybody but the sender
 			// serverSocket2.raw.broadcast.emit('onNoteWatchUpdate', {
 

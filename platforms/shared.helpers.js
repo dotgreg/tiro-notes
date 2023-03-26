@@ -128,7 +128,6 @@ const openFile = async (path) => {
 }
 
 const saveFile = async (path, content)  => {
-		console.log(`[SAVEFILE] starting save ${path}`);
 		return new Promise((resolve, reject) => {
 				fs.writeFile(path, content, (err) => {
 						if (err) { console.log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }

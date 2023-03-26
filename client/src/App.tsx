@@ -42,6 +42,7 @@ import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
+import { pe1, pe2 } from './managers/performance.manager';
 
 export const App = () => {
 	useEffect(() => {
@@ -120,7 +121,9 @@ export const App = () => {
 			refreshUserSettingsFromBackend();
 			refreshFilesHistoryFromBackend();
 
-			getApi(api => { api.ui.browser.folders.refreshFromBackend() })
+			getApi(api => {
+				api.ui.browser.folders.refreshFromBackend()
+			})
 
 			// seems blocking the initial loading of a few seconds, so starts it 10s after
 			askForFolderScan(['/'])
@@ -232,7 +235,6 @@ export const App = () => {
 	//
 	// CLIENT API 
 	//
-
 	// status api
 	const statusApi = useStatusApi({
 		isConnected,
@@ -308,8 +310,10 @@ export const App = () => {
 	}, [filesHistory])
 
 
+	let rcnt = forceResponsiveRender ? 0 : 1
+	let cnt = api.userSettings.refresh.css.get + rcnt
 	return (
-		<div className={CssApp2(mobileView, api.userSettings.refresh.css.get)} >
+		<div className={CssApp2(mobileView, cnt)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-${mobileView}` : ''}`}>
 
 				{ /* API : making clientapi available everywhere */}
@@ -564,7 +568,6 @@ export const App = () => {
 								<WindowGrid
 									tab={activeTab}
 									onGridUpdate={updateActiveTabGrid}
-
 									mobileView={mobileView}
 								/>
 							}

@@ -14657,7 +14657,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 119,
+									"line": 118,
 									"character": 1
 								}
 							],
@@ -14675,7 +14675,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 121,
+									"line": 120,
 									"character": 1
 								}
 							],
@@ -14693,7 +14693,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 120,
+									"line": 119,
 									"character": 1
 								}
 							],
@@ -14713,7 +14713,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 118,
+									"line": 117,
 									"character": 1
 								}
 							],
@@ -14731,7 +14731,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 117,
+									"line": 116,
 									"character": 1
 								}
 							],
@@ -14766,7 +14766,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/renderNote.manager.ts",
-							"line": 116,
+							"line": 115,
 							"character": 17
 						}
 					]
@@ -17247,7 +17247,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 19,
+									"line": 18,
 									"character": 1
 								}
 							],
@@ -17269,7 +17269,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/renderNote.manager.ts",
-													"line": 20,
+													"line": 19,
 													"character": 2
 												}
 											],
@@ -17313,7 +17313,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/renderNote.manager.ts",
-													"line": 21,
+													"line": 20,
 													"character": 2
 												}
 											],
@@ -17371,7 +17371,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 18,
+									"line": 17,
 									"character": 1
 								}
 							],
@@ -17391,7 +17391,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/renderNote.manager.ts",
-									"line": 13,
+									"line": 12,
 									"character": 1
 								}
 							],
@@ -17427,7 +17427,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/managers/renderNote.manager.ts",
-																	"line": 15,
+																	"line": 14,
 																	"character": 2
 																}
 															],
@@ -17446,7 +17446,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/managers/renderNote.manager.ts",
-																	"line": 14,
+																	"line": 13,
 																	"character": 2
 																}
 															],
@@ -17466,7 +17466,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/managers/renderNote.manager.ts",
-																	"line": 16,
+																	"line": 15,
 																	"character": 2
 																}
 															],
@@ -17519,7 +17519,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/renderNote.manager.ts",
-							"line": 12,
+							"line": 11,
 							"character": 17
 						}
 					]
