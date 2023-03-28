@@ -320,17 +320,26 @@ const EditorAreaInt = (
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
 		// if (p.viewType === "preview") nval = true
 		setSimpleFallback(nval)
+
+		
+	}, [innerFileContent, p.viewType, p.mobileView])
+
+
+	useEffect(() => {
+		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
+		// if (p.viewType === "preview") nval = true
+		setSimpleFallback(nval)
+
 		forceCmRender()
 		let nisPreview = (deviceType() === "desktop" && p.viewType === "preview") || (deviceType() !== "desktop" && p.mobileView === "preview")
 		setIsPreview(nisPreview)
 		let histPath = p.file.path
-
 		setTimeout(() => {
-			if (histPath !== p.file.path) return
+		if (histPath !== p.file.path) return
 			forceCmRender()
 		}, 100)
-	}, [innerFileContent, p.viewType, p.mobileView])
-
+	},[p.viewType, p.mobileView])
+	
 	//
 	// VIEW TOGGLE
 	//

@@ -156,7 +156,7 @@ class ListInt extends React.Component<{
 							height={responsiveListHeight}
 							itemCount={this.props.files.length}
 							itemSize={itemSize}
-							width={width}
+							width={width||0}
 							onScroll={this.onListScroll}
 						>
 							{({ index, style }) => {
@@ -166,7 +166,7 @@ class ListInt extends React.Component<{
 									<div style={style}>
 										<li
 											ref={this.liRefs[index]}
-											style={{ width: width - (sizes.l2.fileLi.padding * 2) - (sizes.l2.fileLi.margin * 2) - 35 }}
+											style={{ width: width||0 - (sizes.l2.fileLi.padding * 2) - (sizes.l2.fileLi.margin * 2) - 35 }}
 											className={[
 												'file-element-list',
 												`element-${index}`,
