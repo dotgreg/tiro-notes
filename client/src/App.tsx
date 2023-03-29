@@ -43,6 +43,9 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import { pe1, pe2 } from './managers/performance.manager';
+import './managers/localNoteHistory.manager';
+import { random } from 'lodash';
+import {  testCliAddFn } from './managers/testCli.manager';
 
 export const App = () => {
 	useEffect(() => {
@@ -63,6 +66,10 @@ export const App = () => {
 		})
 
 		startListeningToKeys();
+
+		
+		testCliAddFn("1","1",() => {})
+		
 
 		return () => {
 			// COMPONENT will unmount

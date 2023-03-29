@@ -4,6 +4,7 @@ import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { MobileView } from '../../managers/device.manager';
+import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
 
@@ -73,6 +74,10 @@ export const WindowEditorInt = (p: {
 	//
 	// STATUS UPDATE if disconnected/offline
 	//
+	const addToLocalNoteHistoryDebounced = useDebounce((p:iLocalNoteHistory) => {
+		addLocalNoteHistory(p, 20, true)
+	}, 3000)
+
 	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
 	const disconnectCounter = useRef<number>(0)
 	useEffect(() => {
@@ -123,7 +128,15 @@ export const WindowEditorInt = (p: {
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()
+		// OLD MECANISM
 		contentToUpdateOnceOnline.current = { content, path: file?.path }
+
+		// LOCAL HIST NOTE UPDATE
+		addToLocalNoteHistoryDebounced({
+			path: filepath,
+			content,
+			timestamp: Date.now()
+		})
 	}
 
 	const waitingContentUpdate = useRef<string | false>(false)

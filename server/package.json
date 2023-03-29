@@ -14,7 +14,7 @@
 				"install-shared": "npm --prefix ../shared install",
 				"install-all": "run-s install-server install-shared",
 				"clean-build": "rm -r ./build &",
-				"build": "webpack",
+				"build": "export NODE_OPTIONS=--openssl-legacy-provider; webpack",
 				"install-clean-build": "run-s install-all clean-build build"
 		},
 		"author": "",

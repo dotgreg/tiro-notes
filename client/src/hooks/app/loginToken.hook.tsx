@@ -1,4 +1,5 @@
 import { css } from '@emotion/react';
+import { cloneDeep } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
@@ -83,6 +84,8 @@ export const useLoginToken = (p: {
 		}
 	}, [])
 
+	const [cachedUserPasswordLs, setCachedUserPasswordLs] = useLocalStorage<any>("user-password-cache-ls", {})
+	
 	useEffect(() => {
 		if (displayLoginPopup) {
 			// check if user and password inside url
@@ -94,8 +97,24 @@ export const useLoginToken = (p: {
 				urlParams['l1'].value && urlParams['l2'].value
 			) {
 				getApi(api => {
-					const usr = api.encryption.decryptUrlParam(urlParams['l1'].value, encryptedPassword).plaintext 
-					const pass = api.encryption.decryptUrlParam(urlParams['l2'].value, encryptedPassword).plaintext
+					
+					// if already in LS, do not decrypt, just take value from ls
+					let id = urlParams['l1'].value + urlParams['l2'].value
+					let usr
+					let pass
+					if (cachedUserPasswordLs[id]) {
+						usr = cachedUserPasswordLs[id].usr
+						pass = cachedUserPasswordLs[id].pass
+					}else {
+						usr = api.encryption.decryptUrlParam(urlParams['l1'].value, encryptedPassword).plaintext 
+						pass = api.encryption.decryptUrlParam(urlParams['l2'].value, encryptedPassword).plaintext
+						if (usr  && pass ) {
+							let nCache = cloneDeep(cachedUserPasswordLs)
+							nCache[id] = {usr, pass}
+							setCachedUserPasswordLs(nCache)
+						}
+					}
+
 					if (usr  && pass ) {
 						setUser(usr)
 						setPassword(pass)

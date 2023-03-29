@@ -189,7 +189,6 @@ export const useClientApi = (p: {
 	const analyticsApi = useAnalyticsApi({})
 
 
-	console.log("clientapi");
 	// 
 	// FINAL EXPORT
 	// 

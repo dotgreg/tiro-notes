@@ -77,7 +77,7 @@ export const SettingsPopup = (p: {
 						var: tiroUrl,
 						customHtml: `
 																				<div class="qrcode-wrapper">
-																				<img src="${qrcodeUrl}"/>
+																				// <img src="${qrcodeUrl}"/>
 																				<br>
 																				</div>`,
 						title: "Tiro Url",

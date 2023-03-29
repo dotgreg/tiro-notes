@@ -36,6 +36,7 @@ import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
 import { NotePreviewCss } from '../../components/NotePreview.component';
 import { titleEditorCss } from '../../components/dualView/TitleEditor.component';
 import { iconSSRCss } from '../ssr.manager';
+import { mem } from '../reactRenderer.manager';
 
 
 export const css2 = (css: string) => css
@@ -43,7 +44,7 @@ export const css2 = (css: string) => css
 let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
-// export const CssApp2 = mem((a1, a2) => CssApp2Int(a1, a2))
+//export const CssApp2 = mem((a1, a2) => CssApp2Int(a1, a2))
 
 export const CssApp2 = (
 	mobileView: MobileView,
