@@ -1,32 +1,67 @@
 import styled from '@emotion/styled';
-import { orderBy, sortBy } from 'lodash';
+import { each, orderBy, sortBy } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile } from '../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../hooks/api/api.hook';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { generateEmptyiFile } from '../hooks/app/useLightbox.hook';
 import { formatDateList } from '../managers/date.manager';
 import { detachNote } from '../managers/detachNote.manager';
+import { getLocalNoteHistory } from '../managers/localNoteHistory.manager';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { Icon } from './Icon.component';
 import { Popup } from './Popup.component';
 
+
+interface iHistoryFile extends iFile {
+    isLocal?:boolean,
+	localContent?: string
+}
+
 export const FileHistoryPopup = (p: {
 	file: iFile
 	onClose: Function
 }) => {
 
-	const [files, setFiles] = useState<iFile[]>([])
+	const [files, setFiles] = useState<iHistoryFile[]>([])
+	const [isLoading, setIsLoading] = useState(false)
 
 
 	const refreshHistoryFiles = () => {
+		// 1 get files from local
+		let localFiles = getLSHistoryList()
+		setFiles([...localFiles])
+
+		// 2 get files from scan
+		setIsLoading(true)
 		clientSocket2.emit('askFileHistory', { filepath: p.file.path, token: getLoginToken() })
 		const listenerId = clientSocket2.on('getFileHistory', data => {
 			const filesSorted = orderBy(data.files, ['created'], ['desc']);
-			setFiles(filesSorted)
+			setFiles([...localFiles,...filesSorted])
+			setIsLoading(false)
 			clientSocket2.off(listenerId)
 		})
+	}
+
+	const getLSHistoryList = ():iHistoryFile[] => {
+		let res:iHistoryFile[] = []		
+		let list = getLocalNoteHistory(p.file.path)
+		each(list, (l,i) => {
+			let j = i + 1
+			let nIt = generateEmptyiFile() as iHistoryFile
+			nIt.created = l.timestamp
+			nIt.path = l.path + j
+			let name = `Temporary local save ${j} from ${formatDateList(new Date(nIt.created || 0))}`
+			nIt.name = name
+			nIt.realname = name
+			nIt.localContent = l.content
+			nIt.isLocal = true
+			res.push(nIt)
+		})
+		console.log("getLSHistoryList", list, p.file.path)
+		return res
 	}
 
 	useEffect(() => {
@@ -36,20 +71,24 @@ export const FileHistoryPopup = (p: {
 	const api = useContext(ClientApiContext);
 	const [fileHistoryContent, setFileHistoryContent] = useState("")
 	const [activeFile, setActiveFile] = useState<iFile | null>(null)
-	const openHistoryFile = (file: iFile) => {
+	const openHistoryFile = (file: iHistoryFile) => {
 		// 1. Open in new tab
 		// api && api.tabs.openInNewTab(file)
 
-		// 2. Open in popup
-		api && api.file.getContent(file.path, content => {
-			setFileHistoryContent(content)
-
+		if (file.isLocal && file.localContent){
+			setFileHistoryContent(file.localContent)
 			setActiveFile(file)
-		})
+		} else {
+			// 2. Open in popup
+			api && api.file.getContent(file.path, content => {
+				setFileHistoryContent(content)
+				setActiveFile(file)
+			})
+		}
 	}
 
 
-	const trashFile = (file: iFile) => {
+	const trashFile = (file: iHistoryFile) => {
 		const titlePopup = "Trashing File"
 		getApi(api => {
 			api.file.delete(file, (a) => {
@@ -68,6 +107,7 @@ export const FileHistoryPopup = (p: {
 					onClose={() => { p.onClose() }}
 				>
 					<div className="count">{files.length} backups found :</div>
+					{isLoading && <div className="count">  (Loading backend history files...)</div>}
 					<div className="table-wrapper">
 						<table>
 							<thead>
@@ -85,7 +125,7 @@ export const FileHistoryPopup = (p: {
 										>
 											<td> {file.realname} </td>
 											<td> {formatDateList(new Date(file.created || 0))} </td>
-											<td> <div className="trash" onClick={() => { trashFile(file) }}>	<Icon name="faTrash" color='grey' /> </div></td>
+											 <td> {!file.isLocal && <div className="trash" onClick={() => { trashFile(file) }}>	<Icon name="faTrash" color='grey' /> </div>}</td>
 										</tr>
 									)
 								}
