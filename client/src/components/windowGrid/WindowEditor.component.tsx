@@ -50,6 +50,8 @@ export const WindowEditorInt = (p: {
 
 			// WATCH LOGIC
 			api.watch.file(file.path, watchUpdate => {
+				// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
+				if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
 				// THEN WATCH FOR UPDATE BY OTHER CLIENTS
 				if (filePathRef.current !== watchUpdate.filePath) return
 				// if (deviceType() !== "desktop") return
@@ -78,6 +80,10 @@ export const WindowEditorInt = (p: {
 		addLocalNoteHistory(p, 20, true)
 	}, 3000)
 
+
+	const disableWatchUpdate = useRef<boolean>(false) 
+	const disableFor10sWatchFile = useDebounce(() => {disableWatchUpdate.current = false; console.log("reenable watch file")}, 10000)
+
 	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
 	const disconnectCounter = useRef<number>(0)
 	useEffect(() => {
@@ -86,12 +92,17 @@ export const WindowEditorInt = (p: {
 			api.watch.appStatus(status => {
 				if (status.isConnected === false) {
 					disconnectCounter.current = disconnectCounter.current + 1
+					console.log("disabling watch update as disconnected");
+					disableWatchUpdate.current = true
 				} else if (status.isConnected === true) {
 					let isReconnected = disconnectCounter.current >= 1 && status.isConnected
 					if (isReconnected) {
+						disableFor10sWatchFile()
+
 						getApi(api => {
 							let filepath: any = file?.path
-							//console.log("2 RECONNECTION", filepath, ct);
+							ct = contentToUpdateOnceOnline.current
+							console.log("2 RECONNECTION", filepath, ct, contentToUpdateOnceOnline);
 							if (!filepath || !ct) return
 							if (!ct.path) return
 							if (filepath !== ct.path) return
@@ -100,15 +111,15 @@ export const WindowEditorInt = (p: {
 							console.log("3 UPDATE OFFLINE CONTENT", { filepath, content });
 							// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
 							api.file.saveContent(filepath, content, { history: true })
-							setTimeout(() => {
-								api.file.saveContent(filepath, content, { history: true })
-								setTimeout(() => {
-									api.file.saveContent(filepath, content, { history: true })
-									setTimeout(() => {
-										api.file.saveContent(filepath, content, { history: true })
-									}, 100)
-								}, 10)
-							}, 10)
+							// setTimeout(() => {
+							// 	api.file.saveContent(filepath, content, { history: true })
+							// 	setTimeout(() => {
+							// 		api.file.saveContent(filepath, content, { history: true })
+							// 		setTimeout(() => {
+							// 			api.file.saveContent(filepath, content, { history: true })
+							// 		}, 100)
+							// 	}, 10)
+							// }, 10)
 
 						})
 					}
