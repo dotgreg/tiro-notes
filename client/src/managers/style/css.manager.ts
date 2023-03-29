@@ -50,7 +50,7 @@ export const CssApp2 = (
 	mobileView: MobileView,
 	refreshCss: number
 ) => {
-	console.log("UPDATE CSS", refreshCss);
+	//console.log("UPDATE CSS", refreshCss);
 	const cssString = `//css
 		.content-image {
 				width: 90%;

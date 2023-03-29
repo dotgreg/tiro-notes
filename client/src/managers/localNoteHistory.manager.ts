@@ -17,7 +17,7 @@ const lsLimitInMb = 3 // dedicating only X MB to it (usually limit is 5MB / site
 export const getLocalNoteHistory = (notePath?:string):iLocalNoteHistory[] => {
     let res:iLocalNoteHistory[] = []
 
-    let allNotesHist = cloneDeep(getLs<iLocalNoteHistory[]>(lsId))
+    let allNotesHist = cloneDeep(getLs<iLocalNoteHistory[]>(lsId)) 
     if (allNotesHist) {
         // return all notes if no notePath selected
         if (!notePath) res = allNotesHist
