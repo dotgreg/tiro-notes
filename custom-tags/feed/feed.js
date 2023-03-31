@@ -1114,7 +1114,7 @@ const feedApp = (innerTagStr, opts) => {
 		color: blue;
 		cursor: pointer;
 }
-.article-list-item:nth-child(even) {background: red}
+.article-list-item:nth-child(even) {background: #CCC}
 .article-list-item:nth-child(odd) {background: #EEE}
 
 /* gallery view  */
