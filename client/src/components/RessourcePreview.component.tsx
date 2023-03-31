@@ -24,7 +24,7 @@ export const RessourcePreview = (p: {
 	markdownTag: string
 	file: iFile
 }) => {
-	console.log(34555555555, p.markdownTag, p.file);
+	// console.log(34555555555, p.markdownTag, p.file);
 
 	const link = p.markdownTag.split('](')[1].slice(0, -1);
 	const name = p.markdownTag.split('](')[0].replace('![', '');
@@ -55,7 +55,7 @@ export const RessourcePreview = (p: {
 	//
 	// CACHING
 	//
-	let cacheId = `ressource-preview-status`
+	let cacheId = `ressource-preview-status-${p.file.path}`
 	let idRess = `${p.file.path}-${link}`
 	type cachedStatus = "open" | "closed"
 	const setStatus = (status: cachedStatus) => {
@@ -63,6 +63,7 @@ export const RessourcePreview = (p: {
 			api.cache.get(cacheId, res => {
 				if (!res) res = {}
 				res[idRess] = status
+				console.log(2, cacheId, res);
 				api.cache.set(cacheId, res, -1)
 			})
 		})
@@ -72,6 +73,7 @@ export const RessourcePreview = (p: {
 			api.cache.get(cacheId, res => {
 				if (!res) return
 				let r = res[idRess] ? res[idRess] : "closed"
+				console.log(1, {cacheId, r, res, residres: res[idRess]});
 				cb(r)
 			})
 		})
@@ -107,6 +109,7 @@ export const RessourcePreview = (p: {
 		let persist = opts?.persist || false
 		if (!el) return
 		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
+		console.log(33333, nStatus, persist);
 		persist && setStatus(nStatus)
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {
@@ -138,6 +141,7 @@ export const RessourcePreview = (p: {
 	}
 	const previewFullscreenFn = (el) => {
 		if (!el) return
+		console.log(el.dataset);
 		el = getIframeEl(el)
 		previewLogic(el, { fullscreen: true, shouldShow: true })
 	}
@@ -155,7 +159,7 @@ export const RessourcePreview = (p: {
 		onclick="${ssrFn("download-link-ress", downloadFn)}"
 		title="Preview link" data-link="${previewLink}">${i('download')}</li>`
 
-	let buttonsHtml = `<ul>${preview} {openWindow} ${download}</ul>`
+	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
 	let mainLinkHtml = `<div class="ressource-link-label" data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${filetype})</div>`
 
