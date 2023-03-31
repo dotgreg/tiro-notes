@@ -30,7 +30,6 @@ const feedApp = (innerTagStr, opts) => {
 						}
 				}
 		}
-
 		
 
 		const debounce = (func, timeout = 300) => {
@@ -620,6 +619,7 @@ const feedApp = (innerTagStr, opts) => {
 
 						const [categories, setCategories] = React.useState([])
 						const [activeCat, setActiveCat] = React.useState(null)
+						// INITIAL LOADING
 						React.useEffect(() => {
 								getBookmarks(() => {
 										getCachedJsons(nitems => {
@@ -630,20 +630,16 @@ const feedApp = (innerTagStr, opts) => {
 												const nitemsNotHidden = []
 												for (let i = 0; i < nitems.length; i++) {
 														const it = nitems[i];
-
 														if (!nfeeds.includes(it.sourceFeed)) nfeeds.push(it.sourceFeed)
 														// gather all cats together
 														each(it.categories, ct => {
 																if (ncats.indexOf(ct.trim()) === -1) ncats.push(ct.trim())
 														})
-
 																// if it.hidden, do not output it
 																if (it.hidden !== true) {
 																		nitemsNotHidden.push(it)
 																}
-
 												}
-
 												setItems(nitemsNotHidden)
 												// sorting everything
 												ncats.sort()
@@ -666,27 +662,28 @@ const feedApp = (innerTagStr, opts) => {
 												if (b.sourceRss) b.sourceFeed = b.sourceRss
 										}
 										setFilteredItems(bookmarks.current)
-								} else {
+								} else if (activeFeed !== null) {
 										for (let i = 0; i < items.length; i++) {
 												const it = items[i];
 												if (activeFeed === null) nitems.push(it)
 												else if (it.sourceFeed === activeFeed) nitems.push(it)
 										}
+										console.log(111,  activeFeed, nitems);
 										setFilteredItems(nitems)
+								} else if (activeCat !== null) {
+										each(items, it => {
+												if (activeCat === null) nitems.push(it)
+												else if (it.categories.indexOf(activeCat) !== -1) nitems.push(it)
+										})
+												setFilteredItems(nitems)
+								} else {
+										setFilteredItems(items)
 								}
-						}, [activeFeed, refresh, items])
-
-						React.useEffect(() => {
-								const nitems = []
-								each(items, it => {
-										if (activeCat === null) nitems.push(it)
-										else if (it.categories.indexOf(activeCat) !== -1) nitems.push(it)
-								})
-										setFilteredItems(nitems)
-						}, [activeCat, refresh, items])
+						}, [activeCat, activeFeed, refresh, items])
 
 
 						let finalItems = search !== "" ? searchItems : filteredItems
+						console.log(222, finalItems, searchItems, filteredItems);
 
 
 						// view toggle
