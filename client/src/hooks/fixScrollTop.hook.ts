@@ -11,9 +11,9 @@ export const useFixScrollTop = () => {
     //     window.removeEventListener('scroll', handleWindowScrollToTop)
     //     window.addEventListener('scroll', handleWindowScrollToTop)
     // }, [])
-    useInterval(() => {
+    // useInterval(() => {
         // console.log('I GET TRIGGERED ALL DS TIME')
         // window.scroll(0,0)
 
-    }, 1000)
+    // }, 1000)
 }

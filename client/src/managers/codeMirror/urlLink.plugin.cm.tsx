@@ -5,7 +5,7 @@ import { isArray, random } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { getApi } from "../../hooks/api/api.hook";
 import { isMobile } from "../device.manager";
-import { ssrFn, ssrIcon, ssrOnClick, ssrOpenIframe, ssrOpenIframeEl, ssrOpenIframeEl2, ssrOpenPreview } from "../ssr.manager";
+import { ssrFn, ssrIcon,  ssrOpenIframeEl2  } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { mem } from "../reactRenderer.manager";
@@ -71,6 +71,7 @@ export const generateHtmlLinkPreviewInt = (
 		let link = el.dataset.link
 		getApi(api => {
 			api.ressource.fetchUrlArticle(link, r => {
+				console.log(r)
 				ssrOpenIframeEl2(getIframeEl(el), encodeURIComponent(r.html))
 				cb(r)
 			})

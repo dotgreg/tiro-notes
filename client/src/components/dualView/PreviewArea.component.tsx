@@ -441,8 +441,8 @@ export const previewAreaCss = () => `
 .preview-area {
     position: relative;
     display: block;
-		overflow: scroll; 
-		width: calc(100% );
+	overflow: auto; 
+	width: calc(100% );
     padding-right: 30px;
 
     ${commonCssEditors}

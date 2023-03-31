@@ -69,9 +69,10 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 //
 
 // NEW 2 EL+CTAG IFRAME
-export const ssrOpenIframeEl2 = (el: any, url: string) => ssrOpenPreviewEl2(el, url, { isUrl: true })
-const ssrOpenPreviewEl2 = (elWrapper: any, content: string, opt?: { isUrl?: boolean }) => {
-	ssrShowIframeCtag(elWrapper, content)
+export const ssrOpenIframeEl2 = (el: any, url: string, opts?:{fullscreen?:boolean}) => ssrOpenPreviewEl2(el, url, { isUrl: true, fullscreen: opts?.fullscreen || false })
+
+const ssrOpenPreviewEl2 = (elWrapper: any, content: string, opt?: { isUrl?: boolean, fullscreen?:boolean }) => {
+	ssrShowIframeCtag(elWrapper, content, opt?.fullscreen)
 }
 
 // NEW EL BASED

@@ -94,18 +94,18 @@ export const RessourcePreview = (p: {
 
 	let i = ssrIcon
 
-	const previewLogic = (iframeEl: any) => {
+	const previewLogic = (iframeEl: any, fullscreen: boolean=false) => {
 		let el = iframeEl
 		if (!el) return
 		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
 		setStatus(nStatus)
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {
-			ssrShowEpubCtag(el, previewLink, p.file)
+			ssrShowEpubCtag(el, previewLink, p.file, fullscreen)
 		} else if (filetype.toLocaleLowerCase() === "pdf") {
-			ssrShowPdfCtag(el, previewLink, p.file)
+			ssrShowPdfCtag(el, previewLink, p.file, fullscreen)
 		} else {
-			ssrOpenIframeEl2(el, previewLink)
+			ssrOpenIframeEl2(el, previewLink, fullscreen)
 		}
 	}
 
@@ -142,18 +142,21 @@ export const RessourcePreview = (p: {
 
 	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
+	let mainLinkHtml = `<div data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFn)}">${name} (${filetype})</div>`
 
+	// <a className="resource-link preview-link"
+	// 					href={ressLink}
+	// 					download
+	// 				></a>
 	return (
 		<div className={`${id} resource-link-iframe-wrapper`}>
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
 				<div className={`resource-link-icon ${filetype}`}></div>
 				<div className={`resource-link-content-wrapper`}>
-					<a className="resource-link preview-link"
-						href={ressLink}
-						download
-					>
-						{name} ({filetype})
-					</a>
+					
+						
+					
+					<div dangerouslySetInnerHTML={{ __html: mainLinkHtml }}></div>
 
 					<div
 						dangerouslySetInnerHTML={{ __html: buttonsHtml }}

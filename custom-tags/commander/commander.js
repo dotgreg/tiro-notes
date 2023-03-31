@@ -217,7 +217,7 @@ const commanderApp = (innerTagStr, opts) => {
 						background: #393939!important;
 						font-size: 10px;
 						padding: 0px 11px 13px 11px!important;
-						overflow: scroll;
+						overflow: auto;
 						white-space: pre-wrap;
 						line-height: 11px;
 				}
