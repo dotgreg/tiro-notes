@@ -94,9 +94,11 @@ export const RessourcePreview = (p: {
 
 	let i = ssrIcon
 
-	const previewLogic = (iframeEl: any, fullscreen: boolean=false) => {
+	const previewLogic = (iframeEl: any, opts?:{fullscreen?: boolean}) => {
 		let el = iframeEl
 		if (!el) return
+		let fullscreen = opts?.fullscreen ? opts.fullscreen : false
+		console.log(222222, fullscreen)
 		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
 		setStatus(nStatus)
 		if (isLocal && canBePreviewedOnline) return
@@ -105,7 +107,7 @@ export const RessourcePreview = (p: {
 		} else if (filetype.toLocaleLowerCase() === "pdf") {
 			ssrShowPdfCtag(el, previewLink, p.file, fullscreen)
 		} else {
-			ssrOpenIframeEl2(el, previewLink, fullscreen)
+			ssrOpenIframeEl2(el, previewLink)
 		}
 	}
 
@@ -127,6 +129,12 @@ export const RessourcePreview = (p: {
 		el = getIframeEl(el)
 		previewLogic(el)
 	}
+	const previewFullscreenFn = (el) => {
+		if (!el) return
+		el = getIframeEl(el)
+		previewLogic(el, {fullscreen: true})
+	}
+
 	let preview = `<li
 		onclick="${ssrFn("preview-link-ress", previewFn)}"
 		title="Preview link" data-link="${previewLink}">${i('eye')}</li>`
@@ -142,7 +150,7 @@ export const RessourcePreview = (p: {
 
 	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
-	let mainLinkHtml = `<div data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFn)}">${name} (${filetype})</div>`
+	let mainLinkHtml = `<div data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${filetype})</div>`
 
 	// <a className="resource-link preview-link"
 	// 					href={ressLink}

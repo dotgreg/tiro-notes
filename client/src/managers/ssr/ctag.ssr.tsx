@@ -18,6 +18,7 @@ export const ssrShowIframeCtag = (
 	url: string,
 	fullscreen: boolean=false
 ) => {
+	console.log(333222111, fullscreen)
 	ssrToggleCtag(elWrapper, ssrGenCtag("iframe", url, null, false, fullscreen))
 }
 
@@ -51,6 +52,7 @@ export const ssrShowPdfCtag = (
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/pdf.md", content => {
+			console.log(33322222, fullscreen)
 			ssrToggleCtag(elWrapper, ssrGenCtag("pdf", previewLink, file, false, fullscreen))
 		}, {
 			onError: err => { ssrOpenIframeEl2(elWrapper, previewLink) }
@@ -96,6 +98,7 @@ export const ssrGenCtag = (
 	fullscreen?: boolean
 ): React.ReactElement => {
 	if (!file) file = generateEmptyiFile()
+	console.log(3333333, fullscreen)
 	return <ContentBlock
 		file={file}
 		block={{ type: 'tag', tagName, content, start: 0, end: 0 }}
