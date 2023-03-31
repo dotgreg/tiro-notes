@@ -4,6 +4,7 @@ import { iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { askFolderCreate, askFolderDelete, iFolderCreateFn, iFolderDeleteFn } from './browser.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 
 //
@@ -22,6 +23,8 @@ export interface iFoldersApi {
 		cb: (data: { folders: iFolder[], pathBase: string, folderPaths: string[] }) => void
 	) => void
 	move: iMoveApi['folder']
+	create: iFolderCreateFn,
+	delete: iFolderDeleteFn,
 }
 
 export const useFoldersApi = (p: {
@@ -73,5 +76,7 @@ export const useFoldersApi = (p: {
 	return {
 		get: getFolders,
 		move: moveApi.folder,
+		create: askFolderCreate,
+		delete: askFolderDelete
 	}
 }

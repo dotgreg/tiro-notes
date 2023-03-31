@@ -2,9 +2,10 @@ import { cloneDeep, each, isArray, isBoolean, random, uniq } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
-import { iFile, iFolder } from '../../../../shared/types.shared';
+import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
+import { testCliAddFn } from '../../managers/testCli.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { useBackendState } from '../useBackendState.hook';
@@ -378,13 +379,34 @@ const upsertFlatStructure = (newFolder: iFolder, flatStructure: iFolder[]): iFol
 
 export const defaultTrashFolder: iFolder = { title: '.trash', key: '/.tiro/.trash', path: '/.tiro/.trash' }
 
-export const askFolderCreate = (newFolderName: string, parent: iFolder) => {
+
+
+
+
+
+
+
+
+export type iFolderCreateFn = (newFolderName: string, parent: iFolder) => void
+
+export const askFolderCreate: iFolderCreateFn = (newFolderName, parent) => {
 	console.log(`[askFolderCreate]`, newFolderName, parent);
 	clientSocket2.emit('askFolderCreate', { newFolderName, parent, token: getLoginToken() })
 }
 
-export const askFolderDelete = (folderToDelete: iFolder) => {
-	console.log(`[askFolderDelete]`, folderToDelete);
-	clientSocket2.emit('askFolderDelete', { folderToDelete, token: getLoginToken() })
+export type iFolderDeleteFn = (typeFolder: iFolderDeleteType, cacheFolderName?: string) => void
+
+export const askFolderDelete: iFolderDeleteFn = (typeFolder, cacheFolderName) => {
+	console.log(`[askFolderDelete]`, typeFolder, cacheFolderName);
+	clientSocket2.emit('askFolderDelete', {
+		typeFolder,
+		cacheFolderName,
+		token: getLoginToken()
+	})
 }
 
+testCliAddFn("cache", "clean_ctag_cache", () => {
+	getApi(api => {
+		api.folders.delete("cache", "ctag-ressources")
+	})	
+})

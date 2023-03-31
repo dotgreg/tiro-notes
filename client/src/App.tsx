@@ -450,7 +450,7 @@ export const App = () => {
 														}
 													})
 												} else if (action === 'delete') {
-													askFolderDelete(folder)
+													askFolderDelete("trash")
 													setTimeout(() => {
 														askForFolderScan([folder.path], { cache: false })
 													})

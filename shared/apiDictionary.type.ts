@@ -1,4 +1,4 @@
-import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -50,7 +50,8 @@ export interface iApiDictionary {
 	getFoldersScan: { folders: iFolder[], pathBase: string, idReq: string }
 
 	askFolderCreate: { newFolderName: string, parent: iFolder }
-	askFolderDelete: { folderToDelete: iFolder }
+
+	askFolderDelete: { cacheFolderName?: string, typeFolder: iFolderDeleteType }
 
 	sendSetupInfos: { form: iSetupForm }
 	getSetupInfos: { code: iSetupCode, defaultFolder?: string, message?: string }

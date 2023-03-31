@@ -5,6 +5,8 @@ export type iFileNature = 'file' | 'folder'
 
 export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
 
+export type iFolderDeleteType =  "trash" | "cache" 
+
 export interface iWindowContent {
 	i: string
 	file?: iFile
