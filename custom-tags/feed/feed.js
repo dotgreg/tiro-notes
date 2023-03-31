@@ -710,6 +710,8 @@ const feedApp = (innerTagStr, opts) => {
 								//setInfScrollNbEls(nVal)
 						}, 500)
 
+						console.log(112, "test");
+
 						const infiniteScrollLogic = () => {
 								let wrapper = document.getElementById("infinite-scroll-wrapper")
 								let inner = document.getElementById("infinite-scroll-inner")
