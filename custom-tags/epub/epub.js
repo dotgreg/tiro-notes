@@ -35,7 +35,7 @@ const epubApp = (innerTagStr, opts) => {
 				api.call("cache.set", [cacheId + id, content, 10000000000000])
 		}
 
-		let ctagHeight = 400
+		let ctagHeight = "100%"
 
 		//
 		// STARTING EPUB LOGIC
@@ -48,8 +48,7 @@ const epubApp = (innerTagStr, opts) => {
 										`https://cdn.jsdelivr.net/npm/epubjs@0.3.77/dist/epub.min.js`,
 								],
 								() => {
-										api.utils.resizeIframe(ctagHeight + "px");
-										// api.utils.resizeIframe(800);
+										api.utils.resizeIframe(ctagHeight);
 										initEpubReader()
 								}
 						);
@@ -214,17 +213,24 @@ const epubApp = (innerTagStr, opts) => {
 				}
 
 
-				// setInterval(() => {
-				// 		let nHeight = document.body.clientHeight - 50
-				// 		console.log(h,"333", nHeight);
-				// }, 1000)
+				const resizeFullHeight = () => {
+						let nHeight = document.body.clientHeight - 100
+						console.log(h,"TRIGGER RESIZE", nHeight);
+						if (nHeight)rendition.resize("100%", nHeight)
+				}
 				const triggerResize = () => {
 						setTimeout(() => {
-								let nHeight = document.body.clientHeight - 100
-								console.log(h,"TRIGGER RESIZE", nHeight);
-								if (nHeight)rendition.resize("100%", nHeight)
+								resizeFullHeight()
 						}, 1000)
 				}
+				let histHeight = 0
+				setInterval(() => {
+						let docHeight = document.body.clientHeight
+						if (histHeight === docHeight) return
+						histHeight = docHeight
+						resizeFullHeight()
+				}, 1000)
+
 				window.addEventListener('resize', (event) => {
 						triggerResize()
 				});
@@ -545,6 +551,8 @@ const epubApp = (innerTagStr, opts) => {
 				window.updateStatus = (text) => {
 						status.innerHTML = text
 				}
+
+				api.utils.resizeIframe(ctagHeight);
 
 		}
 

@@ -2,7 +2,7 @@
 // SSR ICON SYSTEM (for better perfs)
 //
 import "@fortawesome/fontawesome-free/css/all.css"
-import { ssrShowIframeCtag } from "./ssr/ctag.ssr"
+import { ssrToggleIframeCtag } from "./ssr/ctag.ssr"
 
 export const ssrIcon = (icon: string): string => {
 	let html = `<i class="ssr-icon fa-solid fa-${icon}"></i>`
@@ -69,10 +69,10 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 //
 
 // NEW 2 EL+CTAG IFRAME
-export const ssrOpenIframeEl2 = (el: any, url: string, opts?:{fullscreen?:boolean}) => ssrOpenPreviewEl2(el, url, { isUrl: true, fullscreen: opts?.fullscreen})
+export const ssrOpenIframeEl2 = (el: any, url: string, opts?: { fullscreen?: boolean }) => ssrOpenPreviewEl2(el, url, { isUrl: true, fullscreen: opts?.fullscreen })
 
-const ssrOpenPreviewEl2 = (elWrapper: any, content: string, opt?: { isUrl?: boolean, fullscreen?:boolean }) => {
-	ssrShowIframeCtag(elWrapper, content, opt?.fullscreen)
+const ssrOpenPreviewEl2 = (elWrapper: any, content: string, opt?: { isUrl?: boolean, fullscreen?: boolean }) => {
+	ssrToggleIframeCtag(elWrapper, content, opt?.fullscreen || false)
 }
 
 // NEW EL BASED

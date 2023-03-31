@@ -71,8 +71,9 @@ const DualViewerInt = (
 		setPreviewContent(nt)
 	}, 1000)
 	const updatePreviewContent = (nText) => {
-		debounceUpdatePreview(nText)
+		// debounceUpdatePreview(nText)
 		// throttleUpdatePreview(nText)
+		setPreviewContent(nText)
 	}
 	useEffect(() => {
 		updatePreviewContent(p.fileContent)

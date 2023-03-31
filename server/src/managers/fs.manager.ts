@@ -237,7 +237,6 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 		client.get(url, options, (response) => {
 			let res = response
 			const contentType = res.headers['content-type'];
-			console.log(2222222, contentType);
 			// response.setEncoding('utf8');
 			// response.set({ 'content-type': 'text/html; charset=utf-8' });
 
