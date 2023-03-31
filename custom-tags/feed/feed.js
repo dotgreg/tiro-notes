@@ -84,7 +84,6 @@ const feedApp = (innerTagStr, opts) => {
 				const getFeeds = (str) => {
 						const feedsArr = str.split('\n')
 						const feedsRes = []
-						// console.log(feedsArr);
 						for (let i = 0; i < feedsArr.length; i++) {
 								const feedParamsRaw = feedsArr[i].trim().split("|")
 								//
@@ -301,7 +300,6 @@ const feedApp = (innerTagStr, opts) => {
 				
 				
 				const debounceCache =  debounce((resItems) => {
-						console.log("444 debounce cache start!")
 						setCache(resItems)
 				}, 2000)
 
@@ -668,7 +666,6 @@ const feedApp = (innerTagStr, opts) => {
 												if (activeFeed === null) nitems.push(it)
 												else if (it.sourceFeed === activeFeed) nitems.push(it)
 										}
-										console.log(111,  activeFeed, nitems);
 										setFilteredItems(nitems)
 								} else if (activeCat !== null) {
 										each(items, it => {
@@ -683,7 +680,6 @@ const feedApp = (innerTagStr, opts) => {
 
 
 						let finalItems = search !== "" ? searchItems : filteredItems
-						console.log(222, finalItems, searchItems, filteredItems);
 
 
 						// view toggle
