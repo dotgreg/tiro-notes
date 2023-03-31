@@ -6,7 +6,6 @@ const getInternalCtags = () => {
 
 export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) => void) => {
     let intCtags = getInternalCtags()
-    console.log(122233, ctagName, intCtags)
     if (intCtags[ctagName]){
         cb(intCtags[ctagName])
     } else {

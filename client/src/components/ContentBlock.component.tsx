@@ -182,7 +182,7 @@ export const ContentBlockTagView = (p: {
 					nheight = (p.windowHeight || 200) * percent
 				}
 				log && console.log(h, 'resizing to', nheight);
-				// console.log(h, '2222222 resizing to', nheight);
+				console.log(h, 'resizing to', nheight);
 				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)
@@ -324,7 +324,6 @@ export const ContentBlockTagView = (p: {
 		setPinned(false)
 	}
 	useEffect(() => {
-		console.log("44444, fullscreen", p.ctagFullscreen)
 		if (p.ctagFullscreen) askPinFullscreen(true)
 	}, [p.ctagFullscreen])
 
@@ -366,8 +365,7 @@ export const ContentBlockTagView = (p: {
 						srcDoc={htmlContent}
 						className="tag-iframe"
 						style={{ height: iframeHeight }}
-						// style={{ height: iframeHeight }}
-						sandbox={p.sandboxed ? "allow-scripts allow-same-origin allow-popups" : undefined} // allow-same-origin required for ext js caching
+						sandbox={p.ctagSandboxed ? "allow-scripts allow-same-origin allow-popups" : undefined} // allow-same-origin required for ext js caching
 
 					>
 					</iframe>
@@ -407,8 +405,8 @@ export const contentBlockCss = () => `
 		position: fixed;
 		top:0px;
 		right: 0px;
-		width: 100%;
-		height: 100%;
+		width: 100vw;
+		height: 100vh;
 		background: rgba(0,0,0,0.5);
 		z-index:101;
 }
@@ -433,11 +431,11 @@ export const contentBlockCss = () => `
 				top: 20px;
 				right: 20px;
 				z-index:102;
-				width: calc(100% - 40px);
-				height: calc(100% - 40px);
+				width: calc(100vw - 40px);
+				height: calc(100vh - 40px);
 				iframe {
-						height: 100vh!important;
-						max-height: 100vh!important;
+						height: calc(100vh - 1px)!important;
+						max-height: calc(100vh - 1px)!important;
 				}
 		}
 		position: relative;

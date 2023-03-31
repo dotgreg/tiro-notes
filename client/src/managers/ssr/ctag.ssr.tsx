@@ -13,13 +13,13 @@ import { ssrOpenIframeEl2 } from '../ssr.manager';
 // TAGS in SSRs
 //
 // IFRAME
-export const ssrShowIframeCtag = (
+export const ssrToggleIframeCtag = (
 	elWrapper: any,
 	url: string,
-	fullscreen: boolean=false
+	fullscreen?: boolean,
+	shouldShow?: boolean,
 ) => {
-	console.log(333222111, fullscreen)
-	ssrToggleCtag(elWrapper, ssrGenCtag("iframe", url, null, false, fullscreen))
+	ssrToggleCtag(elWrapper, ssrGenCtag("iframe", url, null, false, fullscreen), shouldShow)
 }
 
 // EPUB
@@ -27,15 +27,16 @@ const heightIframe = {
 	big: 400,
 	small: 200
 }
-export const ssrShowEpubCtag = (
+export const ssrToggleEpubCtag = (
 	elWrapper: any,
 	previewLink: string,
 	file: iFile,
-	fullscreen: boolean=false
+	fullscreen: boolean,
+	shouldShow?: boolean,
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/epub.md", content => {
-			ssrToggleCtag(elWrapper, ssrGenCtag("epub", previewLink, file, false, fullscreen))
+			ssrToggleCtag(elWrapper, ssrGenCtag("epub", previewLink, file, false, fullscreen), shouldShow)
 		}, {
 			onError: err => { ssrOpenIframeEl2(elWrapper, previewLink) }
 		})
@@ -44,16 +45,16 @@ export const ssrShowEpubCtag = (
 
 
 // PDF
-export const ssrShowPdfCtag = (
+export const ssrTogglePdfCtag = (
 	elWrapper: any,
 	previewLink: string,
 	file: iFile,
-	fullscreen: boolean=false
+	fullscreen: boolean,
+	shouldShow?: boolean,
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/pdf.md", content => {
-			console.log(33322222, fullscreen)
-			ssrToggleCtag(elWrapper, ssrGenCtag("pdf", previewLink, file, false, fullscreen))
+			ssrToggleCtag(elWrapper, ssrGenCtag("pdf", previewLink, file, false, fullscreen), shouldShow)
 		}, {
 			onError: err => { ssrOpenIframeEl2(elWrapper, previewLink) }
 		})
@@ -80,13 +81,14 @@ export const ssrShowPdfCtag = (
 export const ssrToggleCtag = (
 	elWrapper: any,
 	Compo: React.ReactElement,
+	openStatus?: boolean
 ) => {
 	if (!elWrapper) return ""
 	let isIframeOpen = elWrapper.querySelector(`iframe`)
 	let idEl = renderReactToId(Compo, { delay: 100 });
 	let iframeHtml = `<div id="${idEl}" class="resource-link-ctag"><div class="loading-string">loading...</div></div>`
-	elWrapper.innerHTML = !isIframeOpen ? iframeHtml : ""
-	// setStatus(!isIframeOpen ? "open" : "closed")
+	let shouldShow = !isIframeOpen || openStatus === true
+	elWrapper.innerHTML = shouldShow ? iframeHtml : ""
 }
 
 // CTAG GEN
@@ -98,7 +100,6 @@ export const ssrGenCtag = (
 	fullscreen?: boolean
 ): React.ReactElement => {
 	if (!file) file = generateEmptyiFile()
-	console.log(3333333, fullscreen)
 	return <ContentBlock
 		file={file}
 		block={{ type: 'tag', tagName, content, start: 0, end: 0 }}

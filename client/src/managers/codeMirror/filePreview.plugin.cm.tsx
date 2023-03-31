@@ -18,6 +18,7 @@ let compoHtml = (matchs, cFile) => {
 export const filePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
 	pattern: regexs.ressource,
 	replacement: matchs => {
+		console.log(123, cFile, matchs);
 		let resEl = document.createElement("span");
 		resEl.innerHTML = compoHtml(matchs, cFile)
 		return resEl

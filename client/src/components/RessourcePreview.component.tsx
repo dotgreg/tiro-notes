@@ -6,7 +6,7 @@ import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { deviceType } from '../managers/device.manager';
 import { ssrFn, ssrIcon, ssrOpenIframeEl2 } from '../managers/ssr.manager';
-import { ssrShowEpubCtag, ssrShowPdfCtag } from '../managers/ssr/ctag.ssr';
+import { ssrToggleEpubCtag, ssrTogglePdfCtag } from '../managers/ssr/ctag.ssr';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 
@@ -24,6 +24,8 @@ export const RessourcePreview = (p: {
 	markdownTag: string
 	file: iFile
 }) => {
+	console.log(34555555555, p.markdownTag, p.file);
+
 	const link = p.markdownTag.split('](')[1].slice(0, -1);
 	const name = p.markdownTag.split('](')[0].replace('![', '');
 	let t1 = link.split('.');
@@ -94,18 +96,23 @@ export const RessourcePreview = (p: {
 
 	let i = ssrIcon
 
-	const previewLogic = (iframeEl: any, opts?:{fullscreen?: boolean}) => {
+	const previewLogic = (iframeEl: any, opts?: {
+		fullscreen?: boolean,
+		shouldShow?: boolean,
+		persist?: boolean
+	}) => {
 		let el = iframeEl
+		let fullscreen = opts?.fullscreen || false
+		let shouldShow = opts?.shouldShow || false
+		let persist = opts?.persist || false
 		if (!el) return
-		let fullscreen = opts?.fullscreen ? opts.fullscreen : false
-		console.log(222222, fullscreen)
 		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
-		setStatus(nStatus)
+		persist && setStatus(nStatus)
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {
-			ssrShowEpubCtag(el, previewLink, p.file, fullscreen)
+			ssrToggleEpubCtag(el, previewLink, p.file, fullscreen, shouldShow)
 		} else if (filetype.toLocaleLowerCase() === "pdf") {
-			ssrShowPdfCtag(el, previewLink, p.file, fullscreen)
+			ssrTogglePdfCtag(el, previewLink, p.file, fullscreen, shouldShow)
 		} else {
 			ssrOpenIframeEl2(el, previewLink)
 		}
@@ -124,19 +131,19 @@ export const RessourcePreview = (p: {
 	// 2
 	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.parentNode.parentNode.querySelector(".iframe-wrapper")
 
-	const previewFn = (el) => {
+	const previewPersistFn = (el) => {
 		if (!el) return
 		el = getIframeEl(el)
-		previewLogic(el)
+		previewLogic(el, { persist: true })
 	}
 	const previewFullscreenFn = (el) => {
 		if (!el) return
 		el = getIframeEl(el)
-		previewLogic(el, {fullscreen: true})
+		previewLogic(el, { fullscreen: true, shouldShow: true })
 	}
 
 	let preview = `<li
-		onclick="${ssrFn("preview-link-ress", previewFn)}"
+		onclick="${ssrFn("preview-link-ress", previewPersistFn)}"
 		title="Preview link" data-link="${previewLink}">${i('eye')}</li>`
 
 	// 3
@@ -148,9 +155,9 @@ export const RessourcePreview = (p: {
 		onclick="${ssrFn("download-link-ress", downloadFn)}"
 		title="Preview link" data-link="${previewLink}">${i('download')}</li>`
 
-	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
+	let buttonsHtml = `<ul>${preview} {openWindow} ${download}</ul>`
 
-	let mainLinkHtml = `<div data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${filetype})</div>`
+	let mainLinkHtml = `<div class="ressource-link-label" data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${filetype})</div>`
 
 	// <a className="resource-link preview-link"
 	// 					href={ressLink}
@@ -161,9 +168,9 @@ export const RessourcePreview = (p: {
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
 				<div className={`resource-link-icon ${filetype}`}></div>
 				<div className={`resource-link-content-wrapper`}>
-					
-						
-					
+
+
+
 					<div dangerouslySetInnerHTML={{ __html: mainLinkHtml }}></div>
 
 					<div
@@ -184,6 +191,10 @@ export const ressourcePreviewSimpleCss = () => `
 .loading-string {
     text-align: center;
     padding: 50px;
+}
+.ressource-link-label {
+		font-weight: bold;
+		cursor: pointer;
 }
 .resource-link-ctag {
 		height: ${heightIframe.big - 21}px;
