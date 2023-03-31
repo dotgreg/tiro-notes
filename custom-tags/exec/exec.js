@@ -26,7 +26,7 @@ ${res}
 				font-size: 10px;
 				line-height: 12px;
 				padding: 0px 11px 13px 11px!important;
-				overflow: scroll;
+				overflow: auto;
 				white-space: pre-wrap;
 		}
 </style> `

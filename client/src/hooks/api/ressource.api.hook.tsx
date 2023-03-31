@@ -128,7 +128,6 @@ export const useRessourceApi = (p: {
 			const r1 = eval(readabilityTxt)
 
 			fetchRessource(url, txt => {
-				console.log(333111, txt);
 				var doc = document.implementation.createHTMLDocument('');
 				doc.open();
 				doc.write(txt);

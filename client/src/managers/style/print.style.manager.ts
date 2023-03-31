@@ -11,7 +11,7 @@ export const printCss = `
 	// position: absolute;
 // top: 22px;
 		// height: 1000vh;
-		// overflow: scroll;
+		// overflow: auto;
 }
 
 .print-wrapper {

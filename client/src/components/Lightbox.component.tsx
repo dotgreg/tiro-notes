@@ -274,7 +274,7 @@ export const lightboxCss = () => `
 								width: 100%;
 								height: 100%;
 								text-align: center;
-								overflow: scroll;
+								overflow: auto;
 								position: relative;
 								z-index: 2;
 								img {

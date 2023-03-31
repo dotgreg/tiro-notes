@@ -304,6 +304,7 @@ export const filesListCss = () => `
 
         // NORMAL
         li {
+			max-width:calc(100% - 47px);
             padding: ${sizes.l2.fileLi.padding}px ${sizes.block - sizes.l2.fileLi.margin}px;
             margin: ${sizes.l2.fileLi.margin}px ${sizes.l2.fileLi.margin + 5}px ${sizes.l2.fileLi.margin}px ${sizes.l2.fileLi.margin}px ;
             display: block;

@@ -16,8 +16,9 @@ import { ssrOpenIframeEl2 } from '../ssr.manager';
 export const ssrShowIframeCtag = (
 	elWrapper: any,
 	url: string,
+	fullscreen: boolean=false
 ) => {
-	ssrToggleCtag(elWrapper, ssrGenCtag("iframe", url))
+	ssrToggleCtag(elWrapper, ssrGenCtag("iframe", url, null, false, fullscreen))
 }
 
 // EPUB
@@ -29,10 +30,11 @@ export const ssrShowEpubCtag = (
 	elWrapper: any,
 	previewLink: string,
 	file: iFile,
+	fullscreen: boolean=false
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/epub.md", content => {
-			ssrToggleCtag(elWrapper, ssrGenCtag("epub", previewLink, file))
+			ssrToggleCtag(elWrapper, ssrGenCtag("epub", previewLink, file, false, fullscreen))
 		}, {
 			onError: err => { ssrOpenIframeEl2(elWrapper, previewLink) }
 		})
@@ -45,10 +47,11 @@ export const ssrShowPdfCtag = (
 	elWrapper: any,
 	previewLink: string,
 	file: iFile,
+	fullscreen: boolean=false
 ) => {
 	getApi(api => {
 		api.file.getContent("/.tiro/tags/pdf.md", content => {
-			ssrToggleCtag(elWrapper, ssrGenCtag("pdf", previewLink, file))
+			ssrToggleCtag(elWrapper, ssrGenCtag("pdf", previewLink, file, false, fullscreen))
 		}, {
 			onError: err => { ssrOpenIframeEl2(elWrapper, previewLink) }
 		})
@@ -89,7 +92,8 @@ export const ssrGenCtag = (
 	tagName: string,
 	content: string,
 	file?: iFile | null,
-	sandboxed?: boolean
+	sandboxed?: boolean,
+	fullscreen?: boolean
 ): React.ReactElement => {
 	if (!file) file = generateEmptyiFile()
 	return <ContentBlock
@@ -99,7 +103,8 @@ export const ssrGenCtag = (
 		windowId="null"
 		yCnt={0}
 		onIframeMouseWheel={() => { }}
-		sandboxed={sandboxed}
+		ctagSandboxed={sandboxed}
+		ctagFullscreen={fullscreen}
 	/>
 }
 

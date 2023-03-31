@@ -13,6 +13,7 @@ import { getBackendUrl } from '../managers/sockets/socket.manager';
 import { Icon } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
 import { defocusMouse } from '../managers/focus.manager';
+import { getCtagContent } from '../managers/ctag.manager';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -34,7 +35,8 @@ export const ContentBlockInt = (p: {
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
 
-	sandboxed?: boolean
+	ctagSandboxed?: boolean
+	ctagFullscreen?: boolean
 }) => {
 	const isTag = p.block.type === 'tag' && !reservedTagNames.includes(p.block.tagName || "")
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
@@ -54,19 +56,17 @@ export const ContentBlockInt = (p: {
 			}, 100)
 			// and remove the innertag logic if present
 			p.block.content = ''
-		} else {
+		} else if (p.block.tagName) {
 			// if custom tag, look for its content and insert that one in the iframe
-			getClientApi2().then(api => {
-				api.file.getContent(`/.tiro/tags/${p.block.tagName}.md`, ncontent => {
-					setNoteTagContent(ncontent)
+			getCtagContent(p.block.tagName, ctagContent => {
+				if (ctagContent) {
+					setNoteTagContent(ctagContent)
 					setTimeout(() => {
 						setCtagStatus("loaded")
 					}, 100)
-				}, {
-					onError: () => {
-						setNoteTagContent(null)
-					}
-				})
+				} else {
+					setNoteTagContent(null)
+				}
 			})
 		}
 	}, [p.windowId, p.block.content])
@@ -140,7 +140,8 @@ export const ContentBlockTagView = (p: {
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
-	sandboxed?: boolean
+	ctagSandboxed?: boolean
+	ctagFullscreen?: boolean
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -322,6 +323,10 @@ export const ContentBlockTagView = (p: {
 		setPinnedFullscreen(status)
 		setPinned(false)
 	}
+	useEffect(() => {
+		console.log("44444, fullscreen", p.ctagFullscreen)
+		if (p.ctagFullscreen) askPinFullscreen(true)
+	}, [p.ctagFullscreen])
 
 	return (
 		<>

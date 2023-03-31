@@ -188,7 +188,7 @@ export const markdownPreviewPlugin = (p: {
 export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 .latex-height {
 		height: 20px;
-		overflow: scroll;
+		overflow: auto;
 		line-height: initial;
 		background: rgb(247,247,247);
 		padding: 10px;

@@ -13,6 +13,7 @@ import { generateNoteLink } from './codeMirror/noteLink.plugin.cm';
 import { each } from 'lodash';
 import { generateHtmlLinkPreview } from './codeMirror/urlLink.plugin.cm';
 import { mem } from './reactRenderer.manager';
+import { generateImagePreviewHtml } from './codeMirror/image.plugin.cm';
 
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	// return bodyRaw
@@ -71,21 +72,9 @@ export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string 
 };
 
 export const transformImagesInHTML = (file: iFile, bodyRaw: string): string => {
-	let counterIndex = 0
-	const imgs = findImagesFromContent(bodyRaw, file)
-	if (imgs.length === 0) return bodyRaw
-	const imgsArr = encodeURIComponent(JSON.stringify(imgs))
 	return replaceRegexInMd(bodyRaw, regexs.image, (input: string) => {
 		const link = input.split('](')[1].slice(0, -1);
-		let widthRaw = input.match(/w_([0-9]+)/)
-		let rotateRaw = input.match(/r_([0-9]+)/)
-		let width = widthRaw ? `width: ${widthRaw[1]}px;` : ''
-		let rotate = rotateRaw ? `transform:rotate(${rotateRaw[1]}deg);` : ''
-		const configCss = `max-width: 100%; ${width} ${rotate} `
-		// console.log(407, input, link, name);
-		const subst = `<div class="content-image" data-images=${imgsArr} data-index="${counterIndex}"><img class="content-image-img"  style="${configCss}" src="${absoluteLinkPathRoot(file.folder)}/${link}${getUrlTokenParam()}"  /></div>`;
-		counterIndex++
-		return subst
+		return generateImagePreviewHtml(input, link, file)
 	});
 }
 
