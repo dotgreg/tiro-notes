@@ -1,3 +1,4 @@
+import { random } from "lodash";
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { sharedConfig } from "../../../shared/shared.config";
 import { backConfig } from "../config.back";
@@ -226,7 +227,9 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 	url = url.replace("localhost", "127.0.0.1") // otherwise would crash
 
 
-	shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
+	// shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
+	log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
+
 	return new Promise((resolve, reject) => {
 		let file = fs.createWriteStream(path);
 		const options = {
@@ -234,9 +237,10 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 				'User-Agent': 'Mozilla/5.0'
 			}
 		}
-		client.get(url, options, (response) => {
-			let res = response
-			const contentType = res.headers['content-type'];
+		let randomizedArgNoCache = `?${random(0, 10000000)}`
+		client.get(url + randomizedArgNoCache, options, (response) => {
+			// let res = response
+			// const contentType = res.headers['content-type'];
 			// response.setEncoding('utf8');
 			// response.set({ 'content-type': 'text/html; charset=utf-8' });
 
