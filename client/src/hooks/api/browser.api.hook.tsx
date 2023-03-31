@@ -3,9 +3,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
+import { devCliAddFn } from '../../managers/devCli.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
-import { testCliAddFn } from '../../managers/testCli.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { useBackendState } from '../useBackendState.hook';
@@ -405,8 +405,8 @@ export const askFolderDelete: iFolderDeleteFn = (typeFolder, cacheFolderName) =>
 	})
 }
 
-testCliAddFn("cache", "clean_ctag_cache", () => {
+devCliAddFn("cache", "clean_ctag_cache", () => {
 	getApi(api => {
 		api.folders.delete("cache", "ctag-ressources")
-	})	
+	})
 })

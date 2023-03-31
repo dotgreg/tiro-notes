@@ -45,7 +45,7 @@ import { getParentFolder } from './managers/folder.manager';
 import { pe1, pe2 } from './managers/performance.manager';
 import './managers/localNoteHistory.manager';
 import { random } from 'lodash';
-import {  testCliAddFn } from './managers/testCli.manager';
+import { devCliAddFn } from './managers/devCli.manager';
 
 export const App = () => {
 	useEffect(() => {
@@ -67,9 +67,9 @@ export const App = () => {
 
 		startListeningToKeys();
 
-		
-		testCliAddFn("1","1",() => {})
-		
+
+		devCliAddFn("init", "init", () => { })
+
 
 		return () => {
 			// COMPONENT will unmount
