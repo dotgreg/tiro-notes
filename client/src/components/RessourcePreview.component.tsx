@@ -63,7 +63,7 @@ export const RessourcePreview = (p: {
 			api.cache.get(cacheId, res => {
 				if (!res) res = {}
 				res[idRess] = status
-				console.log(2, cacheId, res);
+				// console.log(2, cacheId, res);
 				api.cache.set(cacheId, res, -1)
 			})
 		})
@@ -73,7 +73,7 @@ export const RessourcePreview = (p: {
 			api.cache.get(cacheId, res => {
 				if (!res) return
 				let r = res[idRess] ? res[idRess] : "closed"
-				console.log(1, {cacheId, r, res, residres: res[idRess]});
+				// console.log(1, { cacheId, r, res, residres: res[idRess] });
 				cb(r)
 			})
 		})
@@ -109,7 +109,6 @@ export const RessourcePreview = (p: {
 		let persist = opts?.persist || false
 		if (!el) return
 		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
-		console.log(33333, nStatus, persist);
 		persist && setStatus(nStatus)
 		if (isLocal && canBePreviewedOnline) return
 		if (filetype.toLocaleLowerCase() === "epub") {
@@ -141,7 +140,7 @@ export const RessourcePreview = (p: {
 	}
 	const previewFullscreenFn = (el) => {
 		if (!el) return
-		console.log(el.dataset);
+		// console.log(el.dataset);
 		el = getIframeEl(el)
 		previewLogic(el, { fullscreen: true, shouldShow: true })
 	}
@@ -152,7 +151,7 @@ export const RessourcePreview = (p: {
 
 	// 3
 	let downloadFn = (el) => {
-		console.log(ressLink, downloadName);
+		// console.log(ressLink, downloadName);
 		downloadFile(downloadName, ressLink)
 	}
 	let download = `<li

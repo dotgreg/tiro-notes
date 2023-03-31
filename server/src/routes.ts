@@ -253,14 +253,22 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	// DELETING TRASH
 	serverSocket2.on('askFolderDelete', async data => {
-		let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
-		log(`DELETING ${trashFolder}`);
 
-		if (!fileExists(trashFolder)) return
 
-		await deleteFolder(trashFolder)
+		if (data.typeFolder === "trash") {
+			let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
+			log(`DELETING ${trashFolder}`);
+			if (!fileExists(trashFolder)) return
+			await deleteFolder(trashFolder)
+			if (!fileExists(trashFolder)) await createDir(trashFolder)
+		}
 
-		if (!fileExists(trashFolder)) await createDir(trashFolder)
+		if (data.typeFolder === "cache" && data.cacheFolderName) {
+			log(`DELETING cache folder ${data.cacheFolderName}`);
+			let cacheFolderToDelete = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.cacheFolder}/${data.cacheFolderName}`
+			if (!fileExists(cacheFolderToDelete)) return
+			await deleteFolder(cacheFolderToDelete)
+		}
 
 		// let apiAnswer = await scanDirForFiles(trashFolder)
 		// if (typeof (apiAnswer) === 'string') return log(apiAnswer)

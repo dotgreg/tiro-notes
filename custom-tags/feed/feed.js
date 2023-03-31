@@ -7,7 +7,7 @@ const feedApp = (innerTagStr, opts) => {
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
-		// VERSION 1.0.8 15/03/23`
+		// VERSION 1.0.9 31/03/23`
 		const h = `[CTAG FEED]`
 
 		//@ts-ignore
