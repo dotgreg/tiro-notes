@@ -228,7 +228,7 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 
 
 	// shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
-	log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
+	console.log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
 
 	return new Promise((resolve, reject) => {
 		let file = fs.createWriteStream(path);
