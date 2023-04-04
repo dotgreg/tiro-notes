@@ -1,7 +1,28 @@
+import { sharedConfig } from "../../../shared/shared.config"
 import { getApi } from "../hooks/api/api.hook"
+const h = `[CTAG MANAGER]`
+let shouldLog = sharedConfig.client.log.verbose
+shouldLog = true
 
+// inside code app
 const getInternalCtags = () => {
     return {iframe: iframeCtag}
+}
+// if not present, fallback to download from dev/custom-tags github for the moment
+const baseCtag = ["epub", "pdf"]
+const getBaseCtagContent = (ctagName:string, cb:(txt:string)=>void) => {
+  const url = `https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/custom-tags/${ctagName}/${ctagName}.js`
+  let addedOpts = ``
+  if (ctagName === "epub") addedOpts = `open:true, size: "80%"`
+  if (ctagName === "pdf") addedOpts = `open:true`
+  const baseCtagTxt = `
+  [[script]]
+  return api.utils.loadCustomTag("${url}",\`{{innerTag}}\`,{${addedOpts}})
+  [[script]]
+  `
+
+  shouldLog && console.log(`${h} : ctag "${ctagName}" not present in tiro/tags but part of the base, return base config`, {baseCtagTxt})
+  cb(baseCtagTxt)
 }
 
 export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) => void) => {
@@ -14,7 +35,14 @@ export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) =>
                 cb(ncontent)
             }, {
                 onError: () => {
-                    cb(null)
+                    // if not present, fallback to download from dev/custom-tags github for the moment
+                    if (baseCtag.includes(ctagName)) {
+                      getBaseCtagContent(ctagName, txt => {
+                        cb(txt)
+                      })
+                    } else {
+                      cb(null)
+                    }
                 }
             })
         })

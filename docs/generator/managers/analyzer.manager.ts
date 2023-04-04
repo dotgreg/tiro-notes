@@ -25,11 +25,7 @@ export const getAnalyzedStructure = (data: any, objectToAnalyze: string, blackli
 			data.signatures[0].type.declaration.children
 		) children = data.signatures[0].type.declaration.children
 
-		// console.log(110, d(children));
-		// console.log(110, children);
 		each(children, item => {
-			// console.log(112, item);
-			// console.log(112, item.name, item.type.type, item.type.declaration);
 			const parentPathRaw = parent + ' ' + item.name
 			if (item.name && item.type) {
 
@@ -38,7 +34,6 @@ export const getAnalyzedStructure = (data: any, objectToAnalyze: string, blackli
 				//
 				if (item.type.name) {
 					const interfaceToSearch = item.type.name
-					// console.log(1111, interfaceToSearch);
 					const eprops = getPropsFromExtInterface(interfaceToSearch)
 					if (!blacklist.includes(interfaceToSearch)) analyzeItemsRecursively(eprops, 0, parentPathRaw)
 					// if (interfaceToSearch === 'iFileApi') analyzeItemsRecursively(eprops, 0, parentPathRaw)
@@ -57,12 +52,8 @@ export const getAnalyzedStructure = (data: any, objectToAnalyze: string, blackli
 				// ANALYZING SIMPLE CHILDREN
 				//
 				else if (item.type.type) {
-					// console.log("112 ===============", item.name, item.type.type, item.type.name, isNull(item.type.declaration));
-					// console.log("112 - 1", d(item));
 					// analyzeItemsRecursively(item, 0, parentPathRaw)
 					let t = analyzeItem(item, parentPathRaw)
-					// console.log("112 - 2", d(t));
-					// console.log(113, item.name, t, item);
 					analyzedArr.push(t)
 
 				}

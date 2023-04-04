@@ -1,12 +1,14 @@
 import { each, random } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
+import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { deviceType } from '../managers/device.manager';
-import { ssrFn, ssrIcon, ssrOpenIframeEl2 } from '../managers/ssr.manager';
-import { ssrToggleEpubCtag, ssrTogglePdfCtag } from '../managers/ssr/ctag.ssr';
+import { ssrFn, ssrIcon } from '../managers/ssr.manager';
+import { ssrGenCtag, ssrToggleCtag } from '../managers/ssr/ctag.ssr';
+import { safeString, textToId } from '../managers/string.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 
@@ -24,30 +26,44 @@ export const RessourcePreview = (p: {
 	markdownTag: string
 	file: iFile
 }) => {
-	// console.log(34555555555, p.markdownTag, p.file);
+
+	
+
+	// IF CAN BE PREVIEWED
+	const getFileType = (urlLink:string):string => {
+		let filetype = ''
+		let t1 = urlLink.split('.');
+		filetype = t1[t1.length - 1].split("?")[0];
+		if (filetype === '7z') filetype = 'd7z';
+		return filetype
+	}
+
+	const canBePreviewed = (urlLink:string):{status:boolean, onlinePreviewLink?:string} => {
+		let res = {status:false}
+		let canBePreviewed = false
+		let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub"]
+		if (previewFormats.includes(getFileType(urlLink).toLowerCase())) canBePreviewed = true
+		// for doc/docx/xls/xlsx/ppt/pptx + if window.location is not ip OR localhost, open it with google preview
+		let cOrigin = window.location.origin
+		let onlinePreviewFormats = ["ppt", "pptx", "doc", "docx", "xls", "xlsx"]
+		let canBePreviewedOnline = onlinePreviewFormats.includes(getFileType(urlLink).toLowerCase())
+		let localOrigins = ["localhost", "192.168"]
+		let isLocal = inArray(cOrigin, localOrigins)
+		if (!isLocal && canBePreviewedOnline) previewLink = `https://docs.google.com/gview?url=${ressLink}&embedded=true`
+		let shouldBeOnlineToView = isLocal && canBePreviewedOnline
+		let header = shouldBeOnlineToView ? `[REQUIRES NON LOCAL TIRO URL] ` : ''
+		return res
+	}
+
 
 	const link = p.markdownTag.split('](')[1].slice(0, -1);
 	const name = p.markdownTag.split('](')[0].replace('![', '');
-	let t1 = link.split('.');
-	let filetype = t1[t1.length - 1];
-	if (filetype === '7z') filetype = 'd7z';
+	// let t1 = link.split('.');
+	// let filetype = t1[t1.length - 1];
+	// if (filetype === '7z') filetype = 'd7z';
 	const ressLink = `${absoluteLinkPathRoot(p.file.folder)}/${link}${getUrlTokenParam()}`
-	let downloadName = `${name}.${filetype}`
-
-	// IF CAN BE PREVIEWED
-	let canBePreviewed = false
-	let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub"]
-	if (previewFormats.includes(filetype.toLowerCase())) canBePreviewed = true
-	// for doc/docx/xls/xlsx/ppt/pptx + if window.location is not ip OR localhost, open it with google preview
-	let cOrigin = window.location.origin
-	let onlinePreviewFormats = ["ppt", "pptx", "doc", "docx", "xls", "xlsx"]
-	let canBePreviewedOnline = onlinePreviewFormats.includes(filetype.toLowerCase())
-	let localOrigins = ["localhost", "192.168"]
-	let isLocal = inArray(cOrigin, localOrigins)
-	let previewLink = ressLink
-	if (!isLocal && canBePreviewedOnline) previewLink = `https://docs.google.com/gview?url=${ressLink}&embedded=true`
-	let shouldBeOnlineToView = isLocal && canBePreviewedOnline
-	let header = shouldBeOnlineToView ? `[REQUIRES NON LOCAL TIRO URL] ` : ''
+	let downloadName = `${name}.${getFileType(link)}`
+	let previewLink = cleanPath(ressLink) 
 
 	//
 	// JS PURE SSR LOGIC
@@ -55,10 +71,11 @@ export const RessourcePreview = (p: {
 	//
 	// CACHING
 	//
-	let cacheId = `ressource-preview-status-${p.file.path}`
-	let idRess = `${p.file.path}-${link}`
+	
 	type cachedStatus = "open" | "closed"
-	const setStatus = (status: cachedStatus) => {
+	const setStatus = (file:iFile, link:string, status: cachedStatus) => {
+		let cacheId = `ressource-preview-status-${file.path}`
+		let idRess = `${file.path}-${link}`
 		getApi(api => {
 			api.cache.get(cacheId, res => {
 				if (!res) res = {}
@@ -68,7 +85,9 @@ export const RessourcePreview = (p: {
 			})
 		})
 	}
-	const getStatus = (cb: (status: cachedStatus) => void) => {
+	const getStatus = (file:iFile, link:string, cb: (status: cachedStatus) => void) => {
+		let cacheId = `ressource-preview-status-${file.path}`
+		let idRess = `${file.path}-${link}`
 		getApi(api => {
 			api.cache.get(cacheId, res => {
 				if (!res) return
@@ -80,16 +99,14 @@ export const RessourcePreview = (p: {
 	}
 
 	// if cache opened
-	let id = `ress-${generateUUID()}`
-
-
+	let id = `ress-${safeString(previewLink)}`
 	const atStartupCheckIfOpen = () => {
-		getStatus(r => {
+		getStatus(p.file, previewLink, r => {
 			if (r === "open") {
 				setTimeout(() => {
 					let el = document.querySelector(`.${id} .iframe-wrapper`)
 					if (!el) return
-					previewLogic(el)
+					ssrToggleLogic(previewLink, el, p.file.path)
 				}, 500)
 			}
 		})
@@ -97,30 +114,40 @@ export const RessourcePreview = (p: {
 	atStartupCheckIfOpen()
 
 	let i = ssrIcon
-
-	const previewLogic = (iframeEl: any, opts?: {
-		fullscreen?: boolean,
-		shouldShow?: boolean,
-		persist?: boolean
-	}) => {
-		let el = iframeEl
+	const ssrToggleLogic = (
+		ssrPreviewPath: string, 
+		ssrIframeEl: any, 
+		ssrFilePath:string, 
+		opts?: {
+			fullscreen?: boolean,
+			openOnly?: boolean,
+			persist?: boolean
+		}
+	) => {
 		let fullscreen = opts?.fullscreen || false
-		let shouldShow = opts?.shouldShow || false
-		let persist = opts?.persist || false
-		if (!el) return
-		let nStatus: any = !el.querySelector(`iframe`) ? "open" : "closed"
-		persist && setStatus(nStatus)
-		if (isLocal && canBePreviewedOnline) return
-		if (filetype.toLocaleLowerCase() === "epub") {
-			ssrToggleEpubCtag(el, previewLink, p.file, fullscreen, shouldShow)
-		} else if (filetype.toLocaleLowerCase() === "pdf") {
-			ssrTogglePdfCtag(el, previewLink, p.file, fullscreen, shouldShow)
+		let fullscreenCloseEverything =  opts?.fullscreen || false
+		if (!ssrIframeEl) return
+		let file = pathToIfile(ssrFilePath)
+		
+		if ( opts?.persist) {
+			let nStatus: cachedStatus = !ssrIframeEl.querySelector(`iframe`) ? "open" : "closed"
+			setStatus(file, ssrPreviewPath, nStatus) 
+		}
+		const onFullscreenClose = () => {
+			ssrIframeEl.innerHTML = ""
+		}
+
+		// if (isLocal && canBePreviewedOnline) return
+		if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "epub") {
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
+		} else if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "pdf") {
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
 		} else {
-			ssrOpenIframeEl2(el, previewLink)
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, { fullscreen, onFullscreenClose}))
 		}
 	}
 
-	// 1
+	// 1 OPEN NEW WINDOW
 	const openWinFn = (el) => {
 		if (!el) return
 		let link = el.dataset.link
@@ -130,37 +157,35 @@ export const RessourcePreview = (p: {
 		onclick="${ssrFn("open-win-ress", openWinFn)}"
 		data-link="${previewLink}">${i('up-right-from-square')}</li>`
 
-	// 2
+	// 2 PINNED PREVIEW
 	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.parentNode.parentNode.querySelector(".iframe-wrapper")
-
-	const previewPersistFn = (el) => {
+	const ssrPreviewFn = (el, opts?:{persist?: boolean, fullscreen?: boolean}) => {
 		if (!el) return
-		el = getIframeEl(el)
-		previewLogic(el, { persist: true })
+		let ssrPreviewPath = el.dataset.link
+		let ssrFilePath = el.dataset.filepath
+		let elIframe = getIframeEl(el)
+		ssrToggleLogic(ssrPreviewPath, elIframe, ssrFilePath, opts)
 	}
-	const previewFullscreenFn = (el) => {
-		if (!el) return
-		// console.log(el.dataset);
-		el = getIframeEl(el)
-		previewLogic(el, { fullscreen: true, shouldShow: true })
-	}
-
+	const previewPersistFn = el => {return ssrPreviewFn(el, {persist: true})}
+	const previewFullscreenFn = el => {return ssrPreviewFn(el,  {fullscreen: true})}
 	let preview = `<li
 		onclick="${ssrFn("preview-link-ress", previewPersistFn)}"
-		title="Preview link" data-link="${previewLink}">${i('eye')}</li>`
+		title="Toggle a pinned preview" 
+		data-filepath="${p.file.path}" 
+		data-link="${previewLink}">${i('thumbtack')}</li>`
 
-	// 3
+	// 3 DOWNLOAD
 	let downloadFn = (el) => {
 		// console.log(ressLink, downloadName);
 		downloadFile(downloadName, ressLink)
 	}
 	let download = `<li
 		onclick="${ssrFn("download-link-ress", downloadFn)}"
-		title="Preview link" data-link="${previewLink}">${i('download')}</li>`
+		title="Preview link" data-filepath="${p.file.path}" data-link="${previewLink}">${i('download')}</li>`
 
 	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
-	let mainLinkHtml = `<div class="ressource-link-label" data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${filetype})</div>`
+	let mainLinkHtml = `<div class="ressource-link-label" data-filepath="${p.file.path}"  data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${getFileType(previewLink)})</div>`
 
 	// <a className="resource-link preview-link"
 	// 					href={ressLink}
@@ -169,7 +194,7 @@ export const RessourcePreview = (p: {
 	return (
 		<div className={`${id} resource-link-iframe-wrapper`}>
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
-				<div className={`resource-link-icon ${filetype}`}></div>
+				<div className={`resource-link-icon ${getFileType(previewLink)}`}></div>
 				<div className={`resource-link-content-wrapper`}>
 
 

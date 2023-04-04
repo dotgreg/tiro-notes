@@ -101,5 +101,4 @@ const calendarApp = (innerTagStr, opts) => {
 		return `${styleHtml}<div id="caleandar" class="no-css"></div>`
 }
 
-// console.log(11111111111112);
 window.initCustomTag = calendarApp

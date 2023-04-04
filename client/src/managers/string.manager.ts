@@ -1,6 +1,6 @@
 export const textToId = (raw:string):string => {
     let res = raw
-    res =  replaceAll(res, [['-',''],['_',''],[' ',''],['/',''],['.md','']])
+    res =  replaceAll(res, [['-',''],['_',''],[' ',''],['/',''],['.md',''],[':',''],['?','']])
     res = res.toLowerCase()
     return res
 }

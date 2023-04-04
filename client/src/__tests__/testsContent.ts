@@ -80,7 +80,6 @@ hello world1
 [[script]] 
 var res = '{{innerTag}}'
 var arr = res.split('\n')
-console.log(1122233, arr)
 const nObj = {}
 for(var i = 0; i<arr.length; i++) {
 		const item = arr[i].split(':')
@@ -97,7 +96,6 @@ hello world12
 // SCRIPT 2
 var res = '{{innerTag}}'
 var arr = res.split('\n')
-console.log(1122233, arr)
 const nObj = {}
 for(var i = 0; i<arr.length; i++) {
 		const item = arr[i].split(':')
