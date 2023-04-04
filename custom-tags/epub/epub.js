@@ -216,6 +216,7 @@ const epubApp = (innerTagStr, opts) => {
 				const resizeFullHeight = () => {
 						let cHeight = document.body.clientHeight
 						let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
+						if (isMobile())  nHeight -= 40 
 						// let nHeight = cHeight * 0.70
 						
 						console.log(h,"TRIGGER RESIZE2", nHeight);

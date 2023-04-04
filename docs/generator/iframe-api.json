@@ -293,7 +293,7 @@
 					},
 					"sources": [
 						{
-							"fileName": "docs/generator/node_modules/typescript/lib/lib.es5.d.ts",
+							"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 							"line": 1596,
 							"character": 5
 						}
@@ -319,7 +319,7 @@
 									},
 									"sources": [
 										{
-											"fileName": "docs/generator/node_modules/typescript/lib/lib.es5.d.ts",
+											"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 											"line": 1596,
 											"character": 26
 										}
@@ -380,7 +380,7 @@
 								},
 								"sources": [
 									{
-										"fileName": "docs/generator/node_modules/typescript/lib/lib.es5.d.ts",
+										"fileName": "node_modules/typescript/lib/lib.es5.d.ts",
 										"line": 1596,
 										"character": 61
 									}
