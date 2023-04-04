@@ -37,6 +37,7 @@ export const ContentBlockInt = (p: {
 
 	ctagSandboxed?: boolean
 	ctagFullscreen?: boolean
+	ctagOnFullscreenClose?: Function
 }) => {
 	const isTag = p.block.type === 'tag' && !reservedTagNames.includes(p.block.tagName || "")
 	const [noteTagContent, setNoteTagContent] = useState<string | null>(null)
@@ -142,6 +143,7 @@ export const ContentBlockTagView = (p: {
 	onIframeMouseWheel: onIframeMouseWheelFn
 	ctagSandboxed?: boolean
 	ctagFullscreen?: boolean
+	ctagOnFullscreenClose?: Function
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -327,12 +329,17 @@ export const ContentBlockTagView = (p: {
 		if (p.ctagFullscreen) askPinFullscreen(true)
 	}, [p.ctagFullscreen])
 
+	const fullscreenClose = () => {
+		askPinFullscreen(false)
+		p.ctagOnFullscreenClose && p.ctagOnFullscreenClose()
+	}
+
 	return (
 		<>
 			{
 				isPinnedFullscreen && <div
 					className="fullscreen-pin-bg"
-					onClick={e => { askPinFullscreen(false) }}
+					onClick={e => { fullscreenClose() }}
 				></div>
 			}
 			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : ''} ${isPinnedFullscreen ? 'pinned fullscreen' : ''}`}>

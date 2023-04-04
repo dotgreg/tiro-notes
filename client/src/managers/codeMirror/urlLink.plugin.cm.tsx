@@ -5,10 +5,11 @@ import { isArray, random } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { getApi } from "../../hooks/api/api.hook";
 import { isMobile } from "../device.manager";
-import { ssrFn, ssrIcon,  ssrOpenIframeEl2  } from "../ssr.manager";
+import { ssrFn, ssrIcon  } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { mem } from "../reactRenderer.manager";
+import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 
 export const generateHtmlLinkPreview = mem((matchs) => generateHtmlLinkPreviewInt(matchs))
 
@@ -71,8 +72,8 @@ export const generateHtmlLinkPreviewInt = (
 		let link = el.dataset.link
 		getApi(api => {
 			api.ressource.fetchUrlArticle(link, r => {
-				console.log(r)
-				ssrOpenIframeEl2(getIframeEl(el), encodeURIComponent(r.html))
+				// ssrOpenIframeEl(getIframeEl(el), encodeURIComponent(r.html))
+				ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", r.html))
 				cb(r)
 			})
 		})
@@ -82,7 +83,8 @@ export const generateHtmlLinkPreviewInt = (
 	const previewFn = (el) => {
 		if (!el) return
 		let link = el.dataset.link
-		ssrOpenIframeEl2(getIframeEl(el), link)
+		// ssrOpenIframeEl2(getIframeEl(el), link)
+		ssrToggleCtag(el, ssrGenCtag("iframe",link))
 	}
 	const openWinFn = (el) => {
 		if (!el) return

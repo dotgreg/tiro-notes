@@ -289,7 +289,6 @@ export const SuggestPopup = (p: {
 	}, [selectedOption, inputTxt])
 
 	// useEffect(() => {
-	// 	console.log(1100, options, options.length);
 	// }, [options])
 
 

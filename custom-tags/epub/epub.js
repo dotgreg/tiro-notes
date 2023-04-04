@@ -214,8 +214,11 @@ const epubApp = (innerTagStr, opts) => {
 
 
 				const resizeFullHeight = () => {
-						let nHeight = document.body.clientHeight - 100
-						console.log(h,"TRIGGER RESIZE", nHeight);
+						let cHeight = document.body.clientHeight
+						let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
+						// let nHeight = cHeight * 0.70
+						
+						console.log(h,"TRIGGER RESIZE2", nHeight);
 						if (nHeight)rendition.resize("100%", nHeight)
 				}
 				const triggerResize = () => {
@@ -223,6 +226,7 @@ const epubApp = (innerTagStr, opts) => {
 								resizeFullHeight()
 						}, 1000)
 				}
+
 				let histHeight = 0
 				setInterval(() => {
 						let docHeight = document.body.clientHeight
@@ -626,13 +630,17 @@ const htmlEpub = () => `
 </div>
 
 <div class="controls-wrapper">
-		<select id="toc"></select>
-		<input type="number" id="page" min="0" /> / <div id="tot">0</div>
+		<div class="flex-wrapper">
+			<select id="toc"></select>
+			<input type="number" id="page" min="0" /> / <div id="tot">0</div>
+		</div>
+		<div class="flex-wrapper">
 		<input type="button" id="prev" value=" < " />
 		<input type="button" id="next" value=" > " />
 		<input type="button" id="search" value=" 🔎 " />
 		<input type="button" id="fullscreen" value="⛶" />
 		<input type="button" id="audio" value=" ♫ " />
+		</div>
 </div>
 
 <div class="overlay-controls">
@@ -697,12 +705,6 @@ left: auto;
 }
 #search-wrapper #search-button {
 }
-#search {
-margin-right: 10px;
-}
-#fullscreen {
-margin-right: 10px;
-}
 
 #title {
 		width: 900px;
@@ -752,36 +754,52 @@ margin-right: 10px;
 }
 
 #prev , #next{
-		padding: 0px 10px;
+		padding: 0px 5px;
 }
 #prev {
 		left: 0;
-		margin-left: 10px;
+		// margin-left: 10px;
 }
-
+#search {
+	// margin-right: 10px;
+	}
+#fullscreen {
+	// margin-right: 10px;
+	}
+	
 #next {
 		right: 0;
-margin-right: 10px;
+// margin-right: 10px;
 }
 
 .controls-wrapper {
 		position: relative;
 		z-index: 1;
 		display: flex;
-		margin: 10px auto;
+		flex-wrap: wrap;
+}
+.flex-wrapper {
+	display: flex;
+	flex-wrap: wrap;
+}
+.controls-wrapper input, .controls-wrapper select {
+	margin-right: 4px;
+	margin-bottom: 4px;
+}
+.controls-wrapper input {
+	// max-width: 10px;
 }
 #toc {
-		width: 80%;
-		display: block;
+	max-width: 90px;
 }
 #toc,
 #next,
 #page  {
-		margin-left: 5px;
+		// margin-left: 5px;
 }
 
 #page {
-		width: 50px;
+		max-width: 50px;
 		height: 18px;
 }
 

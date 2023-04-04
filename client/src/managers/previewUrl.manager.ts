@@ -24,7 +24,6 @@ export const getUrlPreview = (url: string): Promise<iUrlInfos> => {
 						let metasRes = [...rawHTML.matchAll(regexs.metasHtml)]
 
 						const res: iUrlInfos = {}
-						console.log(111, metasRes);
 						each(metasRes, m => {
 							if (!m[3] || !m[2]) return;
 							res[m[2]] = m[3]

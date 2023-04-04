@@ -12,8 +12,6 @@ export const getFunctionParamNames = (fn: Function) => {
 		result = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
 	}
 
-	// console.log("1238888888 DETAILS", { fnStr, fn, result });
-
 	if (result === null) result = [];
 	return result;
 }
