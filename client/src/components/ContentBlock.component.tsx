@@ -14,6 +14,7 @@ import { Icon } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
 import { defocusMouse } from '../managers/focus.manager';
 import { getCtagContent } from '../managers/ctag.manager';
+import { isMobile } from '../managers/device.manager';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -342,7 +343,7 @@ export const ContentBlockTagView = (p: {
 					onClick={e => { fullscreenClose() }}
 				></div>
 			}
-			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : ''} ${isPinnedFullscreen ? 'pinned fullscreen' : ''}`}>
+			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : ''} ${isPinnedFullscreen ? 'pinned fullscreen' : ''}  ${isMobile() ? 'mobile' : ''}`}>
 
 				<div className="ctag-menu" >
 					<div className="ctag-ellipsis" >
@@ -434,12 +435,17 @@ export const contentBlockCss = () => `
 						overflow-y: scroll;
 				}
 		}
+		&.pinned.fullscreen.mobile {
+			height: calc(100vh - 80px);
+			right: 10px;
+			width: calc(100vw - 20px);
+		}
 		&.pinned.fullscreen {
 				top: 20px;
 				right: 20px;
 				z-index:102;
 				width: calc(100vw - 40px);
-				height: calc(100vh - 40px);
+				height: calc(100vh - 40px});
 				iframe {
 						height: calc(100vh - 1px)!important;
 						max-height: calc(100vh - 1px)!important;
