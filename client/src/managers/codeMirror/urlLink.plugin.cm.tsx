@@ -71,7 +71,7 @@ export const generateHtmlLinkPreviewInt = (
 		getApi(api => {
 			api.ressource.fetchUrlArticle(link, r => {
 				// ssrOpenIframeEl(getIframeEl(el), encodeURIComponent(r.html))
-				ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", r.html))
+				ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html)))
 				cb(r)
 			})
 		})
@@ -82,7 +82,7 @@ export const generateHtmlLinkPreviewInt = (
 		if (!el) return
 		let link = el.dataset.link
 		// ssrOpenIframeEl2(getIframeEl(el), link)
-		ssrToggleCtag(el, ssrGenCtag("iframe",link))
+		ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe",link))
 	}
 	const openWinFn = (el) => {
 		if (!el) return
