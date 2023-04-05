@@ -3,7 +3,6 @@ const latexApp = (innerTagStr, opts) => {
 		const classId = `katex-${api.utils.uuid()}`
 		api.utils.loadScripts(['https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js'], () => {
 				katex = window.katex
-				console.log(444, katex)
 				const renderedLatex = katex.renderToString(`${innerTagStr}`)
 				updateContent(`
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.css" crossorigin="anonymous"/>\n

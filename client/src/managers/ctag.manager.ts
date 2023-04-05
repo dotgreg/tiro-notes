@@ -57,13 +57,16 @@ export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) =>
 const iframeCtag = () => `
 [[script]]
 const style = \`<style>
-#iframe {
-// width: 100vw;
-// height: 100vh;
-border: none;
-transform: scale(0.65);
+.ctag-iframe-wrapper {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+#ctag-iframe {
+  border: none;
+  transform: scale(0.67);
   width: 150%!important;
-  height: 140vh!important;
+  height: 150vh!important;
   transform-origin:top left;
 }
 </style>\`
@@ -95,47 +98,12 @@ if (content.startsWith("http")) {
   window.document.body.innerHTML =  contentStyle + decodeURIComponent(content) 
 }
 
-api.utils.resizeIframe("100%");
-return \`\${style}<iframe \${iframeContent} id="iframe"></iframe>\`
+// api.utils.resizeIframe("100%");
+setTimeout(() => {
+  api.utils.resizeIframe("100%");
+
+}, 1000)
+return \`\${style}<div class="ctag-iframe-wrapper"><iframe \${iframeContent} id="ctag-iframe"></iframe></div>\`
 
 [[script]]
 `
-const iframeCtag2 = () => `[[script]]
-const api = window.api
-console.log(window, api, 2222);
-
-let content = decodeURIComponent("{{innerTag}}")
-let srcParam = content.startsWith('http') ? \`src="\${content}"\` : \`srcDoc="\${content}"\`
-
-const html = \`<div class="iframe_wrapper">
-<iframe secure="true" id="iframe" \${srcParam} style="border:none;padding:0px;margin:0px;"></iframe>
-</div>
-<style>
-  .iframe_wrapper {
-    width: 100%!important;
-    height: 100vh!important;
-  }
-  #link_iframe {
-    position: absolute;
-    z-index: 1000000;
-    top: 5px;
-    right: 30px;
-  } 
-  #iframe {
-  transform: scale(0.65);
-  width: 150%!important;
-  height: 140vh!important;
-  transform-origin:top left;
-}
-</style>\`
-
-
-const {div, updateContent} = api.utils.createDiv()
-
-api.utils.resizeIframe("97%")
-setTimeout(() => {
-   updateContent(html)
- }, 100)
-
-return div;
-[[script]]`

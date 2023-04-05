@@ -1,7 +1,6 @@
 import { each, random } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
-import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';

@@ -161,8 +161,8 @@ ol li a {
 		//
 		window.jumpTo = (lineNb) => {
 				const wid = api.utils.getInfos().windowId
-				// const infos = api.utils.getInfos()
-				// console.log("[TOC] IFRAME JUMP TO 2 ", lineNb, wid, infos);
+				const infos = api.utils.getInfos()
+				console.log("[TOC] IFRAME JUMP TO 2 ", lineNb, wid, infos);
 				api.call('ui.note.lineJump.jump',[{windowId: wid, line: lineNb}])
 		}
 		return div 

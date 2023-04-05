@@ -431,7 +431,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 
 export const previewAreaCss = () => `
 .preview-area {
-		margin-top: 5px;
+		margin-top: 0px;
     .infos-preview-wrapper {
 				border-bottom: 1px solid rgba(0 0 0 / 5%);
         display: ${isA('desktop') ? 'none' : 'block'};
@@ -462,7 +462,8 @@ export const previewAreaCss = () => `
 		${previewAreaSimpleCss()}
 }
 .view-both .preview-area {
-		margin-top: 20px;
+		// margin-top: 20px;
+		margin-top: 0px;
 }
 
 .preview-area-wrapper {

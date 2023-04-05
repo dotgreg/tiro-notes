@@ -19,7 +19,6 @@ export const linksPreviewPlugin = genericReplacementPlugin({
 		let resEl = document.createElement("span");
 		resEl.innerHTML = generateHtmlLinkPreview(matchs)
 		return resEl
-		// return "woop"
 	}
 })
 
@@ -38,7 +37,6 @@ export const generateHtmlLinkPreviewInt = (
 	// el: any,
 	matchsOrUrl: string[] | string
 ): string => {
-	// console.log("11111 gen link init");
 	let matchs: any[] = []
 	if (!isArray(matchsOrUrl)) {
 		matchs = [...matchsOrUrl.matchAll(regexs.externalLink3)][0]

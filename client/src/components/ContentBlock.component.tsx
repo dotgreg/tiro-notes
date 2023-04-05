@@ -180,9 +180,10 @@ export const ContentBlockTagView = (p: {
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
 				let nheight = data.height
+				let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
 				if (isString(nheight) && nheight.endsWith("%")) {
 					const percent = parseInt(nheight.replace("%", "")) / 100
-					nheight = (p.windowHeight || 200) * percent
+					nheight = windowHeiht * percent
 				}
 				log && console.log(h, 'resizing to', nheight);
 				console.log(h, 'resizing to', nheight);
@@ -445,10 +446,10 @@ export const contentBlockCss = () => `
 				right: 20px;
 				z-index:102;
 				width: calc(100vw - 40px);
-				height: calc(100vh - 40px});
+				height: calc(100vh - 40px);
 				iframe {
-						height: calc(100vh - 1px)!important;
-						max-height: calc(100vh - 1px)!important;
+						height: calc(100% - 1px)!important;
+						max-height: calc(100% - 1px)!important;
 				}
 		}
 		position: relative;
@@ -500,7 +501,6 @@ export const contentBlockCss = () => `
 		iframe {
 				// transition: 0.3s all;
 				width: calc(100% );
-				// border: 2px #eaeaea solid;
 				border: none;
 				border-radius: 5px;
 		}
