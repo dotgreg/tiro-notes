@@ -23,6 +23,8 @@ import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/no
 import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
 import { evenTable, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
+import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
+import { cacheNode } from "../../managers/nodeCache.manager";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -69,6 +71,32 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		return true
 	}
 
+
+
+	//
+	// Cache Nodes System
+	//
+	const cacheNodeRef = useRef()
+	const [cacheNodeId, setCacheNodeId] = useState<string|null>(null)
+	useEffect(() => {
+		if (!cacheNodeId) {
+			// create it
+			if (!cacheNodeRef.current) return console.warn("cache node error 1")
+			let cacheId = cacheNode.createCache(cacheNodeRef.current)
+			setCacheNodeId(cacheId)
+		} else {
+			// path changed, delete cache node
+			cacheNode.deleteCache(cacheNodeId)
+		}
+	}, [p.file.path])
+	
+
+	const onCodeMirrorScroll = (e) => {
+		cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
+	}
+
+
+	
 	//
 	// INIT VAL MECHANISME
 	//
@@ -93,6 +121,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		evenTable.val = false
 
 		syncScrollUpdateDims()
+		// updatePosCmPlugins()
+		cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
 	}
 
 
@@ -210,7 +240,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
 		codemirrorExtensions.push(imagePreviewPlugin(p.file))
-		codemirrorExtensions.push(filePreviewPlugin(p.file))
+		codemirrorExtensions.push(filePreviewPlugin(p.file, cacheNodeId))
+		codemirrorExtensions.push(ctagPreviewPlugin(p.file, cacheNodeId))
 	}
 	if (!disablePlugins && !disableMd) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
@@ -219,13 +250,50 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	let classes = ``
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
+	 
+	// const [cmTop, setCmTop] = useState(0)
+	// const onCodeMScroll = (e) => {
+	// 	updatePosCmPlugins()
+	// }
+
+	// const updatePosCmPlugins = () => {
+	// 	// if (!forwardedRef || !forwardedRef.current) return
+	// 	// console.log(22111, forwardedRef.current)
+	// 	// @ts-ignore
+	// 	let el2 = forwardedRef.current
+	// 	if (!el2) return
+		
+	// 	let parEl = el2.editor.parentNode
+	// 	let scrollEl = parEl.querySelector(".cm-scroller")
+	// 	let iframeEl = parEl.querySelector(".teststorage")
+	// 	let placeholderEl = parEl.querySelector(".anchor-link-cm")
+	// 	let scrollCm = scrollEl.scrollTop
+	// 	if (!iframeEl) return
+		
+	// 	// if placeholder not here, make it invisible
+	// 	let placeholderTop = placeholderEl ? placeholderEl.offsetTop : -99999
+
+	// 	console.log(scrollCm, placeholderTop)
+	// 	// iframeEl.style.top = scrollCm + placeholderTop
+	// 	let nTop = -scrollCm + placeholderTop
+	// 	iframeEl.style.transform = `translateY(${nTop}px);`
+	// 	iframeEl.style.top = `${nTop}px`
+	// }
+
+	
+
+
 	return (
 		<div className={`codemirror-editor-wrapper ${classes}`}>
+			{/* <div className="teststorage" style={{top:200+cmTop}}><iframe src="http://raw2.websocial.cc"></iframe></div> */}
+			{/* <div className="teststorage"><iframe src="http://raw2.websocial.cc"></iframe></div> */}
+			<div className="cache-nodes" ref={cacheNodeRef as any}></div>
 			<CodeMirror
 				value=""
 				ref={forwardedRef as any}
 				theme={getCustomTheme()}
 				onChange={onChange}
+				onScrollCapture={onCodeMirrorScroll}
 
 				basicSetup={{
 					foldGutter: false,
@@ -259,6 +327,11 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.teststorage {
+    position: absolute;
+    top: 120px;
+    z-index: 10;
+}
 .cm-selectionLayer {
     pointer-events: none;
 		z-index:0!important;

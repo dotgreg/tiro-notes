@@ -21,9 +21,26 @@ class ReplacementWidget extends WidgetType {
 }
 
 
+let cacheDecoration:any = {}
+
 const matcher = (pattern: RegExp, replacement: iReplacementFn) => new MatchDecorator({
 	regexp: pattern,
-	decoration: match => Decoration.widget({ widget: new ReplacementWidget(match, replacement), })
+	decoration: match => {
+		let id = match.input
+		if (!cacheDecoration[id]) {
+			console.log(111)
+			let widget = new ReplacementWidget(match, replacement)
+			let deco = Decoration.widget({ widget: widget})
+			console.log(3333, match, widget, deco)
+			cacheDecoration[id] = deco
+			// return deco
+		} else {
+			console.log(122)
+			// return cacheDecoration[id]
+		}
+		return cacheDecoration[id]
+		
+	}
 })
 const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDecorator({
 	regexp: pattern,

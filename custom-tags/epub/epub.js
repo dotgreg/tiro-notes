@@ -215,8 +215,10 @@ const epubApp = (innerTagStr, opts) => {
 
 				const resizeFullHeight = () => {
 						let cHeight = document.body.clientHeight
-						let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
+						// let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
+						let nHeight = cHeight > 500 ? cHeight - 50 : cHeight - 120
 						if (isMobile())  nHeight -= 40 
+						// let nHeight = cHeight
 						// let nHeight = cHeight * 0.70
 						
 						console.log(h,"TRIGGER RESIZE2", nHeight);
@@ -665,7 +667,7 @@ body {
 
 		position: absolute;
 		height: 100%;
-		width: calc(100% - 4px);
+		width: calc(100% - 10px);
 
 }
 .overlay-controls {

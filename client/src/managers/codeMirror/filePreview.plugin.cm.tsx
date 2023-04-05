@@ -1,10 +1,8 @@
-import { memoize } from "lodash";
 import React from "react";
 import { renderToString } from "react-dom/server";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { RessourcePreview } from "../../components/RessourcePreview.component";
-import { mem } from "../reactRenderer.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
 let compoHtml = (matchs, cFile) => {
@@ -15,7 +13,7 @@ let compoHtml = (matchs, cFile) => {
 }
 
 
-export const filePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
+export const filePreviewPlugin = (cFile: iFile, cacheNodeId: string|null) => genericReplacementPlugin({
 	pattern: regexs.ressource,
 	replacement: matchs => {
 		let resEl = document.createElement("span");
