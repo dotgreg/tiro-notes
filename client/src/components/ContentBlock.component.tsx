@@ -336,6 +336,8 @@ export const ContentBlockTagView = (p: {
 		p.ctagOnFullscreenClose && p.ctagOnFullscreenClose()
 	}
 
+	let refocusId = generateUUID()
+
 	return (
 		<>
 			{
@@ -344,7 +346,7 @@ export const ContentBlockTagView = (p: {
 					onClick={e => { fullscreenClose() }}
 				></div>
 			}
-			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : ''} ${isPinnedFullscreen ? 'pinned fullscreen' : ''}  ${isMobile() ? 'mobile' : ''}`}>
+			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`}>
 
 				<div className="ctag-menu" >
 					<div className="ctag-ellipsis" >
@@ -366,7 +368,7 @@ export const ContentBlockTagView = (p: {
 
 				{!reloadIframe &&
 					<iframe
-						onMouseLeave={defocusMouse}
+						onMouseLeave={e => {defocusMouse(e, refocusId)}}
 						ref={iframeRef}
 						id={iframeId}
 						data-testid="iframe"
@@ -386,7 +388,7 @@ export const ContentBlockTagView = (p: {
 						</pre></code>
 					</div>
 				}
-				<input className="refocus-input" type="text" />
+				<input className="refocus-input" id={refocusId} type="text" />
 			</div>
 		</>
 	)
@@ -395,7 +397,10 @@ export const ContentBlockTagView = (p: {
 
 
 export const contentBlockCss = () => `
-
+.refocus-input {
+	position: fixed;
+	z-index: -10000;
+}
 .content-blocks-wrapper {
 		padding: 0px 15px;
 }

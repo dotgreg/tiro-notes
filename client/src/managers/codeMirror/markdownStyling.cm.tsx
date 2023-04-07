@@ -1,19 +1,22 @@
 import { debounce, floor } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper"
+import { iFile } from "../../../../shared/types.shared";
 import { genericReplacementPlugin } from "./replacements.cm"
 
 export const evenTable = { val: false }
 let even = evenTable
 
 
-export const markdownStylingTableLimiter = genericReplacementPlugin({
+export const markdownStylingTableLimiter = (file: iFile) => genericReplacementPlugin({
+	file,
 	pattern: /\|/gmi,
 	classWrap: matchs => {
 		return `md-table-limiter`
 	}
 })
 
-export const markdownStylingTableCell = genericReplacementPlugin({
+export const markdownStylingTableCell = (file: iFile) =>  genericReplacementPlugin({
+	file,
 	pattern: regexs.mdTableCell,
 	classWrap: matchs => {
 		let m = matchs[0]
@@ -24,7 +27,8 @@ export const markdownStylingTableCell = genericReplacementPlugin({
 })
 
 
-export const markdownStylingTable = () => genericReplacementPlugin({
+export const markdownStylingTable = (file: iFile) => genericReplacementPlugin({
+	file,
 	pattern: regexs.mdTableLine,
 	classWrap: matchs => {
 		let line = matchs[0].trim()

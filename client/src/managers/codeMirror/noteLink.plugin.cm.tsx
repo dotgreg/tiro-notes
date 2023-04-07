@@ -1,10 +1,12 @@
 import { regexs } from "../../../../shared/helpers/regexs.helper";
+import { iFile } from "../../../../shared/types.shared";
 import { getClientApi2 } from "../../hooks/api/api.hook";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
-export const noteLinkPreviewPlugin = (windowId: string) => genericReplacementPlugin({
+export const noteLinkPreviewPlugin = (file: iFile, windowId: string) => genericReplacementPlugin({
+	file,
 	pattern: regexs.linklink,
 	replacement: matchs => {
 		let resEl = document.createElement("span");

@@ -3,10 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
+import { devCliAddFn } from '../../managers/devCli.manager';
 import { MobileView } from '../../managers/device.manager';
 import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
+
 
 export const WindowEditorInt = (p: {
 	content: iWindowContent
@@ -33,6 +35,11 @@ export const WindowEditorInt = (p: {
 	// GET CONTENT 
 	//
 	let filePathRef = useRef<string>(file?.path || "")
+
+	// CLEAN CONTENT WHEN LOADING
+	useEffect(() => {
+		setFileContent("loading...")
+	}, [file?.path])
 
 	useEffect(() => {
 		filePathRef.current = file?.path || ""
@@ -65,7 +72,7 @@ export const WindowEditorInt = (p: {
 				setFileContent(watchUpdate.fileContent)
 			})
 		})
-	}, [file?.path, fileContent])
+	}, [file?.path])
 
 	// can edit locally if file loading/not
 	const [canEdit, setCanEdit] = useState(false)

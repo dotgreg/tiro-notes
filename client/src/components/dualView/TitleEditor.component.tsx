@@ -21,14 +21,14 @@ export const NoteTitleInputInt = (p: {
 
 	// problem, enter key does not seem to work fine on mobile and jump,
 	// so debounce and save name for it after 2s
-	const onDebounceMobileTriggerSave = useDebounce((ntitle: string) => {
-		// only if title exists
-		if (ntitle.length === 0) return
-		if (deviceType() === 'mobile') {
-			setHasBeenEdited(false)
-			p.onEdited(p.title, title)
-		}
-	}, 1000)
+	// const onDebounceMobileTriggerSave = useDebounce((ntitle: string) => {
+	// 	// only if title exists
+	// 	if (ntitle.length === 0) return
+	// 	if (deviceType() === 'mobile') {
+	// 		setHasBeenEdited(false)
+	// 		p.onEdited(p.title, title)
+	// 	}
+	// }, 1000)
 
 	const submitTitle = () => {
 		let ntitle = title

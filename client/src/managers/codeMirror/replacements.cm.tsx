@@ -8,6 +8,8 @@ import {
 	DecorationSet
 } from "@codemirror/view";
 import { debounce } from "lodash";
+import { iFile } from "../../../../shared/types.shared";
+import { devCliAddFn } from "../devCli.manager";
 
 ////////////////////// 
 // REPLACEMENT SYSTEM ABSTRACTION
@@ -22,20 +24,25 @@ class ReplacementWidget extends WidgetType {
 
 
 let cacheDecoration:any = {}
+devCliAddFn("code_mirror", "cache_get", () => cacheDecoration)
 
 //
+// @cache @ctag
 // caching les decorations!!!
 // 
-const matcher = (pattern: RegExp, replacement: iReplacementFn) => new MatchDecorator({
+const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile) => new MatchDecorator({
 	regexp: pattern,
 	decoration: match => {
 		let id = match.input
-		if (!cacheDecoration[id]) {
+		let cacheId = file.path
+		if (!cacheDecoration[cacheId]) cacheDecoration[cacheId] = {}
+		if (!cacheDecoration[cacheId][id]) {
+		// if (!cacheDecoration[id]) {
 			let widget = new ReplacementWidget(match, replacement)
-			let deco = Decoration.widget({ widget: widget})
-			cacheDecoration[id] = deco
+			let deco = Decoration.widget({ widget })
+			cacheDecoration[cacheId][id] = deco
 		} 
-		return cacheDecoration[id]
+		return cacheDecoration[cacheId][id]
 	}
 })
 const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDecorator({
@@ -46,9 +53,9 @@ const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDec
 })
 
 export const genericReplacementPlugin = (p: {
+	file:iFile,
 	pattern: RegExp,
 	replacement?: iReplacementFn
-	// replacement?: any
 	classWrap?: iClassWrapperFn
 	options?: {
 		isAtomic?: boolean
@@ -58,7 +65,7 @@ export const genericReplacementPlugin = (p: {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
 			if (p.replacement) {
-				this.decorations = matcher(p.pattern, p.replacement).createDeco(view)
+				this.decorations = matcher(p.pattern, p.replacement, p.file).createDeco(view)
 			}
 			else {
 				this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
@@ -68,7 +75,7 @@ export const genericReplacementPlugin = (p: {
 			try {
 				if (p.replacement && (update.docChanged || update.viewportChanged)) {
 					//@ts-ignore
-					this.decorations = matcher(p.pattern, p.replacement)
+					this.decorations = matcher(p.pattern, p.replacement, p.file)
 						.updateDeco(update, this.decorations)
 				}
 				else {

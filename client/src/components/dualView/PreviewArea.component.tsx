@@ -73,9 +73,13 @@ export const PreviewArea = (p: {
 		setTimeout(() => {
 			syncScroll3.updatePreviewDims(p.windowId)
 			syncScroll3.updateScrollerDims(p.windowId)
+			setTimeout(() => {
+				syncScroll3.updatePreviewDims(p.windowId)
+				syncScroll3.updateScrollerDims(p.windowId)
+			}, 100)
 		}, 100)
 
-	}, [p.fileContent])
+	}, [p.fileContent, p.file.path])
 
 
 	const getWindowHeight = (): number => {

@@ -39,11 +39,12 @@ const openLightBoxFn = (el) => {
 	})
 }
 
-export const imagePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
+export const imagePreviewPlugin = (file: iFile) => genericReplacementPlugin({
+	file,
 	pattern: regexs.image,
 	replacement: matchs => {
 		let resEl = document.createElement("div");
-		resEl.innerHTML = generateImagePreviewHtml(matchs[0], matchs[1], cFile, true)
+		resEl.innerHTML = generateImagePreviewHtml(matchs[0], matchs[1], file, true)
 		return resEl;
 	}
 })

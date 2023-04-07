@@ -13,11 +13,12 @@ let compoHtml = (matchs, cFile) => {
 }
 
 
-export const filePreviewPlugin = (cFile: iFile, cacheNodeId: string|null) => genericReplacementPlugin({
+export const filePreviewPlugin = (file: iFile) => genericReplacementPlugin({
+	file,
 	pattern: regexs.ressource,
 	replacement: matchs => {
 		let resEl = document.createElement("span");
-		resEl.innerHTML = compoHtml(matchs, cFile)
+		resEl.innerHTML = compoHtml(matchs, file)
 		return resEl
 	}
 })

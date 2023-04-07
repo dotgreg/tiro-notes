@@ -25,6 +25,7 @@ import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
+import {  devHook } from '../../managers/devCli.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -68,9 +69,10 @@ const EditorAreaInt = (
 	if (p.canEdit === false) canEdit = false
 	if (p.isConnected === false) canEdit = false
 
-	useEffect(() => {
-		setInnerFileContent('')
-	}, [p.file.path])
+	// useEffect(() => {
+	// 	canEdit = false
+	// 	setInnerFileContent('loading2...')
+	// }, [p.file.path])
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -80,9 +82,10 @@ const EditorAreaInt = (
 		canEdit: canEdit,
 
 		onEditorDidMount: () => {
+			// devHook("editor_mount")(p.fileContent)
+			// setInnerFileContent(p.fileContent)
 		},
 		onEditorWillUnmount: () => {
-
 		},
 		onNoteContentDidLoad: () => {
 			if (!clientSocket) return
@@ -134,6 +137,7 @@ const EditorAreaInt = (
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
 		if (updatedText) {
+			console.log(1117)
 			triggerNoteEdition(updatedText)
 			forceCmRender()
 		}
@@ -281,20 +285,6 @@ const EditorAreaInt = (
 	if (deviceType() === 'mobile') maxDropdownHeight = window.innerHeight
 	// // Id note ref
 	const idInputRef = useRef<HTMLInputElement>(null)
-
-
-	//
-	// on scroll posY update
-	// const getCurrentLine = () => {
-	// 	let newLine
-	// 	if (p.editorType === "codemirror") {
-	// 		newLine = CodeMirrorUtils.getScrolledLine(codeMirrorEditorView.current)
-	// 		if (newLine > 1) newLine -= 1
-	// 	} else {
-	// 		newLine = monacoEditorComp.current?.getScrollLine() || 0;
-	// 	}
-	// 	return newLine
-	// }
 
 	useEffect(() => {
 		forceCmRender()

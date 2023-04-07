@@ -1,4 +1,3 @@
-import { random } from 'lodash';
 import React, { useRef } from 'react';
 import { iFile } from "../../../shared/types.shared";
 import { strings } from "../managers/strings.manager";

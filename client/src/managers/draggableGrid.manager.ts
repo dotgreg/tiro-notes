@@ -49,7 +49,6 @@ export const calculateNewWindowPosAndSize = (layout: iWindow[]) => {
 
 	const res = { x: first[0], y: first[1], w, h }
 
-	//console.log(6664, first, last, gridState, res);
 	return res
 }
 

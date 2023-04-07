@@ -101,7 +101,6 @@ if (content.startsWith("http")) {
 // api.utils.resizeIframe("100%");
 setTimeout(() => {
   api.utils.resizeIframe("100%");
-
 }, 1000)
 return \`\${style}<div class="ctag-iframe-wrapper"><iframe \${iframeContent} id="ctag-iframe"></iframe></div>\`
 

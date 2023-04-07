@@ -24,6 +24,7 @@ import { iTtsApi } from '../app/useTtsPopup.hook';
 import { iAnalyticsApi, useAnalyticsApi } from './analytics.api.hook';
 import { iCommandApi, useCommandApi } from './command.api.hook';
 import { encryptApi, iEncryptApi } from '../../managers/encryption.manager';
+import { iLastFilesHistoryApi } from '../app/lastFilesHistory.hook';
 
 
 //
@@ -73,7 +74,9 @@ export interface iClientApi {
 		search: iSearchUiApi
 		note: iNoteApi["ui"]
 	}
-	status: iStatusApi
+	status: iStatusApi,
+	lastNotesApi?: iLastFilesHistoryApi,
+
 }
 
 

@@ -32,6 +32,7 @@ export const ssrGenCtag = (
 	content: string,
 	opts?: {
 		file?: iFile | null,
+		windowId?:string,
 		sandboxed?: boolean,
 		fullscreen?: boolean,
 		onFullscreenClose?: Function,
@@ -40,11 +41,12 @@ export const ssrGenCtag = (
 	if (!opts) opts = {}
 	if (!opts.file) opts.file = generateEmptyiFile()
 	
+	
 	return <ContentBlock
 		file={opts.file}
 		block={{ type: 'tag', tagName, content, start: 0, end: 0 }}
 		windowHeight={heightIframe.big + 75}
-		windowId="null"
+		windowId={opts.windowId || "null"}
 		yCnt={0}
 		onIframeMouseWheel={() => { }}
 

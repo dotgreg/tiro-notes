@@ -2,12 +2,11 @@ import { each, random } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
 import { iFile } from '../../../shared/types.shared';
-import { getApi } from '../hooks/api/api.hook';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { deviceType } from '../managers/device.manager';
-import { ssrFn, ssrIcon } from '../managers/ssr.manager';
+import { atSsrStartupCheckIfOpen, setSsrStatus, ssrCachedStatus, ssrFn, ssrIcon } from '../managers/ssr.manager';
 import { ssrGenCtag, ssrToggleCtag } from '../managers/ssr/ctag.ssr';
-import { safeString, textToId } from '../managers/string.manager';
+import { safeString } from '../managers/string.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 
@@ -64,53 +63,15 @@ export const RessourcePreview = (p: {
 	let downloadName = `${name}.${getFileType(link)}`
 	let previewLink = cleanPath(ressLink) 
 
-	//
-	// JS PURE SSR LOGIC
-	//
-	//
-	// CACHING
-	//
 	
-	type cachedStatus = "open" | "closed"
-	const setStatus = (file:iFile, link:string, status: cachedStatus) => {
-		let cacheId = `ressource-preview-status-${file.path}`
-		let idRess = `${file.path}-${link}`
-		getApi(api => {
-			api.cache.get(cacheId, res => {
-				if (!res) res = {}
-				res[idRess] = status
-				// console.log(2, cacheId, res);
-				api.cache.set(cacheId, res, -1)
-			})
-		})
-	}
-	const getStatus = (file:iFile, link:string, cb: (status: cachedStatus) => void) => {
-		let cacheId = `ressource-preview-status-${file.path}`
-		let idRess = `${file.path}-${link}`
-		getApi(api => {
-			api.cache.get(cacheId, res => {
-				if (!res) return
-				let r = res[idRess] ? res[idRess] : "closed"
-				// console.log(1, { cacheId, r, res, residres: res[idRess] });
-				cb(r)
-			})
-		})
-	}
 
 	// if cache opened
-	let id = `ress-${safeString(previewLink)}`
-	const atStartupCheckIfOpen = () => {
-		getStatus(p.file, previewLink, r => {
-			if (r === "open") {
-				setTimeout(() => {
-					let el = document.querySelector(`.${id} .iframe-wrapper`)
-					if (!el) return
-					ssrToggleLogic(previewLink, el, p.file.path)
-				}, 500)
-			}
-		})
-	}
-	atStartupCheckIfOpen()
+	let ssrId = `ress-${safeString(previewLink)}`
+	atSsrStartupCheckIfOpen(p.file, previewLink, () => {
+		let el = document.querySelector(`.${ssrId} .iframe-wrapper`)
+		if (!el) return
+		ssrToggleLogic(previewLink, el, p.file.path)
+	})
 
 	let i = ssrIcon
 	const ssrToggleLogic = (
@@ -129,8 +90,8 @@ export const RessourcePreview = (p: {
 		let file = pathToIfile(ssrFilePath)
 		
 		if ( opts?.persist) {
-			let nStatus: cachedStatus = !ssrIframeEl.querySelector(`iframe`) ? "open" : "closed"
-			setStatus(file, ssrPreviewPath, nStatus) 
+			let nStatus: ssrCachedStatus = !ssrIframeEl.querySelector(`iframe`) ? "open" : "closed"
+			setSsrStatus(file, ssrPreviewPath, nStatus) 
 		}
 		const onFullscreenClose = () => {
 			ssrIframeEl.innerHTML = ""
@@ -191,7 +152,7 @@ export const RessourcePreview = (p: {
 	// 					download
 	// 				></a>
 	return (
-		<div className={`${id} resource-link-iframe-wrapper`}>
+		<div className={`${ssrId} resource-link-iframe-wrapper`}>
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
 				<div className={`resource-link-icon ${getFileType(previewLink)}`}></div>
 				<div className={`resource-link-content-wrapper`}>
@@ -224,7 +185,8 @@ export const ressourcePreviewSimpleCss = () => `
 		cursor: pointer;
 }
 .resource-link-ctag {
-		height: ${heightIframe.big - 21}px;
+		// height: ${heightIframe.big - 21}px;
+		min-height: 120px;
 		overflow:hidden;
 		width: 100%;
 		border:none;
