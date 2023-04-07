@@ -15,3 +15,27 @@ export const devCliGetFn = (cat: string, name: string): Function => {
 	//@ts-ignore
 	return (window[windowNS] && window[windowNS][cat] && window[windowNS][cat][name]) ? window[windowNS][cat][name] : () => { console.log("DEV FN", cat, name, "does not exists") }
 }
+
+
+let h = `[DEV HOOK]`
+export const devHook = (id: string) => (...p) => {
+	//@ts-ignore	
+	if (!window[windowNS]) window[windowNS] = {}
+	//@ts-ignore	
+	if (!window[windowNS]["_hooks"]) window[windowNS]["_hooks"] = {}
+	if (!window[windowNS]["_hooks"][id]) window[windowNS]["_hooks"][id] = null
+	//@ts-ignore	
+	let exists = window[windowNS]["_hooks"][id]
+	if(exists) {
+		try {
+			console.log(h, `triggering dev hook ${id} (exi:${exists ? 1:0}) with params`,{p})
+			window[windowNS]["_hooks"][id]({...p, id:id})
+		} catch (error) {
+			console.warn(h, error)
+		}
+		
+	} else {
+		
+	}
+}
+

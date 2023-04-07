@@ -343,6 +343,26 @@ noteLink should be relative from tiro folder
  
 
 
+ ## Api.call : lastNotesApi
+ 
+
+#### <span class="render-code-wrapper">lastNotesApi.getAll</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"lastNotesApi.getAll",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:<span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">lastNotesApi.removeFile</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. filePath: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"lastNotesApi.removeFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+
  ## Api.call : popup
  
 

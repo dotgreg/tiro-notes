@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import React, { useEffect } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile } from "../../../../shared/types.shared"
@@ -6,6 +7,18 @@ import { useBackendState } from '../useBackendState.hook';
 
 const h = `[LAST FILE]`
 const log = sharedConfig.client.log.verbose
+
+//
+// API
+//
+export interface iLastFilesHistoryApi {
+	getAll: () => iFile[]
+	removeFile: (filePath:string) => void
+}
+
+
+
+
 
 export const useLastFilesHistory = (activeFile: iFile) => {
 	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [])
@@ -34,13 +47,36 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		}
 
 		if (!shouldAddToHistory) newfilesHistory.splice(indexOldPos, 1)
-		newfilesHistory = newfilesHistory.slice(0, 200)
+
+		// only keep x notes
+		newfilesHistory = newfilesHistory.slice(0, 400)
 		newfilesHistory.unshift(file)
 		setFilesHistory(newfilesHistory)
-		// console.log("FILES HISTORY", { newfilesHistory });
+		
 	}
 	const debouncedAddToHistory = useDebounce(addToHistory, 1000)
 
-	return { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend }
+
+	
+	//
+	// API
+	//
+	const getAll = () => {
+		return filesHistory
+	}
+	const removeFile = (filePath:string) => {
+		console.log(`${h} removing ${filePath} from last notes`)
+		let nfiles = cloneDeep(filesHistory)
+		nfiles = nfiles.filter(it => it.path !== filePath)
+		setFilesHistory(nfiles)
+	}
+	
+	const lastFilesHistoryApi:iLastFilesHistoryApi = {
+		getAll,
+		removeFile
+	}
+	
+
+	return { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend, lastFilesHistoryApi }
 }
 

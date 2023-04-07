@@ -10,10 +10,12 @@ import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { mem } from "../reactRenderer.manager";
 import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
+import { iFile } from "../../../../shared/types.shared";
 
 export const generateHtmlLinkPreview = mem((matchs) => generateHtmlLinkPreviewInt(matchs))
 
-export const linksPreviewPlugin = genericReplacementPlugin({
+export const linksPreviewPlugin = (file: iFile) => genericReplacementPlugin({
+	file,
 	pattern: regexs.externalLink3,
 	replacement: (matchs: any) => {
 		let resEl = document.createElement("span");
@@ -158,6 +160,7 @@ export const linksPreviewMdCss = () => `
 	margin: 0px 2px;
 }
 
+
 // mobile version
 .mobile-version .link-action-wrapper {
 		right: 10px ;
@@ -207,13 +210,19 @@ export const linksPreviewMdCss = () => `
 		box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }
 
+// height size iframe here
+.link-iframe-wrapper .resource-link-ctag .iframe-view-wrapper.not-fullscreen {
+	
+	height: 400px!important;
+}
 
-.link-iframe-wrapper .resource-link-ctag iframe {
+.link-iframe-wrapper .resource-link-ctag .iframe-view-wrapper iframe {
 		width: 150%!important;
-		height: 590px!important;
+		height: 154%!important;
+		max-height: 154%!important;
 		transform-origin:top left;
-			transform: scale(0.65);
-			margin-left: 15px;
+		transform: scale(0.65);
+		margin-left: 15px;
 }
 
 .link-mdpreview-wrapper {

@@ -1,8 +1,6 @@
-import { clamp } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import Draggable from 'react-draggable';
-import { useDynamicResponsive } from '../../hooks/app/dynamicResponsive.hook';
-import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
+import {  syncScroll3 } from '../../hooks/syncScroll.hook';
 
 export const ScrollingBar = (p: {
 	windowId: string,
@@ -44,11 +42,13 @@ export const ScrollingBar = (p: {
 					let o = syncScroll3.getScrollObj(p.windowId)
 					let height = o.dims.scroller.viewport
 					if (height < 20) height = 20 // 
+					
 					setScrollBarHeight(height)
 
 					// then update position bar
 					let percentPx = (o.dims.scroller.full - o.dims.scroller.viewport) / 100
 					let newY = o.posPercent * percentPx
+					// console.log(111144, height, newY, percentPx, o.posPercent)
 					setBarY(newY)
 				}
 			}

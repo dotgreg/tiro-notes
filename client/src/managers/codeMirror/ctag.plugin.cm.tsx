@@ -2,7 +2,7 @@ import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { mem } from "../reactRenderer.manager";
-import { ssrFn } from "../ssr.manager";
+import { atSsrStartupCheckIfOpen, setSsrStatus, ssrCachedStatus, ssrFn, ssrIcon } from "../ssr.manager";
 import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { safeString } from "../string.manager";
 import { cssVars } from "../style/vars.style.manager";
@@ -11,60 +11,63 @@ import { genericReplacementPlugin } from "./replacements.cm";
 ///////////////////////////////////
 // CTAG
 //
-const generateHtmlCtagInt = (matchs:string[], cFile:iFile):string => {
+const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):string => {
 	let tagName = matchs[2].replaceAll("[[","").replaceAll("]]","")
-
-	// style
+	let content = matchs[0].replaceAll(`[[${tagName}]]`,"")
+	let idCtag = `${safeString(tagName)}-${safeString(content)}`
 
 	// opening button logic
 	const openCtagFn = (el) => {
 		if (!el) return
-		let filepath = el.dataset.filepath
-		let file = pathToIfile(filepath)
-		//ssrToggleCtag(ssrIframeEl, ssrGenCtag(tagName, ""))
-		let reactComp = ssrGenCtag(tagName, "", {file})
+		let ssrFilepath = el.dataset.filepath
+		let ssrContent = decodeURIComponent(el.dataset.tagcontent)
+		let ssrTagName = el.dataset.tagname
+		let ssrWindowId = el.dataset.windowid
+		let ssrIdCtag = `${safeString(ssrTagName)}-${safeString(ssrContent)}`
+		let file = pathToIfile(ssrFilepath)
 		let iframeEl = el.parentNode.parentNode.querySelector('.iframe-wrapper-cm-ctag')
+		let nStatus: ssrCachedStatus = !iframeEl.querySelector(`iframe`) ? "open" : "closed"
+		setSsrStatus(file, ssrIdCtag, nStatus) 
+		let reactComp = ssrGenCtag(ssrTagName, ssrContent, {file, windowId:ssrWindowId})
 		ssrToggleCtag(iframeEl, reactComp)	
 	}
+	
+
+	// if cache opened
+	let ssrId = `ress-${idCtag}`
+	atSsrStartupCheckIfOpen(cFile, idCtag, () => {
+		let iframeEl = document.querySelector(`.${ssrId} .iframe-wrapper-cm-ctag`)
+		if (!iframeEl) return
+		let reactComp = ssrGenCtag(tagName, content, {file:cFile, windowId:windowId})
+		ssrToggleCtag(iframeEl, reactComp)	
+	})
 
 	// on click on x, open in iframe
 	let buttonHtml = `
 	<div class="button-ctag-cm-toggle" 
-		onclick="${ssrFn("open-win-link", openCtagFn)}"
+		onclick="${ssrFn("toggle-ctag-link", openCtagFn)}"
 		data-filepath="${cFile.path}"
-	>[x]</div>`
+		data-windowid="${windowId}"
+		data-tagname="${tagName}"
+		data-tagcontent="${encodeURIComponent(content)}"
+	>${ssrIcon('eye')}</div>`
 	let labelHtml = `<div class="cm-ctag-name">[[ ${tagName} ]]</div>`
 	let overviewHtml = `<div class="cm-ctag-overview">${labelHtml}${buttonHtml}</div>`
 	let iframeWrapperHtml = `<div class="iframe-wrapper-cm-ctag"></div>`
 
-	let html = `<div class="cm-ctag-wrapper">${overviewHtml}${iframeWrapperHtml}</div>`
+	let html = `<div class="cm-ctag-wrapper ${ssrId}">${overviewHtml}${iframeWrapperHtml}</div>`
 
 	return html
 }
-export const generateHtmlCtag = mem((matchs, cFile) => generateHtmlCtagInt(matchs, cFile))
+// export const generateHtmlCtag = mem((matchs, cFile) => generateHtmlCtagInt(matchs, cFile))
 
-export const addToDocumentStorageNode = () => {
-	let getStorageWrapper = () => document.body.querySelector("#storage-wrapper")
-	if (!getStorageWrapper()) {
-		let div = document.createElement("div");
-		div.id = "storageWrapper"
-		document.body.appendChild(div)
-	}
-	// setTimeout(() => {
-		// console.log(666, getStorageWrapper())
-	// })
-}
 
-export const ctagPreviewPlugin = (cFile: iFile, cacheNodeId:string|null) => genericReplacementPlugin({
+export const ctagPreviewPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
+	file,
 	pattern: regexs.userCustomTagFull2,
 	replacement: matchs => {
-		let tagName = matchs[2].replaceAll("[[","").replaceAll("]]","")
-		// let idOverlay = `id_cm_replacement_div_${cFile.path}-${tagName}`
-		// let boxBgHtml = `<div id="${idOverlay}" class="anchor-link-cm">${idOverlay}</div>`
-		// idOverlay = safeString(idOverlay)
 		let resEl = document.createElement("span");
-		// resEl.innerHTML = boxBgHtml;
-		// addToDocumentStorageNode()
+		resEl.innerHTML = generateHtmlCtagInt(matchs, file, windowId);
 		return resEl
 	}
 })
@@ -72,7 +75,8 @@ export const ctagPreviewPlugin = (cFile: iFile, cacheNodeId:string|null) => gene
 export const ctagPreviewPluginCss = () => {
 	return `
 	.cm-ctag-wrapper {
-		background: #e9e9e9;
+		position:relative;
+		background: #f2f2f2;
 		padding: 8px;
 		border-radius: 5px;
 		.cm-ctag-overview {
@@ -82,7 +86,15 @@ export const ctagPreviewPluginCss = () => {
 				color: ${cssVars.colors.main};
 			}
 			.button-ctag-cm-toggle {
-	
+				position: absolute;
+				right: 0px;
+				top: -1px;
+				opacity: 0.5;
+				cursor: pointer;
+				padding: 10px;
+				&:hover {
+					opacity: 0.7;
+				}
 			}
 		}
 		.iframe-wrapper-cm-ctag {

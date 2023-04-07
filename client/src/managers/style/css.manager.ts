@@ -138,6 +138,10 @@ export const CssApp2 = (
 
 				&.without-sidebar.device-view-desktop {
 						.left-sidebar-indicator {
+								transition: 0.5s all;	
+								&:hover {
+									background: ${cssVars.colors.main};
+								}
 								display: block;
 								position: absolute;
 								top: 0%;
@@ -151,7 +155,7 @@ export const CssApp2 = (
 								.left-wrapper {
 										box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 										transition: 0.2s all;
-										transition-delay: ${cssVars.anim.time};
+										transition-delay: 500ms, 0ms;
 										position: absolute;
 										left: -${sizes.desktop.l}vw;
 										top: 0px;

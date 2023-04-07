@@ -88,7 +88,6 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 			//
 			const result = signs[0].type
 			// ARRAY
-			// console.log(456, result);
 			if (
 				result.type === "array" ||
 				result.type === "reflection"

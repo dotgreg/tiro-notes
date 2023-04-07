@@ -25,6 +25,8 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { cacheNode } from "../../managers/nodeCache.manager";
+import { random } from "lodash";
+import { devHook } from "../../managers/devCli.manager";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -58,9 +60,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const initVal = (): boolean => {
 		const f = getEditorObj()
 		// @ts-ignore
-		window.cmobj = f
+		// window.cmobj = f
 		if (!f) return false
-
 		if (p.value === histVal.current) return false
 		if (p.value === "loading...") return false
 		if (f.view.state.doc.toString() === p.value) return false
@@ -76,24 +77,22 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// Cache Nodes System
 	//
-	const cacheNodeRef = useRef()
-	const [cacheNodeId, setCacheNodeId] = useState<string|null>(null)
-	useEffect(() => {
-		if (!cacheNodeId) {
-			// create it
-			if (!cacheNodeRef.current) return console.warn("cache node error 1")
-			let cacheId = cacheNode.createCache(cacheNodeRef.current)
-			setCacheNodeId(cacheId)
-		} else {
-			// path changed, delete cache node
-			cacheNode.deleteCache(cacheNodeId)
-		}
-	}, [p.file.path])
-	
-
-	const onCodeMirrorScroll = (e) => {
-		cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
-	}
+	// const cacheNodeRef = useRef()
+	// const [cacheNodeId, setCacheNodeId] = useState<string|null>(null)
+	// useEffect(() => {
+	// 	if (!cacheNodeId) {
+	// 		// create it
+	// 		if (!cacheNodeRef.current) return console.warn("cache node error 1")
+	// 		let cacheId = cacheNode.createCache(cacheNodeRef.current)
+	// 		setCacheNodeId(cacheId)
+	// 	} else {
+	// 		// path changed, delete cache node
+	// 		cacheNode.deleteCache(cacheNodeId)
+	// 	}
+	// }, [p.file.path])
+	// const onCodeMirrorScroll = (e) => {
+	// 	cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
+	// }
 
 
 	
@@ -101,12 +100,26 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// INIT VAL MECHANISME
 	//
 	useEffect(() => {
-		// setTimeout(() => {
+		// initVal()
+		// setTimeout(() => {initVal()}, 100)
+
+
 		// need to wait for 100ms to get codemirror object, need to refactor that
+		// if not wait, some notes on load wont appear
+		// weird bug, only first loading on first note out of 5...
+		initVal()
+
+		// let histFilePath = p.file.path
+		// setTimeout(() => {
+		// 	if (histFilePath !== p.file.path) return
+		// 	initVal()
+		// }, 200)
+		
 		// console.log(res, 4440, p.value, p.forceRender);
-		let res = initVal()
+			// let res = initVal()
+			// devHook("cm_update")(p)
 		// }, 100)
-	}, [p.value, p.forceRender]);
+	}, [p.value, p.forceRender, p.file.path]);
 
 
 	const onChange = (value, viewUpdate) => {
@@ -122,7 +135,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 		syncScrollUpdateDims()
 		// updatePosCmPlugins()
-		cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
+		// cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
 	}
 
 
@@ -225,14 +238,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	// codemirrorExtensions.push(linksPreviewPlugin)
 	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
-		codemirrorExtensions.push(linksPreviewPlugin)
-		codemirrorExtensions.push(noteLinkPreviewPlugin(p.windowId))
-		// codemirrorExtensions.push(ctagPreviewPlugin)
+		codemirrorExtensions.push(linksPreviewPlugin(p.file))
+		codemirrorExtensions.push(noteLinkPreviewPlugin(p.file,p.windowId))
 	}
 	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
-		codemirrorExtensions.push(markdownStylingTableLimiter)
-		codemirrorExtensions.push(markdownStylingTableCell)
-		codemirrorExtensions.push(markdownStylingTable())
+		codemirrorExtensions.push(markdownStylingTableLimiter(p.file))
+		codemirrorExtensions.push(markdownStylingTableCell(p.file))
+		codemirrorExtensions.push(markdownStylingTable(p.file))
 	}
 	if (ua.get("ui_editor_markdown_preview") && enhancedLatex && !disablePlugins) {
 		markdownExtensionCnf.extensions.push(LatexMdEl)
@@ -240,8 +252,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
 		codemirrorExtensions.push(imagePreviewPlugin(p.file))
-		codemirrorExtensions.push(filePreviewPlugin(p.file, cacheNodeId))
-		codemirrorExtensions.push(ctagPreviewPlugin(p.file, cacheNodeId))
+		codemirrorExtensions.push(filePreviewPlugin(p.file))
+		codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 	}
 	if (!disablePlugins && !disableMd) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
@@ -251,49 +263,17 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
 	 
-	// const [cmTop, setCmTop] = useState(0)
-	// const onCodeMScroll = (e) => {
-	// 	updatePosCmPlugins()
-	// }
-
-	// const updatePosCmPlugins = () => {
-	// 	// if (!forwardedRef || !forwardedRef.current) return
-	// 	// console.log(22111, forwardedRef.current)
-	// 	// @ts-ignore
-	// 	let el2 = forwardedRef.current
-	// 	if (!el2) return
-		
-	// 	let parEl = el2.editor.parentNode
-	// 	let scrollEl = parEl.querySelector(".cm-scroller")
-	// 	let iframeEl = parEl.querySelector(".teststorage")
-	// 	let placeholderEl = parEl.querySelector(".anchor-link-cm")
-	// 	let scrollCm = scrollEl.scrollTop
-	// 	if (!iframeEl) return
-		
-	// 	// if placeholder not here, make it invisible
-	// 	let placeholderTop = placeholderEl ? placeholderEl.offsetTop : -99999
-
-	// 	console.log(scrollCm, placeholderTop)
-	// 	// iframeEl.style.top = scrollCm + placeholderTop
-	// 	let nTop = -scrollCm + placeholderTop
-	// 	iframeEl.style.transform = `translateY(${nTop}px);`
-	// 	iframeEl.style.top = `${nTop}px`
-	// }
-
 	
 
 
 	return (
 		<div className={`codemirror-editor-wrapper ${classes}`}>
-			{/* <div className="teststorage" style={{top:200+cmTop}}><iframe src="http://raw2.websocial.cc"></iframe></div> */}
-			{/* <div className="teststorage"><iframe src="http://raw2.websocial.cc"></iframe></div> */}
-			<div className="cache-nodes" ref={cacheNodeRef as any}></div>
 			<CodeMirror
 				value=""
 				ref={forwardedRef as any}
 				theme={getCustomTheme()}
 				onChange={onChange}
-				onScrollCapture={onCodeMirrorScroll}
+				// onScrollCapture={onCodeMirrorScroll}
 
 				basicSetup={{
 					foldGutter: false,
@@ -319,6 +299,7 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 		let res = true
 		if (np.forceRender !== pp.forceRender) res = false
 		if (np.jumpToLine !== pp.jumpToLine) res = false
+		if (np.file.path !== pp.file.path) res = false
 		// console.log("rerendercontrol cm", res);
 		return res
 	})

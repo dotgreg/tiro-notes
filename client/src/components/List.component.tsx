@@ -114,7 +114,6 @@ class ListInt extends React.Component<{
 			this.state.selectionEdges[0] <= i &&
 			this.state.selectionEdges[1] >= i
 		) res = true
-		// if (res) console.log(666, i, res, this.state.selectionEdges);
 		return res
 	}
 

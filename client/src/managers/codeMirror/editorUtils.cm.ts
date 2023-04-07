@@ -72,12 +72,6 @@ const updateText = (CMObj: any, newText: string, charPos: number) => {
 	// 	)
 	// )
 
-	// setTimeout(() => {
-	// 	let oldScroll = CMObj.view.scrollDOM.scrollTop
-	// 	if (oldScroll < 0) oldScroll = 0
-	// 	console.log(333344, oldScroll);
-	// }, 1000)
-
 }
 const updateCursor = (CMObj: any, newPos: number, scrollTo: boolean = false) => {
 	log && console.log(h, " update cursor", newPos, CMObj);

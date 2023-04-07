@@ -253,6 +253,7 @@ export const App = () => {
 
 	// NOTE HISTORY HOOK
 	const historyApi = useNoteHistoryApi()
+	
 
 	//
 	// CLIENT API
@@ -277,9 +278,16 @@ export const App = () => {
 	const cleanFolderHierarchy = foldersUiApi.clean
 	const folderBasePath = foldersUiApi.base
 
-
 	// last Note + files history array
-	const { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend } = useLastFilesHistory(filesUiApi.active.get)
+	const { 
+		filesHistory, 
+		cleanLastFilesHistory, 
+		refreshFilesHistoryFromBackend,
+		lastFilesHistoryApi
+	} = useLastFilesHistory(filesUiApi.active.get)
+	api.lastNotesApi = lastFilesHistoryApi
+
+	
 
 	// fileMove logic
 	const {

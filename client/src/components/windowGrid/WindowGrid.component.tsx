@@ -11,6 +11,7 @@ import { initDragDropListener } from '../../managers/dragDrop.manager';
 import { strings } from '../../managers/strings.manager';
 import { iUploadedFile } from '../../managers/upload.manager';
 import { PathModifFn } from '../dualView/TitleEditor.component';
+import { LastNotes } from '../LastNotes.component';
 import { DraggableGrid } from './DraggableGrid.component';
 
 //
@@ -69,7 +70,7 @@ export const WindowGrid = (p: {
 		if (!api) return
 		api.popup.confirm(`${strings.trashNote}`, () => {
 			const h = `[FILE DELETE] 0046`
-
+			api.lastNotesApi?.removeFile(file.path)
 			api.file.delete(file, nFiles => {
 				const widToReplace = api.ui.windows.getIdsFromFile(file.path)
 				// api.ui.windows.close(idsToRemove)
@@ -108,8 +109,13 @@ export const WindowGrid = (p: {
 			const idsToUpdate = api.ui.windows.getIdsFromFile(oPath)
 			api.ui.windows.updateWindows(idsToUpdate, nFile)
 
+			// remove mention inside nodeHistory  LastNotes
+			api.lastNotesApi?.removeFile(oPath)
+
 			// need to refresh state, then refresh Folder list
 			onNextStateTrigger({ name: 'refreshFolderList', data: nFile })
+
+
 		})
 	}
 

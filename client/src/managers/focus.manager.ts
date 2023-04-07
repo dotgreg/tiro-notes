@@ -1,9 +1,9 @@
-export const defocusMouse = e => {
+export const defocusMouse = (e, idtarget) => {
 	// refocus on parent
-	let el = document.getElementsByClassName("refocus-input")[0]
+	let el = document.getElementById(idtarget)
 	if (el) {
 		// @ts-ignore
-		el.focus()
+		el.focus({ preventScroll: true})
 	}
 
 }
