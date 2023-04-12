@@ -21,6 +21,7 @@ import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString } from "./managers/exec.manager";
 import { getFileInfos } from "../../shared/helpers/filename.helper";
+import { getSocketClientInfos, security } from "./managers/security.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -313,6 +314,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('sendLoginInfos', async data => {
 		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
+		
+		security.log(`LOGIN : ${areClientInfosCorrect ? "OK": `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2)}]`)
+
 		if (!areClientInfosCorrect) {
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
 		} else {

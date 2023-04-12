@@ -6,6 +6,7 @@ import { isEnvDev } from './managers/path.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { searchWord } from './managers/search/word.search.manager';
+import { security } from './managers/security.manager';
 
 fileLogClean();
 
@@ -55,21 +56,7 @@ server.listen(backConfig.port, function () {
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
 
-
-// searchWord({
-// 	term: "#[^ #]+",
-// 	folder: '/test_obsi/nodal_ex',
-// 	cb: res => {
-// 		console.log(333, res, 333);
-// 	}
-// })
-
-// searchWord({
-// 	term: "marx",
-// 	folder: '/test_obsi/nodal_ex',
-// 	cb: res => {
-// 		console.log(333, res, 333);
-// 	}
-// })
-
-// GOAL IS HAVING
+app.get('*', function(req, res){
+	security.log(`NOK 404 requested => ${req.url} [${JSON.stringify(req.headers)}]`)
+	res.status(404).send('Not found');
+});

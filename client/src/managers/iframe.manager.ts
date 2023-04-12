@@ -325,16 +325,29 @@ export const iframeMainCode = (p: {
 	///////////
 	// SUPPORT FUNCTIONS
 	const checkUrlExists = (url, onSuccess, onFail) => {
-		try {
-			var http = new XMLHttpRequest();
-			http.open('HEAD', url, false);
-			http.send();
+		// try {
+		// 	var http = new XMLHttpRequest();
+		// 	http.open('HEAD', url, false);
+		// 	http.send();
+
+		fetch(url, {method: 'HEAD'})
+		.then((response) => {
+			if(response.ok) {
+				return onSuccess()
+			} else {
+				return onFail()
+			}
+		}).catch((error) => {
+			return onFail(error)
+		});
+			  
+
 			// return http.status != 404;
-			if (http.status !== 404) return onSuccess()
-			return onFail()
-		} catch (e) {
-			onFail(e)
-		}
+		// 	if (http.status !== 404) return onSuccess()
+		// 	return onFail()
+		// } catch (e) {
+		// 	onFail(e)
+		// }
 	}
 
 	const loadLocalRessourceInHtml = (url, onLoad) => {
