@@ -3,7 +3,7 @@
 //
 const windowNS = "tiroDevCli"
 export const devCliAddFn = (cat: string, name: string, fn: Function) => {
-	console.log("[TIRO DEV CLI] adding ", cat, name)
+	// console.log("[TIRO DEV CLI] adding ", cat, name)
 	//@ts-ignore
 	if (!window[windowNS]) window[windowNS] = {}
 	//@ts-ignore

@@ -62,7 +62,7 @@ const getVideosDetails = (vItems, cb) => {
 										let timeFilter = window.youtubeTimeFilter
 										if (timeFilter && Array.isArray(timeFilter)) {
 												if (mins < timeFilter[0] || mins > timeFilter[1]) {
-														console.log(`[YOUTUBE] time filtered item ${it.title}`, it);
+														// console.log(`[YOUTUBE] time filtered item ${it.title}`, it);
 														it.hidden = true
 												}
 										}

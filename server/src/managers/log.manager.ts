@@ -27,12 +27,16 @@ const userHomePath = (): string => {
 
 const fs = require('fs')
 const logFilePath = `${userHomePath()}/.tiro-logs.txt`
+const securityLogFilePath = `${userHomePath()}/.tiro-security-logs.txt`
 
 export const fileLogClean = () => {
 	fs.writeFile(logFilePath, '', err => { })
 }
 
-const fileLogWrite = (content) => {
-	content = `${new Date().getTime()} => ${content} \n\r`
-	fs.appendFile(logFilePath, content, err => { })
+type iLogType = "normal" | "security"
+export const fileLogWrite = (content, type:iLogType = "normal") => {
+	let filePath = type === "normal" ? logFilePath : securityLogFilePath
+	content = `${new Date().toJSON()} => ${content} \n\r`
+	fs.appendFile(filePath, content, err => { })
 }
+

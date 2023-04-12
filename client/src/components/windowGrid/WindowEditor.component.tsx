@@ -109,7 +109,7 @@ export const WindowEditorInt = (p: {
 						getApi(api => {
 							let filepath: any = file?.path
 							ct = contentToUpdateOnceOnline.current
-							console.log("2 RECONNECTION", filepath, ct, contentToUpdateOnceOnline);
+							// console.log("2 RECONNECTION", filepath, ct, contentToUpdateOnceOnline);
 							if (!filepath || !ct) return
 							if (!ct.path) return
 							if (filepath !== ct.path) return

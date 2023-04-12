@@ -189,7 +189,6 @@ const onWindowLoad = (wid: string) => {
 		const c = getScrollObj(wid)
 		// if (!c.els.editor) return
 		let percent = c.posPercent
-		console.log(wid)
 		updateScrollerDims(wid)
 		scrollScroller(wid, percent)
 		scrollEditor(wid, percent)
