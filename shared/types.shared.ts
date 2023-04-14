@@ -1,3 +1,13 @@
+export type iNotificationType = "normal" | "warning" | "error"
+export type iNotification = { 
+	content: string, 
+	options?: {
+		type?: iNotificationType, 
+		hideAfter?: number, 
+		keepInHistory?: boolean
+	}
+}
+
 export type iPluginType = "background" | "bar" | "tag"
 export type iPluginOptions = {
 	background_exec_interval_in_min?: number
