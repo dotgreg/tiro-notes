@@ -5,7 +5,7 @@ let shouldLog = sharedConfig.client.log.verbose
 shouldLog = true
 
 // inside code app
-const getInternalCtags = () => {
+const getHardcodedTags = () => {
     return {iframe: iframeCtag}
 }
 // if not present, fallback to download from dev/custom-tags github for the moment
@@ -25,27 +25,46 @@ const getBaseCtagContent = (ctagName:string, cb:(txt:string)=>void) => {
   cb(baseCtagTxt)
 }
 
+const getCtagLegacyContent = (ctagName:string, cb) => {
+  getApi(api => {
+    api.file.getContent(`/.tiro/tags/${ctagName}.md`, ncontent => {
+        cb(ncontent)
+    }, {
+        onError: () => {
+            // if not present, fallback to download from dev/custom-tags github for the moment
+            if (baseCtag.includes(ctagName)) {
+              getBaseCtagContent(ctagName, txt => {
+                cb(txt)
+              })
+            } else {
+              cb(null)
+            }
+        }
+    })
+  })
+}
+
+
 export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) => void) => {
-    let intCtags = getInternalCtags()
+    let intCtags = getHardcodedTags()
+    // 1 HARDCODED
     if (intCtags[ctagName]){
         cb(intCtags[ctagName])
+    // 2 PLUGINS
     } else {
-        getApi(api => {
-            api.file.getContent(`/.tiro/tags/${ctagName}.md`, ncontent => {
-                cb(ncontent)
-            }, {
-                onError: () => {
-                    // if not present, fallback to download from dev/custom-tags github for the moment
-                    if (baseCtag.includes(ctagName)) {
-                      getBaseCtagContent(ctagName, txt => {
-                        cb(txt)
-                      })
-                    } else {
-                      cb(null)
-                    }
-                }
+      getApi(api => {
+        api.plugins.get(ctagName, res => {
+          if (res && res.type === "tag") {
+            cb(res.code)
+          } else {
+            //3 W LEGACY CTAG SYSTEM FALLBACK
+            getCtagLegacyContent(ctagName, res2 => {
+              cb(res2)
             })
+          }
         })
+      })
+        
     }
 }
 

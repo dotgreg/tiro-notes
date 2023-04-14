@@ -1,4 +1,4 @@
-import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iAppView, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -80,4 +80,7 @@ export interface iApiDictionary {
 
 	askCommandExec: { commandString: string, idReq: string }
 	getCommandExec: { resultCommand: string, idReq: string }
+	
+	askPluginsList: { noCache:boolean, idReq: string }
+	getPluginsList: { plugins: iPlugin[], scanLog:string[], idReq: string }
 }
