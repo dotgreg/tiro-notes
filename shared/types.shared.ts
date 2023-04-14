@@ -1,3 +1,8 @@
+export type iPluginType = "background" | "bar" | "tag"
+export type iPluginOptions = {
+	background_exec_interval_in_min?: number
+}
+export type iPlugin = { name: string, type: iPluginType, code: string, options: iPluginOptions}
 
 export type iSearchWordRes = { [filePath: string]: { file: iFile, results: string[] } }
 

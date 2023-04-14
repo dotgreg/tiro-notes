@@ -7,6 +7,7 @@ import { fileLogClean, log } from './managers/log.manager';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { searchWord } from './managers/search/word.search.manager';
 import { security } from './managers/security.manager';
+import { scanPlugins } from './managers/plugins.manager';
 
 fileLogClean();
 
@@ -60,3 +61,10 @@ app.get('*', function(req, res){
 	security.log(`NOK 404 requested => ${req.url} [${JSON.stringify(req.headers)}]`)
 	res.status(404).send('Not found');
 });
+
+
+// const test = async () => {
+// 	let {plugins, scanLog} = await scanPlugins()
+// 	console.log(123, test, plugins, scanLog)
+// }
+// test()

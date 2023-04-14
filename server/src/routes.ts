@@ -7,7 +7,7 @@ import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.ma
 import { focusOnWinApp } from "./managers/win.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
-import { iFile, iFolder } from "../../shared/types.shared";
+import { iFile, iFolder, iPlugin } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
 import { processClientSetup, updateSetupJsonParam } from "./managers/configSetup.manager";
 import { restartTiroServer } from "./managers/serverRestart.manager";
@@ -22,6 +22,7 @@ import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString } from "./managers/exec.manager";
 import { getFileInfos } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
+import { scanPlugins } from "./managers/plugins.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -379,6 +380,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
+
+	//
+	// PLUGINS
+	// 
+	serverSocket2.on('askPluginsList', async data => {
+		// let res = await execString(data.commandString)
+		// let plugins:iPlugin[] = []
+		let {plugins, scanLog} = await scanPlugins(data.noCache)
+		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
+	})
 
 
 	//

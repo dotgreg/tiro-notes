@@ -25,6 +25,7 @@ import { iAnalyticsApi, useAnalyticsApi } from './analytics.api.hook';
 import { iCommandApi, useCommandApi } from './command.api.hook';
 import { encryptApi, iEncryptApi } from '../../managers/encryption.manager';
 import { iLastFilesHistoryApi } from '../app/lastFilesHistory.hook';
+import { iPluginsApi, usePluginsApi } from './plugin.api.hook';
 
 
 //
@@ -66,6 +67,7 @@ export interface iClientApi {
 	analytics: iAnalyticsApi
 	command: iCommandApi
 	encryption: iEncryptApi,
+	plugins: iPluginsApi,
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -175,6 +177,7 @@ export const useClientApi = (p: {
 	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
 	const commandApi = useCommandApi({ eventBus });
+	const pluginsApi = usePluginsApi({eventBus})
 	const cacheApi = useCacheApi({});
 
 
@@ -190,6 +193,7 @@ export const useClientApi = (p: {
 
 	const noteApi = useNoteApi({})
 	const analyticsApi = useAnalyticsApi({})
+	
 
 
 	// 
@@ -212,6 +216,7 @@ export const useClientApi = (p: {
 		analytics: analyticsApi,
 		search: searchApi,
 		command: commandApi,
+		plugins: pluginsApi,
 		watch: watchApi,
 		ui: {
 			browser: browserApi,
