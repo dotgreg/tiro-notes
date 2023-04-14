@@ -1,7 +1,7 @@
 import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
-import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
+import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
@@ -23,6 +23,7 @@ import { execString } from "./managers/exec.manager";
 import { getFileInfos } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
 import { scanPlugins } from "./managers/plugins.manager";
+import { sharedConfig } from "../../shared/shared.config";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -390,6 +391,21 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let {plugins, scanLog} = await scanPlugins(data.noCache)
 		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
 	})
+
+	//
+	// NOTIFICATIONS
+	// 
+	serverSocket2.on('emitNotification', async data => {
+		// actually send to to everybody
+		ioServer.emit('getNotification', {...data})
+
+		// and appends notif in notification history
+		if (data.notification.options?.keepInHistory) {
+			let notifHistoryFile = `${backConfig.dataFolder}/${sharedConfig.path.configFolder}/notification_history.md`
+			prependToFile(notifHistoryFile, `${new Date().toJSON()} : ${data.notification.content}`)
+		}
+		
+	}, { checkRole: "editor" })
 
 
 	//

@@ -123,6 +123,19 @@ export const saveFile = async (path: string, content: string): Promise<void> => 
 	})
 }
 
+export const prependToFile = async (path: string, content: string): Promise<void> => {
+	path = p(path)
+	shouldLog && log(`[PREPENDFILE] starting save ${path}`);
+	// get existing content
+	let currContent = ""
+	try {
+		currContent = await openFile(path)
+	} catch(e) {}
+
+	let nContent = content + currContent
+	return await saveFile(path, nContent)
+}
+
 export const createFolder = async (path: string): Promise<void> => {
 	path = p(path)
 
