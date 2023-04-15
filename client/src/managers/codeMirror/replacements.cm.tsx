@@ -99,18 +99,5 @@ export const genericReplacementPlugin = (p: {
 
 
 
-// export const genericReplacementPlugin = (
-// 	p: {
-// 		pattern: RegExp,
-// 		replacement?: iReplacementFn
-// 		classWrap?: iClassWrapperFn
-// 		options?: {
-// 			isAtomic?: boolean
-// 		}
-// 	}) => {
-// 	console.log(123333, p.pattern, p.replacement);
-// 	return genericReplacementPluginInt(p)
-// }
-
 
 

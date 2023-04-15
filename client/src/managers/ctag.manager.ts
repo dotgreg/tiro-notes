@@ -68,6 +68,10 @@ export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) =>
     }
 }
 
+export const getCtagList = () => {
+
+}
+
 
 
 //
