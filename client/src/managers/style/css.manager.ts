@@ -37,6 +37,7 @@ import { NotePreviewCss } from '../../components/NotePreview.component';
 import { titleEditorCss } from '../../components/dualView/TitleEditor.component';
 import { mem } from '../reactRenderer.manager';
 import { ctagPreviewPluginCss } from '../codeMirror/ctag.plugin.cm';
+import { NotificationsCenterCss } from '../../components/NotificationsCenter.component';
 
 
 export const css2 = (css: string) => css
@@ -61,6 +62,7 @@ export const CssApp2 = (
 		}
 
 		${GlobalAppViewCss()}
+		${NotificationsCenterCss()}
 		${latexCss()}
 		${lightboxCss()}
 		${promptPopupCss()}

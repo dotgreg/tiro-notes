@@ -27,6 +27,7 @@ import { encryptApi, iEncryptApi } from '../../managers/encryption.manager';
 import { iLastFilesHistoryApi } from '../app/lastFilesHistory.hook';
 import { iPluginsApi, usePluginsApi } from './plugin.api.hook';
 import { iNotificationApi, useNotificationApi } from './notification.api.hook';
+import { iSocketApi, useSocketApi } from './socket.api.hook';
 
 
 //
@@ -56,6 +57,7 @@ export interface iClientApi {
 	 * comment3
 	 */
 	watch: iWatchApi
+	socket: iSocketApi
 	cache: iCacheApi
 	popup: iPopupApi
 	files: iFilesApi
@@ -182,6 +184,7 @@ export const useClientApi = (p: {
 	const pluginsApi = usePluginsApi({eventBus})
 	const cacheApi = useCacheApi({});
 	const notificationApi = useNotificationApi({});
+	const socketApi = useSocketApi({});
 
 
 	const browserApi = useBrowserApi({
@@ -207,6 +210,7 @@ export const useClientApi = (p: {
 		file: fileApi,
 		encryption: encryptApi,
 		files: filesApi,
+		socket: socketApi,
 		popup: p.popupApi,
 		upload: uploadApi,
 		ressource: ressourceApi,
