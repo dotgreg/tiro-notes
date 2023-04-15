@@ -1,5 +1,6 @@
 export type iNotificationType = "normal" | "warning" | "error"
 export type iNotification = { 
+	id?: string,
 	content: string, 
 	options?: {
 		type?: iNotificationType, 

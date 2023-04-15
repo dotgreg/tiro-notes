@@ -184,7 +184,7 @@ export const useClientApi = (p: {
 	const pluginsApi = usePluginsApi({eventBus})
 	const cacheApi = useCacheApi({});
 	const notificationApi = useNotificationApi({});
-	const socketApi = useSocketApi({});
+	const socketApi = useSocketApi();
 
 
 	const browserApi = useBrowserApi({
