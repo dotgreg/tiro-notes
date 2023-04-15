@@ -26,6 +26,7 @@ import { iCommandApi, useCommandApi } from './command.api.hook';
 import { encryptApi, iEncryptApi } from '../../managers/encryption.manager';
 import { iLastFilesHistoryApi } from '../app/lastFilesHistory.hook';
 import { iPluginsApi, usePluginsApi } from './plugin.api.hook';
+import { iNotificationApi, useNotificationApi } from './notification.api.hook';
 
 
 //
@@ -71,6 +72,7 @@ export interface iClientApi {
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
+		notification: iNotificationApi
 		lightbox: iLightboxApi
 		textToSpeechPopup: iTtsApi
 		search: iSearchUiApi
@@ -179,6 +181,7 @@ export const useClientApi = (p: {
 	const commandApi = useCommandApi({ eventBus });
 	const pluginsApi = usePluginsApi({eventBus})
 	const cacheApi = useCacheApi({});
+	const notificationApi = useNotificationApi({});
 
 
 	const browserApi = useBrowserApi({
@@ -220,6 +223,7 @@ export const useClientApi = (p: {
 		watch: watchApi,
 		ui: {
 			browser: browserApi,
+			notification: notificationApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi,
 			textToSpeechPopup: p.ttsApi,

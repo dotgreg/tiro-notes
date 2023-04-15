@@ -46,6 +46,7 @@ import { pe1, pe2 } from './managers/performance.manager';
 import './managers/localNoteHistory.manager';
 import { random } from 'lodash';
 import { devCliAddFn } from './managers/devCli.manager';
+import { NotificationsCenter } from './components/NotificationsCenter.component';
 
 export const App = () => {
 	useEffect(() => {
@@ -592,6 +593,8 @@ export const App = () => {
 					</div>
 				</ClientApiContext.Provider>
 			</div >
+
+			<NotificationsCenter />
 
 			{
 				lightboxImages.length > 0 &&
