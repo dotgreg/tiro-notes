@@ -3,6 +3,15 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import * as fa from '@fortawesome/free-solid-svg-icons'
 import { ssrIcon } from '../managers/ssr.manager';
 
+
+export const Icon2 = (p:{name: string}) => {
+	return <div className="icon-2-wrapper"
+		dangerouslySetInnerHTML={{
+			__html: ssrIcon(p.name)
+		}}
+	></div>
+}
+
 // fa.faCheckDouble 
 export type IconSizeProp =
 	| "xs"
