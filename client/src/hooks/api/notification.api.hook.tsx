@@ -7,6 +7,7 @@ const h = `[NOTIFICATIONS]`
 
 export interface iNotificationApi {
 	emit: (notification: iNotification) => void
+	on: (cb:(Notification:iNotification) => void) => void
 }
 
 export const useNotificationApi = (p: {
@@ -19,6 +20,11 @@ export const useNotificationApi = (p: {
 			token: getLoginToken(),
 		})
 	}
+
+	const onNotif = 
+	clientSocket2.on('getNotification', data => {
+		console.log("NOTIIIF", data.notification)
+	})
 
 	//
 	// EXPORTS

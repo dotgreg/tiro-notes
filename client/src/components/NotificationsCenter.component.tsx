@@ -15,15 +15,17 @@ export const NotificationsCenter = (p: {
 }) => {
 
 	useEffect(() => {
-		clientSocket2.on('getNotification', data => {
-			console.log("NOTIIIF", data.notification)
+		getApi(api =>{
+			api.socket.get.on('getNotification', data => {
+				console.log("NOTIIIF", data.notification)
+			})
 		})
 	}, [])
 
 
 	return (
 		<div className="notifications-center-wrapper">
-			
+			test
 		</div >
 	)
 }
@@ -31,5 +33,8 @@ export const NotificationsCenter = (p: {
 export const NotificationsCenterCss = () => `
 
 	.notifications-center-wrapper {
+		position: fixed;
+		top: 0px;
+		right: 0px;
 	}
 `

@@ -8,6 +8,9 @@ import { strings } from '../strings.manager';
 export let clientSocket: SocketIOClient.Socket
 export let clientSocket2: ClientSocketManager<iApiDictionary>
 
+
+
+
 export const getBackendUrl = () => {
 	// let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
 	let protocol = configClient.global.protocol
@@ -49,6 +52,14 @@ export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 		})
 	})
 }
+
+
+
+
+// export interface iSocketApi {
+// 	emit: (notification: iNotification) => void
+// 	on: (cb:(Notification:iNotification) => void) => void
+// }
 
 
 
