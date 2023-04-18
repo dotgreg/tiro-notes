@@ -11,7 +11,6 @@ export interface iSocketApi {
 
 export const useSocketApi = () => {
 	const get: iSocketApi['get'] = (cb) => {
-		console.log(333, cb)
 		let int = setInterval(() => {
 			if (clientSocket2) {
 				cb(clientSocket2)

@@ -78,7 +78,6 @@ export const useCacheApi = (p: {}): iCacheApi => {
 				// api.file.getContent(getCachedStorage(cacheId), raw => {
 				try {
 					const cachedObjRw = JSON.parse(raw)
-					// console.log(333312, {cachedObjRw, raw })
 					cachedRamDic.current[cacheId] = { ...cachedObjRw }
 
 					// if expired, update its value
@@ -89,7 +88,9 @@ export const useCacheApi = (p: {}): iCacheApi => {
 					log && console.log(h, 'FROM FILE', cacheId, " expired:", expired);
 					cb(cacheObj.content)
 				} catch (e) {
-
+					log && console.log(h, 'error getting cache', e, cacheId);
+					setRamCache(cacheId, undefined, 60)
+					cb(cachedRamDic.current[cacheId].content)
 				}
 			}, e => {
 				// if doesnt exists, return undefined to avoid unnecessary api.getcontent calls

@@ -44,8 +44,7 @@ export const renderReactToId = (
 export const renderReactComponent = (Component: ReactElement, containerEl?: HTMLElement | null): HTMLElement => {
 
 	// if (cached.val) {
-	// 	console.log(3333, cached.val);
-	// 	return cached.val
+	// 	return cached.valme
 	// }
 
 	// if (!containerEl) return console.warn("[renderReactComponent] the container element was not found");

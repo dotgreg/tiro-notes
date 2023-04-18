@@ -13,7 +13,6 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
     let pluginsFolder = `${backConfig.dataFolder}/${sharedConfig.path.configFolder}/plugins/`
     
     const pluginFiles = await scanDirForFiles(pluginsFolder)
-    // console.log(2333, pluginFiles)
     if (!isArray(pluginFiles)) return res
 
     const promises = pluginFiles.map(async f => {
@@ -21,7 +20,6 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
         let pluginRawContent = await openFile(fullpath)
         // interpret it
         try {
-            // console.log(222, pluginRawContent)
             let interpretedCode = new Function(pluginRawContent)() 
             // check that an array is return and each has name, type etc. to become a iPlugin
             if (isArray(interpretedCode)) { 
@@ -35,12 +33,10 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
             }
 
         } catch (e) {
-            res.scanLog.push(`load error for ${f.name} ${JSON.stringify(e.message)} inside the code ${pluginRawContent}`)
-            // console.log(h, `PLUGIN LOAD ERROR ${f.name}`, e)
+            res.scanLog.push(`load error for ${f.name} ${JSON.stringify(e.message)}`)
         }
     })
 
     await Promise.all(promises)
-    // console.log(3333, res)
     return res
 }

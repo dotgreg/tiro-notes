@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { Popup } from './Popup.component';
 import Select from 'react-select';
 import { debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
-import { iFile } from '../../../shared/types.shared';
+import { iFile, iPlugin } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -11,9 +10,9 @@ import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
 import { NotePreview } from './NotePreview.component';
 import { deviceType } from '../managers/device.manager';
-import { regexs } from '../../../shared/helpers/regexs.helper';
 import { aLog } from '../hooks/api/analytics.api.hook';
 import { Icon } from './Icon.component';
+import { notifLog } from '../managers/devCli.manager';
 
 
 interface iOptionSuggest {
@@ -561,89 +560,162 @@ export const SuggestPopup = (p: {
 
 	const triggerPluginLogic = (input: string, stags: any[]) => {
 		setNotePreview(null)
-
-		// STEP 1 : SELECT PLUGIN
-		if (stags.length === 1) {
-			// scan the bar_plugins folder
-			let pluginsBarFolder = `/${sharedConfig.path.configFolder}/bar_plugins/`
-
-			// setOptions(nOpts)
-			getApi(api => {
-				// let nOpts: any = []
-				let nOpts: any = []
-				api.files.get(pluginsBarFolder, files => {
-					each(files, f => {
-						nOpts.push({ label: f.name.replace('.md', ''), value: f })
+		getApi(tiroApi => {
+			if (stags.length === 1) {
+				// STEP 2 : LOAD ALL BAR PLUGINS, EVAL INPUTTXT AND SEND IT BACK
+				
+					let nOpts: any = []
+					tiroApi.plugins.list(plugins => {
+						each(plugins, p => {
+							if (p.type !== "bar") return
+							nOpts.push({ label: p.name, value: p })
+						})
+						setOptions(nOpts)
+						if (input === ":") setInputTxt("")
+						// order alphabetically
+						nOpts = orderBy(nOpts, ["label"])
+						setHelp(`${nOpts.length} bar plugins found`)
 					})
-					// order alphabetically
-					nOpts = orderBy(nOpts, ["label"])
-
-					setOptions(nOpts)
-					if (input === ":") setInputTxt("")
-					setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
-					// forceUpdate()
-				})
-			})
-		}
-		// STEP 2 : LOAD CONTENT, EVAL INPUTTXT AND SEND IT BACK
-		else if (stags.length === 2) {
-			let file = stags[1].value
-
-			getApi(tiroApi => {
-				const execPlugin = (pluginName: string) => {
-					let pluginContent = cachedPlugins.dict[pluginName]
-
-					//
-					// BAR API
-					//
-					const loadBarPlugin = (url: string, bApi, tApi) => {
-						let noCache = !cachedPlugins.config.enabled
-						tiroApi.ressource.fetch(url, txt => {
-							try {
-								new Function('barApi', 'tiroApi', txt)(bApi, tApi)
-							} catch (e) {
-								let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
-								console.log(message);
-							}
-						}, { disableCache: noCache })
-					}
-
-					let barApi = {
-						input, setInputTxt, inputTxt, inputTxtRef,
-						options, setOptions,
-						onChange: onChangeUpdatePlugin,
-						onClose: p.onClose, onHide: p.onHide,
-						selectedOptionRef, setSelectedOption,
-						lodash,
-						setNotePreview, notePreview,
-						setHtmlPreview, htmlPreview,
-						loadBarPlugin, disableCache: disableCachePlugins
-					}
-					// we directly eval it!
-					try {
-						new Function('barApi', 'tiroApi', pluginContent)(barApi, tiroApi)
-					} catch (e) {
-						let message = `[ERROR PLUGIN BAR]: ${JSON.stringify(e)}"`
-						console.log(message);
-					}
-
-
+				
+				// nOpts.push({ label: f.name.replace('.md', ''), value: f })
+				// if (input === ":") setInputTxt("")
+				// setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
+				// order alphabetically
+				// 			nOpts = orderBy(nOpts, ["label"])
+			} else if (stags.length >= 2) {
+					let plugin = stags[1].value as iPlugin
+				// console.log(pluginBarName)
+				const loadExternalBarPlugin = (url: string, bApi, tApi) => {
+					let noCache = !cachedPlugins.config.enabled
+					tiroApi.ressource.fetch(url, txt => {
+						try {
+							new Function('barApi', 'tiroApi', txt)(bApi, tApi)
+						} catch (e) {
+							let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
+							console.log(message);
+							notifLog(`${message}`)
+						}
+					}, { disableCache: noCache })
 				}
-
-
-				aLog(`suggest_plugin_${file.name}`)
-				if (cachedPlugins.dict[file.name]) {
-					execPlugin(file.name)
-				} else {
-					tiroApi.file.getContent(file.path, pluginContent => {
-						cachedPlugins.dict[file.name] = pluginContent
-						execPlugin(file.name)
-					})
+				let barApi = {
+					input, setInputTxt, inputTxt, inputTxtRef,
+					options, setOptions,
+					onChange: onChangeUpdatePlugin,
+					onClose: p.onClose, onHide: p.onHide,
+					close: p.onClose, hide: p.onHide,
+					selectedOptionRef, setSelectedOption,
+					lodash,
+					selectedTags: stags,
+					setNotePreview, notePreview,
+					setHtmlPreview, htmlPreview,
+					loadBarPlugin:loadExternalBarPlugin, disableCache: disableCachePlugins,
+					loadExternalBarPlugin
 				}
-			})
-		}
+				// we directly eval it!
+				try {
+					new Function('barApi', 'tiroApi', plugin.code)(barApi, tiroApi)
+				} catch (e:any) {
+					let message = `[ERROR PLUGIN BAR]: ` 
+					console.log(message, e);
+					notifLog(`${message} : ${e.message}`)
+				}
+				
+			}
+		})
+
+		// // STEP 1 : SELECT PLUGIN
+		// if (stags.length === 1) {
+		// 	// scan the bar_plugins folder
+		// 	let pluginsBarFolder = `/${sharedConfig.path.configFolder}/bar_plugins/`
+
+		// 	// setOptions(nOpts)
+		// 	getApi(api => {
+		// 		// let nOpts: any = []
+		// 		let nOpts: any = []
+		// 		api.files.get(pluginsBarFolder, files => {
+		// 			each(files, f => {
+		// 				nOpts.push({ label: f.name.replace('.md', ''), value: f })
+		// 			})
+		// 			// order alphabetically
+		// 			nOpts = orderBy(nOpts, ["label"])
+
+		// 			setOptions(nOpts)
+		// 			if (input === ":") setInputTxt("")
+		// 			setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
+		// 			// forceUpdate()
+		// 		})
+		// 	})
+		// }
+		// // STEP 2 : LOAD CONTENT, EVAL INPUTTXT AND SEND IT BACK
+		// else if (stags.length === 2) {
+		// 	let file = stags[1].value
+
+		// 	getApi(tiroApi => {
+		// 		const execPlugin = (pluginName: string) => {
+		// 			let pluginContent = cachedPlugins.dict[pluginName]
+
+		// 			//
+		// 			// BAR API
+		// 			//
+		// 			const loadBarPlugin = (url: string, bApi, tApi) => {
+		// 				let noCache = !cachedPlugins.config.enabled
+		// 				tiroApi.ressource.fetch(url, txt => {
+		// 					try {
+		// 						new Function('barApi', 'tiroApi', txt)(bApi, tApi)
+		// 					} catch (e) {
+		// 						let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
+		// 						console.log(message);
+		// 					}
+		// 				}, { disableCache: noCache })
+		// 			}
+
+		// 			let barApi = {
+		// 				input, setInputTxt, inputTxt, inputTxtRef,
+		// 				options, setOptions,
+		// 				onChange: onChangeUpdatePlugin,
+		// 				onClose: p.onClose, onHide: p.onHide,
+		// 				selectedOptionRef, setSelectedOption,
+		// 				lodash,
+		// 				setNotePreview, notePreview,
+		// 				setHtmlPreview, htmlPreview,
+		// 				loadBarPlugin, disableCache: disableCachePlugins
+		// 			}
+		// 			// we directly eval it!
+		// 			try {
+		// 				new Function('barApi', 'tiroApi', pluginContent)(barApi, tiroApi)
+		// 			} catch (e) {
+		// 				let message = `[ERROR PLUGIN BAR]: ${JSON.stringify(e)}"`
+		// 				console.log(message);
+		// 			}
+
+
+		// 		}
+
+
+		// 		aLog(`suggest_plugin_${file.name}`)
+		// 		if (cachedPlugins.dict[file.name]) {
+		// 			execPlugin(file.name)
+		// 		} else {
+		// 			tiroApi.file.getContent(file.path, pluginContent => {
+		// 				cachedPlugins.dict[file.name] = pluginContent
+		// 				execPlugin(file.name)
+		// 			})
+		// 		}
+		// 	})
+		// }
 	}
 	const onChangeUpdatePlugin = useRef<any>(null)
+
+
+
+
+
+
+
+
+
+
+
 
 
 	//////////////////////////////////////////////////////////////////////

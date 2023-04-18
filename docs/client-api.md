@@ -363,6 +363,39 @@ noteLink should be relative from tiro folder
  
 
 
+ ## Api.call : plugins
+ 
+
+#### <span class="render-code-wrapper">plugins.cronCache.set</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. pluginBgName: <span class="render-code-wrapper">string</span>
+       1. state: <span class="render-code-wrapper">any</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.cronCache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">plugins.get</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. pluginName: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(plugin: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(plugin: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">plugins.list</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;noCache?: <span class="render-code-wrapper">boolean</span><br/>}</span>
+    - Result: <span class="render-code-wrapper">(plugins: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=iplugin">iPlugin</a></span>[]</span>, scanLog: <span class="render-code-wrapper">string[]</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.list",<br/>&nbsp;&nbsp;&nbsp; [, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;noCache?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(plugins: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=iplugin">iPlugin</a></span>[]</span>, scanLog: <span class="render-code-wrapper">string[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : popup
  
 
@@ -501,6 +534,19 @@ noteLink should be relative from tiro folder
  
 
 
+ ## Api.call : socket
+ 
+
+#### <span class="render-code-wrapper">socket.get</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+    - Result: <span class="render-code-wrapper">(s: <span class="render-code-wrapper"><a href="#client-api?id=clientsocketmanager">ClientSocketManager</a></span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"socket.get",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(s: <span class="render-code-wrapper"><a href="#client-api?id=clientsocketmanager">ClientSocketManager</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : status
  
 
@@ -624,6 +670,14 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">string</span> 
  - Example: 
  <div class="render-code-wrapper">api.call("ui.note.lineJump.get.windowId", [], (res:string) => {})</div>
+ 
+
+#### <span class="render-code-wrapper">ui.notification.emit</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. notification: <span class="render-code-wrapper"><a href="#client-api?id=inotification">iNotification</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notification.emit",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=inotification">iNotification</a></span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.search.term.get</span>
@@ -849,6 +903,24 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;picture?: <span class="render-code-wrapper">string</span><br/>}</span></div>
  
 
+#### <span class="render-code-wrapper">iPluginOptions</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;background_exec_interval_in_min?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;disabled?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPluginType</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"background" | "bar" | "tag"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPlugin</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;code: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options: <span class="render-code-wrapper"><a href="#client-api?id=ipluginoptions">iPluginOptions</a></span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=iplugintype">iPluginType</a></span><br/>}</span></div>
+ 
+
 #### <span class="render-code-wrapper">iNotePart</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
@@ -883,6 +955,32 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[filePath:string]: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;results: <span class="render-code-wrapper">string[]</span><br/>}</span><br/>}</span></div>
  
 
+#### <span class="render-code-wrapper">ApiEmitFn</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. endpoint: <span class="render-code-wrapper"></span>
+       1. payloadToSend: <span class="render-code-wrapper"></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"></span>, <span class="render-code-wrapper"></span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ApiOnFn</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. endpoint: <span class="render-code-wrapper"></span>
+       1. callback: <span class="render-code-wrapper">(apiAnswerData: <span class="render-code-wrapper"></span>) => <span class="render-code-wrapper">void</span></span>
+    - Result: <span class="render-code-wrapper">number</span> 
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"></span>, <span class="render-code-wrapper">(apiAnswerData: <span class="render-code-wrapper"></span>) => <span class="render-code-wrapper">void</span></span> ], <br/>(res:<span class="render-code-wrapper">number</span>) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ClientSocketManager</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;emit: <span class="render-code-wrapper"><a href="#client-api?id=apiemitfn">ApiEmitFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;on: <span class="render-code-wrapper"><a href="#client-api?id=apionfn">ApiOnFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;off: <span class="render-code-wrapper">(listenerId: <span class="render-code-wrapper">number</span>) => <span class="render-code-wrapper">void</span></span><br/>}</span></div>
+ 
+
 #### <span class="render-code-wrapper">iViewType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
@@ -911,6 +1009,18 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;grid: <span class="render-code-wrapper"><a href="#client-api?id=igrid">iGrid</a></span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;manualName?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;position?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;refresh?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iNotificationType</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"normal" | "warning" | "error"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iNotification</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inotificationtype">iNotificationType</a></span>, <br/>&nbsp;&nbsp;&nbsp;hideAfter?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;keepInHistory?: <span class="render-code-wrapper">boolean</span><br/>}</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iTtsStatus</span>

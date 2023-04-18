@@ -3,6 +3,7 @@ import { each } from "lodash"
 import { sharedConfig } from "../../../../shared/shared.config"
 import { iFile } from "../../../../shared/types.shared"
 import { getApi } from "../../hooks/api/api.hook"
+import { notifLog } from "../devCli.manager"
 import { getParentFolder } from "../folder.manager"
 
 const h = `[Code Mirror]`
@@ -58,7 +59,10 @@ export const completionSourceSnippets = (context) => {
 					if (to.includes("${")) {
 						let oto = to
 						try { to = new Function("return `" + oto + "`")() }
-						catch (e) { console.warn(h, "snippets error: ", e, oto); }
+						catch (e) { 
+							let message = `${h} snippets error: ${JSON.stringify({e, oto})}`
+							notifLog(message)
+						}
 					}
 					let preview = to.length > 20 ? `${to.substring(0, 20)}...` : to
 
