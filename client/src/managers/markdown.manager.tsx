@@ -36,10 +36,6 @@ export const md2html = (raw: string): string => {
 
 	// res = res.replaceAll(/\n\n/gi, "\n<br/><br/>\n");
 
-
-
-	// console.log(333, res);
-
 	res = marked.parse(res);
 	return res;
 }
@@ -153,8 +149,6 @@ export const getMdStructure = (noteContent: string): iMdStructure => {
 			res.push({ id, title, line })
 		}
 	}
-
-	// console.log(333, resArr);
 
 	return res
 }

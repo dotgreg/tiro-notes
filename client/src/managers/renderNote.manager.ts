@@ -134,7 +134,6 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 	const tagsRaw = fileContent.match(regex) || '';
 	const tags: string[] = []
 	each(tagsRaw, tag => {
-		// console.log(333, tag);
 		// && !reservedTagNames.includes(p.block.tagName || ""
 		// if (reservedTagNames.includes(tag)) return
 		tags.push(tag)

@@ -3,7 +3,7 @@ import { sharedConfig } from "../../../../shared/shared.config"
 import { iPlugin } from "../../../../shared/types.shared"
 import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { getLoginToken } from "../app/loginToken.hook"
-import { genIdReq, iApiEventBus } from "./api.hook"
+import { genIdReq, getApi, iApiEventBus } from "./api.hook"
 
 const h = `[PLUGINS]`
 export interface iPluginsApi {
@@ -16,7 +16,10 @@ export interface iPluginsApi {
 	get: (
 		pluginName:string, 
 		cb:(plugin:iPlugin|null) => void
-	) => void 
+	) => void,
+	cronCache: {
+		set: (pluginBgName:string, state: any) => void
+	}
 }
 
 export const usePluginsApi = (p: {
@@ -28,6 +31,7 @@ export const usePluginsApi = (p: {
 	// 
 	useEffect(() => {
 		clientSocket2.on('getPluginsList', data => {
+			// console.log(444, data)
 			p.eventBus.notify(data.idReq, data)
 		})
 	}, [])
@@ -45,6 +49,14 @@ export const usePluginsApi = (p: {
 		const idReq = genIdReq('get-plugins-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, data => {
+			if (data.scanLog.length > 0) {
+				getApi(api => api.ui.notification.emit({
+					content:`PLUGIN SCAN LOG:<br/>${JSON.stringify(data.scanLog)}`,
+					options: {
+						hideAfter: 60
+					}
+				}))
+			}
 			cb(data.plugins, data.scanLog)
 		});
 		// 2. emit request 
@@ -62,13 +74,28 @@ export const usePluginsApi = (p: {
 		})
 	}
 
+	const setCronVars: iPluginsApi['cronCache']['set'] = (pluginBgName, nvars) => {
+		let cacheId = "plugins-cron-infos"
+		getApi(api => {
+			api.cache.get(cacheId, cronState => {
+				if (!cronState) cronState = {}
+				if (!cronState[pluginBgName]) cronState[pluginBgName] = {vars:{}}
+				cronState[pluginBgName].vars = nvars
+				api.cache.set(cacheId, cronState, -1)
+			})
+		})
+	}
+
 
 	//
 	// EXPORTS
 	//
 	const api: iPluginsApi = {
 		list: listPlugins,
-		get: getPlugin
+		get: getPlugin,
+		cronCache: {
+			set: setCronVars
+		}
 	}
 
 	return api

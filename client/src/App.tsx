@@ -47,9 +47,15 @@ import './managers/localNoteHistory.manager';
 import { random } from 'lodash';
 import { devCliAddFn } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
+import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
 
 export const App = () => {
 	useEffect(() => {
+
+		// starting BG cron with some time offset to not have synchronous bg runs from different client windows
+		setTimeout(() => {
+			startFrontendBackgroundPluginsCron()
+		}, random(1000, 10000))
 
 		// PWA
 		initPWA()

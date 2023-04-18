@@ -1,5 +1,8 @@
 //
 // Testing Fn Live
+
+import { getApi } from "../hooks/api/api.hook"
+
 //
 const windowNS = "tiroDevCli"
 export const devCliAddFn = (cat: string, name: string, fn: Function) => {
@@ -15,7 +18,6 @@ export const devCliGetFn = (cat: string, name: string): Function => {
 	//@ts-ignore
 	return (window[windowNS] && window[windowNS][cat] && window[windowNS][cat][name]) ? window[windowNS][cat][name] : () => { console.log("DEV FN", cat, name, "does not exists") }
 }
-
 
 let h = `[DEV HOOK]`
 export const devHook = (id: string) => (...p) => {
@@ -39,3 +41,14 @@ export const devHook = (id: string) => (...p) => {
 	}
 }
 
+
+//
+// DEV LOG FRONT WITH NOTIFICATION
+// 
+//devCliAddFn()
+
+export const notifLog = (str) => {
+	getApi(api => {
+		api.ui.notification.emit({content: str, options:{hideAfter: 60, type:"warning", keepInHistory: true}})
+	})
+}

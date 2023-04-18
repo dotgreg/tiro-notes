@@ -109,13 +109,16 @@ export const NotificationsCenterCss = () => `
 						.notif-close {
 								cursor: pointer;
 								position: absolute;
-								top: 5px;
+								top: 3px;
 								right: 5px;
 								padding: 5px;
+								background: white;
 						}
 						.notif-content {
 								padding: 5px 29px 5px 5px;
 								max-width: 190px;
+								max-height: 180px;
+								overflow-y: auto;
 								word-break: break-word;
 						}
 				}
