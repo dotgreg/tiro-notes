@@ -7,16 +7,18 @@ export const evenTable = { val: false }
 let even = evenTable
 
 
-export const markdownStylingTableLimiter = (file: iFile) => genericReplacementPlugin({
+export const markdownStylingTableLimiter = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: /\|/gmi,
 	classWrap: matchs => {
 		return `md-table-limiter`
 	}
 })
 
-export const markdownStylingTableCell = (file: iFile) =>  genericReplacementPlugin({
+export const markdownStylingTableCell = (file: iFile, windowId:string) =>  genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: regexs.mdTableCell,
 	classWrap: matchs => {
 		let m = matchs[0]
@@ -27,8 +29,9 @@ export const markdownStylingTableCell = (file: iFile) =>  genericReplacementPlug
 })
 
 
-export const markdownStylingTable = (file: iFile) => genericReplacementPlugin({
+export const markdownStylingTable = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: regexs.mdTableLine,
 	classWrap: matchs => {
 		let line = matchs[0].trim()

@@ -238,21 +238,21 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	// codemirrorExtensions.push(linksPreviewPlugin)
 	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
-		codemirrorExtensions.push(linksPreviewPlugin(p.file))
-		codemirrorExtensions.push(noteLinkPreviewPlugin(p.file,p.windowId))
+		codemirrorExtensions.push(linksPreviewPlugin(p.file, p.windowId))
+		codemirrorExtensions.push(noteLinkPreviewPlugin(p.file, p.windowId))
 	}
 	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
-		codemirrorExtensions.push(markdownStylingTableLimiter(p.file))
-		codemirrorExtensions.push(markdownStylingTableCell(p.file))
-		codemirrorExtensions.push(markdownStylingTable(p.file))
+		codemirrorExtensions.push(markdownStylingTableLimiter(p.file, p.windowId))
+		codemirrorExtensions.push(markdownStylingTableCell(p.file, p.windowId))
+		codemirrorExtensions.push(markdownStylingTable(p.file, p.windowId))
 	}
 	if (ua.get("ui_editor_markdown_preview") && enhancedLatex && !disablePlugins) {
 		markdownExtensionCnf.extensions.push(LatexMdEl)
 	}
 	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		codemirrorExtensions.push(imagePreviewPlugin(p.file))
-		codemirrorExtensions.push(filePreviewPlugin(p.file))
+		codemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
+		codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
 		codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 	}
 	if (!disablePlugins && !disableMd) {
@@ -300,6 +300,7 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 		if (np.forceRender !== pp.forceRender) res = false
 		if (np.jumpToLine !== pp.jumpToLine) res = false
 		if (np.file.path !== pp.file.path) res = false
+		// if (np.windowId !== pp.windowId) res = false
 		// console.log("rerendercontrol cm", res);
 		return res
 	})

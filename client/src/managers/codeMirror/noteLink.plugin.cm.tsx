@@ -7,6 +7,7 @@ import { genericReplacementPlugin } from "./replacements.cm";
 
 export const noteLinkPreviewPlugin = (file: iFile, windowId: string) => genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: regexs.linklink,
 	replacement: matchs => {
 		let resEl = document.createElement("span");
@@ -43,8 +44,9 @@ export const ssrNoteLinkFn = (el: HTMLElement) => {
 	if (!el) return
 	const file = el.dataset.file
 	const folder = el.dataset.folder
-	const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
-	if (!file || !folder) return
+	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
+	const windowId = el.dataset.windowid
+	if (!file || !folder || !windowId) return
 	getClientApi2().then(api => {
 		api.ui.browser.goTo(
 			folder,
@@ -62,7 +64,10 @@ export const generateNoteLink = (
 
 	const subst = `<a
 		onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
-class="title-search-link preview-link" data-file="${noteTitle}" data-folder="${notePath}" data-windowid="${windowId}">${noteTitle}</a>`;
+		class="title-search-link preview-link" 
+		data-file="${noteTitle}" 
+		data-folder="${notePath}" 
+		data-windowid="${windowId}">${noteTitle}</a>`;
 
 	return subst
 }
