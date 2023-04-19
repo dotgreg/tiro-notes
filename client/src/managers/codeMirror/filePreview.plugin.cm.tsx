@@ -13,8 +13,9 @@ let compoHtml = (matchs, cFile) => {
 }
 
 
-export const filePreviewPlugin = (file: iFile) => genericReplacementPlugin({
+export const filePreviewPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: regexs.ressource,
 	replacement: matchs => {
 		let resEl = document.createElement("span");

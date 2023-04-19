@@ -5,8 +5,9 @@ export const textToId = (raw:string):string => {
     return res
 }
 
-export const safeString = (str:string):string => {
-    str = replaceAll(str, [['-','_'],['_','_'],[' ','_'],['/','_']])
+export const safeString = (str:string, separator="_"):string => {
+  let s = separator
+    str = replaceAll(str, [['-',s],['_',s],[' ',s],['/',s]])
     return str.replace(/[^\w\s]/gi, '')
   }
 

@@ -99,7 +99,7 @@ const updateScrollerDims = (wid: string) => {
 	let winner = ratioEditor < ratioPreview ? "editor" : "preview"
 
 	// get scroller full size
-	let full = c.els.scroller.clientHeight
+	let full = c.els.scroller?.clientHeight || 0
 	// calculate scrollbar height
 	let viewport = ratio * full
 	viewport = viewport > full ? full : viewport

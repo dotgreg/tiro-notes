@@ -14,8 +14,9 @@ import { iFile } from "../../../../shared/types.shared";
 
 export const generateHtmlLinkPreview = mem((matchs) => generateHtmlLinkPreviewInt(matchs))
 
-export const linksPreviewPlugin = (file: iFile) => genericReplacementPlugin({
+export const linksPreviewPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: regexs.externalLink3,
 	replacement: (matchs: any) => {
 		let resEl = document.createElement("span");

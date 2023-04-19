@@ -235,7 +235,6 @@ export const useTabs = () => {
 	}
 
 	const updateWindows: iWindowsApi['updateWindows'] = (ids, file) => {
-		// console.log("345 777", tabs[1].grid);
 		const nTabs = cloneDeep(tabs)
 		each(ids, id => {
 			each(nTabs, (tab, i) => {
@@ -244,7 +243,6 @@ export const useTabs = () => {
 				})
 			})
 		})
-		// console.log(`${h2} updating windows with file ${file.name}`);
 		const nTabs2 = refreshTabsViews(nTabs)
 		setTabs(nTabs2)
 	}

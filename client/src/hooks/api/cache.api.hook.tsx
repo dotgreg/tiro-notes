@@ -20,7 +20,7 @@ export interface iCacheApi {
 	set: (
 		cacheId: string,
 		contentToCache: any,
-		cachedMin: number
+		todo: number
 	) => void
 
 }

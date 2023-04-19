@@ -1,7 +1,6 @@
 import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
-import { mem } from "../reactRenderer.manager";
 import { atSsrStartupCheckIfOpen, setSsrStatus, ssrCachedStatus, ssrFn, ssrIcon } from "../ssr.manager";
 import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { safeString } from "../string.manager";
@@ -12,9 +11,12 @@ import { genericReplacementPlugin } from "./replacements.cm";
 // CTAG
 //
 const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):string => {
+	
 	let tagName = matchs[2].replaceAll("[[","").replaceAll("]]","")
 	let content = matchs[0].replaceAll(`[[${tagName}]]`,"")
-	let idCtag = `${safeString(tagName)}-${safeString(content)}`
+	let genIdCtag = (tagName, content, path) => `${safeString(tagName,"")}-${safeString(content,"")}-${safeString(path,"")}`
+	// console.log(111, cFile, windowId, idCtag, tagName)
+	let idCtag = genIdCtag(tagName, content, cFile.path)
 
 	// opening button logic
 	const openCtagFn = (el) => {
@@ -23,7 +25,8 @@ const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):stri
 		let ssrContent = decodeURIComponent(el.dataset.tagcontent)
 		let ssrTagName = el.dataset.tagname
 		let ssrWindowId = el.dataset.windowid
-		let ssrIdCtag = `${safeString(ssrTagName)}-${safeString(ssrContent)}`
+		let ssrIdCtag = genIdCtag(ssrTagName,ssrContent,ssrFilepath)
+
 		let file = pathToIfile(ssrFilepath)
 		let iframeEl = el.parentNode.parentNode.querySelector('.iframe-wrapper-cm-ctag')
 		let nStatus: ssrCachedStatus = !iframeEl.querySelector(`iframe`) ? "open" : "closed"
@@ -59,11 +62,11 @@ const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):stri
 
 	return html
 }
-// export const generateHtmlCtag = mem((matchs, cFile) => generateHtmlCtagInt(matchs, cFile))
 
 
 export const ctagPreviewPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
+	windowId,
 	pattern: regexs.userCustomTagFull2,
 	replacement: matchs => {
 		let resEl = document.createElement("span");
@@ -114,11 +117,3 @@ export const ctagPreviewPluginCss = () => {
 // }
 
 
-// export const filePreviewPlugin = (cFile: iFile) => genericReplacementPlugin({
-// 	pattern: regexs.ressource,
-// 	replacement: matchs => {
-// 		let resEl = document.createElement("span");
-// 		resEl.innerHTML = compoHtml(matchs, cFile)
-// 		return resEl
-// 	}
-// })
