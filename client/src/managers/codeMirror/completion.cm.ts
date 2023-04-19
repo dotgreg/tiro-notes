@@ -5,6 +5,7 @@ import { iFile } from "../../../../shared/types.shared"
 import { getApi } from "../../hooks/api/api.hook"
 import { notifLog } from "../devCli.manager"
 import { getParentFolder } from "../folder.manager"
+import { iUrlInfos } from "../previewUrl.manager"
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -115,67 +116,100 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 //
 // SCAN ALL CTAGS AVAILABLE
 //
+type iCtagInfos = { name: string, content: string }
+
+const processCtagsToSuggestions = (ctags: iCtagInfos[]): iCompletionTerm[] => {
+	const tags: iCompletionTerm[] = []
+	each(ctags, c => {
+		const name = c.name.replace(".md", "")
+		const tagname = `[[${name}]]`
+		const fulltagname = `${tagname} ${tagname}`
+		let completion = fulltagname
+		let info = `Insert installed custom tag ${tagname}`
+		let boost = 0
+		const lines = c.content.split("\n")
+		let headerInsert = "// --insert:"
+		let headerComment = "// --comment:"
+		let headerBoost = "// --boost:"
+		each(lines, line => {
+			line = line.split("\\n").join("\n")
+			if (line.startsWith(headerInsert)) {
+				completion = line.replace(headerInsert, "")
+			}
+			if (line.startsWith(headerComment)) {
+				info = line.replace(headerComment, "")
+			}
+			if (line.startsWith(headerBoost)) boost = parseInt(line.replace(headerBoost, ""))
+		})
+		tags.push(createCompletionTerm(tagname, completion, info, boost))
+	})
+	return tags
+}
+
 const completionSourceCtag: CompletionSource = (context) => {
 	let before = context.matchBefore(/\[\[/);
 	if (!context.explicit && !before) return null;
+
 	return new Promise((reso, rej) => {
-		const path = "/.tiro/tags"
-		getApi(api => {
-			api.files.get(path, files => {
-				const tags: iCompletionTerm[] = []
-				let cnt = 0
-				each(files, f => {
-					const name = f.name.replace(".md", "")
-					const tagname = `[[${name}]]`
-					const fulltagname = `${tagname} ${tagname}`
-					let completion = fulltagname
-					let info = `Insert installed custom tag ${tagname}`
-					let boost = 0
-					api.file.getContent(f.path, content => {
-						const lines = content.split("\n")
-						let headerInsert = "// --insert:"
-						let headerComment = "// --comment:"
-						let headerBoost = "// --boost:"
-						each(lines, line => {
-							line = line.split("\\n").join("\n")
-							if (line.startsWith(headerInsert)) {
-								completion = line.replace(headerInsert, "")
-							}
-							if (line.startsWith(headerComment)) {
-								info = line.replace(headerComment, "")
-							}
-							if (line.startsWith(headerBoost)) boost = parseInt(line.replace(headerBoost, ""))
+
+		// 1 : get from ctags
+		const prom1 = new Promise<iCtagInfos[]>((res1, rej1) => {
+			getApi(api => {
+				const path = "/.tiro/tags"
+				api.files.get(path, files => {
+					let cnt = 0
+					let ctagsInfos: iCtagInfos[] = []
+					each(files, f => {
+						api.file.getContent(f.path, content => {
+							cnt++
+							ctagsInfos.push({
+								name: f.name,
+								content
+							})
+							if (cnt === files.length) res1(ctagsInfos)
 						})
-						tags.push(createCompletionTerm(tagname, completion, info, boost))
-						cnt++
-						if (cnt === files.length) triggerRes(tags)
 					})
 				})
 			})
-
-			const triggerRes = (tags: iCompletionTerm[]) => {
-				let res = {
-					from: before ? before.from : context.pos,
-					options: tags,
-					// validFor: /^\w*$/
-					validFor: /.*/
-				};
-				// console.log(res);
-				reso(res)
-			}
 		})
 
-		// if # scan for hashtags inside file + folder + caching
+		// 2 : get from plugins
+		const prom2 = new Promise<iCtagInfos[]>((res2, rej2) => {
+			getApi(api => {
+				let arrTags: iCtagInfos[] = []
+				api.plugins.list(plugins => {
+					each(plugins, p => {
+						if (p.type !== "tag") return
+						arrTags.push({
+							name: p.name,
+							content: p.code
+						})
+					})
+					// console.log(arrTags);
+					res2(arrTags)
+				})
+			})
+		})
 
-		// let res = {
-		// 	from: before ? before.from : context.pos,
-		// 	options: completionsTags,
-		// 	validFor: /^\w*$/
-		// };
-		// setTimeout(() => {
-		// 	reso(res)
-		// }, 1000)
+		// at end of 2 process, trigger end
+		Promise.all([prom2, prom1]).then(arrRes => {
+			let arr = [...arrRes[0], ...arrRes[1]]
+			let suggestions = processCtagsToSuggestions(arr)
+			triggerRes(suggestions)
+		}).catch(() => {
+			console.warn("ERROR HERE")
+		})
 
+
+		// TRIGGER AT THE END
+		const triggerRes = (tags: iCompletionTerm[]) => {
+			let res = {
+				from: before ? before.from : context.pos,
+				options: tags,
+				validFor: /.*/
+			};
+			reso(res)
+		}
 	})
 }
 

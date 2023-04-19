@@ -7,13 +7,13 @@ import {
 	Decoration,
 	DecorationSet
 } from "@codemirror/view";
-import { debounce } from "lodash";
 import { iFile } from "../../../../shared/types.shared";
 import { devCliAddFn } from "../devCli.manager";
 
 ////////////////////// 
 // REPLACEMENT SYSTEM ABSTRACTION
 //
+
 export type iReplacementFn = (matchs: string[]) => HTMLElement
 export type iClassWrapperFn = (matchs: string[]) => string
 
@@ -30,11 +30,11 @@ devCliAddFn("code_mirror", "cache_get", () => cacheDecoration)
 // @cache @ctag
 // caching les decorations!!!
 // 
-const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile) => new MatchDecorator({
+const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windowId:string) => new MatchDecorator({
 	regexp: pattern,
 	decoration: match => {
 		let id = match.input
-		let cacheId = file.path
+		let cacheId = file.path+windowId
 		if (!cacheDecoration[cacheId]) cacheDecoration[cacheId] = {}
 		if (!cacheDecoration[cacheId][id]) {
 		// if (!cacheDecoration[id]) {
@@ -54,6 +54,7 @@ const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDec
 
 export const genericReplacementPlugin = (p: {
 	file:iFile,
+	windowId:string
 	pattern: RegExp,
 	replacement?: iReplacementFn
 	classWrap?: iClassWrapperFn
@@ -65,7 +66,7 @@ export const genericReplacementPlugin = (p: {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
 			if (p.replacement) {
-				this.decorations = matcher(p.pattern, p.replacement, p.file).createDeco(view)
+				this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId).createDeco(view)
 			}
 			else {
 				this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
@@ -75,7 +76,7 @@ export const genericReplacementPlugin = (p: {
 			try {
 				if (p.replacement && (update.docChanged || update.viewportChanged)) {
 					//@ts-ignore
-					this.decorations = matcher(p.pattern, p.replacement, p.file)
+					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId)
 						.updateDeco(update, this.decorations)
 				}
 				else {
@@ -96,20 +97,5 @@ export const genericReplacementPlugin = (p: {
 		})
 	})
 }
-
-
-
-// export const genericReplacementPlugin = (
-// 	p: {
-// 		pattern: RegExp,
-// 		replacement?: iReplacementFn
-// 		classWrap?: iClassWrapperFn
-// 		options?: {
-// 			isAtomic?: boolean
-// 		}
-// 	}) => {
-// 	return genericReplacementPluginInt(p)
-// }
-
 
 
