@@ -116,15 +116,19 @@ document.head.innerHTML += '<meta charset="utf-8">'
 
 let iframeContent = ""
 if (content.startsWith("http")) {
+  console.log(11133, content)
   iframeContent=\`src="\${content}"\`
 } else {
+  console.log(11222)
   window.document.body.innerHTML =  contentStyle + decodeURIComponent(content) 
 }
 
-// api.utils.resizeIframe("100%");
+api.utils.resizeIframe("100%");
 setTimeout(() => {
   api.utils.resizeIframe("100%");
 }, 1000)
+
+
 return \`\${style}<div class="ctag-iframe-wrapper"><iframe \${iframeContent} id="ctag-iframe"></iframe></div>\`
 
 [[script]]

@@ -41,7 +41,7 @@ export const usePluginsApi = (p: {
 	// FUNCTIONS
 	// 
 
-	// get files list
+	//  V1 get files list
 	const listPlugins: iPluginsApi['list'] = (cb, opts) => {
 		if (!opts) opts = {}
 		if (!opts.noCache) opts.noCache = false

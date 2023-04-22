@@ -33,7 +33,7 @@ export const setNoteView = (notePath: string, viewType: iViewType) => {
 		api.cache.get(cacheId, content => {
 			if (!content) content = {}
 			content[notePath] = viewType
-			api.cache.set(cacheId, content, 100000000000000000)
+			api.cache.set(cacheId, content, -1)
 		})
 	})
 }

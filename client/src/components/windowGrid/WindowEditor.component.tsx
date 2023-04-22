@@ -3,16 +3,18 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
-import { devCliAddFn } from '../../managers/devCli.manager';
 import { MobileView } from '../../managers/device.manager';
 import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
+import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
 export const WindowEditorInt = (p: {
 	content: iWindowContent
-	onViewChange: onViewChangeFn
+	// onViewChange: onViewChangeFn
+	// onEditorDropdownEnter?: Function
+	askForLayoutUpdate:iLayoutUpdateFn
 
 	mobileView: MobileView
 }) => {
@@ -28,18 +30,17 @@ export const WindowEditorInt = (p: {
 		getNoteView(file?.path as string).then(res => {
 			if (res) setIntViewType(res)
 		})
-
 	}, [view, file?.path])
 
 	//
-	// GET CONTENT 
+	// FILE CONTENT FETCH/UPDATE
 	//
 	let filePathRef = useRef<string>(file?.path || "")
 
 	// CLEAN CONTENT WHEN LOADING
-	useEffect(() => {
-		setFileContent("loading...")
-	}, [file?.path])
+	// useEffect(() => {
+	// 	setFileContent("loading...")
+	// }, [file?.path])
 
 	useEffect(() => {
 		filePathRef.current = file?.path || ""
@@ -93,6 +94,7 @@ export const WindowEditorInt = (p: {
 
 	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
 	const disconnectCounter = useRef<number>(0)
+	
 	useEffect(() => {
 		let ct = contentToUpdateOnceOnline.current
 		getApi(api => {
@@ -191,9 +193,12 @@ export const WindowEditorInt = (p: {
 						canEdit={canEdit}
 
 						viewType={intViewType}
-						onViewChange={p.onViewChange}
-								 mobileView={p.mobileView}
-
+						mobileView={p.mobileView}
+						
+						// onViewChange={p.onViewChange}
+						// onEditorDropdownEnter={p.onEditorDropdownEnter}
+						askForLayoutUpdate={p.askForLayoutUpdate}
+						
 						onFileEdited={(path, content) => {
 							onFileEditedSaveIt(path, content);
 						}}

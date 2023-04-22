@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
-import { EditorArea, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
+import { EditorArea, iLayoutUpdateFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, MobileView } from '../../managers/device.manager';
@@ -10,6 +10,7 @@ import { ClientApiContext } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
 import { getMdStructure, iMdPart } from '../../managers/markdown.manager';
 import { iLineJump } from '../../hooks/api/note.api.hook';
+import { cssVars } from '../../managers/style/vars.style.manager';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
@@ -22,9 +23,10 @@ interface iDualViewProps {
 	viewType?: iViewType
 	mobileView: MobileView
 
-	onViewChange?: onViewChangeFn
-
 	onFileEdited: onFileEditedFn
+	// onViewChange?: onViewChangeFn
+	// onEditorDropdownEnter?: Function
+	askForLayoutUpdate: iLayoutUpdateFn
 }
 
 const DualViewerInt = (
@@ -111,25 +113,6 @@ const DualViewerInt = (
 	// to update preview scroll position on preview-scroll: follow-title
 	//
 
-	// 0) SHARED LOGIC
-	// type iScrollMode = "title" | "sync"
-	// const [scrollMode, setScrollMode] = useState<iScrollMode>("title")
-	// const [previewY, setPreviewY] = useState(0)
-
-	// const titleY = useRef(0)
-	// const offsetSyncFromTitle = useRef(0)
-
-	// 1) SIMPLE SYNC SCROLL
-	// const onSyncScroll = () => {
-	// 	if (scrollMode === "sync") {
-	// 		setPreviewY(getSyncY())
-	// 	} else if (scrollMode === "title") {
-	// 		const t = titleY.current
-
-	// 		setPreviewY(t)
-	// 	}
-	// }
-
 	// 2) TITLE SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
 	const updateScrolledTitleInt = (scrolledLine: number) => {
@@ -165,11 +148,23 @@ const DualViewerInt = (
 	// const [scrollerPos, setScrollerPos] = useState(0)
 	let isEditor = (deviceType() === "desktop" && p.viewType === "editor") || (deviceType() !== "desktop" && p.mobileView === "editor")
 
+	
+	//
+	// overlay loading
+	//
+	const [forceCloseOverlay, setForceCloseOverlay] = useState(false)
+	useEffect(() => {
+		setForceCloseOverlay(false)
+	}, [p.canEdit])
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
 	>
-
+		{(!p.canEdit && !forceCloseOverlay) && 
+			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
+				<div className="loading-text">loading...</div> 
+			</div>
+		}
 
 		<EditorArea
 			viewType={p.viewType}
@@ -195,6 +190,7 @@ const DualViewerInt = (
 			onUpdateY={newY => {
 				// setSyncY(newY)
 			}}
+			
 			onMaxYUpdate={updateMaxY}
 
 			onFileEdited={(path, content) => {
@@ -208,7 +204,11 @@ const DualViewerInt = (
 				// setScrollMode(res)
 			}}
 
-			onViewToggle={(view: iViewType) => { if (p.onViewChange) p.onViewChange(view) }}
+			// onDropdownEnter={p.onEditorDropdownEnter}
+			// onViewToggle={(view: iViewType) => { 
+			// 	if (p.onViewChange) p.onViewChange(view) 
+			// }}
+			askForLayoutUpdate={p.askForLayoutUpdate}
 		/>
 
 		{!isEditor &&
@@ -237,6 +237,31 @@ const DualViewerInt = (
 
 	</div>
 }
+
+export const dualViewerCss = () => `
+	.dual-view-wrapper {
+		position: relative;
+		.loading-overlay {
+			.loading-text {
+				color: ${cssVars.colors.main};
+			}
+
+			display: flex;
+			align-content: center;
+			justify-content: center;
+			align-items: center;
+			width: 100%;
+			height: 101%;
+			position: absolute;
+			background: rgba(0,0,0,0.1);
+			top: -2px;
+			left: 0px;
+			z-index: 99;
+			font-weight: bold;
+			color: white;
+		}
+	}
+`
 
 export const DualViewer = (p: iDualViewProps) => {
 	const api = useContext(ClientApiContext);

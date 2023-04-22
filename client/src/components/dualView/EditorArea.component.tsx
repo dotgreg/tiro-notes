@@ -25,17 +25,18 @@ import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
-import {  devHook } from '../../managers/devCli.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
 export type onTitleClickFn = (newYpercent: number) => void
 
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
+export type iLayoutUpdateFn = (type: "windowActive"|"windowView", data?:{view?: iViewType}) => void
+
 interface iEditorProps {
 	viewType?: iViewType
 	mobileView: MobileView
-	onViewToggle: (view: iViewType) => void
+	
 
 	editorType: iEditorType
 	windowId: string
@@ -47,6 +48,7 @@ interface iEditorProps {
 
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+	
 
 	onUpdateY: onTitleClickFn
 	onMaxYUpdate: (maxY: number) => void
@@ -55,6 +57,11 @@ interface iEditorProps {
 
 	onFileEdited: onFileEditedFn
 	onScrollModeChange: (v: boolean) => void
+
+	// onDropdownEnter?: Function
+	// onViewToggle: (view: iViewType) => void
+
+	askForLayoutUpdate: iLayoutUpdateFn
 }
 
 const EditorAreaInt = (
@@ -68,11 +75,6 @@ const EditorAreaInt = (
 	let canEdit = true
 	if (p.canEdit === false) canEdit = false
 	if (p.isConnected === false) canEdit = false
-
-	// useEffect(() => {
-	// 	canEdit = false
-	// 	setInnerFileContent('loading2...')
-	// }, [p.file.path])
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -122,7 +124,6 @@ const EditorAreaInt = (
 
 
 	// TEXT MANIPULATION HOOK
-
 	let codeMirrorEditorView = useRef<any>(null)
 
 	let editorRef = deviceType() !== 'desktop' ? mobileTextarea : monacoEditorComp
@@ -137,7 +138,6 @@ const EditorAreaInt = (
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
 		if (updatedText) {
-			console.log(1117)
 			triggerNoteEdition(updatedText)
 			forceCmRender()
 		}
@@ -241,8 +241,20 @@ const EditorAreaInt = (
 			title: 'Export/Print',
 			icon: 'faFileDownload',
 			action: () => {
-				// hide everything but the preview of current window
-				openExportFilePopup(p.windowId, p.file)
+				const currView:iViewType = p.viewType || "editor"
+
+				// if we are editor, make preview appearing for a moment 
+				if (currView === "editor") {
+					askForViewToggle("both")
+					setTimeout(() => {
+						openExportFilePopup(p.windowId, p.file)
+						setTimeout(() => {
+							askForViewToggle("editor")
+						})
+					}, 100)
+				} else {
+					openExportFilePopup(p.windowId, p.file)
+				}
 			}
 		},
 		{
@@ -308,18 +320,13 @@ const EditorAreaInt = (
 	const [isPreview, setIsPreview] = useState(false)
 	useEffect(() => {
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
-		// if (p.viewType === "preview") nval = true
 		setSimpleFallback(nval)
-
-		
 	}, [innerFileContent, p.viewType, p.mobileView])
 
 
 	useEffect(() => {
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
-		// if (p.viewType === "preview") nval = true
 		setSimpleFallback(nval)
-
 		forceCmRender()
 		let nisPreview = (deviceType() === "desktop" && p.viewType === "preview") || (deviceType() !== "desktop" && p.mobileView === "preview")
 		setIsPreview(nisPreview)
@@ -333,9 +340,11 @@ const EditorAreaInt = (
 	//
 	// VIEW TOGGLE
 	//
-	const viewToggle = (nView: iViewType) => {
+	const askForViewToggle = (nView: iViewType) => {
 		setNoteView(p.file.path, nView)
-		p.onViewToggle(nView)
+		// p.onViewToggle(nView)
+		// p.onViewToggle(nView)
+		p.askForLayoutUpdate("windowView", {view:nView})
 	}
 
 
@@ -369,6 +378,7 @@ const EditorAreaInt = (
 							hover={true}
 							dir="right"
 							maxHeight={maxDropdownHeight}
+							onMouseEnter={e => {p.askForLayoutUpdate("windowActive")}}
 						>
 							<>
 
@@ -381,22 +391,22 @@ const EditorAreaInt = (
 												{
 													title: 'Editor',
 													icon: "custom_icons/view-3.svg",
-													action: () => { viewToggle('editor') }
+													action: () => { askForViewToggle('editor') }
 												},
 												{
 													title: 'Editor with minimap',
 													icon: "custom_icons/view-4.svg",
-													action: () => { viewToggle('editor-with-map') }
+													action: () => { askForViewToggle('editor-with-map') }
 												},
 												{
 													title: 'Dual view',
 													icon: "custom_icons/view-1.svg",
-													action: () => { viewToggle('both') }
+													action: () => { askForViewToggle('both') }
 												},
 												{
 													title: 'Render view',
 													icon: "custom_icons/view-2.svg",
-													action: () => { viewToggle('preview') }
+													action: () => { askForViewToggle('preview') }
 												},
 											]}
 										/>
@@ -413,30 +423,8 @@ const EditorAreaInt = (
 								</div>
 
 								<div className="separation-bar"></div>
-
-								<div className="dates-wrapper">
-									<div className='date modified'>
-										<h4>Modified</h4>
-										{formatDateList(new Date(p.file.modified || 0))}
-									</div>
-									<div className='date created'>
-										<h4>Created</h4>
-										{formatDateList(new Date(p.file.created || 0))}
-									</div>
-								</div>
-
-								<div className="path-wrapper">
-									<div className='path'>
-										<h4>Path</h4>
-										<span className="path-link" onClick={() => {
-											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
-										}}
-										> {p.file.folder} </span>
-									</div>
-								</div>
-
 								<div className="note-id-wrapper">
-									<h4>Node Id</h4>
+									<h4>Note Link</h4>
 									<div className="note-id-form">
 										<input
 											type="text"
@@ -467,6 +455,29 @@ const EditorAreaInt = (
 
 									</div>
 								</div>
+
+								<div className="dates-wrapper">
+									<div className='date modified'>
+										<h4>Modified</h4>
+										{formatDateList(new Date(p.file.modified || 0))}
+									</div>
+									<div className='date created'>
+										<h4>Created</h4>
+										{formatDateList(new Date(p.file.created || 0))}
+									</div>
+								</div>
+
+								<div className="path-wrapper">
+									<div className='path'>
+										<h4>Path</h4>
+										<span className="path-link" onClick={() => {
+											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
+										}}
+										> {p.file.folder} </span>
+									</div>
+								</div>
+
+								
 
 							</>
 						</Dropdown >
@@ -616,6 +627,7 @@ export const commonCssEditors = () => `
 		color: grey;
     text-align: left;
 		.note-id-form {
+				margin-bottom: 5px;
 				display:flex;
 				input {
 						border: none;
