@@ -13,6 +13,7 @@ import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { deviceType, MobileView } from '../../managers/device.manager';
+import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
 
@@ -35,7 +36,12 @@ export const DraggableGrid = (p: {
 	mobileView: MobileView
 }) => {
 
-	const [intContent, setIntContent] = useState<iWindowContent[]>([])
+	const [intContent, setIntContentInternal] = useState<iWindowContent[]>([])
+	const setIntContent = (w:any) => {
+		setIntContentInternal(w)
+		intContentRef.current = w
+	}
+	const intContentRef = useRef<iWindowContent[]>([])
 	const [intLayout, setIntLayout] = useState<iWindow[]>([])
 	const lastGoodLayout = useRef<iWindow[]>();
 
@@ -153,14 +159,11 @@ export const DraggableGrid = (p: {
 		return nContent
 	}
 	const makeWindowActive = (windowId: string, file?: iFile) => {
-		const nContent = makeWindowActiveInt(windowId, intContent)
+		const nContent = makeWindowActiveInt(windowId, intContentRef.current)
 		setIntContent(nContent)
-		//3
 		onGridUpdate(intLayout, nContent)
-
 		// on window active toggle, update browser ui 
 		file && api?.ui.browser.goTo(file.folder, file.name)
-
 	}
 
 	//
@@ -241,6 +244,7 @@ export const DraggableGrid = (p: {
 		nContent[index].view = nview
 		setIntContent(nContent);
 		onGridUpdate(intLayout, nContent);
+		// onGridUpdate(intLayout, nContent);
 	}
 
 	const api = useContext(ClientApiContext)
@@ -267,6 +271,20 @@ export const DraggableGrid = (p: {
 	// 	layout: activeWindow?.layout,
 	// 	content: activeWindow?.content
 	// }
+
+
+	// const onEditorDropdownEnter = (window) => {
+	// 	if (window && !window.active) makeWindowActive(window.i, window.file)
+	// }
+
+	const processLayoutUpdate = (window, i):iLayoutUpdateFn => (type, data) => {
+		if (type === "windowActive") {
+			if (window && !window.active) makeWindowActive(window.i, window.file)
+		} else if (type === "windowView") {
+			if (!data?.view) return
+			viewTypeChange(data?.view, i)
+		}
+	}
 
 	const WindowTools = (window, i) => {
 		return (//jsx
@@ -296,7 +314,9 @@ export const DraggableGrid = (p: {
 								icon: 'faPlus',
 								title: 'Delete Window',
 								class: 'delete-button',
-								action: () => { removeWindow(window.i) }
+								action: () => { 
+									removeWindow(window.i) 
+								}
 							}
 						]}
 						colors={["#d4d1d1", "#615f5f"]}
@@ -334,7 +354,10 @@ export const DraggableGrid = (p: {
 									key={window.i}
 									className={` ${intContent[i] && intContent[i].active ? 'active' : ''} window-wrapper `}
 									onClick={() => {
-										if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
+										// on click note, make it active if it is not
+										if (intContent[i] && !intContent[i].active) {
+											makeWindowActive(intContent[i].i, intContent[i].file)
+										}
 									}}
 									onMouseEnter={() => {
 										// if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
@@ -346,7 +369,11 @@ export const DraggableGrid = (p: {
 									<div className="note-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
-											onViewChange={(nView) => { viewTypeChange(nView, i) }}
+											// onViewChange={(nView) => { 
+											// 	viewTypeChange(nView, i) 
+											// }}
+											// onEditorDropdownEnter={e => {onEditorDropdownEnter(window)}}
+											askForLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>
 									</div>
@@ -363,7 +390,9 @@ export const DraggableGrid = (p: {
 								{mobileWindow &&
 									<WindowEditor
 										content={mobileWindow.content}
-										onViewChange={(nView) => { viewTypeChange(nView, 0) }}
+										// onViewChange={(nView) => { viewTypeChange(nView, 0) }}
+										askForLayoutUpdate={processLayoutUpdate(window,0)}
+
 										mobileView={p.mobileView}
 									/>
 								}

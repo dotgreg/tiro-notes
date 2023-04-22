@@ -49,7 +49,6 @@ ${res}
 						api.utils.resizeIframe(`${resDiv.clientHeight}px`);
 
 						// HIGHLIGHTING RESULT
-						// console.log(123412, hljs);
 						// hljs.highlightAll();
 				})
 		})

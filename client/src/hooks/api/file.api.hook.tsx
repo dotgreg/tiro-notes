@@ -50,6 +50,7 @@ export const useFileApi = (p: {
 	// 
 	useEffect(() => {
 		clientSocket2.on('getFileContent', data => {
+			// console.log(333, data)
 			if (data.error) {
 				p.eventBus.notify(data.idReq, { error: data.error })
 			} else {

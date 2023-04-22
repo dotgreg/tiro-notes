@@ -8,6 +8,8 @@ interface iDropdownP {
 	footer?: ReactElement
 	dir?: 'left' | 'right'
 	maxHeight?: number
+	onMouseEnter?: Function
+	onMouseLeave?: Function
 }
 
 export const Dropdown = (p: iDropdownP) => {
@@ -19,6 +21,10 @@ export const Dropdown = (p: iDropdownP) => {
 		<div className={`dropdown-wrapper ${dir} ${p.hover ? 'hover-active' : ''}`}>
 			<span
 				onMouseEnter={() => {
+					p.onMouseEnter && p.onMouseEnter()
+				}}
+				onMouseLeave={() => {
+					p.onMouseLeave && p.onMouseLeave()
 				}}
 				onClick={() => {
 				}}

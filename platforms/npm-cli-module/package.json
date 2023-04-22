@@ -1,6 +1,6 @@
 {
 		"name": "tiro-notes",
-		"version": "0.30.98-69",
+		"version": "0.30.98-76",
 		"description": "Tiro Notes CLI to start Tiro Notes from the command line!",
 		"scripts": {
 				"dev": "ISDEV=true node cli.js",

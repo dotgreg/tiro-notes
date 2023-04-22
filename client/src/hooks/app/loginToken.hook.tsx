@@ -119,7 +119,7 @@ export const useLoginToken = (p: {
 						setUser(usr)
 						setPassword(pass)
 						setTimeout(() => {
-							console.log("success login url, submitting it",{usr,pass})
+							console.log("success login url, submitting it")
 							clientSocket2.emit('sendLoginInfos', { user:usr, password:pass, token: getLoginToken() })
 						}, 1000)
 					}

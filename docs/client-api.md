@@ -158,7 +158,7 @@
     - Parameters: 
        1. cacheId: <span class="render-code-wrapper">string</span>
        1. contentToCache: <span class="render-code-wrapper">any</span>
-       1. cachedMin: <span class="render-code-wrapper">number</span>
+       1. todo: <span class="render-code-wrapper">number</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">number</span> ]<br/>)</div>
  

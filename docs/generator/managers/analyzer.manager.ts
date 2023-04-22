@@ -91,7 +91,6 @@ export const getAnalyzedStructure = (data: any, objectToAnalyze: string, blackli
 			// if it is a normal type, show sign
 			else {
 				const a = analyzeItem(p, nParent)
-				// console.log(1234, p, a);
 				if (
 					!a.path.includes("ui.browser.files.active.get.") &&
 					!a.path.includes("ui.browser.folders.get.")

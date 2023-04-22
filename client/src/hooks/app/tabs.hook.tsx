@@ -173,7 +173,6 @@ export const useTabs = () => {
 
 	// on layout resizing, adding/removing windows etc...
 	const updateActiveTabGrid = (grid: iGrid) => {
-		// console.log("345- UPDATE WINDOW GRID", grid);
 		const nTabs = cloneDeep(tabs)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return

@@ -38,6 +38,7 @@ import { titleEditorCss } from '../../components/dualView/TitleEditor.component'
 import { mem } from '../reactRenderer.manager';
 import { ctagPreviewPluginCss } from '../codeMirror/ctag.plugin.cm';
 import { NotificationsCenterCss } from '../../components/NotificationsCenter.component';
+import { dualViewerCss } from '../../components/dualView/DualViewer.component';
 
 
 export const css2 = (css: string) => css
@@ -61,6 +62,7 @@ export const CssApp2 = (
 				}
 		}
 
+		${dualViewerCss()}
 		${GlobalAppViewCss()}
 		${NotificationsCenterCss()}
 		${latexCss()}
