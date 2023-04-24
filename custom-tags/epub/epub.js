@@ -159,6 +159,7 @@ const epubApp = (innerTagStr, opts) => {
 						let a = book.locations.cfiFromLocation(pageNb)
 						book.getRange(a).then(range => {
 								let txt = range.toString()
+								txt = cleanTxt(txt)
 								cb(txt)
 						})
 				}
@@ -245,7 +246,12 @@ const epubApp = (innerTagStr, opts) => {
 						triggerResize()
 				});
 
-
+				const cleanTxt = (txt) => {
+					let cleaned = txt
+					cleaned = cleaned.replace(/<[^>]*>?/gm, ' '); // remove html tags
+					cleaned = cleaned.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
+					return cleaned
+				}
 				const getFullBookContent = (cb) => {
 						let fulltxt = ``
 						book.loaded.spine.then((spine) => {
@@ -253,6 +259,8 @@ const epubApp = (innerTagStr, opts) => {
 										item.load(book.load.bind(book)).then((contents) => {
 												fulltxt = fulltxt + contents.innerText
 												if (i === spine.length - 1) {
+														// clean txt 
+														fulltxt = cleanTxt(fulltxt)
 														if (cb) cb(fulltxt)
 												}
 										});
@@ -405,6 +413,8 @@ const epubApp = (innerTagStr, opts) => {
 								let file = api.utils.getInfos().file;
 								eapi.getFullBookContent(txt => {
 										eapi.getCurrentPageContent( currSentence => {
+											console.log(333, txt, currSentence)
+										
 												window.isTts = true
 												api.call("ui.textToSpeechPopup.open", [ txt, {id: file.name, startString: currSentence}], () => {})
 										});
