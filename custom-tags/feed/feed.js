@@ -120,7 +120,7 @@ const feedApp = (innerTagStr, opts) => {
 						return feedsRes
 				}
 
-				const cacheId = `ctag-feed-${api.utils.getInfos().file.path}`
+				
 
 
 
@@ -133,7 +133,7 @@ const feedApp = (innerTagStr, opts) => {
 						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
 						if (!hasUserReloaded) {
 								// first get cached, if exists
-								getCache(content => {
+								getContentCache(content => {
 										// if cache, return content
 										console.log(h, "=> getting CACHED feed json")
 										cb(content)
@@ -147,16 +147,29 @@ const feedApp = (innerTagStr, opts) => {
 						}
 				}
 
-				const getCache = (onSuccess, onFailure) => {
-						api.call("cache.get", [cacheId], content => {
+
+				
+				////////////////////////////////////////////////////////////////////////////////////
+				// CACHING SETTINGS & CONTENT SYSTEM
+				//
+				const getCache = (id) => (onSuccess, onFailure) => {
+						api.call("cache.get", [id], content => {
 								if (content !== undefined) onSuccess(content)
 								else onFailure()
 						})
 				}
-				const setCache = (content) => {
-						api.call("cache.set", [cacheId, content])
+				const setCache = (id, mins) => (content) => {
+						if (!mins) mins = 6* 60 
+						api.call("cache.set", [id, content, mins]) 
 				}
+				
+				const cacheContentId = `ctag-feed-${api.utils.getInfos().file.path}`
+				const getContentCache = getCache(cacheContentId)
+				const setContentCache = setCache(cacheContentId, 6*60)
 
+				const cacheSettingsId = `ctag-settings-feed-${api.utils.getInfos().file.path}`
+				const getSettingsCache = getCache(cacheSettingsId)
+				const setSettingsCache = setCache(cacheSettingsId, -1)
 
 
 
@@ -261,6 +274,8 @@ const feedApp = (innerTagStr, opts) => {
 
 														// TIME
 														if (nitems[j]["dc:date"]) nitems[j].pubDate = nitems[j]["dc:date"]
+														if (nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
+
 														const timestamp = Date.parse(g(nitems[j].pubDate))
 														const d = new Date(timestamp)
 														const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
@@ -273,6 +288,7 @@ const feedApp = (innerTagStr, opts) => {
 														// IMAGE
 														const bgImage = g(nitems[j].thumbnail) ||
 																	g(nitems[j].enclosure?.link) ||
+																	nitems[j]["media:thumbnail"]?._attributes?.url ||
 																	nitems[j]["media:content"]?._attributes?.url ||
 																	nitems[j]["itunes:image"]?._attributes?.href ||
 																	nitems[j].image
@@ -289,8 +305,8 @@ const feedApp = (innerTagStr, opts) => {
 										// if (count === feedsArr.length) {
 										// sort items by time
 										resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
-										const lengthCache = JSON.stringify(resItems).length
-										debounceCache(resItems)
+										// const lengthCache = JSON.stringify(resItems).length
+										setDebounceCache(resItems)
 										cb(resItems)
 										// }
 								})
@@ -299,8 +315,8 @@ const feedApp = (innerTagStr, opts) => {
 
 				
 				
-				const debounceCache =  debounce((resItems) => {
-						setCache(resItems)
+				const setDebounceCache =  debounce((resItems) => {
+						setContentCache(resItems)
 				}, 2000)
 
 				const enrichItems = (items, feed) => {
@@ -330,8 +346,10 @@ const feedApp = (innerTagStr, opts) => {
 				const getXml = (feed, cb) => {
 						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
 								let res2 = xml2js(txt, { compact: true })
-								let items = res2.rss?.channel.item
-
+								console.log(123, res2)
+								
+								let items = res2.feed?.entry // XML1
+								if (!items) items = res2.rss?.channel.item // XML2
 								if (!items) items = []
 								items = items.slice(0, feed.limitFetchNb)
 								cb(items)
@@ -685,7 +703,14 @@ const feedApp = (innerTagStr, opts) => {
 						const toggleListView = () => {
 								let nView = listView === "list" ? "gallery" : "list"
 								setIntListView(nView)
+								setSettingsCache({listView: nView})
 						}
+						React.useEffect(() => {
+							getSettingsCache(settings => { 
+								if (settings.listView) setIntListView(settings.listView)
+							})
+						}, [])
+						
 
 						let itemOpenClass = itemActive ? "item-active" : ""
 
