@@ -100,7 +100,7 @@ const barPlugin = `
      }
 
     api.cache.get("timer_plugin_history", nHist => { 
-      console.log(1212, nHist)
+      // console.log(1212, nHist)
      // MAIN INIT
      if(nHist) history = nHist
      updateOpts()

@@ -274,7 +274,7 @@ const feedApp = (innerTagStr, opts) => {
 
 														// TIME
 														if (nitems[j]["dc:date"]) nitems[j].pubDate = nitems[j]["dc:date"]
-														if (nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
+														if (nitems[j]["published"] && nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
 
 														const timestamp = Date.parse(g(nitems[j].pubDate))
 														const d = new Date(timestamp)
