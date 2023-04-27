@@ -45,7 +45,7 @@ export const ssrNoteLinkFn = (el: HTMLElement) => {
 	const file = el.dataset.file
 	const folder = el.dataset.folder
 	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
-	const windowId = el.dataset.windowid
+	const windowId = el.dataset.windowid || 'active'
 	if (!file || !folder || !windowId) return
 	getClientApi2().then(api => {
 		api.ui.browser.goTo(

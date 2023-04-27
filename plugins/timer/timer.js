@@ -173,7 +173,7 @@ return [{
   code: bgTimer,
   plugin_infos,
   options: {
-    background_exec_interval_in_min: 0.01,
+    background_exec_interval_in_min: 0.01,md
   },
 }]
 // --no-latex 

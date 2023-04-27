@@ -41,6 +41,10 @@ export const usePluginsApi = (p: {
 	// FUNCTIONS
 	// 
 
+	//  V2 get files list but frontend only
+
+
+
 	//  V1 get files list
 	const listPlugins: iPluginsApi['list'] = (cb, opts) => {
 		if (!opts) opts = {}

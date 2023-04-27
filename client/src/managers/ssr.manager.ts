@@ -22,6 +22,7 @@ export const ssrFn = (id: string, action: iSSRAction): string => {
 	//@ts-ignore
 	let dic = window.ssrActionsDic
 	if (!dic[id]) {
+		// console.log(1111, id, window.ssrActionsDic)
 		// console.log("SSR ACTION INIT", id, action);
 		dic[id] = (el) => {
 			action(el)
