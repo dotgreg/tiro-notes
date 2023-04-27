@@ -131,17 +131,22 @@ const feedApp = (innerTagStr, opts) => {
 				//
 				const getCachedJsons = (cb) => {
 						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
+						console.log(1151)
 						if (!hasUserReloaded) {
+							console.log(1152)
 								// first get cached, if exists
 								getContentCache(content => {
+									console.log(1153)
 										// if cache, return content
 										console.log(h, "=> getting CACHED feed json")
 										cb(content)
 								}, () => {
+									console.log(1154)
 										// if no cache OR expired, reload from json rss
 										getJsons(cb)
 								})
 						} else {
+							console.log(1155)
 								// directly reload without cache
 								getJsons(cb)
 						}
