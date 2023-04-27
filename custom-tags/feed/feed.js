@@ -129,26 +129,28 @@ const feedApp = (innerTagStr, opts) => {
 				//
 				// CACHING MECHANISM
 				//
-				const getCachedJsons = (cb) => {
+				const getCachedJsons = (cb, setStatus) => {
 						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
 						console.log(1151)
 						if (!hasUserReloaded) {
 							console.log(1152)
 								// first get cached, if exists
+								setStatus("Loading... (loading feeds from cache)")
 								getContentCache(content => {
 									console.log(1153)
 										// if cache, return content
 										console.log(h, "=> getting CACHED feed json")
 										cb(content)
 								}, () => {
+									
 									console.log(1154)
 										// if no cache OR expired, reload from json rss
-										getJsons(cb)
+										getJsons(cb, setStatus)
 								})
 						} else {
 							console.log(1155)
 								// directly reload without cache
-								getJsons(cb)
+								getJsons(cb, setStatus)
 						}
 				}
 
@@ -246,14 +248,15 @@ const feedApp = (innerTagStr, opts) => {
 				//////////////////////////////////////////////////////////////////
 				// FETCHING DATA
 				//
-				const getJsons = (cb) => {
+				const getJsons = (cb, setStatus) => {
 						console.log(h, `getting NEW uncached jsons`);
 						const feedsArr = getFeeds(feedsStr)
 						let resItems = []
 						let count = 0
 						for (let i = 0; i < feedsArr.length; i++) {
 								fetchFeedItems(feedsArr[i], items => {
-										count = count + 1
+									count = count + 1
+										
 										let feedItems = 0
 										if (Array.isArray(items)) {
 												const nitems = [...items]
@@ -315,7 +318,9 @@ const feedApp = (innerTagStr, opts) => {
 												}
 												feedItems = nitems
 										}
-										console.log(h, `feed loaded ${count}/${feedsArr.length} : ${feedsArr[i].name} => ${feedItems.length} els`);
+										let debugInfo = `${count}/${feedsArr.length} : ${feedsArr[i].name} => ${feedItems.length} els`
+										console.log(h, `feed loaded ${debugInfo}`);
+										setStatus(`Loading... (loading feeds : ${debugInfo})`)
 										// if (count === feedsArr.length) {
 										// sort items by time
 										resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
@@ -645,13 +650,16 @@ const feedApp = (innerTagStr, opts) => {
 
 
 
+						const [status, setStatus] = React.useState("")
 						const [categories, setCategories] = React.useState([])
 						const [activeCat, setActiveCat] = React.useState(null)
 						// INITIAL LOADING
 						React.useEffect(() => {
+								setStatus("Loading... (loading bookmarks)")
 								console.log(h,114)
 								getBookmarks(() => {
 									console.log(h,115)
+									setStatus("Loading... (loading feeds)")
 										getCachedJsons(nitems => {
 											console.log(h,116)
 												let ncats = []
@@ -678,7 +686,8 @@ const feedApp = (innerTagStr, opts) => {
 												setCategories(ncats)
 												setFeeds(nfeeds)
 												setActiveFeed(null)
-										})
+												setStatus("")
+										}, setStatus)
 								})
 						}, [])
 
@@ -827,6 +836,9 @@ const feedApp = (innerTagStr, opts) => {
 														}
 												}),
 										]),
+										status !== "" && c('div', {class: "status"}, [
+											status,
+										]),
 										c('div', { 
 												onScroll,
 												id:"infinite-scroll-wrapper",
@@ -960,6 +972,10 @@ const feedApp = (innerTagStr, opts) => {
 		#root-react {
 				height: 100vh;
 				overflow: hidden;
+		}
+		.status {
+			text-align:center;
+			padding: 40px;
 		}
 		body {
 				font-family: sans-serif;
