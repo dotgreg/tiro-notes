@@ -55,7 +55,7 @@ api.ressource.fetch(`http://api.openweathermap.org/data/2.5/onecall?lat=${pos[0]
 				let d = days[i]
 				let date = new Date(d.dt*1000)
 				let dLabel = `${dLabels[date.getDay()]}`
-				console.log(1212, dLabel, date, date.getDay())
+				// console.log(1212, dLabel, date, date.getDay())
 				let r = `${dLabel} => ${getEmo(d.weather[0].icon)} - ${d.weather[0].description} - temp: ${Math.round(d.temp.day)}° (min: ${Math.round(d.temp.min)}° / max: ${Math.round(d.temp.max)}°) - feel: ${Math.round(d.feels_like.day)} (eve:${Math.round(d.feels_like.eve)}° / mor: ${Math.round(d.feels_like.morn)}° / night ${Math.round(d.feels_like.night)}°)`
 				res.push({label:r,value:""})
 		}
