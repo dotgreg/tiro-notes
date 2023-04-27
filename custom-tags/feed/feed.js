@@ -921,7 +921,7 @@ const feedApp = (innerTagStr, opts) => {
 							c(App),
 							document.getElementById("root-react")
 					);
-				}, 100)
+				}, 500)
 		}
 
 		// XML feeds
