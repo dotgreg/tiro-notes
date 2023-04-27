@@ -268,8 +268,17 @@ const feedApp = (innerTagStr, opts) => {
 														nitems[j].description = g(nitems[j].description) || ""
 														// CONTENT
 														nitems[j].content = g(nitems[j].content) || ""
+														// CONTENT adding H1 in case there is none for header counter css to work
+														// nitems[j].content = `<h1>${nitems[j].title}</h1>${nitems[j].content }` 
+
 														// LINK
 														nitems[j].link = g(nitems[j].link) || g(nitems[j].enclosure?.link) || ""
+														// in case of reddit, look for link inside the content
+														if (nitems[j].link === "") {
+															let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
+															console.log(222,reddit)
+															if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
+														}
 
 
 														// TIME
@@ -932,6 +941,10 @@ const feedApp = (innerTagStr, opts) => {
 		);
 
 		const styleFeed = `
+		h1:before, h2:before, h3:before, h4:before, h5:before, h6:before {
+			display: none;
+		}
+
 		html, body,
 		#root-react {
 				height: 100vh;
