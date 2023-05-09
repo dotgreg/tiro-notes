@@ -28,6 +28,7 @@ import { iLastFilesHistoryApi } from '../app/lastFilesHistory.hook';
 import { iPluginsApi, usePluginsApi } from './plugin.api.hook';
 import { iNotificationApi, useNotificationApi } from './notification.api.hook';
 import { iSocketApi, useSocketApi } from './socket.api.hook';
+import { audioApi, iAudioApi } from '../../managers/audio.manager';
 
 
 //
@@ -71,6 +72,7 @@ export interface iClientApi {
 	command: iCommandApi
 	encryption: iEncryptApi,
 	plugins: iPluginsApi,
+	audio: iAudioApi,
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -208,6 +210,7 @@ export const useClientApi = (p: {
 	const clientApi: iClientApi = {
 		cache: cacheApi,
 		file: fileApi,
+		audio: audioApi,
 		encryption: encryptApi,
 		files: filesApi,
 		socket: socketApi,

@@ -31,8 +31,11 @@ export interface iRessourceApi {
 
 	fetch: (
 		url: string,
-		cb: (urlContent: string) => void,
-		options?: { disableCache?: boolean }
+		cb: (urlContent: string, urlPath:string) => void,
+		options?: { 
+			disableCache?: boolean 
+			returnsPathOnly?:boolean
+		}
 	) => void,
 
 	fetchUrlArticle: (
@@ -83,23 +86,29 @@ export const useRessourceApi = (p: {
 
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
+		if (!options.returnsPathOnly) options.returnsPathOnly = false
 
 		const folder = `/.tiro/cache/fetch/`
-		let staticPath = `/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
-		staticPath = cleanPath(`${getBackendUrl()}${staticPath}`)
+		let localStaticPath = `/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
+		localStaticPath = cleanPath(`${getBackendUrl()}${localStaticPath}`)
 
-		console.log(`${h} FETCHING ressource url ${url} `, { url, options, staticPath });
+		console.log(`${h} FETCHING ressource url ${url} `, { url, options, localStaticPath });
 
 		const returnFile = () => {
-			fetch(staticPath).then(function (response) {
+			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
-				cb(data)
+				cb(data, localStaticPath)
 			})
 		}
+		const returnFilePath = () => { cb("", localStaticPath) }
+
 		const downloadThenReturnFile = () => {
 			downloadRessource(url, folder, answer => {
-				if (answer.message) { returnFile() }
+				if (answer.message) { 
+					if (!options?.returnsPathOnly) returnFile() 
+					else returnFilePath()
+				}
 			})
 		}
 
@@ -108,7 +117,7 @@ export const useRessourceApi = (p: {
 		}
 		else {
 			checkUrlExists({
-				url: staticPath,
+				url: localStaticPath,
 				onSuccess: () => {
 					console.log(`${h} FETCHING => getting CACHED file`, { url, options });
 					returnFile()
