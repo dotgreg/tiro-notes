@@ -9,7 +9,11 @@ export const cleanText2Speech = (rawText: string) => {
 	text2read = text2read.replace(regexs.ref, '')
 	text2read = text2read.replace(regexs.baliseHtml, '')
 	text2read = text2read.replace(/<[^>]*>?/gm, ' '); // remove html tags
+	text2read = text2read.replace(/((&lt;!--).+?(--&gt;))/gm, ' '); // remove html comments
+	text2read = text2read.replace(/(<!--).+?(-->)/gm, ' '); // remove html comments
 	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
+	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
+	
 	console.log(12444, text2read)
 	return text2read
 }

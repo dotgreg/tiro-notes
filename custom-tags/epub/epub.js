@@ -250,6 +250,8 @@ const epubApp = (innerTagStr, opts) => {
 					let cleaned = txt
 					// used for tts, cleaning is also done inside tts 
 					cleaned = cleaned.replace(/<[^>]*>?/gm, ' '); // remove html tags
+					cleaned = cleaned.replace(/((&lt;!--).+?(--&gt;))/gm, ' '); // remove html comments
+					cleaned = cleaned.replace(/(<!--).+?(-->)/gm, ' '); // remove html comments
 					cleaned = cleaned.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
 					return cleaned
 				}

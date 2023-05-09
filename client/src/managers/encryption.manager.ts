@@ -26,7 +26,7 @@ export const decryptText = (text:string, password:string):encryptionAnswer => {
     var privateKey = cryptico.generateRSAKey(password, Bits);
     let results = cryptico.decrypt(text, privateKey) as encryptionAnswer;
     // if (results.plaintext) return results.plaintext
-    // console.error('[DECRYPT TEXT] failed to decrypt text, return original text', results)
+    // console.error('[DECRYPT TEXT] failed to decrypt text, return original text', results)cm
     return results
 }
 
