@@ -2,7 +2,9 @@ import { each, isUndefined } from "lodash"
 import { getApi } from "../hooks/api/api.hook"
 import { devCliAddFn, notifLog } from "./devCli.manager"
 
-let cacheId = "plugins-cron-infos"
+// SUGGEST POPUP PLUGINS => loadExternalBarPlugin
+
+
 const h = `[PLUGIN CRON]`
 devCliAddFn('cron', 'trigger', () => {triggerCron()})
 
@@ -21,6 +23,7 @@ export const startFrontendBackgroundPluginsCron = () => {
     }, intervalTime)
 }
 
+let cacheId = "plugins-cron-infos"
 const triggerCron = () => {
     getApi(api => {
         // get the cached infos of all cron, especially the last ran date

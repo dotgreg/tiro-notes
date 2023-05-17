@@ -4,7 +4,6 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iNotification, iNotificationType } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { devCliAddFn } from '../managers/devCli.manager';
-import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon2 } from './Icon.component';
 
@@ -31,7 +30,7 @@ export const NotificationsCenter = (p: {
 		getApi(api => {
 			api.socket.get(s => {
 				s.on('getNotification', data => {
-					data.notification.id = generateUUID()
+					if (!data.notification.id) data.notification.id = generateUUID()
 					addNotif(data.notification)
 					afterTimeoutClose(data.notification)
 				})
@@ -40,16 +39,25 @@ export const NotificationsCenter = (p: {
 	}, [])
 
 
+	const timeoutsRef = useRef<{[id:string]: any}>({})
 	const afterTimeoutClose = (n: iNotification) => {
 		let timeout = (n.options?.hideAfter || 10) * 1000
-		if (timeout < 0) return
-		setTimeout(() => {
+		if (timeout < 0) return // if -1, no closing
+		
+		if (!n.id) return
+		timeoutsRef.current[n.id] = setTimeout(() => {
 			closeNotif(n.id)
 		}, timeout)
 	}
 
 	const addNotif = (n: iNotification) => {
+		// remove previous notif with current id
+		notifsRef.current = notifsRef.current.filter(i => i.id !== n.id)
+		// cancel previous timeouts
+		if (n.id && timeoutsRef.current[n.id]) clearTimeout(timeoutsRef.current[n.id])
+		// add it first pos
 		notifsRef.current.unshift(n)
+		
 		setNotifs([...notifsRef.current])
 	}
 
@@ -70,7 +78,7 @@ export const NotificationsCenter = (p: {
 			<div className="notifications-list">
 				{
 					notifs.map(n =>
-						<div className={`notif-wrapper notif-type-${getNotifType(n)}`}>
+						<div key={n.id} className={`notif-wrapper notif-type-${getNotifType(n)}`}>
 							<div className="notif-close" onClick={e => { closeNotif(n.id) }}>
 								<Icon2 name="close" />
 							</div>
