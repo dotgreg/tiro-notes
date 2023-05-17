@@ -3,7 +3,9 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { autocompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
-import CodeMirror from "@uiw/react-codemirror";
+import { foldAll, unfoldAll } from "@codemirror/language";
+import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+
 import { cssVars } from "../../managers/style/vars.style.manager";
 import { syncScroll3 } from "../../hooks/syncScroll.hook";
 import { deviceType, isA } from "../../managers/device.manager";
@@ -24,9 +26,7 @@ import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
 import { evenTable, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
-import { cacheNode } from "../../managers/nodeCache.manager";
-import { random } from "lodash";
-import { devHook } from "../../managers/devCli.manager";
+
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -46,14 +46,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
-}, forwardedRef) => {
+}, forwardedRefCM) => {
 
 
-	const getEditorObj = (): any => {
+	const getEditorObj = (): ReactCodeMirrorRef | null => {
 		// @ts-ignore
-		const f: any = forwardedRef.current
+		const f: any = forwardedRefCM.current
 		if (!f || !f.state) return null
-		return f
+		return f as ReactCodeMirrorRef
 	}
 
 	const histVal = useRef<null | string>(null)
@@ -64,7 +64,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (!f) return false
 		if (p.value === histVal.current) return false
 		if (p.value === "loading...") return false
-		if (f.view.state.doc.toString() === p.value) return false
+		if (f.view?.state.doc.toString() === p.value) return false
 		const li = CodeMirrorUtils.getCurrentLineInfos(f)
 		const cpos = li.currentPosition
 		CodeMirrorUtils.updateText(f, p.value, cpos)
@@ -119,10 +119,30 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// let res = initVal()
 			// devHook("cm_update")(p)
 		// }, 100)
+
+		testCM()
+
 	}, [p.value, p.forceRender, p.file.path]);
 
 
+	const testCM = () => {
+		let CMObj = getEditorObj() 
+
+		//@ts-ignore
+		window.cmobj = CMObj
+		if(!CMObj?.view) return
+		if(CMObj?.view) foldAll(CMObj?.view)
+		// foldAll
+		// CMObj.
+		// CMObj?.state.
+		setTimeout(() => {
+			// if(CMObj?.view) unfoldAll(CMObj?.view)
+		}, 3000)
+	}
+
+
 	const onChange = (value, viewUpdate) => {
+		console.log(333, value, viewUpdate)
 		// activateTitleInt()
 		// do not trigger change if value didnt changed from p.value (on file entering)
 		if (value === p.value) return
@@ -270,13 +290,19 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		<div className={`codemirror-editor-wrapper ${classes}`}>
 			<CodeMirror
 				value=""
-				ref={forwardedRef as any}
+				ref={forwardedRefCM as any}
 				theme={getCustomTheme()}
 				onChange={onChange}
+				onUpdate={e => {
+					//@ts-ignore
+					window.eee = e
+					console.log(444,e)
+				}}
 				// onScrollCapture={onCodeMirrorScroll}
+				
 
 				basicSetup={{
-					foldGutter: false,
+					foldGutter: true,
 					dropCursor: false,
 					allowMultipleSelections: false,
 					indentOnInput: false,
@@ -323,19 +349,29 @@ export const codeMirrorEditorCss = () => `
 }
 
 
+.cm-gutters {
+	border: none;
+	.cm-gutter {
+		.cm-gutterElement span {
+			color: #cccaca;
+		}
+	}
+}
+
+
 .actionable-title {
 		color: ${cssVars.colors.main};
 		position: relative;
-		&:before {
-				content: "➝";
-				position: absolute;
-				right: -20px;
-				color: #c6c6c6;
-				font-size: 18px;
-				opacity: 0;
-				transition: 0.2s all;
-				bottom: -3px;
-		}
+		// &:before {
+		// 		content: "➝";
+		// 		position: absolute;
+		// 		right: -20px;
+		// 		color: #c6c6c6;
+		// 		font-size: 18px;
+		// 		opacity: 0;
+		// 		transition: 0.2s all;
+		// 		bottom: -3px;
+		// }
 		&:hover {
 				&:before {
 						opacity: 1
@@ -384,6 +420,8 @@ export const codeMirrorEditorCss = () => `
 .codemirror-editor-wrapper {
 		margin-right: 18px;
 		width: calc(100% - 10px);
+		position: relative;
+		left: -10px;
 }
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
 		height: calc(100% - 30px);
@@ -400,7 +438,7 @@ export const codeMirrorEditorCss = () => `
 		padding: 6px 10px 11px;
 }
 .cm-content {
-		width: 100%;
+		width: calc(100% - 10px);
 		overflow:hidden;
 		white-space: pre-wrap;
 }

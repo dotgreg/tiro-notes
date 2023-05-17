@@ -160,10 +160,10 @@ export const markdownPreviewPlugin = (p: {
 
 
 				// TITLE ACTION
-				if (el.classList.contains("actionable-title")) {
-					let title = el.innerHTML.replace(/^#{1,6} /, "");
-					p.onTitleClick(title)
-				}
+				// if (el.classList.contains("actionable-title")) {
+				// 	let title = el.innerHTML.replace(/^#{1,6} /, "");
+				// 	p.onTitleClick(title)
+				// }
 
 				// IMAGE POPUP
 				// if (el.classList.contains("enlarge")) {

@@ -71,7 +71,6 @@ const updateText = (CMObj: any, newText: string, charPos: number) => {
 	// 		{ effects: EditorView.scrollIntoView(o2, { y: "start" }) },
 	// 	)
 	// )
-
 }
 const updateCursor = (CMObj: any, newPos: number, scrollTo: boolean = false) => {
 	log && console.log(h, " update cursor", newPos, CMObj);
