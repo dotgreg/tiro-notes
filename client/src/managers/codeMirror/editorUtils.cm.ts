@@ -3,7 +3,9 @@ import { EditorSelection } from "@codemirror/state";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { LineTextInfos } from "../textEditor.manager";
 import { getCustomTheme } from "./theme.cm";
-import { cloneDeep } from "lodash";
+import { cloneDeep, each } from "lodash";
+import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
+import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -233,6 +235,74 @@ const scrollTo = (CMObj: any, posY: number) => {
 	updateCursor(CMObj, posY, true)
 }
 
+type CMDocStructureItem = {
+	type: string, 
+	from: number,
+	to: number,
+	level: number,
+	lastChild: boolean
+}
+type CMDocStructure = CMDocStructureItem[]
+const levels = ["","ATXHeading1","ATXHeading2","ATXHeading3","ATXHeading4","ATXHeading5","ATXHeading6"]
+const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => {
+	const view = CMObj?.view
+	let res:CMDocStructure = []
+	if (!view) return res
+	let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
+	each(tree?.children, (c:any,i) => {
+		each(c.children, (c2,j) => {
+			let rawType = c2.type.name
+			let level = levels.indexOf(rawType)
+			let from = tree?.positions[i] + c.positions[j]
+
+			// paragraphs and other
+			if (level === -1) {
+				if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
+					res[res.length-1].to = from - 1
+				}
+			// titles
+			} else {
+				// if previous has higher level, means it is not a lastchild
+				if ( res[res.length-1] && res[res.length-1].level < level ) {
+					res[res.length-1].lastChild = false
+				}
+				// if previous has a to:-1
+				if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
+					res[res.length-1].to = from - 1
+				}
+				res.push({
+					type: rawType,
+					level, 
+					lastChild: true,
+					from,
+					to: -1
+				})
+			}
+			
+			
+		})
+	})
+	console.log(333, res, tree)
+	return res
+}
+
+const unfoldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
+	if (!CMObj?.view) return
+	unfoldAll(CMObj.view)
+}
+const foldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
+	let struct = getMarkdownStructure(CMObj)
+	// const view = CMObj?.view
+	each(struct, (item,i) => {
+		if (!CMObj?.view) return
+		if (!item.lastChild) return
+		let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
+		let from = item.to
+		CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
+		// foldInside({from,to})
+	})
+}
+
 
 export const CodeMirrorUtils = {
 	getEditorInfos,
@@ -242,5 +312,9 @@ export const CodeMirrorUtils = {
 	updateText,
 	scrollTo,
 	scrollToLine,
-	getCustomTheme
+	getCustomTheme,
+
+	getMarkdownStructure,
+	foldAllChildren,
+	unfoldAllChildren
 }

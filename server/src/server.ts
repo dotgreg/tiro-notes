@@ -23,8 +23,7 @@ platform: ${getPlatform()}
 architecture: ${archi}
 `)
 
-
-var express = require('express');
+var express = require('express'); 
 const app = express()
 
 var cors = require('cors')
