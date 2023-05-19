@@ -4,8 +4,9 @@
 		"description": "",
 		"main": "index.js",
 		"scripts": {
-				"start": "run-s devserver",
-				"devserver": "cross-env NODE_ENV=development nodemon",
+				"start": "run-s BUNdevserver",
+				"BUNdevserver": "cross-env NODE_ENV=development bun --hot ./src/server.ts",
+				"NPMdevserver": "cross-env NODE_ENV=development nodemon",
 				"prodTs": "ts-node --transpileOnly ./src/server.ts",
 				"prodJs": "tsc & node --experimental-worker build/server/src/tiro-server.js",
 				"buildOLD": "tsc",

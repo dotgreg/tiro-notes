@@ -3,7 +3,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { autocompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
-import { foldAll, unfoldAll } from "@codemirror/language";
+import { ensureSyntaxTree, foldAll, foldEffect, syntaxTree, unfoldAll } from "@codemirror/language";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
 import { cssVars } from "../../managers/style/vars.style.manager";
@@ -120,7 +120,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// devHook("cm_update")(p)
 		// }, 100)
 
-		testCM()
+		// testCM()
 
 	}, [p.value, p.forceRender, p.file.path]);
 
@@ -130,19 +130,40 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 		//@ts-ignore
 		window.cmobj = CMObj
-		if(!CMObj?.view) return
-		if(CMObj?.view) foldAll(CMObj?.view)
-		// foldAll
-		// CMObj.
-		// CMObj?.state.
+		const view = CMObj?.view
+		const state = CMObj?.state
+		if(!view) return
+		if(view && state) {
+			
+			// view.dispatch({ effects: foldEffect.of({ from: 1, to: 5 }) });
+			// view.dispatch({ effects: foldEffect.of({ from: 10, to: 15 }) });
+			// view.dispatch({ effects: foldEffect.of({ from: 20, to: 50 }) });
+			// view.dispatch({})÷
+			// let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
+			// console.log(3334, tree, view.state.doc.toString())
+			// CodeMirrorUtils.getMarkdownStructure(CMObj)
+			CodeMirrorUtils.foldAllChildren(CMObj)
+			setTimeout(() => {
+				// foldAll(view)
+				// console.log(2222222,syntaxTree(state))
+			}, 3000)
+		}
 		setTimeout(() => {
-			// if(CMObj?.view) unfoldAll(CMObj?.view)
+			// if(view) unfoldAll(view)
 		}, 3000)
+	}
+
+	const isAllFolded = useRef(false)
+	const toggleFoldAll = () => {
+		let CMObj = getEditorObj() 
+		if (!isAllFolded.current) CodeMirrorUtils.foldAllChildren(CMObj)
+		else CodeMirrorUtils.unfoldAllChildren(CMObj)
+		isAllFolded.current= !isAllFolded.current
 	}
 
 
 	const onChange = (value, viewUpdate) => {
-		console.log(333, value, viewUpdate)
+		// console.log(333, value, viewUpdate)
 		// activateTitleInt()
 		// do not trigger change if value didnt changed from p.value (on file entering)
 		if (value === p.value) return
@@ -288,6 +309,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	return (
 		<div className={`codemirror-editor-wrapper ${classes}`}>
+			<div className="foldall-wrapper" onClick={ e =>{toggleFoldAll()}}>x</div>
 			<CodeMirror
 				value=""
 				ref={forwardedRefCM as any}
@@ -295,8 +317,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				onChange={onChange}
 				onUpdate={e => {
 					//@ts-ignore
-					window.eee = e
-					console.log(444,e)
+					// window.eee = e
+					// console.log(444,e)
 				}}
 				// onScrollCapture={onCodeMirrorScroll}
 				
@@ -351,11 +373,29 @@ export const codeMirrorEditorCss = () => `
 
 .cm-gutters {
 	border: none;
+	opacity: 0;
+	&:hover {
+		opacity: 1;
+	}
 	.cm-gutter {
 		.cm-gutterElement span {
 			color: #cccaca;
 		}
 	}
+}
+
+.foldall-wrapper {
+	&:hover {
+		opacity: 1;
+	}
+	opacity: 0;
+	position: absolute;
+	z-index: 1000;
+	top: -1px;
+	color: #d7d7d7;
+	cursor: pointer;
+	padding: 5px;
+	right: 0px;
 }
 
 
@@ -404,6 +444,18 @@ export const codeMirrorEditorCss = () => `
 		// font-family: 'Open sans', sans-serif;
 		font-family: Consolas, monaco, monospace;
 		font-size: 11px;
+}
+
+.cm-foldPlaceholder {
+	margin-left: 8px;
+		opacity: 0.4;
+		padding: 2px 5px;
+		border: none;
+}
+.cm-foldGutter {
+	&::before {
+
+	}
 }
 
 .cm-focused {
