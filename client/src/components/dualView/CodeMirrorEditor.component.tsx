@@ -299,7 +299,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	return (
 		<div className={`codemirror-editor-wrapper ${classes}`}>
-			<div className={`foldall-wrapper`} onClick={ e =>{toggleFoldAll()}}>
+			<div className={`foldall-wrapper ${deviceType()}`} onClick={ e =>{toggleFoldAll()}}>
 				<Icon2 
 					name={`${isAllFolded ? 'maximize' : 'minimize'}`} 
 					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`} 
@@ -380,13 +380,16 @@ export const codeMirrorEditorCss = () => `
 }
 
 .foldall-wrapper {
-	&:hover {
+	&.desktop {
+		opacity: 0;
+	}
+	&.desktop:hover {
 		opacity: 1;
 	}
 	&::selection {
 		 background: none;
 	}
-	opacity: 0;
+	
 	position: absolute;
 	z-index: 1000;
 	top: -1px;
