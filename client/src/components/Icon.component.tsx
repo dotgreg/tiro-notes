@@ -4,8 +4,9 @@ import * as fa from '@fortawesome/free-solid-svg-icons'
 import { ssrIcon } from '../managers/ssr.manager';
 
 
-export const Icon2 = (p:{name: string}) => {
+export const Icon2 = (p:{name: string, label?:string}) => {
 	return <div className="icon-2-wrapper"
+		title={p.label}
 		dangerouslySetInnerHTML={{
 			__html: ssrIcon(p.name)
 		}}

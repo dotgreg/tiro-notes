@@ -26,6 +26,7 @@ import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
 import { evenTable, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
+import { Icon2 } from "../Icon.component";
 
 
 const h = `[Code Mirror]`
@@ -125,40 +126,29 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}, [p.value, p.forceRender, p.file.path]);
 
 
-	const testCM = () => {
-		let CMObj = getEditorObj() 
+	// const testCM = () => {
+	// 	let CMObj = getEditorObj() 
 
-		//@ts-ignore
-		window.cmobj = CMObj
-		const view = CMObj?.view
-		const state = CMObj?.state
-		if(!view) return
-		if(view && state) {
+	// 	//@ts-ignore
+	// 	window.cmobj = CMObj
+	// 	const view = CMObj?.view
+	// 	const state = CMObj?.state
+	// 	if(!view) return
+	// 	if(view && state) {
 			
-			// view.dispatch({ effects: foldEffect.of({ from: 1, to: 5 }) });
-			// view.dispatch({ effects: foldEffect.of({ from: 10, to: 15 }) });
-			// view.dispatch({ effects: foldEffect.of({ from: 20, to: 50 }) });
-			// view.dispatch({})÷
-			// let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
-			// console.log(3334, tree, view.state.doc.toString())
-			// CodeMirrorUtils.getMarkdownStructure(CMObj)
-			CodeMirrorUtils.foldAllChildren(CMObj)
-			setTimeout(() => {
-				// foldAll(view)
-				// console.log(2222222,syntaxTree(state))
-			}, 3000)
-		}
-		setTimeout(() => {
-			// if(view) unfoldAll(view)
-		}, 3000)
-	}
+	// 		CodeMirrorUtils.foldAllChildren(CMObj)
+	// 	}
+	// 	setTimeout(() => {
+	// 		// if(view) unfoldAll(view)
+	// 	}, 3000)
+	// }
 
-	const isAllFolded = useRef(false)
+	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
 		let CMObj = getEditorObj() 
-		if (!isAllFolded.current) CodeMirrorUtils.foldAllChildren(CMObj)
+		if (!isAllFolded) CodeMirrorUtils.foldAllChildren(CMObj)
 		else CodeMirrorUtils.unfoldAllChildren(CMObj)
-		isAllFolded.current= !isAllFolded.current
+		setIsAllFolded(!isAllFolded)
 	}
 
 
@@ -309,7 +299,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	return (
 		<div className={`codemirror-editor-wrapper ${classes}`}>
-			<div className="foldall-wrapper" onClick={ e =>{toggleFoldAll()}}>x</div>
+			<div className={`foldall-wrapper`} onClick={ e =>{toggleFoldAll()}}>
+				<Icon2 
+					name={`${isAllFolded ? 'maximize' : 'minimize'}`} 
+					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`} 
+				/>
+			</div>
 			<CodeMirror
 				value=""
 				ref={forwardedRefCM as any}
@@ -387,6 +382,9 @@ export const codeMirrorEditorCss = () => `
 .foldall-wrapper {
 	&:hover {
 		opacity: 1;
+	}
+	&::selection {
+		 background: none;
 	}
 	opacity: 0;
 	position: absolute;
