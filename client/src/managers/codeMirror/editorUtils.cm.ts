@@ -250,8 +250,10 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => 
 	if (!view) return res
 	let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
 	each(tree?.children, (c:any,i) => {
+		let parentType = c.type.name
 		each(c.children, (c2,j) => {
 			let rawType = c2.type.name
+			if (rawType === "HeaderMark") rawType = parentType
 			let level = levels.indexOf(rawType)
 			let from = tree?.positions[i] + c.positions[j]
 
@@ -298,7 +300,11 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
 		if (!item.lastChild) return
 		let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
 		let from = item.to
-		CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
+		try {
+			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
+		} catch (error) {
+			console.warn(`ERROR FOR ${item.type}`, error)
+		}
 		// foldInside({from,to})
 	})
 }
