@@ -24,7 +24,7 @@ import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm"
 import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
 import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
-import { evenTable, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
+import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
 
@@ -286,9 +286,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
 		codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 	}
+
 	if (!disablePlugins && !disableMd) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
+	} else {
+		// markdown replacement plugin for mobile
+		codemirrorExtensions.push(markdownMobileTitle(p.file, p.windowId))
 	}
+	
 
 	let classes = ``
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
@@ -383,7 +388,7 @@ export const codeMirrorEditorCss = () => `
 	&.desktop {
 		opacity: 0;
 	}
-	&.desktop:hover {
+	&.desktop:hover {	
 		opacity: 1;
 	}
 	&::selection {

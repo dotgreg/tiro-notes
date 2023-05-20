@@ -864,28 +864,30 @@ export const SuggestPopup = (p: {
 							}}
 						/>
 					</div>
-					<div className={`preview-wrapper ${notePreview ? "note-preview" : "html-preview-wrapper"}`}
-						style={{ height: previewHeight }}
-					>
-						{notePreview && deviceType() !== "mobile" &&
-							<NotePreview
-								file={notePreview}
-								searchedString={activeLine}
-								height={previewHeight}
-							/>
-						}
-						{
-							htmlPreview &&
-							<div
-								className="html-preview"
-								dangerouslySetInnerHTML={{
-									__html: htmlPreview
-								}}
-								style={{ height: previewHeight }}
-							>
-							</div>
-						}
-					</div>
+					{deviceType() !== "mobile" && 
+						<div className={`preview-wrapper ${notePreview ? "note-preview" : "html-preview-wrapper"}`}
+							style={{ height: previewHeight }}
+						>
+							{notePreview && deviceType() !== "mobile" &&
+								<NotePreview
+									file={notePreview}
+									searchedString={activeLine}
+									height={previewHeight}
+								/>
+							}
+							{
+								htmlPreview &&
+								<div
+									className="html-preview"
+									dangerouslySetInnerHTML={{
+										__html: htmlPreview
+									}}
+									style={{ height: previewHeight }}
+								>
+								</div>
+							}
+						</div>
+					}
 				</div>
 			</div >
 		</div >
