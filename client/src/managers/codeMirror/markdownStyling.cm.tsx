@@ -1,6 +1,7 @@
 import { debounce, floor } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../../shared/types.shared";
+import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm"
 
 export const evenTable = { val: false }
@@ -29,6 +30,24 @@ export const markdownStylingTableCell = (file: iFile, windowId:string) =>  gener
 })
 
 
+export const markdownMobileTitle = (file: iFile, windowId:string) => genericReplacementPlugin({
+	file,
+	windowId,
+	pattern: regexs.mdTitle,
+	classWrap: matchs => {
+		// console.log(123, matchs)
+		let level = matchs[1].length
+		// let line = matchs[0].trim()
+		// if (line.startsWith("|")) line = line.substring(1)
+		// if (line.endsWith("|")) line = line.substring(0, line.length - 1)
+
+		// let nbCells = line.split("|").length
+		// even.val = !even.val
+		// // resetEven()
+		return `md-title-wrapper level-${level}`
+	}
+})
+
 export const markdownStylingTable = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
 	windowId,
@@ -56,6 +75,23 @@ export const markdownStylingTableCss = () => {
 	}
 
 	return `
+.md-title-wrapper {
+	color: ${cssVars.colors.main};
+	
+	&.level-1 {
+		font-size: 15px;
+		text-decoration: underline;
+		font-weight: bold;
+	}
+	&.level-2 {
+		font-size: 13px;
+		text-decoration: underline;
+		// font-weight: bold;
+	}
+	&.level-3 {
+		font-size: 12px;
+	}
+}
 .md-table-preview-enabled {
 		.md-table-line {
 				&.even {

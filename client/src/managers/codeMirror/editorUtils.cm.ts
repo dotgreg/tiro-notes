@@ -6,6 +6,7 @@ import { getCustomTheme } from "./theme.cm";
 import { cloneDeep, each } from "lodash";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
+import { regexs } from "../../../../shared/helpers/regexs.helper";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -294,7 +295,7 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => 
 	for (let i = 0; i < lines.length; i++) {
 			const line = lines[i]
 			const llength = line.length + 1
-			const matches = [...line.matchAll(/([#]{1,9})\ (.+)/gi)];
+			const matches = [...line.matchAll(regexs.mdTitle)];
 			let from = totChar 
 			let to = from + llength
 			if (matches.length>0) {
@@ -319,7 +320,7 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => 
 			totChar = totChar + llength
 	}
 	
-	console.log(333, res, raw, resArr)
+	// console.log(333, res, raw, resArr)
 	return resArr
 }
 
