@@ -236,56 +236,91 @@ const scrollTo = (CMObj: any, posY: number) => {
 }
 
 type CMDocStructureItem = {
-	type: string, 
 	from: number,
 	to: number,
 	level: number,
-	lastChild: boolean
+	lastChild: boolean,
+	raw: string, 
+	matches:any, 
+	line:number, 
+	title: string, 
 }
 type CMDocStructure = CMDocStructureItem[]
-const levels = ["","ATXHeading1","ATXHeading2","ATXHeading3","ATXHeading4","ATXHeading5","ATXHeading6"]
+// const levels = ["","ATXHeading1","ATXHeading2","ATXHeading3","ATXHeading4","ATXHeading5","ATXHeading6"]
 const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => {
 	const view = CMObj?.view
 	let res:CMDocStructure = []
 	if (!view) return res
-	let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
-	each(tree?.children, (c:any,i) => {
-		let parentType = c.type.name
-		each(c.children, (c2,j) => {
-			let rawType = c2.type.name
-			if (rawType === "HeaderMark") rawType = parentType
-			let level = levels.indexOf(rawType)
-			let from = tree?.positions[i] + c.positions[j]
+	const raw = view.state.doc.toString();
+	// let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
+	// each(tree?.children, (c:any,i) => {
+	// 	let parentType = c.type.name
+	// 	each(c.children, (c2,j) => {
+	// 		let rawType = c2.type.name
+	// 		if (rawType === "HeaderMark") rawType = parentType
+	// 		let level = levels.indexOf(rawType)
+	// 		let from = tree?.positions[i] + c.positions[j]
 
-			// paragraphs and other
-			if (level === -1) {
-				if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
-					res[res.length-1].to = from - 1
-				}
-			// titles
-			} else {
-				// if previous has higher level, means it is not a lastchild
-				if ( res[res.length-1] && res[res.length-1].level < level ) {
-					res[res.length-1].lastChild = false
-				}
-				// if previous has a to:-1
-				if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
-					res[res.length-1].to = from - 1
-				}
-				res.push({
-					type: rawType,
-					level, 
-					lastChild: true,
-					from,
-					to: -1
-				})
+	// 		// paragraphs and other
+	// 		if (level === -1) {
+	// 			if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
+	// 				res[res.length-1].to = from - 1
+	// 			}
+	// 		// titles
+	// 		} else {
+	// 			// if previous has higher level, means it is not a lastchild
+	// 			if ( res[res.length-1] && res[res.length-1].level < level ) {
+	// 				res[res.length-1].lastChild = false
+	// 			}
+	// 			// if previous has a to:-1
+	// 			if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
+	// 				res[res.length-1].to = from - 1
+	// 			}
+	// 			res.push({
+	// 				type: rawType,
+	// 				level, 
+	// 				lastChild: true,
+	// 				from,
+	// 				to: -1
+	// 			})
+	// 		}
+			
+			
+	// 	})
+	// })
+	const lines = raw.split("\n")
+	const resArr:CMDocStructureItem[] = []
+	let totChar = 0;
+	for (let i = 0; i < lines.length; i++) {
+			const line = lines[i]
+			const llength = line.length + 1
+			const matches = [...line.matchAll(/([#]{1,9})\ (.+)/gi)];
+			let from = totChar 
+			let to = from + llength
+			if (matches.length>0) {
+					const m = matches[0]
+					let level = m[1].length 
+					// if previous has higher level, means it is not a lastchild
+					if ( resArr[resArr.length-1] && resArr[resArr.length-1].level < level ) {
+						resArr[resArr.length-1].lastChild = false
+					}
+					resArr.push({
+						raw: line, 
+						matches:m, 
+						line:i, 
+						title: m[2], 
+						from, 
+						to, 
+						level,
+						lastChild: true,
+					})
+					
 			}
-			
-			
-		})
-	})
-	console.log(333, res, tree)
-	return res
+			totChar = totChar + llength
+	}
+	
+	console.log(333, res, raw, resArr)
+	return resArr
 }
 
 const unfoldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
@@ -299,11 +334,11 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
 		if (!CMObj?.view) return
 		if (!item.lastChild) return
 		let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
-		let from = item.to
+		let from = item.to - 1
 		try {
 			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
 		} catch (error) {
-			console.warn(`ERROR FOR ${item.type}`, error)
+			console.warn(`ERROR FOR ${item.title}`, error)
 		}
 		// foldInside({from,to})
 	})
