@@ -357,11 +357,6 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
-.teststorage {
-    position: absolute;
-    top: 120px;
-    z-index: 10;
-}
 .cm-selectionLayer {
     pointer-events: none;
 		z-index:0!important;
@@ -374,7 +369,7 @@ export const codeMirrorEditorCss = () => `
 .cm-gutters {
 	border: none;
 	opacity: 0;
-	z-index: 200;
+	z-index: 0;
 	&:hover {
 		opacity: 1;
 	}
@@ -404,7 +399,7 @@ export const codeMirrorEditorCss = () => `
 	
 	opacity:0.6;
 	position: absolute;
-	z-index: 1000;
+	z-index: 1;
 	top: 2px;
 	color: #d7d7d7;
 	cursor: pointer;
