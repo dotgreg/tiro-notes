@@ -39,6 +39,7 @@ import { mem } from '../reactRenderer.manager';
 import { ctagPreviewPluginCss } from '../codeMirror/ctag.plugin.cm';
 import { NotificationsCenterCss } from '../../components/NotificationsCenter.component';
 import { dualViewerCss } from '../../components/dualView/DualViewer.component';
+import { notePreviewPopupCss } from '../../components/NotePreviewPopup.component';
 
 
 export const css2 = (css: string) => css
@@ -62,6 +63,7 @@ export const CssApp2 = (
 				}
 		}
 
+		${notePreviewPopupCss()}
 		${dualViewerCss()}
 		${GlobalAppViewCss()}
 		${NotificationsCenterCss()}
