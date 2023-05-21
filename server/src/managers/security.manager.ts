@@ -9,7 +9,7 @@ export const getSocketClientInfos = (socket:any) => {
 }
 
 const securityLog = (str:string) => {
-    // console.log("[SEC]", getClientInfos(socket), str)
+    console.log("[SECLOG]", new Date(), str)
     fileLogWrite(`${str}`, "security",)
 }
 
