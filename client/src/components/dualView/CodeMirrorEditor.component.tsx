@@ -295,7 +295,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	
 
-	let classes = ``
+	let classes = `device-${deviceType()} `
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
 	 
@@ -303,10 +303,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 	return (
-		<div className={`codemirror-editor-wrapper ${classes}`}>
+		<div className={`codemirror-editor-wrapper ${classes} `}>
 			<div className={`foldall-wrapper ${deviceType()}`} onClick={ e =>{toggleFoldAll()}}>
 				<Icon2 
-					name={`${isAllFolded ? 'maximize' : 'minimize'}`} 
+					name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`} 
 					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`} 
 				/>
 			</div>
@@ -374,6 +374,7 @@ export const codeMirrorEditorCss = () => `
 .cm-gutters {
 	border: none;
 	opacity: 0;
+	z-index: 200;
 	&:hover {
 		opacity: 1;
 	}
@@ -381,6 +382,12 @@ export const codeMirrorEditorCss = () => `
 		.cm-gutterElement span {
 			color: #cccaca;
 		}
+	}
+}
+.device-mobile {
+	.cm-gutters {
+		opacity:1!important;
+		// background:red!important;
 	}
 }
 
@@ -395,13 +402,15 @@ export const codeMirrorEditorCss = () => `
 		 background: none;
 	}
 	
+	opacity:0.6;
 	position: absolute;
 	z-index: 1000;
-	top: -1px;
+	top: 2px;
 	color: #d7d7d7;
 	cursor: pointer;
-	padding: 5px;
-	right: 0px;
+	padding: 5px 3px;
+	left: 12px;
+	background: white;
 }
 
 
