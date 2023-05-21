@@ -333,14 +333,19 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
 	// const view = CMObj?.view
 	each(struct, (item,i) => {
 		if (!CMObj?.view) return
-		if (!item.lastChild) return
-		let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
-		let from = item.to - 1
-		try {
-			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
-		} catch (error) {
-			console.warn(`ERROR FOR ${item.title}`, error)
-		}
+		// if (!item.lastChild) {
+			let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
+			let from = item.to - 1
+			try {
+				CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
+			} catch (error) {
+				console.warn(`ERROR FOR ${item.title}`, error)
+			}
+		// } else {
+		// 	// not a last child, look for content between the parent and the child title
+		// 	let from = item.to - 1
+		// 	let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
+		// }
 		// foldInside({from,to})
 	})
 }
