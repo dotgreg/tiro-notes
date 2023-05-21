@@ -29,6 +29,7 @@ import { iPluginsApi, usePluginsApi } from './plugin.api.hook';
 import { iNotificationApi, useNotificationApi } from './notification.api.hook';
 import { iSocketApi, useSocketApi } from './socket.api.hook';
 import { audioApi, iAudioApi } from '../../managers/audio.manager';
+import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
 
 
 //
@@ -81,6 +82,7 @@ export interface iClientApi {
 		textToSpeechPopup: iTtsApi
 		search: iSearchUiApi
 		note: iNoteApi["ui"]
+		notePreviewPopup: iNotePreviewPopupApi
 	}
 	status: iStatusApi,
 	lastNotesApi?: iLastFilesHistoryApi,
@@ -127,6 +129,7 @@ export const useClientApi = (p: {
 	lightboxApi: iLightboxApi
 	ttsApi: iTtsApi
 	historyApi: iNoteHistoryApi
+	notePreviewPopupApi: iNotePreviewPopupApi
 }) => {
 
 	//
@@ -235,7 +238,8 @@ export const useClientApi = (p: {
 			lightbox: p.lightboxApi,
 			textToSpeechPopup: p.ttsApi,
 			search: searchApi.ui,
-			note: noteApi.ui
+			note: noteApi.ui,
+			notePreviewPopup: p.notePreviewPopupApi
 		},
 	}
 	// outside of react too

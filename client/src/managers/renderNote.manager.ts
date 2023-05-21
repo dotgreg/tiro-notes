@@ -85,21 +85,6 @@ const injectLogicToHtml = (p: {
 	file: iFile
 
 }) => {
-	// title search links
-	// bindToElClass('title-search-link', noteLinkClickJSLogic)
-
-	// bindToElClass('content-image', el => {
-	// 	getClientApi2().then(api => {
-	// 		let indexImage = parseInt(el.dataset.index)
-	// 		try {
-	// 			let images = JSON.parse(decodeURIComponent(el.dataset.images))
-	// 			if (!isNumber(indexImage)) indexImage = 0
-	// 			api.ui.lightbox.open(indexImage, images)
-	// 		} catch (e) {
-	// 			console.error(e)
-	// 		}
-	// 	})
-	// })
 
 }
 

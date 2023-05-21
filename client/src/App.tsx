@@ -35,7 +35,7 @@ import { FoldersTreeView } from './components/TreeView.Component';
 import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
-import * as k from 'keyboardjs';
+
 // import
 import { SuggestPopup } from './components/SuggestPopup.component';
 import { Shortcuts } from './components/Shortcuts.component';
@@ -48,6 +48,9 @@ import { random } from 'lodash';
 import { devCliAddFn } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
+import { addKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
+import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
+import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 
 export const App = () => {
 	useEffect(() => {
@@ -261,6 +264,12 @@ export const App = () => {
 	// NOTE HISTORY HOOK
 	const historyApi = useNoteHistoryApi()
 	
+	//
+	// NOTE PREVIEW POPUP SYSTEM
+	//
+	const {
+        notePreviewPopupApi,  notePreviewPopup
+	} = useNotePreviewPopupApi()
 
 	//
 	// CLIENT API
@@ -272,6 +281,7 @@ export const App = () => {
 		windowsApi,
 		statusApi,
 		historyApi,
+		notePreviewPopupApi,
 		lightboxApi,
 		ttsApi
 	})
@@ -326,10 +336,16 @@ export const App = () => {
 	useEffect(() => {
 		const openOmni = () => { setSuggestOpen(true); setSuggestShow(true) }
 		const closeOmni = () => { setSuggestOpen(false); }
-		k.bind('alt + spacebar', openOmni);
-		k.bind('esc', closeOmni);
-		return () => { k.releaseAllKeys(); }
+		// k.bind('alt + spacebar', openOmni);
+		addKeyShortcut('alt + spacebar', openOmni);
+		// k.bind('esc', closeOmni);
+		addKeyShortcut('esc', closeOmni);
+		return () => { releaseKeyShortcuts() }
 	}, [filesHistory])
+
+
+	
+
 
 
 	let rcnt = forceResponsiveRender ? 0 : 1
@@ -341,7 +357,9 @@ export const App = () => {
 				{ /* API : making clientapi available everywhere */}
 				<ClientApiContext.Provider value={clientApi} >
 
-
+					{
+						notePreviewPopup?.isOpen && <NotePreviewPopup notePreview={notePreviewPopup} />
+					}
 					{suggestOpen &&
 						<SuggestPopup
 							show={suggestShow}
