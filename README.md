@@ -3,7 +3,7 @@
 An open-source, cross-platform markdown editor designed for extensibility & flexibility
 
 🌐 website| 📘 guides| ⬇️ downloads| 📢 news| Version |
--|-|-|-|-|-
+-|-|-|-|-
 [tiro-notes.org](https://tiro-notes.org)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads)|[twitter](https://twitter.com/NotesTiro)| 0.30 (beta)
 
 
