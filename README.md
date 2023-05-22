@@ -7,7 +7,7 @@ An open-source, cross-platform markdown editor designed for extensibility & flex
 [tiro-notes.org](https://tiro-notes.org)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads)|[twitter](https://twitter.com/NotesTiro)| 0.30 (beta)
 
 
-![Tiro 0.30](https://user-images.githubusercontent.com/2981891/171833721-2acdc59d-8c21-4280-bd62-a78023731c22.png)
+![Tiro 0.30](https://github.com/dotgreg/tiro-notes/assets/2981891/9e684988-5575-428f-8499-d11ad6637c71)
 
 
 
