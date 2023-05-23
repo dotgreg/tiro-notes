@@ -3,7 +3,6 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { autocompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
-import { ensureSyntaxTree, foldAll, foldEffect, syntaxTree, unfoldAll } from "@codemirror/language";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
 import { cssVars } from "../../managers/style/vars.style.manager";
@@ -121,27 +120,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// devHook("cm_update")(p)
 		// }, 100)
 
-		// testCM()
 
 	}, [p.value, p.forceRender, p.file.path]);
 
-
-	// const testCM = () => {
-	// 	let CMObj = getEditorObj() 
-
-	// 	//@ts-ignore
-	// 	window.cmobj = CMObj
-	// 	const view = CMObj?.view
-	// 	const state = CMObj?.state
-	// 	if(!view) return
-	// 	if(view && state) {
-			
-	// 		CodeMirrorUtils.foldAllChildren(CMObj)
-	// 	}
-	// 	setTimeout(() => {
-	// 		// if(view) unfoldAll(view)
-	// 	}, 3000)
-	// }
 
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
@@ -150,6 +131,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		else CodeMirrorUtils.unfoldAllChildren(CMObj)
 		setIsAllFolded(!isAllFolded)
 	}
+	useEffect(() => {
+		setIsAllFolded(false)
+	}, [p.file.path])
 
 
 	const onChange = (value, viewUpdate) => {
@@ -179,7 +163,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		if (p.posY <= -10) return
-		CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
+		try {
+			CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
+		} catch (error) {
+			console.log(error)	
+		}
 	}, [p.jumpToLine])
 
 
@@ -403,7 +391,7 @@ export const codeMirrorEditorCss = () => `
 	top: 2px;
 	color: #d7d7d7;
 	cursor: pointer;
-	padding: 5px 3px;
+	padding: 5px 5px;
 	left: 12px;
 	background: white;
 }
@@ -506,8 +494,8 @@ export const codeMirrorEditorCss = () => `
 }
 .cm-scroller {
 		z-index: auto!important;
-		left: 15px;
-		padding-right: 25px;
+		left: 20px;
+    	padding-right: 5px;
 }
 .cm-line {
 }
@@ -528,11 +516,16 @@ export const codeMirrorEditorCss = () => `
 }
 
 .codemirror-mobile-fallback {
-		margin: 10px;
-		textarea {
-				width: calc(100% - 20px);
-				height: calc(100vh - 350px);
-		}
+	margin: 10px;
+	p {
+		color:grey;
+		font-size: 10px;
+	}
+	textarea {
+		width: calc(100% - 20px);
+		height: calc(100vh - 230px);
+		border: 0px;
+	}
 }
 
 .test-success {

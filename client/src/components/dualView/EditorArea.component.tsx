@@ -25,6 +25,8 @@ import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
+import { iEditorAction } from '../../hooks/api/note.api.hook';
+import { fileToNoteLink } from '../../managers/noteLink.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -53,8 +55,8 @@ interface iEditorProps {
 	onUpdateY: onTitleClickFn
 	onMaxYUpdate: (maxY: number) => void
 	posY: number
-	jumpToLine?: number
-
+	editorAction: iEditorAction | null
+	
 	onFileEdited: onFileEditedFn
 	onScrollModeChange: (v: boolean) => void
 
@@ -159,9 +161,7 @@ const EditorAreaInt = (
 		onTextDecrypted: txt => { triggerNoteEdition(txt); forceCmRender(); }
 	})
 
-
-
-
+	
 	//
 	// MANAGE UPLOAD / PROGRESS
 	//
@@ -198,7 +198,6 @@ const EditorAreaInt = (
 		// }, 10)
 	}, 500)
 
-	const idNote = `[link|${p.file.realname} ${p.file.folder}]\n`
 
 
 	//
@@ -321,6 +320,7 @@ const EditorAreaInt = (
 	useEffect(() => {
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
 		setSimpleFallback(nval)
+		forceCmRender()
 	}, [innerFileContent, p.viewType, p.mobileView])
 
 
@@ -346,6 +346,34 @@ const EditorAreaInt = (
 		// p.onViewToggle(nView)
 		p.askForLayoutUpdate("windowView", {view:nView})
 	}
+
+	//
+	// EDITOR ACTIONS 
+	// triggered from api like line jump
+	//
+	//
+	const [jumpToLine, setJumpToLine] = useState(-1)
+	useEffect(() => {
+		let a = p.editorAction
+		if (!a) return
+		if (a.windowId === "active" && !p.isActive) return
+		if (a.windowId !== "active" && a.windowId !== p.windowId) return
+
+		console.log("[EDITOR ACTION] =>", {a})
+		// lineJump
+		if (a.type === "lineJump" && a.lineJump) {
+			setJumpToLine(a.lineJump)
+			setTimeout(() => {
+				setJumpToLine(-1)
+			}, 100)
+		}
+
+		// insert at
+		if (a.type === "insertText" && a.insertText && a.insertPos) {
+			insertTextAt(a.insertText, a.insertPos)
+		}
+
+	}, [p.editorAction, p.editorAction?.type, p.editorAction?.windowId, p.editorAction?.lineJump])
 
 
 
@@ -434,7 +462,7 @@ const EditorAreaInt = (
 												// @ts-ignore
 												el.setSelectionRange(0, el.value.length)
 											}}
-											value={idNote}
+											value={fileToNoteLink(p.file)}
 											readOnly={true}
 										/>
 										<ButtonsToolbar
@@ -477,8 +505,7 @@ const EditorAreaInt = (
 									</div>
 								</div>
 
-								
-
+							
 							</>
 						</Dropdown >
 					</div>
@@ -503,7 +530,7 @@ const EditorAreaInt = (
 						onChange={triggerNoteEdition}
 
 						posY={p.posY}
-						jumpToLine={p.jumpToLine || 0}
+						jumpToLine={jumpToLine || 0}
 
 						forceRender={cmRender}
 						onScroll={p.onScroll}
@@ -515,7 +542,7 @@ const EditorAreaInt = (
 
 				{!isPreview && simpleFallback &&
 					<div className="codemirror-mobile-fallback">
-						<p> note is too long for mobile, we disabled the advanced edition system </p>
+						<p> Note is too long for mobile, the advanced edition features are disabled </p>
 						<textarea
 							defaultValue={innerFileContent}
 							onChange={e => { triggerNoteEdition(e.target.value) }}
@@ -738,5 +765,5 @@ export const EditorArea = (p: iEditorProps) => {
 		p.file,
 		p.fileContent,
 		p.isActive,
-		p.jumpToLine])
+		p.editorAction])
 }

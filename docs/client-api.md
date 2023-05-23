@@ -678,16 +678,25 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.lightbox.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">number</span>, <span class="render-code-wrapper">"undefined" | "undefined"</span> ]<br/>)</div>
  
 
-#### <span class="render-code-wrapper">ui.note.lineJump.get.line</span>
- - Type: <span class="render-code-wrapper">number</span> 
- - Example: 
- <div class="render-code-wrapper">api.call("ui.note.lineJump.get.line", [], (res:number) => {})</div>
+#### <span class="render-code-wrapper">ui.note.editorAction.get</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"null" | "undefined"</span></div>
  
 
-#### <span class="render-code-wrapper">ui.note.lineJump.get.windowId</span>
- - Type: <span class="render-code-wrapper">string</span> 
+#### <span class="render-code-wrapper">ui.notePreviewPopup.close</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
  - Example: 
- <div class="render-code-wrapper">api.call("ui.note.lineJump.get.windowId", [], (res:string) => {})</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.close",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.notePreviewPopup.open</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. path: <span class="render-code-wrapper">string</span>
+       1. position: <span class="render-code-wrapper"></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.notification.emit</span>

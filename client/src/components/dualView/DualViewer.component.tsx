@@ -9,7 +9,7 @@ import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
 import { getMdStructure, iMdPart } from '../../managers/markdown.manager';
-import { iLineJump } from '../../hooks/api/note.api.hook';
+import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 
 export type onViewChangeFn = (nView: iViewType) => void
@@ -24,13 +24,13 @@ interface iDualViewProps {
 	mobileView: MobileView
 
 	onFileEdited: onFileEditedFn
-	// onViewChange?: onViewChangeFn
-	// onEditorDropdownEnter?: Function
 	askForLayoutUpdate: iLayoutUpdateFn
 }
 
 const DualViewerInt = (
-	p: iDualViewProps & { lineJumpEvent?: iLineJump }
+	p: iDualViewProps & { 
+		editorAction: iEditorAction | null
+	}
 ) => {
 
 
@@ -90,18 +90,7 @@ const DualViewerInt = (
 		}, 500)
 	}, [p.file.path])
 
-	//
-	// JUMP TO LINE ACTIONS
-	const [lineToJump, setLineToJump] = useState(-1)
-	useEffect(() => {
-		if (!p.lineJumpEvent) return
-		if (p.lineJumpEvent.windowId === "active" && !p.isActive) return
-		if (p.lineJumpEvent.windowId !== "active" && p.lineJumpEvent.windowId !== p.windowId) return
-		setLineToJump(p.lineJumpEvent.line)
-		setTimeout(() => {
-			setLineToJump(-1)
-		}, 100)
-	}, [p.lineJumpEvent])
+	
 
 
 
@@ -157,6 +146,8 @@ const DualViewerInt = (
 		setForceCloseOverlay(false)
 	}, [p.canEdit])
 
+	
+
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
 	>
@@ -177,8 +168,7 @@ const DualViewerInt = (
 			fileContent={p.fileContent}
 			isActive={p.isActive}
 
-			jumpToLine={lineToJump}
-			// posY={getSyncY()}
+			editorAction={p.editorAction}
 			posY={0}
 
 			onTitleClick={newLine => {
@@ -190,9 +180,7 @@ const DualViewerInt = (
 			onUpdateY={newY => {
 				// setSyncY(newY)
 			}}
-			
 			onMaxYUpdate={updateMaxY}
-
 			onFileEdited={(path, content) => {
 				p.onFileEdited(path, content)
 				// setPreviewContent(content)
@@ -203,11 +191,6 @@ const DualViewerInt = (
 				// const res = checked ? "title" : "sync"
 				// setScrollMode(res)
 			}}
-
-			// onDropdownEnter={p.onEditorDropdownEnter}
-			// onViewToggle={(view: iViewType) => { 
-			// 	if (p.onViewChange) p.onViewChange(view) 
-			// }}
 			askForLayoutUpdate={p.askForLayoutUpdate}
 		/>
 
@@ -265,7 +248,7 @@ export const dualViewerCss = () => `
 
 export const DualViewer = (p: iDualViewProps) => {
 	const api = useContext(ClientApiContext);
-	const lineJumpEvent = api?.ui.note.lineJump.get
-	return <DualViewerInt {...p} lineJumpEvent={lineJumpEvent} />
+	const editorAction = api?.ui.note.editorAction.get || null
+	return <DualViewerInt {...p} editorAction={editorAction} />
 }
 
