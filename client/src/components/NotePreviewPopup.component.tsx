@@ -4,12 +4,6 @@ import { getApi } from '../hooks/api/api.hook';
 import { iNotePreviewPopup } from '../hooks/api/notePreviewPopup.api.hook';
 import { NotePreview } from './NotePreview.component';
 
-// notePreviewPopupStatus && <notePreviewPopup> unique in app.tsx
-// un notePreviewPopup.hook.api.tsx qui gere une var 
-    // notePreviewPopupStatus {open,filePath}
-// ui.notePreviewPopup.open
-// ui.notePreviewPopup.close
-
 export const NotePreviewPopup = (p: {
     notePreview: iNotePreviewPopup
 }) => {

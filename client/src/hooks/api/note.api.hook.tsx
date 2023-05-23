@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 
-export interface iLineJump {
-	windowId: string
-	line: number
+
+
+export interface iEditorAction {
+	type: "lineJump" | "insertText"
+	windowId?: string
+	lineJump?: number
+	insertText?: string
+	insertPos?: number | "currentPos"
 }
+
 
 interface iNoteUiApi {
 	ui: {
 		lineJump: {
-			jump: (lineJump: iLineJump) => void
-			get?: iLineJump
-		}
+			jump: (windowId: string, line: number) => void
+		},
+		editorAction: {
+			dispatch: (editorAction: iEditorAction) => void
+			get: iEditorAction|null
+		},
 	}
 }
 
@@ -19,19 +28,39 @@ export type iNoteApi = iNoteUiApi & iNoteFuncsApi
 
 export const useNoteApi = (p: {
 }): iNoteApi => {
-	const h = `[NOTE API] 00568 `
+	const h = `[NOTE API] `
 
 	//
 	// STATE
 	//
-	const [lineJump, setLineJump] = useState<iLineJump>()
+	const [editorAction, setEditorActionInt] = useState<iEditorAction|null>(null)
+	const setEditorAction = (a: iEditorAction) => {
+		if (!a.windowId) a.windowId = "active"
+		if (!a.insertPos) a.insertPos = "currentPos"
+		setEditorActionInt(a)
+	}
+
+	const legacyLineJump:iNoteUiApi["ui"]["lineJump"]["jump"] = (windowId, line) => {
+		setEditorAction({
+			type: "lineJump",
+			windowId,
+			lineJump: line
+		})
+	}
+
 	//
 	// EXPORTS
 	//
 	return {
 		...noteApiFuncs,
 		ui: {
-			lineJump: { jump: setLineJump, get: lineJump }
+			lineJump: { 
+				jump: legacyLineJump, 
+			},
+			editorAction: {
+				dispatch: setEditorAction,
+				get: editorAction
+			},
 		},
 	}
 }

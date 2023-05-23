@@ -6,7 +6,7 @@ import { isEnvDev } from './managers/path.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { searchWord } from './managers/search/word.search.manager';
-import { security } from './managers/security.manager';
+import { security, formatHeader} from './managers/security.manager';
 import { scanPlugins } from './managers/plugins.manager';
 
 fileLogClean();
@@ -57,7 +57,7 @@ server.listen(backConfig.port, function () {
 })
 
 app.get('*', function(req, res){
-	security.log(`NOK 404 requested => ${req.url} [${JSON.stringify(req.headers)}]`)
+	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
 	res.status(404).send('Not found');
 });
 
