@@ -24,6 +24,7 @@ import { getFileInfos } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
 import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
+import { perf } from "./managers/performance.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -61,11 +62,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askForFileContent', async data => {
 		try {
 			let apiAnswer = await openFile(`${backConfig.dataFolder}/${data.filePath}`)
-			// setTimeout(() => {
 			serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
-			// }, 5000)
 		} catch {
-
 			serverSocket2.emit('getFileContent', { fileContent: '', error: 'NO_FILE', filePath: data.filePath, idReq: data.idReq })
 		}
 
@@ -115,6 +113,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 	serverSocket2.on('askFoldersScan', async data => {
+		let end = perf('askFoldersScan ' + JSON.stringify(data.foldersPaths))
 		let folders: iFolder[] = []
 		for (let i = 0; i < data.foldersPaths.length; i++) {
 			folders.push(scanDirForFolders(data.foldersPaths[i]))
@@ -124,6 +123,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			idReq: data.idReq,
 			pathBase: backConfig.dataFolder
 		})
+		end()
 	})
 
 
@@ -132,6 +132,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('saveFileContent', async data => {
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
+		let end = perf('saveFileContent ' + pathToFile)
+
 		await upsertRecursivelyFolders(pathToFile)
 		await saveFile(pathToFile, data.newFileContent)
 		// ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
@@ -148,12 +150,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				fileContent: data.newFileContent
 			})
 		}
+
+		end()
 	}, { disableDataLog: true, checkRole: "editor" })
 
 
 
 
 	serverSocket2.on('createNote', async data => {
+		
+
 		const checkAndGenNewNoteName = (): string => {
 			let newNameNote = `/Note ${globalDateFileIncrement.id} of ${formatDateNewNote(new Date())}.md`
 			let newNotePath = `${backConfig.dataFolder}${data.folderPath}${newNameNote}`
@@ -169,6 +175,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			}
 		}
 		const notePath = checkAndGenNewNoteName();
+		let end = perf('createNote ' + notePath)
+		
 		log(`CREATING ${notePath}`);
 		await saveFile(`${notePath}`, ``)
 
@@ -176,10 +184,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
+		end()
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFile', async data => {
 		log(`=> MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
+		let end = perf('moveFile ' + data.initPath + ' to ' + data.endPath)
 		// upsert folders if not exists and move file
 		log(`===> 1/4 creating folders ${data.endPath}`);
 		await upsertRecursivelyFolders(data.endPath)
@@ -203,19 +213,22 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// await debouncedHierarchyScan(socket)
 
 		serverSocket2.emit('moveFileAnswer', { idReq: data.idReq })
+		end()
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFolder', async data => {
 		log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
+		let end = perf('moveFolder ' + data.initPath + ' to ' + data.endPath)
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
 		serverSocket2.emit('moveFolderAnswer', { idReq: data.idReq })
+		end()
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('createHistoryFile', async data => {
 		let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
-
+		let end = perf('createHistoryFile ' + data.filePath)
 		// IF path is inside history folder, do NOT BACKUP
 		if (data.filePath.includes(historyFolder)) return
 
@@ -234,6 +247,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 			// only keep up to x days of history files
 			debounceCleanHistoryFolder()
+			end()
 		}
 	}, { checkRole: "editor", disableDataLog: true })
 
@@ -256,7 +270,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	// DELETING TRASH
 	serverSocket2.on('askFolderDelete', async data => {
-
+		
 
 		if (data.typeFolder === "trash") {
 			let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
@@ -296,8 +310,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { bypassLoginTokenCheck: true })
 
 	serverSocket2.on('askFilesPreview', async data => {
+		let end = perf('askFilesPreview ')
 		let res = await getFilesPreviewLogic(data)
 		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
+		end()
 	})
 
 	serverSocket2.on('askFolderCreate', async data => {
@@ -334,8 +350,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { bypassLoginTokenCheck: true, disableDataLog: true })
 
 	serverSocket2.on('askFileHistory', async data => {
+		
 		// get all the history files 
 		const historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
+		let end = perf('askFileHistory '+ historyFolder)
 		const allHistoryFiles = await scanDirForFiles(historyFolder)
 		const fileNameToSearch = fileNameFromFilePath(data.filepath)
 		const historyFiles: iFile[] = []
@@ -345,6 +363,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			if (file.name.includes(fileNameToSearch)) historyFiles.push(file)
 		}
 		serverSocket2.emit('getFileHistory', { files: historyFiles })
+		end()
 	})
 
 
@@ -377,8 +396,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// COMMAND EXEC
 	// 
 	serverSocket2.on('askCommandExec', async data => {
+		let end = perf('askCommandExec '+ data.commandString)
 		let res = await execString(data.commandString)
 		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
+		end()
 	}, { checkRole: "editor" })
 
 
@@ -386,10 +407,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// PLUGINS
 	// 
 	serverSocket2.on('askPluginsList', async data => {
+		let end = perf('askPluginsList ')
 		// let res = await execString(data.commandString)
 		// let plugins:iPlugin[] = []
 		let {plugins, scanLog} = await scanPlugins(data.noCache)
 		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
+		end()
 	})
 
 	//

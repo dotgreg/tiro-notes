@@ -24,7 +24,7 @@ ARGS:
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
 --port/-p : port to use (number, 3023 by default)
 --no-open/-no : do not open Tiro in browser when starting
---verbose/-v : control logs verbosity [0/1/2] (0:none, 1: critical, 2: all)
+--verbose/-v : control logs verbosity [0/1/2/3] (0:none, 1: critical, 2: all, 3: performance monitoring)
 
 --tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
 
@@ -106,7 +106,8 @@ function startTiroServer (argsObj, cb) {
 						logLevel: argsObj.verbose,
 						env: {
 								TIRO_PORT: argsObj.port,
-								TIRO_HTTPS: argsObj.https
+								TIRO_HTTPS: argsObj.https,
+								TIRO_PERFORMANCE_MONITORING_BACKEND: argsObj.verbose === 3
 						},  
 						logName: 'tiroServer',
 						onLog: str => {
