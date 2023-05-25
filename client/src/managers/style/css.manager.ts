@@ -117,6 +117,7 @@ export const CssApp2 = (
 		${titleEditorCss()}
 
 		${PopupWrapperCss()}
+		${linksPreviewMdCss()}
 		${ctagPreviewPluginCss()}
 
 		.main-wrapper {
