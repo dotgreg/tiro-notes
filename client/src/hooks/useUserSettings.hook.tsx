@@ -16,6 +16,8 @@ type iUserSettingName =
 
 	'ui_editor_links_as_button' |
 	'ui_editor_markdown_preview' |
+	'ui_editor_markdown_enhanced_preview' |
+	'ui_editor_markdown_latex_preview' |
 	'ui_editor_markdown_table_preview' |
 
 	'users_viewer_user_enable' |
@@ -42,8 +44,10 @@ const defaultVals: iUserSettings = {
 	ui_filesList_sortMode: 2,
 	ui_layout_colors_main: "#E86666",
 	ui_editor_markdown_preview: true,
-	ui_editor_links_as_button: true,
+	ui_editor_markdown_latex_preview: true,
+	ui_editor_markdown_enhanced_preview: true,
 	ui_editor_markdown_table_preview: true,
+	ui_editor_links_as_button: true,
 }
 
 const h = `[USER SETTINGS] :`

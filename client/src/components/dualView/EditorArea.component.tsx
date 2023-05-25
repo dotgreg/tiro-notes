@@ -189,13 +189,11 @@ const EditorAreaInt = (
 	const stringToInsertUpload = useRef('')
 	const debouncedUploadInsert = useDebounce(() => {
 		const f = codeMirrorEditorView.current
+		if (!f) return
 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
 		insertTextAt(stringToInsertUpload.current, 'currentPos')
 		stringToInsertUpload.current = ''
 		CodeMirrorUtils.updateCursor(f, cPos, true)
-		// setTimeout(() => {
-		// 	CodeMirrorUtils.scrollTo(f, cPos)
-		// }, 10)
 	}, 500)
 
 
@@ -320,7 +318,7 @@ const EditorAreaInt = (
 	useEffect(() => {
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
 		setSimpleFallback(nval)
-		forceCmRender()
+		// forceCmRender() // cannot force render otherwise get very slow
 	}, [innerFileContent, p.viewType, p.mobileView])
 
 
@@ -373,7 +371,7 @@ const EditorAreaInt = (
 			insertTextAt(a.insertText, a.insertPos)
 		}
 
-	}, [p.editorAction, p.editorAction?.type, p.editorAction?.windowId, p.editorAction?.lineJump])
+	}, [p.editorAction])
 
 
 

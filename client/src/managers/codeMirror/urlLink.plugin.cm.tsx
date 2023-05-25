@@ -12,7 +12,8 @@ import { mem } from "../reactRenderer.manager";
 import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { iFile } from "../../../../shared/types.shared";
 
-export const generateHtmlLinkPreview = mem((matchs) => generateHtmlLinkPreviewInt(matchs))
+type iLinkPreviewOpts = {addLineJump?: boolean}
+export const generateHtmlLinkPreview = mem((matchs, opts?:iLinkPreviewOpts) => generateHtmlLinkPreviewInt(matchs, opts))
 
 export const linksPreviewPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
@@ -38,7 +39,8 @@ export const linksPreviewPlugin = (file: iFile, windowId:string) => genericRepla
 
 export const generateHtmlLinkPreviewInt = (
 	// el: any,
-	matchsOrUrl: string[] | string
+	matchsOrUrl: string[] | string,
+	opts?: iLinkPreviewOpts
 ): string => {
 	let matchs: any[] = []
 	if (!isArray(matchsOrUrl)) {
@@ -106,6 +108,9 @@ export const generateHtmlLinkPreviewInt = (
 		})
 	}
 
+	let linejump = ``
+	if (opts?.addLineJump) linejump = '\n'
+
 	// HTML
 	let i = ssrIcon
 	let openWindow = `<span title="Open link in detached window"
@@ -123,7 +128,7 @@ title="Text to speech url content" class="link-audio link-action"  data-link="${
 	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${openWindow} ${openPreview}</span></span>`
 
 	let iframeWrapper = `<span class="link-iframe-wrapper"></span>`
-	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>`
+	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
 	resEl.innerHTML = `${html}`;
 
 	return resEl.outerHTML
@@ -133,6 +138,11 @@ export const linksPreviewMdCss = () => `
 .link-fetch-preview-wrapper {
 		background: grey;
 }
+// .preview-area-wrapper .link-mdpreview-wrapper,
+// .preview-area .link-mdpreview-wrapper {
+// 	display: inline-block;
+// }
+
 .link-mdpreview-wrapper {
 		position: relative;
 }

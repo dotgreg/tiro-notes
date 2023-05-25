@@ -23,7 +23,7 @@ import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm"
 import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
 import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
-import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
+import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
 
@@ -244,9 +244,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 
 
-	// if --disable-table inside content
-	let enhancedTable = !p.value.includes("--no-editor-table") && !p.value.includes("--nt")
-	let enhancedLatex = !p.value.includes("--no-latex") && !p.value.includes("--nl")
+	// if --table//--latex inside content
+	let enhancedTable = p.value.includes("--table") 
+	let enhancedLatex = p.value.includes("--latex")
 
 	const { userSettingsApi } = useUserSettings()
 	const ua = userSettingsApi
@@ -262,18 +262,23 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
 		codemirrorExtensions.push(markdownStylingTableLimiter(p.file, p.windowId))
+		codemirrorExtensions.push(testClassLine(p.file, p.windowId))
 		codemirrorExtensions.push(markdownStylingTableCell(p.file, p.windowId))
 		codemirrorExtensions.push(markdownStylingTable(p.file, p.windowId))
 	}
-	if (ua.get("ui_editor_markdown_preview") && enhancedLatex && !disablePlugins) {
+	if (ua.get("ui_editor_markdown_latex_preview") && enhancedLatex && !disablePlugins) {
 		markdownExtensionCnf.extensions.push(LatexMdEl)
 	}
+
 	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		codemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
-		codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
-		codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
+		if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
+			codemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
+			codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
+			codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
+		}
 	}
+	
 
 	if (!disablePlugins && !disableMd) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
@@ -391,8 +396,8 @@ export const codeMirrorEditorCss = () => `
 	top: 2px;
 	color: #d7d7d7;
 	cursor: pointer;
-	padding: 5px 5px;
-	left: 12px;
+	padding: 5px 4px;
+	left: 0px;
 	background: white;
 }
 
@@ -460,21 +465,21 @@ export const codeMirrorEditorCss = () => `
 		outline: none!important;
 }
 .main-editor-wrapper {
-		width: calc(100% + 18px);
-		margin: 32px 0px 0px 0px;
+		// width: calc(100% + 18px);
+		// margin: 32px 0px 0px 0px;
 		padding: 0px;
 		width:100%;
 		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 180px);'}; 
 }
 
 .codemirror-editor-wrapper {
-		margin-right: 18px;
-		width: calc(100% - 10px);
+		// margin-right: 18px;
+		// width: calc(100% - 10px);
 		position: relative;
-		left: -10px;
+		// left: -10px;
 }
-.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-		height: calc(100% - 30px);
+.codemirror-editor-wrapper, .cm-editor, .cm-theme {
+		// height: calc(100% - 30px);
 }
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
 		height: 100% ;
@@ -487,15 +492,18 @@ export const codeMirrorEditorCss = () => `
 .cm-search {
 		padding: 6px 10px 11px;
 }
-.cm-content {
-		width: calc(100% - 10px);
-		overflow:hidden;
-		white-space: pre-wrap;
-}
+
 .cm-scroller {
 		z-index: auto!important;
-		left: 20px;
-    	padding-right: 5px;
+		width: calc(100% - 30px);
+		width: calc(100% - 30px); // reduce width overall CM
+		padding-right: 35px; // make scrollbar disappear
+		padding-left: 5px; // some space for the gutter
+		.cm-content {
+			width: calc(100% - 10px); // needed otherwise x scroll
+			overflow:hidden;
+			white-space: pre-wrap;
+		} 
 }
 .cm-line {
 }
@@ -555,14 +563,14 @@ export const codeMirrorEditorCss = () => `
 		}
 }
 
-${styleCodeMirrorMarkdownPreviewPlugin()}
+// ${styleCodeMirrorMarkdownPreviewPlugin()}
 
-// FILE RESSOURCE PREVIEW
-${ressourcePreviewSimpleCss()}
+// // FILE RESSOURCE PREVIEW
+// ${ressourcePreviewSimpleCss()}
 
-// PREVIEW LINK
-${noteLinkCss()}
+// // PREVIEW LINK
+// ${noteLinkCss()}
 
 
-${markdownStylingTableCss()}
+// ${markdownStylingTableCss()}
 `

@@ -1,9 +1,11 @@
 import { cloneDeep, random } from "lodash"
+import { sharedConfig } from "../../../shared/shared.config"
 import { devCliAddFn, devCliGetFn } from "./devCli.manager"
 import { getLs, setLs } from "./localstorage.manager"
 
 const cat = `local_node_history`
 const h = `[${cat.toUpperCase()}]`
+let shouldLog = sharedConfig.client.log.verbose
 
 export interface iLocalNoteHistory {
 	content: string
@@ -64,7 +66,7 @@ const recursivelyReduceArrTillSmallerThan = <T>(arr: Array<T>, limitInMb: number
 	let arrStr = JSON.stringify(res)
 	if (getStringSizeInMB(arrStr) > limitInMb && res.length > 1) {
 		res.pop()
-		console.log(h, "recursivelyReduceArrTillSmallerThan REDUCE ARR > new length=", res.length)
+		shouldLog && console.log(h, "recursivelyReduceArrTillSmallerThan REDUCE ARR > new length=", res.length)
 		return recursivelyReduceArrTillSmallerThan(res, limitInMb)
 	} else {
 		return res

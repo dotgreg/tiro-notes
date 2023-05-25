@@ -30,7 +30,7 @@ export const NotePreview = (p: {
 					ncontent = api.note.render({
 						raw: ncontent,
 						file: p.file,
-						windowId: ''
+						windowId: 'preview-popup'
 					})
 
 					setTimeout(() => {
