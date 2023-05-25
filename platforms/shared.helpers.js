@@ -58,6 +58,8 @@ const execCmd = (cmd, params, p) => {
 				if (str.includes("[ERROR]") || str.includes("[CRIT]")) console.log(str)
 			} else if (p.logLevel === 2){
 				console.log(str)
+			} else if (p.logLevel === 3){
+				if (str.includes("[ERROR]") || str.includes("[CRIT]") || str.includes("[PERFS]")) console.log(str)
 			}
 		}
 

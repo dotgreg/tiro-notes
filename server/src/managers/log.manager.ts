@@ -6,7 +6,7 @@ export const log = (message: any, obj1?: any, obj2?: any, obj3?: any) => {
 	if (obj3) objsStr += ',' + JSON.stringify(obj3)
 	const finalString = `${message} ${objsStr}`
 	console.log(finalString);
-	fileLogWrite(finalString);
+	// fileLogWrite(finalString);
 }
 
 
