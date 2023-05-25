@@ -257,7 +257,7 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 				/* pointer-events: all; */
 		}
 }
-}
 
- ${imagePreviewCss()}
+ ${imagePreviewCss()
+}
  `

@@ -12,7 +12,7 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext } from '../../hooks/api/api.hook';
-import { deviceType, MobileView } from '../../managers/device.manager';
+import { deviceType, isA, MobileView } from '../../managers/device.manager';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
@@ -599,7 +599,7 @@ export const draggableGridCss = () => `
 												.main-editor-wrapper {
 														padding-left: 0px;
 														padding-rigth: 10px;
-														margin-top: 33px;
+														${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
 														width: 100%;
 												}
 												.infos-editor-wrapper {
