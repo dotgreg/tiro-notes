@@ -695,8 +695,9 @@ noteLink should be relative from tiro folder
     - Parameters: 
        1. path: <span class="render-code-wrapper">string</span>
        1. position: <span class="render-code-wrapper"></span>
+       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span><br/>}</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.notification.emit</span>
@@ -1075,7 +1076,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_table_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "demo_mode_enable" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "demo_mode_enable" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">keyVal</span>

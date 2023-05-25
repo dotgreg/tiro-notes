@@ -6,11 +6,12 @@ import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, MobileView } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
 import { getMdStructure, iMdPart } from '../../managers/markdown.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { stopDelayedNotePreview } from '../../managers/codeMirror/noteLink.plugin.cm';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
@@ -88,6 +89,15 @@ const DualViewerInt = (
 		setTimeout(() => {
 			syncScroll3.onWindowLoad(p.windowId)
 		}, 500)
+	}, [p.file.path])
+	
+	// Close any popup on note switch
+	useEffect(() => {
+		// getApi(api => {
+		// 	api.ui.notePreviewPopup.close()
+		// })
+		stopDelayedNotePreview()
+		
 	}, [p.file.path])
 
 	

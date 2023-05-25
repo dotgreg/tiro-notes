@@ -110,7 +110,8 @@ const updateScrollerDims = (wid: string) => {
 	// console.log(h, `scroller dim update from ${winner}`, c.dims.scroller);
 
 	// trigger react refresh?? (oula) => on pourra mettre un debounce plus tard si necess
-	let dataset = c.els.scroller.dataset
+	let dataset = c.els.scroller?.dataset
+	if (!dataset) return
 	if (!dataset.scrollRefresh) dataset.scrollRefresh = 1
 	dataset.scrollRefresh = parseInt(dataset.scrollRefresh) + 1
 }
@@ -124,7 +125,8 @@ const scrollScroller = (wid: string, percent?: number) => {
 	if (!percent) percent = c.posPercent
 
 	// just ask for a refresh, bar position in calculated in component in react
-	let dataset = c.els.scroller.dataset
+	let dataset = c.els.scroller?.dataset
+	if (!dataset) return
 	if (!dataset.scrollRefresh) dataset.scrollRefresh = 1
 	dataset.scrollRefresh = parseInt(dataset.scrollRefresh) + 1
 }

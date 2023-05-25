@@ -135,11 +135,21 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Markdown Preview",
-						expl: "Preview Images and Latex in the editor",
+						expl: "Markdown preview",
 						var: us.get('ui_editor_markdown_preview'),
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Enhanced Markdown Preview for files, documents etc",
+						expl: "Enhanced Markdown Preview for files, documents etc",
+						var: us.get('ui_editor_markdown_enhanced_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_enhanced_preview', val)
 						}
 					},
 					{
@@ -154,8 +164,18 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
+						title: "Latex preview",
+						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$",
+						var: us.get('ui_editor_markdown_latex_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_latex_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
 						title: "Improved Markdown Table",
-						expl: "Improves the display of markdown table. Can be disabled inside a note if it includes '--no-editor-table'. ",
+						expl: "Improves the display of markdown table. Add '--table' in the note to activate it.",
 						var: us.get('ui_editor_markdown_table_preview'),
 						modifier: val => {
 							setDisplayReload(true);

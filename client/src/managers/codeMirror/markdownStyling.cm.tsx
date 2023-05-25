@@ -17,6 +17,15 @@ export const markdownStylingTableLimiter = (file: iFile, windowId:string) => gen
 	}
 })
 
+export const testClassLine = (file: iFile, windowId:string) => genericReplacementPlugin({
+	file,
+	windowId,
+	pattern: /t1.+t2/gmi,
+	classWrap: matchs => {
+		return `ttt4`
+	}
+})
+
 export const markdownStylingTableCell = (file: iFile, windowId:string) =>  genericReplacementPlugin({
 	file,
 	windowId,

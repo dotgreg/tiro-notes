@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
 import { debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
@@ -77,22 +77,33 @@ export const SuggestPopup = (p: {
 		})
 	}
 
-	const genOptionHtml = (file: iFile):ReactElement => {
-		let htmlOption = <div className={`path-option-wrapper device-${deviceType()}`}>
-			<div className="file">{file.name}</div>
-			<div className="folder">{file.folder}</div>
-			<div className="actions">
-				<div className="action" 
+
+	// const HtmlOption = useMemo((p as {file: iFile}) => {
+	const HtmlOption = (p:{file:iFile}) => {
+		const [hover, setHover] = useState<boolean>(false);
+		return useMemo(() => <div 
+		// return <div 
+				className={`path-option-wrapper device-${deviceType()}`}
+				onMouseEnter={e => {setHover(true)}}
+				onMouseLeave={e => {setHover(false)}}
+			>
+				<div className="file">{p.file.name}</div>
+				<div className="folder">{p.file.folder}</div>
+				<div className="actions">
+				{hover && <div className="action" 
 					onClick={e => {
 						e.stopPropagation()
-						insertNoteId(file)
+						insertNoteId(p.file)
 					}}>
 					<Icon2 name="link" label='insert note link in the current note'/>
+				</div>}
 				</div>
 			</div>
-			
-		</div>
-		return htmlOption
+		, [p.file, hover])
+	}
+
+	const genOptionHtml = (file: iFile):ReactElement => {
+		return <HtmlOption file={file} />
 	}
 
 	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
