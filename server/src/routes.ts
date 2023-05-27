@@ -131,7 +131,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 
 	serverSocket2.on('saveFileContent', async data => {
-		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
+		if (!data.filePath.includes(".tiro")) logActivity("write", data.filePath, serverSocket2)
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		let endPerf = perf('saveFileContent ' + pathToFile)
 

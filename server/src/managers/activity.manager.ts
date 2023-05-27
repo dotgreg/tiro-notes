@@ -8,7 +8,7 @@ import { perf } from "./performance.manager"
 import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
 
 let shouldLog = sharedConfig.client.log.verbose
-shouldLog = true
+// shouldLog = true
 export type iActivityLog = {
     eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
 }
@@ -58,10 +58,8 @@ export const getActivityReport = async (
         dbs[id] = await getMonthlyDb(path)
         i++;
     }
-    console.log(33,dbs)
 
     let report = generateReportFromDbs(p, dbs)
-    console.log(333, report, dbs, startDate, endDate)
 
     return report
 }
@@ -159,19 +157,15 @@ export const generateReportFromDbs = (
         }
     }
 
-    console.log(9)
     each(dbs, (monthdb, dbName) => {
         // dbName format = 2023-10
         const yearMonthStr = dbName.replace("-","/")
         if (!monthdb) return
         let fields = monthdb.fields
         // EACH DAY
-        console.log(10)
         each(monthdb.days, (dayLog, day) => {
-            console.log(11)
             // EACH DAY EVENT
             each(dayLog, (occurrences, eventNameIndex) => {
-                console.log(13)
                 const eventName = fields["eventName"][eventNameIndex]
                 // EACH DAY EVENT OCCURENCE 
                 each(occurrences.time, (_,i) => {
@@ -242,6 +236,9 @@ const processTimeBatch = async () => {
     
     // finally, save it to the monthlyActivity JSON
     await setCurrentMonthlyDb(newMonthlyDb)
+
+    // reset timebatch
+    currentTimeBatch.value = []
 
     endPerf()
 }
