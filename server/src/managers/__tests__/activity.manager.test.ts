@@ -1,4 +1,4 @@
-import {  generateReportFromDbs, getDateTime, iActivityLog, iDateTime, processTimeBatchInt } from "../activity.manager";
+import {  generateReportFromDbs, getDateTime, iActivityLog, iDateTime, processTimeBatchInt, reportsListFile } from "../activity.manager";
 
 const getDate = ():iDateTime => {
     return getDateTime(`2023/05/27 16:58`)
@@ -145,3 +145,31 @@ test('processTimeBatchInt:check result for one batch', () => {
     let exp = {"2022": {"02": {"27": {"16": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1"}]}}}, "2023": {"05": {"27": {"16": [{"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1"}]}}}}
     expect(report).toStrictEqual(exp);
   })
+
+
+
+  test('reportsListFile:same year', () => {
+    let res = reportsListFile(getDateTime("03/31/2023"), getDateTime("10/07/2023"))
+    let exp = ["2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10"]
+    expect(res).toStrictEqual(exp);
+    
+  })
+  test('reportsListFile:wrong end/start', () => {
+    let res = reportsListFile(getDateTime("12/30/2023"), getDateTime("10/30/2023"))
+    expect(res).toStrictEqual([]);
+  })
+  test('reportsListFile:several years', () => {
+    let res = reportsListFile(getDateTime("12/30/2021"), getDateTime("10/30/2023"))
+    let exp = [
+        '2021-12', '2022-01', '2022-02',
+        '2022-03', '2022-04', '2022-05',
+        '2022-06', '2022-07', '2022-08',
+        '2022-09', '2022-10', '2022-11',
+        '2022-12', '2023-01', '2023-02',
+        '2023-03', '2023-04', '2023-05',
+        '2023-06', '2023-07', '2023-08',
+        '2023-09', '2023-10'
+      ]
+    expect(res).toStrictEqual(exp);
+  })
+

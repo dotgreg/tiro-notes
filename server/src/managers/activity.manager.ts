@@ -51,15 +51,63 @@ export const getActivityReport = async (
     // "10/31/2023" format
     let startDate = getDateTime(p.startDate)
     let endDate = getDateTime(p.endDate)
-    // let yearsToFetch
-    // let yearsToFetch
-    // let reportsToFetch
-
-    
 
     return report
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+// LOW LEVEL FUNCS
+//
+
+// WHICH REPORTS TO GET
+export const reportsListFile = (start:iDateTime, end: iDateTime):string[]  => {
+    let res = []
+
+    if (end.num.year <= start.num.year && end.num.month <= start.num.month) return []
+
+    // how many years to cover
+    let yearDiff = end.num.year - start.num.year
+    let yearsToCover = []
+    let yearsMonths = {}
+    for (let i = 0; i < yearDiff + 1; i++) {
+        let year = start.num.year + i
+        yearsToCover.push(year)
+        if (!yearsMonths[year]) yearsMonths[year] = [1,2,3,4,5,6,7,8,9,10,11,12]
+        if (i === 0) yearsMonths[year] = yearsMonths[year].splice(start.num.month-1)
+        if (i === yearDiff) yearsMonths[year] = yearsMonths[year].splice(0, yearsMonths[year].indexOf(end.num.month)+1)
+    }
+
+    each(yearsMonths, (year, yearName) => {
+        each(year, month => {
+            res.push(`${yearName}-${('0'+(month)).slice(-2)}`)
+        })
+    })
+
+    return res
+}
+
+// REPORT GEN
 interface iDbs {[month:string]:iMonthlyDb}
 export const generateReportFromDbs = (
     p:iActivityReportParams, 
@@ -80,10 +128,6 @@ export const generateReportFromDbs = (
     const genReportObj = (p2) => {
         const {eventName, dateTimeObj, occurrences, fields, i} = p2
         const d = dateTimeObj
-        // const time = `${occurrences.time[i]}`
-        // const hour = time.split(":")[0]
-        // const mins = time.split(":")[1]
-        // const datetimeStr = `${date} ${time}`
 
         // FILE TYPE 
         if (p.organizeBy === "file") {
@@ -97,24 +141,16 @@ export const generateReportFromDbs = (
             if(!report[d.year][d.month][d.day]) report[d.year][d.month][d.day] = {}
             if(!report[d.year][d.month][d.day][d.hour]) report[d.year][d.month][d.day][d.hour] = []
             let o = report[d.year][d.month][d.day][d.hour]
-            // if(!report[date][hour]) report[date][hour] = []
             o.push(genOccurenceObj({date: d.full}, occurrences, fields, i))
-            // if(!report[date]) report[date] = []
-            // if(!report[date][time]) report[date][time] = []
-            // report[date][time].push(genOccurenceObj({}, occurrences, fields, i))
         }
     }
 
     each(dbs, (monthdb, dbName) => {
         // dbName format = 2023-10
         const yearMonthStr = dbName.replace("-","/")
-        // const dbDate = getDateTime(`${dbName}-01`)
-        // const month = dbDate.month
-        // const year = dbDate.year
         let fields = monthdb.fields
         // EACH DAY
         each(monthdb.days, (dayLog, day) => {
-            // const date = `${year}/${month}/${day}`
             // EACH DAY EVENT
             each(dayLog, (occurrences, eventNameIndex) => {
                 const eventName = fields["eventName"][eventNameIndex]
@@ -288,11 +324,9 @@ const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
 //
 // LOW LEVEL FUNCS
 //
-export interface iDateTime {year:string, month:string, day:string, hour:string, min:string, full}
-export const getCurrDateTime = ():iDateTime => {
-    return getDateTime()
-}
-export const getDateTime = (dateString?:string):iDateTime => {
+// export interface iDateTime {year:string, month:string, day:string, hour:string, min:string, full:string, numbers}
+
+export const getDateTime = (dateString?:string) => {
     let d = new Date(dateString)
     let year = d.getFullYear()
     let month = d.getMonth()+1
@@ -303,7 +337,13 @@ export const getDateTime = (dateString?:string):iDateTime => {
     let hour = ('0'+d.getHours()).slice(-2);
     let min = ('0'+d.getMinutes()).slice(-2);
     let full = `${smonth}/${sday}/${syear} ${hour}:${min}`
-    return {year:syear, month:smonth, day:sday, hour, min, full}
+    let num = {
+        year, month, day,hour:d.getHours(), min:d.getMinutes()
+    }
+    return {year:syear, month:smonth, day:sday, hour, min, full, num}
 }
+
+export type iDateTime = ReturnType<typeof getDateTime>
+export const getCurrDateTime = () => getDateTime()
 
 const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${month}.md`
