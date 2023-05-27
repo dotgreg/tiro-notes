@@ -1,4 +1,4 @@
-import { debounce, each, throttle } from "lodash"
+import { debounce, each, isNumber, throttle } from "lodash"
 import { backConfig } from "../config.back"
 import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
 import { perf } from "./performance.manager"
@@ -71,7 +71,7 @@ export const generateReportFromDbs = (
 
     // FILE TYPE 
     if (p.organizeBy === "file") {
-        if (!p.includes) p.includes = ["eventAction","eventName", "url", "type", "ip", "ua"]
+        if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua"]
         each(dbs, (monthdb, dbName) => {
             // dbName format = 2023-10
             const dbDate = getDateTime(`${dbName}-01`)
@@ -93,9 +93,8 @@ export const generateReportFromDbs = (
     
                         // for each declared field to add
                         each(p.includes, fieldToInclude => {
-                            // console.log(fieldToInclude,i)
                             let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
-                            if (occurFieldIndex) {
+                            if (isNumber(occurFieldIndex)) {
                                 occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
                             }
                         })
