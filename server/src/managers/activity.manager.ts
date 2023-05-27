@@ -31,23 +31,83 @@ export const logActivity = (eventAction: string, eventName:string, socket:any) =
 
 
 // REPORT CREATOR
-export type iActivityField = "file"| "time"| "url"| "type"| "ip"| "ua_simple"
+export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"
+export type iActivityFilter= "file"| "time"|  "ip"
 export interface iActivityReportParams {
     startDate: string
     endDate: string
-    organizeBy?: iActivityField
+    organizeBy?: iActivityFilter
     includes?: iActivityField[]
 }
-export const getActivityReport = (p:iActivityReportParams) => {
+
+export interface iActivityReport {
+    [referenceField:string]: {
+        [field:string]: string
+    }[]
+}
+export const getActivityReport = async (
+    p:iActivityReportParams
+):Promise<iActivityReport> => {
+    let report:iActivityReport = {}
+
     // "10/31/2023" format
     let startDate = getDateTime(p.startDate)
     let endDate = getDateTime(p.endDate)
     // let yearsToFetch
     // let yearsToFetch
     // let reportsToFetch
+
     
+
+    return report
 }
 
+interface iDbs {[month:string]:iMonthlyDb}
+export const generateReportFromDbs = (
+    p:iActivityReportParams, 
+    dbs:iDbs
+):iActivityReport => {
+    let report:iActivityReport = {}
+
+    // FILE TYPE 
+    if (p.organizeBy === "file") {
+        if (!p.includes) p.includes = ["eventAction","eventName", "url", "type", "ip", "ua"]
+        each(dbs, (monthdb, dbName) => {
+            // dbName format = 2023-10
+            const dbDate = getDateTime(`${dbName}-01`)
+            const month = dbDate.month
+            const year = dbDate.year
+            let fields = monthdb.fields
+            // EACH DAY
+            each(monthdb.days, (dayLog, day) => {
+                const date = `${year}/${month}/${day}`
+                // EACH DAY EVENT
+                each(dayLog, (occurrences, eventNameIndex) => {
+                    const eventName = fields["eventName"][eventNameIndex]
+                    if(!report[eventName]) report[eventName] = []
+                    
+                    // EACH DAY EVENT OCCURENCE
+                    each(occurrences.time, (_,i) => {
+                        const datetime = `${date} ${occurrences.time[i]}`
+                        const occurenceObj = { datetime }
+    
+                        // for each declared field to add
+                        each(p.includes, fieldToInclude => {
+                            // console.log(fieldToInclude,i)
+                            let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
+                            if (occurFieldIndex) {
+                                occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
+                            }
+                        })
+    
+                        report[eventName].push(occurenceObj)
+                    })
+                })
+            })
+        })
+    }
+    return report
+}
 
 
 
@@ -77,7 +137,7 @@ const debounceProcessTimeBatch = debounce(() => { processTimeBatch() }, interval
 // DATA STRUCTURE REF
 //
 //     fields: {ip:[], eventName:[], ua:[], urlPath:[], type:[]}
-//     events: {
+//     days: {
 //       "30": {
 //           4: {
 //             ip: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2],
@@ -117,7 +177,7 @@ export const processTimeBatchInt = (p:{
 }):iMonthlyDb => {
     const {monthlyDb, newTimeBatch, currentDate} = {...p}
     let m = monthlyDb
-    if (!m) m = {fields:{}, events:{}} 
+    if (!m) m = {fields:{}, days:{}} 
 
     // [value.fields] first each, if prop not present in array, push it
     each(newTimeBatch, event => {
@@ -133,12 +193,12 @@ export const processTimeBatchInt = (p:{
         let eventTime = `${d.hour}:${d.min}`
         let currDateStr = `${d.day}`
         // EVERY DAY OBJ
-        if(!m.events[currDateStr]) m.events[currDateStr] = {}
+        if(!m.days[currDateStr]) m.days[currDateStr] = {}
         let eventNameIndex = m.fields["eventName"].indexOf(currEvent.eventName)
 
         // CREATE DAILY EVENT
-        if(!m.events[currDateStr][eventNameIndex]) m.events[currDateStr][eventNameIndex] = {time:[]}
-        let dayEventSumup = m.events[currDateStr][eventNameIndex]
+        if(!m.days[currDateStr][eventNameIndex]) m.days[currDateStr][eventNameIndex] = {time:[]}
+        let dayEventSumup = m.days[currDateStr][eventNameIndex]
 
         // IS EVENT ALREADY PRESENT FOR CURRENT TIME BATCH?
         let eventAlreadyPresent = dayEventSumup.time.indexOf(eventTime) !== -1
@@ -169,7 +229,7 @@ export const processTimeBatchInt = (p:{
 //
 interface iMonthlyDb {
     fields: {[fieldName:string]: string[]},
-    events: {
+    days: {
         [dayDate:string]: {
             [eventNameIndex:number]: {
                 time: string[];
