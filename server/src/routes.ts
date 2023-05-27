@@ -3,7 +3,7 @@ import { backConfig } from "./config.back";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
-import { dateId, formatDateHistory, formatDateNewNote } from "./managers/date.manager";
+import { dateId, formatDateHistory, formatDateNewNote, getDateTime } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
@@ -25,6 +25,7 @@ import { getSocketClientInfos, security } from "./managers/security.manager";
 import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
+import { getActivityReport, logActivity } from "./managers/activity.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -60,6 +61,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 	serverSocket2.on('askForFileContent', async data => {
+		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
 		let file = `${backConfig.dataFolder}/${data.filePath}`
 		let endPerf = perf('askForFileContent ' + file)
 		try {
@@ -129,6 +131,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 
 	serverSocket2.on('saveFileContent', async data => {
+		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
 		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
 		let endPerf = perf('saveFileContent ' + pathToFile)
 
@@ -446,6 +449,18 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askPerformanceReport', async data => {
 		serverSocket2.emit('getPerformanceReport', { report: getPerformanceReport(), idReq: data.idReq })
+	}, { checkRole: "editor" })
+
+	serverSocket2.on('askActivityReport', async data => {
+		let now = getDateTime()
+		let old = getDateTime(`${now.month}/${now.day}/${now.num.year - 1}`)
+		
+		const report = await getActivityReport({
+			startDate: old.date,
+			endDate: now.date,
+			organizeBy: "file",
+		})
+		serverSocket2.emit('getActivityReport', { report, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
 }

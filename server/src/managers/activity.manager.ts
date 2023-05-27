@@ -1,15 +1,20 @@
 import { debounce, each, isNumber, throttle } from "lodash"
+import { sharedConfig } from "../../../shared/shared.config"
+import { iActivityReport, iActivityReportParams } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
+import { getDateTime, iDateTime } from "./date.manager"
 import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
 import { perf } from "./performance.manager"
 import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
 
+let shouldLog = sharedConfig.client.log.verbose
+shouldLog = true
 export type iActivityLog = {
     eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
 }
 const h = `[ACTIVITY]`
 const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activity`
-
+const intervalTime = 5 * 60 * 1000
 //
 // HIGH LEVEL 
 //
@@ -17,6 +22,7 @@ const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activi
 // LOGGER
 const currentTimeBatch:{value:iActivityLog[]} = {value: []}
 export const logActivity = (eventAction: string, eventName:string, socket:any) => {
+    shouldLog && console.log(h, "logActivity", eventAction, eventName)
     const clientInfos = getSocketClientInfos(socket, "obj") as iClientInfosObj
     currentTimeBatch.value.push({
         eventName,
@@ -32,37 +38,30 @@ export const logActivity = (eventAction: string, eventName:string, socket:any) =
 
 
 // REPORT CREATOR
-export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"
-export type iActivityFilter= "file"| "time"|  "ip"
-export interface iActivityReportParams {
-    startDate: string
-    endDate: string
-    organizeBy?: iActivityFilter
-    includes?: iActivityField[]
-}
-
-export interface iActivityReport {
-    [referenceField:string]: {}
-}
 export const getActivityReport = async (
     p:iActivityReportParams
 ):Promise<iActivityReport> => {
-    let report:iActivityReport = {}
 
     // "10/31/2023" format
-    let start = getDateTime(p.startDate)
-    let end = getDateTime(p.endDate)
-    
-    let reportPaths = getReportPaths(start, end)
-    let res:iDbs = {}
-    
-    each(reportPaths.paths, async (path,i) => {
-        let id = reportPaths.ids[i]
-        res[id] = await getMonthlyDb(path)
-    })
-    
+    let startDate = getDateTime(p.startDate)
+    let endDate = getDateTime(p.endDate)
 
+    if (endDate.num.timestamp < startDate.num.timestamp) console.log(h, "WARNING, enddate and startdate inverted!")
     
+    
+    let reportPaths = getReportPaths(startDate, endDate)
+    
+    let dbs:iDbs = {}
+    let i = 0;
+    for await (const path of reportPaths.paths) {
+        let id = reportPaths.ids[i]
+        dbs[id] = await getMonthlyDb(path)
+        i++;
+    }
+    console.log(33,dbs)
+
+    let report = generateReportFromDbs(p, dbs)
+    console.log(333, report, dbs, startDate, endDate)
 
     return report
 }
@@ -112,8 +111,10 @@ export const getReportPaths = (start:iDateTime, end: iDateTime):{paths:string[],
 
     each(yearsMonths, (year, yearName) => {
         each(year, month => {
-            res.paths.push(getPathFile(yearName, ('0'+(month)).slice(-2)))
-            res.ids.push(`${yearName}-${('0'+(month)).slice(-2)}`)
+            let smonth = ('0'+(month)).slice(-2)
+            let syear = yearName
+            res.paths.push(getPathFile(smonth, syear))
+            res.ids.push(`${syear}-${smonth}`)
         })
     })
 
@@ -158,14 +159,19 @@ export const generateReportFromDbs = (
         }
     }
 
+    console.log(9)
     each(dbs, (monthdb, dbName) => {
         // dbName format = 2023-10
         const yearMonthStr = dbName.replace("-","/")
+        if (!monthdb) return
         let fields = monthdb.fields
         // EACH DAY
+        console.log(10)
         each(monthdb.days, (dayLog, day) => {
+            console.log(11)
             // EACH DAY EVENT
             each(dayLog, (occurrences, eventNameIndex) => {
+                console.log(13)
                 const eventName = fields["eventName"][eventNameIndex]
                 // EACH DAY EVENT OCCURENCE 
                 each(occurrences.time, (_,i) => {
@@ -192,7 +198,7 @@ export const generateReportFromDbs = (
 //
 // process event batch every 5min into the montly log file
 //
-const intervalTime = 5 * 60 * 1000
+
 const askForProcessTimeBatch = () => {
     throttledProcessTimeBatch()
     debounceProcessTimeBatch()
@@ -221,19 +227,19 @@ const debounceProcessTimeBatch = debounce(() => { processTimeBatch() }, interval
 //   }
 const monthlyActivityRamCache:{value:iMonthlyDb|null} = {value:null}
 const processTimeBatch = async () => {
-    console.log(`${h} processTimeBatch`)
+    shouldLog && console.log(`${h} processTimeBatch`)
     let endPerf = perf('${h} processTimeBatch ')
 
     // if !monthlyActivityRamCache, load the file in the ram
     if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDbFromDate()
     const monthlyDb = monthlyActivityRamCache.value
     const newTimeBatch = currentTimeBatch.value
-    const currentDate = getCurrDateTime()
+    const currentDate = getDateTime()
     
     const newMonthlyDb = processTimeBatchInt({monthlyDb, newTimeBatch,currentDate})
-
+    
     monthlyActivityRamCache.value = newMonthlyDb
-
+    
     // finally, save it to the monthlyActivity JSON
     await setCurrentMonthlyDb(newMonthlyDb)
 
@@ -318,12 +324,12 @@ const getMonthlyDb = async (path:string):Promise<iMonthlyDb|null> => {
         let obj = JSON.parse(str) as iMonthlyDb
         return obj
     } catch (error) {
-        console.log(`${h} getMonthlyDb error:`, error)
+        shouldLog && console.log(`${h} getMonthlyDb error:`, error)
         return null
     }
 }
 const getMonthlyDbFromDate = async (month?:string, year?:string):Promise<iMonthlyDb|null> => {
-    let currDate = getCurrDateTime()
+    let currDate = getDateTime()
     if (!year) year = currDate.year
     if (!month) month = currDate.month
     return await getMonthlyDb(getPathFile(month, year))
@@ -331,37 +337,21 @@ const getMonthlyDbFromDate = async (month?:string, year?:string):Promise<iMonthl
 
 
 const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
-    let currDate = getCurrDateTime()
+    let currDate = getDateTime()
     let str = JSON.stringify(data)
     let pathFile = getPathFile(currDate.month, currDate.year)
+    // shouldLog && console.log(44, pathFile, currDate)
     
-    await upsertRecursivelyFolders(dbFolderPath)
+    await upsertRecursivelyFolders(pathFile)
     await saveFile(pathFile, str)
 }
+const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${month}.md`
+
 
 //
 // LOW LEVEL FUNCS
 //
 // export interface iDateTime {year:string, month:string, day:string, hour:string, min:string, full:string, numbers}
 
-export const getDateTime = (dateString?:string) => {
-    let d = new Date(dateString)
-    let year = d.getFullYear()
-    let month = d.getMonth()+1
-    let day = d.getDate()
-    let syear = year.toString()
-    let smonth = ('0'+(month)).slice(-2);
-    let sday = ('0'+day).slice(-2);
-    let hour = ('0'+d.getHours()).slice(-2);
-    let min = ('0'+d.getMinutes()).slice(-2);
-    let full = `${smonth}/${sday}/${syear} ${hour}:${min}`
-    let num = {
-        year, month, day,hour:d.getHours(), min:d.getMinutes()
-    }
-    return {year:syear, month:smonth, day:sday, hour, min, full, num}
-}
+// export const getDateTime = () => {return getDateTime()}
 
-export type iDateTime = ReturnType<typeof getDateTime>
-export const getCurrDateTime = () => getDateTime()
-
-const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${month}.md`
