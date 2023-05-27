@@ -1,10 +1,14 @@
 import { fileLogWrite } from "./log.manager"
 
 // https://whatismyipaddress.com/ip/178.16.171.170
-export const getSocketClientInfos = (socket:any, format: "full"|"small") => {
+type iClientInfosFormat = "full"|"small"|"obj"
+export type iClientInfosObj = {
+    ip:string, url:string,lang:string, ua:string
+}
+export const getSocketClientInfos = (socket:any, format: iClientInfosFormat)=> {
     return formatHeader(socket?.raw.handshake.headers, format)
 }
-export const formatHeader = (headers:any, format: "full"|"small" ) => {
+export const formatHeader = (headers:any, format: iClientInfosFormat ):string|iClientInfosObj => {
     let full = headers
     let res:any = full
     if (format === "small") {
@@ -14,8 +18,18 @@ export const formatHeader = (headers:any, format: "full"|"small" ) => {
             full["accept-language"],
             full["user-agent"]
         ]
+        res = JSON.stringify(res)
+    } else if (format === "full") {
+        res = JSON.stringify(res)
+    } else if (format === "obj") {
+        res = {
+            ip: full["x-real-ip"], 
+            url: full["host"], 
+            lang: full["accept-language"],
+            ua: full["user-agent"]
+        }
     }
-    return JSON.stringify(res)
+    return res
 }
 
 const securityLog = (str:string) => {

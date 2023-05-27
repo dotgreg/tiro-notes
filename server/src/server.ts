@@ -8,10 +8,11 @@ import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { searchWord } from './managers/search/word.search.manager';
 import { security, formatHeader} from './managers/security.manager';
 import { scanPlugins } from './managers/plugins.manager';
+import "./managers/activity.manager"
 
 fileLogClean();
 
-const archi = process.arch
+const archi = process.arch 
 
 
 log(`===== TIRO SERVER STARTING ====== `)
@@ -22,6 +23,7 @@ https:${backConfig.https}
 platform: ${getPlatform()}
 architecture: ${archi}
 `)
+
 
 var express = require('express'); 
 const app = express()
