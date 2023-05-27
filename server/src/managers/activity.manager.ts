@@ -4,14 +4,16 @@ import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
 import { perf } from "./performance.manager"
 import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
 
-type iActivityLog = {
+export type iActivityLog = {
     eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
 }
 const h = `[ACTIVITY]`
 
 //
-// HIGH LEVEL LOGGER
+// HIGH LEVEL 
 //
+
+// LOGGER
 const currentTimeBatch:{value:iActivityLog[]} = {value: []}
 export const logActivity = (eventAction: string, eventName:string, socket:any) => {
     const clientInfos = getSocketClientInfos(socket, "obj") as iClientInfosObj
@@ -26,6 +28,36 @@ export const logActivity = (eventAction: string, eventName:string, socket:any) =
     askForProcessTimeBatch()
 }
 
+
+
+// REPORT CREATOR
+export type iActivityField = "file"| "time"| "url"| "type"| "ip"| "ua_simple"
+export interface iActivityReportParams {
+    startDate: string
+    endDate: string
+    organizeBy?: iActivityField
+    includes?: iActivityField[]
+}
+export const getActivityReport = (p:iActivityReportParams) => {
+    // "10/31/2023" format
+    let startDate = getDateTime(p.startDate)
+    let endDate = getDateTime(p.endDate)
+    // let yearsToFetch
+    // let yearsToFetch
+    // let reportsToFetch
+    
+}
+
+
+
+
+
+
+
+
+
+
+
 //
 // process event batch every 5min into the montly log file
 //
@@ -36,6 +68,9 @@ const askForProcessTimeBatch = () => {
 }
 const throttledProcessTimeBatch = throttle(() => { processTimeBatch() }, intervalTime)
 const debounceProcessTimeBatch = debounce(() => { processTimeBatch() }, intervalTime)
+
+
+
 
 
 //
@@ -60,9 +95,13 @@ const processTimeBatch = async () => {
 
     // if !monthlyActivityRamCache, load the file in the ram
     if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDb()
-    const m = monthlyActivityRamCache
+    const monthlyDb = monthlyActivityRamCache.value
+    const newTimeBatch = currentTimeBatch.value
+    const currentDate = getCurrDateTime()
     
-    const newMonthlyDb = processTimeBatchInt(m.value)
+    const newMonthlyDb = processTimeBatchInt({monthlyDb, newTimeBatch,currentDate})
+
+    monthlyActivityRamCache.value = newMonthlyDb
 
     // finally, save it to the monthlyActivity JSON
     await setCurrentMonthlyDb(newMonthlyDb)
@@ -70,21 +109,27 @@ const processTimeBatch = async () => {
     endPerf()
 }
 
-export const processTimeBatchInt = (monthlyDb:iMonthlyDb|null):iMonthlyDb => {
+
+export const processTimeBatchInt = (p:{
+    monthlyDb:iMonthlyDb|null,
+    newTimeBatch: iActivityLog[],
+    currentDate: iDateTime,
+}):iMonthlyDb => {
+    const {monthlyDb, newTimeBatch, currentDate} = {...p}
     let m = monthlyDb
     if (!m) m = {fields:{}, events:{}} 
 
     // [value.fields] first each, if prop not present in array, push it
-    each(currentTimeBatch.value, event => {
+    each(newTimeBatch, event => {
         each(event, (propVal, propName) => {
             if(!m.fields[propName]) m.fields[propName] = []
             if (m.fields[propName].indexOf(propVal) === -1) m.fields[propName].push(propVal)
         })
     })
 
+    const d = currentDate
     // [value.events] second each, 
-    let d = getCurrDateTime()
-    each(currentTimeBatch.value, currEvent => {
+    each(newTimeBatch, currEvent => {
         let eventTime = `${d.hour}:${d.min}`
         let currDateStr = `${d.day}`
         // EVERY DAY OBJ
@@ -161,13 +206,21 @@ const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
 //
 // LOW LEVEL FUNCS
 //
-const getCurrDateTime = ():{year:string, month:string, day:string, hour:string, min:string} => {
-    let d = new Date()
-    let year = d.getFullYear().toString()
-    let month = ('0'+(d.getMonth()+1)).slice(-2);
-    let day = ('0'+d.getDate()).slice(-2);
+export interface iDateTime {year:string, month:string, day:string, hour:string, min:string}
+export const getCurrDateTime = ():iDateTime => {
+    return getDateTime()
+}
+export const getDateTime = (dateString?:string):iDateTime => {
+    let d = new Date(dateString)
+    let year = d.getFullYear()
+    let month = d.getMonth()+1
+    let day = d.getDate()
+    let syear = year.toString()
+    let smonth = ('0'+(month)).slice(-2);
+    let sday = ('0'+day).slice(-2);
     let hour = ('0'+d.getHours()).slice(-2);
     let min = ('0'+d.getMinutes()).slice(-2);
-    return {year, month, day, hour, min}
+    return {year:syear, month:smonth, day:sday, hour, min}
 }
+
 const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${month}.md`
