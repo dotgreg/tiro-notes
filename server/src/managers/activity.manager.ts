@@ -41,9 +41,7 @@ export interface iActivityReportParams {
 }
 
 export interface iActivityReport {
-    [referenceField:string]: {
-        [field:string]: string
-    }[]
+    [referenceField:string]: {}
 }
 export const getActivityReport = async (
     p:iActivityReportParams
@@ -69,42 +67,67 @@ export const generateReportFromDbs = (
 ):iActivityReport => {
     let report:iActivityReport = {}
 
-    // FILE TYPE 
-    if (p.organizeBy === "file") {
-        if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua"]
-        each(dbs, (monthdb, dbName) => {
-            // dbName format = 2023-10
-            const dbDate = getDateTime(`${dbName}-01`)
-            const month = dbDate.month
-            const year = dbDate.year
-            let fields = monthdb.fields
-            // EACH DAY
-            each(monthdb.days, (dayLog, day) => {
-                const date = `${year}/${month}/${day}`
-                // EACH DAY EVENT
-                each(dayLog, (occurrences, eventNameIndex) => {
-                    const eventName = fields["eventName"][eventNameIndex]
-                    if(!report[eventName]) report[eventName] = []
-                    
-                    // EACH DAY EVENT OCCURENCE
-                    each(occurrences.time, (_,i) => {
-                        const datetime = `${date} ${occurrences.time[i]}`
-                        const occurenceObj = { datetime }
-    
-                        // for each declared field to add
-                        each(p.includes, fieldToInclude => {
-                            let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
-                            if (isNumber(occurFieldIndex)) {
-                                occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
-                            }
-                        })
-    
-                        report[eventName].push(occurenceObj)
-                    })
+    const genOccurenceObj = (occurenceObj, occurrences, fields, i) => {
+        // for each declared field to add
+        each(p.includes, fieldToInclude => {
+            let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
+            if (isNumber(occurFieldIndex)) {
+                occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
+            }
+        })
+        return occurenceObj
+    }
+    const genReportObj = (p2) => {
+        const {eventName, dateTimeObj, occurrences, fields, i} = p2
+        const d = dateTimeObj
+        // const time = `${occurrences.time[i]}`
+        // const hour = time.split(":")[0]
+        // const mins = time.split(":")[1]
+        // const datetimeStr = `${date} ${time}`
+
+        // FILE TYPE 
+        if (p.organizeBy === "file") {
+            if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua"]
+            if(!report[eventName]) report[eventName] = {arr:[]}
+            report[eventName]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, i))
+        } else if (p.organizeBy === "time") {
+            if (!p.includes) p.includes = ["eventName","eventAction", "url", "type", "ip", "ua"]
+            if(!report[d.year]) report[d.year] = {}
+            if(!report[d.year][d.month]) report[d.year][d.month] = {}
+            if(!report[d.year][d.month][d.day]) report[d.year][d.month][d.day] = {}
+            if(!report[d.year][d.month][d.day][d.hour]) report[d.year][d.month][d.day][d.hour] = []
+            let o = report[d.year][d.month][d.day][d.hour]
+            // if(!report[date][hour]) report[date][hour] = []
+            o.push(genOccurenceObj({date: d.full}, occurrences, fields, i))
+            // if(!report[date]) report[date] = []
+            // if(!report[date][time]) report[date][time] = []
+            // report[date][time].push(genOccurenceObj({}, occurrences, fields, i))
+        }
+    }
+
+    each(dbs, (monthdb, dbName) => {
+        // dbName format = 2023-10
+        const yearMonthStr = dbName.replace("-","/")
+        // const dbDate = getDateTime(`${dbName}-01`)
+        // const month = dbDate.month
+        // const year = dbDate.year
+        let fields = monthdb.fields
+        // EACH DAY
+        each(monthdb.days, (dayLog, day) => {
+            // const date = `${year}/${month}/${day}`
+            // EACH DAY EVENT
+            each(dayLog, (occurrences, eventNameIndex) => {
+                const eventName = fields["eventName"][eventNameIndex]
+                // EACH DAY EVENT OCCURENCE 
+                each(occurrences.time, (_,i) => {
+                    const time = occurrences.time[i]
+                    const dateTimeObj = getDateTime(`${yearMonthStr}/${day} ${time}`)
+                    genReportObj({ eventName, dateTimeObj, occurrences, fields, i })
                 })
             })
         })
-    }
+    })
+    
     return report
 }
 
@@ -265,7 +288,7 @@ const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
 //
 // LOW LEVEL FUNCS
 //
-export interface iDateTime {year:string, month:string, day:string, hour:string, min:string}
+export interface iDateTime {year:string, month:string, day:string, hour:string, min:string, full}
 export const getCurrDateTime = ():iDateTime => {
     return getDateTime()
 }
@@ -279,7 +302,8 @@ export const getDateTime = (dateString?:string):iDateTime => {
     let sday = ('0'+day).slice(-2);
     let hour = ('0'+d.getHours()).slice(-2);
     let min = ('0'+d.getMinutes()).slice(-2);
-    return {year:syear, month:smonth, day:sday, hour, min}
+    let full = `${smonth}/${sday}/${syear} ${hour}:${min}`
+    return {year:syear, month:smonth, day:sday, hour, min, full}
 }
 
 const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${month}.md`
