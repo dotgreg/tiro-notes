@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react"
 import { iAppView, iFile } from "../../../../shared/types.shared"
-import { addCliCmd } from "../../managers/cliConsole.manager"
 
 export const useSearchFromTitle = (p:{
     changeToFolder,

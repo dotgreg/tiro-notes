@@ -30,6 +30,7 @@ import { iNotificationApi, useNotificationApi } from './notification.api.hook';
 import { iSocketApi, useSocketApi } from './socket.api.hook';
 import { audioApi, iAudioApi } from '../../managers/audio.manager';
 import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
+import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
 
 
 //
@@ -74,6 +75,7 @@ export interface iClientApi {
 	encryption: iEncryptApi,
 	plugins: iPluginsApi,
 	audio: iAudioApi,
+	performance: iPerformanceApi,
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -204,7 +206,7 @@ export const useClientApi = (p: {
 
 	const noteApi = useNoteApi({})
 	const analyticsApi = useAnalyticsApi({})
-	
+	const performanceApi = usePerformanceApi({eventBus})
 
 
 	// 
@@ -231,6 +233,7 @@ export const useClientApi = (p: {
 		command: commandApi,
 		plugins: pluginsApi,
 		watch: watchApi,
+		performance: performanceApi,
 		ui: {
 			browser: browserApi,
 			notification: notificationApi,
