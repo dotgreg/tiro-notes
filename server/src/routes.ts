@@ -452,14 +452,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('askActivityReport', async data => {
-		let now = getDateTime()
-		let old = getDateTime(`${now.month}/${now.day}/${now.num.year - 1}`)
-		
-		const report = await getActivityReport({
-			startDate: old.date,
-			endDate: now.date,
-			organizeBy: "file",
-		})
+		const report = await getActivityReport(data.params)
 		serverSocket2.emit('getActivityReport', { report, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
