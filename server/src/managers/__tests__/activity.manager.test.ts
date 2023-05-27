@@ -1,4 +1,5 @@
-import {  generateReportFromDbs, getDateTime, iActivityLog, iDateTime, processTimeBatchInt, getReportPaths } from "../activity.manager";
+import {  generateReportFromDbs,  iActivityLog,  processTimeBatchInt, getReportPaths } from "../activity.manager";
+import { getDateTime, iDateTime } from "../date.manager";
 
 const getDate = ():iDateTime => {
     return getDateTime(`2023/05/27 16:58`)
@@ -152,24 +153,24 @@ test('processTimeBatchInt:check result for one batch', () => {
     let res = getReportPaths(getDateTime("03/31/2023"), getDateTime("10/07/2023"))
     
     expect(
-        res[0].endsWith(".tiro/activity/03-2023.md") 
-        && res[res.length-1].endsWith(".tiro/activity/10-2023.md") 
-        && res.length === 8 
+        res.paths[0].endsWith(".tiro/activity/2023-03.md") 
+        && res.paths[res.paths.length-1].endsWith(".tiro/activity/2023-10.md") 
+        && res.paths.length === 8 
     ? true : res
     ).toStrictEqual(true)
   })
 
   test('getReportPaths:wrong end/start', () => {
     let res = getReportPaths(getDateTime("12/30/2023"), getDateTime("10/30/2023"))
-    expect(res).toStrictEqual([]);
+    expect(res.paths).toStrictEqual([]);
   })
 
   test('getReportPaths:several years', () => {
     let res = getReportPaths(getDateTime("12/30/2021"), getDateTime("10/30/2023"))
     expect(
-        res[0].endsWith(".tiro/activity/12-2021.md") 
-        && res[res.length-1].endsWith(".tiro/activity/10-2023.md") 
-        && res.length === 23
+        res.paths[0].endsWith(".tiro/activity/2021-12.md") 
+        && res.paths[res.paths.length-1].endsWith(".tiro/activity/2023-10.md") 
+        && res.paths.length === 23
         ? true : res
     ).toStrictEqual(true)
   })

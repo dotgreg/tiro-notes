@@ -1,3 +1,15 @@
+export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"
+export type iActivityFilter= "file"| "time"|  "ip"
+export interface iActivityReportParams {
+    startDate: string
+    endDate: string
+    organizeBy?: iActivityFilter
+    includes?: iActivityField[]
+}
+export interface iActivityReport {
+    [referenceField:string]: {}
+}
+
 export type iNotificationType = "normal" | "warning" | "error"
 export type iNotification = { 
 	id?: string,

@@ -5,7 +5,7 @@ if (isPerfMonitoringEnabled === true) isPerfMonitoringEnabled = true
 if (isPerfMonitoringEnabled === 'true') isPerfMonitoringEnabled = true
 
 
-isPerfMonitoringEnabled = true
+// isPerfMonitoringEnabled = true
 
 const h = `[PERFS]`
 console.log(`${h} perf mode =`, isPerfMonitoringEnabled, process.env.TIRO_PERFORMANCE_MONITORING_BACKEND)

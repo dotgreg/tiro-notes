@@ -31,6 +31,7 @@ import { iSocketApi, useSocketApi } from './socket.api.hook';
 import { audioApi, iAudioApi } from '../../managers/audio.manager';
 import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
 import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
+import { useActivityApi } from './activity.api.hook';
 
 
 //
@@ -76,6 +77,7 @@ export interface iClientApi {
 	plugins: iPluginsApi,
 	audio: iAudioApi,
 	performance: iPerformanceApi,
+	activity: iActivityApi,
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -207,6 +209,7 @@ export const useClientApi = (p: {
 	const noteApi = useNoteApi({})
 	const analyticsApi = useAnalyticsApi({})
 	const performanceApi = usePerformanceApi({eventBus})
+	const activityApi = useActivityApi({eventBus})
 
 
 	// 
@@ -234,6 +237,7 @@ export const useClientApi = (p: {
 		plugins: pluginsApi,
 		watch: watchApi,
 		performance: performanceApi,
+		activity:activityApi,
 		ui: {
 			browser: browserApi,
 			notification: notificationApi,
