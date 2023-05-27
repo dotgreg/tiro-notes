@@ -1,4 +1,4 @@
-import {  generateReportFromDbs, getDateTime, iActivityLog, iDateTime, processTimeBatchInt, reportsListFile } from "../activity.manager";
+import {  generateReportFromDbs, getDateTime, iActivityLog, iDateTime, processTimeBatchInt, getReportPaths } from "../activity.manager";
 
 const getDate = ():iDateTime => {
     return getDateTime(`2023/05/27 16:58`)
@@ -148,28 +148,29 @@ test('processTimeBatchInt:check result for one batch', () => {
 
 
 
-  test('reportsListFile:same year', () => {
-    let res = reportsListFile(getDateTime("03/31/2023"), getDateTime("10/07/2023"))
-    let exp = ["2023-03", "2023-04", "2023-05", "2023-06", "2023-07", "2023-08", "2023-09", "2023-10"]
-    expect(res).toStrictEqual(exp);
+  test('getReportPaths:same year', () => {
+    let res = getReportPaths(getDateTime("03/31/2023"), getDateTime("10/07/2023"))
     
+    expect(
+        res[0].endsWith(".tiro/activity/03-2023.md") 
+        && res[res.length-1].endsWith(".tiro/activity/10-2023.md") 
+        && res.length === 8 
+    ? true : res
+    ).toStrictEqual(true)
   })
-  test('reportsListFile:wrong end/start', () => {
-    let res = reportsListFile(getDateTime("12/30/2023"), getDateTime("10/30/2023"))
+
+  test('getReportPaths:wrong end/start', () => {
+    let res = getReportPaths(getDateTime("12/30/2023"), getDateTime("10/30/2023"))
     expect(res).toStrictEqual([]);
   })
-  test('reportsListFile:several years', () => {
-    let res = reportsListFile(getDateTime("12/30/2021"), getDateTime("10/30/2023"))
-    let exp = [
-        '2021-12', '2022-01', '2022-02',
-        '2022-03', '2022-04', '2022-05',
-        '2022-06', '2022-07', '2022-08',
-        '2022-09', '2022-10', '2022-11',
-        '2022-12', '2023-01', '2023-02',
-        '2023-03', '2023-04', '2023-05',
-        '2023-06', '2023-07', '2023-08',
-        '2023-09', '2023-10'
-      ]
-    expect(res).toStrictEqual(exp);
+
+  test('getReportPaths:several years', () => {
+    let res = getReportPaths(getDateTime("12/30/2021"), getDateTime("10/30/2023"))
+    expect(
+        res[0].endsWith(".tiro/activity/12-2021.md") 
+        && res[res.length-1].endsWith(".tiro/activity/10-2023.md") 
+        && res.length === 23
+        ? true : res
+    ).toStrictEqual(true)
   })
 

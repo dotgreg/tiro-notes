@@ -8,6 +8,7 @@ export type iActivityLog = {
     eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
 }
 const h = `[ACTIVITY]`
+const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activity`
 
 //
 // HIGH LEVEL 
@@ -49,8 +50,19 @@ export const getActivityReport = async (
     let report:iActivityReport = {}
 
     // "10/31/2023" format
-    let startDate = getDateTime(p.startDate)
-    let endDate = getDateTime(p.endDate)
+    let start = getDateTime(p.startDate)
+    let end = getDateTime(p.endDate)
+    
+    let reportPaths = getReportPaths(start, end)
+    let res:iDbs = {}
+    
+    each(reportPaths.paths, async (path,i) => {
+        let id = reportPaths.ids[i]
+        res[id] = await getMonthlyDb(path)
+    })
+    
+
+    
 
     return report
 }
@@ -81,10 +93,10 @@ export const getActivityReport = async (
 //
 
 // WHICH REPORTS TO GET
-export const reportsListFile = (start:iDateTime, end: iDateTime):string[]  => {
-    let res = []
+export const getReportPaths = (start:iDateTime, end: iDateTime):{paths:string[], ids:string[]}  => {
+    let res = {paths:[], ids:[]}
 
-    if (end.num.year <= start.num.year && end.num.month <= start.num.month) return []
+    if (end.num.year <= start.num.year && end.num.month <= start.num.month) return res
 
     // how many years to cover
     let yearDiff = end.num.year - start.num.year
@@ -100,7 +112,8 @@ export const reportsListFile = (start:iDateTime, end: iDateTime):string[]  => {
 
     each(yearsMonths, (year, yearName) => {
         each(year, month => {
-            res.push(`${yearName}-${('0'+(month)).slice(-2)}`)
+            res.paths.push(getPathFile(yearName, ('0'+(month)).slice(-2)))
+            res.ids.push(`${yearName}-${('0'+(month)).slice(-2)}`)
         })
     })
 
@@ -212,7 +225,7 @@ const processTimeBatch = async () => {
     let endPerf = perf('${h} processTimeBatch ')
 
     // if !monthlyActivityRamCache, load the file in the ram
-    if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDb()
+    if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDbFromDate()
     const monthlyDb = monthlyActivityRamCache.value
     const newTimeBatch = currentTimeBatch.value
     const currentDate = getCurrDateTime()
@@ -297,14 +310,11 @@ interface iMonthlyDb {
     }
 }
 
-const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activity`
 
-const getMonthlyDb = async (month?:string, year?:string):Promise<iMonthlyDb|null> => {
-    let currDate = getCurrDateTime()
-    if (!year) year = currDate.year
-    if (!month) month = currDate.month
+
+const getMonthlyDb = async (path:string):Promise<iMonthlyDb|null> => {
     try {
-        let str = await openFile(getPathFile(month, year))
+        let str = await openFile(path)
         let obj = JSON.parse(str) as iMonthlyDb
         return obj
     } catch (error) {
@@ -312,6 +322,14 @@ const getMonthlyDb = async (month?:string, year?:string):Promise<iMonthlyDb|null
         return null
     }
 }
+const getMonthlyDbFromDate = async (month?:string, year?:string):Promise<iMonthlyDb|null> => {
+    let currDate = getCurrDateTime()
+    if (!year) year = currDate.year
+    if (!month) month = currDate.month
+    return await getMonthlyDb(getPathFile(month, year))
+}
+
+
 const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
     let currDate = getCurrDateTime()
     let str = JSON.stringify(data)
