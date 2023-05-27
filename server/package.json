@@ -4,7 +4,7 @@
 		"description": "",
 		"main": "index.js",
 		"scripts": {
-				"start": "run-s BUNdevserver",
+				"start": "run-s NPMdevserver",
 				"BUNdevserver": "cross-env NODE_ENV=development bun --hot ./src/server.ts",
 				"NPMdevserver": "cross-env NODE_ENV=development nodemon",
 				"prodTs": "ts-node --transpileOnly ./src/server.ts",
