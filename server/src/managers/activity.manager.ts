@@ -42,6 +42,11 @@ export const getActivityReport = async (
     p:iActivityReportParams
 ):Promise<iActivityReport> => {
 
+    let now = getDateTime()
+    let old = getDateTime(`${now.month}/${now.day}/${now.num.year - 1}`)
+    if (!p.startDate) p.startDate = old.date
+    if (!p.endDate) p.endDate = now.date
+
     // "10/31/2023" format
     let startDate = getDateTime(p.startDate)
     let endDate = getDateTime(p.endDate)

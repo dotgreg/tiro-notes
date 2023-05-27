@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { iActivityReport } from '../../../../shared/types.shared';
+import { iActivityReport, iActivityReportParams } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
@@ -10,6 +10,7 @@ import { genIdReq, iApiEventBus } from './api.hook';
 //
 export interface iActivityApi {
 	getReport: (
+		params?:iActivityReportParams,
 		cb?: (report: iActivityReport) => void,
 	) => void
 }
@@ -25,7 +26,7 @@ export const useActivityApi = (p: {
 		})
 	}, [])
 
-	const getReport: iActivityApi['getReport'] = (cb) => {
+	const getReport: iActivityApi['getReport'] = (params, cb) => {
 		const idReq = genIdReq('get-perf-report');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, answer => {
@@ -37,7 +38,11 @@ export const useActivityApi = (p: {
 			}
 		});
 		// 2. emit request 
-		clientSocket2.emit('askActivityReport', { token: getLoginToken(), idReq})
+		clientSocket2.emit('askActivityReport', { 
+			params,
+			token: getLoginToken(), 
+			idReq
+		})
 	}
 
 	//
