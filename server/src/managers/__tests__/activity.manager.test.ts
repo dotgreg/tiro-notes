@@ -1,6 +1,10 @@
-import {  generateReportFromDbs, iActivityLog, iDateTime, processTimeBatchInt } from "../activity.manager";
+import {  generateReportFromDbs, getDateTime, iActivityLog, iDateTime, processTimeBatchInt } from "../activity.manager";
 
-const getDate = ():iDateTime => {return {"day": "27", "hour": "16", "min": "58", "month": "05", "year": "2023"}}
+const getDate = ():iDateTime => {
+    return getDateTime(`2023/05/27 16:58`)
+    // return 
+    // {"day": "27", "hour": "16", "min": "58", "month": "05", "year": "2023", full:}
+}
 
 test('processTimeBatchInt if null', () => {
     
@@ -77,10 +81,25 @@ test('processTimeBatchInt:check result for one batch', () => {
   })
   
   
-  test('generateReportFromDbs:check result for one time batches', () => {
-    
+
+
+
+
+
+
+
+  //
+  // REPORTS
+  //
+
+  const getDb = () => {
     let timebatch1:iActivityLog[] = [
         {eventName:"file1", eventAction:"read", ip:"3.3.3.3", ua:"ua1", appUrl:"url1"},
+        {eventName:"file1", eventAction:"read", ip:"3.3.3.5", ua:"ua1", appUrl:"url1"},
+        {eventName:"file1", eventAction:"read", ip:"3.3.3.5", ua:"ua1", appUrl:"url1"},
+        {eventName:"file1", eventAction:"read", ip:"3.3.3.5", ua:"ua1", appUrl:"url1"},
+        {eventName:"file1", eventAction:"read", ip:"3.3.3.5", ua:"ua1", appUrl:"url1"},
+        {eventName:"file1", eventAction:"read", ip:"3.3.3.5", ua:"ua1", appUrl:"url1"},
         {eventName:"file1", eventAction:"read", ip:"3.3.3.5", ua:"ua1", appUrl:"url1"},
         {eventName:"file2", eventAction:"read", ip:"3.3.3.3", ua:"ua1", appUrl:"url1"},
         {eventName:"file3", eventAction:"read", ip:"3.3.3.2", ua:"ua1", appUrl:"url1"},
@@ -96,18 +115,33 @@ test('processTimeBatchInt:check result for one batch', () => {
         newTimeBatch: timebatch1,
         currentDate:time1
     })
+    return newMonthlyDb1
+  }
 
+  test('generateReportFromDbs:file report', () => {
+    let monthlyDb = getDb()
     const report = generateReportFromDbs({
         startDate: "01/01/2023",
         endDate: "12/01/2023",
         organizeBy:"file",
     }, {
-        ["2022-02"]: newMonthlyDb1,
-        ["2023-05"]: newMonthlyDb1,
+        ["2022-02"]: monthlyDb,
+        ["2023-05"]: monthlyDb,
     })
+    let exp = {"file1": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}]}, "file2": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}]}, "file3": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1"}]}, "file4": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}]}, "file5": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1"}]}}
+    expect(report).toStrictEqual(exp);
+  })
 
-    let exp = {"file1": [{"datetime": "2022/02/27 16:0", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"datetime": "2023/05/27 16:0", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}], "file2": [{"datetime": "2022/02/27 16:0", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"datetime": "2023/05/27 16:0", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}], "file3": [{"datetime": "2022/02/27 16:0", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1"}, {"datetime": "2023/05/27 16:0", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1"}], "file4": [{"datetime": "2022/02/27 16:0", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"datetime": "2023/05/27 16:0", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}], "file5": [{"datetime": "2022/02/27 16:0", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1"}, {"datetime": "2023/05/27 16:0", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1"}]}
-
-    // expect(newMonthlyDb1).toStrictEqual(1);
+  test('generateReportFromDbs:time report', () => {
+    let monthlyDb = getDb()
+    const report = generateReportFromDbs({
+        startDate: "01/01/2023",
+        endDate: "12/01/2023",
+        organizeBy:"time",
+    }, {
+        ["2022-02"]: monthlyDb,
+        ["2023-05"]: monthlyDb,
+    })
+    let exp = {"2022": {"02": {"27": {"16": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1"}]}}}, "2023": {"05": {"27": {"16": [{"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1"}]}}}}
     expect(report).toStrictEqual(exp);
   })
