@@ -1,6 +1,7 @@
-import { debounce, throttle } from "lodash"
+import { debounce, each, throttle } from "lodash"
 import { backConfig } from "../config.back"
 import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
+import { perf } from "./performance.manager"
 import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
 
 type iActivityLog = {
@@ -21,7 +22,7 @@ export const logActivity = (eventAction: string, eventName:string, socket:any) =
         ua: clientInfos.ua + clientInfos.lang,
         appUrl: clientInfos.url,
     })
-
+    
     askForProcessTimeBatch()
 }
 
@@ -36,18 +37,85 @@ const askForProcessTimeBatch = () => {
 const throttledProcessTimeBatch = throttle(() => { processTimeBatch() }, intervalTime)
 const debounceProcessTimeBatch = debounce(() => { processTimeBatch() }, intervalTime)
 
-const monthlyActivityRamCache = {value:null}
-const processTimeBatch = () => {
-    // if !monthlyActivityRamCache, load the file in the ram
 
-    // if monthlyActivityRamCache[value][month][day], create it w empty array
-    // first each, if prop not present in array, push it
-    // second each, RAMmonthlylog.events[today][eventName][time] indexof eventTime = -1  PUSH event dans les 5 arrays
+//
+// DATA STRUCTURE REF
+//
+//     fields: {ip:[], eventName:[], ua:[], urlPath:[], type:[]}
+//     events: {
+//       "30": {
+//           4: {
+//             ip: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2],
+//             uas: [1,2,1,3,0,-1,-1,3,1,1,2,3,4,5,6,7,8,2,1,2],
+//             url: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2],
+//              type: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2]
+//              time: [1:10,12:02,2:45,1:10,12:02,2:451:10,12:02,2:451:10,12:02,2:45]
+//           }
+//     }
+//   }
+const monthlyActivityRamCache:{value:iMonthlyDb|null} = {value:null}
+const processTimeBatch = async () => {
+    console.log(`${h} processTimeBatch`)
+    let endPerf = perf('${h} processTimeBatch ')
+
+    // if !monthlyActivityRamCache, load the file in the ram
+    if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDb()
+    const m = monthlyActivityRamCache
+    
+    const newMonthlyDb = processTimeBatchInt(m.value)
 
     // finally, save it to the monthlyActivity JSON
+    await setCurrentMonthlyDb(newMonthlyDb)
+
+    endPerf()
 }
 
+export const processTimeBatchInt = (monthlyDb:iMonthlyDb|null):iMonthlyDb => {
+    let m = monthlyDb
+    if (!m) m = {fields:{}, events:{}} 
 
+    // [value.fields] first each, if prop not present in array, push it
+    each(currentTimeBatch.value, event => {
+        each(event, (propVal, propName) => {
+            if(!m.fields[propName]) m.fields[propName] = []
+            if (m.fields[propName].indexOf(propVal) === -1) m.fields[propName].push(propVal)
+        })
+    })
+
+    // [value.events] second each, 
+    let d = getCurrDateTime()
+    each(currentTimeBatch.value, currEvent => {
+        let eventTime = `${d.hour}:${d.min}`
+        let currDateStr = `${d.day}`
+        // EVERY DAY OBJ
+        if(!m.events[currDateStr]) m.events[currDateStr] = {}
+        let eventNameIndex = m.fields["eventName"].indexOf(currEvent.eventName)
+
+        // CREATE DAILY EVENT
+        if(!m.events[currDateStr][eventNameIndex]) m.events[currDateStr][eventNameIndex] = {time:[]}
+        let dayEventSumup = m.events[currDateStr][eventNameIndex]
+
+        // IS EVENT ALREADY PRESENT FOR CURRENT TIME BATCH?
+        let eventAlreadyPresent = dayEventSumup.time.indexOf(eventTime) !== -1
+
+        // => time: [1:10,12:02,2:45,1:10,12:02,2:451:10,12:02,2:451:10,12:02,2:45]
+        if (!eventAlreadyPresent) {
+            dayEventSumup['time'].push(eventTime)
+        }
+
+        // => ua: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2]
+        each(currEvent, (propVal, propName) => {
+            let propIndex = m.fields[propName].indexOf(propVal)
+            // CREATE EVENT PROPS TABLE
+            if (!dayEventSumup[propName]) dayEventSumup[propName] = []
+            
+            if (!eventAlreadyPresent) {
+                (dayEventSumup[propName] as number[]).push(propIndex)
+            }
+        })  
+    })
+    return m
+}
 
 
 
@@ -56,10 +124,11 @@ const processTimeBatch = () => {
 //
 interface iMonthlyDb {
     fields: {[fieldName:string]: string[]},
-    timeline: {
+    events: {
         [dayDate:string]: {
             [eventNameIndex:number]: {
-                [eventPropName:string]: number[]
+                time: string[];
+                [eventPropName: string]: number[]| string[];
             }
         }
     }
@@ -68,7 +137,7 @@ interface iMonthlyDb {
 const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activity`
 
 const getMonthlyDb = async (month?:string, year?:string):Promise<iMonthlyDb|null> => {
-    let currDate = getCurrDate()
+    let currDate = getCurrDateTime()
     if (!year) year = currDate.year
     if (!month) month = currDate.month
     try {
@@ -81,7 +150,7 @@ const getMonthlyDb = async (month?:string, year?:string):Promise<iMonthlyDb|null
     }
 }
 const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
-    let currDate = getCurrDate()
+    let currDate = getCurrDateTime()
     let str = JSON.stringify(data)
     let pathFile = getPathFile(currDate.month, currDate.year)
     
@@ -92,16 +161,13 @@ const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
 //
 // LOW LEVEL FUNCS
 //
-const getCurrDate = ():{year:string, month:string} => {
+const getCurrDateTime = ():{year:string, month:string, day:string, hour:string, min:string} => {
     let d = new Date()
     let year = d.getFullYear().toString()
-    let month = ('0'+d.getMonth()).slice(-2);
-    return {year, month}
+    let month = ('0'+(d.getMonth()+1)).slice(-2);
+    let day = ('0'+d.getDate()).slice(-2);
+    let hour = ('0'+d.getHours()).slice(-2);
+    let min = ('0'+d.getMinutes()).slice(-2);
+    return {year, month, day, hour, min}
 }
 const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${month}.md`
-const test = {
-    1: "lol",
-    10: "tt"
-}
-
-console.log(test[1], test) 
