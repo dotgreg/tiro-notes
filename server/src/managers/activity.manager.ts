@@ -1,27 +1,36 @@
 import { debounce, each, isNumber, throttle } from "lodash"
 import { sharedConfig } from "../../../shared/shared.config"
-import { iActivityReport, iActivityReportParams } from "../../../shared/types.shared"
+import { iActivityLog, iActivityReport, iActivityReportParams } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
 import { getDateTime, iDateTime } from "./date.manager"
 import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
 import { perf } from "./performance.manager"
 import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
+import { getUserSettings } from "./userSettings.manager"
 
+// shouldLog = true 
 let shouldLog = sharedConfig.client.log.verbose
-// shouldLog = true
-export type iActivityLog = {
-    eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
-}
 const h = `[ACTIVITY]`
 const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activity`
 const intervalTime = 5 * 60 * 1000
+const isActivityLogEnabled = async ():Promise<boolean> => {
+    const settings = await getUserSettings()
+    let res = false
+    res = settings['server_activity_logging_enable'] || false
+    return res
+}
+
+(async () => { console.log(`${h} isActivityLogEnabled: ${await isActivityLogEnabled()}`)})()
 //
 // HIGH LEVEL 
 //
 
+ 
 // LOGGER
 const currentTimeBatch:{value:iActivityLog[]} = {value: []}
-export const logActivity = (eventAction: string, eventName:string, socket:any) => {
+export const logActivity = async (eventAction: string, eventName:string, socket:any) => {
+    let enabled = await isActivityLogEnabled()
+    if (!enabled) return
     shouldLog && console.log(h, "logActivity", eventAction, eventName)
     const clientInfos = getSocketClientInfos(socket, "obj") as iClientInfosObj
     currentTimeBatch.value.push({
@@ -299,6 +308,8 @@ export const processTimeBatchInt = (p:{
         // CREATE DAILY EVENT
         if(!m.days[currDateStr][eventNameIndex]) m.days[currDateStr][eventNameIndex] = {time:[], weight:[]}
         let dayEventSumup = m.days[currDateStr][eventNameIndex]
+        if(!dayEventSumup.time) dayEventSumup.time = []
+        if(!dayEventSumup.weight) dayEventSumup.weight = []
 
         // IS EVENT ALREADY PRESENT FOR CURRENT TIME BATCH?
         let eventAlreadyPresent = dayEventSumup.time.indexOf(eventTime) !== -1

@@ -31,7 +31,7 @@ import { iSocketApi, useSocketApi } from './socket.api.hook';
 import { audioApi, iAudioApi } from '../../managers/audio.manager';
 import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
 import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
-import { useActivityApi } from './activity.api.hook';
+import { iActivityApi, useActivityApi } from './activity.api.hook';
 
 
 //
