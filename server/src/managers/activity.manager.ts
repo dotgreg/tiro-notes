@@ -221,9 +221,22 @@ const debounceProcessTimeBatch = debounce(() => { processTimeBatch() }, interval
 //             url: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2],
 //              type: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2]
 //              time: [1:10,12:02,2:45,1:10,12:02,2:451:10,12:02,2:451:10,12:02,2:45]
+//              weight: [1,10,1000,1,22...]
 //           }
 //     }
 //   }
+interface iMonthlyDb {
+    fields: {[fieldName:string]: string[]},
+    days: {
+        [dayDate:string]: {
+            [eventNameIndex:number]: {
+                time: string[];
+                weight: number[];
+                [eventPropName: string]: number[]| string[];
+            }
+        }
+    }
+}
 const monthlyActivityRamCache:{value:iMonthlyDb|null} = {value:null}
 const processTimeBatch = async () => {
     shouldLog && console.log(`${h} processTimeBatch`)
@@ -259,8 +272,8 @@ export const processTimeBatchInt = (p:{
     if (!m) m = {fields:{}, days:{}} 
 
     // [value.fields] first each, if prop not present in array, push it
-    each(newTimeBatch, event => {
-        each(event, (propVal, propName) => {
+    each(newTimeBatch, eventOccurence => {
+        each(eventOccurence, (propVal, propName) => {
             if(!m.fields[propName]) m.fields[propName] = []
             if (m.fields[propName].indexOf(propVal) === -1) m.fields[propName].push(propVal)
         })
@@ -268,15 +281,15 @@ export const processTimeBatchInt = (p:{
 
     const d = currentDate
     // [value.events] second each, 
-    each(newTimeBatch, currEvent => {
+    each(newTimeBatch, eventOccurence => {
         let eventTime = `${d.hour}:${d.min}`
         let currDateStr = `${d.day}`
         // EVERY DAY OBJ
         if(!m.days[currDateStr]) m.days[currDateStr] = {}
-        let eventNameIndex = m.fields["eventName"].indexOf(currEvent.eventName)
+        let eventNameIndex = m.fields["eventName"].indexOf(eventOccurence.eventName)
 
         // CREATE DAILY EVENT
-        if(!m.days[currDateStr][eventNameIndex]) m.days[currDateStr][eventNameIndex] = {time:[]}
+        if(!m.days[currDateStr][eventNameIndex]) m.days[currDateStr][eventNameIndex] = {time:[], weight:[]}
         let dayEventSumup = m.days[currDateStr][eventNameIndex]
 
         // IS EVENT ALREADY PRESENT FOR CURRENT TIME BATCH?
@@ -285,10 +298,15 @@ export const processTimeBatchInt = (p:{
         // => time: [1:10,12:02,2:45,1:10,12:02,2:451:10,12:02,2:451:10,12:02,2:45]
         if (!eventAlreadyPresent) {
             dayEventSumup['time'].push(eventTime)
+            dayEventSumup['weight'].push(1)
+        } else {
+            // already exists, increase its weight
+            let index = dayEventSumup.time.indexOf(eventTime)
+            dayEventSumup['weight'][index] += 1
         }
 
         // => ua: [1,2,1,3,0,0,4,3,1,1,2,3,4,5,6,7,8,2,1,2]
-        each(currEvent, (propVal, propName) => {
+        each(eventOccurence, (propVal, propName) => {
             let propIndex = m.fields[propName].indexOf(propVal)
             // CREATE EVENT PROPS TABLE
             if (!dayEventSumup[propName]) dayEventSumup[propName] = []
@@ -306,17 +324,7 @@ export const processTimeBatchInt = (p:{
 // 
 // SAVE/LOAD JSON MONTHLY FILE
 //
-interface iMonthlyDb {
-    fields: {[fieldName:string]: string[]},
-    days: {
-        [dayDate:string]: {
-            [eventNameIndex:number]: {
-                time: string[];
-                [eventPropName: string]: number[]| string[];
-            }
-        }
-    }
-}
+
 
 
 
