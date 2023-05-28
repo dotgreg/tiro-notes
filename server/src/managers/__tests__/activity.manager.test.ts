@@ -163,6 +163,20 @@ test('processTimeBatchInt:check result for one batch', () => {
     expect(report).toStrictEqual(exp);
   })
 
+  test('generateReportFromDbs:ip report', () => {
+    let monthlyDb = getDb()
+    const report = generateReportFromDbs({
+        startDate: "01/01/2023",
+        endDate: "12/01/2023",
+        organizeBy:"ip",
+    }, {
+        ["2022-02"]: monthlyDb,
+        ["2023-05"]: monthlyDb,
+    })
+    let exp = {"3.3.3.2": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file3", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file3", "ua": "ua1", "weight": 1}]}, "3.3.3.3": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file1", "ua": "ua1", "weight": 7}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file1", "ua": "ua1", "weight": 7}]}, "3.3.3.4": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file4", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file4", "ua": "ua1", "weight": 1}]}, "3.3.3.5": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file2", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file2", "ua": "ua1", "weight": 1}]}, "undefined": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file5", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file5", "ua": "ua1", "weight": 1}]}}
+    expect(report).toStrictEqual(exp);
+  })
+
 
 
 
