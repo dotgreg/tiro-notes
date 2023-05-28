@@ -11,7 +11,6 @@ import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { disconnectUser } from '../../hooks/app/loginToken.hook';
-import { getActiveTabIndex } from '../../hooks/app/tabs.hook';
 
 type ConfigPanel = {
 	title: string,
@@ -235,6 +234,15 @@ export const SettingsPopup = (p: {
 				fields: [
 					{ type: 'text', var: backendPort, title: s.backend.port, expl: s.backend.portExpl, modifier: setBackendPort },
 					// { type: 'text', var: backendProtocol, title: s.backend.protocol, expl: s.backend.protocolExpl, modifier: setBackendProtocol },
+					{
+						type: 'checkbox',
+						title: "Activity Logging",
+						expl: "Enable the activity logging for events like read/write files, you can then consult it using api.activity.getReport(). \n Requires an app restart to take effect.",
+						var: us.get('server_activity_logging_enable'),
+						modifier: val => {
+							us.set('server_activity_logging_enable', val)
+						}
+					},
 				]
 			}
 		]

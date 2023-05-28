@@ -26,13 +26,13 @@ import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
+import { getUserSettings } from "./managers/userSettings.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
 
 export const getServerTaskId = () => serverTaskId.curr
 export const setServerTaskId = (nb) => { serverTaskId.curr = nb }
-
 
 export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDictionary>) => {
 
