@@ -145,14 +145,20 @@ export const generateReportFromDbs = (
         return occurenceObj
     }
     const genReportObj = (p2) => {
-        const {eventName, dateTimeObj, occurrences, fields, i} = p2
+        const {eventNameIndex, dateTimeObj, occurrences, fields, i} = p2
         const d = dateTimeObj
+        const eventName = fields["eventName"][eventNameIndex]
+        const ip = fields["ip"][eventNameIndex]
 
         // FILE TYPE 
         if (p.organizeBy === "file") {
             if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua", "weight"]
             if(!report[eventName]) report[eventName] = {arr:[]}
             report[eventName]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, i))
+        } else if (p.organizeBy === "ip") {
+            if (!p.includes) p.includes = ["eventName", "eventAction","url", "type", "ua", "weight"]
+            if(!report[ip]) report[ip] = {arr:[]}
+            report[ip]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, i))
         } else if (p.organizeBy === "time") {
             if (!p.includes) p.includes = ["eventName","eventAction", "url", "type", "ip", "ua", "weight"]
             if(!report[d.year]) report[d.year] = {}
@@ -173,12 +179,12 @@ export const generateReportFromDbs = (
         each(monthdb.days, (dayLog, day) => {
             // EACH DAY EVENT
             each(dayLog, (occurrences, eventNameIndex) => {
-                const eventName = fields["eventName"][eventNameIndex]
+                
                 // EACH DAY EVENT OCCURENCE 
                 each(occurrences.time, (_,i) => {
                     const time = occurrences.time[i]
                     const dateTimeObj = getDateTime(`${yearMonthStr}/${day} ${time}`)
-                    genReportObj({ eventName, dateTimeObj, occurrences, fields, i })
+                    genReportObj({ eventNameIndex, dateTimeObj, occurrences, fields, i })
                 })
             })
         })
