@@ -1,4 +1,4 @@
-export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"
+export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"|"weight"
 export type iActivityFilter= "file"| "time"|  "ip"
 export interface iActivityReportParams {
     startDate?: string
