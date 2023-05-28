@@ -136,7 +136,9 @@ export const generateReportFromDbs = (
         // for each declared field to add
         each(p.includes, fieldToInclude => {
             let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
-            if (isNumber(occurFieldIndex)) {
+            if (fieldToInclude === "weight") {
+                occurenceObj[fieldToInclude] = occurrences[fieldToInclude][i]
+            } else if (isNumber(occurFieldIndex)) {
                 occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
             }
         })
@@ -148,11 +150,11 @@ export const generateReportFromDbs = (
 
         // FILE TYPE 
         if (p.organizeBy === "file") {
-            if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua"]
+            if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua", "weight"]
             if(!report[eventName]) report[eventName] = {arr:[]}
             report[eventName]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, i))
         } else if (p.organizeBy === "time") {
-            if (!p.includes) p.includes = ["eventName","eventAction", "url", "type", "ip", "ua"]
+            if (!p.includes) p.includes = ["eventName","eventAction", "url", "type", "ip", "ua", "weight"]
             if(!report[d.year]) report[d.year] = {}
             if(!report[d.year][d.month]) report[d.year][d.month] = {}
             if(!report[d.year][d.month][d.day]) report[d.year][d.month][d.day] = {}

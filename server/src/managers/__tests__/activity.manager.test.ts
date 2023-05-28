@@ -145,7 +145,7 @@ test('processTimeBatchInt:check result for one batch', () => {
         ["2022-02"]: monthlyDb,
         ["2023-05"]: monthlyDb,
     })
-    let exp = {"file1": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}]}, "file2": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}]}, "file3": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1"}]}, "file4": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1"}]}, "file5": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1"}]}}
+    let exp = {"file1": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1", "weight": 7}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1", "weight": 7}]}, "file2": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}]}, "file3": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.2", "ua": "ua1", "weight": 1}]}, "file4": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}]}, "file5": {"arr": [{"date": "02/27/2022 16:00", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "ip": "3.3.3.4", "ua": "ua1", "weight": 1}]}}
     expect(report).toStrictEqual(exp);
   })
 
@@ -159,9 +159,17 @@ test('processTimeBatchInt:check result for one batch', () => {
         ["2022-02"]: monthlyDb,
         ["2023-05"]: monthlyDb,
     })
-    let exp = {"2022": {"02": {"27": {"16": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1"}]}}}, "2023": {"05": {"27": {"16": [{"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1"}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1"}]}}}}
+    let exp = {"2022": {"02": {"27": {"16": [{"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1", "weight": 7}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1", "weight": 1}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}, {"date": "02/27/2022 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1", "weight": 1}]}}}, "2023": {"05": {"27": {"16": [{"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file1", "ip": "3.3.3.3", "ua": "ua1", "weight": 7}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file2", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file3", "ip": "3.3.3.2", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file4", "ip": "3.3.3.3", "ua": "ua1", "weight": 1}, {"date": "05/27/2023 16:00", "eventAction": "read", "eventName": "file5", "ip": "3.3.3.4", "ua": "ua1", "weight": 1}]}}}}
     expect(report).toStrictEqual(exp);
   })
+
+
+
+
+
+
+
+
 
 
 
