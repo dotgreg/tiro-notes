@@ -50,18 +50,17 @@ export const logActivity = async (eventAction: string, eventName:string, socket:
 export const getActivityReport = async (
     p:iActivityReportParams
 ):Promise<iActivityReport> => {
-
+    
     let now = getDateTime()
     let old = getDateTime(`${now.month}/${now.day}/${now.num.year - 1}`)
     if (!p.startDate) p.startDate = old.date
     if (!p.endDate) p.endDate = now.date
-
+        
     // "10/31/2023" format
     let startDate = getDateTime(p.startDate)
     let endDate = getDateTime(p.endDate)
 
     if (endDate.num.timestamp < startDate.num.timestamp) console.log(h, "WARNING, enddate and startdate inverted!")
-    
     
     let reportPaths = getReportPaths(startDate, endDate)
     
@@ -72,7 +71,7 @@ export const getActivityReport = async (
         dbs[id] = await getMonthlyDb(path)
         i++;
     }
-
+    
     let report = generateReportFromDbs(p, dbs)
 
     return report
@@ -146,7 +145,7 @@ export const generateReportFromDbs = (
         each(p.includes, fieldToInclude => {
             let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
             if (fieldToInclude === "weight") {
-                occurenceObj[fieldToInclude] = occurrences[fieldToInclude][i]
+                occurenceObj[fieldToInclude] = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : 1
             } else if (isNumber(occurFieldIndex)) {
                 occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
             }

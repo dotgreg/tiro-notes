@@ -1,4 +1,5 @@
-import {  generateReportFromDbs,  iActivityLog,  processTimeBatchInt, getReportPaths } from "../activity.manager";
+import { iActivityLog } from "../../../../shared/types.shared";
+import {  generateReportFromDbs,   processTimeBatchInt, getReportPaths } from "../activity.manager";
 import { getDateTime, iDateTime } from "../date.manager";
 
 const getDate = ():iDateTime => {
