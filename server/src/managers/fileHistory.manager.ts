@@ -40,11 +40,7 @@ export const createFileHistoryVersion = async (
     await upsertRecursivelyFolders(histFile.path)
     await saveFile(histFile.path, data.content)
 
-    // start the housekeeping process detached and abit later
-    // otherwise will mess with tests
-    setTimeout(() => {
-        processFileHistoryHousekeeping(histFile, date)
-    }, 10000)
+    return histFile
 }
 
 export const getHistoryFolder = (file:iFile) => {
@@ -52,12 +48,7 @@ export const getHistoryFolder = (file:iFile) => {
     return path
 }
 
-
-
-
-
-// LOW LEVEL
-const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj) => {
+export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj) => {
     // if infosFile doesnt exists or timestamp > 1 days process
     const infosFilePath = `${histFile.folder}/${p.infosFile}`
     const infosExists = fileExists(infosFilePath)
@@ -116,6 +107,10 @@ const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj)
 }
 
 
+
+
+
+// LOW LEVEL
 const getHistoryFile = (filePath:string, date:iDateObj, action:string):iFile => {
     let file = pathToIfile(filePath)
     let histFileName = generateHistFilename(`${file.filenameWithoutExt}_${action}`, date, "full")

@@ -24,7 +24,7 @@ import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
-import { createFileHistoryVersion, createFileHistoryVersion_OLD, fileHistoryParams, getHistoryFolder } from "./managers/fileHistory.manager";
+import { createFileHistoryVersion, createFileHistoryVersion_OLD, fileHistoryParams, getHistoryFolder, processFileHistoryHousekeeping } from "./managers/fileHistory.manager";
 import { getDateObj } from "../../shared/helpers/date.helper";
 import { isArray } from "lodash";
 
@@ -211,7 +211,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('createHistoryFile', async data => {
 		// createFileHistoryVersion_OLD(data)
 		// console.log(data)
-		createFileHistoryVersion(data, getDateObj())
+		const date = getDateObj()
+		let histFile = await createFileHistoryVersion(data, date)
+		processFileHistoryHousekeeping(histFile, date)
 	}, { checkRole: "editor", disableDataLog: true })
 
 	serverSocket2.on('askFileHistory', async data => {
