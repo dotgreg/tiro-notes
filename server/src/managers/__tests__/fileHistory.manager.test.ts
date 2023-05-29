@@ -4,6 +4,7 @@ import { getDateObj } from "../../../../shared/helpers/date.helper"
 import { sleep } from "../../helpers/sleep.helper"
 import { scanDirForFiles } from "../dir.manager"
 import { createFileHistoryVersion, TEST_fileHistory_internals } from "../fileHistory.manager"
+import { fileExists, openFile } from "../fs.manager"
 import { testHelpers } from "../test.helpers"
 
 const folder = testHelpers.fs.params.folderPath
@@ -51,25 +52,25 @@ let date_housekeeping = getDateObj("12/01/2023 10:20")
 
 // TESTS
 
-// test('getHistoryFile',  () => {
-//     const exp = {"extension": "md", "filenameWithoutExt": "file_test_10-31-2023_10h20m_enter_dt1698747600", "folder": "/_auto_tests/folder1/.history/file_test/", "name": "file_test_10-31-2023_10h20m_enter_dt1698747600.md", "nature": "file", "path": "/_auto_tests/folder1/.history/file_test/file_test_10-31-2023_10h20m_enter_dt1698747600.md", "realname": "file_test_10-31-2023_10h20m_enter_dt1698747600.md"}
-//     expect(
-//         getHistoryFile(testFilePath, getDateObj("10/31/2023 10:20"), "enter")
-//     ).toStrictEqual(exp);
-//     // ).toStrictEqual(1);
-// })
-// test('createFileHistoryVersion: a file history version should be created in history folder', async () => {
-//     await testHelpers.fs.cleanFolder()
+test('getHistoryFile',  () => {
+    const exp = {"extension": "md", "filenameWithoutExt": "file_test_enter___f10-31-2023_10h20m", "folder": "/_auto_tests/folder1/.history/file_test/", "name": "file_test_enter___f10-31-2023_10h20m.md", "nature": "file", "path": "/_auto_tests/folder1/.history/file_test/file_test_enter___f10-31-2023_10h20m.md", "realname": "file_test_enter___f10-31-2023_10h20m.md"}
+    expect(
+        getHistoryFile(testFilePath, getDateObj("10/31/2023 10:20"), "enter")
+    ).toStrictEqual(exp);
+    // ).toStrictEqual(1);
+})
+test('createFileHistoryVersion: a file history version should be created in history folder', async () => {
+    await testHelpers.fs.cleanFolder()
 
-//     await createFileHistoryVersion(f1.data, f1.date)
-//     await createFileHistoryVersion(f2.data, f2.date)
+    await createFileHistoryVersion(f1.data, f1.date)
+    await createFileHistoryVersion(f2.data, f2.date)
 
-//     expect( await fileExists(f1.historyFile.path) ).toStrictEqual(true)
-//     expect( await openFile(f1.historyFile.path) ).toStrictEqual(f1.data.content)
+    expect( await fileExists(f1.historyFile.path) ).toStrictEqual(true)
+    expect( await openFile(f1.historyFile.path) ).toStrictEqual(f1.data.content)
 
-//     expect( await fileExists(f2.historyFile.path) ).toStrictEqual(true)
-//     expect( await openFile(f2.historyFile.path) ).toStrictEqual(f2.data.content)
-// })
+    expect( await fileExists(f2.historyFile.path) ).toStrictEqual(true)
+    expect( await openFile(f2.historyFile.path) ).toStrictEqual(f2.data.content)
+})
 
 // housekeeping: if last history file +1day, start housekeeping process
 test('housekeeping: if last history file +1day, start housekeeping process', async () => {
@@ -87,7 +88,7 @@ test('housekeeping: if last history file +1day, start housekeeping process', asy
     if (!isArray(files)) {
         expect("files").toStrictEqual("is not an array")
     } else {
-        console.log(files)
+        // console.log(files)
 
         let histFileMoreThanMonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___d15-10-2023").length === 1
         expect(histFileMoreThanMonthExists).toStrictEqual(true)
