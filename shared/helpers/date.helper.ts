@@ -1,4 +1,4 @@
-export const getDateObj = (dateString?:string) => {
+export const getDateObj = (dateString?:string|number) => {
     let d = dateString ? new Date(dateString) : new Date()
     let year = d.getFullYear()
     let month = d.getMonth()+1
@@ -11,9 +11,18 @@ export const getDateObj = (dateString?:string) => {
     let full = `${smonth}/${sday}/${syear} ${hour}:${min}`
     let full_file = `${smonth}-${sday}-${syear}_${hour}h${min}m`
     let date = `${smonth}/${sday}/${syear}`
+    
     let num = {
         year, month, day,hour:d.getHours(), min:d.getMinutes(), timestamp: d.getTime(),
     }
+
     let raw = d
-    return {year:syear, month:smonth, day:sday, hour, min, full, num, date, raw, full_file}
+    let getWeekNb = () => Math.ceil(day / 7);
+    
+
+    return {
+        year:syear, month:smonth, day:sday, hour, min, 
+        full, num, date, raw, full_file, 
+        getWeekNb
+    }
   }
