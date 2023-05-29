@@ -1,32 +1,36 @@
-export const getDateObj = (dateString?:string|number) => {
+import { isString } from "util";
+
+const addZero = (nb:number) => {    
+    return ('0'+nb).slice(-2);
+}
+const readDateStringInput = (dateString?:string|number):Date => {
     let d = new Date()
-
-    const addZero = (nb:number) => {    
-        return ('0'+nb).slice(-2);
+    if (!dateString || dateString === "" || dateString === "undefined") {
+        d = new Date()
+    // if datestring is in a customformat, parse it
+    } else if (typeof dateString === "string") {
+        let ndateString = dateString
+        if (dateString.startsWith("f")) {
+            ndateString = dateString.replace("f", "").replace("h", ":").replace("m", ":").replace("-", "/").replace("_", " ")
+        } else if (dateString.startsWith("d")) {
+            let arr = dateString.replace("d", "").split("-")
+            ndateString = `${arr[1]}/${arr[0]}/${arr[2]}`
+        } else if (dateString.startsWith("w")) {
+            let arr = dateString.replace("w", "").split("-")
+            let days = addZero((parseInt(arr[0])) * 7)
+            ndateString = `${arr[1]}/${days}/${arr[2]}`
+        } 
+        d = new Date(ndateString)
+    } else {
+        d = new Date(dateString)
     }
+    return d
+}
 
-    const readDateStringInput = (dateString?:string|number):Date => {
-        // if datestring is in a customformat, parse it
-        if (typeof dateString === "string") {
-            let ndateString = dateString
-            if (dateString.startsWith("f")) {
-                ndateString = dateString.replace("f", "").replace("h", ":").replace("m", ":").replace("-", "/").replace("_", " ")
-            } else if (dateString.startsWith("d")) {
-                let arr = dateString.replace("d", "").split("-")
-                ndateString = `${arr[1]}/${arr[0]}/${arr[2]}`
-            } else if (dateString.startsWith("w")) {
-                let arr = dateString.replace("w", "").split("-")
-                let days = addZero((parseInt(arr[0])) * 7)
-                ndateString = `${arr[1]}/${days}/${arr[2]}`
-            } 
-            d = new Date(ndateString)
-        } else {
-            d = new Date(dateString)
-        }
-        return d
-    }
+export const getDateObj = (dateString?:string|number) => {
 
-    d = readDateStringInput(dateString)
+    let d = readDateStringInput(dateString)
+    
    
  
     let year = d.getFullYear()
@@ -57,6 +61,7 @@ export const getDateObj = (dateString?:string|number) => {
         if (format === "week") dateString = `w${getWeekNb()}-${smonth}-${year}`
         return `${dateString}`
     }
+    
 
     return {
         year:syear, month:smonth, day:sday, hour, min, 
