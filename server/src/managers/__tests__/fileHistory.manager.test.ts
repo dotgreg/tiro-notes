@@ -1,7 +1,6 @@
 import { iApiDictionary } from "../../../../shared/apiDictionary.type"
 import { getDateObj } from "../../../../shared/helpers/date.helper"
 import { createFileHistoryVersion, TEST_fileHistory_internals } from "../fileHistory.manager"
-import { fileExists, openFile } from "../fs.manager"
 import { testHelpers } from "./test.helpers"
 
 const folder = testHelpers.fs.params.folderPath
