@@ -1,7 +1,10 @@
+import { isArray } from "lodash"
 import { iApiDictionary } from "../../../../shared/apiDictionary.type"
 import { getDateObj } from "../../../../shared/helpers/date.helper"
+import { sleep } from "../../helpers/sleep.helper"
+import { scanDirForFiles } from "../dir.manager"
 import { createFileHistoryVersion, TEST_fileHistory_internals } from "../fileHistory.manager"
-import { testHelpers } from "./test.helpers"
+import { testHelpers } from "../test.helpers"
 
 const folder = testHelpers.fs.params.folderPath
 const testFilePath = folder + '/folder1/file_test.md'
@@ -24,8 +27,8 @@ let f1 = TEST_createHistFileInfos("01/10/2023 10:20", "1111111111")
 let f2 = TEST_createHistFileInfos("01/10/2023 15:20", "222222222222")
 
 // these should be one left d15_11
-let f3 = TEST_createHistFileInfos("11/15/2023 15:20", "33333333333")
-let f4 = TEST_createHistFileInfos("11/15/2023 15:20", "444444444444"
+let f3 = TEST_createHistFileInfos("10/15/2023 15:20", "33333333333")
+let f4 = TEST_createHistFileInfos("10/15/2023 16:20", "444444444444"
 )
 // these should be kept
 let f5 = TEST_createHistFileInfos("12/01/2023 01:20", "55555555555555")
@@ -80,7 +83,24 @@ test('housekeeping: if last history file +1day, start housekeeping process', asy
     
     await processFileHistoryHousekeeping(f1.historyFile, date_housekeeping)
 
-    expect(1).toStrictEqual(2)
+    let files = await scanDirForFiles(f1.historyFile.folder)
+    if (!isArray(files)) {
+        expect("files").toStrictEqual("is not an array")
+    } else {
+        console.log(files)
+
+        let histFileMoreThanMonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___d15-10-2023").length === 1
+        expect(histFileMoreThanMonthExists).toStrictEqual(true)
+        
+        let histFileMoreThan6MonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___w2-01-2023").length === 1
+        expect(histFileMoreThan6MonthExists).toStrictEqual(true)
+        
+        let histFileLessThanMonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___f12-01-2023_01h20m").length === 1
+        expect(histFileLessThanMonthExists).toStrictEqual(true)
+        
+        expect(files.length).toStrictEqual(4)
+    }
+
 })
 
 

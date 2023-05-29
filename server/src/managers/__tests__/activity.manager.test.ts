@@ -1,6 +1,6 @@
-import { iActivityLog } from "../../../../shared/types.shared";
+import { getDateObj } from "../../../../shared/helpers/date.helper";
+import { iActivityLog, iDateObj } from "../../../../shared/types.shared";
 import {  generateReportFromDbs,   processTimeBatchInt, getReportPaths } from "../activity.manager";
-import { getDateObj, iDateObj } from "../date.manager";
 
 const getDate = ():iDateObj => {
     return getDateObj(`2023/05/27 16:58`)
