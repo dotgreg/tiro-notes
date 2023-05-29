@@ -11,15 +11,17 @@ import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } fr
 import { debounceCleanHistoryFolder } from "./history.manager"
 import { perf } from "./performance.manager"
 
-const p = {
+export const fileHistoryParams = {
     folder: ".history",
     infosFile: ".infos.md",
+    disableString: `--disable-history--`,
     housekeeping: {
         executionInterval: 24 * 60 * 60 * 1000, // one day
         keepOnePerDay_RuleTime: 1 * 30 * 24 * 60 * 60 * 1000, // after 1 month, keep on version/day
         keepOnePerWeek_RuleTime: 6 * 30 * 24 * 60 * 60 * 1000, // after 6 months , keep on version/week
     }
 }
+const p = fileHistoryParams
 const h = `[FILE HISTORY]`
 
 
@@ -32,6 +34,8 @@ export const createFileHistoryVersion = async (
     data:iApiDictionary["createHistoryFile"],
     date: iDateObj
 ) => {
+    if (data.content.includes(p.disableString)) return // console.log(`[HISTORY] "${p.disableString}" found in data.filepath, NO HISTORY`);
+        
     let histFile = getHistoryFile(data.filePath, date, data.historyFileType)
     await upsertRecursivelyFolders(histFile.path)
     await saveFile(histFile.path, data.content)

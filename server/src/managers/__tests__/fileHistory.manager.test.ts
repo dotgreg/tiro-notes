@@ -23,6 +23,7 @@ const TEST_createHistFileInfos = (datestr:string, content:string) => {
     return {historyFile, date, data}
 }
 
+
 // these should be one left w1_
 let f1 = TEST_createHistFileInfos("01/10/2023 10:20", "1111111111")
 let f2 = TEST_createHistFileInfos("01/10/2023 15:20", "222222222222")
@@ -39,7 +40,7 @@ let date_housekeeping_beforeOneDay = getDateObj("12/02/2023 10:10")
 let date_housekeeping_afterOneDay = getDateObj("12/02/2023 10:30")
 
 
-
+let f6_disableString = TEST_createHistFileInfos("12/01/2023 01:20", "--disable-history-- sfadkjfdlsajlfkdas 55555555555555")
 
 
 
@@ -74,6 +75,19 @@ test('createFileHistoryVersion: a file history version should be created in hist
     expect( await openFile(f2.historyFile.path) ).toStrictEqual(f2.data.content)
 })
 
+
+test('createFileHistoryVersion: should respect --disable-history--', async () => {
+    await testHelpers.fs.cleanFolder()
+    await createFileHistoryVersion(f6_disableString.data, f6_disableString.date)
+    let files = await scanDirForFiles(f6_disableString.historyFile.folder)
+    expect(files.length).toStrictEqual(0)
+
+    await testHelpers.fs.cleanFolder()
+    await createFileHistoryVersion(f5.data, f5.date)
+    let files2 = await scanDirForFiles(f5.historyFile.folder)
+    expect(files2.length).toStrictEqual(1)
+})
+
 // housekeeping: if last history file +1day, start housekeeping process
 test('housekeeping: check housekeeping process results', async () => {
     await testHelpers.fs.cleanFolder()
@@ -106,7 +120,6 @@ test('housekeeping: check housekeeping process results', async () => {
         
         expect(files.length).toStrictEqual(4)
     }
-
 })
 
 test('housekeeping: if lastrun before one day, do nothing', async () => {

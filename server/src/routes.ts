@@ -24,7 +24,7 @@ import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
-import { createFileHistoryVersion, createFileHistoryVersion_OLD, getHistoryFolder } from "./managers/fileHistory.manager";
+import { createFileHistoryVersion, createFileHistoryVersion_OLD, fileHistoryParams, getHistoryFolder } from "./managers/fileHistory.manager";
 import { getDateObj } from "../../shared/helpers/date.helper";
 import { isArray } from "lodash";
 
@@ -233,6 +233,20 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		createFileHistoryVersion(data, getDateObj())
 	}, { checkRole: "editor", disableDataLog: true })
 
+	serverSocket2.on('askFileHistory', async data => {
+		// get all the history files 
+		let endPerf = perf('askFileHistory '+ data.filepath)
+		const file = pathToIfile(data.filepath)
+		const historyFolder = getHistoryFolder(file)
+		let allHistoryFiles = await scanDirForFiles(historyFolder)
+		if (!isArray(allHistoryFiles)) allHistoryFiles = []
+		// filter .infos.md
+		allHistoryFiles = allHistoryFiles.filter(f => f.name !== fileHistoryParams.infosFile)
+		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
+		endPerf()
+	})
+
+
 
 	serverSocket2.on('onFileDelete', async data => {
 		log(`DELETING ${backConfig.dataFolder}${data.filepath}`);
@@ -334,17 +348,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		endPerf()
 	}, { bypassLoginTokenCheck: true, disableDataLog: true })
 
-	serverSocket2.on('askFileHistory', async data => {
-		
-		// get all the history files 
-		let endPerf = perf('askFileHistory '+ data.filepath)
-		const file = pathToIfile(data.filepath)
-		const historyFolder = getHistoryFolder(file)
-		let allHistoryFiles = await scanDirForFiles(historyFolder)
-		if (!isArray(allHistoryFiles)) allHistoryFiles = []
-		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
-		endPerf()
-	})
+	
 
 
 	//
