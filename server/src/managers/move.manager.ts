@@ -1,15 +1,54 @@
 import { info } from "console"
 import { debounce, random } from "lodash"
 import { iApiDictionary } from "../../../shared/apiDictionary.type"
-import { cleanPath, getFileInfos } from "../../../shared/helpers/filename.helper"
+import { cleanPath, getFileInfos, pathToIfile } from "../../../shared/helpers/filename.helper"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFolder } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
 import { normalizeString, removeSpecialChars } from "../helpers/string.helper"
 import { dirDefaultBlacklist, scanDirForFiles } from "./dir.manager"
+import { getHistoryFolder } from "./fileHistory.manager"
 import { fileExists, moveFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager"
 import { log } from "./log.manager"
+import { perf } from "./performance.manager"
 import { ServerSocketManager } from "./socket.manager"
+
+
+export const moveFileLogic = async (initPath:string, endPath:string) => {
+	log(`=> MOVING FILE ${backConfig.dataFolder}${initPath} -> ${endPath}`);
+	let endPerf = perf('moveFile ' + initPath + ' to ' + endPath)
+	// upsert folders if not exists and move file
+	log(`===> 1/5 creating folders ${endPath}`);
+	await upsertRecursivelyFolders(endPath)
+
+	let f1 = getFileInfos(initPath)
+	let f2 = getFileInfos(endPath)
+	if (f1.folder !== f2.folder) {
+		log(`===> 2/5 moveNoteResourcesAndUpdateContent`);
+		await moveNoteResourcesAndUpdateContent(initPath, endPath)
+	} else {
+		log(`===> 2/5 DO NOTHING, SAME FOLDER moveNoteResourcesAndUpdateContent`);
+	}
+
+	log(`===> 3/5 moveFile`);
+	let fullInitPath = `${backConfig.dataFolder}${initPath}`
+	let fullEndPath = `${backConfig.dataFolder}${endPath}`
+	await moveFile(fullInitPath, fullEndPath)
+	
+	log(`===> 4/5 moveFileHistory`);
+	let initFile = pathToIfile(fullInitPath)
+	let endFile = pathToIfile(fullEndPath)
+	if (initFile.extension === "md") {
+		let initFolderHistory = getHistoryFolder(initFile)
+		let endFolderHistory = getHistoryFolder(endFile)
+		await upsertRecursivelyFolders(endFolderHistory)
+		console.log(initFolderHistory, endFolderHistory)
+		await moveFile(initFolderHistory, endFolderHistory)
+	}
+
+
+	endPerf()
+}
 
 export const generateNewFileName = (actualFileName: string): string => `${removeSpecialChars(normalizeString(actualFileName))}-${random(0, 1000)}`
 
@@ -30,9 +69,6 @@ export const generateUniqueAbsFilePath = (absFilePath: string, increment?: numbe
 	}
 }
 
-
-
-
 export const debouncedFolderScan = debounce(
 	async (
 		socket: ServerSocketManager<iApiDictionary>,
@@ -48,10 +84,6 @@ export const debouncedFolderScan = debounce(
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		socket.emit('getFiles', { files: apiAnswer, idReq })
 	}, 100)
-
-
-
-
 
 export const moveNoteResourcesAndUpdateContent = async (initPath: string, endPath: string, simulate: boolean = false) => {
 	if (simulate) log(`[moveNoteResourcesAndUpdateContent] SIMULATE MODE`);

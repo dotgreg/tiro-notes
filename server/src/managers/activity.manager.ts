@@ -55,6 +55,7 @@ export const getActivityReport = async (
     let old = getDateObj(`${now.month}/${now.day}/${now.num.year - 1}`)
     if (!p.startDate) p.startDate = old.date
     if (!p.endDate) p.endDate = now.date
+    if (!p.organizeBy) p.organizeBy = "time"
         
     // "10/31/2023" format
     let startDate = getDateObj(p.startDate)

@@ -44,7 +44,6 @@ export const markdownMobileTitle = (file: iFile, windowId:string) => genericRepl
 	windowId,
 	pattern: regexs.mdTitle,
 	classWrap: matchs => {
-		// console.log(123, matchs)
 		let level = matchs[1].length
 		// let line = matchs[0].trim()
 		// if (line.startsWith("|")) line = line.substring(1)

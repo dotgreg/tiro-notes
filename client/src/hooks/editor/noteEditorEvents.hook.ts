@@ -22,8 +22,6 @@ export const useNoteEditorEvents = (p: {
 
 	useEffect(() => {
 		setHasBeenEdited(false);
-		console.log(123, hasBeenEdited, p.file.path)
-
 		if (p.onEditorDidMount) {
 			// console.log('[EVENTS EDITOR] EDITOR DID MOUNT');
 			p.onEditorDidMount()
