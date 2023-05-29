@@ -31,7 +31,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 76,
+									"line": 118,
 									"character": 1
 								}
 							],
@@ -51,7 +51,27 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 75,
+									"line": 117,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 160,
+							"name": "filenameWithoutExt",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 122,
 									"character": 1
 								}
 							],
@@ -69,7 +89,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 79,
+									"line": 121,
 									"character": 1
 								}
 							],
@@ -89,7 +109,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 78,
+									"line": 120,
 									"character": 1
 								}
 							],
@@ -109,7 +129,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 77,
+									"line": 119,
 									"character": 1
 								}
 							],
@@ -127,7 +147,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 72,
+									"line": 114,
 									"character": 1
 								}
 							],
@@ -145,13 +165,13 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 71,
+									"line": 113,
 									"character": 1
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 169,
+								"id": 170,
 								"name": "iFileNature"
 							}
 						},
@@ -164,7 +184,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 74,
+									"line": 116,
 									"character": 1
 								}
 							],
@@ -182,7 +202,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 73,
+									"line": 115,
 									"character": 1
 								}
 							],
@@ -199,6 +219,7 @@
 							"children": [
 								156,
 								155,
+								160,
 								159,
 								158,
 								157,
@@ -212,20 +233,20 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 70,
+							"line": 112,
 							"character": 17
 						}
 					]
 				},
 				{
-					"id": 166,
+					"id": 167,
 					"name": "iIframeMessage",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {},
 					"children": [
 						{
-							"id": 167,
+							"id": 168,
 							"name": "action",
 							"kind": 1024,
 							"kindString": "Property",
@@ -239,12 +260,12 @@
 							],
 							"type": {
 								"type": "reference",
-								"id": 170,
+								"id": 171,
 								"name": "iIframeActions"
 							}
 						},
 						{
-							"id": 168,
+							"id": 169,
 							"name": "data",
 							"kind": 1024,
 							"kindString": "Property",
@@ -267,8 +288,8 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								167,
-								168
+								168,
+								169
 							]
 						}
 					],
@@ -431,7 +452,7 @@
 					}
 				},
 				{
-					"id": 160,
+					"id": 161,
 					"name": "iApiCall",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -446,7 +467,7 @@
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 161,
+							"id": 162,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -460,14 +481,14 @@
 							],
 							"signatures": [
 								{
-									"id": 162,
+									"id": 163,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 163,
+											"id": 164,
 											"name": "apiName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -478,7 +499,7 @@
 											}
 										},
 										{
-											"id": 164,
+											"id": 165,
 											"name": "apiArguments",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -492,7 +513,7 @@
 											}
 										},
 										{
-											"id": 165,
+											"id": 166,
 											"name": "cb",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -517,7 +538,7 @@
 					}
 				},
 				{
-					"id": 169,
+					"id": 170,
 					"name": "iFileNature",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -525,7 +546,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 21,
+							"line": 63,
 							"character": 12
 						}
 					],
@@ -544,7 +565,7 @@
 					}
 				},
 				{
-					"id": 170,
+					"id": 171,
 					"name": "iIframeActions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -597,7 +618,7 @@
 					"kind": 256,
 					"children": [
 						150,
-						166
+						167
 					]
 				},
 				{
@@ -605,9 +626,9 @@
 					"kind": 4194304,
 					"children": [
 						142,
-						160,
-						169,
-						170
+						161,
+						170,
+						171
 					]
 				}
 			]
@@ -1384,7 +1405,7 @@
 													"flags": {},
 													"type": {
 														"type": "reference",
-														"id": 166,
+														"id": 167,
 														"name": "iIframeMessage"
 													}
 												}
@@ -1462,7 +1483,7 @@
 																			"flags": {},
 																			"type": {
 																				"type": "reference",
-																				"id": 166,
+																				"id": 167,
 																				"name": "iIframeMessage"
 																			}
 																		}
@@ -1810,7 +1831,7 @@
 									],
 									"type": {
 										"type": "reference",
-										"id": 160,
+										"id": 161,
 										"name": "iApiCall"
 									},
 									"defaultValue": "callApi"
