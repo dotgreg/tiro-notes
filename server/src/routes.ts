@@ -3,8 +3,7 @@ import { backConfig } from "./config.back";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
-import { dateId, formatDateHistory, formatDateNewNote, getDateObj } from "./managers/date.manager";
-import { focusOnWinApp } from "./managers/win.manager";
+import { dateId, formatDateNewNote } from "./managers/date.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
 import { iFile, iFolder, iPlugin } from "../../shared/types.shared";
@@ -14,7 +13,6 @@ import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getUserToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
-import { debounceCleanHistoryFolder } from "./managers/history.manager";
 import { getFolderPath } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
@@ -26,7 +24,6 @@ import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
-import { getUserSettings } from "./managers/userSettings.manager";
 import { createFileHistoryVersion_OLD } from "./managers/fileHistory.manager";
 
 const serverTaskId = { curr: -1 }

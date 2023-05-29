@@ -474,7 +474,7 @@ export const App = () => {
 														folder,
 														folderToDropInto: defaultTrashFolder,
 														folderBasePath,
-														newTitle: `${newTitle}_${getDateObj().full_file}`,
+														newTitle: `${folder.title}_${getDateObj().full_file}`,
 														onMoveFn: () => {
 															askForFolderScan([getParentFolder(folder.path)], {
 																cache: false,
