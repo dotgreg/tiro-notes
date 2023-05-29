@@ -18,7 +18,7 @@ import { ServerSocketManager } from './socket.manager'
 var fs = require('fs')
 const path = require('path')
 
-export let dirDefaultBlacklist = ['.resources', '_resources', '.DS_Store']
+export let dirDefaultBlacklist = ['.resources','.history', '_resources', '.DS_Store']
 
 export const createDir = async (path: string, mask: number = 0o775): Promise<null | string> => {
 	return new Promise((resolve, reject) => {

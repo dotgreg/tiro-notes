@@ -24,7 +24,7 @@ const h = `[FILE HISTORY]`
 
 
 //
-// NEW
+// NEW EXPORT
 //
 
 
@@ -41,6 +41,11 @@ export const createFileHistoryVersion = async (
     setTimeout(() => {
         processFileHistoryHousekeeping(histFile, date)
     }, 1000)
+}
+
+export const getHistoryFolder = (file:iFile) => {
+    let path =cleanPath(`${file.folder}/${p.folder}/${file.filenameWithoutExt}`)
+    return path
 }
 
 
@@ -106,10 +111,11 @@ const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj)
 
 }
 
+
 const getHistoryFile = (filePath:string, date:iDateObj, action:string):iFile => {
     let file = pathToIfile(filePath)
     let histFileName = generateHistFilename(`${file.filenameWithoutExt}_${action}`, date, "full")
-    let path = cleanPath(`${file.folder}/${p.folder}/${file.filenameWithoutExt}/${histFileName}`)
+    let path = cleanPath(`${getHistoryFolder(file)}/${histFileName}`)
     let res = pathToIfile(path)
     return res
 }

@@ -18,13 +18,15 @@ import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString } from "./managers/exec.manager";
-import { getFileInfos } from "../../shared/helpers/filename.helper";
+import { getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
 import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
-import { createFileHistoryVersion_OLD } from "./managers/fileHistory.manager";
+import { createFileHistoryVersion, createFileHistoryVersion_OLD, getHistoryFolder } from "./managers/fileHistory.manager";
+import { getDateObj } from "../../shared/helpers/date.helper";
+import { isArray } from "lodash";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -226,8 +228,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('createHistoryFile', async data => {
-		createFileHistoryVersion_OLD(data)
-		console.log(data)
+		// createFileHistoryVersion_OLD(data)
+		// console.log(data)
+		createFileHistoryVersion(data, getDateObj())
 	}, { checkRole: "editor", disableDataLog: true })
 
 
@@ -334,17 +337,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askFileHistory', async data => {
 		
 		// get all the history files 
-		const historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
-		let endPerf = perf('askFileHistory '+ historyFolder)
-		const allHistoryFiles = await scanDirForFiles(historyFolder)
-		const fileNameToSearch = fileNameFromFilePath(data.filepath)
-		const historyFiles: iFile[] = []
-		if (typeof allHistoryFiles === 'string') return
-		for (let i = 0; i < allHistoryFiles.length; i++) {
-			const file = allHistoryFiles[i];
-			if (file.name.includes(fileNameToSearch)) historyFiles.push(file)
-		}
-		serverSocket2.emit('getFileHistory', { files: historyFiles })
+		let endPerf = perf('askFileHistory '+ data.filepath)
+		const file = pathToIfile(data.filepath)
+		const historyFolder = getHistoryFolder(file)
+		let allHistoryFiles = await scanDirForFiles(historyFolder)
+		if (!isArray(allHistoryFiles)) allHistoryFiles = []
+		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
 		endPerf()
 	})
 
