@@ -26,6 +26,8 @@ const h = `[FILE HISTORY]`
 //
 // NEW
 //
+
+
 export const createFileHistoryVersion = async (
     data:iApiDictionary["createHistoryFile"],
     date: iDateObj
@@ -33,6 +35,12 @@ export const createFileHistoryVersion = async (
     let histFile = getHistoryFile(data.filePath, date, data.historyFileType)
     await upsertRecursivelyFolders(histFile.path)
     await saveFile(histFile.path, data.content)
+
+    // start the housekeeping process detached and abit later
+    // otherwise will mess with tests
+    setTimeout(() => {
+        processFileHistoryHousekeeping(histFile, date)
+    }, 1000)
 }
 
 
