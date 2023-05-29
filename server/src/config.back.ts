@@ -21,7 +21,7 @@ if (jsonConfig) {
 }
 
 // LOADING CONFIG FILE
-const dataFolder = getDataFolder()
+const dataFolder = getDataFolder() 
 export const backConfig = {
 	dataFolder,
 	frontendBuildFolder: relativeToAbsolutePath('./client', true),

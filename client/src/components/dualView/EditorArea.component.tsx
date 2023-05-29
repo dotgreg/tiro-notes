@@ -98,14 +98,14 @@ const EditorAreaInt = (
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
 			setInnerFileContent(newContent)
-			p.onFileEdited(p.file.path, newContent)
-
 			// IF FIRST EDITION, backup old file
 			if (isFirstEdition) {
 				getApi(api => {
 					api.history.save(p.file.path, p.fileContent, 'enter')
 				})
 			}
+
+			p.onFileEdited(p.file.path, newContent)
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)

@@ -1,6 +1,5 @@
-import { iActivityReport } from "../server/src/managers/activity.manager";
 import { iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReportParams, iAppView, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {

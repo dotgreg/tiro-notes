@@ -3,7 +3,7 @@ import { backConfig } from "./config.back";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
-import { dateId, formatDateHistory, formatDateNewNote, getDateTime } from "./managers/date.manager";
+import { dateId, formatDateHistory, formatDateNewNote, getDateObj } from "./managers/date.manager";
 import { focusOnWinApp } from "./managers/win.manager";
 import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
@@ -27,6 +27,7 @@ import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
 import { getUserSettings } from "./managers/userSettings.manager";
+import { createFileHistoryVersion_OLD } from "./managers/fileHistory.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -228,28 +229,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('createHistoryFile', async data => {
-		let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
-		let endPerf = perf('createHistoryFile ' + data.filePath)
-		// IF path is inside history folder, do NOT BACKUP
-		if (data.filePath.includes(historyFolder)) return
-
-		// IF data.content contains --disable-history-- do NOT BACKUP
-		const disableString = `--disable-history--`
-		if (data.content.includes(disableString)) {
-			console.log(`[HISTORY] "${disableString}" found in data.filepath, NO HISTORY`);
-		} else {
-
-			await upsertRecursivelyFolders(`${historyFolder}/`)
-
-			// save history note
-			let fileName = fileNameFromFilePath(data.filePath)
-			fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
-			await saveFile(`${historyFolder}/${fileName}`, data.content)
-
-			// only keep up to x days of history files
-			debounceCleanHistoryFolder()
-			endPerf()
-		}
+		createFileHistoryVersion_OLD(data)
+		console.log(data)
 	}, { checkRole: "editor", disableDataLog: true })
 
 

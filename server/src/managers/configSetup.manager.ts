@@ -52,9 +52,9 @@ export const tryLoadJsonConfig = () => {
 	}
 }
 
-export const getDataFolder = () => {
+export const getDataFolder = ():string => {
 	const jsonConfig = tryLoadJsonConfig();
-	return (jsonConfig && jsonConfig.dataFolder) ? relativeToAbsolutePath(jsonConfig.dataFolder) : undefined
+	return (jsonConfig && jsonConfig.dataFolder) ? relativeToAbsolutePath(jsonConfig.dataFolder) : ""
 }
 
 

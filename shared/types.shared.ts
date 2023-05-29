@@ -1,3 +1,5 @@
+import { getDateObj } from "./helpers/date.helper"
+
 export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"|"weight"
 export type iActivityFilter= "file"| "time"|  "ip"
 export interface iActivityReportParams {
@@ -12,6 +14,8 @@ export interface iActivityReport {
 export type iActivityLog = {
     eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
 }
+
+export type iDateObj = ReturnType<typeof getDateObj>
 
 export type iNotificationType = "normal" | "warning" | "error"
 export type iNotification = { 
@@ -115,6 +119,7 @@ export interface iFile {
 	modified?: number
 	index?: number
 	folder: string
+	filenameWithoutExt?: string
 }
 
 export type metaContent = string | number
