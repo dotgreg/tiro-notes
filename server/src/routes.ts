@@ -4,7 +4,7 @@ import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } f
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateNewNote } from "./managers/date.manager";
-import { debouncedFolderScan, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
+import { debouncedFolderScan, moveFileLogic, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
 import { iFile, iFolder, iPlugin } from "../../shared/types.shared";
 import { getFilesPreviewLogic } from "./managers/filePreview.manager";
@@ -189,32 +189,13 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFile', async data => {
-		log(`=> MOVING FILE ${backConfig.dataFolder}${data.initPath} -> ${data.endPath}`);
-		let endPerf = perf('moveFile ' + data.initPath + ' to ' + data.endPath)
-		// upsert folders if not exists and move file
-		log(`===> 1/4 creating folders ${data.endPath}`);
-		await upsertRecursivelyFolders(data.endPath)
-
-		let f1 = getFileInfos(data.initPath)
-		let f2 = getFileInfos(data.endPath)
-		if (f1.folder !== f2.folder) {
-			log(`===> 2/4 moveNoteResourcesAndUpdateContent`);
-			await moveNoteResourcesAndUpdateContent(data.initPath, data.endPath)
-		} else {
-			log(`===> 2/4 DO NOTHING, SAME FOLDER moveNoteResourcesAndUpdateContent`);
-
-		}
-
-		log(`===> 3/4 moveFile`);
-		await moveFile(`${backConfig.dataFolder}${data.initPath}`, `${backConfig.dataFolder}${data.endPath}`)
-
+		await moveFileLogic(data.initPath, data.endPath)
+		
 		// rescan the current dir
 		log(`===> 4/4 debouncedScanAfterMove`);
 		await debouncedFolderScan(serverSocket2, data.initPath, data.idReq)
-		// await debouncedHierarchyScan(socket)
 
 		serverSocket2.emit('moveFileAnswer', { idReq: data.idReq })
-		endPerf()
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('moveFolder', async data => {

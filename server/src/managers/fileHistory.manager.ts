@@ -44,7 +44,7 @@ export const createFileHistoryVersion = async (
     // otherwise will mess with tests
     setTimeout(() => {
         processFileHistoryHousekeeping(histFile, date)
-    }, 1000)
+    }, 10000)
 }
 
 export const getHistoryFolder = (file:iFile) => {
