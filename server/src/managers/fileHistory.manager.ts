@@ -2,6 +2,7 @@ import { iApiDictionary } from "../../../shared/apiDictionary.type"
 import { cleanPath, pathToIfile } from "../../../shared/helpers/filename.helper"
 import { iDateObj, iFile } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
+import { sleep } from "../helpers/sleep.helper"
 import { formatDateHistory } from "./date.manager"
 import { fileNameFromFilePath } from "./dir.manager"
 import { saveFile, upsertRecursivelyFolders } from "./fs.manager"
@@ -22,11 +23,8 @@ export const createFileHistoryVersion = async (
     date: iDateObj
 ) => {
     let histFile = getHistoryFile(data.filePath, date, data.historyFileType)
-    console.log(histFile.path, data.content)
     await upsertRecursivelyFolders(histFile.path)
-    console.log(111)
     await saveFile(histFile.path, data.content)
-    console.log(1113)
 }
 
 

@@ -7,6 +7,10 @@ const cleanFolder = async () => {
     await fsApi.deleteFolder(testFolderPath)
 }
 
+const sleep = (ms:number)  => {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 const testHelperFs = {
     params: {
         folderPath: testFolderPath
@@ -15,5 +19,8 @@ const testHelperFs = {
 }
 
 export const testHelpers = {
-    fs: testHelperFs
+    fs: testHelperFs,
+    utils: {
+        sleep
+    }
 }
