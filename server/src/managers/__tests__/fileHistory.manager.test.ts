@@ -2,7 +2,6 @@ import { iApiDictionary } from "../../../../shared/apiDictionary.type"
 import { getDateObj } from "../../../../shared/helpers/date.helper"
 import { createFileHistoryVersion, fileHistoryParams, TEST_fileHistory_internals } from "../fileHistory.manager"
 import { fileExists, openFile } from "../fs.manager"
-import { getFolderPath } from "../path.manager"
 import { testHelpers } from "./test.helpers"
 
 const folder = testHelpers.fs.params.folderPath
@@ -33,14 +32,17 @@ test('createFileHistoryVersion: create a file history version', async () => {
     await createFileHistoryVersion(data, d)
     // file /_auto_tests/folder1/.history/file_test.md/filename_enter_date.md should exists
     // const res = [await fileExists(historyFile.path), await openFile(historyFile.path) === data.content]
-    // console.log(333, res)
 
-    let r1 = await fileExists(historyFile.path)
-    console.log(3334, r1, historyFile.path) 
- 
+    // console.log(11, await fileExists(historyFile.path))
+    // console.log(22, await openFile(historyFile.path))
+  
     expect( 
-        1 
+        await fileExists(historyFile.path)
     ).toStrictEqual(true)
+    
+    expect( 
+        await openFile(historyFile.path)
+    ).toStrictEqual(data.content)
      
   
     // clean folder

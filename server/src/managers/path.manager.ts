@@ -34,6 +34,11 @@ export const getRelativePath = (pathFile: string): string => {
 	}
 	return pathFile
 }
+// export const getAbsolutePath = (pathFile: string): string => {
+// 	let res = getRelativePath(pathFile)
+// 	res = cleanPath(backConfig.dataFolder + res)
+// 	return res
+// }
 
 export const relativeToAbsolutePath = (pathFile: string, insideSnapshot: boolean = false): string => {
 
@@ -46,10 +51,10 @@ export const relativeToAbsolutePath = (pathFile: string, insideSnapshot: boolean
 		pathFile = ''
 	}
 
-	// if (backConfig && backConfig.dataFolder) {
-	//     pathFile = pathFile.split(backConfig.dataFolder).join('')
-	//     pathFile = `${backConfig.dataFolder}${pathFile}`
-	// }
+	if (backConfig && backConfig.dataFolder) {
+	    pathFile = pathFile.split(backConfig.dataFolder).join('')
+	    pathFile = `${backConfig.dataFolder}${pathFile}`
+	}
 
 	let res = pathFile
 	let rootFolder

@@ -4,7 +4,7 @@ import { sharedConfig } from "../../../shared/shared.config";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
-import { getAppPathBase, p } from "./path.manager";
+import { p } from "./path.manager";
 
 // var http = require('http');
 // var https = require('https');
@@ -18,10 +18,10 @@ var fs = require('fs');
 //////////////////////////
 
 const h = `[FS FILE]`
-// const shouldLog = sharedConfig.server.log.fs
-const shouldLog = true
+const shouldLog = sharedConfig.server.log.fs
+// const shouldLog = true
 
-export interface iMetadataFile {
+export default interface iMetadataFile {
 	name: string
 }
 
@@ -66,6 +66,7 @@ export const upsertRecursivelyFolders = async (fullPathToCheck: string) => {
 	fullPathToCheck = p(fullPathToCheck)
 	// check for each folder if it exists, else create it
 	fullPathToCheck = fullPathToCheck.replace(backConfig.dataFolder, '')
+
 	let pathArr = fullPathToCheck.split('/')
 	const lastItem = pathArr[pathArr.length - 1]
 	if (looksLikeAFile(lastItem)) pathArr.pop()// remove object.jpg, if lastItem looks like a file 
@@ -112,6 +113,9 @@ export const saveFile = async (path: string, content: string): Promise<void> => 
 	path = p(path)
 	const h = `[SAVEFILE]`
 	shouldLog && log(`${h} starting save ${path}`);
+
+	path = p(path)
+
 	try {
 		await fs.writeFileSync(path, content)
 	} catch (error) {
