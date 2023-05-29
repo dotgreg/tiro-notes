@@ -6,7 +6,7 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
 ];
 const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "June",
 	"July", "Aug", "Sept", "Oct", "Nov", "Dec"
-];
+];  
 
 export const formatDateEditor = (d: Date): string => {
 	var datestring = d.getDate() + "  " + monthNames[d.getMonth()] + " " + d.getFullYear() + " at " +
