@@ -17,7 +17,7 @@ test('getHistoryFile',  () => {
     // ).toStrictEqual(1);
 })
 
-test('createFileHistoryVersion: create a file history version', async () => {
+test('createFileHistoryVersion: a file history version should be created in history folder', async () => {
     await testHelpers.fs.cleanFolder()
 
     const data:iApiDictionary["createHistoryFile"] = {
@@ -29,13 +29,9 @@ test('createFileHistoryVersion: create a file history version', async () => {
     let d = getDateObj("10/30/2023 10:20")
     let historyFile = getHistoryFile(data.filePath, d, data.historyFileType)
     
-    await createFileHistoryVersion(data, d)
     // file /_auto_tests/folder1/.history/file_test.md/filename_enter_date.md should exists
-    // const res = [await fileExists(historyFile.path), await openFile(historyFile.path) === data.content]
+    await createFileHistoryVersion(data, d)
 
-    // console.log(11, await fileExists(historyFile.path))
-    // console.log(22, await openFile(historyFile.path))
-  
     expect( 
         await fileExists(historyFile.path)
     ).toStrictEqual(true)
@@ -43,9 +39,9 @@ test('createFileHistoryVersion: create a file history version', async () => {
     expect( 
         await openFile(historyFile.path)
     ).toStrictEqual(data.content)
-     
-  
-    // clean folder
-    // await testHelpers.fs.cleanFolder()
     
 })
+
+// if we rename a file, it should also rename its history folder
+// if we move a file, it should also move its history folder
+// housekeeping: if last history file +1day, start housekeeping process
