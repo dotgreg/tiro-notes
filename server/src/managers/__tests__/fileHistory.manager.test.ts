@@ -35,6 +35,8 @@ let f4 = TEST_createHistFileInfos("10/15/2023 16:20", "444444444444"
 let f5 = TEST_createHistFileInfos("12/01/2023 01:20", "55555555555555")
 
 let date_housekeeping = getDateObj("12/01/2023 10:20")
+let date_housekeeping_beforeOneDay = getDateObj("12/02/2023 10:10")
+let date_housekeeping_afterOneDay = getDateObj("12/02/2023 10:30")
 
 
 
@@ -73,7 +75,7 @@ test('createFileHistoryVersion: a file history version should be created in hist
 })
 
 // housekeeping: if last history file +1day, start housekeeping process
-test('housekeeping: if last history file +1day, start housekeeping process', async () => {
+test('housekeeping: check housekeeping process results', async () => {
     await testHelpers.fs.cleanFolder()
 
     await createFileHistoryVersion(f1.data, f1.date)
@@ -107,6 +109,39 @@ test('housekeeping: if last history file +1day, start housekeeping process', asy
 
 })
 
+test('housekeeping: if lastrun before one day, do nothing', async () => {
+    await testHelpers.fs.cleanFolder()
+
+    // do a first housekeeping
+    await createFileHistoryVersion(f5.data, f5.date)
+    await processFileHistoryHousekeeping(f1.historyFile, date_housekeeping)
+    
+    // create some old files
+    await createFileHistoryVersion(f1.data, f1.date)
+    await createFileHistoryVersion(f2.data, f2.date)
+    await createFileHistoryVersion(f3.data, f3.date)
+    await createFileHistoryVersion(f4.data, f4.date)
+    
+    // and do a second one that should not start, thus not compress old files
+    await processFileHistoryHousekeeping(f1.historyFile, date_housekeeping_beforeOneDay)
+    let files = await scanDirForFiles(f1.historyFile.folder)
+    if (!isArray(files)) {
+        expect("files").toStrictEqual("is not an array")
+    } else {
+        // normally should have 4 files if processFileHistoryHousekeeping could have passed
+        // so 6 shows it could not pass
+        expect(files.length).toStrictEqual(6)
+    }
+
+    // the third pass at day+1+10m, should now work
+    await processFileHistoryHousekeeping(f1.historyFile, date_housekeeping_afterOneDay)
+    let files2 = await scanDirForFiles(f1.historyFile.folder)
+    if (!isArray(files2)) {
+        expect("files2").toStrictEqual("is not an array")
+    } else {
+        expect(files2.length).toStrictEqual(4)
+    }
+})
 
  
 
