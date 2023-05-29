@@ -122,11 +122,6 @@ export const saveFile = async (path: string, content: string): Promise<void> => 
 		console.log(h, error)
 		return error 
 	}
-	// 	fs.writeFile(path, content, (err) => {
-	// 		if (err) { shouldLog && log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
-	// 		else resolve()
-	// 	});
-	// })
 }
 
 export const prependToFile = async (path: string, content: string): Promise<void> => {

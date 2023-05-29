@@ -51,8 +51,8 @@ const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj)
         try {
             const infos = JSON.parse(await openFile(infosFilePath))
             if (
-                !infos.last || 
-                currDate.num.timestamp >  infos.last + p.housekeeping.executionInterval
+                !infos.lastrun || 
+                currDate.num.timestamp >  infos.lastrun + p.housekeeping.executionInterval
                 ) shouldProceed = true
         } catch (error) {
             shouldProceed = true
@@ -63,7 +63,7 @@ const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj)
 
     if (!shouldProceed) return
     // update the infosFile
-    await saveFile(infosFilePath, JSON.stringify({last: currDate.num.timestamp}))
+    await saveFile(infosFilePath, JSON.stringify({lastrun: currDate.num.timestamp}))
 
     // get all files of the folder
     let resScan = await scanDirForFiles(histFile.folder)
