@@ -173,9 +173,7 @@ export const deleteFolder = async (path: string): Promise<void> => {
 	try {
 		if (fs.existsSync(path)) {
 			shouldLog && console.log(`${h} Deleting folder ${path}`)
-			await fs.rm(path, { recursive: true }, () => {
-				return
-			})
+			await fs.rmSync(path, { recursive: true })
 		} else {
 			shouldLog && console.log(`${h} ${path} does not exists, do nothing`)
 		}

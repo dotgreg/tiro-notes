@@ -71,29 +71,29 @@ const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj)
     if (isString(resScan)) return console.log(h, resScan)
     // for each file
     each(resScan, f => {
-        // // dont take .infos
-        // if (f.filenameWithoutExt.startsWith(".")) return
-        // // get its date
-        // const fileArr = f.filenameWithoutExt.split("___")
-        // const timestamp = parseInt(`${fileArr[fileArr.length-1].replace("dt","")}000`)
-        // fileArr.pop() // removing timestamp
-        // fileArr.pop() // removing date
-        // const realFileName = fileArr.join("___") // only keep name
-        // const fDate = getDateObj(timestamp)
+        // dont take .infos
+        if (f.filenameWithoutExt.startsWith(".")) return
+        // get its date
+        const fileArr = f.filenameWithoutExt.split("___")
+        const dateFormated = fileArr[fileArr.length-1]
+        const timestamp = getDateObj(dateFormated).num.timestamp
+        fileArr.pop() // removing date
+        const realFileName = fileArr.join("___") // only keep name
+        const fDate = getDateObj(timestamp)
  
-        // if ( fDate.num.timestamp + p.housekeeping.keepOnePerWeek_RuleTime < currDate.num.timestamp ) {
-        //     // if it is > 6 months, keep one per week
-        //     // rename it "w3-03-2022.md"
-        //     let newName = generateHistFilename(`${realFileName}`, fDate, "week")
-        //     let newPath = `${f.folder}${newName}`
-        //     moveFile(f.path, newPath)
-        // } else if ( fDate.num.timestamp + p.housekeeping.keepOnePerDay_RuleTime < currDate.num.timestamp ) {
-        //     // if it is > 1 months, keep one per day
-        //     // rename it "d31-03-2022"
-        //     let newName = generateHistFilename(`${realFileName}`, fDate, "day")
-        //     let newPath = `${f.folder}${newName}`
-        //     moveFile(f.path, newPath)
-        // }
+        if ( fDate.num.timestamp + p.housekeeping.keepOnePerWeek_RuleTime < currDate.num.timestamp ) {
+            // if it is > 6 months, keep one per week
+            // rename it "w3-03-2022.md"
+            let newName = generateHistFilename(`${realFileName}`, fDate, "week")
+            let newPath = `${f.folder}${newName}`
+            moveFile(f.path, newPath)
+        } else if ( fDate.num.timestamp + p.housekeeping.keepOnePerDay_RuleTime < currDate.num.timestamp ) {
+            // if it is > 1 months, keep one per day
+            // rename it "d31-03-2022"
+            let newName = generateHistFilename(`${realFileName}`, fDate, "day")
+            let newPath = `${f.folder}${newName}`
+            moveFile(f.path, newPath)
+        }
     })
 
 }
@@ -106,10 +106,7 @@ const getHistoryFile = (filePath:string, date:iDateObj, action:string):iFile => 
     return res
 }
 const generateHistFilename = (filename:string, date:iDateObj, dateType:"full"|"day"|"week") => {
-    let dateString = `f${date.full_file}`
-    if (dateType === "day") dateString = `d${date.day}-${date.month}-${date.year}`
-    if (dateType === "week") dateString = `w${date.getWeekNb()}-${date.month}-${date.year}`
-    return `${filename}___${dateString}.md`
+    return `${filename}___${date.getCustomFormat(dateType)}.md`
 }
 
 //

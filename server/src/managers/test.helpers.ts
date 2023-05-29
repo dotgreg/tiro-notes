@@ -1,4 +1,4 @@
-import * as fsApi from "../fs.manager"
+import * as fsApi from "./fs.manager"
 const h = `[TEST HELPERS]`
 const testFolderPath = `/_auto_tests`
 
