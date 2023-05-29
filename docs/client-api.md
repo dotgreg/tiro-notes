@@ -118,6 +118,20 @@
  
 
 
+ ## Api.call : activity
+ 
+
+#### <span class="render-code-wrapper">activity.getReport</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. params: <span class="render-code-wrapper"><a href="#client-api?id=iactivityreportparams">iActivityReportParams</a></span>
+    - Result: <span class="render-code-wrapper">(report: <span class="render-code-wrapper"><a href="#client-api?id=iactivityreport">iActivityReport</a></span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"activity.getReport",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iactivityreportparams">iActivityReportParams</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(report: <span class="render-code-wrapper"><a href="#client-api?id=iactivityreport">iActivityReport</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : analytics
  
 
@@ -846,10 +860,10 @@ noteLink should be relative from tiro folder
 
 #### <span class="render-code-wrapper">userSettings.list</span>
  - Type: <span class="render-code-wrapper">Function</span> 
-    - Result: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=keyval">keyVal</a></span>[]</span> 
+    - Result: <span class="render-code-wrapper"></span> 
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.list",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:<span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=keyval">keyVal</a></span>[]</span>) => {}<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.list",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:<span class="render-code-wrapper"></span>) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">userSettings.set</span>
@@ -912,6 +926,30 @@ Watch for file changes
  ## Api.call : _References
  
 
+#### <span class="render-code-wrapper">iActivityField</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"eventAction" | "eventName" | "url" | "type" | "ip" | "ua" | "weight"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iActivityFilter</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"file" | "time" | "ip"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iActivityReportParams</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;organizeBy: <span class="render-code-wrapper"><a href="#client-api?id=iactivityfilter">iActivityFilter</a></span>, <br/>&nbsp;&nbsp;&nbsp;endDate?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;includes?: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=iactivityfield">iActivityField</a></span>[]</span>, <br/>&nbsp;&nbsp;&nbsp;startDate?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iActivityReport</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>}</span></div>
+ 
+
 #### <span class="render-code-wrapper">iAnalyticsObj</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
@@ -927,7 +965,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iFile</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;filenameWithoutExt?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iGetFilesCb</span>
@@ -1089,13 +1127,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "demo_mode_enable" | "ui_other"</span></div>
- 
-
-#### <span class="render-code-wrapper">keyVal</span>
- - Type: <span class="render-code-wrapper">object</span> 
- - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;key: <span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>, <br/>&nbsp;&nbsp;&nbsp;val: <span class="render-code-wrapper">any</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "demo_mode_enable" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iWatchUpdate</span>
