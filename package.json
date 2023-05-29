@@ -17,6 +17,8 @@
         "dev": "run-p kill-server; run-p client server custom-tags",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
+        "test/server": "npm run --prefix ./server test",
+        "test/client": "npm run --prefix ./client test",
         "custom-tags": "npx http-server -p 8088 ./custom-tags/",
         "gen-certs": "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048  -subj '/CN=www.tiro-notes.org/subjectAltName=DNS.1=185.199.111.153/' -out tiro-notes.crt -keyout tiro-notes.key",
         "================== PLATFORMS RELATED =================== ": "",
