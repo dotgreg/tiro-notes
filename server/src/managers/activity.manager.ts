@@ -1,8 +1,9 @@
 import { debounce, each, isNumber, throttle } from "lodash"
+import { getDateObj } from "../../../shared/helpers/date.helper"
 import { sharedConfig } from "../../../shared/shared.config"
 import { iActivityLog, iActivityReport, iActivityReportParams } from "../../../shared/types.shared"
 import { backConfig } from "../config.back"
-import { getDateTime, iDateTime } from "./date.manager"
+import {  iDateObj } from "./date.manager"
 import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
 import { perf } from "./performance.manager"
 import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
@@ -51,14 +52,14 @@ export const getActivityReport = async (
     p:iActivityReportParams
 ):Promise<iActivityReport> => {
     
-    let now = getDateTime()
-    let old = getDateTime(`${now.month}/${now.day}/${now.num.year - 1}`)
+    let now = getDateObj()
+    let old = getDateObj(`${now.month}/${now.day}/${now.num.year - 1}`)
     if (!p.startDate) p.startDate = old.date
     if (!p.endDate) p.endDate = now.date
         
     // "10/31/2023" format
-    let startDate = getDateTime(p.startDate)
-    let endDate = getDateTime(p.endDate)
+    let startDate = getDateObj(p.startDate)
+    let endDate = getDateObj(p.endDate)
 
     if (endDate.num.timestamp < startDate.num.timestamp) console.log(h, "WARNING, enddate and startdate inverted!")
     
@@ -103,7 +104,7 @@ export const getActivityReport = async (
 //
 
 // WHICH REPORTS TO GET
-export const getReportPaths = (start:iDateTime, end: iDateTime):{paths:string[], ids:string[]}  => {
+export const getReportPaths = (start:iDateObj, end: iDateObj):{paths:string[], ids:string[]}  => {
     let res = {paths:[], ids:[]}
 
     if (end.num.year <= start.num.year && end.num.month <= start.num.month) return res
@@ -191,7 +192,7 @@ export const generateReportFromDbs = (
                 // EACH DAY EVENT OCCURENCE 
                 each(occurrences.time, (_,i) => {
                     const time = occurrences.time[i]
-                    const dateTimeObj = getDateTime(`${yearMonthStr}/${day} ${time}`)
+                    const dateTimeObj = getDateObj(`${yearMonthStr}/${day} ${time}`)
                     genReportObj({ eventNameIndex, dateTimeObj, occurrences, fields, i })
                 })
             })
@@ -262,7 +263,7 @@ const processTimeBatch = async () => {
     if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDbFromDate()
     const monthlyDb = monthlyActivityRamCache.value
     const newTimeBatch = currentTimeBatch.value
-    const currentDate = getDateTime()
+    const currentDate = getDateObj()
     
     const newMonthlyDb = processTimeBatchInt({monthlyDb, newTimeBatch,currentDate})
     
@@ -281,7 +282,7 @@ const processTimeBatch = async () => {
 export const processTimeBatchInt = (p:{
     monthlyDb:iMonthlyDb|null,
     newTimeBatch: iActivityLog[],
-    currentDate: iDateTime,
+    currentDate: iDateObj,
 }):iMonthlyDb => {
     const {monthlyDb, newTimeBatch, currentDate} = {...p}
     let m = monthlyDb
@@ -357,7 +358,7 @@ const getMonthlyDb = async (path:string):Promise<iMonthlyDb|null> => {
     }
 }
 const getMonthlyDbFromDate = async (month?:string, year?:string):Promise<iMonthlyDb|null> => {
-    let currDate = getDateTime()
+    let currDate = getDateObj()
     if (!year) year = currDate.year
     if (!month) month = currDate.month
     return await getMonthlyDb(getPathFile(month, year))
@@ -365,7 +366,7 @@ const getMonthlyDbFromDate = async (month?:string, year?:string):Promise<iMonthl
 
 
 const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
-    let currDate = getDateTime()
+    let currDate = getDateObj()
     let str = JSON.stringify(data)
     let pathFile = getPathFile(currDate.month, currDate.year)
     // shouldLog && console.log(44, pathFile, currDate)
@@ -379,7 +380,7 @@ const getPathFile = (month:string, year:string) => `${dbFolderPath}/${year}-${mo
 //
 // LOW LEVEL FUNCS
 //
-// export interface iDateTime {year:string, month:string, day:string, hour:string, min:string, full:string, numbers}
+// export interface iDateObj {year:string, month:string, day:string, hour:string, min:string, full:string, numbers}
 
-// export const getDateTime = () => {return getDateTime()}
+// export const getDateObj = () => {return getDateObj()}
 

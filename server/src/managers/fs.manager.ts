@@ -18,7 +18,8 @@ var fs = require('fs');
 //////////////////////////
 
 const h = `[FS FILE]`
-const shouldLog = sharedConfig.server.log.fs
+// const shouldLog = sharedConfig.server.log.fs
+const shouldLog = true
 
 export interface iMetadataFile {
 	name: string
@@ -109,18 +110,19 @@ export const moveFile = async (pathInit: string, pathEnd: string): Promise<void>
 
 export const saveFile = async (path: string, content: string): Promise<void> => {
 	path = p(path)
-	shouldLog && log(`[SAVEFILE] starting save ${path}`);
-	return new Promise((resolve, reject) => {
-		// fs.truncateSync(path)
-		// fs.appendFile(path, content, (err) => {
-		//     if (err) {error(`[SAVEFILE] Error ${err.message} (${path})`); reject()}
-		//     else resolve()
-		// }); 
-		fs.writeFile(path, content, (err) => {
-			if (err) { shouldLog && log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
-			else resolve()
-		});
-	})
+	const h = `[SAVEFILE]`
+	shouldLog && log(`${h} starting save ${path}`);
+	try {
+		await fs.writeFileSync(path, content)
+	} catch (error) {
+		console.log(h, error)
+		return error 
+	}
+	// 	fs.writeFile(path, content, (err) => {
+	// 		if (err) { shouldLog && log(`[SAVEFILE] Error ${err.message} (${path})`); reject() }
+	// 		else resolve()
+	// 	});
+	// })
 }
 
 export const prependToFile = async (path: string, content: string): Promise<void> => {
@@ -162,18 +164,20 @@ export const copyFile = async (pathOriginal: string, pathDestination: string): P
 
 export const deleteFolder = async (path: string): Promise<void> => {
 	path = p(path)
+	const h = `[REMOVE FILE]`
 
-	return new Promise((resolve, reject) => {
-		try {
-			if (fs.existsSync(path)) {
-				console.log("[REMOVE FILE] Deleting folder " + path)
-				fs.rmSync(path, { recursive: true })
-				resolve()
-			}
-		} catch (error) {
-			shouldLog && log(`[REMOVE FILE] Error removing ${path} : ${error.message}`); reject()
+	try {
+		if (fs.existsSync(path)) {
+			shouldLog && console.log(`${h} Deleting folder ${path}`)
+			await fs.rm(path, { recursive: true })
+		} else {
+			shouldLog && console.log(`${h} ${path} does not exists, do nothing`)
 		}
-	})
+	} catch (error) {
+		shouldLog && log(`${h} Error removing ${path} : ${error.message}`); 
+		return error
+	}
+	return
 }
 
 // export const removeFile = async (filepath: string): Promise<void> => {
@@ -271,6 +275,16 @@ export const downloadFile = async (url: string, folder: string): Promise<string>
 	})
 }
 
+// export const fsApi = {
+// 	downloadFile,
+// 	isDir,
+// 	isHttps,
+// 	saveFile,
+// 	openFile,
+// 	openMetadataFile,
+// 	userHomePath,
+// 	get
+// }
 
 export interface iFileStats {
 	dev: number
