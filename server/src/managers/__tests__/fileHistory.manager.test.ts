@@ -90,13 +90,16 @@ test('housekeeping: if last history file +1day, start housekeeping process', asy
     } else {
         // console.log(files)
 
-        let histFileMoreThanMonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___d15-10-2023").length === 1
+        let histFileMoreThanMonthExists = 
+            files.filter(f => f.filenameWithoutExt === "file_test_enter___d15-10-2023").length === 1
         expect(histFileMoreThanMonthExists).toStrictEqual(true)
         
-        let histFileMoreThan6MonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___w2-01-2023").length === 1
+        let histFileMoreThan6MonthExists = 
+            files.filter(f => f.filenameWithoutExt === "file_test_enter___w2-01-2023").length === 1
         expect(histFileMoreThan6MonthExists).toStrictEqual(true)
         
-        let histFileLessThanMonthExists = files.filter(f => f.filenameWithoutExt === "file_test_enter___f12-01-2023_01h20m").length === 1
+        let histFileLessThanMonthExists = 
+            files.filter(f => f.filenameWithoutExt === "file_test_enter___f12-01-2023_01h20m").length === 1
         expect(histFileLessThanMonthExists).toStrictEqual(true)
         
         expect(files.length).toStrictEqual(4)
