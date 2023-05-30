@@ -128,19 +128,15 @@ export const SuggestPopup = (p: {
 	//
 	// STYLING
 	//
-	const styles: any = {
-		// indicatorContainer: (base, state) => {
-		// 	return { ...base, display: "none" }
-		// },
+	const isHoverEnabled = useRef<boolean>(false)
+	const [styles, setStyles] = useState<any>({
 		indicatorsContainer: (base, state) => {
 			return { ...base, display: "none" }
 		},
-		// IndicatorsContainer: (base, state) => {
-		// 	return { ...base, display: "none" }
-		// },
 		menu: (base, state) => {
-			let pe = deviceType() === "mobile" ? "all" : "all"
+			let pe = deviceType() === "mobile" ? "all" : "none"
 			// let pe = "all"
+			console.log("12333")
 			return { ...base, position: "relative", pointerEvents: pe }
 		},
 		control: (base, state) => {
@@ -152,8 +148,31 @@ export const SuggestPopup = (p: {
 		multiValueRemove: (base, state) => {
 			return !state.data.editable ? { ...base, display: 'none' } : base;
 		},
-	}
+	}) 
 
+	// on mousemove, events options can be hovered
+	// const onMouseMove = (e:any) => {
+	// 	if (isHoverEnabled.current) return
+	// 	isHoverEnabled.current = true
+	// 	console.log(123,e)
+	// 	setTimeout(() => {
+	// 		styles.menu = (base, state) => {
+	// 			let pe = deviceType() === "mobile" ? "all" : "all"
+	// 			return { ...base, position: "relative", pointerEvents: pe }
+	// 		}
+	// 		setStyles(styles)
+	// 	}, 0)
+	// }
+
+	useEffect(() => {
+		setTimeout(() => {
+			styles.menu = (base, state) => {
+				let pe = deviceType() === "mobile" ? "all" : "all"
+				return { ...base, position: "relative", pointerEvents: pe }
+			}
+			setStyles(styles)
+		}, 500)
+	}, [])
 
 
 
@@ -771,12 +790,14 @@ export const SuggestPopup = (p: {
 
 
 
+	
 
 	//
 	// RENDERING
 	//
 	return (
 		<div className={`suggest-popup-bg ${p.show ? "" : "hide"}`}
+			// onMouseMove={e => onMouseMove(e)}
 			onClick={e => { p.onClose() }}>
 			<div className={`suggest-popup-wrapper device-${deviceType()}`}>
 				<div className="flex-wrapper"
