@@ -347,8 +347,8 @@ export const CssApp2 = (
 
 				////////////////////////////////////////////v 
 				// TEXT VIEW : RIGHT
-													 ////////////////////////////////////////////v 
-													 ${tabsCss()}
+				////////////////////////////////////////////v 
+				${tabsCss()}
 				${draggableGridCss()}
 				${GridMobileCss()}
 
@@ -474,12 +474,13 @@ export const CssApp2 = (
 										
 										
 
-										${editorAreaCss(mobileView)}
-										${codeMirrorEditorCss()}
+										
 
 
 										${previewAreaCss()}
 
+										${editorAreaCss(mobileView)}
+										${codeMirrorEditorCss()}
 										${uploadButtonCss()}
 										${uploadProgressBarCss()}
 										

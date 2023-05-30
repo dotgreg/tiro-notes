@@ -12,6 +12,7 @@ import { getMdStructure, iMdPart } from '../../managers/markdown.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { stopDelayedNotePreview } from '../../managers/codeMirror/noteLink.plugin.cm';
+import { iCMPluginConfig } from './CodeMirrorEditor.component';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
@@ -26,6 +27,7 @@ interface iDualViewProps {
 
 	onFileEdited: onFileEditedFn
 	askForLayoutUpdate: iLayoutUpdateFn
+	pluginsConfig?: iCMPluginConfig
 }
 
 const DualViewerInt = (
@@ -202,6 +204,7 @@ const DualViewerInt = (
 				// setScrollMode(res)
 			}}
 			askForLayoutUpdate={p.askForLayoutUpdate}
+			pluginsConfig={p.pluginsConfig}
 		/>
 
 		{!isEditor &&

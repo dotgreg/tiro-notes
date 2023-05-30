@@ -26,10 +26,15 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
+import { isBoolean } from "lodash";
 
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
+
+export interface iCMPluginConfig {
+	markdown?: boolean
+}
 
 const CodeMirrorEditorInt = forwardRef((p: {
 	windowId: string,
@@ -46,7 +51,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+
+	pluginsConfig?: iCMPluginConfig
 }, forwardedRefCM) => {
+	let pluginsConfig = p.pluginsConfig
+	if (!pluginsConfig) pluginsConfig = {}
+	if (!isBoolean(pluginsConfig.markdown)) pluginsConfig.markdown = true
 
 
 	const getEditorObj = (): ReactCodeMirrorRef | null => {
@@ -250,10 +260,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const { userSettingsApi } = useUserSettings()
 	const ua = userSettingsApi
-	// const disablePlugins = true
-	const disablePlugins = false
+	// let disablePlugins = true
+	let disablePlugins = false
 	// disable markdown plugin on mobile as it makes it really unstable and slow
-	const disableMd = deviceType() !== "desktop"
+	let disableMd = deviceType() !== "desktop"
+	// disableMd = true
 
 	// codemirrorExtensions.push(linksPreviewPlugin)
 	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
@@ -280,7 +291,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	
 
-	if (!disablePlugins && !disableMd) {
+	if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
 	} else {
 		// markdown replacement plugin for mobile
