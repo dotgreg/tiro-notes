@@ -9,6 +9,7 @@ import { searchWord } from './managers/search/word.search.manager';
 import { security, formatHeader} from './managers/security.manager';
 import { scanPlugins } from './managers/plugins.manager';
 import "./managers/activity.manager"
+import { logActivity } from './managers/activity.manager';
 
 fileLogClean();
 
@@ -60,6 +61,7 @@ server.listen(backConfig.port, function () {
 
 app.get('*', function(req, res){
 	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
+	logActivity(`404`, `SECURITY:404:${req.url}`, req)
 	res.status(404).send('Not found');
 });
 

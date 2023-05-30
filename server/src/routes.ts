@@ -314,6 +314,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
 		
 		security.log(`LOGIN : ${areClientInfosCorrect ? "OK": `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
+		logActivity(`LOGIN:${areClientInfosCorrect ? "OK": "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
 
 		if (!areClientInfosCorrect) {
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })

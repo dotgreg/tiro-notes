@@ -8,6 +8,9 @@ export type iClientInfosObj = {
 export const getSocketClientInfos = (socket:any, format: iClientInfosFormat)=> {
     return formatHeader(socket?.raw.handshake.headers, format)
 }
+export const getExpressClientInfos = (req:any, format: iClientInfosFormat)=> {
+    return formatHeader(req.headers, format)
+}
 export const formatHeader = (headers:any, format: iClientInfosFormat ):string|iClientInfosObj => {
     let full = headers
     let res:any = full

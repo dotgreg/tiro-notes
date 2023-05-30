@@ -5,7 +5,7 @@ import { iActivityLog, iActivityReport, iActivityReportParams, iDateObj } from "
 import { backConfig } from "../config.back"
 import { saveFile, upsertRecursivelyFolders, openFile } from "./fs.manager"
 import { perf } from "./performance.manager"
-import { getSocketClientInfos, iClientInfosObj } from "./security.manager"
+import { getExpressClientInfos, getSocketClientInfos, iClientInfosObj } from "./security.manager"
 import { getUserSettings } from "./userSettings.manager"
 
 // shouldLog = true 
@@ -28,11 +28,11 @@ const isActivityLogEnabled = async ():Promise<boolean> => {
  
 // LOGGER
 const currentTimeBatch:{value:iActivityLog[]} = {value: []}
-export const logActivity = async (eventAction: string, eventName:string, socket:any) => {
+export const logActivity = async (eventAction: string, eventName:string, socketOrReq:any) => {
     let enabled = await isActivityLogEnabled()
     if (!enabled) return
     shouldLog && console.log(h, "logActivity", eventAction, eventName)
-    const clientInfos = getSocketClientInfos(socket, "obj") as iClientInfosObj
+    const clientInfos = socketOrReq?.raw?.handshake ? getSocketClientInfos(socketOrReq, "obj") as iClientInfosObj : getExpressClientInfos(socketOrReq, "obj") as iClientInfosObj
     currentTimeBatch.value.push({
         eventName,
         eventAction,
@@ -141,12 +141,12 @@ export const generateReportFromDbs = (
 ):iActivityReport => {
     let report:iActivityReport = {}
 
-    const genOccurenceObj = (occurenceObj, occurrences, fields, i) => {
+    const genOccurenceObj = (occurenceObj, occurrences, fields, eventOccurenceIndex) => {
         // for each declared field to add
         each(p.includes, fieldToInclude => {
-            let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : null
+            let occurFieldIndex = occurrences[fieldToInclude] ? occurrences[fieldToInclude][eventOccurenceIndex] : null
             if (fieldToInclude === "weight") {
-                occurenceObj[fieldToInclude] = occurrences[fieldToInclude] ? occurrences[fieldToInclude][i] : 1
+                occurenceObj[fieldToInclude] = occurrences[fieldToInclude] ? occurrences[fieldToInclude][eventOccurenceIndex] : 1
             } else if (isNumber(occurFieldIndex)) {
                 occurenceObj[fieldToInclude] = fields[fieldToInclude][occurFieldIndex]
             }
@@ -154,20 +154,25 @@ export const generateReportFromDbs = (
         return occurenceObj
     }
     const genReportObj = (p2) => {
-        const {eventNameIndex, dateTimeObj, occurrences, fields, i} = p2
+        const {eventNameIndex, dateTimeObj, occurrences, fields, eventOccurenceIndex} = p2
         const d = dateTimeObj
         const eventName = fields["eventName"][eventNameIndex]
-        const ip = fields["ip"][eventNameIndex]
+        const ip = fields["ip"][occurrences["ip"][eventOccurenceIndex]]
+        if (ip === undefined) {
+            console.log(ip, fields["ip"], eventNameIndex, fields["eventName"])
+        }
 
         // FILE TYPE 
         if (p.organizeBy === "file") {
             if (!p.includes) p.includes = ["eventAction", "url", "type", "ip", "ua", "weight"]
             if(!report[eventName]) report[eventName] = {arr:[]}
-            report[eventName]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, i))
+            report[eventName]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, eventOccurenceIndex))
         } else if (p.organizeBy === "ip") {
-            if (!p.includes) p.includes = ["eventName", "eventAction","url", "type", "ua", "weight"]
+            
+            if (!p.includes) p.includes = ["eventName", "eventAction","url", "ip", "type", "ua", "weight"]
             if(!report[ip]) report[ip] = {arr:[]}
-            report[ip]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, i))
+            report[ip]['arr'].push(genOccurenceObj({date: d.full}, occurrences, fields, eventOccurenceIndex))
+
         } else if (p.organizeBy === "time") {
             if (!p.includes) p.includes = ["eventName","eventAction", "url", "type", "ip", "ua", "weight"]
             if(!report[d.year]) report[d.year] = {}
@@ -175,7 +180,7 @@ export const generateReportFromDbs = (
             if(!report[d.year][d.month][d.day]) report[d.year][d.month][d.day] = {}
             if(!report[d.year][d.month][d.day][d.hour]) report[d.year][d.month][d.day][d.hour] = []
             let o = report[d.year][d.month][d.day][d.hour]
-            o.push(genOccurenceObj({date: d.full}, occurrences, fields, i))
+            o.push(genOccurenceObj({date: d.full}, occurrences, fields, eventOccurenceIndex))
         }
     }
 
@@ -190,10 +195,10 @@ export const generateReportFromDbs = (
             each(dayLog, (occurrences, eventNameIndex) => {
                 
                 // EACH DAY EVENT OCCURENCE 
-                each(occurrences.time, (_,i) => {
-                    const time = occurrences.time[i]
+                each(occurrences.time, (_,eventOccurenceIndex) => {
+                    const time = occurrences.time[eventOccurenceIndex]
                     const dateTimeObj = getDateObj(`${yearMonthStr}/${day} ${time}`)
-                    genReportObj({ eventNameIndex, dateTimeObj, occurrences, fields, i })
+                    genReportObj({ eventNameIndex, dateTimeObj, occurrences, fields, eventOccurenceIndex })
                 })
             })
         })

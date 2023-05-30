@@ -400,6 +400,9 @@ export const contentBlockCss = () => `
 .refocus-input {
 	position: fixed;
 	z-index: -10000;
+	width: 0px;
+	height: 0px;
+	opacity202: 0.01;
 }
 .content-blocks-wrapper {
 		padding: 0px 15px;
