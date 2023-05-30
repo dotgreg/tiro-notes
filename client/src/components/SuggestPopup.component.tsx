@@ -8,7 +8,7 @@ import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
-import { NotePreview } from './NotePreview.component';
+import { iNotePreviewType, NotePreview } from './NotePreview.component';
 import { deviceType } from '../managers/device.manager';
 import { aLog } from '../hooks/api/analytics.api.hook';
 import { Icon, Icon2 } from './Icon.component';
@@ -133,10 +133,12 @@ export const SuggestPopup = (p: {
 		indicatorsContainer: (base, state) => {
 			return { ...base, display: "none" }
 		},
+		menuList: (base, state) => {
+			let pe = deviceType() === "mobile" ? "all" : "none"
+			return { ...base, maxHeight: "150px"}
+		},
 		menu: (base, state) => {
 			let pe = deviceType() === "mobile" ? "all" : "none"
-			// let pe = "all"
-			console.log("12333")
 			return { ...base, position: "relative", pointerEvents: pe }
 		},
 		control: (base, state) => {
@@ -247,6 +249,7 @@ export const SuggestPopup = (p: {
 		// at first, according to first char, switch mode
 		let stags = selectedOptionRef.current
 		let inTxt = inputTxt.trim()
+		setPreviewType("editor")
 
 
 		if (stags.length === 0) {
@@ -290,9 +293,11 @@ export const SuggestPopup = (p: {
 
 			} else if (stags.length === 2) {
 				// STEP 2 : show searched results
+				setPreviewType("preview")
 				reactToSearchTyping(inTxt, stags[1].label)
 
 			} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
+				setPreviewType("preview")
 				// STEP 3-1 (optional) :  filter found results
 				console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
 
@@ -790,6 +795,7 @@ export const SuggestPopup = (p: {
 
 
 
+	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
 	
 
 	//
@@ -848,6 +854,7 @@ export const SuggestPopup = (p: {
 									file={notePreview}
 									searchedString={activeLine}
 									height={previewHeight}
+									type={previewType}
 								/>
 							}
 							{

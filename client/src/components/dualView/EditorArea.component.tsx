@@ -20,7 +20,7 @@ import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
-import { CodeMirrorEditor } from './CodeMirrorEditor.component';
+import { CodeMirrorEditor, iCMPluginConfig } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
@@ -64,6 +64,7 @@ interface iEditorProps {
 	// onViewToggle: (view: iViewType) => void
 
 	askForLayoutUpdate: iLayoutUpdateFn
+	pluginsConfig?: iCMPluginConfig
 }
 
 const EditorAreaInt = (
@@ -535,6 +536,7 @@ const EditorAreaInt = (
 						onTitleClick={p.onTitleClick}
 
 						file={p.file}
+						pluginsConfig={p.pluginsConfig}
 					/>
 				}
 
