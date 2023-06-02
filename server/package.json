@@ -4,22 +4,28 @@
 		"description": "",
 		"main": "index.js",
 		"scripts": {
+				"======== DEV ============":"=======================",
 				"start": "run-s NPMdevserver",
 				"BUNdevserver": "cross-env NODE_ENV=development bun --hot ./src/server.ts",
 				"NPMdevserver": "cross-env NODE_ENV=development nodemon",
-				"testing-prepare": "node -r ts-node/register ./scripts/prepareTestingEnv.script.ts",
-				"testing-server": "cross-env TIRO_TESTING_ENV=true NODE_ENV=development nodemon",
 				"prodTs": "ts-node --transpileOnly ./src/server.ts",
 				"prodJs": "tsc & node --experimental-worker build/server/src/tiro-server.js",
 				"buildOLD": "tsc",
 				"killall": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)",
+
+				"======== TESTING ============":"=======================",
+				"test": "jest --watchAll --config ./jest.config.js",
+				"testing-prepare": "node -r ts-node/register ./scripts/prepareTestingEnv.script.ts",
+				"testing-server-int": "cross-env TIRO_TESTING_ENV=true NODE_ENV=development nodemon",
+				"testing-server": "run-s testing-prepare testing-server-int",
+
+				"======== INSTALL ============":"=======================",
 				"install-server": "npm install",
 				"install-shared": "npm --prefix ../shared install",
 				"install-all": "run-s install-server install-shared",
 				"clean-build": "rm -r ./build &",
 				"build": "export NODE_OPTIONS=--openssl-legacy-provider; webpack",
-				"install-clean-build": "run-s install-all clean-build build",
-				"test": "jest --watchAll --config ./jest.config.js"
+				"install-clean-build": "run-s install-all clean-build build"
 		},
 		"author": "",
 		"license": "ISC",
