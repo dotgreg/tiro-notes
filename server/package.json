@@ -7,6 +7,7 @@
 				"start": "run-s NPMdevserver",
 				"BUNdevserver": "cross-env NODE_ENV=development bun --hot ./src/server.ts",
 				"NPMdevserver": "cross-env NODE_ENV=development nodemon",
+				"testing-prepare": "node -r ts-node/register ./scripts/prepareTestingEnv.script.ts",
 				"testing-server": "cross-env TIRO_TESTING_ENV=true NODE_ENV=development nodemon",
 				"prodTs": "ts-node --transpileOnly ./src/server.ts",
 				"prodJs": "tsc & node --experimental-worker build/server/src/tiro-server.js",
