@@ -1,10 +1,11 @@
-var path = require('path')
 import { iApiDictionary } from '../../../shared/apiDictionary.type';
 import { sharedConfig } from '../../../shared/shared.config';
+import { getEnvVars } from '../config.back';
 import { fileExists, saveFile, upsertRecursivelyFolders, userHomePath } from './fs.manager';
 import { log } from './log.manager';
 import { hashPassword } from './password.manager';
 import { p, relativeToAbsolutePath } from './path.manager';
+import { getTestingEnvJsonConfig } from './testingEnv.manager';
 var fs = require('fs')
 
 // LOADING CONFIG FILE
@@ -39,6 +40,9 @@ export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 //
 let cachedJsonConfigLoadResult = null
 export const tryLoadJsonConfig = () => {
+	console.log(typeof getEnvVars);
+	const { testing_env } = getEnvVars()
+	if (testing_env) return getTestingEnvJsonConfig()
 	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as TiroConfig
 
 	if (fileExists(appConfigJsonPath)) {
@@ -52,7 +56,7 @@ export const tryLoadJsonConfig = () => {
 	}
 }
 
-export const getDataFolder = ():string => {
+export const getDataFolder = (): string => {
 	const jsonConfig = tryLoadJsonConfig();
 	return (jsonConfig && jsonConfig.dataFolder) ? relativeToAbsolutePath(jsonConfig.dataFolder) : ""
 }

@@ -3,15 +3,27 @@ import { getDataFolder, shouldAskForSetup, tryLoadJsonConfig } from "./managers/
 import { fileExists } from './managers/fs.manager';
 import { relativeToAbsolutePath } from './managers/path.manager';
 
+// Get variables from env
+export const getEnvVars = () => {
+	const pe = process.env
+	let https = pe.TIRO_HTTPS === 'true' ? true : false;
+	let testing_env = pe.TIRO_TESTING_ENV === 'true' ? true : false;
+	let port = pe.PORT ? parseInt(pe.PORT) : 3023;
+	port = pe.TIRO_PORT ? parseInt(pe.TIRO_PORT) : port;
+	let rgPath = pe.TIRO_RG_PATH ? pe.TIRO_RG_PATH : 'rg';
+	return { pe, https, testing_env, port, rgPath }
+}
 // As we try to load JSON before config.back, we can only reference the tiro-config.json path to configSetup.manager.ts
 const jsonConfig = tryLoadJsonConfig();
 
-// Get variables from env
-const pe = process.env
-let https = pe.TIRO_HTTPS === 'true' ? true : false;
-let port = pe.PORT ? parseInt(pe.PORT) : 3023;
-port = pe.TIRO_PORT ? parseInt(pe.TIRO_PORT) : port;
-let rgPath = pe.TIRO_RG_PATH ? pe.TIRO_RG_PATH : 'rg';
+
+let { https, testing_env, port, rgPath } = getEnvVars()
+// // Get variables from env
+// const pe = process.env
+// let https = pe.TIRO_HTTPS === 'true' ? true : false;
+// let port = pe.PORT ? parseInt(pe.PORT) : 3023;
+// port = pe.TIRO_PORT ? parseInt(pe.TIRO_PORT) : port;
+// let rgPath = pe.TIRO_RG_PATH ? pe.TIRO_RG_PATH : 'rg';
 
 // Get variables from tiro json config if it exists
 if (jsonConfig) {
@@ -21,7 +33,7 @@ if (jsonConfig) {
 }
 
 // LOADING CONFIG FILE
-const dataFolder = getDataFolder() 
+const dataFolder = getDataFolder()
 export const backConfig = {
 	dataFolder,
 	frontendBuildFolder: relativeToAbsolutePath('./client', true),

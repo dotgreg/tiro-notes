@@ -15,6 +15,7 @@ const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activi
 const intervalTime = 5 * 60 * 1000
 const isActivityLogEnabled = async ():Promise<boolean> => {
     const settings = await getUserSettings()
+	if(!settings) return false
     let res = false
     res = settings['server_activity_logging_enable'] || false
     return res
