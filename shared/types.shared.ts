@@ -15,6 +15,13 @@ export type iActivityLog = {
     eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
 }
 
+export type iCommandStreamChunk = {
+	text:string
+	textTot:string, 
+	index: number
+	isLast:boolean 
+}
+
 export type iDateObj = ReturnType<typeof getDateObj>
 
 export type iNotificationType = "normal" | "warning" | "error"

@@ -1,5 +1,5 @@
 import { iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReport, iActivityReportParams, iAppView, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -81,6 +81,9 @@ export interface iApiDictionary {
 
 	askCommandExec: { commandString: string, idReq: string }
 	getCommandExec: { resultCommand: string, idReq: string }
+
+	askCommandExecStream: { commandString: string, idReq: string }
+	getCommandExecStream: { streamChunk: iCommandStreamChunk, idReq: string }
 	
 	askPluginsList: { noCache:boolean, idReq: string }
 	getPluginsList: { plugins: iPlugin[], scanLog:string[], idReq: string }

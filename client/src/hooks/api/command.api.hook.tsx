@@ -5,10 +5,8 @@ import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 
 export interface iCommandApi {
-	exec: (
-		commandString: string,
-		cb: (resCmd: string) => void
-	) => void
+	exec: ( commandString: string, cb: (resCmd: string) => void ) => void
+	stream: ( commandString: string, cb: (resCmd: string) => void ) => void
 }
 
 
@@ -28,6 +26,9 @@ export const useCommandApi = (p: {
 		clientSocket2.on('getCommandExec', data => {
 			p.eventBus.notify(data.idReq, data.resultCommand)
 		})
+		clientSocket2.on('getCommandExecStream', data => {
+			p.eventBus.notify(data.idReq, data.streamChunk)
+		})
 	}, [])
 
 	const exec: iCommandApi['exec'] = (commandString, cb) => {
@@ -35,7 +36,7 @@ export const useCommandApi = (p: {
 		p.eventBus.subscribe(idReq, resCmd => {
 			if (!isString(resCmd)) resCmd = JSON.stringify(resCmd)
 			cb(resCmd)
-		});
+		}, { persistent: true });
 
 		// start request
 		clientSocket2.emit('askCommandExec', {
@@ -44,7 +45,24 @@ export const useCommandApi = (p: {
 			idReq
 		})
 	}
+	
+	const stream: iCommandApi['stream'] = (commandString, cb) => {
+		const idReq = genIdReq(`command-stream-`);
+		// 1. add a PERSISTENT listener function
+		p.eventBus.subscribe(idReq, answer => {
+			cb(answer)
+			// unsubscribe when the last chunk is received
+			if (answer.isLast) p.eventBus.unsubscribe(idReq)
+		}, { persistent: true });
 
-	const api: iCommandApi = { exec }
+		// 2start request
+		clientSocket2.emit('askCommandExecStream', {
+			commandString,
+			token: getLoginToken(),
+			idReq
+		})
+	}
+
+	const api: iCommandApi = { exec, stream }
 	return api
 }
