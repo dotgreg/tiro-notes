@@ -17,7 +17,7 @@ import { getFolderPath } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
-import { execString } from "./managers/exec.manager";
+import { execString, execStringStream } from "./managers/exec.manager";
 import { getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
 import { scanPlugins } from "./managers/plugins.manager";
@@ -367,8 +367,17 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// 
 	serverSocket2.on('askCommandExec', async data => {
 		let endPerf = perf('askCommandExec '+ data.commandString)
+		// let res = await execString(data.commandString)
 		let res = await execString(data.commandString)
 		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
+		endPerf()
+	}, { checkRole: "editor" })
+
+	serverSocket2.on('askCommandExecStream', async data => {
+		let endPerf = perf('askCommandExecStrea, '+ data.commandString)
+		execStringStream(data.commandString, (streamChunk) => {
+			serverSocket2.emit('getCommandExecStream', { streamChunk: streamChunk, idReq: data.idReq })
+		})
 		endPerf()
 	}, { checkRole: "editor" })
 
