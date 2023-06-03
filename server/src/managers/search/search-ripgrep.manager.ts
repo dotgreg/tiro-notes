@@ -6,6 +6,7 @@ import { backConfig } from "../../config.back";
 import { fileExists } from "../fs.manager";
 import { log } from "../log.manager";
 import { getRelativePath } from "../path.manager";
+import { perf } from "../performance.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
@@ -61,6 +62,8 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
 
+	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
+
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
@@ -108,6 +111,7 @@ export const searchWithRgGeneric = async (p: {
 	})
 	ripGrepStream.stdout.on('close', dataChunk => {
 		p.onSearchEnded(resArr)
+		end()
 		// p.options.debug && console.log(`============== END`);
 	})
 }
@@ -127,6 +131,8 @@ export const searchWithRipGrep = async (params: {
 	processRawEl?: (raw: string) => any
 	processFinalRes?: (raw: string) => any
 }): Promise<void> => {
+	let p = params
+	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
 
 	let processTerm = params.term.split('-').join('\\-')
 
@@ -197,6 +203,7 @@ export const searchWithRipGrep = async (params: {
 
 			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
 			params.onSearchEnded({ files: filesWithMetaUpdated })
+			end()
 		})
 	}
 
@@ -268,6 +275,7 @@ export const searchWithRipGrep = async (params: {
 				const perfString = `tot:${Date.now() - perfs.init}ms / cmd1:${perfs.cmd1 - perfs.init}ms / cmd2:${perfs.cmd2 - perfs.init}ms`
 				shouldLog && log(h, ` FOLDER => BOTH CMDS => ENDED `, { files: filesWithMetaUpdated.length, metasFilesScanned, perfString, perfs });
 				params.onSearchEnded({ files: filesWithMetaUpdated })
+				end()
 			}
 		}
 	}
@@ -301,6 +309,7 @@ export const searchWithRipGrep = async (params: {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
 			shouldLog && log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
 			params.onSearchEnded({ images })
+			end()
 		})
 	}
 	// IMAGE SEARCH : only in folder and NOT in subfolders
@@ -326,6 +335,7 @@ export const searchWithRipGrep = async (params: {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
 			shouldLog && log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
 			params.onSearchEnded({ images })
+			end()
 		})
 	}
 
@@ -355,6 +365,7 @@ export const searchWithRipGrep = async (params: {
 		})
 		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
 			params.onSearchEnded({})
+			end()
 		})
 	}
 

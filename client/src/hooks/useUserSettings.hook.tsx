@@ -2,35 +2,21 @@ import { cloneDeep, debounce, each, isNull, isUndefined, uniqueId } from 'lodash
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { sharedConfig } from '../../../shared/shared.config';
+import { iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { getLoginToken } from './app/loginToken.hook';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
 
-type iUserSettingName =
-	'ui_filesList_sortMode' |
-	'ui_layout_colors_main' |
-	'ui_layout_shortcuts_panel' |
-	'ui_sidebar' |
 
-	'ui_editor_links_as_button' |
-	'ui_editor_markdown_preview' |
-	'ui_editor_markdown_table_preview' |
 
-	'users_viewer_user_enable' |
-	'users_viewer_user_password' |
 
-	'demo_mode_enable' |
-
-	'ui_other'
-
-type keyVal = { key: iUserSettingName, val: any }
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
 	get: (name: iUserSettingName) => any
 	set: (name: iUserSettingName, val: any, options?: { writeInSetupJson?: boolean }) => void
-	list: () => keyVal[]
+	list: () => iUserSettingList
 	refresh: {
 		css: { get: number }
 	}
@@ -42,8 +28,11 @@ const defaultVals: iUserSettings = {
 	ui_filesList_sortMode: 2,
 	ui_layout_colors_main: "#E86666",
 	ui_editor_markdown_preview: true,
-	ui_editor_links_as_button: true,
+	ui_editor_markdown_latex_preview: true,
+	ui_editor_markdown_enhanced_preview: true,
 	ui_editor_markdown_table_preview: true,
+	ui_editor_links_as_button: true,
+	server_activity_logging_enable: false,
 }
 
 const h = `[USER SETTINGS] :`
@@ -124,7 +113,7 @@ export const useUserSettings = () => {
 			return res
 		},
 		list: () => {
-			const res: keyVal[] = []
+			const res: iUserSettingList = []
 			each(userSettings, (val, name) => {
 				const key = name as iUserSettingName
 				res.push({ key, val })

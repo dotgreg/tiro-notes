@@ -2,10 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';
 import { Popup } from '../../components/Popup.component';
-import { clientSocket, clientSocket2 } from '../../managers/sockets/socket.manager';
+import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { getApi } from '../api/api.hook';
 import { getLoginToken } from './loginToken.hook';
 
 export const useSetupConfig = (p: {

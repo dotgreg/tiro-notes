@@ -1,6 +1,8 @@
+import { debounce } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { getApi, getClientApi2 } from "../../hooks/api/api.hook";
+import { deviceType } from "../device.manager";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
@@ -24,22 +26,19 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string) => genericR
 })
 
 
-export const noteLinkPreviewMdCss = () => `
-.note-link-mdpreview-wrapper {
-}
-`
 
 //
 // COMMON HTML/CSS/JS NOTE LINK GENERATOR
 //
 export const ssrNoteLinkFn = (el: HTMLElement) => {
 	if (!el) return
+	stopDelayedNotePreview()
 	const file = el.dataset.file
 	const folder = el.dataset.folder
 	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
 	const windowId = el.dataset.windowid || 'active'
 	if (!file || !folder || !windowId) return
-	getClientApi2().then(api => {
+	getApi(api => {
 		api.ui.browser.goTo(
 			folder,
 			file, {
@@ -48,8 +47,15 @@ export const ssrNoteLinkFn = (el: HTMLElement) => {
 	})
 }
 
+
+//
+// POPUP HOVER SYSTEM 
+// open preview after 2s
+//
+
 const ssrNotePreviewOpen = (el: HTMLElement) => {
 	if (!el) return
+	if (deviceType() !== "desktop") return
 	let rect = el.getBoundingClientRect()
 	let pos:[number,number] = [
 		rect.left + window.scrollX,
@@ -57,23 +63,34 @@ const ssrNotePreviewOpen = (el: HTMLElement) => {
 	]
 	const file = el.dataset.file
 	const folder = el.dataset.folder
+	const windowid = el.dataset.windowid
 	const filePath = `${folder}${file}`
+	if (windowid === "preview-popup") return
+	getApi(api => { api.ui.notePreviewPopup.close()})
+	addDelayedAction(filePath, pos, windowid)
+}
 
-	addDelayedAction(filePath, pos)
+let timeout:any = null
+const ssrNotePreviewClose = (el) => {
+	const windowid = el.dataset.windowid
+	if (windowid === "preview-popup") return
+	timeout && clearTimeout(timeout)
 }
-const ssrNotePreviewClose = (el: HTMLElement) => {
-	removeDelayedAction()
+export const stopDelayedNotePreview = () => {
+	timeout && clearTimeout(timeout)
+	getApi(api => { api.ui.notePreviewPopup.close()})
+	setTimeout(() => {
+		timeout && clearTimeout(timeout)
+		getApi(api => { api.ui.notePreviewPopup.close()})
+	}, 300)
 }
-// open preview after 2s
-const delayedAction:any = {val: null}
-const removeDelayedAction = () => { delayedAction.val = null}
-const addDelayedAction = (filePath, pos) => {
-	delayedAction.val = () => {
+const addDelayedAction = (filePath, pos, windowId) => {
+	timeout && clearTimeout(timeout)
+	timeout = setTimeout(() => { 
 		getApi(api => {
-			api.ui.notePreviewPopup.open(filePath, pos)
+			api.ui.notePreviewPopup.open(filePath, pos, {windowIdToOpenIn:windowId})
 		})
-	}
-	setTimeout(() => { delayedAction.val && delayedAction.val() }, 700)
+	}, 1000)
 }
 
 
@@ -115,6 +132,10 @@ export const noteLinkCss = (classStr?: string) => {
 				background-image: url(${cssVars.assets.searchIcon});
 		}
 		${classStr}.title-search-link {
+				&.popup-link {
+					position: relative;
+					z-index: 99;
+				}
 				color: ${cssVars.colors.main};
 				background-image: url(${cssVars.assets.linkIcon});
 				cursor: pointer;

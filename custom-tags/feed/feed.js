@@ -69,7 +69,6 @@ const feedApp = (innerTagStr, opts) => {
 		// const feedsCategories = []
 
 		const execFeedReader = (feedsStr) => {
-			console.log(h,112)
 				// const sortArr = (items,sortType) => {
 				// 		if (sortType === "name") {
 				// 				items.sort(function(a, b){
@@ -131,24 +130,18 @@ const feedApp = (innerTagStr, opts) => {
 				//
 				const getCachedJsons = (cb, setStatus) => {
 						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
-						console.log(1151)
 						if (!hasUserReloaded) {
-							console.log(1152)
 								// first get cached, if exists
 								setStatus("Loading... (loading feeds from cache)")
 								getContentCache(content => {
-									console.log(1153)
 										// if cache, return content
 										console.log(h, "=> getting CACHED feed json")
 										cb(content)
 								}, () => {
-									
-									console.log(1154)
 										// if no cache OR expired, reload from json rss
 										getJsons(cb, setStatus)
 								})
 						} else {
-							console.log(1155)
 								// directly reload without cache
 								getJsons(cb, setStatus)
 						}
@@ -255,7 +248,7 @@ const feedApp = (innerTagStr, opts) => {
 						let count = 0
 						for (let i = 0; i < feedsArr.length; i++) {
 								fetchFeedItems(feedsArr[i], items => {
-									count = count + 1
+										count = count + 1
 										
 										let feedItems = 0
 										if (Array.isArray(items)) {
@@ -283,9 +276,8 @@ const feedApp = (innerTagStr, opts) => {
 														nitems[j].link = g(nitems[j].link) || g(nitems[j].enclosure?.link) || ""
 														// in case of reddit, look for link inside the content
 														if (nitems[j].link === "") {
-															let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
-															console.log(222,reddit)
-															if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
+																let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
+																if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
 														}
 
 
@@ -365,7 +357,6 @@ const feedApp = (innerTagStr, opts) => {
 				const getXml = (feed, cb) => {
 						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
 								let res2 = xml2js(txt, { compact: true })
-								console.log(h,123, res2)
 								
 								let items = res2.feed?.entry // XML1
 								if (!items) items = res2.rss?.channel.item // XML2
@@ -656,12 +647,9 @@ const feedApp = (innerTagStr, opts) => {
 						// INITIAL LOADING
 						React.useEffect(() => {
 								setStatus("Loading... (loading bookmarks)")
-								console.log(h,114)
 								getBookmarks(() => {
-									console.log(h,115)
-									setStatus("Loading... (loading feeds)")
+										setStatus("Loading... (loading feeds)")
 										getCachedJsons(nitems => {
-											console.log(h,116)
 												let ncats = []
 												// const i = [...nitems]
 												titems.current = nitems
@@ -732,9 +720,9 @@ const feedApp = (innerTagStr, opts) => {
 								setSettingsCache({listView: nView})
 						}
 						React.useEffect(() => {
-							getSettingsCache(settings => { 
-								if (settings.listView) setIntListView(settings.listView)
-							})
+								getSettingsCache(settings => { 
+										if (settings.listView) setIntListView(settings.listView)
+								})
 						}, [])
 						
 
@@ -837,7 +825,7 @@ const feedApp = (innerTagStr, opts) => {
 												}),
 										]),
 										status !== "" && c('div', {class: "status"}, [
-											status,
+												status,
 										]),
 										c('div', { 
 												onScroll,
@@ -916,11 +904,10 @@ const feedApp = (innerTagStr, opts) => {
 
 
 				setTimeout(() => {
-					console.log(h,1134)
-					ReactDOM.render(
-							c(App),
-							document.getElementById("root-react")
-					);
+						ReactDOM.render(
+								c(App),
+								document.getElementById("root-react")
+						);
 				}, 500)
 		}
 
@@ -931,7 +918,6 @@ const feedApp = (innerTagStr, opts) => {
 		if (opts.feedType === "youtube") {
 				toLoad = [opts.base_url + "/youtube-feed.js"]
 		}
-		console.log(h,110)
 		api.utils.loadScripts(
 				[
 						"https://unpkg.com/react@18/umd/react.production.min.js",
@@ -942,7 +928,6 @@ const feedApp = (innerTagStr, opts) => {
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.js"
 				],
 				() => {
-						console.log(h,111)
 						if (opts.feedType === "youtube") {
 								opts.fetchItems = window.fetchYoutubeItems
 								window.youtubeKey = opts.youtubeKey

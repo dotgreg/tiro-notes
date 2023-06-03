@@ -1,3 +1,29 @@
+import { getDateObj } from "./helpers/date.helper"
+
+export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"|"weight"
+export type iActivityFilter= "file"| "time"|  "ip"
+export interface iActivityReportParams {
+    startDate?: string
+    endDate?: string
+    organizeBy?: iActivityFilter
+    includes?: iActivityField[]
+}
+export interface iActivityReport {
+    [referenceField:string]: {}
+}
+export type iActivityLog = {
+    eventName:string, eventAction:string, ip:string, ua:string, appUrl:string
+}
+
+export type iCommandStreamChunk = {
+	text:string
+	textTot:string, 
+	index: number
+	isLast:boolean 
+}
+
+export type iDateObj = ReturnType<typeof getDateObj>
+
 export type iNotificationType = "normal" | "warning" | "error"
 export type iNotification = { 
 	id?: string,
@@ -8,6 +34,29 @@ export type iNotification = {
 		keepInHistory?: boolean
 	}
 }
+
+export type iUserSettingList = { key: iUserSettingName, val: any }[]
+export type iUserSettingObj = {[K in iUserSettingName]:any}
+export type iUserSettingName =
+'ui_filesList_sortMode' |
+'ui_layout_colors_main' |
+'ui_layout_shortcuts_panel' |
+'ui_sidebar' |
+
+'ui_editor_links_as_button' |
+'ui_editor_markdown_preview' |
+'ui_editor_markdown_enhanced_preview' |
+'ui_editor_markdown_latex_preview' |
+'ui_editor_markdown_table_preview' |
+
+'users_viewer_user_enable' |
+'users_viewer_user_password' |
+
+'server_activity_logging_enable' |
+
+'demo_mode_enable' |
+
+'ui_other'
 
 export type iPluginType = "background" | "bar" | "tag"
 export type iPluginOptions = {
@@ -77,6 +126,7 @@ export interface iFile {
 	modified?: number
 	index?: number
 	folder: string
+	filenameWithoutExt?: string
 }
 
 export type metaContent = string | number

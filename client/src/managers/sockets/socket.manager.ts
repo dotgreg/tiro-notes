@@ -1,20 +1,24 @@
 import { random } from 'lodash';
-import * as io from 'socket.io-client'
+// import * as io from 'socket.io-client'
+// const io = require('./socket.io.slim');
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 import { getSetting } from '../../components/settingsView/settingsView.component';
 import { configClient } from '../../config';
 import { strings } from '../strings.manager';
+import * as io from 'socket.io-client'
+// import 'socket.io-client'
 
 export let clientSocket: SocketIOClient.Socket
-export let clientSocket2: ClientSocketManager<iApiDictionary>
+let cs2: any = { on: () => { }, off: () => { } }
+export let clientSocket2: ClientSocketManager<iApiDictionary> = cs2
 
 
 
 
 export const getBackendUrl = () => {
-	// let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
 	let protocol = configClient.global.protocol
 	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`
+
 	let socketBackend = `${protocol}${configClient.global.url}${port}`
 	// if port is actually an url 	
 	if (getSetting('backend-port').includes(".")) socketBackend = `${protocol}${getSetting('backend-port')}`
@@ -34,9 +38,10 @@ export interface iServerSocketConfig {
 export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 	return new Promise((resolve, reject) => {
 		if (clientSocket) return
+		let ioWrapper = io ? io.default : () => { }
 
 		//@ts-ignore
-		clientSocket = io(getBackendUrl());
+		clientSocket = ioWrapper(getBackendUrl());
 		configClient.log.socket && console.log(`[SOCKET] try connecting to ${getBackendUrl()}...`);
 
 		// resolve then connectionSuccess is received from backend

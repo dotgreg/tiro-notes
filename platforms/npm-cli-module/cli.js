@@ -24,7 +24,7 @@ ARGS:
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
 --port/-p : port to use (number, 3023 by default)
 --no-open/-no : do not open Tiro in browser when starting
---verbose/-v : more verbose logs
+--verbose/-v : control logs verbosity [0/1/2/3] (0:none, 1: critical, 2: all, 3: performance monitoring)
 
 --tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
 
@@ -77,7 +77,7 @@ function getCliArgs () {
 				if (argName === 's' || argName === 'https') argsObj.https = true
 				if (argName === 'h' || argName === 'help') argsObj.help = true
 				if (argName === 'no-open' || argName === 'no') argsObj.open = false
-				if (argName === 'v' || argName === 'verbose') argsObj.verbose = true
+				if (argName === 'v' || argName === 'verbose') argsObj.verbose = parseInt(argVal)
 
 				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
 				if (argName === 'backup-location') argsObj.backup.location = argVal
@@ -103,10 +103,11 @@ function startTiroServer (argsObj, cb) {
 
 				// start tiro server, detect success message and get server params
 				tHelpers.execCmd('node', [pathServerJs], {
-						showLog: argsObj.verbose,
+						logLevel: argsObj.verbose,
 						env: {
 								TIRO_PORT: argsObj.port,
-								TIRO_HTTPS: argsObj.https
+								TIRO_HTTPS: argsObj.https,
+								TIRO_PERFORMANCE_MONITORING_BACKEND: argsObj.verbose === 3
 						},  
 						logName: 'tiroServer',
 						onLog: str => {
@@ -171,7 +172,7 @@ const startBackupScript = async (argsObj, dataFolder) => {
 						// append to backup CLI current timestamp to last_backup_timestamp
 						// execute cli
 						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {
-								showLog: argsObj.verbose
+							logLevel: argsObj.verbose
 						})
 
 						const debugObj = {backupFolder, postBackupScriptFile, lastTimestamp, postBackupScript, timeInterval, backupCli}

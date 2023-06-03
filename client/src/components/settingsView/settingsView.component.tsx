@@ -11,7 +11,6 @@ import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { disconnectUser } from '../../hooks/app/loginToken.hook';
-import { getActiveTabIndex } from '../../hooks/app/tabs.hook';
 
 type ConfigPanel = {
 	title: string,
@@ -135,11 +134,21 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Markdown Preview",
-						expl: "Preview Images and Latex in the editor",
+						expl: "Markdown preview",
 						var: us.get('ui_editor_markdown_preview'),
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Enhanced Markdown Preview for files, documents etc",
+						expl: "Enhanced Markdown Preview for files, documents etc",
+						var: us.get('ui_editor_markdown_enhanced_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_enhanced_preview', val)
 						}
 					},
 					{
@@ -154,8 +163,18 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
+						title: "Latex preview",
+						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$",
+						var: us.get('ui_editor_markdown_latex_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_latex_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
 						title: "Improved Markdown Table",
-						expl: "Improves the display of markdown table. Can be disabled inside a note if it includes '--no-editor-table'. ",
+						expl: "Improves the display of markdown table. Add '--table' in the note to activate it.",
 						var: us.get('ui_editor_markdown_table_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -215,6 +234,15 @@ export const SettingsPopup = (p: {
 				fields: [
 					{ type: 'text', var: backendPort, title: s.backend.port, expl: s.backend.portExpl, modifier: setBackendPort },
 					// { type: 'text', var: backendProtocol, title: s.backend.protocol, expl: s.backend.protocolExpl, modifier: setBackendProtocol },
+					{
+						type: 'checkbox',
+						title: "Activity Logging",
+						expl: "Enable the activity logging for events like read/write files, you can then consult it using api.activity.getReport(). \n Requires an app restart to take effect.",
+						var: us.get('server_activity_logging_enable'),
+						modifier: val => {
+							us.set('server_activity_logging_enable', val)
+						}
+					},
 				]
 			}
 		]

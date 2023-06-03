@@ -1,9 +1,9 @@
 import React from 'react'
-import { render, fireEvent, waitFor, screen, getByTestId } from '@testing-library/react'
+// import { render, fireEvent, waitFor, screen, getByTestId } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import { ContentBlockTagView } from '../ContentBlock.component'
-import { tc } from '../../__tests__/testsContent'
-import { tu } from '../../__tests__/testsUtils'
+// import { ContentBlockTagView } from '../ContentBlock.component'
+// import { tc } from '../../__tests__/testsContent'
+// import { tu } from '../../__tests__/testsUtils'
 
 const h = `[CONTENT BLOCK]`
 

@@ -8,6 +8,7 @@ import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
 import { iFile, iFolder } from '../../shared/types.shared';
+import { getDateObj } from '../../shared/helpers/date.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
 import { LastNotes } from './components/LastNotes.component';
@@ -263,12 +264,12 @@ export const App = () => {
 
 	// NOTE HISTORY HOOK
 	const historyApi = useNoteHistoryApi()
-	
+
 	//
 	// NOTE PREVIEW POPUP SYSTEM
 	//
 	const {
-        notePreviewPopupApi,  notePreviewPopup
+		notePreviewPopupApi, notePreviewPopup
 	} = useNotePreviewPopupApi()
 
 	//
@@ -296,15 +297,15 @@ export const App = () => {
 	const folderBasePath = foldersUiApi.base
 
 	// last Note + files history array
-	const { 
-		filesHistory, 
-		cleanLastFilesHistory, 
+	const {
+		filesHistory,
+		cleanLastFilesHistory,
 		refreshFilesHistoryFromBackend,
 		lastFilesHistoryApi
 	} = useLastFilesHistory(filesUiApi.active.get)
 	api.lastNotesApi = lastFilesHistoryApi
 
-	
+
 
 	// fileMove logic
 	const {
@@ -344,7 +345,7 @@ export const App = () => {
 	}, [filesHistory])
 
 
-	
+
 
 
 
@@ -473,7 +474,7 @@ export const App = () => {
 														folder,
 														folderToDropInto: defaultTrashFolder,
 														folderBasePath,
-														newTitle,
+														newTitle: `${folder.title}_${getDateObj().full_file}`,
 														onMoveFn: () => {
 															askForFolderScan([getParentFolder(folder.path)], {
 																cache: false,

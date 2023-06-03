@@ -1,10 +1,10 @@
-import { cleanPath } from "../../../../shared/helpers/filename.helper";
+import { cleanPath, getFileInfos } from "../../../../shared/helpers/filename.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
 import { fileStats } from "../fs.manager";
 import { log } from "../log.manager";
-import { getRelativePath } from "../path.manager";
+import { getRelativePath, p } from "../path.manager";
 
 const h = `[RIPGREP SEARCH] `
 const shouldLog = sharedConfig.server.log.ripgrep
@@ -75,6 +75,8 @@ export const createIFile = (name: string, folder: string, index: number, stats: 
 	let realName = nameArr.pop()
 	let fullFolder = folder
 	fullFolder = `${fullFolder}/${nameArr.join('/')}`
+	const path = cleanPath(`${fullFolder}/${realName}`)
+	let filesInfos = getFileInfos(path)
 
 	return {
 		nature: 'file',
@@ -84,7 +86,8 @@ export const createIFile = (name: string, folder: string, index: number, stats: 
 		modified: Math.round(stats.ctimeMs),
 		name: cleanPath(`${realName}`),
 		realname: `${realName}`,
-		path: cleanPath(`${fullFolder}/${realName}`),
+		filenameWithoutExt: `${filesInfos.filenameWithoutExt}`,
+		path,
 		folder: cleanPath(`${fullFolder}/`),
 	}
 }

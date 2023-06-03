@@ -81,20 +81,12 @@ export const useBrowserApi = (p: {
 	//
 	// EFFECTs
 	//
-	// on loading selected folder, load files (usually first time)
-	// useEffect(() => {
-	// 	// goTo(selectedFolder)
-	// }, [selectedFolder])
-
 	//
 	// Goto
 	//
 	const goTo: iBrowserApi['goTo'] =
 		(folderPath, fileTitle, opts) => {
-			// const appView = (opts && opts.appView) ? opts.appView : currentAppView
-			// console.trace();
 			if (folderPath === "") return
-			// return false;
 
 			folderPath = cleanPath(`${folderPath}/`)
 			const h = `[BROWSER GO TO] `
@@ -103,9 +95,6 @@ export const useBrowserApi = (p: {
 			p.searchUiApi.term.set('')
 			p.statusApi.searching.set(true)
 			setSelectedFolder(folderPath)
-			//cleanListAndFileContent()
-
-
 
 			p.filesApi.get(folderPath, nfiles => {
 				// when receiving results
@@ -125,11 +114,8 @@ export const useBrowserApi = (p: {
 					})
 					// console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
 				}
-
-
 				setActiveFileIndex(activeIndex);
 				setFiles(nfilesSorted)
-
 
 				// if asked to open it in window
 				if (opts && opts.openIn) {

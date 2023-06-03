@@ -115,7 +115,8 @@ export const initServerSocketManager =
 					// 3. ROLE CHECK (If fail)
 					//
 					else if (
-						!sharedConfig.dev.disableLogin && options?.checkRole &&
+						!sharedConfig.dev.disableLogin &&
+						options?.checkRole &&
 						(!tokenUser || !tokenUser.roles.includes(options.checkRole))
 					) {
 						shouldlog && log(`${h} <== WRONG ROLE (${options.checkRole} asked by user ${JSON.stringify(tokenUser)} for "${endpoint}" `);
