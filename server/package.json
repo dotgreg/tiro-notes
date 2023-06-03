@@ -11,7 +11,7 @@
 				"prodTs": "ts-node --transpileOnly ./src/server.ts",
 				"prodJs": "tsc & node --experimental-worker build/server/src/tiro-server.js",
 				"buildOLD": "tsc",
-				"killall": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)",
+				"KILLALL": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)",
 
 				"======== TESTING ============":"=======================",
 				"test": "jest --watchAll --config ./jest.config.js",
