@@ -1,7 +1,13 @@
-// import { getApi } from "../api.hook";
+// JEST IMPORT to avoid textEncode error
 
+// @ts-ignore
+// if there are reorder error, that okay
 import { configClient } from "../../../config";
 import { getApi } from "../api.hook";
+
+// import { getApi } from "../api.hook";
+// import 'text-encoding';
+
 
 test('nothing', (done) => {
 	// getApi(api => {
@@ -10,8 +16,10 @@ test('nothing', (done) => {
 	// 	done()
 	// })
 	console.log(111, configClient)
-	console.log(getApi)
-	expect(1).toEqual(1);
-	done()
+	getApi(api => {
+		console.log(222, api)
+		expect(1).toEqual(1);
+		done()
+	})
 });
 export { }

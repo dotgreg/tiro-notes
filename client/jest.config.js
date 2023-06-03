@@ -5,7 +5,7 @@ module.exports = {
 				'^.+\\.(ts|tsx)?$': 'ts-jest',
 				"^.+\\.(js|jsx)$": "babel-jest",
 		},
-		setupFiles: ['raf/polyfill'],
+		setupFiles: ['raf/polyfill', './scripts/testingEnvSetup.script.js'],
 		testRegex: '/__tests__/.*\\.(ts|tsx|js)$',
 		moduleNameMapper: {
 				// REQUIRED + file.js to mock files
