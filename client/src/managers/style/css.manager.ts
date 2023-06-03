@@ -40,6 +40,10 @@ import { ctagPreviewPluginCss } from '../codeMirror/ctag.plugin.cm';
 import { NotificationsCenterCss } from '../../components/NotificationsCenter.component';
 import { dualViewerCss } from '../../components/dualView/DualViewer.component';
 import { notePreviewPopupCss } from '../../components/NotePreviewPopup.component';
+import { styleCodeMirrorMarkdownPreviewPlugin } from '../codeMirror/markdownPreviewPlugin.cm';
+import { ressourcePreviewSimpleCss } from '../../components/RessourcePreview.component';
+import { noteLinkCss } from '../codeMirror/noteLink.plugin.cm';
+import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
 
 
 export const css2 = (css: string) => css
@@ -62,6 +66,17 @@ export const CssApp2 = (
 				.content-image {
 				}
 		}
+
+		// for preview css
+		${styleCodeMirrorMarkdownPreviewPlugin()}
+		// FILE RESSOURCE PREVIEW
+		${ressourcePreviewSimpleCss()}
+		// PREVIEW LINK
+		${noteLinkCss()}
+		${markdownStylingTableCss()}
+
+
+		
 
 		${notePreviewPopupCss()}
 		${dualViewerCss()}
@@ -332,8 +347,8 @@ export const CssApp2 = (
 
 				////////////////////////////////////////////v 
 				// TEXT VIEW : RIGHT
-													 ////////////////////////////////////////////v 
-													 ${tabsCss()}
+				////////////////////////////////////////////v 
+				${tabsCss()}
 				${draggableGridCss()}
 				${GridMobileCss()}
 
@@ -459,12 +474,13 @@ export const CssApp2 = (
 										
 										
 
-										${editorAreaCss(mobileView)}
-										${codeMirrorEditorCss()}
+										
 
 
 										${previewAreaCss()}
 
+										${editorAreaCss(mobileView)}
+										${codeMirrorEditorCss()}
 										${uploadButtonCss()}
 										${uploadProgressBarCss()}
 										

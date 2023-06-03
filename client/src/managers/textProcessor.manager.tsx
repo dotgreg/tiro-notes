@@ -18,7 +18,7 @@ import { generateImagePreviewHtml } from './codeMirror/image.plugin.cm';
 export const transformUrlInLinks = (bodyRaw: string): string => {
 	// return bodyRaw
 	return replaceRegexInMd(bodyRaw, regexs.externalLink3, found => {
-		return generateHtmlLinkPreview(found)
+		return generateHtmlLinkPreview(found, {addLineJump: true})
 	});
 }
 

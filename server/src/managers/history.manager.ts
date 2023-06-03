@@ -2,6 +2,7 @@ import { log } from "console";
 import { debounce, each } from "lodash";
 import { backConfig } from "../config.back";
 import { moveFile, upsertRecursivelyFolders } from "./fs.manager";
+import { perf } from "./performance.manager";
 
 const fs = require('fs');
 const path = require('path');
@@ -42,13 +43,11 @@ const handleOlderFiles = async (
 		retainDays: number,
 		action: 'archive' | 'compress' | 'delete'
 	}) => {
-
+	let endPerf = perf('cleanHIST => handleOlderFiles ')
 	// scan folder and get list of older files than retainDays
 	const olderFiles = await getFilesOlderThan(p.folder, p.retainDays)
-	//log(12121, olderFiles.length);
 
 	if (p.action === 'archive') {
-
 		const archivePathFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.archiveFolder}`
 		// make sure .archive folder exists
 		upsertRecursivelyFolders(archivePathFolder)
@@ -60,6 +59,7 @@ const handleOlderFiles = async (
 			)
 		})
 	}
+	endPerf()
 }
 
 export type iFileToMove = { path: string, date: string, time: number, fileName: string }

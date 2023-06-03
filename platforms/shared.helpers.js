@@ -47,10 +47,23 @@ const execCmd = (cmd, params, p) => {
 		if (!p.env) p.env = {}
 		if (!p.sync) p.sync = false
 		if (!p.platform) p.platform = false
+		
+		//log level 0 none / 1 critical / 2 all / 3 performance
+		if (!p.logLevel) p.logLevel === 2
+
 		p.logName = !p.logName ? '' : `${p.logName} `
 		const log = whichLog(p);
-
 		log(`[${p.logName}] === ExecCMD ${JSON.stringify({cmd, params, p})}`);
+		const outputLog = (str) => {
+			 if (p.logLevel === 1) {
+				if (str.includes("[ERROR]") || str.includes("[CRIT]")) console.log(str)
+			} else if (p.logLevel === 2){
+				console.log(str)
+			} else if (p.logLevel === 3){
+				if (str.includes("[ERROR]") || str.includes("[CRIT]") || str.includes("[PERFS]")) console.log(str)
+				// console.log(str)
+			}
+		}
 
 		let child 
 		let spawn = p.sync ? require( 'child_process' ).spawnSync : require( 'child_process' ).spawn;
@@ -59,17 +72,17 @@ const execCmd = (cmd, params, p) => {
 		// try {
 		child.stdout.on( 'data', data => {
 				const str = `[${p.logName}(${cmd})] : ${data}`;
-				if (p.showLog) console.log( str );
+				outputLog(str)
 				if (p && p.onLog) p.onLog(str)
 		});
 		child.stderr.on( 'data', data => {
-				const str = `[${p.logName} (${cmd}) >> ERROR!] : ${data}`;
-				console.log( str );
+				const str = `[ERROR][${p.logName} (${cmd})] : ${data}`;
+				outputLog(str)
 				if (p && p.onLog) p.onLog(str)
 		});
 		child.on( 'close', data => {
 				const str = `[${p.logName} (${cmd}) ON CLOSE] : ${data}`;
-				if (p.showLog) console.log( str );
+				outputLog(str)
 				if (p && p.onClose) p.onClose(str)
 		});
 		return child;
@@ -83,7 +96,7 @@ const execCmdInFile = async (cmdStr, filePath, p) => {
 
 		execCmd(`sh`, [filePath ], {
 				logName:`execCmdInFile [${p.logName}]`,
-				showLog: p.showLog,
+				logLevel: p.logLevel,
 				onLog: str => {}
 		})
 }

@@ -6,7 +6,7 @@ import { useDebounce } from '../../hooks/lodash.hooks';
 import { MobileView } from '../../managers/device.manager';
 import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
-import { DualViewer, onViewChangeFn } from '../dualView/DualViewer.component';
+import { DualViewer } from '../dualView/DualViewer.component';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
@@ -85,7 +85,7 @@ export const WindowEditorInt = (p: {
 	// STATUS UPDATE if disconnected/offline
 	//
 	const addToLocalNoteHistoryDebounced = useDebounce((p:iLocalNoteHistory) => {
-		addLocalNoteHistory(p, 20, true)
+		addLocalNoteHistory(p, 20)
 	}, 3000)
 
 

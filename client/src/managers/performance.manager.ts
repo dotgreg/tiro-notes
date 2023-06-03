@@ -1,9 +1,12 @@
+import { getApi } from "../hooks/api/api.hook";
+import { devCliAddFn } from "./devCli.manager";
 
 
 //@ts-ignore
 window.perfsDic = {}
 
 let pDic = {}
+const h = `[PERFS]`
 
 export const pe1 = (id) => {
 	if (!pDic[id]) pDic[id] = []

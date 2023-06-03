@@ -46,7 +46,8 @@ export const pathToIfile = (path: string): iFile => {
 		nature,
 		name: infos.filename,
 		extension: infos.extension,
-		folder: infos.folder
+		folder: infos.folder,
+		filenameWithoutExt: infos.filenameWithoutExt
 	}
 	return res
 

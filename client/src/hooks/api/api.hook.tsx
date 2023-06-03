@@ -30,6 +30,8 @@ import { iNotificationApi, useNotificationApi } from './notification.api.hook';
 import { iSocketApi, useSocketApi } from './socket.api.hook';
 import { audioApi, iAudioApi } from '../../managers/audio.manager';
 import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
+import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
+import { iActivityApi, useActivityApi } from './activity.api.hook';
 
 
 //
@@ -74,6 +76,8 @@ export interface iClientApi {
 	encryption: iEncryptApi,
 	plugins: iPluginsApi,
 	audio: iAudioApi,
+	performance: iPerformanceApi,
+	activity: iActivityApi,
 	ui: {
 		browser: iBrowserApi
 		windows: iWindowsApi
@@ -149,7 +153,9 @@ export const useClientApi = (p: {
 			if (sReqId === reqId) {
 				each(subObj, cbObj => {
 					try { cbObj.cb(dataAnswer); }
-					catch (e) { console.log('[CLIENT API] error with function', e); }
+					catch (e) {
+						console.warn('[CLIENT API] error with function', e);
+					}
 					if (!cbObj.options.persistent) unsubscribe(reqId)
 				})
 			}
@@ -186,7 +192,7 @@ export const useClientApi = (p: {
 	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
 	const commandApi = useCommandApi({ eventBus });
-	const pluginsApi = usePluginsApi({eventBus})
+	const pluginsApi = usePluginsApi({ eventBus })
 	const cacheApi = useCacheApi({});
 	const notificationApi = useNotificationApi({});
 	const socketApi = useSocketApi();
@@ -204,7 +210,8 @@ export const useClientApi = (p: {
 
 	const noteApi = useNoteApi({})
 	const analyticsApi = useAnalyticsApi({})
-	
+	const performanceApi = usePerformanceApi({ eventBus })
+	const activityApi = useActivityApi({ eventBus })
 
 
 	// 
@@ -231,6 +238,8 @@ export const useClientApi = (p: {
 		command: commandApi,
 		plugins: pluginsApi,
 		watch: watchApi,
+		performance: performanceApi,
+		activity: activityApi,
 		ui: {
 			browser: browserApi,
 			notification: notificationApi,

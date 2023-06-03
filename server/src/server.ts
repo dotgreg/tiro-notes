@@ -6,12 +6,14 @@ import { isEnvDev } from './managers/path.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { searchWord } from './managers/search/word.search.manager';
-import { security } from './managers/security.manager';
+import { security, formatHeader} from './managers/security.manager';
 import { scanPlugins } from './managers/plugins.manager';
+import "./managers/activity.manager"
+import { logActivity } from './managers/activity.manager';
 
 fileLogClean();
 
-const archi = process.arch
+const archi = process.arch 
 
 
 log(`===== TIRO SERVER STARTING ====== `)
@@ -22,6 +24,7 @@ https:${backConfig.https}
 platform: ${getPlatform()}
 architecture: ${archi}
 `)
+
 
 var express = require('express'); 
 const app = express()
@@ -57,7 +60,8 @@ server.listen(backConfig.port, function () {
 })
 
 app.get('*', function(req, res){
-	security.log(`NOK 404 requested => ${req.url} [${JSON.stringify(req.headers)}]`)
+	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
+	logActivity(`404`, `SECURITY:404:${req.url}`, req)
 	res.status(404).send('Not found');
 });
 

@@ -22,7 +22,6 @@ export const useNoteEditorEvents = (p: {
 
 	useEffect(() => {
 		setHasBeenEdited(false);
-
 		if (p.onEditorDidMount) {
 			// console.log('[EVENTS EDITOR] EDITOR DID MOUNT');
 			p.onEditorDidMount()
@@ -65,6 +64,7 @@ export const useNoteEditorEvents = (p: {
 	// EVENT => EDITING
 	const triggerNoteEdition = (newContent: string) => {
 		// if (!canEditRef.current) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
+		console.log(333, hasBeenEdited, p.file.path)
 		if (!hasBeenEdited) {
 			if (p.onNoteEdition) {
 				// console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);

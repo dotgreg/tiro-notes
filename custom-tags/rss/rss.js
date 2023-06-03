@@ -263,7 +263,6 @@ const rssApp = (innerTagStr, opts) => {
 		const getXml = (feed, cb) => {
 			api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
 				let res2 = xml2js(txt, { compact: true })
-				console.log(123, res2)
 				let items = res2.rss?.channel.item
 
 				if (!items) items = []

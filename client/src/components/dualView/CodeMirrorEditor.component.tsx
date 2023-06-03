@@ -3,7 +3,6 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { autocompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
-import { ensureSyntaxTree, foldAll, foldEffect, syntaxTree, unfoldAll } from "@codemirror/language";
 import CodeMirror, { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 
 import { cssVars } from "../../managers/style/vars.style.manager";
@@ -24,13 +23,18 @@ import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm"
 import { noteLinkCss, noteLinkPreviewPlugin } from "../../managers/codeMirror/noteLink.plugin.cm";
 import { imagePreviewPlugin } from "../../managers/codeMirror/image.plugin.cm";
 import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.cm";
-import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter } from "../../managers/codeMirror/markdownStyling.cm";
+import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
+import { isBoolean } from "lodash";
 
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
+
+export interface iCMPluginConfig {
+	markdown?: boolean
+}
 
 const CodeMirrorEditorInt = forwardRef((p: {
 	windowId: string,
@@ -47,7 +51,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+
+	pluginsConfig?: iCMPluginConfig
 }, forwardedRefCM) => {
+	let pluginsConfig = p.pluginsConfig
+	if (!pluginsConfig) pluginsConfig = {}
+	if (!isBoolean(pluginsConfig.markdown)) pluginsConfig.markdown = true
 
 
 	const getEditorObj = (): ReactCodeMirrorRef | null => {
@@ -121,27 +130,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// devHook("cm_update")(p)
 		// }, 100)
 
-		// testCM()
 
 	}, [p.value, p.forceRender, p.file.path]);
 
-
-	// const testCM = () => {
-	// 	let CMObj = getEditorObj() 
-
-	// 	//@ts-ignore
-	// 	window.cmobj = CMObj
-	// 	const view = CMObj?.view
-	// 	const state = CMObj?.state
-	// 	if(!view) return
-	// 	if(view && state) {
-			
-	// 		CodeMirrorUtils.foldAllChildren(CMObj)
-	// 	}
-	// 	setTimeout(() => {
-	// 		// if(view) unfoldAll(view)
-	// 	}, 3000)
-	// }
 
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
@@ -150,6 +141,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		else CodeMirrorUtils.unfoldAllChildren(CMObj)
 		setIsAllFolded(!isAllFolded)
 	}
+	useEffect(() => {
+		setIsAllFolded(false)
+	}, [p.file.path])
 
 
 	const onChange = (value, viewUpdate) => {
@@ -179,7 +173,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		if (p.posY <= -10) return
-		CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
+		try {
+			CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
+		} catch (error) {
+			console.log(error)	
+		}
 	}, [p.jumpToLine])
 
 
@@ -256,16 +254,17 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 
 
-	// if --disable-table inside content
-	let enhancedTable = !p.value.includes("--no-editor-table") && !p.value.includes("--nt")
-	let enhancedLatex = !p.value.includes("--no-latex") && !p.value.includes("--nl")
+	// if --table//--latex inside content
+	let enhancedTable = p.value.includes("--table") 
+	let enhancedLatex = p.value.includes("--latex")
 
 	const { userSettingsApi } = useUserSettings()
 	const ua = userSettingsApi
-	// const disablePlugins = true
-	const disablePlugins = false
+	// let disablePlugins = true
+	let disablePlugins = false
 	// disable markdown plugin on mobile as it makes it really unstable and slow
-	const disableMd = deviceType() !== "desktop"
+	let disableMd = deviceType() !== "desktop"
+	// disableMd = true
 
 	// codemirrorExtensions.push(linksPreviewPlugin)
 	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
@@ -274,20 +273,25 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
 		codemirrorExtensions.push(markdownStylingTableLimiter(p.file, p.windowId))
+		codemirrorExtensions.push(testClassLine(p.file, p.windowId))
 		codemirrorExtensions.push(markdownStylingTableCell(p.file, p.windowId))
 		codemirrorExtensions.push(markdownStylingTable(p.file, p.windowId))
 	}
-	if (ua.get("ui_editor_markdown_preview") && enhancedLatex && !disablePlugins) {
+	if (ua.get("ui_editor_markdown_latex_preview") && enhancedLatex && !disablePlugins) {
 		markdownExtensionCnf.extensions.push(LatexMdEl)
 	}
+
 	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		codemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
-		codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
-		codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
+		if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
+			codemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
+			codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
+			codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
+		}
 	}
+	
 
-	if (!disablePlugins && !disableMd) {
+	if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
 	} else {
 		// markdown replacement plugin for mobile
@@ -403,8 +407,8 @@ export const codeMirrorEditorCss = () => `
 	top: 2px;
 	color: #d7d7d7;
 	cursor: pointer;
-	padding: 5px 3px;
-	left: 12px;
+	padding: 5px 4px;
+	left: 0px;
 	background: white;
 }
 
@@ -472,21 +476,21 @@ export const codeMirrorEditorCss = () => `
 		outline: none!important;
 }
 .main-editor-wrapper {
-		width: calc(100% + 18px);
-		margin: 32px 0px 0px 0px;
+		// width: calc(100% + 18px);
+		// margin: 32px 0px 0px 0px;
 		padding: 0px;
 		width:100%;
 		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 180px);'}; 
 }
 
 .codemirror-editor-wrapper {
-		margin-right: 18px;
-		width: calc(100% - 10px);
+		// margin-right: 18px;
+		// width: calc(100% - 10px);
 		position: relative;
-		left: -10px;
+		// left: -10px;
 }
-.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-		height: calc(100% - 30px);
+.codemirror-editor-wrapper, .cm-editor, .cm-theme {
+		// height: calc(100% - 30px);
 }
 .codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
 		height: 100% ;
@@ -499,15 +503,18 @@ export const codeMirrorEditorCss = () => `
 .cm-search {
 		padding: 6px 10px 11px;
 }
-.cm-content {
-		width: calc(100% - 10px);
-		overflow:hidden;
-		white-space: pre-wrap;
-}
+
 .cm-scroller {
 		z-index: auto!important;
-		left: 15px;
-		padding-right: 25px;
+		width: calc(100% - 30px);
+		width: calc(100% - 30px); // reduce width overall CM
+		padding-right: 35px; // make scrollbar disappear
+		padding-left: 5px; // some space for the gutter
+		.cm-content {
+			width: calc(100% - 10px); // needed otherwise x scroll
+			overflow:hidden;
+			white-space: pre-wrap;
+		} 
 }
 .cm-line {
 }
@@ -528,11 +535,16 @@ export const codeMirrorEditorCss = () => `
 }
 
 .codemirror-mobile-fallback {
-		margin: 10px;
-		textarea {
-				width: calc(100% - 20px);
-				height: calc(100vh - 350px);
-		}
+	margin: 10px;
+	p {
+		color:grey;
+		font-size: 10px;
+	}
+	textarea {
+		width: calc(100% - 20px);
+		height: calc(100vh - 230px);
+		border: 0px;
+	}
 }
 
 .test-success {
@@ -562,14 +574,14 @@ export const codeMirrorEditorCss = () => `
 		}
 }
 
-${styleCodeMirrorMarkdownPreviewPlugin()}
+// ${styleCodeMirrorMarkdownPreviewPlugin()}
 
-// FILE RESSOURCE PREVIEW
-${ressourcePreviewSimpleCss()}
+// // FILE RESSOURCE PREVIEW
+// ${ressourcePreviewSimpleCss()}
 
-// PREVIEW LINK
-${noteLinkCss()}
+// // PREVIEW LINK
+// ${noteLinkCss()}
 
 
-${markdownStylingTableCss()}
+// ${markdownStylingTableCss()}
 `

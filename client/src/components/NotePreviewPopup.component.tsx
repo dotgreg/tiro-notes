@@ -4,12 +4,6 @@ import { getApi } from '../hooks/api/api.hook';
 import { iNotePreviewPopup } from '../hooks/api/notePreviewPopup.api.hook';
 import { NotePreview } from './NotePreview.component';
 
-// notePreviewPopupStatus && <notePreviewPopup> unique in app.tsx
-// un notePreviewPopup.hook.api.tsx qui gere une var 
-    // notePreviewPopupStatus {open,filePath}
-// ui.notePreviewPopup.open
-// ui.notePreviewPopup.close
-
 export const NotePreviewPopup = (p: {
     notePreview: iNotePreviewPopup
 }) => {
@@ -21,16 +15,30 @@ export const NotePreviewPopup = (p: {
         })
     }
 
+    const goToNote = e => {
+        const file = pathToIfile(p.notePreview.filepath)
+        if (!file || !p.notePreview.opts?.windowIdToOpenIn) return
+        getApi(api => {
+            api.ui.browser.goTo(
+                file.folder,
+                file.name, {
+                openIn: p.notePreview.opts?.windowIdToOpenIn
+            })
+        })
+    }
+
     return (
         <div
             className="page-link-preview-popup-ext"
             onMouseLeave={closePopup}
+            onClick={goToNote}
             style={{ left: p.notePreview.position[0], top: p.notePreview.position[1] }}>
             <div className='page-link-preview-popup-int'>
                 <NotePreview
                     file={notePreview}
                     // searchedString={activeLine}
                     height={200}
+                    type={"editor"}
                 />
             </div>
         </div>
@@ -40,10 +48,12 @@ export const NotePreviewPopup = (p: {
 
 export const notePreviewPopupCss = () => `
     .page-link-preview-popup-ext {
+        // pointer-events: none;
         position: absolute;
-        z-index: 100;
+        z-index: 98;
         cursor:pointer;
         .page-link-preview-popup-int {
+            // pointer-events: all;
             cursor:default;
             margin-top: 20px;
             background: white;

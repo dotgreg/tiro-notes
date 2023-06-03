@@ -58,8 +58,6 @@ class ListInt extends React.Component<{
 			for (let i = 0; i < props.files.length; i++) {
 				this.liRefs.push(React.createRef())
 			}
-			// console.log(555555);
-			// console.log(4444);
 			this.getVisibleItemsDebounced()
 
 			this.setState({ selectionEdges: [-1, -1] })
@@ -155,7 +153,7 @@ class ListInt extends React.Component<{
 							height={responsiveListHeight}
 							itemCount={this.props.files.length}
 							itemSize={itemSize}
-							width={width||0}
+							width={width || 0}
 							onScroll={this.onListScroll}
 						>
 							{({ index, style }) => {
@@ -165,7 +163,7 @@ class ListInt extends React.Component<{
 									<div style={style}>
 										<li
 											ref={this.liRefs[index]}
-											style={{ width: width||0 - (sizes.l2.fileLi.padding * 2) - (sizes.l2.fileLi.margin * 2) - 35 }}
+											style={{ width: width || 0 - (sizes.l2.fileLi.padding * 2) - (sizes.l2.fileLi.margin * 2) - 35 }}
 											className={[
 												'file-element-list',
 												`element-${index}`,

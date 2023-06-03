@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
 import { debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
@@ -8,11 +8,12 @@ import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
-import { NotePreview } from './NotePreview.component';
+import { iNotePreviewType, NotePreview } from './NotePreview.component';
 import { deviceType } from '../managers/device.manager';
 import { aLog } from '../hooks/api/analytics.api.hook';
-import { Icon } from './Icon.component';
+import { Icon, Icon2 } from './Icon.component';
 import { notifLog } from '../managers/devCli.manager';
+import { fileToNoteLink } from '../managers/noteLink.manager';
 
 
 interface iOptionSuggest {
@@ -52,6 +53,7 @@ export const SuggestPopup = (p: {
 	const [selectedOption, setSelectedOptionInt] = useState<any[]>([]);
 	const selectedOptionRef = useRef<any[]>([])
 	const setSelectedOption = (nArr: any[]) => {
+		
 		if (!isArray(nArr)) return
 		setSelectedOptionInt(nArr)
 		selectedOptionRef.current = nArr
@@ -65,17 +67,51 @@ export const SuggestPopup = (p: {
 	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
 	const [noOptionLabel, setNoOptionLabel] = useState("No Options")
 
+	const insertNoteId = (f:iFile) => {
+		getApi(api => {
+			api.ui.note.editorAction.dispatch({
+				type:"insertText", 
+				insertText: fileToNoteLink(f)
+			})
+			p.onClose()
+		})
+	}
+
+
+	// const HtmlOption = useMemo((p as {file: iFile}) => {
+	const HtmlOption = (p:{file:iFile}) => {
+		const [hover, setHover] = useState<boolean>(false);
+		return useMemo(() => <div 
+		// return <div 
+				className={`path-option-wrapper device-${deviceType()}`}
+				onMouseEnter={e => {setHover(true)}}
+				onMouseLeave={e => {setHover(false)}}
+			>
+				<div className="file">{p.file.name}</div>
+				<div className="folder">{p.file.folder}</div>
+				<div className="actions">
+				{hover && <div className="action" 
+					onClick={e => {
+						e.stopPropagation()
+						insertNoteId(p.file)
+					}}>
+					<Icon2 name="link" label='insert note link in the current note'/>
+				</div>}
+				</div>
+			</div>
+		, [p.file, hover])
+	}
+
+	const genOptionHtml = (file: iFile):ReactElement => {
+		return <HtmlOption file={file} />
+	}
+
 	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
 		let res: iOptionSuggest[] = []
 		each(files, file => {
-			let htmlOption = <div className="path-option-wrapper">
-				<div className="file">{file.name}</div>
-				<div className="folder">{file.folder}</div>
-			</div>
-
 			let nOption: iOptionSuggest = {
 				value: file.path,
-				label: htmlOption,
+				label: genOptionHtml(file),
 				payload: { file }
 			}
 			res.push(nOption)
@@ -92,19 +128,17 @@ export const SuggestPopup = (p: {
 	//
 	// STYLING
 	//
-	const styles: any = {
-		// indicatorContainer: (base, state) => {
-		// 	return { ...base, display: "none" }
-		// },
+	const isHoverEnabled = useRef<boolean>(false)
+	const [styles, setStyles] = useState<any>({
 		indicatorsContainer: (base, state) => {
 			return { ...base, display: "none" }
 		},
-		// IndicatorsContainer: (base, state) => {
-		// 	return { ...base, display: "none" }
-		// },
+		menuList: (base, state) => {
+			let pe = deviceType() === "mobile" ? "all" : "none"
+			return { ...base, maxHeight: "150px"}
+		},
 		menu: (base, state) => {
 			let pe = deviceType() === "mobile" ? "all" : "none"
-			// let pe = "all"
 			return { ...base, position: "relative", pointerEvents: pe }
 		},
 		control: (base, state) => {
@@ -116,8 +150,31 @@ export const SuggestPopup = (p: {
 		multiValueRemove: (base, state) => {
 			return !state.data.editable ? { ...base, display: 'none' } : base;
 		},
-	}
+	}) 
 
+	// on mousemove, events options can be hovered
+	// const onMouseMove = (e:any) => {
+	// 	if (isHoverEnabled.current) return
+	// 	isHoverEnabled.current = true
+	// 	console.log(123,e)
+	// 	setTimeout(() => {
+	// 		styles.menu = (base, state) => {
+	// 			let pe = deviceType() === "mobile" ? "all" : "all"
+	// 			return { ...base, position: "relative", pointerEvents: pe }
+	// 		}
+	// 		setStyles(styles)
+	// 	}, 0)
+	// }
+
+	useEffect(() => {
+		setTimeout(() => {
+			styles.menu = (base, state) => {
+				let pe = deviceType() === "mobile" ? "all" : "all"
+				return { ...base, position: "relative", pointerEvents: pe }
+			}
+			setStyles(styles)
+		}, 500)
+	}, [])
 
 
 
@@ -192,6 +249,7 @@ export const SuggestPopup = (p: {
 		// at first, according to first char, switch mode
 		let stags = selectedOptionRef.current
 		let inTxt = inputTxt.trim()
+		setPreviewType("editor")
 
 
 		if (stags.length === 0) {
@@ -235,9 +293,11 @@ export const SuggestPopup = (p: {
 
 			} else if (stags.length === 2) {
 				// STEP 2 : show searched results
+				setPreviewType("preview")
 				reactToSearchTyping(inTxt, stags[1].label)
 
 			} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
+				setPreviewType("preview")
 				// STEP 3-1 (optional) :  filter found results
 				console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
 
@@ -401,10 +461,7 @@ export const SuggestPopup = (p: {
 						let payload = { file: f }
 
 						// let lastHtml = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
-						let htmlOption = <div className="path-option-wrapper">
-							<div className="file">{f.name}</div>
-							<div className="folder">{f.folder}</div>
-						</div>
+						let htmlOption = genOptionHtml(f)
 
 						nOpts.push({ value: last, label: htmlOption, payload })
 					})
@@ -623,86 +680,7 @@ export const SuggestPopup = (p: {
 			}
 		})
 
-		// // STEP 1 : SELECT PLUGIN
-		// if (stags.length === 1) {
-		// 	// scan the bar_plugins folder
-		// 	let pluginsBarFolder = `/${sharedConfig.path.configFolder}/bar_plugins/`
-
-		// 	// setOptions(nOpts)
-		// 	getApi(api => {
-		// 		// let nOpts: any = []
-		// 		let nOpts: any = []
-		// 		api.files.get(pluginsBarFolder, files => {
-		// 			each(files, f => {
-		// 				nOpts.push({ label: f.name.replace('.md', ''), value: f })
-		// 			})
-		// 			// order alphabetically
-		// 			nOpts = orderBy(nOpts, ["label"])
-
-		// 			setOptions(nOpts)
-		// 			if (input === ":") setInputTxt("")
-		// 			setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
-		// 			// forceUpdate()
-		// 		})
-		// 	})
-		// }
-		// // STEP 2 : LOAD CONTENT, EVAL INPUTTXT AND SEND IT BACK
-		// else if (stags.length === 2) {
-		// 	let file = stags[1].value
-
-		// 	getApi(tiroApi => {
-		// 		const execPlugin = (pluginName: string) => {
-		// 			let pluginContent = cachedPlugins.dict[pluginName]
-
-		// 			//
-		// 			// BAR API
-		// 			//
-		// 			const loadBarPlugin = (url: string, bApi, tApi) => {
-		// 				let noCache = !cachedPlugins.config.enabled
-		// 				tiroApi.ressource.fetch(url, txt => {
-		// 					try {
-		// 						new Function('barApi', 'tiroApi', txt)(bApi, tApi)
-		// 					} catch (e) {
-		// 						let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
-		// 						console.log(message);
-		// 					}
-		// 				}, { disableCache: noCache })
-		// 			}
-
-		// 			let barApi = {
-		// 				input, setInputTxt, inputTxt, inputTxtRef,
-		// 				options, setOptions,
-		// 				onChange: onChangeUpdatePlugin,
-		// 				onClose: p.onClose, onHide: p.onHide,
-		// 				selectedOptionRef, setSelectedOption,
-		// 				lodash,
-		// 				setNotePreview, notePreview,
-		// 				setHtmlPreview, htmlPreview,
-		// 				loadBarPlugin, disableCache: disableCachePlugins
-		// 			}
-		// 			// we directly eval it!
-		// 			try {
-		// 				new Function('barApi', 'tiroApi', pluginContent)(barApi, tiroApi)
-		// 			} catch (e) {
-		// 				let message = `[ERROR PLUGIN BAR]: ${JSON.stringify(e)}"`
-		// 				console.log(message);
-		// 			}
-
-
-		// 		}
-
-
-		// 		aLog(`suggest_plugin_${file.name}`)
-		// 		if (cachedPlugins.dict[file.name]) {
-		// 			execPlugin(file.name)
-		// 		} else {
-		// 			tiroApi.file.getContent(file.path, pluginContent => {
-		// 				cachedPlugins.dict[file.name] = pluginContent
-		// 				execPlugin(file.name)
-		// 			})
-		// 		}
-		// 	})
-		// }
+	
 	}
 	const onChangeUpdatePlugin = useRef<any>(null)
 
@@ -817,14 +795,17 @@ export const SuggestPopup = (p: {
 
 
 
+	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
+	
 
 	//
 	// RENDERING
 	//
 	return (
 		<div className={`suggest-popup-bg ${p.show ? "" : "hide"}`}
+			// onMouseMove={e => onMouseMove(e)}
 			onClick={e => { p.onClose() }}>
-			<div className="suggest-popup-wrapper">
+			<div className={`suggest-popup-wrapper device-${deviceType()}`}>
 				<div className="flex-wrapper"
 					onClick={e => {
 						e.stopPropagation()
@@ -873,6 +854,7 @@ export const SuggestPopup = (p: {
 									file={notePreview}
 									searchedString={activeLine}
 									height={previewHeight}
+									type={previewType}
 								/>
 							}
 							{
@@ -955,19 +937,44 @@ export const suggestPopupCss = () => `
 						}
 
 						.path-option-wrapper {
+							position: relative;
+							word-break: break-word;
+							.search-location {
+									color: #b3b1b1;
+									font-size: 9px;
+							}
+							.folder {
+									color: grey;
+							}
+							.file {
+									font-weight: bold;
 
-								word-break: break-word;
-								.search-location {
-										color: #b3b1b1;
-										font-size: 9px;
-								}
-								.folder {
-										color: grey;
-								}
-								.file {
-										font-weight: bold;
+							}
 
+							&.device-desktop .actions {
+								transition: all 0.2s;
+								opacity: 0;
+							}
+							&.device-desktop:hover .actions {
+								opacity: 1;
+							}
+							.actions {
+								display:flex;
+								position: absolute;
+								right: 0px;
+								top: 0px;
+								align-items: center;
+								height: 100%;
+								.action {
+									transition: all 0.2s;
+									opacity: 0.3;
+									cursor: pointer;
+									color: grey;
+									&:hover {
+										opacity: 1;
+									}
 								}
+							}
 						}
 						.html-preview-wrapper {
 								overflow: hidden;

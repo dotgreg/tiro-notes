@@ -159,7 +159,7 @@ const getCachedPosition = (CMObj: any) => {
 	return CMObj.view.state.selection.ranges[0].from
 }
 const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
-	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1
+	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1 
 	const currentPosition = getCachedPosition(CMObj)
 	const currentText = CMObj.view.state.doc.toString()
 	let splitedText = currentText.split("\n");
