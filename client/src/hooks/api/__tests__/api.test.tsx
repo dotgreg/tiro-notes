@@ -1,21 +1,32 @@
 import React from 'react';
-import { configClient } from "../../../config";
 import { getApi } from "../api.hook";
-import { fireEvent, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { App } from "../../../App"
 
-
-test('nothing', (done) => {
-	// getApi(api => {
-	// 	console.log(12, api)
-	// 	expect(1).toEqual(1);
-	// 	done()
-	// })
-	const { getByText } = render(<App/>);
+test('api.file.getContent + saveContent working', (done) => {
+	const { getByText } = render(<App />);
 	getApi(api => {
-		console.log(222, api)
+		api.file.saveContent("test1.md", "test1")
+		setTimeout(() => {
+			api.file.getContent("test1.md", txt => {
+				expect(txt).toEqual("test1");
+				done()
+			})
+		}, 200)
+
 	})
-	expect(1).toEqual(1);
-	done()
 });
-export { }
+
+// test('API:CACHE:get/set', (done) => {
+// 	const { getByText } = render(<App />);
+// 	getApi(api => {
+// 		api.cache.set("cacheId1", "test1")
+// 		setTimeout(() => {
+// 			api.cache.get("cacheId1", txt => {
+// 				expect(txt).toEqual("test1");
+// 				done()
+// 			})
+// 		}, 100)
+// 	})
+// });
+// export { }

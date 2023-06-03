@@ -13,7 +13,7 @@ import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getUserToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
-import { getFolderPath } from "./managers/path.manager";
+import { getFolderPath, p, relativeToAbsolutePath } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
@@ -27,6 +27,7 @@ import { getActivityReport, logActivity } from "./managers/activity.manager";
 import { createFileHistoryVersion, createFileHistoryVersion_OLD, fileHistoryParams, getHistoryFolder, processFileHistoryHousekeeping } from "./managers/fileHistory.manager";
 import { getDateObj } from "../../shared/helpers/date.helper";
 import { isArray } from "lodash";
+import { relative } from "path";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -132,7 +133,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('saveFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("write", data.filePath, serverSocket2)
-		const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
+		const pathToFile = p(`${backConfig.dataFolder}/${data.filePath}`);
 		let endPerf = perf('saveFileContent ' + pathToFile)
 
 		await upsertRecursivelyFolders(pathToFile)
@@ -159,10 +160,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 
 	serverSocket2.on('createNote', async data => {
-		
+
 
 		const checkAndGenNewNoteName = (): string => {
-			let newNameNote = `/Note ${globalDateFileIncrement.id} of ${formatDateNewNote(new Date())}.md`
+			let newNameNote = `/${globalDateFileIncrement.id} ${formatDateNewNote(new Date())}.md`
 			let newNotePath = `${backConfig.dataFolder}${data.folderPath}${newNameNote}`
 			if (globalDateFileIncrement.date !== dateId(new Date())) {
 				globalDateFileIncrement.id = 0
@@ -177,7 +178,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		}
 		const notePath = checkAndGenNewNoteName();
 		let endPerf = perf('createNote ' + notePath)
-		
+
 		log(`CREATING ${notePath}`);
 		await saveFile(`${notePath}`, ``)
 
@@ -190,7 +191,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('moveFile', async data => {
 		await moveFileLogic(data.initPath, data.endPath)
-		
+
 		// rescan the current dir
 		log(`===> 4/4 debouncedScanAfterMove`);
 		await debouncedFolderScan(serverSocket2, data.initPath, data.idReq)
@@ -218,7 +219,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askFileHistory', async data => {
 		// get all the history files 
-		let endPerf = perf('askFileHistory '+ data.filepath)
+		let endPerf = perf('askFileHistory ' + data.filepath)
 		const file = pathToIfile(data.filepath)
 		const historyFolder = getHistoryFolder(file)
 		let allHistoryFiles = await scanDirForFiles(historyFolder)
@@ -249,7 +250,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	// DELETING TRASH
 	serverSocket2.on('askFolderDelete', async data => {
-		
+
 
 		if (data.typeFolder === "trash") {
 			let trashFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/.trash`
@@ -312,13 +313,13 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('sendLoginInfos', async data => {
 		let endPerf = perf('sendLoginInfos ')
 		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
-		
-		security.log(`LOGIN : ${areClientInfosCorrect ? "OK": `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
-		logActivity(`LOGIN:${areClientInfosCorrect ? "OK": "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
+
+		security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
+		logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
 
 		if (!areClientInfosCorrect) {
 			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
-			
+
 		} else {
 			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
 
@@ -332,7 +333,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		endPerf()
 	}, { bypassLoginTokenCheck: true, disableDataLog: true })
 
-	
+
 
 
 	//
@@ -366,7 +367,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// COMMAND EXEC
 	// 
 	serverSocket2.on('askCommandExec', async data => {
-		let endPerf = perf('askCommandExec '+ data.commandString)
+		let endPerf = perf('askCommandExec ' + data.commandString)
 		// let res = await execString(data.commandString)
 		let res = await execString(data.commandString)
 		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
@@ -374,7 +375,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('askCommandExecStream', async data => {
-		let endPerf = perf('askCommandExecStrea, '+ data.commandString)
+		let endPerf = perf('askCommandExecStrea, ' + data.commandString)
 		execStringStream(data.commandString, (streamChunk) => {
 			serverSocket2.emit('getCommandExecStream', { streamChunk: streamChunk, idReq: data.idReq })
 		})
@@ -389,7 +390,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let endPerf = perf('askPluginsList ')
 		// let res = await execString(data.commandString)
 		// let plugins:iPlugin[] = []
-		let {plugins, scanLog} = await scanPlugins(data.noCache)
+		let { plugins, scanLog } = await scanPlugins(data.noCache)
 		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
 		endPerf()
 	})
@@ -400,7 +401,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('emitNotification', async data => {
 		let endPerf = perf('emitNotification ')
 		// actually send to to everybody
-		ioServer.emit('getNotification', {...data})
+		ioServer.emit('getNotification', { ...data })
 
 		// and appends notif in notification history
 		if (data.notification.options?.keepInHistory) {
@@ -408,7 +409,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			await prependToFile(notifHistoryFile, `${new Date().toJSON()} : ${data.notification.content}`)
 		}
 		endPerf()
-		
+
 	}, { checkRole: "editor" })
 
 

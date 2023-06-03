@@ -153,7 +153,9 @@ export const useClientApi = (p: {
 			if (sReqId === reqId) {
 				each(subObj, cbObj => {
 					try { cbObj.cb(dataAnswer); }
-					catch (e) { console.log('[CLIENT API] error with function', e); }
+					catch (e) {
+						console.warn('[CLIENT API] error with function', e);
+					}
 					if (!cbObj.options.persistent) unsubscribe(reqId)
 				})
 			}
@@ -251,7 +253,6 @@ export const useClientApi = (p: {
 	}
 	// outside of react too
 	clientApiInt = clientApi
-	console.log(333333)
 
 	return clientApi
 }

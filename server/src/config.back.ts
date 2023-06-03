@@ -34,6 +34,12 @@ if (jsonConfig) {
 
 // LOADING CONFIG FILE
 const dataFolder = getDataFolder()
+
+// LOADING SHARED CONFIG
+const dev = sharedConfig.dev
+if (testing_env) dev.disableLogin = true
+
+
 export const backConfig = {
 	dataFolder,
 	frontendBuildFolder: relativeToAbsolutePath('./client', true),
@@ -48,8 +54,7 @@ export const backConfig = {
 	rgPath,
 
 	...sharedConfig.path,
-
-	dev: sharedConfig.dev
+	dev
 
 }
 

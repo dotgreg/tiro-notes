@@ -17,13 +17,16 @@
         "dev": "run-p kill-server; run-p client server custom-tags",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
-        "test/server": "npm run --prefix ./server test",
-        "test/client": "npm run --prefix ./client test",
         "custom-tags": "npx http-server -p 8088 ./custom-tags/",
         "gen-certs": "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048  -subj '/CN=www.tiro-notes.org/subjectAltName=DNS.1=185.199.111.153/' -out tiro-notes.crt -keyout tiro-notes.key",
         "================== TESTING =================== ": "",
-        "testing-dev": "run-p kill-server; run-p client testing-server custom-tags",
+        "test/client": "npm run --prefix ./client test",
+
+        "test/dev": "run-p kill-server; run-p client testing-server custom-tags",
         "testing-server": "npm run --prefix ./server testing-server",
+
+        "test/server-internal": "npm run --prefix ./server test",
+        "test/client-internal": "npm run --prefix ./client test",
 
         "================== PLATFORMS RELATED =================== ": "",
         "cli-test": "cd ./platforms/npm-cli-module; npm run dev;",
