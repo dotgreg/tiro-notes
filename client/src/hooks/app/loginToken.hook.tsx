@@ -77,7 +77,7 @@ export const useLoginToken = (p: {
 			}
 		})
 
-		
+
 
 		return () => {
 			clientSocket2.off(listenerId.current)
@@ -85,7 +85,7 @@ export const useLoginToken = (p: {
 	}, [])
 
 	const [cachedUserPasswordLs, setCachedUserPasswordLs] = useLocalStorage<any>("user-password-cache-ls", {})
-	
+
 	useEffect(() => {
 		if (displayLoginPopup) {
 			// check if user and password inside url
@@ -97,7 +97,7 @@ export const useLoginToken = (p: {
 				urlParams['l1'].value && urlParams['l2'].value
 			) {
 				getApi(api => {
-					
+
 					// if already in LS, do not decrypt, just take value from ls
 					let id = urlParams['l1'].value + urlParams['l2'].value
 					let usr
@@ -105,22 +105,22 @@ export const useLoginToken = (p: {
 					if (cachedUserPasswordLs[id]) {
 						usr = cachedUserPasswordLs[id].usr
 						pass = cachedUserPasswordLs[id].pass
-					}else {
-						usr = api.encryption.decryptUrlParam(urlParams['l1'].value, encryptedPassword).plaintext 
+					} else {
+						usr = api.encryption.decryptUrlParam(urlParams['l1'].value, encryptedPassword).plaintext
 						pass = api.encryption.decryptUrlParam(urlParams['l2'].value, encryptedPassword).plaintext
-						if (usr  && pass ) {
+						if (usr && pass) {
 							let nCache = cloneDeep(cachedUserPasswordLs)
-							nCache[id] = {usr, pass}
+							nCache[id] = { usr, pass }
 							setCachedUserPasswordLs(nCache)
 						}
 					}
 
-					if (usr  && pass ) {
+					if (usr && pass) {
 						setUser(usr)
 						setPassword(pass)
 						setTimeout(() => {
 							console.log("success login url, submitting it")
-							clientSocket2.emit('sendLoginInfos', { user:usr, password:pass, token: getLoginToken() })
+							clientSocket2.emit('sendLoginInfos', { user: usr, password: pass, token: getLoginToken() })
 						}, 1000)
 					}
 				})
