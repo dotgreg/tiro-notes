@@ -190,7 +190,7 @@ export const useClientApi = (p: {
 	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
 	const commandApi = useCommandApi({ eventBus });
-	const pluginsApi = usePluginsApi({eventBus})
+	const pluginsApi = usePluginsApi({ eventBus })
 	const cacheApi = useCacheApi({});
 	const notificationApi = useNotificationApi({});
 	const socketApi = useSocketApi();
@@ -208,8 +208,8 @@ export const useClientApi = (p: {
 
 	const noteApi = useNoteApi({})
 	const analyticsApi = useAnalyticsApi({})
-	const performanceApi = usePerformanceApi({eventBus})
-	const activityApi = useActivityApi({eventBus})
+	const performanceApi = usePerformanceApi({ eventBus })
+	const activityApi = useActivityApi({ eventBus })
 
 
 	// 
@@ -237,7 +237,7 @@ export const useClientApi = (p: {
 		plugins: pluginsApi,
 		watch: watchApi,
 		performance: performanceApi,
-		activity:activityApi,
+		activity: activityApi,
 		ui: {
 			browser: browserApi,
 			notification: notificationApi,
@@ -251,6 +251,7 @@ export const useClientApi = (p: {
 	}
 	// outside of react too
 	clientApiInt = clientApi
+	console.log(333333)
 
 	return clientApi
 }
