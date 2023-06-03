@@ -4,7 +4,7 @@
 		"description": "",
 		"main": "index.js",
 		"scripts": {
-				"======== DEV ============":"=======================",
+				"======== DEV ============": "=======================",
 				"start": "run-s NPMdevserver",
 				"BUNdevserver": "cross-env NODE_ENV=development bun --hot ./src/server.ts",
 				"NPMdevserver": "cross-env NODE_ENV=development nodemon",
@@ -12,14 +12,12 @@
 				"prodJs": "tsc & node --experimental-worker build/server/src/tiro-server.js",
 				"buildOLD": "tsc",
 				"KILLALL": "kill -9 $(lsof -t -i:9229);kill -9 $(lsof -t -i:8082)",
-
-				"======== TESTING ============":"=======================",
+				"======== TESTING ============": "=======================",
 				"test": "jest --watchAll --config ./jest.config.js",
 				"testing-prepare": "node -r ts-node/register ./scripts/prepareTestingEnv.script.ts",
 				"testing-server-int": "cross-env TIRO_TESTING_ENV=true NODE_ENV=development nodemon",
 				"testing-server": "run-s testing-prepare testing-server-int",
-
-				"======== INSTALL ============":"=======================",
+				"======== INSTALL ============": "=======================",
 				"install-server": "npm install",
 				"install-shared": "npm --prefix ../shared install",
 				"install-all": "run-s install-server install-shared",

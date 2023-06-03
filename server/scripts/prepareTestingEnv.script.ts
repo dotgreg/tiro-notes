@@ -1,3 +1,6 @@
+import fs from 'fs/promises'
+const p = require('path');
+
 //
 // SUPPORT FUNCTIONS
 //
@@ -8,17 +11,13 @@ export const getTestingDataPath = () => {
 }
 
 const shouldLog = true
-var fs = require('fs');
-const deleteFolder = (path: string) => {
+// var fs = require('fs');
+const deleteFolder = async (path: string) => {
 	const h = `[REMOVE FILE]`
 
 	try {
-		if (fs.existsSync(path)) {
-			shouldLog && console.log(`${h} Deleting folder ${path}`)
-			fs.rmSync(path, { recursive: true })
-		} else {
-			shouldLog && console.log(`${h} ${path} does not exists, do nothing`)
-		}
+		shouldLog && console.log(`${h} Deleting folder ${path}`)
+		await fs.rm(path, { recursive: true })
 	} catch (error) {
 		shouldLog && console.log(); (`${h} Error removing ${path} : ${error.message}`);
 		return error
@@ -26,26 +25,28 @@ const deleteFolder = (path: string) => {
 	return
 }
 
-const createFolder = (path: string) => {
+const createFolder = async (path: string) => {
 
 	shouldLog && console.log(`[CREATEFOLDER] at ${path}`);
-	fs.mkdirSync(path, (err) => {
-		if (err) { shouldLog && console.log(`[CREATEFOLDER] Error ${err.message} (${path})`); }
-		else { }
-	});
+	try {
+		await fs.mkdir(path);
+	} catch (e) {
+		console.log(3339, e)
+	}
 }
 
 
 //
 // SCRIPT
 //
-const main = () => {
+const main = async () => {
 	console.log(`========== [TESTING PREP] START =========`)
 	const pathDataFolder = getTestingDataPath()
-	deleteFolder(pathDataFolder)
-	createFolder(pathDataFolder)
+	await deleteFolder(pathDataFolder)
+	await createFolder(pathDataFolder)
 	console.log(`[TESTING PREP] ${pathDataFolder} cleaned and ready`)
 	console.log(`========== [TESTING PREP] END =========`)
+	await new Promise(resolve => setTimeout(resolve, 1000));
 
 }
 

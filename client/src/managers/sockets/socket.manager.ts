@@ -16,9 +16,9 @@ export let clientSocket2: ClientSocketManager<iApiDictionary> = cs2
 
 
 export const getBackendUrl = () => {
-	// let protocol = getSetting('backend-protocol') ? `${getSetting('backend-protocol')}://` : configClient.global.protocol
 	let protocol = configClient.global.protocol
 	let port = getSetting('backend-port') ? `:${getSetting('backend-port')}` : `${configClient.global.port}`
+
 	let socketBackend = `${protocol}${configClient.global.url}${port}`
 	// if port is actually an url 	
 	if (getSetting('backend-port').includes(".")) socketBackend = `${protocol}${getSetting('backend-port')}`
@@ -38,7 +38,6 @@ export interface iServerSocketConfig {
 export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 	return new Promise((resolve, reject) => {
 		if (clientSocket) return
-		console.log(3334, io)
 		let ioWrapper = io ? io.default : () => { }
 
 		//@ts-ignore
