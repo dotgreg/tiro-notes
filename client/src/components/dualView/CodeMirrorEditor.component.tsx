@@ -27,6 +27,7 @@ import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTa
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
 import { isBoolean } from "lodash";
+import { useDebounce } from "../../hooks/lodash.hooks";
 
 
 const h = `[Code Mirror]`
@@ -105,7 +106,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// }
 
 
-	
+
 	//
 	// INIT VAL MECHANISME
 	//
@@ -124,10 +125,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// 	if (histFilePath !== p.file.path) return
 		// 	initVal()
 		// }, 200)
-		
+
 		// console.log(res, 4440, p.value, p.forceRender);
-			// let res = initVal()
-			// devHook("cm_update")(p)
+		// let res = initVal()
+		// devHook("cm_update")(p)
 		// }, 100)
 
 
@@ -136,7 +137,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
-		let CMObj = getEditorObj() 
+		let CMObj = getEditorObj()
 		if (!isAllFolded) CodeMirrorUtils.foldAllChildren(CMObj)
 		else CodeMirrorUtils.unfoldAllChildren(CMObj)
 		setIsAllFolded(!isAllFolded)
@@ -176,7 +177,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		try {
 			CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
 		} catch (error) {
-			console.log(error)	
+			console.log(error)
 		}
 	}, [p.jumpToLine])
 
@@ -255,7 +256,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 	// if --table//--latex inside content
-	let enhancedTable = p.value.includes("--table") 
+	let enhancedTable = p.value.includes("--table")
 	let enhancedLatex = p.value.includes("--latex")
 
 	const { userSettingsApi } = useUserSettings()
@@ -289,7 +290,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 		}
 	}
-	
+
 
 	if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
@@ -297,35 +298,83 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// markdown replacement plugin for mobile
 		codemirrorExtensions.push(markdownMobileTitle(p.file, p.windowId))
 	}
-	
+
 
 	let classes = `device-${deviceType()} `
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
-	 
-	
 
+	//
+	// ON UPDATE
+	//
+	const onCodeMirrorUpdate = (e: any) => {
+		let s = e.state.selection.ranges[0]
+	}
+
+	//
+	// ON SELECTION CHANGE
+	// 
+	const mouseStatus = useRef<string>("")
+	const currSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
+	// const histSelection = { from: -1, to: -1 }
+	// const histSelection = { from: -1, to: -1 }
+	const onSelectionChange = (e: any) => {
+		// const selection = e.state.selection.ranges[0]
+		// const selectionChanged = selection &&
+		// 	selection.from !== selection.to &&
+		// 	(
+		// 		selection.from !== histSelection.from
+		// 		|| selection.to !== histSelection.to
+		// 	)
+		// // console.log(e, selection, selectionChanged);
+		// if (selectionChanged) {
+		// 	debounceSelectionMenu()
+		// 	histSelection.from = selection.from
+		// 	histSelection.to = selection.to
+		// }
+	}
+	const debounceSelectionMenu = useDebounce(() => {
+		const f = getEditorObj()
+		if (!f) return
+		let selection = currSelection.current
+		if (selection.from !== selection.to) return
+		console.log(2222222,selection);
+
+		if (mouseStatus.current === "up") {
+			console.log("menu appearing")
+		}
+	}, 100)
+
+	//
+	// MONITOR MOUSE CHANGE
+	//
+	const onMouseEvent = (status: string) => {
+		mouseStatus.current = status
+		debounceSelectionMenu()
+	}
 
 	return (
-		<div className={`codemirror-editor-wrapper ${classes} `}>
-			<div className={`foldall-wrapper ${deviceType()}`} onClick={ e =>{toggleFoldAll()}}>
-				<Icon2 
-					name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`} 
-					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`} 
+		<div
+			className={`codemirror-editor-wrapper ${classes} `}
+			onMouseDown={() => { onMouseEvent("down") }}
+			onMouseUp={() => { onMouseEvent("up") }}
+		>
+			<div className={`foldall-wrapper ${deviceType()}`} onClick={e => { toggleFoldAll() }}>
+				<Icon2
+					name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`}
+					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`}
 				/>
 			</div>
 			<CodeMirror
 				value=""
 				ref={forwardedRefCM as any}
 				theme={getCustomTheme()}
-				onChange={onChange}
+				onChange={onChange /* only triggered on content change*/}
 				onUpdate={e => {
-					//@ts-ignore
-					// window.eee = e
-					// console.log(444,e)
+					onCodeMirrorUpdate(e)
 				}}
 				// onScrollCapture={onCodeMirrorScroll}
-				
+
 
 				basicSetup={{
 					foldGutter: true,
