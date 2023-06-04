@@ -85,27 +85,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 
-	//
-	// Cache Nodes System
-	//
-	// const cacheNodeRef = useRef()
-	// const [cacheNodeId, setCacheNodeId] = useState<string|null>(null)
-	// useEffect(() => {
-	// 	if (!cacheNodeId) {
-	// 		// create it
-	// 		if (!cacheNodeRef.current) return console.warn("cache node error 1")
-	// 		let cacheId = cacheNode.createCache(cacheNodeRef.current)
-	// 		setCacheNodeId(cacheId)
-	// 	} else {
-	// 		// path changed, delete cache node
-	// 		cacheNode.deleteCache(cacheNodeId)
-	// 	}
-	// }, [p.file.path])
-	// const onCodeMirrorScroll = (e) => {
-	// 	cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
-	// }
-
-
 
 	//
 	// INIT VAL MECHANISME
@@ -309,38 +288,21 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	const onCodeMirrorUpdate = (e: any) => {
 		let s = e.state.selection.ranges[0]
+		currSelection.current = s
 	}
 
 	//
-	// ON SELECTION CHANGE
+	// ON SELECTION CHANGE, MAKE CONTEXT MENU APPEARING
 	// 
 	const mouseStatus = useRef<string>("")
 	const currSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
-	// const histSelection = { from: -1, to: -1 }
-	// const histSelection = { from: -1, to: -1 }
-	const onSelectionChange = (e: any) => {
-		// const selection = e.state.selection.ranges[0]
-		// const selectionChanged = selection &&
-		// 	selection.from !== selection.to &&
-		// 	(
-		// 		selection.from !== histSelection.from
-		// 		|| selection.to !== histSelection.to
-		// 	)
-		// // console.log(e, selection, selectionChanged);
-		// if (selectionChanged) {
-		// 	debounceSelectionMenu()
-		// 	histSelection.from = selection.from
-		// 	histSelection.to = selection.to
-		// }
-	}
 	const debounceSelectionMenu = useDebounce(() => {
 		const f = getEditorObj()
 		if (!f) return
 		let selection = currSelection.current
-		if (selection.from !== selection.to) return
-		console.log(2222222,selection);
-
+		if (selection.from === selection.to) return
 		if (mouseStatus.current === "up") {
+			console.log(2222222, selection);
 			console.log("menu appearing")
 		}
 	}, 100)
