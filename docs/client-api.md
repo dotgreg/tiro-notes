@@ -190,7 +190,7 @@
     - Parameters: 
        1. cacheId: <span class="render-code-wrapper">string</span>
        1. contentToCache: <span class="render-code-wrapper">any</span>
-       1. todo: <span class="render-code-wrapper">number</span>
+       1. cacheMin: <span class="render-code-wrapper">number</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">number</span> ]<br/>)</div>
  
@@ -207,6 +207,16 @@
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"command.exec",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(resCmd: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">command.stream</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. commandString: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(streamChunk: <span class="render-code-wrapper"><a href="#client-api?id=icommandstreamchunk">iCommandStreamChunk</a></span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"command.stream",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(streamChunk: <span class="render-code-wrapper"><a href="#client-api?id=icommandstreamchunk">iCommandStreamChunk</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 
@@ -956,6 +966,12 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>}</span></div>
  
 
+#### <span class="render-code-wrapper">iCommandStreamChunk</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;index: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isLast: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;textTot: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
 #### <span class="render-code-wrapper">iFileNature</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
@@ -1127,7 +1143,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "demo_mode_enable" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "demo_mode_enable" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iWatchUpdate</span>

@@ -32,7 +32,13 @@ export const getLocalNoteHistory = (notePath?: string): iLocalNoteHistory[] => {
 	return res
 }
 
-export const addLocalNoteHistory = (nLocalNoteHist: iLocalNoteHistory, limitPerPath: number = 10, debug?: boolean) => {
+export const addLocalNoteHistory = (
+	nLocalNoteHist: iLocalNoteHistory,
+	limitPerPath: number = 10,
+	debug?: boolean
+) => {
+	if (nLocalNoteHist.content.includes(`--disable-history--`)) return 
+	
 	let itAdd = nLocalNoteHist
 	let nAllNotesHist = getLocalNoteHistory()
 	let nAllNotesHistPath = getLocalNoteHistory(itAdd.path)
