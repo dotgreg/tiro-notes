@@ -28,6 +28,7 @@ import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
 import { isBoolean } from "lodash";
 import { useDebounce } from "../../hooks/lodash.hooks";
+import { getApi } from "../../hooks/api/api.hook";
 
 
 const h = `[Code Mirror]`
@@ -126,6 +127,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}, [p.file.path])
 
 
+
+
+	const textContent = useRef<string>(p.value)
+	useEffect(() => {
+		textContent.current = p.value
+	}, [p.value])
+
 	const onChange = (value, viewUpdate) => {
 		// console.log(333, value, viewUpdate)
 		// activateTitleInt()
@@ -133,6 +141,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (value === p.value) return
 		// debouncedActivateTitles()
 		histVal.current = value
+		textContent.current = value
 		p.onChange(value)
 
 		//
@@ -295,8 +304,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// ON SELECTION CHANGE, MAKE CONTEXT MENU APPEARING
 	// 
 	const mouseStatus = useRef<string>("")
-	const hoverPopupInitPos = [-9999, -9999]
-	const [hoverPopupPos, setHoverPopupPos] = useState<number[]>(hoverPopupInitPos)
+	const [hoverPopupPos, setHoverPopupPos] = useState<number[]>([-9999, -9999])
 	const [showHoverPopup, setShowHoverPopup] = useState<boolean>(false)
 	const currSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
 	const debounceSelectionMenu = useDebounce(() => {
@@ -319,57 +327,93 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		debounceSelectionMenu()
 	}
 
+
+	//
+	// AI SEARCH AND INSERT
+	//
+	const triggerAiSearch = () => {
+		console.log(333333);
+		// close the popup
+		setShowHoverPopup(false)
+
+		// get the text selection
+		const s = currSelection.current
+		const selectionTxt = textContent.current.substring(s.from, s.to)
+		console.log(selectionTxt, s);
+
+		const currentContent = textContent.current
+		const insertPos = s.to
+
+		getApi(api => {
+			api.command.stream("echo hello world", streamChunk => {
+				// gradually insert at the end of the selection the returned text
+				const nText = currentContent.substring(0, insertPos) +
+					"\n\n" + streamChunk.textTot +
+					currentContent.substring(insertPos)
+				console.log(currentContent, insertPos, { nText });
+				api.file.saveContent(p.file.path, nText)
+			})
+		})
+
+	}
+
+
 	return (
-		<div
-			className={`codemirror-editor-wrapper ${classes} `}
-			onMouseDown={e => { onMouseEvent("down", e) }}
-			onMouseUp={e => { onMouseEvent("up", e) }}
-		>
-			{showHoverPopup && <div className={`cm-hover-popup cm-selection-popup`}
-				style={{
-					left: `${hoverPopupPos[0]}px`,
-					top: `${hoverPopupPos[1]}px`,
-				}}
-			>
-				<span
-					onClick={() => { }}
-					title="Text to speech url content"
-					className="link-audio link-action"
+		<>
+			{/* HOVER POPUP*/}
+			{showHoverPopup &&
+				<div
+					className={`cm-hover-popup cm-selection-popup`}
+					style={{ left: `${hoverPopupPos[0]}px`, top: `${hoverPopupPos[1]}px`, }}
 				>
-					<Icon2 name="volume-high" />
-				</span>
-			</div>
+					<span
+						onClick={triggerAiSearch}
+						title="AI Suggest: ask the selection to AI"
+						className="link-audio link-action"
+					>
+						<Icon2 name="wand-magic-sparkles" />
+					</span>
+				</div>
 			}
 
-			<div className={`foldall-wrapper ${deviceType()}`} onClick={e => { toggleFoldAll() }}>
-				<Icon2
-					name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`}
-					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`}
+			{/* CM WRAPPER*/}
+			<div
+				className={`codemirror-editor-wrapper ${classes} `}
+				onMouseDown={e => { onMouseEvent("down", e) }}
+				onMouseUp={e => { onMouseEvent("up", e) }}
+			>
+
+
+				<div className={`foldall-wrapper ${deviceType()}`} onClick={e => { toggleFoldAll() }}>
+					<Icon2
+						name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`}
+						label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`}
+					/>
+				</div>
+				<CodeMirror
+					value=""
+					ref={forwardedRefCM as any}
+					theme={getCustomTheme()}
+					onChange={onChange /* only triggered on content change*/}
+					onUpdate={e => {
+						onCodeMirrorUpdate(e)
+					}}
+					// onScrollCapture={onCodeMirrorScroll}
+
+
+					basicSetup={{
+						foldGutter: true,
+						dropCursor: false,
+						allowMultipleSelections: false,
+						indentOnInput: false,
+						closeBrackets: false,
+						bracketMatching: false,
+						lineNumbers: false,
+					}}
+					extensions={codemirrorExtensions}
 				/>
-			</div>
-			<CodeMirror
-				value=""
-				ref={forwardedRefCM as any}
-				theme={getCustomTheme()}
-				onChange={onChange /* only triggered on content change*/}
-				onUpdate={e => {
-					onCodeMirrorUpdate(e)
-				}}
-				// onScrollCapture={onCodeMirrorScroll}
-
-
-				basicSetup={{
-					foldGutter: true,
-					dropCursor: false,
-					allowMultipleSelections: false,
-					indentOnInput: false,
-					closeBrackets: false,
-					bracketMatching: false,
-					lineNumbers: false,
-				}}
-				extensions={codemirrorExtensions}
-			/>
-		</div >
+			</div >
+		</>
 	);
 })
 
