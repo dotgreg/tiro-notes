@@ -295,6 +295,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// ON SELECTION CHANGE, MAKE CONTEXT MENU APPEARING
 	// 
 	const mouseStatus = useRef<string>("")
+	const hoverPopupInitPos = [-9999, -9999]
+	const [hoverPopupPos, setHoverPopupPos] = useState<number[]>(hoverPopupInitPos)
+	const [showHoverPopup, setShowHoverPopup] = useState<boolean>(false)
 	const currSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
 	const debounceSelectionMenu = useDebounce(() => {
 		const f = getEditorObj()
@@ -302,25 +305,42 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		let selection = currSelection.current
 		if (selection.from === selection.to) return
 		if (mouseStatus.current === "up") {
-			console.log(2222222, selection);
-			console.log("menu appearing")
+			setShowHoverPopup(true)
 		}
 	}, 100)
 
 	//
 	// MONITOR MOUSE CHANGE
 	//
-	const onMouseEvent = (status: string) => {
+	const onMouseEvent = (status: string, e: any) => {
 		mouseStatus.current = status
+		setHoverPopupPos([e.clientX, e.clientY])
+		setShowHoverPopup(false)
 		debounceSelectionMenu()
 	}
 
 	return (
 		<div
 			className={`codemirror-editor-wrapper ${classes} `}
-			onMouseDown={() => { onMouseEvent("down") }}
-			onMouseUp={() => { onMouseEvent("up") }}
+			onMouseDown={e => { onMouseEvent("down", e) }}
+			onMouseUp={e => { onMouseEvent("up", e) }}
 		>
+			{showHoverPopup && <div className={`cm-hover-popup cm-selection-popup`}
+				style={{
+					left: `${hoverPopupPos[0]}px`,
+					top: `${hoverPopupPos[1]}px`,
+				}}
+			>
+				<span
+					onClick={() => { }}
+					title="Text to speech url content"
+					className="link-audio link-action"
+				>
+					<Icon2 name="volume-high" />
+				</span>
+			</div>
+			}
+
 			<div className={`foldall-wrapper ${deviceType()}`} onClick={e => { toggleFoldAll() }}>
 				<Icon2
 					name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`}
@@ -372,6 +392,15 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.cm-hover-popup.cm-selection-popup {
+		position: fixed;
+z-index: 2;
+background: white;
+padding: 5px;
+box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+border-radius: 3px;
+
+}
 .cm-selectionLayer {
     pointer-events: none;
 		z-index:0!important;
@@ -382,45 +411,45 @@ export const codeMirrorEditorCss = () => `
 
 
 .cm-gutters {
-	border: none;
-	opacity: 0;
-	z-index: 0;
-	&:hover {
-		opacity: 1;
-	}
-	.cm-gutter {
-		.cm-gutterElement span {
-			color: #cccaca;
+		border: none;
+		opacity: 0;
+		z-index: 0;
+		&:hover {
+				opacity: 1;
 		}
-	}
+		.cm-gutter {
+				.cm-gutterElement span {
+						color: #cccaca;
+				}
+		}
 }
 .device-mobile {
-	.cm-gutters {
-		opacity:1!important;
-		// background:red!important;
-	}
+		.cm-gutters {
+				opacity:1!important;
+				// background:red!important;
+		}
 }
 
 .foldall-wrapper {
-	&.desktop {
-		opacity: 0;
-	}
-	&.desktop:hover {	
-		opacity: 1;
-	}
-	&::selection {
-		 background: none;
-	}
-	
-	opacity:0.6;
-	position: absolute;
-	z-index: 1;
-	top: 2px;
-	color: #d7d7d7;
-	cursor: pointer;
-	padding: 5px 4px;
-	left: 0px;
-	background: white;
+		&.desktop {
+				opacity: 0;
+		}
+		&.desktop:hover {	
+				opacity: 1;
+		}
+		&::selection {
+				background: none;
+		}
+		
+		opacity:0.6;
+		position: absolute;
+		z-index: 1;
+		top: 2px;
+		color: #d7d7d7;
+		cursor: pointer;
+		padding: 5px 4px;
+		left: 0px;
+		background: white;
 }
 
 
@@ -428,15 +457,15 @@ export const codeMirrorEditorCss = () => `
 		color: ${cssVars.colors.main};
 		position: relative;
 		// &:before {
-		// 		content: "➝";
-		// 		position: absolute;
-		// 		right: -20px;
-		// 		color: #c6c6c6;
-		// 		font-size: 18px;
-		// 		opacity: 0;
-		// 		transition: 0.2s all;
-		// 		bottom: -3px;
-		// }
+				// 		content: "➝";
+				// 		position: absolute;
+				// 		right: -20px;
+				// 		color: #c6c6c6;
+				// 		font-size: 18px;
+				// 		opacity: 0;
+				// 		transition: 0.2s all;
+				// 		bottom: -3px;
+				// }
 		&:hover {
 				&:before {
 						opacity: 1
@@ -472,15 +501,15 @@ export const codeMirrorEditorCss = () => `
 }
 
 .cm-foldPlaceholder {
-	margin-left: 8px;
+		margin-left: 8px;
 		opacity: 0.4;
 		padding: 2px 5px;
 		border: none;
 }
 .cm-foldGutter {
-	&::before {
+		&::before {
 
-	}
+		}
 }
 
 .cm-focused {
@@ -519,12 +548,12 @@ export const codeMirrorEditorCss = () => `
 		z-index: auto!important;
 		width: calc(100% - 30px);
 		width: calc(100% - 30px); // reduce width overall CM
-		padding-right: 35px; // make scrollbar disappear
-		padding-left: 5px; // some space for the gutter
-		.cm-content {
-			width: calc(100% - 10px); // needed otherwise x scroll
-			overflow:hidden;
-			white-space: pre-wrap;
+															padding-right: 35px; // make scrollbar disappear
+																									 padding-left: 5px; // some space for the gutter
+																																			.cm-content {
+				width: calc(100% - 10px); // needed otherwise x scroll
+																	overflow:hidden;
+				white-space: pre-wrap;
 		} 
 }
 .cm-line {
@@ -546,16 +575,16 @@ export const codeMirrorEditorCss = () => `
 }
 
 .codemirror-mobile-fallback {
-	margin: 10px;
-	p {
-		color:grey;
-		font-size: 10px;
-	}
-	textarea {
-		width: calc(100% - 20px);
-		height: calc(100vh - 230px);
-		border: 0px;
-	}
+		margin: 10px;
+		p {
+				color:grey;
+				font-size: 10px;
+		}
+		textarea {
+				width: calc(100% - 20px);
+				height: calc(100vh - 230px);
+				border: 0px;
+		}
 }
 
 .test-success {
