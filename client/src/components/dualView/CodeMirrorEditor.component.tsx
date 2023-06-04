@@ -340,12 +340,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const genTextAt = (
 		currentContent: string,
 		textUpdate: string,
+		question: string,
 		insertPos: number,
 		isLast: boolean
 	) => {
 		// gradually insert at the end of the selection the returned text
-		let header = `\n\n---- Ai Answer ${isLast ? "" : "(generating...)"} ----\n\n`
-		let txtAi = `${header}${textUpdate}\n\n------------\n`
+		let header = `\n\n ### Ai Answer\n => Answering to '${question.trim()}'... \n\n`
+		let txtAi = `\n\n${textUpdate}`
+		if (!isLast) txtAi = `${header}${textUpdate}\n\n### \n`
 		const nText = currentContent.substring(0, insertPos) + txtAi + currentContent.substring(insertPos)
 		getApi(api => {
 			api.file.saveContent(p.file.path, nText)
@@ -367,16 +369,17 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		getApi(api => {
 
 			let cmd = api.userSettings.get("ui_editor_ai_command")
-			selectionTxt = selectionTxt.replaceAll('"', '\\"')
-			selectionTxt = selectionTxt.replaceAll('\"', '\\"')
+			selectionTxt = selectionTxt.replaceAll('"', '\"')
+			selectionTxt = selectionTxt.replaceAll('\"', '\"')
 			selectionTxt = selectionTxt.replaceAll("'", "\'")
 			// selectionTxt = selectionTxt.trim()
 			cmd = cmd.replace("{{input}}", selectionTxt)
 			// console.log({ cmd, insertPos });
-			genTextAt(currentContent, "...", insertPos, false)
+			const question = selectionTxt
+			genTextAt(currentContent, "...", question, insertPos, false)
 			api.command.stream(cmd, streamChunk => {
 				// console.log({ cmd, streamChunk, txt: streamChunk.textTot, insertPos });
-				genTextAt(currentContent, streamChunk.textTot, insertPos, streamChunk.isLast)
+				genTextAt(currentContent, streamChunk.textTot, question, insertPos, streamChunk.isLast)
 			})
 		})
 
