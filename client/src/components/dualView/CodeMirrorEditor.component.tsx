@@ -337,13 +337,29 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// AI SEARCH AND INSERT
 	//
 
+	const genTextAt = (
+		currentContent: string,
+		textUpdate: string,
+		insertPos: number,
+		isLast: boolean
+	) => {
+		// gradually insert at the end of the selection the returned text
+		let header = `\n\n---- Ai Answer ${isLast ? "" : "(generating...)"} ----\n\n`
+		let txtAi = `${header}${textUpdate}\n\n------------\n`
+		const nText = currentContent.substring(0, insertPos) + txtAi + currentContent.substring(insertPos)
+		getApi(api => {
+			api.file.saveContent(p.file.path, nText)
+		})
+
+	}
+
 	const triggerAiSearch = () => {
 		// close the popup
 		setShowHoverPopup(false)
 
 		// get the text selection
 		const s = currSelection.current
-		const selectionTxt = textContent.current.substring(s.from, s.to)
+		let selectionTxt = textContent.current.substring(s.from, s.to)
 
 		const currentContent = textContent.current
 		const insertPos = s.to
@@ -351,15 +367,16 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		getApi(api => {
 
 			let cmd = api.userSettings.get("ui_editor_ai_command")
+			selectionTxt = selectionTxt.replaceAll('"', '\\"')
+			selectionTxt = selectionTxt.replaceAll('\"', '\\"')
+			selectionTxt = selectionTxt.replaceAll("'", "\'")
+			// selectionTxt = selectionTxt.trim()
 			cmd = cmd.replace("{{input}}", selectionTxt)
-				console.log({ cmd, insertPos });
+			// console.log({ cmd, insertPos });
+			genTextAt(currentContent, "...", insertPos, false)
 			api.command.stream(cmd, streamChunk => {
-				console.log({ cmd, streamChunk, txt: streamChunk.textTot, insertPos });
-				// gradually insert at the end of the selection the returned text
-				const nText = currentContent.substring(0, insertPos) +
-					"\n\n" + streamChunk.textTot +
-					currentContent.substring(insertPos)
-				api.file.saveContent(p.file.path, nText)
+				// console.log({ cmd, streamChunk, txt: streamChunk.textTot, insertPos });
+				genTextAt(currentContent, streamChunk.textTot, insertPos, streamChunk.isLast)
 			})
 		})
 
