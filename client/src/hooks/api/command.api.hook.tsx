@@ -1,12 +1,13 @@
 import { isString } from 'lodash';
 import React, { useEffect, useRef } from 'react';
+import { iCommandStreamChunk } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 
 export interface iCommandApi {
 	exec: ( commandString: string, cb: (resCmd: string) => void ) => void
-	stream: ( commandString: string, cb: (resCmd: string) => void ) => void
+	stream: ( commandString: string, cb: (streamChunk: iCommandStreamChunk) => void ) => void
 }
 
 

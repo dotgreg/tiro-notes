@@ -376,6 +376,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askCommandExecStream', async data => {
 		let endPerf = perf('askCommandExecStrea, ' + data.commandString)
+		console.log(333333, data.commandString);
 		execStringStream(data.commandString, (streamChunk) => {
 			serverSocket2.emit('getCommandExecStream', { streamChunk: streamChunk, idReq: data.idReq })
 		})

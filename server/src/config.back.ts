@@ -39,7 +39,6 @@ const dataFolder = getDataFolder()
 const dev = sharedConfig.dev
 if (testing_env) dev.disableLogin = true
 
-
 export const backConfig = {
 	dataFolder,
 	frontendBuildFolder: relativeToAbsolutePath('./client', true),

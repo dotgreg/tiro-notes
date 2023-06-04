@@ -27,6 +27,8 @@ import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTa
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
 import { isBoolean } from "lodash";
+import { useDebounce } from "../../hooks/lodash.hooks";
+import { getApi } from "../../hooks/api/api.hook";
 
 
 const h = `[Code Mirror]`
@@ -84,28 +86,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 
-	//
-	// Cache Nodes System
-	//
-	// const cacheNodeRef = useRef()
-	// const [cacheNodeId, setCacheNodeId] = useState<string|null>(null)
-	// useEffect(() => {
-	// 	if (!cacheNodeId) {
-	// 		// create it
-	// 		if (!cacheNodeRef.current) return console.warn("cache node error 1")
-	// 		let cacheId = cacheNode.createCache(cacheNodeRef.current)
-	// 		setCacheNodeId(cacheId)
-	// 	} else {
-	// 		// path changed, delete cache node
-	// 		cacheNode.deleteCache(cacheNodeId)
-	// 	}
-	// }, [p.file.path])
-	// const onCodeMirrorScroll = (e) => {
-	// 	cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
-	// }
 
-
-	
 	//
 	// INIT VAL MECHANISME
 	//
@@ -124,10 +105,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// 	if (histFilePath !== p.file.path) return
 		// 	initVal()
 		// }, 200)
-		
+
 		// console.log(res, 4440, p.value, p.forceRender);
-			// let res = initVal()
-			// devHook("cm_update")(p)
+		// let res = initVal()
+		// devHook("cm_update")(p)
 		// }, 100)
 
 
@@ -136,7 +117,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
-		let CMObj = getEditorObj() 
+		let CMObj = getEditorObj()
 		if (!isAllFolded) CodeMirrorUtils.foldAllChildren(CMObj)
 		else CodeMirrorUtils.unfoldAllChildren(CMObj)
 		setIsAllFolded(!isAllFolded)
@@ -146,6 +127,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}, [p.file.path])
 
 
+
+
+	const textContent = useRef<string>(p.value)
+	useEffect(() => {
+		textContent.current = p.value
+	}, [p.value])
+
 	const onChange = (value, viewUpdate) => {
 		// console.log(333, value, viewUpdate)
 		// activateTitleInt()
@@ -153,6 +141,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (value === p.value) return
 		// debouncedActivateTitles()
 		histVal.current = value
+		textContent.current = value
 		p.onChange(value)
 
 		//
@@ -176,7 +165,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		try {
 			CodeMirrorUtils.scrollToLine(f, p.jumpToLine)
 		} catch (error) {
-			console.log(error)	
+			console.log(error)
 		}
 	}, [p.jumpToLine])
 
@@ -255,7 +244,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 
 	// if --table//--latex inside content
-	let enhancedTable = p.value.includes("--table") 
+	let enhancedTable = p.value.includes("--table")
 	let enhancedLatex = p.value.includes("--latex")
 
 	const { userSettingsApi } = useUserSettings()
@@ -289,7 +278,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 		}
 	}
-	
+
 
 	if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
 		codemirrorExtensions.push(markdown(markdownExtensionCnf))
@@ -297,48 +286,142 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// markdown replacement plugin for mobile
 		codemirrorExtensions.push(markdownMobileTitle(p.file, p.windowId))
 	}
-	
+
 
 	let classes = `device-${deviceType()} `
 	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
 
-	 
-	
+
+	//
+	// ON UPDATE
+	//
+	const onCodeMirrorUpdate = (e: any) => {
+		let s = e.state.selection.ranges[0]
+		currSelection.current = s
+	}
+
+	//
+	// ON SELECTION CHANGE, MAKE CONTEXT MENU APPEARING
+	// 
+	const mouseStatus = useRef<string>("")
+	const [hoverPopupPos, setHoverPopupPos] = useState<number[]>([-9999, -9999])
+	const [showHoverPopup, setShowHoverPopup] = useState<boolean>(false)
+	const currSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
+	const debounceSelectionMenu = useDebounce(() => {
+		const f = getEditorObj()
+		if (!f) return
+		let selection = currSelection.current
+		if (selection.from === selection.to) return
+		if (mouseStatus.current === "up") {
+
+			getApi(api => {
+				const aiSelectionEnabled = api.userSettings.get("ui_editor_ai_text_selection")
+				if (!aiSelectionEnabled) return
+				setShowHoverPopup(true)
+			})
+		}
+	}, 100)
+
+	//
+	// MONITOR MOUSE CHANGE
+	//
+	const onMouseEvent = (status: string, e: any) => {
+		mouseStatus.current = status
+		setHoverPopupPos([e.clientX, e.clientY])
+		setShowHoverPopup(false)
+		debounceSelectionMenu()
+	}
+
+
+	//
+	// AI SEARCH AND INSERT
+	//
+
+	const triggerAiSearch = () => {
+		// close the popup
+		setShowHoverPopup(false)
+
+		// get the text selection
+		const s = currSelection.current
+		const selectionTxt = textContent.current.substring(s.from, s.to)
+
+		const currentContent = textContent.current
+		const insertPos = s.to
+
+		getApi(api => {
+
+			let cmd = api.userSettings.get("ui_editor_ai_command")
+			cmd = cmd.replace("{{input}}", selectionTxt)
+				console.log({ cmd, insertPos });
+			api.command.stream(cmd, streamChunk => {
+				console.log({ cmd, streamChunk, txt: streamChunk.textTot, insertPos });
+				// gradually insert at the end of the selection the returned text
+				const nText = currentContent.substring(0, insertPos) +
+					"\n\n" + streamChunk.textTot +
+					currentContent.substring(insertPos)
+				api.file.saveContent(p.file.path, nText)
+			})
+		})
+
+	}
 
 
 	return (
-		<div className={`codemirror-editor-wrapper ${classes} `}>
-			<div className={`foldall-wrapper ${deviceType()}`} onClick={ e =>{toggleFoldAll()}}>
-				<Icon2 
-					name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`} 
-					label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`} 
-				/>
-			</div>
-			<CodeMirror
-				value=""
-				ref={forwardedRefCM as any}
-				theme={getCustomTheme()}
-				onChange={onChange}
-				onUpdate={e => {
-					//@ts-ignore
-					// window.eee = e
-					// console.log(444,e)
-				}}
-				// onScrollCapture={onCodeMirrorScroll}
-				
+		<>
+			{/* HOVER POPUP*/}
+			{showHoverPopup &&
+				<div
+					className={`cm-hover-popup cm-selection-popup`}
+					style={{ left: `${hoverPopupPos[0]}px`, top: `${hoverPopupPos[1]}px`, }}
+				>
+					<span
+						onClick={triggerAiSearch}
+						title="AI Suggest: ask the selection to AI"
+						className="link-audio link-action"
+					>
+						<Icon2 name="wand-magic-sparkles" />
+					</span>
+				</div>
+			}
 
-				basicSetup={{
-					foldGutter: true,
-					dropCursor: false,
-					allowMultipleSelections: false,
-					indentOnInput: false,
-					closeBrackets: false,
-					bracketMatching: false,
-					lineNumbers: false,
-				}}
-				extensions={codemirrorExtensions}
-			/>
-		</div >
+			{/* CM WRAPPER*/}
+			<div
+				className={`codemirror-editor-wrapper ${classes} `}
+				onMouseDown={e => { onMouseEvent("down", e) }}
+				onMouseUp={e => { onMouseEvent("up", e) }}
+			>
+
+
+				<div className={`foldall-wrapper ${deviceType()}`} onClick={e => { toggleFoldAll() }}>
+					<Icon2
+						name={`${isAllFolded ? 'up-right-and-down-left-from-center' : 'down-left-and-up-right-to-center'}`}
+						label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`}
+					/>
+				</div>
+				<CodeMirror
+					value=""
+					ref={forwardedRefCM as any}
+					theme={getCustomTheme()}
+					onChange={onChange /* only triggered on content change*/}
+					onUpdate={e => {
+						onCodeMirrorUpdate(e)
+					}}
+					// onScrollCapture={onCodeMirrorScroll}
+
+
+					basicSetup={{
+						foldGutter: true,
+						dropCursor: false,
+						allowMultipleSelections: false,
+						indentOnInput: false,
+						closeBrackets: false,
+						bracketMatching: false,
+						lineNumbers: false,
+					}}
+					extensions={codemirrorExtensions}
+				/>
+			</div >
+		</>
 	);
 })
 
@@ -361,6 +444,15 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.cm-hover-popup.cm-selection-popup {
+		position: fixed;
+z-index: 2;
+background: white;
+padding: 5px;
+box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+border-radius: 3px;
+
+}
 .cm-selectionLayer {
     pointer-events: none;
 		z-index:0!important;
@@ -371,45 +463,45 @@ export const codeMirrorEditorCss = () => `
 
 
 .cm-gutters {
-	border: none;
-	opacity: 0;
-	z-index: 0;
-	&:hover {
-		opacity: 1;
-	}
-	.cm-gutter {
-		.cm-gutterElement span {
-			color: #cccaca;
+		border: none;
+		opacity: 0;
+		z-index: 0;
+		&:hover {
+				opacity: 1;
 		}
-	}
+		.cm-gutter {
+				.cm-gutterElement span {
+						color: #cccaca;
+				}
+		}
 }
 .device-mobile {
-	.cm-gutters {
-		opacity:1!important;
-		// background:red!important;
-	}
+		.cm-gutters {
+				opacity:1!important;
+				// background:red!important;
+		}
 }
 
 .foldall-wrapper {
-	&.desktop {
-		opacity: 0;
-	}
-	&.desktop:hover {	
-		opacity: 1;
-	}
-	&::selection {
-		 background: none;
-	}
-	
-	opacity:0.6;
-	position: absolute;
-	z-index: 1;
-	top: 2px;
-	color: #d7d7d7;
-	cursor: pointer;
-	padding: 5px 4px;
-	left: 0px;
-	background: white;
+		&.desktop {
+				opacity: 0;
+		}
+		&.desktop:hover {	
+				opacity: 1;
+		}
+		&::selection {
+				background: none;
+		}
+		
+		opacity:0.6;
+		position: absolute;
+		z-index: 1;
+		top: 2px;
+		color: #d7d7d7;
+		cursor: pointer;
+		padding: 5px 4px;
+		left: 0px;
+		background: white;
 }
 
 
@@ -417,15 +509,15 @@ export const codeMirrorEditorCss = () => `
 		color: ${cssVars.colors.main};
 		position: relative;
 		// &:before {
-		// 		content: "➝";
-		// 		position: absolute;
-		// 		right: -20px;
-		// 		color: #c6c6c6;
-		// 		font-size: 18px;
-		// 		opacity: 0;
-		// 		transition: 0.2s all;
-		// 		bottom: -3px;
-		// }
+				// 		content: "➝";
+				// 		position: absolute;
+				// 		right: -20px;
+				// 		color: #c6c6c6;
+				// 		font-size: 18px;
+				// 		opacity: 0;
+				// 		transition: 0.2s all;
+				// 		bottom: -3px;
+				// }
 		&:hover {
 				&:before {
 						opacity: 1
@@ -461,15 +553,15 @@ export const codeMirrorEditorCss = () => `
 }
 
 .cm-foldPlaceholder {
-	margin-left: 8px;
+		margin-left: 8px;
 		opacity: 0.4;
 		padding: 2px 5px;
 		border: none;
 }
 .cm-foldGutter {
-	&::before {
+		&::before {
 
-	}
+		}
 }
 
 .cm-focused {
@@ -508,12 +600,12 @@ export const codeMirrorEditorCss = () => `
 		z-index: auto!important;
 		width: calc(100% - 30px);
 		width: calc(100% - 30px); // reduce width overall CM
-		padding-right: 35px; // make scrollbar disappear
-		padding-left: 5px; // some space for the gutter
-		.cm-content {
-			width: calc(100% - 10px); // needed otherwise x scroll
-			overflow:hidden;
-			white-space: pre-wrap;
+															padding-right: 35px; // make scrollbar disappear
+																									 padding-left: 5px; // some space for the gutter
+																																			.cm-content {
+				width: calc(100% - 10px); // needed otherwise x scroll
+																	overflow:hidden;
+				white-space: pre-wrap;
 		} 
 }
 .cm-line {
@@ -535,16 +627,16 @@ export const codeMirrorEditorCss = () => `
 }
 
 .codemirror-mobile-fallback {
-	margin: 10px;
-	p {
-		color:grey;
-		font-size: 10px;
-	}
-	textarea {
-		width: calc(100% - 20px);
-		height: calc(100vh - 230px);
-		border: 0px;
-	}
+		margin: 10px;
+		p {
+				color:grey;
+				font-size: 10px;
+		}
+		textarea {
+				width: calc(100% - 20px);
+				height: calc(100vh - 230px);
+				border: 0px;
+		}
 }
 
 .test-success {
