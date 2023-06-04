@@ -15,8 +15,8 @@ export const exec2 = async (command: string[]): Promise<any> => {
 export const execString = async (command: string): Promise<any> => {
 	let res = ""
 	try {
-		console.log("exec => "+command)
-		const {stdout} = await execa.command(command, { shell: true })
+		console.log("exec => " + command)
+		const { stdout } = await execa.command(command, { shell: true })
 		res = stdout
 	}
 	catch (e) {
@@ -30,10 +30,10 @@ type iOnDataExec = (r: iCommandStreamChunk) => void
 
 
 export const execStringStream = async (
-	command: string, 
+	command: string,
 	onData: iOnDataExec
 ) => {
-	const commandStream =  execa.command(command, { shell: true })
+	const commandStream = execa.command(command, { shell: true })
 
 	shouldLog && log(`[EXEC STRING] ${JSON.stringify(command)}`);
 	let index = 0
@@ -43,15 +43,15 @@ export const execStringStream = async (
 		const text = rawChunk.toString()
 		textTot += text
 		let isLast = false
-		onData({text, textTot, index, isLast})
+		onData({ text, textTot, index, isLast })
 		index++
-		
 	})
 	commandStream.stdout.on('close', rawChunk => {
-		const text = rawChunk.toString()
+		let text = rawChunk.toString()
+		if (text === "false") text = ""
 		textTot += text
 		let isLast = true
-		onData({text, textTot, index, isLast})
+		onData({ text, textTot, index, isLast })
 		index++
 	})
 }

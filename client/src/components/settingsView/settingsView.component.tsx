@@ -128,9 +128,38 @@ export const SettingsPopup = (p: {
 					},
 				]
 			},
+
 			{
 				title: "editor",
 				fields: [
+					{
+						type: 'checkbox',
+						title: "AI Suggest",
+						expl: "Send the selected text as a question to an AI",
+						var: us.get('ui_editor_ai_text_selection'),
+						modifier: val => {
+							us.set('ui_editor_ai_text_selection', val)
+						}
+					},
+					{
+						type: 'text',
+						title: "AI Suggest command line",
+						expl: "Which AI API command to be called, {{input}} will be replaced by the selection",
+						var: us.get('ui_editor_ai_command'),
+						modifier: val => {
+							us.set('ui_editor_ai_command', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Markdown Preview",
+						expl: "Markdown preview",
+						var: us.get('ui_editor_markdown_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_preview', val)
+						}
+					},
 					{
 						type: 'checkbox',
 						title: "Markdown Preview",
@@ -183,6 +212,7 @@ export const SettingsPopup = (p: {
 					},
 				]
 			},
+
 			{
 				title: "Users and Rights",
 				fields: [
@@ -229,6 +259,7 @@ export const SettingsPopup = (p: {
 					},
 				]
 			},
+
 			{
 				title: "Advanced",
 				fields: [
