@@ -352,8 +352,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 			let cmd = api.userSettings.get("ui_editor_ai_command")
 			cmd = cmd.replace("{{input}}", selectionTxt)
+				console.log({ cmd, insertPos });
 			api.command.stream(cmd, streamChunk => {
-				console.log({ cmd, streamChunk, insertPos });
+				console.log({ cmd, streamChunk, txt: streamChunk.textTot, insertPos });
 				// gradually insert at the end of the selection the returned text
 				const nText = currentContent.substring(0, insertPos) +
 					"\n\n" + streamChunk.textTot +
