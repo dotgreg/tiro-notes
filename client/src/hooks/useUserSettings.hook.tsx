@@ -32,6 +32,8 @@ const defaultVals: iUserSettings = {
 	ui_editor_markdown_enhanced_preview: true,
 	ui_editor_markdown_table_preview: true,
 	ui_editor_links_as_button: true,
+	ui_editor_ai_text_selection: false,
+	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \"{{input}}\" --continue",
 	server_activity_logging_enable: false,
 }
 

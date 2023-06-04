@@ -313,7 +313,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		let selection = currSelection.current
 		if (selection.from === selection.to) return
 		if (mouseStatus.current === "up") {
-			setShowHoverPopup(true)
+
+			getApi(api => {
+				const aiSelectionEnabled = api.userSettings.get("ui_editor_ai_text_selection")
+				if (!aiSelectionEnabled) return
+				setShowHoverPopup(true)
+			})
 		}
 	}, 100)
 
@@ -331,26 +336,28 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// AI SEARCH AND INSERT
 	//
+
 	const triggerAiSearch = () => {
-		console.log(333333);
 		// close the popup
 		setShowHoverPopup(false)
 
 		// get the text selection
 		const s = currSelection.current
 		const selectionTxt = textContent.current.substring(s.from, s.to)
-		console.log(selectionTxt, s);
 
 		const currentContent = textContent.current
 		const insertPos = s.to
 
 		getApi(api => {
-			api.command.stream("echo hello world", streamChunk => {
+
+			let cmd = api.userSettings.get("ui_editor_ai_command")
+			cmd = cmd.replace("{{input}}", selectionTxt)
+			api.command.stream(cmd, streamChunk => {
+				console.log({ cmd, streamChunk, insertPos });
 				// gradually insert at the end of the selection the returned text
 				const nText = currentContent.substring(0, insertPos) +
 					"\n\n" + streamChunk.textTot +
 					currentContent.substring(insertPos)
-				console.log(currentContent, insertPos, { nText });
 				api.file.saveContent(p.file.path, nText)
 			})
 		})
