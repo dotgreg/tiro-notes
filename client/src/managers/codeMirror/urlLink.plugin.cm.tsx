@@ -69,7 +69,7 @@ export const generateHtmlLinkPreviewInt = (
 	// JS
 	//
 	// support
-	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.querySelector(".link-iframe-wrapper")
+	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.querySelector(".cm-hover-popup")
 
 	const fetchArticle = (el: any, cb: Function) => {
 		let link = el.dataset.link
@@ -127,7 +127,7 @@ onclick="${ssrFn("audio-link", audioFn)}"
 title="Text to speech url content" class="link-audio link-action"  data-link="${fullLink}">${i("volume-high")}</span>`
 	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${openWindow} ${openPreview}</span></span>`
 
-	let iframeWrapper = `<span class="link-iframe-wrapper"></span>`
+	let iframeWrapper = `<span class="cm-hover-popup cm-hover-popup"></span>`
 	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
 	resEl.innerHTML = `${html}`;
 
@@ -213,21 +213,21 @@ export const linksPreviewMdCss = () => `
 		opacity: 0.5;
 		cursor: pointer;
 }
-.link-iframe-wrapper {
+.cm-hover-popup {
 }
-.link-iframe-wrapper .resource-link-ctag {
+.cm-hover-popup .resource-link-ctag {
 		border-radius: 7px;
 		overflow:hidden;
 		box-shadow: 0 0 4px rgba(0,0,0,0.3);
 }
 
 // height size iframe here
-.link-iframe-wrapper .resource-link-ctag .iframe-view-wrapper.not-fullscreen {
+.cm-hover-popup .resource-link-ctag .iframe-view-wrapper.not-fullscreen {
 	
 	height: 400px!important;
 }
 
-.link-iframe-wrapper .resource-link-ctag .iframe-view-wrapper iframe {
+.cm-hover-popup .resource-link-ctag .iframe-view-wrapper iframe {
 		width: 150%!important;
 		height: 154%!important;
 		max-height: 154%!important;
