@@ -143,6 +143,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		histVal.current = value
 		textContent.current = value
 		p.onChange(value)
+		setShowHoverPopup(false)
 
 		//
 		evenTable.val = false
