@@ -78,6 +78,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (p.value === "loading...") return false
 		if (f.view?.state.doc.toString() === p.value) return false
 		const li = CodeMirrorUtils.getCurrentLineInfos(f)
+		if (!li) return false
 		const cpos = li.currentPosition
 		CodeMirrorUtils.updateText(f, p.value, cpos)
 		histVal.current = p.value
@@ -182,6 +183,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		const infs = CodeMirrorUtils.getCurrentLineInfos(f)
+		if (!infs) return 
 		log && console.log(h, "CLICK ON TITLE DETECTED", titleStr, infs);
 		p.onTitleClick(infs.lineIndex)
 	}
@@ -370,8 +372,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		getApi(api => {
 
 			let cmd = api.userSettings.get("ui_editor_ai_command")
-			selectionTxt = selectionTxt.replaceAll('"', '\"')
-			selectionTxt = selectionTxt.replaceAll('\"', '\"')
+			selectionTxt = selectionTxt.replaceAll('"', '\\"')
+			// selectionTxt = selectionTxt.replaceAll('\"', '\"')
 			selectionTxt = selectionTxt.replaceAll("'", "\'")
 			// selectionTxt = selectionTxt.trim()
 			cmd = cmd.replace("{{input}}", selectionTxt)

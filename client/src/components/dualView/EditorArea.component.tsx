@@ -191,7 +191,8 @@ const EditorAreaInt = (
 	const debouncedUploadInsert = useDebounce(() => {
 		const f = codeMirrorEditorView.current
 		if (!f) return
-		const cPos = CodeMirrorUtils.getCurrentLineInfos(f).currentPosition
+		const cPos = CodeMirrorUtils.getCurrentLineInfos(f)?.currentPosition
+		if (!cPos) return
 		insertTextAt(stringToInsertUpload.current, 'currentPos')
 		stringToInsertUpload.current = ''
 		CodeMirrorUtils.updateCursor(f, cPos, true)
