@@ -27,6 +27,7 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 		//
 		if (p.editorType === 'codemirror') {
 			let lineInfo = CodeMirrorUtils.getCurrentLineInfos(CMEditorObjRef.current)
+			if (!lineInfo) return null
 			res = lineInfo
 			currentCursorPos.current = lineInfo.currentPosition
 
