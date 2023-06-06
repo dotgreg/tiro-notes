@@ -158,8 +158,9 @@ const getCachedPosition = (CMObj: any) => {
 	// cachedPosition = CMObj.view.state.selection.ranges[0].from
 	return CMObj.view.state.selection.ranges[0].from
 }
-const getCurrentLineInfos = (CMObj: any): LineTextInfos => {
-	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1 
+const getCurrentLineInfos = (CMObj: any): LineTextInfos | null => {
+	if (!(CMObj && CMObj.view && CMObj.view.state)) return null
+	const currentLineIndex = CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1
 	const currentPosition = getCachedPosition(CMObj)
 	const currentText = CMObj.view.state.doc.toString()
 	let splitedText = currentText.split("\n");
@@ -241,16 +242,16 @@ type CMDocStructureItem = {
 	to: number,
 	level: number,
 	lastChild: boolean,
-	raw: string, 
-	matches:any, 
-	line:number, 
-	title: string, 
+	raw: string,
+	matches: any,
+	line: number,
+	title: string,
 }
 type CMDocStructure = CMDocStructureItem[]
 // const levels = ["","ATXHeading1","ATXHeading2","ATXHeading3","ATXHeading4","ATXHeading5","ATXHeading6"]
-const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => {
+const getMarkdownStructure = (CMObj: ReactCodeMirrorRef | null): CMDocStructure => {
 	const view = CMObj?.view
-	let res:CMDocStructure = []
+	let res: CMDocStructure = []
 	if (!view) return res
 	const raw = view.state.doc.toString();
 	// let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
@@ -285,62 +286,62 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef|null):CMDocStructure => 
 	// 				to: -1
 	// 			})
 	// 		}
-			
-			
+
+
 	// 	})
 	// })
 	const lines = raw.split("\n")
-	const resArr:CMDocStructureItem[] = []
+	const resArr: CMDocStructureItem[] = []
 	let totChar = 0;
 	for (let i = 0; i < lines.length; i++) {
-			const line = lines[i]
-			const llength = line.length + 1
-			const matches = [...line.matchAll(regexs.mdTitle)];
-			let from = totChar 
-			let to = from + llength
-			if (matches.length>0) {
-					const m = matches[0]
-					let level = m[1].length 
-					// if previous has higher level, means it is not a lastchild
-					if ( resArr[resArr.length-1] && resArr[resArr.length-1].level < level ) {
-						resArr[resArr.length-1].lastChild = false
-					}
-					resArr.push({
-						raw: line, 
-						matches:m, 
-						line:i, 
-						title: m[2], 
-						from, 
-						to, 
-						level,
-						lastChild: true,
-					})
-					
+		const line = lines[i]
+		const llength = line.length + 1
+		const matches = [...line.matchAll(regexs.mdTitle)];
+		let from = totChar
+		let to = from + llength
+		if (matches.length > 0) {
+			const m = matches[0]
+			let level = m[1].length
+			// if previous has higher level, means it is not a lastchild
+			if (resArr[resArr.length - 1] && resArr[resArr.length - 1].level < level) {
+				resArr[resArr.length - 1].lastChild = false
 			}
-			totChar = totChar + llength
+			resArr.push({
+				raw: line,
+				matches: m,
+				line: i,
+				title: m[2],
+				from,
+				to,
+				level,
+				lastChild: true,
+			})
+
+		}
+		totChar = totChar + llength
 	}
-	
+
 	// console.log(333, res, raw, resArr)
 	return resArr
 }
 
-const unfoldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
+const unfoldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 	if (!CMObj?.view) return
 	unfoldAll(CMObj.view)
 }
-const foldAllChildren = (CMObj: ReactCodeMirrorRef|null) => {
+const foldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 	let struct = getMarkdownStructure(CMObj)
 	// const view = CMObj?.view
-	each(struct, (item,i) => {
+	each(struct, (item, i) => {
 		if (!CMObj?.view) return
 		// if (!item.lastChild) {
-			let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
-			let from = item.to - 1
-			try {
-				CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
-			} catch (error) {
-				console.warn(`ERROR FOR ${item.title}`, error)
-			}
+		let to = struct[i + 1] ? struct[i + 1].from - 1 : CMObj.view.state.doc.length
+		let from = item.to - 1
+		try {
+			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
+		} catch (error) {
+			console.warn(`ERROR FOR ${item.title}`, error)
+		}
 		// } else {
 		// 	// not a last child, look for content between the parent and the child title
 		// 	let from = item.to - 1

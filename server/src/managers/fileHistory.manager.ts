@@ -50,6 +50,7 @@ export const getHistoryFolder = (file:iFile) => {
 
 export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj) => {
     // if infosFile doesnt exists or timestamp > 1 days process
+	if (!histFile) return
     const infosFilePath = `${histFile.folder}/${p.infosFile}`
     const infosExists = fileExists(infosFilePath)
     let shouldProceed = false 
