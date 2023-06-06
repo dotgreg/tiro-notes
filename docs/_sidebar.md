@@ -12,8 +12,6 @@
 - Guide
 	- [Creating \[\[Custom Tags\]\]](guide-custom-tags.md)
 	- [Client API](client-api.md)
-- [Blog](blog/blog.md)
-		- [devlogs](blog/devlogs/blog.md)
 - Links
 	- [Forum](https://github.com/dotgreg/tiro-notes/discussions)
 	- [Github](https://github.com/dotgreg/tiro-notes)
