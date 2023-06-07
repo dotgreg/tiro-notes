@@ -32,42 +32,47 @@
 	</url>
 	
 	<url>
+		<loc>https://example.com/blog/2023-06-w1/</loc>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
 		<loc>https://example.com/about2/</loc>
-		<lastmod>2023-05-23</lastmod>
+		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://example.com/blog/</loc>
-		<lastmod>2023-05-23</lastmod>
+		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://example.com/</loc>
-		<lastmod>2023-05-23</lastmod>
+		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://example.com/tags/</loc>
-		<lastmod>2023-05-23</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/tags/another-tag/</loc>
-		<lastmod>2023-05-23</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/tags/number-2/</loc>
-		<lastmod>2023-05-23</lastmod>
+		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://example.com/tags/second-tag/</loc>
-		<lastmod>2023-05-23</lastmod>
+		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://example.com/tags/posts-with-two-tags/</loc>
-		<lastmod>2023-05-23</lastmod>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://example.com/tags/number-2/</loc>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://example.com/tags/another-tag/</loc>
+		<lastmod>2023-06-06</lastmod>
 	</url>
 </urlset>
