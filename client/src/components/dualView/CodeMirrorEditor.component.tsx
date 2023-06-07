@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef, useState } from "react";
+import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { autocompletion } from "@codemirror/autocomplete";
@@ -26,7 +26,7 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { isBoolean } from "lodash";
+import { cloneDeep, isBoolean, isNumber } from "lodash";
 import { useDebounce } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 
@@ -301,57 +301,82 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const onCodeMirrorUpdate = (e: any) => {
 		let s = e.state.selection.ranges[0]
 		currSelection.current = s
+		onSelectionChangeDebounced(s)
 	}
+
+
 
 	//
 	// ON SELECTION CHANGE, MAKE CONTEXT MENU APPEARING
 	// 
+
 	const mouseStatus = useRef<string>("")
+	const mousePos = useRef<number[]>([-9999,-9999])
 	const [hoverPopupPos, setHoverPopupPos] = useState<number[]>([-9999, -9999])
 	const [showHoverPopup, setShowHoverPopup] = useState<boolean>(false)
 	const currSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
-	const debounceSelectionMenu = useDebounce(() => {
-		const f = getEditorObj()
-		if (!f) return
-		let selection = currSelection.current
-		if (selection.from === selection.to) return
-		if (mouseStatus.current === "up") {
+	const histSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
+	const decalMousePopup = [30,10]
 
-			getApi(api => {
-				const aiSelectionEnabled = api.userSettings.get("ui_editor_ai_text_selection")
-				if (!aiSelectionEnabled) return
-				setShowHoverPopup(true)
-			})
-		}
-	}, 100)
+	const onSelectionChangeDebounced = useDebounce((selection:any) => {
+		if (selection.from === selection.to) return
+		if (!isNumber(selection.from) || !isNumber(selection.to)) return
+		if (selection.from < 0 || selection.to < 0) return
+		if (JSON.stringify(histSelection.current) === JSON.stringify(selection)) return
+		histSelection.current = cloneDeep(selection)
+		displayHoverPopup()
+	}, 200)
 
 	//
 	// MONITOR MOUSE CHANGE
 	//
 	const onMouseEvent = (status: string, e: any) => {
-		mouseStatus.current = status
-		setHoverPopupPos([e.clientX, e.clientY])
-		setShowHoverPopup(false)
-		debounceSelectionMenu()
+		if (status === "up") { 
+			mouseStatus.current = status
+			
+		} else if (status === "down") {
+			setShowHoverPopup(false)
+			// mouseStatus.current = status
+			// setHoverPopupPos([e.clientX + decalMousePopup[0], e.clientY + decalMousePopup[1]])
+		} else if (status === "move") {
+			mousePos.current = [e.clientX, e.clientY]
+		}
 	}
 
 
 	//
 	// AI SEARCH AND INSERT
 	//
+	const displayHoverPopup = () => {
+		getApi(api => {
+			const aiSelectionEnabled = api.userSettings.get("ui_editor_ai_text_selection")
+			if (!aiSelectionEnabled) return
+			setShowHoverPopup(true)
+			const pos = mousePos.current
+			setHoverPopupPos([pos[0] + decalMousePopup[0], pos[1] + decalMousePopup[1]])
+		})
+	}
 
-	const genTextAt = (
+	const genTextAt = (p2:{
 		currentContent: string,
 		textUpdate: string,
-		question: string,
 		insertPos: number,
 		isLast: boolean
-	) => {
+		title?: string, 
+		question?: string,
+		linejump?:boolean,
+	}) => {
+		if (!p2.question) p2.question = ""
+		if (!p2.title) p2.title = ""
+		if (!isBoolean(p2.linejump)) p2.linejump = true
 		// gradually insert at the end of the selection the returned text
-		let header = `\n\n ### Ai Answer\n => Answering to '${question.trim()}'... \n\n`
-		let txtAi = `\n\n${textUpdate}`
-		if (!isLast) txtAi = `${header}${textUpdate}\n\n### \n`
-		const nText = currentContent.substring(0, insertPos) + txtAi + currentContent.substring(insertPos)
+		let jumpTxt = p2.linejump ? "\n\n" : " "
+		let header = `${jumpTxt} ### ${p2.title} \n => Answering to '${p2.question.trim()}'... ${jumpTxt}`
+		
+		let txtAi = `${jumpTxt}${p2.textUpdate}`
+		if (!p2.isLast) txtAi = `${header}${p2.textUpdate}${jumpTxt}### \n`
+
+		const nText = p2.currentContent.substring(0, p2.insertPos) + txtAi + p2.currentContent.substring(p2.insertPos)
 		getApi(api => {
 			api.file.saveContent(p.file.path, nText)
 		})
@@ -359,34 +384,93 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}
 
 	const triggerAiSearch = () => {
+		console.log("trigger AI search")
 		// close the popup
 		setShowHoverPopup(false)
-
-		// get the text selection
 		const s = currSelection.current
 		let selectionTxt = textContent.current.substring(s.from, s.to)
-
 		const currentContent = textContent.current
 		const insertPos = s.to
+		let isError = false
+		selectionTxt = selectionTxt.replaceAll('"', '\\"')
+		selectionTxt = selectionTxt.replaceAll("'", "\\'")
+		selectionTxt = selectionTxt.replaceAll("`", "\\`")
+		
+		const question = selectionTxt
+		const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: "...", question, insertPos, isLast: false }}
 
 		getApi(api => {
-
 			let cmd = api.userSettings.get("ui_editor_ai_command")
-			selectionTxt = selectionTxt.replaceAll('"', '\\"')
-			// selectionTxt = selectionTxt.replaceAll('\"', '\"')
-			selectionTxt = selectionTxt.replaceAll("'", "\'")
-			// selectionTxt = selectionTxt.trim()
 			cmd = cmd.replace("{{input}}", selectionTxt)
-			// console.log({ cmd, insertPos });
-			const question = selectionTxt
-			genTextAt(currentContent, "...", question, insertPos, false)
+			genTextAt(genParams())
 			api.command.stream(cmd, streamChunk => {
-				// console.log({ cmd, streamChunk, txt: streamChunk.textTot, insertPos });
-				genTextAt(currentContent, streamChunk.textTot, question, insertPos, streamChunk.isLast)
+				if (streamChunk.isError) isError = true
+				// if it is an error, display it in a popup
+				if (isError) {
+					api.ui.notification.emit({
+						content: `[AI] Error from CLI <br/> "${cmd}" <br/>=> <br/>${streamChunk.text}`,
+						options: {hideAfter: -1 }
+					})
+					genTextAt({...genParams(), textUpdate:"", isLast: true})
+				} else {
+					// else insert it
+					genTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
+				}
 			})
 		})
+	}
+
+	const triggerCalc = () => {
+		// close the popup
+		setShowHoverPopup(false)
+		const s = currSelection.current
+		let selectionTxt = textContent.current.substring(s.from, s.to)
+		const currentContent = textContent.current
+		const insertPos = s.to
+		const genParams = () => {return { title: "Calc", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
+		try {
+			let result = new Function(`return ${selectionTxt}`)()
+			let p = {...genParams(), textUpdate:result, isLast:true}
+			console.log(p)
+			genTextAt(p)
+		} catch (err) {
+			getApi( api => {
+				api.ui.notification.emit({
+					content: `[CALC] Error <br/> "${err}"`
+				})
+			})
+		}
 
 	}
+
+	const CodeMirrorEl = useMemo(() => {
+	// const CodeMirrorEl = () => {
+		console.log("EL UPDATE!!!")
+		return <CodeMirror
+			value=""
+			ref={forwardedRefCM as any}
+			theme={getCustomTheme()}
+			onChange={onChange /* only triggered on content change*/}
+			onUpdate={e => {
+				onCodeMirrorUpdate(e)
+			}}
+			// onScrollCapture={onCodeMirrorScroll}
+
+
+			basicSetup={{
+				foldGutter: true,
+				dropCursor: false,
+				allowMultipleSelections: false,
+				indentOnInput: false,
+				closeBrackets: false,
+				bracketMatching: false,
+				lineNumbers: false,
+			}}
+			extensions={codemirrorExtensions}
+		// />}
+
+		/>}, 
+	[p.value])
 
 
 	return (
@@ -400,9 +484,16 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					<span
 						onClick={triggerAiSearch}
 						title="AI Suggest: ask the selection to AI"
-						className="link-audio link-action"
+						className="link-action"
 					>
 						<Icon2 name="wand-magic-sparkles" />
+					</span>
+					<span
+						onClick={triggerCalc}
+						title="Calculator"
+						className="link-action"
+					>
+						<Icon2 name="calculator" />
 					</span>
 				</div>
 			}
@@ -410,8 +501,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			{/* CM WRAPPER*/}
 			<div
 				className={`codemirror-editor-wrapper ${classes} `}
+				onClick={e => { onMouseEvent("up", e) }}
 				onMouseDown={e => { onMouseEvent("down", e) }}
-				onMouseUp={e => { onMouseEvent("up", e) }}
+				onMouseMove={e => onMouseEvent("move", e)}
+				// onMouseUp={e => { onMouseEvent("up", e) }}
 			>
 
 
@@ -421,28 +514,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 						label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`}
 					/>
 				</div>
-				<CodeMirror
-					value=""
-					ref={forwardedRefCM as any}
-					theme={getCustomTheme()}
-					onChange={onChange /* only triggered on content change*/}
-					onUpdate={e => {
-						onCodeMirrorUpdate(e)
-					}}
-					// onScrollCapture={onCodeMirrorScroll}
-
-
-					basicSetup={{
-						foldGutter: true,
-						dropCursor: false,
-						allowMultipleSelections: false,
-						indentOnInput: false,
-						closeBrackets: false,
-						bracketMatching: false,
-						lineNumbers: false,
-					}}
-					extensions={codemirrorExtensions}
-				/>
+				{/* {CodeMirrorEl()} */}
+				{CodeMirrorEl}
 			</div >
 		</>
 	);
@@ -468,12 +541,21 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 export const codeMirrorEditorCss = () => `
 .cm-hover-popup.cm-selection-popup {
-		position: fixed;
-z-index: 2;
-background: white;
-padding: 5px;
-box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-border-radius: 3px;
+	display: flex;
+	position: fixed;
+	z-index: 2;
+	background: white;
+	padding: 5px;
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+	border-radius: 3px;
+	opacity:0.4;
+	transition: all 0.2s;
+	.link-action {
+		padding: 0px 3px;
+	}
+	&:hover {
+		opacity:1;
+	}
 
 }
 .cm-selectionLayer {
@@ -577,7 +659,7 @@ border-radius: 3px;
 
 .cm-foldPlaceholder {
 		margin-left: 8px;
-		opacity: 0.4;
+		opacity: 0.5;
 		padding: 2px 5px;
 		border: none;
 }
