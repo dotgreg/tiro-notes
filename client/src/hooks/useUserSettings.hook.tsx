@@ -23,7 +23,7 @@ export type iUserSettingsApi = {
 	updateSetupJson: (paramName: string, paramValue: string) => void
 }
 
-const defaultVals: iUserSettings = {
+export const defaultValsUserSettings: iUserSettings = {
 	ui_sidebar: true,
 	ui_filesList_sortMode: 2,
 	ui_layout_colors_main: "#E86666",
@@ -36,6 +36,7 @@ const defaultVals: iUserSettings = {
 	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \"{{input}}\" --continue",
 	server_activity_logging_enable: false,
 }
+const defaultVals = defaultValsUserSettings
 
 const h = `[USER SETTINGS] :`
 const log = sharedConfig.client.log.verbose

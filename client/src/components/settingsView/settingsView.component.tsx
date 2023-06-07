@@ -11,6 +11,7 @@ import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { disconnectUser } from '../../hooks/app/loginToken.hook';
+import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
 
 type ConfigPanel = {
 	title: string,
@@ -68,47 +69,46 @@ export const SettingsPopup = (p: {
 		const tiroUrl = `${currProtocol}${api.status.ipsServer.getLocal()}${configClient.global.port}`
 		const qrcodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=50&data=${tiroUrl}`
 		conf = [
-			{
-				title: "Devices",
-				fields: [
-					{
-						type: 'text',
-						var: tiroUrl,
-						customHtml: `
-																				<div class="qrcode-wrapper">
-																				// <img src="${qrcodeUrl}"/>
-																				<br>
-																				</div>`,
-						title: "Tiro Url",
-						readOnly: true,
-						expl: `Access Tiro on another device on the <b>same wifi/local network</b> either by :
-												<br>
-												 - Entering that url in a browser
-												 <br>
-												 - Scanning that qrcode (on desktop, go to a website like <a href='https://webqr.com/'>webqr.com </a>)`,
-						modifier: () => { },
-						onCustomHtmlClick: () => {
-							api.ui.lightbox.open(0, [qrcodeUrl])
-						}
-					},
-					{
-						type: 'none',
-						var: "",
-						// customHtml: `${renderToString(<Icon name="faLink" />)}`,
-						customHtml: `<button> Open Tiro Window </button>`,
-						title: "Open Tiro Window",
-						readOnly: true,
-						expl: `Open Tiro in a separate window (Desktop only)`,
-						modifier: () => { },
-						onCustomHtmlClick: () => {
-							window.open(window.location.href, `popup-tiro`, 'width=800,height=1000')
-							// window.close();
-							// @ts-ignore
-							window.open('', '_self').close();
-						}
-					},
-				],
-			},
+			// {
+				// title: "Devices",
+				// fields: [
+				// 	{
+				// 		type: 'text',
+				// 		var: tiroUrl,
+				// 		customHtml: `
+				// 			<div class="qrcode-wrapper">
+				// 			 <img src="${qrcodeUrl}"/>
+				// 			<br>
+				// 			</div>`,
+				// 		title: "Tiro Url",
+				// 		readOnly: true,
+				// 		expl: `Access Tiro on another device on the <b>same wifi/local network</b> either by :
+				// 		<br>
+				// 			- Entering that url in a browser
+				// 			<br>
+				// 			- Scanning that qrcode (on desktop, go to a website like <a href='https://webqr.com/'>webqr.com </a>)`,
+				// 		modifier: () => { },
+				// 		onCustomHtmlClick: () => {
+				// 			api.ui.lightbox.open(0, [qrcodeUrl])
+				// 		}
+				// 	},
+					// {
+					// 	type: 'none',
+					// 	var: "",
+					// 	customHtml: `<button> Open Tiro Window </button>`,
+					// 	title: "Open Tiro Window",
+					// 	readOnly: true,
+					// 	expl: `Open Tiro in a separate window (Desktop only)`,
+					// 	modifier: () => { },
+					// 	onCustomHtmlClick: () => {
+					// 		window.open(window.location.href, `popup-tiro`, 'width=800,height=1000')
+					// 		// window.close();
+					// 		// @ts-ignore
+					// 		window.open('', '_self').close();
+					// 	}
+					// },
+				// ],
+			// },
 			{
 				title: "layout",
 				fields: [
@@ -142,9 +142,9 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
-						type: 'text',
+						type: 'textarea',
 						title: "AI Suggest command line",
-						expl: "Which AI API command to be called, {{input}} will be replaced by the selection",
+						expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
@@ -162,17 +162,7 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
-						title: "Markdown Preview",
-						expl: "Markdown preview",
-						var: us.get('ui_editor_markdown_preview'),
-						modifier: val => {
-							setDisplayReload(true);
-							us.set('ui_editor_markdown_preview', val)
-						}
-					},
-					{
-						type: 'checkbox',
-						title: "Enhanced Markdown Preview for files, documents etc",
+						title: "Enhanced Markdown",
 						expl: "Enhanced Markdown Preview for files, documents etc",
 						var: us.get('ui_editor_markdown_enhanced_preview'),
 						modifier: val => {
@@ -427,33 +417,44 @@ export const settingsPopupCss = () => `
 						display: flex;
 						padding-bottom: 11px;
 						align-items: center;
-						.input-and-html-wrapper {
-								width: 50%;
-								display: flex;
-								.input-component {
-										flex: 1;
-										padding: 0px;
-										input {
-												font-size: 10px;
-										}
-								}
-								.custom-html-wrapper {
-										margin-left: 20px;
-										.qrcode-wrapper {
-												img {
-														margin: 5px 25px 0px 0px;
-														cursor: pointer;
-														width: 50px;
-														&:hover {
-																//	width: 150px;
-														}
-												}
-										}
-								}
-						}
+						// 3 EXPLANATION
 						.explanation {
-								width: 50%;
+							// width: 50%;
 						}
+						.input-and-html-wrapper {
+							display: flex;
+							width: 300px;
+							.input-component {
+								// 1 TITLE
+								span {
+									width: 100px;
+								}
+								// 2 INPUT
+								.input-wrapper {
+									width: 200px;
+								}
+								display: flex;
+								justify-content: space-evenly;
+								padding: 0px;
+								input {
+										font-size: 10px;
+								}
+							}
+							.custom-html-wrapper {
+									margin-left: 20px;
+									.qrcode-wrapper {
+											img {
+													margin: 5px 25px 0px 0px;
+													cursor: pointer;
+													width: 50px;
+													&:hover {
+															//	width: 150px;
+													}
+											}
+									}
+							}
+						}
+						
 				}
 		}
 
