@@ -35,6 +35,8 @@
         "cli-dev": "npm run publish-cli-dev",
         "publish-cli-dev": "cd ./platforms/npm-cli-module; npm run build-then-publish-dev;",
         "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
+        "================== BLOG =================== ": "",
+        "blog/build": "npm run --prefix ./docs/_eleventy_blog_system build",
         "================== NODE BUILD =================== ": "",
         "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server build-docs clean-prev-build export-the-build copy-build-to-electron-folder",
