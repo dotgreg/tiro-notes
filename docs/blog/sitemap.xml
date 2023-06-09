@@ -2,42 +2,47 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 	
 	<url>
-		<loc>https://example.com/blog/firstpost/</loc>
+		<loc>https://example.com/blog/blog/firstpost/</loc>
 		<lastmod>2018-05-01</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/secondpost/</loc>
+		<loc>https://example.com/blog/blog/secondpost/</loc>
 		<lastmod>2018-07-04</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/thirdpost/</loc>
+		<loc>https://example.com/blog/blog/thirdpost/</loc>
 		<lastmod>2018-08-24</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/fourthpost/</loc>
+		<loc>https://example.com/blog/blog/fourthpost/</loc>
 		<lastmod>2018-09-30</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/anotherpos/</loc>
+		<loc>https://example.com/blog/blog/anotherpos/</loc>
 		<lastmod>2023-05-23</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/anotherpost/</loc>
+		<loc>https://example.com/blog/blog/anotherpost/</loc>
 		<lastmod>2023-05-23</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/2023-06-w1/</loc>
+		<loc>https://example.com/blog/blog/2023-06-w1/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/about2/</loc>
+		<loc>https://example.com/blog/about2/</loc>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://example.com/blog/blog/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
@@ -47,37 +52,32 @@
 	</url>
 	
 	<url>
-		<loc>https://example.com/</loc>
+		<loc>https://example.com/blog/tags/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/tags/</loc>
+		<loc>https://example.com/blog/tags/another-tag/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/tags/another-tag/</loc>
+		<loc>https://example.com/blog/tags/number-2/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/tags/second-tag/</loc>
+		<loc>https://example.com/blog/tags/second-tag/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/tags/posts-with-two-tags/</loc>
+		<loc>https://example.com/blog/tags/posts-with-two-tags/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/tags/number-2/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/devlog/2023/06/devlog-2023-06-w1.html</loc>
+		<loc>https://example.com/blog/devlog/2023/06/devlog-2023-06-w1.html</loc>
 		<lastmod>2023-06-09</lastmod>
 	</url>
 </urlset>
