@@ -4,12 +4,25 @@
 	<subtitle>I am writing about my experiences as a naval navel-gazer.</subtitle>
 	<link href="https://example.com/feed2/feed2.xml" rel="self"/>
 	<link href="https://example.com/"/>
-	<updated>2023-06-06T00:00:00Z</updated>
+	<updated>2023-06-09T00:00:00Z</updated>
 	<id>https://example.com/</id>
 	<author>
 		<name>tiro notes</name>
 		<email>youremailaddress@example.com</email>
 	</author>
+	
+	<entry>
+		<title>Tiro Devlog 2023-06 week 2</title>
+		<link href="https://example.com/devlog/2023/06/devlog-2023-06-w1.html"/>
+		<updated>2023-06-09T00:00:00Z</updated>
+		<id>https://example.com/devlog/2023/06/devlog-2023-06-w1.html</id>
+		<content type="html">&lt;p&gt;I have done that and that&lt;/p&gt;
+&lt;p&gt;I have done that and that&lt;/p&gt;
+&lt;p&gt;I have done that and that&lt;/p&gt;
+&lt;p&gt;I have done that and that&lt;/p&gt;
+&lt;p&gt;I have done that and that&lt;/p&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Tiro Devlog 2023-06 week 1</title>
