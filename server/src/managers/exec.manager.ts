@@ -39,19 +39,17 @@ export const execStringStream = async (
 	let index = 0
 	let textTot = ""
 
-	commandStream.stdout.on('data', async rawChunk => {
-		const text = rawChunk.toString()
-		textTot += text
-		let isLast = false
-		onData({ text, textTot, index, isLast })
-		index++
-	})
-	commandStream.stdout.on('close', rawChunk => {
+	const processData = (isLast:boolean, isError:boolean) => async rawChunk => {
 		let text = rawChunk.toString()
-		if (text === "false") text = ""
+		if (text === "false" && isLast) text = ""
 		textTot += text
-		let isLast = true
-		onData({ text, textTot, index, isLast })
+		onData({ text, textTot, index, isLast, isError })
 		index++
-	})
+	}
+
+	commandStream.stderr.on('data', processData(false, true))
+	commandStream.stderr.on('close', processData(true, true))
+
+	commandStream.stdout.on('data',  processData(false, false))
+	commandStream.stdout.on('close', processData(true, false))
 }

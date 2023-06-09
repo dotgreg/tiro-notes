@@ -969,7 +969,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iCommandStreamChunk</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;index: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isLast: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;textTot: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;index: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isLast: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;textTot: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;isError?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iFileNature</span>

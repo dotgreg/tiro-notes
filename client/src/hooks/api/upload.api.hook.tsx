@@ -36,19 +36,23 @@ export const useUploadApi = (p: {
 	// FUNCTIONS
 	// 
 	const uploadFile: iUploadApi['uploadFile'] = p2 => {
-		const idReq = genIdReq('upload-file');
-		// 1. add a listener function
-		eventBus.subscribe(idReq, answer => {
-			delete answer.idReq
-			p2.onSuccess(answer)
-		});
-		// 2. upload file
-		uploadFileInt({
-			file: p2.file,
-			path: p2.folderPath,
-			idReq: idReq,
-			onProgress: (percent: number) => { if (p2.onProgress) p2.onProgress(percent) }
-		})
+		try {
+			const idReq = genIdReq('upload-file');
+			// 1. add a listener function
+			eventBus.subscribe(idReq, answer => {
+				delete answer.idReq
+				p2.onSuccess(answer)
+			});
+			// 2. upload file
+			uploadFileInt({
+				file: p2.file,
+				path: p2.folderPath,
+				idReq: idReq,
+				onProgress: (percent: number) => { if (p2.onProgress) p2.onProgress(percent) }
+			})
+		} catch (error) {
+			console.warn(error)
+		}
 	}
 
 

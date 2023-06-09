@@ -134,8 +134,8 @@ export const SuggestPopup = (p: {
 			return { ...base, display: "none" }
 		},
 		menuList: (base, state) => {
-			let pe = deviceType() === "mobile" ? "all" : "none"
-			return { ...base, maxHeight: "150px"}
+			let maxHeight = deviceType() === "mobile" ? {} : {maxHeight: "150px"}
+			return { ...base, ...maxHeight}
 		},
 		menu: (base, state) => {
 			let pe = deviceType() === "mobile" ? "all" : "none"

@@ -4,7 +4,8 @@ import { isBoolean } from 'lodash';
 import React, { useEffect, useRef } from 'react';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
-export type InputType = 'password' | 'text' | 'select' | 'checkbox'
+export type InputType = 'password' | 'text' | 'select' | 'checkbox' | 'textarea'
+
 
 export const Input = (p: {
 	id?: string
@@ -57,7 +58,7 @@ export const Input = (p: {
 				p.label && <span onClick={e => labelClicked()}>{p.label} </span>
 			}
 			<div className="input-wrapper">
-				{p.type !== 'select' && <input
+				{p.type !== 'select' && p.type !== 'textarea' && <input
 					ref={inputRef}
 					type={p.type ? p.type : 'text'}
 					value={value}
@@ -92,6 +93,14 @@ export const Input = (p: {
 						}
 					</select>
 				}
+				{p.type === 'textarea' &&
+					<textarea
+						defaultValue={value}
+						onChange={(e) => {
+							p.onChange && p.onChange(e.target.value)
+						}}>
+					</textarea>
+				}
 
 				{p.explanation && <div className="explanation"> {p.explanation} </div>}
 			</div>
@@ -119,13 +128,20 @@ export const inputComponentCss = () => `
             text-transform: uppercase;
         }
         .input-wrapper {
-            width: 70%;
+            // width: 70%;
             input {
                 padding: 7px;
                 border: none;
                 background: #ececec;
                 border-radius: 5px;
             }
+			textarea {
+				height: 120px;
+				border: none;
+				background: #ececec;
+                border-radius: 5px;
+				padding: 2px;
+			}
             .explanation {
                 font-size: 11px;
                 color: grey;
