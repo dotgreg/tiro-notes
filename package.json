@@ -41,7 +41,7 @@
         "blog/serve": "run-s blog/build blog/serve-int",
         "blog/pull": "git checkout master; git pull origin master",
         "blog/push": "git add .; git commit -m 'updating blog'; git push origin master",
-        "blog/update": "run-s blog/pull blog/build blog/serve-int blog/push",
+        "blog/update": "run-s blog/pull blog/build blog/push",
         "================== NODE BUILD =================== ": "",
         "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server build-docs clean-prev-build export-the-build copy-build-to-electron-folder",

@@ -80,4 +80,9 @@
 		<loc>https://example.com/blog/devlog/2023/06/devlog-2023-06-w1.html</loc>
 		<lastmod>2023-06-09</lastmod>
 	</url>
+	
+	<url>
+		<loc>https://example.com/blog/devlog/2023/06/devlog-2023-06-w3.html</loc>
+		<lastmod>2023-06-10</lastmod>
+	</url>
 </urlset>
