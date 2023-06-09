@@ -17,9 +17,10 @@ export type iActivityLog = {
 
 export type iCommandStreamChunk = {
 	text:string
-	textTot:string, 
+	textTot:string 
 	index: number
-	isLast:boolean 
+	isLast:boolean
+	isError?: boolean 
 }
 
 export type iDateObj = ReturnType<typeof getDateObj>
