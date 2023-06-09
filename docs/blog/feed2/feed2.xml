@@ -17,10 +17,12 @@
 		<updated>2023-06-10T00:00:00Z</updated>
 		<id>https://example.com/blog/devlog/2023/06/devlog-2023-06-w3.html</id>
 		<content type="html">&lt;p&gt;I have done that and that&lt;/p&gt;
-&lt;p&gt;https://github.com/dotgreg/tiro-notes/assets/2981891/cf4f9cc1-f98c-44ef-8744-1ec4b8f61280&lt;/p&gt;
+&lt;video width=&quot;50%&quot; controls=&quot;&quot; autoplay=&quot;&quot; loop=&quot;&quot; muted=&quot;&quot; markdown=&quot;1&quot;&gt;
+	&lt;source src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/cf4f9cc1-f98c-44ef-8744-1ec4b8f61280&quot; type=&quot;video/mp4&quot; markdown=&quot;1&quot;&gt;
+&lt;/video&gt;
 &lt;p&gt;I have done that and that&lt;/p&gt;
 &lt;p&gt;I have done that and that&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/d7e5cfcb-c8eb-44ec-80cd-4b93b20ad284&quot; alt=&quot;Sans titre&quot;&gt;&lt;/p&gt;
+&lt;img width=&quot;50%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/d7e5cfcb-c8eb-44ec-80cd-4b93b20ad284&quot;&gt;
 &lt;p&gt;I have done that and that&lt;/p&gt;
 &lt;p&gt;I have done that and that&lt;/p&gt;
 </content>
