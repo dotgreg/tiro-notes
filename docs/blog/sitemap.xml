@@ -62,17 +62,17 @@
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/tags/number-2/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
 		<loc>https://example.com/blog/tags/second-tag/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://example.com/blog/tags/posts-with-two-tags/</loc>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://example.com/blog/tags/number-2/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
