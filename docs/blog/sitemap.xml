@@ -2,87 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 	
 	<url>
-		<loc>https://example.com/blog/blog/firstpost/</loc>
-		<lastmod>2018-05-01</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/blog/secondpost/</loc>
-		<lastmod>2018-07-04</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/blog/thirdpost/</loc>
-		<lastmod>2018-08-24</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/blog/fourthpost/</loc>
-		<lastmod>2018-09-30</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/blog/anotherpos/</loc>
-		<lastmod>2023-05-23</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/blog/anotherpost/</loc>
-		<lastmod>2023-05-23</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/blog/2023-06-w1/</loc>
+		<loc>https://tiro-notes.org/blog/blog/3/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/about2/</loc>
+		<loc>https://tiro-notes.org/blog/blog/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/blog/</loc>
+		<loc>https://tiro-notes.org/blog/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/</loc>
+		<loc>https://tiro-notes.org/blog/tags/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/tags/</loc>
+		<loc>https://tiro-notes.org/blog/tags/devlog/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/tags/another-tag/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/tags/second-tag/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/tags/posts-with-two-tags/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/tags/number-2/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://example.com/blog/devlog/2023/06/devlog-2023-06-w1.html</loc>
+		<loc>https://tiro-notes.org/blog/blog/2/</loc>
 		<lastmod>2023-06-09</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://example.com/blog/devlog/2023/06/devlog-2023-06-w3.html</loc>
+		<loc>https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html</loc>
+		<lastmod>2023-06-10</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/devlog/2023/06/devlog-2023-06-w3.html</loc>
 		<lastmod>2023-06-10</lastmod>
 	</url>
 </urlset>
