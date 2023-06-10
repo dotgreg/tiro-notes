@@ -49,7 +49,8 @@
         "blog/dev": "npm run --prefix ./docs/_eleventy_blog_system start",
         "blog/serve-int": "npx http-server ./docs/blog",
         "blog/serve": "run-s blog/build blog/serve-int",
-        "blog/update": "run-s blog/pull blog/build blog/push",
+        "blog/update": "run-s site/pull blog/build site/push",
+
         "================== NODE BUILD =================== ": "",
         "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server blog/build build-docs clean-prev-build export-the-build copy-build-to-electron-folder",
