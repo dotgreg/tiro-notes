@@ -2,20 +2,11 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
-		<title>Document</title>
+		<title>Tiro Notes Documentation</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 		<meta name="description" content="Description">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 		<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
-		<!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=G-X4NTPRP3LX"></script>
-		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-			gtag('js', new Date());
-
-			gtag('config', 'G-X4NTPRP3LX');
-		</script>
 	</head>
 	<!-- <<nav> -->
 		<!-- 	<div class="logo"><img src="./favicon.png" /> </div> -->
@@ -27,6 +18,16 @@
 		<!--   <a href="https://mobile.twitter.com/NotesTiro">Twitter</a> -->
 		<!-- </nav> -->
 	<body>
+		<script type="text/javascript">
+			(function(window, document, dataLayerName, id) {
+					window[dataLayerName]=window[dataLayerName]||[],window[dataLayerName].push({start:(new Date).getTime(),event:"stg.start"});var scripts=document.getElementsByTagName('script')[0],tags=document.createElement('script');
+					function stgCreateCookie(a,b,c){var d="";if(c){var e=new Date;e.setTime(e.getTime()+24*c*60*60*1e3),d="; expires="+e.toUTCString()}document.cookie=a+"="+b+d+"; path=/"}
+					var isStgDebug=(window.location.href.match("stg_debug")||document.cookie.match("stg_debug"))&&!window.location.href.match("stg_disable_debug");stgCreateCookie("stg_debug",isStgDebug?1:"",isStgDebug?14:-1);
+					var qP=[];dataLayerName!=="dataLayer"&&qP.push("data_layer_name="+dataLayerName),isStgDebug&&qP.push("stg_debug");var qPString=qP.length>0?("?"+qP.join("&")):"";
+					tags.async=!0,tags.src="https://tiro-notes.containers.piwik.pro/"+id+".js"+qPString,scripts.parentNode.insertBefore(tags,scripts);
+					!function(a,n,i){a[n]=a[n]||{};for(var c=0;c<i.length;c++)!function(i){a[n][i]=a[n][i]||{},a[n][i].api=a[n][i].api||function(){var a=[].slice.call(arguments,0);"string"==typeof a[0]&&window[dataLayerName].push({event:n+"."+i+":"+a[0],parameters:[].slice.call(arguments,1)})}}(i[c])}(window,"ppms",["tm","cm"]);
+			})(window, document, 'dataLayer', '8be1ea79-efe6-40a5-8eaa-77e0a5d04b75');
+		</script>	
 		<div id="app"></div>
 		<script>
 			window.$docsify = {
@@ -105,7 +106,7 @@
 					background-color: #f56e6e;
 			}
 			.markdown-section blockquote {
-    border-left: 4px solid #f56e6e;
+					border-left: 4px solid #f56e6e;
 			}
 
 		</style>

@@ -34,19 +34,42 @@
 		{#- <link rel="stylesheet" href="{% getBundleFileUrl "css" %}"> #}
 	</head>
 	<body>
+
+		<script type="text/javascript">
+(function(window, document, dataLayerName, id) {
+window[dataLayerName]=window[dataLayerName]||[],window[dataLayerName].push({start:(new Date).getTime(),event:"stg.start"});var scripts=document.getElementsByTagName('script')[0],tags=document.createElement('script');
+function stgCreateCookie(a,b,c){var d="";if(c){var e=new Date;e.setTime(e.getTime()+24*c*60*60*1e3),d="; expires="+e.toUTCString()}document.cookie=a+"="+b+d+"; path=/"}
+var isStgDebug=(window.location.href.match("stg_debug")||document.cookie.match("stg_debug"))&&!window.location.href.match("stg_disable_debug");stgCreateCookie("stg_debug",isStgDebug?1:"",isStgDebug?14:-1);
+var qP=[];dataLayerName!=="dataLayer"&&qP.push("data_layer_name="+dataLayerName),isStgDebug&&qP.push("stg_debug");var qPString=qP.length>0?("?"+qP.join("&")):"";
+tags.async=!0,tags.src="https://tiro-notes.containers.piwik.pro/"+id+".js"+qPString,scripts.parentNode.insertBefore(tags,scripts);
+!function(a,n,i){a[n]=a[n]||{};for(var c=0;c<i.length;c++)!function(i){a[n][i]=a[n][i]||{},a[n][i].api=a[n][i].api||function(){var a=[].slice.call(arguments,0);"string"==typeof a[0]&&window[dataLayerName].push({event:n+"."+i+":"+a[0],parameters:[].slice.call(arguments,1)})}}(i[c])}(window,"ppms",["tm","cm"]);
+})(window, document, 'dataLayer', '8be1ea79-efe6-40a5-8eaa-77e0a5d04b75');
+</script>
+
+
+
 		<a href="#skip" class="visually-hidden">Skip to main content</a>
 
 		<header>
-			<a href="/" class="home-link">{{ metadata.title }}</a>
+			<a href="/" class="home-link">
+				<img src="https://tiro-notes.org/favicon.png" />
+				Tiro Notes Blog
+			</a>
 
 			{#- Read more about `eleventy-navigation` at https://www.11ty.dev/docs/plugins/navigation/ #}
 			<nav>
 				<h2 class="visually-hidden">Top level navigation menu</h2>
 				<ul class="nav">
-				{%- for entry in collections.all | eleventyNavigation %}
-					<li class="nav-item"><a href="{{ entry.url }}"{% if entry.url == page.url %} aria-current="page"{% endif %}>{{ entry.title }}</a></li>
-				{%- endfor %}
+					<li class="nav-item"> <a href="/tags/guides/"> guides </a> </li>
+					<li class="nav-item"> <a href="/tags/devlog/"> devlog </a> </li>
+					<li class="nav-item"> <a href="/tags/"> all tags </a> </li>
+					<li class="nav-item"> <a href="https://tiro-notes.org"> docs > </a> </li>
 				</ul>
+				<!-- <ul class="nav"> -->
+					<!-- 	{%- for entry in collections.all | eleventyNavigation %} -->
+					<!-- 	<li class="nav-item"><a href="{{ entry.url }}"{% if entry.url == page.url %} aria-current="page"{% endif %}>{{ entry.title }}</a></li> -->
+					<!-- 	{%- endfor %} -->
+					<!-- </ul> -->
 			</nav>
 		</header>
 
