@@ -27,7 +27,7 @@ Tiro Notes focus points are :
 # Install
 - [Download desktop client (Win/Mac/Linux)](https://tiro-notes.org/#/downloads)
 - or with command line ```npx tiro-notes``` 
-  - for the latest functionnalities ```npx tiro-notes@develop``` (updates on [weekly basis](https://www.npmjs.com/package/tiro-notes?activeTab=versions))
+  - for the latest functionnalities ```npx tiro-notes@develop``` ([weekly basis](https://www.npmjs.com/package/tiro-notes?activeTab=versions) updates)
 
 # Functionalities
   
