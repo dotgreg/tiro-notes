@@ -2,14 +2,12 @@
 
 An open-source, cross-platform markdown editor designed for extensibility & flexibility
 
-🌐 website| 📢 news| 📘 guides|  ⬇️ usage |  Version |
--|-|-|-|-
-[tiro-notes.org](https://tiro-notes.org)|[dev blog](https://tiro-notes.org/blog) & [twitter](https://twitter.com/NotesTiro)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads) or ```npx tiro-notes```| 0.30 (beta)
+🌐 website| 📘 guides| ⬇️ downloads| 💬 forum | 📢 news| Version |
+-|-|-|-|-|-
+[tiro-notes.org](https://tiro-notes.org)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads)|[forum](https://github.com/dotgreg/tiro-notes/discussions)|[twitter](https://twitter.com/NotesTiro)| 0.30 (beta)
 
 
-![Tiro 0.30](https://github.com/dotgreg/tiro-notes/assets/2981891/9e684988-5575-428f-8499-d11ad6637c71)
-
-
+![Tiro 0.30](https://user-images.githubusercontent.com/2981891/171833721-2acdc59d-8c21-4280-bd62-a78023731c22.png)
 
 Tiro Notes focus points are : 
 
@@ -24,10 +22,7 @@ Tiro Notes focus points are :
 
 - ☁️ / 🖥️ /  💻 / 📱 **Cross-platform & Web** : Windows, macOS, Android, Linux, Web. Start an App or with CLI and access it anywhere on your local network. 
 
-# Install
-- [Download desktop client (Win/Mac/Linux)](https://tiro-notes.org/#/downloads)
-- or with command line ```npx tiro-notes``` 
-  - for the latest functionnalities ```npx tiro-notes@develop``` ([weekly basis](https://www.npmjs.com/package/tiro-notes?activeTab=versions) updates)
+
 
 # Functionalities
   
