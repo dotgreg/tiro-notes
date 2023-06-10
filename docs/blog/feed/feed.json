@@ -14,7 +14,7 @@
 			"id": "https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html",
 			"url": "https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html",
 			"title": "Hello World Devlog",
-			"content_html": "<p>I figured out it would be best to document the incredibly stupid amount of functionalities and ideas I am fighting to implement in Tiro Notes.</p>\n",
+			"content_html": "<p>I feel the need to document Tiro Notes' development journey in a single place.</p>\n<p>The purpose of this blog is to provide information on:</p>\n<ul>\n<li>Updates and changes happening in Tiro Notes</li>\n<li>Features and experiments being developed</li>\n<li>Guides on how to use Tiro Notes.</li>\n</ul>\n",
 			"date_published": "2023-06-10T00:00:00Z"
 		}
 		

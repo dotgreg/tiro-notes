@@ -16,7 +16,13 @@
 		<link href="https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html"/>
 		<updated>2023-06-10T00:00:00Z</updated>
 		<id>https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html</id>
-		<content type="html">&lt;p&gt;I figured out it would be best to document the incredibly stupid amount of functionalities and ideas I am fighting to implement in Tiro Notes.&lt;/p&gt;
+		<content type="html">&lt;p&gt;I feel the need to document Tiro Notes&#39; development journey in a single place.&lt;/p&gt;
+&lt;p&gt;The purpose of this blog is to provide information on:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Updates and changes happening in Tiro Notes&lt;/li&gt;
+&lt;li&gt;Features and experiments being developed&lt;/li&gt;
+&lt;li&gt;Guides on how to use Tiro Notes.&lt;/li&gt;
+&lt;/ul&gt;
 </content>
 	</entry>
 </feed>
