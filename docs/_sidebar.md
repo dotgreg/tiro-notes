@@ -13,6 +13,6 @@
 	- [Creating \[\[Custom Tags\]\]](guide-custom-tags.md)
 	- [Client API](client-api.md)
 - Links
-	- [Forum](https://github.com/dotgreg/tiro-notes/discussions)
+	- [Blog & Devlog](https://tiro-notes.org/blog)
 	- [Github](https://github.com/dotgreg/tiro-notes)
 	- [News (twitter)](https://twitter.com/NotesTiro)

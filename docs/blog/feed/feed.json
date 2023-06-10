@@ -10,5 +10,13 @@
 		"url": "https://github.com/dotgreg"
 	},
 	"items": [
+		{
+			"id": "https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html",
+			"url": "https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html",
+			"title": "Hello World Devlog",
+			"content_html": "<p>I figured out it would be best to document the incredibly stupid amount of functionalities and ideas I am fighting to implement in Tiro Notes.</p>\n",
+			"date_published": "2023-06-10T00:00:00Z"
+		}
+		
 	]
 }
