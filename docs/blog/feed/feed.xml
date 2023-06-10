@@ -4,10 +4,19 @@
 	<subtitle>Tiro Notes Blog and Devlog</subtitle>
 	<link href="https://tiro-notes.org/blog/feed/feed.xml" rel="self"/>
 	<link href="https://tiro-notes.org/blog/blog"/>
-	<updated>2023-06-10T10:44:00Z</updated>
+	<updated>2023-06-10T00:00:00Z</updated>
 	<id>https://tiro-notes.org/blog</id>
 	<author>
 		<name>Grégoire Thiébault</name>
 		<email>thiebault.gregoire@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Hello World Devlog</title>
+		<link href="https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html"/>
+		<updated>2023-06-10T00:00:00Z</updated>
+		<id>https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html</id>
+		<content type="html">&lt;p&gt;I figured out it would be best to document the incredibly stupid amount of functionalities and ideas I am fighting to implement in Tiro Notes.&lt;/p&gt;
+</content>
+	</entry>
 </feed>

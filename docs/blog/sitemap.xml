@@ -2,21 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/blog/3/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/blog/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
 		<loc>https://tiro-notes.org/blog/tags/</loc>
 		<lastmod>2023-06-06</lastmod>
 	</url>
@@ -27,17 +12,17 @@
 	</url>
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/blog/2/</loc>
-		<lastmod>2023-06-09</lastmod>
-	</url>
-	
-	<url>
 		<loc>https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html</loc>
 		<lastmod>2023-06-10</lastmod>
 	</url>
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/devlog/2023/06/devlog-2023-06-w3.html</loc>
+		<loc>https://tiro-notes.org/blog/blog/</loc>
+		<lastmod>2023-06-10</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/</loc>
 		<lastmod>2023-06-10</lastmod>
 	</url>
 </urlset>
