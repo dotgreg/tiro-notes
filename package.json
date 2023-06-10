@@ -82,7 +82,7 @@
         "export-server-1": "cp -r server/build ./build/server",
         "export-server-2": "cp -r server/ssl ./build/server/ssl",
         "export-readme": "run-s export-readme-1 export-readme-2",
-        "export-readme-1": "cp docs/README.md README.md",
+        "export-readme-1": "cp README.md docs/README.md",
         "export-readme-2": "cp README.md ./build/",
         "================== MISC =================== ": "",
         "__TEST__": "",
