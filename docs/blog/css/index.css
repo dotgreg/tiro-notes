@@ -36,15 +36,6 @@
 		}
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-		.nav {
-				top: 12px;
-				position: relative;
-				left: -15px;
-		}
-
-}
 
 /* Global stylesheet */
 * {
@@ -319,4 +310,13 @@ a[href].header-anchor:focus,
 
 h2 + .header-anchor {
 		font-size: 1.5em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+		header ul.nav {
+				top: 5px;
+				position: relative;
+				left: -15px;
+		}
 }
