@@ -17,6 +17,16 @@
 	</url>
 	
 	<url>
+		<loc>https://tiro-notes.org/blog/tags/ai/</loc>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/text-editor/</loc>
+		<lastmod>2023-06-06</lastmod>
+	</url>
+	
+	<url>
 		<loc>https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html</loc>
 		<lastmod>2023-06-10</lastmod>
 	</url>
@@ -29,5 +39,10 @@
 	<url>
 		<loc>https://tiro-notes.org/blog/</loc>
 		<lastmod>2023-06-10</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html</loc>
+		<lastmod>2023-06-11</lastmod>
 	</url>
 </urlset>

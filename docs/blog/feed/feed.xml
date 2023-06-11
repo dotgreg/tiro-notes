@@ -4,12 +4,75 @@
 	<subtitle>Tiro Notes Blog and Devlog</subtitle>
 	<link href="https://tiro-notes.org/blog/feed/feed.xml" rel="self"/>
 	<link href="https://tiro-notes.org/blog/blog"/>
-	<updated>2023-06-10T00:00:00Z</updated>
+	<updated>2023-06-11T00:00:00Z</updated>
 	<id>https://tiro-notes.org/blog</id>
 	<author>
 		<name>Grégoire Thiébault</name>
 		<email>thiebault.gregoire@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Integrating an AI-agnostic suggest system into an open source Markdown notes editor</title>
+		<link href="https://tiro-notes.org/blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html"/>
+		<updated>2023-06-11T00:00:00Z</updated>
+		<id>https://tiro-notes.org/blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html</id>
+		<content type="html">&lt;p&gt;One of the most interesting features that I wanted to implement in Tiro is the idea of having an AI assistant available on mobile and desktop.&lt;/p&gt;
+&lt;video width=&quot;100%&quot; controls=&quot;&quot; autoplay=&quot;&quot; loop=&quot;&quot; muted=&quot;&quot; markdown=&quot;1&quot;&gt;
+	&lt;source src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/dd42b4e3-f044-4c2e-a83d-3eb7fc9cf798&quot; type=&quot;video/mp4&quot; markdown=&quot;1&quot;&gt;
+&lt;/video&gt;
+&lt;p&gt;&lt;em&gt;Final result, you can test it using the command line &lt;code&gt;npx tiro-notes@0.30.99.12&lt;/code&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;The main problem I saw with current solutions was the friction between the writing process and the AI assistance at the user experience level. I don&#39;t use AI assistants because of that friction required to use them (Opening a new tab, copy/pasting text 2 times etc.). It creates a certain level of steps under which I&#39;d just rather use search engines or do it myself.&lt;/p&gt;
+&lt;p&gt;My first attempt was to integrate a command line manager called Commander, but I quickly realized that the integration of this and the use of command lines for AI was not optimal, especially not cutting the copy/pasting part, especially tedious on mobile. So I gave up in using AI assistance inside Tiro that way.&lt;/p&gt;
+&lt;img width=&quot;30%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9&quot;&gt;
+&lt;p&gt;&lt;em&gt;Initial AI integration attempt using the commander custom tag&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;My second attempt, which I will describe here, was to get as close as possible to the user experience offered by Microsoft&#39;s Copilot or Notion&#39;s AI system.&lt;/p&gt;
+&lt;p&gt;The goal was to reduce the number of steps needed to get an answer:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Write the question in Tiro Notes&lt;/li&gt;
+&lt;li&gt;Select the text of the question&lt;/li&gt;
+&lt;li&gt;Immediately obtain an AI-generated response in the note&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The objective is also to respect a certain open source philosophy by offering the choice to users to use different AI engines, including open source ones in the future. The solution is designed to be easily interchangeable from the user settings.&lt;/p&gt;
+&lt;img width=&quot;50%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/b6124b31-a6ca-41ab-9e3e-bcd8d298ef8e&quot;&gt;
+&lt;p&gt;&lt;em&gt;New settings options for AI assistant&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;On the coding side, it happened to be quite easy to implement it.
+The main logic was :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;User select a part of the text&lt;/li&gt;
+&lt;li&gt;A small popup appears suggesting AI assistance&lt;/li&gt;
+&lt;li&gt;If clicked, the selected text is sent to Tiro Notes backend that executes a configurable command line with it as a parameter&lt;/li&gt;
+&lt;li&gt;The answer is then sent back to the active note, below the question&lt;/li&gt;
+&lt;li&gt;As for ChatGPT, the answer is not sent once but streamed (almost word by word), I had to create a new api function &lt;code&gt;api.command.stream&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The code is visible at that &lt;a href=&quot;https://github.com/dotgreg/tiro-notes/blob/4d4a845c15aa53b6e59830f4268445e9f96c09bb/client/src/components/dualView/CodeMirrorEditor.component.tsx#L386/&quot;&gt;link&lt;/a&gt;, I will probably refactor it latest to its own manager file&lt;/p&gt;
+&lt;p&gt;I am using two api functions:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;the newly created  &lt;code&gt;api.command.stream(cmd, streamChunk =&amp;gt; { })&lt;/code&gt; to execute the command on Tiro Notes backend&lt;/li&gt;
+&lt;li&gt;api.file.saveContent(p.file.path, nText) to save the note regularly&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-js&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token function&quot;&gt;getApi&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token parameter&quot;&gt;api&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;token keyword&quot;&gt;let&lt;/span&gt; cmd &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; api&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;userSettings&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;ui_editor_ai_command&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+  cmd &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; cmd&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;replace&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; selectionTxt&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+  &lt;span class=&quot;token function&quot;&gt;genTextAt&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;genParams&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+  api&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;command&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;stream&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;cmd&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token parameter&quot;&gt;streamChunk&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;streamChunk&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;isError&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; isError &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;true&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;// if it is an error, display it in a popup&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;isError&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+      api&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;ui&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;notification&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;emit&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;token literal-property property&quot;&gt;content&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token template-string&quot;&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;[AI] Error from CLI &amp;lt;br/&gt; &quot;&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;${&lt;/span&gt;cmd&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot; &amp;lt;br/&gt;=&gt; &amp;lt;br/&gt;&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;${&lt;/span&gt;streamChunk&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;text&lt;span class=&quot;token interpolation-punctuation punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;token literal-property property&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token literal-property property&quot;&gt;hideAfter&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+      &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;token function&quot;&gt;genTextAt&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;genParams&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token literal-property property&quot;&gt;textUpdate&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token literal-property property&quot;&gt;isLast&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;true&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+      &lt;span class=&quot;token comment&quot;&gt;// else insert it&lt;/span&gt;
+      &lt;span class=&quot;token function&quot;&gt;genTextAt&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;genParams&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token literal-property property&quot;&gt;textUpdate&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;streamChunk&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;textTot&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token literal-property property&quot;&gt;isLast&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; streamChunk&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;isLast&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+  &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;token template-string&quot;&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>Hello World Devlog</title>
