@@ -12,17 +12,17 @@
 	</author>
 	
 	<entry>
-		<title>Integrating an AI-agnostic suggest system into an open source Markdown notes editor</title>
-		<link href="https://tiro-notes.org/blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html"/>
+		<title>An agnostic AI assistant into Tiro Notes</title>
+		<link href="https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html"/>
 		<updated>2023-06-11T00:00:00Z</updated>
-		<id>https://tiro-notes.org/blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html</id>
+		<id>https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html</id>
 		<content type="html">&lt;p&gt;One of the most interesting features that I wanted to implement in Tiro is the idea of having an AI assistant available on mobile and desktop.&lt;/p&gt;
 &lt;video width=&quot;100%&quot; controls=&quot;&quot; autoplay=&quot;&quot; loop=&quot;&quot; muted=&quot;&quot; markdown=&quot;1&quot;&gt;
 	&lt;source src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/dd42b4e3-f044-4c2e-a83d-3eb7fc9cf798&quot; type=&quot;video/mp4&quot; markdown=&quot;1&quot;&gt;
 &lt;/video&gt;
 &lt;p&gt;&lt;em&gt;Final result, you can test it using the command line &lt;code&gt;npx tiro-notes@0.30.99.12&lt;/code&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;The main problem I saw with current solutions was the friction between the writing process and the AI assistance at the user experience level. I don&#39;t use AI assistants because of that friction required to use them (Opening a new tab, copy/pasting text 2 times etc.). It creates a certain level of steps under which I&#39;d just rather use search engines or do it myself.&lt;/p&gt;
-&lt;p&gt;My first attempt was to integrate a command line manager called Commander, but I quickly realized that the integration of this and the use of command lines for AI was not optimal, especially not cutting the copy/pasting part, especially tedious on mobile. So I gave up in using AI assistance inside Tiro that way.&lt;/p&gt;
+&lt;p&gt;My first attempt was to add an AI assistant throught command line using the Tiro command line manager custom tag called Commander, but I quickly realized that the integration still required too much steps to be usable in real-life scenarios, especially the copy/pasting part which is really tedious on mobile. So I gave up in using AI assistance inside Tiro that way.&lt;/p&gt;
 &lt;img width=&quot;30%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9&quot;&gt;
 &lt;p&gt;&lt;em&gt;Initial AI integration attempt using the commander custom tag&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;My second attempt, which I will describe here, was to get as close as possible to the user experience offered by Microsoft&#39;s Copilot or Notion&#39;s AI system.&lt;/p&gt;
