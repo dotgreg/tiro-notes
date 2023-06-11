@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Hello World Devlog</title>
+		<title>Integrating an AI-agnostic suggest system into an open source Markdown notes editor</title>
 		<meta name="description" content="Tiro Notes Blog and Devlog">
 		<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="alternate" href="/blog/feed/feed.xml" type="application/atom+xml" title="Tiro Notes Blog">
@@ -541,29 +541,78 @@ h2 + .header-anchor {
 
 		<main id="skip">
 			
-<h1>Hello World Devlog</h1>
+<h1>Integrating an AI-agnostic suggest system into an open source Markdown notes editor</h1>
 
 <ul class="post-metadata">
-	<li><time datetime="2023-06-10">10 June 2023</time></li>
+	<li><time datetime="2023-06-11">11 June 2023</time></li>
 	<li><a href="/blog/tags/devlog/" class="post-tag">devlog</a>, </li>
-	<li><a href="/blog/tags/guides/" class="post-tag">guides</a></li>
+	<li><a href="/blog/tags/ai/" class="post-tag">AI</a>, </li>
+	<li><a href="/blog/tags/text-editor/" class="post-tag">text editor</a></li>
 </ul>
 
-<p>I feel the need to document Tiro Notes' development journey in a single place.</p>
-<p>The purpose of this blog is to provide information on:</p>
+<p>One of the most interesting features that I wanted to implement in Tiro is the idea of having an AI assistant available on mobile and desktop.</p>
+<video width="100%" controls="" autoplay="" loop="" muted="" markdown="1">
+	<source src="https://github.com/dotgreg/tiro-notes/assets/2981891/dd42b4e3-f044-4c2e-a83d-3eb7fc9cf798" type="video/mp4" markdown="1">
+</video>
+<p><em>Final result, you can test it using the command line <code>npx tiro-notes@0.30.99.12</code></em></p>
+<p>The main problem I saw with current solutions was the friction between the writing process and the AI assistance at the user experience level. I don't use AI assistants because of that friction required to use them (Opening a new tab, copy/pasting text 2 times etc.). It creates a certain level of steps under which I'd just rather use search engines or do it myself.</p>
+<p>My first attempt was to integrate a command line manager called Commander, but I quickly realized that the integration of this and the use of command lines for AI was not optimal, especially not cutting the copy/pasting part, especially tedious on mobile. So I gave up in using AI assistance inside Tiro that way.</p>
+<img width="30%" src="https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9">
+<p><em>Initial AI integration attempt using the commander custom tag</em></p>
+<p>My second attempt, which I will describe here, was to get as close as possible to the user experience offered by Microsoft's Copilot or Notion's AI system.</p>
+<p>The goal was to reduce the number of steps needed to get an answer:</p>
 <ul>
-<li>Updates and changes happening in Tiro Notes</li>
-<li>Features and experiments being developed</li>
-<li>Guides on how to use Tiro Notes.</li>
+<li>Write the question in Tiro Notes</li>
+<li>Select the text of the question</li>
+<li>Immediately obtain an AI-generated response in the note</li>
 </ul>
+<p>The objective is also to respect a certain open source philosophy by offering the choice to users to use different AI engines, including open source ones in the future. The solution is designed to be easily interchangeable from the user settings.</p>
+<img width="50%" src="https://github.com/dotgreg/tiro-notes/assets/2981891/b6124b31-a6ca-41ab-9e3e-bcd8d298ef8e">
+<p><em>New settings options for AI assistant</em></p>
+<p>On the coding side, it happened to be quite easy to implement it.
+The main logic was :</p>
+<ul>
+<li>User select a part of the text</li>
+<li>A small popup appears suggesting AI assistance</li>
+<li>If clicked, the selected text is sent to Tiro Notes backend that executes a configurable command line with it as a parameter</li>
+<li>The answer is then sent back to the active note, below the question</li>
+<li>As for ChatGPT, the answer is not sent once but streamed (almost word by word), I had to create a new api function <code>api.command.stream</code></li>
+</ul>
+<p>The code is visible at that <a href="https://github.com/dotgreg/tiro-notes/blob/4d4a845c15aa53b6e59830f4268445e9f96c09bb/client/src/components/dualView/CodeMirrorEditor.component.tsx#L386/">link</a>, I will probably refactor it latest to its own manager file</p>
+<p>I am using two api functions:</p>
+<ul>
+<li>the newly created  <code>api.command.stream(cmd, streamChunk =&gt; { })</code> to execute the command on Tiro Notes backend</li>
+<li>api.file.saveContent(p.file.path, nText) to save the note regularly</li>
+</ul>
+<pre class="language-js" tabindex="0"><code class="language-js"><span class="token function">getApi</span><span class="token punctuation">(</span><span class="token parameter">api</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">let</span> cmd <span class="token operator">=</span> api<span class="token punctuation">.</span>userSettings<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">"ui_editor_ai_command"</span><span class="token punctuation">)</span>
+  cmd <span class="token operator">=</span> cmd<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">,</span> selectionTxt<span class="token punctuation">)</span>
+  <span class="token function">genTextAt</span><span class="token punctuation">(</span><span class="token function">genParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+  api<span class="token punctuation">.</span>command<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span>cmd<span class="token punctuation">,</span> <span class="token parameter">streamChunk</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>streamChunk<span class="token punctuation">.</span>isError<span class="token punctuation">)</span> isError <span class="token operator">=</span> <span class="token boolean">true</span>
+    <span class="token comment">// if it is an error, display it in a popup</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>isError<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      api<span class="token punctuation">.</span>ui<span class="token punctuation">.</span>notification<span class="token punctuation">.</span><span class="token function">emit</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+        <span class="token literal-property property">content</span><span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">[AI] Error from CLI &lt;br/> "</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>cmd<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">" &lt;br/>=> &lt;br/></span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>streamChunk<span class="token punctuation">.</span>text<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span>
+        <span class="token literal-property property">options</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token literal-property property">hideAfter</span><span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">}</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token function">genTextAt</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token operator">...</span><span class="token function">genParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token literal-property property">textUpdate</span><span class="token operator">:</span><span class="token string">""</span><span class="token punctuation">,</span> <span class="token literal-property property">isLast</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+      <span class="token comment">// else insert it</span>
+      <span class="token function">genTextAt</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token operator">...</span><span class="token function">genParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token literal-property property">textUpdate</span><span class="token operator">:</span>streamChunk<span class="token punctuation">.</span>textTot<span class="token punctuation">,</span> <span class="token literal-property property">isLast</span><span class="token operator">:</span> streamChunk<span class="token punctuation">.</span>isLast<span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token template-string"><span class="token template-punctuation string">`</span><span class="token template-punctuation string">`</span></span>
+</code></pre>
 
-<ul class="links-nextprev"><li>Next: <a href="/blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html">Integrating an AI-agnostic suggest system into an open source Markdown notes editor</a></li>
+<ul class="links-nextprev"><li>Previous: <a href="/blog/devlog/2023/06/hello-world-devlog.html">Hello World Devlog</a></li>
 </ul>
 
 		</main>
 
 		<footer></footer>
 
-		<!-- Current page: /blog/devlog/2023/06/hello-world-devlog.html -->
+		<!-- Current page: /blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html -->
 	</body>
 </html>
