@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>Integrating an AI-agnostic suggest system into an open source Markdown notes editor</title>
+		<title>An agnostic AI assistant into Tiro Notes</title>
 		<meta name="description" content="Tiro Notes Blog and Devlog">
 		<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="alternate" href="/blog/feed/feed.xml" type="application/atom+xml" title="Tiro Notes Blog">
@@ -541,7 +541,7 @@ h2 + .header-anchor {
 
 		<main id="skip">
 			
-<h1>Integrating an AI-agnostic suggest system into an open source Markdown notes editor</h1>
+<h1>An agnostic AI assistant into Tiro Notes</h1>
 
 <ul class="post-metadata">
 	<li><time datetime="2023-06-11">11 June 2023</time></li>
@@ -556,7 +556,7 @@ h2 + .header-anchor {
 </video>
 <p><em>Final result, you can test it using the command line <code>npx tiro-notes@0.30.99.12</code></em></p>
 <p>The main problem I saw with current solutions was the friction between the writing process and the AI assistance at the user experience level. I don't use AI assistants because of that friction required to use them (Opening a new tab, copy/pasting text 2 times etc.). It creates a certain level of steps under which I'd just rather use search engines or do it myself.</p>
-<p>My first attempt was to integrate a command line manager called Commander, but I quickly realized that the integration of this and the use of command lines for AI was not optimal, especially not cutting the copy/pasting part, especially tedious on mobile. So I gave up in using AI assistance inside Tiro that way.</p>
+<p>My first attempt was to add an AI assistant throught command line using the Tiro command line manager custom tag called Commander, but I quickly realized that the integration still required too much steps to be usable in real-life scenarios, especially the copy/pasting part which is really tedious on mobile. So I gave up in using AI assistance inside Tiro that way.</p>
 <img width="30%" src="https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9">
 <p><em>Initial AI integration attempt using the commander custom tag</em></p>
 <p>My second attempt, which I will describe here, was to get as close as possible to the user experience offered by Microsoft's Copilot or Notion's AI system.</p>
@@ -613,6 +613,6 @@ The main logic was :</p>
 
 		<footer></footer>
 
-		<!-- Current page: /blog/devlog/2023/06/ai-agnostic-suggest-in-oss-md-editor.html -->
+		<!-- Current page: /blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html -->
 	</body>
 </html>
