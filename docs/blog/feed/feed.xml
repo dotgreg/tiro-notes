@@ -21,9 +21,10 @@
 	&lt;source src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/dd42b4e3-f044-4c2e-a83d-3eb7fc9cf798&quot; type=&quot;video/mp4&quot; markdown=&quot;1&quot;&gt;
 &lt;/video&gt;
 &lt;p&gt;&lt;em&gt;Final result, you can test it using the command line &lt;code&gt;npx tiro-notes@0.30.99.12&lt;/code&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&quot;user-experience&quot; tabindex=&quot;-1&quot;&gt;User experience &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;The main problem I saw with current solutions was the friction between the writing process and the AI assistance at the user experience level. I don&#39;t use AI assistants because of that friction required to use them (Opening a new tab, copy/pasting text 2 times etc.). It creates a certain level of steps under which I&#39;d just rather use search engines or do it myself.&lt;/p&gt;
 &lt;p&gt;My first attempt was to add an AI assistant throught command line using the Tiro command line manager custom tag called Commander, but I quickly realized that the integration still required too much steps to be usable in real-life scenarios, especially the copy/pasting part which is really tedious on mobile. So I gave up in using AI assistance inside Tiro that way.&lt;/p&gt;
-&lt;img width=&quot;30%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9&quot;&gt;
+&lt;img width=&quot;40%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9&quot;&gt;
 &lt;p&gt;&lt;em&gt;Initial AI integration attempt using the commander custom tag&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;My second attempt, which I will describe here, was to get as close as possible to the user experience offered by Microsoft&#39;s Copilot or Notion&#39;s AI system.&lt;/p&gt;
 &lt;p&gt;The goal was to reduce the number of steps needed to get an answer:&lt;/p&gt;
@@ -33,8 +34,9 @@
 &lt;li&gt;Immediately obtain an AI-generated response in the note&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;The objective is also to respect a certain open source philosophy by offering the choice to users to use different AI engines, including open source ones in the future. The solution is designed to be easily interchangeable from the user settings.&lt;/p&gt;
-&lt;img width=&quot;50%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/b6124b31-a6ca-41ab-9e3e-bcd8d298ef8e&quot;&gt;
-&lt;p&gt;&lt;em&gt;New settings options for AI assistant&lt;/em&gt;&lt;/p&gt;
+&lt;img width=&quot;70%&quot; src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/b6124b31-a6ca-41ab-9e3e-bcd8d298ef8e&quot;&gt;
+&lt;p&gt;&lt;em&gt;New settings options for AI assistant. The AI system used can be modified&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id=&quot;technical-implementation&quot; tabindex=&quot;-1&quot;&gt;Technical implementation &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;On the coding side, it happened to be quite easy to implement it.
 The main logic was :&lt;/p&gt;
 &lt;ul&gt;
@@ -47,8 +49,12 @@ The main logic was :&lt;/p&gt;
 &lt;p&gt;The code is visible at that &lt;a href=&quot;https://github.com/dotgreg/tiro-notes/blob/4d4a845c15aa53b6e59830f4268445e9f96c09bb/client/src/components/dualView/CodeMirrorEditor.component.tsx#L386/&quot;&gt;link&lt;/a&gt;, I will probably refactor it latest to its own manager file&lt;/p&gt;
 &lt;p&gt;I am using two api functions:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;the newly created  &lt;code&gt;api.command.stream(cmd, streamChunk =&amp;gt; { })&lt;/code&gt; to execute the command on Tiro Notes backend&lt;/li&gt;
-&lt;li&gt;api.file.saveContent(p.file.path, nText) to save the note regularly&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;the newly created  &lt;code&gt;api.command.stream(cmd, streamChunk =&amp;gt; { })&lt;/code&gt; to execute the command on Tiro Notes backend. That function sends from the react client frontend a command line to the node.js backend, which executes it using the library execa. Details of the backend function used can be checked at that &lt;a href=&quot;https://github.com/dotgreg/tiro-notes/blob/4d4a845c15aa53b6e59830f4268445e9f96c09bb/server/src/managers/exec.manager.ts&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;api.file.saveContent(p.file.path, nText) to save the note regularly&lt;/p&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class=&quot;language-js&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-js&quot;&gt;&lt;span class=&quot;token function&quot;&gt;getApi&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token parameter&quot;&gt;api&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
   &lt;span class=&quot;token keyword&quot;&gt;let&lt;/span&gt; cmd &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; api&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;userSettings&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;ui_editor_ai_command&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
@@ -68,9 +74,8 @@ The main logic was :&lt;/p&gt;
       &lt;span class=&quot;token function&quot;&gt;genTextAt&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;...&lt;/span&gt;&lt;span class=&quot;token function&quot;&gt;genParams&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token literal-property property&quot;&gt;textUpdate&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt;streamChunk&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;textTot&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token literal-property property&quot;&gt;isLast&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;:&lt;/span&gt; streamChunk&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;isLast&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
     &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
   &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
-&lt;span class=&quot;token template-string&quot;&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;span class=&quot;token template-punctuation string&quot;&gt;`&lt;/span&gt;&lt;/span&gt;
-&lt;/code&gt;&lt;/pre&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can test that AI assistant by downloading Tiro Notes from the command line &lt;code&gt;npx tiro-notes@0.30.99.12&lt;/code&gt;&lt;/p&gt;
 </content>
 	</entry>
 	
