@@ -35,10 +35,10 @@ Tiro Notes focus points are :
 - 🖊️ Mardown notes edition
 - 🌄 Drag and Drop images & files upload (stored in a relative .resources folder)
 - 🔗 Notes linking
-- 🔑 End to end (E2E) note encryption (RSA 2048)
+- 🔑 note encryption (RSA 2048)
 - 🏛 Note changes history
 - 📄 Export to PDF
-- (🔧) 💬 Text to Speech (beta)
+- 💬 Text to Speech (beta)
 
 **Custom Tags**
 - 💱 display math formulas with [[latex]] 
