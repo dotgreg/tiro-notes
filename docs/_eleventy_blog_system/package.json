@@ -4,8 +4,7 @@
 		"description": "A starter repository for a blog web site using the Eleventy site generator.",
 		"scripts": {
 				"clean": "rm -r ../blog; mkdir ../blog",
-				"build": "npm run clean; npx @11ty/eleventy --output=../blog", 
-				"build-ghpages": "npx @11ty/eleventy --pathprefix=/eleventy-base-blog/",
+				"build": "npm install; npm run clean; npx @11ty/eleventy --output=../blog", 
 				"start": "npx @11ty/eleventy --serve --quiet",
 				"debug": "DEBUG=Eleventy* npx @11ty/eleventy",
 				"debugstart": "DEBUG=Eleventy* npx @11ty/eleventy --serve --quiet",

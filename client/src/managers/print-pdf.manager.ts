@@ -38,33 +38,33 @@ export const openExportFilePopup = (windowId: string, file: iFile) => {
 		let html = `
 <head>
 	<title>${file.name} </title>
-
-
+	
 </head>
 <html>
 	<body>
-				<div class="simple-css-print-wrapper">
-<div class="hide-print">
-	<bm> Export options </bm>
-	<button onclick="window.print()">print</button>
-	<button onclick="window.print()">export to pdf</button>
-<button onclick="window.alert('CTRL+ S then select *complete webpage* if available')">export to html</button>
-</div>
-					<div class="file-infos-wrapper">
+		
+		<div class="simple-css-print-wrapper">
+			<div class="hide-print">
+				<bm> Export options </bm>
+				<button onclick="window.print()">print</button>
+				<button onclick="window.print()">export to pdf</button>
+				<button onclick="">export to pdf</button>
+				<button onclick="window.alert('CTRL+ S then select *complete webpage* if available')">export to html</button>
+			</div>
+				<div class="file-infos-wrapper">
 					Note Name : ${file.name}<br>
 					Note Path : ${file.path}<br>
 					Created : ${created}<br>
 					Edited : ${modified}<br>
-					</div>
-				${previewToPrint.innerHTML}
 				</div>
-
-				<style>${previewAreaSimpleCss(d)}</style>
-				<style>${customStylePdfPrint()}</style>
+				${previewToPrint.innerHTML}
+			</div>
+			<style>${previewAreaSimpleCss(d)}</style>
+			<style>${customStylePdfPrint()}</style>
 
 <script>
+	console.log("hello world")
 </script>
-
 
 
 	</body>
