@@ -1,6 +1,6 @@
 {
 		"name": "tiro-notes",
-		"version": "0.30.99.13",
+		"version": "0.30.99.14",
 		"description": "Tiro Notes CLI to start Tiro Notes from the command line!",
 		"scripts": {
 				"dev": "ISDEV=true node cli.js",
@@ -9,7 +9,7 @@
 				"export-helpers": "cp ../shared.helpers.js ./node-build/shared.helpers.build.js",
 				"root-build": "cd ../..; run-s build ",
 
-				"build-then-publish": "run-s root-build publish-to-npm-dev",
+				"build-then-publish": "run-s root-build publish-to-npm-prod",
 				"build-then-publish-dev": "run-s root-build publish-to-npm-dev",
 				
 				"publish-to-npm-prod": "cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-cli-module; npm run export-helpers; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING!; cd node-build; npm publish",
