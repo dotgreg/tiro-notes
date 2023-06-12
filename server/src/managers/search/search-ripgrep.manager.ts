@@ -50,6 +50,7 @@ export const searchWithRgGeneric = async (p: {
 	options?: {
 		wholeLine?: boolean,
 		debug?: boolean
+		exclude?:string[]
 	}
 
 	processRawLine?: (infos: iLineRg) => any
@@ -61,6 +62,16 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
+
+	// exclusion string
+	let exclusionArr:string[] = []
+	if (p.options.exclude) {
+		each(p.options.exclude, excludePath => {
+			// exclusionArr += `--glob '!${excludePath}/'`
+			exclusionArr.push("--glob")
+			exclusionArr.push("'!${excludePath}/'")
+		})
+	}
 
 	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
 
@@ -77,7 +88,8 @@ export const searchWithRgGeneric = async (p: {
 		'--type',
 		'md',
 		// do not print whole line, just one match per line
-		lineParam
+		lineParam,
+		...exclusionArr
 	]
 	// p.options.debug && console.log(`== START1 ============`);
 	// p.options.debug && console.log(backConfig.rgPath, searchParams);
@@ -130,6 +142,9 @@ export const searchWithRipGrep = async (params: {
 
 	processRawEl?: (raw: string) => any
 	processFinalRes?: (raw: string) => any
+
+	exclude?:string[]
+
 }): Promise<void> => {
 	let p = params
 	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
@@ -157,6 +172,16 @@ export const searchWithRipGrep = async (params: {
 		headerStop: sharedConfig.metas.headerEnd,
 	}
 
+	// exclusion string
+	let exclusionArr:string[] = []
+	if (p.exclude) {
+		each(p.exclude, excludePath => {
+			// exclusionArr += `--glob '!${excludePath}/'`
+			exclusionArr.push("--glob")
+			exclusionArr.push("'!${excludePath}/'")
+		})
+	}
+
 	//////////////////////////////////////
 	// SEARCH TYPE 1 : TERM SEARCH
 	//
@@ -173,6 +198,7 @@ export const searchWithRipGrep = async (params: {
 			'--type',
 			'md',
 			'--multiline',
+			...exclusionArr
 		]
 
 
@@ -217,6 +243,7 @@ export const searchWithRipGrep = async (params: {
 			'--max-depth=1',
 			'--type',
 			'md',
+			...exclusionArr
 		]
 
 		const metaFilesInFullFolderSearch = [
@@ -226,6 +253,7 @@ export const searchWithRipGrep = async (params: {
 			'--type',
 			'md',
 			'--multiline',
+			...exclusionArr
 		]
 
 		// PROCESS 1
@@ -296,6 +324,7 @@ export const searchWithRipGrep = async (params: {
 			'--type',
 			'md',
 			'--multiline',
+			...exclusionArr
 		]
 		const ripGrepStreamProcessImg2 = execa(backConfig.rgPath, searchParams)
 		const rawStrings: string[] = []
@@ -322,6 +351,7 @@ export const searchWithRipGrep = async (params: {
 			'--type',
 			'md',
 			'--multiline',
+			...exclusionArr
 		]
 		const ripGrepStreamProcessImg1 = execa(backConfig.rgPath, searchParams)
 		const rawStrings: string[] = []
@@ -355,6 +385,7 @@ export const searchWithRipGrep = async (params: {
 			'--type',
 			'md',
 			'--multiline',
+			...exclusionArr
 		]
 		// console.log(`==============`);
 		// console.log(searchParams);
