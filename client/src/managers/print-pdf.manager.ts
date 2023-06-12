@@ -101,24 +101,37 @@ display: none;
 	print-color-adjust: exact; 
 }
 
-.file-path-wrapper {
-	display: none;
-}
-.file-infos-wrapper {
-	background: #eeeeee;
-	padding: 10px;
-	margin: 10px;
-}
-		.simple-css-print-wrapper {
-			margin: 20px;
-			width: 70%;
+	.file-path-wrapper {
+		display: none;
+	}
+	h1.title.big-title {
+		display: none;
+	}
+	.file-infos-wrapper {
+		display: none;
+		background: #eeeeee;
+		padding: 10px;
+		margin: 10px;
+	}
 
-		}
-		img {
-				max-width: 300px!important;
-				max-height: 500px!important;
-		}
-		.block-tag {
-				display: none;
-		}
-		`}
+	.simple-css-print-wrapper {
+		margin: 20px;
+		width: 90%;
+	}
+	.simple-css-wrapper {
+		font-size: 12px;
+	}
+
+	table {
+		font-size: 12px!important;
+	}
+	img {
+		// max-width: 300px!important;
+		// max-height: 500px!important;
+		max-width: 100%;
+		max-height: 500px;
+	}
+	.block-tag {
+			display: none;
+	}
+`}
