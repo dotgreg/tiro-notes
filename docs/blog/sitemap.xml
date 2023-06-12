@@ -2,47 +2,47 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/tags/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/devlog/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/guides/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/ai/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/text-editor/</loc>
-		<lastmod>2023-06-06</lastmod>
-	</url>
-	
-	<url>
 		<loc>https://tiro-notes.org/blog/devlog/2023/06/hello-world-devlog.html</loc>
-		<lastmod>2023-06-10</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/blog/</loc>
-		<lastmod>2023-06-10</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/</loc>
 		<lastmod>2023-06-10</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html</loc>
 		<lastmod>2023-06-11</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/</loc>
+		<lastmod>2023-06-12</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/devlog/</loc>
+		<lastmod>2023-06-12</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/guides/</loc>
+		<lastmod>2023-06-12</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/ai/</loc>
+		<lastmod>2023-06-12</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/text-editor/</loc>
+		<lastmod>2023-06-12</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/blog/</loc>
+		<lastmod>2023-06-12</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/</loc>
+		<lastmod>2023-06-12</lastmod>
 	</url>
 </urlset>

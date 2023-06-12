@@ -17,8 +17,8 @@ export const fileHistoryParams = {
     disableString: `--disable-history--`,
     housekeeping: {
         executionInterval: 24 * 60 * 60 * 1000, // one day
-        keepOnePerDay_RuleTime: 1 * 30 * 24 * 60 * 60 * 1000, // after 1 month, keep on version/day
-        keepOnePerWeek_RuleTime: 6 * 30 * 24 * 60 * 60 * 1000, // after 6 months , keep on version/week
+        keepOnePerDay_RuleTime: 7 * 24 * 60 * 60 * 1000, // after 1 week, keep on version/day
+        keepOnePerWeek_RuleTime: 1 * 30 * 24 * 60 * 60 * 1000, // after 1 months , keep on version/week
     }
 }
 const p = fileHistoryParams
