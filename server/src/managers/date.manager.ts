@@ -20,7 +20,7 @@ export const dateId = (d:Date): string => {
 // 01-05-21
 export const formatDateNewNote = (d:Date): string => {
   let day = ('0'+d.getDate()).slice(-2);
-  let shortMonth = ('0'+d.getMonth()).slice(-2);
+  let shortMonth = ('0'+(d.getMonth()+1)).slice(-2);
   let shortYear = new Date().getFullYear().toString().substr(2);
   const datestring = `${day}-${shortMonth}-${shortYear}`
   return datestring
