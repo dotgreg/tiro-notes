@@ -1,5 +1,6 @@
 import { iApiDictionary } from '../../../shared/apiDictionary.type';
 import { sharedConfig } from '../../../shared/shared.config';
+import { iTiroConfig } from '../../../shared/types.shared';
 import { getEnvVars } from '../config.back';
 import { fileExists, saveFile, upsertRecursivelyFolders, userHomePath } from './fs.manager';
 import { log } from './log.manager';
@@ -7,21 +8,6 @@ import { hashPassword } from './password.manager';
 import { p, relativeToAbsolutePath } from './path.manager';
 import { getTestingEnvJsonConfig } from './testingEnv.manager';
 var fs = require('fs')
-
-// LOADING CONFIG FILE
-// type TiroConfigDic = { [name: string]: string }
-export interface TiroConfig {
-	[name: string]: string
-	user: string
-	password: string
-	dataFolder: string
-	https?: string
-	port?: string
-	rg_path?: string
-}
-
-
-
 
 
 /*
@@ -43,10 +29,10 @@ export const tryLoadJsonConfig = () => {
 	console.log(typeof getEnvVars);
 	const { testing_env } = getEnvVars()
 	if (testing_env) return getTestingEnvJsonConfig()
-	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as TiroConfig
+	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as iTiroConfig
 
 	if (fileExists(appConfigJsonPath)) {
-		let res = JSON.parse(fs.readFileSync(appConfigJsonPath, 'utf8')) as TiroConfig
+		let res = JSON.parse(fs.readFileSync(appConfigJsonPath, 'utf8')) as iTiroConfig
 		log('[JSON CONFIG] loaded successfully', { appConfigJsonPath, res });
 		cachedJsonConfigLoadResult = res
 		return res
@@ -93,7 +79,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 	// if all good
 	if (!answer || !answer.code) {
 		// create json
-		const newConfig: TiroConfig = {
+		const newConfig: iTiroConfig = {
 			user: data.form.user,
 			password: await hashPassword(data.form.password),
 			dataFolder: data.form.dataFolder,
@@ -108,7 +94,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 
 
 
-export const saveSetupJson = async (newConfig: TiroConfig) => {
+export const saveSetupJson = async (newConfig: iTiroConfig) => {
 	await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
 }
 

@@ -26,8 +26,8 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, isBoolean, isNumber } from "lodash";
-import { useDebounce } from "../../hooks/lodash.hooks";
+import { cloneDeep, isBoolean, isNumber, throttle } from "lodash";
+import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 
 
@@ -357,7 +357,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 
-	const genTextAt = (p2:{
+	const generateTextAt = (p2:{
 		currentContent: string,
 		textUpdate: string,
 		insertPos: number,
@@ -365,23 +365,56 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		title?: string, 
 		question?: string,
 		linejump?:boolean,
+		viewFollow?: boolean
+		wrapSyntax?: boolean
+
 	}) => {
 		if (!p2.question) p2.question = ""
 		if (!p2.title) p2.title = ""
 		if (!isBoolean(p2.linejump)) p2.linejump = true
+		if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
+		if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
+
 		// gradually insert at the end of the selection the returned text
 		let jumpTxt = p2.linejump ? "\n\n" : " "
-		let header = `${jumpTxt} ### ${p2.title} \n => Answering to '${p2.question.trim()}'... ${jumpTxt}`
+		let separatorDoing = "###"
+		let separatorDone = "---"
+		// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
+		let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
+		let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
+		let textToInsert = `${jumpTxt}${p2.textUpdate}`
 		
-		let txtAi = `${jumpTxt}${p2.textUpdate}`
-		if (!p2.isLast) txtAi = `${header}${p2.textUpdate}${jumpTxt}### \n`
+		if (!p2.wrapSyntax) {
+			headerDoing =  headerDone = separatorDone = separatorDoing = ""
+		}
 
-		const nText = p2.currentContent.substring(0, p2.insertPos) + txtAi + p2.currentContent.substring(p2.insertPos)
+		// TEXT WHILE GENERATING
+		textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
+		// TEXT WHEN DONE
+		if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
+
+		// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
+		const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
+		const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
+		const nText = noteContentBefore + textToInsert + noteContentAfter
 		getApi(api => {
+			// UPDATE TEXT
 			api.file.saveContent(p.file.path, nText)
-		})
 
+			// JUMP TO THE WRITTEN LINE
+			if (p2.viewFollow) {
+				let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
+				let lineToJump = currentLine - 2
+				if (lineToJump < 0) lineToJump = 0
+				lineJumpThrottle(p.windowId, lineToJump)
+			}
+		})
 	}
+	const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
+		getApi(api => {
+			api.ui.note.lineJump.jump(windowId, lineToJump)
+		})
+	}, 1000)
 
 	const triggerAiSearch = () => {
 		console.log("trigger AI search")
@@ -397,24 +430,25 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		selectionTxt = selectionTxt.replaceAll("`", "\\`")
 		
 		const question = selectionTxt
-		const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: "...", question, insertPos, isLast: false }}
+		const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
 
 		getApi(api => {
 			let cmd = api.userSettings.get("ui_editor_ai_command")
 			cmd = cmd.replace("{{input}}", selectionTxt)
-			genTextAt(genParams())
+			generateTextAt(genParams())
 			api.command.stream(cmd, streamChunk => {
 				if (streamChunk.isError) isError = true
 				// if it is an error, display it in a popup
 				if (isError) {
 					api.ui.notification.emit({
 						content: `[AI] Error from CLI <br/> "${cmd}" <br/>=> <br/>${streamChunk.text}`,
-						options: {hideAfter: -1 }
+						// options: {hideAfter: -1 }
 					})
-					genTextAt({...genParams(), textUpdate:"", isLast: true})
+					// erase everything if one error detected
+					// generateTextAt({...genParams(), textUpdate:"", isLast: true})
 				} else {
 					// else insert it
-					genTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
+					generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
 				}
 			})
 		})
@@ -427,12 +461,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		let selectionTxt = textContent.current.substring(s.from, s.to)
 		const currentContent = textContent.current
 		const insertPos = s.to
-		const genParams = () => {return { title: "Calc", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
+		const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
 		try {
 			let result = new Function(`return ${selectionTxt}`)()
 			let p = {...genParams(), textUpdate:result, isLast:true}
 			console.log(p)
-			genTextAt(p)
+			generateTextAt(p)
 		} catch (err) {
 			getApi( api => {
 				api.ui.notification.emit({
@@ -445,7 +479,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const CodeMirrorEl = useMemo(() => {
 	// const CodeMirrorEl = () => {
-		console.log("EL UPDATE!!!")
 		return <CodeMirror
 			value=""
 			ref={forwardedRefCM as any}

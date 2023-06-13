@@ -50,7 +50,7 @@ export const searchWithRgGeneric = async (p: {
 	options?: {
 		wholeLine?: boolean,
 		debug?: boolean
-		exclude?:string[]
+		// exclude?:string[]
 	}
 
 	processRawLine?: (infos: iLineRg) => any
@@ -63,15 +63,15 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
 
-	// exclusion string
 	let exclusionArr:string[] = []
-	if (p.options.exclude) {
-		each(p.options.exclude, excludePath => {
-			// exclusionArr += `--glob '!${excludePath}/'`
-			exclusionArr.push("--glob")
-			exclusionArr.push("'!${excludePath}/'")
-		})
-	}
+	// exclusion string // not working currenlty
+	// if (p.options.exclude) {
+	// 	each(p.options.exclude, excludePath => {
+	// 		// exclusionArr += `--glob '!${excludePath}/'`
+	// 		exclusionArr.push("--glob")
+	// 		exclusionArr.push("'!${excludePath}/'")
+	// 	})
+	// }
 
 	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
 
@@ -143,7 +143,7 @@ export const searchWithRipGrep = async (params: {
 	processRawEl?: (raw: string) => any
 	processFinalRes?: (raw: string) => any
 
-	exclude?:string[]
+	// exclude?:string[]
 
 }): Promise<void> => {
 	let p = params
@@ -172,15 +172,15 @@ export const searchWithRipGrep = async (params: {
 		headerStop: sharedConfig.metas.headerEnd,
 	}
 
-	// exclusion string
+	// exclusion string not working currently
 	let exclusionArr:string[] = []
-	if (p.exclude) {
-		each(p.exclude, excludePath => {
-			// exclusionArr += `--glob '!${excludePath}/'`
-			exclusionArr.push("--glob")
-			exclusionArr.push("'!${excludePath}/'")
-		})
-	}
+	// if (p.exclude) {
+	// 	each(p.exclude, excludePath => {
+	// 		// exclusionArr += `--glob '!${excludePath}/'`
+	// 		exclusionArr.push("--glob")
+	// 		exclusionArr.push("'!${excludePath}/'")
+	// 	})
+	// }
 
 	//////////////////////////////////////
 	// SEARCH TYPE 1 : TERM SEARCH

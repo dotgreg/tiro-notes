@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
+import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFolder } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
-import { askFolderCreate, askFolderDelete, iFolderCreateFn, iFolderDeleteFn } from './browser.api.hook';
+import {  askFolderDelete,  iFolderDeleteFn } from './browser.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 
 //
@@ -23,7 +24,10 @@ export interface iFoldersApi {
 		cb: (data: { folders: iFolder[], pathBase: string, folderPaths: string[] }) => void
 	) => void
 	move: iMoveApi['folder']
-	create: iFolderCreateFn,
+	create: (
+		newFolderPath: string, 
+		cb?:(status:string) => void
+	) => void,
 	delete: iFolderDeleteFn,
 }
 
@@ -40,6 +44,9 @@ export const useFoldersApi = (p: {
 				folders: data.folders,
 				pathBase: data.pathBase
 			})
+		})
+		clientSocket2.on('onServerTaskFinished', data => {
+			p.eventBus.notify(data.idReq,data.status)
 		})
 	}, [])
 
@@ -67,6 +74,21 @@ export const useFoldersApi = (p: {
 	}
 
 	const moveApi = useMoveApi({ eventBus: p.eventBus });
+
+	const askFolderCreate: iFoldersApi['create'] = (newFolderPath, cb) => {
+		console.log(`[askFolderCreate]`, newFolderPath);
+		const idReq = genIdReq('create-folder-');
+		newFolderPath = cleanPath(newFolderPath)
+
+		// 1. add a listener function
+		if (cb) {
+			p.eventBus.subscribe(idReq, data => {
+				cb(data)
+			});
+		}
+		// 2. emit request 
+		clientSocket2.emit('askFolderCreate', { newFolderPath, token: getLoginToken(), idReq })
+	}
 
 
 	//

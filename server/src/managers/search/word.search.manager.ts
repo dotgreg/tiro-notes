@@ -18,7 +18,7 @@ export const searchWord = (p: {
 		options: {
 			wholeLine: true,
 			debug: true,
-			exclude:[".resources"]
+			// exclude:[".resources"]
 		},
 
 		processRawLine: lineInfos => {

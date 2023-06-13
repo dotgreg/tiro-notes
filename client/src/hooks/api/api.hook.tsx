@@ -32,6 +32,7 @@ import { audioApi, iAudioApi } from '../../managers/audio.manager';
 import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
 import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
 import { iActivityApi, useActivityApi } from './activity.api.hook';
+import { iConfigApi, useConfigApi } from './config.api.hook';
 
 
 //
@@ -76,6 +77,7 @@ export interface iClientApi {
 	encryption: iEncryptApi,
 	plugins: iPluginsApi,
 	audio: iAudioApi,
+	config: iConfigApi,
 	performance: iPerformanceApi,
 	activity: iActivityApi,
 	ui: {
@@ -192,6 +194,7 @@ export const useClientApi = (p: {
 	const ressourceApi = useRessourceApi({ eventBus });
 	const foldersApi = useFoldersApi({ eventBus });
 	const commandApi = useCommandApi({ eventBus });
+	const configApi = useConfigApi({ eventBus });
 	const pluginsApi = usePluginsApi({ eventBus })
 	const cacheApi = useCacheApi({});
 	const notificationApi = useNotificationApi({});
@@ -229,6 +232,7 @@ export const useClientApi = (p: {
 		ressource: ressourceApi,
 		tabs: p.tabsApi,
 		folders: foldersApi,
+		config: configApi,
 		userSettings: p.userSettingsApi,
 		history: p.historyApi,
 		status: p.statusApi,

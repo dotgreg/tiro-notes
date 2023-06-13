@@ -23,6 +23,32 @@ export type iCommandStreamChunk = {
 	isError?: boolean 
 }
 
+export interface iTiroConfig {
+	[name: string]: string
+	user: string
+	password: string
+	dataFolder: string
+	https?: string
+	port?: string
+	rg_path?: string
+}
+
+export type iBackConfig = {
+	dataFolder:string
+	frontendBuildFolder:string
+
+	dataFolderExists:boolean
+	askForSetup:boolean
+	sharedConfig: any
+
+	jsonConfig: iTiroConfig
+	port:number
+	https:boolean
+	rgPath:string
+
+	[name: string]: any
+}
+
 export type iDateObj = ReturnType<typeof getDateObj>
 
 export type iNotificationType = "normal" | "warning" | "error"
