@@ -33,7 +33,7 @@ import { useNoteHistoryApi } from './hooks/api/history.api.hook';
 import { SearchBar2 } from './components/SearchBar.component';
 import { useStatusApi } from './hooks/api/status.api.hook';
 import { FoldersTreeView } from './components/TreeView.Component';
-import { askFolderCreate, askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
+import {  askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.hook';
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
 
@@ -465,7 +465,10 @@ export const App = () => {
 														}
 													})
 												} else if (action === 'create' && newTitle) {
-													askFolderCreate(newTitle, folder)
+													// askFolderCreate(`${folder.path}/${newTitle}`)
+													getApi(api => {
+														api.folders.create(`${folder.path}/${newTitle}`)
+													})
 													setTimeout(() => {
 														askForFolderScan([folder.path], { cache: false })
 													})

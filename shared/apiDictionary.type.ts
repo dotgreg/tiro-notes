@@ -1,5 +1,5 @@
 import { iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReport, iActivityReportParams, iAppView, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -50,7 +50,7 @@ export interface iApiDictionary {
 	askFoldersScan: { foldersPaths: string[], idReq: string }
 	getFoldersScan: { folders: iFolder[], pathBase: string, idReq: string }
 
-	askFolderCreate: { newFolderName: string, parent: iFolder }
+	askFolderCreate: { newFolderPath: string, idReq: string}
 
 	askFolderDelete: { cacheFolderName?: string, typeFolder: iFolderDeleteType }
 
@@ -96,4 +96,9 @@ export interface iApiDictionary {
 
 	askActivityReport: { idReq: string, params?:iActivityReportParams  }
 	getActivityReport: { report:iActivityReport, idReq: string }
+
+	askBackendConfig: { idReq: string }
+	getBackendConfig: { config: iBackConfig, idReq: string }
+
+	onServerTaskFinished: { status:"ok"|"ko", idReq: string}
 }

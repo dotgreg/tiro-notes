@@ -7,6 +7,7 @@ import { genIdReq, iApiEventBus } from './api.hook';
 import { checkUrlExists } from '../../managers/url.manager'
 import { random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
+import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 //import * as r from '@mozilla/readability'
 // var { Readability } = require('@mozilla/reaability');
 // var Readability = require('@mozilla/readability/Readability.js');
@@ -89,7 +90,7 @@ export const useRessourceApi = (p: {
 		if (!options.returnsPathOnly) options.returnsPathOnly = false
 
 		const folder = `/.tiro/cache/fetch/`
-		let localStaticPath = `/${sharedConfig.path.staticResources}/${folder}${getRessourceIdFromUrl(url)}?token=${getLoginToken()}`
+		let localStaticPath = getStaticRessourceLink(`/${folder}${getRessourceIdFromUrl(url)}`)
 		localStaticPath = cleanPath(`${getBackendUrl()}${localStaticPath}`)
 
 		console.log(`${h} FETCHING ressource url ${url} `, { url, options, localStaticPath });

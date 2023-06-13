@@ -1,4 +1,4 @@
-import { TiroConfig } from "./configSetup.manager"
+import { iTiroConfig } from "../../../shared/types.shared";
 import { getTestingDataPath} from "../../scripts/prepareTestingEnv.script";
 
 export const setupTestingEnv = () => {
@@ -7,7 +7,7 @@ export const setupTestingEnv = () => {
 }
 
 
-export const getTestingEnvJsonConfig = (): TiroConfig => {
+export const getTestingEnvJsonConfig = (): iTiroConfig => {
 
 	// dataFolder is cleaned then recreated under the root user folder 
 	// done asynced

@@ -295,7 +295,11 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 	serverSocket2.on('askFolderCreate', async data => {
-		createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
+		// createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
+		// let newFolderPath = `${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`
+		let newFolderPath = `${backConfig.dataFolder}${data.newFolderPath}`
+		await upsertRecursivelyFolders(newFolderPath)
+		serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('sendSetupInfos', async data => {
@@ -427,6 +431,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		const report = await getActivityReport(data.params || {})
 		serverSocket2.emit('getActivityReport', { report, idReq: data.idReq })
 	}, { checkRole: "editor" })
+
+	//
+	// CONFIG API
+	// 
+	serverSocket2.on('askBackendConfig', async data => {
+		serverSocket2.emit('getBackendConfig', {config: backConfig, idReq: data.idReq })
+	}, { checkRole: "editor" })
+
 
 }
 

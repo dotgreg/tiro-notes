@@ -373,12 +373,9 @@ export const defaultTrashFolder: iFolder = { title: '.trash', key: '/.tiro/.tras
 
 
 
-export type iFolderCreateFn = (newFolderName: string, parent: iFolder) => void
 
-export const askFolderCreate: iFolderCreateFn = (newFolderName, parent) => {
-	console.log(`[askFolderCreate]`, newFolderName, parent);
-	clientSocket2.emit('askFolderCreate', { newFolderName, parent, token: getLoginToken() })
-}
+
+
 
 export type iFolderDeleteFn = (typeFolder: iFolderDeleteType, cacheFolderName?: string) => void
 

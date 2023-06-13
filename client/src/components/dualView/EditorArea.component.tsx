@@ -27,6 +27,7 @@ import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
+import { triggerExportPopup } from '../../managers/export.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -230,6 +231,11 @@ const EditorAreaInt = (
 		return res
 	}
 
+	
+	useEffect(() => {
+		triggerExportPopup(p.file)
+	}, [])
+
 	//
 	// TOOLBAR ACTIONS
 	//
@@ -240,20 +246,7 @@ const EditorAreaInt = (
 			title: 'Export/Print',
 			icon: 'faFileDownload',
 			action: () => {
-				const currView:iViewType = p.viewType || "editor"
-
-				// if we are editor, make preview appearing for a moment 
-				if (currView === "editor") {
-					askForViewToggle("both")
-					setTimeout(() => {
-						openExportFilePopup(p.windowId, p.file)
-						setTimeout(() => {
-							askForViewToggle("editor")
-						})
-					}, 100)
-				} else {
-					openExportFilePopup(p.windowId, p.file)
-				}
+				triggerExportPopup(p.file)
 			}
 		},
 		{

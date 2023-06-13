@@ -1,4 +1,5 @@
 import { sharedConfig } from '../../shared/shared.config';
+import { iBackConfig } from '../../shared/types.shared';
 import { getDataFolder, shouldAskForSetup, tryLoadJsonConfig } from "./managers/configSetup.manager"
 import { fileExists } from './managers/fs.manager';
 import { relativeToAbsolutePath } from './managers/path.manager';
@@ -39,7 +40,7 @@ const dataFolder = getDataFolder()
 const dev = sharedConfig.dev
 if (testing_env) dev.disableLogin = true
 
-export const backConfig = {
+export const backConfig:iBackConfig = {
 	dataFolder,
 	frontendBuildFolder: relativeToAbsolutePath('./client', true),
 
@@ -56,4 +57,5 @@ export const backConfig = {
 	dev
 
 }
+
 
