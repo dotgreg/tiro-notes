@@ -6,7 +6,7 @@
 				"dev": "ISDEV=true node cli.js",
 				"clean-previous-build": "rm -r node-build",
 				"export-cli-module": "cp -r ../../build node-build; cp cli.js node-build/; cp package.json node-build/; ",
-				"export-helpers": "cp ../shared.helpers.js ./node-build/shared.helpers.build.js",
+				"export-helpers": "cp ../shared.helpers.js ./node-buil d/shared.helpers.build.js",
 				"root-build": "cd ../..; run-s build ",
 
 				"build-then-publish": "run-s root-build publish-to-npm-prod",
