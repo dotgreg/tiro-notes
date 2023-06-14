@@ -95,9 +95,6 @@ const DualViewerInt = (
 	
 	// Close any popup on note switch
 	useEffect(() => {
-		// getApi(api => {
-		// 	api.ui.notePreviewPopup.close()
-		// })
 		stopDelayedNotePreview()
 		
 	}, [p.file.path])

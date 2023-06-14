@@ -14,6 +14,7 @@ export const NotePreview = (p: {
 	file: iFile
 	height?: number
 	type?:iNotePreviewType
+	linkPreview?:boolean
 }) => {
 	if (!p.type) p.type = "editor"
 	const [content, setContent] = useState("");
@@ -64,6 +65,7 @@ export const NotePreview = (p: {
 		else loadEditorContent()
 	}, [p.file, p.searchedString, type])
 
+
 	return (
 		<div className={"note-preview-wrapper " + type}>
 			{/* <div className='' onClick={e => { toggleType()}}>toggle view</div> */}
@@ -98,7 +100,8 @@ export const NotePreview = (p: {
 							})
 						}}
 						pluginsConfig={{
-							markdown: false
+							markdown: false,
+							linkPreview: p.linkPreview
 						}}
 					/>
 			</div >

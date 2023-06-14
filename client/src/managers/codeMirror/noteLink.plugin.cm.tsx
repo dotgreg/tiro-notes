@@ -7,7 +7,7 @@ import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 
-export const noteLinkPreviewPlugin = (file: iFile, windowId: string) => genericReplacementPlugin({
+export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview:boolean) => genericReplacementPlugin({
 	file,
 	windowId,
 	pattern: regexs.linklink,
@@ -18,7 +18,7 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string) => genericR
 
 		let notePath = matchs[1]
 		let noteTitle = matchs[2]
-		let html = generateNoteLink(notePath, noteTitle, windowId);
+		let html = generateNoteLink(notePath, noteTitle, windowId, linkPreview);
 
 		resEl.innerHTML = `${html}`;
 		return resEl
@@ -73,18 +73,20 @@ const ssrNotePreviewOpen = (el: HTMLElement) => {
 let timeout:any = null
 const ssrNotePreviewClose = (el) => {
 	const windowid = el.dataset.windowid
+	stopDelayedNotePreview()
 	if (windowid === "preview-popup") return
 	timeout && clearTimeout(timeout)
 }
 export const stopDelayedNotePreview = () => {
 	timeout && clearTimeout(timeout)
-	getApi(api => { api.ui.notePreviewPopup.close()})
+	// getApi(api => { api.ui.notePreviewPopup.close()})
 	setTimeout(() => {
 		timeout && clearTimeout(timeout)
-		getApi(api => { api.ui.notePreviewPopup.close()})
+		// getApi(api => { api.ui.notePreviewPopup.close()})
 	}, 300)
 }
 const addDelayedAction = (filePath, pos, windowId) => {
+	console.log("adddelayed action", filePath, pos, windowId)
 	timeout && clearTimeout(timeout)
 	timeout = setTimeout(() => { 
 		getApi(api => {
@@ -97,13 +99,14 @@ const addDelayedAction = (filePath, pos, windowId) => {
 export const generateNoteLink = (
 	noteTitle: string,
 	notePath: string,
-	windowId: string
+	windowId: string,
+	linkPreview: boolean
 ): string => {
 
 	const subst = `<a
 		onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
-		onmouseenter="${ssrFn("hover-link-page-enter", ssrNotePreviewOpen)}"
-		onmouseleave="${ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
+		onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewOpen)}"
+		onmouseleave="${linkPreview && ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
 		class="title-search-link preview-link" 
 		data-file="${noteTitle}" 
 		data-folder="${notePath}" 
