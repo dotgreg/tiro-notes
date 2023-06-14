@@ -36,6 +36,7 @@ const log = sharedConfig.client.log.verbose
 
 export interface iCMPluginConfig {
 	markdown?: boolean
+	linkPreview?:boolean
 }
 
 const CodeMirrorEditorInt = forwardRef((p: {
@@ -59,6 +60,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	let pluginsConfig = p.pluginsConfig
 	if (!pluginsConfig) pluginsConfig = {}
 	if (!isBoolean(pluginsConfig.markdown)) pluginsConfig.markdown = true
+	if (!isBoolean(pluginsConfig.linkPreview)) pluginsConfig.linkPreview = true
 
 
 	const getEditorObj = (): ReactCodeMirrorRef | null => {
@@ -261,7 +263,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// codemirrorExtensions.push(linksPreviewPlugin)
 	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
 		codemirrorExtensions.push(linksPreviewPlugin(p.file, p.windowId))
-		codemirrorExtensions.push(noteLinkPreviewPlugin(p.file, p.windowId))
+		codemirrorExtensions.push(noteLinkPreviewPlugin(p.file, p.windowId, pluginsConfig.linkPreview))
 	}
 	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
 		codemirrorExtensions.push(markdownStylingTableLimiter(p.file, p.windowId))

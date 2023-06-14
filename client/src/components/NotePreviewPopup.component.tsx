@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { getApi } from '../hooks/api/api.hook';
 import { iNotePreviewPopup } from '../hooks/api/notePreviewPopup.api.hook';
+import { stopDelayedNotePreview } from '../managers/codeMirror/noteLink.plugin.cm';
 import { NotePreview } from './NotePreview.component';
 
 export const NotePreviewPopup = (p: {
@@ -18,6 +19,7 @@ export const NotePreviewPopup = (p: {
     const goToNote = e => {
         const file = pathToIfile(p.notePreview.filepath)
         if (!file || !p.notePreview.opts?.windowIdToOpenIn) return
+        stopDelayedNotePreview()
         getApi(api => {
             api.ui.browser.goTo(
                 file.folder,
@@ -27,18 +29,23 @@ export const NotePreviewPopup = (p: {
         })
     }
 
+    useEffect(() => {
+
+    })
+
     return (
         <div
             className="page-link-preview-popup-ext"
             onMouseLeave={closePopup}
-            onClick={goToNote}
             style={{ left: p.notePreview.position[0], top: p.notePreview.position[1] }}>
+            <div className="click-throught" onClick={goToNote}></div>
             <div className='page-link-preview-popup-int'>
                 <NotePreview
                     file={notePreview}
                     // searchedString={activeLine}
                     height={200}
                     type={"editor"}
+                    linkPreview={false}
                 />
             </div>
         </div>
@@ -51,7 +58,14 @@ export const notePreviewPopupCss = () => `
         // pointer-events: none;
         position: absolute;
         z-index: 98;
-        cursor:pointer;
+        .click-throught {
+            cursor:pointer;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            width: 100%;
+            height: 30px;
+        }
         .page-link-preview-popup-int {
             // pointer-events: all;
             cursor:default;
