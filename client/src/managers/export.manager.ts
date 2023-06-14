@@ -40,31 +40,17 @@ const exportTo = (el) => {
             // create folders if does not exists
             api.folders.create(destCacheFolder, status => {
                 
-                
-                //
-                // ABSOLUTE (not working)
-                //
-                // const newFileName = `${ssrfile.name}.${format}`
-                // const inputFile = cleanPath(`${cnf.dataFolder}/${ssrfile.path}`)
-                // const inputFolder = cleanPath(`${cnf.dataFolder}/${ssrfile.folder}`)
-                // const resourceFolder = cleanPath(`${inputFolder}/${sharedConfig.path.uploadFolder}`)
-                // 1
-                // const destPath = cleanPath(`${destCacheFolder}/${newFileName}`)
-                // const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${newFileName}`)
-                // 2
-                // const destPath = cleanPath(`${resourceFolder}/${newFileName}`)
-                // const destDlPath = cleanPath(`/${ssrfile.folder}/${sharedConfig.path.uploadFolder}/${newFileName}`)
                 //
                 // RELATIVE + CD 
                 //
                 const newFileName = `${ssrfile.name}.${format}`
                 const rootPath = `${cnf.dataFolder}/`
                 const pathToCd = cleanPath(`${rootPath}/${ssrfile.folder}`)
-                const inputFilePath = cleanPath(`${ssrfile.name}`)
+                const inputFilePath = cleanPath(`./${ssrfile.name}`)
                 const destPathAbs = cleanPath(`${rootPath}/${destCacheFolder}/${newFileName}`)
                 const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${newFileName}`)
 
-                const pandocCmd = `cd ${pathToCd} && pandoc -o "${destPathAbs}" -f markdown -t ${format} "${inputFilePath}" --toc `
+                const pandocCmd = `cd ${pathToCd} && pandoc --output="${destPathAbs}" --toc --from=markdown --to=${format} "${inputFilePath}" `
                 
 
                 console.log(h,3,{format, pandocCmd, destPathAbs, inputFilePath,  ssrfile, destCacheFolder,  destDlPath})
