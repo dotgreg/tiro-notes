@@ -91,7 +91,7 @@ export const useRessourceApi = (p: {
 
 		const folder = `/.tiro/cache/fetch/`
 		let localStaticPath = getStaticRessourceLink(`/${folder}${getRessourceIdFromUrl(url)}`)
-		localStaticPath = cleanPath(`${getBackendUrl()}${localStaticPath}`)
+		// localStaticPath = cleanPath(`${getBackendUrl()}${localStaticPath}`)
 
 		console.log(`${h} FETCHING ressource url ${url} `, { url, options, localStaticPath });
 
@@ -133,6 +133,7 @@ export const useRessourceApi = (p: {
 	const fetchUrlArticle: iRessourceApi['fetchUrlArticle'] = (url, cb, options) => {
 
 		const readabilityUrl = `https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js`
+		console.log(11, url)
 		fetchRessource(readabilityUrl, readabilityTxt => {
 			// nothing works except the eval
 			const r1 = eval(readabilityTxt)
