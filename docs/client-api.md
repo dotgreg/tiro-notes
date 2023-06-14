@@ -220,6 +220,19 @@
  
 
 
+ ## Api.call : config
+ 
+
+#### <span class="render-code-wrapper">config.get</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+    - Result: <span class="render-code-wrapper">(config: <span class="render-code-wrapper"><a href="#client-api?id=ibackconfig">iBackConfig</a></span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.get",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(config: <span class="render-code-wrapper"><a href="#client-api?id=ibackconfig">iBackConfig</a></span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+
  ## Api.call : encryption
  
 
@@ -970,6 +983,12 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;index: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;isLast: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;textTot: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;isError?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iBackConfig</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[name:string]: <span class="render-code-wrapper"></span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iFileNature</span>

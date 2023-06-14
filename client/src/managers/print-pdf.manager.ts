@@ -48,7 +48,6 @@ export const openExportFilePopup = (windowId: string, file: iFile) => {
 				<bm> Export options </bm>
 				<button onclick="window.print()">print</button>
 				<button onclick="window.print()">export to pdf</button>
-				<button onclick="">export to pdf</button>
 				<button onclick="window.alert('CTRL+ S then select *complete webpage* if available')">export to html</button>
 			</div>
 				<div class="file-infos-wrapper">
