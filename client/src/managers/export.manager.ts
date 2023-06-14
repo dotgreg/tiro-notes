@@ -5,9 +5,9 @@ import { cleanPath, pathToIfile } from "../../../shared/helpers/filename.helper"
 import { sharedConfig } from "../../../shared/shared.config"
 import { iFile, iViewType } from "../../../shared/types.shared"
 import { getApi } from "../hooks/api/api.hook"
-import { getLoginToken } from "../hooks/app/loginToken.hook"
 import { getStaticRessourceLink } from "./ressource.manager"
 import { ssrFn } from "./ssr.manager"
+
 
 	//
 	export const triggerExportPopup = (file: iFile) => {

@@ -232,9 +232,24 @@ const EditorAreaInt = (
 	}
 
 	
-	useEffect(() => {
-		triggerExportPopup(p.file)
-	}, [])
+	// useEffect(() => {
+	// 	triggerExportPopup(p.file)
+	// }, [])
+	const triggerLegacyExportPopup = () => {
+		const currView:iViewType = p.viewType || "editor"
+		    // if we are editor, make preview appearing for a moment 
+		    if (currView === "editor") {
+		        askForViewToggle("both")
+		        setTimeout(() => {
+		            openExportFilePopup(p.windowId, p.file)
+		            setTimeout(() => {
+		                askForViewToggle("editor")
+		            })
+		        }, 100)
+		    } else {
+		        openExportFilePopup(p.windowId, p.file)
+		    }
+	}
 
 	//
 	// TOOLBAR ACTIONS
@@ -243,10 +258,17 @@ const EditorAreaInt = (
 		...uploadBtns(),
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
 		{
-			title: 'Export/Print',
+			title: 'Export',
 			icon: 'faFileDownload',
 			action: () => {
 				triggerExportPopup(p.file)
+			}
+		},
+		{
+			title: 'Print',
+			icon: 'faPrint',
+			action: () => {
+				triggerLegacyExportPopup()
 			}
 		},
 		{

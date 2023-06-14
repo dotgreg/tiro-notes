@@ -24,7 +24,7 @@ export type iCommandStreamChunk = {
 }
 
 export interface iTiroConfig {
-	[name: string]: string
+	[name: string]: string | undefined
 	user: string
 	password: string
 	dataFolder: string
