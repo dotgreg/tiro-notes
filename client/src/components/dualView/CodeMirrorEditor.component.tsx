@@ -456,6 +456,18 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 
+	const evalSelected = () => {
+		let res = null
+		const s = currSelection.current
+		let selectionTxt = textContent.current.substring(s.from, s.to)
+		try {
+			res = new Function(`return ${selectionTxt}`)()
+		} catch (error) {
+			// res = "!"
+		}
+		return res
+	}
+
 	const triggerCalc = () => {
 		// close the popup
 		setShowHoverPopup(false)
@@ -466,7 +478,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
 		try {
 			let result = new Function(`return ${selectionTxt}`)()
-			let p = {...genParams(), textUpdate:result, isLast:true}
+			let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
 			console.log(p)
 			generateTextAt(p)
 		} catch (err) {
@@ -523,13 +535,16 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					>
 						<Icon2 name="wand-magic-sparkles" />
 					</span>
-					<span
-						onClick={triggerCalc}
-						title="Calculator"
-						className="link-action"
-					>
-						<Icon2 name="calculator" />
-					</span>
+					{evalSelected() &&
+						<span
+							onClick={triggerCalc}
+							title="Paste Calculated Value"
+							className="link-action"
+						>
+							<Icon2 name="calculator" /> <span className="result-calc">{evalSelected()}</span>
+						</span>
+						
+					}
 				</div>
 			}
 
@@ -587,6 +602,10 @@ export const codeMirrorEditorCss = () => `
 	transition: all 0.2s;
 	.link-action {
 		padding: 0px 3px;
+		display: flex;
+		.result-calc {
+			padding: 0px 3px;
+		}
 	}
 	&:hover {
 		opacity:1;

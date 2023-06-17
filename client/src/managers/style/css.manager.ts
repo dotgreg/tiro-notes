@@ -29,7 +29,7 @@ import { contentBlockCss } from '../../components/ContentBlock.component';
 import { settingsPopupCss } from '../../components/settingsView/settingsView.component';
 import { codeMirrorEditorCss } from '../../components/dualView/CodeMirrorEditor.component';
 import { latexCss } from '../latex.manager';
-import { suggestPopupCss } from '../../components/SuggestPopup.component';
+import { omnibarPopupCss } from '../../components/OmniBar.component';
 import { shortcutCompCss } from '../../components/Shortcuts.component';
 import { renderedNoteCompCss } from '../../components/RenderedNote.component';
 import { linksPreviewMdCss } from '../codeMirror/urlLink.plugin.cm';
@@ -85,7 +85,7 @@ export const CssApp2 = (
 		${latexCss()}
 		${lightboxCss()}
 		${promptPopupCss()}
-		${suggestPopupCss()}
+		${omnibarPopupCss()}
 
 		${AppViewSwitcherComponentCss()}
 		${ButtonsToolbarCss()}
