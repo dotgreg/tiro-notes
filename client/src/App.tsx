@@ -38,7 +38,7 @@ import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
 
 // import
-import { SuggestPopup } from './components/SuggestPopup.component';
+import { OmniBar } from './components/OmniBar.component';
 import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
@@ -362,7 +362,7 @@ export const App = () => {
 						notePreviewPopup?.isOpen && <NotePreviewPopup notePreview={notePreviewPopup} />
 					}
 					{suggestOpen &&
-						<SuggestPopup
+						<OmniBar
 							show={suggestShow}
 							lastNotes={filesHistory}
 							onClose={e => { setSuggestOpen(false) }}

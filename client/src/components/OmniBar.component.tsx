@@ -16,7 +16,7 @@ import { notifLog } from '../managers/devCli.manager';
 import { fileToNoteLink } from '../managers/noteLink.manager';
 
 
-interface iOptionSuggest {
+interface iOptionOmniBar {
 	value: string
 	label: any
 	// type: "filePath" | "folder"
@@ -42,7 +42,7 @@ const disableCachePlugins = () => {
 	cachedPlugins.dict = {}
 }
 
-export const SuggestPopup = (p: {
+export const OmniBar = (p: {
 	show: boolean
 	onClose: Function
 	onHide: Function
@@ -106,10 +106,10 @@ export const SuggestPopup = (p: {
 		return <HtmlOption file={file} />
 	}
 
-	const filesToOptions = (files: iFile[]): iOptionSuggest[] => {
-		let res: iOptionSuggest[] = []
+	const filesToOptions = (files: iFile[]): iOptionOmniBar[] => {
+		let res: iOptionOmniBar[] = []
 		each(files, file => {
-			let nOption: iOptionSuggest = {
+			let nOption: iOptionOmniBar = {
 				value: file.path,
 				label: genOptionHtml(file),
 				payload: { file }
@@ -254,7 +254,7 @@ export const SuggestPopup = (p: {
 
 		if (stags.length === 0) {
 			if (inTxt === "/") {
-				aLog(`suggest_explorer`)
+				aLog(`omnibar_explorer`)
 				getApi(api => {
 					// erase /
 					setInputTxt("")
@@ -268,7 +268,7 @@ export const SuggestPopup = (p: {
 			}
 
 			if (inTxt === "?") {
-				aLog(`suggest_search`)
+				aLog(`omnibar_search`)
 				startSearchModeLogic()
 			}
 
@@ -438,8 +438,8 @@ export const SuggestPopup = (p: {
 						nSelec.push({ value: f, label: f + "/" })
 					})
 
-					// create suggestions from folders and files
-					let nOpts: iOptionSuggest[] = []
+					// create omnibarions from folders and files
+					let nOpts: iOptionOmniBar[] = []
 
 					let url = `http://localhost:3023/static//ctags//.resources/screenshot%2020230127%20at%20135701.jpg?token=KL3XFJdTJ7MWPtIu50OyUKlBhIszxRMdDwpd3EnSMJ1HGjLCAHaPDGjw9UcZ`
 					let imageHtml = <div
@@ -582,8 +582,8 @@ export const SuggestPopup = (p: {
 		let nOptions = filesToOptions(p.lastNotes)
 
 		// intervert el 1 and el 2
-		let o1 = nOptions.shift() as iOptionSuggest
-		let o2 = nOptions.shift() as iOptionSuggest
+		let o1 = nOptions.shift() as iOptionOmniBar
+		let o2 = nOptions.shift() as iOptionOmniBar
 		nOptions.unshift(o1)
 		nOptions.unshift(o2)
 
@@ -781,10 +781,10 @@ export const SuggestPopup = (p: {
 
 
 	const [previewHeight, setPreviewHeight] = useState<number>(300);
-	const suggestWrapper = useRef<any>(null)
+	const omniBarWrapper = useRef<any>(null)
 	const debounceResizeHeight = useDebounce(() => {
-		if (suggestWrapper && suggestWrapper.current) {
-			let barHeight = suggestWrapper.current.clientHeight + 30
+		if (omniBarWrapper && omniBarWrapper.current) {
+			let barHeight = omniBarWrapper.current.clientHeight + 30
 			let windowHeight = window.innerHeight
 			// previewHeight = windowHeight - barHeight - 50
 			let nHeight = windowHeight - barHeight - 50
@@ -802,16 +802,16 @@ export const SuggestPopup = (p: {
 	// RENDERING
 	//
 	return (
-		<div className={`suggest-popup-bg ${p.show ? "" : "hide"}`}
+		<div className={`omnibar-popup-bg ${p.show ? "" : "hide"}`}
 			// onMouseMove={e => onMouseMove(e)}
 			onClick={e => { p.onClose() }}>
-			<div className={`suggest-popup-wrapper device-${deviceType()}`}>
+			<div className={`omnibar-popup-wrapper device-${deviceType()}`}>
 				<div className="flex-wrapper"
 					onClick={e => {
 						e.stopPropagation()
 					}}
 				>
-					<div ref={suggestWrapper}>
+					<div ref={omniBarWrapper}>
 						<div className="help">
 							{help}
 						</div>
@@ -877,14 +877,14 @@ export const SuggestPopup = (p: {
 }
 
 
-export const suggestPopupCss = () => `
+export const omnibarPopupCss = () => `
 						&.device-view-mobile {
 						}
 
-						.suggest-popup-bg.hide {
+						.omnibar-popup-bg.hide {
 								display:none;
 						}
-						.suggest-popup-bg {
+						.omnibar-popup-bg {
 								background: rgba(0,0,0,0.5);
 								top: 0px;
 								left: 0px;
@@ -893,7 +893,7 @@ export const suggestPopupCss = () => `
 								z-index: 1000;
 								position: absolute;
 						}
-						.suggest-popup-wrapper {
+						.omnibar-popup-wrapper {
 								width: 88%;
 								margin: 0 auto;
 								z-index: 100;
