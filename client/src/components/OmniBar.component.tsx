@@ -50,6 +50,12 @@ export const OmniBar = (p: {
 }) => {
 
 
+	const [omniBarStatus, setOmniBarStatus] = useState<"editable"|"locked">("editable");
+	useEffect(() => {
+		omniBarElRef.current.focus()
+	}, [omniBarStatus])
+
+
 	const [selectedOption, setSelectedOptionInt] = useState<any[]>([]);
 	const selectedOptionRef = useRef<any[]>([])
 	const setSelectedOption = (nArr: any[]) => {
@@ -198,7 +204,7 @@ export const OmniBar = (p: {
 		// update it
 		setSelectedOption(nOptions)
 	}
-	const selectRef = useRef<any>()
+	const omniBarElRef = useRef<any>()
 	let defaultValue = options[0] || { label: "", value: "" }
 
 
@@ -277,37 +283,7 @@ export const OmniBar = (p: {
 			}
 		}
 		else if (stags[0].label === modeLabels.search) {
-
-			// IF SEARCH MODE 
-			if (!stags[1]) {
-				// STEP 1 : add automatically editable folder
-				if (inTxt === "?") {
-					// erase ? and put instead the current folder
-					getApi(api => {
-						let folder = api.ui.browser.files.active.get.folder
-						setInputTxt(folder)
-					})
-				}
-				setHelp(`Path to search (ex:"/path/to/folder") + ENTER`)
-				setOptions([{ label: inTxt, value: inTxt }])
-
-			} else if (stags.length === 2) {
-				// STEP 2 : show searched results
-				setPreviewType("preview")
-				reactToSearchTyping(inTxt, stags[1].label)
-
-			} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
-				setPreviewType("preview")
-				// STEP 3-1 (optional) :  filter found results
-				console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
-
-
-			} else if (stags.length === 3 || stags.length === 4) {
-				console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
-				let last = stags.length - 1
-				let file = stags[last].payload.file as iFile
-				jumpToPath(file.path)
-			}
+			searchModeLogic(stags, inTxt)
 		}
 		// IF EXPLORER MODE
 		else if (stags[0].label === modeLabels.explorer) {
@@ -393,6 +369,7 @@ export const OmniBar = (p: {
 	const lastSearchId = useRef(0)
 	const lastSearch = useRef("")
 	const triggerExplorer = (folderPath: string) => {
+
 		if (folderPath === "") return
 		if (!folderPath.endsWith("/")) folderPath = folderPath + "/"
 
@@ -404,12 +381,14 @@ export const OmniBar = (p: {
 
 		setOptions([{ label: "loading..." }])
 		// setNotePreview(null)
+		setOmniBarStatus("locked")
 
 		lastSearchId.current++
 		let currId = lastSearchId.current
 
 		getApi(api => {
 			let folderPathArr = [folderPath]
+			setTimeout(() => { // @DEBUG2
 			api.folders.get(folderPathArr, folderData => {
 
 				// only take in account the LAST request
@@ -441,10 +420,10 @@ export const OmniBar = (p: {
 					// create omnibarions from folders and files
 					let nOpts: iOptionOmniBar[] = []
 
-					let url = `http://localhost:3023/static//ctags//.resources/screenshot%2020230127%20at%20135701.jpg?token=KL3XFJdTJ7MWPtIu50OyUKlBhIszxRMdDwpd3EnSMJ1HGjLCAHaPDGjw9UcZ`
+					// let url = `http://localhost:3023/static//ctags//.resources/screenshot%2020230127%20at%20135701.jpg?token=KL3XFJdTJ7MWPtIu50OyUKlBhIszxRMdDwpd3EnSMJ1HGjLCAHaPDGjw9UcZ`
 					let imageHtml = <div
 						style={{
-							backgroundImage: `url('${url}')`
+							// backgroundImage: `url('${url}')`
 						}}
 						className="barimage">
 					</div>
@@ -468,11 +447,14 @@ export const OmniBar = (p: {
 
 					setSelectedOption(nSelec)
 					setOptions(nOpts)
+					setOmniBarStatus("editable")
 					// setNotePreview(nSelec)
 
 				})
 			})
+			}, 2000) // @DEBUG2
 		}) 
+	
 	}
 
 
@@ -494,12 +476,69 @@ export const OmniBar = (p: {
 		])
 	}
 
+
+	const previousPath = useRef<string>("")
+	const searchModeLogic = (stags:any[], inTxt: string) => {
+		// STEP 1: type a folder
+		if (!stags[1]) {
+			// STEP 1-1 : add automatically editable folder
+			if (inTxt === "?") {
+				// erase ? and put instead the current folder
+				getApi(api => {
+					let folder = api.ui.browser.files.active.get.folder
+					setInputTxt(folder)
+				})
+			}
+			if (inTxt === "") {
+				// if delete whole path with backspace, instead of starting from scratch, start from where we are
+				setInputTxt(previousPath.current)
+			} else {
+				previousPath.current = inTxt.slice(0,-1)
+			}
+
+			setHelp(`Path to search (ex:"/path/to/folder") + ENTER`)
+			setOptions([{ label: inTxt, value: inTxt }])
+
+		} else if (stags.length === 2) {
+			// STEP 1-2 : show searched results
+			setPreviewType("preview")
+			reactToSearchTyping(inTxt, stags[1].label)
+
+		} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
+			setPreviewType("preview")
+			// STEP 3-1 (optional) :  filter found results
+			console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
+		} else if (stags.length === 3 || stags.length === 4) {
+			console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
+			let last = stags.length - 1
+			let file = stags[last].payload.file as iFile
+			jumpToPath(file.path)
+		}
+	}
+
 	const wordSearched = useRef<string | null>(null)
 	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string) => {
 		let path = folder
 		let input = inputTxt
 
-		if (input && path && input.length > 2 && path.length > 0) {
+		if (!(input && path && input.length > 2 && path.length > 0)) {
+			//
+			// STEP 2: type a word
+			//
+			setHelp(`Type the word searched`)
+			setOptions([])
+			setNotePreview(null)
+			wordSearched.current = ""
+			// lastPathForSearch = st
+
+			
+			
+
+		} else {
+			
+			//
+			// STEP 3: search
+			//
 			setHelp(`Searching "${input}" in "${path}" ...`)
 			setOptions([{ label: "loading..." }])
 
@@ -510,6 +549,7 @@ export const OmniBar = (p: {
 
 			wordSearched.current = input
 
+			
 			getApi(api => {
 				api.search.word(input, path, res => {
 					each(res, (fileRes) => {
@@ -551,12 +591,7 @@ export const OmniBar = (p: {
 				})
 			})
 
-		} else {
-			setHelp(`Type the word searched`)
-			setOptions([])
-			setNotePreview(null)
-			wordSearched.current = ""
-		}
+		} 
 	}, 500)
 
 
@@ -709,7 +744,7 @@ export const OmniBar = (p: {
 	//
 	const [notePreview, setNotePreviewInt] = useState<iFile | null>(null);
 	const setNotePreview = (file:iFile | null) => {
-		console.log(3333333, file)
+		// console.log(3333333, file)
 		setNotePreviewInt(file)
 	}
 	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
@@ -784,9 +819,6 @@ export const OmniBar = (p: {
 
 
 
-
-
-
 	const [previewHeight, setPreviewHeight] = useState<number>(300);
 	const omniBarWrapper = useRef<any>(null)
 	const debounceResizeHeight = useDebounce(() => {
@@ -812,7 +844,7 @@ export const OmniBar = (p: {
 		<div className={`omnibar-popup-bg ${p.show ? "" : "hide"}`}
 			// onMouseMove={e => onMouseMove(e)}
 			onClick={e => { p.onClose() }}>
-			<div className={`omnibar-popup-wrapper device-${deviceType()}`}>
+			<div className={`omnibar-popup-wrapper device-${deviceType()} ${omniBarStatus}`}>
 				<div className="flex-wrapper"
 					onClick={e => {
 						e.stopPropagation()
@@ -828,11 +860,14 @@ export const OmniBar = (p: {
 						<Select
 							isMulti
 
-							ref={selectRef}
+							ref={omniBarElRef}
 							menuIsOpen={true}
 							defaultValue={defaultValue}
 							value={selectedOption}
 							autoFocus={true}
+							isDisabled={(omniBarStatus === "locked")}
+							// isLoading={(omniBarStatus === "locked")}
+							// is
 
 							onChange={onChange}
 							// components={{ Option: CustomOption }}
@@ -901,6 +936,9 @@ export const omnibarPopupCss = () => `
 								position: absolute;
 						}
 						.omnibar-popup-wrapper {
+								&.locked {
+									pointer-events:none;
+								}
 								width: 88%;
 								margin: 0 auto;
 								z-index: 100;
