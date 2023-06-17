@@ -351,7 +351,7 @@ export const OmniBar = (p: {
 	// }, [options])
 
 
-	const baseHelp = `"?" for search mode, "/" for explorer mode, ":" for plugin mode`
+	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for search mode, "/" for explorer mode, ":" for plugin mode`
 	const [help, setHelp] = useState(baseHelp)
 
 
@@ -403,7 +403,7 @@ export const OmniBar = (p: {
 		console.log("== EXPLORER", folderPath);
 
 		setOptions([{ label: "loading..." }])
-		setNotePreview(null)
+		// setNotePreview(null)
 
 		lastSearchId.current++
 		let currId = lastSearchId.current
@@ -472,7 +472,7 @@ export const OmniBar = (p: {
 
 				})
 			})
-		})
+		}) 
 	}
 
 
@@ -587,7 +587,10 @@ export const OmniBar = (p: {
 		nOptions.unshift(o1)
 		nOptions.unshift(o2)
 
+		// console.log(123, nOptions[0])
 		// setLastNotesOptions(nOptions)
+		let initialFile = nOptions[0] ? nOptions[0].payload?.file : null
+		if (initialFile) setNotePreview(initialFile)
 		setOptions(nOptions)
 	}
 
@@ -704,7 +707,11 @@ export const OmniBar = (p: {
 	//
 	// system to find current note highlighted... using class detection...
 	//
-	const [notePreview, setNotePreview] = useState<iFile | null>(null);
+	const [notePreview, setNotePreviewInt] = useState<iFile | null>(null);
+	const setNotePreview = (file:iFile | null) => {
+		console.log(3333333, file)
+		setNotePreviewInt(file)
+	}
 	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
 	const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
 
@@ -840,7 +847,7 @@ export const OmniBar = (p: {
 							// isClearable={false}
 							styles={styles}
 							noOptionsMessage={() => {
-								setNotePreview(null)
+								// setNotePreview(null)
 								return noOptionLabel
 							}}
 						/>

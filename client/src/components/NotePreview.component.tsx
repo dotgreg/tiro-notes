@@ -60,9 +60,16 @@ export const NotePreview = (p: {
 		})
 	}, 200)
 
+	// const [forceUpdateInt, setforceUpdate] = useState<number>(0);
+	// const forceUpdate = () => { 
+	// 	setTimeout(() => {
+	// 		// setforceUpdate(forceUpdateInt + 1) 
+	// 	}, 100)
+	// }
 	useEffect(() => {
 		if (type === "preview") loadPreviewContent()
 		else loadEditorContent()
+		// forceUpdate()
 	}, [p.file, p.searchedString, type])
 
 
@@ -78,7 +85,8 @@ export const NotePreview = (p: {
 			}
 			{
 				type === "editor" && 
-				<div className="window-editor-wrapper">
+				// <div className={`window-editor-wrapper ${forceUpdateInt}`}>
+				<div className={`window-editor-wrapper`}>
 					<DualViewer
 						windowId={generateUUID()}
 						file={p.file}
