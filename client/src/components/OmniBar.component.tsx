@@ -154,9 +154,14 @@ export const OmniBar = (p: {
 		multiValue: (base, state) => {
 			return !state.data.editable ? { ...base, backgroundColor: cssVars.colors.main } : base;
 		},
+		multiValueLabel: (base, state) => {
+			let nbase = {...base, color: "#919090!important"}
+			return  { ...nbase };
+		},
 		multiValueRemove: (base, state) => {
 			return !state.data.editable ? { ...base, display: 'none' } : base;
 		},
+		
 	}) 
 
 	// on mousemove, events options can be hovered
@@ -526,8 +531,9 @@ export const OmniBar = (p: {
 			//
 			// STEP 2: type a word
 			//
-			setHelp(`Type the word searched`)
+			setHelp(`Type the searched word`)
 			setOptions([])
+			setTimeout(() => { omniBarElRef.current.focus()}, 100) // for mobile
 			setNotePreview(null)
 			wordSearched.current = ""
 			// lastPathForSearch = st
