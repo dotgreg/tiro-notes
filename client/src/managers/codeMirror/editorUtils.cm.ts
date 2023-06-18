@@ -6,7 +6,10 @@ import { getCustomTheme } from "./theme.cm";
 import { cloneDeep, each } from "lodash";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
+import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"
+
 import { regexs } from "../../../../shared/helpers/regexs.helper";
+
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -254,42 +257,6 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef | null): CMDocStructure 
 	let res: CMDocStructure = []
 	if (!view) return res
 	const raw = view.state.doc.toString();
-	// let tree = ensureSyntaxTree(view.state, view.state.doc.length, 5000)
-	// each(tree?.children, (c:any,i) => {
-	// 	let parentType = c.type.name
-	// 	each(c.children, (c2,j) => {
-	// 		let rawType = c2.type.name
-	// 		if (rawType === "HeaderMark") rawType = parentType
-	// 		let level = levels.indexOf(rawType)
-	// 		let from = tree?.positions[i] + c.positions[j]
-
-	// 		// paragraphs and other
-	// 		if (level === -1) {
-	// 			if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
-	// 				res[res.length-1].to = from - 1
-	// 			}
-	// 		// titles
-	// 		} else {
-	// 			// if previous has higher level, means it is not a lastchild
-	// 			if ( res[res.length-1] && res[res.length-1].level < level ) {
-	// 				res[res.length-1].lastChild = false
-	// 			}
-	// 			// if previous has a to:-1
-	// 			if ( res[res.length-1] &&  res[res.length-1].to === -1) { 
-	// 				res[res.length-1].to = from - 1
-	// 			}
-	// 			res.push({
-	// 				type: rawType,
-	// 				level, 
-	// 				lastChild: true,
-	// 				from,
-	// 				to: -1
-	// 			})
-	// 		}
-
-
-	// 	})
-	// })
 	const lines = raw.split("\n")
 	const resArr: CMDocStructureItem[] = []
 	let totChar = 0;
@@ -325,6 +292,10 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef | null): CMDocStructure 
 	return resArr
 }
 
+
+//
+// FOLDING/UNFOLDING FUNCTIONS
+// 
 const unfoldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 	if (!CMObj?.view) return
 	unfoldAll(CMObj.view)
@@ -352,6 +323,56 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 }
 
 
+
+
+//
+// SEARCH FUNCTIONS
+// 
+const searchWord = (CMObj: ReactCodeMirrorRef | null, word: string, jumpToFirst: boolean = true) => { 
+	if (!CMObj?.view) return
+	try {
+		const view = CMObj.view
+		openSearchPanel(view)
+		view.dispatch({
+			effects: setSearchQuery.of(new SearchQuery({
+				search: word,
+			}))
+		})
+		if(jumpToFirst) findNext(view)
+	} catch (error) {
+		console.log("[CM utils > search word] error:", error)
+	}
+}
+
+//
+// SELECTION FUNCTION
+// 
+export type iEditorSelection = {word?:string, range?:[number,number]}
+const setSelection = (CMObj: ReactCodeMirrorRef | null, selection: iEditorSelection) => { 
+	console.log("select", selection)
+	if (!CMObj?.view) return
+	try {
+		const view = CMObj.view
+		// view.dispatch({
+		// 	effects: setSearchQuery.of(new SearchQuery({
+		// 		search: word,
+		// 	}))
+		// })
+		let finalRange = [0,0]
+		if (selection.range) finalRange = selection.range
+		view.dispatch({
+			selection: EditorSelection.create([
+				EditorSelection.range(finalRange[0], finalRange[1]),
+			])
+		})
+	} catch (error) {
+		console.log("[CM utils > set selection] error:", error)
+	}
+	
+	
+}
+
+
 export const CodeMirrorUtils = {
 	getEditorInfos,
 	getCurrentLineInfos,
@@ -364,5 +385,9 @@ export const CodeMirrorUtils = {
 
 	getMarkdownStructure,
 	foldAllChildren,
-	unfoldAllChildren
+	unfoldAllChildren,
+
+	searchWord,
+	setSelection
+
 }

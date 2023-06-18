@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
+import { iEditorSelection } from '../../managers/codeMirror/editorUtils.cm';
 import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 
 
 
 export interface iEditorAction {
-	type: "lineJump" | "insertText"
 	windowId?: string
-	lineJump?: number
+	type: "lineJump" | "insertText" | "searchWord" | "setSelection"
+
+	lineJumpNb?: number
+	lineJumpString?: string
+
 	insertText?: string
 	insertPos?: number | "currentPos"
+	
+	searchWordString?: string
+	// searchWordOpenPanel?: boolean
+
+	selection?: iEditorSelection
+
 }
 
 
 interface iNoteUiApi {
 	ui: {
+		// old way to linejump
 		lineJump: {
 			jump: (windowId: string, line: number) => void
 		},
@@ -44,7 +55,7 @@ export const useNoteApi = (p: {
 		setEditorAction({
 			type: "lineJump",
 			windowId,
-			lineJump: line
+			lineJumpNb: line
 		})
 	}
 

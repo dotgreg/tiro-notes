@@ -14,6 +14,7 @@ import { aLog } from '../hooks/api/analytics.api.hook';
 import { Icon, Icon2 } from './Icon.component';
 import { notifLog } from '../managers/devCli.manager';
 import { fileToNoteLink } from '../managers/noteLink.manager';
+import { generateUUID } from '../../../shared/helpers/id.helper';
 
 
 interface iOptionOmniBar {
@@ -501,7 +502,7 @@ export const OmniBar = (p: {
 
 		} else if (stags.length === 2) {
 			// STEP 1-2 : show searched results
-			setPreviewType("preview")
+			setPreviewType("editor")
 			reactToSearchTyping(inTxt, stags[1].label)
 
 		} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
@@ -537,7 +538,7 @@ export const OmniBar = (p: {
 		} else {
 			
 			//
-			// STEP 3: search
+			// STEP 3: search for word API
 			//
 			setHelp(`Searching "${input}" in "${path}" ...`)
 			setOptions([{ label: "loading..." }])
@@ -551,19 +552,20 @@ export const OmniBar = (p: {
 
 			
 			getApi(api => {
-				api.search.word(input, path, res => {
+				api.search.word(input, path, res => { 
+					// console.log(55555555, res)
 					each(res, (fileRes) => {
-						each(fileRes.results, occur => {
+						each(fileRes.results, occurRaw => {
 
 							let regexLabel = isRegex ? `(${input})` : ``
 							let location = `${fileRes.file.path} ${regexLabel}`
-							let index = occur.indexOf(input)
+							let index = occurRaw.indexOf(input)
 							let l = 100
-							let o = occur
+							let o = occurRaw
 							let start = (index > l / 2) ? index - l / 2 : 0
 							let end = index + l / 2 < o.length ? index + l / 2 : o.length
 							if (o.length > l) o = o.substring(start, end)
-							occur = o
+							let occur = o
 							let occurLabel = o.replaceAll(input, `<b>${input}</b>`)
 
 
@@ -579,7 +581,8 @@ export const OmniBar = (p: {
 								value: wordSearched.current! + fileRes.file + occur + location,
 								payload: {
 									file: fileRes.file,
-									line: occur
+									line: occur,
+									raw: occurRaw 
 								}
 							})
 						})
@@ -742,13 +745,14 @@ export const OmniBar = (p: {
 	//
 	// system to find current note highlighted... using class detection...
 	//
+	const [notePreviewWindowId, setNotePreviewWindowId] = useState<string>(generateUUID());
 	const [notePreview, setNotePreviewInt] = useState<iFile | null>(null);
 	const setNotePreview = (file:iFile | null) => {
-		// console.log(3333333, file)
+		// console.log("setNotePreview", file)
 		setNotePreviewInt(file)
-	}
+	}	
 	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
-	const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
+	// const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
 
 	const onActiveOptionChange = (file: iFile, activeLine?: string) => {
 		let stags = selectedOptionRef.current
@@ -758,11 +762,27 @@ export const OmniBar = (p: {
 			setNotePreview(file)
 
 		} else if (stags[0] && stags[0].label === modeLabels.search) {
-			// SEARCH
+			// WORD SEARCH JUMP INSIDE FILE
 			setNotePreview(file)
-			setActiveLine(activeLine)
-			console.log("SEARCH JUMP TO", activeLine, file.path);
-
+			// we dont use an internal active line system but the more global editorAction system api
+			// console.log("SEARCHWORD1", activeLine, file.path, stags);
+			setTimeout(() => {
+				getApi(api => {
+					api.ui.note.editorAction.dispatch({
+						type:"searchWord", 
+						searchWordString: inputTxt,
+						windowId: notePreviewWindowId
+					})	
+				})
+				// as opening the searchbar automatically focus, retake the focus
+				omniBarElRef.current.focus()
+				setTimeout(()=>{
+					omniBarElRef.current.focus()
+					setTimeout(()=>{
+						omniBarElRef.current.focus()
+					},100)
+				},50)
+			}, 300)
 		} else if (!stags[0]) {
 			// LAST NOTES
 			setNotePreview(file)
@@ -799,6 +819,7 @@ export const OmniBar = (p: {
 					let payload = options[id].payload
 					let file = payload.file as iFile
 					let line = payload.line || undefined
+					// console.log(44444444, payload)
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -850,7 +871,7 @@ export const OmniBar = (p: {
 						e.stopPropagation()
 					}}
 				>
-					<div ref={omniBarWrapper}>
+					<div className="select-wrapper" ref={omniBarWrapper}>
 						<div className="help">
 							{help}
 						</div>
@@ -894,9 +915,10 @@ export const OmniBar = (p: {
 							{notePreview && deviceType() !== "mobile" &&
 								<NotePreview
 									file={notePreview}
-									searchedString={activeLine}
+									// searchedString={activeLine}
 									height={previewHeight}
 									type={previewType}
+									windowId={notePreviewWindowId}
 								/>
 							}
 							{

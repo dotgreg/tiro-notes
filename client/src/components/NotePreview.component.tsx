@@ -15,6 +15,7 @@ export const NotePreview = (p: {
 	height?: number
 	type?:iNotePreviewType
 	linkPreview?:boolean
+	windowId?:string
 }) => {
 	if (!p.type) p.type = "editor"
 	const [content, setContent] = useState("");
@@ -26,11 +27,6 @@ export const NotePreview = (p: {
 			api.file.getContent(p.file.path, ncontent => {
 				if (p.searchedString) {
 					let string2Search = p.searchedString
-					// console.log(22222222, { string2Search, s1: p.searchedString, content: ncontent });
-					// const htmlEntities = (str) => {
-					// 	return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-					// }
-					// string2Search = htmlEntities(string2Search)
 					ncontent = ncontent.replaceAll(
 						string2Search,
 						`<span class='found-word'>${p.searchedString}</span>`)
@@ -88,7 +84,7 @@ export const NotePreview = (p: {
 				// <div className={`window-editor-wrapper ${forceUpdateInt}`}>
 				<div className={`window-editor-wrapper`}>
 					<DualViewer
-						windowId={generateUUID()}
+						windowId={p.windowId || generateUUID()}
 						file={p.file}
 						fileContent={content}
 						isActive={true}

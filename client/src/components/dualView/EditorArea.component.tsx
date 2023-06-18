@@ -28,6 +28,7 @@ import { setNoteView } from '../../managers/windowViewType.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
+import { each, isBoolean } from 'lodash';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -371,13 +372,23 @@ const EditorAreaInt = (
 	useEffect(() => {
 		let a = p.editorAction
 		if (!a) return
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}`, p.editorAction)
 		if (a.windowId === "active" && !p.isActive) return
 		if (a.windowId !== "active" && a.windowId !== p.windowId) return
 
 		console.log("[EDITOR ACTION] =>", {a})
 		// lineJump
-		if (a.type === "lineJump" && a.lineJump) {
-			setJumpToLine(a.lineJump)
+		if (a.type === "lineJump") {
+			let lineToJump = 0
+			if(a.lineJumpNb) lineToJump = a.lineJumpNb
+			if(a.lineJumpString) {
+				const searchee = a?.lineJumpString || ""
+				const arrContent = p.fileContent.split("\n")
+				each(arrContent, (line,i) => {
+					if (line.includes(searchee)) lineToJump = i + 3
+				})
+			}
+			setJumpToLine(lineToJump)
 			setTimeout(() => {
 				setJumpToLine(-1)
 			}, 100)
@@ -386,6 +397,25 @@ const EditorAreaInt = (
 		// insert at
 		if (a.type === "insertText" && a.insertText && a.insertPos) {
 			insertTextAt(a.insertText, a.insertPos)
+		}
+
+		// search interface
+		if (a.type === "searchWord" && a.searchWordString) {
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			CodeMirrorUtils.searchWord(f,a.searchWordString, true)
+
+		}
+		// selection
+		if (a.type === "setSelection" && a.selection) {
+			// let shouldOpenInterface = isBoolean(a.searchWordOpenPanel) ? a.searchWordOpenPanel : false
+			// insertTextAt(a.insertText, a.insertPos) 
+			// if (shouldOpenInterface) openSearchPanel()
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			// CodeMirrorUtils.searchWord(f,a.searchWordString, true)
+			CodeMirrorUtils.setSelection(f,a.selection)
+
 		}
 
 	}, [p.editorAction])
@@ -545,6 +575,7 @@ const EditorAreaInt = (
 						onChange={triggerNoteEdition}
 
 						posY={p.posY}
+
 						jumpToLine={jumpToLine || 0}
 
 						forceRender={cmRender}
