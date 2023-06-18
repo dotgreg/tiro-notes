@@ -313,16 +313,8 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 		} catch (error) {
 			console.warn(`ERROR FOR ${item.title}`, error)
 		}
-		// } else {
-		// 	// not a last child, look for content between the parent and the child title
-		// 	let from = item.to - 1
-		// 	let to = struct[i+1] ? struct[i+1].from -1 : CMObj.view.state.doc.length
-		// }
-		// foldInside({from,to})
 	})
 }
-
-
 
 
 //
@@ -344,6 +336,7 @@ const searchWord = (CMObj: ReactCodeMirrorRef | null, word: string, jumpToFirst:
 	}
 }
 
+
 //
 // SELECTION FUNCTION
 // 
@@ -353,11 +346,6 @@ const setSelection = (CMObj: ReactCodeMirrorRef | null, selection: iEditorSelect
 	if (!CMObj?.view) return
 	try {
 		const view = CMObj.view
-		// view.dispatch({
-		// 	effects: setSearchQuery.of(new SearchQuery({
-		// 		search: word,
-		// 	}))
-		// })
 		let finalRange = [0,0]
 		if (selection.range) finalRange = selection.range
 		view.dispatch({

@@ -376,7 +376,7 @@ const EditorAreaInt = (
 		if (a.windowId === "active" && !p.isActive) return
 		if (a.windowId !== "active" && a.windowId !== p.windowId) return
 
-		console.log("[EDITOR ACTION] =>", {a})
+		// console.log("[EDITOR ACTION] =>", {a})
 		// lineJump
 		if (a.type === "lineJump") {
 			let lineToJump = 0
