@@ -389,7 +389,7 @@ export const OmniBar = (p: {
 
 		getApi(api => {
 			let folderPathArr = [folderPath]
-			setTimeout(() => { // @DEBUG2
+			// setTimeout(() => { // @DEBUG2
 			api.folders.get(folderPathArr, folderData => {
 
 				// only take in account the LAST request
@@ -453,7 +453,7 @@ export const OmniBar = (p: {
 
 				})
 			})
-			}, 2000) // @DEBUG2
+			// }, 2000) // @DEBUG2
 		}) 
 	
 	}
