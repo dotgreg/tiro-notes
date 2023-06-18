@@ -1,4 +1,4 @@
-import { each, isArray, rest } from "lodash";
+import { each, isArray, isString, rest } from "lodash";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iPlugin } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";

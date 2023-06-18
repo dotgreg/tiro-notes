@@ -1,3 +1,4 @@
+import { sortBy } from "lodash"
 import { useEffect } from "react"
 import { sharedConfig } from "../../../../shared/shared.config"
 import { iPlugin } from "../../../../shared/types.shared"
@@ -61,7 +62,11 @@ export const usePluginsApi = (p: {
 					}
 				}))
 			}
-			cb(data.plugins, data.scanLog)
+			// sort plugins
+			// let sortedPlugins:iPlugin[] = data.plugins
+			let sortedPlugins = sortBy(data.plugins, p => p.name)
+			// console.log()
+			cb(sortedPlugins, data.scanLog)
 		});
 		// 2. emit request 
 		clientSocket2.emit('askPluginsList', {
