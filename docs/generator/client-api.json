@@ -23575,7 +23575,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/plugin.api.hook.tsx",
-									"line": 20,
+									"line": 21,
 									"character": 1
 								}
 							],
@@ -23597,7 +23597,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/plugin.api.hook.tsx",
-													"line": 21,
+													"line": 22,
 													"character": 2
 												}
 											],
@@ -23661,7 +23661,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/plugin.api.hook.tsx",
-									"line": 16,
+									"line": 17,
 									"character": 1
 								}
 							],
@@ -23754,7 +23754,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/plugin.api.hook.tsx",
-									"line": 10,
+									"line": 11,
 									"character": 1
 								}
 							],
@@ -23855,7 +23855,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/plugin.api.hook.tsx",
-																	"line": 13,
+																	"line": 14,
 																	"character": 3
 																}
 															],
@@ -23906,7 +23906,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/plugin.api.hook.tsx",
-							"line": 9,
+							"line": 10,
 							"character": 17
 						}
 					]
