@@ -94,13 +94,16 @@ export const searchWithRgGeneric = async (p: {
 	// p.options.debug && console.log(`== START1 ============`);
 	// p.options.debug && console.log(backConfig.rgPath, searchParams);
 	const ripGrepStream = execa(backConfig.rgPath, searchParams)
+	// console.log(666666555555, searchParams)
 	const resArr: string[] = []
 	ripGrepStream.stdout.on('data', async dataChunk => {
 		// console.log("========", dataChunk);
 		const rawChunk = dataChunk.toString()
+		
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
 			let lineRaw = line
+			// console.log(666666, rawChunk,lineRaw, searchParams)
 
 			// "path/to/file:whole line with : inside" 
 
@@ -108,11 +111,12 @@ export const searchWithRgGeneric = async (p: {
 			lineRaw = line.split(':')
 			if (!lineRaw[0] || lineRaw[0] === '') return
 			let found = lineRaw.slice(1).join(":")
-
+			
+			//	lineRaw => '/home/ubuntu/Desktop/_tiro_test/_new3/2222/MAIN PLAN.md:- [x] Tiro fix toc pb et autres UX + test server',
 			const processedLine = p.processRawLine({
 				file: processRawPathToFile({ rawPath: lineRaw[0], folder: p.folder }),
 				raw: line,
-				path: lineRaw[0],
+				path: lineRaw[0],  
 				found,
 			})
 			if (processedLine) resArr.push(processedLine)

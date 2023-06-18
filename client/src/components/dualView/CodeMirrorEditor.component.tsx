@@ -26,7 +26,7 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, isBoolean, isNumber, throttle } from "lodash";
+import { cloneDeep, isBoolean, isNaN, isNumber, throttle } from "lodash";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 
@@ -413,8 +413,15 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 	const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
+		// getApi(api => {
+		// 	api.ui.note.lineJump.jump(windowId, lineToJump)
+		// })
 		getApi(api => {
-			api.ui.note.lineJump.jump(windowId, lineToJump)
+			api.ui.note.editorAction.dispatch({
+				windowId,
+				type:"lineJump", 
+				lineJumpNb: lineToJump,
+			})	
 		})
 	}, 1000)
 
@@ -456,11 +463,22 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 
-	const evalSelected = () => {
+	const seemsArithmetic = (str:string) => {
+		str = `${str}`
+		let res = false
+		if (str.toLowerCase().startsWith("Math")) res = true
+		if (str.startsWith("(")) res = true
+		// if starts with a number
+		if (!isNaN(parseInt(str))) res = true
+		return res
+	}
+	const calcSelected = () => {
 		let res = null
 		const s = currSelection.current
 		let selectionTxt = textContent.current.substring(s.from, s.to)
+		if (!seemsArithmetic(selectionTxt)) return res
 		try {
+			// if starts with number or () or Math
 			res = new Function(`return ${selectionTxt}`)()
 		} catch (error) {
 			// res = "!"
@@ -535,13 +553,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					>
 						<Icon2 name="wand-magic-sparkles" />
 					</span>
-					{evalSelected() &&
+					{calcSelected() &&
 						<span
 							onClick={triggerCalc}
 							title="Paste Calculated Value"
 							className="link-action"
 						>
-							<Icon2 name="calculator" /> <span className="result-calc">{evalSelected()}</span>
+							<Icon2 name="calculator" /> <span className="result-calc">{calcSelected()}</span>
 						</span>
 						
 					}

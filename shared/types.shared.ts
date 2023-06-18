@@ -94,6 +94,7 @@ export type iPluginOptions = {
 }
 export type iPlugin = { name: string, type: iPluginType, code: string, options: iPluginOptions}
 
+// export type iSearchWordRes = { [filePath: string]: { file: iFile, results: string[], resultsPos:{line:number, position:number}[] } } // RG does not return the line pos here...
 export type iSearchWordRes = { [filePath: string]: { file: iFile, results: string[] } }
 
 export type iFileNature = 'file' | 'folder'
