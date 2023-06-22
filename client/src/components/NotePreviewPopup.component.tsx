@@ -19,7 +19,7 @@ export const NotePreviewPopup = (p: {
     const goToNote = e => {
         const file = pathToIfile(p.notePreview.filepath)
         if (!file || !p.notePreview.opts?.windowIdToOpenIn) return
-        stopDelayedNotePreview()
+        stopDelayedNotePreview(true)
         getApi(api => {
             api.ui.browser.goTo(
                 file.folder,
@@ -52,6 +52,7 @@ export const NotePreviewPopup = (p: {
     )
 
 }
+export const notePreviewPopupDims = {w: 400, h: 300}
 
 export const notePreviewPopupCss = () => `
     .page-link-preview-popup-ext {
@@ -67,16 +68,18 @@ export const notePreviewPopupCss = () => `
             height: 30px;
         }
         .page-link-preview-popup-int {
-            // pointer-events: all;
             cursor:default;
             margin-top: 20px;
             background: white;
-            width: 400px;
-            height: 300px;
+            width: ${notePreviewPopupDims.w}px;
+            height: ${notePreviewPopupDims.h}px;
             border-radius: 10px;
             box-shadow: 0px 0px 3px 1px rgba(0,0,0,0.1);
-            overflow-y:auto;
+            overflow-y:hidden;
             overflow-x:hidden;
+            .cm-scroller {
+                width: calc(100% - 40px)!important;
+            }
         }
     }
 `

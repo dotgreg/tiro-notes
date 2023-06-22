@@ -50,6 +50,7 @@ export const regexs = {
 
 	searchlink: VerEx().find('[search|').beginCapture().anythingBut('[]').endCapture().then(']'),
 
+	linklink2: VerEx().find('123').beginCapture().anythingBut('456').endCapture().then('456'),
 	linklink: VerEx().find('[link|').beginCapture().anythingBut('[]').endCapture().then(' ').beginCapture().then('/').anythingBut('[]').endCapture().then(']'),
 	latexTag: VerEx().find('[[latex]]').beginCapture().anythingBut('').endCapture().then('[[latex]]'),
 	scriptTag: VerEx().find('[[script]]').beginCapture().anythingBut('').endCapture().then('[[script]]'),

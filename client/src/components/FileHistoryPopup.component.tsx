@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import { each, orderBy, sortBy } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
+import { getDateObj } from '../../../shared/helpers/date.helper';
 import { iFile } from '../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../hooks/api/api.hook';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
@@ -38,7 +39,17 @@ export const FileHistoryPopup = (p: {
 		setIsLoading(true)
 		clientSocket2.emit('askFileHistory', { filepath: p.file.path, token: getLoginToken() })
 		const listenerId = clientSocket2.on('getFileHistory', data => {
-			const filesSorted = orderBy(data.files, ['created'], ['desc']);
+			// for each file, date is in title, after ___
+			let nfiles:iFile[] = []
+			each(data.files, f => {
+				
+				let realDateStr = f.filenameWithoutExt?.split("___")[1]
+				if (realDateStr) {
+					f.created = getDateObj(realDateStr).num.timestamp
+				}
+				if (f.created && f.created < Date.now()) nfiles.push(f)
+			})
+			const filesSorted = orderBy(nfiles, ['created'], ['desc']);
 			setFiles([...localFiles,...filesSorted])
 			setIsLoading(false)
 			clientSocket2.off(listenerId)

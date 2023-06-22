@@ -52,6 +52,26 @@ export const NotePreview = (p: {
 		getApi(api => {
 			api.file.getContent(p.file.path, ncontent => {
 				setContent(ncontent)
+				if (p.searchedString) {
+					getApi(api => {
+						setTimeout(() => {
+							api.ui.note.editorAction.dispatch({
+								type:"searchWord", 
+								searchWordString: p.searchedString,
+								windowId: p.windowId
+							})	
+							let omnibarInput = document.querySelector('.select-wrapper input') as HTMLInputElement
+							if (!omnibarInput) return 
+							omnibarInput.focus()
+							setTimeout(()=>{
+								omnibarInput.focus()
+								setTimeout(()=>{
+									omnibarInput.focus()
+								},100)
+							},50)
+						}, 300)
+					})
+				}
 			})
 		})
 	}, 200)

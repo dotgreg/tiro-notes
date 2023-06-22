@@ -33,6 +33,10 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 export const ssrNoteLinkFn = (el: HTMLElement) => {
 	if (!el) return
 	stopDelayedNotePreview()
+	// console.log("click1", reqId)
+	reqId++
+	
+
 	const file = el.dataset.file
 	const folder = el.dataset.folder
 	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
@@ -71,28 +75,44 @@ const ssrNotePreviewOpen = (el: HTMLElement) => {
 }
 
 let timeout:any = null
+let reqId:number = 0
 const ssrNotePreviewClose = (el) => {
 	const windowid = el.dataset.windowid
 	stopDelayedNotePreview()
+	
 	if (windowid === "preview-popup") return
-	timeout && clearTimeout(timeout)
+	// timeout && clearTimeout(timeout)
 }
-export const stopDelayedNotePreview = () => {
+export const stopDelayedNotePreview = (addDelayCancel?:boolean) => {
 	timeout && clearTimeout(timeout)
 	// getApi(api => { api.ui.notePreviewPopup.close()})
-	setTimeout(() => {
-		timeout && clearTimeout(timeout)
-		// getApi(api => { api.ui.notePreviewPopup.close()})
-	}, 300)
+	reqId++
+	// console.log("stop1", reqId)
+	if (addDelayCancel) {
+		setTimeout(() => {
+			reqId++
+			// console.log("stop2", reqId)
+		}, 700)
+	}
+	// setTimeout(() => {
+	// 	timeout && clearTimeout(timeout)
+	// 	console.log("stop2")
+	// 	// getApi(api => { api.ui.notePreviewPopup.close()})
+	// }, 100)
 }
 const addDelayedAction = (filePath, pos, windowId) => {
-	console.log("adddelayed action", filePath, pos, windowId)
+	// console.log("adddelayed action", filePath, pos, windowId)
+	reqId++
+	// console.log("start", reqId)
+	let histId = reqId
 	timeout && clearTimeout(timeout)
 	timeout = setTimeout(() => { 
+		// console.log(123, histId, reqId)
+		if (reqId !== histId) return
 		getApi(api => {
 			api.ui.notePreviewPopup.open(filePath, pos, {windowIdToOpenIn:windowId})
 		})
-	}, 1000)
+	}, 700)
 }
 
 
@@ -135,6 +155,12 @@ export const noteLinkCss = (classStr?: string) => {
 				background-image: url(${cssVars.assets.searchIcon});
 		}
 		${classStr}.title-search-link {
+				transition: 1s all;
+				background-color: rgba(0,0,0,0);
+				&:hover {
+					color: white;
+					background-color: ${cssVars.colors.main};
+				}
 				&.popup-link {
 					position: relative;
 					z-index: 99;

@@ -29,6 +29,7 @@ import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
 import { each, isBoolean } from 'lodash';
+import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -83,6 +84,11 @@ const EditorAreaInt = (
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
+	const pFileRef = useRef<iFile>(p.file)
+	useEffect(() => {
+		pFileRef.current = p.file
+	}, [p.file.path])
+
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
@@ -100,15 +106,15 @@ const EditorAreaInt = (
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
+			let cfile = pFileRef.current 
 			setInnerFileContent(newContent)
 			// IF FIRST EDITION, backup old file
 			if (isFirstEdition) {
 				getApi(api => {
-					api.history.save(p.file.path, p.fileContent, 'enter')
+					api.history.save(cfile.path, p.fileContent, 'enter')
 				})
 			}
-
-			p.onFileEdited(p.file.path, newContent)
+			p.onFileEdited(cfile.path, newContent)
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
@@ -372,7 +378,7 @@ const EditorAreaInt = (
 	useEffect(() => {
 		let a = p.editorAction
 		if (!a) return
-		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}`, p.editorAction)
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}`)
 		if (a.windowId === "active" && !p.isActive) return
 		if (a.windowId !== "active" && a.windowId !== p.windowId) return
 
@@ -440,6 +446,10 @@ const EditorAreaInt = (
 						const oPath = `${p.file.folder}${o}.md`
 						const nPath = `${p.file.folder}${n}.md`
 						gridContext.file.onTitleUpdate(oPath, nPath)
+						const nFile = pathToIfile(nPath)
+						// getApi(api => {
+						// 	api.ui.browser.goTo(nFile.folder, nFile.name)
+						// })
 						forceCmRender()
 					}}
 				/>
@@ -808,6 +818,8 @@ export const EditorArea = (p: iEditorProps) => {
 		isConnected,
 		p.canEdit,
 		p.editorType,
+		p.file.created,
+		p.file.name,
 		p.file.path,
 		p.file,
 		p.fileContent,

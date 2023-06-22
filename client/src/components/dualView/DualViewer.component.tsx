@@ -95,8 +95,7 @@ const DualViewerInt = (
 	
 	// Close any popup on note switch
 	useEffect(() => {
-		stopDelayedNotePreview()
-		
+		stopDelayedNotePreview(true)
 	}, [p.file.path])
 
 	
@@ -165,7 +164,7 @@ const DualViewerInt = (
 				<div className="loading-text">loading...</div> 
 			</div>
 		}
-
+		
 		<EditorArea
 			viewType={p.viewType}
 			mobileView={p.mobileView}
