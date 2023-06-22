@@ -465,12 +465,10 @@ export const App = () => {
 														}
 													})
 												} else if (action === 'create' && newTitle) {
-													// askFolderCreate(`${folder.path}/${newTitle}`)
 													getApi(api => {
-														api.folders.create(`${folder.path}/${newTitle}`)
-													})
-													setTimeout(() => {
-														askForFolderScan([folder.path], { cache: false })
+														api.folders.create(`${folder.path}/${newTitle}`, status => {
+															askForFolderScan([folder.path], { cache: false })
+														})
 													})
 												} else if (action === 'moveToTrash') {
 													promptAndMoveFolder({

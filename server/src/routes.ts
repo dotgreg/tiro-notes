@@ -24,7 +24,7 @@ import { scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
-import { createFileHistoryVersion, createFileHistoryVersion_OLD, fileHistoryParams, getHistoryFolder, processFileHistoryHousekeeping } from "./managers/fileHistory.manager";
+import { createFileHistoryVersion,  fileHistoryParams, getHistoryFolder, processFileHistoryHousekeeping } from "./managers/fileHistory.manager";
 import { getDateObj } from "../../shared/helpers/date.helper";
 import { isArray } from "lodash";
 import { relative } from "path";

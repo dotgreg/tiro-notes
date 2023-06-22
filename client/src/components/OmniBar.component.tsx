@@ -159,7 +159,8 @@ export const OmniBar = (p: {
 			return  { ...nbase };
 		},
 		multiValueRemove: (base, state) => {
-			return !state.data.editable ? { ...base, display: 'none' } : base;
+			let display = deviceType() === "mobile" ? "block" : "none"
+			return !state.data.editable ? { ...base, display, opacity: "0.2", position: "relative", top: "3px" } : base;
 		},
 		
 	}) 
@@ -758,9 +759,9 @@ export const OmniBar = (p: {
 		setNotePreviewInt(file)
 	}	
 	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
-	// const [activeLine, setActiveLine] = useState<string | undefined>(undefined);
+	const [searchedString, setSearchedString] = useState<string | undefined>(undefined);
 
-	const onActiveOptionChange = (file: iFile, activeLine?: string) => {
+	const onActiveOptionChange = (file: iFile, searchedString?: string) => {
 		let stags = selectedOptionRef.current
 
 		// EXPLORER
@@ -771,23 +772,24 @@ export const OmniBar = (p: {
 			// WORD SEARCH JUMP INSIDE FILE
 			setNotePreview(file)
 			// we dont use an internal active line system but the more global editorAction system api
-			// console.log("SEARCHWORD1", activeLine, file.path, stags);
+			// console.log("SEARCHWORD1", searchedString, file.path, stags);
 			setTimeout(() => {
-				getApi(api => {
-					api.ui.note.editorAction.dispatch({
-						type:"searchWord", 
-						searchWordString: inputTxt,
-						windowId: notePreviewWindowId
-					})	
-				})
+				setSearchedString(searchedString)
+				// getApi(api => {
+				// 	api.ui.note.editorAction.dispatch({
+				// 		type:"searchWord", 
+				// 		searchWordString: inputTxt,
+				// 		windowId: notePreviewWindowId
+				// 	})	
+				// })
 				// as opening the searchbar automatically focus, retake the focus
-				omniBarElRef.current.focus()
-				setTimeout(()=>{
-					omniBarElRef.current.focus()
-					setTimeout(()=>{
-						omniBarElRef.current.focus()
-					},100)
-				},50)
+				// omniBarElRef.current.focus()
+				// setTimeout(()=>{
+				// 	omniBarElRef.current.focus()
+				// 	setTimeout(()=>{
+				// 		omniBarElRef.current.focus()
+				// 	},100)
+				// },50)
 			}, 300)
 		} else if (!stags[0]) {
 			// LAST NOTES
@@ -825,7 +827,6 @@ export const OmniBar = (p: {
 					let payload = options[id].payload
 					let file = payload.file as iFile
 					let line = payload.line || undefined
-					// console.log(44444444, payload)
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -921,7 +922,7 @@ export const OmniBar = (p: {
 							{notePreview && deviceType() !== "mobile" &&
 								<NotePreview
 									file={notePreview}
-									// searchedString={activeLine}
+									searchedString={searchedString}
 									height={previewHeight}
 									type={previewType}
 									windowId={notePreviewWindowId}

@@ -33,7 +33,7 @@ devCliAddFn("code_mirror", "cache_get", () => cacheDecoration)
 const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windowId:string) => new MatchDecorator({
 	regexp: pattern,
 	decoration: match => {
-		let id = match.input
+		let id = match.input + match.index
 		let cacheId = file.path+windowId
 		if (!cacheDecoration[cacheId]) cacheDecoration[cacheId] = {}
 		if (!cacheDecoration[cacheId][id]) {

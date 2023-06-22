@@ -14,9 +14,10 @@ import { perf } from "./performance.manager"
 export const fileHistoryParams = {
     folder: ".history",
     infosFile: ".infos.md",
-    disableString: `--disable-history--`,
+    disableString: `--disable-history`,
     housekeeping: {
-        executionInterval: 24 * 60 * 60 * 1000, // one day
+        executionInterval: 1 * 60 * 60 * 1000, // one hour interval exec
+        keepOnePerHour_RuleTime: 5 * 60 * 60 * 1000, // after 5 hours, keep on version/hour
         keepOnePerDay_RuleTime: 7 * 24 * 60 * 60 * 1000, // after 1 week, keep on version/day
         keepOnePerWeek_RuleTime: 1 * 30 * 24 * 60 * 60 * 1000, // after 1 months , keep on version/week
     }
@@ -71,6 +72,7 @@ export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iD
     }
 
     if (!shouldProceed) return
+    
     // update the infosFile
     await saveFile(infosFilePath, JSON.stringify({lastrun: currDate.num.timestamp}))
 
@@ -79,7 +81,8 @@ export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iD
 
     if (isString(resScan)) return console.log(h, resScan)
     // for each file
-    each(resScan, f => {
+    each(resScan, async f => {
+        let endPerf = perf('housekeeping history backups for ' + histFile.name)
         // dont take .infos
         if (f.filenameWithoutExt.startsWith(".")) return
         // get its date
@@ -91,19 +94,27 @@ export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iD
         const fDate = getDateObj(timestamp)
  
         if ( fDate.num.timestamp + p.housekeeping.keepOnePerWeek_RuleTime < currDate.num.timestamp ) {
-            // if it is > 6 months, keep one per week
+            // if it is > 1 months, keep one per week
             // rename it "w3-03-2022.md"
             let newName = generateHistFilename(`${realFileName}`, fDate, "week")
             let newPath = `${f.folder}${newName}`
-            moveFile(f.path, newPath)
+            await moveFile(f.path, newPath)
         } else if ( fDate.num.timestamp + p.housekeeping.keepOnePerDay_RuleTime < currDate.num.timestamp ) {
-            // if it is > 1 months, keep one per day
+            // if it is > 1 week, keep one per day
             // rename it "d31-03-2022"
             let newName = generateHistFilename(`${realFileName}`, fDate, "day")
             let newPath = `${f.folder}${newName}`
-            moveFile(f.path, newPath)
+            await moveFile(f.path, newPath)
+        } else if ( fDate.num.timestamp + p.housekeeping.keepOnePerHour_RuleTime < currDate.num.timestamp ) {
+            // if it is > 1 day, keep one per hour
+            // rename it "h31-03-2022 21h"
+            let newName = generateHistFilename(`${realFileName}`, fDate, "hour")
+            let newPath = `${f.folder}${newName}`
+            await moveFile(f.path, newPath)
         }
+        endPerf()
     })
+    
 
 }
 
@@ -119,7 +130,7 @@ const getHistoryFile = (filePath:string, date:iDateObj, action:string):iFile => 
     let res = pathToIfile(path)
     return res
 }
-const generateHistFilename = (filename:string, date:iDateObj, dateType:"full"|"day"|"week") => {
+const generateHistFilename = (filename:string, date:iDateObj, dateType:"full"|"hour"|"day"|"week") => {
     return `${filename}___${date.getCustomFormat(dateType)}.md`
 }
 
@@ -142,27 +153,27 @@ export const TEST_fileHistory_internals = {
 //
 
 
-export const createFileHistoryVersion_OLD = async (data:iApiDictionary["createHistoryFile"]) => {
-    let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
-    let endPerf = perf('createHistoryFile ' + data.filePath)
-    // IF path is inside history folder, do NOT BACKUP
-    if (data.filePath.includes(historyFolder)) return
+// export const createFileHistoryVersion_OLD = async (data:iApiDictionary["createHistoryFile"]) => {
+//     let historyFolder = `${backConfig.dataFolder}/${backConfig.configFolder}/${backConfig.historyFolder}`
+//     let endPerf = perf('createHistoryFile ' + data.filePath)
+//     // IF path is inside history folder, do NOT BACKUP
+//     if (data.filePath.includes(historyFolder)) return
 
-    // IF data.content contains --disable-history-- do NOT BACKUP
-    const disableString = `--disable-history--`
-    if (data.content.includes(disableString)) {
-        console.log(`[HISTORY] "${disableString}" found in data.filepath, NO HISTORY`);
-    } else {
+//     // IF data.content contains --disable-history-- do NOT BACKUP
+//     const disableString = `--disable-history`
+//     if (data.content.includes(disableString)) {
+//         console.log(`[HISTORY] "${disableString}" found in data.filepath, NO HISTORY`);
+//     } else {
 
-        await upsertRecursivelyFolders(`${historyFolder}/`)
+//         await upsertRecursivelyFolders(`${historyFolder}/`)
 
-        // save history note
-        let fileName = fileNameFromFilePath(data.filePath)
-        fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
-        await saveFile(`${historyFolder}/${fileName}`, data.content)
+//         // save history note
+//         let fileName = fileNameFromFilePath(data.filePath)
+//         fileName = `${formatDateHistory(new Date())}-${data.historyFileType}-${fileName}`
+//         await saveFile(`${historyFolder}/${fileName}`, data.content)
 
-        // only keep up to x days of history files
-        debounceCleanHistoryFolder()
-        endPerf()
-    }
-}
+//         // only keep up to x days of history files
+//         debounceCleanHistoryFolder()
+//         endPerf()
+//     }
+// }

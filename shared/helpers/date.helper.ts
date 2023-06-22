@@ -3,6 +3,20 @@ import { isString } from "util";
 const addZero = (nb: number) => {
 	return ('0' + nb).slice(-2);
 }
+
+// @ts-ignore
+if (!String.prototype.replaceAll) {
+	// @ts-ignore
+	String.prototype.replaceAll = function(str, newStr){
+		// If a regex pattern
+		if (Object.prototype.toString.call(str).toLowerCase() === '[object regexp]') {
+			return this.replace(str, newStr);
+		}
+		// If a string
+		return this.replace(new RegExp(str, 'g'), newStr);
+	};
+}
+
 const readDateStringInput = (dateString?: string | number): Date => {
 	let d = new Date()
 	if (!dateString || dateString === "" || dateString === "undefined") {
@@ -10,17 +24,36 @@ const readDateStringInput = (dateString?: string | number): Date => {
 		// if datestring is in a customformat, parse it
 	} else if (typeof dateString === "string") {
 		let ndateString = dateString
+		let ndateString2 = dateString
 		if (dateString.startsWith("f")) {
-			ndateString = dateString.replace("f", "").replace("h", ":").replace("m", ":").replace("-", "/").replace("_", " ")
+			// @ts-ignore
+			ndateString = dateString.replaceAll("f", "").replaceAll("h", ":").replaceAll("m", ":00").replaceAll("-", "/").replaceAll("_", " ")
+			let arr = ndateString.split("/")
+			ndateString = `${arr[1]}/${arr[0]}/${arr[2]}` //arr2 = 2021 21:13:00
+			ndateString2 = `${arr[0]}/${arr[1]}/${arr[2]}` // legacy format
 		} else if (dateString.startsWith("d")) {
-			let arr = dateString.replace("d", "").split("-")
+			// @ts-ignore
+			let arr = dateString.replaceAll("d", "").split("_")[0].split("-") 
+			// month/day/year
 			ndateString = `${arr[1]}/${arr[0]}/${arr[2]}`
 		} else if (dateString.startsWith("w")) {
-			let arr = dateString.replace("w", "").split("-")
+			// @ts-ignore
+			let arr = dateString.replaceAll("w", "").split("-")
 			let days = addZero((parseInt(arr[0])) * 7)
 			ndateString = `${arr[1]}/${days}/${arr[2]}`
+		} else if (dateString.startsWith("h")) {
+			// replace first h
+			// @ts-ignore
+			ndateString = dateString.replace("h", "").replaceAll("h", ":00:00").replaceAll("-", "/").replaceAll("_", " ")
+			let arr = ndateString.split("/")
+			ndateString = `${arr[1]}/${arr[0]}/${arr[2]}` //arr2 = 2021 21:13:00
 		}
+		let isFirstStringInvalid = Number.isNaN(new Date(ndateString).getDate())
+		// console.log(dateString, ndateString, new Date(ndateString).getDate(),  isFirstStringInvalid, ndateString2, new Date(ndateString2).getDate())
 		d = new Date(ndateString)
+		// legacy full format
+		if (isFirstStringInvalid) d = new Date(ndateString2)
+
 	} else {
 		d = new Date(dateString)
 	}
@@ -39,6 +72,7 @@ export const getDateObj = (dateString?: string | number) => {
 	let min = addZero(d.getMinutes());
 	let full = `${smonth}/${sday}/${syear} ${hour}:${min}`
 	let full_file = `${smonth}-${sday}-${syear}_${hour}h${min}m`
+	let full_file_fr = `${sday}-${smonth}-${syear}_${hour}h${min}m`
 	let date = `${smonth}/${sday}/${syear}`
 
 	let num = {
@@ -51,17 +85,18 @@ export const getDateObj = (dateString?: string | number) => {
 	// functions
 	//
 	let getWeekNb = () => Math.ceil(day / 7);
-	const getCustomFormat = (format: "full" | "day" | "week") => {
-		let dateString = `f${full_file}`
-		if (format === "day") dateString = `d${day}-${smonth}-${year}`
+	const getCustomFormat = (format: "full" | "hour" | "day" | "week") => {
+		let dateString = `f${full_file_fr}`
+		if (format === "day") dateString = `d${sday}-${smonth}-${year}`
 		if (format === "week") dateString = `w${getWeekNb()}-${smonth}-${year}`
+		if (format === "hour") dateString = `h${sday}-${smonth}-${year}_${hour}h`
 		return `${dateString}`
 	}
 
 
 	return {
 		year: syear, month: smonth, day: sday, hour, min,
-		full, num, date, raw, full_file,
+		full, num, date, raw, full_file, full_file_fr,
 		getWeekNb, getCustomFormat
 	}
 }

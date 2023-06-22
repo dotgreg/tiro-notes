@@ -26,7 +26,7 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, isBoolean, isNaN, isNumber, throttle } from "lodash";
+import { cloneDeep, each, isBoolean, isNaN, isNumber, throttle } from "lodash";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 
@@ -463,6 +463,25 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 
+	//
+	// Word Count preview
+	//
+	const getWordCountSelected = () => {
+		const s = currSelection.current
+		let selectionTxt = textContent.current.substring(s.from, s.to)
+		let arrLines = selectionTxt.split("\n")
+		let wordsCnt = 0
+		each(arrLines, line => {
+			let arrline = line.split(" ").filter(w => w !== "")
+			wordsCnt += arrline.length
+		})
+		return wordsCnt
+	}
+
+
+	//
+	// CALC PREVIEW
+	//
 	const seemsArithmetic = (str:string) => {
 		str = `${str}`
 		let res = false
@@ -470,6 +489,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (str.startsWith("(")) res = true
 		// if starts with a number
 		if (!isNaN(parseInt(str))) res = true
+
+		if (str.includes("\n")) res = false
+		if (str.length > 400) res = false
+
 		return res
 	}
 	const calcSelected = () => {
@@ -563,6 +586,15 @@ const CodeMirrorEditorInt = forwardRef((p: {
 						</span>
 						
 					}
+					{!calcSelected() &&
+						<span
+							title="Words Count"
+							className="link-action"
+						>
+							<Icon2 name="chart-line" /> <span className="result-calc">{getWordCountSelected()}</span>
+						</span>
+					}
+					
 				</div>
 			}
 
@@ -582,7 +614,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 						label={`${isAllFolded ? 'Unfold all text' : 'Fold all text'}`}
 					/>
 				</div>
-				{/* {CodeMirrorEl()} */}
 				{CodeMirrorEl}
 			</div >
 		</>
@@ -776,14 +807,14 @@ export const codeMirrorEditorCss = () => `
 .cm-scroller {
 		z-index: auto!important;
 		width: calc(100% - 30px);
-		width: calc(100% - 30px); // reduce width overall CM
-															padding-right: 35px; // make scrollbar disappear
-																									 padding-left: 5px; // some space for the gutter
-																																			.cm-content {
-				width: calc(100% - 10px); // needed otherwise x scroll
-																	overflow:hidden;
-				white-space: pre-wrap;
-		} 
+		width: calc(100% - 23px); // reduce width overall CM
+		padding-right: 35px; // make scrollbar disappear
+		padding-left: 5px; // some space for the gutter
+		.cm-content {
+		width: calc(100% - 10px); // needed otherwise x scroll
+		overflow:hidden;
+		white-space: pre-wrap;
+	} 
 }
 .cm-line {
 }
