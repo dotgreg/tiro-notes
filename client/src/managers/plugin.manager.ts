@@ -1,5 +1,7 @@
 import { each, isUndefined } from "lodash"
+import { iPlugin } from "../../../shared/types.shared"
 import { getApi } from "../hooks/api/api.hook"
+import { iEvalFuncParams } from "../hooks/api/ressource.api.hook"
 import { devCliAddFn, notifLog } from "./devCli.manager"
 
 // SUGGEST POPUP PLUGINS => loadExternalBarPlugin
@@ -24,6 +26,49 @@ export const startFrontendBackgroundPluginsCron = () => {
 }
 
 let cacheId = "plugins-cron-infos"
+
+//////////////////////////////////////////////////
+// GLOBAL : evalPluginCode
+//
+export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
+    try {
+        new Function(...codeParams.paramsNames, plugin.code)(...codeParams.paramsValues)
+    } catch (e) {
+        let message = `[ERR in ${plugin.code} plugin ${plugin.type}]:  ${JSON.stringify(e)}"`
+        console.log(message);
+        notifLog(`${message}`)
+    }
+}
+
+// const evalCodeInt = (codeTxt:string, codeParams:iPluginCodeParams) => {
+//     try {
+//         new Function(...codeParams.paramsNames, codeTxt)(...codeParams.paramsValues)
+//     } catch (e) {
+//         let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
+//         console.log(message);
+//         notifLog(`${message}`)
+//     }
+// }
+
+//'barApi', 'tiroApi'
+// const loadAndEvalExternalPlugin = (url: string, codeParams:iPluginCodeParams) => {
+//     // let noCache = !cachedPlugins.config.enabled
+//     let noCache = false
+//     getApi(api => {
+//         api.ressource.fetch(url, txt => {
+//             evalCode(txt, codeParams)
+//         }, { disableCache: noCache })
+//     })
+// }
+
+// api.ressource.fetch(url, txt => { evalCode(txt, codeParams) }, { disableCache: noCache })
+// api.ressource.fetchEval(url, codeParams)
+
+
+
+//////////////////////////////////////////////////
+// BG/CRON PLUGIN CODE
+//
 const triggerCron = () => {
     getApi(api => {
         // get the cached infos of all cron, especially the last ran date
@@ -44,15 +89,19 @@ const triggerCron = () => {
                     let lastRun = cronState[p.name]?.lastRunTime || 0
                     if (lastRun + intervalRun > now) return console.log(h, `bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
                     //  Function() the code with an api injection inside its variables 
+                    
+                    
+                    // try {
+                    //     new Function('api','state', p.code)(api, state)
+                    // } catch (error) {
+                    //     const errorStr = ` ${h}, error from bg plugin ${p.name} ${error}`
+                    //     // api.ui.notification.emit({content: errorStr, options:{hideAfter: 30, type:"warning"}})
+                    //     notifLog(`${errorStr}`)
+                    // }
+
                     console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, p)
-                    try {
-                        const state = cronState[p.name]
-                        new Function('api','state', p.code)(api, state)
-                    } catch (error) {
-                        const errorStr = ` ${h}, error from bg plugin ${p.name} ${error}`
-                        // api.ui.notification.emit({content: errorStr, options:{hideAfter: 30, type:"warning"}})
-                        notifLog(`${errorStr}`)
-                    }
+                    const state = cronState[p.name]
+                    evalPluginCode(p, {paramsNames:['api','state'], paramsValues:[api, state]})
                     
                     // update the cache
                     if (!cronState[p.name] || isUndefined( cronState[p.name])) cronState[p.name] = {vars:{}}
