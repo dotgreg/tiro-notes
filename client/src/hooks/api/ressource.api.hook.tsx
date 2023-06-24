@@ -9,11 +9,6 @@ import { each, random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
-//import * as r from '@mozilla/readability'
-// var { Readability } = require('@mozilla/reaability');
-// var Readability = require('@mozilla/readability/Readability.js');
-//@ts-ignore
-//@ts-ignore
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
