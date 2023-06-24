@@ -771,20 +771,6 @@ export const OmniBar = (p: {
 				// order alphabetically
 				// 			nOpts = orderBy(nOpts, ["label"])
 			} else if (stags.length >= 2) {
-					let plugin = stags[1].value as iPlugin
-				// console.log(pluginBarName)
-				const loadExternalBarPlugin = (url: string, bApi, tApi) => {
-					let noCache = !cachedPlugins.config.enabled
-					tiroApi.ressource.fetch(url, txt => {
-						try {
-							new Function('barApi', 'tiroApi', txt)(bApi, tApi)
-						} catch (e) {
-							let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
-							console.log(message);
-							notifLog(`${message}`)
-						}
-					}, { disableCache: noCache })
-				}
 				let barApi = {
 					input, setInputTxt, inputTxt, inputTxtRef,
 					options, setOptions,
@@ -796,17 +782,13 @@ export const OmniBar = (p: {
 					selectedTags: stags,
 					setNotePreview, notePreview,
 					setHtmlPreview, htmlPreview,
-					loadBarPlugin:loadExternalBarPlugin, disableCache: disableCachePlugins,
-					loadExternalBarPlugin
+					disableCache: disableCachePlugins,
 				}
-				// we directly eval it!
-				try {
-					new Function('barApi', 'tiroApi', plugin.code)(barApi, tiroApi)
-				} catch (e:any) {
-					let message = `[ERROR PLUGIN BAR]: ` 
-					console.log(message, e);
-					notifLog(`${message} : ${e.message}`)
-				}
+
+				let plugin = stags[1].value as iPlugin
+
+				
+				
 				
 			}
 		})

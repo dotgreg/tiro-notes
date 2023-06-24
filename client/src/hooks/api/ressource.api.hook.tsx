@@ -8,12 +8,14 @@ import { checkUrlExists } from '../../managers/url.manager'
 import { random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
+import { notifLog } from '../../managers/devCli.manager';
 //import * as r from '@mozilla/readability'
 // var { Readability } = require('@mozilla/reaability');
 // var Readability = require('@mozilla/readability/Readability.js');
 //@ts-ignore
 //@ts-ignore
 
+export interface iEvalFuncParams {paramsNames:string[], paramsValues:any[]}
 
 //
 // INTERFACES
@@ -36,6 +38,14 @@ export interface iRessourceApi {
 		options?: { 
 			disableCache?: boolean 
 			returnsPathOnly?:boolean
+		}
+	) => void,
+	
+	fetchEval: (
+		url: string,
+		params?: iEvalFuncParams,
+		options?: { 
+			disableCache?: boolean 
 		}
 	) => void,
 
@@ -161,6 +171,20 @@ export const useRessourceApi = (p: {
 	}
 
 
+	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options) => {
+		fetchRessource(url, (codeTxt)=> {
+			try {
+				if (!funcParams) funcParams = {paramsNames:[], paramsValues:[]}
+				new Function(...funcParams.paramsNames, codeTxt)(...funcParams.paramsValues)
+			} catch (e) {
+				let message = `[ERROR LOADING REMOTE CODE]: ${JSON.stringify(e)}"`
+				console.log(message);
+				notifLog(`${message}`)
+			}
+		}, options)
+	}
+
+
 	//
 	// EXPORTS
 	//
@@ -168,7 +192,8 @@ export const useRessourceApi = (p: {
 		delete: deleteRessource,
 		download: downloadRessource,
 		fetch: fetchRessource,
-		fetchUrlArticle
+		fetchEval,
+		fetchUrlArticle,
 	}
 
 	return ressourceApi
