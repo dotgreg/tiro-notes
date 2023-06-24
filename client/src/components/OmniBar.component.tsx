@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
-import { debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
+import { add, debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
 import { iFile, iPlugin } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
@@ -15,7 +15,13 @@ import { Icon, Icon2 } from './Icon.component';
 import { notifLog } from '../managers/devCli.manager';
 import { fileToNoteLink } from '../managers/noteLink.manager';
 import { generateUUID } from '../../../shared/helpers/id.helper';
+import { useBackendState } from '../hooks/useBackendState.hook';
 
+const omniParams = {
+	search: {
+		charsStart: 2
+	}
+}
 
 interface iOptionOmniBar {
 	value: string
@@ -23,12 +29,15 @@ interface iOptionOmniBar {
 	// type: "filePath" | "folder"
 	payload?: {
 		file?: iFile
+		line?: string
+		options?: iOptionOmniBar[]
 	}
 }
 
 const modeLabels = {
 	search: "[Search Mode]",
 	explorer: "[Explorer Mode]",
+	history: "[History Mode]",
 	plugin: "[Plugin Mode]"
 }
 
@@ -57,16 +66,16 @@ export const OmniBar = (p: {
 	}, [omniBarStatus])
 
 
-	const [selectedOption, setSelectedOptionInt] = useState<any[]>([]);
-	const selectedOptionRef = useRef<any[]>([])
-	const setSelectedOption = (nArr: any[]) => {
+	const [selectedOption, setSelectedOptionInt] = useState<iOptionOmniBar[]>([]);
+	const selectedOptionRef = useRef<iOptionOmniBar[]>([])
+	const setSelectedOption = (nArr: iOptionOmniBar[]) => {
 		
 		if (!isArray(nArr)) return
 		setSelectedOptionInt(nArr)
 		selectedOptionRef.current = nArr
 	}
-	const [options, setOptionsInt] = useState<any[]>([]);
-	const setOptions = (nVal: any[]) => {
+	const [options, setOptionsInt] = useState<iOptionOmniBar[]>([]);
+	const setOptions = (nVal: iOptionOmniBar[]) => {
 		onOptionsChange(nVal)
 		setOptionsInt(nVal)
 	}
@@ -288,6 +297,10 @@ export const OmniBar = (p: {
 			if (inTxt === ":") {
 				startPluginMode()
 			}
+
+			if (inTxt === ",") {
+				startHistoryMode()
+			}
 		}
 		else if (stags[0].label === modeLabels.search) {
 			searchModeLogic(stags, inTxt)
@@ -323,6 +336,9 @@ export const OmniBar = (p: {
 		else if (stags[0].label === modeLabels.plugin) {
 			triggerPluginLogic(inTxt, stags)
 		}
+		else if (stags[0].label === modeLabels.history) {
+			triggerHistoryModeLogic(inTxt, stags)
+		}
 	}
 
 	useEffect(() => {
@@ -334,7 +350,7 @@ export const OmniBar = (p: {
 	// }, [options])
 
 
-	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for search mode, "/" for explorer mode, ":" for plugin mode`
+	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for search mode, "/" for explorer mode, ":" for plugin mode, "," for history mode`
 	const [help, setHelp] = useState(baseHelp)
 
 
@@ -386,7 +402,7 @@ export const OmniBar = (p: {
 
 		console.log("== EXPLORER", folderPath);
 
-		setOptions([{ label: "loading..." }])
+		setOptions([{ label: "loading...", value:""}])
 		// setNotePreview(null)
 		setOmniBarStatus("locked")
 
@@ -509,7 +525,7 @@ export const OmniBar = (p: {
 		} else if (stags.length === 2) {
 			// STEP 1-2 : show searched results
 			setPreviewType("editor")
-			reactToSearchTyping(inTxt, stags[1].label)
+			reactToSearchTyping(inTxt, stags[1].label, stags)
 
 		} else if (stags.length === 3 && wordSearched.current === stags[2].value) {
 			setPreviewType("preview")
@@ -518,19 +534,20 @@ export const OmniBar = (p: {
 		} else if (stags.length === 3 || stags.length === 4) {
 			console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
 			let last = stags.length - 1
+			if (!stags[last].payload?.file) return
 			let file = stags[last].payload.file as iFile
 			jumpToPath(file.path)
 		}
 	}
 
 	const wordSearched = useRef<string | null>(null)
-	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string) => {
+	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string, options:iOptionOmniBar[]) => {
 		let path = folder
 		let input = inputTxt
 
-		if (!(input && path && input.length > 2 && path.length > 0)) {
+		if (!(input && path && input.length >= omniParams.search.charsStart && path.length > 0)) {
 			//
-			// STEP 2: type a word
+			// STEP 2: type a word n search
 			//
 			setHelp(`Type the searched word`)
 			setOptions([])
@@ -538,7 +555,7 @@ export const OmniBar = (p: {
 			setNotePreview(null)
 			wordSearched.current = ""
 			// lastPathForSearch = st
-
+			
 			
 			
 
@@ -548,7 +565,7 @@ export const OmniBar = (p: {
 			// STEP 3: search for word API
 			//
 			setHelp(`Searching "${input}" in "${path}" ...`)
-			setOptions([{ label: "loading..." }])
+			setOptions([{ label: "loading...", value:"" }])
 
 			let isRegex = input.includes("*")
 
@@ -556,11 +573,11 @@ export const OmniBar = (p: {
 			setOptions(nOpts)
 
 			wordSearched.current = input
+			addToOmniHistory([...options, {label: input, value: input}])
 
 			
 			getApi(api => {
 				api.search.word(input, path, res => { 
-					// console.log(55555555, res)
 					each(res, (fileRes) => {
 						each(fileRes.results, occurRaw => {
 
@@ -642,7 +659,73 @@ export const OmniBar = (p: {
 
 
 
+///////////////////////////////////////////////////////////////////////////////
+	// @ HISTORY MODE
+	//
+	const startHistoryMode = () => {
+		setSelectedOption([
+			{ value: modeLabels.history, label: modeLabels.history },
+		])
 
+	}
+	useEffect(() => {
+		refreshOmniHistFromBackend()
+	}, [])
+
+	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
+	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [])
+	const getOmniHistory = ():iOmniHistoryItem[] => {
+		return omniHistoryInt
+	}
+	const addToOmniHistory = (options:iOptionOmniBar[]) => {
+		let labels:string[] = []
+		each(options, o => {labels.push(o.label)})
+		const id = labels.join(" ")
+		const nItem = {options, id}
+
+		// filter out prev items with same id
+		const oldItems = omniHistoryInt.filter(i => i.id !== id)
+		const nItems = [nItem, ...oldItems]
+
+		// only keep 100 requests
+		if (nItems.length > 100) nItems.splice(0, 100)
+		console.log("[HIST mode] add to omnihist ",{ nItem, nItems})
+
+		setOmniHistoryInt(nItems)
+	}
+		
+
+
+	const triggerHistoryModeLogic = (input: string, stags: iOptionOmniBar[]) => {
+		setNotePreview(null)
+		if (!stags[1]) {
+			// LOAD HISTORY
+			const items = getOmniHistory()
+			let nOpts: any = []
+			setOptions(nOpts)
+			each(items, i => {
+				nOpts.push({ label: i.id, value:  i.id, payload: i })
+			} )
+			setHelp(`history mode`)
+			setOptions(nOpts)
+
+			if (input === ",") {
+				setInputTxt("")
+			}
+		} else if (stags[1]) {
+			console.log("HIST selected", stags[1])
+			let nSelectedOptions = stags[1].payload?.options
+			if (!nSelectedOptions) return
+			// if first tag is search, destructure last option to inputTxt
+			let lastItem = nSelectedOptions.pop()
+			if (lastItem) setInputTxt(lastItem.label)
+			setSelectedOption(nSelectedOptions)
+		}
+		
+
+	
+	}
+	// const onChangeUpdatePlugin = useRef<any>(null)
 
 
 
@@ -825,6 +908,7 @@ export const OmniBar = (p: {
 				let bg = style["background-color"]
 				if (bg !== "rgba(0, 0, 0, 0)" && options[id] && options[id].payload) {
 					let payload = options[id].payload
+					if (!payload) return
 					let file = payload.file as iFile
 					let line = payload.line || undefined
 					onActiveOptionChange(file, line)
