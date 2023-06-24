@@ -24,6 +24,8 @@ const omniParams = {
 	}
 }
 
+const loadingLabelOpt = [{ label: "loading...", value:""}]
+
 interface iOptionOmniBar {
 	value: string
 	label: any
@@ -403,7 +405,7 @@ export const OmniBar = (p: {
 
 		console.log("== EXPLORER", folderPath);
 
-		setOptions([{ label: "loading...", value:""}])
+		setOptions()
 		// setNotePreview(null)
 		setOmniBarStatus("locked")
 
@@ -566,7 +568,7 @@ export const OmniBar = (p: {
 			// STEP 3: search for word API
 			//
 			setHelp(`Searching "${input}" in "${path}" ...`)
-			setOptions([{ label: "loading...", value:"" }])
+			setOptions(loadingLabelOpt)
 
 			let isRegex = input.includes("*")
 
@@ -782,8 +784,7 @@ export const OmniBar = (p: {
 				}
 
 				let plugin = stags[1].value as iPlugin
-
-				// evalPluginCode(plugin,['barApi', 'tiroApi'], [barApi, tiroApi])
+				setOptions(loadingLabelOpt)
 				getApi(tiroApi => {
 					evalPluginCode(plugin,{barApi, tiroApi})
 				})
