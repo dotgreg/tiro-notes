@@ -9,6 +9,7 @@ import { each, random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
+import { tryCatch } from '../../managers/tryCatch.manager';
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
@@ -104,11 +105,12 @@ export const useRessourceApi = (p: {
 			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
-				try {
-					cb(data, localStaticPath)
-				} catch (error) {
-					notifLog(`${error}`)
-				}
+				// try {
+				// 	cb(data, localStaticPath)
+				// } catch (error) {
+				// 	notifLog(`${error}`)
+				// }
+				tryCatch(() => cb(data, localStaticPath))
 			})
 		}
 		const returnFilePath = () => { cb("", localStaticPath) }
@@ -173,6 +175,7 @@ export const useRessourceApi = (p: {
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options) => {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
+		console.log(h, "fetchEval", url, funcParams, options)
 		const evalCode = (codeTxt:string) => {
 			try {
 				const paramsNames:string[] = []
