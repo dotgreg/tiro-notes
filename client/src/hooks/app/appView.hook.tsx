@@ -3,7 +3,6 @@ import { iAppView } from '../../../../shared/types.shared';
 import { ButtonsToolbar, iToolbarButton } from '../../components/ButtonsToolbar.component';
 import { deviceType, MobileView } from '../../managers/device.manager';
 import { strings } from '../../managers/strings.manager';
-import { useBackendState } from '../useBackendState.hook';
 
 export type iSwitchTypeViewFn = (view: iAppView) => void
 export type onViewSwitchedFn = (view: iAppView) => void
