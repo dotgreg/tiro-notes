@@ -41,7 +41,7 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
         new Function(...paramsNames, plugin.code)(...paramsValues)
     } catch (e) {
         let message = `[ERR in ${plugin.type} plugin ${plugin.name}]:  ${JSON.stringify(e)}"`
-        console.log(message);
+        console.log(message, {paramsNames, paramsValues, plugin});
         notifLog(`${message}`)
     }
 }
