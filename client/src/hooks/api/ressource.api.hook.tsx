@@ -38,8 +38,6 @@ export interface iRessourceApi {
 	
 	fetchEval: (
 		url: string,
-		// paramsNames?: iEvalFuncParams["paramsNames"],
-		// paramsValues?: iEvalFuncParams["paramsValues"],
 		params?: iEvalFuncParams,
 		options?: { 
 			disableCache?: boolean 
@@ -144,7 +142,6 @@ export const useRessourceApi = (p: {
 	const fetchUrlArticle: iRessourceApi['fetchUrlArticle'] = (url, cb, options) => {
 
 		const readabilityUrl = `https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js`
-		console.log(11, url)
 		fetchRessource(readabilityUrl, readabilityTxt => {
 			// nothing works except the eval
 			const r1 = eval(readabilityTxt)
@@ -172,9 +169,11 @@ export const useRessourceApi = (p: {
 	}
 
 
-	// api.ressource.fetchEval(url, {tiroApi:api, otherApi:api2})
+	const ramFetchEvalCache = {}
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options) => {
-		fetchRessource(url, (codeTxt)=> {
+		if (!options) options = {}
+		if (!options.disableCache) options.disableCache = false
+		const evalCode = (codeTxt:string) => {
 			try {
 				const paramsNames:string[] = []
 				const paramsValues:any[] = []
@@ -188,7 +187,15 @@ export const useRessourceApi = (p: {
 				console.log(message);
 				notifLog(`${message}`)
 			}
-		}, options)
+		}
+		if (!ramFetchEvalCache[url] || options.disableCache) {
+			fetchRessource(url, (codeTxt)=> {
+				evalCode(codeTxt)
+				ramFetchEvalCache[url] = codeTxt
+			}, options)
+		} else {
+			evalCode(ramFetchEvalCache[url])
+		}
 	}
 
 
