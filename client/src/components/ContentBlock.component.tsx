@@ -15,6 +15,7 @@ import { sharedConfig } from '../../../shared/shared.config';
 import { defocusMouse } from '../managers/focus.manager';
 import { getCtagContent } from '../managers/ctag.manager';
 import { isMobile } from '../managers/device.manager';
+import { notifLog } from '../managers/devCli.manager';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -221,6 +222,7 @@ export const ContentBlockTagView = (p: {
 				// const err = escapeHtml(m.data.error)
 				const err = m.data.error
 				setIframeError(err)
+				notifLog(`${err}`)
 			}
 
 

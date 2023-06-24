@@ -48,6 +48,7 @@ export const devHook = (id: string) => (...p) => {
 //devCliAddFn()
 
 export const notifLog = (str) => {
+	console.log("[NOTIF LOG]: ", str)
 	getApi(api => {
 		api.ui.notification.emit({content: str, options:{hideAfter: 60, type:"warning", keepInHistory: true}})
 	})

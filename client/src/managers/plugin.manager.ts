@@ -31,37 +31,21 @@ let cacheId = "plugins-cron-infos"
 // GLOBAL : evalPluginCode
 //
 export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
+    const paramsNames:string[] = []
+    const paramsValues:any[] = []
+    each(codeParams, (value, name) => {
+        paramsNames.push(name)
+        paramsValues.push(value)
+    })
     try {
-        new Function(...codeParams.paramsNames, plugin.code)(...codeParams.paramsValues)
+        new Function(...paramsNames, plugin.code)(...paramsValues)
     } catch (e) {
-        let message = `[ERR in ${plugin.code} plugin ${plugin.type}]:  ${JSON.stringify(e)}"`
+        let message = `[ERR in ${plugin.type} plugin ${plugin.name}]:  ${JSON.stringify(e)}"`
         console.log(message);
         notifLog(`${message}`)
     }
 }
 
-// const evalCodeInt = (codeTxt:string, codeParams:iPluginCodeParams) => {
-//     try {
-//         new Function(...codeParams.paramsNames, codeTxt)(...codeParams.paramsValues)
-//     } catch (e) {
-//         let message = `[ERROR LOADING PLUGIN BAR]: ${JSON.stringify(e)}"`
-//         console.log(message);
-//         notifLog(`${message}`)
-//     }
-// }
-
-//'barApi', 'tiroApi'
-// const loadAndEvalExternalPlugin = (url: string, codeParams:iPluginCodeParams) => {
-//     // let noCache = !cachedPlugins.config.enabled
-//     let noCache = false
-//     getApi(api => {
-//         api.ressource.fetch(url, txt => {
-//             evalCode(txt, codeParams)
-//         }, { disableCache: noCache })
-//     })
-// }
-
-// api.ressource.fetch(url, txt => { evalCode(txt, codeParams) }, { disableCache: noCache })
 // api.ressource.fetchEval(url, codeParams)
 
 
@@ -99,7 +83,7 @@ const triggerCron = () => {
                     //     notifLog(`${errorStr}`)
                     // }
 
-                    console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, p)
+                    console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`)
                     const state = cronState[p.name]
                     evalPluginCode(p, {paramsNames:['api','state'], paramsValues:[api, state]})
                     

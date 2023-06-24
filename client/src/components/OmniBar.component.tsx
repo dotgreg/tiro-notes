@@ -16,6 +16,7 @@ import { notifLog } from '../managers/devCli.manager';
 import { fileToNoteLink } from '../managers/noteLink.manager';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { useBackendState } from '../hooks/useBackendState.hook';
+import { evalPluginCode } from '../managers/plugin.manager';
 
 const omniParams = {
 	search: {
@@ -765,11 +766,6 @@ export const OmniBar = (p: {
 						setHelp(`${nOpts.length} bar plugins found`)
 					})
 				
-				// nOpts.push({ label: f.name.replace('.md', ''), value: f })
-				// if (input === ":") setInputTxt("")
-				// setHelp(`${files.length} plugins found in "${pluginsBarFolder}"`)
-				// order alphabetically
-				// 			nOpts = orderBy(nOpts, ["label"])
 			} else if (stags.length >= 2) {
 				let barApi = {
 					input, setInputTxt, inputTxt, inputTxtRef,
@@ -787,9 +783,10 @@ export const OmniBar = (p: {
 
 				let plugin = stags[1].value as iPlugin
 
-				
-				
-				
+				// evalPluginCode(plugin,['barApi', 'tiroApi'], [barApi, tiroApi])
+				getApi(tiroApi => {
+					evalPluginCode(plugin,{barApi, tiroApi})
+				})
 			}
 		})
 

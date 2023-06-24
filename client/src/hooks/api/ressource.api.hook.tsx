@@ -5,7 +5,7 @@ import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.mana
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 import { checkUrlExists } from '../../managers/url.manager'
-import { random } from 'lodash';
+import { each, random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
@@ -15,7 +15,7 @@ import { notifLog } from '../../managers/devCli.manager';
 //@ts-ignore
 //@ts-ignore
 
-export interface iEvalFuncParams {paramsNames:string[], paramsValues:any[]}
+export interface iEvalFuncParams {[paramsNames:string]:any}
 
 //
 // INTERFACES
@@ -43,6 +43,8 @@ export interface iRessourceApi {
 	
 	fetchEval: (
 		url: string,
+		// paramsNames?: iEvalFuncParams["paramsNames"],
+		// paramsValues?: iEvalFuncParams["paramsValues"],
 		params?: iEvalFuncParams,
 		options?: { 
 			disableCache?: boolean 
@@ -109,7 +111,11 @@ export const useRessourceApi = (p: {
 			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
-				cb(data, localStaticPath)
+				try {
+					cb(data, localStaticPath)
+				} catch (error) {
+					notifLog(`${error}`)
+				}
 			})
 		}
 		const returnFilePath = () => { cb("", localStaticPath) }
@@ -171,11 +177,17 @@ export const useRessourceApi = (p: {
 	}
 
 
+	// api.ressource.fetchEval(url, {tiroApi:api, otherApi:api2})
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options) => {
 		fetchRessource(url, (codeTxt)=> {
 			try {
-				if (!funcParams) funcParams = {paramsNames:[], paramsValues:[]}
-				new Function(...funcParams.paramsNames, codeTxt)(...funcParams.paramsValues)
+				const paramsNames:string[] = []
+				const paramsValues:any[] = []
+				each(funcParams, (value, name) => {
+					paramsNames.push(name)
+					paramsValues.push(value)
+				})
+				new Function(...paramsNames, codeTxt)(...paramsValues)
 			} catch (e) {
 				let message = `[ERROR LOADING REMOTE CODE]: ${JSON.stringify(e)}"`
 				console.log(message);
