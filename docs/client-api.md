@@ -533,6 +533,16 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetch",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableCache?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;returnsPathOnly?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(urlContent: <span class="render-code-wrapper">string</span>, urlPath: <span class="render-code-wrapper">string</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">ressource.fetchEval</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. url: <span class="render-code-wrapper">string</span>
+       1. params: <span class="render-code-wrapper"><a href="#client-api?id=ievalfuncparams">iEvalFuncParams</a></span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableCache?: <span class="render-code-wrapper">boolean</span><br/>}</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetchEval",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=ievalfuncparams">iEvalFuncParams</a></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableCache?: <span class="render-code-wrapper">boolean</span><br/>}</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ressource.fetchUrlArticle</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1033,6 +1043,12 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;code: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options: <span class="render-code-wrapper"><a href="#client-api?id=ipluginoptions">iPluginOptions</a></span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=iplugintype">iPluginType</a></span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iEvalFuncParams</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iNotePart</span>
