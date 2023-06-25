@@ -32,7 +32,7 @@ tiroApi.file.getContent(config.calNotePath, noteContent => {
             [CALENDAR] <br>
             ${title}  <br> 
             <b>${events[i].title}</b><br> 
-            ${body}
+            <div style="color:#acacac; font-size:10px;">${body}</div>
         `
         tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter: -1}})
     }
