@@ -27,11 +27,12 @@ tiroApi.file.getContent(config.calNotePath, noteContent => {
     }
     
     const sendNotif = (event, title) => {
+        let body = event.body.trim().startsWith("http") ? `<a href="${event.body}" target="_blank">${event.body}</a>` : e.body
         notifHtml = `
             [CALENDAR] <br>
             ${title}  <br> 
             <b>${events[i].title}</b><br> 
-            ${events[i].body}
+            ${body}
         `
         tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter: -1}})
     }
