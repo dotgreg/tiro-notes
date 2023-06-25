@@ -186,8 +186,8 @@ export const useRessourceApi = (p: {
 				})
 				new Function(...paramsNames, codeTxt)(...paramsValues)
 			} catch (e) {
-				let message = `[ERR remote code (api.ress.fetchEval)]: ${e} <br>(more infos in console)`
-				console.log(message, e);
+				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
+				console.log(message, e, {url, funcParams, options});
 				notifLog(`${message}`)
 			}
 		}

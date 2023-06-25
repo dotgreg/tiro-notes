@@ -15,7 +15,6 @@ tiroApi.file.getContent(config.calNotePath, noteContent => {
             let title = p[0] ? p[0] : ""
             let start = p[1] ? new Date(p[1]) : false
             let body = p[2] ? p[2] : ""
-            // console.log(11113, l)
 
             if (title && start) {
                 events.push({
