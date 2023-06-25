@@ -447,10 +447,11 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. pluginName: <span class="render-code-wrapper">string</span>
+       1. pluginType: <span class="render-code-wrapper"><a href="#client-api?id=iplugintype">iPluginType</a></span>
     - Result: <span class="render-code-wrapper">(plugin: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(plugin: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=iplugintype">iPluginType</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(plugin: <span class="render-code-wrapper">"null" | "undefined"</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">plugins.list</span>
@@ -539,8 +540,10 @@ noteLink should be relative from tiro folder
        1. url: <span class="render-code-wrapper">string</span>
        1. params: <span class="render-code-wrapper"><a href="#client-api?id=ievalfuncparams">iEvalFuncParams</a></span>
        1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableCache?: <span class="render-code-wrapper">boolean</span><br/>}</span>
+    - Result: <span class="render-code-wrapper">(evalRes: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetchEval",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=ievalfuncparams">iEvalFuncParams</a></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableCache?: <span class="render-code-wrapper">boolean</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetchEval",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=ievalfuncparams">iEvalFuncParams</a></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableCache?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(evalRes: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">ressource.fetchUrlArticle</span>
@@ -1027,16 +1030,16 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;picture?: <span class="render-code-wrapper">string</span><br/>}</span></div>
  
 
-#### <span class="render-code-wrapper">iPluginOptions</span>
- - Type: <span class="render-code-wrapper">object</span> 
- - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;background_exec_interval_in_min?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;disabled?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
- 
-
 #### <span class="render-code-wrapper">iPluginType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">"background" | "bar" | "tag"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPluginOptions</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;background_exec_interval_in_min?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;disabled?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iPlugin</span>
