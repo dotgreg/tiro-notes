@@ -600,10 +600,12 @@ export const OmniBar = (p: {
 							let occurLabel = o.replaceAll(input, `<b>${input}</b>`)
 
 
-							let htmlOption = `<div class="path-option-wrapper">
-								<div class="search-location">{location}</div>
-								<div class="occur-wrapper"> ${occurLabel}</div>
-							</div>`
+							let htmlOption = <div className="path-option-wrapper">
+								<div className="search-location">{location}</div>
+								<div className="occur-wrapper" dangerouslySetInnerHTML={{
+										__html: occurLabel
+									}}/>
+							</div>
 
 							nOpts.push({
 								label: htmlOption,
