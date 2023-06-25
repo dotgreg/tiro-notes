@@ -186,8 +186,8 @@ export const useRessourceApi = (p: {
 				})
 				new Function(...paramsNames, codeTxt)(...paramsValues)
 			} catch (e) {
-				let message = `[ERROR LOADING REMOTE CODE]: ${JSON.stringify(e)}"`
-				console.log(message);
+				let message = `[ERR remote code (api.ress.fetchEval)]: ${e} <br>(more infos in console)`
+				console.log(message, e);
 				notifLog(`${message}`)
 			}
 		}

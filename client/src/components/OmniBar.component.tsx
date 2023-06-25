@@ -80,9 +80,9 @@ export const OmniBar = (p: {
 	const [options, setOptionsInt] = useState<iOptionOmniBar[]>([]);
 	const setOptions = (nVal: iOptionOmniBar[]) => {
 		// adding html support
-		each(nVal, o => {
-			o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
-		})
+		// each(nVal, o => {
+		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
+		// })
 		onOptionsChange(nVal)
 		setOptionsInt(nVal)
 	}
