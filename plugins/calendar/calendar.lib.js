@@ -67,7 +67,7 @@ const sendNotif = (event, title) => {
     notifHtml = `
         [CALENDAR] <br>
         ${title}  <br> 
-        <b>${events[i].title}</b><br> 
+        <b>${event.title}</b><br> 
         <div style="color:#acacac; font-size:10px;">${body}</div>
     `
     tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter: -1}})
