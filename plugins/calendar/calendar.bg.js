@@ -4,7 +4,7 @@ const h = `[CALENDAR BG | ${curr.getHours()}h${curr.getMinutes()}] `
 let s = bgState.vars
 
 const fetchLibs = (cb) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: true}, calendarLib => {
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: true}, calendarLib => {
         cb(calendarLib)
     })
 }
