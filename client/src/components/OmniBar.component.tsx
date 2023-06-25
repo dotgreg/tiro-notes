@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
-import { add, debounce, each, isArray, isNumber, orderBy, random } from 'lodash';
+import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
 import { iFile, iPlugin } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
@@ -27,7 +27,7 @@ const omniParams = {
 const loadingLabelOpt = [{ label: "loading...", value:""}]
 
 interface iOptionOmniBar {
-	value: string
+	value: any
 	label: any
 	// type: "filePath" | "folder"
 	payload?: {
@@ -79,6 +79,10 @@ export const OmniBar = (p: {
 	}
 	const [options, setOptionsInt] = useState<iOptionOmniBar[]>([]);
 	const setOptions = (nVal: iOptionOmniBar[]) => {
+		// adding html support
+		each(nVal, o => {
+			o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
+		})
 		onOptionsChange(nVal)
 		setOptionsInt(nVal)
 	}
@@ -405,7 +409,7 @@ export const OmniBar = (p: {
 
 		console.log("== EXPLORER", folderPath);
 
-		setOptions()
+		setOptions(loadingLabelOpt)
 		// setNotePreview(null)
 		setOmniBarStatus("locked")
 
@@ -596,12 +600,10 @@ export const OmniBar = (p: {
 							let occurLabel = o.replaceAll(input, `<b>${input}</b>`)
 
 
-							let htmlOption = <div className="path-option-wrapper">
-								<div className="search-location">{location}</div>
-								<div className="occur-wrapper"
-									dangerouslySetInnerHTML={{ __html: occurLabel }} >
-								</div>
-							</div>
+							let htmlOption = `<div class="path-option-wrapper">
+								<div class="search-location">{location}</div>
+								<div class="occur-wrapper"> ${occurLabel}</div>
+							</div>`
 
 							nOpts.push({
 								label: htmlOption,
@@ -928,6 +930,7 @@ export const OmniBar = (p: {
 
 	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
 	
+	
 
 	//
 	// RENDERING
@@ -970,6 +973,7 @@ export const OmniBar = (p: {
 							onInputChange={onInputChange}
 							onFocus={onFocus}
 
+							// options={options}
 							options={options}
 							// isClearable={false}
 							styles={styles}

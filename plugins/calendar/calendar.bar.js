@@ -33,7 +33,7 @@ tiroApi.file.getContent(config.calNotePath, noteContent => {
     // SORT
     // 1 future first
     const sortByDate = (arr) => arr.sort((a,b) => {
-    return new Date(b.date) - new Date(a.date);
+        return new Date(b.date) - new Date(a.date);
     });
 
     let sortedEvents = sortByDate(events)
@@ -41,7 +41,6 @@ tiroApi.file.getContent(config.calNotePath, noteContent => {
 
     // delete all lower than today + limit to 10 + reverse
     events = events.filter(el => new Date(el.date) > new Date() - (60*60*24*1000)).reverse().splice( 0, 10);
-
     let dLabels = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
     
     let res = []
@@ -55,7 +54,8 @@ tiroApi.file.getContent(config.calNotePath, noteContent => {
 
         let dLabel = `${dLabels[e.date.getDay()]}`
         let sDate = new Date(e.date).toLocaleString().split(" ")[0]
-        let r = `[${labelFrom} > ${dLabel} ${sDate}] ${e.title.toUpperCase()}${e.body.length > 1 ? " | ":""}${e.body} ` 
+        let body = e.body.trim().startsWith("http") ? `<a href="${e.body}" target="_blank">${e.body}</a>` : e.body
+        let r = `[${labelFrom} > ${dLabel} ${sDate}] <br/><b>${e.title.toUpperCase()}</b><div style="color:#acacac;">${body}</div> ` 
         res.push({label:r,value:""})
     }
     
