@@ -1,4 +1,4 @@
-const notifUniqId = "uniq-notif-id-calendar"
+
 const curr = new Date()
 const h = `[CALENDAR BG | ${curr.getHours()}h${curr.getMinutes()}] `
 let s = bgState.vars

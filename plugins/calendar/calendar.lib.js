@@ -1,3 +1,4 @@
+const notifUniqId = "uniq-notif-id-calendar"
 const h = `[CALENDAR LIB] `
 const getEventsList = (calNotePath, cb) => {
     tiroApi.file.getContent(calNotePath, noteContent => {
@@ -67,7 +68,7 @@ const sendNotif = (event, title) => {
     notifHtml = `
         [CALENDAR] <br>
         ${title}  <br> 
-        <b>${event.title}</b><br> 
+        <b>${event[i].title}</b><br> 
         <div style="color:#acacac; font-size:10px;">${body}</div>
     `
     tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter: -1}})
