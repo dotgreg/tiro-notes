@@ -39,16 +39,16 @@ const main = (calendarLib) => {
                 console.log(h, "isForTomorrow + is2pm", e)
                 let title = `Tomorrow`
                 if (!isDayEvent) title += atStr
-                sendNotif(e, title)
+                calendarLib.sendNotif(e, title)
             }
             if (!isDayEvent && isIn10m) {
                 console.log(h, "isIn10m", e)
-                sendNotif(e, `In 10 minutes,${atStr}` )
                 tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2870/2870.wav")
+                calendarLib.sendNotif(e, `In 10 minutes,${atStr}` )
             }
             if (!isDayEvent && isIn1h) {
                 console.log(h, "isIn1h", e)
-                sendNotif(e, `In 1 hour,${atStr}`)
+                calendarLib.sendNotif(e, `In 1 hour,${atStr}`)
             }
         }
         
