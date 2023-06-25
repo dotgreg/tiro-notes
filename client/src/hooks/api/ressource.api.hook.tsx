@@ -42,7 +42,8 @@ export interface iRessourceApi {
 		params?: iEvalFuncParams,
 		options?: { 
 			disableCache?: boolean 
-		}
+		},
+		cb?: (evalRes:any) => void,
 	) => void,
 
 	fetchUrlArticle: (
@@ -172,10 +173,10 @@ export const useRessourceApi = (p: {
 
 
 	const ramFetchEvalCache = {}
-	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options) => {
+	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options, cb) => {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
-		console.log(h, "fetchEval", url, funcParams, options)
+		// console.log(h, "fetchEval", url, funcParams, options)
 		const evalCode = (codeTxt:string) => {
 			try {
 				const paramsNames:string[] = []
@@ -184,7 +185,8 @@ export const useRessourceApi = (p: {
 					paramsNames.push(name)
 					paramsValues.push(value)
 				})
-				new Function(...paramsNames, codeTxt)(...paramsValues)
+				let res = new Function(...paramsNames, codeTxt)(...paramsValues)
+				cb && cb(res)
 			} catch (e) {
 				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
 				console.log(message, e, {url, funcParams, options});
