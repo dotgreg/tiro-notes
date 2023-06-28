@@ -1,7 +1,7 @@
 import { sortBy } from "lodash"
 import { useEffect } from "react"
 import { sharedConfig } from "../../../../shared/shared.config"
-import { iPlugin } from "../../../../shared/types.shared"
+import { iPlugin, iPluginType } from "../../../../shared/types.shared"
 import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { getLoginToken } from "../app/loginToken.hook"
 import { genIdReq, getApi, iApiEventBus } from "./api.hook"
@@ -16,6 +16,7 @@ export interface iPluginsApi {
 	) => void,
 	get: (
 		pluginName:string, 
+		pluginType:iPluginType, 
 		cb:(plugin:iPlugin|null) => void
 	) => void,
 	cronCache: {
@@ -76,9 +77,9 @@ export const usePluginsApi = (p: {
 		})
 	}
 
-	const getPlugin: iPluginsApi['get'] = (name, cb) => {
+	const getPlugin: iPluginsApi['get'] = (name, type, cb) => {
 		listPlugins((plugins,log) => {
-			let res = plugins.filter(p => p.name === name)[0] || null
+			let res = plugins.filter(p => p.name === name && p.type === type)[0] || null
 			cb(res)
 		})
 	}

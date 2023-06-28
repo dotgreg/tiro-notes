@@ -388,8 +388,9 @@ export const askFolderDelete: iFolderDeleteFn = (typeFolder, cacheFolderName) =>
 	})
 }
 
-devCliAddFn("cache", "clean_ctag_cache", () => {
+devCliAddFn("cache", "clean_cache", () => {
 	getApi(api => {
 		api.folders.delete("cache", "ctag-ressources")
+		api.folders.delete("cache", "fetch")
 	})
 })
