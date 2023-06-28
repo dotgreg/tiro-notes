@@ -40,8 +40,8 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
     try {
         new Function(...paramsNames, plugin.code)(...paramsValues)
     } catch (e) {
-        let message = `[ERR in ${plugin.type} plugin ${plugin.name}]:  ${JSON.stringify(e)}"`
-        console.log(message, {paramsNames, paramsValues, plugin});
+        let message = `[ERR in ${plugin.type} plugin ${plugin.name}]:  ${e}`
+        console.log(message, e, {paramsNames, paramsValues, plugin});
         notifLog(`${message}`)
     }
 }
@@ -85,7 +85,7 @@ const triggerCron = () => {
 
                     console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`)
                     const state = cronState[p.name]
-                    evalPluginCode(p, {paramsNames:['api','state'], paramsValues:[api, state]})
+                    evalPluginCode(p, {tiroApi:api, bgState:state})
                     
                     // update the cache
                     if (!cronState[p.name] || isUndefined( cronState[p.name])) cronState[p.name] = {vars:{}}

@@ -53,7 +53,7 @@ export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) =>
     // 2 PLUGINS
     } else {
       getApi(api => {
-        api.plugins.get(ctagName, res => {
+        api.plugins.get(ctagName, "tag", res => {
           if (res && res.type === "tag") {
             cb(res.code)
           } else {

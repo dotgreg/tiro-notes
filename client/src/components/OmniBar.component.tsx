@@ -80,9 +80,9 @@ export const OmniBar = (p: {
 	const [options, setOptionsInt] = useState<iOptionOmniBar[]>([]);
 	const setOptions = (nVal: iOptionOmniBar[]) => {
 		// adding html support
-		each(nVal, o => {
-			o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
-		})
+		// each(nVal, o => {
+		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
+		// })
 		onOptionsChange(nVal)
 		setOptionsInt(nVal)
 	}
@@ -600,10 +600,12 @@ export const OmniBar = (p: {
 							let occurLabel = o.replaceAll(input, `<b>${input}</b>`)
 
 
-							let htmlOption = `<div class="path-option-wrapper">
-								<div class="search-location">{location}</div>
-								<div class="occur-wrapper"> ${occurLabel}</div>
-							</div>`
+							let htmlOption = <div className="path-option-wrapper">
+								<div className="search-location">{location}</div>
+								<div className="occur-wrapper" dangerouslySetInnerHTML={{
+										__html: occurLabel
+									}}/>
+							</div>
 
 							nOpts.push({
 								label: htmlOption,
