@@ -302,6 +302,7 @@ const unfoldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 }
 const foldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 	let struct = getMarkdownStructure(CMObj)
+	console.log(345,struct)
 	// const view = CMObj?.view
 	each(struct, (item, i) => {
 		if (!CMObj?.view) return
