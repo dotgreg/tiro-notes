@@ -287,7 +287,8 @@ export const OmniBar = (p: {
 				getApi(api => {
 					// erase /
 					setInputTxt("")
-					let folder = api.ui.browser.files.active.get.folder
+					let folder = api.ui.browser.folders.current.get
+					// let folder = api.ui.browser.files.active.get.folder
 					triggerExplorer(folder)
 				})
 			}
@@ -515,7 +516,9 @@ export const OmniBar = (p: {
 			if (inTxt === "?") {
 				// erase ? and put instead the current folder
 				getApi(api => {
-					let folder = api.ui.browser.files.active.get.folder
+					// let folder = api.ui.browser.files.active.get.folder
+					let folder = api.ui.browser.folders.current.get
+					// api.ui.browser.folders.current.get
 					setInputTxt(folder)
 				})
 			}

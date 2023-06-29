@@ -18,8 +18,8 @@ export const fileHistoryParams = {
     housekeeping: {
         executionInterval: 1 * 60 * 60 * 1000, // one hour interval exec
         keepOnePerHour_RuleTime: 5 * 60 * 60 * 1000, // after 5 hours, keep on version/hour
-        keepOnePerDay_RuleTime: 7 * 24 * 60 * 60 * 1000, // after 1 week, keep on version/day
-        keepOnePerWeek_RuleTime: 1 * 30 * 24 * 60 * 60 * 1000, // after 1 months , keep on version/week
+        keepOnePerDay_RuleTime: 3 * 24 * 60 * 60 * 1000, // after 3 days, keep on version/day
+        keepOnePerWeek_RuleTime: 14 * 24 * 60 * 60 * 1000, // after 2 weeks , keep on version/week
     }
 }
 const p = fileHistoryParams
@@ -50,72 +50,79 @@ export const getHistoryFolder = (file:iFile) => {
 }
 
 export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iDateObj) => {
-    // if infosFile doesnt exists or timestamp > 1 days process
-	if (!histFile) return
-    const infosFilePath = `${histFile.folder}/${p.infosFile}`
-    const infosExists = fileExists(infosFilePath)
-    let shouldProceed = false 
+    try {
+        // if infosFile doesnt exists or timestamp > 1 days process
+        if (!histFile) return
+        const infosFilePath = `${histFile.folder}/${p.infosFile}`
+        const infosExists = fileExists(infosFilePath)
+        let shouldProceed = false 
 
-    // should proceed?
-    if (infosExists) {
-        try {
-            const infos = JSON.parse(await openFile(infosFilePath))
-            if (
-                !infos.lastrun || 
-                currDate.num.timestamp >  infos.lastrun + p.housekeeping.executionInterval
-                ) shouldProceed = true
-        } catch (error) {
+        // should proceed?
+        if (infosExists) {
+            try {
+                const infos = JSON.parse(await openFile(infosFilePath))
+                if (
+                    !infos.lastrun || 
+                    currDate.num.timestamp >  infos.lastrun + p.housekeeping.executionInterval
+                    ) shouldProceed = true
+            } catch (error) {
+                shouldProceed = true
+            }
+        } else {
             shouldProceed = true
         }
-    } else {
-        shouldProceed = true
+
+        if (!shouldProceed) return
+        
+        // update the infosFile
+        await saveFile(infosFilePath, JSON.stringify({lastrun: currDate.num.timestamp}))
+
+        // get all files of the folder
+        let resScan = await scanDirForFiles(histFile.folder)
+
+        if (isString(resScan)) return console.log(h, resScan)
+        // for each file
+        each(resScan, async f => {
+            // dont take .infos
+            if (f.filenameWithoutExt.startsWith(".")) return
+            // get its date
+            const fileArr = f.filenameWithoutExt.split("___")
+            const dateFormated = fileArr[fileArr.length-1]
+            const timestamp = getDateObj(dateFormated).num.timestamp
+            fileArr.pop() // removing date
+            const realFileName = fileArr.join("___") // only keep name
+            const fDate = getDateObj(timestamp)
+
+            let actionToPerform = "none"
+            if (fDate.num.timestamp + p.housekeeping.keepOnePerWeek_RuleTime < currDate.num.timestamp) actionToPerform = "renameOncePerWeek"
+            if (fDate.num.timestamp + p.housekeeping.keepOnePerDay_RuleTime < currDate.num.timestamp) actionToPerform = "renameOncePerDay"
+            if (fDate.num.timestamp + p.housekeeping.keepOnePerHour_RuleTime < currDate.num.timestamp) actionToPerform = "renameOncePerHour"
+            let endPerf = perf(`housekeeping ${actionToPerform} for file ${histFile.name.split("___")[0]} action: `)
+    
+            if ( actionToPerform === "renameOncePerWeek" ) {
+                // if it is > 1 months, keep one per week
+                // rename it "w3-03-2022.md"
+                let newName = generateHistFilename(`${realFileName}`, fDate, "week")
+                let newPath = `${f.folder}${newName}`
+                await moveFile(f.path, newPath)
+            } else if ( actionToPerform === "renameOncePerDay" ) {
+                // if it is > 1 week, keep one per day
+                // rename it "d31-03-2022"
+                let newName = generateHistFilename(`${realFileName}`, fDate, "day")
+                let newPath = `${f.folder}${newName}`
+                await moveFile(f.path, newPath)
+            } else if ( actionToPerform === "renameOncePerHour" ) {
+                // if it is > 1 day, keep one per hour
+                // rename it "h31-03-2022 21h"
+                let newName = generateHistFilename(`${realFileName}`, fDate, "hour")
+                let newPath = `${f.folder}${newName}`
+                await moveFile(f.path, newPath)
+            }
+            endPerf()
+        })
+    } catch (error) {
+        console.log(h, "ERROR HOUSEKEEPING :", error)
     }
-
-    if (!shouldProceed) return
-    
-    // update the infosFile
-    await saveFile(infosFilePath, JSON.stringify({lastrun: currDate.num.timestamp}))
-
-    // get all files of the folder
-    let resScan = await scanDirForFiles(histFile.folder)
-
-    if (isString(resScan)) return console.log(h, resScan)
-    // for each file
-    each(resScan, async f => {
-        let endPerf = perf('housekeeping history backups for ' + histFile.name)
-        // dont take .infos
-        if (f.filenameWithoutExt.startsWith(".")) return
-        // get its date
-        const fileArr = f.filenameWithoutExt.split("___")
-        const dateFormated = fileArr[fileArr.length-1]
-        const timestamp = getDateObj(dateFormated).num.timestamp
-        fileArr.pop() // removing date
-        const realFileName = fileArr.join("___") // only keep name
-        const fDate = getDateObj(timestamp)
- 
-        if ( fDate.num.timestamp + p.housekeeping.keepOnePerWeek_RuleTime < currDate.num.timestamp ) {
-            // if it is > 1 months, keep one per week
-            // rename it "w3-03-2022.md"
-            let newName = generateHistFilename(`${realFileName}`, fDate, "week")
-            let newPath = `${f.folder}${newName}`
-            await moveFile(f.path, newPath)
-        } else if ( fDate.num.timestamp + p.housekeeping.keepOnePerDay_RuleTime < currDate.num.timestamp ) {
-            // if it is > 1 week, keep one per day
-            // rename it "d31-03-2022"
-            let newName = generateHistFilename(`${realFileName}`, fDate, "day")
-            let newPath = `${f.folder}${newName}`
-            await moveFile(f.path, newPath)
-        } else if ( fDate.num.timestamp + p.housekeeping.keepOnePerHour_RuleTime < currDate.num.timestamp ) {
-            // if it is > 1 day, keep one per hour
-            // rename it "h31-03-2022 21h"
-            let newName = generateHistFilename(`${realFileName}`, fDate, "hour")
-            let newPath = `${f.folder}${newName}`
-            await moveFile(f.path, newPath)
-        }
-        endPerf()
-    })
-    
-
 }
 
 
