@@ -48,7 +48,7 @@ const calendarApp = (innerTagStr, opts) => {
                         for (let i = 0; i < 5; i++) {
                             const recEvMonth = (curr.getMonth() + i)%12
                             const isNewYear = (curr.getMonth() + i) > 12
-                            const recEvYear = curr.getFullYear() 
+                            let recEvYear = curr.getFullYear() 
                             if (isNewYear) recEvYear++
                             const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
                             events.push({

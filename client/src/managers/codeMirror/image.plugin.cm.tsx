@@ -52,8 +52,8 @@ export const imagePreviewPlugin = (file: iFile, windowId:string) => genericRepla
  
 export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iFile, showSource: boolean = false):string => {
 	let sourceHtml = showSource ?  `<div class="mdpreview-source">${fullMd}</div>` : ''
-	let url = `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}`
-	 return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" src="${url + getUrlTokenParam()}" /></div></div>${sourceHtml}`
+	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
+	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" src="${url}" /></div></div>${sourceHtml}`
 }
 
 
