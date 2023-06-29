@@ -1,4 +1,4 @@
-import { iPerfStat } from "../server/src/managers/performance.manager";
+import { iPerformanceReport, iPerfStat } from "../server/src/managers/performance.manager";
 import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
@@ -92,7 +92,7 @@ export interface iApiDictionary {
 	getNotification: { notification:iNotification }
 
 	askPerformanceReport: { idReq: string  }
-	getPerformanceReport: { report:iPerfStat[], idReq: string }
+	getPerformanceReport: { report:iPerformanceReport, idReq: string }
 
 	askActivityReport: { idReq: string, params?:iActivityReportParams  }
 	getActivityReport: { report:iActivityReport, idReq: string }

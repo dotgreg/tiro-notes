@@ -20,7 +20,7 @@ import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString, execStringStream } from "./managers/exec.manager";
 import { getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
-import { scanPlugins } from "./managers/plugins.manager";
+import { pluginsListCache, relPluginsFolderPath, rescanPluginList, scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
 import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
@@ -133,6 +133,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('saveFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("write", data.filePath, serverSocket2)
+
+		// plugin rescan if folder edited
+		if (data.filePath.includes(relPluginsFolderPath)) rescanPluginList()
+
 		const pathToFile = p(`${backConfig.dataFolder}/${data.filePath}`);
 		let endPerf = perf('saveFileContent ' + pathToFile)
 
@@ -391,9 +395,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// PLUGINS
 	// 
 	serverSocket2.on('askPluginsList', async data => {
-		let endPerf = perf('askPluginsList ')
-		// let res = await execString(data.commandString)
-		// let plugins:iPlugin[] = []
+		let endPerf = perf(`askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
 		let { plugins, scanLog } = await scanPlugins(data.noCache)
 		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
 		endPerf()

@@ -44,7 +44,7 @@
         "site/update": "run-s site/pull site/build site/push",
         "site/build": "run-s export-readme blog/build build-docs",
         "site/pull": "git checkout master; git pull origin master",
-        "site/push": "git add .; git commit -m 'updating blog+docs'; git push origin master",
+    "site/push": "git add .; git commit -m 'updating blog+docs'; git push origin master",
 
         "docs/dev": "npx docsify serve docs",
 

@@ -31,7 +31,7 @@ export const getAllCompletionSources = (file: iFile): CompletionSource[] => {
 	const completionSourceHashtags: any = getCompletionSourceHashtags(file)
 	return [
 		completionSourceCtag,
-		completionSourceHashtags,
+		// completionSourceHashtags,
 		completionSourceSnippets
 	]
 }
@@ -40,7 +40,7 @@ export const getAllCompletionSources = (file: iFile): CompletionSource[] => {
 // AUTOCOMPLETE WITH SNIPPETS 
 // with --
 //
-export const completionSourceSnippets = (context) => {
+export const completionSourceSnippets:any = (context) => {
 	let before = context.matchBefore(/\-\-/);
 	if (!context.explicit && !before) return null;
 	const path = `${sharedConfig.path.configFolder}/snippets.md`
@@ -84,6 +84,8 @@ export const completionSourceSnippets = (context) => {
 //
 // SCAN HASHTAGS FROM FOLDER
 //
+
+// VERY SLOW as it scans / root for #!!!! so it is disabled
 const getCompletionSourceHashtags = (file: iFile) => (context) => {
 	let before = context.matchBefore(/\#/);
 	if (!context.explicit && !before) return null;
