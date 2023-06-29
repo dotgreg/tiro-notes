@@ -31,7 +31,7 @@ const getEventsList = (calNotePath, cb) => {
                     for (let i = 0; i < 5; i++) {
                         const recEvMonth = (curr.getMonth() + i)%12
                         const isNewYear = (curr.getMonth() + i) > 12
-                        const recEvYear = curr.getFullYear() 
+                        let recEvYear = curr.getFullYear() 
                         if (isNewYear) recEvYear++
                         const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
                         events.push({
@@ -64,7 +64,7 @@ const getEventsList = (calNotePath, cb) => {
 }
 
 const sendNotif = (event, title) => {
-    let body = event.body.trim().startsWith("http") ? `<a href="${event.body}" target="_blank">${event.body}</a>` : e.body
+    let body = event.body.trim().startsWith("http") ? `<a href="${event.body}" target="_blank">${event.body}</a>` : event.body
     notifHtml = `
         [CALENDAR] <br>
         ${title}  <br> 

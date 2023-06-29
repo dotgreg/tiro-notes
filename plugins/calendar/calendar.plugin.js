@@ -1,5 +1,6 @@
 const plugin_infos = {
   versions: [
+    {version: "0.1.2", date: "29/06/23", comment: "bugfix", commitId: ""},
     {version: "0.1.1", date: "26/06/23", comment: "adding bg service", commitId: "d93e5b09767fd6f3c361958cc25dbb90d6e9e7b3"},
     {version: "0.1.0", date: "25/06/23", comment: "adaptation to plugin", commitId: "90fc03d53d86586c19e4b73c335e33cb2a1a6a2f" },
   ],

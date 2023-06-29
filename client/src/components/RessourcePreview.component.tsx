@@ -4,6 +4,7 @@ import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper'
 import { iFile } from '../../../shared/types.shared';
 import { getUrlTokenParam } from '../hooks/app/loginToken.hook';
 import { deviceType } from '../managers/device.manager';
+import { getFileType } from '../managers/file.manager';
 import { atSsrStartupCheckIfOpen, setSsrStatus, ssrCachedStatus, ssrFn, ssrIcon } from '../managers/ssr.manager';
 import { ssrGenCtag, ssrToggleCtag } from '../managers/ssr/ctag.ssr';
 import { safeString } from '../managers/string.manager';
@@ -27,14 +28,7 @@ export const RessourcePreview = (p: {
 
 	
 
-	// IF CAN BE PREVIEWED
-	const getFileType = (urlLink:string):string => {
-		let filetype = ''
-		let t1 = urlLink.split('.');
-		filetype = t1[t1.length - 1].split("?")[0];
-		if (filetype === '7z') filetype = 'd7z';
-		return filetype
-	}
+	
 
 	const canBePreviewed = (urlLink:string):{status:boolean, onlinePreviewLink?:string} => {
 		let res = {status:false}
