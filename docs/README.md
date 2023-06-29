@@ -4,7 +4,7 @@ An open-source, cross-platform markdown editor designed for extensibility & flex
 
 🌐 website| 📢 news| 📘 guides|  ⬇️ usage |  Version |
 -|-|-|-|-
-[tiro-notes.org](https://tiro-notes.org)|[dev blog](https://tiro-notes.org/blog) & [twitter](https://twitter.com/NotesTiro)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads) or ```npx tiro-notes```| 0.30 (beta)
+[tiro-notes.org](https://tiro-notes.org)|[dev blog](https://tiro-notes.org/blog/) & [twitter](https://twitter.com/NotesTiro)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads) or ```npx tiro-notes```| 0.30 (beta)
 
 
 ![Tiro 0.30](https://github.com/dotgreg/tiro-notes/assets/2981891/9e684988-5575-428f-8499-d11ad6637c71)
