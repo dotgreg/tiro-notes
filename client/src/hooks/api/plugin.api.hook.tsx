@@ -81,7 +81,7 @@ export const usePluginsApi = (p: {
 		listPlugins((plugins,log) => {
 			let res = plugins.filter(p => p.name === name && p.type === type)[0] || null
 			cb(res)
-		})
+		}, {noCache: true})
 	}
 
 	const setCronVars: iPluginsApi['cronCache']['set'] = (pluginBgName, nvars) => {

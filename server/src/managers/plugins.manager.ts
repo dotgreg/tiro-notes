@@ -7,12 +7,31 @@ import { openFile } from "./fs.manager";
 
 const h = `[PLUGINS]`
 type iRes = {plugins:iPlugin[], scanLog:string[]}
-export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
-    let res:iRes = {plugins:[], scanLog:[]}
 
-    let pluginsFolder = `${backConfig.dataFolder}/${sharedConfig.path.configFolder}/plugins/`
+// only rescan
+// 1) if edition inside plugin folder
+// 1) if tiro restarted
+export const pluginsListCache:{
+    shouldRescan:boolean, 
+    cache: iRes | null
+} = {shouldRescan: true, cache:null}
+
+export const rescanPluginList = () => {
+    console.log(h, "== RESCAN PLUGINS LIST ==")
+    pluginsListCache.shouldRescan = true
+}
+export const relPluginsFolderPath = `${sharedConfig.path.configFolder}/plugins/`
+const asbPluginsFolderPath = `${backConfig.dataFolder}/${relPluginsFolderPath}`
+
+export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
     
-    const pluginFiles = await scanDirForFiles(pluginsFolder)
+    if (!pluginsListCache.shouldRescan && pluginsListCache.cache) return pluginsListCache.cache
+    pluginsListCache.shouldRescan = false
+
+    let res:iRes = {plugins:[], scanLog:[]}
+    
+
+    const pluginFiles = await scanDirForFiles(asbPluginsFolderPath)
     if (!isArray(pluginFiles)) return res
 
     const promises = pluginFiles.map(async f => {
@@ -38,5 +57,6 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
     })
 
     await Promise.all(promises)
+    pluginsListCache.cache = res
     return res
 }

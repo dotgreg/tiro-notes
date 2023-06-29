@@ -1,4 +1,4 @@
-import { each, orderBy } from "lodash"
+import { cloneDeep, each, orderBy } from "lodash"
 
 let isPerfMonitoringEnabled:any = process.env.TIRO_PERFORMANCE_MONITORING_BACKEND
 if (isPerfMonitoringEnabled === true) isPerfMonitoringEnabled = true
@@ -22,15 +22,40 @@ export const perf = (id:string) => {
     return end
 }
 
-export type iPerfStat = {title: string, timeMs:number, timePerCall:number, calls:number, children?:{[name:string]:iPerfStat} }
+export type iPerfStat = {
+    title: string, 
+    timeMs:number, 
+    timeSec?:number, 
+    timePerCall:number, 
+    calls:number, 
+    timePercent?:number,
+    children?:{[name:string]:iPerfStat} 
+    childrenArr?:iPerfStat[]
+}
+export type iPerfCampaignInfos = {
+    startDate: null| number,
+    endDate: null| number,
+    timeInHour: null| number,
+    stats: any,
+}
+
 const perfStatsObj:{[name:string]: iPerfStat} = {}
+const perfCampaign:iPerfCampaignInfos = {
+    startDate: null,
+    endDate: null,
+    timeInHour: null,
+    stats: null
+}
+
 const addToPerfStats = (id:string, time:number) => {
+    if (perfCampaign.startDate === null) perfCampaign.startDate = Date.now()
     let cat = id.split(" ")[0]
     let task = id.substring(cat.length+1) || null
     if(!perfStatsObj[cat]) perfStatsObj[cat] = {title: cat, timeMs: 0, calls:0, timePerCall:0, children:{}}
     perfStatsObj[cat].timeMs += time
+    perfStatsObj[cat].timeSec = perfStatsObj[cat].timeMs / 1000
     perfStatsObj[cat].calls += 1
-    perfStatsObj[cat].timePerCall = perfStatsObj[cat].timeMs / perfStatsObj[cat].calls
+    perfStatsObj[cat].timePerCall = Math.round(perfStatsObj[cat].timeMs / perfStatsObj[cat].calls)
 
     if (task) {
         let cs = perfStatsObj[cat]['children']
@@ -39,17 +64,36 @@ const addToPerfStats = (id:string, time:number) => {
         let o =cs[task]
         o.timeMs += time
         o.calls += 1
-        o.timePerCall = o.timeMs / o.calls
+        o.timePerCall = Math.round(o.timeMs / o.calls)
     }
 }
-export const getPerformanceReport = ():iPerfStat[] => {
+
+export interface iPerformanceReport {log:iPerfStat[], campaign:iPerfCampaignInfos }
+
+export const getPerformanceReport = ():iPerformanceReport => {
     let res:iPerfStat[] = []
+    let global = {timeMs: 0, reqs:0, timeMsPerReq:0}
+
     each(perfStatsObj, s => {
-        res.push(s)
+        global.timeMs += s.timeMs
+        global.reqs += s.calls
+        const ns = cloneDeep(s)
+        ns.childrenArr = orderBy(s.children, ['timeMs'], ["desc"])
+        each(ns.childrenArr, c => {
+            c.timePercent = Math.round((c.timeMs/s.timeMs) * 100)
+        })
+        ns.children = {}
+        res.push(ns)
     })
+    global.timeMsPerReq = global.timeMs/global.reqs
     res = orderBy(res, ['timeMs'], ["desc"])
     if (res.length === 0) res.push({title: "no stats, are you in -v 3, performance log mode?", timeMs:0, timePerCall:0, calls: 0})
-    return res
+    
+    perfCampaign.endDate = Date.now()
+    perfCampaign.stats = global
+    if (perfCampaign.startDate) perfCampaign.timeInHour = (perfCampaign.endDate - perfCampaign.startDate) / (60 * 60 * 1000)
+    
+    return {log:res, campaign: perfCampaign}
 }
  
 
