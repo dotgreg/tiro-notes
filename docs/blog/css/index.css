@@ -14,9 +14,9 @@
 		--background-color: #fff;
 
 		--text-color: var(--color-gray-90);
-		--text-color-link: #082840;
-		--text-color-link-active: #5f2b48;
-		--text-color-link-visited: #17050F;
+		--text-color-link: #f56e6e;
+		--text-color-link-active: #f56e6e;
+		--text-color-link-visited: #f56e6e;
 
 		--syntax-tab-size: 2;
 }
@@ -159,7 +159,27 @@ header {
 }
 /*
 
-LIST
+#ARTICLE
+
+*/
+
+.post-metadata {
+	margin-bottom: 20px!important;
+}
+
+p img {
+	max-width: 90%;
+	display:block;
+}
+code,
+p code {
+	background: #e6e6e6;
+    padding: 4px;
+    border-radius: 5px;
+}
+/*
+
+#LIST
 
 */
 /* TAG LIST */
