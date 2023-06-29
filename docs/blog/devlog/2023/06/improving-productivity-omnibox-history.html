@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>An agnostic AI assistant into Tiro Notes</title>
+		<title>Improving productivity with the new Omnibox History</title>
 		<meta name="description" content="Tiro Notes Blog and Devlog">
 		<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 		<link rel="alternate" href="/blog/feed/feed.xml" type="application/atom+xml" title="Tiro Notes Blog">
@@ -550,83 +550,55 @@ h2 + .header-anchor {
 
 		<main id="skip">
 			
-<h1>An agnostic AI assistant into Tiro Notes</h1>
+<h1>Improving productivity with the new Omnibox History</h1>
 
 <ul class="post-metadata">
-	<li><time datetime="2023-06-11">11 June 2023</time></li>
+	<li><time datetime="2023-06-28">28 June 2023</time></li>
 	<li><a href="/blog/tags/devlog/" class="post-tag">devlog</a>, </li>
-	<li><a href="/blog/tags/ai/" class="post-tag">AI</a>, </li>
+	<li><a href="/blog/tags/productivity/" class="post-tag">productivity</a>, </li>
+	<li><a href="/blog/tags/omnibox/" class="post-tag">omnibox</a>, </li>
+	<li><a href="/blog/tags/task-management/" class="post-tag">task management</a>, </li>
 	<li><a href="/blog/tags/text-editor/" class="post-tag">text editor</a></li>
 </ul>
 
-<p>One of the most interesting features that I wanted to implement in Tiro is the idea of having an AI assistant available on mobile and desktop.</p>
-<video width="100%" controls="" autoplay="" loop="" muted="" markdown="1">
-	<source src="https://github.com/dotgreg/tiro-notes/assets/2981891/dd42b4e3-f044-4c2e-a83d-3eb7fc9cf798" type="video/mp4" markdown="1">
-</video>
-<p><em>Final result, you can test it using the command line <code>npx tiro-notes@0.30.99.12</code></em></p>
-<h2 id="user-experience" tabindex="-1">User experience <a class="header-anchor" href="#user-experience">#</a></h2>
-<p>The main problem I saw with current solutions was the friction between the writing process and the AI assistance at the user experience level. I don't use AI assistants because of that friction required to use them (Opening a new tab, copy/pasting text 2 times etc.). It creates a certain level of steps under which I'd just rather use search engines or do it myself.</p>
-<p>My first attempt was to add an AI assistant throught command line using the Tiro command line manager custom tag called Commander, but I quickly realized that the integration still required too much steps to be usable in real-life scenarios, especially the copy/pasting part which is really tedious on mobile. So I gave up in using AI assistance inside Tiro that way.</p>
-<img width="40%" src="https://github.com/dotgreg/tiro-notes/assets/2981891/5c9cb665-7dd3-46c7-a8e0-647a88c93ea9">
-<p><em>Initial AI integration attempt using the commander custom tag</em></p>
-<p>My second attempt, which I will describe here, was to get as close as possible to the user experience offered by Microsoft's Copilot or Notion's AI system.</p>
-<p>The goal was to reduce the number of steps needed to get an answer:</p>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/wgpV1wfqrnA" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen=""></iframe>
+<h3 id="a-note-tags-alternative" tabindex="-1">A Note tags alternative <a class="header-anchor" href="#a-note-tags-alternative">#</a></h3>
+<p>I rely on Tiro Notes for task management and quick access to information, utilizing the fast ripgrep file search system. However, as a simple markdown-based system without a database, implementing relational features like tags is challenging without complicating the architecture.</p>
+<h3 id="use-case-1-merged-global-todo-list-from-different-files-projects" tabindex="-1">Use case 1: Merged global todo list from different files/projects <a class="header-anchor" href="#use-case-1-merged-global-todo-list-from-different-files-projects">#</a></h3>
+<p>Managing multiple projects simultaneously requires specific follow-up and individual project-based to-do lists.
+Initially, I created a consolidated to-do list in a separate file, but it was a tedious manual process. To simplify this, I developed and utilized the omnibar search functionality. Now, I can search for <code>- [ ]</code> in my <code>notes_folder/work/project_folder</code> for a project-specific consolidated to-do list or in &quot;notes_folder/work&quot; for an overall consolidated to-do list.</p>
+<p>Additionally, I enhanced my to-do tag system with other &quot;fields&quot; such as <code>- [ ] #i3 #h1</code> indicating task importance (#i3) and energy/difficulty level (#h1). In the morning, searching for <code>#i3</code> in <code>notes_folder/work</code> provides me with a list of the most urgent tasks.</p>
+<p><img src="https://github.com/dotgreg/tiro-notes/assets/2981891/43fef211-8dc5-492a-9509-2010fc54a54d" alt="image"></p>
+<p>If I'm not in the mood for energy-intensive tasks, I can further filter by #h1 or #h2 tasks.
+<img src="https://github.com/dotgreg/tiro-notes/assets/2981891/e5ab13a0-788c-433f-baf4-bdde9a1a3dbc" alt="image"></p>
+<h3 id="use-case-2-grocery-price-database" tabindex="-1">Use case 2: Grocery price database <a class="header-anchor" href="#use-case-2-grocery-price-database">#</a></h3>
+<p>With rising inflation in Europe, I like comparing current grocery prices with those I previously paid. So I maintain a &quot;grocery to-do feed&quot; note with the following structure:</p>
+<p><img src="https://github.com/dotgreg/tiro-notes/assets/2981891/d64340b8-47a0-40d8-9d18-682181d59918" alt="image"></p>
+<p>To simplify, I note the price per kg next to cheap and good products using the shorthand <code>'px</code> (price in French). Now, if I want to compare prices with my previous purchases, I can use the Tiro mobile omnibox, type 'px, and find the desired result in the list.</p>
+<p><img src="https://github.com/dotgreg/tiro-notes/assets/2981891/8d328d1f-10f1-4026-b513-ede33fe829b9" alt="image"></p>
+<h3 id="but-the-user-experience-requires-too-many-keystrokes" tabindex="-1">... but the user experience requires too many keystrokes <a class="header-anchor" href="#but-the-user-experience-requires-too-many-keystrokes">#</a></h3>
+<p>While happy with the system's ability to turn any markdown note into a relational database using files, I encountered a UX issue: Typing numerous keystrokes to access searches became frustrating. For example, the process to search for important work tasks on desktop is as follows:</p>
+<p><code>- Navigate to the desired work folder =&gt; cmd + space (open omnibar) =&gt; 3 keystrokes for &quot;#i3&quot; =&gt; press enter</code></p>
+<p>Since I frequently use this request, I wanted an easily accessible way to reuse it.</p>
+<h3 id="introducing-omnibox-search-history" tabindex="-1">Introducing Omnibox search history <a class="header-anchor" href="#introducing-omnibox-search-history">#</a></h3>
+<p>The new Omnibox History functionality logs your search requests. To access the log, simply type <code>&quot;,&quot;</code> within the omnibox.</p>
+<p><img src="https://github.com/dotgreg/tiro-notes/assets/2981891/287ed15f-610f-4d9f-bdae-79cba61cab96" alt="image"></p>
+<p>This reduces the keystrokes required to retrieve the important work to-do list to a minimum, eliminating the frustration of returning to the request:</p>
 <ul>
-<li>Write the question in Tiro Notes</li>
-<li>Select the text of the question</li>
-<li>Immediately obtain an AI-generated response in the note</li>
+<li>Previously: <code>Navigate to the desired work folder =&gt; cmd + space (open omnibar) =&gt; 3 keystrokes for &quot;#i3&quot; =&gt; press enter</code></li>
+<li>Now: <code>cmd + space (open omnibar) =&gt; &quot;,&quot; =&gt; &quot;enter&quot; (most of the time, to retrieve the last request)</code></li>
 </ul>
-<p>The objective is also to respect a certain open source philosophy by offering the choice to users to use different AI engines, including open source ones in the future. The solution is designed to be easily interchangeable from the user settings.</p>
-<img width="70%" src="https://github.com/dotgreg/tiro-notes/assets/2981891/b6124b31-a6ca-41ab-9e3e-bcd8d298ef8e">
-<p><em>New settings options for AI assistant. The AI system used can be modified</em></p>
-<h2 id="technical-implementation" tabindex="-1">Technical implementation <a class="header-anchor" href="#technical-implementation">#</a></h2>
-<p>On the coding side, it happened to be quite easy to implement it.
-The main logic was :</p>
-<ul>
-<li>User select a part of the text</li>
-<li>A small popup appears suggesting AI assistance</li>
-<li>If clicked, the selected text is sent to Tiro Notes backend that executes a configurable command line with it as a parameter</li>
-<li>The answer is then sent back to the active note, below the question</li>
-<li>As for ChatGPT, the answer is not sent once but streamed (almost word by word), I had to create a new api function <code>api.command.stream</code></li>
-</ul>
-<p>The code is visible at that <a href="https://github.com/dotgreg/tiro-notes/blob/4d4a845c15aa53b6e59830f4268445e9f96c09bb/client/src/components/dualView/CodeMirrorEditor.component.tsx#L386/">link</a>, I will probably refactor it latest to its own manager file</p>
-<p>I am using two api functions:</p>
-<ul>
-<li>
-<p>the newly created  <code>api.command.stream(cmd, streamChunk =&gt; { })</code> to execute the command on Tiro Notes backend. That function sends from the react client frontend a command line to the node.js backend, which executes it using the library execa. Details of the backend function used can be checked at that <a href="https://github.com/dotgreg/tiro-notes/blob/4d4a845c15aa53b6e59830f4268445e9f96c09bb/server/src/managers/exec.manager.ts">link</a></p>
-</li>
-<li>
-<p>api.file.saveContent(p.file.path, nText) to save the note regularly</p>
-</li>
-</ul>
-<pre class="language-js" tabindex="0"><code class="language-js"><span class="token function">getApi</span><span class="token punctuation">(</span><span class="token parameter">api</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
-  <span class="token keyword">let</span> cmd <span class="token operator">=</span> api<span class="token punctuation">.</span>userSettings<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">"ui_editor_ai_command"</span><span class="token punctuation">)</span>
-  cmd <span class="token operator">=</span> cmd<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token string">""</span><span class="token punctuation">,</span> selectionTxt<span class="token punctuation">)</span>
-  <span class="token function">genTextAt</span><span class="token punctuation">(</span><span class="token function">genParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-  api<span class="token punctuation">.</span>command<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span>cmd<span class="token punctuation">,</span> <span class="token parameter">streamChunk</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>streamChunk<span class="token punctuation">.</span>isError<span class="token punctuation">)</span> isError <span class="token operator">=</span> <span class="token boolean">true</span>
-    <span class="token comment">// if it is an error, display it in a popup</span>
-    <span class="token keyword">if</span> <span class="token punctuation">(</span>isError<span class="token punctuation">)</span> <span class="token punctuation">{</span>
-      api<span class="token punctuation">.</span>ui<span class="token punctuation">.</span>notification<span class="token punctuation">.</span><span class="token function">emit</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
-        <span class="token literal-property property">content</span><span class="token operator">:</span> <span class="token template-string"><span class="token template-punctuation string">`</span><span class="token string">[AI] Error from CLI &lt;br/> "</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>cmd<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">" &lt;br/>=> &lt;br/></span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>streamChunk<span class="token punctuation">.</span>text<span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">,</span>
-        <span class="token literal-property property">options</span><span class="token operator">:</span> <span class="token punctuation">{</span><span class="token literal-property property">hideAfter</span><span class="token operator">:</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token punctuation">}</span>
-      <span class="token punctuation">}</span><span class="token punctuation">)</span>
-      <span class="token function">genTextAt</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token operator">...</span><span class="token function">genParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token literal-property property">textUpdate</span><span class="token operator">:</span><span class="token string">""</span><span class="token punctuation">,</span> <span class="token literal-property property">isLast</span><span class="token operator">:</span> <span class="token boolean">true</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
-    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
-      <span class="token comment">// else insert it</span>
-      <span class="token function">genTextAt</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token operator">...</span><span class="token function">genParams</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> <span class="token literal-property property">textUpdate</span><span class="token operator">:</span>streamChunk<span class="token punctuation">.</span>textTot<span class="token punctuation">,</span> <span class="token literal-property property">isLast</span><span class="token operator">:</span> streamChunk<span class="token punctuation">.</span>isLast<span class="token punctuation">}</span><span class="token punctuation">)</span>
-    <span class="token punctuation">}</span>
-  <span class="token punctuation">}</span><span class="token punctuation">)</span>
-<span class="token punctuation">}</span><span class="token punctuation">)</span></code></pre>
-<p>You can test that AI assistant by downloading Tiro Notes from the command line <code>npx tiro-notes@0.30.99.12</code></p>
+<h3 id="possibilities" tabindex="-1">Possibilities <a class="header-anchor" href="#possibilities">#</a></h3>
+<p>A relational system in a note application like Tiro Notes offers numerous interesting use cases: Some additional uses I've explored include maintaining lists of things to watch/read. By adding &quot;text tags&quot; next to each item, I can filter them according to my mood.</p>
+<p>You can test it by downloading Tiro Notes from the command line <code>npx tiro-notes@0.30.99.51</code></p>
 
-<ul class="links-nextprev"><li>Previous: <a href="/blog/devlog/2023/06/hello-world-devlog.html">Hello World Devlog</a></li><li>Next: <a href="/blog/devlog/2023/06/improving-productivity-omnibox-history.html">Improving productivity with the new Omnibox History</a></li>
+<ul class="links-nextprev"><li>Previous: <a href="/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html">An agnostic AI assistant into Tiro Notes</a></li>
 </ul>
 
 		</main>
 
 		<footer></footer>
 
-		<!-- Current page: /blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html -->
+		<!-- Current page: /blog/devlog/2023/06/improving-productivity-omnibox-history.html -->
 	</body>
 </html>
