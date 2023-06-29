@@ -1,6 +1,6 @@
 const calendarApp = (innerTagStr, opts) => {
     if (!opts) opts = {}
-    const h = `[CTAG CALENDAR APP] v1.0.2`
+    const h = `[CTAG CALENDAR APP] v1.0.3`
     const api = window.api;
     const infos = api.utils.getInfos();
     let source_events = opts.source ? opts.source : ''
