@@ -4,12 +4,50 @@
 	<subtitle>Tiro Notes Blog and Devlog</subtitle>
 	<link href="https://tiro-notes.org/blog/feed/feed.xml" rel="self"/>
 	<link href="https://tiro-notes.org/blog/blog"/>
-	<updated>2023-06-11T00:00:00Z</updated>
+	<updated>2023-06-28T00:00:00Z</updated>
 	<id>https://tiro-notes.org/blog</id>
 	<author>
 		<name>Grégoire Thiébault</name>
 		<email>thiebault.gregoire@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title>Improving productivity with the new Omnibox History</title>
+		<link href="https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html"/>
+		<updated>2023-06-28T00:00:00Z</updated>
+		<id>https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html</id>
+		<content type="html">&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/wgpV1wfqrnA&quot; title=&quot;YouTube video player&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
+&lt;h3 id=&quot;a-note-tags-alternative&quot; tabindex=&quot;-1&quot;&gt;A Note tags alternative &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;I rely on Tiro Notes for task management and quick access to information, utilizing the fast ripgrep file search system. However, as a simple markdown-based system without a database, implementing relational features like tags is challenging without complicating the architecture.&lt;/p&gt;
+&lt;h3 id=&quot;use-case-1-merged-global-todo-list-from-different-files-projects&quot; tabindex=&quot;-1&quot;&gt;Use case 1: Merged global todo list from different files/projects &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;Managing multiple projects simultaneously requires specific follow-up and individual project-based to-do lists.
+Initially, I created a consolidated to-do list in a separate file, but it was a tedious manual process. To simplify this, I developed and utilized the omnibar search functionality. Now, I can search for &lt;code&gt;- [ ]&lt;/code&gt; in my &lt;code&gt;notes_folder/work/project_folder&lt;/code&gt; for a project-specific consolidated to-do list or in &amp;quot;notes_folder/work&amp;quot; for an overall consolidated to-do list.&lt;/p&gt;
+&lt;p&gt;Additionally, I enhanced my to-do tag system with other &amp;quot;fields&amp;quot; such as &lt;code&gt;- [ ] #i3 #h1&lt;/code&gt; indicating task importance (#i3) and energy/difficulty level (#h1). In the morning, searching for &lt;code&gt;#i3&lt;/code&gt; in &lt;code&gt;notes_folder/work&lt;/code&gt; provides me with a list of the most urgent tasks.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/43fef211-8dc5-492a-9509-2010fc54a54d&quot; alt=&quot;image&quot;&gt;&lt;/p&gt;
+&lt;p&gt;If I&#39;m not in the mood for energy-intensive tasks, I can further filter by #h1 or #h2 tasks.
+&lt;img src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/e5ab13a0-788c-433f-baf4-bdde9a1a3dbc&quot; alt=&quot;image&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;use-case-2-grocery-price-database&quot; tabindex=&quot;-1&quot;&gt;Use case 2: Grocery price database &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;With rising inflation in Europe, I like comparing current grocery prices with those I previously paid. So I maintain a &amp;quot;grocery to-do feed&amp;quot; note with the following structure:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/d64340b8-47a0-40d8-9d18-682181d59918&quot; alt=&quot;image&quot;&gt;&lt;/p&gt;
+&lt;p&gt;To simplify, I note the price per kg next to cheap and good products using the shorthand &lt;code&gt;&#39;px&lt;/code&gt; (price in French). Now, if I want to compare prices with my previous purchases, I can use the Tiro mobile omnibox, type &#39;px, and find the desired result in the list.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/8d328d1f-10f1-4026-b513-ede33fe829b9&quot; alt=&quot;image&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;but-the-user-experience-requires-too-many-keystrokes&quot; tabindex=&quot;-1&quot;&gt;... but the user experience requires too many keystrokes &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;While happy with the system&#39;s ability to turn any markdown note into a relational database using files, I encountered a UX issue: Typing numerous keystrokes to access searches became frustrating. For example, the process to search for important work tasks on desktop is as follows:&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;- Navigate to the desired work folder =&amp;gt; cmd + space (open omnibar) =&amp;gt; 3 keystrokes for &amp;quot;#i3&amp;quot; =&amp;gt; press enter&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;Since I frequently use this request, I wanted an easily accessible way to reuse it.&lt;/p&gt;
+&lt;h3 id=&quot;introducing-omnibox-search-history&quot; tabindex=&quot;-1&quot;&gt;Introducing Omnibox search history &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;The new Omnibox History functionality logs your search requests. To access the log, simply type &lt;code&gt;&amp;quot;,&amp;quot;&lt;/code&gt; within the omnibox.&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;https://github.com/dotgreg/tiro-notes/assets/2981891/287ed15f-610f-4d9f-bdae-79cba61cab96&quot; alt=&quot;image&quot;&gt;&lt;/p&gt;
+&lt;p&gt;This reduces the keystrokes required to retrieve the important work to-do list to a minimum, eliminating the frustration of returning to the request:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Previously: &lt;code&gt;Navigate to the desired work folder =&amp;gt; cmd + space (open omnibar) =&amp;gt; 3 keystrokes for &amp;quot;#i3&amp;quot; =&amp;gt; press enter&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Now: &lt;code&gt;cmd + space (open omnibar) =&amp;gt; &amp;quot;,&amp;quot; =&amp;gt; &amp;quot;enter&amp;quot; (most of the time, to retrieve the last request)&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;possibilities&quot; tabindex=&quot;-1&quot;&gt;Possibilities &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/improving-productivity-omnibox-history.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;A relational system in a note application like Tiro Notes offers numerous interesting use cases: Some additional uses I&#39;ve explored include maintaining lists of things to watch/read. By adding &amp;quot;text tags&amp;quot; next to each item, I can filter them according to my mood.&lt;/p&gt;
+&lt;p&gt;You can test it by downloading Tiro Notes from the command line &lt;code&gt;npx tiro-notes@0.30.99.51&lt;/code&gt;&lt;/p&gt;
+</content>
+	</entry>
 	
 	<entry>
 		<title>An agnostic AI assistant into Tiro Notes</title>
