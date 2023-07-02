@@ -57,10 +57,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	pluginsConfig?: iCMPluginConfig
 }, forwardedRefCM) => {
-	let pluginsConfig = p.pluginsConfig
-	if (!pluginsConfig) pluginsConfig = {}
-	if (!isBoolean(pluginsConfig.markdown)) pluginsConfig.markdown = true
-	if (!isBoolean(pluginsConfig.linkPreview)) pluginsConfig.linkPreview = true
+	
 
 
 	const getEditorObj = (): ReactCodeMirrorRef | null => {
@@ -227,20 +224,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// CM CONFIG MODIF ACCORDING TO USER PREFS
 	//
-	const codemirrorExtensions: Extension[] = [
-		autocompletion({ override: getAllCompletionSources(p.file) }),
-		EditorView.domEventHandlers({
-			scroll(event, view) {
-				// debouncedActivateTitles();
-				// throttleActivateTitles();
-			},
-			wheel(event, view) {
-				let infs = CodeMirrorUtils.getEditorInfos(view)
-				syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
-				p.onScroll()
-			}
-		})
-	]
+	
 	const markdownExtensionCnf: any = {
 		base: markdownLanguage,
 		codeLanguages: languages,
@@ -252,49 +236,78 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	let enhancedTable = p.value.includes("--table")
 	let enhancedLatex = p.value.includes("--latex")
 
-	const { userSettingsApi } = useUserSettings()
-	const ua = userSettingsApi
-	// let disablePlugins = true
-	let disablePlugins = false
-	// disable markdown plugin on mobile as it makes it really unstable and slow
-	let disableMd = deviceType() !== "desktop"
-	// disableMd = true
+	// const { userSettingsApi } = useUserSettings()
+	// const ua = userSettingsApi
+	const [codemirrorExtensions, setCodemirrorExtentions] = useState<Extension[]>([])
+	const [classes, setClasses] = useState<string>("")
+	useEffect(() => {
+		getApi(api => {
+			const newcodemirrorExtensions: Extension[] = [
+				autocompletion({ override: getAllCompletionSources(p.file) }),
+				EditorView.domEventHandlers({
+					scroll(event, view) {
+						// debouncedActivateTitles();
+						// throttleActivateTitles();
+					},
+					wheel(event, view) {
+						let infs = CodeMirrorUtils.getEditorInfos(view)
+						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
+						p.onScroll()
+					}
+				})
+			]
 
-	// codemirrorExtensions.push(linksPreviewPlugin)
-	if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
-		codemirrorExtensions.push(linksPreviewPlugin(p.file, p.windowId))
-		codemirrorExtensions.push(noteLinkPreviewPlugin(p.file, p.windowId, pluginsConfig.linkPreview))
-	}
-	if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
-		codemirrorExtensions.push(markdownStylingTableLimiter(p.file, p.windowId))
-		codemirrorExtensions.push(testClassLine(p.file, p.windowId))
-		codemirrorExtensions.push(markdownStylingTableCell(p.file, p.windowId))
-		codemirrorExtensions.push(markdownStylingTable(p.file, p.windowId))
-	}
-	if (ua.get("ui_editor_markdown_latex_preview") && enhancedLatex && !disablePlugins) {
-		markdownExtensionCnf.extensions.push(LatexMdEl)
-	}
+			let pluginsConfig = p.pluginsConfig
+			if (!pluginsConfig) pluginsConfig = {}
+			if (!isBoolean(pluginsConfig.markdown)) pluginsConfig.markdown = true
+			if (!isBoolean(pluginsConfig.linkPreview)) pluginsConfig.linkPreview = true
+			const ua = api.userSettings
+			// let disablePlugins = true
+			let disablePlugins = false
+			// disable markdown plugin on mobile as it makes it really unstable and slow
+			let disableMd = deviceType() !== "desktop"
+			// disableMd = true
 
-	if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
-		codemirrorExtensions.push(markdownPreviewPluginWFile)
-		if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
-			codemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
-			codemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
-			codemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
-		}
-	}
+			// newcodemirrorExtensions.push(linksPreviewPlugin)
+			if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
+				newcodemirrorExtensions.push(linksPreviewPlugin(p.file, p.windowId))
+				newcodemirrorExtensions.push(noteLinkPreviewPlugin(p.file, p.windowId, pluginsConfig.linkPreview))
+			}
+			if (ua.get("ui_editor_markdown_table_preview") && enhancedTable && !disablePlugins) {
+				newcodemirrorExtensions.push(markdownStylingTableLimiter(p.file, p.windowId))
+				newcodemirrorExtensions.push(testClassLine(p.file, p.windowId))
+				newcodemirrorExtensions.push(markdownStylingTableCell(p.file, p.windowId))
+				newcodemirrorExtensions.push(markdownStylingTable(p.file, p.windowId))
+			}
+			if (ua.get("ui_editor_markdown_latex_preview") && enhancedLatex && !disablePlugins) {
+				markdownExtensionCnf.extensions.push(LatexMdEl)
+			}
+
+			if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
+				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
+				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
+					newcodemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
+					newcodemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
+					newcodemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
+				}
+			}
 
 
-	if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
-		codemirrorExtensions.push(markdown(markdownExtensionCnf))
-	} else {
-		// markdown replacement plugin for mobile
-		codemirrorExtensions.push(markdownMobileTitle(p.file, p.windowId))
-	}
+			if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
+				newcodemirrorExtensions.push(markdown(markdownExtensionCnf))
+			} else {
+				// markdown replacement plugin for mobile
+				newcodemirrorExtensions.push(markdownMobileTitle(p.file, p.windowId))
+			}
 
 
-	let classes = `device-${deviceType()} `
-	if (ua.get("ui_editor_markdown_table_preview")) classes += "md-table-preview-enabled"
+			let nclasses = `device-${deviceType()}`
+			if (ua.get("ui_editor_markdown_table_preview")) nclasses += "md-table-preview-enabled"
+			setCodemirrorExtentions(newcodemirrorExtensions)
+			setClasses(nclasses)
+		})
+	}, [])
+	
 
 
 	//

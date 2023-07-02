@@ -150,7 +150,9 @@ export const App = () => {
 		},
 		onLoginSuccess: () => {
 			refreshTabsFromBackend();
-			refreshUserSettingsFromBackend();
+			getApi(api => {
+				api.userSettings.refreshUserSettingsFromBackend()
+			})
 			refreshFilesHistoryFromBackend();
 
 			getApi(api => {
@@ -162,16 +164,14 @@ export const App = () => {
 		}
 	})
 
-	// User settings!
-	const {
-		userSettingsApi,
-		refreshUserSettingsFromBackend
-	} = useUserSettings();
+	
 
 
 	// Toggle sidebar 
 	const toggleSidebar = () => {
-		userSettingsApi.set('ui_sidebar', !userSettingsApi.get('ui_sidebar'))
+		getApi(api => {
+			api.userSettings.set('ui_sidebar', !api.userSettings.get('ui_sidebar'))
+		})
 	}
 
 
@@ -292,7 +292,6 @@ export const App = () => {
 	const clientApi = useClientApi({
 		popupApi,
 		tabsApi,
-		userSettingsApi,
 		windowsApi,
 		statusApi,
 		historyApi,

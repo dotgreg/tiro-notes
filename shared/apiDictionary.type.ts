@@ -1,5 +1,5 @@
 import { iPerformanceReport, iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -101,5 +101,7 @@ export interface iApiDictionary {
 	getBackendConfig: { config: iBackConfig, idReq: string }
 
 	onServerTaskFinished: { status:"ok"|"ko", idReq: string}
-	onServerError: { status:"NO_RIPGREP_COMMAND_AVAILABLE"}
+	onServerError: { status:"NO_RIPGREP_COMMAND_AVAILABLE"|"NULL", platform:iPlatform}
+
+	askServerRestart: { }
 }

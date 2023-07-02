@@ -1,5 +1,6 @@
 import { cleanPath } from '../../../shared/helpers/filename.helper'
 import { backConfig } from '../config.back'
+import { userHomePath } from './fs.manager'
 import { log } from './log.manager'
 
 const nodeEnv = process.env.NODE_ENV || ''
@@ -13,10 +14,14 @@ const path = require('path')
 // export const
 
 const isAbsolute = (filePath: string) => {
+	let res = false
 	if (filePath.endsWith('/') || filePath.endsWith('\\')) filePath = filePath.slice(0, -1)
-	const res = path.resolve(filePath)
+	const res1 = path.resolve(filePath)
 	const norm = path.normalize(filePath)
-	return res === norm
+	res = res1 === norm
+
+	// if (filePath.startsWith(userHomePath())) res = true
+	return res
 }
 
 export const getFolderPath = (filePath: string): string => {
@@ -51,36 +56,32 @@ export const relativeToAbsolutePath = (pathFile: string, insideSnapshot: boolean
 		pathFile = ''
 	}
 
-	if (backConfig && backConfig.dataFolder) {
+	let osHomeDir = require('os').homedir()
+	if (pathFile.startsWith(osHomeDir)) {
+		// do nothing, already absolute
+
+	} else if (backConfig && backConfig.dataFolder) {
 	    pathFile = pathFile.split(backConfig.dataFolder).join('')
 	    pathFile = `${backConfig.dataFolder}${pathFile}`
-	}
-
-	let res = pathFile
-	let rootFolder
-	let basePath
-	if (!isAbsolute(pathFile)) {
-		if (insideSnapshot) {
-			basePath = isEnvDev() ? '../../..' : '..'
-			rootFolder = __dirname
-		} else {
-			// will be exec 
-			basePath = isEnvDev() ? '..' : ''
-			rootFolder = process.cwd()
+	
+		let rootFolder
+		let basePath
+		if (!isAbsolute(pathFile)) {
+			if (insideSnapshot) {
+				basePath = isEnvDev() ? '../../..' : '..'
+				rootFolder = __dirname
+			} else {
+				// will be exec 
+				basePath = isEnvDev() ? '..' : ''
+				rootFolder = process.cwd()
+			}
+			pathFile = path.join(rootFolder, `${basePath}/${pathFile}`)
 		}
-		res = path.join(rootFolder, `${basePath}/${pathFile}`)
 	}
+	
+	pathFile = cleanPath(pathFile)
 
-	// remove first all occurences of rootFolderPath
-	// if (backConfig && backConfig.dataFolder) {
-	//     pathFile = pathFile.split(backConfig.dataFolder).join('')
-	//     pathFile = `${backConfig.dataFolder}${pathFile}`
-	// }
-
-	res = cleanPath(res)
-
-	//if (insideSnapshot) log('relative2abs insideSnapshot', isAbsolute, pathFile, res);
-	return res
+	return pathFile
 }
 
 export const p = relativeToAbsolutePath

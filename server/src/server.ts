@@ -19,8 +19,7 @@ log(`
 isEnvDev: ${isEnvDev()}
 port: ${backConfig.port}
 https:${backConfig.https}
-platform: ${getPlatform()}
-architecture: ${archi}
+platform: ${JSON.stringify(getPlatform())}
 `)
 
 
