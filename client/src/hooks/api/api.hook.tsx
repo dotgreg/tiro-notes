@@ -5,7 +5,7 @@ import { iIframeData } from '../../managers/iframe.manager';
 import { iTabsApi, iWindowsApi } from '../app/tabs.hook';
 import { iLightboxApi } from '../app/useLightbox.hook';
 import { iPopupApi } from '../app/usePromptPopup.hook';
-import { iUserSettingsApi } from '../useUserSettings.hook';
+import { iUserSettingsApi, useUserSettings } from '../useUserSettings.hook';
 import { iBrowserApi, useBrowserApi } from './browser.api.hook';
 import { iFileApi, useFileApi } from './file.api.hook';
 import { iFilesApi, useFilesApi } from './files.api.hook';
@@ -129,7 +129,6 @@ export const ClientApiContext = React.createContext<iClientApi | null>(null);
 export const useClientApi = (p: {
 	popupApi: iPopupApi
 	tabsApi: iTabsApi
-	userSettingsApi: iUserSettingsApi
 	windowsApi: iWindowsApi
 	statusApi: iStatusApi
 	lightboxApi: iLightboxApi
@@ -199,7 +198,10 @@ export const useClientApi = (p: {
 	const cacheApi = useCacheApi({});
 	const notificationApi = useNotificationApi({});
 	const socketApi = useSocketApi();
-
+	// User settings!
+	const {
+		userSettingsApi,
+	} = useUserSettings({ eventBus });
 
 	const browserApi = useBrowserApi({
 		searchUiApi: searchApi.ui,
@@ -208,7 +210,7 @@ export const useClientApi = (p: {
 		foldersApi,
 		windowApi: p.windowsApi,
 		tabsApi: p.tabsApi,
-		userSettingsApi: p.userSettingsApi
+		userSettingsApi: userSettingsApi
 	})
 
 	const noteApi = useNoteApi({})
@@ -233,7 +235,7 @@ export const useClientApi = (p: {
 		tabs: p.tabsApi,
 		folders: foldersApi,
 		config: configApi,
-		userSettings: p.userSettingsApi,
+		userSettings: userSettingsApi,
 		history: p.historyApi,
 		status: p.statusApi,
 		note: noteApi,

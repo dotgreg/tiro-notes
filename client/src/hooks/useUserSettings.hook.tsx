@@ -5,6 +5,7 @@ import { sharedConfig } from '../../../shared/shared.config';
 import { iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
+import { iApiEventBus } from './api/api.hook';
 import { getLoginToken } from './app/loginToken.hook';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
@@ -20,7 +21,8 @@ export type iUserSettingsApi = {
 	refresh: {
 		css: { get: number }
 	}
-	updateSetupJson: (paramName: string, paramValue: string) => void
+	updateSetupJson: (paramName: string, paramValue: string, cb?:(res:string) => void) => void
+	refreshUserSettingsFromBackend: Function,
 }
 
 export const defaultValsUserSettings: iUserSettings = {
@@ -43,7 +45,9 @@ const log = sharedConfig.client.log.verbose
 
 
 
-export const useUserSettings = () => {
+export const useUserSettings =  (p: {
+	eventBus: iApiEventBus
+}) => {
 	// storage
 	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {})
 	const [refreshCss, setRefreshCss] = useState(0)
@@ -77,8 +81,6 @@ export const useUserSettings = () => {
 	}, 1000)
 
 
-
-
 	const updateSetupJson: iUserSettingsApi['updateSetupJson'] = (name, value) => {
 		// 2. emit request 
 		clientSocket2.emit('updateSetupJson', {
@@ -93,6 +95,7 @@ export const useUserSettings = () => {
 
 	// api
 	const userSettingsApi: iUserSettingsApi = {
+		refreshUserSettingsFromBackend,
 		updateSetupJson,
 		set: (name, value, opts) => {
 			if (!opts) opts = {}
@@ -132,8 +135,6 @@ export const useUserSettings = () => {
 	}
 
 	return {
-		userSettings,
 		userSettingsApi,
-		refreshUserSettingsFromBackend
 	}
 }

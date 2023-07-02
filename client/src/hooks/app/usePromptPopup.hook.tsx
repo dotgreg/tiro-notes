@@ -21,7 +21,9 @@ export type iPopupApi = {
 		title?: string,
 		userInput?: boolean,
 		onAccept?: Function,
-		onRefuse?: Function
+		onRefuse?: Function,
+		acceptLabelButton?: string,
+		refuseLabelButton?: string,
 	}) => void
 }
 
@@ -36,6 +38,9 @@ export const usePromptPopup = (p: {
 	const [userInput, setUserInput] = useState<string | null>(null)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
 	const [showRefuse, setShowRefuse] = useState(false)
+
+	const [acceptLabel, setAcceptLabel] = useState(strings.promptPopup.accept)
+	const [refuseLabel, setRefuseLabel] = useState(strings.promptPopup.refuse)
 
 	const reinitPopup = () => {
 		setUserInput(null)
@@ -66,14 +71,8 @@ export const usePromptPopup = (p: {
 		setDisplayPromptPopup(true)
 		setText(p.text);
 
-		// if script present in text, extract it and execute it
-		// let scriptStr = ''
-		// const matchs = p.text.match(regexs.scriptHtml)
-		// if (matchs && matchs[0]) {
-		// 	scriptStr = matchs[0].replace('<script>', '').replace('</script>', '').replace("\n", '').replace('\t', '')
-		// 	console.log(22255, scriptStr);
-		// }
-		// setScript(scriptStr)
+		if (p.acceptLabelButton) setAcceptLabel(p.acceptLabelButton)
+		if (p.refuseLabelButton) setRefuseLabel(p.refuseLabelButton)
 
 		if (p.title) setTitle(p.title);
 		if (p.userInput) setUserInput("");
@@ -119,14 +118,14 @@ export const usePromptPopup = (p: {
 							value='submit'
 							className="accept submit-button"
 							onClick={e => { liveVars.onAccept(userInput); closePopup() }}>
-							{strings.promptPopup.accept}
+							{acceptLabel}
 						</button>
 						{showRefuse &&
 							<button
 								value='submit'
 								className="refuse submit-button"
 								onClick={e => { liveVars.onRefuse(userInput); closePopup() }}>
-								{strings.promptPopup.refuse}
+								{refuseLabel}
 							</button>
 						}
 					</div>

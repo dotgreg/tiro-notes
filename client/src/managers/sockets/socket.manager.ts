@@ -6,6 +6,8 @@ import { getSetting } from '../../components/settingsView/settingsView.component
 import { configClient } from '../../config';
 import { strings } from '../strings.manager';
 import * as io from 'socket.io-client'
+import { getApi } from '../../hooks/api/api.hook';
+import { startRipgrepInstallerProcess } from '../ripgrepInstaller.manager';
 // import 'socket.io-client'
 
 export let clientSocket: SocketIOClient.Socket
@@ -46,6 +48,13 @@ export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 
 		// resolve then connectionSuccess is received from backend
 		clientSocket2 = initClientSocketManager<iApiDictionary>(clientSocket)
+		clientSocket2.on("onServerError", data => {
+			if (data.status === "NO_RIPGREP_COMMAND_AVAILABLE") {
+				getApi(api => {
+					startRipgrepInstallerProcess(data.platform)
+				})
+			}
+		})
 		clientSocket2.on('connectionSuccess', data => {
 			configClient.log.socket && console.log(`[SOCKET] connection successful!, socket.connected :${clientSocket.connected}`, data);
 			if (!data.isRgGood) {

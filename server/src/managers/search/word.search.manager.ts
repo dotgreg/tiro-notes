@@ -9,6 +9,7 @@ export const searchWord = (p: {
 	term: string,
 	folder: string,
 	cb: (res: iSearchWordRes) => void
+	onRgDoesNotExists: () => void
 }) => {
 	const objRes: iSearchWordRes = {}
 	searchWithRgGeneric({
@@ -31,6 +32,8 @@ export const searchWord = (p: {
 
 		onSearchEnded: async () => {
 			p.cb(objRes)
-		}
+		},
+		onRgDoesNotExists: p.onRgDoesNotExists
+		
 	})
 }

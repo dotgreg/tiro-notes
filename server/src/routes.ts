@@ -28,6 +28,7 @@ import { createFileHistoryVersion,  fileHistoryParams, getHistoryFolder, process
 import { getDateObj } from "../../shared/helpers/date.helper";
 import { isArray } from "lodash";
 import { relative } from "path";
+import { getPlatform } from "./managers/platform.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -46,7 +47,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			onSearchEnded: async res => {
 				if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 			},
-			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
 	})
 
@@ -59,7 +60,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			onSearchEnded: async res => {
 				if (res.images) await serverSocket2.emit('getImages', { images: res.images })
 			},
-			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
 	})
 
@@ -84,7 +85,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			folder: data.folder,
 			cb: res => {
 				serverSocket2.emit('getWordSearch', { result: res, idReq: data.idReq })
-			}
+			},
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
 	})
 
@@ -100,7 +102,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				onSearchEnded: async res => {
 					if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 				},
-				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
+				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 			})
 		}
 		else if (data.type === 'image') {
@@ -112,7 +114,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				onSearchEnded: async res => {
 					if (res.images) await serverSocket2.emit('getImages', { images: res.images })
 				},
-				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
+				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 			})
 		}
 	})
@@ -436,11 +438,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		serverSocket2.emit('getActivityReport', { report, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
-	//
+	// 
 	// CONFIG API
 	// 
 	serverSocket2.on('askBackendConfig', async data => {
 		serverSocket2.emit('getBackendConfig', {config: backConfig, idReq: data.idReq })
+	}, { checkRole: "editor" })
+
+
+	serverSocket2.on('askServerRestart', async data => {
+		restartTiroServer()
 	}, { checkRole: "editor" })
 
 

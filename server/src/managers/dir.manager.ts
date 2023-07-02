@@ -348,7 +348,7 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 			onSearchEnded: async answer => {
 				res(answer.files)
 			},
-			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
+			onRgDoesNotExists: () => { serverSocket2 && serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform() })}
 		})
 	})
 }

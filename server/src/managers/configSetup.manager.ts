@@ -17,6 +17,7 @@ var fs = require('fs')
 // as we need to go down from sources-tiro/server/tiro-config.json to sources-tiro/tiro-config.json in dev mode
 export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 
+// console.log(123123, appConfigJsonPath)
 
 
 
