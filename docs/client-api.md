@@ -191,8 +191,10 @@
        1. cacheId: <span class="render-code-wrapper">string</span>
        1. contentToCache: <span class="render-code-wrapper">any</span>
        1. cacheMin: <span class="render-code-wrapper">number</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">number</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">number</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 
@@ -336,8 +338,10 @@ noteLink should be relative from tiro folder
        1. noteLink: <span class="render-code-wrapper">string</span>
        1. content: <span class="render-code-wrapper">string</span>
        1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;history?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;withMetas?: <span class="render-code-wrapper">boolean</span><br/>}</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.saveContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;history?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;withMetas?: <span class="render-code-wrapper">boolean</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.saveContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;history?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;withMetas?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 
@@ -1153,7 +1157,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iNotification</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inotificationtype">iNotificationType</a></span>, <br/>&nbsp;&nbsp;&nbsp;hideAfter?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;keepInHistory?: <span class="render-code-wrapper">boolean</span><br/>}</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inotificationtype">iNotificationType</a></span>, <br/>&nbsp;&nbsp;&nbsp;hideAfter?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;keepInHistory?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;showOnceEvery?: <span class="render-code-wrapper">number</span><br/>}</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iTtsStatus</span>
