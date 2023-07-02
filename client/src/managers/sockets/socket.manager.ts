@@ -48,7 +48,9 @@ export const initSocketConnexion = (): Promise<iServerSocketConfig> => {
 		clientSocket2 = initClientSocketManager<iApiDictionary>(clientSocket)
 		clientSocket2.on('connectionSuccess', data => {
 			configClient.log.socket && console.log(`[SOCKET] connection successful!, socket.connected :${clientSocket.connected}`, data);
-			if (!data.isRgGood) alert(strings.rgNotWorking);
+			if (!data.isRgGood) {
+				
+			}
 			resolve({
 				socket: clientSocket,
 				ipsServer: data.ipsServer,

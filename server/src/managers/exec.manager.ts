@@ -5,13 +5,7 @@ import { log } from "./log.manager";
 const execa = require('execa');
 const shouldLog = sharedConfig.server.log.verbose
 
-export const exec2 = async (command: string[]): Promise<any> => {
-	log(`[EXEC2] ${JSON.stringify(command)}`);
-	let args = [...command]
-	args.shift()
-	const { stdout } = await execa(command[0], args);
-	return stdout
-}
+// high level exec functions
 export const execString = async (command: string): Promise<any> => {
 	let res = ""
 	try {
@@ -28,14 +22,20 @@ export const execString = async (command: string): Promise<any> => {
 
 type iOnDataExec = (r: iCommandStreamChunk) => void
 
-
+let h = `[EXEC STREAM]`
 export const execStringStream = async (
 	command: string,
 	onData: iOnDataExec
 ) => {
-	const commandStream = execa.command(command, { shell: true })
 
-	shouldLog && log(`[EXEC STRING] ${JSON.stringify(command)}`);
+	let err = null
+	const commandStream = execa.command(command, { shell: true }).catch(error => {
+		err = error
+	});
+
+	if (!commandStream.stdout) return console.log(h, `ERROR with cmd ${command}`, err)
+
+	shouldLog && log(h,` ${JSON.stringify(command)}`);
 	let index = 0
 	let textTot = ""
 
@@ -52,4 +52,16 @@ export const execStringStream = async (
 
 	commandStream.stdout.on('data',  processData(false, false))
 	commandStream.stdout.on('close', processData(true, false))
+}
+
+// low level exec functions
+// for error catching
+h = `[EXEC execaWrapper]`
+export const execaWrapper = (cmdPath:any, args:any):any | null => {
+	let streamProcess = execa(cmdPath, args)
+	.catch(error => {
+		console.log(h, "ERROR", {cmdPath, args}, error);
+	});
+	if (!streamProcess.stdout) return null
+	return streamProcess
 }

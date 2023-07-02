@@ -3,6 +3,7 @@ import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
+import { execaWrapper } from "../exec.manager";
 import { fileExists } from "../fs.manager";
 import { log } from "../log.manager";
 import { getRelativePath } from "../path.manager";
@@ -93,8 +94,9 @@ export const searchWithRgGeneric = async (p: {
 	]
 	// p.options.debug && console.log(`== START1 ============`);
 	// p.options.debug && console.log(backConfig.rgPath, searchParams);
-	const ripGrepStream = execa(backConfig.rgPath, searchParams)
-	// console.log(666666555555, searchParams)
+	let ripGrepStream = execaWrapper(backConfig.rgPath, searchParams)
+	if (!ripGrepStream) return
+	
 	const resArr: string[] = []
 	ripGrepStream.stdout.on('data', async dataChunk => {
 		// console.log("========", dataChunk);
@@ -207,7 +209,8 @@ export const searchWithRipGrep = async (params: {
 
 
 		let resultsRawArr: string[] = []
-		const ripGrepStreamProcess1 = execa(backConfig.rgPath, normalSearchParams)
+		let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
+		if (!ripGrepStreamProcess1) return
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
 			const rawMetaString = dataRaw.toString()
 			// split multiline strings
@@ -261,8 +264,11 @@ export const searchWithRipGrep = async (params: {
 		]
 
 		// PROCESS 1
-		const ripGrepStreamProcess1 = execa(backConfig.rgPath, fullFolderSearchParams)
-		// const filesScanned:iFile[] = []
+		// console.log(112221)
+		// let ripGrepStreamProcess1
+		let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, fullFolderSearchParams)
+		if (!ripGrepStreamProcess1) return
+
 		const filesScannedObj: iFilesObj = {}
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
 			let data = dataRaw.toString()
@@ -280,7 +286,9 @@ export const searchWithRipGrep = async (params: {
 		})
 
 		// PROCESS 2
-		const ripGrepStreamProcess2 = execa(backConfig.rgPath, metaFilesInFullFolderSearch)
+		let ripGrepStreamProcess2 = execaWrapper(backConfig.rgPath, metaFilesInFullFolderSearch)
+		if (!ripGrepStreamProcess2) return
+		
 		const rawMetasStrings: string[] = []
 		let metasFilesScanned: iMetasFiles = {}
 		ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
@@ -330,7 +338,8 @@ export const searchWithRipGrep = async (params: {
 			'--multiline',
 			...exclusionArr
 		]
-		const ripGrepStreamProcessImg2 = execa(backConfig.rgPath, searchParams)
+		let ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
+		if (!ripGrepStreamProcessImg2) return
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
 			const partialRawString = dataRaw.toString()
@@ -357,7 +366,8 @@ export const searchWithRipGrep = async (params: {
 			'--multiline',
 			...exclusionArr
 		]
-		const ripGrepStreamProcessImg1 = execa(backConfig.rgPath, searchParams)
+		const ripGrepStreamProcessImg1 = execaWrapper(backConfig.rgPath, searchParams)
+		if (!ripGrepStreamProcessImg1) return
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
 			const partialRawString = dataRaw.toString()
@@ -391,9 +401,10 @@ export const searchWithRipGrep = async (params: {
 			'--multiline',
 			...exclusionArr
 		]
-		// console.log(`==============`);
-		// console.log(searchParams);
-		const ripGrepStreamProcessImg2 = execa(backConfig.rgPath, searchParams)
+
+		const ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
+		if (!ripGrepStreamProcessImg2) return
+		
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
 			const partialRawString = dataRaw.toString()
