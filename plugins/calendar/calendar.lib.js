@@ -64,14 +64,22 @@ const getEventsList = (calNotePath, cb) => {
 }
 
 const sendNotif = (event, title) => {
+    const notifId = `${event.title}${event.body}${event.date}`
+    // tiroApi.cache.get(notifId, cacheInfo => {
+        // if (cacheInfo && cacheInfo.alreadyShown === true) return console.log(h, "sendNotif already shown, dont reshow it", event)
+        
+        // tiroApi.cache.set(notifId, {alreadyShown: true},  4*60) // 4h cache, so should show reminder 1-2 times then
+    // })
+
     let body = event.body.trim().startsWith("http") ? `<a href="${event.body}" target="_blank">${event.body}</a>` : event.body
     notifHtml = `
         [CALENDAR] <br>
-        ${title}  <br> 
+        ${title}  <br> <br>
         <b>${event.title}</b><br> 
         <div style="color:#acacac; font-size:10px;">${body}</div>
     `
-    tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter: -1}})
+    tiroApi.ui.notification.emit({id:notifId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: 4*60}})
+    
 }
 
 

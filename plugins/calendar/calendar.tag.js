@@ -85,13 +85,15 @@ const calendarApp = (innerTagStr, opts) => {
                     <div class='body'>${evCal.body}</div>
                 </div>`
 
-                    const popupBody = `title: ${evCal.title}<br/>date: ${evCal.date}<br/>${urlify(evCal.body)}`
+                    const popupBody = `<h3 style="margin-bottom: 2px;"> ${evCal.title}</h3>
+                    <div style="color:#acacac; font-size:10px;"> ${evCal.date.toLocaleString()}</div><br/>
+                    ${urlify(evCal.body)}`
                     calEvents.push({
                         'Date': new Date(`${evCal.date.toLocaleString("en").split(" ")[0]} 00:00`),
                         'Title': titleAndBody,
                         'Link': function (e) {
                                 e.preventDefault();
-                                api.call("popup.show", [popupBody, evCal.title])
+                                api.call("popup.show", [popupBody, "Event Details"])
                         }
                 })
             }

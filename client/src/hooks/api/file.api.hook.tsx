@@ -30,8 +30,11 @@ export interface iFileApi {
 			onError?: Function
 		}
 	) => void
-	saveContent: (noteLink: string, content: string,
-		options?: { withMetas?: boolean, history?: boolean }
+	saveContent: (
+		noteLink: string, 
+		content: string,
+		options?: { withMetas?: boolean, history?: boolean },
+		cb?: (res:any) => void
 	) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
 	move: iMoveApi['file']
@@ -49,8 +52,10 @@ export const useFileApi = (p: {
 	// LISTEN TO SOCKET
 	// 
 	useEffect(() => {
+		clientSocket2.on('onServerTaskFinished', data => {
+			p.eventBus.notify(data.idReq, { data })
+		})
 		clientSocket2.on('getFileContent', data => {
-			// console.log(333, data)
 			if (data.error) {
 				p.eventBus.notify(data.idReq, { error: data.error })
 			} else {
@@ -90,16 +95,30 @@ export const useFileApi = (p: {
 
 	// 2. SET CONTENT
 	const lastNoteWHistory = useRef('');
-	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options) => {
+	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
 
 		const history = (options && options.history) ? options.history : false
 		const withMetas = (options && options.withMetas) ? options.withMetas : true
 
+		//
+		// 2. wait for callback
+		const idReq = genIdReq('save-file-content');
+		if (cb) {
+			// 1. add a listener function
+			p.eventBus.subscribe(idReq, answer => {
+				if (cb) cb(answer)
+			});
+		}
+
+		//
+		// 1 FILE CREATION
 		const filePath = noteLinkToPath(noteLink);
 		clientSocket2.emit('saveFileContent', {
 			filePath, newFileContent: content,
 			// options: optsApi,
 			token: getLoginToken(),
+			idReq,
+			withCb: cb ? true : false
 		})
 
 		if (history) {
@@ -121,7 +140,12 @@ export const useFileApi = (p: {
 			p.historyApi.intervalSave(noteLink, content)
 			lastNoteWHistory.current = noteLink
 		}
+
+		
 	}
+
+
+
 
 	//
 	// Send/Receive logic (with chunker if content too large) => NOPE, more a config pb on nginx side
