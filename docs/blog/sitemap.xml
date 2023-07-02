@@ -17,7 +17,7 @@
 	</url>
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities</loc>
+		<loc>https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
 	
@@ -42,27 +42,12 @@
 	</url>
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/tags/guides/</loc>
-		<lastmod>2023-07-02</lastmod>
-	</url>
-	
-	<url>
 		<loc>https://tiro-notes.org/blog/tags/ai/</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://tiro-notes.org/blog/tags/text-editor/</loc>
-		<lastmod>2023-07-02</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/release/</loc>
-		<lastmod>2023-07-02</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/changelog/</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
 	
@@ -78,6 +63,21 @@
 	
 	<url>
 		<loc>https://tiro-notes.org/blog/tags/task-management/</loc>
+		<lastmod>2023-07-02</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/guides/</loc>
+		<lastmod>2023-07-02</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/release/</loc>
+		<lastmod>2023-07-02</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/changelog/</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
 </urlset>
