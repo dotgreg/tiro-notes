@@ -21,10 +21,11 @@
 
 				"============= BUILD PROCESS ================": "",
 				"=== ENV INSTALL": "",
-				"env-install": "dpkg --print-architecture; echo ==1==; dpkg --print-foreign-architectures; echo ==2==; sudo dpkg --add-architecture i386; echo =3==; dpkg --print-foreign-architectures; echo =4==; sudo apt update -y; echo ==5==; npm run wine-install-ubuntu20-2",
+				"env-install": "dpkg --print-architecture; echo ==1==; dpkg --print-foreign-architectures; echo ==2==; sudo dpkg --add-architecture i386; echo =3==; dpkg --print-foreign-architectures; echo =4==; sudo apt update -y; echo ==5==; npm run wine-install-ubuntu20-ok",
 				"wine-install-ubuntu20-1": "sudo dpkg --add-architecture i386; sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 86B72ED9;sudo add-apt-repository 'deb [arch=amd64] https://mirror.mxe.cc/repos/apt focal main';sudo apt -qq update;sudo apt install -y --allow-downgrades libpcre2-8-0=10.34-7;sudo apt install wine32 wine64 -y",
 				"wine-install-ubuntu20-2": "sudo rm -f /etc/apt/sources.list.d/microsoft-prod.list;sudo dpkg --add-architecture i386;sudo apt-get update -qq;sudo apt-get install -yqq --allow-downgrades binutils-mingw-w64-x86-64 g++-mingw-w64-x86-64 libc6:i386 libgcc-s1:i386 libstdc++6:i386 mingw-w64 wine-stable;sudo apt install wine32 wine64 -y",
-				
+				"wine-install-ubuntu20-3": "sudo dpkg --add-architecture i386;",
+				"wine-install-ubuntu20-ok": "sudo apt install wine32 wine64 -y",
 				"=== MAKE COMMANDS": "",
 				"make-all": "npm run make-linux-x64; npm run make-darwin-x64; npm run make-win-x64",
 				"make-test": "npm run make-win-x64",
