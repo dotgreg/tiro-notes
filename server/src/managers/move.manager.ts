@@ -80,7 +80,7 @@ export const debouncedFolderScan = debounce(
 		let folderPath = folderPathArr.join('/')
 		log(`[HEAVY] ==> debouncedScanAfterMove for ${folderPath}`);
 
-		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
+		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`, socket)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		socket.emit('getFiles', { files: apiAnswer, idReq })
 	}, 100)

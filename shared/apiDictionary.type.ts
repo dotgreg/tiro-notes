@@ -101,4 +101,5 @@ export interface iApiDictionary {
 	getBackendConfig: { config: iBackConfig, idReq: string }
 
 	onServerTaskFinished: { status:"ok"|"ko", idReq: string}
+	onServerError: { status:"NO_RIPGREP_COMMAND_AVAILABLE"}
 }

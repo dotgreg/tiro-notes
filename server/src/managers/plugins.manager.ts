@@ -1,9 +1,11 @@
 import { each, isArray, isString, rest } from "lodash";
+import { iApiDictionary } from "../../../shared/apiDictionary.type";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iPlugin } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { scanDirForFiles } from "./dir.manager";
 import { openFile } from "./fs.manager";
+import { ServerSocketManager } from "./socket.manager";
 
 const h = `[PLUGINS]`
 type iRes = {plugins:iPlugin[], scanLog:string[]}

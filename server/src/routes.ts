@@ -45,7 +45,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			titleSearch: false,
 			onSearchEnded: async res => {
 				if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
-			}
+			},
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
 		})
 	})
 
@@ -57,7 +58,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			titleSearch: false,
 			onSearchEnded: async res => {
 				if (res.images) await serverSocket2.emit('getImages', { images: res.images })
-			}
+			},
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
 		})
 	})
 
@@ -97,7 +99,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				titleSearch: termObj.titleSearch,
 				onSearchEnded: async res => {
 					if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
-				}
+				},
+				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
 			})
 		}
 		else if (data.type === 'image') {
@@ -108,7 +111,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				titleSearch: termObj.titleSearch,
 				onSearchEnded: async res => {
 					if (res.images) await serverSocket2.emit('getImages', { images: res.images })
-				}
+				},
+				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
 			})
 		}
 	})
@@ -182,7 +186,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		await saveFile(`${notePath}`, ``)
 
 		// rescan folder files list
-		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`)
+		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`, serverSocket2)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 		endPerf()
@@ -220,7 +224,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let endPerf = perf('askFileHistory ' + data.filepath)
 		const file = pathToIfile(data.filepath)
 		const historyFolder = getHistoryFolder(file)
-		let allHistoryFiles = await scanDirForFiles(historyFolder)
+		let allHistoryFiles = await scanDirForFiles(historyFolder, serverSocket2)
 		if (!isArray(allHistoryFiles)) allHistoryFiles = []
 		// filter .infos.md
 		allHistoryFiles = allHistoryFiles.filter(f => f.name !== fileHistoryParams.infosFile)
@@ -241,7 +245,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		// rescan folder files list
 		const folderPath = getFolderPath(data.filepath)
-		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`)
+		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${folderPath}`, serverSocket2)
 		if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 		serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 	}, { checkRole: "editor" })
