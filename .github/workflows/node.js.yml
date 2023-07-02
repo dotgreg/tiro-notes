@@ -47,7 +47,7 @@ jobs:
         name: tiro-notes-linux-x64
         path: ./platforms/electron/out/make/deb/x64/*.deb
 
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v3 
       with:
         name: tiro-notes-darwin-arm
         path: ./platforms/electron/out/make/zip/darwin/arm64/*.zip
