@@ -31,7 +31,10 @@ export const isRgCliWorking = async (): Promise<boolean> => {
 	}
 }
 
-
+// const rgDoesNotExists = () => {
+// 	console.log("====> RG DOES NOT EXISTS")
+// 	serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
+// }
 
 
 //
@@ -56,6 +59,8 @@ export const searchWithRgGeneric = async (p: {
 
 	processRawLine?: (infos: iLineRg) => any
 	onSearchEnded: (res: any) => void
+	onRgDoesNotExists?: () => void
+
 }): Promise<void> => {
 
 	if (!p.recursive) p.recursive = true
@@ -63,6 +68,7 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
+	if (!p.onRgDoesNotExists) p.onRgDoesNotExists = () => {}
 
 	let exclusionArr:string[] = []
 	// exclusion string // not working currenlty
@@ -95,7 +101,7 @@ export const searchWithRgGeneric = async (p: {
 	// p.options.debug && console.log(`== START1 ============`);
 	// p.options.debug && console.log(backConfig.rgPath, searchParams);
 	let ripGrepStream = execaWrapper(backConfig.rgPath, searchParams)
-	if (!ripGrepStream) return
+	if (!ripGrepStream) return p.onRgDoesNotExists()
 	
 	const resArr: string[] = []
 	ripGrepStream.stdout.on('data', async dataChunk => {
@@ -145,15 +151,15 @@ export const searchWithRipGrep = async (params: {
 	typeSearch: 'term' | 'folder' | 'term-image' | 'folder-image' | 'folder-regex'
 
 	onSearchEnded: (res: { files?: iFile[], images?: iFileImage[] }) => Promise<void>
+	onRgDoesNotExists?: () => void
 
 	processRawEl?: (raw: string) => any
 	processFinalRes?: (raw: string) => any
 
-	// exclude?:string[]
-
 }): Promise<void> => {
 	let p = params
 	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
+	if (!p.onRgDoesNotExists) p.onRgDoesNotExists = () => {}
 
 	let processTerm = params.term.split('-').join('\\-')
 
@@ -210,7 +216,8 @@ export const searchWithRipGrep = async (params: {
 
 		let resultsRawArr: string[] = []
 		let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
-		if (!ripGrepStreamProcess1) return
+		if (!ripGrepStreamProcess1) return p.onRgDoesNotExists()
+
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
 			const rawMetaString = dataRaw.toString()
 			// split multiline strings
@@ -267,7 +274,7 @@ export const searchWithRipGrep = async (params: {
 		// console.log(112221)
 		// let ripGrepStreamProcess1
 		let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, fullFolderSearchParams)
-		if (!ripGrepStreamProcess1) return
+		if (!ripGrepStreamProcess1) return p.onRgDoesNotExists()
 
 		const filesScannedObj: iFilesObj = {}
 		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
@@ -287,7 +294,7 @@ export const searchWithRipGrep = async (params: {
 
 		// PROCESS 2
 		let ripGrepStreamProcess2 = execaWrapper(backConfig.rgPath, metaFilesInFullFolderSearch)
-		if (!ripGrepStreamProcess2) return
+		if (!ripGrepStreamProcess2) return p.onRgDoesNotExists()
 		
 		const rawMetasStrings: string[] = []
 		let metasFilesScanned: iMetasFiles = {}
@@ -339,7 +346,8 @@ export const searchWithRipGrep = async (params: {
 			...exclusionArr
 		]
 		let ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
-		if (!ripGrepStreamProcessImg2) return
+		if (!ripGrepStreamProcessImg2) return p.onRgDoesNotExists()
+
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
 			const partialRawString = dataRaw.toString()
@@ -367,7 +375,8 @@ export const searchWithRipGrep = async (params: {
 			...exclusionArr
 		]
 		const ripGrepStreamProcessImg1 = execaWrapper(backConfig.rgPath, searchParams)
-		if (!ripGrepStreamProcessImg1) return
+		if (!ripGrepStreamProcessImg1) return p.onRgDoesNotExists()
+
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
 			const partialRawString = dataRaw.toString()
@@ -403,7 +412,7 @@ export const searchWithRipGrep = async (params: {
 		]
 
 		const ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
-		if (!ripGrepStreamProcessImg2) return
+		if (!ripGrepStreamProcessImg2) return p.onRgDoesNotExists()
 		
 		const rawStrings: string[] = []
 		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {

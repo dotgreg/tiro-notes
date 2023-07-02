@@ -333,12 +333,12 @@ const isChildAFolder = (childPath: string, parentPath: string): boolean => {
 
 export const lastFolderFilesScanned = { value: "" }
 export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<iApiDictionary>) => {
-	let apiAnswer = await scanDirForFiles(lastFolderFilesScanned.value)
+	let apiAnswer = await scanDirForFiles(lastFolderFilesScanned.value, serverSocket2)
 	if (typeof (apiAnswer) === 'string') return log(apiAnswer)
 	serverSocket2.emit('getFiles', { files: apiAnswer, idReq: '-' })
 }
 
-export const scanDirForFiles = async (path: string): Promise<iFile[] | string> => {
+export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocketManager<iApiDictionary>): Promise<iFile[] | string> => {
 	return new Promise((res, rej) => {
 		searchWithRipGrep({
 			term: '',
@@ -347,7 +347,8 @@ export const scanDirForFiles = async (path: string): Promise<iFile[] | string> =
 			titleSearch: false,
 			onSearchEnded: async answer => {
 				res(answer.files)
-			}
+			},
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE"})}
 		})
 	})
 }
