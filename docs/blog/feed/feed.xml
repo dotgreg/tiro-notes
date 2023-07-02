@@ -16,11 +16,9 @@
 		<link href="https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html"/>
 		<updated>2023-07-02T00:00:00Z</updated>
 		<id>https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html</id>
-		<content type="html">&lt;p&gt;I have been quite busy working on Tiro and deploying it to the command line (npx tiro-notes@develop) so I left aside the binaries releases.
-Here is an update. Goal is to increase the binary releases to 1 every 1-2 months.&lt;/p&gt;
-&lt;p&gt;The changelog is huge as quite a lot has been going on in term of functionalities and bugfix. More than 100 new functionalities have been added.
-An emphasis has been done on performance improvement and stability.&lt;/p&gt;
-&lt;p&gt;I am still struggling to document everything that is being released, so it will be done slowly by slowly on the &lt;a href=&quot;https://tiro-notes.org&quot;&gt;https://tiro-notes.org&lt;/a&gt;  website and on the blog &lt;a href=&quot;https://tiro-notes.org/blog&quot;&gt;https://tiro-notes.org/blog&lt;/a&gt;&lt;/p&gt;
+		<content type="html">&lt;p&gt;I have been quite busy working on Tiro and deploying it to the command line (&lt;code&gt;npx tiro-notes@develop&lt;/code&gt;), so I left aside the binary releases. Here is an update. The goal is to increase the frequency of binary releases to one every 1-2 months.&lt;/p&gt;
+&lt;p&gt;The changelog is extensive as a lot has been going on in terms of functionalities and bug fixes. Over 100 new functionalities have been added. Special emphasis has been placed on performance improvements and stability.&lt;/p&gt;
+&lt;p&gt;I am still struggling to document everything that is being released, so it will be done gradually on the &lt;a href=&quot;https://tiro-notes.org&quot;&gt;Tiro Notes website&lt;/a&gt; and on the &lt;a href=&quot;https://tiro-notes.org/blog&quot;&gt;blog&lt;/a&gt;.&lt;/p&gt;
 &lt;p&gt;Mac/Linux/Windows Applications can be downloaded &lt;a href=&quot;https://github.com/dotgreg/tiro-notes/releases/tag/production&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&quot;new-functionalities&quot; tabindex=&quot;-1&quot;&gt;New functionalities &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h3 id=&quot;omnibar&quot; tabindex=&quot;-1&quot;&gt;Omnibar &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
