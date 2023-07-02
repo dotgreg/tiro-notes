@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Tiro Notes 0.30.99 Macos/Win/Linux released with 100+ functionnalities</title>
+		<meta name="description" content="Tiro Notes Blog and Devlog">
+		<link href=" https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css " rel="stylesheet">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Tiro Notes Blog">
+		<link rel="alternate" href="/feed/feed.json" type="application/json" title="Tiro Notes Blog">
+		
+		<style>/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}
+* { box-sizing: border-box; }
+/* Defaults */
+:root {
+		--font-family:  Source Sans Pro,Helvetica Neue,Arial,sans-serif;
+		--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+		--color-main-red: #f56e6e;
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #333;
+
+		--background-color: #fff;
+
+		--text-color: var(--color-gray-90);
+		--text-color-link: #f56e6e;
+		--text-color-link-active: #f56e6e;
+		--text-color-link-visited: #f56e6e;
+
+		--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+		:root {
+				--color-gray-20: #1e1e1e;
+				--color-gray-50: #1e1e1e;
+				--color-gray-90: #1e1e1e;
+
+				/* --text-color is assigned to --color-gray-_ above */
+				--text-color-link:#f56e6e;
+				--text-color-link-active: #f56e6e;
+				--text-color-link-visited: #f56e6e;
+
+				--background-color: #fff;
+		}
+}
+
+
+/* Global stylesheet */
+* {
+		box-sizing: border-box;
+}
+
+a {
+		text-decoration: none;
+}
+
+html,
+body {
+		padding: 0;
+		margin: 0 auto;
+		font-family: var(--font-family);
+		color: var(--text-color);
+		background-color: var(--background-color);
+}
+html {
+		overflow-y: scroll;
+}
+body {
+		max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+		clip: rect(0 0 0 0);
+		clip-path: inset(50%);
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+}
+
+p:last-child {
+		margin-bottom: 0;
+}
+p {
+		line-height: 1.5;
+}
+
+li {
+		line-height: 1.5;
+}
+
+a[href] {
+		color: var(--text-color-link);
+}
+a[href]:visited {
+		color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+		color: var(--text-color-link-active);
+}
+
+main {
+		padding: 1rem;
+}
+main :first-child {
+		margin-top: 0;
+}
+
+header {
+		/* border-bottom: 1px dashed var(--color-gray-20); */
+}
+header:after {
+		content: "";
+		display: table;
+		clear: both;
+}
+
+.links-nextprev {
+		list-style: none;
+		padding: 1em 0;
+		display: flex;
+    justify-content: space-between;
+}
+
+table {
+		margin: 1em 0;
+}
+table td,
+table th {
+		padding-right: 1em;
+}
+
+pre,
+code {
+		font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+		margin: .5em 0;
+		line-height: 1.375; /* 22px /16 */
+		-moz-tab-size: var(--syntax-tab-size);
+		-o-tab-size: var(--syntax-tab-size);
+		tab-size: var(--syntax-tab-size);
+		-webkit-hyphens: none;
+		-ms-hyphens: none;
+		hyphens: none;
+		direction: ltr;
+		text-align: left;
+		white-space: pre;
+		word-spacing: normal;
+		word-break: normal;
+}
+code {
+		word-break: break-all;
+}
+
+/* Header */
+header {
+		display: flex;
+		gap: 1em .5em;
+		flex-wrap: wrap;
+		align-items: center;
+		padding: 1em;
+		position:relative;
+}
+/*
+
+#ARTICLE
+
+*/
+
+.post-metadata {
+	margin-bottom: 20px!important;
+}
+
+p img {
+	max-width: 90%;
+	display:block;
+}
+code,
+p code {
+	background: #e6e6e6;
+    padding: 4px;
+    border-radius: 5px;
+}
+/*
+
+#LIST
+
+*/
+/* TAG LIST */
+.post-tags .tag:last-child .separator {
+		display:none;
+}
+.post-tags .tag {
+
+}
+.post-tags {
+		font-size: 10px;
+		margin-left: 20px;
+}
+.post-tags-length-1 {
+		display: none;
+}
+.tag-posts {
+		display:none;
+}
+.home-link img {
+		width: 50px;
+}
+.home-link {
+		width: 170px;
+		color: var(--color-gray-90)!important;
+		display: flex;
+		align-content: center;
+    align-items: center;
+    justify-content: space-between;
+
+		font-size: 1em; /* 16px /16 */
+		margin-right: 2em;
+}
+.home-link:link:not(:hover) {
+		text-decoration: none;
+}
+
+/* Nav */
+.nav {
+		position: absolute;
+		right: 0px;
+		top: 30px;
+		display: flex;
+		padding: 0;
+		margin: 0;
+		list-style: none;
+}
+.nav-item {
+		display: inline-block;
+		margin-left: 22px;
+		font-size: 15px;
+		color: var(--color-gray-90);
+}
+.nav-item a[href]:not(:hover) {
+		text-decoration: none;
+		color: var(--color-gray-90);
+}
+.nav a[href][aria-current="page"] {
+		text-decoration: none;
+}
+
+/* Posts list */
+.postlist {
+		list-style: none;
+		padding: 0;
+		padding-left: 1.5rem;
+}
+.postlist-item {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		counter-increment: start-from -1;
+		margin-bottom: 1em;
+}
+.postlist-item:before {
+		display: inline-block;
+		pointer-events: none;
+		content: "" counter(start-from, decimal-leading-zero) ". ";
+		line-height: 100%;
+		text-align: right;
+		margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+		font-size: 0.8125em; /* 13px /16 */
+		color: var(--color-gray-90);
+}
+.postlist-date {
+		word-spacing: -0.5px;
+}
+.postlist-link {
+		font-size: 1.1875em; /* 19px /16 */
+		font-weight: 700;
+		flex-basis: calc(100% - 1.5rem);
+		padding-left: .25em;
+		padding-right: .5em;
+		text-decoration: none;
+
+}
+.postlist-item-active .postlist-link {
+		font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		text-transform: capitalize;
+		font-style: italic;
+}
+.postlist-item > .post-tag {
+		align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+		display: inline-flex;
+		flex-wrap: wrap;
+		gap: .5em;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+}
+.post-metadata time {
+		margin-right: 1em;
+}
+
+/* Direct Links / Markdown Headers */
+.header-anchor {
+		text-decoration: none;
+		font-style: normal;
+		font-size: 1em;
+		margin-left: .1em;
+}
+a[href].header-anchor,
+a[href].header-anchor:visited {
+		color: transparent;
+}
+a[href].header-anchor:focus,
+a[href].header-anchor:hover {
+		text-decoration: none;
+}
+a[href].header-anchor:focus,
+:hover > a[href].header-anchor {
+		color: #aaa;
+}
+
+h2 + .header-anchor {
+		font-size: 1.5em;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+		header ul.nav {
+				top: 5px;
+				position: relative;
+				left: -15px;
+		}
+}</style>
+	</head>
+	<body>
+
+		<script type="text/javascript">
+			(function(window, document, dataLayerName, id) {
+					window[dataLayerName]=window[dataLayerName]||[],window[dataLayerName].push({start:(new Date).getTime(),event:"stg.start"});var scripts=document.getElementsByTagName('script')[0],tags=document.createElement('script');
+					function stgCreateCookie(a,b,c){var d="";if(c){var e=new Date;e.setTime(e.getTime()+24*c*60*60*1e3),d="; expires="+e.toUTCString()}document.cookie=a+"="+b+d+"; path=/"}
+					var isStgDebug=(window.location.href.match("stg_debug")||document.cookie.match("stg_debug"))&&!window.location.href.match("stg_disable_debug");stgCreateCookie("stg_debug",isStgDebug?1:"",isStgDebug?14:-1);
+					var qP=[];dataLayerName!=="dataLayer"&&qP.push("data_layer_name="+dataLayerName),isStgDebug&&qP.push("stg_debug");var qPString=qP.length>0?("?"+qP.join("&")):"";
+					tags.async=!0,tags.src="https://tiro-notes.containers.piwik.pro/"+id+".js"+qPString,scripts.parentNode.insertBefore(tags,scripts);
+					!function(a,n,i){a[n]=a[n]||{};for(var c=0;c<i.length;c++)!function(i){a[n][i]=a[n][i]||{},a[n][i].api=a[n][i].api||function(){var a=[].slice.call(arguments,0);"string"==typeof a[0]&&window[dataLayerName].push({event:n+"."+i+":"+a[0],parameters:[].slice.call(arguments,1)})}}(i[c])}(window,"ppms",["tm","cm"]);
+			})(window, document, 'dataLayer', '8be1ea79-efe6-40a5-8eaa-77e0a5d04b75');
+		</script>
+
+
+
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">
+				<img src="https://tiro-notes.org/favicon.png" />
+				Tiro Notes Blog
+			</a>
+			<nav>
+				<h2 class="visually-hidden">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"> <a href="/tags/guides/"> guides </a> </li>
+					<li class="nav-item"> <a href="/tags/devlog/"> devlog </a> </li>
+					<li class="nav-item"> <a href="/tags/"> all tags </a> </li>
+					<li class="nav-item">
+						<a href="/feed/feed.xml">
+							<span class="fa fa-rss"></span>
+					</a> </li>
+					<li class="nav-item"> <a href="https://github.com/dotgreg/tiro">
+							<span class="fa fa-github"></span>
+					</a> </li>
+					<li class="nav-item"> <a href="https://tiro-notes.org"> site > </a> </li>
+				</ul>
+				<!-- <ul class="nav"> -->
+					<!-- -->
+					<!-- 	<li class="nav-item"><a href="/">Home</a></li> -->
+					<!-- -->
+					<!-- 	<li class="nav-item"><a href="/blog/">Archive</a></li> -->
+					<!-- -->
+					<!-- </ul> -->
+			</nav>
+		</header>
+
+		<main id="skip">
+			
+<h1>Tiro Notes 0.30.99 Macos/Win/Linux released with 100+ functionnalities</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2023-07-02">02 July 2023</time></li>
+	<li><a href="/tags/devlog/" class="post-tag">devlog</a>, </li>
+	<li><a href="/tags/release/" class="post-tag">release</a>, </li>
+	<li><a href="/tags/changelog/" class="post-tag">changelog</a></li>
+</ul>
+
+<p>I have been quite busy working on Tiro and deploying it to the command line (npx tiro-notes@develop) so I left aside the binaries releases.
+Here is an update. Goal is to increase the binary releases to 1 every 1-2 months.</p>
+<p>The changelog is huge as quite a lot has been going on in term of functionalities and bugfix. More than 100 new functionalities have been added.
+An emphasis has been done on performance improvement and stability.</p>
+<p>I am still struggling to document everything that is being released, so it will be done slowly by slowly on the https://tiro-notes.org website and on the blog https://tiro-notes.org/blog</p>
+<h2 id="new-functionalities" tabindex="-1">New functionalities <a class="header-anchor" href="#new-functionalities">#</a></h2>
+<h3 id="omnibar" tabindex="-1">Omnibar <a class="header-anchor" href="#omnibar">#</a></h3>
+<ul>
+<li>
+<p>enable it : ctrl + space</p>
+</li>
+<li>
+<p>search mode</p>
+</li>
+<li>
+<p>explorer mode</p>
+</li>
+<li>
+<p>omnibar plugin mode</p>
+</li>
+<li>
+<p>last notes mode</p>
+</li>
+<li>
+<p>omnibar note preview + editor working</p>
+</li>
+</ul>
+<br>
+<img width="100%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/af49d5c3-534f-4c0d-ad3a-b8e364f78c16">
+<h3 id="design" tabindex="-1">Design <a class="header-anchor" href="#design">#</a></h3>
+<ul>
+<li>being able to change color theme of the app</li>
+</ul>
+<br>
+<img width="50%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/d06954c7-c1d6-4f90-aa6b-f3b1395ebf65">
+<h3 id="editor" tabindex="-1">Editor <a class="header-anchor" href="#editor">#</a></h3>
+<ul>
+<li>
+<p>switched from monaco to codemirror editor</p>
+</li>
+<li>
+<p>fold all code functionality button added
+<br>
+<img width="40%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/399bba10-97e0-4fb4-be84-4ca3c1a6047c"></p>
+</li>
+<li>
+<p>custom tags rendering inside the editor view</p>
+</li>
+<li>
+<p>hover a note link to show its preview popup</p>
+<ul>
+<li>that preview can be directly edited</li>
+</ul>
+</li>
+<li>
+<p>images and links directly rendering to the edition part of the markdown editor</p>
+</li>
+<li>
+<p>latex support added (should add --latex on a note to enable it, then wrap the latex expressions around $<em>my_latex_expression</em>$</p>
+</li>
+</ul>
+<br>  
+<img width="400px" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/5f6cb765-2583-48ff-9947-54f19166723a">
+<h4 id="editor-live-edition" tabindex="-1">Editor Live edition <a class="header-anchor" href="#editor-live-edition">#</a></h4>
+<ul>
+<li>when you edit a note, it will automatically auto update all windows with that note on all tiro clients connected.</li>
+<li>allows collaborative live edition (although tiro is not design as a collaborative solution).</li>
+</ul>
+<h3 id="autocomplete-snippet-system" tabindex="-1">Autocomplete snippet system <a class="header-anchor" href="#autocomplete-snippet-system">#</a></h3>
+<ul>
+<li>typing &quot;--&quot; enable an editor autocomplete snippet system</li>
+<li>add &quot;./.tiro/snippets.md&quot; to add autocompletions
+<ul>
+<li>supports javascript expressions like &quot;time | ${new Date().toLocaleTimeString()}&quot;</li>
+</ul>
+</li>
+</ul>
+<br>
+<img width="200" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/994b7df7-1206-4145-90de-c701129c5f05">
+<h3 id="mobile-version" tabindex="-1">Mobile version <a class="header-anchor" href="#mobile-version">#</a></h3>
+<ul>
+<li>almost all desktop functionalities work now on mobile
+<br>
+<img width="30%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/e87322b6-82bc-4a7b-b95c-fb3541c51483">
+<br>
+<img width="30%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/53a152db-7d65-4d75-a1b7-63571631eed7"></li>
+</ul>
+<h3 id="ai-assistant" tabindex="-1">Ai Assistant <a class="header-anchor" href="#ai-assistant">#</a></h3>
+<ul>
+<li>AI assistant functionality added
+<ul>
+<li>more details on blog post https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html/</li>
+</ul>
+</li>
+</ul>
+<br>
+ <img width="150" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/6bdf122e-a8af-4c10-a11f-bb7f03516df3">
+<h3 id="note-export" tabindex="-1">Note export <a class="header-anchor" href="#note-export">#</a></h3>
+<ul>
+<li>added the possibility to export to pdf, ppt, and docx using pandoc (to be installed on the system)</li>
+<li>still keeping the possibility to save in pdf/html the current note using the browser print api</li>
+</ul>
+<br>
+<img width="300" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/fe51adef-0f8c-4f2e-899f-eef7582424c6">
+<h3 id="history-mode" tabindex="-1">History mode <a class="header-anchor" href="#history-mode">#</a></h3>
+<ul>
+<li>
+<p>switching the note history mode to a relative folder ./.history/mynotename/ for performance improvement</p>
+</li>
+<li>
+<p>housekeeping note history performance improvement</p>
+</li>
+<li>
+<p>local history note: even if offline (disconnected from tiro backend server), it will still create local note history.</p>
+</li>
+</ul>
+<h3 id="activity-mode" tabindex="-1">Activity mode <a class="header-anchor" href="#activity-mode">#</a></h3>
+<ul>
+<li>opt-out by default (can be enabled in the settings)</li>
+<li>adding a new activity mode that logs user activity</li>
+<li>can generate a report from the javascript console (ctrl+i) using api.activity.getReport()</li>
+</ul>
+<br>
+<img width="500" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/03952945-91a6-4a32-bfbc-adb5931477b5">
+<h3 id="performance-mode" tabindex="-1">Performance mode <a class="header-anchor" href="#performance-mode">#</a></h3>
+<ul>
+<li>if you use tiro notes using cli (npx tiro-notes), if you use the option -v 3, you enable performance tracking mode</li>
+<li>can generate a report from the javascript console (ctrl+i) using api.performance.getReport()</li>
+</ul>
+<h3 id="notifications-system" tabindex="-1">Notifications system <a class="header-anchor" href="#notifications-system">#</a></h3>
+<ul>
+<li>new notification system developped</li>
+<li>new api.ui.notification.emit</li>
+</ul>
+<h3 id="command-execution-system" tabindex="-1">Command Execution system <a class="header-anchor" href="#command-execution-system">#</a></h3>
+<ul>
+<li>api.command.exec to execute any command from tiro interface</li>
+<li>api.command.stream to execute and stream the answer (for chatgpt api for instance)</li>
+</ul>
+<h3 id="sound-api" tabindex="-1">Sound api <a class="header-anchor" href="#sound-api">#</a></h3>
+<ul>
+<li>api.audio.play added</li>
+<li>api.audio.stop added</li>
+</ul>
+<h3 id="background-tasks-plugin" tabindex="-1">Background tasks plugin <a class="header-anchor" href="#background-tasks-plugin">#</a></h3>
+<ul>
+<li>allows to run plugin code in the background, useful for reminder plugins like the calendar or the new timer system</li>
+</ul>
+<h3 id="lightbox-system" tabindex="-1">Lightbox system <a class="header-anchor" href="#lightbox-system">#</a></h3>
+<ul>
+<li>now clicking on an image opens a new lightbox system</li>
+<li>lightbox have a zoom system</li>
+<li>api.ui.lightbox.open added</li>
+</ul>
+<br>
+<img width="100%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/2d84d6f0-7afe-44c5-808f-1be370e32ffc">
+<h3 id="preview-url-system" tabindex="-1">Preview url system <a class="header-anchor" href="#preview-url-system">#</a></h3>
+<ul>
+<li>adding a preview url button</li>
+<li>adding a fetch the url content system (will fetch an url article content and displays it)</li>
+<li>adding a text-to-speech url system (will fetch the url content then opens the text to speech system</li>
+</ul>
+<br>
+<img width="50%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/9268236c-37a8-40f9-92e0-8e65d86863f8">
+<br>
+<img width="50%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/1a8afc9a-9d69-4790-9f45-aa91c1b8b7b0">
+<h3 id="text-to-speech-system" tabindex="-1">Text to speech system <a class="header-anchor" href="#text-to-speech-system">#</a></h3>
+<ul>
+<li>improving the text to speech system</li>
+<li>making it available across tiro and plugins using api.ui.textToSpeechPopup.open
+<br>
+<img width="30%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/c0fde8f7-eef8-418c-8a8d-0a174c0d7027"></li>
+</ul>
+<h3 id="plugins-system" tabindex="-1">Plugins system <a class="header-anchor" href="#plugins-system">#</a></h3>
+<ul>
+<li>
+<p>extending the custom tag logic to a more global plugin system</p>
+</li>
+<li>
+<p>should be loaded inside .tiro/plugins</p>
+</li>
+<li>
+<p>you can now create plugins for the omnibar, the editor (custom tag) or for background tasks</p>
+</li>
+<li>
+<p>will eventually replace the custom tags system</p>
+</li>
+<li>
+<p>working on a plugin market store where one will be able to download and activate plugins from an interface</p>
+</li>
+<li>
+<p>api added</p>
+<ul>
+<li>api.plugins.list</li>
+<li>api.plugins.get</li>
+<li>api.plugins.cronCache</li>
+</ul>
+</li>
+</ul>
+<h3 id="custom-tags" tabindex="-1">Custom tags <a class="header-anchor" href="#custom-tags">#</a></h3>
+<ul>
+<li>adding the possibility to open the custom tag in a popup, in fullscreen or in a floating side position</li>
+</ul>
+<h3 id="new-custom-tags" tabindex="-1">New custom tags <a class="header-anchor" href="#new-custom-tags">#</a></h3>
+<h4 id="new-epub-custom-tag" tabindex="-1">new epub custom tag <a class="header-anchor" href="#new-epub-custom-tag">#</a></h4>
+<ul>
+<li>allows you to read your epubs inside tiro</li>
+<li>combined with the text to speech functionality, allows you to listen to your books from tiro
+<ul>
+<li>if using edge browser (for the case of tiro cli), you can access to high quality AI text to speech voices from microsoft</li>
+</ul>
+</li>
+</ul>
+<br>
+<img width="50%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/0666029e-20ad-45ca-a24c-16d1d28c22dd">
+<h4 id="commander-custom-tag" tabindex="-1">Commander custom tag <a class="header-anchor" href="#commander-custom-tag">#</a></h4>
+<ul>
+<li>allows to execute directly commands from tiro interface</li>
+</ul>
+<br>
+<img width="50%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/1d1a043e-f7db-4063-99d6-152711a51644">
+<h4 id="rss-custom-tag-renamed-to-feed" tabindex="-1">Rss custom tag renamed to feed <a class="header-anchor" href="#rss-custom-tag-renamed-to-feed">#</a></h4>
+<ul>
+<li>allows youtube feeds to be added to create your own youtube homepage</li>
+<li>bookmarking system</li>
+<li>adding categories</li>
+</ul>
+<br>
+<img width="20%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/921c3ac9-d23a-4e34-bd43-50ca8756a648">
+<h4 id="graph-custom-tag" tabindex="-1">Graph custom tag <a class="header-anchor" href="#graph-custom-tag">#</a></h4>
+<ul>
+<li>
+<p>allows to see your notes content as a graph</p>
+</li>
+<li>
+<p>creates connections from hashtags, so:</p>
+<ul>
+<li>#parent_node #child_note_1</li>
+<li>#parent_node #child_note_2</li>
+<li>would create a 3 points graph with parent node at the center</li>
+</ul>
+</li>
+<li>
+<p>Allows to preview the note content from the graph by clicking on the node</p>
+</li>
+</ul>
+<br>
+<img width="40%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/689c99c4-9d7a-4a0d-a43f-9164b07a0fb8">
+<h4 id="calendar-plugin" tabindex="-1">Calendar plugin <a class="header-anchor" href="#calendar-plugin">#</a></h4>
+<ul>
+<li>adding a calendar plugin with monthly view, notification reminder system and omnibar plugin</li>
+</ul>
+<br>
+<img width="40%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/06049720-5c5d-4f7b-a277-d7922657ddef">
+<br>
+<img width="30%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/139ec391-4428-428c-8e3b-d80267c4db78">
+<h5>Timer plugin</h5>
+<ul>
+<li>adding a omnibar countdown timer plugin
+<ul>
+<li>that display a countdown on the interface of the current task</li>
+<li>that keep tracks of all the hours spent for each task</li>
+<li>(later : will display a timeline graph with all the hours spent on each task)</li>
+</ul>
+</li>
+</ul>
+<br>
+<img width="40%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/09c3ac6c-a15e-4bcd-8e92-26a879323c91">
+<br>
+<img width="10%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/ba1d0751-e140-45b0-aada-398cd27df896">
+<h5>Weather plugin</h5>
+<ul>
+<li>simple omnibar weather plugin that gives a 7 days conditions weather</li>
+</ul>
+<br>
+<img width="50%" alt="image" src="https://github.com/dotgreg/tiro-notes/assets/2981891/bf3cafa8-5d28-4935-830c-230d00a545db">
+<h5>Spreadsheet plugin</h5>
+<ul>
+<li>creates a markdown table where we can execute excel formulas in it</li>
+</ul>
+<h3 id="performance-and-stability" tabindex="-1">Performance and stability <a class="header-anchor" href="#performance-and-stability">#</a></h3>
+<ul>
+<li>huge bugfix and performance improvement
+<ul>
+<li>switching from monaco to codemirror</li>
+<li>Switching to react 18 to improve performance</li>
+</ul>
+</li>
+</ul>
+<h3 id="mobile-version-1" tabindex="-1">Mobile version <a class="header-anchor" href="#mobile-version-1">#</a></h3>
+<ul>
+<li>editor is the same than on the desktop version thanks to codemirror mobile system</li>
+</ul>
+<h3 id="api" tabindex="-1">Api <a class="header-anchor" href="#api">#</a></h3>
+<ul>
+<li>
+<p>big emphasis to as much functionalities as possible inside the tiro api to be accessible anywhere (including plugins).</p>
+</li>
+<li>
+<p>full api testable on the console of the app/browser (ctrl+i &gt; console &gt; type api.)</p>
+</li>
+<li>
+<p>api.cache.get/set added for easy backend storage solution</p>
+</li>
+<li>
+<p>api.search.word</p>
+</li>
+<li>
+<p>api.search.files</p>
+</li>
+<li>
+<p>api.search.hashtags</p>
+</li>
+<li>
+<p>api.ui.browser.goTo : make the interface jump to a specific file and folder</p>
+</li>
+<li>
+<p>api.ui.notePreviewPopup.open : create a note preview popup</p>
+</li>
+<li>
+<p>api.encryption.encryptText/decryptText</p>
+</li>
+<li>
+<p>api.lastNotesApi.getAll()</p>
+</li>
+<li>
+<p>api.ressource.download : download an url somewhere</p>
+</li>
+<li>
+<p>api.ressource.fetch : download an url and return it as text</p>
+</li>
+<li>
+<p>api.ressource.fetchUrlArticle : fetch an url content and returns its simplified article version (using mozilla readability.js)</p>
+</li>
+</ul>
+<h4 id="dev-api" tabindex="-1">Dev Api <a class="header-anchor" href="#dev-api">#</a></h4>
+<ul>
+<li>tiroDevCli.cache.clean_cache()</li>
+<li>tiroDevCli.cron.trigger()</li>
+</ul>
+
+<ul class="links-nextprev"><li>Previous: <a href="/devlog/2023/06/improving-productivity-omnibox-history.html">Improving productivity with the new Omnibox History</a></li>
+</ul>
+
+		</main>
+
+		<footer></footer>
+
+		<!-- Current page: /blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities -->
+	</body>
+</html>
