@@ -5,9 +5,9 @@ const showASCIIBar = (val, opts) => {
 
     if (!opts) opts = {}
     if (!opts.min) opts.min = 0
-    if (!opts.max) opts.max = 10
+    if (!opts.max) opts.max = 7
 
-    if (!opts.size) opts.size = 10
+    if (!opts.size) opts.size = 7
     if (!opts.barFull) opts.barFull = "▓▓"
     if (!opts.barEmpty) opts.barEmpty = "░░"
 

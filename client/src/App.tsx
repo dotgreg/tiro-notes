@@ -81,6 +81,20 @@ export const App = () => {
 
 		devCliAddFn("init", "init", () => { })
 
+		// TESTS
+		// getApi(api => {
+		// 	// console.log()
+		// 	let cid = "dsafdsa"
+		// 	api.cache.get(cid, res => {
+		// 		console.log("1 cache get",cid, res)
+		// 		api.cache.set(cid, {here: "wego"}, -1, (res) => {
+		// 			console.log("2 cache set done", res)
+		// 			api.cache.get(cid, res => {
+		// 				console.log("3 cache get",cid, res)
+		// 			})
+		// 		})
+		// 	})
+		// })
 
 		return () => {
 			// COMPONENT will unmount

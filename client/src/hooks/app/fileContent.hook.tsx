@@ -6,6 +6,7 @@ import { filterMetaFromFileContent, metasObjToHeaderString } from '../../manager
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from './loginToken.hook';
 import { onLightboxClickFn } from '../../components/dualView/EditorArea.component';
+import { getApi } from '../api/api.hook';
 
 export const useFileContent = (
 	activeFile: iFile | null,
@@ -66,10 +67,13 @@ export const useFileContent = (
 
 		// SAVING MECHANISME
 		console.log(`[FILE CONTENT] API -> ask for file save`, { filepath, contentWithMeta });
-		clientSocket2.emit('saveFileContent', {
-			filePath: filepath,
-			newFileContent: contentWithMeta,
-			token: getLoginToken()
+		// clientSocket2.emit('saveFileContent', {
+		// 	filePath: filepath,
+		// 	newFileContent: contentWithMeta,
+		// 	token: getLoginToken()
+		// })
+		getApi(api => {
+			api.file.saveContent(filepath, contentWithMeta)
 		})
 	}
 
