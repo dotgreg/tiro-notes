@@ -58,7 +58,7 @@ export const notePreviewPopupCss = () => `
     .page-link-preview-popup-ext {
         // pointer-events: none;
         position: absolute;
-        z-index: 98;
+        z-index: 1001;
         .click-throught {
             cursor:pointer;
             position: absolute;
