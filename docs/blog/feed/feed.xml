@@ -20,7 +20,7 @@
 Here is an update. Goal is to increase the binary releases to 1 every 1-2 months.&lt;/p&gt;
 &lt;p&gt;The changelog is huge as quite a lot has been going on in term of functionalities and bugfix. More than 100 new functionalities have been added.
 An emphasis has been done on performance improvement and stability.&lt;/p&gt;
-&lt;p&gt;I am still struggling to document everything that is being released, so it will be done slowly by slowly on the https://tiro-notes.org website and on the blog https://tiro-notes.org/blog&lt;/p&gt;
+&lt;p&gt;I am still struggling to document everything that is being released, so it will be done slowly by slowly on the &lt;a href=&quot;https://tiro-notes.org&quot;&gt;https://tiro-notes.org&lt;/a&gt;  website and on the blog &lt;a href=&quot;https://tiro-notes.org/blog&quot;&gt;https://tiro-notes.org/blog&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Mac/Linux/Windows Applications can be downloaded &lt;a href=&quot;https://github.com/dotgreg/tiro-notes/releases/tag/production&quot;&gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&quot;new-functionalities&quot; tabindex=&quot;-1&quot;&gt;New functionalities &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html&quot;&gt;#&lt;/a&gt;&lt;/h2&gt;
 &lt;h3 id=&quot;omnibar&quot; tabindex=&quot;-1&quot;&gt;Omnibar &lt;a class=&quot;header-anchor&quot; href=&quot;https://tiro-notes.org/blog/devlog/2023/06/tiro-notes-0-30-99-binaries-released-100-more-functionalities.html&quot;&gt;#&lt;/a&gt;&lt;/h3&gt;
@@ -108,7 +108,7 @@ An emphasis has been done on performance improvement and stability.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;AI assistant functionality added
 &lt;ul&gt;
-&lt;li&gt;more details on blog post https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html/&lt;/li&gt;
+&lt;li&gt;more details on blog post &lt;a href=&quot;https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html&quot;&gt;https://tiro-notes.org/blog/devlog/2023/06/agnostic-ai-assistant-into-tiro-notes.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
