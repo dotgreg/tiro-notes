@@ -127,7 +127,7 @@ const getRgPath = () => {
 
 		let filename = 'rg'
 		if (envs.os === 'win32') filename = `rg.exe`
-		if (envs.os === 'darwin' && envs.archi === 'arm64') filename = `rg-darwin-arm.jpeg`
+		if (envs.os === 'darwin' && envs.archi === 'arm64') filename = `rg-darwin-arm.jpeg` // not working yet
 		if (envs.os === 'darwin' && envs.archi === 'x64') filename = `rg-darwin-x64`
 
 		binPath = `${appRootDir}/bin/${filename}`;

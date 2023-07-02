@@ -45,174 +45,174 @@ export const fileNameFromFilePath = (path: string): string => {
 // sans processing 0.367 CONSOLELOG et avec 0.407
 // sans processing 0.367 CONSOLELOG et OBJ ordering 0.389
 // const h = `=============`
-export const scanDirForFolders3 = (folderPath: string): any => {
-	if (folderPath !== "--test--") return
-	// console.log(h, "woooop", folderPath);
-	const normalSearchParams = [
-		backConfig.dataFolder,
-		'--files',
-		'--sort-files',
-	]
-	// const ripGrepStreamProcess1 = execa(backConfig.rgPath, normalSearchParams)
 
-	const start = Date.now()
-	console.log(h, "start ", normalSearchParams);
-	const path = require('path')
-	execa(backConfig.rgPath, normalSearchParams).then((res) => {
+// EXECA VERSION NOT USED
+// export const scanDirForFolders3 = (folderPath: string): any => {
+// 	if (folderPath !== "--test--") return
+// 	// console.log(h, "woooop", folderPath);
+// 	const normalSearchParams = [
+// 		backConfig.dataFolder,
+// 		'--files',
+// 		'--sort-files',
+// 	]
+// 	const start = Date.now()
+// 	console.log(h, "start ", normalSearchParams);
+// 	const path = require('path')
+// 	exec@(backConfig.rgPath, normalSearchParams).then((res) => {
 
-		// /i/get/that/one
-		// split i get that one
-		// create obj[i][get][that][one] if doesnt exists
+// 		// /i/get/that/one
+// 		// split i get that one
+// 		// create obj[i][get][that][one] if doesnt exists
 
-		// ensuite simplement commencer {name: your notes, children:[...]}
-		// each (obj[i], folder => {}) en recurs!
-		// create obj[i][get][that][one] if doesnt exists
+// 		// ensuite simplement commencer {name: your notes, children:[...]}
+// 		// each (obj[i], folder => {}) en recurs!
+// 		// create obj[i][get][that][one] if doesnt exists
 
-		console.log(h, (Date.now() - start) / 1000);
-		const arr = res.stdout.split("\n")
+// 		console.log(h, (Date.now() - start) / 1000);
+// 		const arr = res.stdout.split("\n")
 
-		// let arr2 = []
-		// each(arr, (f) => {
-		// 	let dir = path.dirname(f).replace(backConfig.dataFolder, '').replace('\\','/')
-		// arr2.push(dir)
-		// 	})
-		// })
-		// arr2 = uniq(arr2)
-		// console.log(h, arr2);
+// 		// let arr2 = []
+// 		// each(arr, (f) => {
+// 		// 	let dir = path.dirname(f).replace(backConfig.dataFolder, '').replace('\\','/')
+// 		// arr2.push(dir)
+// 		// 	})
+// 		// })
+// 		// arr2 = uniq(arr2)
+// 		// console.log(h, arr2);
 
-		let resObj2: iFolder = {
-			title: 'root',
-			key: 'root',
-			path: 'root',
-			children: []
-		}
+// 		let resObj2: iFolder = {
+// 			title: 'root',
+// 			key: 'root',
+// 			path: 'root',
+// 			children: []
+// 		}
 
-		const util = require('util')
-		const cl = (obj: any, d = 4) => {
-			console.log(util.inspect(obj, { showHidden: false, depth: d, colors: true }))
-		}
+// 		const util = require('util')
+// 		const cl = (obj: any, d = 4) => {
+// 			console.log(util.inspect(obj, { showHidden: false, depth: d, colors: true }))
+// 		}
 
-		let resObj: any = {}
-		each(arr, (f) => {
-			let dir = path.dirname(f).replace(backConfig.dataFolder, '').replace('\\', '/')
-			let pathArr = dir.split('/')
-			let cObj = resObj
-			let absPath = ''
-			each(pathArr, folder => {
-				absPath = absPath + (absPath === '' ? "" : "/") + folder
-				if (!cObj[folder]) cObj[folder] = { ___path: absPath }
-				cObj.___hasChildren = true
-				// if (!cObj.___children) cObj.___children = []
-				// cObj.___children.push(cObj[folder])
-				cObj = cObj[folder]
-			})
-		})
-		// cl(resObj);
+// 		let resObj: any = {}
+// 		each(arr, (f) => {
+// 			let dir = path.dirname(f).replace(backConfig.dataFolder, '').replace('\\', '/')
+// 			let pathArr = dir.split('/')
+// 			let cObj = resObj
+// 			let absPath = ''
+// 			each(pathArr, folder => {
+// 				absPath = absPath + (absPath === '' ? "" : "/") + folder
+// 				if (!cObj[folder]) cObj[folder] = { ___path: absPath }
+// 				cObj.___hasChildren = true
+// 				// if (!cObj.___children) cObj.___children = []
+// 				// cObj.___children.push(cObj[folder])
+// 				cObj = cObj[folder]
+// 			})
+// 		})
+// 		// cl(resObj);
 
-		const loop = (obj: any) => {
-			if (obj.___hasChildren) obj.children = []
-			each(obj, (child, nameChild) => {
-				// console.log(222, nameChild);
-				// console.log(1, child);
-				// console.log(2, nameChild);
-				if (!isNumber(nameChild) && !nameChild.startsWith("___")) {
-					// console.log(nameChild);
-					child = loop(child)
-					obj.children.push(child)
-				}
-			})
-			// console.log(obj);
-			return obj
-		}
-		let r = loop(resObj[''])
-		cl(r, 4);
-
-
-
-		// each
-
-		// const iterate = (obj) => {
-		// 	Object.keys(obj).forEach(key => {
-		// 		// console.log(`key: ${key}, value: ${obj[key]}`)
-		// 		if (!obj[key].children) obj[key].children = []
-		// 		if (!key.startsWith("___")) {
-		// 			obj[key].children.push(iterate(obj[key]))
-		// 		}
-		// 	})
-		// }
-		// console.log(iterate(resObj));
+// 		const loop = (obj: any) => {
+// 			if (obj.___hasChildren) obj.children = []
+// 			each(obj, (child, nameChild) => {
+// 				// console.log(222, nameChild);
+// 				// console.log(1, child);
+// 				// console.log(2, nameChild);
+// 				if (!isNumber(nameChild) && !nameChild.startsWith("___")) {
+// 					// console.log(nameChild);
+// 					child = loop(child)
+// 					obj.children.push(child)
+// 				}
+// 			})
+// 			// console.log(obj);
+// 			return obj
+// 		}
+// 		let r = loop(resObj[''])
+// 		cl(r, 4);
 
 
 
-		// let nObj
-		// const iterateInObj = (obj:any, nobj?:any):any => {
+// 		// each
 
-		// 	each(obj, (prop, name) => {
-		// 		obj[name] = iterateInObj(obj) 
-		// 	})
-		// 	return obj
-		// }
-		// let nobj = iterateInObj(resObj)
+// 		// const iterate = (obj) => {
+// 		// 	Object.keys(obj).forEach(key => {
+// 		// 		// console.log(`key: ${key}, value: ${obj[key]}`)
+// 		// 		if (!obj[key].children) obj[key].children = []
+// 		// 		if (!key.startsWith("___")) {
+// 		// 			obj[key].children.push(iterate(obj[key]))
+// 		// 		}
+// 		// 	})
+// 		// }
+// 		// console.log(iterate(resObj));
 
-		// let res3: iFolder = {
-		// 	title: 'root',
-		// 	key: 'root',
-		// 	path: 'root',
-		// 	children: []
-		// }
 
-		// const generateiFoldersFromObj = (obj: any, res?: iFolder): iFolder[] => {
-		// 	each(obj, (prop, name) => {
-		// 		res.children.push({
-		// 			title: name,
-		// 			key: prop.___path,
-		// 			path: prop.___path,
-		// 			hasChildren: prop.___hasChildren,
-		// 			children: generateiFoldersFromObj(res.children, obj[name])
-		// 		})
-		// 	})
-		// 	return res.children
-		// }
 
-		// const generateiFolderFromObj = (obj: any, res?: iFolder): iFolder => {
-		// 	if (!res) {
-		// 		res = {
-		// 			title: 'root',
-		// 			key: 'root',
-		// 			path: 'root',
-		// 			children: []
-		// 		}
-		// 	}
-		// 	let i = 0
-		// 	each(obj, (prop, name) => {
-		// 		res.children.push({
-		// 			title: name,
-		// 			key: prop.___path,
-		// 			path: prop.___path,
-		// 			hasChildren: prop.___hasChildren,
-		// 			children: [] 
-		// 		})
-		// 		res.children[i]
-		// 		i++
-		// 	})
-		// 	return res
-		// }
-		// let res4 = generateiFoldersFromObj(resObj)
-		// cl(res3);
+// 		// let nObj
+// 		// const iterateInObj = (obj:any, nobj?:any):any => {
 
-		console.log(h, (Date.now() - start) / 1000);
+// 		// 	each(obj, (prop, name) => {
+// 		// 		obj[name] = iterateInObj(obj) 
+// 		// 	})
+// 		// 	return obj
+// 		// }
+// 		// let nobj = iterateInObj(resObj)
 
-	})
-	// ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
-	// 	console.log(h, 1, dataRaw);
-	// })
+// 		// let res3: iFolder = {
+// 		// 	title: 'root',
+// 		// 	key: 'root',
+// 		// 	path: 'root',
+// 		// 	children: []
+// 		// }
 
-	// ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-	// 	console.log(h, 2, dataRaw);
-	// })
+// 		// const generateiFoldersFromObj = (obj: any, res?: iFolder): iFolder[] => {
+// 		// 	each(obj, (prop, name) => {
+// 		// 		res.children.push({
+// 		// 			title: name,
+// 		// 			key: prop.___path,
+// 		// 			path: prop.___path,
+// 		// 			hasChildren: prop.___hasChildren,
+// 		// 			children: generateiFoldersFromObj(res.children, obj[name])
+// 		// 		})
+// 		// 	})
+// 		// 	return res.children
+// 		// }
 
-	return {}
-}
+// 		// const generateiFolderFromObj = (obj: any, res?: iFolder): iFolder => {
+// 		// 	if (!res) {
+// 		// 		res = {
+// 		// 			title: 'root',
+// 		// 			key: 'root',
+// 		// 			path: 'root',
+// 		// 			children: []
+// 		// 		}
+// 		// 	}
+// 		// 	let i = 0
+// 		// 	each(obj, (prop, name) => {
+// 		// 		res.children.push({
+// 		// 			title: name,
+// 		// 			key: prop.___path,
+// 		// 			path: prop.___path,
+// 		// 			hasChildren: prop.___hasChildren,
+// 		// 			children: [] 
+// 		// 		})
+// 		// 		res.children[i]
+// 		// 		i++
+// 		// 	})
+// 		// 	return res
+// 		// }
+// 		// let res4 = generateiFoldersFromObj(resObj)
+// 		// cl(res3);
+
+// 		console.log(h, (Date.now() - start) / 1000);
+
+// 	})
+// 	// ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+// 	// 	console.log(h, 1, dataRaw);
+// 	// })
+
+// 	// ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+// 	// 	console.log(h, 2, dataRaw);
+// 	// })
+
+// 	return {}
+// }
 
 
 const h = `[DIR SCAN]`
