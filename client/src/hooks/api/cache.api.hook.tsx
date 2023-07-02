@@ -20,7 +20,8 @@ export interface iCacheApi {
 	set: (
 		cacheId: string,
 		contentToCache: any,
-		cacheMin?: number
+		cacheMin?: number,
+		cb?: (res:any) => void
 	) => void
 
 }
@@ -111,14 +112,14 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	const setRamCache = (cacheId: string, cacheContent: any, cachedMin: number) => {
 		cachedRamDic.current[cacheId] = { content: cacheContent, until: getDateUntil(cachedMin) }
 	}
-	const setCache: iCacheApi['set'] = (cacheId, cacheContent, cachedMin) => {
+	const setCache: iCacheApi['set'] = (cacheId, cacheContent, cachedMin, cb) => {
 		if (!cachedMin) cachedMin = 60
 		if (cachedMin === -1) cachedMin = 99999999999999999999999999999999
 		setRamCache(cacheId, cacheContent, cachedMin)
 		const nObj = cachedRamDic.current[cacheId]
 
 		log && console.log(h, 'SETTING', cacheId, " with cachedTime in min", cachedMin);
-		saveFileContentInChunks(cacheId, nObj)
+		saveFileContentInChunks(cacheId, nObj, res => {cb && cb(res)})
 	}
 
 
@@ -148,30 +149,40 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	// SET CHUNKS
 	//
-	const saveFileContentInChunks = (cacheId, obj) => {
+	const saveFileContentInChunks = (cacheId, obj, allSavedCb?:Function) => {
 		const contentStr = JSON.stringify(obj)
 
-		const saveFile = (id: string, str: string) => {
+		const saveFile = (id: string, str: string, cb:Function) => {
 			logChunk && console.log(hc, getCachedStorage(id), { str })
 			getApi(api => {
-				api.file.saveContent(getCachedStorage(id), `${str}`)
+				api.file.saveContent(getCachedStorage(id), `${str}`, {}, res => {cb(res)})
 			})
 		}
+
+		
 
 		if (contentStr.length > limitChunk) {
 			// chunk content in 100k blocks
 			let contentArr = chunkString(contentStr, limitChunk)
 			logChunk && console.log(hc, `SAVE >> TOO LARGE, split in ${contentArr.length} parts`, { cacheId, contentArr })
+
+
+			let saveSuccessCount = 0
+			const onOneFileSaved = () => {
+				saveSuccessCount++
+				if (saveSuccessCount === contentArr.length - 1 && allSavedCb) allSavedCb()
+			}
+			
 			// the first content chunk
-			saveFile(cacheId, `${chunkHeader}${contentArr.length}`)
+			saveFile(cacheId, `${chunkHeader}${contentArr.length}`, onOneFileSaved)
 			for (let i = 0; i < contentArr.length; i++) {
 				// save all contents chunks
 				setTimeout(() => {
-					saveFile(`c${i}_${cacheId}`, contentArr[i])
+					saveFile(`c${i}_${cacheId}`, contentArr[i], onOneFileSaved)
 				}, 200 * i)
 			}
 		} else {
-			return saveFile(cacheId, contentStr)
+			return saveFile(cacheId, contentStr, () => {if (allSavedCb) allSavedCb()})
 		}
 	}
 

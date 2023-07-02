@@ -36,6 +36,7 @@ export const getAllCompletionSources = (file: iFile): CompletionSource[] => {
 	]
 }
 
+
 //
 // AUTOCOMPLETE WITH SNIPPETS 
 // with --

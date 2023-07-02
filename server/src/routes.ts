@@ -142,19 +142,15 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		await upsertRecursivelyFolders(pathToFile)
 		await saveFile(pathToFile, data.newFileContent)
-		// ioServer.emit(socketEvents.getFileContent, {fileContent: data.newFileContent, filePath: data.filepath} as .getFileContent)
-		// sends back to all sockets the updated content
-		// if (!pathToFile.includes("/.tiro/")) {
-			// log("=========================== WATCH UPDATE", pathToFile);
-			// send to everybody but the sender
-			// serverSocket2.raw.broadcast.emit('onNoteWatchUpdate', {
 
-			// actually send to to everybody and apply a smart/selective behavior on frontend
-			ioServer.emit('onNoteWatchUpdate', {
-				filePath: data.filePath,
-				fileContent: data.newFileContent
-			})
-		// }
+		// actually send to to everybody and apply a smart/selective behavior on frontend
+		ioServer.emit('onNoteWatchUpdate', {
+			filePath: data.filePath,
+			fileContent: data.newFileContent
+		})
+
+		// if withCb, sends back cb
+		if (data.withCb) serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
 
 		endPerf()
 	}, { disableDataLog: true, checkRole: "editor" })

@@ -99,12 +99,20 @@ export const moveFile = async (pathInit: string, pathEnd: string): Promise<void>
 	} else {
 		shouldLog && log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
 
-		return new Promise(async (resolve, reject) => {
-			fs.rename(pathInit, pathEnd, (err) => {
-				if (err) { shouldLog && log(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject() }
-				else resolve()
-			});
-		})
+		// return new Promise(async (resolve, reject) => {
+			// , (err) => {
+			// 	if (err) { shouldLog && log(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject() }
+			// 	else resolve()
+			// });
+		// })
+
+		try {
+			await fs.renameSync(pathInit, pathEnd)
+		} catch (error) {
+			// console.log(h, `error rename file ${pathInit} -> ${pathEnd}`, error)
+			log(`[MOVEFILE] Error ${error.message} (${pathInit} -> ${pathEnd})`);
+		}
+			
 	}
 
 }

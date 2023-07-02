@@ -26,8 +26,13 @@ const main = (calendarLib) => {
             let daysFromNow = Math.round((evdate.getTime() - new Date().getTime()) / (60 * 60 * 24 * 1000)) 
             let minsFromNow = Math.round((evdate.getTime() - new Date().getTime()) / (60 * 1000))
             const isForTomorrow = daysFromNow === 1
-            const is2pm = curr.getHours() === 14 && curr.getMinutes() >= 0 && curr.getMinutes() < 11 
-            const is8pm = curr.getHours() === 20 && curr.getMinutes() >= 0 && curr.getMinutes() < 11 
+            // const is2pm = curr.getHours() === 10 && curr.getMinutes() >= 0 && curr.getMinutes() < 59 
+            // const is2pm = curr.getHours() === 14 && curr.getMinutes() >= 0 && curr.getMinutes() < 51 
+            // const is8pm = curr.getHours() === 20 && curr.getMinutes() >= 0 && curr.getMinutes() < 59 
+
+            const isWorkingHours = curr.getHours() > 9 && curr.getHours() < 21
+
+
             // if date time is not 00:00
             const isDayEvent = evdate.getHours() === 0 && evdate.getMinutes() === 0
             // it is within 15min-5min
@@ -35,9 +40,9 @@ const main = (calendarLib) => {
             // it is within 1h10-1h
             const isIn1h = minsFromNow > 60 && minsFromNow < 70
             const atStr = ` at ${evdate.getHours()}h${evdate.getMinutes()}`
-            if (isForTomorrow && (is2pm || is8pm)) {
+            if (isForTomorrow && isWorkingHours) {
                 console.log(h, "isForTomorrow + is2pm", e)
-                let title = `Tomorrow`
+                let title = `Tomorrow :`
                 if (!isDayEvent) title += atStr
                 calendarLib.sendNotif(e, title)
             }
@@ -48,7 +53,7 @@ const main = (calendarLib) => {
             }
             if (!isDayEvent && isIn1h) {
                 console.log(h, "isIn1h", e)
-                calendarLib.sendNotif(e, `In 1 hour,${atStr}`)
+                calendarLib.sendNotif(e, `In 1 hour,${atStr} :`)
             }
         }
         

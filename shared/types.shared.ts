@@ -58,7 +58,8 @@ export type iNotification = {
 	options?: {
 		type?: iNotificationType, 
 		hideAfter?: number, 
-		keepInHistory?: boolean
+		showOnceEvery?: number
+		keepInHistory?: boolean,
 	}
 }
 
