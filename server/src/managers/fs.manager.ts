@@ -1,6 +1,7 @@
 import { random } from "lodash";
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { sharedConfig } from "../../../shared/shared.config";
+import { iDownloadRessourceOpts } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
@@ -242,9 +243,10 @@ export const isDir = (path: string): boolean => {
 
 const isHttps = (url: string) => url.indexOf("https") === 0;
 
-export const downloadFile = async (url: string, folder: string): Promise<string> => {
+export const downloadFile = async (url: string, folder: string, opts?:iDownloadRessourceOpts): Promise<string> => {
 	folder = p(folder)
 	let path = `${folder}/${getRessourceIdFromUrl(url)}`
+	if (opts.fileName) path = `${folder}/${opts.fileName}`
 
 	if (!url) return
 	let client = isHttps(url) ? https : http

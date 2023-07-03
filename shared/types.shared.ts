@@ -200,3 +200,10 @@ export type iSetupCode =
 	'BAD_USER_PASSWORD' |
 	'SUCCESS_CONFIG_CREATION' |
 	'ERROR_CONFIG_CREATION'
+
+	export type iUpdateConfigJsonOpts = {
+		requiresServerRestart?: boolean
+	}
+	export type iDownloadRessourceOpts = {
+		fileName?: string
+	}

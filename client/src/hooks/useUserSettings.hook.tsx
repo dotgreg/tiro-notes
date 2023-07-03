@@ -2,7 +2,7 @@ import { cloneDeep, debounce, each, isNull, isUndefined, uniqueId } from 'lodash
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { sharedConfig } from '../../../shared/shared.config';
-import { iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
+import { iUpdateConfigJsonOpts, iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { iApiEventBus } from './api/api.hook';
@@ -21,7 +21,12 @@ export type iUserSettingsApi = {
 	refresh: {
 		css: { get: number }
 	}
-	updateSetupJson: (paramName: string, paramValue: string, cb?:(res:string) => void) => void
+	updateSetupJson: (
+		paramName: string, 
+		paramValue: string, 
+		cb?:(res:any) => void, 
+		opts?: iUpdateConfigJsonOpts,
+	) => void
 	refreshUserSettingsFromBackend: Function,
 }
 
@@ -81,17 +86,26 @@ export const useUserSettings =  (p: {
 	}, 1000)
 
 
-	const updateSetupJson: iUserSettingsApi['updateSetupJson'] = (name, value) => {
+	const updateSetupJson: iUserSettingsApi['updateSetupJson'] = (name, value, cb, opts) => {
+		const idReq =  `updateSetupJson-${generateUUID()}`
+		// 1. add a listener function
+		p.eventBus.subscribe(idReq, data => {
+			cb && cb(data)
+		});
 		// 2. emit request 
 		clientSocket2.emit('updateSetupJson', {
 			paramName: name,
 			paramValue: value,
+			opts,
 			token: getLoginToken(),
-			idReq: `updateSetupJson-${generateUUID()}`
+			idReq
 		})
 	}
-
-
+	useEffect(() => {
+		clientSocket2.on('onServerTaskFinished', data => {
+			p.eventBus.notify(data.idReq, { data })
+		})
+	}, [])
 
 	// api
 	const userSettingsApi: iUserSettingsApi = {

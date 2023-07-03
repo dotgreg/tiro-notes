@@ -57,11 +57,38 @@ export const execStringStream = async (
 // low level exec functions
 // for error catching
 h = `[EXEC execaWrapper]`
-export const execaWrapper = (cmdPath:any, args:any):any | null => {
-	let streamProcess = execa(cmdPath, args)
-	.catch(error => {
-		console.log(h, "ERROR", {cmdPath, args}, error);
-	});
-	if (!streamProcess.stdout) return null
-	return streamProcess
+
+
+
+export const execaWrapper = (p:{
+	cmdPath:string
+	args:string[]
+	onData: (dataChunk:any) => void
+	onClose: (dataChunk:any) => void
+	onError?: (err:any) => void
+}) => {
+	let streamProcess = execa(p.cmdPath, p.args)
+
+	streamProcess.stdout.on('data', async dataChunk => {
+		p.onData(dataChunk)
+	})
+	streamProcess.stdout.on('close', async dataChunk => {
+		p.onClose(dataChunk)
+	})
+	
+	const onError = error => {
+		// console.log(111111111111, error)
+		if(p.onError) p.onError(error)
+		else console.log(h, "ERROR", p.cmdPath, p.args, error);
+	}
+
+	streamProcess.catch(error => {
+		onError(error)
+	})
+	streamProcess.stdout.on('error', error => {
+		onError(error)
+	})
+	streamProcess.stderr.on('data', error => {
+		onError(error)
+	})
 }

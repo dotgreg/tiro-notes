@@ -10,6 +10,7 @@ import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { tryCatch } from '../../managers/tryCatch.manager';
+import { iDownloadRessourceOpts } from '../../../../shared/types.shared';
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
@@ -25,7 +26,8 @@ export interface iRessourceApi {
 	download: (
 		url: string,
 		folder: string,
-		cb: (answer: any) => void
+		cb: (answer: any) => void,
+		opts?: iDownloadRessourceOpts
 	) => void,
 
 	fetch: (
@@ -81,12 +83,12 @@ export const useRessourceApi = (p: {
 		clientSocket2.emit('askRessourceDelete', { path: path, idReq, token: getLoginToken() })
 	}
 
-	const downloadRessource: iRessourceApi['download'] = (url, folder, cb) => {
+	const downloadRessource: iRessourceApi['download'] = (url, folder, cb, opts) => {
 		const idReq = genIdReq('download-ressource');
 		// console.log(`${h} downloading ressource url ${url} to folder ${folder}`);
 		// execute callback on answer
 		p.eventBus.subscribe(idReq, cb);
-		clientSocket2.emit('askRessourceDownload', { url, folder, idReq, token: getLoginToken() })
+		clientSocket2.emit('askRessourceDownload', { url, folder, idReq, opts,token: getLoginToken() })
 	}
 
 

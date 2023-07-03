@@ -85,7 +85,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 			password: await hashPassword(data.form.password),
 			dataFolder: data.form.dataFolder,
 		}
-		saveSetupJson(newConfig)
+		await saveSetupJson(newConfig)
 
 		answer = { code: 'SUCCESS_CONFIG_CREATION' }
 	}
@@ -99,13 +99,13 @@ export const saveSetupJson = async (newConfig: iTiroConfig) => {
 	await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
 }
 
-export const updateSetupJsonParam = (name: string, value: string) => {
+export const updateSetupJsonParam = async (name: string, value: string) => {
 	// get json current infos in 
 	let jsonObj = tryLoadJsonConfig()
 	if (!jsonObj) return
 
 	jsonObj[name] = value
 
-	saveSetupJson(jsonObj)
+	await saveSetupJson(jsonObj)
 
 }
