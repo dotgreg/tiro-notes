@@ -1,5 +1,5 @@
 import { iPerformanceReport, iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iDownloadRessourceOpts, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm, iUpdateConfigJsonOpts } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -72,10 +72,10 @@ export interface iApiDictionary {
 	getFileHistory: { files: iFile[] }
 
 	askRessourceDelete: { path: string, idReq: string }
-	askRessourceDownload: { url: string, folder: string, idReq: string }
+	askRessourceDownload: { url: string, folder: string, opts?:iDownloadRessourceOpts, idReq: string }
 	getRessourceApiAnswer: { status: string, message: string, idReq: string }
 
-	updateSetupJson: { paramName: string, paramValue: string, idReq: string }
+	updateSetupJson: { paramName: string, paramValue: string, opts?:iUpdateConfigJsonOpts, idReq: string }
 
 	onNoteWatchUpdate: { filePath: string, fileContent: string }
 
@@ -103,5 +103,5 @@ export interface iApiDictionary {
 	onServerTaskFinished: { status:"ok"|"ko", idReq: string}
 	onServerError: { status:"NO_RIPGREP_COMMAND_AVAILABLE"|"NULL", platform:iPlatform}
 
-	askServerRestart: { }
+	// askServerRestart: { }
 }

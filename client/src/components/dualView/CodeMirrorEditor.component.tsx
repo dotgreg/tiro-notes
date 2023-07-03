@@ -306,7 +306,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 		})
-	}, [])
+	}, [p.pluginsConfig, p.file.path, p.value])
 	
 
 
@@ -571,7 +571,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// />}
 
 		/>}, 
-	[p.value])
+	[p.value, codemirrorExtensions])
 
 
 	return (

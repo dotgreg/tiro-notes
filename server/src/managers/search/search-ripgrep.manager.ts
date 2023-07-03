@@ -68,7 +68,10 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
-	if (!p.onRgDoesNotExists) p.onRgDoesNotExists = () => {}
+	const onRgDoesNotExists = (err) => {
+		if (!err.shortMessage.includes("ENOENT")) return
+		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
+	}
 
 	let exclusionArr:string[] = []
 	// exclusion string // not working currenlty
@@ -100,11 +103,11 @@ export const searchWithRgGeneric = async (p: {
 	]
 	// p.options.debug && console.log(`== START1 ============`);
 	// p.options.debug && console.log(backConfig.rgPath, searchParams);
-	let ripGrepStream = execaWrapper(backConfig.rgPath, searchParams)
-	if (!ripGrepStream) return p.onRgDoesNotExists()
+	
+	// if (!ripGrepStream) errturn onRgDoesNotExists(err)
 	
 	const resArr: string[] = []
-	ripGrepStream.stdout.on('data', async dataChunk => {
+	const onData1 = async dataChunk => {
 		// console.log("========", dataChunk);
 		const rawChunk = dataChunk.toString()
 		
@@ -132,11 +135,18 @@ export const searchWithRgGeneric = async (p: {
 
 
 		})
-	})
-	ripGrepStream.stdout.on('close', dataChunk => {
+	}
+	const onClose1 = dataChunk => {
 		p.onSearchEnded(resArr)
 		end()
 		// p.options.debug && console.log(`============== END`);
+	}
+	execaWrapper({
+		cmdPath:backConfig.rgPath, 
+		args: searchParams,
+		onData: onData1,
+		onClose: onClose1,
+		onError: err => {onRgDoesNotExists(err)}
 	})
 }
 
@@ -159,7 +169,10 @@ export const searchWithRipGrep = async (params: {
 }): Promise<void> => {
 	let p = params
 	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
-	if (!p.onRgDoesNotExists) p.onRgDoesNotExists = () => {}
+	const onRgDoesNotExists = (err) => {
+		if (!err.shortMessage.includes("ENOENT")) return
+		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
+	}
 
 	let processTerm = params.term.split('-').join('\\-')
 
@@ -215,17 +228,50 @@ export const searchWithRipGrep = async (params: {
 
 
 		let resultsRawArr: string[] = []
-		let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
-		if (!ripGrepStreamProcess1) return p.onRgDoesNotExists()
+		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
+		
+		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
 
-		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+		// ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+		// 	const rawMetaString = dataRaw.toString()
+		// 	// split multiline strings
+		// 	const rawMetaArr = rawMetaString.split('\n')
+		// 	resultsRawArr.push(...rawMetaArr)
+		// })
+
+		// ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+		// 	const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
+		// 	const scannedFilesObj: iFilesObj = {}
+		// 	let index = 0
+		// 	each(metasFilesObj, (metaObj, fileName) => {
+		// 		const file = processRawPathToFile({ rawPath: fileName, folder: relativeFolder, index, titleFilter })
+		// 		if (file && file.name) {
+		// 			if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
+		// 				scannedFilesObj[file.name] = file
+		// 				index++
+		// 			}
+		// 		}
+		// 	})
+		// 	const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
+		// 	const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
+
+		// 	log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
+		// 	params.onSearchEnded({ files: filesWithMetaUpdated })
+		// 	end()
+		// })
+		
+		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
+		
+		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
+
+		const onData2 =  async dataRaw => {
 			const rawMetaString = dataRaw.toString()
 			// split multiline strings
 			const rawMetaArr = rawMetaString.split('\n')
 			resultsRawArr.push(...rawMetaArr)
-		})
+		}
 
-		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+		const onClose2 = dataRaw => {
 			const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
 			const scannedFilesObj: iFilesObj = {}
 			let index = 0
@@ -244,6 +290,13 @@ export const searchWithRipGrep = async (params: {
 			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
 			params.onSearchEnded({ files: filesWithMetaUpdated })
 			end()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: normalSearchParams,
+			onData: onData2,
+			onClose: onClose2,
+			onError: err => {onRgDoesNotExists(err)}
 		})
 	}
 
@@ -273,11 +326,26 @@ export const searchWithRipGrep = async (params: {
 		// PROCESS 1
 		// console.log(112221)
 		// let ripGrepStreamProcess1
-		let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, fullFolderSearchParams)
-		if (!ripGrepStreamProcess1) return p.onRgDoesNotExists()
+		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, fullFolderSearchParams)
+		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
 
+		
+		// ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+		// 	let data = dataRaw.toString()
+		// 	const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', relativeFolder)
+		// 	each(files, file => {
+		// 		if (file && file.name) {
+		// 			filesScannedObj[file.name] = file
+		// 		}
+		// 	})
+		// })
+		// ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+		// 	shouldLog && log(h, ` FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
+		// 	perfs.cmd1 = Date.now()
+		// 	triggerAggregationIfEnded()
+		// })
 		const filesScannedObj: iFilesObj = {}
-		ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
+		const onData3 = async dataRaw => {
 			let data = dataRaw.toString()
 			const files = processRawDataToFiles(data, params.titleSearch ? processTerm : '', relativeFolder)
 			each(files, file => {
@@ -285,33 +353,64 @@ export const searchWithRipGrep = async (params: {
 					filesScannedObj[file.name] = file
 				}
 			})
-		})
-		ripGrepStreamProcess1.stdout.on('close', dataRaw => {
+		}
+		const onClose3 =  dataRaw => {
 			shouldLog && log(h, ` FOLDER => CMD1 => ENDED : ${filesScannedObj.length} elements found`, { fullFolderSearchParams });
 			perfs.cmd1 = Date.now()
 			triggerAggregationIfEnded()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: fullFolderSearchParams,
+			onData: onData3,
+			onClose: onClose3,
+			onError: err => {onRgDoesNotExists(err)}
 		})
 
 		// PROCESS 2
-		let ripGrepStreamProcess2 = execaWrapper(backConfig.rgPath, metaFilesInFullFolderSearch)
-		if (!ripGrepStreamProcess2) return p.onRgDoesNotExists()
+		// let ripGrepStreamProcess2 = execaWrapper(backConfig.rgPath, metaFilesInFullFolderSearch)
+		// if (!ripGrepStreamProcess2) errturn onRgDoesNotExists(err)
 		
+		// const rawMetasStrings: string[] = []
+		// let metasFilesScanned: iMetasFiles = {}
+		// ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
+		// 	const rawMetaString = dataRaw.toString()
+		// 	// split multiline strings
+		// 	const rawMetaArr = rawMetaString.split('\n')
+		// 	rawMetasStrings.push(...rawMetaArr)
+		// })
+		// ripGrepStreamProcess2.stdout.on('close', dataRaw => {
+		// 	// process raw strings to meta objs
+
+		// 	metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
+		// 	shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
+		// 	perfs.cmd2 = Date.now()
+		// 	triggerAggregationIfEnded()
+		// })
 		const rawMetasStrings: string[] = []
 		let metasFilesScanned: iMetasFiles = {}
-		ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
+		const onData4 =  async dataRaw => {
 			const rawMetaString = dataRaw.toString()
 			// split multiline strings
 			const rawMetaArr = rawMetaString.split('\n')
 			rawMetasStrings.push(...rawMetaArr)
-		})
-		ripGrepStreamProcess2.stdout.on('close', dataRaw => {
+		}
+		const onClose4 =  dataRaw => {
 			// process raw strings to meta objs
 
 			metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
 			shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
 			perfs.cmd2 = Date.now()
 			triggerAggregationIfEnded()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: metaFilesInFullFolderSearch,
+			onData: onData4,
+			onClose: onClose4,
+			onError: err => {onRgDoesNotExists(err)}
 		})
+
 
 		// PROCESS 3 : AGGREGATE RESULTS WHEN BOTH CMDS ARE DONE
 		let counterCmdsDone = 0
@@ -345,21 +444,43 @@ export const searchWithRipGrep = async (params: {
 			'--multiline',
 			...exclusionArr
 		]
-		let ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
-		if (!ripGrepStreamProcessImg2) return p.onRgDoesNotExists()
+		// let ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
+		// if (!ripGrepStreamProcessImg2) errturn onRgDoesNotExists(err)
+
+		// const rawStrings: string[] = []
+		// ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
+		// 	const partialRawString = dataRaw.toString()
+		// 	// split multiline strings
+		// 	const partialRawStringsArr = partialRawString.split('\n')
+		// 	rawStrings.push(...partialRawStringsArr)
+		// })
+		// ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
+		// 	const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
+		// 	shouldLog && log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
+		// 	params.onSearchEnded({ images })
+		// 	end()
+		// })
+		
 
 		const rawStrings: string[] = []
-		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
+		const onData5 = async dataRaw => {
 			const partialRawString = dataRaw.toString()
 			// split multiline strings
 			const partialRawStringsArr = partialRawString.split('\n')
 			rawStrings.push(...partialRawStringsArr)
-		})
-		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
+		}
+		const onClose5 = (dataRaw) => {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder, titleFilter);
 			shouldLog && log(h, ` TERM SEARCH + IMAGE => ENDED ${images.length}`, { searchParams });
 			params.onSearchEnded({ images })
 			end()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: searchParams,
+			onData: onData5,
+			onClose: onClose5,
+			onError: err => {onRgDoesNotExists(err)}
 		})
 	}
 	// IMAGE SEARCH : only in folder and NOT in subfolders
@@ -374,21 +495,42 @@ export const searchWithRipGrep = async (params: {
 			'--multiline',
 			...exclusionArr
 		]
-		const ripGrepStreamProcessImg1 = execaWrapper(backConfig.rgPath, searchParams)
-		if (!ripGrepStreamProcessImg1) return p.onRgDoesNotExists()
+		// const ripGrepStreamProcessImg1 = execaWrapper(backConfig.rgPath, searchParams)
+		// if (!ripGrepStreamProcessImg1) errturn onRgDoesNotExists(err)
 
+		// const rawStrings: string[] = []
+		// ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
+		// 	const partialRawString = dataRaw.toString()
+		// 	// split multiline strings
+		// 	const partialRawStringsArr = partialRawString.split('\n')
+		// 	rawStrings.push(...partialRawStringsArr)
+		// })
+		// ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
+		// 	const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
+		// 	shouldLog && log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
+		// 	params.onSearchEnded({ images })
+		// 	end()
+		// })
+		
 		const rawStrings: string[] = []
-		ripGrepStreamProcessImg1.stdout.on('data', async dataRaw => {
+		const onData6 = async dataRaw => {
 			const partialRawString = dataRaw.toString()
 			// split multiline strings
 			const partialRawStringsArr = partialRawString.split('\n')
 			rawStrings.push(...partialRawStringsArr)
-		})
-		ripGrepStreamProcessImg1.stdout.on('close', dataRaw => {
+		}
+		const onClose6 = dataRaw => {
 			const images = processRawStringsToImagesArr(rawStrings, relativeFolder);
 			shouldLog && log(h, ` IMAGE FOLDER => ENDED ${images.length}`);
 			params.onSearchEnded({ images })
 			end()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: searchParams,
+			onData: onData6,
+			onClose: onClose6,
+			onError: err => {onRgDoesNotExists(err)}
 		})
 	}
 
@@ -411,16 +553,32 @@ export const searchWithRipGrep = async (params: {
 			...exclusionArr
 		]
 
-		const ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
-		if (!ripGrepStreamProcessImg2) return p.onRgDoesNotExists()
+		// const ripGrepStreamProcessImg2 = execaWrapper(backConfig.rgPath, searchParams)
+		// if (!ripGrepStreamProcessImg2) errturn onRgDoesNotExists(err)
+		
+		// const rawStrings: string[] = []
+		// ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
+		// 	const partialRawString = dataRaw.toString()
+		// })
+		// ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
+		// 	params.onSearchEnded({})
+		// 	end()
+		// })
 		
 		const rawStrings: string[] = []
-		ripGrepStreamProcessImg2.stdout.on('data', async dataRaw => {
+		const onData7 = async dataRaw => {
 			const partialRawString = dataRaw.toString()
-		})
-		ripGrepStreamProcessImg2.stdout.on('close', (dataRaw) => {
+		}
+		const onClose7 = (dataRaw) => {
 			params.onSearchEnded({})
 			end()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: searchParams,
+			onData: onData7,
+			onClose: onClose7,
+			onError: err => {onRgDoesNotExists(err)}
 		})
 	}
 

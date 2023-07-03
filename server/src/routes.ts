@@ -359,8 +359,10 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askRessourceDownload', async data => {
 		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
 		let endPerf = perf(`askRessourceDownload ${data.url}`)
+		const opts = data.opts ? data.opts : {}
+
 		await upsertRecursivelyFolders(pathToFile)
-		downloadFile(data.url, pathToFile).then(message => {
+		downloadFile(data.url, pathToFile, opts).then(message => {
 			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
 			endPerf()
 		}).catch(message => {
@@ -425,7 +427,11 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// SETUP JSON 
 	// 
 	serverSocket2.on('updateSetupJson', async data => {
-		updateSetupJsonParam(data.paramName, data.paramValue)
+		await updateSetupJsonParam(data.paramName, data.paramValue)
+		serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
+		if (data.opts.requiresServerRestart) {
+			restartTiroServer()
+		}
 	}, { checkRole: "editor" })
 
 
@@ -446,9 +452,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 
-	serverSocket2.on('askServerRestart', async data => {
-		restartTiroServer()
-	}, { checkRole: "editor" })
+	// serverSocket2.on('askServerRestart', async data => {
+	// 	restartTiroServer()
+	// }, { checkRole: "editor" })
 
 
 }

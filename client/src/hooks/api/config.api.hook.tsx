@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { iBackConfig} from '../../../../shared/types.shared';
+import { iBackConfig, iPlatform} from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
@@ -12,6 +12,7 @@ export interface iConfigApi {
 	get: (
 		cb: (config: iBackConfig) => void
 	) => void
+	getPlatform: () => iPlatform
 }
 
 export const useConfigApi = (p: {
@@ -46,6 +47,9 @@ export const useConfigApi = (p: {
 		})
 	}
 
+	const getPlatform: iConfigApi['getPlatform'] = () => {
+		return getPlatform()
+	}
 
 
 	//
@@ -53,6 +57,7 @@ export const useConfigApi = (p: {
 	//
 	const api: iConfigApi = {
 		get: getConfig,
+		getPlatform
 	}
 
 	return api
