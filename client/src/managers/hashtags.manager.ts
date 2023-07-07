@@ -37,7 +37,6 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 				const partsHashtagIds: { [partId: string]: number[] } = {}
 				console.log(rawResPerFile);
 				each(rawResPerFile, (rawFile, i) => {
-					// console.log(22231, i, rawFile);
 					// at first, notepart titleName is null
 					const notePart: iNotePart = {
 						file: rawFile.file,
@@ -89,7 +88,6 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 								if (i === j) return
 								// const tags = currentLineTags
 								// let ins = tags.length > i + 1 ? [i, i + 1] : null
-								// console.log(22234, ins, tags.length, i + 1, line);
 
 								// if (ins) {
 								// let id1 = tags[ins[0]].id
@@ -98,7 +96,6 @@ export const getHashtags = async (path: string): Promise<iHashtags> => {
 								let id2 = ctag2.id
 								const nLink = `${id1}-${id2}`
 								const nLink2 = `${id2}-${id1}`
-								// console.log(22233, edges, nLink, nLink2, line);
 								if (
 									edges.indexOf(nLink) === -1 &&
 									edges.indexOf(nLink2) === -1

@@ -96,7 +96,6 @@ const commanderApp = (innerTagStr, opts) => {
 				exec(cmdStr, r => {
 						let out = start + r + "\n" + end
 						prependOutput(out)
-						// console.log(222222, outputPaths, outputPaths[id], id);
 						if (outputPaths[id]) prependToHistoryFile(out, outputPaths[id])
 						else if (outputPaths.global) prependToHistoryFile(out, outputPaths.global)
 				})

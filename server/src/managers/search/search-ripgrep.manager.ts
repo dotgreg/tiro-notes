@@ -69,6 +69,7 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
 	const onRgDoesNotExists = (err) => {
+		console.log(123, err)
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
 	}

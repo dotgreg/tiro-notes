@@ -2,7 +2,7 @@ import { sharedConfig } from '../../shared/shared.config';
 import { iBackConfig } from '../../shared/types.shared';
 import { getDataFolder, shouldAskForSetup, tryLoadJsonConfig } from "./managers/configSetup.manager"
 import { fileExists } from './managers/fs.manager';
-import { relativeToAbsolutePath } from './managers/path.manager';
+import { getFrontendRelativePath, relativeToAbsolutePath } from './managers/path.manager';
 
 // Get variables from env
 export const getEnvVars = () => {
@@ -42,7 +42,7 @@ if (testing_env) dev.disableLogin = true
 
 export const backConfig:iBackConfig = {
 	dataFolder,
-	frontendBuildFolder: relativeToAbsolutePath('./client', true),
+	frontendBuildFolder: getFrontendRelativePath('./client'),
 
 	dataFolderExists: fileExists(dataFolder),
 	askForSetup: shouldAskForSetup(),

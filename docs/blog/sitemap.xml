@@ -47,16 +47,6 @@
 	</url>
 	
 	<url>
-		<loc>https://tiro-notes.org/blog/tags/ai/</loc>
-		<lastmod>2023-07-02</lastmod>
-	</url>
-	
-	<url>
-		<loc>https://tiro-notes.org/blog/tags/text-editor/</loc>
-		<lastmod>2023-07-02</lastmod>
-	</url>
-	
-	<url>
 		<loc>https://tiro-notes.org/blog/tags/productivity/</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
@@ -72,12 +62,22 @@
 	</url>
 	
 	<url>
+		<loc>https://tiro-notes.org/blog/tags/text-editor/</loc>
+		<lastmod>2023-07-02</lastmod>
+	</url>
+	
+	<url>
 		<loc>https://tiro-notes.org/blog/tags/release/</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
 	
 	<url>
 		<loc>https://tiro-notes.org/blog/tags/changelog/</loc>
+		<lastmod>2023-07-02</lastmod>
+	</url>
+	
+	<url>
+		<loc>https://tiro-notes.org/blog/tags/ai/</loc>
 		<lastmod>2023-07-02</lastmod>
 	</url>
 </urlset>

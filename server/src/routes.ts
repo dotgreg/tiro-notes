@@ -13,7 +13,7 @@ import { restartTiroServer } from "./managers/serverRestart.manager";
 import { checkUserPassword, getUserToken } from "./managers/loginToken.manager";
 import { ServerSocketManager } from './managers/socket.manager'
 import { log } from "./managers/log.manager";
-import { getFolderPath, p, relativeToAbsolutePath } from "./managers/path.manager";
+import { getFolderPath, p } from "./managers/path.manager";
 import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";

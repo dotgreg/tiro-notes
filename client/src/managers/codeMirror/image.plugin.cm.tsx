@@ -31,7 +31,7 @@ const openLightBoxFn = (el) => {
 			let srcs:string[] = []
 			let startIndex = 0
 			each(images, (im,i) => {
-				if (im.url === imageSrc) startIndex = i
+				if (imageSrc.includes(im.url)) startIndex = i
 				srcs.push(im.url)
 			})
 			api.ui.lightbox.open(startIndex, srcs)

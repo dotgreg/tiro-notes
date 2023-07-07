@@ -3,7 +3,7 @@
 let paris = [48.8588548, 2.347035, "Paris"]
 let pos = paris 
 
-console.log(12333, api, barApi, tiroApi)
+// console.log(12333, api, barApi, tiroApi)
 
 // other
 let dLabels = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]

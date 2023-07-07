@@ -45,8 +45,9 @@ export const getRelativePath = (pathFile: string): string => {
 // 	return res
 // }
 
-export const relativeToAbsolutePath = (pathFile: string, insideSnapshot: boolean = false): string => {
+export const relativeToAbsolutePath = (pathFile: string): string => {
 
+	let oldpathFile = pathFile
 	// if (pathFile) {
 	//     if (pathFile[0] === '/' || pathFile[0] === '\\') pathFile = pathFile.substr(1)
 	// } else {
@@ -64,24 +65,44 @@ export const relativeToAbsolutePath = (pathFile: string, insideSnapshot: boolean
 	    pathFile = pathFile.split(backConfig.dataFolder).join('')
 	    pathFile = `${backConfig.dataFolder}${pathFile}`
 	
-		let rootFolder
-		let basePath
-		if (!isAbsolute(pathFile)) {
-			if (insideSnapshot) {
-				basePath = isEnvDev() ? '../../..' : '..'
-				rootFolder = __dirname
-			} else {
-				// will be exec 
-				basePath = isEnvDev() ? '..' : ''
-				rootFolder = process.cwd()
-			}
-			pathFile = path.join(rootFolder, `${basePath}/${pathFile}`)
-		}
+		// let rootFolder
+		// let basePath
+		// if (!isAbsolute(pathFile)) {
+		// 	if (insideSnapshot) {
+		// 		basePath = isEnvDev() ? '../../..' : '..'
+		// 		rootFolder = __dirname
+		// 	} else {
+		// 		// will be exec 
+		// 		basePath = isEnvDev() ? '..' : ''
+		// 		rootFolder = process.cwd()
+		// 	}
+		// 	pathFile = path.join(rootFolder, `${basePath}/${pathFile}`)
+		// }
 	}
 	
 	pathFile = cleanPath(pathFile)
-
+	// console.log({oldpathFile, pathFile, insideSnapshot})
 	return pathFile
 }
 
 export const p = relativeToAbsolutePath
+
+export const getFrontendRelativePath = (pathFile:string) => {
+	let rootFolder
+	let basePath
+	let old = pathFile
+	if (!isAbsolute(pathFile)) {
+		// if (insideSnapshot) {
+			basePath = isEnvDev() ? '../../..' : '..'
+			rootFolder = __dirname
+		// } else {
+		// 	// will be exec 
+		// 	basePath = isEnvDev() ? '..' : ''
+		// 	rootFolder = process.cwd()
+		// }
+	}
+	
+	pathFile = path.join(rootFolder, `${basePath}/${pathFile}`)
+	console.log("getFrontendRelativePath", {old, pathFile, isAbsolute: isAbsolute(pathFile)})
+	return pathFile
+}

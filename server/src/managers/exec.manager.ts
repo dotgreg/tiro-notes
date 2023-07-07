@@ -1,3 +1,4 @@
+import { isObject } from "lodash";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iCommandStreamChunk } from "../../../shared/types.shared";
 import { log } from "./log.manager";
@@ -69,26 +70,16 @@ export const execaWrapper = (p:{
 }) => {
 	let streamProcess = execa(p.cmdPath, p.args)
 
-	streamProcess.stdout.on('data', async dataChunk => {
-		p.onData(dataChunk)
-	})
-	streamProcess.stdout.on('close', async dataChunk => {
-		p.onClose(dataChunk)
-	})
+	streamProcess.stdout.on('data', async dataChunk => { p.onData(dataChunk) })
+	streamProcess.stdout.on('close', async dataChunk => { p.onClose(dataChunk) })
 	
 	const onError = error => {
-		// console.log(111111111111, error)
+		if (!error.shortMessage) error = {shortMessage: error.toString()}
 		if(p.onError) p.onError(error)
 		else console.log(h, "ERROR", p.cmdPath, p.args, error);
 	}
 
-	streamProcess.catch(error => {
-		onError(error)
-	})
-	streamProcess.stdout.on('error', error => {
-		onError(error)
-	})
-	streamProcess.stderr.on('data', error => {
-		onError(error)
-	})
+	streamProcess.catch(error => { onError(error) })
+	streamProcess.stdout.on('error', error => { onError(error) })
+	streamProcess.stderr.on('data', error => { onError(error) })
 }
