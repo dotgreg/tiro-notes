@@ -34,36 +34,40 @@ export const Lightbox = (p: {
 		if (nLevel > 20) nLevel = 20
 		setZoomLevel(nLevel)
 	}
-	const imgRef = useRef<any>(null)
-	const getZoomDims = () => {
-		let percent = ((zoomLevel - 10) * 50) + 99
-		if (zoomLevel < 10) percent = (-(10 - zoomLevel) * 10) + 99
-		let val = `${percent}%`
-		let res: any = { height: val }
-		if (imgRef.current) {
-			let w = imgRef.current.naturalWidth
-			let h = imgRef.current.naturalHeight
-			if (w > h) res = { width: val }
+	const imgsRef = useRef<any[]>([])
+	const getZoomDims = (id) => {
+		const updateDims = () => {
+			const cImgRef = document.getElementById(id) as HTMLImageElement
+			const wrapperRef = document.getElementById(`lightbox-image-id`) as HTMLElement
+
+			let percent = ((zoomLevel - 10) * 50) + 99
+			if (zoomLevel < 10) percent = (-(10 - zoomLevel) * 10) + 99
+			// let val = `${percent}%`
+			// let res: any = { height: val }
+			if (cImgRef && wrapperRef) {
+				cImgRef.style.transform = `scale(${percent/100})`
+				cImgRef.style.transformOrigin = `top left`
+				let iw = cImgRef.naturalWidth
+				let ih = cImgRef.naturalHeight
+				let ir = iw/ih
+				let ww = wrapperRef.offsetWidth
+				let wh = wrapperRef.offsetHeight
+				let wr = ww/wh
+
+				// if ratio image < ratio wrapper = image height LONGER = should fit to wrapper height => MOST OF THE CASE?
+				if (ir < wr) cImgRef.style.height = `${wh-10}px`
+				if (ir > wr) cImgRef.style.width = `${ww-10}px`
+			}
 		}
-		if (zoomContainerRef.current) {
-			// zoomContainerRef.current.scrollTo(200, 200);
-			// setTimeout(() => {
-			// 	console.log(222222);
-			// 	zoomContainerRef.current.scrollIntoView({
-			// 		behavior: 'auto',
-			// 		block: 'center',
-			// 		inline: 'center'
-			// 	});
-			// }, 1000)
-		}
-		return res
+		setTimeout(() => {updateDims()}, 50)
+		return {}
 	}
 	const zoomContainerRef = useRef<any>(null)
 	const getLineHeight = () => {
 		let res = `0px`
 		if (zoomContainerRef.current) {
 			let h = zoomContainerRef.current.clientHeight
-			res = `${h}px`
+			res = `${h-5}px`
 		}
 		return res
 	}
@@ -81,6 +85,7 @@ export const Lightbox = (p: {
 					p.images.map((image, key) =>
 						<div
 							key={key}
+							id={`lightbox-image-id`}
 							className={`lightbox-image`}
 							style={{ display: key === currIndex ? 'flex' : 'none' }}
 						>
@@ -88,8 +93,9 @@ export const Lightbox = (p: {
 								className="image-zoom-wrapper"
 								style={{ lineHeight }}>
 								<img
-									ref={imgRef}
-									style={getZoomDims()}
+									// ref={ref => {imgsRef.current[key] = ref}}
+									id={`img-lightbox-id-${key}`}
+									style={getZoomDims(`img-lightbox-id-${key}`)}
 									src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
 							</div>
 							<div className="image-infos">
@@ -174,8 +180,17 @@ export const lightboxCss = () => `
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%); 
+				.zoom {
+					top: 3px;
+					left: 25px;
+				}
+				.dezoom {
+					top: 3px;
+					left: 8px;
+				}
 				.zoom, .dezoom {
-						position: relative;
+						position: absolute;
+						
 						z-index: 100;
 						height: 43px;
 						margin-right: 5px;

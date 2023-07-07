@@ -28,7 +28,7 @@ import { setNoteView } from '../../managers/windowViewType.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean } from 'lodash';
+import { each, isBoolean, isNumber } from 'lodash';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
@@ -147,6 +147,7 @@ const EditorAreaInt = (
 	})
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
+		console.log(1222222222222, textToInsert, insertPosition)
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
 		if (updatedText) {
 			triggerNoteEdition(updatedText)
@@ -200,7 +201,7 @@ const EditorAreaInt = (
 		const f = codeMirrorEditorView.current
 		if (!f) return
 		const cPos = CodeMirrorUtils.getCurrentLineInfos(f)?.currentPosition
-		if (!cPos) return
+		if (!isNumber(cPos)) return
 		insertTextAt(stringToInsertUpload.current, 'currentPos')
 		stringToInsertUpload.current = ''
 		CodeMirrorUtils.updateCursor(f, cPos, true)

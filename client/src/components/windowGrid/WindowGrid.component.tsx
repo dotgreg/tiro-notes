@@ -76,7 +76,6 @@ export const WindowGrid = (p: {
 				// api.ui.windows.close(idsToRemove)
 				// console.log(`${h} SUCCESS DELETING FILE, => remove all windows having the same file ${file.path}`, idsToRemove)
 
-				// console.log(222, nFiles[nFiles.length - 1].name, nFiles);
 				// api.ui.windows.updateWindows()
 				// load first note 
 				const nFile = nFiles[nFiles.length - 1]
