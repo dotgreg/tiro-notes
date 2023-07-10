@@ -9,6 +9,7 @@ const updateOpts = () => {
     let post = ` => ${time} minutes`
     let opts = []
     opts.push({label:"start"+post, value:"start", time: time})
+    opts.push({label:"log"+post, value:"log", time: time})
     opts.push({label:"stop", value: "stop", time: time})
     barApi.setOptions(opts)
 }
@@ -42,6 +43,12 @@ const reactToUpdates = () => {
         let startTimestamp = new Date().getTime()
         tiroApi.plugins.cronCache.set(cronCacheName, {endTimestamp, startTimestamp, isEnabled: true, catName:cat.catName})
         tiroApi.ui.notification.emit({id:notifUniqId,content: `Stopping old timers and starting timer for ${mins} minutes for category ${cat.catName} `, options:{hideAfter: 65}})
+        addToHistory(cat.catName, mins)
+        barApi.close()
+    }
+    if (a.value === "log") {
+        let mins = a.time
+        let timer = parseInt(mins) * 60 * 1000
         addToHistory(cat.catName, mins)
         barApi.close()
     }
