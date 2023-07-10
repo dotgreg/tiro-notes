@@ -300,16 +300,20 @@ const unfoldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
 	if (!CMObj?.view) return
 	unfoldAll(CMObj.view)
 }
-const foldAllChildren = (CMObj: ReactCodeMirrorRef | null) => {
+const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: boolean = true) => {
 	let struct = getMarkdownStructure(CMObj)
-	console.log(345,struct)
 	// const view = CMObj?.view
+	let clineInfos = getCurrentLineInfos(CMObj)
+	console.log(123333, clineInfos)
 	each(struct, (item, i) => {
 		if (!CMObj?.view) return
 		// if (!item.lastChild) {
 		let to = struct[i + 1] ? struct[i + 1].from - 1 : CMObj.view.state.doc.length
 		let from = item.to - 1
+		let isInCurrent = clineInfos && clineInfos.currentPosition > from && clineInfos.currentPosition <= to
+		console.log(1222222222, from, to, isInCurrent, clineInfos?.currentPosition)
 		try {
+			if (keepCurrentOpen && isInCurrent) return console.log(1111111111, "INSIDE", isInCurrent, from, to)
 			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
 		} catch (error) {
 			console.warn(`ERROR FOR ${item.title}`, error)

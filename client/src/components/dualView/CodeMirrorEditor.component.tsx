@@ -125,6 +125,17 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	useEffect(() => {
 		setIsAllFolded(false)
 	}, [p.file.path])
+	// if content is modified while setIsAllFolded to true, keep it that way
+	useEffect(() => {
+		if (isAllFolded === true) {
+			// debounce
+			debounceFoldAll()
+		}
+	}, [p.value])
+	const debounceFoldAll = useDebounce(() => {
+		let CMObj = getEditorObj()
+		CodeMirrorUtils.foldAllChildren(CMObj)
+	}, 500)
 
 
 

@@ -48,7 +48,6 @@ export const ScrollingBar = (p: {
 					// then update position bar
 					let percentPx = (o.dims.scroller.full - o.dims.scroller.viewport) / 100
 					let newY = o.posPercent * percentPx
-					// console.log(111144, height, newY, percentPx, o.posPercent)
 					setBarY(newY)
 				}
 			}

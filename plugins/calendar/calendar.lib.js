@@ -1,10 +1,18 @@
+const config = {
+    showNotifOnceEvery: 8*60
+}
+
 const notifUniqId = "uniq-notif-id-calendar"
 const h = `[CALENDAR LIB] `
+
+
+
 const getEventsList = (calNotePath, cb) => {
     tiroApi.file.getContent(calNotePath, noteContent => {
         let lines = noteContent.split("\n")
         let events = []
         
+        // for loop TO DUPLICATE w LIB/TAG ONE
         // START EVENT PROCESS
         for (var i = 0; i < lines.length; i++) {
             const l = lines[i]
@@ -22,13 +30,14 @@ const getEventsList = (calNotePath, cb) => {
 
                 const curr = new Date()
                 const eventDay = evDate.getDate()
-                const eventMonth = evDate.getMonth()
+                const eventMonth = evDate.getMonth() + 1
                 const eventTime = evDate.toLocaleString().split(" ")[1]
+                
 
                 // if every_month / every_year present body
                 if (body.includes("every_month")){
                     // generate 5 events in future monthes
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 1; i < 6; i++) {
                         const recEvMonth = (curr.getMonth() + i)%12
                         const isNewYear = (curr.getMonth() + i) > 12
                         let recEvYear = curr.getFullYear() 
@@ -43,9 +52,10 @@ const getEventsList = (calNotePath, cb) => {
                 }
                 if (body.includes("every_year")){
                     // generate 5 events in future
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 1; i < 6; i++) {
                         const recEvYear = curr.getFullYear()  + i
                         const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+                        console.log(11111111111, recDate, title)
                         events.push({
                             'date': recDate,
                             'title': title,
@@ -53,9 +63,26 @@ const getEventsList = (calNotePath, cb) => {
                         })
                     }
                 }
+                if (body.includes("every_week")){
+                    const eventDayOfWeek = evDate.getDay();
+                    for (let i = 0; i < 5; i++) {
+                        const nextDate = new Date(new Date().getTime());
+                        const addedDays = 7 * (eventDayOfWeek - (i + 1))
+                        nextDate.setDate(nextDate.getDate() + addedDays); 
+                        nextDate.setHours(evDate.getHours())
+                        nextDate.setMinutes(evDate.getMinutes())
+                        console.log(111111, i, (7 * (eventDayOfWeek - (i + 1))), nextDate, eventDayOfWeek)
+                        // result.push(nextDate);
+                        events.push({
+                            'date': nextDate,
+                            'title': title,
+                            'body': body,
+                        })
+                    }
+                }
             }
         }
-        // END EVENT PROCESS
+        // END EVENT PROCESS to duplicate
 
         
         console.log(h, {events})
@@ -78,7 +105,7 @@ const sendNotif = (event, title) => {
         <b>${event.title}</b><br> 
         <div style="color:#acacac; font-size:10px;">${body}</div>
     `
-    tiroApi.ui.notification.emit({id:notifId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: 4*60}})
+    tiroApi.ui.notification.emit({id:notifId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: config.showNotifOnceEvery}})
     
 }
 
