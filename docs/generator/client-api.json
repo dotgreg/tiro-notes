@@ -30087,7 +30087,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-							"line": 344,
+							"line": 348,
 							"character": 12
 						}
 					],
@@ -30111,7 +30111,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 344,
+											"line": 348,
 											"character": 46
 										}
 									],
@@ -30140,7 +30140,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 344,
+											"line": 348,
 											"character": 32
 										}
 									],
@@ -30163,7 +30163,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-									"line": 344,
+									"line": 348,
 									"character": 31
 								}
 							]

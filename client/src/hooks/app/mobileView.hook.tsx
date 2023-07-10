@@ -2,17 +2,11 @@ import React, { useState } from 'react';
 import { ButtonsToolbar } from '../../components/ButtonsToolbar.component';
 import { deviceType, MobileView } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { syncScroll2 } from '../syncScroll.hook';
-import { useLocalStorage } from '../useLocalStorage.hook';
 import { useStatMemo } from "../useStatMemo.hook"
 
 export const useMobileView = () => {
 
 	const [mobileView, setMobileView] = useState<MobileView>('navigator')
-	// const updateMobileView = (v: MobileView) => {
-	// 	setMobileView(v)
-	// 	// syncScroll2.editorToPreview()
-	// }
 
 	const MobileToolbarComponent = (p: {
 		forceRerender: boolean,

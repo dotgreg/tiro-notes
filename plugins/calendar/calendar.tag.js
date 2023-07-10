@@ -22,6 +22,7 @@ const calendarApp = (innerTagStr, opts) => {
 
 
 
+            // for loop TO DUPLICATE w LIB/TAG ONE
             // START EVENT PROCESS
             for (var i = 0; i < lines.length; i++) {
                 const l = lines[i]
@@ -39,13 +40,14 @@ const calendarApp = (innerTagStr, opts) => {
 
                     const curr = new Date()
                     const eventDay = evDate.getDate()
-                    const eventMonth = evDate.getMonth()
+                    const eventMonth = evDate.getMonth() + 1
                     const eventTime = evDate.toLocaleString().split(" ")[1]
+                    
 
                     // if every_month / every_year present body
                     if (body.includes("every_month")){
                         // generate 5 events in future monthes
-                        for (let i = 0; i < 5; i++) {
+                        for (let i = 1; i < 6; i++) {
                             const recEvMonth = (curr.getMonth() + i)%12
                             const isNewYear = (curr.getMonth() + i) > 12
                             let recEvYear = curr.getFullYear() 
@@ -60,9 +62,10 @@ const calendarApp = (innerTagStr, opts) => {
                     }
                     if (body.includes("every_year")){
                         // generate 5 events in future
-                        for (let i = 0; i < 5; i++) {
+                        for (let i = 1; i < 6; i++) {
                             const recEvYear = curr.getFullYear()  + i
                             const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+                            console.log(11111111111, recDate, title)
                             events.push({
                                 'date': recDate,
                                 'title': title,
@@ -70,9 +73,26 @@ const calendarApp = (innerTagStr, opts) => {
                             })
                         }
                     }
+                    if (body.includes("every_week")){
+                        const eventDayOfWeek = evDate.getDay();
+                        for (let i = 0; i < 5; i++) {
+                            const nextDate = new Date(new Date().getTime());
+                            const addedDays = 7 * (eventDayOfWeek - (i + 1))
+                            nextDate.setDate(nextDate.getDate() + addedDays); 
+                            nextDate.setHours(evDate.getHours())
+                            nextDate.setMinutes(evDate.getMinutes())
+                            console.log(111111, i, (7 * (eventDayOfWeek - (i + 1))), nextDate, eventDayOfWeek)
+                            // result.push(nextDate);
+                            events.push({
+                                'date': nextDate,
+                                'title': title,
+                                'body': body,
+                            })
+                        }
+                    }
                 }
             }
-            // END EVENT PROCESS
+            // END EVENT PROCESS to duplicate
 
                 
             // for each line, create a new event

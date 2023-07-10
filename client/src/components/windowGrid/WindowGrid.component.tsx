@@ -211,7 +211,7 @@ export const WindowGrid = (p: {
 						refresh={tab.refresh || 0}
 						grid={tab.grid}
 						onGridUpdate={p.onGridUpdate}
-		mobileView={p.mobileView}
+						mobileView={p.mobileView}
 					/>
 				</GridContext.Provider>
 			</div>

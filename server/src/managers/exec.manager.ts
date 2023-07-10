@@ -24,22 +24,13 @@ export const execString = async (command: string): Promise<any> => {
 type iOnDataExec = (r: iCommandStreamChunk) => void
 
 let h = `[EXEC STREAM]`
-export const execStringStream = async (
+export const execStringStream =  async (
 	command: string,
 	onData: iOnDataExec
 ) => {
-
-	let err = null
-	const commandStream = execa.command(command, { shell: true }).catch(error => {
-		err = error
-	});
-
-	if (!commandStream.stdout) return console.log(h, `ERROR with cmd ${command}`, err)
-
 	shouldLog && log(h,` ${JSON.stringify(command)}`);
 	let index = 0
 	let textTot = ""
-
 	const processData = (isLast:boolean, isError:boolean) => async rawChunk => {
 		let text = rawChunk.toString()
 		if (text === "false" && isLast) text = ""
@@ -47,28 +38,76 @@ export const execStringStream = async (
 		onData({ text, textTot, index, isLast, isError })
 		index++
 	}
-
-	commandStream.stderr.on('data', processData(false, true))
-	commandStream.stderr.on('close', processData(true, true))
-
-	commandStream.stdout.on('data',  processData(false, false))
-	commandStream.stdout.on('close', processData(true, false))
+	execaWrapper({
+		fullCmd: command,
+		options:{shell: true},
+		onData: processData(false, false),
+		onClose: processData(true, false),
+		onError: processData(false, true)
+	})
 }
+
+
+// export const execStringStream = async (
+// 	command: string,
+// 	onData: iOnDataExec
+// ) => {
+
+// 	let err = null
+// 	const commandStream = execa.command(command, { shell: true }).catch(error => {
+// 		err = error
+// 	});
+
+// 	console.log(222222222211111111)
+// 	if (!commandStream.stdout) return console.log(h, `ERROR with cmd ${command}`, err)
+// 	console.log(2222222222)
+// 	shouldLog && log(h,` ${JSON.stringify(command)}`);
+// 	let index = 0
+// 	let textTot = ""
+
+// 	const processData = (isLast:boolean, isError:boolean) => async rawChunk => {
+// 		let text = rawChunk.toString()
+// 		if (text === "false" && isLast) text = ""
+// 		textTot += text
+// 		onData({ text, textTot, index, isLast, isError })
+// 		index++
+// 	}
+
+// 	commandStream.stderr.on('data', processData(false, true))
+// 	commandStream.stderr.on('close', processData(true, true))
+
+// 	commandStream.stdout.on('data',  processData(false, false))
+// 	commandStream.stdout.on('close', processData(true, false))
+// }
+
+
+
+
+
 
 // low level exec functions
 // for error catching
 h = `[EXEC execaWrapper]`
-
-
-
 export const execaWrapper = (p:{
-	cmdPath:string
-	args:string[]
+	cmdPath?:string
+	args?:string[]
+	fullCmd?:string
+	
+	options?:{
+		shell?: boolean
+	}
 	onData: (dataChunk:any) => void
 	onClose: (dataChunk:any) => void
 	onError?: (err:any) => void
 }) => {
-	let streamProcess = execa(p.cmdPath, p.args)
+	if (!p.options) p.options = {}
+
+	let streamProcess
+	if (p.cmdPath) {
+		streamProcess = execa(p.cmdPath, p.args, p.options)
+	} else if (p.fullCmd) {
+		streamProcess = execa(p.fullCmd, p.options)
+	}
 
 	streamProcess.stdout.on('data', async dataChunk => { p.onData(dataChunk) })
 	streamProcess.stdout.on('close', async dataChunk => { p.onClose(dataChunk) })

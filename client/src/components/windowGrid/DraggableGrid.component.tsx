@@ -369,10 +369,6 @@ export const DraggableGrid = (p: {
 									<div className="note-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
-											// onViewChange={(nView) => { 
-											// 	viewTypeChange(nView, i) 
-											// }}
-											// onEditorDropdownEnter={e => {onEditorDropdownEnter(window)}}
 											askForLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>

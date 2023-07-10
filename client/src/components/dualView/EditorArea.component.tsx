@@ -816,6 +816,7 @@ export const EditorArea = (p: iEditorProps) => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
 	}, [
 		p.viewType,
+		p.mobileView,
 		isConnected,
 		p.canEdit,
 		p.editorType,
