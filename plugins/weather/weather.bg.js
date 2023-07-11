@@ -15,8 +15,8 @@ if (isAfternoon) {
     }
 
     fetchLibs(weatherLib => {
-        const isCached = !config.isDev
-        weatherLib.sendNotifWeather(1, config.pos, isCached)
+        const isCachedForFewHours = !config.isDev
+        weatherLib.sendNotifWeather(1, config.pos, isCachedForFewHours)
     })
   
     

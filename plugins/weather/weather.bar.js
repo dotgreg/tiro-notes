@@ -32,7 +32,6 @@ const main = (weatherLib) => {
 
   if (barApi.selectedTags.length === 3) {
     let tag = barApi.selectedTags[2]
-    console.log(1233333, tag)
     function getRelativeDaysFromDate(inputDate) {
       const today = new Date(); // Get today's date
       const timeDifference = inputDate.getTime() - today.getTime(); 
@@ -42,7 +41,6 @@ const main = (weatherLib) => {
     }
     if (!tag.value) return
     let daysFuture = getRelativeDaysFromDate(tag.value)
-    console.log(34555, daysFuture, tag)
     const isCached = false
     const hideAfter = 10
     weatherLib.sendNotifWeather(daysFuture, config.pos, isCached, 10)
