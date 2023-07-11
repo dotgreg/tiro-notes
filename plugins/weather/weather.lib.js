@@ -74,10 +74,11 @@ function formatDate(inputDate) {
 }
 
 
-const sendNotifWeather = (dayFuture, pos, isCached) => {
+const sendNotifWeather = (dayFuture, pos, isCached, hideAfter) => {
     let showNotifOnceEvery = 8*60
     if (!isCached) showNotifOnceEvery = 0
     let notifUniqId = "uniq-notif-id-weather"
+    if (!hideAfter) hideAfter = -1
 
 
     getWeatherData(pos, apiRes => {
@@ -93,7 +94,7 @@ const sendNotifWeather = (dayFuture, pos, isCached) => {
             <b>${labelDate}'s weather:</b> <br>${Math.round(daily[1].temp.day)}° ${getEmo(daily[1].weather[0].icon)} <br><br>
             ${resPerHour}
         `
-        tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: showNotifOnceEvery}})
+        tiroApi.ui.notification.emit({id:notifUniqId, content: notifHtml, options:{hideAfter, showOnceEvery: showNotifOnceEvery}})
     })
 }
 
