@@ -3,7 +3,7 @@ import { getRessourceIdFromUrl } from '../../../../shared/helpers/id.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
-import { genIdReq, iApiEventBus } from './api.hook';
+import { genIdReq, getApi, iApiEventBus } from './api.hook';
 import { checkUrlExists } from '../../managers/url.manager'
 import { each, random } from 'lodash';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
@@ -53,6 +53,8 @@ export interface iRessourceApi {
 		cb: (out: { title: string, text: string, html: string, raw: string }) => void,
 		options?: {}
 	) => void
+
+	cleanCache: () => void
 }
 
 const h = `[RESSOURCE API] `
@@ -100,28 +102,20 @@ export const useRessourceApi = (p: {
 		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
 
-		const folder = `/.tiro/cache/fetch/`
-		let localStaticPath = getStaticRessourceLink(`/${folder}${getRessourceIdFromUrl(url)}`)
-		// localStaticPath = cleanPath(`${getBackendUrl()}${localStaticPath}`)
-
-		console.log(`${h} FETCHING ressource url ${url} `, { url, options, localStaticPath });
+		const cacheFolder = `/.tiro/cache/fetch/`
+		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 
 		const returnFile = () => {
 			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
-				// try {
-				// 	cb(data, localStaticPath)
-				// } catch (error) {
-				// 	notifLog(`${error}`)
-				// }
 				tryCatch(() => cb(data, localStaticPath))
 			})
 		}
 		const returnFilePath = () => { cb("", localStaticPath) }
 
 		const downloadThenReturnFile = () => {
-			downloadRessource(url, folder, answer => {
+			downloadRessource(url, cacheFolder, answer => {
 				if (answer.message) { 
 					if (!options?.returnsPathOnly) returnFile() 
 					else returnFilePath()
@@ -133,10 +127,11 @@ export const useRessourceApi = (p: {
 			downloadThenReturnFile()
 		}
 		else {
+			console.log(123444444444, options)
 			checkUrlExists({
 				url: localStaticPath,
 				onSuccess: () => {
-					console.log(`${h} FETCHING => getting CACHED file`, { url, options });
+					// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
 					returnFile()
 				},
 				onFail: () => {
@@ -176,7 +171,7 @@ export const useRessourceApi = (p: {
 	}
 
 
-	const ramFetchEvalCache = {}
+	const ramFetchEvalCache = {val:{}}
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options, cb) => {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
@@ -199,16 +194,23 @@ export const useRessourceApi = (p: {
 				notifLog(`${message}`)
 			}
 		}
-		if (!ramFetchEvalCache[url] || options.disableCache) {
+		if (options.disableCache) ramFetchEvalCache.val[url] = null
+		if (!ramFetchEvalCache.val[url] || options.disableCache) {
 			fetchRessource(url, (codeTxt)=> {
 				evalCode(codeTxt)
-				ramFetchEvalCache[url] = codeTxt
+				ramFetchEvalCache.val[url] = codeTxt
 			}, options)
 		} else {
-			evalCode(ramFetchEvalCache[url])
+			evalCode(ramFetchEvalCache.val[url])
 		}
 	}
 
+	const cleanCache = () => {
+		ramFetchEvalCache.val = {}
+		getApi(api => {
+			api.folders.delete("cache", "fetch")
+		})
+	}
 
 	//
 	// EXPORTS
@@ -219,6 +221,7 @@ export const useRessourceApi = (p: {
 		fetch: fetchRessource,
 		fetchEval,
 		fetchUrlArticle,
+		cleanCache,
 	}
 
 	return ressourceApi

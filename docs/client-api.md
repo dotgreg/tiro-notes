@@ -175,6 +175,12 @@
  ## Api.call : cache
  
 
+#### <span class="render-code-wrapper">cache.cleanRamCache</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.cleanRamCache",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">cache.get</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -512,6 +518,12 @@ noteLink should be relative from tiro folder
 
 
  ## Api.call : ressource
+ 
+
+#### <span class="render-code-wrapper">ressource.cleanCache</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.cleanCache",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ressource.delete</span>
