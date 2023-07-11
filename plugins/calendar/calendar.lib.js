@@ -55,7 +55,6 @@ const getEventsList = (calNotePath, cb) => {
                     for (let i = 1; i < 6; i++) {
                         const recEvYear = curr.getFullYear()  + i
                         const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                        console.log(11111111111, recDate, title)
                         events.push({
                             'date': recDate,
                             'title': title,
@@ -71,7 +70,6 @@ const getEventsList = (calNotePath, cb) => {
                         nextDate.setDate(nextDate.getDate() + addedDays); 
                         nextDate.setHours(evDate.getHours())
                         nextDate.setMinutes(evDate.getMinutes())
-                        console.log(111111, i, (7 * (eventDayOfWeek - (i + 1))), nextDate, eventDayOfWeek)
                         // result.push(nextDate);
                         events.push({
                             'date': nextDate,
