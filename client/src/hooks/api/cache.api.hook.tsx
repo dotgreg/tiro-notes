@@ -24,6 +24,8 @@ export interface iCacheApi {
 		cb?: (res:any) => void
 	) => void
 
+	cleanRamCache: () => void
+
 }
 
 
@@ -240,7 +242,9 @@ export const useCacheApi = (p: {}): iCacheApi => {
 
 
 
-
+	const cleanRamCache = () => {
+		cachedRamDic.current = {}
+	}
 
 
 
@@ -251,6 +255,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	return {
 		get: getCache,
-		set: setCache
+		set: setCache,
+		cleanRamCache
 	}
 }

@@ -4,13 +4,10 @@
 let dLabels = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
 
 const fetchLibs = (cb) => {
-  tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: config.disableCache}, weatherLib => {
+  tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: config.disableCache}, weatherLib => {
     cb(weatherLib)
   })
 }
-fetchLibs(weatherLib => {
-  main(weatherLib)
-})
 
 const main = (weatherLib) => {
   if (barApi.selectedTags.length === 2) {
@@ -46,3 +43,10 @@ const main = (weatherLib) => {
     weatherLib.sendNotifWeather(daysFuture, config.pos, isCached, 10)
   }
 }
+
+//
+// EXECUTED CODE
+// 
+fetchLibs(weatherLib => {
+  main(weatherLib)
+})
