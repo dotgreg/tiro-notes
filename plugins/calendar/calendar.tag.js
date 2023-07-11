@@ -65,7 +65,6 @@ const calendarApp = (innerTagStr, opts) => {
                         for (let i = 1; i < 6; i++) {
                             const recEvYear = curr.getFullYear()  + i
                             const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                            console.log(11111111111, recDate, title)
                             events.push({
                                 'date': recDate,
                                 'title': title,

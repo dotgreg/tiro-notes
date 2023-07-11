@@ -40,8 +40,9 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
     try {
         new Function(...paramsNames, plugin.code)(...paramsValues)
     } catch (e) {
-        let message = `[ERR in ${plugin.type} plugin ${plugin.name}]:  ${e}`
+        let message = `[ERR in ${plugin.type.toLocaleUpperCase()} plugin ${plugin.name.toLocaleUpperCase()}]:  ${e}`
         console.log(message, e, {paramsNames, paramsValues, plugin});
+        console.trace(e)
         notifLog(`${message}`)
     }
 }

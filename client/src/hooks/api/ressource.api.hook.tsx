@@ -34,7 +34,7 @@ export interface iRessourceApi {
 		url: string,
 		cb: (urlContent: string, urlPath:string) => void,
 		options?: { 
-			disableCache?: boolean 
+			disableCache?: boolean | string
 			returnsPathOnly?:boolean
 		}
 	) => void,
@@ -43,7 +43,7 @@ export interface iRessourceApi {
 		url: string,
 		params?: iEvalFuncParams,
 		options?: { 
-			disableCache?: boolean 
+			disableCache?: boolean | string
 		},
 		cb?: (evalRes:any) => void,
 	) => void,
@@ -97,6 +97,8 @@ export const useRessourceApi = (p: {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
 		if (!options.returnsPathOnly) options.returnsPathOnly = false
+		if (options.disableCache === "false") options.disableCache = false
+		if (options.disableCache === "true") options.disableCache = true
 
 		const folder = `/.tiro/cache/fetch/`
 		let localStaticPath = getStaticRessourceLink(`/${folder}${getRessourceIdFromUrl(url)}`)
@@ -178,6 +180,8 @@ export const useRessourceApi = (p: {
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options, cb) => {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
+		if (options.disableCache === "false") options.disableCache = false
+		if (options.disableCache === "true") options.disableCache = true
 		// console.log(h, "fetchEval", url, funcParams, options)
 		const evalCode = (codeTxt:string) => {
 			try {
