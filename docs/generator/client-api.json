@@ -24627,8 +24627,17 @@
 																}
 															],
 															"type": {
-																"type": "intrinsic",
-																"name": "boolean"
+																"type": "union",
+																"types": [
+																	{
+																		"type": "intrinsic",
+																		"name": "string"
+																	},
+																	{
+																		"type": "intrinsic",
+																		"name": "boolean"
+																	}
+																]
 															}
 														},
 														{
@@ -24752,8 +24761,17 @@
 																}
 															],
 															"type": {
-																"type": "intrinsic",
-																"name": "boolean"
+																"type": "union",
+																"types": [
+																	{
+																		"type": "intrinsic",
+																		"name": "string"
+																	},
+																	{
+																		"type": "intrinsic",
+																		"name": "boolean"
+																	}
+																]
 															}
 														}
 													],
