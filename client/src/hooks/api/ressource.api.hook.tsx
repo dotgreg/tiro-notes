@@ -127,7 +127,6 @@ export const useRessourceApi = (p: {
 			downloadThenReturnFile()
 		}
 		else {
-			console.log(123444444444, options)
 			checkUrlExists({
 				url: localStaticPath,
 				onSuccess: () => {
