@@ -23,7 +23,6 @@ export const searchWord = (p: {
 		},
 
 		processRawLine: lineInfos => {
-			// console.log(444, lineInfos);
 			let l = lineInfos
 			if (!l.found || l.found === '') return
 			if (!objRes[l.file.path]) objRes[l.file.path] = { file: l.file, results: []}

@@ -33,7 +33,6 @@ export const usePluginsApi = (p: {
 	// 
 	useEffect(() => {
 		clientSocket2.on('getPluginsList', data => {
-			// console.log(444, data)
 			p.eventBus.notify(data.idReq, data)
 		})
 	}, [])

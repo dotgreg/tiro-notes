@@ -58,9 +58,7 @@ export const execStringStream =  async (
 // 		err = error
 // 	});
 
-// 	console.log(222222222211111111)
 // 	if (!commandStream.stdout) return console.log(h, `ERROR with cmd ${command}`, err)
-// 	console.log(2222222222)
 // 	shouldLog && log(h,` ${JSON.stringify(command)}`);
 // 	let index = 0
 // 	let textTot = ""

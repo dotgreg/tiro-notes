@@ -147,7 +147,6 @@ const EditorAreaInt = (
 	})
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
-		console.log(1222222222222, textToInsert, insertPosition)
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
 		if (updatedText) {
 			triggerNoteEdition(updatedText)

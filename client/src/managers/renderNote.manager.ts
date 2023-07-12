@@ -204,7 +204,6 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 	}
 
 	const startByTag = fileContent.indexOf(tags[0]) === 0
-	// console.log(12126, startByTag, fileContent, tags, closingTags, ntagsChunks, ntextChunks, positions);
 	// 
 	// merge text and iframe together
 	const res: iContentChunk[] = []
@@ -219,7 +218,6 @@ const getContentChunks: iNoteApi['chunks']['chunk'] = fileContent => {
 		}
 	}
 
-	// console.log(12127, res, startByTag);
 	// console.log(positions, res, res.length)
 	return res
 }

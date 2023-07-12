@@ -14,7 +14,10 @@ export interface iCacheApi {
 
 	get: (
 		cacheId: string,
-		cb: (cacheContent: any) => void
+		cb: (cacheContent: any) => void,
+		options?:{
+			disableRamCache?: boolean
+		}
 	) => void
 
 	set: (
@@ -64,7 +67,9 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//////////////////////////////////////////////////////////////////////////////////
 	// GETTING LOGIC
 	//
-	const getCache: iCacheApi['get'] = (cacheId, cb: (content: any) => void) => {
+	const getCache: iCacheApi['get'] = (cacheId, cb: (content: any) => void, opts) => {
+		// clean ram cache
+		if (opts?.disableRamCache === true) cleanRamCache()
 		// if present in RAM
 		if (cacheId in cachedRamDic.current) {
 			// if expired, update its value

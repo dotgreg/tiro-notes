@@ -113,7 +113,6 @@ export const fileNameFromFilePath = (path: string): string => {
 // 			if (obj.___hasChildren) obj.children = []
 // 			each(obj, (child, nameChild) => {
 // 				// console.log(1, child);
-// 				// console.log(2, nameChild);
 // 				if (!isNumber(nameChild) && !nameChild.startsWith("___")) {
 // 					// console.log(nameChild);
 // 					child = loop(child)

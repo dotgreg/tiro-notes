@@ -15,7 +15,6 @@ const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):stri
 	let tagName = matchs[2].replaceAll("[[","").replaceAll("]]","")
 	let content = matchs[0].replaceAll(`[[${tagName}]]`,"")
 	let genIdCtag = (tagName, content, path) => `${safeString(tagName,"")}-${safeString(content,"")}-${safeString(path,"")}`
-	// console.log(111, cFile, windowId, idCtag, tagName)
 	let idCtag = genIdCtag(tagName, content, cFile.path)
 
 	// opening button logic

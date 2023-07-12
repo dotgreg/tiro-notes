@@ -106,7 +106,6 @@ const renderType = (o: iAnalyzedObj, options?: { name?: boolean, html?: boolean 
 		resCode = ``
 		if (isString(o.arrItem)) resCode += `${o.arrItem}`
 		else {
-			// console.log(334, o.arrItem);
 			resCode += `${renderType(o.arrItem, op)}`
 		}
 		resCode += `[]`

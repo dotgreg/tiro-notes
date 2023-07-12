@@ -176,8 +176,6 @@ export const Tab = React.memo(TabInt, (np, pp) => {
 	// 3.
 	// if (pp.tab.grid.content[0]?.file?.name !== np.tab.grid.content[0]?.file?.name) res = false
 	if (pp.onUpdate !== np.onUpdate) res = false
-	// console.log(1, res);
-	// // console.log(2, t);
 	// let t1 = JSON.stringify(t.p)
 	// let t2 = JSON.stringify(t.n)
 

@@ -9,7 +9,6 @@ import { addToExtRefs, getReferenceByName } from './extObjs.manager'
 export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean }): iAnalyzedObj => {
 
 	const p = item
-	// console.log(444, p.name, d(p));
 	let res: iAnalyzedObj = {
 		name: p.name,
 		type: null,
@@ -126,7 +125,6 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 		res.objprop[`${propName}`].name = propName
 
 		// if (p.name === "iSearchWordRes") console.log(192, d(res));
-		console.log(192, d(res));
 
 		//
 		// OBJ
@@ -165,8 +163,6 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 		) && p.children) {
 			getObjProps(res, p.children)
 		}
-
-		// console.log(193, d(res));
 
 	} else if (p.type && p.type.type) {
 
@@ -221,7 +217,6 @@ export const analyzeItem = (item: any, path?: string, options?: { raw?: boolean 
 			each(p.type.types, t => {
 				res.unionVals.push(t.value)
 			})
-			// console.log(777, res, p);
 		}
 
 	}

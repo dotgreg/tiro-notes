@@ -90,7 +90,6 @@ export const useLoginToken = (p: {
 		if (displayLoginPopup) {
 			// check if user and password inside url
 			const urlParams = getUrlRawParams().dic
-			// console.log(urlParams)
 			const encryptedPassword = "__HARDCODED_LOGIN_LS_PASSWORD_0129dsfaf1029__"
 			if (
 				urlParams['l1'] && urlParams['l2'] &&

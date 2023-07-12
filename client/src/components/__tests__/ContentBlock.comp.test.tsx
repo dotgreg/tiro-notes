@@ -19,8 +19,6 @@ const h = `[CONTENT BLOCK]`
 // 	const iframe = container.querySelector('iframe')
 // 	await tu.timeout(1000);
 // 	//@ts-ignore
-// 	// console.log(iframe.contentWindow.document.querySelectorAll('div'));
-// 	// console.log(iframe.contentWindow.document.getElementById('content-wrapper'));
 // })
 // 
 // 

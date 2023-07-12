@@ -34,7 +34,6 @@ const spreadSheetApp = (innerTagStr, opts) => {
 				}
 				const headArr = arr3[0];
 				const bodyArr = arr3.slice(2);
-				console.log(1044, "woop", { arr3, headArr, bodyArr });
 				return { headArr, bodyArr };
 		};
 

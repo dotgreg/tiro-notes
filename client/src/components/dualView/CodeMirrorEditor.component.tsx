@@ -106,7 +106,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		// 	initVal()
 		// }, 200)
 
-		// console.log(res, 4440, p.value, p.forceRender);
 		// let res = initVal()
 		// devHook("cm_update")(p)
 		// }, 100)
@@ -118,7 +117,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
 		let CMObj = getEditorObj()
-		if (!isAllFolded) CodeMirrorUtils.foldAllChildren(CMObj)
+		if (!isAllFolded) CodeMirrorUtils.foldAllChildren(CMObj, false)
 		else CodeMirrorUtils.unfoldAllChildren(CMObj)
 		setIsAllFolded(!isAllFolded)
 	}
@@ -146,7 +145,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	}, [p.value])
 
 	const onChange = (value, viewUpdate) => {
-		// console.log(333, value, viewUpdate)
 		// activateTitleInt()
 		// do not trigger change if value didnt changed from p.value (on file entering)
 		if (value === p.value) return
@@ -220,7 +218,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		let infs = CodeMirrorUtils.getEditorInfos(f.view)
-		// console.log(infs);
 		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
@@ -544,7 +541,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		try {
 			let result = new Function(`return ${selectionTxt}`)()
 			let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
-			console.log(p)
 			generateTextAt(p)
 		} catch (err) {
 			getApi( api => {
@@ -655,7 +651,6 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 		if (np.jumpToLine !== pp.jumpToLine) res = false
 		if (np.file.path !== pp.file.path) res = false
 		// if (np.windowId !== pp.windowId) res = false
-		// console.log("rerendercontrol cm", res);
 		return res
 	})
 
