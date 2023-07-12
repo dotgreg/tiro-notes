@@ -375,7 +375,6 @@ const setCurrentMonthlyDb = async (data:iMonthlyDb) => {
     let currDate = getDateObj()
     let str = JSON.stringify(data)
     let pathFile = getPathFile(currDate.month, currDate.year)
-    // shouldLog && console.log(44, pathFile, currDate)
     
     await upsertRecursivelyFolders(pathFile)
     await saveFile(pathFile, str)

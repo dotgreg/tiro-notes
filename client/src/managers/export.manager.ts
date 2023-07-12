@@ -26,14 +26,12 @@ const exportTo = (el) => {
     if (!el) return
     let format = el.dataset.format
     let path = el.dataset.path
-    console.log(h,0, {format, path})
     // getting the file
     if (!format || !path) return
     let ssrfile = pathToIfile(path)
     // get the absolute path of data folder
     getApi(api => {
         getApi(api => {api.ui.notification.emit({ content: `[EXPORT] converting...`, id:"export", options:{hideAfter: -1} })})
-        console.log(h,1)
         api.config.get(cnf => {
             
             const destCacheFolder = `/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc`
@@ -53,24 +51,18 @@ const exportTo = (el) => {
                 const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --toc --from=markdown --to=${format} "${inputFilePath}" `
                 
 
-                console.log(h,3,{format, pandocCmd, destPathAbs, inputFilePath,  ssrfile, destCacheFolder,  destDlPath})
 
                 // execute pandoc pandocCmd into cache/export/file.fdsljfdsalkfjdsalj.ppt
                 api.command.exec(pandocCmd, (res) => {
                     let resObj  = {failed:false, stderr:null, shortMessage: null}
                     try {
-                        console.log(h,4)
                         resObj = JSON.parse(res) || {failed:false}
                     } catch (e) {
-                        console.log(h,5)
                     }
                     
-                    console.log(resObj)
                     if (resObj.failed) {
-                        console.log(h,6)
                         api.ui.notification.emit({ content: `[EXPORT] Error <br/> "${resObj.stderr} <br/><br/> ${resObj.shortMessage}"`, id:"export" })
                     } else {
-                        console.log(h,7)
                        
                         // trigger download
                         let ressLink = getStaticRessourceLink(destDlPath)

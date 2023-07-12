@@ -95,9 +95,7 @@ export const PreviewArea = (p: {
 		<div
 			className={`preview-area-wrapper render-latex`}
 			onWheelCapture={(e) => {
-				// console.log(555, e);
 				// @ts-ignore
-				// console.log();
 				//syncScroll2.syncPreviewOffset(p.windowId)
 				syncScroll3.onPreviewScroll(p.windowId)
 			}}

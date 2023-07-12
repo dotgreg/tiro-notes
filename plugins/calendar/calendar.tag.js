@@ -80,7 +80,6 @@ const calendarApp = (innerTagStr, opts) => {
                             nextDate.setDate(nextDate.getDate() + addedDays); 
                             nextDate.setHours(evDate.getHours())
                             nextDate.setMinutes(evDate.getMinutes())
-                            console.log(111111, i, (7 * (eventDayOfWeek - (i + 1))), nextDate, eventDayOfWeek)
                             // result.push(nextDate);
                             events.push({
                                 'date': nextDate,

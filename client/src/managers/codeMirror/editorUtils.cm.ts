@@ -221,7 +221,6 @@ const scrollToLine = (CMObj: any, lineToJump: number) => {
 
 	// setTimeout(() => {
 	// 	const cPosCursor = CMObj.view.state.selection.ranges[0].from
-	// 	// console.log(33334, cPosCursor);
 	// 	scrollTo(CMObj, cPosCursor)
 	// }, 10)
 
@@ -288,7 +287,6 @@ const getMarkdownStructure = (CMObj: ReactCodeMirrorRef | null): CMDocStructure 
 		totChar = totChar + llength
 	}
 
-	// console.log(333, res, raw, resArr)
 	return resArr
 }
 
@@ -304,14 +302,12 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 	let struct = getMarkdownStructure(CMObj)
 	// const view = CMObj?.view
 	let clineInfos = getCurrentLineInfos(CMObj)
-	console.log(123333, clineInfos)
 	each(struct, (item, i) => {
 		if (!CMObj?.view) return
 		// if (!item.lastChild) {
 		let to = struct[i + 1] ? struct[i + 1].from - 1 : CMObj.view.state.doc.length
 		let from = item.to - 1
 		let isInCurrent = clineInfos && clineInfos.currentPosition > from && clineInfos.currentPosition <= to
-		console.log(1222222222, from, to, isInCurrent, clineInfos?.currentPosition)
 		try {
 			if (keepCurrentOpen && isInCurrent) return console.log(1111111111, "INSIDE", isInCurrent, from, to)
 			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
@@ -347,7 +343,6 @@ const searchWord = (CMObj: ReactCodeMirrorRef | null, word: string, jumpToFirst:
 // 
 export type iEditorSelection = {word?:string, range?:[number,number]}
 const setSelection = (CMObj: ReactCodeMirrorRef | null, selection: iEditorSelection) => { 
-	console.log("select", selection)
 	if (!CMObj?.view) return
 	try {
 		const view = CMObj.view

@@ -416,7 +416,6 @@ const epubApp = (innerTagStr, opts) => {
 								let file = api.utils.getInfos().file;
 								eapi.getFullBookContent(txt => {
 										eapi.getCurrentPageContent( currSentence => {
-											console.log(333, txt, currSentence)
 										
 												window.isTts = true
 												api.call("ui.textToSpeechPopup.open", [ txt, {id: file.name, startString: currSentence}], () => {})

@@ -74,15 +74,6 @@ const triggerCron = () => {
                     let lastRun = cronState[p.name]?.lastRunTime || 0
                     if (lastRun + intervalRun > now) return console.log(h, `bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
                     //  Function() the code with an api injection inside its variables 
-                    
-                    
-                    // try {
-                    //     new Function('api','state', p.code)(api, state)
-                    // } catch (error) {
-                    //     const errorStr = ` ${h}, error from bg plugin ${p.name} ${error}`
-                    //     // api.ui.notification.emit({content: errorStr, options:{hideAfter: 30, type:"warning"}})
-                    //     notifLog(`${errorStr}`)
-                    // }
 
                     console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`)
                     const state = cronState[p.name]
@@ -93,7 +84,7 @@ const triggerCron = () => {
                     cronState[p.name].lastRunTime = now
                 })
                 api.cache.set(cacheId, cronState, -1)
-            })
+            },{disableRamCache: true}) // cache.get important to disable ram cache to fetch the last backend lastExecTime across devices
         })
     })
 }

@@ -14,7 +14,6 @@ export const cleanText2Speech = (rawText: string) => {
 	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
 	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
 	
-	console.log(12444, text2read)
 	return text2read
 }
 
@@ -25,7 +24,6 @@ export const removeTextLineJumps = (raw: string): string => {
 export const getAvailableVoices = () => {
 	let newvoices: OptionObj[] = []
 	window.speechSynthesis.getVoices().forEach(function (voice, i) {
-		// console.log(voice);
 		const lang = voice.lang ? ` (${voice.lang})` : ''
 		const label = `${voice.name}${lang}`
 		newvoices.push({ key: i, label, obj: voice })
@@ -105,14 +103,12 @@ export class Text2SpeechManager {
 			if (this.currChunkId > this.chunkedText.length - 1) return console.log(`[TTS] finished played`)
 
 			this.isLoaded = true
-			// console.log(`[TTS] START play chunk ${this.currChunkId}`, { txt: this.chunkedText[this.currChunkId] });
 			this.currSpeechObj = new SpeechSynthesisUtterance();
 			this.currSpeechObj.text = this.chunkedText[this.currChunkId]
 			this.currSpeechObj.rate = this.speed
 			if (this.voice) this.currSpeechObj.voice = this.voice
 
 			// apparently important to keep that console.log...
-			// console.log(this.currSpeechObj);
 
 			setTimeout(() => {
 				window.speechSynthesis.speak(this.currSpeechObj);

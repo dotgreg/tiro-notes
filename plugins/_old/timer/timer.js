@@ -95,12 +95,10 @@ const barPlugin = `
          item.times[today] = time
        }
        history.unshift(item)
-       console.log("add 2 history", history)
        api.cache.set("timer_plugin_history", history, -1)
      }
 
     api.cache.get("timer_plugin_history", nHist => { 
-      // console.log(1212, nHist)
      // MAIN INIT
      if(nHist) history = nHist
      updateOpts()

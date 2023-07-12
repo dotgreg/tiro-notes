@@ -69,7 +69,7 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
 	const onRgDoesNotExists = (err) => {
-		console.log(123, err)
+		console.log(h, err)
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
 	}
@@ -115,8 +115,6 @@ export const searchWithRgGeneric = async (p: {
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
 			let lineRaw = line
-			// console.log(666666, rawChunk,lineRaw, searchParams)
-
 			// "path/to/file:whole line with : inside" 
 
 			// search "found word:10"
@@ -325,7 +323,6 @@ export const searchWithRipGrep = async (params: {
 		]
 
 		// PROCESS 1
-		// console.log(112221)
 		// let ripGrepStreamProcess1
 		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, fullFolderSearchParams)
 		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)

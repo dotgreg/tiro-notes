@@ -72,9 +72,6 @@ const exportDocumentationFromJson = (
 
 	// FROM FLAT ARR TO LAYERED FOR TITLE N STUFFS
 	const structArrs = flatToStructured(analyzedArr, 1)
-	// if (p.debug) console.log(192, d(structArrs));
-	// if (p.debug) console.log(193, d(structArrs));
-
 
 	// RENDER LOGIC
 	// include refs in struct Arr

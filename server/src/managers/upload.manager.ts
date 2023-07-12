@@ -46,7 +46,6 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		let oldPath = `${e.file.pathName}`
 		let displayName = finfos.filenameWithoutExt.replace('-0', '')
 
-		// console.log(444, finfos);
 		// let newName = `${generateNewFileName(displayName)}.${finfos.extension}`
 		// let uncheckedNewAbsPath = cleanPath(`${backConfig.dataFolder}/${pathToUpload}/${backConfig.relativeUploadFolderName}/${finfos.filename}`)
 		// let checkedNewAbsPath = generateUniqueFileName(uncheckedNewAbsPath)

@@ -85,7 +85,6 @@ export const ImageTwo = {
 			if (next === 33 && cx.char(pos + 1) === 91) {
 				let isBegin = false
 				if (!cx.char(pos - 1)) isBegin = true
-				// console.log(next, cx.char(pos + 1), pos, isBegin, cx);
 				return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, false);
 				// return cx.addDelimiter(ImageTwoDelim, pos, pos + 2, true, true);
 			}

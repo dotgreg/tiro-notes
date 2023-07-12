@@ -116,10 +116,8 @@ document.head.innerHTML += '<meta charset="utf-8">'
 
 let iframeContent = ""
 if (content.startsWith("http")) {
-  console.log(11133, content)
   iframeContent=\`src="\${content}"\`
 } else {
-  console.log(11222)
   window.document.body.innerHTML =  contentStyle + decodeURIComponent(content) 
 }
 

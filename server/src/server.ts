@@ -66,6 +66,5 @@ app.get('*', function(req, res){
 
 // const test = async () => {
 // 	let {plugins, scanLog} = await scanPlugins()
-// 	console.log(123, test, plugins, scanLog)
 // }
 // test()

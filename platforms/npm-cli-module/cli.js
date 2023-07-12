@@ -251,8 +251,6 @@ function main () {
 
 const test = () => {
 		var argsObj = getCliArgs();
-		// startSshTunnel(argsObj);
-		console.log(argsObj);
 		// startBackupScript(argsObj, "/Users/gregoirethiebault/Desktop/your markdown notes")
 		startBackupScript(argsObj, "/Users/gregoirethiebault/Desktop/nodal_ex")
 }

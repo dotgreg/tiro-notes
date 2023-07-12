@@ -15,7 +15,6 @@ export const md2html = (raw: string): string => {
 	// allow more jumps to be rendered
 	// res = res.split("#").join("<br/>\n")
 
-	// console.log(3331, res);
 	// res = res.split("\n\n").join("\n\n<br/>")
 
 	// res = res.split("\n\n").join("\n\n<p>oo</p>")

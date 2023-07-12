@@ -4,7 +4,6 @@ import { execString, execStringStream } from "../exec.manager"
 test('execStringStream: echo linux returns its result',  done => {
     execStringStream("echo hello world", (r) => {
         if(r.isLast) return done()
-        console.log(333, r.text, r.isLast)
         expect(r.text).toBe("hello world\n");
     })
 })
@@ -41,7 +40,6 @@ test('LINUX execStringStream: tail -f + echo to test a text that is incrementall
         execString(`echo "" > ${randomFilePath}`).then(() => {
             // start listening
             execStringStream(`tail -f ${randomFilePath}`, (r) => {
-                // console.log(123, i, isLast, resTot)
                 if (r.index > 0) {
                     expect(r.textTot.includes("111")).toBe(true);
                     done()

@@ -122,14 +122,12 @@ const countdownApp = (innerTagStr, opts) => {
 						window.updateStatus("scanning book...")
 						const cacheLocation = "locations"
 						getCache(cacheLocation, locations => {
-								// console.log(1, "LOCATIONS FOUND!", locations);
 								book.locations.load(locations)
 								window.updateStatus("")
 								onDone()
 						}, () => {
 								book.locations.generate(600).then(() => {
 										let nLocs = book.locations._locations
-										// console.log(2, nLocs);
 										setCache(cacheLocation, nLocs)
 										window.updateStatus("")
 										onDone()

@@ -18,7 +18,6 @@ export const getUrlPreview = (url: string): Promise<iUrlInfos> => {
 					fetch(staticPath).then(function (response) {
 						return response.text();
 					}).then(function (data) {
-						// console.log(data);
 						let rawHTML = data
 						let titleRes = [...rawHTML.matchAll(regexs.titleHtml)]
 						let metasRes = [...rawHTML.matchAll(regexs.metasHtml)]

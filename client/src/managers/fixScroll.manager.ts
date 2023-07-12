@@ -1,6 +1,5 @@
 export const fixScrollToTop = () => {
     const handleWindowScrollToTop = () => {
-        console.log('window scroll');
         // @ts-ignore 
         window.scroll(0,0)
     }

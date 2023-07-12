@@ -185,7 +185,6 @@ export const OmniBar = (p: {
 	// const onMouseMove = (e:any) => {
 	// 	if (isHoverEnabled.current) return
 	// 	isHoverEnabled.current = true
-	// 	console.log(123,e)
 	// 	setTimeout(() => {
 	// 		styles.menu = (base, state) => {
 	// 			let pe = deviceType() === "mobile" ? "all" : "all"
@@ -659,7 +658,6 @@ export const OmniBar = (p: {
 		nOptions.unshift(o1)
 		nOptions.unshift(o2)
 
-		// console.log(123, nOptions[0])
 		// setLastNotesOptions(nOptions)
 		let initialFile = nOptions[0] ? nOptions[0].payload?.file : null
 		if (initialFile) setNotePreview(initialFile)

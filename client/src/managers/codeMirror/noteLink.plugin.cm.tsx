@@ -33,7 +33,6 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 export const ssrNoteLinkFn = (el: HTMLElement) => {
 	if (!el) return
 	stopDelayedNotePreview()
-	// console.log("click1", reqId)
 	reqId++
 	
 
@@ -87,27 +86,17 @@ export const stopDelayedNotePreview = (addDelayCancel?:boolean) => {
 	timeout && clearTimeout(timeout)
 	// getApi(api => { api.ui.notePreviewPopup.close()})
 	reqId++
-	// console.log("stop1", reqId)
 	if (addDelayCancel) {
 		setTimeout(() => {
 			reqId++
-			// console.log("stop2", reqId)
 		}, 700)
 	}
-	// setTimeout(() => {
-	// 	timeout && clearTimeout(timeout)
-	// 	console.log("stop2")
-	// 	// getApi(api => { api.ui.notePreviewPopup.close()})
-	// }, 100)
 }
 const addDelayedAction = (filePath, pos, windowId) => {
-	// console.log("adddelayed action", filePath, pos, windowId)
 	reqId++
-	// console.log("start", reqId)
 	let histId = reqId
 	timeout && clearTimeout(timeout)
 	timeout = setTimeout(() => { 
-		// console.log(123, histId, reqId)
 		if (reqId !== histId) return
 		getApi(api => {
 			api.ui.notePreviewPopup.open(filePath, pos, {windowIdToOpenIn:windowId})

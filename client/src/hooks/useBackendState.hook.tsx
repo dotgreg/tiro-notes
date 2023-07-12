@@ -24,7 +24,6 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 	const setValue = value => {
 		setStoredValue(value)
 		getApi(api => {
-			// console.log(444444, pathToNote, value);
 			api.file.saveContent(pathToNote, JSON.stringify(value))
 		})
 

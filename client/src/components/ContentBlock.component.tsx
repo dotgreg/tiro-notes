@@ -187,7 +187,6 @@ export const ContentBlockTagView = (p: {
 					nheight = windowHeiht * percent
 				}
 				log && console.log(h, 'resizing to', nheight);
-				console.log(h, 'resizing to', nheight);
 				setIframeHeight(nheight);
 				// only at that moment show iframe
 				setCanShow(true)
