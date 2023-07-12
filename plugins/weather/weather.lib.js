@@ -80,7 +80,7 @@ const sendNotifWeather = (dayFuture, pos, isCached, hideAfter) => {
     let notifUniqId = "uniq-notif-id-weather"
     if (!hideAfter) hideAfter = -1
 
-
+    console.log(h, "showNotifWeather", {showNotifOnceEvery, notifUniqId, dayFuture, pos, isCached, hideAfter})
     getWeatherData(pos, apiRes => {
         let resPerHour = getHourlyForecast(dayFuture, apiRes)
         let daily = apiRes.daily
