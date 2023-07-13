@@ -2,13 +2,10 @@ import React, { useEffect, useRef } from 'react';
 import { getFolderPath } from '../../../../shared/helpers/filename.helper';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { iFile } from '../../../../shared/types.shared';
-import { onFileDeleteFn } from '../../components/windowGrid/WindowGrid.component';
-import { getFolderParentPath } from '../../managers/folder.manager';
-import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { perf } from '../../managers/performance.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
-import { iBrowserApi } from './browser.api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 
@@ -59,8 +56,8 @@ export const useFileApi = (p: {
 			if (data.error) {
 				p.eventBus.notify(data.idReq, { error: data.error })
 			} else {
-				let filterRes = filterMetaFromFileContent(data.fileContent)
-				p.eventBus.notify(data.idReq, { content: filterRes.content })
+				// let filterRes = filterMetaFromFileContent(data.fileContent)
+				p.eventBus.notify(data.idReq, { content: data.fileContent })
 			}
 		})
 	}, [])
@@ -76,6 +73,7 @@ export const useFileApi = (p: {
 		options
 	) => {
 		// console.log(`${h} get file content ${noteLink}`);
+		const end = perf("getFileContent " + noteLink)
 		const filePath = noteLinkToPath(noteLink);
 		const idReq = genIdReq('get-file-content');
 		// 1. add a listener function
@@ -83,6 +81,7 @@ export const useFileApi = (p: {
 			if (answer.error && options && options.onError) options.onError(answer.error)
 			else if (answer.error && (!options || !options.onError)) cb(answer.error)
 			else if (!answer.error) cb(answer.content)
+			end()
 		});
 		// 2. emit request 
 		clientSocket2.emit('askForFileContent', {

@@ -233,11 +233,24 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// CM CONFIG MODIF ACCORDING TO USER PREFS
 	//
 	
+	// const [defaultCodeLanguage⁠, setDefaultCodeLanguage] = useState<any>(null)
+	const [defaultCodeLanguage, setDefaultCodeLanguage] = useState<any>(null)
+
+	useEffect(() => {
+		let res:any = null
+		each(languages, l => {
+			if(l.name === "Javascript") res = l
+		})
+		setDefaultCodeLanguage(res)
+	}, [])
+	each(languages, )
 	const markdownExtensionCnf: any = {
 		base: markdownLanguage,
 		codeLanguages: languages,
+		// defaultCodeLanguage⁠: languages
 		extensions: []
 	}
+	if(defaultCodeLanguage) markdownExtensionCnf.defaultCodeLanguage = defaultCodeLanguage
 
 
 	// if --table//--latex inside content

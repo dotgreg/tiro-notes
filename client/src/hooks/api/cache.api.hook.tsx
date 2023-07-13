@@ -1,9 +1,9 @@
 import { isString } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
+import { perf } from '../../managers/performance.manager';
 import { safeString } from '../../managers/string.manager';
-import { getActiveTabIndex } from '../app/tabs.hook';
-import { getApi, getClientApi2, iApiEventBus } from './api.hook';
+import { getApi} from './api.hook';
 
 //
 // INTERFACES
@@ -41,7 +41,8 @@ interface iCachedDic {
 const h = `[CACHE API]`
 let log = sharedConfig.client.log.verbose
 let logChunk = sharedConfig.client.log.verbose
-// let logChunk = true
+// logChunk = true
+// logChunk = true
 
 
 const now = () => new Date().getTime()
@@ -105,8 +106,10 @@ export const useCacheApi = (p: {}): iCacheApi => {
 				if (e === 'NO_FILE') {
 					log && console.log(h, 'FROM FILE: NO_FILE', cacheId);
 					setRamCache(cacheId, undefined, 60)
-					cb(cachedRamDic.current[cacheId].content)
+					return cb(cachedRamDic.current[cacheId].content)
 				}
+				return cb(undefined)
+				// console.log()
 			}
 			)
 		}
@@ -148,7 +151,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	// Send/Receive logic (with chunker if content too large) 
 	// as many servers only supports by default 1MB upload limit
 	//
-	const limitChunk = 500 * 1000 // first nb in KB
+	const limitChunk = 900 * 1000 // first nb in KB => avoiding 413 request entity too large
 	const chunkHeader = `__CHUNKED__CACHED__OBJ__SIZE:`
 	const chunkString = (str, length) => str.match(new RegExp('.{1,' + length + '}', 'g'));
 	const hc = `[CACHE CHUNK]`
@@ -169,7 +172,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 		
 
 		if (contentStr.length > limitChunk) {
-			// chunk content in 100k blocks
+			// chunk content in limitChunk (see up, 800k) blocks
 			let contentArr = chunkString(contentStr, limitChunk)
 			logChunk && console.log(hc, `SAVE >> TOO LARGE, split in ${contentArr.length} parts`, { cacheId, contentArr })
 
@@ -186,7 +189,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 				// save all contents chunks
 				setTimeout(() => {
 					saveFile(`c${i}_${cacheId}`, contentArr[i], onOneFileSaved)
-				}, 200 * i)
+				}, 1000 * i) //  avoiding 413 request entity too large
 			}
 		} else {
 			return saveFile(cacheId, contentStr, () => {if (allSavedCb) allSavedCb()})
@@ -197,17 +200,24 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	// GET CHUNKS
 	//
 	const getFileContentInChunks = (cacheId, cb, err) => {
-		const getFile = (path, onSuccess, onError) => { getApi(api => { api.file.getContent(getCachedStorage(path), onSuccess, { onError }) }) }
+		const getFile = (path, onSuccess, onError) => { 
+			getApi(api => { 
+				api.file.getContent(getCachedStorage(path), onSuccess, { onError }) 
+			}) 
+		}
 
 		// if that one is an obj with specif prop, get the nb and finally get all files and merge obj
 		const failChunkLoad = "___ERROR___CHUNK___LOADING___FAILURE"
 		const getAllChunksAndMerge = (id, nbChunks, cb1, err1) => {
+			const end = perf(`${h} getAllChunksAndMerge`)
 			let resAllArr: string[] = []
+			let loadingCounter = 0
 			const onAllChunksLoaded = () => {
-				if (resAllArr.length === nbChunks) {
+				if (loadingCounter === nbChunks) {
 					let resMerge = resAllArr.join('')
 					let hasFailed = resMerge.includes(failChunkLoad)
 					logChunk && console.log(`GET >> RESULT remerging`, { hasFailed, cacheId, nbChunks, resMerge })
+					end()
 					if (hasFailed) err1()
 					else cb1(resMerge)
 				}
@@ -216,9 +226,12 @@ export const useCacheApi = (p: {}): iCacheApi => {
 			for (let i = 0; i < nbChunks; i++) {
 				getFile(`c${i}_${cacheId}`, r => {
 					resAllArr[i] = r
-					logChunk && console.log(hc, `c${i}_${cacheId}`, { nb: resAllArr.length, nbChunks, r })
+					logChunk && console.log(hc, `c${i}_${cacheId}`, { loadingCounter, nbChunks })
+					loadingCounter++
 					onAllChunksLoaded()
 				}, e => {
+					// console.error("ERROR MERGE", e)
+					loadingCounter++
 					resAllArr[i] = failChunkLoad
 					onAllChunksLoaded()
 				})

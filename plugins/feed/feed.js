@@ -134,15 +134,17 @@ const feedApp = (innerTagStr, opts) => {
 								// first get cached, if exists
 								setStatus("Loading... (loading feeds from cache)")
 								getContentCache(content => {
-										// if cache, return content
-										console.log(h, "=> getting CACHED feed json")
-										cb(content)
+									// if cache, return content
+									console.log(h, "=> getting CACHED feed json")
+									cb(content)
 								}, () => {
-										// if no cache OR expired, reload from json rss
-										getJsons(cb, setStatus)
+									console.log(h, "=> ERROR getting cached json, getting them directly")
+									// if no cache OR expired, reload from json rss
+									getJsons(cb, setStatus)
 								})
 						} else {
 								// directly reload without cache
+								setStatus("Loading... (loading feeds directly)")
 								getJsons(cb, setStatus)
 						}
 				}
@@ -153,14 +155,14 @@ const feedApp = (innerTagStr, opts) => {
 				// CACHING SETTINGS & CONTENT SYSTEM
 				//
 				const getCache = (id) => (onSuccess, onFailure) => {
-						api.call("cache.get", [id], content => {
-								if (content !== undefined) onSuccess(content)
-								else onFailure()
-						})
+					api.call("cache.get", [id], content => {
+						if (content !== undefined && content !== null) onSuccess(content)
+						else if (onFailure) onFailure()
+					})
 				}
 				const setCache = (id, mins) => (content) => {
-						if (!mins) mins = 6* 60 
-						api.call("cache.set", [id, content, mins]) 
+					if (!mins) mins = 6* 60 
+					api.call("cache.set", [id, content, mins]) 
 				}
 				
 				const cacheContentId = `ctag-feed-${api.utils.getInfos().file.path}`
@@ -248,78 +250,75 @@ const feedApp = (innerTagStr, opts) => {
 						let count = 0
 						for (let i = 0; i < feedsArr.length; i++) {
 								fetchFeedItems(feedsArr[i], items => {
-										count = count + 1
-										
-										let feedItems = 0
-										if (Array.isArray(items)) {
-												const nitems = [...items]
-												const g = (o) => {
-														if (!o) return null
-														if (typeof o === "string" || typeof o === "number") return o
-														return o._text || o._cdata
-												}
-												for (let j = 0; j < nitems.length; j++) {
-														// SOURCE
-														nitems[j].sourceFeed = feedsArr[i].name
-														// CATEGORIES
-														nitems[j].categories = feedsArr[i].categories
-														// TITLE
-														nitems[j].title = g(nitems[j].title)
-														// DESCRIPTION
-														nitems[j].description = g(nitems[j].description) || ""
-														// CONTENT
-														nitems[j].content = g(nitems[j].content) || ""
-														// CONTENT adding H1 in case there is none for header counter css to work
-														// nitems[j].content = `<h1>${nitems[j].title}</h1>${nitems[j].content }` 
+									count = count + 1
+									
+									let feedItems = 0
+									if (Array.isArray(items)) {
+											const nitems = [...items]
+											const g = (o) => {
+													if (!o) return null
+													if (typeof o === "string" || typeof o === "number") return o
+													return o._text || o._cdata
+											}
+											for (let j = 0; j < nitems.length; j++) {
+													// SOURCE
+													nitems[j].sourceFeed = feedsArr[i].name
+													// CATEGORIES
+													nitems[j].categories = feedsArr[i].categories
+													// TITLE
+													nitems[j].title = g(nitems[j].title)
+													// DESCRIPTION
+													nitems[j].description = g(nitems[j].description) || ""
+													// CONTENT
+													nitems[j].content = g(nitems[j].content) || ""
+													// CONTENT adding H1 in case there is none for header counter css to work
+													// nitems[j].content = `<h1>${nitems[j].title}</h1>${nitems[j].content }` 
 
-														// LINK
-														nitems[j].link = g(nitems[j].link) || g(nitems[j].enclosure?.link) || ""
-														// in case of reddit, look for link inside the content
-														if (nitems[j].link === "") {
-																let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
-																if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
-														}
+													// LINK
+													nitems[j].link = g(nitems[j].link) || g(nitems[j].enclosure?.link) || ""
+													// in case of reddit, look for link inside the content
+													if (nitems[j].link === "") {
+															let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
+															if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
+													}
 
 
-														// TIME
-														if (nitems[j]["dc:date"]) nitems[j].pubDate = nitems[j]["dc:date"]
-														if (nitems[j]["published"] && nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
+													// TIME
+													if (nitems[j]["dc:date"]) nitems[j].pubDate = nitems[j]["dc:date"]
+													if (nitems[j]["published"] && nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
 
-														const timestamp = Date.parse(g(nitems[j].pubDate))
-														const d = new Date(timestamp)
-														const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
-														nitems[j].timestamp = timestamp
-														nitems[j].smallDate = datestring
-														// COLOR
-														const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
-														const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
-														nitems[j].bgColor = cColor
-														// IMAGE
-														const bgImage = g(nitems[j].thumbnail) ||
-																	g(nitems[j].enclosure?.link) ||
-																	nitems[j]["media:thumbnail"]?._attributes?.url ||
-																	nitems[j]["media:content"]?._attributes?.url ||
-																	nitems[j]["itunes:image"]?._attributes?.href ||
-																	nitems[j].image
-														nitems[j].image = bgImage
-														// ENCLOSURE
-														if (!nitems[j].enclosure) nitems[j].enclosure = {}
-														else if (nitems[j].enclosure?._attributes) nitems[j].enclosure = { ...nitems[j].enclosure._attributes }
+													const timestamp = Date.parse(g(nitems[j].pubDate))
+													const d = new Date(timestamp)
+													const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
+													nitems[j].timestamp = timestamp
+													nitems[j].smallDate = datestring
+													// COLOR
+													const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
+													const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
+													nitems[j].bgColor = cColor
+													// IMAGE
+													const bgImage = g(nitems[j].thumbnail) ||
+																g(nitems[j].enclosure?.link) ||
+																nitems[j]["media:thumbnail"]?._attributes?.url ||
+																nitems[j]["media:content"]?._attributes?.url ||
+																nitems[j]["itunes:image"]?._attributes?.href ||
+																nitems[j].image
+													nitems[j].image = bgImage
+													// ENCLOSURE
+													if (!nitems[j].enclosure) nitems[j].enclosure = {}
+													else if (nitems[j].enclosure?._attributes) nitems[j].enclosure = { ...nitems[j].enclosure._attributes }
 
-														resItems.push(nitems[j])
-												}
-												feedItems = nitems
-										}
-										let debugInfo = `${count}/${feedsArr.length} : ${feedsArr[i].name} => ${feedItems.length} els`
-										console.log(h, `feed loaded ${debugInfo}`);
-										setStatus(`Loading... (loading feeds : ${debugInfo})`)
-										// if (count === feedsArr.length) {
-										// sort items by time
-										resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
-										// const lengthCache = JSON.stringify(resItems).length
-										setDebounceCache(resItems)
-										cb(resItems)
-										// }
+													resItems.push(nitems[j])
+											}
+											feedItems = nitems
+									}
+									let debugInfo = `${count}/${feedsArr.length} : ${feedsArr[i].name} => ${feedItems.length} els`
+									console.log(h, `feed loaded ${debugInfo}`);
+									setStatus(`Loading... (loading feeds : ${debugInfo})`)
+									// sort items by time
+									resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
+									setDebounceCache(resItems)
+									cb(resItems)
 								})
 						}
 				}
@@ -613,7 +612,12 @@ const feedApp = (innerTagStr, opts) => {
 						const [filteredItems, setFilteredItems] = React.useState([])
 						const [itemActive, setItemActive] = React.useState(null)
 						const [feeds, setFeeds] = React.useState([])
-						const [activeFeed, setActiveFeed] = React.useState("all")
+						const [activeFeed, setActiveFeedInt] = React.useState(null)
+						const activeFeedRef = React.useRef(null)
+						const setActiveFeed = (nval) => {
+							activeFeedRef.current = nval
+							setActiveFeedInt(activeFeedRef.current)
+						} 
 
 						//
 						// SORTING
@@ -667,14 +671,20 @@ const feedApp = (innerTagStr, opts) => {
 																		nitemsNotHidden.push(it)
 																}
 												}
-												setItems(nitemsNotHidden)
+												
 												// sorting everything
 												ncats.sort()
 												nfeeds.sort()
 												setCategories(ncats)
 												setFeeds(nfeeds)
-												setActiveFeed(null)
 												setStatus("")
+												setItems(nitemsNotHidden)
+
+												// if no active feed selected, show everything by default
+												if(!activeFeedRef.current) {
+													setActiveFeed(null)
+												}
+												
 										}, setStatus)
 								})
 						}, [])
@@ -685,11 +695,11 @@ const feedApp = (innerTagStr, opts) => {
 						React.useEffect(() => {
 								const nitems = []
 								if (activeFeed === "bookmarks") {
-										for (let i = 0; i < bookmarks.current.length; i++) {
-												let b = bookmarks.current[i]
-												if (b.sourceRss) b.sourceFeed = b.sourceRss
-										}
-										setFilteredItems(bookmarks.current)
+									for (let i = 0; i < bookmarks.current.length; i++) {
+											let b = bookmarks.current[i]
+											if (b.sourceRss) b.sourceFeed = b.sourceRss
+									}
+									setFilteredItems(bookmarks.current)
 								} else if (activeFeed !== null) {
 										for (let i = 0; i < items.length; i++) {
 												const it = items[i];
@@ -711,7 +721,6 @@ const feedApp = (innerTagStr, opts) => {
 
 						let finalItems = search !== "" ? searchItems : filteredItems
 
-
 						// view toggle
 						const [listView, setIntListView] = React.useState("list")
 						const toggleListView = () => {
@@ -721,7 +730,7 @@ const feedApp = (innerTagStr, opts) => {
 						}
 						React.useEffect(() => {
 								getSettingsCache(settings => { 
-										if (settings.listView) setIntListView(settings.listView)
+									if (settings.listView) setIntListView(settings.listView)
 								})
 						}, [])
 						
@@ -743,7 +752,7 @@ const feedApp = (innerTagStr, opts) => {
 
 						const debounceUpdateInfScroll = useDebounce(() => {
 								let nVal = infScrollNbEls+stepInfScroll
-								console.log("debounceUpdateInfScroll to", nVal)
+								// console.log("debounceUpdateInfScroll to", nVal)
 								//setInfScrollNbEls(nVal)
 						}, 500)
 
@@ -758,7 +767,7 @@ const feedApp = (innerTagStr, opts) => {
 										let diff = -(wh-ih) - s
 										if (diff < 10) {
 												let nVal = infScrollNbEls+stepInfScroll
-												console.log("debounceUpdateInfScroll to", nVal)
+												// console.log("debounceUpdateInfScroll to", nVal)
 												setInfScrollNbEls(nVal)
 										}
 								} 

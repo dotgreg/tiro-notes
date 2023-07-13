@@ -42,7 +42,6 @@ import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
-import { pe1, pe2 } from './managers/performance.manager';
 import './managers/localNoteHistory.manager';
 import { random } from 'lodash';
 import { devCliAddFn } from './managers/devCli.manager';
