@@ -45,7 +45,6 @@ export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:str
         const rawMetaArr2 = metaStr.split('.md:')
         if (rawMetaArr2.length < 2) continue
 
-        // if (debugMode) console.log(12, metaStr, 'to', rawMetaArr2)
         
         const fileName = `${rawMetaArr2[0]}.md`;
         let cleanedFileName = cleanFilePath(fileName, folder)
