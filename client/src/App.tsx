@@ -44,25 +44,26 @@ import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
 import { random } from 'lodash';
-import { devCliAddFn } from './managers/devCli.manager';
+import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
 import { addKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
-import { updateAppUrlFromActiveWindow } from './managers/url.manager';
+import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
 
 export const App = () => {
-	useEffect(() => {
 
+	//
+	// STARTUP PHASE, code should be added after login phase, not here
+	//
+	useEffect(() => {
 		// starting BG cron with some time offset to not have synchronous bg runs from different client windows
 		setTimeout(() => {
 			startFrontendBackgroundPluginsCron()
 		}, random(1000, 10000))
-
 		// PWA
 		initPWA()
-
 		// COMPONENT DID MOUNT didmount
 		console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
 
@@ -71,15 +72,16 @@ export const App = () => {
 			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
 
 
-			getApi(api => { api.ui.browser.folders.refreshFromBackend() })
-
+			getApi(api => { 
+				api.ui.browser.folders.refreshFromBackend() 
+			})
 		})
 
+		// Temporary => after tabs and other backend states are loaded
+		onStartupAfterDataBootstrap()
+
 		startListeningToKeys();
-
-
 		devCliAddFn("init", "init", () => { })
-
 		// TESTS
 		// getApi(api => {
 		// 	// console.log()
@@ -101,8 +103,16 @@ export const App = () => {
 		}
 	}, [])
 
-
-
+	//
+	// TEMPORARY : find better way to detect end data bootstrap
+	// STARTUP CODE (after data hydration done)
+	//
+	const onStartupAfterDataBootstrap = () => {
+		setTimeout(() => {
+			
+			onStartupReactToUrlParams(setMobileView)
+		}, 300)
+	}
 
 	// APP-WIDE MULTI-AREA LOGIC
 
@@ -148,6 +158,7 @@ export const App = () => {
 			cleanListAndFileContent()
 		},
 		onLoginSuccess: () => {
+			console.log("loginsuccess!!!!!!!!!")
 			refreshTabsFromBackend();
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
@@ -160,6 +171,9 @@ export const App = () => {
 
 			// seems blocking the initial loading of a few seconds, so starts it 10s after
 			askForFolderScan(['/'])
+
+			// Temporary => after tabs and other backend states are loaded
+			onStartupAfterDataBootstrap()
 		}
 	})
 
@@ -334,6 +348,7 @@ export const App = () => {
 	// Mobile view
 	const {
 		mobileView,
+		setMobileView,
 		MobileToolbarComponent
 	} = useMobileView()
 
@@ -363,9 +378,11 @@ export const App = () => {
 		// URL system once the window update has spread
 		updateAppUrlFromActiveWindow(tabs, mobileView)
 	}, [tabs, mobileView])
+	// useEffect(() => {
+	// 	onLoadReactToUrlParams(setMobileView)
+	// }, [])
 
-
-
+	
 
 
 	let rcnt = forceResponsiveRender ? 0 : 1

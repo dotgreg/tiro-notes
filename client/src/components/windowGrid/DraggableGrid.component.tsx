@@ -444,7 +444,8 @@ export const GridMobileCss = () => `
 										}
 								}
 								.preview-area-wrapper {
-										height: calc(100% - 165px);
+										// height: calc(100% - 165px);
+										height: calc(100% - 85px);
 										.preview-area {
 												top: 0px!important;
 												bottom: 0px!important;

@@ -4,6 +4,7 @@ import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.hel
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
 import { devCliAddFn } from '../../managers/devCli.manager';
+import { deviceType } from '../../managers/device.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -25,7 +26,7 @@ export interface iBrowserApi {
 		folderPath: string,
 		fileTitle?: string | null,
 		options?: {
-			openIn?: string | 'activeWindow' | 'active'
+			openIn?: string | 'activeWindow' | 'active' 
 		}
 	) => void
 	files: {
@@ -64,13 +65,13 @@ export interface iBrowserApi {
 }
 
 export const useBrowserApi = (p: {
-	searchUiApi: iClientApi['ui']['search']
-	statusApi: iStatusApi
-	filesApi: iFilesApi
-	foldersApi: iFoldersApi
-	userSettingsApi: iUserSettingsApi
-	tabsApi: iTabsApi
-	windowApi: iWindowsApi
+	// searchUiApi: iClientApi['ui']['search']
+	// statusApi: iStatusApi
+	// filesApi: iFilesApi
+	// foldersApi: iFoldersApi
+	// userSettingsApi: iUserSettingsApi
+	// tabsApi: iTabsApi
+	// windowApi: iWindowsApi
 }): iBrowserApi => {
 
 	const [files, setFiles] = useState<iFile[]>([])
@@ -87,51 +88,66 @@ export const useBrowserApi = (p: {
 	const goTo: iBrowserApi['goTo'] =
 		(folderPath, fileTitle, opts) => {
 			if (folderPath === "") return
+			getApi(api => {
+				folderPath = cleanPath(`${folderPath}/`)
+				const h = `[BROWSER GO TO] `
+				const log = sharedConfig.client.log.verbose
+				log && console.log(`${h} ${folderPath} ${fileTitle}  ${JSON.stringify(opts)}`);
+				// p.searchUiApi.term.set('')
+				api.ui.search.term.set('')
+				// p.statusApi.searching.set(true)
+				api.status.searching.set(true)
+				setSelectedFolder(folderPath)
 
-			folderPath = cleanPath(`${folderPath}/`)
-			const h = `[BROWSER GO TO] `
-			const log = sharedConfig.client.log.verbose
-			log && console.log(`${h} ${folderPath} ${fileTitle}  ${JSON.stringify(opts)}`);
-			p.searchUiApi.term.set('')
-			p.statusApi.searching.set(true)
-			setSelectedFolder(folderPath)
+				// p.filesApi.get(folderPath, nfiles => {
+				api.files.get(folderPath, nfiles => {
+					// when receiving results
+					api.status.searching.set(false)
 
-			p.filesApi.get(folderPath, nfiles => {
-				// when receiving results
-				p.statusApi.searching.set(false)
+					// sort them
+					const sortMode = api.userSettings.get('ui_filesList_sortMode')
+					const nfilesSorted = sortFiles(nfiles, sortMode)
+					let activeIndex = -1
 
-				// sort them
-				const sortMode = p.userSettingsApi.get('ui_filesList_sortMode')
-				const nfilesSorted = sortFiles(nfiles, sortMode)
-				let activeIndex = -1
-
-				// if search for a file title 
-				if (fileTitle) {
-					each(nfilesSorted, (file, i) => {
-						if (file.name === fileTitle) {
-							activeIndex = i
-						}
-					})
-					// console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
-				}
-				setActiveFileIndex(activeIndex);
-				setFiles(nfilesSorted)
-
-				// if asked to open it in window
-				if (opts && opts.openIn) {
-					const fileToOpen = nfilesSorted[activeIndex]
-					if (opts.openIn === 'active' || opts.openIn === 'activeWindow') {
-						// if no tab, open in new tab
-						if (!p.tabsApi.active.get()) {
-							p.tabsApi.openInNewTab(fileToOpen)
-						}
-						// open in active window
-						else p.windowApi.active.setContent(fileToOpen)
-					} else {
-						p.windowApi.updateWindows([opts.openIn], fileToOpen)
+					// if search for a file title 
+					if (fileTitle) {
+						each(nfilesSorted, (file, i) => {
+							if (file.name === fileTitle) {
+								activeIndex = i
+							}
+						})
+						// console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
 					}
-				}
-			});
+					setActiveFileIndex(activeIndex);
+					setFiles(nfilesSorted)
+
+					// if asked to open it in window
+					if (opts && opts.openIn) {
+						const fileToOpen = nfilesSorted[activeIndex]
+						if (opts.openIn === 'active' || opts.openIn === 'activeWindow') {
+							console.log(22222222,api.tabs.active.get(), api.tabs.get(), opts, deviceType() )
+
+							// if no tab, open in new tab
+							if (!api.tabs.active.get()) {
+								api.tabs.openInNewTab(fileToOpen)
+							} else {
+								// if mobile, first window of active tab
+								if (deviceType() === "mobile") {
+									let activeTab = api.tabs.active.get()
+									let wid = activeTab?.grid.content[0].i
+									if (!wid) return
+									console.log("if mobile, first window of active tab", wid)
+									api.ui.windows.updateWindows([wid], fileToOpen)
+								}
+								// open in active window
+								else api.ui.windows.active.setContent(fileToOpen)
+							}
+						} else {
+							api.ui.windows.updateWindows([opts.openIn], fileToOpen)
+						}
+					}
+				});
+			})
 		}
 
 
