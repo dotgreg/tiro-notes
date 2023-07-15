@@ -30,7 +30,8 @@ const main = (weatherLib) => {
   if (barApi.selectedTags.length === 3) {
     let tag = barApi.selectedTags[2]
     function getRelativeDaysFromDate(inputDate) {
-      const today = new Date(); // Get today's date
+      let today = new Date(new Date().setHours(0, 0, 0, 0)); // Get today's date
+      inputDate = new Date(inputDate.setHours(0, 0, 0, 0));
       const timeDifference = inputDate.getTime() - today.getTime(); 
       const millisecondsPerDay = 1000 * 60 * 60 * 24;  
       const relativeDays = Math.floor(timeDifference / millisecondsPerDay);  
@@ -40,6 +41,7 @@ const main = (weatherLib) => {
     let daysFuture = getRelativeDaysFromDate(tag.value)
     const isCached = false
     const hideAfter = 10
+    console.log(11111111, {daysFuture, config})
     weatherLib.sendNotifWeather(daysFuture, config.pos, isCached, 10)
   }
 }
