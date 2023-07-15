@@ -21,7 +21,7 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 		const filePath = activeWindow?.content.file?.path
 		const view = activeWindow?.content.view
 		let urlParamsArr = getUrlRawParams().array
-		console.log(h,"<= updateAppUrlFromActiveWindow", urlParamsArr)
+		// console.log(h,"<= updateAppUrlFromActiveWindow", urlParamsArr)
 		urlParamsArr = urlParamsArr.filter(el => el.name !== "filepath" && el.name !== "view")
 		if (!filePath || !view) return
 		urlParamsArr.unshift({name: "filepath", value: filePath})
@@ -46,7 +46,7 @@ export const onStartupReactToUrlParams = (setMobileView:Function) => {
 		let urlParams = getUrlRawParams().dic
 		const filepath = urlParams["filepath"]?.value
 		const view = urlParams["view"]?.value
-		console.log(h,"=> onLoadReactToUrlParams",urlParams, {filepath, view} )
+		// console.log(h,"=> onLoadReactToUrlParams",urlParams, {filepath, view} )
 		// notifLog("startup" + random(0, 1000) +  "goto1" + JSON.stringify({urlParams}));
 		
 		if (!filepath || !view) return
