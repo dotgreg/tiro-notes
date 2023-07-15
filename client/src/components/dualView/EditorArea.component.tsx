@@ -1,6 +1,6 @@
 import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
-import { deviceType, isA, MobileView } from '../../managers/device.manager';
+import { deviceType, isA, iMobileView } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -40,7 +40,7 @@ export type iLayoutUpdateFn = (type: "windowActive"|"windowView", data?:{view?: 
 
 interface iEditorProps {
 	viewType?: iViewType
-	mobileView: MobileView
+	mobileView: iMobileView
 	
 
 	editorType: iEditorType
@@ -733,7 +733,7 @@ export const commonCssEditors = () => `
 
 `
 
-export const editorAreaCss = (v: MobileView) => `
+export const editorAreaCss = (v: iMobileView) => `
 
 .editor-area {
 		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};

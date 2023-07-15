@@ -7,7 +7,7 @@ import { useMobileView } from './hooks/app/mobileView.hook';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
-import { iFile, iFolder } from '../../shared/types.shared';
+import { iFile, iFolder, iGrid } from '../../shared/types.shared';
 import { getDateObj } from '../../shared/helpers/date.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
@@ -50,6 +50,7 @@ import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
 import { addKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
+import { updateAppUrlFromActiveWindow } from './managers/url.manager';
 
 export const App = () => {
 	useEffect(() => {
@@ -355,6 +356,13 @@ export const App = () => {
 		return () => { releaseKeyShortcuts() }
 	}, [filesHistory])
 
+	//
+	// URL SYSTEM
+	//
+	useEffect(() => {
+		// URL system once the window update has spread
+		updateAppUrlFromActiveWindow(tabs, mobileView)
+	}, [tabs, mobileView])
 
 
 

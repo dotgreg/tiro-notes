@@ -1,7 +1,7 @@
 import { log } from 'console';
 import React, { useState, useEffect, useRef } from 'react';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
-import { DeviceType, deviceType, isA } from '../../managers/device.manager';
+import { iDeviceType, deviceType, isA } from '../../managers/device.manager';
 import { getTextAreaLineInfos, LineTextInfos, TextModifAction, TextModifActionParams, triggerTextModifAction } from '../../managers/textEditor.manager';
 
 const h = `[TEXT MANIP ACTION]`
@@ -9,7 +9,7 @@ const h = `[TEXT MANIP ACTION]`
 export type iEditorType = 'monaco-textarea' | 'codemirror'
 export interface TextManipActionsHookParams {
 	editorType: iEditorType
-	deviceType: DeviceType
+	deviceType: iDeviceType
 	editorRef: React.RefObject<HTMLTextAreaElement | any>
 }
 export const useTextManipActions = (p: TextManipActionsHookParams) => {

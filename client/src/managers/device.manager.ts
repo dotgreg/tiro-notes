@@ -5,15 +5,15 @@ export const isMobile = (): boolean => {
 	return check;
 };
 
-export type DeviceType = 'desktop' | 'tablet' | 'mobile'
-export type MobileView = 'navigator' | 'editor' | 'preview'
+export type iDeviceType = 'desktop' | 'tablet' | 'mobile'
+export type iMobileView = 'navigator' | 'editor' | 'preview'
 
 export const isVarMobileView = (raw: any): boolean => {
 	if (raw === 'navigator' || raw === 'editor' || raw === 'preview') return true
 	return false
 }
 
-export const isA = (device: DeviceType): boolean => {
+export const isA = (device: iDeviceType): boolean => {
 	return deviceType() === device
 }
 
@@ -33,10 +33,10 @@ export function isIpad() {
 
 
 
-export const deviceType = (): DeviceType => {
+export const deviceType = (): iDeviceType => {
 	let deviceWidth = window.innerWidth
 
-	let res: DeviceType = 'desktop'
+	let res: iDeviceType = 'desktop'
 	if (isPhysicalDesktop()) {
 		//if (deviceWidth < 1000) res = 'tablet'
 		if (deviceWidth < 500) res = 'mobile'

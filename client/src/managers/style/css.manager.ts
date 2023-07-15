@@ -1,5 +1,5 @@
 import { css, cx } from '@emotion/css'
-import { deviceType, MobileView, DeviceType } from '../device.manager';
+import { deviceType, iMobileView } from '../device.manager';
 import { cssVars } from './vars.style.manager';
 import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
@@ -54,7 +54,7 @@ const { els, colors, font, sizes } = { ...cssVars }
 //export const CssApp2 = mem((a1, a2) => CssApp2Int(a1, a2))
 
 export const CssApp2 = (
-	mobileView: MobileView,
+	mobileView: iMobileView,
 	refreshCss: number
 ) => {
 	//console.log("UPDATE CSS", refreshCss);

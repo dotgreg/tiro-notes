@@ -3,7 +3,7 @@ import { PreviewArea } from './PreviewArea.component'
 import { EditorArea, iLayoutUpdateFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
-import { deviceType, isMobile, MobileView } from '../../managers/device.manager';
+import { deviceType, isMobile, iMobileView } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
@@ -23,7 +23,7 @@ interface iDualViewProps {
 	canEdit: boolean
 
 	viewType?: iViewType
-	mobileView: MobileView
+	mobileView: iMobileView
 
 	onFileEdited: onFileEditedFn
 	askForLayoutUpdate: iLayoutUpdateFn

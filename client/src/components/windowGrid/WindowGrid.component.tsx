@@ -6,7 +6,7 @@ import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { useNextState } from '../../hooks/useNextStateAction.hook';
 import { initClipboardListener } from '../../managers/clipboard.manager';
-import { MobileView } from '../../managers/device.manager';
+import { iMobileView } from '../../managers/device.manager';
 import { initDragDropListener } from '../../managers/dragDrop.manager';
 import { strings } from '../../managers/strings.manager';
 import { iUploadedFile } from '../../managers/upload.manager';
@@ -55,7 +55,7 @@ export const GridContext = React.createContext<iGridContext>(gridContextInit);
 export const WindowGrid = (p: {
 	tab: iTab
 	onGridUpdate: (grid: iGrid) => void
-	mobileView: MobileView
+	mobileView: iMobileView
 }) => {
 	const { tab } = { ...p }
 
