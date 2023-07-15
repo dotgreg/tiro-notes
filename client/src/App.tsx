@@ -109,7 +109,6 @@ export const App = () => {
 	//
 	const onStartupAfterDataBootstrap = () => {
 		setTimeout(() => {
-			
 			onStartupReactToUrlParams(setMobileView)
 		}, 300)
 	}
