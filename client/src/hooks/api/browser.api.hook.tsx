@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
-import { devCliAddFn } from '../../managers/devCli.manager';
+import { devCliAddFn, notifLog } from '../../managers/devCli.manager';
 import { deviceType } from '../../managers/device.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
@@ -125,21 +125,25 @@ export const useBrowserApi = (p: {
 					if (opts && opts.openIn) {
 						const fileToOpen = nfilesSorted[activeIndex]
 						if (opts.openIn === 'active' || opts.openIn === 'activeWindow') {
+							let activeTab = api.tabs.active.get()
+							let wid = activeTab?.grid.content[0].i
+
+							// notifLog(`${JSON.stringify({opts, activeTab, wid, device: deviceType()})}`)
 							// console.log(22222222,api.tabs.active.get(), api.tabs.get(), opts, deviceType() )
 							// if no tab, open in new tab
-							if (!api.tabs.active.get()) {
+							if (!activeTab) {
 								api.tabs.openInNewTab(fileToOpen)
 							} else {
 								// if mobile, first window of active tab
-								if (deviceType() === "mobile") {
-									let activeTab = api.tabs.active.get()
-									let wid = activeTab?.grid.content[0].i
-									if (!wid) return
-									// console.log("if mobile, first window of active tab", wid)
-									api.ui.windows.updateWindows([wid], fileToOpen)
-								}
+								// if (deviceType() === "mobile") {
+									
+								// 	if (!wid) return
+								// 	// console.log("if mobile, first window of active tab", wid)
+								// 	api.ui.windows.updateWindows([wid], fileToOpen)
+								// }
 								// open in active window
-								else api.ui.windows.active.setContent(fileToOpen)
+								// else api.ui.windows.active.setContent(fileToOpen)
+								api.ui.windows.active.setContent(fileToOpen)
 							}
 						} else {
 							api.ui.windows.updateWindows([opts.openIn], fileToOpen)
