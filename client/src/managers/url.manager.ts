@@ -1,26 +1,65 @@
-import { each, isNumber } from "lodash";
+import { each, isNumber, random } from "lodash";
+import { pathToIfile } from "../../../shared/helpers/filename.helper";
 import { iAppView, iGrid, iTab } from "../../../shared/types.shared";
 import { configClient } from "../config";
 import { getApi } from "../hooks/api/api.hook";
-import { isVarMobileView, iMobileView } from "./device.manager";
+import { notifLog } from "./devCli.manager";
+import { isVarMobileView, iMobileView, deviceType } from "./device.manager";
 
 
 //
 // V2
 //
+const h = `[URL]`
+
+let isUrlUpdaterEnabled = {value: false}
+// UPDATER
 export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileView) => {
+	if (!isUrlUpdaterEnabled.value) return
 	getApi(api => {
 		const activeWindow = api.ui.windows.active.get()
 		const filePath = activeWindow?.content.file?.path
 		const view = activeWindow?.content.view
 		let urlParamsArr = getUrlRawParams().array
+		console.log(h,"<= updateAppUrlFromActiveWindow", urlParamsArr)
 		urlParamsArr = urlParamsArr.filter(el => el.name !== "filepath" && el.name !== "view")
 		if (!filePath || !view) return
 		urlParamsArr.unshift({name: "filepath", value: filePath})
-		urlParamsArr.unshift({name: "view", value: view})
-		console.log(1111111, activeWindow, urlParamsArr,{filePath, view})
+		
+
+		if (deviceType() === "mobile") {
+			urlParamsArr.unshift({name: "view", value: mobileView})
+		} else {
+			urlParamsArr.unshift({name: "view", value: view})
+		}
+
+		// console.log(1111111, activeWindow, urlParamsArr,{filePath, view})
 		setUrlParams(urlParamsArr)
 	})
+}
+
+// on load
+export const onStartupReactToUrlParams = (setMobileView:Function) => {
+	// setTimeout(() => {
+		// only enable isUrlUpdaterEnabled.value after 5s 
+		setTimeout(() => {isUrlUpdaterEnabled.value = true}, 5000)
+		let urlParams = getUrlRawParams().dic
+		const filepath = urlParams["filepath"]?.value
+		const view = urlParams["view"]?.value
+		console.log(h,"=> onLoadReactToUrlParams",urlParams, {filepath, view} )
+		notifLog("startup" + random(0, 1000) +  "goto1" + JSON.stringify({urlParams}));
+		
+		if (!filepath || !view) return
+		if (deviceType() === "mobile") {
+			const file = pathToIfile(filepath)
+			getApi(api => {
+				notifLog("startup" + random(0, 1000) +  "goto" + JSON.stringify({file, view}));
+				console.log(h, "11111111", "goto2", file, view)
+				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+				setMobileView(view)
+			})
+		}
+	// }, 2000)
 }
 
 //
@@ -32,7 +71,6 @@ export const setUrlParams = (arr:iUrlRawParam[]) => {
 		let and = i < arr.length - 1  ? "&" : ""
 		newUrl += `${param.name}=${param.value}${and}`
 	})
-	console.log(123, newUrl)
 	window.history.pushState({}, document.title, newUrl)
 }
 export interface iUrlRawParamDic {
