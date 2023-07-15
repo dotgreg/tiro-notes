@@ -2,10 +2,11 @@
 let s = bgState.vars
 let curr = new Date()
 
+let isMorning = curr.getHours() > 0 && curr.getHours() <= 12
 let isAfternoon = curr.getHours() > 14 && curr.getHours() <= 20
 if (config.isDev)  isAfternoon = curr.getHours() > 1 && curr.getHours() <= 20
 
-if (isAfternoon) {
+const sendBgNotif = (daysInFuture) => {
     const h = `[WEATHER BG | ${curr.getHours()}h${curr.getMinutes()}]`
     console.log(h,  {isAfternoon, config, currHour: curr.getHours()})
     const fetchLibs = (cb) => {
@@ -16,9 +17,11 @@ if (isAfternoon) {
 
     fetchLibs(weatherLib => {
         const isCachedForFewHours = !config.isDev
-        weatherLib.sendNotifWeather(1, config.pos, isCachedForFewHours)
+        weatherLib.sendNotifWeather(daysInFuture, config.pos, isCachedForFewHours)
     })
-  
-    
-    
 }
+
+// if afternoon, sends tomorrow weather
+if (isAfternoon) sendBgNotif(1)
+// if morning, sends todays weather
+if (isMorning) sendBgNotif(0)
