@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { ButtonsToolbar } from '../../components/ButtonsToolbar.component';
-import { deviceType, MobileView } from '../../managers/device.manager';
+import { deviceType, iMobileView } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { useStatMemo } from "../useStatMemo.hook"
 
 export const useMobileView = () => {
 
-	const [mobileView, setMobileView] = useState<MobileView>('navigator')
+	const [mobileView, setMobileView] = useState<iMobileView>('navigator')
 
 	const MobileToolbarComponent = (p: {
 		forceRerender: boolean,

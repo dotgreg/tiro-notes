@@ -12,7 +12,7 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext } from '../../hooks/api/api.hook';
-import { deviceType, isA, MobileView } from '../../managers/device.manager';
+import { deviceType, isA, iMobileView } from '../../managers/device.manager';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
@@ -33,7 +33,7 @@ export const DraggableGrid = (p: {
 	refresh: number
 	grid: iGrid
 	onGridUpdate: (grid: iGrid) => void
-	mobileView: MobileView
+	mobileView: iMobileView
 }) => {
 
 	const [intContent, setIntContentInternal] = useState<iWindowContent[]>([])

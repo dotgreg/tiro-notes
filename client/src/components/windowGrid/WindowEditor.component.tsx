@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
-import { MobileView } from '../../managers/device.manager';
+import { iMobileView } from '../../managers/device.manager';
 import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer } from '../dualView/DualViewer.component';
@@ -16,7 +16,7 @@ export const WindowEditorInt = (p: {
 	// onEditorDropdownEnter?: Function
 	askForLayoutUpdate:iLayoutUpdateFn
 
-	mobileView: MobileView
+	mobileView: iMobileView
 }) => {
 
 	const { file, view, active, i } = { ...p.content }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { iAppView } from '../../../../shared/types.shared';
 import { ButtonsToolbar, iToolbarButton } from '../../components/ButtonsToolbar.component';
-import { deviceType, MobileView } from '../../managers/device.manager';
+import { deviceType } from '../../managers/device.manager';
 import { strings } from '../../managers/strings.manager';
 
 export type iSwitchTypeViewFn = (view: iAppView) => void
