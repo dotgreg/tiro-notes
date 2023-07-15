@@ -125,8 +125,7 @@ export const useBrowserApi = (p: {
 					if (opts && opts.openIn) {
 						const fileToOpen = nfilesSorted[activeIndex]
 						if (opts.openIn === 'active' || opts.openIn === 'activeWindow') {
-							console.log(22222222,api.tabs.active.get(), api.tabs.get(), opts, deviceType() )
-
+							// console.log(22222222,api.tabs.active.get(), api.tabs.get(), opts, deviceType() )
 							// if no tab, open in new tab
 							if (!api.tabs.active.get()) {
 								api.tabs.openInNewTab(fileToOpen)
@@ -136,7 +135,7 @@ export const useBrowserApi = (p: {
 									let activeTab = api.tabs.active.get()
 									let wid = activeTab?.grid.content[0].i
 									if (!wid) return
-									console.log("if mobile, first window of active tab", wid)
+									// console.log("if mobile, first window of active tab", wid)
 									api.ui.windows.updateWindows([wid], fileToOpen)
 								}
 								// open in active window

@@ -47,14 +47,14 @@ export const onStartupReactToUrlParams = (setMobileView:Function) => {
 		const filepath = urlParams["filepath"]?.value
 		const view = urlParams["view"]?.value
 		console.log(h,"=> onLoadReactToUrlParams",urlParams, {filepath, view} )
-		notifLog("startup" + random(0, 1000) +  "goto1" + JSON.stringify({urlParams}));
+		// notifLog("startup" + random(0, 1000) +  "goto1" + JSON.stringify({urlParams}));
 		
 		if (!filepath || !view) return
 		if (deviceType() === "mobile") {
 			const file = pathToIfile(filepath)
 			getApi(api => {
-				notifLog("startup" + random(0, 1000) +  "goto" + JSON.stringify({file, view}));
-				console.log(h, "11111111", "goto2", file, view)
+				// notifLog("startup" + random(0, 1000) +  "goto" + JSON.stringify({file, view}));
+				// console.log(h, "11111111", "goto2", file, view)
 				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
 				setMobileView(view)
 			})
