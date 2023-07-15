@@ -102,6 +102,8 @@ export const useRessourceApi = (p: {
 		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
 
+		// console.log(h,"FETCH RESSOURCE", {url,opt})
+
 		const cacheFolder = `/.tiro/cache/fetch/`
 		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 

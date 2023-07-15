@@ -33,7 +33,7 @@ const main = (weatherLib) => {
       const today = new Date(); // Get today's date
       const timeDifference = inputDate.getTime() - today.getTime(); 
       const millisecondsPerDay = 1000 * 60 * 60 * 24;  
-      const relativeDays = Math.floor(timeDifference / millisecondsPerDay) + 1;  
+      const relativeDays = Math.floor(timeDifference / millisecondsPerDay);  
       return relativeDays;
     }
     if (!tag.value) return

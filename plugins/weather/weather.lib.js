@@ -38,7 +38,6 @@ const getWeatherData = (pos, cb) => {
     const apiUrl = `http://api.openweathermap.org/data/2.5/onecall?lat=${pos[0]}&lon=${pos[1]}&appid=c9faf631b1c838fa4d4c0012498e2730&units=metric&units=metric`
     tiroApi.ressource.fetch(apiUrl, txt => {
         let obj = JSON.parse(txt)
-        
         //days.unshift(obj.current)
         cb(obj)
     }, {disableCache: true})
@@ -80,14 +79,18 @@ const sendNotifWeather = (dayFuture, pos, isCached, hideAfter) => {
     let notifUniqId = "uniq-notif-id-weather"
     if (!hideAfter) hideAfter = -1
 
-    console.log(h, "showNotifWeather", {showNotifOnceEvery, notifUniqId, dayFuture, pos, isCached, hideAfter})
+    // console.log(h, "showNotifWeather", {showNotifOnceEvery, notifUniqId, dayFuture, pos, isCached, hideAfter})
     getWeatherData(pos, apiRes => {
         let resPerHour = getHourlyForecast(dayFuture, apiRes)
         let daily = apiRes.daily
         
         let nDate = new Date().getTime() + (1000 * 60 * 60 * 24 * dayFuture)
-        let labelDate = `Tomorrow ${formatDate(new Date(nDate))}`
-        if (dayFuture !== 1) labelDate = formatDate(new Date(nDate))
+        let labelDate = `${formatDate(new Date(nDate))}`
+        if (dayFuture === 0) labelDate = `Today <br>${formatDate(new Date(nDate))}`
+        if (dayFuture === 1) labelDate = `Tomorrow <br> ${formatDate(new Date(nDate))}`
+        if (dayFuture === 2) labelDate = `Day after tomorrow <br> ${formatDate(new Date(nDate))}`
+        if (dayFuture === 3) labelDate = `In 3 days <br> ${formatDate(new Date(nDate))}`
+        if (dayFuture === 4) labelDate = `In 4 days <br> ${formatDate(new Date(nDate))}`
 
         let notifHtml = `
             <b>[WEATHER]</b> <br>
