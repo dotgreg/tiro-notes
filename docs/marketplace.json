@@ -1,0 +1,133 @@
+[
+  {
+    "name": "calendar",
+    "type": "bar",
+    "code": "\n    tiroApi.ressource.fetchEval(\n      \"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/calendar/calendar.bar.js\", \n      {barApi, tiroApi, config: {calNotePath: \"/_new/_main/EVENTS.md\", libUrl: \"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/calendar/calendar.lib.js\"}}, \n      {disableCache:false}\n    )",
+    "plugin_infos": {
+      "versions": [
+        {
+          "version": "0.1.3",
+          "date": "10/07/23",
+          "comment": "isDev option added"
+        },
+        {
+          "version": "0.1.2",
+          "date": "10/07/23",
+          "comment": "fixing bug for repeat yearly, adding repeat weekly, adding global caching option"
+        },
+        {
+          "version": "0.1.1",
+          "date": "25/06/23",
+          "comment": "adding bg service"
+        },
+        {
+          "version": "0.1.0",
+          "date": "24/06/23",
+          "comment": "adaptation to plugin"
+        }
+      ]
+    }
+  },
+  {
+    "name": "calendar",
+    "type": "tag",
+    "code": "\n    [[script]]\n    window.disableCache = false;\n    api.utils.canScrollIframe(true);\n    return api.utils.loadCustomTag(\n      \"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/calendar/calendar.tag.js\",\n      `{{innerTag}}`,\n       {size:\"80%\", padding: false, source: \"/_new/_main/EVENTS.md\", libUrl: \"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/calendar/calendar.lib.js\"}\n     )\n    [[script]]\n  ",
+    "plugin_infos": {
+      "versions": [
+        {
+          "version": "0.1.3",
+          "date": "10/07/23",
+          "comment": "isDev option added"
+        },
+        {
+          "version": "0.1.2",
+          "date": "10/07/23",
+          "comment": "fixing bug for repeat yearly, adding repeat weekly, adding global caching option"
+        },
+        {
+          "version": "0.1.1",
+          "date": "25/06/23",
+          "comment": "adding bg service"
+        },
+        {
+          "version": "0.1.0",
+          "date": "24/06/23",
+          "comment": "adaptation to plugin"
+        }
+      ]
+    }
+  },
+  {
+    "name": "calendar_bg",
+    "type": "background",
+    "code": "\n      tiroApi.ressource.fetchEval(\n        \"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/calendar/calendar.bg.js\", \n        {tiroApi, bgState, config: {calNotePath: \"/_new/_main/EVENTS.md\", libUrl: \"https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/calendar/calendar.lib.js\"}}, \n        {disableCache:false}\n      )\n    ",
+    "plugin_infos": {
+      "versions": [
+        {
+          "version": "0.1.3",
+          "date": "10/07/23",
+          "comment": "isDev option added"
+        },
+        {
+          "version": "0.1.2",
+          "date": "10/07/23",
+          "comment": "fixing bug for repeat yearly, adding repeat weekly, adding global caching option"
+        },
+        {
+          "version": "0.1.1",
+          "date": "25/06/23",
+          "comment": "adding bg service"
+        },
+        {
+          "version": "0.1.0",
+          "date": "24/06/23",
+          "comment": "adaptation to plugin"
+        }
+      ]
+    },
+    "options": {
+      "background_exec_interval_in_min": 11
+    }
+  },
+  {
+    "name": "weather_bg",
+    "type": "background",
+    "code": "\n            tiroApi.ressource.fetchEval(\n              \"http://dev111111111111.websocial.cc:8088/weather/weather.bg.js\", \n              {\n                tiroApi, bgState, \n                config: {\n                  libUrl: \"http://dev111111111111.websocial.cc:8088/weather/weather.lib.js\", \n                  disableCache: \"true\", \n                  isDev: \"true\", \n                  showNotifOnceEvery: 8*60, \n                  pos:[48.8588548,2.347035,\"Paris\"]\n                }\n              }, \n              {disableCache:true}\n            )\n          ",
+    "plugin_infos": {
+      "versions": [
+        {
+          "version": "0.1.1",
+          "date": "10/07/23",
+          "comment": "adding a popup that gives tomorrows weather + dev + option to not show tomorrow popup"
+        },
+        {
+          "version": "0.1.0",
+          "date": "18/06/23",
+          "comment": "adaptation to plugin"
+        }
+      ]
+    },
+    "options": {
+      "background_exec_interval_in_min": 0.1
+    }
+  },
+  {
+    "name": "weather",
+    "type": "bar",
+    "code": "\n          tiroApi.ressource.fetchEval(\n            \"http://dev111111111111.websocial.cc:8088/weather/weather.bar.js\", \n            {\n              barApi, tiroApi, \n              config: { libUrl: \"http://dev111111111111.websocial.cc:8088/weather/weather.lib.js\", disableCache: \"true\", pos:[48.8588548,2.347035,\"Paris\"]\n            }, \n            {disableCache:true}\n          )\n        ",
+    "plugin_infos": {
+      "versions": [
+        {
+          "version": "0.1.1",
+          "date": "10/07/23",
+          "comment": "adding a popup that gives tomorrows weather + dev + option to not show tomorrow popup"
+        },
+        {
+          "version": "0.1.0",
+          "date": "18/06/23",
+          "comment": "adaptation to plugin"
+        }
+      ]
+    }
+  }
+]
