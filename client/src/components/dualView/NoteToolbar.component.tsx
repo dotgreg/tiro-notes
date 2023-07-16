@@ -10,9 +10,16 @@ import { ButtonsToolbar } from '../ButtonsToolbar.component';
 //
 
 export const NoteMobileToolbar = (p: {
+  bottom?: number
 	onButtonClicked: (action: TextModifAction) => void
 }) => {
-	return <div>
+  // if (!p.bottom) p.bottom = 140
+  // let bottom = p.bottom || 140
+  let bottom = p.bottom || 50
+	return <div 
+    className='mobile-toolbar-wrapper'
+    style={{bottom: `${bottom}px`}}
+  >
 		<ButtonsToolbar
 			class='mobile-text-manip-toolbar'
 			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
@@ -32,22 +39,26 @@ export const NoteMobileToolbar = (p: {
 
 
 export const mobileNoteToolbarCss = () => `
-  .mobile-text-manip-toolbar {
+  .mobile-toolbar-wrapper {
     position: fixed;
-    bottom: ${cssVars.sizes.mobile.editorBar + 10}px;
-    display: flex;
-    list-style: none;
+    // position: absolute;
     width: 100%;
-    padding: 0px;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-    height: ${cssVars.sizes.mobile.editorBar}px;
-    background: ${cssVars.colors.editor.mobileToolbar.bg};
-    li {
-      flex: 1 1 auto;
-      justify-content: center;
+
+    .mobile-text-manip-toolbar {
       display: flex;
+      list-style: none;
+      padding: 0px;
+      align-content: center;
+      justify-content: center;
+      align-items: center;
+      height: ${cssVars.sizes.mobile.editorBar}px;
+      background: ${cssVars.colors.editor.mobileToolbar.bg};
+      li {
+        flex: 1 1 auto;
+        justify-content: center;
+        display: flex;
+      }
     }
+    
   }
 `

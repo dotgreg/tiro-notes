@@ -57,8 +57,14 @@ export const CssApp2 = (
 	mobileView: iMobileView,
 	refreshCss: number
 ) => {
-	//console.log("UPDATE CSS", refreshCss);
-	const cssString = `//css
+	const cssString = `
+
+		height:100%;
+		.main-wrapper,
+		.mobile-view-container {
+			height:100%;
+		}
+
 		.content-image {
 				width: 90%;
 		}
@@ -365,7 +371,7 @@ export const CssApp2 = (
 				.right-wrapper.dual-viewer-view {
 
 						width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
-						height: 100vh;
+						height: ${deviceType() === 'desktop' ? "100vh" : "100%"};
 						display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
 						padding-top: 0px;
 						.note-wrapper {

@@ -20,9 +20,15 @@ body {
   font-family:${cssVars.font.main};
 }
 html, body {
+  // height: 100vh;
   height: 100vh;
   overflow:hidden;
 background: ${cssVars.colors.bgInterface};
+}
+
+// pushing height 100% down
+#root {
+  height: 100%
 }
 
 button,

@@ -33,6 +33,7 @@ import { getApi } from "../../hooks/api/api.hook";
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
+export type iCMEvent = "blur" | "focus"
 
 export interface iCMPluginConfig {
 	markdown?: boolean
@@ -51,6 +52,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	forceRender: number
 	file: iFile
 
+	onEvent: (event: iCMEvent) => void
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
@@ -324,6 +326,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 			let nclasses = `device-${deviceType()}`
 			if (ua.get("ui_editor_markdown_table_preview")) nclasses += "md-table-preview-enabled"
+			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 		})
@@ -334,12 +337,39 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// ON UPDATE
 	//
+	// const updateCurrentSelection = (selection) => {
+	// 	setTimeout(() => {
+	// 		console.log(123, selection)
+	// 	}, 10)
+	// }
+
 	const onCodeMirrorUpdate = (e: any) => {
 		let s = e.state.selection.ranges[0]
 		currSelection.current = s
 		onSelectionChangeDebounced(s)
 	}
 
+	//
+	// ON SPECIFIC EVENTS
+	//
+	const CodeMirrorDomListenerExtension = EditorView.domEventHandlers({
+		blur(event, view) {
+			// @ts-ignore
+			// let selection:any = view.viewState.state.selection.ranges[0]
+			// console.log("onblur", selection)
+			// console.log("onblur")
+			// updateCurrentSelection()
+			p.onEvent("blur")
+		},
+		focus(event, view) {
+			// @ts-ignore
+			// let selection:any = view.viewState.state.selection.ranges[0]
+			// console.log("onfocus", selection)
+			// console.log("onfocus")
+			// updateCurrentSelection()
+			p.onEvent("focus")
+		}
+	});
 
 
 	//

@@ -5,7 +5,8 @@ export const isMobile = (): boolean => {
 	return check;
 };
 
-export type iDeviceType = 'desktop' | 'tablet' | 'mobile'
+export type iDeviceType = 'desktop' | 'tablet' | 'mobile' 
+export type iBrowserName = 'safari' | 'chrome' | 'firefox' | 'edge' | 'else'
 export type iMobileView = 'navigator' | 'editor' | 'preview'
 
 export const isVarMobileView = (raw: any): boolean => {
@@ -47,8 +48,22 @@ export const deviceType = (): iDeviceType => {
 	return res
 }
 
-
-
+export const getBrowserName = (): iBrowserName => {
+	const userAgent = window.navigator.userAgent.toLowerCase();
+  
+	// https://www.useragents.me/
+	if (userAgent.includes('edg')) {
+		return 'edge';
+	} else if (userAgent.includes('chrome')) {
+		return 'chrome';
+	} else if (userAgent.includes('safari')) {
+	  return 'safari';
+	}  else if (userAgent.includes('firefox')) {
+	  return 'firefox';
+	} else {
+	  return 'else';
+	}
+  };
 
 
 const isPhysicalDesktop = () => !isPhysicalMobileAndTablet()
