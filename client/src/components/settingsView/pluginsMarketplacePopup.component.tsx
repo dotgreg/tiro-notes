@@ -1,45 +1,11 @@
-import styled from '@emotion/styled';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useLocalStorage } from '../../hooks/useLocalStorage.hook';
-import { strings } from '../../managers/strings.manager';
-import { Popup } from '../Popup.component';
-import { Input, InputType } from '../Input.component';
-import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
-import { useBackendState } from '../../hooks/useBackendState.hook';
-import { cloneDeep, debounce, each } from 'lodash';
-import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { replaceAll } from '../../managers/string.manager';
-import { disconnectUser } from '../../hooks/app/loginToken.hook';
-import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
-
-type ConfigPanel = {
-	title: string,
-	fields: ConfigField[],
-}
-
-type ConfigField = {
-	type: InputType | "none",
-	var: any,
-	title: string,
-	modifier: Function
-	onCustomHtmlClick?: Function
-	expl?: string
-	readOnly?: boolean
-	customHtml?: string
-}
-
-
-type SettingParam = 'backend-port' | 'backend-protocol'
-export const getSetting = (settingName: SettingParam) => {
-	let res = localStorage.getItem(`plugins-marketplace-${settingName}`) || ""
-	return replaceAll(res, [["\"", ""]])
-}
-
+import { Popup } from '../Popup.component';
 
 export const PluginsMarketplacePopup = (p: {
 	onClose: Function
 }) => {
+
 
 
 	return (
