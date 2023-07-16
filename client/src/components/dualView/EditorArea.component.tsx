@@ -1,6 +1,6 @@
 import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
-import { deviceType, isA, iMobileView } from '../../managers/device.manager';
+import { deviceType, isA, iMobileView, getBrowserName } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -20,7 +20,7 @@ import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
-import { CodeMirrorEditor, iCMPluginConfig } from './CodeMirrorEditor.component';
+import { CodeMirrorEditor, iCMEvent, iCMPluginConfig } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
@@ -28,8 +28,9 @@ import { setNoteView } from '../../managers/windowViewType.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean, isNumber } from 'lodash';
+import { each, isBoolean, isNumber, random } from 'lodash';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
+import { notifLog } from '../../managers/devCli.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -426,6 +427,35 @@ const EditorAreaInt = (
 
 	}, [p.editorAction])
 
+	//
+	// ON CM EVENTS
+	//
+
+	// const [bottomMobileToolbar, setBottomMobileToolbar] = useState(50)
+	// on focus/blur, make mobile bar jump on chromium
+	const onCMEvent = (event: iCMEvent) => {
+
+		// if (deviceType() !== "mobile" && getBrowserName() === "firefox") return
+
+		// if (event === "blur") {
+		// 	// setBottomMobileToolbar(50)
+		// }
+		// if (event === "focus") {
+		// 	// const mainWrapper = document.querySelector(".main-wrapper")
+		// 	// const root = document.getElementById("root")
+		// 	// window.scrollTo(0, document.body.scrollHeight);
+		// 	// mainWrapper && mainWrapper.scrollTo(0, mainWrapper.scrollHeight);
+		// 	// root && root.scrollTo(0, root.scrollHeight);
+		// 	// setBottomMobileToolbar(320)
+		// }
+	}
+	// useEffect(() => {
+	// 	// window.addEventListener('resize', () => {
+	// 	// 	console.log(222222222, "resizeeeeeee")
+	// 	// 	notifLog(`resize2 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize2")
+	// 	// })
+	// }, [])
+
 
 
 	return (
@@ -589,6 +619,7 @@ const EditorAreaInt = (
 						jumpToLine={jumpToLine || 0}
 
 						forceRender={cmRender}
+						onEvent={onCMEvent}
 						onScroll={p.onScroll}
 						onTitleClick={p.onTitleClick}
 
@@ -606,15 +637,13 @@ const EditorAreaInt = (
 						/>
 					</div>
 				}
-
-
 			</div>
-
 
 			{
 				// BOTTOM MOBILE TOOLBAR
 				deviceType() !== 'desktop' &&
 				<NoteMobileToolbar
+					// bottom={bottomMobileToolbar}
 					onButtonClicked={action => {
 						let updatedText = applyTextModifAction(action)
 						if (updatedText) {

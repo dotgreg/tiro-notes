@@ -1,5 +1,6 @@
-import { debounce } from "lodash";
+import { debounce, random } from "lodash";
 import { useEffect, useRef, useState } from "react";
+import { notifLog } from "../managers/devCli.manager";
 
 export const useResize = () => {
 	const [resizeState, setResizeState] = useState(false)
@@ -14,9 +15,10 @@ export const useResize = () => {
 			}, 200)
 		}, 200)
 
-		window.addEventListener('resize', () => {
-			debouncedResponsiveRender()
-		})
+		// window.addEventListener('resize', () => {
+		// 	notifLog(`resize1 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize")
+		// 	debouncedResponsiveRender()
+		// })
 
 		return () => {
 			window.removeEventListener('resize', () => {
