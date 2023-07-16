@@ -14,7 +14,7 @@ type iPluginVersion = {
 	comment?: string
 	hash: string
 }
-type iPluginDescription = {
+export type iPluginDescription = {
 	name: string
 	description: string
 	images?: string[]
