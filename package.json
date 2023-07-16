@@ -38,6 +38,7 @@
         "publish-cli-dev": "cd ./platforms/npm-cli-module; npm run build-then-publish-dev;",
 
         "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
+        
         "================== WEBSITE & MARKETPLACE & BLOG GENERATOR =================== ": "",
         "site/dev": "run-p docs/dev blog/dev",
         "site/install": "run-p marketplace/install docs/install blog/install",
