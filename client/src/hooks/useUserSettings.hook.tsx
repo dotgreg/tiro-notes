@@ -42,6 +42,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_ai_text_selection: true,
 	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue",
 	server_activity_logging_enable: false,
+	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
 }
 const defaultVals = defaultValsUserSettings
 
