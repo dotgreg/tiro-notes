@@ -16,7 +16,7 @@ import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
 import { useLoginToken } from './hooks/app/loginToken.hook';
 import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
-import { Icon } from './components/Icon.component';
+import { Icon, Icon2 } from './components/Icon.component';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
 import { Lightbox } from './components/Lightbox.component';
 import {  startListeningToKeys } from './managers/keys.manager';
@@ -51,6 +51,7 @@ import { addKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
+import { PluginsMarketplacePopup } from './components/settingsView/pluginsMarketplacePopup.component';
 
 export const App = () => {
 
@@ -266,7 +267,7 @@ export const App = () => {
 	}
 
 	// Show settings panel
-	const [showSettingsPopup, setShowSettingsPopup] = useState(false)
+	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(null)
 
 
 	// LIGHTBOX SYSTEM
@@ -382,14 +383,14 @@ export const App = () => {
 
 	
 	//
-	// 
+	// @TODO RESIZE2
 	//
-	useEffect(() => {
-		window.addEventListener('resize', () => {
-			console.log(222222222, "resizeeeeeee")
-			notifLog(`resize2 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize2")
-		})
-	}, [])
+	// useEffect(() => {
+	// 	window.addEventListener('resize', () => {
+	// 		console.log(222222222, "resizeeeeeee")
+	// 		notifLog(`resize2 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize2")
+	// 	})
+	// }, [])
 
 	let rcnt = forceResponsiveRender ? 0 : 1
 	let cnt = api.userSettings.refresh.css.get + rcnt
@@ -558,16 +559,25 @@ export const App = () => {
 
 									</div>
 
-									<div className="settings-button" onClick={() => {
-										setShowSettingsPopup(!showSettingsPopup)
-									}}>
-										<Icon name="faCog" color='grey' />
+									<div className='config-buttons-bar'>
+										<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
+											<Icon2 name="puzzle-piece" />
+										</div>
+										<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
+											<Icon2 name="cog" />
+										</div>
 									</div>
 
 									{
-										showSettingsPopup &&
+										configPopup === "plugins-marketplace" &&
+										<PluginsMarketplacePopup onClose={() => {
+											setConfigPopup(null)
+										}} />
+									}
+									{
+										configPopup === "settings" &&
 										<SettingsPopup onClose={() => {
-											setShowSettingsPopup(false)
+											setConfigPopup(null)
 										}} />
 									}
 

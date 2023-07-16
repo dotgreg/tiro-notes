@@ -44,6 +44,7 @@ import { styleCodeMirrorMarkdownPreviewPlugin } from '../codeMirror/markdownPrev
 import { ressourcePreviewSimpleCss } from '../../components/RessourcePreview.component';
 import { noteLinkCss } from '../codeMirror/noteLink.plugin.cm';
 import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
+import { pluginsMarketplacePopupCss } from '../../components/settingsView/pluginsMarketplacePopup.component';
 
 
 export const css2 = (css: string) => css
@@ -114,6 +115,7 @@ export const CssApp2 = (
 		${contentBlockCss()}
 
 		${settingsPopupCss()}
+		${pluginsMarketplacePopupCss()}
 
 		${lastNotesCss()}
 		${shortcutCompCss()}
@@ -148,19 +150,36 @@ export const CssApp2 = (
 				${newFileButtonCss()}
 
 				&.device-view-mobile {
-						.settings-button {
+						.config-buttons-bar {
 								bottom: 60px;
 						}
 
 				}
-				.settings-button {
-						cursor: pointer;
-						position: fixed;
-						bottom: 10px;
-						left: 10px;
-						z-index: 11;
-				}
 
+				.config-buttons-bar {
+					position: fixed;
+					bottom: 10px;
+					left: 10px;
+					z-index: 11;
+
+					.config-button {
+						// margin-top: 10px;
+						opacity: 0.6;
+						transition: 0.2s all; 
+						padding: 5px;
+						cursor: pointer;
+						&:hover {
+							opacity: 1;
+						}
+					}
+					.plugins-marketplace-button {
+
+					}
+					.settings-button {
+						
+					}
+				}
+				 
 
 
 				&.without-sidebar.device-view-desktop {
