@@ -83,6 +83,7 @@ export type iUserSettingName =
 'users_viewer_user_password' |
 
 'server_activity_logging_enable' |
+'plugins_marketplace_url' |
 
 'demo_mode_enable' |
 
