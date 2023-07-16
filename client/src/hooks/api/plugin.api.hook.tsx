@@ -1,12 +1,26 @@
-import { sortBy } from "lodash"
+import { each, isArray, sortBy } from "lodash"
 import { useEffect } from "react"
 import { sharedConfig } from "../../../../shared/shared.config"
 import { iPlugin, iPluginType } from "../../../../shared/types.shared"
+import { notifLog } from "../../managers/devCli.manager"
 import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { getLoginToken } from "../app/loginToken.hook"
 import { genIdReq, getApi, iApiEventBus } from "./api.hook"
 
 const h = `[PLUGINS]`
+type iPluginVersion = {
+	version:string
+	date: string
+	comment?: string
+	hash: string
+}
+type iPluginDescription = {
+	name: string
+	description: string
+	images?: string[]
+	versions: iPluginVersion[]
+}
+
 export interface iPluginsApi {
 	list: (
 		cb: (plugins: iPlugin[], scanLog:string[]) => void,
@@ -14,13 +28,21 @@ export interface iPluginsApi {
 			noCache?: boolean,
 		}
 	) => void,
+
 	get: (
 		pluginName:string, 
 		pluginType:iPluginType, 
 		cb:(plugin:iPlugin|null) => void
 	) => void,
+
 	cronCache: {
 		set: (pluginBgName:string, state: any) => void
+	},
+
+	marketplace: {
+		fetchList: (
+			cb:(pluginDescriptions: iPluginDescription[]) => void
+		) => void
 	}
 }
 
@@ -95,6 +117,44 @@ export const usePluginsApi = (p: {
 		})
 	}
 
+	//
+	// MARKETPLACE
+	//
+	
+	const fetchMarketPlaceList:iPluginsApi['marketplace']['fetchList'] = cb => {
+		getApi(api => {
+			let mktUrl = api.userSettings.get("plugins_marketplace_url")
+			let errorStr = `${h} api.plugins.marketplace.fetchList error for url: ${mktUrl} :`
+			api.ressource.fetch(mktUrl, (content) => {
+				try {
+					let list:any = JSON.parse(content)
+					const pluginsDescriptions:iPluginDescription[] = []
+					if (isArray(list)) {
+						each(list, pluginDescRaw => {
+							let nPluginDescription:iPluginDescription = {
+								name: "",
+								description: "",
+								versions: []
+							}
+							if (pluginDescRaw.name) nPluginDescription.name = pluginDescRaw.name
+							if (pluginDescRaw.description) nPluginDescription.description = pluginDescRaw.description
+							if (pluginDescRaw.versions) nPluginDescription.versions = pluginDescRaw.versions
+							if (pluginDescRaw.images) nPluginDescription.images = pluginDescRaw.images
+
+							if (nPluginDescription.name === "") return
+							pluginsDescriptions.push(nPluginDescription)
+						})
+						cb(pluginsDescriptions)
+					} else {
+						notifLog(`${errorStr}: did not find a plugin list`)
+					}
+				} catch (error) {
+					notifLog(`${errorStr} ${JSON.stringify(error)}, url: ${mktUrl}`)
+				}
+			})
+		})
+	}
+
 
 	//
 	// EXPORTS
@@ -104,6 +164,9 @@ export const usePluginsApi = (p: {
 		get: getPlugin,
 		cronCache: {
 			set: setCronVars
+		},
+		marketplace: {
+			fetchList: fetchMarketPlaceList
 		}
 	}
 
