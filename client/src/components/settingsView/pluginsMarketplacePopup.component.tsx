@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { getApi } from '../../hooks/api/api.hook';
+import { iPluginDescription } from '../../hooks/api/plugin.api.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Popup } from '../Popup.component';
 
@@ -6,6 +8,14 @@ export const PluginsMarketplacePopup = (p: {
 	onClose: Function
 }) => {
 
+	const [pluginsDescriptions, setpluginsDescriptions] = useState<iPluginDescription[]>([])
+	useEffect(() => {
+		getApi(api => {
+			api.plugins.marketplace.fetchList(list => {
+				setpluginsDescriptions(list)
+			})
+		})
+	}, [])
 
 
 	return (
@@ -16,6 +26,14 @@ export const PluginsMarketplacePopup = (p: {
 					p.onClose()
 				}}
 			>
+				{
+					pluginsDescriptions.map(p => 
+						<>
+						<div>{p.name}</div>
+						<div>{p.description}</div>
+						</>
+					)
+				}
 
 			</Popup >
 		</div >
