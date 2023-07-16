@@ -12,6 +12,7 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { disconnectUser } from '../../hooks/app/loginToken.hook';
 import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
+import { devCliExecFn } from '../../managers/devCli.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -213,6 +214,18 @@ export const SettingsPopup = (p: {
 						var: us.get('plugins_marketplace_url'),
 						modifier: val => { us.set('plugins_marketplace_url', val) }
 					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> Clean Plugins Cache </button>`,
+						title: "Clean Plugins Cache",
+						readOnly: true,
+						expl: `Clean Plugins Cache`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							devCliExecFn("cache", "clean_cache")
+						}
+					}
 				]
 			},
 			{

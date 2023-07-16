@@ -412,5 +412,6 @@ devCliAddFn("cache", "clean_cache", () => {
 		api.folders.delete("cache", "ctag-ressources")
 		api.ressource.cleanCache()
 		api.cache.cleanRamCache()
+		notifLog("Cache cleaned successfully")
 	})
 })
