@@ -6,7 +6,7 @@
     "scripts": {
         "================== SUPPORT =================== ": "",
         "__INSTALL__": "",
-        "install-all": "run-p install-client install-server",
+        "install-all": "run-p install-client install-server site/install",
         "install-client": "npm run --prefix ./client install-all",
         "install-server": "npm run --prefix ./server install-all",
         "__REGENERATE ICONS FOR ELECTRON__": "",
@@ -38,25 +38,33 @@
         "publish-cli-dev": "cd ./platforms/npm-cli-module; npm run build-then-publish-dev;",
 
         "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
-        "================== BLOG =================== ": "",
-				"site/dev": "run-p docs/dev blog/dev",
+        "================== WEBSITE & MARKETPLACE & BLOG GENERATOR =================== ": "",
+        "site/dev": "run-p docs/dev blog/dev",
+        "site/install": "run-p marketplace/install docs/install blog/install",
 
+        "site/build": "run-s export-readme blog/build docs/build",
         "site/update": "run-s site/pull site/build site/push",
-        "site/build": "run-s export-readme blog/build build-docs",
         "site/pull": "git checkout master; git pull origin master",
-    "site/push": "git add .; git commit -m 'updating blog+docs'; git push origin master",
+        "site/push": "git add .; git commit -m 'updating blog+docs'; git push origin master",
+        
+        "marketplace/dev": "npm run --prefix ./docs/_marketplace_generator dev",
+        "marketplace/build": "npm run --prefix ./docs/_marketplace_generator build",
+        "marketplace/install": "npm --prefix ./docs/_marketplace_generator install",
 
         "docs/dev": "npx docsify serve docs",
+        "docs/build": "npm run --prefix ./docs/_website_generator build",
+        "docs/install": "npm --prefix ./docs/_website_generator install",
 
         "blog/build": "npm run --prefix ./docs/_eleventy_blog_system build",
         "blog/dev": "npm run --prefix ./docs/_eleventy_blog_system start",
         "blog/serve-int": "npx http-server ./docs/blog",
         "blog/serve": "run-s blog/build blog/serve-int",
         "blog/update": "run-s site/pull blog/build site/push",
+        "blog/install": "npm --prefix ./docs/_eleventy_blog_system install",
 
         "================== NODE BUILD =================== ": "",
         "build": "CI=false npm run build-then-export",
-        "build-then-export": "run-s create-build-folders build-client build-server blog/build build-docs clean-prev-build export-the-build copy-build-to-electron-folder",
+        "build-then-export": "run-s create-build-folders build-client build-server site/build clean-prev-build export-the-build copy-build-to-electron-folder",
         "build-export-to-binaries": "run-s build-export build-binaries",
         "build-export-client": "run-s create-build-folders build-client clean-client export-client",
         "build-export-server": "run-s create-build-folders build-server clean-server nxport-server",
@@ -64,7 +72,7 @@
         "create-build-folders": "npx mkdirp ./build ./build/client ./build/server",
         "build-client": "npm run --prefix ./client install-clean-build",
         "build-server": "npm run --prefix ./server install-clean-build",
-        "build-docs": "npm run --prefix ./docs/generator build",
+        
         "===____2_CLEAN_PREV_BUILD__": "",
         "clean-prev-build": "run-s clean-server clean-client clean-else",
         "clean-server": "rm -r ./build/server &",

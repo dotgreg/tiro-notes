@@ -5,9 +5,6 @@
 		"main": "index.js",
 		"scripts": {
 				"test": "echo \"Error: no test specified\" && exit 1",
-				"============== ___MARKETPLACE_GENERATOR__": "",
-				"marketplace/gen": "ts-node marketplace.ts",
-				"marketplace/dev": "nodemon  --exec node --inspect -r ts-node/register marketplace.ts",
 
 				"============ 1___JSON_GEN_STAGE__": "",
 				"gen-json-iframe-api": "npx typedoc --tsconfig ../../client/tsconfig.json --json iframe-api.json ../../client/src/managers/iframe.manager.ts",
