@@ -267,7 +267,9 @@ export const App = () => {
 	}
 
 	// Show settings panel
-	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(null)
+	let debugConfig:any = "plugins-marketplace"
+	// let debugConfig = null
+	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(debugConfig)
 
 
 	// LIGHTBOX SYSTEM

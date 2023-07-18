@@ -151,7 +151,7 @@ export const usePluginsApi = (p: {
 				} catch (error) {
 					notifLog(`${errorStr} ${JSON.stringify(error)}, url: ${mktUrl}`)
 				}
-			})
+			}, {disableCache:true})
 		})
 	}
 

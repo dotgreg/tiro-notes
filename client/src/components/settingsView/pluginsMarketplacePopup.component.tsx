@@ -1,23 +1,36 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { getApi } from '../../hooks/api/api.hook';
 import { iPluginDescription } from '../../hooks/api/plugin.api.hook';
-import { cssVars } from '../../managers/style/vars.style.manager';
 import { Popup } from '../Popup.component';
+
+// import mecanism of function working both in simple html docs site + inside tiro
+import './generatePluginsMarketplaceHtml.js';
+//@ts-ignore
+const generatePluginsMarketplaceHtml = window._tiro_generatePluginsMarketplaceHtml ? window._tiro_generatePluginsMarketplaceHtml : () => {}
+
+
 
 export const PluginsMarketplacePopup = (p: {
 	onClose: Function
 }) => {
 
 	const [pluginsDescriptions, setpluginsDescriptions] = useState<iPluginDescription[]>([])
+	const [html, setHtml] = useState<string>("")
 	useEffect(() => {
 		getApi(api => {
-			api.plugins.marketplace.fetchList(list => {
-				setpluginsDescriptions(list)
+			api.plugins.marketplace.fetchList(nDescrs => {
+				setpluginsDescriptions(nDescrs)
+				let nhtml = generatePluginsMarketplaceHtml({
+					pluginsDescriptions:nDescrs,
+					onPluginClick: (plugin) => {console.log("woooop", plugin)}
+				})
+				setHtml(nhtml)
 			})
 		})
 	}, [])
 
 
+	
 	return (
 		<div className="plugins-marketplace-popup-wrapper">
 			<Popup
@@ -26,13 +39,16 @@ export const PluginsMarketplacePopup = (p: {
 					p.onClose()
 				}}
 			>
-				{
-					pluginsDescriptions.map(p => 
-						<>
-						<div>{p.name}</div>
-						<div>{p.description}</div>
-						</>
-					)
+				{pluginsDescriptions.length > 0 &&
+					<div 
+						id="plugin-marketplace-placeholder" 
+						dangerouslySetInnerHTML={{__html: html}}
+					/>
+				}
+				{pluginsDescriptions.length === 0 &&
+					<div className="plugins-list-loading">
+						loading...
+					</div>
 				}
 
 			</Popup >
@@ -40,112 +56,46 @@ export const PluginsMarketplacePopup = (p: {
 	)
 }
 
+const PluginMarketItem = (p:{
+	pluginDescription: iPluginDescription
+}) => {
+	const plugin = p.pluginDescription
+	const imagePlaceholder = ""
+	const firstImage = (plugin.images && plugin.images[0]) ? plugin.images[0] : imagePlaceholder
+	return (
+		<div className="plugin-item-wrapper">
+			<div className="plugin-item-content">
+				<div className="plugin-item-title">{plugin.name}</div>
+				<div className="plugin-item-description">{plugin.description}</div>
+			</div>
+			<div 
+				className="plugin-item-image" 
+				style={{
+					backgroundImage: `url('${firstImage}')`
+				}}
+			></div>
+		</div>
+	)
+}
+
 export const pluginsMarketplacePopupCss = () => `
 .device-view-mobile {
 	.plugins-marketplace-popup-wrapper .popup-wrapper .popupContent {
-				width: 80vw;
-				.field-wrapper {
-						display: block;
-						.explanation {
-								width: 100%;
-								padding: 5px 0px;
-						}
-						input {
-						}
-				}
+		width: 80vw;
+	}
+}
 
-		}
+.plugins-list-loading {
+	padding: 60px;
 }
 
 .plugins-marketplace-popup-wrapper .popup-wrapper .popupContent {
     padding: 0px 20px;
-		width: 50vw;
-		min-height: 50vh;
-		max-height: 70vh;
-		overflow-y: scroll;
-
-}
-
-.plugins-marketplace-panel {
-
-		h3 {
-				cursor: pointer;
-				text-transform: uppercase;
-				.arrow {
-						display: inline-block;
-						font-size: 7px;
-						position: relative;
-						bottom: 2px;
-						margin-right: 10px;
-				}
-		}
-		.fields-wrapper {
-				display: none;
-				&.active {
-						display: block;
-						display: block;
-						padding: 12px 12px 0px 12px;
-						background: ${cssVars.colors.bgPopup2};
-						border-radius: 5px;
-						border: 1px ${cssVars.colors.bgPopup3} solid;
-						margin-top: 10px;
-				}
-				.field-wrapper {
-						display: flex;
-						padding-bottom: 11px;
-						align-items: center;
-						// 3 EXPLANATION
-						.explanation {
-							// width: 50%;
-						}
-						.input-and-html-wrapper {
-							display: flex;
-							width: 300px;
-							.input-component {
-								// 1 TITLE
-								span {
-									width: 100px;
-								}
-								// 2 INPUT
-								.input-wrapper {
-									width: 200px;
-								}
-								display: flex;
-								justify-content: space-evenly;
-								padding: 0px;
-								input {
-										font-size: 10px;
-								}
-							}
-							.custom-html-wrapper {
-									margin-left: 20px;
-									.qrcode-wrapper {
-											img {
-													margin: 5px 25px 0px 0px;
-													cursor: pointer;
-													width: 50px;
-													&:hover {
-															//	width: 150px;
-													}
-											}
-									}
-							}
-						}
-						
-				}
-		}
-
+	width: 50vw;
+	min-height: 50vh;
+	max-height: 70vh;
+	overflow-y: scroll;
 }
 
 
-
-
-.buttons {
-    display: flex;
-    padding: 20px 0px 0px 0px;
-    button {
-        width: 30%;
-        padding: 10px;
-    }
-}
 `

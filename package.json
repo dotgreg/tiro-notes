@@ -40,19 +40,23 @@
         "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
 
         "================== WEBSITE & MARKETPLACE & BLOG GENERATOR =================== ": "",
-        "site/dev": "run-p docs/dev blog/dev",
-        "site/install": "run-p marketplace/install docs/install blog/install",
+        "site/dev": "run-p marketplace/build docs/dev blog/dev",
+        "site/install": "run-p marketplace-json/install docs/install blog/install",
 
         "site/build": "run-s export-readme blog/build docs/build marketplace/build",
         "site/update": "run-s site/pull site/build site/push",
         "site/pull": "git checkout master; git pull origin master",
         "site/push": "git add .; git commit -m 'updating blog+docs'; git push origin master",
         
-        "marketplace/dev": "npm run --prefix ./docs/_marketplace_generator dev",
-        "marketplace/build": "npm run --prefix ./docs/_marketplace_generator build",
-        "marketplace/install": "npm --prefix ./docs/_marketplace_generator install",
+        "marketplace/build": "run-s marketplace-json/build marketplace-html/build",
+        "marketplace-html/build": "cp ./client/src/components/settingsView/generatePluginsMarketplaceHtml.js ./docs/_plugin_marketplace_html/_automaticgen_generatePluginsMarketplaceHtml.js",
+        "marketplace-json/dev": "npm run --prefix ./docs/_marketplace_generator dev",
+        "marketplace-json/build": "run-s marketplace-json/build-int marketplace-json/copy-json-to-plugins-folder",
+        "marketplace-json/build-int": "npm run --prefix ./docs/_marketplace_generator build",
+        "marketplace-json/copy-json-to-plugins-folder": "cp ./docs/marketplace.json ./plugins/marketplace.json",
+        "marketplace-json/install": "npm --prefix ./docs/_marketplace_generator install",
 
-        "docs/dev": "npx docsify serve docs",
+        "docs/dev": "npx docsify-cli serve docs",
         "docs/build": "npm run --prefix ./docs/_website_generator build",
         "docs/install": "npm --prefix ./docs/_website_generator install",
 
