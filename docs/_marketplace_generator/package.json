@@ -6,8 +6,8 @@
 		"scripts": {
 				"test": "echo \"Error: no test specified\" && exit 1",
 				"============== ___MARKETPLACE_GENERATOR__": "",
-				"build": "ts-node marketplace.ts",
-				"dev": "nodemon  --exec node --inspect -r ts-node/register marketplace.ts"
+				"build": "ts-node marketplace-json-generator.ts",
+				"dev": "nodemon  --exec node --inspect -r ts-node/register marketplace-json-generator.ts"
 		},
 		"devDependencies": {
 				"@types/node": "^17.0.45",

@@ -159,7 +159,7 @@ export const CssApp2 = (
 				.config-buttons-bar {
 					position: fixed;
 					bottom: 10px;
-					left: 10px;
+					left: 3px;
 					z-index: 11;
 
 					.config-button {

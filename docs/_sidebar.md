@@ -8,6 +8,7 @@
 	- [Downloads](downloads.md)
 	- [Screenshots](screenshots.md)
 	- [Available Custom Tags](custom-tags.md)
+	- [Plugins](plugins.md)
 	- [FAQ](faq.md)
 - Guide
 	- [Creating \[\[Custom Tags\]\]](guide-custom-tags.md)
