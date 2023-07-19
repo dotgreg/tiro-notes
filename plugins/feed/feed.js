@@ -773,58 +773,111 @@ const feedApp = (innerTagStr, opts) => {
 								} 
 						}
 
+						//
+						// filter bar system
+						//
+						const [showBar, setShowBar] = React.useState(false)
+						const toggleBar = () => {
+								setShowBar(!showBar)
+						}
+
+						const [filterBarList, setFilterBarList] = React.useState([])
+						React.useEffect(() => {
+							const isActive = (type, val, activeVal, activeVal2) => {
+								let res = ""
+								if (type === "cat" && val === activeVal) res = "active" 
+								if (type === "feed" && val === activeVal) res = "active" 
+								if (type === "all" && activeVal === null && activeVal2 === null) res = "active" 
+								return res
+							}
+							const nfilterBarList = []
+							nfilterBarList.push({label: "-- all", value: "all", active:isActive("all", "", activeCat, activeFeed)})
+							nfilterBarList.push({label: "-- bookmarks", value: "bookmarks", active:isActive("cat", "bookmarks", activeFeed)})
+							nfilterBarList.push({label: "-- categories -- ", value: "bookmarks"})
+							categories.map(cat =>
+								nfilterBarList.push({label: cat, value: `cat-${cat}`, active:isActive("cat", cat, activeCat)})
+							),
+							nfilterBarList.push({label: "-- feeds -- "})
+							feeds.map(feed =>
+								nfilterBarList.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+							)
+							setFilterBarList(nfilterBarList)
+						}, [categories, feeds, activeFeed, activeCat])
+
+						//
+						// ON SELECT CHANGE
+						//
+						const onFilterChange = (filterId) => {
+							
+								if (filterId === "all") {
+										setActiveFeed(null)
+										setActiveCat(null)
+								} else if (filterId.startsWith("feed-")) {
+										let v = filterId.replace("feed-", "")
+										setActiveFeed(v)
+										setActiveCat(null)
+								}
+								else if (filterId.startsWith("cat-")) {
+										let v = filterId.replace("cat-", "")
+										setActiveFeed(null)
+										setActiveCat(v)
+								} else if (filterId === "bookmarks") {
+										setActiveFeed(filterId)
+								}
+						}
+						
+
 						return (
 								c('div', { className: "feed-app-wrapper" }, [
+									
+									
 
-										c('div', { className: `filter-input-wrapper` }, [
-										]),
-										c('div', { className: `filter-list-wrapper` }, [
+									//
+									// TOP FILTER BAR
+									//
+
+									c('div', { className: `top-wrapper` }, [
+										c('div', { className: `filters-top-wrapper` }, [
+
 												// FEEDS
-												c('select', {
-														onChange: e => {
-																let val = e.target.value
-																if (val === "all") {
-																		setActiveFeed(null)
-																		setActiveCat(null)
-																} else if (val.startsWith("feed-")) {
-																		let v = val.replace("feed-", "")
-																		setActiveFeed(v)
-																		setActiveCat(null)
-																}
-																else if (val.startsWith("cat-")) {
-																		let v = val.replace("cat-", "")
-																		setActiveFeed(null)
-																		setActiveCat(v)
-																} else if (val === "bookmarks") {
-																		setActiveFeed(val)
-																}
-														}
-												}, [
-														c('option', { value: "all" }, [`-- all`]),
-														c('option', { value: "bookmarks" }, [`-- bookmarks`]),
-														c('option', { value: "all" }, [`-- categories -- `]),
-														categories.map(cat =>
-																c('option', { value: `cat-${cat}` }, [`${cat}`])
-														),
-														c('option', { value: "all" }, [`-- feeds -- `]),
-														feeds.map(feed =>
-																c('option', { value: `feed-${feed}` }, [`${feed}`])
-														)
-												]),
-
+												// c('select', {
+												// 		onChange: e => {
+												// 			let filterId = e.target.value
+												// 			onFilterChange(filterId)
+												// 		}
+												// }, [
+												// 		c('option', { value: "all" }, [`-- all`]),
+												// 		c('option', { value: "bookmarks" }, [`-- bookmarks`]),
+												// 		c('option', { value: "all" }, [`-- categories -- `]),
+												// 		categories.map(cat =>
+												// 				c('option', { value: `cat-${cat}` }, [`${cat}`])
+												// 		),
+												// 		c('option', { value: "all" }, [`-- feeds -- `]),
+												// 		feeds.map(feed =>
+												// 				c('option', { value: `feed-${feed}` }, [`${feed}`])
+												// 		)
+												// ]),
 												c('div', {
-														className: `filter-sort`,
+													className: `filter-bar-appear filter-toggle`,
+													onClick: () => { toggleBar() },
+													title: !showBar ? `show bar` : `hide bar`
+												}, [
+													!showBar ? c('div', {className: `fa fa-bars`}): c('div', {className: `fa fa-expand`})
+												]),
+												c('div', {
+														className: `filter-sort filter-toggle`,
 														onClick: () => { loopSort() },
 														title: sort === "date" ? `sorted by date` : `sorted randomly`
 												}, [
-														sort === "date" ? `⏱️️` : `🌀`
+														sort === "date" ? c('div', {className: `fa fa-random`}): c('div', {className: `fa fa-clock`})
 												]),
 												c('div', {
-														className: `filter-view`,
+														className: `filter-view filter-toggle`,
 														onClick: () => { toggleListView() }
 												}, [
-														listView === "list" ? `🖼️` : `📰`
+														listView === "list" ? c('div', {className: `fa fa-image`}): c('div', {className: `fa fa-list`})
 												]),
+												
 												c('input', {
 														className: `filter-input`,
 														onChange: e => {
@@ -832,73 +885,98 @@ const feedApp = (innerTagStr, opts) => {
 																setSearch(val)
 														}
 												}),
+												
 										]),
+									]),
+
+
 										status !== "" && c('div', {class: "status"}, [
 												status,
 										]),
-										c('div', { 
-												onScroll,
-												id:"infinite-scroll-wrapper",
-												className: `articles-list ${itemOpenClass} view-${listView} ${itemActive ? 'item-active-open' : ''}` 
-										}, 
-											[
-													c('div', {id:"infinite-scroll-inner",},[
+									
+									c('div', { className: `left-right-wrapper` }, [
+										//
+										// LEFT BAR FILTER
+										//
+										c('div', { className: `left-wrapper ${showBar ? "show" : "hidden"}` }, [
+											c('div', { className: `hide-scrollbar` }, [
+												c('div', { className: `filter-bar-left` }, [
+													filterBarList.map(filter =>
+															c('div', { 
+																className:`filter filter-${filter.value} ${filter.active}`, 
+																value: filter.value,
+																onClick: () => {
+																	let filterId = filter.value
+																	onFilterChange(filterId)
+																}
+															}, [`${filter.label}`])
+													),
+												]),
+											]),
+										]),
+										//
+										// RIGHT PANEL
+										//
+										c('div', { className: "right-wrapper"}, [
+											c('div', { className: "hide-scrollbar-right"}, [
+												c('div', { 
+														onScroll,
+														id:"infinite-scroll-wrapper",
+														className: `articles-list ${itemOpenClass} view-${listView} ${itemActive ? 'item-active-open' : ''}` 
+												}, 
+													[
+														c('div', {id:"infinite-scroll-inner",},[
 															// V1
 															infiniteScrollItems.map(item =>
-																	c('div', {
-																			className: `article-${listView}-item`,
-																			onClick: () => { setItemActive(item) }
-																	},
-																		[
+																c('div', {
+																	className: `article-${listView}-item`,
+																	onClick: () => { setItemActive(item) }
+																},
+																	[
 
-																				listView === "list" &&
-																						c('div', {
-																								className: "",
-																						}, [
-																								`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
-																						]),
-
-																				listView !== "list" &&
-																						c('div', {
-																								className: "",
-																						},
-																							[
-																									c('div', {
-																											className: "bg-item",
-																											style: {
-																													backgroundColor: item.bgColor,
-																													backgroundImage: "url(" + item.image + ")",
-																											}
-																									}),
-																									c('div', { className: "title-wrapper" }, [
-																											c('div', { className: "title" }, [item.title]),
-																											c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
-																									])
-																							]),
-																		]),
+																		listView === "list" &&
+																			c('div', {
+																					className: "",
+																			}, [
+																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
+																			]),
+																		listView !== "list" &&
+																			c('div', {
+																					className: "",
+																			},
+																			[
+																				c('div', {
+																						className: "bg-item",
+																						style: {
+																								backgroundColor: item.bgColor,
+																								backgroundImage: "url(" + item.image + ")",
+																						}
+																				}),
+																				c('div', { className: "title-wrapper" }, [
+																						c('div', { className: "title" }, [item.title]),
+																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
+																				])
+																			]),
+																	]
+																),
 															)
-															
-															// V2 TEST
-															// finalItems.map(item => 
-															// 		c('div', { className: "title" }, [item.title]),
-															// )
+														])
+													]
+												),
 
-															// V3 REACT WINDOW
-															//console.log(ReactWindow.)
-															// ReactWindowList(),
-													])
-											]),
-
-										itemActive && c(ArticleDetail, {
-												article: itemActive,
-												onClose: () => {
-														setItemActive(null)
-												},
-												onBookmarkToggle: () => {
-														doRefresh()
-												}
-										}, []),
-								])
+											itemActive && c(ArticleDetail, {
+													article: itemActive,
+													onClose: () => {
+															setItemActive(null)
+													},
+													onBookmarkToggle: () => {
+															doRefresh()
+													}
+											}, []),
+										]) // end right panel
+									]) // end hide scroll wrapper
+								]) // end left-right panel
+							])
 						);
 				}
 
@@ -931,6 +1009,7 @@ const feedApp = (innerTagStr, opts) => {
 				[
 						"https://unpkg.com/react@18/umd/react.production.min.js",
 						"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
+						"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
 						"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js",
 						...toLoad,
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.min.js"
@@ -958,6 +1037,12 @@ const feedApp = (innerTagStr, opts) => {
 		);
 
 		const styleFeed = `
+		
+		
+
+
+
+
 		h1:before, h2:before, h3:before, h4:before, h5:before, h6:before {
 			display: none;
 		}
@@ -996,6 +1081,8 @@ const feedApp = (innerTagStr, opts) => {
 				top: 0px;
 				box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
 		}
+
+		
 		@media screen and (max-width: 500px) {
 				.article-details-bg {
 						cursor: pointer;
@@ -1121,10 +1208,9 @@ const feedApp = (innerTagStr, opts) => {
 /* FILTER  */
 .filter-list-wrapper {
 		display: flex;
-		flex-direction: row;
 		padding-bottom: 5px;
-		padding-left: 55px;
-		width: 50%
+		padding-top: 5px;
+		width: 50%;
 }
 @media screen and (max-width: 500px) {
 		.filter-list-wrapper {
@@ -1136,28 +1222,87 @@ const feedApp = (innerTagStr, opts) => {
 }
 
 .filter-view {
-		margin-right: 3px;
-		cursor: pointer;
 }
 /*
 				LIST
 */
 .articles-list {
-		width: 100%;
-		overflow-x: hidden;
-		height: 100%;
-		overflow-y: scroll;
-		padding-bo
+	width: 100%;
+	overflow-x: hidden;
+	height: calc(100% + 20px);
+	overflow-y: scroll;
+	
 }
 
-/* list view  */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * 
+LIST
+*/
+.feed-app-wrapper {
+	padding-top: 37px;
+}
+
+.top-wrapper {
+	position: absolute;
+    right: 2px;
+	top: 4px;
+}
+.filters-top-wrapper {
+	display: flex;
+	align-items: center;
+}
+.left-right-wrapper {
+	display: flex;
+	height: 100%;
+}
+.left-wrapper {
+	height: 100%;
+	overflow:hidden;
+}
+.hide-scrollbar {
+	height: calc(100% - 40px);
+	overflow-y: auto;
+	min-width: 100px;
+	width: calc(100% + 18px);
+}
+.right-wrapper {
+	height: 100%;
+	width: 100%;
+}
+
+.hide-scrollbar-right {
+	height: 100%;
+	width: calc(100% + 18px);
+}
+
+/* * * * * * * * * * *
+LIST > LEFT WRAPPER  
+*/
+.left-wrapper.hidden {
+	display: none;
+}
+.left-wrapper .filter {
+	cursor:pointer;
+	padding-left: 7px;
+}
+.left-wrapper .filter:nth-child(even) {
+	background: #CCC;
+}
+.left-wrapper .filter:nth-child(odd) {
+    background: #e3e3e3;
+}
+
+.left-wrapper .filter.active {
+	font-weight: bold;
+}
+
+/* * * * * * * * * * *
+LIST > ARTICLES
+*/
+
 .articles-list.item-active-open {
 		width: calc(50% - 30px);
 }
 @media screen and (max-width: 500px) {
-		.articles-list {
-				width: 100%;
-		}
 }
 
 .article-list-item {
@@ -1180,12 +1325,20 @@ const feedApp = (innerTagStr, opts) => {
 		flex-wrap: wrap;
 		justify-content: center;
 }
+@media only screen and (hover: none) and (pointer: coarse) {
+	.articles-list.view-gallery #infinite-scroll-inner {
+		justify-content: left;
+	}
+}
+
 
 .article-gallery-item {
 		width: calc(50% - 20px);
-		max-width: 320px;
-		margin: 10px;
-		border-radius: 10px;
+		max-width: 310px;
+		margin-left: 10px;
+		margin-top: 0px;
+		margin-bottom: 10px;
+		border-radius: 7px;
 		overflow: hidden;
 		position: relative;
 		cursor: pointer;
@@ -1194,10 +1347,11 @@ const feedApp = (innerTagStr, opts) => {
 
 .article-gallery-item .meta  {
 		position: absolute;
-		bottom: 2px;
+		bottom: 3px;
 		color: #ffffff7d;
 		font-size: 9px;
 		margin-left: 11px;
+		line-height: normal;
 }
 .article-gallery-item .title-wrapper  {
 }
@@ -1211,13 +1365,13 @@ const feedApp = (innerTagStr, opts) => {
 		word-break: break-word;
 		width: calc(100% - 20px);
 		bottom: 0px;
-		font-size: 12px;
+		font-size: 11px;
 		font-weight: 800;
 		color: #d7d6d6;
 		background: linear-gradient(to top, #000, #0000);
 		padding-top: 110px;
-		padding-bottom: 17px;
-		line-height: 14px;
+		padding-bottom: 24px;
+		line-height: 12px;
 }
 .article-gallery-item .bg-item {
 		width: 100%;
@@ -1232,14 +1386,19 @@ const feedApp = (innerTagStr, opts) => {
 
 
 
-
+.filter-toggle {
+	cursor: pointer;
+	padding: 7px;
+    padding-top: 5px;
+}
 
 .filter-input {
-		width: 30%;
-		margin-right: 10px;
+		margin-left: 15px;
+		width: 120px;
 		border: 0px;
-		box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+		box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);
 		border-radius: 5px;
+		padding: 3px 4px;
 }
 .audio-wrapper audio {
 		width: 100%;
@@ -1248,12 +1407,8 @@ const feedApp = (innerTagStr, opts) => {
 		width: 100%;
 }
 .filter-input {
-		margin-left: 10px;
 }
 .filter-sort {
-		cursor: pointer;
-		padding-right: 10px;
-		padding-left: 10px;
 }
 
 .video-wrapper  {
@@ -1277,6 +1432,7 @@ const feedApp = (innerTagStr, opts) => {
 
 		return `
 <div id='root-react'></div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <style>
 ${styleFeed}
 </style>

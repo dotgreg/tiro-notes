@@ -267,8 +267,8 @@ export const App = () => {
 	}
 
 	// Show settings panel
-	let debugConfig:any = "plugins-marketplace"
-	// let debugConfig = null
+	// let debugConfig:any = "plugins-marketplace"
+	let debugConfig = null
 	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(debugConfig)
 
 
