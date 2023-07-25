@@ -1051,13 +1051,26 @@ const feedApp = (innerTagStr, opts) => {
 				}
 		);
 
+
+
+		function getOperatingSystem() {
+			const platform = navigator.platform.toLowerCase();
+			
+			if (platform.includes('mac')) {
+				return 'mac';
+			} else if (platform.includes('win')) {
+				return 'windows';
+			} else if (platform.includes('linux')) {
+				return 'linux';
+			} else if (platform.includes('android')) {
+				return 'android';
+			} else {
+				return 'other';
+			}
+		}
+
+
 		const styleFeed = `
-		
-		
-
-
-
-
 		h1:before, h2:before, h3:before, h4:before, h5:before, h6:before {
 			display: none;
 		}
@@ -1254,6 +1267,7 @@ LIST
 */
 .feed-app-wrapper {
 	padding-top: 37px;
+	width: calc(100% - ${getOperatingSystem() === "mac" ? 20 : 0}px);
 }
 
 .top-wrapper {
