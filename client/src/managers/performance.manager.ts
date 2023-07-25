@@ -1,15 +1,37 @@
+import { cloneDeep } from "lodash";
+import { getCookie, setCookie } from "./cookie.manager";
 import { devCliAddFn } from "./devCli.manager";
 
 const h = `[FRONT PERF]`
-let perfModeFront = {value: false}
+let perfMeasureModeFront = {value: false}
+
+const atInitRemoveConsole = () => {
+	let isLogEnabled = getCookie("tiroConsoleLogEnabled") === "true"
+	if (isLogEnabled) return
+	//@ts-ignore
+	window.console = {
+		warn:() => {},
+		error:() => {},
+		info:() => {},
+		log:() => {}
+	}
+}
+atInitRemoveConsole()
+
+devCliAddFn("log", "toggle_enable", () => {
+	let isLogEnabled = getCookie("tiroConsoleLogEnabled") === "true"
+	setCookie("tiroConsoleLogEnabled", isLogEnabled ? "false" : "true", 24 * 30)
+	window.location.reload()
+})
+
 devCliAddFn("performance", "toggle_monitoring", () => {
-	perfModeFront.value = !perfModeFront.value
-	console.log(h, `toggled to ${perfModeFront.value}`)
+	perfMeasureModeFront.value = !perfMeasureModeFront.value
+	console.log(h, `toggled to ${perfMeasureModeFront.value}`)
 })
 
 let pDic = {}
 export const perf = (id:string) => {
-	if (!perfModeFront.value) return () => {}
+	if (!perfMeasureModeFront.value) return () => {}
 	if (!pDic[id]) pDic[id] = []
 	pDic[id][0] = performance.now();
     const end = () => {

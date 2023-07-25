@@ -45,6 +45,8 @@ import { ressourcePreviewSimpleCss } from '../../components/RessourcePreview.com
 import { noteLinkCss } from '../codeMirror/noteLink.plugin.cm';
 import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
 import { pluginsMarketplacePopupCss } from '../../components/settingsView/pluginsMarketplacePopup.component';
+import { perf } from '../performance.manager';
+import { memoize, values } from 'lodash';
 
 
 export const css2 = (css: string) => css
@@ -52,12 +54,21 @@ export const css2 = (css: string) => css
 let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
-//export const CssApp2 = mem((a1, a2) => CssApp2Int(a1, a2))
 
-export const CssApp2 = (
+// const hist = {a1:null, a2:null}
+// export const forceCssAppUpdate = () => {
+// 	hist.a1 = null
+// 	hist.a2 = null
+// }
+export const CssApp2 = memoize((a1, a2) => {
+	return CssApp2Int(a1, a2)
+}, (...args) => values(args).join("_"))
+
+export const CssApp2Int = (
 	mobileView: iMobileView,
 	refreshCss: number
 ) => {
+	let end = perf("CssApp2"+mobileView+refreshCss)
 	const cssString = `
 
 		height:100%;
@@ -548,6 +559,6 @@ export const CssApp2 = (
 
 
 `//css
-
+end()
 	return css`${cssString}`
 }

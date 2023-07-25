@@ -95,7 +95,7 @@ export const useFileApi = (p: {
 	// 2. SET CONTENT
 	const lastNoteWHistory = useRef('');
 	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
-
+		// const end = perf("saveFileContent " + noteLink)
 		const history = (options && options.history) ? options.history : false
 		const withMetas = (options && options.withMetas) ? options.withMetas : true
 

@@ -71,7 +71,7 @@ export const App = () => {
 		initSocketConnexion().then(serverSocketConfig => {
 			toggleSocketConnection(true)
 			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
-
+			
 
 			getApi(api => { 
 				api.ui.browser.folders.refreshFromBackend() 
@@ -111,6 +111,10 @@ export const App = () => {
 	const onStartupAfterDataBootstrap = () => {
 		setTimeout(() => {
 			onStartupReactToUrlParams(setMobileView)
+
+			// refresh css
+			// setRefreshCssApp(refreshCssApp + 1)
+			// forceCssAppUpdate()
 		}, 300)
 	}
 
@@ -373,29 +377,17 @@ export const App = () => {
 	}, [filesHistory])
 
 	//
-	// URL SYSTEM
+	// URL SYSTEM (MOBILE ONLY)
 	//
 	useEffect(() => {
 		// URL system once the window update has spread
+		if (deviceType() !== "mobile") return
 		updateAppUrlFromActiveWindow(tabs, mobileView)
 	}, [tabs, mobileView])
-	// useEffect(() => {
-	// 	onLoadReactToUrlParams(setMobileView)
-	// }, [])
-
-	
-	//
-	// @TODO RESIZE2
-	//
-	// useEffect(() => {
-	// 	window.addEventListener('resize', () => {
-	// 		console.log(222222222, "resizeeeeeee")
-	// 		notifLog(`resize2 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize2")
-	// 	})
-	// }, [])
 
 	let rcnt = forceResponsiveRender ? 0 : 1
 	let cnt = api.userSettings.refresh.css.get + rcnt
+
 	return (
 		<div className={CssApp2(mobileView, cnt)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>

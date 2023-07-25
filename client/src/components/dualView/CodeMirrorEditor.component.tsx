@@ -220,7 +220,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		let infs = CodeMirrorUtils.getEditorInfos(f.view)
-		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
+		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight(), full: infs.contentHeight })
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
 
@@ -274,7 +274,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					},
 					wheel(event, view) {
 						let infs = CodeMirrorUtils.getEditorInfos(view)
-						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
+						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled())
 						p.onScroll()
 					}
 				})

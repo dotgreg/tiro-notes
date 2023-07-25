@@ -5,6 +5,11 @@
     "description": "Description of calendar",
     "versions": [
       {
+        "version": "0.1.3.5",
+        "date": "24/07/23",
+        "comment": "fix weekly_event bug"
+      },
+      {
         "version": "0.1.3",
         "date": "10/07/23",
         "comment": "isDev option added"
@@ -23,6 +28,31 @@
         "version": "0.1.0",
         "date": "24/06/23",
         "comment": "adaptation to plugin"
+      }
+    ],
+    "images": [],
+    "icon": null,
+    "configuration": []
+  },
+  {
+    "name": "feed",
+    "pluginPath": "/feed/feed.plugin.js",
+    "description": "Description of feed",
+    "versions": [
+      {
+        "version": "1.0.12",
+        "date": "25/07/23",
+        "comment": "adaptation to plugin"
+      },
+      {
+        "version": "1.0.10",
+        "date": "15/07/23",
+        "comment": "column dev + redesign"
+      },
+      {
+        "version": "1.0.9",
+        "date": "31/03/23",
+        "comment": "isDev option added"
       }
     ],
     "images": [],
