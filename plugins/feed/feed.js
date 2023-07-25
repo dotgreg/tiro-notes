@@ -302,13 +302,14 @@ const feedApp = (innerTagStr, opts) => {
 													nitems[j].bgColor = cColor
 													// IMAGE
 													let bgImage = g(nitems[j].thumbnail) ||
-																g(nitems[j].enclosure?.url) ||
+																g(nitems[j]["itunes:image"]?._attributes?.href)||
+																g(nitems[j]["media:thumbnail"]?._attributes?.url) ||
+																g(nitems[j]["media:content"]?._attributes?.url) ||
 																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
-																nitems[j]["media:thumbnail"]?._attributes?.url ||
-																nitems[j]["media:content"]?._attributes?.url ||
-																nitems[j]["itunes:image"]?._attributes?.href ||
-																nitems[j].image
+																g(nitems[j].image)
+													if (bgImage.endsWith("mp3") || bgImage.endsWith("xml")) bgImage = null
+													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
 													if (!bgImage) {
 														let contentAndDescription = nitems[j].description + nitems[j].content
 														// look for first image in content
@@ -1375,12 +1376,12 @@ LIST > ARTICLES
 }
 
 .article-gallery-item .meta  {
-		position: absolute;
-		bottom: 3px;
-		color: #ffffff7d;
-		font-size: 9px;
-		margin-left: 11px;
-		line-height: normal;
+	position: absolute;
+	bottom: 4px;
+	color: #ffffff7d;
+	font-size: 9px;
+	margin-left: 11px;
+	line-height: 10px;
 }
 .article-gallery-item .title-wrapper  {
 }
