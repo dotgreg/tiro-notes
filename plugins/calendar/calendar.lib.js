@@ -87,7 +87,7 @@ const getEventsList = (calNotePath, cb) => {
         // END EVENT PROCESS to duplicate
 
         
-        console.log(h, {events})
+        // console.log(h, {events})
         cb(events)
     })
 }

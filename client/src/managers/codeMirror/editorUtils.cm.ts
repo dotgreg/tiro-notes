@@ -9,6 +9,7 @@ import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror
 import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"
 
 import { regexs } from "../../../../shared/helpers/regexs.helper";
+import { perf } from "../performance.manager";
 
 
 const h = `[Code Mirror]`
@@ -27,17 +28,21 @@ const log = sharedConfig.client.log.verbose
 
 // const getEditorInfos = (cmView: any): iCodeMirrorInfos => {
 const getEditorInfos = (cmView: any) => {
+	// let end = perf("getperfinfs")
 	let view = cmView
 	let y = Math.round(view.viewState.pixelViewport.top)
-	let cblock = view.lineBlockAtHeight(y)
-	let visibleFirstLine = view.state.doc.lineAt(cblock.from).number
+	
+	let visibleFirstLine = () => {
+		let cblock = view.lineBlockAtHeight(y)
+		return view.state.doc.lineAt(cblock.from).number
+	}
+
 	let contentHeight = view.contentHeight
-	// console.log(view);
-	let viewportHeight = view.viewState.editorHeight
-	let percentPx = (contentHeight - viewportHeight) / 100
+	let viewportHeight = () => view.viewState.editorHeight
+	let percentPx = () => (contentHeight - viewportHeight()) / 100
 
-	let currentPercentScrolled = view.viewState.pixelViewport.top / percentPx
-
+	let currentPercentScrolled = () => view.viewState.pixelViewport.top / percentPx()
+	// end()
 	return {
 		viewportHeight,
 		contentHeight,

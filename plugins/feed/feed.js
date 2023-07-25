@@ -7,7 +7,6 @@ const feedApp = (innerTagStr, opts) => {
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
-		// VERSION 1.0.9 31/03/23`
 		const h = `[CTAG FEED]`
 
 		//@ts-ignore
@@ -278,8 +277,14 @@ const feedApp = (innerTagStr, opts) => {
 													nitems[j].link = g(nitems[j].link) || g(nitems[j].enclosure?.link) || ""
 													// in case of reddit, look for link inside the content
 													if (nitems[j].link === "") {
-															let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
+															let contentAndDescription = nitems[j].description + nitems[j].content
+															let reddit = contentAndDescription.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
 															if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
+															else {
+																let linkInContent = contentAndDescription.match(/href=['"]([^'">]+)['"]/i)
+																if (nitems[j].sourceFeed.includes("lix"))console.log(123333, nitems[j].sourceFeed, linkInContent, contentAndDescription)
+																if (linkInContent && linkInContent[1]) nitems[j].link =  linkInContent[1]
+															}
 													}
 
 
@@ -297,12 +302,24 @@ const feedApp = (innerTagStr, opts) => {
 													const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
 													nitems[j].bgColor = cColor
 													// IMAGE
-													const bgImage = g(nitems[j].thumbnail) ||
+													let bgImage = g(nitems[j].thumbnail) ||
+																g(nitems[j].enclosure?.url) ||
+																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
 																nitems[j]["media:thumbnail"]?._attributes?.url ||
 																nitems[j]["media:content"]?._attributes?.url ||
 																nitems[j]["itunes:image"]?._attributes?.href ||
 																nitems[j].image
+													if (!bgImage) {
+														let contentAndDescription = nitems[j].description + nitems[j].content
+														// look for first image in content
+														let imageInContent = contentAndDescription.match(/src=['"]([^'"]+)['"][^>]/i)
+														if (imageInContent && imageInContent[1]) bgImage =  imageInContent[1]
+													}
+													if (nitems[j].enclosure) {
+														// console.log(123333, nitems[j].enclosure)
+													}
+													
 													nitems[j].image = bgImage
 													// ENCLOSURE
 													if (!nitems[j].enclosure) nitems[j].enclosure = {}

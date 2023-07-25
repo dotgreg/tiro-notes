@@ -55,6 +55,10 @@ const disableCachePlugins = () => {
 	cachedPlugins.dict = {}
 }
 
+const backendStateOmni = {
+	hasBeenLoaded: false
+}
+
 export const OmniBar = (p: {
 	show: boolean
 	onClose: Function
@@ -677,7 +681,9 @@ export const OmniBar = (p: {
 
 	}
 	useEffect(() => {
+		if (backendStateOmni.hasBeenLoaded) return
 		refreshOmniHistFromBackend()
+		backendStateOmni.hasBeenLoaded = true
 	}, [])
 
 	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
@@ -686,6 +692,7 @@ export const OmniBar = (p: {
 		return omniHistoryInt
 	}
 	const addToOmniHistory = (options:iOptionOmniBar[]) => {
+		console.log("addToOmniHistory")
 		let labels:string[] = []
 		each(options, o => {labels.push(o.label)})
 		const id = labels.join(" ")
