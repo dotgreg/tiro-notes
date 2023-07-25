@@ -282,7 +282,6 @@ const feedApp = (innerTagStr, opts) => {
 															if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
 															else {
 																let linkInContent = contentAndDescription.match(/href=['"]([^'">]+)['"]/i)
-																if (nitems[j].sourceFeed.includes("lix"))console.log(123333, nitems[j].sourceFeed, linkInContent, contentAndDescription)
 																if (linkInContent && linkInContent[1]) nitems[j].link =  linkInContent[1]
 															}
 													}
@@ -317,7 +316,6 @@ const feedApp = (innerTagStr, opts) => {
 														if (imageInContent && imageInContent[1]) bgImage =  imageInContent[1]
 													}
 													if (nitems[j].enclosure) {
-														// console.log(123333, nitems[j].enclosure)
 													}
 													
 													nitems[j].image = bgImage
