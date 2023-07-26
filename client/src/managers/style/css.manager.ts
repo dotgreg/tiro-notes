@@ -47,6 +47,7 @@ import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
 import { pluginsMarketplacePopupCss } from '../../components/settingsView/pluginsMarketplacePopup.component';
 import { perf } from '../performance.manager';
 import { memoize, values } from 'lodash';
+import { iUserSettingsApi } from '../../hooks/useUserSettings.hook';
 
 
 export const css2 = (css: string) => css
@@ -60,13 +61,14 @@ const { els, colors, font, sizes } = { ...cssVars }
 // 	hist.a1 = null
 // 	hist.a2 = null
 // }
-export const CssApp2 = memoize((a1, a2) => {
-	return CssApp2Int(a1, a2)
+export const CssApp2 = memoize((a1, a2, a3) => {
+	return CssApp2Int(a1, a2, a3)
 }, (...args) => values(args).join("_"))
 
 export const CssApp2Int = (
 	mobileView: iMobileView,
-	refreshCss: number
+	refreshCss: number,
+	userSettings: iUserSettingsApi
 ) => {
 	let end = perf("CssApp2"+mobileView+refreshCss)
 	const cssString = `
@@ -136,7 +138,7 @@ export const CssApp2Int = (
 		${titleEditorCss()}
 
 		${PopupWrapperCss()}
-		${linksPreviewMdCss()}
+		${linksPreviewMdCss(userSettings)}
 		${ctagPreviewPluginCss()}
 
 		.main-wrapper {

@@ -183,6 +183,15 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
+						type: 'text',
+						title: "Links Preview Zoom",
+						expl: "Zoom of the link preview functionality (eye button, should be number between 0 and 1)",
+						var: us.get('ui_editor_links_preview_zoom'),
+						modifier: val => {
+							us.set('ui_editor_links_preview_zoom', val)
+						}
+					},
+					{
 						type: 'checkbox',
 						title: "Latex preview",
 						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$",

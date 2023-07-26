@@ -308,7 +308,7 @@ const feedApp = (innerTagStr, opts) => {
 																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
 																g(nitems[j].image)
-													if (bgImage.endsWith("mp3") || bgImage.endsWith("xml")) bgImage = null
+													if (bgImage && (bgImage.endsWith("mp3") || bgImage.endsWith("xml"))) bgImage = null
 													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
 													if (!bgImage) {
 														let contentAndDescription = nitems[j].description + nitems[j].content

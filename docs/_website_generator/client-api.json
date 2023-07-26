@@ -6483,13 +6483,13 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"name": "Array.__@iterator@742"
+										"name": "Array.__@iterator@40"
 									}
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "Array.__@iterator@742"
+								"name": "Array.__@iterator@40"
 							}
 						},
 						{
@@ -6683,13 +6683,13 @@
 									},
 									"inheritedFrom": {
 										"type": "reference",
-										"name": "Array.__@unscopables@812"
+										"name": "Array.__@unscopables@813"
 									}
 								}
 							],
 							"inheritedFrom": {
 								"type": "reference",
-								"name": "Array.__@unscopables@812"
+								"name": "Array.__@unscopables@813"
 							}
 						},
 						{
@@ -20501,7 +20501,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 163,
+									"line": 164,
 									"character": 1
 								}
 							],
@@ -20521,7 +20521,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 162,
+									"line": 163,
 									"character": 1
 								}
 							],
@@ -20541,7 +20541,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 167,
+									"line": 168,
 									"character": 1
 								}
 							],
@@ -20559,7 +20559,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 166,
+									"line": 167,
 									"character": 1
 								}
 							],
@@ -20579,7 +20579,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 165,
+									"line": 166,
 									"character": 1
 								}
 							],
@@ -20599,7 +20599,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 164,
+									"line": 165,
 									"character": 1
 								}
 							],
@@ -20617,7 +20617,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 159,
+									"line": 160,
 									"character": 1
 								}
 							],
@@ -20635,7 +20635,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 158,
+									"line": 159,
 									"character": 1
 								}
 							],
@@ -20654,7 +20654,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 161,
+									"line": 162,
 									"character": 1
 								}
 							],
@@ -20672,7 +20672,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 160,
+									"line": 161,
 									"character": 1
 								}
 							],
@@ -20703,7 +20703,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 157,
+							"line": 158,
 							"character": 17
 						}
 					]
@@ -21279,7 +21279,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 176,
+									"line": 177,
 									"character": 1
 								}
 							],
@@ -21300,7 +21300,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 179,
+									"line": 180,
 									"character": 1
 								}
 							],
@@ -21318,7 +21318,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 178,
+									"line": 179,
 									"character": 1
 								}
 							],
@@ -21336,7 +21336,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 177,
+									"line": 178,
 									"character": 1
 								}
 							],
@@ -21361,7 +21361,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 175,
+							"line": 176,
 							"character": 17
 						}
 					]
@@ -21382,7 +21382,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 155,
+									"line": 156,
 									"character": 1
 								}
 							],
@@ -21400,7 +21400,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 153,
+									"line": 154,
 									"character": 1
 								}
 							],
@@ -21420,7 +21420,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 154,
+									"line": 155,
 									"character": 1
 								}
 							],
@@ -21444,7 +21444,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 152,
+							"line": 153,
 							"character": 17
 						}
 					]
@@ -21801,7 +21801,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 195,
+									"line": 196,
 									"character": 1
 								}
 							],
@@ -21825,7 +21825,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 193,
+									"line": 194,
 									"character": 1
 								}
 							],
@@ -21845,7 +21845,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 194,
+									"line": 195,
 									"character": 1
 								}
 							],
@@ -21863,7 +21863,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 191,
+									"line": 192,
 									"character": 1
 								}
 							],
@@ -21881,7 +21881,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 192,
+									"line": 193,
 									"character": 1
 								}
 							],
@@ -21899,7 +21899,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 190,
+									"line": 191,
 									"character": 1
 								}
 							],
@@ -21926,7 +21926,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 189,
+							"line": 190,
 							"character": 17
 						}
 					]
@@ -22367,7 +22367,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 133,
+									"line": 134,
 									"character": 1
 								}
 							],
@@ -22389,7 +22389,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 132,
+									"line": 133,
 									"character": 1
 								}
 							],
@@ -22416,7 +22416,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 131,
+							"line": 132,
 							"character": 17
 						}
 					]
@@ -25841,7 +25841,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 149,
+									"line": 150,
 									"character": 1
 								}
 							],
@@ -25859,7 +25859,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 148,
+									"line": 149,
 									"character": 1
 								}
 							],
@@ -25877,7 +25877,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 147,
+									"line": 148,
 									"character": 1
 								}
 							],
@@ -25901,7 +25901,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 146,
+							"line": 147,
 							"character": 17
 						}
 					]
@@ -26402,7 +26402,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 139,
+									"line": 140,
 									"character": 1
 								}
 							],
@@ -26420,7 +26420,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 140,
+									"line": 141,
 									"character": 1
 								}
 							],
@@ -26439,7 +26439,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 137,
+									"line": 138,
 									"character": 1
 								}
 							],
@@ -26459,7 +26459,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 143,
+									"line": 144,
 									"character": 1
 								}
 							],
@@ -26477,7 +26477,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 138,
+									"line": 139,
 									"character": 1
 								}
 							],
@@ -26497,7 +26497,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 141,
+									"line": 142,
 									"character": 1
 								}
 							],
@@ -26517,7 +26517,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 142,
+									"line": 143,
 									"character": 1
 								}
 							],
@@ -26545,7 +26545,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 136,
+							"line": 137,
 							"character": 17
 						}
 					]
@@ -27551,7 +27551,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 126,
+									"line": 127,
 									"character": 1
 								}
 							],
@@ -27569,7 +27569,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 122,
+									"line": 123,
 									"character": 1
 								}
 							],
@@ -27587,7 +27587,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 128,
+									"line": 129,
 									"character": 1
 								}
 							],
@@ -27605,7 +27605,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 127,
+									"line": 128,
 									"character": 1
 								}
 							],
@@ -27625,7 +27625,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 129,
+									"line": 130,
 									"character": 1
 								}
 							],
@@ -27643,7 +27643,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 125,
+									"line": 126,
 									"character": 1
 								}
 							],
@@ -27661,7 +27661,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 123,
+									"line": 124,
 									"character": 1
 								}
 							],
@@ -27679,7 +27679,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 124,
+									"line": 125,
 									"character": 1
 								}
 							],
@@ -27708,7 +27708,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 121,
+							"line": 122,
 							"character": 17
 						}
 					]
@@ -27729,7 +27729,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 117,
+									"line": 118,
 									"character": 1
 								}
 							],
@@ -27749,7 +27749,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 116,
+									"line": 117,
 									"character": 1
 								}
 							],
@@ -27768,7 +27768,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 115,
+									"line": 116,
 									"character": 1
 								}
 							],
@@ -27786,7 +27786,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 118,
+									"line": 119,
 									"character": 1
 								}
 							],
@@ -27812,7 +27812,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 114,
+							"line": 115,
 							"character": 17
 						}
 					]
@@ -29781,7 +29781,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 182,
+							"line": 183,
 							"character": 12
 						}
 					],
@@ -30261,7 +30261,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 208,
+							"line": 209,
 							"character": 13
 						}
 					],
@@ -30285,7 +30285,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 209,
+											"line": 210,
 											"character": 2
 										}
 									],
@@ -30307,7 +30307,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 208,
+									"line": 209,
 									"character": 38
 								}
 							]
@@ -30415,7 +30415,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 108,
+							"line": 109,
 							"character": 12
 						}
 					],
@@ -30513,7 +30513,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 112,
+							"line": 113,
 							"character": 12
 						}
 					],
@@ -31279,7 +31279,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 98,
+							"line": 99,
 							"character": 12
 						}
 					],
@@ -31301,7 +31301,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 100,
+											"line": 101,
 											"character": 4
 										}
 									],
@@ -31319,7 +31319,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 99,
+											"line": 100,
 											"character": 4
 										}
 									],
@@ -31342,7 +31342,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 98,
+									"line": 99,
 									"character": 24
 								}
 							]
@@ -31358,7 +31358,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 103,
+							"line": 104,
 							"character": 12
 						}
 					],
@@ -31380,7 +31380,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 103,
+											"line": 104,
 											"character": 57
 										}
 									],
@@ -31398,7 +31398,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 103,
+											"line": 104,
 											"character": 24
 										}
 									],
@@ -31416,7 +31416,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 103,
+											"line": 104,
 											"character": 71
 										}
 									],
@@ -31435,7 +31435,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 103,
+											"line": 104,
 											"character": 38
 										}
 									],
@@ -31461,7 +31461,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 103,
+									"line": 104,
 									"character": 22
 								}
 							]
@@ -31603,7 +31603,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 93,
+							"line": 94,
 							"character": 12
 						}
 					],
@@ -31627,7 +31627,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 94,
+											"line": 95,
 											"character": 1
 										}
 									],
@@ -31647,7 +31647,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 95,
+											"line": 96,
 											"character": 1
 										}
 									],
@@ -31670,7 +31670,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 93,
+									"line": 94,
 									"character": 29
 								}
 							]
@@ -31686,7 +31686,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 92,
+							"line": 93,
 							"character": 12
 						}
 					],
@@ -32217,7 +32217,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 106,
+							"line": 107,
 							"character": 12
 						}
 					],
@@ -32232,7 +32232,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 106,
+									"line": 107,
 									"character": 29
 								}
 							],
@@ -32272,7 +32272,7 @@
 												"sources": [
 													{
 														"fileName": "shared/types.shared.ts",
-														"line": 106,
+														"line": 107,
 														"character": 53
 													}
 												],
@@ -32291,7 +32291,7 @@
 												"sources": [
 													{
 														"fileName": "shared/types.shared.ts",
-														"line": 106,
+														"line": 107,
 														"character": 66
 													}
 												],
@@ -32317,7 +32317,7 @@
 										"sources": [
 											{
 												"fileName": "shared/types.shared.ts",
-												"line": 106,
+												"line": 107,
 												"character": 51
 											}
 										]
@@ -32336,7 +32336,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 197,
+							"line": 198,
 							"character": 12
 						}
 					],
@@ -32673,7 +32673,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 205,
+							"line": 206,
 							"character": 13
 						}
 					],
@@ -32697,7 +32697,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 206,
+											"line": 207,
 											"character": 2
 										}
 									],
@@ -32719,7 +32719,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 205,
+									"line": 206,
 									"character": 37
 								}
 							]
@@ -32844,6 +32844,10 @@
 							{
 								"type": "literal",
 								"value": "ui_editor_links_as_button"
+							},
+							{
+								"type": "literal",
+								"value": "ui_editor_links_preview_zoom"
 							},
 							{
 								"type": "literal",
@@ -33361,7 +33365,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 110,
+							"line": 111,
 							"character": 12
 						}
 					],

@@ -112,9 +112,6 @@ export const App = () => {
 		setTimeout(() => {
 			onStartupReactToUrlParams(setMobileView)
 
-			// refresh css
-			// setRefreshCssApp(refreshCssApp + 1)
-			// forceCssAppUpdate()
 		}, 300)
 	}
 
@@ -387,9 +384,10 @@ export const App = () => {
 
 	let rcnt = forceResponsiveRender ? 0 : 1
 	let cnt = api.userSettings.refresh.css.get + rcnt
+	let usettings = api.userSettings
 
 	return (
-		<div className={CssApp2(mobileView, cnt)} >
+		<div className={CssApp2(mobileView, cnt, usettings)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>
 
 				{ /* API : making clientapi available everywhere */}
