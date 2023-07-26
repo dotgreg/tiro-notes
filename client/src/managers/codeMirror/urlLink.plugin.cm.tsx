@@ -11,6 +11,7 @@ import { genericReplacementPlugin } from "./replacements.cm";
 import { mem } from "../reactRenderer.manager";
 import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { iFile } from "../../../../shared/types.shared";
+import { iUserSettingsApi } from "../../hooks/useUserSettings.hook";
 
 type iLinkPreviewOpts = {addLineJump?: boolean}
 export const generateHtmlLinkPreview = mem((matchs, opts?:iLinkPreviewOpts) => generateHtmlLinkPreviewInt(matchs, opts))
@@ -134,7 +135,12 @@ title="Text to speech url content" class="link-audio link-action"  data-link="${
 	return resEl.outerHTML
 }
 
-export const linksPreviewMdCss = () => `
+export const linksPreviewMdCss = (userSettings: iUserSettingsApi) => {
+// let urlPreviewZoom = 0.65
+let urlPreviewZoom = parseFloat(userSettings.get("ui_editor_links_preview_zoom"))
+if (isNaN(urlPreviewZoom)) urlPreviewZoom = 1
+
+return `
 .link-fetch-preview-wrapper {
 		background: grey;
 }
@@ -228,11 +234,11 @@ export const linksPreviewMdCss = () => `
 }
 
 .cm-hover-popup .resource-link-ctag .iframe-view-wrapper iframe {
-		width: 150%!important;
-		height: 154%!important;
-		max-height: 154%!important;
+		width: ${100/urlPreviewZoom}%!important;
+		height: ${100/urlPreviewZoom}!important;
+		max-height: ${100/urlPreviewZoom}%!important;
 		transform-origin:top left;
-		transform: scale(0.65);
+		transform: scale(${urlPreviewZoom});
 		margin-left: 15px;
 }
 
@@ -256,4 +262,4 @@ export const linksPreviewMdCss = () => `
 				color: ${cssVars.colors.main};
 		}
 }
-`
+`}
