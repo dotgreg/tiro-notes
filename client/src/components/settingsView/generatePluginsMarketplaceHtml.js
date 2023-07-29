@@ -1,4 +1,5 @@
 //@ts-nocheck
+// file source : tiro/client/src/components/settingsView/generatePluginsMarketplaceHtml.js
 const h = "[MARKETPLACE-HTML] generatePluginsMarketplaceHtml"
 
 //
@@ -8,16 +9,29 @@ function generatePluginsMarketplaceHtml(p) {
     let onPluginClick = p.onPluginClick ? p.onPluginClick : (plugin) => {console.log(h, "on plugin click", plugin)}
     let pluginsDescriptions = p.pluginsDescriptions ? p.pluginsDescriptions : []
 
+    // pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
     pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
 
     console.log(h, {pluginsDescriptions});
-    let html = `<div class="plugins-list-wrapper">`
+    let html = `<div class="plugins-marketplace-wrapper">`
+    html += `<div class="plugins-list-wrapper">`
     const isMobile = deviceType() === "mobile"
+
+    const setD = (id, value) => document.getElementById("detail-"+id).innerHTML = value
     
+    
+    //
+    // HTML LIST 
+    //
     each(pluginsDescriptions, plugin => {
         const imagePlaceholder = ""
-        const firstImage = (plugin.images && plugin.images[0]) ? plugin.images[0] : imagePlaceholder
-        const onClickAction = ssrFn(`plugin-click-id-${plugin.name}`, () => {onPluginClick(plugin)})
+        let icon = plugin.icon
+        if (!icon) icon = (plugin.images && plugin.images[0]) ? plugin.images[0] : imagePlaceholder
+        const onClickAction = ssrFn(`plugin-click-id-${plugin.name}`, () => {
+            onPluginClick(plugin)
+            openDetailPanel(plugin)
+        })
+        
         const overviewLimitChars = 100
         let overview = plugin.description.substr(0, overviewLimitChars)
         if (plugin.description.length > overviewLimitChars) overview += "..."
@@ -28,12 +42,61 @@ function generatePluginsMarketplaceHtml(p) {
                     <div class="plugin-item-title"> ${plugin.name} </div>
                     <div class="plugin-item-description"> ${overview} </div>
                 </div>
-                <div class="plugin-item-image" style="background-image: url('${firstImage}')">
+                <div class="plugin-item-icon" style="background-image: url('${icon}')">
                 </div>
             </div>
         `.trim()
     })  
 
+    //
+    // DETAIL POPUP LOGIC
+    //
+    const openDetailPanel = (plugin) => {
+        console.log(123, plugin)
+        document.getElementById("plugin-detail-wrapper").classList.add("show")
+        setD("title", plugin.name)
+        setD("description", plugin.description)
+        // document.getElementById("plugin-detail-icon").style.backgroundImage = `url('${plugin.icon}')"`
+        if(plugin.icon) setD("icon", `<img class="plugin-images" src="${plugin.icon}" />`)
+        let imgsHtml = ``
+        plugin.images.map(imgSrc => {
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+        })
+        setD("images", imgsHtml)
+    }
+    const closeDetailPanel = () => {
+        document.getElementById("plugin-detail-wrapper").classList.remove("show")
+    }
+
+    const onClickClose = ssrFn(`plugin-click-close`, () => {
+        closeDetailPanel()
+    })
+
+    //
+    // HTML DETAILS 
+    //
+    html += `</div>`
+    html += `<div id="plugin-detail-wrapper">`  
+        html += `<div id="detail-close" onClick="${onClickClose}">x</div>`  
+        html += `<div id="detail-left">`  
+            html += `<div id="detail-title"></div>`  
+            html += `<div id="detail-versions"></div>`  
+            html += `<div id="detail-description"></div>`  
+        html += `</div>`
+        html += `<div id="detail-right">`  
+            html += `<div id="detail-icon"></div>`  
+            html += `<div id="detail-images"></div>`  
+        html += `</div>`
+        html += `</div>`
+        html += `<div id="detail-configuration"></div>`  
+    html += `</div>`
+    html += `</div>`
     html += `</div>`
     return html + generateStyle(isMobile)
 }
@@ -47,6 +110,82 @@ const generateStyle = (isMobile) => {
         html, body {
             font-family: arial, sans-serif;
         }
+
+        /*
+          DETAILS CSS
+        */
+
+        #plugin-detail-wrapper {
+            overflow: hidden;
+            display:none;
+            width: calc(100% - 40px);
+            height: calc(100% - 70px);
+            z-index: 3;
+            position: absolute;
+            top: 30px;
+            left: 0px;
+            background: white;
+            padding: 20px;
+            border-radius: 7px;
+        }
+        #plugin-detail-wrapper.show {
+            display:flex;
+        }
+        #detail-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 13px;
+            background: white;
+            padding: 3px 7px;
+            border-radius: 100;
+            box-shadow: 0px 0px 5px #0006;
+            cursor: pointer;
+            border-radius: 110px;
+            z-index: 3;
+        }
+        
+        #detail-left {
+            width: 50%;
+        }
+            #detail-title {
+                font-size: 20px;
+                margin-bottom: 20px;
+                font-weight: bold
+            }
+            #detail-description {
+
+            }
+
+        #detail-right {
+            width: 50%;
+            position: relative;
+        }
+            #detail-icon {
+                position: absolute;
+                left: -50px;
+            }
+            #detail-icon img{ 
+                width: 30px;
+            }
+            #detail-images {
+                display: block;
+                height: 100%;
+                overflow: hidden;
+                overflow-y: auto;
+            }
+            #detail-images img {
+                max-width: calc(100% - 20px);
+                border-radius: 8px;
+                box-shadow: 0px 0px 5px #0006;
+                margin: 7px;
+            }
+
+
+        /*
+        // LIST CSS
+        */
+
         .plugins-list-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -76,12 +215,12 @@ const generateStyle = (isMobile) => {
         .plugin-item-content .plugin-item-description {
             font-size: 10px;
         }
-        .plugin-item-image {
+        .plugin-item-icon {
             width: 40%;
             height: 100%;
             width: 40%;
             height: 100%;
-            background-size: contain;
+            background-size: 30px;
             background-repeat: no-repeat;
             background-position: center;
             display: flex;

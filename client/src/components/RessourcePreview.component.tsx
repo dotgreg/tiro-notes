@@ -139,12 +139,14 @@ export const RessourcePreview = (p: {
 
 	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
-	let mainLinkHtml = `<div class="ressource-link-label" data-filepath="${p.file.path}"  data-link="${previewLink}" onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">${name} (${getFileType(previewLink)})</div>`
+	let mainLinkHtml = `<div 
+		class="ressource-link-label" 
+		data-filepath="${p.file.path}"  
+		data-link="${previewLink}" 
+		onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">
+			${name} (${getFileType(previewLink)})
+		</div>`.split("\n").join("")
 
-	// <a className="resource-link preview-link"
-	// 					href={ressLink}
-	// 					download
-	// 				></a>
 	return (
 		<div className={`${ssrId} resource-link-iframe-wrapper`}>
 			<div className={` resource-link-wrapper device-${deviceType()}`}>
@@ -300,20 +302,24 @@ ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
 
 
 // HIDING IT ON DESKTOP 
-.device-desktop .resource-link-wrapper:hover .resource-link-content-wrapper ul {
+// .device-desktop .resource-link-wrapper:hover .resource-link-content-wrapper ul {
+// 		opacity:1;
+// 		width: 90px;
+// 		// margin-top: 15px;
+// 		pointer-events: all;
+// }
+// .device-desktop .resource-link-content-wrapper ul  {
+// 		opacity: 0;
+// 		width: 0px;
+// 		transition: 0.2s all;
+// 		transition-delay: 0.2s, 0s;
+// 		pointer-events: none;
+// }
+.device-desktop .resource-link-wrapper .resource-link-content-wrapper ul {
 		opacity:1;
 		width: 90px;
-		// margin-top: 15px;
 		pointer-events: all;
 }
-.device-desktop .resource-link-content-wrapper ul  {
-		opacity: 0;
-		width: 0px;
-		transition: 0.2s all;
-		transition-delay: 0.2s, 0s;
-		pointer-events: none;
-}
-
 
 `
 
