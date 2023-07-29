@@ -14,10 +14,17 @@ type iPluginVersion = {
 	comment?: string
 	hash: string
 }
+type iPluginConfig = {
+	type: string
+	description: string
+	id: string
+}
 export type iPluginDescription = {
 	name: string
 	description: string
 	images?: string[]
+	icon?:string
+	configuration?: iPluginConfig[]
 	versions: iPluginVersion[]
 }
 
@@ -134,12 +141,15 @@ export const usePluginsApi = (p: {
 							let nPluginDescription:iPluginDescription = {
 								name: "",
 								description: "",
-								versions: []
+								versions: [],
+								configuration:[]
 							}
 							if (pluginDescRaw.name) nPluginDescription.name = pluginDescRaw.name
 							if (pluginDescRaw.description) nPluginDescription.description = pluginDescRaw.description
 							if (pluginDescRaw.versions) nPluginDescription.versions = pluginDescRaw.versions
 							if (pluginDescRaw.images) nPluginDescription.images = pluginDescRaw.images
+							if (pluginDescRaw.icon) nPluginDescription.icon = pluginDescRaw.icon
+							if (pluginDescRaw.configuration) nPluginDescription.configuration = pluginDescRaw.configuration
 
 							if (nPluginDescription.name === "") return
 							pluginsDescriptions.push(nPluginDescription)

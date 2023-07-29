@@ -267,10 +267,17 @@ export const App = () => {
 		}
 	}
 
+	
+	
+	// let debugConfig = null
+	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(null)
+
 	// Show settings panel
-	// let debugConfig:any = "plugins-marketplace"
-	let debugConfig = null
-	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(debugConfig)
+	useEffect(() => {
+		setTimeout(() => {
+			setConfigPopup("plugins-marketplace")
+		},2000)
+	}, [])
 
 
 	// LIGHTBOX SYSTEM
