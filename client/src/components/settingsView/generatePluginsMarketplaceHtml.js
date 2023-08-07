@@ -10,7 +10,7 @@ function generatePluginsMarketplaceHtml(p) {
     let pluginsDescriptions = p.pluginsDescriptions ? p.pluginsDescriptions : []
 
     // pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
-    pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
+    // pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
 
     console.log(h, {pluginsDescriptions});
     let html = `<div class="plugins-marketplace-wrapper">`
@@ -56,17 +56,36 @@ function generatePluginsMarketplaceHtml(p) {
         document.getElementById("plugin-detail-wrapper").classList.add("show")
         setD("title", plugin.name)
         setD("description", plugin.description)
-        // document.getElementById("plugin-detail-icon").style.backgroundImage = `url('${plugin.icon}')"`
+        let versionHtml = `<table>`
+        versionHtml += `<thead><tr>`
+            versionHtml += `<th>Version</th>`
+            versionHtml += `<th>Date</th>`
+            versionHtml += `<th>Description</th>`
+            versionHtml += `<th>Install</th>`
+        versionHtml += `</tr><thead>`
+        versionHtml += `</thead>`
+        versionHtml += `<tbody>`
+        plugin.versions.map(version => {
+            versionHtml += `<tr>
+                <td>${version.version}</td>
+                <td>${version.date}</td>
+                <td>${version.comment}</td>
+                <td><button>Install</button></td>
+            </tr>`
+        })
+        versionHtml += `</tbody></table>`
+        setD("versions", versionHtml)
+
         if(plugin.icon) setD("icon", `<img class="plugin-images" src="${plugin.icon}" />`)
-        let imgsHtml = ``
+        let imgsHtml = `<table>`
         plugin.images.map(imgSrc => {
             imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
+            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
         })
         setD("images", imgsHtml)
     }
@@ -85,9 +104,10 @@ function generatePluginsMarketplaceHtml(p) {
     html += `<div id="plugin-detail-wrapper">`  
         html += `<div id="detail-close" onClick="${onClickClose}">x</div>`  
         html += `<div id="detail-left">`  
-            html += `<div id="detail-title"></div>`  
-            html += `<div id="detail-versions"></div>`  
+            html += `<h1 id="detail-title"></h1>`  
             html += `<div id="detail-description"></div>`  
+            // html += `<h2 id="detail-versions-title">Versions:</h2>`  
+            html += `<div id="detail-versions"></div>`  
         html += `</div>`
         html += `<div id="detail-right">`  
             html += `<div id="detail-icon"></div>`  
@@ -112,11 +132,36 @@ const generateStyle = (isMobile) => {
         }
 
         /*
+          Version table CSS
+        */
+        table {
+            border-spacing: 0px;
+            width: 100%;
+        }
+        thead tr th{
+            padding: 8px;
+        }
+        tbody {
+            text-align: left;
+        }
+        tbody tr {
+            cursor: pointer;
+            background: #f1f0f0;
+        }
+        tbody tr:nth-child(2n) {
+            background: none;
+        }
+        tbody td {
+            padding: 8px;
+        }
+
+        /*
           DETAILS CSS
         */
 
         #plugin-detail-wrapper {
             overflow: hidden;
+            overflow-y: ${isMobile ? "auto" : "hidden"};
             display:none;
             width: calc(100% - 40px);
             height: calc(100% - 70px);
@@ -129,7 +174,7 @@ const generateStyle = (isMobile) => {
             border-radius: 7px;
         }
         #plugin-detail-wrapper.show {
-            display:flex;
+            display:${isMobile ? "block" : "flex"};
         }
         #detail-close {
             position: absolute;
@@ -146,19 +191,26 @@ const generateStyle = (isMobile) => {
         }
         
         #detail-left {
-            width: 50%;
+            width: ${isMobile ? "100" : "70"}%;
+            overflow-y: auto;
         }
             #detail-title {
-                font-size: 20px;
+                font-size: 31px;
                 margin-bottom: 20px;
-                font-weight: bold
+                font-weight: bold;
+                margin-top: 0px;
             }
             #detail-description {
-
+                margin: 0px;
+                margin-bottom: 30px;
+                
+            }
+            #detail-versions {
             }
 
         #detail-right {
-            width: 50%;
+            width: ${isMobile ? "100" : "30"}%;
+           
             position: relative;
         }
             #detail-icon {
@@ -169,6 +221,7 @@ const generateStyle = (isMobile) => {
                 width: 30px;
             }
             #detail-images {
+                margin-top: ${isMobile ? "30" : "0"}px;
                 display: block;
                 height: 100%;
                 overflow: hidden;
