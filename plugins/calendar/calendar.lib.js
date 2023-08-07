@@ -63,7 +63,7 @@ const getEventsList = (calNotePath, cb) => {
                     }
                 }
                 if (body.includes("every_week")){
-                    function getNextSameWeekdayDates(eventDate1) {
+                    function genSameDayEvents(eventDate1) {
                         const targetWeekday = eventDate1.getDay();
                         const futureDate = new Date();
                         let count = 0;
@@ -71,6 +71,9 @@ const getEventsList = (calNotePath, cb) => {
                         while (count < 5) {
                           futureDate.setDate(futureDate.getDate() + 1);
                           if (futureDate.getDay() === targetWeekday) {
+                            futureDate.setHours(eventDate1.getHours());
+                            futureDate.setMinutes(eventDate1.getMinutes());
+                            futureDate.setSeconds(eventDate1.getSeconds());
                             count++;
                             events.push({
                                 'date': new Date(futureDate),
@@ -80,7 +83,7 @@ const getEventsList = (calNotePath, cb) => {
                           }
                         }
                     }
-                    getNextSameWeekdayDates(evDate)
+                    genSameDayEvents(evDate)
                 }
             }
         }

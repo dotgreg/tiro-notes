@@ -314,7 +314,7 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 		let from = item.to - 1
 		let isInCurrent = clineInfos && clineInfos.currentPosition > from && clineInfos.currentPosition <= to
 		try {
-			if (keepCurrentOpen && isInCurrent) return console.log(1111111111, "INSIDE", isInCurrent, from, to)
+			// if (keepCurrentOpen && isInCurrent) return console.log(dddd, "INSIDE", isInCurrent, from, to)
 			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
 		} catch (error) {
 			console.warn(`ERROR FOR ${item.title}`, error)

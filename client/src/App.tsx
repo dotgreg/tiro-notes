@@ -275,7 +275,7 @@ export const App = () => {
 	// Show settings panel
 	useEffect(() => {
 		setTimeout(() => {
-			setConfigPopup("plugins-marketplace")
+			// setConfigPopup("plugins-marketplace")
 		},2000)
 	}, [])
 

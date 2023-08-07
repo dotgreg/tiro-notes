@@ -405,7 +405,6 @@ export const iframeMainCode = (p: {
 			const downloadAndLoadRess = () => {
 				callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
 					// ==== on cb, load that tag
-					console.log(1111111111, ressToLoad, getCachedRessourceFolder(), cachedRessToLoad)
 					loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
 				})
 			}
