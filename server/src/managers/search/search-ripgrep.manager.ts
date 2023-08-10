@@ -37,7 +37,27 @@ export const isRgCliWorking = async (): Promise<boolean> => {
 // }
 
 
-//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////
 // NEW GENERIC SEARCH
 //
 type iLineRg = {
@@ -54,6 +74,7 @@ export const searchWithRgGeneric = async (p: {
 	options?: {
 		wholeLine?: boolean,
 		debug?: boolean
+		type?: "md" | "all"
 		// exclude?:string[]
 	}
 
@@ -68,6 +89,10 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
+
+	let typeArgs = ['--type','md']
+	if (p.options.type === "all") typeArgs = ['--files']
+
 	const onRgDoesNotExists = (err) => {
 		console.log(h, err)
 		if (!err.shortMessage.includes("ENOENT")) return
@@ -96,8 +121,7 @@ export const searchWithRgGeneric = async (p: {
 		p.term,
 		folderToSearch,
 		'--ignore-case',
-		'--type',
-		'md',
+		...typeArgs,
 		// do not print whole line, just one match per line
 		lineParam,
 		...exclusionArr
@@ -150,7 +174,30 @@ export const searchWithRgGeneric = async (p: {
 }
 
 
-//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////
 // ODL SEARCH WITH RG
 //
 export const searchWithRipGrep = async (params: {

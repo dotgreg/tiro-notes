@@ -22,7 +22,9 @@ export const PluginsMarketplacePopup = (p: {
 				setpluginsDescriptions(nDescrs)
 				let nhtml = generatePluginsMarketplaceHtml({
 					pluginsDescriptions:nDescrs,
-					onPluginClick: (plugin) => {console.log("woooop", plugin)}
+					fullDisplayMode: true,
+					onPluginClick: (plugin) => {console.log("pluginClick", plugin)},
+					onSettingChange: (p) => {console.log("onSettingChange", p)}
 				})
 				setHtml(nhtml)
 			})
@@ -47,7 +49,7 @@ export const PluginsMarketplacePopup = (p: {
 				}
 				{pluginsDescriptions.length === 0 &&
 					<div className="plugins-list-loading">
-						loading...
+						Contacting Marketplace...
 					</div>
 				}
 

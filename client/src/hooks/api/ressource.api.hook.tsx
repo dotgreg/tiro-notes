@@ -10,7 +10,7 @@ import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { tryCatch } from '../../managers/tryCatch.manager';
-import { iDownloadRessourceOpts } from '../../../../shared/types.shared';
+import { iDownloadRessourceOpts, iFile } from '../../../../shared/types.shared';
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
@@ -54,6 +54,11 @@ export interface iRessourceApi {
 		options?: {}
 	) => void
 
+	scanFolder: (
+		path:string,
+		cb: (files: iFile[]) => void
+	) => void,
+
 	cleanCache: () => void
 }
 
@@ -70,6 +75,9 @@ export const useRessourceApi = (p: {
 	// 
 	useEffect(() => {
 		clientSocket2.on('getRessourceApiAnswer', data => {
+			eventBus.notify(data.idReq, data)
+		})
+		clientSocket2.on('getRessourceScan', data => {
 			eventBus.notify(data.idReq, data)
 		})
 	}, [])
@@ -213,12 +221,26 @@ export const useRessourceApi = (p: {
 		})
 	}
 
+	const scanRessourceFolder: iRessourceApi['scanFolder'] = (folderPath, cb) => { 
+		if (sharedConfig.client.log.socket) console.log(`[CLIENT API] get ressources files ${folderPath}`);
+		const idReq = genIdReq('get-ressources-files-');
+		// 1. add a listener function
+		p.eventBus.subscribe(idReq, cb);
+		// 2. emit request 
+		clientSocket2.emit('askRessourceScan', {
+			folderPath,
+			token: getLoginToken(),
+			idReq
+		})
+	}
+
 	//
 	// EXPORTS
 	//
 	const ressourceApi: iRessourceApi = {
 		delete: deleteRessource,
 		download: downloadRessource,
+		scanFolder: scanRessourceFolder, 
 		fetch: fetchRessource,
 		fetchEval,
 		fetchUrlArticle,
@@ -227,3 +249,6 @@ export const useRessourceApi = (p: {
 
 	return ressourceApi
 }
+
+
+// api.ressource.scanFolder("/demos", e => {console.log(222,e)})

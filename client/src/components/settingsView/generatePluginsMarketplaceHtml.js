@@ -7,7 +7,9 @@ const h = "[MARKETPLACE-HTML] generatePluginsMarketplaceHtml"
 //
 function generatePluginsMarketplaceHtml(p) {
     let onPluginClick = p.onPluginClick ? p.onPluginClick : (plugin) => {console.log(h, "on plugin click", plugin)}
+    let onSettingChange = p.onSettingChange ? p.onSettingChange : (p2) => {console.log(h, "on setting change", p2)}
     let pluginsDescriptions = p.pluginsDescriptions ? p.pluginsDescriptions : []
+    let  isFullDisplayMode = p.fullDisplayMode
 
     // pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
     // pluginsDescriptions = [...pluginsDescriptions,...pluginsDescriptions,...pluginsDescriptions]
@@ -52,11 +54,49 @@ function generatePluginsMarketplaceHtml(p) {
     // DETAIL POPUP LOGIC
     //
     const openDetailPanel = (plugin) => {
-        console.log(123, plugin)
         document.getElementById("plugin-detail-wrapper").classList.add("show")
         setD("title", plugin.name)
         setD("description", plugin.description)
-        let versionHtml = `<table>`
+
+        const genSettingsField = (type, id, defaultVal) => {
+            let resHtml = ""
+            const onChangeAction = ssrFn(`setting-onchange-id-${id}`, (e) => {
+                let nval = type === "checkbox" ? e.checked : e.value
+                onSettingChange({plugin, type,id, value: nval})
+            })
+            if (type === "checkbox") {
+                let checked = defaultVal === true ? "checked='checked'" : ""
+                resHtml += `<input type="checkbox" ${checked} onChange="${onChangeAction}" />`
+            } else if  (type === "text") {
+                resHtml += `<input type="text" value="${defaultVal}"  onkeyup="${onChangeAction}" />`
+            }
+            return resHtml
+        }
+
+        if (isFullDisplayMode && plugin.configuration.length > 0) {
+            let settingsHtml = `<h3>Settings</h3><table>`
+            settingsHtml += `<thead><tr>`
+                settingsHtml += `<th>Id</th>`
+                settingsHtml += `<th>Field</th>`
+                settingsHtml += `<th>Description</th>`
+            settingsHtml += `</tr><thead>`
+            settingsHtml += `</thead>`
+            settingsHtml += `<tbody>`
+            plugin.configuration.map(cnf => {
+                settingsHtml += `<tr>
+                    <td>${cnf.id}</td>
+                    <td>${genSettingsField(cnf.type, cnf.id, "woop")}</td>
+                    <td>${cnf.description}</td>
+                </tr>`
+            })
+            settingsHtml += `</tbody></table>`
+            setD("settings", settingsHtml)
+        } else {
+            setD("settings", "")
+        }
+
+
+        let versionHtml = `<h3>Install</h3><table>`
         versionHtml += `<thead><tr>`
             versionHtml += `<th>Version</th>`
             versionHtml += `<th>Date</th>`
@@ -70,11 +110,13 @@ function generatePluginsMarketplaceHtml(p) {
                 <td>${version.version}</td>
                 <td>${version.date}</td>
                 <td>${version.comment}</td>
-                <td><button>Install</button></td>
+                <td><button ${isFullDisplayMode ? "" : "disabled"}>Install</button></td>
             </tr>`
         })
         versionHtml += `</tbody></table>`
         setD("versions", versionHtml)
+
+        
 
         if(plugin.icon) setD("icon", `<img class="plugin-images" src="${plugin.icon}" />`)
         let imgsHtml = `<table>`
@@ -108,6 +150,7 @@ function generatePluginsMarketplaceHtml(p) {
             html += `<div id="detail-description"></div>`  
             // html += `<h2 id="detail-versions-title">Versions:</h2>`  
             html += `<div id="detail-versions"></div>`  
+            html += `<div id="detail-settings"></div>`  
         html += `</div>`
         html += `<div id="detail-right">`  
             html += `<div id="detail-icon"></div>`  
