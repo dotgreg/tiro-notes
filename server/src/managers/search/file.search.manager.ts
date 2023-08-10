@@ -14,17 +14,8 @@ export const cleanFilePath = (rawString: string, folder) => {
 	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
 	rawString = rawString.split(`${backConfig.dataFolder + folder}/`).join('') // remove absolute path x2
 	rawString = rawString.split(`${backConfig.dataFolder + folder}`).join('') // remove absolute path x3
-	//rawString = rawString.split(`${backConfig.dataFolder}/${folder}`).join('') // remove absolute path x3
-	//	rawString = rawString.split(`${backConfig.dataFolder}`).join('') // remove absolute path x4
 	return rawString
 }
-
-// export const processRawPathToFile = (p:{
-// 	rawPath: string
-// 	folder: string
-// 	index: number = 0
-// 	titleFilter: string = ''
-// }): iFile => {
 
 export const processRawPathToFile = (p: {
 	rawPath: string

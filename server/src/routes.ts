@@ -2,7 +2,7 @@ import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
-import { analyzeTerm, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
+import { analyzeTerm, searchWithRgGeneric, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateNewNote } from "./managers/date.manager";
 import { debouncedFolderScan, moveFileLogic, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
 import { folderToUpload } from "./managers/upload.manager";
@@ -26,7 +26,7 @@ import { perf, getPerformanceReport } from "./managers/performance.manager";
 import { getActivityReport, logActivity } from "./managers/activity.manager";
 import { createFileHistoryVersion,  fileHistoryParams, getHistoryFolder, processFileHistoryHousekeeping } from "./managers/fileHistory.manager";
 import { getDateObj } from "../../shared/helpers/date.helper";
-import { isArray } from "lodash";
+import { each, isArray } from "lodash";
 import { relative } from "path";
 import { getPlatform } from "./managers/platform.manager";
 
@@ -449,6 +449,37 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// 
 	serverSocket2.on('askBackendConfig', async data => {
 		serverSocket2.emit('getBackendConfig', {config: backConfig, idReq: data.idReq })
+	}, { checkRole: "editor" })
+
+
+	// 
+	// RESSOURCE SCAN
+	// 
+	serverSocket2.on('askRessourceScan', async data => {
+		// rg --files ./demos/.resources/
+		if (!data.folderPath.endsWith("/.resources")) data.folderPath += "/.resources"
+		let objRes:{[path:string]: iFile} = {}
+		searchWithRgGeneric({
+			term: "",
+			folder: data.folderPath,
+			options: {
+				wholeLine: true,
+				debug: true,
+				type: "all",
+			},
+			processRawLine: lineInfos => {
+				let l = lineInfos
+				if (!objRes[l.file.path]) objRes[l.file.path] = l.file
+			},
+			onSearchEnded: async () => {
+				let arrRes:iFile[] = []
+				each(objRes, prop => {
+					arrRes.push(prop)
+				})
+				serverSocket2.emit('getRessourceScan', {files: arrRes, idReq: data.idReq })
+			},
+			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
+		})
 	}, { checkRole: "editor" })
 
 

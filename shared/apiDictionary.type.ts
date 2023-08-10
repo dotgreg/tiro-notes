@@ -74,6 +74,8 @@ export interface iApiDictionary {
 	askRessourceDelete: { path: string, idReq: string }
 	askRessourceDownload: { url: string, folder: string, opts?:iDownloadRessourceOpts, idReq: string }
 	getRessourceApiAnswer: { status: string, message: string, idReq: string }
+	askRessourceScan: { folderPath: string, idReq: string }
+	getRessourceScan: { files: iFile[], idReq: string }
 
 	updateSetupJson: { paramName: string, paramValue: string, opts?:iUpdateConfigJsonOpts, idReq: string }
 

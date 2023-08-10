@@ -463,7 +463,8 @@ export const iframeMainCode = (p: {
 
 		// adds to opts the url basePath if need to load more ressources from it (html/js/css/etc.)
 		if (!opts) opts = {}
-		opts.base_url = url.split("/").slice(0, -1).join("/")
+		opts.base_url = url.split("/").slice(0, -1).join("/").replace("//","/")
+		opts.plugins_root_url = opts.base_url.split("/").slice(0, -1).join("/").replace("//","/")
 
 		let hasPadding = true
 		if (opts.padding === false) hasPadding = opts.padding
