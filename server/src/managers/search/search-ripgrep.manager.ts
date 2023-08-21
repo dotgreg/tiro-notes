@@ -74,7 +74,7 @@ export const searchWithRgGeneric = async (p: {
 	options?: {
 		wholeLine?: boolean,
 		debug?: boolean
-		type?: "md" | "all"
+		filetype?: "md" | "all"
 		// exclude?:string[]
 	}
 
@@ -91,7 +91,7 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options.debug) p.options.debug = false
 
 	let typeArgs = ['--type','md']
-	if (p.options.type === "all") typeArgs = ['--files']
+	if (p.options.filetype === "all") typeArgs = ['--files']
 
 	const onRgDoesNotExists = (err) => {
 		console.log(h, err)

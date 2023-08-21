@@ -51,19 +51,47 @@ export const generateHtmlLinkPreviewInt = (
 
 	let resEl = document.createElement("span");
 	let fullLink = matchs[0].slice(0, -1) // removing last /
-	let website = matchs[1].replace("www.", "")
-	let firstSlash = matchs[3]
-	let secondSlash = matchs[4]
-	resEl.classList.add('link-mdpreview-wrapper')
-	resEl.classList.add('link-wrapper')
-	let limitChar = 17
-	if (website.length > limitChar) website = website.substring(website.length - limitChar)
-	let artTitle = firstSlash
-	if (artTitle === "" || !artTitle) artTitle = secondSlash
-	if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
-	artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
-	let previewStr = `${website}${artTitle}`
-	if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
+	// let website = matchs[1].replace("www.", "")
+	// let firstSlash = matchs[3]
+	// let secondSlash = matchs[4]
+	// resEl.classList.add('link-mdpreview-wrapper')
+	// resEl.classList.add('link-wrapper')
+	// let limitChar = 17
+	// if (website.length > limitChar) website = website.substring(website.length - limitChar)
+	// let artTitle = firstSlash
+	// if (artTitle === "" || !artTitle) artTitle = secondSlash
+	// if (artTitle.length > limitChar) artTitle = artTitle.substring(0, limitChar) + ""
+	// artTitle = (artTitle.length !== 0) ? `${artTitle}` : ``
+	// let previewStr = `${website}${artTitle}`
+	// if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
+
+	function genPreviewStr(url) {
+		const parsedUrl = new URL(url);
+		let siteName = parsedUrl.hostname.replace(/^www\./, '');
+		// let siteName = parsedUrl.hostname;
+		const pathSegments = parsedUrl.pathname.split('/').filter(segment => segment.trim() !== '');
+		
+		let content = '';
+		if (pathSegments.length > 0) {
+		  content = pathSegments[pathSegments.length - 1];
+		  if (content.length > 20) {
+			content = content.substring(0, 20).replace(/[^A-Za-z0-9-_\ ]/g, '');
+		  } else {
+			content = content.replace(/[^A-Za-z0-9]/g, '');
+		  }
+		}
+
+		if (siteName.length > 15) siteName = siteName.substring(0, 15)
+
+		if (content.length > 0) {
+		  return `${siteName}/${content}`;
+		} else {
+		  return siteName;
+		}
+	  }
+
+	  let previewStr = genPreviewStr(fullLink)
+	  
 
 
 	//

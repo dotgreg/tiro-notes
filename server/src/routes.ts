@@ -458,14 +458,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askRessourceScan', async data => {
 		// rg --files ./demos/.resources/
 		if (!data.folderPath.endsWith("/.resources")) data.folderPath += "/.resources"
+		data.folderPath = p(data.folderPath)
 		let objRes:{[path:string]: iFile} = {}
+		console.log(1111, data) 
 		searchWithRgGeneric({
 			term: "",
 			folder: data.folderPath,
 			options: {
 				wholeLine: true,
 				debug: true,
-				type: "all",
+				filetype: "all",
 			},
 			processRawLine: lineInfos => {
 				let l = lineInfos
