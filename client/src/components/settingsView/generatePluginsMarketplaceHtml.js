@@ -123,11 +123,6 @@ function generatePluginsMarketplaceHtml(p) {
         plugin.images.map(imgSrc => {
             imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
             // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
-            // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
         })
         setD("images", imgsHtml)
     }

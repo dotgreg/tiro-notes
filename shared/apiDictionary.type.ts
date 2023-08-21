@@ -30,7 +30,7 @@ export interface iApiDictionary {
 	searchWord: { word: string, folder: string, idReq: string }
 	getWordSearch: { result: iSearchWordRes, idReq: string }
 
-	getUploadedFile: { name: string, path: string, idReq: string }
+	getUploadedFile: { name: string, path: string, absPath:string, idReq: string }
 
 	askFolderHierarchy: { folderPath: string }
 	getFolderHierarchy: { folder: iFolder, pathBase: string }

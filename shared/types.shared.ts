@@ -166,6 +166,7 @@ export interface iFile {
 	index?: number
 	folder: string
 	filenameWithoutExt?: string
+	stats?:any
 }
 
 export type metaContent = string | number

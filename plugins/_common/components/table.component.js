@@ -1,5 +1,5 @@
 // assuming react is already loaded in window
-
+// assuming     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> is loaded in html
 
 
 
@@ -59,13 +59,13 @@ let tableComponent = ({ items, config }) => {
                         ...(type === 'buttons'
                             ? buttons.map(({ label, icon, onClick }) =>
                                 c('button', { key: label, onClick: () => onClick(item.id) }, [
-                                c('i', { className: icon }),
+                                c('div', {className: `fa fa-${icon}` }),
                                 label
                                 ])
                             )
                             : []),
                         // ICON 
-                        ...(type === 'icon' ? [c('img', { src: item[colId], alt: '' })] : []),
+                        ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
                         // TEXT 
                         !type ? [item[colId]] : []
                         ])
