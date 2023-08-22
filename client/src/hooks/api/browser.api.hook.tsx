@@ -224,12 +224,12 @@ export const useBrowserApi = (p: {
 
 		getApi(api => {
 			each(foldersPaths, folderPath => {
-				const cacheId = `folder-scan-${folderPath}`
+				// const cacheId = `folder-scan-${folderPath}`
 
 				const askForScanApi = () => {
 					api.folders.get([folderPath], data => {
 						!bg && processScannedFolders(data.pathBase, data.folders)
-						api.cache.set(cacheId, data, -1)
+						// api.cache.set(cacheId, data, -1)
 						counterCb++
 						if (counterCb >= foldersPaths.length) {
 							opts?.cb && opts.cb()
@@ -238,25 +238,25 @@ export const useBrowserApi = (p: {
 				}
 
 				// IF cached, first get initial, cached result
-				if (opts && opts.cache) {
-					api.cache.get(cacheId, cachedData => {
-						//console.log("[FOLDER SCAN] getting cached results =>", folderPath, cachedData);
-						if (!cachedData) {
-							askForScanApi()
-						} else {
-							if (!bg) {
-								processScannedFolders(cachedData.pathBase, cachedData.folders)
-								counterCb++
-								if (counterCb >= foldersPaths.length) {
-									opts?.cb && opts.cb()
-								}
-							}
-							// setTimeout(() => { askForScanApi() }, random(5000, 10000))
-						}
-					})
-				} else {
+				// if (opts && opts.cache) {
+				// 	api.cache.get(cacheId, cachedData => {
+				// 		//console.log("[FOLDER SCAN] getting cached results =>", folderPath, cachedData);
+				// 		if (!cachedData) {
+				// 			askForScanApi()
+				// 		} else {
+				// 			if (!bg) {
+				// 				processScannedFolders(cachedData.pathBase, cachedData.folders)
+				// 				counterCb++
+				// 				if (counterCb >= foldersPaths.length) {
+				// 					opts?.cb && opts.cb()
+				// 				}
+				// 			}
+				// 			// setTimeout(() => { askForScanApi() }, random(5000, 10000))
+				// 		}
+				// 	})
+				// } else {
 					askForScanApi()
-				}
+				// }
 			})
 		})
 
