@@ -204,7 +204,6 @@ export const fileExists = (path: string): boolean => {
 		return fs.existsSync(path)
 	} catch (error) {
 		shouldLog && log(`[fileExists] error : `, error);
-
 		return false
 	}
 }

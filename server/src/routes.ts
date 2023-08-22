@@ -276,14 +276,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// serverSocket2.emit('getFiles', { files: apiAnswer, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
-	// serverSocket2.on('askForExplorer', async data => {
-	// 	let fullPath = `${data.folderpath}`
-	// 	log(`ASK FOR EXPLORER ${fullPath}`);
-	// 	fullPath = fullPath.split('/').join('\\')
-	// 	exec3(`%windir%\\explorer.exe \"${fullPath}\"`)
-	// 	setTimeout(() => { focusOnWinApp('explorer') }, 500)
-	// })
-
 	serverSocket2.on('uploadResourcesInfos', async data => {
 		// should not be used anymore w new upload api
 		folderToUpload.value = data.folderpath

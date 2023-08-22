@@ -20,26 +20,11 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ],
-    // fallback: {
-    //     "fs": false,
-    //     "tls": false,
-    //     "net": false,
-    //     "worker_threads": false,
-    //     "path": false,
-    //     "assert": false,
-    //     "child_process": false,
-    //     "url": false,
-    //     "querystring": false,
-    //     "util": false,
-    //     "os": false,
-    //     "buffer": false,
-    //     "zlib": false,
-    //     "http": false,
-    //     "https": false,
-    //     "stream": false,
-    //     "crypto": false,
-    //   } 
+    extensions: [".tsx",".ts",".js",".wasm"],
+  },
+  experiments: {
+    asyncWebAssembly: true,
+    syncWebAssembly: true
   },
   output: {
     filename: 'tiro-server.js',

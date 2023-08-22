@@ -8,6 +8,7 @@ import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { security, formatHeader} from './managers/security.manager';
 import "./managers/activity.manager"
 import { logActivity } from './managers/activity.manager';
+import { wasmWasiRun } from './managers/webassembly.manager';
 
 fileLogClean();
 
@@ -64,7 +65,14 @@ app.get('*', function(req, res){
 });
 
 
-// const test = async () => {
-// 	let {plugins, scanLog} = await scanPlugins()
-// }
-// test()
+const test = async () => {
+	// let {plugins, scanLog} = await scanPlugins()
+	setTimeout(() => {
+		wasmWasiRun({
+			wasmName: "folder_scan", 
+			folderWasiPath: ".tiro", 
+			cb: data => {console.log(123, JSON.parse(data))}
+		})
+	}, 500)
+}
+test()

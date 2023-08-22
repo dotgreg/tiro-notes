@@ -2,5 +2,5 @@
     "watch": ["src"],
     "ext": "tsx ts",
     "ignore": ["src/**/*.spec.ts"],
-    "exec": "node -r ts-node/register ./src/server.ts"
+    "exec": "node --experimental-wasi-unstable-preview1 -r ts-node/register ./src/server.ts"
   }

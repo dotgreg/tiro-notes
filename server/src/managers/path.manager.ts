@@ -63,7 +63,7 @@ export const relativeToAbsolutePath = (pathFile: string): string => {
 
 	} else if (backConfig && backConfig.dataFolder) {
 	    pathFile = pathFile.split(backConfig.dataFolder).join('')
-	    pathFile = `${backConfig.dataFolder}${pathFile}`
+	    pathFile = `${backConfig.dataFolder}/${pathFile}`
 	
 		// let rootFolder
 		// let basePath

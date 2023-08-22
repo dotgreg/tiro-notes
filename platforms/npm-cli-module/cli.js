@@ -95,6 +95,23 @@ function getCliArgs () {
 		return argsObj;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// TIRO MAIN SERVER LOGIC
+//
 function startTiroServer (argsObj, cb) {
 		console.log(`Starting Tiro-Notes from CLI with following arguments : ${JSON.stringify(argsObj)}`);
 
@@ -102,7 +119,7 @@ function startTiroServer (argsObj, cb) {
 		tHelpers.killPreviousInstances(() => {
 
 				// start tiro server, detect success message and get server params
-				tHelpers.execCmd('node', [pathServerJs], {
+				tHelpers.execCmd('node', ["--experimental-wasi-unstable-preview1",pathServerJs], {
 						logLevel: argsObj.verbose,
 						env: {
 								TIRO_PORT: argsObj.port,
@@ -118,6 +135,22 @@ function startTiroServer (argsObj, cb) {
 		});
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// BACKUP LOGIC
+//
 const startBackupScript = async (argsObj, dataFolder) => {
 		if (!argsObj.backup.enabled) return;
 		if (!dataFolder) return console.warn ("[BACKUP] no dataFolder detected!");
@@ -191,6 +224,13 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 }
 
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// SSH LOGIC
+//
 const startSshTunnel = (argsObj) => {
 		if (argsObj.tunnel.enabled) {
 				// kill previous autossh processes
@@ -218,6 +258,26 @@ const startSshTunnel = (argsObj) => {
 		}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// MAIN LOGIC
+//
 // Main script
 function main () {
 

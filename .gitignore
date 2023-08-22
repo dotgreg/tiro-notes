@@ -25,3 +25,5 @@ platforms/npm-cli-module/node-build/
 build/
 server/build/
 client/build/
+
+target
