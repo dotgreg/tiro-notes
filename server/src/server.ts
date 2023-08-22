@@ -8,6 +8,7 @@ import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { security, formatHeader} from './managers/security.manager';
 import "./managers/activity.manager"
 import { logActivity } from './managers/activity.manager';
+import { scanDirForFolders } from './managers/dir.manager';
 
 fileLogClean();
 
@@ -65,6 +66,7 @@ app.get('*', function(req, res){
 
 
 // const test = async () => {
-// 	let {plugins, scanLog} = await scanPlugins()
+// 	// let {plugins, scanLog} = await scanPlugins()
+// 	scanDirForFolders("/")
 // }
 // test()
