@@ -260,7 +260,13 @@ export const App = () => {
 					let folderpath2 = folderToDropInto.path
 					askForFolderScan([getParentFolder(folderpath), getParentFolder(folderpath2), folderpath2, folderpath], {
 						cache: false,
-						cb: () => { foldersUiApi.open.add(folderpath) }
+						cb: () => { 
+							foldersUiApi.open.add(folderpath) 
+							foldersUiApi.open.add(folderpath2) 
+							foldersUiApi.open.add(getParentFolder(folderpath)) 
+							foldersUiApi.open.add(getParentFolder(folderpath2)) 
+							
+						}
 					})
 				}
 			})
@@ -500,8 +506,11 @@ export const App = () => {
 															askForFolderScan([getParentFolder(folder.path)], {
 																cache: false,
 																cb: () => {
-																	foldersUiApi.open.remove([getParentFolder(folder.path)])
-																	foldersUiApi.open.add(getParentFolder(folder.path))
+																	// folder sometimes closing itself
+																	// foldersUiApi.open.remove([getParentFolder(folder.path)])
+																	// foldersUiApi.open.add(getParentFolder(folder.path))
+																	// foldersUiApi.open.add(folder.path)
+																	console.log(111111)
 																}
 															})
 														}
@@ -519,10 +528,12 @@ export const App = () => {
 														folderBasePath,
 														newTitle: `${folder.title}_${getDateObj().full_file}`,
 														onMoveFn: () => {
-															askForFolderScan([getParentFolder(folder.path)], {
+															askForFolderScan([getParentFolder(folder.path),folder.path], {
 																cache: false,
 																// closeFolders: [folder.path],
-																cb: () => { foldersUiApi.open.add(folder.path) }
+																cb: () => { 
+																	foldersUiApi.open.add(folder.path) 
+																}
 															})
 														}
 													})
@@ -551,6 +562,7 @@ export const App = () => {
 											}}
 											onFolderDrop={folderDroppedInto => {
 												processDragDropAction(folderDroppedInto)
+												console.log(111111)
 											}}
 
 										/>

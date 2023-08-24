@@ -135,7 +135,7 @@ export const getReportPaths = (start:iDateObj, end: iDateObj):{paths:string[], i
 }
 
 // REPORT GEN
-interface iDbs {[month:string]:iMonthlyDb}
+interface iDbs {[month:string]:iMonthlyDb|null}
 export const generateReportFromDbs = (
     p:iActivityReportParams, 
     dbs:iDbs

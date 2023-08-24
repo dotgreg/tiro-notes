@@ -192,23 +192,72 @@ export const useBrowserApi = (p: {
 	}
 
 	const addToOpenedFolders = (folderPath: string) => {
+		console.log("ADD",folderPath)
 		openFoldersRef.current = [...openFoldersRef.current, folderPath]
+		openFoldersRef.current = uniq(openFoldersRef.current)
+		setOpenFolders(openFoldersRef.current)
+	}
+
+	const cleanOpenedFolders = (scannedPath: string, nfolder: iFolder) => {
+		console.log("CLEAN")
+		const nOpenFolders:string[] = []
+		const arrRef:string[] = []
+		each(nfolder.children, ch => {
+			arrRef.push(ch.title)
+		})
+		each(openFoldersRef.current, oPath => {
+			// take all opened folders that starts with scannedPath
+			// if /, it will take them all
+			console.log("CLEAN1", oPath, scannedPath)
+			if (oPath.startsWith(scannedPath)) {
+				// remove first part so we have f1/blab/blab/bla
+				let reloPath = oPath.replace(scannedPath, "")
+				// take f1
+				let reloPathArr = reloPath.split("/")
+				let childTitleToCheck = reloPathArr[0] === "" ? reloPathArr[1] : reloPathArr[0]
+				console.log("CLEAN2",scannedPath, arrRef, childTitleToCheck, reloPathArr, reloPath, oPath)
+				if (arrRef.indexOf(childTitleToCheck) !== -1) nOpenFolders.push(oPath)
+				else if (oPath === "/") nOpenFolders.push(oPath)
+				else if (oPath === scannedPath) nOpenFolders.push(oPath)
+			} else {
+				nOpenFolders.push(oPath)
+			}
+		})
+		console.log("CLEAN RES", nOpenFolders, scannedPath)
+		openFoldersRef.current = nOpenFolders
 		setOpenFolders(openFoldersRef.current)
 	}
 
 	const removeToOpenedFolders = (folderPaths: string[]) => {
+		console.log("REMOVE",folderPaths)
 		// let nOpenFolders = openFoldersRef.current
+
+		// if closing a folder, close its childrens to clean opened folder but not good UX
+		// each(folderPaths, path => {
+		// 	openFoldersRef.current = openFoldersRef.current.filter(openFolder => !openFolder.startsWith(path));
+		// })
 		each(folderPaths, path => {
-			openFoldersRef.current = openFoldersRef.current.filter(openFolder => !openFolder.startsWith(path));
+			openFoldersRef.current = openFoldersRef.current.filter(openFolder => openFolder !== path);
 		})
+		
+
 		setOpenFolders(openFoldersRef.current)
 	}
 
 	//
 	// if open folders change, scan them
 	//
+	// useEffect(() => {
+	// 	console.log("openFolders > scanFolders")
+	// 	scanFolders(openFolders)
+	// }, [openFolders])
+
+	const isInitialScanDone = useRef<boolean>(false)
 	useEffect(() => {
+		if (isInitialScanDone.current) return
+		console.log("openFolders > scanFolders", openFolders.length)
 		scanFolders(openFolders)
+		if (openFolders.length > 1) isInitialScanDone.current = true
 	}, [openFolders])
 
 	const cleanFolderHierarchy = () => {
@@ -216,6 +265,14 @@ export const useBrowserApi = (p: {
 	}
 
 	const scanFolders: iBrowserApi['folders']['scan'] = (foldersPaths, opts) => {
+		
+		// clean foldersPath requested
+		each(foldersPaths, (fp, i) => {
+			if (foldersPaths[i] === "") foldersPaths[i] = "/"
+		})
+		foldersPaths = uniq(foldersPaths)
+		console.log("SCANFOLDER", {foldersPaths, opts})
+
 		if (!opts) opts = {}
 		if (!isBoolean(opts.cache)) opts.cache = true
 		let bg = !isBoolean(opts.background) ? false : opts.background
@@ -230,6 +287,7 @@ export const useBrowserApi = (p: {
 					api.folders.get([folderPath], data => {
 						!bg && processScannedFolders(data.pathBase, data.folders)
 						// api.cache.set(cacheId, data, -1)
+						// cleanOpenedFolders(folderPath, data.folders[0])
 						counterCb++
 						if (counterCb >= foldersPaths.length) {
 							opts?.cb && opts.cb()

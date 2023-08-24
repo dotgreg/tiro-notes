@@ -50,6 +50,7 @@ export const FoldersTreeView = (p: {
 				}}
 				onFolderClose={folderPath => {
 					getApi(api => {
+						console.log("ONFOLDERCLOSE", folderPath)
 						api.ui.browser.folders.open.remove([folderPath])
 						p.onFolderClose(folderPath)
 					})
@@ -87,7 +88,14 @@ export const FolderView = (p: {
 	const isOpen = p.openFolders.includes(p.folder.path) && p.folder.hasFolderChildren
 
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
+	const [isLoading, setIsLoading] = useState(false)
 	const [dragClass, setDragClass] = useState("")
+
+	useEffect(() => {
+		if (isOpen && !p.folder.children) setIsLoading(true)
+		else if (isOpen && p.folder.children && p.folder.children.length === 0) setIsLoading(true)
+		else setIsLoading(false)
+	}, [p.folder.children, isOpen])
 
 	const isCurrentFolder = areSamePaths(p.current, p.folder.key)
 	return (
@@ -206,10 +214,13 @@ export const FolderView = (p: {
 					}
 				</span>
 			</div>
-
+			
+			{
+				isLoading && <div className="loading">...</div>
+			}
 
 			{
-				isOpen &&
+				isOpen && 
 				<ul className="folder-children">
 					{
 						p.folder.children && p.folder.children.map((child, key) =>
@@ -285,6 +296,11 @@ export const folderTreeCss = () => `
 				padding: 0px 0px 0px 10px;
 		}
 
+		.loading {
+			margin-left: 30px;
+			font-size: 12px;
+			font-weight: 400;
+		}
 		li.folder-wrapper {
 
 				position: relative;
