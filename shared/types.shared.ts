@@ -41,9 +41,9 @@ export type iBackConfig = {
 	askForSetup:boolean
 	sharedConfig: any
 
-	jsonConfig: iTiroConfig
+	jsonConfig: iTiroConfig | null
 	port:number
-	https:boolean
+	https:boolean 
 	rgPath:string
 
 	[name: string]: any

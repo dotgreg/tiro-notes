@@ -8,7 +8,7 @@ import { startSecuredStaticServer } from './managers/staticServer.manager';
 import { security, formatHeader} from './managers/security.manager';
 import "./managers/activity.manager"
 import { logActivity } from './managers/activity.manager';
-import { scanDirForFolders } from './managers/dir.manager';
+import { scanDirForFolders, scanDirForFolders2 } from './managers/dir.manager';
 
 fileLogClean();
 
@@ -63,10 +63,12 @@ app.get('*', function(req, res){
 	logActivity(`404`, `SECURITY:404:${req.url}`, req)
 	res.status(404).send('Not found');
 });
-
+ 
 
 // const test = async () => {
 // 	// let {plugins, scanLog} = await scanPlugins()
-// 	scanDirForFolders("/")
+// 	// scanDirForFolders("/")
+// 	let res = scanDirForFolders("/")
+// 	console.log(123, res)
 // }
 // test()

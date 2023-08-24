@@ -171,7 +171,7 @@
 							],
 							"type": {
 								"type": "reference",
-								"id": 170,
+								"id": 171,
 								"name": "iFileNature"
 							}
 						},
@@ -210,6 +210,26 @@
 								"type": "intrinsic",
 								"name": "string"
 							}
+						},
+						{
+							"id": 161,
+							"name": "stats",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 169,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
+							}
 						}
 					],
 					"groups": [
@@ -226,7 +246,8 @@
 								152,
 								151,
 								154,
-								153
+								153,
+								161
 							]
 						}
 					],
@@ -239,14 +260,14 @@
 					]
 				},
 				{
-					"id": 167,
+					"id": 168,
 					"name": "iIframeMessage",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {},
 					"children": [
 						{
-							"id": 168,
+							"id": 169,
 							"name": "action",
 							"kind": 1024,
 							"kindString": "Property",
@@ -260,12 +281,12 @@
 							],
 							"type": {
 								"type": "reference",
-								"id": 171,
+								"id": 172,
 								"name": "iIframeActions"
 							}
 						},
 						{
-							"id": 169,
+							"id": 170,
 							"name": "data",
 							"kind": 1024,
 							"kindString": "Property",
@@ -288,8 +309,8 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								168,
-								169
+								169,
+								170
 							]
 						}
 					],
@@ -452,7 +473,7 @@
 					}
 				},
 				{
-					"id": 161,
+					"id": 162,
 					"name": "iApiCall",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -467,7 +488,7 @@
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 162,
+							"id": 163,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -481,14 +502,14 @@
 							],
 							"signatures": [
 								{
-									"id": 163,
+									"id": 164,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 164,
+											"id": 165,
 											"name": "apiName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -499,7 +520,7 @@
 											}
 										},
 										{
-											"id": 165,
+											"id": 166,
 											"name": "apiArguments",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -513,7 +534,7 @@
 											}
 										},
 										{
-											"id": 166,
+											"id": 167,
 											"name": "cb",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -538,7 +559,7 @@
 					}
 				},
 				{
-					"id": 170,
+					"id": 171,
 					"name": "iFileNature",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -565,7 +586,7 @@
 					}
 				},
 				{
-					"id": 171,
+					"id": 172,
 					"name": "iIframeActions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -618,7 +639,7 @@
 					"kind": 256,
 					"children": [
 						150,
-						167
+						168
 					]
 				},
 				{
@@ -626,9 +647,9 @@
 					"kind": 4194304,
 					"children": [
 						142,
-						161,
-						170,
-						171
+						162,
+						171,
+						172
 					]
 				}
 			]
@@ -1405,7 +1426,7 @@
 													"flags": {},
 													"type": {
 														"type": "reference",
-														"id": 167,
+														"id": 168,
 														"name": "iIframeMessage"
 													}
 												}
@@ -1483,7 +1504,7 @@
 																			"flags": {},
 																			"type": {
 																				"type": "reference",
-																				"id": 167,
+																				"id": 168,
 																				"name": "iIframeMessage"
 																			}
 																		}
@@ -1831,7 +1852,7 @@
 									],
 									"type": {
 										"type": "reference",
-										"id": 161,
+										"id": 162,
 										"name": "iApiCall"
 									},
 									"defaultValue": "callApi"

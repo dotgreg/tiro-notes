@@ -15,11 +15,16 @@ import { getPlatform } from "./platform.manager";
 import { searchWithRipGrep } from "./search/search-ripgrep.manager";
 import { ServerSocketManager } from './socket.manager'
 import {fdir} from 'fdir';
+import { scanFolderAsStream } from "./foldersScan/folderScan.manager";
+import { perf } from "./performance.manager";
+const h = `[DIR SCAN]`
+const shouldLog = sharedConfig.server.log.verbose
+
 
 var fs = require('fs')
 const path = require('path')
 
-export let dirDefaultBlacklist = ['.resources','.history', '_resources', '.DS_Store']
+
 
 export const createDir = async (path: string, mask: number = 0o775): Promise<null | string> => {
 	return new Promise((resolve, reject) => {
@@ -39,6 +44,359 @@ export const fileNameFromFilePath = (path: string): string => {
 	fileName = fileName.split('\\').join('_')
 	return fileName
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export let dirDefaultBlacklist = ['.resources','.history', '_resources', '.DS_Store']
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// NEW METHOD USING STREAM
+// 
+export const scanDirForFolders = (folderPath: string): iFolder => {
+	// let endPerf = perf('scanDirForFolders2 ' + JSON.stringify(folderPath))
+	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
+	let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
+	if (!fileExists(fullFolderPath)) return
+	const resultFolder: iFolder = {
+		path: relativeFolder,
+		hasChildren: false,
+		title: path.basename(fullFolderPath),
+		key: relativeFolder
+	};
+	var folderStats = fileStats(fullFolderPath)
+	if (folderStats.isDirectory()) {
+		resultFolder.hasChildren = true 
+		resultFolder.children = []
+		let subfolders = scanFolderAsStream(fullFolderPath, false, dirDefaultBlacklist)
+
+		// for each item, check if there is a dir inside, if yes, stop the scan
+		let breakIfFound = true
+		let children:iFolder[] = []
+		each(subfolders, subfolder => {
+			let relPath = cleanPath(`${relativeFolder}/${subfolder}`)
+			let absPath = cleanPath(`${fullFolderPath}/${subfolder}`)
+			let subsubfolders = scanFolderAsStream(absPath, breakIfFound, dirDefaultBlacklist)
+			let hasFolderChildren = subsubfolders.length > 0
+			children.push({
+				path: relPath,
+				hasChildren: false,
+				hasFolderChildren,
+				title: subfolder,
+				key: relPath
+			})
+		})
+		resultFolder.hasFolderChildren = children.length > 0
+		resultFolder.children = children
+	}
+	// endPerf()
+	// console.log(resultFolder)
+	return resultFolder
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const scanDirForFolders2 = (folderPath: string): iFolder => {
+	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
+	let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
+	if (!fileExists(fullFolderPath)) return
+	const resultFolder: iFolder = {
+		path: relativeFolder,
+		hasChildren: false,
+		title: path.basename(fullFolderPath),
+		key: relativeFolder
+	};
+	var folderStats = fileStats(fullFolderPath)
+	if (folderStats.isDirectory()) {
+		resultFolder.hasChildren = true
+		resultFolder.children = []
+		// resultFolder.children.push(childFolder)
+		const items = new fdir()
+			// .withFullPaths()
+			.onlyDirs()
+			.withMaxDepth(2)
+			.exclude((dirName, dirPath) => dirName.startsWith(".") || dirName === "_resources")
+			.crawl(fullFolderPath)
+			.sync();
+
+		let rawChildren:any = {}
+		each(items, item => {
+			item = item.replace(fullFolderPath, "")
+			let pathArr = item.split("/").filter(it => it !== "")
+			let itemName = pathArr[0]
+			// console.log(111, pathArr)
+			if (itemName === "") return
+			let hasFolderChildren = pathArr.length > 1
+			if (!rawChildren[itemName]) rawChildren[itemName] = {itemName, hasFolderChildren}
+			else if (!rawChildren[itemName].hasFolderChildren && hasFolderChildren) rawChildren[itemName].hasFolderChildren = true
+		})
+		// console.log(22, rawChildren)
+		let children:iFolder[] = []
+		each(rawChildren, rc => {
+			let relativeChildFolder = p(`${fullFolderPath}/${rc.itemName}`).replace(cleanPath(backConfig.dataFolder), '')
+			children.push({
+				path: relativeChildFolder,
+				hasChildren: false,
+				hasFolderChildren: rc.hasFolderChildren,
+				title: rc.itemName,
+				key: relativeChildFolder
+			})
+		})
+		resultFolder.hasFolderChildren = children.length > 0
+		resultFolder.children = children
+		// console.log(22, children)
+
+	}
+	return resultFolder
+}
+
+
+
+
+export const lastFolderFilesScanned = { value: "" }
+export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<iApiDictionary>) => {
+	let apiAnswer = await scanDirForFiles(lastFolderFilesScanned.value, serverSocket2)
+	if (typeof (apiAnswer) === 'string') return log(apiAnswer)
+	serverSocket2.emit('getFiles', { files: apiAnswer, idReq: '-' })
+}
+
+export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocketManager<iApiDictionary>): Promise<iFile[] | string> => {
+	return new Promise((res, rej) => {
+		searchWithRipGrep({
+			term: '',
+			folder: path,
+			typeSearch: 'folder',
+			titleSearch: false,
+			onSearchEnded: async answer => {
+				res(answer.files)
+			},
+			onRgDoesNotExists: () => { serverSocket2 && serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform() })}
+		})
+	})
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const scanDirForFoldersOLD = (folderPath: string): iFolder => {
+// 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
+
+// 	const start = Date.now()
+
+// 	if (!fileExists(fullFolderPath)) return
+// 	var folderStats = fileStats(fullFolderPath)
+// 	let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
+// 	const resultFolder: iFolder = {
+// 		path: relativeFolder,
+// 		hasChildren: false,
+// 		title: path.basename(fullFolderPath),
+// 		key: relativeFolder
+// 	};
+// 	if (folderStats.isDirectory()) {
+// 		resultFolder.hasChildren = true
+// 		resultFolder.children = []
+// 		fs.readdirSync(fullFolderPath).map((child) => {
+
+// 			let fullChildPath = fullFolderPath + '/' + child
+
+// 			try {
+// 				let childStats = fileStats(fullChildPath)
+// 				if (
+// 					childStats.isDirectory() &&
+// 					dirDefaultBlacklist.indexOf(path.basename(child)) === -1
+// 				) {
+// 					let relativeChildFolder = cleanPath(fullChildPath).replace(cleanPath(backConfig.dataFolder), '')
+
+// 					const isFolder = isChildAFolder(child, fullFolderPath)
+// 					if (isFolder) { resultFolder.hasFolderChildren = true }
+
+// 					let childFolder: iFolder = {
+// 						hasChildren: false,
+// 						path: relativeChildFolder,
+// 						title: path.basename(relativeChildFolder),
+// 						key: relativeChildFolder
+// 					}
+
+// 					// WITHOUT READDIR 0.026s
+// 					// WITH READDIR fullChildPath 0.026s kiff kiff
+// 					// WITH READDIR fullChildPath + loop 0.026s kiff kiff
+// 					// WITH READDIR fullChildPath + loop + lstatSync + isDir 0.300s /10 perfs
+// 					// WITH READDIR fullChildPath + loop + checkDir from name 0.030s x10 times faster
+// 					// LAST + LOG EACH ITE = 4s = PERFS /100!!!
+
+// 					const subchildren: string[] = fs.readdirSync(fullChildPath)
+// 					// for (let i = 0; i < subchildren.length; i++) {
+// 					each(subchildren, child2 => {
+// 						// const child2 = subchildren[i];
+// 						// let fullChild2Path = fullChildPafullChildPathth + '/' + child2
+
+// 						const isFolder = isChildAFolder(child2, fullChildPath)
+// 						if (isFolder) {
+// 							childFolder.hasFolderChildren = true
+// 							// break; 
+// 							// breaking each lodash
+// 							return false;
+// 						}
+
+// 						// 10x times slower
+// 						// let child2Stats = fs.lstatSync(fullChild2Path)
+// 						// if (child2Stats.isDirectory() && dirDefaultBlacklist.indexOf(path.basename(child2)) === -1) {
+// 						//     childFolder.hasChildren = true
+// 						//     break;
+// 						// }
+// 					})
+
+// 					resultFolder.children.push(childFolder)
+// 				}
+// 			} catch (error) {
+// 				log("scanDirForFolders => error " + error);
+// 			}
+// 		});
+// 	}
+// 	// console.log(h, folderPath, (Date.now() - start) / 1000);
+// 	return resultFolder
+// }
+
+
+// const isChildAFolder = (childPath: string, parentPath: string): boolean => {
+// 	// take in account .folder like .tiro and .trash
+// 	let child2temp = childPath[0] === '.' ? childPath.substr(1) : childPath
+// 	const hasExtension = child2temp.split('.').length > 1
+
+// 	if (
+// 		dirDefaultBlacklist.indexOf(path.basename(childPath)) === -1 &&
+// 		!hasExtension
+// 	) {
+// 		// check if it is a folder for real
+// 		// (expensive but should not happen often so thats ok
+// 		if (isDir(parentPath + "/" + childPath)) {
+// 			if (parentPath.includes("2222")) console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", childPath, "in", parentPath);
+// 			// if (parentPath.includes("222")) {
+// 			// }
+// 			// childFolder.hasChildren = 
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
+
+
+
+
+
+
+
+
+
 
 // test1
 // avec 6k folders + processing js array + uniq 0.385
@@ -213,9 +571,6 @@ export const fileNameFromFilePath = (path: string): string => {
 // }
 
 
-const h = `[DIR SCAN]`
-const shouldLog = sharedConfig.server.log.verbose
-
 
 // export const scanDirForFolders = async (folderPath: string): Promise<iFolder | undefined> => {
 // 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
@@ -295,200 +650,3 @@ const shouldLog = sharedConfig.server.log.verbose
 
 //   return false;
 // };
-
-export const scanDirForFolders = (folderPath: string): iFolder => {
-	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
-	let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
-	if (!fileExists(fullFolderPath)) return
-	const resultFolder: iFolder = {
-		path: relativeFolder,
-		hasChildren: false,
-		title: path.basename(fullFolderPath),
-		key: relativeFolder
-	};
-	var folderStats = fileStats(fullFolderPath)
-	if (folderStats.isDirectory()) {
-		resultFolder.hasChildren = true
-		resultFolder.children = []
-		// resultFolder.children.push(childFolder)
-		const items = new fdir()
-			// .withFullPaths()
-			.onlyDirs()
-			.withMaxDepth(2)
-			.exclude((dirName, dirPath) => dirName.startsWith(".") || dirName === "_resources")
-			.crawl(fullFolderPath)
-			.sync();
-
-		let rawChildren:any = {}
-		each(items, item => {
-			item = item.replace(fullFolderPath, "")
-			let pathArr = item.split("/").filter(it => it !== "")
-			let itemName = pathArr[0]
-			// console.log(111, pathArr)
-			if (itemName === "") return
-			let hasFolderChildren = pathArr.length > 1
-			if (!rawChildren[itemName]) rawChildren[itemName] = {itemName, hasFolderChildren}
-			else if (!rawChildren[itemName].hasFolderChildren && hasFolderChildren) rawChildren[itemName].hasFolderChildren = true
-		})
-		// console.log(22, rawChildren)
-		let children:iFolder[] = []
-		each(rawChildren, rc => {
-			let relativeChildFolder = p(`${fullFolderPath}/${rc.itemName}`).replace(cleanPath(backConfig.dataFolder), '')
-			children.push({
-				path: relativeChildFolder,
-				hasChildren: false,
-				hasFolderChildren: rc.hasFolderChildren,
-				title: rc.itemName,
-				key: relativeChildFolder
-			})
-		})
-		resultFolder.hasFolderChildren = children.length > 0
-		resultFolder.children = children
-		// console.log(22, children)
-
-	}
-	return resultFolder
-}
-
-
-
-
-
-
-
-
-
-
-export const scanDirForFolders2 = (folderPath: string): iFolder => {
-	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
-
-	const start = Date.now()
-
-	if (!fileExists(fullFolderPath)) return
-	var folderStats = fileStats(fullFolderPath)
-	let relativeFolder = cleanPath(fullFolderPath).replace(cleanPath(backConfig.dataFolder), '')
-	const resultFolder: iFolder = {
-		path: relativeFolder,
-		hasChildren: false,
-		title: path.basename(fullFolderPath),
-		key: relativeFolder
-	};
-	if (folderStats.isDirectory()) {
-		resultFolder.hasChildren = true
-		resultFolder.children = []
-		fs.readdirSync(fullFolderPath).map((child) => {
-
-			let fullChildPath = fullFolderPath + '/' + child
-
-			try {
-				let childStats = fileStats(fullChildPath)
-				if (
-					childStats.isDirectory() &&
-					dirDefaultBlacklist.indexOf(path.basename(child)) === -1
-				) {
-					let relativeChildFolder = cleanPath(fullChildPath).replace(cleanPath(backConfig.dataFolder), '')
-
-					const isFolder = isChildAFolder(child, fullFolderPath)
-					if (isFolder) { resultFolder.hasFolderChildren = true }
-
-					let childFolder: iFolder = {
-						hasChildren: false,
-						path: relativeChildFolder,
-						title: path.basename(relativeChildFolder),
-						key: relativeChildFolder
-					}
-
-					// WITHOUT READDIR 0.026s
-					// WITH READDIR fullChildPath 0.026s kiff kiff
-					// WITH READDIR fullChildPath + loop 0.026s kiff kiff
-					// WITH READDIR fullChildPath + loop + lstatSync + isDir 0.300s /10 perfs
-					// WITH READDIR fullChildPath + loop + checkDir from name 0.030s x10 times faster
-					// LAST + LOG EACH ITE = 4s = PERFS /100!!!
-
-					const subchildren: string[] = fs.readdirSync(fullChildPath)
-					// for (let i = 0; i < subchildren.length; i++) {
-					each(subchildren, child2 => {
-						// const child2 = subchildren[i];
-						// let fullChild2Path = fullChildPafullChildPathth + '/' + child2
-
-						const isFolder = isChildAFolder(child2, fullChildPath)
-						if (isFolder) {
-							childFolder.hasFolderChildren = true
-							// break; 
-							// breaking each lodash
-							return false;
-						}
-
-						// 10x times slower
-						// let child2Stats = fs.lstatSync(fullChild2Path)
-						// if (child2Stats.isDirectory() && dirDefaultBlacklist.indexOf(path.basename(child2)) === -1) {
-						//     childFolder.hasChildren = true
-						//     break;
-						// }
-					})
-
-					resultFolder.children.push(childFolder)
-				}
-			} catch (error) {
-				log("scanDirForFolders => error " + error);
-			}
-		});
-	}
-	// console.log(h, folderPath, (Date.now() - start) / 1000);
-	return resultFolder
-}
-
-
-const isChildAFolder = (childPath: string, parentPath: string): boolean => {
-	// take in account .folder like .tiro and .trash
-	let child2temp = childPath[0] === '.' ? childPath.substr(1) : childPath
-	const hasExtension = child2temp.split('.').length > 1
-
-	if (
-		dirDefaultBlacklist.indexOf(path.basename(childPath)) === -1 &&
-		!hasExtension
-	) {
-		// check if it is a folder for real
-		// (expensive but should not happen often so thats ok
-		if (isDir(parentPath + "/" + childPath)) {
-			if (parentPath.includes("2222")) console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", childPath, "in", parentPath);
-			// if (parentPath.includes("222")) {
-			// }
-			// childFolder.hasChildren = 
-			return true
-		}
-	}
-	return false
-}
-
-
-
-
-
-
-
-
-
-
-
-export const lastFolderFilesScanned = { value: "" }
-export const rescanEmitDirForFiles = async (serverSocket2: ServerSocketManager<iApiDictionary>) => {
-	let apiAnswer = await scanDirForFiles(lastFolderFilesScanned.value, serverSocket2)
-	if (typeof (apiAnswer) === 'string') return log(apiAnswer)
-	serverSocket2.emit('getFiles', { files: apiAnswer, idReq: '-' })
-}
-
-export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocketManager<iApiDictionary>): Promise<iFile[] | string> => {
-	return new Promise((res, rej) => {
-		searchWithRipGrep({
-			term: '',
-			folder: path,
-			typeSearch: 'folder',
-			titleSearch: false,
-			onSearchEnded: async answer => {
-				res(answer.files)
-			},
-			onRgDoesNotExists: () => { serverSocket2 && serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform() })}
-		})
-	})
-}

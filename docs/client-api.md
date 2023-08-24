@@ -592,6 +592,16 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetchUrlArticle",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(out: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;html: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span><br/>}</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">ressource.scanFolder</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. path: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(files: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.scanFolder",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(files: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
 
  ## Api.call : search
  
@@ -905,8 +915,10 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span>
+    - Result: <span class="render-code-wrapper"><a href="#client-api?id=onuploadcallback">onUploadCallback</a></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.uploadFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.uploadFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=onuploadcallback">onUploadCallback</a></span><br/>)</div>
  
 
 
@@ -1051,7 +1063,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iFile</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;filenameWithoutExt?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;filenameWithoutExt?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;stats?: <span class="render-code-wrapper">any</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iGetFilesCb</span>
@@ -1238,6 +1250,14 @@ Watch for file changes
        1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">onUploadCallback</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;message: <span class="render-code-wrapper">"progress" | "success"</span>, <br/>&nbsp;&nbsp;&nbsp;percentUpload?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;succesObj?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span><br/>}</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;message: <span class="render-code-wrapper">"progress" | "success"</span>, <br/>&nbsp;&nbsp;&nbsp;percentUpload?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;succesObj?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span><br/>}</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">iUserSettingName</span>
