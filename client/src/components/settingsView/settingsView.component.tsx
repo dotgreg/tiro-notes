@@ -298,6 +298,15 @@ export const SettingsPopup = (p: {
 							us.set('server_activity_logging_enable', val)
 						}
 					},
+					{
+						type: 'checkbox',
+						title: "Disable notification popups",
+						expl: "Force notification popups to not appear on the interface (Requires interface to reload)",
+						var: us.get('view_disable_notification_popups'),
+						modifier: val => {
+							us.set('view_disable_notification_popups', val)
+						}
+					},
 				]
 			}
 		]
