@@ -1,12 +1,11 @@
 import { cloneDeep, each, orderBy } from "lodash"
-import { isEnvDev } from "./path.manager"
 
 let isPerfMonitoringEnabled:any = process.env.TIRO_PERFORMANCE_MONITORING_BACKEND
 if (isPerfMonitoringEnabled === true) isPerfMonitoringEnabled = true
 if (isPerfMonitoringEnabled === 'true') isPerfMonitoringEnabled = true
 
-// const nodeEnv = process.env.NODE_ENV || ''
-// if (nodeEnv.trim() === 'development') isPerfMonitoringEnabled = true  
+const nodeEnv = process.env.NODE_ENV || ''
+if (nodeEnv.trim() === 'development') isPerfMonitoringEnabled = true  
 
 const h = `[PERFS]`
 console.log(`${h} perf mode =`, isPerfMonitoringEnabled, process.env.TIRO_PERFORMANCE_MONITORING_BACKEND)

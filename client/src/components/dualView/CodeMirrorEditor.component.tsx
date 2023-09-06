@@ -501,6 +501,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		selectionTxt = selectionTxt.replaceAll('"', '\\"')
 		selectionTxt = selectionTxt.replaceAll("'", "\\'")
 		selectionTxt = selectionTxt.replaceAll("`", "\\`")
+		selectionTxt = selectionTxt.replaceAll("$", "\\$")
 		
 		const question = selectionTxt
 		const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
@@ -513,12 +514,16 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				if (streamChunk.isError) isError = true
 				// if it is an error, display it in a popup
 				if (isError) {
+					// let cmdPreview = cmd.length > 200 ? cmd.substring(0, 200) + "..." : cmd
+					// let cmdPreview = ""
+					console.log("[AI ERROR]", streamChunk)
+					if (streamChunk.text === "" || streamChunk.text === "[object Object]") return
 					api.ui.notification.emit({
-						content: `[AI] Error from CLI <br/> "${cmd}" <br/>=> <br/>${streamChunk.text}`,
-						// options: {hideAfter: -1 }
+						content: `[AI] Error while executing command <br/>============<br/> ANSWER => <br/>${streamChunk.text} </br>============`,
+						options: {hideAfter: 10 * 60 }
 					})
 					// erase everything if one error detected
-					// generateTextAt({...genParams(), textUpdate:"", isLast: true})
+					generateTextAt({...genParams(), textUpdate:"", isLast: true})
 				} else {
 					// else insert it
 					generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
