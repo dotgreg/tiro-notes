@@ -22,6 +22,7 @@ export const useActivityApi = (p: {
 
 	useEffect(() => {
 		clientSocket2.on('getActivityReport', (data) => {
+			// console.log(111, data)
 			p.eventBus.notify(data.idReq, data)
 		})
 	}, [])
