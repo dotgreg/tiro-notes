@@ -8,8 +8,8 @@ import { perf } from "./performance.manager"
 import { getExpressClientInfos, getSocketClientInfos, iClientInfosObj } from "./security.manager"
 import { getUserSettings } from "./userSettings.manager"
 
-// shouldLog = true 
 let shouldLog = sharedConfig.client.log.verbose
+shouldLog = true 
 const h = `[ACTIVITY]`
 const dbFolderPath = `${backConfig.dataFolder}/${backConfig.configFolder}/activity`
 const intervalTime = 5 * 60 * 1000
@@ -32,6 +32,7 @@ const currentTimeBatch:{value:iActivityLog[]} = {value: []}
 export const logActivity = async (eventAction: string, eventName:string, socketOrReq:any) => {
     let enabled = await isActivityLogEnabled()
     if (!enabled) return
+    // console.log(111, getDateObj(), getDateObj().full)
     shouldLog && console.log(h, "logActivity", eventAction, eventName)
     const clientInfos = socketOrReq?.raw?.handshake ? getSocketClientInfos(socketOrReq, "obj") as iClientInfosObj : getExpressClientInfos(socketOrReq, "obj") as iClientInfosObj
     currentTimeBatch.value.push({
@@ -56,7 +57,7 @@ export const getActivityReport = async (
     let old = getDateObj(`${now.month}/${now.day}/${now.num.year - 1}`)
     if (!p.startDate) p.startDate = old.date
     if (!p.endDate) p.endDate = now.date
-    if (!p.organizeBy) p.organizeBy = "time"
+    if (!p.organizeBy) p.organizeBy = "time" 
         
     // "10/31/2023" format
     let startDate = getDateObj(p.startDate)
@@ -73,8 +74,10 @@ export const getActivityReport = async (
         dbs[id] = await getMonthlyDb(path)
         i++;
     }
+    // console.log(dbs)
     
     let report = generateReportFromDbs(p, dbs)
+    // console.log(33, report)
 
     return report
 }
@@ -359,7 +362,7 @@ const getMonthlyDb = async (path:string):Promise<iMonthlyDb|null> => {
         let obj = JSON.parse(str) as iMonthlyDb
         return obj
     } catch (error) {
-        shouldLog && console.log(`${h} getMonthlyDb error:`, error)
+        console.log(`${h} getMonthlyDb error for "${path}":`, error)
         return null
     }
 }

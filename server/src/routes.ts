@@ -441,6 +441,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askActivityReport', async data => {
 		const report = await getActivityReport(data.params || {})
+		// console.log(22,report)
 		serverSocket2.emit('getActivityReport', { report, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
