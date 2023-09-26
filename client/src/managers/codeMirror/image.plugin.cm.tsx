@@ -42,17 +42,31 @@ const openLightBoxFn = (el) => {
 export const imagePreviewPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
 	windowId,
-	pattern: regexs.image,
+	pattern: regexs.image2,
 	replacement: matchs => {
+		console.log(matchs)
 		let resEl = document.createElement("div");
-		resEl.innerHTML = generateImagePreviewHtml(matchs[0], matchs[1], file, true)
+		resEl.innerHTML = generateImagePreviewHtml2(matchs[0], matchs[2], matchs[1], matchs[5], file)
 		return resEl;
 	}
 })
+
+export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption:string, rawConfig:string, cFile:iFile):string => {
+	if (caption !== "image") caption = `<div class="mdpreview-source">${caption}</div>`
+	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
+	if (!rawConfig) rawConfig = ""
+	let cnf = rawConfig.trim().split("=")
+	console.log(cnf)
+	let styleStr = ``
+	if (cnf[0] === "width" || cnf[0] ==="height") styleStr =`style="${cnf[0]}:${cnf[1]}"`
+	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" ${styleStr} src="${url}" /></div></div>${caption}`
+
+}
  
 export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iFile, showSource: boolean = false):string => {
-	let sourceHtml = showSource ?  `<div class="mdpreview-source">${fullMd}</div>` : ''
+	// let sourceHtml = showSource ?  `<div class="mdpreview-source">${fullMd}</div>` : ''
 	// sourceHtml = `<div class="mdpreview-source">${fullMd}</div>` 
+	let sourceHtml = ""
 	let caption = fullMd.split("[")[1].split("]")[0]
 	if (caption !== "image") sourceHtml = `<div class="mdpreview-source">${caption}</div>`
 	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
@@ -63,9 +77,9 @@ export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iF
 
 export const imagePreviewCss = () => `
 .cm-mdpreview-wrapper.image-wrapper {
-		display: inline;
+		// display: inline;
 		div {
-			display: inline;
+			// display: inline;
 		}
 		.cm-mdpreview-image {
 			cursor:pointer;
