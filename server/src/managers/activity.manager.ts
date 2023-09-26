@@ -265,15 +265,15 @@ interface iMonthlyDb {
 }
 const monthlyActivityRamCache:{value:iMonthlyDb|null} = {value:null}
 const processTimeBatch = async () => {
-    shouldLog && console.log(`${h} processTimeBatch`)
+    const currentDate = getDateObj()
+
+    shouldLog && console.log(`${h} processTimeBatch of date : ${currentDate.full}`)
     let endPerf = perf(`${h} processTimeBatch `)
 
     // if !monthlyActivityRamCache, load the file in the ram
     if (!monthlyActivityRamCache.value) monthlyActivityRamCache.value = await getMonthlyDbFromDate()
     const monthlyDb = monthlyActivityRamCache.value
     const newTimeBatch = currentTimeBatch.value
-    const currentDate = getDateObj()
-    
     const newMonthlyDb = processTimeBatchInt({monthlyDb, newTimeBatch,currentDate})
     
     monthlyActivityRamCache.value = newMonthlyDb
