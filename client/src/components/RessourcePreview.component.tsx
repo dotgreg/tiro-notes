@@ -230,7 +230,7 @@ export const ressourcePreviewSimpleCss = () => `
 }
 
 .mdpreview-source {
-		display:none!important;
+		// display:none!important;
 }
 
 .resource-link-icon {

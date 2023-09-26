@@ -52,6 +52,9 @@ export const imagePreviewPlugin = (file: iFile, windowId:string) => genericRepla
  
 export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iFile, showSource: boolean = false):string => {
 	let sourceHtml = showSource ?  `<div class="mdpreview-source">${fullMd}</div>` : ''
+	// sourceHtml = `<div class="mdpreview-source">${fullMd}</div>` 
+	let caption = fullMd.split("[")[1].split("]")[0]
+	if (caption !== "image") sourceHtml = `<div class="mdpreview-source">${caption}</div>`
 	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
 	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" src="${url}" /></div></div>${sourceHtml}`
 }
@@ -60,6 +63,10 @@ export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iF
 
 export const imagePreviewCss = () => `
 .cm-mdpreview-wrapper.image-wrapper {
+		display: inline;
+		div {
+			display: inline;
+		}
 		.cm-mdpreview-image {
 			cursor:pointer;
 		}

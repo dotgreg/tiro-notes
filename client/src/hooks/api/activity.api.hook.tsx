@@ -28,6 +28,7 @@ export const useActivityApi = (p: {
 	}, [])
 
 	const getReport: iActivityApi['getReport'] = (params, cb) => {
+		console.log(h,"asked for report (if no cb provided, will be outputed to console.log)", params)
 		const idReq = genIdReq('get-perf-report');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, answer => {

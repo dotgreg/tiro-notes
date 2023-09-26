@@ -48,7 +48,7 @@ const exportTo = (el) => {
                 const destPathAbs = cleanPath(`${rootPath}/${destCacheFolder}/${newFileName}`)
                 const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${newFileName}`)
 
-                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --toc --from=markdown --to=${format} "${inputFilePath}" `
+                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --wrap=preserve --toc --from=markdown --to=${format} "${inputFilePath}" `
                 
 
 
