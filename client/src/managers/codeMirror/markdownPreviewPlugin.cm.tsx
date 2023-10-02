@@ -207,6 +207,9 @@ export const styleCodeMirrorMarkdownPreviewPlugin = () => `
 		display: block;
 }
 
+
+
+
 .cm-mdpreview-wrapper {
 		line-height: 0px;
 

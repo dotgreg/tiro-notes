@@ -6,7 +6,7 @@ import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { codeMirrorEditorCss } from './dualView/CodeMirrorEditor.component';
 import { DualViewer } from './dualView/DualViewer.component';
-import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
+import { PreviewArea, previewAreaSimpleCss } from './dualView/PreviewArea.component';
 
 export type iNotePreviewType = "editor"|"preview"
 export const NotePreview = (p: {
@@ -91,13 +91,17 @@ export const NotePreview = (p: {
 
 	return (
 		<div className={"note-preview-wrapper " + type}>
-			{/* <div className='' onClick={e => { toggleType()}}>toggle view</div> */}
 			{
 				type === "preview" && 
-				<div
-					className="simple-css-wrapper"
-					dangerouslySetInnerHTML={{ __html: content }} >
-				</div>
+				<PreviewArea
+					windowId= {p.windowId || generateUUID()}
+					file={p.file}
+					posY={0}
+					fileContent={content}
+					onMaxYUpdate={() => {}}
+					yCnt={0}	
+					onIframeMouseWheel={() => {}}
+				/>
 			}
 			{
 				type === "editor" && 

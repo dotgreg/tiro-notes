@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo, useState } from 'react';
 import { css, cx } from '@emotion/css'
 import { cssVars } from '../managers/style/vars.style.manager';
-import { Icon } from './Icon.component';
+import { Icon, Icon2 } from './Icon.component';
 
 export const ButtonsToolbarInt = (p: {
 	// export const ButtonsToolbar = (p: {
@@ -78,9 +78,10 @@ export interface iToolbarButton {
 export const ToolbarButton = (p: iToolbarButton) => {
 	let insideHtml = <></>
 	if (p.title) insideHtml = <>{p.title}</>
-	if (p.icon) insideHtml = <Icon name={p.icon} />
+	if (p.icon) insideHtml = p.icon.startsWith("fa") ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
 	if (p.customHtml) insideHtml = p.customHtml
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
+	console.log(p.icon)
 
 	// {random(0, 1000)}
 	return (

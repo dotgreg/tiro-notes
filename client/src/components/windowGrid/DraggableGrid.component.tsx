@@ -11,7 +11,7 @@ import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { deviceType, isA, iMobileView } from '../../managers/device.manager';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
@@ -286,7 +286,7 @@ export const DraggableGrid = (p: {
 		}
 	}
 
-	const WindowTools = (window, i) => {
+	const WindowTools = (window, i, content: iWindowContent) => {
 		return (//jsx
 			<>
 				<div className="note-active-ribbon"></div>
@@ -295,6 +295,16 @@ export const DraggableGrid = (p: {
 						design="horizontal"
 						popup={false}
 						buttons={[
+							{
+								icon: 'window-restore',
+								title: 'Detach Window',
+								class: 'detach-button',
+								action: () => { 
+									
+									if (!content.file) return
+									getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, fileDisplay: intContent[i].view === "preview" ? "preview" : "editor" }) })
+								}
+							},
 							{
 								icon: 'faGripVertical',
 								title: 'Move Window',
@@ -317,7 +327,8 @@ export const DraggableGrid = (p: {
 								action: () => { 
 									removeWindow(window.i) 
 								}
-							}
+							},
+							
 						]}
 						colors={["#d4d1d1", "#615f5f"]}
 						size={0.8} />
@@ -357,6 +368,7 @@ export const DraggableGrid = (p: {
 										// on click note, make it active if it is not
 										if (intContent[i] && !intContent[i].active) {
 											makeWindowActive(intContent[i].i, intContent[i].file)
+															
 										}
 									}}
 									onMouseEnter={() => {
@@ -364,7 +376,7 @@ export const DraggableGrid = (p: {
 
 									}}
 								>
-									{WindowTools(window, i)}
+									{WindowTools(window, i, p.grid.content[i])}
 
 									<div className="note-wrapper">
 										<WindowEditor

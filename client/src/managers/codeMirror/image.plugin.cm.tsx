@@ -44,7 +44,6 @@ export const imagePreviewPlugin = (file: iFile, windowId:string) => genericRepla
 	windowId,
 	pattern: regexs.image2,
 	replacement: matchs => {
-		console.log(matchs)
 		let resEl = document.createElement("div");
 		resEl.innerHTML = generateImagePreviewHtml2(matchs[0], matchs[2], matchs[1], matchs[5], file)
 		return resEl;
@@ -58,7 +57,10 @@ export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption
 	let cnf = rawConfig.trim().split("=")
 	console.log(cnf)
 	let styleStr = ``
-	if (cnf[0] === "width" || cnf[0] ==="height") styleStr =`style="${cnf[0]}:${cnf[1]}"`
+	if (cnf[0] === "width" || cnf[0] ==="height") {
+		let otherProp = cnf[0] === "width" ? "height:auto;max-height:none" : "width:auto; max-width:none;"
+		styleStr =`style="${cnf[0]}:${cnf[1]}; ${otherProp}"`
+	}
 	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" ${styleStr} src="${url}" /></div></div>${caption}`
 
 }

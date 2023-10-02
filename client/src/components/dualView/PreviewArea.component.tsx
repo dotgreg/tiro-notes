@@ -107,7 +107,7 @@ export const PreviewArea = (p: {
 			>
 				<div className="preview-area-transitions">
 
-					<div className="infos-preview-wrapper">
+					{/* <div className="infos-preview-wrapper">
 						<div className="file-path-wrapper">
 							{p.file.path.replace(`/${p.file.name}`, '')}
 						</div>
@@ -117,7 +117,7 @@ export const PreviewArea = (p: {
 						</h1>
 
 
-					</div>
+					</div> */}
 
 					<div className="content-blocks-wrapper">
 						<div className="simple-css-wrapper">

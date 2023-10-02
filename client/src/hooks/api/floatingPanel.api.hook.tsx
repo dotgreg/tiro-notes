@@ -12,6 +12,7 @@ export interface iFloatingPanel {
     hidden: boolean,
     file: iFile,
     type: "ctag" | "file",	
+    fileDisplay?: "editor" | "preview",
     ctagName?: string,
     id: string,
     zIndex?: number,
@@ -23,7 +24,7 @@ export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
 }
 
 export interface iFloatingPanelApi {
-	create: (panel:iFloatingPanel) => void,
+	create: (panel:iCreateFloatingPanel) => void,
     delete: (panelId:string) => void,
     // getPanels: iFloatingPanel[],
     panels: iFloatingPanel[],
@@ -68,6 +69,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             size: {width: 300, height: 300},
             hidden: false,
             file: generateEmptyiFile(),
+            fileDisplay: "editor",
             id: Math.random().toString(36).substring(7),
             zIndex: startingZindex,
             ...panelParams,

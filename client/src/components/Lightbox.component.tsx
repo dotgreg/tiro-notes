@@ -149,7 +149,7 @@ export const Lightbox = (p: {
 export const lightboxCss = () => `
 .lightbox-component {
     position: fixed;
-		z-index: 1002;
+		z-index: 1500;
     top: 0px;
     left: 0px;
     width: 100vw;
