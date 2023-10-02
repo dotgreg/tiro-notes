@@ -40,6 +40,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_markdown_table_preview: true,
 	ui_editor_links_as_button: true,
 	ui_editor_links_preview_zoom: 0.8,
+	export_pandoc_cli_options: "--wrap=preserve --toc --number-sections",
 	ui_editor_ai_text_selection: true,
 	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue",
 	server_activity_logging_enable: false,

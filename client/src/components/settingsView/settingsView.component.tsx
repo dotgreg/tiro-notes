@@ -13,6 +13,7 @@ import { replaceAll } from '../../managers/string.manager';
 import { disconnectUser } from '../../hooks/app/loginToken.hook';
 import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
 import { devCliExecFn } from '../../managers/devCli.manager';
+import { iUserSettingName } from '../../../../shared/types.shared';
 
 type ConfigPanel = {
 	title: string,
@@ -37,12 +38,13 @@ export const getSetting = (settingName: SettingParam) => {
 	return replaceAll(res, [["\"", ""]])
 }
 
+const showDefaultString = (us:iUserSettingName):string => {
+	return `<br/> <br/> Default value: ${defaultValsUserSettings[us]}`
+}
 
 export const SettingsPopup = (p: {
 	onClose: Function
 }) => {
-
-
 
 
 
@@ -210,6 +212,18 @@ export const SettingsPopup = (p: {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_table_preview', val)
 						}
+					},
+				]
+			},
+			{
+				title: "exports",
+				fields: [
+					{
+						type: 'text',
+						title: "Options for Pandoc exporter",
+						expl: `Modify how pandoc exports files for docx/pdf, all options can be found at <a href='https://pandoc.org/MANUAL.html'>pandoc options manual</a>. ${showDefaultString("export_pandoc_cli_options")}`,
+						var: us.get('export_pandoc_cli_options'),
+						modifier: val => { us.set('export_pandoc_cli_options', val) }
 					},
 				]
 			},
@@ -387,7 +401,7 @@ export const SettingsPopup = (p: {
 											<div
 												className="explanation"
 												dangerouslySetInnerHTML={{
-													__html: field.expl || ""
+													__html: field.expl || "" + "woop"
 												}}
 											></div>
 										</div>

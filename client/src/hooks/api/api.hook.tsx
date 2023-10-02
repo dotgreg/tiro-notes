@@ -33,6 +33,7 @@ import { iNotePreviewPopupApi } from './notePreviewPopup.api.hook';
 import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
 import { iActivityApi, useActivityApi } from './activity.api.hook';
 import { iConfigApi, useConfigApi } from './config.api.hook';
+import { iFloatingPanelApi, useFloatingPanelApi } from './floatingPanel.api.hook';
 
 
 //
@@ -82,6 +83,7 @@ export interface iClientApi {
 	activity: iActivityApi,
 	ui: {
 		browser: iBrowserApi
+		floatingPanel: iFloatingPanelApi
 		windows: iWindowsApi
 		notification: iNotificationApi
 		lightbox: iLightboxApi
@@ -217,6 +219,7 @@ export const useClientApi = (p: {
 	const analyticsApi = useAnalyticsApi({})
 	const performanceApi = usePerformanceApi({ eventBus })
 	const activityApi = useActivityApi({ eventBus })
+	const floatingPanelApi = useFloatingPanelApi({})
 
 
 	// 
@@ -248,6 +251,7 @@ export const useClientApi = (p: {
 		activity: activityApi,
 		ui: {
 			browser: browserApi,
+			floatingPanel: floatingPanelApi,
 			notification: notificationApi,
 			windows: p.windowsApi,
 			lightbox: p.lightboxApi,

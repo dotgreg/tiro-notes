@@ -1263,7 +1263,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "plugins_marketplace_url" | "demo_mode_enable" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "plugins_marketplace_url" | "demo_mode_enable" | "export_pandoc_cli_options" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iUpdateConfigJsonOpts</span>
