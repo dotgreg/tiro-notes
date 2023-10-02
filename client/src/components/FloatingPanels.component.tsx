@@ -8,6 +8,7 @@ import { iFile } from '../../../shared/types.shared';
 import { generateEmptyiFile } from '../hooks/app/useLightbox.hook';
 import { iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
+import { NotePreview } from './NotePreview.component';
 
 // react windows that is resizable
 // on close button click, remove the div from the dom
@@ -52,6 +53,7 @@ export const FloatingPanel = (p:{
         updatePanel({...p.panel, hidden:true})
     }
 
+    // const [fileView, setFileView] = useState<"editor"|"preview">("editor")
 
     return (
         <div className='floating-panel-wrapper' 
@@ -74,14 +76,33 @@ export const FloatingPanel = (p:{
                     onResize={handleResize}
                 >
                     <div className='floating-panel__wrapper'  >
-                        <div className="floating-panel__title">{p.panel.file.name}</div>
-                        <div className="floating-panel__content">{p.panel.file.name}</div>
-                        <div className="floating-panel__actions">
+                        
+                        {/* <div className="floating-panel__content">{p.panel.file.name}</div>
+                         */}
+                         <div className="floating-panel__actions">
                             <button onClick={handleMinimize}>{ "-"}</button>
                             {/* <button onClick={() => setIsClosed(true)}>Close</button> */}
                             <button className='handle'>D</button>
                             <button onClick={handleClosePanel}>X</button>   
+                            { p.panel.type && <button>{p.panel.type}</button> }
                         </div>
+                        <div className='floating-panel__content' style={{height:  p.panel.size.height - 30}}>
+                         {
+                            p.panel.type === "file" && p.panel.file &&
+                            <div className='floating-panel__inner-content'>
+                                {p.panel.fileDisplay === "editor" && <div className="floating-panel__title">{p.panel.file.name}</div>}
+                                {p.panel.fileDisplay === "preview" && <div className="floating-panel__title">{p.panel.file.name}</div>}
+                                <NotePreview
+                                    file={p.panel.file}
+                                    // searchedString={activeLine}
+                                    // height={p.panel.size.height}
+                                    type={p.panel.fileDisplay || "editor"}
+                                    // linkPreview={false}
+                                />
+                            </div>
+                         }
+                        </div>
+                        
                     </div>
                 </Resizable>
             </Draggable>
@@ -92,7 +113,9 @@ export const FloatingPanel = (p:{
 // floatingPanel css in a string
 export const FloatingPanelCss = () => `
 
-
+//
+// PANEL
+//
 .floating-panels-wrapper {
     position: absolute;
     top: 0;
@@ -111,11 +134,23 @@ export const FloatingPanelCss = () => `
             box-shadow: 0 0 4px rgba(0,0,0,0.3);
             z-index: 1000;
             pointer-events: all;
+            .floating-panel__content {
+                overflow-y: auto;
+                position: absolute;
+                top: 30px;
+                left: 0px;
+                width: 100%;
+            }
         }
     }
     
     
 }
+
+
+//
+// BAR
+//
 .panels-minimized-bottom-bar-wrapper {
     
     position: absolute;
@@ -171,10 +206,18 @@ export const FloatingPanelCss = () => `
     }
 }
 
+.floating-panel__wrapper .note-preview-wrapper .cm-mdpreview-wrapper .cm-mdpreview-image img {
+	max-height: none;
+}
+
 `
 
 
-export const FloatingPanelsWrapper = (p:{panels: iFloatingPanel[], forceUpdate:number}) => {
+export const FloatingPanelsWrapper = (p:{
+    panels: iFloatingPanel[], 
+    forceUpdate:number,
+    onPinBar?: (pinned:boolean) => void
+}) => {
     
     let panels = p.panels
     

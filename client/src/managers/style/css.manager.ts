@@ -406,7 +406,7 @@ export const CssApp2Int = (
 				.right-wrapper.dual-viewer-view {
 
 						width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
-						height: ${deviceType() === 'desktop' ? "100vh" : "100%"};
+						height: ${deviceType() === 'desktop' ? "calc(100vh - 30px)" : "100%"};
 						display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
 						padding-top: 0px;
 						.note-wrapper {

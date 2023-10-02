@@ -175,7 +175,7 @@ const onScrollerScroll = (wid: string, percent: number) => {
 
 const onPreviewScroll = (wid: string) => {
 	const c = getScrollObj(wid)
-	// if (!c.els.editor) return;
+	if (!c.els.editor) return;
 	let previewY = c.els.preview.scrollTop
 	
 	updatePreviewOffset(wid, previewY)

@@ -4,6 +4,7 @@ import { getApi } from '../hooks/api/api.hook';
 import { iNotePreviewPopup } from '../hooks/api/notePreviewPopup.api.hook';
 import { stopDelayedNotePreview } from '../managers/codeMirror/noteLink.plugin.cm';
 import { NotePreview } from './NotePreview.component';
+import { Icon, Icon2 } from './Icon.component';
 
 export const NotePreviewPopup = (p: {
     notePreview: iNotePreviewPopup
@@ -33,6 +34,10 @@ export const NotePreviewPopup = (p: {
 
     })
 
+    const detachInFloatingPanel = () => {
+        getApi(api => { api.ui.floatingPanel.create({type:"file", file:notePreview}) })
+    }
+
     return (
         <div
             className="page-link-preview-popup-ext"
@@ -40,6 +45,14 @@ export const NotePreviewPopup = (p: {
             style={{ left: p.notePreview.position[0], top: p.notePreview.position[1] }}>
             <div className="click-throught" onClick={goToNote}></div>
             <div className='page-link-preview-popup-int'>
+                {/* <br/>
+                <br/>
+                <br/>
+                <br/>
+                <div className='detach-in-floating-panel' onClick={detachInFloatingPanel}>
+                    <Icon2 name='window-restore' />
+                </div> */}
+                
                 <NotePreview
                     file={notePreview}
                     // searchedString={activeLine}
