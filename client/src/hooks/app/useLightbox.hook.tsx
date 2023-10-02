@@ -51,12 +51,12 @@ export const useLightbox = () => {
 
 }
 
-export const generateEmptyiFile = (): iFile => {
+export const generateEmptyiFile = (name?:string, path?:string): iFile => {
 	return {
 		nature: 'file',
-		name: '',
+		name: name || '',
 		realname: '',
-		path: '',
+		path: path || '',
 		folder: '',
 	}
 }

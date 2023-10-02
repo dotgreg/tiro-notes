@@ -32,6 +32,7 @@ const exportTo = (el) => {
     // get the absolute path of data folder
     getApi(api => {
         getApi(api => {api.ui.notification.emit({ content: `[EXPORT] converting...`, id:"export", options:{hideAfter: -1} })})
+        
         api.config.get(cnf => {
             
             const destCacheFolder = `/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc`
@@ -48,7 +49,7 @@ const exportTo = (el) => {
                 const destPathAbs = cleanPath(`${rootPath}/${destCacheFolder}/${newFileName}`)
                 const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${newFileName}`)
 
-                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --wrap=preserve --toc --from=markdown --to=${format} "${inputFilePath}" `
+                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" ${api.userSettings.get("export_pandoc_cli_options")} --from=markdown --to=${format} "${inputFilePath}" `
                 
 
 

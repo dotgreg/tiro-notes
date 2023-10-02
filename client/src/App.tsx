@@ -52,6 +52,7 @@ import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
 import { PluginsMarketplacePopup } from './components/settingsView/pluginsMarketplacePopup.component';
+import { FloatingPanel, FloatingPanelsWrapper } from './components/FloatingPanels.component';
 
 export const App = () => {
 
@@ -162,6 +163,7 @@ export const App = () => {
 			refreshTabsFromBackend();
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
+				api.ui.floatingPanel.refreshFromBackend()
 			})
 			refreshFilesHistoryFromBackend();
 
@@ -683,6 +685,12 @@ export const App = () => {
 				</ClientApiContext.Provider>
 			</div >
 
+			<FloatingPanelsWrapper 
+				panels={api.ui.floatingPanel.panels} 
+				// forceUpdate={api.ui.floatingPanel.forceFloatingPanelsUpdate} 
+				forceUpdate={0} 
+			/>
+			
 			<NotificationsCenter />
 
 			{

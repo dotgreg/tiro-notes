@@ -1,0 +1,167 @@
+import React, { useEffect } from "react"
+import { iFile, iNotification, iPlugin } from "../../../../shared/types.shared"
+import { useBackendState } from "../useBackendState.hook"
+import { generateEmptyiFile } from "../app/useLightbox.hook"
+import { cloneDeep } from "lodash"
+
+const h = `[FLOATING PANELS]`
+
+export interface iFloatingPanel {
+    position: {x: number, y: number},
+    size: {width: number, height: number},
+    hidden: boolean,
+    file: iFile,
+    type: "ctag" | "file",	
+    ctagName?: string,
+    id: string,
+    zIndex?: number,
+}
+
+// create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
+export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
+    type: "ctag" | "file",
+}
+
+export interface iFloatingPanelApi {
+	create: (panel:iFloatingPanel) => void,
+    delete: (panelId:string) => void,
+    // getPanels: iFloatingPanel[],
+    panels: iFloatingPanel[],
+
+    update: (panel:iFloatingPanel) => void,
+    movePanel: (panelId:string, position:{x:number, y:number}) => void,
+    resizePanel: (panelId:string, size:{width:number, height:number}) => void,
+    
+    
+    updateAll: (panels:iFloatingPanel[]) => void,
+    actionAll: (action:"hide"|"show"|"organize") => void,
+
+    refreshFromBackend: Function,
+    putOnTop: (panelId:string) => void,
+
+}
+
+let startingZindex = 1000
+let offset = 20
+
+// create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
+export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
+    const [panels, setPanels, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig',[])
+    const panelsRef = React.useRef<iFloatingPanel[]>([])
+    // const [forceFloatingPanelsUpdate, setForceFloatingPanelsUpdate] = React.useState(0) 
+
+    useEffect(() => {
+        panelsRef.current = panels
+    },[panels]) 
+    
+    useEffect(() => {
+        refreshFromBackend()
+    },[])
+
+
+    const createPanel = (panelParams:iCreateFloatingPanel) => {
+        // get all non hidden pannels
+        let nonHiddenPanels = panelsRef.current.filter(p => !p.hidden)
+        // position is i * nonHiddenPanels.length
+        const panel:iFloatingPanel = {
+            position: {x: 100 + (nonHiddenPanels.length * offset), y: 100 + (nonHiddenPanels.length * offset)},
+            size: {width: 300, height: 300},
+            hidden: false,
+            file: generateEmptyiFile(),
+            id: Math.random().toString(36).substring(7),
+            zIndex: startingZindex,
+            ...panelParams,
+        }
+        setPanels([...panelsRef.current, panel])
+    }
+
+    const updatePanel = (panel:iFloatingPanel) => { 
+        const nPanels = panelsRef.current.map(p => p.id === panel.id ? panel : p)
+        panelsRef.current = nPanels
+        setPanels(panelsRef.current)
+    }
+
+    const deletePanel = (panelId:string) => {
+        console.log(`${h} deletePanel`, panelId)
+        panelsRef.current = panelsRef.current.filter(p => p.id !== panelId)
+        setPanels(panelsRef.current)
+    }
+
+    const putOnTop = (panelId:string) => {
+        // get higher zIndex of all panels
+        const highestZIndex = Math.max(...panelsRef.current.map(p => p.zIndex || 0))
+
+        let newPanels = cloneDeep(panelsRef.current)
+        let panelIndex = newPanels.findIndex(p => p.id === panelId)
+        if (panelIndex === -1) return
+        newPanels[panelIndex].zIndex = highestZIndex + 1
+        setPanels(newPanels)
+    }
+
+    
+    const updateAll = (panels:iFloatingPanel[]) => {
+        panelsRef.current = panels
+        setPanels(panelsRef.current)
+    }
+
+    const movePanel = (panelId:string, position:{x:number, y:number}) => {
+        updatePanel({...panelsRef.current.find(p => p.id === panelId)!, position})
+    }
+
+    const resizePanel = (panelId:string, size:{width:number, height:number}) => {
+        updatePanel({...panelsRef.current.find(p => p.id === panelId)!, size})
+    }
+
+    const reorganizeAll = () => {
+        console.log(`${h} reorganizeAll`)
+        let newPanels = cloneDeep(panelsRef.current)
+        
+        let j = 0
+        newPanels.forEach((panel) => {
+            if (panel.hidden) return
+            panel.zIndex = startingZindex + j
+            panel.position = {x: 100 + (j * offset), y: 100 + (j * offset)}
+            panel.size = {width: 320, height: 200}
+            // if i > 0, position should offset half of the previous panel size
+            // if (j > 0) {
+            //     panel.position = {x: 100 + (j * offset) , y: 100 + (j * offset) - (newPanels[j].size.height )}
+            // }   
+            j++
+
+
+        })
+        updateAll(newPanels)
+    }
+
+    // const displayAll = (action:"hide"|"show") => {
+    //     let newPanels = cloneDeep(panelsRef.current)
+    //     newPanels.forEach((panel) => {
+    //         panel.hidden = action === "hide" ? true : false
+    //     })
+    //     updateAll(newPanels)
+    // }
+
+    const actionAll = (action:"hide"|"show"|"organize") => {
+        if (action === "organize") return reorganizeAll()
+        let newPanels = cloneDeep(panelsRef.current)
+        newPanels.forEach((panel) => {
+            panel.hidden = action === "hide" ? true : false
+        })
+        updateAll(newPanels)
+    }
+
+    const api: iFloatingPanelApi = {
+        create: createPanel,
+        update: updatePanel,
+        updateAll,
+        delete: deletePanel,
+        movePanel,
+        resizePanel,
+        actionAll,
+        panels, 
+        refreshFromBackend,
+        putOnTop
+    }
+    
+    return api
+}

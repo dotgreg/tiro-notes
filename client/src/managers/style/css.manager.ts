@@ -48,6 +48,7 @@ import { pluginsMarketplacePopupCss } from '../../components/settingsView/plugin
 import { perf } from '../performance.manager';
 import { memoize, values } from 'lodash';
 import { iUserSettingsApi } from '../../hooks/useUserSettings.hook';
+import { FloatingPanelCss } from '../../components/FloatingPanels.component';
 
 
 export const css2 = (css: string) => css
@@ -140,6 +141,8 @@ export const CssApp2Int = (
 		${PopupWrapperCss()}
 		${linksPreviewMdCss(userSettings)}
 		${ctagPreviewPluginCss()}
+
+		${FloatingPanelCss()}
 
 		.main-wrapper {
 				${folderTreeCss()}

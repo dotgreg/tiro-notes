@@ -89,6 +89,8 @@ export type iUserSettingName =
 
 'demo_mode_enable' |
 
+'export_pandoc_cli_options' |
+
 'ui_other'
 
 export type iPluginType = "background" | "bar" | "tag"
