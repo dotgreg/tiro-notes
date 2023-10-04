@@ -13,6 +13,7 @@ import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { stopDelayedNotePreview } from '../../managers/codeMirror/noteLink.plugin.cm';
 import { iCMPluginConfig } from './CodeMirrorEditor.component';
+import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
@@ -22,8 +23,10 @@ interface iDualViewProps {
 	isActive: boolean
 	canEdit: boolean
 
+	showViewToggler?: boolean
+
 	viewType?: iViewType
-	mobileView: iMobileView
+	mobileView?: iMobileView
 
 	onFileEdited: onFileEditedFn
 	askForLayoutUpdate: iLayoutUpdateFn
@@ -165,11 +168,13 @@ const DualViewerInt = (
 			</div>
 		}
 		
+		
 		<EditorArea
 			viewType={p.viewType}
 			mobileView={p.mobileView}
 			windowId={p.windowId}
 			editorType='codemirror'
+			showViewToggler={p.showViewToggler}
 
 			file={p.file}
 			canEdit={p.canEdit}
@@ -230,7 +235,7 @@ const DualViewerInt = (
 	</div>
 }
 
-export const dualViewerCss = () => `
+export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) => `
 	.dual-view-wrapper {
 		position: relative;
 		.loading-overlay {
@@ -253,6 +258,112 @@ export const dualViewerCss = () => `
 			color: white;
 		}
 	}
+
+	
+	
+	.dual-view-wrapper.device-tablet, 
+	.dual-view-wrapper.device-mobile {
+			.editor-area,
+			.preview-area-wrapper {
+					width: 100%;
+			}
+	}
+	.dual-view-wrapper {
+			&.view-both.device-desktop {
+					.preview-area-wrapper {
+							width: 50%;
+					}
+			}
+
+
+
+			.__EDITOR_DESIGN HERE__ {}
+			&.view-editor.device-desktop {
+					.editor-area {
+							width: 100%;
+					}
+
+					.preview-area-wrapper {
+							/* display:none; */
+							position: absolute;
+							width: 10px;
+							left: -9999px;
+							top: -9999px;
+
+					}
+			}
+
+			&.view-editor-with-map.device-desktop {
+					.editor-area {
+							width: 80%;
+					}
+
+					.__MINIMAP_DESIGN HERE__ {}
+
+					.preview-area-wrapper:hover {
+							height: calc(100% - 30px);
+							transform: scale(1);
+							right: -50%;
+							opacity: 1;
+							box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
+							.preview-area-transitions {
+									width: 50%;
+									padding: 0px;
+							}
+					}
+					.preview-area-wrapper {
+							transition-delay: ${cssVars.anim.time};
+							/* transition-delay: 0ms; */
+							/* transition-property: bottom; */
+							word-break: break-word;
+							transform: scale(0.2) translateZ(0);
+							transform-origin: 0px 0px;
+							position: absolute;
+							width: 100%;
+							right: calc(-80%);
+							// height: 500vh;
+							height: calc(100% * 5);
+							.preview-area-transitions {
+
+									/* transition-delay: 0ms; */
+									/* transition-property: bottom; */
+
+									/* transition-delay:${cssVars.anim.time};  */
+									/* transition-property: padding; */
+
+									transition-delay:${cssVars.anim.time}; 
+									/* transition-property: all; */
+
+									/* transition-delay: 0ms; */
+									/* transition-property: bottom; */
+
+									width: 73%;
+									padding: 80px;
+									padding-right: 140px;
+									padding-left: 40px;
+							}
+					}
+			}
+
+			&.view-preview.device-desktop {
+					.editor-area {
+							width: 0%;
+							.main-editor-wrapper {
+									position: absolute;
+									left: -9999px;
+							}
+					}
+					.preview-area-wrapper {
+							width: 100%;
+							.preview-area {
+							}
+					}
+			}
+
+			position:relative;
+			display: ${deviceType() === 'desktop' ? 'flex' : 'block'};
+	}
+	
 `
 
 export const DualViewer = (p: iDualViewProps) => {

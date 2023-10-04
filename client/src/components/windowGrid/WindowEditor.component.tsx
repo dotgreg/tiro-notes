@@ -16,8 +16,7 @@ export const WindowEditorInt = (p: {
 	// onViewChange: onViewChangeFn
 	// onEditorDropdownEnter?: Function
 	askForLayoutUpdate:iLayoutUpdateFn
-
-	mobileView: iMobileView
+	mobileView?: iMobileView
 }) => {
 
 	const { file, view, active, i } = { ...p.content }
@@ -196,6 +195,7 @@ export const WindowEditorInt = (p: {
 						fileContent={fileContent}
 						isActive={active}
 						canEdit={canEdit}
+						showViewToggler={true}
 
 						viewType={intViewType}
 						mobileView={p.mobileView}
@@ -226,17 +226,20 @@ export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
 
 
 export const windowEditorCss = () => `
-	.window-editor-wrapper {
 	// height 100% everywhere
-		.note-wrapper,
-		.window-editor-wrapper,
-		.dual-view-wrapper,
-		.editor-area,
-		.preview-area-wrapper,
-		.preview-area,
-		.main-editor-wrapper{
-				height: 100%;
-		}
+	.window-editor-wrapper-wrapper,
+	.window-editor-wrapper,
+	.dual-view-wrapper,
+	.editor-area,
+	.preview-area-wrapper,
+	.preview-area,
+	.main-editor-wrapper{
+			height: 100%;
+	}
+
+	.window-editor-wrapper {
+	
+		
 
 		.content-wrapper {
 				height:100%;

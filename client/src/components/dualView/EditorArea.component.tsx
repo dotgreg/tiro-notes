@@ -41,7 +41,7 @@ export type iLayoutUpdateFn = (type: "windowActive"|"windowView", data?:{view?: 
 
 interface iEditorProps {
 	viewType?: iViewType
-	mobileView: iMobileView
+	mobileView?: iMobileView
 	
 
 	editorType: iEditorType
@@ -69,6 +69,7 @@ interface iEditorProps {
 
 	askForLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
+	showViewToggler?: boolean
 }
 
 const EditorAreaInt = (
@@ -82,6 +83,8 @@ const EditorAreaInt = (
 	let canEdit = true
 	if (p.canEdit === false) canEdit = false
 	if (p.isConnected === false) canEdit = false
+	let showViewToggler	= true
+	if(p.showViewToggler === false) showViewToggler = false
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -495,7 +498,8 @@ const EditorAreaInt = (
 						>
 							<>
 
-								<div className="view-toggler-wrapper">
+								{showViewToggler && 
+									<div className="view-toggler-wrapper">
 									{deviceType() !== 'mobile' &&
 										<ButtonsToolbar
 											class='editor-view-toolbar'
@@ -524,7 +528,8 @@ const EditorAreaInt = (
 											]}
 										/>
 									}
-								</div>
+									</div>
+								}
 
 								<div className='toolbar-wrapper'>
 									<ButtonsToolbar
@@ -761,7 +766,6 @@ export const commonCssEditors = () => `
 
 
 `
-
 export const editorAreaCss = (v: iMobileView) => `
 
 .editor-area {
