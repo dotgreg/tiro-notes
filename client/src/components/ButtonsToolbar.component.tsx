@@ -81,7 +81,6 @@ export const ToolbarButton = (p: iToolbarButton) => {
 	if (p.icon) insideHtml = p.icon.startsWith("fa") ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
 	if (p.customHtml) insideHtml = p.customHtml
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
-	console.log(p.icon)
 
 	// {random(0, 1000)}
 	return (

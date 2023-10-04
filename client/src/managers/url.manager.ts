@@ -6,9 +6,36 @@ import { getApi } from "../hooks/api/api.hook";
 import { notifLog } from "./devCli.manager";
 import { isVarMobileView, iMobileView, deviceType } from "./device.manager";
 
+//
+// URL PARSER
+//
+export const genUrlPreviewStr = (url) => {
+	const parsedUrl = new URL(url);
+	let siteName = parsedUrl.hostname.replace(/^www\./, '');
+	// let siteName = parsedUrl.hostname;
+	const pathSegments = parsedUrl.pathname.split('/').filter(segment => segment.trim() !== '');
+	
+	let content = '';
+	if (pathSegments.length > 0) {
+	  content = pathSegments[pathSegments.length - 1];
+	  if (content.length > 20) {
+		content = content.substring(0, 20).replace(/[^A-Za-z0-9-_\ ]/g, '');
+	  } else {
+		content = content.replace(/[^A-Za-z0-9]/g, '');
+	  }
+	}
+
+	if (siteName.length > 15) siteName = siteName.substring(0, 15)
+
+	if (content.length > 0) {
+	  return `${siteName}/${content}`;
+	} else {
+	  return siteName;
+	}
+  }
 
 //
-// V2
+// V2 URL PARAMS GETTER
 //
 const h = `[URL]`
 

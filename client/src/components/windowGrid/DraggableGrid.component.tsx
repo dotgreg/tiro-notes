@@ -300,9 +300,10 @@ export const DraggableGrid = (p: {
 								title: 'Detach Window',
 								class: 'detach-button',
 								action: () => { 
-									
+									console.log("detach", intContent[i].view, intContent[i])
 									if (!content.file) return
 									getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, fileDisplay: intContent[i].view === "preview" ? "preview" : "editor" }) })
+									// getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, fileDisplay: "full" }) })
 								}
 							},
 							{

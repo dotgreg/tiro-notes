@@ -6,9 +6,10 @@ import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { codeMirrorEditorCss } from './dualView/CodeMirrorEditor.component';
 import { DualViewer } from './dualView/DualViewer.component';
-import { PreviewArea, previewAreaSimpleCss } from './dualView/PreviewArea.component';
+import { PreviewArea, previewAreaCss, previewAreaSimpleCss } from './dualView/PreviewArea.component';
+import { WindowEditor } from './windowGrid/WindowEditor.component';
 
-export type iNotePreviewType = "editor"|"preview"
+export type iNotePreviewType = "editor"|"preview"|"full"
 export const NotePreview = (p: {
 	searchedString?: string
 	file: iFile
@@ -88,15 +89,30 @@ export const NotePreview = (p: {
 		// forceUpdate()
 	}, [p.file, p.searchedString, type])
 
-
+	let heightStr = p.height ? p.height + "px" : "100%"
 	return (
-		<div className={"note-preview-wrapper " + type}>
+		<div className={"note-preview-wrapper " + type} style={{ height: heightStr }}>
+			{
+				type === "full" &&
+				<WindowEditor
+					content={{
+						view: "both",
+						file: p.file,
+						active: true,
+						i: generateUUID()
+					}}
+					askForLayoutUpdate={() => {}}
+					mobileView={"editor"}
+				/>
+			}
 			{
 				type === "preview" && 
 				<PreviewArea
 					windowId= {p.windowId || generateUUID()}
 					file={p.file}
 					posY={0}
+					height={p.height || 0}
+					reactOnHeightResize={false}
 					fileContent={content}
 					onMaxYUpdate={() => {}}
 					yCnt={0}	
@@ -145,20 +161,34 @@ export const NotePreviewCss = () => `
 			padding: 15px ;
 		}
 
-		${previewAreaSimpleCss()}
+		
+
+		${previewAreaCss()}
 		${codeMirrorEditorCss()}
 
+		.preview-area-wrapper {
+			height: calc(100% - 0px);
+			margin-top: 0px;
+		}
+
+		.preview-area {
+			width: calc(100% + 24px);
+		}
+
+		// .note-preview-wrapper .preview-area-wrapper
 		//
 		// PREVIEW
 		//
-		.simple-css-wrapper {
+		
+		
+				.simple-css-wrapper {
 
 				.resource-link-content-wrapper ul {
 						opacity:1!important;
 						pointer-events:all!important;
 				}
 				iframe {
-						height: 400px!important;
+						// height: 100%!important;
 				}
 				.resource-link-iframe-wrapper {
 						margin-bottom: 5px;
