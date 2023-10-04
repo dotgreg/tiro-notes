@@ -1000,6 +1000,7 @@ export const OmniBar = (p: {
 							{notePreview && deviceType() !== "mobile" &&
 								<NotePreview
 									file={notePreview}
+									showToolbar={false}
 									searchedString={searchedString}
 									height={previewHeight}
 									view={previewType}

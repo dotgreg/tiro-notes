@@ -111,7 +111,7 @@ export type iSearchWordRes = { [filePath: string]: { file: iFile, results: strin
 
 export type iFileNature = 'file' | 'folder'
 
-export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
+export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview' 
 
 export type iFolderDeleteType =  "trash" | "cache" 
 

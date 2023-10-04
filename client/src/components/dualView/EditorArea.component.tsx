@@ -69,6 +69,8 @@ interface iEditorProps {
 
 	askForLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
+
+	showToolbar?: boolean
 	showViewToggler?: boolean
 }
 
@@ -85,6 +87,8 @@ const EditorAreaInt = (
 	if (p.isConnected === false) canEdit = false
 	let showViewToggler	= true
 	if(p.showViewToggler === false) showViewToggler = false
+	let showToolbar	= true
+	if(p.showToolbar === false) showToolbar = false
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -467,7 +471,7 @@ const EditorAreaInt = (
 			ref={editorWrapperEl}
 		>
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-			<div className="infos-editor-wrapper">
+			{showToolbar && <div className="infos-editor-wrapper">
 
 				<div className="file-path-wrapper">
 					{p.file.path.replace(`/${p.file.name}`, '')}
@@ -602,7 +606,7 @@ const EditorAreaInt = (
 
 				</div>
 
-			</div>
+			</div>}
 
 			{/* UPLOAD BAR FOR EACH EDITOR */}
 			<UploadProgressBar progress={progressUpload} />

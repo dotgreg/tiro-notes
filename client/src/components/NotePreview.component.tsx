@@ -9,7 +9,7 @@ import { DualViewer } from './dualView/DualViewer.component';
 import { PreviewArea, previewAreaCss, previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { WindowEditor } from './windowGrid/WindowEditor.component';
 
-export type iNotePreviewType = "editor"|"preview"|"full"
+export type iNotePreviewType = "editor"|"preview"
 export const NotePreview = (p: {
 	file: iFile
 	view:iNotePreviewType
@@ -17,6 +17,7 @@ export const NotePreview = (p: {
 	height?: number
 	linkPreview?:boolean
 	windowId?:string
+	showToolbar?:boolean
 }) => {
 	const [content, setContent] = useState("");
 	const [view, setView] = useState<iNotePreviewType>(p.view);
@@ -91,7 +92,7 @@ export const NotePreview = (p: {
 	let heightStr = p.height ? p.height + "px" : "100%"
 	return (
 		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
-			{
+			{/* {
 				view === "full" &&
 				<WindowEditor
 					content={{
@@ -102,7 +103,7 @@ export const NotePreview = (p: {
 					}}
 					askForLayoutUpdate={() => {}}
 				/>
-			}
+			} */}
 			{
 				view === "preview" && 
 				<PreviewArea
@@ -128,6 +129,7 @@ export const NotePreview = (p: {
 						isActive={true}
 						canEdit={true}
 						showViewToggler={false}
+						showToolbar={p.showToolbar}
 
 						viewType={"editor"}
 						mobileView={"editor"}
