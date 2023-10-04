@@ -25,6 +25,7 @@ interface iDualViewProps {
 
 	showViewToggler?: boolean
 	showToolbar?: boolean
+	showTitleEditor?: boolean
 
 	viewType?: iViewType
 	mobileView?: iMobileView
@@ -177,6 +178,7 @@ const DualViewerInt = (
 			editorType='codemirror'
 			showViewToggler={p.showViewToggler}
 			showToolbar={p.showToolbar}
+			showTitleEditor={p.showTitleEditor}
 
 			file={p.file}
 			canEdit={p.canEdit}

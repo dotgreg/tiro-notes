@@ -56,8 +56,9 @@ export const NotePreviewPopup = (p: {
                 <NotePreview
                     file={notePreview}
                     // searchedString={activeLine}
-                    height={200}
-                    showToolbar={false}
+                    // height={200}
+                    showToolbar={true}
+                    showTitleEditor={false}
                     view={"editor"}
                     linkPreview={false}
                 />

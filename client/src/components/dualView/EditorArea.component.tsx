@@ -72,6 +72,7 @@ interface iEditorProps {
 
 	showToolbar?: boolean
 	showViewToggler?: boolean
+	showTitleEditor?: boolean
 }
 
 const EditorAreaInt = (
@@ -89,6 +90,9 @@ const EditorAreaInt = (
 	if(p.showViewToggler === false) showViewToggler = false
 	let showToolbar	= true
 	if(p.showToolbar === false) showToolbar = false
+	let showTitleEditor	= true
+	if(p.showTitleEditor === false) showTitleEditor = false
+	console.log(showTitleEditor, p.showTitleEditor)
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -442,27 +446,8 @@ const EditorAreaInt = (
 	// on focus/blur, make mobile bar jump on chromium
 	const onCMEvent = (event: iCMEvent) => {
 
-		// if (deviceType() !== "mobile" && getBrowserName() === "firefox") return
-
-		// if (event === "blur") {
-		// 	// setBottomMobileToolbar(50)
-		// }
-		// if (event === "focus") {
-		// 	// const mainWrapper = document.querySelector(".main-wrapper")
-		// 	// const root = document.getElementById("root")
-		// 	// window.scrollTo(0, document.body.scrollHeight);
-		// 	// mainWrapper && mainWrapper.scrollTo(0, mainWrapper.scrollHeight);
-		// 	// root && root.scrollTo(0, root.scrollHeight);
-		// 	// setBottomMobileToolbar(320)
-		// }
 	}
-	// useEffect(() => {
-	// 	// window.addEventListener('resize', () => {
-	// 	// 	console.log(222222222, "resizeeeeeee")
-	// 	// 	notifLog(`resize2 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize2")
-	// 	// })
-	// }, [])
-
+	
 
 
 	return (
@@ -471,27 +456,29 @@ const EditorAreaInt = (
 			ref={editorWrapperEl}
 		>
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-			{showToolbar && <div className="infos-editor-wrapper">
+			<div className={`infos-editor-wrapper ${!showTitleEditor ? "no-title-editor" : "with-title-editor"}`}>
 
-				<div className="file-path-wrapper">
-					{p.file.path.replace(`/${p.file.name}`, '')}
-				</div>
+				{ showTitleEditor && <>		
+					<div className="file-path-wrapper">
+						{p.file.path.replace(`/${p.file.name}`, '')}
+					</div>
 
-				<NoteTitleInput
-					title={p.file.name.replace('.md', '')}
-					onEdited={(o, n) => {
-						const oPath = `${p.file.folder}${o}.md`
-						const nPath = `${p.file.folder}${n}.md`
-						gridContext.file.onTitleUpdate(oPath, nPath)
-						const nFile = pathToIfile(nPath)
-						// getApi(api => {
-						// 	api.ui.browser.goTo(nFile.folder, nFile.name)
-						// })
-						forceCmRender()
-					}}
-				/>
+					<NoteTitleInput
+						title={p.file.name.replace('.md', '')}
+						onEdited={(o, n) => {
+							const oPath = `${p.file.folder}${o}.md`
+							const nPath = `${p.file.folder}${n}.md`
+							gridContext.file.onTitleUpdate(oPath, nPath)
+							const nFile = pathToIfile(nPath)
+							// getApi(api => {
+							// 	api.ui.browser.goTo(nFile.folder, nFile.name)
+							// })
+							forceCmRender()
+						}}
+					/>
+				</>}
 
-				<div className="toolbar-and-dates-wrapper">
+				{showToolbar && <div className="toolbar-and-dates-wrapper">
 
 					<div className="editor-toolbar-dropdown">
 						<Dropdown
@@ -604,16 +591,16 @@ const EditorAreaInt = (
 						</Dropdown >
 					</div>
 
-				</div>
+				</div>}
 
-			</div>}
+			</div>
 
 			{/* UPLOAD BAR FOR EACH EDITOR */}
 			<UploadProgressBar progress={progressUpload} />
 
 
 			{/* {MAIN EDITOR AREA} */}
-			<div className="main-editor-wrapper">
+			<div className={`main-editor-wrapper ${showTitleEditor ? "with-title-editor": "no-title-editor"}`}>
 
 				{!isPreview && !simpleFallback && p.editorType === 'codemirror' &&
 					<CodeMirrorEditor
@@ -772,6 +759,7 @@ export const commonCssEditors = () => `
 `
 export const editorAreaCss = (v: iMobileView) => `
 
+
 .editor-area {
 		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
 		display: block;
@@ -843,6 +831,53 @@ export const editorAreaCss = (v: iMobileView) => `
 				background: rgba(255,255,255,0.7);
     }
 }
+
+.editor-area {
+	position:initial;
+	.infos-editor-wrapper {
+			z-index: 1;
+			position:absolute;
+			top: 0px;
+			left: 0px;
+			width: 100%;
+			&.with-title-editor {
+				border-bottom: 1px solid rgba(0 0 0 / 5%);
+			}
+			//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+			height: 32px;
+			padding: 0px;
+	}
+	.main-editor-wrapper {
+			padding-left: 0px;
+			padding-rigth: 10px;
+			${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
+			width: 100%;
+	}
+	.main-editor-wrapper.no-title-editor {
+		margin-top: 0px;
+	}
+	.infos-editor-wrapper {
+			padding-left: 3px;
+			padding-rigth: 10px;
+			width: calc(100% - 10px);
+			.title-input-wrapper {
+					padding-left: 10px;
+					.press-to-save {
+							top: -6px;
+							left: 0px;
+							right: initial;
+							opacity: 0.5;
+					}
+					.big-title {
+							width: calc(100% - 65px);
+							font-family: ${cssVars.font.editor};
+							color: grey;
+							font-size: 15px;
+					}
+			}
+	}
+}
+
 `
 
 export const EditorArea = (p: iEditorProps) => {

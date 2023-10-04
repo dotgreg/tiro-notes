@@ -18,6 +18,7 @@ export const NotePreview = (p: {
 	linkPreview?:boolean
 	windowId?:string
 	showToolbar?:boolean
+	showTitleEditor?:boolean
 }) => {
 	const [content, setContent] = useState("");
 	const [view, setView] = useState<iNotePreviewType>(p.view);
@@ -92,18 +93,6 @@ export const NotePreview = (p: {
 	let heightStr = p.height ? p.height + "px" : "100%"
 	return (
 		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
-			{/* {
-				view === "full" &&
-				<WindowEditor
-					content={{
-						view: "editor",
-						file: p.file,
-						active: true,
-						i: generateUUID()
-					}}
-					askForLayoutUpdate={() => {}}
-				/>
-			} */}
 			{
 				view === "preview" && 
 				<PreviewArea
@@ -130,6 +119,7 @@ export const NotePreview = (p: {
 						canEdit={true}
 						showViewToggler={false}
 						showToolbar={p.showToolbar}
+						showTitleEditor={p.showTitleEditor}
 
 						viewType={"editor"}
 						mobileView={"editor"}
