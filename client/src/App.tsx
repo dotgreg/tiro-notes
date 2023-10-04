@@ -428,10 +428,7 @@ export const App = () => {
 					}
 
 					<Global styles={GlobalCssApp()} />
-					<div role="dialog" className={`
-								main-wrapper
-								${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
-								device-view-${deviceType()}`}>
+					<div role="dialog" className={`main-wrapper ${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"} device-view-${deviceType()}`}>
 						{
 							PromptPopupComponent()
 						}
@@ -669,7 +666,7 @@ export const App = () => {
 
 
 
-						<div className="right-wrapper dual-viewer-view">
+						<div className="right-wrapper draggable-grid-editors-view">
 
 
 							{/* TABS SYSTEM*/}
@@ -691,15 +688,16 @@ export const App = () => {
 
 
 						</div>
+						<FloatingPanelsWrapper 
+							panels={api.ui.floatingPanel.panels} 
+							pinStatus={pinStatus.bottomBar}
+							onPinChange={updatePinStatus("bottomBar")}
+						/>
 					</div>
 				</ClientApiContext.Provider>
 			</div >
 
-			<FloatingPanelsWrapper 
-				panels={api.ui.floatingPanel.panels} 
-				pinStatus={pinStatus.bottomBar}
-				onPinChange={updatePinStatus("bottomBar")}
-			/>
+			
 			
 			<NotificationsCenter />
 

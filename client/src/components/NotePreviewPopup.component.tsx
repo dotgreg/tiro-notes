@@ -57,7 +57,7 @@ export const NotePreviewPopup = (p: {
                     file={notePreview}
                     // searchedString={activeLine}
                     height={200}
-                    type={"editor"}
+                    view={"editor"}
                     linkPreview={false}
                 />
             </div>

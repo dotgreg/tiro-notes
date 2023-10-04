@@ -380,7 +380,7 @@ export const DraggableGrid = (p: {
 								>
 									{WindowTools(window, i, p.grid.content[i])}
 
-									<div className="note-wrapper">
+									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
 											askForLayoutUpdate={processLayoutUpdate(window,i)}
@@ -396,7 +396,7 @@ export const DraggableGrid = (p: {
 				{deviceType() === 'mobile' &&
 					<div className="mobile-grid-view">
 						<div className=" window-wrapper">
-							<div className="note-wrapper">
+							<div className="window-editor-wrapper-wrapper">
 								{mobileWindow &&
 									<WindowEditor 
 										content={mobileWindow.content}
@@ -428,7 +428,7 @@ export const GridMobileCss = () => `
 						display: none;
 				}
 
-				.note-wrapper {
+				.window-editor-wrapper-wrapper {
 						.dual-view-wrapper {
 								.editor-area {
 										margin-top: 47px;

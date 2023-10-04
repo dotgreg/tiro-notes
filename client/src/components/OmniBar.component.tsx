@@ -1002,7 +1002,7 @@ export const OmniBar = (p: {
 									file={notePreview}
 									searchedString={searchedString}
 									height={previewHeight}
-									type={previewType}
+									view={previewType}
 									windowId={notePreviewWindowId}
 								/>
 							}

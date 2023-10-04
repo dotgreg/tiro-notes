@@ -103,7 +103,8 @@ export const FloatingPanel = (p:{
 
     // const [fileView, setFileView] = useState<"editor"|"preview">("editor")
 
-    const innerHeight = p.panel.size.height - 45
+    // const innerHeight = p.panel.size.height - 45
+    const innerHeight = p.panel.size.height
 
     // const ctagConfig = p.panel.ctagConfig
     if (p.panel.ctagConfig) {
@@ -141,9 +142,6 @@ export const FloatingPanel = (p:{
                     onResize={handleResize}
                 >
                     <div className='floating-panel__wrapper'  >
-                        
-                        {/* <div className="floating-panel__content">{p.panel.file.name}</div>
-                         */}
                          <div className="floating-panel__actions">
                             <button onClick={handleMinimize}>{ "-"}</button>
                             {/* <button onClick={() => setIsClosed(true)}>Close</button> */}
@@ -152,29 +150,31 @@ export const FloatingPanel = (p:{
                             <button onClick={handleToggleMaximize}>{p.panel.size.width === window.innerWidth && p.panel.size.height === window.innerHeight ? "m" : "M"}</button>
                             <button onClick={reloadContent}>R</button>
                         </div>
-                        <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>
-                        {showContent && <div className='floating-panel__content' style={{height: innerHeight }}>
-                         {
-                            p.panel.type === "file" && p.panel.file &&
-                            <div className='floating-panel__inner-content'>
-                                
-                                <NotePreview
-                                    file={p.panel.file}
-                                    // searchedString={activeLine}
-                                    height={p.panel.size.height - 30}
-                                    // type={p.panel.fileDisplay || "editor"}
-                                    type='full'
-                                    // linkPreview={false}
-                                />
+                        { p.panel.type !== "file" &&  <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>}
+                        
+                        {showContent && 
+                            <div className={`floating-panel__content content-type-${p.panel.type}`} style={{height: innerHeight }}>
+                                {  p.panel.type === "file" && p.panel.file &&
+                                    <div className='floating-panel__inner-content'>
+                                        
+                                        <NotePreview
+                                            file={p.panel.file}
+                                            // searchedString={activeLine}
+                                            height={p.panel.size.height - 30}
+                                            // type={p.panel.fileDisplay || "editor"}
+                                            view='full'
+                                            // linkPreview={false}
+                                        />
+                                    </div>
+                                }
+                                {
+                                    p.panel.type === "ctag" && p.panel.ctagConfig &&
+                                    <div className='floating-panel__inner-content' style={{height:  innerHeight}}>
+                                        {generateCtag(p.panel.ctagConfig)}
+                                    </div>
+                                }
                             </div>
-                         }
-                         {
-                            p.panel.type === "ctag" && p.panel.ctagConfig &&
-                            <div className='floating-panel__inner-content' style={{height:  innerHeight}}>
-                                {generateCtag(p.panel.ctagConfig)}
-                            </div>
-                         }
-                        </div>}
+                        }
                         
                     </div>
                 </Resizable>
@@ -323,10 +323,13 @@ export const FloatingPanelCss = () => `
             .floating-panel__content {
                 // overflow-y: auto;
                 position: absolute;
-                top: 40px;
+                top: 0px;
                 left: 0px;
                 width: 100%;
                 overflow: hidden;
+                &.content-type-file {
+                    top:20px;
+                }
             }
         }
     }

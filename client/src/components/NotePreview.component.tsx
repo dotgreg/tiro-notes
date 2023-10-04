@@ -11,17 +11,16 @@ import { WindowEditor } from './windowGrid/WindowEditor.component';
 
 export type iNotePreviewType = "editor"|"preview"|"full"
 export const NotePreview = (p: {
-	searchedString?: string
 	file: iFile
+	view:iNotePreviewType
+	searchedString?: string
 	height?: number
-	type?:iNotePreviewType
 	linkPreview?:boolean
 	windowId?:string
 }) => {
-	if (!p.type) p.type = "editor"
 	const [content, setContent] = useState("");
-	const [type, setType] = useState<iNotePreviewType>(p.type);
-	const toggleType = () => type === "editor" ? setType("preview") : setType("editor")
+	const [view, setView] = useState<iNotePreviewType>(p.view);
+	const toggleType = () => view === "editor" ? setView("preview") : setView("editor")
 
 	let loadPreviewContent = useDebounce(() => {
 		getApi(api => {
@@ -84,29 +83,28 @@ export const NotePreview = (p: {
 	// 	}, 100)
 	// }
 	useEffect(() => {
-		if (type === "preview") loadPreviewContent()
+		if (view === "preview") loadPreviewContent()
 		else loadEditorContent()
 		// forceUpdate()
-	}, [p.file, p.searchedString, type])
+	}, [p.file, p.searchedString, view])
 
 	let heightStr = p.height ? p.height + "px" : "100%"
 	return (
-		<div className={"note-preview-wrapper " + type} style={{ height: heightStr }}>
+		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
 			{
-				type === "full" &&
+				view === "full" &&
 				<WindowEditor
 					content={{
-						view: "both",
+						view: "editor",
 						file: p.file,
 						active: true,
 						i: generateUUID()
 					}}
 					askForLayoutUpdate={() => {}}
-					mobileView={"editor"}
 				/>
 			}
 			{
-				type === "preview" && 
+				view === "preview" && 
 				<PreviewArea
 					windowId= {p.windowId || generateUUID()}
 					file={p.file}
@@ -120,7 +118,7 @@ export const NotePreview = (p: {
 				/>
 			}
 			{
-				type === "editor" && 
+				view === "editor" && 
 				// <div className={`window-editor-wrapper ${forceUpdateInt}`}>
 				<div className={`window-editor-wrapper`}>
 					<DualViewer
@@ -129,6 +127,7 @@ export const NotePreview = (p: {
 						fileContent={content}
 						isActive={true}
 						canEdit={true}
+						showViewToggler={false}
 
 						viewType={"editor"}
 						mobileView={"editor"}
@@ -206,9 +205,6 @@ export const NotePreviewCss = () => `
 		//
 		// EDITOR VIEW
 		//
-		.infos-editor-wrapper {
-			display: none;
-		}
 
 		&.editor,
 		.window-editor-wrapper,
