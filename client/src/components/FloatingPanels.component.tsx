@@ -9,6 +9,8 @@ import { generateCtag } from '../managers/ssr/ctag.ssr';
 import { genUrlPreviewStr } from '../managers/url.manager';
 import { set } from 'lodash';
 import { useDebounce } from '../hooks/lodash.hooks';
+import {  getScrollbarWidth } from '../managers/scrollbar.manager';
+import { cssVars } from '../managers/style/vars.style.manager';
 
 // react windows that is resizable
 // on close button click, remove the div from the dom
@@ -109,6 +111,15 @@ export const FloatingPanel = (p:{
         p.panel.ctagConfig.opts.wrapperHeight = "100%"
     }
 
+    const [showContent, setShowContent] = useState<boolean>(true)
+    const reloadContent = () => {
+        setShowContent(false)
+        setTimeout(() => {
+            setShowContent(true)
+        }, 100)
+    }
+
+
     return (
         <div className='floating-panel-wrapper' 
             style={{zIndex:p.panel.zIndex}}
@@ -139,9 +150,10 @@ export const FloatingPanel = (p:{
                             <button className='handle'>D</button>
                             <button onClick={handleClosePanel}>X</button>   
                             <button onClick={handleToggleMaximize}>{p.panel.size.width === window.innerWidth && p.panel.size.height === window.innerHeight ? "m" : "M"}</button>
+                            <button onClick={reloadContent}>R</button>
                         </div>
                         <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>
-                        <div className='floating-panel__content' style={{height: innerHeight }}>
+                        {showContent && <div className='floating-panel__content' style={{height: innerHeight }}>
                          {
                             p.panel.type === "file" && p.panel.file &&
                             <div className='floating-panel__inner-content'>
@@ -150,7 +162,8 @@ export const FloatingPanel = (p:{
                                     file={p.panel.file}
                                     // searchedString={activeLine}
                                     height={p.panel.size.height - 30}
-                                    type={p.panel.fileDisplay || "editor"}
+                                    // type={p.panel.fileDisplay || "editor"}
+                                    type='full'
                                     // linkPreview={false}
                                 />
                             </div>
@@ -161,7 +174,7 @@ export const FloatingPanel = (p:{
                                 {generateCtag(p.panel.ctagConfig)}
                             </div>
                          }
-                        </div>
+                        </div>}
                         
                     </div>
                 </Resizable>
@@ -177,8 +190,8 @@ export const FloatingPanel = (p:{
 //
 export const FloatingPanelsWrapper = (p:{
     panels: iFloatingPanel[], 
-    forceUpdate:number,
-    onPinBar?: (pinned:boolean) => void
+    pinStatus: boolean,
+    onPinChange: (status:boolean) => void
 }) => {
     
     let panels = p.panels
@@ -186,14 +199,9 @@ export const FloatingPanelsWrapper = (p:{
     const panelsRef = useRef<iFloatingPanel[]>([])
     useEffect(() => {
         panelsRef.current = panels
-    },[panels, p.forceUpdate])
+    },[panels])
 
     const handleUpdatePanels = (panel:iFloatingPanel) => {
-        // let newPanels = cloneDeep(panels)
-        // let panelIndex = newPanels.findIndex(p => p.id === panel.id)
-        // if (panelIndex === -1) return
-        // newPanels[panelIndex] = panel
-        // setPanels(newPanels)
         getApi(api => {
             api.ui.floatingPanel.update(panel)
         })
@@ -206,7 +214,6 @@ export const FloatingPanelsWrapper = (p:{
     }
 
     const handleDeminimize = (panel:iFloatingPanel) => {
-        // panel.hidden = "normal"
         panel.hidden = false
         handleUpdatePanels(panel)
     }
@@ -227,15 +234,6 @@ export const FloatingPanelsWrapper = (p:{
             api.ui.floatingPanel.actionAll(shouldShow ? "show" : "hide")
         })
     }
-
-    // const [barDisplay, setBarDisplay] = <useState("normal")
-    // const pinBar = ()
-
-    // bar can be pinned or unpinned
-    const [barPinned, setBarPinned, refreshPinBarStatus] = useBackendState("floating-panels-barpinned",false)
-    useEffect(() => {
-        refreshPinBarStatus()
-    },[])
 
     const [panelDrag, setPanelDrag] = useState<boolean>(false)
     const onPanelDrag = (status:"start"|"end") => () => {
@@ -259,12 +257,13 @@ export const FloatingPanelsWrapper = (p:{
 
 
 
-            <div className='panels-minimized-bottom-bar-wrapper' >
-                <div className={`panels-minimized-bottom-bar ${barPinned ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
+            <div className='panels-minimized-bottom-bar-wrapper' style={{height:`${35 + getScrollbarWidth()}px`, bottom:`-${getScrollbarWidth()}px`}} >
+                <div className='bottom-hover-bar' > </div>
+                <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
                     <div className='floating-panels-bottom-toolbar'>
                         <button className='reinit-position-and-size' onClick={handleReinitPosAndSize}>stack</button>
                         <button className='toggle-all' onClick={toggleAll}>toggle</button>
-                        <button className='pin-bar' onClick={() => setBarPinned(!barPinned)}>{barPinned ? "unpin" : "pin"}</button>
+                        <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button>
                     </div>
                     {panels.map( panel =>
                         panel.hidden &&
@@ -340,24 +339,45 @@ export const FloatingPanelCss = () => `
 // BAR
 //
 .panels-minimized-bottom-bar-wrapper {
-    
     position: absolute;
     left: 0px;
-    
     width: 100vw;
-    height: 50px;
-    cursor: pointer;
-    bottom: -15px;
+    overflow: hidden;
     overflow-x: scroll;
-    pointer-events: all;
+    pointer-events: none;
 
+    .bottom-hover-bar {
+        pointer-events: all;
+        cursor: pointer;
+        position: absolute;
+        width: 150vw;
+        height: 15px;
+        bottom: 0px;
+        box-shadow: 0 0 0px rgba(0,0,0,0.3);
+        z-index: 10;
+        transition: 0.5s all;
+        opacity: 0;
+    }
+    
     &:hover {
         .panels-minimized-bottom-bar {
             bottom: 0px;
+            box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+        }
+        .bottom-hover-bar {
+            box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+            background: ${cssVars.colors.main};
+            opacity: 0.5;
         }
     }
 
     .panels-minimized-bottom-bar{
+        z-index: 11;
+        pointer-events: all;
+
+        // transition: all 0.3s ease-in-out 0.5s, box-shadow 0.5s ease-in-out 0s;
+        transition: all 0.3s ease-in-out 0.5s;
+        
         position: absolute;
         width: 100%;
         bottom: -30px;
@@ -371,8 +391,6 @@ export const FloatingPanelCss = () => `
         flex-direction: row;
         justify-content: flex-start;
         align-items: center;
-        // transi : all 0.5s ease-in-out;
-        transition: all 0.3s ease-in-out;
         .floating-panels-bottom-toolbar {
             display: flex;
             flex-direction: row;
@@ -389,7 +407,7 @@ export const FloatingPanelCss = () => `
     padding: 0 10px;
     border-right: 1px solid #000;
     cursor: pointer;
-    transition: all 0.3s ease-in-out;
+    transition: 0.5s all;
     :hover {
         background: #f0f0f0;
     }

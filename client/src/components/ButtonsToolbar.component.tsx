@@ -78,7 +78,7 @@ export interface iToolbarButton {
 export const ToolbarButton = (p: iToolbarButton) => {
 	let insideHtml = <></>
 	if (p.title) insideHtml = <>{p.title}</>
-	if (p.icon) insideHtml = p.icon.startsWith("fa") ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
+	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
 	if (p.customHtml) insideHtml = p.customHtml
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
 
@@ -124,7 +124,7 @@ export const ButtonsToolbarCss = () => `
 										}
 								}
 								.inside-html-wrapper {
-										width: 15px;
+										// width: 15px;
 										span {
 										}
 								}

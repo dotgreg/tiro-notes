@@ -55,7 +55,6 @@ export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption
 	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
 	if (!rawConfig) rawConfig = ""
 	let cnf = rawConfig.trim().split("=")
-	console.log(cnf)
 	let styleStr = ``
 	if (cnf[0] === "width" || cnf[0] ==="height") {
 		let otherProp = cnf[0] === "width" ? "height:auto;max-height:none" : "width:auto; max-width:none;"

@@ -91,6 +91,7 @@ export const dropdownCss = () => `
 				border-radius: 5px;
 				background: white;
 				box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+				overflow: auto;
 		}	
 
 		&.right {
