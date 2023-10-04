@@ -197,6 +197,7 @@ export const WindowEditorInt = (p: {
 						canEdit={canEdit}
 						showViewToggler={true}
 						showToolbar={true}
+						showTitleEditor={true}
 
 						viewType={intViewType}
 						mobileView={p.mobileView}
@@ -270,46 +271,7 @@ export const windowEditorCss = () => `
 				.file-path-wrapper {
 						display:none;
 				}
-				.editor-area {
-						position:initial;
-						.infos-editor-wrapper {
-								z-index: 1;
-								position:absolute;
-								top: 0px;
-								left: 0px;
-								width: 100%;
-								border-bottom: 1px solid rgba(0 0 0 / 5%);
-								//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
-								height: 32px;
-								padding: 0px;
-						}
-						.main-editor-wrapper {
-								padding-left: 0px;
-								padding-rigth: 10px;
-								${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
-								width: 100%;
-						}
-						.infos-editor-wrapper {
-								padding-left: 3px;
-								padding-rigth: 10px;
-								width: calc(100% - 10px);
-								.title-input-wrapper {
-										padding-left: 10px;
-										.press-to-save {
-												top: -6px;
-												left: 0px;
-												right: initial;
-												opacity: 0.5;
-										}
-										.big-title {
-												width: calc(100% - 65px);
-												font-family: ${cssVars.font.editor};
-												color: grey;
-												font-size: 15px;
-										}
-								}
-						}
-				}
+				
 
 				//
 				// ALL
