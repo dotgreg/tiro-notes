@@ -196,6 +196,7 @@ export const WindowEditorInt = (p: {
 						isActive={active}
 						canEdit={canEdit}
 						showViewToggler={true}
+						showToolbar={true}
 
 						viewType={intViewType}
 						mobileView={p.mobileView}

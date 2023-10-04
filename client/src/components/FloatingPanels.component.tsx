@@ -162,7 +162,7 @@ export const FloatingPanel = (p:{
                                             // searchedString={activeLine}
                                             height={p.panel.size.height - 30}
                                             // type={p.panel.fileDisplay || "editor"}
-                                            view='full'
+                                            view='editor'
                                             // linkPreview={false}
                                         />
                                     </div>
