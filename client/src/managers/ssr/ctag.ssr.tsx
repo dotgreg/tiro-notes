@@ -26,6 +26,31 @@ export const ssrToggleCtag = (
 	elWrapper.innerHTML = shouldShow ? iframeHtml : ""
 }
 
+export interface iCtagGenConfig {
+	tagName: string,
+	content: string,
+	opts?: {
+		file?: iFile | null,
+		wrapperHeight?: number | string,
+		windowId?:string,
+		sandboxed?: boolean,
+		fullscreen?: boolean,
+		onFullscreenClose?: Function,
+	}
+}
+// 
+export const generateCtag = (
+	ctagConfig: iCtagGenConfig
+): React.ReactElement => {
+	return ssrGenCtag(ctagConfig.tagName, ctagConfig.content, ctagConfig.opts)
+}
+
+// export const generateCtag = (
+// 	...iCt
+// ): React.ReactElement => {
+// 	return ssrGenCtag(tagName, content, opts)
+// }
+
 // CTAG GEN
 export const ssrGenCtag = (
 	tagName: string,
@@ -34,6 +59,7 @@ export const ssrGenCtag = (
 		file?: iFile | null,
 		windowId?:string,
 		sandboxed?: boolean,
+		wrapperHeight?: number | string,
 		fullscreen?: boolean,
 		onFullscreenClose?: Function,
 	}
@@ -41,11 +67,12 @@ export const ssrGenCtag = (
 	if (!opts) opts = {}
 	if (!opts.file) opts.file = generateEmptyiFile()
 	
-	
+	const height = opts?.wrapperHeight || heightIframe.big + 75
+	// console.log(opts.wrapperHeight)
 	return <ContentBlock
 		file={opts.file}
 		block={{ type: 'tag', tagName, content, start: 0, end: 0 }}
-		windowHeight={heightIframe.big + 75}
+		windowHeight={height}
 		windowId={opts.windowId || "null"}
 		yCnt={0}
 		onIframeMouseWheel={() => { }}

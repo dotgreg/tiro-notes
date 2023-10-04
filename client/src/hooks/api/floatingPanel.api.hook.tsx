@@ -3,6 +3,7 @@ import { iFile, iNotification, iPlugin } from "../../../../shared/types.shared"
 import { useBackendState } from "../useBackendState.hook"
 import { generateEmptyiFile } from "../app/useLightbox.hook"
 import { cloneDeep } from "lodash"
+import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 
 const h = `[FLOATING PANELS]`
 
@@ -12,8 +13,8 @@ export interface iFloatingPanel {
     hidden: boolean,
     file: iFile,
     type: "ctag" | "file",	
-    fileDisplay?: "editor" | "preview",
-    ctagName?: string,
+    fileDisplay?: "editor" | "preview" | "full",
+    ctagConfig?: iCtagGenConfig,
     id: string,
     zIndex?: number,
 }

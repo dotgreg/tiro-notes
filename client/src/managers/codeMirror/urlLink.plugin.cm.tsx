@@ -12,6 +12,7 @@ import { mem } from "../reactRenderer.manager";
 import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { iFile } from "../../../../shared/types.shared";
 import { iUserSettingsApi } from "../../hooks/useUserSettings.hook";
+import { genUrlPreviewStr } from "../url.manager";
 
 type iLinkPreviewOpts = {addLineJump?: boolean}
 export const generateHtmlLinkPreview = mem((matchs, opts?:iLinkPreviewOpts) => generateHtmlLinkPreviewInt(matchs, opts))
@@ -65,32 +66,9 @@ export const generateHtmlLinkPreviewInt = (
 	// let previewStr = `${website}${artTitle}`
 	// if (previewStr.length > limitChar) previewStr = previewStr.substring(0, limitChar)
 
-	function genPreviewStr(url) {
-		const parsedUrl = new URL(url);
-		let siteName = parsedUrl.hostname.replace(/^www\./, '');
-		// let siteName = parsedUrl.hostname;
-		const pathSegments = parsedUrl.pathname.split('/').filter(segment => segment.trim() !== '');
-		
-		let content = '';
-		if (pathSegments.length > 0) {
-		  content = pathSegments[pathSegments.length - 1];
-		  if (content.length > 20) {
-			content = content.substring(0, 20).replace(/[^A-Za-z0-9-_\ ]/g, '');
-		  } else {
-			content = content.replace(/[^A-Za-z0-9]/g, '');
-		  }
-		}
+	
 
-		if (siteName.length > 15) siteName = siteName.substring(0, 15)
-
-		if (content.length > 0) {
-		  return `${siteName}/${content}`;
-		} else {
-		  return siteName;
-		}
-	  }
-
-	  let previewStr = genPreviewStr(fullLink)
+	  let previewStr = genUrlPreviewStr(fullLink)
 	  
 
 
@@ -123,6 +101,19 @@ export const generateHtmlLinkPreviewInt = (
 		let link = el.dataset.link
 		window.open(link, `popup-preview-link`, 'width=800,height=1000')
 	}
+	const detachWinFn = (el) => {
+		if (!el) return
+		let link = el.dataset.link
+		getApi(api => {
+			api.ui.floatingPanel.create({
+				type: "ctag",
+				ctagConfig: {
+					tagName: "iframe",
+					content: link,
+				},
+			})
+		})
+	}
 	const fetchFn = (el) => {
 		if (!el) return
 		fetchArticle(el, () => { })
@@ -154,7 +145,12 @@ title="Display url content" class="link-fetcharticle link-action"  data-link="${
 	let audio = `<span
 onclick="${ssrFn("audio-link", audioFn)}"
 title="Text to speech url content" class="link-audio link-action"  data-link="${fullLink}">${i("volume-high")}</span>`
-	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${openWindow} ${openPreview}</span></span>`
+	let detach = `<span
+		onclick="${ssrFn("detach-link", detachWinFn)}"
+		title="Detach link in floating panel" class="link-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
+
+
+	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${openWindow} ${openPreview} ${detach}</span></span>`
 
 	let iframeWrapper = `<span class="cm-hover-popup cm-hover-popup"></span>`
 	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`

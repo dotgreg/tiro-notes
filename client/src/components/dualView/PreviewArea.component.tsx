@@ -16,6 +16,8 @@ export const PreviewArea = (p: {
 	windowId: string
 	file: iFile
 	posY: number
+	height?: number
+	reactOnHeightResize?: boolean
 	fileContent: string
 	onMaxYUpdate: (maxY: number) => void
 	yCnt: number
@@ -83,6 +85,7 @@ export const PreviewArea = (p: {
 
 
 	const getWindowHeight = (): number => {
+		if (p.height) return p.height
 		let res = 0
 		const el = document.querySelector(`.window-id-${p.windowId}`)
 		if (el) res = el.clientHeight
@@ -130,6 +133,7 @@ export const PreviewArea = (p: {
 										windowId={p.windowId}
 										file={p.file}
 										windowHeight={getWindowHeight()}
+										reactOnHeightResize={p.reactOnHeightResize}
 										yCnt={p.yCnt}
 										onIframeMouseWheel={p.onIframeMouseWheel}
 									/>
@@ -433,6 +437,8 @@ export const previewAreaSimpleCss = (d?: any) => {
 }
 
 export const previewAreaCss = () => `
+
+
 .preview-area {
 		margin-top: 0px;
     .infos-preview-wrapper {
@@ -470,9 +476,10 @@ export const previewAreaCss = () => `
 }
 
 .preview-area-wrapper {
-		height: calc(100% - 35px);
+	height: calc(100% - 35px);
     margin-top: ${isA('desktop') ? '140' : '0'}px;
-
 }
+
+.preview-area, .preview-area-transitions, .content-blocks-wrapper, .simple-css-wrapper { height: 100%; }
 
 `

@@ -31,8 +31,8 @@ export const ContentBlockInt = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
-	windowHeight?: number
-
+	windowHeight?: number | string
+	reactOnHeightResize?: boolean
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
@@ -129,6 +129,7 @@ export const ContentBlock = React.memo(ContentBlockInt, (np, pp) => {
 	if (JSON.stringify(np.block) !== JSON.stringify(pp.block)) res = false
 	if (np.block.content !== pp.block.content) res = false
 	if (np.file.path !== pp.file.path) res = false
+	if (np.windowHeight !== pp.windowHeight && np.reactOnHeightResize === true) res = false
 	return res
 })
 
@@ -139,7 +140,8 @@ export const ContentBlockTagView = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
-	windowHeight?: number
+	windowHeight?: number | string
+	reactOnHeightResize?: boolean
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
@@ -179,12 +181,19 @@ export const ContentBlockTagView = (p: {
 
 			// RESIZE
 			if (m.action === 'resize') {
+				console.log("resize!")
 				const data: iIframeData['resize'] = m.data
 				let nheight = data.height
-				let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
-				if (isString(nheight) && nheight.endsWith("%")) {
-					const percent = parseInt(nheight.replace("%", "")) / 100
-					nheight = windowHeiht * percent
+
+				// if windowHeight is %
+				if (isString(p.windowHeight)) {
+					nheight = p.windowHeight
+				} else {
+					let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
+					if (isString(nheight) && nheight.endsWith("%")) {
+						const percent = parseInt(nheight.replace("%", "")) / 100
+						nheight = windowHeiht * percent
+					}
 				}
 				// log && console.log(h, 'resizing to', nheight);
 				setIframeHeight(nheight);
@@ -347,7 +356,7 @@ export const ContentBlockTagView = (p: {
 					onClick={e => { fullscreenClose() }}
 				></div>
 			}
-			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`}>
+			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} style={{ height: iframeHeight }}>
 
 				<div className="ctag-menu" >
 					<div className="ctag-ellipsis" >
@@ -403,7 +412,9 @@ export const contentBlockCss = () => `
 	z-index: -10000;
 	width: 0px;
 	height: 0px;
-	opacity202: 0.01;
+	opacity: 0.00001;
+	top: -10000px;
+	left: -10000px;
 }
 .content-blocks-wrapper {
 		padding: 0px 15px;
