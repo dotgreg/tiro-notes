@@ -49,6 +49,8 @@ import { perf } from '../performance.manager';
 import { memoize, values } from 'lodash';
 import { iUserSettingsApi } from '../../hooks/useUserSettings.hook';
 import { FloatingPanelCss } from '../../components/FloatingPanels.component';
+import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
+import { windowEditorCss } from '../../components/windowGrid/WindowEditor.component';
 
 
 export const css2 = (css: string) => css
@@ -62,15 +64,20 @@ const { els, colors, font, sizes } = { ...cssVars }
 // 	hist.a1 = null
 // 	hist.a2 = null
 // }
-export const CssApp2 = memoize((a1, a2, a3) => {
-	return CssApp2Int(a1, a2, a3)
-}, (...args) => values(args).join("_"))
+export const CssApp2 = memoize((a1, a2, a3, a4) => {
+	return CssApp2Int(a1, a2, a3, a4)
+}, (...args) => {
+	// values(args).join("_"))
+	return JSON.stringify(args)
+})
 
 export const CssApp2Int = (
 	mobileView: iMobileView,
 	refreshCss: number,
-	userSettings: iUserSettingsApi
+	userSettings: iUserSettingsApi,
+	pinStatus: iPinStatuses
 ) => {
+	console.log("RELOAD CSS", pinStatus)
 	let end = perf("CssApp2"+mobileView+refreshCss)
 	const cssString = `
 
@@ -143,6 +150,13 @@ export const CssApp2Int = (
 		${ctagPreviewPluginCss()}
 
 		${FloatingPanelCss()}
+
+		${windowEditorCss()}
+		${previewAreaCss()}
+		${editorAreaCss(mobileView)}
+		${codeMirrorEditorCss()}
+		${uploadButtonCss()}
+		${uploadProgressBarCss()}
 
 		.main-wrapper {
 				${folderTreeCss()}
@@ -390,7 +404,7 @@ export const CssApp2Int = (
 				// TEXT VIEW : RIGHT
 				////////////////////////////////////////////v 
 				${tabsCss()}
-				${draggableGridCss()}
+				${draggableGridCss(pinStatus)}
 				${GridMobileCss()}
 
 				${mobileNoteToolbarCss()}
@@ -406,7 +420,7 @@ export const CssApp2Int = (
 				.right-wrapper.dual-viewer-view {
 
 						width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
-						height: ${deviceType() === 'desktop' ? "calc(100vh - 30px)" : "100%"};
+						height: ${deviceType() === 'desktop' ? `calc(100vh - ${pinStatus.bottomBar ? "30" : "10"}px)` : "100%"};
 						display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
 						padding-top: 0px;
 						.note-wrapper {
@@ -518,12 +532,7 @@ export const CssApp2Int = (
 										
 
 
-										${previewAreaCss()}
-
-										${editorAreaCss(mobileView)}
-										${codeMirrorEditorCss()}
-										${uploadButtonCss()}
-										${uploadProgressBarCss()}
+										
 										
 								}
 								

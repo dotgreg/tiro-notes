@@ -3,11 +3,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
-import { iMobileView } from '../../managers/device.manager';
+import { iMobileView, isA } from '../../managers/device.manager';
 import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer } from '../dualView/DualViewer.component';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
+import { cssVars } from '../../managers/style/vars.style.manager';
 
 
 export const WindowEditorInt = (p: {
@@ -222,3 +223,126 @@ export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
 	if (c1 !== c2) res = false
 	return res
 })
+
+
+export const windowEditorCss = () => `
+	.window-editor-wrapper {
+	// height 100% everywhere
+		.note-wrapper,
+		.window-editor-wrapper,
+		.dual-view-wrapper,
+		.editor-area,
+		.preview-area-wrapper,
+		.preview-area,
+		.main-editor-wrapper{
+				height: 100%;
+		}
+
+		.content-wrapper {
+				height:100%;
+		}
+		.note-active-ribbon {
+				height: 2px;
+				width: 100%;
+		}
+		
+
+		.editor-toolbar-dropdown {
+			position: absolute;
+			top: 10px;
+			right: 0px;
+		}
+
+
+
+
+
+		
+
+
+
+		// content css modification
+		.dual-view-wrapper {
+				.file-path-wrapper {
+						display:none;
+				}
+				.editor-area {
+						position:initial;
+						.infos-editor-wrapper {
+								z-index: 1;
+								position:absolute;
+								top: 0px;
+								left: 0px;
+								width: 100%;
+								border-bottom: 1px solid rgba(0 0 0 / 5%);
+								//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+								height: 32px;
+								padding: 0px;
+						}
+						.main-editor-wrapper {
+								padding-left: 0px;
+								padding-rigth: 10px;
+								${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
+								width: 100%;
+						}
+						.infos-editor-wrapper {
+								padding-left: 3px;
+								padding-rigth: 10px;
+								width: calc(100% - 10px);
+								.title-input-wrapper {
+										padding-left: 10px;
+										.press-to-save {
+												top: -6px;
+												left: 0px;
+												right: initial;
+												opacity: 0.5;
+										}
+										.big-title {
+												width: calc(100% - 65px);
+												font-family: ${cssVars.font.editor};
+												color: grey;
+												font-size: 15px;
+										}
+								}
+						}
+				}
+
+				//
+				// ALL
+				//
+				&.device-desktop {
+						.preview-area-wrapper {
+								margin-top: 33px;
+								//padding: 5px 5px 5px 5px;
+								background: ${cssVars.colors.bgPreview};
+						}
+						.preview-area {
+								//padding: 10px 10px 10px 10px;
+						}
+				}
+
+				//
+				// FULL PREVIEW
+				//
+				&.device-desktop.view-preview {
+						.editor-area {
+								width: 0%;
+						}
+						.preview-area-wrapper {
+						}
+				}
+
+				//
+				// FULL EDITOR
+				//
+				&.device-desktop.view-editor {
+						.preview-area-wrapper {
+						}
+				}
+
+				.scrolling-bar-wrapper {
+						top: 33px;
+				}
+		}
+	}
+`

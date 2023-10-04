@@ -13,6 +13,7 @@ import { iUploadedFile } from '../../managers/upload.manager';
 import { PathModifFn } from '../dualView/TitleEditor.component';
 import { LastNotes } from '../LastNotes.component';
 import { DraggableGrid } from './DraggableGrid.component';
+import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 
 //
 // CONTEXT 
@@ -56,6 +57,7 @@ export const WindowGrid = (p: {
 	tab: iTab
 	onGridUpdate: (grid: iGrid) => void
 	mobileView: iMobileView
+	pinStatus: iPinStatuses
 }) => {
 	const { tab } = { ...p }
 
@@ -201,6 +203,10 @@ export const WindowGrid = (p: {
 
 	}, [p.tab])
 
+	const [forceRefresh, setForceRefresh] = useState(0)
+	useEffect(() => {
+		setForceRefresh(forceRefresh + 1)
+	}, [tab.refresh, JSON.stringify(p.pinStatus)])
 
 
 	return (//jsx
@@ -208,7 +214,7 @@ export const WindowGrid = (p: {
 			<div className="window-grid-wrapper">
 				<GridContext.Provider value={nGridContext}>
 					<DraggableGrid
-						refresh={tab.refresh || 0}
+						refresh={forceRefresh}
 						grid={tab.grid}
 						onGridUpdate={p.onGridUpdate}
 						mobileView={p.mobileView}

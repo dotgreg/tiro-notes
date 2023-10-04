@@ -43,7 +43,7 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
-import { random } from 'lodash';
+import { random, update } from 'lodash';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
@@ -53,6 +53,7 @@ import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
 import { PluginsMarketplacePopup } from './components/settingsView/pluginsMarketplacePopup.component';
 import { FloatingPanel, FloatingPanelsWrapper } from './components/FloatingPanels.component';
+import { usePinStatus } from './hooks/app/usePinnedInterface.hook';
 
 export const App = () => {
 
@@ -164,6 +165,7 @@ export const App = () => {
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
 				api.ui.floatingPanel.refreshFromBackend()
+				refreshPinStatus()
 			})
 			refreshFilesHistoryFromBackend();
 
@@ -401,8 +403,13 @@ export const App = () => {
 	let cnt = api.userSettings.refresh.css.get + rcnt
 	let usettings = api.userSettings
 
+	//
+	// Global Pinned status system
+	//
+	const {pinStatus, updatePinStatus, togglePinStatus, refreshPinStatus} = usePinStatus()
+
 	return (
-		<div className={CssApp2(mobileView, cnt, usettings)} >
+		<div className={CssApp2(mobileView, cnt, usettings, pinStatus)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>
 
 				{ /* API : making clientapi available everywhere */}
@@ -669,6 +676,8 @@ export const App = () => {
 							<TabList
 								tabs={tabs}
 								onUpdate={updateTab}
+								onPinToggle={togglePinStatus("topTab")}
+								pinStatus={pinStatus.topTab}
 							/>
 
 							{activeTab &&
@@ -676,6 +685,7 @@ export const App = () => {
 									tab={activeTab}
 									onGridUpdate={updateActiveTabGrid}
 									mobileView={mobileView}
+									pinStatus={pinStatus}
 								/>
 							}
 
@@ -687,8 +697,8 @@ export const App = () => {
 
 			<FloatingPanelsWrapper 
 				panels={api.ui.floatingPanel.panels} 
-				// forceUpdate={api.ui.floatingPanel.forceFloatingPanelsUpdate} 
-				forceUpdate={0} 
+				pinStatus={pinStatus.bottomBar}
+				onPinChange={updatePinStatus("bottomBar")}
 			/>
 			
 			<NotificationsCenter />
