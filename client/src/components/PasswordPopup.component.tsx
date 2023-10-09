@@ -47,7 +47,7 @@ export const PasswordPopup = (p: {
 const StyledWrapper2 = styled.div`
     .submit-button {
         margin-top: 10px;
-        ${cssVars.els().redButton};
+        ${cssVars.els};
         padding: 10px 20px;
     }
   `

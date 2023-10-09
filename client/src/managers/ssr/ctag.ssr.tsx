@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { ContentBlock } from '../../components/ContentBlock.component';
 import { getApi } from '../../hooks/api/api.hook';
 import { generateEmptyiFile } from '../../hooks/app/useLightbox.hook';
 import { renderReactToId } from "../reactRenderer.manager"
+import { memoize } from 'lodash';
 
 const heightIframe = {
 	big: 400,
@@ -44,12 +45,6 @@ export const generateCtag = (
 ): React.ReactElement => {
 	return ssrGenCtag(ctagConfig.tagName, ctagConfig.content, ctagConfig.opts)
 }
-
-// export const generateCtag = (
-// 	...iCt
-// ): React.ReactElement => {
-// 	return ssrGenCtag(tagName, content, opts)
-// }
 
 // CTAG GEN
 export const ssrGenCtag = (

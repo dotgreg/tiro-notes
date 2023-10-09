@@ -219,7 +219,7 @@ export const SettingsPopup = (p: {
 				title: "exports",
 				fields: [
 					{
-						type: 'text',
+						type: 'textarea',
 						title: "Options for Pandoc exporter",
 						expl: `Modify how pandoc exports files for docx/pdf, all options can be found at <a href='https://pandoc.org/MANUAL.html'>pandoc options manual</a>. ${showDefaultString("export_pandoc_cli_options")}`,
 						var: us.get('export_pandoc_cli_options'),
@@ -322,6 +322,29 @@ export const SettingsPopup = (p: {
 						}
 					},
 				]
+			},
+			{
+				title: "Beta",
+				fields: [
+					{
+						type: 'checkbox',
+						title: "Floating Windows",
+						expl: "Enable the floating window system",
+						var: us.get('beta_floating_windows'),
+						modifier: val => {
+							us.set('beta_floating_windows', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Plugins Marketplace",
+						expl: "Enable the plugin marketplace system",
+						var: us.get('beta_plugins_marketplace'),
+						modifier: val => {
+							us.set('beta_plugins_marketplace', val)
+						}
+					},
+				]
 			}
 		]
 	}
@@ -371,6 +394,7 @@ export const SettingsPopup = (p: {
 												{field.type !== "none" &&
 													< Input
 														value={field.var}
+														shouldNotSelectOnClick={true}
 														label={field.title}
 														type={field.type}
 														readonly={field.readOnly}

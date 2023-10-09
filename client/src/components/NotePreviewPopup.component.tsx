@@ -34,9 +34,6 @@ export const NotePreviewPopup = (p: {
 
     })
 
-    const detachInFloatingPanel = () => {
-        getApi(api => { api.ui.floatingPanel.create({type:"file", file:notePreview}) })
-    }
 
     return (
         <div
@@ -45,13 +42,6 @@ export const NotePreviewPopup = (p: {
             style={{ left: p.notePreview.position[0], top: p.notePreview.position[1] }}>
             <div className="click-throught" onClick={goToNote}></div>
             <div className='page-link-preview-popup-int'>
-                {/* <br/>
-                <br/>
-                <br/>
-                <br/>
-                <div className='detach-in-floating-panel' onClick={detachInFloatingPanel}>
-                    <Icon2 name='window-restore' />
-                </div> */}
                 
                 <NotePreview
                     file={notePreview}

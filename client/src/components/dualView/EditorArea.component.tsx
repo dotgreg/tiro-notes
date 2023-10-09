@@ -24,20 +24,20 @@ import { CodeMirrorEditor, iCMEvent, iCMPluginConfig } from './CodeMirrorEditor.
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
-import { setNoteView } from '../../managers/windowViewType.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
 import { each, isBoolean, isNumber, random } from 'lodash';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
+import { setNoteView } from '../../managers/windowViewType.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
 export type onTitleClickFn = (newYpercent: number) => void
 
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
-export type iLayoutUpdateFn = (type: "windowActive"|"windowView", data?:{view?: iViewType}) => void
+export type iLayoutUpdateFn = (action: "windowActiveStatus"|"windowViewChange", data?:{view?: iViewType}) => void
 
 interface iEditorProps {
 	viewType?: iViewType
@@ -67,7 +67,7 @@ interface iEditorProps {
 	// onDropdownEnter?: Function
 	// onViewToggle: (view: iViewType) => void
 
-	askForLayoutUpdate: iLayoutUpdateFn
+	onLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
 
 	showToolbar?: boolean
@@ -92,7 +92,6 @@ const EditorAreaInt = (
 	if(p.showToolbar === false) showToolbar = false
 	let showTitleEditor	= true
 	if(p.showTitleEditor === false) showTitleEditor = false
-	console.log(showTitleEditor, p.showTitleEditor)
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -378,7 +377,7 @@ const EditorAreaInt = (
 		setNoteView(p.file.path, nView)
 		// p.onViewToggle(nView)
 		// p.onViewToggle(nView)
-		p.askForLayoutUpdate("windowView", {view:nView})
+		p.onLayoutUpdate("windowViewChange", {view:nView})
 	}
 
 	//
@@ -485,7 +484,7 @@ const EditorAreaInt = (
 							hover={true}
 							dir="right"
 							maxHeight={maxDropdownHeight}
-							onMouseEnter={e => {p.askForLayoutUpdate("windowActive")}}
+							onMouseEnter={e => {p.onLayoutUpdate("windowActiveStatus")}}
 						>
 							<>
 

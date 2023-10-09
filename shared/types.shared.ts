@@ -91,6 +91,9 @@ export type iUserSettingName =
 
 'export_pandoc_cli_options' |
 
+'beta_plugins_marketplace' |
+'beta_floating_windows' |
+
 'ui_other'
 
 export type iPluginType = "background" | "bar" | "tag"

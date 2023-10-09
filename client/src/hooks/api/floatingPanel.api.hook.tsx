@@ -1,19 +1,21 @@
 import React, { useEffect } from "react"
-import { iFile, iNotification, iPlugin } from "../../../../shared/types.shared"
+import { iFile, iNotification, iPlugin, iViewType } from "../../../../shared/types.shared"
 import { useBackendState } from "../useBackendState.hook"
 import { generateEmptyiFile } from "../app/useLightbox.hook"
 import { cloneDeep } from "lodash"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
+import { iNotePreviewType } from "../../components/NotePreview.component"
 
 const h = `[FLOATING PANELS]`
 
 export interface iFloatingPanel {
     position: {x: number, y: number},
     size: {width: number, height: number},
-    hidden: boolean,
+    status: "hidden" | "visible" | "minimized",
     file: iFile,
     type: "ctag" | "file",	
-    fileDisplay?: "editor" | "preview" | "full",
+    view?: iViewType,
+    orderPosition?: number,
     ctagConfig?: iCtagGenConfig,
     id: string,
     zIndex?: number,
@@ -36,10 +38,13 @@ export interface iFloatingPanelApi {
     
     
     updateAll: (panels:iFloatingPanel[]) => void,
-    actionAll: (action:"hide"|"show"|"organize") => void,
+    actionAll: (action:"hide"|"show"|"organizeWindows") => void,
 
     refreshFromBackend: Function,
-    putOnTop: (panelId:string) => void,
+    pushWindowOnTop: (panelId:string) => void,
+
+    movePositioninArray: (panelId:string, direction:"up"|"down"|"first"|"last") => void,
+    updateOrderPosition: (panel:iFloatingPanel, orderPosition:number|"last"|"first") => void,
 
 }
 
@@ -62,20 +67,21 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
 
     const createPanel = (panelParams:iCreateFloatingPanel) => {
+
         // get all non hidden pannels
-        let nonHiddenPanels = panelsRef.current.filter(p => !p.hidden)
+        let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
         // position is i * nonHiddenPanels.length
         const panel:iFloatingPanel = {
             position: {x: 100 + (nonHiddenPanels.length * offset), y: 100 + (nonHiddenPanels.length * offset)},
             size: {width: 300, height: 300},
-            hidden: false,
+            status: "visible",
             file: generateEmptyiFile(),
-            fileDisplay: "editor",
+            view: "editor",
             id: Math.random().toString(36).substring(7),
             zIndex: startingZindex,
             ...panelParams,
         }
-        setPanels([...panelsRef.current, panel])
+        setPanels([panel,...panelsRef.current])
     }
 
     const updatePanel = (panel:iFloatingPanel) => { 
@@ -90,13 +96,15 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         setPanels(panelsRef.current)
     }
 
-    const putOnTop = (panelId:string) => {
+    const pushWindowOnTop = (panelId:string) => {
         // get higher zIndex of all panels
         const highestZIndex = Math.max(...panelsRef.current.map(p => p.zIndex || 0))
+        let panelIndex = panels.findIndex(p => p.id === panelId)
+        if (panelIndex === -1) return
+        // if it is already the highest, do nothing
+        if (panels[panelIndex].zIndex === highestZIndex) return
 
         let newPanels = cloneDeep(panelsRef.current)
-        let panelIndex = newPanels.findIndex(p => p.id === panelId)
-        if (panelIndex === -1) return
         newPanels[panelIndex].zIndex = highestZIndex + 1
         setPanels(newPanels)
     }
@@ -121,7 +129,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         
         let j = 0
         newPanels.forEach((panel) => {
-            if (panel.hidden) return
+            if (panel.status !== "visible") return
             panel.zIndex = startingZindex + j
             panel.position = {x: 100 + (j * offset), y: 100 + (j * offset)}
             panel.size = {width: 320, height: 200}
@@ -136,6 +144,35 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updateAll(newPanels)
     }
 
+    // function updateOrderPosition that just update the prop.orderPosition of the panel, first should be the first position of all panels, last should be the last position of all panels
+    const updateOrderPosition = (panel:iFloatingPanel, orderPosition:number|"last"|"first") => {
+        if (orderPosition === "last") {
+            // find the highest orderPosition
+            let highestOrderPosition = Math.max(...panelsRef.current.map(p => p.orderPosition || 0))
+            orderPosition = highestOrderPosition + 1
+        }
+        if (orderPosition === "first") {
+            // find the lowest orderPosition
+            let lowestOrderPosition = Math.min(...panelsRef.current.map(p => p.orderPosition || 0))
+            orderPosition = lowestOrderPosition - 1
+        }
+        panel.orderPosition = orderPosition
+        updatePanel(panel)
+    }
+
+    const movePanelPositioninArray = (panelId:string, direction:"up"|"down"|"first"|"last") => {
+        let newPanels = cloneDeep(panelsRef.current)
+        let panelIndex = newPanels.findIndex(p => p.id === panelId)
+        if (panelIndex === -1) return
+        let panel = newPanels.splice(panelIndex, 1)[0]
+        if (direction === "up") newPanels.splice(panelIndex - 1, 0, panel)
+        else if (direction === "down") newPanels.splice(panelIndex + 1, 0, panel)
+        else if (direction === "first") newPanels.splice(0, 0, panel)
+        else if (direction === "last") newPanels.push(panel)
+        updateAll(newPanels)
+    }
+
+
     // const displayAll = (action:"hide"|"show") => {
     //     let newPanels = cloneDeep(panelsRef.current)
     //     newPanels.forEach((panel) => {
@@ -144,11 +181,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     //     updateAll(newPanels)
     // }
 
-    const actionAll = (action:"hide"|"show"|"organize") => {
-        if (action === "organize") return reorganizeAll()
+    const actionAll = (action:"hide"|"show"|"organizeWindows") => {
+        // reorg
+        if (action === "organizeWindows") return reorganizeAll()
+
+        // hide/show
         let newPanels = cloneDeep(panelsRef.current)
         newPanels.forEach((panel) => {
-            panel.hidden = action === "hide" ? true : false
+            panel.status = action === "hide" ? "visible" : "minimized"
         })
         updateAll(newPanels)
     }
@@ -163,7 +203,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         actionAll,
         panels, 
         refreshFromBackend,
-        putOnTop
+        pushWindowOnTop,
+        movePositioninArray: movePanelPositioninArray,
+        updateOrderPosition
     }
     
     return api

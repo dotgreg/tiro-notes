@@ -39,22 +39,44 @@ const exportTo = (el) => {
             // create folders if does not exists
             api.folders.create(destCacheFolder, status => {
                 
+                let perTypeOptions = ``
+                if (format === "dzslides") perTypeOptions = `--self-contained`
+                if (format === "slideous") perTypeOptions = `--self-contained`
+                if (format === "revealjs") perTypeOptions = `--self-contained`
+                if (format === "beamer") perTypeOptions = `--self-contained`
+
+                let extension = format
+                if (format === "dzslides") extension = "html"
+                if (format === "slideous") extension = "html"
+                if (format === "revealjs") extension = "html"
+                if (format === "latex") extension = "tex"
+                if (format === "gfm") extension = "md"
+                if (format === "latex-pdf") extension = "pdf"
+                if (format === "beamer") extension = "pdf"
                 //
                 // RELATIVE + CD 
                 //
-                const newFileName = `${ssrfile.name}.${format}`
+                let destPathFileNoExt = `${ssrfile.name}`
+                let destPathFile = `${destPathFileNoExt}.${extension}`
                 const rootPath = `${cnf.dataFolder}/`
                 const pathToCd = cleanPath(`${rootPath}/${ssrfile.folder}`)
                 const inputFilePath = cleanPath(`./${ssrfile.name}`)
-                const destPathAbs = cleanPath(`${rootPath}/${destCacheFolder}/${newFileName}`)
-                const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${newFileName}`)
+                const destPathFolder = cleanPath(`${rootPath}/${destCacheFolder}`)
+                const destPathAbs = cleanPath(`${destPathFolder}/${destPathFile}`)
+                const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${destPathFile}`)
 
-                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" ${api.userSettings.get("export_pandoc_cli_options")} --from=markdown --to=${format} "${inputFilePath}" `
+               
+
+                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" ${api.userSettings.get("export_pandoc_cli_options")} ${perTypeOptions} --from=markdown --to=${format} "${inputFilePath}" `
                 
+                let finalCmd = pandocCmd
+                if (format === "latex-pdf") {
+                    finalCmd = `cd "${pathToCd}" && pdflatex -output-directory="${destPathFolder}" -jobname="${destPathFileNoExt}" "${inputFilePath}" `
+                }
 
 
                 // execute pandoc pandocCmd into cache/export/file.fdsljfdsalkfjdsalj.ppt
-                api.command.exec(pandocCmd, (res) => {
+                api.command.exec(finalCmd, (res) => {
                     let resObj  = {failed:false, stderr:null, shortMessage: null}
                     try {
                         resObj = JSON.parse(res) || {failed:false}
@@ -67,7 +89,7 @@ const exportTo = (el) => {
                        
                         // trigger download
                         let ressLink = getStaticRessourceLink(destDlPath)
-                        downloadFile(newFileName, ressLink)
+                        downloadFile(destPathFile, ressLink)
 
                         // delete that file after 2mi
                     }
@@ -82,9 +104,29 @@ export const triggerExportPopup = (file: iFile) => {
         api.popup.show(`
         <div id="export-popup-wrapper">
             <div class="buttons-list"> 
-                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="docx" data-path="${file.path}">docx</button>
-                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pdf" data-path="${file.path}">pdf</button>
+            <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="docx" data-path="${file.path}">docx</button>
+            <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="odt " data-path="${file.path}">odt</button>
+            <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pdf" data-path="${file.path}">pdf</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pptx" data-path="${file.path}">pptx</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="gfm" data-path="${file.path}">markdown</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="epub" data-path="${file.path}">epub</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="rtf" data-path="${file.path}">rtf</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="beamer" data-path="${file.path}">beamer (pdf slides)</button>
+                </div>
+                
+            <div class="buttons-list"> 
+                Latex:
+                <br/>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="latex" data-path="${file.path}">latex (.tex)</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="latex-pdf" data-path="${file.path}">latex (.pdf)</button>
+                
+            </div>
+            <div class="buttons-list"> 
+                Html Presentation: 
+                <br/>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="dzslides" data-path="${file.path}">dzslides</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="slideous" data-path="${file.path}">slideous</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="revealjs" data-path="${file.path}">revealjs</button>
             </div>
 
             <div class="advice">  

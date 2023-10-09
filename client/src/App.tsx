@@ -577,9 +577,11 @@ export const App = () => {
 									</div>
 
 									<div className='config-buttons-bar'>
-										<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
-											<Icon2 name="puzzle-piece" />
-										</div>
+										{ api.userSettings.get('beta_plugins_marketplace') &&
+											<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
+												<Icon2 name="puzzle-piece" />
+											</div>
+										}
 										<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
 											<Icon2 name="cog" />
 										</div>
@@ -688,11 +690,13 @@ export const App = () => {
 
 
 						</div>
-						<FloatingPanelsWrapper 
-							panels={api.ui.floatingPanel.panels} 
-							pinStatus={pinStatus.bottomBar}
-							onPinChange={updatePinStatus("bottomBar")}
-						/>
+						{ api.userSettings.get('beta_floating_windows') &&
+							<FloatingPanelsWrapper 
+								panels={api.ui.floatingPanel.panels} 
+								pinStatus={pinStatus.bottomBar}
+								onPinChange={updatePinStatus("bottomBar")}
+							/>
+						}
 					</div>
 				</ClientApiContext.Provider>
 			</div >

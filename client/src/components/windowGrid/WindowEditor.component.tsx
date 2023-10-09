@@ -7,15 +7,15 @@ import { iMobileView, isA } from '../../managers/device.manager';
 import { addLocalNoteHistory, iLocalNoteHistory } from '../../managers/localNoteHistory.manager';
 import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer } from '../dualView/DualViewer.component';
-import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
+import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
 export const WindowEditorInt = (p: {
 	content: iWindowContent
 	// onViewChange: onViewChangeFn
 	// onEditorDropdownEnter?: Function
-	askForLayoutUpdate:iLayoutUpdateFn
+	onLayoutUpdate:iLayoutUpdateFn
 	mobileView?: iMobileView
 }) => {
 
@@ -204,7 +204,7 @@ export const WindowEditorInt = (p: {
 						
 						// onViewChange={p.onViewChange}
 						// onEditorDropdownEnter={p.onEditorDropdownEnter}
-						askForLayoutUpdate={p.askForLayoutUpdate}
+						onLayoutUpdate={p.onLayoutUpdate}
 						
 						onFileEdited={(path, content) => {
 							onFileEditedSaveIt(path, content);

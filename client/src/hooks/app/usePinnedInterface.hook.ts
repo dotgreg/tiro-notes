@@ -1,3 +1,4 @@
+import { getApi } from "../api/api.hook";
 import { useBackendState } from "../useBackendState.hook"
 import React, { useEffect, useState } from 'react';
 
@@ -11,11 +12,16 @@ export type pinStatusKey = keyof iPinStatuses
 export const usePinStatus= () => {
     const [pinStatus, setPinStatus, refreshPinStatus] = useBackendState<iPinStatuses>("interface-pin-element-status",{
         topTab: true,
-        bottomBar: true,
+        bottomBar:  false
     })
 
      useEffect(() => {
          refreshPinStatus()
+
+         getApi(api => {
+            if (api.userSettings.get("beta_floating_windows") === true) return
+            updatePinStatus("bottomBar")(false)
+         })
      },[])
 
     const updatePinStatus = (key: pinStatusKey) => (value: boolean) => {

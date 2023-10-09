@@ -733,7 +733,7 @@ export const codeMirrorEditorCss = () => `
 		z-index:0!important;
 }
 .cm-selectionBackground {
-		background: rgba(0,0,0,0.1);
+		background: rgba(0,0,0,0.1)!important;
 }
 
 
