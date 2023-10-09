@@ -42,9 +42,11 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_links_preview_zoom: 0.8,
 	export_pandoc_cli_options: "--wrap=preserve --toc --number-sections",
 	ui_editor_ai_text_selection: true,
-	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue",
+	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	server_activity_logging_enable: false,
 	view_disable_notification_popups: false,
+	beta_floating_windows: false,
+	beta_plugins_marketplace: false,
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
 }
 const defaultVals = defaultValsUserSettings

@@ -181,7 +181,6 @@ export const ContentBlockTagView = (p: {
 
 			// RESIZE
 			if (m.action === 'resize') {
-				console.log("resize!")
 				const data: iIframeData['resize'] = m.data
 				let nheight = data.height
 

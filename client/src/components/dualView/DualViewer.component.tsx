@@ -31,7 +31,7 @@ interface iDualViewProps {
 	mobileView?: iMobileView
 
 	onFileEdited: onFileEditedFn
-	askForLayoutUpdate: iLayoutUpdateFn
+	onLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
 }
 
@@ -208,7 +208,8 @@ const DualViewerInt = (
 				// const res = checked ? "title" : "sync"
 				// setScrollMode(res)
 			}}
-			askForLayoutUpdate={p.askForLayoutUpdate}
+			onLayoutUpdate={p.onLayoutUpdate}
+
 			pluginsConfig={p.pluginsConfig}
 		/>
 

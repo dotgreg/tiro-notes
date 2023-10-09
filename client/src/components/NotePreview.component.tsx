@@ -1,28 +1,31 @@
 import { markdown } from '@codemirror/lang-markdown';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
-import { iFile } from '../../../shared/types.shared';
+import { iFile, iViewType } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { codeMirrorEditorCss } from './dualView/CodeMirrorEditor.component';
 import { DualViewer } from './dualView/DualViewer.component';
 import { PreviewArea, previewAreaCss, previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { WindowEditor } from './windowGrid/WindowEditor.component';
+import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 
 export type iNotePreviewType = "editor"|"preview"
 export const NotePreview = (p: {
 	file: iFile
-	view:iNotePreviewType
+	view:iViewType
 	searchedString?: string
 	height?: number
 	linkPreview?:boolean
 	windowId?:string
+
 	showToolbar?:boolean
 	showTitleEditor?:boolean
+	showViewToggler?:boolean
+	onLayoutUpdate?: iLayoutUpdateFn
 }) => {
 	const [content, setContent] = useState("");
-	const [view, setView] = useState<iNotePreviewType>(p.view);
-	const toggleType = () => view === "editor" ? setView("preview") : setView("editor")
+	const [view, setView] = useState<iViewType>(p.view);
 
 	let loadPreviewContent = useDebounce(() => {
 		getApi(api => {
@@ -85,48 +88,31 @@ export const NotePreview = (p: {
 	// 	}, 100)
 	// }
 	useEffect(() => {
-		if (view === "preview") loadPreviewContent()
-		else loadEditorContent()
+		// if (view === "preview") loadPreviewContent()
+		// else loadEditorContent()
 		// forceUpdate()
+		loadEditorContent()
 	}, [p.file, p.searchedString, view])
+
 
 	let heightStr = p.height ? p.height + "px" : "100%"
 	return (
 		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
-			{
-				view === "preview" && 
-				<PreviewArea
-					windowId= {p.windowId || generateUUID()}
-					file={p.file}
-					posY={0}
-					height={p.height || 0}
-					reactOnHeightResize={false}
-					fileContent={content}
-					onMaxYUpdate={() => {}}
-					yCnt={0}	
-					onIframeMouseWheel={() => {}}
-				/>
-			}
-			{
-				view === "editor" && 
-				// <div className={`window-editor-wrapper ${forceUpdateInt}`}>
-				<div className={`window-editor-wrapper`}>
+			<div className={`window-editor-wrapper`}>
 					<DualViewer
 						windowId={p.windowId || generateUUID()}
 						file={p.file}
 						fileContent={content}
 						isActive={true}
 						canEdit={true}
-						showViewToggler={false}
+						showViewToggler={p.showViewToggler}
 						showToolbar={p.showToolbar}
 						showTitleEditor={p.showTitleEditor}
 
-						viewType={"editor"}
+						viewType={p.view}
 						mobileView={"editor"}
 						
-						// onViewChange={p.onViewChange}
-						// onEditorDropdownEnter={p.onEditorDropdownEnter}
-						askForLayoutUpdate={() => {}}
+						onLayoutUpdate={p.onLayoutUpdate || (() => {})}
 						
 						onFileEdited={(path, content) => {
 							// onFileEditedSaveIt(path, content);
@@ -140,7 +126,6 @@ export const NotePreview = (p: {
 						}}
 					/>
 			</div >
-			}
 		</div >
 	)
 }

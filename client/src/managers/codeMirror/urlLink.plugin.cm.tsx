@@ -162,7 +162,9 @@ title="Text to speech url content" class="link-audio link-action"  data-link="${
 export const linksPreviewMdCss = (userSettings: iUserSettingsApi) => {
 // let urlPreviewZoom = 0.65
 let urlPreviewZoom = parseFloat(userSettings.get("ui_editor_links_preview_zoom"))
+let floatingWindow = userSettings.get("beta_floating_windows")
 if (isNaN(urlPreviewZoom)) urlPreviewZoom = 1
+if (isNaN(floatingWindow)) floatingWindow = false
 
 return `
 .link-fetch-preview-wrapper {
@@ -172,6 +174,8 @@ return `
 // .preview-area .link-mdpreview-wrapper {
 // 	display: inline-block;
 // }
+
+${floatingWindow ? ``:`.link-detach {display:none;}`}
 
 .link-mdpreview-wrapper {
 		position: relative;

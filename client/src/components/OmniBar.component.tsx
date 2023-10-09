@@ -103,6 +103,16 @@ export const OmniBar = (p: {
 			p.onClose()
 		})
 	}
+	const openNoteInFloatingWindow = (f:iFile) => {
+		getApi(api => {
+			api.ui.floatingPanel.create({
+				view: "editor",
+				type: "file",
+				file: f,
+			})
+			p.onClose()
+		})
+	}
 
 
 	// const HtmlOption = useMemo((p as {file: iFile}) => {
@@ -116,15 +126,29 @@ export const OmniBar = (p: {
 			>
 				<div className="file">{p.file.name}</div>
 				<div className="folder">{p.file.folder}</div>
-				<div className="actions">
-				{hover && <div className="action" 
-					onClick={e => {
-						e.stopPropagation()
-						insertNoteId(p.file)
-					}}>
-					<Icon2 name="link" label='insert note link in the current note'/>
-				</div>}
-				</div>
+				{hover && 
+					<div className="actions">
+						<div className="action" 
+							onClick={e => {
+								e.stopPropagation()
+								insertNoteId(p.file)
+							}}>
+							<Icon2 name="link" label='insert note link in the current note'/>
+						</div>
+
+						{ getApi(api => 
+       		 				api.userSettings.get('beta_floating_windows') &&
+							<div className="action" 
+								onClick={e => {
+									e.stopPropagation()
+									openNoteInFloatingWindow(p.file)
+								}}>
+								<Icon2 name="window-restore" label='Open note in a floating window'/>
+							</div>
+						)}
+						
+					</div>
+				}
 			</div>
 		, [p.file, hover])
 	}

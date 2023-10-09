@@ -13,8 +13,8 @@ import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { deviceType, isA, iMobileView } from '../../managers/device.manager';
-import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
+import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 
 
 
@@ -93,7 +93,7 @@ export const DraggableGrid = (p: {
 			setTimeout(() => {
 				const nContent = cloneDeep(intContent)
 				nContent.push(nWindow.content)
-				const nContent2 = makeWindowActiveInt(nWindow.content.i, nContent)
+				const nContent2 = makewindowActiveStatusInt(nWindow.content.i, nContent)
 				setIntContent(nContent2)
 				//1 
 				onGridUpdate(nLayout, nContent2)
@@ -152,15 +152,15 @@ export const DraggableGrid = (p: {
 	//
 	// ACTIVE WINDOW LOGIC
 	//
-	const makeWindowActiveInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
+	const makewindowActiveStatusInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
 		const nContent = cloneDeep(content);
 		each(nContent, c => {
 			c.active = (c.i === windowId) ? true : false
 		})
 		return nContent
 	}
-	const makeWindowActive = (windowId: string, file?: iFile) => {
-		const nContent = makeWindowActiveInt(windowId, intContentRef.current)
+	const makewindowActiveStatus = (windowId: string, file?: iFile) => {
+		const nContent = makewindowActiveStatusInt(windowId, intContentRef.current)
 		setIntContent(nContent)
 		onGridUpdate(intLayout, nContent)
 		// on window active toggle, update browser ui 
@@ -262,7 +262,7 @@ export const DraggableGrid = (p: {
 				const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
 				if (first.layout && first.content && first.layout.i === first.content.i) {
 					setMobileWindow(first)
-					makeWindowActive(first.content.i)
+					makewindowActiveStatus(first.content.i)
 				}
 			}
 		}
@@ -275,69 +275,78 @@ export const DraggableGrid = (p: {
 
 
 	// const onEditorDropdownEnter = (window) => {
-	// 	if (window && !window.active) makeWindowActive(window.i, window.file)
+	// 	if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 	// }
 
 	const processLayoutUpdate = (window, i):iLayoutUpdateFn => (type, data) => {
-		if (type === "windowActive") {
-			if (window && !window.active) makeWindowActive(window.i, window.file)
-		} else if (type === "windowView") {
+		if (type === "windowActiveStatus") {
+			if (window && !window.active) makewindowActiveStatus(window.i, window.file)
+		} else if (type === "windowViewChange") {
 			if (!data?.view) return
 			viewTypeChange(data?.view, i)
 		}
 	}
 
-	const WindowTools = (window, i, content: iWindowContent) => {
-		return (//jsx
+	
+	
+
+	const WindowTools = (window, i, content: iWindowContent, isDetachedEnabled?:boolean) => {
+		const btnsConfig = [
+			{
+				icon: 'faGripVertical',
+				title: 'Move Window',
+				class: 'drag-handle',
+				action: () => { },
+				onHover: () => {
+					if (window && !window.active) makewindowActiveStatus(window.i, window.file)
+				}
+			},
+			{
+				icon: 'faPlus',
+				title: 'Add Window',
+				class: 'add-button',
+				action: () => { addNewWindow() }
+			},
+			{
+				icon: 'faPlus',
+				title: 'Delete Window',
+				class: 'delete-button',
+				action: () => { 
+					removeWindow(window.i) 
+				}
+			},
+			
+		]
+
+		if (isDetachedEnabled) {
+			btnsConfig.unshift({
+				icon: 'window-restore',
+				title: 'Detach Window',
+				class: 'detach-button',
+				action: () => { 
+					console.log("detach", intContent[i].view, intContent[i])
+					if (!content.file) return
+					getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, view: intContent[i].view === "preview" ? "preview" : "editor" }) })
+				}
+			})
+		}
+
+		return ( 
 			<>
 				<div className="note-active-ribbon"></div>
 				<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
 					<ButtonsToolbar
 						design="horizontal"
 						popup={false}
-						buttons={[
-							{
-								icon: 'window-restore',
-								title: 'Detach Window',
-								class: 'detach-button',
-								action: () => { 
-									console.log("detach", intContent[i].view, intContent[i])
-									if (!content.file) return
-									getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, fileDisplay: intContent[i].view === "preview" ? "preview" : "editor" }) })
-									// getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, fileDisplay: "full" }) })
-								}
-							},
-							{
-								icon: 'faGripVertical',
-								title: 'Move Window',
-								class: 'drag-handle',
-								action: () => { },
-								onHover: () => {
-									if (window && !window.active) makeWindowActive(window.i, window.file)
-								}
-							},
-							{
-								icon: 'faPlus',
-								title: 'Add Window',
-								class: 'add-button',
-								action: () => { addNewWindow() }
-							},
-							{
-								icon: 'faPlus',
-								title: 'Delete Window',
-								class: 'delete-button',
-								action: () => { 
-									removeWindow(window.i) 
-								}
-							},
-							
-						]}
+						buttons={btnsConfig}
 						colors={["#d4d1d1", "#615f5f"]}
 						size={0.8} />
 				</div>
 			</>
 		)
 	}
+
+		
 
 
 	// {intLayout.length}
@@ -369,21 +378,21 @@ export const DraggableGrid = (p: {
 									onClick={() => {
 										// on click note, make it active if it is not
 										if (intContent[i] && !intContent[i].active) {
-											makeWindowActive(intContent[i].i, intContent[i].file)
+											makewindowActiveStatus(intContent[i].i, intContent[i].file)
 															
 										}
 									}}
 									onMouseEnter={() => {
-										// if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
+										// if (intContent[i] && !intContent[i].active) makewindowActiveStatus(intContent[i].i, intContent[i].file)
 
 									}}
 								>
-									{WindowTools(window, i, p.grid.content[i])}
+									{WindowTools(window, i, p.grid.content[i], api?.userSettings.get("beta_floating_windows"))}
 
 									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
-											askForLayoutUpdate={processLayoutUpdate(window,i)}
+											onLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>
 									</div>
@@ -401,7 +410,7 @@ export const DraggableGrid = (p: {
 									<WindowEditor 
 										content={mobileWindow.content}
 										// onViewChange={(nView) => { viewTypeChange(nView, 0) }}
-										askForLayoutUpdate={processLayoutUpdate(window,0)}
+										onLayoutUpdate={processLayoutUpdate(window,0)}
 
 										mobileView={p.mobileView}
 									/>
