@@ -14,6 +14,7 @@ import { disconnectUser } from '../../hooks/app/loginToken.hook';
 import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
 import { devCliExecFn } from '../../managers/devCli.manager';
 import { iUserSettingName } from '../../../../shared/types.shared';
+import { deviceType } from '../../managers/device.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -39,7 +40,7 @@ export const getSetting = (settingName: SettingParam) => {
 }
 
 const showDefaultString = (us:iUserSettingName):string => {
-	return `<br/> <br/> Default value: ${defaultValsUserSettings[us]}`
+	return `<br/> <br/> Default value: ${defaultValsUserSettings[us].replaceAll("\n", "<br/>")}`
 }
 
 export const SettingsPopup = (p: {
@@ -148,7 +149,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'textarea',
 						title: "AI Suggest command line",
-						expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
+						expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
@@ -213,6 +214,16 @@ export const SettingsPopup = (p: {
 							us.set('ui_editor_markdown_table_preview', val)
 						}
 					},
+					{
+						type: 'checkbox',
+						title: "Image title",
+						expl: "Show image title on interface and exports",
+						var: us.get('ui_editor_show_image_title'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_show_image_title', val)
+						}
+					},
 				]
 			},
 			{
@@ -221,10 +232,25 @@ export const SettingsPopup = (p: {
 					{
 						type: 'textarea',
 						title: "Options for Pandoc exporter",
-						expl: `Modify how pandoc exports files for docx/pdf, all options can be found at <a href='https://pandoc.org/MANUAL.html'>pandoc options manual</a>. ${showDefaultString("export_pandoc_cli_options")}`,
+						expl: `Modify how pandoc exports files. All options can be found at <a href='https://pandoc.org/MANUAL.html' target="_blank">pandoc options manual</a>. One file extension options per line.<br/><br/>format: <br/> file extention | options  ${showDefaultString("export_pandoc_cli_options")}`,
 						var: us.get('export_pandoc_cli_options'),
 						modifier: val => { us.set('export_pandoc_cli_options', val) }
 					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: ` `,
+						title: "Export Install",
+						readOnly: true,
+						expl: `In order to export in many formats, Tiro notes needs to install Pandoc on your computer. (At least v2.9) <br/>
+						<a href="https://pandoc.org/installing.html" target="_blank">Guide here </a>
+						<br/><br/>
+						For PDF, make sure pdflatex is installed 
+						<br/> (if you are on termux: <code>pkg install texlive-installer texlive-tlmgr; termux-install-tl</code>)`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+						}
+					}
 				]
 			},
 			{
@@ -445,6 +471,9 @@ export const SettingsPopup = (p: {
 }
 
 export const settingsPopupCss = () => `
+//
+// mobile version
+//
 .device-view-mobile {
 	.settings-popup-wrapper .popup-wrapper .popupContent {
 				width: 80vw;
@@ -463,14 +492,35 @@ export const settingsPopupCss = () => `
 
 .settings-popup-wrapper .popup-wrapper .popupContent {
     padding: 0px 20px;
-		width: 50vw;
+		width: 70vw;
 		min-height: 50vh;
 		max-height: 70vh;
 		overflow-y: scroll;
 
 }
 
+
+
 .settings-panel {
+		.input-and-html-wrapper {
+			width: 50%;
+			.input-component-wrapper  {
+				.input-component  {
+					${deviceType() === 'desktop' ? "" : "display:block!important;"}
+					.input-wrapper {
+						textarea, input {
+							${deviceType() === 'desktop' ? "width: calc(100% - 20px); " : "width: calc(100% - 30px); margin: 5px 0px; "}
+						}
+						input[type=checkbox] {
+							width: 20px;
+						}
+						input[type="text"] {
+							${deviceType() === 'desktop' ? "width: calc(100% - 20px); " : "width: calc(100% - 40px);"}
+						}
+					}
+				}
+			}
+		}
 
 		h3 {
 				cursor: pointer;
@@ -504,7 +554,6 @@ export const settingsPopupCss = () => `
 						}
 						.input-and-html-wrapper {
 							display: flex;
-							width: 300px;
 							.input-component {
 								// 1 TITLE
 								span {
@@ -512,7 +561,7 @@ export const settingsPopupCss = () => `
 								}
 								// 2 INPUT
 								.input-wrapper {
-									width: 200px;
+									width: 300px;
 								}
 								display: flex;
 								justify-content: space-evenly;

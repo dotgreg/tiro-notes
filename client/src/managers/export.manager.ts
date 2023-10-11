@@ -1,6 +1,7 @@
 //
 	// EXPORT POPUP
 
+import { each } from "lodash"
 import { cleanPath, pathToIfile } from "../../../shared/helpers/filename.helper"
 import { sharedConfig } from "../../../shared/shared.config"
 import { iFile, iViewType } from "../../../shared/types.shared"
@@ -20,6 +21,18 @@ const downloadFile = (newFileName:string, pathToFile:string) => {
     anchor.setAttribute("target", "_blank");
     getApi(api => {api.ui.notification.emit({ content: `[EXPORT] done`, id:"export", options:{hideAfter: 3} })})
     anchor.click();
+}
+const getConfigObj = (api, format) => {
+    const configArr = api.userSettings.get("export_pandoc_cli_options").split("\n") || []
+    const configObj = {}
+    each(configArr, (line) => {
+        const lineArr = line.split("|")
+        if (lineArr.length === 2) {
+            configObj[lineArr[0].trim()] = lineArr[1].trim()
+        }
+    })
+    console.log(configObj, configArr)
+    return configObj[format] || ""
 }
 
 const exportTo = (el) => {
@@ -65,15 +78,21 @@ const exportTo = (el) => {
                 const destPathAbs = cleanPath(`${destPathFolder}/${destPathFile}`)
                 const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${destPathFile}`)
 
+                
                
 
-                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" ${api.userSettings.get("export_pandoc_cli_options")} ${perTypeOptions} --from=markdown --to=${format} "${inputFilePath}" `
+                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --verbose ${getConfigObj(api, format)} ${perTypeOptions} --from=markdown --to=${format} "${inputFilePath}" `
                 
                 let finalCmd = pandocCmd
                 if (format === "latex-pdf") {
-                    finalCmd = `cd "${pathToCd}" && pdflatex -output-directory="${destPathFolder}" -jobname="${destPathFileNoExt}" "${inputFilePath}" `
+                    finalCmd = `cd "${pathToCd}" && pdflatex -halt-on-error -output-directory="${destPathFolder}" -jobname="${destPathFileNoExt}" "${inputFilePath}" `
                 }
 
+                const onError = (resObj) => {
+                    let errStr = resObj.stderr === "" ? resObj.stdout : resObj.stderr
+                    console.error("[CONVERT ERROR]:", resObj)
+                    api.ui.notification.emit({ content: `[EXPORT] Error <br/> "${errStr} <br/><br/> ${resObj.shortMessage}"`, id:"export", options:{hideAfter: -1}})
+                }
 
                 // execute pandoc pandocCmd into cache/export/file.fdsljfdsalkfjdsalj.ppt
                 api.command.exec(finalCmd, (res) => {
@@ -81,10 +100,11 @@ const exportTo = (el) => {
                     try {
                         resObj = JSON.parse(res) || {failed:false}
                     } catch (e) {
+                        onError(resObj)
                     }
                     
                     if (resObj.failed) {
-                        api.ui.notification.emit({ content: `[EXPORT] Error <br/> "${resObj.stderr} <br/><br/> ${resObj.shortMessage}"`, id:"export" })
+                        onError(resObj)
                     } else {
                        
                         // trigger download
@@ -107,13 +127,12 @@ export const triggerExportPopup = (file: iFile) => {
             <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="docx" data-path="${file.path}">docx</button>
             <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="odt " data-path="${file.path}">odt</button>
             <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pdf" data-path="${file.path}">pdf</button>
-                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pptx" data-path="${file.path}">pptx</button>
+                
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="gfm" data-path="${file.path}">markdown</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="epub" data-path="${file.path}">epub</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="rtf" data-path="${file.path}">rtf</button>
-                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="beamer" data-path="${file.path}">beamer (pdf slides)</button>
                 </div>
-                
+            <br/>
             <div class="buttons-list"> 
                 Latex:
                 <br/>
@@ -121,22 +140,22 @@ export const triggerExportPopup = (file: iFile) => {
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="latex-pdf" data-path="${file.path}">latex (.pdf)</button>
                 
             </div>
+            <br/>
             <div class="buttons-list"> 
-                Html Presentation: 
+                Slides: 
                 <br/>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pptx" data-path="${file.path}">pptx</button>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="beamer" data-path="${file.path}">beamer</button>
+                <br/>
+                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="revealjs" data-path="${file.path}">revealjs</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="dzslides" data-path="${file.path}">dzslides</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="slideous" data-path="${file.path}">slideous</button>
-                <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="revealjs" data-path="${file.path}">revealjs</button>
-            </div>
-
-            <div class="advice">  
-                <br/>
-                Please make sure you have Pandoc v2.9 installed on your system to have docx/ppt exports working. 
-                <a href="https://pandoc.org/installing.html" target="_blank">Guide here </a>
                 
-                <br/><br/>
-                For PDF, make sure pdflatex is installed 
-                <br/> (if you are on termux: <code>pkg install texlive-installer texlive-tlmgr; termux-install-tl</code>)
+            </div>
+            <br/>
+            <br/>
+            <div class="advice">  
+                Export requires extra install, please check settings > export.
             </div>
         </div>
         `, "Export Note to :", (ttt) => {console.log(ttt)})

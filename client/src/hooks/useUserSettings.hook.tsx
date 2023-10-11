@@ -12,6 +12,8 @@ import { useBackendState } from './useBackendState.hook';
 
 
 
+export const userSettingsSync: {curr:iUserSettings} = {curr: {}}
+
 
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
@@ -40,7 +42,8 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_markdown_table_preview: true,
 	ui_editor_links_as_button: true,
 	ui_editor_links_preview_zoom: 0.8,
-	export_pandoc_cli_options: "--wrap=preserve --toc --number-sections",
+	ui_editor_show_image_title: false,
+	export_pandoc_cli_options: "\ndocx | --wrap=preserve --toc --number-sections \n revealjs | -V theme=moon \n beamer | --wrap=preserve --include-in-header=./include-tex.md ",
 	ui_editor_ai_text_selection: true,
 	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	server_activity_logging_enable: false,
@@ -83,6 +86,7 @@ export const useUserSettings =  (p: {
 
 	useEffect(() => {
 		debounceChange()
+		userSettingsSync.curr = userSettings
 	}, [userSettings])
 
 	const debounceChange = useDebounce(() => {
