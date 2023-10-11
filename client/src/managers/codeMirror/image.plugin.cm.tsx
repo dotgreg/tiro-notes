@@ -12,6 +12,7 @@ import { ssrFn, ssrOnClick } from "../ssr.manager";
 import {findImagesFromContent } from "../images.manager";
 import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 import { match } from "assert";
+import { userSettingsSync } from "../../hooks/useUserSettings.hook";
 
 
 ///////////////////////////////////
@@ -52,6 +53,8 @@ export const imagePreviewPlugin = (file: iFile, windowId:string) => genericRepla
 
 export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption:string, rawConfig:string, cFile:iFile):string => {
 	if (caption !== "image") caption = `<div class="mdpreview-source">${caption}</div>`
+	if (!userSettingsSync.curr.ui_editor_show_image_title) caption = ``
+
 	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
 	if (!rawConfig) rawConfig = ""
 	let cnf = rawConfig.trim().split("=")
@@ -70,6 +73,8 @@ export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iF
 	let sourceHtml = ""
 	let caption = fullMd.split("[")[1].split("]")[0]
 	if (caption !== "image") sourceHtml = `<div class="mdpreview-source">${caption}</div>`
+	if (!userSettingsSync.curr.ui_editor_show_image_title) sourceHtml = ``
+
 	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
 	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" src="${url}" /></div></div>${sourceHtml}`
 }

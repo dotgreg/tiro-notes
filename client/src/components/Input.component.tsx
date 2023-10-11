@@ -132,11 +132,13 @@ export const inputComponentCss = () => `
             input {
                 padding: 7px;
                 border: none;
+				font-size: 11px;
                 background: #ececec;
                 border-radius: 5px;
             }
 			textarea {
 				height: 120px;
+				font-size: 10px;
 				border: none;
 				background: #ececec;
                 border-radius: 5px;
