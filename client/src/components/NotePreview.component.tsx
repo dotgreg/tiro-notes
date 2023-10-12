@@ -1,4 +1,3 @@
-import { markdown } from '@codemirror/lang-markdown';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../shared/types.shared';

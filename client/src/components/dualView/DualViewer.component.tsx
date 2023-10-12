@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
-import { EditorArea, iLayoutUpdateFn, iTitleEditorStatus, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
-import { iFile, iViewType } from '../../../../shared/types.shared';
+import { EditorArea, iLayoutUpdateFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
+import { iFile, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, iMobileView } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';

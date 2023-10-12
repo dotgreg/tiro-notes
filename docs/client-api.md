@@ -420,6 +420,15 @@ noteLink should be relative from tiro folder
  ## Api.call : lastNotesApi
  
 
+#### <span class="render-code-wrapper">lastNotesApi.addToHistory</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>
+       1. debounced: <span class="render-code-wrapper">boolean</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"lastNotesApi.addToHistory",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <span class="render-code-wrapper">boolean</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">lastNotesApi.getAll</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Result: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span> 
@@ -1276,6 +1285,12 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;emit: <span class="render-code-wrapper"><a href="#client-api?id=apiemitfn">ApiEmitFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;on: <span class="render-code-wrapper"><a href="#client-api?id=apionfn">ApiOnFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;off: <span class="render-code-wrapper">(listenerId: <span class="render-code-wrapper">number</span>) => <span class="render-code-wrapper">void</span></span><br/>}</span></div>
  
 
+#### <span class="render-code-wrapper">iTitleEditorStatus</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"undefined" | "disabled"</span></div>
+ 
+
 #### <span class="render-code-wrapper">iViewType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
@@ -1285,7 +1300,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iWindowContent</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;i: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;i: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;titleEditor: <span class="render-code-wrapper"><a href="#client-api?id=ititleeditorstatus">iTitleEditorStatus</a></span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;canEdit?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;showToolbar?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;showViewToggler?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iWindow</span>
