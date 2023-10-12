@@ -1,12 +1,11 @@
 import { markdown } from '@codemirror/lang-markdown';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
-import { iFile, iViewType } from '../../../shared/types.shared';
+import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { codeMirrorEditorCss } from './dualView/CodeMirrorEditor.component';
-import { DualViewer } from './dualView/DualViewer.component';
-import { PreviewArea, previewAreaCss, previewAreaSimpleCss } from './dualView/PreviewArea.component';
+import { previewAreaCss } from './dualView/PreviewArea.component';
 import { WindowEditor } from './windowGrid/WindowEditor.component';
 import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 
@@ -20,7 +19,7 @@ export const NotePreview = (p: {
 	windowId?:string
 
 	showToolbar?:boolean
-	showTitleEditor?:boolean
+	titleEditor?:iTitleEditorStatus
 	showViewToggler?:boolean
 	onLayoutUpdate?: iLayoutUpdateFn
 }) => {
@@ -96,9 +95,24 @@ export const NotePreview = (p: {
 
 
 	let heightStr = p.height ? p.height + "px" : "100%"
+
+
 	return (
 		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
-			<div className={`window-editor-wrapper`}>
+			<WindowEditor 
+				content={{
+					i:p.windowId || generateUUID(),
+					file:p.file,
+					active:true,
+					view:p.view,
+				}}
+				canEdit={true}
+				showViewToggler={p.showViewToggler}
+				showToolbar={p.showToolbar}
+				titleEditor={p.titleEditor}
+				onLayoutUpdate={p.onLayoutUpdate || (() => {})}
+			/>
+			{/* <div className={`window-editor-wrapper`}>
 					<DualViewer
 						windowId={p.windowId || generateUUID()}
 						file={p.file}
@@ -107,7 +121,7 @@ export const NotePreview = (p: {
 						canEdit={true}
 						showViewToggler={p.showViewToggler}
 						showToolbar={p.showToolbar}
-						showTitleEditor={p.showTitleEditor}
+						titleEditor={p.titleEditor}
 
 						viewType={p.view}
 						mobileView={"editor"}
@@ -125,7 +139,7 @@ export const NotePreview = (p: {
 							linkPreview: p.linkPreview
 						}}
 					/>
-			</div >
+			</div > */}
 		</div >
 	)
 }

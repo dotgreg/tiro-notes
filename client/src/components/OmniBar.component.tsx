@@ -17,6 +17,7 @@ import { fileToNoteLink } from '../managers/noteLink.manager';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { useBackendState } from '../hooks/useBackendState.hook';
 import { evalPluginCode } from '../managers/plugin.manager';
+import { userSettingsSync } from '../hooks/useUserSettings.hook';
 
 const omniParams = {
 	search: {
@@ -136,8 +137,7 @@ export const OmniBar = (p: {
 							<Icon2 name="link" label='insert note link in the current note'/>
 						</div>
 
-						{ getApi(api => 
-       		 				api.userSettings.get('beta_floating_windows') &&
+						{ userSettingsSync.curr.beta_floating_windows &&
 							<div className="action" 
 								onClick={e => {
 									e.stopPropagation()
@@ -145,7 +145,7 @@ export const OmniBar = (p: {
 								}}>
 								<Icon2 name="window-restore" label='Open note in a floating window'/>
 							</div>
-						)}
+						}
 						
 					</div>
 				}
@@ -1025,7 +1025,7 @@ export const OmniBar = (p: {
 								<NotePreview
 									file={notePreview}
 									showToolbar={true}
-									showTitleEditor={false}
+									titleEditor={false}
 									searchedString={searchedString}
 									height={previewHeight}
 									view={previewType}
@@ -1132,6 +1132,9 @@ export const omnibarPopupCss = () => `
 							&.device-desktop .actions {
 								transition: all 0.2s;
 								opacity: 0;
+								.action {
+									margin-left: 8px;
+								}
 							}
 							&.device-desktop:hover .actions {
 								opacity: 1;

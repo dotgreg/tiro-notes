@@ -10,7 +10,7 @@ export const Icon2 = (p:{name: string, label?:string, size?: string, color?:stri
 		dangerouslySetInnerHTML={{
 			__html: ssrIcon(p.name)
 		}}
-		style={{fontSize: p.size || "10px", color: p.color || "grey"}}
+		style={{fontSize: p.size || "10px", color: p.color || "#797979"}}
 	></div>
 }
 

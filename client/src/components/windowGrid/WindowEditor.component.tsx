@@ -1,6 +1,6 @@
 import { isBoolean } from 'lodash';
 import React, { useEffect, useRef, useState } from 'react';
-import { iViewType, iWindowContent } from '../../../../shared/types.shared';
+import { iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { iMobileView, isA } from '../../managers/device.manager';
@@ -16,7 +16,12 @@ export const WindowEditorInt = (p: {
 	// onViewChange: onViewChangeFn
 	// onEditorDropdownEnter?: Function
 	onLayoutUpdate:iLayoutUpdateFn
+
+	canEdit?: boolean
 	mobileView?: iMobileView
+	showToolbar?: boolean
+	showViewToggler?: boolean
+	titleEditor?: iTitleEditorStatus
 }) => {
 
 	const { file, view, active, i } = { ...p.content }
@@ -25,7 +30,7 @@ export const WindowEditorInt = (p: {
 	const [intViewType, setIntViewType] = useState<iViewType>()
 
 	useEffect(() => {
-		setIntViewType(view)
+		if (view) return setIntViewType(view)
 		// get the backend cached view type
 		getNoteView(file?.path as string).then(res => {
 			if (res) setIntViewType(res)
@@ -194,10 +199,15 @@ export const WindowEditorInt = (p: {
 						file={file}
 						fileContent={fileContent}
 						isActive={active}
-						canEdit={canEdit}
-						showViewToggler={true}
-						showToolbar={true}
-						showTitleEditor={true}
+						// canEdit={canEdit}
+						// showViewToggler={true}
+						// showToolbar={true}
+						// titleEditor={true}
+
+						canEdit={p.canEdit || true}
+						showViewToggler={p.showViewToggler}
+						showToolbar={p.showToolbar}
+						titleEditor={p.titleEditor}
 
 						viewType={intViewType}
 						mobileView={p.mobileView}

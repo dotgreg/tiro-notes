@@ -80,7 +80,7 @@ const exportTo = (el) => {
 
                 
                
-
+                const killPandocPrevCmd = `pkill -9 pandoc`
                 const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --verbose ${getConfigObj(api, format)} ${perTypeOptions} --from=markdown --to=${format} "${inputFilePath}" `
                 
                 let finalCmd = pandocCmd
@@ -95,24 +95,26 @@ const exportTo = (el) => {
                 }
 
                 // execute pandoc pandocCmd into cache/export/file.fdsljfdsalkfjdsalj.ppt
-                api.command.exec(finalCmd, (res) => {
-                    let resObj  = {failed:false, stderr:null, shortMessage: null}
-                    try {
-                        resObj = JSON.parse(res) || {failed:false}
-                    } catch (e) {
-                        onError(resObj)
-                    }
-                    
-                    if (resObj.failed) {
-                        onError(resObj)
-                    } else {
-                       
-                        // trigger download
-                        let ressLink = getStaticRessourceLink(destDlPath)
-                        downloadFile(destPathFile, ressLink)
+                api.command.exec(killPandocPrevCmd, (res) => {
+                    api.command.exec(finalCmd, (res) => {
+                        let resObj  = {failed:false, stderr:null, shortMessage: null}
+                        try {
+                            resObj = JSON.parse(res) || {failed:false}
+                        } catch (e) {
+                            onError(resObj)
+                        }
+                        
+                        if (resObj.failed) {
+                            onError(resObj)
+                        } else {
+                        
+                            // trigger download
+                            let ressLink = getStaticRessourceLink(destDlPath)
+                            downloadFile(destPathFile, ressLink)
 
-                        // delete that file after 2mi
-                    }
+                            // delete that file after 2mi
+                        }
+                    })
                 })
             })
         })
@@ -147,6 +149,8 @@ export const triggerExportPopup = (file: iFile) => {
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="pptx" data-path="${file.path}">pptx</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="beamer" data-path="${file.path}">beamer</button>
                 <br/>
+                <br/>
+                HTML Slides: <br/>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="revealjs" data-path="${file.path}">revealjs</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="dzslides" data-path="${file.path}">dzslides</button>
                 <button onclick="${ssrFn("export-note-to", exportTo)}" data-format="slideous" data-path="${file.path}">slideous</button>

@@ -14,6 +14,7 @@ const log = sharedConfig.client.log.verbose
 export interface iLastFilesHistoryApi {
 	getAll: () => iFile[]
 	removeFile: (filePath:string) => void
+	addToHistory: (file:iFile, debounced?:boolean) => void
 }
 
 
@@ -25,15 +26,18 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 
 	useEffect(() => {
 		log && console.log(h, ' activeFile changed!', activeFile);
-		activeFile && addToHistory(activeFile)
+		activeFile && addToHistoryInt(activeFile)
 	}, [activeFile])
 
 	const cleanLastFilesHistory = () => {
 		setFilesHistory([])
 	}
 
-	const addToHistory = (file: iFile) => {
+	const addToHistoryInt = (file: iFile) => {
 		log && console.log(h, 'Add to history', file.name);
+
+		// if already at first position in hist, do nothing
+		if (filesHistory.length > 0 && filesHistory[0].name === file.name) return
 
 		let shouldAddToHistory = true
 		let indexOldPos = -1
@@ -54,7 +58,11 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		setFilesHistory(newfilesHistory)
 		
 	}
-	const debouncedAddToHistory = useDebounce(addToHistory, 1000)
+	const debouncedAddToHistory = useDebounce(addToHistoryInt, 300)
+
+	const addToHistory = (file: iFile, debounced:boolean = true) => {
+		debounced ? debouncedAddToHistory(file) : addToHistoryInt(file)
+	}
 
 
 	
@@ -73,7 +81,8 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 	
 	const lastFilesHistoryApi:iLastFilesHistoryApi = {
 		getAll,
-		removeFile
+		removeFile,
+		addToHistory,
 	}
 	
 
