@@ -264,9 +264,16 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const [codemirrorExtensions, setCodemirrorExtentions] = useState<Extension[]>([])
 	const [classes, setClasses] = useState<string>("")
 	useEffect(() => {
+		
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
+				// AUTOCOMPLETION
 				autocompletion({ override: getAllCompletionSources(p.file) }),
+
+				// SPELLCHECKING
+				EditorView.contentAttributes.of({ spellcheck: 'true' }),
+				
+				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
 					scroll(event, view) {
 						// debouncedActivateTitles();
@@ -324,7 +331,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			}
 
 
-			let nclasses = `device-${deviceType()}`
+			let nclasses = `device-${deviceType()} `
 			if (ua.get("ui_editor_markdown_table_preview")) nclasses += "md-table-preview-enabled"
 			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
 			setCodemirrorExtentions(newcodemirrorExtensions)
@@ -385,13 +392,31 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const decalMousePopup = [30,10]
 
 	const onSelectionChangeDebounced = useDebounce((selection:any) => {
-		if (selection.from === selection.to) return
+		
+		// if (selection.from === selection.to) return onCursorMoveDebounced(selection)
+		if (selection.from === selection.to) return 
 		if (!isNumber(selection.from) || !isNumber(selection.to)) return
 		if (selection.from < 0 || selection.to < 0) return
 		if (JSON.stringify(histSelection.current) === JSON.stringify(selection)) return
 		histSelection.current = cloneDeep(selection)
 		displayHoverPopup()
 	}, 200)
+
+	// const onCursorMoveDebounced = (selection:any) => {
+	// 	let lineInfos = CodeMirrorUtils.getCurrentLineInfos(getEditorObj())
+	// 	// if line start and ends with |, means we are in a md table
+	// 	let cLine = lineInfos?.lines[lineInfos.lineIndex]
+	// 	if (!cLine) return
+	// 	let isMdTableLine = cLine.startsWith("|") && cLine.endsWith("|")
+	// 	if (!isMdTableLine) return
+	// 	// check lines before and after if they are md table lines
+	// 	let isMdTableLineBefore = false
+	// 	let isMdTableLineAfter = false
+	// 	let lineBefore = lineInfos?.lines[lineInfos.lineIndex - 1]
+	// 	console.log(1111, selection.from, selection.to, isMdTableLine )
+
+	// }
+
 
 	//
 	// MONITOR MOUSE CHANGE
@@ -652,7 +677,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 						>
 							<Icon2 name="calculator" /> <span className="result-calc">{calcSelected()}</span>
 						</span>
-						
 					}
 					{!calcSelected() &&
 						<span
