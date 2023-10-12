@@ -52,6 +52,8 @@ export const SettingsPopup = (p: {
 
 
 
+	let requireReloadStr = `<br/> (Requires interface to reload)`
+
 
 
 
@@ -158,7 +160,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Markdown Preview",
-						expl: "Markdown preview",
+						expl: "Markdown preview " + requireReloadStr,
 						var: us.get('ui_editor_markdown_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -168,7 +170,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Enhanced Markdown",
-						expl: "Enhanced Markdown Preview for files, documents etc",
+						expl: "Enhanced Markdown Preview for files, documents etc" + requireReloadStr,
 						var: us.get('ui_editor_markdown_enhanced_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -178,7 +180,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Links button",
-						expl: "Replace http links into buttons in the editor by adding a '/' at the end of it.",
+						expl: "Replace http links into buttons in the editor by adding a '/' at the end of it." + requireReloadStr,
 						var: us.get('ui_editor_links_as_button'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -197,7 +199,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Latex preview",
-						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$",
+						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$" + requireReloadStr,
 						var: us.get('ui_editor_markdown_latex_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -207,7 +209,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Improved Markdown Table",
-						expl: "Improves the display of markdown table. Add '--table' in the note to activate it.",
+						expl: "Improves the display of markdown table. Add '--table' in the note to activate it." + requireReloadStr,
 						var: us.get('ui_editor_markdown_table_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -217,7 +219,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Image title",
-						expl: "Show image title on interface and exports",
+						expl: "Show image title on interface and exports" + requireReloadStr,
 						var: us.get('ui_editor_show_image_title'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -341,9 +343,10 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Disable notification popups",
-						expl: "Force notification popups to not appear on the interface (Requires interface to reload)",
+						expl: "Force notification popups to not appear on the interface" + requireReloadStr,
 						var: us.get('view_disable_notification_popups'),
 						modifier: val => {
+							setDisplayReload(true)
 							us.set('view_disable_notification_popups', val)
 						}
 					},
@@ -355,9 +358,10 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Floating Windows",
-						expl: "Enable the floating window system",
+						expl: "Enable the floating window system" + requireReloadStr,
 						var: us.get('beta_floating_windows'),
 						modifier: val => {
+							setDisplayReload(true)
 							us.set('beta_floating_windows', val)
 						}
 					},
@@ -463,7 +467,7 @@ export const SettingsPopup = (p: {
 					)
 				}
 				{displayReload &&
-					<button onClick={e => { window.location.reload() }}>Reload App</button>
+					<button className='submit-button' onClick={e => { window.location.reload() }}>Reload App</button>
 				}
 			</Popup >
 		</div >

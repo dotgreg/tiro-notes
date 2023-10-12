@@ -119,11 +119,18 @@ export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
 
 export type iFolderDeleteType =  "trash" | "cache" 
 
+export type iTitleEditorStatus = boolean| "disabled"
+
 export interface iWindowContent {
 	i: string
 	file?: iFile
 	active: boolean
 	view: iViewType
+
+	canEdit?: boolean
+	showViewToggler?:boolean
+	showToolbar?:boolean
+	titleEditor?:iTitleEditorStatus
 }
 
 export interface iWindow {

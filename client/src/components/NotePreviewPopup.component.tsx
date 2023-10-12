@@ -48,7 +48,7 @@ export const NotePreviewPopup = (p: {
                     // searchedString={activeLine}
                     // height={200}
                     showToolbar={true}
-                    showTitleEditor={false}
+                    titleEditor={false}
                     view={"editor"}
                     linkPreview={false}
                 />

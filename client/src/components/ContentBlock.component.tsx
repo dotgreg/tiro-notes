@@ -3,19 +3,20 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { iContentChunk, noteApiFuncs } from '../managers/renderNote.manager'
 import { generateIframeHtml, iframeParentManager, iIframeData } from '../managers/iframe.manager'
-import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
+import { callApiFromString, getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { isString, random } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
-import { Icon } from './Icon.component';
+import { Icon, Icon2 } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
 import { defocusMouse } from '../managers/focus.manager';
 import { getCtagContent } from '../managers/ctag.manager';
 import { isMobile } from '../managers/device.manager';
 import { notifLog } from '../managers/devCli.manager';
+import { iCreateFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -310,6 +311,14 @@ export const ContentBlockTagView = (p: {
 			action: 'askFullscreen', data: {}
 		})
 	}
+	const askDetach = () => {
+		if (!p.block.tagName) return
+		let tagName = p.block.tagName || ''	
+		const floatConfig:iCreateFloatingPanel = {type:"ctag", file: p.file, ctagConfig:{tagName: tagName, content:p.block.content} }
+		console.log("ASK DETACH", floatConfig)
+		getApi(api => { api.ui.floatingPanel.create(floatConfig) })
+	}
+	
 
 
 
@@ -367,12 +376,15 @@ export const ContentBlockTagView = (p: {
 					<div className="ctag-menu-button ctag-fullscreen" onClick={askFullscreen}>
 						<Icon name="faExpand" color={`#b2b2b2`} />
 					</div>
-					<div className="ctag-menu-button ctag-pin" onClick={e => { askPin() }}>
+					<div className="ctag-menu-button ctag-detach" onClick={askDetach}>
+						<Icon2 name="window-restore" color={`#b2b2b2`} />
+					</div>
+					{/* <div className="ctag-menu-button ctag-pin" onClick={e => { askPin() }}>
 						<Icon name="faThumbtack" color={`#b2b2b2`} />
 					</div>
 					<div className="ctag-menu-button ctag-pin" onClick={e => { askPinFullscreen() }}>
 						<Icon name="faExpandArrowsAlt" color={`#b2b2b2`} />
-					</div>
+					</div> */}
 				</div>
 
 				{!reloadIframe &&

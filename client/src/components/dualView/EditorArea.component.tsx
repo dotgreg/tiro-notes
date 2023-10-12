@@ -1,5 +1,5 @@
 import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { iFile, iFileImage, iViewType } from '../../../../shared/types.shared';
+import { iFile, iFileImage, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
 import { deviceType, isA, iMobileView, getBrowserName } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
@@ -27,10 +27,11 @@ import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean, isNumber, random } from 'lodash';
+import { each, isBoolean, isNumber, isString, random } from 'lodash';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
+import { title } from 'process';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -72,7 +73,7 @@ interface iEditorProps {
 
 	showToolbar?: boolean
 	showViewToggler?: boolean
-	showTitleEditor?: boolean
+	titleEditor?: iTitleEditorStatus
 }
 
 const EditorAreaInt = (
@@ -90,8 +91,7 @@ const EditorAreaInt = (
 	if(p.showViewToggler === false) showViewToggler = false
 	let showToolbar	= true
 	if(p.showToolbar === false) showToolbar = false
-	let showTitleEditor	= true
-	if(p.showTitleEditor === false) showTitleEditor = false
+	let titleEditor:iTitleEditorStatus	= (isBoolean(p.titleEditor) || isString(p.titleEditor)) ? p.titleEditor : true
 
 
 	// LIFECYCLE EVENTS MANAGER HOOK
@@ -446,6 +446,12 @@ const EditorAreaInt = (
 	const onCMEvent = (event: iCMEvent) => {
 
 	}
+
+	const updateLastNotes = () => {
+		getApi(api => {
+			api.lastNotesApi?.addToHistory(p.file, false)
+		})
+	}
 	
 
 
@@ -455,16 +461,18 @@ const EditorAreaInt = (
 			ref={editorWrapperEl}
 		>
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-			<div className={`infos-editor-wrapper ${!showTitleEditor ? "no-title-editor" : "with-title-editor"}`}>
+			<div className={`infos-editor-wrapper ${!titleEditor ? "no-title-editor" : "with-title-editor"}`}>
 
-				{ showTitleEditor && <>		
+				{ (titleEditor === true || titleEditor === "disabled") && <>		
 					<div className="file-path-wrapper">
 						{p.file.path.replace(`/${p.file.name}`, '')}
 					</div>
 
 					<NoteTitleInput
 						title={p.file.name.replace('.md', '')}
+						enabled={titleEditor === true}
 						onEdited={(o, n) => {
+							
 							const oPath = `${p.file.folder}${o}.md`
 							const nPath = `${p.file.folder}${n}.md`
 							gridContext.file.onTitleUpdate(oPath, nPath)
@@ -599,7 +607,7 @@ const EditorAreaInt = (
 
 
 			{/* {MAIN EDITOR AREA} */}
-			<div className={`main-editor-wrapper ${showTitleEditor ? "with-title-editor": "no-title-editor"}`}>
+			<div className={`main-editor-wrapper ${titleEditor ? "with-title-editor": "no-title-editor"}`}>
 
 				{!isPreview && !simpleFallback && p.editorType === 'codemirror' &&
 					<CodeMirrorEditor
@@ -607,7 +615,10 @@ const EditorAreaInt = (
 						ref={codeMirrorEditorView}
 
 						value={innerFileContent}
-						onChange={triggerNoteEdition}
+						onChange={(v) => { 
+							updateLastNotes()
+							triggerNoteEdition(v) 
+						}}
 
 						posY={p.posY}
 
@@ -628,7 +639,10 @@ const EditorAreaInt = (
 						<p> Note is too long for mobile, the advanced edition features are disabled </p>
 						<textarea
 							defaultValue={innerFileContent}
-							onChange={e => { triggerNoteEdition(e.target.value) }}
+							onChange={e => { 
+								updateLastNotes()
+								triggerNoteEdition(e.target.value) 
+							}}
 						/>
 					</div>
 				}
@@ -642,6 +656,7 @@ const EditorAreaInt = (
 					onButtonClicked={action => {
 						let updatedText = applyTextModifAction(action)
 						if (updatedText) {
+							updateLastNotes()
 							triggerNoteEdition(updatedText)
 							forceCmRender()
 						}
@@ -837,7 +852,7 @@ export const editorAreaCss = (v: iMobileView) => `
 			z-index: 1;
 			position:absolute;
 			top: 0px;
-			left: 0px;
+			right: 7px;
 			width: 100%;
 			&.with-title-editor {
 				border-bottom: 1px solid rgba(0 0 0 / 5%);
@@ -859,6 +874,9 @@ export const editorAreaCss = (v: iMobileView) => `
 			padding-left: 3px;
 			padding-rigth: 10px;
 			width: calc(100% - 10px);
+			&.no-title-editor {
+				width: 30px;
+			}
 			.title-input-wrapper {
 					padding-left: 10px;
 					.press-to-save {

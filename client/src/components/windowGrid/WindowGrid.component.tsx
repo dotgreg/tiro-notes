@@ -104,7 +104,6 @@ export const WindowGrid = (p: {
 			each(nfiles, file => { if (file.path === nPath) nFile = file })
 			if (!nFile) return
 			nFile = nFile as iFile
-
 			// 
 			// console.log(`${h} get new file from backend`);
 			const idsToUpdate = api.ui.windows.getIdsFromFile(oPath)

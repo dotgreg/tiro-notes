@@ -54,6 +54,7 @@ import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './manag
 import { PluginsMarketplacePopup } from './components/settingsView/pluginsMarketplacePopup.component';
 import { FloatingPanel, FloatingPanelsWrapper } from './components/FloatingPanels.component';
 import { usePinStatus } from './hooks/app/usePinnedInterface.hook';
+import { userSettingsSync } from './hooks/useUserSettings.hook';
 
 export const App = () => {
 
@@ -516,7 +517,6 @@ export const App = () => {
 																	// foldersUiApi.open.remove([getParentFolder(folder.path)])
 																	// foldersUiApi.open.add(getParentFolder(folder.path))
 																	// foldersUiApi.open.add(folder.path)
-																	console.log(111111)
 																}
 															})
 														}
@@ -690,7 +690,7 @@ export const App = () => {
 
 
 						</div>
-						{ api.userSettings.get('beta_floating_windows') &&
+						{ userSettingsSync.curr.beta_floating_windows &&
 							<FloatingPanelsWrapper 
 								panels={api.ui.floatingPanel.panels} 
 								pinStatus={pinStatus.bottomBar}

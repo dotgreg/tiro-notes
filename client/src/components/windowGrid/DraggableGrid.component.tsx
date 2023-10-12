@@ -15,6 +15,7 @@ import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { deviceType, isA, iMobileView } from '../../managers/device.manager';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 
 
 
@@ -290,7 +291,7 @@ export const DraggableGrid = (p: {
 	
 	
 
-	const WindowTools = (window, i, content: iWindowContent, isDetachedEnabled?:boolean) => {
+	const WindowTools = (window, i, content: iWindowContent) => {
 		const btnsConfig = [
 			{
 				icon: 'faGripVertical',
@@ -318,7 +319,7 @@ export const DraggableGrid = (p: {
 			
 		]
 
-		if (isDetachedEnabled) {
+		if (userSettingsSync.curr.beta_floating_windows) {
 			btnsConfig.unshift({
 				icon: 'window-restore',
 				title: 'Detach Window',
@@ -387,7 +388,7 @@ export const DraggableGrid = (p: {
 
 									}}
 								>
-									{WindowTools(window, i, p.grid.content[i], api?.userSettings.get("beta_floating_windows"))}
+									{WindowTools(window, i, p.grid.content[i])}
 
 									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor

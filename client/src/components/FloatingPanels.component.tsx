@@ -54,8 +54,9 @@ const getPanelTitle = (panel:iFloatingPanel):string => {
         if (panel.ctagConfig?.tagName === "iframe") {
             let fullLink = panel.ctagConfig?.content
             return genUrlPreviewStr(fullLink)
+        } else {
+            return `${panel.ctagConfig?.tagName} | ${panel.file.name}`
         }
-        return panel.ctagConfig?.content || ""
     }
     return ""
 }
@@ -215,6 +216,7 @@ export const FloatingPanel = (p:{
                                             file={p.panel.file}
                                             height={p.panel.size.height - 30}
                                             view={p.panel.view || "editor"}
+                                            titleEditor={"disabled"}
                                             onLayoutUpdate={handleViewChange}
                                         />
                                     </div>
@@ -384,11 +386,11 @@ export const FloatingPanelsWrapper = (p:{
                                     panel.status === "minimized" &&
                                     <Icon2 name="circle" />
                                 }
-                                <button onClick={(e) => {
+                                <div className="close-btn" onClick={(e) => {
                                     e.stopPropagation()
                                     if (panel.status === "minimized") handleKillMinimized(panel)
                                     else handleRemovePanel(panel)
-                                }}>X</button>
+                                }}><Icon2 name='xmark' /></div>
                             </div>
                     )} 
                 </div>
@@ -540,12 +542,22 @@ export const FloatingPanelCss = () => `
 .panel-minimized {
     display: flex;
     height: 100%;
+    width: 10vw;
+    overflow: hidden;
     padding: 0 10px;
     border-right: 1px solid #000;
     cursor: pointer;
     transition: 0.5s all;
+    position: relative;
     :hover {
         background: #f0f0f0;
+    }
+    .close-btn {
+        position: absolute;
+        paddding: 5px;
+        cursor: pointer;
+        right: 7px;
+        top: 9px;
     }
 }
 

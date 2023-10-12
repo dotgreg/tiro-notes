@@ -20,11 +20,11 @@ export const ButtonsToolbarInt = (p: {
 				button.toolbar-button {
 						position: relative; 
 						&.active {
-								svg {
+								svg, i {
 										color: ${colors ? colors[1] : cssVars.colors.main};
 								}
 						}
-						svg {
+						svg, i {
 								transform: scale(${size ? size : 1.3});
 								color: ${colors ? colors[0] : cssVars.colors.editor.interfaceGrey};
 								&:hover {
