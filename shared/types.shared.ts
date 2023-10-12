@@ -74,6 +74,7 @@ export type iUserSettingName =
 'ui_editor_links_as_button' |
 'ui_editor_links_preview_zoom' |
 'ui_editor_markdown_preview' |
+'ui_editor_spellcheck' |
 'ui_editor_markdown_enhanced_preview' |
 'ui_editor_markdown_latex_preview' |
 'ui_editor_markdown_table_preview' |
