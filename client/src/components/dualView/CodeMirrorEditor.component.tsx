@@ -269,9 +269,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			const newcodemirrorExtensions: Extension[] = [
 				// AUTOCOMPLETION
 				autocompletion({ override: getAllCompletionSources(p.file) }),
-
-				// SPELLCHECKING
-				EditorView.contentAttributes.of({ spellcheck: 'true' }),
 				
 				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
@@ -286,6 +283,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					}
 				})
 			]
+
+			// SPELLCHECKING
+			if (api.userSettings.get("ui_editor_spellcheck")) newcodemirrorExtensions.push(EditorView.contentAttributes.of({ spellcheck: 'true' }))
 
 			let pluginsConfig = p.pluginsConfig
 			if (!pluginsConfig) pluginsConfig = {}

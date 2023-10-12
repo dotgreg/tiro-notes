@@ -52,7 +52,7 @@ export const SettingsPopup = (p: {
 
 
 
-	let requireReloadStr = `<br/> (Requires interface to reload)`
+	let requireReloadStr = `<br/> Requires interface reload`
 
 
 
@@ -214,6 +214,16 @@ export const SettingsPopup = (p: {
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_table_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Spellcheck",
+						expl: "Enable/disable native browser spellcheck" + requireReloadStr,
+						var: us.get('ui_editor_spellcheck'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_spellcheck', val)
 						}
 					},
 					{
@@ -467,7 +477,7 @@ export const SettingsPopup = (p: {
 					)
 				}
 				{displayReload &&
-					<button className='submit-button' onClick={e => { window.location.reload() }}>Reload App</button>
+					<button className='submit-button reload-btn' onClick={e => { window.location.reload() }}>Reload App</button>
 				}
 			</Popup >
 		</div >
@@ -478,6 +488,7 @@ export const settingsPopupCss = () => `
 //
 // mobile version
 //
+
 .device-view-mobile {
 	.settings-popup-wrapper .popup-wrapper .popupContent {
 				width: 80vw;
@@ -503,9 +514,15 @@ export const settingsPopupCss = () => `
 
 }
 
+.reload-btn {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
 
 
 .settings-panel {
+		
 		.input-and-html-wrapper {
 			width: 50%;
 			.input-component-wrapper  {

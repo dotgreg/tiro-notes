@@ -40,6 +40,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_markdown_latex_preview: true,
 	ui_editor_markdown_enhanced_preview: true,
 	ui_editor_markdown_table_preview: true,
+	ui_editor_spellcheck: true,
 	ui_editor_links_as_button: true,
 	ui_editor_links_preview_zoom: 0.8,
 	ui_editor_show_image_title: false,
