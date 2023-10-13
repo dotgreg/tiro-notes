@@ -219,7 +219,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Spellcheck",
-						expl: "Enable/disable native browser spellcheck" + requireReloadStr,
+						expl: "Enable/disable native browser spellcheck for all notes. <br> You can also activate it per note by adding '--spellcheck' inside the note content <br>" + requireReloadStr,
 						var: us.get('ui_editor_spellcheck'),
 						modifier: val => {
 							setDisplayReload(true);
