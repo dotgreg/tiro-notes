@@ -258,6 +258,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// if --table//--latex inside content
 	let enhancedTable = p.value.includes("--table")
 	let enhancedLatex = p.value.includes("--latex")
+	let shouldSpellcheckFile = p.value.includes("--spellcheck")
 
 	// const { userSettingsApi } = useUserSettings()
 	// const ua = userSettingsApi
@@ -285,7 +286,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			]
 
 			// SPELLCHECKING
-			if (api.userSettings.get("ui_editor_spellcheck")) newcodemirrorExtensions.push(EditorView.contentAttributes.of({ spellcheck: 'true' }))
+			if (api.userSettings.get("ui_editor_spellcheck") || shouldSpellcheckFile) newcodemirrorExtensions.push(EditorView.contentAttributes.of({ spellcheck: 'true' }))
 
 			let pluginsConfig = p.pluginsConfig
 			if (!pluginsConfig) pluginsConfig = {}
