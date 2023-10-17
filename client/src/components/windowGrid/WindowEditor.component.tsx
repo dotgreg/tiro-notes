@@ -17,6 +17,7 @@ export const WindowEditorInt = (p: {
 	// onEditorDropdownEnter?: Function
 	onLayoutUpdate:iLayoutUpdateFn
 
+	forceView?: iViewType,
 	canEdit?: boolean
 	mobileView?: iMobileView
 	showToolbar?: boolean
@@ -27,13 +28,15 @@ export const WindowEditorInt = (p: {
 	const { file, view, active, i } = { ...p.content }
 
 	const [fileContent, setFileContent] = useState('')
-	const [intViewType, setIntViewType] = useState<iViewType>()
+	const [intViewType, setIntViewType] = useState<iViewType>("editor")
 
 	useEffect(() => {
-		if (view) return setIntViewType(view)
+		if (p.forceView) return setIntViewType(p.forceView)
+		setIntViewType(view) // important if not, might not be updated all the time
 		// get the backend cached view type
 		getNoteView(file?.path as string).then(res => {
 			if (res) setIntViewType(res)
+			else setIntViewType("editor") // on creation
 		})
 	}, [view, file?.path])
 

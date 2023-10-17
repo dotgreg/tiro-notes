@@ -126,7 +126,7 @@ export const WindowGrid = (p: {
 
 	// need to perform some actions after updated state
 	addNextStateAction('refreshFolderList', (api, data) => {
-		const selectedFolder = api.ui.browser.folders.current.get
+		const selectedFolder = api.ui.browser.folders.current.get()
 		if (selectedFolder === data.folder) {
 			api.ui.browser.goTo(selectedFolder, data.name, { openIn: 'activeWindow' })
 			onNextStateTrigger({ name: 'checkIfNoWindows' })

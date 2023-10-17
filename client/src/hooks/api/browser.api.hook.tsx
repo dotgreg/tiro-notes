@@ -59,7 +59,8 @@ export interface iBrowserApi {
 		}
 		current: {
 			set: (nFolder: string) => void
-			get: string
+			get: ( ) => string,
+			getSync: string,
 		}
 	}
 }
@@ -78,6 +79,13 @@ export const useBrowserApi = (p: {
 	const [activeFileIndex, setActiveFileIndex] = useState<number>(-1)
 
 	const [selectedFolder, setSelectedFolder] = useLocalStorage<string>('selected-folder', '')
+	const selectedFolderRef = useRef<string>('')
+	useEffect(() => {
+		selectedFolderRef.current = selectedFolder
+	}, [selectedFolder])	
+	const getSelectedFolder = () => {
+		return selectedFolderRef.current
+	}	
 
 	//
 	// EFFECTs
@@ -371,8 +379,9 @@ export const useBrowserApi = (p: {
 				remove: removeToOpenedFolders
 			},
 			current: {
-				get: selectedFolder,
-				set: setSelectedFolder
+				get: getSelectedFolder,
+				set: setSelectedFolder,
+				getSync: selectedFolder
 			}
 		}
 	}

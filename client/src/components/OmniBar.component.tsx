@@ -275,6 +275,8 @@ export const OmniBar = (p: {
 	//
 	const [inputTxt, setInputTxt] = useState("");
 	const onInputChange: any = (txt: string, p) => {
+		onInputChangeUpdatePreview()
+
 		if (p.action === "input-blur" || p.action === "menu-close") {
 		} else {
 			setInputTxt(txt)
@@ -314,8 +316,8 @@ export const OmniBar = (p: {
 				getApi(api => {
 					// erase /
 					setInputTxt("")
-					let folder = api.ui.browser.folders.current.get
-					// let folder = api.ui.browser.files.active.get.folder
+					let folder = api.ui.browser.folders.current.get()
+					setTimeout(() => {console.log(api.ui.browser.folders.current.get())})
 					triggerExplorer(folder)
 				})
 			}
@@ -857,11 +859,13 @@ export const OmniBar = (p: {
 		// console.log("setNotePreview", file)
 		setNotePreviewInt(file)
 	}	
+
 	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
 	const [searchedString, setSearchedString] = useState<string | undefined>(undefined);
 
 	const onActiveOptionChange = (file: iFile, searchedString?: string) => {
 		let stags = selectedOptionRef.current
+		
 
 		// EXPLORER
 		if (stags[0] && stags[0].label === modeLabels.explorer) {
@@ -900,6 +904,23 @@ export const OmniBar = (p: {
 	}
 
 	let obs = useRef<any[]>([])
+	const onInputChangeUpdatePreview = useDebounce(() => {
+		const optDivs = document.querySelectorAll("div[id*='-option']");
+		if (optDivs.length === 0) return setNotePreview(null)
+		each(optDivs, (div: any) => {
+			const style = getComputedStyle(div);
+			let bg = style["background-color"]
+			if (bg === "rgb(222, 235, 255)") {
+				let id = parseInt(div.id.split("-").pop())
+				let payload = options[id].payload
+				if (!payload) return
+				let file = payload.file as iFile
+				let line = payload.line || undefined
+				onActiveOptionChange(file, line)
+			}
+		})
+	}, 400)
+	
 	const listenToOptionsClasses = (nVal: any[]) => {
 
 		// clean old observer
@@ -927,6 +948,7 @@ export const OmniBar = (p: {
 					if (!payload) return
 					let file = payload.file as iFile
 					let line = payload.line || undefined
+					const optDivs = document.querySelectorAll("div[id*='-option']");
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -1017,7 +1039,7 @@ export const OmniBar = (p: {
 							}}
 						/>
 					</div>
-					{deviceType() !== "mobile" && 
+					{notePreview && deviceType() !== "mobile" && 
 						<div className={`preview-wrapper ${notePreview ? "note-preview" : "html-preview-wrapper"}`}
 							style={{ height: previewHeight }}
 						>

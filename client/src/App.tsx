@@ -345,6 +345,7 @@ export const App = () => {
 	// last Note + files history array
 	const {
 		filesHistory,
+		filesHistoryRef,
 		cleanLastFilesHistory,
 		refreshFilesHistoryFromBackend,
 		lastFilesHistoryApi
@@ -462,7 +463,7 @@ export const App = () => {
 										<NewFileButton
 											onNewFile={() => {
 												getApi(api => {
-													const selectedFolder = api.ui.browser.folders.current.get
+													const selectedFolder = api.ui.browser.folders.current.get()
 													api.file.create(selectedFolder, files => {
 														const nFile = getMostRecentFile(files)
 														nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
@@ -496,7 +497,7 @@ export const App = () => {
 										<FoldersTreeView
 											openFolders={foldersUiApi.open.get()}
 											folder={foldersUiApi.get()}
-											current={foldersUiApi.current.get}
+											current={foldersUiApi.current.get()}
 											onFolderClicked={folderPath => {
 												clientApi.ui.browser.goTo(folderPath, null)
 											}}
@@ -606,8 +607,8 @@ export const App = () => {
 										<div className="subtitle-wrapper">
 
 											<div className="folder-wrapper">
-												{api && api.ui.browser.folders.current.get}
-												{!api.ui.browser.folders.current.get && "/"}
+												{api && api.ui.browser.folders.current.get()}
+												{!api.ui.browser.folders.current.get() && "/"}
 											</div>
 
 
@@ -690,7 +691,7 @@ export const App = () => {
 
 
 						</div>
-						{ userSettingsSync.curr.beta_floating_windows &&
+						{ deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows &&
 							<FloatingPanelsWrapper 
 								panels={api.ui.floatingPanel.panels} 
 								pinStatus={pinStatus.bottomBar}

@@ -111,9 +111,9 @@ export const FloatingPanel = (p:{
         endResizeDebounce()
     }
 
-    const handleViewChange:iLayoutUpdateFn = (action,data) => {
+    const onLayoutUpdate:iLayoutUpdateFn = (action,data) => {
         if (action !== "windowViewChange" || !data?.view) return
-        console.log("handleViewChange", data.view)
+        console.log("onLayoutUpdate", data.view)
         updatePanel({...p.panel, view: data.view})
     }
 
@@ -217,7 +217,7 @@ export const FloatingPanel = (p:{
                                             height={p.panel.size.height - 30}
                                             view={p.panel.view || "editor"}
                                             titleEditor={"disabled"}
-                                            onLayoutUpdate={handleViewChange}
+                                            onLayoutUpdate={onLayoutUpdate}
                                         />
                                     </div>
                                 }

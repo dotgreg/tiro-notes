@@ -108,8 +108,8 @@
 	},
 	"scripts": {
 		"start": "run-s start-dev",
-		"start-dev": "node  --openssl-legacy-provider  scripts/start.js",
-		"build": "node --openssl-legacy-provider  scripts/build.js",
+		"start-dev": "node  scripts/start.js",
+		"build": "node scripts/build.js",
 		"testOLD": "node scripts/test.js",
 		"test": "jest --watchAll --config ./jest.config.js",
 		"coverage": "jest --coverage --config ./jest.config.js",

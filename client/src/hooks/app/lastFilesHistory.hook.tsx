@@ -23,6 +23,10 @@ export interface iLastFilesHistoryApi {
 
 export const useLastFilesHistory = (activeFile: iFile) => {
 	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [])
+	const filesHistoryRef = React.useRef(filesHistory)
+	useEffect(() => {
+		filesHistoryRef.current = filesHistory
+	}, [filesHistory])
 
 	useEffect(() => {
 		log && console.log(h, ' activeFile changed!', activeFile);
@@ -35,15 +39,16 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 
 	const addToHistoryInt = (file: iFile) => {
 		log && console.log(h, 'Add to history', file.name);
+		const nfilesHist = filesHistoryRef.current
 
 		// if already at first position in hist, do nothing
-		if (filesHistory.length > 0 && filesHistory[0].name === file.name) return
+		if (nfilesHist.length > 0 && nfilesHist[0].name === file.name) return
 
 		let shouldAddToHistory = true
 		let indexOldPos = -1
-		let newfilesHistory = filesHistory
-		for (let i = 0; i < filesHistory.length; i++) {
-			if (filesHistory[i].name === file.name) {
+		let newfilesHistory = nfilesHist
+		for (let i = 0; i < nfilesHist.length; i++) {
+			if (nfilesHist[i].name === file.name) {
 				// already in array
 				shouldAddToHistory = false
 				indexOldPos = i
@@ -61,6 +66,7 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 	const debouncedAddToHistory = useDebounce(addToHistoryInt, 300)
 
 	const addToHistory = (file: iFile, debounced:boolean = true) => {
+		
 		debounced ? debouncedAddToHistory(file) : addToHistoryInt(file)
 	}
 
@@ -86,6 +92,6 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 	}
 	
 
-	return { filesHistory, cleanLastFilesHistory, refreshFilesHistoryFromBackend, lastFilesHistoryApi }
+	return { filesHistory, filesHistoryRef, cleanLastFilesHistory, refreshFilesHistoryFromBackend, lastFilesHistoryApi }
 }
 

@@ -16,6 +16,7 @@ import { deviceType, isA, iMobileView } from '../../managers/device.manager';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { setNoteView } from '../../managers/windowViewType.manager';
 
 
 
@@ -265,7 +266,7 @@ export const DraggableGrid = (p: {
 					setMobileWindow(first)
 					makewindowActiveStatus(first.content.i)
 				}
-			}
+			} 
 		}
 	}, [p.refresh])
 
@@ -283,8 +284,11 @@ export const DraggableGrid = (p: {
 		if (type === "windowActiveStatus") {
 			if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 		} else if (type === "windowViewChange") {
-			if (!data?.view) return
+			if (!data?.view || !p.grid.content[i].file) return
 			viewTypeChange(data?.view, i)
+			const filePath = p.grid.content[i].file?.path || ""
+			setNoteView(filePath, data?.view)
+			// console.log(filePath, window, i, type, data)
 		}
 	}
 
