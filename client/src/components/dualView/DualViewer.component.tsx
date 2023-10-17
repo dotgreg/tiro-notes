@@ -264,7 +264,11 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 		}
 	}
 
-	
+	.mobile-view-preview {
+		.editor-area {
+			display: none;
+		}
+	}
 	
 	.dual-view-wrapper.device-tablet, 
 	.dual-view-wrapper.device-mobile {

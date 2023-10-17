@@ -428,7 +428,7 @@ export const contentBlockCss = () => `
 	left: -10000px;
 }
 .content-blocks-wrapper {
-		padding: 0px 15px;
+		// padding: 0px 15px;
 }
 .simple-css-wrapper {
 }

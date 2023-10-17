@@ -4,6 +4,7 @@ const feedApp = (innerTagStr, opts) => {
 		if (!opts.size) opts.size = "95%"
 		if (!opts.itemsPerFeed) opts.itemsPerFeed = 100
 		if (!opts.feedType) opts.feedType = "xml"
+		if (!opts.contentCacheHours) opts.contentCacheHours = 1 // cache content for an hour
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
@@ -160,17 +161,17 @@ const feedApp = (innerTagStr, opts) => {
 					})
 				}
 				const setCache = (id, mins) => (content) => {
-					if (!mins) mins = 6* 60 
+					if (!mins) mins = 6 * 60 
 					api.call("cache.set", [id, content, mins]) 
 				}
 				
 				const cacheContentId = `ctag-feed-${api.utils.getInfos().file.path}`
 				const getContentCache = getCache(cacheContentId)
-				const setContentCache = setCache(cacheContentId, 6*60)
+				const setContentCache = setCache(cacheContentId, opts.contentCacheHours*60)
 
 				const cacheSettingsId = `ctag-settings-feed-${api.utils.getInfos().file.path}`
-				const getSettingsCache = getCache(cacheSettingsId)
-				const setSettingsCache = setCache(cacheSettingsId, -1)
+				const getSettingsCache = (name) => getCache(cacheSettingsId + name)
+				const setSettingsCache = (name) => setCache(cacheSettingsId + name, -1)
 
 
 
@@ -742,14 +743,15 @@ const feedApp = (innerTagStr, opts) => {
 						const toggleListView = () => {
 								let nView = listView === "list" ? "gallery" : "list"
 								setIntListView(nView)
-								setSettingsCache({listView: nView})
+								setSettingsCache("listView")(nView)
 						}
 						React.useEffect(() => {
-								getSettingsCache(settings => { 
-									if (settings.listView) setIntListView(settings.listView)
+								getSettingsCache("listView")(v => { 
+									setIntListView(v)
 								})
 						}, [])
 						
+
 
 						let itemOpenClass = itemActive ? "item-active" : ""
 
@@ -794,8 +796,19 @@ const feedApp = (innerTagStr, opts) => {
 						//
 						const [showBar, setShowBar] = React.useState(false)
 						const toggleBar = () => {
-								setShowBar(!showBar)
+								let nView = !showBar
+								setShowBar(nView)
+								console.log(12121221221, nView)
+								setSettingsCache("showBarView")(nView)
 						}
+						React.useEffect(() => {
+								getSettingsCache("showBarView")(v => { 
+									console.log(123, v)
+									setShowBar(v)
+								})
+						}, [])
+						
+
 
 						const [filterBarList, setFilterBarList] = React.useState([])
 						React.useEffect(() => {

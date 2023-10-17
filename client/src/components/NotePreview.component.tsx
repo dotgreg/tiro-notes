@@ -102,43 +102,16 @@ export const NotePreview = (p: {
 				content={{
 					i:p.windowId || generateUUID(),
 					file:p.file,
-					active:true,
+					active:false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
 					view:p.view,
 				}}
+				forceView={p.view}
 				canEdit={true}
 				showViewToggler={p.showViewToggler}
 				showToolbar={p.showToolbar}
 				titleEditor={p.titleEditor}
 				onLayoutUpdate={p.onLayoutUpdate || (() => {})}
 			/>
-			{/* <div className={`window-editor-wrapper`}>
-					<DualViewer
-						windowId={p.windowId || generateUUID()}
-						file={p.file}
-						fileContent={content}
-						isActive={true}
-						canEdit={true}
-						showViewToggler={p.showViewToggler}
-						showToolbar={p.showToolbar}
-						titleEditor={p.titleEditor}
-
-						viewType={p.view}
-						mobileView={"editor"}
-						
-						onLayoutUpdate={p.onLayoutUpdate || (() => {})}
-						
-						onFileEdited={(path, content) => {
-							// onFileEditedSaveIt(path, content);
-							getApi(api => {
-								api.file.saveContent(path, content)
-							})
-						}}
-						pluginsConfig={{
-							markdown: false,
-							linkPreview: p.linkPreview
-						}}
-					/>
-			</div > */}
 		</div >
 	)
 }
@@ -161,7 +134,8 @@ export const NotePreviewCss = () => `
 		}
 
 		.preview-area {
-			width: calc(100% + 24px);
+			width: calc(100%);
+			// padding: 15px;
 		}
 
 		// .note-preview-wrapper .preview-area-wrapper

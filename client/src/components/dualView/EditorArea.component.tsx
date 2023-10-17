@@ -374,7 +374,6 @@ const EditorAreaInt = (
 	// VIEW TOGGLE
 	//
 	const askForViewToggle = (nView: iViewType) => {
-		setNoteView(p.file.path, nView)
 		// p.onViewToggle(nView)
 		// p.onViewToggle(nView)
 		p.onLayoutUpdate("windowViewChange", {view:nView})

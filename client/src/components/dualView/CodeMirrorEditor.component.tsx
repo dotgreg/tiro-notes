@@ -29,6 +29,7 @@ import { Icon2 } from "../Icon.component";
 import { cloneDeep, each, isBoolean, isNaN, isNumber, throttle } from "lodash";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
+import { notifLog } from "../../managers/devCli.manager";
 
 
 const h = `[Code Mirror]`
@@ -156,12 +157,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		p.onChange(value)
 		setShowHoverPopup(false)
 
-		//
 		evenTable.val = false
 
 		syncScrollUpdateDims()
 		// updatePosCmPlugins()
 		// cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
+
+		onTextChangeCheckIfModifierTagDetected(value)
 	}
 
 
@@ -255,10 +257,33 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	if(defaultCodeLanguage) markdownExtensionCnf.defaultCodeLanguage = defaultCodeLanguage
 
 
-	// if --table//--latex inside content
-	let enhancedTable = p.value.includes("--table")
-	let enhancedLatex = p.value.includes("--latex")
-	let shouldSpellcheckFile = p.value.includes("--spellcheck")
+	// // if --table//--latex inside content
+	// let enhancedTable = p.value.includes("--table")
+	// let enhancedLatex = p.value.includes("--latex")
+	// let shouldSpellcheckFile = p.value.includes("--spellcheck")
+
+	// const [modifierTagDetected, setModifierTagDetected] = useState<boolean>(false)
+	const onTextChangeCheckIfModifierTagDetected = useDebounce((ntext:string) => {
+		if (ntext.includes("--table") && !enhancedTable) setEnhancedTable(true)
+		if (ntext.includes("--latex") && !enhancedLatex) setEnhancedLatex(true)
+		if (ntext.includes("--spellcheck") && !enhancedSpellCheck) setEnhancedSpellCheck(true)
+
+		if (!ntext.includes("--table") && enhancedTable) setEnhancedTable(false)
+		if (!ntext.includes("--latex") && enhancedLatex) setEnhancedLatex(false)
+		if (!ntext.includes("--spellcheck") && enhancedSpellCheck) setEnhancedSpellCheck(false)
+		refresh()
+	}, 500)
+	const [enhancedTable, setEnhancedTable] = useState<boolean>(false)
+	const [enhancedLatex, setEnhancedLatex] = useState<boolean>(false)
+	const [enhancedSpellCheck, setEnhancedSpellCheck] = useState<boolean>(false)
+	const [forceRefresh, setForceRefresh] = useState<number>(0)
+	const refresh = () => {
+		setForceRefresh(forceRefresh + 1)
+	}	
+	useEffect(() => {
+		onTextChangeCheckIfModifierTagDetected(p.value)
+	}, [p.value])
+
 
 	// const { userSettingsApi } = useUserSettings()
 	// const ua = userSettingsApi
@@ -286,7 +311,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			]
 
 			// SPELLCHECKING
-			if (api.userSettings.get("ui_editor_spellcheck") || shouldSpellcheckFile) newcodemirrorExtensions.push(EditorView.contentAttributes.of({ spellcheck: 'true' }))
+			if (api.userSettings.get("ui_editor_spellcheck") || enhancedSpellCheck) newcodemirrorExtensions.push(EditorView.contentAttributes.of({ spellcheck: 'true' }))
 
 			let pluginsConfig = p.pluginsConfig
 			if (!pluginsConfig) pluginsConfig = {}
@@ -338,7 +363,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 		})
-	}, [p.pluginsConfig, p.file.path, p.value])
+	}, [p.pluginsConfig, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
 	
 
 

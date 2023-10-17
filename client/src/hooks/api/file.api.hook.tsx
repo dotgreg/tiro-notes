@@ -123,7 +123,7 @@ export const useFileApi = (p: {
 		if (history) {
 			if (noteLink !== lastNoteWHistory.current) {
 				getClientApi2().then(api => {
-					const browserFolder = api.ui.browser.folders.current.get
+					const browserFolder = api.ui.browser.folders.current.get()
 					const currFolder = getFolderPath(noteLink)
 					if (browserFolder === currFolder) {
 

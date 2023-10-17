@@ -35,7 +35,7 @@ export const useFileMove = (
 		// move then reload browser
 		getClientApi2().then(api => {
 			api.file.move(initPath, endPath, () => {
-				api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
+				api && api.ui.browser.goTo(api.ui.browser.folders.current.get())
 			})
 		})
 	}
@@ -53,7 +53,7 @@ export const useFileMove = (
 		console.log(`[MOVEFOLDER] ${initPath} -> ${endPath}`);
 		getApi(api => {
 			api.folders.move(initPath, endPath, () => {
-				api && api.ui.browser.goTo(api.ui.browser.folders.current.get)
+				api && api.ui.browser.goTo(api.ui.browser.folders.current.get())
 				cb && cb()
 			})
 		})
