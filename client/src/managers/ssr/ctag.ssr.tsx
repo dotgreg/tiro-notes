@@ -5,6 +5,7 @@ import { getApi } from '../../hooks/api/api.hook';
 import { generateEmptyiFile } from '../../hooks/app/useLightbox.hook';
 import { renderReactToId } from "../reactRenderer.manager"
 import { memoize } from 'lodash';
+import { getUrlTokenParam } from '../../hooks/app/loginToken.hook';
 
 const heightIframe = {
 	big: 400,
@@ -33,6 +34,7 @@ export interface iCtagGenConfig {
 	opts?: {
 		file?: iFile | null,
 		wrapperHeight?: number | string,
+		open?: boolean,
 		windowId?:string,
 		sandboxed?: boolean,
 		fullscreen?: boolean,
@@ -43,6 +45,14 @@ export interface iCtagGenConfig {
 export const generateCtag = (
 	ctagConfig: iCtagGenConfig
 ): React.ReactElement => {
+
+	// if tagName is PDF or EPUB and content includes ?token, replace it with the current token
+	if (ctagConfig.tagName === "pdf" || ctagConfig.tagName === "epub") {
+		let nurl = ctagConfig.content?.split("?token=")[0]
+		nurl = nurl + getUrlTokenParam()
+		ctagConfig.content = nurl
+	}
+
 	return ssrGenCtag(ctagConfig.tagName, ctagConfig.content, ctagConfig.opts)
 }
 

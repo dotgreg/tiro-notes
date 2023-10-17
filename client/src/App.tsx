@@ -114,7 +114,6 @@ export const App = () => {
 	const onStartupAfterDataBootstrap = () => {
 		setTimeout(() => {
 			onStartupReactToUrlParams(setMobileView)
-
 		}, 300)
 	}
 
@@ -163,12 +162,13 @@ export const App = () => {
 		},
 		onLoginSuccess: () => {
 			refreshTabsFromBackend();
+			refreshPinStatus();
+			refreshFilesHistoryFromBackend();
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
 				api.ui.floatingPanel.refreshFromBackend()
-				refreshPinStatus()
 			})
-			refreshFilesHistoryFromBackend();
+			
 
 			getApi(api => {
 				api.ui.browser.folders.refreshFromBackend()
@@ -588,18 +588,7 @@ export const App = () => {
 										</div>
 									</div>
 
-									{
-										configPopup === "plugins-marketplace" &&
-										<PluginsMarketplacePopup onClose={() => {
-											setConfigPopup(null)
-										}} />
-									}
-									{
-										configPopup === "settings" &&
-										<SettingsPopup onClose={() => {
-											setConfigPopup(null)
-										}} />
-									}
+									
 
 								</div>
 								<div className="left-wrapper-2">
@@ -697,6 +686,19 @@ export const App = () => {
 								pinStatus={pinStatus.bottomBar}
 								onPinChange={updatePinStatus("bottomBar")}
 							/>
+						}
+
+						{
+							configPopup === "plugins-marketplace" &&
+							<PluginsMarketplacePopup onClose={() => {
+								setConfigPopup(null)
+							}} />
+						}
+						{
+							configPopup === "settings" &&
+							<SettingsPopup onClose={() => {
+								setConfigPopup(null)
+							}} />
 						}
 					</div>
 				</ClientApiContext.Provider>

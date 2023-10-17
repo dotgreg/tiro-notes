@@ -176,7 +176,8 @@ export const DraggableGrid = (p: {
 		//if (intLayout.length !== intContent.length) return
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
-			const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
+			// const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
+			const nlayout2 = nlayout
 			updateLastGood(nlayout2)
 			setIntLayout(nlayout2)
 			//4

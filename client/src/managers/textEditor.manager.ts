@@ -192,7 +192,7 @@ export const triggerTextModifAction = (
 		(isNumber(actionParams.insertPosition) || isString(actionParams.insertPosition))
 	) {
 		let insertPos = actionParams.insertPosition === 'currentPos' ? infos.currentPosition + 1 : actionParams.insertPosition
-
+		
 		let text = lines.join('\n') as string
 		let text2 = [
 			text.slice(0, insertPos),

@@ -11,7 +11,7 @@ const getHardcodedTags = () => {
 // if not present, fallback to download from dev/custom-tags github for the moment
 const baseCtag = ["epub", "pdf"]
 const getBaseCtagContent = (ctagName:string, cb:(txt:string)=>void) => {
-  const url = `https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/custom-tags/${ctagName}/${ctagName}.js`
+  const url = `https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/${ctagName}/${ctagName}.js`
   let addedOpts = ``
   if (ctagName === "epub") addedOpts = `open:true, size: "80%"`
   if (ctagName === "pdf") addedOpts = `open:true`

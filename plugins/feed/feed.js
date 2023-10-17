@@ -798,12 +798,10 @@ const feedApp = (innerTagStr, opts) => {
 						const toggleBar = () => {
 								let nView = !showBar
 								setShowBar(nView)
-								console.log(12121221221, nView)
 								setSettingsCache("showBarView")(nView)
 						}
 						React.useEffect(() => {
 								getSettingsCache("showBarView")(v => { 
-									console.log(123, v)
 									setShowBar(v)
 								})
 						}, [])

@@ -14,6 +14,7 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { iFile, iViewType } from '../../../shared/types.shared';
 import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 import { Icon2 } from './Icon.component';
+import { ButtonsToolbar } from './ButtonsToolbar.component';
 
 // react windows that is resizable
 // on close button click, remove the div from the dom
@@ -75,9 +76,13 @@ export const FloatingPanel = (p:{
 
     const updatePanel = (panel:iFloatingPanel) => {
         if (!p.onPanelUpdate) return
-        p.onPanelUpdate(panel)
+        // p.onPanelUpdate(panel)
+        getApi(api => {
+            api.ui.floatingPanel.update(panel)
+        })
     }
 
+    const [showHoverOverlay, setShowHoverOverlay] = useState<boolean>(false)
     const [showDragOverlay, setShowDragOverlay] = useState<boolean>(false)
     const onDragStart = () => {
         pushToTop()
@@ -167,7 +172,6 @@ export const FloatingPanel = (p:{
     }
 
     const pushToTop = () => {
-        console.log("pushToTop", p.panel.id)    
         getApi(api => {
             api.ui.floatingPanel.pushWindowOnTop(p.panel.id)
         })
@@ -196,19 +200,65 @@ export const FloatingPanel = (p:{
                     onResize={handleResize}
                 >
                     <div className='floating-panel__wrapper'  >
-                         <div className="floating-panel__actions">
-                            <button onClick={handleMinimize}>{ "-"}</button>
+                         <div className="floating-panel__actions"
+                            // onMouseEnter={() => {setShowHoverOverlay(false)}} 
+                            // onMouseLeave={() => {setShowHoverOverlay(true)}}  
+                         >
+                            {/* <button onClick={handleMinimize}>{ "-"}</button> */}
                             {/* <button onClick={() => setIsClosed(true)}>Close</button> */}
-                            <button className='handle'>D</button>
+                            {/* <button className='handle'>D</button>
                             <button onClick={handleClosePanel}>X</button>   
                             <button onClick={handleToggleMaximize}>{p.panel.size.width === window.innerWidth && p.panel.size.height === window.innerHeight ? "m" : "M"}</button>
-                            <button onClick={reloadContent}>R</button>
+                            <button onClick={reloadContent}>R</button> */}
+                                        <ButtonsToolbar
+											class='floating-bar-toolbar'
+											size={1}
+											buttons={[
+												{
+													title: 'Move Window',
+                                                    customHtml: <div className='handle'><Icon2 name="grip-vertical" /></div>,
+													action: () => {  }
+												},
+												{
+													title: 'Minimize',
+													icon: "window-minimize",
+													action: handleMinimize
+												},
+												{
+													title: 'Maximize',
+													icon: "expand",
+													action: handleToggleMaximize
+												},
+												{
+													title: 'Reload content',
+													icon: "rotate-right",
+													action: reloadContent
+												},
+												{
+													title: 'Close window',
+													icon: "xmark",
+													action: handleClosePanel
+												},
+											]}
+										/>
+
                         </div>
                         { p.panel.type !== "file" &&  <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>}
                         
                         {showContent && 
-                            <div className={`floating-panel__content content-type-${p.panel.type}`} style={{height: innerHeight }}>
-                                <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"}`}></div>
+                            <div 
+                                className={`floating-panel__content content-type-${p.panel.type}`} 
+                                style={{height: innerHeight }} 
+                                onMouseDown={() => {pushToTop()}}
+                                onMouseEnter={() => {setShowHoverOverlay(true)}} 
+                                onMouseLeave={() => {setShowHoverOverlay(false)}}  
+                            >
+                                <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${showHoverOverlay ? "hover-mode": ""}`} 
+                                    onMouseDown={() => {
+                                        pushToTop()
+                                        setShowHoverOverlay(false)
+                                    }}
+                                ></div>
                                 {  p.panel.type === "file" && p.panel.file &&
                                     <div className='floating-panel__inner-content'>
                                         
@@ -282,9 +332,10 @@ export const FloatingPanelsWrapper = (p:{
     const handleDeminimize = (panel:iFloatingPanel) => {
         panel.status = "visible"
         handleUpdatePanels(panel)
+        console.log("deminimize", panel.id)
         getApi(api => {
             api.ui.floatingPanel.pushWindowOnTop(panel.id)
-            api.ui.floatingPanel.updateOrderPosition(panel, "first")
+            api.ui.floatingPanel.updateOrderPosition(panel.id, "first")
         })
     }
 
@@ -367,12 +418,14 @@ export const FloatingPanelsWrapper = (p:{
 
 
             <div className='panels-minimized-bottom-bar-wrapper' style={{height:`${35 + getScrollbarWidth()}px`, bottom:`-${getScrollbarWidth()}px`}} >
+                <div className={`panels-minimized-bottom-bar-background ${p.pinStatus ? "pinned" : ""}`} > </div>
                 <div className='bottom-hover-bar' > </div>
                 <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
                     <div className='floating-panels-bottom-toolbar'>
-                        <button className='reinit-position-and-size' onClick={handleReinitPosAndSize}>stack</button>
+                        <div className='btn-action reinit-position-and-size' onClick={handleReinitPosAndSize}><Icon2 name="layer-group" /> </div>
+                        <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
                         {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}
-                        <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button>
+                        {/* <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button> */}
                     </div>
                     {panelsBar.map( panel =>
                         panel.status !== "visible" &&
@@ -381,10 +434,14 @@ export const FloatingPanelsWrapper = (p:{
                                 className='panel-minimized' onClick={(e) => { 
                                 handleDeminimize(panel)
                             }}>
-                                {getPanelTitle(panel)}
+                                <div className='label'>
+                                    {getPanelTitle(panel)}
+                                </div>
                                 {
                                     panel.status === "minimized" &&
-                                    <Icon2 name="circle" />
+                                    <div className='active-icon'>
+                                        <Icon2 name="circle" />
+                                    </div>
                                 }
                                 <div className="close-btn" onClick={(e) => {
                                     e.stopPropagation()
@@ -454,11 +511,21 @@ export const FloatingPanelCss = () => `
                     opacity: 0;
                     pointer-events: none;
                 }
+                &.hover-mode {
+                    opacity: 0.5;
+                    pointer-events: all;
+                }
+            }
+            .floating-panel__actions {
+                position: absolute;
+                top: 9px;
+                right: 40px;
+                z-index:102;
             }
             .floating-panel__content {
                 // overflow-y: auto;
                 position: absolute;
-                top:20px;
+                top:0px;
                 left: 0px;
                 width: 100%;
                 overflow: hidden;
@@ -477,11 +544,26 @@ export const FloatingPanelCss = () => `
 //
 .panels-minimized-bottom-bar-wrapper {
     position: absolute;
-    left: 0px;
+    left: left: 18px;
     width: 100vw;
     overflow: hidden;
     overflow-x: scroll;
     pointer-events: none;
+
+    .panels-minimized-bottom-bar-background {
+        &.pinned {
+            bottom: 0px;
+        }
+        transition: all 0.3s ease-in-out 0.5s;
+        position: fixed;
+        left: 0px;
+        width: 100%;
+        height: 30px;
+        background: #fff;
+        z-index: 11;
+        pointer-events: all;
+        bottom: -30px;
+    }
 
     .bottom-hover-bar {
         pointer-events: all;
@@ -497,9 +579,13 @@ export const FloatingPanelCss = () => `
     }
     
     &:hover {
+        .panels-minimized-bottom-bar-background {
+            box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+            bottom: 0px;
+        }
         .panels-minimized-bottom-bar {
             bottom: 0px;
-            box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+            
         }
         .bottom-hover-bar {
             box-shadow: 0px 0px 5px rgba(0,0,0,.2);
@@ -511,6 +597,7 @@ export const FloatingPanelCss = () => `
     .panels-minimized-bottom-bar{
         z-index: 11;
         pointer-events: all;
+        left: 18px;
 
         // transition: all 0.3s ease-in-out 0.5s, box-shadow 0.5s ease-in-out 0s;
         transition: all 0.3s ease-in-out 0.5s;
@@ -523,7 +610,6 @@ export const FloatingPanelCss = () => `
         }
         height: 30px;
         background: #fff;
-        border-top: 1px solid #000;
         display: flex;
         flex-direction: row;
         justify-content: flex-start;
@@ -534,30 +620,54 @@ export const FloatingPanelCss = () => `
             justify-content: flex-start;
             align-items: center;
             margin-left: 10px;
+            .floating-bar-toolbar {
+            }
+            .btn-action {
+                padding: 5px;
+                margin: 0px 5px;
+                cursor: pointer;
+                transition: 0.3s all;
+                &:hover {
+                    background: #f0f0f0;
+                }
+            }
         }
     }
 }
 
 
 .panel-minimized {
+    background: #c9c9c9;
+    margin: 0px 0px 0px 4px;
+    border-radius: 7px;
+    height: 24px;
+
     display: flex;
-    height: 100%;
     width: 10vw;
     overflow: hidden;
+    align-content: center;
+    justify-content: space-around;
     padding: 0 10px;
-    border-right: 1px solid #000;
     cursor: pointer;
     transition: 0.5s all;
     position: relative;
     :hover {
         background: #f0f0f0;
     }
+    .label {
+        margin-top: 4px;
+        height: 14px;
+        overflow: hidden;
+    }
+    .active-icon {
+        color: rgb(121, 121, 121);
+        margin: 6px 6px 0px 6px;
+
+    }
     .close-btn {
-        position: absolute;
         paddding: 5px;
+        margin-top: 6px;
         cursor: pointer;
-        right: 7px;
-        top: 9px;
     }
 }
 

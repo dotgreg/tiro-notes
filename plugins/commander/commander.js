@@ -262,6 +262,7 @@ const commanderApp = (innerTagStr, opts) => {
 						margin-top: 0px;
 						display: flex;
 						flex-direction: column;
+						overflow:hidden;
 						height: 100%;
 						
 				}

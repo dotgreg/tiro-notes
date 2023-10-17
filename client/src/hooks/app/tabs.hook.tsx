@@ -78,15 +78,11 @@ export const useTabs = () => {
 	}, [tabs])
 
 	const getTabs: iTabsApi['get'] = () => {
-		// setTimeout(() => {console.log(123444, tabsRef.current)}, 1000)
 		return tabsRef.current
 	}
 
 	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
-		// console.log(1111123, tabsRef.current, tabs )
 		const nTab = generateNewTab({ fullWindowFile: file })
-		// console.log(1111123111, tabsRef.current, tabs )
-		// setTimeout(() => {console.log(2222222223, tabsRef.current, tabs )}, 1000)
 		if (!nTab) return
 		const nTabs = [...tabsRef.current, nTab]
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
@@ -94,7 +90,6 @@ export const useTabs = () => {
 	}
 
 	const closeTab: iTabsApi['close'] = tabId => {
-		// console.log(`${h} closing tab: ${tabId}`);
 		const nTabs: iTab[] = []
 		const oTabs = cloneDeep(tabsRef.current)
 		each(oTabs, (otab, index) => {

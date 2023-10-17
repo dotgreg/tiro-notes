@@ -10,6 +10,7 @@ import { ssrGenCtag, ssrToggleCtag } from '../managers/ssr/ctag.ssr';
 import { safeString } from '../managers/string.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
+import { getApi } from '../hooks/api/api.hook';
 
 
 //
@@ -111,7 +112,7 @@ export const RessourcePreview = (p: {
 		onclick="${ssrFn("open-win-ress", openWinFn)}"
 		data-link="${previewLink}">${i('up-right-from-square')}</li>`
 
-	// 2 PINNED PREVIEW
+	// 2 detach window
 	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.parentNode.parentNode.querySelector(".iframe-wrapper")
 	const ssrPreviewFn = (el, opts?:{persist?: boolean, fullscreen?: boolean}) => {
 		if (!el) return
@@ -120,8 +121,35 @@ export const RessourcePreview = (p: {
 		let elIframe = getIframeEl(el)
 		ssrToggleLogic(ssrPreviewPath, elIframe, ssrFilePath, opts)
 	}
+
+	const ssrDetachWindowFn = (el) => {
+		if (!el) return
+		let ssrPreviewPath = el.dataset.link
+		// let ssrFilePath = el.dataset.filepath
+		// console.log(ssrPreviewPath, ssrFilePath)
+		// let elIframe = getIframeEl(el)
+		// ssrToggleLogic(ssrPreviewPath, elIframe, ssrFilePath)
+		let ctagType = "iframe"
+		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
+		if (ext === "epub") ctagType = "epub"
+		if (ext === "pdf") ctagType = "pdf"
+
+		getApi(api => {
+			api.ui.floatingPanel.create({
+				type: "ctag",
+				layout: "full-center",
+				ctagConfig: {
+					tagName: ctagType,
+					content: ssrPreviewPath,
+				},
+			})
+		})
+	}
 	const previewPersistFn = el => {return ssrPreviewFn(el, {persist: true})}
-	const previewFullscreenFn = el => {return ssrPreviewFn(el,  {fullscreen: true})}
+	// const previewFullscreenFn = el => {return ssrPreviewFn(el,  {fullscreen: true})}
+	// const detachCtag = el => {
+	// 	return ssrPreviewFn(el,  {fullscreen: true})
+	// }
 	let preview = `<li
 		onclick="${ssrFn("preview-link-ress", previewPersistFn)}"
 		title="Toggle a pinned preview" 
@@ -143,7 +171,7 @@ export const RessourcePreview = (p: {
 		class="ressource-link-label" 
 		data-filepath="${p.file.path}"  
 		data-link="${previewLink}" 
-		onclick="${ssrFn("preview-link-ress-main", previewFullscreenFn)}">
+		onclick="${ssrFn("click-ress-main-action", ssrDetachWindowFn)}">
 			${name} (${getFileType(previewLink)})
 		</div>`.split("\n").join("")
 

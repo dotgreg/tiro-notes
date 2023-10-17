@@ -1087,7 +1087,7 @@ export const omnibarPopupCss = () => `
 								left: 0px;
 								width: 100vw;
 								height: 100vh;
-								z-index: 1000;
+								z-index: 10000;
 								position: absolute;
 						}
 						.omnibar-popup-wrapper {
