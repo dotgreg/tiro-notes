@@ -5,6 +5,7 @@ import { generateEmptyiFile } from "../app/useLightbox.hook"
 import { cloneDeep } from "lodash"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
+import { getUrlTokenParam } from "../app/loginToken.hook"
 
 const h = `[FLOATING PANELS]`
 
@@ -24,6 +25,8 @@ export interface iFloatingPanel {
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
     type: "ctag" | "file",
+    layout?: "full-center" ,
+
 }
 
 export interface iFloatingPanelApi {
@@ -44,7 +47,7 @@ export interface iFloatingPanelApi {
     pushWindowOnTop: (panelId:string) => void,
 
     movePositioninArray: (panelId:string, direction:"up"|"down"|"first"|"last") => void,
-    updateOrderPosition: (panel:iFloatingPanel, orderPosition:number|"last"|"first") => void,
+    updateOrderPosition: (panelId:string, orderPosition:number|"last"|"first") => void,
 
 }
 
@@ -53,13 +56,21 @@ let offset = 20
 
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
-    const [panels, setPanels, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig',[])
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig',[])
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     // const [forceFloatingPanelsUpdate, setForceFloatingPanelsUpdate] = React.useState(0) 
 
+    // update the ref when the panels change only the first time panels loaded
     useEffect(() => {
+        if (panelsRef.current.length > 0) return
+        console.log("INIT LOAD")
         panelsRef.current = panels
-    },[panels]) 
+    },[panels])
+
+    const setPanels = (panels:iFloatingPanel[]) => {
+        panelsRef.current = panels
+        setPanelsInt(panels)
+    }
     
     useEffect(() => {
         refreshFromBackend()
@@ -67,7 +78,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
 
     const createPanel = (panelParams:iCreateFloatingPanel) => {
-
+        // if layout is full-center, set position to center of the screen and size to 100% of the screen with 20px padding
+        if (panelParams.layout === "full-center") {
+            let padding = 20
+            panelParams.position = {x: padding, y: padding}
+            panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight - (2*padding)}
+        }
+       
+        
         // get all non hidden pannels
         let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
         // position is i * nonHiddenPanels.length
@@ -86,33 +104,28 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
     const updatePanel = (panel:iFloatingPanel) => { 
         const nPanels = panelsRef.current.map(p => p.id === panel.id ? panel : p)
-        panelsRef.current = nPanels
-        setPanels(panelsRef.current)
+        setPanels(nPanels)
     }
 
     const deletePanel = (panelId:string) => {
         console.log(`${h} deletePanel`, panelId)
-        panelsRef.current = panelsRef.current.filter(p => p.id !== panelId)
-        setPanels(panelsRef.current)
+        let nPanels = panelsRef.current.filter(p => p.id !== panelId)
+        setPanels(nPanels)
     }
 
     const pushWindowOnTop = (panelId:string) => {
         // get higher zIndex of all panels
         const highestZIndex = Math.max(...panelsRef.current.map(p => p.zIndex || 0))
-        let panelIndex = panels.findIndex(p => p.id === panelId)
+        let panelIndex = panelsRef.current.findIndex(p => p.id === panelId)
         if (panelIndex === -1) return
-        // if it is already the highest, do nothing
-        if (panels[panelIndex].zIndex === highestZIndex) return
-
-        let newPanels = cloneDeep(panelsRef.current)
-        newPanels[panelIndex].zIndex = highestZIndex + 1
-        setPanels(newPanels)
+        let npanel = cloneDeep(panelsRef.current)[panelIndex]
+        npanel.zIndex = highestZIndex + 1
+        updatePanel({...panelsRef.current[panelIndex]!, zIndex: highestZIndex + 1})
     }
 
     
     const updateAll = (panels:iFloatingPanel[]) => {
-        panelsRef.current = panels
-        setPanels(panelsRef.current)
+        setPanels(panels)
     }
 
     const movePanel = (panelId:string, position:{x:number, y:number}) => {
@@ -145,7 +158,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     // function updateOrderPosition that just update the prop.orderPosition of the panel, first should be the first position of all panels, last should be the last position of all panels
-    const updateOrderPosition = (panel:iFloatingPanel, orderPosition:number|"last"|"first") => {
+    const updateOrderPosition = (panelId:String, orderPosition:number|"last"|"first") => {
+        let panel = cloneDeep(panelsRef.current.find(p => p.id === panelId))
+        if (!panel) return
         if (orderPosition === "last") {
             // find the highest orderPosition
             let highestOrderPosition = Math.max(...panelsRef.current.map(p => p.orderPosition || 0))

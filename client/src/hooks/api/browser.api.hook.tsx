@@ -279,7 +279,6 @@ export const useBrowserApi = (p: {
 			if (foldersPaths[i] === "") foldersPaths[i] = "/"
 		})
 		foldersPaths = uniq(foldersPaths)
-		console.log("SCANFOLDER", {foldersPaths, opts})
 
 		if (!opts) opts = {}
 		if (!isBoolean(opts.cache)) opts.cache = true

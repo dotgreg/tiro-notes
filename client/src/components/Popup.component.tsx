@@ -46,7 +46,7 @@ export const PopupWrapperCss = () => `
     }
     .popup-wrapper {
         position: fixed;
-        z-index:1001;
+        z-index:10001;
         left: 50%;
         top:50%;
         &.ipad {
