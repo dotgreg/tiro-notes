@@ -72,6 +72,9 @@ export const FloatingPanel = (p:{
     onPanelUpdate?: (panel:iFloatingPanel) => void  
     onPanelDragStart: () => void
     onPanelDragEnd: () => void
+
+    panelsVisibleNumber: number
+    highestVisibleZIndex: number
 }) => {
 
     const updatePanel = (panel:iFloatingPanel) => {
@@ -82,7 +85,13 @@ export const FloatingPanel = (p:{
         })
     }
 
-    const [showHoverOverlay, setShowHoverOverlay] = useState<boolean>(false)
+    const [showHoverOverlay, setShowHoverOverlayInt] = useState<boolean>(false)
+    const setShowHoverOverlay = (status:boolean) => {
+        
+        setShowHoverOverlayInt(status)
+    }
+
+
     const [showDragOverlay, setShowDragOverlay] = useState<boolean>(false)
     const onDragStart = () => {
         pushToTop()
@@ -177,6 +186,8 @@ export const FloatingPanel = (p:{
         })
     }
 
+    const shouldShowHoverOverlay = showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
+
     return (
         <div className={`floating-panel-wrapper ${p.panel.status}`} 
             style={{zIndex:p.panel.zIndex}}
@@ -253,7 +264,7 @@ export const FloatingPanel = (p:{
                                 onMouseEnter={() => {setShowHoverOverlay(true)}} 
                                 onMouseLeave={() => {setShowHoverOverlay(false)}}  
                             >
-                                <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${showHoverOverlay ? "hover-mode": ""}`} 
+                                <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${shouldShowHoverOverlay ? "hover-mode": ""}`} 
                                     onMouseDown={() => {
                                         pushToTop()
                                         setShowHoverOverlay(false)
@@ -382,9 +393,24 @@ export const FloatingPanelsWrapper = (p:{
         })
     },[panels, loaded])
 
+
+
     // panelsBar = panels but reorganized
     const [panelsBar, setPanelsBar] = useState<iFloatingPanel[]>([])
-    useEffect(() => {
+    // max zindex of all panels
+    const [maxZIndex, setMaxZIndex] = useState<number>(0)
+    // panelsVisibleNumber
+    const [panelsVisibleNumber, setPanelsVisibleNumber] = useState<number>(0)
+    // debounce as expensive operation
+    const onPanelsChangeDebounce = useDebounce(() => {
+        console.log("update panels")
+        let max = 0
+        panels.forEach(panel => {
+            if (panel.zIndex === undefined) return
+            if (panel.zIndex > max) max = panel.zIndex
+        })
+        setMaxZIndex(max)
+        setPanelsVisibleNumber(panels.filter(p => p.status === "visible").length)
         // setPanelsBar(panelsRef.current.filter(p => p.status !== "visible"))/
         // reorganized panels by status, first minimized, then hidden
         let newPanels = cloneDeep(panelsRef.current)
@@ -397,8 +423,10 @@ export const FloatingPanelsWrapper = (p:{
         organizedPanels = sortBy(organizedPanels, p => p.orderPosition)
         
         setPanelsBar(organizedPanels)
+    }, 100)
+    useEffect(() => {
+        onPanelsChangeDebounce()
     },[panels])
-
 
     return (
         <div className="floating-panels-wrapper" style={{pointerEvents: panelDrag ? "all" : "none"}}>
@@ -406,11 +434,17 @@ export const FloatingPanelsWrapper = (p:{
             {panels.map( panel =>
                 panel.status !== "hidden" &&
                 <div key={panel.id}>
+                    {panels.length - panelsBar.length}
+                    { panelsBar.length}
+                    {panels.length}
                     <FloatingPanel 
                         panel={panel} 
                         onPanelUpdate={handleUpdatePanels}
                         onPanelDragStart={onPanelDrag("start")}
                         onPanelDragEnd={onPanelDrag("end")}
+
+                        panelsVisibleNumber={panelsVisibleNumber}
+                        highestVisibleZIndex={maxZIndex}
                     />
                 </div>
             )}
