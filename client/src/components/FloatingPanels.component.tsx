@@ -254,7 +254,7 @@ export const FloatingPanel = (p:{
 										/>
 
                         </div>
-                        { p.panel.type !== "file" &&  <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>}
+                        {/* { p.panel.type !== "file" &&  <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>} */}
                         
                         {showContent && 
                             <div 
@@ -430,13 +430,12 @@ export const FloatingPanelsWrapper = (p:{
 
     return (
         <div className="floating-panels-wrapper" style={{pointerEvents: panelDrag ? "all" : "none"}}>
-            {/* <FloatingPanel title="Floating Panel 1" content="Content 1" id="panel1" /> */}
+
+
+
             {panels.map( panel =>
                 panel.status !== "hidden" &&
                 <div key={panel.id}>
-                    {panels.length - panelsBar.length}
-                    { panelsBar.length}
-                    {panels.length}
                     <FloatingPanel 
                         panel={panel} 
                         onPanelUpdate={handleUpdatePanels}
@@ -552,9 +551,17 @@ export const FloatingPanelCss = () => `
             }
             .floating-panel__actions {
                 position: absolute;
-                top: 9px;
+                top: 4px;
+                transition: 0.5s all;
                 right: 40px;
                 z-index:102;
+                padding: 4px;
+                &:hover {
+                    background: white;
+                    padding: 4px;
+                    box-shadow: 0px 0px 4px rgba(0,0,0,0.3);
+                    border-radius: 4px;
+                }
             }
             .floating-panel__content {
                 // overflow-y: auto;
@@ -649,6 +656,7 @@ export const FloatingPanelCss = () => `
         justify-content: flex-start;
         align-items: center;
         .floating-panels-bottom-toolbar {
+           
             display: flex;
             flex-direction: row;
             justify-content: flex-start;

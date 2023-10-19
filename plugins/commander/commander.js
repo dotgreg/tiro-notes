@@ -1,4 +1,4 @@
-// 17.10.2023 redesign v1.1
+// 17.10.2023 redesign v1.2
 const commanderApp = (innerTagStr, opts) => {
 		const { div, updateContent } = api.utils.createDiv()
 
@@ -145,7 +145,7 @@ const commanderApp = (innerTagStr, opts) => {
 				api.call("command.exec", [cmdString], res => {
 						updateStatus("")
 						if (cmdString !== "") {
-							addToHistory(cmdString)
+							
 							generateHistorySelect()
 						}
 
@@ -219,6 +219,7 @@ const commanderApp = (innerTagStr, opts) => {
 										let userInput = document.getElementById("textarea-command").value
 										userInput = userInput.replaceAll("'", "\\'")
 										let cmd = scriptString.split(`{{input}}`).join(userInput)
+										addToHistory(userInput)
 										execAndOutput(cmd, name)
 								})
 						}, 100)
