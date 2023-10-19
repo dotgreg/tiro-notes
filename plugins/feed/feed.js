@@ -1471,9 +1471,10 @@ LIST > ARTICLES
 
 `;
 
+// FA is included as requesting external ressources, so cannot be cached by tiro directly
 		return `
 <div id='root-react'></div>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
 <style>
 ${styleFeed}
 </style>

@@ -5,16 +5,22 @@ let shouldLog = sharedConfig.client.log.verbose
 shouldLog = true
 
 // inside code app
-const getHardcodedTags = () => {
-    return {iframe: iframeCtag}
-}
-// if not present, fallback to download from dev/custom-tags github for the moment
-const baseCtag = ["epub", "pdf"]
+// const getHardcodedTags = () => {
+//     return {iframeOLD: iframeCtag}
+// }
+// if not present, fallback to download from dev/plugins github for the moment
+const baseCtag = ["epub", "pdf", "iframe", "web"]
 const getBaseCtagContent = (ctagName:string, cb:(txt:string)=>void) => {
+  
   const url = `https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/${ctagName}/${ctagName}.js`
   let addedOpts = ``
   if (ctagName === "epub") addedOpts = `open:true, size: "80%"`
   if (ctagName === "pdf") addedOpts = `open:true`
+  if (ctagName === "web") addedOpts = `"search_engines": {
+    "default":"https://search.bowlman.org/search?q=",
+    "g":"https://www.google.com/search?q=",
+    "m": "https://www.google.com/maps/search/"
+  }`
   const baseCtagTxt = `
   [[script]]
   return api.utils.loadCustomTag("${url}",\`{{innerTag}}\`,{${addedOpts}})
@@ -46,26 +52,28 @@ const getCtagLegacyContent = (ctagName:string, cb) => {
 
 
 export const getCtagContent = (ctagName: string, cb:(ctagContent:string|null) => void) => {
-    let intCtags = getHardcodedTags()
+    // let intCtags = getHardcodedTags()
     // 1 HARDCODED
-    if (intCtags[ctagName]){
-        cb(intCtags[ctagName])
+    // if (intCtags[ctagName]){
+    //     cb(intCtags[ctagName])
+    // } else {
+      
     // 2 PLUGINS
-    } else {
-      getApi(api => {
-        api.plugins.get(ctagName, "tag", res => {
-          if (res && res.type === "tag") {
-            cb(res.code)
-          } else {
-            //3 W LEGACY CTAG SYSTEM FALLBACK
-            getCtagLegacyContent(ctagName, res2 => {
-              cb(res2)
-            })
-          }
-        })
+    getApi(api => {
+      api.plugins.get(ctagName, "tag", res => {
+        if (res && res.type === "tag") {
+          cb(res.code)
+        } else {
+          //3 W LEGACY CTAG SYSTEM FALLBACK
+          if (ctagName === "iframe") ctagName = "web"
+          getCtagLegacyContent(ctagName, res2 => {
+            cb(res2)
+          })
+        }
       })
+    })
         
-    }
+    // }
 }
 
 export const getCtagList = () => {
