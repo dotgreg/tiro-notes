@@ -339,8 +339,18 @@ const webCtagApp = (innerTagStr, opts) => {
                                 }
                                         #zoom-out-button ,
                                         #zoom-in-button {
+                                                opacity:0.7;
                                                 cursor: pointer;
-                                                padding: 7px;
+                                                padding: 5px 9px;
+                                                margin: 0px 4px;
+                                                transition: all 0.3s ease-in-out;
+                                                background: #fff;
+                                                box-shadow: 0px 0px 6px 0px rgba(0,0,0,0.2);
+                                                border-radius: 20px;
+                                        }
+                                        #zoom-out-button:hover ,
+                                        #zoom-in-button:hover { 
+                                                opacity:1;
                                         }
                                 #enable-cookie {
                                         position: absolute;
