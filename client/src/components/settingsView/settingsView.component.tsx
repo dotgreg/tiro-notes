@@ -187,15 +187,15 @@ export const SettingsPopup = (p: {
 							us.set('ui_editor_links_as_button', val)
 						}
 					},
-					{
-						type: 'text',
-						title: "Links Preview Zoom",
-						expl: "Zoom of the link preview functionality (eye button, should be number between 0 and 1)",
-						var: us.get('ui_editor_links_preview_zoom'),
-						modifier: val => {
-							us.set('ui_editor_links_preview_zoom', val)
-						}
-					},
+					// {
+					// 	type: 'text',
+					// 	title: "Links Preview Zoom",
+					// 	expl: "Zoom of the link preview functionality (eye button, should be number between 0 and 1)",
+					// 	var: us.get('ui_editor_links_preview_zoom'),
+					// 	modifier: val => {
+					// 		us.set('ui_editor_links_preview_zoom', val)
+					// 	}
+					// },
 					{
 						type: 'checkbox',
 						title: "Latex preview",
