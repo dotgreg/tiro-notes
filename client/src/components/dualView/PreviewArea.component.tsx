@@ -81,7 +81,7 @@ export const PreviewArea = (p: {
 			}, 100)
 		}, 100)
 
-	}, [p.fileContent, p.file.path])
+	}, [p.fileContent, p.file.path, p.windowId])
 
 
 	const getWindowHeight = (): number => {
@@ -100,6 +100,7 @@ export const PreviewArea = (p: {
 			onWheelCapture={(e) => {
 				// @ts-ignore
 				//syncScroll2.syncPreviewOffset(p.windowId)
+				console.log(11111111)
 				syncScroll3.onPreviewScroll(p.windowId)
 			}}
 		>
@@ -124,21 +125,23 @@ export const PreviewArea = (p: {
 
 					<div className="content-blocks-wrapper">
 						<div className="simple-css-wrapper">
-							{
-								contentBlocks.map((block, i) =>
-									<ContentBlock
-										key={i}
-																	index={i}
-										block={block}
-										windowId={p.windowId}
-										file={p.file}
-										windowHeight={getWindowHeight()}
-										reactOnHeightResize={p.reactOnHeightResize}
-										yCnt={p.yCnt}
-										onIframeMouseWheel={p.onIframeMouseWheel}
-									/>
-								)
-							}
+							<div className="preview-area-full-height-content">
+								{
+									contentBlocks.map((block, i) =>
+										<ContentBlock
+											key={i}
+																		index={i}
+											block={block}
+											windowId={p.windowId}
+											file={p.file}
+											windowHeight={getWindowHeight()}
+											reactOnHeightResize={p.reactOnHeightResize}
+											yCnt={p.yCnt}
+											onIframeMouseWheel={p.onIframeMouseWheel}
+										/>
+									)
+								}
+							</div>
 						</div>
 
 					</div>
