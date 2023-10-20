@@ -81,9 +81,15 @@ const updateEditorDims = (wid: string, dims: iDim) => {
 const updatePreviewDims = (wid: string) => {
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
+	// if (!c.els.preview) return;
+	// let full = c.els.preview.querySelector('.preview-area-full-height-content').clientHeight
 	if (!c.els.preview) return;
-	let full = c.els.preview.querySelector('.preview-area-full-height-content').clientHeight
+	let fullDiv = c.els.preview.querySelector('.preview-area-full-height-content')
+	let full = fullDiv.clientHeight - fullDiv.parentNode.clientHeight
 	let viewport = c.els.preview.clientHeight
+	c.dims.preview = { viewport, full }
+
+	// let viewport = c.els.preview.clientHeight
 	c.dims.preview = { viewport, full }
 	// console.log(h, "preview dims update", c.dims.preview);
 }
@@ -179,10 +185,10 @@ const onScrollerScroll = (wid: string, percent: number) => {
 
 const onPreviewScroll = (wid: string) => {
 	const c = getScrollObj(wid)
-	let previewY = c.els.preview.scrollTop
+	let previewY = c.els.preview.scrollTop 
 	
 	updatePreviewOffset(wid, previewY)
-	c.posPercent = (previewY / c.dims.preview.full) * 100
+	c.posPercent = (previewY / (c.dims.preview.full)) * 100
 	console.log(h, "onPreviewScroll", previewY, c.dims.preview.full, c.posPercent);
 
 	scrollEditor(wid, c.posPercent)
