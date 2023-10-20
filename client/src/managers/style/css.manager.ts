@@ -78,7 +78,7 @@ export const CssApp2Int = (
 	userSettings: iUserSettingsApi,
 	pinStatus: iPinStatuses
 ) => {
-	console.log("RELOAD CSS", pinStatus)
+	// console.log("RELOAD CSS", pinStatus)
 	let end = perf("CssApp2"+mobileView+refreshCss)
 	const cssString = `
 

@@ -26,7 +26,7 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, each, isBoolean, isNaN, isNumber, throttle } from "lodash";
+import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "lodash";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 import { notifLog } from "../../managers/devCli.manager";
@@ -116,6 +116,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	}, [p.value, p.forceRender, p.file.path]);
 
+	
 
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
@@ -264,14 +265,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	// const [modifierTagDetected, setModifierTagDetected] = useState<boolean>(false)
 	const onTextChangeCheckIfModifierTagDetected = useDebounce((ntext:string) => {
-		if (ntext.includes("--table") && !enhancedTable) setEnhancedTable(true)
-		if (ntext.includes("--latex") && !enhancedLatex) setEnhancedLatex(true)
-		if (ntext.includes("--spellcheck") && !enhancedSpellCheck) setEnhancedSpellCheck(true)
+		if (ntext.includes("--table") && !enhancedTable) { setEnhancedTable(true);  refresh(); }
+		if (ntext.includes("--latex") && !enhancedLatex) { setEnhancedLatex(true);  refresh(); }
+		if (ntext.includes("--spellcheck") && !enhancedSpellCheck) {setEnhancedSpellCheck(true); refresh();}
 
-		if (!ntext.includes("--table") && enhancedTable) setEnhancedTable(false)
-		if (!ntext.includes("--latex") && enhancedLatex) setEnhancedLatex(false)
-		if (!ntext.includes("--spellcheck") && enhancedSpellCheck) setEnhancedSpellCheck(false)
-		refresh()
+		if (!ntext.includes("--table") && enhancedTable) {setEnhancedTable(false); refresh();}
+		if (!ntext.includes("--latex") && enhancedLatex) {setEnhancedLatex(false); refresh();}
+		if (!ntext.includes("--spellcheck") && enhancedSpellCheck) {setEnhancedSpellCheck(false); refresh();}
 	}, 500)
 	const [enhancedTable, setEnhancedTable] = useState<boolean>(false)
 	const [enhancedLatex, setEnhancedLatex] = useState<boolean>(false)
@@ -290,8 +290,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const [codemirrorExtensions, setCodemirrorExtentions] = useState<Extension[]>([])
 	const [classes, setClasses] = useState<string>("")
 	useEffect(() => {
-		console.log("WID CHANGE for", p.file.name, p.windowId)
-		
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
 				// AUTOCOMPLETION
@@ -654,7 +652,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	const CodeMirrorEl = useMemo(() => {
 	// const CodeMirrorEl = () => {
-		return <CodeMirror
+		return  <>
+		<CodeMirror
 			value=""
 			ref={forwardedRefCM as any}
 			theme={getCustomTheme()}
@@ -677,12 +676,24 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			extensions={codemirrorExtensions}
 		// />}
 
-		/>}, 
+		/></>}, 
 	[p.value, codemirrorExtensions])
+
+
+	// useEffect(() => {
+	// 	console.log("111112 forcererender")
+	// }, [p.file.path])
+	// useEffect(() => {
+	// 	console.log("111113 forcererender")
+	// }, [p.jumpToLine])
+	// useEffect(() => {
+	// 	console.log("111113 forcererender")
+	// }, [p.jumpToLine])
 
 
 	return (
 		<>
+			
 			{/* HOVER POPUP*/}
 			{showHoverPopup &&
 				<div

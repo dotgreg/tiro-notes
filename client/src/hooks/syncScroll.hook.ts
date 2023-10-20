@@ -128,10 +128,7 @@ const updateScrollerDims = (wid: string) => {
 const scrollScroller = (wid: string, percent?: number) => {
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
-	console.log(110, percent)
 	if (!percent) percent = c.posPercent
-
-	console.log(111,c.els.scroller)
 
 	// just ask for a refresh, bar position in calculated in component in react
 	let dataset = c.els.scroller?.dataset
@@ -166,7 +163,6 @@ const scrollPreview = (wid: string, percent?: number) => {
 //
 const onEditorScroll = (wid: string, percent: number) => {
 	const c = getScrollObj(wid)
-	console.log(h, "onEditorScroll", wid, percent, c.els.editor, c.els.preview, c.els.scroller);
 	if (!c.els.editor) return;
 	c.posPercent = percent
 

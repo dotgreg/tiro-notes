@@ -40,7 +40,6 @@ export const ScrollingBar = (p: {
 				if (mutation.attributeName === "data-scroll-refresh") {
 					// first set height of bar
 					let o = syncScroll3.getScrollObj(p.windowId)
-					console.log('scrolling bar refresh', p.windowId, o, o.dims.scroller.viewport)
 					let height = o.dims.scroller.viewport
 					if (height < 20) height = 20 // 
 					
@@ -66,9 +65,7 @@ export const ScrollingBar = (p: {
 	>
 		<Draggable
 			onDrag={(a: any) => {
-				// console.log(getStats().percent);
 				syncScroll3.onScrollerScroll(p.windowId, getStats().percent);
-				// p.onScroll(getStats().percent)
 			}}
 			onStop={() => {
 				setBarY(getStats().y)

@@ -63,7 +63,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     // update the ref when the panels change only the first time panels loaded
     useEffect(() => {
         if (panelsRef.current.length > 0) return
-        console.log("INIT LOAD")
         panelsRef.current = panels
     },[panels])
 

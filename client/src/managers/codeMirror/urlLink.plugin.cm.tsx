@@ -136,9 +136,9 @@ export const generateHtmlLinkPreviewInt = (
 	let openWindow = `<span title="Open link in detached window"
 onclick="${ssrFn("open-win-link", openWinFn)}"
 class="link-action link-openwindow"  data-link="${fullLink}">${i('up-right-from-square')}</span>`
-	let openPreview = `<span
-onclick="${ssrFn("preview-link", previewFn)}"
-title="Preview link" class="link-openpreview link-action" data-link="${fullLink}">${i('eye')}</span>`
+// 	let openPreview = `<span
+// onclick="${ssrFn("preview-link", previewFn)}"
+// title="Preview link" class="link-openpreview link-action" data-link="${fullLink}">${i('eye')}</span>`
 	let fetch = `<span
 onclick="${ssrFn("fetch-link", fetchFn)}"
 title="Display url content" class="link-fetcharticle link-action"  data-link="${fullLink}">${i('file-lines')}</span>`
@@ -150,7 +150,7 @@ title="Text to speech url content" class="link-audio link-action"  data-link="${
 		title="Detach link in floating panel" class="link-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
 
 
-	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${openWindow} ${openPreview} ${detach}</span></span>`
+	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${detach} ${openWindow} </span></span>`
 
 	let iframeWrapper = `<span class="cm-hover-popup cm-hover-popup"></span>`
 	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`

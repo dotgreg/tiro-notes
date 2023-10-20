@@ -91,15 +91,50 @@ const webCtagApp = (innerTagStr, opts) => {
                 let searchTogglerButtonState = false
                 let searchBarButton = document.getElementById("search-bar-button");
 
-                const updateIframeUrl = (url, shouldaddToHistory=false) => {
-                        console.log("updateIframeUrl", url)
-                        if (shouldaddToHistory) addToHistory(url)
-                        iframe.src = url
+                const updateIframeContent = (iframeString, shouldaddToHistory=false) => {
+                        console.log("updateIframeContent", iframeString)
+                        if(iframeString.startsWith("http")) {
+                                // if iframeString is an url
+                                if (shouldaddToHistory) addToHistory(iframeString)
+                                iframe.src = iframeString
+                        } else {
+                                // else, it is direct html content
+                                iframe.srcdoc = generateHtmlContentWrapper(iframeString)
+                        }
+                       
                 }
 
                 // initial URL asked for
-                updateIframeUrl(innerTagStr, true)
+                updateIframeContent(innerTagStr, true)
+
+                ///////////////////////////////////////////////
+                // backend cached zoom iframe
+                //
+                let zoomIframe = 0.7
+                getCache("zoom")(content => {
+                        zoomIframe = content
+                        updateZoomIframe()
+                })
+                const updateZoomIframe = (zoomval) => {
+                        if(!zoomval) zoomval = 0
+                        zoomIframe += zoomval
+                        // let SizeMultiplier = 100 + ((zoomIframe - 1)*-10*17)
+                        let SizeMultiplier = 100 / zoomIframe
+                        console.log(SizeMultiplier, zoomIframe)
+                        iframe.style.transform = `scale(${zoomIframe})`
+                        iframe.width = `${SizeMultiplier}%`
+                        iframe.style.height = `${SizeMultiplier}vh`
+                        setCache("zoom")(zoomIframe)
+                }
+
+                updateZoomIframe()
                 
+                onClick(["zoom-in-button"], () => {
+                        updateZoomIframe(0.1)
+                })
+                onClick(["zoom-out-button"], () => {
+                        updateZoomIframe(-0.1)
+                })
 
 
                 const toggleSearchBar = (status) => {
@@ -125,6 +160,38 @@ const webCtagApp = (innerTagStr, opts) => {
                         e.stopPropagation()
                         e.preventDefault()
                 })
+
+                ///////////////////////////////////////////////
+                // backend cached cookie/session enabler => not working
+                //
+                // let enableCookie = true
+                // getCache("enable-cookie")(content => {
+                //         console.log(1111111, content);
+                //         toggleCookie(content)
+                // })
+                // const toggleCookie = (status) => {
+                //         if(status) enableCookie = status
+                //         else enableCookie = !enableCookie
+                //         // enableCookie ? delete iframe.sandbox : iframe.sandbox = ""
+                        
+                //         console.log(enableCookie);
+                //         if (enableCookie) document.getElementById("enable-cookie-button").classList.remove("active")
+                //         else document.getElementById("enable-cookie-button").classList.add("active")
+                //         //destroy and recreate iframe to apply changes
+                //         let iframeParent = iframe.parentNode
+                //         iframeParent.removeChild(iframe)
+                //         iframe = document.createElement("iframe")
+                //         iframe.id = "web-iframe"
+                //         enableCookie ? iframe.sandbox = "" : iframe.sandbox = "allow-scripts allow-popups allow-forms"
+                //         iframeParent.appendChild(iframe)
+                //         updateIframeContent(innerTagStr, true)
+                //         updateZoomIframe()
+                // }
+
+                // onClick(["enable-cookie-button"], () => {
+                //         toggleCookie()
+                //         setCache("enable-cookie")(enableCookie)
+                // })
 
 
                 onClick(["search-toggler-button"], () => {
@@ -182,7 +249,7 @@ const webCtagApp = (innerTagStr, opts) => {
                 const triggerSearch = () => {
                         toggleSearchBar(false)
                         if (searchBar.value.startsWith("http")) {
-                                updateIframeUrl(searchBar.value, true)
+                                updateIframeContent(searchBar.value, true)
                         } else {
                                 // get the last word of the searchBar.value and call it let modifier
                                 let val = searchBar.value.trim()
@@ -192,11 +259,11 @@ const webCtagApp = (innerTagStr, opts) => {
                                         // get url without modifier
                                         let inputSearch = val.replace(modifier, "")
                                         let url = opts.search_engines[modifier] + inputSearch
-                                        updateIframeUrl(url)
+                                        updateIframeContent(url)
                                 } else {
                                         console.log("no modifier")
                                         let url = opts.search_engines.default + val
-                                        updateIframeUrl(url)
+                                        updateIframeContent(url)
                                 }
                         }
                 }
@@ -216,6 +283,21 @@ const webCtagApp = (innerTagStr, opts) => {
 
         }
 
+        const generateHtmlContentWrapper = (htmlString) => {
+                const contentStyle = `
+                <style>
+                img {
+                                max-width: 100%!important;
+                                height: auto!important;
+                }
+                body, html {
+                                font-family: sans-serif;
+                }
+                </style>
+                `
+                return `<!DOCTYPE html><html><head><meta charset="utf-8">${contentStyle}</head><body>${decodeURIComponent(htmlString) }</body></html>`
+        }
+
     
 
         const genHtmlAndStyle = () => {
@@ -232,10 +314,17 @@ const webCtagApp = (innerTagStr, opts) => {
                         <div id="web-iframe-wrapper">
                                 <iframe id="web-iframe" ></iframe>
                         </div>
+                        <div id="search-toggler-button-indicator"></div>
                         <div id="search-toggler-button-wrapper">
-                                <div id="search-toggler-button">
-                                        <i class="fas fa-search"></i>
+                                <div id="search-toggler-button"> <i class="fas fa-search"></i> </div>
+                                <div id="zoom-buttons"> 
+                                        <div id="zoom-in-button"> <i class="fas fa-search-plus"></i> </div>
+                                        <div id="zoom-out-button"> <i class="fas fa-search-minus"></i> </div>
                                 </div>
+                                <div id="enable-cookie"> 
+                                        <div id="enable-cookie-button"> <i class="fas fa-cookie-bite"></i> </div>
+                                </div>
+
                         </div>
                 </div>
 
@@ -245,7 +334,44 @@ const webCtagApp = (innerTagStr, opts) => {
                                 left: 0px;
                                 width: calc(100vw - 10px);
                         }
+                                #zoom-buttons {
+                                        position: absolute;
+                                        top: 2px;
+                                        right: 50px;
+                                }
+                                        #zoom-in-button {
+                                                cursor: pointer;
+                                                padding: 10px;
+                                        }
+                                        #zoom-out-button {
+                                                cursor: pointer;
+                                                padding: 10px;
+                                        }
+                                #enable-cookie {
+                                        position: absolute;
+                                        top: 2px;
+                                        right: 10px;
+                                }
+                                        #enable-cookie-button {
+                                                cursor: pointer;
+                                                padding: 10px;
+                                        }
+                                        #enable-cookie-button.active {
+                                                color: #fff;
+                                                background: #000;
+                                        }
 
+                                #search-toggler-button-indicator {
+                                        position: absolute;
+                                        top: -1px;
+                                        width: 40px;
+                                        height: 3px;
+                                        transform: translate(-50%, -50%);
+                                        background: grey;
+                                        pointer-events: none;
+                                        left: 50%;
+                                        box-shadow: 0px 0px 5px rgba(0,0,0,0.5);
+                                }
                                 #search-toggler-button-wrapper {
                                         position: absolute;
                                         top: -70px;
@@ -331,8 +457,6 @@ const webCtagApp = (innerTagStr, opts) => {
                                         #web-iframe {
                                                 border: none;
                                                 transform: scale(0.67);
-                                                width: 150%!important;
-                                                height: 150vh!important;
                                                 transform-origin:top left;
                                         }
                 </style> `
