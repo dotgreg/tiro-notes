@@ -9,7 +9,7 @@ import { WindowEditor } from './windowGrid/WindowEditor.component';
 import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 
 export type iNotePreviewType = "editor"|"preview"
-export const NotePreview = (p: {
+export const NotePreviewInt = (p: {
 	file: iFile
 	view:iViewType
 	searchedString?: string
@@ -115,6 +115,12 @@ export const NotePreview = (p: {
 		</div >
 	)
 }
+
+
+export const NotePreview = React.memo(NotePreviewInt, (np, pp) => {
+	if (JSON.stringify(np) !== JSON.stringify(pp)) return false
+	return true
+});
 
 export const NotePreviewCss = () => `
 

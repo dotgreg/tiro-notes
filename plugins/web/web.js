@@ -185,16 +185,17 @@ const webCtagApp = (innerTagStr, opts) => {
                                 updateIframeUrl(searchBar.value, true)
                         } else {
                                 // get the last word of the searchBar.value and call it let modifier
-                                let modifier = searchBar.value.split(" ").pop()
-                                addToHistory(searchBar.value)
+                                let val = searchBar.value.trim()
+                                let modifier = val.split(" ").pop()
+                                addToHistory(val)
                                 if (opts.search_engines[modifier]) {
                                         // get url without modifier
-                                        let inputSearch = searchBar.value.replace(modifier, "")
+                                        let inputSearch = val.replace(modifier, "")
                                         let url = opts.search_engines[modifier] + inputSearch
                                         updateIframeUrl(url)
                                 } else {
                                         console.log("no modifier")
-                                        let url = opts.search_engines.default + searchBar.value
+                                        let url = opts.search_engines.default + val
                                         updateIframeUrl(url)
                                 }
                         }
@@ -251,8 +252,8 @@ const webCtagApp = (innerTagStr, opts) => {
                                         left: 50%;
                                         z-index: 1;
                                         transform: translatex(-50%);
-                                        padding-right: 100px;
-                                        padding-left: 100px;
+                                        // padding-right: 100px;
+                                        // padding-left: 100px;
                                         padding-bottom: 100px;
                                         transition: all 0.3s ease-in-out;
                                         transition-delay: 0.3s;

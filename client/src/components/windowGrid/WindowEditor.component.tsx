@@ -29,6 +29,7 @@ export const WindowEditorInt = (p: {
 
 	const [fileContent, setFileContent] = useState('')
 	const [intViewType, setIntViewType] = useState<iViewType>("editor")
+	const windowId = i
 
 	useEffect(() => {
 		if (p.forceView) return setIntViewType(p.forceView)
@@ -38,7 +39,7 @@ export const WindowEditorInt = (p: {
 			if (res) setIntViewType(res)
 			else setIntViewType("editor") // on creation
 		})
-	}, [view, file?.path])
+	}, [view, file?.path, windowId])
 
 	//
 	// FILE CONTENT FETCH/UPDATE
@@ -81,7 +82,7 @@ export const WindowEditorInt = (p: {
 				setFileContent(watchUpdate.fileContent)
 			})
 		})
-	}, [file?.path])
+	}, [file?.path, windowId])
 
 	// can edit locally if file loading/not
 	const [canEdit, setCanEdit] = useState(false)
@@ -198,7 +199,7 @@ export const WindowEditorInt = (p: {
 				file &&
 				<div className="window-editor-wrapper">
 					<DualViewer
-						windowId={i}
+						windowId={windowId}
 						file={file}
 						fileContent={fileContent}
 						isActive={active}

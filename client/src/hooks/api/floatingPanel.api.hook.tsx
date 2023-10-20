@@ -97,9 +97,12 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             view: "editor",
             id: Math.random().toString(36).substring(7),
             zIndex: startingZindex,
+            orderPosition: nonHiddenPanels.length,
             ...panelParams,
         }
         setPanels([panel,...panelsRef.current])
+        updateOrderPosition(panel.id, "first")
+        pushWindowOnTop(panel.id)
     }
 
     const updatePanel = (panel:iFloatingPanel) => { 

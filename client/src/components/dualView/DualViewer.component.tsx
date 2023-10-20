@@ -55,7 +55,7 @@ const DualViewerInt = (
 
 	useEffect(() => {
 		setMaxY(0)
-	}, [p.fileContent])
+	}, [p.fileContent, p.windowId])
 
 	// calculate percent scrolled by natural scroll
 	// const [percentScrolled, setPercentScrolled] = useState(0)
@@ -87,7 +87,7 @@ const DualViewerInt = (
 	}
 	useEffect(() => {
 		updatePreviewContent(p.fileContent)
-	}, [p.fileContent, p.file.path])
+	}, [p.fileContent, p.file.path, p.windowId])
 
 
 
@@ -96,12 +96,12 @@ const DualViewerInt = (
 		setTimeout(() => {
 			syncScroll3.onWindowLoad(p.windowId)
 		}, 500)
-	}, [p.file.path])
+	}, [p.file.path, p.windowId])
 	
 	// Close any popup on note switch
 	useEffect(() => {
 		stopDelayedNotePreview(true)
-	}, [p.file.path])
+	}, [p.file.path, p.windowId])
 
 	
 
@@ -115,7 +115,7 @@ const DualViewerInt = (
 	// to update preview scroll position on preview-scroll: follow-title
 	//
 
-	// 2) TITLE SCROLL
+	// 2) TITLES SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
 	const updateScrolledTitleInt = (scrolledLine: number) => {
 		// if (scrollMode !== "title") return;
