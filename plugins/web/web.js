@@ -321,10 +321,6 @@ const webCtagApp = (innerTagStr, opts) => {
                                         <div id="zoom-in-button"> <i class="fas fa-search-plus"></i> </div>
                                         <div id="zoom-out-button"> <i class="fas fa-search-minus"></i> </div>
                                 </div>
-                                <div id="enable-cookie"> 
-                                        <div id="enable-cookie-button"> <i class="fas fa-cookie-bite"></i> </div>
-                                </div>
-
                         </div>
                 </div>
 
@@ -336,16 +332,15 @@ const webCtagApp = (innerTagStr, opts) => {
                         }
                                 #zoom-buttons {
                                         position: absolute;
-                                        top: 2px;
-                                        right: 50px;
+                                        top: 72px;
+                                        left: 50%;
+                                        display: flex;
+                                        transform: translate(-50%,-50%);
                                 }
+                                        #zoom-out-button ,
                                         #zoom-in-button {
                                                 cursor: pointer;
-                                                padding: 10px;
-                                        }
-                                        #zoom-out-button {
-                                                cursor: pointer;
-                                                padding: 10px;
+                                                padding: 7px;
                                         }
                                 #enable-cookie {
                                         position: absolute;
@@ -374,7 +369,7 @@ const webCtagApp = (innerTagStr, opts) => {
                                 }
                                 #search-toggler-button-wrapper {
                                         position: absolute;
-                                        top: -70px;
+                                        top: -90px;
                                         left: 50%;
                                         z-index: 1;
                                         transform: translatex(-50%);
