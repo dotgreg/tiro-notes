@@ -332,7 +332,7 @@ const EditorAreaInt = (
 
 	useEffect(() => {
 		forceCmRender()
-	}, [p.fileContent, p.file.path])
+	}, [p.fileContent, p.file.path, p.windowId])
 
 
 	//
@@ -354,7 +354,7 @@ const EditorAreaInt = (
 		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
 		setSimpleFallback(nval)
 		// forceCmRender() // cannot force render otherwise get very slow
-	}, [innerFileContent, p.viewType, p.mobileView])
+	}, [innerFileContent, p.viewType])
 
 
 	useEffect(() => {
@@ -434,7 +434,7 @@ const EditorAreaInt = (
 
 		}
 
-	}, [p.editorAction])
+	}, [p.editorAction, p.windowId])
 
 	//
 	// ON CM EVENTS
@@ -606,7 +606,7 @@ const EditorAreaInt = (
 
 
 			{/* {MAIN EDITOR AREA} */}
-			<div className={`main-editor-wrapper ${titleEditor ? "with-title-editor": "no-title-editor"}`}>
+			<div className={`main-editor-wrapper ${titleEditor ? "with-title-editor": "no-title-editor"} ${p.windowId}`}>
 
 				{!isPreview && !simpleFallback && p.editorType === 'codemirror' &&
 					<CodeMirrorEditor
@@ -907,6 +907,7 @@ export const EditorArea = (p: iEditorProps) => {
 		isConnected,
 		p.canEdit,
 		p.editorType,
+		p.windowId,
 		p.file.created,
 		p.file.name,
 		p.file.path,

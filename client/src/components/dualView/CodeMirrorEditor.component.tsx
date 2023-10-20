@@ -213,7 +213,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const { resizeState } = useElResize(`.window-id-${p.windowId}`)
 	useEffect(() => {
 		syncScrollUpdateDims()
-	}, [resizeState])
+	}, [resizeState, p.windowId])
 
 	//
 	// SYNCSCROLL SIZE UPDATE
@@ -290,6 +290,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const [codemirrorExtensions, setCodemirrorExtentions] = useState<Extension[]>([])
 	const [classes, setClasses] = useState<string>("")
 	useEffect(() => {
+		console.log("WID CHANGE for", p.file.name, p.windowId)
 		
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
@@ -363,7 +364,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 		})
-	}, [p.pluginsConfig, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
+	}, [p.pluginsConfig, p.windowId, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
 	
 
 

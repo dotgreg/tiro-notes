@@ -366,7 +366,7 @@ export const ContentBlockTagView = (p: {
 			}
 			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} style={{ height: iframeHeight }}>
 
-				<div className="ctag-menu" >
+				{/* <div className="ctag-menu" >
 					<div className="ctag-ellipsis" >
 						<Icon name="faEllipsisH" color={`#b2b2b2`} />
 					</div>
@@ -378,14 +378,14 @@ export const ContentBlockTagView = (p: {
 					</div>
 					<div className="ctag-menu-button ctag-detach" onClick={askDetach}>
 						<Icon2 name="window-restore" color={`#b2b2b2`} />
-					</div>
+					</div> */}
 					{/* <div className="ctag-menu-button ctag-pin" onClick={e => { askPin() }}>
 						<Icon name="faThumbtack" color={`#b2b2b2`} />
 					</div>
 					<div className="ctag-menu-button ctag-pin" onClick={e => { askPinFullscreen() }}>
 						<Icon name="faExpandArrowsAlt" color={`#b2b2b2`} />
 					</div> */}
-				</div>
+				{/* </div> */}
 
 				{!reloadIframe &&
 					<iframe

@@ -7,7 +7,7 @@ import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
 import { genUrlPreviewStr } from '../managers/url.manager';
-import { cloneDeep, set, sortBy, update } from 'lodash';
+import { cloneDeep, set, sortBy, update, zip } from 'lodash';
 import { useDebounce } from '../hooks/lodash.hooks';
 import {  getScrollbarWidth } from '../managers/scrollbar.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -16,6 +16,7 @@ import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 import { Icon2 } from './Icon.component';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 
+let startZindex = 1000
 // react windows that is resizable
 // on close button click, remove the div from the dom
 // on minimize button click, minimize the div
@@ -77,6 +78,11 @@ export const FloatingPanel = (p:{
     highestVisibleZIndex: number
 }) => {
 
+    const panelRef = useRef<iFloatingPanel>(p.panel)
+    useEffect(() => {   
+        panelRef.current = p.panel
+    },[p.panel])
+
     const updatePanel = (panel:iFloatingPanel) => {
         if (!p.onPanelUpdate) return
         // p.onPanelUpdate(panel)
@@ -127,8 +133,7 @@ export const FloatingPanel = (p:{
 
     const onLayoutUpdate:iLayoutUpdateFn = (action,data) => {
         if (action !== "windowViewChange" || !data?.view) return
-        console.log("onLayoutUpdate", data.view)
-        updatePanel({...p.panel, view: data.view})
+        updatePanel({...panelRef.current, view: data.view})
     }
 
     const [panelPrevConfig, setPanelPrevConfig] = useState<iFloatingPanel>(p.panel)
@@ -157,7 +162,7 @@ export const FloatingPanel = (p:{
 
 
     const handleMinimize = () => {
-        updatePanel({...p.panel, status:"minimized"})
+        updatePanel({...p.panel, status:"minimized", zIndex: startZindex})
     }
 
     // const [fileView, setFileView] = useState<"editor"|"preview">("editor")
@@ -181,12 +186,14 @@ export const FloatingPanel = (p:{
     }
 
     const pushToTop = () => {
+        if (p.highestVisibleZIndex === p.panel.zIndex) return
         getApi(api => {
             api.ui.floatingPanel.pushWindowOnTop(p.panel.id)
         })
     }
 
     const shouldShowHoverOverlay = showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
+    // console.log("shouldShowHoverOverlay", shouldShowHoverOverlay, showHoverOverlay, p.panelsVisibleNumber, p.highestVisibleZIndex, p.panel.zIndex)
 
     return (
         <div className={`floating-panel-wrapper ${p.panel.status}`} 
@@ -401,9 +408,10 @@ export const FloatingPanelsWrapper = (p:{
     const [maxZIndex, setMaxZIndex] = useState<number>(0)
     // panelsVisibleNumber
     const [panelsVisibleNumber, setPanelsVisibleNumber] = useState<number>(0)
+
     // debounce as expensive operation
     const onPanelsChangeDebounce = useDebounce(() => {
-        console.log("update panels")
+        // console.log("update panels")
         let max = 0
         panels.forEach(panel => {
             if (panel.zIndex === undefined) return
@@ -411,13 +419,18 @@ export const FloatingPanelsWrapper = (p:{
         })
         setMaxZIndex(max)
         setPanelsVisibleNumber(panels.filter(p => p.status === "visible").length)
+
+        // console.log("REORG PANELS")
         // setPanelsBar(panelsRef.current.filter(p => p.status !== "visible"))/
         // reorganized panels by status, first minimized, then hidden
         let newPanels = cloneDeep(panelsRef.current)
         let minimizedPanels = newPanels.filter(p => p.status === "minimized")
         let hiddenPanels = newPanels.filter(p => p.status === "hidden")
         let visiblePanels = newPanels.filter(p => p.status === "visible")
+
         let organizedPanels = minimizedPanels.concat(hiddenPanels).concat(visiblePanels)
+        // let organizedPanels = hiddenPanels.concat(minimizedPanels).concat(visiblePanels)
+        // console.log({hiddenPanels, minimizedPanels, visiblePanels})
 
         // sortby panel.orderPosition using lodash sortby
         organizedPanels = sortBy(organizedPanels, p => p.orderPosition)
