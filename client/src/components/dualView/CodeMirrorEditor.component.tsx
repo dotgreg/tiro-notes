@@ -57,6 +57,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+	onCursorMove: (pos:{x:number, y:number}) => void
 
 	pluginsConfig?: iCMPluginConfig
 }, forwardedRefCM) => {
@@ -348,7 +349,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			}
 
 
-			if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
+			if (!disablePlugins && pluginsConfig.markdown) {
 				newcodemirrorExtensions.push(markdown(markdownExtensionCnf))
 			} else {
 				// markdown replacement plugin for mobile
@@ -416,9 +417,19 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const histSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
 	const decalMousePopup = [30,10]
 
+	const [popupPosition, setPopupPosition] = useState<{x:number, y:number}>({x:0, y:0})
+
 	const onSelectionChangeDebounced = useDebounce((selection:any) => {
 		
 		// if (selection.from === selection.to) return onCursorMoveDebounced(selection)
+		let view = getEditorObj()?.view
+		if (view) {
+			let cursorPos = view.coordsAtPos(view.state.selection.main.head)
+			if (!cursorPos) return
+			// setPopupPosition({x: cursorPos.left, y: cursorPos.top})
+			p.onCursorMove({x: cursorPos.left, y: cursorPos.top})
+		}
+
 		if (selection.from === selection.to) return 
 		if (!isNumber(selection.from) || !isNumber(selection.to)) return
 		if (selection.from < 0 || selection.to < 0) return
@@ -469,6 +480,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			if (!aiSelectionEnabled) return
 			setShowHoverPopup(true)
 			const pos = mousePos.current
+			
 			setHoverPopupPos([pos[0] + decalMousePopup[0], pos[1] + decalMousePopup[1]])
 		})
 	}
@@ -693,7 +705,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	return (
 		<>
-			
+			<div className="codemirror-popup-cursor" style={{left: `${popupPosition.x - 20}px`, top: `${popupPosition.y - 40}px`}}>
+				woop
+			</div>
+
 			{/* HOVER POPUP*/}
 			{showHoverPopup &&
 				<div
@@ -768,6 +783,14 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.codemirror-popup-cursor {
+	position: fixed;
+	z-index: 2;
+	background: white;
+	padding: 5px;
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+	border-radius: 3px;
+}
 .cm-hover-popup.cm-selection-popup {
 	display: flex;
 	position: fixed;

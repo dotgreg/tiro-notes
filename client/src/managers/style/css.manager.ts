@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css'
 import { deviceType, iMobileView } from '../device.manager';
 import { cssVars } from './vars.style.manager';
-import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
+import {  editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
 import { mobileViewMenuCss } from '../../hooks/app/mobileView.hook';
 import { connectionIndicatorCss } from '../../hooks/app/connectionIndicator.hook';

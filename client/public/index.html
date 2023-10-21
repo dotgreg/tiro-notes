@@ -36,4 +36,20 @@
 			display: none!important;
 		}
 	</style>
+	<script>
+		{
+		  var WS = window.WebSocket;
+		  function DevWebSocket(s) {
+			if (s === "ws://localhost:3000/sockjs-node") {
+			  console.info("[DEV NOTICE] Live Reload Has Been Disabled");
+			  return {};
+			} else {
+			  // Pass through other usage of sockets
+			  return new WS(s);
+			}
+		  }
+		  window.WebSocket = DevWebSocket;
+		}
+	  </script>
+	  
 </html>

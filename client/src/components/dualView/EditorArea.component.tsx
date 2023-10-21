@@ -451,6 +451,8 @@ const EditorAreaInt = (
 			api.lastNotesApi?.addToHistory(p.file, false)
 		})
 	}
+
+	const [cursorPopupPosition, setCursorPopupPosition] = useState<{x:number, y:number}>({x:0, y:0})
 	
 
 
@@ -627,6 +629,7 @@ const EditorAreaInt = (
 						onEvent={onCMEvent}
 						onScroll={p.onScroll}
 						onTitleClick={p.onTitleClick}
+						onCursorMove={(c) => {setCursorPopupPosition(c)}}	
 
 						file={p.file}
 						pluginsConfig={p.pluginsConfig}
@@ -650,17 +653,19 @@ const EditorAreaInt = (
 			{
 				// BOTTOM MOBILE TOOLBAR
 				deviceType() !== 'desktop' &&
-				<NoteMobileToolbar
-					// bottom={bottomMobileToolbar}
-					onButtonClicked={action => {
-						let updatedText = applyTextModifAction(action)
-						if (updatedText) {
-							updateLastNotes()
-							triggerNoteEdition(updatedText)
-							forceCmRender()
-						}
-					}}
-				/>
+				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: cursorPopupPosition.y - 50, left: cursorPopupPosition.x  }}>
+					<NoteMobileToolbar
+						// bottom={bottomMobileToolbar}
+						onButtonClicked={action => {
+							let updatedText = applyTextModifAction(action)
+							if (updatedText) {
+								updateLastNotes()
+								triggerNoteEdition(updatedText)
+								forceCmRender()
+							}
+						}}
+					/>
+				</div>
 			}
 
 			{askForPassword && APasswordPopup}
@@ -687,91 +692,16 @@ const EditorAreaInt = (
 
 
 
-export const commonCssEditors = () => `
+export const editorAreaCss = (v: iMobileView) => `
+.mobile-text-manip-toolbar-wrapper {
+	position: fixed;
+	transform: translate(0%, -50%);
+}
 .mobile-text-manip-toolbar {
 		.toolbar-button {
 				padding: 13px 20px;
 		}
 }
-
-.file-path-wrapper {
-		padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
-		font-size: 13px;
-		font-weight: 700;
-		color: #b6b5b5;
-		cursor: pointer;
-		text-transform: capitalize;
-}
-.big-title {
-		color: ${cssVars.colors.main};
-		font-size: 30px;
-		font-weight: 800;
-		width: 100%;
-		text-transform: uppercase;
-}
-
-.separation-bar {
-		width: 86%;
-    height: 1px;
-    background: #e6e6e6;
-    margin: 10px 6%;
-}
-
-.dates-wrapper {
-		position: relative;
-		margin: 0px 0px 5px 0px;
-		display: block!important;
-    .modified {
-				color: grey;
-				text-align: left;
-    }
-		.created {
-				text-align: right;
-				position: absolute;
-				top: 0px;
-				right: 0px;
-				color: ${cssVars.colors.editor.interfaceGrey};
-		}
-}
-
-.path-wrapper {
-		color: grey;
-    text-align: left;
-		padding: 0px 0px 5px 0px;
-    .path-link {
-				color: ${cssVars.colors.main};
-				font-weight: bold;
-				cursor: pointer;
-    }
-}
-
-.note-id-wrapper {
-		color: grey;
-    text-align: left;
-		.note-id-form {
-				margin-bottom: 5px;
-				display:flex;
-				input {
-						border: none;
-						padding: 5px;
-						background: #ebebeb;
-						border-radius: 3px;
-						font-size: 9px;
-						font-weight: 400;
-				}
-		}
-}
-.toolbar-and-dates-wrapper {
-		h4 {
-				margin: 0px;
-
-		}
-}
-
-
-`
-export const editorAreaCss = (v: iMobileView) => `
-
 
 .editor-area {
 		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
@@ -916,3 +846,84 @@ export const EditorArea = (p: iEditorProps) => {
 		p.isActive,
 		p.editorAction])
 }
+
+
+
+
+export const commonCssEditors = () => `
+
+
+.file-path-wrapper {
+		padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
+		font-size: 13px;
+		font-weight: 700;
+		color: #b6b5b5;
+		cursor: pointer;
+		text-transform: capitalize;
+}
+.big-title {
+		color: ${cssVars.colors.main};
+		font-size: 30px;
+		font-weight: 800;
+		width: 100%;
+		text-transform: uppercase;
+}
+
+.separation-bar {
+		width: 86%;
+    height: 1px;
+    background: #e6e6e6;
+    margin: 10px 6%;
+}
+
+.dates-wrapper {
+		position: relative;
+		margin: 0px 0px 5px 0px;
+		display: block!important;
+    .modified {
+				color: grey;
+				text-align: left;
+    }
+		.created {
+				text-align: right;
+				position: absolute;
+				top: 0px;
+				right: 0px;
+				color: ${cssVars.colors.editor.interfaceGrey};
+		}
+}
+
+.path-wrapper {
+		color: grey;
+    text-align: left;
+		padding: 0px 0px 5px 0px;
+    .path-link {
+				color: ${cssVars.colors.main};
+				font-weight: bold;
+				cursor: pointer;
+    }
+}
+
+.note-id-wrapper {
+		color: grey;
+    text-align: left;
+		.note-id-form {
+				margin-bottom: 5px;
+				display:flex;
+				input {
+						border: none;
+						padding: 5px;
+						background: #ebebeb;
+						border-radius: 3px;
+						font-size: 9px;
+						font-weight: 400;
+				}
+		}
+}
+.toolbar-and-dates-wrapper {
+		h4 {
+				margin: 0px;
+
+		}
+}
+`
