@@ -40,9 +40,9 @@ export const NoteMobileToolbar = (p: {
 
 export const mobileNoteToolbarCss = () => `
   .mobile-toolbar-wrapper {
-    position: fixed;
+    // position: fixed;
     // position: absolute;
-    width: 100%;
+    // width: 100%;
 
     .mobile-text-manip-toolbar {
       display: flex;
@@ -53,6 +53,9 @@ export const mobileNoteToolbarCss = () => `
       align-items: center;
       height: ${cssVars.sizes.mobile.editorBar}px;
       background: ${cssVars.colors.editor.mobileToolbar.bg};
+      .toolbar-button {
+        padding: 3px 5px;
+      }
       li {
         flex: 1 1 auto;
         justify-content: center;
