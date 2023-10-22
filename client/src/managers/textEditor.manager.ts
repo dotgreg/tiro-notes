@@ -1,4 +1,7 @@
-import { isNumber, isString } from "lodash";
+import { each, isBoolean, isNumber, isString, throttle } from "lodash";
+import { iFile } from "../../../shared/types.shared";
+import { getApi } from "../hooks/api/api.hook";
+import { notifLog } from "./devCli.manager";
 
 
 
@@ -208,3 +211,145 @@ export const triggerTextModifAction = (
 
 	return lines.join('\n')
 }
+
+
+//
+// Word Count preview
+//
+export const wordsCount = (selection:string) => {
+	let arrLines = selection.split("\n")
+	let wordsCnt = 0
+	// if arrlines not array
+	if (!Array.isArray(arrLines)) return wordsCnt
+	each(arrLines, line => {
+		let arrline = line.split(" ").filter(w => w !== "")
+		wordsCnt += arrline.length
+	})
+	return wordsCnt
+}
+
+
+//
+// CALC PREVIEW
+//
+export const seemsArithmetic = (str:string) => {
+	str = `${str}`
+	let res = false
+	if (str.toLowerCase().startsWith("Math")) res = true
+	if (str.startsWith("(")) res = true
+	// if starts with a number
+	if (!isNaN(parseInt(str))) res = true
+	if (str.includes("\n")) res = false
+	if (str.length > 400) res = false
+	return res
+}
+export const calcSelected = (selection:string) => {
+	let res = null
+	if (!seemsArithmetic(selection)) return res
+	try {
+		// if starts with number or () or Math
+		res = new Function(`return ${selection}`)()
+	} catch (error) {
+		// res = "!"
+	}
+	return res
+}
+
+export const triggerCalc = (p:{
+    windowId: string,
+    file: iFile,
+    fileContent: string,
+    selectionTxt:string, 
+    insertPos: number, 
+}) => {
+	const {windowId, file, fileContent, selectionTxt, insertPos} = p
+	const genParams = () => {return { 
+        wrapSyntax: false, 
+		title: "", 
+        currentContent:fileContent, 
+        insertPos, 
+        windowId, 
+		selection:selectionTxt, 
+        file,
+		linejump: false, 
+        isLast: false 
+    }}
+	
+	try {
+		let result = new Function(`return ${selectionTxt}`)()
+		let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
+		generateTextAt(p)
+	} catch (err) {
+		notifLog(`[CALC] Error <br/> "${err}"`)
+	}
+
+}
+
+export const generateTextAt = (p2:{
+	currentContent: string,
+	textUpdate: string,
+	insertPos: number,
+	isLast: boolean
+	title?: string, 
+	question?: string,
+	linejump?:boolean,
+	viewFollow?: boolean
+	wrapSyntax?: boolean
+
+	windowId: string
+	file: iFile
+
+}) => {
+	if (!p2.question) p2.question = ""
+	if (!p2.title) p2.title = ""
+	if (!isBoolean(p2.linejump)) p2.linejump = true
+	if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
+	if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
+
+	// gradually insert at the end of the selection the returned text
+	let jumpTxt = p2.linejump ? "\n\n" : " "
+	let separatorDoing = "###"
+	let separatorDone = "---"
+	// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
+	let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
+	let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
+	let textToInsert = `${jumpTxt}${p2.textUpdate}`
+	
+	if (!p2.wrapSyntax) {
+		headerDoing =  headerDone = separatorDone = separatorDoing = ""
+	}
+
+	// TEXT WHILE GENERATING
+	textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
+	// TEXT WHEN DONE
+	if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
+
+	// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
+	const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
+	const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
+	const nText = noteContentBefore + textToInsert + noteContentAfter
+	getApi(api => {
+		// UPDATE TEXT
+		api.file.saveContent(p2.file.path, nText)
+
+		// JUMP TO THE WRITTEN LINE
+		if (p2.viewFollow) {
+			let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
+			let lineToJump = currentLine - 2
+			if (lineToJump < 0) lineToJump = 0
+			lineJumpThrottle(p2.windowId, lineToJump)
+		}
+	})
+}
+const lineJumpThrottle = throttle((windowId, lineToJump) => {
+	// getApi(api => {
+	// 	api.ui.note.lineJump.jump(windowId, lineToJump)
+	// })
+	getApi(api => {
+		api.ui.note.editorAction.dispatch({
+			windowId,
+			type:"lineJump", 
+			lineJumpNb: lineToJump,
+		})	
+	})
+}, 1000)

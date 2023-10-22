@@ -80,6 +80,7 @@ export const ToolbarButton = (p: iToolbarButton) => {
 	if (p.title) insideHtml = <>{p.title}</>
 	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
 	if (p.customHtml) insideHtml = p.customHtml
+	// if (p.displayHoverPopup === false) insideHtml = <></>
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
 
 	// {random(0, 1000)}
@@ -92,10 +93,10 @@ export const ToolbarButton = (p: iToolbarButton) => {
 			<div className="inside-html-wrapper">
 				{insideHtml}
 			</div>
-			<div
-				className={`button-hover-popup `}>
+			{p.title && <div
+				className={`button-title-wrapper `}>
 				{p.title}
-			</div>
+			</div>}
 		</button >
 	)
 }
@@ -119,7 +120,7 @@ export const ButtonsToolbarCss = () => `
 														color:${cssVars.colors.main};
 												}
 										}
-										.button-hover-popup {
+										.button-title-wrapper {
 												color:${cssVars.colors.main};
 										}
 								}
@@ -128,7 +129,7 @@ export const ButtonsToolbarCss = () => `
 										span {
 										}
 								}
-								.button-hover-popup {
+								.button-title-wrapper {
 										margin-left: 15px;
 										font-weight: 400;
 										font-size: 11px;
@@ -136,7 +137,7 @@ export const ButtonsToolbarCss = () => `
 						}
 				}
 				&.horizontal.with-popup {
-								li button:hover .button-hover-popup {
+								li button:hover .button-title-wrapper {
 										display: block;
 								}
 				}
@@ -144,7 +145,7 @@ export const ButtonsToolbarCss = () => `
 						display: flex;
 						li {
 						button {
-								.button-hover-popup {
+								.button-title-wrapper {
 										display: none;
 										opacity: 0.2;
 										position: absolute;
