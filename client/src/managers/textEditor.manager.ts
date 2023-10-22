@@ -235,7 +235,7 @@ export const wordsCount = (selection:string) => {
 export const seemsArithmetic = (str:string) => {
 	str = `${str}`
 	let res = false
-	if (str.toLowerCase().startsWith("Math")) res = true
+	if (str.toLowerCase().startsWith("math.")) res = true
 	if (str.startsWith("(")) res = true
 	// if starts with a number
 	if (!isNaN(parseInt(str))) res = true
@@ -277,7 +277,7 @@ export const triggerCalc = (p:{
 	
 	try {
 		let result = new Function(`return ${selectionTxt}`)()
-		let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
+		let p = {...genParams(), textUpdate:` = ${result}`, isLast:true}
 		generateTextAt(p)
 	} catch (err) {
 		notifLog(`[CALC] Error <br/> "${err}"`)

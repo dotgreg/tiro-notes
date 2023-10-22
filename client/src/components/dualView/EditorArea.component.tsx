@@ -462,7 +462,7 @@ const EditorAreaInt = (
 	const [cursorInfos, setCursorInfos] = useState<iCursorInfos>({x:0, y:0, from:0, to:0})
 	let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
 
-	let posNoteToolPopup = deviceType() === "desktop" ? cursorInfos.y - 100 : cursorInfos.y - 170
+	let posNoteToolPopup = deviceType() === "desktop" ? cursorInfos.y - 100 : cursorInfos.y + 10
 	// if (selectionTxt.length > 0) posNoteToolPopup = cursorInfos.from
 
 
