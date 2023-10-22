@@ -33,6 +33,7 @@ import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
 import { title } from 'process';
 import { triggerAiSearch } from '../../managers/ai.manager';
+import { triggerCalc } from '../../managers/textEditor.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -453,8 +454,16 @@ const EditorAreaInt = (
 		})
 	}
 
+	const onScroll = (e: any) => {
+		p.onScroll(e)
+		setCursorInfos({x:-9999, y:-9999, from:0, to:0})
+	}
+	// hover popup positionning
 	const [cursorInfos, setCursorInfos] = useState<iCursorInfos>({x:0, y:0, from:0, to:0})
-	
+	let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
+
+	let posNoteToolPopup = deviceType() === "desktop" ? cursorInfos.y - 100 : cursorInfos.y - 170
+	// if (selectionTxt.length > 0) posNoteToolPopup = cursorInfos.from
 
 
 	return (
@@ -628,7 +637,7 @@ const EditorAreaInt = (
 							triggerNoteEdition(v) 
 						}}
 						onEvent={onCMEvent}
-						onScroll={p.onScroll}
+						onScroll={onScroll}
 						onTitleClick={p.onTitleClick}
 						onCursorMove={c => {setCursorInfos(c)}}	
 
@@ -652,14 +661,22 @@ const EditorAreaInt = (
 			{
 				// BOTTOM MOBILE TOOLBAR
 				// deviceType() !== 'desktop' &&
-				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: cursorInfos.y - 50, left: cursorInfos.x  }}>
+				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: posNoteToolPopup, left: 0  }}>
 					<NoteToolsPopup
 						cursorInfos={cursorInfos}
+						selection={selectionTxt}
 						onButtonClicked={action => {
 							if (action === "aiSearch") {
 								// console.log("AI SEARCH", cursorInfos)
-								let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
 								triggerAiSearch({
+									windowId: p.windowId,
+									file: p.file,
+									fileContent: innerFileContent,
+									selectionTxt,
+									insertPos: cursorInfos.to
+								})
+							} else if (action === "calc") {
+								triggerCalc({
 									windowId: p.windowId,
 									file: p.file,
 									fileContent: innerFileContent,
@@ -704,15 +721,7 @@ const EditorAreaInt = (
 
 
 export const editorAreaCss = (v: iMobileView) => `
-.mobile-text-manip-toolbar-wrapper {
-	position: fixed;
-	transform: translate(0%, -50%);
-}
-.mobile-text-manip-toolbar {
-		.toolbar-button {
-				padding: 13px 20px;
-		}
-}
+
 
 .editor-area {
 		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};

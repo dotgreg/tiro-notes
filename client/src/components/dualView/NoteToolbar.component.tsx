@@ -1,8 +1,9 @@
 import React, { useState }  from 'react';
-import { TextModifAction } from '../../managers/textEditor.manager';
+import { TextModifAction, seemsArithmetic, wordsCount } from '../../managers/textEditor.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { iCursorInfos } from './CodeMirrorEditor.component';
+import { deviceType } from '../../managers/device.manager';
 
 
 
@@ -12,15 +13,15 @@ import { iCursorInfos } from './CodeMirrorEditor.component';
 
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
-	onButtonClicked: (action: TextModifAction | "aiSearch") => void
+  selection: string,
+	onButtonClicked: (action: TextModifAction | "aiSearch" | "calc") => void
 }) => {
   // if (!p.bottom) p.bottom = 140
   // let bottom = p.bottom || 140
   const [isOpen, setIsOpen] = useState(false)
-  let isSelection = p.cursorInfos.from !== p.cursorInfos.to
 
-  const btnsConfig =  [
-    { icon: 'faCircle', action: () => {setIsOpen(false)}, class: 'close-button' },
+  const btnsConfigOpen:iToolbarButton[] =  [
+    { icon: 'faCircle', action: () => {setIsOpen(false)}, class: 'separator' },
     { icon: 'faAngleLeft', action: () => p.onButtonClicked('<-') },
     { icon: 'faAngleRight', action: () => p.onButtonClicked('->') },
     { icon: 'faCheckSquare', action: () => p.onButtonClicked('[x]') },
@@ -31,25 +32,45 @@ export const NoteToolsPopup = (p: {
   ]
 
    // if selection, push ai button at the second position
-  if (p.cursorInfos.from !== p.cursorInfos.to) {
-    btnsConfig.splice(1, 0, { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }})
+  const btnsConfigClosed:iToolbarButton[] = [
+    { icon: 'faCircle', action: () => setIsOpen(true) },
+  ]
+  if (p.selection.length > 0) {
+    let isMath = seemsArithmetic(p.selection)
+    let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='number-words-wrapper'><i className='fa fa-chart-line'></i><span className='number-words'>{wordsCount(p.selection)}</span></div>}
+    if (isMath) mathBtn = { icon: 'calculator', action: () => {p.onButtonClicked('calc'); setIsOpen(false); }}
+    const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
+    //------------
+    btnsConfigClosed.push(aiBtn)
+    btnsConfigClosed.push(mathBtn)
+    //------------
+    btnsConfigOpen.splice(1, 0, aiBtn)
+    let mathBtn2 = {...mathBtn}
+    mathBtn2.class = 'separator'
+    btnsConfigOpen.splice(2, 0, mathBtn2)
   }
 
 	return <div 
-    className='mobile-toolbar-wrapper'
+    className={`mobile-toolbar-wrapper device-${deviceType()}`}
   >
     { !isOpen &&
-    <div className='note-toolbar-closed-icon' onClick={() => setIsOpen(true)}>
-      <i className='fa fa-circle' />
-    </div>
+    // <div className='note-toolbar-closed-icon' onClick={() => setIsOpen(true)}>
+    //   <i className='fa fa-circle' />
+    // </div>
+    <ButtonsToolbar
+			class='mobile-text-manip-toolbar closed'
+      size={deviceType() === "desktop" ? 0.8 : 1}
+			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
+			buttons={btnsConfigClosed}
+		/>
     }
 
     { isOpen &&
 		<ButtonsToolbar
 			class='mobile-text-manip-toolbar'
-      size={0.8}
+      size={deviceType() === "desktop" ? 0.8 : 1}
 			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
-			buttons={btnsConfig}
+			buttons={btnsConfigOpen}
 		/>
   }
   </div>
@@ -58,25 +79,34 @@ export const NoteToolsPopup = (p: {
 
 
 export const mobileNoteToolbarCss = () => `
+.mobile-text-manip-toolbar-wrapper {
+	position: absolute;
+	transform: translate(0%, -50%);
+  z-index: 100;
+}
+.mobile-text-manip-toolbar {
+		.toolbar-button {
+				padding: 13px 20px;
+		}
+}
+
+.number-words-wrapper {
+  display: flex;
+  font-size: 10px;
+  font-weight: 400;
+  .number-words {
+    margin-left: 5px;
+  }
+}
+
   .mobile-toolbar-wrapper {
+    
 
-    .note-toolbar-closed-icon {
-      opacity: 0.2;
-      background: white;
-      border-radius: 50%;
-      padding: 5px 8px;
-      box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
-      &:hover {
-        opacity: 1;
-      }
-      transition: opacity 0.2s;
-      transform: scale(0.6);
-    }
-    // position: fixed;
-    // position: absolute;
-    // width: 100%;
 
-    .buttons-toolbar-component.mobile-text-manip-toolbar {
+    .mobile-text-manip-toolbar {
+      position: absolute;
+      left: 0px;
+      transform: scale(0.9);
       background: #fff;
       border-radius: 10px;
       display: flex;
@@ -87,16 +117,50 @@ export const mobileNoteToolbarCss = () => `
       justify-content: center;
       align-items: center;
       height: ${cssVars.sizes.mobile.editorBar}px;
+      &:hover {
+        opacity: 1;
+      }
+      opacity: 0.2;
+      left: 15px;
+       
+        transition: opacity 0.2s;
+      
       .toolbar-button {
         padding: 3px 5px;     
       }
-      .close-button {
-        margin-right: 10px;
+      .separator {
+        margin-right: 8px;
       }
+
       li {
         flex: 1 1 auto;
         justify-content: center;
         display: flex;
+      }
+
+      &.closed {
+        opacity: 0.2;
+        &:hover {
+          opacity: 1;
+        }
+      }
+
+      
+    }
+
+    &.device-mobile {
+      .mobile-text-manip-toolbar {
+        opacity: 1;
+        &.closed {
+          opacity: 0.2;
+          &:hover {
+            opacity: 1;
+          }
+        } 
+        transform: scale(1);
+        .toolbar-button {
+          padding: 12px;     
+        }
       }
     }
     
