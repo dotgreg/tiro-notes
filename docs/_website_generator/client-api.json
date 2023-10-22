@@ -21022,6 +21022,10 @@
 									{
 										"type": "literal",
 										"value": "setSelection"
+									},
+									{
+										"type": "literal",
+										"value": "triggerAiSearch"
 									}
 								]
 							}

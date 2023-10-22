@@ -1,5 +1,5 @@
 import React, { useState }  from 'react';
-import { TextModifAction, seemsArithmetic, wordsCount } from '../../managers/textEditor.manager';
+import { TextModifAction, calcSelected, seemsArithmetic, wordsCount } from '../../managers/textEditor.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { iCursorInfos } from './CodeMirrorEditor.component';
@@ -21,7 +21,6 @@ export const NoteToolsPopup = (p: {
   const [isOpen, setIsOpen] = useState(false)
 
   const btnsConfigOpen:iToolbarButton[] =  [
-    { icon: 'faCircle', action: () => {setIsOpen(false)}, class: 'separator' },
     { icon: 'faAngleLeft', action: () => p.onButtonClicked('<-') },
     { icon: 'faAngleRight', action: () => p.onButtonClicked('->') },
     { icon: 'faCheckSquare', action: () => p.onButtonClicked('[x]') },
@@ -29,26 +28,34 @@ export const NoteToolsPopup = (p: {
     { icon: 'faAngleDown', action: () => p.onButtonClicked('v') },
     { icon: 'faEraser', action: () => p.onButtonClicked('X') },
     { icon: 'faClone', action: () => p.onButtonClicked('C') },
+    { icon: 'faCircle', action: () => {setIsOpen(false)}, class: 'separator' },
   ]
 
    // if selection, push ai button at the second position
-  const btnsConfigClosed:iToolbarButton[] = [
-    { icon: 'faCircle', action: () => setIsOpen(true) },
-  ]
+  const btnsConfigClosed:iToolbarButton[] = []
+  
   if (p.selection.length > 0) {
     let isMath = seemsArithmetic(p.selection)
-    let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='number-words-wrapper'><i className='fa fa-chart-line'></i><span className='number-words'>{wordsCount(p.selection)}</span></div>}
-    if (isMath) mathBtn = { icon: 'calculator', action: () => {p.onButtonClicked('calc'); setIsOpen(false); }}
+    let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='numbers-preview-wrapper'><i className='fa fa-chart-line'></i><span className='numbers-preview'>{wordsCount(p.selection)}</span></div>}
+    if (isMath) mathBtn = { 
+      icon: 'calculator', 
+      customHtml: <div className='numbers-preview-wrapper'><i className='fa fa-calculator'></i><span className='numbers-preview'>{calcSelected(p.selection)}</span></div>, 
+      action: () => {p.onButtonClicked('calc'); setIsOpen(false); }
+    }
     const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
     //------------
     btnsConfigClosed.push(aiBtn)
     btnsConfigClosed.push(mathBtn)
     //------------
-    btnsConfigOpen.splice(1, 0, aiBtn)
+    // btnsConfigOpen.splice(1, 0, aiBtn)
     let mathBtn2 = {...mathBtn}
-    mathBtn2.class = 'separator'
-    btnsConfigOpen.splice(2, 0, mathBtn2)
+    mathBtn2.class = 'separator-right'
+    // btnsConfigOpen.splice(2, 0, mathBtn2)
+    btnsConfigOpen.unshift(mathBtn2)
+    btnsConfigOpen.unshift(aiBtn)
+
   }
+  btnsConfigClosed.push({ icon: 'faCircle', action: () => setIsOpen(true) })
 
 	return <div 
     className={`mobile-toolbar-wrapper device-${deviceType()}`}
@@ -80,9 +87,16 @@ export const NoteToolsPopup = (p: {
 
 export const mobileNoteToolbarCss = () => `
 .mobile-text-manip-toolbar-wrapper {
-	position: absolute;
-	transform: translate(0%, -50%);
-  z-index: 100;
+	// position: absolute;
+	// // transform: translate(0%, 100%);
+  // width: 100%;
+  // z-index: 100;
+  pointer-events: none;
+  position: absolute;
+    width: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: flex-end;
 }
 .mobile-text-manip-toolbar {
 		.toolbar-button {
@@ -90,11 +104,14 @@ export const mobileNoteToolbarCss = () => `
 		}
 }
 
-.number-words-wrapper {
+.numbers-preview-wrapper {
   display: flex;
   font-size: 10px;
   font-weight: 400;
-  .number-words {
+  i {
+    margin-top: 2px;
+  }
+  .numbers-preview {
     margin-left: 5px;
   }
 }
@@ -104,8 +121,10 @@ export const mobileNoteToolbarCss = () => `
 
 
     .mobile-text-manip-toolbar {
-      position: absolute;
-      left: 0px;
+      pointer-events: all;
+      // position: absolute;
+      // left: 0px;
+      margin-right:10px;
       transform: scale(0.9);
       background: #fff;
       border-radius: 10px;
@@ -120,7 +139,7 @@ export const mobileNoteToolbarCss = () => `
       &:hover {
         opacity: 1;
       }
-      opacity: 0.2;
+      opacity: 0.4;
       left: 15px;
        
         transition: opacity 0.2s;
@@ -129,6 +148,9 @@ export const mobileNoteToolbarCss = () => `
         padding: 3px 5px;     
       }
       .separator {
+        margin-left: 8px;
+      }
+      .separator-right {
         margin-right: 8px;
       }
 
@@ -139,7 +161,7 @@ export const mobileNoteToolbarCss = () => `
       }
 
       &.closed {
-        opacity: 0.2;
+        opacity: 0.4;
         &:hover {
           opacity: 1;
         }
