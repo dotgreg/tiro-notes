@@ -46,6 +46,8 @@ export type iCursorInfos =  {
 	y: number
 	from: number
 	to: number
+	fromPx: number
+	toPx: number
 }
 
 const CodeMirrorEditorInt = forwardRef((p: {
@@ -432,9 +434,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		let view = getEditorObj()?.view
 		if (view) {
 			let cursorPos = view.coordsAtPos(view.state.selection.main.head)
+			let selectionInPx = view.coordsAtPos(view.state.selection.ranges[0].from)
 			if (!cursorPos) return
-			// setPopupPosition({x: cursorPos.left, y: cursorPos.top})
-			p.onCursorMove({x: cursorPos.left, y: cursorPos.top, from: selection.from, to: selection.to})
+			p.onCursorMove({x: cursorPos.left, y: cursorPos.top, from: selection.from, to: selection.to, fromPx:selectionInPx?.top || 0, toPx:selectionInPx?.bottom || 0 })
 		}
 
 		if (selection.from === selection.to) return 
@@ -443,6 +445,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		if (JSON.stringify(histSelection.current) === JSON.stringify(selection)) return
 		histSelection.current = cloneDeep(selection)
 		displayHoverPopup()
+
+		
 	}, 200)
 
 	// const onCursorMoveDebounced = (selection:any) => {
