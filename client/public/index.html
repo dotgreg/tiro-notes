@@ -37,6 +37,10 @@
 		}
 	</style>
 	<script>
+		setTimeout(() => {
+			console.info("111[DEV NOTICE] Live Reload Has Been Disabled");
+			window.webpackHotUpdate = () => {}
+		}, 1000)
 		{
 		  var WS = window.WebSocket;
 		  function DevWebSocket(s) {
