@@ -41,6 +41,13 @@ export interface iCMPluginConfig {
 	linkPreview?:boolean
 }
 
+export type iCursorInfos =  {
+	x: number
+	y: number
+	from: number
+	to: number
+}
+
 const CodeMirrorEditorInt = forwardRef((p: {
 	windowId: string,
 
@@ -57,7 +64,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
-	onCursorMove: (pos:{x:number, y:number}) => void
+	onCursorMove: (infos: iCursorInfos) => void
 
 	pluginsConfig?: iCMPluginConfig
 }, forwardedRefCM) => {
@@ -427,7 +434,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			let cursorPos = view.coordsAtPos(view.state.selection.main.head)
 			if (!cursorPos) return
 			// setPopupPosition({x: cursorPos.left, y: cursorPos.top})
-			p.onCursorMove({x: cursorPos.left, y: cursorPos.top})
+			p.onCursorMove({x: cursorPos.left, y: cursorPos.top, from: selection.from, to: selection.to})
 		}
 
 		if (selection.from === selection.to) return 
@@ -485,182 +492,182 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 
-	const generateTextAt = (p2:{
-		currentContent: string,
-		textUpdate: string,
-		insertPos: number,
-		isLast: boolean
-		title?: string, 
-		question?: string,
-		linejump?:boolean,
-		viewFollow?: boolean
-		wrapSyntax?: boolean
+	// const generateTextAt = (p2:{
+	// 	currentContent: string,
+	// 	textUpdate: string,
+	// 	insertPos: number,
+	// 	isLast: boolean
+	// 	title?: string, 
+	// 	question?: string,
+	// 	linejump?:boolean,
+	// 	viewFollow?: boolean
+	// 	wrapSyntax?: boolean
 
-	}) => {
-		if (!p2.question) p2.question = ""
-		if (!p2.title) p2.title = ""
-		if (!isBoolean(p2.linejump)) p2.linejump = true
-		if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
-		if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
+	// }) => {
+	// 	if (!p2.question) p2.question = ""
+	// 	if (!p2.title) p2.title = ""
+	// 	if (!isBoolean(p2.linejump)) p2.linejump = true
+	// 	if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
+	// 	if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
 
-		// gradually insert at the end of the selection the returned text
-		let jumpTxt = p2.linejump ? "\n\n" : " "
-		let separatorDoing = "###"
-		let separatorDone = "---"
-		// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
-		let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
-		let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
-		let textToInsert = `${jumpTxt}${p2.textUpdate}`
+	// 	// gradually insert at the end of the selection the returned text
+	// 	let jumpTxt = p2.linejump ? "\n\n" : " "
+	// 	let separatorDoing = "###"
+	// 	let separatorDone = "---"
+	// 	// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
+	// 	let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
+	// 	let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
+	// 	let textToInsert = `${jumpTxt}${p2.textUpdate}`
 		
-		if (!p2.wrapSyntax) {
-			headerDoing =  headerDone = separatorDone = separatorDoing = ""
-		}
+	// 	if (!p2.wrapSyntax) {
+	// 		headerDoing =  headerDone = separatorDone = separatorDoing = ""
+	// 	}
 
-		// TEXT WHILE GENERATING
-		textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
-		// TEXT WHEN DONE
-		if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
+	// 	// TEXT WHILE GENERATING
+	// 	textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
+	// 	// TEXT WHEN DONE
+	// 	if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
 
-		// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
-		const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
-		const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
-		const nText = noteContentBefore + textToInsert + noteContentAfter
-		getApi(api => {
-			// UPDATE TEXT
-			api.file.saveContent(p.file.path, nText)
+	// 	// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
+	// 	const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
+	// 	const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
+	// 	const nText = noteContentBefore + textToInsert + noteContentAfter
+	// 	getApi(api => {
+	// 		// UPDATE TEXT
+	// 		api.file.saveContent(p.file.path, nText)
 
-			// JUMP TO THE WRITTEN LINE
-			if (p2.viewFollow) {
-				let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
-				let lineToJump = currentLine - 2
-				if (lineToJump < 0) lineToJump = 0
-				lineJumpThrottle(p.windowId, lineToJump)
-			}
-		})
-	}
-	const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
-		// getApi(api => {
-		// 	api.ui.note.lineJump.jump(windowId, lineToJump)
-		// })
-		getApi(api => {
-			api.ui.note.editorAction.dispatch({
-				windowId,
-				type:"lineJump", 
-				lineJumpNb: lineToJump,
-			})	
-		})
-	}, 1000)
+	// 		// JUMP TO THE WRITTEN LINE
+	// 		if (p2.viewFollow) {
+	// 			let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
+	// 			let lineToJump = currentLine - 2
+	// 			if (lineToJump < 0) lineToJump = 0
+	// 			lineJumpThrottle(p.windowId, lineToJump)
+	// 		}
+	// 	})
+	// }
+	// const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
+	// 	// getApi(api => {
+	// 	// 	api.ui.note.lineJump.jump(windowId, lineToJump)
+	// 	// })
+	// 	getApi(api => {
+	// 		api.ui.note.editorAction.dispatch({
+	// 			windowId,
+	// 			type:"lineJump", 
+	// 			lineJumpNb: lineToJump,
+	// 		})	
+	// 	})
+	// }, 1000)
 
-	const triggerAiSearch = () => {
-		console.log("trigger AI search")
-		// close the popup
-		setShowHoverPopup(false)
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		const currentContent = textContent.current
-		const insertPos = s.to
-		let isError = false
-		selectionTxt = selectionTxt.replaceAll('"', '\\"')
-		selectionTxt = selectionTxt.replaceAll("'", "\\'")
-		selectionTxt = selectionTxt.replaceAll("`", "\\`")
-		selectionTxt = selectionTxt.replaceAll("$", "\\$")
+	// const triggerAiSearch = () => {
+	// 	console.log("trigger AI search")
+	// 	// close the popup
+	// 	setShowHoverPopup(false)
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	const currentContent = textContent.current
+	// 	const insertPos = s.to
+	// 	let isError = false
+	// 	selectionTxt = selectionTxt.replaceAll('"', '\\"')
+	// 	selectionTxt = selectionTxt.replaceAll("'", "\\'")
+	// 	selectionTxt = selectionTxt.replaceAll("`", "\\`")
+	// 	selectionTxt = selectionTxt.replaceAll("$", "\\$")
 		
-		const question = selectionTxt
-		const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
+	// 	const question = selectionTxt
+	// 	const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
 
-		getApi(api => {
-			let cmd = api.userSettings.get("ui_editor_ai_command")
-			cmd = cmd.replace("{{input}}", selectionTxt)
-			generateTextAt(genParams())
-			api.command.stream(cmd, streamChunk => {
-				if (streamChunk.isError) isError = true
-				// if it is an error, display it in a popup
-				if (isError) {
-					// let cmdPreview = cmd.length > 200 ? cmd.substring(0, 200) + "..." : cmd
-					// let cmdPreview = ""
-					console.log("[AI ERROR]", streamChunk)
-					if (streamChunk.text === "" || streamChunk.text === "[object Object]") return
-					api.ui.notification.emit({
-						content: `[AI] Error while executing command <br/>============<br/> ANSWER => <br/>${streamChunk.text} </br>============`,
-						options: {hideAfter: 10 * 60 }
-					})
-					// erase everything if one error detected
-					generateTextAt({...genParams(), textUpdate:"", isLast: true})
-				} else {
-					// else insert it
-					generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
-				}
-			})
-		})
-	}
+	// 	getApi(api => {
+	// 		let cmd = api.userSettings.get("ui_editor_ai_command")
+	// 		cmd = cmd.replace("{{input}}", selectionTxt)
+	// 		generateTextAt(genParams())
+	// 		api.command.stream(cmd, streamChunk => {
+	// 			if (streamChunk.isError) isError = true
+	// 			// if it is an error, display it in a popup
+	// 			if (isError) {
+	// 				// let cmdPreview = cmd.length > 200 ? cmd.substring(0, 200) + "..." : cmd
+	// 				// let cmdPreview = ""
+	// 				console.log("[AI ERROR]", streamChunk)
+	// 				if (streamChunk.text === "" || streamChunk.text === "[object Object]") return
+	// 				api.ui.notification.emit({
+	// 					content: `[AI] Error while executing command <br/>============<br/> ANSWER => <br/>${streamChunk.text} </br>============`,
+	// 					options: {hideAfter: 10 * 60 }
+	// 				})
+	// 				// erase everything if one error detected
+	// 				generateTextAt({...genParams(), textUpdate:"", isLast: true})
+	// 			} else {
+	// 				// else insert it
+	// 				generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
+	// 			}
+	// 		})
+	// 	})
+	// }
 
 	//
 	// Word Count preview
 	//
-	const getWordCountSelected = () => {
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		let arrLines = selectionTxt.split("\n")
-		let wordsCnt = 0
-		each(arrLines, line => {
-			let arrline = line.split(" ").filter(w => w !== "")
-			wordsCnt += arrline.length
-		})
-		return wordsCnt
-	}
+	// const getWordCountSelected = () => {
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	let arrLines = selectionTxt.split("\n")
+	// 	let wordsCnt = 0
+	// 	each(arrLines, line => {
+	// 		let arrline = line.split(" ").filter(w => w !== "")
+	// 		wordsCnt += arrline.length
+	// 	})
+	// 	return wordsCnt
+	// }
 
 
 	//
 	// CALC PREVIEW
 	//
-	const seemsArithmetic = (str:string) => {
-		str = `${str}`
-		let res = false
-		if (str.toLowerCase().startsWith("Math")) res = true
-		if (str.startsWith("(")) res = true
-		// if starts with a number
-		if (!isNaN(parseInt(str))) res = true
+	// const seemsArithmetic = (str:string) => {
+	// 	str = `${str}`
+	// 	let res = false
+	// 	if (str.toLowerCase().startsWith("Math")) res = true
+	// 	if (str.startsWith("(")) res = true
+	// 	// if starts with a number
+	// 	if (!isNaN(parseInt(str))) res = true
 
-		if (str.includes("\n")) res = false
-		if (str.length > 400) res = false
+	// 	if (str.includes("\n")) res = false
+	// 	if (str.length > 400) res = false
 
-		return res
-	}
-	const calcSelected = () => {
-		let res = null
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		if (!seemsArithmetic(selectionTxt)) return res
-		try {
-			// if starts with number or () or Math
-			res = new Function(`return ${selectionTxt}`)()
-		} catch (error) {
-			// res = "!"
-		}
-		return res
-	}
+	// 	return res
+	// }
+	// const calcSelected = () => {
+	// 	let res = null
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	if (!seemsArithmetic(selectionTxt)) return res
+	// 	try {
+	// 		// if starts with number or () or Math
+	// 		res = new Function(`return ${selectionTxt}`)()
+	// 	} catch (error) {
+	// 		// res = "!"
+	// 	}
+	// 	return res
+	// }
 
-	const triggerCalc = () => {
-		// close the popup
-		setShowHoverPopup(false)
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		const currentContent = textContent.current
-		const insertPos = s.to
-		const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
-		try {
-			let result = new Function(`return ${selectionTxt}`)()
-			let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
-			generateTextAt(p)
-		} catch (err) {
-			getApi( api => {
-				api.ui.notification.emit({
-					content: `[CALC] Error <br/> "${err}"`
-				})
-			})
-		}
+	// const triggerCalc = () => {
+	// 	// close the popup
+	// 	setShowHoverPopup(false)
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	const currentContent = textContent.current
+	// 	const insertPos = s.to
+	// 	const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
+	// 	try {
+	// 		let result = new Function(`return ${selectionTxt}`)()
+	// 		let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
+	// 		generateTextAt(p)
+	// 	} catch (err) {
+	// 		getApi( api => {
+	// 			api.ui.notification.emit({
+	// 				content: `[CALC] Error <br/> "${err}"`
+	// 			})
+	// 		})
+	// 	}
 
-	}
+	// }
 
 	const CodeMirrorEl = useMemo(() => {
 	// const CodeMirrorEl = () => {
@@ -705,12 +712,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	return (
 		<>
-			<div className="codemirror-popup-cursor" style={{left: `${popupPosition.x - 20}px`, top: `${popupPosition.y - 40}px`}}>
+			{/* <div className="codemirror-popup-cursor" style={{left: `${popupPosition.x - 20}px`, top: `${popupPosition.y - 40}px`}}>
 				woop
-			</div>
+			</div> */}
 
 			{/* HOVER POPUP*/}
-			{showHoverPopup &&
+			{/* {showHoverPopup &&
 				<div
 					className={`cm-hover-popup cm-selection-popup`}
 					style={{ left: `${hoverPopupPos[0]}px`, top: `${hoverPopupPos[1]}px`, }}
@@ -741,7 +748,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					}
 					
 				</div>
-			}
+			} */}
 
 			{/* CM WRAPPER*/}
 			<div

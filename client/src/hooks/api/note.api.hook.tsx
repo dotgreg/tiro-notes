@@ -6,7 +6,7 @@ import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 
 export interface iEditorAction {
 	windowId?: string
-	type: "lineJump" | "insertText" | "searchWord" | "setSelection"
+	type: "lineJump" | "insertText" | "searchWord" | "setSelection" | "triggerAiSearch"
 
 	lineJumpNb?: number
 	lineJumpString?: string

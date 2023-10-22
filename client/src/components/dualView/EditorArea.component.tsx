@@ -13,14 +13,14 @@ import { isTextEncrypted } from '../../managers/encryption.manager';
 import { strings } from '../../managers/strings.manager';
 import { FileHistoryPopup } from '../FileHistoryPopup.component';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
-import { NoteMobileToolbar } from './NoteToolbar.component';
+import { NoteToolsPopup } from './NoteToolbar.component';
 import { Dropdown } from '../Dropdown.component';
 import { iUploadType, UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
-import { CodeMirrorEditor, iCMEvent, iCMPluginConfig } from './CodeMirrorEditor.component';
+import { CodeMirrorEditor, iCMEvent, iCMPluginConfig, iCursorInfos } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { openExportFilePopup } from '../../managers/print-pdf.manager';
@@ -32,6 +32,7 @@ import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
 import { title } from 'process';
+import { triggerAiSearch } from '../../managers/ai.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -452,7 +453,7 @@ const EditorAreaInt = (
 		})
 	}
 
-	const [cursorPopupPosition, setCursorPopupPosition] = useState<{x:number, y:number}>({x:0, y:0})
+	const [cursorInfos, setCursorInfos] = useState<iCursorInfos>({x:0, y:0, from:0, to:0})
 	
 
 
@@ -614,25 +615,23 @@ const EditorAreaInt = (
 					<CodeMirrorEditor
 						windowId={p.windowId}
 						ref={codeMirrorEditorView}
-
+						file={p.file}
+						pluginsConfig={p.pluginsConfig}
 						value={innerFileContent}
+						posY={p.posY}
+						jumpToLine={jumpToLine || 0}
+						forceRender={cmRender}
+
+
 						onChange={(v) => { 
 							updateLastNotes()
 							triggerNoteEdition(v) 
 						}}
-
-						posY={p.posY}
-
-						jumpToLine={jumpToLine || 0}
-
-						forceRender={cmRender}
 						onEvent={onCMEvent}
 						onScroll={p.onScroll}
 						onTitleClick={p.onTitleClick}
-						onCursorMove={(c) => {setCursorPopupPosition(c)}}	
+						onCursorMove={c => {setCursorInfos(c)}}	
 
-						file={p.file}
-						pluginsConfig={p.pluginsConfig}
 					/>
 				}
 
@@ -652,16 +651,28 @@ const EditorAreaInt = (
 
 			{
 				// BOTTOM MOBILE TOOLBAR
-				deviceType() !== 'desktop' &&
-				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: cursorPopupPosition.y - 50, left: cursorPopupPosition.x  }}>
-					<NoteMobileToolbar
-						// bottom={bottomMobileToolbar}
+				// deviceType() !== 'desktop' &&
+				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: cursorInfos.y - 50, left: cursorInfos.x  }}>
+					<NoteToolsPopup
+						cursorInfos={cursorInfos}
 						onButtonClicked={action => {
-							let updatedText = applyTextModifAction(action)
-							if (updatedText) {
-								updateLastNotes()
-								triggerNoteEdition(updatedText)
-								forceCmRender()
+							if (action === "aiSearch") {
+								// console.log("AI SEARCH", cursorInfos)
+								let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
+								triggerAiSearch({
+									windowId: p.windowId,
+									file: p.file,
+									fileContent: innerFileContent,
+									selectionTxt,
+									insertPos: cursorInfos.to
+								})
+							} else {
+								let updatedText = applyTextModifAction(action)
+								if (updatedText) {
+									updateLastNotes()
+									triggerNoteEdition(updatedText)
+									forceCmRender()
+								}
 							}
 						}}
 					/>
