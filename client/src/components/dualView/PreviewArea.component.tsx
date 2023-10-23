@@ -100,7 +100,6 @@ export const PreviewArea = (p: {
 			onWheelCapture={(e) => {
 				// @ts-ignore
 				//syncScroll2.syncPreviewOffset(p.windowId)
-				console.log(11111111)
 				syncScroll3.onPreviewScroll(p.windowId)
 			}}
 		>

@@ -350,7 +350,7 @@ export const FloatingPanelsWrapper = (p:{
     const handleDeminimize = (panel:iFloatingPanel) => {
         panel.status = "visible"
         handleUpdatePanels(panel)
-        console.log("deminimize", panel.id)
+        // console.log("deminimize", panel.id)
         getApi(api => {
             api.ui.floatingPanel.pushWindowOnTop(panel.id)
             api.ui.floatingPanel.updateOrderPosition(panel.id, "first")

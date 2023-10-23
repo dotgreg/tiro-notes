@@ -456,15 +456,17 @@ const EditorAreaInt = (
 
 	const onScroll = (e: any) => {
 		p.onScroll(e)
-		setCursorInfos({x:0, y:0, from:0, to:0, fromPx:-9999, toPx:-9999})
+		setCursorInfos({x:-9999, y:-9999, from:0, to:0, fromPx:-9999, toPx:-9999})
 	}
 	// hover popup positionning
 	const [cursorInfos, setCursorInfos] = useState<iCursorInfos>({x:0, y:0, from:0, to:0, fromPx:0, toPx:0})
 	let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
 
-	let posNoteToolPopup = deviceType() === "desktop" ? cursorInfos.y - 70 : cursorInfos.y - 70
-	// if (selectionTxt.length > 0) posNoteToolPopup = cursorInfos.from
-	console.log(222222, posNoteToolPopup)
+	const editorWrapperId = `.window-id-${p.windowId}`
+	const windowIdTop = document.getElementById(editorWrapperId)?.getBoundingClientRect().top || 0
+	const windowIdTop2 = editorWrapperEl.current?.getBoundingClientRect().top || 0
+	let posNoteToolPopup = cursorInfos.y - windowIdTop
+	posNoteToolPopup = deviceType() === "mobile" ? posNoteToolPopup - 40 : posNoteToolPopup
 
 
 	return (

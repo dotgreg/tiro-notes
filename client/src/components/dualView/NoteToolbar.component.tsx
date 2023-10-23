@@ -87,14 +87,10 @@ export const NoteToolsPopup = (p: {
 
 export const mobileNoteToolbarCss = () => `
 .mobile-text-manip-toolbar-wrapper {
-	// position: absolute;
-	// // transform: translate(0%, 100%);
-  // width: 100%;
-  // z-index: 100;
-  pointer-events: none;
-  position: absolute;
+    pointer-events: none;
+    position: absolute;
     width: 100%;
-    z-index: 100;
+    // z-index: 100;
     display: flex;
     justify-content: flex-end;
 }
@@ -122,8 +118,6 @@ export const mobileNoteToolbarCss = () => `
 
     .mobile-text-manip-toolbar {
       pointer-events: all;
-      // position: absolute;
-      // left: 0px;
       margin-right:10px;
       transform: scale(0.9);
       background: #fff;
@@ -161,8 +155,12 @@ export const mobileNoteToolbarCss = () => `
       }
 
       &.closed {
-        opacity: 0.4;
+        opacity: 0.2;
+        background: none;
+        box-shadow: none;
         &:hover {
+          background: #fff;
+          box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);
           opacity: 1;
         }
       }
