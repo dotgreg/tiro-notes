@@ -185,7 +185,7 @@ const onPreviewScroll = (wid: string) => {
 	
 	updatePreviewOffset(wid, previewY)
 	c.posPercent = (previewY / (c.dims.preview.full)) * 100
-	console.log(h, "onPreviewScroll", previewY, c.dims.preview.full, c.posPercent);
+	// console.log(h, "onPreviewScroll", previewY, c.dims.preview.full, c.posPercent);
 
 	scrollEditor(wid, c.posPercent)
 	scrollScroller(wid, c.posPercent)

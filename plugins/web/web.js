@@ -120,7 +120,7 @@ const webCtagApp = (innerTagStr, opts) => {
                         zoomIframe += zoomval
                         // let SizeMultiplier = 100 + ((zoomIframe - 1)*-10*17)
                         let SizeMultiplier = 100 / zoomIframe
-                        console.log(SizeMultiplier, zoomIframe)
+                        // console.log(SizeMultiplier, zoomIframe)
                         iframe.style.transform = `scale(${zoomIframe})`
                         iframe.width = `${SizeMultiplier}%`
                         iframe.style.height = `${SizeMultiplier}vh`

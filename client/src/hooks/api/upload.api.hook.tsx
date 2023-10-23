@@ -46,12 +46,12 @@ export const useUploadApi = (p: {
 	// FUNCTIONS
 	// 
 	const uploadFile: iUploadApi['uploadFile'] = (p2, cb) => {
-		console.log(111, "try UPLOAD", p2)
+		// console.log(111, "try UPLOAD", p2)
 		try {
 			const idReq = genIdReq('upload-file');
 			// 1. add a listener function
 			eventBus.subscribe(idReq, answer => {
-				console.log(123, "SUCCESS UPLOAD", answer)
+				// console.log(123, "SUCCESS UPLOAD", answer)
 				delete answer.idReq
 				if (p2.onSuccess) p2.onSuccess(answer)
 				if (cb) cb({message:"success", succesObj:answer})
