@@ -1,4 +1,4 @@
-import React, { useState }  from 'react';
+import React, { useEffect, useState }  from 'react';
 import { TextModifAction, calcSelected, seemsArithmetic, wordsCount } from '../../managers/textEditor.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
@@ -10,25 +10,38 @@ import { deviceType } from '../../managers/device.manager';
 //
 // MOBILE TOOLBAR
 //
+export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-"
 
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
   selection: string,
-	onButtonClicked: (action: TextModifAction | "aiSearch" | "calc") => void
+	onButtonClicked: (action: iActionsNoteToolbar) => void
 }) => {
   // if (!p.bottom) p.bottom = 140
   // let bottom = p.bottom || 140
   const [isOpen, setIsOpen] = useState(false)
 
+  const [popupTransparent, setPopupTransparent] = useState(false)
+	useEffect(() => {
+		if (isOpen) setPopupTransparent(true)
+	}, [p.cursorInfos.y])
+
+  const onButtonClicked = (action: iActionsNoteToolbar) => {
+    setPopupTransparent(false)
+    p.onButtonClicked(action)
+  }
+
   const btnsConfigOpen:iToolbarButton[] =  [
-    { icon: 'faAngleLeft', action: () => p.onButtonClicked('<-') },
-    { icon: 'faAngleRight', action: () => p.onButtonClicked('->') },
-    { icon: 'faCheckSquare', action: () => p.onButtonClicked('[x]') },
-    { icon: 'faAngleUp', action: () => p.onButtonClicked('^') },
-    { icon: 'faAngleDown', action: () => p.onButtonClicked('v') },
-    { icon: 'faEraser', action: () => p.onButtonClicked('X') },
-    { icon: 'faClone', action: () => p.onButtonClicked('C') },
-    { icon: 'faCircle', action: () => {setIsOpen(false)}, class: 'separator' },
+    { icon: 'faUndo', action: () => onButtonClicked('undo') },
+    { icon: 'faRedo', action: () => onButtonClicked('redo') },
+    { icon: 'faAngleLeft', action: () => onButtonClicked('<-') },
+    { icon: 'faAngleRight', action: () => onButtonClicked('->') },
+    { icon: 'faCheckSquare', action: () => onButtonClicked('[x]') },
+    { icon: 'faAngleUp', action: () => onButtonClicked('^') },
+    { icon: 'faAngleDown', action: () => onButtonClicked('v') },
+    { icon: 'faEraser', action: () => onButtonClicked('X') },
+    { icon: 'faClone', action: () => onButtonClicked('C') },
+    { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
   ]
 
    // if selection, push ai button at the second position
@@ -58,7 +71,7 @@ export const NoteToolsPopup = (p: {
   btnsConfigClosed.push({ icon: 'faCircle', action: () => setIsOpen(true) })
 
 	return <div 
-    className={`mobile-toolbar-wrapper device-${deviceType()}`}
+    className={`mobile-toolbar-wrapper device-${deviceType()} ${isOpen ? 'open' : 'closed'} ${popupTransparent ? 'popup-transparent' : ''}`}
   >
     { !isOpen &&
     // <div className='note-toolbar-closed-icon' onClick={() => setIsOpen(true)}>
@@ -87,14 +100,16 @@ export const NoteToolsPopup = (p: {
 
 export const mobileNoteToolbarCss = () => `
 .mobile-text-manip-toolbar-wrapper {
-    pointer-events: none;
-    position: absolute;
-    width: 100%;
-    // z-index: 100;
-    display: flex;
-    justify-content: flex-end;
+  
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+  // z-index: 100;
+  display: flex;
+  justify-content: flex-end;
 }
 .mobile-text-manip-toolbar {
+ 
 		.toolbar-button {
 				padding: 13px 20px;
 		}
@@ -113,7 +128,9 @@ export const mobileNoteToolbarCss = () => `
 }
 
   .mobile-toolbar-wrapper {
-    
+    &.popup-transparent {
+      opacity: 0.4;
+    }
 
 
     .mobile-text-manip-toolbar {

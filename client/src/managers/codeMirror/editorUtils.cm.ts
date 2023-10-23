@@ -7,6 +7,8 @@ import { cloneDeep, each } from "lodash";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
 import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"
+// import {undo, redo} from "@codemirror/history"
+import { undo, redo } from "@codemirror/commands";
 
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { perf } from "../performance.manager";
@@ -365,6 +367,32 @@ const setSelection = (CMObj: ReactCodeMirrorRef | null, selection: iEditorSelect
 	
 }
 
+// const undo2 = (CMObj: ReactCodeMirrorRef | null) => {
+// 	if (!CMObj?.view) return
+// 	try {
+// 		const view = CMObj.view
+// 		// view.dispatch()
+// 		// undoInt(CMObj)
+// 		// view.dispatch(undoInt)
+// 		// undoInt(CMObj.state, (tr:any) => {})
+// 		// view.dispatch({ effects: undoInt })
+// 		if (!view) return
+// 		// CMObj.view.dispatch({ effects: undoInt({state:CMObj.state, dispatch:}) });
+// 		// undoInt(CMObj.state, (tr:any) => {
+// 		// 	CMObj.view.dispatch(tr)
+// 		// })
+
+// 		// @ts-ignore
+// 		// undo({state: CMObj.state, dispatch: CMObj.view.dispatch}
+// 		console.log(123)
+// 		undo(CMObj.view)
+
+// 	} catch (error) {
+// 		console.log("[CM utils > undo] error:", error)
+// 	}
+// }
+
+
 
 export const CodeMirrorUtils = {
 	getEditorInfos,
@@ -381,6 +409,8 @@ export const CodeMirrorUtils = {
 	unfoldAllChildren,
 
 	searchWord,
-	setSelection
+	setSelection,
+	undo,
+	redo
 
 }
