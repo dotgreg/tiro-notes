@@ -30,6 +30,7 @@ import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "l
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 import { notifLog } from "../../managers/devCli.manager";
+import { history } from "@codemirror/history";
 
 
 const h = `[Code Mirror]`
@@ -371,6 +372,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
+
+			// newcodemirrorExtensions.push(history())
 		})
 	}, [p.pluginsConfig, p.windowId, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
 	
@@ -693,6 +696,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				allowMultipleSelections: false,
 				indentOnInput: false,
 				closeBrackets: false,
+				history:true, 
 				bracketMatching: false,
 				lineNumbers: false,
 			}}

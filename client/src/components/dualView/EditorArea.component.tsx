@@ -435,6 +435,19 @@ const EditorAreaInt = (
 			CodeMirrorUtils.setSelection(f,a.selection)
 
 		}
+		if (a.type === "undo") {
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			console.log("undo")
+			CodeMirrorUtils.undo(f.view)
+		}
+		if (a.type === "redo") {
+			const f = codeMirrorEditorView.current
+			console.log(f, f.view)
+			if (!f) return
+			console.log("redo")
+			CodeMirrorUtils.redo(f.view)
+		}
 
 	}, [p.editorAction, p.windowId])
 
@@ -466,8 +479,9 @@ const EditorAreaInt = (
 	const windowIdTop = document.getElementById(editorWrapperId)?.getBoundingClientRect().top || 0
 	const windowIdTop2 = editorWrapperEl.current?.getBoundingClientRect().top || 0
 	let posNoteToolPopup = cursorInfos.y - windowIdTop
-	posNoteToolPopup = deviceType() === "mobile" ? posNoteToolPopup - 40 : posNoteToolPopup
+	posNoteToolPopup = deviceType() === "desktop" ? posNoteToolPopup - 60: posNoteToolPopup - 30
 
+	
 
 	return (
 		<div
@@ -685,6 +699,18 @@ const EditorAreaInt = (
 									fileContent: innerFileContent,
 									selectionTxt,
 									insertPos: cursorInfos.to
+								})
+							} else if (action === "undo") {
+								getApi(api => {
+									api.ui.note.editorAction.dispatch({
+										type:"undo"
+									})
+								})
+							} else if (action === "redo") {
+								getApi(api => {
+									api.ui.note.editorAction.dispatch({
+										type:"redo"
+									})
 								})
 							} else {
 								let updatedText = applyTextModifAction(action)
