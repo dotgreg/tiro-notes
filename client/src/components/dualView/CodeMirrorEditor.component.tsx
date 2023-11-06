@@ -31,6 +31,7 @@ import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 import { notifLog } from "../../managers/devCli.manager";
 import { history } from "@codemirror/history";
+// import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
 const h = `[Code Mirror]`
@@ -353,10 +354,35 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					newcodemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
+					// matcherStateField(newcodemirrorExtensions, /!\[([^\]]*)\]\(([^\)]*)\)/g, (matchs) => {
 					newcodemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
 					newcodemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 				}
 			}
+
+			
+			// const f = getEditorObj()
+			// if (f && f.view) {
+			// 	let view = f.view
+			// 	// let ext = matcherStateField(
+			// 	// 	view,
+			// 	// 	/hello/gim,
+			// 	// 	match => { return document.createElement('span').innerText = 'world' },
+			// 	// 	// 'windowId'
+			// 	// )
+			
+			// 	// newcodemirrorExtensions.push(ext.createDeco(view))
+
+			// 	// let editorView; // Assume it's your EditorView instance
+			// 	let myRegex = /hello/g;
+			// 	let myHTML = "<span style='color:red'>Replacement HTML</span>";
+
+			// 	let myDecorations = createDecoration(view, myRegex, myHTML);
+			// 	// EditorView.decorations.of(myDecorations)
+			// 	// view.dispatch({
+			// 	// 	effects: Decoration
+			// 	// });
+			// }
 
 
 			if (!disablePlugins && pluginsConfig.markdown) {

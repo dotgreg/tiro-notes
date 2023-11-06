@@ -1,3 +1,4 @@
+import { getApi } from "../hooks/api/api.hook";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
 import { clientSocket, clientSocket2 } from "./sockets/socket.manager";
 
@@ -7,6 +8,45 @@ export interface iUploadedFile {
 }
 
 var siofu = require("socketio-file-upload");
+
+//
+// MAIN UPLOAD FUNCTION
+//
+export const uploadFileToEditor = (p:{fileToUpload: File, folder:string, windowId:string}) => {
+	const { fileToUpload, folder, windowId } = { ...p }
+	getApi(api => {
+		api.upload.uploadFile({
+			file: fileToUpload,
+			folderPath: folder,
+			onSuccess: nUpFile => {
+				// console.log(3333333, res, fileToUpload, folder)
+				// setUploadedFile(nUpFile)
+				const fileMdStr = `![${nUpFile.name}](${nUpFile.path})\n`
+				console.log("inserting file", fileMdStr)
+				api.ui.note.editorAction.dispatch({
+					type: "insertText", 
+					insertText: fileMdStr,
+					windowId: windowId
+				})	
+			},
+			onProgress: res => {
+				api.ui.note.editorAction.dispatch({
+					type: "uploadProgress", 
+					uploadProgress: res,
+					windowId: windowId
+				})	
+				// const nCtx = cloneDeep(gridContext)
+				// delete nCtx.upload.file
+				// console.log("[UPLOAD] progress", res)
+				// if(!nCtx.upload.markdownFile) nCtx.upload.markdownFile = mdFile
+				// nCtx.upload.progress = res
+				// setGridContext(nCtx)
+				// console.log(12333, res)
+				// setUploadPercent(res)
+			}
+		})
+	})
+}
 
 //
 // MAIN UPLOAD FUNCTION

@@ -32,6 +32,7 @@ export const NoteToolsPopup = (p: {
   }
 
   const btnsConfigOpen:iToolbarButton[] =  [
+    { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
     { icon: 'faUndo', action: () => onButtonClicked('undo') },
     { icon: 'faRedo', action: () => onButtonClicked('redo') },
     { icon: 'faAngleLeft', action: () => onButtonClicked('<-') },
@@ -41,12 +42,11 @@ export const NoteToolsPopup = (p: {
     { icon: 'faAngleDown', action: () => onButtonClicked('v') },
     { icon: 'faEraser', action: () => onButtonClicked('X') },
     { icon: 'faClone', action: () => onButtonClicked('C') },
-    { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
   ]
 
    // if selection, push ai button at the second position
   const btnsConfigClosed:iToolbarButton[] = []
-  
+  btnsConfigClosed.push({ icon: 'faCircle', action: () => setIsOpen(true) })
   if (p.selection.length > 0) {
     let isMath = seemsArithmetic(p.selection)
     let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='numbers-preview-wrapper'><i className='fa fa-chart-line'></i><span className='numbers-preview'>{wordsCount(p.selection)}</span></div>}
@@ -64,11 +64,11 @@ export const NoteToolsPopup = (p: {
     let mathBtn2 = {...mathBtn}
     mathBtn2.class = 'separator-right'
     // btnsConfigOpen.splice(2, 0, mathBtn2)
-    btnsConfigOpen.unshift(mathBtn2)
-    btnsConfigOpen.unshift(aiBtn)
+    btnsConfigOpen.push(mathBtn2)
+    btnsConfigOpen.push(aiBtn)
 
   }
-  btnsConfigClosed.push({ icon: 'faCircle', action: () => setIsOpen(true) })
+  
 
 	return <div 
     className={`mobile-toolbar-wrapper device-${deviceType()} ${isOpen ? 'open' : 'closed'} ${popupTransparent ? 'popup-transparent' : ''}`}
@@ -101,6 +101,7 @@ export const NoteToolsPopup = (p: {
 export const mobileNoteToolbarCss = () => `
 .mobile-text-manip-toolbar-wrapper {
   
+  
   pointer-events: none;
   position: absolute;
   width: 100%;
@@ -109,6 +110,7 @@ export const mobileNoteToolbarCss = () => `
   justify-content: flex-end;
 }
 .mobile-text-manip-toolbar {
+   
  
 		.toolbar-button {
 				padding: 13px 20px;
@@ -134,9 +136,11 @@ export const mobileNoteToolbarCss = () => `
 
 
     .mobile-text-manip-toolbar {
+      width: 10px;
+      flex-direction: column;
       pointer-events: all;
-      margin-right:10px;
-      transform: scale(0.9);
+      margin-right:20px;
+      
       background: #fff;
       border-radius: 10px;
       display: flex;
@@ -146,7 +150,7 @@ export const mobileNoteToolbarCss = () => `
       align-content: center;
       justify-content: center;
       align-items: center;
-      height: ${cssVars.sizes.mobile.editorBar}px;
+      // height: ${cssVars.sizes.mobile.editorBar}px;
       &:hover {
         opacity: 1;
       }
@@ -159,10 +163,10 @@ export const mobileNoteToolbarCss = () => `
         padding: 3px 5px;     
       }
       .separator {
-        margin-left: 8px;
+        // margin-left: 8px;
       }
       .separator-right {
-        margin-right: 8px;
+        // margin-right: 8px;
       }
 
       li {
@@ -187,6 +191,7 @@ export const mobileNoteToolbarCss = () => `
 
     &.device-mobile {
       .mobile-text-manip-toolbar {
+        transform: scale(0.9);r
         opacity: 1;
         &.closed {
           opacity: 0.2;
@@ -196,7 +201,7 @@ export const mobileNoteToolbarCss = () => `
         } 
         transform: scale(1);
         .toolbar-button {
-          padding: 12px;     
+          // padding: 12px;     
         }
       }
     }

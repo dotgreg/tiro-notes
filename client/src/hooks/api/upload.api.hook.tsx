@@ -19,7 +19,8 @@ export interface iUploadApi {
 	) => void
 }
 
-export type onUploadSuccessFn = (p: { path: string, name: string }) => void
+export type iUploadedFileInfos = { path: string, name: string }
+export type onUploadSuccessFn = (p: iUploadedFileInfos) => void
 export type onUploadProgressFn = (percentUpload: number) => void
 export type onUploadCallback = (p:{
 	message: "progress" | "success", 

@@ -27,7 +27,7 @@ import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean, isNumber, isString, random } from 'lodash';
+import { each, isBoolean, isNumber, isString, random, set } from 'lodash';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
@@ -184,40 +184,41 @@ const EditorAreaInt = (
 	})
 
 	
+	const gridContext = useContext(GridContext)
+	const [progressUpload, setProgressUpload] = useState(-1)
 	//
 	// MANAGE UPLOAD / PROGRESS
 	//
-	const gridContext = useContext(GridContext)
-	const [progressUpload, setProgressUpload] = useState(-1)
-	useEffect(() => {
-		if (gridContext.upload.progress && p.isActive) {
-			setProgressUpload(gridContext.upload.progress)
-		}
-		if (gridContext.upload.file && p.isActive) {
-			const { name, path } = { ...gridContext.upload.file }
-			gridContext.upload.reinit();
-			insertImage(name, path)
-		}
-	}, [gridContext.upload])
+	// useEffect(() => {
+	// 	// console.log(122333, p.file.path, gridContext.upload.markdownFile?.path, gridContext.upload.progress)
+	// 	if (gridContext.upload.progress && p.file.path === gridContext.upload.markdownFile?.path) {
+	// 		setProgressUpload(gridContext.upload.progress)
+	// 	}
+	// 	if (gridContext.upload.file && p.file.path === gridContext.upload.markdownFile?.path) {
+	// 		const { name, path } = { ...gridContext.upload.file }
+	// 		gridContext.upload.reinit();
+	// 		insertImage(name, path)
+	// 	}
+	// }, [gridContext.upload])
 
 
-	//
-	// IMAGE INSERTION
-	//
-	const insertImage = (name: string, path: string) => {
-		stringToInsertUpload.current += `![${name}](${path})\n`
-		debouncedUploadInsert()
-	}
-	const stringToInsertUpload = useRef('')
-	const debouncedUploadInsert = useDebounce(() => {
-		const f = codeMirrorEditorView.current
-		if (!f) return
-		const cPos = CodeMirrorUtils.getCurrentLineInfos(f)?.currentPosition
-		if (!isNumber(cPos)) return
-		insertTextAt(stringToInsertUpload.current, 'currentPos')
-		stringToInsertUpload.current = ''
-		CodeMirrorUtils.updateCursor(f, cPos, true)
-	}, 500)
+	// //
+	// // IMAGE INSERTION
+	// //
+	// const insertImage = (name: string, path: string) => {
+	// 	stringToInsertUpload.current += `![${name}](${path})\n`
+	// 	debouncedUploadInsert()
+	// }
+	// const stringToInsertUpload = useRef('')
+	// const debouncedUploadInsert = useDebounce(() => {
+	// 	const f = codeMirrorEditorView.current
+	// 	if (!f) return
+	// 	const cPos = CodeMirrorUtils.getCurrentLineInfos(f)?.currentPosition
+	// 	if (!isNumber(cPos)) return
+	// 	insertTextAt(stringToInsertUpload.current, 'currentPos')
+	// 	stringToInsertUpload.current = ''
+	// 	CodeMirrorUtils.updateCursor(f, cPos, true)
+	// }, 500)
 
 
 
@@ -231,12 +232,15 @@ const EditorAreaInt = (
 			action: () => { },
 			customHtml: <UploadButton
 				file={p.file}
+				windowId={p.windowId}
 				type={type}
 				label={label}
-				onProgress={p => (setProgressUpload(p))}
-				onSuccess={p => {
-					insertImage(p.name, p.path)
-				}}
+				// onProgress={p => (
+				// 	setProgressUpload(p))
+				// }
+				// onSuccess={p => {
+				// 	insertImage(p.name, p.path)
+				// }}
 			/>
 		}
 	}
@@ -448,6 +452,9 @@ const EditorAreaInt = (
 			console.log("redo")
 			CodeMirrorUtils.redo(f.view)
 		}
+		if (a.type === "uploadProgress") {
+			setProgressUpload(a.uploadProgress || -1)
+		}
 
 	}, [p.editorAction, p.windowId])
 
@@ -476,12 +483,19 @@ const EditorAreaInt = (
 	let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
 
 	const editorWrapperId = `.window-id-${p.windowId}`
-	const windowIdTop = document.getElementById(editorWrapperId)?.getBoundingClientRect().top || 0
-	const windowIdTop2 = editorWrapperEl.current?.getBoundingClientRect().top || 0
+	// console.log(editorWrapperId, document.querySelector(editorWrapperId), document.querySelector(editorWrapperId)?.getBoundingClientRect().top )
+	const windowIdTop = document.querySelector(editorWrapperId)?.getBoundingClientRect().top || 0
+	// const windowIdTop2 = editorWrapperEl.current?.getBoundingClientRect().top || 0
 	let posNoteToolPopup = cursorInfos.y - windowIdTop
-	posNoteToolPopup = deviceType() === "desktop" ? posNoteToolPopup - 60: posNoteToolPopup - 30
-
+	// let posNoteToolPopup = cursorInfos.y 
+	// posNoteToolPopup = deviceType() === "desktop" ? posNoteToolPopup + 60: posNoteToolPopup - 30
 	
+	let notePopupX = deviceType() === "desktop" ? 40 : 10
+	let notePopupY = deviceType() === "desktop" ? 0 : 10
+	// console.log(posNoteToolPopup, windowIdTop)
+	// posNoteToolPopup = 40
+
+	// notePopupX = posNoteToolPopup
 
 	return (
 		<div
@@ -678,7 +692,7 @@ const EditorAreaInt = (
 			{
 				// BOTTOM MOBILE TOOLBAR
 				// deviceType() !== 'desktop' &&
-				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: posNoteToolPopup, left: 0  }}>
+				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: notePopupX, left: notePopupY  }}>
 					<NoteToolsPopup
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}

@@ -213,6 +213,7 @@ export const FloatingPanel = (p:{
                 onDrag={handleDrag}
                 onStop={handleStop}>
                 <Resizable
+                    boundsByDirection={true}
                     className='floating-panel'
                     size={p.panel.size}
                     onResize={handleResize}
@@ -282,7 +283,7 @@ export const FloatingPanel = (p:{
                                         
                                         <NotePreview
                                             file={p.panel.file}
-                                            height={p.panel.size.height - 30}
+                                            height={p.panel.size.height}
                                             view={p.panel.view || "editor"}
                                             titleEditor={"disabled"}
                                             onLayoutUpdate={onLayoutUpdate}
@@ -520,7 +521,11 @@ export const FloatingPanelCss = () => `
 //
 // PANEL
 //
+// resizing handles
+.floating-panel__wrapper + div > div {    z-index: 100000;}
+
 .floating-panels-wrapper {
+    
    
     position: absolute;
     top: 0;
@@ -578,6 +583,7 @@ export const FloatingPanelCss = () => `
             }
             .floating-panel__content {
                 // overflow-y: auto;
+                // overflow: hidden;
                 position: absolute;
                 top:0px;
                 left: 0px;
@@ -696,9 +702,9 @@ export const FloatingPanelCss = () => `
     margin: 0px 0px 0px 4px;
     border-radius: 7px;
     height: 24px;
-
+    width: 5vw;
     display: flex;
-    width: 10vw;
+    font-size:10px;
     overflow: hidden;
     align-content: center;
     justify-content: space-around;
@@ -710,7 +716,7 @@ export const FloatingPanelCss = () => `
         background: #f0f0f0;
     }
     .label {
-        margin-top: 4px;
+        margin-top: 5px;
         height: 14px;
         overflow: hidden;
     }
