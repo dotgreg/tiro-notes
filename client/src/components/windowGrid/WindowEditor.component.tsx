@@ -9,6 +9,11 @@ import { getNoteView } from '../../managers/windowViewType.manager';
 import { DualViewer } from '../dualView/DualViewer.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
+import { simpleTextDiff } from '../../managers/string.manager';
+import { handleImagePaste } from '../../managers/clipboard.manager';
+import { handleFileDrop } from '../../managers/dragDrop.manager';
+import { iUploadedFileInfos } from '../../hooks/api/upload.api.hook';
+import { uploadFileToEditor } from '../../managers/upload.manager';
 
 
 export const WindowEditorInt = (p: {
@@ -108,47 +113,112 @@ export const WindowEditorInt = (p: {
 	// disabled as it is erase new edit made on other computers
 	// to make it working, it should keep its edition timestamp and compare it to the server version
 	// @to implement later on
+	useEffect(() => {
+		let offlineCt = contentToUpdateOnceOnline.current
+		getApi(api => {
+			api.watch.appStatus(status => {
+				if (status.isConnected === false) {
+					disconnectCounter.current = disconnectCounter.current + 1
+					console.log("disabling watch update as disconnected");
+					disableWatchUpdate.current = true
+				} else if (status.isConnected === true) {
+					let isReconnected = disconnectCounter.current >= 1 && status.isConnected
+					if (isReconnected) {
+						disableFor10sWatchFile()
+						
+						getApi(api => {
+							let filepath: any = file?.path
+							// offlineCt = contentToUpdateOnceOnline.current
+							// console.log("2 RECONNECTION", filepath, ct, contentToUpdateOnceOnline);
+							// console.log("RECONNECTION", file?.path, offlineCt, offlineCt.path)
+							// if (!filepath || !offlineCt) return
+							// if (!offlineCt.path) return
+							// if (filepath !== offlineCt.path) return
+							// if (!offlineCt.content) return
+							// console.log("3 UPDATE OFFLINE CONTENT", { filepath, content });
+
+							// if no offlineCt, discard it to current conten 
+
+							// console.log(11111111, filepath)
+							api.file.getContent(filepath, nServerContent => {
+								if (nServerContent === fileContentRef.current) return console.log("[BACK FROM OFFLINE]: same content, no need to update", filepath)
+								console.log("[BACK FROM OFFLINE]: DIFFERENT CONTENT",filepath,{nServerContent, content:  fileContentRef.current})
+								api.popup.prompt({
+									text: `<div class="content-different-preview"> Server content is different for <b>"${file?.path}"</b>, do you want to update it ?  
+									You can still come back to the current version using file history if needed. <br>
+									<br> <div class="content-different-preview-inner"> ${simpleTextDiff(fileContentRef.current, nServerContent).replaceAll("\n","<br>")}</div>
+									</div>`,
+									acceptLabelButton: "Update to new version",
+									refuseLabelButton: "Keep current version",
+									onAccept: () => {
+										if (!file?.path) return
+										setFileContent(nServerContent)
+										onFileEditedSaveIt(file?.path, nServerContent);
+										// if (!createdFolderName || createdFolderName === '') return
+										// p.onFolderMenuAction('create', p.folder, createdFolderName)
+									},
+									onRefuse: () => { }
+								});
+							})
+
+						// 	api.popup.prompt({
+						// 		text: `<div class="content-different-preview"> Server content is different for <b>"${file?.path}"</b>, do you want to update it ?  
+						// 		You can still come back to the current version using file history if needed. <br>
+						// 		<h2>New Remote content</h2> <br> ${nServerContent.replaceAll("\n","<br>")} <br>
+						// 		<h2>Modified content</h2> <br> ${simpleTextDiff(fileContentRef.current, nServerContent).replaceAll("\n","<br>")}
+						// 		</div>`,
+						// 		acceptLabelButton: "Update to new version",
+						// 		refuseLabelButton: "Keep current version",
+						// 		onAccept: () => {
+						// 			if (!file?.path) return
+						// 			setFileContent(nServerContent)
+						// 			onFileEditedSaveIt(file?.path, nServerContent);
+						// 			// if (!createdFolderName || createdFolderName === '') return
+						// 			// p.onFolderMenuAction('create', p.folder, createdFolderName)
+						// 		},
+						// 		onRefuse: () => { }
+						// 	});
+						// })
+
+							// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
+							// api.file.saveContent(filepath, content, { history: true })
+							// setTimeout(() => {
+							// 	api.file.saveContent(filepath, content, { history: true })
+							// 	setTimeout(() => {
+							// 		api.file.saveContent(filepath, content, { history: true })
+							// 		setTimeout(() => {
+							// 			api.file.saveContent(filepath, content, { history: true })
+							// 		}, 100)
+							// 	}, 10)
+							// }, 10)
+
+						})
+					}
+				}
+			})
+		})
+		
+	}, [file?.path, fileContent])
+
+	const fileContentRef = useRef<string>(fileContent)
+	useEffect(() => {
+		fileContentRef.current = fileContent
+	}, [fileContent])
+
 	// useEffect(() => {
-	// 	let ct = contentToUpdateOnceOnline.current
+	// 	if (!fileContent) return
 	// 	getApi(api => {
-	// 		api.watch.appStatus(status => {
-	// 			if (status.isConnected === false) {
-	// 				disconnectCounter.current = disconnectCounter.current + 1
-	// 				console.log("disabling watch update as disconnected");
-	// 				disableWatchUpdate.current = true
-	// 			} else if (status.isConnected === true) {
-	// 				let isReconnected = disconnectCounter.current >= 1 && status.isConnected
-	// 				if (isReconnected) {
-	// 					disableFor10sWatchFile()
-
-	// 					getApi(api => {
-	// 						let filepath: any = file?.path
-	// 						ct = contentToUpdateOnceOnline.current
-	// 						// console.log("2 RECONNECTION", filepath, ct, contentToUpdateOnceOnline);
-	// 						if (!filepath || !ct) return
-	// 						if (!ct.path) return
-	// 						if (filepath !== ct.path) return
-	// 						if (!ct.content) return
-	// 						let content = ct.content
-	// 						console.log("3 UPDATE OFFLINE CONTENT", { filepath, content });
-	// 						// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
-	// 						api.file.saveContent(filepath, content, { history: true })
-	// 						// setTimeout(() => {
-	// 						// 	api.file.saveContent(filepath, content, { history: true })
-	// 						// 	setTimeout(() => {
-	// 						// 		api.file.saveContent(filepath, content, { history: true })
-	// 						// 		setTimeout(() => {
-	// 						// 			api.file.saveContent(filepath, content, { history: true })
-	// 						// 		}, 100)
-	// 						// 	}, 10)
-	// 						// }, 10)
-
-	// 					})
-	// 				}
-	// 			}
-	// 		})
-	// 	})
-	// }, [file?.path])
+	// 		api.popup.prompt({
+	// 			text: `<div class="content-different-preview"> Server content is different for "${file?.path}", do you want to update it ? <br><br> <h2>New remote content</h2> <br> ${fileContent.replaceAll("\n","<br>")} <br><br> <h2>Offline content</h2> <br> ${fileContent.replaceAll("\n","<br>")}</div>`,
+	// 			userInput: true,
+	// 			onAccept: () => {
+	// 				// if (!createdFolderName || createdFolderName === '') return
+	// 				// p.onFolderMenuAction('create', p.folder, createdFolderName)
+	// 			},
+	// 			onRefuse: () => { }
+	// 		});
+	// 	});
+	// }, [fileContent])
 
 
 
@@ -192,12 +262,67 @@ export const WindowEditorInt = (p: {
 		})
 	}, [active])
 
+
+	//
+	// UPLOAD (COPY/PASTE OR DRAG/DROP)
+	//
+	//
+	// IMAGE INSERTION
+	//
+	// const insertImage = (name: string, path: string) => {
+	// 	stringToInsertUpload.current += `![${name}](${path})\n`
+	// 	debouncedUploadInsert()
+	// }
+	// const stringToInsertUpload = useRef('')
+	// const debouncedUploadInsert = useDebounce(() => {
+	// 	const f = codeMirrorEditorView.current
+	// 	if (!f) return
+	// 	const cPos = CodeMirrorUtils.getCurrentLineInfos(f)?.currentPosition
+	// 	if (!isNumber(cPos)) return
+	// 	insertTextAt(stringToInsertUpload.current, 'currentPos')
+	// 	stringToInsertUpload.current = ''
+	// 	CodeMirrorUtils.updateCursor(f, cPos, true)
+	// }, 500)
+
+	
+
+	const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+		if (!file?.path) return
+		handleImagePaste(e, fileToUpload => {uploadFileToEditor({fileToUpload, folder: file.folder, windowId})})
+	}
+	const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault()
+		e.stopPropagation()
+		console.log("handle dragover" , file?.path)
+		setIsDragging(true)
+	}
+	const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setIsDragging(false)
+		console.log("handle dragleave", file?.path)
+	}
+	const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+		e.preventDefault()
+		e.stopPropagation()
+		setIsDragging(false)
+		console.log("handle drop", file?.path)
+		if (!file?.path) return
+		handleFileDrop(e, fileToUpload => {uploadFileToEditor({fileToUpload, folder:file.folder, windowId})})	
+	}	
+	const [isDragging, setIsDragging] = useState(false)
+
 	return (
 		<>
 
 			{
 				file &&
-				<div className="window-editor-wrapper">
+				<div className="window-editor-wrapper"
+					onPaste={handlePaste}
+					onDragOver={handleDragOver}
+					onDragLeave={handleDragLeave}
+					onDrop={handleDrop}
+				>
 					<DualViewer
 						windowId={windowId}
 						file={file}
@@ -208,7 +333,11 @@ export const WindowEditorInt = (p: {
 						// showToolbar={true}
 						// titleEditor={true}
 
-						canEdit={p.canEdit || true}
+						canEdit={canEdit}
+						isDragging={isDragging}
+						// uploadPercent={uploadPercent}
+						// uploadedFile={uploadedFile}
+
 						showViewToggler={p.showViewToggler}
 						showToolbar={p.showToolbar}
 						titleEditor={p.titleEditor}
@@ -242,6 +371,30 @@ export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
 
 
 export const windowEditorCss = () => `
+	.content-different-preview {
+		max-height: 50vh;
+		width: 70vw;
+		overflow-y: auto;
+		text-align: left;
+		.content-different-preview-inner {
+			background: #e7e7e7;
+			padding: 10px;
+			border-radius: 10px;
+		}
+		.diff-sign {
+			font-weight: bold;
+		}
+		.diff-sign.diff-modified {
+			color: orange;
+		}
+		.diff-sign.diff-deleted {
+			color: red;
+		}
+		.diff-sign.diff-added {
+			color: green;
+		}
+	}
+
 	// height 100% everywhere
 	.window-editor-wrapper-wrapper,
 	.window-editor-wrapper,

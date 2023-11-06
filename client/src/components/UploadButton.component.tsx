@@ -5,15 +5,17 @@ import { ClientApiContext, getApi } from "../hooks/api/api.hook"
 import { onUploadProgressFn, onUploadSuccessFn } from "../hooks/api/upload.api.hook"
 import { cssVars } from "../managers/style/vars.style.manager"
 import { Icon } from "./Icon.component"
+import { uploadFileToEditor } from "../managers/upload.manager"
 
 export type iUploadType = 'all' | 'image' | 'camera' | 'microphone'
 
 export const UploadButton = (p: {
-	onProgress: onUploadProgressFn
-	onSuccess: onUploadSuccessFn
+	onProgress?: onUploadProgressFn
+	onSuccess?: onUploadSuccessFn
 	file: iFile
 	type: iUploadType
 	label: string
+	windowId: string
 }) => {
 	let icon = "faPaperclip"
 	if (p.type === "image") icon = "faImage"
@@ -42,14 +44,15 @@ export const UploadButton = (p: {
 					if (files.length === 0) return
 					each(files, file => {
 						// alert(JSON.stringify(file));
-						getApi(api => {
-							api.upload.uploadFile({
-								file,
-								folderPath: p.file.folder,
-								onProgress: p.onProgress,
-								onSuccess: p.onSuccess
-							})
-						})
+						uploadFileToEditor({fileToUpload: file, folder:p.file.folder, windowId:p.windowId})
+						// getApi(api => {
+						// 	api.upload.uploadFile({
+						// 		file,
+						// 		folderPath: p.file.folder,
+						// 		onProgress: p.onProgress,
+						// 		onSuccess: p.onSuccess
+						// 	})
+						// })
 					})
 				}}
 			/>

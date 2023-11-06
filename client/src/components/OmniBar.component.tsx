@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRe
 import Select from 'react-select';
 import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
-import { iFile, iPlugin } from '../../../shared/types.shared';
+import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -88,8 +88,25 @@ export const OmniBar = (p: {
 		// each(nVal, o => {
 		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
 		// })
-		onOptionsChange(nVal)
-		setOptionsInt(nVal)
+		console.log("setOptions", nVal)
+		getApi(api => {
+			let ctab = api.tabs.active.get()
+
+			// drop already opened in current tab files
+			each(ctab?.grid.content, cont =>{
+				if(!cont.file) return
+				let oFile = cont.file
+				each(nVal, (o,i) => {
+					if (o && o.value && o.value === oFile.path) {	
+						delete nVal[i]
+						return false
+					}
+				})
+			})
+
+			onOptionsChange(nVal)
+			setOptionsInt(nVal)
+		})
 	}
 
 	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
@@ -986,7 +1003,10 @@ export const OmniBar = (p: {
 
 	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
 	
-	
+
+
+
+
 
 	//
 	// RENDERING

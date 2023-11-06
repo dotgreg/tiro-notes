@@ -3,6 +3,15 @@
 //
 // EXPORTED FUNCTION
 //
+export const handleImagePaste = (e, callback:(file:File)=>void) => {
+	retrieveImageFromClipboardAsBlob(e, function (imageBlob) {
+		console.log('ON IMAGE PASTE');
+		if (imageBlob) {
+			callback(imageBlob)
+		}
+	});
+}
+
 export const initClipboardListener = (events: {
 	onImagePasted: (Blob: any) => void
 }) => {

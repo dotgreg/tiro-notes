@@ -22,6 +22,7 @@ interface iDualViewProps {
 	fileContent: string
 	isActive: boolean
 	canEdit: boolean
+	isDragging?: boolean
 
 	showViewToggler?: boolean
 	showToolbar?: boolean
@@ -157,6 +158,7 @@ const DualViewerInt = (
 	const [forceCloseOverlay, setForceCloseOverlay] = useState(false)
 	useEffect(() => {
 		setForceCloseOverlay(false)
+		// console.log('canedit', p.canEdit);
 	}, [p.canEdit])
 
 	
@@ -167,6 +169,12 @@ const DualViewerInt = (
 		{(!p.canEdit && !forceCloseOverlay) && 
 			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
 				<div className="loading-text">loading...</div> 
+			</div>
+		}
+		
+		{(p.isDragging) && 
+			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
+				<div className="loading-text"> drop to upload</div> 
 			</div>
 		}
 		
@@ -253,7 +261,7 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			height: 101%;
+			height: 120%;
 			position: absolute;
 			background: rgba(0,0,0,0.1);
 			top: -2px;

@@ -21026,6 +21026,14 @@
 									{
 										"type": "literal",
 										"value": "triggerAiSearch"
+									},
+									{
+										"type": "literal",
+										"value": "undo"
+									},
+									{
+										"type": "literal",
+										"value": "redo"
 									}
 								]
 							}
@@ -32616,7 +32624,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-							"line": 349,
+							"line": 351,
 							"character": 12
 						}
 					],
@@ -32640,7 +32648,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 349,
+											"line": 351,
 											"character": 46
 										}
 									],
@@ -32669,7 +32677,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 349,
+											"line": 351,
 											"character": 32
 										}
 									],
@@ -32692,7 +32700,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-									"line": 349,
+									"line": 351,
 									"character": 31
 								}
 							]
