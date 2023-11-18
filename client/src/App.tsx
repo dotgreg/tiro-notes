@@ -55,6 +55,7 @@ import { PluginsMarketplacePopup } from './components/settingsView/pluginsMarket
 import { FloatingPanel, FloatingPanelsWrapper } from './components/FloatingPanels.component';
 import { usePinStatus } from './hooks/app/usePinnedInterface.hook';
 import { userSettingsSync } from './hooks/useUserSettings.hook';
+import { webIconUpdate } from './managers/iconWeb.manager';
 
 export const App = () => {
 
@@ -393,12 +394,13 @@ export const App = () => {
 	}, [filesHistory])
 
 	//
-	// URL SYSTEM (MOBILE ONLY)
+	// URL/ICON SYSTEM (MOBILE ONLY)
 	//
 	useEffect(() => {
 		// URL system once the window update has spread
-		if (deviceType() !== "mobile") return
+		if (deviceType() !== "mobile") return webIconUpdate("/favicon.png")
 		updateAppUrlFromActiveWindow(tabs, mobileView)
+		// update 
 	}, [tabs, mobileView])
 
 	let rcnt = forceResponsiveRender ? 0 : 1
