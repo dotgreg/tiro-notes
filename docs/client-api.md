@@ -1365,12 +1365,18 @@ Watch for file changes
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">number</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">iUploadedFileInfos</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
 #### <span class="render-code-wrapper">onUploadSuccessFn</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. p: <span class="render-code-wrapper"><a href="#client-api?id=iuploadedfileinfos">iUploadedFileInfos</a></span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iuploadedfileinfos">iUploadedFileInfos</a></span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">onUploadCallback</span>

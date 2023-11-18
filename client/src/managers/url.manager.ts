@@ -5,6 +5,9 @@ import { configClient } from "../config";
 import { getApi } from "../hooks/api/api.hook";
 import { notifLog } from "./devCli.manager";
 import { isVarMobileView, iMobileView, deviceType } from "./device.manager";
+import { findImagesFromContent } from "./images.manager";
+import { getLoginToken, getUrlTokenParam } from "../hooks/app/loginToken.hook";
+import { webIconCreate, webIconUpdate } from "./iconWeb.manager";
 
 //
 // URL PARSER
@@ -59,6 +62,25 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 		} else {
 			urlParamsArr.unshift({name: "view", value: view})
 		}
+
+		//
+		// UPDATE ICON AND TITLE
+		//
+		// get content > find first image, if exists, change page.icon with it for add to desktop functionality
+		api.file.getContent(filePath, content => {
+			let images = findImagesFromContent(content, pathToIfile(filePath))
+			console.log(images)
+			if (images.length < 1) return
+			// console.log("looking for image")
+			let fullurl = `${images[0].url}${getUrlTokenParam()}`
+			// document.
+			console.log(fullurl)
+			// create a new <link rel="icon" href="%PUBLIC_URL%/favicon.png" /> programmatically
+			
+			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
+			webIconUpdate(fullurl)
+			document.title = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
+		})
 
 		// console.log(1111111, activeWindow, urlParamsArr,{filePath, view})
 		setUrlParams(urlParamsArr)

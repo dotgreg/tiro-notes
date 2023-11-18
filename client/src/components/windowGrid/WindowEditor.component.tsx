@@ -109,6 +109,13 @@ export const WindowEditorInt = (p: {
 	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
 	const disconnectCounter = useRef<number>(0)
 	
+	// if mobile editor
+	// find the first img inside the content
+	useEffect(() => {
+
+	}, [file?.path, fileContent])
+
+
 	// once online, reupdate content
 	// disabled as it is erase new edit made on other computers
 	// to make it working, it should keep its edition timestamp and compare it to the server version
@@ -124,6 +131,7 @@ export const WindowEditorInt = (p: {
 				} else if (status.isConnected === true) {
 					let isReconnected = disconnectCounter.current >= 1 && status.isConnected
 					if (isReconnected) {
+						return // disable it as broken for the moment
 						disableFor10sWatchFile()
 						
 						getApi(api => {
