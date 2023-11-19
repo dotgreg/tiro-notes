@@ -73,7 +73,7 @@ export const WindowEditorInt = (p: {
 			// WATCH LOGIC
 			api.watch.file(file.path, watchUpdate => {
 				// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
-				if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
+				// if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
 				// THEN WATCH FOR UPDATE BY OTHER CLIENTS
 				if (filePathRef.current !== watchUpdate.filePath) return
 				// if (deviceType() !== "desktop") return
