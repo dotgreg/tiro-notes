@@ -29,3 +29,4 @@ if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
 window._tiroPluginsCommon.genAdvancedTableComponent = genAdvancedTableComponent
 
 
+git config --global user.email "g@ksv3"; git config --global user.name "g@ksv3"
