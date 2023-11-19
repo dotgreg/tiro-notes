@@ -285,6 +285,7 @@ export const triggerCalc = (p:{
 
 }
 
+
 export const generateTextAt = (p2:{
 	currentContent: string,
 	textUpdate: string,
@@ -341,6 +342,7 @@ export const generateTextAt = (p2:{
 		}
 	})
 }
+
 const lineJumpThrottle = throttle((windowId, lineToJump) => {
 	// getApi(api => {
 	// 	api.ui.note.lineJump.jump(windowId, lineToJump)

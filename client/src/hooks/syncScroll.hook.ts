@@ -1,4 +1,5 @@
 import { sharedConfig } from '../../../shared/shared.config';
+import { lineJumpWhileGeneratingAiText } from '../managers/ai.manager';
 import { devCliAddFn } from '../managers/devCli.manager';
 
 interface iDim {
@@ -126,6 +127,7 @@ const updateScrollerDims = (wid: string) => {
 // 2. SCROLL UPDATERS
 //
 const scrollScroller = (wid: string, percent?: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
 	if (!percent) percent = c.posPercent
@@ -138,6 +140,7 @@ const scrollScroller = (wid: string, percent?: number) => {
 }
 
 const scrollEditor = (wid: string, percent?: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
 	let e = c.dims.editor
@@ -147,6 +150,7 @@ const scrollEditor = (wid: string, percent?: number) => {
 }
 
 const scrollPreview = (wid: string, percent?: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
 	if (!c.els.preview) return;

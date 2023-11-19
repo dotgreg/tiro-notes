@@ -418,6 +418,7 @@ const EditorAreaInt = (
 
 		// insert at
 		if (a.type === "insertText" && a.insertText && a.insertPos) {
+			console.log("insertText", a)
 			insertTextAt(a.insertText, a.insertPos)
 		}
 
@@ -697,6 +698,7 @@ const EditorAreaInt = (
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}
 						onButtonClicked={action => {
+							
 							if (action === "aiSearch") {
 								// console.log("AI SEARCH", cursorInfos)
 								triggerAiSearch({
