@@ -71,25 +71,10 @@ const smartlistApp = (innerTagStr, opts) => {
                         cols: [
                                 {colId: "icon", headerLabel: "-", type:"icon"},
                                 {colId: "name", headerLabel: "Name"},
-                                {colId: "actions", type: "buttons", buttons:[
-                                        {
-                                                label: "", 
-                                                icon: "close", 
-                                                onClick: (id) => {
-                                                        console.log('Delete clicked for id:', id);
-                                                }
-                                        },
-                                        {
-                                                label: "", 
-                                                icon: "image", 
-                                                onClick: (id) => {
-                                                        console.log('Delete clicked for id:', id);
-                                                }
-                                        }
-                                ]},
+                                {colId: "t2", headerLabel: "t2"},
                         ]
                 };
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items: [], config})
+                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items: [{name:"n1"}, {name:"n2"}], config})
 
 
         }

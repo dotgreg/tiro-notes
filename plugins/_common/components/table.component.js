@@ -95,28 +95,18 @@ let TableComponentReact = ({ items, config }) => {
 let genTableComponent = ({items, config}) => {
   const api = window.api;
   const startMainLogic = () => {
-    setTimeout(() => {
-        const r = React;
-        const c = r.createElement;
+    let int = setInterval(() => {
+      if (!window.ReactDOM) return;
+      clearInterval(int)
+      const r = React;
+      const c = r.createElement;
 
-        // v17
-        // ReactDOM.render(
-        //   TableComponentReact(),
-        //   document.getElementById("ctag-component-table-wrapper")
-        // );  
-
-        // v18
-        console.log("table render component")
-        let container = document.getElementById("ctag-component-table-wrapper")
-        const root = ReactDOM.createRoot(container); // create a root
-        root.render(c(TableComponentReact, {items, config}));
-
-        // root.render(<TableComponentReact items={[]} config={{}} />);
-        // root.render( c('div', { className: "files-table-wrapper" }, ["react ok"]));
-        // ReactDOM.render(
-        //   TableComponentReact({items:[], config:{}}),
-        // );  
-      }, 500) 
+      // v18
+      console.log("table render component")
+      let container = document.getElementById("ctag-component-table-wrapper")
+      const root = ReactDOM.createRoot(container); // create a root
+      root.render(c(TableComponentReact, {items, config}));
+    }, 100) 
   }
   api.utils.loadRessources(
       [
