@@ -1036,7 +1036,6 @@ const feedApp = (innerTagStr, opts) => {
 				[
 						"https://unpkg.com/react@18/umd/react.production.min.js",
 						"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
-						"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
 						"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js",
 						...toLoad,
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.min.js"

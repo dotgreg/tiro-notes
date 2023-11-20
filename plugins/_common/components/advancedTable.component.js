@@ -116,7 +116,7 @@ let genAdvancedTableComponent = (p) => {
         }
     );
     
-    return `<div id="ctag-component-table-wrapper"> loading...  </div>` 
+    return `<div id="ctag-component-advanced-table-wrapper"> loading...  </div>` 
 }
 
 

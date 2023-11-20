@@ -127,8 +127,7 @@ export const generateIframeHtml = (
 				${tagContent}
 		</div>
 		<div id="external-ressources-wrapper"></div>
-		<script type="module">
-				import {worker} from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
+		<script>
 				const IMPORTED_backend_url = "${getBackendUrl()}"
 				const IMPORTED_login_token = "${getLoginToken()}"
 				const IMPORTED_replaceCustomMdTags = ${replaceCustomMdTags.toString()}
