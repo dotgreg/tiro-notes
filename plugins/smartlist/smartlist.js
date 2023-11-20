@@ -1,4 +1,5 @@
 // 10.10.2023 v1.1
+
 const smartlistApp = (innerTagStr, opts) => {
     const { div, updateContent } = api.utils.createDiv()
 

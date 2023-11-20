@@ -3,7 +3,7 @@
 
 
 
-let tableComponent = ({ items, config }) => {
+let tableComponentReact = ({ items, config }) => {
     const r = React;
     const c = r.createElement;
     const [sortConfig, setSortConfig] = r.useState(null);
@@ -78,8 +78,37 @@ let tableComponent = ({ items, config }) => {
 }
 
 
+//
+// load without react
+//
+let genTableComponent = ({items, config}) => {
+  const api = window.api;
+  const startMainLogic = () => {
+      setTimeout(() => {
+        ReactDOM.render(
+          TableReact({items:files, config}),
+          document.getElementById("ctag-component-table-wrapper")
+        );  
+      }, 500) 
+  }
+  api.utils.loadRessources(
+      [
+        "https://unpkg.com/react@18/umd/react.development.js",
+        "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+      ],
+      () => {
+          startMainLogic()
+      }
+  );
+  
+  return `<div id="ctag-component-table-wrapper"> loading... </div>` 
+}
+
+
+
 if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
-window._tiroPluginsCommon.tableComponent = tableComponent
+window._tiroPluginsCommon.tableComponentReact = tableComponentReact
+window._tiroPluginsCommon.genTableComponent = genTableComponent
 
 
 

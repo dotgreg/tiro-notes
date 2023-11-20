@@ -6,7 +6,7 @@ const FilesTagApp = (innerTagStr, opts) => {
 
     const execReactApp = (str) => {
         // loading commons libs & plugins 
-        const Table = window._tiroPluginsCommon.tableComponent
+        const TableReact = window._tiroPluginsCommon.tableComponentReact
         
         const r = React;
         const c = React.createElement;
@@ -126,7 +126,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                       c('input', { type:"file", id: "upload-button", onChange: handleFileChange }),
                       c('div', {  className: "wrapper-status"}, [JSON.stringify({status, ...globStats})]),
                     ]),
-                    Table({items:files, config}),
+                    TableReact({items:files, config}),
                     
                 ])
             )
