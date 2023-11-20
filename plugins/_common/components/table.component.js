@@ -2,11 +2,22 @@
 // assuming     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> is loaded in html
 
 
+// const TableComponentReact = () => {
+//   return TableComponentReact2()
+// }
+// let TableComponentReact2 = () => {
+//   const r = React;
+//   const c = r.createElement;
+//   const [sortConfig, setSortConfig] = r.useState(null);
+//   return [
+//     c('input', { type: 'text', value: "", onChange: e => {} })
+//   ]
+// }
 
-let tableComponentReact = ({ items, config }) => {
-    const r = React;
+let TableComponentReact = ({ items, config }) => {
+  const r = React;
+  const [sortConfig, setSortConfig] = r.useState(null);
     const c = r.createElement;
-    const [sortConfig, setSortConfig] = r.useState(null);
     const [searchTerm, setSearchTerm] = r.useState("");
 
     const sortedItems = r.useMemo(() => {
@@ -79,16 +90,32 @@ let tableComponentReact = ({ items, config }) => {
 
 
 //
-// load without react
+// load directly, context without react
 //
 let genTableComponent = ({items, config}) => {
   const api = window.api;
   const startMainLogic = () => {
-      setTimeout(() => {
-        ReactDOM.render(
-          TableReact({items:files, config}),
-          document.getElementById("ctag-component-table-wrapper")
-        );  
+    setTimeout(() => {
+        const r = React;
+        const c = r.createElement;
+
+        // v17
+        // ReactDOM.render(
+        //   TableComponentReact(),
+        //   document.getElementById("ctag-component-table-wrapper")
+        // );  
+
+        // v18
+        console.log("table render component")
+        let container = document.getElementById("ctag-component-table-wrapper")
+        const root = ReactDOM.createRoot(container); // create a root
+        root.render(c(TableComponentReact, {items, config}));
+
+        // root.render(<TableComponentReact items={[]} config={{}} />);
+        // root.render( c('div', { className: "files-table-wrapper" }, ["react ok"]));
+        // ReactDOM.render(
+        //   TableComponentReact({items:[], config:{}}),
+        // );  
       }, 500) 
   }
   api.utils.loadRessources(
@@ -101,13 +128,13 @@ let genTableComponent = ({items, config}) => {
       }
   );
   
-  return `<div id="ctag-component-table-wrapper"> loading... </div>` 
+  return `<div id="ctag-component-table-wrapper"> ... </div>` 
 }
 
 
 
 if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
-window._tiroPluginsCommon.tableComponentReact = tableComponentReact
+window._tiroPluginsCommon.TableComponentReact = TableComponentReact
 window._tiroPluginsCommon.genTableComponent = genTableComponent
 
 

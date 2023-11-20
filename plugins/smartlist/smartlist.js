@@ -57,41 +57,43 @@ const smartlistApp = (innerTagStr, opts) => {
                 })
                 // document.getElementById("smart-list-ctag").innerHTML = JSON.stringify(configArray)
                 // for each config, create a div with a title and a list
-                const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 each(configArray, (el, i) => {
                         // searchWord(el.searchTag, el.path, content => {
-                        //         wrapperEl.innerHTML += `
-                        //         <h3> ${el.category} </h3>
-                        //         <div> ${JSON.stringify(content)} </div>
-                        // `  })
-                })
-
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
+                                //         wrapperEl.innerHTML += `
+                                //         <h3> ${el.category} </h3>
+                                //         <div> ${JSON.stringify(content)} </div>
+                                // `  })
+                        })
+                        
+                const wrapperEl = document.getElementById("smart-list-ctag-inner")
+                // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
+                const config = {
+                        cols: [
+                                {colId: "icon", headerLabel: "-", type:"icon"},
+                                {colId: "name", headerLabel: "Name"},
+                                {colId: "actions", type: "buttons", buttons:[
+                                        {
+                                                label: "", 
+                                                icon: "close", 
+                                                onClick: (id) => {
+                                                        console.log('Delete clicked for id:', id);
+                                                }
+                                        },
+                                        {
+                                                label: "", 
+                                                icon: "image", 
+                                                onClick: (id) => {
+                                                        console.log('Delete clicked for id:', id);
+                                                }
+                                        }
+                                ]},
+                        ]
+                };
+                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items: [], config})
 
 
         }
     
-
-        const genHtmlAndStyle = () => {
-                // FA is included as requesting external ressources, so cannot be cached by tiro directly
-                let res = `
-                <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
-                <div id="smart-list-ctag"> 
-                        <div id="smart-list-ctag-inner"> 
-                        </div>
-                        
-                        <div> hello world smartlist </div>
-                </div>
-
-                <style>
-                        #smart-list-ctag {
-                        }
-                              
-                </style> `
-                return res
-        }
-
-
         setTimeout(() => {
                 setTimeout(() => {
                         api.utils.resizeIframe("100%");
@@ -99,19 +101,30 @@ const smartlistApp = (innerTagStr, opts) => {
                 setTimeout(() => {
 			api.utils.loadRessources(
 				[
-					`https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,
-                                        `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.01.min.css`,
-                                        `${opts.plugins_root_url}/_common/components/advancedTable.component.js`
+                                        `${opts.plugins_root_url}/_common/components/advancedTable.component.js`,
+                                        `${opts.plugins_root_url}/_common/components/table.component.js`
 				],
 				() => {
-					updateContent(genHtmlAndStyle())
                                         startMainLogic()
 				}
 			);
 		}, 100)
                 
         })
-        return div
+        return `
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
+        <div id="smart-list-ctag"> 
+                <div id="smart-list-ctag-inner"> 
+                
+                </div>
+                
+        </div>
+
+        <style>
+                #smart-list-ctag {
+                }
+                      
+        </style> `
 }
 // 
 
