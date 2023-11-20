@@ -45,36 +45,62 @@ const smartlistApp = (innerTagStr, opts) => {
                 // split EDF TODO | # | /etc/blabla
                         // INVEST | # | /etc/blabla in a config array of objects with category, searchTag and path
                 let configArray = []
+                let hasTag2 = false
+                let hasTag3 = false
                 innerTagStr.split("\n").forEach((el, i) => {
                         if (el.indexOf("|") > -1) {
-                                let [category, searchTag, path] = el.split("|")
-                                // trim all
+                                arr = el.split("|")
+                                let [category, path, tag1, tag2, tag3] = el.split("|")
                                 category = category.trim()
-                                searchTag = searchTag.trim()
                                 path = path.trim()
-                                configArray.push({ category, searchTag, path })
+                                tag1 = tag1.trim()
+                                if (tag2){ tag2 = tag2.trim() || null; hasTag2 = true }
+                                if (tag3) {tag3 = tag3.trim() || null; hasTag3 = true}
+                                if (!category || !path || !tag1) return console.warn(`smartlist: line ${i} is not valid`)
+                                configArray.push({ category, path, tag1, tag2, tag3 })
                         }
                 })
                 // document.getElementById("smart-list-ctag").innerHTML = JSON.stringify(configArray)
                 // for each config, create a div with a title and a list
+                let items = []
                 each(configArray, (el, i) => {
-                        // searchWord(el.searchTag, el.path, content => {
-                                //         wrapperEl.innerHTML += `
-                                //         <h3> ${el.category} </h3>
-                                //         <div> ${JSON.stringify(content)} </div>
-                                // `  })
+                        searchWord(el.tag1, el.path, listFilesRes => {
+                                each(listFilesRes, (fileRes) => {
+                                        let file = fileRes.file
+                                        each(fileRes.results, result => {
+                                                let words = result.split(" ")
+                                                // if word start by either tag1, 2 or 3, add tag1,2,3 to the object
+                                                let [tag1, tag2, tag3] = [null, null, null]
+                                                each(words, word => {
+                                                        if (word.startsWith(el.tag1)) tag1 = word
+                                                        if (word.startsWith(el.tag2)) tag2 = word
+                                                        if (word.startsWith(el.tag3)) tag3 = word
+                                                })
+                                                                
+                                                items.push({ filename: file.name, folder: file.folder, line:result, tag1, tag2, tag3 })
+                                        })
+                                })
                         })
+                })
                         
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                 const config = {
                         cols: [
-                                {colId: "icon", headerLabel: "-", type:"icon"},
-                                {colId: "name", headerLabel: "Name"},
-                                {colId: "t2", headerLabel: "t2"},
+                                {colId: "line", headerLabel: "Line"},
+                                {colId: "tag1", headerLabel: "Tag1"},
+                               
                         ]
                 };
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items: [{name:"n1"}, {name:"n2"}], config})
+                if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2"})
+                if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3"})
+                // {colId: "filename", headerLabel: "Filename"},
+                // {colId: "folder", headerLabel: "Folder"},
+                config.cols.push({colId: "filename", headerLabel: "Filename"})
+                config.cols.push({colId: "folder", headerLabel: "Folder"})
+
+                
+                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config})
 
 
         }

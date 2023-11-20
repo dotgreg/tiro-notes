@@ -24,6 +24,8 @@ let TableComponentReact = ({ items, config }) => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
+        if (a[sortConfig.key] === null) a[sortConfig.key] = " ";
+        if (b[sortConfig.key] === null) b[sortConfig.key] = " ";
         if (a[sortConfig.key] < b[sortConfig.key]) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
@@ -37,7 +39,9 @@ let TableComponentReact = ({ items, config }) => {
   }, [items, sortConfig]);
 
   const filteredItems = r.useMemo(() => {
-    return sortedItems.filter(item => Object.values(item).some(val => val.toString().toLowerCase().includes(searchTerm.toLowerCase())));
+    return sortedItems.filter(item => {
+      return JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
+    });
   }, [sortedItems, searchTerm]);
 
   const requestSort = key => {
