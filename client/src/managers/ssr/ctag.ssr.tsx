@@ -32,10 +32,10 @@ export interface iCtagGenConfig {
 	tagName: string,
 	content: string,
 	opts?: {
+		windowId?:string,
 		file?: iFile | null,
 		wrapperHeight?: number | string,
 		open?: boolean,
-		windowId?:string,
 		sandboxed?: boolean,
 		fullscreen?: boolean,
 		onFullscreenClose?: Function,
@@ -53,16 +53,16 @@ export const generateCtag = (
 		ctagConfig.content = nurl
 	}
 
-	return ssrGenCtag(ctagConfig.tagName, ctagConfig.content, ctagConfig.opts)
+	return ssrGenCtag(ctagConfig.tagName, ctagConfig.content, ctagConfig.opts?.windowId || "null", ctagConfig.opts)
 }
 
 // CTAG GEN
 export const ssrGenCtag = (
 	tagName: string,
 	content: string,
+	windowId:string,
 	opts?: {
 		file?: iFile | null,
-		windowId?:string,
 		sandboxed?: boolean,
 		wrapperHeight?: number | string,
 		fullscreen?: boolean,
@@ -77,8 +77,8 @@ export const ssrGenCtag = (
 	return <ContentBlock
 		file={opts.file}
 		block={{ type: 'tag', tagName, content, start: 0, end: 0 }}
-		windowHeight={height}
-		windowId={opts.windowId || "null"}
+		// windowHeight={"100%"}
+		windowId={windowId}
 		yCnt={0}
 		onIframeMouseWheel={() => { }}
 

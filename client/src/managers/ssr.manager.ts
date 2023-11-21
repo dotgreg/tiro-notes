@@ -1,7 +1,6 @@
 import "@fortawesome/fontawesome-free/css/all.css"
 import { iFile } from "../../../shared/types.shared"
 import { getApi } from "../hooks/api/api.hook"
-import { ssrGenCtag, ssrToggleCtag } from "./ssr/ctag.ssr"
 
 //
 // SSR ICON SYSTEM (for better perfs)

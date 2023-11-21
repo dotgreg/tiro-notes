@@ -85,19 +85,19 @@ export const generateHtmlLinkPreviewInt = (
 		getApi(api => {
 			api.ressource.fetchUrlArticle(link, r => {
 				// ssrOpenIframeEl(getIframeEl(el), encodeURIComponent(r.html))
-				ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html)))
+				ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html), "null"))
 				cb(r)
 			})
 		})
 	}
 
 	// function button
-	const previewFn = (el) => {
-		if (!el) return
-		let link = el.dataset.link
-		// ssrOpenIframeEl2(getIframeEl(el), link)
-		ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe",link))
-	}
+	// const previewFn = (el) => {
+	// 	if (!el) return
+	// 	let link = el.dataset.link
+	// 	// ssrOpenIframeEl2(getIframeEl(el), link)
+	// 	ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe",link, ))
+	// }
 	const openWinFn = (el) => {
 		if (!el) return
 		let link = el.dataset.link

@@ -159,6 +159,12 @@ export const generateIframeHtml = (
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// IFRAME MAIN JS CODE
+//
+//
+
 export const iframeMainCode = (p: {
 	backendUrl,
 	loginToken,
@@ -169,7 +175,7 @@ export const iframeMainCode = (p: {
 	getRessourceIdFromUrl,
 	bindToElClass
 }) => {
-	const h = '[IFRAME child] 00564'
+	const h = '[IFRAME child js]'
 
 	const log = false
 	log && console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
@@ -247,6 +253,25 @@ export const iframeMainCode = (p: {
 
 	}
 
+	//
+	// on iframe resize detected
+	//
+	window.addEventListener('resize', (e) => {
+		// sendToParent({ action: 'resize', data: { height: getIframeHeight() } })
+		// console.log(h, 'resize', e);
+		// const el = document.getElementById('content-wrapper')
+		// make el width and height 100%
+		// if (el) {
+		// 	el.style.width = '100vw'
+		// 	el.style.height = '100vh'
+		// }
+		// el.style
+		let nval = `100%`
+		// console.log(33333333333, lastResizeIframeHeight.value, nval)
+		nval = lastResizeIframeHeight.value
+		resizeIframe(nval)
+	})
+
 
 	///////////////////////////////////////////////////////////////////////// 
 	// BOOTSTRAP LOGIC
@@ -291,13 +316,15 @@ export const iframeMainCode = (p: {
 	// 	sendToParent({ action: 'canScrollIframe', data })
 	// }
 
-	const resizeIframe = (height?: number) => {
+	let lastResizeIframeHeight = {value:"100%"}
+	const resizeIframe = (height?: any) => {
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
 			if (el && el.clientHeight !== 0) height = el.clientHeight + 20
 			else return
 		}
 
+		lastResizeIframeHeight.value = `${height}`
 		const data: iIframeData['resize'] = { height }
 		sendToParent({ action: 'resize', data })
 	}

@@ -84,15 +84,15 @@ export const PreviewArea = (p: {
 	}, [p.fileContent, p.file.path, p.windowId])
 
 
-	const getWindowHeight = (): number => {
-		if (p.height) return p.height
-		let res = 0
-		const el = document.querySelector(`.window-id-${p.windowId}`)
-		if (el) res = el.clientHeight
-		// if it is mobile, windows are sometimes hidden = height 0
-		if (deviceType() === "mobile" && res === 0) { res = document.body.clientHeight - 120 }
-		return res
-	}
+	// const getWindowHeight = (): number => {
+	// 	if (p.height) return p.height
+	// 	let res = 0
+	// 	const el = document.querySelector(`.window-id-${p.windowId}`)
+	// 	if (el) res = el.clientHeight
+	// 	// if it is mobile, windows are sometimes hidden = height 0
+	// 	if (deviceType() === "mobile" && res === 0) { res = document.body.clientHeight - 120 }
+	// 	return res
+	// }
 
 	return (
 		<div
@@ -133,7 +133,7 @@ export const PreviewArea = (p: {
 											block={block}
 											windowId={p.windowId}
 											file={p.file}
-											windowHeight={getWindowHeight()}
+											// windowHeight={getWindowHeight()}
 											reactOnHeightResize={p.reactOnHeightResize}
 											yCnt={p.yCnt}
 											onIframeMouseWheel={p.onIframeMouseWheel}

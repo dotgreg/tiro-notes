@@ -25,11 +25,9 @@ const heightIframe = {
 export const RessourcePreview = (p: {
 	markdownTag: string
 	file: iFile
+	windowId: string
 }) => {
 
-	
-
-	
 
 	const canBePreviewed = (urlLink:string):{status:boolean, onlinePreviewLink?:string} => {
 		let res = {status:false}
@@ -94,11 +92,11 @@ export const RessourcePreview = (p: {
 
 		// if (isLocal && canBePreviewedOnline) return
 		if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "epub") {
-			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
 		} else if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "pdf") {
-			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
 		} else {
-			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, { fullscreen, onFullscreenClose}))
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, p.windowId, { fullscreen, onFullscreenClose}))
 		}
 	}
 

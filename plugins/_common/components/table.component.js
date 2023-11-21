@@ -17,10 +17,10 @@
 let TableComponentReact = ({ items, config }) => {
   const r = React;
   const [sortConfig, setSortConfig] = r.useState(null);
-    const c = r.createElement;
-    const [searchTerm, setSearchTerm] = r.useState("");
+  const c = r.createElement;
+  const [searchTerm, setSearchTerm] = r.useState("");
 
-    const sortedItems = r.useMemo(() => {
+  const sortedItems = r.useMemo(() => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
@@ -53,43 +53,50 @@ let TableComponentReact = ({ items, config }) => {
     setSortConfig({ key, direction });
   };
 
-    return [
-        c('input', { type: 'text', value: searchTerm, onChange: e => setSearchTerm(e.target.value) }),
-        c('table', {}, [
-            c('thead', {}, [
-            c('tr', {}, [
-                ...config.cols.map(({ colId, headerLabel }) =>
-                c('th', { key: colId, onClick: () => requestSort(colId) }, [
-                    `${headerLabel || colId} ${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}` 
-                ])
-                )
+
+
+  return [
+    c('input', { type: 'text', value: searchTerm, onChange: e => setSearchTerm(e.target.value) }),
+    c('table', {}, [
+        c('thead', {}, [
+        c('tr', {}, [
+            ...config.cols.map(({ colId, headerLabel }) =>
+            c('th', { key: colId, onClick: () => requestSort(colId) }, [
+                `${headerLabel || colId} ${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}` 
             ])
-            ]),
-            c('tbody', {}, [
-                ...filteredItems.map(item =>
-                    c('tr', { key: item.id }, [
-                    ...config.cols.map(({ colId, type, buttons }) =>
-                        c('td', { key: colId }, [
-                        // BUTTON 
-                        ...(type === 'buttons'
-                            ? buttons.map(({ label, icon, onClick }) =>
-                                c('button', { key: label, onClick: () => onClick(item.id) }, [
-                                c('div', {className: `fa fa-${icon}` }),
-                                label
-                                ])
-                            )
-                            : []),
-                        // ICON 
-                        ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
-                        // TEXT 
-                        !type ? [item[colId]] : []
-                        ])
-                    )
+            )
+        ])
+        ]),
+        c('tbody', {}, [
+            ...filteredItems.map(item =>
+                c('tr', { key: item.id }, [
+                ...config.cols.map(({ colId, type, buttons }) =>
+                    c('td', { key: colId }, [
+                    // BUTTON 
+                    ...(type === 'buttons'
+                        ? buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
+                            c('button', { 
+                              key: label, 
+                              onClick: (e) => {onClick(item, e)}, 
+                              onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
+                              onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
+                            }, [
+                              c('div', {className: `fa fa-${icon}` }),
+                              label
+                            ])
+                        )
+                        : []),
+                    // ICON 
+                    ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
+                    // TEXT 
+                    !type ? [item[colId]] : []
                     ])
-                ) 
-            ]) // endbody
-        ]) // endtable
-    ]; 
+                )
+                ])
+            ) 
+        ]) // endbody
+    ]) // endtable
+  ]; 
 }
 
 
@@ -100,7 +107,7 @@ let genTableComponent = ({items, config}) => {
   const api = window.api;
   const startMainLogic = () => {
     let int = setInterval(() => {
-      if (!window.ReactDOM) return;
+      if (!window.ReactDOM || !ReactDOM || !React) return;
       clearInterval(int)
       const r = React;
       const c = r.createElement;
@@ -122,7 +129,16 @@ let genTableComponent = ({items, config}) => {
       }
   );
   
-  return `<div id="ctag-component-table-wrapper"> ... </div>` 
+  return `<div id="ctag-component-table-wrapper"> ... </div>
+  
+  <style>
+    #ctag-component-table-wrapper {
+      width: 100%;
+      height: 100%;
+      padding-top: 5px;
+    }
+    </style>
+  ` 
 }
 
 

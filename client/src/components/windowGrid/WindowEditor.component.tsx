@@ -322,6 +322,7 @@ export const WindowEditorInt = (p: {
 
 	return (
 		<>
+			
 
 			{
 				file &&

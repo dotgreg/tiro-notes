@@ -51,7 +51,7 @@ const renderMarkdownToHtml: iNoteApi['render'] = (p): string => {
 	let { raw, file, windowId } = { ...p }
 	if (!windowId) windowId = ''
 	let html = (md2html(
-		transformRessourcesInHTML(file,
+		transformRessourcesInHTML(file, windowId, 
 			transformImagesInHTML(file,
 				transformSearchLinks(
 					transformTitleSearchLinks(windowId,

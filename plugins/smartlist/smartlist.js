@@ -98,6 +98,30 @@ const smartlistApp = (innerTagStr, opts) => {
                 // {colId: "folder", headerLabel: "Folder"},
                 config.cols.push({colId: "filename", headerLabel: "Filename"})
                 config.cols.push({colId: "folder", headerLabel: "Folder"})
+                config.cols.push({colId: "actions", type: "buttons", buttons:[
+                        {
+                          label: "", 
+                          icon: "eye", 
+                          onClick: (item,e) => {
+                                console.log('onClick:', item,e);
+                                // get mouse position [x,y] from event e
+                                // let pos = [e.clientX, e.clientY]
+                                let pos = ["50%" ,"50%"]
+                                // console.log("pos", pos)
+                                console.log(api.utils.getInfos())
+                                
+                                filePath = item.folder + item.filename
+                                api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString:item.line}])
+                        
+                          },
+                          onMouseEnter: (item,e) => {
+                                // console.log('onMouseEnter:', item,e);
+                          },
+                          onMouseLeave: (item,e) => {
+                                // console.log('onMouseLeave:', item,e);
+                          }
+                        },
+                ]})
 
                 
                 wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config})
