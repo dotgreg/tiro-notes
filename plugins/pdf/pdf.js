@@ -69,12 +69,12 @@ const pdfApp = (innerTagStr, opts) => {
 
 				`
 		updateContent(html_pdf)
-		api.utils.resizeIframe("80%");
+		api.utils.resizeIframe("100%");
 
 	}
 
 
-	api.utils.resizeIframe("100px");
+	api.utils.resizeIframe("100%");
 
 	if (opts.open === true) {
 

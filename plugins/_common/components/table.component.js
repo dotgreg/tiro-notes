@@ -137,6 +137,10 @@ let genTableComponent = ({items, config}) => {
       height: 100%;
       padding-top: 5px;
     }
+    #ctag-component-table-wrapper td {
+      word-break: break-all;
+    }
+
     </style>
   ` 
 }

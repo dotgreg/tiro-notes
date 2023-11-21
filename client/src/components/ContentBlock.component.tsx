@@ -189,7 +189,7 @@ export const ContentBlockTagView = (p: {
 				let nHeight = 0
 
 				const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
-				console.log(1111111111, parentWindow, `.window-id-sizeref-${p.windowId}`)
+				// console.log(1111111111, "resize event in parent", parentWindow, `.window-id-sizeref-${p.windowId}`, data)
 				if (!parentWindow) return
 				const pDims = parentWindow.getBoundingClientRect()
 
