@@ -257,18 +257,9 @@ export const iframeMainCode = (p: {
 	// on iframe resize detected
 	//
 	window.addEventListener('resize', (e) => {
-		// sendToParent({ action: 'resize', data: { height: getIframeHeight() } })
-		// console.log(h, 'resize', e);
-		// const el = document.getElementById('content-wrapper')
-		// make el width and height 100%
-		// if (el) {
-		// 	el.style.width = '100vw'
-		// 	el.style.height = '100vh'
-		// }
-		// el.style
 		let nval = `100%`
-		// console.log(33333333333, lastResizeIframeHeight.value, nval)
-		nval = lastResizeIframeHeight.value
+		// nval = lastResizeIframeHeight.value
+		// console.log(h, 'resize', nval)
 		resizeIframe(nval)
 	})
 
