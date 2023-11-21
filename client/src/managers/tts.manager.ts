@@ -88,12 +88,16 @@ export class Text2SpeechManager {
 	}
 
 	loadVoice = (voice) => {
-		// console.log(`[TTS] LOAD VOICE`, voice);
+		console.log(`[TTS] LOAD VOICE`, voice);
 		this.voice = voice
+		this.pause()
+		this.play()
 	}
 
 	updateSpeed = (speed: number) => {
 		this.speed = speed
+		this.pause()
+		this.play()
 	}
 
 	play = () => {
