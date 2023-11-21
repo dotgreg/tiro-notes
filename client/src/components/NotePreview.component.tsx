@@ -58,6 +58,7 @@ export const NotePreviewInt = (p: {
 				if (p.searchedString) {
 					getApi(api => {
 						setTimeout(() => {
+							console.log("searchword", p.searchedString)
 							api.ui.note.editorAction.dispatch({
 								type:"searchWord", 
 								searchWordString: p.searchedString,

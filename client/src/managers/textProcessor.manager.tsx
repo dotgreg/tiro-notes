@@ -27,7 +27,8 @@ export const transformTitleSearchLinks = (
 	windowId: string,
 	bodyRaw: string
 ): string => {
-	const subst = generateNoteLink("$1", "$2", windowId, true)
+	// @TODO SEARCHEDSTRING
+	const subst = generateNoteLink("$1", "$2", null, windowId, true)
 	return bodyRaw.replace(regexs.linklink, subst);
 }
 

@@ -5,11 +5,14 @@ export type iNotePreviewPopup = {
     isOpen: boolean
     filepath:string
     position:[number, number]
-    opts?:{windowIdToOpenIn: string}
+    opts?:{
+        windowIdToOpenIn: string,
+        searchedString?:string
+    }
 }
 
 export interface iNotePreviewPopupApi {
-	open: (path:string, position: [number,number], opts?:{windowIdToOpenIn: string}) => void
+	open: (path:string, position: [number,number], opts?:{windowIdToOpenIn: string,  searchedString?:string}) => void
 	close: () => void
 }
 
@@ -20,7 +23,6 @@ export const useNotePreviewPopupApi = () => {
 
     const openPopup = (path, position, opts) => {
         // if too far left/right
-        console.log(position)
         let nX = position[0]
         let nY = position[1]
         if (notePreviewPopupDims.w+nX > window.innerWidth) nX = nX - (Math.abs(window.innerWidth-notePreviewPopupDims.w-nX-10))
