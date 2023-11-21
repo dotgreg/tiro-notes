@@ -26,7 +26,9 @@ export interface iBrowserApi {
 		folderPath: string,
 		fileTitle?: string | null,
 		options?: {
-			openIn?: string | 'activeWindow' | 'active' 
+			openIn?: string | 'activeWindow' | 'active',
+			// @TODO searchedString here too
+			searchedString?: string
 		}
 	) => void
 	files: {

@@ -84,7 +84,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 })
                         
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
-                // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
+                wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                 const config = {
                         cols: [
                                 {colId: "line", headerLabel: "Line"},
@@ -100,7 +100,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 config.cols.push({colId: "folder", headerLabel: "Folder"})
 
                 
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config})
+                // wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config})
 
 
         }

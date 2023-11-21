@@ -16,9 +16,16 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 		resEl.classList.add('note-link-mdpreview-wrapper')
 		resEl.classList.add('note-link-wrapper')
 
-		let notePath = matchs[1]
-		let noteTitle = matchs[2]
-		let html = generateNoteLink(notePath, noteTitle, windowId, linkPreview);
+		let notePath = matchs[2]
+		let noteTitle = matchs[1]
+		let searchedStr:string|null = null
+		// if notePath has | in it, split it again
+		if (notePath.includes("|")) {
+			let spl = notePath.split("|")
+			notePath = spl[0]
+			searchedStr = spl[1]
+		}
+		let html = generateNoteLink( noteTitle,notePath, searchedStr, windowId, linkPreview);
 
 		resEl.innerHTML = `${html}`;
 		return resEl
@@ -38,6 +45,7 @@ export const ssrNoteLinkFn = (el: HTMLElement) => {
 
 	const file = el.dataset.file
 	const folder = el.dataset.folder
+	const searchedString = el.dataset.searchedstring
 	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
 	const windowId = el.dataset.windowid || 'active'
 	if (!file || !folder || !windowId) return
@@ -66,11 +74,12 @@ const ssrNotePreviewOpen = (el: HTMLElement) => {
 	]
 	const file = el.dataset.file
 	const folder = el.dataset.folder
+	const searchedString = el.dataset.searchedstring
 	const windowid = el.dataset.windowid
 	const filePath = `${folder}${file}`
 	if (windowid === "preview-popup") return
 	getApi(api => { api.ui.notePreviewPopup.close()})
-	addDelayedAction(filePath, pos, windowid)
+	addDelayedAction(filePath, pos, searchedString, windowid)
 }
 
 let timeout:any = null
@@ -92,14 +101,15 @@ export const stopDelayedNotePreview = (addDelayCancel?:boolean) => {
 		}, 700)
 	}
 }
-const addDelayedAction = (filePath, pos, windowId) => {
+const addDelayedAction = (filePath, pos, searchedString, windowId) => {
 	reqId++
 	let histId = reqId
 	timeout && clearTimeout(timeout)
 	timeout = setTimeout(() => { 
 		if (reqId !== histId) return
+		if (searchedString === "") searchedString = null
 		getApi(api => {
-			api.ui.notePreviewPopup.open(filePath, pos, {windowIdToOpenIn:windowId})
+			api.ui.notePreviewPopup.open(filePath, pos, {windowIdToOpenIn:windowId, searchedString:searchedString})
 		})
 	}, 700)
 }
@@ -108,9 +118,15 @@ const addDelayedAction = (filePath, pos, windowId) => {
 export const generateNoteLink = (
 	noteTitle: string,
 	notePath: string,
+	searchedString: string|null,
 	windowId: string,
 	linkPreview: boolean
 ): string => {
+	let label = noteTitle
+	if (searchedString) {
+		let labelSearched = searchedString.length > 20 ? searchedString.substring(0, 20) + "..." : searchedString
+		label = `${noteTitle} > ${labelSearched}`
+	}
 
 	const subst = `<a
 		onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
@@ -119,7 +135,8 @@ export const generateNoteLink = (
 		class="title-search-link preview-link" 
 		data-file="${noteTitle}" 
 		data-folder="${notePath}" 
-		data-windowid="${windowId}">${noteTitle}</a>`;
+		data-searchedstring="${searchedString || ""}"
+		data-windowid="${windowId}">${label}</a>`;
 
 	return subst
 }

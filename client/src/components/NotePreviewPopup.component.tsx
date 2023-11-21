@@ -5,6 +5,7 @@ import { iNotePreviewPopup } from '../hooks/api/notePreviewPopup.api.hook';
 import { stopDelayedNotePreview } from '../managers/codeMirror/noteLink.plugin.cm';
 import { NotePreview } from './NotePreview.component';
 import { Icon, Icon2 } from './Icon.component';
+import { generateUUID } from '../../../shared/helpers/id.helper';
 
 export const NotePreviewPopup = (p: {
     notePreview: iNotePreviewPopup
@@ -20,6 +21,7 @@ export const NotePreviewPopup = (p: {
     const goToNote = e => {
         const file = pathToIfile(p.notePreview.filepath)
         if (!file || !p.notePreview.opts?.windowIdToOpenIn) return
+        
         stopDelayedNotePreview(true)
         getApi(api => {
             api.ui.browser.goTo(
@@ -30,9 +32,14 @@ export const NotePreviewPopup = (p: {
         })
     }
 
+    // useEffect(() => {
+    //     console.log(2222, p.notePreview.opts)
+    // },[p.notePreview.opts?.searchedString])
+   
     useEffect(() => {
-
-    })
+        setWindowId(`note-preview-popup-wid-${generateUUID()}`)
+    },[])
+    const [windowId, setWindowId] = useState<string>("")
 
 
     return (
@@ -45,7 +52,8 @@ export const NotePreviewPopup = (p: {
                 
                 <NotePreview
                     file={notePreview}
-                    // searchedString={activeLine}
+                    searchedString={p.notePreview.opts?.searchedString}
+                    windowId={windowId}
                     // height={200}
                     showToolbar={true}
                     titleEditor={false}
@@ -85,6 +93,12 @@ export const notePreviewPopupCss = () => `
             .cm-scroller {
                 width: calc(100% - 40px)!important;
             }
+
+            // disable links inside
+            .title-search-link {
+                pointer-events: none;
+            }
         }
+        .
     }
 `
