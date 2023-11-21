@@ -20624,7 +20624,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-									"line": 33,
+									"line": 34,
 									"character": 1
 								}
 							],
@@ -20644,7 +20644,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-									"line": 34,
+									"line": 35,
 									"character": 1
 								}
 							],
@@ -20658,7 +20658,7 @@
 									"flags": {},
 									"children": [
 										{
-											"id": 1332,
+											"id": 1333,
 											"name": "file",
 											"kind": 1024,
 											"kindString": "Property",
@@ -20668,7 +20668,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 35,
+													"line": 37,
 													"character": 2
 												}
 											],
@@ -20698,7 +20698,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 40,
+													"line": 41,
 													"character": 2
 												}
 											],
@@ -20718,7 +20718,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 41,
+													"line": 42,
 													"character": 2
 												}
 											],
@@ -20730,7 +20730,7 @@
 											}
 										},
 										{
-											"id": 1334,
+											"id": 1335,
 											"name": "open",
 											"kind": 1024,
 											"kindString": "Property",
@@ -20740,7 +20740,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 37,
+													"line": 39,
 													"character": 2
 												}
 											],
@@ -20760,7 +20760,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 39,
+													"line": 40,
 													"character": 2
 												}
 											],
@@ -20770,7 +20770,7 @@
 											}
 										},
 										{
-											"id": 1335,
+											"id": 1332,
 											"name": "windowId",
 											"kind": 1024,
 											"kindString": "Property",
@@ -20780,7 +20780,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 38,
+													"line": 36,
 													"character": 2
 												}
 											],
@@ -20790,7 +20790,7 @@
 											}
 										},
 										{
-											"id": 1333,
+											"id": 1334,
 											"name": "wrapperHeight",
 											"kind": 1024,
 											"kindString": "Property",
@@ -20800,7 +20800,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-													"line": 36,
+													"line": 38,
 													"character": 2
 												}
 											],
@@ -20824,13 +20824,13 @@
 											"title": "Properties",
 											"kind": 1024,
 											"children": [
-												1332,
+												1333,
 												1337,
 												1338,
-												1334,
-												1336,
 												1335,
-												1333
+												1336,
+												1332,
+												1334
 											]
 										}
 									]
@@ -20846,7 +20846,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-									"line": 32,
+									"line": 33,
 									"character": 1
 								}
 							],
@@ -20870,7 +20870,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/ssr/ctag.ssr.tsx",
-							"line": 31,
+							"line": 32,
 							"character": 17
 						}
 					]

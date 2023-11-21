@@ -109,11 +109,11 @@
 #### <span class="render-code-wrapper">utils.resizeIframe</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. height: <span class="render-code-wrapper">number</span>
+       1. height: <span class="render-code-wrapper">any</span>
     - Result: <span class="render-code-wrapper">void</span> 
 
  - Example: 
- <div class="render-code-wrapper">api.utils.resizeIframe(<span class="render-code-wrapper">number</span> )</div>
+ <div class="render-code-wrapper">api.utils.resizeIframe(<span class="render-code-wrapper">any</span> )</div>
 
  
 
