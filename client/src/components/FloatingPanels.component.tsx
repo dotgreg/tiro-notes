@@ -15,6 +15,7 @@ import { iFile, iViewType } from '../../../shared/types.shared';
 import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 import { Icon2 } from './Icon.component';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
+import { generateUUID } from '../../../shared/helpers/id.helper';
 
 let startZindex = 1000
 // react windows that is resizable
@@ -195,6 +196,12 @@ export const FloatingPanel = (p:{
     const shouldShowHoverOverlay = showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
     // console.log("shouldShowHoverOverlay", shouldShowHoverOverlay, showHoverOverlay, p.panelsVisibleNumber, p.highestVisibleZIndex, p.panel.zIndex)
 
+    const [windowIdCtag, setWindowIdCtag] = useState<string>(generateUUID())
+    if (p.panel.ctagConfig){
+        if (!p.panel.ctagConfig.opts) p.panel.ctagConfig.opts = {}
+        p.panel.ctagConfig.opts.windowId = windowIdCtag
+    }
+
     return (
         <div className={`floating-panel-wrapper ${p.panel.status}`} 
             style={{zIndex:p.panel.zIndex}}
@@ -292,7 +299,7 @@ export const FloatingPanel = (p:{
                                 }
                                 {
                                     p.panel.type === "ctag" && p.panel.ctagConfig &&
-                                    <div className='floating-panel__inner-content' style={{height:  innerHeight}}>
+                                    <div className={`floating-panel__inner-content window-id-sizeref-${windowIdCtag}`} style={{height:  innerHeight}}>
                                         {generateCtag(p.panel.ctagConfig)}
                                     </div>
                                 }

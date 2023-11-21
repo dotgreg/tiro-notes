@@ -110,7 +110,7 @@ export const generateHtmlLinkPreviewInt = (
 			api.ui.floatingPanel.create({
 				type: "ctag",
 				ctagConfig: {
-					tagName: "iframe",
+					tagName: "web",
 					content: link,
 				},
 			})
