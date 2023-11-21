@@ -164,7 +164,7 @@ const DualViewerInt = (
 	
 
 	return <div
-		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
+		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
 	>
 		{(!p.canEdit && !forceCloseOverlay) && 
 			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
@@ -220,7 +220,7 @@ const DualViewerInt = (
 
 			pluginsConfig={p.pluginsConfig}
 		/>
-
+		
 		{!isEditor &&
 			<PreviewArea
 				windowId={p.windowId}

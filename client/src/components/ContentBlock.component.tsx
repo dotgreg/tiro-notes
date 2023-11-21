@@ -6,7 +6,7 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { isString, random } from 'lodash';
+import { isNumber, isString, random } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
@@ -32,7 +32,7 @@ export const ContentBlockInt = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
-	windowHeight?: number | string
+	// windowHeight?: number | string
 	reactOnHeightResize?: boolean
 	index?: number
 	yCnt: number
@@ -130,7 +130,8 @@ export const ContentBlock = React.memo(ContentBlockInt, (np, pp) => {
 	if (JSON.stringify(np.block) !== JSON.stringify(pp.block)) res = false
 	if (np.block.content !== pp.block.content) res = false
 	if (np.file.path !== pp.file.path) res = false
-	if (np.windowHeight !== pp.windowHeight && np.reactOnHeightResize === true) res = false
+	if (np.windowId !== pp.windowId) res = false
+	// if (np.windowHeight !== pp.windowHeight && np.reactOnHeightResize === true) res = false
 	return res
 })
 
@@ -141,7 +142,7 @@ export const ContentBlockTagView = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
-	windowHeight?: number | string
+	// windowHeight?: number | string
 	reactOnHeightResize?: boolean
 	index?: number
 	yCnt: number
@@ -183,20 +184,46 @@ export const ContentBlockTagView = (p: {
 			// RESIZE
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
-				let nheight = data.height
+				let nHeight = 0
 
-				// if windowHeight is %
-				if (isString(p.windowHeight)) {
-					nheight = p.windowHeight
+
+
+				const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
+				console.log(1111111111, parentWindow, `.window-id-sizeref-${p.windowId}`)
+				if (!parentWindow) return
+				const pDims = parentWindow.getBoundingClientRect()
+
+				if (isString(data.height) && data.height.endsWith("%")) {
+					const nHeightPercent = parseInt(data.height.replace("%", "")) / 100
+					// get height and width from window-id-sizeref-p.windowId
+					nHeight = (pDims.height * nHeightPercent) 
+				} else if (isNumber(data.height)) {
+					nHeight = data.height
 				} else {
-					let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
-					if (isString(nheight) && nheight.endsWith("%")) {
-						const percent = parseInt(nheight.replace("%", "")) / 100
-						nheight = windowHeiht * percent
-					}
+					const pDims = parentWindow.getBoundingClientRect()
+					nHeight = (pDims.height * 100) 
 				}
+
+				console.log("resize", nHeight, pDims.height, data.height)
+				
+				
+				// console.log("resize parent", nheight, p.windowHeight)
+
+				// if percentage
+
+				// if (isString(p.windowHeight)) {
+				// if windowHeight is %
+				// if (isString(p.windowHeight)) {
+				// 	nheight = nheight
+				// } else {
+				// 	let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
+				// 	if (isString(nheight) && nheight.endsWith("%")) {
+				// 		const percent = parseInt(nheight.replace("%", "")) / 100
+				// 		nheight = windowHeiht * percent
+				// 	}
+				// }
 				// log && console.log(h, 'resizing to', nheight);
-				setIframeHeight(nheight);
+				setIframeHeight(`${nHeight}px`);
 				// only at that moment show iframe
 				setCanShow(true)
 			}
@@ -306,18 +333,18 @@ export const ContentBlockTagView = (p: {
 		}
 	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent, reload])
 
-	const askFullscreen = () => {
-		iframeParentManager.send(iframeRef.current, {
-			action: 'askFullscreen', data: {}
-		})
-	}
-	const askDetach = () => {
-		if (!p.block.tagName) return
-		let tagName = p.block.tagName || ''	
-		const floatConfig:iCreateFloatingPanel = {type:"ctag", file: p.file, ctagConfig:{tagName: tagName, content:p.block.content} }
-		console.log("ASK DETACH", floatConfig)
-		getApi(api => { api.ui.floatingPanel.create(floatConfig) })
-	}
+	// const askFullscreen = () => {
+	// 	iframeParentManager.send(iframeRef.current, {
+	// 		action: 'askFullscreen', data: {}
+	// 	})
+	// }
+	// const askDetach = () => {
+	// 	if (!p.block.tagName) return
+	// 	let tagName = p.block.tagName || ''	
+	// 	const floatConfig:iCreateFloatingPanel = {type:"ctag", file: p.file, ctagConfig:{tagName: tagName, content:p.block.content, } }
+	// 	console.log("ASK DETACH", floatConfig)
+	// 	getApi(api => { api.ui.floatingPanel.create(floatConfig) })
+	// }
 	
 
 
@@ -364,7 +391,7 @@ export const ContentBlockTagView = (p: {
 					onClick={e => { fullscreenClose() }}
 				></div>
 			}
-			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} style={{ height: iframeHeight }}>
+			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} >
 
 				{/* <div className="ctag-menu" >
 					<div className="ctag-ellipsis" >

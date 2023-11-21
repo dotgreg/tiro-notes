@@ -96,12 +96,16 @@ export const NotePreviewInt = (p: {
 
 	let heightStr = p.height ? p.height + "px" : "100%"
 
+	const [windowId, setWindowId] = useState<string>(p.windowId || generateUUID())
+	useEffect(() => {
+		setWindowId(p.windowId || generateUUID())
+	}, [p.windowId])
 
 	return (
 		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
 			<WindowEditor 
 				content={{
-					i:p.windowId || generateUUID(),
+					i:windowId,
 					file:p.file,
 					active:false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
 					view:p.view,

@@ -26,6 +26,10 @@ export const useNotePreviewPopupApi = () => {
         let nX = position[0]
         let nY = position[1]
         if (notePreviewPopupDims.w+nX > window.innerWidth) nX = nX - (Math.abs(window.innerWidth-notePreviewPopupDims.w-nX-10))
+        if (notePreviewPopupDims.h+nY > window.innerHeight) nY = nY - (Math.abs(window.innerHeight-notePreviewPopupDims.h-nY-10))
+        // if 50% 50% take width/height into account
+        if (nX === "50%") nX = `calc(50% - ${notePreviewPopupDims.w/2}px)`
+        if (nY === "50%") nY = `calc(50% - ${notePreviewPopupDims.w/2}px)`
         position = [nX, nY]
 
         setNotePreviewPopup({
