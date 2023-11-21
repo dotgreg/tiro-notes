@@ -37,7 +37,8 @@ export const ContentBlockInt = (p: {
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
-
+	
+	ctagHeightOffset?: number 
 	ctagSandboxed?: boolean
 	ctagFullscreen?: boolean
 	ctagOnFullscreenClose?: Function
@@ -150,6 +151,7 @@ export const ContentBlockTagView = (p: {
 	ctagSandboxed?: boolean
 	ctagFullscreen?: boolean
 	ctagOnFullscreenClose?: Function
+	ctagHeightOffset?: number 
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -181,12 +183,10 @@ export const ContentBlockTagView = (p: {
 		// listen to iframe calls
 		iframeParentManager.subscribe(nid, m => {
 
-			// RESIZE
+			// RESIZE AND CTAG HEIGHT MANAGEMENT
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
 				let nHeight = 0
-
-
 
 				const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
 				console.log(1111111111, parentWindow, `.window-id-sizeref-${p.windowId}`)
@@ -201,28 +201,12 @@ export const ContentBlockTagView = (p: {
 					nHeight = data.height
 				} else {
 					const pDims = parentWindow.getBoundingClientRect()
-					nHeight = (pDims.height * 100) 
+					nHeight = 300
 				}
 
+				if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
+
 				console.log("resize", nHeight, pDims.height, data.height)
-				
-				
-				// console.log("resize parent", nheight, p.windowHeight)
-
-				// if percentage
-
-				// if (isString(p.windowHeight)) {
-				// if windowHeight is %
-				// if (isString(p.windowHeight)) {
-				// 	nheight = nheight
-				// } else {
-				// 	let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
-				// 	if (isString(nheight) && nheight.endsWith("%")) {
-				// 		const percent = parseInt(nheight.replace("%", "")) / 100
-				// 		nheight = windowHeiht * percent
-				// 	}
-				// }
-				// log && console.log(h, 'resizing to', nheight);
 				setIframeHeight(`${nHeight}px`);
 				// only at that moment show iframe
 				setCanShow(true)

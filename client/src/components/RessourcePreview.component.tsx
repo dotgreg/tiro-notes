@@ -91,12 +91,13 @@ export const RessourcePreview = (p: {
 		}
 
 		// if (isLocal && canBePreviewedOnline) return
+		let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100
 		if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "epub") {
-			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
 		} else if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "pdf") {
-			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose}), opts?.openOnly)
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
 		} else {
-			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, p.windowId, { fullscreen, onFullscreenClose}))
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, p.windowId, { fullscreen, onFullscreenClose, ctagHeightOffset}))
 		}
 	}
 

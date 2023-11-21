@@ -6,6 +6,7 @@ import { generateEmptyiFile } from '../../hooks/app/useLightbox.hook';
 import { renderReactToId } from "../reactRenderer.manager"
 import { memoize } from 'lodash';
 import { getUrlTokenParam } from '../../hooks/app/loginToken.hook';
+import { deviceType } from '../device.manager';
 
 const heightIframe = {
 	big: 400,
@@ -63,6 +64,7 @@ export const ssrGenCtag = (
 	windowId:string,
 	opts?: {
 		file?: iFile | null,
+		ctagHeightOffset?: number,
 		sandboxed?: boolean,
 		wrapperHeight?: number | string,
 		fullscreen?: boolean,
@@ -72,13 +74,14 @@ export const ssrGenCtag = (
 	if (!opts) opts = {}
 	if (!opts.file) opts.file = generateEmptyiFile()
 	
-	const height = opts?.wrapperHeight || heightIframe.big + 75
-	// console.log(opts.wrapperHeight)
+	// const height = opts?.wrapperHeight || heightIframe.big + 75
+	// let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100?
+	let ctagHeightOffset = opts?.ctagHeightOffset || 0
 	return <ContentBlock
 		file={opts.file}
 		block={{ type: 'tag', tagName, content, start: 0, end: 0 }}
-		// windowHeight={"100%"}
 		windowId={windowId}
+		ctagHeightOffset={ctagHeightOffset}
 		yCnt={0}
 		onIframeMouseWheel={() => { }}
 
