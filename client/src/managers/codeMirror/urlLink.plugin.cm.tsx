@@ -84,8 +84,16 @@ export const generateHtmlLinkPreviewInt = (
 		let link = el.dataset.link
 		getApi(api => {
 			api.ressource.fetchUrlArticle(link, r => {
+				let webpageContent = encodeURIComponent(r.html)
 				// ssrOpenIframeEl(getIframeEl(el), encodeURIComponent(r.html))
-				ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html), "null"))
+				// ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html), "null"))
+				api.ui.floatingPanel.create({
+					type: "ctag",
+					ctagConfig: {
+						tagName: "web",
+						content: webpageContent,
+					},
+				})
 				cb(r)
 			})
 		})
