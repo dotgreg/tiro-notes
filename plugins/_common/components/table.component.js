@@ -47,6 +47,7 @@ let TableComponentReact = ({ items, config, id }) => {
     localStorage.setItem(`${id}-sort`, JSON.stringify(sort));
   }
   r.useEffect(() => {
+    // console.log(456, id)
     let sort = JSON.parse(localStorage.getItem(`${id}-sort`));
     if (sort) setSortConfig(sort);
   }, []);
@@ -56,6 +57,7 @@ let TableComponentReact = ({ items, config, id }) => {
     localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
   }
   r.useEffect(() => {
+    // console.log(123, id)
     let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
     if (term) setSearchTermInt(term);
   }, []);
@@ -98,7 +100,7 @@ let TableComponentReact = ({ items, config, id }) => {
   };
 
   let processContent = (content) => {
-    if (content && content.includes("http")) {
+    if (typeof content === "string" && content.includes("http")) {
       // find with a regex all the urls in the content and transform them into links
       let regex = /(https?:\/\/[^\s]+)/g;
       content = content.replace(regex, (url) => {
@@ -169,7 +171,7 @@ let TableComponentReact = ({ items, config, id }) => {
 //
 // load directly, context without react
 //
-let genTableComponent = ({items, config}) => {
+let genTableComponent = ({items, config, id}) => {
   const api = window.api;
   const startMainLogic = () => {
     let int = setInterval(() => {
@@ -179,10 +181,10 @@ let genTableComponent = ({items, config}) => {
       const c = r.createElement;
 
       // v18
-      console.log("table render component")
+      // console.log("table render component")
       let container = document.getElementById("ctag-component-table-wrapper")
       const root = ReactDOM.createRoot(container); // create a root
-      root.render(c(TableComponentReact, {items, config}));
+      root.render(c(TableComponentReact, {items, config, id}));
     }, 100) 
   }
   api.utils.loadRessources(

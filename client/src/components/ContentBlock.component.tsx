@@ -206,7 +206,7 @@ export const ContentBlockTagView = (p: {
 
 				if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
 
-				console.log("resize", nHeight, pDims.height, data.height)
+				// console.log("resize", nHeight, pDims.height, data.height)
 				setIframeHeight(`${nHeight}px`);
 				// only at that moment show iframe
 				setCanShow(true)
