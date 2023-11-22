@@ -88,12 +88,12 @@ const smartlistApp = (innerTagStr, opts) => {
                 const config = {
                         cols: [
                                 {colId: "line", headerLabel: "Line"},
-                                {colId: "tag1", headerLabel: "Tag1"},
+                                {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
                                
                         ]
                 };
-                if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2"})
-                if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3"})
+                if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
+                if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
                 // {colId: "filename", headerLabel: "Filename"},
                 // {colId: "folder", headerLabel: "Folder"},
                 config.cols.push({colId: "filename", headerLabel: "Filename"})
@@ -108,7 +108,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 // let pos = [e.clientX, e.clientY]
                                 let pos = ["50%" ,"50%"]
                                 // console.log("pos", pos)
-                                console.log(api.utils.getInfos())
+                                // console.log(api.utils.getInfos())
                                 
                                 filePath = item.folder + item.filename
                                 api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString:item.line}])
@@ -124,7 +124,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 ]})
 
                 
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config})
+                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
 
 
         }
@@ -156,7 +156,13 @@ const smartlistApp = (innerTagStr, opts) => {
         </div>
 
         <style>
-                #smart-list-ctag {
+                #smart-list-ctag { }
+                #smart-list-ctag .td-tag { 
+                }
+                #smart-list-ctag .td-tag .cell-content {  
+                        max-width: 50px;
+                        overflow: hidden;
+                        word-break: break-all;
                 }
                       
         </style> `
