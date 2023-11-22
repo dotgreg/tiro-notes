@@ -13,12 +13,54 @@
 //     c('input', { type: 'text', value: "", onChange: e => {} })
 //   ]
 // }
+const styleCss = `
+#ctag-component-table-wrapper {
+  overflow-wrap: normal;
+  width: 100%;
+  height: 100%;
+  padding-top: 5px;
+}
+#ctag-component-table-wrapper th {
+  // display: flex;
+}
+#ctag-component-table-wrapper th .sortIndic {
+  margin-left: 5px;
+  position: absolute;
+}
+#ctag-component-table-wrapper td {
+  padding: 1px 5px;
+  // word-break: break-all;
+}
+`
 
-let TableComponentReact = ({ items, config }) => {
+let TableComponentReact = ({ items, config, id }) => {
+  if (!id) id = "table-component"
   const r = React;
-  const [sortConfig, setSortConfig] = r.useState(null);
+  const [sortConfig, setSortConfigInt] = r.useState(null);
+  
   const c = r.createElement;
-  const [searchTerm, setSearchTerm] = r.useState("");
+  const [searchTerm, setSearchTermInt] = r.useState("");
+
+  // ls
+  const setSortConfig = (sort) => {
+    setSortConfigInt(sort)
+    localStorage.setItem(`${id}-sort`, JSON.stringify(sort));
+  }
+  r.useEffect(() => {
+    let sort = JSON.parse(localStorage.getItem(`${id}-sort`));
+    if (sort) setSortConfig(sort);
+  }, []);
+
+  const setSearchTerm = (term) => {
+    setSearchTermInt(term)
+    localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
+  }
+  r.useEffect(() => {
+    let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
+    if (term) setSearchTermInt(term);
+  }, []);
+
+
 
   const sortedItems = r.useMemo(() => {
     let sortableItems = [...items];
@@ -35,8 +77,10 @@ let TableComponentReact = ({ items, config }) => {
         return 0;
       });
     }
+    console.log(123, sortConfig)
     return sortableItems;
   }, [items, sortConfig]);
+
 
   const filteredItems = r.useMemo(() => {
     return sortedItems.filter(item => {
@@ -54,7 +98,7 @@ let TableComponentReact = ({ items, config }) => {
   };
 
   let processContent = (content) => {
-    if (content.includes("http")) {
+    if (content && content.includes("http")) {
       // find with a regex all the urls in the content and transform them into links
       let regex = /(https?:\/\/[^\s]+)/g;
       content = content.replace(regex, (url) => {
@@ -64,15 +108,27 @@ let TableComponentReact = ({ items, config }) => {
     return content
   }
 
+  const [configColsObj, setConfigColsObj] = r.useState({});
+  r.useEffect(() => {
+    let configColsObj = {};
+    config.cols.forEach(col => {
+      configColsObj[col.colId] = col;
+    });
+    setConfigColsObj(configColsObj);
+  }, [config.cols]);
+
+
 
   return [
+    c('style', {}, [styleCss]),
     c('input', { type: 'text', value: searchTerm, onChange: e => setSearchTerm(e.target.value) }),
     c('table', {}, [
         c('thead', {}, [
         c('tr', {}, [
             ...config.cols.map(({ colId, headerLabel }) =>
             c('th', { key: colId, onClick: () => requestSort(colId) }, [
-                `${headerLabel || colId} ${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}` 
+                `${headerLabel || colId} `,
+                c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
             ])
             )
         ])
@@ -81,7 +137,7 @@ let TableComponentReact = ({ items, config }) => {
             ...filteredItems.map(item =>
                 c('tr', { key: item.id }, [
                 ...config.cols.map(({ colId, type, buttons }) =>
-                    c('td', { key: colId }, [
+                    c('td', { key: colId, className: `${configColsObj[colId]?.classes || ""}` }, [
                     // BUTTON 
                     ...(type === 'buttons'
                         ? buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
@@ -99,7 +155,7 @@ let TableComponentReact = ({ items, config }) => {
                     // ICON 
                     ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
                     // TEXT 
-                    !type ? [c('div', {className:"cell-content", dangerouslySetInnerHTML:{__html: processContent(item[colId])}})] : []
+                    !type ? [c('div', {className:`cell-content`, dangerouslySetInnerHTML:{__html: processContent(item[colId])}})] : []
                     ])
                 )
                 ])
@@ -139,20 +195,7 @@ let genTableComponent = ({items, config}) => {
       }
   );
   
-  return `<div id="ctag-component-table-wrapper"> ... </div>
-  
-  <style>
-    #ctag-component-table-wrapper {
-      width: 100%;
-      height: 100%;
-      padding-top: 5px;
-    }
-    #ctag-component-table-wrapper td {
-      word-break: break-all;
-    }
-
-    </style>
-  ` 
+  return `<div id="ctag-component-table-wrapper"> ... </div>` 
 }
 
 
