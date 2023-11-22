@@ -53,6 +53,16 @@ let TableComponentReact = ({ items, config }) => {
     setSortConfig({ key, direction });
   };
 
+  let processContent = (content) => {
+    if (content.includes("http")) {
+      // find with a regex all the urls in the content and transform them into links
+      let regex = /(https?:\/\/[^\s]+)/g;
+      content = content.replace(regex, (url) => {
+        return `<a href="${url}" target="_blank">${url}</a>`;
+      });
+    } 
+    return content
+  }
 
 
   return [
@@ -89,7 +99,7 @@ let TableComponentReact = ({ items, config }) => {
                     // ICON 
                     ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
                     // TEXT 
-                    !type ? [item[colId]] : []
+                    !type ? [c('div', {className:"cell-content", dangerouslySetInnerHTML:{__html: processContent(item[colId])}})] : []
                     ])
                 )
                 ])
