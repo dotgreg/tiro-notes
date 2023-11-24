@@ -31,6 +31,7 @@ import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 import { notifLog } from "../../managers/devCli.manager";
 import { history } from "@codemirror/history";
+import { hashtagPreviewPlugin } from "../../managers/codeMirror/hashtag.plugin.cm";
 // import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
@@ -334,6 +335,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// disable markdown plugin on mobile as it makes it really unstable and slow
 			let disableMd = deviceType() !== "desktop"
 			// disableMd = true
+
+			// hashtag 
+			newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
 
 			// newcodemirrorExtensions.push(linksPreviewPlugin)
 			if (ua.get("ui_editor_links_as_button") && !disablePlugins) {

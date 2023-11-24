@@ -68,6 +68,7 @@ export type iUserSettingObj = {[K in iUserSettingName]:any}
 export type iUserSettingName =
 'ui_filesList_sortMode' |
 'ui_layout_colors_main' |
+'ui_layout_colors_main_font' |
 'ui_layout_shortcuts_panel' |
 'ui_sidebar' |
 

@@ -26,6 +26,7 @@ import { css } from "@emotion/react"
 const colors = {
 	// controlable vars
 	main: '#E86666',
+	mainFont: '#FFFFFF',
 
 	// // light
 

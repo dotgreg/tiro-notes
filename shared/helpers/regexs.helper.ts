@@ -33,6 +33,7 @@ export const regexs = {
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ])+\|/gmi,
 	// mdTableCell: /(([^|])+\|/gmi,
 	mdTableCell: /((([^|\n])+\|)|(([^|\n])+))/gmi,
+	hashtag: /#([A-zÀ-ú1-9_\-]+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,

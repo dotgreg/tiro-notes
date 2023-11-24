@@ -68,6 +68,16 @@ export const NotePreviewPopup = (p: {
 export const notePreviewPopupDims = {w: 400, h: 300}
 
 export const notePreviewPopupCss = () => `
+    .mobile-view-preview {
+        .page-link-preview-popup-int {
+            .editor-area {
+                display:block;
+            }
+            .preview-area-wrapper {
+                display:none;
+            }
+        }
+    }
     .page-link-preview-popup-ext {
         // pointer-events: none;
         position: absolute;

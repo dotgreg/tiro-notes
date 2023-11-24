@@ -25,31 +25,31 @@ export const NotePreviewInt = (p: {
 	const [content, setContent] = useState("");
 	const [view, setView] = useState<iViewType>(p.view);
 
-	let loadPreviewContent = useDebounce(() => {
-		getApi(api => {
-			api.file.getContent(p.file.path, ncontent => {
-				if (p.searchedString) {
-					let string2Search = p.searchedString
-					ncontent = ncontent.replaceAll(
-						string2Search,
-						`<span class='found-word'>${p.searchedString}</span>`)
+	// let loadPreviewContent = useDebounce(() => {
+	// 	getApi(api => {
+	// 		api.file.getContent(p.file.path, ncontent => {
+	// 			if (p.searchedString) {
+	// 				let string2Search = p.searchedString
+	// 				ncontent = ncontent.replaceAll(
+	// 					string2Search,
+	// 					`<span class='found-word'>${p.searchedString}</span>`)
 
-				}
-					ncontent = api.note.render({
-						raw: ncontent,
-						file: p.file,
-						windowId: 'preview-popup'
-					})
+	// 			}
+	// 				ncontent = api.note.render({
+	// 					raw: ncontent,
+	// 					file: p.file,
+	// 					windowId: 'preview-popup'
+	// 				})
 
-					setTimeout(() => {
-						document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
-					}, 100)
+	// 				setTimeout(() => {
+	// 					document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
+	// 				}, 100)
 
-				let html = `<div class='file-content render-latex'>${ncontent} </div>`;
-				setContent(html)
-			})
-		})
-	}, 200)
+	// 			let html = `<div class='file-content render-latex'>${ncontent} </div>`;
+	// 			setContent(html)
+	// 		})
+	// 	})
+	// }, 200)
 
 	let loadEditorContent = useDebounce(() => {
 		getApi(api => {

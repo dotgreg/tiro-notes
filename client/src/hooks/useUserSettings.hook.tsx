@@ -36,6 +36,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_sidebar: true,
 	ui_filesList_sortMode: 2,
 	ui_layout_colors_main: "#E86666",
+	ui_layout_colors_main_font: "#FFFFFF",
 	ui_editor_markdown_preview: true,
 	ui_editor_markdown_latex_preview: true,
 	ui_editor_markdown_enhanced_preview: true,
@@ -93,6 +94,7 @@ export const useUserSettings =  (p: {
 	const debounceChange = useDebounce(() => {
 		log && console.log(h, 'UPDATE!', userSettings, refreshCss);
 		replaceDefaultByUserVar('ui_layout_colors_main', cssVars.colors, 'main')
+		replaceDefaultByUserVar('ui_layout_colors_main_font', cssVars.colors, 'mainFont')
 		triggerRefresh()
 	}, 1000)
 
