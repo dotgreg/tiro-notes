@@ -16,9 +16,9 @@
 const styleCss = `
 #ctag-component-table-wrapper {
   overflow-wrap: normal;
-  width: 100%;
+  width: calc(100% - 30px);
   height: 100%;
-  padding-top: 5px;
+  padding: 10px;
 }
 #ctag-component-table-wrapper th {
   // display: flex;
@@ -79,7 +79,6 @@ let TableComponentReact = ({ items, config, id }) => {
         return 0;
       });
     }
-    console.log(123, sortConfig)
     return sortableItems;
   }, [items, sortConfig]);
 
@@ -197,7 +196,7 @@ let genTableComponent = ({items, config, id}) => {
       }
   );
   
-  return `<div id="ctag-component-table-wrapper"> ... </div>` 
+  return `<div id="ctag-component-table-wrapper"> .ddd.. </div>` 
 }
 
 
