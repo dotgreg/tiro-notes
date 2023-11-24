@@ -196,7 +196,7 @@ let genTableComponent = ({items, config, id}) => {
       }
   );
   
-  return `<div id="ctag-component-table-wrapper"> .ddd.. </div>` 
+  return `<div id="ctag-component-table-wrapper"> loading table... </div>` 
 }
 
 

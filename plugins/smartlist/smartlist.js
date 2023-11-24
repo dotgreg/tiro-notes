@@ -1,7 +1,6 @@
 // 10.10.2023 v1.1
 
 const smartlistApp = (innerTagStr, opts) => {
-        console.log(12333, innerTagStr, opts)
     const { div, updateContent } = api.utils.createDiv()
 
     const outputPaths = {  }
