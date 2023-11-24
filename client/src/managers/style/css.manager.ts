@@ -52,6 +52,7 @@ import { FloatingPanelCss } from '../../components/FloatingPanels.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 import { windowEditorCss } from '../../components/windowGrid/WindowEditor.component';
 import { passwordPopupCss } from '../../components/PasswordPopup.component';
+import { hashtagCmPluginCss } from '../codeMirror/hashtag.plugin.cm';
 
 
 export const css2 = (css: string) => css
@@ -106,7 +107,7 @@ export const CssApp2Int = (
 
 
 		
-
+		${hashtagCmPluginCss()}
 		${notePreviewPopupCss()}
 		${GlobalAppViewCss()}
 		${NotificationsCenterCss()}

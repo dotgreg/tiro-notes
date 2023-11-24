@@ -127,6 +127,13 @@ export const SettingsPopup = (p: {
 						modifier: val => { us.set('ui_layout_colors_main', val) }
 					},
 					{
+						type: 'text',
+						title: "Font color for main color",
+						expl: "Font color for items with main color as background",
+						var: us.get('ui_layout_colors_main_font'),
+						modifier: val => { us.set('ui_layout_colors_main_font', val) }
+					},
+					{
 						type: 'checkbox',
 						title: "Sidebar Shortcut Panel",
 						expl: "Adds a shortcuts/scratchpad space in the sidebar. To edit it, create a note in '.tiro/shortcuts.md'",

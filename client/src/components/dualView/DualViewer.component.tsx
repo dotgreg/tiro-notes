@@ -273,6 +273,7 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 	}
 
 	.mobile-view-preview {
+		
 		.editor-area {
 			display: none;
 		}

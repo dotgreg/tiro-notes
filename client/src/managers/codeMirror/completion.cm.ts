@@ -6,6 +6,7 @@ import { getApi } from "../../hooks/api/api.hook"
 import { notifLog } from "../devCli.manager"
 import { getParentFolder } from "../folder.manager"
 import { iUrlInfos } from "../previewUrl.manager"
+import { regexs } from "../../../../shared/helpers/regexs.helper"
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -31,7 +32,7 @@ export const getAllCompletionSources = (file: iFile): CompletionSource[] => {
 	const completionSourceHashtags: any = getCompletionSourceHashtags(file)
 	return [
 		completionSourceCtag,
-		// completionSourceHashtags,
+		completionSourceHashtags,
 		completionSourceSnippets
 	]
 }
@@ -96,14 +97,35 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 			// let p1 = getParentFolder(file.folder)
 			// let p2 = getParentFolder(p1)
 			// let folder = getParentFolder(file.folder)
-			let folder = getParentFolder(getParentFolder(file.folder))
+			// let folder = getParentFolder()
+			// let folder = getParentFolder(file.folder)
+			let folder = file.folder
+			console.log("searching for folder", folder)
 			// let folder = file.folder
-			api.search.hashtags(folder, hashs => {
+
+			api.search.word("#", folder, resSearch => {
 				// console.log(folder, hashs);
 				const arr: iCompletionTerm[] = []
-				each(hashs.nodesArr, hash => {
-					arr.push(createCompletionTerm(hash.name, hash.name))
+				each(resSearch, fileRes => {
+					each(fileRes.results, line => {
+						// search inside line for word startting with #
+						let lineArr = line.split(" ")
+						each(lineArr, word => {
+							word = word.trim()
+							if (!word || !word.startsWith("#")) return
+							if (word.length <= 1) return
+							if (word[1] === "#") return
+							arr.push(createCompletionTerm(word, word))
+						})
+						// const matchTags = line.match(regexs.hashtag3)
+						// each(matchTags, tag => {
+						// 	tag = tag.substring(1)
+						// 	arr.push(createCompletionTerm(tag, tag))
+						// })
+						
+					})
 				})
+
 				let res = {
 					from: before ? before.from : context.pos,
 					options: arr,
@@ -111,7 +133,32 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 				};
 				// console.log(res);
 				reso(res)
+				// each(hashs.nodesArr, hash => {
+				// 	arr.push(createCompletionTerm(hash.name, hash.name))
+				// })
+				// let res = {
+				// 	from: before ? before.from : context.pos,
+				// 	options: arr,
+				// 	validFor: /.*/
+				// };
+				// // console.log(res);
+				// reso(res)
 			})
+
+			// api.search.hashtags(folder, hashs => {
+			// 	// console.log(folder, hashs);
+			// 	const arr: iCompletionTerm[] = []
+			// 	each(hashs.nodesArr, hash => {
+			// 		arr.push(createCompletionTerm(hash.name, hash.name))
+			// 	})
+			// 	let res = {
+			// 		from: before ? before.from : context.pos,
+			// 		options: arr,
+			// 		validFor: /.*/
+			// 	};
+			// 	// console.log(res);
+			// 	reso(res)
+			// })
 		})
 	})
 }

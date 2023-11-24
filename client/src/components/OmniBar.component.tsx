@@ -92,17 +92,19 @@ export const OmniBar = (p: {
 		getApi(api => {
 			let ctab = api.tabs.active.get()
 
-			// drop already opened in current tab files
-			each(ctab?.grid.content, cont =>{
-				if(!cont.file) return
-				let oFile = cont.file
-				each(nVal, (o,i) => {
-					if (o && o.value && o.value === oFile.path) {	
-						delete nVal[i]
-						return false
-					}
+			// drop already opened in current tab files from options in desktop
+			if (deviceType() !== "mobile") {
+				each(ctab?.grid.content, cont =>{
+					if(!cont.file) return
+					let oFile = cont.file
+					each(nVal, (o,i) => {
+						if (o && o.value && o.value === oFile.path) {	
+							delete nVal[i]
+							return false
+						}
+					})
 				})
-			})
+			}
 
 			onOptionsChange(nVal)
 			setOptionsInt(nVal)

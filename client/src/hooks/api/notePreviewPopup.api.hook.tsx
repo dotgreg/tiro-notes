@@ -12,7 +12,14 @@ export type iNotePreviewPopup = {
 }
 
 export interface iNotePreviewPopupApi {
-	open: (path:string, position: [number,number], opts?:{windowIdToOpenIn: string,  searchedString?:string}) => void
+	open: (
+        path:string, 
+        position: [number,number], 
+        opts?:{
+            windowIdToOpenIn: string,  
+            searchedString?:string
+        }
+        ) => void
 	close: () => void
 }
 

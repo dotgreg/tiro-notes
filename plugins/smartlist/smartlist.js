@@ -123,7 +123,6 @@ const smartlistApp = (innerTagStr, opts) => {
                         },
                 ]})
 
-                // console.log(111111111123, api.utils.getInfos().file.path)
                 wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
 
 
