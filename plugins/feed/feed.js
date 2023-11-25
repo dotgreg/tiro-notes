@@ -128,11 +128,12 @@ const feedApp = (innerTagStr, opts) => {
 				//
 				// CACHING MECHANISM
 				//
-				const getCachedJsons = (cb, setStatus) => {
-						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
-						if (!hasUserReloaded) {
+				const getCachedJsons = (cb, setStatus, cache=true) => {
+						// const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
+						// nocache = hasUserReloaded
+						if (cache) {
 								// first get cached, if exists
-								setStatus("Loading... (loading feeds from cache)")
+								setStatus("Loading...")
 								getContentCache(content => {
 									// if cache, return content
 									console.log(h, "=> getting CACHED feed json")
@@ -144,7 +145,7 @@ const feedApp = (innerTagStr, opts) => {
 								})
 						} else {
 								// directly reload without cache
-								setStatus("Loading... (loading feeds directly)")
+								setStatus("Loading... (refreshing from source)")
 								getJsons(cb, setStatus)
 						}
 				}
@@ -336,6 +337,9 @@ const feedApp = (innerTagStr, opts) => {
 									resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 									setDebounceCache(resItems)
 									cb(resItems)
+								}, (error) => {
+									// on failure
+									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
 						}
 				}
@@ -357,28 +361,32 @@ const feedApp = (innerTagStr, opts) => {
 				// custom fetcher possible (for youtube for instance)
 				// enrich items data with feed data
 				//
-				const fetchFeedItems = (feed, cb) => {
+				const fetchFeedItems = (feed, cb, onFailure) => {
 						const wrappedCb = items => {
 								cb(enrichItems(items, feed))
 						}
 
 						if (opts.fetchItems) {
 								console.log(h, "CUSTOM FETCH FN detected");
-								opts.fetchItems(feed, wrappedCb)	
+								opts.fetchItems(feed, wrappedCb, onFailure)	
 						}
-						else getXml(feed, wrappedCb)
+						else getXml(feed, wrappedCb, onFailure)
 
 				}
 
-				const getXml = (feed, cb) => {
+				const getXml = (feed, cb, onFailure) => {
 						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
+							try {
 								let res2 = xml2js(txt, { compact: true })
-								
 								let items = res2.feed?.entry // XML1
 								if (!items) items = res2.rss?.channel.item // XML2
 								if (!items) items = []
 								items = items.slice(0, feed.limitFetchNb)
 								cb(items)
+							} catch (error) {
+								// console.log(h, "ERROR parsing xml", error);
+								if (onFailure) onFailure(error)
+							}
 						})
 				}
 
@@ -660,6 +668,13 @@ const feedApp = (innerTagStr, opts) => {
 								setSearchItems(nItems)
 						}, [search, filteredItems])
 
+						//
+						// refresh feeds cache
+						//
+						const [forceFeedRefresh, setForceFeedRefresh] = React.useState(0)
+						const refreshFeeds = () => {
+							setForceFeedRefresh(forceFeedRefresh + 1)
+						}
 
 
 						const [status, setStatus] = React.useState("")
@@ -667,6 +682,7 @@ const feedApp = (innerTagStr, opts) => {
 						const [activeCat, setActiveCat] = React.useState(null)
 						// INITIAL LOADING
 						React.useEffect(() => {
+								let cache = forceFeedRefresh === 0
 								setStatus("Loading... (loading bookmarks)")
 								getBookmarks(() => {
 										setStatus("Loading... (loading feeds)")
@@ -702,9 +718,9 @@ const feedApp = (innerTagStr, opts) => {
 													setActiveFeed(null)
 												}
 												
-										}, setStatus)
+										}, setStatus, cache)
 								})
-						}, [])
+						}, [forceFeedRefresh])
 
 						const [refresh, setRefresh] = React.useState(0)
 						const doRefresh = () => { setRefresh(refresh + 1) }
@@ -805,6 +821,8 @@ const feedApp = (innerTagStr, opts) => {
 									setShowBar(v)
 								})
 						}, [])
+
+						
 						
 
 
@@ -884,6 +902,13 @@ const feedApp = (innerTagStr, opts) => {
 												// 				c('option', { value: `feed-${feed}` }, [`${feed}`])
 												// 		)
 												// ]),
+												c('div', {
+													className: `filter-refresh filter-toggle`,
+													onClick: () => { refreshFeeds() },
+													title: `Refresh`
+												}, [
+													c('div', {className: `fa fa-refresh`})
+												]),
 												c('div', {
 													className: `filter-bar-appear filter-toggle`,
 													onClick: () => { toggleBar() },
