@@ -3,10 +3,11 @@ const channelUrl = (name) => {
 		return `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${name}&key=${window.youtubeKey}`}
 
 
-const f = (url, cb) => {
+const f = (url, cb, failed=()=>{}) => {
 		fetch(url)
-				.then(response => response.json())
-				.then(data => {cb(data)});
+			.then(response => response.json())
+			.then(data => {cb(data)})
+			.catch(err => {failed(err)})
 }
 
 const getUploadPlaylist = (feed, cb) => {
@@ -14,6 +15,8 @@ const getUploadPlaylist = (feed, cb) => {
 		f(url, obj => {
 				let uploadPlaylist = obj.items ? obj.items[0]?.contentDetails?.relatedPlaylists?.uploads : null
 				cb(uploadPlaylist)
+		}, err => {
+			console.log("[YOUTUBE] error fetching getUploadPlaylist",feed, err)
 		})
 }
 
@@ -69,8 +72,10 @@ const getVideosDetails = (vItems, cb) => {
 										it.videoDetails.durationMin = Math.round(time/60) 
 								}
 						})
-								})
-						cb(vItems)
+					})
+			cb(vItems)
+		}, err => {
+			console.log("[YOUTUBE] error fetching getVideosDetails", err)
 		})
 }
 
@@ -93,7 +98,9 @@ const getItemsRecurr = (p) => {
 								cb(items)
 						}
 				})
-    })
+    	}, err => {
+			console.log("[YOUTUBE] error fetching ",url, err)
+		})
 }
 
 
