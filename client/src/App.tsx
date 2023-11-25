@@ -682,7 +682,8 @@ export const App = () => {
 
 
 						</div>
-						{ deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows &&
+						{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
+						{ userSettingsSync.curr.beta_floating_windows &&
 							<FloatingPanelsWrapper 
 								panels={api.ui.floatingPanel.panels} 
 								pinStatus={pinStatus.bottomBar}

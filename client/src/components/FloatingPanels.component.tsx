@@ -16,6 +16,7 @@ import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 import { Icon2 } from './Icon.component';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { generateUUID } from '../../../shared/helpers/id.helper';
+import { deviceType } from '../managers/device.manager';
 
 let startZindex = 1000
 // react windows that is resizable
@@ -406,7 +407,7 @@ export const FloatingPanelsWrapper = (p:{
         getApi(api => {
             api.ui.floatingPanel.updateAll(newPanels)
         })
-    },[panels, loaded])
+    },[loaded])
 
 
 
@@ -471,41 +472,43 @@ export const FloatingPanelsWrapper = (p:{
 
 
 
-            <div className='panels-minimized-bottom-bar-wrapper' style={{height:`${35 + getScrollbarWidth()}px`, bottom:`-${getScrollbarWidth()}px`}} >
-                <div className={`panels-minimized-bottom-bar-background ${p.pinStatus ? "pinned" : ""}`} > </div>
-                <div className='bottom-hover-bar' > </div>
-                <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
-                    <div className='floating-panels-bottom-toolbar'>
-                        <div className='btn-action reinit-position-and-size' onClick={handleReinitPosAndSize}><Icon2 name="layer-group" /> </div>
-                        <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
-                        {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}
-                        {/* <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button> */}
-                    </div>
-                    {panelsBar.map( panel =>
-                        panel.status !== "visible" &&
-                            <div 
-                                key={panel.id}
-                                className='panel-minimized' onClick={(e) => { 
-                                handleDeminimize(panel)
-                            }}>
-                                <div className='label'>
-                                    {getPanelTitle(panel)}
-                                </div>
-                                {
-                                    panel.status === "minimized" &&
-                                    <div className='active-icon'>
-                                        <Icon2 name="circle" />
+            { deviceType() === "desktop" &&
+                <div className='panels-minimized-bottom-bar-wrapper' style={{height:`${35 + getScrollbarWidth()}px`, bottom:`-${getScrollbarWidth()}px`}} >
+                    <div className={`panels-minimized-bottom-bar-background ${p.pinStatus ? "pinned" : ""}`} > </div>
+                    <div className='bottom-hover-bar' > </div>
+                    <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
+                        <div className='floating-panels-bottom-toolbar'>
+                            <div className='btn-action reinit-position-and-size' onClick={handleReinitPosAndSize}><Icon2 name="layer-group" /> </div>
+                            <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
+                            {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}
+                            {/* <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button> */}
+                        </div>
+                        {panelsBar.map( panel =>
+                            panel.status !== "visible" &&
+                                <div 
+                                    key={panel.id}
+                                    className='panel-minimized' onClick={(e) => { 
+                                    handleDeminimize(panel)
+                                }}>
+                                    <div className='label'>
+                                        {getPanelTitle(panel)}
                                     </div>
-                                }
-                                <div className="close-btn" onClick={(e) => {
-                                    e.stopPropagation()
-                                    if (panel.status === "minimized") handleKillMinimized(panel)
-                                    else handleRemovePanel(panel)
-                                }}><Icon2 name='xmark' /></div>
-                            </div>
-                    )} 
+                                    {
+                                        panel.status === "minimized" &&
+                                        <div className='active-icon'>
+                                            <Icon2 name="circle" />
+                                        </div>
+                                    }
+                                    <div className="close-btn" onClick={(e) => {
+                                        e.stopPropagation()
+                                        if (panel.status === "minimized") handleKillMinimized(panel)
+                                        else handleRemovePanel(panel)
+                                    }}><Icon2 name='xmark' /></div>
+                                </div>
+                        )} 
+                    </div>
                 </div>
-            </div>
+            }
         </div>
     )
 }

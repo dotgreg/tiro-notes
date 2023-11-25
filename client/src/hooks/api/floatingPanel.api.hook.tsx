@@ -6,6 +6,7 @@ import { cloneDeep } from "lodash"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
+import { deviceType } from "../../managers/device.manager"
 
 const h = `[FLOATING PANELS]`
 
@@ -53,10 +54,15 @@ export interface iFloatingPanelApi {
 
 let startingZindex = 1000
 let offset = 20
+const initialLoad = {value: true}
 
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig',[])
+
+    // const [panelsMobile, setPanelsMobileInt, refreshFromBackend2] = useBackendState<iFloatingPanel[]>('floatingPanelsMobileConfig',[])
+    const [panelsDesktop, setPanelsDesktopInt, refreshFromBackend3] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[])
+
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     // const [forceFloatingPanelsUpdate, setForceFloatingPanelsUpdate] = React.useState(0) 
 
@@ -66,14 +72,29 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         panelsRef.current = panels
     },[panels])
 
-    const setPanels = (panels:iFloatingPanel[]) => {
-        panelsRef.current = panels
-        setPanelsInt(panels)
+    const setPanels = (npans:iFloatingPanel[]) => {
+        panelsRef.current = npans
+        setPanelsInt(npans)
+        if (deviceType() !== 'mobile')  {setPanelsDesktopInt(panels)} //setPanelsMobileInt(panels)
     }
     
     useEffect(() => {
         refreshFromBackend()
+        refreshFromBackend3()
     },[])
+
+    useEffect(() => {
+        if (!initialLoad.value) return
+        if (deviceType() === 'mobile' )  {
+            console.log(`${h} MOBILE`)
+            setPanels([])
+            initialLoad.value = false
+        } else if (deviceType() !== 'mobile' && panelsDesktop.length > 0) { 
+            console.log(`${h} DESKTOP`, panelsDesktop)
+            setPanels(cloneDeep(panelsDesktop))    
+            initialLoad.value = false
+        }
+    },[panels, panelsDesktop])
 
 
     const createPanel = (panelParams:iCreateFloatingPanel) => {
@@ -127,7 +148,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
     
     const updateAll = (panels:iFloatingPanel[]) => {
-        setPanels(panels)
+        setPanels(cloneDeep(panels))
     }
 
     const movePanel = (panelId:string, position:{x:number, y:number}) => {
