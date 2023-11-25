@@ -357,14 +357,16 @@ const EditorAreaInt = (
 	const [simpleFallback, setSimpleFallback] = useState(false)
 	const [isPreview, setIsPreview] = useState(false)
 	useEffect(() => {
-		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
+		let nval = innerFileContent.length > 30000000000 && deviceType() !== "desktop"
+		// let nval = innerFileContent.length > 3000000 && deviceType() !== "desktop"
 		setSimpleFallback(nval)
 		// forceCmRender() // cannot force render otherwise get very slow
 	}, [innerFileContent, p.viewType])
 
 
 	useEffect(() => {
-		let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
+		let nval = innerFileContent.length > 3000000000 && deviceType() !== "desktop"
+		// let nval = innerFileContent.length > 30000 && deviceType() !== "desktop"
 		setSimpleFallback(nval)
 		forceCmRender()
 		let nisPreview = (deviceType() === "desktop" && p.viewType === "preview") || (deviceType() !== "desktop" && p.mobileView === "preview")

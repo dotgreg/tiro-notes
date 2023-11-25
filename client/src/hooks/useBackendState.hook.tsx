@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
 import { getApi, getClientApi2 } from "./api/api.hook";
+import { cloneDeep } from "lodash";
 
 export function useBackendState<T>(key: string, initialValue: T, debug: boolean=false): [T, (value: T) => void, Function] {
 
@@ -22,10 +23,11 @@ export function useBackendState<T>(key: string, initialValue: T, debug: boolean=
 
 	// persistence logic 
 	const setValue = value => {
-		setStoredValue(value)
-		if(debug) console.log(`[BACKEND STATE] setValue: ${key} => `, value);
+		const nval = cloneDeep(value)
+		setStoredValue(cloneDeep(nval))
+		if(debug) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
 		getApi(api => {
-			api.file.saveContent(pathToNote, JSON.stringify(value))
+			api.file.saveContent(pathToNote, JSON.stringify(nval))
 		})
 
 	}
