@@ -303,7 +303,8 @@ const epubApp = (innerTagStr, opts) => {
 
 				const jumpToNextPage = () => {
 					let pageNb = getPage()
-					if (pageNb === 0) return jumpToPage(1)
+					// console.log(h, "jumpToNextPage", {pageNb});
+					// if (pageNb === 0) return jumpToPage(1)
 					book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
 					eapi.updateUI()
 				}
@@ -369,12 +370,13 @@ const epubApp = (innerTagStr, opts) => {
 						//
 						eapi.scanBook(() => {
 								getCache("page", page => {
+									console.log(111111111111)
 										eapi.jumpToPage(page)
 										eapi.updateUI(page, { cachePage: false })
 								}, () => { 
-
-									// eapi.jumpToPage(0)
-									// eapi.updateUI(page, { cachePage: false })
+									console.log(2222222222)
+									eapi.jumpToPage(0)
+									eapi.updateUI(page, { cachePage: false })
 								})
 						})
 
