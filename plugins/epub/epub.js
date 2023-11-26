@@ -76,8 +76,11 @@ const epubApp = (innerTagStr, opts) => {
 				var currentSectionIndex = 2
 
 				// Load the opf
+				console.log(111)
 				var book = ePub(p.url);
 				var rendition = book.renderTo("viewer", {
+						//method: "continuous",
+						//flow: "paginated",
 						width: p.w,
 						height: p.h,
 						spread: "always"
@@ -223,7 +226,8 @@ const epubApp = (innerTagStr, opts) => {
 						// let nHeight = cHeight * 0.70
 						
 						console.log(h,"TRIGGER RESIZE2", nHeight);
-						if (nHeight)rendition.resize("100%", nHeight)
+						if (nHeight) rendition.resize("100%", nHeight)
+						
 				}
 				const triggerResize = () => {
 						setTimeout(() => {
@@ -302,19 +306,27 @@ const epubApp = (innerTagStr, opts) => {
 				}
 
 				const jumpToNextPage = () => {
-					let pageNb = getPage()
-					console.log(h, "jumpToNextPage", {pageNb});
+					let oldpage = getPage()
+					// console.log(h, "jumpToNextPage", {pageNb});
 					// if (pageNb === 0) return jumpToPage(1)
-					book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+					// book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+					jumpToPage(oldpage + 1)
+					setTimeout(() => {
+						let npage = getPage()
+						console.log(h, "jumpToNextPage", {npage, oldpage});
+						if (npage === oldpage) book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+						//jumpToPage(oldpage + 1)
+						//console.log8
+					}, 10)
 					// jumpToPage(pageNb + 1)
 					eapi.updateUI()
 				}
 				const jumpToPrevPage = () => {
 					let pageNb = getPage()
 					// if (pageNb === 0) return jumpToPage(1)
-					book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
-					// if (pageNb === 0) return
-					// jumpToPage(pageNb - 1)
+					// book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+					if (pageNb === 0) return
+					jumpToPage(pageNb - 1)
 					eapi.updateUI()
 				}
 
@@ -528,6 +540,7 @@ const epubApp = (innerTagStr, opts) => {
 						});
 
 						rendition.on("layout", function (layout) {
+							console.log('layout', layout)
 								let viewer = document.getElementById("viewer");
 
 								if (layout.spread) {
