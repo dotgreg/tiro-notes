@@ -48,6 +48,10 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 export type ssrCachedStatus = "open" | "closed"
 export const setSsrStatus = (file:iFile, idDoc:string, status: ssrCachedStatus) => {
 	let cacheId = `ressource-preview-status-${file.path}`
+	// if iDoc has ?token=xxx, we remove it
+	let i = idDoc.indexOf("token=")
+	if (i > -1) idDoc = idDoc.substring(0, i)
+	console.log("setSsrStatus", cacheId, idDoc, status);
 	let idRess = `${file.path}-${idDoc}`
 	getApi(api => {
 		api.cache.get(cacheId, res => {
