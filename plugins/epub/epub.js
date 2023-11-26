@@ -301,9 +301,25 @@ const epubApp = (innerTagStr, opts) => {
 						})
 				}
 
+				const jumpToNextPage = () => {
+					let pageNb = getPage()
+					if (pageNb === 0) return jumpToPage(1)
+					book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+					eapi.updateUI()
+				}
+				const jumpToPrevPage = () => {
+					// let pageNb = getPage()
+					// if (pageNb === 0) return jumpToPage(1)
+					book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+					eapi.updateUI()
+				}
+
 
 				window.epubApi = {
 						jumpToPage,
+						jumpToNextPage,
+						jumpToPrevPage,
+
 						getPage,
 						getCurrentPageContent,
 						updateUI,
@@ -355,7 +371,11 @@ const epubApp = (innerTagStr, opts) => {
 								getCache("page", page => {
 										eapi.jumpToPage(page)
 										eapi.updateUI(page, { cachePage: false })
-								}, () => { })
+								}, () => { 
+
+									// eapi.jumpToPage(0)
+									// eapi.updateUI(page, { cachePage: false })
+								})
 						})
 
 						// eapi.jumpToPage(10)
@@ -425,13 +445,11 @@ const epubApp = (innerTagStr, opts) => {
 						})
 
 						onClick(["next", "overlay-next"], e => {
-								book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
-								eapi.updateUI()
+								jumpToNextPage()
 								e.preventDefault();
 						})
 						onClick(["prev", "overlay-prev"], e => {
-								book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
-								eapi.updateUI()
+								jumpToPrevPage()
 								e.preventDefault();
 						})
 						
