@@ -86,11 +86,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     useEffect(() => {
         if (!initialLoad.value) return
         if (deviceType() === 'mobile' )  {
-            console.log(`${h} MOBILE`)
             setPanels([])
             initialLoad.value = false
         } else if (deviceType() !== 'mobile' && panelsDesktop.length > 0) { 
-            console.log(`${h} DESKTOP`, panelsDesktop)
             setPanels(cloneDeep(panelsDesktop))    
             initialLoad.value = false
         }

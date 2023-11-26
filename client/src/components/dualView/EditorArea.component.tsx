@@ -933,7 +933,7 @@ export const commonCssEditors = () => `
 		font-size: 30px;
 		font-weight: 800;
 		width: 100%;
-		text-transform: uppercase;
+		// text-transform: uppercase;
 }
 
 .separation-bar {
