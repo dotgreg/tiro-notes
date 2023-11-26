@@ -75,7 +75,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const setPanels = (npans:iFloatingPanel[]) => {
         panelsRef.current = npans
         setPanelsInt(npans)
-        if (deviceType() !== 'mobile')  {setPanelsDesktopInt(panels)} //setPanelsMobileInt(panels)
+        if (deviceType() !== 'mobile') { setPanelsDesktopInt(npans) } //setPanelsMobileInt(panels)
     }
     
     useEffect(() => {
