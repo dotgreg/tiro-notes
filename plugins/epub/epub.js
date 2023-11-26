@@ -303,15 +303,18 @@ const epubApp = (innerTagStr, opts) => {
 
 				const jumpToNextPage = () => {
 					let pageNb = getPage()
-					// console.log(h, "jumpToNextPage", {pageNb});
+					console.log(h, "jumpToNextPage", {pageNb});
 					// if (pageNb === 0) return jumpToPage(1)
 					book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+					// jumpToPage(pageNb + 1)
 					eapi.updateUI()
 				}
 				const jumpToPrevPage = () => {
-					// let pageNb = getPage()
+					let pageNb = getPage()
 					// if (pageNb === 0) return jumpToPage(1)
 					book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+					// if (pageNb === 0) return
+					// jumpToPage(pageNb - 1)
 					eapi.updateUI()
 				}
 
@@ -370,11 +373,10 @@ const epubApp = (innerTagStr, opts) => {
 						//
 						eapi.scanBook(() => {
 								getCache("page", page => {
-									console.log(111111111111)
 										eapi.jumpToPage(page)
 										eapi.updateUI(page, { cachePage: false })
 								}, () => { 
-									console.log(2222222222)
+									// no cache, jump to first page
 									eapi.jumpToPage(0)
 									eapi.updateUI(page, { cachePage: false })
 								})
@@ -464,12 +466,12 @@ const epubApp = (innerTagStr, opts) => {
 
 								// Left Key
 								if ((e.keyCode || e.which) == 37) {
-										book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
+									jumpToPrevPage()
 								}
-
+								
 								// Right Key
 								if ((e.keyCode || e.which) == 39) {
-										book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+									jumpToNextPage()
 								}
 
 						};
