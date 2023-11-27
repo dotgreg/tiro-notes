@@ -67,6 +67,7 @@ const feedApp = (innerTagStr, opts) => {
 		console.log(h, "========= INIT with opts:", opts)
 
 		// const feedsCategories = []
+		// const failedFeeds = []
 
 		const execFeedReader = (feedsStr) => {
 				// const sortArr = (items,sortType) => {
@@ -128,6 +129,7 @@ const feedApp = (innerTagStr, opts) => {
 				//
 				// CACHING MECHANISM
 				//
+
 				const getCachedJsons = (cb, setStatus, cache=true) => {
 						// const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
 						// nocache = hasUserReloaded
@@ -244,6 +246,7 @@ const feedApp = (innerTagStr, opts) => {
 				//////////////////////////////////////////////////////////////////
 				// FETCHING DATA
 				//
+				
 				const getJsons = (cb, setStatus) => {
 						console.log(h, `getting NEW uncached jsons`);
 						const feedsArr = getFeeds(feedsStr)
@@ -337,8 +340,13 @@ const feedApp = (innerTagStr, opts) => {
 									resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 									setDebounceCache(resItems)
 									cb(resItems)
+									if (feedItems.length === 0) {
+										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+									}
 								}, (error) => {
 									// on failure
+									// setFailedFeeds([...failedFeeds, feedsArr[i].name])
+									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
 									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
 						}
@@ -680,6 +688,16 @@ const feedApp = (innerTagStr, opts) => {
 						const [status, setStatus] = React.useState("")
 						const [categories, setCategories] = React.useState([])
 						const [activeCat, setActiveCat] = React.useState(null)
+
+						// const [failedFeeds, setFailedFeedsInt] = React.useState([])
+						// const setFailedFeeds = (nval) => {
+						// 	console.log(123123, nval)
+						// 	setFailedFeedsInt(nval)
+						// }
+						// React.useEffect(() => {
+						// 	console.log(failedFeeds)
+						// }, [failedFeeds])
+
 						// INITIAL LOADING
 						React.useEffect(() => {
 								let cache = forceFeedRefresh === 0
@@ -843,9 +861,21 @@ const feedApp = (innerTagStr, opts) => {
 								nfilterBarList.push({label: cat, value: `cat-${cat}`, active:isActive("cat", cat, activeCat)})
 							),
 							nfilterBarList.push({label: "-- feeds -- "})
+							let filterFeeds = []
 							feeds.map(feed =>
-								nfilterBarList.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+								filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
 							)
+							// sort by label name first letter
+							filterFeeds = filterFeeds.sort((a, b) => a.label.localeCompare(b.label))
+
+							nfilterBarList.push(...filterFeeds)
+							// finally push failed feeds
+							// if (failedFeeds.length > 0) {
+							// 	nfilterBarList.push({label: "-- failed feeds -- "})
+							// 	failedFeeds.map(feed =>
+							// 		nfilterBarList.push({label: `x ${feed}`, value: `failed-feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+							// 	)
+							// }
 							setFilterBarList(nfilterBarList)
 						}, [categories, feeds, activeFeed, activeCat])
 
