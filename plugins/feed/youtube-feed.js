@@ -152,16 +152,48 @@ const processItems = (items) => {
 				return fitems
 }
 
+const youtubeChannelToId = (channelName, cb) => {
+	channelName = channelName.startsWith("@") ? channelName : `@${channelName}`
+	let channelUrl = `https://www.youtube.com/${channelName}`
+	api.call("ressource.fetch", [channelUrl, { disableCache: false }], resTxt => {
+	// api.ressource.fetch(channelUrl, res => {
+		arr1 = resTxt.split(`href="https://www.youtube.com/channel/`); 
+		arr2 = arr1[1].split(`"`)[0]; 
+		
+		if (arr2.length > 10 && arr2.length < 40) {
+			console.log(`[YOUTUBE] channel id found for ${channelUrl}`, arr2)
+			cb(arr2)
+		}
+		else console.error(`YT error could not fetch id of ${channelUrl}`)
+	})
+}
+	// youtubeChannelToId("justinetbee", res => {console.log(res)})
+
 const fetchItems = (feed, cb) => {
+		//
+		// CHANNEL
 		// if url starts with @, load the channel and    take the upload playlist id
 		if (feed.url.startsWith("@")) {
-				getUploadPlaylist(feed, playlistId => {
+				const fetchPlaylistsFromChannel = () => {
+					getUploadPlaylist(feed, playlistId => {
 						if (!playlistId) return cb([])
 						getItemsPlaylist(playlistId, items => {
 								cb(processItems(items))
 						}, feed.limitFetchNb)
-				})
+					})
+				}
+				if (feed.url.startsWith("@UC"))  {
+					fetchPlaylistsFromChannel()
+				} else {
+					youtubeChannelToId(feed.url, id => {
+						feed.url = `@${id}`
+						fetchPlaylistsFromChannel()
+					})
+				}
 		} else {
+			//
+			// PLAYLIST
+			//
 				// otherwise, consider it as a playlist id
 				getItemsPlaylist(feed.url, items => {
 						cb(processItems(items))

@@ -76,14 +76,14 @@ const epubApp = (innerTagStr, opts) => {
 				var currentSectionIndex = 2
 
 				// Load the opf
-				console.log(111)
 				var book = ePub(p.url);
 				var rendition = book.renderTo("viewer", {
 						//method: "continuous",
 						//flow: "paginated",
+						method: "continuous",
 						width: p.w,
 						height: p.h,
-						spread: "always"
+						// spread: "always"
 				});
 
 				
@@ -149,12 +149,19 @@ const epubApp = (innerTagStr, opts) => {
 				// EXT API
 				//
 				const jumpToPage = (pageNb) => {
+						// let cpage = getPage()
 						if (pageNb < 0) pageNb = 0
 						let cfi = book.locations.cfiFromLocation(pageNb)
 						console.log(h, "JUMPING PAGE", pageNb, cfi);
 						rendition.display(cfi);
+						// setTimeout(() => {
+						// 	let npage = getPage()
+						// }, 100)
 				}
 				const getPage = () => {
+						// console.log("1111111111----")
+						// console.log(rendition.currentLocation())
+						// console.log(rendition.currentLocation()?.end?.location)
 						return rendition.currentLocation()?.start?.location || 0
 				}
 				const getPageContent = (pageNb, cb) => {
@@ -207,7 +214,7 @@ const epubApp = (innerTagStr, opts) => {
 								window.updateStatus("")
 								onDone()
 						}, () => {
-								book.locations.generate(600).then(() => {
+								book.locations.generate(2048).then(() => {
 										let nLocs = book.locations._locations
 										setCache(cacheLocation, nLocs)
 										window.updateStatus("")
@@ -219,14 +226,16 @@ const epubApp = (innerTagStr, opts) => {
 
 				const resizeFullHeight = () => {
 						let cHeight = document.body.clientHeight
+						// let cWidth = document.body.clientWidth - 50
+						let cWidth = "100%"
 						// let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
 						let nHeight = cHeight > 500 ? cHeight - 50 : cHeight - 120
 						if (isMobile())  nHeight -= 40 
 						// let nHeight = cHeight
 						// let nHeight = cHeight * 0.70
 						
-						console.log(h,"TRIGGER RESIZE2", nHeight);
-						if (nHeight) rendition.resize("100%", nHeight)
+						console.log(h,"TRIGGER RESIZE2", cWidth, nHeight);
+						if (nHeight) rendition.resize(cWidth, nHeight)
 						
 				}
 				const triggerResize = () => {
@@ -244,7 +253,8 @@ const epubApp = (innerTagStr, opts) => {
 				}, 1000)
 
 				window.addEventListener('resize', (event) => {
-						triggerResize()
+					// console.log(h, "resize ------------");
+					triggerResize()
 				});
 				document.addEventListener('fullscreenchange', (event) => {
 						triggerResize()
@@ -305,20 +315,88 @@ const epubApp = (innerTagStr, opts) => {
 						})
 				}
 
+				
+
+				const pageManager = {
+					startPage: 0,
+					iterations: 0,
+					action: "none",
+				}
+				rendition.on('locationChanged', (location) =>{
+					if (pageManager.action === "next") {
+						currPage = getPage()
+						if (currPage === pageManager.startPage) {
+							// console.log("ite", pageManager.iterations)
+							pageManager.iterations ++
+							jumpToPage(pageManager.startPage + pageManager.iterations)
+						} else {
+							pageManager.action = "none"
+							// console.log("done!")
+						}
+					}
+				});
+
 				const jumpToNextPage = () => {
-					let oldpage = getPage()
-					// console.log(h, "jumpToNextPage", {pageNb});
-					// if (pageNb === 0) return jumpToPage(1)
+					//V3 working well finally!
+					pageManager.action = "next"
+					pageManager.startPage = getPage()
+					pageManager.iterations = 1
+					jumpToPage(pageManager.startPage + pageManager.iterations)
+
+					// V1
+					// console.log(h, "jumpToNextPage", rendition);	
+					// console.log(rendition, rendition.currentLocation())
 					// book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
-					jumpToPage(oldpage + 1)
-					setTimeout(() => {
-						let npage = getPage()
-						console.log(h, "jumpToNextPage", {npage, oldpage});
-						if (npage === oldpage) book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
-						//jumpToPage(oldpage + 1)
-						//console.log8
-					}, 10)
+					// // rendition.display("Paul et Myriam ont fait "); 
+
+					//V2 not working
+					// let initpage = getPage()
+					// let npage = getPage()
+					// // console.log(h, "jumpToNextPage", {pageNb});
+					// // if (pageNb === 0) return jumpToPage(1)
+					// let int = setInterval(() => {
+					// 	let cpage = getPage()
+					// 	console.log("jumpToNextPage1", {initpage, cpage, npage})
+					// 	if (initpage !== cpage) return clearInterval(int)
+					// 	npage = npage + 1
+					// 	jumpToPage(npage)
+					// }, 50)
+
+					// const youtubeChannelToId = (channelName, cb) => {
+					// 	channelName = channelName.startsWith("@") ? channelName : `@${channelName}`
+					// 	let channelUrl = `https://www.youtube.com/${channelName}`
+					// 	api.ressource.fetch(channelUrl, res => {
+					// 		arr1 = res.split(`href="https://www.youtube.com/channel/`); 
+					// 		arr2 = arr1[1].split(`"`)[0]; 
+							
+					// 		if (arr2.length > 10 && arr2.length < 40) cb(arr2)
+					// 		else console.error(`YT error could not fetch id of ${channelUrl}`)
+					// 	})
+					// }
+					// youtubeChannelToId("justinetbee", res => {console.log(res)})
+					
+					// setTimeout(() => {
+					// 	let npage = getPage()
+					// 	console.log(h, "jumpToNextPage", {npage, oldpage});
+					// 	if (npage === oldpage) book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
+					// 	//jumpToPage(oldpage + 1)
+					// 	//console.log8
+					// }, 10)
+
+					// V3 
+					// let pageNb = getPage()
 					// jumpToPage(pageNb + 1)
+					// setTimeout(() => {
+					// 	let npagenb = getPage()
+					// 	console.log("jumpToNextPage2", {pageNb, npagenb})
+					// 	jumpToPage(pageNb + 2)
+					// 	setTimeout(() => {
+					// 		let npagenb = getPage()
+					// 		console.log("jumpToNextPage3", {pageNb, npagenb})
+					// 		jumpToPage(pageNb + 3)
+					// 	},100)
+					// },100)
+
 					eapi.updateUI()
 				}
 				const jumpToPrevPage = () => {
@@ -551,7 +629,7 @@ const epubApp = (innerTagStr, opts) => {
 						});
 
 						window.addEventListener("unload", function () {
-								this.book.destroy();
+								// this.book.destroy();
 						});
 
 						book.loaded.navigation.then(function (toc) {
@@ -585,7 +663,7 @@ const epubApp = (innerTagStr, opts) => {
 
 
 				const status = document.getElementById("status")
-				const pager = document.getElementById("page")
+				const pager = document.getElementById("page_number")
 				const tot = document.getElementById("tot")
 				const onPagerChange = (e) => {
 						const nPage = e.target.value
@@ -682,7 +760,7 @@ const htmlEpub = () => `
 <div class="controls-wrapper">
 		<div class="flex-wrapper">
 			<select id="toc"></select>
-			<input type="number" id="page" min="0" /> / <div id="tot">0</div>
+			<input type="number" id="page_number" min="0" /> / <div id="tot">0</div>
 		</div>
 		<div class="flex-wrapper">
 		<input type="button" id="prev" value=" < " />
