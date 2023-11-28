@@ -69,12 +69,10 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 		// get content > find first image, if exists, change page.icon with it for add to desktop functionality
 		api.file.getContent(filePath, content => {
 			let images = findImagesFromContent(content, pathToIfile(filePath))
-			console.log(images)
 			if (images.length < 1) return
 			// console.log("looking for image")
 			let fullurl = `${images[0].url}${getUrlTokenParam()}`
 			// document.
-			console.log(fullurl)
 			// create a new <link rel="icon" href="%PUBLIC_URL%/favicon.png" /> programmatically
 			
 			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
@@ -82,7 +80,6 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			document.title = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
 		})
 
-		// console.log(1111111, activeWindow, urlParamsArr,{filePath, view})
 		setUrlParams(urlParamsArr)
 	})
 }

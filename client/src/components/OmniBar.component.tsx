@@ -88,7 +88,6 @@ export const OmniBar = (p: {
 		// each(nVal, o => {
 		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
 		// })
-		console.log("setOptions", nVal)
 		getApi(api => {
 			let ctab = api.tabs.active.get()
 

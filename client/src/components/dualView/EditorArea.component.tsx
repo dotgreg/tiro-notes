@@ -109,15 +109,12 @@ const EditorAreaInt = (
 
 		onEditorDidMount: () => {
 			// devHook("editor_mount")(p.fileContent)
-			console.log("editor mounted", p.fileContent)
 			setInnerFileContent(p.fileContent)
 		},
 		onEditorWillUnmount: () => {
 		},
 		onNoteContentDidLoad: () => {
-			console.log("onNoteContentDidLoad1")
 			if (!clientSocket) return
-			console.log("onNoteContentDidLoad2", {fc: p.fileContent})
 			setInnerFileContent(p.fileContent)
 		}
 		,
@@ -166,7 +163,7 @@ const EditorAreaInt = (
 		editorRef
 	})
 
-	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos') => {
+	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart') => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
 		if (updatedText) {
 			triggerNoteEdition(updatedText)
@@ -707,7 +704,6 @@ const EditorAreaInt = (
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}
 						onButtonClicked={action => {
-							
 							if (action === "aiSearch") {
 								// console.log("AI SEARCH", cursorInfos)
 								triggerAiSearch({
@@ -737,7 +733,17 @@ const EditorAreaInt = (
 										type:"redo"
 									})
 								})
+							} else if (action === "copyLineLink") {
+								getApi(api => {
+									// console.log(cursorInfos, page)
+									const linkToCopy = fileToNoteLink(p.file, selectionTxt)
+									api.popup.prompt({
+										title: "Selection note link",
+										text: `Link to the selected text <br/><br/> <input type="text" value="${linkToCopy}">`
+									})
+								})
 							} else {
+								
 								let updatedText = applyTextModifAction(action)
 								if (updatedText) {
 									updateLastNotes()
@@ -852,7 +858,7 @@ export const editorAreaCss = (v: iMobileView) => `
 .editor-area {
 	position:initial;
 	.infos-editor-wrapper {
-			z-index: 1;
+			z-index: 2;
 			position:absolute;
 			top: 0px;
 			right: 7px;

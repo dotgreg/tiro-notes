@@ -12,7 +12,7 @@ export interface iEditorAction {
 	lineJumpString?: string
 
 	insertText?: string
-	insertPos?: number | "currentPos"
+	insertPos?: number | "currentPos" | "currentLineStart" 
 
 	uploadProgress?: number 
 	

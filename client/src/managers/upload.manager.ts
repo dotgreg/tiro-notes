@@ -24,6 +24,7 @@ export const uploadFileToEditor = (p:{fileToUpload: File, folder:string, windowI
 				console.log("inserting file", fileMdStr)
 				api.ui.note.editorAction.dispatch({
 					type: "insertText", 
+					insertPos: "currentLineStart",
 					insertText: fileMdStr,
 					windowId: windowId
 				})	

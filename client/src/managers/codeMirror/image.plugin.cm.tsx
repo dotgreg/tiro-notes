@@ -27,7 +27,6 @@ const openLightBoxFn = (el) => {
 		api.file.getContent(filePath, txt => {
 			// GET IMAGES URLS FROM CONTENT
 			let images = findImagesFromContent(txt, pathToIfile(filePath))
-			console.log(images)
 			if (images.length < 1) return
 			let srcs:string[] = []
 			let startIndex = 0

@@ -541,7 +541,7 @@ export const draggableGridCss = (pinStatus:iPinStatuses) => `
 
 							.window-buttons-bar {
 								position: absolute;
-								z-index:2;
+								z-index:3;
 								right: 30px;
 								top: 10px;
 								.delete-button {display: none;}
