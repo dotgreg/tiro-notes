@@ -161,7 +161,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 #smart-list-ctag .td-tag .cell-content {  
                         max-width: 50px;
                         overflow: hidden;
-                        word-break: break-all;
+                        // word-break: break-all;
                 }
                       
         </style> `

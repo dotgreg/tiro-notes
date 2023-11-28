@@ -571,7 +571,6 @@ export const App = () => {
 											}}
 											onFolderDrop={folderDroppedInto => {
 												processDragDropAction(folderDroppedInto)
-												console.log(111111)
 											}}
 
 										/>

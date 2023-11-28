@@ -211,7 +211,9 @@ export const WindowEditorInt = (p: {
 	const fileContentRef = useRef<string>(fileContent)
 	useEffect(() => {
 		fileContentRef.current = fileContent
+		// console.log()
 	}, [fileContent])
+
 
 	// useEffect(() => {
 	// 	if (!fileContent) return
@@ -323,7 +325,6 @@ export const WindowEditorInt = (p: {
 	return (
 		<>
 			
-
 			{
 				file &&
 				<div className="window-editor-wrapper"
