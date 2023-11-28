@@ -285,6 +285,7 @@ export const DraggableGrid = (p: {
 		if (type === "windowActiveStatus") {
 			if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 		} else if (type === "windowViewChange") {
+			console.log("view change", data?.view, i)
 			if (!data?.view || !p.grid.content[i].file) return
 			viewTypeChange(data?.view, i)
 			const filePath = p.grid.content[i].file?.path || ""

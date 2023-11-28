@@ -287,7 +287,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 			}
 
     p {
-				display: inline;
+				//display: inline;
     }
 
 
