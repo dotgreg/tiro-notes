@@ -109,12 +109,15 @@ const EditorAreaInt = (
 
 		onEditorDidMount: () => {
 			// devHook("editor_mount")(p.fileContent)
-			// setInnerFileContent(p.fileContent)
+			console.log("editor mounted", p.fileContent)
+			setInnerFileContent(p.fileContent)
 		},
 		onEditorWillUnmount: () => {
 		},
 		onNoteContentDidLoad: () => {
+			console.log("onNoteContentDidLoad1")
 			if (!clientSocket) return
+			console.log("onNoteContentDidLoad2", {fc: p.fileContent})
 			setInnerFileContent(p.fileContent)
 		}
 		,
@@ -138,6 +141,10 @@ const EditorAreaInt = (
 			// ifEncryptOnLeave((encryptedText) => { p.onFileEdited(oldPath, encryptedText) })
 		}
 	})
+
+	// useEffect(() => {
+	// 	console.log(123123, innerFileContent)
+	// }, [innerFileContent])
 
 	// MOBILE EDITOR LOGIC HOOK
 	let mobileTextarea = useRef<HTMLTextAreaElement>(null)

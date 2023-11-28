@@ -710,7 +710,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// const CodeMirrorEl = () => {
 		return  <>
 		<CodeMirror
-			value=""
+			value={p.value}
 			ref={forwardedRefCM as any}
 			theme={getCustomTheme()}
 			onChange={onChange /* only triggered on content change*/}
@@ -820,6 +820,7 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 		if (np.forceRender !== pp.forceRender) res = false
 		if (np.jumpToLine !== pp.jumpToLine) res = false
 		if (np.file.path !== pp.file.path) res = false
+		// if (np.value !== pp.value) res = false
 		// if (np.windowId !== pp.windowId) res = false
 		return res
 	})

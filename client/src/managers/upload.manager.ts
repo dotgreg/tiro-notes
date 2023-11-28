@@ -19,7 +19,6 @@ export const uploadFileToEditor = (p:{fileToUpload: File, folder:string, windowI
 			file: fileToUpload,
 			folderPath: folder,
 			onSuccess: nUpFile => {
-				// console.log(3333333, res, fileToUpload, folder)
 				// setUploadedFile(nUpFile)
 				const fileMdStr = `![${nUpFile.name}](${nUpFile.path})\n`
 				console.log("inserting file", fileMdStr)
