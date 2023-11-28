@@ -114,7 +114,7 @@ export const updateTextFromLetterInput = (
 export type TextModifAction = '->' | '<-' | '[x]' | '^' | 'v' | 'X' | 'C' | 'insertAt' | 'insertAtCurrentPos'
 export interface TextModifActionParams {
 	textToInsert: string
-	insertPosition: number | 'currentPos'
+	insertPosition: number | 'currentPos' | 'currentLineStart'
 }
 
 export const triggerTextModifAction = (
@@ -194,7 +194,12 @@ export const triggerTextModifAction = (
 		actionParams.textToInsert &&
 		(isNumber(actionParams.insertPosition) || isString(actionParams.insertPosition))
 	) {
-		let insertPos = actionParams.insertPosition === 'currentPos' ? infos.currentPosition + 1 : actionParams.insertPosition
+		let insertPos:number = 0
+		if (isNumber(actionParams.insertPosition)) insertPos = actionParams.insertPosition
+		if (actionParams.insertPosition === 'currentPos') insertPos = infos.currentPosition + 1
+		if (actionParams.insertPosition === 'currentLineStart') insertPos = [...lines].splice(0, infos.lineIndex).join('\n').length + 1
+
+		console.log('inserting at', insertPos, actionParams, infos.lineIndex, infos)
 		
 		let text = lines.join('\n') as string
 		let text2 = [

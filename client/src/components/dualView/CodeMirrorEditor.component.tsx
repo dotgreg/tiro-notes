@@ -493,7 +493,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// 	let isMdTableLineBefore = false
 	// 	let isMdTableLineAfter = false
 	// 	let lineBefore = lineInfos?.lines[lineInfos.lineIndex - 1]
-	// 	console.log(1111, selection.from, selection.to, isMdTableLine )
 
 	// }
 
@@ -710,7 +709,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// const CodeMirrorEl = () => {
 		return  <>
 		<CodeMirror
-			value={p.value}
+			value=""
 			ref={forwardedRefCM as any}
 			theme={getCustomTheme()}
 			onChange={onChange /* only triggered on content change*/}
@@ -736,16 +735,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		/></>}, 
 	[p.value, codemirrorExtensions])
 
-
-	// useEffect(() => {
-	// 	console.log("111112 forcererender")
-	// }, [p.file.path])
-	// useEffect(() => {
-	// 	console.log("111113 forcererender")
-	// }, [p.jumpToLine])
-	// useEffect(() => {
-	// 	console.log("111113 forcererender")
-	// }, [p.jumpToLine])
 
 
 	return (

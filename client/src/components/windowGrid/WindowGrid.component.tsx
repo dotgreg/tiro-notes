@@ -3,15 +3,11 @@ import { cloneDeep, each, random } from 'lodash';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
-import { getActiveWindowContent } from '../../hooks/app/tabs.hook';
 import { useNextState } from '../../hooks/useNextStateAction.hook';
-import { initClipboardListener } from '../../managers/clipboard.manager';
 import { iMobileView } from '../../managers/device.manager';
-import { initDragDropListener } from '../../managers/dragDrop.manager';
 import { strings } from '../../managers/strings.manager';
 import { iUploadedFile } from '../../managers/upload.manager';
 import { PathModifFn } from '../dualView/TitleEditor.component';
-import { LastNotes } from '../LastNotes.component';
 import { DraggableGrid } from './DraggableGrid.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 

@@ -10,7 +10,7 @@ import { deviceType } from '../../managers/device.manager';
 //
 // MOBILE TOOLBAR
 //
-export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-"
+export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink"
 
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
@@ -35,6 +35,7 @@ export const NoteToolsPopup = (p: {
     { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
     { icon: 'faUndo', action: () => onButtonClicked('undo') },
     { icon: 'faRedo', action: () => onButtonClicked('redo') },
+    // { icon: 'copyLineLink', action: () => onButtonClicked('copyLineLink') },
     { icon: 'faAngleLeft', action: () => onButtonClicked('<-') },
     { icon: 'faAngleRight', action: () => onButtonClicked('->') },
     { icon: 'faCheckSquare', action: () => onButtonClicked('[x]') },
@@ -56,8 +57,10 @@ export const NoteToolsPopup = (p: {
       action: () => {p.onButtonClicked('calc'); setIsOpen(false); }
     }
     const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
+    const copyLinkLine:iToolbarButton = { icon: 'copy', action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
     //------------
     btnsConfigClosed.push(aiBtn)
+    btnsConfigClosed.push(copyLinkLine)
     btnsConfigClosed.push(mathBtn)
     //------------
     // btnsConfigOpen.splice(1, 0, aiBtn)
@@ -65,6 +68,7 @@ export const NoteToolsPopup = (p: {
     mathBtn2.class = 'separator-right'
     // btnsConfigOpen.splice(2, 0, mathBtn2)
     btnsConfigOpen.push(mathBtn2)
+    btnsConfigOpen.push(copyLinkLine)
     btnsConfigOpen.push(aiBtn)
 
   }
@@ -100,6 +104,7 @@ export const NoteToolsPopup = (p: {
 
 export const mobileNoteToolbarCss = () => `
 .mobile-text-manip-toolbar-wrapper {
+  z-index:1;
   
   
   pointer-events: none;

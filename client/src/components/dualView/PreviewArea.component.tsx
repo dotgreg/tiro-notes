@@ -456,6 +456,13 @@ export const previewAreaCss = () => `
 	width: calc(100% );
     padding-right: 30px;
 
+	//@TODO padding preview area
+	.content-block.block-text {
+		padding-left: 10px;
+		padding-right: 20px;
+		display: block;
+	}
+
     ${commonCssEditors}
 
     .infos-preview-wrapper {

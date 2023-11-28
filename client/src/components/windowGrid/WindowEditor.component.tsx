@@ -147,7 +147,6 @@ export const WindowEditorInt = (p: {
 
 							// if no offlineCt, discard it to current conten 
 
-							// console.log(11111111, filepath)
 							api.file.getContent(filepath, nServerContent => {
 								if (nServerContent === fileContentRef.current) return console.log("[BACK FROM OFFLINE]: same content, no need to update", filepath)
 								console.log("[BACK FROM OFFLINE]: DIFFERENT CONTENT",filepath,{nServerContent, content:  fileContentRef.current})
@@ -305,12 +304,17 @@ export const WindowEditorInt = (p: {
 		e.stopPropagation()
 		console.log("handle dragover" , file?.path)
 		setIsDragging(true)
+		debouncedLeave()
 	}
-	const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-		e.preventDefault()
-		e.stopPropagation()
+	const debouncedLeave = useDebounce(() => {
 		setIsDragging(false)
-		console.log("handle dragleave", file?.path)
+	}, 100)
+	const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+		// e.preventDefault()
+		// e.stopPropagation()
+		// // setIsDragging(false)
+		// debouncedLeave()
+		// console.log("handle dragleave", file?.path)
 	}
 	const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
 		e.preventDefault()
