@@ -156,6 +156,9 @@ const smartlistApp = (innerTagStr, opts) => {
 
         <style>
                 #smart-list-ctag { }
+                #smart-list-ctag table { 
+                        min-width: 660px;
+                }
                 #smart-list-ctag .td-tag { 
                 }
                 #smart-list-ctag .td-tag .cell-content {  
