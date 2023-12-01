@@ -179,13 +179,13 @@ export const FloatingPanel = (p:{
         p.panel.ctagConfig.opts.sandboxed = false
     }
 
-    const [showContent, setShowContent] = useState<boolean>(true)
-    const reloadContent = () => {
-        setShowContent(false)
-        setTimeout(() => {
-            setShowContent(true)
-        }, 100)
-    }
+    // const [showContent, setShowContent] = useState<boolean>(true)
+    // const reloadContent = () => {
+    //     setShowContent(false)
+    //     setTimeout(() => {
+    //         setShowContent(true)
+    //     }, 100)
+    // }
 
     const pushToTop = () => {
         if (p.highestVisibleZIndex === p.panel.zIndex) return
@@ -201,6 +201,18 @@ export const FloatingPanel = (p:{
     if (p.panel.ctagConfig){
         if (!p.panel.ctagConfig.opts) p.panel.ctagConfig.opts = {}
         p.panel.ctagConfig.opts.windowId = windowIdCtag
+    }
+
+    const minimizeButton = () => {
+        if(deviceType() === "desktop") {
+            return {
+                title: 'Minimize',
+                icon: "window-minimize",
+                action: handleMinimize
+            }
+        } else {
+            return {}
+        }
     }
 
     return (
@@ -246,21 +258,17 @@ export const FloatingPanel = (p:{
                                                     customHtml: <div className='handle'><Icon2 name="grip-vertical" /></div>,
 													action: () => {  }
 												},
-												{
-													title: 'Minimize',
-													icon: "window-minimize",
-													action: handleMinimize
-												},
+												minimizeButton(),
 												{
 													title: 'Maximize',
 													icon: "expand",
 													action: handleToggleMaximize
 												},
-												{
-													title: 'Reload content',
-													icon: "rotate-right",
-													action: reloadContent
-												},
+												// {
+												// 	title: 'Reload content',
+												// 	icon: "rotate-right",
+												// 	action: reloadContent
+												// },
 												{
 													title: 'Close window',
 													icon: "xmark",
@@ -272,7 +280,6 @@ export const FloatingPanel = (p:{
                         </div>
                         {/* { p.panel.type !== "file" &&  <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>} */}
                         
-                        {showContent && 
                             <div 
                                 className={`floating-panel__content content-type-${p.panel.type}`} 
                                 style={{height: innerHeight }} 
@@ -305,7 +312,6 @@ export const FloatingPanel = (p:{
                                     </div>
                                 }
                             </div>
-                        }
                         
                     </div>
                 </Resizable>

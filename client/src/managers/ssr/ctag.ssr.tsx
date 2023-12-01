@@ -48,11 +48,14 @@ export const generateCtag = (
 ): React.ReactElement => {
 
 	// if tagName is PDF or EPUB and content includes ?token, replace it with the current token
-	if (ctagConfig.tagName === "pdf" || ctagConfig.tagName === "epub") {
-		let nurl = ctagConfig.content?.split("?token=")[0]
-		nurl = nurl + getUrlTokenParam()
-		ctagConfig.content = nurl
-	}
+	// if (ctagConfig.tagName === "pdf" || ctagConfig.tagName === "epub") {
+	// 	// console.log(11111, ctagConfig.content)
+	// 	let nurl = ctagConfig.content?.split("?token=")[0]
+	// 	// console.log(111112, nurl)
+	// 	nurl = nurl + getUrlTokenParam()
+	// 	// console.log(111113, nurl)
+	// 	ctagConfig.content = nurl
+	// }
 
 	return ssrGenCtag(ctagConfig.tagName, ctagConfig.content, ctagConfig.opts?.windowId || "null", ctagConfig.opts)
 }
@@ -73,6 +76,7 @@ export const ssrGenCtag = (
 ): React.ReactElement => {
 	if (!opts) opts = {}
 	if (!opts.file) opts.file = generateEmptyiFile()
+	// console.log(12324, tagName, content, opts)
 	
 	// const height = opts?.wrapperHeight || heightIframe.big + 75
 	// let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100?

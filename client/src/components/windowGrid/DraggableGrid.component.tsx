@@ -325,18 +325,18 @@ export const DraggableGrid = (p: {
 			
 		]
 
-		if (userSettingsSync.curr.beta_floating_windows) {
-			btnsConfig.unshift({
-				icon: 'window-restore',
-				title: 'Detach Window',
-				class: 'detach-button',
-				action: () => { 
-					console.log("detach", intContent[i].view, intContent[i])
-					if (!content.file) return
-					getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, view: intContent[i].view === "preview" ? "preview" : "editor" }) })
-				}
-			})
-		}
+		// if (userSettingsSync.curr.beta_floating_windows) {
+		// 	btnsConfig.unshift({
+		// 		icon: 'window-restore',
+		// 		title: 'Detach Window',
+		// 		class: 'detach-button',
+		// 		action: () => { 
+		// 			console.log("detach", intContent[i].view, intContent[i])
+		// 			if (!content.file) return
+		// 			getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, view: intContent[i].view === "preview" ? "preview" : "editor" }) })
+		// 		}
+		// 	})
+		// }
 
 		return ( 
 			<>

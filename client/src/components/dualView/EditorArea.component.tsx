@@ -34,6 +34,7 @@ import { setNoteView } from '../../managers/windowViewType.manager';
 import { title } from 'process';
 import { triggerAiSearch } from '../../managers/ai.manager';
 import { triggerCalc } from '../../managers/textEditor.manager';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -41,6 +42,7 @@ export type onTitleClickFn = (newYpercent: number) => void
 
 export type onLightboxClickFn = (index: number, images: iFileImage[]) => void
 export type iLayoutUpdateFn = (action: "windowActiveStatus"|"windowViewChange", data?:{view?: iViewType}) => void
+export type iReloadContentFn = (counter: number) => void
 
 interface iEditorProps {
 	viewType?: iViewType
@@ -72,6 +74,8 @@ interface iEditorProps {
 
 	onLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
+
+	onReloadContent: iReloadContentFn
 
 	showToolbar?: boolean
 	showViewToggler?: boolean
@@ -279,12 +283,58 @@ const EditorAreaInt = (
 		    }
 	}
 
+	const searchButton = () => {
+		let res = {}
+		// if (deviceType() !== "desktop") {
+			res = {
+				title: 'Search',
+				icon: 'faSearch',
+				action: () => {
+					getApi(api => {
+						api.ui.note.editorAction.dispatch({
+							type:"searchWord",
+							searchWordString: " "
+						})
+					})
+				}
+			}
+		// }
+		return res
+	}
+
+	const detachWindowButton = () => {
+		if (userSettingsSync.curr.beta_floating_windows) {
+			return {
+				icon: 'faWindowRestore',
+				title: 'Detach Window',
+				// class: 'detach-button',
+				action: () => { 
+					// console.log("detach", intContent[i].view, intContent[i])
+					// if (!content.file) return
+					getApi(api => { api.ui.floatingPanel.create({type:"file", file: p.file, view: p.viewType }) })
+				}
+			}
+		} else {
+			return {}
+		}
+	}
+
 	//
 	// TOOLBAR ACTIONS
 	//
 	const editorToolbarActions = [
 		...uploadBtns(),
+		{
+			title: 'Reload content',
+			icon: 'faSync',
+			action: () => {
+				reloadContentCounterRef.current = reloadContentCounterRef.current + 1
+				p.onReloadContent(reloadContentCounterRef.current)
+			}
+		},
+		searchButton(),
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
+		
 		{
 			title: 'Export',
 			icon: 'faFileDownload',
@@ -299,6 +349,7 @@ const EditorAreaInt = (
 				triggerLegacyExportPopup()
 			}
 		},
+		detachWindowButton(),
 		{
 			title: strings.editorBar.explanation.history,
 			icon: 'faHistory',
@@ -315,6 +366,7 @@ const EditorAreaInt = (
 				})
 			}
 		},
+		
 
 		{
 			title: 'Delete note',
@@ -344,6 +396,10 @@ const EditorAreaInt = (
 		forceCmRender()
 	}, [p.fileContent, p.file.path, p.windowId])
 
+
+	// reload func
+	// const [reloadContentCounter, setReloadContentCounter] = useState(0)
+	const reloadContentCounterRef = useRef(0)
 
 	//
 	// new CODEMIRROR code adaptation

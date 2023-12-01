@@ -1275,7 +1275,7 @@ const feedApp = (innerTagStr, opts) => {
 .article-bookmark-toggle {
 		color: grey;
 		position: fixed;
-		right: 40px;
+		right: 60px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1288,7 +1288,7 @@ const feedApp = (innerTagStr, opts) => {
 
 .article-close {
 		position: fixed;
-		right: 10px;
+		right: 32px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;

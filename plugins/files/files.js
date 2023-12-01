@@ -10,23 +10,22 @@ const FilesTagApp = (innerTagStr, opts) => {
         const r = React;
         const c = React.createElement;
         const ressourceFolder = `${api.utils.getInfos().file.folder}`
+
         const App = () => {
-            const [status, setStatus] = r.useState()
+            const [status, setStatus] = r.useState('')
             const [rescan, setRescan] = r.useState(0)
             
-            // console.log(111, _.each)
             //
             // FILE UPLOAD
             //
             const notifId = "files-ctag-upload-notif"
             const handleFileChange = (event) => {
                 const file = event.target.files[0];
-                console.log(event.target.files);  
                 const apiParams = {
                     file,
                     folderPath: ressourceFolder,
                 }
-                setStatus("Uploading files...")
+                // setStatus("Uploading files...")
                 // api.call("ui.notification.emit",[{content:,id:notifId, options:{hideAfter:-1}}])
                 api.call("upload.uploadFile", [apiParams], res => {
                   // api.call("ui.notification.emit",[{content:"Upload Success",id:notifId, options:{hideAfter:5}}])
@@ -46,6 +45,42 @@ const FilesTagApp = (innerTagStr, opts) => {
 		          else if (["ppt", "pptx", "odp", "key", "pps"].includes(ft)) return "file-powerpoint"
               
               else return "file"
+            }
+
+            //
+            // On Click, open file in new window
+            //
+            const getFullUrlItem = (item) => {
+              const infs = api.utils.getInfos()
+              return `${infs.backendUrl}/static/${item.raw.path}?token=${infs.loginToken}`
+            }
+            const onItemOpenClick = (item) => {
+              // if Item.type is pdf, epub or image => open in new tab
+              console.log("opening Item ", api.utils.getInfos(), item, getFullUrlItem(item))
+              if (["pdf", "epub"].indexOf(item.type) !== -1) {
+                // window.open(Item.raw.path, '_blank').focus();
+                api.call("ui.floatingPanel.create", [{
+                  type: "ctag",
+                  layout: "full-center",
+                  ctagConfig: {
+                    tagName: item.type,
+                    content: `${item.raw.path}`,
+                  },
+                }])
+              } else if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) {
+                api.call("ui.lightbox.open", [0, [item.raw.path]])
+              } else {
+                api.call("ui.floatingPanel.create", [{
+                  type: "ctag",
+                  layout: "full-center",
+                  ctagConfig: {
+                    tagName: "web",
+                    content: `${getFullUrlItem(item)}`,
+                  },
+                }])
+              }
+
+
             }
 
             //
@@ -88,54 +123,90 @@ const FilesTagApp = (innerTagStr, opts) => {
               })
             },[rescan])
 
+            //
+            // Table component config
+            //
             const config = {
-              showGalleryView: true,
+              gridView: {
+                enabled: true,
+                onClick: (item) => {
+                  console.log('Delete clicked for id:', item);
+                  onItemOpenClick(item)
+                },
+                image: (item) => {
+                  if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) {
+                    return `${getFullUrlItem(item)}`
+                  } else if (["pdf", "epub"].indexOf(item.type) !== -1) {
+                    return {html:`<div class="icon"><i class="fas fa-${item.icon}"></i></div>`}
+                  }
+                  
+                },
+                label: (item) => {
+                  return `${item.name}`
+                },
+                contentHover: (item) => {
+                  return `${item.name}`
+                }
+              },
               cols: [
                 {colId: "icon", headerLabel: "-", type:"icon"},
-                {colId: "name", headerLabel: "Name"},
+                {colId: "name", headerLabel: "Name", onClick:(item) => {
+                  console.log('Delete clicked for id:', item);
+                  onItemOpenClick(item)
+                }},
                 // {colId: "size", headerLabel: `Size (Mb) - ${globStats.size} tot`},
                 {colId: "size", headerLabel: `Size (Mb)`},
                 {colId: "type", headerLabel: "Type"},
                 {colId: "created", headerLabel: "Date"},
                 {colId: "actions", type: "buttons", buttons:[
-                  {
-                    label: "", 
-                    icon: "close", 
-                    onClick: (id) => {
-                      console.log('Delete clicked for id:', id);
-                    }
-                  },
+                 
                   {
                       label: "", 
-                      icon: "image", 
-                      onClick: (id) => {
-                        console.log('Delete clicked for id:', id);
+                      icon: "eye", 
+                      onClick: (item) => {
+                        console.log('Delete clicked for item:', item);
                       }
-                    }
+                    },
+                    // {
+                    //   label: "", 
+                    //   icon: "close", 
+                    //   onClick: (id) => {
+                    //     console.log('Delete clicked for id:', id);
+                    //   }
+                    // }
                 ]},
               ]
             };
 
+            TableComp = () => {
+              // return window._tiroPluginsCommon.genTableComponent({array:files, config})
+              // const files2 = JSON.parse(JSON.stringify(files))
+              // const config2 = JSON.parse(JSON.stringify(config))
+              return window._tiroPluginsCommon.TableComponentReact({items:files, config:config})
+            }
             
             return (
                 c('div', { className: "files-table-wrapper" }, [
+                    // Math.random(),
                     c('span', { className: "upload-wrapper" }, [
                       c('button', {}, ["Check usage"]),
                       c('label', { for:"upload-button"}, [c('div', {className: `fa fa-paperclip`}), " Upload File"]),
                       c('input', { type:"file", id: "upload-button", onChange: handleFileChange }),
                       c('div', {  className: "wrapper-status"}, [JSON.stringify({status, ...globStats})]),
                     ]),
-                    window._tiroPluginsCommon.TableComponentReact({items:files, config}),
+                    TableComp(),
                     
                 ])
             )
         }
+        
         setTimeout(() => {
             ReactDOM.render(
                 c(App),
                 document.getElementById("root-react")
             );  
         }, 500) 
+        
     }
     api.utils.loadScripts(
             [
