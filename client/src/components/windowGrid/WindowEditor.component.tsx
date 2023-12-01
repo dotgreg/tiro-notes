@@ -326,11 +326,20 @@ export const WindowEditorInt = (p: {
 	}	
 	const [isDragging, setIsDragging] = useState(false)
 
+	// Reload content funct
+	const [showContent, setShowContent] = useState(true)
+	const reloadContent = () => {
+		setShowContent(false)
+		setTimeout(() => {
+			setShowContent(true)
+		}, 100)
+	}
+
 	return (
 		<>
 			
 			{
-				file &&
+				showContent && file &&
 				<div className="window-editor-wrapper"
 					onPaste={handlePaste}
 					onDragOver={handleDragOver}
@@ -362,6 +371,7 @@ export const WindowEditorInt = (p: {
 						// onViewChange={p.onViewChange}
 						// onEditorDropdownEnter={p.onEditorDropdownEnter}
 						onLayoutUpdate={p.onLayoutUpdate}
+						onReloadContent={reloadContent}
 						
 						onFileEdited={(path, content) => {
 							onFileEditedSaveIt(path, content);

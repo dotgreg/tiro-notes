@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
-import { EditorArea, iLayoutUpdateFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
+import { EditorArea, iLayoutUpdateFn, iReloadContentFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
 import { iFile, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, iMobileView } from '../../managers/device.manager';
@@ -34,6 +34,8 @@ interface iDualViewProps {
 	onFileEdited: onFileEditedFn
 	onLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
+
+	onReloadContent:iReloadContentFn
 }
 
 const DualViewerInt = (
@@ -192,6 +194,8 @@ const DualViewerInt = (
 			canEdit={p.canEdit}
 			fileContent={p.fileContent}
 			isActive={p.isActive}
+
+			onReloadContent={p.onReloadContent}
 
 			editorAction={p.editorAction}
 			posY={0}

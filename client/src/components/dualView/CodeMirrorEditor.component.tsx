@@ -856,6 +856,9 @@ export const codeMirrorEditorCss = () => `
 		background: rgba(0,0,0,0.1)!important;
 }
 
+.cm-search {
+	z-index: 10;
+}
 
 .cm-gutters {
 		border: none;

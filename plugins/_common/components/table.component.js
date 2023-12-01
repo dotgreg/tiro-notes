@@ -14,52 +14,127 @@
 //   ]
 // }
 const styleCss = `
-#ctag-component-table-wrapper {
+.ctag-component-table {
+  padding-bottom: 80px;
   overflow-wrap: normal;
   width: calc(100% - 30px);
   height: 100%;
   padding: 10px;
 }
-#ctag-component-table-wrapper th {
+.ctag-component-table th {
   // display: flex;
 }
-#ctag-component-table-wrapper th .sortIndic {
+.ctag-component-table th .sortIndic {
   margin-left: 5px;
   position: absolute;
 }
-#ctag-component-table-wrapper td {
+.ctag-component-table td {
   padding: 1px 5px;
   // word-break: break-all;
 }
+.ctag-component-table .table-link-click {
+  cursor: pointer;
+}
+
+.ctag-component-table-grid-view {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-bottom: 80px;
+}
+.ctag-component-table-grid-view .grid-item {
+  cursor: pointer;
+  width: 200px;
+  height: 200px;
+  border: 1px solid #ccc;
+  margin: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.ctag-component-table-grid-view .grid-item-image {
+  width: 100%;
+  height: 100%;
+}
+.ctag-component-table-grid-view .grid-item-image i {
+  font-size: 100px;
+  color: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 30px;
+}
+.ctag-component-table-grid-view .grid-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ctag-component-table-grid-view .grid-item-name {
+  width: 100%;
+}
+.ctag-component-table-grid-view .grid-item-name-text {
+  width: 100%;
+  text-align: center;
+}
+
 `
 
-let TableComponentReact = ({ items, config, id }) => {
+
+const TableComponentReact = ({ items, config, id }) => {
+	const r = React;
+  const c = r.createElement;
+	return r.useMemo(() => {
+		return c(TableComponentReactInt, { items, config, id })
+	}, [
+		items,
+		config,
+		id
+  ])
+}
+
+// if grid enabled
+  // 
+
+const TableComponentReactInt = ({ items, config, id }) => {
   if (!id) id = "table-component"
   const r = React;
-  const [sortConfig, setSortConfigInt] = r.useState(null);
+  
   
   const c = r.createElement;
-  const [searchTerm, setSearchTermInt] = r.useState("");
+  // r.useEffect(() => {
+  //   if (!config.displayType) config.displayType = "table"
+  // }, [config]);
 
-  // ls
+  //
+  // localstorage save
+  //
+  const [sortConfig, setSortConfigInt] = r.useState(null);
   const setSortConfig = (sort) => {
     setSortConfigInt(sort)
     localStorage.setItem(`${id}-sort`, JSON.stringify(sort));
   }
   r.useEffect(() => {
-    // console.log(456, id)
     let sort = JSON.parse(localStorage.getItem(`${id}-sort`));
     if (sort) setSortConfig(sort);
   }, []);
 
+  const [searchTerm, setSearchTermInt] = r.useState("");
   const setSearchTerm = (term) => {
     setSearchTermInt(term)
     localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
   }
   r.useEffect(() => {
-    // console.log(123, id)
     let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
     if (term) setSearchTermInt(term);
+  }, []);
+  const [view, setViewInt] = r.useState("table");
+  const setView = (term) => {
+    setViewInt(term)
+    localStorage.setItem(`${id}-view`, JSON.stringify(term));
+  }
+  r.useEffect(() => {
+    let term = JSON.parse(localStorage.getItem(`${id}-view`));
+    if (term) setViewInt(term);
   }, []);
 
 
@@ -98,15 +173,19 @@ let TableComponentReact = ({ items, config, id }) => {
     setSortConfig({ key, direction });
   };
 
-  let processContent = (content) => {
-    if (typeof content === "string" && content.includes("http")) {
-      // find with a regex all the urls in the content and transform them into links
+  let processContent = (contentCell, configCol) => {
+    if (typeof contentCell === "string" && contentCell.includes("http")) {
+      // find with a regex all the urls in the contentCell and transform them into links
       let regex = /(https?:\/\/[^\s]+)/g;
-      content = content.replace(regex, (url) => {
+      contentCell = contentCell.replace(regex, (url) => {
         return `<a href="${url}" target="_blank">${url}</a>`;
       });
     } 
-    return content
+    // console.log(123, configCol)
+    // if (configCol.onClick) {
+    //   contentCell = `<div class="table-link-click" onclick="${configCol.onClick}">${contentCell}</a>`
+    // }
+    return contentCell
   }
 
   const [configColsObj, setConfigColsObj] = r.useState({});
@@ -119,51 +198,104 @@ let TableComponentReact = ({ items, config, id }) => {
   }, [config.cols]);
 
 
+  const keysRef = r.useRef({});
+  const keyCounter = (stringId) => {
+    if(keysRef.current[stringId] === undefined) keysRef.current[stringId] = 0;
+    keysRef.current[stringId] += 1;
+    return `${stringId}-${keysRef.current[stringId]}`
+  }
+
+  const tableView = () =>  [
+        c('table', {className: "ctag-component-table"}, [
+          c('thead', {}, [
+          c('tr', {}, [
+              ...config.cols.map(({ colId, headerLabel }) =>
+              c('th', { key: keyCounter(`th-header-${colId}`), onClick: () => requestSort(colId) }, [
+                  `${headerLabel || colId} `,
+                  c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
+              ])
+              )
+          ])
+          ]),
+          c('tbody', {}, [
+              ...filteredItems.map(item =>
+                  c('tr', { key: keyCounter(`${item.id}`) }, [
+                  ...config.cols.map(({ colId, type, buttons }) =>
+                      c('td', { key: keyCounter(`${colId}-${item.id}`), className: `${configColsObj[colId]?.classes || ""}` }, [
+                      // BUTTON 
+                      ...(type === 'buttons'
+                          ? buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
+                              c('button', { 
+                                key: keyCounter(`${colId}-${item.id}-${label}`), 
+                                onClick: (e) => {onClick(item, e)}, 
+                                onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
+                                onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
+                              }, [
+                                c('div', {className: `fa fa-${icon}` }),
+                                label
+                              ])
+                          )
+                          : []),
+                      // ICON 
+                      ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
+                      // TEXT 
+                      !type ? [
+                        c('div', {
+                          onClick: (e) => {
+                            if (configColsObj[colId]?.onClick) configColsObj[colId]?.onClick(item, e)
+                          },
+                          className:`cell-content ${configColsObj[colId]?.onClick ? "table-link-click" : ""}`, 
+                          dangerouslySetInnerHTML:{__html: processContent(item[colId], configColsObj[colId])}
+                        })
+                      ] : []
+                      ])
+                  )
+                  ])
+              ) 
+          ]) // endbody
+      ]) // endtable
+  ]
+
+  const gridView = () => [
+    c('div', {className:"ctag-component-table-grid-view"}, [
+      ...filteredItems.map(item =>
+        c('div', { 
+            key: keyCounter(`${item.id}`), 
+            className: "grid-item",
+            onClick: (e) => {
+              if (config.gridView.onClick) config.gridView.onClick(item, e)
+            }
+          }, [
+          c('div', { className: "grid-item-image" }, [
+            config.gridView.image(item)?.html ? 
+              c('div', {dangerouslySetInnerHTML:{__html: config.gridView.image(item).html}}) :
+              c('img', { src: config.gridView.image(item), alt: config.gridView.image(item) })
+          ]),
+          c('div', { className: "grid-item-name" }, [
+            c('div', {className: "grid-item-name-text"}, [config.gridView.label(item)])
+          ]),
+        ])
+      )
+    ])
+  ]
 
   return [
     c('style', {}, [styleCss]),
     c('input', { type: 'text', value: searchTerm, onChange: e => setSearchTerm(e.target.value) }),
-    c('table', {}, [
-        c('thead', {}, [
-        c('tr', {}, [
-            ...config.cols.map(({ colId, headerLabel }) =>
-            c('th', { key: colId, onClick: () => requestSort(colId) }, [
-                `${headerLabel || colId} `,
-                c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
-            ])
-            )
-        ])
-        ]),
-        c('tbody', {}, [
-            ...filteredItems.map(item =>
-                c('tr', { key: item.id }, [
-                ...config.cols.map(({ colId, type, buttons }) =>
-                    c('td', { key: colId, className: `${configColsObj[colId]?.classes || ""}` }, [
-                    // BUTTON 
-                    ...(type === 'buttons'
-                        ? buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
-                            c('button', { 
-                              key: label, 
-                              onClick: (e) => {onClick(item, e)}, 
-                              onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
-                              onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
-                            }, [
-                              c('div', {className: `fa fa-${icon}` }),
-                              label
-                            ])
-                        )
-                        : []),
-                    // ICON 
-                    ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
-                    // TEXT 
-                    !type ? [c('div', {className:`cell-content`, dangerouslySetInnerHTML:{__html: processContent(item[colId])}})] : []
-                    ])
-                )
-                ])
-            ) 
-        ]) // endbody
-    ]) // endtable
-  ]; 
+    // c('div', {className:"nb-items"}, [ Math.random()]),
+    // add a button to switch between table and grid view
+    // c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [view]),
+    // same but using font awesome
+    c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
+      view === "table" && c('div', {className:"fa fa-th-large"}),
+      view !== "table" && c('div', {className:"fa fa-th"})
+    ]),
+    
+    // c('div', {className:"nb-items"}, [ config.displayType ]),
+    view === "table" ? tableView() : gridView()
+  ]
+
+    
 }
 
 
