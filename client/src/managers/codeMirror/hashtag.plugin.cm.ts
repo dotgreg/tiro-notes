@@ -53,6 +53,11 @@ const detachWinFn = (el) => {
 
 export const hashtagCmPluginCss = () => `
     .cm-hashtag {
+        &:hover {
+            opacity: 1;
+        }
+        opacity: 0.3;
+        transition: opacity 0.2s;
         // color: var(--color-text);
         color: grey;
         background: ${cssVars.colors.main};
