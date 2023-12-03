@@ -253,23 +253,23 @@ export const DraggableGrid = (p: {
 
 	const api = useContext(ClientApiContext)
 	// const refresh = api?.status.refresh.get
-	const [mobileWindow, setMobileWindow] = useState<iWindowLayoutAndContent | null>(null)
-	useEffect(() => {
-		// make mobile window
-		if (deviceType() === 'mobile') {
-			const activeWindow = api?.ui.windows.active.get()
-			// either the active one
-			if (activeWindow) setMobileWindow(activeWindow)
-			// the first one, then make that one active
-			else {
-				const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
-				if (first.layout && first.content && first.layout.i === first.content.i) {
-					setMobileWindow(first)
-					makewindowActiveStatus(first.content.i)
-				}
-			} 
-		}
-	}, [p.refresh])
+	// const [mobileWindow, setMobileWindow] = useState<iWindowLayoutAndContent | null>(null)
+	// useEffect(() => {
+	// 	// make mobile window
+	// 	if (deviceType() === 'mobile') {
+	// 		const activeWindow = api?.ui.windows.active.get()
+	// 		// either the active one
+	// 		if (activeWindow) setMobileWindow(activeWindow)
+	// 		// the first one, then make that one active
+	// 		else {
+	// 			const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
+	// 			if (first.layout && first.content && first.layout.i === first.content.i) {
+	// 				setMobileWindow(first)
+	// 				makewindowActiveStatus(first.content.i)
+	// 			}
+	// 		} 
+	// 	}
+	// }, [p.refresh])
 
 	// const mobileWindowdow:  = {
 	// 	layout: activeWindow?.layout,
@@ -413,9 +413,9 @@ export const DraggableGrid = (p: {
 					<div className="mobile-grid-view">
 						<div className=" window-wrapper">
 							<div className="window-editor-wrapper-wrapper">
-								{mobileWindow &&
+								{p.grid.content[0] &&
 									<WindowEditor 
-										content={mobileWindow.content}
+										content={p.grid.content[0]}
 										// onViewChange={(nView) => { viewTypeChange(nView, 0) }}
 										onLayoutUpdate={processLayoutUpdate(window,0)}
 

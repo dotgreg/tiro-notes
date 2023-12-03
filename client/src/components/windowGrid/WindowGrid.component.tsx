@@ -148,66 +148,6 @@ export const WindowGrid = (p: {
 		setGridContext(nCtx)
 	}
 
-
-	//
-	// REACT TO DROP & CLIPBOARD
-	//
-	// const fileToUploadRef = React.useRef<iFile|null>(null)
-
-	// useEffect(() => {
-	// 	const handleUpload = fileToUpload => {
-	// 		// const mdFile = getActiveWindowContent(tab)?.file
-	// 		const mdFile = cloneDeep(fileToUploadRef.current)
-	// 		if (!mdFile) return
-
-	// 		console.log('003441 dragdrop OR clipboard', fileToUpload, mdFile.name, mdFile);
-	// 		api && api.upload.uploadFile({
-	// 			file: fileToUpload,
-	// 			folderPath: mdFile.folder,
-	// 			onSuccess: res => {
-	// 				const nCtx = cloneDeep(gridContext)
-	// 				nCtx.upload.uploadCounter = nCtx.upload.uploadCounter + 1
-	// 				nCtx.upload.file = res
-	// 				nCtx.upload.markdownFile = mdFile
-	// 				delete nCtx.upload.progress
-	// 				setGridContext(nCtx)
-	// 			},
-	// 			onProgress: res => {
-	// 				const nCtx = cloneDeep(gridContext)
-	// 				delete nCtx.upload.file
-	// 				console.log("[UPLOAD] progress", res)
-	// 				if(!nCtx.upload.markdownFile) nCtx.upload.markdownFile = mdFile
-	// 				nCtx.upload.progress = res
-	// 				setGridContext(nCtx)
-	// 			}
-	// 		})
-	// 	}
-
-	// 	const cleanDragDrop = initDragDropListener({
-	// 		onDropped: handleUpload,
-	// 		onDragEnd: () => { console.log('003442 onDragEnd'); },
-	// 		onEditorsDragOver: (file) => { 
-	// 			console.log('[DRAG UPLOAD] change file to upload', file); 
-	// 			fileToUploadRef.current = file
-	// 		}
-	// 	})
-
-	// 	const cleanClipBoard = initClipboardListener({
-	// 		onImagePasted: handleUpload
-	// 	})
-
-	// 	// getApi(api => {
-	// 	// 	api.tabs.
-	// 	// })
-
-	// 	return () => {
-	// 		// cleanup events
-	// 		cleanClipBoard();
-	// 		cleanDragDrop();
-	// 	}
-
-	// }, [p.tab])
-
 	const [forceRefresh, setForceRefresh] = useState(0)
 	useEffect(() => {
 		setForceRefresh(forceRefresh + 1)

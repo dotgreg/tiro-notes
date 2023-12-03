@@ -6,7 +6,7 @@ import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
 import { deviceType } from '../../managers/device.manager';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
@@ -66,20 +66,46 @@ export const addNewWindowConfig = (p: {
 export const useTabs = () => {
 	const h = `[TABS]`
 
-	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
-	const tabsRef = useRef<iTab[]>([])
-	const setTabs = (nTabs: iTab[], cb?:Function) => {
-		//nTabs = refreshAllTabsName(nTabs);
+	// const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
+	// const tabsRef = useRef<iTab[]>([])
+	// const setTabs = (nTabs: iTab[], cb?:Function) => {
+	// 	//nTabs = refreshAllTabsName(nTabs);
+	// 	tabsRef.current = nTabs
+	// 	setTabsInt(tabsRef.current)
+	// }
+	// useEffect(() => {
+	// 	tabsRef.current = tabs
+	// }, [tabs])
+	const [tabs, setTabsInt] = useState<iTab[]>([])
+    const [tabsDesktop, setTabsDesktop, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs',[])
+    const tabsRef = useRef<iTab[]>([])
+    const setTabs = (nTabs:iTab[], cb?:Function) => {
 		tabsRef.current = nTabs
 		setTabsInt(tabsRef.current)
-	}
-	useEffect(() => {
-		tabsRef.current = tabs
-	}, [tabs])
+        if (deviceType() !== 'mobile') { setTabsDesktop(tabsRef.current) } 
+    }
+    useEffect(() => {
+        refreshTabsFromBackend()
+    },[])
+    useEffect(() => {
+        tabsRef.current = tabs
+    },[tabs])
+    useEffect(() => {
+        if (deviceType() !== 'mobile') setTabsInt(cloneDeep(tabsDesktop))
+    },[tabsDesktop])
+
+
+
+
+
+
+
 
 	const getTabs: iTabsApi['get'] = () => {
 		return tabsRef.current
 	}
+
+	
 
 	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
 		const nTab = generateNewTab({ fullWindowFile: file })
@@ -98,7 +124,11 @@ export const useTabs = () => {
 		setTabs(nTabs);
 	}
 
-	const getActiveTab: iTabsApi['active']['get'] = () => {
+	// const [activeTab, setActiveTabInt] = useState<iTab | null>(null)
+	// useEffect(() => {
+	// 	setActiveTabInt(getActiveTab())
+	// }, [tabs])
+	const getActiveTab = () => {
 		let res: iTab | null = null
 		each(tabsRef.current, tab => { if (tab.active) res = tab })
 		return res
@@ -374,7 +404,7 @@ const setActiveTab = (tabId: string, ptabs: iTab[]): iTab[] => {
 }
 
 
-const generateNewTab = (p: {
+export const generateNewTab = (p: {
 	copiedTab?: iTab
 	fullWindowFile?: iFile
 }) => {
@@ -386,7 +416,7 @@ const generateNewTab = (p: {
 	} else if (p.fullWindowFile) {
 		const newWindowConf = addNewWindowConfig({ file: p.fullWindowFile })
 
-		return {
+		let tab:iTab = {
 			id: generateUUID(),
 			name: createTabName(p.fullWindowFile.name),
 			active: true,
@@ -400,8 +430,8 @@ const generateNewTab = (p: {
 				]
 			}
 		}
-
-	}
+		return tab
+	} 
 }
 
 
