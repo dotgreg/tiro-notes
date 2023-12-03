@@ -34,7 +34,9 @@ const generateMarketplaceJson = (): void => {
                     pluginPath: path.join(folderPath, file).split(paths.pluginsFolder).join(""),
                     description: `Description of ${pluginName}`,
                     versions : [],
-                    images: []
+                    images: [],
+                    icon: null,
+                    configuration: []
                 }
                 console.log(h, 'plugin file found! =>', file);
                 const pluginContent = fs.readFileSync(filePath, 'utf-8');
@@ -47,6 +49,8 @@ const generateMarketplaceJson = (): void => {
                         if (inf.description) pluginPresentation.description = inf.description
                         if (inf.versions) pluginPresentation.versions = inf.versions
                         if (inf.images) pluginPresentation.images = inf.images
+                        if (inf.icon) pluginPresentation.icon = inf.icon
+                        if (inf.configuration) pluginPresentation.configuration = inf.configuration
                     }
                 })
                 marketplaceArray.push(pluginPresentation);

@@ -16,7 +16,19 @@ export const devCliAddFn = (cat: string, name: string, fn: Function) => {
 }
 export const devCliGetFn = (cat: string, name: string): Function => {
 	//@ts-ignore
-	return (window[windowNS] && window[windowNS][cat] && window[windowNS][cat][name]) ? window[windowNS][cat][name] : () => { console.log("DEV FN", cat, name, "does not exists") }
+	return (window[windowNS] && window[windowNS][cat] && window[windowNS][cat][name]) ? window[windowNS][cat][name] : () => { 
+		console.log("DEV FN", cat, name, "does not exists") 
+	}
+}
+export const devCliExecFn = (cat: string, name: string) => {
+	//@ts-ignore
+	if (window[windowNS] && window[windowNS][cat] && window[windowNS][cat][name]) {
+		window[windowNS][cat][name]()
+	}  else {
+		let err = `DEV FN ${cat} ${name} does not exists`
+		console.log(err)
+		notifLog(err)
+	} 
 }
 
 let h = `[DEV HOOK]`

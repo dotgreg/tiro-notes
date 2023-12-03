@@ -9,22 +9,20 @@ import { getRelativePath, p } from "../path.manager";
 const h = `[RIPGREP SEARCH] `
 const shouldLog = sharedConfig.server.log.ripgrep
 
-export const cleanFilePath = (rawString: string, folder) => {
+export const cleanFileNamePath = (rawString: string, folder) => {
+	rawString = rawString.split(`${folder}`).join('') // remove if folder is inside rawpath
+	rawString = rawString.split(`${backConfig.dataFolder}`).join('') 
 	rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
 	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
 	rawString = rawString.split(`${backConfig.dataFolder + folder}/`).join('') // remove absolute path x2
 	rawString = rawString.split(`${backConfig.dataFolder + folder}`).join('') // remove absolute path x3
-	//rawString = rawString.split(`${backConfig.dataFolder}/${folder}`).join('') // remove absolute path x3
-	//	rawString = rawString.split(`${backConfig.dataFolder}`).join('') // remove absolute path x4
 	return rawString
 }
 
-// export const processRawPathToFile = (p:{
-// 	rawPath: string
-// 	folder: string
-// 	index: number = 0
-// 	titleFilter: string = ''
-// }): iFile => {
+export const cleanFolderPath = ( folder) => {
+	folder = folder.split(`${backConfig.dataFolder}`).join('') 
+	return folder
+}
 
 export const processRawPathToFile = (p: {
 	rawPath: string
@@ -37,15 +35,16 @@ export const processRawPathToFile = (p: {
 	if (!titleFilter) titleFilter = ''
 
 	let res: iFile
-	let cleanedData = cleanFilePath(rawPath, folder)
-	let filePath = cleanPath(cleanedData)
+	let cleanedFileNamePath = cleanPath(cleanFileNamePath(rawPath, folder))
+	folder = cleanFolderPath(folder)
 
 	// TITLE FILTER
-	if (titleFilter !== '' && !filePath.toLowerCase().includes(titleFilter.toLowerCase())) return
+	if (titleFilter !== '' && !cleanedFileNamePath.toLowerCase().includes(titleFilter.toLowerCase())) return
 
 	try {
-		let stats = fileStats(`${backConfig.dataFolder}/${folder}/${filePath}`)
-		res = createIFile(filePath, folder, index, stats)
+		let fullPath = `${backConfig.dataFolder}/${folder}/${cleanedFileNamePath}`
+		let stats = fileStats(fullPath)
+		res = createIFile(cleanedFileNamePath, folder, index, stats)
 	} catch (error) {
 		shouldLog && log(h, 'ERROR : ', error);
 	}
@@ -55,7 +54,7 @@ export const processRawPathToFile = (p: {
 export const processRawDataToFiles = (dataRaw: string, titleFilter: string = '', folder: string): iFile[] => {
 	let res: iFile[] = []
 
-	let cleanedData = cleanFilePath(dataRaw, folder)
+	let cleanedData = cleanFileNamePath(dataRaw, folder)
 	var array = cleanedData.match(/[^\r\n]+/g); // split string in array
 
 	if (!array || array.length ===0) return res
@@ -78,9 +77,10 @@ export const createIFile = (name: string, folder: string, index: number, stats: 
 	const path = cleanPath(`${fullFolder}/${realName}`)
 	let filesInfos = getFileInfos(path)
 
+	
 	return {
 		nature: 'file',
-		extension: 'md',
+		extension: `${filesInfos.extension}`,
 		index,
 		created: Math.round(stats.birthtimeMs),
 		modified: Math.round(stats.ctimeMs),
@@ -89,5 +89,6 @@ export const createIFile = (name: string, folder: string, index: number, stats: 
 		filenameWithoutExt: `${filesInfos.filenameWithoutExt}`,
 		path,
 		folder: cleanPath(`${fullFolder}/`),
+		stats
 	}
 }

@@ -19,7 +19,7 @@ export const PasswordPopup = (p: {
 
 
 	return (
-		<StyledWrapper2>
+		<div className="password-popup-wrapper">
 			<Popup
 				title={strings.passwordForm.explanation}
 				onClose={() => { p.onClose() }}
@@ -40,14 +40,15 @@ export const PasswordPopup = (p: {
 					</button>
 				</div>
 			</Popup>
-		</StyledWrapper2>
+		</div >
 	);
 }
 
-const StyledWrapper2 = styled.div`
+export const passwordPopupCss = () => `
     .submit-button {
         margin-top: 10px;
         ${cssVars.els().redButton};
+		background: ${cssVars.colors.main}!important;
         padding: 10px 20px;
     }
   `

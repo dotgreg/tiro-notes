@@ -1,5 +1,6 @@
 const plugin_infos = {
   versions: [
+    {version: "0.1.3.5", date: "24/07/23", comment: "fix weekly_event bug"},
     {version: "0.1.3", date: "10/07/23", comment: "isDev option added"},
     {version: "0.1.2", date: "10/07/23", comment: "fixing bug for repeat yearly, adding repeat weekly, adding global caching option"},
     {version: "0.1.1", date: "25/06/23", comment: "adding bg service"},

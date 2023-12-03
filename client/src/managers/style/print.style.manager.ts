@@ -52,7 +52,7 @@ html, body {
     height: auto!important;
     background-color: white;
 }
-.main-wrapper .right-wrapper.dual-viewer-view {
+.main-wrapper .right-wrapper.draggable-grid-editors-view {
     width: 100vw!important;
 }
 .preview-area-wrapper {

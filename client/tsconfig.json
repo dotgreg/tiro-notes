@@ -20,6 +20,7 @@
     "noImplicitAny": false,
     "isolatedModules": true,
     "jsx": "react",
+    "outDir": "./dist",
     "noFallthroughCasesInSwitch": true,
   },
   "include": [

@@ -1,4 +1,5 @@
 import { sharedConfig } from '../../../shared/shared.config';
+import { lineJumpWhileGeneratingAiText } from '../managers/ai.manager';
 import { devCliAddFn } from '../managers/devCli.manager';
 
 interface iDim {
@@ -81,9 +82,15 @@ const updateEditorDims = (wid: string, dims: iDim) => {
 const updatePreviewDims = (wid: string) => {
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
+	// if (!c.els.preview) return;
+	// let full = c.els.preview.querySelector('.preview-area-full-height-content').clientHeight
 	if (!c.els.preview) return;
-	let full = c.els.preview.querySelector('.simple-css-wrapper').clientHeight
+	let fullDiv = c.els.preview.querySelector('.preview-area-full-height-content')
+	let full = fullDiv.clientHeight - fullDiv.parentNode.clientHeight
 	let viewport = c.els.preview.clientHeight
+	c.dims.preview = { viewport, full }
+
+	// let viewport = c.els.preview.clientHeight
 	c.dims.preview = { viewport, full }
 	// console.log(h, "preview dims update", c.dims.preview);
 }
@@ -120,6 +127,7 @@ const updateScrollerDims = (wid: string) => {
 // 2. SCROLL UPDATERS
 //
 const scrollScroller = (wid: string, percent?: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
 	if (!percent) percent = c.posPercent
@@ -132,6 +140,7 @@ const scrollScroller = (wid: string, percent?: number) => {
 }
 
 const scrollEditor = (wid: string, percent?: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
 	let e = c.dims.editor
@@ -141,6 +150,7 @@ const scrollEditor = (wid: string, percent?: number) => {
 }
 
 const scrollPreview = (wid: string, percent?: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
 	if (!c.els.preview) return;
@@ -175,11 +185,11 @@ const onScrollerScroll = (wid: string, percent: number) => {
 
 const onPreviewScroll = (wid: string) => {
 	const c = getScrollObj(wid)
-	// if (!c.els.editor) return;
-	let previewY = c.els.preview.scrollTop
+	let previewY = c.els.preview.scrollTop 
 	
 	updatePreviewOffset(wid, previewY)
-	c.posPercent = (previewY / c.dims.preview.full) * 100
+	c.posPercent = (previewY / (c.dims.preview.full)) * 100
+	// console.log(h, "onPreviewScroll", previewY, c.dims.preview.full, c.posPercent);
 
 	scrollEditor(wid, c.posPercent)
 	scrollScroller(wid, c.posPercent)

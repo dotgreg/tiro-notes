@@ -16,6 +16,7 @@ export const useNotificationApi = (p: {
 	// get files list
 	const emitNotification: iNotificationApi['emit'] = (notification) => {
 		const showNotif = () => {
+			console.log(h, `emitNotification`, notification)
 			clientSocket2.emit('emitNotification', {
 				notification,
 				token: getLoginToken(),

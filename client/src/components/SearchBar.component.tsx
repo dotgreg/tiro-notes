@@ -21,7 +21,7 @@ export const SearchBar2 = (p: {
 
 	const onChange = (nVal: string, input: any) => {
 		if (!api) return
-		const selectedFolder = api.ui.browser.folders.current.get
+		const selectedFolder = api.ui.browser.folders.current.get()
 		// if in folder, automatically add /current/path in it
 		if (p.term === '' && selectedFolder !== '') {
 			nVal = nVal + ' ' + selectedFolder

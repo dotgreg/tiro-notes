@@ -1,3 +1,4 @@
+// 17.10.2023 redesign v1.2
 const commanderApp = (innerTagStr, opts) => {
 		const { div, updateContent } = api.utils.createDiv()
 
@@ -66,12 +67,88 @@ const commanderApp = (innerTagStr, opts) => {
 
 
 		///////////////////////////////////////////////////
+		// history cache
+		//
+		const cacheContentId = `ctag-commander-${api.utils.getInfos().file.path}`
+		const getCache = (id) => (onSuccess, onFailure) => {
+			id = `${cacheContentId}-${id}`
+			api.call("cache.get", [id], content => {
+				if (content !== undefined && content !== null) onSuccess(content)
+				else if (onFailure) onFailure()
+			})
+		}
+		const setCache = (id, mins) => (content) => {
+			if (!mins) mins = -1
+			id = `${cacheContentId}-${id}`
+			api.call("cache.set", [id, content, mins]) 
+		}
+		const addToHistory = (cmd) => {
+			const updateHist = (content) => {
+				let arr = content.split("\n")
+				// if cmd already exists, remove it
+				let index = arr.indexOf(cmd)
+				if (index > -1) arr.splice(index, 1)
+				arr.unshift(cmd)
+				let newContent = arr.join("\n")
+				setCache("history")(newContent)
+			}
+			getCache("history")(content => {
+				updateHist(content)
+			}, nothing => {
+				updateHist("")
+			})
+		}
+		const clearHistory = () => {
+			setCache("history")("")
+		}
+
+		// take getCache history and generate html select, add an option to clear history in select
+		// on select change, get content and alert it
+		const generateHistorySelect = () => {
+			setTimeout(() => {
+				let html = `<select id="history-select">`
+				getCache("history")(content => {
+					let arr = content.split("\n")
+					let historyWrapper = document.getElementById("history-wrapper")
+					if (arr.length < 2) return historyWrapper.innerHTML =  ""
+					html += `<option value="">-- History --</option>`
+					each(arr, it => {
+						html += `<option value="${it}">${it}</option>`
+					})
+					html += `<option value="clear">--Clear history--</option>`
+					html += `</select>`
+					historyWrapper.innerHTML = html
+					onClick(["history-select"], e => {
+						let val = e.target.value
+						if (val === "clear") {
+							console.log("clear history!")
+							clearHistory()
+							setTimeout(() => {
+								generateHistorySelect()
+							}, 300)
+						} else if (val !== "") {
+							document.getElementById("textarea-command").value = val
+						}
+					})
+				})
+			}, 300)
+		}
+		generateHistorySelect()
+		
+		
+
+		///////////////////////////////////////////////////
 		// LOGIC
 		//
 		const exec = (cmdString, cb) => {
 				updateStatus("⏳...")
 				api.call("command.exec", [cmdString], res => {
 						updateStatus("")
+						if (cmdString !== "") {
+							
+							generateHistorySelect()
+						}
+
 						cb(res)
 				});
 		}
@@ -91,10 +168,20 @@ const commanderApp = (innerTagStr, opts) => {
 
 		const execAndOutput = (cmdStr, id) => {
 				let date = `[${new Date().toLocaleString()}]`
-				let start = `====== ${date} ======= \n`
+				let start = `<h3>====== ${date} ======= </h3>\n`
 				let end = `\n--- [COMMAND]:'${cmdStr}'\n\n`
-				exec(cmdStr, r => {
-						let out = start + r + "\n" + end
+				exec(cmdStr, raw => {
+						let resStr = raw
+						try {
+								objRes = JSON.parse(raw)
+								if (objRes.shortMessage) resStr = objRes.shortMessage
+								else if (objRes.originalMessage) resStr = objRes.originalMessage
+								else if (objRes.stderr) resStr = objRes.stderr
+								else if (objRes.message) resStr = objRes.message
+								else resStr = JSON.stringify(objRes, null, 2)
+								
+						} catch (e) { }
+						let out = start + resStr + "\n" + end
 						prependOutput(out)
 						if (outputPaths[id]) prependToHistoryFile(out, outputPaths[id])
 						else if (outputPaths.global) prependToHistoryFile(out, outputPaths.global)
@@ -132,6 +219,7 @@ const commanderApp = (innerTagStr, opts) => {
 										let userInput = document.getElementById("textarea-command").value
 										userInput = userInput.replaceAll("'", "\\'")
 										let cmd = scriptString.split(`{{input}}`).join(userInput)
+										addToHistory(userInput)
 										execAndOutput(cmd, name)
 								})
 						}, 100)
@@ -145,52 +233,80 @@ const commanderApp = (innerTagStr, opts) => {
 		const getHtmlWrapper = () => {
 				let res = `
 				<div id="commander-wrapper"> 
-				<div id="cmd-status"> </div>
+				
 
 				<div id="command-wrapper"> 
-				<textarea id="textarea-command"></textarea>
-				<div id="buttons-wrapper"> </div>
-				</div>
+					<div id="cmd-status"> </div>
+					<textarea id="textarea-command" spellcheck="false" autocomplete="on"></textarea>
+					<div id="buttons-wrapper-wrapper"> 
+						<div id="buttons-wrapper"> </div>
+						<div id="history-wrapper"> </div>
+					</div>
+					</div>
 
-				<div id="output-wrapper"> 
-				<pre><code id="cmd-output" class="language-json">
-				</code></pre>
-				</div>
+					<div id="output-wrapper"> 
+						<pre>
+							<code id="cmd-output" class="language-json"> </code>
+						</pre>
+					</div>
 
 				</div>
 
 				<style>
+				
 				#cmd-status {
-
-
+					position: absolute;
+					top: 17px;
+					right: 25px;
 				}
 				#commander-wrapper {
-						margin-top: 30px;
+						margin-top: 0px;
 						display: flex;
 						flex-direction: column;
+						overflow:hidden;
 						height: 100%;
+						
 				}
-				#command-wrapper {
-						/* display: flex; */
 
+
+
+				#command-wrapper {
+					position: fixed;
+					z-index: 1;
+					width: calc(100% - 20px);
+					top: 0px;
+					padding: 10px 10px;
+					background: rgba(255,255,255,0.5);
 				}
+				
+				#buttons-wrapper-wrapper:hover {
+					height: 30vh;
+					overflow-y: scroll;
+				}
+				#buttons-wrapper-wrapper {
+					height: 26px;
+					overflow: hidden;
+					transition: 0.2s all;
+					transition-delay: 0.5s, 0s;
+				}
+
+				#buttons-wrapper button {
+					margin: 1px;
+				}
+
 				#textarea-command {
 						width: 97%;
 						resize: vertical;
 						margin-right: 5px;
+						min-height: 15px;
+						height: 15px;
 						border: none;
-						min-height: 40px;
 						border-radius: 7px;
 						box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
 						margin-bottom: 5px;
-						padding: 5px;
+						padding: 8px;
 				}
-				#buttons-wrapper {
-						/* display: flex; */
-						/* flex-direction: column; */
-						/* flex-flow: wrap; */
-						/* max-height: 50%; */
-				}
+				
 				#buttons-wrapper button {
 						margin-right: 2px;
 				}
@@ -198,8 +314,14 @@ const commanderApp = (innerTagStr, opts) => {
 
 
 				#output-wrapper {
+					
+					margin-top: 83px;
+					padding: 0px 14px 0px 11px;
+					margin-bottom: 30px;
 				}
+
 				pre {
+					
 						border-radius: 7px;
 						margin: 0px;
 						margin-top: 5px;
@@ -211,15 +333,41 @@ const commanderApp = (innerTagStr, opts) => {
 						color: yellowgreen;
 						color: darkseagreen;
 				}
-				pre code {
-						margin: 0px;
-						background: #393939!important;
-						font-size: 10px;
-						padding: 0px 11px 13px 11px!important;
-						overflow: auto;
-						white-space: pre-wrap;
-						line-height: 11px;
+				pre code#cmd-output  {
+					font-size: 10px!important;
+					margin: 0px;
+					background: #393939!important;
+					padding: 0px 11px 13px 11px!important;
+					overflow: auto;
+					white-space: pre-wrap;
+					line-height: 11px;
 				}
+
+				@media only screen and (max-device-width: 480px){
+					pre code#cmd-output  {
+						font-size: 8px!important;
+					}
+				}
+
+			
+				#cmd-output h1,
+				#cmd-output h2,
+				#cmd-output h3
+				{
+					color: burlywood;
+					color: lime;
+					color: darkseagreen;
+					color: yellowgreen;
+					color: darkseagreen;
+					margin-bottom: 0px;
+					margin-top: 15px;
+				}
+				#cmd-output h1:before,
+				#cmd-output h2:before,
+				#cmd-output h3:before {
+					content: ""
+				}
+
 				</style> `
 				return res
 		}

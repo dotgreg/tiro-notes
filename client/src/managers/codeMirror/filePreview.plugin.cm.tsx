@@ -7,10 +7,10 @@ import { getFileType } from "../file.manager";
 import { generateImagePreviewHtml } from "./image.plugin.cm";
 import { genericReplacementPlugin } from "./replacements.cm";
 
-let compoHtml = (matchs, cFile) => {
+let compoHtml = (matchs, cFile, windowId) => {
 	let full = matchs[0]
 	let sourceHtml = `<div class="mdpreview-source">${full}</div>`
-	let compoHtml = renderToString(<RessourcePreview markdownTag={full} file={cFile} />)
+	let compoHtml = renderToString(<RessourcePreview markdownTag={full} file={cFile} windowId={windowId} />)
 	return `${compoHtml} ${sourceHtml}`;
 }
 
@@ -28,7 +28,7 @@ export const filePreviewPlugin = (file: iFile, windowId:string) => genericReplac
 			// to work
 			resEl.innerHTML = generateImagePreviewHtml(matchs[0], matchs[2], file, true)
 		} else {
-			resEl.innerHTML = compoHtml(matchs, file)
+			resEl.innerHTML = compoHtml(matchs, file, windowId)
 		}
 		return resEl
 	}

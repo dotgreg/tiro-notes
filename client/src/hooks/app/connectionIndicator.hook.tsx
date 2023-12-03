@@ -4,6 +4,7 @@ import { configClient } from "../../config"
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { getApi } from '../api/api.hook';
 import { useInterval } from '../interval.hook';
+import { deviceType } from '../../managers/device.manager';
 
 
 const generateTitle = (): string => {
@@ -30,6 +31,7 @@ export const useConnectionIndicator = () => {
 		let title = isSocketConnected ?
 			`${generateTitle()} (Connected)` :
 			`${generateTitle()} ${warning.current}`
+		if (deviceType() === "mobile") return
 		document.title = title
 	}, 1000)
 

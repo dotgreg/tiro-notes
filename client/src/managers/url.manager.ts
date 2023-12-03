@@ -5,10 +5,40 @@ import { configClient } from "../config";
 import { getApi } from "../hooks/api/api.hook";
 import { notifLog } from "./devCli.manager";
 import { isVarMobileView, iMobileView, deviceType } from "./device.manager";
-
+import { findImagesFromContent } from "./images.manager";
+import { getLoginToken, getUrlTokenParam } from "../hooks/app/loginToken.hook";
+import { webIconCreate, webIconUpdate } from "./iconWeb.manager";
 
 //
-// V2
+// URL PARSER
+//
+export const genUrlPreviewStr = (url) => {
+	const parsedUrl = new URL(url);
+	let siteName = parsedUrl.hostname.replace(/^www\./, '');
+	// let siteName = parsedUrl.hostname;
+	const pathSegments = parsedUrl.pathname.split('/').filter(segment => segment.trim() !== '');
+	
+	let content = '';
+	if (pathSegments.length > 0) {
+	  content = pathSegments[pathSegments.length - 1];
+	  if (content.length > 20) {
+		content = content.substring(0, 20).replace(/[^A-Za-z0-9-_\ ]/g, '');
+	  } else {
+		content = content.replace(/[^A-Za-z0-9]/g, '');
+	  }
+	}
+
+	if (siteName.length > 15) siteName = siteName.substring(0, 15)
+
+	if (content.length > 0) {
+	  return `${siteName}/${content}`;
+	} else {
+	  return siteName;
+	}
+  }
+
+//
+// V2 URL PARAMS GETTER
 //
 const h = `[URL]`
 
@@ -33,7 +63,23 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			urlParamsArr.unshift({name: "view", value: view})
 		}
 
-		// console.log(1111111, activeWindow, urlParamsArr,{filePath, view})
+		//
+		// UPDATE ICON AND TITLE
+		//
+		// get content > find first image, if exists, change page.icon with it for add to desktop functionality
+		api.file.getContent(filePath, content => {
+			let images = findImagesFromContent(content, pathToIfile(filePath))
+			if (images.length < 1) return
+			// console.log("looking for image")
+			let fullurl = `${images[0].url}${getUrlTokenParam()}`
+			// document.
+			// create a new <link rel="icon" href="%PUBLIC_URL%/favicon.png" /> programmatically
+			
+			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
+			webIconUpdate(fullurl)
+			document.title = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
+		})
+
 		setUrlParams(urlParamsArr)
 	})
 }
@@ -45,15 +91,11 @@ export const onStartupReactToUrlParams = (setMobileView:Function) => {
 	let urlParams = getUrlRawParams().dic
 	const filepath = urlParams["filepath"]?.value
 	const view = urlParams["view"]?.value
-	// console.log(h,"=> onLoadReactToUrlParams",urlParams, {filepath, view} )
-	// notifLog("startup" + random(0, 1000) +  "goto1" + JSON.stringify({urlParams}));
 	
 	if (!filepath || !view) return
 	if (deviceType() === "mobile") {
 		const file = pathToIfile(filepath)
 		getApi(api => {
-			// notifLog("startup" + random(0, 1000) +  "goto" + JSON.stringify({file, view}));
-			// console.log(h, "11111111", "goto2", file, view)
 			api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
 			setMobileView(view)
 		})

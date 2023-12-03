@@ -31,8 +31,8 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		if (!e.file) return log(`file could not be uploaded`)
 		let finfos = getFileInfos(e.file.pathName)
 		const idReq = (e.file.meta && e.file.meta.idReq) ? e.file.meta.idReq : false
-		const pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
-
+		let pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
+		pathToUpload = pathToUpload.split(backConfig.relativeUploadFolderName).join('')// if ends with .resource, cut that part
 
 		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
 		let user = getUserFromToken(loginToken)
@@ -64,12 +64,12 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 
 		await upsertRecursivelyFolders(checkedNewAbsPath)
 		await moveFile(oldPath, checkedNewAbsPath)
-
+ 
 		if (finfos.extension === 'md') {
 			// debounce()
 			rescanEmitDirForFiles(socket)
 		} else {
-			socket.emit('getUploadedFile', { name: displayName, path: checkedNewRelPath, idReq })
+			socket.emit('getUploadedFile', { name: displayName, path: checkedNewRelPath, absPath: checkedNewAbsPath, idReq })
 		}
 
 	})

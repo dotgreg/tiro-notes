@@ -11,9 +11,12 @@ import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
-import { ClientApiContext } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { deviceType, isA, iMobileView } from '../../managers/device.manager';
+import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 import { iLayoutUpdateFn } from '../dualView/EditorArea.component';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { setNoteView } from '../../managers/windowViewType.manager';
 
 
 
@@ -92,7 +95,7 @@ export const DraggableGrid = (p: {
 			setTimeout(() => {
 				const nContent = cloneDeep(intContent)
 				nContent.push(nWindow.content)
-				const nContent2 = makeWindowActiveInt(nWindow.content.i, nContent)
+				const nContent2 = makewindowActiveStatusInt(nWindow.content.i, nContent)
 				setIntContent(nContent2)
 				//1 
 				onGridUpdate(nLayout, nContent2)
@@ -151,15 +154,15 @@ export const DraggableGrid = (p: {
 	//
 	// ACTIVE WINDOW LOGIC
 	//
-	const makeWindowActiveInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
+	const makewindowActiveStatusInt = (windowId: string, content: iWindowContent[]): iWindowContent[] => {
 		const nContent = cloneDeep(content);
 		each(nContent, c => {
 			c.active = (c.i === windowId) ? true : false
 		})
 		return nContent
 	}
-	const makeWindowActive = (windowId: string, file?: iFile) => {
-		const nContent = makeWindowActiveInt(windowId, intContentRef.current)
+	const makewindowActiveStatus = (windowId: string, file?: iFile) => {
+		const nContent = makewindowActiveStatusInt(windowId, intContentRef.current)
 		setIntContent(nContent)
 		onGridUpdate(intLayout, nContent)
 		// on window active toggle, update browser ui 
@@ -173,7 +176,8 @@ export const DraggableGrid = (p: {
 		//if (intLayout.length !== intContent.length) return
 		const nlayout = cloneDeep(newLayout);
 		if (isItAllGoody(nlayout)) {
-			const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
+			// const nlayout2 = updateLayout_twowindows_to_equal(nlayout)
+			const nlayout2 = nlayout
 			updateLastGood(nlayout2)
 			setIntLayout(nlayout2)
 			//4
@@ -261,9 +265,9 @@ export const DraggableGrid = (p: {
 				const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
 				if (first.layout && first.content && first.layout.i === first.content.i) {
 					setMobileWindow(first)
-					makeWindowActive(first.content.i)
+					makewindowActiveStatus(first.content.i)
 				}
-			}
+			} 
 		}
 	}, [p.refresh])
 
@@ -274,57 +278,82 @@ export const DraggableGrid = (p: {
 
 
 	// const onEditorDropdownEnter = (window) => {
-	// 	if (window && !window.active) makeWindowActive(window.i, window.file)
+	// 	if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 	// }
 
 	const processLayoutUpdate = (window, i):iLayoutUpdateFn => (type, data) => {
-		if (type === "windowActive") {
-			if (window && !window.active) makeWindowActive(window.i, window.file)
-		} else if (type === "windowView") {
-			if (!data?.view) return
+		if (type === "windowActiveStatus") {
+			if (window && !window.active) makewindowActiveStatus(window.i, window.file)
+		} else if (type === "windowViewChange") {
+			console.log("view change", data?.view, i)
+			if (!data?.view || !p.grid.content[i].file) return
 			viewTypeChange(data?.view, i)
+			const filePath = p.grid.content[i].file?.path || ""
+			setNoteView(filePath, data?.view)
+			// console.log(filePath, window, i, type, data)
 		}
 	}
 
-	const WindowTools = (window, i) => {
-		return (//jsx
+	
+	
+
+	const WindowTools = (window, i, content: iWindowContent) => {
+		const btnsConfig = [
+			{
+				icon: 'faGripVertical',
+				title: 'Move Window',
+				class: 'drag-handle',
+				action: () => { },
+				onHover: () => {
+					if (window && !window.active) makewindowActiveStatus(window.i, window.file)
+				}
+			},
+			{
+				icon: 'faPlus',
+				title: 'Add Window',
+				class: 'add-button',
+				action: () => { addNewWindow() }
+			},
+			{
+				icon: 'faPlus',
+				title: 'Delete Window',
+				class: 'delete-button',
+				action: () => { 
+					removeWindow(window.i) 
+				}
+			},
+			
+		]
+
+		// if (userSettingsSync.curr.beta_floating_windows) {
+		// 	btnsConfig.unshift({
+		// 		icon: 'window-restore',
+		// 		title: 'Detach Window',
+		// 		class: 'detach-button',
+		// 		action: () => { 
+		// 			console.log("detach", intContent[i].view, intContent[i])
+		// 			if (!content.file) return
+		// 			getApi(api => { api.ui.floatingPanel.create({type:"file", file: content.file, view: intContent[i].view === "preview" ? "preview" : "editor" }) })
+		// 		}
+		// 	})
+		// }
+
+		return ( 
 			<>
 				<div className="note-active-ribbon"></div>
 				<div className={`window-buttons-bar ${canAdd ? 'can-add' : ''} ${canRemove ? 'can-remove' : ''}`}>
 					<ButtonsToolbar
 						design="horizontal"
 						popup={false}
-						buttons={[
-							{
-								icon: 'faGripVertical',
-								title: 'Move Window',
-								class: 'drag-handle',
-								action: () => { },
-								onHover: () => {
-									if (window && !window.active) makeWindowActive(window.i, window.file)
-								}
-							},
-							{
-								icon: 'faPlus',
-								title: 'Add Window',
-								class: 'add-button',
-								action: () => { addNewWindow() }
-							},
-							{
-								icon: 'faPlus',
-								title: 'Delete Window',
-								class: 'delete-button',
-								action: () => { 
-									removeWindow(window.i) 
-								}
-							}
-						]}
+						buttons={btnsConfig}
 						colors={["#d4d1d1", "#615f5f"]}
 						size={0.8} />
 				</div>
 			</>
 		)
 	}
+
+		
 
 
 	// {intLayout.length}
@@ -356,20 +385,21 @@ export const DraggableGrid = (p: {
 									onClick={() => {
 										// on click note, make it active if it is not
 										if (intContent[i] && !intContent[i].active) {
-											makeWindowActive(intContent[i].i, intContent[i].file)
+											makewindowActiveStatus(intContent[i].i, intContent[i].file)
+															
 										}
 									}}
 									onMouseEnter={() => {
-										// if (intContent[i] && !intContent[i].active) makeWindowActive(intContent[i].i, intContent[i].file)
+										// if (intContent[i] && !intContent[i].active) makewindowActiveStatus(intContent[i].i, intContent[i].file)
 
 									}}
 								>
-									{WindowTools(window, i)}
+									{WindowTools(window, i, p.grid.content[i])}
 
-									<div className="note-wrapper">
+									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
-											askForLayoutUpdate={processLayoutUpdate(window,i)}
+											onLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>
 									</div>
@@ -382,12 +412,12 @@ export const DraggableGrid = (p: {
 				{deviceType() === 'mobile' &&
 					<div className="mobile-grid-view">
 						<div className=" window-wrapper">
-							<div className="note-wrapper">
+							<div className="window-editor-wrapper-wrapper">
 								{mobileWindow &&
-									<WindowEditor
+									<WindowEditor 
 										content={mobileWindow.content}
 										// onViewChange={(nView) => { viewTypeChange(nView, 0) }}
-										askForLayoutUpdate={processLayoutUpdate(window,0)}
+										onLayoutUpdate={processLayoutUpdate(window,0)}
 
 										mobileView={p.mobileView}
 									/>
@@ -414,7 +444,7 @@ export const GridMobileCss = () => `
 						display: none;
 				}
 
-				.note-wrapper {
+				.window-editor-wrapper-wrapper {
 						.dual-view-wrapper {
 								.editor-area {
 										margin-top: 47px;
@@ -465,11 +495,14 @@ export const GridMobileCss = () => `
 }
 `
 
-export const draggableGridCss = () => `
+export const draggableGridCss = (pinStatus:iPinStatuses) => `
 
 .draggable-grid-wrapper {
 		// remove transition
-		height: 100%;
+
+		height: calc(100% + ${pinStatus.topTab ? "0" : "44"}px);
+		top: ${pinStatus.topTab ? "44" : "0"}px;
+		position: relative;
 
 		.react-grid-item {
 				transition: all 0ms ease;
@@ -497,168 +530,51 @@ export const draggableGridCss = () => `
 				.draggable-grid, .mobile-grid-view {
 						height: 100%;
 						width: 100%;
-						height: 100%;
 						.window-wrapper {
-								//overflow: hidden;
-								border-radius: 5px;
-								color: ${cssVars.colors.fontEditor};
-								background: ${cssVars.colors.bgEditor};
-								box-shadow: 0px 0px 5px rgba(0,0,0,.1);
-								overflow-y: hidden;
-								overflow-x: hidden;
-								height:100%;
+							//overflow: hidden;
+							border-radius: 5px;
+							color: ${cssVars.colors.fontEditor};
+							background: ${cssVars.colors.bgEditor};
+							box-shadow: 0px 0px 5px rgba(0,0,0,.1);
+							overflow-y: hidden;
+							overflow-x: hidden;
+							height:100%;
 
-								// height 100% everywhere
-								.note-wrapper,
-								.window-editor-wrapper,
-								.dual-view-wrapper,
-								.editor-area,
-								.preview-area-wrapper,
-								.preview-area,
-								.main-editor-wrapper{
-										height: 100%;
+							.window-buttons-bar {
+								position: absolute;
+								z-index:3;
+								right: 30px;
+								top: 10px;
+								.delete-button {display: none;}
+								.add-button {display: none;}
+								.drag-handle {
+										cursor: grab;
 								}
+								.delete-button svg {
+										transform: rotate(45deg);
+								}
+								&.can-add {
+										.add-button {display: block;}
+								}
+								&.can-remove {
+										.delete-button {display: block;}
+								}
+							}
 
-								.content-wrapper {
-										height:100%;
-								}
+							&.active {
 								.note-active-ribbon {
-										height: 2px;
-										width: 100%;
+										//background:${cssVars.colors.main};
 								}
-								&.active {
-										.note-active-ribbon {
-												//background:${cssVars.colors.main};
-										}
-										.dual-view-wrapper
-										.editor-area
-										.infos-editor-wrapper
-										.title-input-wrapper
-										.big-title {
-												color: ${cssVars.colors.main};
-
-										}
+								.dual-view-wrapper
+								.editor-area
+								.infos-editor-wrapper
+								.title-input-wrapper
+								.big-title {
+										color: ${cssVars.colors.main};
+				
 								}
-
-								.note-wrapper {
-										.editor-toolbar-dropdown {
-												position: absolute;
-												top: 10px;
-												right: 0px;
-										}
-								}
-
-
-
-
-
-								.window-buttons-bar {
-										position: absolute;
-										z-index:2;
-										right: 30px;
-										top: 10px;
-										.delete-button {display: none;}
-										.add-button {display: none;}
-										.drag-handle {
-												cursor: grab;
-										}
-										.delete-button svg {
-												transform: rotate(45deg);
-										}
-										&.can-add {
-												.add-button {display: block;}
-										}
-										&.can-remove {
-												.delete-button {display: block;}
-										}
-								}
-
-
-
-								// content css modification
-								.dual-view-wrapper {
-										.file-path-wrapper {
-												display:none;
-										}
-										.editor-area {
-												position:initial;
-												.infos-editor-wrapper {
-														z-index: 1;
-														position:absolute;
-														top: 0px;
-														left: 0px;
-														width: 100%;
-														border-bottom: 1px solid rgba(0 0 0 / 5%);
-														//box-shadow: 0px 0px 5px rgba(0,0,0,.2);
-														height: 32px;
-														padding: 0px;
-												}
-												.main-editor-wrapper {
-														padding-left: 0px;
-														padding-rigth: 10px;
-														${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
-														width: 100%;
-												}
-												.infos-editor-wrapper {
-														padding-left: 3px;
-														padding-rigth: 10px;
-														width: calc(100% - 10px);
-														.title-input-wrapper {
-																padding-left: 10px;
-																.press-to-save {
-																		top: -6px;
-																		left: 0px;
-																		right: initial;
-																		opacity: 0.5;
-																}
-																.big-title {
-																		width: calc(100% - 65px);
-																		font-family: ${cssVars.font.editor};
-																		color: grey;
-																		font-size: 15px;
-																}
-														}
-												}
-										}
-
-										//
-										// ALL
-										//
-										&.device-desktop {
-												.preview-area-wrapper {
-														margin-top: 33px;
-														//padding: 5px 5px 5px 5px;
-														background: ${cssVars.colors.bgPreview};
-												}
-												.preview-area {
-														//padding: 10px 10px 10px 10px;
-												}
-										}
-
-										//
-										// FULL PREVIEW
-										//
-										&.device-desktop.view-preview {
-												.editor-area {
-														width: 0%;
-												}
-												.preview-area-wrapper {
-												}
-										}
-
-										//
-										// FULL EDITOR
-										//
-										&.device-desktop.view-editor {
-												.preview-area-wrapper {
-												}
-										}
-
-										.scrolling-bar-wrapper {
-												top: 33px;
-										}
-								}
-						}
+							}
+					}
 				}
 		}
 

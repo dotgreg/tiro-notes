@@ -85,7 +85,7 @@ export const GlobalAppViewCss = () => `
         }
 
 
-        .right-wrapper.dual-viewer-view {
+        .right-wrapper.draggable-grid-editors-view {
             display: none;
         }
         .right-wrapper {
@@ -97,7 +97,7 @@ export const GlobalAppViewCss = () => `
     }
     
     .main-wrapper.view-text {
-        .right-wrapper.dual-viewer-view {
+        .right-wrapper.draggable-grid-editors-view {
             
         }
         .right-wrapper.image-gallery-view {

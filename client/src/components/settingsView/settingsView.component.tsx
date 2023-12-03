@@ -12,6 +12,9 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';
 import { disconnectUser } from '../../hooks/app/loginToken.hook';
 import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
+import { devCliExecFn } from '../../managers/devCli.manager';
+import { iUserSettingName } from '../../../../shared/types.shared';
+import { deviceType } from '../../managers/device.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -36,6 +39,9 @@ export const getSetting = (settingName: SettingParam) => {
 	return replaceAll(res, [["\"", ""]])
 }
 
+const showDefaultString = (us:iUserSettingName):string => {
+	return `<br/> <br/> Default value: ${defaultValsUserSettings[us].replaceAll("\n", "<br/>")}`
+}
 
 export const SettingsPopup = (p: {
 	onClose: Function
@@ -46,7 +52,7 @@ export const SettingsPopup = (p: {
 
 
 
-
+	let requireReloadStr = `<br/> Requires interface reload`
 
 
 
@@ -109,6 +115,7 @@ export const SettingsPopup = (p: {
 					// },
 				// ],
 			// },
+			
 			{
 				title: "layout",
 				fields: [
@@ -118,6 +125,13 @@ export const SettingsPopup = (p: {
 						expl: "A color string like 'orange' or 'blue' or an Hex string like '#E86666' (tiro red) or '#729fc4'",
 						var: us.get('ui_layout_colors_main'),
 						modifier: val => { us.set('ui_layout_colors_main', val) }
+					},
+					{
+						type: 'text',
+						title: "Font color for main color",
+						expl: "Font color for items with main color as background",
+						var: us.get('ui_layout_colors_main_font'),
+						modifier: val => { us.set('ui_layout_colors_main_font', val) }
 					},
 					{
 						type: 'checkbox',
@@ -144,7 +158,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'textarea',
 						title: "AI Suggest command line",
-						expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
+						expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
@@ -153,7 +167,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Markdown Preview",
-						expl: "Markdown preview",
+						expl: "Markdown preview " + requireReloadStr,
 						var: us.get('ui_editor_markdown_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -163,7 +177,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Enhanced Markdown",
-						expl: "Enhanced Markdown Preview for files, documents etc",
+						expl: "Enhanced Markdown Preview for files, documents etc" + requireReloadStr,
 						var: us.get('ui_editor_markdown_enhanced_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -173,17 +187,26 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Links button",
-						expl: "Replace http links into buttons in the editor by adding a '/' at the end of it.",
+						expl: "Replace http links into buttons in the editor by adding a '/' at the end of it." + requireReloadStr,
 						var: us.get('ui_editor_links_as_button'),
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_links_as_button', val)
 						}
 					},
+					// {
+					// 	type: 'text',
+					// 	title: "Links Preview Zoom",
+					// 	expl: "Zoom of the link preview functionality (eye button, should be number between 0 and 1)",
+					// 	var: us.get('ui_editor_links_preview_zoom'),
+					// 	modifier: val => {
+					// 		us.set('ui_editor_links_preview_zoom', val)
+					// 	}
+					// },
 					{
 						type: 'checkbox',
 						title: "Latex preview",
-						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$",
+						expl: "Add Latex preview. Add '--latex' in the note to activate it then use $_latex_expression_$" + requireReloadStr,
 						var: us.get('ui_editor_markdown_latex_preview'),
 						modifier: val => {
 							setDisplayReload(true);
@@ -193,16 +216,86 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Improved Markdown Table",
-						expl: "Improves the display of markdown table. Add '--table' in the note to activate it.",
+						expl: "Improves the display of markdown table. Add '--table' in the note to activate it." + requireReloadStr,
 						var: us.get('ui_editor_markdown_table_preview'),
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_table_preview', val)
 						}
 					},
+					{
+						type: 'checkbox',
+						title: "Spellcheck",
+						expl: "Enable/disable native browser spellcheck for all notes. <br> You can also activate it per note by adding '--spellcheck' inside the note content <br>" + requireReloadStr,
+						var: us.get('ui_editor_spellcheck'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_spellcheck', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Image title",
+						expl: "Show image title on interface and exports" + requireReloadStr,
+						var: us.get('ui_editor_show_image_title'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_show_image_title', val)
+						}
+					},
 				]
 			},
-
+			{
+				title: "exports",
+				fields: [
+					{
+						type: 'textarea',
+						title: "Options for Pandoc exporter",
+						expl: `Modify how pandoc exports files. All options can be found at <a href='https://pandoc.org/MANUAL.html' target="_blank">pandoc options manual</a>. One file extension options per line.<br/><br/>format: <br/> file extention | options  ${showDefaultString("export_pandoc_cli_options")}`,
+						var: us.get('export_pandoc_cli_options'),
+						modifier: val => { us.set('export_pandoc_cli_options', val) }
+					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: ` `,
+						title: "Export Install",
+						readOnly: true,
+						expl: `In order to export in many formats, Tiro notes needs to install Pandoc on your computer. (At least v2.9) <br/>
+						<a href="https://pandoc.org/installing.html" target="_blank">Guide here </a>
+						<br/><br/>
+						For PDF, make sure pdflatex is installed 
+						<br/> (if you are on termux: <code>pkg install texlive-installer texlive-tlmgr; termux-install-tl</code>)`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+						}
+					}
+				]
+			},
+			{
+				title: "plugins",
+				fields: [
+					{
+						type: 'text',
+						title: "Plugins Marketplace URL",
+						expl: "Custom Plugins Marketplace URL, should redirect to a marketplace.json file <br> Goes to the official 'https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json' by default/if empty.",
+						var: us.get('plugins_marketplace_url'),
+						modifier: val => { us.set('plugins_marketplace_url', val) }
+					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> Clean Plugins Cache </button>`,
+						title: "Clean Plugins Cache",
+						readOnly: true,
+						expl: `Clean Plugins Cache`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							devCliExecFn("cache", "clean_cache")
+						}
+					}
+				]
+			},
 			{
 				title: "Users and Rights",
 				fields: [
@@ -264,6 +357,40 @@ export const SettingsPopup = (p: {
 							us.set('server_activity_logging_enable', val)
 						}
 					},
+					{
+						type: 'checkbox',
+						title: "Disable notification popups",
+						expl: "Force notification popups to not appear on the interface" + requireReloadStr,
+						var: us.get('view_disable_notification_popups'),
+						modifier: val => {
+							setDisplayReload(true)
+							us.set('view_disable_notification_popups', val)
+						}
+					},
+				]
+			},
+			{
+				title: "Beta",
+				fields: [
+					{
+						type: 'checkbox',
+						title: "Floating Windows",
+						expl: "Enable the floating window system" + requireReloadStr,
+						var: us.get('beta_floating_windows'),
+						modifier: val => {
+							setDisplayReload(true)
+							us.set('beta_floating_windows', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Plugins Marketplace",
+						expl: "Enable the plugin marketplace system",
+						var: us.get('beta_plugins_marketplace'),
+						modifier: val => {
+							us.set('beta_plugins_marketplace', val)
+						}
+					},
 				]
 			}
 		]
@@ -314,6 +441,7 @@ export const SettingsPopup = (p: {
 												{field.type !== "none" &&
 													< Input
 														value={field.var}
+														shouldNotSelectOnClick={true}
 														label={field.title}
 														type={field.type}
 														readonly={field.readOnly}
@@ -344,7 +472,7 @@ export const SettingsPopup = (p: {
 											<div
 												className="explanation"
 												dangerouslySetInnerHTML={{
-													__html: field.expl || ""
+													__html: field.expl || "" + "woop"
 												}}
 											></div>
 										</div>
@@ -356,7 +484,7 @@ export const SettingsPopup = (p: {
 					)
 				}
 				{displayReload &&
-					<button onClick={e => { window.location.reload() }}>Reload App</button>
+					<button className='submit-button reload-btn' onClick={e => { window.location.reload() }}>Reload App</button>
 				}
 			</Popup >
 		</div >
@@ -364,6 +492,10 @@ export const SettingsPopup = (p: {
 }
 
 export const settingsPopupCss = () => `
+//
+// mobile version
+//
+
 .device-view-mobile {
 	.settings-popup-wrapper .popup-wrapper .popupContent {
 				width: 80vw;
@@ -382,14 +514,41 @@ export const settingsPopupCss = () => `
 
 .settings-popup-wrapper .popup-wrapper .popupContent {
     padding: 0px 20px;
-		width: 50vw;
+		width: 70vw;
 		min-height: 50vh;
 		max-height: 70vh;
 		overflow-y: scroll;
 
 }
 
+.reload-btn {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+}
+
+
 .settings-panel {
+		
+		.input-and-html-wrapper {
+			width: 50%;
+			.input-component-wrapper  {
+				.input-component  {
+					${deviceType() === 'desktop' ? "" : "display:block!important;"}
+					.input-wrapper {
+						textarea, input {
+							${deviceType() === 'desktop' ? "width: calc(100% - 20px); " : "width: calc(100% - 30px); margin: 5px 0px; "}
+						}
+						input[type=checkbox] {
+							width: 20px;
+						}
+						input[type="text"] {
+							${deviceType() === 'desktop' ? "width: calc(100% - 20px); " : "width: calc(100% - 40px);"}
+						}
+					}
+				}
+			}
+		}
 
 		h3 {
 				cursor: pointer;
@@ -423,7 +582,6 @@ export const settingsPopupCss = () => `
 						}
 						.input-and-html-wrapper {
 							display: flex;
-							width: 300px;
 							.input-component {
 								// 1 TITLE
 								span {
@@ -431,7 +589,7 @@ export const settingsPopupCss = () => `
 								}
 								// 2 INPUT
 								.input-wrapper {
-									width: 200px;
+									width: 300px;
 								}
 								display: flex;
 								justify-content: space-evenly;

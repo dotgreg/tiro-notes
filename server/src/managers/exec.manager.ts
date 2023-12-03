@@ -33,6 +33,9 @@ export const execStringStream =  async (
 	let textTot = ""
 	const processData = (isLast:boolean, isError:boolean) => async rawChunk => {
 		let text = rawChunk.toString()
+		if (rawChunk.shortMessage) {
+			text = rawChunk.shortMessage
+		}
 		if (text === "false" && isLast) text = ""
 		textTot += text
 		onData({ text, textTot, index, isLast, isError })

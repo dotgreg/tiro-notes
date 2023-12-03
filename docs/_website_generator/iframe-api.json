@@ -31,7 +31,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 162,
+									"line": 180,
 									"character": 1
 								}
 							],
@@ -51,7 +51,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 161,
+									"line": 179,
 									"character": 1
 								}
 							],
@@ -71,7 +71,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 166,
+									"line": 184,
 									"character": 1
 								}
 							],
@@ -89,7 +89,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 165,
+									"line": 183,
 									"character": 1
 								}
 							],
@@ -109,7 +109,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 164,
+									"line": 182,
 									"character": 1
 								}
 							],
@@ -129,7 +129,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 163,
+									"line": 181,
 									"character": 1
 								}
 							],
@@ -147,7 +147,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 158,
+									"line": 176,
 									"character": 1
 								}
 							],
@@ -165,13 +165,13 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 157,
+									"line": 175,
 									"character": 1
 								}
 							],
 							"type": {
 								"type": "reference",
-								"id": 170,
+								"id": 171,
 								"name": "iFileNature"
 							}
 						},
@@ -184,7 +184,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 160,
+									"line": 178,
 									"character": 1
 								}
 							],
@@ -202,13 +202,33 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 159,
+									"line": 177,
 									"character": 1
 								}
 							],
 							"type": {
 								"type": "intrinsic",
 								"name": "string"
+							}
+						},
+						{
+							"id": 161,
+							"name": "stats",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "shared/types.shared.ts",
+									"line": 185,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "any"
 							}
 						}
 					],
@@ -226,27 +246,28 @@
 								152,
 								151,
 								154,
-								153
+								153,
+								161
 							]
 						}
 					],
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 156,
+							"line": 174,
 							"character": 17
 						}
 					]
 				},
 				{
-					"id": 167,
+					"id": 168,
 					"name": "iIframeMessage",
 					"kind": 256,
 					"kindString": "Interface",
 					"flags": {},
 					"children": [
 						{
-							"id": 168,
+							"id": 169,
 							"name": "action",
 							"kind": 1024,
 							"kindString": "Property",
@@ -260,12 +281,12 @@
 							],
 							"type": {
 								"type": "reference",
-								"id": 171,
+								"id": 172,
 								"name": "iIframeActions"
 							}
 						},
 						{
-							"id": 169,
+							"id": 170,
 							"name": "data",
 							"kind": 1024,
 							"kindString": "Property",
@@ -288,8 +309,8 @@
 							"title": "Properties",
 							"kind": 1024,
 							"children": [
-								168,
-								169
+								169,
+								170
 							]
 						}
 					],
@@ -452,7 +473,7 @@
 					}
 				},
 				{
-					"id": 161,
+					"id": 162,
 					"name": "iApiCall",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -460,14 +481,14 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 486,
+							"line": 505,
 							"character": 6
 						}
 					],
 					"type": {
 						"type": "reflection",
 						"declaration": {
-							"id": 162,
+							"id": 163,
 							"name": "__type",
 							"kind": 65536,
 							"kindString": "Type literal",
@@ -475,20 +496,20 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 486,
+									"line": 505,
 									"character": 17
 								}
 							],
 							"signatures": [
 								{
-									"id": 163,
+									"id": 164,
 									"name": "__type",
 									"kind": 4096,
 									"kindString": "Call signature",
 									"flags": {},
 									"parameters": [
 										{
-											"id": 164,
+											"id": 165,
 											"name": "apiName",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -499,7 +520,7 @@
 											}
 										},
 										{
-											"id": 165,
+											"id": 166,
 											"name": "apiArguments",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -513,7 +534,7 @@
 											}
 										},
 										{
-											"id": 166,
+											"id": 167,
 											"name": "cb",
 											"kind": 32768,
 											"kindString": "Parameter",
@@ -538,7 +559,7 @@
 					}
 				},
 				{
-					"id": 170,
+					"id": 171,
 					"name": "iFileNature",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -546,7 +567,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 107,
+							"line": 118,
 							"character": 12
 						}
 					],
@@ -565,7 +586,7 @@
 					}
 				},
 				{
-					"id": 171,
+					"id": 172,
 					"name": "iIframeActions",
 					"kind": 4194304,
 					"kindString": "Type alias",
@@ -618,7 +639,7 @@
 					"kind": 256,
 					"children": [
 						150,
-						167
+						168
 					]
 				},
 				{
@@ -626,9 +647,9 @@
 					"kind": 4194304,
 					"children": [
 						142,
-						161,
-						170,
-						171
+						162,
+						171,
+						172
 					]
 				}
 			]
@@ -1300,7 +1321,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 571,
+					"line": 590,
 					"character": 12
 				}
 			],
@@ -1405,7 +1426,7 @@
 													"flags": {},
 													"type": {
 														"type": "reference",
-														"id": 167,
+														"id": 168,
 														"name": "iIframeMessage"
 													}
 												}
@@ -1483,7 +1504,7 @@
 																			"flags": {},
 																			"type": {
 																				"type": "reference",
-																				"id": 167,
+																				"id": 168,
 																				"name": "iIframeMessage"
 																			}
 																		}
@@ -1615,7 +1636,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 162,
+					"line": 168,
 					"character": 13
 				}
 			],
@@ -1651,7 +1672,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 163,
+													"line": 169,
 													"character": 1
 												}
 											],
@@ -1669,7 +1690,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 170,
+													"line": 176,
 													"character": 1
 												}
 											],
@@ -1687,7 +1708,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 167,
+													"line": 173,
 													"character": 1
 												}
 											],
@@ -1705,7 +1726,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 168,
+													"line": 174,
 													"character": 1
 												}
 											],
@@ -1723,7 +1744,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 169,
+													"line": 175,
 													"character": 1
 												}
 											],
@@ -1741,7 +1762,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 164,
+													"line": 170,
 													"character": 1
 												}
 											],
@@ -1759,7 +1780,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 165,
+													"line": 171,
 													"character": 1
 												}
 											],
@@ -1777,7 +1798,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 166,
+													"line": 172,
 													"character": 1
 												}
 											],
@@ -1825,13 +1846,13 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 524,
+											"line": 543,
 											"character": 2
 										}
 									],
 									"type": {
 										"type": "reference",
-										"id": 161,
+										"id": 162,
 										"name": "iApiCall"
 									},
 									"defaultValue": "callApi"
@@ -1845,7 +1866,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 525,
+											"line": 544,
 											"character": 2
 										}
 									],
@@ -1940,7 +1961,7 @@
 																					"sources": [
 																						{
 																							"fileName": "client/src/managers/iframe.manager.ts",
-																							"line": 517,
+																							"line": 536,
 																							"character": 3
 																						}
 																					],
@@ -2320,7 +2341,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 530,
+															"line": 549,
 															"character": 3
 														}
 													],
@@ -2663,7 +2684,7 @@
 																			},
 																			"type": {
 																				"type": "intrinsic",
-																				"name": "number"
+																				"name": "any"
 																			}
 																		}
 																	],
@@ -2685,7 +2706,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 540,
+															"line": 559,
 															"character": 3
 														}
 													],
@@ -2730,7 +2751,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 523,
+											"line": 542,
 											"character": 2
 										}
 									],

@@ -16,6 +16,8 @@ export const PreviewArea = (p: {
 	windowId: string
 	file: iFile
 	posY: number
+	height?: number
+	reactOnHeightResize?: boolean
 	fileContent: string
 	onMaxYUpdate: (maxY: number) => void
 	yCnt: number
@@ -79,17 +81,18 @@ export const PreviewArea = (p: {
 			}, 100)
 		}, 100)
 
-	}, [p.fileContent, p.file.path])
+	}, [p.fileContent, p.file.path, p.windowId])
 
 
-	const getWindowHeight = (): number => {
-		let res = 0
-		const el = document.querySelector(`.window-id-${p.windowId}`)
-		if (el) res = el.clientHeight
-		// if it is mobile, windows are sometimes hidden = height 0
-		if (deviceType() === "mobile" && res === 0) { res = document.body.clientHeight - 120 }
-		return res
-	}
+	// const getWindowHeight = (): number => {
+	// 	if (p.height) return p.height
+	// 	let res = 0
+	// 	const el = document.querySelector(`.window-id-${p.windowId}`)
+	// 	if (el) res = el.clientHeight
+	// 	// if it is mobile, windows are sometimes hidden = height 0
+	// 	if (deviceType() === "mobile" && res === 0) { res = document.body.clientHeight - 120 }
+	// 	return res
+	// }
 
 	return (
 		<div
@@ -121,20 +124,23 @@ export const PreviewArea = (p: {
 
 					<div className="content-blocks-wrapper">
 						<div className="simple-css-wrapper">
-							{
-								contentBlocks.map((block, i) =>
-									<ContentBlock
-										key={i}
-																	index={i}
-										block={block}
-										windowId={p.windowId}
-										file={p.file}
-										windowHeight={getWindowHeight()}
-										yCnt={p.yCnt}
-										onIframeMouseWheel={p.onIframeMouseWheel}
-									/>
-								)
-							}
+							<div className="preview-area-full-height-content">
+								{
+									contentBlocks.map((block, i) =>
+										<ContentBlock
+											key={i}
+																		index={i}
+											block={block}
+											windowId={p.windowId}
+											file={p.file}
+											// windowHeight={getWindowHeight()}
+											reactOnHeightResize={p.reactOnHeightResize}
+											yCnt={p.yCnt}
+											onIframeMouseWheel={p.onIframeMouseWheel}
+										/>
+									)
+								}
+							</div>
 						</div>
 
 					</div>
@@ -281,7 +287,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 			}
 
     p {
-				display: inline;
+				//display: inline;
     }
 
 
@@ -433,6 +439,8 @@ export const previewAreaSimpleCss = (d?: any) => {
 }
 
 export const previewAreaCss = () => `
+
+
 .preview-area {
 		margin-top: 0px;
     .infos-preview-wrapper {
@@ -447,6 +455,13 @@ export const previewAreaCss = () => `
 	overflow: auto; 
 	width: calc(100% );
     padding-right: 30px;
+
+	//@TODO padding preview area
+	.content-block.block-text {
+		padding-left: 10px;
+		padding-right: 20px;
+		display: block;
+	}
 
     ${commonCssEditors}
 
@@ -470,9 +485,10 @@ export const previewAreaCss = () => `
 }
 
 .preview-area-wrapper {
-		height: calc(100% - 35px);
+	height: calc(100% - 35px);
     margin-top: ${isA('desktop') ? '140' : '0'}px;
-
 }
+
+.preview-area, .preview-area-transitions, .content-blocks-wrapper, .simple-css-wrapper { height: 100%; }
 
 `

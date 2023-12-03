@@ -159,6 +159,12 @@ export const generateIframeHtml = (
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// IFRAME MAIN JS CODE
+//
+//
+
 export const iframeMainCode = (p: {
 	backendUrl,
 	loginToken,
@@ -169,7 +175,7 @@ export const iframeMainCode = (p: {
 	getRessourceIdFromUrl,
 	bindToElClass
 }) => {
-	const h = '[IFRAME child] 00564'
+	const h = '[IFRAME child js]'
 
 	const log = false
 	log && console.log(h, 'IFRAME CHILD MAIN CODE STARTED...');
@@ -247,6 +253,16 @@ export const iframeMainCode = (p: {
 
 	}
 
+	//
+	// on iframe resize detected
+	//
+	window.addEventListener('resize', (e) => {
+		let nval = `100%`
+		// nval = lastResizeIframeHeight.value
+		// console.log(h, 'resize', nval)
+		resizeIframe(nval)
+	})
+
 
 	///////////////////////////////////////////////////////////////////////// 
 	// BOOTSTRAP LOGIC
@@ -291,13 +307,15 @@ export const iframeMainCode = (p: {
 	// 	sendToParent({ action: 'canScrollIframe', data })
 	// }
 
-	const resizeIframe = (height?: number) => {
+	let lastResizeIframeHeight = {value:"100%"}
+	const resizeIframe = (height?: any) => {
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
 			if (el && el.clientHeight !== 0) height = el.clientHeight + 20
 			else return
 		}
 
+		lastResizeIframeHeight.value = `${height}`
 		const data: iIframeData['resize'] = { height }
 		sendToParent({ action: 'resize', data })
 	}
@@ -463,7 +481,8 @@ export const iframeMainCode = (p: {
 
 		// adds to opts the url basePath if need to load more ressources from it (html/js/css/etc.)
 		if (!opts) opts = {}
-		opts.base_url = url.split("/").slice(0, -1).join("/")
+		opts.base_url = url.split("/").slice(0, -1).join("/").replace("//","/")
+		opts.plugins_root_url = opts.base_url.split("/").slice(0, -1).join("/").replace("//","/")
 
 		let hasPadding = true
 		if (opts.padding === false) hasPadding = opts.padding

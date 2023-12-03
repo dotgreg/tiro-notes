@@ -30,20 +30,20 @@ const calendarApp = (innerTagStr, opts) => {
                 let title = p[0] ? p[0] : ""
                 let evDate = p[1] ? new Date(p[1]) : false
                 let body = p[2] ? p[2] : ""
-
+    
                 if (title && evDate) {
                     events.push({
                         'date': evDate,
                         'title': title,
                         'body': body,
                     })
-
+    
                     const curr = new Date()
                     const eventDay = evDate.getDate()
                     const eventMonth = evDate.getMonth() + 1
                     const eventTime = evDate.toLocaleString().split(" ")[1]
                     
-
+    
                     // if every_month / every_year present body
                     if (body.includes("every_month")){
                         // generate 5 events in future monthes
@@ -73,20 +73,24 @@ const calendarApp = (innerTagStr, opts) => {
                         }
                     }
                     if (body.includes("every_week")){
-                        const eventDayOfWeek = evDate.getDay();
-                        for (let i = 0; i < 5; i++) {
-                            const nextDate = new Date(new Date().getTime());
-                            const addedDays = 7 * (eventDayOfWeek - (i + 1))
-                            nextDate.setDate(nextDate.getDate() + addedDays); 
-                            nextDate.setHours(evDate.getHours())
-                            nextDate.setMinutes(evDate.getMinutes())
-                            // result.push(nextDate);
-                            events.push({
-                                'date': nextDate,
-                                'title': title,
-                                'body': body,
-                            })
+                        function getNextSameWeekdayDates(eventDate1) {
+                            const targetWeekday = eventDate1.getDay();
+                            const futureDate = new Date();
+                            let count = 0;
+                          
+                            while (count < 5) {
+                              futureDate.setDate(futureDate.getDate() + 1);
+                              if (futureDate.getDay() === targetWeekday) {
+                                count++;
+                                events.push({
+                                    'date': new Date(futureDate),
+                                    'title': title,
+                                    'body': body,
+                                })
+                              }
+                            }
                         }
+                        getNextSameWeekdayDates(evDate)
                     }
                 }
             }

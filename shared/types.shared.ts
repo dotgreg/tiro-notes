@@ -41,9 +41,9 @@ export type iBackConfig = {
 	askForSetup:boolean
 	sharedConfig: any
 
-	jsonConfig: iTiroConfig
+	jsonConfig: iTiroConfig | null
 	port:number
-	https:boolean
+	https:boolean 
 	rgPath:string
 
 	[name: string]: any
@@ -68,23 +68,34 @@ export type iUserSettingObj = {[K in iUserSettingName]:any}
 export type iUserSettingName =
 'ui_filesList_sortMode' |
 'ui_layout_colors_main' |
+'ui_layout_colors_main_font' |
 'ui_layout_shortcuts_panel' |
 'ui_sidebar' |
 
 'ui_editor_links_as_button' |
+'ui_editor_links_preview_zoom' |
 'ui_editor_markdown_preview' |
+'ui_editor_spellcheck' |
 'ui_editor_markdown_enhanced_preview' |
 'ui_editor_markdown_latex_preview' |
 'ui_editor_markdown_table_preview' |
 'ui_editor_ai_command' |
+'ui_editor_show_image_title' |
 'ui_editor_ai_text_selection' |
 
 'users_viewer_user_enable' |
 'users_viewer_user_password' |
 
 'server_activity_logging_enable' |
+'view_disable_notification_popups' |
+'plugins_marketplace_url' |
 
 'demo_mode_enable' |
+
+'export_pandoc_cli_options' |
+
+'beta_plugins_marketplace' |
+'beta_floating_windows' |
 
 'ui_other'
 
@@ -106,15 +117,22 @@ export type iSearchWordRes = { [filePath: string]: { file: iFile, results: strin
 
 export type iFileNature = 'file' | 'folder'
 
-export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview'
+export type iViewType = 'editor' | 'editor-with-map' | 'both' | 'preview' 
 
 export type iFolderDeleteType =  "trash" | "cache" 
+
+export type iTitleEditorStatus = boolean| "disabled"
 
 export interface iWindowContent {
 	i: string
 	file?: iFile
 	active: boolean
 	view: iViewType
+
+	canEdit?: boolean
+	showViewToggler?:boolean
+	showToolbar?:boolean
+	titleEditor?:iTitleEditorStatus
 }
 
 export interface iWindow {
@@ -164,6 +182,7 @@ export interface iFile {
 	index?: number
 	folder: string
 	filenameWithoutExt?: string
+	stats?:any
 }
 
 export type metaContent = string | number

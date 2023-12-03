@@ -22,7 +22,7 @@
 				"install-shared": "npm --prefix ../shared install",
 				"install-all": "run-s install-server install-shared",
 				"clean-build": "rm -r ./build &",
-				"build": "export NODE_OPTIONS=--openssl-legacy-provider; webpack",
+				"build": "webpack",
 				"install-clean-build": "run-s install-all clean-build build"
 		},
 		"author": "",
@@ -36,6 +36,7 @@
 				"execa": "^5.0.0",
 				"express": "^4.17.1",
 				"express-basic-auth": "^1.2.0",
+				"fdir": "^6.1.0",
 				"follow-redirects": "^1.15.1",
 				"glob": "^7.1.6",
 				"klaw": "^3.0.0",

@@ -12,6 +12,8 @@ import { useBackendState } from './useBackendState.hook';
 
 
 
+export const userSettingsSync: {curr:iUserSettings} = {curr: {}}
+
 
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
@@ -34,14 +36,23 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_sidebar: true,
 	ui_filesList_sortMode: 2,
 	ui_layout_colors_main: "#E86666",
+	ui_layout_colors_main_font: "#FFFFFF",
 	ui_editor_markdown_preview: true,
 	ui_editor_markdown_latex_preview: true,
 	ui_editor_markdown_enhanced_preview: true,
 	ui_editor_markdown_table_preview: true,
+	ui_editor_spellcheck: true,
 	ui_editor_links_as_button: true,
+	ui_editor_links_preview_zoom: 0.8,
+	ui_editor_show_image_title: false,
+	export_pandoc_cli_options: "\ndocx | --wrap=preserve --toc --number-sections \n revealjs | -V theme=moon \n beamer | --wrap=preserve --include-in-header=./include-tex.md ",
 	ui_editor_ai_text_selection: true,
-	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue",
+	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	server_activity_logging_enable: false,
+	view_disable_notification_popups: false,
+	beta_floating_windows: false,
+	beta_plugins_marketplace: false,
+	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
 }
 const defaultVals = defaultValsUserSettings
 
@@ -77,11 +88,13 @@ export const useUserSettings =  (p: {
 
 	useEffect(() => {
 		debounceChange()
+		userSettingsSync.curr = userSettings
 	}, [userSettings])
 
 	const debounceChange = useDebounce(() => {
 		log && console.log(h, 'UPDATE!', userSettings, refreshCss);
 		replaceDefaultByUserVar('ui_layout_colors_main', cssVars.colors, 'main')
+		replaceDefaultByUserVar('ui_layout_colors_main_font', cssVars.colors, 'mainFont')
 		triggerRefresh()
 	}, 1000)
 

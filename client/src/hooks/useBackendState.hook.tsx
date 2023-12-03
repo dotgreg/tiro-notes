@@ -1,8 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
 import { getApi, getClientApi2 } from "./api/api.hook";
+import { cloneDeep } from "lodash";
 
-export function useBackendState<T>(key: string, initialValue: T): [T, (value: T) => void, Function] {
+export function useBackendState<T>(key: string, initialValue: T, debug: boolean=false): [T, (value: T) => void, Function] {
 
 	const [storedValue, setStoredValue] = useState(initialValue)
 
@@ -22,9 +23,11 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 
 	// persistence logic 
 	const setValue = value => {
-		setStoredValue(value)
+		const nval = cloneDeep(value)
+		setStoredValue(cloneDeep(nval))
+		if(debug) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
 		getApi(api => {
-			api.file.saveContent(pathToNote, JSON.stringify(value))
+			api.file.saveContent(pathToNote, JSON.stringify(nval))
 		})
 
 	}
@@ -33,7 +36,7 @@ export function useBackendState<T>(key: string, initialValue: T): [T, (value: T)
 		getApi(api => {
 			api.file.getContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)
-				// console.log(`[BACKEND STATE] ${key} => `, obj);
+				if(debug) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
 				setStoredValue(obj);
 				cb && cb(obj)
 			})

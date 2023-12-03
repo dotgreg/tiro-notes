@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { PreviewArea } from './PreviewArea.component'
-import { EditorArea, iLayoutUpdateFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
-import { iFile, iViewType } from '../../../../shared/types.shared';
+import { EditorArea, iLayoutUpdateFn, iReloadContentFn, onFileEditedFn, onLightboxClickFn, onSavingHistoryFileFn } from './EditorArea.component';
+import { iFile, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, iMobileView } from '../../managers/device.manager';
 import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
@@ -13,6 +13,7 @@ import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { stopDelayedNotePreview } from '../../managers/codeMirror/noteLink.plugin.cm';
 import { iCMPluginConfig } from './CodeMirrorEditor.component';
+import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
@@ -21,13 +22,20 @@ interface iDualViewProps {
 	fileContent: string
 	isActive: boolean
 	canEdit: boolean
+	isDragging?: boolean
+
+	showViewToggler?: boolean
+	showToolbar?: boolean
+	titleEditor?: iTitleEditorStatus
 
 	viewType?: iViewType
-	mobileView: iMobileView
+	mobileView?: iMobileView
 
 	onFileEdited: onFileEditedFn
-	askForLayoutUpdate: iLayoutUpdateFn
+	onLayoutUpdate: iLayoutUpdateFn
 	pluginsConfig?: iCMPluginConfig
+
+	onReloadContent:iReloadContentFn
 }
 
 const DualViewerInt = (
@@ -50,7 +58,7 @@ const DualViewerInt = (
 
 	useEffect(() => {
 		setMaxY(0)
-	}, [p.fileContent])
+	}, [p.fileContent, p.windowId])
 
 	// calculate percent scrolled by natural scroll
 	// const [percentScrolled, setPercentScrolled] = useState(0)
@@ -82,7 +90,7 @@ const DualViewerInt = (
 	}
 	useEffect(() => {
 		updatePreviewContent(p.fileContent)
-	}, [p.fileContent, p.file.path])
+	}, [p.fileContent, p.file.path, p.windowId])
 
 
 
@@ -91,12 +99,12 @@ const DualViewerInt = (
 		setTimeout(() => {
 			syncScroll3.onWindowLoad(p.windowId)
 		}, 500)
-	}, [p.file.path])
+	}, [p.file.path, p.windowId])
 	
 	// Close any popup on note switch
 	useEffect(() => {
 		stopDelayedNotePreview(true)
-	}, [p.file.path])
+	}, [p.file.path, p.windowId])
 
 	
 
@@ -110,7 +118,7 @@ const DualViewerInt = (
 	// to update preview scroll position on preview-scroll: follow-title
 	//
 
-	// 2) TITLE SCROLL
+	// 2) TITLES SCROLL
 	const initTitle = { id: "", line: 0, title: "" }
 	const updateScrolledTitleInt = (scrolledLine: number) => {
 		// if (scrollMode !== "title") return;
@@ -152,12 +160,13 @@ const DualViewerInt = (
 	const [forceCloseOverlay, setForceCloseOverlay] = useState(false)
 	useEffect(() => {
 		setForceCloseOverlay(false)
+		// console.log('canedit', p.canEdit);
 	}, [p.canEdit])
 
 	
 
 	return <div
-		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId}`}
+		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
 	>
 		{(!p.canEdit && !forceCloseOverlay) && 
 			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
@@ -165,16 +174,28 @@ const DualViewerInt = (
 			</div>
 		}
 		
+		{(p.isDragging) && 
+			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
+				<div className="loading-text"> drop to upload</div> 
+			</div>
+		}
+		
+		
 		<EditorArea
 			viewType={p.viewType}
 			mobileView={p.mobileView}
 			windowId={p.windowId}
 			editorType='codemirror'
+			showViewToggler={p.showViewToggler}
+			showToolbar={p.showToolbar}
+			titleEditor={p.titleEditor}
 
 			file={p.file}
 			canEdit={p.canEdit}
 			fileContent={p.fileContent}
 			isActive={p.isActive}
+
+			onReloadContent={p.onReloadContent}
 
 			editorAction={p.editorAction}
 			posY={0}
@@ -199,10 +220,11 @@ const DualViewerInt = (
 				// const res = checked ? "title" : "sync"
 				// setScrollMode(res)
 			}}
-			askForLayoutUpdate={p.askForLayoutUpdate}
+			onLayoutUpdate={p.onLayoutUpdate}
+
 			pluginsConfig={p.pluginsConfig}
 		/>
-
+		
 		{!isEditor &&
 			<PreviewArea
 				windowId={p.windowId}
@@ -230,7 +252,7 @@ const DualViewerInt = (
 	</div>
 }
 
-export const dualViewerCss = () => `
+export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) => `
 	.dual-view-wrapper {
 		position: relative;
 		.loading-overlay {
@@ -243,7 +265,7 @@ export const dualViewerCss = () => `
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			height: 101%;
+			height: 120%;
 			position: absolute;
 			background: rgba(0,0,0,0.1);
 			top: -2px;
@@ -253,6 +275,117 @@ export const dualViewerCss = () => `
 			color: white;
 		}
 	}
+
+	.mobile-view-preview {
+		
+		.editor-area {
+			display: none;
+		}
+	}
+	
+	.dual-view-wrapper.device-tablet, 
+	.dual-view-wrapper.device-mobile {
+			.editor-area,
+			.preview-area-wrapper {
+					width: 100%;
+			}
+	}
+	.dual-view-wrapper {
+			&.view-both.device-desktop {
+					.preview-area-wrapper {
+							width: 50%;
+					}
+			}
+
+
+
+			.__EDITOR_DESIGN HERE__ {}
+			&.view-editor.device-desktop {
+					.editor-area {
+							width: 100%;
+					}
+
+					.preview-area-wrapper {
+							/* display:none; */
+							position: absolute;
+							width: 10px;
+							left: -9999px;
+							top: -9999px;
+
+					}
+			}
+
+			&.view-editor-with-map.device-desktop {
+					.editor-area {
+							width: 80%;
+					}
+
+					.__MINIMAP_DESIGN HERE__ {}
+
+					.preview-area-wrapper:hover {
+							height: calc(100% - 30px);
+							transform: scale(1);
+							right: -50%;
+							opacity: 1;
+							box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
+							.preview-area-transitions {
+									width: 50%;
+									padding: 0px;
+							}
+					}
+					.preview-area-wrapper {
+							transition-delay: ${cssVars.anim.time};
+							/* transition-delay: 0ms; */
+							/* transition-property: bottom; */
+							word-break: break-word;
+							transform: scale(0.2) translateZ(0);
+							transform-origin: 0px 0px;
+							position: absolute;
+							width: 100%;
+							right: calc(-80%);
+							// height: 500vh;
+							height: calc(100% * 5);
+							.preview-area-transitions {
+
+									/* transition-delay: 0ms; */
+									/* transition-property: bottom; */
+
+									/* transition-delay:${cssVars.anim.time};  */
+									/* transition-property: padding; */
+
+									transition-delay:${cssVars.anim.time}; 
+									/* transition-property: all; */
+
+									/* transition-delay: 0ms; */
+									/* transition-property: bottom; */
+
+									width: 73%;
+									padding: 80px;
+									padding-right: 140px;
+									padding-left: 40px;
+							}
+					}
+			}
+
+			&.view-preview.device-desktop {
+					.editor-area {
+							width: 0%;
+							.main-editor-wrapper {
+									position: absolute;
+									left: -9999px;
+							}
+					}
+					.preview-area-wrapper {
+							width: 100%;
+							.preview-area {
+							}
+					}
+			}
+
+			position:relative;
+			display: ${deviceType() === 'desktop' ? 'flex' : 'block'};
+	}
+	
 `
 
 export const DualViewer = (p: iDualViewProps) => {

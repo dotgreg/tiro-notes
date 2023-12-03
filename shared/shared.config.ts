@@ -41,12 +41,7 @@ export const sharedConfig = {
 			iframe: false,
 			eventManager: false,
 		},
-		version: '0.30.99',
-		params: {
-			previewArea: {
-				scrollSpeed: 1.3
-			}
-		}
+		version: '0.40.1',
 	},
 
 	dev: {
