@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <script src="./_automaticgen_generatePluginsMarketplaceHtml.js"></script>
+    </head>
+    <body>
+        <div id="plugin-marketplace-placeholder"></div>
+        
+        <script>
+            const main = () => {
+                let el = document.getElementById("plugin-marketplace-placeholder")
+                const generatePluginsMarketplaceHtml = window._tiro_generatePluginsMarketplaceHtml ? window._tiro_generatePluginsMarketplaceHtml : () => {}
+                if (!el) return
+
+                fetch('../marketplace.json')
+                .then(response => response.json())
+                .then(pluginsDescriptions => {
+                    console.log(pluginsDescriptions)
+                    el.innerHTML = generatePluginsMarketplaceHtml({
+                        pluginsDescriptions,
+                        onPluginClick: plugin => {console.log(12121, plugin)}
+                    })
+                })
+                .catch(error => {
+                    el.innerHTML = 'Error fetching marketplace.json:' + error
+                });
+            }
+            setTimeout(() => {
+                main()
+            }, 500)
+        </script>
+    </body>
+</html>

@@ -54,7 +54,7 @@ export const ScrollingBar = (p: {
 		});
 		observer.observe(s, { attributes: true });
 		return () => { observer.disconnect() }
-	}, [])
+	}, [p.windowId])
 
 	const [scrollBarHeight, setScrollBarHeight] = useState(0)
 
@@ -65,9 +65,7 @@ export const ScrollingBar = (p: {
 	>
 		<Draggable
 			onDrag={(a: any) => {
-				// console.log(getStats().percent);
 				syncScroll3.onScrollerScroll(p.windowId, getStats().percent);
-				// p.onScroll(getStats().percent)
 			}}
 			onStop={() => {
 				setBarY(getStats().y)

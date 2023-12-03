@@ -1,6 +1,7 @@
 import VerEx from 'verbal-expressions';
 import { sharedConfig } from '../shared.config';
 
+
 const v = {
 	img: VerEx().find('.').then('jpg').or('jpeg').or('png').or('gif').or('webm').or('svg').or('webp'),
 	imgMdConfig: VerEx().anythingBut('[]|').maybe('|').beginCapture().anythingBut('[]|').endCapture().maybe('|').beginCapture().anythingBut('[]|').endCapture(),
@@ -32,6 +33,7 @@ export const regexs = {
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ])+\|/gmi,
 	// mdTableCell: /(([^|])+\|/gmi,
 	mdTableCell: /((([^|\n])+\|)|(([^|\n])+))/gmi,
+	hashtag: /#([A-zÀ-ú1-9_\-]+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,
@@ -42,6 +44,7 @@ export const regexs = {
 
 	extimage: VerEx().find('![').anythingBut('[]').then('](').beginCapture().then('http').anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	image: VerEx().find('![').anythingBut('[]').then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
+	image2: /!\[(.*?)\]\((.*?\.(jpg|png|gif|bmp|jpeg|webm|svg|webp"))\)(\{(.*)\})?/gmi,
 	fullImageMd: VerEx().beginCapture().find('![').anythingBut('[]').then('](').anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	imageMdSrc: VerEx().find('![').anythingBut('[]').then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),
 	imageAndTitleCapture: VerEx().find('![').beginCapture().anythingBut('[]').endCapture().then('](').beginCapture().anythingBut('()').then(v.img).anythingBut('()').endCapture().then(')'),

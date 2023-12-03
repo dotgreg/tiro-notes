@@ -22,11 +22,13 @@ export const useActivityApi = (p: {
 
 	useEffect(() => {
 		clientSocket2.on('getActivityReport', (data) => {
+			// console.log(111, data)
 			p.eventBus.notify(data.idReq, data)
 		})
 	}, [])
 
 	const getReport: iActivityApi['getReport'] = (params, cb) => {
+		console.log(h,"asked for report (if no cb provided, will be outputed to console.log)", params)
 		const idReq = genIdReq('get-perf-report');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, answer => {

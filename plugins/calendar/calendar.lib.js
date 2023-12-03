@@ -63,27 +63,34 @@ const getEventsList = (calNotePath, cb) => {
                     }
                 }
                 if (body.includes("every_week")){
-                    const eventDayOfWeek = evDate.getDay();
-                    for (let i = 0; i < 5; i++) {
-                        const nextDate = new Date(new Date().getTime());
-                        const addedDays = 7 * (eventDayOfWeek - (i + 1))
-                        nextDate.setDate(nextDate.getDate() + addedDays); 
-                        nextDate.setHours(evDate.getHours())
-                        nextDate.setMinutes(evDate.getMinutes())
-                        // result.push(nextDate);
-                        events.push({
-                            'date': nextDate,
-                            'title': title,
-                            'body': body,
-                        })
+                    function genSameDayEvents(eventDate1) {
+                        const targetWeekday = eventDate1.getDay();
+                        const futureDate = new Date();
+                        let count = 0;
+                      
+                        while (count < 5) {
+                          futureDate.setDate(futureDate.getDate() + 1);
+                          if (futureDate.getDay() === targetWeekday) {
+                            futureDate.setHours(eventDate1.getHours());
+                            futureDate.setMinutes(eventDate1.getMinutes());
+                            futureDate.setSeconds(eventDate1.getSeconds());
+                            count++;
+                            events.push({
+                                'date': new Date(futureDate),
+                                'title': title,
+                                'body': body,
+                            })
+                          }
+                        }
                     }
+                    genSameDayEvents(evDate)
                 }
             }
         }
         // END EVENT PROCESS to duplicate
 
         
-        console.log(h, {events})
+        // console.log(h, {events})
         cb(events)
     })
 }

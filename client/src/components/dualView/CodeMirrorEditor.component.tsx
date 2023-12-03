@@ -26,9 +26,13 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, each, isBoolean, isNaN, isNumber, throttle } from "lodash";
+import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "lodash";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
+import { notifLog } from "../../managers/devCli.manager";
+import { history } from "@codemirror/history";
+import { hashtagPreviewPlugin } from "../../managers/codeMirror/hashtag.plugin.cm";
+// import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
 const h = `[Code Mirror]`
@@ -38,6 +42,15 @@ export type iCMEvent = "blur" | "focus"
 export interface iCMPluginConfig {
 	markdown?: boolean
 	linkPreview?:boolean
+}
+
+export type iCursorInfos =  {
+	x: number
+	y: number
+	from: number
+	to: number
+	fromPx: number
+	toPx: number
 }
 
 const CodeMirrorEditorInt = forwardRef((p: {
@@ -56,6 +69,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// using it for title scrolling, right now its more title clicking
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+	onCursorMove: (infos: iCursorInfos) => void
 
 	pluginsConfig?: iCMPluginConfig
 }, forwardedRefCM) => {
@@ -115,6 +129,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 	}, [p.value, p.forceRender, p.file.path]);
 
+	
 
 	const [isAllFolded, setIsAllFolded] = useState(false)
 	const toggleFoldAll = () => {
@@ -156,12 +171,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		p.onChange(value)
 		setShowHoverPopup(false)
 
-		//
 		evenTable.val = false
 
 		syncScrollUpdateDims()
 		// updatePosCmPlugins()
 		// cacheNodeId && cacheNode.updatePosNodes(cacheNodeId)
+
+		onTextChangeCheckIfModifierTagDetected(value)
 	}
 
 
@@ -211,7 +227,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const { resizeState } = useElResize(`.window-id-${p.windowId}`)
 	useEffect(() => {
 		syncScrollUpdateDims()
-	}, [resizeState])
+	}, [resizeState, p.windowId])
 
 	//
 	// SYNCSCROLL SIZE UPDATE
@@ -220,7 +236,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		let infs = CodeMirrorUtils.getEditorInfos(f.view)
-		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight, full: infs.contentHeight })
+		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight(), full: infs.contentHeight })
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
 
@@ -255,9 +271,32 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	if(defaultCodeLanguage) markdownExtensionCnf.defaultCodeLanguage = defaultCodeLanguage
 
 
-	// if --table//--latex inside content
-	let enhancedTable = p.value.includes("--table")
-	let enhancedLatex = p.value.includes("--latex")
+	// // if --table//--latex inside content
+	// let enhancedTable = p.value.includes("--table")
+	// let enhancedLatex = p.value.includes("--latex")
+	// let shouldSpellcheckFile = p.value.includes("--spellcheck")
+
+	// const [modifierTagDetected, setModifierTagDetected] = useState<boolean>(false)
+	const onTextChangeCheckIfModifierTagDetected = useDebounce((ntext:string) => {
+		if (ntext.includes("--table") && !enhancedTable) { setEnhancedTable(true);  refresh(); }
+		if (ntext.includes("--latex") && !enhancedLatex) { setEnhancedLatex(true);  refresh(); }
+		if (ntext.includes("--spellcheck") && !enhancedSpellCheck) {setEnhancedSpellCheck(true); refresh();}
+
+		if (!ntext.includes("--table") && enhancedTable) {setEnhancedTable(false); refresh();}
+		if (!ntext.includes("--latex") && enhancedLatex) {setEnhancedLatex(false); refresh();}
+		if (!ntext.includes("--spellcheck") && enhancedSpellCheck) {setEnhancedSpellCheck(false); refresh();}
+	}, 500)
+	const [enhancedTable, setEnhancedTable] = useState<boolean>(false)
+	const [enhancedLatex, setEnhancedLatex] = useState<boolean>(false)
+	const [enhancedSpellCheck, setEnhancedSpellCheck] = useState<boolean>(false)
+	const [forceRefresh, setForceRefresh] = useState<number>(0)
+	const refresh = () => {
+		setForceRefresh(forceRefresh + 1)
+	}	
+	useEffect(() => {
+		onTextChangeCheckIfModifierTagDetected(p.value)
+	}, [p.value])
+
 
 	// const { userSettingsApi } = useUserSettings()
 	// const ua = userSettingsApi
@@ -266,7 +305,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	useEffect(() => {
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
+				// AUTOCOMPLETION
 				autocompletion({ override: getAllCompletionSources(p.file) }),
+				
+				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
 					scroll(event, view) {
 						// debouncedActivateTitles();
@@ -274,11 +316,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					},
 					wheel(event, view) {
 						let infs = CodeMirrorUtils.getEditorInfos(view)
-						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled)
+						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled())
 						p.onScroll()
 					}
 				})
 			]
+
+			// SPELLCHECKING
+			if (api.userSettings.get("ui_editor_spellcheck") || enhancedSpellCheck) newcodemirrorExtensions.push(EditorView.contentAttributes.of({ spellcheck: 'true' }))
 
 			let pluginsConfig = p.pluginsConfig
 			if (!pluginsConfig) pluginsConfig = {}
@@ -290,6 +335,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// disable markdown plugin on mobile as it makes it really unstable and slow
 			let disableMd = deviceType() !== "desktop"
 			// disableMd = true
+
+			// hashtag 
+			newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
 
 			// newcodemirrorExtensions.push(linksPreviewPlugin)
 			if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
@@ -310,13 +358,38 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					newcodemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
+					// matcherStateField(newcodemirrorExtensions, /!\[([^\]]*)\]\(([^\)]*)\)/g, (matchs) => {
 					newcodemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
 					newcodemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 				}
 			}
 
+			
+			// const f = getEditorObj()
+			// if (f && f.view) {
+			// 	let view = f.view
+			// 	// let ext = matcherStateField(
+			// 	// 	view,
+			// 	// 	/hello/gim,
+			// 	// 	match => { return document.createElement('span').innerText = 'world' },
+			// 	// 	// 'windowId'
+			// 	// )
+			
+			// 	// newcodemirrorExtensions.push(ext.createDeco(view))
 
-			if (!disablePlugins && !disableMd && pluginsConfig.markdown) {
+			// 	// let editorView; // Assume it's your EditorView instance
+			// 	let myRegex = /hello/g;
+			// 	let myHTML = "<span style='color:red'>Replacement HTML</span>";
+
+			// 	let myDecorations = createDecoration(view, myRegex, myHTML);
+			// 	// EditorView.decorations.of(myDecorations)
+			// 	// view.dispatch({
+			// 	// 	effects: Decoration
+			// 	// });
+			// }
+
+
+			if (!disablePlugins && pluginsConfig.markdown) {
 				newcodemirrorExtensions.push(markdown(markdownExtensionCnf))
 			} else {
 				// markdown replacement plugin for mobile
@@ -324,13 +397,15 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			}
 
 
-			let nclasses = `device-${deviceType()}`
+			let nclasses = `device-${deviceType()} `
 			if (ua.get("ui_editor_markdown_table_preview")) nclasses += "md-table-preview-enabled"
 			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
+
+			// newcodemirrorExtensions.push(history())
 		})
-	}, [p.pluginsConfig, p.file.path, p.value])
+	}, [p.pluginsConfig, p.windowId, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
 	
 
 
@@ -384,14 +459,43 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const histSelection = useRef<{ from: number, to: number }>({ from: -1, to: -1 })
 	const decalMousePopup = [30,10]
 
+	const [popupPosition, setPopupPosition] = useState<{x:number, y:number}>({x:0, y:0})
+
 	const onSelectionChangeDebounced = useDebounce((selection:any) => {
-		if (selection.from === selection.to) return
+		
+		// if (selection.from === selection.to) return onCursorMoveDebounced(selection)
+		let view = getEditorObj()?.view
+		if (view) {
+			let cursorPos = view.coordsAtPos(view.state.selection.main.head)
+			let selectionInPx = view.coordsAtPos(view.state.selection.ranges[0].from)
+			if (!cursorPos) return
+			p.onCursorMove({x: cursorPos.left, y: cursorPos.top, from: selection.from, to: selection.to, fromPx:selectionInPx?.top || 0, toPx:selectionInPx?.bottom || 0 })
+		}
+
+		if (selection.from === selection.to) return 
 		if (!isNumber(selection.from) || !isNumber(selection.to)) return
 		if (selection.from < 0 || selection.to < 0) return
 		if (JSON.stringify(histSelection.current) === JSON.stringify(selection)) return
 		histSelection.current = cloneDeep(selection)
 		displayHoverPopup()
+
+		
 	}, 200)
+
+	// const onCursorMoveDebounced = (selection:any) => {
+	// 	let lineInfos = CodeMirrorUtils.getCurrentLineInfos(getEditorObj())
+	// 	// if line start and ends with |, means we are in a md table
+	// 	let cLine = lineInfos?.lines[lineInfos.lineIndex]
+	// 	if (!cLine) return
+	// 	let isMdTableLine = cLine.startsWith("|") && cLine.endsWith("|")
+	// 	if (!isMdTableLine) return
+	// 	// check lines before and after if they are md table lines
+	// 	let isMdTableLineBefore = false
+	// 	let isMdTableLineAfter = false
+	// 	let lineBefore = lineInfos?.lines[lineInfos.lineIndex - 1]
+
+	// }
+
 
 	//
 	// MONITOR MOUSE CHANGE
@@ -419,185 +523,192 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			if (!aiSelectionEnabled) return
 			setShowHoverPopup(true)
 			const pos = mousePos.current
+			
 			setHoverPopupPos([pos[0] + decalMousePopup[0], pos[1] + decalMousePopup[1]])
 		})
 	}
 
-	const generateTextAt = (p2:{
-		currentContent: string,
-		textUpdate: string,
-		insertPos: number,
-		isLast: boolean
-		title?: string, 
-		question?: string,
-		linejump?:boolean,
-		viewFollow?: boolean
-		wrapSyntax?: boolean
+	// const generateTextAt = (p2:{
+	// 	currentContent: string,
+	// 	textUpdate: string,
+	// 	insertPos: number,
+	// 	isLast: boolean
+	// 	title?: string, 
+	// 	question?: string,
+	// 	linejump?:boolean,
+	// 	viewFollow?: boolean
+	// 	wrapSyntax?: boolean
 
-	}) => {
-		if (!p2.question) p2.question = ""
-		if (!p2.title) p2.title = ""
-		if (!isBoolean(p2.linejump)) p2.linejump = true
-		if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
-		if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
+	// }) => {
+	// 	if (!p2.question) p2.question = ""
+	// 	if (!p2.title) p2.title = ""
+	// 	if (!isBoolean(p2.linejump)) p2.linejump = true
+	// 	if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
+	// 	if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
 
-		// gradually insert at the end of the selection the returned text
-		let jumpTxt = p2.linejump ? "\n\n" : " "
-		let separatorDoing = "###"
-		let separatorDone = "---"
-		// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
-		let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
-		let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
-		let textToInsert = `${jumpTxt}${p2.textUpdate}`
+	// 	// gradually insert at the end of the selection the returned text
+	// 	let jumpTxt = p2.linejump ? "\n\n" : " "
+	// 	let separatorDoing = "###"
+	// 	let separatorDone = "---"
+	// 	// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
+	// 	let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
+	// 	let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
+	// 	let textToInsert = `${jumpTxt}${p2.textUpdate}`
 		
-		if (!p2.wrapSyntax) {
-			headerDoing =  headerDone = separatorDone = separatorDoing = ""
-		}
+	// 	if (!p2.wrapSyntax) {
+	// 		headerDoing =  headerDone = separatorDone = separatorDoing = ""
+	// 	}
 
-		// TEXT WHILE GENERATING
-		textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
-		// TEXT WHEN DONE
-		if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
+	// 	// TEXT WHILE GENERATING
+	// 	textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
+	// 	// TEXT WHEN DONE
+	// 	if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
 
-		// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
-		const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
-		const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
-		const nText = noteContentBefore + textToInsert + noteContentAfter
-		getApi(api => {
-			// UPDATE TEXT
-			api.file.saveContent(p.file.path, nText)
+	// 	// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
+	// 	const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
+	// 	const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
+	// 	const nText = noteContentBefore + textToInsert + noteContentAfter
+	// 	getApi(api => {
+	// 		// UPDATE TEXT
+	// 		api.file.saveContent(p.file.path, nText)
 
-			// JUMP TO THE WRITTEN LINE
-			if (p2.viewFollow) {
-				let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
-				let lineToJump = currentLine - 2
-				if (lineToJump < 0) lineToJump = 0
-				lineJumpThrottle(p.windowId, lineToJump)
-			}
-		})
-	}
-	const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
-		// getApi(api => {
-		// 	api.ui.note.lineJump.jump(windowId, lineToJump)
-		// })
-		getApi(api => {
-			api.ui.note.editorAction.dispatch({
-				windowId,
-				type:"lineJump", 
-				lineJumpNb: lineToJump,
-			})	
-		})
-	}, 1000)
+	// 		// JUMP TO THE WRITTEN LINE
+	// 		if (p2.viewFollow) {
+	// 			let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
+	// 			let lineToJump = currentLine - 2
+	// 			if (lineToJump < 0) lineToJump = 0
+	// 			lineJumpThrottle(p.windowId, lineToJump)
+	// 		}
+	// 	})
+	// }
+	// const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
+	// 	// getApi(api => {
+	// 	// 	api.ui.note.lineJump.jump(windowId, lineToJump)
+	// 	// })
+	// 	getApi(api => {
+	// 		api.ui.note.editorAction.dispatch({
+	// 			windowId,
+	// 			type:"lineJump", 
+	// 			lineJumpNb: lineToJump,
+	// 		})	
+	// 	})
+	// }, 1000)
 
-	const triggerAiSearch = () => {
-		console.log("trigger AI search")
-		// close the popup
-		setShowHoverPopup(false)
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		const currentContent = textContent.current
-		const insertPos = s.to
-		let isError = false
-		selectionTxt = selectionTxt.replaceAll('"', '\\"')
-		selectionTxt = selectionTxt.replaceAll("'", "\\'")
-		selectionTxt = selectionTxt.replaceAll("`", "\\`")
+	// const triggerAiSearch = () => {
+	// 	console.log("trigger AI search")
+	// 	// close the popup
+	// 	setShowHoverPopup(false)
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	const currentContent = textContent.current
+	// 	const insertPos = s.to
+	// 	let isError = false
+	// 	selectionTxt = selectionTxt.replaceAll('"', '\\"')
+	// 	selectionTxt = selectionTxt.replaceAll("'", "\\'")
+	// 	selectionTxt = selectionTxt.replaceAll("`", "\\`")
+	// 	selectionTxt = selectionTxt.replaceAll("$", "\\$")
 		
-		const question = selectionTxt
-		const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
+	// 	const question = selectionTxt
+	// 	const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
 
-		getApi(api => {
-			let cmd = api.userSettings.get("ui_editor_ai_command")
-			cmd = cmd.replace("{{input}}", selectionTxt)
-			generateTextAt(genParams())
-			api.command.stream(cmd, streamChunk => {
-				if (streamChunk.isError) isError = true
-				// if it is an error, display it in a popup
-				if (isError) {
-					api.ui.notification.emit({
-						content: `[AI] Error from CLI <br/> "${cmd}" <br/>=> <br/>${streamChunk.text}`,
-						// options: {hideAfter: -1 }
-					})
-					// erase everything if one error detected
-					// generateTextAt({...genParams(), textUpdate:"", isLast: true})
-				} else {
-					// else insert it
-					generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
-				}
-			})
-		})
-	}
+	// 	getApi(api => {
+	// 		let cmd = api.userSettings.get("ui_editor_ai_command")
+	// 		cmd = cmd.replace("{{input}}", selectionTxt)
+	// 		generateTextAt(genParams())
+	// 		api.command.stream(cmd, streamChunk => {
+	// 			if (streamChunk.isError) isError = true
+	// 			// if it is an error, display it in a popup
+	// 			if (isError) {
+	// 				// let cmdPreview = cmd.length > 200 ? cmd.substring(0, 200) + "..." : cmd
+	// 				// let cmdPreview = ""
+	// 				console.log("[AI ERROR]", streamChunk)
+	// 				if (streamChunk.text === "" || streamChunk.text === "[object Object]") return
+	// 				api.ui.notification.emit({
+	// 					content: `[AI] Error while executing command <br/>============<br/> ANSWER => <br/>${streamChunk.text} </br>============`,
+	// 					options: {hideAfter: 10 * 60 }
+	// 				})
+	// 				// erase everything if one error detected
+	// 				generateTextAt({...genParams(), textUpdate:"", isLast: true})
+	// 			} else {
+	// 				// else insert it
+	// 				generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
+	// 			}
+	// 		})
+	// 	})
+	// }
 
 	//
 	// Word Count preview
 	//
-	const getWordCountSelected = () => {
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		let arrLines = selectionTxt.split("\n")
-		let wordsCnt = 0
-		each(arrLines, line => {
-			let arrline = line.split(" ").filter(w => w !== "")
-			wordsCnt += arrline.length
-		})
-		return wordsCnt
-	}
+	// const getWordCountSelected = () => {
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	let arrLines = selectionTxt.split("\n")
+	// 	let wordsCnt = 0
+	// 	each(arrLines, line => {
+	// 		let arrline = line.split(" ").filter(w => w !== "")
+	// 		wordsCnt += arrline.length
+	// 	})
+	// 	return wordsCnt
+	// }
 
 
 	//
 	// CALC PREVIEW
 	//
-	const seemsArithmetic = (str:string) => {
-		str = `${str}`
-		let res = false
-		if (str.toLowerCase().startsWith("Math")) res = true
-		if (str.startsWith("(")) res = true
-		// if starts with a number
-		if (!isNaN(parseInt(str))) res = true
+	// const seemsArithmetic = (str:string) => {
+	// 	str = `${str}`
+	// 	let res = false
+	// 	if (str.toLowerCase().startsWith("Math")) res = true
+	// 	if (str.startsWith("(")) res = true
+	// 	// if starts with a number
+	// 	if (!isNaN(parseInt(str))) res = true
 
-		if (str.includes("\n")) res = false
-		if (str.length > 400) res = false
+	// 	if (str.includes("\n")) res = false
+	// 	if (str.length > 400) res = false
 
-		return res
-	}
-	const calcSelected = () => {
-		let res = null
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		if (!seemsArithmetic(selectionTxt)) return res
-		try {
-			// if starts with number or () or Math
-			res = new Function(`return ${selectionTxt}`)()
-		} catch (error) {
-			// res = "!"
-		}
-		return res
-	}
+	// 	return res
+	// }
+	// const calcSelected = () => {
+	// 	let res = null
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	if (!seemsArithmetic(selectionTxt)) return res
+	// 	try {
+	// 		// if starts with number or () or Math
+	// 		res = new Function(`return ${selectionTxt}`)()
+	// 	} catch (error) {
+	// 		// res = "!"
+	// 	}
+	// 	return res
+	// }
 
-	const triggerCalc = () => {
-		// close the popup
-		setShowHoverPopup(false)
-		const s = currSelection.current
-		let selectionTxt = textContent.current.substring(s.from, s.to)
-		const currentContent = textContent.current
-		const insertPos = s.to
-		const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
-		try {
-			let result = new Function(`return ${selectionTxt}`)()
-			let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
-			generateTextAt(p)
-		} catch (err) {
-			getApi( api => {
-				api.ui.notification.emit({
-					content: `[CALC] Error <br/> "${err}"`
-				})
-			})
-		}
+	// const triggerCalc = () => {
+	// 	// close the popup
+	// 	setShowHoverPopup(false)
+	// 	const s = currSelection.current
+	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
+	// 	const currentContent = textContent.current
+	// 	const insertPos = s.to
+	// 	const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
+	// 	try {
+	// 		let result = new Function(`return ${selectionTxt}`)()
+	// 		let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
+	// 		generateTextAt(p)
+	// 	} catch (err) {
+	// 		getApi( api => {
+	// 			api.ui.notification.emit({
+	// 				content: `[CALC] Error <br/> "${err}"`
+	// 			})
+	// 		})
+	// 	}
 
-	}
+	// }
 
 	const CodeMirrorEl = useMemo(() => {
 	// const CodeMirrorEl = () => {
-		return <CodeMirror
+		return  <>
+		<CodeMirror
 			value=""
 			ref={forwardedRefCM as any}
 			theme={getCustomTheme()}
@@ -614,20 +725,26 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				allowMultipleSelections: false,
 				indentOnInput: false,
 				closeBrackets: false,
+				history:true, 
 				bracketMatching: false,
 				lineNumbers: false,
 			}}
 			extensions={codemirrorExtensions}
 		// />}
 
-		/>}, 
+		/></>}, 
 	[p.value, codemirrorExtensions])
+
 
 
 	return (
 		<>
+			{/* <div className="codemirror-popup-cursor" style={{left: `${popupPosition.x - 20}px`, top: `${popupPosition.y - 40}px`}}>
+				woop
+			</div> */}
+
 			{/* HOVER POPUP*/}
-			{showHoverPopup &&
+			{/* {showHoverPopup &&
 				<div
 					className={`cm-hover-popup cm-selection-popup`}
 					style={{ left: `${hoverPopupPos[0]}px`, top: `${hoverPopupPos[1]}px`, }}
@@ -647,7 +764,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 						>
 							<Icon2 name="calculator" /> <span className="result-calc">{calcSelected()}</span>
 						</span>
-						
 					}
 					{!calcSelected() &&
 						<span
@@ -659,7 +775,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					}
 					
 				</div>
-			}
+			} */}
 
 			{/* CM WRAPPER*/}
 			<div
@@ -693,6 +809,7 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 		if (np.forceRender !== pp.forceRender) res = false
 		if (np.jumpToLine !== pp.jumpToLine) res = false
 		if (np.file.path !== pp.file.path) res = false
+		// if (np.value !== pp.value) res = false
 		// if (np.windowId !== pp.windowId) res = false
 		return res
 	})
@@ -701,6 +818,14 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.codemirror-popup-cursor {
+	position: fixed;
+	z-index: 2;
+	background: white;
+	padding: 5px;
+	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+	border-radius: 3px;
+}
 .cm-hover-popup.cm-selection-popup {
 	display: flex;
 	position: fixed;
@@ -728,9 +853,12 @@ export const codeMirrorEditorCss = () => `
 		z-index:0!important;
 }
 .cm-selectionBackground {
-		background: rgba(0,0,0,0.1);
+		background: rgba(0,0,0,0.1)!important;
 }
 
+.cm-search {
+	z-index: 10;
+}
 
 .cm-gutters {
 		border: none;

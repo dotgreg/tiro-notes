@@ -16,7 +16,7 @@ import { useLastFilesHistory } from './hooks/app/lastFilesHistory.hook';
 import { useSetupConfig } from './hooks/app/setupConfig.hook';
 import { useLoginToken } from './hooks/app/loginToken.hook';
 import { useDynamicResponsive } from './hooks/app/dynamicResponsive.hook';
-import { Icon } from './components/Icon.component';
+import { Icon, Icon2 } from './components/Icon.component';
 import { SettingsPopup } from './components/settingsView/settingsView.component';
 import { Lightbox } from './components/Lightbox.component';
 import {  startListeningToKeys } from './managers/keys.manager';
@@ -43,7 +43,7 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
-import { random } from 'lodash';
+import { random, update } from 'lodash';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
@@ -51,6 +51,11 @@ import { addKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
+import { PluginsMarketplacePopup } from './components/settingsView/pluginsMarketplacePopup.component';
+import { FloatingPanel, FloatingPanelsWrapper } from './components/FloatingPanels.component';
+import { usePinStatus } from './hooks/app/usePinnedInterface.hook';
+import { userSettingsSync } from './hooks/useUserSettings.hook';
+import { webIconUpdate } from './managers/iconWeb.manager';
 
 export const App = () => {
 
@@ -70,7 +75,7 @@ export const App = () => {
 		initSocketConnexion().then(serverSocketConfig => {
 			toggleSocketConnection(true)
 			api && api.status.ipsServer.set(serverSocketConfig.ipsServer)
-
+			
 
 			getApi(api => { 
 				api.ui.browser.folders.refreshFromBackend() 
@@ -158,10 +163,13 @@ export const App = () => {
 		},
 		onLoginSuccess: () => {
 			refreshTabsFromBackend();
+			refreshPinStatus();
+			refreshFilesHistoryFromBackend();
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
+				api.ui.floatingPanel.refreshFromBackend()
 			})
-			refreshFilesHistoryFromBackend();
+			
 
 			getApi(api => {
 				api.ui.browser.folders.refreshFromBackend()
@@ -258,15 +266,30 @@ export const App = () => {
 					let folderpath2 = folderToDropInto.path
 					askForFolderScan([getParentFolder(folderpath), getParentFolder(folderpath2), folderpath2, folderpath], {
 						cache: false,
-						cb: () => { foldersUiApi.open.add(folderpath) }
+						cb: () => { 
+							foldersUiApi.open.add(folderpath) 
+							foldersUiApi.open.add(folderpath2) 
+							foldersUiApi.open.add(getParentFolder(folderpath)) 
+							foldersUiApi.open.add(getParentFolder(folderpath2)) 
+							
+						}
 					})
 				}
 			})
 		}
 	}
 
+	
+	
+	// let debugConfig = null
+	const [configPopup, setConfigPopup] = useState<"settings"|"plugins-marketplace"|null>(null)
+
 	// Show settings panel
-	const [showSettingsPopup, setShowSettingsPopup] = useState(false)
+	useEffect(() => {
+		setTimeout(() => {
+			// setConfigPopup("plugins-marketplace")
+		},2000)
+	}, [])
 
 
 	// LIGHTBOX SYSTEM
@@ -323,6 +346,7 @@ export const App = () => {
 	// last Note + files history array
 	const {
 		filesHistory,
+		filesHistoryRef,
 		cleanLastFilesHistory,
 		refreshFilesHistoryFromBackend,
 		lastFilesHistoryApi
@@ -370,31 +394,26 @@ export const App = () => {
 	}, [filesHistory])
 
 	//
-	// URL SYSTEM
+	// URL/ICON SYSTEM (MOBILE ONLY)
 	//
 	useEffect(() => {
 		// URL system once the window update has spread
+		if (deviceType() !== "mobile") return webIconUpdate("/favicon.png")
 		updateAppUrlFromActiveWindow(tabs, mobileView)
+		// update 
 	}, [tabs, mobileView])
-	// useEffect(() => {
-	// 	onLoadReactToUrlParams(setMobileView)
-	// }, [])
-
-	
-	//
-	// 
-	//
-	useEffect(() => {
-		window.addEventListener('resize', () => {
-			console.log(222222222, "resizeeeeeee")
-			notifLog(`resize2 ${random(0,1000)} ${window.innerWidth}:${window.innerHeight}`, "resize2")
-		})
-	}, [])
 
 	let rcnt = forceResponsiveRender ? 0 : 1
 	let cnt = api.userSettings.refresh.css.get + rcnt
+	let usettings = api.userSettings
+
+	//
+	// Global Pinned status system
+	//
+	const {pinStatus, updatePinStatus, togglePinStatus, refreshPinStatus} = usePinStatus()
+
 	return (
-		<div className={CssApp2(mobileView, cnt)} >
+		<div className={CssApp2(mobileView, cnt, usettings, pinStatus)} >
 			<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>
 
 				{ /* API : making clientapi available everywhere */}
@@ -413,10 +432,7 @@ export const App = () => {
 					}
 
 					<Global styles={GlobalCssApp()} />
-					<div role="dialog" className={`
-								main-wrapper
-								${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"}
-								device-view-${deviceType()}`}>
+					<div role="dialog" className={`main-wrapper ${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"} device-view-${deviceType()}`}>
 						{
 							PromptPopupComponent()
 						}
@@ -449,7 +465,7 @@ export const App = () => {
 										<NewFileButton
 											onNewFile={() => {
 												getApi(api => {
-													const selectedFolder = api.ui.browser.folders.current.get
+													const selectedFolder = api.ui.browser.folders.current.get()
 													api.file.create(selectedFolder, files => {
 														const nFile = getMostRecentFile(files)
 														nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
@@ -483,7 +499,7 @@ export const App = () => {
 										<FoldersTreeView
 											openFolders={foldersUiApi.open.get()}
 											folder={foldersUiApi.get()}
-											current={foldersUiApi.current.get}
+											current={foldersUiApi.current.get()}
 											onFolderClicked={folderPath => {
 												clientApi.ui.browser.goTo(folderPath, null)
 											}}
@@ -500,8 +516,10 @@ export const App = () => {
 															askForFolderScan([getParentFolder(folder.path)], {
 																cache: false,
 																cb: () => {
-																	foldersUiApi.open.remove([getParentFolder(folder.path)])
-																	foldersUiApi.open.add(getParentFolder(folder.path))
+																	// folder sometimes closing itself
+																	// foldersUiApi.open.remove([getParentFolder(folder.path)])
+																	// foldersUiApi.open.add(getParentFolder(folder.path))
+																	// foldersUiApi.open.add(folder.path)
 																}
 															})
 														}
@@ -519,10 +537,12 @@ export const App = () => {
 														folderBasePath,
 														newTitle: `${folder.title}_${getDateObj().full_file}`,
 														onMoveFn: () => {
-															askForFolderScan([getParentFolder(folder.path)], {
+															askForFolderScan([getParentFolder(folder.path),folder.path], {
 																cache: false,
 																// closeFolders: [folder.path],
-																cb: () => { foldersUiApi.open.add(folder.path) }
+																cb: () => { 
+																	foldersUiApi.open.add(folder.path) 
+																}
 															})
 														}
 													})
@@ -558,18 +578,18 @@ export const App = () => {
 
 									</div>
 
-									<div className="settings-button" onClick={() => {
-										setShowSettingsPopup(!showSettingsPopup)
-									}}>
-										<Icon name="faCog" color='grey' />
+									<div className='config-buttons-bar'>
+										{ api.userSettings.get('beta_plugins_marketplace') &&
+											<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
+												<Icon2 name="puzzle-piece" />
+											</div>
+										}
+										<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
+											<Icon2 name="cog" />
+										</div>
 									</div>
 
-									{
-										showSettingsPopup &&
-										<SettingsPopup onClose={() => {
-											setShowSettingsPopup(false)
-										}} />
-									}
+									
 
 								</div>
 								<div className="left-wrapper-2">
@@ -577,8 +597,8 @@ export const App = () => {
 										<div className="subtitle-wrapper">
 
 											<div className="folder-wrapper">
-												{api && api.ui.browser.folders.current.get}
-												{!api.ui.browser.folders.current.get && "/"}
+												{api && api.ui.browser.folders.current.get()}
+												{!api.ui.browser.folders.current.get() && "/"}
 											</div>
 
 
@@ -639,13 +659,15 @@ export const App = () => {
 
 
 
-						<div className="right-wrapper dual-viewer-view">
+						<div className="right-wrapper draggable-grid-editors-view">
 
 
 							{/* TABS SYSTEM*/}
 							<TabList
 								tabs={tabs}
 								onUpdate={updateTab}
+								onPinToggle={togglePinStatus("topTab")}
+								pinStatus={pinStatus.topTab}
 							/>
 
 							{activeTab &&
@@ -653,15 +675,39 @@ export const App = () => {
 									tab={activeTab}
 									onGridUpdate={updateActiveTabGrid}
 									mobileView={mobileView}
+									pinStatus={pinStatus}
 								/>
 							}
 
 
 						</div>
+						{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
+						{ userSettingsSync.curr.beta_floating_windows &&
+							<FloatingPanelsWrapper 
+								panels={api.ui.floatingPanel.panels} 
+								pinStatus={pinStatus.bottomBar}
+								onPinChange={updatePinStatus("bottomBar")}
+							/>
+						}
+
+						{
+							configPopup === "plugins-marketplace" &&
+							<PluginsMarketplacePopup onClose={() => {
+								setConfigPopup(null)
+							}} />
+						}
+						{
+							configPopup === "settings" &&
+							<SettingsPopup onClose={() => {
+								setConfigPopup(null)
+							}} />
+						}
 					</div>
 				</ClientApiContext.Provider>
 			</div >
 
+			
+			
 			<NotificationsCenter />
 
 			{

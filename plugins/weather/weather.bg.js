@@ -21,7 +21,12 @@ const sendBgNotif = (daysInFuture) => {
     })
 }
 
-// if afternoon, sends tomorrow weather
-if (isAfternoon) sendBgNotif(1)
+// MORNING
 // if morning, sends todays weather
 if (isMorning) sendBgNotif(0)
+// if morning, sends tomorrow weather
+if (isMorning) sendBgNotif(1)
+
+// AFTERNOON
+// if afternoon, sends tomorrow weather
+if (isAfternoon) sendBgNotif(1)

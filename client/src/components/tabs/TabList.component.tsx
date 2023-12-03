@@ -6,11 +6,13 @@ import { onTabUpdateFn } from '../../hooks/app/tabs.hook';
 import { deviceType } from '../../managers/device.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { Icon } from '../Icon.component';
+import { Icon, Icon2 } from '../Icon.component';
 
 export const TabList = (p: {
 	tabs: iTab[]
 	onUpdate: onTabUpdateFn
+	onPinToggle: () => void
+	pinStatus: boolean
 }) => {
 
 	const api = useContext(ClientApiContext);
@@ -18,42 +20,56 @@ export const TabList = (p: {
 	const [dragId, setDragId] = useState(-1)
 
 	return (
-		<div className="tab-list-scroll-wrapper">
-			<div className="tab-list-invisible-scroll">
-				<div className="tab-list-wrapper">
-					{/* ALL TABS LIST*/}
-					{p.tabs.map((tab, i) =>
-						<Tab
-							key={i}
-							tab={tab}
+		<div className={`tab-list-wrapper-hover ${p.pinStatus ? "pinned" : "unpinned"}`}>
+			<div className='top-hover-bar' > </div>
+			<div className="tab-list-scroll-wrapper" style={{top: `${p.pinStatus ? 0 : -44}px`}}>
+				<div className="tab-list-invisible-scroll">
+					<div className="tab-list-wrapper">
+						{/* ALL TABS LIST*/}
+						{p.tabs.map((tab, i) =>
+							<Tab
+								key={i}
+								tab={tab}
 
 
-							onDrop={pos => { setDragId(pos) }}
-							onDragEnter={pos => { setDragId(pos) }}
-							onDragEnd={pos => {
-								api && api.tabs.reorder(pos, dragId)
-								setDragId(-1)
-							}}
-							dragIndic={dragId}
-							pos={i}
+								onDrop={pos => { setDragId(pos) }}
+								onDragEnter={pos => { setDragId(pos) }}
+								onDragEnd={pos => {
+									api && api.tabs.reorder(pos, dragId)
+									setDragId(-1)
+								}}
+								dragIndic={dragId}
+								pos={i}
 
-							onUpdate={p.onUpdate}
-						/>
-					)}
+								onUpdate={p.onUpdate}
+							/>
+						)}
 
-					{/* ADD NEW TAB BUTTON*/}
-					{api?.ui.browser.files.active.get &&
+						{/* ADD NEW TAB BUTTON*/}
+						{api?.ui.browser.files.active.get &&
 
-						<div
-							className="tab-wrapper tab-more"
-							onClick={e => {
-								p.onUpdate('add')
-							}}
-						>
-							+
-						</div>
-					}
+							<div
+								className="tab-wrapper tab-more"
+								onClick={e => {
+									p.onUpdate('add')
+								}}
+							>
+								+
+							</div>
 
+							
+						}
+
+							<div
+								className="tab-wrapper tab-more"
+								onClick={e => {
+									p.onPinToggle()
+								}}
+							>
+								<Icon2 name="thumbtack" />
+							</div>
+
+					</div>
 				</div>
 			</div>
 		</div>
@@ -186,9 +202,50 @@ export const Tab = React.memo(TabInt, (np, pp) => {
 })
 
 export const tabsCss = () => `
+
+.tab-list-wrapper-hover {
+	.top-hover-bar {
+		cursor: pointer;
+		height: 14px;
+		width: 100%;
+		position: absolute;
+		opacity: 0;
+		transition: 0.5s all;
+	}
+	&:hover {
+		.top-hover-bar {
+			background: ${cssVars.colors.main};
+			opacity: 0.5;
+		}
+	}
+	transition: 0.5s all;
+	position: absolute;
+    z-index: 22;
+	width: 100%;
+	&.pinned {
+		position: initial;
+		.top-hover-bar { display:none}
+	}
+	&.unpinned {
+		.tab-list-scroll-wrapper {
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+		}
+	}
+	&:hover {
+		.tab-list-scroll-wrapper {
+			top: 0px!important;
+		}
+	}
+}
+
 .tab-list-scroll-wrapper {
-		height: 44px;
-		background: ${cssVars.colors.bgTabs};
+	
+	position: absolute;
+	height: 44px;
+	width: 100%;
+	transition: all 0.3s ease-in-out;
+	transition-delay: 500ms, 0ms;
+	background: ${cssVars.colors.bgTabs};
     border-radius: 0px 0px 0px 5px;
 		overflow: hidden;
 		.tab-list-invisible-scroll {

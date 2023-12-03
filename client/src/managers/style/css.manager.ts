@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css'
 import { deviceType, iMobileView } from '../device.manager';
 import { cssVars } from './vars.style.manager';
-import { commonCssEditors, editorAreaCss } from '../../components/dualView/EditorArea.component';
+import {  editorAreaCss } from '../../components/dualView/EditorArea.component';
 import { previewAreaCss } from '../../components/dualView/PreviewArea.component';
 import { mobileViewMenuCss } from '../../hooks/app/mobileView.hook';
 import { connectionIndicatorCss } from '../../hooks/app/connectionIndicator.hook';
@@ -44,6 +44,15 @@ import { styleCodeMirrorMarkdownPreviewPlugin } from '../codeMirror/markdownPrev
 import { ressourcePreviewSimpleCss } from '../../components/RessourcePreview.component';
 import { noteLinkCss } from '../codeMirror/noteLink.plugin.cm';
 import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
+import { pluginsMarketplacePopupCss } from '../../components/settingsView/pluginsMarketplacePopup.component';
+import { perf } from '../performance.manager';
+import { memoize, values } from 'lodash';
+import { iUserSettingsApi } from '../../hooks/useUserSettings.hook';
+import { FloatingPanelCss } from '../../components/FloatingPanels.component';
+import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
+import { windowEditorCss } from '../../components/windowGrid/WindowEditor.component';
+import { passwordPopupCss } from '../../components/PasswordPopup.component';
+import { hashtagCmPluginCss } from '../codeMirror/hashtag.plugin.cm';
 
 
 export const css2 = (css: string) => css
@@ -51,12 +60,27 @@ export const css2 = (css: string) => css
 let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
-//export const CssApp2 = mem((a1, a2) => CssApp2Int(a1, a2))
 
-export const CssApp2 = (
+// const hist = {a1:null, a2:null}
+// export const forceCssAppUpdate = () => {
+// 	hist.a1 = null
+// 	hist.a2 = null
+// }
+export const CssApp2 = memoize((a1, a2, a3, a4) => {
+	return CssApp2Int(a1, a2, a3, a4)
+}, (...args) => {
+	// values(args).join("_"))
+	return JSON.stringify(args)
+})
+
+export const CssApp2Int = (
 	mobileView: iMobileView,
-	refreshCss: number
+	refreshCss: number,
+	userSettings: iUserSettingsApi,
+	pinStatus: iPinStatuses
 ) => {
+	// console.log("RELOAD CSS", pinStatus)
+	let end = perf("CssApp2"+mobileView+refreshCss)
 	const cssString = `
 
 		height:100%;
@@ -83,9 +107,8 @@ export const CssApp2 = (
 
 
 		
-
+		${hashtagCmPluginCss()}
 		${notePreviewPopupCss()}
-		${dualViewerCss()}
 		${GlobalAppViewCss()}
 		${NotificationsCenterCss()}
 		${latexCss()}
@@ -114,6 +137,7 @@ export const CssApp2 = (
 		${contentBlockCss()}
 
 		${settingsPopupCss()}
+		${pluginsMarketplacePopupCss()}
 
 		${lastNotesCss()}
 		${shortcutCompCss()}
@@ -123,8 +147,37 @@ export const CssApp2 = (
 		${titleEditorCss()}
 
 		${PopupWrapperCss()}
-		${linksPreviewMdCss()}
+		${linksPreviewMdCss(userSettings)}
 		${ctagPreviewPluginCss()}
+		${passwordPopupCss()}
+
+		${FloatingPanelCss()}
+
+		${windowEditorCss()}
+		${previewAreaCss()}
+		${editorAreaCss(mobileView)}
+		${codeMirrorEditorCss()}
+		${uploadButtonCss()}
+		${uploadProgressBarCss()}
+
+		${dualViewerCss(mobileView, pinStatus)}
+
+		.draggable-grid-editors-view {
+			width: ${deviceType() === 'desktop' ? cssVars.sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
+			height: ${deviceType() === 'desktop' ? `calc(100vh - ${pinStatus.bottomBar ? "30" : "10"}px)` : "100%"};
+			display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
+			padding-top: 0px;
+			h3 {
+				margin-bottom: 0px;
+			}
+			pre {
+					white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
+					white-space: -pre-wrap; /* Opera */
+					white-space: -o-pre-wrap; /* Opera */
+					white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
+					word-wrap: break-word; /* IE 5.5+ */
+			}
+		}
 
 		.main-wrapper {
 				${folderTreeCss()}
@@ -148,19 +201,36 @@ export const CssApp2 = (
 				${newFileButtonCss()}
 
 				&.device-view-mobile {
-						.settings-button {
+						.config-buttons-bar {
 								bottom: 60px;
 						}
 
 				}
-				.settings-button {
-						cursor: pointer;
-						position: fixed;
-						bottom: 10px;
-						left: 10px;
-						z-index: 11;
-				}
 
+				.config-buttons-bar {
+					position: fixed;
+					bottom: 10px;
+					left: 3px;
+					z-index: 11;
+
+					.config-button {
+						// margin-top: 10px;
+						opacity: 0.6;
+						transition: 0.2s all; 
+						padding: 5px;
+						cursor: pointer;
+						&:hover {
+							opacity: 1;
+						}
+					}
+					.plugins-marketplace-button {
+
+					}
+					.settings-button {
+						
+					}
+				}
+				 
 
 
 				&.without-sidebar.device-view-desktop {
@@ -355,159 +425,24 @@ export const CssApp2 = (
 				// TEXT VIEW : RIGHT
 				////////////////////////////////////////////v 
 				${tabsCss()}
-				${draggableGridCss()}
+				${draggableGridCss(pinStatus)}
 				${GridMobileCss()}
 
 				${mobileNoteToolbarCss()}
 				${scrollingBarCss()}
 
 				&.without-sidebar.device-view-desktop {
-						.right-wrapper.dual-viewer-view {
+						.right-wrapper.draggable-grid-editors-view {
 								width: calc(100vw - 18px);
 								margin-left: 18px;
 						}
 				}
-
-				.right-wrapper.dual-viewer-view {
-
-						width: ${deviceType() === 'desktop' ? sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
-						height: ${deviceType() === 'desktop' ? "100vh" : "100%"};
-						display: ${deviceType() === 'desktop' ? 'block' : (mobileView !== 'navigator' ? 'block' : 'none')};
-						padding-top: 0px;
-						.note-wrapper {
-								.dual-view-wrapper.device-tablet, 
-								.dual-view-wrapper.device-mobile {
-										.editor-area,
-										.preview-area-wrapper {
-												width: 100%;
-										}
-								}
-								.dual-view-wrapper {
-										&.view-both.device-desktop {
-												.preview-area-wrapper {
-														width: 50%;
-												}
-										}
+				
+		} // end main-wrapper
 
 
 
-										.__EDITOR_DESIGN HERE__ {}
-										&.view-editor.device-desktop {
-												.editor-area {
-														width: 100%;
-												}
-
-												.preview-area-wrapper {
-														/* display:none; */
-														position: absolute;
-														width: 10px;
-														left: -9999px;
-														top: -9999px;
-
-												}
-										}
-
-										&.view-editor-with-map.device-desktop {
-												.editor-area {
-														width: 80%;
-												}
-
-												.__MINIMAP_DESIGN HERE__ {}
-
-												.preview-area-wrapper:hover {
-														height: calc(100% - 30px);
-														transform: scale(1);
-														right: -50%;
-														opacity: 1;
-														box-shadow: -4px 5px 10px rgba(0, 0, 0, 0.10);
-														.preview-area-transitions {
-																width: 50%;
-																padding: 0px;
-														}
-												}
-												.preview-area-wrapper {
-														transition-delay: ${cssVars.anim.time};
-														/* transition-delay: 0ms; */
-														/* transition-property: bottom; */
-														word-break: break-word;
-														transform: scale(0.2) translateZ(0);
-														transform-origin: 0px 0px;
-														position: absolute;
-														width: 100%;
-														right: calc(-80%);
-														// height: 500vh;
-														height: calc(100% * 5);
-														.preview-area-transitions {
-
-																/* transition-delay: 0ms; */
-																/* transition-property: bottom; */
-
-																/* transition-delay:${cssVars.anim.time};  */
-																/* transition-property: padding; */
-
-																transition-delay:${cssVars.anim.time}; 
-																/* transition-property: all; */
-
-																/* transition-delay: 0ms; */
-																/* transition-property: bottom; */
-
-																width: 73%;
-																padding: 80px;
-																padding-right: 140px;
-																padding-left: 40px;
-														}
-												}
-										}
-
-										&.view-preview.device-desktop {
-												.editor-area {
-														width: 0%;
-														.main-editor-wrapper {
-																position: absolute;
-																left: -9999px;
-														}
-												}
-												.preview-area-wrapper {
-														width: 100%;
-														.preview-area {
-														}
-												}
-										}
-
-										position:relative;
-										display: ${deviceType() === 'desktop' ? 'flex' : 'block'};
-										
-										
-										
-
-										
-
-
-										${previewAreaCss()}
-
-										${editorAreaCss(mobileView)}
-										${codeMirrorEditorCss()}
-										${uploadButtonCss()}
-										${uploadProgressBarCss()}
-										
-								}
-								
-						}
-						
-						
-						
-						h3 {
-								margin-bottom: 0px;
-						}
-						pre {
-								white-space: -moz-pre-wrap; /* Mozilla, supported since 1999 */
-								white-space: -pre-wrap; /* Opera */
-								white-space: -o-pre-wrap; /* Opera */
-								white-space: pre-wrap; /* CSS3 - Text module (Candidate Recommendation) http://www.w3.org/TR/css3-text/#white-space */
-								word-wrap: break-word; /* IE 5.5+ */
-						}
-				}
-		}
+		
 }
 
 
@@ -529,6 +464,6 @@ export const CssApp2 = (
 
 
 `//css
-
+end()
 	return css`${cssString}`
 }

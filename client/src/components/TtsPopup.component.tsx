@@ -25,6 +25,15 @@ export const TtsPopup = (p: {
 	const [isPlaying, setIsPlaying] = useState(false)
 	const [selectedVoiceId, setSelectedVoiceId] = useLocalStorage<number>('tts-selected-voice', 0)
 
+	const updateTTSVoice = (id: number) => {
+		setSelectedVoiceId(id)
+		const voices = getAvailableVoices()
+		// alert ("updateTTSVoice to " + id + voices[selectedVoiceId])
+		if (voices[selectedVoiceId]) {
+			tts.current.loadVoice(voices[selectedVoiceId].obj)
+		}
+	}
+
 	// const [currChunk, setCurrChunk] = useState(0)
 	const [bgLock, setBgLock] = useState(false)
 	// const [lockCounter, setBgLock] = useState(false)
@@ -67,20 +76,20 @@ export const TtsPopup = (p: {
 	window.tts = tts
 
 	useEffect(() => {
-		setTimeout(() => {
-			if (getAvailableVoices()[selectedVoiceId]) {
-				tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
-			}
-		})
+		// setTimeout(() => {
+		// 	if (getAvailableVoices()[selectedVoiceId]) {
+		// 		tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
+		// 	}
+		// })
 		tts.current = new Text2SpeechManager({ text: p.fileContent })
 		tts.current.goToChunk(currChunk)
 	}, [])
 
-	useEffect(() => {
-		if (getAvailableVoices()[selectedVoiceId]) {
-			tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
-		}
-	}, [selectedVoiceId])
+	// useEffect(() => {
+	// 	if (getAvailableVoices()[selectedVoiceId]) {
+	// 		tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
+	// 	}
+	// }, [selectedVoiceId])
 
 	useEffect(() => {
 		tts.current.updateSpeed(currRate)
@@ -126,7 +135,8 @@ export const TtsPopup = (p: {
 					list={getAvailableVoices()}
 					label={strings.ttsPopup.voice}
 					onSelectChange={id => {
-						setSelectedVoiceId(parseInt(id))
+						// setSelectedVoiceId(parseInt(id))
+						updateTTSVoice(parseInt(id))
 					}}
 				/>
 

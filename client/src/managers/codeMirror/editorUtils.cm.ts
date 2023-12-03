@@ -7,8 +7,11 @@ import { cloneDeep, each } from "lodash";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
 import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"
+// import {undo, redo} from "@codemirror/history"
+import { undo, redo } from "@codemirror/commands";
 
 import { regexs } from "../../../../shared/helpers/regexs.helper";
+import { perf } from "../performance.manager";
 
 
 const h = `[Code Mirror]`
@@ -27,17 +30,21 @@ const log = sharedConfig.client.log.verbose
 
 // const getEditorInfos = (cmView: any): iCodeMirrorInfos => {
 const getEditorInfos = (cmView: any) => {
+	// let end = perf("getperfinfs")
 	let view = cmView
 	let y = Math.round(view.viewState.pixelViewport.top)
-	let cblock = view.lineBlockAtHeight(y)
-	let visibleFirstLine = view.state.doc.lineAt(cblock.from).number
+	
+	let visibleFirstLine = () => {
+		let cblock = view.lineBlockAtHeight(y)
+		return view.state.doc.lineAt(cblock.from).number
+	}
+
 	let contentHeight = view.contentHeight
-	// console.log(view);
-	let viewportHeight = view.viewState.editorHeight
-	let percentPx = (contentHeight - viewportHeight) / 100
+	let viewportHeight = () => view.viewState.editorHeight
+	let percentPx = () => (contentHeight - viewportHeight()) / 100
 
-	let currentPercentScrolled = view.viewState.pixelViewport.top / percentPx
-
+	let currentPercentScrolled = () => view.viewState.pixelViewport.top / percentPx()
+	// end()
 	return {
 		viewportHeight,
 		contentHeight,
@@ -309,7 +316,7 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 		let from = item.to - 1
 		let isInCurrent = clineInfos && clineInfos.currentPosition > from && clineInfos.currentPosition <= to
 		try {
-			if (keepCurrentOpen && isInCurrent) return console.log(1111111111, "INSIDE", isInCurrent, from, to)
+			// if (keepCurrentOpen && isInCurrent) return console.log(dddd, "INSIDE", isInCurrent, from, to)
 			CMObj.view.dispatch({ effects: foldEffect.of({ from, to }) });
 		} catch (error) {
 			console.warn(`ERROR FOR ${item.title}`, error)
@@ -360,6 +367,32 @@ const setSelection = (CMObj: ReactCodeMirrorRef | null, selection: iEditorSelect
 	
 }
 
+// const undo2 = (CMObj: ReactCodeMirrorRef | null) => {
+// 	if (!CMObj?.view) return
+// 	try {
+// 		const view = CMObj.view
+// 		// view.dispatch()
+// 		// undoInt(CMObj)
+// 		// view.dispatch(undoInt)
+// 		// undoInt(CMObj.state, (tr:any) => {})
+// 		// view.dispatch({ effects: undoInt })
+// 		if (!view) return
+// 		// CMObj.view.dispatch({ effects: undoInt({state:CMObj.state, dispatch:}) });
+// 		// undoInt(CMObj.state, (tr:any) => {
+// 		// 	CMObj.view.dispatch(tr)
+// 		// })
+
+// 		// @ts-ignore
+// 		// undo({state: CMObj.state, dispatch: CMObj.view.dispatch}
+// 		console.log(123)
+// 		undo(CMObj.view)
+
+// 	} catch (error) {
+// 		console.log("[CM utils > undo] error:", error)
+// 	}
+// }
+
+
 
 export const CodeMirrorUtils = {
 	getEditorInfos,
@@ -376,6 +409,8 @@ export const CodeMirrorUtils = {
 	unfoldAllChildren,
 
 	searchWord,
-	setSelection
+	setSelection,
+	undo,
+	redo
 
 }

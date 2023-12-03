@@ -30,7 +30,7 @@ export interface iApiDictionary {
 	searchWord: { word: string, folder: string, idReq: string }
 	getWordSearch: { result: iSearchWordRes, idReq: string }
 
-	getUploadedFile: { name: string, path: string, idReq: string }
+	getUploadedFile: { name: string, path: string, absPath:string, idReq: string }
 
 	askFolderHierarchy: { folderPath: string }
 	getFolderHierarchy: { folder: iFolder, pathBase: string }
@@ -74,6 +74,8 @@ export interface iApiDictionary {
 	askRessourceDelete: { path: string, idReq: string }
 	askRessourceDownload: { url: string, folder: string, opts?:iDownloadRessourceOpts, idReq: string }
 	getRessourceApiAnswer: { status: string, message: string, idReq: string }
+	askRessourceScan: { folderPath: string, idReq: string }
+	getRessourceScan: { files: iFile[], idReq: string }
 
 	updateSetupJson: { paramName: string, paramValue: string, opts?:iUpdateConfigJsonOpts, idReq: string }
 

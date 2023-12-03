@@ -1,7 +1,6 @@
 import "@fortawesome/fontawesome-free/css/all.css"
 import { iFile } from "../../../shared/types.shared"
 import { getApi } from "../hooks/api/api.hook"
-import { ssrGenCtag, ssrToggleCtag } from "./ssr/ctag.ssr"
 
 //
 // SSR ICON SYSTEM (for better perfs)
@@ -47,9 +46,17 @@ export const ssrOnClick = (query: string, action: (el: any) => void) => {
 //
 
 export type ssrCachedStatus = "open" | "closed"
-export const setSsrStatus = (file:iFile, idDoc:string, status: ssrCachedStatus) => {
+const getCacheId = (file:iFile, idDoc) => {
 	let cacheId = `ressource-preview-status-${file.path}`
+	// if iDoc has ?token=xxx, we remove it
+	let i = idDoc.indexOf("token=")
+	if (i > -1) idDoc = idDoc.substring(0, i)
+	// console.log("setSsrStatus", cacheId, idDoc, status);
 	let idRess = `${file.path}-${idDoc}`
+	return {cacheId, idRess}
+}
+export const setSsrStatus = (file:iFile, idDoc:string, status: ssrCachedStatus) => {
+	const {cacheId, idRess} = getCacheId(file, idDoc)
 	getApi(api => {
 		api.cache.get(cacheId, res => {
 			if (!res) res = {}
@@ -59,8 +66,7 @@ export const setSsrStatus = (file:iFile, idDoc:string, status: ssrCachedStatus) 
 	})
 }
 export const getSsrStatus = (file:iFile, idDoc:string, cb: (status: ssrCachedStatus) => void) => {
-	let cacheId = `ressource-preview-status-${file.path}`
-	let idRess = `${file.path}-${idDoc}`
+	const {cacheId, idRess} = getCacheId(file, idDoc)
 	getApi(api => {
 		api.cache.get(cacheId, res => {
 			if (!res) return

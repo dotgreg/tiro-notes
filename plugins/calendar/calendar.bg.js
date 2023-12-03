@@ -15,7 +15,7 @@ fetchLibs(calendarLib => {
 const main = (calendarLib) => {
     // all that system suppose we trigger the cron every 11min
     calendarLib.getEventsList(config.calNotePath, events => {
-        console.log(h, "calendar note fetch:", {events})
+        // console.log(h, "calendar note fetch:", {events})
         for (var i = 0; i < events.length; i++) {
             let e = events[i]
 

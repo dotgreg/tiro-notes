@@ -4,8 +4,8 @@ let isPerfMonitoringEnabled:any = process.env.TIRO_PERFORMANCE_MONITORING_BACKEN
 if (isPerfMonitoringEnabled === true) isPerfMonitoringEnabled = true
 if (isPerfMonitoringEnabled === 'true') isPerfMonitoringEnabled = true
 
-
-// isPerfMonitoringEnabled = true  
+const nodeEnv = process.env.NODE_ENV || ''
+if (nodeEnv.trim() === 'development') isPerfMonitoringEnabled = true  
 
 const h = `[PERFS]`
 console.log(`${h} perf mode =`, isPerfMonitoringEnabled, process.env.TIRO_PERFORMANCE_MONITORING_BACKEND)
@@ -15,7 +15,7 @@ export const perf = (id:string) => {
     const end = () => {
         if (isPerfMonitoringEnabled === true) {
             let diff = new Date().getTime() - startDate
-            console.log(`${h} ${id} => ${diff}ms`)
+            console.log(`${h} ${new Date().toTimeString().substr(0,8)} ${id} => ${diff}ms`)
             addToPerfStats(id, diff)
         }
     }

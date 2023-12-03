@@ -26,6 +26,7 @@ import { css } from "@emotion/react"
 const colors = {
 	// controlable vars
 	main: '#E86666',
+	mainFont: '#FFFFFF',
 
 	// // light
 
@@ -168,16 +169,16 @@ const els = () => {
 		redButton: `
 			border: none;
 			background: ${colors.main};
-    &:hover {
-			opacity: 0.9;
-
-    }
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+			&:hover {
+					opacity: 0.9;
+			}
+			color: white;
+			border-radius: 5px;
+			margin-right: 5px;
+			cursor: pointer;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 1px;
     `,
 	}
 }

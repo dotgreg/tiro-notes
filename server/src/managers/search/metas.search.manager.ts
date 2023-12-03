@@ -3,7 +3,7 @@ import { processStringToMeta } from "../../../../shared/helpers/metas.helper";
 import { toTimeStampInS } from "../../../../shared/helpers/timestamp.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileMetas, metaContent } from "../../../../shared/types.shared";
-import { cleanFilePath } from "./file.search.manager";
+import { cleanFileNamePath } from "./file.search.manager";
 import { iFilesObj } from "./search-ripgrep.manager";
 
 export interface iMetasFiles {
@@ -47,7 +47,7 @@ export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:str
 
         
         const fileName = `${rawMetaArr2[0]}.md`;
-        let cleanedFileName = cleanFilePath(fileName, folder)
+        let cleanedFileName = cleanFileNamePath(fileName, folder)
         if (!res[cleanedFileName]) res[cleanedFileName] = {}
 
         const content = rawMetaArr2[1]

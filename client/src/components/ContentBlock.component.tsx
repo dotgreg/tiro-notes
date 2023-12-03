@@ -3,19 +3,20 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iFile } from '../../../shared/types.shared';
 import { iContentChunk, noteApiFuncs } from '../managers/renderNote.manager'
 import { generateIframeHtml, iframeParentManager, iIframeData } from '../managers/iframe.manager'
-import { callApiFromString, getClientApi2 } from '../hooks/api/api.hook';
+import { callApiFromString, getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { isString, random } from 'lodash';
+import { isNumber, isString, random } from 'lodash';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
-import { Icon } from './Icon.component';
+import { Icon, Icon2 } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
 import { defocusMouse } from '../managers/focus.manager';
 import { getCtagContent } from '../managers/ctag.manager';
 import { isMobile } from '../managers/device.manager';
 import { notifLog } from '../managers/devCli.manager';
+import { iCreateFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -31,12 +32,13 @@ export const ContentBlockInt = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
-	windowHeight?: number
-
+	// windowHeight?: number | string
+	reactOnHeightResize?: boolean
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
-
+	
+	ctagHeightOffset?: number 
 	ctagSandboxed?: boolean
 	ctagFullscreen?: boolean
 	ctagOnFullscreenClose?: Function
@@ -129,6 +131,8 @@ export const ContentBlock = React.memo(ContentBlockInt, (np, pp) => {
 	if (JSON.stringify(np.block) !== JSON.stringify(pp.block)) res = false
 	if (np.block.content !== pp.block.content) res = false
 	if (np.file.path !== pp.file.path) res = false
+	if (np.windowId !== pp.windowId) res = false
+	// if (np.windowHeight !== pp.windowHeight && np.reactOnHeightResize === true) res = false
 	return res
 })
 
@@ -139,13 +143,15 @@ export const ContentBlockTagView = (p: {
 	windowId: string
 	file: iFile
 	block: iContentChunk
-	windowHeight?: number
+	// windowHeight?: number | string
+	reactOnHeightResize?: boolean
 	index?: number
 	yCnt: number
 	onIframeMouseWheel: onIframeMouseWheelFn
 	ctagSandboxed?: boolean
 	ctagFullscreen?: boolean
 	ctagOnFullscreenClose?: Function
+	ctagHeightOffset?: number 
 }) => {
 	const { noteTagContent } = { ...p }
 
@@ -177,17 +183,30 @@ export const ContentBlockTagView = (p: {
 		// listen to iframe calls
 		iframeParentManager.subscribe(nid, m => {
 
-			// RESIZE
+			// RESIZE AND CTAG HEIGHT MANAGEMENT
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
-				let nheight = data.height
-				let windowHeiht = (p.windowHeight || 200) - 35 // take in account top bar
-				if (isString(nheight) && nheight.endsWith("%")) {
-					const percent = parseInt(nheight.replace("%", "")) / 100
-					nheight = windowHeiht * percent
+				let nHeight = 0
+
+				const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
+				if (!parentWindow) return
+				const pDims = parentWindow.getBoundingClientRect()
+
+				if (isString(data.height) && data.height.endsWith("%")) {
+					const nHeightPercent = parseInt(data.height.replace("%", "")) / 100
+					// get height and width from window-id-sizeref-p.windowId
+					nHeight = (pDims.height * nHeightPercent) 
+				} else if (isNumber(data.height)) {
+					nHeight = data.height
+				} else {
+					const pDims = parentWindow.getBoundingClientRect()
+					nHeight = 300
 				}
-				// log && console.log(h, 'resizing to', nheight);
-				setIframeHeight(nheight);
+
+				if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
+
+				// console.log("resize", nHeight, pDims.height, data.height)
+				setIframeHeight(`${nHeight}px`);
 				// only at that moment show iframe
 				setCanShow(true)
 			}
@@ -297,11 +316,19 @@ export const ContentBlockTagView = (p: {
 		}
 	}, [p.windowId, p.block.content, p.block.tagName, p.noteTagContent, reload])
 
-	const askFullscreen = () => {
-		iframeParentManager.send(iframeRef.current, {
-			action: 'askFullscreen', data: {}
-		})
-	}
+	// const askFullscreen = () => {
+	// 	iframeParentManager.send(iframeRef.current, {
+	// 		action: 'askFullscreen', data: {}
+	// 	})
+	// }
+	// const askDetach = () => {
+	// 	if (!p.block.tagName) return
+	// 	let tagName = p.block.tagName || ''	
+	// 	const floatConfig:iCreateFloatingPanel = {type:"ctag", file: p.file, ctagConfig:{tagName: tagName, content:p.block.content, } }
+	// 	console.log("ASK DETACH", floatConfig)
+	// 	getApi(api => { api.ui.floatingPanel.create(floatConfig) })
+	// }
+	
 
 
 
@@ -347,9 +374,9 @@ export const ContentBlockTagView = (p: {
 					onClick={e => { fullscreenClose() }}
 				></div>
 			}
-			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`}>
+			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} >
 
-				<div className="ctag-menu" >
+				{/* <div className="ctag-menu" >
 					<div className="ctag-ellipsis" >
 						<Icon name="faEllipsisH" color={`#b2b2b2`} />
 					</div>
@@ -359,13 +386,16 @@ export const ContentBlockTagView = (p: {
 					<div className="ctag-menu-button ctag-fullscreen" onClick={askFullscreen}>
 						<Icon name="faExpand" color={`#b2b2b2`} />
 					</div>
-					<div className="ctag-menu-button ctag-pin" onClick={e => { askPin() }}>
+					<div className="ctag-menu-button ctag-detach" onClick={askDetach}>
+						<Icon2 name="window-restore" color={`#b2b2b2`} />
+					</div> */}
+					{/* <div className="ctag-menu-button ctag-pin" onClick={e => { askPin() }}>
 						<Icon name="faThumbtack" color={`#b2b2b2`} />
 					</div>
 					<div className="ctag-menu-button ctag-pin" onClick={e => { askPinFullscreen() }}>
 						<Icon name="faExpandArrowsAlt" color={`#b2b2b2`} />
-					</div>
-				</div>
+					</div> */}
+				{/* </div> */}
 
 				{!reloadIframe &&
 					<iframe
@@ -403,10 +433,12 @@ export const contentBlockCss = () => `
 	z-index: -10000;
 	width: 0px;
 	height: 0px;
-	opacity202: 0.01;
+	opacity: 0.00001;
+	top: -10000px;
+	left: -10000px;
 }
 .content-blocks-wrapper {
-		padding: 0px 15px;
+		// padding: 0px 15px;
 }
 .simple-css-wrapper {
 }

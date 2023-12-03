@@ -4,10 +4,10 @@ const feedApp = (innerTagStr, opts) => {
 		if (!opts.size) opts.size = "95%"
 		if (!opts.itemsPerFeed) opts.itemsPerFeed = 100
 		if (!opts.feedType) opts.feedType = "xml"
+		if (!opts.contentCacheHours) opts.contentCacheHours = 1 // cache content for an hour
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
-		// VERSION 1.0.9 31/03/23`
 		const h = `[CTAG FEED]`
 
 		//@ts-ignore
@@ -67,6 +67,7 @@ const feedApp = (innerTagStr, opts) => {
 		console.log(h, "========= INIT with opts:", opts)
 
 		// const feedsCategories = []
+		// const failedFeeds = []
 
 		const execFeedReader = (feedsStr) => {
 				// const sortArr = (items,sortType) => {
@@ -128,11 +129,13 @@ const feedApp = (innerTagStr, opts) => {
 				//
 				// CACHING MECHANISM
 				//
-				const getCachedJsons = (cb, setStatus) => {
-						const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
-						if (!hasUserReloaded) {
+
+				const getCachedJsons = (cb, setStatus, cache=true) => {
+						// const hasUserReloaded = api.utils.getInfos().reloadCounter !== 0
+						// nocache = hasUserReloaded
+						if (cache) {
 								// first get cached, if exists
-								setStatus("Loading... (loading feeds from cache)")
+								setStatus("Loading...")
 								getContentCache(content => {
 									// if cache, return content
 									console.log(h, "=> getting CACHED feed json")
@@ -144,7 +147,7 @@ const feedApp = (innerTagStr, opts) => {
 								})
 						} else {
 								// directly reload without cache
-								setStatus("Loading... (loading feeds directly)")
+								setStatus("Loading... (refreshing from source)")
 								getJsons(cb, setStatus)
 						}
 				}
@@ -161,17 +164,17 @@ const feedApp = (innerTagStr, opts) => {
 					})
 				}
 				const setCache = (id, mins) => (content) => {
-					if (!mins) mins = 6* 60 
+					if (!mins) mins = 6 * 60 
 					api.call("cache.set", [id, content, mins]) 
 				}
 				
 				const cacheContentId = `ctag-feed-${api.utils.getInfos().file.path}`
 				const getContentCache = getCache(cacheContentId)
-				const setContentCache = setCache(cacheContentId, 6*60)
+				const setContentCache = setCache(cacheContentId, opts.contentCacheHours*60)
 
 				const cacheSettingsId = `ctag-settings-feed-${api.utils.getInfos().file.path}`
-				const getSettingsCache = getCache(cacheSettingsId)
-				const setSettingsCache = setCache(cacheSettingsId, -1)
+				const getSettingsCache = (name) => getCache(cacheSettingsId + name)
+				const setSettingsCache = (name) => setCache(cacheSettingsId + name, -1)
 
 
 
@@ -243,6 +246,7 @@ const feedApp = (innerTagStr, opts) => {
 				//////////////////////////////////////////////////////////////////
 				// FETCHING DATA
 				//
+				
 				const getJsons = (cb, setStatus) => {
 						console.log(h, `getting NEW uncached jsons`);
 						const feedsArr = getFeeds(feedsStr)
@@ -278,8 +282,13 @@ const feedApp = (innerTagStr, opts) => {
 													nitems[j].link = g(nitems[j].link) || g(nitems[j].enclosure?.link) || ""
 													// in case of reddit, look for link inside the content
 													if (nitems[j].link === "") {
-															let reddit = nitems[j].content.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
+															let contentAndDescription = nitems[j].description + nitems[j].content
+															let reddit = contentAndDescription.match(/\"(https\:\/\/www\.reddit\.com\/r\/[^\&]*)\"/gmi)
 															if (reddit && reddit[1]) nitems[j].link =  reddit[1].replaceAll("\"","")
+															else {
+																let linkInContent = contentAndDescription.match(/href=['"]([^'">]+)['"]/i)
+																if (linkInContent && linkInContent[1]) nitems[j].link =  linkInContent[1]
+															}
 													}
 
 
@@ -297,12 +306,24 @@ const feedApp = (innerTagStr, opts) => {
 													const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
 													nitems[j].bgColor = cColor
 													// IMAGE
-													const bgImage = g(nitems[j].thumbnail) ||
+													let bgImage = g(nitems[j].thumbnail) ||
+																g(nitems[j]["itunes:image"]?._attributes?.href)||
+																g(nitems[j]["media:thumbnail"]?._attributes?.url) ||
+																g(nitems[j]["media:content"]?._attributes?.url) ||
+																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
-																nitems[j]["media:thumbnail"]?._attributes?.url ||
-																nitems[j]["media:content"]?._attributes?.url ||
-																nitems[j]["itunes:image"]?._attributes?.href ||
-																nitems[j].image
+																g(nitems[j].image)
+													if (bgImage && (bgImage.endsWith("mp3") || bgImage.endsWith("xml"))) bgImage = null
+													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
+													if (!bgImage) {
+														let contentAndDescription = nitems[j].description + nitems[j].content
+														// look for first image in content
+														let imageInContent = contentAndDescription.match(/src=['"]([^'"]+)['"][^>]/i)
+														if (imageInContent && imageInContent[1]) bgImage =  imageInContent[1]
+													}
+													if (nitems[j].enclosure) {
+													}
+													
 													nitems[j].image = bgImage
 													// ENCLOSURE
 													if (!nitems[j].enclosure) nitems[j].enclosure = {}
@@ -319,6 +340,14 @@ const feedApp = (innerTagStr, opts) => {
 									resItems = resItems.sort((a, b) => b.timestamp - a.timestamp)
 									setDebounceCache(resItems)
 									cb(resItems)
+									if (feedItems.length === 0) {
+										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+									}
+								}, (error) => {
+									// on failure
+									// setFailedFeeds([...failedFeeds, feedsArr[i].name])
+									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
 						}
 				}
@@ -340,28 +369,32 @@ const feedApp = (innerTagStr, opts) => {
 				// custom fetcher possible (for youtube for instance)
 				// enrich items data with feed data
 				//
-				const fetchFeedItems = (feed, cb) => {
+				const fetchFeedItems = (feed, cb, onFailure) => {
 						const wrappedCb = items => {
 								cb(enrichItems(items, feed))
 						}
 
 						if (opts.fetchItems) {
 								console.log(h, "CUSTOM FETCH FN detected");
-								opts.fetchItems(feed, wrappedCb)	
+								opts.fetchItems(feed, wrappedCb, onFailure)	
 						}
-						else getXml(feed, wrappedCb)
+						else getXml(feed, wrappedCb, onFailure)
 
 				}
 
-				const getXml = (feed, cb) => {
+				const getXml = (feed, cb, onFailure) => {
 						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
+							try {
 								let res2 = xml2js(txt, { compact: true })
-								
 								let items = res2.feed?.entry // XML1
 								if (!items) items = res2.rss?.channel.item // XML2
 								if (!items) items = []
 								items = items.slice(0, feed.limitFetchNb)
 								cb(items)
+							} catch (error) {
+								// console.log(h, "ERROR parsing xml", error);
+								if (onFailure) onFailure(error)
+							}
 						})
 				}
 
@@ -643,13 +676,31 @@ const feedApp = (innerTagStr, opts) => {
 								setSearchItems(nItems)
 						}, [search, filteredItems])
 
+						//
+						// refresh feeds cache
+						//
+						const [forceFeedRefresh, setForceFeedRefresh] = React.useState(0)
+						const refreshFeeds = () => {
+							setForceFeedRefresh(forceFeedRefresh + 1)
+						}
 
 
 						const [status, setStatus] = React.useState("")
 						const [categories, setCategories] = React.useState([])
 						const [activeCat, setActiveCat] = React.useState(null)
+
+						// const [failedFeeds, setFailedFeedsInt] = React.useState([])
+						// const setFailedFeeds = (nval) => {
+						// 	console.log(123123, nval)
+						// 	setFailedFeedsInt(nval)
+						// }
+						// React.useEffect(() => {
+						// 	console.log(failedFeeds)
+						// }, [failedFeeds])
+
 						// INITIAL LOADING
 						React.useEffect(() => {
+								let cache = forceFeedRefresh === 0
 								setStatus("Loading... (loading bookmarks)")
 								getBookmarks(() => {
 										setStatus("Loading... (loading feeds)")
@@ -685,9 +736,9 @@ const feedApp = (innerTagStr, opts) => {
 													setActiveFeed(null)
 												}
 												
-										}, setStatus)
+										}, setStatus, cache)
 								})
-						}, [])
+						}, [forceFeedRefresh])
 
 						const [refresh, setRefresh] = React.useState(0)
 						const doRefresh = () => { setRefresh(refresh + 1) }
@@ -726,14 +777,15 @@ const feedApp = (innerTagStr, opts) => {
 						const toggleListView = () => {
 								let nView = listView === "list" ? "gallery" : "list"
 								setIntListView(nView)
-								setSettingsCache({listView: nView})
+								setSettingsCache("listView")(nView)
 						}
 						React.useEffect(() => {
-								getSettingsCache(settings => { 
-									if (settings.listView) setIntListView(settings.listView)
+								getSettingsCache("listView")(v => { 
+									setIntListView(v)
 								})
 						}, [])
 						
+
 
 						let itemOpenClass = itemActive ? "item-active" : ""
 
@@ -773,58 +825,141 @@ const feedApp = (innerTagStr, opts) => {
 								} 
 						}
 
+						//
+						// filter bar system
+						//
+						const [showBar, setShowBar] = React.useState(false)
+						const toggleBar = () => {
+								let nView = !showBar
+								setShowBar(nView)
+								setSettingsCache("showBarView")(nView)
+						}
+						React.useEffect(() => {
+								getSettingsCache("showBarView")(v => { 
+									setShowBar(v)
+								})
+						}, [])
+
+						
+						
+
+
+						const [filterBarList, setFilterBarList] = React.useState([])
+						React.useEffect(() => {
+							const isActive = (type, val, activeVal, activeVal2) => {
+								let res = ""
+								if (type === "cat" && val === activeVal) res = "active" 
+								if (type === "feed" && val === activeVal) res = "active" 
+								if (type === "all" && activeVal === null && activeVal2 === null) res = "active" 
+								return res
+							}
+							const nfilterBarList = []
+							nfilterBarList.push({label: "-- all", value: "all", active:isActive("all", "", activeCat, activeFeed)})
+							nfilterBarList.push({label: "-- bookmarks", value: "bookmarks", active:isActive("cat", "bookmarks", activeFeed)})
+							nfilterBarList.push({label: "-- categories -- ", value: "bookmarks"})
+							categories.map(cat =>
+								nfilterBarList.push({label: cat, value: `cat-${cat}`, active:isActive("cat", cat, activeCat)})
+							),
+							nfilterBarList.push({label: "-- feeds -- "})
+							let filterFeeds = []
+							feeds.map(feed =>
+								filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+							)
+							// sort by label name first letter
+							filterFeeds = filterFeeds.sort((a, b) => a.label.localeCompare(b.label))
+
+							nfilterBarList.push(...filterFeeds)
+							// finally push failed feeds
+							// if (failedFeeds.length > 0) {
+							// 	nfilterBarList.push({label: "-- failed feeds -- "})
+							// 	failedFeeds.map(feed =>
+							// 		nfilterBarList.push({label: `x ${feed}`, value: `failed-feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+							// 	)
+							// }
+							setFilterBarList(nfilterBarList)
+						}, [categories, feeds, activeFeed, activeCat])
+
+						//
+						// ON SELECT CHANGE
+						//
+						const onFilterChange = (filterId) => {
+							
+								if (filterId === "all") {
+										setActiveFeed(null)
+										setActiveCat(null)
+								} else if (filterId.startsWith("feed-")) {
+										let v = filterId.replace("feed-", "")
+										setActiveFeed(v)
+										setActiveCat(null)
+								}
+								else if (filterId.startsWith("cat-")) {
+										let v = filterId.replace("cat-", "")
+										setActiveFeed(null)
+										setActiveCat(v)
+								} else if (filterId === "bookmarks") {
+										setActiveFeed(filterId)
+								}
+						}
+						
+
 						return (
 								c('div', { className: "feed-app-wrapper" }, [
+									
+									
 
-										c('div', { className: `filter-input-wrapper` }, [
-										]),
-										c('div', { className: `filter-list-wrapper` }, [
+									//
+									// TOP FILTER BAR
+									//
+
+									c('div', { className: `top-wrapper` }, [
+										c('div', { className: `filters-top-wrapper` }, [
+
 												// FEEDS
-												c('select', {
-														onChange: e => {
-																let val = e.target.value
-																if (val === "all") {
-																		setActiveFeed(null)
-																		setActiveCat(null)
-																} else if (val.startsWith("feed-")) {
-																		let v = val.replace("feed-", "")
-																		setActiveFeed(v)
-																		setActiveCat(null)
-																}
-																else if (val.startsWith("cat-")) {
-																		let v = val.replace("cat-", "")
-																		setActiveFeed(null)
-																		setActiveCat(v)
-																} else if (val === "bookmarks") {
-																		setActiveFeed(val)
-																}
-														}
-												}, [
-														c('option', { value: "all" }, [`-- all`]),
-														c('option', { value: "bookmarks" }, [`-- bookmarks`]),
-														c('option', { value: "all" }, [`-- categories -- `]),
-														categories.map(cat =>
-																c('option', { value: `cat-${cat}` }, [`${cat}`])
-														),
-														c('option', { value: "all" }, [`-- feeds -- `]),
-														feeds.map(feed =>
-																c('option', { value: `feed-${feed}` }, [`${feed}`])
-														)
-												]),
-
+												// c('select', {
+												// 		onChange: e => {
+												// 			let filterId = e.target.value
+												// 			onFilterChange(filterId)
+												// 		}
+												// }, [
+												// 		c('option', { value: "all" }, [`-- all`]),
+												// 		c('option', { value: "bookmarks" }, [`-- bookmarks`]),
+												// 		c('option', { value: "all" }, [`-- categories -- `]),
+												// 		categories.map(cat =>
+												// 				c('option', { value: `cat-${cat}` }, [`${cat}`])
+												// 		),
+												// 		c('option', { value: "all" }, [`-- feeds -- `]),
+												// 		feeds.map(feed =>
+												// 				c('option', { value: `feed-${feed}` }, [`${feed}`])
+												// 		)
+												// ]),
 												c('div', {
-														className: `filter-sort`,
+													className: `filter-refresh filter-toggle`,
+													onClick: () => { refreshFeeds() },
+													title: `Refresh`
+												}, [
+													c('div', {className: `fa fa-refresh`})
+												]),
+												c('div', {
+													className: `filter-bar-appear filter-toggle`,
+													onClick: () => { toggleBar() },
+													title: !showBar ? `show bar` : `hide bar`
+												}, [
+													!showBar ? c('div', {className: `fa fa-bars`}): c('div', {className: `fa fa-expand`})
+												]),
+												c('div', {
+														className: `filter-sort filter-toggle`,
 														onClick: () => { loopSort() },
 														title: sort === "date" ? `sorted by date` : `sorted randomly`
 												}, [
-														sort === "date" ? `⏱️️` : `🌀`
+														sort === "date" ? c('div', {className: `fa fa-random`}): c('div', {className: `fa fa-clock`})
 												]),
 												c('div', {
-														className: `filter-view`,
+														className: `filter-view filter-toggle`,
 														onClick: () => { toggleListView() }
 												}, [
-														listView === "list" ? `🖼️` : `📰`
+														listView === "list" ? c('div', {className: `fa fa-image`}): c('div', {className: `fa fa-list`})
 												]),
+												
 												c('input', {
 														className: `filter-input`,
 														onChange: e => {
@@ -832,73 +967,98 @@ const feedApp = (innerTagStr, opts) => {
 																setSearch(val)
 														}
 												}),
+												
 										]),
+									]),
+
+
 										status !== "" && c('div', {class: "status"}, [
 												status,
 										]),
-										c('div', { 
-												onScroll,
-												id:"infinite-scroll-wrapper",
-												className: `articles-list ${itemOpenClass} view-${listView} ${itemActive ? 'item-active-open' : ''}` 
-										}, 
-											[
-													c('div', {id:"infinite-scroll-inner",},[
+									
+									c('div', { className: `left-right-wrapper` }, [
+										//
+										// LEFT BAR FILTER
+										//
+										c('div', { className: `left-wrapper ${showBar ? "show" : "hidden"}` }, [
+											c('div', { className: `hide-scrollbar` }, [
+												c('div', { className: `filter-bar-left` }, [
+													filterBarList.map(filter =>
+															c('div', { 
+																className:`filter filter-${filter.value} ${filter.active}`, 
+																value: filter.value,
+																onClick: () => {
+																	let filterId = filter.value
+																	onFilterChange(filterId)
+																}
+															}, [`${filter.label}`])
+													),
+												]),
+											]),
+										]),
+										//
+										// RIGHT PANEL
+										//
+										c('div', { className: "right-wrapper"}, [
+											c('div', { className: "hide-scrollbar-right"}, [
+												c('div', { 
+														onScroll,
+														id:"infinite-scroll-wrapper",
+														className: `articles-list ${itemOpenClass} view-${listView} ${itemActive ? 'item-active-open' : ''}` 
+												}, 
+													[
+														c('div', {id:"infinite-scroll-inner",},[
 															// V1
 															infiniteScrollItems.map(item =>
-																	c('div', {
-																			className: `article-${listView}-item`,
-																			onClick: () => { setItemActive(item) }
-																	},
-																		[
+																c('div', {
+																	className: `article-${listView}-item`,
+																	onClick: () => { setItemActive(item) }
+																},
+																	[
 
-																				listView === "list" &&
-																						c('div', {
-																								className: "",
-																						}, [
-																								`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
-																						]),
-
-																				listView !== "list" &&
-																						c('div', {
-																								className: "",
-																						},
-																							[
-																									c('div', {
-																											className: "bg-item",
-																											style: {
-																													backgroundColor: item.bgColor,
-																													backgroundImage: "url(" + item.image + ")",
-																											}
-																									}),
-																									c('div', { className: "title-wrapper" }, [
-																											c('div', { className: "title" }, [item.title]),
-																											c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
-																									])
-																							]),
-																		]),
+																		listView === "list" &&
+																			c('div', {
+																					className: "",
+																			}, [
+																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
+																			]),
+																		listView !== "list" &&
+																			c('div', {
+																					className: "",
+																			},
+																			[
+																				c('div', {
+																						className: "bg-item",
+																						style: {
+																								backgroundColor: item.bgColor,
+																								backgroundImage: "url(" + item.image + ")",
+																						}
+																				}),
+																				c('div', { className: "title-wrapper" }, [
+																						c('div', { className: "title" }, [item.title]),
+																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
+																				])
+																			]),
+																	]
+																),
 															)
-															
-															// V2 TEST
-															// finalItems.map(item => 
-															// 		c('div', { className: "title" }, [item.title]),
-															// )
+														])
+													]
+												),
 
-															// V3 REACT WINDOW
-															//console.log(ReactWindow.)
-															// ReactWindowList(),
-													])
-											]),
-
-										itemActive && c(ArticleDetail, {
-												article: itemActive,
-												onClose: () => {
-														setItemActive(null)
-												},
-												onBookmarkToggle: () => {
-														doRefresh()
-												}
-										}, []),
-								])
+											itemActive && c(ArticleDetail, {
+													article: itemActive,
+													onClose: () => {
+															setItemActive(null)
+													},
+													onBookmarkToggle: () => {
+															doRefresh()
+													}
+											}, []),
+										]) // end right panel
+									]) // end hide scroll wrapper
+								]) // end left-right panel
+							])
 						);
 				}
 
@@ -957,6 +1117,25 @@ const feedApp = (innerTagStr, opts) => {
 				}
 		);
 
+
+
+		function getOperatingSystem() {
+			const platform = navigator.platform.toLowerCase();
+			
+			if (platform.includes('mac')) {
+				return 'mac';
+			} else if (platform.includes('win')) {
+				return 'windows';
+			} else if (platform.includes('linux')) {
+				return 'linux';
+			} else if (platform.includes('android')) {
+				return 'android';
+			} else {
+				return 'other';
+			}
+		}
+
+
 		const styleFeed = `
 		h1:before, h2:before, h3:before, h4:before, h5:before, h6:before {
 			display: none;
@@ -996,6 +1175,8 @@ const feedApp = (innerTagStr, opts) => {
 				top: 0px;
 				box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
 		}
+
+		
 		@media screen and (max-width: 500px) {
 				.article-details-bg {
 						cursor: pointer;
@@ -1094,7 +1275,7 @@ const feedApp = (innerTagStr, opts) => {
 .article-bookmark-toggle {
 		color: grey;
 		position: fixed;
-		right: 40px;
+		right: 60px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1107,7 +1288,7 @@ const feedApp = (innerTagStr, opts) => {
 
 .article-close {
 		position: fixed;
-		right: 10px;
+		right: 32px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1121,10 +1302,9 @@ const feedApp = (innerTagStr, opts) => {
 /* FILTER  */
 .filter-list-wrapper {
 		display: flex;
-		flex-direction: row;
 		padding-bottom: 5px;
-		padding-left: 55px;
-		width: 50%
+		padding-top: 5px;
+		width: 50%;
 }
 @media screen and (max-width: 500px) {
 		.filter-list-wrapper {
@@ -1136,28 +1316,88 @@ const feedApp = (innerTagStr, opts) => {
 }
 
 .filter-view {
-		margin-right: 3px;
-		cursor: pointer;
 }
 /*
 				LIST
 */
 .articles-list {
-		width: 100%;
-		overflow-x: hidden;
-		height: 100%;
-		overflow-y: scroll;
-		padding-bo
+	width: 100%;
+	overflow-x: hidden;
+	height: calc(100% + 20px);
+	overflow-y: scroll;
+	
 }
 
-/* list view  */
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * 
+LIST
+*/
+.feed-app-wrapper {
+	padding-top: 37px;
+	width: calc(100% - ${getOperatingSystem() === "mac" ? 20 : 0}px);
+}
+
+.top-wrapper {
+	position: absolute;
+    right: 2px;
+	top: 4px;
+}
+.filters-top-wrapper {
+	display: flex;
+	align-items: center;
+}
+.left-right-wrapper {
+	display: flex;
+	height: 100%;
+}
+.left-wrapper {
+	height: 100%;
+	overflow:hidden;
+}
+.hide-scrollbar {
+	height: calc(100% - 40px);
+	overflow-y: auto;
+	min-width: 100px;
+	width: calc(100% + 18px);
+}
+.right-wrapper {
+	height: 100%;
+	width: 100%;
+}
+
+.hide-scrollbar-right {
+	height: 100%;
+	width: calc(100% + 18px);
+}
+
+/* * * * * * * * * * *
+LIST > LEFT WRAPPER  
+*/
+.left-wrapper.hidden {
+	display: none;
+}
+.left-wrapper .filter {
+	cursor:pointer;
+	padding-left: 7px;
+}
+.left-wrapper .filter:nth-child(even) {
+	background: #CCC;
+}
+.left-wrapper .filter:nth-child(odd) {
+    background: #e3e3e3;
+}
+
+.left-wrapper .filter.active {
+	font-weight: bold;
+}
+
+/* * * * * * * * * * *
+LIST > ARTICLES
+*/
+
 .articles-list.item-active-open {
 		width: calc(50% - 30px);
 }
 @media screen and (max-width: 500px) {
-		.articles-list {
-				width: 100%;
-		}
 }
 
 .article-list-item {
@@ -1180,12 +1420,20 @@ const feedApp = (innerTagStr, opts) => {
 		flex-wrap: wrap;
 		justify-content: center;
 }
+@media only screen and (hover: none) and (pointer: coarse) {
+	.articles-list.view-gallery #infinite-scroll-inner {
+		justify-content: left;
+	}
+}
+
 
 .article-gallery-item {
 		width: calc(50% - 20px);
-		max-width: 320px;
-		margin: 10px;
-		border-radius: 10px;
+		max-width: 310px;
+		margin-left: 10px;
+		margin-top: 0px;
+		margin-bottom: 10px;
+		border-radius: 7px;
 		overflow: hidden;
 		position: relative;
 		cursor: pointer;
@@ -1193,11 +1441,12 @@ const feedApp = (innerTagStr, opts) => {
 }
 
 .article-gallery-item .meta  {
-		position: absolute;
-		bottom: 2px;
-		color: #ffffff7d;
-		font-size: 9px;
-		margin-left: 11px;
+	position: absolute;
+	bottom: 4px;
+	color: #ffffff7d;
+	font-size: 9px;
+	margin-left: 11px;
+	line-height: 10px;
 }
 .article-gallery-item .title-wrapper  {
 }
@@ -1211,13 +1460,13 @@ const feedApp = (innerTagStr, opts) => {
 		word-break: break-word;
 		width: calc(100% - 20px);
 		bottom: 0px;
-		font-size: 12px;
+		font-size: 11px;
 		font-weight: 800;
 		color: #d7d6d6;
 		background: linear-gradient(to top, #000, #0000);
 		padding-top: 110px;
-		padding-bottom: 17px;
-		line-height: 14px;
+		padding-bottom: 24px;
+		line-height: 12px;
 }
 .article-gallery-item .bg-item {
 		width: 100%;
@@ -1232,14 +1481,19 @@ const feedApp = (innerTagStr, opts) => {
 
 
 
-
+.filter-toggle {
+	cursor: pointer;
+	padding: 7px;
+    padding-top: 5px;
+}
 
 .filter-input {
-		width: 30%;
-		margin-right: 10px;
+		margin-left: 15px;
+		width: 120px;
 		border: 0px;
-		box-shadow: 0px 0px 2px 0px rgba(0,0,0,0.1);
+		box-shadow: 0px 0px 4px 0px rgba(0,0,0,0.2);
 		border-radius: 5px;
+		padding: 3px 4px;
 }
 .audio-wrapper audio {
 		width: 100%;
@@ -1248,12 +1502,8 @@ const feedApp = (innerTagStr, opts) => {
 		width: 100%;
 }
 .filter-input {
-		margin-left: 10px;
 }
 .filter-sort {
-		cursor: pointer;
-		padding-right: 10px;
-		padding-left: 10px;
 }
 
 .video-wrapper  {
@@ -1275,8 +1525,10 @@ const feedApp = (innerTagStr, opts) => {
 
 `;
 
+// FA is included as requesting external ressources, so cannot be cached by tiro directly
 		return `
 <div id='root-react'></div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
 <style>
 ${styleFeed}
 </style>

@@ -1,7 +1,7 @@
 import React, { ReactElement, useMemo, useState } from 'react';
 import { css, cx } from '@emotion/css'
 import { cssVars } from '../managers/style/vars.style.manager';
-import { Icon } from './Icon.component';
+import { Icon, Icon2 } from './Icon.component';
 
 export const ButtonsToolbarInt = (p: {
 	// export const ButtonsToolbar = (p: {
@@ -20,11 +20,11 @@ export const ButtonsToolbarInt = (p: {
 				button.toolbar-button {
 						position: relative; 
 						&.active {
-								svg {
+								svg, i {
 										color: ${colors ? colors[1] : cssVars.colors.main};
 								}
 						}
-						svg {
+						svg, i {
 								transform: scale(${size ? size : 1.3});
 								color: ${colors ? colors[0] : cssVars.colors.editor.interfaceGrey};
 								&:hover {
@@ -78,8 +78,9 @@ export interface iToolbarButton {
 export const ToolbarButton = (p: iToolbarButton) => {
 	let insideHtml = <></>
 	if (p.title) insideHtml = <>{p.title}</>
-	if (p.icon) insideHtml = <Icon name={p.icon} />
+	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
 	if (p.customHtml) insideHtml = p.customHtml
+	// if (p.displayHoverPopup === false) insideHtml = <></>
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
 
 	// {random(0, 1000)}
@@ -92,10 +93,10 @@ export const ToolbarButton = (p: iToolbarButton) => {
 			<div className="inside-html-wrapper">
 				{insideHtml}
 			</div>
-			<div
-				className={`button-hover-popup `}>
+			{p.title && <div
+				className={`button-title-wrapper `}>
 				{p.title}
-			</div>
+			</div>}
 		</button >
 	)
 }
@@ -119,16 +120,16 @@ export const ButtonsToolbarCss = () => `
 														color:${cssVars.colors.main};
 												}
 										}
-										.button-hover-popup {
+										.button-title-wrapper {
 												color:${cssVars.colors.main};
 										}
 								}
 								.inside-html-wrapper {
-										width: 15px;
+										// width: 15px;
 										span {
 										}
 								}
-								.button-hover-popup {
+								.button-title-wrapper {
 										margin-left: 15px;
 										font-weight: 400;
 										font-size: 11px;
@@ -136,7 +137,7 @@ export const ButtonsToolbarCss = () => `
 						}
 				}
 				&.horizontal.with-popup {
-								li button:hover .button-hover-popup {
+								li button:hover .button-title-wrapper {
 										display: block;
 								}
 				}
@@ -144,7 +145,7 @@ export const ButtonsToolbarCss = () => `
 						display: flex;
 						li {
 						button {
-								.button-hover-popup {
+								.button-title-wrapper {
 										display: none;
 										opacity: 0.2;
 										position: absolute;

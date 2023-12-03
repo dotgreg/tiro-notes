@@ -4,15 +4,18 @@ import { deviceType } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { secureTitleString } from '../../managers/title.manager';
 import { Icon } from '../Icon.component';
+import { isBoolean } from 'lodash';
 
 export type PathModifFn = (initPath: string, endPath: string) => void
 
 export const NoteTitleInputInt = (p: {
 	title: string,
+	enabled?: boolean,
 	onEdited: PathModifFn
 }) => {
 	const [title, setTitle] = useState('')
 	const [hasBeenEdited, setHasBeenEdited] = useState(false)
+	let enabled = (isBoolean(p.enabled)) ? p.enabled : true
 
 	useEffect(() => {
 		setTitle(p.title)
@@ -45,6 +48,7 @@ export const NoteTitleInputInt = (p: {
 				className="big-title"
 				type="text"
 				value={title}
+				disabled={!enabled}
 				onChange={(e) => {
 					let newTitle = secureTitleString(e.target.value)
 					setTitle(newTitle)
@@ -53,6 +57,7 @@ export const NoteTitleInputInt = (p: {
 					// onDebounceMobileTriggerSave(newTitle)
 				}}
 				onKeyDown={e => {
+					if (enabled === false) return
 					if (e.key === 'Enter') {
 						if (title.length < 3) return
 						p.onEdited(p.title, title)

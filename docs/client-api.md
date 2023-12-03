@@ -109,11 +109,11 @@
 #### <span class="render-code-wrapper">utils.resizeIframe</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. height: <span class="render-code-wrapper">number</span>
+       1. height: <span class="render-code-wrapper">any</span>
     - Result: <span class="render-code-wrapper">void</span> 
 
  - Example: 
- <div class="render-code-wrapper">api.utils.resizeIframe(<span class="render-code-wrapper">number</span> )</div>
+ <div class="render-code-wrapper">api.utils.resizeIframe(<span class="render-code-wrapper">any</span> )</div>
 
  
 
@@ -420,6 +420,15 @@ noteLink should be relative from tiro folder
  ## Api.call : lastNotesApi
  
 
+#### <span class="render-code-wrapper">lastNotesApi.addToHistory</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>
+       1. debounced: <span class="render-code-wrapper">boolean</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"lastNotesApi.addToHistory",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <span class="render-code-wrapper">boolean</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">lastNotesApi.getAll</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Result: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span> 
@@ -460,6 +469,15 @@ noteLink should be relative from tiro folder
        1. state: <span class="render-code-wrapper">any</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.cronCache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">plugins.marketplace.fetchList</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+    - Result: <span class="render-code-wrapper">(pluginDescriptions: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=iplugindescription">iPluginDescription</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.marketplace.fetchList",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(pluginDescriptions: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=iplugindescription">iPluginDescription</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">plugins.get</span>
@@ -581,6 +599,16 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetchUrlArticle",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(out: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;html: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span><br/>}</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ressource.scanFolder</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. path: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(files: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.scanFolder",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(files: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>[]</span>) => <span class="render-code-wrapper">void</span></span><br/>)</div>
  
 
 
@@ -752,6 +780,94 @@ noteLink should be relative from tiro folder
  ## Api.call : ui
  
 
+#### <span class="render-code-wrapper">ui.floatingPanel.panels</span>
+ - Type: <span class="render-code-wrapper">array</span> 
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.actionAll</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. action: <span class="render-code-wrapper">"hide" | "show" | "organizeWindows"</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.actionAll",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">"hide" | "show" | "organizeWindows"</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.create</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panel: <span class="render-code-wrapper"><a href="#client-api?id=icreatefloatingpanel">iCreateFloatingPanel</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=icreatefloatingpanel">iCreateFloatingPanel</a></span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.delete</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.delete",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.movePanel</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+       1. position: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;x: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;y: <span class="render-code-wrapper">number</span><br/>}</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.movePanel",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;x: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;y: <span class="render-code-wrapper">number</span><br/>}</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.movePositioninArray</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+       1. direction: <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.movePositioninArray",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.pushWindowOnTop</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.pushWindowOnTop",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.resizePanel</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+       1. size: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;height: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;width: <span class="render-code-wrapper">number</span><br/>}</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.resizePanel",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;height: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;width: <span class="render-code-wrapper">number</span><br/>}</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.update</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panel: <span class="render-code-wrapper"><a href="#client-api?id=ifloatingpanel">iFloatingPanel</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.update",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ifloatingpanel">iFloatingPanel</a></span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.updateAll</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panels: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifloatingpanel">iFloatingPanel</a></span>[]</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.updateAll",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ifloatingpanel">iFloatingPanel</a></span>[]</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.updateOrderPosition</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+       1. orderPosition: <span class="render-code-wrapper">"undefined" | "first" | "last"</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.updateOrderPosition",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"undefined" | "first" | "last"</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.lightbox.close</span>
  - Type: <span class="render-code-wrapper">Function</span> 
  - Example: 
@@ -784,9 +900,9 @@ noteLink should be relative from tiro folder
     - Parameters: 
        1. path: <span class="render-code-wrapper">string</span>
        1. position: <span class="render-code-wrapper"></span>
-       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;searchedString?: <span class="render-code-wrapper">string</span><br/>}</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;searchedString?: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.notification.emit</span>
@@ -896,8 +1012,10 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span>
+    - Result: <span class="render-code-wrapper"><a href="#client-api?id=onuploadcallback">onUploadCallback</a></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.uploadFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.uploadFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;folderPath: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;onProgress: <span class="render-code-wrapper"><a href="#client-api?id=onuploadprogressfn">onUploadProgressFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;onSuccess: <span class="render-code-wrapper"><a href="#client-api?id=onuploadsuccessfn">onUploadSuccessFn</a></span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=onuploadcallback">onUploadCallback</a></span><br/>)</div>
  
 
 
@@ -1042,7 +1160,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iFile</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;filenameWithoutExt?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;folder: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;nature: <span class="render-code-wrapper"><a href="#client-api?id=ifilenature">iFileNature</a></span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;realname: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;created?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;extension?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;filenameWithoutExt?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;index?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;modified?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;stats?: <span class="render-code-wrapper">any</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iGetFilesCb</span>
@@ -1057,6 +1175,24 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;picture?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPluginConfig</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPluginVersion</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;date: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;hash: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;version: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;comment?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPluginDescription</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;versions: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ipluginversion">iPluginVersion</a></span>[]</span>, <br/>&nbsp;&nbsp;&nbsp;configuration?: <span class="render-code-wrapper"><span class="render-code-wrapper"><a href="#client-api?id=ipluginconfig">iPluginConfig</a></span>[]</span>, <br/>&nbsp;&nbsp;&nbsp;icon?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;images?: <span class="render-code-wrapper">string[]</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iPluginType</span>
@@ -1149,6 +1285,12 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;emit: <span class="render-code-wrapper"><a href="#client-api?id=apiemitfn">ApiEmitFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;on: <span class="render-code-wrapper"><a href="#client-api?id=apionfn">ApiOnFn</a></span>, <br/>&nbsp;&nbsp;&nbsp;off: <span class="render-code-wrapper">(listenerId: <span class="render-code-wrapper">number</span>) => <span class="render-code-wrapper">void</span></span><br/>}</span></div>
  
 
+#### <span class="render-code-wrapper">iTitleEditorStatus</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"undefined" | "disabled"</span></div>
+ 
+
 #### <span class="render-code-wrapper">iViewType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
@@ -1158,7 +1300,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iWindowContent</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;i: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;i: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;titleEditor: <span class="render-code-wrapper"><a href="#client-api?id=ititleeditorstatus">iTitleEditorStatus</a></span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;canEdit?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;showToolbar?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;showViewToggler?: <span class="render-code-wrapper">boolean</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iWindow</span>
@@ -1177,6 +1319,24 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;active: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;grid: <span class="render-code-wrapper"><a href="#client-api?id=igrid">iGrid</a></span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;manualName?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;position?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;refresh?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iCtagGenConfig</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;content: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;tagName: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;opts?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;file?: <span class="render-code-wrapper">"null" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;fullscreen?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;onFullscreenClose?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;open?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;sandboxed?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;windowId?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;wrapperHeight?: <span class="render-code-wrapper">"undefined" | "undefined"</span><br/>}</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iFloatingPanel</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;ctagConfig: <span class="render-code-wrapper"><a href="#client-api?id=ictaggenconfig">iCtagGenConfig</a></span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;position: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;x: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;y: <span class="render-code-wrapper">number</span><br/>}</span>, <br/>&nbsp;&nbsp;&nbsp;size: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;height: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;width: <span class="render-code-wrapper">number</span><br/>}</span>, <br/>&nbsp;&nbsp;&nbsp;status: <span class="render-code-wrapper">"hidden" | "visible" | "minimized"</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper">"file" | "ctag"</span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;orderPosition?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;zIndex?: <span class="render-code-wrapper">number</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iCreateFloatingPanel</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;ctagConfig: <span class="render-code-wrapper"><a href="#client-api?id=ictaggenconfig">iCtagGenConfig</a></span>, <br/>&nbsp;&nbsp;&nbsp;file: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper">"file" | "ctag"</span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;id?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;layout?: <span class="render-code-wrapper"></span>, <br/>&nbsp;&nbsp;&nbsp;orderPosition?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;position?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;x: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;y: <span class="render-code-wrapper">number</span><br/>}</span>, <br/>&nbsp;&nbsp;&nbsp;size?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;height: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;width: <span class="render-code-wrapper">number</span><br/>}</span>, <br/>&nbsp;&nbsp;&nbsp;status?: <span class="render-code-wrapper">"hidden" | "visible" | "minimized"</span>, <br/>&nbsp;&nbsp;&nbsp;zIndex?: <span class="render-code-wrapper">number</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iNotificationType</span>
@@ -1205,18 +1365,32 @@ Watch for file changes
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">number</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">iUploadedFileInfos</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
 #### <span class="render-code-wrapper">onUploadSuccessFn</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span>
+       1. p: <span class="render-code-wrapper"><a href="#client-api?id=iuploadedfileinfos">iUploadedFileInfos</a></span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iuploadedfileinfos">iUploadedFileInfos</a></span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">onUploadCallback</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;message: <span class="render-code-wrapper">"progress" | "success"</span>, <br/>&nbsp;&nbsp;&nbsp;percentUpload?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;succesObj?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span><br/>}</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;message: <span class="render-code-wrapper">"progress" | "success"</span>, <br/>&nbsp;&nbsp;&nbsp;percentUpload?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;succesObj?: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span><br/>}</span><br/>}</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_markdown_preview" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "demo_mode_enable" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "plugins_marketplace_url" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iUpdateConfigJsonOpts</span>

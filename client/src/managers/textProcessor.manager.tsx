@@ -27,7 +27,8 @@ export const transformTitleSearchLinks = (
 	windowId: string,
 	bodyRaw: string
 ): string => {
-	const subst = generateNoteLink("$1", "$2", windowId, true)
+	// @TODO SEARCHEDSTRING
+	const subst = generateNoteLink("$1", "$2", null, windowId, true)
 	return bodyRaw.replace(regexs.linklink, subst);
 }
 
@@ -56,15 +57,15 @@ export const absoluteLinkPathRoot = (currentFolderPath: string) => {
 
 
 
-let ressCompoHtml = (input, file) => {
-	return renderToString(<RessourcePreview markdownTag={input} file={file} />)
+let ressCompoHtml = (input, file, windowId) => {
+	return renderToString(<RessourcePreview markdownTag={input} file={file} windowId={windowId} />)
 }
-export const transformRessourcesInHTML = (file: iFile, bodyRaw: string): string => {
+export const transformRessourcesInHTML = (file: iFile, windowId:string, bodyRaw: string): string => {
 	let i = 0
 	let res2 = replaceRegexInMd(bodyRaw, regexs.ressource, (input: string) => {
 		i++;
 		let idEl = `${input}-${i}`
-		let subst = `${ressCompoHtml(input, file)} `;
+		let subst = `${ressCompoHtml(input, file, windowId)} `;
 		return subst
 	});
 	return res2;

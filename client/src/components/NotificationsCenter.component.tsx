@@ -25,14 +25,24 @@ export const NotificationsCenter = (p: {
 }) => {
 	const [notifs, setNotifs] = useState<iNotification[]>([])
 	const notifsRef = useRef<iNotification[]>([])
+	
 
+	const isEnabled = (cb:(res:boolean) => void) => {
+		getApi(api => {
+			cb(!api.userSettings.get("view_disable_notification_popups"))
+		})
+	}
 	useEffect(() => {
 		getApi(api => {
 			api.socket.get(s => {
 				s.on('getNotification', data => {
-					if (!data.notification.id) data.notification.id = generateUUID()
-					addNotif(data.notification)
-					afterTimeoutClose(data.notification)
+					// if notifications are disabled in settings, do not display it
+					isEnabled(res => {
+						if (!res === true) return console.log("[NOTIFS] notifications disabled, not displaying it")
+						if (!data.notification.id) data.notification.id = generateUUID()
+						addNotif(data.notification)
+						afterTimeoutClose(data.notification)
+					})
 				})
 			})
 		})
@@ -72,6 +82,8 @@ export const NotificationsCenter = (p: {
 		if (n.options?.type) type = n.options?.type
 		return type
 	}
+
+	
 
 	return (
 		<div className="notifications-center-wrapper">

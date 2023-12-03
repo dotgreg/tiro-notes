@@ -1,52 +1,55 @@
-import { markdown } from '@codemirror/lang-markdown';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
-import { iFile } from '../../../shared/types.shared';
+import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { codeMirrorEditorCss } from './dualView/CodeMirrorEditor.component';
-import { DualViewer } from './dualView/DualViewer.component';
-import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
+import { previewAreaCss } from './dualView/PreviewArea.component';
+import { WindowEditor } from './windowGrid/WindowEditor.component';
+import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 
 export type iNotePreviewType = "editor"|"preview"
-export const NotePreview = (p: {
-	searchedString?: string
+export const NotePreviewInt = (p: {
 	file: iFile
+	view:iViewType
+	searchedString?: string
 	height?: number
-	type?:iNotePreviewType
 	linkPreview?:boolean
 	windowId?:string
+
+	showToolbar?:boolean
+	titleEditor?:iTitleEditorStatus
+	showViewToggler?:boolean
+	onLayoutUpdate?: iLayoutUpdateFn
 }) => {
-	if (!p.type) p.type = "editor"
 	const [content, setContent] = useState("");
-	const [type, setType] = useState<iNotePreviewType>(p.type);
-	const toggleType = () => type === "editor" ? setType("preview") : setType("editor")
+	const [view, setView] = useState<iViewType>(p.view);
 
-	let loadPreviewContent = useDebounce(() => {
-		getApi(api => {
-			api.file.getContent(p.file.path, ncontent => {
-				if (p.searchedString) {
-					let string2Search = p.searchedString
-					ncontent = ncontent.replaceAll(
-						string2Search,
-						`<span class='found-word'>${p.searchedString}</span>`)
+	// let loadPreviewContent = useDebounce(() => {
+	// 	getApi(api => {
+	// 		api.file.getContent(p.file.path, ncontent => {
+	// 			if (p.searchedString) {
+	// 				let string2Search = p.searchedString
+	// 				ncontent = ncontent.replaceAll(
+	// 					string2Search,
+	// 					`<span class='found-word'>${p.searchedString}</span>`)
 
-				}
-					ncontent = api.note.render({
-						raw: ncontent,
-						file: p.file,
-						windowId: 'preview-popup'
-					})
+	// 			}
+	// 				ncontent = api.note.render({
+	// 					raw: ncontent,
+	// 					file: p.file,
+	// 					windowId: 'preview-popup'
+	// 				})
 
-					setTimeout(() => {
-						document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
-					}, 100)
+	// 				setTimeout(() => {
+	// 					document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
+	// 				}, 100)
 
-				let html = `<div class='file-content render-latex'>${ncontent} </div>`;
-				setContent(html)
-			})
-		})
-	}, 200)
+	// 			let html = `<div class='file-content render-latex'>${ncontent} </div>`;
+	// 			setContent(html)
+	// 		})
+	// 	})
+	// }, 200)
 
 	let loadEditorContent = useDebounce(() => {
 		getApi(api => {
@@ -55,6 +58,7 @@ export const NotePreview = (p: {
 				if (p.searchedString) {
 					getApi(api => {
 						setTimeout(() => {
+							console.log("searchword", p.searchedString)
 							api.ui.note.editorAction.dispatch({
 								type:"searchWord", 
 								searchWordString: p.searchedString,
@@ -83,56 +87,45 @@ export const NotePreview = (p: {
 	// 	}, 100)
 	// }
 	useEffect(() => {
-		if (type === "preview") loadPreviewContent()
-		else loadEditorContent()
+		// if (view === "preview") loadPreviewContent()
+		// else loadEditorContent()
 		// forceUpdate()
-	}, [p.file, p.searchedString, type])
+		loadEditorContent()
+	}, [p.file, p.searchedString, view])
 
+
+	let heightStr = p.height ? p.height + "px" : "100%"
+
+	const [windowId, setWindowId] = useState<string>(p.windowId || generateUUID())
+	useEffect(() => {
+		setWindowId(p.windowId || generateUUID())
+	}, [p.windowId])
 
 	return (
-		<div className={"note-preview-wrapper " + type}>
-			{/* <div className='' onClick={e => { toggleType()}}>toggle view</div> */}
-			{
-				type === "preview" && 
-				<div
-					className="simple-css-wrapper"
-					dangerouslySetInnerHTML={{ __html: content }} >
-				</div>
-			}
-			{
-				type === "editor" && 
-				// <div className={`window-editor-wrapper ${forceUpdateInt}`}>
-				<div className={`window-editor-wrapper`}>
-					<DualViewer
-						windowId={p.windowId || generateUUID()}
-						file={p.file}
-						fileContent={content}
-						isActive={true}
-						canEdit={true}
-
-						viewType={"editor"}
-						mobileView={"editor"}
-						
-						// onViewChange={p.onViewChange}
-						// onEditorDropdownEnter={p.onEditorDropdownEnter}
-						askForLayoutUpdate={() => {}}
-						
-						onFileEdited={(path, content) => {
-							// onFileEditedSaveIt(path, content);
-							getApi(api => {
-								api.file.saveContent(path, content)
-							})
-						}}
-						pluginsConfig={{
-							markdown: false,
-							linkPreview: p.linkPreview
-						}}
-					/>
-			</div >
-			}
+		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
+			<WindowEditor 
+				content={{
+					i:windowId,
+					file:p.file,
+					active:false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
+					view:p.view,
+				}}
+				forceView={p.view}
+				canEdit={true}
+				showViewToggler={p.showViewToggler}
+				showToolbar={p.showToolbar}
+				titleEditor={p.titleEditor}
+				onLayoutUpdate={p.onLayoutUpdate || (() => {})}
+			/>
 		</div >
 	)
 }
+
+
+export const NotePreview = React.memo(NotePreviewInt, (np, pp) => {
+	if (JSON.stringify(np) !== JSON.stringify(pp)) return false
+	return true
+});
 
 export const NotePreviewCss = () => `
 
@@ -141,20 +134,36 @@ export const NotePreviewCss = () => `
 			padding: 15px ;
 		}
 
-		${previewAreaSimpleCss()}
+		
+
+		${previewAreaCss()}
 		${codeMirrorEditorCss()}
 
+		.preview-area-wrapper {
+			height: calc(100% - 0px);
+			margin-top: 0px;
+		}
+
+		.preview-area {
+			width: calc(100%);
+			// padding-left: 22px; // for left bar
+			// padding: 15px;
+		}
+
+		// .note-preview-wrapper .preview-area-wrapper
 		//
 		// PREVIEW
 		//
-		.simple-css-wrapper {
+		
+		
+				.simple-css-wrapper {
 
 				.resource-link-content-wrapper ul {
 						opacity:1!important;
 						pointer-events:all!important;
 				}
 				iframe {
-						height: 400px!important;
+						// height: 100%!important;
 				}
 				.resource-link-iframe-wrapper {
 						margin-bottom: 5px;
@@ -172,9 +181,6 @@ export const NotePreviewCss = () => `
 		//
 		// EDITOR VIEW
 		//
-		.infos-editor-wrapper {
-			display: none;
-		}
 
 		&.editor,
 		.window-editor-wrapper,

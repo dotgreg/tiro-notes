@@ -2,7 +2,7 @@ import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRe
 import Select from 'react-select';
 import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash';
 import * as lodash from "lodash"
-import { iFile, iPlugin } from '../../../shared/types.shared';
+import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
@@ -17,6 +17,7 @@ import { fileToNoteLink } from '../managers/noteLink.manager';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { useBackendState } from '../hooks/useBackendState.hook';
 import { evalPluginCode } from '../managers/plugin.manager';
+import { userSettingsSync } from '../hooks/useUserSettings.hook';
 
 const omniParams = {
 	search: {
@@ -55,6 +56,10 @@ const disableCachePlugins = () => {
 	cachedPlugins.dict = {}
 }
 
+const backendStateOmni = {
+	hasBeenLoaded: false
+}
+
 export const OmniBar = (p: {
 	show: boolean
 	onClose: Function
@@ -83,8 +88,26 @@ export const OmniBar = (p: {
 		// each(nVal, o => {
 		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
 		// })
-		onOptionsChange(nVal)
-		setOptionsInt(nVal)
+		getApi(api => {
+			let ctab = api.tabs.active.get()
+
+			// drop already opened in current tab files from options in desktop
+			if (deviceType() !== "mobile") {
+				each(ctab?.grid.content, cont =>{
+					if(!cont.file) return
+					let oFile = cont.file
+					each(nVal, (o,i) => {
+						if (o && o.value && o.value === oFile.path) {	
+							delete nVal[i]
+							return false
+						}
+					})
+				})
+			}
+
+			onOptionsChange(nVal)
+			setOptionsInt(nVal)
+		})
 	}
 
 	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
@@ -95,6 +118,16 @@ export const OmniBar = (p: {
 			api.ui.note.editorAction.dispatch({
 				type:"insertText", 
 				insertText: fileToNoteLink(f)
+			})
+			p.onClose()
+		})
+	}
+	const openNoteInFloatingWindow = (f:iFile) => {
+		getApi(api => {
+			api.ui.floatingPanel.create({
+				view: "editor",
+				type: "file",
+				file: f,
 			})
 			p.onClose()
 		})
@@ -112,15 +145,28 @@ export const OmniBar = (p: {
 			>
 				<div className="file">{p.file.name}</div>
 				<div className="folder">{p.file.folder}</div>
-				<div className="actions">
-				{hover && <div className="action" 
-					onClick={e => {
-						e.stopPropagation()
-						insertNoteId(p.file)
-					}}>
-					<Icon2 name="link" label='insert note link in the current note'/>
-				</div>}
-				</div>
+				{hover && 
+					<div className="actions">
+						<div className="action" 
+							onClick={e => {
+								e.stopPropagation()
+								insertNoteId(p.file)
+							}}>
+							<Icon2 name="link" label='insert note link in the current note'/>
+						</div>
+
+						{ userSettingsSync.curr.beta_floating_windows &&
+							<div className="action" 
+								onClick={e => {
+									e.stopPropagation()
+									openNoteInFloatingWindow(p.file)
+								}}>
+								<Icon2 name="window-restore" label='Open note in a floating window'/>
+							</div>
+						}
+						
+					</div>
+				}
 			</div>
 		, [p.file, hover])
 	}
@@ -247,6 +293,8 @@ export const OmniBar = (p: {
 	//
 	const [inputTxt, setInputTxt] = useState("");
 	const onInputChange: any = (txt: string, p) => {
+		onInputChangeUpdatePreview()
+
 		if (p.action === "input-blur" || p.action === "menu-close") {
 		} else {
 			setInputTxt(txt)
@@ -286,8 +334,8 @@ export const OmniBar = (p: {
 				getApi(api => {
 					// erase /
 					setInputTxt("")
-					let folder = api.ui.browser.folders.current.get
-					// let folder = api.ui.browser.files.active.get.folder
+					let folder = api.ui.browser.folders.current.get()
+					setTimeout(() => {console.log(api.ui.browser.folders.current.get())})
 					triggerExplorer(folder)
 				})
 			}
@@ -677,7 +725,9 @@ export const OmniBar = (p: {
 
 	}
 	useEffect(() => {
+		if (backendStateOmni.hasBeenLoaded) return
 		refreshOmniHistFromBackend()
+		backendStateOmni.hasBeenLoaded = true
 	}, [])
 
 	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
@@ -686,6 +736,7 @@ export const OmniBar = (p: {
 		return omniHistoryInt
 	}
 	const addToOmniHistory = (options:iOptionOmniBar[]) => {
+		console.log("addToOmniHistory")
 		let labels:string[] = []
 		each(options, o => {labels.push(o.label)})
 		const id = labels.join(" ")
@@ -826,11 +877,13 @@ export const OmniBar = (p: {
 		// console.log("setNotePreview", file)
 		setNotePreviewInt(file)
 	}	
+
 	const [htmlPreview, setHtmlPreview] = useState<string | null>(null);
 	const [searchedString, setSearchedString] = useState<string | undefined>(undefined);
 
 	const onActiveOptionChange = (file: iFile, searchedString?: string) => {
 		let stags = selectedOptionRef.current
+		
 
 		// EXPLORER
 		if (stags[0] && stags[0].label === modeLabels.explorer) {
@@ -869,6 +922,23 @@ export const OmniBar = (p: {
 	}
 
 	let obs = useRef<any[]>([])
+	const onInputChangeUpdatePreview = useDebounce(() => {
+		const optDivs = document.querySelectorAll("div[id*='-option']");
+		if (optDivs.length === 0) return setNotePreview(null)
+		each(optDivs, (div: any) => {
+			const style = getComputedStyle(div);
+			let bg = style["background-color"]
+			if (bg === "rgb(222, 235, 255)") {
+				let id = parseInt(div.id.split("-").pop())
+				let payload = options[id].payload
+				if (!payload) return
+				let file = payload.file as iFile
+				let line = payload.line || undefined
+				onActiveOptionChange(file, line)
+			}
+		})
+	}, 400)
+	
 	const listenToOptionsClasses = (nVal: any[]) => {
 
 		// clean old observer
@@ -896,6 +966,7 @@ export const OmniBar = (p: {
 					if (!payload) return
 					let file = payload.file as iFile
 					let line = payload.line || undefined
+					const optDivs = document.querySelectorAll("div[id*='-option']");
 					onActiveOptionChange(file, line)
 				} else {
 				}
@@ -933,7 +1004,10 @@ export const OmniBar = (p: {
 
 	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
 	
-	
+
+
+
+
 
 	//
 	// RENDERING
@@ -986,16 +1060,18 @@ export const OmniBar = (p: {
 							}}
 						/>
 					</div>
-					{deviceType() !== "mobile" && 
+					{notePreview && deviceType() !== "mobile" && 
 						<div className={`preview-wrapper ${notePreview ? "note-preview" : "html-preview-wrapper"}`}
 							style={{ height: previewHeight }}
 						>
 							{notePreview && deviceType() !== "mobile" &&
 								<NotePreview
 									file={notePreview}
+									showToolbar={true}
+									titleEditor={false}
 									searchedString={searchedString}
 									height={previewHeight}
-									type={previewType}
+									view={previewType}
 									windowId={notePreviewWindowId}
 								/>
 							}
@@ -1032,7 +1108,7 @@ export const omnibarPopupCss = () => `
 								left: 0px;
 								width: 100vw;
 								height: 100vh;
-								z-index: 1000;
+								z-index: 10000;
 								position: absolute;
 						}
 						.omnibar-popup-wrapper {
@@ -1099,6 +1175,9 @@ export const omnibarPopupCss = () => `
 							&.device-desktop .actions {
 								transition: all 0.2s;
 								opacity: 0;
+								.action {
+									margin-left: 8px;
+								}
 							}
 							&.device-desktop:hover .actions {
 								opacity: 1;

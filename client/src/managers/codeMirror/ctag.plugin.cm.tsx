@@ -30,7 +30,7 @@ const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):stri
 		let iframeEl = el.parentNode.parentNode.querySelector('.iframe-wrapper-cm-ctag')
 		let nStatus: ssrCachedStatus = !iframeEl.querySelector(`iframe`) ? "open" : "closed"
 		setSsrStatus(file, ssrIdCtag, nStatus) 
-		let reactComp = ssrGenCtag(ssrTagName, ssrContent, {file, windowId:ssrWindowId})
+		let reactComp = ssrGenCtag(ssrTagName, ssrContent, ssrWindowId, {file})
 		ssrToggleCtag(iframeEl, reactComp)	
 	}
 	
@@ -40,7 +40,7 @@ const generateHtmlCtagInt = (matchs:string[], cFile:iFile, windowId:string):stri
 	atSsrStartupCheckIfOpen(cFile, idCtag, () => {
 		let iframeEl = document.querySelector(`.${ssrId} .iframe-wrapper-cm-ctag`)
 		if (!iframeEl) return
-		let reactComp = ssrGenCtag(tagName, content, {file:cFile, windowId:windowId})
+		let reactComp = ssrGenCtag(tagName, content, windowId, {file:cFile})
 		ssrToggleCtag(iframeEl, reactComp)	
 	})
 
