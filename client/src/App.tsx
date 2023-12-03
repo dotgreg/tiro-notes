@@ -7,7 +7,7 @@ import { useMobileView } from './hooks/app/mobileView.hook';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
 import { useFixScrollTop } from './hooks/fixScrollTop.hook';
-import { iFile, iFolder, iGrid } from '../../shared/types.shared';
+import { iFile, iFolder, iGrid, iTab } from '../../shared/types.shared';
 import { getDateObj } from '../../shared/helpers/date.helper';
 import { GlobalCssApp } from './managers/style/global.style.manager';
 import { NewFileButton } from './components/NewFileButton.component';
@@ -21,7 +21,7 @@ import { SettingsPopup } from './components/settingsView/settingsView.component'
 import { Lightbox } from './components/Lightbox.component';
 import {  startListeningToKeys } from './managers/keys.manager';
 import { usePromptPopup } from './hooks/app/usePromptPopup.hook';
-import { useTabs } from './hooks/app/tabs.hook';
+import { generateNewTab, useTabs } from './hooks/app/tabs.hook';
 import { TabList } from './components/tabs/TabList.component';
 import { WindowGrid } from './components/windowGrid/WindowGrid.component';
 import { ButtonsToolbar } from './components/ButtonsToolbar.component';
@@ -43,7 +43,7 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
-import { random, update } from 'lodash';
+import { cloneDeep, random, update } from 'lodash';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
@@ -220,8 +220,32 @@ export const App = () => {
 		tabsApi,
 		windowsApi
 	} = useTabs();
-	const activeTab = tabsApi.active.get();
 
+	const updateActiveTabGridWrapper = (grid: iGrid) => {
+		if (deviceType() === "mobile") return
+		updateActiveTabGrid(grid)
+	}
+	
+	// const [currentTab, setCurrentTab] = useState<iTab | null>(null)
+	// useEffect(() => {
+	// 	if (deviceType() === "mobile") {
+	// 		let mobileTab = cloneDeep(tabsApi.active.get())
+	// 		if (!mobileTab) return 
+	// 		mobileTab.id = "mobile-tab-id"
+	// 		// only keep one content and one layout
+	// 		mobileTab.grid.content = [mobileTab.grid.content[0]]
+	// 		mobileTab.grid.layout = [mobileTab.grid.layout[0]]
+	// 		mobileTab.grid.layout[0].i = "mobile-tab-id-layout"
+	// 		mobileTab.grid.content[0].i = "mobile-tab-id-content"
+
+	// 		console.log(`[MOBILE TAB]`, mobileTab);
+	// 		setCurrentTab(mobileTab) 
+	// 	} else {
+	// 		setCurrentTab(tabsApi.active.get())
+	// 	}
+	// }, [tabs])
+	// console.log(activeTab);
+	const currentTab = tabsApi.active.get()
 
 
 	// PROMPT AND CONFIRM POPUPAPI
@@ -663,17 +687,17 @@ export const App = () => {
 
 
 							{/* TABS SYSTEM*/}
-							<TabList
+							{deviceType() !== "mobile" && <TabList
 								tabs={tabs}
 								onUpdate={updateTab}
 								onPinToggle={togglePinStatus("topTab")}
 								pinStatus={pinStatus.topTab}
-							/>
+							/>}
 
-							{activeTab &&
+							{currentTab &&
 								<WindowGrid
-									tab={activeTab}
-									onGridUpdate={updateActiveTabGrid}
+									tab={currentTab}
+									onGridUpdate={updateActiveTabGridWrapper}
 									mobileView={mobileView}
 									pinStatus={pinStatus}
 								/>
@@ -684,7 +708,7 @@ export const App = () => {
 						{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
 						{ userSettingsSync.curr.beta_floating_windows &&
 							<FloatingPanelsWrapper 
-								panels={api.ui.floatingPanel.panels} 
+								panels={deviceType() === "mobile" ? [] : api.ui.floatingPanel.panels} 
 								pinStatus={pinStatus.bottomBar}
 								onPinChange={updatePinStatus("bottomBar")}
 							/>
