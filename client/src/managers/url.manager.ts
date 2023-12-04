@@ -64,6 +64,7 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 		} else {
 			urlParamsArr.unshift({name: "view", value: view})
 		}
+		setUrlParams(urlParamsArr)
 
 		//
 		// UPDATE ICON AND TITLE
@@ -83,7 +84,7 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			document.title = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
 		})
 
-		setUrlParams(urlParamsArr)
+		
 	})
 }
 

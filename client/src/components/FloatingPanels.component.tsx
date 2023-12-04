@@ -342,9 +342,7 @@ export const FloatingPanelsWrapper = (p:{
     pinStatus: boolean,
     onPinChange: (status:boolean) => void
 }) => {
-    
     let panels = p.panels
-    
     const panelsRef = useRef<iFloatingPanel[]>([])
     useEffect(() => {
         panelsRef.current = panels
@@ -458,7 +456,6 @@ export const FloatingPanelsWrapper = (p:{
 
     return (
         <div className="floating-panels-wrapper" style={{pointerEvents: panelDrag ? "all" : "none"}}>
-
 
 
             {panels.map( panel =>

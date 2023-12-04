@@ -43,7 +43,7 @@ const FilesTagApp = (innerTagStr, opts) => {
 		          else if (["7z", "arj", "deb", "rar", "gz", "zip", "rpm", "pkg"].includes(ft)) return "file-zipper"
 		          else if (["aif", "mp3", "cda", "mid", "mpa", "ogg", "wav", "wpl", "wma", "midi"].includes(ft)) return "file-audio"
 		          else if (["ppt", "pptx", "odp", "key", "pps"].includes(ft)) return "file-powerpoint"
-              
+              else if (["epub"].includes(ft)) return "book"
               else return "file"
             }
 
@@ -127,6 +127,7 @@ const FilesTagApp = (innerTagStr, opts) => {
             // Table component config
             //
             const config = {
+              multiselect: true,
               gridView: {
                 enabled: true,
                 onClick: (item) => {
@@ -149,6 +150,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                 }
               },
               cols: [
+                {colId: "multiselect", headerLabel: "", type:"multiselect"},
                 {colId: "icon", headerLabel: "-", type:"icon"},
                 {colId: "name", headerLabel: "Name", onClick:(item) => {
                   console.log('Delete clicked for id:', item);
@@ -160,20 +162,20 @@ const FilesTagApp = (innerTagStr, opts) => {
                 {colId: "created", headerLabel: "Date"},
                 {colId: "actions", type: "buttons", buttons:[
                  
-                  {
+                  // {
+                  //     label: "", 
+                  //     icon: "eye", 
+                  //     onClick: (item) => {
+                  //       console.log('Delete clicked for item:', item);
+                  //     }
+                  //   },
+                    {
                       label: "", 
-                      icon: "eye", 
-                      onClick: (item) => {
-                        console.log('Delete clicked for item:', item);
+                      icon: "close", 
+                      onClick: (items) => {
+                        console.log('Delete clicked for id:', items);
                       }
-                    },
-                    // {
-                    //   label: "", 
-                    //   icon: "close", 
-                    //   onClick: (id) => {
-                    //     console.log('Delete clicked for id:', id);
-                    //   }
-                    // }
+                    }
                 ]},
               ]
             };
