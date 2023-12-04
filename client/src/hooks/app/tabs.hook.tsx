@@ -25,7 +25,7 @@ export type iWindowsApi = {
 	updateWindows: (windowIds: string[], file: iFile) => void
 	getIdsFromFile: (filepath: string) => string[]
 	active: {
-		get: (tab?: iTab) => iWindowLayoutAndContent | null
+		get: (tab?: iTab) => iWindowLayoutAndContent | undefined
 		setContent: (file: iFile) => void
 	}
 }
@@ -77,22 +77,32 @@ export const useTabs = () => {
 	// 	tabsRef.current = tabs
 	// }, [tabs])
 	const [tabs, setTabsInt] = useState<iTab[]>([])
-    const [tabsDesktop, setTabsDesktop, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs',[])
+    const [tabsDesktop, setTabsDesktop, refreshTabsFromBackend1] = useBackendState<iTab[]>('tabs-desktop',[])
+    const [tabsMobile, setTabsMobile, refreshTabsFromBackend2] = useBackendState<iTab[]>('tabs-mobile',[])
     const tabsRef = useRef<iTab[]>([])
     const setTabs = (nTabs:iTab[], cb?:Function) => {
 		tabsRef.current = nTabs
 		setTabsInt(tabsRef.current)
         if (deviceType() !== 'mobile') { setTabsDesktop(tabsRef.current) } 
+        if (deviceType() === 'mobile') { setTabsMobile(tabsRef.current) } 
     }
+	const refreshTabsFromBackend = () => {
+		refreshTabsFromBackend1()
+		refreshTabsFromBackend2()
+	}
     useEffect(() => {
         refreshTabsFromBackend()
     },[])
     useEffect(() => {
         tabsRef.current = tabs
     },[tabs])
+
     useEffect(() => {
-        if (deviceType() !== 'mobile') setTabsInt(cloneDeep(tabsDesktop))
+        if (deviceType() !== 'mobile') setTabsInt(tabsDesktop)
     },[tabsDesktop])
+    useEffect(() => {
+        if (deviceType() === 'mobile') setTabsInt(tabsMobile)
+    },[tabsMobile])
 
 
 
@@ -290,10 +300,10 @@ export const useTabs = () => {
 			if (!isNumber(aId)) return
 			tab = nTabs[aId]
 		}
-
+		
 		if (!tab.grid.layout[0]) return
 		const g = tab.grid
-		let res
+		let res:iWindowLayoutAndContent = { layout: g.layout[0], content: g.content[0] } // if none, get first one
 		each(g.content, (c, i) => {
 			if (c.active) res = { layout: g.layout[i], content: g.content[i] }
 		})

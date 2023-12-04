@@ -501,7 +501,7 @@ export const draggableGridCss = (pinStatus:iPinStatuses) => `
 		// remove transition
 
 		height: calc(100% + ${pinStatus.topTab ? "0" : "44"}px);
-		top: ${pinStatus.topTab ? "44" : "0"}px;
+		top: ${pinStatus.topTab && deviceType() !== "mobile" ? "44" : "0"}px;
 		position: relative;
 
 		.react-grid-item {

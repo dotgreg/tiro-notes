@@ -18,6 +18,7 @@ export const usePinStatus= () => {
      useEffect(() => {
          refreshPinStatus()
 
+
         //  getApi(api => {
         //     if (api.userSettings.get("beta_floating_windows") === true) return
         //     updatePinStatus("bottomBar")(false)

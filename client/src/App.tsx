@@ -222,7 +222,7 @@ export const App = () => {
 	} = useTabs();
 
 	const updateActiveTabGridWrapper = (grid: iGrid) => {
-		if (deviceType() === "mobile") return
+		// if (deviceType() === "mobile") return
 		updateActiveTabGrid(grid)
 	}
 	
@@ -708,7 +708,7 @@ export const App = () => {
 						{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
 						{ userSettingsSync.curr.beta_floating_windows &&
 							<FloatingPanelsWrapper 
-								panels={deviceType() === "mobile" ? [] : api.ui.floatingPanel.panels} 
+								panels={api.ui.floatingPanel.panels} 
 								pinStatus={pinStatus.bottomBar}
 								onPinChange={updatePinStatus("bottomBar")}
 							/>

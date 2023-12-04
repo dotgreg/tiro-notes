@@ -14,6 +14,10 @@
 //   ]
 // }
 const styleCss = `
+#ctag-component-table-wrapper {
+  padding: 10px;
+}
+
 .ctag-component-table {
   padding-bottom: 80px;
   overflow-wrap: normal;
@@ -191,11 +195,34 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [configColsObj, setConfigColsObj] = r.useState({});
   r.useEffect(() => {
     let configColsObj = {};
+    // console.log(config.multiselect, config)
+    // if (config.multiselect === true) configColsObj["multiselect"] = {colId: "multiselect-col"}
+
     config.cols.forEach(col => {
       configColsObj[col.colId] = col;
     });
+    // if multiselect exists, add it to the configColsObj
+      
     setConfigColsObj(configColsObj);
   }, [config.cols]);
+
+  //
+  // multiselect logic
+  //
+  const [selectedItems, setSelectedItems] = r.useState([]);
+  const onColHeaderClick = (colId) => {
+    if (colId === "multiselect") {
+      let allSelected = filteredItems.length === selectedItems.length;
+      if (allSelected) {
+        setSelectedItems([])
+      } else {
+        setSelectedItems(filteredItems)
+      }
+    } else {
+      requestSort(colId)
+    }
+  }
+  
 
 
   const keysRef = r.useRef({});
@@ -205,15 +232,51 @@ const TableComponentReactInt = ({ items, config, id }) => {
     return `${stringId}-${keysRef.current[stringId]}`
   }
 
+  //
+  // buttons cell gene
+  //
+  const buttonsCell = (colId, item, buttons) => {
+    return c('div', {className: "buttons-cell"}, [])
+    // return c('div', {className: "buttons-cell"}, [
+    //   buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
+    //     c('button', { 
+    //       key: keyCounter(`${colId}-${item.id}-${label}`), 
+    //       onClick: (e) => {onClick(item, e)}, 
+    //       onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
+    //       onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
+    //     }, [
+    //       c('div', {className: `fa fa-${icon}` }),
+    //       label
+    //     ])
+    //   )
+    // ])
+  }
+
+  const hasMultiselect = () => {
+    return config.cols.map(c => c.colId).includes("multiselect")
+  }
+
+
+  //
+  // Header cell
+  //
+  const genHeaderCell = (colId, headerLabel) => {
+    let res = c('span', {}, [
+      `${headerLabel || colId} `, 
+      c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
+    ])
+    if (colId === "multiselect") res = c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onChange: () => onColHeaderClick(colId)})
+    if (colId === "buttons" && hasMultiselect()) res = buttonsCell(colId, filteredItems, config.cols.find(c => c.colId === "buttons").buttons)
+
+    return res
+  }
+
   const tableView = () =>  [
         c('table', {className: "ctag-component-table"}, [
           c('thead', {}, [
           c('tr', {}, [
               ...config.cols.map(({ colId, headerLabel }) =>
-              c('th', { key: keyCounter(`th-header-${colId}`), onClick: () => requestSort(colId) }, [
-                  `${headerLabel || colId} `,
-                  c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
-              ])
+                genHeaderCell(colId, headerLabel)
               )
           ])
           ]),
@@ -224,20 +287,20 @@ const TableComponentReactInt = ({ items, config, id }) => {
                       c('td', { key: keyCounter(`${colId}-${item.id}`), className: `${configColsObj[colId]?.classes || ""}` }, [
                       // BUTTON 
                       ...(type === 'buttons'
-                          ? buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
-                              c('button', { 
-                                key: keyCounter(`${colId}-${item.id}-${label}`), 
-                                onClick: (e) => {onClick(item, e)}, 
-                                onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
-                                onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
-                              }, [
-                                c('div', {className: `fa fa-${icon}` }),
-                                label
-                              ])
-                          )
+                          ? buttonsCell(colId, item, buttons)
                           : []),
                       // ICON 
                       ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
+                      // MULTISELECT
+                      ...(colId === "multiselect" ? [
+                        c('input', {type:"checkbox", checked: selectedItems.includes(item), onChange: () => {
+                          if (selectedItems.includes(item)) {
+                            setSelectedItems(selectedItems.filter(i => i !== item))
+                          } else {
+                            setSelectedItems([...selectedItems, item])
+                          }
+                        }})
+                      ] : []),
                       // TEXT 
                       !type ? [
                         c('div', {
@@ -286,7 +349,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     // add a button to switch between table and grid view
     // c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [view]),
     // same but using font awesome
-    c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
+    config?.gridView?.enabled && c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
       view === "table" && c('div', {className:"fa fa-th-large"}),
       view !== "table" && c('div', {className:"fa fa-th"})
     ]),
