@@ -170,7 +170,7 @@ export const copyFile = async (pathOriginal: string, pathDestination: string): P
 	})
 }
 
-export const deleteFolder = async (path: string): Promise<void> => {
+export const deleteFolder = async (path: string): Promise<void|Error> => {
 	path = p(path)
 	const h = `[REMOVE FILE]`
 

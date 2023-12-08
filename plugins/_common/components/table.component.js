@@ -18,10 +18,24 @@ const styleCss = `
   padding: 10px;
 }
 
+.table-controls-wrapper {
+  padding-left: 15px;
+}
+.table-controls-wrapper input {
+  margin-right: 10px;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 0 1px #ccc;
+  border-radius: 3px;
+  padding: 4px;
+  margin-top: 8px;
+}
+
+
 .ctag-component-table {
   padding-bottom: 80px;
   overflow-wrap: normal;
-  width: calc(100% - 30px);
+  width: calc(100%);
   height: 100%;
   padding: 10px;
 }
@@ -41,29 +55,40 @@ const styleCss = `
 }
 
 .ctag-component-table-grid-view {
+  padding-top: 20px;
   display: flex;
+  justify-content: center;
   flex-direction: row;
   flex-wrap: wrap;
   padding-bottom: 80px;
 }
 .ctag-component-table-grid-view .grid-item {
   cursor: pointer;
-  width: 200px;
-  height: 200px;
-  border: 1px solid #ccc;
+  width: 18vw;
+  height: 18vw;
+  max-width: 180px;
+  max-height: 180px;
+  min-width: 120px;
+  min-height: 120px;
   margin: 5px;
+  background: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
+  border-radius: 7px;
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.1);
+  position: relative;
 }
 .ctag-component-table-grid-view .grid-item-image {
   width: 100%;
   height: 100%;
 }
 .ctag-component-table-grid-view .grid-item-image i {
-  font-size: 100px;
+  font-size: 9vw;
   color: #ccc;
   display: flex;
+  
   justify-content: center;
   align-items: center;
   padding-top: 30px;
@@ -73,12 +98,25 @@ const styleCss = `
   height: 100%;
   object-fit: cover;
 }
-.ctag-component-table-grid-view .grid-item-name {
+.ctag-component-table-grid-view .grid-item .grid-item-name {
   width: 100%;
 }
+.ctag-component-table-grid-view .grid-item .grid-item-name.hide-label {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.ctag-component-table-grid-view .grid-item:hover .grid-item-name {
+  opacity: 1;
+}
+
 .ctag-component-table-grid-view .grid-item-name-text {
-  width: 100%;
   text-align: center;
+  position: absolute;
+  line-height: 13px;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.8);
+  padding: 6px;
+  width: calc(100% - 12px);
 }
 
 `
@@ -169,6 +207,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [sortedItems, searchTerm]);
 
   const requestSort = key => {
+    console.log("requestSort", key)
     let direction = 'ascending';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -185,7 +224,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
         return `<a href="${url}" target="_blank">${url}</a>`;
       });
     } 
-    // console.log(123, configCol)
     // if (configCol.onClick) {
     //   contentCell = `<div class="table-link-click" onclick="${configCol.onClick}">${contentCell}</a>`
     // }
@@ -235,21 +273,22 @@ const TableComponentReactInt = ({ items, config, id }) => {
   //
   // buttons cell gene
   //
-  const buttonsCell = (colId, item, buttons) => {
-    return c('div', {className: "buttons-cell"}, [])
-    // return c('div', {className: "buttons-cell"}, [
-    //   buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
-    //     c('button', { 
-    //       key: keyCounter(`${colId}-${item.id}-${label}`), 
-    //       onClick: (e) => {onClick(item, e)}, 
-    //       onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
-    //       onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
-    //     }, [
-    //       c('div', {className: `fa fa-${icon}` }),
-    //       label
-    //     ])
-    //   )
-    // ])
+  const buttonsCell = (col, itemsForAction) => {
+    if (!Array.isArray(itemsForAction)) itemsForAction = [itemsForAction]
+    let res =  c('div', {className: "buttons-cell"}, [
+      col.buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
+        c('button', { 
+          key: keyCounter(`${col.colId}-${itemsForAction[0]?.id}-${label}`), 
+          onClick: (e) => {onClick(itemsForAction, e)}, 
+          onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(itemsForAction, e)}, 
+          onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(itemsForAction, e)}  
+        }, [
+          c('div', {className: `fa fa-${icon}` }),
+          label
+        ])
+      )
+    ])
+    return [res]
   }
 
   const hasMultiselect = () => {
@@ -260,14 +299,34 @@ const TableComponentReactInt = ({ items, config, id }) => {
   //
   // Header cell
   //
-  const genHeaderCell = (colId, headerLabel) => {
-    let res = c('span', {}, [
-      `${headerLabel || colId} `, 
-      c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
-    ])
-    if (colId === "multiselect") res = c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onChange: () => onColHeaderClick(colId)})
-    if (colId === "buttons" && hasMultiselect()) res = buttonsCell(colId, filteredItems, config.cols.find(c => c.colId === "buttons").buttons)
+  const genHeaderCell = col => {
+    if (col.headerLabel) {
+      if (col.headerLabel.includes("{{sumCol}}")) {
+        let sumCol = 0;
+        items.forEach(item => {
+          sumCol += item[col.colId]
+        })
+        sumCol = Math.round(sumCol)
+        col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
+      }
+      if (col.headerLabel.includes("{{count}}")) col.headerLabel = col.headerLabel.replace("{{count}}", items.length)
+    }
+  
+    let res = [
+      `${col.headerLabel || col.colId} `, 
+      c('span', {className:"sortIndic" }, [
+        `${sortConfig?.key === col.colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`
+      ])
+    ]
+    if (col.type && col.type === "multiselect") {
+      res = [c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onChange: () => onColHeaderClick(col.colId)})]
+    }
+    if (col.type && col.type === "buttons" && hasMultiselect()) {
+      res = [buttonsCell(col, selectedItems)]
+    }
 
+    let isSortable = ["multiselect", "buttons"].includes(col.type) ? false : true
+    res = c('th', { onClick: () => { if (isSortable) requestSort(col.colId) }}, res)
     return res
   }
 
@@ -275,24 +334,25 @@ const TableComponentReactInt = ({ items, config, id }) => {
         c('table', {className: "ctag-component-table"}, [
           c('thead', {}, [
           c('tr', {}, [
-              ...config.cols.map(({ colId, headerLabel }) =>
-                genHeaderCell(colId, headerLabel)
+              ...config.cols.map(col =>
+                genHeaderCell(col)
               )
           ])
           ]),
           c('tbody', {}, [
               ...filteredItems.map(item =>
                   c('tr', { key: keyCounter(`${item.id}`) }, [
-                  ...config.cols.map(({ colId, type, buttons }) =>
-                      c('td', { key: keyCounter(`${colId}-${item.id}`), className: `${configColsObj[colId]?.classes || ""}` }, [
+                  ...config.cols.map(col =>
+                  // ...config.cols.map(({ colId, type, buttons }) =>
+                    c('td', { key: keyCounter(`${col.colId}-${item.id}`), className: `${configColsObj[col.colId]?.classes || ""}` }, [
                       // BUTTON 
-                      ...(type === 'buttons'
-                          ? buttonsCell(colId, item, buttons)
+                      ...(col.type === 'buttons'
+                          ? buttonsCell(col, item)
                           : []),
                       // ICON 
-                      ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
+                      ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
                       // MULTISELECT
-                      ...(colId === "multiselect" ? [
+                      ...(col.colId === "multiselect" ? [
                         c('input', {type:"checkbox", checked: selectedItems.includes(item), onChange: () => {
                           if (selectedItems.includes(item)) {
                             setSelectedItems(selectedItems.filter(i => i !== item))
@@ -302,13 +362,13 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         }})
                       ] : []),
                       // TEXT 
-                      !type ? [
+                      !col.type ? [
                         c('div', {
                           onClick: (e) => {
-                            if (configColsObj[colId]?.onClick) configColsObj[colId]?.onClick(item, e)
+                            if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
                           },
-                          className:`cell-content ${configColsObj[colId]?.onClick ? "table-link-click" : ""}`, 
-                          dangerouslySetInnerHTML:{__html: processContent(item[colId], configColsObj[colId])}
+                          className:`cell-content ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                          dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
                         })
                       ] : []
                       ])
@@ -334,7 +394,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
               c('div', {dangerouslySetInnerHTML:{__html: config.gridView.image(item).html}}) :
               c('img', { src: config.gridView.image(item), alt: config.gridView.image(item) })
           ]),
-          c('div', { className: "grid-item-name" }, [
+          c('div', { className: `grid-item-name ${config.gridView.hideLabel(item) ? "hide-label": ""}` }, [
             c('div', {className: "grid-item-name-text"}, [config.gridView.label(item)])
           ]),
         ])
@@ -344,14 +404,13 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
   return [
     c('style', {}, [styleCss]),
-    c('input', { type: 'text', value: searchTerm, onChange: e => setSearchTerm(e.target.value) }),
-    // c('div', {className:"nb-items"}, [ Math.random()]),
-    // add a button to switch between table and grid view
-    // c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [view]),
-    // same but using font awesome
-    config?.gridView?.enabled && c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
-      view === "table" && c('div', {className:"fa fa-th-large"}),
-      view !== "table" && c('div', {className:"fa fa-th"})
+
+    c('div', {className:"table-controls-wrapper"}, [ 
+      c('input', { type: 'text', value: searchTerm, placeholder:"Filter the table", onChange: e => setSearchTerm(e.target.value) }),
+      config?.gridView && c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
+        view === "table" && c('div', {className:"fa fa-th-large"}),
+        view !== "table" && c('div', {className:"fa fa-th"})
+      ]),
     ]),
     
     // c('div', {className:"nb-items"}, [ config.displayType ]),

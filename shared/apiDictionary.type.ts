@@ -47,7 +47,7 @@ export interface iApiDictionary {
 	askFilesPreview: { filesPath: string[], idReq: string }
 	getFilesPreview: { filesPreview: iFilePreview[], idReq: string }
 
-	askFoldersScan: { foldersPaths: string[], idReq: string }
+	askFoldersScan: { foldersPaths: string[], depth?:number, idReq: string }
 	getFoldersScan: { folders: iFolder[], pathBase: string, idReq: string }
 
 	askFolderCreate: { newFolderPath: string, idReq: string}

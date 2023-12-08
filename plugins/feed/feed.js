@@ -1164,16 +1164,16 @@ const feedApp = (innerTagStr, opts) => {
 				/* display:none; */
 		}
 		.article-details-wrapper {
-				width: 50%;
-				padding: 15px;
-				position: absolute;
-				background: white;
-				height: calc(100% - 110px);
-				overflow-y: scroll;
-				height: 100%;
-				right: 0px;
-				top: 0px;
-				box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
+			width: calc(50% - 35px);
+			padding: 15px;
+			position: absolute;
+			background: white;
+			height: calc(100% - 110px);
+			overflow-y: scroll;
+			height: 100%;
+			right: 0px;
+			top: 0px;
+			box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
 		}
 
 		
@@ -1275,7 +1275,7 @@ const feedApp = (innerTagStr, opts) => {
 .article-bookmark-toggle {
 		color: grey;
 		position: fixed;
-		right: 60px;
+		right: 90px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1288,7 +1288,7 @@ const feedApp = (innerTagStr, opts) => {
 
 .article-close {
 		position: fixed;
-		right: 32px;
+		right: 62px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1333,7 +1333,7 @@ LIST
 */
 .feed-app-wrapper {
 	padding-top: 37px;
-	width: calc(100% - ${getOperatingSystem() === "mac" ? 20 : 0}px);
+	width: calc(100% - ${getOperatingSystem() === "mac" ? 20 : 18}px);
 }
 
 .top-wrapper {

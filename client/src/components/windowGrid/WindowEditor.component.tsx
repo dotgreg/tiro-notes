@@ -14,6 +14,7 @@ import { handleImagePaste } from '../../managers/clipboard.manager';
 import { handleFileDrop } from '../../managers/dragDrop.manager';
 import { iUploadedFileInfos } from '../../hooks/api/upload.api.hook';
 import { uploadFileToEditor } from '../../managers/upload.manager';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 
 
 export const WindowEditorInt = (p: {
@@ -71,21 +72,24 @@ export const WindowEditorInt = (p: {
 
 
 			// WATCH LOGIC
-			api.watch.file(file.path, watchUpdate => {
-				// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
-				// if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
-				// THEN WATCH FOR UPDATE BY OTHER CLIENTS
-				if (filePathRef.current !== watchUpdate.filePath) return
-				// if (deviceType() !== "desktop") return
-
-				// if watcher gives an update to a file we are currently editing
-				// make it inside a debounce, only for desktop
-				if (
-					isBeingEdited.current === true
-				) return waitingContentUpdate.current = watchUpdate.fileContent
-
-				setFileContent(watchUpdate.fileContent)
-			})
+			if(userSettingsSync.curr.ui_editor_live_watch === true) {
+				console.log(`[FILE CONTENT WATCH] enabled for ${file.path}`)
+				api.watch.file(file.path, watchUpdate => {
+					// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
+					// if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
+					// THEN WATCH FOR UPDATE BY OTHER CLIENTS
+					if (filePathRef.current !== watchUpdate.filePath) return
+					// if (deviceType() !== "desktop") return
+	
+					// if watcher gives an update to a file we are currently editing
+					// make it inside a debounce, only for desktop
+					if (
+						isBeingEdited.current === true
+					) return waitingContentUpdate.current = watchUpdate.fileContent
+	
+					setFileContent(watchUpdate.fileContent)
+				})
+			}
 		})
 	}, [file?.path, windowId])
 

@@ -323,7 +323,6 @@ const EditorAreaInt = (
 	// TOOLBAR ACTIONS
 	//
 	const editorToolbarActions = [
-		...uploadBtns(),
 		{
 			title: 'Reload content',
 			icon: 'faSync',
@@ -332,6 +331,8 @@ const EditorAreaInt = (
 				p.onReloadContent(reloadContentCounterRef.current)
 			}
 		},
+		detachWindowButton(),
+		...uploadBtns(),
 		searchButton(),
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
 		
@@ -349,7 +350,7 @@ const EditorAreaInt = (
 				triggerLegacyExportPopup()
 			}
 		},
-		detachWindowButton(),
+		
 		{
 			title: strings.editorBar.explanation.history,
 			icon: 'faHistory',

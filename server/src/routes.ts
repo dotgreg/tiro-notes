@@ -1,6 +1,6 @@
 import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
-import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
+import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders, scanDirForFoldersRecursive } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRgGeneric, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateNewNote } from "./managers/date.manager";
@@ -120,10 +120,11 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	})
 
 	serverSocket2.on('askFoldersScan', async data => {
+		let depth = data.depth || 0
 		let endPerf = perf('askFoldersScan ' + JSON.stringify(data.foldersPaths))
 		let folders: iFolder[] = []
 		for (let i = 0; i < data.foldersPaths.length; i++) {
-			folders.push(scanDirForFolders(data.foldersPaths[i]))
+			folders.push(scanDirForFoldersRecursive(data.foldersPaths[i], depth))
 		}
 		serverSocket2.emit('getFoldersScan', {
 			folders,
@@ -348,12 +349,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// RESSOURCE API
 	//
 	serverSocket2.on('askRessourceDelete', async data => {
-		// let res = await getFilesPreviewLogic(data)
-		// serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
-
-		// const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
-		// await upsertRecursivelyFolders(pathToFile)
-		// await saveFile(pathToFile, data.newFileContent)
+		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
+		logActivity("delete", data.path, serverSocket2)
+		let res = await deleteFolder(pathToFile)
+		if (res && res.message) {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: res.message, idReq: data.idReq })
+		} else {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message: `File ${data.path} deleted successfully`, idReq: data.idReq })
+		}
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('askRessourceDownload', async data => {

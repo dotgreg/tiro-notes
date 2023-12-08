@@ -1,8 +1,6 @@
 const FilesTagApp = (innerTagStr, opts) => {
     if (!opts) opts = {}
-    const h = `[CTAG FILES]Z`
     const api = window.api;
-    const divId = `feed-${api.utils.uuid()}`;
 
     const execReactApp = (str) => {
         // loading commons libs & plugins 
@@ -14,7 +12,30 @@ const FilesTagApp = (innerTagStr, opts) => {
         const App = () => {
             const [status, setStatus] = r.useState('')
             const [rescan, setRescan] = r.useState(0)
+            const [ressourcesUsageList, setRessourcesUsageList] = r.useState([])
             
+            //
+            // FOLDER SCANS & NAVIGATION
+            //
+            const [currFolderPath, setCurrFolderPath] = r.useState(ressourceFolder)
+            const [allFolders, setAllFolders] = r.useState([])
+            r.useEffect(() => {
+              api.call("folders.get", [["/"], {depth:-1}], res => {
+                  if (!res.folders[0]) return
+                  let foldersPaths = []
+                  const recursFn = (f) => {
+                    f.forEach(f => {
+                      foldersPaths.push(f.path)
+                      if (f.children) recursFn(f.children)
+                    })
+                  }
+                  recursFn(res.folders[0].children)
+                  setAllFolders(foldersPaths)
+              })
+            },[])
+
+
+
             //
             // FILE UPLOAD
             //
@@ -23,7 +44,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                 const file = event.target.files[0];
                 const apiParams = {
                     file,
-                    folderPath: ressourceFolder,
+                    folderPath: currFolderPath,
                 }
                 // setStatus("Uploading files...")
                 // api.call("ui.notification.emit",[{content:,id:notifId, options:{hideAfter:-1}}])
@@ -79,9 +100,11 @@ const FilesTagApp = (innerTagStr, opts) => {
                   },
                 }])
               }
-
-
             }
+
+            
+
+
 
             //
             // FILES LIST
@@ -90,7 +113,7 @@ const FilesTagApp = (innerTagStr, opts) => {
             const [globStats, setGlobStats] = r.useState({size:0, nb:0})
             r.useEffect(() => {
               setStatus("Scanning...")
-              api.call("ressource.scanFolder", [ressourceFolder], res => {
+              api.call("ressource.scanFolder", [currFolderPath], res => {
                   let nFiles = []
                   res.files.map(f => {
 
@@ -109,6 +132,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                       type: f.extension,
                       size: Math.round(f.stats?.size * 100 / (1000 * 1000 )) / 100,
                       created,
+                      used: (ressourcesUsageList.indexOf(f.name) !== -1) ? "yes" : "no",
                       raw:f
                     }
                     let ngs = {...globStats}
@@ -121,15 +145,59 @@ const FilesTagApp = (innerTagStr, opts) => {
                   setFiles(nFiles)
                   setStatus("")
               })
-            },[rescan])
+            },[rescan, currFolderPath, ressourcesUsageList])
+
+
+
+            //
+            // RESSOURCE USAGE CHECKER
+            //
+            //api.search.word(".resources/", "/projects/project1", res => {console.log(2, res)})
+            
+            const searchForRessourcesUsage = () => {
+              let stringToSearch = "(.resources/"
+              api.call("search.word", [stringToSearch, currFolderPath], res => {
+                const lines = []
+                // res is an object
+                for (const [fileName, file] of Object.entries(res)) {
+                  file.results.forEach(l => {
+                    const processedLine = l.split(stringToSearch)[1].split(")")[0]
+                    lines.push(processedLine)
+                  })
+                }
+
+                // remove duplicates
+                const lines2 = []
+                lines.forEach(l => {
+                  if (lines2.indexOf(l) === -1) lines2.push(l)
+                })
+                setRessourcesUsageList(lines2)
+              })
+            }
+
+            r.useEffect(() => {
+              searchForRessourcesUsage()
+            },[currFolderPath])
+
+            // r.useEffect(() => {
+            //   files.forEach(f => {
+            //     if (ressourcesUsageList.indexOf(f.name) !== -1) f.used = "yes"
+            //   })
+            //   setFiles([...files])
+            // },[rescan, currFolderPath, ressourcesUsageList])
+
+
+
+
+
+
+
 
             //
             // Table component config
             //
             const config = {
-              multiselect: true,
               gridView: {
-                enabled: true,
                 onClick: (item) => {
                   console.log('Delete clicked for id:', item);
                   onItemOpenClick(item)
@@ -140,7 +208,10 @@ const FilesTagApp = (innerTagStr, opts) => {
                   } else if (["pdf", "epub"].indexOf(item.type) !== -1) {
                     return {html:`<div class="icon"><i class="fas fa-${item.icon}"></i></div>`}
                   }
-                  
+                },
+                hideLabel: (item) => {
+                  if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) return true
+                  return false
                 },
                 label: (item) => {
                   return `${item.name}`
@@ -152,63 +223,85 @@ const FilesTagApp = (innerTagStr, opts) => {
               cols: [
                 {colId: "multiselect", headerLabel: "", type:"multiselect"},
                 {colId: "icon", headerLabel: "-", type:"icon"},
-                {colId: "name", headerLabel: "Name", onClick:(item) => {
+                {colId: "name", headerLabel: "Name ({{count}} items)", onClick:(item) => {
                   console.log('Delete clicked for id:', item);
                   onItemOpenClick(item)
                 }},
-                // {colId: "size", headerLabel: `Size (Mb) - ${globStats.size} tot`},
-                {colId: "size", headerLabel: `Size (Mb)`},
+                {colId: "size", headerLabel: `Size ({{sumCol}} Mb)` },
                 {colId: "type", headerLabel: "Type"},
+                {colId: "used", headerLabel: "Used"},
                 {colId: "created", headerLabel: "Date"},
                 {colId: "actions", type: "buttons", buttons:[
-                 
-                  // {
-                  //     label: "", 
-                  //     icon: "eye", 
-                  //     onClick: (item) => {
-                  //       console.log('Delete clicked for item:', item);
-                  //     }
-                  //   },
                     {
                       label: "", 
                       icon: "close", 
                       onClick: (items) => {
-                        console.log('Delete clicked for id:', items);
-                      }
+                        api.call("popup.confirm", [`Do you want to delete ${items.length} file`], () => {
+                          items.forEach(item => {
+                            api.call("ressource.delete", [item.raw.path], res => {
+                              console.log("ressource.delete", res, item)
+                              setRescan(rescan+1)
+                            })
+                          })
+                        })
+                      } 
                     }
                 ]},
               ]
             };
 
             TableComp = () => {
-              // return window._tiroPluginsCommon.genTableComponent({array:files, config})
-              // const files2 = JSON.parse(JSON.stringify(files))
-              // const config2 = JSON.parse(JSON.stringify(config))
               return window._tiroPluginsCommon.TableComponentReact({items:files, config:config})
             }
+
+            // if last char is /, remove it
+            let currFolderPath2 = (currFolderPath.slice(-1) === "/") ? currFolderPath.slice(0, -1) : currFolderPath
             
             return (
                 c('div', { className: "files-table-wrapper" }, [
+                    // input list wrapper all folders path, when selecting one, it will rescan the folder
+                    c('div', { className: "files-commands-wrapper" }, [
+                      c('div', { className: "folders-list-wrapper" }, [
+                        c('label', { for:"folders-list"}, [c('div', {className: `fa fa-folder`}), ""]),
+                        c('select', { 
+                          id: "folders-list",
+                          onChange: (e) => setCurrFolderPath(e.target.value),
+                          value: currFolderPath2
+                        }, [
+                          allFolders.map(f => c('option', { 
+                            value: f, 
+                          }, [f]))
+                        ]),
+                      ]),
+                      
                     // Math.random(),
-                    c('span', { className: "upload-wrapper" }, [
-                      c('button', {}, ["Check usage"]),
-                      c('label', { for:"upload-button"}, [c('div', {className: `fa fa-paperclip`}), " Upload File"]),
-                      c('input', { type:"file", id: "upload-button", onChange: handleFileChange }),
-                      c('div', {  className: "wrapper-status"}, [JSON.stringify({status, ...globStats})]),
+                      c('span', { className: "upload-wrapper" }, [
+                        c('label', { for:"upload-button"}, [c('div', {className: `fa fa-paperclip`}), " Upload File"]),
+                        c('input', { type:"file", id: "upload-button", onChange: handleFileChange }),
+                        // status !== "" && c('div', {  className: "wrapper-status"}, [JSON.stringify({status, ...globStats})]),
+                        status !== "" && c('div', {  className: "wrapper-status"}, [status]),
+                      ]),
                     ]),
+
                     TableComp(),
                     
                 ])
             )
         }
         
-        setTimeout(() => {
-            ReactDOM.render(
-                c(App),
-                document.getElementById("root-react")
-            );  
-        }, 500) 
-        
+        let int = setInterval(() => {
+          if (!window.ReactDOM || !ReactDOM || !React) return;
+          clearInterval(int)
+          const r = React;
+          const c = r.createElement;
+    
+          // v18
+          // console.log("table render component")
+          ReactDOM.render(
+            c(App),
+            document.getElementById("root-react")
+          );  
+        }, 1000) 
     }
     api.utils.loadScripts(
             [
@@ -229,29 +322,52 @@ const FilesTagApp = (innerTagStr, opts) => {
                 }, 100);
             }
     );
-
+      
     const styleApp = `
+        .with-padding {
+          padding: 0px!important;
+        }
         #root-react {
                 height: 100vh;
-                // overflow: hidden;
-                padding: 10px;
                 margin-top:10px;
         }
 
+        .files-commands-wrapper {
+          display: flex;
+          margin: 0px 15px;
+          justify-content: space-between;
+        }
+          .files-commands-wrapper .fa {
+            padding: 0px 5px;
+          }
+          .folders-list-wrapper {
+          }
+          .upload-wrapper {
+            cursor:pointer;
+          }
+          .upload-wrapper label {
+            cursor:pointer;
+          }
+          .upload-wrapper #upload-button {
+            visibility:hidden;
+            display:none;
+          }
+
+
+
+
+        .wrapper-status {
+          position: fixed;
+          top: 0px;
+          left: 0px;
+          width: 100%;
+          background: green;
+          color: white;
+          text-align: center;
+        }
+
         
-        .upload-wrapper {
-          position: absolute;
-          right: 13px;
-          top: 26px;
-          cursor:pointer;
-        }
-        .upload-wrapper label {
-          cursor:pointer;
-        }
-        .upload-wrapper #upload-button {
-          visibility:hidden;
-          display:none;
-        }
+       
 
         table {
           width: 100%;

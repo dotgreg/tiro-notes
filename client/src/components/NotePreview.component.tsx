@@ -145,7 +145,8 @@ export const NotePreviewCss = () => `
 		}
 
 		.preview-area {
-			width: calc(100%);
+			// width: calc(100%);
+			width: calc(100% + 22px);
 			// padding-left: 22px; // for left bar
 			// padding: 15px;
 		}

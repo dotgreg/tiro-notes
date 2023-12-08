@@ -21,7 +21,10 @@ export interface iFoldersApi {
 	 */
 	get: (
 		folderPaths: string[],
-		cb: (data: { folders: iFolder[], pathBase: string, folderPaths: string[] }) => void
+		cb: (data: { folders: iFolder[], pathBase: string, folderPaths: string[] }) => void,
+		options?: {
+			depth?: number
+		}
 	) => void
 	move: iMoveApi['folder']
 	create: (
@@ -56,8 +59,8 @@ export const useFoldersApi = (p: {
 	// 
 
 	// 
-	const getFolders: iFoldersApi['get'] = (folders, cb) => {
-		if (sharedConfig.client.log.socket) console.log(`[FOLDERS API] get folders `);
+	const getFolders: iFoldersApi['get'] = (folders, cb, options) => {
+		if (sharedConfig.client.log.socket) console.log(`[FOLDERS API] get folders `, folders, options);
 		const idReq = genIdReq('get-folders-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, data => {
@@ -68,10 +71,47 @@ export const useFoldersApi = (p: {
 		// 2. emit request 
 		clientSocket2.emit('askFoldersScan', {
 			foldersPaths: folders,
+			depth: options?.depth || 0,
 			token: getLoginToken(),
 			idReq
 		})
 	}
+
+	// get all subfolders recursively starting by root folder
+	// const getAllFolders: iFoldersApi['getAll'] = (cb) => {
+	// 	let startTime = Date.now()
+	// 	let folders: string[] = []
+	// 	let counter = { toScan: 0, scanned: 0 }
+	// 	const recGetFolders = (parentPath: string, cb: (data: { folders: iFolder[], pathBase: string, folderPaths: string[] }) => void) => {
+	// 		console.log(`[getAllFolders]`, parentPath, Date.now() - startTime, "ms");
+	// 		getFolders([parentPath], data => {
+	// 			folders.push(parentPath)
+	// 			console.log(110, data)
+	// 			// folders = folders.concat(data.folders)
+	// 			if (data.folders.length > 0) {
+	// 				counter.toScan += data.folders.length
+	// 				data.folders.forEach(folder => {
+	// 					if (folder.children) {
+	// 						counter.toScan += folder.children.length
+	// 						folder.children.forEach(child => {
+	// 							folders.push(child.path)
+	// 							console.log(111, child.path, folders)
+	// 							if (parentPath !== child.path) recGetFolders(child.path, cb)
+	// 							counter.scanned++
+	// 							console.log(112, counter.toScan, counter.scanned)
+	// 						})
+	// 					}
+	// 					console.log(113, counter.toScan, counter.scanned)
+	// 					counter.scanned++
+
+	// 				})
+	// 			} else {
+	// 				// cb({ folders, pathBase: data.pathBase, folderPaths: [parentPath] })
+	// 			}
+	// 		})
+	// 	}
+	// 	recGetFolders("/", cb)
+	// }
 
 	const moveApi = useMoveApi({ eventBus: p.eventBus });
 

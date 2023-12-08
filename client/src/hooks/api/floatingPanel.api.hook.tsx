@@ -7,6 +7,7 @@ import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
 import { deviceType } from "../../managers/device.manager"
+import { useDebounce } from "../lodash.hooks"
 
 const h = `[FLOATING PANELS]`
 
@@ -57,22 +58,26 @@ let offset = 20
 
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
-    const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
     const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[])
+    const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
     const panelsRef = React.useRef<iFloatingPanel[]>([])
+
     const setPanels = (npans:iFloatingPanel[]) => {
         panelsRef.current = npans
-        if (deviceType() !== 'mobile') { setPanelsDesktop(npans) } //setPanelsMobileInt(panels)
-        else setPanelsInt(npans)
+        setPanelsInt(npans)
+        if (deviceType() !== 'mobile') setPanelsDesktop(npans)
     }
+
+    const startupIrrigationFromBackend = React.useRef<boolean>(true)
     useEffect(() => {
         refreshFromBackend()
     },[])
+    
     useEffect(() => {
-        panelsRef.current = panels
-    },[panels])
-    useEffect(() => {
+        if (!startupIrrigationFromBackend.current) return
+        if (panelsDesktop.length > 0) startupIrrigationFromBackend.current = false
         if (deviceType() !== 'mobile') setPanelsInt(panelsDesktop)
+        panelsRef.current = panelsDesktop
     },[panelsDesktop])
 
 
@@ -83,7 +88,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             panelParams.position = {x: padding, y: padding}
             panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight - (2*padding)}
         }
-       
         
         // get all non hidden pannels
         let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
@@ -104,7 +108,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         pushWindowOnTop(panel.id)
     }
 
-    const updatePanel = (panel:iFloatingPanel) => { 
+    const updatePanel = (panel:iFloatingPanel) => {  
         const nPanels = panelsRef.current.map(p => p.id === panel.id ? panel : p)
         setPanels(nPanels)
     }
