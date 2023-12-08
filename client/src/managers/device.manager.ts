@@ -19,7 +19,7 @@ export const isA = (device: iDeviceType): boolean => {
 }
 
 
-function getOperatingSystem() {
+export const getOperatingSystem = () => {
 	const platform = navigator.platform.toLowerCase();
   
 	if (platform.includes('mac')) {
