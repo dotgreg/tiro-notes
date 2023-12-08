@@ -1333,7 +1333,7 @@ LIST
 */
 .feed-app-wrapper {
 	padding-top: 37px;
-	width: calc(100% - ${getOperatingSystem() === "mac" ? 20 : 18}px);
+	width: calc(100%);
 }
 
 .top-wrapper {
@@ -1344,6 +1344,7 @@ LIST
 .filters-top-wrapper {
 	display: flex;
 	align-items: center;
+	padding-right: 13px;
 }
 .left-right-wrapper {
 	display: flex;
@@ -1366,7 +1367,9 @@ LIST
 
 .hide-scrollbar-right {
 	height: 100%;
-	width: calc(100% + 18px);
+	width: calc(100%);
+	position: relative;
+  	left: -6px;
 }
 
 /* * * * * * * * * * *

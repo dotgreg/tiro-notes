@@ -7,6 +7,7 @@ import { codeMirrorEditorCss } from './dualView/CodeMirrorEditor.component';
 import { previewAreaCss } from './dualView/PreviewArea.component';
 import { WindowEditor } from './windowGrid/WindowEditor.component';
 import { iLayoutUpdateFn } from './dualView/EditorArea.component';
+import { getOperatingSystem } from '../managers/device.manager';
 
 export type iNotePreviewType = "editor"|"preview"
 export const NotePreviewInt = (p: {
@@ -145,8 +146,8 @@ export const NotePreviewCss = () => `
 		}
 
 		.preview-area {
+			width: calc(100% + ${getOperatingSystem() === "mac" && "-12px"});
 			// width: calc(100%);
-			width: calc(100% + 22px);
 			// padding-left: 22px; // for left bar
 			// padding: 15px;
 		}
