@@ -243,6 +243,16 @@ export const SettingsPopup = (p: {
 							us.set('ui_editor_show_image_title', val)
 						}
 					},
+					{
+						type: 'checkbox',
+						title: "Live Edition",
+						expl: "If other clients edit the same note, update everybody on live" + requireReloadStr,
+						var: us.get('ui_editor_live_watch'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_live_watch', val)
+						}
+					},
 				]
 			},
 			{

@@ -77,7 +77,7 @@ export const useTabs = () => {
 	// 	tabsRef.current = tabs
 	// }, [tabs])
 	const [tabs, setTabsInt] = useState<iTab[]>([])
-    const [tabsDesktop, setTabsDesktop, refreshTabsFromBackend1] = useBackendState<iTab[]>('tabs-desktop',[])
+    const [tabsDesktop, setTabsDesktop, refreshTabsFromBackend1] = useBackendState<iTab[]>('tabs',[])
     const [tabsMobile, setTabsMobile, refreshTabsFromBackend2] = useBackendState<iTab[]>('tabs-mobile',[])
     const tabsRef = useRef<iTab[]>([])
     const setTabs = (nTabs:iTab[], cb?:Function) => {

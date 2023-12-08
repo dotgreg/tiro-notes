@@ -102,14 +102,12 @@ const smartlistApp = (innerTagStr, opts) => {
                         {
                           label: "", 
                           icon: "eye", 
-                          onClick: (item,e) => {
+                          onClick: (items,e) => {
+                                console.log('onClick:', items,e)
+                                if (items.length !== 1) return console.warn("no item selected")
+                                let item = items[0]
                                 console.log('onClick:', item,e);
-                                // get mouse position [x,y] from event e
-                                // let pos = [e.clientX, e.clientY]
                                 let pos = ["50%" ,"50%"]
-                                // console.log("pos", pos)
-                                // console.log(api.utils.getInfos())
-                                
                                 filePath = item.folder + item.filename
                                 api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString:item.line}])
                         
