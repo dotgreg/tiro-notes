@@ -5,6 +5,10 @@ import { detachNote } from '../managers/detachNote.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
+import { useThrottle } from '../hooks/lodash.hooks';
+import { getKeyModif, keysModifiers } from '../managers/keys.manager';
+
+type iZoomDir = -1 | 1
 
 export const Lightbox = (p: {
 	images: iFileImage[]
@@ -15,7 +19,7 @@ export const Lightbox = (p: {
 	useEffect(() => {
 		setCurrIndex(p.startingIndex)
 	}, [p.startingIndex])
-	const incrementIndex = (direction: 1 | -1) => {
+	const incrementIndex = (direction: iZoomDir) => {
 		let nIndex = currIndex
 		if (direction === -1 && currIndex === 0) nIndex = p.images.length - 1
 		else if (direction === 1 && currIndex === p.images.length - 1) nIndex = 0
@@ -46,7 +50,7 @@ export const Lightbox = (p: {
 			// let res: any = { height: val }
 			if (cImgRef && wrapperRef) {
 				cImgRef.style.transform = `scale(${percent/100})`
-				cImgRef.style.transformOrigin = `top left`
+				cImgRef.style.transformOrigin = (percent/100) < 1 ? `center` : "left top"
 				let iw = cImgRef.naturalWidth
 				let ih = cImgRef.naturalHeight
 				let ir = iw/ih
@@ -73,12 +77,33 @@ export const Lightbox = (p: {
 	}
 	let lineHeight = getLineHeight()
 
+	const onWheelThrottle = useThrottle((e) => {
+		// if ctrl pressed, zoom
+		// console.log(getKeyModif("ctrl"), keysModifiers)
+		if (keysModifiers.Meta || keysModifiers.ctrl) {
+			let dir:iZoomDir = e.deltaY > 0 ? 1 : -1
+			zoom(dir)
+		}
+	}, 150)
+
+	const histTouchYPos = useRef<number>(0)
+	const onTouchMoveThrottle = useThrottle((e) => {
+		// if scroll up two fingers, zoom
+		if (e.touches.length === 2) {
+			let dir:iZoomDir = e.touches[0].clientY > histTouchYPos.current ? 1 : -1
+			histTouchYPos.current = e.touches[0].clientY
+			zoom(dir)
+		}
+	}, 150)
+
 	return (
 		<div className={`lightbox-component`}>
 			<div className={`lightbox-bg`} onClick={() => { p.onClose() }}>
 			</div>
 			<div
 				className={`lightbox-content images-nb-${p.images.length}`}
+				onWheel={onWheelThrottle}
+				onTouchMove={onTouchMoveThrottle}
 				ref={zoomContainerRef}
 			>
 				{
@@ -165,48 +190,51 @@ export const lightboxCss = () => `
     }
 
     .lightbox-content {
-				&.images-nb-1 {
-						.left, .right {
-								display: none!important;
-						}
+		&.images-nb-1 {
+				.left, .right {
+						display: none!important;
 				}
+		}
 
-				border-radius: 9px;
-				overflow: hidden;
+		border-radius: 9px;
+		overflow: hidden;
         position: absolute;
         width: 95vw;
-        height: 95vh;
+        height: 85vh;
         background: black;
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%); 
-				.zoom {
-					top: 3px;
-					left: 25px;
+		.zoom {
+			top: 3px;
+			left: 25px;
+		}
+		.dezoom {
+			top: 3px;
+			left: 8px;
+		}
+		.zoom, .dezoom {
+				position: absolute;
+				
+				z-index: 100;
+				height: 43px;
+				margin-right: 5px;
+				svg path {
+						box-shadow: 0px 0px 5px #0006;
 				}
-				.dezoom {
-					top: 3px;
-					left: 8px;
-				}
-				.zoom, .dezoom {
-						position: absolute;
-						
-						z-index: 100;
-						height: 43px;
-						margin-right: 5px;
-						svg path {
-								box-shadow: 0px 0px 5px #0006;
-						}
-				}
-				svg {
-						background: white;
-						padding: 3px;
-						border-radius: 22px;
-						width: 13px;
-						box-shadow: 0px 0px 5px #00000040;
+		}
+		svg {
+			padding: 3px;
+			border-radius: 22px;
+			width: 13px;
+			box-shadow: 0px 0px 5px #00000040;
+			transition: all 0.2s ease-in-out;
+			&:hover {
+				background: white;
+			}
+		}
 
-				}
-
+		
         .lightbox-image {
             position: relative;
             justify-content: space-around;
@@ -285,21 +313,21 @@ export const lightboxCss = () => `
                     left: 5px;
                 }
             }
-						.image-zoom-wrapper {
-								width: 100%;
-								height: 100%;
-								text-align: center;
-								overflow: auto;
-								position: relative;
-								z-index: 2;
-								img {
-		vertical-align: middle;
-										/* max-width: 95vw; */
-										z-index:2;
-										/* position: relative; */
-										/* max-height: 95vh; */
-								}
-						}
+			.image-zoom-wrapper {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				width: 100%;
+				height: 100%;
+				text-align: center;
+				overflow: auto;
+				position: relative;
+				z-index: 2;
+					img {
+						vertical-align: middle;
+						z-index:2;
+					}
+			}
         }
     }
 
