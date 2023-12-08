@@ -43,7 +43,9 @@ export interface iBrowserApi {
 	folders: {
 		refreshFromBackend: Function
 		base: string
-		get: () => iFolder
+		get: (
+			cb?:(f:iFolder) => void
+		) => iFolder
 		clean: Function,
 		scan: (
 			foldersPath: string[],
@@ -184,7 +186,8 @@ export const useBrowserApi = (p: {
 		})
 	}
 
-	const getFolderHierarchy = () => {
+	const getFolderHierarchy = (cb) => {
+		if (cb) cb(folderHierarchy)
 		return folderHierarchy
 	}
 
