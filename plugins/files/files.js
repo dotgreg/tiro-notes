@@ -20,18 +20,30 @@ const FilesTagApp = (innerTagStr, opts) => {
             const [currFolderPath, setCurrFolderPath] = r.useState(ressourceFolder)
             const [allFolders, setAllFolders] = r.useState([])
             r.useEffect(() => {
-              api.call("folders.get", [["/"], {depth:-1}], res => {
-                  if (!res.folders[0]) return
-                  let foldersPaths = []
+              api.call("ui.browser.folders.get", [], folder => {
+                  if (!folder) return
+                  let foldersPaths = ["--opened folders--"]
                   const recursFn = (f) => {
                     f.forEach(f => {
                       foldersPaths.push(f.path)
                       if (f.children) recursFn(f.children)
                     })
                   }
-                  recursFn(res.folders[0].children)
+                  recursFn(folder.children)
                   setAllFolders(foldersPaths)
               })
+              // api.call("folders.get", [["/"], {depth:-1}], res => {
+              //     if (!res.folders[0]) return
+              //     let foldersPaths = []
+              //     const recursFn = (f) => {
+              //       f.forEach(f => {
+              //         foldersPaths.push(f.path)
+              //         if (f.children) recursFn(f.children)
+              //       })
+              //     }
+              //     recursFn(res.folders[0].children)
+              //     setAllFolders(foldersPaths)
+              // })
             },[])
 
 
