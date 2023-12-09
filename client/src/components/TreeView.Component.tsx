@@ -34,7 +34,12 @@ export const FoldersTreeView = (p: {
 
 
 	return (
-		<div className="folder-tree-view-component">
+		<div className="folder-tree-view-component" 
+		// onDrop={(e) => {
+		// 	console.log("DROP32", e)
+		// 	setDragClass("")
+		// }}
+		>
 			<h3 className='subtitle'>{strings.folders}</h3>
 			<FolderView
 				openFolders={p.openFolders}
@@ -103,18 +108,27 @@ export const FolderView = (p: {
 			className={`folder-wrapper ${isCurrentFolder ? 'current' : ''} `}
 			draggable={true}
 			onDrop={(e) => {
+				console.log("DROP", e)
 				if (!p.folder.key) return
 				p.onFolderDrop(p.folder)
 				e.stopPropagation()
+				
 			}}
 			onDragStart={(e) => {
 				if (!p.folder.key) return
 				p.onFolderDragStart(p.folder)
 				e.stopPropagation()
 			}}
+			onDragOver={(e) => {
+				setDragClass("drag")
+				e.preventDefault()
+				e.stopPropagation()
+			}}
 			onDragEnd={() => {
+				console.log(1111111122)
 				if (!p.folder.key) return
 				p.onFolderDragEnd()
+				
 			}}
 			onMouseLeave={() => {
 				isMenuOpened && setIsMenuOpened(false)
@@ -123,9 +137,10 @@ export const FolderView = (p: {
 			<div
 				className={`folder-title ${dragClass}`}
 				onDragEnter={(e) => {
-					setDragClass("drag")
+					
 				}}
 				onDrop={(e) => {
+					console.log("DROP2", e)
 					setDragClass("")
 				}}
 				onDragLeave={(e) => {
