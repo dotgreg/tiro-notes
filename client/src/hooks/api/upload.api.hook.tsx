@@ -4,6 +4,7 @@ import { uploadFileInt } from '../../managers/upload.manager';
 import { genIdReq, iApiEventBus } from './api.hook';
 import { useDebounce } from '../lodash.hooks';
 import { each } from 'lodash';
+import { notifLog } from '../../managers/devCli.manager';
 
 //
 // INTERFACES
@@ -78,6 +79,9 @@ export const useUploadApi = (p: {
 	const filesToUploadQueue = useRef<{file:iFileToUpload, cb?:Function}[]>([])
 	const debouncedBatchUpload = useDebounce(() => {
 		if (filesToUploadQueue.current.length < 1) return
+		let length = filesToUploadQueue.current.length
+		let doneFiles = 0
+		notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info")
 
 		each(filesToUploadQueue.current, (uploadItemQueue, index) => {
 			setTimeout(() => {
@@ -91,6 +95,9 @@ export const useUploadApi = (p: {
 						delete answer.idReq
 						if (p2.onSuccess) p2.onSuccess(answer)
 						if (uploadItemQueue.cb) uploadItemQueue.cb({message:"success", succesObj:answer})
+						doneFiles++
+						notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info")
+						
 					});
 					// 2. upload file
 					uploadFileInt({
