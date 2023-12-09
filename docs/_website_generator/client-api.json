@@ -22508,115 +22508,6 @@
 					]
 				},
 				{
-					"id": 840,
-					"name": "iFileToUpload",
-					"kind": 256,
-					"kindString": "Interface",
-					"flags": {},
-					"children": [
-						{
-							"id": 841,
-							"name": "file",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {},
-							"sources": [
-								{
-									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 13,
-									"character": 1
-								}
-							],
-							"type": {
-								"type": "reference",
-								"id": 1303,
-								"qualifiedName": "File",
-								"package": "typescript",
-								"name": "File"
-							}
-						},
-						{
-							"id": 842,
-							"name": "folderPath",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {},
-							"sources": [
-								{
-									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 14,
-									"character": 1
-								}
-							],
-							"type": {
-								"type": "intrinsic",
-								"name": "string"
-							}
-						},
-						{
-							"id": 844,
-							"name": "onProgress",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 16,
-									"character": 1
-								}
-							],
-							"type": {
-								"type": "reference",
-								"id": 1327,
-								"name": "onUploadProgressFn"
-							}
-						},
-						{
-							"id": 843,
-							"name": "onSuccess",
-							"kind": 1024,
-							"kindString": "Property",
-							"flags": {
-								"isOptional": true
-							},
-							"sources": [
-								{
-									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 15,
-									"character": 1
-								}
-							],
-							"type": {
-								"type": "reference",
-								"id": 1323,
-								"name": "onUploadSuccessFn"
-							}
-						}
-					],
-					"groups": [
-						{
-							"title": "Properties",
-							"kind": 1024,
-							"children": [
-								841,
-								842,
-								844,
-								843
-							]
-						}
-					],
-					"sources": [
-						{
-							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-							"line": 12,
-							"character": 17
-						}
-					]
-				},
-				{
 					"id": 290,
 					"name": "iFilesApi",
 					"kind": 256,
@@ -29503,7 +29394,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 19,
+									"line": 20,
 									"character": 1
 								}
 							],
@@ -29524,7 +29415,7 @@
 											"type": {
 												"type": "reference",
 												"id": 840,
-												"name": "iFileToUpload"
+												"name": "iUploadInfos"
 											}
 										},
 										{
@@ -29562,7 +29453,116 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-							"line": 18,
+							"line": 19,
+							"character": 17
+						}
+					]
+				},
+				{
+					"id": 840,
+					"name": "iUploadInfos",
+					"kind": 256,
+					"kindString": "Interface",
+					"flags": {},
+					"children": [
+						{
+							"id": 841,
+							"name": "file",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
+									"line": 14,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "reference",
+								"id": 1303,
+								"qualifiedName": "File",
+								"package": "typescript",
+								"name": "File"
+							}
+						},
+						{
+							"id": 842,
+							"name": "folderPath",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {},
+							"sources": [
+								{
+									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
+									"line": 15,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						},
+						{
+							"id": 844,
+							"name": "onProgress",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
+									"line": 17,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "reference",
+								"id": 1327,
+								"name": "onUploadProgressFn"
+							}
+						},
+						{
+							"id": 843,
+							"name": "onSuccess",
+							"kind": 1024,
+							"kindString": "Property",
+							"flags": {
+								"isOptional": true
+							},
+							"sources": [
+								{
+									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
+									"line": 16,
+									"character": 1
+								}
+							],
+							"type": {
+								"type": "reference",
+								"id": 1323,
+								"name": "onUploadSuccessFn"
+							}
+						}
+					],
+					"groups": [
+						{
+							"title": "Properties",
+							"kind": 1024,
+							"children": [
+								841,
+								842,
+								844,
+								843
+							]
+						}
+					],
+					"sources": [
+						{
+							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
+							"line": 13,
 							"character": 17
 						}
 					]
@@ -35406,7 +35406,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-							"line": 26,
+							"line": 27,
 							"character": 12
 						}
 					],
@@ -35428,7 +35428,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-											"line": 26,
+											"line": 27,
 											"character": 49
 										}
 									],
@@ -35446,7 +35446,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-											"line": 26,
+											"line": 27,
 											"character": 35
 										}
 									],
@@ -35469,7 +35469,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 26,
+									"line": 27,
 									"character": 33
 								}
 							]
@@ -36590,7 +36590,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-							"line": 29,
+							"line": 30,
 							"character": 12
 						}
 					],
@@ -36605,7 +36605,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 29,
+									"line": 30,
 									"character": 31
 								}
 							],
@@ -36641,7 +36641,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-																	"line": 30,
+																	"line": 31,
 																	"character": 1
 																}
 															],
@@ -36670,7 +36670,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-																	"line": 32,
+																	"line": 33,
 																	"character": 1
 																}
 															],
@@ -36690,7 +36690,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-																	"line": 31,
+																	"line": 32,
 																	"character": 1
 																}
 															],
@@ -36712,7 +36712,7 @@
 																			"sources": [
 																				{
 																					"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-																					"line": 31,
+																					"line": 32,
 																					"character": 29
 																				}
 																			],
@@ -36730,7 +36730,7 @@
 																			"sources": [
 																				{
 																					"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-																					"line": 31,
+																					"line": 32,
 																					"character": 15
 																				}
 																			],
@@ -36753,7 +36753,7 @@
 																	"sources": [
 																		{
 																			"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-																			"line": 31,
+																			"line": 32,
 																			"character": 13
 																		}
 																	]
@@ -36775,7 +36775,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-															"line": 29,
+															"line": 30,
 															"character": 34
 														}
 													]
@@ -36801,7 +36801,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-							"line": 28,
+							"line": 29,
 							"character": 12
 						}
 					],
@@ -36816,7 +36816,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 28,
+									"line": 29,
 									"character": 33
 								}
 							],
@@ -36858,7 +36858,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-							"line": 27,
+							"line": 28,
 							"character": 12
 						}
 					],
@@ -36873,7 +36873,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/upload.api.hook.tsx",
-									"line": 27,
+									"line": 28,
 									"character": 32
 								}
 							],
@@ -37374,7 +37374,6 @@
 						109,
 						908,
 						1196,
-						840,
 						290,
 						795,
 						624,
@@ -37407,6 +37406,7 @@
 						698,
 						1253,
 						149,
+						840,
 						217,
 						1336,
 						1345,

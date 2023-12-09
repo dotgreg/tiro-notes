@@ -117,7 +117,6 @@ export const useUploadApi = (p: {
 		if (deviceType() === "mobile") {
 			// on mobile, upload one by one
 			for (let i = 0; i < filesToUploadQueue.current.length; i++) {
-				console.log(110)
 				await new Promise((resolve, reject) => {
 					const uploadObj = filesToUploadQueue.current[i]
 					console.log("uploadObj", uploadObj)
@@ -125,13 +124,12 @@ export const useUploadApi = (p: {
 					console.log(`[UPLOAD] starting upload item ${uploadObj.uploadInfos.file.name}` )
 					processFileUpload(uploadObj.uploadInfos, res => {
 						doneFiles++
-						notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info")
+						let timeoutNotif = doneFiles === length ? 5 : 60
+						notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info", timeoutNotif)
 						if (uploadObj && uploadObj.cb) uploadObj.cb(res)
-						console.log(111)
 						resolve(void 0)
 					})
 				})
-				console.log(113)
 			}
 			filesToUploadQueue.current = []
 		} else {
@@ -141,7 +139,8 @@ export const useUploadApi = (p: {
 					console.log(`[UPLOAD] starting upload item ${uploadItemQueue.uploadInfos.file.name}` )
 					processFileUpload(uploadItemQueue.uploadInfos, res => {
 						doneFiles++
-						notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info")
+						let timeoutNotif = doneFiles === length ? 5 : 60
+						notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info", timeoutNotif)
 						if (uploadItemQueue.cb)	uploadItemQueue.cb(res)
 					})
 				}, 500 * index)
