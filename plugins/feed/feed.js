@@ -1367,9 +1367,7 @@ LIST
 
 .hide-scrollbar-right {
 	height: 100%;
-	width: calc(100%);
-	position: relative;
-  	left: -6px;
+	width: calc(100% + 15px);
 }
 
 /* * * * * * * * * * *
@@ -1401,6 +1399,9 @@ LIST > ARTICLES
 		width: calc(50% - 30px);
 }
 @media screen and (max-width: 500px) {
+	.articles-list.item-active-open {
+			width: calc(100% - 30px);
+	}
 }
 
 .article-list-item {
