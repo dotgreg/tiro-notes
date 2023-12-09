@@ -321,6 +321,7 @@ export const WindowEditorInt = (p: {
 		// console.log("handle dragleave", file?.path)
 	}
 	const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+		console.log("window drop")
 		e.preventDefault()
 		e.stopPropagation()
 		setIsDragging(false)
