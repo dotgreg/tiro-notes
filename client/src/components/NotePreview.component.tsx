@@ -146,7 +146,7 @@ export const NotePreviewCss = () => `
 		}
 
 		.preview-area {
-			width: calc(100% + ${getOperatingSystem() === "mac" && "-12px"});
+			width: calc(100% + ${getOperatingSystem() === "mac" && "0px"});
 			// width: calc(100%);
 			// padding-left: 22px; // for left bar
 			// padding: 15px;

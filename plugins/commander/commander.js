@@ -264,6 +264,7 @@ const commanderApp = (innerTagStr, opts) => {
 						display: flex;
 						flex-direction: column;
 						overflow:hidden;
+						padding-right: 15px;
 						height: 100%;
 						
 				}
@@ -271,23 +272,24 @@ const commanderApp = (innerTagStr, opts) => {
 
 
 				#command-wrapper {
-					position: fixed;
-					z-index: 1;
+					// position: fixed;
+					// z-index: 1;
+					
 					width: calc(100% - 20px);
 					top: 0px;
 					padding: 10px 10px;
 					background: rgba(255,255,255,0.5);
 				}
 				
-				#buttons-wrapper-wrapper:hover {
-					height: 30vh;
-					overflow-y: scroll;
-				}
+				// #buttons-wrapper-wrapper:hover {
+				// 	height: 30vh;
+				// 	overflow-y: scroll;
+				// }
 				#buttons-wrapper-wrapper {
-					height: 26px;
-					overflow: hidden;
-					transition: 0.2s all;
-					transition-delay: 0.5s, 0s;
+					// height: 26px;
+					// overflow: hidden;
+					// transition: 0.2s all;
+					// transition-delay: 0.5s, 0s;
 				}
 
 				#buttons-wrapper button {
@@ -299,7 +301,8 @@ const commanderApp = (innerTagStr, opts) => {
 						resize: vertical;
 						margin-right: 5px;
 						min-height: 15px;
-						height: 15px;
+						// height: 15px;
+						height: 46px;
 						border: none;
 						border-radius: 7px;
 						box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
@@ -315,7 +318,7 @@ const commanderApp = (innerTagStr, opts) => {
 
 				#output-wrapper {
 					
-					margin-top: 83px;
+					// margin-top: 83px;
 					padding: 0px 14px 0px 11px;
 					margin-bottom: 30px;
 				}

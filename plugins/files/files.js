@@ -51,6 +51,8 @@ const FilesTagApp = (innerTagStr, opts) => {
             //
             // FILE UPLOAD
             //
+            // const rescanRef = r.useRef(rescan)
+            const notifId = "upload-files-ctag"
             const handleFileChange = (event) => {
                 const files = event.target.files;
                 for (let i = 0; i < files.length; i++) {
@@ -62,9 +64,10 @@ const FilesTagApp = (innerTagStr, opts) => {
                   }
                   // setStatus("Uploading files...")
                   // api.call("ui.notification.emit",[{content:,id:notifId, options:{hideAfter:-1}}])
+                  
                   api.call("upload.uploadFile", [apiParams], res => {
-                    // api.call("ui.notification.emit",[{content:"Upload Success",id:notifId, options:{hideAfter:5}}])
-                    setRescan(rescan+1)
+                    // api.call("ui.notification.emit",[{content:"Upload Success, reloading"+i,id:notifId, options:{hideAfter:5}}])
+                    setRescan(rescan+i)
                   })
                 }
             };
@@ -287,6 +290,9 @@ const FilesTagApp = (innerTagStr, opts) => {
                             value: f, 
                           }, [f]))
                         ]),
+                      ]),
+                      c('div', { className: "rescan-wrapper" }, [
+                         c('div', {className: `fa fa-refresh`, onClick:() => {setRescan(rescan+1)} }),
                       ]),
                       
                     // Math.random(),

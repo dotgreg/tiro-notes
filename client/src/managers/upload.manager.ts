@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce, each } from "lodash";
 import { getApi } from "../hooks/api/api.hook";
 import { iUploadedFileInfos } from "../hooks/api/upload.api.hook";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
@@ -14,17 +14,25 @@ var siofu = require("socketio-file-upload");
 //
 // MAIN UPLOAD FUNCTION
 //
-const uploadsToInsert:{curr: iUploadedFileInfos[]} = { curr: [] }
+// const uploadsToInsert:{curr: iUploadedFileInfos[]} = { curr: [] }
+const uploadsToInsert:{curr: {file:iUploadedFileInfos, inserted:boolean}[]} = { curr: [] }
+
 const debounceInsertUploads = debounce((windowId:string) => {
 	console.log(`[UPLOAD] inserting ${uploadsToInsert.curr.length} files after debounce`)
 	getApi(api => {
+		let stringToInsert = ""
+		each(uploadsToInsert.curr, (f, i) => {
+			if(!f.inserted) {
+				stringToInsert += `![${f.file.name}](${f.file.path})\n`
+				f.inserted = true
+			}
+		})
 		api.ui.note.editorAction.dispatch({
 			type: "insertText", 
 			insertPos: "currentLineStart",
-			insertText: uploadsToInsert.curr.map(f => `![${f.name}](${f.path})`).join("\n"),
+			insertText: stringToInsert,
 			windowId: windowId
 		})	
-		uploadsToInsert.curr = []
 	})
 }, 1000)
 
@@ -36,7 +44,7 @@ export const uploadFileToEditor = (p:{fileToUpload: File, folder:string, windowI
 			file: fileToUpload,
 			folderPath: folder,
 			onSuccess: nUpFile => {
-				uploadsToInsert.curr.push(nUpFile)
+				uploadsToInsert.curr.push({file:nUpFile, inserted:false})
 				debounceInsertUploads(windowId)
 				// setUploadedFile(nUpFile)
 				// const fileMdStr = `![${nUpFile.name}](${nUpFile.path})\n`

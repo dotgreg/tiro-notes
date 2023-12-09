@@ -1344,7 +1344,7 @@ LIST
 .filters-top-wrapper {
 	display: flex;
 	align-items: center;
-	padding-right: 13px;
+	padding-right: 25px;
 }
 .left-right-wrapper {
 	display: flex;
@@ -1367,7 +1367,7 @@ LIST
 
 .hide-scrollbar-right {
 	height: 100%;
-	width: calc(100% + 15px);
+	width: calc(100%);
 }
 
 /* * * * * * * * * * *
