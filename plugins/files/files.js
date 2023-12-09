@@ -51,19 +51,22 @@ const FilesTagApp = (innerTagStr, opts) => {
             //
             // FILE UPLOAD
             //
-            const notifId = "files-ctag-upload-notif"
             const handleFileChange = (event) => {
-                const file = event.target.files[0];
-                const apiParams = {
-                    file,
-                    folderPath: currFolderPath,
+                const files = event.target.files;
+                for (let i = 0; i < files.length; i++) {
+                  let file = files[i]
+                
+                  const apiParams = {
+                      file,
+                      folderPath: currFolderPath,
+                  }
+                  // setStatus("Uploading files...")
+                  // api.call("ui.notification.emit",[{content:,id:notifId, options:{hideAfter:-1}}])
+                  api.call("upload.uploadFile", [apiParams], res => {
+                    // api.call("ui.notification.emit",[{content:"Upload Success",id:notifId, options:{hideAfter:5}}])
+                    setRescan(rescan+1)
+                  })
                 }
-                // setStatus("Uploading files...")
-                // api.call("ui.notification.emit",[{content:,id:notifId, options:{hideAfter:-1}}])
-                api.call("upload.uploadFile", [apiParams], res => {
-                  // api.call("ui.notification.emit",[{content:"Upload Success",id:notifId, options:{hideAfter:5}}])
-                  setRescan(rescan+1)
-                })
             };
 
             const getIconFile = (fileType) => {
@@ -288,8 +291,8 @@ const FilesTagApp = (innerTagStr, opts) => {
                       
                     // Math.random(),
                       c('span', { className: "upload-wrapper" }, [
-                        c('label', { for:"upload-button"}, [c('div', {className: `fa fa-paperclip`}), " Upload File"]),
-                        c('input', { type:"file", id: "upload-button", onChange: handleFileChange }),
+                        c('label', { for:"upload-button"}, [c('div', {className: `fa fa-paperclip`}), " Upload Files"]),
+                        c('input', { type:"file", id: "upload-button", multiple:true, onChange: handleFileChange }),
                         // status !== "" && c('div', {  className: "wrapper-status"}, [JSON.stringify({status, ...globStats})]),
                         status !== "" && c('div', {  className: "wrapper-status"}, [status]),
                       ]),

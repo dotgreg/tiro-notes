@@ -68,9 +68,9 @@ const styleCss = `
   height: 18vw;
   max-width: 180px;
   max-height: 180px;
-  min-width: 120px;
-  min-height: 120px;
-  margin: 5px;
+  min-width: 115px;
+  min-height: 115px;
+  margin: 3px;
   background: white;
   display: flex;
   flex-direction: column;
