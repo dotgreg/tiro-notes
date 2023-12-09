@@ -42,7 +42,7 @@ export const UploadButton = (p: {
 				onChange={(e: any) => {
 					const files = e.target.files as File[]
 					if (files.length === 0) return
-					each(files, file => {
+					each(files, (file,i) => {
 						// alert(JSON.stringify(file));
 						uploadFileToEditor({fileToUpload: file, folder:p.file.folder, windowId:p.windowId})
 						// getApi(api => {
