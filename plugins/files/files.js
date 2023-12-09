@@ -150,7 +150,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                       type: f.extension,
                       size: Math.round(f.stats?.size * 100 / (1000 * 1000 )) / 100,
                       created,
-                      used: (ressourcesUsageList.indexOf(f.name) !== -1) ? "yes" : "no",
+                      used: (ressourcesUsageList.indexOf(f.name) !== -1) ? "✅" : "❌",
                       raw:f
                     }
                     let ngs = {...globStats}
