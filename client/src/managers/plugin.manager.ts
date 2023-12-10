@@ -6,6 +6,7 @@ import { devCliAddFn, notifLog } from "./devCli.manager"
 
 // SUGGEST POPUP PLUGINS => loadExternalBarPlugin
 
+const intervalTime = 1000 * 60 // 1minute
 
 const h = `[PLUGIN CRON]`
 devCliAddFn('cron', 'trigger', () => {triggerCron()})
@@ -16,7 +17,7 @@ export const startFrontendBackgroundPluginsCron = () => {
     if (hasBgPluginCronStarted) return
 
     // every minute
-    let intervalTime = 1000 * 60
+    // let intervalTime = 1000 * 60
     // let intervalTime = 1000 * 20
     
     let int = setInterval(() => {
@@ -54,7 +55,14 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
 //////////////////////////////////////////////////
 // BG/CRON PLUGIN CODE
 //
+
+// if several pages on same client, make sure to run only once using localstorage caching 
+const lsLastRunDate = parseInt(localStorage.getItem("frontendLsLastCronRunDate") as string) || 0
+
 const triggerCron = () => {
+    if (lsLastRunDate + intervalTime > new Date().getTime()) return 
+    localStorage.setItem("frontendLsLastCronRunDate", new Date().getTime().toString())
+
     getApi(api => {
         // get the cached infos of all cron, especially the last ran date
         api.plugins.list(plugins => {
