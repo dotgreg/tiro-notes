@@ -44,7 +44,8 @@ const feedApp = (innerTagStr, opts) => {
 		//  FETCH AND REDEABILITY
 		//
 		const fetchArticleContent = (url, cb) => {
-				api.call("ressource.fetch", [url, { disableCache: false }], txt => {
+				// api.call("ressource.fetch", [url, { disableCache: false, headers:[["Content-Type", "text/html; charset=utf-8"]] }], txt => {
+				api.call("ressource.fetch", [url, { disableCache: false}], txt => {
 						var doc = document.implementation.createHTMLDocument('');
 						doc.open();
 						doc.write(txt);
@@ -273,7 +274,6 @@ const feedApp = (innerTagStr, opts) => {
 													nitems[j].title = g(nitems[j].title)
 													// DESCRIPTION
 													nitems[j].description = g(nitems[j].description) || g(nitems[j].summary)
-													console.log(111,nitems[j])
 													// CONTENT
 													nitems[j].content = g(nitems[j].content) || ""
 													// CONTENT adding H1 in case there is none for header counter css to work

@@ -266,7 +266,7 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 		}
 		
 		if(opts.headers) each(opts.headers, (header) => options.headers[header[0]] = header[1])
-		// if (opts.headers) console.log('headers!!!', opts);
+		if (opts.headers) console.log('headers!!!', opts);
 		let cacheArg = true 
 		if (opts.noCacheArg === true) cacheArg = false
 
@@ -279,6 +279,14 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			// const contentType = res.headers['content-type'];
 			// response.setEncoding('utf8');
 			// response.set({ 'content-type': 'text/html; charset=utf-8' });
+			// Check the content-type from the headers and adjust the encoding accordingly
+			const contentType = response.headers['content-type'].toLowerCase();
+			if (contentType.includes(contentType.includes('charset=utf8'))) {
+			  response.setEncoding('utf8');
+			} else if (contentType.includes('charset=iso-8859-1')) {
+			  response.setEncoding('latin1');
+			}
+			console.log('contentType ==>', contentType);
 
 			response.pipe(file);
 			file.on('finish', () => {
