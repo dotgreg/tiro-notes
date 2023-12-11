@@ -33,10 +33,10 @@ export interface iRessourceApi {
 	fetch: (
 		url: string,
 		cb: (urlContent: string, urlPath:string) => void,
-		options?: { 
+		options? : { 
 			disableCache?: boolean | string
 			returnsPathOnly?:boolean
-		}
+		} & iDownloadRessourceOpts
 	) => void,
 	
 	fetchEval: (
@@ -44,14 +44,14 @@ export interface iRessourceApi {
 		params?: iEvalFuncParams,
 		options?: { 
 			disableCache?: boolean | string
-		},
+		} & iDownloadRessourceOpts,
 		cb?: (evalRes:any) => void,
 	) => void,
 
 	fetchUrlArticle: (
 		url: string,
 		cb: (out: { title: string, text: string, html: string, raw: string }) => void,
-		options?: {}
+		options?: {} & iDownloadRessourceOpts,
 	) => void
 
 	scanFolder: (
@@ -130,7 +130,7 @@ export const useRessourceApi = (p: {
 					if (!options?.returnsPathOnly) returnFile() 
 					else returnFilePath()
 				}
-			})
+			}, options)
 		}
 
 		if (options.disableCache === true) {

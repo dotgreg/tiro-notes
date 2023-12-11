@@ -1,4 +1,4 @@
-import { random } from "lodash";
+import { each, random } from "lodash";
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iDownloadRessourceOpts } from "../../../shared/types.shared";
@@ -260,11 +260,21 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 		let file = fs.createWriteStream(path);
 		const options = {
 			headers: {
-				'User-Agent': 'Mozilla/5.0'
+				'User-Agent': 'Mozilla/5.0',
+				// 'Host':'tiro-notes.org'
 			}
 		}
-		let randomizedArgNoCache = `?${random(0, 10000000)}`
-		client.get(url + randomizedArgNoCache, options, (response) => {
+		
+		if(opts.headers) each(opts.headers, (header) => options.headers[header[0]] = header[1])
+		// if (opts.headers) console.log('headers!!!', opts);
+		let cacheArg = true 
+		if (opts.noCacheArg === true) cacheArg = false
+
+		if (cacheArg) {
+			let randomizedArgNoCache = `?${random(0, 10000000)}`
+			url = url + randomizedArgNoCache
+		}
+		client.get(url, options, (response) => {
 			// let res = response
 			// const contentType = res.headers['content-type'];
 			// response.setEncoding('utf8');

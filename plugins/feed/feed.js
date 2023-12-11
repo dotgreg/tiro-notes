@@ -272,7 +272,8 @@ const feedApp = (innerTagStr, opts) => {
 													// TITLE
 													nitems[j].title = g(nitems[j].title)
 													// DESCRIPTION
-													nitems[j].description = g(nitems[j].description) || ""
+													nitems[j].description = g(nitems[j].description) || g(nitems[j].summary)
+													console.log(111,nitems[j])
 													// CONTENT
 													nitems[j].content = g(nitems[j].content) || ""
 													// CONTENT adding H1 in case there is none for header counter css to work
@@ -293,6 +294,7 @@ const feedApp = (innerTagStr, opts) => {
 
 
 													// TIME
+													if (nitems[j]["updated"]) nitems[j].pubDate = g(nitems[j]["updated"])
 													if (nitems[j]["dc:date"]) nitems[j].pubDate = nitems[j]["dc:date"]
 													if (nitems[j]["published"] && nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
 
@@ -381,9 +383,10 @@ const feedApp = (innerTagStr, opts) => {
 						else getXml(feed, wrappedCb, onFailure)
 
 				}
-
 				const getXml = (feed, cb, onFailure) => {
-						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
+						api.call("ressource.fetch", [feed.url, { disableCache: true, noCacheArg:true, headers:[["Accept","*/*"]] }], txt => {
+							
+							
 							try {
 								let res2 = xml2js(txt, { compact: true })
 								let items = res2.feed?.entry // XML1
@@ -392,7 +395,8 @@ const feedApp = (innerTagStr, opts) => {
 								items = items.slice(0, feed.limitFetchNb)
 								cb(items)
 							} catch (error) {
-								// console.log(h, "ERROR parsing xml", error);
+								
+								console.error(h, "ERROR parsing xml", {xmlRes: txt});
 								if (onFailure) onFailure(error)
 							}
 						})
