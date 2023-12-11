@@ -47,6 +47,15 @@ export const WindowEditorInt = (p: {
 		})
 	}, [view, file?.path, windowId, p.forceView])
 
+	// Reload content funct
+	const [showContent, setShowContent] = useState(true)
+	const reloadContent = () => {
+		setShowContent(false)
+		setTimeout(() => {
+			setShowContent(true)
+		}, 100)
+	}
+	
 	//
 	// FILE CONTENT FETCH/UPDATE
 	//
@@ -91,7 +100,7 @@ export const WindowEditorInt = (p: {
 				})
 			}
 		})
-	}, [file?.path, windowId])
+	}, [file?.path, windowId, showContent])
 
 	// can edit locally if file loading/not
 	const [canEdit, setCanEdit] = useState(false)
@@ -112,12 +121,6 @@ export const WindowEditorInt = (p: {
 
 	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
 	const disconnectCounter = useRef<number>(0)
-	
-	// if mobile editor
-	// find the first img inside the content
-	useEffect(() => {
-
-	}, [file?.path, fileContent])
 
 
 	// once online, reupdate content
@@ -331,14 +334,7 @@ export const WindowEditorInt = (p: {
 	}	
 	const [isDragging, setIsDragging] = useState(false)
 
-	// Reload content funct
-	const [showContent, setShowContent] = useState(true)
-	const reloadContent = () => {
-		setShowContent(false)
-		setTimeout(() => {
-			setShowContent(true)
-		}, 100)
-	}
+	
 
 	return (
 		<>
