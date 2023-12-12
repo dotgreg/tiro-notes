@@ -731,7 +731,7 @@ export const OmniBar = (p: {
 	}, [])
 
 	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
-	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [])
+	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [], {history: true})
 	const getOmniHistory = ():iOmniHistoryItem[] => {
 		return omniHistoryInt
 	}

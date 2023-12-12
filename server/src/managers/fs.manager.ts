@@ -266,7 +266,6 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 		}
 		
 		if(opts.headers) each(opts.headers, (header) => options.headers[header[0]] = header[1])
-		if (opts.headers) console.log('headers!!!', opts);
 		let cacheArg = true 
 		if (opts.noCacheArg === true) cacheArg = false
 
@@ -286,7 +285,6 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			} else if (contentType.includes('charset=iso-8859-1')) {
 			  response.setEncoding('latin1');
 			}
-			console.log('contentType ==>', contentType);
 
 			response.pipe(file);
 			file.on('finish', () => {

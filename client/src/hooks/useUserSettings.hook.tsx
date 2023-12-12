@@ -66,7 +66,7 @@ export const useUserSettings =  (p: {
 	eventBus: iApiEventBus
 }) => {
 	// storage
-	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {})
+	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {}, {history: true})
 	const [refreshCss, setRefreshCss] = useState(0)
 	const triggerRefresh = () => {
 		setRefreshCss(refreshCss + 1)

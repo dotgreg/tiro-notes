@@ -32,6 +32,7 @@ const toCode = (str: string, multiline: boolean = false): string => {
 }
 
 const renderName = (o: iAnalyzedObj, noName: boolean = false): string => {
+	if (!o || !o.name) return ""
 	const opt = o.optional ? "?" : ""
 	let name = !noName ? `${o.name}${opt}: ` : ``
 	return name
@@ -52,6 +53,7 @@ const renderObj = (obj: any, noName: boolean = false): string => {
 }
 const renderUnion = (o: iAnalyzedObj): string => {
 	let res = ``
+	if (!o || !o.name) return ""
 	each(o.unionVals, (uv, i) => {
 		let sep = (i !== 0) ? " | " : ""
 		res += `${sep}"${uv}"`
@@ -59,6 +61,7 @@ const renderUnion = (o: iAnalyzedObj): string => {
 	return res
 }
 const renderRefLinkHtml = (o: iAnalyzedObj): string => {
+	if (!o || !o.name) return ""
 	let resCode = `<a href="#client-api?id=${o.externalRefName.toLocaleLowerCase()}">${o.externalRefName}</a>`
 	return resCode
 }
@@ -68,6 +71,7 @@ const renderRefLinkHtml = (o: iAnalyzedObj): string => {
 // RENDER SINGLE TYPE 
 //
 const renderType = (o: iAnalyzedObj, options?: { name?: boolean, html?: boolean }): string => {
+	if (!o || !o.name) return ""
 	if (!options) options = {}
 	if (!isBoolean(options.html)) options.html = true
 	if (!isBoolean(options.name)) options.name = false
@@ -157,79 +161,81 @@ export const renderArr = (Arr: iAnalyzedObj[], options: {
 	s(`## ${options.title}`, 0)
 
 	each(Arr, (o2: iAnalyzedObj, n2) => {
-		// If o2 is an array, it means it is a submenu, so recurs it
-		// console.log(isArray(o2), o2.name, o2);
-		// if (o2.name === "02913u09ejjddm910") renderStructRecurs(o2)
+		if (o2 && o2.name) {
+			// If o2 is an array, it means it is a submenu, so recurs it
+			// console.log(isArray(o2), o2.name, o2);
+			// if (o2.name === "02913u09ejjddm910") renderStructRecurs(o2)
 
-		const name = o2.path ? o2.path : o2.name
-		s(`\n\n#### ${toCode(name)}`, 0)
-		if (o2.comment) s(`- Description: \n${o2.comment}\n`, 0)
+			const name = o2.path ? o2.path : o2.name
+			s(`\n\n#### ${toCode(name)}`, 0)
+			if (o2.comment) s(`- Description: \n${o2.comment}\n`, 0)
 
-		let ex = st.funcStart(o2, { j })
-		if (o2 && o2.name && o2.type) {
-			s(`- Type: ${toCode(o2.type)} `, 0)
+			let ex = st.funcStart(o2, { j })
+			if (o2 && o2.name && o2.type) {
+				s(`- Type: ${toCode(o2.type)} `, 0)
 
-			//
-			// FUNCTION
-			// 
-			if (o2.fnParams) {
-				let cb = null
-				if (o2.fnParams.length > 0) s(`- Parameters: `, 3)
-				each(o2.fnParams, (p, j) => {
-					if (st.funcDisplay === "api.call" && p.name === "cb") {
-						cb = renderType(p, { name: false })
-					} else {
-						ex += `${sep(j)}${renderType(p, { name: false })}`
-						s(`1. ${p.name}: ${renderType(p, { name: false })}`, 6)
-					}
-				})
+				//
+				// FUNCTION
+				// 
+				if (o2.fnParams) {
+					let cb = null
+					if (o2.fnParams.length > 0) s(`- Parameters: `, 3)
+					each(o2.fnParams, (p, j) => {
+						if (st.funcDisplay === "api.call" && p.name === "cb") {
+							cb = renderType(p, { name: false })
+						} else {
+							ex += `${sep(j)}${renderType(p, { name: false })}`
+							s(`1. ${p.name}: ${renderType(p, { name: false })}`, 6)
+						}
+					})
 
-				const normalResultRender = `- Result: ${(renderType(o2.fnResult, { name: false }) + ' ')}\n`
-				if (st.funcDisplay === 'api.call') {
-					if (cb) {
-						ex += `], ${j(3)}${cb}\n)`
-						s(`- Result: ${cb}\n`, 3)
-					} else if (o2.fnResult && o2.fnResult.type !== 'void') {
-						ex += ` ], \n(res:${renderType(o2.fnResult, { name: false })}) => {}\n)`
+					const normalResultRender = `- Result: ${(renderType(o2.fnResult, { name: false }) + ' ')}\n`
+					if (st.funcDisplay === 'api.call') {
+						if (cb) {
+							ex += `], ${j(3)}${cb}\n)`
+							s(`- Result: ${cb}\n`, 3)
+						} else if (o2.fnResult && o2.fnResult.type !== 'void') {
+							ex += ` ], \n(res:${renderType(o2.fnResult, { name: false })}) => {}\n)`
+							s(normalResultRender, 3)
+						} else {
+							ex += ` ]\n)`
+						}
+					} else if (st.funcDisplay === 'normal') {
 						s(normalResultRender, 3)
-					} else {
-						ex += ` ]\n)`
+						ex += ` )`
 					}
-				} else if (st.funcDisplay === 'normal') {
-					s(normalResultRender, 3)
-					ex += ` )`
+
+					s(`- Example: \n ${toCode(ex, true)}`, 0)
 				}
 
-				s(`- Example: \n ${toCode(ex, true)}`, 0)
+				//
+				// LITERAL (number, strings ,bools.)
+				// 
+				if (
+					o2.type === "number" ||
+					o2.type === "string" ||
+					o2.type === "any" ||
+					o2.type === "boolean"
+				) {
+					const ex = `api.call("${o2.path}", [], (res:${o2.type}) => {})`
+					s(`- Example: \n ${toCode(ex, true)}`, 0)
+				}
+
+
+				else if (
+					o2.type === "object" ||
+					o2.type === "union"
+				) {
+
+					s(`- Details: \n ${toCode(renderType(o2, { name: false }), true)}`, 0)
+				}
+
+
+			} else {
+				each(o2, (o3: any, n3) => {
+					s(`### ${n3}`, 0)
+				})
 			}
-
-			//
-			// LITERAL (number, strings ,bools.)
-			// 
-			if (
-				o2.type === "number" ||
-				o2.type === "string" ||
-				o2.type === "any" ||
-				o2.type === "boolean"
-			) {
-				const ex = `api.call("${o2.path}", [], (res:${o2.type}) => {})`
-				s(`- Example: \n ${toCode(ex, true)}`, 0)
-			}
-
-
-			else if (
-				o2.type === "object" ||
-				o2.type === "union"
-			) {
-
-				s(`- Details: \n ${toCode(renderType(o2, { name: false }), true)}`, 0)
-			}
-
-
-		} else {
-			each(o2, (o3: any, n3) => {
-				s(`### ${n3}`, 0)
-			})
 		}
 	})
 	return strRes
