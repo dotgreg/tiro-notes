@@ -337,6 +337,8 @@ export const App = () => {
 	// NOTE HISTORY HOOK
 	const historyApi = useNoteHistoryApi()
 
+	
+
 	//
 	// NOTE PREVIEW POPUP SYSTEM
 	//

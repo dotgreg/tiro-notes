@@ -2,8 +2,10 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
 import { getApi, getClientApi2 } from "./api/api.hook";
 import { cloneDeep } from "lodash";
+import { useDebounce } from "./lodash.hooks";
 
-export function useBackendState<T>(key: string, initialValue: T, debug: boolean=false): [T, (value: T) => void, Function] {
+const h = `[BACKEND STATE]`
+export function useBackendState<T>(key: string, initialValue: T, opts?:{debug?: boolean, history?: boolean}): [T, (value: T) => void, Function] {
 
 	const [storedValue, setStoredValue] = useState(initialValue)
 
@@ -13,6 +15,10 @@ export function useBackendState<T>(key: string, initialValue: T, debug: boolean=
 	const pathToNote = `/${sharedConfig.path.configFolder}/${sharedConfig.path.backendStateFolder}/${key}.md`
 
 	const errorMsg = `[BACKEND STATE] "${key}" clientApi not loaded! Persistance system will not work correctly`
+
+	
+
+	
 
 	// let file:iFile
 	// file.
@@ -25,18 +31,27 @@ export function useBackendState<T>(key: string, initialValue: T, debug: boolean=
 	const setValue = value => {
 		const nval = cloneDeep(value)
 		setStoredValue(cloneDeep(nval))
-		if(debug) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
+		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
+		let nvalStr =  JSON.stringify(nval)
 		getApi(api => {
-			api.file.saveContent(pathToNote, JSON.stringify(nval))
+			api.file.saveContent(pathToNote, JSON.stringify(nvalStr))
 		})
-
+		if (opts?.history === true) saveHistoryDebounced(nvalStr)
 	}
+
+
+	const saveHistoryDebounced = useDebounce((nval) => {
+		console.log(`${h} saving history for ${key} with content length ${nval.length}`, {nval, pathToNote})
+		getApi(api => {
+			api.history.save(pathToNote, nval, 'int')
+		})
+	}, 60*1000)
 
 	const refreshValFromBackend = (cb?: Function) => {
 		getApi(api => {
 			api.file.getContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)
-				if(debug) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
+				if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
 				setStoredValue(obj);
 				cb && cb(obj)
 			})

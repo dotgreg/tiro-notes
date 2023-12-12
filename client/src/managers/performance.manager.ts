@@ -9,7 +9,7 @@ const atInitRemoveConsole = () => {
 	let isLogEnabled = getCookie("tiroConsoleLogEnabled") === "true"
 	if (isLogEnabled) return
 	console.error("==============================================================================")
-	console.error("!!! console.log is disabled, to enable it again, tiroDevCli.log.toggle_enabe()")
+	console.error("!!! console.log is disabled, to enable it again, tiroDevCli.log.toggle_enable()")
 	console.error("==============================================================================")
 	//@ts-ignore
 	window.console = {
