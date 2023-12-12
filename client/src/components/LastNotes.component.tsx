@@ -3,6 +3,7 @@ import { iFile } from "../../../shared/types.shared";
 import { strings } from "../managers/strings.manager";
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
+import { isArray } from 'lodash';
 
 const limitTxt = 20
 const liHeight = 15
@@ -13,7 +14,7 @@ export const LastNotesInt = (p: {
 }) => {
 
 	const { files } = { ...p }
-	let filesCut = files.slice(0, 20)
+	let filesCut = isArray(files) ? files.slice(0, 20) : []
 
 	return (
 		<>

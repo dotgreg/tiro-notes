@@ -1,4 +1,4 @@
-import { cloneDeep, random } from 'lodash';
+import { cloneDeep, isArray, random } from 'lodash';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
@@ -19,6 +19,8 @@ export const TabList = (p: {
 
 	const [dragId, setDragId] = useState(-1)
 
+	let tabs = isArray(p.tabs) ? p.tabs : []
+
 	return (
 		<div className={`tab-list-wrapper-hover ${p.pinStatus ? "pinned" : "unpinned"}`}>
 			<div className='top-hover-bar' > </div>
@@ -26,7 +28,7 @@ export const TabList = (p: {
 				<div className="tab-list-invisible-scroll">
 					<div className="tab-list-wrapper">
 						{/* ALL TABS LIST*/}
-						{p.tabs.map((tab, i) =>
+						{tabs.map((tab, i) =>
 							<Tab
 								key={i}
 								tab={tab}

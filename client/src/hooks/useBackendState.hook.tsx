@@ -34,7 +34,7 @@ export function useBackendState<T>(key: string, initialValue: T, opts?:{debug?: 
 		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
 		let nvalStr =  JSON.stringify(nval)
 		getApi(api => {
-			api.file.saveContent(pathToNote, JSON.stringify(nvalStr))
+			api.file.saveContent(pathToNote, nvalStr)
 		})
 		if (opts?.history === true) saveHistoryDebounced(nvalStr)
 	}
