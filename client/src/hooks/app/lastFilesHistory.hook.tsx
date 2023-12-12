@@ -1,9 +1,10 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray } from 'lodash';
 import React, { useEffect } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile } from "../../../../shared/types.shared"
 import { useDebounce } from '../lodash.hooks';
 import { useBackendState } from '../useBackendState.hook';
+import { isA } from '../../managers/device.manager';
 
 const h = `[LAST FILE]`
 const log = sharedConfig.client.log.verbose
@@ -47,6 +48,7 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		let shouldAddToHistory = true
 		let indexOldPos = -1
 		let newfilesHistory = nfilesHist
+		if (isArray(nfilesHist) === false) newfilesHistory = []
 		for (let i = 0; i < nfilesHist.length; i++) {
 			if (nfilesHist[i].name === file.name) {
 				// already in array
