@@ -24816,7 +24816,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 17,
+									"line": 18,
 									"character": 1
 								}
 							],
@@ -24870,7 +24870,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 15,
+									"line": 16,
 									"character": 1
 								}
 							],
@@ -24901,7 +24901,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 16,
+									"line": 17,
 									"character": 1
 								}
 							],
@@ -24947,7 +24947,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-							"line": 14,
+							"line": 15,
 							"character": 17
 						}
 					]

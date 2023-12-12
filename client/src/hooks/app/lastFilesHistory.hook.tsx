@@ -23,7 +23,7 @@ export interface iLastFilesHistoryApi {
 
 
 export const useLastFilesHistory = (activeFile: iFile) => {
-	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [])
+	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [], {history: true})
 	const filesHistoryRef = React.useRef(filesHistory)
 	useEffect(() => {
 		filesHistoryRef.current = filesHistory

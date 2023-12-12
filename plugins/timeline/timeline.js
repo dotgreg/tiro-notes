@@ -1,5 +1,3 @@
-// 10.10.2023 v1.1
-
 const timelineApp = (innerTagStr, opts) => {
 
         const startMainLogic = () => {
@@ -35,7 +33,7 @@ const timelineApp = (innerTagStr, opts) => {
                                         //
                                         // ITEM PROCESSING
                                         //
-                                        // line is a string like - [3⚖️,5🎩,2🥵, 23/10/23-?🕰️, formaton] [timeline| Investissement LT => apprentissage + mise en place (60h)| 30/11/22|365|formation]
+                                        // [timeline| goal| 30/11/22|365|formation]
                                         // start at wordToSearch
                                         let itemRawStr = l.split(wordToSearch)[1]
                                         let itemRawArr = itemRawStr.split("|").filter(el => el)
@@ -83,6 +81,7 @@ const timelineApp = (innerTagStr, opts) => {
                                                 start: startDate.toISOString().split('T')[0],
                                                 end: endDate.toISOString().split('T')[0],
                                                 group: groupIndex,
+                                                className: "show-title-item"
                                         }
                                         itemsArr.push(nItem)
                                         
@@ -100,19 +99,14 @@ const timelineApp = (innerTagStr, opts) => {
                         // 
                         // ITEMS
                         //
-                        // // Create a DataSet (allows two way data-binding)
-                        // var items = new vis.DataSet([
-                        // { id: 1, content: "item 1", start: "2014-04-20", group: 0 },
-                        // { id: 2, content: "item 2", start: "2014-04-14", group: 1 },
-                        // { id: 3, content: "item 3", start: "2014-04-18", group: 1 },
-                        // { id: 4, content: "item 4", start: "2014-04-16", end: "2014-04-19", group: 1 },
-                        // { id: 5, content: "item 5", start: "2014-04-25", group: 1 },
-                        // { id: 6, content: "item 6", start: "2014-04-27", type: "point"},
-                        // ]);
                         var items = new vis.DataSet(itemsArr)
 
                         // Configuration for the Timeline
-                        var options = {};
+                        var options = {
+                                template: function (item, element, data) {
+                                  return `<div class="content-wrapper-overflow"> ${data.content}</div> `;
+                                }
+                              };
 
                         // Create a Timeline
                         var timeline = new vis.Timeline(wrapperEl, items, options);
@@ -160,6 +154,15 @@ const timelineApp = (innerTagStr, opts) => {
                         overflow: hidden;
                         // word-break: break-all;
                 }
+                #timeline-ctag .show-title-item .vis-item-overflow {
+                        overflow: visible!important;
+                }
+                #timeline-ctag .show-title-item .vis-item-content>div {
+                        position: absolute;
+                        min-width: 200px;
+                        top: -2px;
+                }
+                    
                       
         </style> `
 }

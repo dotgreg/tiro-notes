@@ -58,7 +58,7 @@ let offset = 20
 
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
-    const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[])
+    const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[], {history: true})
     const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
     const panelsRef = React.useRef<iFloatingPanel[]>([])
 
