@@ -405,6 +405,7 @@ export const FloatingPanelsWrapper = (p:{
         if (panelsRef.current.length === 0) return  
         setLoaded(true)
         let newPanels = cloneDeep(panelsRef.current)
+        if (!isArray(newPanels)) newPanels = []
         newPanels.forEach((panel) => {
             if (panel.status === "minimized") panel.status = "hidden"
         })
