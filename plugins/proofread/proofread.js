@@ -1,5 +1,3 @@
-// 10.10.2023 v1.1
-
 const proofreadApp = (innerTagStr, opts) => {
     const { div, updateContent } = api.utils.createDiv()
 
@@ -36,92 +34,135 @@ const proofreadApp = (innerTagStr, opts) => {
         const startMainLogic = () => {
                 const api = window.api;
 
-                const searchWord = (word, path, cb) => {
-                        api.call("search.word", [word, path], content => {
-                                        cb(content)
-                        })
+                console.log("proofreadApp", innerTagStr, opts)
+
+                let textToProofread = innerTagStr.replaceAll("\n", ".")
+
+                const optionsReq = {
+                    method:"POST", 
+                    body:[["language","auto"], ["text",textToProofread]], 
+                    disableCache:true
+                }
+                const proofReadApi = cb => {
+                    api.call("ressource.fetch", [
+                        "https://api.languagetool.org/v2/check", 
+                        optionsReq
+                    ], result => {
+                        cb(JSON.parse(result))
+                    })
                 }
 
-                // split EDF TODO | # | /etc/blabla
-                        // INVEST | # | /etc/blabla in a config array of objects with category, searchTag and path
-                let configArray = []
-                let hasTag2 = false
-                let hasTag3 = false
-                innerTagStr.split("\n").forEach((el, i) => {
-                        if (el.indexOf("|") > -1) {
-                                arr = el.split("|")
-                                let [category, path, tag1, tag2, tag3] = el.split("|")
-                                category = category.trim()
-                                path = path.trim()
-                                tag1 = tag1.trim()
-                                if (tag2){ tag2 = tag2.trim() || null; hasTag2 = true }
-                                if (tag3) {tag3 = tag3.trim() || null; hasTag3 = true}
-                                if (!category || !path || !tag1) return console.warn(`smartlist: line ${i} is not valid`)
-                                configArray.push({ category, path, tag1, tag2, tag3 })
-                        }
-                })
-                // document.getElementById("proofread-ctag").innerHTML = JSON.stringify(configArray)
-                // for each config, create a div with a title and a list
-                let items = []
-                each(configArray, (el, i) => {
-                        searchWord(el.tag1, el.path, listFilesRes => {
-                                each(listFilesRes, (fileRes) => {
-                                        let file = fileRes.file
-                                        each(fileRes.results, result => {
-                                                let words = result.split(" ")
-                                                // if word start by either tag1, 2 or 3, add tag1,2,3 to the object
-                                                let [tag1, tag2, tag3] = [null, null, null]
-                                                each(words, word => {
-                                                        if (word.startsWith(el.tag1)) tag1 = word
-                                                        if (word.startsWith(el.tag2)) tag2 = word
-                                                        if (word.startsWith(el.tag3)) tag3 = word
-                                                })
-                                                                
-                                                items.push({ filename: file.name, folder: file.folder, line:result, tag1, tag2, tag3 })
-                                        })
-                                })
+                proofReadApi(result => {
+                    console.log("proofReadApi", result)
+                    let items = []
+                    //
+                    // JSON TO ITEMS
+                    //
+                    each(result.matches, match => {
+                        let replacements = []
+                        each(match.replacements, replacement => {
+                            replacements.push(replacement.value)
                         })
-                })
-                        
-                const wrapperEl = document.getElementById("proofread-ctag-inner")
-                // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
-                const config = {
-                        cols: [
-                                {colId: "line", headerLabel: "Line"},
-                                {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
-                               
-                        ]
-                };
-                if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
-                // {colId: "filename", headerLabel: "Filename"},
-                // {colId: "folder", headerLabel: "Folder"},
-                config.cols.push({colId: "filename", headerLabel: "Filename"})
-                config.cols.push({colId: "folder", headerLabel: "Folder"})
-                config.cols.push({colId: "actions", type: "buttons", buttons:[
-                        {
-                          label: "", 
-                          icon: "eye", 
-                          onClick: (items,e) => {
-                                console.log('onClick:', items,e)
-                                if (items.length !== 1) return console.warn("no item selected")
-                                let item = items[0]
-                                console.log('onClick:', item,e);
-                                let pos = ["50%" ,"50%"]
-                                filePath = item.folder + item.filename
-                                api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString:item.line, replacementString:`wooop`}])
-                        
-                          },
-                          onMouseEnter: (item,e) => {
-                                // console.log('onMouseEnter:', item,e);
-                          },
-                          onMouseLeave: (item,e) => {
-                                // console.log('onMouseLeave:', item,e);
-                          }
-                        },
-                ]})
+                        // only keep 5 replacements
+                        replacements = replacements.slice(0, 5)
 
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
+                        // remove ... in context
+                        // let context = match.context.text.replaceAll("...", "")
+                        const context = match.context.text
+                        let contextRaw = context.replaceAll("...", "")
+
+                        // context = context.replaceAll(match.context.offset, `<span class="highlight">${match.context.offset}</span>`)
+                        // wrap context in span using context.offset and context.length
+                        let contextStr = context.substring(0, match.context.offset) + `<span class="highlight">${context.substring(match.context.offset, match.context.offset + match.context.length)}</span>` + context.substring(match.context.offset + match.context.length)
+                        let contextWithFirstReplacement = context.substring(0, match.context.offset) + replacements[0] + context.substring(match.context.offset + match.context.length)
+
+                        items.push({ 
+                            message: match.message, 
+                            replacements: replacements.join(", "), 
+                            replacementsArr: replacements,
+                            offset: match.offset, 
+                            length: match.length, 
+                            contextWithFirstReplacement,
+                            contextRaw,
+                            contextStr, 
+                            rule: match.rule.id, 
+                            ruleDescription: match.rule.description
+                        })
+                    })
+
+                    //
+                    // GENERATION TABLE
+                    //
+                    filePath = api.utils.getInfos().file.path
+                    console.log("items", items, result, api.utils.getInfos())
+                    const wrapperEl = document.getElementById("proofread-ctag-inner")
+                    const config = {
+                            cols: [
+                                    {colId: "contextStr", headerLabel: "context"},
+                                    {colId: "replacements", headerLabel: "replacements"},
+                                   
+                                    {colId: "actions", type: "buttons", buttons:[
+                                        {
+                                            label: "", 
+                                            icon: "pen", 
+                                            onClick: (items,e) => {
+                                                // console.log('onClick:', items,e, filePath)
+                                                if (items.length !== 1) return console.warn("no item selected")
+                                                let item = items[0]
+                                                console.log('onClick:', {item, filePath, file: api.utils.getInfos().file});
+                                                let pos = ["50%" ,"50%"]
+                                                let searchedString = item.contextRaw.split(".")[0]
+                                                // let replacementString = item.contextWithFirstReplacement
+                                                api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString}])
+                                        
+                                            },
+                                            onMouseEnter: (item,e) => {
+                                                // console.log('onMouseEnter:', item,e);
+                                            },
+                                            onMouseLeave: (item,e) => {
+                                                // console.log('onMouseLeave:', item,e);
+                                            }
+                                        },
+                                    ]
+                                },
+                                {colId: "message", headerLabel: "message"},
+                            ]
+                    };
+                    wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`proofread-table-${api.utils.getInfos().file.path}`})
+
+
+                })
+
+                // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
+                // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
+                // // {colId: "filename", headerLabel: "Filename"},
+                // // {colId: "folder", headerLabel: "Folder"},
+                // config.cols.push({colId: "filename", headerLabel: "Filename"})
+                // config.cols.push({colId: "folder", headerLabel: "Folder"})
+                // config.cols.push({colId: "actions", type: "buttons", buttons:[
+                //         {
+                //           label: "", 
+                //           icon: "eye", 
+                //           onClick: (items,e) => {
+                //                 console.log('onClick:', items,e)
+                //                 if (items.length !== 1) return console.warn("no item selected")
+                //                 let item = items[0]
+                //                 console.log('onClick:', item,e);
+                //                 let pos = ["50%" ,"50%"]
+                //                 filePath = item.folder + item.filename
+                //                 api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString:item.line, replacementString:`wooop`}])
+                        
+                //           },
+                //           onMouseEnter: (item,e) => {
+                //                 // console.log('onMouseEnter:', item,e);
+                //           },
+                //           onMouseLeave: (item,e) => {
+                //                 // console.log('onMouseLeave:', item,e);
+                //           }
+                //         },
+                // ]})
+
+                
 
 
         }
@@ -133,11 +174,11 @@ const proofreadApp = (innerTagStr, opts) => {
                 setTimeout(() => {
 			api.utils.loadRessources(
 				[
-                                        `${opts.plugins_root_url}/_common/components/advancedTable.component.js`,
-                                        `${opts.plugins_root_url}/_common/components/table.component.js`
+                    `${opts.plugins_root_url}/_common/components/advancedTable.component.js`,
+                    `${opts.plugins_root_url}/_common/components/table.component.js`
 				],
 				() => {
-                                        startMainLogic()
+                    startMainLogic()
 				}
 			);
 		}, 100)
@@ -163,6 +204,9 @@ const proofreadApp = (innerTagStr, opts) => {
                         max-width: 50px;
                         overflow: hidden;
                         // word-break: break-all;
+                }
+                #proofread-ctag .highlight { 
+                        background-color: yellow;
                 }
                       
         </style> `
