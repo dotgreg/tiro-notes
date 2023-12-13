@@ -52,6 +52,7 @@ const proofreadApp = (innerTagStr, opts) => {
                     })
                 }
 
+                wrapperEl.innerHTML = "Proofreading text..."
                 proofReadApi(result => {
                     // console.log("proofReadApi", result)
                     let items = []
