@@ -53,7 +53,7 @@ const proofreadApp = (innerTagStr, opts) => {
                 }
 
                 proofReadApi(result => {
-                    console.log("proofReadApi", result)
+                    // console.log("proofReadApi", result)
                     let items = []
                     //
                     // JSON TO ITEMS
@@ -94,7 +94,7 @@ const proofreadApp = (innerTagStr, opts) => {
                     // GENERATION TABLE
                     //
                     filePath = api.utils.getInfos().file.path
-                    console.log("items", items, result, api.utils.getInfos())
+                    // console.log("items", items, result, api.utils.getInfos())
                     const wrapperEl = document.getElementById("proofread-ctag-inner")
                     const config = {
                             cols: [
@@ -109,7 +109,7 @@ const proofreadApp = (innerTagStr, opts) => {
                                                 // console.log('onClick:', items,e, filePath)
                                                 if (items.length !== 1) return console.warn("no item selected")
                                                 let item = items[0]
-                                                console.log('onClick:', {item, filePath, file: api.utils.getInfos().file});
+                                                // console.log('onClick:', {item, filePath, file: api.utils.getInfos().file});
                                                 let pos = ["50%" ,"50%"]
                                                 let searchedString = item.contextRaw.split(".")[0]
                                                 // let replacementString = item.contextWithFirstReplacement
