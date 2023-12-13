@@ -14,6 +14,7 @@ export const NotePreviewInt = (p: {
 	file: iFile
 	view:iViewType
 	searchedString?: string
+	replacementString?: string
 	height?: number
 	linkPreview?:boolean
 	windowId?:string
@@ -59,10 +60,11 @@ export const NotePreviewInt = (p: {
 				if (p.searchedString) {
 					getApi(api => {
 						setTimeout(() => {
-							console.log("searchword", p.searchedString)
+							console.log("searchword", p.searchedString, p.replacementString)
 							api.ui.note.editorAction.dispatch({
 								type:"searchWord", 
 								searchWordString: p.searchedString,
+								searchReplacementString: p.replacementString,
 								windowId: p.windowId
 							})	
 							let omnibarInput = document.querySelector('.select-wrapper input') as HTMLInputElement

@@ -53,6 +53,7 @@ export const NotePreviewPopup = (p: {
                 <NotePreview
                     file={notePreview}
                     searchedString={p.notePreview.opts?.searchedString}
+                    replacementString={p.notePreview.opts?.replacementString}
                     windowId={windowId}
                     // height={200}
                     showToolbar={true}

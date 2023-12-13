@@ -179,13 +179,13 @@ export const FloatingPanel = (p:{
         p.panel.ctagConfig.opts.sandboxed = false
     }
 
-    // const [showContent, setShowContent] = useState<boolean>(true)
-    // const reloadContent = () => {
-    //     setShowContent(false)
-    //     setTimeout(() => {
-    //         setShowContent(true)
-    //     }, 100)
-    // }
+    const [showContent, setShowContent] = useState<boolean>(true)
+    const reloadContent = () => {
+        setShowContent(false)
+        setTimeout(() => {
+            setShowContent(true)
+        }, 100)
+    }
 
     const pushToTop = () => {
         if (p.highestVisibleZIndex === p.panel.zIndex) return
@@ -264,11 +264,11 @@ export const FloatingPanel = (p:{
 													icon: "expand",
 													action: handleToggleMaximize
 												},
-												// {
-												// 	title: 'Reload content',
-												// 	icon: "rotate-right",
-												// 	action: reloadContent
-												// },
+												p.panel.type === "ctag" ? {
+													title: 'Reload content',
+													icon: "rotate-right",
+													action: reloadContent
+												} : {},
 												{
 													title: 'Close window',
 													icon: "xmark",
@@ -306,7 +306,7 @@ export const FloatingPanel = (p:{
                                     </div>
                                 }
                                 {
-                                    p.panel.type === "ctag" && p.panel.ctagConfig &&
+                                    p.panel.type === "ctag" && p.panel.ctagConfig && showContent &&
                                     <div className={`floating-panel__inner-content window-id-sizeref-${windowIdCtag}`} style={{height:  innerHeight}}>
                                         {generateCtag(p.panel.ctagConfig)}
                                     </div>
