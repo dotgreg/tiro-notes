@@ -27,7 +27,7 @@ export interface iFloatingPanel {
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
     type: "ctag" | "file",
-    layout?: "full-center" ,
+    layout?: "full-center" | "half-right" | "half-left" | "full-bottom" | "full-top"  ,
 
 }
 
@@ -83,18 +83,33 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
     const createPanel = (panelParams:iCreateFloatingPanel) => {
         // if layout is full-center, set position to center of the screen and size to 100% of the screen with 20px padding
+        let padding = 20
         if (panelParams.layout === "full-center") {
-            let padding = 20
             panelParams.position = {x: padding, y: padding}
             panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight - (2*padding)}
+        }
+        else if (panelParams.layout === "half-right") {
+            panelParams.position = {x: window.innerWidth / 2, y: padding}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+        }
+        else if (panelParams.layout === "half-left") {
+            panelParams.position = {x: padding, y: padding}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+        }
+        else if (panelParams.layout === "full-bottom") {
+            panelParams.position = {x: padding, y: window.innerHeight / 2}
+            panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
         
         // get all non hidden pannels
         let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
         // position is i * nonHiddenPanels.length
+        const decal = 100
+        const sizeWidth = (window.innerWidth / 2) - decal
+        const sizeHeight = (window.innerHeight / 1.2) - decal
         const panel:iFloatingPanel = {
-            position: {x: 100 + (nonHiddenPanels.length * offset), y: 100 + (nonHiddenPanels.length * offset)},
-            size: {width: 300, height: 300},
+            position: {x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset)},
+            size: {width: sizeWidth, height: sizeHeight},
             status: "visible",
             file: generateEmptyiFile(),
             view: "editor",

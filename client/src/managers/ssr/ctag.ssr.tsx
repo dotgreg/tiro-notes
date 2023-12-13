@@ -76,7 +76,7 @@ export const ssrGenCtag = (
 ): React.ReactElement => {
 	if (!opts) opts = {}
 	if (!opts.file) opts.file = generateEmptyiFile()
-	// console.log(12324, tagName, content, opts)
+	console.log(12324, tagName, content, opts, opts.file)
 	
 	// const height = opts?.wrapperHeight || heightIframe.big + 75
 	// let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100?

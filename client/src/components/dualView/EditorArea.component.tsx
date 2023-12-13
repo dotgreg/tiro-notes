@@ -789,6 +789,20 @@ const EditorAreaInt = (
 										type:"redo"
 									})
 								})
+							} else if (action === "proofread") {
+								getApi(api => {
+									api.ui.floatingPanel.create({
+										type: "ctag",
+										layout: "full-bottom",
+										ctagConfig: {
+											tagName: "proofread",
+											content: selectionTxt,
+											opts:{
+												file: p.file,
+											}
+										},
+									})
+								})
 							} else if (action === "copyLineLink") {
 								getApi(api => {
 									// console.log(cursorInfos, page)

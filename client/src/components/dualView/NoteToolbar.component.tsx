@@ -10,7 +10,7 @@ import { deviceType } from '../../managers/device.manager';
 //
 // MOBILE TOOLBAR
 //
-export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink"
+export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink" | "proofread"
 
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
@@ -58,9 +58,11 @@ export const NoteToolsPopup = (p: {
     }
     const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
     const copyLinkLine:iToolbarButton = { icon: 'copy', action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
+    const proofreadBtn:iToolbarButton = { icon: 'spell-check', action: () => {p.onButtonClicked('proofread'); setIsOpen(false); }}
     //------------
     btnsConfigClosed.push(aiBtn)
     btnsConfigClosed.push(copyLinkLine)
+    btnsConfigClosed.push(proofreadBtn)
     btnsConfigClosed.push(mathBtn)
     //------------
     // btnsConfigOpen.splice(1, 0, aiBtn)
@@ -69,6 +71,7 @@ export const NoteToolsPopup = (p: {
     // btnsConfigOpen.splice(2, 0, mathBtn2)
     btnsConfigOpen.push(mathBtn2)
     btnsConfigOpen.push(copyLinkLine)
+    btnsConfigOpen.push(proofreadBtn)
     btnsConfigOpen.push(aiBtn)
 
   }

@@ -254,7 +254,7 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 
 
 	// shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
-	console.log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
+	// console.log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
 
 	return new Promise((resolve, reject) => {
 		let fileStream = fs.createWriteStream(path); 
@@ -284,9 +284,7 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			url = url + randomizedArgNoCache
 		}
 
-		console.log(11111111111111, client.request)
 		const req = client.request(url, optionsReq, (response) => {
-			console.log(2222222, response)
 			// Check the content-type from the headers and adjust the encoding accordingly
 			const contentType = response.headers['content-type'].toLowerCase();
 			if (contentType.includes(contentType.includes('charset=utf8'))) {
@@ -299,13 +297,11 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			fileStream.on('finish', () => {
 				fileStream.close();  // close() is async, call cb after close completes.
 				shouldLog && log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);
-				console.log(122, `[DOWNLOAD FILE] downloaded ${url} to ${path}`)
 				resolve(path)
 			});
 		}).on('error', (err) => { // Handle errors
 			fs.unlink(path, () => { }); // Delete the file async. (But we don't check the result)
 			shouldLog && log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
-			console.log(133, `[DOWNLOAD FILE] downloaded ${url} to ${path}`)
 			reject(err.message);
 		});
 		if (postData) {
