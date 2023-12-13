@@ -32,6 +32,9 @@ const proofreadApp = (innerTagStr, opts) => {
         ///////////////////////////////////////////////////////////
 
         const startMainLogic = () => {
+                const wrapperEl = document.getElementById("proofread-ctag-inner")
+                wrapperEl.innerHTML = "Proofreading text..."
+
                 const api = window.api;
 
                 console.log("proofreadApp", innerTagStr, opts)
@@ -51,8 +54,8 @@ const proofreadApp = (innerTagStr, opts) => {
                         cb(JSON.parse(result))
                     })
                 }
+                
 
-                wrapperEl.innerHTML = "Proofreading text..."
                 proofReadApi(result => {
                     // console.log("proofReadApi", result)
                     let items = []
@@ -96,7 +99,7 @@ const proofreadApp = (innerTagStr, opts) => {
                     //
                     filePath = api.utils.getInfos().file.path
                     // console.log("items", items, result, api.utils.getInfos())
-                    const wrapperEl = document.getElementById("proofread-ctag-inner")
+                    
                     const config = {
                             cols: [
                                     {colId: "contextStr", headerLabel: "context"},
