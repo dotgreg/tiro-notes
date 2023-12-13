@@ -37,13 +37,17 @@ const proofreadApp = (innerTagStr, opts) => {
 
                 const api = window.api;
 
-                console.log("proofreadApp", innerTagStr, opts)
+                // console.log("proofreadApp", innerTagStr, opts)
 
-                let textToProofread = innerTagStr.replaceAll("\n", ".")
+                let textToProofread = innerTagStr.replaceAll("\n", ".").replaceAll("..", ".")
 
                 const optionsReq = {
                     method:"POST", 
-                    body:[["language","auto"], ["text",textToProofread]], 
+                    body:[
+                        ["language","auto"], 
+                        ["disabledCategories","TYPOGRAPHY,PUNCTUATION,MISC"], 
+                        ["text",textToProofread]
+                    ], 
                     disableCache:true
                 }
                 const proofReadApi = cb => {
@@ -63,6 +67,13 @@ const proofreadApp = (innerTagStr, opts) => {
                     // JSON TO ITEMS
                     //
                     each(result.matches, match => {
+                        // only keep results categories
+                        // const catsToKeep = ["CAT_GRAMMAIRE", "TYPOS"]
+                        const blacklistCats = ["TYPOGRAPHY", "PUNCTUATION"]
+                        // https://languagetool.org/http-api/
+                        
+                        if (blacklistCats.includes(match.rule.category.id)) return
+
                         let replacements = []
                         each(match.replacements, replacement => {
                             replacements.push(replacement.value)
@@ -98,7 +109,7 @@ const proofreadApp = (innerTagStr, opts) => {
                     // GENERATION TABLE
                     //
                     filePath = api.utils.getInfos().file.path
-                    // console.log("items", items, result, api.utils.getInfos())
+                    console.log("[PROOFREADING]", result, items, api.utils.getInfos())
                     
                     const config = {
                             cols: [
