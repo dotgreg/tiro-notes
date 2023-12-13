@@ -111,7 +111,7 @@ const proofreadApp = (innerTagStr, opts) => {
                                                 let item = items[0]
                                                 // console.log('onClick:', {item, filePath, file: api.utils.getInfos().file});
                                                 let pos = ["50%" ,"50%"]
-                                                let searchedString = item.contextRaw.split(".")[0]
+                                                let searchedString = item.contextRaw.split(".")[0].trim()
                                                 // let replacementString = item.contextWithFirstReplacement
                                                 api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString}])
                                         
