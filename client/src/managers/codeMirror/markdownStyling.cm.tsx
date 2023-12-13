@@ -117,6 +117,12 @@ export const markdownStylingTableCss = () => {
 						display: inline-block;
 						vertical-align: top;
 				}
+				span.md-table-cell:not(:has(> span)) {
+					&:last-child{
+						display: none!important;
+					}
+					/* CSS rules */
+				}
 				span.md-table-cell span.md-table-limiter {
 						position: absolute;
 						top: 0px;
@@ -126,6 +132,7 @@ export const markdownStylingTableCss = () => {
 				}
 				span.md-table-cell>span:first-child {
 						width: 100%;
+						text-align: right;
 				}
 
     }

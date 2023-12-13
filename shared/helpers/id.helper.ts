@@ -27,5 +27,9 @@ export const getRessourceIdFromUrl = (rawUrl: string): string => {
 	ressType = "." + ressType.replace(/[^\w\s]/gi, '_')
 	if (ressType.length > 6 || ressType.length <= 1) ressType = ""
 
-	return `${idUrl}_${idParams}${ressType}`
+	let nameRess = `${idUrl}_${idParams}`
+	// if it is too long (more than 255 char) we cut it
+	if (nameRess.length > 200) nameRess = nameRess.slice(0, 200)
+
+	return `${nameRess}${ressType}`
 }

@@ -225,7 +225,9 @@ export type iSetupCode =
 		requiresServerRestart?: boolean
 	}
 	export type iDownloadRessourceOpts = {
+		method?: "GET" | "POST",
 		fileName?: string,
 		noCacheArg?: boolean,
 		headers?: [string, string][] 
+		body?:[string, string][]
 	}

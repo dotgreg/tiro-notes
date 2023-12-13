@@ -489,8 +489,7 @@ const EditorAreaInt = (
 		if (a.type === "searchWord" && a.searchWordString) {
 			const f = codeMirrorEditorView.current
 			if (!f) return
-			CodeMirrorUtils.searchWord(f,a.searchWordString, true)
-
+			CodeMirrorUtils.searchWord(f,a.searchWordString, a.searchReplacementString, true)
 		}
 		// selection
 		if (a.type === "setSelection" && a.selection) {

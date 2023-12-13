@@ -328,15 +328,23 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 //
 // SEARCH FUNCTIONS
 // 
-const searchWord = (CMObj: ReactCodeMirrorRef | null, word: string, jumpToFirst: boolean = true) => { 
+const searchWord = (
+	CMObj: ReactCodeMirrorRef | null, 
+	word: string, 
+	replacement: string|null = null,
+	jumpToFirst: boolean = true,
+) => { 
 	if (!CMObj?.view) return
 	try {
+		
 		const view = CMObj.view
 		openSearchPanel(view)
+		const configSearch = {
+			search: word,
+		}
+		if (replacement) Object.assign(configSearch, { replace: replacement })
 		view.dispatch({
-			effects: setSearchQuery.of(new SearchQuery({
-				search: word,
-			}))
+			effects: setSearchQuery.of(new SearchQuery(configSearch))
 		})
 		if(jumpToFirst) findNext(view)
 	} catch (error) {

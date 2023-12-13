@@ -1,9 +1,10 @@
 // 10.10.2023 v1.1
 
-const smartlistApp = (innerTagStr, opts) => {
+const proofreadApp = (innerTagStr, opts) => {
     const { div, updateContent } = api.utils.createDiv()
 
     const outputPaths = {  }
+
         ///////////////////////////////////////////////////
         // SUPPORT
         //
@@ -59,7 +60,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 configArray.push({ category, path, tag1, tag2, tag3 })
                         }
                 })
-                // document.getElementById("smart-list-ctag").innerHTML = JSON.stringify(configArray)
+                // document.getElementById("proofread-ctag").innerHTML = JSON.stringify(configArray)
                 // for each config, create a div with a title and a list
                 let items = []
                 each(configArray, (el, i) => {
@@ -82,7 +83,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         })
                 })
                         
-                const wrapperEl = document.getElementById("smart-list-ctag-inner")
+                const wrapperEl = document.getElementById("proofread-ctag-inner")
                 // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                 const config = {
                         cols: [
@@ -144,21 +145,21 @@ const smartlistApp = (innerTagStr, opts) => {
         })
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
-        <div id="smart-list-ctag"> 
-                <div id="smart-list-ctag-inner"> 
+        <div id="proofread-ctag"> 
+                <div id="proofread-ctag-inner"> 
                 
                 </div>
                 
         </div>
 
         <style>
-                #smart-list-ctag { }
-                #smart-list-ctag table { 
+                #proofread-ctag { }
+                #proofread-ctag table { 
                         min-width: 660px;
                 }
-                #smart-list-ctag .td-tag { 
+                #proofread-ctag .td-tag { 
                 }
-                #smart-list-ctag .td-tag .cell-content {  
+                #proofread-ctag .td-tag .cell-content {  
                         max-width: 50px;
                         overflow: hidden;
                         // word-break: break-all;
@@ -168,5 +169,5 @@ const smartlistApp = (innerTagStr, opts) => {
 }
 // 
 
-window.initCustomTag = smartlistApp
+window.initCustomTag = proofreadApp
 

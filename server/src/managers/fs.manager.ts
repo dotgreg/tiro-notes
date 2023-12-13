@@ -257,15 +257,25 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 	console.log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${path}`);
 
 	return new Promise((resolve, reject) => {
-		let file = fs.createWriteStream(path);
-		const options = {
+		let fileStream = fs.createWriteStream(path); 
+		const optionsReq = {
+			method: opts?.method || 'GET',
 			headers: {
 				'User-Agent': 'Mozilla/5.0',
 				// 'Host':'tiro-notes.org'
 			}
 		}
+		console.log(`[DOWNLOAD FILE] options`, JSON.stringify({optionsReq, opts}));
+
+		let postData: string | undefined 
+		if (opts?.body && opts.method === 'POST') {
+			postData = new URLSearchParams(opts.body as any).toString();
+			console.log(postData)
+			optionsReq.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+			optionsReq.headers['Content-Length'] = Buffer.byteLength(postData).toString();
+		}
 		
-		if(opts.headers) each(opts.headers, (header) => options.headers[header[0]] = header[1])
+		if(opts.headers) each(opts.headers, (header) => optionsReq.headers[header[0]] = header[1])
 		let cacheArg = true 
 		if (opts.noCacheArg === true) cacheArg = false
 
@@ -273,11 +283,10 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			let randomizedArgNoCache = `?${random(0, 10000000)}`
 			url = url + randomizedArgNoCache
 		}
-		client.get(url, options, (response) => {
-			// let res = response
-			// const contentType = res.headers['content-type'];
-			// response.setEncoding('utf8');
-			// response.set({ 'content-type': 'text/html; charset=utf-8' });
+
+		console.log(11111111111111, client.request)
+		const req = client.request(url, optionsReq, (response) => {
+			console.log(2222222, response)
 			// Check the content-type from the headers and adjust the encoding accordingly
 			const contentType = response.headers['content-type'].toLowerCase();
 			if (contentType.includes(contentType.includes('charset=utf8'))) {
@@ -286,20 +295,94 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			  response.setEncoding('latin1');
 			}
 
-			response.pipe(file);
-			file.on('finish', () => {
-				file.close();  // close() is async, call cb after close completes.
+			response.pipe(fileStream);
+			fileStream.on('finish', () => {
+				fileStream.close();  // close() is async, call cb after close completes.
 				shouldLog && log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);
+				console.log(122, `[DOWNLOAD FILE] downloaded ${url} to ${path}`)
 				resolve(path)
 			});
 		}).on('error', (err) => { // Handle errors
 			fs.unlink(path, () => { }); // Delete the file async. (But we don't check the result)
 			shouldLog && log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
+			console.log(133, `[DOWNLOAD FILE] downloaded ${url} to ${path}`)
 			reject(err.message);
 		});
+		if (postData) {
+			req.write(postData);
+		}
+		req.end();
 	})
 }
 
+
+// const isHttps = (url: string) => url.indexOf("https") === 0;
+// import { promises as fsPromises } from 'fs';
+// import * as path from 'path';
+// export const downloadFile = async (url: string, folder: string, opts?: iDownloadRessourceOpts): Promise<string> => {
+// 	if (!url) throw new Error('URL must be provided.');
+	
+// 	const isHttps = (url: string) => new URL(url).protocol === 'https:';
+// 	let client = isHttps(url) ? https : http;
+// 	url = url.replace("localhost", "127.0.0.1"); // otherwise would crash
+  
+// 	// shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${pathToFile}`);
+// 	console.log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder}`);
+	
+// 	return new Promise((resolve, reject) => {
+// 	  const pathToFile = path.join(folder, opts?.fileName || ''); // Replace with logic to determine file name
+		
+// 	  let postData: string | undefined;
+// 	  const options = {
+// 		method: opts?.method || 'GET',
+// 		headers: {
+// 		  'User-Agent': 'Mozilla/5.0',
+// 		}
+// 	  };
+	  
+// 	  if (opts?.headers) {
+// 		opts.headers.forEach(([header, value]) => options.headers[header] = value);
+// 	  }
+	  
+// 	  if (opts?.body && options.method === 'POST') {
+// 		postData = new URLSearchParams(opts.body as any).toString();
+// 		options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+// 		options.headers['Content-Length'] = Buffer.byteLength(postData).toString();
+// 	  }
+  
+// 	  if (opts?.noCacheArg !== true) {
+// 		url += `?${Math.floor(Math.random() * 10000000)}`;
+// 	  }
+  
+// 	  const req = client.request(url, options, (response) => {
+// 		const contentType = response.headers['content-type']?.toLowerCase() || '';
+// 		if (contentType.includes('charset=utf-8')) {
+// 		  response.setEncoding('utf8');
+// 		} else if (contentType.includes('charset=iso-8859-1')) {
+// 		  response.setEncoding('latin1');
+// 		}
+  
+// 		const fileStream = fs.createWriteStream(pathToFile);
+// 		response.pipe(fileStream);
+  
+// 		fileStream.on('finish', () => {
+// 		  fileStream.close(); // close() is async, call cb after close completes.
+// 		  console.log(`[DOWNLOAD FILE] downloaded ${url} to ${pathToFile}`);
+// 		  resolve(pathToFile);
+// 		});
+// 	  }).on('error', (err) => { // Handle errors
+// 		fsPromises.unlink(pathToFile).catch(() => {}); // Ignore unlink errors
+// 		console.error(`[DOWNLOAD FILE] error ${err.message} (${url} to ${pathToFile})`);
+// 		reject(err.message);
+// 	  });
+  
+// 	  if (postData) {
+// 		req.write(postData);
+// 	  }
+  
+// 	  req.end();
+// 	});
+//   };
 // export const fsApi = {
 // 	downloadFile,
 // 	isDir,

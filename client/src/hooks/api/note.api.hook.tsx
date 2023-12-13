@@ -17,6 +17,7 @@ export interface iEditorAction {
 	uploadProgress?: number 
 	
 	searchWordString?: string
+	searchReplacementString?: string
 	// searchWordOpenPanel?: boolean
 
 	selection?: iEditorSelection
