@@ -29,15 +29,6 @@ const timelineApp = (innerTagStr, opts) => {
                                 configArr.push({wordToSearch, pathToSearch})
                         }
                 }
-                console.log(123, configArr, innerTarArr)
-
-
-
-                // if (innerTagStr.indexOf("|") > -1) {
-                //         wordToSearch = innerTagStr.split("|")[0].trim()
-                //         pathToSearch = innerTagStr.split("|")[1].trim()
-                // }
-
                 //
                 // search for tags
                 //
@@ -66,14 +57,14 @@ const timelineApp = (innerTagStr, opts) => {
                                                 if (itemRawArr.length < 4) return console.warn(`timeline: line ${l} is not valid`, itemRawArr)
                                                 // the 4th one shoudl end with ]
                                                 if (itemRawArr[3].indexOf("]") === -1) return console.warn(`timeline: line ${l} is not valid`, itemRawArr)
-                                                itemRawArr[3] = itemRawArr[3].split("]")[0]
+                                                itemRawArr[3] = itemRawArr[3].split("]")[0].trim()
                                                 
                                                 //
                                                 // DATE PROCESSING
                                                 //
                                                 // function that take a date string in french format like 23/11/23 and output a date object
-                                                startDateStr = itemRawArr[1]
-                                                durationDaysStr = itemRawArr[2]
+                                                startDateStr = itemRawArr[1].trim()
+                                                durationDaysStr = itemRawArr[2].trim()
                                                 const dateStrToObj = (dateStr) => {
                                                         let dateParts = dateStr.split('/')
                                                         let day = dateParts[0]
