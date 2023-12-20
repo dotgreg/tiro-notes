@@ -377,6 +377,13 @@ export const SettingsPopup = (p: {
 							us.set('view_disable_notification_popups', val)
 						}
 					},
+					{
+						type: 'textarea',
+						title: "Options for Image compression",
+						expl: `Modify default image compression settings  ${showDefaultString("advanced_image_compression_settings")}`,
+						var: us.get('advanced_image_compression_settings'),
+						modifier: val => { us.set('advanced_image_compression_settings', val) }
+					},
 				]
 			},
 			{

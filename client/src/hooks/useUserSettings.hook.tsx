@@ -17,7 +17,7 @@ export const userSettingsSync: {curr:iUserSettings} = {curr: {}}
 
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
-	get: (name: iUserSettingName) => any
+	get: (name: iUserSettingName, cb?:(res:{currentValue: any, defaultValue:any}) => void) => any
 	set: (name: iUserSettingName, val: any, options?: { writeInSetupJson?: boolean }) => void
 	list: () => iUserSettingList
 	refresh: {
@@ -47,6 +47,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_links_preview_zoom: 0.8,
 	ui_editor_show_image_title: false,
 	export_pandoc_cli_options: "\ndocx | --wrap=preserve --toc --number-sections \n revealjs | -V theme=moon \n beamer | --wrap=preserve --include-in-header=./include-tex.md ",
+	advanced_image_compression_settings: JSON.stringify({quality: 80, maxWidth: 1500}),
 	ui_editor_ai_text_selection: true,
 	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	server_activity_logging_enable: false,
@@ -138,12 +139,15 @@ export const useUserSettings =  (p: {
 			setUserSettings(nSettings)
 		},
 
-		get: name => {
+		
+
+		get: (name,cb) => {
 			// if settings not configured, return default
 			let resDefault = defaultVals[name]
 			let res = resDefault
 			if (name in userSettings) res = userSettings[name]
 			if (res === '') res = resDefault
+			if (cb) cb({currentValue: res, defaultValue: resDefault})
 			return res
 		},
 		list: () => {
@@ -151,6 +155,11 @@ export const useUserSettings =  (p: {
 			each(userSettings, (val, name) => {
 				const key = name as iUserSettingName
 				res.push({ key, val })
+			})
+			// adds defaultValsUserSettings
+			each(defaultValsUserSettings, (val, name) => {
+				const key = name as iUserSettingName
+				if (!res.find(r => r.key === key)) res.push({ key, val })
 			})
 			return res
 		},

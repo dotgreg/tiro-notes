@@ -119,7 +119,6 @@ const timelineApp = (innerTagStr, opts) => {
                                         // ITEMS
                                         //
                                         var items = new vis.DataSet(itemsArr)
-                                        console.log(44444, itemsArr)
 
                                         // Configuration for the Timeline
                                         var options = {

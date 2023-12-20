@@ -1,5 +1,19 @@
 import { getDateObj } from "./helpers/date.helper"
 
+export interface iImageCompressionParams {
+	path: string, 
+	width?:number, 
+	height?:number, 
+	maxWidth?:number,
+	maxHeight?:number,
+	quality:number,
+}
+export interface iCompressResult {
+	sizeStart: number
+	sizeEnd: number
+	compressionRatio: number
+}
+
 export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"|"weight"
 export type iActivityFilter= "file"| "time"|  "ip"
 export interface iActivityReportParams {
@@ -90,6 +104,7 @@ export type iUserSettingName =
 'server_activity_logging_enable' |
 'view_disable_notification_popups' |
 'plugins_marketplace_url' |
+'advanced_image_compression_settings' |
 
 'demo_mode_enable' |
 

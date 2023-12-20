@@ -10,7 +10,7 @@ import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { tryCatch } from '../../managers/tryCatch.manager';
-import { iDownloadRessourceOpts, iFile } from '../../../../shared/types.shared';
+import { iDownloadRessourceOpts, iFile, iImageCompressionParams } from '../../../../shared/types.shared';
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
@@ -58,6 +58,11 @@ export interface iRessourceApi {
 		path:string,
 		cb: (files: iFile[]) => void
 	) => void,
+
+	compressImage: (
+		params: iImageCompressionParams,
+		cb?: (answer: any) => void
+	) => void
 
 	cleanCache: () => void
 }
@@ -234,12 +239,21 @@ export const useRessourceApi = (p: {
 		})
 	}
 
+	const compressImage: iRessourceApi['compressImage'] = (params, cb) => {
+		const idReq = genIdReq('compress-image');
+		console.log(`${h} compress image ${params.path}`);
+		// execute callback on answer
+		p.eventBus.subscribe(idReq, cb || (() => {}));
+		clientSocket2.emit('askRessourceImageCompress', { params, idReq, token: getLoginToken() })
+	}
+
 	//
 	// EXPORTS
 	//
 	const ressourceApi: iRessourceApi = {
 		delete: deleteRessource,
 		download: downloadRessource,
+		compressImage,
 		scanFolder: scanRessourceFolder, 
 		fetch: fetchRessource,
 		fetchEval,

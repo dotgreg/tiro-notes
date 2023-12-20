@@ -49,11 +49,8 @@ export const generateCtag = (
 
 	// if tagName is PDF or EPUB and content includes ?token, replace it with the current token
 	// if (ctagConfig.tagName === "pdf" || ctagConfig.tagName === "epub") {
-	// 	// console.log(11111, ctagConfig.content)
 	// 	let nurl = ctagConfig.content?.split("?token=")[0]
-	// 	// console.log(111112, nurl)
 	// 	nurl = nurl + getUrlTokenParam()
-	// 	// console.log(111113, nurl)
 	// 	ctagConfig.content = nurl
 	// }
 

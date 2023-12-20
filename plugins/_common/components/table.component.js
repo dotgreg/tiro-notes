@@ -326,7 +326,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     }
 
     let isSortable = ["multiselect", "buttons"].includes(col.type) ? false : true
-    res = c('th', { onClick: () => { if (isSortable) requestSort(col.colId) }}, res)
+    res = c('th',  {  key: keyCounter(`${col.colId}-${col.headerLabel}`) ,onClick: () => { if (isSortable) requestSort(col.colId) }}, res)
     return res
   }
 

@@ -593,7 +593,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 
 // export const scanDirForFolders = async (folderPath: string): Promise<iFolder | undefined> => {
 // 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
-// 	console.log(1111, fullFolderPath)
 // 	// const items = await new fdir().withFullPaths().onlyDirs().crawl(fullFolderPath).withPromise();
 // 	const items = new fdir().withFullPaths().onlyDirs().withMaxDepth(1).crawl(fullFolderPath).sync();
 // 	// console.log(123, items)

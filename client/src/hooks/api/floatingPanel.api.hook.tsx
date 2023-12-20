@@ -178,7 +178,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
             // then search inside all the panels for the panelId and set it to minimized
             // let panel = newPanels.find(p => p.id === panelId)
-            // console.log(1111, panel)
             // if (!panel) return
             // panel.status = "minimized"
             // updateAll(newPanels)

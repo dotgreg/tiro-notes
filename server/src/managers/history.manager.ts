@@ -70,7 +70,6 @@ export const getFilesOlderThan = (folder: string, days: number): Promise<iFileTo
 
 	return new Promise((res, rej) => {
 		fs.readdir(folderPath, (err, files) => {
-			//log(1111, files.length, folderPath, days, daysInMs);
 			const olderFiles: iFileToMove[] = []
 			const toKeepFiles: iFileToMove[] = []
 			let counter = 0;
