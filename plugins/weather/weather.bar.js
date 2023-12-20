@@ -41,7 +41,6 @@ const main = (weatherLib) => {
     let daysFuture = getRelativeDaysFromDate(tag.value)
     const isCached = false
     const hideAfter = 10
-    console.log(11111111, {daysFuture, config})
     weatherLib.sendNotifWeather(daysFuture, config.pos, isCached, 10)
   }
 }

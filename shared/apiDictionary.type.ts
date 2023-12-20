@@ -1,5 +1,5 @@
 import { iPerformanceReport, iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iDownloadRessourceOpts, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm, iUpdateConfigJsonOpts } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iDownloadRessourceOpts, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iImageCompressionParams, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm, iUpdateConfigJsonOpts } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -72,8 +72,14 @@ export interface iApiDictionary {
 	getFileHistory: { files: iFile[] }
 
 	askRessourceDelete: { path: string, idReq: string }
+
+	// extends iFile
+	askRessourceImageCompress:  {params: iImageCompressionParams,  idReq: string }
+
+
 	askRessourceDownload: { url: string, folder: string, opts?:iDownloadRessourceOpts, idReq: string }
 	getRessourceApiAnswer: { status: string, message: string, idReq: string }
+
 	askRessourceScan: { folderPath: string, idReq: string }
 	getRessourceScan: { files: iFile[], idReq: string }
 

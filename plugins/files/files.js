@@ -2,7 +2,10 @@ const FilesTagApp = (innerTagStr, opts) => {
     if (!opts) opts = {}
     const api = window.api;
 
+   
+
     const execReactApp = (str) => {
+      
         // loading commons libs & plugins 
         
         const r = React;
@@ -11,8 +14,18 @@ const FilesTagApp = (innerTagStr, opts) => {
 
         const App = () => {
             const [status, setStatus] = r.useState('')
-            const [rescan, setRescan] = r.useState(0)
+            const [rescan, setRescanInt] = r.useState(0)
             const [ressourcesUsageList, setRessourcesUsageList] = r.useState([])
+            const rescanRef = r.useRef(rescan)
+            // r.useEffect(() => {
+            //   rescanRef.current = rescan
+            // }, [rescan])
+            const askForRescan = () => {
+              console.log("files ctag > askForRescan")
+              rescanRef.current = rescanRef.current + 1
+              setRescanInt(rescanRef.current)
+            }
+            
             
             //
             // FOLDER SCANS & NAVIGATION
@@ -55,6 +68,7 @@ const FilesTagApp = (innerTagStr, opts) => {
             const notifId = "upload-files-ctag"
             const handleFileChange = (event) => {
                 const files = event.target.files;
+                let count = 0
                 for (let i = 0; i < files.length; i++) {
                   let file = files[i]
                 
@@ -67,7 +81,10 @@ const FilesTagApp = (innerTagStr, opts) => {
                   
                   api.call("upload.uploadFile", [apiParams], res => {
                     // api.call("ui.notification.emit",[{content:"Upload Success, reloading"+i,id:notifId, options:{hideAfter:5}}])
-                    setRescan(rescan+i)
+                    // setRescan(rescan+i)
+                    count++
+                    console.log("files ctag > upload.uploadFile", res, file, count, files.length)
+                    if (count === files.length)  askForRescan()
                   })
                 }
             };
@@ -206,7 +223,7 @@ const FilesTagApp = (innerTagStr, opts) => {
 
 
 
-
+            
 
 
 
@@ -255,14 +272,49 @@ const FilesTagApp = (innerTagStr, opts) => {
                       icon: "close", 
                       onClick: (items) => {
                         api.call("popup.confirm", [`Do you want to delete ${items.length} file`], () => {
+                          let count = 0
                           items.forEach(item => {
                             api.call("ressource.delete", [item.raw.path], res => {
                               console.log("ressource.delete", res, item)
-                              setRescan(rescan+1)
+                              // setRescan(rescan+1)
+                              count++
+                              if (count === items.length)  askForRescan()
                             })
                           })
                         })
                       } 
+                    },
+                    {
+                      label: "",
+                      icon: "down-left-and-up-right-to-center",
+                      onClick: (items) => {
+                        api.call("userSettings.get", [`advanced_image_compression_settings`], (config) => {
+                          let compressConf
+                          try {
+                            compressConf = JSON.parse(config.currentValue)
+                          } catch(e) {
+                            compressConf = JSON.parse(config.defaultValue)
+                          }
+
+                          api.call("popup.confirm", [`Do you want to compress ${items.length} files? <br> This cannot be undone  <br><br> params: ${JSON.stringify(compressConf)} <br><br> (Only jpeg/png will be processed)`], () => {
+                            let count = 0
+                            let countTot = items.length
+                            items.forEach(item => {
+                              // if item.path ends with image extension
+                              ext = item.raw.extension
+                              if (["png", "jpg", "jpeg", "gif"].indexOf(ext) === -1) return countTot--
+                              const compressConf2 = {path:item.raw.path, ...compressConf}
+                              
+                              api.call("ressource.compressImage", [compressConf2], res => {
+                                console.log("Image compressed result =>", res, item)
+                                count++
+                                api.call("ui.notification.emit",[{content:`Processing file compression ${count}/${countTot}`,id:notifId, options:{hideAfter:5}}])
+                                if (count === items.length) askForRescan()
+                              })
+                            })
+                          })
+                        })
+                      }
                     }
                 ]},
               ]
@@ -274,6 +326,7 @@ const FilesTagApp = (innerTagStr, opts) => {
 
             // if last char is /, remove it
             let currFolderPath2 = (currFolderPath.slice(-1) === "/") ? currFolderPath.slice(0, -1) : currFolderPath
+
             
             return (
                 c('div', { className: "files-table-wrapper" }, [
@@ -292,7 +345,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                         ]),
                       ]),
                       c('div', { className: "rescan-wrapper" }, [
-                         c('div', {className: `fa fa-refresh`, onClick:() => {setRescan(rescan+1)} }),
+                         c('div', {className: `fa fa-refresh`, onClick:() => { askForRescan() } }),
                       ]),
                       
                     // Math.random(),

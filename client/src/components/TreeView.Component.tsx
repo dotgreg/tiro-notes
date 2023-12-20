@@ -125,7 +125,6 @@ export const FolderView = (p: {
 				e.stopPropagation()
 			}}
 			onDragEnd={() => {
-				console.log(1111111122)
 				if (!p.folder.key) return
 				p.onFolderDragEnd()
 				

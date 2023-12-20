@@ -29,6 +29,7 @@ import { getDateObj } from "../../shared/helpers/date.helper";
 import { each, isArray } from "lodash";
 import { relative } from "path";
 import { getPlatform } from "./managers/platform.manager";
+import { compressImageJimp } from "./managers/imageManip.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -372,8 +373,23 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
 			endPerf()
 		})
+    
+	}) 
 
-	})
+
+	//
+	// COMPRESS IMAGE API
+	// 
+	serverSocket2.on('askRessourceImageCompress', async data => {
+		try {
+			let res = await compressImageJimp(data.params)
+			serverSocket2.emit('getRessourceApiAnswer', { status:"SUCCESS", message:JSON.stringify(res), idReq: data.idReq })
+		} catch (error) {
+			const message = `Failed compressing ${JSON.stringify(data.params)} -> ${JSON.stringify(error)}`
+			serverSocket2.emit('getRessourceApiAnswer', { status:"FAIL",message, idReq: data.idReq })
+		}
+	}, { checkRole: "editor" })
+
 
 
 	//
@@ -464,7 +480,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (!data.folderPath.endsWith("/.resources")) data.folderPath += "/.resources"
 		data.folderPath = p(data.folderPath)
 		let objRes:{[path:string]: iFile} = {}
-		console.log(1111, data) 
 		searchWithRgGeneric({
 			term: "",
 			folder: data.folderPath,

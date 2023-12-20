@@ -159,9 +159,6 @@ const epubApp = (innerTagStr, opts) => {
 						// }, 100)
 				}
 				const getPage = () => {
-						// console.log("1111111111----")
-						// console.log(rendition.currentLocation())
-						// console.log(rendition.currentLocation()?.end?.location)
 						return rendition.currentLocation()?.start?.location || 0
 				}
 				const getPageContent = (pageNb, cb) => {
