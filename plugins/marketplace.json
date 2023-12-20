@@ -5,6 +5,11 @@
     "description": "Description of calendar",
     "versions": [
       {
+        "version": "0.1.4",
+        "date": "19/12/23",
+        "comment": "inverting dates format + multifolder scan"
+      },
+      {
         "version": "0.1.3.5",
         "date": "24/07/23",
         "comment": "fix weekly_event bug"
