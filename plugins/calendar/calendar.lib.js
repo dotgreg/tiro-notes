@@ -40,6 +40,30 @@ const dateStrToObj = (dateStr) => {
     }
 
 }
+const genSameDayEvents = (eventDate1, events, title, body)  => {
+    const targetWeekday = eventDate1.getDay();
+    // start from yesterday
+    const futureDate = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+    let count = 0;
+    // stop if NaN
+    if (isNaN(targetWeekday)) return false
+    while (count < 5) {
+        // add 1 day till finding the right weekday
+        futureDate.setDate(futureDate.getDate() + 1);
+        if (futureDate.getDay() === targetWeekday) {
+            futureDate.setHours(eventDate1.getHours());
+            futureDate.setMinutes(eventDate1.getMinutes());
+            futureDate.setSeconds(eventDate1.getSeconds());
+            count++;
+            events.push({
+                'date': new Date(futureDate),
+                'title': title,
+                'body': body,
+            })
+        }
+    }
+}
+
 const processEvent = (lineRes) => {
     const l = lineRes.trim()
     const p = l.split("|")
@@ -50,74 +74,50 @@ const processEvent = (lineRes) => {
     let evDate = dateStrToObj(evDateRaw)
 
     let events = []
+    // if evDate is a date
+    if (evDate.toString() === "Invalid Date") return false
+    if (!title || !evDate) return false
+    events.push({
+        'date': evDate,
+        'title': title,
+        'body': body,
+    })
 
-    if (title && evDate) {
-        events.push({
-            'date': evDate,
-            'title': title,
-            'body': body,
-        })
+    const curr = new Date()
+    const eventDay = evDate.getDate()
+    const eventMonth = evDate.getMonth() + 1
+    const eventTime = evDate.toLocaleString().split(" ")[1]
 
-        const curr = new Date()
-        const eventDay = evDate.getDate()
-        const eventMonth = evDate.getMonth() + 1
-        const eventTime = evDate.toLocaleString().split(" ")[1]
-        
-
-        // if every_month / every_year present body
-        if (body.includes("every_month")){
-            // generate 5 events in future monthes
-            for (let i = 1; i < 6; i++) {
-                const recEvMonth = (curr.getMonth() + i)%12
-                const isNewYear = (curr.getMonth() + i) > 12
-                let recEvYear = curr.getFullYear() 
-                if (isNewYear) recEvYear++
-                const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                events.push({
-                    'date': recDate,
-                    'title': title,
-                    'body': body,
-                })
-            }
+    // if every_month / every_year present body
+    if (body.includes("every_month")){
+        // generate 5 events in future monthes
+        for (let i = 1; i < 6; i++) {
+            const recEvMonth = (curr.getMonth() + i)%12
+            const isNewYear = (curr.getMonth() + i) > 12
+            let recEvYear = curr.getFullYear() 
+            if (isNewYear) recEvYear++
+            const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+            events.push({
+                'date': recDate,
+                'title': title,
+                'body': body,
+            })
         }
-        if (body.includes("every_year")){
-            // generate 5 events in future
-            for (let i = 1; i < 6; i++) {
-                const recEvYear = curr.getFullYear()  + i
-                const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                events.push({
-                    'date': recDate,
-                    'title': title,
-                    'body': body,
-                })
-            }
+    }
+    if (body.includes("every_year")){
+        // generate 5 events in future
+        for (let i = 1; i < 6; i++) {
+            const recEvYear = curr.getFullYear()  + i
+            const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+            events.push({
+                'date': recDate,
+                'title': title,
+                'body': body,
+            })
         }
-        if (body.includes("every_week")){
-            function genSameDayEvents(eventDate1) {
-                const targetWeekday = eventDate1.getDay();
-                // start from yesterday
-                // const futureDate = new Date();
-                const futureDate = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
-                let count = 0;
-                
-                while (count < 5) {
-                    // add 1 day till finding the right weekday
-                    futureDate.setDate(futureDate.getDate() + 1);
-                    if (futureDate.getDay() === targetWeekday) {
-                    futureDate.setHours(eventDate1.getHours());
-                    futureDate.setMinutes(eventDate1.getMinutes());
-                    futureDate.setSeconds(eventDate1.getSeconds());
-                    count++;
-                    events.push({
-                        'date': new Date(futureDate),
-                        'title': title,
-                        'body': body,
-                    })
-                    }
-                }
-            }
-            genSameDayEvents(evDate)
-        }
+    }
+    if (body.includes("every_week")){
+        genSameDayEvents(evDate, events, title, body)
     }
     // END EVENT PROCESS to duplicate
     return events
@@ -130,6 +130,7 @@ const searchWord = (env, word, path, cb) => {
         })
     } else if (env === "ctag") {
         api.call("search.word", [word, path], content => {
+            // return false
             cb(content)
         })
     }
