@@ -132,8 +132,8 @@ const timelineApp = (innerTagStr, opts) => {
                                         timeline.setGroups(groups);
 
                                         timeline.on('select', function (properties) {
-                                                console.log(222222222, itemsArr[properties.items])
-                                                let itemClicked = itemsArr[properties.items]
+                                                let itemClicked = itemsArr.filter(el => el.id === properties.items[0])[0]
+                                                if (!itemClicked) return
                                                 api.call("ui.notePreviewPopup.open", [itemClicked.filePath, ["50%" ,"50%"], { searchedString:itemClicked.itemRawStr}])
                                         });
                                         
