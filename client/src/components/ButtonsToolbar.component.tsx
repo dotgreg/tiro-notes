@@ -14,7 +14,7 @@ export const ButtonsToolbarInt = (p: {
 }) => {
 	let { design, colors, size } = { ...p }
 	if (!design) design = 'horizontal'
-	let popup = ('popup' in p) ? p.popup : true
+	let popup = p.popup === undefined ? true : p.popup
 
 	const customCss = css`
 				button.toolbar-button {
@@ -37,7 +37,7 @@ export const ButtonsToolbarInt = (p: {
 	// return  <div className={customCss}>
 	// memo here seems quite efficient = cut half rerender
 	return useMemo(() => <div className={customCss}>
-		<ul className={`buttons-toolbar-component ${p.class} ${design} ${popup ? 'with-popup' : 'no-popup'}`}>
+		<ul className={`buttons-toolbar-component ${p.class} ${design} ${popup === true ? 'with-popup' : 'no-popup'}`}>
 			{
 				p.buttons.map((button, key) =>
 					button.action &&

@@ -43,7 +43,7 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
-import { cloneDeep, random, update } from 'lodash';
+import { cloneDeep, random, set, update } from 'lodash';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
@@ -221,9 +221,11 @@ export const App = () => {
 		windowsApi
 	} = useTabs();
 
+	const [forceRefresh, setForceRefresh] = useState(0)
 	const updateActiveTabGridWrapper = (grid: iGrid) => {
 		// if (deviceType() === "mobile") return
 		updateActiveTabGrid(grid)
+		setForceRefresh(forceRefresh + 1)
 	}
 	
 	// const [currentTab, setCurrentTab] = useState<iTab | null>(null)
@@ -699,6 +701,7 @@ export const App = () => {
 							{currentTab &&
 								<WindowGrid
 									tab={currentTab}
+									forceRefresh={forceRefresh}
 									onGridUpdate={updateActiveTabGridWrapper}
 									mobileView={mobileView}
 									pinStatus={pinStatus}

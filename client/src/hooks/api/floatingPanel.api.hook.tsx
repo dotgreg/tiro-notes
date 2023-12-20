@@ -40,6 +40,7 @@ export interface iFloatingPanelApi {
     update: (panel:iFloatingPanel) => void,
     movePanel: (panelId:string, position:{x:number, y:number}) => void,
     resizePanel: (panelId:string, size:{width:number, height:number}) => void,
+    minimizePanel: (panelId:string) => void,
     
     
     updateAll: (panels:iFloatingPanel[]) => void,
@@ -157,6 +158,32 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updatePanel({...panelsRef.current.find(p => p.id === panelId)!, size})
     }
 
+    const minimizePanel = (panelId:string) => { 
+        const nPanel = panelsRef.current.find(p => p.id === panelId)
+        // if panel is file 
+        if (nPanel?.type === "file") {
+            // get all the minimized panels with the same file and delete them
+            let newPanels = cloneDeep(panelsRef.current)
+            newPanels = newPanels.filter(p => p.id !== panelId && p.file.path !== nPanel.file.path)
+            // add the new minimized panel
+            newPanels.push({...nPanel, status: "minimized"})
+            // console
+            updateAll(newPanels)
+
+
+
+            // then search inside all the panels for the panelId and set it to minimized
+            // let panel = newPanels.find(p => p.id === panelId)
+            // console.log(1111, panel)
+            // if (!panel) return
+            // panel.status = "minimized"
+            // updateAll(newPanels)
+        } else {
+            // if panel is ctag, just minimize it
+            updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
+        }
+    }
+
     const reorganizeAll = () => {
         console.log(`${h} reorganizeAll`)
         let newPanels = cloneDeep(panelsRef.current)
@@ -236,6 +263,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         delete: deletePanel,
         movePanel,
         resizePanel,
+        minimizePanel,
         actionAll,
         panels, 
         refreshFromBackend,

@@ -52,6 +52,7 @@ export const GridContext = React.createContext<iGridContext>(gridContextInit);
 
 export const WindowGrid = (p: {
 	tab: iTab
+	forceRefresh: number
 	onGridUpdate: (grid: iGrid) => void
 	mobileView: iMobileView
 	pinStatus: iPinStatuses
@@ -151,7 +152,7 @@ export const WindowGrid = (p: {
 	const [forceRefresh, setForceRefresh] = useState(0)
 	useEffect(() => {
 		setForceRefresh(forceRefresh + 1)
-	}, [tab.refresh, JSON.stringify(p.pinStatus)])
+	}, [tab.refresh, JSON.stringify(p.pinStatus), p.forceRefresh])
 
 
 	return (//jsx

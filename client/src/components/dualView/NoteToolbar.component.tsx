@@ -4,6 +4,7 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { iCursorInfos } from './CodeMirrorEditor.component';
 import { deviceType } from '../../managers/device.manager';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 
 
 
@@ -53,26 +54,27 @@ export const NoteToolsPopup = (p: {
     let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='numbers-preview-wrapper'><i className='fa fa-chart-line'></i><span className='numbers-preview'>{wordsCount(p.selection)}</span></div>}
     if (isMath) mathBtn = { 
       icon: 'calculator', 
+      title:"Calculate selection",
       customHtml: <div className='numbers-preview-wrapper'><i className='fa fa-calculator'></i><span className='numbers-preview'>{calcSelected(p.selection)}</span></div>, 
       action: () => {p.onButtonClicked('calc'); setIsOpen(false); }
     }
-    const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
-    const copyLinkLine:iToolbarButton = { icon: 'copy', action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
-    const proofreadBtn:iToolbarButton = { icon: 'spell-check', action: () => {p.onButtonClicked('proofread'); setIsOpen(false); }}
+    const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', title:"AI assistant", action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
+    const copyLinkLine:iToolbarButton = { icon: 'copy', title:"Copy line link", action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
+    const proofreadBtn:iToolbarButton = { icon: 'spell-check', title:"Proofread selection" , action: () => {p.onButtonClicked('proofread'); setIsOpen(false); }}
     //------------
-    btnsConfigClosed.push(aiBtn)
+    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigClosed.push(aiBtn)
     btnsConfigClosed.push(copyLinkLine)
     btnsConfigClosed.push(proofreadBtn)
-    btnsConfigClosed.push(mathBtn)
+    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigClosed.push(mathBtn)
     //------------
     // btnsConfigOpen.splice(1, 0, aiBtn)
     let mathBtn2 = {...mathBtn}
     mathBtn2.class = 'separator-right'
     // btnsConfigOpen.splice(2, 0, mathBtn2)
-    btnsConfigOpen.push(mathBtn2)
+    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigOpen.push(mathBtn2)
     btnsConfigOpen.push(copyLinkLine)
     btnsConfigOpen.push(proofreadBtn)
-    btnsConfigOpen.push(aiBtn)
+    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigOpen.push(aiBtn)
 
   }
   
@@ -89,6 +91,7 @@ export const NoteToolsPopup = (p: {
       size={deviceType() === "desktop" ? 0.8 : 1}
 			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
 			buttons={btnsConfigClosed}
+      popup={false}
 		/>
     }
 
@@ -98,6 +101,7 @@ export const NoteToolsPopup = (p: {
       size={deviceType() === "desktop" ? 0.8 : 1}
 			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
 			buttons={btnsConfigOpen}
+      popup={false}
 		/>
   }
   </div>

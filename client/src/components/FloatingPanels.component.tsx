@@ -164,7 +164,11 @@ export const FloatingPanel = (p:{
 
 
     const handleMinimize = () => {
-        updatePanel({...p.panel, status:"minimized", zIndex: startZindex})
+        // updatePanel({...p.panel, status:"minimized", zIndex: startZindex})
+        getApi(api => {
+            api.ui.floatingPanel.minimizePanel(p.panel.id)
+        })
+
     }
 
     // const [fileView, setFileView] = useState<"editor"|"preview">("editor")

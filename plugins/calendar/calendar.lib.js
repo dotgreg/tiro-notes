@@ -5,93 +5,156 @@ const config = {
 const notifUniqId = "uniq-notif-id-calendar"
 const h = `[CALENDAR LIB] `
 
+const getSourcesConfig = (sourcesRawStr) => {
+    let innerTarArr = sourcesRawStr.split("\n")
+    let configArr = []
+    for (let i = 0; i < innerTarArr.length; i++) {
+        const line = innerTarArr[i];
+        if (line.indexOf("|") > -1) {
+            wordToSearch = line.split("|")[0].trim()
+            pathToSearch = line.split("|")[1].trim()
+            configArr.push({wordToSearch, pathToSearch})
+        }
+    }
+    return configArr
+}
+const dateStrToObj = (dateStr) => {
+    // split all parts of a datetime with following format 31/12/23 12:00
+    let totParts = dateStr.split(' ')
+    let date = totParts[0]
+    let time = totParts[1]
 
 
-const getEventsList = (calNotePath, cb) => {
-    tiroApi.file.getContent(calNotePath, noteContent => {
-        let lines = noteContent.split("\n")
-        let events = []
+    let dateParts = date.split('/')
+    let day = dateParts[0]
+    let month = dateParts[1]
+    let year = dateParts[2]
+
+    if (time) {
+        let timeParts = time.split(':')
+        let hour = timeParts[0]
+        let minute = timeParts[1]
+        return new Date(`${month}/${day}/${year} ${hour}:${minute}`)
+    } else {
+        return new Date(`${month}/${day}/${year}`)
+    }
+
+}
+const processEvent = (lineRes) => {
+    const l = lineRes.trim()
+    const p = l.split("|")
+    let title = p[1] ? p[1].trim() : ""
+    let body = p[3] ? p[3].trim().replace("]","") : ""
+    let evDateRaw = p[2] ? p[2].trim() : false
+    
+    let evDate = dateStrToObj(evDateRaw)
+
+    let events = []
+
+    if (title && evDate) {
+        events.push({
+            'date': evDate,
+            'title': title,
+            'body': body,
+        })
+
+        const curr = new Date()
+        const eventDay = evDate.getDate()
+        const eventMonth = evDate.getMonth() + 1
+        const eventTime = evDate.toLocaleString().split(" ")[1]
         
-        // for loop TO DUPLICATE w LIB/TAG ONE
-        // START EVENT PROCESS
-        for (var i = 0; i < lines.length; i++) {
-            const l = lines[i]
-            const p = l.split("|")
-            let title = p[0] ? p[0] : ""
-            let evDate = p[1] ? new Date(p[1]) : false
-            let body = p[2] ? p[2] : ""
 
-            if (title && evDate) {
+        // if every_month / every_year present body
+        if (body.includes("every_month")){
+            // generate 5 events in future monthes
+            for (let i = 1; i < 6; i++) {
+                const recEvMonth = (curr.getMonth() + i)%12
+                const isNewYear = (curr.getMonth() + i) > 12
+                let recEvYear = curr.getFullYear() 
+                if (isNewYear) recEvYear++
+                const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
                 events.push({
-                    'date': evDate,
+                    'date': recDate,
                     'title': title,
                     'body': body,
                 })
-
-                const curr = new Date()
-                const eventDay = evDate.getDate()
-                const eventMonth = evDate.getMonth() + 1
-                const eventTime = evDate.toLocaleString().split(" ")[1]
-                
-
-                // if every_month / every_year present body
-                if (body.includes("every_month")){
-                    // generate 5 events in future monthes
-                    for (let i = 1; i < 6; i++) {
-                        const recEvMonth = (curr.getMonth() + i)%12
-                        const isNewYear = (curr.getMonth() + i) > 12
-                        let recEvYear = curr.getFullYear() 
-                        if (isNewYear) recEvYear++
-                        const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                        events.push({
-                            'date': recDate,
-                            'title': title,
-                            'body': body,
-                        })
-                    }
-                }
-                if (body.includes("every_year")){
-                    // generate 5 events in future
-                    for (let i = 1; i < 6; i++) {
-                        const recEvYear = curr.getFullYear()  + i
-                        const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                        events.push({
-                            'date': recDate,
-                            'title': title,
-                            'body': body,
-                        })
-                    }
-                }
-                if (body.includes("every_week")){
-                    function genSameDayEvents(eventDate1) {
-                        const targetWeekday = eventDate1.getDay();
-                        const futureDate = new Date();
-                        let count = 0;
-                      
-                        while (count < 5) {
-                          futureDate.setDate(futureDate.getDate() + 1);
-                          if (futureDate.getDay() === targetWeekday) {
-                            futureDate.setHours(eventDate1.getHours());
-                            futureDate.setMinutes(eventDate1.getMinutes());
-                            futureDate.setSeconds(eventDate1.getSeconds());
-                            count++;
-                            events.push({
-                                'date': new Date(futureDate),
-                                'title': title,
-                                'body': body,
-                            })
-                          }
-                        }
-                    }
-                    genSameDayEvents(evDate)
-                }
             }
         }
-        // END EVENT PROCESS to duplicate
+        if (body.includes("every_year")){
+            // generate 5 events in future
+            for (let i = 1; i < 6; i++) {
+                const recEvYear = curr.getFullYear()  + i
+                const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+                events.push({
+                    'date': recDate,
+                    'title': title,
+                    'body': body,
+                })
+            }
+        }
+        if (body.includes("every_week")){
+            function genSameDayEvents(eventDate1) {
+                const targetWeekday = eventDate1.getDay();
+                // start from yesterday
+                // const futureDate = new Date();
+                const futureDate = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
+                let count = 0;
+                
+                while (count < 5) {
+                    // add 1 day till finding the right weekday
+                    futureDate.setDate(futureDate.getDate() + 1);
+                    if (futureDate.getDay() === targetWeekday) {
+                    futureDate.setHours(eventDate1.getHours());
+                    futureDate.setMinutes(eventDate1.getMinutes());
+                    futureDate.setSeconds(eventDate1.getSeconds());
+                    count++;
+                    events.push({
+                        'date': new Date(futureDate),
+                        'title': title,
+                        'body': body,
+                    })
+                    }
+                }
+            }
+            genSameDayEvents(evDate)
+        }
+    }
+    // END EVENT PROCESS to duplicate
+    return events
+}
 
-        
-        // console.log(h, {events})
-        cb(events)
+const searchWord = (env, word, path, cb) => {
+    if (env === "bg") {
+        tiroApi.search.word(word, path, content => {
+            cb(content)
+        })
+    } else if (env === "ctag") {
+        api.call("search.word", [word, path], content => {
+            cb(content)
+        })
+    }
+}
+
+const getEventsList = (env, sourcesRawStr, cb) => {
+    const configArr = getSourcesConfig(sourcesRawStr)
+    let configCount = 0
+    const events = []
+    configArr.forEach(config => {
+        searchWord(env, config.wordToSearch, config.pathToSearch, searchRes => {
+            // res is an object
+            for (const [filePath, file] of Object.entries(searchRes)) {
+                file.results.forEach(l => {
+                    const eventsLine = processEvent(l)
+                    eventsLine.forEach(ev => {
+                        events.push(ev)
+                    })
+                })
+            }
+            configCount++
+            if (configCount === configArr.length) {
+                cb(events)
+            }
+        })
     })
 }
 
@@ -114,5 +177,7 @@ const sendNotif = (event, title) => {
     
 }
 
+if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
+window._tiroPluginsCommon.calendarLib = {getEventsList, sendNotif, config}
 
-return {getEventsList, sendNotif}
+// return {...window.calendarLib}

@@ -25,6 +25,8 @@ export const searchWord = (p: {
 		processRawLine: lineInfos => {
 			let l = lineInfos
 			if (!l.found || l.found === '') return
+			l.file.folder = l.file.folder.replace(".md/", '.md')
+			l.file.path = l.file.path.replace(".md/", '.md')
 			if (!objRes[l.file.path]) objRes[l.file.path] = { file: l.file, results: []}
 			objRes[l.file.path].results.push(l.found)
 		},

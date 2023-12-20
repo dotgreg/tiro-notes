@@ -4,18 +4,20 @@ const h = `[CALENDAR BG | ${curr.getHours()}h${curr.getMinutes()}] `
 let s = bgState.vars
 
 const fetchLibs = (cb) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: true}, calendarLib => {
-        cb(calendarLib)
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: true}, () => {
+        cb()
     })
 }
-fetchLibs(calendarLib => {
-    main(calendarLib)
+fetchLibs(() => {
+    main()
 })
 
-const main = (calendarLib) => {
+const main = () => {
+    const calendarLib = window._tiroPluginsCommon.calendarLib
+    let source_events = config.sourcesStr ? config.sourcesStr : ''
     // all that system suppose we trigger the cron every 11min
-    calendarLib.getEventsList(config.calNotePath, events => {
-        // console.log(h, "calendar note fetch:", {events})
+    calendarLib.getEventsList("bg", source_events, events => {
+        console.log(h, "calendar note fetch:", {events})
         for (var i = 0; i < events.length; i++) {
             let e = events[i]
 

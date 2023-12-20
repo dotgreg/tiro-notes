@@ -59,6 +59,7 @@ interface iEditorProps {
 
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+	onTitleEditedHook?: Function
 	
 
 	onUpdateY: onTitleClickFn
@@ -82,6 +83,13 @@ interface iEditorProps {
 	titleEditor?: iTitleEditorStatus
 }
 
+
+
+//
+//
+// COMPONENT
+//
+//
 const EditorAreaInt = (
 	p: iEditorProps & { isConnected: boolean }
 ) => {
@@ -577,7 +585,7 @@ const EditorAreaInt = (
 						title={p.file.name.replace('.md', '')}
 						enabled={titleEditor === true}
 						onEdited={(o, n) => {
-							
+							p.onTitleEditedHook && p.onTitleEditedHook()
 							const oPath = `${p.file.folder}${o}.md`
 							const nPath = `${p.file.folder}${n}.md`
 							gridContext.file.onTitleUpdate(oPath, nPath)
