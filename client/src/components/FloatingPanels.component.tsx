@@ -299,11 +299,13 @@ export const FloatingPanel = (p:{
                                 ></div>
                                 {  p.panel.type === "file" && p.panel.file &&
                                     <div className='floating-panel__inner-content'>
-                                        
                                         <NotePreview
+                                            windowId={p.panel.id || generateUUID()}
                                             file={p.panel.file}
                                             height={p.panel.size.height}
                                             view={p.panel.view || "editor"}
+                                            searchedString={p.panel.searchedString}
+                                            replacementString={p.panel.replacementString}
                                             titleEditor={"disabled"}
                                             onLayoutUpdate={onLayoutUpdate}
                                         />
