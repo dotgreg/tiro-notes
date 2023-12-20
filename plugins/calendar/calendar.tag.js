@@ -3,100 +3,28 @@ const calendarApp = (innerTagStr, opts) => {
     const h = `[CTAG CALENDAR APP] v1.0.3`
     const api = window.api;
     const infos = api.utils.getInfos();
-    let source_events = opts.source ? opts.source : ''
+    let source_events = opts.sourcesStr ? opts.sourcesStr : ''
     console.log(h, `init with source ${source_events}`);
 
     const initCalendar = () => {
-        api.call("file.getContent", [source_events], noteContent => {
-            function urlify(text) {
-                if(!text) text = ""
-                var urlRegex = /(https?:\/\/[^\s]+)/g;
-                return text.replace(urlRegex, function (url) {
-                        return '<a href="' + url + '" target="_blank">' + url + '</a>';
-                })
-            }
-            
-            let lines = noteContent.split("\n")
-            let events = []
+
+        const calendarLib = window._tiroPluginsCommon.calendarLib
+
+        calendarLib.getEventsList("ctag", source_events, events => {
+            console.log(h, "events", events)
+            bootstrapCalendarFrontLogic(events)
+        })
 
 
+        function urlify(text) {
+            if(!text) text = ""
+            var urlRegex = /(https?:\/\/[^\s]+)/g;
+            return text.replace(urlRegex, function (url) {
+                    return '<a href="' + url + '" target="_blank">' + url + '</a>';
+            })
+        }
 
-
-            // for loop TO DUPLICATE w LIB/TAG ONE
-            // START EVENT PROCESS
-            for (var i = 0; i < lines.length; i++) {
-                const l = lines[i]
-                const p = l.split("|")
-                let title = p[0] ? p[0] : ""
-                let evDate = p[1] ? new Date(p[1]) : false
-                let body = p[2] ? p[2] : ""
-    
-                if (title && evDate) {
-                    events.push({
-                        'date': evDate,
-                        'title': title,
-                        'body': body,
-                    })
-    
-                    const curr = new Date()
-                    const eventDay = evDate.getDate()
-                    const eventMonth = evDate.getMonth() + 1
-                    const eventTime = evDate.toLocaleString().split(" ")[1]
-                    
-    
-                    // if every_month / every_year present body
-                    if (body.includes("every_month")){
-                        // generate 5 events in future monthes
-                        for (let i = 1; i < 6; i++) {
-                            const recEvMonth = (curr.getMonth() + i)%12
-                            const isNewYear = (curr.getMonth() + i) > 12
-                            let recEvYear = curr.getFullYear() 
-                            if (isNewYear) recEvYear++
-                            const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                            events.push({
-                                'date': recDate,
-                                'title': title,
-                                'body': body,
-                            })
-                        }
-                    }
-                    if (body.includes("every_year")){
-                        // generate 5 events in future
-                        for (let i = 1; i < 6; i++) {
-                            const recEvYear = curr.getFullYear()  + i
-                            const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-                            events.push({
-                                'date': recDate,
-                                'title': title,
-                                'body': body,
-                            })
-                        }
-                    }
-                    if (body.includes("every_week")){
-                        function getNextSameWeekdayDates(eventDate1) {
-                            const targetWeekday = eventDate1.getDay();
-                            const futureDate = new Date();
-                            let count = 0;
-                          
-                            while (count < 5) {
-                              futureDate.setDate(futureDate.getDate() + 1);
-                              if (futureDate.getDay() === targetWeekday) {
-                                count++;
-                                events.push({
-                                    'date': new Date(futureDate),
-                                    'title': title,
-                                    'body': body,
-                                })
-                              }
-                            }
-                        }
-                        getNextSameWeekdayDates(evDate)
-                    }
-                }
-            }
-            // END EVENT PROCESS to duplicate
-
-                
+        const bootstrapCalendarFrontLogic = (events) => {
             // for each line, create a new event
             const calEvents = []
             for (var i = 0; i < events.length; i++) {
@@ -128,14 +56,112 @@ const calendarApp = (innerTagStr, opts) => {
             setTimeout(() => {
                     api.utils.resizeIframe("500px");
             }, 500)
+        }
+
+
+
+
+        // api.call("file.getContent", [source_events], noteContent => {
+        //     function urlify(text) {
+        //         if(!text) text = ""
+        //         var urlRegex = /(https?:\/\/[^\s]+)/g;
+        //         return text.replace(urlRegex, function (url) {
+        //                 return '<a href="' + url + '" target="_blank">' + url + '</a>';
+        //         })
+        //     }
             
-        })
+        //     let lines = noteContent.split("\n")
+        //     let events = []
+
+
+
+
+        //     // for loop TO DUPLICATE w LIB/TAG ONE
+        //     // START EVENT PROCESS
+        //     for (var i = 0; i < lines.length; i++) {
+        //         const l = lines[i]
+        //         const p = l.split("|")
+        //         let title = p[0] ? p[0] : ""
+        //         let evDate = p[1] ? new Date(p[1]) : false
+        //         let body = p[2] ? p[2] : ""
+    
+        //         if (title && evDate) {
+        //             events.push({
+        //                 'date': evDate,
+        //                 'title': title,
+        //                 'body': body,
+        //             })
+    
+        //             const curr = new Date()
+        //             const eventDay = evDate.getDate()
+        //             const eventMonth = evDate.getMonth() + 1
+        //             const eventTime = evDate.toLocaleString().split(" ")[1]
+                    
+    
+        //             // if every_month / every_year present body
+        //             if (body.includes("every_month")){
+        //                 // generate 5 events in future monthes
+        //                 for (let i = 1; i < 6; i++) {
+        //                     const recEvMonth = (curr.getMonth() + i)%12
+        //                     const isNewYear = (curr.getMonth() + i) > 12
+        //                     let recEvYear = curr.getFullYear() 
+        //                     if (isNewYear) recEvYear++
+        //                     const recDate = new Date(`${recEvMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+        //                     events.push({
+        //                         'date': recDate,
+        //                         'title': title,
+        //                         'body': body,
+        //                     })
+        //                 }
+        //             }
+        //             if (body.includes("every_year")){
+        //                 // generate 5 events in future
+        //                 for (let i = 1; i < 6; i++) {
+        //                     const recEvYear = curr.getFullYear()  + i
+        //                     const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
+        //                     events.push({
+        //                         'date': recDate,
+        //                         'title': title,
+        //                         'body': body,
+        //                     })
+        //                 }
+        //             }
+        //             if (body.includes("every_week")){
+        //                 function getNextSameWeekdayDates(eventDate1) {
+        //                     const targetWeekday = eventDate1.getDay();
+        //                     const futureDate = new Date();
+        //                     let count = 0;
+                          
+        //                     while (count < 5) {
+        //                       futureDate.setDate(futureDate.getDate() + 1);
+        //                       if (futureDate.getDay() === targetWeekday) {
+        //                         count++;
+        //                         events.push({
+        //                             'date': new Date(futureDate),
+        //                             'title': title,
+        //                             'body': body,
+        //                         })
+        //                       }
+        //                     }
+        //                 }
+        //                 getNextSameWeekdayDates(evDate)
+        //             }
+        //         }
+        //     }
+        //     // END EVENT PROCESS to duplicate
+
+                
+            
+            
+        // })
     }
 
     api.utils.loadRessources(
             [
-                    'https://raw.githubusercontent.com/jackducasse/caleandar/master/js/caleandar.js',
-                    'https://raw.githubusercontent.com/jackducasse/caleandar/master/css/theme3.css'
+                'https://raw.githubusercontent.com/jackducasse/caleandar/master/js/caleandar.js',
+                'https://raw.githubusercontent.com/jackducasse/caleandar/master/css/theme3.css',
+                `${opts.plugins_root_url}/calendar/calendar.lib.js`
+
             ], () => {
                     initCalendar()
             }

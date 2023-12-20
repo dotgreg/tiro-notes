@@ -287,6 +287,7 @@ export const DraggableGrid = (p: {
 		} else if (type === "windowViewChange") {
 			console.log("view change", data?.view, i)
 			if (!data?.view || !p.grid.content[i].file) return
+			console.log("view change2", data?.view, i)
 			viewTypeChange(data?.view, i)
 			const filePath = p.grid.content[i].file?.path || ""
 			setNoteView(filePath, data?.view)
@@ -399,6 +400,7 @@ export const DraggableGrid = (p: {
 									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
+											forceView={p.grid.content[i] && p.grid.content[i].view}
 											onLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>

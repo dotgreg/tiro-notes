@@ -303,6 +303,11 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			fs.unlink(path, () => { }); // Delete the file async. (But we don't check the result)
 			shouldLog && log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
 			reject(err.message);
+		}).on('timeout', () => {
+			// on timeout, retry 1 time
+			shouldLog && log(`[DOWNLOAD FILE] timeout  (${url} to ${path})`)
+			req.abort()
+			reject('TIMEOUT')
 		});
 		if (postData) {
 			req.write(postData);

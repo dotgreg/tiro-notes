@@ -246,7 +246,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Live Edition",
-						expl: "If other clients edit the same note, update everybody on live" + requireReloadStr,
+						expl: "If other clients edit the same note, update everybody on live. <br> That functionality is required for AI assistant and the inline calculator" + requireReloadStr,
 						var: us.get('ui_editor_live_watch'),
 						modifier: val => {
 							setDisplayReload(true);

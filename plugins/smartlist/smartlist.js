@@ -108,7 +108,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 console.log('onClick:', item,e);
                                 let pos = ["50%" ,"50%"]
                                 filePath = item.folder + item.filename
-                                api.call("ui.notePreviewPopup.open", [filePath, pos, { searchedString:item.line, replacementString:`wooop`}])
+                                api.call("ui.notePreviewPopup.open", [filePath, ["50%" ,"50%"], { searchedString:item.line, replacementString:`wooop`}])
                         
                           },
                           onMouseEnter: (item,e) => {

@@ -221,10 +221,16 @@ export const useTabs = () => {
 		const nTabs = cloneDeep(tabsRef.current)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
-		nTabs[aId].grid = grid
+		// nTabs[aId].grid = { ...grid}
+		// assign grid without losing the object 
+		nTabs[aId].grid = Object.assign(nTabs[aId].grid, grid)
+		let nRefresh = nTabs[aId].refresh
+		nTabs[aId].refresh = nRefresh ? nRefresh + 1 : 1
+
 		// console.log(`[TAB LAYOUT] update tab grid n:${aId}`, grid);
 		// const nTabs2 = refreshTabsViews(nTabs)
 		// setTabs(nTabs2)
+		
 		setTabs(nTabs, () => {cb && cb()})
 	}
 

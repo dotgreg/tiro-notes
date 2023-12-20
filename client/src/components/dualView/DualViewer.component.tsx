@@ -157,10 +157,10 @@ const DualViewerInt = (
 	//
 	// overlay loading
 	//
-	const [forceCloseOverlay, setForceCloseOverlay] = useState(false)
+
+	const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
 	useEffect(() => {
-		setForceCloseOverlay(false)
-		// console.log('canedit', p.canEdit);
+		setShowLoadingOverlay(!p.canEdit)
 	}, [p.canEdit])
 
 	
@@ -168,14 +168,14 @@ const DualViewerInt = (
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
 	>
-		{(!p.canEdit && !forceCloseOverlay) && 
-			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
+		{showLoadingOverlay  && 
+			<div className='loading-overlay' onClick={e => {setShowLoadingOverlay(false)}}> 
 				<div className="loading-text">loading...</div> 
 			</div>
 		}
 		
 		{(p.isDragging) && 
-			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
+			<div className='loading-overlay'> 
 				<div className="loading-text"> drop to upload</div> 
 			</div>
 		}
@@ -188,7 +188,9 @@ const DualViewerInt = (
 			editorType='codemirror'
 			showViewToggler={p.showViewToggler}
 			showToolbar={p.showToolbar}
+
 			titleEditor={p.titleEditor}
+			onTitleEditedHook={() => {setShowLoadingOverlay(true)}}
 
 			file={p.file}
 			canEdit={p.canEdit}
