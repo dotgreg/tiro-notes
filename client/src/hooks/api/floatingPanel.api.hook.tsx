@@ -8,6 +8,7 @@ import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
 import { deviceType } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
+import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 
 const h = `[FLOATING PANELS]`
 
@@ -16,6 +17,8 @@ export interface iFloatingPanel {
     size: {width: number, height: number},
     status: "hidden" | "visible" | "minimized",
     file: iFile,
+    searchedString?: string,
+    replacementString?: string,
     type: "ctag" | "file",	
     view?: iViewType,
     orderPosition?: number,
@@ -25,10 +28,10 @@ export interface iFloatingPanel {
 }
 
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
+type iPanelLayout =  "full-center" | "half-right" | "half-left" | "full-bottom" | "full-top" 
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
     type: "ctag" | "file",
-    layout?: "full-center" | "half-right" | "half-left" | "full-bottom" | "full-top"  ,
-
+    layout?: iPanelLayout
 }
 
 export interface iFloatingPanelApi {
@@ -41,7 +44,8 @@ export interface iFloatingPanelApi {
     movePanel: (panelId:string, position:{x:number, y:number}) => void,
     resizePanel: (panelId:string, size:{width:number, height:number}) => void,
     minimizePanel: (panelId:string) => void,
-    
+
+    openFile: (filepath:string, opts?:{idpanel?:string, layout?: iPanelLayout, searchedString?:string, replacementString?:string}) => void,
     
     updateAll: (panels:iFloatingPanel[]) => void,
     actionAll: (action:"hide"|"show"|"organizeWindows") => void,
@@ -256,8 +260,32 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updateAll(newPanels)
     }
 
+    const openFile:iFloatingPanelApi["openFile"] = (filepath, opts) => {
+        let {idpanel, layout, searchedString, replacementString} = opts || {}
+        if (!idpanel) idpanel = Math.random().toString(36).substring(7)
+        let panel = cloneDeep(panelsRef.current.find(p => p.id === idpanel))
+        if (!panel) {
+            // create panel 
+            const panel:iCreateFloatingPanel = {
+                id: idpanel,
+                type: "file",
+                file: pathToIfile(filepath),
+            }
+            if (layout) panel.layout = layout
+            if (searchedString) panel.searchedString = searchedString
+            if (replacementString) panel.replacementString = replacementString
+            createPanel(panel)
+        } else {
+            panel.file = pathToIfile(filepath)
+            if (searchedString) panel.searchedString = searchedString
+            if (replacementString) panel.replacementString = replacementString
+            updatePanel(panel)
+        }
+    }
+
     const api: iFloatingPanelApi = {
         create: createPanel,
+        openFile: openFile,
         update: updatePanel,
         updateAll,
         delete: deletePanel,

@@ -134,7 +134,8 @@ const timelineApp = (innerTagStr, opts) => {
                                         timeline.on('select', function (properties) {
                                                 let itemClicked = itemsArr.filter(el => el.id === properties.items[0])[0]
                                                 if (!itemClicked) return
-                                                api.call("ui.notePreviewPopup.open", [itemClicked.filePath, ["50%" ,"50%"], { searchedString:itemClicked.itemRawStr}])
+                                                // api.call("ui.notePreviewPopup.open", [itemClicked.filePath, ["50%" ,"50%"], { searchedString:itemClicked.itemRawStr}])
+                                                api.call("ui.floatingPanel.openFile", [itemClicked.filePath, { searchedString:itemClicked.itemRawStr, idpanel: "id-panel-timeline-preview"}])
                                         });
                                         
                                 }

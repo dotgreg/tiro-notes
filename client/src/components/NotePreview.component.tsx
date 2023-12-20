@@ -60,7 +60,7 @@ export const NotePreviewInt = (p: {
 				if (p.searchedString) {
 					getApi(api => {
 						setTimeout(() => {
-							console.log("searchword", p.searchedString, p.replacementString)
+							console.log("searchword", p.searchedString, p.replacementString, p.windowId)
 							api.ui.note.editorAction.dispatch({
 								type:"searchWord", 
 								searchWordString: p.searchedString,
@@ -190,8 +190,9 @@ export const NotePreviewCss = () => `
 		.window-editor-wrapper,
 		.dual-view-wrapper,
 		.editor-area,
-		.main-editor-wrapper,
 		.codemirror-editor-wrapper {height: 100%}
+
+		.main-editor-wrapper {height: calc(100% - 35px)}
 
 
 }
