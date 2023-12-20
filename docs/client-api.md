@@ -808,6 +808,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.delete",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.floatingPanel.minimizePanel</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.minimizePanel",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.floatingPanel.movePanel</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 

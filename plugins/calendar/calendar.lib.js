@@ -46,7 +46,7 @@ const processEvent = (lineRes) => {
     let title = p[1] ? p[1].trim() : ""
     let body = p[3] ? p[3].trim().replace("]","") : ""
     let evDateRaw = p[2] ? p[2].trim() : false
-    
+    if (!evDateRaw) return false
     let evDate = dateStrToObj(evDateRaw)
 
     let events = []
@@ -145,9 +145,11 @@ const getEventsList = (env, sourcesRawStr, cb) => {
             for (const [filePath, file] of Object.entries(searchRes)) {
                 file.results.forEach(l => {
                     const eventsLine = processEvent(l)
-                    eventsLine.forEach(ev => {
-                        events.push(ev)
-                    })
+                    if (eventsLine) {
+                        eventsLine.forEach(ev => {
+                            events.push(ev)
+                        })
+                    }
                 })
             }
             configCount++

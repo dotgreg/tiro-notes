@@ -6,7 +6,7 @@ import { fileStats } from "../fs.manager";
 import { log } from "../log.manager";
 import { getRelativePath, p } from "../path.manager";
 
-const h = `[RIPGREP SEARCH] `
+const h = `[RIPGREP SEARCH2] `
 const shouldLog = sharedConfig.server.log.ripgrep
 
 export const cleanFileNamePath = (rawString: string, folder) => {

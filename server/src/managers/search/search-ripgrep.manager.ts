@@ -12,7 +12,7 @@ import { processRawDataToFiles, processRawPathToFile } from "./file.search.manag
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
 
-const h = `[RIPGREP SEARCH] `
+const h = `[RIPGREP SEARCH1] `
 const shouldLog = sharedConfig.server.log.ripgrep
 
 const fs = require('fs')
@@ -69,7 +69,6 @@ type iLineRg = {
 export const searchWithRgGeneric = async (p: {
 	term: string
 	folder: string
-
 	recursive?: boolean,
 	options?: {
 		wholeLine?: boolean,
@@ -77,11 +76,9 @@ export const searchWithRgGeneric = async (p: {
 		filetype?: "md" | "all"
 		// exclude?:string[]
 	}
-
 	processRawLine?: (infos: iLineRg) => any
 	onSearchEnded: (res: any) => void
 	onRgDoesNotExists?: () => void
-
 }): Promise<void> => {
 
 	if (!p.recursive) p.recursive = true
@@ -89,16 +86,13 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
-
 	let typeArgs = ['--type','md']
 	if (p.options.filetype === "all") typeArgs = ['--files']
-
 	const onRgDoesNotExists = (err) => {
-		console.log(h, err)
+		// console.log(h, err)
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
 	}
-
 	let exclusionArr:string[] = []
 	// exclusion string // not working currenlty
 	// if (p.options.exclude) {
@@ -109,14 +103,11 @@ export const searchWithRgGeneric = async (p: {
 	// 	})
 	// }
 
-	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
-
+	let end = perf(`searchWithRipGrep 2 term:${p.term} folder:${p.folder}`)
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
-
 	let lineParam = p.options.wholeLine ? '' : '--only-matching'
-
 	const searchParams = [
 		p.term,
 		folderToSearch,
@@ -126,27 +117,17 @@ export const searchWithRgGeneric = async (p: {
 		lineParam,
 		...exclusionArr
 	]
-	// p.options.debug && console.log(`== START1 ============`);
-	// p.options.debug && console.log(backConfig.rgPath, searchParams);
-	
-	// if (!ripGrepStream) errturn onRgDoesNotExists(err)
 	
 	const resArr: string[] = []
 	const onData1 = async dataChunk => {
-		// console.log("========", dataChunk);
 		const rawChunk = dataChunk.toString()
-		
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
 			let lineRaw = line
-			// "path/to/file:whole line with : inside" 
-
 			// search "found word:10"
 			lineRaw = line.split(':')
 			if (!lineRaw[0] || lineRaw[0] === '') return
 			let found = lineRaw.slice(1).join(":")
-			
-			//	lineRaw => '/home/ubuntu/Desktop/_tiro_test/_new3/2222/MAIN PLAN.md:- [x] Tiro fix toc pb et autres UX + test server',
 			const processedLine = p.processRawLine({
 				file: processRawPathToFile({ rawPath: lineRaw[0], folder: p.folder }),
 				raw: line,
@@ -154,22 +135,22 @@ export const searchWithRgGeneric = async (p: {
 				found,
 			})
 			if (processedLine) resArr.push(processedLine)
-
-
-
 		})
 	}
 	const onClose1 = dataChunk => {
 		p.onSearchEnded(resArr)
 		end()
-		// p.options.debug && console.log(`============== END`);
 	}
 	execaWrapper({
 		cmdPath:backConfig.rgPath, 
 		args: searchParams,
 		onData: onData1,
 		onClose: onClose1,
-		onError: err => {onRgDoesNotExists(err)}
+		onError: err => {
+			// if no such file or directory, dont raise error
+			if (JSON.stringify(err).includes("os error 2")) return
+			onRgDoesNotExists(err)
+		}
 	})
 }
 
@@ -214,7 +195,7 @@ export const searchWithRipGrep = async (params: {
 
 }): Promise<void> => {
 	let p = params
-	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
+	let end = perf(`searchWithRipGrep 1 term:${p.term} folder:${p.folder}`)
 	const onRgDoesNotExists = (err) => {
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
