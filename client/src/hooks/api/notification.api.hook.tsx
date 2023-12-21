@@ -7,16 +7,17 @@ import { getApi } from "./api.hook"
 const h = `[NOTIFICATIONS]`
 
 export interface iNotificationApi {
-	emit: (notification: iNotification) => void
+	emit: (notification: iNotification, cb?:Function) => void
 }
 
 export const useNotificationApi = (p: {
 }) => {
 
 	// get files list
-	const emitNotification: iNotificationApi['emit'] = (notification) => {
+	const emitNotification: iNotificationApi['emit'] = (notification, cb) => {
 		const showNotif = () => {
 			console.log(h, `emitNotification`, notification)
+			if (cb) cb()
 			clientSocket2.emit('emitNotification', {
 				notification,
 				token: getLoginToken(),

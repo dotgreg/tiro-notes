@@ -38,8 +38,7 @@ const main = () => {
             const isIn1h = minsFromNow > 60 && minsFromNow < 90
             const atStr = ` at ${evdate.getHours()}h${evdate.getMinutes()}`
 
-            if (
-                isForTomorrow && isWorkingHours) {
+            if (isForTomorrow && isWorkingHours) {
                 console.log(h, "isForTomorrow + is2pm", e)
                 let title = `Tomorrow :`
                 if (!isDayEvent) title += atStr
@@ -47,8 +46,9 @@ const main = () => {
             }
             if (!isDayEvent && isIn10m) {
                 console.log(h, "isIn10m", e)
-                tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2870/2870.wav")
-                calendarLib.sendNotif(e, `In 10 minutes,${atStr}` )
+                calendarLib.sendNotif(e, `In 10 minutes,${atStr}`, () => {
+                    tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2870/2870.wav")
+                })
             }
             if (!isDayEvent && isIn1h) {
                 console.log(h, "isIn1h", e)

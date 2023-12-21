@@ -165,26 +165,32 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const minimizePanel = (panelId:string) => { 
         const nPanel = panelsRef.current.find(p => p.id === panelId)
         // if panel is file 
-        if (nPanel?.type === "file") {
-            // get all the minimized panels with the same file and delete them
-            let newPanels = cloneDeep(panelsRef.current)
-            newPanels = newPanels.filter(p => p.id !== panelId && p.file.path !== nPanel.file.path)
-            // add the new minimized panel
-            newPanels.push({...nPanel, status: "minimized"})
-            // console
-            updateAll(newPanels)
+
+        updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
+
+        //
+        // killing tabs content so disabled
+        // if (nPanel?.type === "file") {
+        //     // get all the minimized panels with the same file and delete them
+        //     let newPanels = cloneDeep(panelsRef.current)
+        //     newPanels = newPanels.filter(p => p.id !== panelId && p.file.path !== nPanel.file.path)
+        //     // add the new minimized panel
+        //     newPanels.push({...nPanel, status: "minimized"})
+        //     // console
+        //     updateAll(newPanels)
 
 
 
-            // then search inside all the panels for the panelId and set it to minimized
-            // let panel = newPanels.find(p => p.id === panelId)
-            // if (!panel) return
-            // panel.status = "minimized"
-            // updateAll(newPanels)
-        } else {
-            // if panel is ctag, just minimize it
-            updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
-        }
+        //     // then search inside all the panels for the panelId and set it to minimized
+        //     // let panel = newPanels.find(p => p.id === panelId)
+        //     // if (!panel) return
+        //     // panel.status = "minimized"
+        //     // updateAll(newPanels)
+        // } else {
+        //     // if panel is ctag, just minimize it
+        //     updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
+        // }
+        
     }
 
     const reorganizeAll = () => {

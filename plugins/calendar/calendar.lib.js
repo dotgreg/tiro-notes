@@ -161,7 +161,7 @@ const getEventsList = (env, sourcesRawStr, cb) => {
     })
 }
 
-const sendNotif = (event, title) => {
+const sendNotif = (event, title, cb) => {
     const notifId = `${event.title}${event.body}${event.date}`
     // tiroApi.cache.get(notifId, cacheInfo => {
         // if (cacheInfo && cacheInfo.alreadyShown === true) return console.log(h, "sendNotif already shown, dont reshow it", event)
@@ -176,7 +176,9 @@ const sendNotif = (event, title) => {
         <b>${event.title}</b><br> 
         <div style="color:#acacac; font-size:10px;">${body}</div>
     `
-    tiroApi.ui.notification.emit({id:notifId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: config.showNotifOnceEvery}})
+    tiroApi.ui.notification.emit({id:notifId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: config.showNotifOnceEvery}}, () => {
+        cb()
+    })
     
 }
 
