@@ -130,6 +130,13 @@ const timelineApp = (innerTagStr, opts) => {
                                         var timeline = new vis.Timeline(wrapperEl, items, options);
                                         timeline.setGroups(groups);
 
+                                        // timeline 6 months period by default
+                                        var start = new Date();
+                                        var end = new Date();
+                                        start.setMonth(start.getMonth() - 5);
+                                        end.setMonth(end.getMonth() + 2);
+                                        timeline.setWindow(start, end);
+
                                         timeline.on('select', function (properties) {
                                                 let itemClicked = itemsArr.filter(el => el.id === properties.items[0])[0]
                                                 if (!itemClicked) return

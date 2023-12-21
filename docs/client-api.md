@@ -545,6 +545,16 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.cleanCache",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ressource.compressImage</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. params: <span class="render-code-wrapper"><a href="#client-api?id=iimagecompressionparams">iImageCompressionParams</a></span>
+    - Result: <span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.compressImage",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iimagecompressionparams">iImageCompressionParams</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ressource.delete</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -926,8 +936,10 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. notification: <span class="render-code-wrapper"><a href="#client-api?id=inotification">iNotification</a></span>
+    - Result: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notification.emit",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=inotification">iNotification</a></span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notification.emit",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=inotification">iNotification</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.search.term.get</span>
@@ -1049,10 +1061,10 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. name: <span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>
-    - Result:  
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;currentValue: <span class="render-code-wrapper">any</span>, <br/>&nbsp;&nbsp;&nbsp;defaultValue: <span class="render-code-wrapper">any</span><br/>}</span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span> ], <br/>(res:) => {}<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iusersettingname">iUserSettingName</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;currentValue: <span class="render-code-wrapper">any</span>, <br/>&nbsp;&nbsp;&nbsp;defaultValue: <span class="render-code-wrapper">any</span><br/>}</span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">userSettings.list</span>
@@ -1228,6 +1240,12 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;code: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options: <span class="render-code-wrapper"><a href="#client-api?id=ipluginoptions">iPluginOptions</a></span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=iplugintype">iPluginType</a></span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iImageCompressionParams</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;path: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;quality: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;height?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;maxHeight?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;maxWidth?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;width?: <span class="render-code-wrapper">number</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iDownloadRessourceOpts</span>
@@ -1419,7 +1437,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "plugins_marketplace_url" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_shortcuts_panel" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iUpdateConfigJsonOpts</span>
