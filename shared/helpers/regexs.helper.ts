@@ -11,6 +11,7 @@ const v = {
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 	// titleHtml: /(\<title\/\>)[^<](/,
+	
 }
 const vStr = {
 	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{1}",
@@ -22,6 +23,8 @@ const vStr = {
 
 export const regexs = {
 	strings: vStr,
+	// date like 31/12/2020
+	dateFrFormat: /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})/gi,
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,

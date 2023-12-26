@@ -177,7 +177,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Enhanced Markdown",
-						expl: "Enhanced Markdown Preview for files, documents etc" + requireReloadStr,
+						expl: "Enhanced Markdown Preview for files, documents, date etc" + requireReloadStr,
 						var: us.get('ui_editor_markdown_enhanced_preview'),
 						modifier: val => {
 							setDisplayReload(true);

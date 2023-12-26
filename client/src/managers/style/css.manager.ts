@@ -53,6 +53,7 @@ import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 import { windowEditorCss } from '../../components/windowGrid/WindowEditor.component';
 import { passwordPopupCss } from '../../components/PasswordPopup.component';
 import { hashtagCmPluginCss } from '../codeMirror/hashtag.plugin.cm';
+import { datePickerCmPluginCss } from '../codeMirror/datePicker.cm';
 
 
 export const css2 = (css: string) => css
@@ -150,6 +151,7 @@ export const CssApp2Int = (
 		${linksPreviewMdCss(userSettings)}
 		${ctagPreviewPluginCss()}
 		${passwordPopupCss()}
+		${datePickerCmPluginCss()}
 
 		${FloatingPanelCss()}
 
@@ -209,9 +211,9 @@ export const CssApp2Int = (
 
 				.config-buttons-bar {
 					position: fixed;
-					bottom: 10px;
+					bottom: 4px;
 					left: 3px;
-					z-index: 11;
+					z-index: 20;
 
 					.config-button {
 						// margin-top: 10px;
@@ -228,7 +230,7 @@ export const CssApp2Int = (
 					}
 					.settings-button {
 						
-					}
+					}	
 				}
 				 
 

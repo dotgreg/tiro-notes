@@ -3,16 +3,19 @@ import { iEditorSelection } from '../../managers/codeMirror/editorUtils.cm';
 import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 
 
-
+type iCMPosition = number | "currentPos" | "currentLineStart" 
 export interface iEditorAction {
 	windowId?: string
-	type: "lineJump" | "insertText" | "searchWord" | "setSelection" | "triggerAiSearch" | "undo" | "redo" | "uploadProgress"
+	type: "lineJump" | "insertText" | "replaceText"  | "searchWord" | "setSelection" | "triggerAiSearch" | "undo" | "redo" | "uploadProgress"
 
 	lineJumpNb?: number
 	lineJumpString?: string
 
 	insertText?: string
-	insertPos?: number | "currentPos" | "currentLineStart" 
+	insertPos?: iCMPosition
+	
+	replaceText?: string
+	replacePos?: iCMPosition
 
 	uploadProgress?: number 
 	

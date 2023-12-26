@@ -9,7 +9,8 @@ export const hashtagPreviewPlugin = (file: iFile, windowId:string) => genericRep
 	file,
 	windowId,
 	pattern: regexs.hashtag,
-	replacement: (matchs: any) => {
+	replacement: params => {
+		const matchs = params.matchs
         // wrap the word with a span so we can style it
 		let resEl = document.createElement("span");
         // resEl.innerHTML = matchs[0];
@@ -26,7 +27,8 @@ export const hashtagPreviewPlugin = (file: iFile, windowId:string) => genericRep
 		return resEl
 	},
     options: {
-        isAtomic: true,
+        // isAtomic: true,
+        isAtomic: false,
     }
 })
 
