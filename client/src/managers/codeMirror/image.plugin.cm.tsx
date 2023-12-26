@@ -43,7 +43,8 @@ export const imagePreviewPlugin = (file: iFile, windowId:string) => genericRepla
 	file,
 	windowId,
 	pattern: regexs.image2,
-	replacement: matchs => {
+	replacement: params => {
+		const matchs = params.matchs
 		let resEl = document.createElement("div");
 		resEl.innerHTML = generateImagePreviewHtml2(matchs[0], matchs[2], matchs[1], matchs[5], file)
 		return resEl;

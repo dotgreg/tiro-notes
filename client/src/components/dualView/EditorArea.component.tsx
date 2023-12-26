@@ -175,8 +175,8 @@ const EditorAreaInt = (
 		editorRef
 	})
 
-	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart') => {
-		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
+	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart', replaceText?:boolean) => {
+		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition, replaceText })
 		if (updatedText) {
 			triggerNoteEdition(updatedText)
 			forceCmRender()
@@ -490,7 +490,12 @@ const EditorAreaInt = (
 		// insert at
 		if (a.type === "insertText" && a.insertText && a.insertPos) {
 			console.log("insertText", a)
-			insertTextAt(a.insertText, a.insertPos)
+			insertTextAt(a.insertText, a.insertPos, false)
+		}
+
+		if (a.type === "replaceText" && a.replaceText && a.replacePos) {
+			console.log("replaceText", a)
+			insertTextAt(a.replaceText, a.replacePos, true)
 		}
 
 		// search interface

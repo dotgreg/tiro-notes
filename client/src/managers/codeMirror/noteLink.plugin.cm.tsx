@@ -11,7 +11,8 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 	file,
 	windowId,
 	pattern: regexs.linklink,
-	replacement: matchs => {
+	replacement: params => {
+		const matchs = params.matchs
 		let resEl = document.createElement("span");
 		resEl.classList.add('note-link-mdpreview-wrapper')
 		resEl.classList.add('note-link-wrapper')

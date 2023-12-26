@@ -115,6 +115,7 @@ export type TextModifAction = '->' | '<-' | '[x]' | '^' | 'v' | 'X' | 'C' | 'ins
 export interface TextModifActionParams {
 	textToInsert: string
 	insertPosition: number | 'currentPos' | 'currentLineStart'
+	replaceText?: boolean
 }
 
 export const triggerTextModifAction = (
@@ -202,10 +203,12 @@ export const triggerTextModifAction = (
 		console.log('inserting at', insertPos, actionParams, infos.lineIndex, infos)
 		
 		let text = lines.join('\n') as string
+		const lengthToInsert = actionParams.textToInsert.length
+		
 		let text2 = [
 			text.slice(0, insertPos),
 			actionParams.textToInsert,
-			text.slice(insertPos)
+			actionParams.replaceText ? text.slice(insertPos + lengthToInsert, text.length) : text.slice(insertPos, text.length)
 		].join('')
 		lines = text2.split('\n')
 

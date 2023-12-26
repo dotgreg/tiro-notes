@@ -19,7 +19,8 @@ export const filePreviewPlugin = (file: iFile, windowId:string) => genericReplac
 	file,
 	windowId,
 	pattern: regexs.ressource,
-	replacement: matchs => {
+	replacement: params => {
+		const matchs = params.matchs
 		let resEl = document.createElement("span");
 		let url = matchs[2]
 		if (getFileType(url) === 'none') {

@@ -21,7 +21,8 @@ export const linksPreviewPlugin = (file: iFile, windowId:string) => genericRepla
 	file,
 	windowId,
 	pattern: regexs.externalLink3,
-	replacement: (matchs: any) => {
+	replacement: params => {
+		const matchs = params.matchs
 		let resEl = document.createElement("span");
 		// resEl.innerHTML = generateHtmlLinkPreview(matchs)
 		resEl.innerHTML = generateHtmlLinkPreview(matchs)

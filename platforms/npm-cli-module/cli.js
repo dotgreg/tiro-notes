@@ -61,6 +61,7 @@ function getCliArgs () {
 				verbose: false,
 				backup: {
 						enabled: false,
+						now: false,
 						location: "default", 
 						scriptLocation: "default"
 				},
@@ -80,6 +81,7 @@ function getCliArgs () {
 				if (argName === 'v' || argName === 'verbose') argsObj.verbose = parseInt(argVal)
 
 				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
+				if (argName === 'b' || argName === 'backup') argsObj.backup.now = (argVal === "now" || argVal === "n") ? true : false
 				if (argName === 'backup-location') argsObj.backup.location = argVal
 				if (argName === 'backup-post-script') argsObj.backup.scriptLocation = argVal 
 
@@ -159,15 +161,16 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		console.log ("[BACKUP] starting backup logic!");
 
-		const debugBackupNow = isDev ? false : false
+		let debugBackupNow = isDev ? false : false
+		if (argsObj.backup.now) debugBackupNow = true
 		const processBackupEveryDay = async () => {
 				// if > 1 day
 				const lastTimestamp = await getLastTimestamp()
 				const diff = backupInterval + lastTimestamp - new Date().getTime()
 				const diffMin = Math.round(diff / (1000 * 60))
-				// are we between 1am-2am ?
-				const isBetween1am2am = new Date().getHours() === 1
-				if ((diff < 0 && isBetween1am2am) || debugBackupNow) {
+				// are we between 1am-5am ?
+				const isBetween1am5am = new Date().getHours() >= 1 && new Date().getHours() <= 5
+				if ((diff < 0 && isBetween1am5am) || debugBackupNow) {
 						console.log(`[BACKUP] time has come, BACKUP!`);
 
 						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
@@ -181,7 +184,7 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 						console.log (debugObj);
 				} else {
-						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins AND waiting for being between 1am-2am`);
+						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins AND waiting for being between 1am-2am [${JSON.parse(argsObj.backup)}]`);
 				}
 		}
 
