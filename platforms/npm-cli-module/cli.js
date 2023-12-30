@@ -171,7 +171,8 @@ const startBackupScript = async (argsObj, dataFolder) => {
 				// are we between 1am-5am ?
 				const isBetween1am5am = new Date().getHours() >= 1 && new Date().getHours() <= 5
 				if ((diff < 0 && isBetween1am5am) || debugBackupNow) {
-						console.log(`[BACKUP] time has come, BACKUP!`);
+						debugBackupNow = false
+						console.log(`[BACKUP] time has come, BACKUP! (debugBackupNow:${debugBackupNow})`);
 
 						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
 						// append to backup CLI current timestamp to last_backup_timestamp
@@ -184,7 +185,7 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 						console.log (debugObj);
 				} else {
-						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins AND waiting for being between 1am-2am [${JSON.parse(argsObj.backup)}]`);
+						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins AND waiting for being between 1am-5am`);
 				}
 		}
 
