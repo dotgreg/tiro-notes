@@ -219,6 +219,8 @@ export const FloatingPanel = (p:{
         }
     }
 
+    
+
     return (
         <div className={`floating-panel-wrapper ${p.panel.status}`} 
             style={{zIndex:p.panel.zIndex}}
@@ -461,12 +463,14 @@ export const FloatingPanelsWrapper = (p:{
         onPanelsChangeDebounce()
     },[panels])
 
+    console.log("panels", panels)
+
     return (
         <div className="floating-panels-wrapper" style={{pointerEvents: panelDrag ? "all" : "none"}}>
 
 
             {isArray(panels) && panels.map( panel =>
-                panel.status !== "hidden" &&
+                panel.status !== "hidden" && panel.device === deviceType() &&
                 <div key={panel.id}>
                     <FloatingPanel 
                         panel={panel} 
