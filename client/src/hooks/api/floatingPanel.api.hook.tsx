@@ -6,7 +6,7 @@ import { cloneDeep } from "lodash"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
-import { deviceType } from "../../managers/device.manager"
+import { deviceType, iDeviceType } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 
@@ -25,6 +25,7 @@ export interface iFloatingPanel {
     ctagConfig?: iCtagGenConfig,
     id: string,
     zIndex?: number,
+    device: iDeviceType,
 }
 
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
@@ -63,27 +64,35 @@ let offset = 20
 
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
-    const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[], {history: true})
-    const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: true})
     const panelsRef = React.useRef<iFloatingPanel[]>([])
-
     const setPanels = (npans:iFloatingPanel[]) => {
         panelsRef.current = npans
         setPanelsInt(npans)
-        if (deviceType() !== 'mobile') setPanelsDesktop(npans)
     }
 
-    const startupIrrigationFromBackend = React.useRef<boolean>(true)
-    useEffect(() => {
-        refreshFromBackend()
-    },[])
+
+    // const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[], {history: true})
+    // const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
+    // const panelsRef = React.useRef<iFloatingPanel[]>([])
+
+    // const setPanels = (npans:iFloatingPanel[]) => {
+    //     panelsRef.current = npans
+    //     setPanelsInt(npans)
+    //     if (deviceType() !== 'mobile') setPanelsDesktop(npans)
+    // }
+
+    // const startupIrrigationFromBackend = React.useRef<boolean>(true)
+    // useEffect(() => {
+    //     refreshFromBackend()
+    // },[])
     
-    useEffect(() => {
-        if (!startupIrrigationFromBackend.current) return
-        if (panelsDesktop.length > 0) startupIrrigationFromBackend.current = false
-        if (deviceType() !== 'mobile') setPanelsInt(panelsDesktop)
-        panelsRef.current = panelsDesktop
-    },[panelsDesktop])
+    // useEffect(() => {
+    //     if (!startupIrrigationFromBackend.current) return
+    //     if (panelsDesktop.length > 0) startupIrrigationFromBackend.current = false
+    //     if (deviceType() !== 'mobile') setPanelsInt(panelsDesktop)
+    //     panelsRef.current = panelsDesktop
+    // },[panelsDesktop])
 
 
     const createPanel = (panelParams:iCreateFloatingPanel) => {
@@ -112,6 +121,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         const decal = 100
         const sizeWidth = (window.innerWidth / 2) - decal
         const sizeHeight = (window.innerHeight / 1.2) - decal
+
         const panel:iFloatingPanel = {
             position: {x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset)},
             size: {width: sizeWidth, height: sizeHeight},
@@ -120,6 +130,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             view: "editor",
             id: Math.random().toString(36).substring(7),
             zIndex: startingZindex,
+            device: deviceType(),
             orderPosition: nonHiddenPanels.length,
             ...panelParams,
         }
