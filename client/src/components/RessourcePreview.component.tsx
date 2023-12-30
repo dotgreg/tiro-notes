@@ -159,14 +159,13 @@ export const RessourcePreview = (p: {
 	let downloadFn = (el) => {
 		if (!el) return
 		let ssrRessLink = el.dataset.link
-		let ssrFilePath = el.dataset.filepath
 		let ssrFileName = el.dataset.filename
-		// console.log(ressLink, downloadName);
+		console.log(ressLink, downloadName);
 		downloadFile(ssrFileName, ssrRessLink)
 	}
 	let download = `<li
 		onclick="${ssrFn("download-link-ress", downloadFn)}"
-		title="Preview link" data-filepath="${p.file.path}" data-filename="${p.file.name}" data-link="${previewLink}">${i('download')}</li>`
+		title="Preview link" data-filename="${downloadName}" data-link="${previewLink}">${i('download')}</li>`
 
 	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
