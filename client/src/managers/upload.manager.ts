@@ -23,7 +23,9 @@ const debounceInsertUploads = debounce((windowId:string) => {
 		let stringToInsert = ""
 		each(uploadsToInsert.curr, (f, i) => {
 			if(!f.inserted) {
-				stringToInsert += `![${f.file.name}](${f.file.path})\n`
+				// replace [ or ] in name
+				let fileName = f.file.name.replace(/\[/g, "").replace(/\]/g, "")
+				stringToInsert += `![${fileName}](${f.file.path})\n`
 				f.inserted = true
 			}
 		})

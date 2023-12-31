@@ -466,8 +466,8 @@ const EditorAreaInt = (
 		let a = p.editorAction
 		if (!a) return
 		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}`)
-		if (a.windowId === "active" && !p.isActive) return
-		if (a.windowId !== "active" && a.windowId !== p.windowId) return
+		if (deviceType() !== "mobile" && a.windowId === "active" && !p.isActive) return
+		if (deviceType() !== "mobile" && a.windowId !== "active" && a.windowId !== p.windowId) return
 
 		// console.log("[EDITOR ACTION] =>", {a})
 		// lineJump

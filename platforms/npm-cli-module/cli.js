@@ -172,13 +172,16 @@ const startBackupScript = async (argsObj, dataFolder) => {
 				const isBetween1am5am = new Date().getHours() >= 1 && new Date().getHours() <= 5
 				if ((diff < 0 && isBetween1am5am) || debugBackupNow) {
 						debugBackupNow = false
-						console.log(`[BACKUP] time has come, BACKUP! (debugBackupNow:${debugBackupNow})`);
+						console.log(`[BACKUP] time has come, BACKUP! (debugBackupNow:${debugBackupNow}) ==> LOGS in log_backup.txt`);
 
-						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
+						// automatically generate a cli.sh from command below and post backup script, then exec it
+						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '====== [${new Date().toLocaleString()}] -> new backup started' >> log_backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; echo ' [${new Date().toLocaleString()}] -> compression archive finished' >> log_backups.txt; ${postBackupScript}; echo ' [${new Date().toLocaleString()}] -> upload finished' >> log_backups.txt;` 
 						// append to backup CLI current timestamp to last_backup_timestamp
+
 						// execute cli
 						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {
 							logLevel: argsObj.verbose
+							// logLevel: 2 // log level always 2 for backup to see whats happening
 						})
 
 						const debugObj = {backupFolder, postBackupScriptFile, lastTimestamp, postBackupScript, timeInterval, backupCli}

@@ -219,10 +219,10 @@ export const FloatingPanel = (p:{
         }
     }
 
-    
+    const classes = `type-${p.panel.type} ${p.panel.ctagConfig?.tagName ? `ctag-${p.panel.ctagConfig.tagName}` : ""}`
 
     return (
-        <div className={`floating-panel-wrapper ${p.panel.status}`} 
+        <div className={`floating-panel-wrapper ${classes} ${p.panel.status}`} 
             style={{zIndex:p.panel.zIndex}}
             key={p.panel.id}
             onMouseDown={() => {pushToTop()}}
@@ -463,7 +463,7 @@ export const FloatingPanelsWrapper = (p:{
         onPanelsChangeDebounce()
     },[panels])
 
-    console.log("panels", panels)
+    
 
     return (
         <div className="floating-panels-wrapper" style={{pointerEvents: panelDrag ? "all" : "none"}}>
@@ -549,8 +549,6 @@ export const FloatingPanelCss = () => `
 .floating-panel__wrapper + div > div {    z-index: 100000;}
 
 .floating-panels-wrapper {
-    
-   
     position: absolute;
     top: 0;
     left: 0;
@@ -558,12 +556,21 @@ export const FloatingPanelCss = () => `
     height: 100vh;
     pointer-events: none;
     .floating-panel-wrapper {
+        &.ctag-pdf {
+            .floating-panel {
+                .floating-panel__actions {
+                    top: 30px;
+                    right: 5px;
+                }
+            }
+        }
         &.minimized {
             display:none;
         }
         position: absolute;
         top: 0px;
         left: 0px;
+       
         .floating-panel {
             overflow: hidden;
             background: #fff;

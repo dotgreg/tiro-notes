@@ -5,7 +5,19 @@ import { cloneDeep } from "lodash";
 import { useDebounce } from "./lodash.hooks";
 
 const h = `[BACKEND STATE]`
-export function useBackendState<T>(key: string, initialValue: T, opts?:{debug?: boolean, history?: boolean}): [T, (value: T) => void, Function] {
+type iFunctionRefresh = (cb?: (initVal:any) => void) => void
+export function useBackendState<T>(
+	key: string, 
+	initialValue: T, 
+	opts?:{
+		debug?: boolean, 
+		history?: boolean
+		onRefresh?: (initVal:any) => void
+	}): [
+		T, 
+		(value: T) => void, 
+		iFunctionRefresh
+	] {
 
 	const [storedValue, setStoredValue] = useState(initialValue)
 
@@ -24,7 +36,8 @@ export function useBackendState<T>(key: string, initialValue: T, opts?:{debug?: 
 	// file.
 	// fetch content on initial loading
 	useEffect(() => {
-		refreshValFromBackend();
+		const cb = opts?.onRefresh ? opts.onRefresh : undefined
+		refreshValFromBackend(cb);
 	}, [])
 
 	// persistence logic 
@@ -41,13 +54,13 @@ export function useBackendState<T>(key: string, initialValue: T, opts?:{debug?: 
 
 
 	const saveHistoryDebounced = useDebounce((nval) => {
-		console.log(`${h} saving history for ${key} with content length ${nval.length}`, {nval, pathToNote})
+		// console.log(`${h} saving history for ${key} with content length ${nval.length}`)
 		getApi(api => {
 			api.history.save(pathToNote, nval, 'int')
 		})
 	}, 60*1000)
 
-	const refreshValFromBackend = (cb?: Function) => {
+	const refreshValFromBackend:iFunctionRefresh = (cb) => {
 		getApi(api => {
 			api.file.getContent(pathToNote, raw => {
 				const obj = JSON.parse(raw)

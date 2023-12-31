@@ -268,7 +268,7 @@ export const useBrowserApi = (p: {
 	const isInitialScanDone = useRef<boolean>(false)
 	useEffect(() => {
 		if (isInitialScanDone.current) return
-		console.log("openFolders > scanFolders", openFolders.length)
+		// console.log("openFolders > scanFolders", openFolders.length)
 		scanFolders(openFolders)
 		if (openFolders.length > 1) isInitialScanDone.current = true
 	}, [openFolders])

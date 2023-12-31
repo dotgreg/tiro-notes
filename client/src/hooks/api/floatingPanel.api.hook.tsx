@@ -64,14 +64,23 @@ let offset = 20
 
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
-    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: true})
+    const onPanelsFirstLoad = (initVal:any) => {
+        // if we are mobile, delete all panels that are mobile
+        let nPanels = cloneDeep(initVal)
+        if (deviceType() === "mobile") nPanels = nPanels.filter(p => p.device !== "mobile")
+        // save 
+        setPanels(nPanels)
+    }
+
+
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: true, onRefresh: onPanelsFirstLoad})
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     const setPanels = (npans:iFloatingPanel[]) => {
         panelsRef.current = npans
         setPanelsInt(npans)
     }
 
-
+   
     // const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[], {history: true})
     // const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
     // const panelsRef = React.useRef<iFloatingPanel[]>([])
@@ -118,8 +127,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         // get all non hidden pannels
         let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
         // position is i * nonHiddenPanels.length
-        const decal = 100
-        const sizeWidth = (window.innerWidth / 2) - decal
+        const decal = deviceType() === "mobile" ? 10 : 100
+        let sizeWidth = (window.innerWidth / 2) - decal
+        if (deviceType() === "mobile") sizeWidth = (window.innerWidth) - decal * 2
         const sizeHeight = (window.innerHeight / 1.2) - decal
 
         const panel:iFloatingPanel = {
