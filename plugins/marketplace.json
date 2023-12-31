@@ -79,6 +79,26 @@
     ]
   },
   {
+    "name": "graph",
+    "pluginPath": "/graph/graph.plugin.js",
+    "description": "Description of graph",
+    "versions": [
+      {
+        "version": "1.0.4",
+        "date": "30/12/23",
+        "comment": "adaptation to plugin + fix color bug"
+      },
+      {
+        "version": "1.0.3",
+        "date": "27/10/22",
+        "comment": ""
+      }
+    ],
+    "images": [],
+    "icon": null,
+    "configuration": []
+  },
+  {
     "name": "timer",
     "pluginPath": "/timer/timer.plugin.js",
     "description": "Adds a timer functionality to Tiro <br/> this is a long description",

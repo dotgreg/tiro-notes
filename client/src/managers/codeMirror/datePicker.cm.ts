@@ -33,7 +33,10 @@ export const datePickerCmPlugin = (file: iFile, windowId:string) => genericRepla
 		resEl.innerHTML = `<span class="date-picker-cm-wrapper"><input type="date" id="date-picker-cm-input" lang="fr-FR" data-replacepos="${pos}" value="${dateInput}" onchange="${ssrFn("replace-date-text-datepicker", replaceDateText)}"/></span>`;
         // let resEl = "woop"
 		return resEl;
-	}
+	},
+    options: {
+        cache: false
+    }
 })
 
 const replaceDateText = (el) => {
@@ -45,7 +48,14 @@ const replaceDateText = (el) => {
     let dateInput =  `${dateArr2[2]}/${dateArr2[1]}/${dateArr2[0]}`
     pos = parseInt(pos) || -1
     if (pos === -1) return console.warn("no pos")
+
+    // ici on pourrait loader le contenu de la note, trouver la premiere occurence de la date a remplacer, et la remplacer
+    // mais si plusieurs dates sont identiques, on ne sait pas laquelle remplacer
+
+    // 
+
     getApi(api => {
+        console.log("replacedatetext", dateInput, pos)
         api.ui.note.editorAction.dispatch({
             type:"replaceText", 
             replaceText: dateInput,

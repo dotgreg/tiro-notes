@@ -388,6 +388,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}, [p.pluginsConfig, p.windowId, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
 	
+	
 
 
 	//

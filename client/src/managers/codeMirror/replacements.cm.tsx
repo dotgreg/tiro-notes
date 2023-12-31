@@ -13,6 +13,7 @@ import { devCliAddFn } from "../devCli.manager";
 
 
 import { StateField, StateEffect, EditorState, Extension } from '@codemirror/state';
+import { regexs } from "../../../../shared/helpers/regexs.helper";
 
 
 ////////////////////// 
@@ -35,19 +36,24 @@ devCliAddFn("code_mirror", "cache_get", () => cacheDecoration)
 // @cache @ctag
 // caching les decorations!!!
 // 
-const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windowId:string) => new MatchDecorator({
+const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windowId:string, cache:boolean) => new MatchDecorator({
 	regexp: pattern,
 	decoration: (match,view,pos) => {
 		let id = match.input + match.index
 		let cacheId = file.path+windowId
 		if (!cacheDecoration[cacheId]) cacheDecoration[cacheId] = {}
+		let res = cacheDecoration[cacheId][id]
 		if (!cacheDecoration[cacheId][id]) {
-		// if (!cacheDecoration[id]) {
 			let widget = new ReplacementWidget(match,view,pos, replacement)
 			let deco = Decoration.replace({ widget })
 			cacheDecoration[cacheId][id] = deco
+			if (cache === false) {
+				delete cacheDecoration[cacheId][id]
+				res = deco
+			}
 		} 
-		return cacheDecoration[cacheId][id]
+		// return cacheDecoration[cacheId][id]
+		return res
 	}
 })
 const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDecorator({
@@ -64,26 +70,29 @@ export const genericReplacementPlugin = (p: {
 	replacement?: iReplacementFn
 	classWrap?: iClassWrapperFn
 	options?: {
-		isAtomic?: boolean
+		isAtomic?: boolean,
+		cache?: boolean
 	}
 }) => {
 	const replacementFn = p.replacement
+	const cache = p.options?.cache === false ? false : true
 	return ViewPlugin.fromClass(class {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
 			
 			if (replacementFn) {
-				this.decorations = matcher(p.pattern, replacementFn, p.file, p.windowId).createDeco(view)
+				this.decorations = matcher(p.pattern, replacementFn, p.file, p.windowId, cache).createDeco(view)
 			}
 			else {
 				this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
 			}
 		}
 		update(update: ViewUpdate) {
+			// if (p.pattern === regexs.dateFrFormat) console.log("dateFrFormat", update)
 			try {
 				if (replacementFn && (update.docChanged || update.viewportChanged)) {
 					//@ts-ignore
-					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId)
+					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId, cache)
 					.updateDeco(update, this.decorations)
 				}
 				else {

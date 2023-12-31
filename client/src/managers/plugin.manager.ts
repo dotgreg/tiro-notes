@@ -57,11 +57,11 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
 //
 
 // if several pages on same client, make sure to run only once using localstorage caching 
-const lsLastRunDate = parseInt(localStorage.getItem("frontendLsLastCronRunDate") as string) || 0
+// const lsLastRunDate = parseInt(localStorage.getItem("frontendLsLastCronRunDate") as string) || 0
 
 const triggerCron = () => {
-    if (lsLastRunDate + intervalTime > new Date().getTime()) return 
-    localStorage.setItem("frontendLsLastCronRunDate", new Date().getTime().toString())
+    // if (lsLastRunDate + intervalTime > new Date().getTime()) return 
+    // localStorage.setItem("frontendLsLastCronRunDate", new Date().getTime().toString())
 
     getApi(api => {
         // get the cached infos of all cron, especially the last ran date
@@ -80,16 +80,19 @@ const triggerCron = () => {
                     let intervalRun = (p.options?.background_exec_interval_in_min || 60) * 60 * 1000
                     let now = new Date().getTime()
                     let lastRun = cronState[p.name]?.lastRunTime || 0
-                    if (lastRun + intervalRun > now) return console.log(h, `bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
-                    //  Function() the code with an api injection inside its variables 
-
-                    console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`)
-                    const state = cronState[p.name]
-                    evalPluginCode(p, {tiroApi:api, bgState:state})
-                    
-                    // update the cache
-                    if (!cronState[p.name] || isUndefined( cronState[p.name])) cronState[p.name] = {vars:{}}
-                    cronState[p.name].lastRunTime = now
+                    if (lastRun + intervalRun > now) {
+                        return console.log(h, `bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
+                    } else {
+                        let status = lastRun + intervalRun > now
+                        //  Function() the code with an api injection inside its variables 
+                        console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {lastRun, intervalRun, now, status})
+                        const state = cronState[p.name]
+                        evalPluginCode(p, {tiroApi:api, bgState:state})
+                        
+                        // update the cache
+                        if (!cronState[p.name] || isUndefined( cronState[p.name])) cronState[p.name] = {vars:{}}
+                        cronState[p.name].lastRunTime = now
+                    }
                 })
                 api.cache.set(cacheId, cronState, -1)
             },{disableRamCache: true}) // cache.get important to disable ram cache to fetch the last backend lastExecTime across devices
