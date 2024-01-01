@@ -8,6 +8,7 @@ import { ButtonsToolbar, iToolbarButton } from './ButtonsToolbar.component';
 import { useThrottle } from '../hooks/lodash.hooks';
 import { getKeyModif, keysModifiers } from '../managers/keys.manager';
 import { deviceType } from '../managers/device.manager';
+import { addKeyShortcut, releaseKeyShortcut, releaseKeyShortcuts } from '../managers/keyboard.manager';
 
 type iZoomDir = -1 | 1
 
@@ -16,18 +17,25 @@ export const Lightbox = (p: {
 	startingIndex: number
 	onClose: Function
 }) => {
-	const [currIndex, setCurrIndex] = useState(0)
+	const [currIndex, setCurrIndexInt] = useState(0)
+	const currIndexRef = useRef<number>(0)
 	useEffect(() => {
 		setCurrIndex(p.startingIndex)
 	}, [p.startingIndex])
+
+	const setCurrIndex = (index: number) => {
+		setCurrIndexInt(index)
+		currIndexRef.current = index
+	}
 	const incrementIndex = (direction: iZoomDir) => {
 		setZoomState(false)
 		setZoomLevel(10)
-		let nIndex = currIndex
-		if (direction === -1 && currIndex === 0) nIndex = p.images.length - 1
-		else if (direction === 1 && currIndex === p.images.length - 1) nIndex = 0
-		else nIndex = currIndex + direction
-		setCurrIndex(nIndex)
+		console.log(111, currIndexRef.current, p.images.length)
+		// let nIndex = currIndexRef.current
+		if (direction === -1 && currIndexRef.current === 0) currIndexRef.current = p.images.length - 1
+		else if (direction === 1 && currIndexRef.current === p.images.length - 1) currIndexRef.current = 0
+		else currIndexRef.current = currIndexRef.current + direction
+		setCurrIndex(currIndexRef.current)
 	}
 
 	//
@@ -41,34 +49,34 @@ export const Lightbox = (p: {
 		if (nLevel > 20) nLevel = 20
 		setZoomLevel(nLevel)
 	}
-	const imgsRef = useRef<any[]>([])
-	const getZoomDims = (id) => {
-		const updateDims = () => {
-			const cImgRef = document.getElementById(id) as HTMLImageElement
-			const wrapperRef = document.getElementById(`lightbox-image-id`) as HTMLElement
+	// const imgsRef = useRef<any[]>([])
+	// const getZoomDims = (id) => {
+	// 	const updateDims = () => {
+	// 		const cImgRef = document.getElementById(id) as HTMLImageElement
+	// 		const wrapperRef = document.getElementById(`lightbox-image-id`) as HTMLElement
 
-			let percent = ((zoomLevel - 10) * 50) + 99
-			if (zoomLevel < 10) percent = (-(10 - zoomLevel) * 10) + 99
-			// let val = `${percent}%`
-			// let res: any = { height: val }
-			if (cImgRef && wrapperRef) {
-				cImgRef.style.transform = `scale(${percent/100})`
-				cImgRef.style.transformOrigin = (percent/100) < 1 ? `center` : "left top"
-				let iw = cImgRef.naturalWidth
-				let ih = cImgRef.naturalHeight
-				let ir = iw/ih
-				let ww = wrapperRef.offsetWidth
-				let wh = wrapperRef.offsetHeight
-				let wr = ww/wh
+	// 		let percent = ((zoomLevel - 10) * 50) + 99
+	// 		if (zoomLevel < 10) percent = (-(10 - zoomLevel) * 10) + 99
+	// 		// let val = `${percent}%`
+	// 		// let res: any = { height: val }
+	// 		if (cImgRef && wrapperRef) {
+	// 			cImgRef.style.transform = `scale(${percent/100})`
+	// 			cImgRef.style.transformOrigin = (percent/100) < 1 ? `center` : "left top"
+	// 			let iw = cImgRef.naturalWidth
+	// 			let ih = cImgRef.naturalHeight
+	// 			let ir = iw/ih
+	// 			let ww = wrapperRef.offsetWidth
+	// 			let wh = wrapperRef.offsetHeight
+	// 			let wr = ww/wh
 
-				// if ratio image < ratio wrapper = image height LONGER = should fit to wrapper height => MOST OF THE CASE?
-				if (ir < wr) cImgRef.style.height = `${wh-10}px`
-				if (ir > wr) cImgRef.style.width = `${ww-10}px`
-			}
-		}
-		setTimeout(() => {updateDims()}, 50)
-		return {}
-	}
+	// 			// if ratio image < ratio wrapper = image height LONGER = should fit to wrapper height => MOST OF THE CASE?
+	// 			if (ir < wr) cImgRef.style.height = `${wh-10}px`
+	// 			if (ir > wr) cImgRef.style.width = `${ww-10}px`
+	// 		}
+	// 	}
+	// 	setTimeout(() => {updateDims()}, 50)
+	// 	return {}
+	// }
 	const zoomContainerRef = useRef<any>(null)
 	const getLineHeight = () => {
 		let res = `0px`
@@ -98,6 +106,14 @@ export const Lightbox = (p: {
 			zoom(dir)
 		}
 	}, 150)
+
+	const startZoom = (el) => {
+		// get el.src and put it in the background of el.parent
+		let src = el.target.src
+		let parent = el.target.parentElement
+		parent.style.backgroundImage = `url(${src})`
+		setZoomState(true)
+	}
 
 	const zoom2 = (e) => {
 		let offsetX
@@ -144,7 +160,6 @@ export const Lightbox = (p: {
 		// if (x < 10) {x = 0}
 
 		let res = x + '% ' + y + '%';
-		console.log(33333333, res)
 		zoomer.style.backgroundPosition = res
 	}
 
@@ -199,6 +214,19 @@ export const Lightbox = (p: {
 	}
 
 
+	useEffect(() => {
+		const increment = () => { incrementIndex(+1) }
+		const decrement = () => { incrementIndex(-1) }
+		addKeyShortcut("right", increment)
+		addKeyShortcut("left", decrement)
+		return () => {
+			console.log("destroying lightbox")
+			releaseKeyShortcut("right", increment)
+			releaseKeyShortcut("left", decrement)
+		}
+	},[])
+
+
 	return (
 		<div className={`lightbox-component`}>
 			<div className={`lightbox-bg`} onClick={() => { p.onClose() }}>
@@ -213,20 +241,24 @@ export const Lightbox = (p: {
 					p.images.map((image, key) =>
 						<div
 							key={key}
-							id={`lightbox-image-id`}
 							className={`lightbox-image`}
 							style={{ display: key === currIndex ? 'flex' : 'none' }}
 						>
 
-<figure 
-	className={`zoom2 ${zoomState ? 'zoomed' : 'not-zoomed'}`} 
-	// style={{ backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, backgroundSize: `${(zoomLevel * 100)/5}%` }}
-	// id={`img-lightbox-id-${key}`}
-	
-	style={{ backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, backgroundSize: `${(zoomLevel/5) * 100}%`, ...getZoomDims(`img-lightbox-id-${key}`) }}
-	onMouseMove={e => {zoom2(e)}}>
-  <img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} onClick={() => {setZoomState(true)}} />
-</figure>
+							<figure 
+								className={`zoom2 ${zoomState ? 'zoomed' : 'not-zoomed'}`} 
+								// style={{ backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, backgroundSize: `${(zoomLevel * 100)/5}%` }}
+								// id={`img-lightbox-id-${key}`}
+								style={{ 
+									// backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, 
+									backgroundSize: `${(zoomLevel/10) * 100}%`, 
+								}}
+								onMouseMove={e => {zoom2(e)}}>
+								<img 
+									src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} 
+									onClick={(el) => {startZoom(el)}} 
+								/>
+							</figure>
 
 							{/* <div
 								className="image-zoom-wrapper"
@@ -238,6 +270,9 @@ export const Lightbox = (p: {
 									style={getZoomDims(`img-lightbox-id-${key}`)}
 									src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
 							</div> */}
+							<div className="counter">
+								{currIndex + 1}/{p.images.length}
+							</div>
 							<div className="image-infos">
 								{image.file.name && image.title && 
 									<div className="image-name" onClick={e => detachNote(image.file)}>
@@ -270,6 +305,13 @@ export const lightboxCss = () => `
 		
 		z-index: 10;
 		
+	}
+	.counter {
+		position: absolute;
+		bottom: 5px;
+		left: 10px;
+		color: rgba(255,255,255,0.2);
+		z-index: 15;
 	}
 	figure.zoom2.not-zoomed {
 		background-size: 0%!important;
