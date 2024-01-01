@@ -103,7 +103,7 @@ export const searchWithRgGeneric = async (p: {
 	// 	})
 	// }
 
-	let end = perf(`searchWithRipGrep 2 term:${p.term} folder:${p.folder}`)
+	let end = perf(`🔎 searchWithRipGrep 2 term:${p.term} folder:${p.folder}`)
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
@@ -195,7 +195,7 @@ export const searchWithRipGrep = async (params: {
 
 }): Promise<void> => {
 	let p = params
-	let end = perf(`searchWithRipGrep 1 term:${p.term} folder:${p.folder}`)
+	let end = perf(`🔎 searchWithRipGrep 1 term:${p.term} folder:${p.folder}`)
 	const onRgDoesNotExists = (err) => {
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()

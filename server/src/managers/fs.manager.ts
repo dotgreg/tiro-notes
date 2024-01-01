@@ -265,12 +265,12 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 				// 'Host':'tiro-notes.org'
 			}
 		}
-		console.log(`[DOWNLOAD FILE] options`, JSON.stringify({optionsReq, opts}));
+		// console.log(`⬇️ [DOWNLOAD FILE] url ${url}`);
 
 		let postData: string | undefined 
 		if (opts?.body && opts.method === 'POST') {
 			postData = new URLSearchParams(opts.body as any).toString();
-			console.log(postData)
+			// console.log(postData)
 			optionsReq.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 			optionsReq.headers['Content-Length'] = Buffer.byteLength(postData).toString();
 		}

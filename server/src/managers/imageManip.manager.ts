@@ -6,7 +6,7 @@ import { relativeToAbsolutePath } from "./path.manager";
 
 export const compressImageJimp = async (params: iImageCompressionParams):Promise<iCompressResult> => {
     const absFilePath = relativeToAbsolutePath(params.path)
-    let endPerf = perf(`compressImage ${absFilePath}`)
+    let endPerf = perf(`🗜️  compressImage ${absFilePath}`)
     // const Jimp = require('jimp');
     console.log("[compressImage]", absFilePath, JSON.stringify(params))
     const image = await Jimp.read(absFilePath)

@@ -85,7 +85,7 @@ const triggerCron = () => {
                     } else {
                         let status = lastRun + intervalRun > now
                         //  Function() the code with an api injection inside its variables 
-                        console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {lastRun, intervalRun, now, status})
+                        console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {p, lastRun, intervalRun, now, status})
                         const state = cronState[p.name]
                         evalPluginCode(p, {tiroApi:api, bgState:state})
                         

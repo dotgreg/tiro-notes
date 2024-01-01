@@ -189,9 +189,10 @@ export const useRessourceApi = (p: {
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options, cb) => {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
-		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
-		// console.log(h, "fetchEval", url, funcParams, options)
+		console.log(h, "fetchEval", url, funcParams, options)
+
+		// CODE EVAL
 		const evalCode = (codeTxt:string) => {
 			try {
 				const paramsNames:string[] = []
@@ -208,8 +209,10 @@ export const useRessourceApi = (p: {
 				notifLog(`${message}`)
 			}
 		}
-		if (options.disableCache) ramFetchEvalCache.val[url] = null
-		if (!ramFetchEvalCache.val[url] || options.disableCache) {
+
+		// GET CONTENT & FILE
+		if (options.disableCache === true) ramFetchEvalCache.val[url] = null
+		if (!ramFetchEvalCache.val[url] || options.disableCache === true) {
 			fetchRessource(url, (codeTxt)=> {
 				evalCode(codeTxt)
 				ramFetchEvalCache.val[url] = codeTxt
