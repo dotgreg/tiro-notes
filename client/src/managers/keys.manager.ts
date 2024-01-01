@@ -1,5 +1,9 @@
 import { each, isNull, random } from "lodash"
 
+//
+// !!!!!!!!!! NEW METHOD addKeyShortcut > keyboard.manager.ts
+//
+
 type iKeyModif = 'ctrl' | 'shift' | 'alt' | 'opt'
 type iKeySpecial = 'up' | 'down' | 'enter'
 type iKeyAlpha = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
