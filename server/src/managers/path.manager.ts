@@ -106,6 +106,6 @@ export const getFrontendRelativePath = (pathFile:string) => {
 	}
 	
 	pathFile = path.join(rootFolder, `${basePath}/${pathFile}`)
-	console.log("getFrontendRelativePath", {old, pathFile, isAbsolute: isAbsolute(pathFile)})
+	// console.log("getFrontendRelativePath", {old, pathFile, isAbsolute: isAbsolute(pathFile)})
 	return pathFile
 }

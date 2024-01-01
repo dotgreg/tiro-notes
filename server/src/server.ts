@@ -39,7 +39,7 @@ export const ioServer: SocketIO.Server = require('socket.io')(server, { serveCli
 initSocketLogic();
 
 // FRONTEND CLIENT SERVER on /
-console.log(backConfig.frontendBuildFolder)
+// console.log(backConfig.frontendBuildFolder)
 app.use('/', express.static(backConfig.frontendBuildFolder));
 
 // RESSOURCES SERVER on /static

@@ -25,7 +25,7 @@ export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 //
 let cachedJsonConfigLoadResult = null
 export const tryLoadJsonConfig = () => {
-	console.log(typeof getEnvVars);
+	// console.log(typeof getEnvVars);
 	const { testing_env } = getEnvVars()
 	if (testing_env) return getTestingEnvJsonConfig()
 	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as iTiroConfig

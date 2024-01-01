@@ -68,7 +68,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askForFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
 		let file = `${backConfig.dataFolder}/${data.filePath}`
-		let endPerf = perf('askForFileContent ' + file)
+		let endPerf = perf('👁️  askForFileContent ' + file)
 		try {
 			let apiAnswer = await openFile(file)
 			serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
@@ -122,7 +122,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askFoldersScan', async data => {
 		let depth = data.depth || 0
-		let endPerf = perf('askFoldersScan ' + JSON.stringify(data.foldersPaths))
+		let endPerf = perf('📂  askFoldersScan ' + JSON.stringify(data.foldersPaths))
 		let folders: iFolder[] = []
 		for (let i = 0; i < data.foldersPaths.length; i++) {
 			folders.push(scanDirForFoldersRecursive(data.foldersPaths[i], depth))
@@ -146,7 +146,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (data.filePath.includes(relPluginsFolderPath)) rescanPluginList()
 
 		const pathToFile = p(`${backConfig.dataFolder}/${data.filePath}`);
-		let endPerf = perf('saveFileContent ' + pathToFile)
+		let endPerf = perf('✏️  saveFileContent ' + pathToFile)
 
 		await upsertRecursivelyFolders(pathToFile)
 		await saveFile(pathToFile, data.newFileContent)
@@ -184,7 +184,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			}
 		}
 		const notePath = checkAndGenNewNoteName();
-		let endPerf = perf('createNote ' + notePath)
+		let endPerf = perf('✏️  createNote ' + notePath)
 
 		log(`CREATING ${notePath}`);
 		await saveFile(`${notePath}`, ``)
@@ -208,7 +208,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('moveFolder', async data => {
 		log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
-		let endPerf = perf('moveFolder ' + data.initPath + ' to ' + data.endPath)
+		let endPerf = perf('📁➡️  moveFolder ' + data.initPath + ' to ' + data.endPath)
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
@@ -225,7 +225,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askFileHistory', async data => {
 		// get all the history files 
-		let endPerf = perf('askFileHistory ' + data.filepath)
+		let endPerf = perf('👁️  askFileHistory ' + data.filepath)
 		const file = pathToIfile(data.filepath)
 		const historyFolder = getHistoryFolder(file)
 		let allHistoryFiles = await scanDirForFiles(historyFolder, serverSocket2)
@@ -296,7 +296,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { bypassLoginTokenCheck: true })
 
 	serverSocket2.on('askFilesPreview', async data => {
-		let endPerf = perf('askFilesPreview ')
+		let endPerf = perf('👁️  askFilesPreview ')
 		let res = await getFilesPreviewLogic(data)
 		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
 		endPerf()
@@ -362,7 +362,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askRessourceDownload', async data => {
 		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
-		let endPerf = perf(`askRessourceDownload ${data.url}`)
+		let endPerf = perf(`⬇️   askRessourceDownload ${data.url}`)
 		const opts = data.opts ? data.opts : {}
 
 		await upsertRecursivelyFolders(pathToFile)
@@ -396,7 +396,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// COMMAND EXEC
 	// 
 	serverSocket2.on('askCommandExec', async data => {
-		let endPerf = perf('askCommandExec ' + data.commandString)
+		let endPerf = perf('⚡  askCommandExec ' + data.commandString)
 		logActivity("exec", data.commandString, serverSocket2)
 		// let res = await execString(data.commandString)
 		let res = await execString(data.commandString)
@@ -405,7 +405,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('askCommandExecStream', async data => {
-		let endPerf = perf('askCommandExecStrea, ' + data.commandString)
+		let endPerf = perf('⚡  askCommandExecStrea, ' + data.commandString)
 		logActivity("exec", data.commandString, serverSocket2)
 		execStringStream(data.commandString, (streamChunk) => {
 			serverSocket2.emit('getCommandExecStream', { streamChunk: streamChunk, idReq: data.idReq })
@@ -418,7 +418,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// PLUGINS
 	// 
 	serverSocket2.on('askPluginsList', async data => {
-		let endPerf = perf(`askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
+		let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
 		let { plugins, scanLog } = await scanPlugins(data.noCache)
 		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
 		endPerf()
@@ -428,7 +428,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// NOTIFICATIONS
 	// 
 	serverSocket2.on('emitNotification', async data => {
-		let endPerf = perf('emitNotification ')
+		let endPerf = perf('💬 emitNotification ')
 		// actually send to to everybody
 		ioServer.emit('getNotification', { ...data })
 

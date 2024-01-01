@@ -16,7 +16,7 @@ import { ServerSocketManager } from "./socket.manager"
 
 export const moveFileLogic = async (initPath:string, endPath:string) => {
 	log(`=> MOVING FILE ${backConfig.dataFolder}${initPath} -> ${endPath}`);
-	let endPerf = perf('moveFile ' + initPath + ' to ' + endPath)
+	let endPerf = perf('📁➡️  moveFile ' + initPath + ' to ' + endPath)
 	// upsert folders if not exists and move file
 	log(`===> 1/5 creating folders ${endPath}`);
 	await upsertRecursivelyFolders(endPath)
@@ -42,7 +42,7 @@ export const moveFileLogic = async (initPath:string, endPath:string) => {
 		let initFolderHistory = getHistoryFolder(initFile)
 		let endFolderHistory = getHistoryFolder(endFile)
 		await upsertRecursivelyFolders(endFolderHistory)
-		console.log(initFolderHistory, endFolderHistory)
+		// console.log(initFolderHistory, endFolderHistory)
 		await moveFile(initFolderHistory, endFolderHistory)
 	}
 
