@@ -80,10 +80,13 @@ const epubApp = (innerTagStr, opts) => {
 				var rendition = book.renderTo("viewer", {
 						//method: "continuous",
 						//flow: "paginated",
-						method: "continuous",
+						manager: "continuous",
+						flow: "scrolled",
+						// method: "continuous",
 						width: p.w,
 						height: p.h,
-						// spread: "always"
+						// spread: "ablways"
+						spread: "none"
 				});
 
 				
@@ -95,17 +98,25 @@ const epubApp = (innerTagStr, opts) => {
 						(function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4))) check = true;})(navigator.userAgent||navigator.vendor||window.opera);
 						return check;
 				};
+				// add tag to .epub-wrapper-ctag
+				
 
 				const userAgentString = navigator.userAgent||navigator.vendor||window.opera
 				const isEdge = () => userAgentString.toLowerCase().includes("edg")
 
-				const getFontSize = () =>  {
-						let res = 12
-						if(isMobile()) res = 2 
-						if(isEdge) res = 12  
-						return res
+				let currentFontSize = 12;
+				function zoomFont(diff) {
+					currentFontSize = currentFontSize + diff;
+					rendition.themes.fontSize(`${currentFontSize}px`);
+					// rendition.themes.default({ "p": { "font-size": `${getFontSize()}px !important`}})
 				}
-				rendition.themes.default({ "p": { "font-size": `${getFontSize()}px !important`}})
+				const getFontSize = () =>  {
+						// let res = 12
+						// if(isMobile()) res = 2 
+						// if(isEdge) res = 12  
+						return currentFontSize
+				}
+				zoomFont(0)
 
 				const makeRangeCfi = (a, b) => {
 						const CFI = new ePub.CFI()
@@ -177,26 +188,33 @@ const epubApp = (innerTagStr, opts) => {
 						})
 				}
 				const updateUI = (pageNb, p) => {
+					try {
 						const main = () => {
-								// console.log("UPDATE UI", { pageNb, p });
-								if (!p) p = {}
-								if (p.pager !== false) p.pager = true
-								if (p.cachePage !== false) p.cachePage = true
+							// console.log("UPDATE UI", { pageNb, p });
+							if (!p) p = {}
+							if (p.pager !== false) p.pager = true
+							if (p.cachePage !== false) p.cachePage = true
 
-								window.updateTot()
-								if (p.pager) window.updatePager(pageNb)
-								if (p.cachePage) setCache("page", getPage())
+							window.updateTot()
+							if (p.pager) window.updatePager(pageNb)
+							if (p.cachePage) setCache("page", getPage())
 						}
 
 						if (!pageNb) {
-								setTimeout(() => {
-										pageNb = getPage()
-										main()
-								}, 100)
+							setTimeout(() => {
+									pageNb = getPage()
+									main()
+							}, 100)
 
 						} else {
 								main()
 						}
+
+						return true
+					} catch (e) {
+						console.log(h, "updateUI error", e)
+						return false
+					}
 				}
 				const getBookInfos = () => {
 						let tot = book.locations.length()
@@ -211,7 +229,7 @@ const epubApp = (innerTagStr, opts) => {
 								window.updateStatus("")
 								onDone()
 						}, () => {
-								book.locations.generate(2048).then(() => {
+								book.locations.generate(1024).then(() => {
 										let nLocs = book.locations._locations
 										setCache(cacheLocation, nLocs)
 										window.updateStatus("")
@@ -231,7 +249,7 @@ const epubApp = (innerTagStr, opts) => {
 						// let nHeight = cHeight
 						// let nHeight = cHeight * 0.70
 						
-						console.log(h,"TRIGGER RESIZE2", cWidth, nHeight);
+						// console.log(h,"TRIGGER RESIZE2", cWidth, nHeight);
 						if (nHeight) rendition.resize(cWidth, nHeight)
 						
 				}
@@ -332,8 +350,33 @@ const epubApp = (innerTagStr, opts) => {
 						}
 					}
 				});
+				
+				// get epub container .epub-container
+				
+				const jumpToNextPage	= () => {
+					const containerEpub = document.getElementsByClassName("epub-container")[0]
+					console.log(h, "jumpToNextPage", {containerEpub});
+					// get height of container
+					let containerHeight = containerEpub.clientHeight
+					// add containerHeight to current scroll
+					let currScroll = containerEpub.scrollTop
+					let newScroll = currScroll + containerHeight - 10
+					// set new scroll
+					containerEpub.scrollTo(0, newScroll)
+				}
+				const jumpToPrevPage	= () => {	
+					const containerEpub = document.getElementsByClassName("epub-container")[0]
+					console.log(h, "jumpToPrevPage", {containerEpub});
+					// get height of container
+					let containerHeight = containerEpub.clientHeight
+					// add containerHeight to current scroll
+					let currScroll = containerEpub.scrollTop
+					let newScroll = currScroll - containerHeight + 10
+					// set new scroll
+					containerEpub.scrollTo(0, newScroll)
+				}
 
-				const jumpToNextPage = () => {
+				const jumpToNextPage2 = () => {
 					//V3 working well finally!
 					pageManager.action = "next"
 					pageManager.startPage = getPage()
@@ -396,20 +439,24 @@ const epubApp = (innerTagStr, opts) => {
 
 					eapi.updateUI()
 				}
-				const jumpToPrevPage = () => {
+				const jumpToPrevPage2 = () => {
 					let pageNb = getPage()
 					// if (pageNb === 0) return jumpToPage(1)
 					// book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();
 					if (pageNb === 0) return
 					jumpToPage(pageNb - 1)
 					eapi.updateUI()
+					
 				}
-
+				
+				
 
 				window.epubApi = {
 						jumpToPage,
 						jumpToNextPage,
 						jumpToPrevPage,
+
+						zoomFont,
 
 						getPage,
 						getCurrentPageContent,
@@ -449,24 +496,71 @@ const epubApp = (innerTagStr, opts) => {
 						})
 				}, 5000)
 
+				const checkIfManagerReady = (cb) => {
+					let int = setInterval(() => {
+						try {
+							rendition.currentLocation()?.start?.location
+							// if no error
+							cb()
+							clearInterval(int)
+						} catch (e) {
+							console.log(h, "checkIfManagerReady error", e)
+						}
+					}, 500)
+				}
+
 				book.ready.then(() => {
 						// weirdly need to trigger upfront for the call
 						// to rightly provide the right content later on 
 						// related to epub.js api
 						eapi.getFullBookContent() 
 
+						console.log(3333, document.getElementById("epub-wrapper-ctag"))
+						if (isMobile()) document.getElementById("epub-wrapper-ctag")?.classList.add("mobile")
+						else document.getElementById("epub-wrapper-ctag")?.classList.add("desktop")
+
 						//
 						// INITAL page jump
 						//
 						eapi.scanBook(() => {
+							checkIfManagerReady(() => {
 								getCache("page", page => {
-										eapi.jumpToPage(page)
-										eapi.updateUI(page, { cachePage: false })
+										// let res = eapi.updateUI(page, { cachePage: false })
+										// console.log(h, "111111jumping to cached page", page, res);
+										// setTimeout(() => {
+										// 	// if (getPage() !== page) {
+										// 	console.log(h, "22222jumping to cached page", page, getPage());
+										// 	eapi.jumpToPage(page)
+										// 	eapi.updateUI(page, { cachePage: false })
+										// 	clearInterval(int)
+										// 	// }
+										// }, 500)
+
+										// let int = setInterval(() => {
+										// 	let res = eapi.updateUI(page, { cachePage: false })
+										// 	console.log(h, "33333jumping to cached page", page, getPage(), res);
+										// 	if (res) {
+										// 		eapi.jumpToPage(page)
+										// 		eapi.updateUI(page, { cachePage: false })
+										// 		clearInterval(int)
+										// 	}
+										// }, 500)
+
+										
+										let int = setInterval(() => {
+											// console.log(123, getPage(), page)
+											if (getPage() !== page) {
+												eapi.jumpToPage(page)
+												eapi.updateUI(page, { cachePage: false })
+												clearInterval(int)
+											}
+										}, 1000)
 								}, () => { 
 									// no cache, jump to first page
 									eapi.jumpToPage(0)
 									eapi.updateUI(page, { cachePage: false })
 								})
+							})
 						})
 
 						// eapi.jumpToPage(10)
@@ -503,6 +597,12 @@ const epubApp = (innerTagStr, opts) => {
 								if (c === -1) c = searchRes.length
 								if (c === 0) c = searchRes.length
 								jumpToRes(c)
+						})
+						onClick(["font-zoom"], e => {
+							zoomFont(1)
+						})
+						onClick(["font-dezoom"], e => {
+							zoomFont(-1)
 						})
 
 
@@ -615,7 +715,7 @@ const epubApp = (innerTagStr, opts) => {
 						});
 
 						rendition.on("layout", function (layout) {
-							console.log('layout', layout)
+							// console.log('layout', layout)
 								let viewer = document.getElementById("viewer");
 
 								if (layout.spread) {
@@ -741,36 +841,40 @@ window.initCustomTag = epubApp
 
 
 const htmlEpub = () => `
-<div id="status">loading...</div>
-<div id="viewer" class="spreads"></div>
+<div id="epub-wrapper-ctag">
+	<div id="status">loading...</div>
+	<div id="viewer" class="spreads"></div>
 
-<div id="search-wrapper">
-<div class="flex">
-<input type="text" id="search-text" placeholder="search term" value="" />
-<input type="button" id="search-submit" value="search" />
-		<input type="button" id="search-prev" value=" < " />
-		<input type="button" id="search-next" value=" > " />
-</div>
-<div id="search-result"></div>
-</div>
+	<div id="search-wrapper">
+	<div class="flex">
+	<input type="text" id="search-text" placeholder="search term" value="" />
+	<input type="button" id="search-submit" value="search" />
+			<input type="button" id="search-prev" value=" < " />
+			<input type="button" id="search-next" value=" > " />
+	</div>
+	<div id="search-result"></div>
+	</div>
 
-<div class="controls-wrapper">
-		<div class="flex-wrapper">
-			<select id="toc"></select>
-			<input type="number" id="page_number" min="0" /> / <div id="tot">0</div>
-		</div>
-		<div class="flex-wrapper">
-		<input type="button" id="prev" value=" < " />
-		<input type="button" id="next" value=" > " />
-		<input type="button" id="search" value=" 🔎 " />
-		<input type="button" id="fullscreen" value="⛶" />
-		<input type="button" id="audio" value=" ♫ " />
-		</div>
-</div>
+	<div class="controls-wrapper">
+			<div class="flex-wrapper">
+				<select id="toc"></select>
+				<input type="number" id="page_number" min="0" /> / <div id="tot">0</div>
+			</div>
+			<div class="flex-wrapper">
+			<input type="button" id="prev" value=" < " />
+			<input type="button" id="next" value=" > " />
+			<input type="button" id="font-zoom" value=" + " />
+			<input type="button" id="font-dezoom" value=" - " />
+			<input type="button" id="search" value=" 🔎 " />
+			<input type="button" id="fullscreen" value="⛶" />
+			<input type="button" id="audio" value=" ♫ " />
+			</div>
+	</div>
 
-<div class="overlay-controls">
-		<div  id="overlay-next"></div>
-		<div id="overlay-prev"></div>
+	<div class="overlay-controls">
+			<div  id="overlay-next"></div>
+			<div id="overlay-prev"></div>
+	</div>
 </div>
 
 <style>${cssEpub()}</style>
@@ -798,13 +902,17 @@ top: 0px;
 left: 0px;
 width: 100vw;
 }
+.desktop .overlay-controls div:hover {
+	background: rgba(0,0,0,0.1);
+}
 .overlay-controls div {
-cursor: pointer;
-position: absolute;
-top: 0px;
-left: 0px;
-width: 40vw;
-height: 100vh;
+	cursor: pointer;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 10vw;
+	min-width: 50px;
+	height: 100vh;
 }
 .overlay-controls #overlay-next {
 right: 0px;
@@ -872,6 +980,9 @@ left: auto;
 		box-shadow: 0 0 4px #ccc;
 		margin: 10px;
 		padding: 20px;
+	}
+.epub-container {
+	overflow-x: hidden!important;
 }
 
 #viewer.scrolled .epub-view > iframe {
