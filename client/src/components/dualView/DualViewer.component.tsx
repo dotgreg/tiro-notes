@@ -223,7 +223,8 @@ const DualViewerInt = (
 			pluginsConfig={p.pluginsConfig}
 		/>
 
-		{showLoadingOverlay  && 
+		{1 === 1  && 
+		// {showLoadingOverlay  && 
 			<div className='loading-overlay' > 
 				<div className="loading-text">loading...</div> 
 			</div>
@@ -257,6 +258,13 @@ const DualViewerInt = (
 }
 
 export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) => `
+.omnibar-popup-wrapper {
+	.dual-view-wrapper {
+		.loading-overlay {
+			top: -2px;
+		}
+	}
+}
 	.dual-view-wrapper {
 		position: relative;
 		.loading-overlay {

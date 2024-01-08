@@ -65,6 +65,7 @@ let offset = 20
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const onPanelsFirstLoad = (initVal:any) => {
+        if (initVal.length === 0) return
         // if we are mobile, delete all panels that are mobile
         let nPanels = cloneDeep(initVal)
         if (deviceType() === "mobile") nPanels = nPanels.filter(p => p.device !== "mobile")
