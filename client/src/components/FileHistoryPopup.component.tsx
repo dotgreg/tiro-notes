@@ -144,15 +144,35 @@ export const FileHistoryPopup = (p: {
 						</table>
 					</div>
 					{fileHistoryContent &&
+						<>
 						<div className="note-preview">
 							<textarea
 								className='note-preview-textarea'
 								// readOnly={true}
 								value={fileHistoryContent}
 							/>
+							<div className="button-wrapper">
+								<button
+									className="button"
+									onClick={() => {
+										getApi(api => {
+											// const path = activeFile?.path
+											// if (!path) return
+											api.file.saveContent(p.file.path, fileHistoryContent)
+										})
+									}}
+								>
+									Restore version
+								</button>
+							</div>
+							<div className="advice"> To disable history backup for a note, add "--disable-history--"in it</div>
 						</div>
+						
+						
+						</>
+						
 					}
-					<div className="advice"> To disable history backup for a note, add "--disable-history--"in it</div>
+					
 				</Popup>
 			</div>
 		</StyledDiv>
@@ -169,7 +189,8 @@ export const StyledDiv = styled.div`
     padding: 0px;
 }
 .table-wrapper {
-    max-height: 30vh;
+    // max-height: 30vh;
+	height: 50%;
     overflow-y: auto;
     padding: 0px 0px 20px 0px;
     
@@ -204,14 +225,15 @@ export const StyledDiv = styled.div`
     }
 }
 .note-preview {
-		.note-preview-textarea {
-			padding: 6px;
-			margin: 10px 0px 0px 0px;
-			width: calc(100% - 10px);
-			height: 34vh;
-			border: none;
-			background: gainsboro;
-		}
+	height: 50%;
+	.note-preview-textarea {
+		padding: 6px;
+		margin: 10px 0px 0px 0px;
+		width: calc(100% - 10px);
+		height: calc(100% - 90px);
+		border: none;
+		background: gainsboro;
+	}
 }
 .advice {
 	color: #a4a4a4;

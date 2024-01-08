@@ -793,12 +793,15 @@ const EditorAreaInt = (
 							} else if (action === "undo") {
 								getApi(api => {
 									api.ui.note.editorAction.dispatch({
+										windowId: p.windowId,
 										type:"undo"
+										
 									})
 								})
 							} else if (action === "redo") {
 								getApi(api => {
 									api.ui.note.editorAction.dispatch({
+										windowId: p.windowId,
 										type:"redo"
 									})
 								})
