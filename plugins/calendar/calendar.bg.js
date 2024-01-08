@@ -8,9 +8,6 @@ const fetchLibs = (cb) => {
         cb()
     })
 }
-fetchLibs(() => {
-    main()
-})
 
 const main = () => {
     const calendarLib = window._tiroPluginsCommon.calendarLib
@@ -58,3 +55,7 @@ const main = () => {
         
     })
 }
+
+fetchLibs(() => {
+    main()
+})

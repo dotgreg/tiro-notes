@@ -37,7 +37,7 @@ export const PopupWrapperCss = () => `
         left: 0px;
     .overlay-click-popup {
         position: fixed;
-        z-index:1000;
+        z-index:10000;
         top: 0px;
         left: 0px;
         width: 100vw;
@@ -46,7 +46,7 @@ export const PopupWrapperCss = () => `
     }
     .popup-wrapper {
         position: fixed;
-        z-index:10001;
+        z-index:10010;
         left: 50%;
         top:50%;
         &.ipad {
