@@ -67,22 +67,26 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const onPanelsFirstLoad = (initVal:any) => {
         // if (initVal.length === 0) return
         // if we are mobile, delete all panels that are mobile
-        let nPanels = cloneDeep(initVal)
-        console.log(111, nPanels.length)
-        if (deviceType() === "mobile") nPanels = nPanels.filter(p => p.device !== "mobile")
-        console.log(222, nPanels.length)
+        panelsRef.current = initVal
+        // let nPanels = cloneDeep(initVal)
+        console.log(111, panelsRef.current.length)
+        if (deviceType() === "mobile") panelsRef.current = panelsRef.current.filter(p => p.device !== "mobile")
+        console.log(222, panelsRef.current.length)
         // save 
-        setPanels(nPanels)
+        setPanels(panelsRef.current)
     }
 
 
-    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onRefresh: onPanelsFirstLoad, debouncedSave: true})
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onInitialRefresh: onPanelsFirstLoad, debouncedSave: true})
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     const setPanels = (npans:iFloatingPanel[]) => {
         console.log(333, npans.length)
         panelsRef.current = npans
         setPanelsInt(npans)
     }
+    useEffect(() => {
+        panelsRef.current = panels
+    }, [panels])
 
    
     // const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[], {history: true})
