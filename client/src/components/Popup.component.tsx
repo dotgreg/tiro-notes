@@ -52,6 +52,7 @@ export const PopupWrapperCss = () => `
         &.ipad {
             top:20%;
         }
+        height: 70%;
         width : auto;
         max-width: 90%;
         transform:translate(-50%,-50%);
@@ -72,6 +73,7 @@ export const PopupWrapperCss = () => `
         .popupContent {
             padding: 0px 20px 20px 20px;
             // min-width : 350px;
+            height: calc(100% - 69px);
         }
         img{
             padding: 0px 5px 0px 0px;

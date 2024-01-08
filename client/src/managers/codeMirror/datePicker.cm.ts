@@ -30,7 +30,7 @@ export const datePickerCmPlugin = (file: iFile, windowId:string) => genericRepla
 		// 	})
 		// })
         
-		resEl.innerHTML = `<span class="date-picker-cm-wrapper"><input type="date" id="date-picker-cm-input" lang="fr-FR" data-replacepos="${pos}" value="${dateInput}" onchange="${ssrFn("replace-date-text-datepicker", replaceDateText)}"/></span>`;
+		resEl.innerHTML = `<span class="date-picker-cm-wrapper"><input type="date" id="date-picker-cm-input" lang="fr-FR" data-replacepos="${pos}" data-windowid="${windowId}" value="${dateInput}" onchange="${ssrFn("replace-date-text-datepicker", replaceDateText)}"/></span>`;
         // let resEl = "woop"
 		return resEl;
 	},
@@ -43,6 +43,7 @@ const replaceDateText = (el) => {
     console.log("el1")
     if (!el) return
     let pos = el.dataset.replacepos
+    let windowId = el.dataset.windowid
     console.log("el", el.value, pos)
     let dateArr2 = el.value.split("-")
     let dateInput =  `${dateArr2[2]}/${dateArr2[1]}/${dateArr2[0]}`
@@ -57,6 +58,7 @@ const replaceDateText = (el) => {
     getApi(api => {
         console.log("replacedatetext", dateInput, pos)
         api.ui.note.editorAction.dispatch({
+            windowId: windowId,
             type:"replaceText", 
             replaceText: dateInput,
             replacePos: pos
