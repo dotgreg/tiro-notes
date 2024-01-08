@@ -73,7 +73,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
 
-    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: true, onRefresh: onPanelsFirstLoad})
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onRefresh: onPanelsFirstLoad})
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     const setPanels = (npans:iFloatingPanel[]) => {
         panelsRef.current = npans
