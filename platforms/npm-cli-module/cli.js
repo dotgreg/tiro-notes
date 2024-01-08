@@ -28,7 +28,7 @@ ARGS:
 
 --tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
 
---backup/-b : [require tar] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
+--backup/-b : [t/n/now/force/f] [require tar] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
 --backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
 --backup-post-script : modify script to be executed after a backup finishes. Should be a ".txt" file with your OS commands. (default: "your/path/to/tiro/data_folder"+_backup/post_backup_script.txt
 
@@ -81,7 +81,7 @@ function getCliArgs () {
 				if (argName === 'v' || argName === 'verbose') argsObj.verbose = parseInt(argVal)
 
 				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
-				if (argName === 'b' || argName === 'backup') argsObj.backup.now = (argVal === "now" || argVal === "n") ? true : false
+				if (argName === 'b' || argName === 'backup') argsObj.backup.now = (argVal === "now" || argVal === "n"  || argVal === "force"  || argVal === "f") ? true : false
 				if (argName === 'backup-location') argsObj.backup.location = argVal
 				if (argName === 'backup-post-script') argsObj.backup.scriptLocation = argVal 
 
@@ -153,7 +153,8 @@ const startBackupScript = async (argsObj, dataFolder) => {
 		let replaceTimestampCli = () => `echo ${now()} > '${timestampFile}'`
 		
 		// START INTERVAL
-		const timeInterval = 1000 * 60 * 60 // one hour
+		// const timeInterval = 1000 * 60 * 60 // one hour
+		const timeInterval = 1000 * 60 * 10 // one hour
 		const backupInterval = 1000 * 60 * 60 * 24 // one day
 
 		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
@@ -188,7 +189,8 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 						console.log (debugObj);
 				} else {
-						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins AND waiting for being between 1am-5am`);
+					const logTime = new Date().toLocaleString()
+						console.log(`[BACKUP] ${logTime}  => not yet. Waiting for ${diffMin} mins < 0 AND between 1am-5am ${JSON.stringify({isBetween1am5am, currHour: new Date().getHours()})}}`);
 				}
 		}
 

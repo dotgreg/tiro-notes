@@ -28,12 +28,12 @@ const createCompletionTerm = (label: string, toInsert?: string, info?: string, b
 // ALL COMPLETION SOURCES
 //
 // cached in ram + file + update
-export const getAllCompletionSources = (file: iFile): CompletionSource[] => {
-	const completionSourceHashtags: any = getCompletionSourceHashtags(file)
+export const getAllCompletionSources = (file: iFile, onAutocomplete:Function): CompletionSource[] => {
+	const completionSourceHashtags: any = getCompletionSourceHashtags(file, onAutocomplete)
 	return [
-		completionSourceCtag,
+		completionSourceCtag(onAutocomplete),
 		completionSourceHashtags,
-		completionSourceSnippets
+		completionSourceSnippets(onAutocomplete)
 	]
 }
 
@@ -42,10 +42,15 @@ export const getAllCompletionSources = (file: iFile): CompletionSource[] => {
 // AUTOCOMPLETE WITH SNIPPETS 
 // with --
 //
-export const completionSourceSnippets:any = (context) => {
+export const completionSourceSnippets:any = (onAutocomplete) =>  (context) => {
 	let before = context.matchBefore(/\-\-/);
 	if (!context.explicit && !before) return null;
 	const path = `${sharedConfig.path.configFolder}/snippets.md`
+
+	// console.log("open popup snippets", path)
+	
+	
+
 	return new Promise((reso, rej) => {
 		getApi(api => {
 			api.file.getContent(path, content => {
@@ -76,6 +81,7 @@ export const completionSourceSnippets:any = (context) => {
 					options: arr,
 					validFor: /.*/
 				};
+				onAutocomplete("snippets")
 				reso(res)
 			})
 		})
@@ -88,9 +94,10 @@ export const completionSourceSnippets:any = (context) => {
 //
 
 // VERY SLOW as it scans / root for #!!!! so it is disabled
-const getCompletionSourceHashtags = (file: iFile) => (context) => {
+const getCompletionSourceHashtags = (file: iFile, onAutocomplete:Function) => (context) => {
 	let before = context.matchBefore(/\#/);
 	if (!context.explicit && !before) return null;
+	
 	return new Promise((reso, rej) => {
 		getApi(api => {
 			// let parentFolder = getFolderParentPath(file)
@@ -132,6 +139,7 @@ const getCompletionSourceHashtags = (file: iFile) => (context) => {
 					validFor: /.*/
 				};
 				// console.log(res);
+				onAutocomplete("hashtag")
 				reso(res)
 				// each(hashs.nodesArr, hash => {
 				// 	arr.push(createCompletionTerm(hash.name, hash.name))
@@ -196,10 +204,10 @@ const processCtagsToSuggestions = (ctags: iCtagInfos[]): iCompletionTerm[] => {
 	return tags
 }
 
-const completionSourceCtag: CompletionSource = (context) => {
+const completionSourceCtag:any = (onAutocomplete) =>  (context) => {
 	let before = context.matchBefore(/\[\[/);
 	if (!context.explicit && !before) return null;
-
+	
 	return new Promise((reso, rej) => {
 
 		// 1 : get from ctags
@@ -258,6 +266,7 @@ const completionSourceCtag: CompletionSource = (context) => {
 				options: tags,
 				validFor: /.*/
 			};
+			onAutocomplete("ctag")
 			reso(res)
 		}
 	})

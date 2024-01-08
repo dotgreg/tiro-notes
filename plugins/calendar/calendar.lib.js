@@ -143,11 +143,14 @@ const getEventsList = (env, sourcesRawStr, cb) => {
     configArr.forEach(config => {
         searchWord(env, config.wordToSearch, config.pathToSearch, searchRes => {
             // res is an object
+            // console.log(12333, searchRes)
             for (const [filePath, file] of Object.entries(searchRes)) {
                 file.results.forEach(l => {
                     const eventsLine = processEvent(l)
                     if (eventsLine) {
                         eventsLine.forEach(ev => {
+                            ev.filePath = filePath
+                            ev.lineRaw = l
                             events.push(ev)
                         })
                     }

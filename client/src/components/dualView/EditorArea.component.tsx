@@ -806,7 +806,7 @@ const EditorAreaInt = (
 								getApi(api => {
 									api.ui.floatingPanel.create({
 										type: "ctag",
-										layout: "full-bottom",
+										layout: "bottom",
 										ctagConfig: {
 											tagName: "proofread",
 											content: selectionTxt,
