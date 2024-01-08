@@ -91,10 +91,10 @@ export const Lightbox = (p: {
 	const onWheelThrottle = useThrottle((e) => {
 		// if ctrl pressed, zoom
 		// console.log(getKeyModif("ctrl"), keysModifiers)
-		if (keysModifiers.Meta || keysModifiers.ctrl) {
+		// if (keysModifiers.Meta || keysModifiers.ctrl) {
 			let dir:iZoomDir = e.deltaY > 0 ? 1 : -1
 			zoom(dir)
-		}
+		// }
 	}, 150)
 
 	const histTouchYPos = useRef<number>(0)
@@ -226,6 +226,10 @@ export const Lightbox = (p: {
 		}
 	},[])
 
+	const onMouseWheelZoom = (e) => {
+		console.log("onMouseWheelZoom", e)
+
+	}
 
 	return (
 		<div className={`lightbox-component`}>
@@ -233,7 +237,7 @@ export const Lightbox = (p: {
 			</div>
 			<div
 				className={`lightbox-content images-nb-${p.images.length}`}
-				// onWheel={onWheelThrottle}
+				onWheel={onWheelThrottle}
 				// onTouchMove={onTouchMoveThrottle}
 				ref={zoomContainerRef}
 			>
@@ -271,12 +275,12 @@ export const Lightbox = (p: {
 									src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
 							</div> */}
 							<div className="counter">
-								{currIndex + 1}/{p.images.length}
+								{currIndex + 1}/{p.images.length}{zoomState === true && ` - [${zoomLevel * (100/5)}%]`}
 							</div>
 							<div className="image-infos">
 								{image.file.name && image.title && 
 									<div className="image-name" onClick={e => detachNote(image.file)}>
-										{image.file.name} - {image.title}
+										{image.file.name} - {image.title} 
 									</div>
 								}
 								<ButtonsToolbar
