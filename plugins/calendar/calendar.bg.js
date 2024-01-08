@@ -2,9 +2,9 @@
 const curr = new Date()
 const h = `[CALENDAR BG | ${curr.getHours()}h${curr.getMinutes()}] `
 let s = bgState.vars
-
+let disableCache = (config.disableCache === "true" || config.disableCache === true) ? true : false
 const fetchLibs = (cb) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: true}, () => {
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: disableCache}, () => {
         cb()
     })
 }

@@ -10,12 +10,19 @@ const h = `[RIPGREP SEARCH2] `
 const shouldLog = sharedConfig.server.log.ripgrep
 
 export const cleanFileNamePath = (rawString: string, folder) => {
+	let init = rawString
+	// if folder does not end with /, add it
+	if (!folder.endsWith('/')) folder = folder + '/'
 	rawString = rawString.split(`${folder}`).join('') // remove if folder is inside rawpath
+	// rawString = rawString.split(`${folder}/`).join('') // remove if folder is inside rawpath
+	// rawString = rawString.split(`${folder}\\`).join('') // remove if folder is inside rawpath
 	rawString = rawString.split(`${backConfig.dataFolder}`).join('') 
 	rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
 	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
 	rawString = rawString.split(`${backConfig.dataFolder + folder}/`).join('') // remove absolute path x2
 	rawString = rawString.split(`${backConfig.dataFolder + folder}`).join('') // remove absolute path x3
+	let foldFull = backConfig.dataFolder + folder
+	console.log(JSON.stringify({init, foldFull, rawString, folder}))
 	return rawString
 }
 
@@ -48,6 +55,7 @@ export const processRawPathToFile = (p: {
 	} catch (error) {
 		shouldLog && log(h, 'ERROR : ', error);
 	}
+	
 	return res
 }
 

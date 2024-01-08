@@ -34342,11 +34342,43 @@
 							},
 							{
 								"type": "literal",
+								"value": "bottom"
+							},
+							{
+								"type": "literal",
 								"value": "full-bottom"
 							},
 							{
 								"type": "literal",
 								"value": "full-top"
+							},
+							{
+								"type": "literal",
+								"value": "top"
+							},
+							{
+								"type": "literal",
+								"value": "left"
+							},
+							{
+								"type": "literal",
+								"value": "right"
+							},
+							{
+								"type": "literal",
+								"value": "bottom-left"
+							},
+							{
+								"type": "literal",
+								"value": "bottom-right"
+							},
+							{
+								"type": "literal",
+								"value": "top-left"
+							},
+							{
+								"type": "literal",
+								"value": "top-right"
 							}
 						]
 					}

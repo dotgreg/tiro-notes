@@ -840,6 +840,14 @@ const epubApp = (innerTagStr, opts) => {
 window.initCustomTag = epubApp
 
 
+// function that toggle a class visible on a div
+const toggleVisible = (divId) => {
+		let div = document.getElementById(divId)
+		if (div.classList.contains("visible")) div.classList.remove("visible")
+		else div.classList.add("visible")
+}
+
+
 const htmlEpub = () => `
 <div id="epub-wrapper-ctag">
 	<div id="status">loading...</div>

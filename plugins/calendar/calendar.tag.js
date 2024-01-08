@@ -11,7 +11,7 @@ const calendarApp = (innerTagStr, opts) => {
         const calendarLib = window._tiroPluginsCommon.calendarLib
 
         calendarLib.getEventsList("ctag", source_events, events => {
-            console.log(h, "events", events)
+            console.log(h, "events", events.length)
             bootstrapCalendarFrontLogic(events)
         })
 
@@ -24,27 +24,40 @@ const calendarApp = (innerTagStr, opts) => {
             })
         }
 
+        const onEventClick = (ev) => (e) => {
+                e.preventDefault();
+                console.log("onEventClick", e, ev)
+                // let titleAndBody = `
+                //     <div class='event-wrapper'>
+                //     <div class='title'>${evCal.title}</div>
+                //     <div class='body'>${evCal.body}</div>
+                // </div>`
+                const popupBody = `<h3 style="margin-bottom: 2px;"> ${ev.title}</h3>
+                    <div style="color:#acacac; font-size:10px;"> ${ev.date.toLocaleString()}</div><br/>
+                ${urlify(ev.body)}`
+
+                // api.call("popup.show", [popupBody, "Event Details"])
+                // api.call("popup.show", ["woop", "Event Details"])
+                api.call("ui.floatingPanel.openFile", [ev.filePath, { searchedString:ev.lineRaw, idpanel: "id-panel-calendar-preview", layout: "bottom-right"}])
+        }
+
         const bootstrapCalendarFrontLogic = (events) => {
+                // console.log(h, "bootstrapCalendarFrontLogic", events)
             // for each line, create a new event
             const calEvents = []
             for (var i = 0; i < events.length; i++) {
                 const evCal = events[i] 
                 let titleAndBody = `
-                    <div class='event-wrapper'>
-                    <div class='title'>${evCal.title}</div>
-                    <div class='body'>${evCal.body}</div>
+                        <div class='event-wrapper'>
+                        <div class='title'>${evCal.title}</div>
+                        <div class='body'>${evCal.body}</div>
                 </div>`
 
-                    const popupBody = `<h3 style="margin-bottom: 2px;"> ${evCal.title}</h3>
-                    <div style="color:#acacac; font-size:10px;"> ${evCal.date.toLocaleString()}</div><br/>
-                    ${urlify(evCal.body)}`
+                    
                     calEvents.push({
                         'Date': new Date(`${evCal.date.toLocaleString("en").split(" ")[0]} 00:00`),
                         'Title': titleAndBody,
-                        'Link': function (e) {
-                                e.preventDefault();
-                                api.call("popup.show", [popupBody, "Event Details"])
-                        }
+                        'Link': onEventClick(evCal)
                 })
             }
 

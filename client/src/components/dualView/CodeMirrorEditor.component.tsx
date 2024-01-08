@@ -303,11 +303,33 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// const ua = userSettingsApi
 	const [codemirrorExtensions, setCodemirrorExtentions] = useState<Extension[]>([])
 	const [classes, setClasses] = useState<string>("")
+
+
+	//
+	// Trigger on autocomplete popup opens
+	//
+	const onAutocomplete = () => {
+		//@ts-ignore
+		const editorDiv = forwardedRefCM?.current?.editor || null
+		console.log("onAutocomplete editorDiv", editorDiv)
+		if (editorDiv) {
+			let rect = editorDiv.getBoundingClientRect()
+			setTimeout(() => {
+				// get popup html element .cm-tooltip
+				let popup = document.querySelector(".cm-tooltip")
+				console.log("open onAutocomplete", rect, popup)
+				//@ts-ignore
+				popup.style.transform = `translate(-${rect.left}px, -${rect.top - 40}px)`
+			},100)
+			// rectify popup position using transform translate and rect top and left
+		}
+	}
+
 	useEffect(() => {
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
 				// AUTOCOMPLETION
-				autocompletion({ override: getAllCompletionSources(p.file) }),
+				autocompletion({ override: getAllCompletionSources(p.file, onAutocomplete) }),
 				
 				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
@@ -527,7 +549,15 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		/></>}, 
 	[p.value, codemirrorExtensions])
 
-
+	// get forwardedRefCM position on screen
+	//@ts-ignore
+	// let ref:any = forwardedRefCM?.current
+	// if (ref && ref.editor) {
+	// 	// get ref.editorDiv position on screen
+	// 	let rect = ref.editorDiv.getBoundingClientRect()
+	// 	console.log(111, rect)
+	// 	// console.log(333, ref)
+	// }
 
 	return (
 		<>
@@ -610,6 +640,10 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 export const codeMirrorEditorCss = () => `
+.draggable-grid-wrapper .cm-tooltip {
+	transform: inherit!important;
+}
+
 .codemirror-popup-cursor {
 	position: fixed;
 	z-index: 2;
@@ -804,6 +838,7 @@ export const codeMirrorEditorCss = () => `
 }
 
 .cm-tooltip-autocomplete {
+		// transform: translate(-50%,-50%);
 		padding: 10px 5px;
 		background: white;
 		border-radius: 5px;

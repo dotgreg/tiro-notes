@@ -29,7 +29,7 @@ export interface iFloatingPanel {
 }
 
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
-type iPanelLayout =  "full-center" | "half-right" | "half-left" | "full-bottom" | "full-top" 
+type iPanelLayout =  "full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top"  | "top" | "left" | "right"| "bottom-left" | "bottom-right" | "top-left" | "top-right"
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
     type: "ctag" | "file",
     layout?: iPanelLayout
@@ -119,9 +119,41 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             panelParams.position = {x: padding, y: padding}
             panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
         }
-        else if (panelParams.layout === "full-bottom") {
+        else if (panelParams.layout === "full-bottom" || panelParams.layout === "bottom") {
             panelParams.position = {x: padding, y: window.innerHeight / 2}
             panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        }
+       // top
+       else if (panelParams.layout === "full-top" || panelParams.layout === "top") {
+            panelParams.position = {x: padding, y: padding}
+            panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        }
+       //left 
+       else if (panelParams.layout === "left") {
+            panelParams.position = {x: padding, y: padding}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+        }
+
+       // right
+       else if (panelParams.layout === "right") {
+            panelParams.position = {x: window.innerWidth / 2, y: padding}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+        }
+        else if (panelParams.layout === "bottom-left") {
+            panelParams.position = {x: padding, y: window.innerHeight / 2}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        }
+        else if (panelParams.layout === "bottom-right") {
+            panelParams.position = {x: window.innerWidth / 2, y: window.innerHeight / 2}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        }
+        else if (panelParams.layout === "top-left") {
+            panelParams.position = {x: padding, y: padding}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        }
+        else if (panelParams.layout === "top-right") {
+            panelParams.position = {x: window.innerWidth / 2, y: padding}
+            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
         
         // get all non hidden pannels

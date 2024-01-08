@@ -1377,7 +1377,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPanelLayout</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"full-center" | "half-right" | "half-left" | "full-bottom" | "full-top"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top" | "top" | "left" | "right" | "bottom-left" | "bottom-right" | "top-left" | "top-right"</span></div>
  
 
 #### <span class="render-code-wrapper">iCreateFloatingPanel</span>

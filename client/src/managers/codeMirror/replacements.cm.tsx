@@ -42,7 +42,7 @@ const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windo
 		let id = match.input + match.index
 		let cacheId = file.path+windowId
 		if (!cacheDecoration[cacheId]) cacheDecoration[cacheId] = {}
-		let res = cacheDecoration[cacheId][id]
+		let res
 		if (!cacheDecoration[cacheId][id]) {
 			let widget = new ReplacementWidget(match,view,pos, replacement)
 			let deco = Decoration.replace({ widget })
@@ -50,8 +50,12 @@ const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windo
 			if (cache === false) {
 				delete cacheDecoration[cacheId][id]
 				res = deco
+			} else {
+				res = cacheDecoration[cacheId][id]
 			}
-		} 
+		} else {
+			res = cacheDecoration[cacheId][id]
+		}
 		// return cacheDecoration[cacheId][id]
 		return res
 	}
@@ -92,12 +96,10 @@ export const genericReplacementPlugin = (p: {
 			try {
 				if (replacementFn && (update.docChanged || update.viewportChanged)) {
 					//@ts-ignore
-					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId, cache)
-					.updateDeco(update, this.decorations)
+					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId, cache).updateDeco(update, this.decorations)
 				}
 				else {
-					this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn)
-						.updateDeco(update, this.decorations)
+					this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).updateDeco(update, this.decorations)
 				}
 			} catch (e) {
 				console.warn("[ERROR VIEWPLUGIN CM]", e, update);
