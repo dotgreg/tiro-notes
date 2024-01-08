@@ -75,7 +75,7 @@ export const dropdownCss = () => `
 
 		.context-menu {
 				overflow-y: scroll;
-				z-index: 100;
+				z-index: 1000;
 				right: 10px;
 				top: 20px;
 				pointer-events: none;

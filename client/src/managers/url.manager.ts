@@ -80,8 +80,15 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			// create a new <link rel="icon" href="%PUBLIC_URL%/favicon.png" /> programmatically
 			
 			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
+			const nTitle = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
+			console.log("fullurl", fullurl, nTitle)
+			// document.title = "Tiro" // forcing the change of title to force the icon change
+			document.title = nTitle
 			webIconUpdate(fullurl)
-			document.title = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
+			setTimeout(() => {
+				document.title = nTitle
+				// webIconUpdate(fullurl)
+			}, 300)
 		})
 
 		

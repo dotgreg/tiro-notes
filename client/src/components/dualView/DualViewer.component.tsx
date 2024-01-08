@@ -168,11 +168,7 @@ const DualViewerInt = (
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
 	>
-		{showLoadingOverlay  && 
-			<div className='loading-overlay' onClick={e => {setShowLoadingOverlay(false)}}> 
-				<div className="loading-text">loading...</div> 
-			</div>
-		}
+		
 		
 		{(p.isDragging) && 
 			<div className='loading-overlay'> 
@@ -226,6 +222,12 @@ const DualViewerInt = (
 
 			pluginsConfig={p.pluginsConfig}
 		/>
+
+		{showLoadingOverlay  && 
+			<div className='loading-overlay' > 
+				<div className="loading-text">loading...</div> 
+			</div>
+		}
 		
 		{!isEditor &&
 			<PreviewArea
@@ -267,12 +269,13 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			height: 120%;
+			// height: 120%;
+			height: calc(120% - 32px);
 			position: absolute;
 			background: rgba(0,0,0,0.1);
-			top: -2px;
+			// top: -2px;
+			top: 32px;
 			left: 0px;
-			z-index: 99;
 			font-weight: bold;
 			color: white;
 		}
