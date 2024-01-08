@@ -21,8 +21,8 @@ export const cleanFileNamePath = (rawString: string, folder) => {
 	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
 	rawString = rawString.split(`${backConfig.dataFolder + folder}/`).join('') // remove absolute path x2
 	rawString = rawString.split(`${backConfig.dataFolder + folder}`).join('') // remove absolute path x3
-	let foldFull = backConfig.dataFolder + folder
-	console.log(JSON.stringify({init, foldFull, rawString, folder}))
+	// let foldFull = backConfig.dataFolder + folder
+	// console.log(JSON.stringify({init, foldFull, rawString, folder}))
 	return rawString
 }
 
