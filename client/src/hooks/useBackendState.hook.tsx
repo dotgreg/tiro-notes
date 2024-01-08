@@ -12,7 +12,7 @@ export function useBackendState<T>(
 	opts?:{
 		debug?: boolean, 
 		history?: boolean
-		onRefresh?: (initVal:any) => void,
+		onInitialRefresh?: (initVal:any) => void,
 		debouncedSave?: boolean
 	}): [
 		T, 
@@ -37,7 +37,7 @@ export function useBackendState<T>(
 	// file.
 	// fetch content on initial loading
 	useEffect(() => {
-		const cb = opts?.onRefresh ? opts.onRefresh : undefined
+		const cb = opts?.onInitialRefresh ? opts.onInitialRefresh : undefined
 		refreshValFromBackend(cb);
 	}, [])
 
