@@ -82,6 +82,7 @@ const PluginMarketItem = (p:{
 
 export const pluginsMarketplacePopupCss = () => `
 .device-view-mobile {
+	
 	.plugins-marketplace-popup-wrapper .popup-wrapper .popupContent {
 		width: 80vw;
 	}
@@ -90,12 +91,14 @@ export const pluginsMarketplacePopupCss = () => `
 .plugins-list-loading {
 	padding: 60px;
 }
-
+.plugins-marketplace-popup-wrapper .popup-wrapper  {
+	height: 70%;
+}
 .plugins-marketplace-popup-wrapper .popup-wrapper .popupContent {
     padding: 0px 20px;
 	width: 50vw;
-	min-height: 50vh;
-	max-height: 70vh;
+	// min-height: 50vh;
+	// max-height: 70vh;
 	overflow-y: scroll;
 }
 

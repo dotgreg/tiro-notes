@@ -97,7 +97,7 @@ export const processFileHistoryHousekeeping = async (histFile:iFile, currDate:iD
             if (fDate.num.timestamp + p.housekeeping.keepOnePerWeek_RuleTime < currDate.num.timestamp) actionToPerform = "renameOncePerWeek"
             if (fDate.num.timestamp + p.housekeeping.keepOnePerDay_RuleTime < currDate.num.timestamp) actionToPerform = "renameOncePerDay"
             if (fDate.num.timestamp + p.housekeeping.keepOnePerHour_RuleTime < currDate.num.timestamp) actionToPerform = "renameOncePerHour"
-            let endPerf = perf(`🧹  housekeeping ${actionToPerform} for file ${histFile.name.split("___")[0]} action: `)
+            let endPerf = perf(`🧹  housekeeping > file: ${f.filenameWithoutExt} | action: ${actionToPerform} `)
     
             if ( actionToPerform === "renameOncePerWeek" ) {
                 // if it is > 1 months, keep one per week

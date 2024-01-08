@@ -529,11 +529,14 @@ export const settingsPopupCss = () => `
 		}
 }
 
+.settings-popup-wrapper .popup-wrapper  {
+	height: 70%;
+}
 .settings-popup-wrapper .popup-wrapper .popupContent {
     padding: 0px 20px;
 		width: 70vw;
-		min-height: 50vh;
-		max-height: 70vh;
+		// min-height: 50vh;
+		// max-height: 70vh;
 		overflow-y: scroll;
 
 }

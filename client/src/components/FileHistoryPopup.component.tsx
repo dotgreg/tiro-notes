@@ -181,11 +181,19 @@ export const FileHistoryPopup = (p: {
 
 
 export const StyledDiv = styled.div`
+.history-popup-wrapper .popup-wrapper-component .popup-wrapper {
+	height: 70%;
+}
+.history-popup-wrapper  .popup-wrapper .count {
+	position: relative;
+    top: -9px;
+    font-weight: 600;
+}
 .filemain-wrapper .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
 	width: 90%;
 }
 .popup-wrapper .popupContent {
-		max-height: 70vh;
+	// max-height: 70vh;
     padding: 0px;
 }
 .table-wrapper {
@@ -230,7 +238,8 @@ export const StyledDiv = styled.div`
 		padding: 6px;
 		margin: 10px 0px 0px 0px;
 		width: calc(100% - 10px);
-		height: calc(100% - 90px);
+		// height: calc(100% - 90px);
+		height: calc(100% - 89px);
 		border: none;
 		background: gainsboro;
 	}

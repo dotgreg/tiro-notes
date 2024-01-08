@@ -52,7 +52,8 @@ export const PopupWrapperCss = () => `
         &.ipad {
             top:20%;
         }
-        height: 70%;
+        max-height: 70%;
+        
         width : auto;
         max-width: 90%;
         transform:translate(-50%,-50%);
