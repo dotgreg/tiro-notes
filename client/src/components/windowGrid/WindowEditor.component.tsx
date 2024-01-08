@@ -243,7 +243,7 @@ export const WindowEditorInt = (p: {
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
 		getApi(api => {
-			api.file.saveContent(filepath, content, { history: true })
+			api.file.saveContent(filepath, content, { history: true, debounced: true })
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()

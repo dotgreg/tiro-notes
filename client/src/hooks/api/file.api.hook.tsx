@@ -8,11 +8,14 @@ import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
+import { useDebounce } from '../lodash.hooks';
 
 
 //
 // INTERFACES
 //
+
+
 export type iGetFilesCb = (files: iFile[]) => void
 
 export interface iFileApi {
@@ -30,7 +33,11 @@ export interface iFileApi {
 	saveContent: (
 		noteLink: string, 
 		content: string,
-		options?: { withMetas?: boolean, history?: boolean },
+		options?: { 
+			withMetas?: boolean, 
+			history?: boolean, 
+			debounced?: boolean
+		},
 		cb?: (res:any) => void
 	) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
@@ -92,13 +99,25 @@ export const useFileApi = (p: {
 	}
 
 
+
+
+
+	//
 	// 2. SET CONTENT
+	//
+
+	// default debounced time for perfs improvements when typing
+	const saveDebouncedTime = 500
+
+	// const debouncedFilesContent: {[path:string]: string} = {}
 	const lastNoteWHistory = useRef('');
-	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
+	// const debouncedSaveContent = (notelink, content, )
+
+	const saveFileInt =  (noteLink, content, options, cb) => {
 		// const end = perf("saveFileContent " + noteLink)
 		const history = (options && options.history) ? options.history : false
 		const withMetas = (options && options.withMetas) ? options.withMetas : true
-
+		
 		//
 		// 2. wait for callback
 		const idReq = genIdReq('save-file-content');
@@ -139,8 +158,18 @@ export const useFileApi = (p: {
 			p.historyApi.intervalSave(noteLink, content)
 			lastNoteWHistory.current = noteLink
 		}
+	}
+	const saveFileIntDebounced =  useDebounce((noteLink, content, options, cb) => {
+		saveFileInt(noteLink, content, options, cb)
+	}, saveDebouncedTime)
 
-		
+	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
+		const debounced = (options && options.debounced) ? options.debounced : false
+		if (debounced) {
+			saveFileIntDebounced(noteLink, content, options, cb)
+		} else {
+			saveFileInt(noteLink, content, options, cb)
+		}
 	}
 
 
