@@ -65,18 +65,21 @@ let offset = 20
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const onPanelsFirstLoad = (initVal:any) => {
-        if (initVal.length === 0) return
+        // if (initVal.length === 0) return
         // if we are mobile, delete all panels that are mobile
         let nPanels = cloneDeep(initVal)
+        console.log(111, nPanels.length)
         if (deviceType() === "mobile") nPanels = nPanels.filter(p => p.device !== "mobile")
+        console.log(222, nPanels.length)
         // save 
         setPanels(nPanels)
     }
 
 
-    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onRefresh: onPanelsFirstLoad})
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onRefresh: onPanelsFirstLoad, debouncedSave: true})
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     const setPanels = (npans:iFloatingPanel[]) => {
+        console.log(333, npans.length)
         panelsRef.current = npans
         setPanelsInt(npans)
     }

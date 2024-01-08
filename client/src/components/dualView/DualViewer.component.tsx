@@ -223,8 +223,8 @@ const DualViewerInt = (
 			pluginsConfig={p.pluginsConfig}
 		/>
 
-		{1 === 1  && 
-		// {showLoadingOverlay  && 
+		{/* {1 === 1  &&  */}
+		{showLoadingOverlay  && 
 			<div className='loading-overlay' > 
 				<div className="loading-text">loading...</div> 
 			</div>
