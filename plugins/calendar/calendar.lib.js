@@ -180,7 +180,7 @@ const sendNotif = (event, title, cb) => {
         <div style="color:#acacac; font-size:10px;">${body}</div>
     `
     tiroApi.ui.notification.emit({id:notifId, content: notifHtml, options:{hideAfter: -1, showOnceEvery: config.showNotifOnceEvery}}, () => {
-        cb()
+        if (cb) cb()
     })
     
 }
