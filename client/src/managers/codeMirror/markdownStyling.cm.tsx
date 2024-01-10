@@ -1,4 +1,4 @@
-import { debounce, floor } from "lodash";
+import { debounce, floor } from "lodash-es";
 import { regexs } from "../../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../../shared/types.shared";
 import { cssVars } from "../style/vars.style.manager";

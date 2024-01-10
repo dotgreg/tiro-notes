@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { getApi, getClientApi2 } from "../../hooks/api/api.hook";
@@ -6,12 +6,14 @@ import { deviceType } from "../device.manager";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
+import { isBoolean } from "lodash-es";
 
-export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview:boolean) => genericReplacementPlugin({
+export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview?:boolean) => genericReplacementPlugin({
 	file,
 	windowId,
 	pattern: regexs.linklink,
 	replacement: params => {
+		let linkPreview2:boolean = linkPreview ? linkPreview : false
 		const matchs = params.matchs
 		let resEl = document.createElement("span");
 		resEl.classList.add('note-link-mdpreview-wrapper')
@@ -26,7 +28,7 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 			notePath = spl[0]
 			searchedStr = spl[1]
 		}
-		let html = generateNoteLink( noteTitle,notePath, searchedStr, windowId, linkPreview);
+		let html = generateNoteLink( noteTitle,notePath, searchedStr, windowId, linkPreview2);
 
 		resEl.innerHTML = `${html}`;
 		return resEl

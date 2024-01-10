@@ -1,4 +1,4 @@
-import { debounce, random } from "lodash";
+import { debounce, random } from "lodash-es";
 import { useEffect, useRef, useState } from "react";
 import { notifLog } from "../managers/devCli.manager";
 

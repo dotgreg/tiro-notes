@@ -1,7 +1,6 @@
 ///////////////////////////////////
 // URL LINK
 
-import { isArray, random } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { getApi } from "../../hooks/api/api.hook";
 import { isMobile } from "../device.manager";
@@ -48,7 +47,8 @@ export const generateHtmlLinkPreviewInt = (
 	opts?: iLinkPreviewOpts
 ): string => {
 	let matchs: any[] = []
-	if (!isArray(matchsOrUrl)) {
+	// if matchsOrUrl is an array
+	if (!Array.isArray(matchsOrUrl)) {
 		matchs = [...matchsOrUrl.matchAll(regexs.externalLink3)][0]
 	}
 	else matchs = matchsOrUrl

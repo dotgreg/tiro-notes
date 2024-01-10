@@ -6,7 +6,7 @@ import { absoluteLinkPathRoot } from "../textProcessor.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { Icon } from "../../components/Icon.component";
 import { getUrlTokenParam } from "../../hooks/app/loginToken.hook";
-import { each, isString } from "lodash";
+import { each, isString } from "lodash-es";
 import { getApi } from "../../hooks/api/api.hook";
 import { ssrFn, ssrOnClick } from "../ssr.manager";
 import {findImagesFromContent } from "../images.manager";

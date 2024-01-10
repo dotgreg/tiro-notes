@@ -1,14 +1,25 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import * as fa from '@fortawesome/free-solid-svg-icons'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import * as fa from '@fortawesome/free-solid-svg-icons'
 import { ssrIcon } from '../managers/ssr.manager';
 
 
-export const Icon2 = (p:{name: string, label?:string, size?: string, color?:string}) => {
+export const Icon2 = (p:{name: string, label?:string, size?: string|number, color?:string}) => {
+	// if name starts with fa, remove it and lowercase name
+	let name = p.name
+	
+	if (name.startsWith('fa')) name = name.substr(2)
+	// if first letter is uppercase, lowercase it
+	if (name[0] === name[0].toUpperCase()) name = name[0].toLowerCase() + name.substr(1)
+	
+	// if uppercases letters exists, replace it with - and lowercase
+	name = name.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`)
+	
+
 	return <div className="icon-2-wrapper"
 		title={p.label}
 		dangerouslySetInnerHTML={{
-			__html: ssrIcon(p.name)
+			__html: ssrIcon(name)
 		}}
 		style={{fontSize: p.size || "10px", color: p.color || "#797979"}}
 	></div>
@@ -31,45 +42,45 @@ export type IconSizeProp =
 	| "10x";
 
 
-class IconInt extends React.Component<{
-	name: string
-	color?: string
-	size?: number
-}, {}> {
-	size = this.props.size ? this.props.size : 1
-	isLocal = this.props.name.startsWith('fa') ? false : true
-	render() {
-		return (
-			<span style={{
-				transform: `scale(${this.size})`,
-				display: 'inline-block'
-			}}>
+// class IconInt extends React.Component<{
+// 	name: string
+// 	color?: string
+// 	size?: number
+// }, {}> {
+// 	size = this.props.size ? this.props.size : 1
+// 	isLocal = this.props.name.startsWith('fa') ? false : true
+// 	render() {
+// 		return (
+// 			<span style={{
+// 				transform: `scale(${this.size})`,
+// 				display: 'inline-block'
+// 			}}>
 
-				{!this.isLocal &&
-					// <i className={`fa-solid fa-${this.props.name}`} ></i>
-					<FontAwesomeIcon
-						icon={fa[this.props.name]}
-						color={this.props.color || 'black'}
-						size={'1x'}
-					/>
-				}
-				{this.isLocal &&
-					<span style={{
-						transform: `scale(${this.size})`,
-						display: 'inline-block',
-						width: '20px',
-						height: '20px',
-						background: `url('${this.props.name}')`,
-						backgroundSize: 'contain',
-						backgroundRepeat: 'no-repeat',
-					}}></span>
-				}
-			</span>
-		);
-	}
-}
+// 				{!this.isLocal &&
+// 					// <i className={`fa-solid fa-${this.props.name}`} ></i>
+// 					<FontAwesomeIcon
+// 						icon={fa[this.props.name]}
+// 						color={this.props.color || 'black'}
+// 						size={'1x'}
+// 					/>
+// 				}
+// 				{this.isLocal &&
+// 					<span style={{
+// 						transform: `scale(${this.size})`,
+// 						display: 'inline-block',
+// 						width: '20px',
+// 						height: '20px',
+// 						background: `url('${this.props.name}')`,
+// 						backgroundSize: 'contain',
+// 						backgroundRepeat: 'no-repeat',
+// 					}}></span>
+// 				}
+// 			</span>
+// 		);
+// 	}
+// }
 
-export const Icon = React.memo(IconInt, (np, pp) => {
+export const Icon = React.memo(Icon2, (np, pp) => {
 	if (JSON.stringify(np) !== JSON.stringify(pp)) return false
 	return true
 })

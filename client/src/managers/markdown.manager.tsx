@@ -1,4 +1,4 @@
-import { each, isObject, random, uniq } from "lodash";
+import { each, isObject, random, uniq } from "lodash-es";
 import { cleanPath } from "../../../shared/helpers/filename.helper";
 
 const marked = require('marked');

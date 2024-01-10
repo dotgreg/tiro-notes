@@ -1,4 +1,4 @@
-import { cloneDeep, random } from "lodash"
+import { cloneDeep, random } from "lodash-es"
 import { sharedConfig } from "../../../shared/shared.config"
 import { devCliAddFn, devCliGetFn } from "./devCli.manager"
 import { getLs, setLs } from "./localstorage.manager"

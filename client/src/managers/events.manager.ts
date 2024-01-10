@@ -1,4 +1,4 @@
-import { random, each } from "lodash";
+import { random, each } from "lodash-es";
 import { lengthObj } from "../../../shared/helpers/lengthObj.helper";
 import { configClient } from "../config";
 

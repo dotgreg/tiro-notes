@@ -1,4 +1,4 @@
-import { each } from "lodash"
+import { each } from "lodash-es"
 import { cleanPath } from "../../../shared/helpers/filename.helper"
 import { sharedConfig } from "../../../shared/shared.config"
 import { iPlatform } from "../../../shared/types.shared"

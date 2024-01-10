@@ -1,4 +1,4 @@
-import _ from "lodash"
+import {throttle, debounce} from "lodash-es"
 import { useCallback, useEffect, useRef } from "react";
 
 export function useThrottle(cb, delay) {
@@ -7,7 +7,7 @@ export function useThrottle(cb, delay) {
 	// use mutable ref to make useCallback/throttle not depend on `cb` dep
 	useEffect(() => { cbRef.current = cb; });
 	return useCallback(
-		_.throttle((...args) => cbRef.current(...args), delay, options),
+		throttle((...args) => cbRef.current(...args), delay, options),
 		[delay]
 	);
 }
@@ -25,7 +25,7 @@ export function useDebounce(cb: any, delay: number, leading = false) {
 	});
 
 	return useCallback(
-		_.debounce(
+		debounce(
 			(...args) => {
 				// Don't execute callback, if (1) component in the meanwhile 
 				// has been unmounted or (2) delay has changed
@@ -35,7 +35,7 @@ export function useDebounce(cb: any, delay: number, leading = false) {
 			delay,
 			options
 		),
-		[delay, _.debounce]
+		[delay, debounce]
 	);
 }
 

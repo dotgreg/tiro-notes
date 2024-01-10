@@ -1,4 +1,4 @@
-import { each, isNumber, random } from "lodash";
+import { each, isNumber, random } from "lodash-es";
 import { pathToIfile } from "../../../shared/helpers/filename.helper";
 import { iAppView,  iTab } from "../../../shared/types.shared";
 import { configClient } from "../config";

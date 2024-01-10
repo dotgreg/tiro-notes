@@ -1,7 +1,7 @@
 import { OptionObj } from "../components/Input.component"
 import { md2html } from "./markdown.manager"
 import { regexs } from '../../../shared/helpers/regexs.helper';
-import { each, debounce } from "lodash";
+import { each, debounce } from "lodash-es";
 
 export const cleanText2Speech = (rawText: string) => {
 	let text2read = rawText

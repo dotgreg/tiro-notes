@@ -38,7 +38,53 @@ export const getServerTaskId = () => serverTaskId.curr
 export const setServerTaskId = (nb) => { serverTaskId.curr = nb }
 
 export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDictionary>) => {
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// PRE LOGIN APIs
+	//
+	serverSocket2.on('sendSetupInfos', async data => {
+		const answer = await processClientSetup(data)
+		serverSocket2.emit('getSetupInfos', answer)
 
+		// if setup success, restart server
+		// NOT WORKING ON DEV NODEMON
+		if (answer.code === 'SUCCESS_CONFIG_CREATION') restartTiroServer()
+	}, { duringSetup: true, checkRole: "none" })
+
+	
+	serverSocket2.on('disconnect', async data => {
+
+	}, { bypassLoginTokenCheck: true, checkRole: "none" })
+
+
+
+	serverSocket2.on('sendLoginInfos', async data => {
+		let endPerf = perf('sendLoginInfos ')
+		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
+
+		security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
+		logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
+
+		if (!areClientInfosCorrect) {
+			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
+
+		} else {
+			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
+
+			// // do also a root scan for first time
+			// let folders = [scanDirForFolders('/')]
+			// serverSocket2.emit('getFoldersScan', {
+			// 	folders,
+			// 	pathBase: backConfig.dataFolder
+			// })
+		}
+		endPerf()
+	}, { bypassLoginTokenCheck: true, disableDataLog: true, checkRole: "none" })
+
+
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// VIEWER APIs
+	//
 	serverSocket2.on('askForFiles', async data => {
 		searchWithRipGrep({
 			term: '',
@@ -50,7 +96,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			},
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('askForImages', async data => {
 		searchWithRipGrep({
@@ -63,7 +109,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			},
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('askForFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
@@ -76,7 +122,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			serverSocket2.emit('getFileContent', { fileContent: '', error: 'NO_FILE', filePath: data.filePath, idReq: data.idReq })
 		}
 		endPerf()
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('searchWord', async data => {
 		// replace * by ANY word
@@ -89,7 +135,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			},
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('searchFor', async data => {
 		// see if need to restrict search to a folder
@@ -118,7 +164,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 			})
 		}
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('askFoldersScan', async data => {
 		let depth = data.depth || 0
@@ -133,12 +179,55 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			pathBase: backConfig.dataFolder
 		})
 		endPerf()
-	})
+	}, { checkRole: "viewer" })
+	serverSocket2.on('askFileHistory', async data => {
+		// get all the history files 
+		let endPerf = perf('👁️  askFileHistory ' + data.filepath)
+		const file = pathToIfile(data.filepath)
+		const historyFolder = getHistoryFolder(file)
+		let allHistoryFiles = await scanDirForFiles(historyFolder, serverSocket2)
+		if (!isArray(allHistoryFiles)) allHistoryFiles = []
+		// filter .infos.md
+		allHistoryFiles = allHistoryFiles.filter(f => f.name !== fileHistoryParams.infosFile)
+		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
+		endPerf()
+	}, { checkRole: "viewer" })
+	serverSocket2.on('askFilesPreview', async data => {
+		let endPerf = perf('👁️  askFilesPreview ')
+		let res = await getFilesPreviewLogic(data)
+		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
+		endPerf()
+	}, { checkRole: "viewer" })
+	serverSocket2.on('askRessourceDownload', async data => {
+		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
+		let endPerf = perf(`⬇️   askRessourceDownload ${data.url}`)
+		const opts = data.opts ? data.opts : {}
+
+		await upsertRecursivelyFolders(pathToFile)
+		downloadFile(data.url, pathToFile, opts).then(message => {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
+			endPerf()
+		}).catch(message => {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
+			endPerf()
+		})
+    
+	}, { checkRole: "viewer" }) 
+	//
+	// PLUGINS
+	// 
+	serverSocket2.on('askPluginsList', async data => {
+		let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
+		let { plugins, scanLog } = await scanPlugins(data.noCache)
+		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
+		endPerf()
+	}, { checkRole: "viewer" })
 
 
 
-
-
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// EDITOR APIs
+	//
 	serverSocket2.on('saveFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("write", data.filePath, serverSocket2)
 
@@ -223,18 +312,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		processFileHistoryHousekeeping(histFile, date)
 	}, { checkRole: "editor", disableDataLog: true })
 
-	serverSocket2.on('askFileHistory', async data => {
-		// get all the history files 
-		let endPerf = perf('👁️  askFileHistory ' + data.filepath)
-		const file = pathToIfile(data.filepath)
-		const historyFolder = getHistoryFolder(file)
-		let allHistoryFiles = await scanDirForFiles(historyFolder, serverSocket2)
-		if (!isArray(allHistoryFiles)) allHistoryFiles = []
-		// filter .infos.md
-		allHistoryFiles = allHistoryFiles.filter(f => f.name !== fileHistoryParams.infosFile)
-		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
-		endPerf()
-	})
+	
 
 
 
@@ -291,16 +369,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		folderToUpload.value = data.folderpath
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('disconnect', async data => {
-
-	}, { bypassLoginTokenCheck: true })
-
-	serverSocket2.on('askFilesPreview', async data => {
-		let endPerf = perf('👁️  askFilesPreview ')
-		let res = await getFilesPreviewLogic(data)
-		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
-		endPerf()
-	})
+	
 
 	serverSocket2.on('askFolderCreate', async data => {
 		// createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
@@ -310,38 +379,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('sendSetupInfos', async data => {
-		const answer = await processClientSetup(data)
-		serverSocket2.emit('getSetupInfos', answer)
-
-		// if setup success, restart server
-		// NOT WORKING ON DEV NODEMON
-		if (answer.code === 'SUCCESS_CONFIG_CREATION') restartTiroServer()
-	}, { duringSetup: true })
-
-
-	serverSocket2.on('sendLoginInfos', async data => {
-		let endPerf = perf('sendLoginInfos ')
-		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
-
-		security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
-		logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
-
-		if (!areClientInfosCorrect) {
-			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
-
-		} else {
-			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
-
-			// // do also a root scan for first time
-			// let folders = [scanDirForFolders('/')]
-			// serverSocket2.emit('getFoldersScan', {
-			// 	folders,
-			// 	pathBase: backConfig.dataFolder
-			// })
-		}
-		endPerf()
-	}, { bypassLoginTokenCheck: true, disableDataLog: true })
+	
 
 
 
@@ -360,21 +398,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		}
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('askRessourceDownload', async data => {
-		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
-		let endPerf = perf(`⬇️   askRessourceDownload ${data.url}`)
-		const opts = data.opts ? data.opts : {}
-
-		await upsertRecursivelyFolders(pathToFile)
-		downloadFile(data.url, pathToFile, opts).then(message => {
-			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
-			endPerf()
-		}).catch(message => {
-			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
-			endPerf()
-		})
-    
-	}) 
+	
 
 
 	//
@@ -414,15 +438,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 
-	//
-	// PLUGINS
-	// 
-	serverSocket2.on('askPluginsList', async data => {
-		let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
-		let { plugins, scanLog } = await scanPlugins(data.noCache)
-		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
-		endPerf()
-	})
+	
 
 	//
 	// NOTIFICATIONS

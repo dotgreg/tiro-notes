@@ -1,7 +1,7 @@
 //
 	// EXPORT POPUP
 
-import { each } from "lodash"
+import { each } from "lodash-es"
 import { cleanPath, pathToIfile } from "../../../shared/helpers/filename.helper"
 import { sharedConfig } from "../../../shared/shared.config"
 import { iFile, iViewType } from "../../../shared/types.shared"

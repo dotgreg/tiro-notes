@@ -12,11 +12,11 @@ import { sharedConfig } from "../../../shared/shared.config";
 
 
 interface routeOptions {
+	checkRole: iRole
 	duringSetup?: boolean,
 	disableLog?: boolean,
 	disableDataLog?: boolean,
 	bypassLoginTokenCheck?: boolean,
-	checkRole?: iRole
 }
 
 const h = `[SOCKET SERV EVENT]`
@@ -25,7 +25,7 @@ type ApiOnFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
 	(
 	endpoint: `${Endpoint}`,
 	callback: (apiAnswerData: ApiDict[Endpoint] & { token: string }) => void,
-	options?: routeOptions
+	options: routeOptions
 ) => void;
 type ApiEmitFn<ApiDict> = <Endpoint extends string & keyof ApiDict>
 	(
@@ -47,7 +47,7 @@ export const sleep = (ms) => {
 
 
 const preprocessEndpointOptions = (endpoint: string, options?: routeOptions) => {
-	if (!options) options = {}
+	// if (!options) options = {}
 	if (endpoint.startsWith('siofu')) {
 		options.disableDataLog = true
 		options.disableLog = true
@@ -116,7 +116,7 @@ export const initServerSocketManager =
 					//
 					else if (
 						!sharedConfig.dev.disableLogin &&
-						options?.checkRole &&
+						options?.checkRole !== "none" &&
 						(!tokenUser || !tokenUser.roles.includes(options.checkRole))
 					) {
 						shouldlog && log(`${h} <== WRONG ROLE (${options.checkRole} asked by user ${JSON.stringify(tokenUser)} for "${endpoint}" `);
@@ -125,7 +125,7 @@ export const initServerSocketManager =
 
 
 					//
-					// 4. ELSE PROCESS TO NORMAL CALL
+					// 4. ELSE PROCESS TO UNAUTHENTICATED APIs
 					//
 					else {
 						// TRY CATCH for upload errors mainly

@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { getCookie, setCookie } from "./cookie.manager";
 import { devCliAddFn } from "./devCli.manager";
 

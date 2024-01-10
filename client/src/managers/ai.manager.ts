@@ -1,4 +1,4 @@
-import { isBoolean, throttle } from "lodash"
+import { isBoolean, throttle } from "lodash-es"
 import { getApi } from "../hooks/api/api.hook"
 import { iFile } from "../../../shared/types.shared"
 import { generateTextAt } from "./textEditor.manager"

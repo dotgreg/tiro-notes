@@ -1,4 +1,4 @@
-import { each } from "lodash"
+import { each } from "lodash-es"
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { sharedConfig } from "../../../shared/shared.config"

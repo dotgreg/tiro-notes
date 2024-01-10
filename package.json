@@ -23,33 +23,24 @@
         "gen-certs": "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048  -subj '/CN=www.tiro-notes.org/subjectAltName=DNS.1=185.199.111.153/' -out tiro-notes.crt -keyout tiro-notes.key",
         "================== TESTING =================== ": "",
         "test/client": "npm run --prefix ./client test",
-
         "test/dev": "run-p kill-server; run-p client testing-server custom-tags",
         "testing-server": "npm run --prefix ./server testing-server",
-
         "test/server-internal": "npm run --prefix ./server test",
         "test/client-internal": "npm run --prefix ./client test",
-
         "================== PLATFORMS RELATED =================== ": "",
         "cli-test": "cd ./platforms/npm-cli-module; npm run dev;",
-        
         "cli": "npm run publish-cli",
         "publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
-
         "cli-dev": "npm run publish-cli-dev",
         "publish-cli-dev": "cd ./platforms/npm-cli-module; npm run build-then-publish-dev;",
-
         "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
-
         "================== WEBSITE & MARKETPLACE & BLOG GENERATOR =================== ": "",
         "site/dev": "run-p marketplace/build docs/dev blog/dev",
         "site/install": "run-p marketplace-json/install docs/install blog/install",
-
         "site/build": "run-s export-readme blog/build docs/build marketplace/build",
         "site/update": "run-s site/pull site/build site/push",
         "site/pull": "git checkout master; git pull origin master",
         "site/push": "git add .; git commit -m 'updating blog+docs'; git push origin master",
-        
         "marketplace/build": "run-s marketplace-json/build marketplace-html/build",
         "marketplace-html/build": "cp ./client/src/components/settingsView/generatePluginsMarketplaceHtml.js ./docs/_plugin_marketplace_html/_automaticgen_generatePluginsMarketplaceHtml.js",
         "marketplace-json/dev": "npm run --prefix ./docs/_marketplace_generator dev",
@@ -57,18 +48,15 @@
         "marketplace-json/build-int": "npm run --prefix ./docs/_marketplace_generator build",
         "marketplace-json/copy-json-to-plugins-folder": "cp ./docs/marketplace.json ./plugins/marketplace.json",
         "marketplace-json/install": "npm --prefix ./docs/_marketplace_generator install",
-
         "docs/dev": "npx docsify-cli serve docs",
         "docs/build": "npm run --prefix ./docs/_website_generator build",
         "docs/install": "npm --prefix ./docs/_website_generator install",
-
         "blog/build": "npm run --prefix ./docs/_eleventy_blog_system build",
         "blog/dev": "npm run --prefix ./docs/_eleventy_blog_system start",
         "blog/serve-int": "npx http-server ./docs/blog",
         "blog/serve": "run-s blog/build blog/serve-int",
         "blog/update": "run-s site/pull blog/build site/push",
         "blog/install": "npm --prefix ./docs/_eleventy_blog_system install",
-
         "================== NODE BUILD =================== ": "",
         "build": "CI=false npm run build-then-export",
         "build-then-export": "run-s create-build-folders build-client build-server site/build clean-prev-build export-the-build copy-build-to-electron-folder",
@@ -79,7 +67,6 @@
         "create-build-folders": "npx mkdirp ./build ./build/client ./build/server",
         "build-client": "npm run --prefix ./client install-clean-build",
         "build-server": "npm run --prefix ./server install-clean-build",
-        
         "===____2_CLEAN_PREV_BUILD__": "",
         "clean-prev-build": "run-s clean-server clean-client clean-else",
         "clean-server": "rm -r ./build/server &",
@@ -102,6 +89,8 @@
         "export-readme": "run-s export-readme-1 export-readme-2",
         "export-readme-1": "cp README.md docs/README.md",
         "export-readme-2": "cp README.md ./build/",
+        "================== PLUGIN DEV =================== ": "",
+        "flow": "flow ./plugins",
         "================== MISC =================== ": "",
         "__TEST__": "",
         "test1": "(node -e \"console.log('log1');\") && echo wooop",
@@ -122,6 +111,7 @@
     },
     "homepage": "https://github.com/dotgreg/tiro",
     "devDependencies": {
+        "flow-bin": "^0.226.0",
         "typejuice": "^0.0.1"
     }
 }

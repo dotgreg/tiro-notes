@@ -1,4 +1,4 @@
-import { each, uniqueId } from "lodash"
+import { each, uniqueId } from "lodash-es"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { iFile } from "../../../shared/types.shared"
 import { ClientApiContext, getApi } from "../hooks/api/api.hook"

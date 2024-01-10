@@ -1,4 +1,4 @@
-import { debounce, each } from "lodash";
+import { debounce, each } from "lodash-es";
 import { getApi } from "../hooks/api/api.hook";
 import { iUploadedFileInfos } from "../hooks/api/upload.api.hook";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
