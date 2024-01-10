@@ -1,4 +1,4 @@
-import { each, isUndefined } from "lodash"
+import { each, isUndefined } from "lodash-es"
 import { iPlugin } from "../../../shared/types.shared"
 import { getApi } from "../hooks/api/api.hook"
 import { iEvalFuncParams } from "../hooks/api/ressource.api.hook"

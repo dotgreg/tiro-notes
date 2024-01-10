@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { sharedConfig } from "../../../shared/shared.config";
 import { getApi, getClientApi2 } from "./api/api.hook";
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { useDebounce } from "./lodash.hooks";
 
 const h = `[BACKEND STATE]`

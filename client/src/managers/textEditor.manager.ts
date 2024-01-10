@@ -1,4 +1,4 @@
-import { each, isBoolean, isNumber, isString, throttle } from "lodash";
+import { each, isBoolean, isNumber, isString, throttle } from "lodash-es";
 import { iFile } from "../../../shared/types.shared";
 import { getApi } from "../hooks/api/api.hook";
 import { notifLog } from "./devCli.manager";
@@ -214,7 +214,7 @@ export const triggerTextModifAction = (
 
 		// decal char of 0
 		// cb(0)
-	}
+	} 
 
 
 	return lines.join('\n')

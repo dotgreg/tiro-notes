@@ -1,7 +1,7 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
 import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash';
-import * as lodash from "lodash"
+// import * as lodash from "lodash-es"
 import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
 import { pathToIfile } from '../../../shared/helpers/filename.helper';
@@ -832,7 +832,7 @@ export const OmniBar = (p: {
 					onClose: p.onClose, onHide: p.onHide,
 					close: p.onClose, hide: p.onHide,
 					selectedOptionRef, setSelectedOption,
-					lodash,
+					// lodash,
 					selectedTags: stags,
 					setNotePreview, notePreview,
 					setHtmlPreview, htmlPreview,

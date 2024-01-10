@@ -3,7 +3,7 @@ import { EditorSelection } from "@codemirror/state";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { LineTextInfos } from "../textEditor.manager";
 import { getCustomTheme } from "./theme.cm";
-import { cloneDeep, each } from "lodash";
+import { cloneDeep, each } from "lodash-es";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
 import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"

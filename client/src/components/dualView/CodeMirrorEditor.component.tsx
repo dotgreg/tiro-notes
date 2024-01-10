@@ -26,7 +26,7 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "lodash";
+import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "lodash-es";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 import { notifLog } from "../../managers/devCli.manager";

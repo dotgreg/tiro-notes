@@ -1,4 +1,4 @@
-import { debounce } from "lodash";
+import { debounce } from "lodash-es";
 import { configClient } from "../config";
 import { pathToIfile } from "../../../shared/helpers/filename.helper";
 import { iFile } from "../../../shared/types.shared";

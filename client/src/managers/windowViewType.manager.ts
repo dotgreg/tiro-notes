@@ -1,4 +1,4 @@
-import { each } from "lodash";
+import { each } from "lodash-es";
 import { iViewType } from "../../../shared/types.shared";
 import { getApi } from "../hooks/api/api.hook";
 

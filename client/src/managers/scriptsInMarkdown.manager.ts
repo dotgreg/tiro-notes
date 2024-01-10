@@ -1,5 +1,5 @@
 import { replaceCustomMdTags } from "./markdown.manager";
-import { each } from "lodash";
+import { each } from "lodash-es";
 
 //
 // LOAD EXTERNAL SCRIPTS

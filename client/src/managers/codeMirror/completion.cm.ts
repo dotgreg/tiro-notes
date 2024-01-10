@@ -1,5 +1,5 @@
 import { CompletionSource } from "@codemirror/autocomplete"
-import { each } from "lodash"
+import { each } from "lodash-es"
 import { sharedConfig } from "../../../../shared/shared.config"
 import { iFile } from "../../../../shared/types.shared"
 import { getApi } from "../../hooks/api/api.hook"

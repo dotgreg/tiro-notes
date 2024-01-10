@@ -1,4 +1,4 @@
-import { each, isNull, random } from "lodash"
+import { each, isNull, random } from "lodash-es"
 
 //
 // !!!!!!!!!! NEW METHOD addKeyShortcut > keyboard.manager.ts

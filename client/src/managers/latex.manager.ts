@@ -1,4 +1,4 @@
-import { debounce, each } from "lodash";
+import { debounce, each } from "lodash-es";
 import { sharedConfig } from "../../../shared/shared.config";
 
 let katex: any = null;

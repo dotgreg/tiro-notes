@@ -1,4 +1,4 @@
-import { each } from "lodash";
+import { each } from "lodash-es";
 import { regexs } from "../../../shared/helpers/regexs.helper";
 import { processStringToMeta } from "../../../shared/helpers/metas.helper";
 import { sharedConfig } from "../../../shared/shared.config";

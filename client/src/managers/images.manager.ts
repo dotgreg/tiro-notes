@@ -1,4 +1,4 @@
-import { each } from "lodash";
+import { each } from "lodash-es";
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile, iFileImage } from "../../../shared/types.shared";
 import { absoluteLinkPathRoot } from "./textProcessor.manager";
