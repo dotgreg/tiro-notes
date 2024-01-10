@@ -1,4 +1,4 @@
-import { cloneDeep, debounce, each, isNull, isUndefined, uniqueId } from 'lodash';
+import { cloneDeep, debounce, each, isNull, isUndefined, uniqueId } from 'lodash-es';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { sharedConfig } from '../../../shared/shared.config';

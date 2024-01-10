@@ -1,4 +1,4 @@
-import { clamp, each, random } from 'lodash';
+import { clamp, each, random } from 'lodash-es';
 import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { deviceType, isA } from '../../managers/device.manager';

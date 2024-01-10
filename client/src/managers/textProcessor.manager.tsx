@@ -10,7 +10,7 @@ import { findImagesFromContent } from './images.manager';
 import { RessourcePreview } from '../components/RessourcePreview.component';
 import { renderToString } from 'react-dom/server';
 import { generateNoteLink } from './codeMirror/noteLink.plugin.cm';
-import { each } from 'lodash';
+import { each } from 'lodash-es';
 import { generateHtmlLinkPreview } from './codeMirror/urlLink.plugin.cm';
 import { mem } from './reactRenderer.manager';
 import { generateImagePreviewHtml } from './codeMirror/image.plugin.cm';

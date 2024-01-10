@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import { isString } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { perf } from '../../managers/performance.manager';

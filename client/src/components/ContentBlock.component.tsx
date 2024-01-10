@@ -6,7 +6,7 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { isNumber, isString, random } from 'lodash';
+import { isNumber, isString, random } from 'lodash-es';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';

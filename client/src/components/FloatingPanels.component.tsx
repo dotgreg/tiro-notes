@@ -7,7 +7,7 @@ import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
 import { genUrlPreviewStr } from '../managers/url.manager';
-import { cloneDeep, isArray, set, sortBy, update, zip } from 'lodash';
+import { cloneDeep, isArray, set, sortBy, update, zip } from 'lodash-es';
 import { useDebounce } from '../hooks/lodash.hooks';
 import {  getScrollbarWidth } from '../managers/scrollbar.manager';
 import { cssVars } from '../managers/style/vars.style.manager';

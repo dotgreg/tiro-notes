@@ -43,7 +43,7 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
-import { cloneDeep, random, set, update } from 'lodash';
+import { cloneDeep, random, set, update } from 'lodash-es';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
@@ -56,6 +56,7 @@ import { FloatingPanel, FloatingPanelsWrapper } from './components/FloatingPanel
 import { usePinStatus } from './hooks/app/usePinnedInterface.hook';
 import { userSettingsSync } from './hooks/useUserSettings.hook';
 import { webIconUpdate } from './managers/iconWeb.manager';
+import { initLatex, isLatexInit } from './managers/latex.manager';
 
 export const App = () => {
 
@@ -63,6 +64,8 @@ export const App = () => {
 	// STARTUP PHASE, code should be added after login phase, not here
 	//
 	useEffect(() => {
+		
+
 		// starting BG cron with some time offset to not have synchronous bg runs from different client windows
 		setTimeout(() => {
 			startFrontendBackgroundPluginsCron()
@@ -144,7 +147,9 @@ export const App = () => {
 		cleanFilesList()
 	}
 
-
+	// npm remove @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
+	// npm install @pmmmwh/react-refresh-webpack-plugin @svgr/webpack --force
+	// npm install --save-dev mini-css-extract-plugin html-webpack-plugin fs-extra file-loader eslint-webpack-plugin eslint-plugin-testing-library eslint-plugin-react-hooks eslint-plugin-react babel-eslint babel-jest babel-loader babel-plugin-named-asset-import babel-preset-react-app case-sensitive-paths-webpack-plugin dotenv dotenv-expand eslint eslint-config-react-app eslint-plugin-flowtype eslint-plugin-import eslint-plugin-jest eslint-plugin-jsx-a11y 
 
 	//
 	// FOLDERS API

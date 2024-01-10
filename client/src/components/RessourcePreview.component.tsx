@@ -1,4 +1,4 @@
-import { each, random } from 'lodash';
+import { each, random } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
 import { iFile } from '../../../shared/types.shared';

@@ -1,4 +1,4 @@
-import { cloneDeep, each, isArray, isBoolean, random, uniq } from 'lodash';
+import { cloneDeep, each, isArray, isBoolean, random, uniq } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';

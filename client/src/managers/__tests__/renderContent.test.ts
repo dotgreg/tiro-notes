@@ -1,6 +1,6 @@
 // import { tu } from '../../__tests__/testsUtils'
 // import { tc } from '../../__tests__/testsContent'
-// import { isBoolean } from 'lodash';
+// import { isBoolean } from 'lodash-es';
 // import { noteApiFuncs } from '../renderNote.manager';
 
 

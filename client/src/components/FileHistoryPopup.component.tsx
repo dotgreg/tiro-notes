@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { each, orderBy, sortBy } from 'lodash';
+import { each, orderBy, sortBy } from 'lodash-es';
 import React, { useContext, useEffect, useState } from 'react';
 import { getDateObj } from '../../../shared/helpers/date.helper';
 import { iFile } from '../../../shared/types.shared';
@@ -102,7 +102,7 @@ export const FileHistoryPopup = (p: {
 	const trashFile = (file: iHistoryFile) => {
 		const titlePopup = "Trashing File"
 		getApi(api => {
-			api.file.delete(file, (a) => {
+			api.file.delete(file, (a) => { 
 				refreshHistoryFiles()
 				setActiveFile(null)
 				setFileHistoryContent("")

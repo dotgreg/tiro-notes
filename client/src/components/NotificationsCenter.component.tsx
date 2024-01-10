@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { iNotification, iNotificationType } from '../../../shared/types.shared';

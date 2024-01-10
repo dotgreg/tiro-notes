@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { cloneDeep, each, filter } from 'lodash'
+import { cloneDeep, each, filter } from 'lodash-es'
 import GridLayout from "react-grid-layout";
 import '../../../node_modules/react-grid-layout/css/styles.css'
 import '../../../node_modules/react-resizable/css/styles.css'

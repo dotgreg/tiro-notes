@@ -27,7 +27,7 @@ import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean, isNumber, isString, random, set } from 'lodash';
+import { each, isBoolean, isNumber, isString, random, set } from 'lodash-es';
 import { pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';

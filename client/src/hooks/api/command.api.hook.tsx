@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import { isString } from 'lodash-es';
 import React, { useEffect, useRef } from 'react';
 import { iCommandStreamChunk } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';

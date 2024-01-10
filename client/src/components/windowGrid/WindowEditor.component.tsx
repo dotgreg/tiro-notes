@@ -1,4 +1,4 @@
-import { isBoolean } from 'lodash';
+import { isBoolean } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';

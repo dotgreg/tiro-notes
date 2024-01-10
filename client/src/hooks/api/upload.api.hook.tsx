@@ -3,7 +3,7 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { uploadFileInt } from '../../managers/upload.manager';
 import { genIdReq, iApiEventBus } from './api.hook';
 import { useDebounce } from '../lodash.hooks';
-import { each } from 'lodash';
+import { each } from 'lodash-es';
 import { notifLog } from '../../managers/devCli.manager';
 import { deviceType } from '../../managers/device.manager';
 

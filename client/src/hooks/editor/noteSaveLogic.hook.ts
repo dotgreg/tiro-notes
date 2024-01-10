@@ -1,4 +1,4 @@
-import { debounce, throttle } from 'lodash';
+import { debounce, throttle } from 'lodash-es';
 import  {  useState } from 'react';
 import { onFileEditedFn } from '../../components/dualView/EditorArea.component';
 import { useDebounce, useThrottle } from '../lodash.hooks';

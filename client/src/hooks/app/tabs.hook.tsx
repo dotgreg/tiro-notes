@@ -1,6 +1,6 @@
 import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
-import { cloneDeep, each, isNumber } from 'lodash';
+import { cloneDeep, each, isNumber } from 'lodash-es';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';

@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 import { ReactElement } from "react";
 // import { renderToString } from 'react-dom/server'
 import { generateUUID } from '../../../shared/helpers/id.helper';
-import { memoize } from 'lodash';
+import { memoize } from 'lodash-es';
 
 
 /**

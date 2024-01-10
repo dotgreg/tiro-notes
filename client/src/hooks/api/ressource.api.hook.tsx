@@ -5,7 +5,7 @@ import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.mana
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getApi, iApiEventBus } from './api.hook';
 import { checkUrlExists } from '../../managers/url.manager'
-import { each, random } from 'lodash';
+import { each, random } from 'lodash-es';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';

@@ -6,7 +6,7 @@ import { Popup } from '../Popup.component';
 import { Input, InputType } from '../Input.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { useBackendState } from '../../hooks/useBackendState.hook';
-import { cloneDeep, debounce, each } from 'lodash';
+import { cloneDeep, debounce, each } from 'lodash-es';
 import { configClient } from '../../config';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { replaceAll } from '../../managers/string.manager';

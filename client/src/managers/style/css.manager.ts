@@ -46,7 +46,7 @@ import { noteLinkCss } from '../codeMirror/noteLink.plugin.cm';
 import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
 import { pluginsMarketplacePopupCss } from '../../components/settingsView/pluginsMarketplacePopup.component';
 import { perf } from '../performance.manager';
-import { memoize, values } from 'lodash';
+import { memoize, values } from 'lodash-es';
 import { iUserSettingsApi } from '../../hooks/useUserSettings.hook';
 import { FloatingPanelCss } from '../../components/FloatingPanels.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';

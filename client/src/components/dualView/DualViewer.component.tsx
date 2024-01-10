@@ -4,7 +4,7 @@ import { EditorArea, iLayoutUpdateFn, iReloadContentFn, onFileEditedFn, onLightb
 import { iFile, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, iMobileView } from '../../managers/device.manager';
-import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
+import { clamp, debounce, each, isNumber, random, throttle } from 'lodash-es';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
