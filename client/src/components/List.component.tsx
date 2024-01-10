@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled'
 import { iFile } from '../../../shared/types.shared';
-import { cloneDeep, debounce, isEqual, isNumber, max } from 'lodash';
+import { cloneDeep, debounce, isEqual, isNumber, max } from 'lodash-es';
 import { formatDateList } from '../managers/date.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { FixedSizeList } from 'react-window';

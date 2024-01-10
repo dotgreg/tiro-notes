@@ -2,7 +2,7 @@ import { css, Global } from '@emotion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { getApi, useClientApi } from './hooks/api/api.hook';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
-import { random } from 'lodash';
+import { random } from 'lodash-es';
 import { initPWA } from './managers/pwa.manager';
 import { deviceType } from './managers/device.manager';
 import { initSocketConnexion } from './managers/sockets/socket.manager';

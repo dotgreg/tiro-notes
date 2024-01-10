@@ -1,4 +1,4 @@
-import { each, random } from 'lodash';
+import { each, random } from 'lodash-es';
 import React, { useContext, useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react';
 import { iFile, iFilePreview } from '../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../hooks/api/api.hook';

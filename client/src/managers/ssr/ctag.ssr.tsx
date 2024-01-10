@@ -4,7 +4,7 @@ import { ContentBlock } from '../../components/ContentBlock.component';
 import { getApi } from '../../hooks/api/api.hook';
 import { generateEmptyiFile } from '../../hooks/app/useLightbox.hook';
 import { renderReactToId } from "../reactRenderer.manager"
-import { memoize } from 'lodash';
+import { memoize } from 'lodash-es';
 import { getUrlTokenParam } from '../../hooks/app/loginToken.hook';
 import { deviceType } from '../device.manager';
 

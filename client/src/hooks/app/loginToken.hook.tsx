@@ -1,5 +1,5 @@
 import { css } from '@emotion/react';
-import { cloneDeep } from 'lodash';
+import { cloneDeep } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { Input } from '../../components/Input.component';

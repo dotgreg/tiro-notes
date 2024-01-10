@@ -3,7 +3,7 @@ import { iFile } from "../../../shared/types.shared";
 import { strings } from "../managers/strings.manager";
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
-import { isArray } from 'lodash';
+import { isArray } from 'lodash-es';
 
 const limitTxt = 20
 const liHeight = 15

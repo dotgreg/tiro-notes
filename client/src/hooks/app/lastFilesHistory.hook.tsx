@@ -1,4 +1,4 @@
-import { cloneDeep, isArray } from 'lodash';
+import { cloneDeep, isArray } from 'lodash-es';
 import React, { useEffect } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile } from "../../../../shared/types.shared"

@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
-import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash';
+import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash-es';
 // import * as lodash from "lodash-es"
 import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';

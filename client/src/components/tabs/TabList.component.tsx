@@ -1,4 +1,4 @@
-import { cloneDeep, isArray, random } from 'lodash';
+import { cloneDeep, isArray, random } from 'lodash-es';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';

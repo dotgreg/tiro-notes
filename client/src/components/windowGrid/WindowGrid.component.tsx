@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { cloneDeep, each, random } from 'lodash';
+import { cloneDeep, each, random } from 'lodash-es';
 import React, { useContext, useEffect, useState } from 'react';
 import { iFile, iGrid, iTab } from '../../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';

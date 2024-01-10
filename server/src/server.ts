@@ -40,8 +40,8 @@ initSocketLogic();
 
 // FRONTEND CLIENT SERVER on /
 // console.log(backConfig.frontendBuildFolder)
+// redirect all to index.html
 app.use('/', express.static(backConfig.frontendBuildFolder));
-
 // RESSOURCES SERVER on /static
 if (backConfig.dataFolder) {
 	startSecuredStaticServer({
@@ -58,11 +58,15 @@ server.listen(backConfig.port, function () {
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
 
-app.get('*', function(req, res){
-	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
-	logActivity(`404`, `SECURITY:404:${req.url}`, req)
-	res.status(404).send('Not found');
-});
+app.get('*', (req, res) => {
+    res.redirect('/')
+})
+
+// app.get('*', function(req, res){
+// 	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
+// 	logActivity(`404`, `SECURITY:404:${req.url}`, req)
+// 	res.status(404).send('Not found');
+// });
  
 
 // const test = async () => {

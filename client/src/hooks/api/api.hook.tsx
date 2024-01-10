@@ -1,4 +1,4 @@
-import { cloneDeep, each, isFunction, isNumber } from 'lodash';
+import { cloneDeep, each, isFunction, isNumber } from 'lodash-es';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iIframeData } from '../../managers/iframe.manager';

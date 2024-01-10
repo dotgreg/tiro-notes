@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { SerializedStyles } from '@emotion/react';
-import { isBoolean } from 'lodash';
+import { isBoolean } from 'lodash-es';
 import React, { useEffect, useRef } from 'react';
 
 export type OptionObj = { key: number | string, label: string, obj: any }

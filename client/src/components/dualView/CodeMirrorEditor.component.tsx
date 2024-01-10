@@ -33,6 +33,7 @@ import { notifLog } from "../../managers/devCli.manager";
 import { history } from "@codemirror/history";
 import { hashtagPreviewPlugin } from "../../managers/codeMirror/hashtag.plugin.cm";
 import { datePickerCmPlugin } from "../../managers/codeMirror/datePicker.cm";
+import { initLatex, isLatexInit } from "../../managers/latex.manager";
 // import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
@@ -380,6 +381,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			}
 
 			if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
+				if (!isLatexInit) initLatex();
 				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					// datepicker

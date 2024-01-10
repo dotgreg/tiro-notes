@@ -1,4 +1,4 @@
-import { random } from 'lodash';
+import { random } from 'lodash-es';
 // import * as io from 'socket.io-client'
 // const io = require('./socket.io.slim');
 import { iApiDictionary } from '../../../../shared/apiDictionary.type';
@@ -28,7 +28,7 @@ export const getBackendUrl = () => {
 }
 
 
-
+ 
 
 
 
