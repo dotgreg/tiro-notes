@@ -69,9 +69,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         // if we are mobile, delete all panels that are mobile
         panelsRef.current = initVal
         // let nPanels = cloneDeep(initVal)
-        console.log(111, panelsRef.current.length)
         if (deviceType() === "mobile") panelsRef.current = panelsRef.current.filter(p => p.device !== "mobile")
-        console.log(222, panelsRef.current.length)
         // save 
         setPanels(panelsRef.current)
     }

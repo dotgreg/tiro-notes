@@ -16,6 +16,7 @@ import { getApi, iClientApi } from './api.hook';
 import { iFilesApi } from './files.api.hook';
 import { iFoldersApi } from './folders.api.hook';
 import { iStatusApi } from './status.api.hook';
+import { get } from 'http';
 
 //
 // INTERFACES
@@ -29,6 +30,8 @@ export interface iBrowserApi {
 			openIn?: string | 'activeWindow' | 'active',
 			// @TODO searchedString here too
 			searchedString?: string
+			// if ramcache, will not ask backend for files
+			ramCache?: boolean 
 		}
 	) => void
 	files: {
@@ -97,25 +100,15 @@ export const useBrowserApi = (p: {
 	//
 	// Goto
 	//
+	const RamCacheFilesListRef = useRef<{[filePath:string]:iFile[]}>({})
 	const goTo: iBrowserApi['goTo'] =
 		(folderPath, fileTitle, opts) => {
-			if (folderPath === "") return
-			getApi(api => {
-				folderPath = cleanPath(`${folderPath}/`)
-				const h = `[BROWSER GO TO] `
-				const log = sharedConfig.client.log.verbose
-				log && console.log(`${h} ${folderPath} ${fileTitle}  ${JSON.stringify(opts)}`);
-				// p.searchUiApi.term.set('')
-				api.ui.search.term.set('')
-				// p.statusApi.searching.set(true)
-				api.status.searching.set(true)
-				setSelectedFolder(folderPath)
 
-				// p.filesApi.get(folderPath, nfiles => {
-				api.files.get(folderPath, nfiles => {
+			const onFilesFetched = (nfiles:iFile[]) => {
+				getApi(api => {
 					// when receiving results
 					api.status.searching.set(false)
-
+		
 					// sort them
 					const sortMode = api.userSettings.get('ui_filesList_sortMode')
 					const nfilesSorted = sortFiles(nfiles, sortMode)
@@ -161,8 +154,41 @@ export const useBrowserApi = (p: {
 							api.ui.windows.updateWindows([opts.openIn], fileToOpen)
 						}
 					}
-				});
-			})
+				})
+			}
+
+			// console.trace("woop")
+			// RAM CACHE 
+			const startSearch = () => {
+				getApi(api => {
+					folderPath = cleanPath(`${folderPath}/`)
+					const h = `[BROWSER GO TO] `
+					const log = sharedConfig.client.log.verbose
+					log && console.log(`${h} ${folderPath} ${fileTitle}  ${JSON.stringify(opts)}`);
+					// p.searchUiApi.term.set('')
+					api.ui.search.term.set('')
+					// p.statusApi.searching.set(true)
+					api.status.searching.set(true)
+					setSelectedFolder(folderPath)
+				})
+			}
+			if (opts && opts.ramCache && RamCacheFilesListRef.current[folderPath]) {
+				startSearch()
+				console.log("RAM CACHE", folderPath, RamCacheFilesListRef.current[folderPath].length)
+				onFilesFetched(RamCacheFilesListRef.current[folderPath])
+			}  else {
+				// DIRECT FETCH
+				console.log("DIRECT FETCH", folderPath)
+				if (folderPath === "") return
+				getApi(api => {
+					startSearch()
+					// p.filesApi.get(folderPath, nfiles => {
+					api.files.get(folderPath, nfiles => {
+						onFilesFetched(nfiles)
+						RamCacheFilesListRef.current[folderPath] = nfiles
+					});
+				})
+			}
 		}
 
 
