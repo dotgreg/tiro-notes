@@ -77,10 +77,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
 
-    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onInitialRefresh: onPanelsFirstLoad, debouncedSave: true})
+    const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3',[], {history: false, onInitialRefresh: onPanelsFirstLoad, debouncedSave: 5000}) // save every 10s in backend to avoid overload
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     const setPanels = (npans:iFloatingPanel[]) => {
-        console.log(333, npans.length)
         panelsRef.current = npans
         setPanelsInt(npans)
     }
@@ -199,7 +198,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         let nPanels = panelsRef.current.filter(p => p.id !== panelId)
         setPanels(nPanels)
     }
-
+    
     const pushWindowOnTop = (panelId:string) => {
         // get higher zIndex of all panels
         const highestZIndex = Math.max(...panelsRef.current.map(p => p.zIndex || 0))
@@ -208,6 +207,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         let npanel = cloneDeep(panelsRef.current)[panelIndex]
         npanel.zIndex = highestZIndex + 1
         updatePanel({...panelsRef.current[panelIndex]!, zIndex: highestZIndex + 1})
+        // if highestZIndex > startingZindex + 2x length of panels, remove to all panels zIndex 1x length of panels
+        if (highestZIndex > startingZindex + (panelsRef.current.length * 2)) {
+            let newPanels = cloneDeep(panelsRef.current)
+            newPanels.forEach((p) => {
+                p.zIndex = p.zIndex! - panelsRef.current.length
+            })
+            setPanels(newPanels)
+        }
     }
 
     

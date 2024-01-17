@@ -43,6 +43,14 @@ let genAdvancedTableComponent = (p) => {
             link.href = href;
             document.head.appendChild(link);
         }
+
+        // give here test fn typing using flow in flowcomment style
+        // @flow 
+        const test = (text/*: string*/, number/*: number*/)/*: string*/ => {
+            return "woop"
+        }
+        test("hello", "www")
+        
         
         // Load module scripts
         loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js');

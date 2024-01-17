@@ -16,12 +16,13 @@ export const useNoteEditorEvents = (p: {
 	onNoteLeaving?: (isEdited: boolean, oldPath: string) => void
 }) => {
 
-	const [hasBeenEdited, setHasBeenEdited] = useState(false)
+	// const [hasBeenEdited, setHasBeenEdited] = useState(false)
+	const hasBeenEditedRef = useRef(false)
 	const canEditRef = useRef(false)
 	useEffect(() => { canEditRef.current = p.canEdit }, [p.canEdit])
 
 	useEffect(() => {
-		setHasBeenEdited(false);
+		hasBeenEditedRef.current = false
 		if (p.onEditorDidMount) {
 			// console.log('[EVENTS EDITOR] EDITOR DID MOUNT');
 			p.onEditorDidMount()
@@ -55,7 +56,7 @@ export const useNoteEditorEvents = (p: {
 	const triggerNoteLeaveLogic = () => {
 		if (oldPath !== '' && p.onNoteLeaving) {
 			// console.log(`[EVENTS EDITOR] => leaving edited ${oldPath} to ${p.file.path}`);
-			p.onNoteLeaving(hasBeenEdited, oldPath)
+			p.onNoteLeaving(hasBeenEditedRef.current, oldPath)
 		}
 		oldPath = p.file.path
 	}
@@ -64,7 +65,7 @@ export const useNoteEditorEvents = (p: {
 	// EVENT => EDITING
 	const triggerNoteEdition = (newContent: string) => {
 		// if (!canEditRef.current) return console.warn(`[EVENTS EDITOR] => onEdition  CANNOT EDIT AS OFFLINE`);
-		if (!hasBeenEdited) {
+		if (!hasBeenEditedRef.current) {
 			if (p.onNoteEdition) {
 				// console.log(`[EVENTS EDITOR] => onEdition (FIRST ONE) (${p.file.path})`);
 				p.onNoteEdition(newContent, true)
@@ -75,7 +76,7 @@ export const useNoteEditorEvents = (p: {
 				p.onNoteEdition(newContent, false)
 			}
 		}
-		setHasBeenEdited(true)
+		hasBeenEditedRef.current = true
 	}
 
 	return { triggerNoteEdition }

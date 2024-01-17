@@ -76,7 +76,7 @@ export const lastNotesCss = () => `
             list-style: none;
             font-size: 11px;
             font-weight: 400;
-            svg {
+            svg, i {
                 color: ${cssVars.colors.main};
                 margin-right: 10px;
             }

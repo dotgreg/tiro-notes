@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
-import { useBackendState } from '../hooks/useBackendState.hook';
 import { iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';

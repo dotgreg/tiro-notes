@@ -9,6 +9,7 @@ import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
+import { debounce } from 'lodash-es';
 
 
 //
@@ -36,7 +37,7 @@ export interface iFileApi {
 		options?: { 
 			withMetas?: boolean, 
 			history?: boolean, 
-			debounced?: boolean
+			debounced?: number | false
 		},
 		cb?: (res:any) => void
 	) => void
@@ -111,7 +112,6 @@ export const useFileApi = (p: {
 
 	// const debouncedFilesContent: {[path:string]: string} = {}
 	const lastNoteWHistory = useRef('');
-	// const debouncedSaveContent = (notelink, content, )
 
 	const saveFileInt =  (noteLink, content, options, cb) => {
 		// const end = perf("saveFileContent " + noteLink)
@@ -139,13 +139,14 @@ export const useFileApi = (p: {
 			withCb: cb ? true : false
 		})
 
+		
 		if (history) {
+			console.log("save file hist!")
 			if (noteLink !== lastNoteWHistory.current) {
 				getClientApi2().then(api => {
 					const browserFolder = api.ui.browser.folders.current.get()
 					const currFolder = getFolderPath(noteLink)
 					if (browserFolder === currFolder) {
-
 						// update browser list if same path than edited file
 						let fileTitle = ""
 						const aWindow = api.ui.windows.active.get()
@@ -162,11 +163,27 @@ export const useFileApi = (p: {
 	const saveFileIntDebounced =  useDebounce((noteLink, content, options, cb) => {
 		saveFileInt(noteLink, content, options, cb)
 	}, saveDebouncedTime)
+	
+	//
+	// If debounced save asked, first create and store a debounced function for each debounced time, then use that latter one
+	//
+	const debouncedFuncs = {}
+	const saveFileIntDebounced2 = (debouncedTime:number, noteLink, content, options, cb) =>  {
+		if (!debouncedFuncs[debouncedTime]) {
+			debouncedFuncs[debouncedTime] = debounce((noteLink, content, options, cb) => {
+				console.log("debounced save!")
+				saveFileInt(noteLink, content, options, cb)
+			}, debouncedTime)
+		}
+		debouncedFuncs[debouncedTime](noteLink, content, options, cb)
+	}
+
 
 	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
 		const debounced = (options && options.debounced) ? options.debounced : false
 		if (debounced) {
-			saveFileIntDebounced(noteLink, content, options, cb)
+			// saveFileIntDebounced(noteLink, content, options, cb)
+			saveFileIntDebounced2(debounced, noteLink, content, options, cb)
 		} else {
 			saveFileInt(noteLink, content, options, cb)
 		}

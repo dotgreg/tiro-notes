@@ -58,7 +58,6 @@ export const TabList = (p: {
 							>
 								+
 							</div>
-
 							
 						}
 
@@ -68,7 +67,7 @@ export const TabList = (p: {
 									p.onPinToggle()
 								}}
 							>
-								<Icon2 name="thumbtack" />
+								<Icon2 name="thumbtack" size={0.8} />
 							</div>
 
 					</div>

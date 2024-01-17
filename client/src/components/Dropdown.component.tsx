@@ -30,7 +30,7 @@ export const Dropdown = (p: iDropdownP) => {
 				}}
 				className="context-menu-wrapper" >
 				<div className="dropdown-icon">
-					<Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
+					<Icon name="faEllipsisH" />
 				</div>
 				<div className="context-menu" style={{ maxHeight }}>
 					{p.children}

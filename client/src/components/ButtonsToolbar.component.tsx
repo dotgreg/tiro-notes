@@ -73,12 +73,14 @@ export interface iToolbarButton {
 	action?: Function
 	onHover?: Function
 	active?: boolean
+	size?: number
 }
 
 export const ToolbarButton = (p: iToolbarButton) => {
 	let insideHtml = <></>
 	if (p.title) insideHtml = <>{p.title}</>
-	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} /> : <Icon2 name={p.icon} />
+	let size = p.size ? p.size : 1
+	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} size={size} /> : <Icon2 name={p.icon} size={size} />
 	if (p.customHtml) insideHtml = p.customHtml
 	// if (p.displayHoverPopup === false) insideHtml = <></>
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`
@@ -87,7 +89,7 @@ export const ToolbarButton = (p: iToolbarButton) => {
 	return (
 		<button
 			className={classes}
-		onMouseEnter={e => {p.onHover && p.onHover()}}
+			onMouseEnter={e => {p.onHover && p.onHover()}}
 			onClick={e => { p.action && p.action(e) }}
 		>
 			<div className="inside-html-wrapper">

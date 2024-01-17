@@ -41,7 +41,9 @@ initSocketLogic();
 // FRONTEND CLIENT SERVER on /
 // console.log(backConfig.frontendBuildFolder)
 // redirect all to index.html
-app.use('/', express.static(backConfig.frontendBuildFolder));
+// app.use('/', express.static(backConfig.frontendBuildFolder));
+app.use(express.static(backConfig.frontendBuildFolder));
+
 // RESSOURCES SERVER on /static
 if (backConfig.dataFolder) {
 	startSecuredStaticServer({
@@ -59,8 +61,12 @@ server.listen(backConfig.port, function () {
 })
 
 app.get('*', (req, res) => {
-    res.redirect('/')
-})
+    res.sendFile('index.html', { root: backConfig.frontendBuildFolder });
+});
+
+// app.get('*', (req, res) => {
+//     res.redirect('/')
+// })
 
 // app.get('*', function(req, res){
 // 	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)

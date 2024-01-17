@@ -30,7 +30,6 @@ export const Lightbox = (p: {
 	const incrementIndex = (direction: iZoomDir) => {
 		setZoomState(false)
 		setZoomLevel(10)
-		console.log(111, currIndexRef.current, p.images.length)
 		// let nIndex = currIndexRef.current
 		if (direction === -1 && currIndexRef.current === 0) currIndexRef.current = p.images.length - 1
 		else if (direction === 1 && currIndexRef.current === p.images.length - 1) currIndexRef.current = 0
@@ -338,7 +337,7 @@ export const lightboxCss = () => `
 	  
 
     position: fixed;
-		z-index: 1500;
+	z-index: 2000;
     top: 0px;
     left: 0px;
     width: 100vw;
@@ -381,7 +380,7 @@ export const lightboxCss = () => `
 		}
 		.dezoom {
 			top: 3px;
-			left: 50px;
+			left: 45px;
 		}
 		.zoom, .dezoom {
 				position: absolute;

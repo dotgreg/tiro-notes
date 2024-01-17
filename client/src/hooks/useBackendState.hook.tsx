@@ -13,7 +13,7 @@ export function useBackendState<T>(
 		debug?: boolean, 
 		history?: boolean
 		onInitialRefresh?: (initVal:any) => void,
-		debouncedSave?: boolean
+		debouncedSave?: number
 	}): [
 		T, 
 		(value: T) => void, 
@@ -47,7 +47,7 @@ export function useBackendState<T>(
 		setStoredValue(cloneDeep(nval))
 		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
 		let nvalStr =  JSON.stringify(nval)
-		const debounced = opts?.debouncedSave === true ? true : false
+		const debounced = opts?.debouncedSave ? opts?.debouncedSave : false
 		getApi(api => {
 			api.file.saveContent(pathToNote, nvalStr, {debounced})
 		})
