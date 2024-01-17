@@ -271,10 +271,11 @@ export const WindowEditorInt = (p: {
 
 
 	// ON ACTIVE, LOAD LIST
+	// when switching tab, ask for folder scan
 	useEffect(() => {
 		if (!file || !active) return
 		getApi(api => {
-			api.ui.browser.goTo(file.folder, file.name)
+			api.ui.browser.goTo(file.folder, file.name, {ramCache: true}) // as it is just a switch without manip, should be safe to use ramCache
 		})
 	}, [active])
 

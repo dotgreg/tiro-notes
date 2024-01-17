@@ -166,7 +166,7 @@ export const DraggableGrid = (p: {
 		setIntContent(nContent)
 		onGridUpdate(intLayout, nContent)
 		// on window active toggle, update browser ui 
-		file && api?.ui.browser.goTo(file.folder, file.name)
+		// file && api?.ui.browser.goTo(file.folder, file.name)
 	}
 
 	//
@@ -285,9 +285,7 @@ export const DraggableGrid = (p: {
 		if (type === "windowActiveStatus") {
 			if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 		} else if (type === "windowViewChange") {
-			console.log("view change", data?.view, i)
 			if (!data?.view || !p.grid.content[i].file) return
-			console.log("view change2", data?.view, i)
 			viewTypeChange(data?.view, i)
 			const filePath = p.grid.content[i].file?.path || ""
 			setNoteView(filePath, data?.view)

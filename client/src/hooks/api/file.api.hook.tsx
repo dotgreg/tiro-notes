@@ -9,7 +9,7 @@ import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
-import { debounce } from 'lodash-es';
+import { debounce, throttle } from 'lodash-es';
 
 
 //
@@ -38,6 +38,7 @@ export interface iFileApi {
 			withMetas?: boolean, 
 			history?: boolean, 
 			debounced?: number | false
+			withThrottle?: boolean
 		},
 		cb?: (res:any) => void
 	) => void
@@ -167,23 +168,37 @@ export const useFileApi = (p: {
 	//
 	// If debounced save asked, first create and store a debounced function for each debounced time, then use that latter one
 	//
-	const debouncedFuncs = {}
-	const saveFileIntDebounced2 = (debouncedTime:number, noteLink, content, options, cb) =>  {
-		if (!debouncedFuncs[debouncedTime]) {
-			debouncedFuncs[debouncedTime] = debounce((noteLink, content, options, cb) => {
-				console.log("debounced save!")
+	const debouncedFuncsRef = useRef({})
+	const throttledFuncsRef = useRef({})
+	const getFnId = (noteLink, debouncedTime) => `${noteLink}-${debouncedTime}`
+	const saveFileIntDebounced2 = (debouncedTime:number, withThrottle:boolean, noteLink, content, options, cb) =>  {
+		const fnId = getFnId(noteLink, debouncedTime)
+		if (!debouncedFuncsRef.current[fnId]) {
+			console.log("create debouncedFuncs", fnId)
+			debouncedFuncsRef.current[fnId] = debounce((noteLink, content, options, cb) => {
+				console.log("debouncedFuncs", debouncedTime, noteLink)
 				saveFileInt(noteLink, content, options, cb)
 			}, debouncedTime)
+
+			if (withThrottle === true) {
+				throttledFuncsRef.current[fnId] = throttle((noteLink, content, options, cb) => {
+					console.log("throttledFuncs", debouncedTime, noteLink)
+					saveFileInt(noteLink, content, options, cb)
+				}, debouncedTime)
+			}
+
 		}
-		debouncedFuncs[debouncedTime](noteLink, content, options, cb)
+		debouncedFuncsRef.current[fnId](noteLink, content, options, cb)
+		if (withThrottle === true) throttledFuncsRef.current[fnId](noteLink, content, options, cb)
 	}
 
 
 	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
 		const debounced = (options && options.debounced) ? options.debounced : false
+		const withThrottle = (options && options.withThrottle) ? options.withThrottle : false
 		if (debounced) {
 			// saveFileIntDebounced(noteLink, content, options, cb)
-			saveFileIntDebounced2(debounced, noteLink, content, options, cb)
+			saveFileIntDebounced2(debounced, withThrottle,  noteLink, content, options, cb)
 		} else {
 			saveFileInt(noteLink, content, options, cb)
 		}

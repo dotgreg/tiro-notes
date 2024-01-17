@@ -14,6 +14,7 @@ export function useBackendState<T>(
 		history?: boolean
 		onInitialRefresh?: (initVal:any) => void,
 		debouncedSave?: number
+		debouncedSaveWithThrottle?: boolean
 	}): [
 		T, 
 		(value: T) => void, 
@@ -48,8 +49,9 @@ export function useBackendState<T>(
 		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
 		let nvalStr =  JSON.stringify(nval)
 		const debounced = opts?.debouncedSave ? opts?.debouncedSave : false
+		const withThrottle = opts?.debouncedSaveWithThrottle === true ? true : false
 		getApi(api => {
-			api.file.saveContent(pathToNote, nvalStr, {debounced})
+			api.file.saveContent(pathToNote, nvalStr, {debounced, withThrottle})
 		})
 		if (opts?.history === true) saveHistoryDebounced(nvalStr)
 	}
