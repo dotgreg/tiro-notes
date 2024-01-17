@@ -111,6 +111,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		})
 	}, { checkRole: "viewer" })
 
+	
+
+
 	serverSocket2.on('askForFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
 		let file = `${backConfig.dataFolder}/${data.filePath}`

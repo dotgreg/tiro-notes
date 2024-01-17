@@ -9,7 +9,7 @@ import { addNewWindowConfig, iWindowLayoutAndContent } from '../../hooks/app/tab
 import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { deviceType, isA, iMobileView } from '../../managers/device.manager';
@@ -299,11 +299,12 @@ export const DraggableGrid = (p: {
 	
 
 	const WindowTools = (window, i, content: iWindowContent) => {
-		const btnsConfig = [
+		const btnsConfig:iToolbarButton[] = [
 			{
 				icon: 'faGripVertical',
 				title: 'Move Window',
 				class: 'drag-handle',
+				size: 1.2,
 				action: () => { },
 				onHover: () => {
 					if (window && !window.active) makewindowActiveStatus(window.i, window.file)
@@ -546,7 +547,7 @@ export const draggableGridCss = (pinStatus:iPinStatuses) => `
 								position: absolute;
 								z-index:3;
 								right: 30px;
-								top: 10px;
+								top: 8px;
 								.delete-button {display: none;}
 								.add-button {display: none;}
 								.drag-handle {
