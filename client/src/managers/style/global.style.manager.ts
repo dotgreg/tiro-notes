@@ -2,6 +2,8 @@ import { Global, css } from '@emotion/react'
 
 import { printCss } from "./print.style.manager";
 import { cssVars } from "./vars.style.manager";
+import { getUserSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getFontSize } from '../font.manager';
 
 export const GlobalCssApp = () => css`
 * {
@@ -14,9 +16,8 @@ export const GlobalCssApp = () => css`
 body {
   margin: 0;
   padding: 0px;
-//   overflow: hidden;
   background: ${cssVars.colors.bg.light};
-  font-size: 11px;
+  font-size: ${getFontSize(+1)}px;
   font-family:${cssVars.font.main};
 }
 html, body {

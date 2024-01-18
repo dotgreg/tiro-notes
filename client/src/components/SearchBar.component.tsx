@@ -2,6 +2,7 @@ import React, { Ref, useContext } from 'react';
 import { ClientApiContext } from '../hooks/api/api.hook';
 import { strings } from '../managers/strings.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
+import { getFontSize } from '../managers/font.manager';
 
 
 export const SearchBar2 = (p: {
@@ -72,7 +73,7 @@ export const searchBarCss = () => `
 				padding: 18px 9px;
 				margin: 0px 15px 15px 15px;
 				box-shadow: 0px 0px 6px rgb(0 0 0 / 5%);
-				font-size: 11px;
+				font-size:${getFontSize(+1)}px;
         margin: 0px ${cssVars.sizes.block}px ${cssVars.sizes.block}px ${cssVars.sizes.block}px; 
         &::placeholder {
             color: #afadad;

@@ -7,6 +7,7 @@ import { deviceType } from '../../managers/device.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon, Icon2 } from '../Icon.component';
+import { getFontSize } from '../../managers/font.manager';
 
 export const TabList = (p: {
 	tabs: iTab[]
@@ -327,7 +328,7 @@ export const tabsCss = () => `
 
 										input {
 												color:${cssVars.colors.fontTab} ;
-												font-size: 11px;
+												font-size:${getFontSize(+1)}px;
 												background: none;
 												border: none;
 												min-width: 30px;

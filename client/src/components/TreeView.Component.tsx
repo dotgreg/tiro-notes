@@ -6,6 +6,7 @@ import { strings } from '../managers/strings.manager';
 import { isA, isIpad } from '../managers/device.manager';
 import { getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { areSamePaths } from '../../../shared/helpers/filename.helper';
+import { getFontSize } from '../managers/font.manager';
 
 export type onFolderClickedFn = (folderPath: string) => void
 export type onFolderDragStartFn = (folder: iFolder) => void
@@ -319,7 +320,7 @@ export const folderTreeCss = () => `
 
 				position: relative;
 				list-style: none;
-				font-size: 13px;
+				font-size: ${getFontSize(+3)}px;
 				font-weight: 600;
 				cursor: pointer;
 
@@ -340,7 +341,7 @@ export const folderTreeCss = () => `
 								width: 100px;
 								z-index: 100;
 								border-radius: 4px;
-								font-size: 10px;
+								font-size: ${getFontSize()}px;
 								ul {
 										list-style: none;
 										padding: 0px;

@@ -13,7 +13,7 @@ import { useBackendState } from './useBackendState.hook';
 
 
 export const userSettingsSync: {curr:iUserSettings} = {curr: {}}
-
+export const getUserSettingsSync = () => userSettingsSync.curr
 
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
@@ -55,6 +55,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	beta_floating_windows: false,
 	beta_plugins_marketplace: false,
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
+	ui_layout_general_font_size: 10
 }
 const defaultVals = defaultValsUserSettings
 

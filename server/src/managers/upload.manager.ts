@@ -28,19 +28,23 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		log('FILE UPLOAD STARTED', e);
 	})
 	uploader.on('complete', async (e) => {
+		//
+		// login check
+		//
+		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
+		let user = getUserFromToken(loginToken)
+		let hasEditorRole = user && user.roles.includes("editor") && !sharedConfig.dev.disableLogin
+		if (!hasEditorRole) return console.log('[UPLOAD] no editor role, cancelling upload', JSON.stringify({ meta: e.file.meta, user }))
+
 		if (!e.file) return log(`file could not be uploaded`)
 		let finfos = getFileInfos(e.file.pathName)
 		const idReq = (e.file.meta && e.file.meta.idReq) ? e.file.meta.idReq : false
 		let pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
 		pathToUpload = pathToUpload.split(backConfig.relativeUploadFolderName).join('')// if ends with .resource, cut that part
 
-		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
-		let user = getUserFromToken(loginToken)
-		let hasEditorRole = user && user.roles.includes("editor") && !sharedConfig.dev.disableLogin
-
 		if (!idReq || !pathToUpload) return console.log('[UPLOAD] NO IDREQ/PATHTOUPLOAD, cancelling upload', JSON.stringify(e.file.meta), idReq, pathToUpload)
 
-		if (!hasEditorRole) return console.log('[UPLOAD] no editor role, cancelling upload', JSON.stringify({ meta: e.file.meta, user }), pathToUpload)
+		
 
 		// do modification => namefile to unique ID here
 		let oldPath = `${e.file.pathName}`

@@ -5,6 +5,7 @@ import { getApi } from "../../hooks/api/api.hook";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
+import { getFontSize } from "../font.manager";
 
 export const datePickerCmPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
@@ -85,6 +86,7 @@ const replaceDateText = (el) => {
 
 export const datePickerCmPluginCss = () => `
     .date-picker-cm-wrapper {
+        cursor: pointer;
         // &:hover {
         //     opacity: 1;
         // }
@@ -92,14 +94,26 @@ export const datePickerCmPluginCss = () => `
         // background: ${cssVars.colors.main};
         // color: ${cssVars.colors.mainFont};
         input {
+            // padding: 0px;
+            // border: none;
+            // font-size: ${getFontSize()}px;
+            // font-weight: 400;
+            // font-family: Consolas, monaco, monospace;
+            // margin-right: 0px;
+            // color:#4d4d4d;
+            // height: 30px;
             padding: 0px;
             border: none;
-            font-size: 10px;
+            font-size: ${getFontSize()}px;
             font-weight: 400;
-            font-family: Consolas, monaco, monospace;
+            font-family: Consolas,monaco,monospace;
             margin-right: 0px;
-            color:#4d4d4d;
-            height: 30px;
+            color: #4d4d4d;
+            background: #e9e9e9;
+            position: relative;
+            border-radius: 3px;
+            padding: 2px 6px;
+            cursor: pointer;
         }
     }
 `

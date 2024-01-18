@@ -12,6 +12,7 @@ import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getKeyModif } from '../managers/keys.manager';
 import { SortModes } from '../managers/sort.manager';
 import { FilesPreviewObject } from '../hooks/api/files.api.hook';
+import { getFontSize } from '../managers/font.manager';
 
 
 // export const SortModeArr = ['none','alphabetical','created','modified']
@@ -373,7 +374,7 @@ export const filesListCss = () => `
 
 								.date {
 										color: ${colors.l2.date};
-										font-size: 10px;
+										font-size: ${getFontSize()}px;
 										font-weight: 700;
 								}
             }

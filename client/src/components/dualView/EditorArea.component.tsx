@@ -34,7 +34,8 @@ import { setNoteView } from '../../managers/windowViewType.manager';
 import { title } from 'process';
 import { triggerAiSearch } from '../../managers/ai.manager';
 import { triggerCalc } from '../../managers/textEditor.manager';
-import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getUserSettingsSync, userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getFontSize } from '../../managers/font.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -984,7 +985,7 @@ export const editorAreaCss = (v: iMobileView) => `
 							width: calc(100% - 65px);
 							font-family: ${cssVars.font.editor};
 							color: grey;
-							font-size: 15px;
+							font-size: ${getFontSize(+5)}px;
 					}
 			}
 	}
@@ -1021,7 +1022,7 @@ export const commonCssEditors = () => `
 
 .file-path-wrapper {
 		padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
-		font-size: 13px;
+		font-size: ${getFontSize(+3)}px;
 		font-weight: 700;
 		color: #b6b5b5;
 		cursor: pointer;

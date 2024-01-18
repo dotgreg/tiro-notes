@@ -9,6 +9,7 @@ import { useThrottle } from '../hooks/lodash.hooks';
 import { getKeyModif, keysModifiers } from '../managers/keys.manager';
 import { deviceType } from '../managers/device.manager';
 import { addKeyShortcut, releaseKeyShortcut, releaseKeyShortcuts } from '../managers/keyboard.manager';
+import { getFontSize } from '../managers/font.manager';
 
 type iZoomDir = -1 | 1
 
@@ -487,7 +488,7 @@ export const lightboxCss = () => `
                     cursor: pointer;
                     color: grey;
                     padding: 5px;
-                    font-size: 10px;
+                    font-size: ${getFontSize()}px;
                     position: absolute;
                     top: 5px;
                     left: 5px;

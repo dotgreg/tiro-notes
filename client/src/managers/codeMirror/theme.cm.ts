@@ -3,6 +3,7 @@ import { styleTags, Tag, tags as t } from "@lezer/highlight";
 import { MarkdownConfig } from "@lezer/markdown";
 import { cssVars } from "../style/vars.style.manager";
 import { MdCustomTags } from "./markdownPreviewPlugin.cm";
+import { userSettingsSync } from "../../hooks/useUserSettings.hook";
 
 export const getCustomTheme = () => createTheme({
 	theme: "light",
@@ -57,7 +58,7 @@ export const getCustomTheme = () => createTheme({
 		// { tag: t.annotation, class: "t7" },
 		// { tag: t.special, class: "t8" },
 
-		{ tag: t.content, fontSize: "10px" }
+		{ tag: t.content, fontSize: `${userSettingsSync.curr.ui_layout_general_font_size}px` }
 	]
 });
 

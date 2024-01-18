@@ -5,6 +5,7 @@ import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { iCursorInfos } from './CodeMirrorEditor.component';
 import { deviceType } from '../../managers/device.manager';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getFontSize } from '../../managers/font.manager';
 
 
 
@@ -131,7 +132,7 @@ export const mobileNoteToolbarCss = () => `
 
 .numbers-preview-wrapper {
   display: flex;
-  font-size: 10px;
+  font-size: ${getFontSize()}px;
   font-weight: 400;
   i {
     margin-top: 2px;

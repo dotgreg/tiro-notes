@@ -14,6 +14,7 @@ import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { Icon } from './Icon.component';
 import { Popup } from './Popup.component';
+import { getFontSize } from '../managers/font.manager';
 
 
 interface iHistoryFile extends iFile {
@@ -111,7 +112,6 @@ export const FileHistoryPopup = (p: {
 	}
 
 	return (
-		<StyledDiv>
 			<div className="history-popup-wrapper">
 				<Popup
 					title={`${strings.historyPopup.title}"${p.file.realname}"`}
@@ -175,12 +175,11 @@ export const FileHistoryPopup = (p: {
 					
 				</Popup>
 			</div>
-		</StyledDiv>
 	)
 }
 
 
-export const StyledDiv = styled.div`
+export const fileHistoryCss = () => `
 .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
 	height: 70%;
 }
@@ -192,65 +191,66 @@ export const StyledDiv = styled.div`
 .filemain-wrapper .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
 	width: 90%;
 }
-.popup-wrapper .popupContent {
-	// max-height: 70vh;
-    padding: 0px;
-}
-.table-wrapper {
-    // max-height: 30vh;
-	height: 50%;
-    overflow-y: auto;
-    padding: 0px 0px 20px 0px;
-    
-    table {
-        border-spacing: 0px;
-        thead {
-            tr {
-                th {
-                    padding: 8px;
-                }
-            }
-        }
-        tbody {
-            text-align: left;
-            tr {
-                cursor: pointer;
-                background: #f1f0f0;
-                &:nth-child(2n) {
-                    background: none;
-                }
-								&.active {
-										font-weight: bold;
-								}
-                &: hover {
-                    background: r${cssVars.colors.main};
-                }
-                td {
-                    padding: 8px;
-                }
-            }
-        }
-    }
-}
-.note-preview {
-	height: 50%;
-	.note-preview-textarea {
-		padding: 6px;
-		margin: 10px 0px 0px 0px;
-		width: calc(100% - 10px);
-		// height: calc(100% - 90px);
-		height: calc(100% - 89px);
-		border: none;
-		background: gainsboro;
+.history-popup-wrapper {
+	.popup-wrapper .popupContent {
+		// max-height: 70vh;
+		padding: 0px;
+	}
+	.table-wrapper {
+		// max-height: 30vh;
+		height: 50%;
+		overflow-y: auto;
+		padding: 0px 0px 20px 0px;
+		
+		table {
+			border-spacing: 0px;
+			thead {
+				tr {
+					th {
+						padding: 8px;
+					}
+				}
+			}
+			tbody {
+				text-align: left;
+				tr {
+					cursor: pointer;
+					background: #f1f0f0;
+					&:nth-child(2n) {
+						background: none;
+					}
+									&.active {
+											font-weight: bold;
+									}
+					&: hover {
+						background: r${cssVars.colors.main};
+					}
+					td {
+						padding: 8px;
+					}
+				}
+			}
+		}
+	}
+	.note-preview {
+		height: 50%;
+		.note-preview-textarea {
+			padding: 6px;
+			margin: 10px 0px 0px 0px;
+			width: calc(100% - 10px);
+			// height: calc(100% - 90px);
+			height: calc(100% - 89px);
+			border: none;
+			background: gainsboro;
+		}
+	}
+	.advice {
+		color: #a4a4a4;
+	font-size: ${getFontSize()}px;
+	padding: 3px 3px;
+	}
+	.trash {
+	margin-right: 15px;
 	}
 }
-.advice {
-	color: #a4a4a4;
-font-size: 10px;
-padding: 3px 3px;
-}
-.trash {
-margin-right: 15px;
-}
-
 `
