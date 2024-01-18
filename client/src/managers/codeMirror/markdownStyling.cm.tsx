@@ -3,6 +3,7 @@ import { regexs } from "../../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../../shared/types.shared";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm"
+import { getFontSize } from "../font.manager";
 
 export const evenTable = { val: false }
 let even = evenTable
@@ -87,17 +88,17 @@ export const markdownStylingTableCss = () => {
 	color: ${cssVars.colors.main};
 	
 	&.level-1 {
-		font-size: 15px;
+		font-size: ${getFontSize(+5)}px;
 		text-decoration: underline;
 		font-weight: bold;
 	}
 	&.level-2 {
-		font-size: 13px;
+		font-size: ${getFontSize(+3)}px;
 		text-decoration: underline;
 		// font-weight: bold;
 	}
 	&.level-3 {
-		font-size: 12px;
+		font-size: ${getFontSize(+2)}px;
 	}
 }
 .md-table-preview-enabled {

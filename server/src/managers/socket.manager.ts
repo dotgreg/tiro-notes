@@ -47,8 +47,10 @@ export const sleep = (ms) => {
 
 
 const preprocessEndpointOptions = (endpoint: string, options?: routeOptions) => {
-	// if (!options) options = {}
+	if (!options) options = {checkRole: "none"}
+	// UPLOAD => login is checked at the complete phase in upload.manager.ts
 	if (endpoint.startsWith('siofu')) {
+		options.checkRole = "none"
 		options.disableDataLog = true
 		options.disableLog = true
 	}

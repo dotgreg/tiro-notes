@@ -34,6 +34,7 @@ import { history } from "@codemirror/history";
 import { hashtagPreviewPlugin } from "../../managers/codeMirror/hashtag.plugin.cm";
 import { datePickerCmPlugin } from "../../managers/codeMirror/datePicker.cm";
 import { initLatex, isLatexInit } from "../../managers/latex.manager";
+import { getFontSize } from "../../managers/font.manager";
 // import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
@@ -750,18 +751,25 @@ export const codeMirrorEditorCss = () => `
 				}
 		}
 		&.h1 {
-				font-size: 15px;
+				font-size: ${getFontSize(+4)}px;
 				font-weight: bold;
-				text-decoration: underline;
+				// text-decoration: underline;
+				border-bottom: ${cssVars.colors.main} 2px solid;
+				padding-bottom: 1px;
 
 		}
 		&.h2 {
-				font-size: 13px;
-				text-decoration: underline;
+				font-size: ${getFontSize(+3)}px;
+				// text-decoration: underline;
+				border-bottom: ${cssVars.colors.main} 1px solid;
+				padding-bottom: 1px;
 
 		}
 		&.h3 {
-				font-size: 12px;
+				font-size: ${getFontSize(+2)}px;
+		}
+		&.h4 {
+				font-size: ${getFontSize(+1)}px;
 		}
 
 }
@@ -775,7 +783,7 @@ export const codeMirrorEditorCss = () => `
 .cm-content {
 		// font-family: 'Open sans', sans-serif;
 		font-family: Consolas, monaco, monospace;
-		font-size: 11px;
+		font-size:${getFontSize(+1)}px;
 }
 
 .cm-foldPlaceholder {
@@ -857,7 +865,7 @@ export const codeMirrorEditorCss = () => `
 		margin: 10px;
 		p {
 				color:grey;
-				font-size: 10px;
+				font-size: ${getFontSize()}px;
 		}
 		textarea {
 				width: calc(100% - 20px);

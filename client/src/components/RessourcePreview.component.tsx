@@ -11,6 +11,7 @@ import { safeString } from '../managers/string.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { getApi } from '../hooks/api/api.hook';
+import { getFontSize } from '../managers/font.manager';
 
 
 //
@@ -250,7 +251,7 @@ export const ressourcePreviewSimpleCss = () => `
 }
 .resource-link-content-wrapper .ssr-icon {
 		padding: 3px;
-		font-size: 13px;
+		font-size: ${getFontSize(+3)}px;
 		margin: 0px 5px 0px 0px;
 		color: #b9b9b9;
 		cursor: pointer;

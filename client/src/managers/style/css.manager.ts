@@ -54,6 +54,8 @@ import { windowEditorCss } from '../../components/windowGrid/WindowEditor.compon
 import { passwordPopupCss } from '../../components/PasswordPopup.component';
 import { hashtagCmPluginCss } from '../codeMirror/hashtag.plugin.cm';
 import { datePickerCmPluginCss } from '../codeMirror/datePicker.cm';
+import { getFontSize } from '../font.manager';
+import { fileHistoryCss } from '../../components/FileHistoryPopup.component';
 
 
 export const css2 = (css: string) => css
@@ -106,6 +108,7 @@ export const CssApp2Int = (
 		${noteLinkCss()}
 		${markdownStylingTableCss()}
 
+		${fileHistoryCss()}
 
 		
 		${hashtagCmPluginCss()}
@@ -342,7 +345,7 @@ export const CssApp2Int = (
 														margin: 0px;
 														margin-top: 2px;
 														color: ${colors.l2.text};
-														font-size: 10px;
+														font-size: ${getFontSize()}px;
 														font-weight: 800;
 												}
 										}
@@ -370,7 +373,7 @@ export const CssApp2Int = (
 										${els().button}
 										padding: 0px;
 										margin-right: ${sizes.block}px; 
-										font-size: 10px;
+										font-size: ${getFontSize()}px;
 										cursor: pointer;
 										span {
 												margin-right: 5px;
@@ -380,7 +383,7 @@ export const CssApp2Int = (
 								.items-list-count {
 										position: absolute;
 										color: grey;
-										font-size: 10px;
+										font-size: ${getFontSize()}px;
 										right: 10px;
 										top: 5px;
 								}

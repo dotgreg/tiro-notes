@@ -9,6 +9,7 @@ import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 import { syncScroll3 } from '../../hooks/syncScroll.hook';
 import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 import { noteLinkCss } from '../../managers/codeMirror/noteLink.plugin.cm';
+import { getFontSize } from '../../managers/font.manager';
 
 
 
@@ -170,7 +171,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 		${d.w} {
 				color: ${cssVars.colors.editor.font};
 				line-height: 19px;
-				font-size: 11px;
+				font-size:${getFontSize(+1)}px;
 				font-family:${cssVars.font.main};
 		}
 
@@ -315,7 +316,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 				color: ${cssVars.colors.main};
 				width: 10px;
 				display: inline-block;
-				font-size: 15px;
+				font-size: ${getFontSize(+5)}px;
 
 				/* background-image: url(./custom_icons/line.svg); */
 				/* background-repeat: no-repeat; */
@@ -471,7 +472,7 @@ export const previewAreaCss = () => `
 				width: calc(100% - 65px);
 				font-family: ${cssVars.font.editor};
 				color: grey;
-				font-size: 15px;
+				${getFontSize(+5)}px
 				margin: 0px;
 				padding: 0px 14px;
 		}

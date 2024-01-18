@@ -15,6 +15,7 @@ import { defaultValsUserSettings } from '../../hooks/useUserSettings.hook';
 import { devCliExecFn } from '../../managers/devCli.manager';
 import { iUserSettingName } from '../../../../shared/types.shared';
 import { deviceType } from '../../managers/device.manager';
+import { getFontSize } from '../../managers/font.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -40,7 +41,7 @@ export const getSetting = (settingName: SettingParam) => {
 }
 
 const showDefaultString = (us:iUserSettingName):string => {
-	return `<br/> <br/> Default value: ${defaultValsUserSettings[us].replaceAll("\n", "<br/>")}`
+	return `<br/> <br/> Default value: ${defaultValsUserSettings[us].toString().replaceAll("\n", "<br/>")}`
 }
 
 export const SettingsPopup = (p: {
@@ -132,6 +133,16 @@ export const SettingsPopup = (p: {
 						expl: "Font color for items with main color as background",
 						var: us.get('ui_layout_colors_main_font'),
 						modifier: val => { us.set('ui_layout_colors_main_font', val) }
+					},
+					{
+						type: 'text',
+						title: "Font size",
+						expl: "General font size" + showDefaultString("ui_layout_general_font_size") + requireReloadStr,
+						var: us.get('ui_layout_general_font_size'),
+						modifier: val => { 
+							us.set('ui_layout_general_font_size', val) 
+							setDisplayReload(true);
+						}
 					},
 					{
 						type: 'checkbox',
@@ -615,7 +626,7 @@ export const settingsPopupCss = () => `
 								justify-content: space-evenly;
 								padding: 0px;
 								input {
-										font-size: 10px;
+									font-size: ${getFontSize()}px;
 								}
 							}
 							.custom-html-wrapper {

@@ -2,6 +2,7 @@ import React, { ReactElement, useMemo, useState } from 'react';
 import { css, cx } from '@emotion/css'
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon, Icon2 } from './Icon.component';
+import { getFontSize } from '../managers/font.manager';
 
 export const ButtonsToolbarInt = (p: {
 	// export const ButtonsToolbar = (p: {
@@ -134,7 +135,7 @@ export const ButtonsToolbarCss = () => `
 								.button-title-wrapper {
 										margin-left: 15px;
 										font-weight: 400;
-										font-size: 11px;
+										font-size:${getFontSize(+1)}px;
 								}
 						}
 				}

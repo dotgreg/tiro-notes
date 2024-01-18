@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { SerializedStyles } from '@emotion/react';
 import { isBoolean } from 'lodash-es';
 import React, { useEffect, useRef } from 'react';
+import { getFontSize } from '../managers/font.manager';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
 export type InputType = 'password' | 'text' | 'select' | 'checkbox' | 'textarea'
@@ -132,20 +133,20 @@ export const inputComponentCss = () => `
             input {
                 padding: 7px;
                 border: none;
-				font-size: 11px;
+				font-size:${getFontSize(+1)}px;
                 background: #ececec;
                 border-radius: 5px;
             }
 			textarea {
 				height: 120px;
-				font-size: 10px;
+				font-size: ${getFontSize()}px;
 				border: none;
 				background: #ececec;
                 border-radius: 5px;
 				padding: 2px;
 			}
             .explanation {
-                font-size: 11px;
+                font-size:${getFontSize(+1)}px;
                 color: grey;
             }
         }
