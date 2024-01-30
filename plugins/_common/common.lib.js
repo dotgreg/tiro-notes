@@ -1,3 +1,4 @@
+//@flow 
 
 function getOperatingSystem() {
     const platform = navigator.platform.toLowerCase();

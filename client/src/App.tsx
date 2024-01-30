@@ -147,9 +147,6 @@ export const App = () => {
 		cleanFilesList()
 	}
 
-	// npm remove @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
-	// npm install @pmmmwh/react-refresh-webpack-plugin @svgr/webpack --force
-	// npm install --save-dev mini-css-extract-plugin html-webpack-plugin fs-extra file-loader eslint-webpack-plugin eslint-plugin-testing-library eslint-plugin-react-hooks eslint-plugin-react babel-eslint babel-jest babel-loader babel-plugin-named-asset-import babel-preset-react-app case-sensitive-paths-webpack-plugin dotenv dotenv-expand eslint eslint-config-react-app eslint-plugin-flowtype eslint-plugin-import eslint-plugin-jest eslint-plugin-jsx-a11y 
 
 	//
 	// FOLDERS API
