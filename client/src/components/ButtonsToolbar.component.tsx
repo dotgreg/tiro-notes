@@ -21,11 +21,11 @@ export const ButtonsToolbarInt = (p: {
 				button.toolbar-button {
 						position: relative; 
 						&.active {
-								svg, i {
+								svg, i, span.icon-wrapper {
 										color: ${colors ? colors[1] : cssVars.colors.main};
 								}
 						}
-						svg, i {
+						svg, i, span.icon-wrapper {
 								transform: scale(${size ? size : 1.3});
 								color: ${colors ? colors[0] : cssVars.colors.editor.interfaceGrey};
 								&:hover {
@@ -75,13 +75,14 @@ export interface iToolbarButton {
 	onHover?: Function
 	active?: boolean
 	size?: number
+	color?:string
 }
 
 export const ToolbarButton = (p: iToolbarButton) => {
 	let insideHtml = <></>
 	if (p.title) insideHtml = <>{p.title}</>
 	let size = p.size ? p.size : 1
-	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} size={size} /> : <Icon2 name={p.icon} size={size} />
+	if (p.icon) insideHtml = p.icon.startsWith("fa") || p.icon.includes(".")  ? <Icon name={p.icon} size={size} color={p.color} /> : <Icon2 name={p.icon} size={size} color={p.color} />
 	if (p.customHtml) insideHtml = p.customHtml
 	// if (p.displayHoverPopup === false) insideHtml = <></>
 	const classes = `toolbar-button ${p.class && p.class} ${p.active && 'active'}`

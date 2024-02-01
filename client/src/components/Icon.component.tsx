@@ -52,6 +52,12 @@ export const Icon2 = (p:{name: string, label?:string, size?: number, color?:stri
 	</span>
 }
 
+export const IconCss = () => `
+	.icon-wrapper{
+		display: inline-block;
+	}
+`
+
 // fa.faCheckDouble 
 export type IconSizeProp =
 	| "xs"

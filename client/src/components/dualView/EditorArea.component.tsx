@@ -652,7 +652,7 @@ const EditorAreaInt = (
 									<ButtonsToolbar
 										class='editor-main-toolbar'
 										design="vertical"
-										size={0.8}
+										size={1}
 										buttons={editorToolbarActions}
 									/>
 								</div>
@@ -1030,10 +1030,9 @@ export const commonCssEditors = () => `
 }
 .big-title {
 		color: ${cssVars.colors.main};
-		font-size: 30px;
+		font-size: ${getFontSize(+5)}px;
 		font-weight: 800;
 		width: 100%;
-		// text-transform: uppercase;
 }
 
 .separation-bar {

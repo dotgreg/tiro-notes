@@ -51,7 +51,7 @@ let startZindex = 1000
 const getPanelTitle = (panel:iFloatingPanel):string => {
     if (!panel) return ""
     if (panel.type === "file") {
-        return panel.file.name
+        return panel.file.name.replace(".md","")
     }
     if (panel.type === "ctag") {
         if (panel.ctagConfig?.tagName === "iframe") {
@@ -500,18 +500,18 @@ export const FloatingPanelsWrapper = (p:{
                             panel.status !== "visible" &&
                                 <div 
                                     key={panel.id}
-                                    className='panel-minimized' onClick={(e) => { 
+                                    className={`panel-minimized ${panel.status === "minimized" ? "active-tab" : ""}`} onClick={(e) => { 
                                     handleDeminimize(panel)
                                 }}>
                                     <div className='label'>
                                         {getPanelTitle(panel)}
                                     </div>
-                                    {
+                                    {/* {
                                         panel.status === "minimized" &&
                                         <div className='active-icon'>
                                             <Icon2 name="circle" />
                                         </div>
-                                    }
+                                    } */}
                                     <div className="close-btn" onClick={(e) => {
                                         e.stopPropagation()
                                         if (panel.status === "minimized") handleKillMinimized(panel)
@@ -755,10 +755,29 @@ export const FloatingPanelCss = () => `
         margin: 6px 6px 0px 6px;
 
     }
+    &.active-tab {
+        background: #f0f0f0;
+    }
     .close-btn {
-        paddding: 5px;
+        &:hover {
+            background: ${cssVars.colors.main};
+            i {
+                color: white!important;
+            }
+        }
+        i {
+            line-height: 8px;
+        }
+        background: rgba(0,0,0,0);
+        position: relative;
+        top: -2px;
+        transition: 0.3s all;
+        border-radius: 20px;
+        padding: 5px;
         margin-top: 6px;
+        line-height: 1px;
         cursor: pointer;
+        left: 6px;
     }
 }
 

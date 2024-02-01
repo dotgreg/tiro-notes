@@ -551,8 +551,10 @@ export const draggableGridCss = (pinStatus:iPinStatuses) => `
 								.drag-handle {
 										cursor: grab;
 								}
-								.delete-button svg {
-										transform: rotate(45deg);
+							
+								.delete-button span.icon-wrapper {
+									transform: rotate(45deg);
+									display: inline-block;
 								}
 								&.can-add {
 										.add-button {display: block;}
