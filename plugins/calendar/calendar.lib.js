@@ -105,15 +105,16 @@ const processEvent = (lineRes) => {
         }
     }
     if (body.includes("every_year")){
-        // generate 5 events in future
-        for (let i = 1; i < 6; i++) {
-            const recEvYear = curr.getFullYear()  + i
+        // generate 5 events in future starting from today
+        for (let i = 1; i < 5; i++) {
+            const recEvYear = (curr.getFullYear() - 1 ) + i
             const recDate = new Date(`${eventMonth}/${eventDay}/${recEvYear} ${eventTime}`)
-            events.push({
+            const nEvent = {
                 'date': recDate,
                 'title': title,
                 'body': body,
-            })
+            }
+            events.push(nEvent)
         }
     }
     if (body.includes("every_week")){

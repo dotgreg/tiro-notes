@@ -136,8 +136,8 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'text',
-						title: "Font size",
-						expl: "General font size" + showDefaultString("ui_layout_general_font_size") + requireReloadStr,
+						title: "Font size (desktop)",
+						expl: "General font size for desktop" + showDefaultString("ui_layout_general_font_size") + requireReloadStr,
 						var: us.get('ui_layout_general_font_size'),
 						modifier: val => { 
 							us.set('ui_layout_general_font_size', val) 

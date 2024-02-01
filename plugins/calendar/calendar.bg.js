@@ -25,7 +25,7 @@ const main = () => {
             let daysFromNow = Math.round((evdate.getTime() - new Date().getTime()) / (60 * 60 * 24 * 1000)) 
             let minsFromNow = Math.round((evdate.getTime() - new Date().getTime()) / (60 * 1000))
             const isForTomorrow = daysFromNow === 1
-            const isWorkingHours = curr.getHours() > 9 && curr.getHours() <= 20
+            const isWorkingHours = curr.getHours() > 8 && curr.getHours() <= 20
 
             // if date time is not 00:00
             const isDayEvent = evdate.getHours() === 0 && evdate.getMinutes() === 0
@@ -33,6 +33,9 @@ const main = () => {
             const isIn10m = minsFromNow > 5 && minsFromNow < 25
             // it is within 1h10-1h
             const isIn1h = minsFromNow > 60 && minsFromNow < 90
+
+            const isEventForToday = daysFromNow === 0 && isWorkingHours
+
             const atStr = ` at ${evdate.getHours()}h${evdate.getMinutes()}`
 
             if (isForTomorrow && isWorkingHours) {
@@ -50,6 +53,10 @@ const main = () => {
             if (!isDayEvent && isIn1h) {
                 console.log(h, "isIn1h", e)
                 calendarLib.sendNotif(e, `In 1 hour,${atStr} :`)
+            }
+            if (isEventForToday) {
+                console.log(h, "isEventForToday", e)
+                calendarLib.sendNotif(e, `Today,${atStr} :`)
             }
         }
         

@@ -174,9 +174,9 @@ export const useFileApi = (p: {
 	const saveFileIntDebounced2 = (debouncedTime:number, withThrottle:boolean, noteLink, content, options, cb) =>  {
 		const fnId = getFnId(noteLink, debouncedTime)
 		if (!debouncedFuncsRef.current[fnId]) {
-			console.log("create debouncedFuncs", fnId)
+			// console.log("create debouncedFuncs", fnId)
 			debouncedFuncsRef.current[fnId] = debounce((noteLink, content, options, cb) => {
-				console.log("debouncedFuncs", debouncedTime, noteLink)
+				// console.log("debouncedFuncs", debouncedTime, noteLink)
 				saveFileInt(noteLink, content, options, cb)
 			}, debouncedTime)
 

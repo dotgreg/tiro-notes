@@ -277,15 +277,14 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			// height: 120%;
 			height: calc(120% - 32px);
 			position: absolute;
 			background: rgba(0,0,0,0.1);
-			// top: -2px;
-			top: 32px;
+			top: ${deviceType() === "desktop" ? "32px" : "0px"};
 			left: 0px;
 			font-weight: bold;
 			color: white;
+			z-index: 2;
 		}
 	}
 

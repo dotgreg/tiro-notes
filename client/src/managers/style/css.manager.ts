@@ -56,6 +56,7 @@ import { hashtagCmPluginCss } from '../codeMirror/hashtag.plugin.cm';
 import { datePickerCmPluginCss } from '../codeMirror/datePicker.cm';
 import { getFontSize } from '../font.manager';
 import { fileHistoryCss } from '../../components/FileHistoryPopup.component';
+import { IconCss } from '../../components/Icon.component';
 
 
 export const css2 = (css: string) => css
@@ -70,6 +71,7 @@ const { els, colors, font, sizes } = { ...cssVars }
 // 	hist.a2 = null
 // }
 export const CssApp2 = memoize((a1, a2, a3, a4) => {
+	console.log("CssApp2memoize")	
 	return CssApp2Int(a1, a2, a3, a4)
 }, (...args) => {
 	// values(args).join("_"))
@@ -82,7 +84,7 @@ export const CssApp2Int = (
 	userSettings: iUserSettingsApi,
 	pinStatus: iPinStatuses
 ) => {
-	// console.log("RELOAD CSS", pinStatus)
+	console.log("RELOAD CSS", {pinStatus, mobileView, refreshCss, userSettings})
 	let end = perf("CssApp2"+mobileView+refreshCss)
 	const cssString = `
 
@@ -93,7 +95,7 @@ export const CssApp2Int = (
 		}
 
 		.content-image {
-				width: 90%;
+				width: 90%; 
 		}
 		.full {
 				.content-image {
@@ -110,7 +112,7 @@ export const CssApp2Int = (
 
 		${fileHistoryCss()}
 
-		
+		${IconCss()}
 		${hashtagCmPluginCss()}
 		${notePreviewPopupCss()}
 		${GlobalAppViewCss()}

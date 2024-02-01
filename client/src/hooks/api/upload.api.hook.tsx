@@ -153,6 +153,8 @@ export const useUploadApi = (p: {
 	}, 500)
 
 	const uploadFile: iUploadApi['uploadFile'] = (p2, cb) => {
+		let length = filesToUploadQueue.current.length
+		notifLog(`Starting Uploading ${length} Files`, "upload-info")
 		// get all the file uploads requests in an array
 		filesToUploadQueue.current.push({uploadInfos:p2, cb})
 		// once the last request is done, debouce the upload process to avoid flooding the server on limited connections

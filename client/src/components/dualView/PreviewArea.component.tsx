@@ -130,7 +130,7 @@ export const PreviewArea = (p: {
 									contentBlocks.map((block, i) =>
 										<ContentBlock
 											key={i}
-																		index={i}
+											index={i}
 											block={block}
 											windowId={p.windowId}
 											file={p.file}
@@ -433,7 +433,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 				display: block;
 				border-radius: 8px;
 				background: #d2d2d2;
-				padding: 11px 23px;
+				padding: 11px 23px;F
 		}
 		`
 	return css
@@ -444,10 +444,10 @@ export const previewAreaCss = () => `
 
 .preview-area {
 		margin-top: 0px;
-    .infos-preview-wrapper {
+    	.infos-preview-wrapper {
 				border-bottom: 1px solid rgba(0 0 0 / 5%);
-        display: ${isA('desktop') ? 'none' : 'block'};
-				padding: 5px 0px 12px 0px;
+        		display: ${isA('desktop') ? 'none' : 'block'};
+				padding: 14px 0px 14px 0px;
 		}
 }
 .preview-area {
@@ -464,18 +464,16 @@ export const previewAreaCss = () => `
 		display: block;
 	}
 
-    ${commonCssEditors}
+    ${commonCssEditors()}
 
-    .infos-preview-wrapper {
-    }
-		.infos-preview-wrapper h1.big-title {
-				width: calc(100% - 65px);
-				font-family: ${cssVars.font.editor};
-				color: grey;
-				${getFontSize(+5)}px
-				margin: 0px;
-				padding: 0px 14px;
-		}
+	.infos-preview-wrapper h1.big-title {
+			width: calc(100% - 65px);
+			font-family: ${cssVars.font.editor};
+			color: grey;
+			font-size: ${getFontSize(+5)}px;
+			margin: 0px;
+			padding: 0px 14px;
+	}
 }
 .content-blocks-wrapper {
 		${previewAreaSimpleCss()}
