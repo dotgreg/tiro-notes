@@ -65,43 +65,41 @@ let d = deviceType()
 const { els, colors, font, sizes } = { ...cssVars }
 
 
-// const hist = {a1:null, a2:null}
-// export const forceCssAppUpdate = () => {
-// 	hist.a1 = null
-// 	hist.a2 = null
-// }
-export const CssApp2 = memoize((a1, a2, a3, a4) => {
+//
+// Dynamic CSS that changes often
+// 
+export const CssAppDynamic = memoize((a1, a2, a3, a4) => {
 	console.log("CssApp2memoize")	
-	return CssApp2Int(a1, a2, a3, a4)
+	return CssAppIntDynamic(a1, a2, a3, a4)
 }, (...args) => {
 	// values(args).join("_"))
 	return JSON.stringify(args)
 })
 
-export const CssApp2Int = (
-	mobileView: iMobileView,
-	refreshCss: number,
+
+//
+// Static CSS that stays the same most of the time
+// 
+export const CssAppStatic = memoize((a1) => {
+	console.log("CssApp2memoize")	
+	return CssAppIntStatic(a1)
+}, (...args) => {
+	// values(args).join("_"))
+	return JSON.stringify(args)
+})
+
+
+
+
+
+
+const CssAppIntStatic = (
+	// refreshCss: number,
 	userSettings: iUserSettingsApi,
-	pinStatus: iPinStatuses
 ) => {
-	console.log("RELOAD CSS", {pinStatus, mobileView, refreshCss, userSettings})
-	let end = perf("CssApp2"+mobileView+refreshCss)
+	console.log("RELOAD CSS STATIC", {  userSettings})
+	let end = perf("CssAppDynamic")
 	const cssString = `
-
-		height:100%;
-		.main-wrapper,
-		.mobile-view-container {
-			height:100%;
-		}
-
-		.content-image {
-				width: 90%; 
-		}
-		.full {
-				.content-image {
-				}
-		}
-
 		// for preview css
 		${styleCodeMirrorMarkdownPreviewPlugin()}
 		// FILE RESSOURCE PREVIEW
@@ -162,13 +160,286 @@ export const CssApp2Int = (
 
 		${windowEditorCss()}
 		${previewAreaCss()}
-		${editorAreaCss(mobileView)}
 		${codeMirrorEditorCss()}
 		${uploadButtonCss()}
 		${uploadProgressBarCss()}
+		
+		
 
+		height:100%;
+		.main-wrapper,
+		.mobile-view-container {
+			height:100%;
+		}
+
+		.content-image {
+				width: 90%; 
+		}
+		.full {
+				.content-image {
+				}
+		}
+
+		.main-wrapper {
+			${folderTreeCss()}
+			display: flex;
+			.no-file {
+					text-align: center;
+					margin-top: 49vh;
+			}
+
+			////////////////////////////////////////////v 
+			// LEFT 1
+			////////////////////////////////////////////v
+			
+			${newFileButtonCss()}
+
+			&.device-view-mobile {
+					.config-buttons-bar {
+							bottom: 60px;
+					}
+
+			}
+
+			.config-buttons-bar {
+				position: fixed;
+				bottom: 4px;
+				left: 3px;
+				z-index: 20;
+
+				.config-button {
+					// margin-top: 10px;
+					opacity: 0.6;
+					transition: 0.2s all; 
+					padding: 5px;
+					cursor: pointer;
+					&:hover {
+						opacity: 1;
+					}
+				}
+				.plugins-marketplace-button {
+
+				}
+				.settings-button {
+					
+				}	
+			}
+			 
+
+
+			&.without-sidebar.device-view-desktop {
+					.left-sidebar-indicator {
+							transition: 0.5s all;	
+							&:hover {
+								background: ${cssVars.colors.main};
+							}
+							display: block;
+							position: absolute;
+							top: 0%;
+							z-index:100;
+							width: 18px;
+							height: 100vh;
+							background: rgb(236, 236, 236);
+							box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+							margin: 0% 0px;
+							border-radius: 0px 5px;
+							.left-wrapper {
+									box-shadow: 0px 0px 5px rgba(0,0,0,.2);
+									transition: 0.2s all;
+									transition-delay: 500ms, 0ms;
+									position: absolute;
+									left: -${sizes.desktop.l}vw;
+									top: 0px;
+							}
+					}
+
+					.left-sidebar-indicator:hover {
+							.left-wrapper {
+									left: 0vw;
+									top: 0px;
+							}
+					}
+			}
+
+			.invisible-scrollbars {
+					width: 100%;
+					padding-right: 18px;
+					overflow-y: scroll;
+					height: ${deviceType() === 'desktop' ? "100vh" : "calc(100vh - 48px)"}; 
+			}
+
+			.left-wrapper {
+				background: ${colors.l2.bg}; 
+				.left-wrapper-1 {
+					overflow: hidden;
+					background-image: url('${cssVars.assets.decoBgMap}');
+					background-color: ${cssVars.colors.bgInterface2};
+					background-blend-mode: color-burn;
+					color: ${cssVars.colors.fontInterface2};
+					width: ${sizes.desktop.l1}%;
+					height:100vh;
+					position: relative;
+
+
+					h3.subtitle {
+						margin: 0px 0px 15px;
+						font-family: "Open sans", sans-serif;
+						text-transform: uppercase;
+						font-size: 14px;
+						font-weight: 800;
+						font-style: italic;
+						color: ${colors.main};
+					}
+				}
+
+
+				////////////////////////////////////////////v 
+				// TEXT VIEW : LEFT 2
+				////////////////////////////////////////////v2
+				.left-wrapper-2 {
+						width: ${sizes.desktop.l2}%;
+						height:100vh;
+						overflow: hidden;
+						background: ${cssVars.colors.bgInterface};
+
+
+
+						
+						.top-files-list-wrapper {
+								padding-top: ${sizes.search.padding}px;
+								height: ${sizes.search.h}px;
+								.subtitle-wrapper {
+										position: relative;
+										display: flex;
+										.folder-wrapper {
+												padding: 2px 16px 10px 20px;
+												/* margin-top: 4px; */
+												font-weight: bold;
+												color: #aeadad;
+										}
+										.toggle-sidebar-btn {
+												position: absolute;
+												right: 10px;
+										}
+
+										h3.subtitle {
+												margin: 0px ${sizes.block}px ${sizes.block}px ${sizes.block}px; 
+										}
+										.counter {
+												margin: 0px;
+												margin-top: 2px;
+												color: ${colors.l2.text};
+												font-size: ${getFontSize()}px;
+												font-weight: 800;
+										}
+								}
+						}
+
+						
+				}
+
+				
+
+				
+				
+
+				.files-list-component {
+						position: relative
+				}
+
+				.list-toolbar {
+						position: absolute;
+						top: -93px;
+						right: 23px;
+						color: ${colors.l2.text};
+						button {
+								color: ${colors.l2.text};
+								${els().button}
+								padding: 0px;
+								margin-right: ${sizes.block}px; 
+								font-size: ${getFontSize()}px;
+								cursor: pointer;
+								span {
+										margin-right: 5px;
+								}
+						}
+
+						.items-list-count {
+								position: absolute;
+								color: grey;
+								font-size: ${getFontSize()}px;
+								right: 10px;
+								top: 5px;
+						}
+				}
+				${filesListCss()}
+			}
+			////////////////////////////////////////////v 
+			// IMAGE GALLERY VIEW
+			////////////////////////////////////////////v
+			.right-wrapper.image-gallery-view {
+					background: ${colors.l2.bg}; 
+					.image-gallery-header {
+							padding-top: ${sizes.search.padding}px;
+							height: ${sizes.gallery.topH}px;
+
+							.search-bar-component {
+									// padding: 10px 0px;
+							}
+					}
+
+					.image-gallery-component-wrapper {
+							
+					}
+			}
+			////////////////////////////////////////////v 
+			// TEXT VIEW : RIGHT
+			////////////////////////////////////////////v 
+			${tabsCss()}
+			${GridMobileCss()}
+
+			${mobileNoteToolbarCss()}
+			${scrollingBarCss()}
+
+			&.without-sidebar.device-view-desktop {
+					.right-wrapper.draggable-grid-editors-view {
+							width: calc(100vw - 18px);
+							margin-left: 18px;
+					}
+			}
+		}// end main-wrapper
+		.preview-content {
+				counter-reset: h2counter;
+			h1 {
+				counter-reset: h2counter;
+			}
+			h2:before {
+				content: counter(h2counter) ".\\0000a0\\0000a0";
+				counter-increment: h2counter;
+				counter-reset: h3counter;
+			}
+			h3:before {
+				content: counter(h2counter) "." counter(h3counter) ".\\0000a0\\0000a0";
+				counter-increment: h3counter;
+			}
+		}
+	
+	`
+	end()
+	return css`${cssString}`
+}
+
+const CssAppIntDynamic = (
+	mobileView: iMobileView,
+	refreshCss: number,
+	userSettings: iUserSettingsApi,
+	pinStatus: iPinStatuses
+) => {
+	console.log("RELOAD CSS DYNAMIC", {pinStatus, mobileView, refreshCss, userSettings})
+	let end = perf("CssAppDynamic"+mobileView+refreshCss)
+	const cssString = `
+		${editorAreaCss(mobileView)}
 		${dualViewerCss(mobileView, pinStatus)}
-
 		.draggable-grid-editors-view {
 			width: ${deviceType() === 'desktop' ? cssVars.sizes.desktop.r : (mobileView !== 'navigator' ? 100 : 0)}vw;
 			height: ${deviceType() === 'desktop' ? `calc(100vh - ${pinStatus.bottomBar ? "30" : "10"}px)` : "100%"};
@@ -185,291 +456,16 @@ export const CssApp2Int = (
 					word-wrap: break-word; /* IE 5.5+ */
 			}
 		}
-
 		.main-wrapper {
-				${folderTreeCss()}
-				display: flex;
-				.no-file {
-						text-align: center;
-						margin-top: 49vh;
-				}
-
-
-
-
-
-
-
-
-				////////////////////////////////////////////v 
-				// LEFT 1
-				////////////////////////////////////////////v
-				
-				${newFileButtonCss()}
-
-				&.device-view-mobile {
-						.config-buttons-bar {
-								bottom: 60px;
-						}
-
-				}
-
-				.config-buttons-bar {
-					position: fixed;
-					bottom: 4px;
-					left: 3px;
-					z-index: 20;
-
-					.config-button {
-						// margin-top: 10px;
-						opacity: 0.6;
-						transition: 0.2s all; 
-						padding: 5px;
-						cursor: pointer;
-						&:hover {
-							opacity: 1;
-						}
-					}
-					.plugins-marketplace-button {
-
-					}
-					.settings-button {
-						
-					}	
-				}
-				 
-
-
-				&.without-sidebar.device-view-desktop {
-						.left-sidebar-indicator {
-								transition: 0.5s all;	
-								&:hover {
-									background: ${cssVars.colors.main};
-								}
-								display: block;
-								position: absolute;
-								top: 0%;
-								z-index:100;
-								width: 18px;
-								height: 100vh;
-								background: rgb(236, 236, 236);
-								box-shadow: 0px 0px 5px rgba(0,0,0,.2);
-								margin: 0% 0px;
-								border-radius: 0px 5px;
-								.left-wrapper {
-										box-shadow: 0px 0px 5px rgba(0,0,0,.2);
-										transition: 0.2s all;
-										transition-delay: 500ms, 0ms;
-										position: absolute;
-										left: -${sizes.desktop.l}vw;
-										top: 0px;
-								}
-						}
-
-						.left-sidebar-indicator:hover {
-								.left-wrapper {
-										left: 0vw;
-										top: 0px;
-								}
-						}
-				}
-
-				.invisible-scrollbars {
-						width: 100%;
-						padding-right: 18px;
-						overflow-y: scroll;
-						height: ${deviceType() === 'desktop' ? "100vh" : "calc(100vh - 48px)"}; 
-				}
-
-				.left-wrapper {
-						background: ${colors.l2.bg}; 
-						width: ${deviceType() === 'desktop' ? sizes.desktop.l : (mobileView !== 'navigator' ? 0 : 100)}vw;
-
-						display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
-
-
-						.left-wrapper-1 {
-								overflow: hidden;
-								background-image: url('${cssVars.assets.decoBgMap}');
-								background-color: ${cssVars.colors.bgInterface2};
-								background-blend-mode: color-burn;
-								color: ${cssVars.colors.fontInterface2};
-								width: ${sizes.desktop.l1}%;
-								height:100vh;
-								position: relative;
-
-
-								h3.subtitle {
-										margin: 0px 0px 15px;
-										font-family: "Open sans", sans-serif;
-										text-transform: uppercase;
-										font-size: 14px;
-										font-weight: 800;
-										font-style: italic;
-										color: ${colors.main};
-								}
-						}
-
-
-						////////////////////////////////////////////v 
-						// TEXT VIEW : LEFT 2
-																////////////////////////////////////////////v2
-																.left-wrapper-2 {
-								width: ${sizes.desktop.l2}%;
-								height:100vh;
-								overflow: hidden;
-								background: ${cssVars.colors.bgInterface};
-
-
-
-								
-								.top-files-list-wrapper {
-										padding-top: ${sizes.search.padding}px;
-										height: ${sizes.search.h}px;
-										.subtitle-wrapper {
-												position: relative;
-												display: flex;
-												.folder-wrapper {
-														padding: 2px 16px 10px 20px;
-														/* margin-top: 4px; */
-														font-weight: bold;
-														color: #aeadad;
-												}
-												.toggle-sidebar-btn {
-														position: absolute;
-														right: 10px;
-												}
-
-												h3.subtitle {
-														margin: 0px ${sizes.block}px ${sizes.block}px ${sizes.block}px; 
-												}
-												.counter {
-														margin: 0px;
-														margin-top: 2px;
-														color: ${colors.l2.text};
-														font-size: ${getFontSize()}px;
-														font-weight: 800;
-												}
-										}
-								}
-
-								
-						}
-
-						
-
-						
-						
-
-						.files-list-component {
-								position: relative
-						}
-
-						.list-toolbar {
-								position: absolute;
-								top: -93px;
-								right: 23px;
-								color: ${colors.l2.text};
-								button {
-										color: ${colors.l2.text};
-										${els().button}
-										padding: 0px;
-										margin-right: ${sizes.block}px; 
-										font-size: ${getFontSize()}px;
-										cursor: pointer;
-										span {
-												margin-right: 5px;
-										}
-								}
-
-								.items-list-count {
-										position: absolute;
-										color: grey;
-										font-size: ${getFontSize()}px;
-										right: 10px;
-										top: 5px;
-								}
-						}
-
-						
-						${filesListCss()}
-
-						
-				}
-
-				
-
-
-
-
-
-
-
-
-
-				////////////////////////////////////////////v 
-				// IMAGE GALLERY VIEW
-				////////////////////////////////////////////v
-				.right-wrapper.image-gallery-view {
-						background: ${colors.l2.bg}; 
-						.image-gallery-header {
-								padding-top: ${sizes.search.padding}px;
-								height: ${sizes.gallery.topH}px;
-
-								.search-bar-component {
-										// padding: 10px 0px;
-								}
-						}
-
-						.image-gallery-component-wrapper {
-								
-						}
-				}
-
-
-
-				////////////////////////////////////////////v 
-				// TEXT VIEW : RIGHT
-				////////////////////////////////////////////v 
-				${tabsCss()}
-				${draggableGridCss(pinStatus)}
-				${GridMobileCss()}
-
-				${mobileNoteToolbarCss()}
-				${scrollingBarCss()}
-
-				&.without-sidebar.device-view-desktop {
-						.right-wrapper.draggable-grid-editors-view {
-								width: calc(100vw - 18px);
-								margin-left: 18px;
-						}
-				}
-				
+			////////////////////////////////////////////v 
+			// TEXT VIEW : RIGHT
+			////////////////////////////////////////////v 
+			${draggableGridCss(pinStatus)}
+			.left-wrapper {
+				width: ${deviceType() === 'desktop' ? sizes.desktop.l : (mobileView !== 'navigator' ? 0 : 100)}vw;
+				display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
+			}
 		} // end main-wrapper
-
-
-
-		
-}
-
-
-.preview-content {
-		counter-reset: h2counter;
-    h1 {
-        counter-reset: h2counter;
-    }
-    h2:before {
-        content: counter(h2counter) ".\\0000a0\\0000a0";
-        counter-increment: h2counter;
-        counter-reset: h3counter;
-    }
-    h3:before {
-        content: counter(h2counter) "." counter(h3counter) ".\\0000a0\\0000a0";
-        counter-increment: h3counter;
-    }
-}
-
-
 `//css
 end()
 	return css`${cssString}`

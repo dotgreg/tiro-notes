@@ -568,13 +568,13 @@ export const settingsPopupCss = () => `
 					${deviceType() === 'desktop' ? "" : "display:block!important;"}
 					.input-wrapper {
 						textarea, input {
-							${deviceType() === 'desktop' ? "width: calc(100% - 20px); " : "width: calc(100% - 30px); margin: 5px 0px; "}
+							${deviceType() === 'desktop' ? " " : "width: calc(100% - 30px); margin: 5px 0px; "}
 						}
 						input[type=checkbox] {
 							width: 20px;
 						}
 						input[type="text"] {
-							${deviceType() === 'desktop' ? "width: calc(100% - 20px); " : "width: calc(100% - 40px);"}
+							${deviceType() === 'desktop' ? " " : "width: calc(100% - 40px);"}
 						}
 					}
 				}
