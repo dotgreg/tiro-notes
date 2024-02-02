@@ -48,7 +48,7 @@ const calendarApp = (innerTagStr, opts) => {
             for (var i = 0; i < events.length; i++) {
                 const evCal = events[i] 
                 let titleAndBody = `
-                        <div class='event-wrapper'>
+                <div class='event-wrapper'>
                         <div class='title'>${evCal.title}</div>
                         <div class='body'>${evCal.body}</div>
                 </div>`
@@ -192,25 +192,31 @@ const calendarApp = (innerTagStr, opts) => {
             content: none;
     }
 
-
-    /* #caleandar .event-wrapper { */
-    /* 		position: relative */
-    /* } */
-    /* #caleandar .event-wrapper:hover { */
-    /* } */
-    /* #caleandar .event-wrapper:hover .body { */
-    /* 		display: absolute; */
-    /* 		top: 0px; */
-    /* } */
-    /* #caleandar .event-wrapper { */
-    /* } */
-
     #caleandar .cld-main .cld-title {
             font-size: 8px;
             height: 10px;
             overflow: hidden;
             line-height: 9px;
     }
+   
+    #caleandar .event-wrapper:hover {
+        position: fixed;
+        background: white;
+        padding: 5px;
+        box-shadow: 0px 0px 3px 3px rgba(0,0,0,0.1);
+        z-index: 5;
+        border-radius: 5px;
+    }
+    #caleandar .event-wrapper .title {
+        width: 150%;
+    }
+    #caleandar .event-wrapper .body {
+        font-size:7px;
+        text-decoration: none;
+        color: #acacac;
+    }
+
+
     </style>`
     return `${styleHtml}<div id="caleandar" class="no-css"></div>`
 }

@@ -2,7 +2,7 @@ import { css, Global } from '@emotion/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { deviceType } from './managers/device.manager';
 import { initSocketConnexion } from './managers/sockets/socket.manager';
-import { CssApp2 } from './managers/style/css.manager';
+import { CssAppDynamic, CssAppStatic } from './managers/style/css.manager';
 import { useMobileView } from './hooks/app/mobileView.hook';
 import { useFileMove } from './hooks/app/fileMove.hook';
 import { useConnectionIndicator } from './hooks/app/connectionIndicator.hook';
@@ -443,322 +443,324 @@ export const App = () => {
 	const {pinStatus, updatePinStatus, togglePinStatus, refreshPinStatus} = usePinStatus()
 
 	return (
-		<div className={CssApp2(mobileView, cnt, usettings, pinStatus)} >
-			<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>
+		<div className={CssAppStatic( usettings)} >
+			<div className={CssAppDynamic(mobileView, cnt, usettings, pinStatus)} >
+				<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>
 
-				{ /* API : making clientapi available everywhere */}
-				<ClientApiContext.Provider value={clientApi} >
+					{ /* API : making clientapi available everywhere */}
+					<ClientApiContext.Provider value={clientApi} >
 
-					{
-						notePreviewPopup?.isOpen && <NotePreviewPopup notePreview={notePreviewPopup} />
-					}
-					{suggestOpen &&
-						<OmniBar
-							show={suggestShow}
-							lastNotes={filesHistory}
-							onClose={e => { setSuggestOpen(false) }}
-							onHide={e => { setSuggestShow(false) }}
-						/>
-					}
-
-					<Global styles={GlobalCssApp()} />
-					<div role="dialog" className={`main-wrapper ${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"} device-view-${deviceType()}`}>
 						{
-							PromptPopupComponent()
+							notePreviewPopup?.isOpen && <NotePreviewPopup notePreview={notePreviewPopup} />
 						}
-						{
-							LoginPopupComponent({})
-						}
-						{
-							SetupPopupComponent({})
-						}
-						{
-							connectionStatusComponent()
-						}
-						{
-							MobileToolbarComponent({
-								forceRerender: forceResponsiveRender,
-								onButtons: [
-									() => {
-										// let nState = suggestOpen ? false : true
-										setSuggestShow(true)
-										setSuggestOpen(true)
-									}
-								]
-							})
-						}
-
-						<div className="left-sidebar-indicator">
-							<div className="left-wrapper">
-								<div className="left-wrapper-1">
-									<div className="invisible-scrollbars">
-										<NewFileButton
-											onNewFile={() => {
-												getApi(api => {
-													const selectedFolder = api.ui.browser.folders.current.get()
-													api.file.create(selectedFolder, files => {
-														const nFile = getMostRecentFile(files)
-														nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
-													})
-												})
-											}}
-										/>
-
-										{api.userSettings.get('ui_layout_shortcuts_panel') &&
-
-											<Shortcuts
-												filePath={`.tiro/shortcuts.md`}
-												onClick={() => {
-
-												}}
-											/>
-										}
-
-										<LastNotes
-											files={filesHistory}
-											onClick={file => {
-												clientApi.ui.browser.goTo(
-													file.folder,
-													file.name,
-													{ openIn: 'active' }
-												)
-											}}
-										/>
-
-
-										<FoldersTreeView
-											openFolders={foldersUiApi.open.get()}
-											folder={foldersUiApi.get()}
-											current={foldersUiApi.current.get()}
-											onFolderClicked={folderPath => {
-												clientApi.ui.browser.goTo(folderPath, null)
-											}}
-											onFolderMenuAction={(action, folder, newTitle) => {
-												if (action === 'rename' && newTitle) {
-													promptAndMoveFolder({
-														folder,
-														folderToDropInto: folder,
-														folderBasePath,
-														newTitle,
-														renameOnly: true,
-														disablePrompt: true,
-														onMoveFn: () => {
-															askForFolderScan([getParentFolder(folder.path)], {
-																cache: false,
-																cb: () => {
-																	// folder sometimes closing itself
-																	// foldersUiApi.open.remove([getParentFolder(folder.path)])
-																	// foldersUiApi.open.add(getParentFolder(folder.path))
-																	// foldersUiApi.open.add(folder.path)
-																}
-															})
-														}
-													})
-												} else if (action === 'create' && newTitle) {
-													getApi(api => {
-														api.folders.create(`${folder.path}/${newTitle}`, status => {
-															askForFolderScan([folder.path], { cache: false })
-														})
-													})
-												} else if (action === 'moveToTrash') {
-													promptAndMoveFolder({
-														folder,
-														folderToDropInto: defaultTrashFolder,
-														folderBasePath,
-														newTitle: `${folder.title}_${getDateObj().full_file}`,
-														onMoveFn: () => {
-															askForFolderScan([getParentFolder(folder.path),folder.path], {
-																cache: false,
-																// closeFolders: [folder.path],
-																cb: () => { 
-																	foldersUiApi.open.add(folder.path) 
-																}
-															})
-														}
-													})
-												} else if (action === 'delete') {
-													askFolderDelete("trash")
-													setTimeout(() => {
-														askForFolderScan([folder.path], { cache: false })
-													})
-												}
-												// in any cases, ask for whole rescan in background
-												// askForFolderScan(foldersUiApi.open.get, {cache: false, background: true })
-											}}
-											onFolderOpen={folderPath => {
-												askForFolderScan([folderPath], { cache: false })
-											}}
-											onFolderClose={folderPath => {
-
-											}}
-											onFolderDragStart={draggedFolder => {
-												console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
-												draggedItems.current = [{ type: 'folder', folder: draggedFolder }]
-											}}
-											onFolderDragEnd={() => {
-												console.log(`[DRAG MOVE] onFolderDragEnd`);
-												draggedItems.current = []
-											}}
-											onFolderDrop={folderDroppedInto => {
-												processDragDropAction(folderDroppedInto)
-											}}
-
-										/>
-
-
-									</div>
-
-									<div className='config-buttons-bar'>
-										{ api.userSettings.get('beta_plugins_marketplace') &&
-											<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
-												<Icon2 name="puzzle-piece" />
-											</div>
-										}
-										<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
-											<Icon2 name="cog" />
-										</div>
-									</div>
-
-									
-
-								</div>
-								<div className="left-wrapper-2">
-									<div className="top-files-list-wrapper">
-										<div className="subtitle-wrapper">
-
-											<div className="folder-wrapper">
-												{api && api.ui.browser.folders.current.get()}
-												{!api.ui.browser.folders.current.get() && "/"}
-											</div>
-
-
-											{/* SIDEBAR TOGGLER */}
-											{deviceType() !== 'mobile' &&
-												<div className="toggle-sidebar-btn">
-													<ButtonsToolbar
-														popup={false}
-														buttons={[{
-															icon: 'faThumbtack',
-															title: 'Toggle Sidebar',
-															action: e => { toggleSidebar(); refreshWindowGrid(); },
-															active: clientApi.userSettings.get('ui_sidebar') === true
-														}]}
-														colors={["#d4d1d1", "#615f5f"]}
-														size={0.8}
-													/>
-												</div>
-											}
-
-											{/* <h3 className="subtitle">{strings.files}</h3> */}
-										</div>
-										<SearchBar2 term={clientApi.ui.search.term.get} />
-									</div>
-									<div className="files-list-wrapper">
-
-										<FilesList
-											files={filesUiApi.get}
-											activeFileIndex={filesUiApi.active.getIndex}
-
-											onSortFiles={filesSorted => {
-												clientApi.ui.browser.files.set(filesSorted)
-											}}
-											onFileClicked={fileIndex => {
-												filesUiApi.active.set(fileIndex)
-												const nFile = filesUiApi.get[fileIndex]
-
-												// if no active tab opened, create new tab/window
-												if (!api.tabs.active.get()) api.tabs.openInNewTab(nFile)
-
-												else windowsApi.active.setContent(nFile)
-											}}
-											onFileDragStart={files => {
-												console.log(`[DRAG MOVE] onFileDragStart`, files);
-												draggedItems.current = [{ type: 'file', files: files }]
-											}}
-											onFileDragEnd={() => {
-												console.log(`[DRAG MOVE] onFileDragEnd`);
-												draggedItems.current = []
-											}}
-										/>
-									</div>
-								</div>
-							</div>
-							{/* end left sidebar indic */}
-						</div>
-
-
-
-
-						<div className="right-wrapper draggable-grid-editors-view">
-
-
-							{/* TABS SYSTEM*/}
-							{deviceType() !== "mobile" && <TabList
-								tabs={tabs}
-								onUpdate={updateTab}
-								onPinToggle={togglePinStatus("topTab")}
-								pinStatus={pinStatus.topTab}
-							/>}
-
-							{currentTab &&
-								<WindowGrid
-									tab={currentTab}
-									forceRefresh={forceRefresh}
-									onGridUpdate={updateActiveTabGridWrapper}
-									mobileView={mobileView}
-									pinStatus={pinStatus}
-								/>
-							}
-
-
-						</div>
-						{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
-						{ userSettingsSync.curr.beta_floating_windows &&
-							<FloatingPanelsWrapper 
-								panels={api.ui.floatingPanel.panels} 
-								pinStatus={pinStatus.bottomBar}
-								onPinChange={updatePinStatus("bottomBar")}
+						{suggestOpen &&
+							<OmniBar
+								show={suggestShow}
+								lastNotes={filesHistory}
+								onClose={e => { setSuggestOpen(false) }}
+								onHide={e => { setSuggestShow(false) }}
 							/>
 						}
 
-						{
-							configPopup === "plugins-marketplace" &&
-							<PluginsMarketplacePopup onClose={() => {
-								setConfigPopup(null)
-							}} />
-						}
-						{
-							configPopup === "settings" &&
-							<SettingsPopup onClose={() => {
-								setConfigPopup(null)
-							}} />
-						}
-					</div>
-				</ClientApiContext.Provider>
+						<Global styles={GlobalCssApp()} />
+						<div role="dialog" className={`main-wrapper ${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"} device-view-${deviceType()}`}>
+							{
+								PromptPopupComponent()
+							}
+							{
+								LoginPopupComponent({})
+							}
+							{
+								SetupPopupComponent({})
+							}
+							{
+								connectionStatusComponent()
+							}
+							{
+								MobileToolbarComponent({
+									forceRerender: forceResponsiveRender,
+									onButtons: [
+										() => {
+											// let nState = suggestOpen ? false : true
+											setSuggestShow(true)
+											setSuggestOpen(true)
+										}
+									]
+								})
+							}
+
+							<div className="left-sidebar-indicator">
+								<div className="left-wrapper">
+									<div className="left-wrapper-1">
+										<div className="invisible-scrollbars">
+											<NewFileButton
+												onNewFile={() => {
+													getApi(api => {
+														const selectedFolder = api.ui.browser.folders.current.get()
+														api.file.create(selectedFolder, files => {
+															const nFile = getMostRecentFile(files)
+															nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
+														})
+													})
+												}}
+											/>
+
+											{api.userSettings.get('ui_layout_shortcuts_panel') &&
+
+												<Shortcuts
+													filePath={`.tiro/shortcuts.md`}
+													onClick={() => {
+
+													}}
+												/>
+											}
+
+											<LastNotes
+												files={filesHistory}
+												onClick={file => {
+													clientApi.ui.browser.goTo(
+														file.folder,
+														file.name,
+														{ openIn: 'active' }
+													)
+												}}
+											/>
+
+
+											<FoldersTreeView
+												openFolders={foldersUiApi.open.get()}
+												folder={foldersUiApi.get()}
+												current={foldersUiApi.current.get()}
+												onFolderClicked={folderPath => {
+													clientApi.ui.browser.goTo(folderPath, null)
+												}}
+												onFolderMenuAction={(action, folder, newTitle) => {
+													if (action === 'rename' && newTitle) {
+														promptAndMoveFolder({
+															folder,
+															folderToDropInto: folder,
+															folderBasePath,
+															newTitle,
+															renameOnly: true,
+															disablePrompt: true,
+															onMoveFn: () => {
+																askForFolderScan([getParentFolder(folder.path)], {
+																	cache: false,
+																	cb: () => {
+																		// folder sometimes closing itself
+																		// foldersUiApi.open.remove([getParentFolder(folder.path)])
+																		// foldersUiApi.open.add(getParentFolder(folder.path))
+																		// foldersUiApi.open.add(folder.path)
+																	}
+																})
+															}
+														})
+													} else if (action === 'create' && newTitle) {
+														getApi(api => {
+															api.folders.create(`${folder.path}/${newTitle}`, status => {
+																askForFolderScan([folder.path], { cache: false })
+															})
+														})
+													} else if (action === 'moveToTrash') {
+														promptAndMoveFolder({
+															folder,
+															folderToDropInto: defaultTrashFolder,
+															folderBasePath,
+															newTitle: `${folder.title}_${getDateObj().full_file}`,
+															onMoveFn: () => {
+																askForFolderScan([getParentFolder(folder.path),folder.path], {
+																	cache: false,
+																	// closeFolders: [folder.path],
+																	cb: () => { 
+																		foldersUiApi.open.add(folder.path) 
+																	}
+																})
+															}
+														})
+													} else if (action === 'delete') {
+														askFolderDelete("trash")
+														setTimeout(() => {
+															askForFolderScan([folder.path], { cache: false })
+														})
+													}
+													// in any cases, ask for whole rescan in background
+													// askForFolderScan(foldersUiApi.open.get, {cache: false, background: true })
+												}}
+												onFolderOpen={folderPath => {
+													askForFolderScan([folderPath], { cache: false })
+												}}
+												onFolderClose={folderPath => {
+
+												}}
+												onFolderDragStart={draggedFolder => {
+													console.log(`[DRAG MOVE] onFolderDragStart`, draggedFolder);
+													draggedItems.current = [{ type: 'folder', folder: draggedFolder }]
+												}}
+												onFolderDragEnd={() => {
+													console.log(`[DRAG MOVE] onFolderDragEnd`);
+													draggedItems.current = []
+												}}
+												onFolderDrop={folderDroppedInto => {
+													processDragDropAction(folderDroppedInto)
+												}}
+
+											/>
+
+
+										</div>
+
+										<div className='config-buttons-bar'>
+											{ api.userSettings.get('beta_plugins_marketplace') &&
+												<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
+													<Icon2 name="puzzle-piece" />
+												</div>
+											}
+											<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
+												<Icon2 name="cog" />
+											</div>
+										</div>
+
+										
+
+									</div>
+									<div className="left-wrapper-2">
+										<div className="top-files-list-wrapper">
+											<div className="subtitle-wrapper">
+
+												<div className="folder-wrapper">
+													{api && api.ui.browser.folders.current.get()}
+													{!api.ui.browser.folders.current.get() && "/"}
+												</div>
+
+
+												{/* SIDEBAR TOGGLER */}
+												{deviceType() !== 'mobile' &&
+													<div className="toggle-sidebar-btn">
+														<ButtonsToolbar
+															popup={false}
+															buttons={[{
+																icon: 'faThumbtack',
+																title: 'Toggle Sidebar',
+																action: e => { toggleSidebar(); refreshWindowGrid(); },
+																active: clientApi.userSettings.get('ui_sidebar') === true
+															}]}
+															colors={["#d4d1d1", "#615f5f"]}
+															size={0.8}
+														/>
+													</div>
+												}
+
+												{/* <h3 className="subtitle">{strings.files}</h3> */}
+											</div>
+											<SearchBar2 term={clientApi.ui.search.term.get} />
+										</div>
+										<div className="files-list-wrapper">
+
+											<FilesList
+												files={filesUiApi.get}
+												activeFileIndex={filesUiApi.active.getIndex}
+
+												onSortFiles={filesSorted => {
+													clientApi.ui.browser.files.set(filesSorted)
+												}}
+												onFileClicked={fileIndex => {
+													filesUiApi.active.set(fileIndex)
+													const nFile = filesUiApi.get[fileIndex]
+
+													// if no active tab opened, create new tab/window
+													if (!api.tabs.active.get()) api.tabs.openInNewTab(nFile)
+
+													else windowsApi.active.setContent(nFile)
+												}}
+												onFileDragStart={files => {
+													console.log(`[DRAG MOVE] onFileDragStart`, files);
+													draggedItems.current = [{ type: 'file', files: files }]
+												}}
+												onFileDragEnd={() => {
+													console.log(`[DRAG MOVE] onFileDragEnd`);
+													draggedItems.current = []
+												}}
+											/>
+										</div>
+									</div>
+								</div>
+								{/* end left sidebar indic */}
+							</div>
+
+
+
+
+							<div className="right-wrapper draggable-grid-editors-view">
+
+
+								{/* TABS SYSTEM*/}
+								{deviceType() !== "mobile" && <TabList
+									tabs={tabs}
+									onUpdate={updateTab}
+									onPinToggle={togglePinStatus("topTab")}
+									pinStatus={pinStatus.topTab}
+								/>}
+
+								{currentTab &&
+									<WindowGrid
+										tab={currentTab}
+										forceRefresh={forceRefresh}
+										onGridUpdate={updateActiveTabGridWrapper}
+										mobileView={mobileView}
+										pinStatus={pinStatus}
+									/>
+								}
+
+
+							</div>
+							{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
+							{ userSettingsSync.curr.beta_floating_windows &&
+								<FloatingPanelsWrapper 
+									panels={api.ui.floatingPanel.panels} 
+									pinStatus={pinStatus.bottomBar}
+									onPinChange={updatePinStatus("bottomBar")}
+								/>
+							}
+
+							{
+								configPopup === "plugins-marketplace" &&
+								<PluginsMarketplacePopup onClose={() => {
+									setConfigPopup(null)
+								}} />
+							}
+							{
+								configPopup === "settings" &&
+								<SettingsPopup onClose={() => {
+									setConfigPopup(null)
+								}} />
+							}
+						</div>
+					</ClientApiContext.Provider>
+				</div >
+
+				
+				
+				<NotificationsCenter />
+
+				{
+					lightboxImages.length > 0 &&
+					<Lightbox
+						images={lightboxImages}
+						startingIndex={lightboxIndex}
+						onClose={clientApi.ui.lightbox.close}
+					/>
+				}
+
+				{ttsPopup &&
+					<TtsPopup
+						id={ttsPopupId}
+						fileContent={ttsPopupContent}
+						startString={ttsPos}
+						onUpdate={s => { syncTtsStatus(s) }}
+						onClose={() => { setTtsPopup(false) }} />
+				}
+
 			</div >
-
-			
-			
-			<NotificationsCenter />
-
-			{
-				lightboxImages.length > 0 &&
-				<Lightbox
-					images={lightboxImages}
-					startingIndex={lightboxIndex}
-					onClose={clientApi.ui.lightbox.close}
-				/>
-			}
-
-			{ttsPopup &&
-				<TtsPopup
-					id={ttsPopupId}
-					fileContent={ttsPopupContent}
-					startString={ttsPos}
-					onUpdate={s => { syncTtsStatus(s) }}
-					onClose={() => { setTtsPopup(false) }} />
-			}
-
 		</div >
 	)
 }

@@ -349,10 +349,16 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         } else {
             // if panel is minimized, set it to visible
             if (panel.status === "minimized") panel.status = "visible"
+            // place panel on top
+            
             panel.file = pathToIfile(filepath)
             if (searchedString) panel.searchedString = searchedString
             if (replacementString) panel.replacementString = replacementString
             updatePanel(panel)
+            pushWindowOnTop(panel?.id)
+            // setTimeout(() => {
+                
+            // }, 100)
         }
     }
 
