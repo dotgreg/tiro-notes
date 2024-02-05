@@ -84,7 +84,13 @@ export type iUserSettingName =
 'ui_layout_colors_main' |
 'ui_layout_colors_main_font' |
 'ui_layout_general_font_size' |
+'ui_layout_font_family_interface' |
+'ui_layout_font_family_editor' |
+'ui_layout_background_image_enable' |
 'ui_layout_shortcuts_panel' |
+'ui_layout_background_image_window_opacity' |
+'ui_layout_background_image_window_opacity_active' |
+'ui_layout_background_image' |
 'ui_sidebar' |
 
 'ui_editor_links_as_button' |

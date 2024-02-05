@@ -1023,7 +1023,7 @@ export const commonCssEditors = () => `
 .file-path-wrapper {
 		padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
 		font-size: ${getFontSize(+3)}px;
-		font-weight: 700;
+		font-weight: 600;
 		color: #b6b5b5;
 		cursor: pointer;
 		text-transform: capitalize;
@@ -1031,7 +1031,7 @@ export const commonCssEditors = () => `
 .big-title {
 		color: ${cssVars.colors.main};
 		font-size: ${getFontSize(+5)}px;
-		font-weight: 800;
+		font-weight: 600;
 		width: 100%;
 }
 

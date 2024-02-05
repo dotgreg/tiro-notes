@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 import { getFontSize } from '../managers/font.manager';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
-export type InputType = 'password' | 'text' | 'select' | 'checkbox' | 'textarea'
+export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea'
 
 
 export const Input = (p: {
@@ -24,6 +24,8 @@ export const Input = (p: {
 	shouldNotSelectOnClick?: boolean
 	readonly?: boolean
 	style?: string
+	max?: number
+	min?: number
 }) => {
 
 	const inputRef = useRef<any>()
@@ -51,7 +53,17 @@ export const Input = (p: {
 			p.onChange && p.onChange(inputRef.current.checked)
 		}
 	}
-
+	const processChange = (val: string) => {
+		let nval: any = val
+		// if type number, convert to number, then if max/min is set, check if it is in range
+		if (p.type === 'number') {
+			nval = parseInt(nval)
+			if (p.max && nval > p.max) nval = p.max
+			if (p.min && nval < p.min) nval = p.min
+			nval = nval.toString()
+		}
+		p.onChange && p.onChange(nval)
+	}
 	return (
 		<div className={`input-component-wrapper ${p.style ? css`${p.style}` : ''}`}>
 		<div className={`input-component ${p.id ? p.id : ''} ${p.type}`}>
@@ -65,6 +77,8 @@ export const Input = (p: {
 					value={value}
 					checked={isChecked}
 					readOnly={p.readonly}
+					max={p.max}
+					min={p.min}
 					onFocus={() => { p.onFocus && p.onFocus() }}
 					onClick={() => { !p.shouldNotSelectOnClick && inputRef.current.select() }}
 					onKeyPress={e => {
@@ -74,7 +88,7 @@ export const Input = (p: {
 					}}
 					onChange={(e) => {
 						p.onCheckedChange && p.onCheckedChange(e.target.checked)
-						p.onChange && p.onChange(e.target.value)
+						processChange(e.target.value)
 					}} />}
 
 				{p.type === 'select' &&

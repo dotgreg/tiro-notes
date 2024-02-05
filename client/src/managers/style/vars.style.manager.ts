@@ -149,7 +149,8 @@ const sizes = {
 }
 
 const font = {
-	main: `'Open sans', sans-serif`,
+	// controlable vars
+	main: `Helvetica neue, Open sans, arial, sans-serif`,
 	editor: `Consolas, monaco, monospace`
 }
 

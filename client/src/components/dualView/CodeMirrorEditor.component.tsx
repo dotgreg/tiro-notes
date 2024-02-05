@@ -734,17 +734,8 @@ export const codeMirrorEditorCss = () => `
 
 .actionable-title {
 		color: ${cssVars.colors.main};
+		display: inline-block;
 		position: relative;
-		// &:before {
-				// 		content: "➝";
-				// 		position: absolute;
-				// 		right: -20px;
-				// 		color: #c6c6c6;
-				// 		font-size: 18px;
-				// 		opacity: 0;
-				// 		transition: 0.2s all;
-				// 		bottom: -3px;
-				// }
 		&:hover {
 				&:before {
 						opacity: 1
@@ -753,10 +744,8 @@ export const codeMirrorEditorCss = () => `
 		&.h1 {
 				font-size: ${getFontSize(+4)}px;
 				font-weight: bold;
-				// text-decoration: underline;
 				border-bottom: ${cssVars.colors.main} 2px solid;
-				padding-bottom: 1px;
-
+				margin-bottom: 3px;
 		}
 		&.h2 {
 				font-size: ${getFontSize(+3)}px;
@@ -782,7 +771,7 @@ export const codeMirrorEditorCss = () => `
 
 .cm-content {
 		// font-family: 'Open sans', sans-serif;
-		font-family: Consolas, monaco, monospace;
+		font-family: ${cssVars.font.editor};
 		font-size:${getFontSize(+1)}px;
 }
 

@@ -6,6 +6,7 @@ import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { getFontSize } from "../font.manager";
+import { css } from "@emotion/react";
 
 export const datePickerCmPlugin = (file: iFile, windowId:string) => genericReplacementPlugin({
 	file,
@@ -87,26 +88,12 @@ const replaceDateText = (el) => {
 export const datePickerCmPluginCss = () => `
     .date-picker-cm-wrapper {
         cursor: pointer;
-        // &:hover {
-        //     opacity: 1;
-        // }
-        // opacity: 0.3;
-        // background: ${cssVars.colors.main};
-        // color: ${cssVars.colors.mainFont};
         input {
-            // padding: 0px;
-            // border: none;
-            // font-size: ${getFontSize()}px;
-            // font-weight: 400;
-            // font-family: Consolas, monaco, monospace;
-            // margin-right: 0px;
-            // color:#4d4d4d;
-            // height: 30px;
             padding: 0px;
             border: none;
             font-size: ${getFontSize()}px;
             font-weight: 400;
-            font-family: Consolas,monaco,monospace;
+            font-family: ${cssVars.font.editor};
             margin-right: 0px;
             color: #4d4d4d;
             background: #e9e9e9;
