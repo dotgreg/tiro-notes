@@ -31,6 +31,8 @@ type ConfigField = {
 	expl?: string
 	readOnly?: boolean
 	customHtml?: string
+	max?: number
+	min?: number
 }
 
 
@@ -135,12 +137,78 @@ export const SettingsPopup = (p: {
 						modifier: val => { us.set('ui_layout_colors_main_font', val) }
 					},
 					{
-						type: 'text',
+						type: 'number',
 						title: "Font size (desktop)",
 						expl: "General font size for desktop" + showDefaultString("ui_layout_general_font_size") + requireReloadStr,
 						var: us.get('ui_layout_general_font_size'),
+						max: 20,
+						min: 5,
 						modifier: val => { 
 							us.set('ui_layout_general_font_size', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'text',
+						title: "Font family for interface",
+						expl: "Font family for interface" + showDefaultString("ui_layout_font_family_interface") + requireReloadStr,
+						var: us.get('ui_layout_font_family_interface'),
+						modifier: val => { 
+							us.set('ui_layout_font_family_interface', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'text',
+						title: "Font family for editor",
+						expl: "Font family for editor" + showDefaultString("ui_layout_font_family_editor") + requireReloadStr,
+						var: us.get('ui_layout_font_family_editor'),
+						modifier: val => { 
+							us.set('ui_layout_font_family_editor', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Enable Background Image",
+						expl: "Enable Background Image" + requireReloadStr,
+						var: us.get('ui_layout_background_image_enable'),
+						modifier: val => { 
+							us.set('ui_layout_background_image_enable', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'text',
+						title: "Background image",
+						expl: "Background image url, should start with http (You can upload a picture in Tiro, then copy the uploaded image link here).",
+						var: us.get('ui_layout_background_image'),
+						modifier: val => { 
+							us.set('ui_layout_background_image', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'number',
+						title: "Windows opacity",
+						expl: "If Background image, how opaque should the windows be (between 0 and 100)" + showDefaultString("ui_layout_background_image_window_opacity") + requireReloadStr,
+						var: us.get('ui_layout_background_image_window_opacity'),
+						max: 100,
+						min: 0,
+						modifier: val => { 
+							us.set('ui_layout_background_image_window_opacity', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'number',
+						title: "Active Windows opacity",
+						expl: "If Background image, how opaque should the active windows be (between 0 and 100)" + showDefaultString("ui_layout_background_image_window_opacity_active") + requireReloadStr,
+						var: us.get('ui_layout_background_image_window_opacity_active'),
+						max: 100,
+						min: 0,
+						modifier: val => { 
+							us.set('ui_layout_background_image_window_opacity_active', val) 
 							setDisplayReload(true);
 						}
 					},
@@ -472,6 +540,8 @@ export const SettingsPopup = (p: {
 														shouldNotSelectOnClick={true}
 														label={field.title}
 														type={field.type}
+														max={field.max}
+														min={field.min}
 														readonly={field.readOnly}
 														onChange={e => {
 															if (field.type === "checkbox") return

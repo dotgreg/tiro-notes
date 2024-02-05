@@ -1,32 +1,21 @@
+//@flow
 // assuming react is already loaded in window
 // assuming     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> is loaded in html
 
 
+/*::
+export type iAdvancedTableParams = {
+    items: Array<any>,
+    cb: (viewer: any) => void
+}
+*/
 
-let genAdvancedTableComponent = (p) => {
+
+let genAdvancedTableComponent = (p/*:iAdvancedTableParams*/) => {
     const api = window.api;
     const startMainLogic = () => {
         console.log("hello world advanced table")
         const wrapperEl = document.getElementById("ctag-component-advanced-table-wrapper")
-
-        // import {worker} from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
-        // const WORKER = worker();
-        // const REQ = fetch("https://cdn.jsdelivr.net/npm/superstore-arrow/superstore.arrow");
-        // async function load() {
-        //     const resp = await REQ;
-        //     const arrow = await resp.arrayBuffer();
-        //     // const el = document.getElementsByTagName("perspective-viewer")[0];
-            
-        //     // const el = document.getElementsByTagName("perspective-viewer")[0];
-        //     const el = wrapperEl
-        //     const table = WORKER.table(arrow);
-        //     el.load(table);
-        //     el.toggleConfig();
-        // }
-
-        // setTimeout(() => {
-        //     load()
-        // }, 1000)
 
         // Create a new script element
         function loadModuleScript(src) {
@@ -44,13 +33,7 @@ let genAdvancedTableComponent = (p) => {
             document.head.appendChild(link);
         }
 
-        // give here test fn typing using flow in flowcomment style
-        // @flow 
-        const test = (text/*: string*/, number/*: number*/)/*: string*/ => {
-            return "woop"
-        }
-        test("hello", "www")
-        
+        window._advancedTableParams = p
         
         // Load module scripts
         loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js');
@@ -67,22 +50,35 @@ let genAdvancedTableComponent = (p) => {
         script.type = 'module';
 
         // Use innerText or textContent property to insert your module script
+        // script.textContent = `
+        //     import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
+        //     const WORKER = worker();
+        //     // const REQ = fetch("https://cdn.jsdelivr.net/npm/superstore-arrow/superstore.arrow");
+
+        //     async function load() {
+        //         // const resp = await REQ;
+        //         // const arrow = await resp.arrayBuffer();
+        //         const viewer = document.getElementsByTagName("perspective-viewer")[0];
+        //         // console.log(222222222221,viewer)
+        //         const table = WORKER.table(arrow);
+        //         // console.log(22222222222, table)
+        //         viewer.load(table);
+        //         viewer.toggleConfig();
+        //         window.window._advancedTableParams.cb(viewer)
+        //     }
+
+        //     load();
+        // `;
         script.textContent = `
-        console.log(122)
-        import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
-        console.log(123, worker)
-
+            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
             const WORKER = worker();
-            const REQ = fetch("https://cdn.jsdelivr.net/npm/superstore-arrow/superstore.arrow");
-
             async function load() {
-                const resp = await REQ;
-                const arrow = await resp.arrayBuffer();
-                const el = document.getElementsByTagName("perspective-viewer")[0];
-                console.log(123,el)
-                const table = WORKER.table(arrow);
-                el.load(table);
-                el.toggleConfig();
+                const viewer = document.getElementsByTagName("perspective-viewer")[0];
+                console.log("[ADVANCED TABLE] loading viewer for :", window.window._advancedTableParams)
+                const table = WORKER.table(window.window._advancedTableParams.items);
+                viewer.load(table);
+                viewer.toggleConfig();
+                window.window._advancedTableParams.cb(viewer)
             }
 
             load();

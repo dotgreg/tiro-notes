@@ -1,10 +1,15 @@
 //@flow
 // 10.10.2023 v1.1
+/*::
+import type {iAdvancedTableParams} from "../_common/components/advancedTable.component"
+*/
 
 const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
-    const { div, updateContent } = api.utils.createDiv()
+        let api = window.api
+        // let dfd = window.dfd
 
-    const outputPaths = {  }
+        const { div, updateContent } = api.utils.createDiv()
+        const outputPaths = {  }
         ///////////////////////////////////////////////////
         // SUPPORT
         //
@@ -154,32 +159,40 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 getTimerData( (timerItems/*:iTimerItem[]*/) => {
                         each(timerItems, timerItem => {
                                 processTimerItem(timerItem,arrItems)
-                                // print df
-                                
-                                // making date col as a date
-                                // dfItems['date'] = dfItems['date'].toDateTime()
-                                
-                                // dfItems.tail(10).print()
-                                
-                        
                         })
+                        // arrItems is goody
+                        console.log(111, arrItems, dfd)
                         const dfItems = new dfd.DataFrame(arrItems)
                         // console.log(dfItems)
-                        const json = dfd.toJSON(dfItems);
                         // console.log(json);
+                        const json = dfd.toJSON(dfItems);
                         const strJson = JSON.stringify(json);
                         console.log(strJson);
-                        let dfItems2 = new dfd.DataFrame(JSON.parse(strJson))
+                        const enrichedItems = JSON.parse(strJson)
+                        let dfItems2 = new dfd.DataFrame(enrichedItems)
                         dfItems2.print()
 
+                        // const arrItemsJson = JSON.parse(strJson)
+
                         // dfItems2 = dfItems2.groupby(['category', 'name', 'year', 'month', 'day']).sum()
+                        genGraph(enrichedItems, (viewer) => {
+                                console.log(5555, viewer)
+                        })
                 })
 
 
 
 
 
-
+                const genGraph = (arrItems/*:any*/, cb/*:(viewer:any)=>void*/) => {
+                        // const wrapperEl/*:any*/ = document.getElementById("smart-list-ctag-inner")
+                        const wrapperPlotEl/*:any*/ = document.getElementById("plot_div")
+                        const paramsAdvancedTable/*:iAdvancedTableParams*/ = {
+                                items:arrItems, 
+                                cb: cb
+                        }
+                        wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent(paramsAdvancedTable) 
+                }
 
 
 
@@ -198,9 +211,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
                 // console.log(222, s, dfd)
                 
-                        
-                const wrapperEl = document.getElementById("smart-list-ctag-inner")
-                // // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
+                // window._tiroPluginsCommon.genAdvancedTableComponent
+               
+
+
                 // const config = {
                 //         cols: [
                 //                 {colId: "line", headerLabel: "Line"},
@@ -263,10 +277,9 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="smart-list-ctag"> 
-                <div id="plot_div"></div>
                 <div id="smart-list-ctag-inner"> 
-                
                 </div>
+                <div id="plot_div"></div>
                 
         </div>
 
@@ -281,6 +294,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         max-width: 50px;
                         overflow: hidden;
                         // word-break: break-all;
+                }
+                #plot_div {
+                        width: 500px;
+                        height: 300px;
                 }
                       
         </style> `

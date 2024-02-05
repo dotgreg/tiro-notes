@@ -55,13 +55,33 @@ export const defaultValsUserSettings: iUserSettings = {
 	beta_floating_windows: false,
 	beta_plugins_marketplace: false,
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
-	ui_layout_general_font_size: 10
+	ui_layout_general_font_size: 10,
+	ui_layout_background_image_enable: false,
+	ui_layout_background_image_window_opacity: 70,
+	ui_layout_background_image_window_opacity_active: 90,
+	ui_layout_font_family_interface: `Helvetica neue, Open sans, arial, sans-serif`,
+	// ui_layout_font_family_editor: `Consolas, monaco, monospace`,
+	ui_layout_font_family_editor: `Helvetica neue, Open sans, arial, sans-serif`,
 }
 const defaultVals = defaultValsUserSettings
 
 const h = `[USER SETTINGS] :`
 const log = sharedConfig.client.log.verbose
 
+const genUserSettingsList = (userSettings:iUserSettings):iUserSettingList => {
+	const res: iUserSettingList = []
+	each(userSettings, (val, name) => {
+		
+		const key = name as iUserSettingName
+		res.push({ key, val })
+	})
+	// adds defaultValsUserSettings
+	each(defaultValsUserSettings, (val, name) => {
+		const key = name as iUserSettingName
+		if (!res.find(r => r.key === key)) res.push({ key, val })
+	})
+	return res
+}
 
 
 export const useUserSettings =  (p: {
@@ -92,12 +112,19 @@ export const useUserSettings =  (p: {
 	useEffect(() => {
 		debounceChange()
 		userSettingsSync.curr = userSettings
+		// add in userSettingsSync.curr default values
+		each(defaultVals, (val, name) => {
+			// if userSettings[name] is undefined, set it to default
+			if (isUndefined(userSettings[name])) userSettings[name] = val
+		})
 	}, [userSettings])
 
 	const debounceChange = useDebounce(() => {
 		log && console.log(h, 'UPDATE!', userSettings, refreshCss);
 		replaceDefaultByUserVar('ui_layout_colors_main', cssVars.colors, 'main')
 		replaceDefaultByUserVar('ui_layout_colors_main_font', cssVars.colors, 'mainFont')
+		replaceDefaultByUserVar('ui_layout_font_family_editor', cssVars.font, 'editor')
+		replaceDefaultByUserVar('ui_layout_font_family_interface', cssVars.font, 'main')
 		triggerRefresh()
 	}, 1000)
 
@@ -152,17 +179,7 @@ export const useUserSettings =  (p: {
 			return res
 		},
 		list: () => {
-			const res: iUserSettingList = []
-			each(userSettings, (val, name) => {
-				const key = name as iUserSettingName
-				res.push({ key, val })
-			})
-			// adds defaultValsUserSettings
-			each(defaultValsUserSettings, (val, name) => {
-				const key = name as iUserSettingName
-				if (!res.find(r => r.key === key)) res.push({ key, val })
-			})
-			return res
+			return genUserSettingsList(userSettings)
 		},
 		refresh: {
 			css: {

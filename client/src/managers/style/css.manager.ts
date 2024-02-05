@@ -47,7 +47,7 @@ import { markdownStylingTableCss } from '../codeMirror/markdownStyling.cm';
 import { pluginsMarketplacePopupCss } from '../../components/settingsView/pluginsMarketplacePopup.component';
 import { perf } from '../performance.manager';
 import { memoize, values } from 'lodash-es';
-import { iUserSettingsApi } from '../../hooks/useUserSettings.hook';
+import { iUserSettingsApi, userSettingsSync } from '../../hooks/useUserSettings.hook';
 import { FloatingPanelCss } from '../../components/FloatingPanels.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
 import { windowEditorCss } from '../../components/windowGrid/WindowEditor.component';
@@ -57,6 +57,7 @@ import { datePickerCmPluginCss } from '../codeMirror/datePicker.cm';
 import { getFontSize } from '../font.manager';
 import { fileHistoryCss } from '../../components/FileHistoryPopup.component';
 import { IconCss } from '../../components/Icon.component';
+import { getLoginToken } from '../../hooks/app/loginToken.hook';
 
 
 export const css2 = (css: string) => css
@@ -99,7 +100,43 @@ const CssAppIntStatic = (
 ) => {
 	console.log("RELOAD CSS STATIC", {  userSettings})
 	let end = perf("CssAppDynamic")
+
+
+	//
+	// Background image
+	//
+	let backgroundImageEnable = userSettingsSync.curr.ui_layout_background_image_enable
+	let backgroundImage = userSettingsSync.curr.ui_layout_background_image
+	let windowsOpacity = 100
+	let windowOpacityActive = 100
+	if (backgroundImage && backgroundImageEnable === true) {
+		// if exists, remove ?token=.... from the url
+		let i = backgroundImage.indexOf('?token=')
+		if (i > 0)  backgroundImage = backgroundImage.substring(0, i)
+		// then add it back
+		backgroundImage += `?token=${getLoginToken()}`
+		windowsOpacity = parseInt(userSettingsSync.curr.ui_layout_background_image_window_opacity) / 100
+		windowOpacityActive = parseInt(userSettingsSync.curr.ui_layout_background_image_window_opacity_active) / 100
+	}
+
+
 	const cssString = `
+		// IMPORTANT for all height app
+		height:100%;
+		
+		//
+		// Background image
+		//
+		${backgroundImageEnable ? `background-image: url('${backgroundImage}');` : ''}
+		background-size: cover;
+		.react-grid-item {
+			opacity: ${windowsOpacity};
+		}
+		.react-grid-item.active {
+			opacity: ${windowOpacityActive};
+		}
+
+
 		// for preview css
 		${styleCodeMirrorMarkdownPreviewPlugin()}
 		// FILE RESSOURCE PREVIEW
@@ -166,7 +203,7 @@ const CssAppIntStatic = (
 		
 		
 
-		height:100%;
+		
 		.main-wrapper,
 		.mobile-view-container {
 			height:100%;
@@ -438,6 +475,8 @@ const CssAppIntDynamic = (
 	console.log("RELOAD CSS DYNAMIC", {pinStatus, mobileView, refreshCss, userSettings})
 	let end = perf("CssAppDynamic"+mobileView+refreshCss)
 	const cssString = `
+		// IMPORTANT for all height app
+		height:100%;
 		${editorAreaCss(mobileView)}
 		${dualViewerCss(mobileView, pinStatus)}
 		.draggable-grid-editors-view {
