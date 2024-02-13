@@ -16,9 +16,11 @@ export const generateUUID = (): string => {
 }
 
 export const getRessourceIdFromUrl = (rawUrl: string): string => {
+	let rawUrl2 = rawUrl
+
 	// let idRess = url.replace(/[^\w\s]/gi, '_').replace(/(_js)/gi, '.js').replace(/(_css)/gi, '.css')
-	let urlParams = rawUrl.split("?")[1] || ""
-	let url = rawUrl.split("?")[0]
+	let urlParams = rawUrl2.split("?")[1] || ""
+	let url = rawUrl2.split("?")[0]
 
 	let idUrl = url.replace(/[^\w\s]/gi, '_')
 	let idParams = urlParams.replace(/[^\w\s]/gi, '_')

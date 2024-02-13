@@ -1,7 +1,7 @@
 //@flow
 // 10.10.2023 v1.1
 /*::
-import type {iAdvancedTableParams} from "../_common/components/advancedTable.component"
+import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective.component"
 */
 
 const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
@@ -31,7 +31,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 for (var i = 0; i < elIds.length; ++i) {
                         let el = document.getElementById(elIds[i]);
                         if (!el) return console.warn(`onclick: ${elIds[i]} does not exists`)
-                        el.addEventListener("click", e => { action(e) }, false);
+                        el.addEventListener("click", e => { action(e, el) }, false);
                 }
         }
         ///////////////////////////////////////////////////////////
@@ -157,6 +157,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
                 const arrItems/*:any[]*/ = []
                 getTimerData( (timerItems/*:iTimerItem[]*/) => {
+
+                        //
+                        // DANFOJS
+                        //
                         each(timerItems, timerItem => {
                                 processTimerItem(timerItem,arrItems)
                         })
@@ -172,90 +176,115 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         let dfItems2 = new dfd.DataFrame(enrichedItems)
                         dfItems2.print()
 
-                        // const arrItemsJson = JSON.parse(strJson)
+                        // dfItems3 is unique names
+                        // const dfItems3 = dfItems2["name"]
+                        // dfItems3 is dfItems2 cols name and category
+                        // let dfItems3 = dfItems2.loc({columns:["name"]})
+                        let dfItems3 = dfItems2['name'].unique();
+                        let uniqueNamesArray = dfItems3.values;
+                        console.log(123, uniqueNamesArray)
+                        // keep unique names
+                        // dfItems3.print()
+                        
+                        // output it in a simple array
+                        // const uniqueNames = dfItems3["name"].toJSON(dfItems3)
+                        // console.log(123,uniqueNames)
 
+                        //
+                        // AUTOCOMPLETE
+                        //
+                        genTimerForm(uniqueNamesArray)
+                        
+                        //
+                        // GRAPH
+                        //
                         // dfItems2 = dfItems2.groupby(['category', 'name', 'year', 'month', 'day']).sum()
                         genGraph(enrichedItems, (viewer) => {
-                                console.log(5555, viewer)
+                                graph.curr = viewer
+                                // graph.curr.getConfig(c => {console.log(123, c)})
+                                setTimeout(() => {
+                                        reloadGraphTest()
+                                }, 4000)
+                                setTimeout(() => {
+                                        let configGraph = JSON.parse(`{"version":"2.7.1","plugin":"X/Y Scatter","plugin_config":{},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["time","year",null,null,null,null,null],"filter":[],"sort":[],"expressions":{},"aggregates":{}}`)
+                                        viewer.restore(configGraph);
+                                }, 0)
                         })
                 })
 
+                const graph/*:{curr:iGraphPerspectiveViewerWrapper|void}*/ = {curr:undefined}
+                const reloadGraph = (items/*:any[]*/) => {
+                        if (!graph.curr) return
+                        graph.curr.loadItems(items)
+                }
+                const reloadGraphTest = () => {
+                        // gen items with random data with colrs "name", "surname", "age", "height", "weight"
+                        const items = []
+                        for (let i = 0; i < 100; ++i) {
+                                items.push({name:"name" + i, surname:"surname" + i, age:Math.random() * 100, height:Math.random() * 100, weight:Math.random() * 100})
+                        }
+                        reloadGraph(items)
+                }
 
-
-
-
-                const genGraph = (arrItems/*:any*/, cb/*:(viewer:any)=>void*/) => {
+                const genGraph = (arrItems/*:iGraphPerspectiveParams["items"]*/, cb/*:iGraphPerspectiveParams["cb"]*/) => {
                         // const wrapperEl/*:any*/ = document.getElementById("smart-list-ctag-inner")
                         const wrapperPlotEl/*:any*/ = document.getElementById("plot_div")
-                        const paramsAdvancedTable/*:iAdvancedTableParams*/ = {
+                        const paramsGraph/*:iGraphPerspectiveParams*/ = {
                                 items:arrItems, 
                                 cb: cb
                         }
-                        wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent(paramsAdvancedTable) 
+                        wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genGraphPerspectiveComponent(paramsGraph) 
                 }
 
+                // autocomplete 
+                const genTimerForm = (arrItems/*:any[]*/) => {
+                        // get all elements form infos values from // get all id els => // autoComplete, timeSelect, dateInput
+                        const getForm = () => {
+                                const autoComplete = document.getElementById("autoComplete").value
+                                const timeSelect = document.getElementById("timeSelect").value
+                                const dateInput = document.getElementById("dateInput").value
+                                return {autoComplete, timeSelect, dateInput}
+                        }
+                        // on click of each of these els => // addTime, removeTime, startTimer
+                        onClick(["addTime", "removeTime", "startTimer"], (e, el) => {
+                                const action = el.id
 
-
-
-
-             
-
-
-
-
-
-
-
-                
-                // let s = new dfd.Series([1,2,3,4,5]) 
-
-                // console.log(222, s, dfd)
-                
-                // window._tiroPluginsCommon.genAdvancedTableComponent
-               
-
-
-                // const config = {
-                //         cols: [
-                //                 {colId: "line", headerLabel: "Line"},
-                //                 {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
-                               
-                //         ]
-                // };
-                
-                // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
-                // // {colId: "filename", headerLabel: "Filename"},
-                // // {colId: "folder", headerLabel: "Folder"},
-                // config.cols.push({colId: "filename", headerLabel: "Filename"})
-                // config.cols.push({colId: "folder", headerLabel: "Folder"})
-                // config.cols.push({colId: "actions", type: "buttons", buttons:[
-                //         {
-                //           label: "", 
-                //           icon: "eye", 
-                //           onClick: (items,e) => {
-                //                 console.log('onClick:', items,e)
-                //                 if (items.length !== 1) return console.warn("no item selected")
-                //                 let item = items[0]
-                //                 console.log('onClick:', item,e);
-                //                 let pos = ["50%" ,"50%"]
-                //                 filePath = item.folder + item.filename
-                //                 api.call("ui.notePreviewPopup.open", [filePath, ["50%" ,"50%"], { searchedString:item.line, replacementString:`wooop`}])
+                                console.log(action, getForm())
+                        })
                         
-                //           },
-                //           onMouseEnter: (item,e) => {
-                //                 // console.log('onMouseEnter:', item,e);
-                //           },
-                //           onMouseLeave: (item,e) => {
-                //                 // console.log('onMouseLeave:', item,e);
-                //           }
-                //         },
-                // ]})
-
-                // wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
-
-
-        }
+                        // autocomplete
+                        const autocompleteInput = document.getElementById("autoComplete")
+                        const autoCompleteJS = new autoComplete({
+                                placeHolder: "Select task...",
+                                data: {
+                                        src: arrItems,
+                                        cache: true,
+                                        noResults: true,
+                                },
+                                resultItem: {
+                                        highlight: true,
+                                },
+                                resultsList: {
+                                        maxResults: 200,
+                                },
+                                searchEngine: "loose",
+                                events: {
+                                        input: {
+                                                selection: (event) => {
+                                                const selection = event.detail.selection.value;
+                                                autoCompleteJS.input.value = selection;
+                                                }
+                                        }
+                                }
+                        });
+                        autoCompleteJS.input.addEventListener("focus", () => {
+                                autocompleteInput.value = ""
+                                console.log("dddd"); autoCompleteJS.start(" ")
+                        });
+                }
+        
+    
+        } // end start main logic
     
         setTimeout(() => {
             setTimeout(() => {
@@ -264,8 +293,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
             setTimeout(() => {
                 api.utils.loadRessources(
                     [
-                        `${opts.plugins_root_url}/_common/components/advancedTable.component.js`,
+                        `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
                         `${opts.plugins_root_url}/_common/components/table.component.js`,
+                        `${opts.plugins_root_url}/timer/timer.lib.js`,
+                        `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,
+                        `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css`,
                         `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
                     ],
                     () => {
@@ -274,16 +306,54 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 );
             }, 100)
         })
+
+        
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="smart-list-ctag"> 
                 <div id="smart-list-ctag-inner"> 
+                        <input id="autoComplete" autocomplete="off">
+                        <select id="timeSelect">
+                                <option value="5">5m</option>
+                                <option value="10">10m</option>
+                                <option value="15">15m</option>
+                                <option value="30">30m</option>
+                                <option value="60" selected>1h</option>
+                                <option value="120">2h</option>
+                                <option value="180">3h</option>
+                                <option value="240">4h</option>
+                        </select>
+                        <input type="date" id="dateInput" value="${new Date().toISOString().split('T')[0]}">
+                        <button id="addTime">+</button>
+                        <button id="removeTime">-</button>
+                        <button id="startTimer">⏱️</button>
                 </div>
                 <div id="plot_div"></div>
                 
         </div>
 
         <style>
+
+        #smart-list-ctag .autoComplete_wrapper {
+                z-index: 100;
+        }
+        #smart-list-ctag .autoComplete_wrapper>input {
+                height: 20px;
+                border-radius: 0px;
+                margin: 20px 0px 20px 20px;
+                width: auto;
+                padding: 2px;
+                border-color: #000;
+                color: rgba(0, 0, 0, 0.3);
+                font-weight: normal;
+        }
+        // placeholder
+        #smart-list-ctag .autoComplete_wrapper>input::placeholder {
+                color: rgba(0, 0, 0, 0.3);
+                font-weight: normal;
+        }
+
+
                 #smart-list-ctag { }
                 #smart-list-ctag table { 
                         min-width: 660px;

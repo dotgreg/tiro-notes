@@ -86,16 +86,22 @@ export type iUserSettingName =
 'ui_layout_general_font_size' |
 'ui_layout_font_family_interface' |
 'ui_layout_font_family_editor' |
-'ui_layout_background_image_enable' |
 'ui_layout_shortcuts_panel' |
+
+'ui_layout_background_image_enable' |
+'ui_layout_background_video_enable' |
 'ui_layout_background_image_window_opacity' |
 'ui_layout_background_image_window_opacity_active' |
+'ui_layout_background_video_width' |
+'ui_layout_background_video_height' |
 'ui_layout_background_image' |
+
 'ui_sidebar' |
 
 'ui_editor_links_as_button' |
 'ui_editor_links_preview_zoom' |
 'ui_editor_live_watch' |
+'ui_editor_markdown_tags' |
 'ui_editor_markdown_preview' |
 'ui_editor_spellcheck' |
 'ui_editor_markdown_enhanced_preview' |

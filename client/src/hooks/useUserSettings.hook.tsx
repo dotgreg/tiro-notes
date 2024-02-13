@@ -32,6 +32,23 @@ export type iUserSettingsApi = {
 	refreshUserSettingsFromBackend: Function,
 }
 
+// get params from url
+const getUrlParams = (url: string):{[key:string]:string} => {
+	const res:{[key:string]:string} = {}
+	const params = new URLSearchParams(url)
+	params.forEach((val, key) => {
+		res[key] = val
+	})
+	return res
+}
+const paramsUrl = getUrlParams(window.location.search)
+const c = {}
+// replace params of c from paramsUrl not using lodash
+for (const key in paramsUrl) {
+	c[key] = paramsUrl[key]
+}
+
+
 export const defaultValsUserSettings: iUserSettings = {
 	ui_sidebar: true,
 	ui_filesList_sortMode: 2,
@@ -44,6 +61,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_spellcheck: true,
 	ui_editor_live_watch: true,
 	ui_editor_links_as_button: true,
+	ui_editor_markdown_tags: true,
 	ui_editor_links_preview_zoom: 0.8,
 	ui_editor_show_image_title: false,
 	export_pandoc_cli_options: "\ndocx | --wrap=preserve --toc --number-sections \n revealjs | -V theme=moon \n beamer | --wrap=preserve --include-in-header=./include-tex.md ",
@@ -57,8 +75,11 @@ export const defaultValsUserSettings: iUserSettings = {
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
 	ui_layout_general_font_size: 10,
 	ui_layout_background_image_enable: false,
+	ui_layout_background_video_enable: false,
 	ui_layout_background_image_window_opacity: 70,
 	ui_layout_background_image_window_opacity_active: 90,
+	ui_layout_background_video_width: 100,
+	ui_layout_background_video_height: 100,
 	ui_layout_font_family_interface: `Helvetica neue, Open sans, arial, sans-serif`,
 	// ui_layout_font_family_editor: `Consolas, monaco, monospace`,
 	ui_layout_font_family_editor: `Helvetica neue, Open sans, arial, sans-serif`,

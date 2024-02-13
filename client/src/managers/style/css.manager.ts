@@ -58,6 +58,10 @@ import { getFontSize } from '../font.manager';
 import { fileHistoryCss } from '../../components/FileHistoryPopup.component';
 import { IconCss } from '../../components/Icon.component';
 import { getLoginToken } from '../../hooks/app/loginToken.hook';
+import { configClient } from '../../config';
+import { absoluteLinkPathRoot } from '../textProcessor.manager';
+import { BackgroundVideoCSS } from '../../components/BackgroundVideo.component';
+import { checkboxTodoCmPluginCss } from '../codeMirror/checkboxTodo.cm';
 
 
 export const css2 = (css: string) => css
@@ -70,7 +74,7 @@ const { els, colors, font, sizes } = { ...cssVars }
 // Dynamic CSS that changes often
 // 
 export const CssAppDynamic = memoize((a1, a2, a3, a4) => {
-	console.log("CssApp2memoize")	
+	// console.log("CssApp2memoize")	
 	return CssAppIntDynamic(a1, a2, a3, a4)
 }, (...args) => {
 	// values(args).join("_"))
@@ -82,7 +86,7 @@ export const CssAppDynamic = memoize((a1, a2, a3, a4) => {
 // Static CSS that stays the same most of the time
 // 
 export const CssAppStatic = memoize((a1) => {
-	console.log("CssApp2memoize")	
+	// console.log("CssApp2memoize")	
 	return CssAppIntStatic(a1)
 }, (...args) => {
 	// values(args).join("_"))
@@ -109,12 +113,25 @@ const CssAppIntStatic = (
 	let backgroundImage = userSettingsSync.curr.ui_layout_background_image
 	let windowsOpacity = 100
 	let windowOpacityActive = 100
-	if (backgroundImage && backgroundImageEnable === true) {
+	// if "https://www.youtube.com/embed"  is inside the url, then it's a video
+	let backgroundVideoEnable = userSettingsSync.curr.ui_layout_background_video_enable
+
+	// IF PICTURE BG
+	if (backgroundImageEnable === true && backgroundVideoEnable === false) {
 		// if exists, remove ?token=.... from the url
 		let i = backgroundImage.indexOf('?token=')
 		if (i > 0)  backgroundImage = backgroundImage.substring(0, i)
 		// then add it back
 		backgroundImage += `?token=${getLoginToken()}`
+		// if does not start with http, add the server url
+		if (!backgroundImage.startsWith('http')) {
+			backgroundImage = `${absoluteLinkPathRoot(backgroundImage)}`
+		}
+	}
+	// IF VIDEO BG
+
+	// FOR BOTH
+	if (backgroundVideoEnable === true || backgroundImageEnable === true) {
 		windowsOpacity = parseInt(userSettingsSync.curr.ui_layout_background_image_window_opacity) / 100
 		windowOpacityActive = parseInt(userSettingsSync.curr.ui_layout_background_image_window_opacity_active) / 100
 	}
@@ -128,6 +145,7 @@ const CssAppIntStatic = (
 		// Background image
 		//
 		${backgroundImageEnable ? `background-image: url('${backgroundImage}');` : ''}
+		
 		background-size: cover;
 		.react-grid-item {
 			opacity: ${windowsOpacity};
@@ -135,6 +153,8 @@ const CssAppIntStatic = (
 		.react-grid-item.active {
 			opacity: ${windowOpacityActive};
 		}
+
+		${BackgroundVideoCSS()}
 
 
 		// for preview css
@@ -192,6 +212,7 @@ const CssAppIntStatic = (
 		${ctagPreviewPluginCss()}
 		${passwordPopupCss()}
 		${datePickerCmPluginCss()}
+		${checkboxTodoCmPluginCss()}
 
 		${FloatingPanelCss()}
 
