@@ -35,6 +35,7 @@ import { hashtagPreviewPlugin } from "../../managers/codeMirror/hashtag.plugin.c
 import { datePickerCmPlugin } from "../../managers/codeMirror/datePicker.cm";
 import { initLatex, isLatexInit } from "../../managers/latex.manager";
 import { getFontSize } from "../../managers/font.manager";
+import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm";
 // import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
@@ -362,7 +363,9 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// disableMd = true
 
 			// hashtag 
-			newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
+			if (ua.get("ui_editor_markdown_tags") && !disablePlugins) {
+				newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
+			}
 
 			
 
@@ -387,6 +390,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					// datepicker
 					newcodemirrorExtensions.push(datePickerCmPlugin(p.file, p.windowId))
+					// checkbox
+					newcodemirrorExtensions.push(checkboxTodoCmPlugin(p.file, p.windowId))
 					// image preview
 					newcodemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
 					// matcherStateField(newcodemirrorExtensions, /!\[([^\]]*)\]\(([^\)]*)\)/g, (matchs) => {

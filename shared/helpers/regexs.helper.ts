@@ -23,6 +23,8 @@ const vStr = {
 
 export const regexs = {
 	strings: vStr,
+	// markdown checkbox, either "[ ]" or [x] or [X] 
+	checkbox: /\[ \]|\[x\]|\[X\]/gi,
 	// date like 31/12/2020
 	dateFrFormat: /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})/gi,
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
@@ -36,7 +38,7 @@ export const regexs = {
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ])+\|/gmi,
 	// mdTableCell: /(([^|])+\|/gmi,
 	mdTableCell: /((([^|\n])+\|)|(([^|\n])+))/gmi,
-	hashtag: /#([A-zÀ-ú1-9_\-]+)/gi,
+	hashtag: /#([A-zÀ-ú0-9_\-]+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,

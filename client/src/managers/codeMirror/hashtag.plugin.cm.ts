@@ -42,7 +42,7 @@ const detachWinFn = (el) => {
             // if (!plugin) return console.warn("no plugin, please install smartlist plugin");
             api.ui.floatingPanel.create({
                 type: "ctag",
-                layout: "full-center",
+                layout: "full-bottom",
                 ctagConfig: {
                     tagName: "smartlist",
                     content: `- | ${folder} | ${hashtag}`,

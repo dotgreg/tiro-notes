@@ -179,9 +179,19 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
+						type: 'checkbox',
+						title: "Enable Background Video",
+						expl: "Enable Background Video" + requireReloadStr,
+						var: us.get('ui_layout_background_video_enable'),
+						modifier: val => { 
+							us.set('ui_layout_background_video_enable', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
 						type: 'text',
-						title: "Background image",
-						expl: "Background image url, should start with http (You can upload a picture in Tiro, then copy the uploaded image link here).",
+						title: "Background image/video url",
+						expl: "Background image/video url.<br>- it can start with http. <br> - You can also upload a picture in Tiro, then copy the uploaded image link here, in that case only keep the part without the hostname <br>(ex: 'static/_new/useful/.resources/wintersolstice.jpg'). <br> - you can add a youtube video/webcam stream in background by using the embed url like 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' or 'https://www.skaping.com/batz-sur-mer/plage-valentin' or even websites",
 						var: us.get('ui_layout_background_image'),
 						modifier: val => { 
 							us.set('ui_layout_background_image', val) 
@@ -209,6 +219,30 @@ export const SettingsPopup = (p: {
 						min: 0,
 						modifier: val => { 
 							us.set('ui_layout_background_image_window_opacity_active', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'number',
+						title: "background video width",
+						expl: "background video width in percent (between 0 and 200)" + showDefaultString("ui_layout_background_video_width") + requireReloadStr,
+						var: us.get('ui_layout_background_video_width'),
+						max: 200,
+						min: 0,
+						modifier: val => { 
+							us.set('ui_layout_background_video_width', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'number',
+						title: "background video height",
+						expl: "background video height percent (between 0 and 200)" + showDefaultString("ui_layout_background_video_height") + requireReloadStr,
+						var: us.get('ui_layout_background_video_height'),
+						max: 200,
+						min: 0,
+						modifier: val => { 
+							us.set('ui_layout_background_video_height', val) 
 							setDisplayReload(true);
 						}
 					},
@@ -241,6 +275,16 @@ export const SettingsPopup = (p: {
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Markdown Tags",
+						expl: "Displays #tag as clickable tag you can interact with " + requireReloadStr,
+						var: us.get('ui_editor_markdown_tags'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_tags', val)
 						}
 					},
 					{

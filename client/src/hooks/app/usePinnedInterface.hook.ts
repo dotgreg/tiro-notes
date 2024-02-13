@@ -34,7 +34,6 @@ export const usePinStatus= () => {
     }
 
     const togglePinStatus = (key: pinStatusKey) => () => {
-        console.log(222222)
         setPinStatus({
             ...pinStatus,
             [key]: !pinStatus[key]

@@ -9,6 +9,7 @@ if (config.isDev)  isAfternoon = curr.getHours() > 1 && curr.getHours() <= 20
 const sendBgNotif = (daysInFuture) => {
     const h = `[WEATHER BG | ${curr.getHours()}h${curr.getMinutes()}]`
     console.log(h,  {isAfternoon, config, currHour: curr.getHours()})
+    
     const fetchLibs = (cb) => {
         tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: config.disableCache}, weatherLib => {
             cb(weatherLib)

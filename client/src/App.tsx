@@ -57,6 +57,7 @@ import { usePinStatus } from './hooks/app/usePinnedInterface.hook';
 import { userSettingsSync } from './hooks/useUserSettings.hook';
 import { webIconUpdate } from './managers/iconWeb.manager';
 import { initLatex, isLatexInit } from './managers/latex.manager';
+import { BackgroundVideo } from './components/BackgroundVideo.component';
 
 export const App = () => {
 
@@ -442,9 +443,22 @@ export const App = () => {
 	//
 	const {pinStatus, updatePinStatus, togglePinStatus, refreshPinStatus} = usePinStatus()
 
+	//
+	// BG video
+	//
+	const [bgVideo, setBgVideo] = useState<string|undefined>(undefined)
+	const imageWidth = userSettingsSync.curr.ui_layout_background_video_width
+	const imageHeight = userSettingsSync.curr.ui_layout_background_video_height
+	useEffect(() => {
+		let backgroundVideoEnable = userSettingsSync.curr.ui_layout_background_video_enable
+		let backgroundVideo = userSettingsSync.curr.ui_layout_background_image
+		if (backgroundVideoEnable && backgroundVideo) setBgVideo(backgroundVideo)
+	}, [cnt, usettings])
+
 	return (
 		<div className={CssAppStatic( usettings)} >
 			<div className={CssAppDynamic(mobileView, cnt, usettings, pinStatus)} >
+				{bgVideo && <BackgroundVideo url={bgVideo} width={imageWidth} height={imageHeight} /> }
 				<div className={` ${deviceType() === 'mobile' ? `mobile-view-container mobile-view-${mobileView}` : ''}`}>
 
 					{ /* API : making clientapi available everywhere */}

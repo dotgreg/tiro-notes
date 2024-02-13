@@ -368,17 +368,35 @@ export const iframeMainCode = (p: {
 		// }
 	}
 
-	const loadLocalRessourceInHtml = (url, onLoad) => {
+	const loadLocalRessourceInHtml = (ressObj:iRessObj, onLoad) => {
+		let url = ressObj.url
+
 		let tag
 		if (url.includes(".js")) {
 			tag = document.createElement('script');
+			tag.crossorigin = "anonymous"
+			tag.rel = "preload"
 			tag.src = url
+			if (ressObj.type) tag.type = ressObj.type
 		}
 		else if (url.includes(".css")) {
 			tag = document.createElement('link');
 			tag.href = url
 			tag.rel = "stylesheet"
+			tag.crossorigin = "anonymous"
 			tag.type = "text/css"
+			if (ressObj.type) tag.type = ressObj.type
+		}
+		else if (url.includes(".wasm")) {
+			// https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm
+			// <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm"  />
+			tag = document.createElement('link');
+			tag.rel = "preload"
+			tag.href = url
+			tag.as = "fetch"
+			tag.crossorigin = "anonymous"
+			tag.type = "application/wasm"
+			if (ressObj.type) tag.type = ressObj.type
 		}
 		tag.onload = () => {
 			onLoad()
@@ -390,15 +408,20 @@ export const iframeMainCode = (p: {
 	}
 
 	const getCachedRessourceFolder = () => `/.tiro/cache/ctag-ressources/`
-	const getCachedRessourceUrl = (url: string): string => {
+	const getCachedRessourceUrl = (url: string, fileName?:string): string => {
 		const tokenParamStr = `?token=${p.loginToken}`
-		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${p.getRessourceIdFromUrl(url)}${tokenParamStr}`
+		const fileName2 = (fileName && fileName.length > 0) ? fileName : p.getRessourceIdFromUrl(url)
+		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${fileName2}${tokenParamStr}`
 		return path
 	}
 
 	//////////
 	// API FUNCTIONS
-	const loadCachedRessources = (ressources: string[], cb: Function) => {
+	type iRessObj = { url: string, type?: string, fileName?:string }
+	type iRessObjOrString = string | { url: string, type?: string }
+
+	const loadCachedRessources = (ressources: iRessObjOrString[], cb: Function) => {
+		// console.log(1020, JSON.stringify(ressources))
 
 		let ressourcesLoaded = 0;
 		const onRessLoaded = () => {
@@ -414,16 +437,25 @@ export const iframeMainCode = (p: {
 		}
 
 		for (let i = 0; i < ressources.length; i++) {
-			const ressToLoad = ressources[i];
-			const cachedRessToLoad = getCachedRessourceUrl(ressToLoad)
+			let ressToLoad = ressources[i];
+
+			// normalize strings into obj
+			let ressToLoadObj:iRessObj
+			if (ressToLoad.constructor === String) ressToLoadObj = { url: ressToLoad as string }
+			else ressToLoadObj = {...ressToLoad as iRessObj} 
+
+			// gen cached obj
+			const cachedRessToLoadUrl = getCachedRessourceUrl(ressToLoadObj.url, ressToLoadObj.fileName)
+			const cachedRessToLoadObj:iRessObj = {...ressToLoadObj}
+			cachedRessToLoadObj.url = cachedRessToLoadUrl
 
 			//@ts-ignore
 			const disableCache = window.disableCache === true ? true : false
 
 			const downloadAndLoadRess = () => {
-				callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
+				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName: ressToLoadObj.fileName}], (apiRes) => {
 					// ==== on cb, load that tag
-					loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
 				})
 			}
 
@@ -431,9 +463,10 @@ export const iframeMainCode = (p: {
 				console.warn(h, "CACHE DISABLED, DOWNLOADING RESSOURCES EVERYTIME!");
 				downloadAndLoadRess()
 			} else {
-				checkUrlExists(cachedRessToLoad,
+				checkUrlExists(cachedRessToLoadObj.url,
 					() => {
-						loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+						// cachedObjToLoad
+						loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
 					}, () => {
 						downloadAndLoadRess()
 					})
@@ -443,7 +476,7 @@ export const iframeMainCode = (p: {
 
 
 	// LOAD EXTERNAL SCRIPTS
-	const loadRessources = (ressources: string[], cb: Function) => {
+	const loadRessources = (ressources: iRessObjOrString[], cb: Function) => {
 		loadCachedRessources(ressources, cb)
 	}
 	const loadScripts = (scripts: string[], cb: Function) => {
