@@ -463,6 +463,7 @@ const EditorAreaInt = (
 	//
 	//
 	const [jumpToLine, setJumpToLine] = useState(-1)
+	
 	useEffect(() => {
 		let a = p.editorAction
 		if (!a) return
@@ -490,13 +491,25 @@ const EditorAreaInt = (
 
 		// insert at
 		if (a.type === "insertText" && a.insertText && a.insertPos) {
-			console.log("insertText", a)
+			// console.log("insertText", a)
 			insertTextAt(a.insertText, a.insertPos, false)
 		}
 
 		if (a.type === "replaceText" && a.replaceText && a.replacePos) {
-			console.log("replaceText", a)
+			
+
+			
+
+
+			// insert text
 			insertTextAt(a.replaceText, a.replacePos, true)
+
+			// Cursor update to the replaced position
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			if (!isNumber(a.replacePos)) return
+			CodeMirrorUtils.updateCursor(f, a.replacePos, true)
+
 		}
 
 		// search interface
@@ -519,14 +532,14 @@ const EditorAreaInt = (
 		if (a.type === "undo") {
 			const f = codeMirrorEditorView.current
 			if (!f) return
-			console.log("undo")
+			// console.log("undo")
 			CodeMirrorUtils.undo(f.view)
 		}
 		if (a.type === "redo") {
 			const f = codeMirrorEditorView.current
 			console.log(f, f.view)
 			if (!f) return
-			console.log("redo")
+			// console.log("redo")
 			CodeMirrorUtils.redo(f.view)
 		}
 		if (a.type === "uploadProgress") {

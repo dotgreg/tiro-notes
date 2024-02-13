@@ -370,7 +370,6 @@ export const iframeMainCode = (p: {
 
 	const loadLocalRessourceInHtml = (ressObj:iRessObj, onLoad) => {
 		let url = ressObj.url
-
 		let tag
 		if (url.includes(".js")) {
 			tag = document.createElement('script');
@@ -410,7 +409,7 @@ export const iframeMainCode = (p: {
 	const getCachedRessourceFolder = () => `/.tiro/cache/ctag-ressources/`
 	const getCachedRessourceUrl = (url: string, fileName?:string): string => {
 		const tokenParamStr = `?token=${p.loginToken}`
-		const fileName2 = (fileName && fileName.length > 0) ? fileName : p.getRessourceIdFromUrl(url)
+		const fileName2 = fileName ? fileName : p.getRessourceIdFromUrl(url)
 		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${fileName2}${tokenParamStr}`
 		return path
 	}
@@ -421,8 +420,6 @@ export const iframeMainCode = (p: {
 	type iRessObjOrString = string | { url: string, type?: string }
 
 	const loadCachedRessources = (ressources: iRessObjOrString[], cb: Function) => {
-		// console.log(1020, JSON.stringify(ressources))
-
 		let ressourcesLoaded = 0;
 		const onRessLoaded = () => {
 			ressourcesLoaded++
@@ -438,22 +435,23 @@ export const iframeMainCode = (p: {
 
 		for (let i = 0; i < ressources.length; i++) {
 			let ressToLoad = ressources[i];
-
 			// normalize strings into obj
 			let ressToLoadObj:iRessObj
 			if (ressToLoad.constructor === String) ressToLoadObj = { url: ressToLoad as string }
-			else ressToLoadObj = {...ressToLoad as iRessObj} 
-
+			else ressToLoadObj = JSON.parse(JSON.stringify(ressToLoad)) 
+			const fileName = ressToLoadObj.fileName
+			
 			// gen cached obj
-			const cachedRessToLoadUrl = getCachedRessourceUrl(ressToLoadObj.url, ressToLoadObj.fileName)
-			const cachedRessToLoadObj:iRessObj = {...ressToLoadObj}
+			const cachedRessToLoadUrl = getCachedRessourceUrl(ressToLoadObj.url, fileName)
+			// clone cachedRessToLoadObj from ressToLoadObj
+			const cachedRessToLoadObj = JSON.parse(JSON.stringify(ressToLoadObj)) // {...ressToLoadObj} does not work here!
 			cachedRessToLoadObj.url = cachedRessToLoadUrl
 
 			//@ts-ignore
 			const disableCache = window.disableCache === true ? true : false
 
 			const downloadAndLoadRess = () => {
-				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName: ressToLoadObj.fileName}], (apiRes) => {
+				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
 					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
 				})

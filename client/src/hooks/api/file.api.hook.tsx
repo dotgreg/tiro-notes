@@ -142,7 +142,7 @@ export const useFileApi = (p: {
 
 		
 		if (history) {
-			console.log("save file hist!")
+			// console.log("save file hist!")
 			if (noteLink !== lastNoteWHistory.current) {
 				getClientApi2().then(api => {
 					const browserFolder = api.ui.browser.folders.current.get()
