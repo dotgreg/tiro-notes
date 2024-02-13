@@ -36,10 +36,11 @@
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. url: <span class="render-code-wrapper">string</span>
+       1. fileName: <span class="render-code-wrapper">string</span>
     - Result:  
 
  - Example: 
- <div class="render-code-wrapper">api.utils.getCachedRessourceUrl(<span class="render-code-wrapper">string</span> )</div>
+ <div class="render-code-wrapper">api.utils.getCachedRessourceUrl(<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> )</div>
  
 
 #### <span class="render-code-wrapper">utils.getInfos</span>
@@ -53,12 +54,12 @@
 #### <span class="render-code-wrapper">utils.loadCachedRessources</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. ressources: <span class="render-code-wrapper">string[]</span>
+       1. ressources: <span class="render-code-wrapper">[]</span>
        1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
     - Result:  
 
  - Example: 
- <div class="render-code-wrapper">api.utils.loadCachedRessources(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ <div class="render-code-wrapper">api.utils.loadCachedRessources(<span class="render-code-wrapper">[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
  
 
 #### <span class="render-code-wrapper">utils.loadCustomTag</span>
@@ -76,12 +77,12 @@
 #### <span class="render-code-wrapper">utils.loadRessources</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. ressources: <span class="render-code-wrapper">string[]</span>
+       1. ressources: <span class="render-code-wrapper">[]</span>
        1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
     - Result:  
 
  - Example: 
- <div class="render-code-wrapper">api.utils.loadRessources(<span class="render-code-wrapper">string[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ <div class="render-code-wrapper">api.utils.loadRessources(<span class="render-code-wrapper">[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
  
 
 #### <span class="render-code-wrapper">utils.loadScripts</span>
@@ -1136,6 +1137,12 @@ Watch for file changes
 
 
  ## Api.call : _References
+ 
+
+#### <span class="render-code-wrapper">iRessObjOrString</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"undefined" | "undefined"</span></div>
  
 
 #### <span class="render-code-wrapper">iActivityField</span>

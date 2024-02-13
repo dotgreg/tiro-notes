@@ -200,7 +200,7 @@ export const triggerTextModifAction = (
 		if (actionParams.insertPosition === 'currentPos') insertPos = infos.currentPosition + 1
 		if (actionParams.insertPosition === 'currentLineStart') insertPos = [...lines].splice(0, infos.lineIndex).join('\n').length 
 
-		console.log('inserting at', insertPos, actionParams, infos.lineIndex, infos)
+		// console.log('inserting at', insertPos, actionParams, infos.lineIndex, infos)
 		
 		let text = lines.join('\n') as string
 		const lengthToInsert = actionParams.textToInsert.length

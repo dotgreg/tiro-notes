@@ -178,7 +178,7 @@ export const useBrowserApi = (p: {
 				onFilesFetched(RamCacheFilesListRef.current[folderPath])
 			}  else {
 				// DIRECT FETCH
-				console.log("DIRECT FETCH", folderPath)
+				// console.log("DIRECT FETCH", folderPath)
 				if (folderPath === "") return
 				getApi(api => {
 					startSearch()

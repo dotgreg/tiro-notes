@@ -102,7 +102,7 @@ const CssAppIntStatic = (
 	// refreshCss: number,
 	userSettings: iUserSettingsApi,
 ) => {
-	console.log("RELOAD CSS STATIC", {  userSettings})
+	// console.log("RELOAD CSS STATIC", {  userSettings})
 	let end = perf("CssAppDynamic")
 
 
@@ -493,7 +493,7 @@ const CssAppIntDynamic = (
 	userSettings: iUserSettingsApi,
 	pinStatus: iPinStatuses
 ) => {
-	console.log("RELOAD CSS DYNAMIC", {pinStatus, mobileView, refreshCss, userSettings})
+	// console.log("RELOAD CSS DYNAMIC", {pinStatus, mobileView, refreshCss, userSettings})
 	let end = perf("CssAppDynamic"+mobileView+refreshCss)
 	const cssString = `
 		// IMPORTANT for all height app
