@@ -104,6 +104,12 @@
     "description": "Adds a timer functionality to Tiro <br/> this is a long description",
     "versions": [
       {
+        "version": "0.2.1",
+        "date": "14/02/24",
+        "comment": "adding custom tag timer",
+        "hash": "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"
+      },
+      {
         "version": "0.1.5",
         "date": "10/07/23",
         "comment": "adding log to timer",

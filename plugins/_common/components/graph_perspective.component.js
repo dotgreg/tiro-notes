@@ -155,7 +155,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
-            <perspective-viewer editable style="width: calc(100% - 30px);height: 100%;"> </perspective-viewer>
+            <perspective-viewer editable style="width: calc(100%);height: 100%;"> </perspective-viewer>
                 <style>
                 #ctag-component-advanced-table-wrapper {
                     height: 100%;
