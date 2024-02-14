@@ -7,7 +7,7 @@ declare var barApi: any;
 import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
 */
 
-const disableCache = config.disableCache || false
+const disableCache = config.disableCache | false
 const main = (timerLib/*:iTimerLib*/) => {
     
     let initTriggered = false
