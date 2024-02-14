@@ -215,7 +215,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // rounded time in hour like 12.2
                         // const hours = Math.round((time / 60)*10)/10
                         // const hours = `${Math.round(time / 6) / 10}`.replace(".", ",")
-                        const hours = `${Math.round(time / 6) / 10}`
+                        const hours = Math.round(time / 6) / 10
                         const row = {category, name, date:dateObj, dateRaw,  time, year, month, day, hours, week}
                         return row
                 }
