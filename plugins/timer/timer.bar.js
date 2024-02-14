@@ -7,14 +7,15 @@ declare var barApi: any;
 import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
 */
 
+const disableCache = config.disableCache || false
+
 const fetchLibs = (cb/*:Function*/) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: true}, () => {
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: disableCache }, () => {
         cb()
     })
 }
 fetchLibs(() => {
     const timerLib = window._tiroPluginsCommon.timerLib
-    console.log("timerLib", timerLib) 
     main(timerLib)
 })
 
@@ -54,7 +55,6 @@ const main = (timerLib/*:iTimerLib*/) => {
             let cat = barApi.selectedTags[3]
             let a = barApi.selectedTags[2]
             if (!a || !cat) return
-            console.log("111111111111 selected", a, cat)
             if (a.value === "start") {
                 timerLib.startTimer(tiroApi, history, cat.catName, a.time, barApi)
             }

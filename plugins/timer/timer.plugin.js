@@ -26,7 +26,7 @@ return [
     name: "-timer",
     type: "bar",
     code: `
-      tiroApi.ressource.fetchEval("${baseUrl}timer/timer.bar.js", {tiroApi, barApi, config:{ libUrl: "${libUrl}"}},{disableCache:${disableCache}})
+      tiroApi.ressource.fetchEval("${baseUrl}timer/timer.bar.js", {tiroApi, barApi, config:{ libUrl: "${libUrl}", disableCache:${disableCache}}},{disableCache:${disableCache}})
     `,
     plugin_infos,
   },{
@@ -36,7 +36,7 @@ return [
         [[script]]
             window.disableCache=${disableCache} ;
             return api.utils.loadCustomTag("${baseUrl}/timer/timer.ctag.js", \`{{innerTag}}\`, 
-            {size: "100%", padding: false, viewConfig: '{"version":"2.7.1","plugin":"X/Y Scatter","plugin_config":{},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["time","year",null,null,null,null,null],"filter":[],"sort":[],"expressions":{},"aggregates":{}}'}
+            {size: "100%", padding: false}
           )
         [[script]]
     `,
@@ -45,7 +45,7 @@ return [
       name: "timer_bg",
       type: "background",
       code: `
-        tiroApi.ressource.fetchEval("${baseUrl}timer/timer.bg.js", {tiroApi, bgState, config:{ libUrl: "${libUrl}"}}, {disableCache: ${disableCache}})
+        tiroApi.ressource.fetchEval("${baseUrl}timer/timer.bg.js", {tiroApi, bgState, config:{ libUrl: "${libUrl}", disableCache: ${disableCache}}}, {disableCache: ${disableCache}})
       `,
       plugin_infos,
       options: {
