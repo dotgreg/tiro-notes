@@ -116,7 +116,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 console.log(action, getForm())
                         })
 
-                        onClick(["heatmapMonth","heatmapWeek", "datagrid", "barsToday"], (e, el) => {
+                        onClick(["heatmapMonth","heatmapWeek", "datagrid", "barsToday", "barsMonth"], (e, el) => {
                                 const action = el.id
                                 console.log(action)
                                 changeViewGraph(action)
@@ -298,35 +298,24 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
 
 
-
-                const viewConfigs = {
-                        heatmapMonth : () =>  {
-                                const curr = new Date()
-                                const month = curr.getMonth() + 1
-                                const year = curr.getFullYear()
-                                return `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",${month}],["year","==",${year}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`},
-                        heatmapWeek : () => {
-                                const curr = new Date()
-                                const month = curr.getMonth() + 1
-                                const year = curr.getFullYear()
-                                const day = curr.getDate()
-                                const week = weekOfYear(day, month, year)
-                                return `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",${week}],["year","==",${year}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`},
-                        barsToday : () => {
-                                const curr = new Date()
-                                const month = curr.getMonth() + 1
-                                const year = curr.getFullYear()
-                                const day = curr.getDate()
-                                const week = weekOfYear(day, month, year)
-                                return `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",${month}],["year","==",${year}],["day","==",${day}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`},
-                        datagrid : () => {
-                                const curr = new Date()
-                                const month = curr.getMonth() + 1
-                                const year = curr.getFullYear()
-                                const day = curr.getDate()
-                                const week = weekOfYear(day, month, year)
-                                return `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",${week}],["year","==",${year}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`},
+                const genViewConfig = (configStr/*:string*/) => {
+                        let curr = new Date()
+                        let month = curr.getMonth() + 1
+                        let year = curr.getFullYear()
+                        let day = curr.getDate()
+                        let week = weekOfYear(day, month, year)
+                        // make all these vars strings
+                        // replace {{month}}, {{year}}, {{day}}, {{week}} in configStr
+                        configStr = configStr.replace("{{month}}", month).replace("{{year}}", year).replace("{{day}}", day).replace("{{week}}", week)
+                        return configStr
+                }
                 
+                const viewConfigs = {
+                        heatmapMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                        barsMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                        heatmapWeek : () => genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                        barsToday : () => genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                        datagrid : () => genViewConfig(`{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`),
                 }
 
 
@@ -395,8 +384,12 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         })
 
         const css = {
-                heightForm: "60px"
+                heightForm: "60px",
+                heightGraph: "calc(100% - 80px)"
         }
+
+        // if we are in mobile, height of form is 100px
+        if (window.innerWidth < 600) css.heightGraph = "calc(100% - 150px)"
         
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
@@ -419,6 +412,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         <button id="startTimer">⏱️</button>
                         -
                         <button id="heatmapMonth">📊 month</button>
+                        <button id="barsMonth">📊 month 2</button>
                         <button id="heatmapWeek">📊 week</button>
                         <button id="barsToday">📊 today</button>
                         <button id="datagrid">grid</button>
@@ -433,9 +427,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         <style>
         #timer-ctag {
                 height: calc(100vh - 30px);
+                background: white;
         } 
         #timer-ctag #timer-ctag-form { 
-                height: ${css.heightForm};
+                min-height: ${css.heightForm};
         }
                 #timer-ctag #timer-ctag-form .autoComplete_wrapper {
                         z-index: 100;
@@ -463,7 +458,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
 
         #timer-ctag #timer-ctag-graph {
-                height: calc(100% - ${css.heightForm} - 20px);
+                height: ${css.heightGraph};
         }
                 #timer-ctag #timer-ctag-graph #plot_div {
                         width: 100%;
