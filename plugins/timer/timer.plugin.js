@@ -6,6 +6,7 @@ const plugin_infos = {
     icon: "https://github.com/dotgreg/tiro-notes/assets/2981891/af963229-a7c1-41a1-bf73-2ac97c3fa7a0",
     description: "Adds a timer functionality to Tiro <br/> this is a long description",
     versions: [
+        {version: "0.2.1", date: "14/02/24", comment: "adding custom tag timer", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
         {version: "0.1.5", date: "10/07/23", comment: "adding log to timer", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
         {version: "0.1.4", date: "25/06/23", comment: "switching to plugin files", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
         {version: "0.1.3", date: "09/05/23", comment: "unique notification and sound", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
@@ -15,9 +16,9 @@ const plugin_infos = {
       {type: "text", id:"timer-custom-sound-url", description: "Sound to be played at the end of the countdown, should be an absolute link and a mp3 like: <br/> http://website.com/mymp3.mp3 "}
     ]
 }
-let disableCache = false
-let baseUrl = "http://dev111111111111.websocial.cc:8088/"
-baseUrl = "https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/"
+let disableCache = true
+let baseUrl = "https://devd11111111111-3019-priv.websocial.cc/"
+//baseUrl = "https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/"
 let libUrl =  baseUrl + "timer/timer.lib.js"
     
 return [
@@ -34,7 +35,9 @@ return [
     code: `
         [[script]]
             window.disableCache=${disableCache} ;
-            return api.utils.loadCustomTag("${baseUrl}/timer/timer.ctag.js", \`{{innerTag}}\`, {size: "100%", padding: false})
+            return api.utils.loadCustomTag("${baseUrl}/timer/timer.ctag.js", \`{{innerTag}}\`, 
+            {size: "100%", padding: false, viewConfig: '{"version":"2.7.1","plugin":"X/Y Scatter","plugin_config":{},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["time","year",null,null,null,null,null],"filter":[],"sort":[],"expressions":{},"aggregates":{}}'}
+          )
         [[script]]
     `,
     plugin_infos,
