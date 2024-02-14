@@ -9,7 +9,7 @@ export type iGraphPerspectiveParams = {
     cb: (viewer: iGraphPerspectiveViewerWrapper) => void
 }
 export type iGraphPerspectiveViewerWrapper = {
-    loadItems: (items: any[]) => void,
+    loadItems: (items: any[], cb?: Function) => void,
     setConfig: (config: string) => void,
     getConfig: (cb:(config:string)=>void) => void,
 
@@ -66,22 +66,63 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         // Load stylesheets
         // loadStylesheet('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css');
 
+        // const WORKER = worker({
+        //     types: {
+        //         float: {
+        //             format: {
+        //                 style: "decimal",
+        //                 minimumFractionDigits: 6,
+        //                 maximumFractionDigits: 6
+        //             }
+        //         }
+        //     }
+        // });
+
         var script = document.createElement('script');
         script.type = 'module';
+  
         script.textContent = `
             import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
             const WORKER = worker();
+            let initLoaded = false;
             async function load() {
                 const viewer = document.getElementsByTagName("perspective-viewer")[0];
                 console.log("[ADVANCED TABLE] loading viewer for :", window.window._graph_perspective)
-                // const table = WORKER.table(window.window._graph_perspective.items);
-                // viewer.load(table);
-                // viewer.toggleConfig();
 
-                viewer.loadItems = (items) => {
-                    const table = WORKER.table(items);
-                    viewer.load(table);
-                    viewer.toggleConfig();
+                viewer.loadItems = (items, cb) => {
+                    let int = setInterval(() => {
+                        console.log("waiting for viewer and worker...")
+                        if (!viewer) return
+                        if (!WORKER) return
+                        clearInterval(int)
+                        startLoading()
+                    }, 200)
+                    const tableAndViewerExists = () => viewer && WORKER
+                    const startLoading = async () => {
+                        const table = WORKER.table(items);
+
+                        if (!initLoaded) {
+                            initLoaded = true;
+                            viewer.load(table);
+                            viewer.toggleConfig();
+                            if (cb) cb()
+                        } else {
+                            viewer.flush().then(() => {
+                                viewer.removeAttribute('view');
+                                viewer.removeAttribute('columns');
+                                viewer.removeAttribute('row-pivots');
+                                viewer.removeAttribute('column-pivots');
+                                viewer.removeAttribute('aggregates');
+                                viewer.removeAttribute('sort');
+                                viewer.removeAttribute('filters');
+    
+                                viewer.load(table);
+                                viewer.toggleConfig();
+                                if (cb) cb()
+                            })
+                        }
+                        
+                    }
                 }
                 viewer.setConfig = (configString) => {
                     const configObj = JSON.parse(configString);
@@ -114,11 +155,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
-            <perspective-viewer editable style="width: calc(100vw - 30px);height: 100vh;"> </perspective-viewer>
+            <perspective-viewer editable style="width: calc(100% - 30px);height: 100%;"> </perspective-viewer>
                 <style>
+                #ctag-component-advanced-table-wrapper {
+                    height: 100%;
+                }
                 perspective-viewer {
-                    width: 100vw;
-                    height: 100vh;
+                    width: 100%;
+                    height: 100%;
                 } 
                 </style>
         `

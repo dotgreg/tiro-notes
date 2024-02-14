@@ -1,17 +1,27 @@
+//@flow
 
-const fetchLibs = (cb) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: true}, timerLib => {
-        cb(timerLib)
+/*::
+declare var tiroApi: any;
+declare var config: any;
+declare var barApi: any;
+import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
+*/
+
+const fetchLibs = (cb/*:Function*/) => {
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: true}, () => {
+        cb()
     })
 }
-fetchLibs(timerLib => {
+fetchLibs(() => {
+    const timerLib = window._tiroPluginsCommon.timerLib
+    console.log("timerLib", timerLib) 
     main(timerLib)
 })
 
-const main = (timerLib) => {
-    const notifUniqId = "uniq-notif-id-timer"
+const main = (timerLib/*:iTimerLib*/) => {
+    
     let initTriggered = false
-    let history = []
+    let history/*:iTimerHistoryItem[]*/ = []
     //
     // STEP 1 OPTS
     //
@@ -28,18 +38,15 @@ const main = (timerLib) => {
     //
     // UPDATE ON CHANGE
     //
-    const cronCacheName = "timer_bg"
+    // const cronCacheName = "timer_bg"
     const reactToUpdates = () => {
         if (barApi.selectedTags.length === 2) {
-        //if (barApi.inputTxt === "") barApi.setInputTxt(" 60")
         } if (barApi.selectedTags.length === 3) {
         
         // create an option with categories
         let a = barApi.selectedTags[2]
         if (a.value === "stop") {
-            barApi.close()
-            tiroApi.ui.notification.emit({id:notifUniqId, content: `stopping timer`})
-            tiroApi.plugins.cronCache.set(cronCacheName, { isEnabled: false})
+            timerLib.stopTimer(tiroApi, history, barApi)
         } else {
             genOptsFromHistory()
         }  
@@ -47,26 +54,15 @@ const main = (timerLib) => {
             let cat = barApi.selectedTags[3]
             let a = barApi.selectedTags[2]
             if (!a || !cat) return
+            console.log("111111111111 selected", a, cat)
             if (a.value === "start") {
-                let mins = a.time
-                let timer = parseInt(mins) * 60 * 1000
-                let endTimestamp = new Date().getTime() + timer
-                let startTimestamp = new Date().getTime()
-                tiroApi.plugins.cronCache.set(cronCacheName, {endTimestamp, startTimestamp, isEnabled: true, catName:cat.catName})
-                tiroApi.ui.notification.emit({id:notifUniqId,content: `Stopping old timers and starting timer for ${mins} minutes for category ${cat.catName} `, options:{hideAfter: 65}})
-                addToHistory(cat.catName, mins)
-                barApi.close()
+                timerLib.startTimer(tiroApi, history, cat.catName, a.time, barApi)
             }
             if (a.value === "log") {
-                let mins = a.time
-                let timer = parseInt(mins) * 60 * 1000
-                addToHistory(cat.catName, mins)
-                barApi.close()
+                timerLib.logTimer(tiroApi, history, cat.catName, a.time, barApi)
             }
             if (a.value === "stop") {
-                barApi.close()
-                tiroApi.ui.notification.emit({id:notifUniqId,content: `stopping timer`})
-                tiroApi.plugins.cronCache.set(cronCacheName, { isEnabled: false})
+                timerLib.stopTimer(tiroApi, history, barApi)
             }
         }
     }
@@ -92,28 +88,7 @@ const main = (timerLib) => {
         }
         barApi.setOptions(opts)
     }
-    const addToHistory = (catName, time, rawdate) => {
-        time = parseInt(time)
-        // does el already exists? if yes put it on first
-        const foundIdx = history.findIndex(el => el.name === catName)
-        let item = history[foundIdx]
-        if (foundIdx !== -1) history.splice(foundIdx, 1)
-
-        let currDate = new Date()
-        if (rawdate) currDate = rawdate
-        let currDateStr = `${currDate.getDate()}-${currDate.getMonth()}-${currDate.getFullYear()}`
-        
-        if (item) {
-            if (item.times[currDateStr]) item.times[currDateStr] = item.times[currDateStr] + time
-            else item.times[currDateStr] = time
-        } else {
-            item = {name:catName, times:{}}
-            item.times[currDateStr] = time
-        }
-        history.unshift(item)
-        console.log("add 2 history", history)
-        tiroApi.cache.set("timer_plugin_history", history, -1)
-    }
+   
 
     tiroApi.cache.get("timer_plugin_history", nHist => { 
         // MAIN INIT
