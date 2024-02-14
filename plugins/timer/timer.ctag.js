@@ -66,7 +66,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // graph.curr.loadItems(items)
                 }
                 const currView = {curr:"heatmapMonth"}
-                const changeViewGraph = (view/*:"heatmapMonth"|"heatmapWeek"|"datagrid"*/) => {
+                const changeViewGraph = (view/*:"heatmapMonth"|"heatmapWeek"|"barsToday"|"datagrid"*/) => {
                         currView.curr = view
                         setTimeout(() => {
                                 const viewConfig = viewConfigs[currView.curr]()
@@ -116,7 +116,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 console.log(action, getForm())
                         })
 
-                        onClick(["heatmapMonth","heatmapWeek", "datagrid"], (e, el) => {
+                        onClick(["heatmapMonth","heatmapWeek", "datagrid", "barsToday"], (e, el) => {
                                 const action = el.id
                                 console.log(action)
                                 changeViewGraph(action)
@@ -312,6 +312,13 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 const day = curr.getDate()
                                 const week = weekOfYear(day, month, year)
                                 return `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",${week}],["year","==",${year}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`},
+                        barsToday : () => {
+                                const curr = new Date()
+                                const month = curr.getMonth() + 1
+                                const year = curr.getFullYear()
+                                const day = curr.getDate()
+                                const week = weekOfYear(day, month, year)
+                                return `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",${month}],["year","==",${year}],["day","==",${day}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`},
                         datagrid : () => {
                                 const curr = new Date()
                                 const month = curr.getMonth() + 1
@@ -413,6 +420,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         -
                         <button id="heatmapMonth">📊 month</button>
                         <button id="heatmapWeek">📊 week</button>
+                        <button id="barsToday">📊 today</button>
                         <button id="datagrid">grid</button>
                         <button id="reloadDatas">🔄</button>
                 </div>
