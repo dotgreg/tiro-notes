@@ -323,7 +323,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 const year = curr.getFullYear()
                                 const day = curr.getDate()
                                 const week = weekOfYear(day, month, year)
-                                return `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["category","name","date","dateRaw","time","year","month","day","hours"],"filter":[["week","==",${week}],["year","==",${year}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`},
+                                return `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",${week}],["year","==",${year}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`},
                 
                 }
 
