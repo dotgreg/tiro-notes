@@ -8,17 +8,6 @@ import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
 */
 
 const disableCache = config.disableCache || false
-
-const fetchLibs = (cb/*:Function*/) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: disableCache }, () => {
-        cb()
-    })
-}
-fetchLibs(() => {
-    const timerLib = window._tiroPluginsCommon.timerLib
-    main(timerLib)
-})
-
 const main = (timerLib/*:iTimerLib*/) => {
     
     let initTriggered = false
@@ -97,3 +86,18 @@ const main = (timerLib/*:iTimerLib*/) => {
         reactToUpdates()
     })
 }
+
+const fetchLibs = (cb/*:Function*/) => {
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi},{disableCache: disableCache }, () => {
+        cb()
+    })
+}
+
+
+//
+// ACTUAL CODE
+//
+fetchLibs(() => {
+    const timerLib = window._tiroPluginsCommon.timerLib
+    main(timerLib)
+})
