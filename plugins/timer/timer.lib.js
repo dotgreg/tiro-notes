@@ -47,7 +47,7 @@ const addToHistory = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:s
         if (item.times[currDateStr]) item.times[currDateStr] = item.times[currDateStr] + time
         else item.times[currDateStr] = time
     } else {
-        item = {name:catName, times:{}}
+        item = {name, times:{}}
         item.times[currDateStr] = time
     }
     history.unshift(item)
