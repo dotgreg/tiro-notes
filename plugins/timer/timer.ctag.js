@@ -104,7 +104,6 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // on click of each of these els => // addTime, removeTime, startTimer
                         onClick(["addTime", "removeTime", "startTimer"], (e, el) => {
                                 const action = el.id
-                                console.log(123, action)
                                 
                                 if (action === "addTime") {
                                         
@@ -156,7 +155,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         });
                         autoCompleteJS.input.addEventListener("focus", () => {
                                 autocompleteInput.value = ""
-                                console.log("dddd"); autoCompleteJS.start(" ")
+                                autoCompleteJS.start(" ")
                         });
                 }
 
@@ -263,16 +262,12 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         const arrItems = preprocessTimerItems(timerItems)
 
                         // arrItems is goody
-                        console.log(111, arrItems, dfd)
                         const dfItems = new dfd.DataFrame(arrItems)
-                        // console.log(dfItems)
-                        // console.log(json);
                         const json = dfd.toJSON(dfItems);
                         const strJson = JSON.stringify(json);
-                        console.log(strJson);
                         const enrichedItems = JSON.parse(strJson)
                         let dfItems2 = new dfd.DataFrame(enrichedItems)
-                        dfItems2.print()
+                        // dfItems2.print()
 
                         const dfItemsOut = dfItems2
                         // const dfItemsOut = dfItems2.groupby(['category', 'name', 'year', 'month', 'day']).sum()
@@ -284,7 +279,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // let dfItems3 = dfItems2.loc({columns:["name"]})
                         let dfItems3 = dfItems2['name'].unique();
                         let uniqueNamesArray = dfItems3.values;
-                        console.log(123, uniqueNamesArray)
+                        // console.log(123, uniqueNamesArray)
                         // keep unique names
                         // dfItems3.print()
                         
@@ -451,6 +446,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 #timer-ctag #timer-ctag-form .autoComplete_wrapper>input::placeholder {
                         color: rgba(0, 0, 0, 0.3);
                         font-weight: normal;
+                }
+                #timer-ctag ::placeholder {
+                        color: rgba(0, 0, 0, 0.3)!important;
+                        font-weight: normal;
+                        font-size: 12px;
                 }
 
 
