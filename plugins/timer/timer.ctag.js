@@ -5,6 +5,7 @@ declare var dfd: any;
 declare var autoComplete: any;
 import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective.component"
 import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
+import type {iCommonLib} from "../_common/common.lib"
 */
 const h = "[TIMER CTAG]"
 
@@ -14,41 +15,19 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         const { div, updateContent } = api.utils.createDiv()
         const outputPaths = {  }
-        ///////////////////////////////////////////////////
-        // SUPPORT
-        //
-        // equivalent /*:Object|Array*/ in flow comment
         
-        const each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
-                if (itera.constructor === Array) {
-                        for (let i = 0; i < itera.length; ++i) {
-                                cb(itera[i])
-                        }
-                } else {
-                        for (const property in itera) {
-                                cb(itera[property], property)
-                        }
-                }
-        }
-
-        const onClick = (elIds/*:string[]*/, action/*:Function*/) => {
-                for (var i = 0; i < elIds.length; ++i) {
-                        let el = document.getElementById(elIds[i]);
-                        if (!el) return console.warn(`onclick: ${elIds[i]} does not exists`)
-                        const fn = (e) => { action(e, el) }
-                        el.removeEventListener("click", fn, false);
-                        el.addEventListener("click", fn, false);
-                }
-        }
         ///////////////////////////////////////////////////////////
         // 
         // MAIN LOGIC
         //
         ///////////////////////////////////////////////////////////
 
-        const   initTimerAppCode = () => {
+        const initTimerAppCode = () => {
                 const api = window.api;
                 const timerLib/*:iTimerLib*/ = window._tiroPluginsCommon.timerLib
+                console.log(22222222222, window._tiroPluginsCommon)
+                const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
+                const {getOperatingSystem, each, onClick} = commonLib
 
                 
                 const items/*:any[]*/ = []
@@ -369,6 +348,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
             setTimeout(() => {
                 api.utils.loadRessources(
                     [
+                        `${opts.plugins_root_url}/_common/common.lib.js`,
                         `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
                         `${opts.plugins_root_url}/_common/components/table.component.js`,
                         `${opts.plugins_root_url}/timer/timer.lib.js`,
