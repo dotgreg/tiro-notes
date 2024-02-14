@@ -203,7 +203,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                          // date is {day}-{month}-{year}
                         const dateArr = date.split("-")
                         const dateRaw = date
-                        const day = parseInt(dateArr[0]) + 1
+                        const day = parseInt(dateArr[0]) 
                         const month = parseInt(dateArr[1]) + 1
                         // week of the month (0-4), a week starts a monday
                         // const week = Math.floor(day / 7)
@@ -317,7 +317,13 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 const day = curr.getDate()
                                 const week = weekOfYear(day, month, year)
                                 return `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",${week}],["year","==",${year}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`},
-                        datagrid: () => '{"version":"2.7.1","plugin":"Datagrid","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":[],"split_by":[],"columns":["category","name","date","dateRaw","time","year","month","day","hours"],"filter":[],"sort":[],"expressions":{},"aggregates":{}}',
+                        datagrid : () => {
+                                const curr = new Date()
+                                const month = curr.getMonth() + 1
+                                const year = curr.getFullYear()
+                                const day = curr.getDate()
+                                const week = weekOfYear(day, month, year)
+                                return `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["category","name","date","dateRaw","time","year","month","day","hours"],"filter":[["week","==",${week}],["year","==",${year}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`},
                 
                 }
 
