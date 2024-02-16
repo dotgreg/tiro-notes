@@ -58,10 +58,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         window._graph_perspective = p
         
         // Load module scripts
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js');
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@latest/dist/cdn/perspective-viewer.js');
-        // loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@latest/dist/cdn/perspective-viewer-datagrid.js');
-        // loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@latest/dist/cdn/perspective-viewer-d3fc.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js');
+        // loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@2.7.1/dist/cdn/perspective-viewer-datagrid.js');
+        // loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@2.7.1/dist/cdn/perspective-viewer-d3fc.js');
         
         // Load stylesheets
         // loadStylesheet('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css');
@@ -82,7 +82,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         script.type = 'module';
   
         script.textContent = `
-            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js";
+            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js";
             const WORKER = worker();
             let initLoaded = false;
             async function load() {
@@ -169,10 +169,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
     } 
     api.utils.loadRessources(
         [
-            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@latest/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
-            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@latest/dist/cdn/perspective-viewer.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@latest/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@latest/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@2.7.1/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@2.7.1/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
             

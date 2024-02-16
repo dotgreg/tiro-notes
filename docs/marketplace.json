@@ -99,6 +99,21 @@
     "configuration": []
   },
   {
+    "name": "map",
+    "pluginPath": "/map/map.plugin.js",
+    "description": "Description of map",
+    "versions": [
+      {
+        "version": "0.1.0",
+        "date": "14/02/24",
+        "comment": "init"
+      }
+    ],
+    "images": [],
+    "icon": null,
+    "configuration": []
+  },
+  {
     "name": "timer",
     "pluginPath": "/timer/timer.plugin.js",
     "description": "Adds a timer functionality to Tiro <br/> this is a long description",
