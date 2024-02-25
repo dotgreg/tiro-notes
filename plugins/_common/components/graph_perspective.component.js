@@ -218,7 +218,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     let nviews = []
                     if (window._graph_perspective_props.defaultViews) nviews = window._graph_perspective_props.defaultViews
 					api.call("cache.get", [id], content => {
-                        console.log("cache content", content, content.length)
+                        // console.log("cache content", content, content.length)
 						if (content !== undefined && content !== null && content.length !== 0) onSuccess([...nviews, ...content])
 						else onSuccess(nviews)
 					})
@@ -226,9 +226,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
 				const setCache = (id/*:string*/) => (views/*:iView[]*/, cb/*:Function*/) => {
                     viewsIdToRemove = []
                     if (window._graph_perspective_props.defaultViews) viewsIdToRemove = window._graph_perspective_props.defaultViews.map(v => v.name)
-                    console.log("setting cache1", id, views, views.length, viewsIdToRemove)
+                    // console.log("setting cache1", id, views, views.length, viewsIdToRemove)
                     views = views.filter(v => !viewsIdToRemove.includes(v.name))
-                    console.log("setting cache2", id, views, views.length)
+                    // console.log("setting cache2", id, views, views.length)
 					api.call("cache.set", [id, views, -1], () => {if(cb) cb()}) 
 				}
 				const cacheViewsId = "lib-graph-perspective-${api.utils.getInfos().file.path}"
