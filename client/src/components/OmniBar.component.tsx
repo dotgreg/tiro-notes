@@ -39,10 +39,10 @@ interface iOptionOmniBar {
 }
 
 const modeLabels = {
-	search: "[Search Mode]",
-	explorer: "[Explorer Mode]",
-	history: "[History Mode]",
-	plugin: "[Plugin Mode]"
+	search: "[🔎 Search Mode]",
+	explorer: "[📁 Explorer Mode]",
+	history: "[✨ History Mode]",
+	plugin: "[🍄 Plugin Mode]"
 }
 
 
@@ -360,7 +360,7 @@ export const OmniBar = (p: {
 		else if (stags[0].label === modeLabels.search) {
 			searchModeLogic(stags, inTxt)
 		}
-		// IF EXPLORER MODE
+		// IF @EXPLORER MODE
 		else if (stags[0].label === modeLabels.explorer) {
 
 			const getFinalPath = () => {
@@ -377,8 +377,18 @@ export const OmniBar = (p: {
 			let finalPath = getFinalPath()
 			// if ends to md, jump to it
 			if (finalPath.endsWith(".md")) {
+				// console.log("DONE!!!!!!", stags, finalPath, inTxt);
+
+				// addCurrentToOmniHistory()
+				const histSelec = [...stags]	
+				histSelec.pop()
+				console.log("histSelec", histSelec, inputTxt)
+				if (inputTxt === "") histSelec.push({label: inputTxt, value: inputTxt})
+				addToOmniHistory(histSelec)
+
+				// addToOmniHistory([...options, {label: input, value: input}])
 				// remove mode label
-				finalPath = finalPath.replace(stags[0].label, "")
+				finalPath = finalPath.replace(stags[0].label, "") 
 				jumpToPath(finalPath)
 			}
 
@@ -404,8 +414,8 @@ export const OmniBar = (p: {
 	// useEffect(() => {
 	// }, [options])
 
-
-	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for search mode, "/" for explorer mode, ":" for plugin mode, "," for history mode`
+	const s = (str: string) => str.replaceAll("[", "").replaceAll("]", "")
+	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for ${s(modeLabels.search)}, "/" for ${s(modeLabels.explorer)}, ":" for ${s(modeLabels.plugin)}, "," for ${s(modeLabels.history)}`
 	const [help, setHelp] = useState(baseHelp)
 
 
@@ -442,7 +452,7 @@ export const OmniBar = (p: {
 
 
 	///////////////////////////////////////////////////////////////////////////////
-	// @ EXPLORER MODE
+	// @EXPLORER MODE
 	//
 	const lastSearchId = useRef(0)
 	const lastSearch = useRef("")
@@ -463,6 +473,8 @@ export const OmniBar = (p: {
 
 		lastSearchId.current++
 		let currId = lastSearchId.current
+
+		const FolderIcon = "📁 "
 
 		getApi(api => {
 			let folderPathArr = [folderPath]
@@ -510,7 +522,7 @@ export const OmniBar = (p: {
 						let arr = f.path.split("/")
 						let last: any = arr[arr.length - 1] + "/"
 						// last = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
-						nOpts.push({ value: last, label: last })
+						nOpts.push({ value: last, label: FolderIcon + last })
 					})
 					each(files, f => {
 						let arr = f.path.split("/")
@@ -735,8 +747,14 @@ export const OmniBar = (p: {
 	const getOmniHistory = ():iOmniHistoryItem[] => {
 		return omniHistoryInt
 	}
+	// const addCurrentToOmniHistory = () => {
+	// 	console.log("addCurrentToOmniHistory", options, inputTxt)
+	// 	const selecOpts = selectedOptionRef.current
+	// 	const selection = inputTxt.length > 0 ? [...selecOpts, {label: inputTxt, value: inputTxt}] : selecOpts
+	// 	addToOmniHistory(selection)
+	// }
 	const addToOmniHistory = (options:iOptionOmniBar[]) => {
-		console.log("addToOmniHistory")
+		console.log("1/2 [HIST mode]: addToOmniHistory", [...options])
 		let labels:string[] = []
 		each(options, o => {labels.push(o.label)})
 		const id = labels.join(" ")
@@ -748,7 +766,7 @@ export const OmniBar = (p: {
 
 		// only keep 100 requests
 		if (nItems.length > 100) nItems.splice(0, 100)
-		console.log("[HIST mode] add to omnihist ",{ nItem, nItems})
+		console.log("2/2 [HIST mode] add to omnihist ",{ nItem, nItems})
 
 		setOmniHistoryInt(nItems)
 	}
@@ -796,7 +814,7 @@ export const OmniBar = (p: {
 
 
 	///////////////////////////////////////////////////////////////////////////////
-	// @ PLUGIN MODE
+	// @PLUGIN MODE
 	//
 	const startPluginMode = () => {
 		setSelectedOption([
@@ -832,6 +850,7 @@ export const OmniBar = (p: {
 					onClose: p.onClose, onHide: p.onHide,
 					close: p.onClose, hide: p.onHide,
 					selectedOptionRef, setSelectedOption,
+					addToOmniHistory,
 					// lodash,
 					selectedTags: stags,
 					setNotePreview, notePreview,

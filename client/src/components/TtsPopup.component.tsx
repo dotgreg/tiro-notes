@@ -208,7 +208,7 @@ export const StyledDiv = styled.div`
 		left: 0px;
 		width: 100vw;
 		height: 100vh;
-		z-index: 1005;
+		z-index: 100005;
 		background: rgba(0,0,0,0.3);
 		display: flex;
 		justify-content: center;

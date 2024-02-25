@@ -718,6 +718,10 @@ export const settingsPopupCss = () => `
 						margin-top: 10px;
 				}
 				.field-wrapper {
+						textarea {
+							width: 100%;
+						}
+						
 						display: flex;
 						padding-bottom: 11px;
 						align-items: center;

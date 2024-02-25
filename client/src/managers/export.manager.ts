@@ -81,7 +81,11 @@ const exportTo = (el) => {
                 
                
                 const killPandocPrevCmd = `pkill -9 pandoc`
-                const pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --verbose ${getConfigObj(api, format)} ${perTypeOptions} --from=markdown --to=${format} "${inputFilePath}" `
+                let pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --verbose ${getConfigObj(api, format)}  ${perTypeOptions}  --to=${format} "${inputFilePath}" `
+                // if --from is not set, pandoc will try to guess the format from the file extension
+                if (pandocCmd.includes("--from=") === false) {
+                    pandocCmd = pandocCmd.replace("--to=", `--from=markdown --to=`)
+                }
                 
                 let finalCmd = pandocCmd
                 if (format === "latex-pdf") {
