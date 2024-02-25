@@ -464,6 +464,25 @@ export const App = () => {
 					{ /* API : making clientapi available everywhere */}
 					<ClientApiContext.Provider value={clientApi} >
 
+
+						<div className='config-buttons-bar'>
+							{ api.userSettings.get('beta_plugins_marketplace') &&
+								<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
+									<Icon2 name="puzzle-piece" />
+								</div>
+							}
+							{
+								deviceType() !== 'mobile' &&
+								<div className="config-button search-button" onClick={() => { setSuggestShow(true); setSuggestOpen(true) }}>
+									<Icon2 name="search" />
+								</div>
+							}
+							<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
+								<Icon2 name="cog" />
+							</div>
+						</div>
+
+
 						{
 							notePreviewPopup?.isOpen && <NotePreviewPopup notePreview={notePreviewPopup} />
 						}
@@ -623,16 +642,7 @@ export const App = () => {
 
 										</div>
 
-										<div className='config-buttons-bar'>
-											{ api.userSettings.get('beta_plugins_marketplace') &&
-												<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
-													<Icon2 name="puzzle-piece" />
-												</div>
-											}
-											<div className="config-button settings-button" onClick={() => { setConfigPopup("settings") }}>
-												<Icon2 name="cog" />
-											</div>
-										</div>
+										
 
 										
 
@@ -653,7 +663,6 @@ export const App = () => {
 														<ButtonsToolbar
 															popup={false}
 															buttons={[{
-																icon: 'faThumbtack',
 																title: 'Toggle Sidebar',
 																action: e => { toggleSidebar(); refreshWindowGrid(); },
 																active: clientApi.userSettings.get('ui_sidebar') === true

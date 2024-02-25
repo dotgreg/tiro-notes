@@ -47,7 +47,6 @@ const onClick = (elIds/*:string[]*/, action/*:Function*/) => {
 const commonLib = {getOperatingSystem, each, onClick}
 
 if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
-console.log(111111111)
 window._tiroPluginsCommon.commonLib = commonLib
 
 /*::

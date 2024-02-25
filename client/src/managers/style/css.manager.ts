@@ -221,7 +221,33 @@ const CssAppIntStatic = (
 		${codeMirrorEditorCss()}
 		${uploadButtonCss()}
 		${uploadProgressBarCss()}
+
 		
+		.config-buttons-bar {
+			position: fixed;
+			right: 3px;
+			z-index: 300;
+			bottom: ${deviceType() === "mobile" ? "55px": "4px"};
+			display: ${deviceType() === "mobile" ? "block": "flex"};
+
+			.config-button {
+				// margin-top: 10px;
+				opacity: 0.6;
+				transition: 0.2s all; 
+				padding: 5px;
+				cursor: pointer;
+				&:hover {
+					opacity: 1;
+				}
+			}
+			.plugins-marketplace-button {
+
+			}
+			.settings-button {
+				
+			}	
+		}
+			
 		
 
 		
@@ -252,36 +278,7 @@ const CssAppIntStatic = (
 			
 			${newFileButtonCss()}
 
-			&.device-view-mobile {
-					.config-buttons-bar {
-							bottom: 60px;
-					}
-
-			}
-
-			.config-buttons-bar {
-				position: fixed;
-				bottom: 4px;
-				left: 3px;
-				z-index: 20;
-
-				.config-button {
-					// margin-top: 10px;
-					opacity: 0.6;
-					transition: 0.2s all; 
-					padding: 5px;
-					cursor: pointer;
-					&:hover {
-						opacity: 1;
-					}
-				}
-				.plugins-marketplace-button {
-
-				}
-				.settings-button {
-					
-				}	
-			}
+			
 			 
 
 

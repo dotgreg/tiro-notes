@@ -105,7 +105,7 @@ const mapCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                             .bindPopup(`<b>${obj.title}</b><br>${obj.content}`);
                         markers.push(marker);
                     });
-                    console.log(123333, markers, points)
+                //     console.log(123333, markers, points)
                     
                     var group = new L.featureGroup(markers); // Group to handle all markers
                     map.fitBounds(group.getBounds()); // Adjust view to contain all markers
