@@ -377,12 +377,10 @@ export const OmniBar = (p: {
 			let finalPath = getFinalPath()
 			// if ends to md, jump to it
 			if (finalPath.endsWith(".md")) {
-				// console.log("DONE!!!!!!", stags, finalPath, inTxt);
 
 				// addCurrentToOmniHistory()
 				const histSelec = [...stags]	
 				histSelec.pop()
-				console.log("histSelec", histSelec, inputTxt)
 				if (inputTxt === "") histSelec.push({label: inputTxt, value: inputTxt})
 				addToOmniHistory(histSelec)
 
@@ -602,6 +600,12 @@ export const OmniBar = (p: {
 						// last = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
 						nOpts.push({ value: last, label: FolderIcon + last })
 					})
+					// rank files by most recent 
+					// console.log("11111111111111111", files[0].name, files[0].modified)
+					files = orderBy(files, ["modified"], ["desc"])
+					// console.log("222222222222222", files[0].name, files[0].modified)
+
+					
 					each(files, f => {
 						let arr = f.path.split("/")
 						let last: any = arr[arr.length - 1]
