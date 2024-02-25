@@ -231,8 +231,10 @@ const CssAppIntStatic = (
 			bottom: ${deviceType() === "mobile" ? "55px": "3px"};
 			display: ${deviceType() === "mobile" ? "block": "flex"};
 			padding: 0px 9px;
+			font-size: 10px;
 
 			.config-button {
+				font-size: 10px;
 				// margin-top: 10px;
 				opacity: 0.6;
 				transition: 0.2s all; 

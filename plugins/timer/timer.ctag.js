@@ -44,14 +44,14 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // if (!graph.curr) return
                         // graph.curr.loadItems(items)
                 }
-                const currView = {curr:"heatmapMonth"}
-                const changeViewGraph = (view/*:"heatmapMonth"|"heatmapWeek"|"barsToday"|"datagrid"*/) => {
-                        currView.curr = view
-                        setTimeout(() => {
-                                const viewConfig = viewConfigs[currView.curr]()
-                                if (viewConfig) graph.curr?.setConfig(viewConfig)
-                        , 1000})
-                }
+                // const currView = {curr:"heatmapMonth"}
+                // const changeViewGraph = (view/*:"heatmapMonth"|"heatmapWeek"|"barsToday"|"datagrid"*/) => {
+                //         currView.curr = view
+                //         setTimeout(() => {
+                //                 const viewConfig = viewConfigs[currView.curr]()
+                //                 if (viewConfig) graph.curr?.setConfig(viewConfig)
+                //         , 1000})
+                // }
                 const reloadGraphTest = () => {
                         // gen items with random data with colrs "name", "surname", "age", "height", "weight"
                         const items = []
@@ -60,83 +60,94 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         }
                         reloadGraph(items)
                 }
+                
+                const defaultViewConfigs = {
+                        "📊 month" : `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 month2" : `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 week" : `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 today" : `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 grid" : `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
+                }
+                // switch from defaultViewConfigs as obj to an array of obj like {name:..., config:...}
+                const defaultViewConfigsArr = Object.keys(defaultViewConfigs).map(name => ({name, config:defaultViewConfigs[name]}))
 
                 const genGraph = (arrItems/*:iGraphPerspectiveParams["items"]*/, cb/*:iGraphPerspectiveParams["cb"]*/) => {
                         // const wrapperEl/*:any*/ = document.getElementById("timer-ctag-inner")
                         const wrapperPlotEl/*:any*/ = document.getElementById("plot_div")
                         const paramsGraph/*:iGraphPerspectiveParams*/ = {
                                 items:arrItems, 
+                                defaultViews: defaultViewConfigsArr,
                                 cb: cb
                         }
                         wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genGraphPerspectiveComponent(paramsGraph) 
                 }
 
                 // autocomplete 
-                const genTimerForm = (arrItems/*:any[]*/) => {
-                        // get all elements form infos values from // get all id els => // autoComplete, timeSelect, dateInput
-                        const getForm = () => {
-                                const autoComplete = document.getElementById("autoComplete").value
-                                const timeSelect = document.getElementById("timeSelect").value
-                                const dateInput = document.getElementById("dateInput").value
-                                return {autoComplete, timeSelect, dateInput}
-                        }
-                        // on click of each of these els => // addTime, removeTime, startTimer
-                        onClick(["addTime", "removeTime", "startTimer"], (e, el) => {
-                                const action = el.id
+                // const genTimerForm = (arrItems/*:any[]*/) => {
+                //         // get all elements form infos values from // get all id els => // autoComplete, timeSelect, dateInput
+                //         const getForm = () => {
+                //                 const autoComplete = document.getElementById("autoComplete").value
+                //                 const timeSelect = document.getElementById("timeSelect").value
+                //                 const dateInput = document.getElementById("dateInput").value
+                //                 return {autoComplete, timeSelect, dateInput}
+                //         }
+                //         // on click of each of these els => // addTime, removeTime, startTimer
+                //         onClick(["addTime", "removeTime", "startTimer"], (e, el) => {
+                //                 const action = el.id
                                 
-                                if (action === "addTime") {
+                //                 if (action === "addTime") {
                                         
-                                } else if (action === "removeTime") {
+                //                 } else if (action === "removeTime") {
 
-                                } else if (action === "startTimer") {
-                                        timerLib.logTimer(api, items, getForm().autoComplete, parseInt(getForm().timeSelect))
-                                }
+                //                 } else if (action === "startTimer") {
+                //                         timerLib.logTimer(api, items, getForm().autoComplete, parseInt(getForm().timeSelect))
+                //                 }
                                 
-                                console.log(action, getForm())
-                        })
+                //                 console.log(action, getForm())
+                //         })
 
-                        onClick(["heatmapMonth","heatmapWeek", "datagrid", "barsToday", "barsMonth"], (e, el) => {
-                                const action = el.id
-                                console.log(action)
-                                changeViewGraph(action)
-                        })
+                //         onClick(["heatmapMonth","heatmapWeek", "datagrid", "barsToday", "barsMonth"], (e, el) => {
+                //                 const action = el.id
+                //                 console.log(action)
+                //                 changeViewGraph(action)
+                //         })
 
-                        onClick(["reloadDatas"], (e, el) => {
-                                updateAppWithTimerData(() => { 
-                                        // changeViewGraph("heatmapMonth") 
-                                })
-                        })
+                //         onClick(["reloadDatas"], (e, el) => {
+                //                 updateAppWithTimerData(() => { 
+                //                         // changeViewGraph("heatmapMonth") 
+                //                 })
+                //         })
                         
-                        // autocomplete
-                        const autocompleteInput = document.getElementById("autoComplete")
-                        const autoCompleteJS = new autoComplete({
-                                placeHolder: "Select task...",
-                                data: {
-                                        src: arrItems,
-                                        cache: true,
-                                        noResults: true,
-                                },
-                                resultItem: {
-                                        highlight: true,
-                                },
-                                resultsList: {
-                                        maxResults: 200,
-                                },
-                                searchEngine: "loose",
-                                events: {
-                                        input: {
-                                                selection: (event) => {
-                                                const selection = event.detail.selection.value;
-                                                autoCompleteJS.input.value = selection;
-                                                }
-                                        }
-                                }
-                        });
-                        autoCompleteJS.input.addEventListener("focus", () => {
-                                autocompleteInput.value = ""
-                                autoCompleteJS.start(" ")
-                        });
-                }
+                //         // autocomplete
+                //         const autocompleteInput = document.getElementById("autoComplete")
+                //         const autoCompleteJS = new autoComplete({
+                //                 placeHolder: "Select task...",
+                //                 data: {
+                //                         src: arrItems,
+                //                         cache: true,
+                //                         noResults: true,
+                //                 },
+                //                 resultItem: {
+                //                         highlight: true,
+                //                 },
+                //                 resultsList: {
+                //                         maxResults: 200,
+                //                 },
+                //                 searchEngine: "loose",
+                //                 events: {
+                //                         input: {
+                //                                 selection: (event) => {
+                //                                 const selection = event.detail.selection.value;
+                //                                 autoCompleteJS.input.value = selection;
+                //                                 }
+                //                         }
+                //                 }
+                //         });
+                //         autoCompleteJS.input.addEventListener("focus", () => {
+                //                 autocompleteInput.value = ""
+                //                 autoCompleteJS.start(" ")
+                //         });
+                // }
 
 
                 ///////////////////////////////////////////////////////////////////
@@ -277,25 +288,29 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
 
 
-                const genViewConfig = (configStr/*:string*/) => {
-                        let curr = new Date()
-                        let month = curr.getMonth() + 1
-                        let year = curr.getFullYear()
-                        let day = curr.getDate()
-                        let week = weekOfYear(day, month, year)
-                        // make all these vars strings
-                        // replace {{month}}, {{year}}, {{day}}, {{week}} in configStr
-                        configStr = configStr.replace("{{month}}", month).replace("{{year}}", year).replace("{{day}}", day).replace("{{week}}", week)
-                        return configStr
-                }
+                // const genViewConfig = (configStr/*:string*/) => {
+                //         let curr = new Date()
+                //         let month = curr.getMonth() + 1
+                //         let year = curr.getFullYear()
+                //         let day = curr.getDate()
+                //         let week = weekOfYear(day, month, year)
+                //         // make all these vars strings
+                //         // replace {{month}}, {{year}}, {{day}}, {{week}} in configStr
+                //         configStr = configStr.replace("{{month}}", month).replace("{{year}}", year).replace("{{day}}", day).replace("{{week}}", week)
+                //         return configStr
+                // }
                 
-                const viewConfigs = {
-                        heatmapMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                        barsMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                        heatmapWeek : () => genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                        barsToday : () => genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                        datagrid : () => genViewConfig(`{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`),
-                }
+                // const viewConfigs = {
+                //         heatmapMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                //         barsMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                //         heatmapWeek : () => genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                //         barsToday : () => genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
+                //         datagrid : () => genViewConfig(`{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`),
+                // }
+                // transform that viewConfig below into an obj like {heatmapMonth: "....", barsMonth: "....", ...}
+                
+
+
 
 
 
@@ -306,10 +321,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 ///////////////////////////////////////////////////////////////////      
                 const graph/*:{curr:iGraphPerspectiveViewerWrapper|void}*/ = {curr:undefined}
                 if (opts.viewConfig) console.log(h, "opts.viewConfig detected!", opts.viewConfig)
-                const defaultViewConfig = viewConfigs.heatmapMonth() // const defaultViewConfig = '{}'
+                // const defaultViewConfig = viewConfigs.heatmapMonth() // const defaultViewConfig = '{}'
                 
                 const initializeUi = () => {
-                        genTimerForm([])
+                        // genTimerForm([])
 
                         genGraph([{"graph_status":"data loading..."}], (viewer) => {
                                 graph.curr = viewer
@@ -321,7 +336,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         getTimerData( (timerItems/*:iTimerItem[]*/) => {
                                 const {outJsonArr, uniqueNamesArray} = processDataSetLogic(timerItems)
                                 // AUTOCOMPLETE update
-                                genTimerForm(uniqueNamesArray)
+                                // genTimerForm(uniqueNamesArray)
                                 
                                 // GRAPH update
                                 console.log(h, "updateAppWithTimerData", outJsonArr)
@@ -337,7 +352,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 }
 
                 initializeUi()
-                updateAppWithTimerData(() => { changeViewGraph("heatmapMonth") })
+                updateAppWithTimerData(() => { 
+                        // changeViewGraph("heatmapMonth") 
+                        graph.curr?.reloadViewsSelect()
+                })
         
         } // end start main logic
     
@@ -352,8 +370,8 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
                         `${opts.plugins_root_url}/_common/components/table.component.js`,
                         `${opts.plugins_root_url}/timer/timer.lib.js`,
-                        `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,
-                        `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css`,
+                        // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,
+                        // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css`,
                         `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
                     ],
                     () => {
@@ -370,34 +388,34 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         // if we are in mobile, height of form is 100px
         if (window.innerWidth < 600) css.heightGraph = "calc(100% - 150px)"
-        
+        // <div id="timer-ctag-form"> 
+        //         <input id="autoComplete" autocomplete="off">
+        //         <select id="timeSelect">
+        //                 <option value="5">5m</option>
+        //                 <option value="10">10m</option>
+        //                 <option value="15">15m</option>
+        //                 <option value="30">30m</option>
+        //                 <option value="60" selected>1h</option>
+        //                 <option value="120">2h</option>
+        //                 <option value="180">3h</option>
+        //                 <option value="240">4h</option>
+        //         </select>
+        //         <input type="date" id="dateInput" value="${new Date().toISOString().split('T')[0]}">
+        //         <button id="addTime">+</button>
+        //         <button id="removeTime">-</button>
+        //         <button id="startTimer">⏱️</button>
+        //         -
+        //         <button id="heatmapMonth">📊 month</button>
+        //         <button id="barsMonth">📊 month 2</button>
+        //         <button id="heatmapWeek">📊 week</button>
+        //         <button id="barsToday">📊 today</button>
+        //         <button id="datagrid">grid</button>
+        //         <button id="reloadDatas">🔄</button>
+        // </div>
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="timer-ctag"> 
-                <div id="timer-ctag-form"> 
-                        <input id="autoComplete" autocomplete="off">
-                        <select id="timeSelect">
-                                <option value="5">5m</option>
-                                <option value="10">10m</option>
-                                <option value="15">15m</option>
-                                <option value="30">30m</option>
-                                <option value="60" selected>1h</option>
-                                <option value="120">2h</option>
-                                <option value="180">3h</option>
-                                <option value="240">4h</option>
-                        </select>
-                        <input type="date" id="dateInput" value="${new Date().toISOString().split('T')[0]}">
-                        <button id="addTime">+</button>
-                        <button id="removeTime">-</button>
-                        <button id="startTimer">⏱️</button>
-                        -
-                        <button id="heatmapMonth">📊 month</button>
-                        <button id="barsMonth">📊 month 2</button>
-                        <button id="heatmapWeek">📊 week</button>
-                        <button id="barsToday">📊 today</button>
-                        <button id="datagrid">grid</button>
-                        <button id="reloadDatas">🔄</button>
-                </div>
+                
                 <div id="timer-ctag-graph"> 
                         <div id="plot_div"></div>
                 </div>
