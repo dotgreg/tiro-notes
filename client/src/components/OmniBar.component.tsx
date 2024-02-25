@@ -406,10 +406,12 @@ export const OmniBar = (p: {
 		}
 	}
 
+	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [], {history: true})
+
 	useEffect(() => {
 		updateFromChange();
 		if (onChangeUpdatePlugin.current) onChangeUpdatePlugin.current()
-	}, [selectedOption, inputTxt])
+	}, [selectedOption, inputTxt, omniHistoryInt])
 
 	// useEffect(() => {
 	// }, [options])
@@ -440,6 +442,82 @@ export const OmniBar = (p: {
 
 
 
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ HISTORY MODE
+	//
+	const startHistoryMode = () => {
+		setSelectedOption([
+			{ value: modeLabels.history, label: modeLabels.history },
+		])
+
+	}
+	useEffect(() => {
+		if (backendStateOmni.hasBeenLoaded) return
+		refreshOmniHistFromBackend()
+		backendStateOmni.hasBeenLoaded = true
+	}, [])
+
+	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
+	const getOmniHistory = ():iOmniHistoryItem[] => {
+		return omniHistoryInt
+	}
+	// const addCurrentToOmniHistory = () => {
+	// 	console.log("addCurrentToOmniHistory", options, inputTxt)
+	// 	const selecOpts = selectedOptionRef.current
+	// 	const selection = inputTxt.length > 0 ? [...selecOpts, {label: inputTxt, value: inputTxt}] : selecOpts
+	// 	addToOmniHistory(selection)
+	// }
+	const addToOmniHistory = (options:iOptionOmniBar[]) => {
+		console.log("1/2 [HIST mode]: addToOmniHistory", [...options])
+		let labels:string[] = []
+		each(options, o => {labels.push(o.label)})
+		const id = labels.join(" ")
+		const nItem = {options, id}
+
+		// filter out prev items with same id
+		const oldItems = omniHistoryInt.filter(i => i.id !== id)
+		const nItems = [nItem, ...oldItems]
+
+		// only keep 100 requests
+		if (nItems.length > 100) nItems.splice(0, 100)
+		console.log("2/2 [HIST mode] add to omnihist ",{ nItem, nItems})
+
+		setOmniHistoryInt(nItems)
+	}
+		
+
+
+	const triggerHistoryModeLogic = (input: string, stags: iOptionOmniBar[]) => {
+		setNotePreview(null)
+		if (!stags[1]) {
+			// LOAD HISTORY
+			const items = getOmniHistory()
+			let nOpts: any = []
+			setOptions(nOpts)
+			each(items, i => {
+				nOpts.push({ label: i.id, value:  i.id, payload: i })
+			} )
+			setHelp(`history mode`)
+			setOptions(nOpts)
+
+			if (input === ",") {
+				setInputTxt("")
+			}
+		} else if (stags[1]) {
+			console.log("HIST selected", stags[1])
+			let nSelectedOptions = stags[1].payload?.options
+			if (!nSelectedOptions) return
+			// if first tag is search, destructure last option to inputTxt
+			let lastItem = nSelectedOptions.pop()
+			if (lastItem) setInputTxt(lastItem.label)
+			setSelectedOption(nSelectedOptions)
+		}
+		
+
+	
+	}
+	// const onChangeUpdatePlugin = useRef<any>(null)
 
 
 
@@ -727,84 +805,7 @@ export const OmniBar = (p: {
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-	// @ HISTORY MODE
-	//
-	const startHistoryMode = () => {
-		setSelectedOption([
-			{ value: modeLabels.history, label: modeLabels.history },
-		])
-
-	}
-	useEffect(() => {
-		if (backendStateOmni.hasBeenLoaded) return
-		refreshOmniHistFromBackend()
-		backendStateOmni.hasBeenLoaded = true
-	}, [])
-
-	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
-	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [], {history: true, debouncedSave: 5000})
-	const getOmniHistory = ():iOmniHistoryItem[] => {
-		return omniHistoryInt
-	}
-	// const addCurrentToOmniHistory = () => {
-	// 	console.log("addCurrentToOmniHistory", options, inputTxt)
-	// 	const selecOpts = selectedOptionRef.current
-	// 	const selection = inputTxt.length > 0 ? [...selecOpts, {label: inputTxt, value: inputTxt}] : selecOpts
-	// 	addToOmniHistory(selection)
-	// }
-	const addToOmniHistory = (options:iOptionOmniBar[]) => {
-		console.log("1/2 [HIST mode]: addToOmniHistory", [...options])
-		let labels:string[] = []
-		each(options, o => {labels.push(o.label)})
-		const id = labels.join(" ")
-		const nItem = {options, id}
-
-		// filter out prev items with same id
-		const oldItems = omniHistoryInt.filter(i => i.id !== id)
-		const nItems = [nItem, ...oldItems]
-
-		// only keep 100 requests
-		if (nItems.length > 100) nItems.splice(0, 100)
-		console.log("2/2 [HIST mode] add to omnihist ",{ nItem, nItems})
-
-		setOmniHistoryInt(nItems)
-	}
-		
-
-
-	const triggerHistoryModeLogic = (input: string, stags: iOptionOmniBar[]) => {
-		setNotePreview(null)
-		if (!stags[1]) {
-			// LOAD HISTORY
-			const items = getOmniHistory()
-			let nOpts: any = []
-			setOptions(nOpts)
-			each(items, i => {
-				nOpts.push({ label: i.id, value:  i.id, payload: i })
-			} )
-			setHelp(`history mode`)
-			setOptions(nOpts)
-
-			if (input === ",") {
-				setInputTxt("")
-			}
-		} else if (stags[1]) {
-			console.log("HIST selected", stags[1])
-			let nSelectedOptions = stags[1].payload?.options
-			if (!nSelectedOptions) return
-			// if first tag is search, destructure last option to inputTxt
-			let lastItem = nSelectedOptions.pop()
-			if (lastItem) setInputTxt(lastItem.label)
-			setSelectedOption(nSelectedOptions)
-		}
-		
-
 	
-	}
-	// const onChangeUpdatePlugin = useRef<any>(null)
-
-
 
 
 
@@ -1000,7 +1001,7 @@ export const OmniBar = (p: {
 	}, 100)
 	useEffect(() => {
 		onOptionsChange(options)
-	}, [options, inputTxt])
+	}, [options, inputTxt, omniHistoryInt])
 
 
 
