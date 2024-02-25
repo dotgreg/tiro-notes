@@ -225,16 +225,18 @@ const CssAppIntStatic = (
 		
 		.config-buttons-bar {
 			position: fixed;
-			right: 3px;
 			z-index: 300;
-			bottom: ${deviceType() === "mobile" ? "55px": "4px"};
+			background: ${deviceType() === "mobile" ? "none": "white"};
+			right: ${deviceType() === "mobile" ? "3px": "0px"};
+			bottom: ${deviceType() === "mobile" ? "55px": "3px"};
 			display: ${deviceType() === "mobile" ? "block": "flex"};
+			padding: 0px 9px;
 
 			.config-button {
 				// margin-top: 10px;
 				opacity: 0.6;
 				transition: 0.2s all; 
-				padding: 5px;
+				padding: 6px;
 				cursor: pointer;
 				&:hover {
 					opacity: 1;
