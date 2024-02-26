@@ -42,7 +42,7 @@ type iView = {
     config: string
 }
 */
-
+const h = "[GRAPH PERSPECTIVE LIB]"
 
 let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
     const api = window.api;
@@ -177,9 +177,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     return configStr
                 }
                 viewer.setConfig = (configString) => {
-                    configString = genViewConfig(configString)
-                    const configObj = JSON.parse(configString);
-                    viewer.restore(configObj);
+                    if (!initLoaded) return
+                    try {
+                        configString = genViewConfig(configString)
+                        const configObj = JSON.parse(configString);
+                        viewer.restore(configObj);
+                    } catch (error) {
+                        console.warn(h, "Error setting config", error);    
+                    }
                 }
                 viewer.getConfig = (cb) => {
                     viewer.save().then((config) => {cb(JSON.stringify(config))})
