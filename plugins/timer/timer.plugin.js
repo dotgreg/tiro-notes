@@ -6,6 +6,7 @@ const plugin_infos = {
     icon: "https://github.com/dotgreg/tiro-notes/assets/2981891/af963229-a7c1-41a1-bf73-2ac97c3fa7a0",
     description: "Adds a timer functionality to Tiro <br/> this is a long description",
     versions: [
+        {version: "0.2.2", date: "26/02/24", comment: "polishing timer ctag with perspective viewer", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
         {version: "0.2.1", date: "14/02/24", comment: "adding custom tag timer", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
         {version: "0.1.5", date: "10/07/23", comment: "adding log to timer", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
         {version: "0.1.4", date: "25/06/23", comment: "switching to plugin files", hash: "bd5c41c1b92e3ac483578b19b8c50c39a38fd81f"},
