@@ -42,9 +42,10 @@ type iView = {
     config: string
 }
 */
-const h = "[GRAPH PERSPECTIVE LIB]"
+
 
 let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
+    let hl = "[GRAPH PERSPECTIVE LIB]"
     const api = window.api;
     const startMainLogic = () => {
         const wrapperEl = document.getElementById("ctag-component-advanced-table-wrapper")
@@ -126,7 +127,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 //
                 viewer.loadItems = (items, cb) => {
                     let int = setInterval(() => {
-                        console.log("waiting for viewer and worker...")
+                        console.log(hl,"waiting for viewer and worker...")
                         if (!viewer) return
                         if (!WORKER) return
                         clearInterval(int)
@@ -183,7 +184,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         const configObj = JSON.parse(configString);
                         viewer.restore(configObj);
                     } catch (error) {
-                        console.warn(h, "Error setting config", error);    
+                        console.warn(hl, "Error setting config", error);    
                     }
                 }
                 viewer.getConfig = (cb) => {
@@ -232,9 +233,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
 				const setCache = (id/*:string*/) => (views/*:iView[]*/, cb/*:Function*/) => {
                     viewsIdToRemove = []
                     if (defaultViews) viewsIdToRemove = defaultViews.map(v => v.name)
-                    console.log("setting cache1", id, views, views.length, viewsIdToRemove)
+                    // console.log("setting cache1", id, views, views.length, viewsIdToRemove)
                     views = views.filter(v => !viewsIdToRemove.includes(v.name))
-                    console.log("setting cache2", id, views, views.length)
+                    // console.log("setting cache2", id, views, views.length)
 					api.call("cache.set", [id, views, -1], () => {if(cb) cb()}) 
 				}
 				const cacheViewsId = `lib-graph-perspective-${api.utils.getInfos().file.path}`
@@ -289,7 +290,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     viewer.getConfig((config) => {
                         let name = prompt("Enter a name for the config");
                         if (name) {
-                            console.log("saving config", name, config)
+                            console.log(hl,"saving config", name, config)
                             saveNewView({name, config}, () => {
                                 reloadViewsSelect()
                             })
