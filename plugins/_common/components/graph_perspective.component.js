@@ -231,7 +231,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     // console.log("setting cache2", id, views, views.length)
 					api.call("cache.set", [id, views, -1], () => {if(cb) cb()}) 
 				}
-				const cacheViewsId = "lib-graph-perspective-${api.utils.getInfos().file.path}"
+				const cacheViewsId = `lib-graph-perspective-${api.utils.getInfos().file.path}`
 
                 // window._graph_perspective_props
 				const getViewsCache = getCache(cacheViewsId)
