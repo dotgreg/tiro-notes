@@ -76,12 +76,12 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                     api.utils.resizeIframe("100%");
             }, 100)
             setTimeout(() => {
+                console.log(10000000000023333333333333, opts)
                 api.utils.loadRessources(
                     [
                         `${opts.plugins_root_url}/_common/common.lib.js`,
                         `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
                         `${opts.plugins_root_url}/_common/components/table.component.js`,
-                        `${opts.plugins_root_url}/timer/timer.lib.js`,
                         `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
                     ],
                     () => {
