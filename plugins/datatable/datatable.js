@@ -2,7 +2,6 @@
 // 10.10.2023 v1.1
 /*::
 declare var dfd: any;
-declare var autoComplete: any;
 import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective.component"
 import type {iCommonLib} from "../_common/common.lib"
 */
@@ -12,21 +11,9 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         let api = window.api
         // let dfd = window.dfd
 
-        const { div, updateContent } = api.utils.createDiv()
-        const outputPaths = {  }
-        
-        ///////////////////////////////////////////////////////////
-        // 
-        // MAIN LOGIC
-        //
-        ///////////////////////////////////////////////////////////
-
-        const initTimerAppCode = () => {
+        const initDatatableAppCode = () => {
                 const api = window.api;
                 const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
-                ///////////////////////////////////////////////////////////////////
-                // SUPPORT FUNCTIONS
-                ///////////////////////////////////////////////////////////////////
                 const reloadGraph = (items/*:any[]*/, cb/*:Function*/) => {
                         let int = setInterval(() => {
                                 console.log("waiting for graph...")
@@ -46,12 +33,6 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genGraphPerspectiveComponent(paramsGraph) 
                 }
 
-
-                ///////////////////////////////////////////////////////////////////
-                //  
-                // START LOGIC
-                // 
-                ///////////////////////////////////////////////////////////////////      
                 const graph/*:{curr:iGraphPerspectiveViewerWrapper|void}*/ = {curr:undefined}
                 if (opts.viewConfig) console.log(h, "opts.viewConfig detected!", opts.viewConfig)
                 // const defaultViewConfig = viewConfigs.heatmapMonth() // const defaultViewConfig = '{}'
@@ -85,7 +66,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
                     ],
                     () => {
-                        initTimerAppCode()
+                        initDatatableAppCode()
                     }
                 );
             }, 100)
