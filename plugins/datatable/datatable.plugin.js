@@ -23,7 +23,7 @@ return [
     code: `
         [[script]]
             window.disableCache=${disableCache} ;
-            return api.utils.loadCustomTag("${baseUrl}/datatable/datatable.ctag.js", \`{{innerTag}}\`, 
+            return api.utils.loadCustomTag("${baseUrl}/datatable/datatable.js", \`{{innerTag}}\`, 
             {size: "100%", padding: false}
           )
         [[script]]

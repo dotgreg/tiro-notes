@@ -33,7 +33,7 @@ export const RessourcePreview = (p: {
 	const canBePreviewed = (urlLink:string):{status:boolean, onlinePreviewLink?:string} => {
 		let res = {status:false}
 		let canBePreviewed = false
-		let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub"]
+		let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub", "csv", "arrow"]
 		if (previewFormats.includes(getFileType(urlLink).toLowerCase())) canBePreviewed = true
 		// for doc/docx/xls/xlsx/ppt/pptx + if window.location is not ip OR localhost, open it with google preview
 		let cOrigin = window.location.origin
@@ -93,10 +93,16 @@ export const RessourcePreview = (p: {
 
 		// if (isLocal && canBePreviewedOnline) return
 		let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100
-		if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "epub") {
+		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
+		console.log(111111123333333333333333333333, ext, ssrPreviewPath);
+		if (ext === "epub") {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
-		} else if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "pdf") {
+		} else if (ext === "pdf") {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
+			// if csv or arrow format
+		} else if (ext === "csv" || ext === "arrow") {
+			console.log(2111111123333333333333333333333)
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("datatable", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
 		} else {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, p.windowId, { fullscreen, onFullscreenClose, ctagHeightOffset}))
 		}
@@ -133,6 +139,7 @@ export const RessourcePreview = (p: {
 		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
 		if (ext === "epub") ctagType = "epub"
 		if (ext === "pdf") ctagType = "pdf"
+		if (ext === "csv" || ext === "arrow") ctagType = "datatable"
 
 		getApi(api => {
 			api.ui.floatingPanel.create({
