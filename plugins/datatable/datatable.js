@@ -11,6 +11,8 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         let api = window.api
         // let dfd = window.dfd
 
+        console.log(h, "3333333333333333333 innerTagStr", innerTagStr)
+
         const initDatatableAppCode = () => {
                 const api = window.api;
                 const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
