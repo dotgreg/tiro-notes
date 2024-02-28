@@ -5,8 +5,7 @@
 
 /*::
 export type iGraphPerspectiveParams = {
-    items: Array<any>,
-    defaultViews: Array<iView[]>,
+    defaultViews?: Array<iView[]>,
     cb: (viewer: iGraphPerspectiveViewerWrapper) => void
 }
 export type iGraphPerspectiveViewerWrapper = {
@@ -98,7 +97,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
             
             async function initPerspective(cb) {
                 const viewer = document.getElementsByTagName("perspective-viewer")[0];
-                console.log("[ADVANCED TABLE] loading viewer for :", window._graph_perspective_props)
+                console.log("${hl} loading viewer for :", window._graph_perspective_props)
                 cb(viewer, WORKER)
             }
             window._initPerspective = initPerspective
@@ -160,6 +159,11 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         
                     }
                 }
+                viewer.loadFileUrl = (fileUrl/*:string*/, cb) => {
+                }
+
+
+
                 function weekOfYear(day, month, year) {
                     let date = new Date(year, month - 1, day);
                     let startDate = new Date(date.getFullYear(), 0, 1);

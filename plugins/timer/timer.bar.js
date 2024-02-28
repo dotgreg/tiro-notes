@@ -20,7 +20,7 @@ const main = (timerLib/*:iTimerLib*/) => {
         let post = ` => ${time} mins`
         let opts = []
 
-        let times = [ 30, null, time, null, 120, null, 240]
+        let times = [ time, null, 120, null, 240]
         for (var i = 0; i < times.length; i++) {
             if (times[i] === null)  {
                 opts.push({label: ` `, value:" "})
@@ -33,8 +33,8 @@ const main = (timerLib/*:iTimerLib*/) => {
                 let hours = (Math.floor(t / 6)) / 10
                 // label = t >= 60 ? label + ` - ${hours} h` : label
                 if(t >= 60) label = `=> ${hours}h (${t} mins)` 
-                opts.push({label: `🏁 start ${label}`, value:"start", time: t})
                 opts.push({label: `🪵 log ${label}`, value:"log", time: t})
+                opts.push({label: `🏁 start ${label}`, value:"start", time: t})
             }
         }
         opts.push({label:"❌ stop timers", value: "stop", time: time})

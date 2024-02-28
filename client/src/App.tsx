@@ -664,6 +664,7 @@ export const App = () => {
 															popup={false}
 															buttons={[{
 																title: 'Toggle Sidebar',
+																icon: 'faThumbtack',
 																action: e => { toggleSidebar(); refreshWindowGrid(); },
 																active: clientApi.userSettings.get('ui_sidebar') === true
 															}]}
