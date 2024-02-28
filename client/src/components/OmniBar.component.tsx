@@ -42,7 +42,7 @@ const modeLabels = {
 	search: "[🔎 Search Mode]",
 	explorer: "[📁 Explorer Mode]",
 	history: "[✨ History Mode]",
-	plugin: "[🍄 Plugin Mode]"
+	plugin: "[🔌 Plugin Mode]"
 }
 
 
@@ -357,6 +357,8 @@ export const OmniBar = (p: {
 				startHistoryMode()
 			}
 		}
+
+		// IF @SEARCH MODE
 		else if (stags[0].label === modeLabels.search) {
 			searchModeLogic(stags, inTxt)
 		}
@@ -650,6 +652,7 @@ export const OmniBar = (p: {
 
 
 	const previousPath = useRef<string>("")
+	// @SEARCH
 	const searchModeLogic = (stags:any[], inTxt: string) => {
 		// STEP 1: type a folder
 		if (!stags[1]) {
@@ -684,6 +687,8 @@ export const OmniBar = (p: {
 			console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
 		} else if (stags.length === 3 || stags.length === 4) {
 			console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
+			const historyArr = [stags[0], stags[1], {label: wordSearched.current, value: wordSearched.current}]
+			addToOmniHistory(historyArr)
 			let last = stags.length - 1
 			if (!stags[last].payload?.file) return
 			let file = stags[last].payload.file as iFile
@@ -724,7 +729,7 @@ export const OmniBar = (p: {
 			setOptions(nOpts)
 
 			wordSearched.current = input
-			addToOmniHistory([...options, {label: input, value: input}])
+			// addToOmniHistory([...options, {label: input, value: input}])
 
 			
 			getApi(api => {
