@@ -133,10 +133,14 @@ export const NotePreview = React.memo(NotePreviewInt, (np, pp) => {
 export const NotePreviewCss = () => `
 
 .note-preview-wrapper {
-		&.preview {
-			padding: 15px ;
-		}
-
+	&.preview {
+		padding: 15px ;
+	}
+	
+	.editor-area {
+		position: inherit!important;
+		top: inherit;
+	}
 		
 
 		${previewAreaCss()}

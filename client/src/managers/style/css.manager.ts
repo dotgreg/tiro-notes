@@ -222,6 +222,8 @@ const CssAppIntStatic = (
 		${uploadButtonCss()}
 		${uploadProgressBarCss()}
 
+		${mobileNoteToolbarCss()}
+
 		
 		.config-buttons-bar {
 			position: fixed;
@@ -457,7 +459,7 @@ const CssAppIntStatic = (
 			${tabsCss()}
 			${GridMobileCss()}
 
-			${mobileNoteToolbarCss()}
+			
 			${scrollingBarCss()}
 
 			&.without-sidebar.device-view-desktop {

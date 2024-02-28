@@ -38,7 +38,8 @@ const calendarApp = (innerTagStr, opts) => {
 
                 // api.call("popup.show", [popupBody, "Event Details"])
                 // api.call("popup.show", ["woop", "Event Details"])
-                api.call("ui.floatingPanel.openFile", [ev.filePath, { searchedString:ev.lineRaw, idpanel: "id-panel-calendar-preview", layout: "bottom-right"}])
+                // api.call("ui.floatingPanel.openFile", [ev.filePath, { searchedString:ev.lineRaw, idpanel: "id-panel-calendar-preview", layout: "bottom-right"}])
+                api.call("ui.notePreviewPopup.open", [ev.filePath, ["50%" ,"50%"], { searchedString:ev.lineRaw}])
         }
 
         const bootstrapCalendarFrontLogic = (events) => {
@@ -182,11 +183,24 @@ const calendarApp = (innerTagStr, opts) => {
 
     const styleHtml = `<style>
     #caleandar {
+            padding: 5px 5px 5px 5px;
             padding-top: 0px;
     }
 
     #caleandar .cld-main {
-            width:100%;
+            width:calc(100% - 20px);
+    }
+    #caleandar .cld-day {
+        transition: all 0.2s;
+        background: #e4e4e4!important;
+        border: 1px solid rgba(0,0,0,0);
+        padding: 2px;
+    }
+    #caleandar .cld-day.today {
+        border: 1px solid #7311ee!important;
+    }
+    #caleandar .cld-day:hover {
+        border: 1px solid rgba(0,0,0,0.2);
     }
     #caleandar li:before {
             content: none;
