@@ -184,11 +184,14 @@ const calendarApp = (innerTagStr, opts) => {
     const styleHtml = `<style>
     #caleandar {
             padding: 5px 5px 5px 5px;
-            padding-top: 0px;
     }
 
     #caleandar .cld-main {
-            width:calc(100% - 20px);
+            width:calc(100% );
+    }
+    #caleandar .cld-days {
+        border-radius: 5px;
+        overflow: hidden;
     }
     #caleandar .cld-day {
         transition: all 0.2s;
