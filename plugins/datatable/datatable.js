@@ -11,7 +11,46 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         let api = window.api
         // let dfd = window.dfd
 
-        console.log(h, "3333333333333333333 innerTagStr", innerTagStr)
+        let dataFileUrl/*:string|void*/ = undefined
+        let rawCsvString/*:string|void*/ = undefined
+
+        // IF ONE LINE ONLY, IT IS A FILE URL
+        if (innerTagStr.trim().split("\n").length === 1 && innerTagStr.trim().length > 5) {
+                const infos = api.utils.getInfos();
+                let dataFileUrl = innerTagStr.trim()
+                let dataFileName = dataFileUrl.split("/").slice(-1)[0].split("?")[0]
+                const isAbs = dataFileUrl.startsWith("http")
+                if (isAbs === false) {
+                        dataFileUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + dataFileUrl + `?token=${infos.loginToken}`
+                }
+        }
+        // IF HAS , or ;, on several lines IT IS A CSV STRING
+        else if (innerTagStr.trim().split("\n").length > 1 && (innerTagStr.includes(",") || innerTagStr.includes(";"))) {
+                rawCsvString = innerTagStr.trim()
+        }
+
+        
+
+        const  fromRawCsvStringToArrObj = (csvString/*:string|void*/) => {
+                if (!csvString) return []
+                const separator = csvString.includes(",") ? "," : ";"
+                const lines = csvString.split("\n")
+                const headers = lines[0].split(separator).map((h) => h.trim())
+                const arrObj = []
+                for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i]
+                        if (line.trim() === "") continue
+                        const obj = {}
+                        const values = line.split(separator).map((h) => h.trim())
+                        for (let j = 0; j < headers.length; j++) {
+                                obj[headers[j]] = values[j]
+                        }
+                        arrObj.push(obj)
+                }
+                return arrObj
+        }
+
+        console.log(h, "3333333333333333333 innerTagStr", innerTagStr, dataFileUrl, fromRawCsvStringToArrObj(rawCsvString))
 
         const initDatatableAppCode = () => {
                 const api = window.api;
@@ -24,14 +63,8 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 graph.curr?.loadItems(items, cb)
                         }, 200)
                 }
-                const genGraph = (arrItems/*:iGraphPerspectiveParams["items"]*/, cb/*:iGraphPerspectiveParams["cb"]*/) => {
-                        // const wrapperEl/*:any*/ = document.getElementById("datatable-ctag-inner")
+                const genGraph = (paramsGraph/*:iGraphPerspectiveParams*/) => {
                         const wrapperPlotEl/*:any*/ = document.getElementById("plot_div")
-                        const paramsGraph/*:iGraphPerspectiveParams*/ = {
-                                items:arrItems, 
-                                defaultViews: [],
-                                cb: cb
-                        }
                         wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genGraphPerspectiveComponent(paramsGraph) 
                 }
 
@@ -40,10 +73,14 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 // const defaultViewConfig = viewConfigs.heatmapMonth() // const defaultViewConfig = '{}'
                 
                 const initializeUi = () => {
-                        genGraph([{"graph_status":"please load data from file select"}], (viewer) => {
-                                graph.curr = viewer
-                                // graph.curr?.reloadViewsSelect()
-                        })
+                        const params/*:iGraphPerspectiveParams*/ = {
+                                cb: (viewer) => {
+                                        graph.curr = viewer
+                                }
+                        }
+                        if(dataFileUrl) params.fileUrl = dataFileUrl
+                        if (rawCsvString) params.items = fromRawCsvStringToArrObj(rawCsvString)
+                        genGraph(params)
                 }
 
                 
