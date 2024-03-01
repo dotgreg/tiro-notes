@@ -298,12 +298,11 @@ const CssAppIntStatic = (
 							position: absolute;
 							top: 0%;
 							z-index:100;
-							width: 18px;
+							width: 12px;
 							height: 100vh;
 							background: rgb(236, 236, 236);
 							box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 							margin: 0% 0px;
-							border-radius: 0px 5px;
 							.left-wrapper {
 									box-shadow: 0px 0px 5px rgba(0,0,0,.2);
 									transition: 0.2s all;

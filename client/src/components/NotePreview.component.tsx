@@ -137,10 +137,10 @@ export const NotePreviewCss = () => `
 		padding: 15px ;
 	}
 	
-	.editor-area {
-		position: inherit!important;
-		top: inherit;
-	}
+	// .editor-area {
+	// 	position: inherit!important;
+	// 	top: inherit;
+	// }
 		
 
 		${previewAreaCss()}

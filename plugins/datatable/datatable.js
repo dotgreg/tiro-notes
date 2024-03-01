@@ -113,7 +113,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         const css = {
                 heightForm: "60px",
-                heightGraph: "calc(100% - 80px)"
+                heightGraph: "calc(100%)"
         }
 
         // if we are in mobile, height of form is 100px
@@ -130,7 +130,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         <style>
         #datatable-ctag {
-                height: calc(100vh - 30px);
+                height: calc(100vh - 40px);
                 background: white;
         } 
         #datatable-ctag #datatable-ctag-form { 
