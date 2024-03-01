@@ -113,27 +113,46 @@ export const FloatingPanel = (p:{
         p.onPanelDragEnd()
     }
 
+    const useMousePos = true
+    const decalRef = useRef({x:0, y:0})
+    const [currPos, setCurrPos] = useState({x:0, y:0})
+
+    useEffect(() => {
+        setCurrPos({x: p.panel.position.x, y: p.panel.position.y})
+    },[p.panel.position.x, p.panel.position.y])
+
+    const getNPos = (e:any, data:any, init:boolean=false) => {
+        let npos = {x: e.clientX, y: e.clientY}
+        if (init) decalRef.current = {x: npos.x - currPos.x, y: npos.y - currPos.y}
+        npos = {x: npos.x - decalRef.current.x, y: npos.y - decalRef.current.y}
+        setCurrPos(npos)
+        if(!useMousePos) npos = {x: data.x, y: data.y}
+        return npos
+    }
     const handleStart = (e: any, data: any) => {
+        updatePanel({...p.panel, position: getNPos(e, data, true)})
         // setPosition({x: data.x, y: data.y})
-        pushToTop()
-        onDragStart()
-        const npos = {x: e.clientX, y: e.clientY}
-        updatePanel({...p.panel, position: npos})
+        // pushToTop()
+        // onDragStart()
+        
     }
     const handleDrag = (e: any, data: any) => {
         // setPosition({x: data.x, y: data.y})
-        const npos = {x: data.x, y: data.y}
+        // let npos = {x: e.clientX, y: e.clientY}
+        // if(!useMousePos) npos = {x: data.x, y: data.y}
         // const npos = {x: e.clientX, y: e.clientY}
         // get handle position
         const handlePos = e.target.closest(".handle")
         // console.log("drag", data.x, data.y, data, e, handlePos)
-        updatePanel({...p.panel, position: npos})
+        updatePanel({...p.panel, position: getNPos(e, data)})
     }
     const handleStop = (e: any, data: any) => {
         // setPosition({x: data.x, y: data.y})
         onDragEnd()
-        const npos = {x: e.clientX, y: e.clientY}
-        updatePanel({...p.panel, position: npos})
+        // const npos = {x: e.clientX, y: e.clientY}
+        // let npos = {x: e.clientX, y: e.clientY}
+        // if(!useMousePos) npos = {x: data.x, y: data.y}
+        updatePanel({...p.panel, position: getNPos(e, data)})
     }
     const handleResize = (e: any, direction: any, ref: any, d: any) => {
         // setSize({width: ref.offsetWidth, height: ref.offsetHeight})
@@ -230,7 +249,7 @@ export const FloatingPanel = (p:{
 
     const classes = `type-${p.panel.type} ${p.panel.ctagConfig?.tagName ? `ctag-${p.panel.ctagConfig.tagName}` : ""}`
 
-    const [position, setPosition] = useState({ x: 0, y: 0 });
+    // const [position, setPosition] = useState({ x: 0, y: 0 });
 
     // const handleDrag = (e, data) => {
     //   setPosition({
@@ -241,12 +260,12 @@ export const FloatingPanel = (p:{
 
     return (
         <div className={`floating-panel-wrapper ${classes} ${p.panel.status}`} 
-            // style={{zIndex:p.panel.zIndex, position: "absolute", top: p.panel.position.y, left: p.panel.position.x}}
-            style={{zIndex:p.panel.zIndex}}
+            style={{zIndex:p.panel.zIndex, position: "absolute", top: currPos.y, left: currPos.x}}
+            // style={{zIndex:p.panel.zIndex}}
             key={p.panel.id}
             onMouseDown={() => {pushToTop()}}
         >
-            {/* <DraggableCore
+            <DraggableCore
                 // axis="x"
                 cancel="body"
                 handle=".handle"
@@ -256,8 +275,8 @@ export const FloatingPanel = (p:{
                 // scale={1}
                 onStart={handleStart}
                 onDrag={handleDrag}
-                onStop={handleStop}> */}
-            <Draggable
+                onStop={handleStop}>
+            {/* <Draggable
                 // axis="x"
                 cancel="body"
                 handle=".handle"
@@ -267,7 +286,7 @@ export const FloatingPanel = (p:{
                 // scale={1}
                 onStart={handleStart}
                 onDrag={handleDrag}
-                onStop={handleStop}>
+                onStop={handleStop}> */}
                 <Resizable
                     boundsByDirection={true}
                     className='floating-panel'
@@ -354,6 +373,7 @@ export const FloatingPanel = (p:{
                     </div>
                 </Resizable>
             </DraggableCore>
+            {/* </Draggable> */}
         </div>
     )
 }
