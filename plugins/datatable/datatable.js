@@ -102,7 +102,6 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         `${opts.plugins_root_url}/_common/common.lib.js`,
                         `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
                         `${opts.plugins_root_url}/_common/components/table.component.js`,
-                        `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
                     ],
                     () => {
                         initDatatableAppCode()

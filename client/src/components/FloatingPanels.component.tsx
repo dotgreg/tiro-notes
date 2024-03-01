@@ -115,7 +115,7 @@ export const FloatingPanel = (p:{
 
     const useMousePos = true
     const decalRef = useRef({x:0, y:0})
-    const [currPos, setCurrPos] = useState({x:0, y:0})
+    const [currPos, setCurrPos] = useState({x:-9999, y:-9999})
 
     useEffect(() => {
         setCurrPos({x: p.panel.position.x, y: p.panel.position.y})
@@ -142,7 +142,7 @@ export const FloatingPanel = (p:{
         // if(!useMousePos) npos = {x: data.x, y: data.y}
         // const npos = {x: e.clientX, y: e.clientY}
         // get handle position
-        const handlePos = e.target.closest(".handle")
+        // const handlePos = e.target.closest(".handle")
         // console.log("drag", data.x, data.y, data, e, handlePos)
         updatePanel({...p.panel, position: getNPos(e, data)})
     }
