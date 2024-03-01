@@ -235,11 +235,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
 						else viewsFinal = nviews
 
                         viewsSync.curr = [...viewsFinal]
+                        if (viewsFinal.length > 0 && viewsSync === "") viewsSync.selectedName = viewsFinal[0].name
 
                         onSuccess(viewsFinal)
 					})
 				}
-                const viewsSync = {curr: []}
+                viewsSync = {curr: [], selectedName: ""}
 				const setCache = (id/*:string*/) => (views/*:iView[]*/, cb/*:Function*/) => {
                     viewsIdToRemove = []
                     if (defaultViews) viewsIdToRemove = defaultViews.map(v => v.name)
@@ -298,8 +299,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 // if config save, prompt for a name and save it
                 configSave.addEventListener("click", () => {
                     viewer.getConfig((config) => {
-                        let firstViewName = viewsSync.curr.length > 0 ? viewsSync.curr[0].name : ""
-                        let name = prompt("Enter a name for the config",firstViewName);
+                        let name = prompt("Enter a name for the config", viewsSync.selectedName);
                         if (name) {
                             console.log(hl,"saving config", name, config)
                             saveNewView({name, config}, () => {
@@ -308,6 +308,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         }
                     });
                 });
+                
                 configDelete.addEventListener("click", () => {
                     let name = configSelect.value
                     if (name) {
@@ -321,6 +322,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 })
 
                 window.updateConfigViewFromName = (viewName/*:string*/) => {
+                    viewsSync.selectedName = viewName
+                    console.log(hl,"updateConfigViewFromName", viewsSync.selectedName, viewsSync)
                     getViewsCache(
                         views => {
                             const view = views.find(v => v.name === viewName)
