@@ -136,25 +136,30 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     const startLoading = async () => {
                         const table = WORKER.table(items);
 
-                        if (!initLoaded) {
-                            initLoaded = true;
-                            viewer.load(table);
-                            viewer.toggleConfig();
-                            if (cb) cb()
-                        } else {
-                            viewer.flush().then(() => {
-                                viewer.removeAttribute('view');
-                                viewer.removeAttribute('columns');
-                                viewer.removeAttribute('row-pivots');
-                                viewer.removeAttribute('column-pivots');
-                                viewer.removeAttribute('aggregates');
-                                viewer.removeAttribute('sort');
-                                viewer.removeAttribute('filters');
-    
+                        try {
+                            if (!initLoaded) {
+                                initLoaded = true;
                                 viewer.load(table);
                                 viewer.toggleConfig();
                                 if (cb) cb()
-                            })
+                            } else {
+                                
+                                    viewer.flush().then(() => {
+                                        viewer.removeAttribute('view');
+                                        viewer.removeAttribute('columns');
+                                        viewer.removeAttribute('row-pivots');
+                                        viewer.removeAttribute('column-pivots');
+                                        viewer.removeAttribute('aggregates');
+                                        viewer.removeAttribute('sort');
+                                        viewer.removeAttribute('filters');
+            
+                                        viewer.load(table);
+                                        viewer.toggleConfig();
+                                        if (cb) cb()
+                                    })
+                            }
+                        } catch (error) {
+                            console.log(hl, "Error loading 1", error)
                         }
                         
                     }
@@ -261,7 +266,11 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 const saveNewView = (view/*:iView*/, cb/*:Function*/) => {
                     getViewsCache(
                         views => {
-                            views.push(view)
+                            // if name already exists, overwrite it
+                            const foundIdx = views.findIndex(v => v.name === view.name)
+                            if (foundIdx !== -1) views[foundIdx] = view
+                            else views.push(view)
+                            
                             setViewsCache(views, cb)
                         },
                         () => {
@@ -270,19 +279,25 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     )
                 }
                 const deleteView = (viewName/*:string*/, cb/*:Function*/) => {
-                    getViewsCache(
-                        views => {
-                            setViewsCache(views.filter(v => v.name !== viewName), cb)
-                        },
-                        () => {cb()}
-                    )
+                    // prompt sure? 
+                    if (confirm(`Are you sure you want to delete the view ${viewName}?`)) {
+                        getViewsCache(
+                            views => {
+                                setViewsCache(views.filter(v => v.name !== viewName), cb)
+                            },
+                            () => {cb()}
+                        )
+                    }
                 }
                 const reloadViewsSelect = (cb/*:Function*/) => {
                     getViewsCache(
                         views => {
                             genViewsButtons(views)
                             configSelect.innerHTML = views.map(v => `<option value="${v.name}">${v.name}</option>`).join("")
-                            if (views.length > 0) viewer.setConfig(views[0].config)
+                            if (views.length > 0) {
+                                updateSelectActiveOption(viewsSync.selectedName)
+                                viewer.setConfig(viewsSync.selectedName)
+                            }
                             if (cb) cb(views)
                         },
                         () => {
@@ -302,6 +317,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         let name = prompt("Enter a name for the config", viewsSync.selectedName);
                         if (name) {
                             console.log(hl,"saving config", name, config)
+                            viewsSync.selectedName = name
                             saveNewView({name, config}, () => {
                                 reloadViewsSelect()
                             })
@@ -321,9 +337,22 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     
                 })
 
+                // update the select option to active
+                const updateSelectActiveOption = (viewName/*:string*/) => {
+                    const options = configSelect.options
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value === viewName) {
+                            configSelect.selectedIndex = i
+                            break
+                        }
+                    }
+                }
+
+
                 window.updateConfigViewFromName = (viewName/*:string*/) => {
                     viewsSync.selectedName = viewName
                     console.log(hl,"updateConfigViewFromName", viewsSync.selectedName, viewsSync)
+                    updateSelectActiveOption(viewName)
                     getViewsCache(
                         views => {
                             const view = views.find(v => v.name === viewName)
