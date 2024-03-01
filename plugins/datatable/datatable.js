@@ -117,7 +117,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         }
 
         // if we are in mobile, height of form is 100px
-        if (window.innerWidth < 600) css.heightGraph = "calc(100% - 150px)"
+        // if (window.innerWidth < 600) css.heightGraph = "calc(100% - 150px)"
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="datatable-ctag"> 

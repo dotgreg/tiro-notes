@@ -343,12 +343,12 @@ const feedApp = (innerTagStr, opts) => {
 									setDebounceCache(resItems)
 									cb(resItems)
 									if (feedItems.length === 0) {
-										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
 									}
 								}, (error) => {
 									// on failure
 									// setFailedFeeds([...failedFeeds, feedsArr[i].name])
-									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
 									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
 						}
