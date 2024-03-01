@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
+import {DraggableCore} from 'react-draggable';
 import { iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
@@ -16,6 +17,7 @@ import { Icon2 } from './Icon.component';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { deviceType } from '../managers/device.manager';
+import { DraggableGrid } from './windowGrid/DraggableGrid.component';
 
 let startZindex = 1000
 // react windows that is resizable
@@ -102,6 +104,7 @@ export const FloatingPanel = (p:{
     const [showDragOverlay, setShowDragOverlay] = useState<boolean>(false)
     const onDragStart = () => {
         pushToTop()
+        
         setShowDragOverlay(true)
         p.onPanelDragStart()
     }
@@ -114,16 +117,23 @@ export const FloatingPanel = (p:{
         // setPosition({x: data.x, y: data.y})
         pushToTop()
         onDragStart()
-        updatePanel({...p.panel, position: {x: data.x, y: data.y}})
+        const npos = {x: e.clientX, y: e.clientY}
+        updatePanel({...p.panel, position: npos})
     }
     const handleDrag = (e: any, data: any) => {
         // setPosition({x: data.x, y: data.y})
-        updatePanel({...p.panel, position: {x: data.x, y: data.y}})
+        const npos = {x: data.x, y: data.y}
+        // const npos = {x: e.clientX, y: e.clientY}
+        // get handle position
+        const handlePos = e.target.closest(".handle")
+        // console.log("drag", data.x, data.y, data, e, handlePos)
+        updatePanel({...p.panel, position: npos})
     }
     const handleStop = (e: any, data: any) => {
         // setPosition({x: data.x, y: data.y})
         onDragEnd()
-        updatePanel({...p.panel, position: {x: data.x, y: data.y}})
+        const npos = {x: e.clientX, y: e.clientY}
+        updatePanel({...p.panel, position: npos})
     }
     const handleResize = (e: any, direction: any, ref: any, d: any) => {
         // setSize({width: ref.offsetWidth, height: ref.offsetHeight})
@@ -220,12 +230,33 @@ export const FloatingPanel = (p:{
 
     const classes = `type-${p.panel.type} ${p.panel.ctagConfig?.tagName ? `ctag-${p.panel.ctagConfig.tagName}` : ""}`
 
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+
+    // const handleDrag = (e, data) => {
+    //   setPosition({
+    //     x: position.x + data.deltaX,
+    //     y: position.y + data.deltaY,
+    //   });
+    // };
+
     return (
         <div className={`floating-panel-wrapper ${classes} ${p.panel.status}`} 
+            // style={{zIndex:p.panel.zIndex, position: "absolute", top: p.panel.position.y, left: p.panel.position.x}}
             style={{zIndex:p.panel.zIndex}}
             key={p.panel.id}
             onMouseDown={() => {pushToTop()}}
         >
+            {/* <DraggableCore
+                // axis="x"
+                cancel="body"
+                handle=".handle"
+                // defaultPosition={position}
+                // position={p.panel.position}
+                // grid={[25, 25]}
+                // scale={1}
+                onStart={handleStart}
+                onDrag={handleDrag}
+                onStop={handleStop}> */}
             <Draggable
                 // axis="x"
                 cancel="body"
@@ -233,7 +264,7 @@ export const FloatingPanel = (p:{
                 // defaultPosition={position}
                 position={p.panel.position}
                 // grid={[25, 25]}
-                scale={1}
+                // scale={1}
                 onStart={handleStart}
                 onDrag={handleDrag}
                 onStop={handleStop}>
@@ -322,7 +353,7 @@ export const FloatingPanel = (p:{
                         
                     </div>
                 </Resizable>
-            </Draggable>
+            </DraggableCore>
         </div>
     )
 }
@@ -555,6 +586,10 @@ export const FloatingPanelCss = () => `
     height: 100vh;
     pointer-events: none;
     .floating-panel-wrapper {
+        -webkit-font-smoothing: subpixel-antialiased;
+        -webkit-transform: translateZ(0) scale(1.0, 1.0);
+        font-smoothing: subpixel-antialiased;
+        transform: translateZ(0) scale(1.0, 1.0);
         &.ctag-pdf {
             .floating-panel {
                 .floating-panel__actions {
