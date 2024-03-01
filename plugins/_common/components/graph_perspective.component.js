@@ -230,10 +230,16 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     if (defaultViews) nviews = [...defaultViews]
 					api.call("cache.get", [id], content => {
                         // console.log("cache content", content, content.length)
-						if (content !== undefined && content !== null && content.length !== 0) onSuccess([...nviews, ...content])
-						else onSuccess(nviews)
+                        let viewsFinal = []
+						if (content !== undefined && content !== null && content.length !== 0) viewsFinal = [...nviews, ...content]
+						else viewsFinal = nviews
+
+                        viewsSync.curr = [...viewsFinal]
+
+                        onSuccess(viewsFinal)
 					})
 				}
+                const viewsSync = {curr: []}
 				const setCache = (id/*:string*/) => (views/*:iView[]*/, cb/*:Function*/) => {
                     viewsIdToRemove = []
                     if (defaultViews) viewsIdToRemove = defaultViews.map(v => v.name)
@@ -292,7 +298,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 // if config save, prompt for a name and save it
                 configSave.addEventListener("click", () => {
                     viewer.getConfig((config) => {
-                        let name = prompt("Enter a name for the config");
+                        let firstViewName = viewsSync.curr.length > 0 ? viewsSync.curr[0].name : ""
+                        let name = prompt("Enter a name for the config",firstViewName);
                         if (name) {
                             console.log(hl,"saving config", name, config)
                             saveNewView({name, config}, () => {
