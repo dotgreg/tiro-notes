@@ -143,7 +143,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                                 viewer.toggleConfig();
                                 if (cb) cb()
                             } else {
-                                
+                                    
                                     viewer.flush().then(() => {
                                         viewer.removeAttribute('view');
                                         viewer.removeAttribute('columns');
@@ -159,6 +159,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                                     })
                             }
                         } catch (error) {
+                            alert("Error setting config", JSON.stringify(error))
                             console.log(hl, "Error loading 1", error)
                         }
                         
@@ -193,7 +194,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         const configObj = JSON.parse(configString);
                         viewer.restore(configObj);
                     } catch (error) {
-                        console.warn(hl, "Error setting config", error);    
+                        alert("Error setting config", JSON.stringify(error))
+                        console.warn(hl, "Error setting config", error)
                     }
                 }
                 viewer.getConfig = (cb) => {
@@ -432,6 +434,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 <style>
                 #ctag-component-advanced-table-wrapper {
                     height: 100%;
+                    display: flex;
+                    flex-direction: column;
                 }
 
                 .settings-wrapper {
@@ -453,7 +457,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
 
                 perspective-viewer {
                     width: 100%;
-                    height: 100%;
+                    // height: 100%;
                 } 
                 </style>
         `
