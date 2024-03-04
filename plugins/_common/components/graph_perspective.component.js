@@ -441,6 +441,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 .settings-wrapper {
                     // display: flex;
                     padding: 0px 20px;
+                    font-size: 10px;
+                }
+                .settings-wrapper select, .settings-wrapper button {
+                    font-size: 10px;
                 }
                 .settings-wrapper .config-wrapper {
                 }
