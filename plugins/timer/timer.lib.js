@@ -38,6 +38,14 @@ const getDateStr = (date/*:?Date*/) => {
     let currDateStr = `${currDate.getDate()}-${currDate.getMonth()}-${currDate.getFullYear()}`
     return currDateStr
 }
+const getDateFromStr = (dateStr/*:string*/) => {    
+    let dateParts = dateStr.split("-")
+    let currDate = new Date()
+    currDate.setDate(parseInt(dateParts[0]))
+    currDate.setMonth(parseInt(dateParts[1]))
+    currDate.setFullYear(parseInt(dateParts[2]))
+    return currDate 
+}
 
 const addToHistory = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:string*/, time/*:number*/, rawdate/*:?Date*/) => {
     time = parseInt(time)
@@ -76,7 +84,7 @@ const getTimerHistory = (tiroApi/*:any*/, cb/*:(items:iTimerHistoryItem[]) => vo
     })
 }
 
-const timerLib = {addToHistory, startTimer, stopTimer, logTimer, getTimerHistory, getDateStr}
+const timerLib = {addToHistory, startTimer, stopTimer, logTimer, getTimerHistory, getDateFromStr, getDateStr}
 // export flow type from timerLib
 /*::
 export type iTimerLib = typeof timerLib;
