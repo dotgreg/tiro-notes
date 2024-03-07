@@ -24,12 +24,16 @@ const main = (timerLib/*:iTimerLib*/) => {
             for (const dat in el.times) {
                 let s = el.times[dat]
                 if (dat === todayStr) tot.today = tot.today + parseInt(s)
-                const dateObj = new Date(dat)
+                const dateObj = timerLib.getDateFromStr(dat)
+                console.log(dateObj)
                 // if dateObj is < start of the current week (starts from monday)
                 const startOfWeekDate = new Date()
                 startOfWeekDate.setDate(startOfWeekDate.getDate() - startOfWeekDate.getDay()  + 1)
-                if (dateObj > startOfWeekDate) tot.week = tot.week + parseInt(s)
-
+                if (dateObj > startOfWeekDate) { 
+                    tot.week = tot.week + parseInt(s)
+                    console.log (dateObj, startOfWeekDate, tot.week, dat)
+                }
+ 
                 // if dateObj is < start of the current month
                 const startOfMonthDate = new Date()
                 startOfMonthDate.setDate(1)
@@ -83,7 +87,7 @@ const main = (timerLib/*:iTimerLib*/) => {
         // opts.push({label:"log"+post, value:"log", time: time})
         // opts.push({label:"stop", value: "stop", time: time})
 
-        barApi.setOptions(opts)
+        barApi.setOptions(opts) 
     }
 
     //
