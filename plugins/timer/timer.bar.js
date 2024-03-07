@@ -9,9 +9,40 @@ import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
 
 const disableCache = config.disableCache | false
 const main = (timerLib/*:iTimerLib*/) => {
-    
     let initTriggered = false
     let history/*:iTimerHistoryItem[]*/ = []
+
+    /*::
+    type iStatRes = {today:number, todayHours:number, week:number, weekHours:number, month:number, monthHours:number, year:number, yearHours:number}
+    */
+    const genBasicStats = (history/*:iTimerHistoryItem[]*/)/*:iStatRes*/ => {
+        const todayStr = timerLib.getDateStr()
+        const tot/*:iStatRes*/ = {today: 0, todayHours: 0, week:0, weekHours:0, month:0, monthHours:0, year:0, yearHours:0}
+        for (var i = 0; i < history.length; i++) {
+            let el = history[i]
+            const todayObj = new Date()
+            for (const dat in el.times) {
+                let s = el.times[dat]
+                if (dat === todayStr) tot.today = tot.today + parseInt(s)
+                const dateObj = new Date(dat)
+                // if dateObj is < start of the current week (starts from monday)
+                const startOfWeekDate = new Date()
+                startOfWeekDate.setDate(startOfWeekDate.getDate() - startOfWeekDate.getDay()  + 1)
+                if (dateObj > startOfWeekDate) tot.week = tot.week + parseInt(s)
+
+                // if dateObj is < start of the current month
+                const startOfMonthDate = new Date()
+                startOfMonthDate.setDate(1)
+                if (dateObj > startOfMonthDate) tot.month = tot.month + parseInt(s)
+                
+            }
+            // el.tot.today = Math.round(tot / 6)/10 
+        }
+        tot.todayHours = Math.round(tot.today / 6)/10
+        tot.weekHours = Math.round(tot.week / 6)/10
+        tot.monthHours = Math.round(tot.month / 6)/10
+        return tot
+    }
     //
     // STEP 1 OPTS
     //
@@ -38,6 +69,16 @@ const main = (timerLib/*:iTimerLib*/) => {
             }
         }
         opts.push({label:"❌ stop timers", value: "stop", time: time})
+
+        // STATS
+        opts.push({label: ` `, value:" "})
+        opts.push({label: ` `, value:" "})
+        const stats = genBasicStats(history)
+        opts.push({label:`📊 today: ${stats.todayHours}h (${Math.round((stats.todayHours/8)* 100 )}%)`, value: " ", time: time})
+        opts.push({label:`📊 week: ${stats.weekHours}h (${Math.round((stats.weekHours/40)* 100)}%)`, value: " ", time: time})
+        opts.push({label:`📊 month: ${stats.monthHours}h (${Math.round((stats.monthHours/160)* 100)}%)`, value: " ", time: time})
+
+
         // opts.push({label:"start"+post, value:"start", time: time})
         // opts.push({label:"log"+post, value:"log", time: time})
         // opts.push({label:"stop", value: "stop", time: time})

@@ -173,12 +173,6 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 ///////////////////////////////////////////////////////////////////
                 // Data processing
                 ///////////////////////////////////////////////////////////////////
-                /*::
-                type iTimerItem = {
-                    name:string,
-                    times:{[date:string]:number}
-                }
-                */
                 
                 // create a danfo dataframe with cols : name, date, time, year, month, day, category, item
                 // const dfd = window.danfojs
@@ -209,7 +203,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         const row = {category, name, date:dateObj, dateRaw,  time, year, month, day, hours, week}
                         return row
                 }
-                const preprocessTimerItem = (timerItem/*:iTimerItem*/, arrItems/*:Array<any>*/) => {
+                const preprocessTimerItem = (timerItem/*:iTimerHistoryItem*/, arrItems/*:Array<any>*/) => {
                         const name = timerItem.name.toLocaleLowerCase()
                         const nameArr = name.split("-")
                         const category = nameArr[0]
@@ -218,7 +212,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 arrItems.push(row)
                         })
                 }    
-                const preprocessTimerItems = (timerItems/*:iTimerItem[]*/) => {
+                const preprocessTimerItems = (timerItems/*:iTimerHistoryItem[]*/) => {
                         let  arrItems/*:Array<any>*/ = []
                         each(timerItems, timerItem => {
                                 preprocessTimerItem(timerItem,arrItems)
@@ -245,7 +239,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
 
 
-                const processDataSetLogic = (timerItems/*:iTimerItem[]*/) => {
+                const processDataSetLogic = (timerItems/*:iTimerHistoryItem[]*/) => {
                         //
                         // DANFOJS
                         //
@@ -333,7 +327,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
                 const updateAppWithTimerData = (cb/*:Function*/) => {
                         console.log(h, "updateAppWithTimerData")
-                        getTimerData( (timerItems/*:iTimerItem[]*/) => {
+                        getTimerData( (timerItems/*:iTimerHistoryItem[]*/) => {
                                 const {outJsonArr, uniqueNamesArray} = processDataSetLogic(timerItems)
                                 // AUTOCOMPLETE update
                                 // genTimerForm(uniqueNamesArray)
