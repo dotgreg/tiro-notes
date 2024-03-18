@@ -160,10 +160,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 						else if (onFailure) onFailure()
 					})
 				}
-				const setCache = (id/*:string*/, mins/*:?number*/) => (content/*:string*/) => {
-					if (!mins) mins = -1
-					api.call("cache.set", [id, content, mins]) 
-				}
+                const setCache = (id/*:string*/, mins/*:?number*/) => (content/*:string*/) => {
+                        if (!mins) mins = -1
+                        api.call("cache.set", [id, content, mins]) 
+                }
 
                 
                 

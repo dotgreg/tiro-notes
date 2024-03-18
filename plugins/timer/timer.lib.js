@@ -64,10 +64,41 @@ const addToHistory = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:s
         item.times[currDateStr] = time
     }
     history.unshift(item)
-    console.log("[TIMERLIB] add2hist", history)
+    console.log("[TIMERLIB] add2hist", history.length)
     tiroApi.cache.set("timer_plugin_history", history, -1)
+    // add to timeline log file
+    addToTimelineLogFile(tiroApi, name, time, rawdate)
 }
 
+const addToTimelineLogFile = (tiroApi/*:any*/, name/*:string*/, time/*:number*/, rawdate/*:?Date*/) => {
+    console.log("[TIMERLIB] addToTimelineLogFile", name, time, rawdate)
+    // get the timeline_log_file
+    const fileTimelinePath = "/.tiro/timer_timeline_history.md"
+    const getFileContent = (id/*:string*/, cb/*:Function*/) => {
+        tiroApi.file.getContent(id, content => {cb(content)}, {onError: () => {cb("")}})
+    }
+    const getCurrTimelineAndPrepend = (content/*:string*/) => {
+        const currDateStr = getDateStr(rawdate)
+        const currDateTimeStr = new Date().toISOString()
+        // from 2pm to 3pm
+        const startHourMin = new Date().getHours() + ":" + new Date().getMinutes()
+        // endHourMin = new Date().getHours() + ":" + new Date().getMinutes()
+        const endTime = new Date() 
+        // add + (time * 60 * 1000) ms to the current time
+        endTime.setTime(endTime.getTime() + (time * 60 * 1000))
+        const endHourMin = endTime.getHours() + ":" + endTime.getMinutes()
+        const timeStr = `from ${startHourMin} to ${endHourMin}`
+        const newContent = `${currDateTimeStr} =>  ${time} minutes (${time/60} hours) | ${name} | ${timeStr} for ${currDateStr}`
+
+        let finalContent = newContent + "\n" + content
+        // for performance reasons, only keep first 500 lines
+        const lines = content.split("\n")
+        if (lines.length > 500) finalContent = lines.slice(0, 500).join("\n")
+
+        tiroApi.file.saveContent(fileTimelinePath, finalContent, -1)
+    }
+    getFileContent(fileTimelinePath, (prevcontent/*:string*/) => { getCurrTimelineAndPrepend(prevcontent) }  )
+}
 
 
 const getTimerHistory = (tiroApi/*:any*/, cb/*:(items:iTimerHistoryItem[]) => void*/) => {
