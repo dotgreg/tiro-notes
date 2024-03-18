@@ -25,7 +25,6 @@ const main = (timerLib/*:iTimerLib*/) => {
                 let s = el.times[dat]
                 if (dat === todayStr) tot.today = tot.today + parseInt(s)
                 const dateObj = timerLib.getDateFromStr(dat)
-                console.log(dateObj)
                 // if dateObj is < start of the current week (starts from monday)
                 const startOfWeekDate = new Date()
                 startOfWeekDate.setDate(startOfWeekDate.getDate() - startOfWeekDate.getDay()  + 1)

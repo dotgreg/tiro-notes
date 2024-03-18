@@ -230,9 +230,9 @@ const CssAppIntStatic = (
 			z-index: 300;
 			background: ${deviceType() === "mobile" ? "none": "white"};
 			right: ${deviceType() === "mobile" ? "3px": "0px"};
-			bottom: ${deviceType() === "mobile" ? "55px": "3px"};
+			bottom: ${deviceType() === "mobile" ? "55px": "0px"};
 			display: ${deviceType() === "mobile" ? "block": "flex"};
-			padding: 0px 9px;
+			padding: 2px 9px;
 			font-size: 10px;
 
 			.config-button {

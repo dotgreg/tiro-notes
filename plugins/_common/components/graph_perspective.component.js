@@ -159,7 +159,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                                     })
                             }
                         } catch (error) {
-                            alert("Error setting config", JSON.stringify(error))
+                            // alert("Error setting config", JSON.stringify(error))
                             console.log(hl, "Error loading 1", error)
                         }
                         
