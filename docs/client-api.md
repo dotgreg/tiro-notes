@@ -162,8 +162,9 @@
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. mp3Path: <span class="render-code-wrapper">string</span>
+       1. cache: <span class="render-code-wrapper">boolean</span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"audio.play",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"audio.play",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">boolean</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">audio.stop</span>
