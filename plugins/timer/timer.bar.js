@@ -30,13 +30,14 @@ const main = (timerLib/*:iTimerLib*/) => {
                     d = new Date(d);
                     var day = d.getDay(),
                         diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+                    // set hours and minutes to 0
+                    d.setHours(0,0,0,0)
                     return new Date(d.setDate(diff));
                 }
                 const monday = getMonday(new Date())
-                if (dateObj > monday) { 
-                    tot.week = tot.week + parseInt(s)
-                    console.log (dateObj, monday, tot.week, dat)
-                }
+                const isEventInWeek = dateObj.getTime() > monday.getTime()
+                // console.log("monday", monday, dateObj, isEventInWeek, dateObj.getTime(), monday.getTime())
+                if (isEventInWeek) tot.week = tot.week + parseInt(s)
  
                 // if dateObj is < start of the current month
                 const startOfMonthDate = new Date()
