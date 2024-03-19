@@ -174,7 +174,7 @@ export const useBrowserApi = (p: {
 			}
 			if (opts && opts.ramCache && RamCacheFilesListRef.current[folderPath]) {
 				startSearch()
-				console.log("RAM CACHE", folderPath, RamCacheFilesListRef.current[folderPath].length)
+				// console.log("RAM CACHE", folderPath, RamCacheFilesListRef.current[folderPath].length)
 				onFilesFetched(RamCacheFilesListRef.current[folderPath])
 			}  else {
 				// DIRECT FETCH
