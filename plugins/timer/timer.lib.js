@@ -87,8 +87,7 @@ const addToTimelineLogFile = (tiroApi/*:any*/, name/*:string*/, time/*:number*/,
         // add + (time * 60 * 1000) ms to the current time
         endTime.setTime(endTime.getTime() + (time * 60 * 1000))
         const endHourMin = endTime.getHours() + ":" + endTime.getMinutes()
-        const timeStr = `from ${startHourMin} to ${endHourMin}`
-        const newContent = `${currDateTimeStr} =>  ${time} minutes (${time/60} hours) | ${name} | ${timeStr} for ${currDateStr}`
+        const newContent = `${currDateStr} | ${startHourMin} --> ${endHourMin} | ${name} | ${time} mins (${Math.round(time/6)/10} hours) `
 
         let finalContent = newContent + "\n" + content
         // for performance reasons, only keep first 500 lines
