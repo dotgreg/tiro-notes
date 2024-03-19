@@ -194,7 +194,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         const configObj = JSON.parse(configString);
                         viewer.restore(configObj);
                     } catch (error) {
-                        alert("Error setting config", JSON.stringify(error))
+                        // alert("Error setting config", JSON.stringify(error))
                         console.warn(hl, "Error setting config", error)
                     }
                 }
