@@ -44,7 +44,8 @@ tiroApi.ui.notification.emit({id:notifUniqId, content: p.finalString, options:{h
 if (p.diff < 0) {
     p.finalString = `${p.finalString} <br> Completed at ${new Date().getHours()}h${new Date().getMinutes()<10?'0':''}${new Date().getMinutes()}m`
     tiroApi.ui.notification.emit({id:notifUniqId, content: p.finalString, options:{hideAfter: -1}})
-    tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/109/109.wav")
+    tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2344/2344.wav")
+    // tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/109/109.wav")
     
     
     return s.isEnabled = false

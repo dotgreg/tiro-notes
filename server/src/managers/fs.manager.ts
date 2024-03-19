@@ -286,14 +286,14 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 
 		const req = client.request(url, optionsReq, (response) => {
 			// Check the content-type from the headers and adjust the encoding accordingly
-			const contentType = response.headers['content-type']?.toLowerCase();
-			if (contentType && contentType.includes(contentType.includes('charset=utf8'))) {
-				response.setEncoding('utf8');
-			} else if (contentType && contentType.includes('charset=iso-8859-1')) {
-				response.setEncoding('latin1');
-			} else {
-				response.setEncoding('utf8');
-			}
+			// const contentType = response.headers['content-type']?.toLowerCase();
+			// if (contentType && contentType.includes(contentType.includes('charset=utf8'))) {
+			// 	response.setEncoding('utf8');
+			// } else if (contentType && contentType.includes('charset=iso-8859-1')) {
+			// 	response.setEncoding('latin1');
+			// } else {
+			// 	response.setEncoding('utf8');
+			// }
 
 			response.pipe(fileStream);
 			fileStream.on('finish', () => {
