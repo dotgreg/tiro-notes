@@ -20,17 +20,22 @@ const main = (timerLib/*:iTimerLib*/) => {
         const tot/*:iStatRes*/ = {today: 0, todayHours: 0, week:0, weekHours:0, month:0, monthHours:0, year:0, yearHours:0}
         for (var i = 0; i < history.length; i++) {
             let el = history[i]
-            const todayObj = new Date()
             for (const dat in el.times) {
                 let s = el.times[dat]
                 if (dat === todayStr) tot.today = tot.today + parseInt(s)
                 const dateObj = timerLib.getDateFromStr(dat)
+
                 // if dateObj is < start of the current week (starts from monday)
-                const startOfWeekDate = new Date()
-                startOfWeekDate.setDate(startOfWeekDate.getDate() - startOfWeekDate.getDay()  + 1)
-                if (dateObj > startOfWeekDate) { 
+                function getMonday(d/*:Date*/) {
+                    d = new Date(d);
+                    var day = d.getDay(),
+                        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+                    return new Date(d.setDate(diff));
+                }
+                const monday = getMonday(new Date())
+                if (dateObj > monday) { 
                     tot.week = tot.week + parseInt(s)
-                    console.log (dateObj, startOfWeekDate, tot.week, dat)
+                    console.log (dateObj, monday, tot.week, dat)
                 }
  
                 // if dateObj is < start of the current month
