@@ -262,7 +262,6 @@ const graphApp = (innerTagStr, opts) => {
 				};
 		}
 		const debounceHideLoadingPopup = debounce(() => {
-				console.log("DEBOUNCED");
 				let wbEl = document.querySelector("#waiting-bar");
 				wbEl.classList.add('hidden');
 		}, 500)

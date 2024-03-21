@@ -50,7 +50,6 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 return arrObj
         }
 
-        console.log(h, "3333333333333333333 innerTagStr", innerTagStr, dataFileUrl, fromRawCsvStringToArrObj(rawCsvString))
 
         const initDatatableAppCode = () => {
                 const api = window.api;
@@ -96,7 +95,6 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                     api.utils.resizeIframe("100%");
             }, 100)
             setTimeout(() => {
-                console.log(10000000000023333333333333, opts)
                 api.utils.loadRessources(
                     [
                         `${opts.plugins_root_url}/_common/common.lib.js`,

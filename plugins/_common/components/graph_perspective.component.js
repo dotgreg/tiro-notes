@@ -167,6 +167,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 }
                 viewer.loadFileUrl = (fileUrl/*:string*/, cb) => {
                 }
+                viewer.updateTitle = (newTitle/*:string*/) => {
+                }
 
 
 
@@ -357,7 +359,25 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     updateSelectActiveOption(viewName)
                     getViewsCache(
                         views => {
-                            const view = views.find(v => v.name === viewName)
+                            finalExpressionObj = {}
+                            views2 = [...defaultViews, ...views]
+                            views2.forEach(v => {
+                                v.obj = JSON.parse(v.config)
+                                // for each v.obj.expressions method, add it to finalExpressionObj
+                                if (v.obj.expressions) {
+                                    Object.keys(v.obj.expressions).forEach(k => {
+                                        finalExpressionObj[k] = v.obj.expressions[k]
+                                    })
+                                }
+                            })
+                            // replace each views2.obj.expressions with finalExpressionObj
+                            views2.forEach(v => {
+                                v.obj.expressions = finalExpressionObj
+                                v.config = JSON.stringify(v.obj)
+                            })
+                            // views2
+                            console.log("ALL VIEWS", views, views2)
+                            const view = views2.find(v => v.name === viewName)
                             if (view) viewer.setConfig(view.config)
                         }
                     )
@@ -377,9 +397,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 ////////////////
                 // FILE UPLOAD
                 //
-                
+                const uploadFileName = {current: null}
                 // detect file upload
                 fileUpload.addEventListener("change", (e) => {
+                    // console.log(123,e.target.files)
+                    uploadFileName.current = e.target.files[0].name
+                    uploadFileDiv = document.getElementById("upload-file-name")
+                    uploadFileDiv.innerHTML = `Source file: ${uploadFileName.current}`
+
                     uploadFile(e.target.files[0]);
                 })
                 
@@ -418,6 +443,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
+            <div id="upload-file-name"></div>	
             <div class="settings-wrapper">
                 <div class="config-wrapper">
                     📊 View: <select id="perspective-config-select"> </select> 
@@ -437,6 +463,23 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     display: flex;
                     flex-direction: column;
                 }
+
+                #upload-file-name:hover {
+                    opacity:0.00001;
+                }
+                #upload-file-name {
+                    background: white;
+                    position: absolute;
+                    top:30px;
+                    left: 20px;
+                    z-index: 1000;
+                    margin-left: 8px;
+                    padding: 5px;
+                    font-size: 11px;
+                    color: grey;
+                    border-radius: 4px;
+                }
+
 
                 .settings-wrapper {
                     // display: flex;
