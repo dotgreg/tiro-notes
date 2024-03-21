@@ -443,7 +443,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
-            <div id="upload-file-name"></div>	
+            
             <div class="settings-wrapper">
                 <div class="config-wrapper">
                     📊 View: <select id="perspective-config-select"> </select> 
@@ -454,6 +454,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" type="file">
                     </div>
+                    <div id="upload-file-name"></div>	
                 </div>
             </div>
             <perspective-viewer editable style="width: calc(100%);height: 100%;"> </perspective-viewer>
@@ -464,21 +465,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     flex-direction: column;
                 }
 
-                #upload-file-name:hover {
-                    opacity:0.00001;
-                }
-                #upload-file-name {
-                    background: white;
-                    position: absolute;
-                    top:30px;
-                    left: 20px;
-                    z-index: 1000;
-                    margin-left: 8px;
-                    padding: 5px;
-                    font-size: 11px;
-                    color: grey;
-                    border-radius: 4px;
-                }
+               
+               
 
 
                 .settings-wrapper {
@@ -486,10 +474,13 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     padding: 0px 20px;
                     font-size: 10px;
                 }
+                
+
                 .settings-wrapper select, .settings-wrapper button {
                     font-size: 10px;
                 }
                 .settings-wrapper .config-wrapper {
+                    position:relative;
                 }
                 .settings-wrapper #views-buttons-wrapper {
                     display: inline-block;
@@ -499,6 +490,23 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     cursor: pointer;
                     display: inline-block;
                     margin-left: 20px;
+                }
+
+
+                .config-wrapper #upload-file-name {
+                    background: white;
+                    position: absolute;
+                    bottom:-39px;
+                    left: 0px;
+                    z-index: 1000;
+                    margin-left: 8px;
+                    padding: 5px;
+                    font-size: 11px;
+                    color: grey;
+                    border-radius: 4px;
+                }
+                #upload-file-name:hover {
+                    opacity:0.00001;
                 }
 
 
