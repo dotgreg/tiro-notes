@@ -43,7 +43,8 @@ export const getAllCompletionSources = (file: iFile, onAutocomplete:Function): C
 // with --
 //
 export const completionSourceSnippets:any = (onAutocomplete) =>  (context) => {
-	let before = context.matchBefore(/\-\-/);
+	// let before = context.matchBefore(/\-\-/);
+	let before = context.matchBefore(/\-/);
 	if (!context.explicit && !before) return null;
 	const path = `${sharedConfig.path.configFolder}/snippets.md`
 

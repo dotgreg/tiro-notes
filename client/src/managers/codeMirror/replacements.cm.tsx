@@ -24,8 +24,16 @@ export type iReplacementFn = (params:{matchs: string[], view:any, pos:any}) => H
 export type iClassWrapperFn = (matchs: string[]) => string
 
 class ReplacementWidget extends WidgetType {
-	constructor(readonly match: any,readonly view: any,readonly pos: any, readonly replacement: iReplacementFn) { super(); }
+	constructor(
+		readonly match: any,
+		readonly view: any,
+		readonly pos: any, 
+		readonly replacement: iReplacementFn
+	) { super(); }
 	toDOM() { return this.replacement({matchs:this.match, view:this.view, pos:this.pos}) }
+	get estimatedHeight(): number {
+		return 500
+	}
 }
 
 

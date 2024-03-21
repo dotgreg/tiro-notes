@@ -275,39 +275,6 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
 
 
-
-
-
-
-
-
-
-                // const genViewConfig = (configStr/*:string*/) => {
-                //         let curr = new Date()
-                //         let month = curr.getMonth() + 1
-                //         let year = curr.getFullYear()
-                //         let day = curr.getDate()
-                //         let week = weekOfYear(day, month, year)
-                //         // make all these vars strings
-                //         // replace {{month}}, {{year}}, {{day}}, {{week}} in configStr
-                //         configStr = configStr.replace("{{month}}", month).replace("{{year}}", year).replace("{{day}}", day).replace("{{week}}", week)
-                //         return configStr
-                // }
-                
-                // const viewConfigs = {
-                //         heatmapMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                //         barsMonth : () =>  genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                //         heatmapWeek : () => genViewConfig(`{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                //         barsToday : () => genViewConfig(`{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`),
-                //         datagrid : () => genViewConfig(`{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`),
-                // }
-                // transform that viewConfig below into an obj like {heatmapMonth: "....", barsMonth: "....", ...}
-                
-
-
-
-
-
                 ///////////////////////////////////////////////////////////////////
                 //  
                 // START LOGIC
