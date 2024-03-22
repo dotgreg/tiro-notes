@@ -41,7 +41,25 @@ type iView = {
     config: string
 }
 */
+const helpStr = `
+<h3>Introduction</h3>
+<p>This is a Graph Perspective component, allowing you to visualize data in a table, graph, or other formats. 
+<br> You can use it as a custom tag using [[datatable]]. You can view data directly from a .csv or an .parquet file.
+<br> You can also save and load views configurations to reuse them later.</p>
+</p>
 
+<h3>Sharing Custom Columns in several views</h3>
+<p>You can share custom columns with other config views if the custom column name starts with "ID_" and the views to share into also starts with "ID_" 
+<br>Ex: if you create a custom column "flights_custom_count", it will be shared in all views config starting by "lflights_"</p>
+
+<h3>Manual save/modification of views configs</h3>
+<p>You can modify/save/backup the views by going to /.tiro/cache/cache-api/cache-api-storage-PATH_TO_FILE_datatable_ctagmd</p>
+
+<h3>{{day}} {{month}}, {{year}}</h3>
+<p>You can have up to date views configs by changing parts of the config with tags like {{day}} {{month}}, {{year}} <br>
+ex: ' \"filter\":[[\"month\",\"==\",{{month}}],[\"year\",\"==\",{{year}}],[\"day\",\"==\",{{day}}]] ' inside the view config file path described below
+</p>
+`
 
 let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
     let hl = "[GRAPH PERSPECTIVE LIB]"
@@ -194,9 +212,16 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     try {
                         configString = enrichViewConfigStr(configString)
                         const configObj = JSON.parse(configString);
-                        viewer.restore(configObj);
+                        viewer.restore(configObj).then(
+                            (res) => { 
+                            },(res) => { 
+                                api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${res}" for config: <br><br><code>${configString}</code>`, options:{hideAfter: 120}}])    
+                            }
+                        );
                     } catch (error) {
                         // alert("Error setting config", JSON.stringify(error))
+                        // ddd
+                        
                         console.warn(hl, "Error setting config", error)
                     }
                 }
@@ -222,6 +247,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 // get all the buttons
                 const configSelect = document.getElementById("perspective-config-select");
                 const configSave = document.getElementById("perspective-config-save");
+                const configHelp = document.getElementById("perspective-config-help");
                 const configDelete = document.getElementById("perspective-config-delete");
                 const fileUpload = document.getElementById("perspective-config-file-upload");
 
@@ -329,6 +355,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     });
                 });
                 
+                // HELP
+                configHelp.addEventListener("click", () => {
+                    console.log(hl,"help")
+                    api.call("popup.show", [helpStr, "Graph Perspective Help"])
+                });
+                
                 configDelete.addEventListener("click", () => {
                     let name = configSelect.value
                     if (name) {
@@ -359,8 +391,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     updateSelectActiveOption(viewName)
                     getViewsCache(
                         views => {
-                            finalExpressionObj = {}
-                            views2 = [...defaultViews, ...views]
+                            const finalExpressionObj = {}
+                            const views2 = [...defaultViews, ...views]
                             views2.forEach(v => {
                                 v.config = enrichViewConfigStr(v.config)
                                 v.obj = JSON.parse(v.config)
@@ -372,13 +404,31 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                                 }
                             })
                             // replace each views2.obj.expressions with finalExpressionObj
-                            views2.forEach(v => {
-                                v.obj.expressions = finalExpressionObj
-                                v.config = JSON.stringify(v.obj)
-                            })
+                            // views2.forEach(v => {
+                            //     v.obj.expressions = finalExpressionObj
+                            //     v.config = JSON.stringify(v.obj)
+                            // })
                             // views2
-                            console.log("ALL VIEWS", views, views2)
+                            // console.log("ALL VIEWS", views, views2)
                             const view = views2.find(v => v.name === viewName)
+                            if (view) {
+                                // if view exists, parse it
+                                view.obj = JSON.parse(view.config)
+
+                                // if view starts with something_ take that 
+                                const viewCatName = viewName.split("_")[0]
+                                if (viewCatName) {
+                                    // loop inside finalExpressionObj for keys starting with viewCatName
+                                    const keys = Object.keys(finalExpressionObj).filter(k => k.startsWith(viewCatName))
+                                    // for each key, add it to view.obj.expressions
+                                    keys.forEach(k => {
+                                        view.obj.expressions[k] = finalExpressionObj[k]
+                                    })
+                                }
+
+                                // stringify it
+                                view.config = JSON.stringify(view.obj)
+                            }
                             if (view) viewer.setConfig(view.config)
                         }
                     )
@@ -451,6 +501,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     <div id="views-buttons-wrapper"> </div>
                     <button id="perspective-config-save"> 💾 </button>
                     <button id="perspective-config-delete"> ❌ </button>
+                    <button id="perspective-config-help"> ? </button>
                     <div class="upload-wrapper">
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" type="file">
