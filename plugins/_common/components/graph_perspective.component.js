@@ -215,7 +215,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         viewer.restore(configObj).then(
                             (res) => { 
                             },(res) => { 
-                                api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${res}" for config: <br><br><code>${configString}</code>`, options:{hideAfter: 120}}])    
+                                api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${JSON.stringify(res)}" for config: <br><br><code>${configString}</code>`, options:{hideAfter: 120}}])    
                             }
                         );
                     } catch (error) {
