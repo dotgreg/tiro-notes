@@ -178,7 +178,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     let days = Math.floor((date - startDate) / (24 * 60 * 60 * 1000)) + ((startDate.getDay() + 6) % 7);
                     return Math.ceil(days / 7) + 1;
                 }
-                const genViewConfig = (configStr/*:string*/) => {
+                const enrichViewConfigStr = (configStr/*:string*/) => {
                     let curr = new Date()
                     let month = curr.getMonth() + 1
                     let year = curr.getFullYear()
@@ -192,7 +192,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 viewer.setConfig = (configString) => {
                     if (!initLoaded) return
                     try {
-                        configString = genViewConfig(configString)
+                        configString = enrichViewConfigStr(configString)
                         const configObj = JSON.parse(configString);
                         viewer.restore(configObj);
                     } catch (error) {
@@ -362,6 +362,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                             finalExpressionObj = {}
                             views2 = [...defaultViews, ...views]
                             views2.forEach(v => {
+                                v.config = enrichViewConfigStr(v.config)
                                 v.obj = JSON.parse(v.config)
                                 // for each v.obj.expressions method, add it to finalExpressionObj
                                 if (v.obj.expressions) {
