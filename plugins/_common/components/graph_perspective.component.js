@@ -49,8 +49,8 @@ const helpStr = `
 </p>
 
 <h3>Sharing Custom Columns in several views</h3>
-<p>You can share custom columns with other config views if the custom column name starts with "ID_" and the views to share into also starts with "ID_" 
-<br>Ex: if you create a custom column "flights_custom_count", it will be shared in all views config starting by "lflights_"</p>
+<p>You can share custom columns with other config views if the custom column name starts with "ID-" and the views to share into also starts with "ID-" 
+<br>Ex: if you create a custom column "flights-custom-count", it will be shared in all views config starting by "flights-"</p>
 
 <h3>Manual save/modification of views configs</h3>
 <p>You can modify/save/backup the views by going to /.tiro/cache/cache-api/cache-api-storage-PATH_TO_FILE_datatable_ctagmd</p>
@@ -416,10 +416,11 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                                 view.obj = JSON.parse(view.config)
 
                                 // if view starts with something_ take that 
-                                const viewCatName = viewName.split("_")[0]
-                                if (viewCatName) {
+                                const hasViewCat = viewName.split("-").length > 1
+                                const viewCatName = viewName.split("-")[0]
+                                if (hasViewCat) {
                                     // loop inside finalExpressionObj for keys starting with viewCatName
-                                    const keys = Object.keys(finalExpressionObj).filter(k => k.startsWith(viewCatName))
+                                    const keys = Object.keys(finalExpressionObj).filter(k => k.startsWith(viewCatName + "-"))
                                     // for each key, add it to view.obj.expressions
                                     keys.forEach(k => {
                                         view.obj.expressions[k] = finalExpressionObj[k]
