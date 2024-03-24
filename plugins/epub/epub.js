@@ -310,7 +310,7 @@ const epubApp = (innerTagStr, opts) => {
 													// console.log(11111, fullHtmlObjs)
 													rawTxt = fulltxt
 													cleanedTxt = cleanTxt(fulltxt)
-													console.log({rawTxt, cleanedTxt})
+													// console.log({rawTxt, cleanedTxt})
 													if (cb) cb(cleanedTxt)
 											}
 									});
