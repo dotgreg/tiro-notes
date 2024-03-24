@@ -16,9 +16,11 @@ const sendBgNotif = (daysInFuture) => {
         })
     }
 
+    const showWearAdvices = config.all?.showWearAdvices || false
+
     fetchLibs(weatherLib => {
         const isCachedForFewHours = !config.isDev
-        weatherLib.sendNotifWeather(daysInFuture, config.pos, isCachedForFewHours)
+        weatherLib.sendNotifWeather(daysInFuture, config.pos, isCachedForFewHours, -1, showWearAdvices)
     })
 }
 
