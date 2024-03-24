@@ -118,7 +118,30 @@ export const SettingsPopup = (p: {
 					// },
 				// ],
 			// },
-			
+			{
+				title: "plugins",
+				fields: [
+					{
+						type: 'text',
+						title: "Plugins Marketplace URL",
+						expl: "Custom Plugins Marketplace URL, should redirect to a marketplace.json file <br> Goes to the official 'https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json' by default/if empty.",
+						var: us.get('plugins_marketplace_url'),
+						modifier: val => { us.set('plugins_marketplace_url', val) }
+					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> Clean Plugins Cache </button>`,
+						title: "Clean Plugins Cache",
+						readOnly: true,
+						expl: `Clean Plugins Cache`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							devCliExecFn("cache", "clean_cache")
+						}
+					}
+				]
+			},
 			{
 				title: "layout",
 				fields: [
@@ -405,30 +428,7 @@ export const SettingsPopup = (p: {
 					}
 				]
 			},
-			{
-				title: "plugins",
-				fields: [
-					{
-						type: 'text',
-						title: "Plugins Marketplace URL",
-						expl: "Custom Plugins Marketplace URL, should redirect to a marketplace.json file <br> Goes to the official 'https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json' by default/if empty.",
-						var: us.get('plugins_marketplace_url'),
-						modifier: val => { us.set('plugins_marketplace_url', val) }
-					},
-					{
-						type: 'none',
-						var: "",
-						customHtml: `<button> Clean Plugins Cache </button>`,
-						title: "Clean Plugins Cache",
-						readOnly: true,
-						expl: `Clean Plugins Cache`,
-						modifier: () => { },
-						onCustomHtmlClick: () => {
-							devCliExecFn("cache", "clean_cache")
-						}
-					}
-				]
-			},
+			
 			{
 				title: "Users and Rights",
 				fields: [
