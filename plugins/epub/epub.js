@@ -226,7 +226,13 @@ const epubApp = (innerTagStr, opts) => {
 						const cacheLocation = "locations"
 						getCache(cacheLocation, locations => {
 								book.locations.load(locations)
+								// console.log(123, locations)
 								window.updateStatus("")
+
+								// book.spine.each(res => {
+								// 	console.log(res)
+								// })
+
 								onDone()
 						}, () => {
 								book.locations.generate(1024).then(() => {
@@ -278,7 +284,12 @@ const epubApp = (innerTagStr, opts) => {
 				const cleanTxt = (txt) => {
 					let cleaned = txt
 					// used for tts, cleaning is also done inside tts 
-					cleaned = cleaned.replace(/<[^>]*>?/gm, ' '); // remove html tags
+					// remove html tags like <br> <div> etc
+					cleaned = cleaned.replace(/<[^> ]{1}[^>]*>?/gm, ' ');
+					// replace < and > with space
+					cleaned = cleaned.replace(/</gm, ' ');
+					cleaned = cleaned.replace(/>/gm, ' ');
+
 					cleaned = cleaned.replace(/((&lt;!--).+?(--&gt;))/gm, ' '); // remove html comments
 					cleaned = cleaned.replace(/(<!--).+?(-->)/gm, ' '); // remove html comments
 					cleaned = cleaned.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
@@ -286,16 +297,23 @@ const epubApp = (innerTagStr, opts) => {
 				}
 				const getFullBookContent = (cb) => {
 						let fulltxt = ``
+						let fullHtmlObjs = []
 						book.loaded.spine.then((spine) => {
 								spine.each((item, i) => {
-										item.load(book.load.bind(book)).then((contents) => {
-												fulltxt = fulltxt + contents.innerText
-												if (i === spine.length - 1) {
-														// clean txt 
-														fulltxt = cleanTxt(fulltxt)
-														if (cb) cb(fulltxt)
-												}
-										});
+									// fullHtml += item?.contents?.innerHTML
+									fullHtmlObjs.push(item)
+									// console.log(333, item?.contents?.innerHTML)
+									item.load(book.load.bind(book)).then((contents) => {
+											fulltxt = fulltxt + contents.innerText
+											if (i === spine.length - 1) {
+													// clean txt 
+													// console.log(11111, fullHtmlObjs)
+													rawTxt = fulltxt
+													cleanedTxt = cleanTxt(fulltxt)
+													console.log({rawTxt, cleanedTxt})
+													if (cb) cb(cleanedTxt)
+											}
+									});
 								});
 						});
 				}
