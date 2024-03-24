@@ -198,6 +198,27 @@ const epubApp = (innerTagStr, opts) => {
 							window.updateTot()
 							if (p.pager) window.updatePager(pageNb)
 							if (p.cachePage) setCache("page", getPage())
+
+							console.log(h, "updateUI", { pageNb, p })
+
+							// get all .epub-view
+							let epubView = document.getElementsByClassName("epub-view")
+							// filter all with no .height-corrected
+							let epubViewFiltered = Array.from(epubView).filter(el => !el.classList.contains("height-corrected"))
+							// add .height-corrected
+							epubViewFiltered.forEach(el => {
+								// if data-height-ref is set, set height to it
+								let heightRef = el.getAttribute("data-height-ref")
+								// if does not exists, create it and put height
+								if (!heightRef) {
+									heightRef = el.clientHeight
+									el.setAttribute("data-height-ref", heightRef)
+								}
+								const nheight = parseInt(heightRef) + 200
+								el.style.height = `${nheight}px`
+								let ifr = el.querySelector("iframe")
+								if (ifr) ifr.style.height = `${nheight}px`
+							})
 						}
 
 						if (!pageNb) {
@@ -533,7 +554,6 @@ const epubApp = (innerTagStr, opts) => {
 						// related to epub.js api
 						eapi.getFullBookContent() 
 
-						console.log(3333, document.getElementById("epub-wrapper-ctag"))
 						if (isMobile()) document.getElementById("epub-wrapper-ctag")?.classList.add("mobile")
 						else document.getElementById("epub-wrapper-ctag")?.classList.add("desktop")
 
