@@ -25,6 +25,13 @@ const main = (weatherLib) => {
       }
       barApi.setOptions(res)
     })
+    // historyArr.pop() // remove cat
+    // historyArr.push({label: " ", value: " "})
+    // setTimeout(() => {
+    //   const historyArr = [...barApi.selectedTags]
+    //   console.log(historyArr)
+    //   if(barApi.addToOmniHistory) barApi.addToOmniHistory(historyArr)
+    // , 1000})
   }
 
   if (barApi.selectedTags.length === 3) {
@@ -40,8 +47,11 @@ const main = (weatherLib) => {
     if (!tag.value) return
     let daysFuture = getRelativeDaysFromDate(tag.value)
     const isCached = false
-    const hideAfter = 10
-    weatherLib.sendNotifWeather(daysFuture, config.pos, isCached, 10)
+    const hideAfter = 60
+    const showWearAdvices = config.all?.showWearAdvices || false
+
+    
+    weatherLib.sendNotifWeather(daysFuture, config.pos, isCached, hideAfter, showWearAdvices)
   }
 }
 
