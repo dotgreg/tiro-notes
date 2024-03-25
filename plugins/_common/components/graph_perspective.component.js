@@ -209,7 +209,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 }
                 viewer.setConfig = (configString) => {
                     if (!initLoaded) return
-                    try {
+                try {
                         configString = enrichViewConfigStr(configString)
                         const configObj = JSON.parse(configString);
                         viewer.restore(configObj).then(

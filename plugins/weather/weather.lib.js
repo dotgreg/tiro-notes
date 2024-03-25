@@ -60,7 +60,7 @@ const getHourlyForecast = (futureDay, apiRes) => {
         let elHour = new Date(el.dt*1000).getHours()
         let elWeather = getEmo(el.weather[0].icon)
         // resPerHour += `${elHour}h: ${Math.round(el.temp)}d ${elWeather} || `
-        let lineJump = i % 3 === 0 ? "<br/>" : " | "
+        let lineJump = i % 3 === 0 ? "<br/>" : "|"
         let tempNb = Math.round(el.temp)
         let tempStr = tempNb
         if (tempNb < 10) tempStr = `0${tempNb}`
@@ -109,7 +109,7 @@ const sendNotifWeather = (dayFuture, pos, isCached, hideAfter, showWearAdvices) 
                 if (hourWeather[0] < 15) advice = `👖`
                 if (hourWeather[0] >= 15) advice = `🩳`
                 if (hourWeather[1] === "🌧️️") advice = `☂️`
-                advice += ` (${hourWeather[0]} + ${hourWeather[1]})`
+                advice += ` (${hourWeather[0]}° ${hourWeather[1]})`
 
                 showWearAdvicesStr += `<b>${hour}h:</b> ${advice} <br>`
             })

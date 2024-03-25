@@ -481,15 +481,20 @@ export const SettingsPopup = (p: {
 				fields: [
 					{ type: 'text', var: backendPort, title: s.backend.port, expl: s.backend.portExpl, modifier: setBackendPort },
 					// { type: 'text', var: backendProtocol, title: s.backend.protocol, expl: s.backend.protocolExpl, modifier: setBackendProtocol },
+					
+					
 					{
-						type: 'checkbox',
-						title: "Activity Logging",
-						expl: "Enable the activity logging for events like read/write files, you can then consult it using api.activity.getReport(). \n Requires an app restart to take effect.",
-						var: us.get('server_activity_logging_enable'),
-						modifier: val => {
-							us.set('server_activity_logging_enable', val)
-						}
+						type: 'textarea',
+						title: "Options for Image compression",
+						expl: `Modify default image compression settings  ${showDefaultString("advanced_image_compression_settings")}`,
+						var: us.get('advanced_image_compression_settings'),
+						modifier: val => { us.set('advanced_image_compression_settings', val) }
 					},
+				]
+			},
+			{
+				title: "Privacy",
+				fields: [
 					{
 						type: 'checkbox',
 						title: "Disable notification popups",
@@ -501,11 +506,30 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
-						type: 'textarea',
-						title: "Options for Image compression",
-						expl: `Modify default image compression settings  ${showDefaultString("advanced_image_compression_settings")}`,
-						var: us.get('advanced_image_compression_settings'),
-						modifier: val => { us.set('advanced_image_compression_settings', val) }
+						type: 'checkbox',
+						title: "Work mode ",
+						expl: "Only displays notifications and omnibar history items related to your work" ,
+						var: us.get('privacy_work_mode_enable'),
+						modifier: val => {
+							setDisplayReload(true)
+							us.set('privacy_work_mode_enable', val)
+						}
+					},
+					{
+						type: 'text',
+						title: "Work mode filter",
+						expl: `Only shows notifications and omnibar history items that contain this string. <br> Separate multiple filters with a comma.  ${showDefaultString("privacy_work_mode_filters")}` ,
+						var: us.get('privacy_work_mode_filters'),
+						modifier: val => { us.set('privacy_work_mode_filters', val) }
+					},
+					{
+						type: 'checkbox',
+						title: "Activity Logging",
+						expl: "Enable the activity logging for events like read/write files, you can then consult it using api.activity.getReport(). \n Requires an app restart to take effect.",
+						var: us.get('server_activity_logging_enable'),
+						modifier: val => {
+							us.set('server_activity_logging_enable', val)
+						}
 					},
 				]
 			},

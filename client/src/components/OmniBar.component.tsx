@@ -18,6 +18,7 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
 import { useBackendState } from '../hooks/useBackendState.hook';
 import { evalPluginCode } from '../managers/plugin.manager';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
+import { workMode_filterIFiles } from '../managers/workMode.manager';
 
 const omniParams = {
 	search: {
@@ -797,13 +798,22 @@ export const OmniBar = (p: {
 	//
 	const startLastNotesModeLogic = () => {
 		setHelp(baseHelp)
-		let nOptions = filesToOptions(p.lastNotes)
+
+		// const filteredLastNotes:iFile[] = []
+		// each(p.lastNotes, lastNote => {
+		// 	if (lastNote.)
+		// })
+		const filteredLastNotes = workMode_filterIFiles(p.lastNotes)
+
+		let nOptions = filesToOptions(filteredLastNotes)
 
 		// intervert el 1 and el 2
-		let o1 = nOptions.shift() as iOptionOmniBar
-		let o2 = nOptions.shift() as iOptionOmniBar
-		nOptions.unshift(o1)
-		nOptions.unshift(o2)
+		if (nOptions.length >= 2) {
+			let o1 = nOptions.shift() as iOptionOmniBar
+			let o2 = nOptions.shift() as iOptionOmniBar
+			nOptions.unshift(o1)
+			nOptions.unshift(o2)
+		}
 
 		// setLastNotesOptions(nOptions)
 		let initialFile = nOptions[0] ? nOptions[0].payload?.file : null

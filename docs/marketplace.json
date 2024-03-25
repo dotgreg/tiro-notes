@@ -203,7 +203,12 @@
     "description": "Description of weather",
     "versions": [
       {
-        "version": "0.1.1",
+        "version": "0.1.2",
+        "date": "24/03/24",
+        "comment": "adding showWearAdvices option and improved weather display"
+      },
+      {
+        "version": "0.1.1.2",
         "date": "10/07/23",
         "comment": "adding a popup that gives tomorrows weather + dev + option to not show tomorrow popup"
       },

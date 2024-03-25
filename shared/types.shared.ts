@@ -116,6 +116,8 @@ export type iUserSettingName =
 
 'server_activity_logging_enable' |
 'view_disable_notification_popups' |
+'privacy_work_mode_enable' |
+'privacy_work_mode_filters' |
 'plugins_marketplace_url' |
 'advanced_image_compression_settings' |
 

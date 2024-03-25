@@ -6,6 +6,8 @@ import { getApi } from '../hooks/api/api.hook';
 import { devCliAddFn } from '../managers/devCli.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon2 } from './Icon.component';
+import { userSettingsSync } from '../hooks/useUserSettings.hook';
+import { workMode_isStringOk } from '../managers/workMode.manager';
 
 devCliAddFn("notification", "emit", (str?: string, o?: any) => {
 	// if (!o.hideAfter) o.hideAfter
@@ -39,6 +41,10 @@ export const NotificationsCenter = (p: {
 					// if notifications are disabled in settings, do not display it
 					isEnabled(res => {
 						if (!res === true) return console.log("[NOTIFS] notifications disabled, not displaying it")
+						
+						const workModePass = workMode_isStringOk(data.notification.content)
+						if (!workModePass) return console.log("[NOTIFS] workMode not ok, not displaying it")
+
 						if (!data.notification.id) data.notification.id = generateUUID()
 						addNotif(data.notification)
 						afterTimeoutClose(data.notification)
