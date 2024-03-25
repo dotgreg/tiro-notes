@@ -70,6 +70,8 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	server_activity_logging_enable: false,
 	view_disable_notification_popups: false,
+	privacy_work_mode_enable: false,
+	privacy_work_mode_filters: "work,meeting",
 	beta_floating_windows: false,
 	beta_plugins_marketplace: false,
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
