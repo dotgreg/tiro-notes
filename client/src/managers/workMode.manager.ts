@@ -10,7 +10,7 @@ const getWorkModeSettings = () => {
     const workModeFiltersArr = workModeFilters.split(",")
     // trim each term
     workModeFiltersArr.forEach((term, i) => {
-        workModeFiltersArr[i] = term.trim()
+        workModeFiltersArr[i] = term.trim().toLowerCase()
     })
     return { workModeEnabled, workModeFilters, workModeFiltersArr }
 }
@@ -24,7 +24,7 @@ export const workMode_filterIFiles = (files: iFile[]): iFile[] => {
     const filteredLastNotes:iFile[] = []
     each( workModeFiltersArr, term => {
         // console.log("term", term)
-        const filtered = files.filter(n => n.name.includes(term) || n.path.includes(term))
+        const filtered = files.filter(n => n.name.toLowerCase().includes(term) || n.path.toLowerCase().includes(term))
         filteredLastNotes.push(...filtered)
     })
     console.log(`${h} filtered ${files.length} files to ${filteredLastNotes.length} files with work mode filters ${workModeFilters}`)
@@ -36,7 +36,7 @@ export const workMode_isStringOk = (str: string): boolean => {
     if (!workModeEnabled) return true
     let found = false
     each( workModeFiltersArr, term => {
-        if (str.includes(term)) found = true
+        if (str.toLowerCase().includes(term)) found = true
     })
     return found
 }
