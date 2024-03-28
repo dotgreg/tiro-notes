@@ -119,6 +119,47 @@ export const SettingsPopup = (p: {
 				// ],
 			// },
 			{
+				title: "Privacy",
+				fields: [
+					{
+						type: 'checkbox',
+						title: "Disable notification popups",
+						expl: "Force notification popups to not appear on the interface" + requireReloadStr,
+						var: us.get('view_disable_notification_popups'),
+						modifier: val => {
+							setDisplayReload(true)
+							us.set('view_disable_notification_popups', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Work mode ",
+						expl: "Only displays notifications and omnibar history items related to your work" ,
+						var: us.get('privacy_work_mode_enable'),
+						modifier: val => {
+							setDisplayReload(true)
+							us.set('privacy_work_mode_enable', val)
+						}
+					},
+					{
+						type: 'text',
+						title: "Work mode filter",
+						expl: `Only shows notifications and omnibar history items that contain this string. <br> Separate multiple filters with a comma.  ${showDefaultString("privacy_work_mode_filters")}` ,
+						var: us.get('privacy_work_mode_filters'),
+						modifier: val => { us.set('privacy_work_mode_filters', val) }
+					},
+					{
+						type: 'checkbox',
+						title: "Activity Logging",
+						expl: "Enable the activity logging for events like read/write files, you can then consult it using api.activity.getReport(). \n Requires an app restart to take effect.",
+						var: us.get('server_activity_logging_enable'),
+						modifier: val => {
+							us.set('server_activity_logging_enable', val)
+						}
+					},
+				]
+			},
+			{
 				title: "plugins",
 				fields: [
 					{
@@ -492,47 +533,7 @@ export const SettingsPopup = (p: {
 					},
 				]
 			},
-			{
-				title: "Privacy",
-				fields: [
-					{
-						type: 'checkbox',
-						title: "Disable notification popups",
-						expl: "Force notification popups to not appear on the interface" + requireReloadStr,
-						var: us.get('view_disable_notification_popups'),
-						modifier: val => {
-							setDisplayReload(true)
-							us.set('view_disable_notification_popups', val)
-						}
-					},
-					{
-						type: 'checkbox',
-						title: "Work mode ",
-						expl: "Only displays notifications and omnibar history items related to your work" ,
-						var: us.get('privacy_work_mode_enable'),
-						modifier: val => {
-							setDisplayReload(true)
-							us.set('privacy_work_mode_enable', val)
-						}
-					},
-					{
-						type: 'text',
-						title: "Work mode filter",
-						expl: `Only shows notifications and omnibar history items that contain this string. <br> Separate multiple filters with a comma.  ${showDefaultString("privacy_work_mode_filters")}` ,
-						var: us.get('privacy_work_mode_filters'),
-						modifier: val => { us.set('privacy_work_mode_filters', val) }
-					},
-					{
-						type: 'checkbox',
-						title: "Activity Logging",
-						expl: "Enable the activity logging for events like read/write files, you can then consult it using api.activity.getReport(). \n Requires an app restart to take effect.",
-						var: us.get('server_activity_logging_enable'),
-						modifier: val => {
-							us.set('server_activity_logging_enable', val)
-						}
-					},
-				]
-			},
+			
 			{
 				title: "Beta",
 				fields: [
