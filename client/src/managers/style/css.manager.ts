@@ -308,7 +308,7 @@ const CssAppIntStatic = (
 									transition: 0.2s all;
 									transition-delay: 500ms, 0ms;
 									position: absolute;
-									left: -${sizes.desktop.l}vw;
+									left:  calc(-37vw - 400px);
 									top: 0px;
 							}
 					}
@@ -336,7 +336,7 @@ const CssAppIntStatic = (
 					background-color: ${cssVars.colors.bgInterface2};
 					background-blend-mode: color-burn;
 					color: ${cssVars.colors.fontInterface2};
-					width: ${sizes.desktop.l1}%;
+					width: 37%;
 					height:100vh;
 					position: relative;
 
@@ -357,7 +357,7 @@ const CssAppIntStatic = (
 				// TEXT VIEW : LEFT 2
 				////////////////////////////////////////////v2
 				.left-wrapper-2 {
-						width: ${sizes.desktop.l2}%;
+						width: 63%;
 						height:100vh;
 						overflow: hidden;
 						background: ${cssVars.colors.bgInterface};
@@ -524,8 +524,9 @@ const CssAppIntDynamic = (
 			////////////////////////////////////////////v 
 			${draggableGridCss(pinStatus)}
 			.left-wrapper {
-				width: ${deviceType() === 'desktop' ? sizes.desktop.l : (mobileView !== 'navigator' ? 0 : 100)}vw;
+				width: ${deviceType() === 'desktop' ? 37 : (mobileView !== 'navigator' ? 0 : 100)}vw;
 				display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
+				min-width: 400px;
 			}
 		} // end main-wrapper
 `//css
