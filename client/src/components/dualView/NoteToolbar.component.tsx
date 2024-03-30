@@ -6,6 +6,8 @@ import { iCursorInfos } from './CodeMirrorEditor.component';
 import { deviceType } from '../../managers/device.manager';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 import { getFontSize } from '../../managers/font.manager';
+import { genAiButtonsConfig } from '../../managers/ai.manager';
+import { each } from 'lodash-es';
 
 
 
@@ -17,7 +19,7 @@ export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo"
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
   selection: string,
-	onButtonClicked: (action: iActionsNoteToolbar) => void
+	onButtonClicked: (action: iActionsNoteToolbar, options?:any) => void
 }) => {
   // if (!p.bottom) p.bottom = 140
   // let bottom = p.bottom || 140
@@ -33,7 +35,7 @@ export const NoteToolsPopup = (p: {
     p.onButtonClicked(action)
   }
 
-  const btnsConfigOpen:iToolbarButton[] =  [
+  let btnsConfigOpen:iToolbarButton[] =  [
     { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
     { icon: 'faUndo', action: () => onButtonClicked('undo') },
     { icon: 'faRedo', action: () => onButtonClicked('redo') },
@@ -48,7 +50,7 @@ export const NoteToolsPopup = (p: {
   ]
 
    // if selection, push ai button at the second position
-  const btnsConfigClosed:iToolbarButton[] = []
+  let btnsConfigClosed:iToolbarButton[] = []
   btnsConfigClosed.push({ icon: 'faCircle', action: () => setIsOpen(true) })
   if (p.selection.length > 0) {
     let isMath = seemsArithmetic(p.selection)
@@ -59,11 +61,25 @@ export const NoteToolsPopup = (p: {
       customHtml: <div className='numbers-preview-wrapper'><i className='fa fa-calculator'></i><span className='numbers-preview'>{calcSelected(p.selection)}</span></div>, 
       action: () => {p.onButtonClicked('calc'); setIsOpen(false); }
     }
-    const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', title:"AI assistant", action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
+    // const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', title:"AI assistant", action: () => {p.onButtonClicked('aiSearch', {}); setIsOpen(false); }}
+    const isAiEnabled = userSettingsSync.curr.ui_editor_ai_text_selection
+
+    const genAiButtons = ():iToolbarButton[] => {
+      let res:iToolbarButton[] = []
+      if (userSettingsSync.curr.ui_editor_live_watch && isAiEnabled) {
+        const aiBtnsConfig = genAiButtonsConfig()
+        each(aiBtnsConfig, (aiConfig) => {
+          res.push({ icon: aiConfig.icon, title: aiConfig.title, action: () => {p.onButtonClicked('aiSearch', {aiConfig}); setIsOpen(false); }})
+        })
+      }
+      return res
+    }
+
+
     const copyLinkLine:iToolbarButton = { icon: 'copy', title:"Copy line link", action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
     const proofreadBtn:iToolbarButton = { icon: 'spell-check', title:"Proofread selection" , action: () => {p.onButtonClicked('proofread'); setIsOpen(false); }}
     //------------
-    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigClosed.push(aiBtn)
+    btnsConfigClosed = [...btnsConfigClosed, ...genAiButtons()]
     btnsConfigClosed.push(copyLinkLine)
     btnsConfigClosed.push(proofreadBtn)
     if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigClosed.push(mathBtn)
@@ -75,7 +91,7 @@ export const NoteToolsPopup = (p: {
     if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigOpen.push(mathBtn2)
     btnsConfigOpen.push(copyLinkLine)
     btnsConfigOpen.push(proofreadBtn)
-    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigOpen.push(aiBtn)
+    btnsConfigOpen = [...btnsConfigOpen, ...genAiButtons()]
 
   }
   

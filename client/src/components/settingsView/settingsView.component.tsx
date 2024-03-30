@@ -326,16 +326,18 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "AI Suggest",
-						expl: "Send the selected text as a question to an AI",
+						expl: "Send the selected text as a question to an AI" + requireReloadStr,
 						var: us.get('ui_editor_ai_text_selection'),
 						modifier: val => {
+							setDisplayReload(true);
 							us.set('ui_editor_ai_text_selection', val)
 						}
 					},
 					{
 						type: 'textarea',
 						title: "AI Suggest command line",
-						expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
+						// expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
+						expl: "Custom command lines, great for AI, <br/> One custom command per line with the following format: <br><br> name | <a href='https://fontawesome.com/search?q=wand&o=r&m=free'> icon name </a> | 'new' or 'current'  | command <br> - 'new' or 'current': answer inserted in a new window or current one <br> - command: {{input}} will be replaced by the selection. <br><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
@@ -634,14 +636,15 @@ export const SettingsPopup = (p: {
 														}}
 													></div>
 												}
-											</div>
-
-											<div
+												<div
 												className="explanation"
 												dangerouslySetInnerHTML={{
 													__html: field.expl || "" + "woop"
 												}}
 											></div>
+											</div>
+
+											
 										</div>
 									)
 								}
@@ -701,10 +704,9 @@ export const settingsPopupCss = () => `
 .settings-panel {
 		
 		.input-and-html-wrapper {
-			width: 50%;
+			// width: 50%;
 			.input-component-wrapper  {
 				.input-component  {
-					${deviceType() === 'desktop' ? "" : "display:block!important;"}
 					.input-wrapper {
 						textarea, input {
 							${deviceType() === 'desktop' ? " " : "width: calc(100% - 30px); margin: 5px 0px; "}
@@ -751,11 +753,24 @@ export const settingsPopupCss = () => `
 						padding-bottom: 11px;
 						align-items: center;
 						// 3 EXPLANATION
-						.explanation {
-							// width: 50%;
+						
+						@media (min-width: 1000px) {
+							.input-and-html-wrapper{
+								display: flex;
+							}
+							.explanation {
+								padding-left: 20px;
+							}
+						}
+						// else
+						@media (max-width: 1000px) {
+							.explanation {
+								padding-bottom: 20px;
+							}
 						}
 						.input-and-html-wrapper {
-							display: flex;
+							// display: ${deviceType() === "mobile" ? "block" : "flex"} ;
+							// display: flex;
 							.input-component {
 								// 1 TITLE
 								span {

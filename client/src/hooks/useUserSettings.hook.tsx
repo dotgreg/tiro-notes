@@ -67,7 +67,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	export_pandoc_cli_options: "\ndocx | --wrap=preserve --toc --number-sections \n revealjs | -V theme=moon \n beamer | --wrap=preserve --include-in-header=./include-tex.md ",
 	advanced_image_compression_settings: JSON.stringify({quality: 80, maxWidth: 1500}),
 	ui_editor_ai_text_selection: true,
-	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
+	ui_editor_ai_command: "AI assistant | wand-magic-sparkles | new | export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	server_activity_logging_enable: false,
 	view_disable_notification_popups: false,
 	privacy_work_mode_enable: false,

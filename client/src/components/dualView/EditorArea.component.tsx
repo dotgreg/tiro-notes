@@ -28,14 +28,16 @@ import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
 import { each, isBoolean, isNumber, isString, random, set } from 'lodash-es';
-import { pathToIfile } from '../../../../shared/helpers/filename.helper';
+import { cleanString, pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
 import { title } from 'process';
-import { triggerAiSearch } from '../../managers/ai.manager';
+import { AiAnswer, iAiBtnConfig, triggerAiSearch } from '../../managers/ai.manager';
 import { triggerCalc } from '../../managers/textEditor.manager';
 import { getUserSettingsSync, userSettingsSync } from '../../hooks/useUserSettings.hook';
 import { getFontSize } from '../../managers/font.manager';
+import { getDateObj } from '../../../../shared/helpers/date.helper';
+import { cleanSearchString } from '../../managers/textProcessor.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -786,15 +788,19 @@ const EditorAreaInt = (
 					<NoteToolsPopup
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}
-						onButtonClicked={action => {
-							if (action === "aiSearch") {
-								// console.log("AI SEARCH", cursorInfos)
-								triggerAiSearch({
-									windowId: p.windowId,
-									file: p.file,
-									fileContent: innerFileContent,
+						onButtonClicked={(action, options) => {
+							if (action === "aiSearch" && options.aiConfig) {
+								console.log(options.aiConfig)
+								const aiConfig:iAiBtnConfig = options.aiConfig
+								AiAnswer({
+									typeAnswer: aiConfig.typeAnswer, 
+									aiCommand: aiConfig.command,
 									selectionTxt,
-									insertPos: cursorInfos.to
+									// rest not required if newWindow type
+									file: p.file,
+									windowIdFile: p.windowId,
+									innerFileContent,
+									cursorInfos
 								})
 							} else if (action === "calc") {
 								triggerCalc({
@@ -955,6 +961,7 @@ export const editorAreaCss = (v: iMobileView) => `
     }
 }
 
+
 .editor-area {
 	position:initial;
 	.infos-editor-wrapper {
@@ -972,7 +979,7 @@ export const editorAreaCss = (v: iMobileView) => `
 	}
 	.main-editor-wrapper {
 			padding-left: 0px;
-			padding-rigth: 10px;
+			padding-right: 10px;
 			${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
 			width: 100%;
 	}

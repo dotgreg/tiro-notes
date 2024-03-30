@@ -18,7 +18,13 @@ export interface iLastFilesHistoryApi {
 	addToHistory: (file:iFile, debounced?:boolean) => void
 }
 
-
+const blacklistPaths = ['.tiro/answers/']
+const isBlacklisted = (path:string) => {
+	for (const blackPath of blacklistPaths) {
+		if (path.includes(blackPath)) return true
+	}
+	return false
+}
 
 
 
@@ -39,6 +45,8 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 	}
 
 	const addToHistoryInt = (file: iFile) => {
+		// if (isBlacklisted(file.path)) return
+
 		log && console.log(h, 'Add to history', file.name);
 		const nfilesHist = filesHistoryRef.current
 

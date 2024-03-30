@@ -598,6 +598,21 @@ export const FloatingPanelCss = () => `
 // resizing handles
 .floating-panel__wrapper + div > div {    z-index: 100000;}
 
+
+.floating-panel {
+	.editor-area {
+		.main-editor-wrapper {
+			padding-top: 40px;
+		}
+	}
+	.mobile-text-manip-toolbar-wrapper {
+		top: 40px!important;
+	}
+    .title-input-wrapper {
+        padding-top: 5px;
+    }
+}
+
 .floating-panels-wrapper {
     position: absolute;
     top: 0;
@@ -614,6 +629,7 @@ export const FloatingPanelCss = () => `
             .floating-panel {
                 .floating-panel__actions {
                     top: 30px;
+                    
                     right: 5px;
                 }
             }
@@ -654,6 +670,7 @@ export const FloatingPanelCss = () => `
             }
             .floating-panel__actions {
                 position: absolute;
+                background: rgba(255,255,255,0.9);
                 top: 4px;
                 transition: 0.5s all;
                 right: 40px;

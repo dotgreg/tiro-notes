@@ -62,3 +62,8 @@ export const getFolderPath = (filename: string): string => {
 export const areSamePaths = (path1: string, path2: string): boolean => {
 	return cleanPath(path1 + '/') === cleanPath(path2 + '/')
 }
+
+// replace everything non a-A-z-Z-0-9 by a _
+export const cleanString = (str: string): string => {
+	return str.replace(/[^a-zA-Z0-9]/g, '_')
+}
