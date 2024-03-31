@@ -315,6 +315,7 @@ export const generateTextAt = (p2:{
 	if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
 	if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
 
+
 	// gradually insert at the end of the selection the returned text
 	let jumpTxt = p2.linejump ? "\n\n" : " "
 	let separatorDoing = "###"
