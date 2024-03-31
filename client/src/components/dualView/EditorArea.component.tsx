@@ -792,10 +792,11 @@ const EditorAreaInt = (
 							if (action === "aiSearch" ) {
 								if (! options.aiConfig) return
 								console.log(options.aiConfig)
-								const aiConfig:iAiBtnConfig = options.aiConfig
+								const aiBtnConfig:iAiBtnConfig = options.aiConfig
 								AiAnswer({
-									typeAnswer: aiConfig.typeAnswer, 
-									aiCommand: aiConfig.command,
+									aiBtnConfig,
+									typeAnswer: aiBtnConfig.typeAnswer, 
+									aiCommand: aiBtnConfig.command,
 									selectionTxt,
 									// rest not required if newWindow type
 									file: p.file,
