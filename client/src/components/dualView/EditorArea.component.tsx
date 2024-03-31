@@ -789,7 +789,8 @@ const EditorAreaInt = (
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}
 						onButtonClicked={(action, options) => {
-							if (action === "aiSearch" && options.aiConfig) {
+							if (action === "aiSearch" ) {
+								if (! options.aiConfig) return
 								console.log(options.aiConfig)
 								const aiConfig:iAiBtnConfig = options.aiConfig
 								AiAnswer({

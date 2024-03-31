@@ -27,17 +27,21 @@ export const genAiButtonsConfig = ():iAiBtnConfig[] => {
     for (let line of lines) {
         let parts = line.split("|")
         // if 3 parts
-        if (parts.length === 4) {
+        if (parts.length >= 4) {
             let finalTypeAnswer = parts[2].trim() 
             if (finalTypeAnswer.startsWith("new") ) finalTypeAnswer = "newWindow"
             else if (finalTypeAnswer.startsWith("current")) finalTypeAnswer = "currentWindow"
             else finalTypeAnswer = "newWindow"
 
+            // finalCommand is all parts joined again minus 1,2,3
+            const commandParts = parts.slice(3)
+            const finalCommand = commandParts.join("|")
+
             res.push({
                 title: parts[0].trim(),
                 icon: parts[1].trim(), 
                 typeAnswer: finalTypeAnswer as iAiTypeAnswer,
-                command: parts[3].trim(),
+                command: finalCommand,
             })
         } else {
             if (line.trim() === "") continue
@@ -142,7 +146,7 @@ export const triggerAiSearch = (p:{
     const genParams = () => {return { 
         title: "Ai Answer", 
         currentContent, 
-        textUpdate: " waiting for answer...", 
+        textUpdate: "⏳ waiting for answer...", 
         question, 
         insertPos, 
         windowId: p.windowId, 
@@ -152,6 +156,7 @@ export const triggerAiSearch = (p:{
     }}
 
     // if user scrolled, stop linejump
+    console.log()
     lineJumpWhileGeneratingAiText[p.windowId] = true
 
     const errorLog = {curr: ``}
@@ -166,6 +171,7 @@ export const triggerAiSearch = (p:{
     }, 500)
     
     getApi(api => {
+        let startDateInTs = Date.now()
         let cmd = p.command
         cmd = cmd.replace("{{input}}", selectionTxt)
         generateTextAt(genParams())
@@ -183,10 +189,12 @@ export const triggerAiSearch = (p:{
                 debouncedErrorNotif()
 
                 // erase everything if one error detected
-                generateTextAt({...genParams(), textUpdate:"", isLast: true, linejump:lineJumpWhileGeneratingAiText[p.windowId]})
+                generateTextAt({...genParams(), textUpdate:"", isLast: true, viewFollow:lineJumpWhileGeneratingAiText[p.windowId]})
             } else {
                 // else insert it
-                generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast, linejump:lineJumpWhileGeneratingAiText[p.windowId]})
+                // if is last, add at the end of textTot the date
+                if (streamChunk.isLast) streamChunk.textTot += `\n\n ⏱️ generated in ${(Date.now() - startDateInTs)/1000}s`
+                generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast, viewFollow:lineJumpWhileGeneratingAiText[p.windowId]})
             }
         })
     })

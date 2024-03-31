@@ -598,18 +598,19 @@ export const FloatingPanelCss = () => `
 // resizing handles
 .floating-panel__wrapper + div > div {    z-index: 100000;}
 
-
-.floating-panel {
-	.editor-area {
-		.main-editor-wrapper {
-			padding-top: 40px;
-		}
-	}
-	.mobile-text-manip-toolbar-wrapper {
-		top: 40px!important;
-	}
-    .title-input-wrapper {
-        padding-top: 5px;
+.device-view-mobile {
+    .floating-panel {
+        .editor-area {
+            .main-editor-wrapper {
+                padding-top: 40px;
+            }
+        }
+        .mobile-text-manip-toolbar-wrapper {
+            top: 40px!important;
+        }
+        .title-input-wrapper {
+            padding-top: 5px;
+        }
     }
 }
 
