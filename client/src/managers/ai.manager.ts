@@ -61,6 +61,7 @@ export const genAiButtonsConfig = ():iAiBtnConfig[] => {
 export const AiAnswer = (p:{
     typeAnswer:iAiTypeAnswer, 
     aiCommand:string,  
+    aiBtnConfig:iAiBtnConfig,
     selectionTxt:string, 
     file?:iFile, 
     windowIdFile?:string, 
@@ -73,6 +74,7 @@ export const AiAnswer = (p:{
         if (!file || !windowIdFile || !innerFileContent || !cursorInfos) return
         triggerAiSearch({
             command: aiCommand,
+            aiBtnConfig: p.aiBtnConfig,
             windowId: windowIdFile,
             file: file,
             fileContent: innerFileContent,
@@ -104,6 +106,7 @@ export const AiAnswer = (p:{
                 triggerAiSearch({
                     command: aiCommand,
                     windowId: floatingPanelId,
+                    aiBtnConfig: p.aiBtnConfig,
                     file: nFile,
                     fileContent: innerFileContent,
                     selectionTxt,
@@ -123,6 +126,7 @@ export const triggerAiSearch = (p:{
     file: iFile,
     fileContent: string,
     command:string,
+    aiBtnConfig:iAiBtnConfig,
 
     selectionTxt:string, 
     insertPos: number, 
@@ -193,7 +197,7 @@ export const triggerAiSearch = (p:{
             } else {
                 // else insert it
                 // if is last, add at the end of textTot the date
-                if (streamChunk.isLast) streamChunk.textTot += `\n\n ⏱️ generated in ${(Date.now() - startDateInTs)/1000}s`
+                if (streamChunk.isLast) streamChunk.textTot += `\n\n ⏱️ generated in ${(Date.now() - startDateInTs)/1000}s by ${p.aiBtnConfig.title}`
                 generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast, viewFollow:lineJumpWhileGeneratingAiText[p.windowId]})
             }
         })
