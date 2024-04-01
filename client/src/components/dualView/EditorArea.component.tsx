@@ -38,6 +38,7 @@ import { getUserSettingsSync, userSettingsSync } from '../../hooks/useUserSettin
 import { getFontSize } from '../../managers/font.manager';
 import { getDateObj } from '../../../../shared/helpers/date.helper';
 import { cleanSearchString } from '../../managers/textProcessor.manager';
+import { highlightCurrentLine } from '../../managers/codeMirror/highlightLine.cm';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -548,6 +549,13 @@ const EditorAreaInt = (
 			setProgressUpload(a.uploadProgress || -1)
 		}
 
+		if (a.type === "highlightLine") {
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			highlightCurrentLine(f.view)
+		
+		}
+
 	}, [p.editorAction, p.windowId])
 
 	//
@@ -812,6 +820,23 @@ const EditorAreaInt = (
 									selectionTxt,
 									insertPos: cursorInfos.to
 								})
+							} else if (action === "searchEngine") {
+								let searchEngineStr = userSettingsSync.curr.ui_editor_search_highlight_url
+								if (!searchEngineStr) return
+								const final_url = searchEngineStr + selectionTxt
+								// open in new tab
+								// window.open(final_url, '_blank')
+								window.open(final_url,'_blank');
+							} else if (action === "highlightLine") {
+								// console.log(cursorInfos)
+								getApi(api => {
+									api.ui.note.editorAction.dispatch({
+										windowId: p.windowId,
+										type:"highlightLine",
+										cursorPos: cursorInfos.from
+									})
+								})
+
 							} else if (action === "undo") {
 								getApi(api => {
 									api.ui.note.editorAction.dispatch({

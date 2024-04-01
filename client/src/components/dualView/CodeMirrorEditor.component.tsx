@@ -36,7 +36,6 @@ import { datePickerCmPlugin } from "../../managers/codeMirror/datePicker.cm";
 import { initLatex, isLatexInit } from "../../managers/latex.manager";
 import { getFontSize } from "../../managers/font.manager";
 import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm";
-// import { createDecoration } from "../../managers/codeMirror/replacements.cm";
 
 
 const h = `[Code Mirror]`
@@ -328,6 +327,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		}
 	}
 
+	
+
 	useEffect(() => {
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
@@ -366,7 +367,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			if (ua.get("ui_editor_markdown_tags") && !disablePlugins) {
 				newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
 			}
-
+			
 			
 
 			// newcodemirrorExtensions.push(linksPreviewPlugin)

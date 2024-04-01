@@ -6,7 +6,7 @@ import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 type iCMPosition = number | "currentPos" | "currentLineStart" 
 export interface iEditorAction {
 	windowId?: string
-	type: "lineJump" | "insertText" | "replaceText"  | "searchWord" | "setSelection" | "triggerAiSearch" | "undo" | "redo" | "uploadProgress"
+	type: "highlightLine" | "lineJump" | "insertText" | "replaceText"  | "searchWord" | "setSelection" | "triggerAiSearch" | "undo" | "redo" | "uploadProgress"
 
 	lineJumpNb?: number
 	lineJumpString?: string
@@ -21,6 +21,8 @@ export interface iEditorAction {
 	
 	searchWordString?: string
 	searchReplacementString?: string
+
+	cursorPos?: number
 	// searchWordOpenPanel?: boolean
 
 	selection?: iEditorSelection
