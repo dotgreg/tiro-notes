@@ -345,6 +345,25 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
+						title: "Search Selected Text Button",
+						expl: "Send the selected text as a question to a search engine" + requireReloadStr,
+						var: us.get('ui_editor_search_highlight_enable'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_search_highlight_enable', val)
+						}
+					},
+					{
+						type: 'text',
+						title: "Search Selected Text Button",
+						expl: "Search engine url. Default value:" + defaultValsUserSettings.ui_editor_search_highlight_url,
+						var: us.get('ui_editor_search_highlight_url'),
+						modifier: val => {
+							us.set('ui_editor_search_highlight_url', val)
+						}
+					},
+					{
+						type: 'checkbox',
 						title: "Markdown Tags",
 						expl: "Displays #tag as clickable tag you can interact with " + requireReloadStr,
 						var: us.get('ui_editor_markdown_tags'),

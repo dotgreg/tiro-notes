@@ -53,7 +53,7 @@
         "docs/install": "npm --prefix ./docs/_website_generator install",
         "blog/build": "npm run --prefix ./docs/_eleventy_blog_system build",
         "blog/dev": "npm run --prefix ./docs/_eleventy_blog_system start",
-        "blog/serve-int": "npx http-server ./docs/blog",
+        "blog/serve-int": "npx http-server ./docs/blog -y",
         "blog/serve": "run-s blog/build blog/serve-int",
         "blog/update": "run-s site/pull blog/build site/push",
         "blog/install": "npm --prefix ./docs/_eleventy_blog_system install",

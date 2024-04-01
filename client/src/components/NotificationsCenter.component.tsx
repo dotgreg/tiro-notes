@@ -142,7 +142,7 @@ export const NotificationsCenterCss = () => `
 						}
 						.notif-content {
 								padding: 5px 29px 5px 5px;
-								max-width: 190px;
+								max-width: 200px;
 								max-height: 180px;
 								overflow-y: auto;
 								word-break: break-word;

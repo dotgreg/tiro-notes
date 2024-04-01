@@ -96,6 +96,9 @@ export type iUserSettingName =
 'ui_layout_background_video_height' |
 'ui_layout_background_image' |
 
+'ui_editor_search_highlight_url' |
+'ui_editor_search_highlight_enable' |
+
 'ui_sidebar' |
 
 'ui_editor_links_as_button' |
