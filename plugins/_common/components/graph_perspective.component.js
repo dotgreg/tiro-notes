@@ -58,6 +58,12 @@ const helpStr = `
 <h3>{{day}} {{month}}, {{year}}</h3>
 <p>You can have up to date views configs by changing parts of the config with tags like {{day}} {{month}}, {{year}} <br>
 ex: ' \"filter\":[[\"month\",\"==\",{{month}}],[\"year\",\"==\",{{year}}],[\"day\",\"==\",{{day}}]] ' inside the view config file path described below
+
+<h3>Documentation</h3>
+<ul>
+    <li><a href="https://perspective.finos.org/docs/expressions/" target="_blank"> Expressions </a></li>
+    <li><a href="https://perspective.finos.org/docs/obj/perspective-viewer-exprtk/" target="_blank"> Exprtk </a></li>
+</ul>
 </p>
 `
 
