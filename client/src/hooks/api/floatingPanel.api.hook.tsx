@@ -292,7 +292,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         let visiblePanels = newPanels.filter(p => p.status === "visible")
 
         // only trigger if 
-        if (visiblePanels.length <= 1) return
+        // if (visiblePanels.length <= 1) return reorganizeAll()
         
         const allLayouts:iWindowsLayout[] = ["grid", "horizontal", "vertical", "tiled"]
         if (!nLayout) {
