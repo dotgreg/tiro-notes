@@ -358,8 +358,16 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     viewer.toggleConfig()
                     // config-wrapper hide/show
                     const configWrapper = document.querySelector(".config-wrapper")
-                    if (configWrapper.style.display === "none") configWrapper.style.display = "block"
-                    else configWrapper.style.display = "none"
+                    if (configWrapper.style.display === "none") {
+                        configWrapper.style.display = "block"
+                        // hide #upload-file-name2
+                        document.getElementById("upload-file-name2").style.display = "none"
+                    }
+                    else { 
+                        configWrapper.style.display = "none"
+                        // show #upload-file-name2
+                        document.getElementById("upload-file-name2").style.display = "block"
+                    }
                 });
                 
                 // HELP
@@ -461,8 +469,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 fileUpload.addEventListener("change", (e) => {
                     // console.log(123,e.target.files)
                     uploadFileName.current = e.target.files[0].name
-                    uploadFileDiv = document.getElementById("upload-file-name")
+                    uploadFileDiv = document.getElementById("upload-file-name1")
                     uploadFileDiv.innerHTML = `Source file: ${uploadFileName.current}`
+                    uploadFileDiv2 = document.getElementById("upload-file-name2")
+                    uploadFileDiv2.innerHTML = `Source file: ${uploadFileName.current}`
 
                     uploadFile(e.target.files[0]);
 
@@ -507,6 +517,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
             
             <div class="settings-wrapper">
                 <button id="perspective-config-toggle"> ⚙️ </button>
+                <div id="upload-file-name2" class="upload-file-name" ></div>	
+               
                 <div class="config-wrapper">
                     📊 View: <select id="perspective-config-select"> </select> 
                     <div id="views-buttons-wrapper"> </div>
@@ -518,7 +530,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" multiple type="file">
                     </div>
-                    <div id="upload-file-name"></div>	
+                    <div id="upload-file-name1" class="upload-file-name" ></div>	
                 </div>
             </div>
             <perspective-viewer editable style="width: calc(100%);height: 100%;"> </perspective-viewer>
@@ -569,20 +581,24 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     margin-left: 20px;
                 }
 
-
-                .config-wrapper #upload-file-name {
+                .upload-file-name {
+                    font-size: 11px;
+                    color: grey;
+                    border-radius: 4px;
                     background: white;
+                    padding: 5px;
+                    margin-left: 8px;
+                }
+                #upload-file-name2 {
+                    display: none;
+                }
+                .config-wrapper #upload-file-name1 {
                     position: absolute;
                     bottom:-39px;
                     left: 0px;
                     z-index: 1000;
-                    margin-left: 8px;
-                    padding: 5px;
-                    font-size: 11px;
-                    color: grey;
-                    border-radius: 4px;
                 }
-                #upload-file-name:hover {
+                #upload-file-name1:hover {
                     opacity:0.00001;
                 }
 
