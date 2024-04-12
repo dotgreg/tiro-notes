@@ -11,7 +11,7 @@ const generateTitle = (): string => {
 	let newTitle = ''
 	// if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
 	// else newTitle = `/!\\ DEV /!\\`
-	newTitle = `Tiro (${configClient.version})`
+	newTitle = `Tiro`
 	return newTitle
 }
 
