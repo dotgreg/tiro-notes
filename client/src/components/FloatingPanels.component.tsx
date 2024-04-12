@@ -228,8 +228,30 @@ export const FloatingPanel = (p:{
         })
     }
 
-    const shouldShowHoverOverlay = showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
-    // console.log("shouldShowHoverOverlay", shouldShowHoverOverlay, showHoverOverlay, p.panelsVisibleNumber, p.highestVisibleZIndex, p.panel.zIndex)
+    let shouldShowHoverOverlay = showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
+    // if handle_invisible is hovered, show hover overlay
+    useEffect(() => {
+        const handleInvisible = document.querySelector('.handle_invisible')
+        if (!handleInvisible) return
+        handleInvisible.addEventListener("mousedown", () => {
+            shouldShowHoverOverlay = true
+            setShowHoverOverlay(true)
+        })
+        handleInvisible.addEventListener("mouseup", () => {
+            setShowHoverOverlay(false)
+        })
+        return () => {
+            handleInvisible.removeEventListener("mousedown", () => {
+                shouldShowHoverOverlay = true
+                setShowHoverOverlay(true)
+            })
+            handleInvisible.removeEventListener("mouseup", () => {
+                setShowHoverOverlay(false)
+            })
+        }
+    })
+
+    
 
     const [windowIdCtag, setWindowIdCtag] = useState<string>(generateUUID())
     if (p.panel.ctagConfig){
@@ -270,6 +292,7 @@ export const FloatingPanel = (p:{
             <DraggableCore
                 // axis="x"
                 cancel="body"
+                // handle=".handle"
                 handle=".handle"
                 // defaultPosition={position}
                 // position={p.panel.position}
@@ -296,6 +319,7 @@ export const FloatingPanel = (p:{
                     onResize={handleResize}
                 >
                     <div className='floating-panel__wrapper'  >
+                        <div className='handle_invisible handle'  ></div>
                          <div className="floating-panel__actions"
                             // onMouseEnter={() => {setShowHoverOverlay(false)}} 
                             // onMouseLeave={() => {setShowHoverOverlay(true)}}  
@@ -310,11 +334,11 @@ export const FloatingPanel = (p:{
 											class='floating-bar-toolbar'
 											size={1}
 											buttons={[
-												{
-													title: 'Move Window',
-                                                    customHtml: <div className='handle'><Icon2 name="grip-vertical" /></div>,
-													action: () => {  }
-												},
+												// {
+												// 	title: 'Move Window',
+                                                //     customHtml: <div className='handle'><Icon2 name="grip-vertical" /></div>,
+												// 	action: () => {  }
+												// },
 												minimizeButton(),
 												{
 													title: 'Maximize',
@@ -610,6 +634,17 @@ export const FloatingPanelCss = () => `
 // resizing handles
 .floating-panel__wrapper + div > div {    z-index: 100000;}
 
+.floating-panel__wrapper {
+    .handle_invisible {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: calc(100% - 120px);
+        height: 30px;
+        z-index: 1000;
+        cursor: grab;
+    }
+}
 .forceHide {
     display: none;
 
@@ -687,7 +722,7 @@ export const FloatingPanelCss = () => `
             }
             .floating-panel__actions {
                 position: absolute;
-                background: rgba(255,255,255,0.9);
+                background: rgba(255,255,255,0.1);
                 top: 4px;
                 transition: 0.5s all;
                 right: 40px;
