@@ -1,6 +1,10 @@
 import { sharedStrings } from './shared.strings'
+// THIRD LINE AUTOMATICALLY GENERATED, SHOULD ALWAYS BE THE THIRD LINE!
+const version = "0.41.4023";
+// END OF AUTOMATICALLY GENERATED BLOCK
 
 export const sharedConfig = {
+	version,
 	// socketServerPort: 3001, 
 	// frontendServerPort: 3001,
 	// staticServerPort: 3001,
@@ -41,7 +45,7 @@ export const sharedConfig = {
 			iframe: false,
 			eventManager: false,
 		},
-		version: '0.40.1',
+		
 	},
 
 	dev: {
