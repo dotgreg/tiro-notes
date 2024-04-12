@@ -554,7 +554,7 @@ export const FloatingPanelsWrapper = (p:{
                     <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
                         <div className='floating-panels-bottom-toolbar'>
                             <div className='btn-action reinit-position-and-size' onClick={handleReinitPosAndSize}><Icon2 name="layer-group" /> </div>
-                            <div className='btn-action toggle-visibility' onClick={handleToggleVisibility}><Icon2 name="eye" /> </div>
+                            <div className='btn-action toggle-visibility' onClick={handleToggleVisibility}> {hideAll === true ? <Icon2 name="eye-slash" /> : <Icon2 name="eye" />} </div>
                             <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
                             {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}
                             {/* <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button> */}
