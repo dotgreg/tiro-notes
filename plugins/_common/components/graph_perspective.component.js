@@ -94,23 +94,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         // Load module scripts
         loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js');
         loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js');
-        // loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@2.7.1/dist/cdn/perspective-viewer-datagrid.js');
-        // loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@2.7.1/dist/cdn/perspective-viewer-d3fc.js');
-        
-        // Load stylesheets
-        // loadStylesheet('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css');
 
-        // const WORKER = worker({
-        //     types: {
-        //         float: {
-        //             format: {
-        //                 style: "decimal",
-        //                 minimumFractionDigits: 6,
-        //                 maximumFractionDigits: 6
-        //             }
-        //         }
-        //     }
-        // });
 
         var script = document.createElement('script');
         script.type = 'module';
@@ -253,6 +237,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 // get all the buttons
                 const configSelect = document.getElementById("perspective-config-select");
                 const configSave = document.getElementById("perspective-config-save");
+                const configRefresh = document.getElementById("perspective-config-refresh");
+                const configtogglePanel = document.getElementById("perspective-config-toggle");
                 const configHelp = document.getElementById("perspective-config-help");
                 const configDelete = document.getElementById("perspective-config-delete");
                 const fileUpload = document.getElementById("perspective-config-file-upload");
@@ -361,6 +347,21 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     });
                 });
                 
+                // if config  refresh, reload the views
+                configRefresh.addEventListener("click", () => {
+                    reloadViewsSelect()
+                   
+                });
+
+                // if toggle panel, toggle the config panel
+                configtogglePanel.addEventListener("click", () => {
+                    viewer.toggleConfig()
+                    // config-wrapper hide/show
+                    const configWrapper = document.querySelector(".config-wrapper")
+                    if (configWrapper.style.display === "none") configWrapper.style.display = "block"
+                    else configWrapper.style.display = "none"
+                });
+                
                 // HELP
                 configHelp.addEventListener("click", () => {
                     console.log(hl,"help")
@@ -464,6 +465,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     uploadFileDiv.innerHTML = `Source file: ${uploadFileName.current}`
 
                     uploadFile(e.target.files[0]);
+
+                    console.log(e.target.files.length, api.utils.getInfos(), api)
                 })
                 
                 // upload file
@@ -503,15 +506,17 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
         wrapperEl.innerHTML = `
             
             <div class="settings-wrapper">
+                <button id="perspective-config-toggle"> ⚙️ </button>
                 <div class="config-wrapper">
                     📊 View: <select id="perspective-config-select"> </select> 
                     <div id="views-buttons-wrapper"> </div>
                     <button id="perspective-config-save"> 💾 </button>
                     <button id="perspective-config-delete"> ❌ </button>
                     <button id="perspective-config-help"> ? </button>
+                    <button id="perspective-config-refresh"> 🔄 </button>
                     <div class="upload-wrapper">
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
-                        <input id="perspective-config-file-upload" style="visibility:hidden;" type="file">
+                        <input id="perspective-config-file-upload" style="visibility:hidden;" multiple type="file">
                     </div>
                     <div id="upload-file-name"></div>	
                 </div>
@@ -524,12 +529,25 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     flex-direction: column;
                 }
 
-               
-               
+                .settingsss-wrapper:hover #perspective-config-toggle {
+                    opacity: 0.1
+                }
+                #perspective-config-toggle:hover {
+                    opacity: 1;
+                }
+                #perspective-config-toggle {
+                    position: absolute;
+                    opacity: 0.1;
+                    top: 2px;
+                    left: 8px;
+                    cursor: pointer;
+                    z-index: 10;
+                }
 
-
+            
                 .settings-wrapper {
                     // display: flex;
+                    margin-left: 30px;
                     padding: 0px 20px;
                     font-size: 10px;
                 }
@@ -547,7 +565,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 .settings-wrapper .config-wrapper .upload-wrapper {
                     // margin-top: 5px;
                     cursor: pointer;
-                    display: inline-block;
+                    display: inline;
                     margin-left: 20px;
                 }
 

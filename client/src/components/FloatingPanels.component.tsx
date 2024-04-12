@@ -18,6 +18,7 @@ import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { deviceType } from '../managers/device.manager';
 import { DraggableGrid } from './windowGrid/DraggableGrid.component';
+import { addKeyShortcut } from '../managers/keyboard.manager';
 
 let startZindex = 1000
 // react windows that is resizable
@@ -120,6 +121,7 @@ export const FloatingPanel = (p:{
     useEffect(() => {
         setCurrPos({x: p.panel.position.x, y: p.panel.position.y})
     },[p.panel.position.x, p.panel.position.y])
+
 
     const getNPos = (e:any, data:any, init:boolean=false) => {
         let npos = {x: e.clientX, y: e.clientY}
@@ -431,9 +433,18 @@ export const FloatingPanelsWrapper = (p:{
     // it should reinit pos and size and decal  each panel by 10px
     const handleReinitPosAndSize = () => {
         getApi(api => {
-            api.ui.floatingPanel.actionAll("organizeWindows")
+            api.ui.floatingPanel.actionAll("toggleWindowsLayout")
+            // api.ui.floatingPanel.actionAll("organizeWindows")
         })
     }
+    const [hideAll, setHideAll] = useState<boolean>(false)
+    const handleToggleVisibility = () => {
+       setHideAll(!hideAll)
+    }
+
+    addKeyShortcut("alt+h", () => {
+        handleToggleVisibility()
+    })
 
     const toggleAll = () => {
         let shouldShow = false
@@ -521,7 +532,7 @@ export const FloatingPanelsWrapper = (p:{
 
             {isArray(panels) && panels.map( panel =>
                 panel.status !== "hidden" && panel.device === deviceType() &&
-                <div key={panel.id}>
+                <div key={panel.id} className={`${hideAll ? "forceHide": ""}`}>
                     <FloatingPanel 
                         panel={panel} 
                         onPanelUpdate={handleUpdatePanels}
@@ -543,6 +554,7 @@ export const FloatingPanelsWrapper = (p:{
                     <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
                         <div className='floating-panels-bottom-toolbar'>
                             <div className='btn-action reinit-position-and-size' onClick={handleReinitPosAndSize}><Icon2 name="layer-group" /> </div>
+                            <div className='btn-action toggle-visibility' onClick={handleToggleVisibility}><Icon2 name="eye" /> </div>
                             <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
                             {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}
                             {/* <button className='pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}>{p.pinStatus ? "unpin" : "pin"}</button> */}
@@ -598,6 +610,10 @@ export const FloatingPanelCss = () => `
 // resizing handles
 .floating-panel__wrapper + div > div {    z-index: 100000;}
 
+.forceHide {
+    display: none;
+
+}
 .device-view-mobile {
     .floating-panel {
         .editor-area {

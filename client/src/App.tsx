@@ -58,6 +58,7 @@ import { userSettingsSync } from './hooks/useUserSettings.hook';
 import { webIconUpdate } from './managers/iconWeb.manager';
 import { initLatex, isLatexInit } from './managers/latex.manager';
 import { BackgroundVideo } from './components/BackgroundVideo.component';
+import { triggerTiroHelpPopup } from './managers/help.manager';
 
 export const App = () => {
 
@@ -466,6 +467,9 @@ export const App = () => {
 
 
 						<div className='config-buttons-bar'>
+							<div className="config-button infos-button" onClick={() => { triggerTiroHelpPopup() }}>
+									<Icon2 name="question" />
+							</div>
 							{ api.userSettings.get('beta_plugins_marketplace') &&
 								<div className="config-button plugins-marketplace-button" onClick={() => { setConfigPopup("plugins-marketplace") }}>
 									<Icon2 name="puzzle-piece" />

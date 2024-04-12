@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { Popup } from '../../components/Popup.component';
 import { strings } from '../../managers/strings.manager';
+import { css } from '@emotion/css';
+import { set } from 'lodash-es';
 
 
 const liveVars: {
@@ -12,10 +14,10 @@ const liveVars: {
 	onRefuse: () => { },
 }
 
-
+export interface popupOptions  {cssStr?:string}
 export type iPopupApi = {
-	confirm: (text: string, cb: Function, onRefuse?: Function) => void,
-	show: (text: string, title: string, cb: Function) => void,
+	confirm: (text: string, cb: Function, onRefuse?: Function, options?:popupOptions) => void,
+	show: (text: string, title: string, cb: Function, options?:popupOptions) => void,
 	prompt: (p: {
 		text: string,
 		title?: string,
@@ -24,6 +26,7 @@ export type iPopupApi = {
 		onRefuse?: Function,
 		acceptLabelButton?: string,
 		refuseLabelButton?: string,
+		options?:popupOptions
 	}) => void
 }
 
@@ -41,6 +44,7 @@ export const usePromptPopup = (p: {
 
 	const [acceptLabel, setAcceptLabel] = useState(strings.promptPopup.accept)
 	const [refuseLabel, setRefuseLabel] = useState(strings.promptPopup.refuse)
+	const [cssStr, setCssStr] = useState("")
 
 	const reinitPopup = () => {
 		setUserInput(null)
@@ -49,21 +53,23 @@ export const usePromptPopup = (p: {
 		setShowRefuse(false)
 	}
 
-	const showPopup: iPopupApi['show'] = (text, title, cb) => {
+	const showPopup: iPopupApi['show'] = (text, title, cb, options) => {
 		promptPopup({
 			title,
 			text,
 			onAccept: cb,
-			onRefuse: () => { }
+			onRefuse: () => { },
+			options
 		})
 	}
-	const confirmPopup: iPopupApi['confirm'] = (text, cb, onRefuse) => {
+	const confirmPopup: iPopupApi['confirm'] = (text, cb, onRefuse, options) => {
 		const title = ""
 		promptPopup({
 			title,
 			text,
 			onAccept: cb,
-			onRefuse: () => { if (onRefuse) onRefuse(); }
+			onRefuse: () => { if (onRefuse) onRefuse(); },
+			options
 		})
 	}
 
@@ -73,6 +79,7 @@ export const usePromptPopup = (p: {
 
 		if (p.acceptLabelButton) setAcceptLabel(p.acceptLabelButton)
 		if (p.refuseLabelButton) setRefuseLabel(p.refuseLabelButton)
+		if (p.options?.cssStr) setCssStr(p.options.cssStr)
 
 		if (p.title) setTitle(p.title);
 		if (p.userInput) setUserInput("");
@@ -99,7 +106,8 @@ export const usePromptPopup = (p: {
 					canBgClose={false}
 				>
 					<div>
-						<div className="content"
+						<div className={`content ${css`${cssStr}`}`}
+							
 							dangerouslySetInnerHTML={{
 								__html: text
 							}}
@@ -149,7 +157,6 @@ export const promptPopupCss = () => `
 				.popup-wrapper {
 						min-width: 200px;
 						min-height: 100px;
-						text-align:center;
 				}
     }
 `

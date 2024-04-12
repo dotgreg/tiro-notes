@@ -27,7 +27,7 @@ export interface iFloatingPanel {
     zIndex?: number,
     device: iDeviceType,
 }
-
+export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleVisibility" 
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
 type iPanelLayout =  "full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top"  | "top" | "left" | "right"| "bottom-left" | "bottom-right" | "top-left" | "top-right"
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
@@ -49,7 +49,7 @@ export interface iFloatingPanelApi {
     openFile: (filepath:string, opts?:{idpanel?:string, layout?: iPanelLayout, searchedString?:string, replacementString?:string}) => void,
     
     updateAll: (panels:iFloatingPanel[]) => void,
-    actionAll: (action:"hide"|"show"|"organizeWindows") => void,
+    actionAll: (action:iActionAllWindows) => void,
 
     refreshFromBackend: Function,
     pushWindowOnTop: (panelId:string) => void,
@@ -280,6 +280,103 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updateAll(newPanels)
     }
 
+    type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled"
+    const layoutWindows = React.useRef<iWindowsLayout>("grid") 
+
+    // const hideVisibleWindows = React.useRef<boolean>(false)
+    // const hideAllVisibleWindows = () => {
+    //     hideVisibleWindows
+
+    const toggleWindowsLayout = (nLayout?:iWindowsLayout) => {
+        let newPanels = cloneDeep(panelsRef.current)
+        let visiblePanels = newPanels.filter(p => p.status === "visible")
+
+        // only trigger if 
+        if (visiblePanels.length <= 1) return
+        
+        const allLayouts:iWindowsLayout[] = ["grid", "horizontal", "vertical", "tiled"]
+        if (!nLayout) {
+            // if no nLayout, toggle between grid, horizontal, vertical
+            layoutWindows.current = allLayouts[(allLayouts.indexOf(layoutWindows.current) + 1) % allLayouts.length]
+        } else {
+            layoutWindows.current = nLayout
+        }
+      
+        
+
+        const windowWidth = () => window.innerWidth
+        const windowHeight = () =>  window.innerHeight - 35
+
+        console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
+
+        // if grid, reorganize each panels according to their number, if 2 side by side, if 4 2x2, if 9, 3x3
+        if (layoutWindows.current === "grid") {
+            const cols = Math.ceil(Math.sqrt(visiblePanels.length))
+            const rows = Math.ceil(visiblePanels.length / cols)
+            const widthPerCol = windowWidth() / cols
+            const heightPerRow = windowHeight() / rows
+            const positionsForEachPanel:{x:number, y:number}[] = []
+            console.log(`${h} toggleWindowsLayout grid`, cols, rows, widthPerCol, heightPerRow)
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    positionsForEachPanel.push({x: j * widthPerCol, y: i * heightPerRow})
+                }
+            }
+            let count = 0
+            newPanels.forEach((panel, i) => {
+                if (panel.status !== "visible") return
+                panel.position = positionsForEachPanel[count]
+                panel.size = {width: widthPerCol, height: heightPerRow}
+                count++
+            })
+            updateAll(newPanels)
+        } else if (layoutWindows.current === "horizontal") {
+            let widthPerCol = windowWidth() / visiblePanels.length
+            console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol)
+            let count = 0
+            newPanels.forEach((panel, i) => {
+                if (panel.status !== "visible") return
+                panel.position = {x: count * widthPerCol, y: 0}
+                panel.size = {width: widthPerCol, height: windowHeight()}
+                count++
+            })
+            updateAll(newPanels)
+        } else if (layoutWindows.current === "vertical") {
+            let heightPerRow = windowHeight() / visiblePanels.length
+            console.log(`${h} toggleWindowsLayout vertical`, heightPerRow)
+            let count = 0
+            newPanels.forEach((panel, i) => {
+                if (panel.status !== "visible") return
+                panel.position = {x: 0, y: count * heightPerRow}
+                panel.size = {width: windowWidth(), height: heightPerRow}
+                count++
+            })
+            updateAll(newPanels)
+        } else if (layoutWindows.current === "tiled") {
+            reorganizeAll()
+        }
+
+
+        
+       
+        
+        // let j = 0
+        // newPanels.forEach((panel) => {
+        //     if (panel.status !== "visible") return
+        //     panel.zIndex = startingZindex + j
+        //     panel.position = {x: 100 + (j * offset), y: 100 + (j * offset)}
+        //     panel.size = {width: 320, height: 200}
+        //     // if i > 0, position should offset half of the previous panel size
+        //     // if (j > 0) {
+        //     //     panel.position = {x: 100 + (j * offset) , y: 100 + (j * offset) - (newPanels[j].size.height )}
+        //     // }   
+        //     j++
+
+
+        // })
+        // updateAll(newPanels)
+    }
+
     // function updateOrderPosition that just update the prop.orderPosition of the panel, first should be the first position of all panels, last should be the last position of all panels
     const updateOrderPosition = (panelId:String, orderPosition:number|"last"|"first") => {
         let panel = cloneDeep(panelsRef.current.find(p => p.id === panelId))
@@ -319,9 +416,10 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     //     updateAll(newPanels)
     // }
 
-    const actionAll = (action:"hide"|"show"|"organizeWindows") => {
+    const actionAll = (action:iActionAllWindows) => {
         // reorg
         if (action === "organizeWindows") return reorganizeAll()
+        if (action === "toggleWindowsLayout") return toggleWindowsLayout()
 
         // hide/show
         let newPanels = cloneDeep(panelsRef.current)

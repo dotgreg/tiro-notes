@@ -96,7 +96,7 @@ export const NotificationsCenter = (p: {
 			<div className="notifications-list">
 				{
 					notifs.map(n =>
-						<div key={n.id} className={`notif-wrapper notif-type-${getNotifType(n)}`}>
+						<div key={n.id} className={`notif-wrapper notif-type-${getNotifType(n)}`} onClick={e => { closeNotif(n.id) }}>
 							<div className="notif-close" onClick={e => { closeNotif(n.id) }}>
 								<Icon2 name="close" />
 							</div>
@@ -122,11 +122,16 @@ export const NotificationsCenterCss = () => `
 		z-index: 2000;
 
 		.notifications-list {
+				// .notif-wrapper:hover {
+				// 	opacity: 0;
+				// 	pointer-events: none;
+				// }
 				.notif-wrapper {
 						// background: ${cssVars.colors.main}; 
 						background: white;
 						position: relative;
 						margin: 5px;
+						cursor: pointer;
 
 
 						padding: 5px;
