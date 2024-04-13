@@ -420,8 +420,12 @@ export const App = () => {
 		const closeOmni = () => { setSuggestOpen(false); }
 		// k.bind('alt + spacebar', openOmni);
 		addKeyShortcut('alt + spacebar', openOmni);
+		addKeyShortcut('alt + ,', () => {setConfigPopup("settings")});
 		// k.bind('esc', closeOmni);
-		addKeyShortcut('esc', closeOmni);
+		addKeyShortcut('esc', () => {
+			closeOmni()
+			setConfigPopup(null)
+		});
 		return () => { releaseKeyShortcuts() }
 	}, [filesHistory])
 
