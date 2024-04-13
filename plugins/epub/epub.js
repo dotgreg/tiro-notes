@@ -21,7 +21,7 @@ const epubApp = (innerTagStr, opts) => {
 
 		const h = `[CTAG EPUB VIEWER v1]`
 
-		//
+		////////////////////////////////////////////////////////////////////////////////////////////////////
 		// CACHE FUNCTIONS
 		//
 		const cacheId = `ctag-epub-${epubName}`
@@ -36,6 +36,72 @@ const epubApp = (innerTagStr, opts) => {
 		}
 
 		let ctagHeight = "100%"
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		// OTHER
+		//
+
+		function debounce(func, timeout = 300) {
+			let timer;
+			return (...args) => {
+					clearTimeout(timer);
+					timer = setTimeout(() => { func.apply(this, args); }, timeout);
+			};
+		}
+
+		////////////////////////////////////////////////////////////////////////////////////////////////////
+		// LOG TIMELINE
+		//
+		let pagesLog = {curr:[]}
+		const debounceMins = 10
+		const debounceIntLog = debounce(() => {
+			// find min max pages from array pages
+			let minPage = Math.min(...pagesLog.curr)
+			let maxPage = Math.max(...pagesLog.curr)
+			const pagesTot = (maxPage - minPage) / 10
+			const pagesPerMin = Math.round((pagesTot / debounceMins)*10)/10
+			let pageStr = `${minPage} -> ${maxPage} | ${pagesPerMin} pages/min | ${pagesPerMin*60} pages/hour`
+			pagesLog.curr = []
+			console.log(h, "addToTimelineLogFile", pageStr)
+			addToTimelineLogFileInt(pageStr)
+		}, debounceMins * 60 * 1000)
+
+		const addToTimelineLogFile = (page/*:string*/) => {
+			if (page === 0) return
+			pagesLog.curr.push(page)
+			console.log(h, "addToTimelineLogFile", pagesLog.curr)
+			debounceIntLog()
+		}
+		const addToTimelineLogFileInt = (pageStr/*:string*/) => {
+			const logString = `${epubName} | vpages: ${pageStr}`
+			console.log("[EPUB TIMELINE LOG] addToTimelineLogFile", logString)
+			// get the timeline_log_file
+			const fileTimelinePath = "/.tiro/epub_timeline_history.md"
+			const getFileContent = (id/*:string*/, cb/*:Function*/) => {
+				// tiroApi.file.getContent(id, content => {cb(content)}, {onError: () => {cb("")}})
+				api.call("file.getContent", [id], content => {
+					cb(content)
+				}, {onError: () => {cb("")}} )
+			}
+			const getCurrTimelineAndPrepend = (content/*:string*/) => {
+				// today in format 30/12/2023
+				const dateStr = new Date().toISOString().split("T")[0]
+				// from 2pm to 3pm
+				const startHourMin = new Date().getHours() + ":" + new Date().getMinutes()
+				
+				const newContent = `${dateStr} | ${startHourMin} | ${logString} | ${debounceMins } mins`
+		
+				let finalContent = newContent + "\n" + content
+				// for performance reasons, only keep first 500 lines
+				// const lines = content.split("\n")
+				// if (lines.length > 500) finalContent = lines.slice(0, 500).join("\n")
+		
+				// tiroApi.file.saveContent(fileTimelinePath, finalContent, -1)
+				api.call("file.saveContent", [fileTimelinePath, finalContent, -1])
+			}
+			getFileContent(fileTimelinePath, (prevcontent/*:string*/) => { getCurrTimelineAndPrepend(prevcontent) }  )
+		}
+
 
 		//
 		// STARTING EPUB LOGIC
@@ -168,6 +234,7 @@ const epubApp = (innerTagStr, opts) => {
 						// setTimeout(() => {
 						// 	let npage = getPage()
 						// }, 100)
+						addToTimelineLogFile(getPage())
 				}
 				const getPage = () => {
 						return rendition.currentLocation()?.start?.location || 0
@@ -200,6 +267,7 @@ const epubApp = (innerTagStr, opts) => {
 							if (p.cachePage) setCache("page", getPage())
 
 							console.log(h, "updateUI", { pageNb, p })
+							addToTimelineLogFile(getPage())
 
 							// get all .epub-view
 							let epubView = document.getElementsByClassName("epub-view")
@@ -402,6 +470,8 @@ const epubApp = (innerTagStr, opts) => {
 					let newScroll = currScroll + containerHeight - 10
 					// set new scroll
 					containerEpub.scrollTo(0, newScroll)
+
+					addToTimelineLogFile(getPage())
 				}
 				const jumpToPrevPage	= () => {	
 					const containerEpub = document.getElementsByClassName("epub-container")[0]
@@ -413,6 +483,7 @@ const epubApp = (innerTagStr, opts) => {
 					let newScroll = currScroll - containerHeight + 10
 					// set new scroll
 					containerEpub.scrollTo(0, newScroll)
+					addToTimelineLogFile(getPage())
 				}
 
 				const jumpToNextPage2 = () => {
