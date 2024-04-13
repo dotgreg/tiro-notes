@@ -53,7 +53,7 @@ const epubApp = (innerTagStr, opts) => {
 		// LOG TIMELINE
 		//
 		let pagesLog = {curr:[]}
-		const debounceMins = 10
+		const debounceMins = 5
 		const debounceIntLog = debounce(() => {
 			// find min max pages from array pages
 			let minPage = Math.min(...pagesLog.curr)
