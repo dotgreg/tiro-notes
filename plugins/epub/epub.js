@@ -49,28 +49,64 @@ const epubApp = (innerTagStr, opts) => {
 			};
 		}
 
+		function throttle(func, wait, options) {
+			var context, args, result;
+			var timeout = null;
+			var previous = 0;
+			if (!options) options = {};
+			var later = function() {
+			  previous = options.leading === false ? 0 : Date.now();
+			  timeout = null;
+			  result = func.apply(context, args);
+			  if (!timeout) context = args = null;
+			};
+			return function() {
+			  var now = Date.now();
+			  if (!previous && options.leading === false) previous = now;
+			  var remaining = wait - (now - previous);
+			  context = this;
+			  args = arguments;
+			  if (remaining <= 0 || remaining > wait) {
+				if (timeout) {
+				  clearTimeout(timeout);
+				  timeout = null;
+				}
+				previous = now;
+				result = func.apply(context, args);
+				if (!timeout) context = args = null;
+			  } else if (!timeout && options.trailing !== false) {
+				timeout = setTimeout(later, remaining);
+			  }
+			  return result;
+			};
+		  };
+
+
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 		// LOG TIMELINE
 		//
 		let pagesLog = {curr:[]}
-		const debounceMins = 5
-		const debounceIntLog = debounce(() => {
+		const delayInMin = 5
+		const addTimelineInt = () => {
 			// find min max pages from array pages
 			let minPage = Math.min(...pagesLog.curr)
 			let maxPage = Math.max(...pagesLog.curr)
 			const pagesTot = (maxPage - minPage) / 10
-			const pagesPerMin = Math.round((pagesTot / debounceMins)*10)/10
+			const pagesPerMin = Math.round((pagesTot / delayInMin)*10)/10
 			let pageStr = `${minPage} -> ${maxPage} | ${pagesPerMin} pages/min | ${pagesPerMin*60} pages/hour`
 			pagesLog.curr = []
 			console.log(h, "addToTimelineLogFile", pageStr)
 			addToTimelineLogFileInt(pageStr)
-		}, debounceMins * 60 * 1000)
+		}
+		const debounceIntLog = debounce(addTimelineInt, delayInMin * 60 * 1000)
+		const throttleIntLog = throttle(addTimelineInt, delayInMin * 60 * 1000)
 
 		const addToTimelineLogFile = (page/*:string*/) => {
 			if (page === 0) return
 			pagesLog.curr.push(page)
 			console.log(h, "addToTimelineLogFile", pagesLog.curr)
 			debounceIntLog()
+			throttleIntLog()
 		}
 		const addToTimelineLogFileInt = (pageStr/*:string*/) => {
 			const logString = `${epubName} | vpages: ${pageStr}`
@@ -145,9 +181,9 @@ const epubApp = (innerTagStr, opts) => {
 				var book = ePub(p.url);
 				var rendition = book.renderTo("viewer", {
 						//method: "continuous",
-						//flow: "paginated",
-						manager: "continuous",
-						flow: "scrolled",
+						flow: "paginated",
+						// manager: "continuous",
+						// flow: "scrolled",
 						// method: "continuous",
 						width: p.w,
 						height: p.h,
@@ -460,7 +496,7 @@ const epubApp = (innerTagStr, opts) => {
 				
 				// get epub container .epub-container
 				
-				const jumpToNextPage	= () => {
+				const jumpToNextPageScroll	= () => {
 					const containerEpub = document.getElementsByClassName("epub-container")[0]
 					console.log(h, "jumpToNextPage", {containerEpub});
 					// get height of container
@@ -473,7 +509,7 @@ const epubApp = (innerTagStr, opts) => {
 
 					addToTimelineLogFile(getPage())
 				}
-				const jumpToPrevPage	= () => {	
+				const jumpToPrevPageScroll	= () => {	
 					const containerEpub = document.getElementsByClassName("epub-container")[0]
 					console.log(h, "jumpToPrevPage", {containerEpub});
 					// get height of container
@@ -486,7 +522,7 @@ const epubApp = (innerTagStr, opts) => {
 					addToTimelineLogFile(getPage())
 				}
 
-				const jumpToNextPage2 = () => {
+				const jumpToNextPage = () => {
 					//V3 working well finally!
 					pageManager.action = "next"
 					pageManager.startPage = getPage()
@@ -549,7 +585,7 @@ const epubApp = (innerTagStr, opts) => {
 
 					eapi.updateUI()
 				}
-				const jumpToPrevPage2 = () => {
+				const jumpToPrevPage = () => {
 					let pageNb = getPage()
 					// if (pageNb === 0) return jumpToPage(1)
 					// book.package.metadata.direction === "rtl" ? rendition.next() : rendition.prev();

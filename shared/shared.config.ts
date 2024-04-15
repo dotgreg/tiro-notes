@@ -1,6 +1,6 @@
 import { sharedStrings } from './shared.strings'
 // THIRD LINE AUTOMATICALLY GENERATED, SHOULD ALWAYS BE THE THIRD LINE!
-const version = "0.41.42";
+const version = "0.41.43";
 // END OF AUTOMATICALLY GENERATED BLOCK
 
 export const sharedConfig = {
