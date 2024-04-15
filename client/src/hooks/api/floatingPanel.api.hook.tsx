@@ -289,7 +289,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
     const toggleWindowsLayout = (nLayout?:iWindowsLayout) => {
         let newPanels = cloneDeep(panelsRef.current)
-        let visiblePanels = newPanels.filter(p => p.status === "visible")
+        let visiblePanels = newPanels.filter(p => p.status === "visible" && p.device !== "mobile")
+        console.log(`${h} toggleWindowsLayout`, newPanels, visiblePanels)
 
         // only trigger if 
         // if (visiblePanels.length <= 1) return reorganizeAll()
@@ -478,4 +479,33 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
     
     return api
+}
+
+
+export const areWindowsOverlapping = (panels:iFloatingPanel[]):boolean => {
+    let overlapping = false
+    const visiblePanels = panels.filter(p => p.status === "visible" && p.device !== "mobile")
+    visiblePanels.forEach((panel, index) => {
+        if (overlapping) return
+        visiblePanels.forEach((panel2, index2) => {
+            if (overlapping) return
+            if (index === index2) return
+            // calc overlap based on x, y, widht and height
+            let x1 = panel.position.x
+            let y1 = panel.position.y
+            let x2 = panel2.position.x
+            let y2 = panel2.position.y
+            let w1 = panel.size.width
+            let h1 = panel.size.height
+            let w2 = panel2.size.width
+            let h2 = panel2.size.height
+            const sensib = 20
+            let overlapX = x1 + sensib< x2 + w2  && x1 + w1  > x2 + sensib
+            let overlapY = y1+ sensib < y2 + h2   && y1 + h1  > y2 + sensib
+            if (overlapX && overlapY) {
+                overlapping = true
+            }
+        })
+    })
+    return overlapping
 }

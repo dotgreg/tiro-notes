@@ -3,8 +3,8 @@ import { getApi } from "../hooks/api/api.hook"
 
 export const triggerTiroHelpPopup = () => {
     const helpStr = `
-<h3>Introduction</h3>
-<p>Tiro Notes ${sharedConfig.version}</p>
+<h3>Description</h3>
+<p>Tiro Notes version ${sharedConfig.version}</p>
 
 <h3>Shortcuts</h3>
 <ul>

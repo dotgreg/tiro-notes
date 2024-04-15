@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
 import {DraggableCore} from 'react-draggable';
-import { iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
+import { areWindowsOverlapping, iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
@@ -80,6 +80,7 @@ export const FloatingPanel = (p:{
 
     panelsVisibleNumber: number
     highestVisibleZIndex: number
+    areWindowsOverlapping: boolean
 }) => {
 
     const panelRef = useRef<iFloatingPanel>(p.panel)
@@ -228,7 +229,7 @@ export const FloatingPanel = (p:{
         })
     }
 
-    let shouldShowHoverOverlay = showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
+    let shouldShowHoverOverlay = p.areWindowsOverlapping === true && showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
     // if handle_invisible is hovered, show hover overlay
     useEffect(() => {
         const handleInvisible = document.querySelector('.handle_invisible')
@@ -330,6 +331,7 @@ export const FloatingPanel = (p:{
                             <button onClick={handleClosePanel}>X</button>   
                             <button onClick={handleToggleMaximize}>{p.panel.size.width === window.innerWidth && p.panel.size.height === window.innerHeight ? "m" : "M"}</button>
                             <button onClick={reloadContent}>R</button> */}
+                                        {p.areWindowsOverlapping}
                                         <ButtonsToolbar
 											class='floating-bar-toolbar'
 											size={1}
@@ -364,16 +366,22 @@ export const FloatingPanel = (p:{
                             <div 
                                 className={`floating-panel__content content-type-${p.panel.type}`} 
                                 style={{height: innerHeight }} 
-                                onMouseDown={() => {pushToTop()}}
+                                onMouseDown={(e) => {
+                                    // console.log(11111111);
+                                    pushToTop()
+                                    // e.preventDefault()
+                                    // e.stopPropagation()
+                                }}
                                 onMouseEnter={() => {setShowHoverOverlay(true)}} 
                                 onMouseLeave={() => {setShowHoverOverlay(false)}}  
                             >
-                                <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${shouldShowHoverOverlay ? "hover-mode": ""}`} 
+                                {/* if ctag, add overlay for click */}
+                               { p.panel.type !== "file" && <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${shouldShowHoverOverlay ? "hover-mode": ""}`} 
                                     onMouseDown={() => {
                                         pushToTop()
                                         setShowHoverOverlay(false)
                                     }}
-                                ></div>
+                                ></div>}
                                 {  p.panel.type === "file" && p.panel.file &&
                                     <div className='floating-panel__inner-content'>
                                         <NotePreview
@@ -548,7 +556,17 @@ export const FloatingPanelsWrapper = (p:{
         onPanelsChangeDebounce()
     },[panels])
 
+    // if windows visible position are not overlapping, return true
     
+
+    const [overlappingWindows, setOverlappingWindows] = useState<boolean>(false)
+    const debounceAreWindowsOverlapping = useDebounce((panels) => {
+        setOverlappingWindows(areWindowsOverlapping(panels))
+    }, 100)
+    useEffect(() => {
+        debounceAreWindowsOverlapping(panels)
+        console.log("window overlapping", overlappingWindows)
+    },[panels])
 
     return (
         <div className="floating-panels-wrapper" style={{pointerEvents: panelDrag ? "all" : "none"}}>
@@ -563,6 +581,7 @@ export const FloatingPanelsWrapper = (p:{
                         onPanelDragStart={onPanelDrag("start")}
                         onPanelDragEnd={onPanelDrag("end")}
 
+                        areWindowsOverlapping={overlappingWindows}
                         panelsVisibleNumber={panelsVisibleNumber}
                         highestVisibleZIndex={maxZIndex}
                     />
@@ -639,7 +658,7 @@ export const FloatingPanelCss = () => `
         position: absolute;
         top: 0px;
         left: 0px;
-        width: calc(100% - 120px);
+        width: calc(100% - 100px);
         height: 30px;
         z-index: 1000;
         cursor: grab;
@@ -726,7 +745,7 @@ export const FloatingPanelCss = () => `
                 top: 4px;
                 transition: 0.5s all;
                 right: 40px;
-                z-index:102;
+                z-index:1000;
                 padding: 4px;
                 &:hover {
                     background: white;
