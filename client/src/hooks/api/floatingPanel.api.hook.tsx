@@ -9,8 +9,12 @@ import { getUrlTokenParam } from "../app/loginToken.hook"
 import { deviceType, iDeviceType } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
+import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
 
 const h = `[FLOATING PANELS]`
+
+export const windowWidthPanel = () => window.innerWidth
+export const windowHeightPanel = () =>  window.innerHeight - 35
 
 export interface iFloatingPanel {
     position: {x: number, y: number},
@@ -18,6 +22,7 @@ export interface iFloatingPanel {
     status: "hidden" | "visible" | "minimized",
     file: iFile,
     searchedString?: string,
+    opacity?: number,
     replacementString?: string,
     type: "ctag" | "file",	
     view?: iViewType,
@@ -56,6 +61,8 @@ export interface iFloatingPanelApi {
 
     movePositioninArray: (panelId:string, direction:"up"|"down"|"first"|"last") => void,
     updateOrderPosition: (panelId:string, orderPosition:number|"last"|"first") => void,
+
+    resizeWindowIfOutOfWindow: (panelId:string) => void,
 
 }
 
@@ -280,22 +287,24 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updateAll(newPanels)
     }
 
-    type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled"
-    const layoutWindows = React.useRef<iWindowsLayout>("grid") 
+    
 
     // const hideVisibleWindows = React.useRef<boolean>(false)
     // const hideAllVisibleWindows = () => {
     //     hideVisibleWindows
 
+    type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled"
+    const layoutWindows = React.useRef<iWindowsLayout>("grid") 
     const toggleWindowsLayout = (nLayout?:iWindowsLayout) => {
         let newPanels = cloneDeep(panelsRef.current)
         let visiblePanels = newPanels.filter(p => p.status === "visible" && p.device !== "mobile")
-        console.log(`${h} toggleWindowsLayout`, newPanels, visiblePanels)
+        // console.log(`${h} toggleWindowsLayout`, newPanels, visiblePanels)
 
         // only trigger if 
         // if (visiblePanels.length <= 1) return reorganizeAll()
         
         const allLayouts:iWindowsLayout[] = ["grid", "horizontal", "vertical", "tiled"]
+        console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
         if (!nLayout) {
             // if no nLayout, toggle between grid, horizontal, vertical
             layoutWindows.current = allLayouts[(allLayouts.indexOf(layoutWindows.current) + 1) % allLayouts.length]
@@ -305,8 +314,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
       
         
 
-        const windowWidth = () => window.innerWidth
-        const windowHeight = () =>  window.innerHeight - 35
+        
 
         console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
 
@@ -314,8 +322,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         if (layoutWindows.current === "grid") {
             const cols = Math.ceil(Math.sqrt(visiblePanels.length))
             const rows = Math.ceil(visiblePanels.length / cols)
-            const widthPerCol = windowWidth() / cols
-            const heightPerRow = windowHeight() / rows
+            const widthPerCol = windowWidthPanel() / cols
+            const heightPerRow = windowHeightPanel() / rows
             const positionsForEachPanel:{x:number, y:number}[] = []
             console.log(`${h} toggleWindowsLayout grid`, cols, rows, widthPerCol, heightPerRow)
             for (let i = 0; i < rows; i++) {
@@ -332,24 +340,24 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             })
             updateAll(newPanels)
         } else if (layoutWindows.current === "horizontal") {
-            let widthPerCol = windowWidth() / visiblePanels.length
+            let widthPerCol = windowWidthPanel() / visiblePanels.length
             console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol)
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
                 panel.position = {x: count * widthPerCol, y: 0}
-                panel.size = {width: widthPerCol, height: windowHeight()}
+                panel.size = {width: widthPerCol, height: windowHeightPanel()}
                 count++
             })
             updateAll(newPanels)
         } else if (layoutWindows.current === "vertical") {
-            let heightPerRow = windowHeight() / visiblePanels.length
+            let heightPerRow = windowHeightPanel() / visiblePanels.length
             console.log(`${h} toggleWindowsLayout vertical`, heightPerRow)
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
                 panel.position = {x: 0, y: count * heightPerRow}
-                panel.size = {width: windowWidth(), height: heightPerRow}
+                panel.size = {width: windowWidthPanel(), height: heightPerRow}
                 count++
             })
             updateAll(newPanels)
@@ -461,6 +469,53 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         }
     }
 
+
+    const resizeWindowIfOutOfWindow = (panelId:string) => {
+        let panel = cloneDeep(panelsRef.current.find(p => p.id === panelId))
+        if (!panel) return
+        if (panel.position.x + panel.size.width > window.innerWidth) {
+            // panel.size.width = window.innerWidth - panel.position.x
+            panel.position.x = 0
+            if (panel.size.width > window.innerWidth) panel.size.width = window.innerWidth - 0
+        }
+        if (panel.position.y + panel.size.height > window.innerHeight) {
+            // panel.size.height = window.innerHeight - panel.position.y
+            panel.position.y = 0
+            if (panel.size.height > window.innerHeight) panel.size.height = window.innerHeight - 0
+        }
+        updatePanel(panel)
+    }
+
+    const updateTopWindowOpacity = (opacityRelative:number) => {
+        let newPanels = cloneDeep(panelsRef.current)
+        // get the top window
+        let topWindow = newPanels.find(p => p.zIndex === Math.max(...newPanels.map(p => p.zIndex || 0)))
+        if (!topWindow) return
+        const currOpacity = topWindow.opacity || 1
+        topWindow.opacity = currOpacity + opacityRelative
+        // console.log(`${h} updateTopWindowOpacity`, topWindow.opacity, currOpacity, opacityRelative)
+        if (topWindow.opacity > 1) topWindow.opacity = 1
+        if (topWindow.opacity < 0) topWindow.opacity = 0
+        updateAll(newPanels)
+    }
+
+    const incrementOpacity = () => {
+        updateTopWindowOpacity(+0.1)
+    }
+    const decrementOpacity = () => {
+        updateTopWindowOpacity(-0.1)
+    }
+    
+    useEffect(() => {
+        let shcts = ["alt + o", "alt + shift + o"]
+        addKeyShortcut(shcts[0], incrementOpacity)
+        addKeyShortcut(shcts[1], decrementOpacity)
+        return () => {
+			releaseKeyShortcut(shcts[0], incrementOpacity)
+			releaseKeyShortcut(shcts[1], decrementOpacity)
+		}
+    })
+   
     const api: iFloatingPanelApi = {
         create: createPanel,
         openFile: openFile,
@@ -475,7 +530,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         refreshFromBackend,
         pushWindowOnTop,
         movePositioninArray: movePanelPositioninArray,
-        updateOrderPosition
+        updateOrderPosition,
+        resizeWindowIfOutOfWindow
     }
     
     return api

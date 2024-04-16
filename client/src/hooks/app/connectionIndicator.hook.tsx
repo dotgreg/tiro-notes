@@ -82,7 +82,7 @@ export const useConnectionIndicator = () => {
 export const connectionIndicatorCss = () => `
 .connection-status {
   font-size: 9px;
-  z-index: 11;
+  z-index: 20000;
   a {
     margin-left: 10px;
     color: white;

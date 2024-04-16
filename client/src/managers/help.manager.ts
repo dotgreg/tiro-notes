@@ -9,7 +9,9 @@ export const triggerTiroHelpPopup = () => {
 <h3>Shortcuts</h3>
 <ul>
     <li>Ctrl + Alt + Space - Open Omnibar</li>
-    <li>Alt + H - Hide/Show Floating Windows</li>
+    <li>Alt + q - Hide/Show Floating Windows</li>
+    <li>Alt + w - Organize Floating Windows</li>
+    <li>Alt + o / Alt + Shift + o - Increase/Decrease Floating Window Opacity</li>
     <li>Alt + , - Hide/Show Settings</li>
 </ul>
 
