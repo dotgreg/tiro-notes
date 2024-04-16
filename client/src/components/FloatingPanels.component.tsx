@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
 import {DraggableCore} from 'react-draggable';
-import { areWindowsOverlapping, iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
+import { areWindowsOverlapping, iFloatingPanel, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
@@ -120,8 +120,9 @@ export const FloatingPanel = (p:{
     const [currPos, setCurrPos] = useState({x:-9999, y:-9999})
 
     useEffect(() => {
+        if (!p.panel.position) return
         setCurrPos({x: p.panel.position.x, y: p.panel.position.y})
-    },[p.panel.position.x, p.panel.position.y])
+    },[p.panel?.position?.x, p.panel?.position?.y])
 
 
     const getNPos = (e:any, data:any, init:boolean=false) => {
@@ -172,11 +173,11 @@ export const FloatingPanel = (p:{
     const [panelPrevConfig, setPanelPrevConfig] = useState<iFloatingPanel>(p.panel)
     const handleToggleMaximize = () => {
         let pa = p.panel
-        if (pa.size.width === window.innerWidth && pa.size.height === window.innerHeight && pa.position.x === 0 && pa.position.y === 0) {
+        if (pa.size.width === windowWidthPanel() && pa.size.height === windowHeightPanel() && pa.position.x === 0 && pa.position.y === 0) {
             updatePanel(panelPrevConfig)
         } else {
             setPanelPrevConfig(pa)
-            updatePanel({...pa, size: {width: window.innerWidth, height: window.innerHeight}, position: {x: 0, y: 0}})
+            updatePanel({...pa, size: {width: windowWidthPanel(), height: windowHeightPanel()}, position: {x: 0, y: 0}})
         }
         // setSize({width: window.innerWidth, height: window.innerHeight})
         // updatePanel({...p.panel, size: {width: window.innerWidth, height: window.innerHeight}})
@@ -285,7 +286,7 @@ export const FloatingPanel = (p:{
 
     return (
         <div className={`floating-panel-wrapper ${classes} ${p.panel.status}`} 
-            style={{zIndex:p.panel.zIndex, position: "absolute", top: currPos.y, left: currPos.x}}
+            style={{zIndex:p.panel.zIndex, position: "absolute", top: currPos.y, left: currPos.x, opacity: p.panel.opacity || 1}}
             // style={{zIndex:p.panel.zIndex}}
             key={p.panel.id}
             onMouseDown={() => {pushToTop()}}
@@ -427,7 +428,12 @@ export const FloatingPanel = (p:{
 
 
 //////////////////////////////////////////////////////////////////////////////////////////
-// PANELS WRAPPER
+//
+//
+//
+// BOTTOM BAR + PANELS WRAPPER
+//
+//
 //
 export const FloatingPanelsWrapper = (p:{
     panels: iFloatingPanel[], 
@@ -459,11 +465,12 @@ export const FloatingPanelsWrapper = (p:{
         getApi(api => {
             api.ui.floatingPanel.pushWindowOnTop(panel.id)
             api.ui.floatingPanel.updateOrderPosition(panel.id, "first")
+            api.ui.floatingPanel.resizeWindowIfOutOfWindow(panel.id)
         })
     }
 
     // it should reinit pos and size and decal  each panel by 10px
-    const handleReinitPosAndSize = () => {
+    const toggleWindowsLayout = () => {
         getApi(api => {
             api.ui.floatingPanel.actionAll("toggleWindowsLayout")
             // api.ui.floatingPanel.actionAll("organizeWindows")
@@ -474,8 +481,16 @@ export const FloatingPanelsWrapper = (p:{
        setHideAll(!hideAll)
     }
 
-    addKeyShortcut("alt+h", () => {
+    addKeyShortcut("alt+q", () => {
         handleToggleVisibility()
+    })
+
+    const debounceToggleWindowsLayout = useDebounce(() => {
+        toggleWindowsLayout()
+    }, 100)
+
+    addKeyShortcut("alt+w", () => {
+        debounceToggleWindowsLayout()
     })
 
     const toggleAll = () => {
@@ -596,7 +611,7 @@ export const FloatingPanelsWrapper = (p:{
                     <div className='bottom-hover-bar' > </div>
                     <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
                         <div className='floating-panels-bottom-toolbar'>
-                            <div className='btn-action reinit-position-and-size' onClick={handleReinitPosAndSize}><Icon2 name="layer-group" /> </div>
+                            <div className='btn-action reinit-position-and-size' onClick={toggleWindowsLayout}><Icon2 name="layer-group" /> </div>
                             <div className='btn-action toggle-visibility' onClick={handleToggleVisibility}> {hideAll === true ? <Icon2 name="eye-slash" /> : <Icon2 name="eye" />} </div>
                             <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
                             {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}

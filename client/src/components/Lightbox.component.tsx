@@ -21,12 +21,19 @@ export const Lightbox = (p: {
 	const [currIndex, setCurrIndexInt] = useState(0)
 	const currIndexRef = useRef<number>(0)
 	useEffect(() => {
+		
 		setCurrIndex(p.startingIndex)
 	}, [p.startingIndex])
 
 	const setCurrIndex = (index: number) => {
+		console.log(11111111)
+		resetZoom()
 		setCurrIndexInt(index)
 		currIndexRef.current = index
+	}
+	const resetZoom = () => {
+		setZoomState(false)
+		setZoomLevel(10)
 	}
 	const incrementIndex = (direction: iZoomDir) => {
 		setZoomState(false)
@@ -241,6 +248,7 @@ export const Lightbox = (p: {
 				// onTouchMove={onTouchMoveThrottle}
 				ref={zoomContainerRef}
 			>
+				<div className='lightbox-main-image-wrapper'>
 				{
 					p.images.map((image, key) =>
 						<div
@@ -254,7 +262,7 @@ export const Lightbox = (p: {
 								// style={{ backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, backgroundSize: `${(zoomLevel * 100)/5}%` }}
 								// id={`img-lightbox-id-${key}`}
 								style={{ 
-									// backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, 
+									backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`, 
 									backgroundSize: `${(zoomLevel/10) * 100}%`, 
 								}}
 								onMouseMove={e => {zoom2(e)}}>
@@ -291,6 +299,20 @@ export const Lightbox = (p: {
 						</div>
 					)
 				}
+				</div>
+				<div className="lightbox-images-thumbnail">
+					<div className="lightbox-images-thumbnail-scroll" style={{width: `${p.images.length * (120 + 20)}px`}}>
+						{p.images.map((image, key) =>
+							<div
+								key={key}
+								className={`thumbnail` + (key === currIndex ? ' selected' : '')}
+								style={{ backgroundImage: `url(${absoluteLinkPathRoot(image.url) + getUrlTokenParam()})`}}
+								onClick={() => { setCurrIndex(key) }}
+							>
+							</div>
+						)}
+					</div>
+				</div>
 			</div>
 		</div>
 	)
@@ -298,7 +320,55 @@ export const Lightbox = (p: {
 
 export const lightboxCss = () => `
 .lightbox-component {
+	.lightbox-main-image-wrapper {
+		height: 100%;
+	}
+	.lightbox-images-thumbnail:hover {
+		bottom: -17px;
+	}
+	.lightbox-images-thumbnail {
+		transition: all 0.3s;
+		
+		position: absolute;
+		width: 100%;
+		height: 100px;
+		bottom: -117px;
+		z-index: 10000;
+		
+		
+		padding-top: 50px;
+		overflow-x: scroll;
+		overflow-y: hidden;
+		
+		.lightbox-images-thumbnail-scroll {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 70px;
+			
+		}
+		
+		.thumbnail {
+			&.selected {
+				border: 2px solid white;
+			}
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center center;
+			background-color: black;
+			margin: 0px 10px;
+			border-radius: 8px;
+			min-width: 120px;
+			cursor: pointer;
+			width: 100%;
+			height: 100%;
+		
+		}
+	
+	}
 	figure.zoom2 {
+		display: flex;
+		justify-content: center;
 		position: relative;
 		
 		background-repeat: no-repeat;
@@ -331,9 +401,13 @@ export const lightboxCss = () => `
 	figure.zoom2 img {
 		transition: opacity .5s;
 		display: block;
-		width: 100%;
-		height: 100%;
-		object-fit: contain;
+		// width: 100%;
+		// height: 100%;
+		// object-fit: contain;
+		max-width: 10000px;
+		max-height: 100000px;
+		width: auto;
+		height: auto;
 	}
 	  
 

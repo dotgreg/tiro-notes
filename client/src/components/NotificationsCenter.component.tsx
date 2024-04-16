@@ -119,7 +119,7 @@ export const NotificationsCenterCss = () => `
 		position: fixed;
 		top: 0px;
 		right: 0px;
-		z-index: 2000;
+		z-index: 20000;
 
 		.notifications-list {
 				// .notif-wrapper:hover {

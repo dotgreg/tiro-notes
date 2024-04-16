@@ -198,13 +198,14 @@ export const OmniBar = (p: {
 	//
 	// STYLING
 	//
+	const maxHeightOptions = window.innerHeight - 160 - 200
 	const isHoverEnabled = useRef<boolean>(false)
 	const [styles, setStyles] = useState<any>({
 		indicatorsContainer: (base, state) => {
 			return { ...base, display: "none" }
 		},
 		menuList: (base, state) => {
-			let maxHeight = deviceType() === "mobile" ? {} : {maxHeight: "150px"}
+			let maxHeight = deviceType() === "mobile" ? {} : {maxHeight: maxHeightOptions}
 			return { ...base, ...maxHeight}
 		},
 		menu: (base, state) => {
@@ -412,7 +413,7 @@ export const OmniBar = (p: {
 	useEffect(() => {
 		updateFromChange();
 		if (onChangeUpdatePlugin.current) onChangeUpdatePlugin.current()
-	}, [selectedOption, inputTxt, omniHistoryInt])
+	}, [selectedOption, inputTxt])
 
 	// useEffect(() => {
 	// }, [options])
@@ -686,16 +687,18 @@ export const OmniBar = (p: {
 			setPreviewType("preview")
 			// STEP 3-1 (optional) :  filter found results
 			console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
+			
 		} else if (stags.length === 3 || stags.length === 4) {
 			console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
-			const historyArr = [stags[0], stags[1], {label: wordSearched.current, value: wordSearched.current}]
-			addToOmniHistory(historyArr)
 			let last = stags.length - 1
 			if (!stags[last].payload?.file) return
 			let file = stags[last].payload.file as iFile
 			jumpToPath(file.path)
 		}
 	}
+	// const debouncedAddToOmniHistory = useDebounce((historyArr: any) => {
+	// 	addToOmniHistory(historyArr)
+	// }, 1000)
 
 	const wordSearched = useRef<string | null>(null)
 	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string, options:iOptionOmniBar[]) => {
@@ -717,7 +720,8 @@ export const OmniBar = (p: {
 			
 
 		} else {
-			
+			// const historyArr = [options[0], options[1], {label: wordSearched.current, value: wordSearched.current}]
+			// addToOmniHistory(historyArr)
 			//
 			// STEP 3: search for word API
 			//
@@ -730,7 +734,7 @@ export const OmniBar = (p: {
 			setOptions(nOpts)
 
 			wordSearched.current = input
-			// addToOmniHistory([...options, {label: input, value: input}])
+			addToOmniHistory([...options, {label: input, value: input}])
 
 			
 			getApi(api => {
