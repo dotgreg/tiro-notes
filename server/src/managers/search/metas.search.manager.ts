@@ -32,6 +32,8 @@ export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFile
 export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:string, debugMode: boolean = false):iMetasFiles => {
     const res:iMetasFiles = {}
 
+    console.log('rawMetasStrings', rawMetasStrings)
+
     // PROCESS META FROM STRING TO iFileMetas
     let isIndexInsideHeader = false
     for (let i = 0; i < rawMetasStrings.length; i++) {

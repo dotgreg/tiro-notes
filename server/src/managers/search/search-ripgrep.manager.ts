@@ -66,6 +66,11 @@ type iLineRg = {
 	found: string,
 	file: iFile
 }
+
+
+
+
+
 export const searchWithRgGeneric = async (p: {
 	term: string
 	folder: string
@@ -103,7 +108,7 @@ export const searchWithRgGeneric = async (p: {
 	// 	})
 	// }
 
-	let end = perf(`🔎 searchWithRipGrep 2 term:${p.term} folder:${p.folder}`)
+	let end = perf(`🔎 searchWithRgGeneric 2 term:${p.term} folder:${p.folder}`)
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;

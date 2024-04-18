@@ -134,6 +134,7 @@ const EditorAreaInt = (
 		const cFile = cloneDeep(innerFile)
 		cFile.modified = Date.now()
 		setInnerFile(cFile)
+		// if date already exists (real date), take it
 		const newContentWithMeta = addBackMetaToContent(newContent, {
 			created: cFile.created || Date.now(),
 			updated: cFile.modified
@@ -1124,10 +1125,11 @@ export const commonCssEditors = () => `
 				text-align: left;
     }
 		.created {
-				text-align: right;
-				position: absolute;
-				top: 0px;
-				right: 0px;
+				// text-align: right;
+				// position: absolute;
+				// top: 0px;
+				// right: 0px;
+				margin-top: 4px;
 				color: ${cssVars.colors.editor.interfaceGrey};
 		}
 }

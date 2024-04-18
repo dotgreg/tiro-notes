@@ -2,7 +2,7 @@ import { cloneDeep } from 'lodash-es';
 import React, { RefObject, useEffect, useRef, useState } from 'react';
 import { iFile, iFileMetas } from '../../../../shared/types.shared';
 import { toTimeStampInS } from '../../../../shared/helpers/timestamp.helper';
-import { filterMetaFromFileContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
+import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from './loginToken.hook';
 import { onLightboxClickFn } from '../../components/dualView/EditorArea.component';

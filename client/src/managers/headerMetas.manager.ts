@@ -22,15 +22,10 @@ export const filterMetaFromFileContent = (fileContentWithMeta: string): fileMeta
 	//remove metas block from content
 	let newContent = fileContentWithMeta
 	let reg:any = regexs.metas 
-	console.log('reg', reg)
+	// console.log('reg', reg)
 	// replaceAll regex regexs.metas by nothing 
 	newContent = newContent.replace(reg, '')
-
-	// remove initial \n from newContent
-	// if (newContent.startsWith('\n')) newContent = newContent.slice(1)
-
-	// newContent = replaceAll(newContent, [[reg, '']])
-
+ 
 
 	return {
 		metas,
