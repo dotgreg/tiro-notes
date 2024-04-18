@@ -221,21 +221,6 @@ export const WindowEditorInt = (p: {
 	}, [fileContent])
 
 
-	// useEffect(() => {
-	// 	if (!fileContent) return
-	// 	getApi(api => {
-	// 		api.popup.prompt({
-	// 			text: `<div class="content-different-preview"> Server content is different for "${file?.path}", do you want to update it ? <br><br> <h2>New remote content</h2> <br> ${fileContent.replaceAll("\n","<br>")} <br><br> <h2>Offline content</h2> <br> ${fileContent.replaceAll("\n","<br>")}</div>`,
-	// 			userInput: true,
-	// 			onAccept: () => {
-	// 				// if (!createdFolderName || createdFolderName === '') return
-	// 				// p.onFolderMenuAction('create', p.folder, createdFolderName)
-	// 			},
-	// 			onRefuse: () => { }
-	// 		});
-	// 	});
-	// }, [fileContent])
-
 
 
 	//
@@ -243,7 +228,7 @@ export const WindowEditorInt = (p: {
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
 		getApi(api => {
-			api.file.saveContent(filepath, content, { history: true, debounced: 500 }) 
+			api.file.saveContent(filepath, content, { history: true, debounced: 500}) 
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()

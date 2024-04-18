@@ -10,6 +10,7 @@ import { syncScroll3 } from '../../hooks/syncScroll.hook';
 import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 import { noteLinkCss } from '../../managers/codeMirror/noteLink.plugin.cm';
 import { getFontSize } from '../../managers/font.manager';
+import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 
 
 
@@ -32,6 +33,13 @@ export const PreviewArea = (p: {
 		main: useRef<HTMLDivElement>(null),
 	}
 
+	// remove meta header
+	const [innerContent, setInnerContent] = useState('')
+	useEffect(() => {
+		const nContent = filterMetaFromFileContent(p.fileContent).content
+		setInnerContent(nContent)
+	}, [p.fileContent])
+
 	let currentFolderArr = p.file.path.split('/')
 	currentFolderArr.pop()
 	let currentFolder = currentFolderArr.join('/')
@@ -40,7 +48,7 @@ export const PreviewArea = (p: {
 		setTimeout(() => {
 			p.onMaxYUpdate(calculateYMax())
 		}, 1000)
-	}, [p.fileContent])
+	}, [innerContent])
 
 
 	const calculateYMax = () => {
@@ -61,13 +69,13 @@ export const PreviewArea = (p: {
 
 	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
 	useEffect(() => {
-		const blocks = noteApiFuncs.chunks.chunk(p.fileContent)
+		const blocks = noteApiFuncs.chunks.chunk(innerContent)
 		setContentBlocks(blocks)
 
 		// @2remove
 		setTimeout(() => {
 			noteApiFuncs.injectLogic({
-				fileContent: p.fileContent,
+				fileContent: innerContent,
 				file: p.file
 			})
 		}, 100)
@@ -82,7 +90,7 @@ export const PreviewArea = (p: {
 			}, 100)
 		}, 100)
 
-	}, [p.fileContent, p.file.path, p.windowId])
+	}, [innerContent, p.file.path, p.windowId])
 
 
 	// const getWindowHeight = (): number => {

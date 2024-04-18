@@ -27,7 +27,7 @@ import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean, isNumber, isString, random, set } from 'lodash-es';
+import { cloneDeep, each, isBoolean, isNumber, isString, random, set } from 'lodash-es';
 import { cleanString, pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
@@ -39,6 +39,7 @@ import { getFontSize } from '../../managers/font.manager';
 import { getDateObj } from '../../../../shared/helpers/date.helper';
 import { cleanSearchString } from '../../managers/textProcessor.manager';
 import { highlightCurrentLine } from '../../managers/codeMirror/highlightLine.cm';
+import { addBackMetaToContent, filterMetaFromFileContent, updateMetaHeaderNote } from '../../managers/headerMetas.manager';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -99,6 +100,7 @@ const EditorAreaInt = (
 ) => {
 
 	const [innerFileContent, setInnerFileContent] = useState('')
+	const [innerFile, setInnerFile] = useState<iFile>(p.file)
 	let monacoEditorComp = useRef<any>(null)
 
 
@@ -118,6 +120,28 @@ const EditorAreaInt = (
 		pFileRef.current = p.file
 	}, [p.file.path])
 
+	// 
+	const removeContentMetaAndUpdateInnerFileAndContent = (newContent: string) => {
+		const contentWithMetas = p.fileContent
+		const {metas, content} = filterMetaFromFileContent(contentWithMetas)
+		const cFile = cloneDeep(p.file)
+		if (metas.created) cFile.created = parseInt(metas.created as string)
+		if (metas.updated) cFile.modified = parseInt(metas.updated as string)  
+		setInnerFileContent(content)
+		setInnerFile(cFile)
+	}
+	const addBackMetaToContentAndUpdateInnerFileAndContent = (newContent: string) => {
+		const cFile = cloneDeep(innerFile)
+		cFile.modified = Date.now()
+		setInnerFile(cFile)
+		const newContentWithMeta = addBackMetaToContent(newContent, {
+			created: cFile.created || Date.now(),
+			updated: cFile.modified
+		})
+		return newContentWithMeta
+	}
+	
+
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
@@ -125,25 +149,27 @@ const EditorAreaInt = (
 
 		onEditorDidMount: () => {
 			// devHook("editor_mount")(p.fileContent)
-			setInnerFileContent(p.fileContent)
+			removeContentMetaAndUpdateInnerFileAndContent(p.fileContent)
 		},
 		onEditorWillUnmount: () => {
 		},
 		onNoteContentDidLoad: () => {
 			if (!clientSocket) return
-			setInnerFileContent(p.fileContent)
+			removeContentMetaAndUpdateInnerFileAndContent(p.fileContent)
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
 			let cfile = pFileRef.current 
-			setInnerFileContent(newContent)
+			removeContentMetaAndUpdateInnerFileAndContent(p.fileContent)
 			// IF FIRST EDITION, backup old file
 			if (isFirstEdition) {
 				getApi(api => {
 					api.history.save(cfile.path, p.fileContent, 'enter')
 				})
 			}
-			p.onFileEdited(cfile.path, newContent)
+			
+			const newContentWithMeta = addBackMetaToContentAndUpdateInnerFileAndContent(newContent)
+			p.onFileEdited(cfile.path, newContentWithMeta)
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
@@ -352,7 +378,7 @@ const EditorAreaInt = (
 			title: 'Export',
 			icon: 'faFileDownload',
 			action: () => {
-				triggerExportPopup(p.file)
+				triggerExportPopup(innerFile)
 			}
 		},
 		{
@@ -375,7 +401,7 @@ const EditorAreaInt = (
 			icon: 'faCommentDots',
 			action: () => {
 				getApi(api => {
-					api.ui.textToSpeechPopup.open(innerFileContent, { id: p.file.name })
+					api.ui.textToSpeechPopup.open(innerFileContent, { id: innerFile.name })
 				})
 			}
 		},
@@ -386,7 +412,7 @@ const EditorAreaInt = (
 			class: 'delete',
 			icon: 'faTrash',
 			action: () => {
-				gridContext.file.onFileDelete(p.file)
+				gridContext.file.onFileDelete(innerFile)
 			}
 		},
 	]
@@ -717,11 +743,11 @@ const EditorAreaInt = (
 								<div className="dates-wrapper">
 									<div className='date modified'>
 										<h4>Modified</h4>
-										{formatDateList(new Date(p.file.modified || 0))}
+										{formatDateList(new Date(innerFile.modified || 0))}
 									</div>
 									<div className='date created'>
 										<h4>Created</h4>
-										{formatDateList(new Date(p.file.created || 0))}
+										{formatDateList(new Date(innerFile.created || 0))}
 									</div>
 								</div>
 
@@ -729,9 +755,9 @@ const EditorAreaInt = (
 									<div className='path'>
 										<h4>Path</h4>
 										<span className="path-link" onClick={() => {
-											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
+											getApi(api => { api.ui.browser.goTo(innerFile.folder, innerFile.name) })
 										}}
-										> {p.file.folder} </span>
+										> {innerFile.folder} </span>
 									</div>
 								</div>
 
