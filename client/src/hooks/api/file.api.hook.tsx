@@ -10,6 +10,7 @@ import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
 import { debounce, throttle } from 'lodash-es';
+import { metasObjToHeaderString, updateMetaHeaderNote } from '../../managers/headerMetas.manager';
 
 
 //
@@ -117,7 +118,10 @@ export const useFileApi = (p: {
 	const saveFileInt =  (noteLink, content, options, cb) => {
 		// const end = perf("saveFileContent " + noteLink)
 		const history = (options && options.history) ? options.history : false
-		const withMetas = (options && options.withMetas) ? options.withMetas : true
+		const withMetas = (options && options.withMetas) ? options.withMetas : false
+
+		// if withMetas
+		// if (withMetas) content = updateMetaHeaderNote(content)
 		
 		//
 		// 2. wait for callback

@@ -624,8 +624,10 @@ export const FloatingPanelsWrapper = (p:{
                                     className={`panel-minimized ${panel.status === "minimized" ? "active-tab" : ""}`} onClick={(e) => { 
                                     handleDeminimize(panel)
                                 }}>
-                                    <div className='label'>
-                                        {getPanelTitle(panel)}
+                                    <div className='label-wrapper'>
+                                        <div className='label'>
+                                            {getPanelTitle(panel)}
+                                        </div>
                                     </div>
                                     {/* {
                                         panel.status === "minimized" &&
@@ -890,12 +892,9 @@ export const FloatingPanelCss = () => `
     margin: 0px 0px 0px 4px;
     border-radius: 7px;
     height: 24px;
-    width: 5vw;
-    display: flex;
+    width: 80px;
     font-size:10px;
     overflow: hidden;
-    align-content: center;
-    justify-content: space-around;
     padding: 0 10px;
     cursor: pointer;
     transition: 0.5s all;
@@ -903,10 +902,13 @@ export const FloatingPanelCss = () => `
     :hover {
         background: #f0f0f0;
     }
-    .label {
-        margin-top: 5px;
-        height: 14px;
+    .label-wrapper {
+        width: calc(100% - 10px);
         overflow: hidden;
+        .label {
+            margin-top: 5px;
+            height: 14px;
+        }
     }
     .active-icon {
         color: rgb(121, 121, 121);
@@ -926,8 +928,9 @@ export const FloatingPanelCss = () => `
         i {
             line-height: 8px;
         }
-        background: rgba(0,0,0,0);
-        position: relative;
+        
+        // background: rgba(121, 121, 121,0.5);
+        position: absolute;
         top: -2px;
         transition: 0.3s all;
         border-radius: 20px;
@@ -935,7 +938,7 @@ export const FloatingPanelCss = () => `
         margin-top: 6px;
         line-height: 1px;
         cursor: pointer;
-        left: 6px;
+        right: 6px;
     }
 }
 

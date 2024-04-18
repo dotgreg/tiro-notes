@@ -26,7 +26,7 @@ export const processStringToMeta = (rawString: string):iMetaAnswer => {
     
     // if metaName is created/updated, transform string in date
     if (metaName === 'created' || metaName === 'modified') {
-        metaContent = isTimestamp(metaContent) ? toTimeStampInS(metaContent) : metaContent
+        // metaContent = isTimestamp(metaContent) ? toTimeStampInS(metaContent) : metaContent
         const contentAsDate = new Date(metaContent).getTime()
         if (!isNaN(contentAsDate)) metaContent = contentAsDate
     }
