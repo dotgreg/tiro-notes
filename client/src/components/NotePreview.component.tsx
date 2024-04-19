@@ -22,6 +22,8 @@ export const NotePreviewInt = (p: {
 	showToolbar?:boolean
 	titleEditor?:iTitleEditorStatus
 	showViewToggler?:boolean
+	isActive?:boolean
+
 	onLayoutUpdate?: iLayoutUpdateFn
 }) => {
 	const [content, setContent] = useState("");
@@ -110,7 +112,8 @@ export const NotePreviewInt = (p: {
 				content={{
 					i:windowId,
 					file:p.file,
-					active:false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
+					// active:false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
+					active:p.isActive || false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
 					view:p.view,
 				}}
 				forceView={p.view}

@@ -14,7 +14,7 @@ import { each } from 'lodash-es';
 //
 // MOBILE TOOLBAR
 //
-export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink" | "proofread" | "searchEngine" | "highlightLine"
+export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink" | "proofread" | "searchEngine" | "highlightLine" | "addTableCol" | "removeTableCol"
 
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
@@ -35,6 +35,13 @@ export const NoteToolsPopup = (p: {
     p.onButtonClicked(action)
   }
 
+  const tableColButtons = ():iToolbarButton[] => {
+    return [
+      { icon: 'faTableCells', title:"Add Table Column", action: () => {p.onButtonClicked('addTableCol');}},
+      { icon: 'faTableList', title:"Remove Table Column" , action: () => {p.onButtonClicked('removeTableCol');}}
+    ]
+  }
+
   let btnsConfigOpen:iToolbarButton[] =  [
     { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
     { icon: 'faUndo', action: () => onButtonClicked('undo') },
@@ -47,6 +54,8 @@ export const NoteToolsPopup = (p: {
     { icon: 'faAngleDown', action: () => onButtonClicked('v') },
     { icon: 'faEraser', action: () => onButtonClicked('X') },
     { icon: 'faClone', action: () => onButtonClicked('C') },
+    tableColButtons()[0],
+    tableColButtons()[1]
   ]
 
    // if selection, push ai button at the second position
@@ -55,7 +64,16 @@ export const NoteToolsPopup = (p: {
 
   btnsConfigClosed.push({ icon: 'faHighlighter', action: () => {p.onButtonClicked('highlightLine');}})
 
+  btnsConfigClosed.push(tableColButtons()[0])
+  btnsConfigClosed.push(tableColButtons()[1])
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  //
   // IF SELECTION IS NOT EMPTY
+  //
+  //
+  //
   if (p.selection.length > 0) {
     let isMath = seemsArithmetic(p.selection)
     let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='numbers-preview-wrapper'><i className='fa fa-chart-line'></i><span className='numbers-preview'>{wordsCount(p.selection)}</span></div>}
@@ -78,6 +96,7 @@ export const NoteToolsPopup = (p: {
       }
       return res
     }
+    
 
 
     const copyLinkLine:iToolbarButton = { icon: 'copy', title:"Copy line link", action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
@@ -97,6 +116,9 @@ export const NoteToolsPopup = (p: {
     if (userSettingsSync.curr.ui_editor_search_highlight_enable) btnsConfigOpen.push({ icon: 'search', title:"Search selection", action: () => {p.onButtonClicked('searchEngine'); setIsOpen(false); }})
     btnsConfigOpen.push(copyLinkLine)
     btnsConfigOpen.push(proofreadBtn)
+    // btnsConfigOpen.push(tableColButtons()[0])
+    // btnsConfigOpen.push(tableColButtons()[1])
+    
     btnsConfigOpen = [...btnsConfigOpen, ...genAiButtons()]
 
   }

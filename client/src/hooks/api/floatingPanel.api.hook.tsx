@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { iFile, iNotification, iPlugin, iViewType } from "../../../../shared/types.shared"
 import { useBackendState } from "../useBackendState.hook"
 import { generateEmptyiFile } from "../app/useLightbox.hook"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep, isObject, isString } from "lodash-es"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
@@ -31,6 +31,7 @@ export interface iFloatingPanel {
     id: string,
     zIndex?: number,
     device: iDeviceType,
+    isTopWindow?: boolean
 }
 export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleVisibility" 
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
@@ -211,7 +212,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         if (panelIndex === -1) return
         let npanel = cloneDeep(panelsRef.current)[panelIndex]
         npanel.zIndex = highestZIndex + 1
-        updatePanel({...panelsRef.current[panelIndex]!, zIndex: highestZIndex + 1})
+        // remove isTopWindow from all panels 
+        let newPanels = cloneDeep(panelsRef.current)
+        newPanels.forEach((p) => { p.isTopWindow = false })
+        npanel.zIndex=  highestZIndex + 1
+        npanel.isTopWindow = true
+        newPanels[panelIndex] = npanel
+        setPanels(newPanels)
+        // updatePanel({...panelsRef.current[panelIndex]!, zIndex: highestZIndex + 1})
         // if highestZIndex > startingZindex + 2x length of panels, remove to all panels zIndex 1x length of panels
         if (highestZIndex > startingZindex + (panelsRef.current.length * 2)) {
             let newPanels = cloneDeep(panelsRef.current)
@@ -486,17 +494,40 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updatePanel(panel)
     }
 
-    const updateTopWindowOpacity = (opacityRelative:number) => {
+    const getTopWindow = () => {
         let newPanels = cloneDeep(panelsRef.current)
         // get the top window
         let topWindow = newPanels.find(p => p.zIndex === Math.max(...newPanels.map(p => p.zIndex || 0)))
+        
+        return topWindow
+    }
+    const updateTopWindowOpacity = (opacityRelative:number) => {
+        const topWindow = getTopWindow()
         if (!topWindow) return
         const currOpacity = topWindow.opacity || 1
         topWindow.opacity = currOpacity + opacityRelative
         // console.log(`${h} updateTopWindowOpacity`, topWindow.opacity, currOpacity, opacityRelative)
         if (topWindow.opacity > 1) topWindow.opacity = 1
         if (topWindow.opacity < 0) topWindow.opacity = 0
-        updateAll(newPanels)
+        updatePanel(topWindow)
+    }
+
+    const updateTopWindowView = (view?:iViewType) => {
+        const topWindow = getTopWindow()
+        if (!topWindow) return
+        if (isString(view)) topWindow.view = view
+        // toggle between editor, preview, both
+        else {
+            if (topWindow.view === "editor") topWindow.view = "preview"
+            else if (topWindow.view === "preview") topWindow.view = "both"
+            else if (topWindow.view === "both") topWindow.view = "editor"
+            else topWindow.view = "editor"
+
+            console.log(`${h} updateTopWindowView`, topWindow.view)
+        }
+        console.log(123)
+
+        updatePanel(topWindow)
     }
 
     const incrementOpacity = () => {
@@ -507,12 +538,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
     
     useEffect(() => {
-        let shcts = ["alt + o", "alt + shift + o"]
+        let shcts = ["alt + o", "alt + shift + o", "alt + v"]
         addKeyShortcut(shcts[0], incrementOpacity)
         addKeyShortcut(shcts[1], decrementOpacity)
+        addKeyShortcut(shcts[2], updateTopWindowView)
         return () => {
 			releaseKeyShortcut(shcts[0], incrementOpacity)
 			releaseKeyShortcut(shcts[1], decrementOpacity)
+            releaseKeyShortcut(shcts[2], updateTopWindowView)
 		}
     })
    

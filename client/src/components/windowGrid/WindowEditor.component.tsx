@@ -1,6 +1,6 @@
-import { isBoolean } from 'lodash-es';
+import { cloneDeep, isBoolean } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
-import { iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
+import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { iMobileView, isA } from '../../managers/device.manager';
@@ -15,6 +15,7 @@ import { handleFileDrop } from '../../managers/dragDrop.manager';
 import { iUploadedFileInfos } from '../../hooks/api/upload.api.hook';
 import { uploadFileToEditor } from '../../managers/upload.manager';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 
 
 export const WindowEditorInt = (p: {
@@ -56,6 +57,41 @@ export const WindowEditorInt = (p: {
 		}, 100)
 	}
 	
+
+	//
+	// HEADER META MANAGEMENT
+	//
+	// 
+	const [innerFile, setInnerFile] = useState(file)
+	const [innerFileContent, setInnerFileContent] = useState(fileContent)
+	// useEffect(() => {
+	// 	setInnerFile(file)
+	// }, [file])
+	useEffect(() => {
+		const res = removeContentMeta__updateInnerVars(fileContent)
+		if (!res) return
+		const {contentWithoutMeta, file} = res
+		setInnerFileContent(contentWithoutMeta)
+		setInnerFile(file)
+	}, [fileContent, file])
+
+	const removeContentMeta__updateInnerVars = (newContent: string) => {
+		const contentWithMetas = newContent
+		const {metas, content} = filterMetaFromFileContent(contentWithMetas)
+		
+		const cFile = cloneDeep(file)
+		// setFileContent(content)
+		if (cFile) {
+			if (metas.created) cFile.created = parseInt(metas.created as string)
+			if (metas.updated) cFile.modified = parseInt(metas.updated as string)  
+			console.log("removeContentMeta__updateInnerVars", {metas, content, cFile})
+			return {contentWithoutMeta: content, file: cFile}
+		}
+
+	}
+	
+
+
 	//
 	// FILE CONTENT FETCH/UPDATE
 	//
@@ -227,18 +263,20 @@ export const WindowEditorInt = (p: {
 	// UPDATE CONTENT 
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
+		// const contentWithMetas = addBackMetaToContent__updateInnerVars(content)
+		// if (!contentWithMetas) return
 		getApi(api => {
-			api.file.saveContent(filepath, content, { history: true, debounced: 500}) 
+			api.file.saveContent(filepath, content, { history: true, debounced: 500, withMetas:innerFile}) 
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()
 		// OLD MECANISM
-		contentToUpdateOnceOnline.current = { content, path: file?.path }
+		contentToUpdateOnceOnline.current = { content:content, path: file?.path }
 
 		// LOCAL HIST NOTE UPDATE
 		addToLocalNoteHistoryDebounced({
 			path: filepath,
-			content,
+			content: content,
 			timestamp: Date.now()
 		})
 	}
@@ -327,7 +365,7 @@ export const WindowEditorInt = (p: {
 			
 			{
 				showContent && file &&
-				<div className="window-editor-wrapper"
+				<div className={`window-editor-wrapper ${p.content.active ? "active" : ""}`}
 					onPaste={handlePaste}
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
@@ -335,8 +373,8 @@ export const WindowEditorInt = (p: {
 				>
 					<DualViewer
 						windowId={windowId}
-						file={file}
-						fileContent={fileContent}
+						file={innerFile as iFile}
+						fileContent={innerFileContent}
 						isActive={active}
 						// canEdit={canEdit}
 						// showViewToggler={true}

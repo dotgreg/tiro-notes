@@ -9,6 +9,7 @@ export interface LineTextInfos {
 	activeLine: string
 	lines: string[]
 	lineIndex: number
+	activeLinePos: number
 	currentPosition: number
 	monacoPosition?: any
 	scrollPos?: any
@@ -23,25 +24,33 @@ export const getTextAreaLineInfos = (textarea: HTMLTextAreaElement): LineTextInf
 	// if (!textarea) return
 	let text = textarea.value
 	// var position = this.editor.getPosition();
-	var splitedText = text.split("\n");
 	let pos = textarea.selectionStart
+	return getTextLineInfos(text, pos)
+};
+
+export const getTextLineInfos = (text: string, pos: number): LineTextInfos => {
+	var splitedText = text.split("\n");
 
 	let c = 0
 	let lineIndex = 0
 	while (c < pos + 1) {
 		let lineLength = splitedText[lineIndex].length + 1
 		c += lineLength
+		// console.log(c, lineLength, pos, lineIndex, splitedText[lineIndex])
 		lineIndex++
 	}
 	lineIndex--
+
+	const activeLinePos = pos - c + splitedText[lineIndex].length - 1
 
 	return {
 		currentPosition: pos,
 		lines: splitedText,
 		activeLine: splitedText[lineIndex],
+		activeLinePos,
 		lineIndex
 	}
-};
+}
 
 
 export const diffStr = (s1: string, s2: string) => {

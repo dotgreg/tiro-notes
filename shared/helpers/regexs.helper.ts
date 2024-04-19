@@ -28,6 +28,7 @@ export const regexs = {
 	// date like 31/12/2020
 	dateFrFormat: /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})/gi,
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
+	metasAndSpace: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd).then('\n'),
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
 	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
