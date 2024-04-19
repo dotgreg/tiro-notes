@@ -10,7 +10,7 @@ import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
 import { debounce, throttle } from 'lodash-es';
-import { metasObjToHeaderString, updateMetaHeaderNote } from '../../managers/headerMetas.manager';
+import { addBackMetaToContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
 
 
 //
@@ -36,7 +36,7 @@ export interface iFileApi {
 		noteLink: string, 
 		content: string,
 		options?: { 
-			withMetas?: boolean, 
+			withMetas?: iFile, 
 			history?: boolean, 
 			debounced?: number | false
 			withThrottle?: boolean
@@ -200,6 +200,19 @@ export const useFileApi = (p: {
 	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
 		const debounced = (options && options.debounced) ? options.debounced : false
 		const withThrottle = (options && options.withThrottle) ? options.withThrottle : false
+		
+
+		if (options?.withMetas) {
+			const fileInfosForMeta = options?.withMetas
+			fileInfosForMeta.modified = Date.now()
+			// if date already exists (real date), take it
+			const newContentWithMeta = addBackMetaToContent(content, {
+				created: fileInfosForMeta.created || Date.now(),
+				updated: fileInfosForMeta.modified
+			})
+			content = newContentWithMeta
+		}
+
 		if (debounced) {
 			// saveFileIntDebounced(noteLink, content, options, cb)
 			saveFileIntDebounced2(debounced, withThrottle,  noteLink, content, options, cb)

@@ -19,12 +19,15 @@ export const filterMetaFromFileContent = (fileContentWithMeta: string): fileMeta
 		}
 	}
 
+	// if 1113437293 format > 1113437293000 format
+	if (`${metas.created}`.length === 10) metas.created = parseInt(`${metas.created}`) * 1000
+	if (`${metas.updated}`.length === 10) metas.updated = parseInt(`${metas.updated}`) * 1000
+
 	//remove metas block from content
 	let newContent = fileContentWithMeta
-	let reg:any = regexs.metas 
-	// console.log('reg', reg)
 	// replaceAll regex regexs.metas by nothing 
-	newContent = newContent.replace(reg, '')
+	newContent = newContent.replace(regexs.metasAndSpace, '')
+	newContent = newContent.replace(regexs.metas, '')
  
 
 	return {
@@ -38,7 +41,7 @@ export const metasObjToHeaderString = (metas: iFileMetas): string => {
 	each(metas, (metaContent, metaName) => {
 		res += `${metaName}: ${metaContent}\n`
 	})
-	res += `${sharedConfig.metas.headerEnd}`
+	res += `${sharedConfig.metas.headerEnd}\n`
 	return res
 }
 

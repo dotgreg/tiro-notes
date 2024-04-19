@@ -1,6 +1,6 @@
 import { sharedStrings } from './shared.strings'
 // THIRD LINE AUTOMATICALLY GENERATED, SHOULD ALWAYS BE THE THIRD LINE!
-const version = "0.41.50";
+const version = "0.41.54";
 // END OF AUTOMATICALLY GENERATED BLOCK
 
 export const sharedConfig = {
@@ -24,7 +24,7 @@ export const sharedConfig = {
 
 	metas: {
 		headerStart: '=== HEADER ===',
-		headerEnd: '=== END HEADER ===\n'
+		headerEnd: '=== END HEADER ==='
 	},
 
 	strings: sharedStrings,

@@ -51,7 +51,7 @@ if (backConfig.dataFolder) {
 		url: '/static',
 		pathFolder: backConfig.dataFolder
 	});
-}
+} 
 
 
 server.listen(backConfig.port, function () {

@@ -393,6 +393,7 @@ export const FloatingPanel = (p:{
                                             searchedString={p.panel.searchedString}
                                             replacementString={p.panel.replacementString}
                                             titleEditor={"disabled"}
+                                            isActive={p.panel.isTopWindow}
                                             onLayoutUpdate={onLayoutUpdate}
                                         />
                                     </div>

@@ -36,8 +36,10 @@ export const PreviewArea = (p: {
 	// remove meta header
 	const [innerContent, setInnerContent] = useState('')
 	useEffect(() => {
+		// const nContent = filterMetaFromFileContent(p.fileContent).content
+		// setInnerContent(nContent)
 		const nContent = filterMetaFromFileContent(p.fileContent).content
-		setInnerContent(nContent)
+		setInnerContent(p.fileContent)
 	}, [p.fileContent])
 
 	let currentFolderArr = p.file.path.split('/')
