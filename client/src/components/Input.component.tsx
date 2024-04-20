@@ -128,6 +128,7 @@ export const inputComponentCss = () => `
     .input-component {
         display: flex;
         align-items: center;
+		justify-content: space-between;
         padding-bottom: 10px;
         input, select {
             max-width: 100%;
@@ -138,8 +139,9 @@ export const inputComponentCss = () => `
             }
         }
         span {
-            width: 30%;
+            // width: 30%;
             font-weight: 700;
+			margin-right: 10px;
             text-transform: uppercase;
         }
         .input-wrapper {
