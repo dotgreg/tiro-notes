@@ -179,7 +179,8 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos | null => {
 		lines: splitedText,
 		currentPosition,
 		activeLine: splitedText[currentLineIndex] || "",
-		lineIndex: currentLineIndex
+		lineIndex: currentLineIndex,
+		activeLinePos: -1,
 	}
 	return res
 }

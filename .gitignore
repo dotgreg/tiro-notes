@@ -7,7 +7,7 @@ dist/
 dist2/
 data/
 .eslintcache
-scripts/
+scripts2/
 tiro-config.json
 node_modules
 .log/

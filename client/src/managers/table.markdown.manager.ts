@@ -69,7 +69,7 @@ const prepareTableColManip = (p:iParamsTableColManip) => {
     const tableColsNb = activeLine.split("|").length
     console.log("tableColsNb", tableColsNb)
 
-    const linesOfTable = []
+    const linesOfTable:number[] = []
     // get all the lines of the table, from linesInfos.lineIndex to linesInfos.lines.length
     for (let i = linesInfos.lineIndex; i < linesInfos.lines.length; i++) {
         const line = linesInfos.lines[i]
