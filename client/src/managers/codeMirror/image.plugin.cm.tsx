@@ -13,6 +13,7 @@ import {findImagesFromContent } from "../images.manager";
 import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 import { match } from "assert";
 import { userSettingsSync } from "../../hooks/useUserSettings.hook";
+import { cleanUrl } from "../url.manager";
 
 
 ///////////////////////////////////
@@ -56,6 +57,7 @@ export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption
 	if (!userSettingsSync.curr.ui_editor_show_image_title) caption = ``
 
 	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
+	url = cleanUrl(url)
 	if (!rawConfig) rawConfig = ""
 	let cnf = rawConfig.trim().split("=")
 	let styleStr = ``
@@ -63,7 +65,7 @@ export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption
 		let otherProp = cnf[0] === "width" ? "height:auto;max-height:none" : "width:auto; max-width:none;"
 		styleStr =`style="${cnf[0]}:${cnf[1]}; ${otherProp}"`
 	}
-	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" ${styleStr} src="${url}" /></div></div>${caption}`
+	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img ${styleStr} src="${url}" /></div></div>${caption}`
 
 }
  
@@ -75,8 +77,8 @@ export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iF
 	if (caption !== "image") sourceHtml = `<div class="mdpreview-source">${caption}</div>`
 	if (!userSettingsSync.curr.ui_editor_show_image_title) sourceHtml = ``
 
-	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
-	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img onerror="this.style.display='none'" src="${url}" /></div></div>${sourceHtml}`
+	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`.replaceAll("//", "/")
+	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img src="${url}" /></div></div>${sourceHtml}`
 }
 
 
@@ -84,10 +86,18 @@ export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iF
 export const imagePreviewCss = () => `
 .cm-mdpreview-wrapper.image-wrapper {
 		// display: inline;
+		min-width: 10px;
+		min-height: 10px;
 		div {
 			// display: inline;
 		}
+		img {
+			
+		}
 		.cm-mdpreview-image {
+			// background: #ffe4e4;
+			min-width: 50px;
+			min-height: 30px;
 			cursor:pointer;
 		}
 		.mdpreview-source {

@@ -12,6 +12,7 @@ export const searchWord = (p: {
 	onRgDoesNotExists: () => void
 }) => {
 	const objRes: iSearchWordRes = {}
+	// console.log('searchWord', p.term, p.folder)
 	searchWithRgGeneric({
 		term: p.term,
 		folder: p.folder,
@@ -24,6 +25,7 @@ export const searchWord = (p: {
 
 		processRawLine: lineInfos => {
 			let l = lineInfos
+			// console.log('lineInfos', l)
 			if (!l.found || l.found === '') return
 			l.file.folder = l.file.folder.replace(".md/", '.md')
 			l.file.path = l.file.path.replace(".md/", '.md')

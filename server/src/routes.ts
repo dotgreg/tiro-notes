@@ -18,7 +18,7 @@ import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString, execStringStream } from "./managers/exec.manager";
-import { getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
+import { cleanPath, getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
 import { pluginsListCache, relPluginsFolderPath, rescanPluginList, scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
@@ -117,6 +117,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askForFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
 		let file = `${backConfig.dataFolder}/${data.filePath}`
+		file = cleanPath(file)
 		let endPerf = perf('👁️  askForFileContent ' + file)
 		try {
 			let apiAnswer = await openFile(file)

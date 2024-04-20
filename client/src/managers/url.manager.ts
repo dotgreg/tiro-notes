@@ -8,6 +8,13 @@ import { findImagesFromContent } from "./images.manager";
 import {  getUrlTokenParam } from "../hooks/app/loginToken.hook";
 import {  webIconUpdate } from "./iconWeb.manager";
 
+export const cleanUrl = (url:string) => {
+	url = url.replaceAll("//", "/")
+	// replace http(s):/ by http(s)://
+	url = url.replaceAll(":/", "://")
+	return url
+}
+
 //
 // URL PARSER
 //

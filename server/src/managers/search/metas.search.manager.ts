@@ -3,7 +3,7 @@ import { processStringToMeta } from "../../../../shared/helpers/metas.helper";
 import { toTimeStampInS } from "../../../../shared/helpers/timestamp.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileMetas, metaContent } from "../../../../shared/types.shared";
-import { cleanFileNamePath } from "./file.search.manager";
+import { getRelativePathFromSearchPath } from "./file.search.manager";
 import { iFilesObj } from "./search-ripgrep.manager";
 
 export interface iMetasFiles {
@@ -32,7 +32,7 @@ export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFile
 export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:string, debugMode: boolean = false):iMetasFiles => {
     const res:iMetasFiles = {}
 
-    console.log('rawMetasStrings', rawMetasStrings)
+    // console.log('rawMetasStrings', rawMetasStrings)
 
     // PROCESS META FROM STRING TO iFileMetas
     let isIndexInsideHeader = false
@@ -49,7 +49,7 @@ export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:str
 
         
         const fileName = `${rawMetaArr2[0]}.md`;
-        let cleanedFileName = cleanFileNamePath(fileName, folder)
+        let cleanedFileName = getRelativePathFromSearchPath(fileName, folder)
         if (!res[cleanedFileName]) res[cleanedFileName] = {}
 
         const content = rawMetaArr2[1]
