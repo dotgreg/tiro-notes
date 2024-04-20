@@ -11,7 +11,8 @@ export const triggerTiroHelpPopup = () => {
     <li>Ctrl + Alt + Space - Open Omnibar</li>
     <li>Alt + q - Hide/Show Floating Windows</li>
     <li>Alt + w - Organize Floating Windows</li>
-    <li>Alt + o / Alt + Shift + o - Increase/Decrease Floating Window Opacity</li>
+    <li>Alt + v - Toggle view of active floating window</li>
+    <li>Alt + o / Alt + Shift + o - Increase/Decrease opacity of active floating window</li>
     <li>Alt + , - Hide/Show Settings</li>
 </ul>
 

@@ -22554,8 +22554,9 @@
 																}
 															],
 															"type": {
-																"type": "intrinsic",
-																"name": "boolean"
+																"type": "reference",
+																"id": 875,
+																"name": "iFile"
 															}
 														},
 														{
@@ -34053,7 +34054,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-							"line": 359,
+							"line": 360,
 							"character": 12
 						}
 					],
@@ -34077,7 +34078,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 359,
+											"line": 360,
 											"character": 46
 										}
 									],
@@ -34106,7 +34107,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 359,
+											"line": 360,
 											"character": 32
 										}
 									],
@@ -34129,7 +34130,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-									"line": 359,
+									"line": 360,
 									"character": 31
 								}
 							]
