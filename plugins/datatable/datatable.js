@@ -2,13 +2,14 @@
 // 10.10.2023 v1.1
 /*::
 declare var dfd: any;
-import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective.component"
+import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective/graph_perspective.component"
 import type {iCommonLib} from "../_common/common.lib"
 */
 const h = "[DATATABLE CTAG]"
 
 const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         let api = window.api
+
         // let dfd = window.dfd
 
         let dataFileUrl/*:string|void*/ = undefined
@@ -73,6 +74,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 
                 const initializeUi = () => {
                         const params/*:iGraphPerspectiveParams*/ = {
+                                parentVars: {opts},
                                 cb: (viewer) => {
                                         graph.curr = viewer
                                 }
@@ -98,7 +100,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 api.utils.loadRessources(
                     [
                         `${opts.plugins_root_url}/_common/common.lib.js`,
-                        `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
+                        `${opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.component.js`,
                         `${opts.plugins_root_url}/_common/components/table.component.js`,
                     ],
                     () => {

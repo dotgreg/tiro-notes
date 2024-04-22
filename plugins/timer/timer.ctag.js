@@ -3,7 +3,7 @@
 /*::
 declare var dfd: any;
 declare var autoComplete: any;
-import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective.component"
+import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective/graph_perspective.component"
 import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
 import type {iCommonLib} from "../_common/common.lib"
 */
@@ -76,6 +76,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         const wrapperPlotEl/*:any*/ = document.getElementById("plot_div")
                         const paramsGraph/*:iGraphPerspectiveParams*/ = {
                                 items:arrItems, 
+                                parentVars: {opts},
                                 defaultViews: defaultViewConfigsArr,
                                 cb: cb
                         }
@@ -328,7 +329,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 api.utils.loadRessources(
                     [
                         `${opts.plugins_root_url}/_common/common.lib.js`,
-                `${opts.plugins_root_url}/_common/components/graph_perspective.component.js`,
+                        `${opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.component.js`,
                         // `${opts.plugins_root_url}/_common/components/table.component.js`,
                         `${opts.plugins_root_url}/timer/timer.lib.js`,
                         // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,

@@ -4,7 +4,11 @@
 
 
 /*::
+import type {iGraphPerspectiveLib} from "./graph_perspective.lib.js"
+
 export type iGraphPerspectiveParams = {
+    items?: any[],
+    parentVars: {opts:any},
     defaultViews?: Array<iView[]>,
     cb: (viewer: iGraphPerspectiveViewerWrapper) => void
 }
@@ -67,10 +71,11 @@ ex: ' \"filter\":[[\"month\",\"==\",{{month}}],[\"year\",\"==\",{{year}}],[\"day
 </p>
 `
 
-let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
+let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
     let hl = "[GRAPH PERSPECTIVE LIB]"
     const api = window.api;
     const startMainLogic = () => {
+        const graphPerspectiveLib/*:iGraphPerspectiveLib*/ = window._tiroPluginsCommon.graphPerspectiveLib 
         const wrapperEl = document.getElementById("ctag-component-advanced-table-wrapper")
 
         // Create a new script element
@@ -164,7 +169,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                                         viewer.load(table);
                                         viewer.toggleConfig();
                                         if (cb) cb()
-                                    })
+                                    }).catch((e) => {
+                                        console.warn(hl,"Error loading 2", e)
+                                    });
                             }
                         } catch (error) {
                             // alert("Error setting config", JSON.stringify(error))
@@ -176,6 +183,25 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 viewer.loadFileUrl = (fileUrl/*:string*/, cb) => {
                 }
                 viewer.updateTitle = (newTitle/*:string*/) => {
+                }
+
+                // export current view to csv string
+                viewer.exportToCsvString = (cb) => {
+                    console.log(hl,"exportToCsvString")
+                    try {
+                        viewer.getView().then((view) => {
+                            view.to_csv().then((csvString) => {
+                                cb(csvString)
+                            });
+                        }).catch((e) => {
+                            console.warn(hl,"Error exporting to csv", e)
+                            cb(``)
+                        });
+                    } catch (error) {
+                        console.warn(hl,"Error exporting to csv", error)
+                        cb(``)
+                    }
+                    
                 }
 
 
@@ -238,6 +264,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                 const configSelect = document.getElementById("perspective-config-select");
                 const configSave = document.getElementById("perspective-config-save");
                 const configRefresh = document.getElementById("perspective-config-refresh");
+                const configOpenPlotly = document.getElementById("perspective-send-to-plotly");
                 const configtogglePanel = document.getElementById("perspective-config-toggle");
                 const configHelp = document.getElementById("perspective-config-help");
                 const configDelete = document.getElementById("perspective-config-delete");
@@ -352,6 +379,53 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     reloadViewsSelect()
                    
                 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                ////////////////////////////////////////////////////////
+                //
+                // PLOTLY PANEL EXTERNAL
+                //
+                //
+
+                configOpenPlotly.addEventListener("click", () => {
+                    // const testData = "city,name, age, profession\n london, john, 23, engineer\nparis, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78,"
+                    // graphPerspectiveLib.openPlotlyWindow(api, )
+
+                    viewer.exportToCsvString((csvStr) => {
+                        console.log(hl,"csvStr", csvStr)
+                        // api.call("popup.show", [csvStr, "CSV Data"])
+                        const idWindow = `plotly-window-graph-perspective-${api.utils.getInfos().file.path}`
+                        graphPerspectiveLib.openPlotlyWindow(api, csvStr, idWindow)
+                    })
+                });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                 // if toggle panel, toggle the config panel
                 configtogglePanel.addEventListener("click", () => {
@@ -526,6 +600,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
                     <button id="perspective-config-delete"> ❌ </button>
                     <button id="perspective-config-help"> ? </button>
                     <button id="perspective-config-refresh"> 🔄 </button>
+                    <button id="perspective-send-to-plotly"> 📊 more </button>
                     <div class="upload-wrapper">
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" multiple type="file">
@@ -618,6 +693,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspective*/) => {
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@2.7.1/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
+            `${p.parentVars.opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.lib.js`,
             
             // `https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm`,
             // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/cdn/perspective_viewer_bg.wasm`, fileName:"perspective_bg.wasm"},

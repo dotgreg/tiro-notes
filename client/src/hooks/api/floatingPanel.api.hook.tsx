@@ -190,7 +190,11 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             orderPosition: nonHiddenPanels.length,
             ...panelParams,
         }
-        setPanels([panel,...panelsRef.current])
+
+        // if panel with same id exists, delete it
+        let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
+        nPanels.push(panel)
+        setPanels(nPanels)
         updateOrderPosition(panel.id, "first")
         pushWindowOnTop(panel.id)
     }
