@@ -616,7 +616,7 @@ export const FloatingPanelsWrapper = (p:{
     }, 100)
     useEffect(() => {
         debounceAreWindowsOverlapping(panels)
-        console.log("window overlapping", overlappingWindows)
+        // console.log("window overlapping", overlappingWindows)
     },[panels])
 
     return (
