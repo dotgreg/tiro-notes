@@ -293,6 +293,10 @@ export const DraggableGrid = (p: {
 		}
 	}
 
+	useEffect(() => {
+		
+	},[])
+
 	
 	
 

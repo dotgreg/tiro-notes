@@ -26,7 +26,6 @@ export const Lightbox = (p: {
 	}, [p.startingIndex])
 
 	const setCurrIndex = (index: number) => {
-		console.log(11111111)
 		resetZoom()
 		setCurrIndexInt(index)
 		currIndexRef.current = index

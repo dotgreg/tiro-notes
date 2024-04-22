@@ -7,6 +7,7 @@ import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.c
 import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
 import { deviceType } from '../../managers/device.manager';
 import { useEffect, useRef, useState } from 'react';
+import { toggleViewType } from '../../managers/windowViewType.manager';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
@@ -18,6 +19,7 @@ export type iTabsApi = {
 	reorder: (oldPos, newPos) => void
 	active: {
 		get: () => iTab | null
+		
 	}
 }
 export type iWindowsApi = {
@@ -27,6 +29,7 @@ export type iWindowsApi = {
 	active: {
 		get: (tab?: iTab) => iWindowLayoutAndContent | undefined
 		setContent: (file: iFile) => void
+		toggleView: (view?: iViewType) => void
 	}
 }
 
@@ -341,7 +344,36 @@ export const useTabs = () => {
 		setTabs(nTabs2)
 	}
 
+	const toggleActiveView: iWindowsApi['active']['toggleView'] = (view ) => {
+		// get active window in active tab
+		// const aTab = getActiveTab()
+		// if (!aTab) return
+		// const aWindow = getActiveWindow(aTab)
+		// if (!aWindow) return
+		// get active tab
+		const nTabs = cloneDeep(tabsRef.current)
+		const aId = getActiveTabIndex(nTabs)
+		if (!isNumber(aId)) return
 
+		// get active window, if none, select first one
+		const aTab = nTabs[aId]
+		const aContent = aTab.grid.content
+		if (aContent.length < 1) return
+		let aWindowIndex = 0
+		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+		
+		// toggle view
+		// aWindow.content.view = toggl
+		if (view) {
+			aContent[aWindowIndex].view = view
+		} else {
+			aContent[aWindowIndex].view = toggleViewType(aContent[aWindowIndex].view)
+		}
+
+		// save tabs
+		setTabs(nTabs)
+		// save window using 
+	}
 
 
 	//
@@ -354,7 +386,8 @@ export const useTabs = () => {
 		openInNewTab,
 		reorder: reorderTabs,
 		active: {
-			get: getActiveTab
+			get: getActiveTab,
+			
 		}
 	}
 
@@ -362,7 +395,8 @@ export const useTabs = () => {
 		close: closeWindows,
 		active: {
 			get: getActiveWindow,
-			setContent: updateActiveWindowContent
+			setContent: updateActiveWindowContent,
+			toggleView: toggleActiveView
 		},
 		updateWindows,
 		getIdsFromFile

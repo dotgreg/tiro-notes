@@ -65,9 +65,12 @@ export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption
 		let otherProp = cnf[0] === "width" ? "height:auto;max-height:none" : "width:auto; max-width:none;"
 		styleStr =`style="${cnf[0]}:${cnf[1]}; ${otherProp}"`
 	}
+	url = cleanUrl(url)
 	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img ${styleStr} src="${url}" /></div></div>${caption}`
 
 }
+
+// export const generateImagePreviewHtml = generateImagePreviewHtml2
  
 export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iFile, showSource: boolean = false):string => {
 	// let sourceHtml = showSource ?  `<div class="mdpreview-source">${fullMd}</div>` : ''
@@ -77,7 +80,8 @@ export const generateImagePreviewHtml = (fullMd: string, relSrc:string, cFile:iF
 	if (caption !== "image") sourceHtml = `<div class="mdpreview-source">${caption}</div>`
 	if (!userSettingsSync.curr.ui_editor_show_image_title) sourceHtml = ``
 
-	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`.replaceAll("//", "/")
+	let url = relSrc.startsWith("http") ? relSrc : `${absoluteLinkPathRoot(cFile.folder)}/${relSrc}${getUrlTokenParam()}`
+	url = cleanUrl(url)
 	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img src="${url}" /></div></div>${sourceHtml}`
 }
 

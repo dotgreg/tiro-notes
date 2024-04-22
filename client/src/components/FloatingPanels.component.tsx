@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
 import {DraggableCore} from 'react-draggable';
-import { areWindowsOverlapping, iFloatingPanel, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
+import { areWindowsOverlapping, iActionAllWindows, iFloatingPanel, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
@@ -18,7 +18,7 @@ import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { deviceType } from '../managers/device.manager';
 import { DraggableGrid } from './windowGrid/DraggableGrid.component';
-import { addKeyShortcut } from '../managers/keyboard.manager';
+import { addKeyShortcut, releaseKeyShortcut } from '../managers/keyboard.manager';
 
 let startZindex = 1000
 // react windows that is resizable
@@ -368,7 +368,6 @@ export const FloatingPanel = (p:{
                                 className={`floating-panel__content content-type-${p.panel.type}`} 
                                 style={{height: innerHeight }} 
                                 onMouseDown={(e) => {
-                                    // console.log(11111111);
                                     pushToTop()
                                     // e.preventDefault()
                                     // e.stopPropagation()
@@ -471,10 +470,9 @@ export const FloatingPanelsWrapper = (p:{
     }
 
     // it should reinit pos and size and decal  each panel by 10px
-    const toggleWindowsLayout = () => {
+    const action = (action: iActionAllWindows) => {
         getApi(api => {
-            api.ui.floatingPanel.actionAll("toggleWindowsLayout")
-            // api.ui.floatingPanel.actionAll("organizeWindows")
+            api.ui.floatingPanel.actionAll(action)
         })
     }
     const [hideAll, setHideAll] = useState<boolean>(false)
@@ -482,17 +480,54 @@ export const FloatingPanelsWrapper = (p:{
        setHideAll(!hideAll)
     }
 
-    addKeyShortcut("alt+q", () => {
-        handleToggleVisibility()
-    })
+    // if panels nb increase, unhide all
+    const oldPanelsCount = useRef<number>(0)
+    const oldPanelsVisibleCount = useRef<number>(0)
+    useEffect(() => {
+        if (hideAll === true && panels.length > oldPanelsCount.current) {
+            setHideAll(false)
+        }
+        if (panels.length === 0) {
+            setHideAll(false)
+        }
+        const visiblePanels = panels.filter(p => p.status === "visible")
+        if (visiblePanels.length > oldPanelsVisibleCount.current) {
+            setHideAll(false)
+        }
+        oldPanelsVisibleCount.current = visiblePanels.length
+        oldPanelsCount.current = panels.length
+    },[panels])
 
-    const debounceToggleWindowsLayout = useDebounce(() => {
-        toggleWindowsLayout()
-    }, 100)
+    const a1 =  () => { handleToggleVisibility() }
+    const a2 = () => {  action("toggleWindowsLayout") }
+    const a3 = () => {  action("minimizeActive") }
+    const a4 = () => {  action("closeActive") }
+    const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c"]
+    const actions = [a1, a2, a3, a4]
+    useEffect(() => {
+        shortcuts.forEach((shortcut, i) => {
+            addKeyShortcut(shortcut, actions[i])
+        })
+        return () => {
+            shortcuts.forEach((shortcut, i) => {
+                releaseKeyShortcut(shortcut, actions[i])
+            })
+        }
+    }, [panels])
 
-    addKeyShortcut("alt+w", () => {
-        debounceToggleWindowsLayout()
-    })
+    // useEffect(() => {
+    //     addKeyShortcut("alt+q", () => { handleToggleVisibility() })
+    //     addKeyShortcut("alt+w", () => {  action("toggleWindowsLayout") })
+    //     addKeyShortcut("alt+shift > m", () => {  action("minimizeActive") })
+    //     addKeyShortcut("alt+shift > c", () => {  action("closeActive") })
+    //     return () => {
+    //         releaseKeyShortcut("alt+q", () => { handleToggleVisibility() })
+    //         releaseKeyShortcut("alt+w", () => {  action("toggleWindowsLayout") })
+    //         releaseKeyShortcut("alt+shift > m", () => {  action("minimizeActive") })
+    //         releaseKeyShortcut("alt+shift > c", () => {  action("closeActive") })
+    //     }
+    // }, [panels])
+
 
     const toggleAll = () => {
         let shouldShow = false
@@ -612,7 +647,7 @@ export const FloatingPanelsWrapper = (p:{
                     <div className='bottom-hover-bar' > </div>
                     <div className={`panels-minimized-bottom-bar ${p.pinStatus ? "pinned" : ""}`} style={{width:`${panels.length > 8 ? panels.length* 15 : 100}%`}}>
                         <div className='floating-panels-bottom-toolbar'>
-                            <div className='btn-action reinit-position-and-size' onClick={toggleWindowsLayout}><Icon2 name="layer-group" /> </div>
+                            <div className='btn-action reinit-position-and-size' onClick={(e)=>{action("toggleWindowsLayout")}}><Icon2 name="layer-group" /> </div>
                             <div className='btn-action toggle-visibility' onClick={handleToggleVisibility}> {hideAll === true ? <Icon2 name="eye-slash" /> : <Icon2 name="eye" />} </div>
                             <div className='btn-action pin-bar' onClick={() => p.onPinChange(!p.pinStatus)}> <Icon2 name="thumbtack" /> </div>
                             {/* <button className='toggle-all' onClick={toggleAll}>toggle</button> */}

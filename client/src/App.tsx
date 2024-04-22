@@ -47,7 +47,7 @@ import { cloneDeep, random, set, update } from 'lodash-es';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
-import { addKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
+import { addKeyShortcut, releaseKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
@@ -59,6 +59,8 @@ import { webIconUpdate } from './managers/iconWeb.manager';
 import { initLatex, isLatexInit } from './managers/latex.manager';
 import { BackgroundVideo } from './components/BackgroundVideo.component';
 import { triggerTiroHelpPopup } from './managers/help.manager';
+import { createNewNote } from './managers/newNote.manager';
+import { release } from 'os';
 
 export const App = () => {
 
@@ -420,14 +422,35 @@ export const App = () => {
 		const closeOmni = () => { setSuggestOpen(false); }
 		// k.bind('alt + spacebar', openOmni);
 		addKeyShortcut('alt + spacebar', openOmni);
+		addKeyShortcut('alt + p', openOmni);
 		addKeyShortcut('alt + ,', () => {setConfigPopup("settings")});
+		
 		// k.bind('esc', closeOmni);
 		addKeyShortcut('esc', () => {
 			closeOmni()
 			setConfigPopup(null)
 		});
-		return () => { releaseKeyShortcuts() }
+		return () => { 
+			releaseKeyShortcuts() 
+		}
 	}, [filesHistory])
+	const createNoteFloatingFn = () => { createNewNote({ openIn: "floatingWindow" }) }
+	const createNoteFn = () => { createNewNote({ openIn: "activeWindow" }) }
+	const toggleActiveWindowView = () => {
+		getApi(api => {
+			api.ui.windows.active.toggleView()
+		})
+	}
+	useEffect(() => {
+		addKeyShortcut('alt  > n', createNoteFn);
+		addKeyShortcut('alt + shift > f', createNoteFloatingFn);
+		addKeyShortcut('alt > v', toggleActiveWindowView);
+		return () => { 
+			releaseKeyShortcut('alt  > n', createNoteFn) 
+			releaseKeyShortcut('alt + shift > f', createNoteFloatingFn) 
+			releaseKeyShortcut('alt > v', toggleActiveWindowView);
+		}
+	})
 
 	//
 	// URL/ICON SYSTEM (MOBILE ONLY)
@@ -459,6 +482,9 @@ export const App = () => {
 		let backgroundVideo = userSettingsSync.curr.ui_layout_background_image
 		if (backgroundVideoEnable && backgroundVideo) setBgVideo(backgroundVideo)
 	}, [cnt, usettings])
+
+
+	
 
 	return (
 		<div className={CssAppStatic( usettings)} >
@@ -536,12 +562,8 @@ export const App = () => {
 										<div className="invisible-scrollbars">
 											<NewFileButton
 												onNewFile={() => {
-													getApi(api => {
-														const selectedFolder = api.ui.browser.folders.current.get()
-														api.file.create(selectedFolder, files => {
-															const nFile = getMostRecentFile(files)
-															nFile && api.ui.browser.goTo(selectedFolder, nFile.name, { openIn: 'activeWindow' })
-														})
+													createNewNote({
+														openIn: "activeWindow"
 													})
 												}}
 											/>
