@@ -84,7 +84,7 @@ export const WindowEditorInt = (p: {
 		if (cFile) {
 			if (metas.created) cFile.created = parseInt(metas.created as string)
 			if (metas.updated) cFile.modified = parseInt(metas.updated as string)  
-			console.log("removeContentMeta__updateInnerVars", {metas, content, cFile})
+			// console.log("removeContentMeta__updateInnerVars", {metas, content, cFile})
 			return {contentWithoutMeta: content, file: cFile}
 		}
 

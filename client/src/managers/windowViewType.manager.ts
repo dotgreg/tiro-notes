@@ -14,6 +14,15 @@ export const getContentViewTag = (content: string): iViewType | false => {
 	return res
 }
 
+export const toggleViewType = (currentViewType:iViewType): iViewType => {
+	if (currentViewType === "editor") currentViewType = "preview"
+	else if (currentViewType === "preview") currentViewType = "both"
+	else if (currentViewType === "both") currentViewType = "editor"
+	else currentViewType = "editor"
+
+	return currentViewType
+}
+
 const cacheId = `notes-view-type`
 export const getNoteView = (notePath: string): Promise<iViewType | false> => {
 	return new Promise((res, rej) => {

@@ -1018,6 +1018,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.windows.active.setContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.windows.active.toggleView</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.windows.active.toggleView",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.windows.close</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1401,7 +1409,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iActionAllWindows</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleVisibility"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleActiveVisibility" | "minimizeActive" | "closeActive"</span></div>
  
 
 #### <span class="render-code-wrapper">iPanelLayout</span>

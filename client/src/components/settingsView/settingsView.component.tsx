@@ -558,16 +558,16 @@ export const SettingsPopup = (p: {
 			{
 				title: "Beta",
 				fields: [
-					{
-						type: 'checkbox',
-						title: "Floating Windows",
-						expl: "Enable the floating window system" + requireReloadStr,
-						var: us.get('beta_floating_windows'),
-						modifier: val => {
-							setDisplayReload(true)
-							us.set('beta_floating_windows', val)
-						}
-					},
+					// {
+					// 	type: 'checkbox',
+					// 	title: "Floating Windows",
+					// 	expl: "Enable the floating window system" + requireReloadStr,
+					// 	var: us.get('beta_floating_windows'),
+					// 	modifier: val => {
+					// 		setDisplayReload(true)
+					// 		us.set('beta_floating_windows', val)
+					// 	}
+					// },
 					{
 						type: 'checkbox',
 						title: "Plugins Marketplace",

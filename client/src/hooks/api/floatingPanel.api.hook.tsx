@@ -10,6 +10,7 @@ import { deviceType, iDeviceType } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
+import { toggleViewType } from "../../managers/windowViewType.manager"
 
 const h = `[FLOATING PANELS]`
 
@@ -33,7 +34,7 @@ export interface iFloatingPanel {
     device: iDeviceType,
     isTopWindow?: boolean
 }
-export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleVisibility" 
+export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleActiveVisibility" | "minimizeActive" | "closeActive" 
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
 type iPanelLayout =  "full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top"  | "top" | "left" | "right"| "bottom-left" | "bottom-right" | "top-left" | "top-right"
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
@@ -202,7 +203,25 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const deletePanel = (panelId:string) => {
         console.log(`${h} deletePanel`, panelId)
         let nPanels = panelsRef.current.filter(p => p.id !== panelId)
+        nPanels = updateTopWindow(nPanels)
         setPanels(nPanels)
+    }
+
+    const updateTopWindow = (newPanels:iFloatingPanel[]):iFloatingPanel[] => {
+        
+        // let newPanels = cloneDeep(panelsRef.current)
+        let visiblePanels = newPanels.filter(p => p.status === "visible")
+        // get the top window from zIndex
+        const highestZIndex = Math.max(...visiblePanels.map(p => p.zIndex || 0))
+        const highestZIndexPanel = visiblePanels.find(p => p.zIndex === highestZIndex)
+        if (!highestZIndexPanel) return newPanels
+        // remove isTopWindow from all panels
+        newPanels.forEach((p) => { p.isTopWindow = false })
+        newPanels[newPanels.findIndex(p => p.id === highestZIndexPanel.id)].isTopWindow = true
+        const highest = newPanels[newPanels.findIndex(p => p.id === highestZIndexPanel.id)]
+        console.log(`updateTopWindow to `, highest.file.name )
+        // setPanels(newPanels)
+        return newPanels
     }
     
     const pushWindowOnTop = (panelId:string) => {
@@ -218,7 +237,10 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         npanel.zIndex=  highestZIndex + 1
         npanel.isTopWindow = true
         newPanels[panelIndex] = npanel
+
+        // newPanels = updateTopWindow(panelsRef.current)
         setPanels(newPanels)
+        // updateTopWindow()
         // updatePanel({...panelsRef.current[panelIndex]!, zIndex: highestZIndex + 1})
         // if highestZIndex > startingZindex + 2x length of panels, remove to all panels zIndex 1x length of panels
         if (highestZIndex > startingZindex + (panelsRef.current.length * 2)) {
@@ -244,11 +266,17 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const minimizePanel = (panelId:string) => { 
-        const nPanel = panelsRef.current.find(p => p.id === panelId)
+        // const nPanel = panelsRef.current.find(p => p.id === panelId)
         // if panel is file 
+        let nPanels = cloneDeep(panelsRef.current)
+        nPanels.find(p => p.id === panelId)!.status = "minimized"
+        const p = nPanels.find(p => p.id === panelId)
+        console.log(` minimizePanel`, p?.file.name)
+        nPanels = updateTopWindow(nPanels)
+        setPanels(nPanels)
 
-        updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
-
+        // updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
+        // updateTopWindow()
         //
         // killing tabs content so disabled
         // if (nPanel?.type === "file") {
@@ -433,10 +461,25 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     //     updateAll(newPanels)
     // }
 
+    const minimizeActive = () => {
+        // let newPanels = cloneDeep(panelsRef.current)
+        let topWindow = getTopVisibleWindow()
+        console.log("topWindow", topWindow?.file.name)
+        if (!topWindow) return
+        minimizePanel(topWindow.id)
+    }
+    const closeActive = () => {
+        let topWindow = getTopVisibleWindow()
+        if (!topWindow) return
+        deletePanel(topWindow.id)
+    }
+
     const actionAll = (action:iActionAllWindows) => {
         // reorg
         if (action === "organizeWindows") return reorganizeAll()
         if (action === "toggleWindowsLayout") return toggleWindowsLayout()
+        if (action === "minimizeActive") return minimizeActive()
+        if (action === "closeActive")  return closeActive()
 
         // hide/show
         let newPanels = cloneDeep(panelsRef.current)
@@ -494,15 +537,16 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updatePanel(panel)
     }
 
-    const getTopWindow = () => {
-        let newPanels = cloneDeep(panelsRef.current)
+    const getTopVisibleWindow = () => {
+        // let newPanels = cloneDeep(panelsRef.current)
+        let visiblePanels = panelsRef.current.filter(p => p.status === "visible")
         // get the top window
-        let topWindow = newPanels.find(p => p.zIndex === Math.max(...newPanels.map(p => p.zIndex || 0)))
+        let topWindow = visiblePanels.find(p => p.zIndex === Math.max(...visiblePanels.map(p => p.zIndex || 0)))
         
         return topWindow
     }
     const updateTopWindowOpacity = (opacityRelative:number) => {
-        const topWindow = getTopWindow()
+        const topWindow = getTopVisibleWindow()
         if (!topWindow) return
         const currOpacity = topWindow.opacity || 1
         topWindow.opacity = currOpacity + opacityRelative
@@ -513,20 +557,15 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const updateTopWindowView = (view?:iViewType) => {
-        const topWindow = getTopWindow()
+        const topWindow = getTopVisibleWindow()
         if (!topWindow) return
         if (isString(view)) topWindow.view = view
         // toggle between editor, preview, both
         else {
-            if (topWindow.view === "editor") topWindow.view = "preview"
-            else if (topWindow.view === "preview") topWindow.view = "both"
-            else if (topWindow.view === "both") topWindow.view = "editor"
-            else topWindow.view = "editor"
+            topWindow.view = toggleViewType(topWindow.view as iViewType)
 
             console.log(`${h} updateTopWindowView`, topWindow.view)
         }
-        console.log(123)
-
         updatePanel(topWindow)
     }
 
@@ -538,7 +577,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
     
     useEffect(() => {
-        let shcts = ["alt + o", "alt + shift + o", "alt + v"]
+        let shcts = ["alt + o", "alt + shift + o", "alt + shift > v"]
         addKeyShortcut(shcts[0], incrementOpacity)
         addKeyShortcut(shcts[1], decrementOpacity)
         addKeyShortcut(shcts[2], updateTopWindowView)

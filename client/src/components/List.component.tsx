@@ -13,6 +13,7 @@ import { getKeyModif } from '../managers/keys.manager';
 import { SortModes } from '../managers/sort.manager';
 import { FilesPreviewObject } from '../hooks/api/files.api.hook';
 import { getFontSize } from '../managers/font.manager';
+import { cleanUrl } from '../managers/url.manager';
 
 
 // export const SortModeArr = ['none','alphabetical','created','modified']
@@ -235,7 +236,7 @@ class ListInt extends React.Component<{
 														className="picture"
 														style={{
 															backgroundColor: 'white',
-															backgroundImage: `url('${filePreview.picture.startsWith('http') ? filePreview.picture + this.getUrlLoginToken() : `${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}${this.getUrlLoginToken()}`}')`
+															backgroundImage: `url('${filePreview.picture.startsWith('http') ? cleanUrl(filePreview.picture + this.getUrlLoginToken()) : cleanUrl(`${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}${this.getUrlLoginToken()}`)}')`
 														}}
 													>
 													</div>

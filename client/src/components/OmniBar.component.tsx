@@ -605,9 +605,7 @@ export const OmniBar = (p: {
 						nOpts.push({ value: last, label: FolderIcon + last })
 					})
 					// rank files by most recent 
-					// console.log("11111111111111111", files[0].name, files[0].modified)
 					files = orderBy(files, ["modified"], ["desc"])
-					// console.log("222222222222222", files[0].name, files[0].modified)
 
 					
 					each(files, f => {

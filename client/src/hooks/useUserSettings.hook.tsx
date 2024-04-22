@@ -74,7 +74,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	view_disable_notification_popups: false,
 	privacy_work_mode_enable: false,
 	privacy_work_mode_filters: "work,meeting",
-	beta_floating_windows: false,
+	beta_floating_windows: true,
 	beta_plugins_marketplace: false,
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
 	ui_layout_general_font_size: 10,
