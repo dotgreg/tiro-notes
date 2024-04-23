@@ -201,8 +201,8 @@ export const useFileApi = (p: {
 		const debounced = (options && options.debounced) ? options.debounced : false
 		const withThrottle = (options && options.withThrottle) ? options.withThrottle : false
 		
-
-		if (options?.withMetas) {
+		const isNoteLinkInsideTiroConfig = noteLink.includes("/.tiro/")
+		if (options?.withMetas && !isNoteLinkInsideTiroConfig) {
 			const fileInfosForMeta = options?.withMetas
 			fileInfosForMeta.modified = Date.now()
 			// if date already exists (real date), take it

@@ -35,6 +35,8 @@ export interface iFloatingPanel {
     isTopWindow?: boolean
 }
 export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleActiveVisibility" | "minimizeActive" | "closeActive" 
+type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled" | "current"
+export type iActionAllParams = {layout?:iWindowsLayout}
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
 type iPanelLayout =  "full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top"  | "top" | "left" | "right"| "bottom-left" | "bottom-right" | "top-left" | "top-right"
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
@@ -56,7 +58,7 @@ export interface iFloatingPanelApi {
     openFile: (filepath:string, opts?:{idpanel?:string, layout?: iPanelLayout, searchedString?:string, replacementString?:string}) => void,
     
     updateAll: (panels:iFloatingPanel[]) => void,
-    actionAll: (action:iActionAllWindows) => void,
+    actionAll: (action:iActionAllWindows, params?:iActionAllParams) => void,
 
     refreshFromBackend: Function,
     pushWindowOnTop: (panelId:string) => void,
@@ -223,7 +225,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         newPanels.forEach((p) => { p.isTopWindow = false })
         newPanels[newPanels.findIndex(p => p.id === highestZIndexPanel.id)].isTopWindow = true
         const highest = newPanels[newPanels.findIndex(p => p.id === highestZIndexPanel.id)]
-        console.log(`updateTopWindow to `, highest.file.name )
+        // console.log(`updateTopWindow to `, highest.file.name )
         // setPanels(newPanels)
         return newPanels
     }
@@ -275,7 +277,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         let nPanels = cloneDeep(panelsRef.current)
         nPanels.find(p => p.id === panelId)!.status = "minimized"
         const p = nPanels.find(p => p.id === panelId)
-        console.log(` minimizePanel`, p?.file.name)
+        // console.log(` minimizePanel`, p?.file.name)
         nPanels = updateTopWindow(nPanels)
         setPanels(nPanels)
 
@@ -333,18 +335,19 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     // const hideAllVisibleWindows = () => {
     //     hideVisibleWindows
 
-    type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled"
+    
     const layoutWindows = React.useRef<iWindowsLayout>("grid") 
     const toggleWindowsLayout = (nLayout?:iWindowsLayout) => {
         let newPanels = cloneDeep(panelsRef.current)
         let visiblePanels = newPanels.filter(p => p.status === "visible" && p.device !== "mobile")
-        // console.log(`${h} toggleWindowsLayout`, newPanels, visiblePanels)
 
         // only trigger if 
         // if (visiblePanels.length <= 1) return reorganizeAll()
+        if (nLayout === "current") nLayout = layoutWindows.current
+
         
         const allLayouts:iWindowsLayout[] = ["grid", "horizontal", "vertical", "tiled"]
-        console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
+        // console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
         if (!nLayout) {
             // if no nLayout, toggle between grid, horizontal, vertical
             layoutWindows.current = allLayouts[(allLayouts.indexOf(layoutWindows.current) + 1) % allLayouts.length]
@@ -352,11 +355,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             layoutWindows.current = nLayout
         }
       
-        
-
-        
-
-        console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
 
         // if grid, reorganize each panels according to their number, if 2 side by side, if 4 2x2, if 9, 3x3
         if (layoutWindows.current === "grid") {
@@ -405,25 +403,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             reorganizeAll()
         }
 
-
-        
-       
-        
-        // let j = 0
-        // newPanels.forEach((panel) => {
-        //     if (panel.status !== "visible") return
-        //     panel.zIndex = startingZindex + j
-        //     panel.position = {x: 100 + (j * offset), y: 100 + (j * offset)}
-        //     panel.size = {width: 320, height: 200}
-        //     // if i > 0, position should offset half of the previous panel size
-        //     // if (j > 0) {
-        //     //     panel.position = {x: 100 + (j * offset) , y: 100 + (j * offset) - (newPanels[j].size.height )}
-        //     // }   
-        //     j++
-
-
-        // })
-        // updateAll(newPanels)
+ 
     }
 
     // function updateOrderPosition that just update the prop.orderPosition of the panel, first should be the first position of all panels, last should be the last position of all panels
@@ -478,10 +458,11 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         deletePanel(topWindow.id)
     }
 
-    const actionAll = (action:iActionAllWindows) => {
+    
+    const actionAll:iFloatingPanelApi["actionAll"] = (action, params) => {
         // reorg
         if (action === "organizeWindows") return reorganizeAll()
-        if (action === "toggleWindowsLayout") return toggleWindowsLayout()
+        if (action === "toggleWindowsLayout") return toggleWindowsLayout(params?.layout)
         if (action === "minimizeActive") return minimizeActive()
         if (action === "closeActive")  return closeActive()
 

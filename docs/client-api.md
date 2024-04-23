@@ -802,8 +802,9 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. action: <span class="render-code-wrapper"><a href="#client-api?id=iactionallwindows">iActionAllWindows</a></span>
+       1. params: <span class="render-code-wrapper"><a href="#client-api?id=iactionallparams">iActionAllParams</a></span>
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.actionAll",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iactionallwindows">iActionAllWindows</a></span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.actionAll",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=iactionallwindows">iActionAllWindows</a></span>, <span class="render-code-wrapper"><a href="#client-api?id=iactionallparams">iActionAllParams</a></span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.floatingPanel.create</span>
@@ -1410,6 +1411,18 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">"hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleActiveVisibility" | "minimizeActive" | "closeActive"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iWindowsLayout</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"grid" | "horizontal" | "vertical" | "tiled" | "current"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iActionAllParams</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;layout: <span class="render-code-wrapper"><a href="#client-api?id=iwindowslayout">iWindowsLayout</a></span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iPanelLayout</span>
