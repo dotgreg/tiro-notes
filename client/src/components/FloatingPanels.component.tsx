@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
 import {DraggableCore} from 'react-draggable';
-import { areWindowsOverlapping, iActionAllWindows, iFloatingPanel, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
+import { areWindowsOverlapping, iActionAllParams, iActionAllWindows, iFloatingPanel, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
@@ -230,7 +230,9 @@ export const FloatingPanel = (p:{
         })
     }
 
+
     let shouldShowHoverOverlay = p.areWindowsOverlapping === true && showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
+    // console.log("shouldShowHoverOverlay", p.panel.type, shouldShowHoverOverlay, p.panel.zIndex, p.highestVisibleZIndex, p.panelsVisibleNumber, p.areWindowsOverlapping)
     // if handle_invisible is hovered, show hover overlay
     useEffect(() => {
         const handleInvisible = document.querySelector('.handle_invisible')
@@ -376,7 +378,7 @@ export const FloatingPanel = (p:{
                                 onMouseLeave={() => {setShowHoverOverlay(false)}}  
                             >
                                 {/* if ctag, add overlay for click */}
-                               { p.panel.type !== "file" && <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${shouldShowHoverOverlay ? "hover-mode": ""}`} 
+                               {  <div className={`floating-panel__drag-overlay ${showDragOverlay ? "": "hide"} ${shouldShowHoverOverlay ? "hover-mode": ""}`} 
                                     onMouseDown={() => {
                                         pushToTop()
                                         setShowHoverOverlay(false)
@@ -470,14 +472,21 @@ export const FloatingPanelsWrapper = (p:{
     }
 
     // it should reinit pos and size and decal  each panel by 10px
-    const action = (action: iActionAllWindows) => {
+    const action = (action: iActionAllWindows, params?:iActionAllParams) => {
         getApi(api => {
-            api.ui.floatingPanel.actionAll(action)
+            api.ui.floatingPanel.actionAll(action, params)
         })
     }
-    const [hideAll, setHideAll] = useState<boolean>(false)
+
+    const [hideAll, setHideAllInt] = useState<boolean>(false)
+    const hideAllRef = useRef<boolean>(hideAll)
+    const setHideAll = (status:boolean) => {
+        hideAllRef.current = status
+        setHideAllInt(status)
+    }
     const handleToggleVisibility = () => {
-       setHideAll(!hideAll)
+        // console.log("toggle visibility", hideAllRef.current)
+       setHideAll(!hideAllRef.current)
     }
 
     // if panels nb increase, unhide all
@@ -502,8 +511,9 @@ export const FloatingPanelsWrapper = (p:{
     const a2 = () => {  action("toggleWindowsLayout") }
     const a3 = () => {  action("minimizeActive") }
     const a4 = () => {  action("closeActive") }
-    const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c"]
-    const actions = [a1, a2, a3, a4]
+    const a5 = () => {  action("toggleWindowsLayout", {layout:"current"}) }
+    const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c", "alt+shift > w",]
+    const actions = [a1, a2, a3, a4, a5]
     useEffect(() => {
         shortcuts.forEach((shortcut, i) => {
             addKeyShortcut(shortcut, actions[i])
@@ -555,16 +565,16 @@ export const FloatingPanelsWrapper = (p:{
     useEffect(() => {
         if (loaded) return
         if (panelsRef.current.length === 0) return  
-        setLoaded(true)
         let newPanels = cloneDeep(panelsRef.current)
         if (!isArray(newPanels)) newPanels = []
+        setLoaded(true)
         newPanels.forEach((panel) => {
             if (panel.status === "minimized") panel.status = "hidden"
         })
         getApi(api => {
             api.ui.floatingPanel.updateAll(newPanels)
         })
-    },[loaded])
+    },[loaded, panels])
 
 
 

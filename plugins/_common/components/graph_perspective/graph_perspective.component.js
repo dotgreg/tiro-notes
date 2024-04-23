@@ -206,11 +206,17 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
 
 
 
+                // function weekOfYear(day, month, year) {
+                //     let date = new Date(year, month - 1, day);
+                //     let startDate = new Date(date.getFullYear(), 0, 1);
+                //     let days = Math.floor((date - startDate) / (24 * 60 * 60 * 1000)) + ((startDate.getDay() + 6) % 7);
+                //     return Math.ceil(days / 7) + 1;
+                // }
                 function weekOfYear(day, month, year) {
-                    let date = new Date(year, month - 1, day);
-                    let startDate = new Date(date.getFullYear(), 0, 1);
-                    let days = Math.floor((date - startDate) / (24 * 60 * 60 * 1000)) + ((startDate.getDay() + 6) % 7);
-                    return Math.ceil(days / 7) + 1;
+                    const date = new Date(year, month - 1, day);
+                    const firstDayOfYear = new Date(year, 0, 1);
+                    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+                    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
                 }
                 const enrichViewConfigStr = (configStr/*:string*/) => {
                     let curr = new Date()
