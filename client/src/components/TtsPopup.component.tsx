@@ -217,7 +217,7 @@ export const StyledDiv = styled.div`
 		}
 }
 .popup-wrapper .popupContent {
-    padding: 20px;
+    	padding: 20px;
 		.input-component span, span {
 				display: inline-block;
 				width: 30%;

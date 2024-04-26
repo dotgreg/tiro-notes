@@ -104,9 +104,10 @@ export const usePromptPopup = (p: {
 					title={title}
 					onClose={closePopup}
 					canBgClose={false}
+					cssStr={cssStr}
 				>
 					<div>
-						<div className={`content ${css`${cssStr}`}`}
+						<div className={`content`}
 							
 							dangerouslySetInnerHTML={{
 								__html: text

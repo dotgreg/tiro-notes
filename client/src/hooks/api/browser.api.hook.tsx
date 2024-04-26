@@ -121,7 +121,6 @@ export const useBrowserApi = (p: {
 								activeIndex = i
 							}
 						})
-						// console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
 					}
 					setActiveFileIndex(activeIndex);
 					setFiles(nfilesSorted)

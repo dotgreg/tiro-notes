@@ -34258,7 +34258,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-							"line": 496,
+							"line": 495,
 							"character": 12
 						}
 					],
@@ -34273,7 +34273,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/browser.api.hook.tsx",
-									"line": 496,
+									"line": 495,
 									"character": 30
 								}
 							],

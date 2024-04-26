@@ -58,7 +58,7 @@ export const getRelativePathFromSearchPath = (rawString: string, searchFolder:st
 
 	// let foldFull = backConfig.dataFolder + folder
 	// console.log(JSON.stringify({init, foldFull, end, folder}))
-	console.log('cleanedFileNamePath',backConfig.dataFolder, rawString, " => ", end)
+	// console.log('cleanedFileNamePath',backConfig.dataFolder, rawString, " => ", end)
 	return end
 }
 

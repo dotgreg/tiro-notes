@@ -5,6 +5,8 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileMetas, metaContent } from "../../../../shared/types.shared";
 import { getRelativePathFromSearchPath } from "./file.search.manager";
 import { iFilesObj } from "./search-ripgrep.manager";
+import path from "path";
+
 
 export interface iMetasFiles {
     [fileName:string]: iFileMetas
@@ -15,10 +17,14 @@ export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFile
 
      // merging meta dates into filesScannedObj
      each(metasFiles, (metasFile, fileName) => {
+        // filename clean it using path
+        fileName = path.basename(fileName)
          if (filesObj[fileName]) {
              if (metasFile['created']) filesObj[fileName].created = toTimeStampInS(metasFile['created'])*1000
              if (metasFile['modified']) filesObj[fileName].modified = toTimeStampInS(metasFile['modified'])*1000
-         }
+             if (metasFile['updated']) filesObj[fileName].modified = toTimeStampInS(metasFile['updated'])*1000
+            }
+        console.log(1111, fileName, filesObj[fileName], metasFile, metasFile['created'], metasFile['modified'], filesObj[fileName]?.created, filesObj[fileName]?.modified)
     })
 
     // from Files obj to Files Arr
@@ -54,6 +60,13 @@ export const processRawStringsToMetaObj = (rawMetasStrings: string[], folder:str
 
         const content = rawMetaArr2[1]
         const meta = processStringToMeta(content)
+        
+        // if meta['created'] is only 10 chars, add 000 at the end
+        // if (meta && meta.value) meta.value = `${meta.value}`
+        // if (meta && meta.name === "created" && `${meta.value}`.length === 10) meta.value = meta.value + "000"
+        // if (meta && meta.name === "updated" && `${meta.value}`.length === 10) meta.value = meta.value + "000"
+        
+        // console.log('meta', meta)
         
         if (meta && meta.name) res[cleanedFileName][meta.name] = meta.value
     }

@@ -27,6 +27,8 @@ export const regexs = {
 	checkbox: /\[ \]|\[x\]|\[X\]/gi,
 	// date like 31/12/2020
 	dateFrFormat: /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})/gi,
+	// either **TEXT** or ~~TEXT~~ or ***TEXT*** or __TEXT__ or *TEXT*
+	boldOrStrike: /\*\*[^*]+\*\*|\~\~[^~]+\~\~|\*\*\*[^*]+\*\*\*|\_\_[^_]+\_\_|\*[^\*]+\*/gi,
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
 	metasAndSpace: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd).then('\n'),
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
