@@ -219,7 +219,7 @@ export const searchWithRipGrep = async (params: {
 	// let searchType = ''
 	// if (params.term === '' && params.imageSearch) searchType = ''
 
-	const debugMode = (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
+	// const debugMode = (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
 
 	// regex dictionary
 	const r = {
@@ -260,41 +260,7 @@ export const searchWithRipGrep = async (params: {
 
 
 		let resultsRawArr: string[] = []
-		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
 		
-		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
-
-		// ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
-		// 	const rawMetaString = dataRaw.toString()
-		// 	// split multiline strings
-		// 	const rawMetaArr = rawMetaString.split('\n')
-		// 	resultsRawArr.push(...rawMetaArr)
-		// })
-
-		// ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-		// 	const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
-		// 	const scannedFilesObj: iFilesObj = {}
-		// 	let index = 0
-		// 	each(metasFilesObj, (metaObj, fileName) => {
-		// 		const file = processRawPathToFile({ rawPath: fileName, folder: relativeFolder, index, titleFilter })
-		// 		if (file && file.name) {
-		// 			if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
-		// 				scannedFilesObj[file.name] = file
-		// 				index++
-		// 			}
-		// 		}
-		// 	})
-		// 	const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
-		// 	const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
-
-		// 	log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
-		// 	params.onSearchEnded({ files: filesWithMetaUpdated })
-		// 	end()
-		// })
-		
-		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
-		
-		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
 
 		const onData2 =  async dataRaw => {
 			const rawMetaString = dataRaw.toString()
@@ -317,9 +283,9 @@ export const searchWithRipGrep = async (params: {
 				}
 			})
 			const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
-			const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
+			// const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
 
-			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
+			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams });
 			params.onSearchEnded({ files: filesWithMetaUpdated })
 			end()
 		}
@@ -398,26 +364,7 @@ export const searchWithRipGrep = async (params: {
 			onError: err => {onRgDoesNotExists(err)}
 		})
 
-		// PROCESS 2
-		// let ripGrepStreamProcess2 = execaWrapper(backConfig.rgPath, metaFilesInFullFolderSearch)
-		// if (!ripGrepStreamProcess2) errturn onRgDoesNotExists(err)
 		
-		// const rawMetasStrings: string[] = []
-		// let metasFilesScanned: iMetasFiles = {}
-		// ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
-		// 	const rawMetaString = dataRaw.toString()
-		// 	// split multiline strings
-		// 	const rawMetaArr = rawMetaString.split('\n')
-		// 	rawMetasStrings.push(...rawMetaArr)
-		// })
-		// ripGrepStreamProcess2.stdout.on('close', dataRaw => {
-		// 	// process raw strings to meta objs
-
-		// 	metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
-		// 	shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
-		// 	perfs.cmd2 = Date.now()
-		// 	triggerAggregationIfEnded()
-		// })
 		const rawMetasStrings: string[] = []
 		let metasFilesScanned: iMetasFiles = {}
 		const onData4 =  async dataRaw => {

@@ -19,6 +19,7 @@ import { useBackendState } from '../hooks/useBackendState.hook';
 import { evalPluginCode } from '../managers/plugin.manager';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { workMode_filterIFiles } from '../managers/workMode.manager';
+import { addKeyShortcut, releaseKeyShortcut } from '../managers/keyboard.manager';
 
 const omniParams = {
 	search: {
@@ -281,14 +282,45 @@ export const OmniBar = (p: {
 
 
 
-
+	//
+	// JUMP TO NOTE
+	//
 	const jumpToPath = (filePath: string) => {
 		let file = pathToIfile(filePath)
-		getApi(api => {
-			api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+		if (jumpToFileModifier.current) {
+			console.log("jumpToFileModifier", jumpToFileModifier.current)
 			p.onClose()
-		})
+			openNoteInFloatingWindow(file)
+		} else {
+			getApi(api => {
+				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+				p.onClose()
+			})
+		}
 	}
+	// IF PRESS ALT + ENTER on FILE, OPEN NEW WINDOW in jump to file
+	const jumpToFileModifier = useRef(false)
+	const a1 =  () => { 
+		console.log("jumpToFileModifier", jumpToFileModifier.current)
+		jumpToFileModifier.current = true
+	}
+    const shortcuts = ["alt" ]
+    const actions = [a1]
+    useEffect(() => {
+        shortcuts.forEach((shortcut, i) => {
+            addKeyShortcut(shortcut, actions[i])
+        })
+        return () => {
+            shortcuts.forEach((shortcut, i) => {
+                releaseKeyShortcut(shortcut, actions[i])
+            })
+        }
+    }, [])
+
+
+
+
+
 
 	//
 	// MODE SWITCHING
@@ -424,8 +456,7 @@ export const OmniBar = (p: {
 
 
 
-
-
+	
 
 
 

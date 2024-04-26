@@ -62,6 +62,7 @@ import { configClient } from '../../config';
 import { absoluteLinkPathRoot } from '../textProcessor.manager';
 import { BackgroundVideoCSS } from '../../components/BackgroundVideo.component';
 import { checkboxTodoCmPluginCss } from '../codeMirror/checkboxTodo.cm';
+import { markdownSynthaxCmPluginCss } from '../codeMirror/markdownSynthax.cm';
 
 
 export const css2 = (css: string) => css
@@ -212,6 +213,7 @@ const CssAppIntStatic = (
 		${ctagPreviewPluginCss()}
 		${passwordPopupCss()}
 		${datePickerCmPluginCss()}
+		${markdownSynthaxCmPluginCss()}
 		${checkboxTodoCmPluginCss()}
 
 		${FloatingPanelCss()}

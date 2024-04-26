@@ -8,10 +8,14 @@ export const triggerTiroHelpPopup = () => {
 
 <h3>Shortcuts</h3>
 <h4>Interface</h4>
-<ul>
-    <li>Alt + p : Open Omnibar (or Ctrl + Alt + space)</li>
+    <ul>
     <li>Alt + , : Hide/Show Settings</li>
-</ul>
+    </ul>
+<h4>OmniBar</h4>
+    <ul>
+    <li>Alt + p : Open Omnibar (or Ctrl + Alt + space)</li>
+    <li>Alt + enter : Open Omnibar current selection in new floating window</li>
+    </ul>
 <h4>Windows</h4>
 <ul>
     <li>Alt + n : New note</li>
@@ -37,6 +41,12 @@ export const triggerTiroHelpPopup = () => {
 const cssStr = `
 h1 {
     color: #ff0000;
+}
+.popup-wrapper  {
+    height: 80%;
+}
+.popupContent {
+    overflow-y: auto;
 }
 `
     getApi(api => {

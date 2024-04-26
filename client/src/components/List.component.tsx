@@ -129,6 +129,7 @@ class ListInt extends React.Component<{
 
 	getUrlLoginToken = () => `?token=${getLoginToken()}`;
 
+	
 
 	render() {
 		let sort = SortModes[this.props.sortMode]
@@ -236,7 +237,10 @@ class ListInt extends React.Component<{
 														className="picture"
 														style={{
 															backgroundColor: 'white',
-															backgroundImage: `url('${filePreview.picture.startsWith('http') ? cleanUrl(filePreview.picture + this.getUrlLoginToken()) : cleanUrl(`${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}${this.getUrlLoginToken()}`)}')`
+															backgroundImage: `url('${filePreview.picture.startsWith('http') ? 
+																cleanUrl(filePreview.picture + this.getUrlLoginToken()) : 
+																cleanUrl(`${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}${this.getUrlLoginToken()}`)
+															}')`
 														}}
 													>
 													</div>

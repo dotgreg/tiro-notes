@@ -58,8 +58,10 @@ export const useFilesApi = (p: {
 		const idReq = genIdReq('get-files-');
 		p.statusApi.searching.set(true)
 		// 1. add a listener function
-		p.eventBus.subscribe(idReq, nFiles => {
+		p.eventBus.subscribe(idReq, (nFiles:iFile[]) => {
 			p.statusApi.searching.set(false)
+			// filter files   f.extension !== 'md'
+			nFiles = nFiles.filter(f => f.extension === 'md')
 			cb(nFiles, folderPath)
 		});
 		// 2. emit request 

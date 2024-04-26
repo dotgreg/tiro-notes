@@ -36,6 +36,7 @@ import { datePickerCmPlugin } from "../../managers/codeMirror/datePicker.cm";
 import { initLatex, isLatexInit } from "../../managers/latex.manager";
 import { getFontSize } from "../../managers/font.manager";
 import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm";
+import { markdownSynthaxCmPlugin } from "../../managers/codeMirror/markdownSynthax.cm";
 
 
 const h = `[Code Mirror]`
@@ -391,6 +392,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					// datepicker
 					newcodemirrorExtensions.push(datePickerCmPlugin(p.file, p.windowId))
+					// strikethrough, bold etc.
+					newcodemirrorExtensions.push(markdownSynthaxCmPlugin(p.file, p.windowId))
 					// checkbox
 					newcodemirrorExtensions.push(checkboxTodoCmPlugin(p.file, p.windowId))
 					// image preview

@@ -218,6 +218,13 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
                     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
                 }
+                //////////////////////////////////
+                //
+                //
+                //   {{month}}, {{year}}, {{day}}, {{week}} in configStr
+                //
+                //
+                //
                 const enrichViewConfigStr = (configStr/*:string*/) => {
                     let curr = new Date()
                     let month = curr.getMonth() + 1
@@ -282,7 +289,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 });
                 
                 ////////////////////////////////////////////////////////////////////////////////////
-				// CACHING SETTINGS & CONTENT SYSTEM
+				// VIEWS CACHING SETTINGS & CONTENT SYSTEM
 				//
                 const defaultViews = window._graph_perspective_props.defaultViews ? [...window._graph_perspective_props.defaultViews] : []
 				const getCache = (id/*:string*/) => (onSuccess/*:(views:iView[]) => void*/, onFailure/*:([]) => void*/) => {
@@ -325,6 +332,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             const foundIdx = views.findIndex(v => v.name === view.name)
                             if (foundIdx !== -1) views[foundIdx] = view
                             else views.push(view)
+
+                            // reorder views by name 
+                            views = views.sort((a, b) => a.name.localeCompare(b.name))
                             
                             setViewsCache(views, cb)
                         },
@@ -379,12 +389,104 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         }
                     });
                 });
+
                 
+                
+
+
+
+
+                //
+                // DISABLED
+                //
                 // if config  refresh, reload the views
-                configRefresh.addEventListener("click", () => {
-                    reloadViewsSelect()
+                //
+                // configRefresh.addEventListener("click", () => {
+                //     reloadViewsSelect()
                    
-                });
+                // });
+
+                // AUTOMATICALLY REFRESH CONFIG
+                const configRefreshInSecond = 7
+                setInterval(() => {
+                    reloadViewsSelect()
+                }, configRefreshInSecond * 1000)
+
+
+
+
+
+
+
+
+
+
+
+                ////////////////////////////////////////////////////////
+                //
+                // VARS SHARING ACROSS VIEWS
+                //
+                //
+                window.updateEnrichConfigViewWithExpressionsAndDates = (viewName/*:string*/) => {
+                    viewsSync.selectedName = viewName
+                    console.log(hl,"updateEnrichConfigViewWithExpressionsAndDates", viewsSync.selectedName, viewsSync)
+                    updateSelectActiveOption(viewName)
+                    getViewsCache(
+                        views => {
+                            const finalExpressionObj = {}
+                            const views2 = [...defaultViews, ...views]
+                            //
+                            // loop through all views and get all expressions
+                            //
+                            views2.forEach(v => {
+                                v.config = enrichViewConfigStr(v.config)
+                                v.obj = JSON.parse(v.config)
+                                // for each v.obj.expressions method, add it to finalExpressionObj
+                                if (v.obj.expressions) {
+                                    Object.keys(v.obj.expressions).forEach(expressionName => {
+                                        finalExpressionObj[expressionName] = v.obj.expressions[expressionName]
+                                    })
+                                }
+                            })
+                           
+                            
+
+                            const view = views2.find(v => v.name === viewName)
+                            //
+                            // foreach view, inject all expressions of its category
+                            //
+                            if (view) {
+                                // if view exists, parse it
+                                view.obj = JSON.parse(view.config)
+
+                                // if view starts with something- take that 
+                                const hasViewCat = viewName.split("-").length > 1
+                                const viewCatName = viewName.split("-")[0]
+                                if (hasViewCat) {
+                                    // loop inside finalExpressionObj for keys starting with viewCatName
+                                    const expressionsFromCat = Object.keys(finalExpressionObj).filter(k => k.startsWith(viewCatName + "-"))
+                                    // for each key, add it to view.obj.expressions ONLY if it does not exist already
+                                    expressionsFromCat.forEach(expressionName => {
+                                        if (!view.obj.expressions[expressionName]) view.obj.expressions[expressionName] = finalExpressionObj[expressionName]
+                                    })
+                                }
+                                // stringify it
+                                view.config = JSON.stringify(view.obj)
+                            }
+                            if (view) viewer.setConfig(view.config)
+                        }
+                    )
+                }
+                // on select change, restore the view
+                configSelect.addEventListener("change", (e) => {
+                    const viewName = e.target.value
+                    window.updateEnrichConfigViewWithExpressionsAndDates(viewName)
+                })
+                const genViewsButtons = (views/*:iView[]*/) => {
+                    // add buttons for each view in #views-buttons-wrapper
+                    const viewsButtonsWrapper = document.getElementById("views-buttons-wrapper")
+                    viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.updateEnrichConfigViewWithExpressionsAndDates('${v.name}')">${v.name}</button>`).join("")
+                }
 
 
 
@@ -435,16 +537,18 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
 
                 // if toggle panel, toggle the config panel
                 configtogglePanel.addEventListener("click", () => {
-                    viewer.toggleConfig()
+                    
                     // config-wrapper hide/show
                     const configWrapper = document.querySelector(".config-wrapper")
                     if (configWrapper.style.display === "none") {
+                        viewer.toggleConfig(true)
                         configWrapper.style.display = "block"
                         // hide #upload-file-name2
                         document.getElementById("upload-file-name2").style.display = "none"
                     }
                     else { 
                         configWrapper.style.display = "none"
+                        viewer.toggleConfig(false)
                         // show #upload-file-name2
                         document.getElementById("upload-file-name2").style.display = "block"
                     }
@@ -480,66 +584,16 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 }
 
 
-                window.updateConfigViewFromName = (viewName/*:string*/) => {
-                    viewsSync.selectedName = viewName
-                    console.log(hl,"updateConfigViewFromName", viewsSync.selectedName, viewsSync)
-                    updateSelectActiveOption(viewName)
-                    getViewsCache(
-                        views => {
-                            const finalExpressionObj = {}
-                            const views2 = [...defaultViews, ...views]
-                            views2.forEach(v => {
-                                v.config = enrichViewConfigStr(v.config)
-                                v.obj = JSON.parse(v.config)
-                                // for each v.obj.expressions method, add it to finalExpressionObj
-                                if (v.obj.expressions) {
-                                    Object.keys(v.obj.expressions).forEach(k => {
-                                        finalExpressionObj[k] = v.obj.expressions[k]
-                                    })
-                                }
-                            })
-                            // replace each views2.obj.expressions with finalExpressionObj
-                            // views2.forEach(v => {
-                            //     v.obj.expressions = finalExpressionObj
-                            //     v.config = JSON.stringify(v.obj)
-                            // })
-                            // views2
-                            // console.log("ALL VIEWS", views, views2)
-                            const view = views2.find(v => v.name === viewName)
-                            if (view) {
-                                // if view exists, parse it
-                                view.obj = JSON.parse(view.config)
 
-                                // if view starts with something_ take that 
-                                const hasViewCat = viewName.split("-").length > 1
-                                const viewCatName = viewName.split("-")[0]
-                                if (hasViewCat) {
-                                    // loop inside finalExpressionObj for keys starting with viewCatName
-                                    const keys = Object.keys(finalExpressionObj).filter(k => k.startsWith(viewCatName + "-"))
-                                    // for each key, add it to view.obj.expressions
-                                    keys.forEach(k => {
-                                        view.obj.expressions[k] = finalExpressionObj[k]
-                                    })
-                                }
 
-                                // stringify it
-                                view.config = JSON.stringify(view.obj)
-                            }
-                            if (view) viewer.setConfig(view.config)
-                        }
-                    )
-                }
-                // on select change, restore the view
-                configSelect.addEventListener("change", (e) => {
-                    const viewName = e.target.value
-                    window.updateConfigViewFromName(viewName)
-                })
-                const genViewsButtons = (views/*:iView[]*/) => {
-                    // add buttons for each view in #views-buttons-wrapper
-                    const viewsButtonsWrapper = document.getElementById("views-buttons-wrapper")
-                    viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.updateConfigViewFromName('${v.name}')">${v.name}</button>`).join("")
-                }
 
+
+
+
+
+
+
+                
 
                 ////////////////
                 // FILE UPLOAD
@@ -591,7 +645,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/cdn/editor.worker.js" as="fetch" type="application/javascript" crossorigin="anonymous" />
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/cdn/perspective_viewer_bg.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         
-        
+        // // <button id="perspective-config-refresh"> 🔄 </button>
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
             
@@ -605,7 +659,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     <button id="perspective-config-save"> 💾 </button>
                     <button id="perspective-config-delete"> ❌ </button>
                     <button id="perspective-config-help"> ? </button>
-                    <button id="perspective-config-refresh"> 🔄 </button>
+                    
                     <button id="perspective-send-to-plotly"> 📊 more </button>
                     <div class="upload-wrapper">
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
