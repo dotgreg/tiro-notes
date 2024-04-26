@@ -19,7 +19,8 @@ export const triggerTiroHelpPopup = () => {
 <h4>Windows</h4>
 <ul>
     <li>Alt + n : New note</li>
-    <li>Alt + v : Toggle view of active floating window</li>
+    <li>Alt + v : Toggle view of active window</li>
+    <li>Alt + d : Detach active window in floating window</li>
 </ul>
 <h4>Floating Windows</h4>
 <ul>

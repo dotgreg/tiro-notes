@@ -10,7 +10,7 @@ import { deviceType, iDeviceType } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
-import { toggleViewType } from "../../managers/windowViewType.manager"
+import { getNoteView, setNoteView, toggleViewType } from "../../managers/windowViewType.manager"
 
 const h = `[FLOATING PANELS]`
 
@@ -193,12 +193,23 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             ...panelParams,
         }
 
-        // if panel with same id exists, delete it
-        let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
-        nPanels.push(panel)
-        setPanels(nPanels)
-        updateOrderPosition(panel.id, "first")
-        pushWindowOnTop(panel.id)
+        // if panelsParams is file, get its view
+        if (panelParams.file) {
+            console.log(`${h} getNoteView`, panelParams.file.path)
+            getNoteView(panelParams.file.path).then(view => {
+                console.log(`${h} getNoteView`, view)
+                if (view) panel.view = view
+
+                console.log(`${h} createPanel`, panel)
+
+                // if panel with same id exists, delete it
+                let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
+                nPanels.push(panel)
+                setPanels(nPanels)
+                updateOrderPosition(panel.id, "first")
+                pushWindowOnTop(panel.id)
+            })
+        }
     }
 
     const updatePanel = (panel:iFloatingPanel) => {  
@@ -548,7 +559,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         // toggle between editor, preview, both
         else {
             topWindow.view = toggleViewType(topWindow.view as iViewType)
-
+            const cFile = topWindow.file
+            setNoteView(cFile?.path, topWindow.view)
             console.log(`${h} updateTopWindowView`, topWindow.view)
         }
         updatePanel(topWindow)

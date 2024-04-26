@@ -24,7 +24,7 @@ export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFile
              if (metasFile['modified']) filesObj[fileName].modified = toTimeStampInS(metasFile['modified'])*1000
              if (metasFile['updated']) filesObj[fileName].modified = toTimeStampInS(metasFile['updated'])*1000
             }
-        console.log(1111, fileName, filesObj[fileName], metasFile, metasFile['created'], metasFile['modified'], filesObj[fileName]?.created, filesObj[fileName]?.modified)
+        // console.log(1111, fileName, filesObj[fileName], metasFile, metasFile['created'], metasFile['modified'], filesObj[fileName]?.created, filesObj[fileName]?.modified)
     })
 
     // from Files obj to Files Arr

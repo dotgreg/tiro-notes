@@ -358,7 +358,6 @@ export const WindowEditorInt = (p: {
 	}	
 	const [isDragging, setIsDragging] = useState(false)
 
-	
 
 	return (
 		<>
@@ -373,7 +372,7 @@ export const WindowEditorInt = (p: {
 				>
 					<DualViewer
 						windowId={windowId}
-						file={innerFile as iFile}
+						file={innerFile as iFile || file}
 						fileContent={innerFileContent}
 						isActive={active}
 						// canEdit={canEdit}

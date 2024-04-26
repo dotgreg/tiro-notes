@@ -4,7 +4,6 @@ export const toTimeStampInS = (timestamp:number|string) => {
     // only keep 10 first chars
     let resStr = timestampInString.substring(0, 10)
     let res = parseInt(resStr)
-    console.log(33, timestampInString, res)
     return res
 }
 

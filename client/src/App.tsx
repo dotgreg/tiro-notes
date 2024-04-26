@@ -434,6 +434,15 @@ export const App = () => {
 			releaseKeyShortcuts() 
 		}
 	}, [filesHistory])
+	
+
+
+
+	//
+	//
+	// GLOBAL KEY SHORTCUTS MANAGEMENT
+	//
+	//
 	const createNoteFloatingFn = () => { createNewNote({ openIn: "floatingWindow" }) }
 	const createNoteFn = () => { createNewNote({ openIn: "activeWindow" }) }
 	const toggleActiveWindowView = () => {
@@ -441,16 +450,31 @@ export const App = () => {
 			api.ui.windows.active.toggleView()
 		})
 	}
+	const detachActiveNoteInFloating = () => {
+		getApi(api => {
+			let activeNote = api.ui.browser.files.active.get
+			if (!activeNote) return
+			api.ui.floatingPanel.create({
+				type: "file",
+				file: activeNote,
+			})
+		})
+	}
 	useEffect(() => {
 		addKeyShortcut('alt  > n', createNoteFn);
-		addKeyShortcut('alt + shift > f', createNoteFloatingFn);
+		// addKeyShortcut('alt + shift > f', createNoteFloatingFn);
 		addKeyShortcut('alt > v', toggleActiveWindowView);
+		addKeyShortcut('alt > d', detachActiveNoteInFloating);
 		return () => { 
 			releaseKeyShortcut('alt  > n', createNoteFn) 
-			releaseKeyShortcut('alt + shift > f', createNoteFloatingFn) 
+			// releaseKeyShortcut('alt + shift > f', createNoteFloatingFn) 
 			releaseKeyShortcut('alt > v', toggleActiveWindowView);
+			releaseKeyShortcut('alt > d', detachActiveNoteInFloating);
 		}
 	})
+
+
+
 
 	//
 	// URL/ICON SYSTEM (MOBILE ONLY)
@@ -724,7 +748,9 @@ export const App = () => {
 													// if no active tab opened, create new tab/window
 													if (!api.tabs.active.get()) api.tabs.openInNewTab(nFile)
 
-													else windowsApi.active.setContent(nFile)
+													else {
+														windowsApi.active.setContent(nFile)
+													}
 												}}
 												onFileDragStart={files => {
 													console.log(`[DRAG MOVE] onFileDragStart`, files);
