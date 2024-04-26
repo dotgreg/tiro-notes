@@ -77,7 +77,6 @@ export const getActivityReport = async (
     // console.log(dbs)
     
     let report = generateReportFromDbs(p, dbs)
-    // console.log(33, report)
 
     return report
 }

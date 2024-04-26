@@ -31,7 +31,6 @@ const createFolder = async (path: string) => {
 	try {
 		await fs.mkdir(path);
 	} catch (e) {
-		console.log(3339, e)
 	}
 }
 

@@ -653,7 +653,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 //       }
 //     }
 //   }
-//   console.log(333, resultFolder)
 //   return resultFolder;
 // };
 

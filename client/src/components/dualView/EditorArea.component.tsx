@@ -554,6 +554,7 @@ const EditorAreaInt = (
 			if (!f) return
 			CodeMirrorUtils.searchWord(f,a.searchWordString, a.searchReplacementString, true)
 		}
+		
 		// selection
 		if (a.type === "setSelection" && a.selection) {
 			// let shouldOpenInterface = isBoolean(a.searchWordOpenPanel) ? a.searchWordOpenPanel : false

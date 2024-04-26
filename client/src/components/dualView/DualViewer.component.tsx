@@ -44,7 +44,7 @@ const DualViewerInt = (
 	}
 ) => {
 
-
+	
 	const [previewContent, setPreviewContent] = useState('')
 
 	// calculate max Y for custom scroller bar

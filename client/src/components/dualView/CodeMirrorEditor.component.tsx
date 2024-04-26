@@ -37,6 +37,7 @@ import { initLatex, isLatexInit } from "../../managers/latex.manager";
 import { getFontSize } from "../../managers/font.manager";
 import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm";
 import { markdownSynthaxCmPlugin } from "../../managers/codeMirror/markdownSynthax.cm";
+import { indentUnit } from "@codemirror/language";
 
 
 const h = `[Code Mirror]`
@@ -415,6 +416,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			let nclasses = `device-${deviceType()} `
 			if (ua.get("ui_editor_markdown_table_preview")) nclasses += "md-table-preview-enabled"
 			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
+			// line jump much larger (4) to be clearer
+			newcodemirrorExtensions.push(indentUnit.of("    "))
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 
@@ -567,8 +570,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// if (ref && ref.editor) {
 	// 	// get ref.editorDiv position on screen
 	// 	let rect = ref.editorDiv.getBoundingClientRect()
-	// 	console.log(111, rect)
-	// 	// console.log(333, ref)
 	// }
 
 	return (

@@ -162,9 +162,18 @@ export const DraggableGrid = (p: {
 		return nContent
 	}
 	const makewindowActiveStatus = (windowId: string, file?: iFile) => {
-		const nContent = makewindowActiveStatusInt(windowId, intContentRef.current)
-		setIntContent(nContent)
-		onGridUpdate(intLayout, nContent)
+		// const nContent = makewindowActiveStatusInt(windowId, intContentRef.current)
+		// setIntContent(nContent)
+		// onGridUpdate(intLayout, nContent)
+
+		getApi(api => {
+			api.tabs.updateTab("activateTabWindow", "activeTab", windowId)
+			// // get windows from that tab
+			// atab.grid.content
+			// api.ui.windows.updateWindows
+
+		})
+
 		// on window active toggle, update browser ui 
 		// file && api?.ui.browser.goTo(file.folder, file.name)
 	}

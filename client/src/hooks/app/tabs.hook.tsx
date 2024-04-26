@@ -7,20 +7,20 @@ import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.c
 import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
 import { deviceType } from '../../managers/device.manager';
 import { useEffect, useRef, useState } from 'react';
-import { toggleViewType } from '../../managers/windowViewType.manager';
+import { setNoteView, toggleViewType } from '../../managers/windowViewType.manager';
 
-export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
-export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
+export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'  | 'activateTabWindow'
+export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab | "activeTab", newVal?: any) => void
 
 export type iTabsApi = {
 	get: () => iTab[]
 	close: (tabId: string) => void
 	openInNewTab: (file: iFile) => void
 	reorder: (oldPos, newPos) => void
+	updateTab: onTabUpdateFn
 	active: {
 		get: () => iTab | null
-		
-	}
+	},
 }
 export type iWindowsApi = {
 	close: (windowIds: string[]) => void
@@ -158,9 +158,11 @@ export const useTabs = () => {
 		setTabs(nTabs)
 	}
 
-	const updateTab: onTabUpdateFn = (type, tab, newVal) => {
+	const updateTab: onTabUpdateFn = (type, tabVar, newVal) => {
 		// console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
-
+		let tab  =  tabVar === 'activeTab'  ?  getActiveTab() : tabVar
+		if (!tab ) return
+		
 		if (type === 'add') {
 			// if active tab exists, copy it in new one
 			//tab with one window
@@ -178,17 +180,33 @@ export const useTabs = () => {
 			if (newVal.length > 15) return
 			const nTabs = cloneDeep(tabsRef.current)
 			each(nTabs, cTab => {
-				if (cTab.id === tab.id) {
+				if (cTab.id === tab?.id) {
 					cTab.name = newVal
 					cTab.manualName = true
 				}
 			})
 			setTabs(nTabs)
 
+		} else if (type === 'activateTabWindow') {
+			// activate a window in a tab
+			if (!tab) return
+			const nTabs = cloneDeep(tabsRef.current)
+			each(nTabs, cTab => {
+				// find tab
+				if (cTab.id === tab?.id) {
+					// activate window else disable all
+					each(cTab.grid.content, cWindow => {
+						cWindow.active = cWindow.i === newVal
+					})
+					console.log(cTab.grid.content)
+				}
+			})
+			const nTabs2 = refreshTabsViews(nTabs)
+			setTabs(nTabs2)
+
 		} else if (type === 'activate') {
 			// cleaning scrolling sync caching db
 			// syncScroll2.cleanDb();
-
 			// change tab
 			if (!tab) return
 			const nTabs = setActiveTab(tab.id, tabsRef.current)
@@ -329,13 +347,17 @@ export const useTabs = () => {
 
 		// get active window, if none, select first one
 		const aTab = nTabs[aId]
-		const aContent = aTab.grid.content
-		if (aContent.length < 1) return
-		let aWindowIndex = 0
-		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+		// const aContent = aTab.grid.content
+		// if (aContent.length < 1) return
+		// let aWindowIndex = 0
+		// each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+		// get active window, if none, select first one
+		const aWindow = getActiveWindow(aTab)
+		if (!aWindow) return
+		// let aCont
 
 		// change awindow.file
-		aContent[aWindowIndex].file = cloneDeep(nFile)
+		aWindow.content.file = cloneDeep(nFile)
 		// update tab name only if tab name not manually edited
 		if (!aTab.manualName) aTab.name = createTabName(nFile.name)
 		// refresh all tabs to view changes
@@ -355,6 +377,8 @@ export const useTabs = () => {
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
 
+		
+
 		// get active window, if none, select first one
 		const aTab = nTabs[aId]
 		const aContent = aTab.grid.content
@@ -369,6 +393,9 @@ export const useTabs = () => {
 		} else {
 			aContent[aWindowIndex].view = toggleViewType(aContent[aWindowIndex].view)
 		}
+
+		const cFile = aContent[aWindowIndex].file
+		if(cFile) setNoteView(cFile?.path, aContent[aWindowIndex].view)
 
 		// save tabs
 		setTabs(nTabs)
@@ -387,8 +414,8 @@ export const useTabs = () => {
 		reorder: reorderTabs,
 		active: {
 			get: getActiveTab,
-			
-		}
+		},
+		updateTab
 	}
 
 	const windowsApi: iWindowsApi = {
