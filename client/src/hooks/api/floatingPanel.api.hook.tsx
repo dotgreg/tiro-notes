@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react"
 import { iFile, iNotification, iPlugin, iViewType } from "../../../../shared/types.shared"
 import { useBackendState } from "../useBackendState.hook"
 import { generateEmptyiFile } from "../app/useLightbox.hook"
-import { cloneDeep, isObject, isString } from "lodash-es"
+import { clone, cloneDeep, isObject, isString } from "lodash-es"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
@@ -11,6 +11,7 @@ import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
 import { getNoteView, setNoteView, toggleViewType } from "../../managers/windowViewType.manager"
+import path from "path"
 
 const h = `[FLOATING PANELS]`
 
@@ -193,23 +194,28 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             ...panelParams,
         }
 
+        const openFloating = (panel) => {
+            console.log(`${h} createPanel`, panel)
+            // if panel with same id exists, delete it
+            let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
+            nPanels.push(panel)
+            setPanels(nPanels)
+            updateOrderPosition(panel.id, "first")
+            pushWindowOnTop(panel.id)
+        }
+
         // if panelsParams is file, get its view
         if (panelParams.file) {
             console.log(`${h} getNoteView`, panelParams.file.path)
             getNoteView(panelParams.file.path).then(view => {
                 console.log(`${h} getNoteView`, view)
                 if (view) panel.view = view
-
-                console.log(`${h} createPanel`, panel)
-
-                // if panel with same id exists, delete it
-                let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
-                nPanels.push(panel)
-                setPanels(nPanels)
-                updateOrderPosition(panel.id, "first")
-                pushWindowOnTop(panel.id)
+                openFloating(panel)
             })
+        } else {
+            openFloating(panel)
         }
+        
     }
 
     const updatePanel = (panel:iFloatingPanel) => {  
@@ -572,16 +578,32 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const decrementOpacity = () => {
         updateTopWindowOpacity(-0.1)
     }
+    const reloadTopWindow = () => {
+        const topWindow = getTopVisibleWindow()
+        if (!topWindow) return
+        const cFile = cloneDeep(topWindow.file)
+        const cCtag = cloneDeep(topWindow.ctagConfig)
+        topWindow.file = pathToIfile("")
+        topWindow.ctagConfig = undefined
+        updatePanel(topWindow)
+        setTimeout(() => {
+            topWindow.file = cFile
+            topWindow.ctagConfig = cCtag
+            updatePanel(topWindow)
+        }, 100)
+    }
     
     useEffect(() => {
-        let shcts = ["alt + o", "alt + shift + o", "alt + shift > v"]
+        let shcts = ["alt + o", "alt + shift + o", "alt + shift > v", "alt + shift > r"]
         addKeyShortcut(shcts[0], incrementOpacity)
         addKeyShortcut(shcts[1], decrementOpacity)
         addKeyShortcut(shcts[2], updateTopWindowView)
+        addKeyShortcut(shcts[3], reloadTopWindow)
         return () => {
 			releaseKeyShortcut(shcts[0], incrementOpacity)
 			releaseKeyShortcut(shcts[1], decrementOpacity)
             releaseKeyShortcut(shcts[2], updateTopWindowView)
+            releaseKeyShortcut(shcts[3], reloadTopWindow)
 		}
     })
    
