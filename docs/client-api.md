@@ -757,6 +757,10 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"tabs.active.get",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
+#### <span class="render-code-wrapper">tabs.updateTab.__type</span>
+ - Type: <span class="render-code-wrapper">void</span> 
+ 
+
 #### <span class="render-code-wrapper">tabs.close</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 

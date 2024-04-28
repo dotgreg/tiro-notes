@@ -276,18 +276,19 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // get all the buttons
                 const configSelect = document.getElementById("perspective-config-select");
                 const configSave = document.getElementById("perspective-config-save");
+                const configDelete = document.getElementById("perspective-config-delete");
                 const configRefresh = document.getElementById("perspective-config-refresh");
                 const configOpenPlotly = document.getElementById("perspective-send-to-plotly");
                 const configtogglePanel = document.getElementById("perspective-config-toggle");
                 const configHelp = document.getElementById("perspective-config-help");
-                const configDelete = document.getElementById("perspective-config-delete");
                 const fileUpload = document.getElementById("perspective-config-file-upload");
 
-                // add event listeners
-                configSelect.addEventListener("change", (e) => {
-                    viewer.restore(e.target.value);
-                });
                 
+                
+
+
+
+
                 ////////////////////////////////////////////////////////////////////////////////////
 				// VIEWS CACHING SETTINGS & CONTENT SYSTEM
 				//
@@ -322,9 +323,21 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
 				const getViewsCache = getCache(cacheViewsId)
 				const setViewsCache = setCache(cacheViewsId)
                 
+
+
+
+
+
+
+
+
                 ////////////////
-                // CONFIG 
+                // VIEW CACHING SAVE/GET/DELETE 
                 //
+                // add event listeners
+                configSelect.addEventListener("change", (e) => {
+                    viewer.restore(e.target.value);
+                });
                 const saveNewView = (view/*:iView*/, cb/*:Function*/) => {
                     getViewsCache(
                         views => {
@@ -389,9 +402,58 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         }
                     });
                 });
+                configDelete.addEventListener("click", () => {
+                    let name = configSelect.value
+                    if (name) {
+                        deleteView(name, () => {
+                            reloadViewsSelect()
+                        })
+                    }
+                })
+                reloadViewsSelect(views => {
+                    
+                })
+
+                // update the select option to active
+                const updateSelectActiveOption = (viewName/*:string*/) => {
+                    const options = configSelect.options
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value === viewName) {
+                            configSelect.selectedIndex = i
+                            break
+                        }
+                    }
+                }
+                // on select change, restore the view
+                configSelect.addEventListener("change", (e) => {
+                    const viewName = e.target.value
+                    window.updateEnrichConfigViewWithExpressionsAndDates(viewName)
+                })
+                const genViewsButtons = (views/*:iView[]*/) => {
+                    // add buttons for each view in #views-buttons-wrapper
+                    const viewsButtonsWrapper = document.getElementById("views-buttons-wrapper")
+                    viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.updateEnrichConfigViewWithExpressionsAndDates('${v.name}')">${v.name}</button>`).join("")
+                }
+
 
                 
                 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -477,17 +539,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         }
                     )
                 }
-                // on select change, restore the view
-                configSelect.addEventListener("change", (e) => {
-                    const viewName = e.target.value
-                    window.updateEnrichConfigViewWithExpressionsAndDates(viewName)
-                })
-                const genViewsButtons = (views/*:iView[]*/) => {
-                    // add buttons for each view in #views-buttons-wrapper
-                    const viewsButtonsWrapper = document.getElementById("views-buttons-wrapper")
-                    viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.updateEnrichConfigViewWithExpressionsAndDates('${v.name}')">${v.name}</button>`).join("")
-                }
-
+                
 
 
 
@@ -560,28 +612,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     api.call("popup.show", [helpStr, "Graph Perspective Help"])
                 });
                 
-                configDelete.addEventListener("click", () => {
-                    let name = configSelect.value
-                    if (name) {
-                        deleteView(name, () => {
-                            reloadViewsSelect()
-                        })
-                    }
-                })
-                reloadViewsSelect(views => {
-                    
-                })
-
-                // update the select option to active
-                const updateSelectActiveOption = (viewName/*:string*/) => {
-                    const options = configSelect.options
-                    for (let i = 0; i < options.length; i++) {
-                        if (options[i].value === viewName) {
-                            configSelect.selectedIndex = i
-                            break
-                        }
-                    }
-                }
+                
 
 
 
