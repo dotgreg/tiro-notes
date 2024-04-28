@@ -8,7 +8,16 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
             api.utils.resizeIframe("100%");
         }, 100)
         document.body.innerHTML = `
+            <div class="config-wrapper">
+                        <select id="config-select"> </select> 
+                    <div id="buttonsWrapper"> </div>
+                    <div id="views-buttons-wrapper"> </div>
+                    <button id="config-save"> 💾 </button>
+                    <button id="config-delete"> ❌ </button>
+                    <button id="config-help"> ? </button>
+            </div>
             <div id="interface-wrapper">
+                
                 <div id="left-wrapper">
                     <div id="table-preview-wrapper"></div>
                     <div id="textarea-wrapper">
@@ -17,7 +26,6 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
                 </div>
                 <div id="plotly"></div>
             </div>
-            <div id="buttonsWrapper"></div>
             
         `
         const plotlyStyle = `
@@ -27,26 +35,17 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
                 padding: 0;
             }
             #plotly { 
-                margin: 30px 30px 30px 0px;
+                margin: 0px 0px 0px 0px;
                 height: calc(100% - 60px);
                 width: calc(100% - 30vw);
             }
-            #buttonsWrapper {
-                position: absolute;
-                top: 30px;
-                left: 10px;
-                z-index: 100;
-            }
-            #buttonsWrapper button {
-                margin-right: 10px;
-            }
+            
             #interface-wrapper {
                 display: flex;
                 height: 100%;
             }
             #left-wrapper {
                 height: calc(100% - 78px);
-                margin-top: 70px;
                 z-index: 100;
                 position: relative;
                 margin-left: 10px;
@@ -73,6 +72,15 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
                 border-collapse: collapse;
                 border-spacing: 0;
             }
+
+
+            .config-wrapper {
+                display:flex;
+                margin-top: 30px;
+            }
+            #config-select {
+                display:none;
+            }
         `
 
         //
@@ -91,6 +99,138 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
 
 
 
+        ////////////////////////////////////////////////////////////////////////////////////
+        // VIEWS CACHING
+        //
+
+        const configSelect = document.getElementById("config-select");
+        const configSave = document.getElementById("config-save");
+        const configDelete = document.getElementById("config-delete");
+        configSelect.addEventListener("change", (e) => {
+            restoreView(e.target.value);
+        });
+        
+        const saveNewView = (view/*:iView*/, cb/*:Function*/) => {
+            getViewsCache(
+                views => {
+                    // if name already exists, overwrite it
+                    const foundIdx = views.findIndex(v => v.name === view.name)
+                    if (foundIdx !== -1) views[foundIdx] = view
+                    else views.push(view)
+                    // reorder views by name 
+                    views = views.sort((a, b) => a.name.localeCompare(b.name))
+                    setViewsCache(views, cb)
+                }, () => {
+                    setViewsCache([view], cb)
+                }
+            )
+        }
+        const viewsSync = {curr: [], selectedName: ""}
+        const getCache = (id/*:string*/) => (onSuccess/*:(views:iView[]) => void*/, onFailure/*:([]) => void*/) => {
+            let nviews = []
+            api.call("cache.get", [id], content => {
+                let viewsFinal = []
+                if (content !== undefined && content !== null && content.length !== 0) viewsFinal = [...nviews, ...content]
+                else viewsFinal = nviews
+
+                viewsSync.curr = [...viewsFinal]
+                if (viewsFinal.length > 0 && viewsSync === "") viewsSync.selectedName = viewsFinal[0].name
+
+                onSuccess(viewsFinal)
+            })
+        }
+
+        const setCache = (id/*:string*/) => (views/*:iView[]*/, cb/*:Function*/) => {
+            api.call("cache.set", [id, views, -1], () => {if(cb) cb()}) 
+        }
+        const cacheViewsId = `lib-graph-plotly-views`
+
+        const getCurrConfig = () => {
+            return document.querySelector("textarea").value
+        }
+        const setCurrConfig = (config/*:string*/) => {
+            document.querySelector("textarea").value = config
+            
+        }
+        const restoreView = (name/*:string*/) => {
+            viewsSync.selectedName = name
+            const view = viewsSync.curr.find(v => v.name === name)
+            setCurrConfig(view.config)
+            loadPlot("custom")
+        }
+
+        // if config save, prompt for a name and save it
+        configSave.addEventListener("click", () => {
+            const config = getCurrConfig()
+            let name = prompt("Enter a name for the config ", viewsSync.selectedName);
+            if (name) {
+                console.log("saving config", name, config)
+                viewsSync.selectedName = name
+                saveNewView({name, config}, () => {
+                    reloadViewsSelect()
+                })
+            }
+        });
+        configDelete.addEventListener("click", () => {
+            let name = configSelect.value
+            if (name) {
+                deleteView(name, () => {
+                    reloadViewsSelect()
+                })
+            }
+        })
+        const deleteView = (viewName/*:string*/, cb/*:Function*/) => {
+            // prompt sure? 
+            if (confirm(`Are you sure you want to delete the view ${viewName}?`)) {
+                getViewsCache(
+                    views => {
+                        setViewsCache(views.filter(v => v.name !== viewName), cb)
+                    },
+                    () => {cb()}
+                )
+            }
+        }
+        window.restoreView = restoreView
+        const genViewsButtons = (views/*:iView[]*/) => {
+            // add buttons for each view in #views-buttons-wrapper
+            const viewsButtonsWrapper = document.getElementById("views-buttons-wrapper")
+            viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.restoreView('${v.name}')">${v.name}</button>`).join("")
+        }
+        const reloadViewsSelect = (cb/*:Function*/) => {
+            getViewsCache(
+                views => {
+                    genViewsButtons(views)
+                    configSelect.innerHTML = views.map(v => `<option value="${v.name}">${v.name}</option>`).join("")
+                    if (views.length > 0) {
+                        updateSelectActiveOption(viewsSync.selectedName)
+                        restoreView(viewsSync.selectedName)
+                    }
+                    if (cb) cb(views)
+                },
+                () => {
+                    configSelect.innerHTML = ""
+                    if (cb) cb([])
+                }
+            )   
+        }
+        
+
+        
+        // update the select option to active
+        const updateSelectActiveOption = (viewName/*:string*/) => {
+            const options = configSelect.options
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === viewName) {
+                    configSelect.selectedIndex = i
+                    break
+                }
+            }
+        }
+
+        // window._graph_perspective_props
+        const getViewsCache = getCache(cacheViewsId)
+        const setViewsCache = setCache(cacheViewsId)
+        reloadViewsSelect()
 
 
 
@@ -276,81 +416,79 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
 
     const dataScatterStr = `() => {
     return {
-    data: [{
-    type: 'scatter',
-    x: colsValues[0],
-    y: colsValues[1],
-    mode: 'markers',
-    }],
-    layout: {
-    dragmode: 'select'
-    }
-    }
+        data: [{
+            type: 'scatter',
+            x: colsValues[0],
+            y: colsValues[1],
+            mode: 'markers',
+        }],
+        layout: {
+            dragmode: 'select'
+            }
+        }
     }`;
 
 
     const dataPlotBoxStr = `() => {
     return {
-    data: [{
-    x: colsValues[0],
-    y: colsValues[1],
-    type: 'box',
-    boxpoints: 'all',
-    jitter: 0.3,
-    pointpos: -2,
-    }],
-    layout: {
-    dragmode: 'select'
-    }
-    }
+        data: [{
+            x: colsValues[0],
+            y: colsValues[1],
+            type: 'box',
+            boxpoints: 'all',
+            jitter: 0.3,
+            pointpos: -2,
+        }],
+        layout: {
+            dragmode: 'select'
+        }
     }`;
 
 
 
     const dataSplomStr = `
     () => {
-    var axis = () => ({
-    showline:false,
-    zeroline:false,
-    gridcolor:'#ffff',
-    ticklen:4
-    })
-    let axisLayout = {}
-    for (let i = 0; i < colsNames.length; i++) {
-    if (i === 0) {
-    axisLayout[\`xaxis\`] = axis()
-    axisLayout[\`yaxis\`] = axis()
+        var axis = () => ({
+            showline:false,
+            zeroline:false,
+            gridcolor:'#ffff',
+            ticklen:4
+        })
+        let axisLayout = {}
+        for (let i = 0; i < colsNames.length; i++) {
+            if (i === 0) {
+                axisLayout[\`xaxis\`] = axis()
+                axisLayout[\`yaxis\`] = axis()
+            } else {
+                axisLayout[\`xaxis\${i+1}\`] = axis()
+                axisLayout[\`yaxis\${i+1}\`] = axis()
+            }
+        }
 
-    } else {
-    axisLayout[\`xaxis\${i+1}\`] = axis()
-    axisLayout[\`yaxis\${i+1}\`] = axis()
-    }
-    }
 
-
-    const dimensions = colsValues.map((colData, index) => ({
-    label: colsNames[index],
-    values: colData,
-    }));
-    return {
-    data: [{
-    type: 'splom',
-    dimensions,
-    marker: {
-    color: getColorsFromUniqValFirstCol(),
-    colorscale:pl_colorscale,
-    size: 7,
-    line: {
-    color: 'white',
-    width: 0.5
-    }
-    }
-    }],
-    layout: {
-    dragmode: 'select',
-    ...axisLayout
-    }
-    }
+        const dimensions = colsValues.map((colData, index) => ({
+            label: colsNames[index],
+            values: colData,
+        }));
+        return {
+            data: [{
+                type: 'splom',
+                dimensions,
+                marker: {
+                    color: getColorsFromUniqValFirstCol(),
+                    colorscale:pl_colorscale,
+                    size: 7,
+                    line: {
+                        color: 'white',
+                        width: 0.5
+                    }
+                }   
+            }],
+            layout: {
+                dragmode: 'select',
+                ...axisLayout
+                }
+            }
     }`;
         
 
