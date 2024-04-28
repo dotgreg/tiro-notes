@@ -415,32 +415,33 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
         }
 
     const dataScatterStr = `() => {
-    return {
-        data: [{
-            type: 'scatter',
-            x: colsValues[0],
-            y: colsValues[1],
-            mode: 'markers',
-        }],
-        layout: {
-            dragmode: 'select'
+        return {
+            data: [{
+                type: 'scatter',
+                x: colsValues[0],
+                y: colsValues[1],
+                mode: 'markers',
+            }],
+            layout: {
+                dragmode: 'select'
             }
         }
     }`;
 
 
     const dataPlotBoxStr = `() => {
-    return {
-        data: [{
-            x: colsValues[0],
-            y: colsValues[1],
-            type: 'box',
-            boxpoints: 'all',
-            jitter: 0.3,
-            pointpos: -2,
-        }],
-        layout: {
-            dragmode: 'select'
+        return {
+            data: [{
+                x: colsValues[0],
+                y: colsValues[1],
+                type: 'box',
+                boxpoints: 'all',
+                jitter: 0.3,
+                pointpos: -2,
+            }],
+            layout: {
+                dragmode: 'select'
+            }
         }
     }`;
 
