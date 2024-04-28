@@ -29,7 +29,7 @@ export const useConnectionIndicator = () => {
 	useInterval(() => {
 		warning.current = (warning.current === warning1) ? warning2 : warning1
 		let title = isSocketConnected ?
-			`${generateTitle()} (Connected)` :
+			`${generateTitle()}` :
 			`${generateTitle()} ${warning.current}`
 		if (deviceType() === "mobile") return
 		document.title = title
