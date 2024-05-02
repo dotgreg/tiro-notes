@@ -449,6 +449,11 @@ export const DraggableGrid = (p: {
 
 
 export const GridMobileCss = () => `
+.react-grid-placeholder {
+	opacity: 0.2;
+	background: ${cssVars.colors.main};
+}
+
 .draggable-grid-wrapper 
 .draggable-grid-wrapper-in 
 .mobile-grid-view {

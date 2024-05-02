@@ -428,7 +428,7 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
         }
     }`;
 
-
+    // ssh u0_a184@192.168.234.81 -p8022 
     const dataPlotBoxStr = `() => {
         return {
             data: [{
