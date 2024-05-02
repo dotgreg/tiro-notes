@@ -26,9 +26,10 @@ updated: %s
 modified=0
 scanned=0
 
-# Find all .md files recursively, avoir folders starting by .history
-find $dir -type f -name "*.md" ! -path "*/.history/*" | while read file; 
+# Find all .md files recursively, avoir folders starting by .history and .tiro
+find $dir -type f -name "*.md" ! -path "*/.history/*" ! -path "*/.tiro/*" ! -path "*/_evernote2/*" | while read file;
 do
+    
     # Get file creation and modification time
     # created=$(stat -c %W "$file")
     # updated=$(stat -c %Y "$file")
@@ -41,26 +42,45 @@ do
     # birth
     birth=$(stat -c %W "$file")
 
-    # find the older dates of the 4
-    oldestDate=$accessed
-    if [ "$modified" -lt "$oldestDate" ]; then
+    oldestDate=$birth
+    # if birth is 0, set it to the oldest of the 3
+    if [ "$birth" -eq 0 ] && [ "$accessed" -ne 0 ]; then
+        oldestDate=$accessed
+    fi
+    if [ "$birth" -eq 0 ] && [ "$modified" -ne 0 ]; then
         oldestDate=$modified
     fi
-    if [ "$changed" -lt "$oldestDate" ]; then
+    if [ "$birth" -eq 0 ] && [ "$changed" -ne 0 ]; then
         oldestDate=$changed
     fi
-    if [ "$birth" -lt "$oldestDate" ]; then
+
+
+    # find the older dates of the 4, except if it is 0
+    if [ "$accessed" -lt "$oldestDate" ] && [ "$accessed" -ne 0 ]; then
+        oldestDate=$accessed
+    fi
+    if [ "$modified" -lt "$oldestDate" ] && [ "$modified" -ne 0 ]; then
+        oldestDate=$modified
+    fi
+    if [ "$changed" -lt "$oldestDate" ] && [ "$changed" -ne 0 ]; then
+        oldestDate=$changed
+    fi
+    if [ "$birth" -lt "$oldestDate" ] && [ "$birth" -ne 0 ]; then
         oldestDate=$birth
     fi
+   
 
     # created and updated are the same, ie oldestDate
     created=$oldestDate
     updated=$oldestDate
 
-    # echo 
+    # add 3 zeros to the end of the date
+    created=$(($created * 1000))
+    updated=$(($updated * 1000)) 
 
 
     ((scanned++))
+    echo "Scanning $file ($scanned)"
 
     # Check if file starts with the header
     if ! grep -q "=== HEADER ===" "$file"; then

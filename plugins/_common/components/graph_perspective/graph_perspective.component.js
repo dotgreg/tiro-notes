@@ -277,6 +277,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 const configSelect = document.getElementById("perspective-config-select");
                 const configSave = document.getElementById("perspective-config-save");
                 const configDelete = document.getElementById("perspective-config-delete");
+                const configSourceTitle = document.getElementById("perspective-config-source-title");
                 const configRefresh = document.getElementById("perspective-config-refresh");
                 const configOpenPlotly = document.getElementById("perspective-send-to-plotly");
                 const configtogglePanel = document.getElementById("perspective-config-toggle");
@@ -388,7 +389,15 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 viewer.saveNewView = saveNewView
                 viewer.deleteView = deleteView
 
-
+                configSourceTitle.addEventListener("click", () => {
+                    // toggle display of upload-file-name1 and upload-file-name2
+                    const uploadFileDiv = document.getElementById("upload-file-name1")
+                    if (uploadFileDiv.style.display === "none") {
+                        uploadFileDiv.style.display = "block"
+                    } else {
+                        uploadFileDiv.style.display = "none"
+                    }
+                })
                 // if config save, prompt for a name and save it
                 configSave.addEventListener("click", () => {
                     viewer.getConfig((config) => {
@@ -689,9 +698,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     <div id="views-buttons-wrapper"> </div>
                     <button id="perspective-config-save"> 💾 </button>
                     <button id="perspective-config-delete"> ❌ </button>
-                    <button id="perspective-config-help"> ? </button>
+                    <button id="perspective-config-source-title"> 🏷️ </button>
                     
                     <button id="perspective-send-to-plotly"> 📊 more </button>
+                    <button id="perspective-config-help"> ? </button>
                     <div class="upload-wrapper">
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" multiple type="file">
@@ -761,11 +771,11 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 .config-wrapper #upload-file-name1 {
                     position: absolute;
                     bottom:-39px;
-                    left: 0px;
+                    left: -30px;
                     z-index: 1000;
                 }
                 #upload-file-name1:hover {
-                    opacity:0.00001;
+                    // opacity:0.00001;
                 }
 
 
