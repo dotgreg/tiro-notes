@@ -507,8 +507,10 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             if (replacementString) panel.replacementString = replacementString
             createPanel(panel)
         } else {
+            console.log(`${h} minimized`, panel.file.name, panel)
             // if panel is minimized, set it to visible
             if (panel.status === "minimized") panel.status = "visible"
+            if (panel.status === "hidden") panel.status = "visible"
             // place panel on top
             
             panel.file = pathToIfile(filepath)

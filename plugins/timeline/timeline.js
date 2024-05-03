@@ -1,6 +1,153 @@
 const timelineApp = (innerTagStr, opts) => {
-        const openFileInWindow = (properties, itemsArr) => {
-                let itemClicked = itemsArr.filter(el => el.id === properties.items[0])[0]
+        
+        ///////////////////////////////////////////////////
+        // 3.1 FILTER INPUT
+        //
+        const inputFilterHtml = `
+        <style>
+
+        #timeline-ctag.is-mobile #filter-graph-wrapper{
+                        opacity: 1;
+        }
+        #timeline-ctag:hover #filter-graph-wrapper{
+                        opacity: 1;
+        }
+        #filter-graph-wrapper {
+                        opacity: 0;
+                        transition: all 0.2s;
+        }
+
+
+        #filter-graph-wrapper {
+                        position: absolute;
+                        right: 10px;
+                        top: 10px;
+                        z-index: 10;
+        }
+        #filter-graph::placeholder {
+                        color:#a1a1a1;
+        }
+        #filter-graph {
+                        color:#a1a1a1;
+                        background: none;
+                        border: none;
+                        border-bottom: 1px solid #dddddd;
+                        padding-bottom: 6px;
+                        font-weight: 400;
+                        font-size: 12px;
+                        outline: none;
+        }
+        #filter-best-guess {
+                        font-size: 10px;
+                        color:#a1a1a1;
+        }
+        #filter-toggle-hover {
+
+        }
+        #filter-toggle-hover input {
+
+        }
+        </style>
+        <div id="filter-graph-wrapper">
+                <input
+                        type="text"
+                        id="filter-graph"
+                        placeholder="Type to filter"
+                />
+                <div id="filter-best-guess"></div>
+                <div id="filter-toggle-hover">
+                        <input type="checkbox" id="filter-toggle" />
+                        <label for="filter-toggle">Hover</label>
+                </div>
+        </div>`
+        
+        const normalizeStr = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+
+        
+        // CACHING MECHANISM
+        const cacheId = `ctag-timeline-${api.utils.getInfos().file.path}`
+        const getCache = (onSuccess, onFailure, customCacheId) => {
+                let cId = customCacheId ? cacheId + customCacheId : cacheId
+                api.call("cache.get", [cId], content => {
+                        if (content !== undefined) {
+                                onSuccess(content)
+                        }
+                        else {
+                                onFailure()
+                        }
+                })
+        }
+        const setCache = (content, customCacheId) => {
+                let cId = customCacheId ? cacheId + customCacheId : cacheId
+                api.call("cache.set", [cId, content, 10000000])
+        }
+        const initFilterInput = ( ) => {
+                console.log("initFilterInput")
+                const filterWrapper = document.getElementById('filter-graph-wrapper');
+                const filterInput = document.getElementById('filter-graph');
+                const bestGuessEl = document.getElementById('filter-best-guess');
+
+                // caching in LS filter
+                const filterIdCache = "filter-cache"
+                const fetchAndSearchFilterValue = () => {
+                        console.log("=> fetch filter value from backend");
+                        getCache(initValueFilter => {
+                                console.log("initValueFilter", initValueFilter)
+                                if (initValueFilter) {
+                                        const filterInput = document.getElementById('filter-graph');
+                                        filterInput.value = initValueFilter
+                                        setTimeout(() => {
+                                                let bypassEnter = true
+                                                searchForWord({}, bypassEnter)
+                                        }, 100)
+                                }
+                        }, () => {}, filterIdCache)
+                }
+                fetchAndSearchFilterValue()
+                
+                const searchForWord = (e, bypassEnter=false) => {
+                        let isEnter = e && e.key === "Enter"
+                        if (bypassEnter) isEnter = true
+                        setCache(filterInput.value, filterIdCache)
+                        const val = normalizeStr(filterInput.value)
+                        if (!isEnter) return
+                        // split val by comma
+                        const valArr = val.split(",")
+                        // for each valArr, push in array {wordToSearch, pathToSearch:"/"}
+                        const configArr = valArr.map(v => ({wordToSearch: v.trim(), pathToSearch: "/"}))
+                        searchAndRenderTimeline(configArr, "files")
+                }
+                filterInput && filterInput.addEventListener("keydown", searchForWord);
+        }
+        const hoverState = {enabled:false}
+        const toggleHover = (e) => {
+                hoverState.enabled = e.target.checked
+        }
+        const initHoverToggle = () => {
+                const filterToggle = document.getElementById("filter-toggle")
+                filterToggle && filterToggle.addEventListener("change", toggleHover)
+        }
+        
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+        
+        
+        const openFileInWindow = (itemClicked, itemsArr) => {
+                
                 if (!itemClicked) return
                 // api.call("ui.notePreviewPopup.open", [itemClicked.filePath, ["50%" ,"50%"], { searchedString:itemClicked.itemRawStr}])
                 api.call("ui.floatingPanel.openFile", [itemClicked.filePath, { searchedString:itemClicked.itemRawStr, idpanel: "id-panel-timeline-preview", layout:"bottom-right"}])
@@ -8,6 +155,11 @@ const timelineApp = (innerTagStr, opts) => {
         const timelineRender = (itemsArr, groupsNames) => {
                 console.log("timelineRender", itemsArr, groupsNames)
                 const wrapperEl = document.getElementById("timeline-ctag-inner")
+
+                // delete everything inside wrapperEl
+                while (wrapperEl.firstChild) {
+                        wrapperEl.removeChild(wrapperEl.firstChild);
+                }
                 
                 // 
                 // GROUPS
@@ -41,58 +193,29 @@ const timelineApp = (innerTagStr, opts) => {
                 timeline.setWindow(start, end);
 
                 timeline.on('select', function (properties) {
-                        openFileInWindow(properties, itemsArr)
+                        let itemClicked = itemsArr.filter(el => el.id === properties.items[0])[0]
+                        openFileInWindow(itemClicked, itemsArr)
                 });
-                timeline.on('hover', function (properties) {
-                        openFileInWindow(properties, itemsArr)
+                timeline.on('itemover', function (properties) {
+                        console.log(hoverState, properties)
+                        if (!hoverState.enabled) return
+                        console.log(properties)
+                        // activate the item
+                        timeline.setSelection(properties.item)
+                        let itemClicked = itemsArr.filter(el => el.id === properties.item)[0]
+                        openFileInWindow(itemClicked, itemsArr)
                 });
                         
         }
 
-        const startMainLogic = () => {
-                const api = window.api;
+        const searchAndRenderTimeline = (configArr, currentMode) => {
                 
-
-                //
-                // config innerTagStr or default
-                //
-                // let wordToSearch = "[timeline"
-                // let pathToSearch = api.utils.getInfos().file.folder
-                let configArr = [{wordToSearch: "[timeline", pathToSearch: api.utils.getInfos().file.folder}]
-
-                //
-                // Default config is like:
-                // [timeline | /path/to/search
-                // [timeline | /path/to/search2
-                // [timeline | /path/to/search3
-                // [timeline | /path/to/search4
-                //
-                // split innerTagStr per line
-
-                let currentMode = "files"
-                let innerTarArr = innerTagStr.split("\n")
-                if (innerTarArr.length > 0) configArr.length = 0
-                // if first line start by mode:
-                if (innerTarArr[0].indexOf("mode:") > -1) {
-                        currentMode = innerTarArr[0].split(":")[1].trim()
-                        innerTarArr.shift()
-                }
-
-                for (let i = 0; i < innerTarArr.length; i++) {
-                        const line = innerTarArr[i];
-                        if (line.indexOf("|") > -1) {
-                                wordToSearch = line.split("|")[0].trim()
-                                pathToSearch = line.split("|")[1].trim()
-                                configArr.push({wordToSearch, pathToSearch})
-                        }
-                }
-                console.log("configArr", configArr, "mode", currentMode)
                 //
                 // search for tags
                 //
                 const searchWord = (word, path, cb) => {
                         api.call("search.word", [word, path], content => {
-                                        cb(content)
+                                cb(content)
                         })
                 }
                 const itemsArr = []
@@ -206,6 +329,50 @@ const timelineApp = (innerTagStr, opts) => {
                                 })
                         })
                 } // end if currentMode === "tag"
+        }
+
+        const startMainLogic = () => {
+                const api = window.api;
+                initFilterInput()
+                initHoverToggle()
+
+                //
+                // config innerTagStr or default
+                //
+                // let wordToSearch = "[timeline"
+                // let pathToSearch = api.utils.getInfos().file.folder
+                // let configArr = [{wordToSearch: "[timeline", pathToSearch: api.utils.getInfos().file.folder}]
+                let configArr = []
+                let currentMode = "files"
+                let innerTarArr = innerTagStr.split("\n")
+                if (innerTarArr.length > 0) configArr.length = 0
+                // if first line start by mode:
+                if (innerTarArr[0].indexOf("mode:") > -1) {
+                        currentMode = innerTarArr[0].split(":")[1].trim()
+                        innerTarArr.shift()
+                }
+
+                for (let i = 0; i < innerTarArr.length; i++) {
+                        const line = innerTarArr[i];
+                        if (line.indexOf("|") > -1) {
+                                wordToSearch = line.split("|")[0].trim()
+                                pathToSearch = line.split("|")[1].trim()
+                                configArr.push({wordToSearch, pathToSearch})
+                        }
+                }
+                console.log("configArr", configArr, "mode", currentMode)
+
+                searchAndRenderTimeline(configArr, currentMode)
+                //
+                // Default config is like:
+                // [timeline | /path/to/search
+                // [timeline | /path/to/search2
+                // [timeline | /path/to/search3
+                // [timeline | /path/to/search4
+                //
+                // split innerTagStr per line
+
+                
 
                                 
                 
@@ -230,6 +397,7 @@ const timelineApp = (innerTagStr, opts) => {
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="timeline-ctag"> 
+                ${inputFilterHtml}
                 <div id="timeline-ctag-inner"> 
                 
                 </div>
