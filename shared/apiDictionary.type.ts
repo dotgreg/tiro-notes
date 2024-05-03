@@ -27,8 +27,8 @@ export interface iApiDictionary {
 
 	searchFor: { term: string, type: iAppView, idReq: string }
 
-	searchWord: { word: string, folder: string, idReq: string }
-	getWordSearch: { result: iSearchWordRes, idReq: string }
+	searchWord: { word: string, folder: string, options?:{disableMetadataSearch?:boolean}, idReq: string }
+	getWordSearch: { result: iSearchWordRes, withMetadataSearch:boolean, idReq: string }
 
 	getUploadedFile: { name: string, path: string, absPath:string, idReq: string }
 

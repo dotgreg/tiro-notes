@@ -14,7 +14,7 @@ import { iStatusApi } from './status.api.hook';
 // MAIN
 export interface iSearchApi {
 	files: iSearchFilesApi
-	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void) => void
+	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void, options?:{disableMetadataSearch?:boolean}) => void
 	hashtags: (folder: string, cb: (res: iHashtags) => void) => void
 	ui: iSearchUiApi
 }

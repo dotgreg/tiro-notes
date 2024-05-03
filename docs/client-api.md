@@ -676,10 +676,11 @@ noteLink should be relative from tiro folder
     - Parameters: 
        1. word: <span class="render-code-wrapper">string</span>
        1. folder: <span class="render-code-wrapper">string</span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableMetadataSearch?: <span class="render-code-wrapper">boolean</span><br/>}</span>
     - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.word",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.word",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableMetadataSearch?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => </span><br/>)</div>
  
 
 
