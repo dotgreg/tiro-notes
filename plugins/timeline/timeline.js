@@ -82,7 +82,7 @@ const timelineApp = (innerTagStr, opts) => {
                 api.call("cache.set", [cId, content, 10000000])
         }
         const initFilterInput = ( ) => {
-                console.log("initFilterInput")
+                // console.log("initFilterInput")
                 const filterWrapper = document.getElementById('filter-graph-wrapper');
                 const filterInput = document.getElementById('filter-graph');
                 const bestGuessEl = document.getElementById('filter-best-guess');
@@ -90,9 +90,9 @@ const timelineApp = (innerTagStr, opts) => {
                 // caching in LS filter
                 const filterIdCache = "filter-cache"
                 const fetchAndSearchFilterValue = () => {
-                        console.log("=> fetch filter value from backend");
+                        // console.log("=> fetch filter value from backend");
                         getCache(initValueFilter => {
-                                console.log("initValueFilter", initValueFilter)
+                                // console.log("initValueFilter", initValueFilter)
                                 if (initValueFilter) {
                                         const filterInput = document.getElementById('filter-graph');
                                         filterInput.value = initValueFilter
@@ -197,7 +197,7 @@ const timelineApp = (innerTagStr, opts) => {
                         openFileInWindow(itemClicked, itemsArr)
                 });
                 timeline.on('itemover', function (properties) {
-                        console.log(hoverState, properties)
+                        // console.log(hoverState, properties)
                         if (!hoverState.enabled) return
                         // console.log(properties)
                         // activate the item
