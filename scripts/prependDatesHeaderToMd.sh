@@ -25,6 +25,7 @@ updated: %s
 # counter of modified/scanned files
 modified=0
 scanned=0
+error=0
 
 # Find all .md files recursively, avoir folders starting by .history and .tiro
 find $dir -type f -name "*.md" ! -path "*/.history/*" ! -path "*/.tiro/*" ! -path "*/_evernote2/*" | while read file;
@@ -89,10 +90,32 @@ do
         #     echo "$dir > $file has updated time before created time, ($updated < $created)"
         #     created=$updated
         # fi
-        # If not, add the header
-        printf "$(printf "$header" "$created" "$updated")\n$(cat "$file")" > "$file"
+        # get $file content length in chars
         echo "$dir > $file does not have header, adding it, oldestDate: $oldestDate, created: $created, updated: $updated, (accessed: $accessed, modified: $modified, changed: $changed, birth: $birth)"
+        originalContentLength=$(wc -c < "$file")
+        # If not, add the header, MAKE SURE TO USE printf TO ESCAPE %s
+        # printf "$header\n" $created $updated | cat - "$file" > temp 
+        # echo "$fullHeader" | cat - "$file" > temp
+        fullHeader="=== HEADER ===\ncreated: $created\nupdated: $updated\n=== END HEADER ==="
+
+        # sed -i "1s;^;$header\n;" "$file"
+        #using  sed -i '1i\
+        # sed -i "1i\\$fullHeader" "$file"
+        # If not, add the header, MAKE SURE TO USE SED to not alter the file content, move it to temp
+        sed "1i\\$fullHeader" "$file" > temp
+        
+        
+        # only if temp content length is greater than originalContentLength, replace the file
+        tempContentLength=$(wc -c < "temp")
+        if [ "$tempContentLength" -gt "$originalContentLength" ]; then
+            mv temp "$file"
+        else
+            echo "⚠️ Error for $file : temp content length is smaller than originalContentLength, not replacing file"
+            ((error++))
+        fi
+        #mv temp "$file"
+        
         ((modified++))
-        echo "Scanned $scanned files, modified $modified files"
+        echo "======> Scanned $scanned files, $error errors"
     fi
 done

@@ -199,7 +199,7 @@ const timelineApp = (innerTagStr, opts) => {
                 timeline.on('itemover', function (properties) {
                         console.log(hoverState, properties)
                         if (!hoverState.enabled) return
-                        console.log(properties)
+                        // console.log(properties)
                         // activate the item
                         timeline.setSelection(properties.item)
                         let itemClicked = itemsArr.filter(el => el.id === properties.item)[0]

@@ -130,12 +130,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('searchWord', async data => {
 		// replace * by ANY word
+		
 		data.word = data.word.split("*").join(regexs.strings.charWithAccents)
 		searchWord({
 			term: data.word,
 			folder: data.folder,
 			cb: res => {
-				serverSocket2.emit('getWordSearch', { result: res, idReq: data.idReq })
+				console.log('res', res)
+				serverSocket2.emit('getWordSearch', { result: res, withMetadataSearch:!data.options?.disableMetadataSearch || true, idReq: data.idReq })
 			},
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})

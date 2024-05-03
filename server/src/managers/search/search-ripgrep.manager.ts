@@ -70,7 +70,12 @@ type iLineRg = {
 
 
 
-
+export interface iLineResult {
+	file: iFile,
+	raw: string,
+	found: string
+	path: string
+}
 export const searchWithRgGeneric = async (p: {
 	term: string
 	folder: string
@@ -79,10 +84,11 @@ export const searchWithRgGeneric = async (p: {
 		wholeLine?: boolean,
 		debug?: boolean
 		filetype?: "md" | "all"
+		disableMetadataSearch?: boolean
 		// exclude?:string[]
 	}
 	processRawLine?: (infos: iLineRg) => any
-	onSearchEnded: (res: any) => void
+	onSearchEnded: (res: { linesResult: iLineResult[] }) => void
 	onRgDoesNotExists?: () => void
 }): Promise<void> => {
 
@@ -91,6 +97,7 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
+	if (!p.options.disableMetadataSearch) p.options.disableMetadataSearch = false
 	let typeArgs = ['--type','md']
 	if (p.options.filetype === "all") typeArgs = ['--files']
 	const onRgDoesNotExists = (err) => {
@@ -108,6 +115,9 @@ export const searchWithRgGeneric = async (p: {
 	// 	})
 	// }
 
+	////////////////////////////////////////////////////v
+	// 1/3 HEADER METADATA SEARCH
+	//
 	let end = perf(`🔎 searchWithRgGeneric 2 term:${p.term} folder:${p.folder}`)
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
@@ -123,7 +133,7 @@ export const searchWithRgGeneric = async (p: {
 		...exclusionArr
 	]
 	
-	const resArr: string[] = []
+	const linesResult: iLineResult[] = []
 	const onData1 = async dataChunk => {
 		const rawChunk = dataChunk.toString()
 		const rawLines = rawChunk.split('\n')
@@ -133,18 +143,17 @@ export const searchWithRgGeneric = async (p: {
 			lineRaw = line.split(':')
 			if (!lineRaw[0] || lineRaw[0] === '') return
 			let found = lineRaw.slice(1).join(":")
-			const processedLine = p.processRawLine({
+			const processedLine:iLineResult = p.processRawLine({
 				file: processRawPathToFile({ rawPath: lineRaw[0], folder: p.folder }),
 				raw: line,
 				path: lineRaw[0],  
 				found,
 			})
-			if (processedLine) resArr.push(processedLine)
+			if (processedLine) linesResult.push(processedLine)
 		})
 	}
 	const onClose1 = dataChunk => {
-		p.onSearchEnded(resArr)
-		end()
+		triggerAggregationIfEnded()
 	}
 	execaWrapper({
 		cmdPath:backConfig.rgPath, 
@@ -157,6 +166,76 @@ export const searchWithRgGeneric = async (p: {
 			onRgDoesNotExists(err)
 		}
 	})
+
+
+	////////////////////////////////////////////////////v
+	// 2/3 HEADER METADATA SEARCH
+	//
+	const r = {
+		all: '[\\d\\D]*',
+		imageMd: '!\[[^\]]+\]\([^\]]+\)',
+		headerStart: sharedConfig.metas.headerStart,
+		headerStop: sharedConfig.metas.headerEnd,
+	}
+	
+	const metaFilesInFullFolderSearch = [
+		`${r.headerStart}${r.all}${r.headerStop}`,
+		folderToSearch,
+		'--max-depth=1',
+		'--type',
+		'md',
+		'--multiline',
+		...exclusionArr
+	]
+	const rawMetasStrings: string[] = []
+	let metasFilesScanned: iMetasFiles = {}
+	const onData4 =  async dataRaw => {
+		const rawMetaString = dataRaw.toString()
+		// split multiline strings
+		const rawMetaArr = rawMetaString.split('\n')
+		rawMetasStrings.push(...rawMetaArr)
+	}
+	const onClose4 =  dataRaw => {
+		// process raw strings to meta objs
+		metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
+		shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
+		triggerAggregationIfEnded()
+	}
+	
+	if (!p.options.disableMetadataSearch) {
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: metaFilesInFullFolderSearch,
+			onData: onData4,
+			onClose: onClose4,
+			onError: err => {onRgDoesNotExists(err)}
+		})
+	}
+
+
+	////////////////////////////////////////////////////v
+	// 3/3 HEADER METADATA SEARCH
+	//
+	let count = 0
+	const triggerAggregationIfEnded = () => {
+		count++
+		const endCount = p.options.disableMetadataSearch === false ? 2 : 1
+		if (count === endCount) {
+			for (let i = 0; i < linesResult.length; i++) {
+				const file = linesResult[i].file
+				each(metasFilesScanned, (metaObj, fileName) => {
+					// remove / from fileName
+					fileName = fileName.replace('/', '')
+					if (file.name === fileName) {
+						linesResult[i].file.created = parseInt(`${metaObj.created}`)
+						linesResult[i].file.modified = parseInt(`${metaObj.updated}`)
+					}
+				})
+			}
+			p.onSearchEnded({linesResult})
+			end()
+		}
+	}
 }
 
 
@@ -195,8 +274,8 @@ export const searchWithRipGrep = async (params: {
 	onSearchEnded: (res: { files?: iFile[], images?: iFileImage[] }) => Promise<void>
 	onRgDoesNotExists?: () => void
 
-	processRawEl?: (raw: string) => any
-	processFinalRes?: (raw: string) => any
+	// processRawEl?: (raw: string) => any
+	// processFinalRes?: (raw: string) => any
 
 }): Promise<void> => {
 	let p = params

@@ -1,5 +1,6 @@
+import { each } from "lodash";
 import { iSearchWordRes } from "../../../../shared/types.shared";
-import { searchWithRgGeneric } from "./search-ripgrep.manager";
+import { searchWithRgGeneric, searchWithRipGrep } from "./search-ripgrep.manager";
 
 
 // rg "#[^ #]+" "/Users/gregoirethiebault/desktop/your markdown notes/test_obsi/nodal_ex" --ignore-case --type md --multiline
@@ -8,11 +9,12 @@ import { searchWithRgGeneric } from "./search-ripgrep.manager";
 export const searchWord = (p: {
 	term: string,
 	folder: string,
+	disableMetadataSearch?: boolean,
 	cb: (res: iSearchWordRes) => void
 	onRgDoesNotExists: () => void
 }) => {
 	const objRes: iSearchWordRes = {}
-	// console.log('searchWord', p.term, p.folder)
+ 	// console.log('searchWord', p.term, p.folder)
 	searchWithRgGeneric({
 		term: p.term,
 		folder: p.folder,
@@ -20,23 +22,40 @@ export const searchWord = (p: {
 		options: {
 			wholeLine: true,
 			debug: true,
+			disableMetadataSearch: p.disableMetadataSearch,
 			// exclude:[".resources"]
 		},
 
 		processRawLine: lineInfos => {
-			let l = lineInfos
+			// let l = lineInfos
 			// console.log('lineInfos', l)
-			if (!l.found || l.found === '') return
-			l.file.folder = l.file.folder.replace(".md/", '.md')
-			l.file.path = l.file.path.replace(".md/", '.md')
-			if (!objRes[l.file.path]) objRes[l.file.path] = { file: l.file, results: []}
-			objRes[l.file.path].results.push(l.found)
+			// if (!l.found || l.found === '') return
+			// l.file.folder = l.file.folder.replace(".md/", '.md')
+			// l.file.path = l.file.path.replace(".md/", '.md')
+			// if (!objRes[l.file.path]) objRes[l.file.path] = { file: l.file, results: []}
+			// objRes[l.file.path].results.push(l.found)
+			// console.log('lineInfos', lineInfos)
+			return lineInfos
 		},
 
-		onSearchEnded: async () => {
+		onSearchEnded: async (res) => {
+			
+			each(res.linesResult, (lineRes) => {
+				let l = lineRes
+				console.log('lineInfos', l)
+				if (!l.found || l.found === '') return
+				l.file.folder = l.file.folder.replace(".md/", '.md')
+				l.file.path = l.file.path.replace(".md/", '.md')
+				if (!objRes[l.file.path]) objRes[l.file.path] = { file: l.file, results: []}
+				objRes[l.file.path].results.push(l.found)
+			})
+			// console.log('onSearchEnded', objRes, res)
 			p.cb(objRes)
 		},
 		onRgDoesNotExists: p.onRgDoesNotExists
 		
 	})
+	
+ 
+	
 }
