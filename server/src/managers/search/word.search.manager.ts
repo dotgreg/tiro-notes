@@ -42,7 +42,6 @@ export const searchWord = (p: {
 			
 			each(res.linesResult, (lineRes) => {
 				let l = lineRes
-				console.log('lineInfos', l)
 				if (!l.found || l.found === '') return
 				l.file.folder = l.file.folder.replace(".md/", '.md')
 				l.file.path = l.file.path.replace(".md/", '.md')

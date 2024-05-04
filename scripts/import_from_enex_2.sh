@@ -4,6 +4,24 @@
 notebookName=$1
 
 
+dirTopIn="1_in/"
+dirTopIn2="1_1_in/"
+dirTopOut="2_out/"
+dirTopOut2Date="3_out_dates/"
+
+
+# if second argument is set to "clean", remove all directories
+rm -rf $dirTopIn
+rm -rf $dirTopIn2
+rm -rf $dirTopOut
+mkdir -p $dirTopIn
+mkdir -p $dirTopIn2
+mkdir -p $dirTopOut
+if [ "$2" == "clean" ]; then
+    rm -rf $dirTopOut2Date
+    mkdir -p $dirTopOut2Date
+fi
+
 # Directory to start search
 dirin="1_in/$notebookName/"
 mkdir -p $dirin
@@ -13,17 +31,22 @@ dirout="2_out/$notebookName/"
 mkdir -p $dirout
 dirout2Date="3_out_dates/"
 mkdir -p $dirout2Date
-# rm -rf $dirin
-# rm -rf $dirin2
-# rm -rf $dirout
-# rm -rf $dirout2Date
 
 # if dirin is empty, import notebook
-if [ -z "$(ls -A $dirin)" ]; then
-    echo "Importing notebook $notebookName"
-    evernote2md "./enexs/${notebookName}.enex" "${dirin}" --folders ;
-fi
+echo "Importing notebook $notebookName"
+evernote2md "./0_exportEnex/${notebookName}.enex" "${dirin}" --folders ;
+# if [ -z "$(ls -A $dirin)" ]; then
+# fi
 # npx -p yarle-evernote-to-md@latest yarle --configFile ./yarleconfig.json
+
+# function that sanitizes a string for use as a filename, 
+#replace everything that is not a letter or a number by _ !!!!!!!
+# and make everything lowercase
+# also replace space, . ! etc by _
+sanitize() {
+    echo "$1" | tr -c '[:alnum:]' '_' | tr '[:upper:]' '[:lower:]' | tr -s '_'
+}
+
 
 # drin structure is ${dirin}/NOTE_NAME/README.md
 # create dirin2 structure ${dirin2}/NOTE_NAME.md
@@ -40,11 +63,18 @@ do
         # get folder name
         folderName=$(basename "$folder")
         # if folderName start by ., remove it
-        if [[ $folderName == .* ]]; then
-            folderName=${folderName#.}
-        fi
+        # if [[ $folderName == .* ]]; then
+        #     folderName=${folderName#.}
+        # fi
+        # sanitize folderName
+        folderName=$(sanitize "$folderName")
+
         # copy file while keeping dates creation etc, make rsync silent 
         rsync -av "$file" "$dirin2/$folderName.md"
+
+        # rsync copy faster using parallel
+        # rsync -av "$file" "$dirin2/$folderName.md" &
+        # rsync -av "$file" "$dirin2/$folderName.md" &
         
 
         #cp "$file" "$dirin2/$folderName.md"
@@ -55,10 +85,12 @@ do
         folder=$(dirname "$file")
         # get parent of parent folder name
         noteName=$(basename $(dirname "$folder"))
-        # if folderName start by ., remove it
-        if [[ $noteName == .* ]]; then
-            noteName=${noteName#.}
-        fi
+        # # if folderName start by ., remove it
+        # if [[ $noteName == .* ]]; then
+        #     noteName=${noteName#.}
+        # fi
+        # sanitize folderName
+        noteName=$(sanitize "$noteName")
         # copy file
         cp "$file" "$dirin2/image/$notebookName-$noteName-$(basename "$file")"
     fi
@@ -68,9 +100,11 @@ do
         # get folder name
         noteName=$(basename $(dirname "$folder"))
         # if folderName start by ., remove it
-        if [[ $noteName == .* ]]; then
-            noteName=${noteName#.}
-        fi
+        # if [[ $noteName == .* ]]; then
+        #     noteName=${noteName#.}
+        # fi
+        # sanitize folderName
+        noteName=$(sanitize "$noteName")
         # copy file
         cp "$file" "$dirin2/file/$notebookName-$noteName-$(basename "$file")"
     fi
@@ -105,10 +139,18 @@ do
     updated=$(stat -f %m "$filePath")
     ((scanned++))
 
-    # replace all strings `TAG` (anything but space) by #TAG
-    sed -i '' -E 's/`([^ ]+)`/#\1/g' "$filePath"
+    noteName=$(basename "$filePath")
+    #remove .md 
+    noteName=${noteName%.md}
+
+    # replace all strings `TAG ONE AND OTHER` by `TAG_ONE_AND_OTHER` Make sure to replace space by _
+    sed -i '' -E 's/`([^`]+) ([^`]+)`/`\1_\2`/g' "$filePath"
+    # replace all strings `TAG_1`  by #TAG_1. 
+    sed -i '' -E 's/`([^`]+)`/#\1/g' "$filePath"
+
+    
     # add in first line of the filePath the title of the notebook
-    sed -i '' "1s/^/notebook:$notebookName\n\n/" "$filePath"
+    sed -i '' "1s/^/notebook:$notebookName\nnoteName:$noteName\n\n/" "$filePath"
 
 
     # Check if filePath starts with the header
@@ -135,13 +177,13 @@ do
     mkdir -p "$dirout2Date/$year/$month"
     # copy file
     cp "$filePath" "$dirout2Date/$year/$month/$(basename "$filePath")"
-    noteName=$(basename "$filePath")
-    #remove .md 
-    noteName=${noteName%.md}
+    
     # if folderName start by ., remove it
-    if [[ $noteName == .* ]]; then
-        noteName=${noteName#.}
-    fi
+    # if [[ $noteName == .* ]]; then
+    #     noteName=${noteName#.}
+    # fi
+    # sanitize folderName
+    noteName=$(sanitize "$noteName")
     # sed -i '' -E 's/(\[.*\]\()([^\)]+\))/\1..\/..\/image\/'$notebookName'-'$noteName'-\2/g' "$dirout2Date/$year/$month/$(basename "$file)"
     # sed -i 's!\(\!\[.*\]\)\(.*\)\(\(image/.*\.png\)\)!\1\2(../../image/'${notebookName}'-'${noteName}'-\3)!' "$dirout2Date/$year/$month/$(basename "$file)"
 

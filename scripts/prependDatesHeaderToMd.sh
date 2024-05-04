@@ -101,16 +101,21 @@ do
         # sed -i "1s;^;$header\n;" "$file"
         #using  sed -i '1i\
         # sed -i "1i\\$fullHeader" "$file"
-        # If not, add the header, MAKE SURE TO USE SED to not alter the file content, move it to temp
-        sed "1i\\$fullHeader" "$file" > temp
+        # sed "1i\\$fullHeader" "$file" > "$tempFilePath"
+        # tempFilePath="$file.temp"
+        # If not, add the header, MAKE SURE TO NOT USE SED but do not alter the file content, move it to temp
+        # 
+        # printf "$fullHeader\n $(cat $file)" > "$tempFilePath"
+        printf "$header\n" $created $updated | cat - "$file" > temp 
+
         
         
         # only if temp content length is greater than originalContentLength, replace the file
-        tempContentLength=$(wc -c < "temp")
+        tempContentLength=$(wc -c < temp)
         if [ "$tempContentLength" -gt "$originalContentLength" ]; then
             mv temp "$file"
         else
-            echo "⚠️ Error for $file : temp content length is smaller than originalContentLength, not replacing file"
+            echo "⚠️ Error for $file : temp content length ($tempContentLength) is smaller than originalContentLength ($originalContentLength), not replacing file"
             ((error++))
         fi
         #mv temp "$file"
