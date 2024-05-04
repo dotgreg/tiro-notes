@@ -1,0 +1,87 @@
+{
+    "enexSources": [
+      "./0_to_process"
+    ],
+    "outputDir": "./1_yarle_output",
+    "isMetadataNeeded": true,
+    "isNotebookNameNeeded": false,
+    "isZettelkastenNeeded": false,
+    "useZettelIdAsFilename": false,
+    "plainTextNotesOnly": false,
+    "skipWebClips": true,
+    "useHashTags": true,
+    "outputFormat": "StandardMD",
+    "obsidianTaskTag": "#",
+    "taskOutputFormat": "StandardMD",
+    "skipEnexFileNameFromOutputPath": false,
+    "keepMDCharactersOfENNotes": false,
+    "monospaceIsCodeBlock": false,
+    "keepOriginalHtml": false,
+    "posixHtmlPath": false,
+    "currentTemplate": "{created-at-block}Created at: {created-at}{end-created-at-block}\n
+  {updated-at-block}Last updated at: {updated-at}{end-updated-at-block}\n
+  {notebook-block}notebookName: {notebook}{end-notebook-block}\n
+  {tags-array-block}tags: {tags-array}{end-tags-array-block}\n
+  \n\n
+  {title-block}# {title}{end-title-block}\n\n
+  {content-block}{content}{end-content-block}\n\n",
+    "resourcesDir": "resources",
+    "trimStartingTabs": false,
+    "convertPlainHtmlNewlines": false,
+    "encryptionPasswords": [
+      ""
+    ],
+    "nestedTags": {
+      "separatorInEN": "_",
+      "replaceSeparatorWith": "---",
+      "replaceSpaceWith": "-"
+    },
+    "logseqSettings": {
+      "journalNotes": false
+    },
+    "obsidianSettings": {
+      "omitLinkDisplayName": false
+    },
+    "dateFormat": "YYYY-MM-DD",
+    "imageSizeFormat": "StandardMD",
+    "keepImageSize": true,
+    "keepOriginalAmountOfNewlines": true,
+    "addExtensionToInternalLinks": false,
+    "urlEncodeFileNamesAndLinks": false,
+    "haveEnexLevelResources": false,
+    "haveGlobalResources": true,
+    "useUniqueUnknownFileNames": false,
+    "useLevenshteinForLinks": false,
+    "convertColorsToMDHighlight": false,
+    "keepEvernoteLinkIfNoNoteFound": false,
+    "sanitizeResourceNameSpaces": false,
+    "replacementChar": "_",
+    "turndownOptions": {
+      "headingStyle": "atx",
+      "bulletListMarker": "-"
+    },
+    "replacementCharacterMap": {
+      "<": "_",
+      ">": "_",
+      ":": "_",
+      "\"": "_",
+      "/": "_",
+      "\\": "_",
+      "|": "_",
+      "?": "_",
+      "*": "_"
+    },
+  
+    "globalReplacementSettings": [
+      {
+        "type": "title",
+        "regex": "",
+        "replace": ""
+      },
+      {
+        "type": "content",
+        "regex": "",
+        "replace": ""
+      }
+    ]
+  }
