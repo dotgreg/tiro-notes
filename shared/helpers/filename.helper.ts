@@ -34,6 +34,11 @@ export const getFileInfos = (path: string): {
 
 	let filenameWithoutExt = filename.replace(`.${extension}`, '')
 
+	// if path does not start by / , we add it
+	// if (path.includes('d3') && path[0] !== '/') console.log('getFileInfos', { path, folder, filename, extension, filenameWithoutExt })
+	if (path[0] !== '/') path = '/' + path
+	if (folder[0] !== '/') folder = '/' + folder
+
 	return { filename, extension, path, folder, filenameWithoutExt }
 }
 
@@ -41,7 +46,7 @@ export const pathToIfile = (path: string): iFile => {
 	let infos = getFileInfos(path)
 	let nature: iFileNature = infos.extension ? "file" : "folder"
 	let res: iFile = {
-		path,
+		path:infos.path,
 		realname: infos.filename,
 		nature,
 		name: infos.filename,

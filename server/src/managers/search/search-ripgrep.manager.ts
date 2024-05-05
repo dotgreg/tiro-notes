@@ -11,6 +11,7 @@ import { perf } from "../performance.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
 import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
+import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 
 const h = `[RIPGREP SEARCH1] `
 const shouldLog = sharedConfig.server.log.ripgrep
@@ -181,7 +182,6 @@ export const searchWithRgGeneric = async (p: {
 	const metaFilesInFullFolderSearch = [
 		`${r.headerStart}${r.all}${r.headerStop}`,
 		folderToSearch,
-		'--max-depth=1',
 		'--type',
 		'md',
 		'--multiline',
@@ -221,12 +221,12 @@ export const searchWithRgGeneric = async (p: {
 		count++
 		const endCount = p.options.disableMetadataSearch === false ? 2 : 1
 		if (count === endCount) {
-			for (let i = 0; i < linesResult.length; i++) {
-				const file = linesResult[i].file
-				each(metasFilesScanned, (metaObj, fileName) => {
-					// remove / from fileName
-					fileName = fileName.replace('/', '')
-					if (file.name === fileName) {
+			for (let i = 0; i < linesResult.length; i++) { 
+				const file = linesResult[i].file 
+				each(metasFilesScanned, (metaObj, filePath) => { 
+					// remove / from filePath  
+					let fileFromMeta = pathToIfile(filePath)
+					if (file.path === fileFromMeta.path) {
 						linesResult[i].file.created = parseInt(`${metaObj.created}`)
 						linesResult[i].file.modified = parseInt(`${metaObj.updated}`)
 					}
