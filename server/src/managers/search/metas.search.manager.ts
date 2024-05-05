@@ -5,11 +5,40 @@ import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileMetas, metaContent } from "../../../../shared/types.shared";
 import { getRelativePathFromSearchPath } from "./file.search.manager";
 import { iFilesObj } from "./search-ripgrep.manager";
-import path from "path";
+import { backConfig } from "../../config.back";
+const fs = require('fs');
+const path = require('path');
 
 
 export interface iMetasFiles {
     [fileName:string]: iFileMetas
+}
+
+
+export const getMetaFromHeaderWithJs = async (file:iFile):Promise<iFile> => {
+    // open file from its path
+    const absPath = `${backConfig.dataFolder}/${file.path}`;
+    const filePath = path.resolve(absPath);
+    const buffer = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
+    const lines = buffer.split('\n').slice(0, 4); // Get the first four lines
+
+    let created = -1;
+    let updated = -1;
+
+    lines.forEach((line) => {
+        if (line.includes('created:'))  created = parseInt(line.split(': ')[1]);
+        if (line.includes('updated:')) updated = parseInt(line.split(': ')[1]);
+    });
+
+    if (created !== -1) created = toTimeStampInS(created)*1000
+    if (updated !== -1) updated = toTimeStampInS(updated)*1000
+
+    let finalModified = updated !== -1 ? updated : file.modified;
+    let finalCreated = created !== -1 ? created : file.created;
+    
+    
+    let nFile = { ...file, created: finalCreated, modified: finalModified};
+    return nFile
 }
 
 export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFiles):iFile[] => {

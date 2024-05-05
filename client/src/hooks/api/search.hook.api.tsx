@@ -83,17 +83,17 @@ export const useSearchApi = (p: {
 		search(term, cb, 'text')
 	}
 
-	const searchWord: iSearchApi['word'] = (word, folder, cb) => {
+	const searchWord: iSearchApi['word'] = (word, folder, cb, options) => {
 		const idReq = genIdReq(`search-word-`);
 		// replace all special chars like + or * by \\char
 		word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-		console.log(`${h} searching WORD ${word}`);
+		console.log(`${h} searching WORD ${word}`, options);
 
 		// subscribe
 		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { cb(res) });
 
 		// start request
-		clientSocket2.emit('searchWord', { word, folder, token: getLoginToken(), idReq })
+		clientSocket2.emit('searchWord', { word, folder, options, token: getLoginToken(), idReq })
 	}
 
 	const searchFilesAndUpdateUi: iSearchApi['ui']['search'] = term => {
