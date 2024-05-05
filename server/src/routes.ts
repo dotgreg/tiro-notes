@@ -138,6 +138,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			cb: res => {
 				serverSocket2.emit('getWordSearch', { result: res, withMetadataSearch:!data.options?.disableMetadataSearch || true, idReq: data.idReq })
 			},
+			disableMetadataSearch: data.options?.disableMetadataSearch || false,
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
 	}, { checkRole: "viewer" })

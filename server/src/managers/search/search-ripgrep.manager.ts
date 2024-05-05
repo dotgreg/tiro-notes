@@ -10,7 +10,7 @@ import { getRelativePath } from "../path.manager";
 import { perf } from "../performance.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
-import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
+import { getMetaFromHeaderWithJs, iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
 import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 
 const h = `[RIPGREP SEARCH1] `
@@ -119,7 +119,7 @@ export const searchWithRgGeneric = async (p: {
 	////////////////////////////////////////////////////v
 	// 1/3 HEADER METADATA SEARCH
 	//
-	let end = perf(`🔎 searchWithRgGeneric 2 term:${p.term} folder:${p.folder}`)
+	let end = perf(`🔎 searchWithRgGeneric 2 term:${p.term} folder:${p.folder}, with options ${JSON.stringify(p.options)}`)
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
@@ -153,8 +153,8 @@ export const searchWithRgGeneric = async (p: {
 			if (processedLine) linesResult.push(processedLine)
 		})
 	}
-	const onClose1 = dataChunk => {
-		triggerAggregationIfEnded()
+	const onClose1 = async dataChunk => {
+		await triggerAggregationIfEnded()
 	}
 	execaWrapper({
 		cmdPath:backConfig.rgPath, 
@@ -172,69 +172,84 @@ export const searchWithRgGeneric = async (p: {
 	////////////////////////////////////////////////////v
 	// 2/3 HEADER METADATA SEARCH
 	//
-	const r = {
-		all: '[\\d\\D]*',
-		imageMd: '!\[[^\]]+\]\([^\]]+\)',
-		headerStart: sharedConfig.metas.headerStart,
-		headerStop: sharedConfig.metas.headerEnd,
-	}
+	// const r = {
+	// 	all: '[\\d\\D]*',
+	// 	imageMd: '!\[[^\]]+\]\([^\]]+\)',
+	// 	headerStart: sharedConfig.metas.headerStart,
+	// 	headerStop: sharedConfig.metas.headerEnd,
+	// }
 	
-	const metaFilesInFullFolderSearch = [
-		`${r.headerStart}${r.all}${r.headerStop}`,
-		folderToSearch,
-		'--type',
-		'md',
-		'--multiline',
-		...exclusionArr
-	]
-	const rawMetasStrings: string[] = []
-	let metasFilesScanned: iMetasFiles = {}
-	const onData4 =  async dataRaw => {
-		const rawMetaString = dataRaw.toString()
-		// split multiline strings
-		const rawMetaArr = rawMetaString.split('\n')
-		rawMetasStrings.push(...rawMetaArr)
-	}
-	const onClose4 =  dataRaw => {
-		// process raw strings to meta objs
-		metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
-		shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
-		triggerAggregationIfEnded()
-	}
+	// const metaFilesInFullFolderSearch = [
+	// 	`${r.headerStart}${r.all}${r.headerStop}`,
+	// 	folderToSearch,
+	// 	'--type',
+	// 	'md',
+	// 	'--multiline',
+	// 	...exclusionArr
+	// ]
+	// const rawMetasStrings: string[] = []
+	// let metasFilesScanned: iMetasFiles = {}
+	// const onData4 =  async dataRaw => {
+	// 	const rawMetaString = dataRaw.toString()
+	// 	// split multiline strings
+	// 	const rawMetaArr = rawMetaString.split('\n')
+	// 	rawMetasStrings.push(...rawMetaArr)
+	// }
+	// const onClose4 =  dataRaw => {
+	// 	// process raw strings to meta objs
+	// 	metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
+	// 	shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
+	// 	triggerAggregationIfEnded()
+	// }
 	
-	if (!p.options.disableMetadataSearch) {
-		execaWrapper({
-			cmdPath:backConfig.rgPath, 
-			args: metaFilesInFullFolderSearch,
-			onData: onData4,
-			onClose: onClose4,
-			onError: err => {onRgDoesNotExists(err)}
-		})
-	}
+	// if (!p.options.disableMetadataSearch) {
+	// 	execaWrapper({
+	// 		cmdPath:backConfig.rgPath, 
+	// 		args: metaFilesInFullFolderSearch,
+	// 		onData: onData4,
+	// 		onClose: onClose4,
+	// 		onError: err => {onRgDoesNotExists(err)}
+	// 	})
+	// }
 
 
 	////////////////////////////////////////////////////v
 	// 3/3 HEADER METADATA SEARCH
 	//
 	let count = 0
-	const triggerAggregationIfEnded = () => {
+	const triggerAggregationIfEnded = async () => {
 		count++
-		const endCount = p.options.disableMetadataSearch === false ? 2 : 1
-		if (count === endCount) {
-			for (let i = 0; i < linesResult.length; i++) { 
-				const file = linesResult[i].file 
-				each(metasFilesScanned, (metaObj, filePath) => { 
-					// remove / from filePath  
-					let fileFromMeta = pathToIfile(filePath)
-					if (file.path === fileFromMeta.path) {
-						linesResult[i].file.created = parseInt(`${metaObj.created}`)
-						linesResult[i].file.modified = parseInt(`${metaObj.updated}`)
-					}
-				})
+		// const endCount = p.options.disableMetadataSearch === false ? 2 : 1
+		// if (count === endCount) {
+		// 	console.log(count, endCount, linesResult.length)
+		// 	for (let i = 0; i < linesResult.length; i++) { 
+		// 		const file = linesResult[i].file 
+		// 		each(metasFilesScanned, (metaObj, filePath) => { 
+		// 			// remove / from filePath  
+		// 			let fileFromMeta = pathToIfile(filePath)
+		// 			if (file.path === fileFromMeta.path) {
+		// 				linesResult[i].file.created = parseInt(`${metaObj.created}`)
+		// 				linesResult[i].file.modified = parseInt(`${metaObj.updated}`)
+		// 			}
+		// 		})
+		// 	}
+
+		// for each linesResult.file, open the file and get the 4 first lines
+		// p.onSearchEnded({linesResult})
+		// end()
+		if (p.options.disableMetadataSearch === true) {
+			p.onSearchEnded({linesResult})
+			end()
+		} else {
+			// for each linesResult.file
+			for (let i = 0; i < linesResult.length; i++) {
+				let nFile = await getMetaFromHeaderWithJs(linesResult[i].file)
+				linesResult[i].file = nFile
 			}
 			p.onSearchEnded({linesResult})
 			end()
 		}
+		// }
 	}
 }
 
