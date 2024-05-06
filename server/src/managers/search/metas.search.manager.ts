@@ -18,27 +18,33 @@ export interface iMetasFiles {
 export const getMetaFromHeaderWithJs = async (file:iFile):Promise<iFile> => {
     // open file from its path
     const absPath = `${backConfig.dataFolder}/${file.path}`;
-    const filePath = path.resolve(absPath);
-    const buffer = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
-    const lines = buffer.split('\n').slice(0, 4); // Get the first four lines
+    try {
 
-    let created = -1;
-    let updated = -1;
-
-    lines.forEach((line) => {
-        if (line.includes('created:'))  created = parseInt(line.split(': ')[1]);
-        if (line.includes('updated:')) updated = parseInt(line.split(': ')[1]);
-    });
-
-    if (created !== -1) created = toTimeStampInS(created)*1000
-    if (updated !== -1) updated = toTimeStampInS(updated)*1000
-
-    let finalModified = updated !== -1 ? updated : file.modified;
-    let finalCreated = created !== -1 ? created : file.created;
+        const filePath = path.resolve(absPath);
+        const buffer = fs.readFileSync(filePath, { encoding: 'utf8', flag: 'r' });
+        const lines = buffer.split('\n').slice(0, 4); // Get the first four lines
     
+        let created = -1;
+        let updated = -1;
     
-    let nFile = { ...file, created: finalCreated, modified: finalModified};
-    return nFile
+        lines.forEach((line) => {
+            if (line.includes('created:'))  created = parseInt(line.split(': ')[1]);
+            if (line.includes('updated:')) updated = parseInt(line.split(': ')[1]);
+        });
+    
+        if (created !== -1) created = toTimeStampInS(created)*1000
+        if (updated !== -1) updated = toTimeStampInS(updated)*1000
+    
+        let finalModified = updated !== -1 ? updated : file.modified;
+        let finalCreated = created !== -1 ? created : file.created;
+        
+        
+        let nFile = { ...file, created: finalCreated, modified: finalModified};
+        return nFile
+    } catch (e) {
+        console.log('[getMetaFromHeaderWithJs] Error while reading file', e)
+        return file
+    }
 }
 
 export const mergingMetaToFilesArr = (filesObj:iFilesObj, metasFiles: iMetasFiles):iFile[] => {
