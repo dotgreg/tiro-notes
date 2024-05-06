@@ -65,7 +65,15 @@ const smartlistApp = (innerTagStr, opts) => {
                 return configArray
         }
         
-
+        const triggerSearchFromInput = (configArray) => {
+                const searchInput = document.getElementById("smart-list-ctag-search")
+                const pathInput = document.getElementById("smart-list-ctag-path")
+                const term = searchInput.value
+                const path = pathInput.value
+                configArray[0].tag1 = term
+                configArray[0].path = path
+                searchAndDisplay(configArray)
+        }
         const listenToInputChanges = (configArray) => {
                 // if input term or path changes, update the configArray and trigger rerender
                 const searchInput = document.getElementById("smart-list-ctag-search")
@@ -80,11 +88,7 @@ const smartlistApp = (innerTagStr, opts) => {
 
                 const searchBtn = document.getElementById("smart-list-ctag-search-btn")
                 searchBtn.addEventListener("click", e => {
-                        const term = searchInput.value
-                        const path = pathInput.value
-                        configArray[0].tag1 = term
-                        configArray[0].path = path
-                        searchAndDisplay(configArray)
+                        triggerSearchFromInput(configArray)
                 })
         }
 
@@ -128,8 +132,9 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         if (word.startsWith(el.tag2)) tag2 = word
                                                         if (word.startsWith(el.tag3)) tag3 = word
                                                 })
-                                                                
-                                                items.push({ filename: file.name, folder: file.folder, line:result, tag1, tag2, tag3 })
+                                                // timestamp to 2017-06-01 12:00
+                                                let created = new Date(file.created).toISOString().split("T")[0]
+                                                items.push({ filename: file.name, created, folder: file.folder, line:result, tag1, tag2, tag3 })
                                         })
                                 })
                         })
@@ -149,6 +154,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 // {colId: "filename", headerLabel: "Filename"},
                 // {colId: "folder", headerLabel: "Folder"},
                 config.cols.push({colId: "filename", headerLabel: "Filename"})
+                config.cols.push({colId: "created", headerLabel: "Created"})
                 config.cols.push({colId: "folder", headerLabel: "Folder"})
                 config.cols.push({colId: "actions", type: "buttons", buttons:[
                         {
@@ -190,7 +196,12 @@ const smartlistApp = (innerTagStr, opts) => {
                                         const configArray = readConfigString(innerTagStr)
                                         console.log('configArr:', configArray)
                                         listenToInputChanges(configArray)
-                                        searchAndDisplay(configArray)
+                                        if (configArray[0].tag1 && configArray[0].path) {
+                                                searchAndDisplay(configArray)
+                                        }
+                                        else {
+                                                triggerSearchFromInput(configArray)
+                                        }
 				}
 			);
 		}, 100)
@@ -226,6 +237,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 }
                 #smart-list-ctag {
                         margin-top:20px;
+                        margin-bottom:40px;
                  }
                 #smart-list-ctag table { 
                         min-width: 660px;

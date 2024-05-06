@@ -199,7 +199,7 @@ export const NotePreviewCss = () => `
 		.editor-area,
 		.codemirror-editor-wrapper {height: 100%}
 
-		.main-editor-wrapper {height: calc(100% - 35px)}
+		.main-editor-wrapper {height: calc(100%)}
 
 
 }
