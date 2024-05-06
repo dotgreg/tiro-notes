@@ -91,7 +91,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 
                 const searchWord = (word, path, cb) => {
                         api.call("search.word", [word, path], content => {
-                                        cb(content)
+                                cb(content)
                         })
                 }
 
