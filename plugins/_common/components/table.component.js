@@ -35,9 +35,14 @@ const styleCss = `
 .ctag-component-table {
   padding-bottom: 80px;
   overflow-wrap: normal;
-  width: calc(100%);
+  width: 100%;
   height: 100%;
   padding: 10px;
+}
+table.ctag-component-table  td, 
+table.ctag-component-table  th { 
+  overflow-wrap: anywhere; 
+  min-width: 50px;
 }
 .ctag-component-table th {
   // display: flex;

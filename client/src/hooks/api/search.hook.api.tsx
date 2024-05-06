@@ -40,7 +40,7 @@ export const useSearchApi = (p: {
 	eventBus: iApiEventBus,
 	statusApi: iStatusApi
 }): iSearchApi => {
-	const h = `[SEARCH API] 00563 `
+	const h = `[SEARCH API] `
 
 	//
 	// STATE
@@ -87,7 +87,7 @@ export const useSearchApi = (p: {
 		const idReq = genIdReq(`search-word-`);
 		// replace all special chars like + or * by \\char
 		word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-		console.log(`${h} searching WORD ${word}`, options);
+		console.log(`${h} searching WORD ${word} in ${folder}`, options);
 
 		// subscribe
 		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { cb(res) });
