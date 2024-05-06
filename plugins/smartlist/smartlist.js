@@ -31,34 +31,71 @@ const smartlistApp = (innerTagStr, opts) => {
         // MAIN LOGIC
         //
         ///////////////////////////////////////////////////////////
+        const readConfigString = () => {
+                // split EDF TODO | # | /etc/blabla
+                // INVEST | # | /etc/blabla in a config array of objects with category, searchTag and path
+                let configArray = []
+                let hasTag2 = false
+                let hasTag3 = false
+                innerTagStr.split("\n").forEach((el, i) => {
+                        // if (el.indexOf("|") > -1) {
+                        //         arr = el.split("|")
+                        //         let [category, path, tag1, tag2, tag3] = el.split("|")
+                        //         category = category?.trim()
+                        //         path = path?.trim()
+                        //         tag1 = tag1?.trim()
+                        //         if (tag2){ tag2 = tag2?.trim() || null; hasTag2 = true }
+                        //         if (tag3) {tag3 = tag3?.trim() || null; hasTag3 = true}
+                        //         if (!category || !path || !tag1) return console.warn(`smartlist: line ${i} is not valid`)
+                        //         configArray.push({ category, path, tag1, tag2, tag3 })
+                        // }
+                        // looks like #STRINGTOSEARCH | /path/to/search
+                        if (el.indexOf("|") > -1) {
+                                let [tag1, path] = el.split("|")
+                                tag1 = tag1?.trim()
+                                path = path?.trim()
+                                if (!tag1 || !path) return console.warn(`smartlist: line ${i} is not valid`)
+                                configArray.push({ tag1, path })
+                        }
+                })
+                // return {terms, paths}
+                // console.log('configArray:', configArray, innerTagStr)
+                return configArray
+        }
+        
 
-        const startMainLogic = () => {
+        const listenToInputChanges = (configArray) => {
+                // if input term or path changes, update the configArray and trigger rerender
+                const searchInput = document.getElementById("smart-list-ctag-search")
+                const pathInput = document.getElementById("smart-list-ctag-path")
+                // if button pressed
+                const searchBtn = document.getElementById("smart-list-ctag-search-btn")
+                searchBtn.addEventListener("click", e => {
+                        const term = searchInput.value
+                        const path = pathInput.value
+                        configArray[0].tag1 = term
+                        configArray[0].path = path
+                        searchAndDisplay(configArray)
+                })
+                
+        }
+
+        const searchAndDisplay = (configArray) => {
+                const wrapperEl = document.getElementById("smart-list-ctag-inner")
+                // update inputs with the first configArray
+                console.log('configArray:', configArray[0])
+                document.getElementById("smart-list-ctag-search").value = configArray[0].tag1
+                document.getElementById("smart-list-ctag-path").value = configArray[0].path
+                wrapperEl.innerHTML = "Loading..."
                 const api = window.api;
-
+                
                 const searchWord = (word, path, cb) => {
                         api.call("search.word", [word, path], content => {
                                         cb(content)
                         })
                 }
 
-                // split EDF TODO | # | /etc/blabla
-                        // INVEST | # | /etc/blabla in a config array of objects with category, searchTag and path
-                let configArray = []
-                let hasTag2 = false
-                let hasTag3 = false
-                innerTagStr.split("\n").forEach((el, i) => {
-                        if (el.indexOf("|") > -1) {
-                                arr = el.split("|")
-                                let [category, path, tag1, tag2, tag3] = el.split("|")
-                                category = category.trim()
-                                path = path.trim()
-                                tag1 = tag1.trim()
-                                if (tag2){ tag2 = tag2.trim() || null; hasTag2 = true }
-                                if (tag3) {tag3 = tag3.trim() || null; hasTag3 = true}
-                                if (!category || !path || !tag1) return console.warn(`smartlist: line ${i} is not valid`)
-                                configArray.push({ category, path, tag1, tag2, tag3 })
-                        }
-                })
+                
                 // document.getElementById("smart-list-ctag").innerHTML = JSON.stringify(configArray)
                 // for each config, create a div with a title and a list
                 let items = []
@@ -82,7 +119,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         })
                 })
                         
-                const wrapperEl = document.getElementById("smart-list-ctag-inner")
+                
                 // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                 const config = {
                         cols: [
@@ -91,8 +128,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                
                         ]
                 };
-                if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
+                // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
+                // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
                 // {colId: "filename", headerLabel: "Filename"},
                 // {colId: "folder", headerLabel: "Folder"},
                 config.cols.push({colId: "filename", headerLabel: "Filename"})
@@ -121,8 +158,6 @@ const smartlistApp = (innerTagStr, opts) => {
                 ]})
 
                 wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
-
-
         }
     
         setTimeout(() => {
@@ -136,7 +171,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                         `${opts.plugins_root_url}/_common/components/table.component.js`
 				],
 				() => {
-                                        startMainLogic()
+                                        const configArray = readConfigString(innerTagStr)
+                                        console.log('configArr:', configArray)
+                                        listenToInputChanges(configArray)
+                                        searchAndDisplay(configArray)
 				}
 			);
 		}, 100)
@@ -145,6 +183,11 @@ const smartlistApp = (innerTagStr, opts) => {
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="smart-list-ctag"> 
+                <div class="table-buttons-wrapper">
+                        <input type="text" id="smart-list-ctag-search" placeholder="Search term"/>
+                        <input type="text" id="smart-list-ctag-path" placeholder="Folder path"/>
+                        <button id="smart-list-ctag-search-btn">🔍</button>
+                </div>
                 <div id="smart-list-ctag-inner"> 
                 
                 </div>
@@ -152,7 +195,22 @@ const smartlistApp = (innerTagStr, opts) => {
         </div>
 
         <style>
-                #smart-list-ctag { }
+                .table-buttons-wrapper {
+                        position: absolute;
+                        right: 12px;
+                        top: 35px;
+                }
+                .table-buttons-wrapper input {
+                        margin-right: 10px;
+                        background-color: #fff;
+                        border: none;
+                        box-shadow: 0 0 0 1px #ccc;
+                        border-radius: 3px;
+                        padding: 4px;
+                }
+                #smart-list-ctag {
+                        margin-top:20px;
+                 }
                 #smart-list-ctag table { 
                         min-width: 660px;
                 }

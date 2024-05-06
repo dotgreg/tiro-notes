@@ -45,7 +45,8 @@ const detachWinFn = (el) => {
                 layout: "full-bottom",
                 ctagConfig: {
                     tagName: "smartlist",
-                    content: `- | ${folder} | ${hashtag}`,
+                    content: `${hashtag} | ${folder}`,
+                    // content: `- | / | ${hashtag}`,
                 },
             })
         // })
