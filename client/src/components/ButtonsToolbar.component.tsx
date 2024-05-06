@@ -107,6 +107,7 @@ export const ToolbarButton = (p: iToolbarButton) => {
 
 
 export const ButtonsToolbarCss = () => `
+	
     ul.buttons-toolbar-component {
         list-style: none;
         padding: 0px;
