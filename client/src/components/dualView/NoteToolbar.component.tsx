@@ -155,6 +155,10 @@ export const NoteToolsPopup = (p: {
 
 
 export const mobileNoteToolbarCss = () => `
+.view-preview .buttons-toolbar-component.mobile-text-manip-toolbar {
+  display: none;
+}
+
 .mobile-text-manip-toolbar-wrapper {
   z-index:1;
   

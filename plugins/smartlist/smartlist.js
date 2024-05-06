@@ -60,6 +60,8 @@ const smartlistApp = (innerTagStr, opts) => {
                 })
                 // return {terms, paths}
                 // console.log('configArray:', configArray, innerTagStr)
+                // if configArr length is 0
+                if (configArray.length === 0)configArray  = [{}]
                 return configArray
         }
         
@@ -69,6 +71,13 @@ const smartlistApp = (innerTagStr, opts) => {
                 const searchInput = document.getElementById("smart-list-ctag-search")
                 const pathInput = document.getElementById("smart-list-ctag-path")
                 // if button pressed
+
+                // restore last search term and path from localStorage
+                const lastTag1 = localStorage.getItem("smartlist-ctag-tag1")
+                const lastPath = localStorage.getItem("smartlist-ctag-path")
+                if (lastTag1 && lastTag1 !== 'undefined') searchInput.value = lastTag1
+                if (lastPath && lastTag1 !== 'undefined') pathInput.value = lastPath
+
                 const searchBtn = document.getElementById("smart-list-ctag-search-btn")
                 searchBtn.addEventListener("click", e => {
                         const term = searchInput.value
@@ -77,15 +86,22 @@ const smartlistApp = (innerTagStr, opts) => {
                         configArray[0].path = path
                         searchAndDisplay(configArray)
                 })
-                
         }
 
         const searchAndDisplay = (configArray) => {
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
                 console.log('configArray:', configArray[0])
-                document.getElementById("smart-list-ctag-search").value = configArray[0].tag1
-                document.getElementById("smart-list-ctag-path").value = configArray[0].path
+                if(configArray[0].tag1) document.getElementById("smart-list-ctag-search").value = configArray[0].tag1
+                if(configArray[0].tag1) localStorage.setItem("smartlist-ctag-tag1", configArray[0].tag1)
+                if(configArray[0].path) document.getElementById("smart-list-ctag-path").value = configArray[0].path
+                if(configArray[0].path) localStorage.setItem("smartlist-ctag-path", configArray[0].path)
+                
+                // save configArray[0].tag1 and configArray[0].path to localStorage
+                // localStorage.setItem("smartlist-ctag-tag1", configArray[0].tag1)
+                // localStorage.setItem("smartlist-ctag-path", configArray[0].path)
+
+
                 wrapperEl.innerHTML = "Loading..."
                 const api = window.api;
                 
@@ -197,7 +213,7 @@ const smartlistApp = (innerTagStr, opts) => {
         <style>
                 .table-buttons-wrapper {
                         position: absolute;
-                        right: 12px;
+                        right: 42px;
                         top: 35px;
                 }
                 .table-buttons-wrapper input {
