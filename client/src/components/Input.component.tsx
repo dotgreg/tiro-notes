@@ -5,7 +5,7 @@ import React, { useEffect, useRef } from 'react';
 import { getFontSize } from '../managers/font.manager';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
-export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea'
+export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea' | 'date'
 
 
 export const Input = (p: {
