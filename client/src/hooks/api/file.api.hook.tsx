@@ -17,7 +17,7 @@ import { addBackMetaToContent, metasObjToHeaderString } from '../../managers/hea
 // INTERFACES
 //
 
-
+export type iInsertMethod = "prepend" | "append"
 export type iGetFilesCb = (files: iFile[]) => void
 
 export interface iFileApi {
@@ -31,6 +31,15 @@ export interface iFileApi {
 		options?: {
 			onError?: Function
 		}
+	) => void
+	insertContent: (
+		noteLink: string,
+		content: string,
+		options?: {
+			insertMethod?: iInsertMethod,
+			onError?: Function
+		},
+		cb?: (res:any) => void,
 	) => void
 	saveContent: (
 		noteLink: string, 
@@ -221,6 +230,29 @@ export const useFileApi = (p: {
 		}
 	}
 
+	const insertContent: iFileApi['insertContent'] = (noteLink, content,  options, cb) => {
+		const method = (options && options.insertMethod) ? options.insertMethod : "prepend"
+		const insertLogic = (currContent) => {
+			let newContent = ""
+			if (method === "prepend") newContent = content + currContent
+			else newContent = currContent + content
+			saveFileContent(noteLink, newContent, {}, (res) => {
+				cb && cb(res)
+			})
+		}
+		getFileContent(noteLink, (currentContent) => {
+			insertLogic(currentContent)
+		}, {
+			onError: (err) => {
+				// console.error("Error while inserting content", err)
+				// options?.onError && options.onError(err)
+				console.log("file does not exists, creating it")
+				insertLogic("")
+			}
+		})
+
+	}
+
 
 
 
@@ -270,6 +302,7 @@ export const useFileApi = (p: {
 	const fileApi: iFileApi = {
 		getContent: getFileContent,
 		saveContent: saveFileContent,
+		insertContent: insertContent,
 		delete: deleteFile,
 		move: moveApi.file,
 		create: createFile,
