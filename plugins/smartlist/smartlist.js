@@ -165,7 +165,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                 ],
                                 gridView: false,
                                 exportToGraph: els => {
-                                        console.log(11111111, els)
                                         // transform els in csv
                                         let csvString = ""
                                         // header
