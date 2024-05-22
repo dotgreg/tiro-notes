@@ -196,7 +196,13 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
         const openFloating = (panel) => {
             console.log(`${h} createPanel`, panel)
-            // if panel with same id exists, delete it
+            // if panel with same id exists, get its position and size, then delete it
+            let oldPanelPosition = panelsRef.current.find(p => p.id === panel.id)
+            if (oldPanelPosition) {
+                panel.position = oldPanelPosition.position
+                panel.size = oldPanelPosition.size
+                deletePanel(panel.id)
+            }
             let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
             nPanels.push(panel)
             setPanels(nPanels)
