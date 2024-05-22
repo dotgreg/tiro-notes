@@ -130,7 +130,10 @@ export const FloatingPanel = (p:{
 
 
     const getNPos = (e:any, data:any, init:boolean=false) => {
+        // if touch event, get first touch
+        if (e.touches) e = e.touches[0]
         let npos = {x: e.clientX, y: e.clientY}
+
         if (init) decalRef.current = {x: npos.x - currPos.x, y: npos.y - currPos.y}
         npos = {x: npos.x - decalRef.current.x, y: npos.y - decalRef.current.y}
         setCurrPos(npos)
@@ -151,7 +154,6 @@ export const FloatingPanel = (p:{
         // const npos = {x: e.clientX, y: e.clientY}
         // get handle position
         // const handlePos = e.target.closest(".handle")
-        // console.log("drag", data.x, data.y, data, e, handlePos)
         updatePanel({...p.panel, position: getNPos(e, data)})
     }
     const handleStop = (e: any, data: any) => {
