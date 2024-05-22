@@ -282,12 +282,19 @@ export const ContentBlockTagView = (p: {
 		const iframeHtml = generateIframeHtml(formatedNoteTagContent)
 		//iframeHtml.innerTag
 		let fullHtml = `
-				<div class="simple-css-wrapper">
-				${iframeHtml}
-				</div>
-				<style>
-				${previewAreaSimpleCss()}
-				</style>
+			<html>
+				<head>
+					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				</head>
+				<body>
+					<div class="simple-css-wrapper">
+					${iframeHtml}
+					</div>
+					<style>
+					${previewAreaSimpleCss()}
+					</style>
+				</body>
+			</html>
 				`
 		fullHtml = replaceAll(fullHtml, [['{{innerTag}}', p.block.content.trim()]])
 
@@ -405,6 +412,8 @@ export const ContentBlockTagView = (p: {
 						data-testid="iframe"
 						title={iframeId}
 						srcDoc={htmlContent}
+						// add header media query
+
 						className="tag-iframe"
 						style={{ height: iframeHeight }}
 						sandbox={p.ctagSandboxed ? "allow-scripts allow-same-origin allow-popups" : undefined} // allow-same-origin required for ext js caching

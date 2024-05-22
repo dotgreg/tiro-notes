@@ -246,7 +246,7 @@ const smartlistApp = (innerTagStr, opts) => {
 				],
 				() => {
                                         const configArray = readConfigString(innerTagStr)
-                                        console.log('configArr:', configArray)
+                                        // console.log('configArr:', configArray)
                                         listenToInputChanges(configArray)
                                         if (configArray[0].tag1 && configArray[0].path) {
                                                 searchAndDisplay(configArray)
@@ -278,6 +278,13 @@ const smartlistApp = (innerTagStr, opts) => {
                         position: absolute;
                         right: 42px;
                         top: 15px;
+                }
+                
+                @media screen and (max-width: 600px) {
+                        .table-buttons-wrapper {
+                                position: inherit;
+                                margin: 20px 20px 0px 20px;
+                        }
                 }
                 .table-buttons-wrapper input {
                         margin-right: 10px;
