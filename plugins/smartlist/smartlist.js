@@ -189,9 +189,9 @@ const smartlistApp = (innerTagStr, opts) => {
                                         const configFloatingWindow = {
                                                 type: "ctag",
                                                 layout: "top-right",
+                                                id: "smartlist-datatable",
                                                 ctagConfig: {
                                                         tagName: "datatable",
-                                                        id: "smartlist-datatable",
                                                         content: `${csvString}`,
                                                 },
                                         }

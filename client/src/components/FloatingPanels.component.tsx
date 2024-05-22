@@ -106,12 +106,16 @@ export const FloatingPanel = (p:{
     const [showDragOverlay, setShowDragOverlay] = useState<boolean>(false)
     const onDragStart = () => {
         pushToTop()
+        setIsDragging(true)
         
         setShowDragOverlay(true)
         p.onPanelDragStart()
     }
+    const [isDragging, setIsDragging] = useState<boolean>(false)
     const onDragEnd = () => {
         setShowDragOverlay(false)
+        setIsDragging(false)
+        
         p.onPanelDragEnd()
     }
 
@@ -137,7 +141,7 @@ export const FloatingPanel = (p:{
         updatePanel({...p.panel, position: getNPos(e, data, true)})
         // setPosition({x: data.x, y: data.y})
         // pushToTop()
-        // onDragStart()
+        onDragStart()
         
     }
     const handleDrag = (e: any, data: any) => {
@@ -158,12 +162,36 @@ export const FloatingPanel = (p:{
         // if(!useMousePos) npos = {x: data.x, y: data.y}
         updatePanel({...p.panel, position: getNPos(e, data)})
     }
+    const lastPosBeforeResize = useRef({x:-1, y:-1})  
     const handleResize = (e: any, direction: any, ref: any, d: any) => {
         // setSize({width: ref.offsetWidth, height: ref.offsetHeight})
-        updatePanel({...p.panel, size: {width: ref.offsetWidth, height: ref.offsetHeight}})
+        if (lastPosBeforeResize.current.x === -1) {
+            lastPosBeforeResize.current = {x: currPos.x, y: currPos.y}
+        }
+        // console.log(direction,  d, ref.offsetWidth, ref.offsetHeight)
+        if (direction === "top" || direction === "left") {
+            updatePanel({...p.panel, position: {x: lastPosBeforeResize.current.x - d.width, y: lastPosBeforeResize.current.y - d.height}, size: {width: ref.offsetWidth, height: ref.offsetHeight}})
+        } else {
+            updatePanel({...p.panel, size: {width: ref.offsetWidth, height: ref.offsetHeight}})
+        }
+        
         onDragStart()
         endResizeDebounce()
     }
+    // listen to mouse down and up
+    // on mouse down, set dragging to true
+    useEffect(() => {
+        const onMouseDown = (e:any) => {
+        }
+        const onMouseUp = (e:any) => {
+            lastPosBeforeResize.current = {x: -1, y: -1}
+        }
+        document.addEventListener("mouseup", onMouseUp)
+        return () => {
+            document.removeEventListener("mouseup", onMouseUp)
+        }
+    }
+    ,[])
 
     const onLayoutUpdate:iLayoutUpdateFn = (action,data) => {
         if (action !== "windowViewChange" || !data?.view) return
