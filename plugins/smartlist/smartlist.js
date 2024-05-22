@@ -119,67 +119,120 @@ const smartlistApp = (innerTagStr, opts) => {
                 // document.getElementById("smart-list-ctag").innerHTML = JSON.stringify(configArray)
                 // for each config, create a div with a title and a list
                 let items = []
+                let customColLength = 0
+
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
-                                                let words = result.split(" ")
+                                                // let words = result.split(" ")
                                                 // if word start by either tag1, 2 or 3, add tag1,2,3 to the object
-                                                let [tag1, tag2, tag3] = [null, null, null]
-                                                each(words, word => {
-                                                        if (word.startsWith(el.tag1)) tag1 = word
-                                                        if (word.startsWith(el.tag2)) tag2 = word
-                                                        if (word.startsWith(el.tag3)) tag3 = word
-                                                })
+                                                // let [tag1, tag2, tag3] = [null, null, null]
+                                                // each(words, word => {
+                                                //         if (word.startsWith(el.tag1)) tag1 = word
+                                                //         if (word.startsWith(el.tag2)) tag2 = word
+                                                //         if (word.startsWith(el.tag3)) tag3 = word
+                                                // })
                                                 // timestamp to 2017-06-01 12:00
+                                                // if result has |, split it and add it to the object as col1, col2, col3 etc...
+                                                let finalObj = { filename: file.name, folder: file.folder, line:result }
+                                                if (result.indexOf("|") > -1) {
+                                                        let [line, ...cols] = result.split("|")
+                                                        let i = 0
+                                                        each(cols, (col) => {
+                                                                i++
+                                                                finalObj[`col${i}`] = col.trim()
+                                                                if (customColLength < i) customColLength = i
+                                                        })
+                                                }
                                                 let created = new Date(file.created).toISOString().split("T")[0]
-                                                items.push({ filename: file.name, created, folder: file.folder, line:result, tag1, tag2, tag3 })
+                                                finalObj.created = created
+                                                items.push(finalObj)
                                         })
                                 })
+                                loadTable()
                         })
                 })
                         
-                
-                // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
-                const config = {
-                        cols: [
-                                {colId: "line", headerLabel: "Line"},
-                                {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
-                               
-                        ]
-                };
-                // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
-                // {colId: "filename", headerLabel: "Filename"},
-                // {colId: "folder", headerLabel: "Folder"},
-                config.cols.push({colId: "filename", headerLabel: "Filename"})
-                config.cols.push({colId: "created", headerLabel: "Created"})
-                config.cols.push({colId: "folder", headerLabel: "Folder"})
-                config.cols.push({colId: "actions", type: "buttons", buttons:[
-                        {
-                          label: "", 
-                          icon: "eye", 
-                          onClick: (items,e) => {
-                                console.log('onClick:', items,e)
-                                if (items.length !== 1) return console.warn("no item selected")
-                                let item = items[0]
-                                console.log('onClick:', item,e);
-                                let pos = ["50%" ,"50%"]
-                                filePath = item.folder + item.filename
-                                api.call("ui.notePreviewPopup.open", [filePath, ["50%" ,"50%"], { searchedString:item.line, replacementString:`wooop`}])
-                        
-                          },
-                          onMouseEnter: (item,e) => {
-                                // console.log('onMouseEnter:', item,e);
-                          },
-                          onMouseLeave: (item,e) => {
-                                // console.log('onMouseLeave:', item,e);
-                          }
-                        },
-                ]})
+                const loadTable = () => {
+                        // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
+                        const config = {
+                                cols: [
+                                        {colId: "line", headerLabel: "Line"},
+                                        // {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
+                                
+                                ],
+                                gridView: false,
+                                exportToGraph: els => {
+                                        console.log(11111111, els)
+                                        // transform els in csv
+                                        let csvString = ""
+                                        // header
+                                        let header = ""
+                                        each(els[0], (val, key) => {
+                                                header += `${key} , `
+                                        })
+                                        csvString += header + "\n"
+                                        each(els, (el, i) => {
+                                                let line = ""
+                                                each(el, (val, key) => {
+                                                        // if there is 2 / in val, it is a date
+                                                        if (val.split("/").length === 3) {
+                                                                let [day, month, year] = val.split("/")
+                                                                val = `${month}-${day}-${year}` 
+                                                        }
+                                                        line += `${val} , `
+                                                })
+                                                csvString += line + "\n"
+                                        })
+                                        const configFloatingWindow = {
+                                                type: "ctag",
+                                                layout: "top-right",
+                                                ctagConfig: {
+                                                        tagName: "datatable",
+                                                        id: "smartlist-datatable",
+                                                        content: `${csvString}`,
+                                                },
+                                        }
+                                        api.call("ui.floatingPanel.create", [configFloatingWindow])
+                                }
+                        };
+                        for (let i = 1; i <= customColLength; ++i) {
+                                config.cols.push({colId: `col${i}`, headerLabel: `Col${i}`})
+                        }
+                        // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
+                        // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
+                        // {colId: "filename", headerLabel: "Filename"},
+                        // {colId: "folder", headerLabel: "Folder"},
+                        config.cols.push({colId: "filename", headerLabel: "Filename"})
+                        config.cols.push({colId: "created", headerLabel: "Created"})
+                        config.cols.push({colId: "folder", headerLabel: "Folder"})
+                        config.cols.push({colId: "actions", type: "buttons", buttons:[
+                                {
+                                label: "", 
+                                icon: "eye", 
+                                onClick: (items,e) => {
+                                        console.log('onClick:', items,e)
+                                        if (items.length !== 1) return console.warn("no item selected")
+                                        let item = items[0]
+                                        console.log('onClick:', item,e);
+                                        let pos = ["50%" ,"50%"]
+                                        filePath = item.folder + item.filename
+                                        api.call("ui.notePreviewPopup.open", [filePath, ["50%" ,"50%"], { searchedString:item.line, replacementString:`wooop`}])
+                                
+                                },
+                                onMouseEnter: (item,e) => {
+                                        // console.log('onMouseEnter:', item,e);
+                                },
+                                onMouseLeave: (item,e) => {
+                                        // console.log('onMouseLeave:', item,e);
+                                }
+                                },
+                        ]})
 
-                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
+                        wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
+                }
         }
     
         setTimeout(() => {
@@ -225,7 +278,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 .table-buttons-wrapper {
                         position: absolute;
                         right: 42px;
-                        top: 35px;
+                        top: 15px;
                 }
                 .table-buttons-wrapper input {
                         margin-right: 10px;
@@ -236,7 +289,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         padding: 4px;
                 }
                 #smart-list-ctag {
-                        margin-top:20px;
+                        margin-top:0px;
                         margin-bottom:40px;
                  }
                 #smart-list-ctag table { 

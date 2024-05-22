@@ -32,9 +32,15 @@ export const markdownStylingTableCell = (file: iFile, windowId:string) =>  gener
 	windowId,
 	pattern: regexs.mdTableCell,
 	classWrap: matchs => {
-		let m = matchs[0]
+		// console.log(matchs)
+		let m = matchs[0].trim()
 		if (m && m === "-") { return "" }
 		if (m && m === "-|") { return "" }
+		// if m contains [ or ] return ""
+		if (m && m.includes("[") || m.includes("]")) { return "" }
+		// if m starts with - return ""
+		// if (m && m.startsWith("-")) { return "" }
+		if (m && !m.includes("|")) { return "" }
 		return `md-table-cell`
 	}
 })
@@ -63,8 +69,16 @@ export const markdownStylingTable = (file: iFile, windowId:string) => genericRep
 	pattern: regexs.mdTableLine,
 	classWrap: matchs => {
 		let line = matchs[0].trim()
+		// if m contains [ or ] return ""
+		if (line && line.includes("[") || line.includes("]")) { return "" }
+		// if line starts with - return ""
+		if (line && line.startsWith("-")) { return "" }
+
+
 		if (line.startsWith("|")) line = line.substring(1)
 		if (line.endsWith("|")) line = line.substring(0, line.length - 1)
+
+		// console.log(line, matchs)
 
 		let nbCells = line.split("|").length
 		even.val = !even.val

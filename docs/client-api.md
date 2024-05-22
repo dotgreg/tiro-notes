@@ -349,6 +349,18 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.getContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(noteContent: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">file.insertContent</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. noteLink: <span class="render-code-wrapper">string</span>
+       1. content: <span class="render-code-wrapper">string</span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.insertContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">file.saveContent</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -517,6 +529,14 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.confirm",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>, <span class="render-code-wrapper"><a href="#client-api?id=popupoptions">popupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">popup.form</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. p: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.prompt</span>
@@ -1232,6 +1252,12 @@ Watch for file changes
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">[]</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">iInsertMethod</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"prepend" | "append"</span></div>
+ 
+
 #### <span class="render-code-wrapper">iFilePreview</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
@@ -1278,6 +1304,24 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;cssStr?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">InputType</span>
+ - Type: <span class="render-code-wrapper">union</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"password" | "text" | "select" | "number" | "checkbox" | "textarea" | "date"</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPopupFormField</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPopupFormConfig</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">() => </span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iImageCompressionParams</span>

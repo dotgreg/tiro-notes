@@ -198,7 +198,6 @@ export const useTabs = () => {
 					each(cTab.grid.content, cWindow => {
 						cWindow.active = cWindow.i === newVal
 					})
-					console.log(cTab.grid.content)
 				}
 			})
 			const nTabs2 = refreshTabsViews(nTabs)
