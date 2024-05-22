@@ -168,20 +168,20 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [searchTerm, setSearchTermInt] = r.useState("");
   const setSearchTerm = (term) => {
     setSearchTermInt(term)
-    localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
+    // localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
   }
   r.useEffect(() => {
-    let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
-    if (term) setSearchTermInt(term);
+    // let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
+    // if (term) setSearchTermInt(term);
   }, []);
   const [view, setViewInt] = r.useState("table");
   const setView = (term) => {
     setViewInt(term)
-    localStorage.setItem(`${id}-view`, JSON.stringify(term));
+    // localStorage.setItem(`${id}-view`, JSON.stringify(term));
   }
   r.useEffect(() => {
-    let term = JSON.parse(localStorage.getItem(`${id}-view`));
-    if (term) setViewInt(term);
+    // let term = JSON.parse(localStorage.getItem(`${id}-view`));
+    // if (term) setViewInt(term);
   }, []);
 
 
@@ -192,11 +192,27 @@ const TableComponentReactInt = ({ items, config, id }) => {
       sortableItems.sort((a, b) => {
         if (a[sortConfig.key] === null) a[sortConfig.key] = " ";
         if (b[sortConfig.key] === null) b[sortConfig.key] = " ";
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
+        // if a[sortConfig.key] and b[sortConfig.key] are dates, convert them to date objects and sort them using timestamp
+        // count / in a[sortConfig.key], if 2, it is a date
+        if (a[sortConfig.key].split("/").length === 3) {
+          // date format is dd/mm/yyyy, convert it to mm/dd/yyyy
+          let dateA = a[sortConfig.key].split("/").reverse().join("/");
+          let dateB = b[sortConfig.key].split("/").reverse().join("/");
+          if (new Date(dateA) < new Date(dateB)) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (new Date(dateA) > new Date(dateB)) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
+          
+        } else {
+
+          if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (a[sortConfig.key] > b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
         }
         return 0;
       });
@@ -394,14 +410,15 @@ const TableComponentReactInt = ({ items, config, id }) => {
               if (config.gridView.onClick) config.gridView.onClick(item, e)
             }
           }, [
-          c('div', { className: "grid-item-image" }, [
-            config.gridView.image(item)?.html ? 
-              c('div', {dangerouslySetInnerHTML:{__html: config.gridView.image(item).html}}) :
-              c('img', { src: config.gridView.image(item), alt: config.gridView.image(item) })
-          ]),
-          c('div', { className: `grid-item-name ${config.gridView.hideLabel(item) ? "hide-label": ""}` }, [
-            c('div', {className: "grid-item-name-text"}, [config.gridView.label(item)])
-          ]),
+            config.gridView?.image && config.gridView?.hideLabel && config.gridView?.label &&
+            c('div', { className: "grid-item-image" }, [
+              config.gridView?.image(item)?.html ? 
+                c('div', {dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
+                c('img', { src: config.gridView?.image(item), alt: config.gridView?.image(item) })
+            ]),
+            c('div', { className: `grid-item-name ${config.gridView?.hideLabel(item) ? "hide-label": ""}` }, [
+              c('div', {className: "grid-item-name-text"}, [config.gridView?.label(item)])
+            ]),
         ])
       )
     ])
@@ -411,10 +428,16 @@ const TableComponentReactInt = ({ items, config, id }) => {
     c('style', {}, [styleCss]),
 
     c('div', {className:"table-controls-wrapper"}, [ 
+      // filter button
       c('input', { type: 'text', value: searchTerm, placeholder:"Filter the table", onChange: e => setSearchTerm(e.target.value) }),
+      // toggle gridview button
       config?.gridView && c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
         view === "table" && c('div', {className:"fa fa-th-large"}),
         view !== "table" && c('div', {className:"fa fa-th"})
+      ]),
+      // export to graph button
+      config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)} }, [
+        c('div', {className:"fa fa-chart-line"})
       ]),
     ]),
     

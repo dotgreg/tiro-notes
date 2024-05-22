@@ -139,15 +139,10 @@ export const NotePreviewCss = () => `
 	&.preview {
 		padding: 15px ;
 	}
-	
-	// .editor-area {
-	// 	position: inherit!important;
-	// 	top: inherit;
-	// }
-		
+	 
 
 		${previewAreaCss()}
-		${codeMirrorEditorCss()}
+		${codeMirrorEditorCss({searchBottom: 0})}
 
 		.preview-area-wrapper {
 			height: calc(100% - 0px);
@@ -156,12 +151,9 @@ export const NotePreviewCss = () => `
 
 		.preview-area {
 			width: calc(100% + ${getOperatingSystem() === "mac" && "0px"});
-			// width: calc(100%);
-			// padding-left: 22px; // for left bar
-			// padding: 15px;
+			 
 		}
-
-		// .note-preview-wrapper .preview-area-wrapper
+ 
 		//
 		// PREVIEW
 		//
@@ -199,8 +191,20 @@ export const NotePreviewCss = () => `
 		.editor-area,
 		.codemirror-editor-wrapper {height: 100%}
 
-		.main-editor-wrapper {height: calc(100%)}
 
 
 }
+
+//
+// FLOATING PANEL SPECIFIC
+//
+.floating-panel-wrapper .main-editor-wrapper {height: calc(100% - 33px)}
+
+//
+// SIMPLE NOTE POPUP SPECIFIC
+//
+.page-link-preview-popup-ext .main-editor-wrapper {height: calc(100%)}
+
+
+
 `

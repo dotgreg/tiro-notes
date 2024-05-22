@@ -205,8 +205,9 @@ export const FloatingPanel = (p:{
 
     // const [fileView, setFileView] = useState<"editor"|"preview">("editor")
 
-    // const innerHeight = p.panel.size.height - 45
+    const topBarHeight = 30
     const innerHeight = p.panel.size.height
+    // const innerHeight = p.panel.size.height
 
     // const ctagConfig = p.panel.ctagConfig
     if (p.panel.ctagConfig) {
@@ -368,7 +369,10 @@ export const FloatingPanel = (p:{
                         
                             <div 
                                 className={`floating-panel__content content-type-${p.panel.type}`} 
-                                style={{height: innerHeight }} 
+                                style={{
+                                    height: p.panel.type === "ctag" ? innerHeight - topBarHeight : innerHeight,
+                                    top: p.panel.type === "ctag" ? topBarHeight : 0
+                                }} 
                                 onMouseDown={(e) => {
                                     pushToTop()
                                     // e.preventDefault()

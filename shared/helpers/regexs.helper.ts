@@ -40,7 +40,12 @@ export const regexs = {
 	mdTitle: /^([#]{1,9})\ (.+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ])+\|/gmi,
 	// mdTableCell: /(([^|])+\|/gmi,
-	mdTableCell: /((([^|\n])+\|)|(([^|\n])+))/gmi,
+	mdTableCell: /(((([^|\n])+\|)|(([^|\n])+)))/gmi,
+	// mdTableCell if does not starts by "-" and the line has several | 
+	// mdTableCell2: /(([^|\n])+\|)+/gmi,
+	// mdTableCell2: : VerEx().find('<').anythingBut('<>').then('>'),
+	// should not start by "-" and have several |
+	doesNotStartByDash: /^(?!\-)/,
 	hashtag: /#([A-zÀ-ú0-9_\-]+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+)/gmi,
 
