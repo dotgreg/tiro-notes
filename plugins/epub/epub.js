@@ -91,9 +91,12 @@ const epubApp = (innerTagStr, opts) => {
 			// find min max pages from array pages
 			let minPage = Math.min(...pagesLog.curr)
 			let maxPage = Math.max(...pagesLog.curr)
+			// min and max pages should be different and not equal to infinity
+			console.log(minPage, maxPage)
+			if (minPage === Infinity || minPage === maxPage || minPage === -Infinity || maxPage === -Infinity || maxPage === Infinity) return
 			const pagesTot = (maxPage - minPage) / 10
 			const pagesPerMin = Math.round((pagesTot / delayInMin)*10)/10
-			let pageStr = `${minPage} -> ${maxPage} | ${pagesPerMin} pages/min | ${pagesPerMin*60} pages/hour`
+			let pageStr = `${minPage} -> ${maxPage} | ~ ${pagesPerMin} real pages/min | ~ ${Math.round(pagesPerMin*60)} real ages/hour`
 			pagesLog.curr = []
 			console.log(h, "addToTimelineLogFile", pageStr)
 			addToTimelineLogFileInt(pageStr)
@@ -103,8 +106,9 @@ const epubApp = (innerTagStr, opts) => {
 
 		const addToTimelineLogFile = (page/*:string*/) => {
 			if (page === 0) return
-			pagesLog.curr.push(page)
-			console.log(h, "addToTimelineLogFile", pagesLog.curr)
+			// if page does not exist, add it
+			if (pagesLog.curr.includes(page) === false) pagesLog.curr.push(page)
+			// console.log(h, "addToTimelineLogFile", pagesLog.curr)
 			debounceIntLog()
 			throttleIntLog()
 		}
@@ -125,7 +129,7 @@ const epubApp = (innerTagStr, opts) => {
 				// from 2pm to 3pm
 				const startHourMin = new Date().getHours() + ":" + new Date().getMinutes()
 				
-				const newContent = `${dateStr} | ${startHourMin} | ${logString} | ${debounceMins } mins`
+				const newContent = `${dateStr} | ${startHourMin} | ${logString} | ${delayInMin} mins`
 		
 				let finalContent = newContent + "\n" + content
 				// for performance reasons, only keep first 500 lines
@@ -371,12 +375,12 @@ const epubApp = (innerTagStr, opts) => {
 
 
 				const resizeFullHeight = () => {
-						let cHeight = document.body.clientHeight
+						let cHeight = document.body.clientHeight - 55
 						// let cWidth = document.body.clientWidth - 50
 						let cWidth = "100%"
 						// let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
 						let nHeight = cHeight > 500 ? cHeight - 50 : cHeight - 120
-						if (isMobile())  nHeight -= 40 
+						if (isMobile())  nHeight -= 20 
 						// let nHeight = cHeight
 						// let nHeight = cHeight * 0.70
 						

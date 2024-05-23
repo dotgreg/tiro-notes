@@ -165,16 +165,19 @@ export const FloatingPanel = (p:{
         updatePanel({...p.panel, position: getNPos(e, data)})
     }
     const lastPosBeforeResize = useRef({x:-1, y:-1})  
+    const widthUpdateIfOnlyHeight = useRef<number>(-1)
     const handleResize = (e: any, direction: any, ref: any, d: any) => {
         // setSize({width: ref.offsetWidth, height: ref.offsetHeight})
         if (lastPosBeforeResize.current.x === -1) {
             lastPosBeforeResize.current = {x: currPos.x, y: currPos.y}
         }
         // console.log(direction,  d, ref.offsetWidth, ref.offsetHeight)
+        widthUpdateIfOnlyHeight.current = -widthUpdateIfOnlyHeight.current
         if (direction === "top" || direction === "left") {
-            updatePanel({...p.panel, position: {x: lastPosBeforeResize.current.x - d.width, y: lastPosBeforeResize.current.y - d.height}, size: {width: ref.offsetWidth, height: ref.offsetHeight}})
+            updatePanel({...p.panel, position: {x: lastPosBeforeResize.current.x - d.width, y: lastPosBeforeResize.current.y - d.height}, size: {width: ref.offsetWidth + widthUpdateIfOnlyHeight.current, height: ref.offsetHeight}})
         } else {
-            updatePanel({...p.panel, size: {width: ref.offsetWidth, height: ref.offsetHeight}})
+            
+            updatePanel({...p.panel, size: {width: ref.offsetWidth + widthUpdateIfOnlyHeight.current, height: ref.offsetHeight }})
         }
         
         onDragStart()

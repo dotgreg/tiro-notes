@@ -260,6 +260,7 @@ export const iframeMainCode = (p: {
 		let nval = `100%`
 		// nval = lastResizeIframeHeight.value
 		// console.log(h, 'resize', nval)
+		// console.log(h, 'resize', nval)
 		resizeIframe(nval)
 	})
 
