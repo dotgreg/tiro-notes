@@ -373,6 +373,30 @@ export const ContentBlockTagView = (p: {
 
 	let refocusId = generateUUID()
 
+	// on iframe-view-wrapper resize, resize iframe
+	// const iframeWrapperRef = useRef<HTMLDivElement>(null)
+	// useEffect(() => {
+	// 	const resizeHandler = () => {
+	// 		console.log("RESIZE")
+	// 		if (!iframeRef.current) return
+	// 		iframeParentManager.send(iframeRef.current, {
+	// 			action: 'resize'
+	// 			data: {
+	// 				height: '100%'
+	// 			}
+	// 		})
+	// 	}
+	// 	console.log(123, iframeWrapperRef.current)
+	// 	setTimeout(() => {
+	// 		console.log(123, iframeWrapperRef.current)
+	// 		iframeWrapperRef.current?.addEventListener('resize', resizeHandler)
+	// 	}, 1000)
+	// 	iframeWrapperRef.current?.addEventListener('resize', resizeHandler)
+	// 	return () => {
+	// 		iframeWrapperRef.current?.removeEventListener('resize', resizeHandler)
+	// 	}
+	// },[])
+
 	return (
 		<>
 			{
@@ -381,7 +405,10 @@ export const ContentBlockTagView = (p: {
 					onClick={e => { fullscreenClose() }}
 				></div>
 			}
-			<div className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} >
+			<div 
+			// ref={iframeWrapperRef}
+			
+			className={`iframe-view-wrapper ${canShow ? 'can-show' : 'hide'} iframe-tag-${p.block.tagName} ${isPinned ? 'pinned' : 'not-pinned'} ${isPinnedFullscreen ? 'pinned fullscreen' : 'not-fullscreen'}  ${isMobile() ? 'mobile' : ''}`} >
 
 				{/* <div className="ctag-menu" >
 					<div className="ctag-ellipsis" >
@@ -470,6 +497,7 @@ export const contentBlockCss = () => `
 		z-index:101;
 }
 .iframe-view-wrapper {
+	height: 100%;
 		&.pinned {
 				position: fixed;
 				transform: rotate(360deg);
@@ -549,7 +577,6 @@ export const contentBlockCss = () => `
 		}
 
 		iframe {
-				// transition: 0.3s all;
 				width: calc(100% );
 				border: none;
 				border-radius: 5px;

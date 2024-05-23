@@ -14,8 +14,8 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         // let dfd = window.dfd
 
         const { div, updateContent } = api.utils.createDiv()
-        const outputPaths = {  }
-        
+        const outputPaths = {}
+
         ///////////////////////////////////////////////////////////
         // 
         // MAIN LOGIC
@@ -27,9 +27,9 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 const timerLib/*:iTimerLib*/ = window._tiroPluginsCommon.timerLib
                 // console.log(22222222222, window._tiroPluginsCommon)
                 const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
-                const {getOperatingSystem, each, onClick} = commonLib
+                const { getOperatingSystem, each, onClick } = commonLib
 
-                
+
                 const items/*:any[]*/ = []
                 ///////////////////////////////////////////////////////////////////
                 // SUPPORT FUNCTIONS
@@ -37,7 +37,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 const reloadGraph = (items/*:any[]*/, cb/*:Function*/) => {
                         let int = setInterval(() => {
                                 console.log("waiting for graph...")
-                                if(!graph.curr) return
+                                if (!graph.curr) return
                                 clearInterval(int)
                                 graph.curr?.loadItems(items, cb)
                         }, 200)
@@ -56,31 +56,31 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // gen items with random data with colrs "name", "surname", "age", "height", "weight"
                         const items = []
                         for (let i = 0; i < 100; ++i) {
-                                items.push({name:"name" + i, surname:"surname" + i, age:Math.random() * 100, height:Math.random() * 100, weight:Math.random() * 100})
+                                items.push({ name: "name" + i, surname: "surname" + i, age: Math.random() * 100, height: Math.random() * 100, weight: Math.random() * 100 })
                         }
                         reloadGraph(items)
                 }
-                
+
                 const defaultViewConfigs = {
-                        "📊 month" : `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 month2" : `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 week" : `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 today" : `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 grid" : `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 month": `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 month2": `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 week": `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 today": `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 grid": `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
                 }
                 // switch from defaultViewConfigs as obj to an array of obj like {name:..., config:...}
-                const defaultViewConfigsArr = Object.keys(defaultViewConfigs).map(name => ({name, config:defaultViewConfigs[name]}))
+                const defaultViewConfigsArr = Object.keys(defaultViewConfigs).map(name => ({ name, config: defaultViewConfigs[name] }))
 
                 const genGraph = (arrItems/*:iGraphPerspectiveParams["items"]*/, cb/*:iGraphPerspectiveParams["cb"]*/) => {
                         // const wrapperEl/*:any*/ = document.getElementById("timer-ctag-inner")
                         const wrapperPlotEl/*:any*/ = document.getElementById("plot_div")
                         const paramsGraph/*:iGraphPerspectiveParams*/ = {
-                                items:arrItems, 
-                                parentVars: {opts},
+                                items: arrItems,
+                                parentVars: { opts },
                                 defaultViews: defaultViewConfigsArr,
                                 cb: cb
                         }
-                        wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genGraphPerspectiveComponent(paramsGraph) 
+                        wrapperPlotEl.innerHTML = window._tiroPluginsCommon.genGraphPerspectiveComponent(paramsGraph)
                 }
 
                 // autocomplete 
@@ -95,15 +95,15 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 //         // on click of each of these els => // addTime, removeTime, startTimer
                 //         onClick(["addTime", "removeTime", "startTimer"], (e, el) => {
                 //                 const action = el.id
-                                
+
                 //                 if (action === "addTime") {
-                                        
+
                 //                 } else if (action === "removeTime") {
 
                 //                 } else if (action === "startTimer") {
                 //                         timerLib.logTimer(api, items, getForm().autoComplete, parseInt(getForm().timeSelect))
                 //                 }
-                                
+
                 //                 console.log(action, getForm())
                 //         })
 
@@ -118,7 +118,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 //                         // changeViewGraph("heatmapMonth") 
                 //                 })
                 //         })
-                        
+
                 //         // autocomplete
                 //         const autocompleteInput = document.getElementById("autoComplete")
                 //         const autoCompleteJS = new autoComplete({
@@ -156,25 +156,25 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 ///////////////////////////////////////////////////////////////////
                 const cacheName = "timer_plugin_history"
                 const getCache = (id/*:string*/) => (onSuccess /*:Function*/, onFailure/*:Function*/) => {
-					api.call("cache.get", [id], content => {
-						if (content !== undefined && content !== null) onSuccess(content)
-						else if (onFailure) onFailure()
-					})
-				}
+                        api.call("cache.get", [id], content => {
+                                if (content !== undefined && content !== null) onSuccess(content)
+                                else if (onFailure) onFailure()
+                        })
+                }
                 const setCache = (id/*:string*/, mins/*:?number*/) => (content/*:string*/) => {
                         if (!mins) mins = -1
-                        api.call("cache.set", [id, content, mins]) 
+                        api.call("cache.set", [id, content, mins])
                 }
 
-                
-                
+
+
                 const getTimerData = getCache(cacheName)
                 const setTimerData = setCache(cacheName)
-                
+
                 ///////////////////////////////////////////////////////////////////
                 // Data processing
                 ///////////////////////////////////////////////////////////////////
-                
+
                 // create a danfo dataframe with cols : name, date, time, year, month, day, category, item
                 // const dfd = window.danfojs
                 function weekOfYear(day, month, year) {
@@ -184,10 +184,10 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
                 }
                 const processTimerItemOccurence = (name/*:string*/, category/*:string*/, time/*:number*/, date/*:string*/) => {
-                         // date is {day}-{month}-{year}
+                        // date is {day}-{month}-{year}
                         const dateArr = date.split("-")
                         const dateRaw = date
-                        const day = parseInt(dateArr[0]) 
+                        const day = parseInt(dateArr[0])
                         const month = parseInt(dateArr[1]) + 1
                         // week of the month (0-4), a week starts a monday
                         // const week = Math.floor(day / 7)
@@ -201,7 +201,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // const hours = Math.round((time / 60)*10)/10
                         // const hours = `${Math.round(time / 6) / 10}`.replace(".", ",")
                         const hours = Math.round(time / 6) / 10
-                        const row = {category, name, date:dateObj, dateRaw,  time, year, month, day, hours, week}
+                        const row = { category, name, date: dateObj, dateRaw, time, year, month, day, hours, week }
                         return row
                 }
                 const preprocessTimerItem = (timerItem/*:iTimerHistoryItem*/, arrItems/*:Array<any>*/) => {
@@ -212,11 +212,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 const row = processTimerItemOccurence(name, category, time, date)
                                 arrItems.push(row)
                         })
-                }    
+                }
                 const preprocessTimerItems = (timerItems/*:iTimerHistoryItem[]*/) => {
-                        let  arrItems/*:Array<any>*/ = []
+                        let arrItems/*:Array<any>*/ = []
                         each(timerItems, timerItem => {
-                                preprocessTimerItem(timerItem,arrItems)
+                                preprocessTimerItem(timerItem, arrItems)
                         })
                         const objTotalPerDay/*:{[date:string]: number}*/ = {}
                         // for each el in arrItems, increment the total per day in objTotalPerDay
@@ -230,11 +230,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 const row = processTimerItemOccurence("total", "total", time, date)
                                 arrItems.push(row)
                         })
-                        
+
                         return arrItems
 
                 }
-                
+
 
 
 
@@ -267,11 +267,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // console.log(123, uniqueNamesArray)
                         // keep unique names
                         // dfItems3.print()
-                        
+
                         // output it in a simple array
                         // const uniqueNames = dfItems3["name"].toJSON(dfItems3)
                         // console.log(123,uniqueNames)
-                        return {outJsonArr, uniqueNamesArray}
+                        return { outJsonArr, uniqueNamesArray }
                 }
 
 
@@ -281,66 +281,66 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 // START LOGIC
                 // 
                 ///////////////////////////////////////////////////////////////////      
-                const graph/*:{curr:iGraphPerspectiveViewerWrapper|void}*/ = {curr:undefined}
+                const graph/*:{curr:iGraphPerspectiveViewerWrapper|void}*/ = { curr: undefined }
                 if (opts.viewConfig) console.log(h, "opts.viewConfig detected!", opts.viewConfig)
                 // const defaultViewConfig = viewConfigs.heatmapMonth() // const defaultViewConfig = '{}'
-                
+
                 const initializeUi = () => {
                         // genTimerForm([])
 
-                        genGraph([{"graph_status":"data loading..."}], (viewer) => {
+                        genGraph([{ "graph_status": "data loading..." }], (viewer) => {
                                 graph.curr = viewer
                         })
                 }
 
                 const updateAppWithTimerData = (cb/*:Function*/) => {
                         console.log(h, "updateAppWithTimerData")
-                        getTimerData( (timerItems/*:iTimerHistoryItem[]*/) => {
-                                const {outJsonArr, uniqueNamesArray} = processDataSetLogic(timerItems)
+                        getTimerData((timerItems/*:iTimerHistoryItem[]*/) => {
+                                const { outJsonArr, uniqueNamesArray } = processDataSetLogic(timerItems)
                                 // AUTOCOMPLETE update
                                 // genTimerForm(uniqueNamesArray)
-                                
+
                                 // GRAPH update
                                 console.log(h, "updateAppWithTimerData", outJsonArr)
                                 // let subset = outJsonArr.slice(0, 20)
                                 // force float on hours by adding a first el with 0.001
                                 outJsonArr[0].hours += 0.1
-                                
+
                                 reloadGraph(outJsonArr, () => {
                                         cb()
-                                })     
-                        })      
+                                })
+                        })
 
                 }
 
                 initializeUi()
-                updateAppWithTimerData(() => { 
+                updateAppWithTimerData(() => {
                         // changeViewGraph("heatmapMonth") 
                         graph.curr?.reloadViewsSelect()
                 })
-        
+
         } // end start main logic
-    
+
         setTimeout(() => {
-            setTimeout(() => {
-                    api.utils.resizeIframe("100%");
-            }, 100)
-            setTimeout(() => {
-                api.utils.loadRessources(
-                    [
-                        `${opts.plugins_root_url}/_common/common.lib.js`,
-                        `${opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.component.js`,
-                        // `${opts.plugins_root_url}/_common/components/table.component.js`,
-                        `${opts.plugins_root_url}/timer/timer.lib.js`,
-                        // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,
-                        // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css`,
-                        `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
-                    ],
-                    () => {
-                        initTimerAppCode()
-                    }
-                );
-            }, 100)
+                setTimeout(() => {
+                        api.utils.resizeIframe("100%");
+                }, 100)
+                setTimeout(() => {
+                        api.utils.loadRessources(
+                                [
+                                        `${opts.plugins_root_url}/_common/common.lib.js`,
+                                        `${opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.component.js`,
+                                        // `${opts.plugins_root_url}/_common/components/table.component.js`,
+                                        `${opts.plugins_root_url}/timer/timer.lib.js`,
+                                        // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js`,
+                                        // `https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css`,
+                                        `https://cdn.jsdelivr.net/npm/danfojs@1.1.2/lib/bundle.min.js`
+                                ],
+                                () => {
+                                        initTimerAppCode()
+                                }
+                        );
+                }, 100)
         })
 
         const css = {

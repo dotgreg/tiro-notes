@@ -192,9 +192,12 @@ const TableComponentReactInt = ({ items, config, id }) => {
       sortableItems.sort((a, b) => {
         if (a[sortConfig.key] === null) a[sortConfig.key] = " ";
         if (b[sortConfig.key] === null) b[sortConfig.key] = " ";
+        // if a[sortConfig.key] does not exist, return 1
+        if (a[sortConfig.key] === undefined) a[sortConfig.key] = " ";
+        if (b[sortConfig.key] === undefined) b[sortConfig.key] = " ";
         // if a[sortConfig.key] and b[sortConfig.key] are dates, convert them to date objects and sort them using timestamp
         // count / in a[sortConfig.key], if 2, it is a date
-        if (a[sortConfig.key] && b[sortConfig.key] && a[sortConfig.key].split("/").length === 3) {
+        if (a[sortConfig.key].split("/").length === 3) {
           // date format is dd/mm/yyyy, convert it to mm/dd/yyyy
           let dateA = a[sortConfig.key].split("/").reverse().join("/");
           let dateB = b[sortConfig.key].split("/").reverse().join("/");
@@ -492,75 +495,3 @@ if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
 window._tiroPluginsCommon.TableComponentReact = TableComponentReact
 window._tiroPluginsCommon.genTableComponent = genTableComponent
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// let tableComponent = (p) => {
-//     const r = React;
-//     const c = r.createElement;
-    
-    
-//     return (
-//         c('div', { className: "app-wrapper" }, [
-//             p.array && p.array.map(item => 
-//                 c('div', { className: "item-wrapper" }, [item.name])
-//             ),
-//         ])
-//     )
-// }
-
-
-// if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
-// window._tiroPluginsCommon.tableComponent = tableComponent
-
-
-// API structure
-// items: [
-//     {
-//       id: image1, 
-//       image:src..., 
-//       name:..., 
-//       size:....,
-//       icon:"fa-image",
-//     },...
-//   ]
-//   config: {
-//     showGalleryView: true
-//     cols: [
-//       {colId: "icon", label: "type", type:"icon"},
-//       {colId: "name", label: "name2"},
-//       {colId: "size"},
-//       {colId: "actions", type: "buttons", buttons:[
-//         {
-//           label: delete, 
-//           icon: delete, 
-//           onClick: (id) => {
-//             if (id.endswith === jpeg) => ask sthg specific
-//             api.warn => api.delete
-//           }
-//         }
-//       ]},
-//     ]
-//   }
-
-
-// const [status, setStatus] = r.useState("hello world react ctag loaded from simple js lib")
-// r.useEffect(() => {
-//     console.log("woop", p)
-//     setTimeout(() => {setStatus(12333333)}, 3000)
-//     api.call("ui.notification.emit",[{content:"hello world common lib comp api"}])
-// }, [])

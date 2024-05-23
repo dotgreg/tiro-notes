@@ -90,6 +90,13 @@ const smartlistApp = (innerTagStr, opts) => {
                 searchBtn.addEventListener("click", e => {
                         triggerSearchFromInput(configArray)
                 })
+                // if enter pressed on search input or path input
+                searchInput.addEventListener("keyup", e => {
+                        if (e.key === "Enter") triggerSearchFromInput(configArray)
+                })
+                pathInput.addEventListener("keyup", e => {
+                        if (e.key === "Enter") triggerSearchFromInput(configArray)
+                })
         }
 
         const searchAndDisplay = (configArray) => {
@@ -138,7 +145,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 // if result has |, split it and add it to the object as col1, col2, col3 etc...
                                                 let finalObj = { filename: file.name, folder: file.folder, line:result }
                                                 if (result.indexOf("|") > -1) {
-                                                        let [line, ...cols] = result.split("|")
+                                                        let [...cols] = result.split("|")
                                                         let i = 0
                                                         each(cols, (col) => {
                                                                 i++
