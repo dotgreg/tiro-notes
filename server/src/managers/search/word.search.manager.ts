@@ -10,6 +10,7 @@ export const searchWord = (p: {
 	term: string,
 	folder: string,
 	disableMetadataSearch?: boolean,
+	disableTitleSearch?: boolean,
 	cb: (res: iSearchWordRes) => void
 	onRgDoesNotExists: () => void
 }) => {
@@ -23,6 +24,7 @@ export const searchWord = (p: {
 			wholeLine: true,
 			debug: true,
 			disableMetadataSearch: p.disableMetadataSearch,
+			disableTitleSearch: p.disableTitleSearch,
 			// exclude:[".resources"]
 		},
 

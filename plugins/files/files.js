@@ -150,15 +150,18 @@ const FilesTagApp = (innerTagStr, opts) => {
               setStatus("Scanning...")
               api.call("ressource.scanFolder", [currFolderPath], res => {
                   let nFiles = []
+                  console.log("ressource.scanFolder", res)
                   res.files.map(f => {
-
-                    let created = f.stats?.ctime
-                    created = created.replaceAll("Z","").replaceAll("T","")
-                    created = created.split(".")[0]
-                    // created = created.replaceAll("-",".").replaceAll(":","")
-                    created = created.split(":")
-                    created.pop()
-                    created = created.join("h")
+                    let created = "unknown"
+                    if (f.stats) {
+                      created = f.stats?.ctime
+                      created = created.replaceAll("Z"," ").replaceAll("T"," ")
+                      created = created.split(".")[0]
+                      // created = created.replaceAll("-",".").replaceAll(":","")
+                      created = created.split(":")
+                      created.pop()
+                      created = created.join("h")
+                    } 
                     
                     let nFile = {
                       id: f.path,
@@ -175,6 +178,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                     ngs.nb += 1
                     nFiles.push(nFile)
                   })
+                  console.log("ressource.scanFolder", nFiles)
                   
                   // setGlobStats(ngs)
                   setFiles(nFiles)

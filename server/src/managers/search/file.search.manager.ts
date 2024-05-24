@@ -2,6 +2,7 @@ import { cleanPath, getFileInfos } from "../../../../shared/helpers/filename.hel
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
+import { fileNameFromFilePath } from "../dir.manager";
 import { fileStats } from "../fs.manager";
 import { log } from "../log.manager";
 import { getRelativePath, p } from "../path.manager";
@@ -78,18 +79,24 @@ export const processRawPathToFile = (p: {
 	if (!titleFilter) titleFilter = ''
 	
 	let res: iFile
-	let cleanedFileNamePath = getRelativePathFromSearchPath(rawPath, folder)
+	let relativeFilePath = getRelativePathFromSearchPath(rawPath, folder)
 	folder = cleanFolderPath(folder)
 
 	
 
 	// TITLE FILTER
-	if (titleFilter !== '' && !cleanedFileNamePath.toLowerCase().includes(titleFilter.toLowerCase())) return
+	if (titleFilter !== '' && !relativeFilePath.toLowerCase().includes(titleFilter.toLowerCase())) return
+
+	// get filename from filePath
+	let fileName = path.basename(relativeFilePath);
 
 	try {
-		let fullPath = `${backConfig.dataFolder}/${folder}/${cleanedFileNamePath}`
+		// let fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
+		let fullPath = `${backConfig.dataFolder}/${relativeFilePath}`
+		// console.log('fullPath', fullPath, folder, relativeFilePath)
 		let stats = fileStats(fullPath)
-		res = createIFile(cleanedFileNamePath, folder, index, stats)
+		res = createIFile(fileName, folder, index, stats)
+		console.log(123, res)
 	} catch (error) {
 		shouldLog && log(h, 'ERROR : ', error);
 	}
