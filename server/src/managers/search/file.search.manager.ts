@@ -96,7 +96,6 @@ export const processRawPathToFile = (p: {
 		// console.log('fullPath', fullPath, folder, relativeFilePath)
 		let stats = fileStats(fullPath)
 		res = createIFile(fileName, folder, index, stats)
-		console.log(123, res)
 	} catch (error) {
 		shouldLog && log(h, 'ERROR : ', error);
 	}

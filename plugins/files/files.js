@@ -155,12 +155,14 @@ const FilesTagApp = (innerTagStr, opts) => {
                     let created = "unknown"
                     if (f.stats) {
                       created = f.stats?.ctime
-                      created = created.replaceAll("Z"," ").replaceAll("T"," ")
-                      created = created.split(".")[0]
-                      // created = created.replaceAll("-",".").replaceAll(":","")
-                      created = created.split(":")
-                      created.pop()
-                      created = created.join("h")
+                      if (created) {
+                        created = created.replaceAll("Z"," ").replaceAll("T"," ")
+                        created = created.split(".")[0]
+                        // created = created.replaceAll("-",".").replaceAll(":","")
+                        created = created.split(":")
+                        created.pop()
+                        created = created.join("h")
+                      }
                     } 
                     
                     let nFile = {
@@ -451,20 +453,7 @@ const FilesTagApp = (innerTagStr, opts) => {
         
        
 
-        table {
-          width: 100%;
-        }
-        table thead {
-          cursor:pointer;
-        }
-        table tbody {}
-        table tr:nth-child(even) {background: #CCC}
-        table tr:nth-child(odd) {background: #EEE}
-        table tr td { 
-          word-break: break-all; 
-          border:none; 
-          padding: 1px 11px;
-        }
+        
     
     `;
 

@@ -18,6 +18,21 @@ const styleCss = `
   padding: 10px;
 }
 
+table {
+  width: 100%;
+}
+table thead {
+  cursor:pointer;
+}
+table tbody {}
+table tr:nth-child(even) {background: #CCC}
+table tr:nth-child(odd) {background: #EEE}
+table tr td { 
+  word-break: break-all; 
+  border:none; 
+  padding: 1px 11px;
+}
+
 .table-controls-wrapper {
   padding-left: 15px;
 }
