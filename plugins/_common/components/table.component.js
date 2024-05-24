@@ -197,7 +197,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
         if (b[sortConfig.key] === undefined) b[sortConfig.key] = " ";
         // if a[sortConfig.key] and b[sortConfig.key] are dates, convert them to date objects and sort them using timestamp
         // count / in a[sortConfig.key], if 2, it is a date
-        if (a[sortConfig.key].split("/").length === 3) {
+        if (a[sortConfig.key].split && a[sortConfig.key].split("/").length === 3) {
           // date format is dd/mm/yyyy, convert it to mm/dd/yyyy
           let dateA = a[sortConfig.key].split("/").reverse().join("/");
           let dateB = b[sortConfig.key].split("/").reverse().join("/");

@@ -1,4 +1,4 @@
-import { each } from "lodash";
+import { each, set } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
@@ -86,6 +86,7 @@ export const searchWithRgGeneric = async (p: {
 		debug?: boolean
 		filetype?: "md" | "all"
 		disableMetadataSearch?: boolean
+		disableTitleSearch?: boolean
 		// exclude?:string[]
 	}
 	processRawLine?: (infos: iLineRg) => any
@@ -99,6 +100,7 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
 	if (!p.options.disableMetadataSearch) p.options.disableMetadataSearch = false
+	if (!p.options.disableTitleSearch) p.options.disableTitleSearch = false
 	let typeArgs = ['--type','md']
 	if (p.options.filetype === "all") typeArgs = ['--files']
 	const onRgDoesNotExists = (err) => {
@@ -170,48 +172,60 @@ export const searchWithRgGeneric = async (p: {
 
 
 	////////////////////////////////////////////////////v
-	// 2/3 HEADER METADATA SEARCH
+	// 2/3 FILES NAME SEARCH
 	//
-	// const r = {
-	// 	all: '[\\d\\D]*',
-	// 	imageMd: '!\[[^\]]+\]\([^\]]+\)',
-	// 	headerStart: sharedConfig.metas.headerStart,
-	// 	headerStop: sharedConfig.metas.headerEnd,
-	// }
-	
-	// const metaFilesInFullFolderSearch = [
-	// 	`${r.headerStart}${r.all}${r.headerStop}`,
-	// 	folderToSearch,
-	// 	'--type',
-	// 	'md',
-	// 	'--multiline',
-	// 	...exclusionArr
-	// ]
-	// const rawMetasStrings: string[] = []
-	// let metasFilesScanned: iMetasFiles = {}
-	// const onData4 =  async dataRaw => {
-	// 	const rawMetaString = dataRaw.toString()
-	// 	// split multiline strings
-	// 	const rawMetaArr = rawMetaString.split('\n')
-	// 	rawMetasStrings.push(...rawMetaArr)
-	// }
-	// const onClose4 =  dataRaw => {
-	// 	// process raw strings to meta objs
-	// 	metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
-	// 	shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
-	// 	triggerAggregationIfEnded()
-	// }
-	
-	// if (!p.options.disableMetadataSearch) {
-	// 	execaWrapper({
-	// 		cmdPath:backConfig.rgPath, 
-	// 		args: metaFilesInFullFolderSearch,
-	// 		onData: onData4,
-	// 		onClose: onClose4,
-	// 		onError: err => {onRgDoesNotExists(err)}
-	// 	})
-	// }
 
+	// using rg --files to get all files in folder, then search term in each file name
+	const filesResult: iLineResult[] = []
+	if (!p.options.disableTitleSearch) {
+		const filesSearchParams = [
+			'--files',
+			folderToSearch,
+			...exclusionArr,
+			...typeArgs,
+		]
+
+		const onData2 = async dataChunk => {
+			const rawChunk = dataChunk.toString()
+			const rawLines = rawChunk.split('\n')
+			each(rawLines, line => {
+				let lineRaw = line
+				// search "found word:10"
+				// if term does not exists in file name, return
+				if (!line.includes(p.term)) return
+				let file = processRawPathToFile({ rawPath: line, folder: p.folder })
+				if (!file.name.includes(p.term)) return
+				// console.log(123, line, file.name)
+				let found = `[📄 filename match]: ${file.name}`
+				const processedLine:iLineResult = p.processRawLine({
+					file: file,
+					raw: line,
+					path: lineRaw,  
+					found,
+				})
+				if (processedLine) filesResult.push(processedLine)
+			})
+		}
+		const onClose2 = async dataChunk => {
+			await triggerAggregationIfEnded()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: filesSearchParams,
+			onData: onData2,
+			onClose: onClose2,
+			onError: err => {
+				// if no such file or directory, dont raise error
+				if (JSON.stringify(err).includes("os error 2")) return
+				onRgDoesNotExists(err)
+			}
+		})
+	} else {
+		setTimeout(() => {
+			triggerAggregationIfEnded()
+		})
+	}
+	
 
 	////////////////////////////////////////////////////v
 	// 3/3 HEADER METADATA SEARCH
@@ -219,34 +233,20 @@ export const searchWithRgGeneric = async (p: {
 	let count = 0
 	const triggerAggregationIfEnded = async () => {
 		count++
-		// const endCount = p.options.disableMetadataSearch === false ? 2 : 1
-		// if (count === endCount) {
-		// 	console.log(count, endCount, linesResult.length)
-		// 	for (let i = 0; i < linesResult.length; i++) { 
-		// 		const file = linesResult[i].file 
-		// 		each(metasFilesScanned, (metaObj, filePath) => { 
-		// 			// remove / from filePath  
-		// 			let fileFromMeta = pathToIfile(filePath)
-		// 			if (file.path === fileFromMeta.path) {
-		// 				linesResult[i].file.created = parseInt(`${metaObj.created}`)
-		// 				linesResult[i].file.modified = parseInt(`${metaObj.updated}`)
-		// 			}
-		// 		})
-		// 	}
 
-		// for each linesResult.file, open the file and get the 4 first lines
-		// p.onSearchEnded({linesResult})
-		// end()
+		if (count < 2) return
+		 
 		if (p.options.disableMetadataSearch === true) {
 			p.onSearchEnded({linesResult})
 			end()
 		} else {
 			// for each linesResult.file
-			for (let i = 0; i < linesResult.length; i++) {
-				let nFile = await getMetaFromHeaderWithJs(linesResult[i].file)
-				linesResult[i].file = nFile
+			const finalResults = [...filesResult, ...linesResult]
+			for (let i = 0; i < finalResults.length; i++) {
+				let nFile = await getMetaFromHeaderWithJs(finalResults[i].file)
+				finalResults[i].file = nFile
 			}
-			p.onSearchEnded({linesResult})
+			p.onSearchEnded({linesResult:finalResults})
 			end()
 		}
 		// }

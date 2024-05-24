@@ -132,13 +132,16 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		// replace * by ANY word
 		
 		data.word = data.word.split("*").join(regexs.strings.charWithAccents)
+		const withMetadataSearch = !data.options?.disableMetadataSearch || true
+		const withTitleSearch = !data.options?.disableTitleSearch || true
 		searchWord({
 			term: data.word,
 			folder: data.folder,
 			cb: res => {
-				serverSocket2.emit('getWordSearch', { result: res, withMetadataSearch:!data.options?.disableMetadataSearch || true, idReq: data.idReq })
+				serverSocket2.emit('getWordSearch', { result: res, withMetadataSearch, withTitleSearch , idReq: data.idReq })
 			},
 			disableMetadataSearch: data.options?.disableMetadataSearch || false,
+			disableTitleSearch: data.options?.disableTitleSearch || false,
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
 	}, { checkRole: "viewer" })
@@ -509,6 +512,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				wholeLine: true,
 				debug: true,
 				filetype: "all",
+				disableMetadataSearch: true,
+				disableTitleSearch: true
 			},
 			processRawLine: lineInfos => {
 				let l = lineInfos

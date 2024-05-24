@@ -401,7 +401,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // if config save, prompt for a name and save it
                 configSave.addEventListener("click", () => {
                     viewer.getConfig((config) => {
-                        let name = prompt("Enter a name for the config ", viewsSync.selectedName);
+                        let name = prompt("Enter a name for the config - 📉📊🆂🧮⏳🕯️🥢🔥", viewsSync.selectedName);
                         if (name) {
                             console.log(hl,"saving config", name, config)
                             viewsSync.selectedName = name
