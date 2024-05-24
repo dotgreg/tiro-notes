@@ -398,15 +398,20 @@ export const lightboxCss = () => `
 		}
 	}
 	figure.zoom2 img {
-		transition: opacity .5s;
-		display: block;
 		// width: 100%;
 		// height: 100%;
 		// object-fit: contain;
-		max-width: 10000px;
-		max-height: 100000px;
-		width: auto;
-		height: auto;
+		// max-width: 10000px;
+		// max-height: 100000px;
+		// width: auto;
+		// height: auto;
+		// object-fit: contain !important;
+		transition: opacity .5s;
+		display: block;
+		object-fit: contain !important;
+		max-width: 100%;
+		max-height: 100%;
+		text-align: center;
 	}
 	  
 
