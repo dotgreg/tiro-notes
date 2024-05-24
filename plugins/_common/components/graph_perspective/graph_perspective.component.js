@@ -658,6 +658,18 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     let reader = new FileReader();
                     reader.onload = function (fileLoadedEvent) {
                         let data = fileLoadedEvent.target.result;
+                        // console.log(123333, data)
+                        // count the number of ; and ,
+                        let countSemiCols = (data.match(/;/g) || []).length
+                        let countCommas = (data.match(/,/g) || []).length
+                        // if more ; than , replace ; by ,
+                        if (countSemiCols > countCommas) {
+                            console.log(hl,"DETECTED SEMICOL CSV => replacing ; by ,")
+                            // replace first , by .
+                            data = data.replace(/,/g, ".")
+                            data = data.replace(/;/g, ",")
+                        }
+
                         viewer.load(WORKER.table(data));
                     };
                     // Read the contents of the file - triggering the onload when finished.
