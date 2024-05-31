@@ -39,7 +39,7 @@ export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWin
 type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled" | "current"
 export type iActionAllParams = {layout?:iWindowsLayout}
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
-type iPanelLayout =  "full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top"  | "top" | "left" | "right"| "bottom-left" | "bottom-right" | "top-left" | "top-right"
+export type iPanelLayout =  "full-center" | "full" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top"  | "top" | "left" | "right"| "bottom-left" | "bottom-right" | "top-left" | "top-right"
 export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
     type: "ctag" | "file",
     layout?: iPanelLayout
@@ -55,6 +55,7 @@ export interface iFloatingPanelApi {
     movePanel: (panelId:string, position:{x:number, y:number}) => void,
     resizePanel: (panelId:string, size:{width:number, height:number}) => void,
     minimizePanel: (panelId:string) => void,
+    updatePanelLayout : (panelId:string, layout: iPanelLayout) => void,
 
     openFile: (filepath:string, opts?:{idpanel?:string, layout?: iPanelLayout, searchedString?:string, replacementString?:string}) => void,
     
@@ -120,59 +121,79 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     //     panelsRef.current = panelsDesktop
     // },[panelsDesktop])
 
+    const updatePanelLayoutApiFn= ( panelId:string | "active", layout?: iPanelLayout) => {
+        // if no panelId, take active one
+        if (panelId === "active") {
+            let visiblePanels = panels.filter(p => p.status === "visible" && p.device !== "mobile")
+            let topWindow = visiblePanels.find(p => p.isTopWindow)
+            if (!topWindow) return
+            panelId = topWindow.id
+        }
+        // if no layout, full
+        if (!layout) layout = "full"
 
-    const createPanel = (panelParams:iCreateFloatingPanel) => {
-        // if layout is full-center, set position to center of the screen and size to 100% of the screen with 20px padding
+        let panel = cloneDeep(panelsRef.current.find(p => p.id === panelId))
+        if (!panel) return
+        panel = updatePanelLayoutInt(panel, layout)
+        updatePanel(panel)
+    }
+
+    const updatePanelLayoutInt = (panel:iFloatingPanel, layout: iPanelLayout) => {
         let padding = 20
-        if (panelParams.layout === "full-center") {
-            panelParams.position = {x: padding, y: padding}
-            panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight - (2*padding)}
+        if (layout === "full-center"|| layout === "full") {
+            panel.position = {x: padding, y: padding}
+            panel.size = {width: window.innerWidth - (2*padding), height: window.innerHeight - (2*padding)}
         }
-        else if (panelParams.layout === "half-right") {
-            panelParams.position = {x: window.innerWidth / 2, y: padding}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+        else if (layout === "half-right") {
+            panel.position = {x: window.innerWidth / 2, y: padding}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
         }
-        else if (panelParams.layout === "half-left") {
-            panelParams.position = {x: padding, y: padding}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+        else if (layout === "half-left") {
+            panel.position = {x: padding, y: padding}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
         }
-        else if (panelParams.layout === "full-bottom" || panelParams.layout === "bottom") {
-            panelParams.position = {x: padding, y: window.innerHeight / 2}
-            panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        else if (layout === "full-bottom" || layout === "bottom") {
+            panel.position = {x: padding, y: window.innerHeight / 2}
+            panel.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
        // top
-       else if (panelParams.layout === "full-top" || panelParams.layout === "top") {
-            panelParams.position = {x: padding, y: padding}
-            panelParams.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+       else if (layout === "full-top" || layout === "top") {
+            panel.position = {x: padding, y: padding}
+            panel.size = {width: window.innerWidth - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
        //left 
-       else if (panelParams.layout === "left") {
-            panelParams.position = {x: padding, y: padding}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+       else if (layout === "left") {
+            panel.position = {x: padding, y: padding}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
         }
 
        // right
-       else if (panelParams.layout === "right") {
-            panelParams.position = {x: window.innerWidth / 2, y: padding}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
+       else if (layout === "right") {
+            panel.position = {x: window.innerWidth / 2, y: padding}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight - (2*padding)}
         }
-        else if (panelParams.layout === "bottom-left") {
-            panelParams.position = {x: padding, y: window.innerHeight / 2}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        else if (layout === "bottom-left") {
+            panel.position = {x: padding, y: window.innerHeight / 2}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
-        else if (panelParams.layout === "bottom-right") {
-            panelParams.position = {x: window.innerWidth / 2, y: window.innerHeight / 2}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        else if (layout === "bottom-right") {
+            panel.position = {x: window.innerWidth / 2, y: window.innerHeight / 2}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
-        else if (panelParams.layout === "top-left") {
-            panelParams.position = {x: padding, y: padding}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        else if (layout === "top-left") {
+            panel.position = {x: padding, y: padding}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
-        else if (panelParams.layout === "top-right") {
-            panelParams.position = {x: window.innerWidth / 2, y: padding}
-            panelParams.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
+        else if (layout === "top-right") {
+            panel.position = {x: window.innerWidth / 2, y: padding}
+            panel.size = {width: window.innerWidth / 2 - (2*padding), height: window.innerHeight / 2 - (2*padding)}
         }
-        
+
+        return panel
+    }
+
+
+    const createPanel = (panelParams:iCreateFloatingPanel) => {
         // get all non hidden pannels
         let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
         // position is i * nonHiddenPanels.length
@@ -193,6 +214,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             orderPosition: nonHiddenPanels.length,
             ...panelParams,
         }
+
+        // if layout is full-center, set position to center of the screen and size to 100% of the screen with 20px padding
+        if (panelParams.layout) {
+            let layoutPanel = updatePanelLayoutInt(panel, panelParams.layout)
+            panel.position = layoutPanel.position
+            panel.size = layoutPanel.size
+        }
+        
 
         const openFloating = (panel) => {
             console.log(`${h} createPanel`, panel)
@@ -380,6 +409,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
       
 
         // if grid, reorganize each panels according to their number, if 2 side by side, if 4 2x2, if 9, 3x3
+        console.log(123, visiblePanels)
         if (layoutWindows.current === "grid") {
             const cols = Math.ceil(Math.sqrt(visiblePanels.length))
             const rows = Math.ceil(visiblePanels.length / cols)
@@ -395,6 +425,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
+                if (panel.device === "mobile") return
                 panel.position = positionsForEachPanel[count]
                 panel.size = {width: widthPerCol, height: heightPerRow}
                 count++
@@ -402,10 +433,12 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             updateAll(newPanels)
         } else if (layoutWindows.current === "horizontal") {
             let widthPerCol = windowWidthPanel() / visiblePanels.length
-            console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol)
+            console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol, widthPerCol, visiblePanels.length)
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
+                if (panel.device === "mobile") return
+                console.log(`${h} 222toggleWindowsLayout horizontal`, count, widthPerCol, count * widthPerCol, panel.id, panel)
                 panel.position = {x: count * widthPerCol, y: 0}
                 panel.size = {width: widthPerCol, height: windowHeightPanel()}
                 count++
@@ -417,6 +450,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
+                if (panel.device === "mobile") return
                 panel.position = {x: 0, y: count * heightPerRow}
                 panel.size = {width: windowWidthPanel(), height: heightPerRow}
                 count++
@@ -623,6 +657,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         delete: deletePanel,
         movePanel,
         resizePanel,
+        updatePanelLayout:updatePanelLayoutApiFn,
         minimizePanel,
         actionAll,
         panels, 

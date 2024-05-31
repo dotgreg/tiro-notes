@@ -93,12 +93,17 @@ export const processRawPathToFile = (p: {
 	try {
 		// let fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
 		let fullPath = `${backConfig.dataFolder}/${relativeFilePath}`
+		// if folder is not included in relativeFilePath, add it
+		if (!relativeFilePath.includes(folder)) fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
+		fullPath = cleanPath(fullPath)
 		// console.log('fullPath', fullPath, folder, relativeFilePath)
 		let stats = fileStats(fullPath)
 		res = createIFile(fileName, folder, index, stats)
 	} catch (error) {
+		console.log(333, error)
 		shouldLog && log(h, 'ERROR : ', error);
 	}
+	
 	
 	return res
 }

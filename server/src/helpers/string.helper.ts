@@ -12,7 +12,7 @@ export const makeRandomString = (length:number) => {
 
 
 export const removeSpecialChars = (raw: string): string => {
-	return raw.replace(/[^\w\s]/gi, '')
+	return raw.replace(/[^\w\s\-\_]/gi, '')
 }
 
 export const removeAccents = (raw: string): string => {

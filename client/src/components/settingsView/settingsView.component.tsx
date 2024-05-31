@@ -482,8 +482,9 @@ export const SettingsPopup = (p: {
 						expl: `In order to export in many formats, Tiro notes needs to install Pandoc on your computer. (At least v2.9) <br/>
 						<a href="https://pandoc.org/installing.html" target="_blank">Guide here </a>
 						<br/><br/>
-						For PDF, make sure pdflatex is installed 
-						<br/> (if you are on termux: <code>pkg install texlive-installer texlive-tlmgr; termux-install-tl</code>)`,
+						For Beamer presentation in PDF, make sure pdflatex is installed 
+						<br/> - if you are on Ubuntu: <a href="https://gist.github.com/rain1024/98dd5e2c6c8c28f9ea9d" target="_blank">Guide here </a>
+						<br/> - if you are on Termux: <code>pkg install texlive-installer texlive-tlmgr; termux-install-tl</code>`,
 						modifier: () => { },
 						onCustomHtmlClick: () => {
 						}

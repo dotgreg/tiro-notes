@@ -299,7 +299,7 @@ const CssAppIntStatic = (
 							display: block;
 							position: absolute;
 							top: 0%;
-							z-index:100;
+							z-index:10000;
 							width: 12px;
 							height: 100vh;
 							background: rgb(236, 236, 236);

@@ -144,8 +144,7 @@ export const generateHtmlLinkPreviewInt = (
 
 	// HTML
 	let i = ssrIcon
-	let openWindow = `<span title="Open link in detached window"
-onclick="${ssrFn("open-win-link", openWinFn)}"
+	let openWindow = `<span title="Open link in detached window" onclick="${ssrFn("open-win-link", openWinFn)}"
 class="link-action link-openwindow"  data-link="${fullLink}">${i('up-right-from-square')}</span>`
 // 	let openPreview = `<span
 // onclick="${ssrFn("preview-link", previewFn)}"

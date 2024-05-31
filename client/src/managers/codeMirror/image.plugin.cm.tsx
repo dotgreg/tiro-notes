@@ -24,6 +24,7 @@ const openLightBoxFn = (el) => {
 	if (!el) return
 	let filePath = el.dataset.filePath as string
 	let imageSrc = el.dataset.src as string
+	// console.log("openLightBoxFn", filePath, imageSrc)
 	getApi(api => {
 		api.file.getContent(filePath, txt => {
 			// GET IMAGES URLS FROM CONTENT
@@ -32,7 +33,7 @@ const openLightBoxFn = (el) => {
 			let srcs:string[] = []
 			let startIndex = 0
 			each(images, (im,i) => {
-				if (imageSrc.includes(im.url)) startIndex = i
+				if (cleanUrl(imageSrc).includes(cleanUrl(im.url))) startIndex = i
 				srcs.push(im.url)
 			})
 			api.ui.lightbox.open(startIndex, srcs)

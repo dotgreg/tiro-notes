@@ -121,6 +121,7 @@ export const useTabs = () => {
 	
 
 	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
+		console.log(`[TAB] open in new tab`, file);
 		const nTab = generateNewTab({ fullWindowFile: file })
 		if (!nTab) return
 		const nTabs = [...tabsRef.current, nTab]
@@ -159,8 +160,8 @@ export const useTabs = () => {
 	}
 
 	const updateTab: onTabUpdateFn = (type, tabVar, newVal) => {
-		// console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
-		let tab  =  tabVar === 'activeTab'  ?  getActiveTab() : tabVar
+		console.log(`[TAB] UPDATE TAB ${type} ${tabVar} ${newVal}`);
+		let tab  =  tabVar === 'activeTab' || !tabVar  ?  getActiveTab() : tabVar
 		if (!tab ) return
 		
 		if (type === 'add') {

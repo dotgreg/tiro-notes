@@ -5,7 +5,7 @@
 //
 export const handleImagePaste = (e, callback:(file:File)=>void) => {
 	retrieveImageFromClipboardAsBlob(e, function (imageBlob) {
-		console.log('ON IMAGE PASTE');
+		// console.log('ON IMAGE PASTE');
 		if (imageBlob) {
 			callback(imageBlob)
 		}

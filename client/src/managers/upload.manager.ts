@@ -1,4 +1,4 @@
-import { debounce, each } from "lodash-es";
+import { cloneDeep, debounce, each } from "lodash-es";
 import { getApi } from "../hooks/api/api.hook";
 import { iUploadedFileInfos } from "../hooks/api/upload.api.hook";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
@@ -88,10 +88,26 @@ export const uploadFileInt = (p: {
 	onProgress: Function
 }) => {
 	const { file, path, idReq, onProgress } = { ...p }
+	// const file2 = cloneDeep(file)
+	// @ts-ignore
+	// file.name = file.name + "-woop"
+
+	// newName => image.png > image-YYYY-MM-DD-HHhMMmSS.png
+	let newManualName = file.name
+	// if file.name is jpg, png, gif, webp, jpeg, svg then modify its name
+	const extension = file.name.split('.').pop() 
+	if (extension && ['jpg', 'png', 'gif', 'webp', 'jpeg', 'svg'].includes(extension)) {
+		const date = new Date()
+		const dateStr = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${date.getHours()}h${date.getMinutes()}m-${date.getSeconds()}s`
+		const extension = file.name.split('.').pop()
+		newManualName = newManualName.replace(`.${extension}`, `-${dateStr}.${extension}`)
+	}
+
 	var instanceFile = new siofu(clientSocket);
 	instanceFile.addEventListener("start", event => {
+		event.file.meta.newManualName = newManualName
 		event.file.meta.idReq = idReq
-		event.file.meta.path = path
+		event.file.meta.path = path 
 		event.file.meta.token = getLoginToken()
 	});
 	instanceFile.addEventListener("progress", (event: any) => {

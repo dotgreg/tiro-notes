@@ -132,14 +132,14 @@ export const generateNoteLink = (
 	}
 
 	const subst = `<a
-		onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
-		onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewOpen)}"
-		onmouseleave="${linkPreview && ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
-		class="title-search-link preview-link" 
-		data-file="${noteTitle}" 
-		data-folder="${notePath}" 
-		data-searchedstring="${searchedString || ""}"
-		data-windowid="${windowId}">${label}</a>`;
+onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
+onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewOpen)}"
+onmouseleave="${linkPreview && ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
+class="title-search-link preview-link" 
+data-file="${noteTitle}" 
+data-folder="${notePath}" 
+data-searchedstring="${searchedString || ""}"
+data-windowid="${windowId}">${label}</a>`;
 
 	return subst
 }
