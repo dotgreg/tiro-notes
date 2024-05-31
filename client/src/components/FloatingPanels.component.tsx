@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useReducer, useRef, useState } from 'rea
 import { Resizable } from 're-resizable';
 import Draggable from 'react-draggable';
 import {DraggableCore} from 'react-draggable';
-import { areWindowsOverlapping, iActionAllParams, iActionAllWindows, iFloatingPanel, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
+import { areWindowsOverlapping, iActionAllParams, iActionAllWindows, iFloatingPanel, iPanelLayout, windowHeightPanel, windowWidthPanel } from '../hooks/api/floatingPanel.api.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { NotePreview } from './NotePreview.component';
 import { generateCtag } from '../managers/ssr/ctag.ssr';
@@ -13,12 +13,13 @@ import {  getScrollbarWidth } from '../managers/scrollbar.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { iFile, iViewType } from '../../../shared/types.shared';
 import { iLayoutUpdateFn } from './dualView/EditorArea.component';
-import { Icon2 } from './Icon.component';
+import { Icon, Icon2 } from './Icon.component';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { deviceType } from '../managers/device.manager';
 import { DraggableGrid } from './windowGrid/DraggableGrid.component';
 import { addKeyShortcut, releaseKeyShortcut } from '../managers/keyboard.manager';
+import { get } from 'http';
 
 let startZindex = 1000
 // react windows that is resizable
@@ -216,6 +217,12 @@ export const FloatingPanel = (p:{
         // updatePanel({...p.panel, size: {width: window.innerWidth, height: window.innerHeight}})
     }
 
+    const handleToggleLayout = (layout:iPanelLayout) => () => {
+        getApi(api => {
+            api.ui.floatingPanel.updatePanelLayout(p.panel.id, layout)
+        })
+    }
+
     const endResizeDebounce = useDebounce(() => {
         onDragEnd()
     }, 500)
@@ -382,7 +389,24 @@ export const FloatingPanel = (p:{
 												{
 													title: 'Maximize',
 													icon: "expand",
-													action: handleToggleMaximize
+                                                    customHtml: <div className='list-layout-floating-wrapper'> 
+                                                        <div className='icon-wrapper' onClick={handleToggleMaximize}>
+                                                            <Icon2 name='expand'  /> 
+                                                        </div>
+                                                        <ul> 
+                                                            <span onClick={handleToggleLayout("top")}> <Icon name={"custom_icons/top.png"}  /> </span>
+                                                            <span onClick={handleToggleLayout("bottom")}> <Icon name={"custom_icons/bottom.png"}  /></span>
+                                                            <span onClick={handleToggleLayout("left")}> <Icon name={"custom_icons/left.png"}  /></span>
+                                                            <span onClick={handleToggleLayout("right")}> <Icon name={"custom_icons/right.png"}  /></span>
+                                                            <br/>
+                                                            <span onClick={handleToggleLayout("top-right")}> <Icon name={"custom_icons/top-right.png"}  /></span>
+                                                            <span onClick={handleToggleLayout("bottom-right")}> <Icon name={"custom_icons/bottom-right.png"}  /></span>
+                                                            <span onClick={handleToggleLayout("top-left")}> <Icon name={"custom_icons/top-left.png"}  /></span>
+                                                            <span onClick={handleToggleLayout("bottom-left")}> <Icon name={"custom_icons/bottom-left.png"}  /></span>
+
+                                                        </ul>
+                                                    </div>,
+													action: () => {}
 												},
 												p.panel.type === "ctag" ? {
 													title: 'Reload content',
@@ -396,6 +420,52 @@ export const FloatingPanel = (p:{
 												},
 											]}
 										/>
+                                        {/* <ButtonsToolbar
+											class='floating-bar-toolbar2'
+											size={1}
+                                            design="vertical"
+											buttons={[
+												// {
+												// 	title: 'Move Window',
+                                                //     customHtml: <div className='handle'><Icon2 name="grip-vertical" /></div>,
+												// 	action: () => {  }
+												// },
+												minimizeButton(),
+												{
+													title: 'Maximize',
+													icon: "expand",
+													action: () => {},
+                                                    customHtml: <div className='list-layout-floating-wrapper'> 
+                                                        <div onClick={handleToggleMaximize}>
+                                                            <Icon2 name='expand'  /> 
+                                                        </div>
+                                                        <ul> 
+                                                            <span> onClick={handleToggleLayout("top")}> top</li>
+                                                            <span> onClick={handleToggleLayout("bottom")}> bottom</li>
+                                                            <span> onClick={handleToggleLayout("left")}> left</li>
+                                                            <span> onClick={handleToggleLayout("right")}> right</li>
+                                                            <span> onClick={handleToggleLayout("top-right")}> top-right</li>
+                                                            <span> onClick={handleToggleLayout("bottom-right")}> bottom-right</li>
+                                                            <span> onClick={handleToggleLayout("top-left")}> top-left</li>
+                                                            <span> onClick={handleToggleLayout("bottom-left")}> bottom-left</li>
+
+                                                        </ul>
+                                                    </div>
+
+												},
+                                                
+												p.panel.type === "ctag" ? {
+													title: 'Reload content',
+													icon: "rotate-right",
+													action: reloadContent
+												} : {},
+												{
+													title: 'Close window',
+													icon: "xmark",
+													action: handleClosePanel
+												},
+											]}
+										/> */}
 
                         </div>
                         {/* { p.panel.type !== "file" &&  <div className="floating-panel__title">{getPanelTitle(p.panel)}</div>} */}
@@ -544,13 +614,34 @@ export const FloatingPanelsWrapper = (p:{
         oldPanelsCount.current = panels.length
     },[panels])
 
+    const updateFloatingLayout = (layout: iPanelLayout) => {
+        getApi(api => {
+            api.ui.floatingPanel.updatePanelLayout("active", layout)
+        })
+    }
+
     const a1 =  () => { handleToggleVisibility() }
     const a2 = () => {  action("toggleWindowsLayout") }
     const a3 = () => {  action("minimizeActive") }
     const a4 = () => {  action("closeActive") }
     const a5 = () => {  action("toggleWindowsLayout", {layout:"current"}) }
-    const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c", "alt+shift > w",]
-    const actions = [a1, a2, a3, a4, a5]
+
+    const a6 = () => {  updateFloatingLayout("top") }
+    const a7 = () => {  updateFloatingLayout("bottom") }
+    const a8 = () => {  updateFloatingLayout("left") }
+    const a9 = () => {  updateFloatingLayout("right") }
+
+    const a10 = () => {  updateFloatingLayout("top-right") }
+    const a11 = () => {  updateFloatingLayout("bottom-right") }
+    const a12 = () => {  updateFloatingLayout("top-left") }
+    const a13 = () => {  updateFloatingLayout("bottom-left") }
+
+    const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c", "alt+shift > w", 
+        "alt + up", "alt + down", "alt + left", "alt + right",
+        "shift + alt + up", "shift + alt + right", "shift + alt + left", "shift + alt + down",
+    
+    ]
+    const actions = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13]
     useEffect(() => {
         shortcuts.forEach((shortcut, i) => {
             addKeyShortcut(shortcut, actions[i])
@@ -746,6 +837,41 @@ export const FloatingPanelsWrapper = (p:{
 //
 // floatingPanel css in a string
 export const FloatingPanelCss = () => `
+
+
+.list-layout-floating-wrapper {
+    // padding: 10px;
+    position: relative;
+    position: relative;
+    width: 10px;
+    height: 10px;
+    .icon-wrapper {
+        position: absolute;
+        top: -11px;
+        left: -4px;
+        padding: 5px;
+    }
+    ul {
+        transition: 0.5s all;
+        display: none; 
+        position: absolute;
+        right: -19px;
+        top: 20px;
+        width: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0px 0px 3px rgba(0,0,0,.3);
+        text-align: left;
+        list-style: none;
+        margin: 0px;
+        padding: 15px;
+    }
+    &:hover {
+        ul {
+            display: block;
+        }
+    }
+}
 
 //
 // PANEL

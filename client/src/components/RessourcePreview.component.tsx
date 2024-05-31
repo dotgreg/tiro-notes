@@ -94,14 +94,12 @@ export const RessourcePreview = (p: {
 		// if (isLocal && canBePreviewedOnline) return
 		let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100
 		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
-		console.log(111111123333333333333333333333, ext, ssrPreviewPath);
 		if (ext === "epub") {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
 		} else if (ext === "pdf") {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
-			// if csv or arrow format
+			// if csv or arrow format @ TODO => to finish connection
 		} else if (ext === "csv" || ext === "arrow") {
-			console.log(2111111123333333333333333333333)
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("datatable", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
 		} else {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, p.windowId, { fullscreen, onFullscreenClose, ctagHeightOffset}))

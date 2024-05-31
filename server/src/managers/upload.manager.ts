@@ -42,6 +42,8 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		let pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
 		pathToUpload = pathToUpload.split(backConfig.relativeUploadFolderName).join('')// if ends with .resource, cut that part
 
+		let newManualName = e.file.meta.newManualName ? e.file.meta.newManualName : finfos.filename
+
 		if (!idReq || !pathToUpload) return console.log('[UPLOAD] NO IDREQ/PATHTOUPLOAD, cancelling upload', JSON.stringify(e.file.meta), idReq, pathToUpload)
 
 		
@@ -50,14 +52,14 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		let oldPath = `${e.file.pathName}`
 		let displayName = finfos.filenameWithoutExt.replace('-0', '')
 
-		// let newName = `${generateNewFileName(displayName)}.${finfos.extension}`
+		// let newManualName = `${generateNewFileName(displayName)}.${finfos.extension}`
 		// let uncheckedNewAbsPath = cleanPath(`${backConfig.dataFolder}/${pathToUpload}/${backConfig.relativeUploadFolderName}/${finfos.filename}`)
 		// let checkedNewAbsPath = generateUniqueFileName(uncheckedNewAbsPath)
-		// let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newName}`)
+		// let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newManualName}`)
 
 		// if md, upload directly in directory
 		let newAbsFolderPath = cleanPath(`${backConfig.dataFolder}/${pathToUpload}/`)
-		let uncheckedNewRelPath = finfos.extension === 'md' ? `${finfos.filename}` : `${backConfig.relativeUploadFolderName}/${finfos.filename}`
+		let uncheckedNewRelPath = finfos.extension === 'md' ? `${finfos.filename}` : `${backConfig.relativeUploadFolderName}/${newManualName}`
 
 		let uncheckedNewAbsPath = cleanPath(`${newAbsFolderPath}${uncheckedNewRelPath}`)
 		let checkedNewAbsPath = generateUniqueAbsFilePath(uncheckedNewAbsPath)

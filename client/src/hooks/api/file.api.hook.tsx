@@ -10,7 +10,7 @@ import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
 import { debounce, throttle } from 'lodash-es';
-import { addBackMetaToContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
+import { addBackMetaToContent, filterMetaFromFileContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
 
 
 //
@@ -29,7 +29,8 @@ export interface iFileApi {
 		noteLink: string,
 		cb: (noteContent: string) => void,
 		options?: {
-			onError?: Function
+			onError?: Function,
+			removeMetaHeader?: boolean
 		}
 	) => void
 	insertContent: (
@@ -99,7 +100,13 @@ export const useFileApi = (p: {
 		p.eventBus.subscribe(idReq, answer => {
 			if (answer.error && options && options.onError) options.onError(answer.error)
 			else if (answer.error && (!options || !options.onError)) cb(answer.error)
-			else if (!answer.error) cb(answer.content)
+			else if (!answer.error) {
+				if (options && options.removeMetaHeader) {
+					let objAnswer = filterMetaFromFileContent(answer.content)
+					answer.content = objAnswer.content
+				}
+				cb(answer.content)
+			}
 			end()
 		});
 		// 2. emit request 

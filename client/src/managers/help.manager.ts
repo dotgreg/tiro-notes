@@ -27,6 +27,7 @@ export const triggerTiroHelpPopup = () => {
     <li>Alt + Shift + f : New note in a floating window</li>
     <li>Alt + q : Hide/Show All Floating Windows</li>
     <li>Alt + w : Toggle Floating Windows layouts</li>
+    <li>Alt + (Shift) + directional arrow : Change active floating window position </li>
     <li>Alt + shift + w : Re-organize Floating windows from current layout</li>
     <li>Alt + Shift + v : Toggle view of active floating window</li>
     <li>Alt + Shift + m : Minimize active floating window</li>

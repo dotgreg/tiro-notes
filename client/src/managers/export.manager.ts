@@ -78,48 +78,69 @@ const exportTo = (el) => {
                 const destPathAbs = cleanPath(`${destPathFolder}/${destPathFile}`)
                 const destDlPath = cleanPath(`/${sharedConfig.path.configFolder}/${sharedConfig.path.cacheFolder}/pandoc/${destPathFile}`)
 
-                
-               
-                const killPandocPrevCmd = `pkill -9 pandoc`
-                let pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --verbose ${getConfigObj(api, format)}  ${perTypeOptions}  --to=${format} "${inputFilePath}" `
-                // if --from is not set, pandoc will try to guess the format from the file extension
-                if (pandocCmd.includes("--from=") === false) {
-                    pandocCmd = pandocCmd.replace("--to=", `--from=markdown --to=`)
-                }
-                
-                let finalCmd = pandocCmd
-                if (format === "latex-pdf") {
-                    finalCmd = `cd "${pathToCd}" && pdflatex -halt-on-error -output-directory="${destPathFolder}" -jobname="${destPathFileNoExt}" "${inputFilePath}" `
-                }
+                const inputAbsFilePath2 = cleanPath(`${ssrfile.folder}/.export_md_pandoc.txt`)
+                const inputFilePath2 = cleanPath(`./.export_md_pandoc.txt`)
+                // remove === header ===
+                api.file.getContent(ssrfile.path, (contentFile) => {
+                    // if ](/. => ](. for images links
+                    contentFile = contentFile.replace(/\]\(\/\./g, "](.")
+                    api.file.saveContent(inputAbsFilePath2, contentFile, {}, () => {
+                        console.log(h, "saved")
+                        api.file.getContent(inputAbsFilePath2, (contentFile) => {
 
-                const onError = (resObj) => {
-                    let errStr = resObj.stderr === "" ? resObj.stdout : resObj.stderr
-                    console.error("[CONVERT ERROR]:", resObj)
-                    api.ui.notification.emit({ content: `[EXPORT] Error <br/> "${errStr} <br/><br/> ${resObj.shortMessage}"`, id:"export", options:{hideAfter: -1}})
-                }
 
-                // execute pandoc pandocCmd into cache/export/file.fdsljfdsalkfjdsalj.ppt
-                api.command.exec(killPandocPrevCmd, (res) => {
-                    api.command.exec(finalCmd, (res) => {
-                        let resObj  = {failed:false, stderr:null, shortMessage: null}
-                        try {
-                            resObj = JSON.parse(res) || {failed:false}
-                        } catch (e) {
-                            onError(resObj)
-                        }
-                        
-                        if (resObj.failed) {
-                            onError(resObj)
-                        } else {
-                        
-                            // trigger download
-                            let ressLink = getStaticRessourceLink(destDlPath)
-                            downloadFile(destPathFile, ressLink)
 
-                            // delete that file after 2mi
-                        }
+                            const killPandocPrevCmd = `pkill -9 pandoc`
+                            let pandocCmd = `cd "${pathToCd}" && pandoc --output="${destPathAbs}" --verbose ${getConfigObj(api, format)}  ${perTypeOptions}  --to=${format} "${inputFilePath2}" `
+                            // if --from is not set, pandoc will try to guess the format from the file extension
+                            if (pandocCmd.includes("--from=") === false) {
+                                pandocCmd = pandocCmd.replace("--to=", `--from=markdown --to=`)
+                            }
+                            
+                            let finalCmd = pandocCmd
+                            if (format === "latex-pdf") {
+                                finalCmd = `cd "${pathToCd}" && pdflatex -halt-on-error -output-directory="${destPathFolder}" -jobname="${destPathFileNoExt}" "${inputFilePath2}" `
+                            }
+
+                            const onError = (resObj) => {
+                                let errStr = resObj.stderr === "" ? resObj.stdout : resObj.stderr
+                                console.error("[CONVERT ERROR]:", resObj)
+                                api.ui.notification.emit({ content: `[EXPORT] Error <br/> "${errStr} <br/><br/> ${resObj.shortMessage}"`, id:"export", options:{hideAfter: -1}})
+                            }
+
+                            console.log(h, "pandocCmd", pandocCmd)
+
+                            // execute pandoc pandocCmd into cache/export/file.fdsljfdsalkfjdsalj.ppt
+                            api.command.exec(killPandocPrevCmd, (res) => {
+                                api.command.exec(finalCmd, (res) => {
+                                    let resObj  = {failed:false, stderr:null, shortMessage: null}
+                                    try {
+                                        resObj = JSON.parse(res) || {failed:false}
+                                    } catch (e) {
+                                        onError(resObj)
+                                    }
+                                    
+                                    if (resObj.failed) {
+                                        onError(resObj)
+                                    } else {
+                                    
+                                        // trigger download
+                                        let ressLink = getStaticRessourceLink(destDlPath)
+                                        downloadFile(destPathFile, ressLink)
+
+                                        // delete that file after 2mi
+                                    }
+                                })
+                            })
+
+                            
+
+
+                        })
                     })
-                })
+                }, {removeMetaHeader: true})
+               
+                
             })
         })
     })

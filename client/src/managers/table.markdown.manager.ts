@@ -29,7 +29,7 @@ export const triggerAddTableCol = (p:iParamsTableColManip) => {
 
     const finaleContent = linesInfos.lines.join("\n")
     getApi(api => {
-        api.file.saveContent(p.file.path, finaleContent, {history:true, withMetas: p.file})
+        api.file.saveContent(p.file.path, finaleContent, {history:true })
     })
 
 }

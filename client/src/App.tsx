@@ -138,7 +138,7 @@ export const App = () => {
 
 
 	const cleanListAndFileContent = () => {
-		console.log('[cleanListAndFileContent]');
+		// console.log('[cleanListAndFileContent]');
 		cleanFileDetails()
 		cleanFilesList()
 	}

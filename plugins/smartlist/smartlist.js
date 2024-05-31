@@ -102,7 +102,7 @@ const smartlistApp = (innerTagStr, opts) => {
         const searchAndDisplay = (configArray) => {
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
-                console.log('configArray:', configArray[0])
+                // console.log('configArray:', configArray[0])
                 if(configArray[0].tag1) document.getElementById("smart-list-ctag-search").value = configArray[0].tag1
                 if(configArray[0].tag1) localStorage.setItem("smartlist-ctag-tag1", configArray[0].tag1)
                 if(configArray[0].path) document.getElementById("smart-list-ctag-path").value = configArray[0].path
@@ -127,9 +127,11 @@ const smartlistApp = (innerTagStr, opts) => {
                 // for each config, create a div with a title and a list
                 let items = []
                 let customColLength = 0
+                let customColsNames = {}
 
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
+
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
@@ -149,8 +151,11 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         let i = 0
                                                         each(cols, (col) => {
                                                                 i++
+                                                                col = col.trim()
                                                                 finalObj[`col${i}`] = col.trim()
                                                                 if (customColLength < i) customColLength = i
+                                                                // if starts by header_ 
+                                                                if (col.startsWith("header_")) customColsNames[`col${i}`] = col.split("header_")[1]
                                                         })
                                                 }
                                                 let created = new Date(file.created).toISOString().split("T")[0]
@@ -158,6 +163,17 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 items.push(finalObj)
                                         })
                                 })
+                                // for each method of customColsNames using forIn
+                                for (const key in customColsNames) {
+                                        const val = customColsNames[key]
+                                        // replace all replace items[i][key] by items[i][customColsNames[key]] and delete items[i][key]
+                                        each(items, (item) => {
+                                                if (!item[key]) return
+                                                item[val] = item[key]
+                                                delete item[key]
+                                        })
+                                        
+                                }
                                 loadTable()
                         })
                 })
@@ -194,7 +210,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                         })
                                         const configFloatingWindow = {
                                                 type: "ctag",
-                                                layout: "top-right",
+                                                layout: "top",
                                                 id: "smartlist-datatable",
                                                 ctagConfig: {
                                                         tagName: "datatable",
@@ -206,6 +222,12 @@ const smartlistApp = (innerTagStr, opts) => {
                         };
                         for (let i = 1; i <= customColLength; ++i) {
                                 config.cols.push({colId: `col${i}`, headerLabel: `Col${i}`})
+                        }
+                        for (const key in customColsNames) {
+                                config.cols.push({colId: customColsNames[key], headerLabel: customColsNames[key]})
+
+                                // remove key from config.cols
+                                config.cols = config.cols.filter(col => col.colId !== key)
                         }
                         // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
                         // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
