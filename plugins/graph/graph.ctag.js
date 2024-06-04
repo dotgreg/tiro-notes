@@ -56,7 +56,6 @@ const graphApp = (innerTagStr, opts) => {
 		const clamp = (val, min, max) => Math.min(Math.max(val, min), max)
 		const loadDatas = (cb, p) => {
 				// const opts.disableCache = api.utils.getInfos().reloadCounter !== 0
-				// console.log(123333333333, api.utils.getInfos())
 				if (opts.disableCache || p?.disableCache) {
 					console.log(h, "no cache data fetching...");
 					// no cache

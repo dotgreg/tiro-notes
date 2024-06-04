@@ -342,11 +342,11 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. noteLink: <span class="render-code-wrapper">string</span>
-       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;removeMetaHeader?: <span class="render-code-wrapper">boolean</span><br/>}</span>
     - Result: <span class="render-code-wrapper">(noteContent: <span class="render-code-wrapper">string</span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.getContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(noteContent: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.getContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span>, <br/>&nbsp;&nbsp;&nbsp;removeMetaHeader?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(noteContent: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">file.insertContent</span>
@@ -933,6 +933,15 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.updateOrderPosition",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"undefined" | "first" | "last"</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.floatingPanel.updatePanelLayout</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. panelId: <span class="render-code-wrapper">string</span>
+       1. layout: <span class="render-code-wrapper"><a href="#client-api?id=ipanellayout">iPanelLayout</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.updatePanelLayout",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=ipanellayout">iPanelLayout</a></span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.lightbox.close</span>
  - Type: <span class="render-code-wrapper">Function</span> 
  - Example: 
@@ -1477,7 +1486,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPanelLayout</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"full-center" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top" | "top" | "left" | "right" | "bottom-left" | "bottom-right" | "top-left" | "top-right"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"full-center" | "full" | "half-right" | "half-left" | "bottom" | "full-bottom" | "full-top" | "top" | "left" | "right" | "bottom-left" | "bottom-right" | "top-left" | "top-right"</span></div>
  
 
 #### <span class="render-code-wrapper">iCreateFloatingPanel</span>

@@ -130,7 +130,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('searchWord', async data => {
 		// replace * by ANY word
-		
 		data.word = data.word.split("*").join(regexs.strings.charWithAccents)
 		const withMetadataSearch = !data.options?.disableMetadataSearch || true
 		const withTitleSearch = !data.options?.disableTitleSearch || true

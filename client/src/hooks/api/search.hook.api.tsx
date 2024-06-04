@@ -90,7 +90,9 @@ export const useSearchApi = (p: {
 		console.log(`${h} searching WORD ${word} in ${folder}`, options);
 
 		// subscribe
-		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { cb(res) });
+		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { 
+			cb(res) 
+		});
 
 		// start request
 		clientSocket2.emit('searchWord', { word, folder, options, token: getLoginToken(), idReq })
