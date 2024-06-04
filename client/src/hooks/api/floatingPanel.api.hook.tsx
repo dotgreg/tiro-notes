@@ -139,7 +139,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const updatePanelLayoutInt = (panel:iFloatingPanel, layout: iPanelLayout) => {
-        let padding = 20
+        let padding = 0
         if (layout === "full-center"|| layout === "full") {
             panel.position = {x: padding, y: padding}
             panel.size = {width: window.innerWidth - (2*padding), height: window.innerHeight - (2*padding)}

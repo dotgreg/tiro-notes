@@ -75,9 +75,12 @@ export const processRawPathToFile = (p: {
 	if (!index) index = 0
 	if (!titleFilter) titleFilter = ''
 	
+	console.log(1000, p)
 	let res: iFile
 	let relativeFilePath = getRelativePathFromSearchPath(rawPath, folder)
 	folder = cleanFolderPath(folder)
+
+	if (!relativeFilePath.includes(folder)) relativeFilePath = `${folder}/${relativeFilePath}`
 
 
 	
@@ -93,11 +96,11 @@ export const processRawPathToFile = (p: {
 		let fullPath = `${backConfig.dataFolder}/${relativeFilePath}`
 
 		// if folder is not included in relativeFilePath, add it
-		if (!relativeFilePath.includes(folder)) fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
 		fullPath = cleanPath(fullPath)
 		// console.log('fullPath', fullPath, folder, relativeFilePath)
 		let stats = fileStats(fullPath)
 		let relativeFolder = path.dirname(relativeFilePath)
+		console.log(223333, {fileName, fullPath, folder, relativeFilePath, relativeFolder})
 
 		res = createIFile(fileName, relativeFolder, index, stats)
 	} catch (error) {
