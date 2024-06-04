@@ -152,6 +152,7 @@ export const searchWithRgGeneric = async (p: {
 				path: lineRaw[0],  
 				found,
 			})
+			console.log(123, processedLine.file.path, lineRaw)
 			if (processedLine) linesResult.push(processedLine)
 		})
 	}

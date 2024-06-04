@@ -135,6 +135,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
+                                                
+
                                                 // let words = result.split(" ")
                                                 // if word start by either tag1, 2 or 3, add tag1,2,3 to the object
                                                 // let [tag1, tag2, tag3] = [null, null, null]
@@ -233,6 +235,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
                         // {colId: "filename", headerLabel: "Filename"},
                         // {colId: "folder", headerLabel: "Folder"},
+
                         config.cols.push({colId: "filename", headerLabel: "Filename"})
                         config.cols.push({colId: "created", headerLabel: "Created"})
                         config.cols.push({colId: "folder", headerLabel: "Folder"})
@@ -299,7 +302,6 @@ const smartlistApp = (innerTagStr, opts) => {
                 <div id="smart-list-ctag-inner"> 
                 
                 </div>
-                
         </div>
 
         <style>

@@ -54,12 +54,9 @@ export const getRelativePathFromSearchPath = (rawString: string, searchFolder:st
 	// let fileName = path.basename(rawString);
 	// // if starts by / remove it
 	// if (fileName.startsWith('/')) fileName = fileName.substring(1)
-	// console.log(fileName)
 	// end = fileName
 
 	// let foldFull = backConfig.dataFolder + folder
-	// console.log(JSON.stringify({init, foldFull, end, folder}))
-	// console.log('cleanedFileNamePath',backConfig.dataFolder, rawString, " => ", end)
 	return end
 }
 
@@ -82,6 +79,7 @@ export const processRawPathToFile = (p: {
 	let relativeFilePath = getRelativePathFromSearchPath(rawPath, folder)
 	folder = cleanFolderPath(folder)
 
+
 	
 
 	// TITLE FILTER
@@ -93,12 +91,15 @@ export const processRawPathToFile = (p: {
 	try {
 		// let fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
 		let fullPath = `${backConfig.dataFolder}/${relativeFilePath}`
+
 		// if folder is not included in relativeFilePath, add it
 		if (!relativeFilePath.includes(folder)) fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
 		fullPath = cleanPath(fullPath)
 		// console.log('fullPath', fullPath, folder, relativeFilePath)
 		let stats = fileStats(fullPath)
-		res = createIFile(fileName, folder, index, stats)
+		let relativeFolder = path.dirname(relativeFilePath)
+
+		res = createIFile(fileName, relativeFolder, index, stats)
 	} catch (error) {
 		console.log(333, error)
 		shouldLog && log(h, 'ERROR : ', error);

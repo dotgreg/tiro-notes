@@ -637,8 +637,8 @@ export const FloatingPanelsWrapper = (p:{
     const a13 = () => {  updateFloatingLayout("bottom-left") }
 
     const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c", "alt+shift > w", 
-        "alt + up", "alt + down", "alt + left", "alt + right",
-        "shift + alt + up", "shift + alt + right", "shift + alt + left", "shift + alt + down",
+        "ctrl + up", "ctrl + down", "ctrl + left", "ctrl + right",
+        "shift + ctrl + up", "shift + ctrl + right", "shift + ctrl + left", "shift + ctrl + down",
     
     ]
     const actions = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13]

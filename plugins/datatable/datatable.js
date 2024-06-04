@@ -4,8 +4,11 @@
 declare var dfd: any;
 import type {iGraphPerspectiveParams, iGraphPerspectiveViewerWrapper} from "../_common/components/graph_perspective/graph_perspective.component"
 import type {iCommonLib} from "../_common/common.lib"
+// shortcut for :tabclose in vim => 
 */
 const h = "[DATATABLE CTAG]"
+
+
 
 const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
         let api = window.api
