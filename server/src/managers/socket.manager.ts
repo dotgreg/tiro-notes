@@ -133,7 +133,9 @@ export const initServerSocketManager =
 						// TRY CATCH for upload errors mainly
 						try {
 							await callback(rawClientData)
-						} catch (e) { console.log(`${h} ==> ERROR ${JSON.stringify(e)}`); }
+						} catch (e) { 
+							console.log(`${h} ==> ERROR ${JSON.stringify(e)}, rawClientData`, rawClientData); 
+						}
 					}
 				});
 			},

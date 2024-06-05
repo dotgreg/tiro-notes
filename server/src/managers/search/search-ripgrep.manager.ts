@@ -104,19 +104,10 @@ export const searchWithRgGeneric = async (p: {
 	let typeArgs = ['--type','md']
 	if (p.options.filetype === "all") typeArgs = ['--files']
 	const onRgDoesNotExists = (err) => {
-		// console.log(h, err)
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
 	}
 	let exclusionArr:string[] = []
-	// exclusion string // not working currenlty
-	// if (p.options.exclude) {
-	// 	each(p.options.exclude, excludePath => {
-	// 		// exclusionArr += `--glob '!${excludePath}/'`
-	// 		exclusionArr.push("--glob")
-	// 		exclusionArr.push("'!${excludePath}/'")
-	// 	})
-	// }
 
 	////////////////////////////////////////////////////v
 	// 1/3 HEADER METADATA SEARCH
@@ -152,7 +143,6 @@ export const searchWithRgGeneric = async (p: {
 				path: lineRaw[0],  
 				found,
 			})
-			console.log(123, processedLine.file.path, lineRaw)
 			if (processedLine) linesResult.push(processedLine)
 		})
 	}
@@ -196,7 +186,6 @@ export const searchWithRgGeneric = async (p: {
 				if (!line.includes(p.term)) return
 				let file = processRawPathToFile({ rawPath: line, folder: p.folder })
 				if (!file.name.includes(p.term)) return
-				// console.log(123, line, file.name)
 				let found = `[📄 filename match]: ${file.name}`
 				const processedLine:iLineResult = p.processRawLine({
 					file: file,
@@ -381,6 +370,7 @@ export const searchWithRipGrep = async (params: {
 			// const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
 
 			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams });
+
 			params.onSearchEnded({ files: filesWithMetaUpdated })
 			end()
 		}
