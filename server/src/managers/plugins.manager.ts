@@ -33,13 +33,18 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
     let res:iRes = {plugins:[], scanLog:[]}
     
 
-    const pluginFiles = await scanDirForFiles(asbPluginsFolderPath)
+    let pluginFiles = await scanDirForFiles(asbPluginsFolderPath)
+    // console.log(666666666, pluginFiles)
+    // console.log(123, `found ${pluginFiles.length} plugins`, pluginFiles)
     if (!isArray(pluginFiles)) return res
+    // filter out non md files
+    pluginFiles = pluginFiles.filter(f => f.name.endsWith('.md'))
 
     const promises = pluginFiles.map(async f => {
         let fullpath = `${backConfig.dataFolder}/${f.path}`
         let pluginRawContent = await openFile(fullpath)
-        // interpret it
+        
+
         try {
             let interpretedCode = new Function(pluginRawContent)() 
             // check that an array is return and each has name, type etc. to become a iPlugin
@@ -52,7 +57,6 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
                     }
                 }) 
             }
-
         } catch (e) {
             res.scanLog.push(`load error for ${f.name} ${JSON.stringify(e.message)}`)
         }

@@ -269,13 +269,14 @@ const epubApp = (innerTagStr, opts) => {
 						// let cpage = getPage()
 						if (pageNb < 0) pageNb = 0
 						let cfi = book.locations.cfiFromLocation(pageNb)
-						console.log(h, "JUMPING PAGE", pageNb, cfi);
+						// resizeFullHeight()
 						rendition.display(cfi);
-						// setTimeout(() => {
-						// 	let npage = getPage()
-						// }, 100)
 						addToTimelineLogFile(getPage())
+						// debouncedResize()
 				}
+				const debouncedResize = debounce(() => {
+						resizeFullHeight()
+				}, 500)
 				const getPage = () => {
 						return rendition.currentLocation()?.start?.location || 0
 				}
@@ -322,10 +323,13 @@ const epubApp = (innerTagStr, opts) => {
 									heightRef = el.clientHeight
 									el.setAttribute("data-height-ref", heightRef)
 								}
-								const nheight = parseInt(heightRef) + 200
-								el.style.height = `${nheight}px`
-								let ifr = el.querySelector("iframe")
-								if (ifr) ifr.style.height = `${nheight}px`
+								if (parseInt(heightRef) !== 0) {
+									const nheight = parseInt(heightRef) + 200
+									console.log(h, "TRIGGER RESIZE", nheight, heightRef);
+									el.style.height = `${nheight}px`
+									let ifr = el.querySelector("iframe")
+									if (ifr) ifr.style.height = `${nheight}px`
+								}
 							})
 						}
 
@@ -532,61 +536,6 @@ const epubApp = (innerTagStr, opts) => {
 					pageManager.startPage = getPage()
 					pageManager.iterations = 1
 					jumpToPage(pageManager.startPage + pageManager.iterations)
-
-					// V1
-					// console.log(h, "jumpToNextPage", rendition);	
-					// console.log(rendition, rendition.currentLocation())
-					// book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
-					// // rendition.display("Paul et Myriam ont fait "); 
-
-					//V2 not working
-					// let initpage = getPage()
-					// let npage = getPage()
-					// // console.log(h, "jumpToNextPage", {pageNb});
-					// // if (pageNb === 0) return jumpToPage(1)
-					// let int = setInterval(() => {
-					// 	let cpage = getPage()
-					// 	console.log("jumpToNextPage1", {initpage, cpage, npage})
-					// 	if (initpage !== cpage) return clearInterval(int)
-					// 	npage = npage + 1
-					// 	jumpToPage(npage)
-					// }, 50)
-
-					// const youtubeChannelToId = (channelName, cb) => {
-					// 	channelName = channelName.startsWith("@") ? channelName : `@${channelName}`
-					// 	let channelUrl = `https://www.youtube.com/${channelName}`
-					// 	api.ressource.fetch(channelUrl, res => {
-					// 		arr1 = res.split(`href="https://www.youtube.com/channel/`); 
-					// 		arr2 = arr1[1].split(`"`)[0]; 
-							
-					// 		if (arr2.length > 10 && arr2.length < 40) cb(arr2)
-					// 		else console.error(`YT error could not fetch id of ${channelUrl}`)
-					// 	})
-					// }
-					// youtubeChannelToId("justinetbee", res => {console.log(res)})
-					
-					// setTimeout(() => {
-					// 	let npage = getPage()
-					// 	console.log(h, "jumpToNextPage", {npage, oldpage});
-					// 	if (npage === oldpage) book.package.metadata.direction === "rtl" ? rendition.prev() : rendition.next();
-					// 	//jumpToPage(oldpage + 1)
-					// 	//console.log8
-					// }, 10)
-
-					// V3 
-					// let pageNb = getPage()
-					// jumpToPage(pageNb + 1)
-					// setTimeout(() => {
-					// 	let npagenb = getPage()
-					// 	console.log("jumpToNextPage2", {pageNb, npagenb})
-					// 	jumpToPage(pageNb + 2)
-					// 	setTimeout(() => {
-					// 		let npagenb = getPage()
-					// 		console.log("jumpToNextPage3", {pageNb, npagenb})
-					// 		jumpToPage(pageNb + 3)
-					// 	},100)
-					// },100)
-
 					eapi.updateUI()
 				}
 				const jumpToPrevPage = () => {
