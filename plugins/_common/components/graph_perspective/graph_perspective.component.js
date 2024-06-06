@@ -790,6 +790,15 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     // opacity:0.00001;
                 }
 
+                .loading {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 200px;
+                    text-align: center;
+                    width: 100%;
+
+                }
 
                 perspective-viewer {
                     width: 100%;
@@ -819,7 +828,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         }
     );
     
-    return `<div id="ctag-component-advanced-table-wrapper"> loading...  </div>` 
+    return `<div id="ctag-component-advanced-table-wrapper"> <div class="loading">loading...</div>  </div>` 
 }
 
 
