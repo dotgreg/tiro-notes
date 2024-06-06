@@ -314,11 +314,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 
 	const updateAutocompletePopupPos = () => {
-		console.log(123333333333)
 		let popup = document.querySelector(".cm-tooltip")
 		if (popup) {
+			console.log(decalAutocompleteRef.current)
+			const transformString = `translate(${(-Math.round(decalAutocompleteRef.current[0] ))}px, ${-(Math.round(decalAutocompleteRef.current[1] - 20))}px)`
 			//@ts-ignore
-			popup.style.transform = `translate(-${decalAutocompleteRef.current[0] - 30}px, -${decalAutocompleteRef.current[1] - 80}px)`
+			popup.style.transform = transformString
 		}
 	}
 	const decalAutocompleteRef = useRef<number[]>([0, 0])
@@ -453,7 +454,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// const updateCurrentSelection = (selection) => {
 	// 	setTimeout(() => {
-	// 		console.log(123, selection)
 	// 	}, 10)
 	// }
 

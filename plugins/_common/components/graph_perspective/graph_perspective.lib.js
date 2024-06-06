@@ -297,7 +297,7 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
 
             
 
-            console.log("updateTablePreview2", dataArr)
+            // console.log("updateTablePreview2", dataArr)
             
             // add header
             table.appendChild(header)
@@ -336,13 +336,13 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
         //
         const fakeData1 = `"class","sepal length","sepal width","petal length","petal width"\n"Iris-setosa",5.1,3.5,1.4,0.2\n"Iris-setosa",4.9,3,1.4,0.2\n"Iris-setosa",4.7,3.2,1.3,0.2\n"Iris-setosa",4.6,3.1,1.5,0.2\n"Iris-setosa",5,3.6,1.4,0.2\n"Iris-setosa",5.4,3.9,1.7,0.4\n"Iris-setosa",4.6,3.4,1.4,0.3\n"Iris-setosa",5,3.4,1.5,0.2\n"Iris-setosa",4.4,2.9,1.4,0.2\n"Iris-setosa",4.9,3.1,1.5,0.1\n"Iris-setosa",5.4,3.7,1.5,0.2\n"Iris-setosa",4.8,3.4,1.6,0.2\n"Iris-setosa",4.8,3,1.4,0.1\n"Iris-setosa",4.3,3,1.1,0.1\n"Iris-setosa",5.8,4,1.2,0.2\n"Iris-setosa",5.7,4.4,1.5,0.4\n"Iris-setosa",5.4,3.9,1.3,0.4\n"Iris-setosa",5.1,3.5,1.4,0.3\n"Iris-setosa",5.7,3.8,1.7,0.3\n"Iris-setosa",5.1,3.8,1.5,0.3\n"Iris-setosa",5.4,3.4,1.7,0.2\n"Iris-setosa",5.1,3.7,1.5,0.4\n"Iris-setosa",4.6,3.6,1,0.2\n"Iris-setosa",5.1,3.3,1.7,0.5\n"Iris-setosa",4.8,3.4,1.9,0.2\n"Iris-setosa",5,3,1.6,0.2\n"Iris-setosa",5,3.4,1.6,0.4\n"Iris-setosa",5.2,3.5,1.5,0.2\n"Iris-setosa",5.2,3.4,1.4,0.2\n"Iris-setosa",4.7,3.2,1.6,0.2\n"Iris-setosa",4.8,3.1,1.6,0.2\n"Iris-setosa",5.4,3.4,1.5,0.4\n"Iris-setosa",5.2,4.1,1.5,0.1\n"Iris-setosa",5.5,4.2,1.4,0.2\n"Iris-setosa",4.9,3.1,1.5,0.1\n"Iris-setosa",5,3.2,1.2,0.2\n"Iris-setosa",5.5,3.5,1.3,0.2\n"Iris-setosa",4.9,3.1,1.5,0.1\n"Iris-setosa",4.4,3,1.3,0.2\n"Iris-setosa",5.1,3.4,1.5,0.2\n"Iris-setosa",5,3.5,1.3,0.3\n"Iris-setosa",4.5,2.3,1.3,0.3\n"Iris-setosa",4.4,3.2,1.3,0.2\n"Iris-setosa",5,3.5,1.6,0.6\n"Iris-setosa",5.1,3.8,1.9,0.4\n"Iris-setosa",4.8,3,1.4,0.3\n"Iris-setosa",5.1,3.8,1.6,0.2\n"Iris-setosa",4.6,3.2,1.4,0.2\n"Iris-setosa",5.3,3.7,1.5,0.2\n"Iris-setosa",5,3.3,1.4,0.2\n"Iris-versicolor",7,3.2,4.7,1.4\n"Iris-versicolor",6.4,3.2,4.5,1.5\n"Iris-versicolor",6.9,3.1,4.9,1.5\n"Iris-versicolor",5.5,2.3,4,1.3\n"Iris-versicolor",6.5,2.8,4.6,1.5\n"Iris-versicolor",5.7,2.8,4.5,1.3\n"Iris-versicolor",6.3,3.3,4.7,1.6\n"Iris-versicolor",4.9,2.4,3.3,1\n"Iris-versicolor",6.6,2.9,4.6,1.3\n"Iris-versicolor",5.2,2.7,3.9,1.4\n"Iris-versicolor",5,2,3.5,1\n"Iris-versicolor",5.9,3,4.2,1.5\n"Iris-versicolor",6,2.2,4,1\n"Iris-versicolor",6.1,2.9,4.7,1.4\n"Iris-versicolor",5.6,2.9,3.6,1.3\n"Iris-versicolor",6.7,3.1,4.4,1.4\n"Iris-versicolor",5.6,3,4.5,1.5\n"Iris-versicolor",5.8,2.7,4.1,1\n"Iris-versicolor",6.2,2.2,4.5,1.5\n"Iris-versicolor",5.6,2.5,3.9,1.1\n"Iris-versicolor",5.9,3.2,4.8,1.8\n"Iris-versicolor",6.1,2.8,4,1.3\n"Iris-versicolor",6.3,2.5,4.9,1.5\n"Iris-versicolor",6.1,2.8,4.7,1.2\n"Iris-versicolor",6.4,2.9,4.3,1.3\n"Iris-versicolor",6.6,3,4.4,1.4\n"Iris-versicolor",6.8,2.8,4.8,1.4\n"Iris-versicolor",6.7,3,5,1.7\n"Iris-versicolor",6,2.9,4.5,1.5\n"Iris-versicolor",5.7,2.6,3.5,1\n"Iris-versicolor",5.5,2.4,3.8,1.1\n"Iris-versicolor",5.5,2.4,3.7,1\n"Iris-versicolor",5.8,2.7,3.9,1.2\n"Iris-versicolor",6,2.7,5.1,1.6\n"Iris-versicolor",5.4,3,4.5,1.5\n"Iris-versicolor",6,3.4,4.5,1.6\n"Iris-versicolor",6.7,3.1,4.7,1.5\n"Iris-versicolor",6.3,2.3,4.4,1.3\n"Iris-versicolor",5.6,3,4.1,1.3\n"Iris-versicolor",5.5,2.5,4,1.3\n"Iris-versicolor",5.5,2.6,4.4,1.2\n"Iris-versicolor",6.1,3,4.6,1.4\n"Iris-versicolor",5.8,2.6,4,1.2\n"Iris-versicolor",5,2.3,3.3,1\n"Iris-versicolor",5.6,2.7,4.2,1.3\n"Iris-versicolor",5.7,3,4.2,1.2\n"Iris-versicolor",5.7,2.9,4.2,1.3\n"Iris-versicolor",6.2,2.9,4.3,1.3\n"Iris-versicolor",5.1,2.5,3,1.1\n"Iris-versicolor",5.7,2.8,4.1,1.3\n"Iris-virginica",6.3,3.3,6,2.5\n"Iris-virginica",5.8,2.7,5.1,1.9\n"Iris-virginica",7.1,3,5.9,2.1\n"Iris-virginica",6.3,2.9,5.6,1.8\n"Iris-virginica",6.5,3,5.8,2.2\n"Iris-virginica",7.6,3,6.6,2.1\n"Iris-virginica",4.9,2.5,4.5,1.7\n"Iris-virginica",7.3,2.9,6.3,1.8\n"Iris-virginica",6.7,2.5,5.8,1.8\n"Iris-virginica",7.2,3.6,6.1,2.5\n"Iris-virginica",6.5,3.2,5.1,2\n"Iris-virginica",6.4,2.7,5.3,1.9\n"Iris-virginica",6.8,3,5.5,2.1\n"Iris-virginica",5.7,2.5,5,2\n"Iris-virginica",5.8,2.8,5.1,2.4\n"Iris-virginica",6.4,3.2,5.3,2.3\n"Iris-virginica",6.5,3,5.5,1.8\n"Iris-virginica",7.7,3.8,6.7,2.2\n"Iris-virginica",7.7,2.6,6.9,2.3\n"Iris-virginica",6,2.2,5,1.5\n"Iris-virginica",6.9,3.2,5.7,2.3\n"Iris-virginica",5.6,2.8,4.9,2\n"Iris-virginica",7.7,2.8,6.7,2\n"Iris-virginica",6.3,2.7,4.9,1.8\n"Iris-virginica",6.7,3.3,5.7,2.1\n"Iris-virginica",7.2,3.2,6,1.8\n"Iris-virginica",6.2,2.8,4.8,1.8\n"Iris-virginica",6.1,3,4.9,1.8\n"Iris-virginica",6.4,2.8,5.6,2.1\n"Iris-virginica",7.2,3,5.8,1.6\n"Iris-virginica",7.4,2.8,6.1,1.9\n"Iris-virginica",7.9,3.8,6.4,2\n"Iris-virginica",6.4,2.8,5.6,2.2\n"Iris-virginica",6.3,2.8,5.1,1.5\n"Iris-virginica",6.1,2.6,5.6,1.4\n"Iris-virginica",7.7,3,6.1,2.3\n"Iris-virginica",6.3,3.4,5.6,2.4\n"Iris-virginica",6.4,3.1,5.5,1.8\n"Iris-virginica",6,3,4.8,1.8\n"Iris-virginica",6.9,3.1,5.4,2.1\n"Iris-virginica",6.7,3.1,5.6,2.4\n"Iris-virginica",6.9,3.1,5.1,2.3\n"Iris-virginica",5.8,2.7,5.1,1.9\n"Iris-virginica",6.8,3.2,5.9,2.3\n"Iris-virginica",6.7,3.3,5.7,2.5\n"Iris-virginica",6.7,3,5.2,2.3\n"Iris-virginica",6.3,2.5,5,1.9\n"Iris-virginica",6.5,3,5.2,2\n"Iris-virginica",6.2,3.4,5.4,2.3\n"Iris-virginica",5.9,3,5.1,1.8`
 
-        console.log("csvString", csvString)
+        // console.log("csvString", csvString)
         let csvArray = csvString.split("\n").map(row => row.split(","))
         if (csvArray.length < 2) {
             console.log("not enough data, loading fake data")
             csvArray = fakeData1.split("\n").map(row => row.split(","))
         }
-        console.log("csvArray", csvArray.length)
+        // console.log("csvArray", csvArray.length)
         let colsNames = csvArray[0]
         // remove from colNames the " and ' characters
         colsNames = colsNames.map((colName) => {
@@ -365,7 +365,7 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
                 }
             }
         }
-        console.log("colsValues", colsValues, colsNames, dataType)
+        // console.log("colsValues", colsValues, colsNames, dataType)
         updateTablePreview(colsValues, 100)
 
         //
@@ -560,12 +560,19 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
     const mainCtagLogicPlotly = (csvString) => {
         window.disableCache=false;
             
+        // if(document.body) document.body.innerHTML = ` loading plotly environment...`
+        // console.log(document.body)
+        // add to body a loading div 
+        const loadingDiv = document.createElement("div")
+        loadingDiv.innerHTML = "loading plotly environment..."
         api.utils.loadRessources(
             [
                 "https://cdn.plot.ly/plotly-latest.min.js",
             ],
             () => {
                 logicInt(csvString)
+                // destroy loading div
+                loadingDiv.remove()
             }
         );
     }
