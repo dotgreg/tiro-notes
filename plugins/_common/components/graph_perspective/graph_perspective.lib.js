@@ -366,9 +366,8 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
                 }
             }
         }
-
         console.log("colsValues", colsValues, colsNames, dataType)
-        updateTablePreview(colsValues, 300)
+        updateTablePreview(colsValues, 100)
 
         //
         // add a style
@@ -556,7 +555,7 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
             document.querySelector("textarea").value = configStr
         }
             
-        loadPlot("splom")
+        // loadPlot("splom")
     }
 
     const mainCtagLogicPlotly = (csvString) => {

@@ -312,19 +312,34 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// Trigger on autocomplete popup opens
 	//
-	const onAutocomplete = () => {
+
+	const updateAutocompletePopupPos = () => {
+		console.log(123333333333)
+		let popup = document.querySelector(".cm-tooltip")
+		if (popup) {
+			//@ts-ignore
+			popup.style.transform = `translate(-${decalAutocompleteRef.current[0] - 30}px, -${decalAutocompleteRef.current[1] - 80}px)`
+		}
+	}
+	const decalAutocompleteRef = useRef<number[]>([0, 0])
+	const onAutocompleteOpen = () => {
 		//@ts-ignore
 		const editorDiv = forwardedRefCM?.current?.editor || null
-		console.log("onAutocomplete editorDiv", editorDiv)
+		const parentNode = editorDiv.parentNode
+		const windowIdClass = `window-id-sizeref-${p.windowId}`
+		const windowIdEl = document.querySelector(`.${windowIdClass}`)
+		const windowIdEls = document.querySelector(`.${windowIdClass}`)
 		if (editorDiv) {
-			let rect = editorDiv.getBoundingClientRect()
+			// let rect = editorDiv.getBoundingClientRect()
+			let rect = windowIdEl?.getBoundingClientRect()
 			setTimeout(() => {
 				// get popup html element .cm-tooltip
-				let popup = document.querySelector(".cm-tooltip")
-				console.log("open onAutocomplete", rect, popup)
+				if (!rect) return
+				decalAutocompleteRef.current = [rect.left, rect.top]
 				//@ts-ignore
-				popup.style.transform = `translate(-${rect.left}px, -${rect.top - 40}px)`
-			},100)
+				// popup.style.transform = `translate(-${rect.left}px, -${rect.top - 40}px)`
+				updateAutocompletePopupPos()
+			}, 100)
 			// rectify popup position using transform translate and rect top and left
 		}
 	}
@@ -335,7 +350,12 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
 				// AUTOCOMPLETION
-				autocompletion({ override: getAllCompletionSources(p.file, onAutocomplete) }),
+				autocompletion({ override: getAllCompletionSources(p.file, onAutocompleteOpen),  }),
+				EditorView.updateListener.of((update) => {
+					if (update.docChanged ) {
+						updateAutocompletePopupPos()
+					}
+				}),
 				
 				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
