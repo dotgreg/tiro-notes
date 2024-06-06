@@ -19,10 +19,10 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
             <div id="interface-wrapper">
                 
                 <div id="left-wrapper">
-                    <div id="table-preview-wrapper"></div>
                     <div id="textarea-wrapper">
                         <textarea placeholder="Enter your custom plotly data here"></textarea>
                     </div>
+                    <div id="table-preview-wrapper"></div>
                 </div>
                 <div id="plotly"></div>
             </div>
@@ -76,7 +76,6 @@ const openPlotlyWindow = (api, csvStringExt, id) => {
 
             .config-wrapper {
                 display:flex;
-                margin-top: 30px;
             }
             #config-select {
                 display:none;
