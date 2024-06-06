@@ -9,7 +9,7 @@ import { security, formatHeader} from './managers/security.manager';
 import "./managers/activity.manager"
 import { logActivity } from './managers/activity.manager';
 import { scanDirForFolders, scanDirForFolders2 } from './managers/dir.manager';
-
+var compression = require('compression')
 fileLogClean();
 
 const archi = process.arch 
@@ -29,6 +29,8 @@ const app = express()
 
 var cors = require('cors')
 app.use(cors());
+app.use(compression())
+
 
 let server
 if (backConfig.https) server = require("https").createServer(sslConfig, app)
