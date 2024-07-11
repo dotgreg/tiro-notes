@@ -314,19 +314,21 @@ export const previewAreaSimpleCss = (d?: any) => {
 
 		ul {
 				padding: 0px;
-				list-style-image: "./custom_icons/view-1.svg"; 
-				list-style: none; 
+				// list-style-image: "./custom_icons/view-1.svg"; 
+				// list-style: none; 
+				margin-left: 20px;
+				list-style: '- ';
 		}
 
 		ul li {
 				padding-left: 12px;
 		}
 		ul li:before {
-				content: '-';
-				color: ${cssVars.colors.main};
-				width: 10px;
-				display: inline-block;
-				font-size: ${getFontSize(+5)}px;
+				// content: '-';
+				// color: ${cssVars.colors.main};
+				// width: 10px;
+				// display: inline-block;
+				// font-size: ${getFontSize(+5)}px;
 
 				/* background-image: url(./custom_icons/line.svg); */
 				/* background-repeat: no-repeat; */

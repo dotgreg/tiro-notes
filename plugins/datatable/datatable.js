@@ -45,7 +45,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         const line = lines[i]
                         if (line.trim() === "") continue
                         const obj = {}
-                        const values = line.split(separator).map((h) => h.trim())
+                        const values = line.split(separator).map((h) => h.replaceAll("__COMMA_CHAR__",",").trim())
                         for (let j = 0; j < headers.length; j++) {
                                 obj[headers[j]] = values[j]
                         }

@@ -847,7 +847,7 @@ export const FloatingPanelCss = () => `
     height: 10px;
     .icon-wrapper {
         position: absolute;
-        top: -11px;
+        top: -12px;
         left: -4px;
         padding: 5px;
     }
