@@ -408,6 +408,7 @@ export const App = () => {
 		MobileToolbarComponent
 	} = useMobileView()
 
+
 	//@ts-ignore
 	window.api = api
 

@@ -454,6 +454,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	//
 	// const updateCurrentSelection = (selection) => {
 	// 	setTimeout(() => {
+	// 		console.log(123, selection)
 	// 	}, 10)
 	// }
 

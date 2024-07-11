@@ -403,7 +403,7 @@ export const iframeMainCode = (p: {
 		}
 		const el = document.getElementById('external-ressources-wrapper')
 
-		if (!el) return console.error(h, `could not load ${url} because ressource wrapper was not detected`)
+		if (!el) return console.trace(h, `could not load ${url} because ressource wrapper was not detected`)
 		el.appendChild(tag)
 	}
 
@@ -430,6 +430,8 @@ export const iframeMainCode = (p: {
 					if (cb) cb()
 				} catch (e) {
 					console.error(h, `ERROR LoadScript Callback : ${e}`);
+					console.log(e)
+					console.log("tried to load scripts:", ressources)
 				}
 			}
 		}
@@ -497,7 +499,8 @@ export const iframeMainCode = (p: {
 					try {
 						if (cb) cb()
 					} catch (e) {
-						console.error(h, `ERROR LoadScript Callback : ${e}`);
+						console.error(h, `ERROR LoadScript Callback : ${e}`, scriptToLoad);
+						console.log(e)
 					}
 				}
 			}

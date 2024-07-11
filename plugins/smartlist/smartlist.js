@@ -1,9 +1,9 @@
 // 10.10.2023 v1.1
 
 const smartlistApp = (innerTagStr, opts) => {
-    const { div, updateContent } = api.utils.createDiv()
+        const { div, updateContent } = api.utils.createDiv()
 
-    const outputPaths = {  }
+        const outputPaths = {}
         ///////////////////////////////////////////////////
         // SUPPORT
         //
@@ -34,6 +34,7 @@ const smartlistApp = (innerTagStr, opts) => {
         const readConfigString = () => {
                 // split EDF TODO | # | /etc/blabla
                 // INVEST | # | /etc/blabla in a config array of objects with category, searchTag and path
+
                 let configArray = []
                 let hasTag2 = false
                 let hasTag3 = false
@@ -61,10 +62,10 @@ const smartlistApp = (innerTagStr, opts) => {
                 // return {terms, paths}
                 // console.log('configArray:', configArray, innerTagStr)
                 // if configArr length is 0
-                if (configArray.length === 0)configArray  = [{}]
+                if (configArray.length === 0) configArray = [{}]
                 return configArray
         }
-        
+
         const triggerSearchFromInput = (configArray) => {
                 const searchInput = document.getElementById("smart-list-ctag-search")
                 const pathInput = document.getElementById("smart-list-ctag-path")
@@ -103,11 +104,11 @@ const smartlistApp = (innerTagStr, opts) => {
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
                 // console.log('configArray:', configArray[0])
-                if(configArray[0].tag1) document.getElementById("smart-list-ctag-search").value = configArray[0].tag1
-                if(configArray[0].tag1) localStorage.setItem("smartlist-ctag-tag1", configArray[0].tag1)
-                if(configArray[0].path) document.getElementById("smart-list-ctag-path").value = configArray[0].path
-                if(configArray[0].path) localStorage.setItem("smartlist-ctag-path", configArray[0].path)
-                
+                if (configArray[0].tag1) document.getElementById("smart-list-ctag-search").value = configArray[0].tag1
+                if (configArray[0].tag1) localStorage.setItem("smartlist-ctag-tag1", configArray[0].tag1)
+                if (configArray[0].path) document.getElementById("smart-list-ctag-path").value = configArray[0].path
+                if (configArray[0].path) localStorage.setItem("smartlist-ctag-path", configArray[0].path)
+
                 // save configArray[0].tag1 and configArray[0].path to localStorage
                 // localStorage.setItem("smartlist-ctag-tag1", configArray[0].tag1)
                 // localStorage.setItem("smartlist-ctag-path", configArray[0].path)
@@ -115,14 +116,14 @@ const smartlistApp = (innerTagStr, opts) => {
 
                 wrapperEl.innerHTML = "Loading..."
                 const api = window.api;
-                
+
                 const searchWord = (word, path, cb) => {
                         api.call("search.word", [word, path], content => {
                                 cb(content)
                         })
                 }
 
-                
+
                 // document.getElementById("smart-list-ctag").innerHTML = JSON.stringify(configArray)
                 // for each config, create a div with a title and a list
                 let items = []
@@ -135,7 +136,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
-                                                
+
 
                                                 // let words = result.split(" ")
                                                 // if word start by either tag1, 2 or 3, add tag1,2,3 to the object
@@ -147,7 +148,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 // })
                                                 // timestamp to 2017-06-01 12:00
                                                 // if result has |, split it and add it to the object as col1, col2, col3 etc...
-                                                let finalObj = { filename: file.name, folder: file.folder, line:result }
+                                                let finalObj = { filename: file.name, folder: file.folder, line: result }
                                                 if (result.indexOf("|") > -1) {
                                                         let [...cols] = result.split("|")
                                                         let i = 0
@@ -174,19 +175,19 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 item[val] = item[key]
                                                 delete item[key]
                                         })
-                                        
+
                                 }
                                 loadTable()
                         })
                 })
-                        
+
                 const loadTable = () => {
                         // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                         const config = {
                                 cols: [
-                                        {colId: "line", headerLabel: "Line"},
+                                        { colId: "line", headerLabel: "Line" },
                                         // {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
-                                
+
                                 ],
                                 gridView: false,
                                 exportToGraph: els => {
@@ -200,15 +201,24 @@ const smartlistApp = (innerTagStr, opts) => {
                                         csvString += header + "\n"
                                         each(els, (el, i) => {
                                                 let line = ""
+                                                let lineIncludesHeader = false
                                                 each(el, (val, key) => {
+
+                                                        if (val.startsWith("header_")) lineIncludesHeader = true
+                                                        // if there are , in val, wrap it in ""
+                                                        // if (val.indexOf(",") > -1) val = `"${val}"`
+                                                        val = val.replaceAll(",", "__COMMA_CHAR__")
+                                                        // if content is a date, transform it to 2017-06-01
                                                         // if there is 2 / in val, it is a date
                                                         if (val.split("/").length === 3) {
                                                                 let [day, month, year] = val.split("/")
-                                                                val = `${month}-${day}-${year}` 
+                                                                val = `${month}-${day}-${year}`
                                                         }
+
                                                         line += `${val} , `
                                                 })
-                                                csvString += line + "\n"
+                                                // do not include header lines in the graph export
+                                                if (!lineIncludesHeader) csvString += line + "\n"
                                         })
                                         const configFloatingWindow = {
                                                 type: "ctag",
@@ -223,10 +233,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                 }
                         };
                         for (let i = 1; i <= customColLength; ++i) {
-                                config.cols.push({colId: `col${i}`, headerLabel: `Col${i}`})
+                                config.cols.push({ colId: `col${i}`, headerLabel: `Col${i}` })
                         }
                         for (const key in customColsNames) {
-                                config.cols.push({colId: customColsNames[key], headerLabel: customColsNames[key]})
+                                config.cols.push({ colId: customColsNames[key], headerLabel: customColsNames[key] })
 
                                 // remove key from config.cols
                                 config.cols = config.cols.filter(col => col.colId !== key)
@@ -236,49 +246,52 @@ const smartlistApp = (innerTagStr, opts) => {
                         // {colId: "filename", headerLabel: "Filename"},
                         // {colId: "folder", headerLabel: "Folder"},
 
-                        config.cols.push({colId: "filename", headerLabel: "Filename"})
-                        config.cols.push({colId: "created", headerLabel: "Created"})
-                        config.cols.push({colId: "folder", headerLabel: "Folder"})
-                        config.cols.push({colId: "actions", type: "buttons", buttons:[
-                                {
-                                label: "", 
-                                icon: "eye", 
-                                onClick: (items,e) => {
-                                        console.log('onClick:', items,e)
-                                        if (items.length !== 1) return console.warn("no item selected")
-                                        let item = items[0]
-                                        console.log('onClick:', item,e);
-                                        let pos = ["50%" ,"50%"]
-                                        filePath = item.folder + item.filename
-                                        api.call("ui.notePreviewPopup.open", [filePath, ["50%" ,"50%"], { searchedString:item.line, replacementString:`wooop`}])
-                                
-                                },
-                                onMouseEnter: (item,e) => {
-                                        // console.log('onMouseEnter:', item,e);
-                                },
-                                onMouseLeave: (item,e) => {
-                                        // console.log('onMouseLeave:', item,e);
-                                }
-                                },
-                        ]})
+                        config.cols.push({ colId: "filename", headerLabel: "Filename" })
+                        config.cols.push({ colId: "created", headerLabel: "Created" })
+                        config.cols.push({ colId: "folder", headerLabel: "Folder" })
+                        config.cols.push({
+                                colId: "actions", type: "buttons", buttons: [
+                                        {
+                                                label: "",
+                                                icon: "eye",
+                                                onClick: (items, e) => {
+                                                        console.log('onClick:', items, e)
+                                                        if (items.length !== 1) return console.warn("no item selected")
+                                                        let item = items[0]
+                                                        console.log('onClick:', item, e);
+                                                        let pos = ["50%", "50%"]
+                                                        filePath = item.folder + item.filename
+                                                        api.call("ui.notePreviewPopup.open", [filePath, ["50%", "50%"], { searchedString: item.line, replacementString: `wooop` }])
 
-                        wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({items, config, id:`smartlist-table-${api.utils.getInfos().file.path}`})
+                                                },
+                                                onMouseEnter: (item, e) => {
+                                                        // console.log('onMouseEnter:', item,e);
+                                                },
+                                                onMouseLeave: (item, e) => {
+                                                        // console.log('onMouseLeave:', item,e);
+                                                }
+                                        },
+                                ]
+                        })
+
+                        wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
                 }
         }
-    
+
         setTimeout(() => {
                 setTimeout(() => {
                         api.utils.resizeIframe("100%");
                 }, 100)
                 setTimeout(() => {
-			api.utils.loadRessources(
-				[
+                        console.log("test111")
+                        api.utils.loadRessources(
+                                [
                                         `${opts.plugins_root_url}/_common/components/advancedTable.component.js`,
                                         `${opts.plugins_root_url}/_common/components/table.component.js`
-				],
-				() => {
+                                ],
+                                () => {
                                         const configArray = readConfigString(innerTagStr)
-                                        // console.log('configArr:', configArray)
+                                        console.log('configArr:', configArray)
                                         listenToInputChanges(configArray)
                                         if (configArray[0].tag1 && configArray[0].path) {
                                                 searchAndDisplay(configArray)
@@ -286,10 +299,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                         else {
                                                 triggerSearchFromInput(configArray)
                                         }
-				}
-			);
-		}, 100)
-                
+                                }
+                        );
+                }, 100)
+
         })
         return `
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
