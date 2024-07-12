@@ -20680,7 +20680,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 22,
-													"character": 15
+													"character": 16
 												}
 											],
 											"type": {
@@ -20698,7 +20698,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 22,
-													"character": 26
+													"character": 27
 												}
 											],
 											"type": {
@@ -20806,7 +20806,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 23,
-													"character": 26
+													"character": 27
 												}
 											],
 											"type": {
@@ -20824,7 +20824,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 23,
-													"character": 11
+													"character": 12
 												}
 											],
 											"type": {
@@ -23681,7 +23681,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 22,
-													"character": 15
+													"character": 16
 												}
 											],
 											"type": {
@@ -23699,7 +23699,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 22,
-													"character": 26
+													"character": 27
 												}
 											],
 											"type": {
@@ -23793,7 +23793,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 23,
-													"character": 26
+													"character": 27
 												}
 											],
 											"type": {
@@ -23811,7 +23811,7 @@
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 													"line": 23,
-													"character": 11
+													"character": 12
 												}
 											],
 											"type": {
@@ -24078,7 +24078,7 @@
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 									"line": 49,
-									"character": 1
+									"character": 4
 								}
 							],
 							"signatures": [
@@ -24246,7 +24246,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 55,
-																	"character": 42
+																	"character": 45
 																}
 															],
 															"type": {
@@ -24264,7 +24264,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 55,
-																	"character": 52
+																	"character": 56
 																}
 															],
 															"type": {
@@ -24423,7 +24423,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 60,
-																	"character": 39
+																	"character": 42
 																}
 															],
 															"type": {
@@ -24443,7 +24443,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 60,
-																	"character": 56
+																	"character": 60
 																}
 															],
 															"type": {
@@ -24464,7 +24464,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 60,
-																	"character": 103
+																	"character": 108
 																}
 															],
 															"type": {
@@ -24484,7 +24484,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 60,
-																	"character": 79
+																	"character": 83
 																}
 															],
 															"type": {
@@ -24613,7 +24613,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 56,
-																	"character": 54
+																	"character": 58
 																}
 															],
 															"type": {
@@ -24631,7 +24631,7 @@
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 																	"line": 56,
-																	"character": 40
+																	"character": 43
 																}
 															],
 															"type": {
@@ -33951,7 +33951,7 @@
 										{
 											"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
 											"line": 40,
-											"character": 32
+											"character": 33
 										}
 									],
 									"type": {

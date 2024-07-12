@@ -139,6 +139,13 @@ table.ctag-component-table  th {
   width: calc(100% - 12px);
 }
 
+.fa-filter.active {
+  color: blue;
+}
+.fa-filter {
+  color: #ccc;
+}
+
 `
 
 
@@ -188,6 +195,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
   r.useEffect(() => {
     // let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
     // if (term) setSearchTermInt(term);
+    console.log(1233333, r, r.TableFilter)
   }, []);
   const [view, setViewInt] = r.useState("table");
   const setView = (term) => {
@@ -239,11 +247,28 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [items, sortConfig]);
 
 
+  const [activeFilters, setActiveFilters] = r.useState({});
   const filteredItems = r.useMemo(() => {
     return sortedItems.filter(item => {
-      return JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
+      let found = false;
+      // filter using search
+      found = JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
+      // filter using activeFilters
+      if (activeFilters) {
+        for (let colId in activeFilters) {
+          // if activeFilters[colId] is empty, do not filter
+          if (activeFilters[colId].length === 0) {
+            found = true;
+          }
+
+          if (!activeFilters[colId].includes(item[colId])) {
+            found = false;
+          }
+        }
+      }
+      return found
     });
-  }, [sortedItems, searchTerm]);
+  }, [sortedItems, searchTerm, activeFilters]);
 
   const requestSort = key => {
     console.log("requestSort", key)
@@ -296,6 +321,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
         setSelectedItems(filteredItems)
       }
     } else {
+      setActiveColToFilter(colId)
       requestSort(colId)
     }
   }
@@ -369,54 +395,132 @@ const TableComponentReactInt = ({ items, config, id }) => {
     return res
   }
 
+
+  // 
+  // CREATE EXCEL LIKE FILTER TABLE
+  // 
+
+  // for each col, get unique values
+  const [uniqFilterVals, setUniqFilterVals] = r.useState({});
+  const clearTxt = "-- clear --"
+  r.useEffect(() => {
+    let uniqFilterVals = {};
+    config.cols.forEach(col => {
+      let values = new Set();
+      // add select all
+      values.add(clearTxt)
+      items.forEach(item => {
+        values.add(item[col.colId])
+      })
+      uniqFilterVals[col.colId] = Array.from(values)
+    })
+    setUniqFilterVals(uniqFilterVals)
+    console.log("uniqFilterVals", uniqFilterVals)
+  }, [items])
+
+  // active filters rules like {col1 : [val1, val2], col2: [val1]}
+  const onFilterChange = (colId, valsArr) => {
+    let newActiveFilters = {...activeFilters}
+    newActiveFilters[colId] = valsArr
+    // if "-- select all --" is selected, remove the filter
+    if (valsArr.includes(clearTxt)) {
+      delete newActiveFilters[colId]
+      // activeColToFilter = null
+      setActiveColToFilter(null)
+      
+    }
+    setActiveFilters(newActiveFilters)
+    console.log("newActiveFilters", newActiveFilters)
+  }
+  // click on a header of a col to change table filter form
+  const [activeColToFilter, setActiveColToFilter] = r.useState(null);
+
+
+
+
+
+  const isColFiltered = (colId) => {
+    return activeFilters[colId] !== undefined
+  }
+
+
   const tableView = () =>  [
-        c('table', {className: "ctag-component-table"}, [
-          c('thead', {}, [
-          c('tr', {}, [
-              ...config.cols.map(col =>
-                genHeaderCell(col)
-              )
-          ])
-          ]),
-          c('tbody', {}, [
-              ...filteredItems.map(item =>
-                  c('tr', { key: keyCounter(`${item.id}`) }, [
-                  ...config.cols.map(col =>
-                  // ...config.cols.map(({ colId, type, buttons }) =>
-                    c('td', { key: keyCounter(`${col.colId}-${item.id}`), className: `${configColsObj[col.colId]?.classes || ""}` }, [
-                      // BUTTON 
-                      ...(col.type === 'buttons'
-                          ? buttonsCell(col, item)
-                          : []),
-                      // ICON 
-                      ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
-                      // MULTISELECT
-                      ...(col.colId === "multiselect" ? [
-                        c('input', {type:"checkbox", checked: selectedItems.includes(item), onChange: () => {
-                          if (selectedItems.includes(item)) {
-                            setSelectedItems(selectedItems.filter(i => i !== item))
-                          } else {
-                            setSelectedItems([...selectedItems, item])
-                          }
-                        }})
-                      ] : []),
-                      // TEXT 
-                      !col.type ? [
-                        c('div', {
-                          onClick: (e) => {
-                            if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
-                          },
-                          className:`cell-content ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
-                          dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
+        c('div', {className: "ctag-component-table-wrapper"}, [
+
+          c('table', {className: "ctag-component-table"}, [
+            c('thead', {}, [
+            c('tr', {}, [
+                ...config.cols.map(col =>
+                  genHeaderCell(col)
+                )
+            ])
+            ]),
+            c('tbody', {}, [
+              // first row is the filter row
+              c('tr', {}, [
+                ...config.cols.map(col => {
+                  if (activeColToFilter === col.colId) {
+                    return c('td', {key: keyCounter(`${col.colId}-filter`)}, [
+                      c('select', {multiple: true, onChange: (e) => {
+                        let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
+                        onFilterChange(col.colId, selectedValues)
+                      }}, [
+                        ...uniqFilterVals[col.colId].map(val => {
+                          return c('option', {value: val, selected: activeFilters[col.colId]?.includes(val)}, val)
                         })
-                      ] : []
                       ])
-                  )
-                  ])
-              ) 
-          ]) // endbody
+                    ])
+                  } else {
+                    return c('td', {key: keyCounter(`${col.colId}-filter`)}, [
+                      c('div', {className: "table-link-click", onClick: () => setActiveColToFilter(col.colId)}, [
+                        // filter emoji icon with ative class if filter is active
+                        c('div', {className: `fa fa-filter ${isColFiltered(col.colId) ? "active" : ""}`}),
+
+                      ])
+                    ])
+                  }
+                })
+              ]),
+
+                ...filteredItems.map(item =>
+                    c('tr', { key: keyCounter(`${item.id}`) }, [
+                    ...config.cols.map(col =>
+                    // ...config.cols.map(({ colId, type, buttons }) =>
+                      c('td', { key: keyCounter(`${col.colId}-${item.id}`), className: `${configColsObj[col.colId]?.classes || ""}` }, [
+                        // BUTTON 
+                        ...(col.type === 'buttons'
+                            ? buttonsCell(col, item)
+                            : []),
+                        // ICON 
+                        ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
+                        // MULTISELECT
+                        ...(col.colId === "multiselect" ? [
+                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onChange: () => {
+                            if (selectedItems.includes(item)) {
+                              setSelectedItems(selectedItems.filter(i => i !== item))
+                            } else {
+                              setSelectedItems([...selectedItems, item])
+                            }
+                          }})
+                        ] : []),
+                        // TEXT 
+                        !col.type ? [
+                          c('div', {
+                            onClick: (e) => {
+                              if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
+                            },
+                            className:`cell-content ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
+                          })
+                        ] : []
+                        ])
+                    )
+                    ])
+                ) 
+            ]) // endbody
+        ]) // endtable
       ]) // endtable
-  ]
+    ]
 
   const gridView = () => [
     c('div', {className:"ctag-component-table-grid-view"}, [
@@ -492,6 +596,8 @@ let genTableComponent = ({items, config, id}) => {
         // "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
         // "https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js",
         // "https://cdn.jsdelivr.net/npm/react-dom@18.2.0/index.min.js",
+        "https://cdn.jsdelivr.net/npm/react-table-filter@2.0.2/lib/styles.min.css",
+        "https://cdn.jsdelivr.net/npm/react-table-filter@2.0.2/lib/bundle.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js",
 			"https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
 
