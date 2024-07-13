@@ -267,7 +267,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         console.log('onClick:', item, e);
                                                         let filePath = item.folder + item.filename
                                                         // api.call("ui.notePreviewPopup.open", [filePath, ["50%", "50%"], { searchedString: item.line, replacementString: `wooop` }])
-                                                        let layout = isMobile() ? "bottom" : "top-right"
+                                                        let layout = isMobile() ? "top" : "top-right"
                                                         api.call("ui.floatingPanel.openFile", [filePath, { 
                                                                 searchedString:item.line, 
                                                                 idpanel: "id-panel-smartlist-preview", 
