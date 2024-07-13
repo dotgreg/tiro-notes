@@ -1,6 +1,8 @@
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { getApi } from "../../hooks/api/api.hook";
+import { iPanelLayout } from "../../hooks/api/floatingPanel.api.hook";
+import { isMobile } from "../device.manager";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
@@ -40,9 +42,10 @@ const detachWinFn = (el) => {
         // api.plugins.get("smartlist","tag", plugin => {
         //     console.log("plugin", plugin);
             // if (!plugin) return console.warn("no plugin, please install smartlist plugin");
+            let layout:iPanelLayout = isMobile() ? "full-top" : "full-bottom"
             api.ui.floatingPanel.create({
                 type: "ctag",
-                layout: "full-bottom",
+                layout,
                 ctagConfig: {
                     tagName: "smartlist",
                     content: `${hashtag} | ${folder}`,

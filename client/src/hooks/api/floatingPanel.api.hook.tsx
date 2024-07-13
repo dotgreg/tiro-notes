@@ -6,7 +6,7 @@ import { clone, cloneDeep, isObject, isString } from "lodash-es"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
-import { deviceType, iDeviceType } from "../../managers/device.manager"
+import { deviceType, iDeviceType, isMobile } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
@@ -139,7 +139,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const updatePanelLayoutInt = (panel: iFloatingPanel, layout: iPanelLayout) => {
-        let paddingLeft = 15
+        let paddingLeft = isMobile() ? 2 : 15
         let padding = 2
         if (layout === "full-center" || layout === "full") {
             panel.position = { x: paddingLeft, y: padding }
@@ -414,7 +414,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             const cols = Math.ceil(Math.sqrt(visiblePanels.length))
             const rows = Math.ceil(visiblePanels.length / cols)
             const positionsForEachPanel: { x: number, y: number }[] = []
-            let paddingLeft = 15
+            let paddingLeft = isMobile() ? 2 : 15
             let padding = 2
             let widthPerCol = (windowWidthPanel() - paddingLeft -padding) / cols
             let heightPerRow = windowHeightPanel() / rows
