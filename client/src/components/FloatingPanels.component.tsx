@@ -58,6 +58,7 @@ const getPanelTitle = (panel:iFloatingPanel):string => {
         return panel.file.name.replace(".md","")
     }
     if (panel.type === "ctag") {
+        console.log("panel", panel)
         if (panel.ctagConfig?.tagName === "iframe") {
             let fullLink = panel.ctagConfig?.content
             return genUrlPreviewStr(fullLink)
@@ -390,7 +391,7 @@ export const FloatingPanel = (p:{
 													title: 'Maximize',
 													icon: "expand",
                                                     customHtml: <div className='list-layout-floating-wrapper'> 
-                                                        <div className='icon-wrapper' onClick={handleToggleMaximize}>
+                                                        <div className='icon-wrapper' onClick={handleToggleLayout("full")}>
                                                             <Icon2 name='expand'  /> 
                                                         </div>
                                                         <ul> 
@@ -508,7 +509,8 @@ export const FloatingPanel = (p:{
                                 }
                                 {
                                     p.panel.type === "ctag" && p.panel.ctagConfig && showContent &&
-                                    <div className={`floating-panel__inner-content window-id-sizeref-${windowIdCtag}`} style={{height:  innerHeight}}>
+                                    <div className={`floating-panel__inner-content ctag window-id-sizeref-${windowIdCtag}`} 
+                                        style={{height:  innerHeight}}>
                                         {generateCtag(p.panel.ctagConfig)}
                                     </div>
                                 }
@@ -878,6 +880,9 @@ export const FloatingPanelCss = () => `
 //
 // resizing handles
 .floating-panel__wrapper + div > div {    z-index: 100000;}
+
+// to force iframe to take 100% height resizing 
+.floating-panel__inner-content.ctag iframe {height: 100%!important;}
 
 .floating-panel__wrapper {
     .handle_invisible {

@@ -139,11 +139,22 @@ table.ctag-component-table  th {
   width: calc(100% - 12px);
 }
 
-.fa-filter.active {
+
+.col-buttons  {
+  display: flex;
+  align-items: center;
+}
+.col-buttons .fa-filter.active {
   color: blue;
 }
-.fa-filter {
+.col-buttons .fa-filter {
   color: #ccc;
+}
+.col-buttons .fa-eye {
+  color: #ccc;
+}
+.col-buttons .table-link-click {
+  margin-right: 5px;
 }
 
 `
@@ -195,7 +206,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
   r.useEffect(() => {
     // let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
     // if (term) setSearchTermInt(term);
-    console.log(1233333, r, r.TableFilter)
   }, []);
   const [view, setViewInt] = r.useState("table");
   const setView = (term) => {
@@ -271,7 +281,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [sortedItems, searchTerm, activeFilters]);
 
   const requestSort = key => {
-    console.log("requestSort", key)
+    // console.log("requestSort", key)
     let direction = 'ascending';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -403,11 +413,13 @@ const TableComponentReactInt = ({ items, config, id }) => {
   // for each col, get unique values
   const [uniqFilterVals, setUniqFilterVals] = r.useState({});
   const clearTxt = "-- clear --"
+  const closeTxt = "-- close --"
   r.useEffect(() => {
     let uniqFilterVals = {};
     config.cols.forEach(col => {
       let values = new Set();
       // add select all
+      values.add(closeTxt)
       values.add(clearTxt)
       items.forEach(item => {
         values.add(item[col.colId])
@@ -415,22 +427,27 @@ const TableComponentReactInt = ({ items, config, id }) => {
       uniqFilterVals[col.colId] = Array.from(values)
     })
     setUniqFilterVals(uniqFilterVals)
-    console.log("uniqFilterVals", uniqFilterVals)
+    // console.log("uniqFilterVals", uniqFilterVals)
   }, [items])
 
   // active filters rules like {col1 : [val1, val2], col2: [val1]}
   const onFilterChange = (colId, valsArr) => {
-    let newActiveFilters = {...activeFilters}
-    newActiveFilters[colId] = valsArr
-    // if "-- select all --" is selected, remove the filter
-    if (valsArr.includes(clearTxt)) {
-      delete newActiveFilters[colId]
-      // activeColToFilter = null
+    if (valsArr.includes(closeTxt)) {
       setActiveColToFilter(null)
-      
+    } else {
+      let newActiveFilters = {...activeFilters}
+      newActiveFilters[colId] = valsArr
+      // if "-- select all --" is selected, remove the filter
+      if (valsArr.includes(clearTxt)) {
+        delete newActiveFilters[colId]
+        // activeColToFilter = null
+        setActiveColToFilter(null)
+        
+      }
+      setActiveFilters(newActiveFilters)
+      // console.log("newActiveFilters", newActiveFilters)
+
     }
-    setActiveFilters(newActiveFilters)
-    console.log("newActiveFilters", newActiveFilters)
   }
   // click on a header of a col to change table filter form
   const [activeColToFilter, setActiveColToFilter] = r.useState(null);
@@ -441,6 +458,12 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
   const isColFiltered = (colId) => {
     return activeFilters[colId] !== undefined
+  }
+  const [colsContentHidden, setColsContentHidden] = r.useState({})
+  const toggleColContent = (colId) => {
+    let newColsContentHidden = {...colsContentHidden}
+    newColsContentHidden[colId] = !newColsContentHidden[colId]
+    setColsContentHidden(newColsContentHidden)
   }
 
 
@@ -471,11 +494,21 @@ const TableComponentReactInt = ({ items, config, id }) => {
                       ])
                     ])
                   } else {
-                    return c('td', {key: keyCounter(`${col.colId}-filter`)}, [
-                      c('div', {className: "table-link-click", onClick: () => setActiveColToFilter(col.colId)}, [
-                        // filter emoji icon with ative class if filter is active
-                        c('div', {className: `fa fa-filter ${isColFiltered(col.colId) ? "active" : ""}`}),
-
+                    return c('td', {key: keyCounter(`${col.colId}-buttons`)}, [
+                      // on click here, set activeColToFilter to none but event propagation should be stopped
+                      c('div', {className: "col-buttons", onClick: (e) => { 
+                        e.stopPropagation();
+                        // setActiveColToFilter(null)
+                      }}, [
+                        c('div', {className: "table-link-click", onClick: () => setActiveColToFilter(col.colId)}, [
+                          // filter emoji icon with ative class if filter is active
+                          c('div', {className: `fa col-icon fa-filter ${isColFiltered(col.colId) ? "active" : ""}`}),
+                        
+                        ]),
+                        // hide/show col content
+                        c('div', {className: "table-link-click", onClick: () => toggleColContent(col.colId)}, [
+                          c('div', {className: `fa col-icon  ${colsContentHidden[col.colId] ? "fa-eye-slash" : "fa-eye"}`}),
+                        ])
                       ])
                     ])
                   }
@@ -504,6 +537,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                           }})
                         ] : []),
                         // TEXT 
+                        colsContentHidden[col.colId] ? [] : [
                         !col.type ? [
                           c('div', {
                             onClick: (e) => {
@@ -513,6 +547,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                             dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
                           })
                         ] : []
+                        ]
                         ])
                     )
                     ])
