@@ -48,6 +48,7 @@ export const PopupWrapperCss = () => `
         background: rgba(0,0,0,0.1);
     }
     .popup-wrapper {
+        overflow-y: auto;
         position: fixed;
         z-index:10010;
         left: 50%;

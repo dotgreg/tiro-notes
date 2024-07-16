@@ -157,6 +157,47 @@ table.ctag-component-table  th {
   margin-right: 5px;
 }
 
+.compressed.cell-content {
+  height: 20px;
+  overflow: hidden;
+}
+
+`
+
+const helpStrTable = `
+<h3>SmartTable component</h3>
+<p>This is the SmartTable component, it allows you to view and search data from your notes
+
+<h3> Creating custom cols </h3>
+<p> If you search #food for instance, it will return you all the lines where <code>#food</code> appears<br>
+If you have "|" in that line, it will tell the SmartTable to split it into different columns <br> 
+So the line <code>#food | apple | 1$ </code> will appear in three columns</p>
+
+<h3>Creating custom column header</h3>
+<p> if a column content is a word starting by "header_" it will rename the SmartTable header <br>
+<code>#food | header_name | header_price</code> will rename col2 into "name" and col3 into "price"<br>
+<br> 
+Full example: (to copy and paste in a note, then click on #food)
+<code>
+<pre>
+#food | header_name | header_price
+#food | apple | 1
+#food | banana | 2
+#food | orange | 3
+</pre>
+</code>
+
+<h3>Creating a smartlist custom tag in a note</h3>
+<p> You can create a custom tag smarttable searching for the string "#food" in the folder "/root/groceries" with the following code:<br>	
+<code>
+<pre>
+[[smartlist]]
+#food | /root/groceries
+[[smartlist]]
+</pre>
+</code>
+
+
 `
 
 
@@ -466,6 +507,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
     setColsContentHidden(newColsContentHidden)
   }
 
+  // status of compressing/not the row, if row compressed, cell-content is 20px height overflow hidden
+  const [rowCompressed, setRowCompressed] = r.useState(true)
+  
 
   const tableView = () =>  [
         c('div', {className: "ctag-component-table-wrapper"}, [
@@ -543,7 +587,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                             onClick: (e) => {
                               if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
                             },
-                            className:`cell-content ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                            className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
                             dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
                           })
                         ] : []
@@ -593,9 +637,19 @@ const TableComponentReactInt = ({ items, config, id }) => {
         view !== "table" && c('div', {className:"fa fa-th"})
       ]),
       // export to graph button
-      config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)} }, [
+      config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)}, title: "Graphs" }, [
         c('div', {className:"fa fa-chart-line"})
       ]),
+      // rowcompressed button 
+      c('button', { onClick: () => setRowCompressed(!rowCompressed), title: `${rowCompressed ? "Toggle to large rows" : "Toggle to compressed rows"}`}, [
+        c('div', {className:`fa ${rowCompressed ? "fa-table-cells-large" : "fa-table-cells"}`})
+      ]),
+      // help button with  api.call("popup.show", [helpStr, "Table Help"])
+      c('button', { onClick: () => api.call("popup.show", [helpStrTable, "Table Help"]), title: "Help" }, [
+        c('div', {className:"fa fa-question-circle"})
+      ]),
+      
+
     ]),
     
     // c('div', {className:"nb-items"}, [ config.displayType ]),

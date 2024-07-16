@@ -58,7 +58,6 @@ const getPanelTitle = (panel:iFloatingPanel):string => {
         return panel.file.name.replace(".md","")
     }
     if (panel.type === "ctag") {
-        console.log("panel", panel)
         if (panel.ctagConfig?.tagName === "iframe") {
             let fullLink = panel.ctagConfig?.content
             return genUrlPreviewStr(fullLink)
@@ -889,8 +888,10 @@ export const FloatingPanelCss = () => `
         position: absolute;
         top: 0px;
         left: 0px;
-        width: calc(100% - 100px);
-        height: 30px;
+        //width: calc(100% - 100px);
+        width: 100%;
+        background: #eeeeee;
+        height: 33px;
         z-index: 1000;
         cursor: grab;
     }
