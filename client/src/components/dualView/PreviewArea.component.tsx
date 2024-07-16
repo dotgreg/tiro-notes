@@ -168,7 +168,9 @@ export const previewAreaSimpleCss = (d?: any) => {
 	if (!d) d = {
 		w: '.simple-css-wrapper',
 		pl: '.preview-link',
-		r: '.resource-link-icon'
+		r: '.resource-link-icon',
+		separatorTitle: ". "
+
 	}
 
 	const css = `
@@ -205,7 +207,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 
 
 		h1:before {
-				content: ""counter(sh1)" ∙ ";
+				content: ""counter(sh1)"${d.separatorTitle}";
 				counter-increment: sh1;
 		}
 		h1 {
@@ -213,7 +215,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 		}
 
 		h2:before {
-				content: ""counter(sh1)"." counter(sh2)" ∙  ";
+				content: ""counter(sh1)"." counter(sh2)"${d.separatorTitle}";
 				counter-increment: sh2;
 		}
 		h2 {
@@ -221,7 +223,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 		}
 
 		h3:before {
-				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
+				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)"${d.separatorTitle}";
 				counter-increment: sh3;
 		}
 		h3 {
@@ -274,18 +276,25 @@ export const previewAreaSimpleCss = (d?: any) => {
 				height: 1px;
 		}
 		h1 {
-				padding: 5px;
+				padding: 0px;
 				/* border-bottom: 2px solid; */
-				margin-top: 30px;
-				margin-bottom: 20px;
+				margin-top: 0px;
+				margin-bottom: 0px;
+				text-decoration: underline;
+				font-size: ${getFontSize(+6)}px;
 		}
 		h2 {
-				padding: 5px;
-				/* border-bottom: 1px solid; */
+			/* border-bottom: 1px solid; */
+			text-decoration: underline;
+		}
+		h1, h2, h3, h4, h5, h6 {
+			margin-top: 3px;
+			margin-bottom: 0px;
 		}
 		h2, h3, h4, h5, h6 {
-				margin-bottom: 10px;
-				margin-top: 25px;
+				font-size: ${getFontSize(+4)}px;
+				margin-bottom: 0px;
+				margin-top: 0px;
 		}
 
     img,

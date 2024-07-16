@@ -205,8 +205,6 @@ export const SettingsPopup = (p: {
 						title: "Font size (desktop)",
 						expl: "General font size for desktop" + showDefaultString("ui_layout_general_font_size") + requireReloadStr,
 						var: us.get('ui_layout_general_font_size'),
-						max: 20,
-						min: 5,
 						modifier: val => { 
 							us.set('ui_layout_general_font_size', val) 
 							setDisplayReload(true);
