@@ -883,14 +883,18 @@ export const FloatingPanelCss = () => `
 // to force iframe to take 100% height resizing 
 .floating-panel__inner-content.ctag iframe {height: 100%!important;}
 
+.floating-panel-wrapper.type-ctag {
+    .handle_invisible {
+        background: rgb(247, 247, 247);
+        width: 100% ;
+    }
+}
 .floating-panel__wrapper {
     .handle_invisible {
         position: absolute;
         top: 0px;
         left: 0px;
-        //width: calc(100% - 100px);
-        width: 100%;
-        background: #eeeeee;
+        width: calc(100% - 100px);
         height: 33px;
         z-index: 1000;
         cursor: grab;
