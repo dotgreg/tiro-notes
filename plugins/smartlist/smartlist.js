@@ -180,6 +180,60 @@ const smartlistApp = (innerTagStr, opts) => {
                                 loadTable()
                         })
                 })
+                const exportDataToCsv = (els, p) => {
+                        if (!p) p = {}
+                        if (!p.colsBlacklist) p.colsBlacklist = ["filename", "folder", "created", "line", "actions"] 
+                        // transform els in csv
+                        let csvString = ""
+                        // header
+                        let header = ""
+                        let colsToShow = []
+                        let i = 0
+                        csvString += header + "\n"
+                        console.log(100, els, colsToShow )
+                        // from els arr of objs, get all methods keys name
+                        let allMethods = []
+                        each(els, (el) => {
+                                each(el, (val, key) => {
+                                        if (!allMethods.includes(key)) allMethods.push(key)
+                                })
+                        })
+                        colsToShow = allMethods.filter(method => !p.colsToBlacklist.includes(method))
+                        console.log(10000, els, colsToShow, allMethods)
+                        // first line of csv is the header
+                        let headerLine = ""
+                        each(colsToShow, (col) => {
+                                headerLine += `${col},`
+                        })
+                        csvString += headerLine + "\n"
+                        each(els, (el, i) => {
+                                let line = ""
+                                let lineIncludesHeader = false
+                                let j = 0
+                                // get all cols name
+                                each(colsToShow, (col) => {
+                                        let val = el[col]
+                                        if (!val) val = " "
+                                        if (val.startsWith("header_")) lineIncludesHeader = true
+                                        // if there are , in val, wrap it in ""
+                                        // if (val.indexOf(",") > -1) val = `"${val}"`
+                                        val = val.replaceAll(",", "__COMMA_CHAR__")
+                                        // if content is a date, transform it to 2017-06-01
+                                        // if there is 2 / in val, it is a date
+                                        if (val.split("/").length === 3) {
+                                                let [day, month, year] = val.split("/")
+                                                val = `${month}-${day}-${year}`
+                                        }
+                                        let separator = j === Object.keys(el).length - 1 ? "" : ","
+                                        line += `${val}${separator}`
+                                        j++;
+                                })
+                                // do not include header lines in the graph export
+                                if (!lineIncludesHeader) csvString += line + "\n"
+                        })
+                        console.log('csvString:', csvString)
+                        return csvString        
+                }
 
                 const loadTable = () => {
                         // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
@@ -189,59 +243,24 @@ const smartlistApp = (innerTagStr, opts) => {
 
                                 ],
                                 gridView: false,
+                                exportToCsv: els => {
+                                        // 
+                                        let csvString = exportDataToCsv(els, {colsToBlacklist: []})
+                                        // create a html button and trigger it in js to download the csv as blob file
+                                        const blob = new Blob([csvString], { type: 'text/csv' });
+                                        const url = window.URL.createObjectURL(blob);
+                                        const a = document.createElement('a');
+                                        a.setAttribute('hidden', '');
+                                        a.setAttribute('href', url);
+                                        // name is "export-10-10-2023--10h23.csv"
+                                        let name = `export-${new Date().toISOString().split("T")[0]}--${new Date().toISOString().split("T")[1].split(":").slice(0, 2).join("h")}.csv`
+                                        a.setAttribute('download', name);
+                                        document.body.appendChild(a);
+                                        a.click();
+                                        document.body.removeChild(a);
+                                },
                                 exportToGraph: els => {
-                                        // transform els in csv
-                                        let csvString = ""
-                                        // header
-                                        let header = ""
-                                        let colsToBlacklist = ["filename", "folder", "created", "line", "actions"]
-                                        let colsToShow = []
-                                        let i = 0
-                                        csvString += header + "\n"
-                                        console.log(100, els, colsToShow )
-                                        // from els arr of objs, get all methods keys name
-                                        let allMethods = []
-                                        each(els, (el) => {
-                                                each(el, (val, key) => {
-                                                        if (!allMethods.includes(key)) allMethods.push(key)
-                                                })
-                                        })
-                                        colsToShow = allMethods.filter(method => !colsToBlacklist.includes(method))
-                                        console.log(10000, els, colsToShow, allMethods)
-                                        // first line of csv is the header
-                                        let headerLine = ""
-                                        each(colsToShow, (col) => {
-                                                headerLine += `${col},`
-                                        })
-                                        csvString += headerLine + "\n"
-                                        each(els, (el, i) => {
-                                                let line = ""
-                                                let lineIncludesHeader = false
-                                                let j = 0
-                                                // get all cols name
-
-                                                each(colsToShow, (col) => {
-                                                        let val = el[col]
-                                                        if (!val) val = " "
-                                                        if (val.startsWith("header_")) lineIncludesHeader = true
-                                                        // if there are , in val, wrap it in ""
-                                                        // if (val.indexOf(",") > -1) val = `"${val}"`
-                                                        val = val.replaceAll(",", "__COMMA_CHAR__")
-                                                        // if content is a date, transform it to 2017-06-01
-                                                        // if there is 2 / in val, it is a date
-                                                        if (val.split("/").length === 3) {
-                                                                let [day, month, year] = val.split("/")
-                                                                val = `${month}-${day}-${year}`
-                                                        }
-                                                        let separator = j === Object.keys(el).length - 1 ? "" : ","
-                                                        line += `${val}${separator}`
-                                                        j++;
-
-                                                })
-                                                // do not include header lines in the graph export
-                                                if (!lineIncludesHeader) csvString += line + "\n"
-                                        })
-                                        console.log('csvString:', csvString)
+                                        let csvString = exportDataToCsv(els)
                                         const configFloatingWindow = {
                                                 type: "ctag",
                                                 layout: "top",
