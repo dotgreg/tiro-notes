@@ -140,7 +140,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
-                                                let finalObj = configMetaCols ? { filename: file.name, folder: file.folder, line: result } : { } 
+                                                let finalObj = { filename: file.name, folder: file.folder, line: result } 
                                                 if (result.indexOf("|") > -1) {
                                                         let [...cols] = result.split("|")
                                                         let i = 0
@@ -173,7 +173,6 @@ const smartlistApp = (innerTagStr, opts) => {
 
                                 }
 
-                                console.log(3333333, configMetaCols)
                                 loadTable({configMetaCols})
                         })
                 })

@@ -197,7 +197,7 @@ Full example: (to copy and paste in a note, then click on #food)
 </pre>
 </code>
 
-<h3>Removing meta columns (like line, created, filename etc.) </h3>
+<h3> More options </h3>
 <p> You can remove the meta columns by adding the word "__config_hide_meta" <br>
 <p> You can remove header and config rows by adding the word "__config_hide_config_rows" <br>
 Full example: (to copy and paste in a note, then click on #food)
