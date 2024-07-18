@@ -174,13 +174,13 @@ If you have "|" in that line, it will tell the SmartTable to split it into diffe
 So the line <code>#food | apple | 1$ </code> will appear in three columns</p>
 
 <h3>Creating custom column header</h3>
-<p> if a column content is a word starting by "header_" it will rename the SmartTable header <br>
-<code>#food | header_name | header_price</code> will rename col2 into "name" and col3 into "price"<br>
+<p> if a column content is a word starting by "__header_" it will rename the SmartTable header <br>
+<code>#food | __header_name | __header_price</code> will rename col2 into "name" and col3 into "price"<br>
 <br> 
 Full example: (to copy and paste in a note, then click on #food)
 <code>
 <pre>
-#food | header_name | header_price
+#food | __header_name | header_price
 #food | apple | 1
 #food | banana | 2
 #food | orange | 3
@@ -197,6 +197,19 @@ Full example: (to copy and paste in a note, then click on #food)
 </pre>
 </code>
 
+<h3>Removing meta columns (like line, created, filename etc.) </h3>
+<p> You can remove the meta columns by adding the word "__config_hide_meta" <br>
+<p> You can remove header and config rows by adding the word "__config_hide_config_rows" <br>
+Full example: (to copy and paste in a note, then click on #food)
+<code>
+<pre>
+#food | __config_hide_meta __config_hide_config_rows
+#food | __header_name | __header_price
+#food | apple | 1
+#food | banana | 2
+#food | orange | 3
+</pre>
+</code>
 
 `
 
