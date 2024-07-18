@@ -194,15 +194,35 @@ const smartlistApp = (innerTagStr, opts) => {
                                         let csvString = ""
                                         // header
                                         let header = ""
-                                        each(els[0], (val, key) => {
-                                                header += `${key} , `
-                                        })
+                                        let colsToBlacklist = ["filename", "folder", "created", "line", "actions"]
+                                        let colsToShow = []
+                                        let i = 0
                                         csvString += header + "\n"
+                                        console.log(100, els, colsToShow )
+                                        // from els arr of objs, get all methods keys name
+                                        let allMethods = []
+                                        each(els, (el) => {
+                                                each(el, (val, key) => {
+                                                        if (!allMethods.includes(key)) allMethods.push(key)
+                                                })
+                                        })
+                                        colsToShow = allMethods.filter(method => !colsToBlacklist.includes(method))
+                                        console.log(10000, els, colsToShow, allMethods)
+                                        // first line of csv is the header
+                                        let headerLine = ""
+                                        each(colsToShow, (col) => {
+                                                headerLine += `${col},`
+                                        })
+                                        csvString += headerLine + "\n"
                                         each(els, (el, i) => {
                                                 let line = ""
                                                 let lineIncludesHeader = false
-                                                each(el, (val, key) => {
+                                                let j = 0
+                                                // get all cols name
 
+                                                each(colsToShow, (col) => {
+                                                        let val = el[col]
+                                                        if (!val) val = " "
                                                         if (val.startsWith("header_")) lineIncludesHeader = true
                                                         // if there are , in val, wrap it in ""
                                                         // if (val.indexOf(",") > -1) val = `"${val}"`
@@ -213,12 +233,15 @@ const smartlistApp = (innerTagStr, opts) => {
                                                                 let [day, month, year] = val.split("/")
                                                                 val = `${month}-${day}-${year}`
                                                         }
+                                                        let separator = j === Object.keys(el).length - 1 ? "" : ","
+                                                        line += `${val}${separator}`
+                                                        j++;
 
-                                                        line += `${val} , `
                                                 })
                                                 // do not include header lines in the graph export
                                                 if (!lineIncludesHeader) csvString += line + "\n"
                                         })
+                                        console.log('csvString:', csvString)
                                         const configFloatingWindow = {
                                                 type: "ctag",
                                                 layout: "top",
