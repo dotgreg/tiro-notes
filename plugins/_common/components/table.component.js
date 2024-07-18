@@ -640,6 +640,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
       config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)}, title: "Graphs" }, [
         c('div', {className:"fa fa-chart-line"})
       ]),
+      // export to csv
+      config?.exportToCsv && c('button', { onClick: () => {config.exportToCsv(filteredItems)}, title: "Export to CSV" }, [
+        c('div', {className:"fa fa-file-csv"})
+      ]),
       // rowcompressed button 
       c('button', { onClick: () => setRowCompressed(!rowCompressed), title: `${rowCompressed ? "Toggle to large rows" : "Toggle to compressed rows"}`}, [
         c('div', {className:`fa ${rowCompressed ? "fa-table-cells-large" : "fa-table-cells"}`})
