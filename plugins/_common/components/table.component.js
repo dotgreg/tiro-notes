@@ -36,6 +36,9 @@ table tr td {
 .table-controls-wrapper {
   padding-left: 15px;
 }
+.table-controls-wrapper button {
+  margin-right: 5px;
+}
 .table-controls-wrapper input {
   margin-right: 10px;
   background-color: #fff;

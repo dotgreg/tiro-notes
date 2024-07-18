@@ -371,7 +371,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         top: 15px;
                 }
                 
-                @media screen and (max-width: 600px) {
+                @media screen and (max-width: 700px) {
                         .table-buttons-wrapper {
                                 position: inherit;
                                 margin: 20px 20px 0px 20px;
@@ -384,6 +384,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         box-shadow: 0 0 0 1px #ccc;
                         border-radius: 3px;
                         padding: 4px;
+                        width: 120px;
                 }
                 #smart-list-ctag {
                         margin-top:0px;
