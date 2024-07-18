@@ -453,8 +453,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
   // for each col, get unique values
   const [uniqFilterVals, setUniqFilterVals] = r.useState({});
-  const clearTxt = "-- clear --"
-  const closeTxt = "-- close --"
+  const clearTxt = "🧹"
+  const closeTxt = "✖️"
   r.useEffect(() => {
     let uniqFilterVals = {};
     config.cols.forEach(col => {
