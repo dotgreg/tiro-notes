@@ -233,10 +233,8 @@ const smartlistApp = (innerTagStr, opts) => {
                         if (!p) p = {}
                         // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                         const config = {
-                                cols: [
-                                        // {colId: "tag1", headerLabel: "Tag1", classes:"td-tag"},
-
-                                ],
+                                id: `smartlist-table-${configArray.length}-${configArray[0]?.tag1}-${configArray[0]?.path}`,
+                                cols: [],
                                 gridView: false,
                                 exportToCsv: els => {
                                         // 
