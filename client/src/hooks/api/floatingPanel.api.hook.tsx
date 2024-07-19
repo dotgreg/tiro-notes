@@ -139,58 +139,81 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const updatePanelLayoutInt = (panel: iFloatingPanel, layout: iPanelLayout) => {
-        let paddingLeft = isMobile() ? 2 : 15
-        let padding = 2
-        if (layout === "full-center" || layout === "full") {
-            panel.position = { x: paddingLeft, y: padding }
-            panel.size = { width: window.innerWidth - (2 * padding) - paddingLeft, height: window.innerHeight - (2 * padding) }
-        }
-        else if (layout === "half-right") {
-            panel.position = { x: window.innerWidth / 2, y: padding }
-            panel.size = { width: window.innerWidth / 2 - (2 * padding), height: window.innerHeight - (2 * padding) }
-        }
-        else if (layout === "half-left") {
-            panel.position = { x: paddingLeft, y: padding }
-            panel.size = { width: window.innerWidth / 2 - paddingLeft - (2 * padding), height: window.innerHeight - (2 * padding) }
-        }
-        else if (layout === "full-bottom" || layout === "bottom") {
-            panel.position = { x: paddingLeft, y: window.innerHeight / 2 }
-            panel.size = { width: window.innerWidth - paddingLeft - (2 * padding), height: window.innerHeight / 2 - (2 * padding) }
-        }
-        // top
-        else if (layout === "full-top" || layout === "top") {
-            panel.position = { x: paddingLeft, y: padding }
-            panel.size = { width: window.innerWidth - paddingLeft - (2 * padding), height: window.innerHeight / 2 - (2 * padding) }
-        }
-        //left 
-        else if (layout === "left") {
-            panel.position = { x: paddingLeft, y: padding }
-            panel.size = { width: window.innerWidth / 2 - paddingLeft - (2 * padding), height: window.innerHeight - (2 * padding) }
+        let padding = 2;
+        let paddingBottom = isMobile() ? 2 : 30;
+        let paddingLeft = isMobile() ? 2 : 15;
+        let width = window.innerWidth - paddingLeft - (2 * padding);
+        let height = window.innerHeight - (2 * padding) - paddingBottom;
+        let x, y;
+
+        switch (layout) {
+            case "full-center":
+            case "full":
+            x = paddingLeft;
+            y = padding;
+            break;
+            case "half-right":
+            x = window.innerWidth / 2 + paddingLeft / 2;
+            y = padding;
+            width /= 2;
+            break;
+            case "half-left":
+            x = paddingLeft;
+            y = padding;
+            width /= 2;
+            break;
+            case "full-bottom":
+            case "bottom":
+            x = paddingLeft;
+            y = window.innerHeight / 2 - paddingBottom / 2;
+            height /= 2;
+            break;
+            case "full-top":
+            case "top":
+            x = paddingLeft;
+            y = padding;
+            height /= 2;
+            break;
+            case "left":
+            x = paddingLeft;
+            y = padding;
+            width /= 2;
+            break;
+            case "right":
+            x = window.innerWidth / 2 + paddingLeft / 2;
+            y = padding;
+            width /= 2;
+            break;
+            case "bottom-left":
+            x = paddingLeft;
+            y = window.innerHeight / 2 - paddingBottom / 2 ;
+            width /= 2;
+            height /= 2;
+            break;
+            case "bottom-right":
+            x = window.innerWidth / 2 + paddingLeft / 2;
+            y = window.innerHeight / 2 - paddingBottom / 2  ;
+            width /= 2;
+            height /= 2;
+            break;
+            case "top-left":
+            x = paddingLeft;
+            y = padding;
+            width /= 2;
+            height /= 2;
+            break;
+            case "top-right":
+            x = window.innerWidth / 2 + paddingLeft / 2;
+            y = padding;
+            width /= 2;
+            height /= 2;
+            break;
         }
 
-        // right
-        else if (layout === "right") {
-            panel.position = { x: window.innerWidth / 2, y: padding }
-            panel.size = { width: window.innerWidth / 2 - (2 * padding), height: window.innerHeight - (2 * padding) }
-        }
-        else if (layout === "bottom-left") {
-            panel.position = { x: paddingLeft, y: window.innerHeight / 2 }
-            panel.size = { width: window.innerWidth / 2 - (2 * padding), height: window.innerHeight / 2 - (2 * padding) }
-        }
-        else if (layout === "bottom-right") {
-            panel.position = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-            panel.size = { width: window.innerWidth / 2 - (2 * padding), height: window.innerHeight / 2 - (2 * padding) }
-        }
-        else if (layout === "top-left") {
-            panel.position = { x: paddingLeft, y: padding }
-            panel.size = { width: window.innerWidth / 2 - paddingLeft - (2 * padding), height: window.innerHeight / 2 - (2 * padding) }
-        }
-        else if (layout === "top-right") {
-            panel.position = { x: window.innerWidth / 2, y: padding }
-            panel.size = { width: window.innerWidth / 2 - (2 * padding), height: window.innerHeight / 2 - (2 * padding) }
-        }
+        panel.position = { x, y };
+        panel.size = { width, height };
 
-        return panel
+        return panel;
     }
 
 

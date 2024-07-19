@@ -62,7 +62,13 @@ const getPanelTitle = (panel:iFloatingPanel):string => {
             let fullLink = panel.ctagConfig?.content
             return genUrlPreviewStr(fullLink)
         } else {
-            return `${panel.ctagConfig?.tagName} | ${panel.file.name}`
+            let shortTagName = panel.ctagConfig?.tagName.substring(0, 3)
+            let shortConfig = panel.ctagConfig?.content || "" // .replaceAll(" "," ") || ""
+            // let shortConfig = panel.ctagConfig?.content.replaceAll(" "," ") || ""
+            // shortConfig = shortConfig.replaceAll(" ","-")
+            // replace all non alphanumeric characters in shortconfig
+            shortConfig = shortConfig.replace(/[^a-zA-Z0-9 ]/g, '')
+            return `${shortTagName} | ${shortConfig}`
         }
     }
     return ""
@@ -800,7 +806,7 @@ export const FloatingPanelsWrapper = (p:{
                                     handleDeminimize(panel)
                                 }}>
                                     <div className='label-wrapper'>
-                                        <div className='label'>
+                                        <div className='label' title={getPanelTitle(panel)}>
                                             {getPanelTitle(panel)}
                                         </div>
                                     </div>
@@ -1127,6 +1133,7 @@ export const FloatingPanelCss = () => `
         .label {
             margin-top: 5px;
             height: 14px;
+            text-wrap: nowrap;
         }
     }
     .active-icon {

@@ -318,7 +318,16 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [items, sortConfig]);
 
 
-  const [activeFilters, setActiveFilters] = r.useState({});
+  const [activeFilters, setActiveFiltersInt] = r.useState({});
+  const setActiveFilters = (filters) => {
+    setActiveFiltersInt(filters)
+    localStorage.setItem(`${id}-filters`, JSON.stringify(filters));
+  }
+  r.useEffect(() => {
+    let filters = JSON.parse(localStorage.getItem(`${id}-filters`));
+    if (filters) setActiveFiltersInt(filters);
+  }, []);
+
   const filteredItems = r.useMemo(() => {
     return sortedItems.filter(item => {
       let found = false;
