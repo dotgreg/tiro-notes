@@ -165,6 +165,10 @@ table.ctag-component-table  th {
   overflow: hidden;
 }
 
+.select-multiple-filter {
+  min-height: 30vh;
+}
+
 `
 
 const helpStrTable = `
@@ -543,8 +547,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
               c('tr', {}, [
                 ...config.cols.map(col => {
                   if (activeColToFilter === col.colId) {
-                    return c('td', {key: keyCounter(`${col.colId}-filter`)}, [
-                      c('select', {multiple: true, onChange: (e) => {
+                    return c('td', {key: `${col.colId}-filter`}, [
+                      c('select', {class:"select-multiple-filter", multiple: true, onChange: (e) => {
                         let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
                         onFilterChange(col.colId, selectedValues)
                       }}, [
@@ -705,10 +709,8 @@ let genTableComponent = ({items, config, id}) => {
         // "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
         // "https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js",
         // "https://cdn.jsdelivr.net/npm/react-dom@18.2.0/index.min.js",
-        "https://cdn.jsdelivr.net/npm/react-table-filter@2.0.2/lib/styles.min.css",
-        "https://cdn.jsdelivr.net/npm/react-table-filter@2.0.2/lib/bundle.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js",
-			"https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
 
       ],
       () => {

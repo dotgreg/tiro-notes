@@ -181,7 +181,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         if (!p.colsToBlacklist) p.colsToBlacklist = ["filename", "folder", "created", "line", "actions"] 
                         // transform els in csv
                         let csvString = ""
-                        // header
+                        // header       
                         let header = ""
                         let colsToShow = []
                         let i = 0
