@@ -447,7 +447,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     let res = [
       `${col.headerLabel || col.colId} `, 
       c('span', {className:"sortIndic" }, [
-        `${sortConfig?.key === col.colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`
+        `${sortConfig?.key === col.colId ? (sortConfig?.direction === "ascending" ? "▼" : "▲") : ""}`
       ])
     ]
     if (col.type && col.type === "multiselect") {

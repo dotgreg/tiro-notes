@@ -178,7 +178,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 })
                 const exportDataToCsv = (els, p) => {
                         if (!p) p = {}
-                        if (!p.colsBlacklist) p.colsBlacklist = ["filename", "folder", "created", "line", "actions"] 
+                        if (!p.colsToBlacklist) p.colsToBlacklist = ["filename", "folder", "created", "line", "actions"] 
                         // transform els in csv
                         let csvString = ""
                         // header
