@@ -237,6 +237,7 @@ const TableComponentReact = ({ items, config, id }) => {
   // 
 
 const TableComponentReactInt = ({ items, config, id }) => {
+  if (config.id) id = config.id
   if (!id) id = "table-component"
   const r = React;
   
