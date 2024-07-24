@@ -74,6 +74,7 @@ const getScrollObj = (wid) => {
 const updateEditorDims = (wid: string, dims: iDim) => {
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
+
 	c.dims.editor = dims
 	// if (!c.els.preview) return;
 	// viewport = viewport > full ? full : viewport
@@ -189,7 +190,7 @@ const scrollEditor = (wid: string, percent?: number) => {
 	if (!c.els.editor) return;
 	let e = c.dims.editor
 	if (!percent) percent = c.posPercent
-	let percentPxEditor = (e.full - e.viewport) / 100
+	let percentPxEditor = (e.full ) / 100
 	c.els.editor.scrollTop = percentPxEditor * percent
 }
 
