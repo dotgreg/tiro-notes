@@ -160,7 +160,7 @@ export const useTabs = () => {
 	}
 
 	const updateTab: onTabUpdateFn = (type, tabVar, newVal) => {
-		console.log(`[TAB] UPDATE TAB ${type} ${tabVar} ${newVal}`);
+		// console.log(`[TAB] UPDATE TAB ${type} ${tabVar} ${newVal}`);
 		let tab  =  tabVar === 'activeTab' || !tabVar  ?  getActiveTab() : tabVar
 		if (!tab ) return
 		

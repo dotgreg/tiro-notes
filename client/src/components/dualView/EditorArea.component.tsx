@@ -41,6 +41,7 @@ import { cleanSearchString } from '../../managers/textProcessor.manager';
 import { highlightCurrentLine } from '../../managers/codeMirror/highlightLine.cm';
 import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { triggerAddTableCol, triggerRemoveTableCol } from '../../managers/table.markdown.manager';
+import { syncScroll3 } from '../../hooks/syncScroll.hook';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -189,7 +190,6 @@ const EditorAreaInt = (
 	})
 
 	// useEffect(() => {
-	// 	console.log(123123, innerFileContent)
 	// }, [innerFileContent])
 
 	// MOBILE EDITOR LOGIC HOOK
@@ -243,7 +243,6 @@ const EditorAreaInt = (
 	// MANAGE UPLOAD / PROGRESS
 	//
 	// useEffect(() => {
-	// 	// console.log(122333, p.file.path, gridContext.upload.markdownFile?.path, gridContext.upload.progress)
 	// 	if (gridContext.upload.progress && p.file.path === gridContext.upload.markdownFile?.path) {
 	// 		setProgressUpload(gridContext.upload.progress)
 	// 	}
@@ -354,7 +353,6 @@ const EditorAreaInt = (
 				title: 'Detach Window',
 				// class: 'detach-button',
 				action: () => { 
-					// console.log("detach", intContent[i].view, intContent[i])
 					// if (!content.file) return
 					getApi(api => { api.ui.floatingPanel.create({type:"file", file: p.file, view: p.viewType }) })
 				}
@@ -635,6 +633,10 @@ const EditorAreaInt = (
 		<div
 			className={`editor-area ${p.isActive ? "active" : ""} `}
 			ref={editorWrapperEl}
+			onWheel={e => {
+				// syncScroll3.scrollAllPx(p.windowId, e.deltaY)
+				syncScroll3.scrollPreviewPx(p.windowId, e.deltaY)
+			}}
 		>
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
 			<div className={`infos-editor-wrapper ${!titleEditor ? "no-title-editor" : "with-title-editor"} ${p.isActive ? "active" : ""}`}>
@@ -833,7 +835,6 @@ const EditorAreaInt = (
 						onButtonClicked={(action, options) => {
 							if (action === "aiSearch" ) {
 								if (! options.aiConfig) return
-								console.log(options.aiConfig)
 								const aiBtnConfig:iAiBtnConfig = options.aiConfig
 								AiAnswer({
 									aiBtnConfig,
@@ -878,7 +879,6 @@ const EditorAreaInt = (
 								// window.open(final_url, '_blank')
 								window.open(final_url,'_blank');
 							} else if (action === "highlightLine") {
-								// console.log(cursorInfos)
 								getApi(api => {
 									api.ui.note.editorAction.dispatch({
 										windowId: p.windowId,
@@ -918,7 +918,6 @@ const EditorAreaInt = (
 								})
 							} else if (action === "copyLineLink") {
 								getApi(api => {
-									// console.log(cursorInfos, page)
 									const linkToCopy = fileToNoteLink(p.file, selectionTxt)
 									api.popup.prompt({
 										title: "Selection note link",

@@ -118,7 +118,7 @@ export const WindowEditorInt = (p: {
 
 			// WATCH LOGIC
 			if(userSettingsSync.curr.ui_editor_live_watch === true) {
-				console.log(`[FILE CONTENT WATCH] enabled for ${file.path}`)
+				// console.log(`[FILE CONTENT WATCH] enabled for ${file.path}`)
 				api.watch.file(file.path, watchUpdate => {
 					// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
 					// if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
