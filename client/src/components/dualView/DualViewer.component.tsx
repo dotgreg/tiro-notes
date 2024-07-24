@@ -167,6 +167,12 @@ const DualViewerInt = (
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
+		onWheel={
+			e => {
+				// updateSyncYWithDelta(e.deltaY)
+				// syncScroll3.scrollAllPx(p.windowId, e.deltaY)
+			}
+		}
 	>
 		
 		

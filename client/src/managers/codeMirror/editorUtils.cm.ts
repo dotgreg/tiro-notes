@@ -6,7 +6,7 @@ import { getCustomTheme } from "./theme.cm";
 import { cloneDeep, each } from "lodash-es";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
-import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"
+import { openSearchPanel, SearchQuery, setSearchQuery, findPrevious, findNext } from "@codemirror/search"
 // import {undo, redo} from "@codemirror/history"
 import { undo, redo } from "@codemirror/commands";
 
@@ -329,6 +329,7 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 //
 // SEARCH FUNCTIONS
 // 
+
 const searchWord = (
 	CMObj: ReactCodeMirrorRef | null, 
 	word: string, 
@@ -347,7 +348,16 @@ const searchWord = (
 		view.dispatch({
 			effects: setSearchQuery.of(new SearchQuery(configSearch))
 		})
-		if(jumpToFirst) findNext(view)
+		if(jumpToFirst) {
+			findNext(view)
+			const { from, to } = view.state.selection.main
+			view.dispatch({
+				effects: EditorView.scrollIntoView(from, {
+					y: "center",
+				}),
+			})
+		}
+		
 	} catch (error) {
 		console.log("[CM utils > search word] error:", error)
 	}

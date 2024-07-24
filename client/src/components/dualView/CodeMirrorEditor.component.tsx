@@ -366,7 +366,8 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					},
 					wheel(event, view) {
 						let infs = CodeMirrorUtils.getEditorInfos(view)
-						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled())
+						// syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled())
+						syncScroll3.scrollScroller(p.windowId, infs.currentPercentScrolled())
 						p.onScroll()
 					}
 				})

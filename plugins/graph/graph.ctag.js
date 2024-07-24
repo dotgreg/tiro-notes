@@ -1,8 +1,9 @@
+
 const graphApp = (innerTagStr, opts) => {
-		// format of innerTagStr => folderpath | graphType = "tag" or "hierarchy" (opt) | rootTag (opt)
-		const folderPath = innerTagStr.split("|")[0].trim()
-		const graphType = innerTagStr.split("|")[1]?.trim() 
-		const rootTag = innerTagStr.split("|")[2]?.trim()
+		// format of innerTagStr => folderpath | graphType = "tags" or "titles" (opt) | rootTag (opt)
+		const folderPath = innerTagStr.split("|")[0].trim() 
+		const graphType = innerTagStr.split("|")[1]?.trim() | "tags"
+		const rootTag = innerTagStr.split("|")[2]?.trim() 
 
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
@@ -12,42 +13,41 @@ const graphApp = (innerTagStr, opts) => {
 
 		if (!folderPath.startsWith("/")) return console.error(h, "folderpath should start by a '/'")
 		console.log(h, "init CTAG with params:", { folderPath, graphType, rootTag, opts, innerTagStr });
-		// const folder = "/test_obsi"
 
+	///////////////////////////////////////////////////
+	// 0. COLOR
+	//
+	let mainColor = "";
+	const initFetchUserColor = (cb) => {
+		api.call("userSettings.get", ['ui_layout_colors_main'], color => {
+			colorStr = color.currentValue || color.defaultValue
+			mainColor = new Color(colorStr);
+			cb()
+		});
+	}
+	const getMainColor = (opacity, variation) => {
+		// console.log(mainColor);
+		let rgb = [mainColor.srgb.r * 100, mainColor.srgb.g * 100, mainColor.srgb.b * 100]
+		if (!variation) variation = [0, 0, 0]
+		let v = variation
+		let str = `rgba(${rgb[0] + v[0]}%,${rgb[1] + v[1]}%,${rgb[2] + v[2]}%,${opacity})`
+		return str
+	}
 
-
-
-
-
-		// TODO : to get only clicked connections highlighted https://codepen.io/pen?editors=1010
-		///////////////////////////////////////////////////
-		// 0. COLOR
-		//
-
-		let mainColor = "";
-		const initFetchUserColor = (cb) => {
-				api.call("userSettings.get", ['ui_layout_colors_main'], color => {
-					    colorStr = color.currentValue || color.defaultValue
-						mainColor = new Color(colorStr);
-						cb()
-				});
+	///////////////////////////////////////////////////
+	// 1. SUPPORT
+	//
+	const each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
+		if (itera.constructor === Array) {
+			for (let i = 0; i < itera.length; ++i) {
+				cb(itera[i])
+			}
+		} else {
+			for (const property in itera) {
+				cb(itera[property], property)
+			}
 		}
-
-		const getMainColor = (opacity, variation) => {
-				// console.log(mainColor);
-				let rgb = [mainColor.srgb.r * 100, mainColor.srgb.g * 100, mainColor.srgb.b * 100]
-				if (!variation) variation = [0, 0, 0]
-				let v = variation
-				let str = `rgba(${rgb[0] + v[0]}%,${rgb[1] + v[1]}%,${rgb[2] + v[2]}%,${opacity})`
-				return str
-		}
-
-
-
-
-
-
-
+	}
 
 
 		///////////////////////////////////////////////////
@@ -91,6 +91,66 @@ const graphApp = (innerTagStr, opts) => {
 
 		// DATA FETCHING
 		const fetchAndProcessData = (cb) => {
+			if (graphType === "tags") {
+				fetchAndProcessDataHashtags(cb)
+			} else if (graphType === "titles") {
+				fetchAndProcessDataTitles(cb)
+			}
+		}
+		const fetchAndProcessDataTitles = (cb) => {
+			api.call("search.word", ["#", folderPath], files => {
+				// for each result
+				let res = {}
+				each(files, (file => {
+					const relativeFolder = file.file.folder.replace(folderPath, "")
+					const relativeFolders = relativeFolder.split("/")
+					// recursively create the hierarchy in res, so if we have ["folder1", "subfolder2", "subsubfolder3"], we should have res[folder1][subfolder2][subsubfolder3] = {}
+					let currentFileRes = res
+					for (let i = 0; i < relativeFolders.length; i++) {
+						const folder = relativeFolders[i]
+						if (!currentFileRes[folder]) {
+							currentFileRes[folder] = {}
+						}
+						currentFileRes = currentFileRes[folder]
+					}
+
+					// en gros, on a res.nodes avec CHACUN des titles
+
+					each(file.results, (line) => {
+						const isTitle = line.trim().startsWith("#")
+						let titleRank = line.split("#").length - 1
+						let title = line.replace(/#/g, "").trim()
+						if (isTitle) {
+							currentFileRes[title] = {}
+
+							// we should create a hierarchy using the following structure
+							/*
+							title1 = # title1
+							title2 = ## title2
+							etc.
+							 result = {
+								subfolder1: {
+									subsubfolder1: {
+										title1: {
+											title2 {
+												title3 {
+
+												}
+											}
+										}
+									}
+								}
+							}
+							
+							*/
+
+
+						}
+					})
+				})
+			})
+		}
+		const fetchAndProcessDataHashtags = (cb) => {
 				api.call("search.hashtags", [folderPath], hashtags => {
 						const res = {}
 
@@ -142,23 +202,20 @@ const graphApp = (innerTagStr, opts) => {
 							// find the root tag id
 							const rootTagId = res.nodes.find(x => x.name === rootTag).id?.toString()
 							findConnectedNodesRecursive(rootTagId, res, connectedNodesIds)
-							console.log(connectedNodesIds);
 							// console.log(res.nodes);
 							// console.log(res.edges);
 							// filter nodes and edges
 							// let res2 = {}
-							console.log(888, {...res});
 							res.nodes = res.nodes.filter(x => connectedNodesIds.includes(x.id.toString()))
 							res.edges = res.edges.filter(x => connectedNodesIds.includes(x.from) && connectedNodesIds.includes(x.to))
 							// res = res2
-							console.log(999, res);
 						}
 						
 
 						cb(res)
 				});
 
-		}
+			}
 
 
 

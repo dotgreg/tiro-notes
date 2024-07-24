@@ -63,13 +63,15 @@ const triggerCron = () => {
     // if (lsLastRunDate + intervalTime > new Date().getTime()) return 
     // localStorage.setItem("frontendLsLastCronRunDate", new Date().getTime().toString())
 
+    let datetime = new Date().toJSON().replace("T","").replace("Z", "")
+
     getApi(api => {
         // get the cached infos of all cron, especially the last ran date
         api.plugins.list(plugins => {
             api.cache.get(cacheId, cronState => {
                 if (!cronState) cronState = {}
                 // if lastRanDate + p.options.runInterval < now
-                console.log(h, `starting new batch cron`, {plugins, cronState})
+                // console.log(h, `starting new batch cron`, {plugins, cronState})
                 each(plugins, p => {
                     let enabled = true
                     if (p.options?.disabled === false) enabled = false
@@ -81,11 +83,11 @@ const triggerCron = () => {
                     let now = new Date().getTime()
                     let lastRun = cronState[p.name]?.lastRunTime || 0
                     if (lastRun + intervalRun > now) {
-                        return console.log(h, `bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
+                        return console.log(h, `${datetime}  => 🕑⏳ bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
                     } else {
                         let status = lastRun + intervalRun > now
                         //  Function() the code with an api injection inside its variables 
-                        console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {p, lastRun, intervalRun, now, status})
+                        console.log(h, `${datetime}  => 🕑▶️ exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {p, lastRun, intervalRun, now, status})
                         const state = cronState[p.name]
                         evalPluginCode(p, {tiroApi:api, bgState:state})
                         
