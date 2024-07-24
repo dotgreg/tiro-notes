@@ -38,6 +38,7 @@ import { getFontSize } from "../../managers/font.manager";
 import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm";
 import { markdownSynthaxCmPlugin } from "../../managers/codeMirror/markdownSynthax.cm";
 import { indentUnit } from "@codemirror/language";
+import { useInterval } from "../../hooks/interval.hook";
 
 
 const h = `[Code Mirror]`
@@ -228,11 +229,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		syncScrollUpdateDims()
 	}, [])
 	// END OF TODO
-
-	const { resizeState } = useElResize(`.window-id-${p.windowId}`)
+	const {resizeState} = useElResize(`.window-id-${p.windowId} .cm-content`)
 	useEffect(() => {
 		syncScrollUpdateDims()
 	}, [resizeState, p.windowId])
+
 
 	//
 	// SYNCSCROLL SIZE UPDATE

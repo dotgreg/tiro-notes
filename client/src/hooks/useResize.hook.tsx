@@ -33,22 +33,36 @@ export const useElResize = (elPath: string) => {
 	const [resizeState, setResizeState] = useState(false)
 
 	useEffect(() => {
+		let obs
 		let debouncedResponsiveRender = debounce(() => {
 			setResizeState(true)
 			setTimeout(() => {
 				setResizeState(false)
 			}, 200)
 		}, 200)
+		let onElFound = (el) => {
+			obs = new ResizeObserver(entries => {
+				debouncedResponsiveRender()
+			});
+			obs.observe(el)
+		}
 
-		let el = document.querySelector(elPath)
-		if (!el) return
-		let obs = new ResizeObserver(entries => {
-			debouncedResponsiveRender()
-		});
-		obs.observe(el)
+		// try 5 times with 200ms delay to find the element
+		let tries = 0
+		let interval = setInterval(() => {
+			let el = document.querySelector(elPath)
+			if (el) {
+				onElFound(el)
+				clearInterval(interval)
+			}
+			tries = tries + 1
+			if (tries > 5) {
+				clearInterval(interval)
+			}
+		}, 200)
 
 		return () => {
-			obs.disconnect()
+			if (obs) obs.disconnect()
 		}
 	}, [])
 	return { resizeState }
