@@ -127,7 +127,7 @@ const graphApp = (innerTagStr, opts) => {
 		const nodes = fileResults.map(item => {
 			let titleRaw = item
 			let title = item.trim().replace(/^#+\s*/, '')
-			let level = item.match(/^#+/)[0].length || -1
+			let level = item.match(/^#+/)  ? item.match(/^#+/)[0].length : -1
 			
 			return {
 				name: `${item}_${file.name}`,
