@@ -91,6 +91,7 @@ export const initRenderLatexInText = (elPath: string) => {
 				{ left: '$', right: '$', display: false },
 				{ left: '\\(', right: '\\)', display: true },
 				{ left: '[[l]]', right: '[[l]]', display: true },
+				{ left: '[[latex]]', right: '[[latex]]', display: true },
 				{ left: '\\[', right: '\\]', display: true }
 			],
 			// • rendering keys, e.g.:
