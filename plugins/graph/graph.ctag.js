@@ -127,10 +127,12 @@ const graphApp = (innerTagStr, opts) => {
 		const nodes = fileResults.map(item => {
 			let titleRaw = item
 			let title = item.trim().replace(/^#+\s*/, '')
+			let level = item.match(/^#+/)[0].length || -1
+			
 			return {
 				name: `${item}_${file.name}`,
 				label: title,
-				level: item.match(/^#+/)[0].length,
+				level,
 				noteParts: [{
 					file: file,
 					titleName: title
