@@ -2,7 +2,7 @@
 const graphApp = (innerTagStr, opts) => {
 		// format of innerTagStr => folderpath | graphType = "tags" or "titles" (opt) | rootTag (opt)
 		const folderPath = innerTagStr.split("|")[0].trim() 
-		const graphType = innerTagStr.split("|")[1]?.trim() | "tags"
+		const graphType = innerTagStr.split("|")[1]?.trim() || "tags"
 		const rootTag = innerTagStr.split("|")[2]?.trim() 
 
 		const infos = api.utils.getInfos()
@@ -26,7 +26,6 @@ const graphApp = (innerTagStr, opts) => {
 		});
 	}
 	const getMainColor = (opacity, variation) => {
-		// console.log(mainColor);
 		let rgb = [mainColor.srgb.r * 100, mainColor.srgb.g * 100, mainColor.srgb.b * 100]
 		if (!variation) variation = [0, 0, 0]
 		let v = variation
@@ -97,59 +96,126 @@ const graphApp = (innerTagStr, opts) => {
 				fetchAndProcessDataTitles(cb)
 			}
 		}
+
+	/////////////////////////////////////////////
+	//
+	// TITLE METHOD
+	//
+	/////////////////////////////////////////////
+
+	function createNodesAndEdgesFromFiles(filesResults) {
+		const nodes = new Set();
+		const edges = [];
+		each(filesResults, fileResults => {
+			const pathParts = fileResults.file.path.split('/').filter(part => part !== '');
+			for (let i = 0; i < pathParts.length; i++) {
+				nodes.add(pathParts[i]);
+				if (i > 0) {
+					edges.push({ from: pathParts[i - 1], to: pathParts[i] });
+				}
+			}
+		});
+		return {
+			nodes: Array.from(nodes).map(name => ({ name })),
+			edges: edges
+		};
+	}
+
+	let createNodesAndEdgesFromTitlesContent = (fileResults, file) => {
+		// only keep filesResults starting with #
+		fileResults = fileResults.filter(item => item.trim().startsWith('#'));
+		const nodes = fileResults.map(item => {
+			let titleRaw = item
+			let title = item.trim().replace(/^#+\s*/, '')
+			return {
+				name: `${item}_${file.name}`,
+				label: title,
+				level: item.match(/^#+/)[0].length,
+				noteParts: [{
+					file: file,
+					titleName: title
+				}]
+			}
+		});
+		const edges = [];
+		// for each level 1, create an edge from the filename to the level 1
+		nodes.forEach(node => {
+			if (node.level === 1) {
+				edges.push({ from: file.name, to: node.name });
+			}
+		})
+		for (let i = 0; i < fileResults.length; i++) {
+			const currentLevel = fileResults[i].match(/^#+/)[0].length;
+			for (let j = i + 1; j < fileResults.length; j++) {
+				const nextLevel = fileResults[j].match(/^#+/)[0].length;
+				if (nextLevel === currentLevel + 1) {
+					edges.push({ from: nodes[i].name, to: nodes[j].name });
+				} else if (nextLevel <= currentLevel) {
+					break;
+				}
+			}
+		}
+		return { nodes, edges };
+	}
+
+
+
+
 		const fetchAndProcessDataTitles = (cb) => {
-			api.call("search.word", ["#", folderPath], files => {
+			api.call("search.word", ["#", folderPath], filesResult => {
 				// for each result
 				let res = {}
-				each(files, (file => {
-					const relativeFolder = file.file.folder.replace(folderPath, "")
-					const relativeFolders = relativeFolder.split("/")
-					// recursively create the hierarchy in res, so if we have ["folder1", "subfolder2", "subsubfolder3"], we should have res[folder1][subfolder2][subsubfolder3] = {}
-					let currentFileRes = res
-					for (let i = 0; i < relativeFolders.length; i++) {
-						const folder = relativeFolders[i]
-						if (!currentFileRes[folder]) {
-							currentFileRes[folder] = {}
+				let nodes = []
+				let edges = []
+
+				nodes = createNodesAndEdgesFromFiles(filesResult).nodes;
+				edges = createNodesAndEdgesFromFiles(filesResult).edges;
+
+				each(filesResult, (fileResults) => {
+					nodes = nodes.concat(createNodesAndEdgesFromTitlesContent(fileResults.results, fileResults.file).nodes);
+					edges = edges.concat(createNodesAndEdgesFromTitlesContent(fileResults.results, fileResults.file).edges);
+				})
+
+				res.nodes = nodes
+				res.edges = edges
+
+
+				let cid = 0
+				for (let i = 0; i < res.nodes.length; i++) {
+					cid++
+					// in nodes, add a label prop = name
+					// res.nodes[i].label = res.nodes[i].name
+					// if no label it is its name
+					res.nodes[i].label = res.nodes[i].label || res.nodes[i].name
+					res.nodes[i].id = cid
+					// according to the nb of edges to it, create the mass and size 
+					for (let j = 0; j < res.edges.length; j++) {
+						if (res.edges[j].from === res.nodes[i].name || res.edges[j].to === res.nodes[i].name) {
+							res.nodes[i].mass = res.nodes[i].mass ? res.nodes[i].mass + 1 : 1
+							res.nodes[i].size = res.nodes[i].size ? res.nodes[i].size + 5 : 15
 						}
-						currentFileRes = currentFileRes[folder]
 					}
 
-					// en gros, on a res.nodes avec CHACUN des titles
+				}
+				// replace name by id in edges
+				for (let i = 0; i < res.edges.length; i++) {
+					const from = res.nodes.find(x => x.name === res.edges[i].from)
+					const to = res.nodes.find(x => x.name === res.edges[i].to)
+					res.edges[i].from = from.id
+					res.edges[i].to = to.id
+				}
 
-					each(file.results, (line) => {
-						const isTitle = line.trim().startsWith("#")
-						let titleRank = line.split("#").length - 1
-						let title = line.replace(/#/g, "").trim()
-						if (isTitle) {
-							currentFileRes[title] = {}
+				console.log(h, "result from fetchAndProcessDataTitles", res)
+				cb(res)
 
-							// we should create a hierarchy using the following structure
-							/*
-							title1 = # title1
-							title2 = ## title2
-							etc.
-							 result = {
-								subfolder1: {
-									subsubfolder1: {
-										title1: {
-											title2 {
-												title3 {
-
-												}
-											}
-										}
-									}
-								}
-							}
-							
-							*/
-
-
-						}
-					})
-				})
 			})
 		}
+
+		/////////////////////////////////////////////
+		//
+		// HASHTAG METHOD
+		//
+		/////////////////////////////////////////////
 		const fetchAndProcessDataHashtags = (cb) => {
 				api.call("search.hashtags", [folderPath], hashtags => {
 						const res = {}
@@ -181,17 +247,14 @@ const graphApp = (innerTagStr, opts) => {
 							const findConnectedNodes = (nodeId, res) => {
 								const connectedNodes = res.edges.filter(x => x.from === nodeId || x.to === nodeId)
 								const connectedNodesIds = connectedNodes.map(x => x.from === nodeId ? x.to : x.from)
-								// console.log(454, nodeId ,connectedNodes, connectedNodesIds, res.edges, {...res});
 								return connectedNodesIds
 							}
 							const findConnectedNodesRecursive = (nodeId, res, resArr) => {
 								// if nodeId is integer, convert to string
 								// if (typeof nodeId === "number") nodeId = nodeId.toString()
 								const connectedNodesIds = findConnectedNodes(nodeId, res)
-								// console.log(444, connectedNodesIds, nodeId)
 								for (let i = 0; i < connectedNodesIds.length; i++) {
 										const cid = connectedNodesIds[i]
-										// console.log(cid, resArr)
 										if (!resArr.includes(cid)) {
 												resArr.push(cid)
 												findConnectedNodesRecursive(cid, res, resArr)
@@ -202,8 +265,6 @@ const graphApp = (innerTagStr, opts) => {
 							// find the root tag id
 							const rootTagId = res.nodes.find(x => x.name === rootTag).id?.toString()
 							findConnectedNodesRecursive(rootTagId, res, connectedNodesIds)
-							// console.log(res.nodes);
-							// console.log(res.edges);
 							// filter nodes and edges
 							// let res2 = {}
 							res.nodes = res.nodes.filter(x => connectedNodesIds.includes(x.id.toString()))
@@ -212,7 +273,9 @@ const graphApp = (innerTagStr, opts) => {
 						}
 						
 
+						console.log(h, "result from fetchAndProcessDataHashtags", res)
 						cb(res)
+
 				});
 
 			}
@@ -249,7 +312,7 @@ const graphApp = (innerTagStr, opts) => {
 						width: '100%',
 						physics: {
 								enabled: true,
-								stabilization: true
+								stabilization: false
 						},
 						edges: {
 								smooth: false,
@@ -325,7 +388,6 @@ const graphApp = (innerTagStr, opts) => {
 		const updateLoadingPopup = (percent) => {
 				let str = `Graph stabilization: ${percent}%`
 				let wbEl = document.querySelector("#waiting-bar");
-				// console.log(str, e);
 				debounceHideLoadingPopup()
 				if (percent > 95 || percent < 5) {
 						debounceHideLoadingPopup()
@@ -365,7 +427,7 @@ const graphApp = (innerTagStr, opts) => {
 				const popupFunctionStr = (file) => `
 																		window.api.file.getContent('${file.path}', ncontent => {
 				ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).replaceAll('\"', '\'')}, windowId:''})
-				ncontent2 = ncontent2.replaceAll('${node.name}', '<span class=\\'found-word\\'>${node.name}</span>')
+				ncontent2 = ncontent2.replaceAll('${node.label}', '<span class=\\'found-word\\'>${node.label}</span>')
 				const previewEl = document.getElementById('popup-part-preview');
 				previewEl.innerHTML = '<div class=\\'file-content render-latex\\'><h3>${file.path}</h3>' + ncontent2 +'</div>';
 				setTimeout(() => {
