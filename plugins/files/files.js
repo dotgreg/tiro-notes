@@ -83,36 +83,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                     // api.call("ui.notification.emit",[{content:"Upload Success, reloading"+i,id:notifId, options:{hideAfter:5}}])
                     // setRescan(rescan+i)
                     count++
-                    console.log("files ctag > upload.uploadFile", res, file, count, files.length)
-                    if (count === files.length)  askForRescan()
-                  })
-                }
-            };
-
-            const getIconFile = (fileType) => {
-              let ft = fileType.toLowerCase()
-		          if (["jpg", "jpeg", "gif", "png" ].includes(ft)) return "image"
-		          else if (["pdf" ].includes(ft)) return "file-pdf"
-		          else if (["doc", "docx", "odt" ].includes(ft)) return "file-word"
-		          else if (["xls", "xlsx" , "xls" , "ods" ].includes(ft)) return "file-excel"
-		          else if (["avi", "flv", "h264", "m4v", "mov", "mp4", "mpg", "mpeg", "rm", "swf", "vob", "wmv", "mkv" ].includes(ft)) return "file-video"
-		          else if (["7z", "arj", "deb", "rar", "gz", "zip", "rpm", "pkg"].includes(ft)) return "file-zipper"
-		          else if (["aif", "mp3", "cda", "mid", "mpa", "ogg", "wav", "wpl", "wma", "midi"].includes(ft)) return "file-audio"
-		          else if (["ppt", "pptx", "odp", "key", "pps"].includes(ft)) return "file-powerpoint"
-              else if (["epub"].includes(ft)) return "book"
-              else return "file"
-            }
-
-            //
-            // On Click, open file in new window
-            //
-            const getFullUrlItem = (item) => {
-              const infs = api.utils.getInfos()
-              return `${infs.backendUrl}/static/${item.raw.path}?token=${infs.loginToken}`
-            }
-            const onItemOpenClick = (item) => {
-              // if Item.type is pdf, epub or image => open in new tab
-              console.log("opening Item ", api.utils.getInfos(), item, getFullUrlItem(item))
+                    console.log("opening Item ", api.utils.getInfos(), item, getFullUrlItem(item))
               if (["pdf", "epub"].indexOf(item.type) !== -1) {
                 // window.open(Item.raw.path, '_blank').focus();
                 api.call("ui.floatingPanel.create", [{
@@ -150,7 +121,6 @@ const FilesTagApp = (innerTagStr, opts) => {
               setStatus("Scanning...")
               api.call("ressource.scanFolder", [currFolderPath], res => {
                   let nFiles = []
-                  console.log("ressource.scanFolder", res)
                   res.files.map(f => {
                     let created = "unknown"
                     if (f.stats) {
@@ -180,7 +150,6 @@ const FilesTagApp = (innerTagStr, opts) => {
                     ngs.nb += 1
                     nFiles.push(nFile)
                   })
-                  console.log("ressource.scanFolder", nFiles)
                   
                   // setGlobStats(ngs)
                   setFiles(nFiles)
