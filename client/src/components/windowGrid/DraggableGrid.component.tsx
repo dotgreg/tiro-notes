@@ -318,7 +318,7 @@ export const DraggableGrid = (p: {
 				size: 1.2,
 				action: () => { },
 				onHover: () => {
-					if (window && !window.active) makewindowActiveStatus(window.i, window.file)
+					// if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 				}
 			},
 			{

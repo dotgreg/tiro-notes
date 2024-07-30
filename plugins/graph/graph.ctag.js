@@ -1,9 +1,68 @@
 
 const graphApp = (innerTagStr, opts) => {
-		// format of innerTagStr => folderpath | graphType = "tags" or "titles" (opt) | rootTag (opt)
+	window.helpStrTable = `
+	<h3>Graph Component</h3>
+	<p> This is the graph component
+
+	<h3> 1) Titles mode: Create a graph from your current folder files titles</h3>
+	<p> You can create a graph which will use your markdown titles hierarchy to create a graph with the following code: <br></p>
+
+	<code>
+	<pre>
+	[[graph]]
+	/path/to/folder | titles
+	[[graph]]
+	</pre>
+	</code>
+
+	<h4> Remove some titles by making them starting with _</h4>
+	<p> If you want to remove some titles from the graph, you can make them start with a _ in the title. <br></p>
+
+	<h3> 2) Filtered Title mode: Only select some titles</h3>
+	<p> You can choose to only display some titles by adding a third parameter in the graph code. The example below will only show titles starting by "." <br></p>
+
+	<code>
+	<pre>
+	[[graph]]
+	/path/to/folder | titles | # .
+	[[graph]]
+	</pre>
+	</code>
+
+
+	<h3> 3) Hashtag mode</h3>
+	<p> You can create your own graph by only using hashtags. To create links between tags, they should be on the same line <br>
+
+	<code>
+	<pre>
+	FILE1.md: <br>
+
+	here is a #parent_notion that has several children: #child1 <br/>
+	as well as #parent_notion #child2 <br/>
+	as well as #parent_notion #child3 <br/>
+	<br/>
+	#child3 is also connected to #subchild31 <br/>
+	#child3 is also connected to #subchild32 <br/>
+	#child3 is also connected to #subchild33 <br/>
+	</pre>
+	</code>
+
+
+	<code>
+	<pre>
+	Graph.md: <br>
+	[[graph]]
+	/path/to/folder | tags
+	[[graph]]
+	</pre>
+	</code>
+	`
+
+
+		// format of innerTagStr => folderpath | graphType = "tags" or "titles" (opt) | innerTagOption3 (opt)
 		const folderPath = innerTagStr.split("|")[0].trim() 
 		const graphType = innerTagStr.split("|")[1]?.trim() || "tags"
-		const rootTag = innerTagStr.split("|")[2]?.trim() 
+		const innerTagOption3 = innerTagStr.split("|")[2]?.trim() 
 
 		const infos = api.utils.getInfos()
 		if (!opts) opts = {}
@@ -12,7 +71,7 @@ const graphApp = (innerTagStr, opts) => {
 		const h = `[GRAPH CTAG] =>`
 
 		if (!folderPath.startsWith("/")) return console.error(h, "folderpath should start by a '/'")
-		console.log(h, "init CTAG with params:", { folderPath, graphType, rootTag, opts, innerTagStr });
+		console.log(h, "init CTAG with params:", { folderPath, graphType, innerTagOption3, opts, innerTagStr });
 
 	///////////////////////////////////////////////////
 	// 0. COLOR
@@ -69,7 +128,7 @@ const graphApp = (innerTagStr, opts) => {
 		}
 
 		// CACHING MECHANISM
-		const cacheId = `ctag-graph-${folderPath}-${rootTag}-${graphType}`
+		const cacheId = `ctag-graph-${folderPath}-${innerTagOption3}-${graphType}`
 		const getCache = (onSuccess, onFailure, customCacheId) => {
 				let cId = customCacheId ? cacheId + customCacheId : cacheId
 
@@ -103,10 +162,13 @@ const graphApp = (innerTagStr, opts) => {
 	//
 	/////////////////////////////////////////////
 
-	function createNodesAndEdgesFromFiles(filesResults) {
+	function createNodesAndEdgesFromFiles(filesResults, folderPath) {
 		const nodes = new Set();
 		const edges = [];
 		each(filesResults, fileResults => {
+			// if folderpath is /root/base/d3, keep /root/base
+			let parentFolderPath = folderPath.split('/').slice(0, -1).join('/');
+			fileResults.file.path = fileResults.file.path.replace(parentFolderPath, '');
 			const pathParts = fileResults.file.path.split('/').filter(part => part !== '');
 			for (let i = 0; i < pathParts.length; i++) {
 				nodes.add(pathParts[i]);
@@ -168,14 +230,16 @@ const graphApp = (innerTagStr, opts) => {
 
 
 		const fetchAndProcessDataTitles = (cb) => {
-			api.call("search.word", ["#", folderPath], filesResult => {
+			// if innerTagOption3 exists, do a search on it, like if "." search for "# ."
+			let searchee = innerTagOption3 ? `${innerTagOption3}` : "#"
+			api.call("search.word", [searchee, folderPath], filesResult => {
 				// for each result
 				let res = {}
 				let nodes = []
 				let edges = []
 
-				nodes = createNodesAndEdgesFromFiles(filesResult).nodes;
-				edges = createNodesAndEdgesFromFiles(filesResult).edges;
+				nodes = createNodesAndEdgesFromFiles(filesResult, folderPath).nodes;
+				edges = createNodesAndEdgesFromFiles(filesResult, folderPath).edges;
 
 				each(filesResult, (fileResults) => {
 					nodes = nodes.concat(createNodesAndEdgesFromTitlesContent(fileResults.results, fileResults.file).nodes);
@@ -281,8 +345,8 @@ const graphApp = (innerTagStr, opts) => {
 								res.edges.push({ from: edge[0], to: edge[1] })
 						}
 
-						// if rootTag exists, find all nodes connected, then for each node connected, find all nodes connected to it, until no more nodes are connected in a recursive way
-						if (rootTag) {
+						// if innerTagOption3 exists, find all nodes connected, then for each node connected, find all nodes connected to it, until no more nodes are connected in a recursive way
+						if (innerTagOption3) {
 							const findConnectedNodes = (nodeId, res) => {
 								const connectedNodes = res.edges.filter(x => x.from === nodeId || x.to === nodeId)
 								const connectedNodesIds = connectedNodes.map(x => x.from === nodeId ? x.to : x.from)
@@ -302,7 +366,7 @@ const graphApp = (innerTagStr, opts) => {
 							}
 							const connectedNodesIds = []
 							// find the root tag id
-							const rootTagId = res.nodes.find(x => x.name === rootTag).id?.toString()
+							const rootTagId = res.nodes.find(x => x.name === innerTagOption3).id?.toString()
 							findConnectedNodesRecursive(rootTagId, res, connectedNodesIds)
 							// filter nodes and edges
 							// let res2 = {}
@@ -394,7 +458,7 @@ const graphApp = (innerTagStr, opts) => {
 				})
 
 				// INIT POPUP
-				const createPopupWithData = createPopup(data);
+				const createPopupWithData = createPopupNew(data);
 				network.on("click", createPopupWithData);
 
 				// trigger on first redraw
@@ -446,11 +510,23 @@ const graphApp = (innerTagStr, opts) => {
 		///////////////////////////////////////////////////
 		// 3. CREATE POPUP
 		//
-		const createPopup = data => d => {
+		const createPopupNew = data => d => {
 				const nodeId = d.nodes[0]
 				if (!nodeId) return
 				const node = data.nodes.find(x => x.id === nodeId);
 
+				const parts = node.noteParts
+				console.log(parts)
+				// take first 
+				let fileToOpen = parts[0].file
+				let stringToSearch = node.label
+				api.call("ui.floatingPanel.openFile", [fileToOpen.path, { searchedString: stringToSearch, idpanel: 'id-panel-graph-preview', layout: 'top-right' }])
+		}
+
+		const createPopup = data => d => {
+				const nodeId = d.nodes[0]
+				if (!nodeId) return
+				const node = data.nodes.find(x => x.id === nodeId);
 				const parts = node.noteParts
 				const popupTitle = `Hashtag "${node.name}" Research`
 				let toShow = `
@@ -459,20 +535,21 @@ const graphApp = (innerTagStr, opts) => {
 																		<br>
 																		<div class="links-wrapper">
 																		`
+				window.wooop = (test) => {
+					console.log(test);
+					alert(test);
+				}
 				// const file
 				//
-				// JS RELATED FUNCTIONS
+				// JS RELATED FUNCTIONS => we are again in a popup context where all API is availabe
 				//
 				const popupFunctionStr = (file) => `
-																		window.api.file.getContent('${file.path}', ncontent => {
-				ncontent2 = window.api.note.render({raw: ncontent, file: ${JSON.stringify(file).replaceAll('\"', '\'')}, windowId:''})
-				ncontent2 = ncontent2.replaceAll('${node.label}', '<span class=\\'found-word\\'>${node.label}</span>')
-				const previewEl = document.getElementById('popup-part-preview');
-				previewEl.innerHTML = '<div class=\\'file-content render-latex\\'><h3>${file.path}</h3>' + ncontent2 +'</div>';
-				setTimeout(() => {
-		document.querySelector('#popup-part-preview .found-word').scrollIntoView();
-}, 100)
-		})
+					window.api.ui.floatingPanel.openFile('${file.path}', { 
+							searchedString:'${node.label}' , 
+							idpanel: 'id-panel-graph-preview', 
+							layout: 'top-right'
+					})
+
 																		`
 				const openInActiveWindowStr = (file) => `window.api.ui.windows.active.setContent(${JSON.stringify(file).replaceAll('\"', '\'')}); `
 
@@ -493,8 +570,8 @@ const graphApp = (innerTagStr, opts) => {
 						const obj = objsToDisplay[key]
 						toShow += `<li><a href="#/" onclick="${popupFunctionStr(obj.file)}">`
 						toShow += `${obj.file.name}${obj.partsName.length === 0 ? "" : " in #"}${obj.partsName.join(" ,#")}`
-						toShow += `</a> | `
-						toShow += `<a href="#/" onclick="${openInActiveWindowStr(obj.file)}"> > </a></li>`
+						toShow += `</a>  `
+						// toShow += `<a href="#/" onclick="${openInActiveWindowStr(obj.file)}"> > </a></li>`
 				}
 				toShow += `</ul>`
 
@@ -586,6 +663,7 @@ const graphApp = (innerTagStr, opts) => {
 		}
 		#filter-graph {
 				color:#a1a1a1;
+				width: 120px;
 				background: none;
 				border: none;
 				border-bottom: 1px solid #dddddd;
@@ -601,13 +679,14 @@ const graphApp = (innerTagStr, opts) => {
 		</style>
 		<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
 		<div id="filter-graph-wrapper">
-		<i class="fas fa-sync-alt" style="color:#c2c2c2; cursor:pointer;" onclick="window.reloadGraph({disableCache:true})"></i>
-		<input
-		type="text"
-		id="filter-graph"
-		placeholder="Type to filter"
-		/>
-		<div id="filter-best-guess"></div>
+			<i class="fas fa-question-circle" style="color:#c2c2c2; cursor:pointer;" onclick='api.call("popup.show", [window.helpStrTable, "Table Help"])'></i>
+			<i class="fas fa-sync-alt" style="color:#c2c2c2; cursor:pointer;" onclick="window.reloadGraph({disableCache:true})"></i>
+			<input
+			type="text"
+			id="filter-graph"
+			placeholder="Type to filter"
+			/>
+			<div id="filter-best-guess"></div>
 		</div>
 		`
 		const normalizeStr = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")

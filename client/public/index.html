@@ -32,28 +32,37 @@
 		/* 		top:40px; */
 		/* 		left: 0px; */
 		/* } */
+		
+		/*
+		avoiding decal issues
+		*/
+		html {
+			position: fixed;
+		}
 		body > iframe {
 			display: none!important;
 		}
 	</style>
 	<script>
-		setTimeout(() => {
-			console.info("[DEV NOTICE] Live Reload Has Been Disabled");
-			window.webpackHotUpdate = () => {}
-		}, 1000)
-		{
-		  var WS = window.WebSocket;
-		  function DevWebSocket(s) {
-			if (s === "ws://localhost:3000/sockjs-node") {
-			  console.info("[DEV NOTICE] Live Reload Has Been Disabled");
-			  return {};
-			} else {
-			  // Pass through other usage of sockets
-			  return new WS(s);
-			}
-		  }
-		  window.WebSocket = DevWebSocket;
-		}
+		// to disable hot reload uncomment the following code
+
+		// setTimeout(() => {
+		// 	console.info("[DEV NOTICE] Live Reload Has Been Disabled");
+		// 	window.webpackHotUpdate = () => {}
+		// }, 1000)
+		// {
+		//   var WS = window.WebSocket;
+		//   function DevWebSocket(s) {
+		// 	if (s === "ws://localhost:3000/sockjs-node") {
+		// 	  console.info("[DEV NOTICE] Live Reload Has Been Disabled");
+		// 	  return {};
+		// 	} else {
+		// 	  // Pass through other usage of sockets
+		// 	  return new WS(s);
+		// 	}
+		//   }
+		//   window.WebSocket = DevWebSocket;
+		// }
 	  </script>
 	  
 </html>

@@ -86,7 +86,11 @@ export const useSearchApi = (p: {
 	const searchWord: iSearchApi['word'] = (word, folder, cb, options) => {
 		const idReq = genIdReq(`search-word-`);
 		// replace all special chars like + or * by \\char
-		word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+
+		// replace chars like +, *, . etc by \\char
+		// word = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+		// replace . by \\.
+
 		console.log(`${h} searching WORD ${word} in ${folder}`, options);
 
 		// subscribe

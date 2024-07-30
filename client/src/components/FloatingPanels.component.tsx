@@ -1019,7 +1019,6 @@ export const FloatingPanelCss = () => `
 //
 .panels-minimized-bottom-bar-wrapper {
     position: absolute;
-    left: left: 18px;
     width: 100vw;
     overflow: hidden;
     overflow-x: scroll;
