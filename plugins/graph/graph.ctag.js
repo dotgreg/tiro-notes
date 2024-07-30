@@ -24,7 +24,7 @@ const graphApp = (innerTagStr, opts) => {
 	<code>
 	<pre>
 	[[graph]]
-	/path/to/folder | titles | # .
+	/path/to/folder | titles | # \\\\.
 	[[graph]]
 	</pre>
 	</code>
@@ -250,8 +250,8 @@ const graphApp = (innerTagStr, opts) => {
 
 		const fetchAndProcessDataTitles = (cb) => {
 			// if innerTagOption3 exists, do a search on it, like if "." search for "# ."
-			let onlyTitlesStartingBy = innerTagOption3 ? innerTagOption3 : false
-			api.call("search.word", ["#", folderPath], filesResult => {
+			let searchee = innerTagOption3 ? `${innerTagOption3}` : "#"
+			api.call("search.word", [searchee, folderPath], filesResult => {
 				// for each result
 				let res = {}
 				let nodes = []
@@ -698,7 +698,6 @@ const graphApp = (innerTagStr, opts) => {
 				// caching in LS filter
 				const filterIdCache = "filter-cache"
 				const fetchFilterValue = () => {
-					console.log(h, "=> fetch filter value from backend");
 					getCache(initValueFilter => {
 							if (initValueFilter) {
 									const filterInput = document.getElementById('filter-graph');
