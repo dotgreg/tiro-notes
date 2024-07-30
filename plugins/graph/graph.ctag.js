@@ -193,7 +193,11 @@ const graphApp = (innerTagStr, opts) => {
 				const nOpacity = 0.2*i
 				let nColor = getMainColor(nOpacity, ncolor)
 				let nColPar = 100 + 20*i
-				nColor = `rgba(${nColPar},${nColPar},${nColPar},${1-(0.2*i)})`
+				nColPar = 180 - 30*i
+				let nOpacityPar = 1-(0.1*nI)
+				nOpacityPar = 1
+
+				nColor = `rgba(${nColPar},${nColPar},${nColPar},${nOpacityPar})`
 				return {
 					name,
 					nodeOrigin: "fileName",
