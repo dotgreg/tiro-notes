@@ -189,10 +189,11 @@ const graphApp = (innerTagStr, opts) => {
 				let nI = maxI - i
 				name = name.split("_-_-*-_-_")[0]
 				// const ncolor = [-20*nI, -20*nI,-20*nI] 
-				const ncolor = [0,0,0]
+				const ncolor = [200,200,200]
 				const nOpacity = 0.2*i
 				let nColor = getMainColor(nOpacity, ncolor)
-				nColor = `rgba(0,0,0,${1-(0.2*i)})`
+				let nColPar = 100 + 20*i
+				nColor = `rgba(${nColPar},${nColPar},${nColPar},${1-(0.2*i)})`
 				return {
 					name,
 					nodeOrigin: "fileName",
