@@ -164,38 +164,58 @@ const graphApp = (innerTagStr, opts) => {
 
 	function createNodesAndEdgesFromFiles(filesResults, folderPath) {
 		const nodes = new Set();
+		const nodesPath = new Set();
+		// const nodes = []
 		const edges = [];
+		let maxI = 0
 		each(filesResults, fileResults => {
 			// if folderpath is /root/base/d3, keep /root/base
-			let parentFolderPath = folderPath.split('/').slice(0, -1).join('/');
-			fileResults.file.path = fileResults.file.path.replace(parentFolderPath, '');
+			// let parentFolderPath = folderPath.split('/').slice(0, -1).join('/');
+			// fileResults.file.path = fileResults.file.path.replace(parentFolderPath, '');
 			const pathParts = fileResults.file.path.split('/').filter(part => part !== '');
 			for (let i = 0; i < pathParts.length; i++) {
-				nodes.add(pathParts[i]);
+				nodes.add(pathParts[i] + "_-_-*-_-_"+ i);
+				maxI = Math.max(maxI, i)
 				if (i > 0) {
 					edges.push({ from: pathParts[i - 1], to: pathParts[i] });
 				}
 			}
 		});
 		return {
-			nodes: Array.from(nodes).map(name => ({ name })),
+			nodes: Array.from(nodes).map(name => {
+				console.log(name, nodesPath[0])
+				let i = name.split("_-_-*-_-_")[1]
+				i = parseInt(i) 
+				let nI = maxI - i
+				name = name.split("_-_-*-_-_")[0]
+				// const ncolor = [-20*nI, -20*nI,-20*nI] 
+				const ncolor = [0,0,0]
+				const nOpacity = 0.2*i
+				let nColor = getMainColor(nOpacity, ncolor)
+				nColor = `rgba(0,0,0,${1-(0.2*i)})`
+				return {
+					name,
+					nodeOrigin: "fileName",
+					color: {
+						border:nColor, 
+						background:nColor, 
+					}
+				}
+			}),
 			edges: edges
 		};
 	}
 
 	let createNodesAndEdgesFromTitlesContent = (fileResults, file) => {
-		// only keep filesResults starting with #
 		fileResults = fileResults.filter(item => item.trim().startsWith('#'));
-		// only keep filesResults with item string after the # should not start by _
-		// fileResults = fileResults.filter(item => !item.trim().replace(/^#+\s*/, '').startsWith('_'));
 		const nodes = fileResults.map(item => {
 			let titleRaw = item
 			let title = item.trim().replace(/^#+\s*/, '').trim()
 			let level = item.match(/^#+/)  ? item.match(/^#+/)[0].length : -1
-			
 			return {
 				name: `${title}_${file.name}`,
 				label: title,
+				nodeOrigin: "title",
 				level,
 				noteParts: [{
 					file: file,
@@ -228,11 +248,10 @@ const graphApp = (innerTagStr, opts) => {
 
 
 
-
 		const fetchAndProcessDataTitles = (cb) => {
 			// if innerTagOption3 exists, do a search on it, like if "." search for "# ."
-			let searchee = innerTagOption3 ? `${innerTagOption3}` : "#"
-			api.call("search.word", [searchee, folderPath], filesResult => {
+			let onlyTitlesStartingBy = innerTagOption3 ? innerTagOption3 : false
+			api.call("search.word", ["#", folderPath], filesResult => {
 				// for each result
 				let res = {}
 				let nodes = []
@@ -249,12 +268,9 @@ const graphApp = (innerTagStr, opts) => {
 				res.nodes = nodes
 				res.edges = edges
 
-
 				let cid = 0
 				for (let i = 0; i < res.nodes.length; i++) {
 					cid++
-					// in nodes, add a label prop = name
-					// res.nodes[i].label = res.nodes[i].name
 					// if no label it is its name
 					res.nodes[i].label = res.nodes[i].label || res.nodes[i].name
 					res.nodes[i].id = cid
@@ -265,31 +281,14 @@ const graphApp = (innerTagStr, opts) => {
 							res.nodes[i].size = res.nodes[i].size ? res.nodes[i].size + 3 : 10
 							// max size is 100
 							res.nodes[i].size = Math.min(res.nodes[i].size, 60)
-
-
 						}
 					}
-					
-
 				}
-
 
 				// remove the nodes which name starts with _
 				res.nodes = res.nodes.filter(x => !x.name.startsWith("_"))
 				// remove the edges where either the from or the to starts with _
 				res.edges = res.edges.filter(x => !x.from.startsWith("_") && !x.to.startsWith("_"))
-
-				// // if a node name starts by _, remove it from nodes and edges
-				// res.nodes = res.nodes.filter(x => !x.name.startsWith("_"))
-				// res.edges = res.edges.filter(x => !x.from.startsWith("_") && !x.to.startsWith("_"))
-				// // recursively find nodes connected to it and remove them
-				// const findConnectedNodesRecursive = (nodeId, res, resArr) => {
-				// 	const connectedNodes = res.edges.filter(x => x.from === nodeId || x.to === nodeId)
-				// 	const connectedNodesIds = connectedNodes.map(x => x.from === nodeId ? x.to : x.from)
-				// 	for (let i = 0; i < connectedNodesIds.length; i++) {
-				// 			const cid = connectedNodesIds[i]
-				// 			if (!resArr.includes(cid)) {
-
 
 				// replace name by id in edges
 				for (let i = 0; i < res.edges.length; i++) {
@@ -306,7 +305,6 @@ const graphApp = (innerTagStr, opts) => {
 					connectedNodes.push(res.edges[i].to)
 				}
 				res.nodes = res.nodes.filter(x => connectedNodes.includes(x.id))
-
 
 				console.log(h, "result from fetchAndProcessDataTitles", res)
 				cb(res)
@@ -663,7 +661,6 @@ const graphApp = (innerTagStr, opts) => {
 		}
 		#filter-graph {
 				color:#a1a1a1;
-				width: 120px;
 				background: none;
 				border: none;
 				border-bottom: 1px solid #dddddd;
@@ -673,6 +670,7 @@ const graphApp = (innerTagStr, opts) => {
 				outline: none;
 		}
 		#filter-best-guess {
+				width: 120px;
 				font-size: 10px;
 				color:#a1a1a1;
 		}
