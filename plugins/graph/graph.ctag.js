@@ -676,6 +676,9 @@ const graphApp = (innerTagStr, opts) => {
 		}
 		#filter-best-guess {
 				width: 120px;
+				height: 20px;
+				overflow: hidden;
+				word-break: break-all;
 				font-size: 10px;
 				color:#a1a1a1;
 		}
