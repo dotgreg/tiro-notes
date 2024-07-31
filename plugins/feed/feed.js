@@ -1268,6 +1268,7 @@ const feedApp = (innerTagStr, opts) => {
 				height: auto!important;
 		}
 		.article-links-wrapper {
+				margin-left: 30px;
 				font-size: 12px;
 				padding-bottom: 14px;
 				margin-bottom: 0px;
