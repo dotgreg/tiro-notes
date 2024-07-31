@@ -573,7 +573,7 @@ const feedApp = (innerTagStr, opts) => {
 																				c('a', {
 																						className: "article-link",
 																						onClick: () => {
-																							let invidiousLink = `https://yewtu.be/watch?v=${p.article.enclosure.videoId}`
+																							let invidiousLink = `https://redirect.invidious.io/watch?v=${p.article.enclosure.videoId}`
 																							openLinkNewWindow(invidiousLink)
 																						}
 																				}, ["open individuous link"]),
@@ -584,7 +584,7 @@ const feedApp = (innerTagStr, opts) => {
 																				}, ["link"]),
 																				c('a', {
 																						className: "article-link",
-																						href: `https://yewtu.be/watch?v=${p.article.enclosure.videoId}`,
+																						href: `https://redirect.invidious.io/watch?v=${p.article.enclosure.videoId}`,
 																						target: "_blank"
 																				}, ["Individious link"]),
 																		]),
