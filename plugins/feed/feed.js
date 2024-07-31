@@ -570,7 +570,24 @@ const feedApp = (innerTagStr, opts) => {
 																								openLinkNewWindow(p.article.link)
 																						}
 																				}, ["open in window"]),
-																		])
+																				c('a', {
+																						className: "article-link",
+																						onClick: () => {
+																							let invidiousLink = `https://yewtu.be/watch?v=${p.article.enclosure.videoId}`
+																							openLinkNewWindow(invidiousLink)
+																						}
+																				}, ["open individuous link"]),
+																				c('a', {
+																						className: "article-link",
+																						href: `https://youtube.com/watch?v=${p.article.enclosure.videoId}`,
+																						target: "_blank"
+																				}, ["link"]),
+																				c('a', {
+																						className: "article-link",
+																						href: `https://yewtu.be/watch?v=${p.article.enclosure.videoId}`,
+																						target: "_blank"
+																				}, ["Individious link"]),
+																		]),
 																]),
 
 														c('div', {
