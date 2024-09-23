@@ -30,7 +30,7 @@ export const triggerTiroHelpPopup = () => {
     <li>Ctrl + (Shift) + directional arrow : Change active floating window position </li>
     <li>Alt + shift + w : Re-organize Floating windows from current layout</li>
     <li>Alt + Shift + v : Toggle view of active floating window</li>
-    <li>Alt + Shift + m : Minimize active floating window</li>
+    <li>Alt + Shift + a : Minimize active floating window</li>
     <li>Alt + Shift + r : Reload active floating window</li>
     <li>Alt + Shift + c : Close active floating window</li>
     <li>Alt + o / Alt + Shift + o : Increase/Decrease opacity of active floating window</li>
