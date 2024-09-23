@@ -362,6 +362,16 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
+						title: "Synced Title scrolling",
+						expl: "When scrolling to a title on the editor, will scroll to its preview counterpart" + requireReloadStr,
+						var: us.get('ui_editor_synced_title_scrolling'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_synced_title_scrolling', val)
+						}
+					},
+					{
+						type: 'checkbox',
 						title: "Markdown Tags",
 						expl: "Displays #tag as clickable tag you can interact with " + requireReloadStr,
 						var: us.get('ui_editor_markdown_tags'),

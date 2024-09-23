@@ -99,11 +99,15 @@ export type iUserSettingName =
 'ui_editor_search_highlight_url' |
 'ui_editor_search_highlight_enable' |
 
+
+
 'ui_sidebar' |
 
 'ui_editor_links_as_button' |
 'ui_editor_links_preview_zoom' |
 'ui_editor_live_watch' |
+'ui_editor_synced_title_scrolling' |
+
 'ui_editor_markdown_tags' |
 'ui_editor_markdown_preview' |
 'ui_editor_spellcheck' |

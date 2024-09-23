@@ -10,6 +10,7 @@ export interface iEditorAction {
 
 	lineJumpNb?: number
 	lineJumpString?: string
+	lineJumpType? : "editor" | "preview" | "both"
 
 	insertText?: string
 	insertPos?: iCMPosition
@@ -32,7 +33,7 @@ export interface iEditorAction {
 
 interface iNoteUiApi {
 	ui: {
-		// old way to linejump
+		// old way to linejump => SHOULD USE api.note.ui.editorAction.dispatch({type: "lineJump", windowId: "active", lineJumpNb: 1})
 		lineJump: {
 			jump: (windowId: string, line: number) => void
 		},

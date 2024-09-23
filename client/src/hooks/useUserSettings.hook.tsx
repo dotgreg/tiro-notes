@@ -60,6 +60,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_markdown_table_preview: true,
 	ui_editor_spellcheck: true,
 	ui_editor_live_watch: true,
+	ui_editor_synced_title_scrolling: true, 
 	ui_editor_links_as_button: true,
 	ui_editor_search_highlight_url: "https://duckduckgo.com/?q=",
 	ui_editor_search_highlight_enable: true,

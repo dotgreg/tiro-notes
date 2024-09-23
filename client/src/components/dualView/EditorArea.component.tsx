@@ -42,6 +42,8 @@ import { highlightCurrentLine } from '../../managers/codeMirror/highlightLine.cm
 import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 import { triggerAddTableCol, triggerRemoveTableCol } from '../../managers/table.markdown.manager';
 import { syncScroll3 } from '../../hooks/syncScroll.hook';
+import { getLineInfosFromMdStructure} from '../../managers/markdown.manager';
+import { info } from 'console';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -508,6 +510,12 @@ const EditorAreaInt = (
 		// console.log("[EDITOR ACTION] =>", {a})
 		// lineJump
 		if (a.type === "lineJump") {
+
+			let lineJumpType = "both"
+			if (a.lineJumpType) lineJumpType = a.lineJumpType
+			let shouldJumpEditor = lineJumpType === "editor" || lineJumpType === "both"
+			let shouldJumpPreview = lineJumpType === "preview" || lineJumpType === "both"
+
 			let lineToJump = 0
 			if(a.lineJumpNb) lineToJump = a.lineJumpNb
 			if(a.lineJumpString) {
@@ -517,10 +525,32 @@ const EditorAreaInt = (
 					if (line.includes(searchee)) lineToJump = i + 3
 				})
 			}
-			setJumpToLine(lineToJump)
-			setTimeout(() => {
-				setJumpToLine(-1)
-			}, 100)
+
+			//
+			// EDITOR JUMP
+			//
+			if (shouldJumpEditor) {
+				setJumpToLine(lineToJump)
+				setTimeout(() => {
+					setJumpToLine(-1)
+				}, 100)
+			}
+
+			//
+			// PREVIEW JUMP
+			//
+			if (shouldJumpPreview) {
+				const infosLines = getLineInfosFromMdStructure(lineToJump, innerFileContent)
+				if (!infosLines.mdPart) return
+				const previewTitleElToJump = infosLines.mdPart?.previewId
+				if (!previewTitleElToJump) return
+				const elPath = `.dual-view-wrapper.window-id-${p.windowId} .preview-area-wrapper #${previewTitleElToJump}`
+				setTimeout(() => {
+					const el = document.querySelector(elPath)
+					// console.log("[EDITOR ACTION] LINEJUMP > jumping to path in preview => ", elPath, el)
+					document.querySelector(elPath)?.scrollIntoView({ behavior: "smooth"})
+				}, 10)
+			}
 		}
 
 		// insert at
@@ -551,6 +581,8 @@ const EditorAreaInt = (
 			const f = codeMirrorEditorView.current
 			if (!f) return
 			CodeMirrorUtils.searchWord(f,a.searchWordString, a.searchReplacementString, true)
+			// const infosLines = getStringInformationFromMdStructure(a.searchWordString, innerFileContent)
+			// console.log("searchWord", a.searchWordString, a.searchReplacementString, infosLines)
 		}
 		
 		// selection
