@@ -964,6 +964,10 @@ const EditorAreaInt = (
 
 export const editorAreaCss = (v: iMobileView) => `
 
+.floating-panel-wrapper .editor-area {
+		position: relative!important;
+		top: 0px;
+}
 
 .editor-area {
 		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
@@ -971,7 +975,6 @@ export const editorAreaCss = (v: iMobileView) => `
 
 		position: ${isA('desktop') ? 'relative' : (v === 'editor' ? 'relative' : 'absolute!important')};
 		top: ${v === 'editor' && !isA('desktop') ? '0px' : '-9999px'};
-
 
 		.mobile-text-manip-toolbar {
 				display: ${v === 'editor' && !isA('desktop') ? 'flex' : 'none'};

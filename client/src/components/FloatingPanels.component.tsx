@@ -503,7 +503,7 @@ export const FloatingPanel = (p:{
                                             windowId={p.panel.id || generateUUID()}
                                             file={p.panel.file}
                                             height={p.panel.size.height}
-                                            view={p.panel.view || "editor"}
+                                            view={"editor"}
                                             searchedString={p.panel.searchedString}
                                             replacementString={p.panel.replacementString}
                                             titleEditor={"disabled"}
@@ -643,7 +643,7 @@ export const FloatingPanelsWrapper = (p:{
     const a12 = () => {  updateFloatingLayout("top-left") }
     const a13 = () => {  updateFloatingLayout("bottom-left") }
 
-    const shortcuts = ["alt+q" , "alt+w", "alt+shift > m", "alt+shift > c", "alt+shift > w", 
+    const shortcuts = ["alt+q" , "alt+w", "alt+shift > a", "alt+shift > c", "alt+shift > w", 
         "ctrl + up", "ctrl + down", "ctrl + left", "ctrl + right",
         "shift + ctrl + up", "shift + ctrl + right", "shift + ctrl + left", "shift + ctrl + down",
     

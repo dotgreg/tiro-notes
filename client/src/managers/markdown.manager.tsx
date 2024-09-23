@@ -102,7 +102,7 @@ export const replaceCustomMdTags = (
 
 // take all the content and create a list of titles
 // [[title-id-1, 20, 200][title-id-2, 201, 300]]
-export type iMdPart = { id: string, title: string, line: number }
+export type iMdPart = { id: string, title: string, line: number, ranking: number}
 export type iMdStructure = iMdPart[]
 
 const searchForUniqueIncrId = (resArr: iMdPart[], id: string): string => {
@@ -141,11 +141,13 @@ export const getMdStructure = (noteContent: string): iMdStructure => {
 			const title = m[2].toLowerCase()
 			const line = i
 			let id = title.trim().split(" ").join("-").replace(/[^a-zA-Z0-9-_À-ú]/gi, "")
+			// if # = 1, ## = 2 etc.
+			let levelTitle = m[1].length 
 
 			id = searchForUniqueIncrId(resArr, id);
 
 			resArr.push({ raw: lineStr, matches: m, id, line, title, ranking: m[1].length })
-			res.push({ id, title, line })
+			res.push({ id, title, line, ranking: m[1].length })
 		}
 	}
 

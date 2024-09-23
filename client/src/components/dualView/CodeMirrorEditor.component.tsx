@@ -39,6 +39,7 @@ import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm"
 import { markdownSynthaxCmPlugin } from "../../managers/codeMirror/markdownSynthax.cm";
 import { indentUnit } from "@codemirror/language";
 import { useInterval } from "../../hooks/interval.hook";
+import { getMdStructure } from "../../managers/markdown.manager";
 
 
 const h = `[Code Mirror]`
@@ -242,6 +243,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		let infs = CodeMirrorUtils.getEditorInfos(f.view)
+		let f2 = (forwardedRefCM as any).current
+		// get codemirror current line number
+		// let currentLineAt = f2.view.state.doc.lineAt(f2.view.state.selection.main.head).number - 1
+		// let currentLineAt = f2.state.doc.lineAt(f2.state.selection.main.head).number - 1
+		
+		// console.log("currentLineAt", currentLineAt, f2)
+		// CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1
+
 		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight(), full: infs.contentHeight })
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
@@ -362,8 +371,16 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
 					scroll(event, view) {
-						// debouncedActivateTitles();
-						// throttleActivateTitles();
+						let f2 = (forwardedRefCM as any).current 
+						if (f2) {
+							let currentLine = CodeMirrorUtils.getScrolledLine(f2)
+							// if currentLine starts with #, it is a title
+							let isTitle = currentLine.lineText.startsWith("#")
+							console.log(currentLine)
+							if (isTitle) {
+								console.log("JUMP TITLE!")
+							}
+						}
 					},
 					wheel(event, view) {
 						let infs = CodeMirrorUtils.getEditorInfos(view)
@@ -568,7 +585,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			onUpdate={e => {
 				onCodeMirrorUpdate(e)
 			}}
-			// onScrollCapture={onCodeMirrorScroll}
+			// onScrollCapture={e => {
+			// 	console.log("scroll", e)
+			// 		const f = getEditorObj()
+			// 		if (!f) return false
+			// }}
 
 
 			basicSetup={{
