@@ -190,7 +190,13 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos | null => {
 //
 // GET SCROLLING LINE -> NOT USED, SHOULD BE UPDATED
 // 
-const getScrolledLine = (CMObj) => {
+export interface iCMCurrentLine {
+	totLine: number,
+	lineNb: number,
+	lineText: string,
+	lines: string[]
+}
+const getScrolledLine = (CMObj):iCMCurrentLine => {
 	let lineNb = intGetLine(CMObj)
 	let currentText = CMObj.view.state.doc.toString()
 	let lines = currentText.split("\n") 
@@ -221,7 +227,7 @@ const intGetLine = (CMObj: any) => {
 	const lineAtHeight = CMObj.view.lineBlockAtHeight(CMObj.view.scrollDOM.scrollTop)
 	const test5 = CMObj.view.lineBlockAtHeight(CMObj.view.scrollDOM.scrollTop)
 	const lineStart = lineAtHeight.from
-	console.log(CMObj.view.scrollDOM.scrollTop, lineAtHeight)
+	// console.log(CMObj.view.scrollDOM.scrollTop, lineAtHeight)
 	// split the text to lines
 	const splitText = currentText.split('\n')
 
@@ -230,7 +236,7 @@ const intGetLine = (CMObj: any) => {
 	// for each line, add its length to tot length, till it is > from found
 	for (let i = 0; i < splitText.length; i++) {
 		lengthFromBegin += splitText[i].length + 1 // remove \n
-		console.log(lengthFromBegin, lineStart, i, splitText[i])
+		// console.log(lengthFromBegin, lineStart, i, splitText[i])
 		if (lengthFromBegin <= lineStart) line = i
 		else break
 	}

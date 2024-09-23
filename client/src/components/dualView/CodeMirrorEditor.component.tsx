@@ -11,12 +11,12 @@ import { deviceType, isA } from "../../managers/device.manager";
 import { iFile } from "../../../../shared/types.shared";
 import { onTitleClickFn } from "./EditorArea.component";
 import { useElResize } from "../../hooks/useResize.hook";
-import { CodeMirrorUtils } from "../../managers/codeMirror/editorUtils.cm";
+import { CodeMirrorUtils, iCMCurrentLine } from "../../managers/codeMirror/editorUtils.cm";
 import { getCustomTheme } from "../../managers/codeMirror/theme.cm";
 import { getAllCompletionSources } from "../../managers/codeMirror/completion.cm";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { LatexMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
-import { useUserSettings } from "../../hooks/useUserSettings.hook";
+import { useUserSettings, userSettingsSync } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
 import { ressourcePreviewSimpleCss } from "../RessourcePreview.component";
 import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm";
@@ -40,6 +40,7 @@ import { markdownSynthaxCmPlugin } from "../../managers/codeMirror/markdownSynth
 import { indentUnit } from "@codemirror/language";
 import { useInterval } from "../../hooks/interval.hook";
 import { getMdStructure } from "../../managers/markdown.manager";
+import { title } from "process";
 
 
 const h = `[Code Mirror]`
@@ -355,7 +356,18 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		}
 	}
 
-	
+	const onTitleScrollDebounce = useDebounce(() => {
+		if (!titleToJump.current) return
+		getApi(api => {
+			api.note.ui.editorAction.dispatch({
+				type: "lineJump", 
+				windowId: p.windowId, 
+				lineJumpString: titleToJump?.current?.lineText, 
+				lineJumpType:"preview"
+			})
+		})
+	}, 400)
+	const titleToJump = useRef<iCMCurrentLine|null>(null)
 
 	useEffect(() => {
 		getApi(api => {
@@ -371,14 +383,15 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
 					scroll(event, view) {
-						let f2 = (forwardedRefCM as any).current 
-						if (f2) {
-							let currentLine = CodeMirrorUtils.getScrolledLine(f2)
-							// if currentLine starts with #, it is a title
-							let isTitle = currentLine.lineText.startsWith("#")
-							console.log(currentLine)
-							if (isTitle) {
-								console.log("JUMP TITLE!")
+						if (userSettingsSync.curr.ui_editor_synced_title_scrolling) {
+							let f2 = (forwardedRefCM as any).current 
+							if (f2) {
+								let currentLine = CodeMirrorUtils.getScrolledLine(f2)
+								let isTitle = currentLine.lineText.startsWith("#")
+								if (isTitle) {
+									titleToJump.current = currentLine
+									onTitleScrollDebounce()
+								}
 							}
 						}
 					},

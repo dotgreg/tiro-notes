@@ -119,36 +119,36 @@ const DualViewerInt = (
 	//
 
 	// 2) TITLES SCROLL
-	const initTitle = { id: "", line: 0, title: "" }
-	const updateScrolledTitleInt = (scrolledLine: number) => {
-		// if (scrollMode !== "title") return;
-		const struct = getMdStructure(previewContent)
-		// get current title
-		let cTitle: iMdPart = initTitle
-		each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
-		// update the preview scroll accordingly
-		if (cTitle.id !== "") {
-			const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
-			try {
-				// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
-				// @ts-ignore
-				let etop = document.querySelector(ePath)?.offsetTop
-				if (isNumber(etop)) {
-					syncScroll3.updatePreviewOffset(p.windowId, etop)
-					syncScroll3.scrollPreview(p.windowId)
-				}
-			} catch (e) {
-				console.error(e);
-			}
-		}
-	}
-	const t1 = useThrottle(updateScrolledTitleInt, 200)
-	const t2 = useDebounce(updateScrolledTitleInt, 500)
+	// const initTitle = { id: "", line: 0, title: "" }
+	// const updateScrolledTitleInt = (scrolledLine: number) => {
+	// 	// if (scrollMode !== "title") return;
+	// 	const struct = getMdStructure(previewContent)
+	// 	// get current title
+	// 	let cTitle: iMdPart = initTitle
+	// 	each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
+	// 	// update the preview scroll accordingly
+	// 	if (cTitle.id !== "") {
+	// 		const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
+	// 		try {
+	// 			// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
+	// 			// @ts-ignore
+	// 			let etop = document.querySelector(ePath)?.offsetTop
+	// 			if (isNumber(etop)) {
+	// 				syncScroll3.updatePreviewOffset(p.windowId, etop)
+	// 				syncScroll3.scrollPreview(p.windowId)
+	// 			}
+	// 		} catch (e) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// }
+	// const t1 = useThrottle(updateScrolledTitleInt, 200)
+	// const t2 = useDebounce(updateScrolledTitleInt, 500)
 
-	const updateScrolledTitle = (newLine) => {
-		t1(newLine)
-		t2(newLine)
-	}
+	// const updateScrolledTitle = (newLine) => {
+	// 	t1(newLine)
+	// 	t2(newLine)
+	// }
 
 	// const [scrollerPos, setScrollerPos] = useState(0)
 	let isEditor = (deviceType() === "desktop" && p.viewType === "editor") || (deviceType() !== "desktop" && p.mobileView === "editor")
@@ -205,7 +205,7 @@ const DualViewerInt = (
 			posY={0}
 
 			onTitleClick={newLine => {
-				updateScrolledTitle(newLine)
+				// updateScrolledTitle(newLine)
 			}}
 			onScroll={percent => {
 				// setScrollerPos(percent)
