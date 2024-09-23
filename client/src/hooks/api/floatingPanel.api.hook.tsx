@@ -57,7 +57,13 @@ export interface iFloatingPanelApi {
     minimizePanel: (panelId: string) => void,
     updatePanelLayout: (panelId: string, layout: iPanelLayout) => void,
 
-    openFile: (filepath: string, opts?: { idpanel?: string, layout?: iPanelLayout, searchedString?: string, replacementString?: string }) => void,
+    openFile: (filepath: string, opts?: { 
+        idpanel?: string, 
+        layout?: iPanelLayout, 
+        searchedString?: string, 
+        replacementString?: string 
+        noteView?: iViewType
+    }) => void,
 
     updateAll: (panels: iFloatingPanel[]) => void,
     actionAll: (action: iActionAllWindows, params?: iActionAllParams) => void,
@@ -572,6 +578,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             if (layout) panel.layout = layout
             if (searchedString) panel.searchedString = searchedString
             if (replacementString) panel.replacementString = replacementString
+            if (opts?.noteView) panel.view = opts.noteView
             createPanel(panel)
         } else {
             console.log(`${h} minimized`, panel.file.name, panel)

@@ -306,6 +306,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         api.call("ui.floatingPanel.openFile", [filePath, { 
                                                                 searchedString:item.line, 
                                                                 idpanel: "id-panel-smartlist-preview", 
+                                                                view: "editor",
                                                                 layout
                                                         }])
 
