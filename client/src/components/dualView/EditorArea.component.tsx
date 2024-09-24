@@ -546,9 +546,20 @@ const EditorAreaInt = (
 				if (!previewTitleElToJump) return
 				const elPath = `.dual-view-wrapper.window-id-${p.windowId} .preview-area-wrapper #${previewTitleElToJump}`
 				setTimeout(() => {
-					const el = document.querySelector(elPath)
+					const el:any = document.querySelector(elPath)
 					// console.log("[EDITOR ACTION] LINEJUMP > jumping to path in preview => ", elPath, el)
-					document.querySelector(elPath)?.scrollIntoView({ behavior: "smooth"})
+					// el?.scrollIntoView({ behavior: "smooth", inline: "nearest", block: 'center' })
+					const previewWrapperPath = `.dual-view-wrapper.window-id-${p.windowId} .preview-area`
+					// 
+					const previewWrapper:any = document.querySelector(previewWrapperPath)
+					previewWrapper.scrollTop = el.offsetTop - 100
+					
+
+					// const el = document.querySelector(elPath)
+					if (!el) return
+					// console.log("[EDITOR ACTION] LINEJUMP > jumping to path in preview => ", elPath, el, el.parentNode)
+					// el.parentNode.parentNode.scrollTop = el.offsetTop;
+
 				}, 10)
 			}
 		}
@@ -996,7 +1007,8 @@ const EditorAreaInt = (
 
 export const editorAreaCss = (v: iMobileView) => `
 
-.floating-panel-wrapper .editor-area {
+// @EDGE CASE FIX : when mobile + floating + editor => show preview instead
+.floating-panel-wrapper .dual-view-wrapper.device-mobile.view-editor  .editor-area {
 		position: relative!important;
 		top: 0px;
 }

@@ -44,25 +44,25 @@
 		}
 	</style>
 	<script>
-		// to disable hot reload uncomment the following code
+		// to disable hot reload uncomment the following code (when working on client, will reload, thus losing the state of the app)
 
-		// setTimeout(() => {
-		// 	console.info("[DEV NOTICE] Live Reload Has Been Disabled");
-		// 	window.webpackHotUpdate = () => {}
-		// }, 1000)
-		// {
-		//   var WS = window.WebSocket;
-		//   function DevWebSocket(s) {
-		// 	if (s === "ws://localhost:3000/sockjs-node") {
-		// 	  console.info("[DEV NOTICE] Live Reload Has Been Disabled");
-		// 	  return {};
-		// 	} else {
-		// 	  // Pass through other usage of sockets
-		// 	  return new WS(s);
-		// 	}
-		//   }
-		//   window.WebSocket = DevWebSocket;
-		// }
+		setTimeout(() => {
+			console.info("[DEV NOTICE] Live Reload Has Been Disabled");
+			window.webpackHotUpdate = () => {}
+		}, 1000)
+		{
+		  var WS = window.WebSocket;
+		  function DevWebSocket(s) {
+			if (s === "ws://localhost:3000/sockjs-node") {
+			  console.info("[DEV NOTICE] Live Reload Has Been Disabled");
+			  return {};
+			} else {
+			  // Pass through other usage of sockets
+			  return new WS(s);
+			}
+		  }
+		  window.WebSocket = DevWebSocket;
+		}
 	  </script>
 	  
 </html>

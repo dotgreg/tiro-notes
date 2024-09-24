@@ -44,7 +44,14 @@ export type iPopupApi = {
 		refuseLabelButton?: string,
 		options?:popupOptions
 	}) => void
-	form: (p:iPopupFormConfig ) => void
+	form: {
+		create: (p:iPopupFormConfig ) => void
+		readConfigFromNote: (
+			notePath: string, 
+			cb:(popupsConfig: iPopupFormConfig[]) => void 
+		) => void
+	}
+
 }
 
 export const PopupContext = React.createContext<iPopupApi | null>(null);
@@ -149,7 +156,26 @@ export const usePromptPopup = (p: {
 	}
 	const [configForm, setConfigForm] = useState<iPopupFormConfig>(defaultConfigForm as iPopupFormConfig)
 
-	const promptFormComponent:iPopupApi["form"] = (p) => {
+	const readConfigFromNote:iPopupApi["form"]["readConfigFromNote"] = (noteLink, cb) => {
+		// get note from path
+		getApi(api => {
+			api.file.getContent(noteLink, noteContent => {
+				// parse note content
+				const lines = noteContent.split("\n")
+				const formConfigs:iPopupFormConfig[] = []
+				let formConfig = {title:"", fields:[]} as iPopupFormConfig
+				lines.forEach(line => {
+					// the config
+				})
+				cb(formConfigs)
+			}, {
+				removeMetaHeader: true
+			})
+		})
+
+	}
+
+	const promptFormComponent:iPopupApi["form"]["create"] = (p) => {
 		setDisplayFormPopup(true)
 		let finalConfigForm = {...defaultConfigForm, ...p} as iPopupFormConfig
 		setConfigForm(finalConfigForm)
@@ -315,7 +341,11 @@ export const usePromptPopup = (p: {
 		confirm: confirmPopup,
 		show: showPopup,
 		prompt: promptPopup,
-		form: promptFormComponent,
+		form: {
+			create: promptFormComponent,
+			readConfigFromNote
+		}
+
 	}
 	return {
 		popupApi,
