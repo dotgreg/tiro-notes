@@ -273,18 +273,6 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 }
 
 
-	.dual-view-wrapper {
-		&.view-editor {
-			.preview-area-wrapper {
-				display: none
-			}
-		}
-		&.view-preview {
-			.editor-area {
-				display: none
-			}
-		}
-	}
 
 
 	.dual-view-wrapper {

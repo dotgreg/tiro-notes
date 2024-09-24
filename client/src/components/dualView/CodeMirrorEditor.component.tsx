@@ -256,10 +256,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
 
-	const markdownPreviewPluginWFile = markdownPreviewPlugin({
-		file: p.file,
-		onTitleClick: (title: string) => { onTitleClick(title) }
-	})
 
 
 
@@ -442,6 +438,21 @@ const CodeMirrorEditorInt = forwardRef((p: {
 
 			if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
 				if (!isLatexInit) initLatex();
+				const markdownPreviewPluginWFile = markdownPreviewPlugin({
+					file: p.file,
+					onTitleClick: (title: string, lineNb:number) => { 
+						// onTitleClick(title) 
+						getApi(api => {
+							api.note.ui.editorAction.dispatch({
+								type: "lineJump", 
+								windowId: p.windowId, 
+								// lineJumpString: title, 
+								lineJumpNb: lineNb,
+								lineJumpType:"preview"
+							})
+						})
+					}
+				})
 				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					// datepicker
@@ -814,6 +825,8 @@ export const codeMirrorEditorCss = (p?:{searchBottom?:number}) => {
 			color: ${cssVars.colors.main};
 			display: inline-block;
 			position: relative;
+			cursor: pointer;
+
 			&:hover {
 					&:before {
 							opacity: 1

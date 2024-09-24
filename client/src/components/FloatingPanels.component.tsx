@@ -887,7 +887,28 @@ export const FloatingPanelCss = () => `
 .floating-panel__wrapper + div > div {    z-index: 100000;}
 
 // to force iframe to take 100% height resizing 
-.floating-panel__inner-content.ctag iframe {height: 100%!important;}
+.floating-panel__inner-content.ctag iframe {
+    height: 100%!important;
+}
+// otherwise lineJump Preview will make the window jump 
+.floating-panel__inner-content {
+    // overflow: clip;
+    // position: fixed;
+    // top: 0px;
+    // left: 0px;
+    // position: absolute;
+    // top:0px;
+    // left: 0px;
+}
+
+// .floating-panel__wrapper {
+//     position: absolute;
+//     top: 7px;
+//     left: 0px;
+//     width: 100%;
+// }
+
+
 
 .floating-panel-wrapper.type-ctag {
     .handle_invisible {
@@ -910,6 +931,25 @@ export const FloatingPanelCss = () => `
     display: none;
 
 }
+
+
+
+// @EDGE CASE : mobile + smartlist in preview mode + floating > if editor, should show editor
+.floating-panels-wrapper {
+	.dual-view-wrapper {
+		&.view-editor {
+			.preview-area-wrapper {
+				 display: none
+			}
+		}
+		&.view-preview {
+			.editor-area {
+                // rien car pour show le
+			}
+		}
+    }
+}
+
 .device-view-mobile {
     .floating-panel {
         .editor-area {
