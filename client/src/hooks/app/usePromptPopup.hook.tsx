@@ -30,7 +30,7 @@ export interface iPopupFormConfig {
 	title: string,
 	fields: iPopupFormField[],
 	insertFilePath?:string,
-	insertMethod?:iInsertMethod,
+	insertLine?:number,
 	insertStringFormat?: string,
 }
 export type iPopupApi = {
@@ -184,7 +184,7 @@ export const usePromptPopup = (p: {
 	const defaultConfigForm =  {
 			title: "Popup Form",
 			insertFilePath: "/popup_form_results.md",
-			insertMethod: "prepend",
+			insertLine: 0, 
 			insertStringFormat:  "{{name}} | {{age|number}}\n"
 	}
 	const [configForm, setConfigForm] = useState<iPopupFormConfig>(defaultConfigForm as iPopupFormConfig)
@@ -221,7 +221,7 @@ export const usePromptPopup = (p: {
 							value = value.trim()
 							if (key === "name") formConfig.title = value
 							if (key === "path") formConfig.insertFilePath = value
-							if (key === "type") formConfig.insertMethod = value as iInsertMethod
+							if (key === "line") formConfig.insertLine = parseInt(value)
 							if (key === "line_format") {
 								formConfig.insertStringFormat =  value
 							}
@@ -262,13 +262,16 @@ export const usePromptPopup = (p: {
 					})
 					type = "select"
 				}
-				fields.push({
-					name,
-					type: type as InputType || "text",
-					description: description || name,
-					selectOptions,
-					id: name
-				})
+				// if name is already in fields, skip it
+				if (!fields.find(el => el.id === name)){
+					fields.push({
+						name,
+						type: type as InputType || "text",
+						description: description || name,
+						selectOptions,
+						id: name
+					})
+				}
 			}
 		})
 		finalConfigForm.fields = fields
@@ -333,13 +336,13 @@ export const usePromptPopup = (p: {
 		finalStringToInsert = finalStringToInsert.replace(regex, datetime)
 
 		const finalFilePath = configForm.insertFilePath || defaultConfigForm.insertFilePath 
-		const insertMethod = configForm.insertMethod || defaultConfigForm.insertMethod as iInsertMethod
+		const insertLine = configForm.insertLine || defaultConfigForm.insertLine 
 		// insert final string to file
 		getApi(api => {
-			api.file.insertContent(finalFilePath, finalStringToInsert || "", {insertMethod}, res => {
+			api.file.insertContent(finalFilePath, finalStringToInsert || "", {insertLine}, res => {
 				api.ui.notification.emit({ 
 					id: "insert-form-success",
-					content: `<b>FORM: ${insertMethod} success</b>: <br><br> "${finalStringToInsert}" <br><br> to <b>${finalFilePath}</b>`,
+					content: `<b>FORM: line ${insertLine} insert success</b>: <br><br> "${finalStringToInsert}" <br><br> to <b>${finalFilePath}</b>`,
 				})
 			})
 		})
@@ -411,7 +414,7 @@ export const usePromptPopup = (p: {
 						{acceptLabel}
 					</button>
 					<div className='details'>
-						Form result will be {configForm.insertMethod} to {configForm.insertFilePath} with format: {configForm.insertStringFormat}
+						Form result will be {configForm.insertLine} to {configForm.insertFilePath} with format: {configForm.insertStringFormat}
 					</div>
 				</Popup>
 			</div>

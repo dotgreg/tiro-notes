@@ -90,12 +90,13 @@ const formsApp = (innerTagStr, opts) => {
                 margin: 0;
         }
         ul.forms-list {
-                display: flex;
         }
         ul.forms-list li {
                 padding: 0px;
                 padding-left: 0px;
                 padding-right: 12px;
+                padding-bottom: 12px;
+                display: inline-block;
         }
         button {
                 padding: 7px 16px;
