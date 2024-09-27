@@ -6,7 +6,8 @@ import { css } from '@emotion/css';
 import { each, set } from 'lodash-es';
 import { getApi } from '../api/api.hook';
 import { iInsertMethod } from '../api/file.api.hook';
-import { Input, InputType } from '../../components/Input.component';
+import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
+import { config } from 'process';
 
 
 const liveVars: {
@@ -22,6 +23,7 @@ export interface iPopupFormField {
 	name: string,
 	type: InputType,
 	description: string,
+	selectOptions?: iInputSelectOptionObj[]
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -29,7 +31,7 @@ export interface iPopupFormConfig {
 	fields: iPopupFormField[],
 	insertFilePath?:string,
 	insertMethod?:iInsertMethod,
-	insertStringFormat?:() => string,
+	insertStringFormat?: string,
 }
 export type iPopupApi = {
 	confirm: (text: string, cb: Function, onRefuse?: Function, options?:popupOptions) => void,
@@ -126,7 +128,51 @@ export const usePromptPopup = (p: {
 
 
 
-	//
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	///////////////////////////////////////////////////////////////////////////////////////
 	//
 	// FORM
 	//
@@ -137,22 +183,9 @@ export const usePromptPopup = (p: {
 	const formFieldsValues = useRef({})
 	const defaultConfigForm =  {
 			title: "Popup Form",
-			fields: [{
-						name: "Name",
-						type: "text",
-						description: "Your name",
-						id: "name"
-					},
-					{
-						name: "Age",
-						type: "number",
-						description: "Your age",
-						id: "age"
-					},
-				],
 			insertFilePath: "/popup_form_results.md",
 			insertMethod: "prepend",
-			insertStringFormat: () => "{{id_name}} | {{id_age}}\n"
+			insertStringFormat:  "{{name}} | {{age|number}}\n"
 	}
 	const [configForm, setConfigForm] = useState<iPopupFormConfig>(defaultConfigForm as iPopupFormConfig)
 
@@ -163,9 +196,39 @@ export const usePromptPopup = (p: {
 				// parse note content
 				const lines = noteContent.split("\n")
 				const formConfigs:iPopupFormConfig[] = []
-				let formConfig = {title:"", fields:[]} as iPopupFormConfig
 				lines.forEach(line => {
-					// the config
+					// the config looks like "form | name=🎬 youtube, path=/d2/popup_form_results.md, line_format= {{datetime}} | hello: {{hello}} | world: {{world|date}} | age: {{age|number}} | tag: {{tags|select:el1,el2,el3}}\n, type=append"
+					if (line.trim().startsWith("form|") || line.startsWith("form |")) {
+						let configRaw = line.split("|")
+						// remove the first el and merge array again
+						configRaw.shift()
+						let configRawStr = configRaw.join("|")
+
+						let formConfig = {title:"", fields:[]} as iPopupFormConfig
+						const parts = configRawStr.split(",")
+						// if some parts do not include an =, merge it back to item n-1 (for instance select:el1,el2,el3)
+						for (let i = 0; i < parts.length; i++) {
+							if (!parts[i].includes("=")) {
+								parts[i-1] = parts[i-1] + "," + parts[i]
+								parts.splice(i, 1)
+								i--
+							}
+						}
+						parts.forEach(part => {
+							let [key, value] = part.split("=")
+							// trim both
+							key = key.trim()
+							value = value.trim()
+							if (key === "name") formConfig.title = value
+							if (key === "path") formConfig.insertFilePath = value
+							if (key === "type") formConfig.insertMethod = value as iInsertMethod
+							if (key === "line_format") {
+								formConfig.insertStringFormat =  value
+							}
+						})
+						formConfigs.push(formConfig)
+					}
+
 				})
 				cb(formConfigs)
 			}, {
@@ -176,54 +239,112 @@ export const usePromptPopup = (p: {
 	}
 
 	const promptFormComponent:iPopupApi["form"]["create"] = (p) => {
-		setDisplayFormPopup(true)
 		let finalConfigForm = {...defaultConfigForm, ...p} as iPopupFormConfig
-		setConfigForm(finalConfigForm)
+
+		// from line_format, extract fields {{name|type}} with text as type by default
+		let fields = [] as iPopupFormField[]
+		// detect {{name|type}} in line_format
+		const regex = /{{(.*?)}}/g
+		let stringToInsert = finalConfigForm.insertStringFormat || ""
+		const matches = stringToInsert.match(regex)
+		matches?.forEach(match => {
+			let [name, type, description] = match.replace("{{", "").replace("}}", "").split("|")
+			// if type starts with select, subsplit it, it is like |select:option1, option2, option3
+			if (!name.startsWith("_")) {
+				let selectOptions:iInputSelectOptionObj[] = []
+				if (type?.startsWith("select")) {
+					selectOptions = type.split(":")[1].split(",").map((el, i) => {
+						return {
+							key: i,
+							label: el,
+							obj: el
+						}
+					})
+					type = "select"
+				}
+				fields.push({
+					name,
+					type: type as InputType || "text",
+					description: description || name,
+					selectOptions,
+					id: name
+				})
+			}
+		})
+		finalConfigForm.fields = fields
 		console.log("[POPUP > FORM] opening with config:", finalConfigForm)
+
 		setTitle(finalConfigForm.title)
-		setFormFields(finalConfigForm.fields)
+		setFormFields(fields)
+		setConfigForm(finalConfigForm)
+		setDisplayFormPopup(true)
 	}
+
+
+
+
+
+
+
 	const onFormSubmit = () => {
+
+		// check if all fields are filled
+		let allFieldsFilled = true
+		formFields.forEach(field => {
+			if (!formFieldsValues.current[field.id]) {
+				allFieldsFilled = false
+			}
+		})
+
+		if (!allFieldsFilled) {
+			getApi(api => {
+				api.ui.notification.emit({ 
+					id: "insert-form-error",
+					content: `FORM: Please fill all fields`,
+				})
+			})
+			return
+		}
 	 
 		setDisplayFormPopup(false)
 
 		// create final string from format
-		let finalStringToInsert = configForm.insertStringFormat ? configForm.insertStringFormat() : ""
+		let finalStringToInsert = configForm.insertStringFormat 
 		// replace all {{id_VARNAME}} with formValues.id_VARNAME
 
-		finalStringToInsert = finalStringToInsert || defaultConfigForm.insertStringFormat()
+		finalStringToInsert = finalStringToInsert || defaultConfigForm.insertStringFormat
  
-		// for each form field, replace {{id_FIELDID}} with formValues.FIELDID
 		formFieldsValues.current = formFieldsValues.current || {}
 		each(formFieldsValues.current, (val, key) => {
-			const regex = new RegExp(`{{id_${key}}}`, 'g')
-			finalStringToInsert = finalStringToInsert.replace(regex, val)
+			// const regex = new RegExp(`{{${key}\|.*?}}`, 'g')
+			// replace {{FIELDID(|type|description)?}} with formValues.FIELDID
+			const regex = new RegExp(`{{${key}.*?}}`, 'g')
+			finalStringToInsert = finalStringToInsert?.replace(regex, val)
 		})
 
-		// replace {{datetime}} with current datetime in format 2024-12-31 23:59:59
+		// replace {{datetime}} with current datetime in format 2024-12-31 23:59
 		const date = new Date()
-		const datetime = date.toISOString().slice(0, 19).replace('T', ' ')
-		const regex = new RegExp(`{{datetime}}`, 'g')
+		const datetime = date.toISOString().slice(0, 16).replace('T', ' ')
+		const regex = new RegExp(`{{_datetime}}`, 'g')
 		
 		// replace {{date}} 
 		const dateStr = date.toDateString()
-		const regexDate = new RegExp(`{{date}}`, 'g')
+		const regexDate = new RegExp(`{{_date}}`, 'g')
 		finalStringToInsert = finalStringToInsert.replace(regex, datetime)
 
 		const finalFilePath = configForm.insertFilePath || defaultConfigForm.insertFilePath 
 		const insertMethod = configForm.insertMethod || defaultConfigForm.insertMethod as iInsertMethod
 		// insert final string to file
 		getApi(api => {
-			api.file.insertContent(finalFilePath, finalStringToInsert, {insertMethod}, res => {
-				console.log("inserted", res)
+			api.file.insertContent(finalFilePath, finalStringToInsert || "", {insertMethod}, res => {
 				api.ui.notification.emit({ 
 					id: "insert-form-success",
-					content: `FORM: ${insertMethod} form data to ${finalFilePath} success`,
+					content: `<b>FORM: ${insertMethod} success</b>: <br><br> "${finalStringToInsert}" <br><br> to <b>${finalFilePath}</b>`,
 				})
 			})
 		})
 
-		
+		closePopup()
 	}
 
 	// gen an example of popup form
@@ -267,9 +388,16 @@ export const usePromptPopup = (p: {
 							<Input 
 								label={field.name}
 								explanation={field.description}
+								shouldNotSelectOnClick={true}
 								type={field.type}
+								list={field.selectOptions}
 								onChange={nval => {
 									formFieldsValues.current[field.id] = nval
+									// 
+								}}
+								onSelectChange={nval => {
+									formFieldsValues.current[field.id] = nval
+									// 
 								}}
 							/>
 						</div>
@@ -279,15 +407,16 @@ export const usePromptPopup = (p: {
 					<button
 						value='submit'
 						className="accept submit-button"
-						onClick={e => { onFormSubmit(); closePopup() }}>
+						onClick={e => { onFormSubmit();  }}>
 						{acceptLabel}
 					</button>
 					<div className='details'>
-						Form result will be {configForm.insertMethod} to {configForm.insertFilePath} 
+						Form result will be {configForm.insertMethod} to {configForm.insertFilePath} with format: {configForm.insertStringFormat}
 					</div>
 				</Popup>
 			</div>
 		}
+
 		{displayPromptPopup &&
 			<div className="prompt-popup-component">
 				<Popup
@@ -354,10 +483,24 @@ export const usePromptPopup = (p: {
 }
 
 export const promptPopupCss = () => `
+.mobile-view-container {
 	.form-popup-component {
 		.popup-wrapper {
+			.popupContent {
+				width: 80vw;
+			}
+		}
+	}
+}
+	.form-popup-component {
+		.popup-wrapper {
+			input, select {
+				width: 90%;
+			}
 			.details {
 				color:#afafaf;
+				padding-top: 10px;
+				font-size: 10px;
 			}
 		}
 	}

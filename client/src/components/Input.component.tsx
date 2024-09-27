@@ -5,6 +5,7 @@ import React, { useEffect, useRef } from 'react';
 import { getFontSize } from '../managers/font.manager';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
+export type iInputSelectOptionObj = OptionObj
 export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea' | 'date'
 
 
@@ -94,8 +95,12 @@ export const Input = (p: {
 				{p.type === 'select' &&
 					<select
 						value={value}
+						multiple={true}
 						onChange={(e) => {
-							p.onSelectChange && p.onSelectChange(e.target.value)
+							let value = Array.from(e.target.selectedOptions, option => option.label);
+							// from array to string separated by ,
+							let valueStr = value.join(',')
+							p.onSelectChange && p.onSelectChange(valueStr)
 						}}>
 
 						{
@@ -129,7 +134,7 @@ export const inputComponentCss = () => `
         display: flex;
         align-items: center;
 		justify-content: space-between;
-        padding-bottom: 10px;
+        padding-bottom: 7px;
         input, select {
             max-width: 100%;
         }
@@ -145,7 +150,14 @@ export const inputComponentCss = () => `
             text-transform: uppercase;
         }
         .input-wrapper {
-            // width: 70%;
+            width: 70%;
+			select {
+                padding: 7px;
+                border: none;
+				font-size:${getFontSize(+1)}px;
+                background: #ececec;
+                border-radius: 5px;
+			}
             input {
                 padding: 7px;
                 border: none;
