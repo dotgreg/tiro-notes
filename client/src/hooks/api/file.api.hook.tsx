@@ -37,7 +37,7 @@ export interface iFileApi {
 		noteLink: string,
 		content: string,
 		options?: {
-			insertMethod?: iInsertMethod,
+			insertLine?: number,
 			onError?: Function
 		},
 		cb?: (res:any) => void,
@@ -238,12 +238,20 @@ export const useFileApi = (p: {
 	}
 
 	const insertContent: iFileApi['insertContent'] = (noteLink, content,  options, cb) => {
-		const method = (options && options.insertMethod) ? options.insertMethod : "prepend"
+		let lineToInsert = (options && options.insertLine) ? options.insertLine : 0
 		const insertLogic = (currContent) => {
 			let newContent = ""
-			if (method === "prepend") newContent = content + currContent
-			else newContent = currContent + content
-			saveFileContent(noteLink, newContent, {}, (res) => {
+
+			// if linetoInsert negative, take lines length and add linetoI
+			lineToInsert = (lineToInsert < 0) ? currContent.split("\n").length + lineToInsert : lineToInsert
+			// if lineToInsert is still negative = end
+			if( lineToInsert < 0 ) lineToInsert = currContent.split("\n").length
+			// if lineToInsert > lines length, insert at end
+			if (lineToInsert > currContent.split("\n").length) lineToInsert = currContent.split("\n").length
+			// insert at line, else start from end and insert at line counting from bottom
+			newContent = currContent.split("\n").slice(0, lineToInsert).join("\n") + "\n" + content + "\n" + currContent.split("\n").slice(lineToInsert).join("\n")
+
+			saveFileContent(noteLink, newContent, { }, (res) => {
 				cb && cb(res)
 			})
 		}
@@ -255,7 +263,8 @@ export const useFileApi = (p: {
 				// options?.onError && options.onError(err)
 				console.log("file does not exists, creating it")
 				insertLogic("")
-			}
+			},
+			removeMetaHeader: true
 		})
 
 	}

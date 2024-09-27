@@ -519,6 +519,24 @@ noteLink should be relative from tiro folder
  ## Api.call : popup
  
 
+#### <span class="render-code-wrapper">popup.form.create</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. p: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">popup.form.readConfigFromNote</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. notePath: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(popupsConfig: <span class="render-code-wrapper">[]</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.readConfigFromNote",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(popupsConfig: <span class="render-code-wrapper">[]</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">popup.confirm</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -529,14 +547,6 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.confirm",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>, <span class="render-code-wrapper"><a href="#client-api?id=popupoptions">popupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
- 
-
-#### <span class="render-code-wrapper">popup.form</span>
- - Type: <span class="render-code-wrapper">Function</span> 
-    - Parameters: 
-       1. p: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.prompt</span>
@@ -1309,10 +1319,10 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;code: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;options: <span class="render-code-wrapper"><a href="#client-api?id=ipluginoptions">iPluginOptions</a></span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=iplugintype">iPluginType</a></span><br/>}</span></div>
  
 
-#### <span class="render-code-wrapper">popupOptions</span>
+#### <span class="render-code-wrapper">OptionObj</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;cssStr?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;key: <span class="render-code-wrapper">"undefined" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;label: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;obj: <span class="render-code-wrapper">any</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">InputType</span>
@@ -1324,13 +1334,19 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPopupFormField</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iPopupFormConfig</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">() => </span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">popupOptions</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;cssStr?: <span class="render-code-wrapper">string</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iImageCompressionParams</span>
