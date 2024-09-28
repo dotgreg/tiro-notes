@@ -354,11 +354,11 @@ noteLink should be relative from tiro folder
     - Parameters: 
        1. noteLink: <span class="render-code-wrapper">string</span>
        1. content: <span class="render-code-wrapper">string</span>
-       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;insertLine?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>
     - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.insertContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.insertContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;insertLine?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;onError?: <span class="render-code-wrapper">Function</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">file.saveContent</span>
@@ -1271,12 +1271,6 @@ Watch for file changes
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"undefined",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">[]</span> ]<br/>)</div>
  
 
-#### <span class="render-code-wrapper">iInsertMethod</span>
- - Type: <span class="render-code-wrapper">union</span> 
- - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"prepend" | "append"</span></div>
- 
-
 #### <span class="render-code-wrapper">iFilePreview</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
@@ -1340,7 +1334,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPopupFormConfig</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;insertMethod: <span class="render-code-wrapper"><a href="#client-api?id=iinsertmethod">iInsertMethod</a></span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertLine?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">string</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">popupOptions</span>

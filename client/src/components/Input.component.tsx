@@ -47,6 +47,12 @@ export const Input = (p: {
 	let isChecked = p.type === "checkbox" && (p.value === true || p.value === 'true')
 	let value = p.value
 	if (isBoolean(value)) value = ""
+	
+	let defaultVal = value
+	// if date, value is today if not provided
+	if (p.type === 'date' && !value) {
+		defaultVal = new Date().toISOString().split('T')[0]
+	}
 
 	const labelClicked = () => {
 		if(p.type==="checkbox") {
@@ -75,6 +81,7 @@ export const Input = (p: {
 				{p.type !== 'select' && p.type !== 'textarea' && <input
 					ref={inputRef}
 					type={p.type ? p.type : 'text'}
+					defaultValue={defaultVal}
 					value={value}
 					checked={isChecked}
 					readOnly={p.readonly}

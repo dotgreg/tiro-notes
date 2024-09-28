@@ -40,12 +40,27 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 //
 // COMMON HTML/CSS/JS NOTE LINK GENERATOR
 //
+export const ssrNoteLinkFloatingFn = (el: HTMLElement) => {
+	// is button right or left
+	if (!el) return
+	stopDelayedNotePreview()
+	reqId++
+	const file = el.dataset.file
+	const folder = el.dataset.folder
+	const searchedString = el.dataset.searchedstring
+	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
+	const windowId = el.dataset.windowid || 'active'
+	if (!file || !folder || !windowId) return
+	let path = `${folder}/${file}`
+	getApi(api => {
+		api.ui.floatingPanel.openFile(path)
+	})
+}
+
 export const ssrNoteLinkFn = (el: HTMLElement) => {
 	if (!el) return
 	stopDelayedNotePreview()
 	reqId++
-	
-
 	const file = el.dataset.file
 	const folder = el.dataset.folder
 	const searchedString = el.dataset.searchedstring
@@ -66,6 +81,43 @@ export const ssrNoteLinkFn = (el: HTMLElement) => {
 // POPUP HOVER SYSTEM 
 // open preview after 2s
 //
+const ssrNotePreviewFloatingOpen = (el: HTMLElement) => {
+	if (!el) return
+	// if (deviceType() !== "desktop") return
+	let rect = el.getBoundingClientRect()
+	let pos:[number,number] = [
+		rect.left + window.scrollX,
+		rect.top + window.scrollY
+	]
+	const file = el.dataset.file
+	const folder = el.dataset.folder
+	const searchedString = el.dataset.searchedstring
+	const windowid = el.dataset.windowid
+	const filePath = `${folder}${file}`
+	if (windowid === "preview-popup") return
+	let path = `${folder}/${file}`
+	// getApi(api => { api.ui.notePreviewPopup.close()})
+	addDelayedFloatingAction(filePath, pos, searchedString, windowid)
+}
+const addDelayedFloatingAction = (filePath, pos, searchedString, windowId) => {
+	reqId++
+	let histId = reqId
+	timeout && clearTimeout(timeout)
+	timeout = setTimeout(() => { 
+		if (reqId !== histId) return
+		if (searchedString === "") searchedString = null
+		getApi(api => {
+			api.ui.floatingPanel.openFile(filePath, {
+				idpanel: "preview-popup",
+				searchedString: searchedString
+			})
+			setTimeout(() => {
+				api.ui.floatingPanel.movePanel("preview-popup", {x: pos[0], y: pos[1] + 20})
+			},10)
+		})
+	}, 700)
+}
+
 
 const ssrNotePreviewOpen = (el: HTMLElement) => {
 	if (!el) return
@@ -133,7 +185,7 @@ export const generateNoteLink = (
 
 	const subst = `<a
 onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
-onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewOpen)}"
+onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewFloatingOpen)}"
 onmouseleave="${linkPreview && ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
 class="title-search-link preview-link" 
 data-file="${noteTitle}" 

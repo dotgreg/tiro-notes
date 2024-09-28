@@ -74,6 +74,7 @@ export type iNotification = {
 		hideAfter?: number, 
 		showOnceEvery?: number
 		keepInHistory?: boolean,
+		onClick?: Function // NOT WORKING YET...
 	}
 }
 

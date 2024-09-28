@@ -77,6 +77,10 @@ export const NotificationsCenter = (p: {
 		setNotifs([...notifsRef.current])
 	}
 
+	const onClickClose = (n: iNotification) => {
+		console.log("onClickClose", n)
+		if (n.options?.onClick) n.options.onClick()
+	}
 	const closeNotif = (id?: string) => {
 		if (!id) return
 		notifsRef.current = notifsRef.current.filter(n => n.id !== id)
@@ -96,7 +100,7 @@ export const NotificationsCenter = (p: {
 			<div className="notifications-list">
 				{
 					notifs.map(n =>
-						<div key={n.id} className={`notif-wrapper notif-type-${getNotifType(n)}`} onClick={e => { closeNotif(n.id) }}>
+						<div key={n.id} className={`notif-wrapper notif-type-${getNotifType(n)}`} onClick={e => { onClickClose(n); closeNotif(n.id) }}>
 							<div className="notif-close" onClick={e => { closeNotif(n.id) }}>
 								<Icon2 name="close" />
 							</div>
