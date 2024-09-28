@@ -70,6 +70,14 @@ const feedApp = (innerTagStr, opts) => {
 		// const feedsCategories = []
 		// const failedFeeds = []
 
+		let mainColor = "";
+		const initFetchUserColor = (cb) => {
+			api.call("userSettings.get", ['ui_layout_colors_main'], color => {
+				mainColor = color.currentValue || color.defaultValue
+				cb()
+			});
+		}
+
 		const execFeedReader = (feedsStr) => {
 				// const sortArr = (items,sortType) => {
 				// 		if (sortType === "name") {
@@ -1147,16 +1155,25 @@ const feedApp = (innerTagStr, opts) => {
 								console.log("YOUTUBE MODE", { opts });
 						}
 
-						execFeedReader(innerTagStr)
-						setTimeout(() => {
-								api.utils.resizeIframe(opts.size);
-								setTimeout(() => {
-										api.utils.resizeIframe(opts.size);
-										setTimeout(() => {
-												api.utils.resizeIframe(opts.size);
-										}, 100);
-								}, 100);
-						}, 100);
+						initFetchUserColor(() => {
+							execFeedReader(innerTagStr)
+
+							// insert style
+							console.log("inserting style", mainColor)
+							const style = document.createElement('style');
+							style.innerHTML = styleFeed(mainColor);
+							document.head.appendChild(style);
+
+							setTimeout(() => {
+									api.utils.resizeIframe(opts.size);
+									setTimeout(() => {
+											api.utils.resizeIframe(opts.size);
+											setTimeout(() => {
+													api.utils.resizeIframe(opts.size);
+											}, 100);
+									}, 100);
+							}, 100);
+						});
 				}
 		);
 
@@ -1179,7 +1196,7 @@ const feedApp = (innerTagStr, opts) => {
 		}
 
 
-		const styleFeed = `
+		const styleFeed = (mainColor) => `
 		h1:before, h2:before, h3:before, h4:before, h5:before, h6:before {
 			display: none;
 		}
@@ -1433,6 +1450,8 @@ LIST > LEFT WRAPPER
 
 .left-wrapper .filter.active {
 	font-weight: bold;
+	background: ${mainColor};
+	color:white;
 }
 
 /* * * * * * * * * * *
@@ -1582,9 +1601,6 @@ LIST > ARTICLES
 		return `
 <div id='root-react'></div>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
-<style>
-${styleFeed}
-</style>
 `
 }
 
