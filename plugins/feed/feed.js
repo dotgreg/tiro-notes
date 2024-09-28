@@ -816,7 +816,13 @@ const feedApp = (innerTagStr, opts) => {
 						// view toggle
 						const [listView, setIntListView] = React.useState("list")
 						const toggleListView = () => {
-								let nView = listView === "list" ? "gallery" : "list"
+								// let nView = listView === "list" ? "gallery" : "list"
+								// toggle between gallery, list and full-width
+								let nView = "list"
+								if (listView === "list") nView = "gallery"
+								if (listView === "gallery") nView = "full-width"
+								if (listView === "full-width") nView = "list"
+
 								setIntListView(nView)
 								setSettingsCache("listView")(nView)
 						}
@@ -998,7 +1004,9 @@ const feedApp = (innerTagStr, opts) => {
 														className: `filter-view filter-toggle`,
 														onClick: () => { toggleListView() }
 												}, [
-														listView === "list" ? c('div', {className: `fa fa-image`}): c('div', {className: `fa fa-list`})
+														listView === "list" && c('div', {className: `fa fa-border-all`}) ,
+														listView === "gallery" && c('div', {className: `fa fa-image`}) ,
+														listView === "full-width" && c('div', {className: `fa fa-list`}),
 												]),
 												
 												c('input', {
@@ -1065,7 +1073,7 @@ const feedApp = (innerTagStr, opts) => {
 																			]),
 																		listView !== "list" &&
 																			c('div', {
-																					className: "",
+																					className: `view-${listView}-item-inner`,
 																			},
 																			[
 																				c('div', {
@@ -1542,6 +1550,71 @@ LIST > ARTICLES
 		background-repeat: no-repeat;
 		background-position: center;
 }
+
+
+
+/* full-width view  */
+
+.articles-list.view-full-width #infinite-scroll-inner {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+}
+@media only screen and (hover: none) and (pointer: coarse) {
+	.articles-list.view-full-width #infinite-scroll-inner {
+		justify-content: left;
+	}
+}
+
+
+.article-full-width-item {
+		width: calc(100% - 20px);
+		max-width:320px; /* for desktop */
+		margin-left: 10px;
+		margin-top: 0px;
+		overflow: hidden;
+		position: relative;
+		cursor: pointer;
+		height: 240px;
+}
+
+.article-full-width-item .meta  {
+	color: black;
+	font-size: 9px;
+	margin-left: 11px;
+	line-height: 10px;
+	position: relative;
+	top: -3px;
+}
+.article-full-width-item .title-wrapper  {
+}
+.article-full-width-item .title  {
+		margin: 0px 0px;
+		padding: 10px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		padding-top: 10px;
+		word-break: break-word;
+		width: calc(100% - 20px);
+		bottom: 0px;
+		font-size: 11px;
+		font-weight: 800;
+		color: black;
+		line-height: 12px;
+}
+.article-full-width-item .bg-item {
+		width: 100%;
+		min-height: 170px;
+		border-radius: 7px;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+}
+
+
+
+
+
 
 
 
