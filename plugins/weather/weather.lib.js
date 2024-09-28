@@ -35,7 +35,7 @@ const getEmo = (nameIcon) => {
 
 const getWeatherData = (pos, cb) => {
     let res = ""
-    const apiUrl = `http://api.openweathermap.org/data/2.5/onecall?lat=${pos[0]}&lon=${pos[1]}&appid=c9faf631b1c838fa4d4c0012498e2730&units=metric&units=metric`
+    const apiUrl = `http://api.openweathermap.org/data/3.0/onecall?lat=${pos[0]}&lon=${pos[1]}&appid=c9faf631b1c838fa4d4c0012498e2730&units=metric&units=metric`
     tiroApi.ressource.fetch(apiUrl, txt => {
         let obj = JSON.parse(txt)
         //days.unshift(obj.current)
@@ -44,6 +44,7 @@ const getWeatherData = (pos, cb) => {
 }
 
 const getHourlyForecast = (futureDay, apiRes) => {
+    console.log(h, "getHourlyForecast", {futureDay, apiRes})
     let hours = apiRes.hourly
     let hourlyObj = {}
     function futureDayAt(day, hour) {
@@ -87,6 +88,7 @@ const sendNotifWeather = (dayFuture, pos, isCached, hideAfter, showWearAdvices) 
 
     // console.log(h, "showNotifWeather", {showNotifOnceEvery, notifUniqId, dayFuture, pos, isCached, hideAfter})
     getWeatherData(pos, apiRes => {
+        console.log(h, "getWeatherData", {dayFuture, pos, apiRes})
         let [resPerHour, hourlyObj] = getHourlyForecast(dayFuture, apiRes)
         let daily = apiRes.daily
         

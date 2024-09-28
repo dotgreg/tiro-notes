@@ -510,8 +510,20 @@ const feedApp = (innerTagStr, opts) => {
 												}),
 												c('div', { className: "article-content-wrapper" }, [
 														c('div', { className: "article-time" }, [
-																p.article.smallDate + " - " + p.article.sourceFeed
+															p.article.smallDate + " - ",
+															c('span', { className: "article-filter-links" }, [
+																c('span', {  onClick: () => { p.onFeedClick(p.article.sourceFeed) } }, 
+																[p.article.sourceFeed + " - "]
+																)
+															]),
+															// show links to categories
+															c('span', { className: "article-filter-links" }, [
+																	p.article.categories.map(cat => 
+																		c('span', {  onClick: () => { p.onCategoryClick(cat) } }, [ cat + ", " ])
+																	)
+															]),
 														]),
+
 
 														//
 														// ARTICLE LINKS
@@ -589,7 +601,7 @@ const feedApp = (innerTagStr, opts) => {
 																				}, ["Individious link"]),
 																		]),
 																]),
-
+														// show link to sourcefeed
 														c('div', {
 																className: "article-status-fetch",
 														}, [fetchStatus]),
@@ -1072,6 +1084,14 @@ const feedApp = (innerTagStr, opts) => {
 													onClose: () => {
 															setItemActive(null)
 													},
+													onFeedClick: (feedName) => {
+														setActiveFeed(feedName)
+														setActiveCat(null)
+													},
+													onCategoryClick: (catName) => {
+														setActiveCat(catName)
+														setActiveFeed(null)
+													},
 													onBookmarkToggle: () => {
 															doRefresh()
 													}
@@ -1549,6 +1569,11 @@ LIST > ARTICLES
 .article-status-fetch {
 		padding: 10px;
 		color: #b7b7b7;
+}
+.article-filter-links {
+		font-size: 10px;
+		color: grey;
+		cursor: pointer;
 }
 
 `;
