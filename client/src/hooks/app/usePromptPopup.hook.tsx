@@ -8,6 +8,7 @@ import { getApi } from '../api/api.hook';
 import { iInsertMethod } from '../api/file.api.hook';
 import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
 import { config } from 'process';
+import { getDateObj } from '../../../../shared/helpers/date.helper';
 
 
 const liveVars: {
@@ -24,6 +25,7 @@ export interface iPopupFormField {
 	type: InputType,
 	description: string,
 	selectOptions?: iInputSelectOptionObj[]
+	optional?: boolean,
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -262,6 +264,10 @@ export const usePromptPopup = (p: {
 					})
 					type = "select"
 				}
+				// if optional in description, is optional
+				let optional = false
+				if (description?.includes("optional")) optional = true
+					
 				// if name is already in fields, skip it
 				if (!fields.find(el => el.id === name)){
 					fields.push({
@@ -269,6 +275,7 @@ export const usePromptPopup = (p: {
 						type: type as InputType || "text",
 						description: description || name,
 						selectOptions,
+						optional,
 						id: name
 					})
 				}
@@ -291,19 +298,29 @@ export const usePromptPopup = (p: {
 
 	const onFormSubmit = () => {
 
-		// check if all fields are filled
-		let allFieldsFilled = true
+		// if some fields are empty, add them to formFieldsValues with empty string
 		formFields.forEach(field => {
-			if (!formFieldsValues.current[field.id]) {
-				allFieldsFilled = false
+			// if type is date, date is today
+			if (field.type === "date" && !formFieldsValues.current[field.id]) {
+				formFieldsValues.current[field.id] = new Date().toISOString().split('T')[0]
 			}
 		})
 
-		if (!allFieldsFilled) {
+		// check if all fields are filled
+		let mandatoryFieldsEmpty:string[] = []
+		formFields.forEach(field => {
+			if (!field.optional && !formFieldsValues.current[field.id]) {
+				mandatoryFieldsEmpty.push(field.name)
+			}
+		})
+		
+		console.log("mandatoryFieldsEmpty", mandatoryFieldsEmpty)
+
+		if (mandatoryFieldsEmpty.length > 0) {
 			getApi(api => {
 				api.ui.notification.emit({ 
 					id: "insert-form-error",
-					content: `FORM: Please fill all fields`,
+					content: `FORM: fields <b>${mandatoryFieldsEmpty.join(", ")}</b> are mandatory.`,
 				})
 			})
 			return
@@ -318,6 +335,13 @@ export const usePromptPopup = (p: {
 		finalStringToInsert = finalStringToInsert || defaultConfigForm.insertStringFormat
  
 		formFieldsValues.current = formFieldsValues.current || {}
+		// if some fields are empty, add them to formFieldsValues with empty string
+		formFields.forEach(field => {
+			if (!formFieldsValues.current[field.id]) {
+				formFieldsValues.current[field.id] = ""
+			}
+		})
+
 		each(formFieldsValues.current, (val, key) => {
 			// const regex = new RegExp(`{{${key}\|.*?}}`, 'g')
 			// replace {{FIELDID(|type|description)?}} with formValues.FIELDID
@@ -325,15 +349,15 @@ export const usePromptPopup = (p: {
 			finalStringToInsert = finalStringToInsert?.replace(regex, val)
 		})
 
-		// replace {{datetime}} with current datetime in format 2024-12-31 23:59
-		const date = new Date()
-		const datetime = date.toISOString().slice(0, 16).replace('T', ' ')
+		// replace {{datetime}} with current datetime in format 31/12/2021 12:00
+
+		const date = getDateObj()
 		const regex = new RegExp(`{{_datetime}}`, 'g')
+		finalStringToInsert = finalStringToInsert.replace(regex, date.full_fr)
 		
 		// replace {{date}} 
-		const dateStr = date.toDateString()
-		const regexDate = new RegExp(`{{_date}}`, 'g')
-		finalStringToInsert = finalStringToInsert.replace(regex, datetime)
+		const regex2 = new RegExp(`{{_date}}`, 'g')
+		finalStringToInsert = finalStringToInsert.replace(regex2, date.date_fr)
 
 		const finalFilePath = configForm.insertFilePath || defaultConfigForm.insertFilePath 
 		const insertLine = configForm.insertLine || defaultConfigForm.insertLine 
@@ -343,6 +367,14 @@ export const usePromptPopup = (p: {
 				api.ui.notification.emit({ 
 					id: "insert-form-success",
 					content: `<b>FORM: line ${insertLine} insert success</b>: <br><br> "${finalStringToInsert}" <br><br> to <b>${finalFilePath}</b>`,
+					options: {
+						onClick: () => {
+							console.log("open file")
+							getApi( api => {
+								api.ui.floatingPanel.openFile(finalFilePath, {searchedString: finalStringToInsert})	
+							})
+						}
+					}
 				})
 			})
 		})
@@ -385,7 +417,7 @@ export const usePromptPopup = (p: {
 					cssStr={cssStr}
 				>
 					{formFields.map((field, i) => {
-						return <div key={i}>
+						return <div key={i} className='form-input-wrapper'>
 							{/* <label>{field.name} : {field.description}</label>
 							<input className='popup-form-input' type={field.type} data-id={field.id} data-name={field.name} /> */}
 							<Input 
@@ -403,6 +435,10 @@ export const usePromptPopup = (p: {
 									// 
 								}}
 							/>
+							{
+								!field.optional &&
+								<div className="mandatory">*</div>
+							}
 						</div>
 					}
 					)}
@@ -499,6 +535,16 @@ export const promptPopupCss = () => `
 		.popup-wrapper {
 			input, select {
 				width: 90%;
+			}
+			.form-input-wrapper {
+				position: relative;
+				.mandatory {
+					position: absolute;
+					top: 0;
+					right: 0;	
+					color: red;
+					font-size: 10px;
+				}
 			}
 			.details {
 				color:#afafaf;

@@ -71,9 +71,11 @@ export const getDateObj = (dateString?: string | number) => {
 	let hour = addZero(d.getHours());
 	let min = addZero(d.getMinutes());
 	let full = `${smonth}/${sday}/${syear} ${hour}:${min}`
+	let full_fr = `${sday}/${smonth}/${syear} ${hour}:${min}`
 	let full_file = `${smonth}-${sday}-${syear}_${hour}h${min}m`
 	let full_file_fr = `${sday}-${smonth}-${syear}_${hour}h${min}m`
 	let date = `${smonth}/${sday}/${syear}`
+	let date_fr = `${sday}/${smonth}/${syear}`
 
 	let num = {
 		year, month, day, hour: d.getHours(), min: d.getMinutes(), timestamp: d.getTime(),
@@ -97,6 +99,7 @@ export const getDateObj = (dateString?: string | number) => {
 	return {
 		year: syear, month: smonth, day: sday, hour, min,
 		full, num, date, raw, full_file, full_file_fr,
+		full_fr, date_fr,
 		getWeekNb, getCustomFormat
 	}
 }
