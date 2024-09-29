@@ -907,13 +907,13 @@ const feedApp = (innerTagStr, opts) => {
 								return res
 							}
 							const nfilterBarList = []
-							nfilterBarList.push({label: "-- all", value: "all", active:isActive("all", "", activeCat, activeFeed)})
-							nfilterBarList.push({label: "-- bookmarks", value: "bookmarks", active:isActive("cat", "bookmarks", activeFeed)})
-							nfilterBarList.push({label: "-- categories -- ", value: "bookmarks"})
+							nfilterBarList.push({label: "all", value: "all", active:isActive("all", "", activeCat, activeFeed)})
+							nfilterBarList.push({label: "⭐ bookmarks", value: "bookmarks", active:isActive("cat", "bookmarks", activeFeed)})
+							nfilterBarList.push({label: "☰ categories  ", value: "bookmarks"})
 							categories.map(cat =>
 								nfilterBarList.push({label: cat, value: `cat-${cat}`, active:isActive("cat", cat, activeCat)})
 							),
-							nfilterBarList.push({label: "-- feeds -- "})
+							nfilterBarList.push({label: "☰ feeds  "})
 							let filterFeeds = []
 							// if activeCategory, show only feeds from this category
 							each(feedsCats, (feedCats, feedName) => {
