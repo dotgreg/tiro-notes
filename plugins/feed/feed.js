@@ -518,16 +518,16 @@ const feedApp = (innerTagStr, opts) => {
 												}),
 												c('div', { className: "article-content-wrapper" }, [
 														c('div', { className: "article-time" }, [
-															p.article.smallDate + " - ",
+															p.article.smallDate + " ",
 															c('span', { className: "article-filter-links" }, [
 																c('span', {  onClick: () => { p.onFeedClick(p.article.sourceFeed) } }, 
-																[p.article.sourceFeed + " - "]
+																[p.article.sourceFeed + ""]
 																)
 															]),
 															// show links to categories
 															c('span', { className: "article-filter-links" }, [
 																	p.article.categories.map(cat => 
-																		c('span', {  onClick: () => { p.onCategoryClick(cat) } }, [ cat + ", " ])
+																		c('span', {  onClick: () => { p.onCategoryClick(cat) } }, [ cat + "" ])
 																	)
 															]),
 														]),
@@ -1103,10 +1103,14 @@ const feedApp = (innerTagStr, opts) => {
 													onFeedClick: (feedName) => {
 														setActiveFeed(feedName)
 														setActiveCat(null)
+														setItemActive(null)
+
+
 													},
 													onCategoryClick: (catName) => {
 														setActiveCat(catName)
 														setActiveFeed(null)
+														setItemActive(null)
 													},
 													onBookmarkToggle: () => {
 															doRefresh()
@@ -1667,6 +1671,18 @@ LIST > ARTICLES
 		color: grey;
 		cursor: pointer;
 }
+.article-filter-links span {
+	background: ${mainColor};
+	color: white;
+	border-radius: 5px;
+    padding: 2px 7px;
+    margin-right: 3px;
+}
+.article-filter-links span:hover {
+	background: white;
+	color: ${mainColor};
+}
+
 
 `;
 
