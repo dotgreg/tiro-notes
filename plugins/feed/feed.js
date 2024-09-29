@@ -916,20 +916,22 @@ const feedApp = (innerTagStr, opts) => {
 							nfilterBarList.push({label: "☰ feeds  "})
 							let filterFeeds = []
 							// if activeCategory, show only feeds from this category
-							each(feedsCats, (feedCats, feedName) => {
-								if (activeCat !== null && feedCats.indexOf(activeCat) === -1) return
-								filterFeeds.push({label: feedName, value: `feed-${feedName}`, active:isActive("feed", feedName, activeFeed)})
-							})
-							// feeds.map(feed => {
-							// 	let cats = feed.categories || []
-							// 	console.log("cats", cats, activeCat, feed)
-							// 	if (activeCat !== null && cats.indexOf(activeCat) !== -1) {
-							// 		filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
-							// 	}
-							// })
-							// feeds.map(feed =>
-							// 	filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
-							// )
+							if (activeCat !== null) {
+								each(feedsCats, (feedCats, feedName) => {
+									if (feedCats.indexOf(activeCat) === -1) return
+									filterFeeds.push({label: feedName, value: `feed-${feedName}`, active:isActive("feed", feedName, activeFeed)})
+								})
+							}
+							// if activeFeed, only show that feed
+							else if (activeFeed !== null && activeFeed !== "bookmarks") {
+								filterFeeds.push({label: activeFeed, value: `feed-${activeFeed}`, active:isActive("feed", activeFeed, activeFeed)})
+							} 
+							else {
+								feeds.map(feed =>
+									filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+								)
+
+							}
 							// sort by label name first letter
 							filterFeeds = filterFeeds.sort((a, b) => a.label.localeCompare(b.label))
 
