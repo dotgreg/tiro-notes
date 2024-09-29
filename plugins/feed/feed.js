@@ -89,6 +89,39 @@ const feedApp = (innerTagStr, opts) => {
 				// 		}
 				// 		return items
 				// }
+				const timestampToDate = (timestamp) => {
+					let d = new Date(timestamp)
+					let month = d.getMonth() + 1
+					if (month < 10) month = "0" + month
+					let year = d.getFullYear()
+					let minutes = d.getMinutes()
+					if (minutes < 10) minutes = "0" + minutes
+					let datestring = d.getDate() + "/" + month + "/" + year + " " + d.getHours() + "h"; 
+					// if today/yesterday, show it + time
+					let today = new Date()
+					let yesterday = new Date()
+					yesterday.setDate(yesterday.getDate() - 1)
+					let isToday = today.getDate() === d.getDate() && today.getMonth() === d.getMonth() && today.getFullYear() === d.getFullYear()
+					if (isToday) datestring = "Today " + d.getHours() + "h" 
+					// if up to 5 days ago, show it + time
+					let daysAgos = Math.floor((today - d) / (1000 * 60 * 60 * 24))
+					if (daysAgos === 1) datestring = "Yesterday " 
+					else if (daysAgos > 1 && daysAgos < 7) datestring = daysAgos + " days ago " 
+					// if up to 4 weeks
+					let weeksAgo = Math.floor(daysAgos / 7)
+					if (weeksAgo === 1) datestring = "1 week ago " 
+					else if (weeksAgo > 1 && weeksAgo < 5) datestring = weeksAgo + " weeks ago " 
+					// if up to 11 months
+					let monthsAgo = Math.floor(daysAgos / 30)
+					if (monthsAgo === 1) datestring = "1 month ago " 
+					else if (monthsAgo > 1 && monthsAgo < 12) datestring = monthsAgo + " months ago " 
+					// else only show "2 years ago"
+					let yearsAgo = Math.floor(daysAgos / 365)
+					if (yearsAgo === 1) datestring = "1 year ago " 
+					else if (yearsAgo > 1) datestring = yearsAgo + " years ago " 
+					return datestring
+				}
+
 
 				const getFeeds = (str) => {
 						const feedsArr = str.split('\n')
@@ -308,9 +341,9 @@ const feedApp = (innerTagStr, opts) => {
 
 													const timestamp = Date.parse(g(nitems[j].pubDate))
 													const d = new Date(timestamp)
-													const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
+
 													nitems[j].timestamp = timestamp
-													nitems[j].smallDate = datestring
+
 													// COLOR
 													const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
 													const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
@@ -518,7 +551,7 @@ const feedApp = (innerTagStr, opts) => {
 												}),
 												c('div', { className: "article-content-wrapper" }, [
 														c('div', { className: "article-time" }, [
-															p.article.smallDate + " ",
+															timestampToDate(p.article.timestamp) + " ",
 															c('span', { className: "article-filter-links" }, [
 																c('span', {  onClick: () => { p.onFeedClick(p.article.sourceFeed) } }, 
 																[p.article.sourceFeed + ""]
@@ -923,9 +956,9 @@ const feedApp = (innerTagStr, opts) => {
 								})
 							}
 							// if activeFeed, only show that feed
-							else if (activeFeed !== null && activeFeed !== "bookmarks") {
-								filterFeeds.push({label: activeFeed, value: `feed-${activeFeed}`, active:isActive("feed", activeFeed, activeFeed)})
-							} 
+							// else if (activeFeed !== null && activeFeed !== "bookmarks") {
+							// 	filterFeeds.push({label: activeFeed, value: `feed-${activeFeed}`, active:isActive("feed", activeFeed, activeFeed)})
+							// } 
 							else {
 								feeds.map(feed =>
 									filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
@@ -1089,7 +1122,7 @@ const feedApp = (innerTagStr, opts) => {
 																			c('div', {
 																					className: "",
 																			}, [
-																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
+																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${timestampToDate(item.timestamp)}] ${item.title} `,
 																			]),
 																		listView !== "list" &&
 																			c('div', {
@@ -1105,7 +1138,7 @@ const feedApp = (innerTagStr, opts) => {
 																				}),
 																				c('div', { className: "title-wrapper" }, [
 																						c('div', { className: "title" }, [item.title]),
-																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
+																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${timestampToDate(item.timestamp)}`]),
 																				])
 																			]),
 																	]
