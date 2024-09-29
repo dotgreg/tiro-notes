@@ -728,6 +728,7 @@ const feedApp = (innerTagStr, opts) => {
 
 						const [status, setStatus] = React.useState("")
 						const [categories, setCategories] = React.useState([])
+						const [feedsCats, setFeedsCats] = React.useState({})
 						const [activeCat, setActiveCat] = React.useState(null)
 
 						// const [failedFeeds, setFailedFeedsInt] = React.useState([])
@@ -751,22 +752,27 @@ const feedApp = (innerTagStr, opts) => {
 												titems.current = nitems
 												const nfeeds = []
 												const nitemsNotHidden = []
+												let nFeedsCats = feedsCats
 												for (let i = 0; i < nitems.length; i++) {
 														const it = nitems[i];
 														if (!nfeeds.includes(it.sourceFeed)) nfeeds.push(it.sourceFeed)
 														// gather all cats together
+														let nFeedCats = nFeedsCats[it.sourceFeed] || []
 														each(it.categories, ct => {
-																if (ncats.indexOf(ct.trim()) === -1) ncats.push(ct.trim())
+															let ncat = ct.trim()
+															if (ncats.indexOf(ncat) === -1) ncats.push(ncat)
+															if (!nFeedCats.includes(ncat)) nFeedCats.push(ncat)
 														})
-																// if it.hidden, do not output it
-																if (it.hidden !== true) {
-																		nitemsNotHidden.push(it)
-																}
+														nFeedsCats[it.sourceFeed] = nFeedCats
+														// if it.hidden, do not output it
+														if (it.hidden !== true) {
+																nitemsNotHidden.push(it)
+														}
 												}
-												
 												// sorting everything
 												ncats.sort()
 												nfeeds.sort()
+												setFeedsCats(nFeedsCats)
 												setCategories(ncats)
 												setFeeds(nfeeds)
 												setStatus("")
@@ -909,9 +915,21 @@ const feedApp = (innerTagStr, opts) => {
 							),
 							nfilterBarList.push({label: "-- feeds -- "})
 							let filterFeeds = []
-							feeds.map(feed =>
-								filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
-							)
+							// if activeCategory, show only feeds from this category
+							each(feedsCats, (feedCats, feedName) => {
+								if (activeCat !== null && feedCats.indexOf(activeCat) === -1) return
+								filterFeeds.push({label: feedName, value: `feed-${feedName}`, active:isActive("feed", feedName, activeFeed)})
+							})
+							// feeds.map(feed => {
+							// 	let cats = feed.categories || []
+							// 	console.log("cats", cats, activeCat, feed)
+							// 	if (activeCat !== null && cats.indexOf(activeCat) !== -1) {
+							// 		filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+							// 	}
+							// })
+							// feeds.map(feed =>
+							// 	filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+							// )
 							// sort by label name first letter
 							filterFeeds = filterFeeds.sort((a, b) => a.label.localeCompare(b.label))
 
