@@ -35,7 +35,7 @@ export interface iFloatingPanel {
     device: iDeviceType,
     isTopWindow?: boolean
 }
-export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleActiveVisibility" | "minimizeActive" | "closeActive"
+export type iActionAllWindows = "hide" | "show" | "organizeWindows" | "toggleWindowsLayout" | "toggleActiveVisibility" | "minimizeActive" | "closeActive" | "deminimizeFirst"
 type iWindowsLayout = "grid" | "horizontal" | "vertical" | "tiled" | "current"
 export type iActionAllParams = { layout?: iWindowsLayout }
 // create new interface iCreateFloatingPanel that extends iFloatingPanel with everything optional except type 
@@ -54,6 +54,7 @@ export interface iFloatingPanelApi {
     update: (panel: iFloatingPanel) => void,
     movePanel: (panelId: string, position: { x: number, y: number }) => void,
     resizePanel: (panelId: string, size: { width: number, height: number }) => void,
+    deminimizePanel: (panelId?:string) => void,
     minimizePanel: (panelId: string) => void,
     updatePanelLayout: (panelId: string, layout: iPanelLayout) => void,
 
@@ -231,6 +232,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         let sizeWidth = (window.innerWidth / 2) - decal
         if (deviceType() === "mobile") sizeWidth = (window.innerWidth) - decal * 2
         const sizeHeight = (window.innerHeight / 1.2) - decal
+        
+        // if id exists, prepend device type
+        if (panelParams.id) panelParams.id = deviceType() + "-" + panelParams.id
 
         const panel: iFloatingPanel = {
             position: { x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset) },
@@ -353,6 +357,27 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updatePanel({ ...panelsRef.current.find(p => p.id === panelId)!, size })
     }
 
+    const deminimizePanel = (panelId?:string) => {
+        // find the panel, if no panelId provided, take the first minimized panel
+        if (!panelId) {
+            // take all panels not visible
+            let invisiblePanels = panelsRef.current.filter(p => p.status !== "visible")
+            // take the one with the lowest orderPosition
+            let firstPanel = invisiblePanels.find(p => p.orderPosition === Math.min(...invisiblePanels.map(p => p.orderPosition || 0)))
+            let panel = firstPanel
+            if (!panel) return
+            panelId = panel.id
+        }
+        let panel = panelsRef.current.find(p => p.id === panelId)
+        // push that panel on top, make it visible, make its order position first
+        if (!panel) return
+        panel.status = "visible"
+        updatePanel(panel)
+        pushWindowOnTop(panel.id)
+        updateOrderPosition(panel.id, "first")
+        resizeWindowIfOutOfWindow(panel.id)
+    }
+
     const minimizePanel = (panelId: string) => {
         // const nPanel = panelsRef.current.find(p => p.id === panelId)
         // if panel is file 
@@ -362,32 +387,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         // console.log(` minimizePanel`, p?.file.name)
         nPanels = updateTopWindow(nPanels)
         setPanels(nPanels)
-
-        // updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
-        // updateTopWindow()
-        //
-        // killing tabs content so disabled
-        // if (nPanel?.type === "file") {
-        //     // get all the minimized panels with the same file and delete them
-        //     let newPanels = cloneDeep(panelsRef.current)
-        //     newPanels = newPanels.filter(p => p.id !== panelId && p.file.path !== nPanel.file.path)
-        //     // add the new minimized panel
-        //     newPanels.push({...nPanel, status: "minimized"})
-        //     // console
-        //     updateAll(newPanels)
-
-
-
-        //     // then search inside all the panels for the panelId and set it to minimized
-        //     // let panel = newPanels.find(p => p.id === panelId)
-        //     // if (!panel) return
-        //     // panel.status = "minimized"
-        //     // updateAll(newPanels)
-        // } else {
-        //     // if panel is ctag, just minimize it
-        //     updatePanel({...panelsRef.current.find(p => p.id === panelId)!, status: "minimized"})
-        // }
-
     }
 
     const reorganizeAll = () => {
@@ -410,13 +409,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         })
         updateAll(newPanels)
     }
-
-
-
-    // const hideVisibleWindows = React.useRef<boolean>(false)
-    // const hideAllVisibleWindows = () => {
-    //     hideVisibleWindows
-
 
     const layoutWindows = React.useRef<iWindowsLayout>("grid")
     const toggleWindowsLayout = (nLayout?: iWindowsLayout) => {
@@ -526,15 +518,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updateAll(newPanels)
     }
 
-
-    // const displayAll = (action:"hide"|"show") => {
-    //     let newPanels = cloneDeep(panelsRef.current)
-    //     newPanels.forEach((panel) => {
-    //         panel.hidden = action === "hide" ? true : false
-    //     })
-    //     updateAll(newPanels)
-    // }
-
     const minimizeActive = () => {
         // let newPanels = cloneDeep(panelsRef.current)
         let topWindow = getTopVisibleWindow()
@@ -555,6 +538,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         if (action === "toggleWindowsLayout") return toggleWindowsLayout(params?.layout)
         if (action === "minimizeActive") return minimizeActive()
         if (action === "closeActive") return closeActive()
+        if (action === "deminimizeFirst") return deminimizePanel()
 
         // hide/show
         let newPanels = cloneDeep(panelsRef.current)
@@ -567,6 +551,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const openFile: iFloatingPanelApi["openFile"] = (filepath, opts) => {
         let { idpanel, layout, searchedString, replacementString } = opts || {}
         if (!idpanel) idpanel = Math.random().toString(36).substring(7)
+        // if id exists, prepend device type
+        if (idpanel) idpanel = deviceType() + "-" + idpanel
         let panel = cloneDeep(panelsRef.current.find(p => p.id === idpanel))
         if (!panel) {
             // create panel 
@@ -693,6 +679,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         resizePanel,
         updatePanelLayout: updatePanelLayoutApiFn,
         minimizePanel,
+        deminimizePanel,
         actionAll,
         panels,
         refreshFromBackend,

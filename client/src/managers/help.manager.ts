@@ -31,6 +31,7 @@ export const triggerTiroHelpPopup = () => {
     <li>Alt + shift + w : Re-organize Floating windows from current layout</li>
     <li>Alt + Shift + v : Toggle view of active floating window</li>
     <li>Alt + Shift + a : Minimize active floating window</li>
+    <li>Alt + Shift + s : Unminimize first floating window in the bar</li>
     <li>Alt + Shift + r : Reload active floating window</li>
     <li>Alt + Shift + c : Close active floating window</li>
     <li>Alt + o / Alt + Shift + o : Increase/Decrease opacity of active floating window</li>
@@ -40,6 +41,9 @@ export const triggerTiroHelpPopup = () => {
 <ul>
     <li><a href="https://tiro-notes.org" target="_blank"> tiro-notes.org </a></li>
 </ul>
+
+<h4>left bar shortcuts</h4>
+<p> You can add shortcuts links on the left bar by creating a /.tiro/shortcuts.md note and enabling the functionality in the settings </p>
 
 <h4>snippets</h4>
 <p> You can add editor shortcuts by typing "--". Add shortcuts in /.tiro/snippets.md (create a note if it does not exists) </p>
@@ -64,11 +68,13 @@ export const triggerTiroHelpPopup = () => {
 You can create forms by referencing them in /.tiro/forms.md (create a note if it does not exists), one form for each line<br>
 {{_datetime}} and {{_date}} will automatically insert the date <br>
 the line_format is used to format the line in the note<br>
+you can insert tags in it like: {{NAME_FIELD|TYPE_FIELD (text, number, select, date) | COMMENT FIELD comment field. optional}}<br>
+In the comment field, adding "optional" will make the field optional<br>
 the line parameter is where the content should be inserted, if negative it will be inserted counting starting the end of the note<br>
 </p>
 <code>
 	<pre>
-    form | name=simple insert form, path=/noteToInsert.md, line_format= {{_datetime}} | name: {{name}} | age: {{age|number}}, line=2
+    form | name=simple insert form, path=/noteToInsert.md, line_format= {{_datetime}} | name: {{name}} | age: {{age|number|comment field. optional}}, line=2
     form | name=🎬 add youtube chanel, path=/_new/_main/📺YUTB3.md, line_format= {{chanel_name}} | @{{chanel_name}} | {{tags|select:_🍿 docus,_🗿 histoire, _🧠 psy,  _✨ quali, _⛰️ trip,  _🗳️ polit,  _🗳️ polit, _🏛️ architect, _💲econo,  _😄fun,  _🛠️diy}} | {{number_import|number}}, line=3
 	</pre>
 </code>

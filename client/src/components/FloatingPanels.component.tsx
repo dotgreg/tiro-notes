@@ -52,7 +52,7 @@ let startZindex = 1000
 
 
 
-const getPanelTitle = (panel:iFloatingPanel):string => {
+export const getPanelTitle = (panel:iFloatingPanel):string => {
     if (!panel) return ""
     if (panel.type === "file") {
         return panel.file.name.replace(".md","")
@@ -643,12 +643,15 @@ export const FloatingPanelsWrapper = (p:{
     const a12 = () => {  updateFloatingLayout("top-left") }
     const a13 = () => {  updateFloatingLayout("bottom-left") }
 
+    const a14 = () => {  action("deminimizeFirst") }
+
     const shortcuts = ["alt+q" , "alt+w", "alt+shift > a", "alt+shift > c", "alt+shift > w", 
         "ctrl + up", "ctrl + down", "ctrl + left", "ctrl + right",
         "shift + ctrl + up", "shift + ctrl + right", "shift + ctrl + left", "shift + ctrl + down",
+        "alt+shift > s"
     
     ]
-    const actions = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13]
+    const actions = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14]
     useEffect(() => {
         shortcuts.forEach((shortcut, i) => {
             addKeyShortcut(shortcut, actions[i])
