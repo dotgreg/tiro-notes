@@ -20,6 +20,8 @@ import { evalPluginCode } from '../managers/plugin.manager';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { workMode_filterIFiles } from '../managers/workMode.manager';
 import { addKeyShortcut, releaseKeyShortcut } from '../managers/keyboard.manager';
+import { iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
+import { getPanelTitle } from './FloatingPanels.component';
 
 const omniParams = {
 	search: {
@@ -37,6 +39,7 @@ interface iOptionOmniBar {
 		file?: iFile
 		line?: string
 		options?: iOptionOmniBar[]
+		floatingPanel?: iFloatingPanel
 	}
 }
 
@@ -44,7 +47,8 @@ const modeLabels = {
 	search: "[🔎 Search Mode]",
 	explorer: "[📁 Explorer Mode]",
 	history: "[✨ History Mode]",
-	plugin: "[🔌 Plugin Mode]"
+	plugin: "[🔌 Plugin Mode]",
+	floating: "[🖥️ Floating Windows]",
 }
 
 
@@ -378,6 +382,11 @@ export const OmniBar = (p: {
 				startLastNotesModeLogic()
 			}
 
+			if (inTxt === ";") {
+				setInputTxt("")
+				startFloatingWindowsBarModeLogic()
+			}
+
 			if (inTxt === "?") {
 				aLog(`omnibar_search`)
 				startSearchModeLogic()
@@ -438,6 +447,9 @@ export const OmniBar = (p: {
 		else if (stags[0].label === modeLabels.history) {
 			triggerHistoryModeLogic(inTxt, stags)
 		}
+		else if (stags[0].label === modeLabels.floating) {
+			triggerFloatingWindowsBarLogic(inTxt, stags)
+		}
 	}
 
 	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [], {history: true})
@@ -451,7 +463,7 @@ export const OmniBar = (p: {
 	// }, [options])
 
 	const s = (str: string) => str.replaceAll("[", "").replaceAll("]", "")
-	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for ${s(modeLabels.search)}, "/" for ${s(modeLabels.explorer)}, ":" for ${s(modeLabels.plugin)}, "," for ${s(modeLabels.history)}`
+	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for ${s(modeLabels.search)}, "/" for ${s(modeLabels.explorer)}, ":" for ${s(modeLabels.plugin)}, "," for ${s(modeLabels.history)}, ";" for ${s(modeLabels.floating)}`
 	const [help, setHelp] = useState(baseHelp)
 
 
@@ -837,6 +849,12 @@ export const OmniBar = (p: {
 		// 	if (lastNote.)
 		// })
 		const filteredLastNotes = workMode_filterIFiles(p.lastNotes)
+		// get all non visible floating windows
+		// getApi(
+		// 	api => {
+		// 		console.log(12333, api.ui.floatingPanel.panels)
+		// 	}
+		// )
 
 		let nOptions = filesToOptions(filteredLastNotes)
 
@@ -1076,6 +1094,51 @@ export const OmniBar = (p: {
 
 	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
 	
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ FLOATING WINDOWS BAR MODE
+	//
+	const startFloatingWindowsBarModeLogic = () => {
+		setSelectedOption([
+			{ value: modeLabels.floating, label: modeLabels.floating },
+		])
+		// get all non visible floating windows
+		getApi(api => {
+			let nOpts: iOptionOmniBar[] = []
+			setOptions(nOpts)
+			console.log(1112233, api.ui.floatingPanel.panels)
+			each(api.ui.floatingPanel.panels, p => {
+				if (p.status == "visible") return
+				nOpts.push({ 
+					label: getPanelTitle(p),
+					value: p, 
+					payload: {
+						floatingPanel: p
+					}
+				})
+			})
+			setOptions(nOpts)
+			setHelp(`${nOpts.length} floating windows found`)
+		})
+	}
+
+	const triggerFloatingWindowsBarLogic = (input: string, stags: any[]) => {
+		setNotePreview(null)
+		// if 2 tags, take the payload of second one
+		if (stags.length === 2) {
+			let panel = stags[1].payload?.floatingPanel
+			if (!panel) return
+			// console.log()
+			getApi(api => {
+				api.ui.floatingPanel.deminimizePanel(panel.id)
+
+			})
+			// close omnibar
+			p.onClose()
+		}
+	
+	}
+
 
 
 
