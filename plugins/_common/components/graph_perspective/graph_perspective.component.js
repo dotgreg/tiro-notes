@@ -107,6 +107,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         script.textContent = `
             import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js";
             const WORKER = worker();
+            console.log(12333333333333, worker)
             
             async function initPerspective(cb) {
                 const viewer = document.getElementsByTagName("perspective-viewer")[0];
@@ -813,7 +814,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
             // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js`, type:"module"},
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
             // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
