@@ -64,6 +64,7 @@ export interface iFloatingPanelApi {
         searchedString?: string, 
         replacementString?: string 
         noteView?: iViewType
+        view?: iViewType
     }) => void,
 
     updateAll: (panels: iFloatingPanel[]) => void,
@@ -273,9 +274,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             pushWindowOnTop(panel.id)
         }
 
-        // if panelsParams is file, get its view
-        if (panelParams.file) {
-            console.log(`${h} getNoteView`, panelParams.file.path)
+        // if panelsParams is file, get its view && panelParams.view is not defined
+        if (panelParams.file && !panelParams.view) {
+            console.log(`${h} getNoteView`, panelParams.file.path, panelParams)
             getNoteView(panelParams.file.path).then(view => {
                 console.log(`${h} getNoteView`, view)
                 if (view) panel.view = view
@@ -554,6 +555,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         // if id exists, prepend device type
         if (idpanel) idpanel = deviceType() + "-" + idpanel
         let panel = cloneDeep(panelsRef.current.find(p => p.id === idpanel))
+
         if (!panel) {
             // create panel 
             const panel: iCreateFloatingPanel = {
@@ -564,9 +566,14 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             if (layout) panel.layout = layout
             if (searchedString) panel.searchedString = searchedString
             if (replacementString) panel.replacementString = replacementString
+            // forcing note view
             if (opts?.noteView) panel.view = opts.noteView
+            if (opts?.view) panel.view = opts.view
             createPanel(panel)
         } else {
+            // forcing note view
+            if (opts?.noteView) panel.view = opts.noteView
+            if (opts?.view) panel.view = opts.view
             console.log(`${h} minimized`, panel.file.name, panel)
             // if panel is minimized, set it to visible
             if (panel.status === "minimized") panel.status = "visible"

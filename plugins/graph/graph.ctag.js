@@ -525,7 +525,6 @@ const graphApp = (innerTagStr, opts) => {
 				const node = data.nodes.find(x => x.id === nodeId);
 
 				const parts = node.noteParts
-				console.log(parts)
 				// take first 
 				let fileToOpen = parts[0].file
 				let stringToSearch = node.label

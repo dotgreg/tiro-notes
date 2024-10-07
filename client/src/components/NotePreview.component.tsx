@@ -29,32 +29,6 @@ export const NotePreviewInt = (p: {
 	const [content, setContent] = useState("");
 	const [view, setView] = useState<iViewType>(p.view);
 
-	// let loadPreviewContent = useDebounce(() => {
-	// 	getApi(api => {
-	// 		api.file.getContent(p.file.path, ncontent => {
-	// 			if (p.searchedString) {
-	// 				let string2Search = p.searchedString
-	// 				ncontent = ncontent.replaceAll(
-	// 					string2Search,
-	// 					`<span class='found-word'>${p.searchedString}</span>`)
-
-	// 			}
-	// 				ncontent = api.note.render({
-	// 					raw: ncontent,
-	// 					file: p.file,
-	// 					windowId: 'preview-popup'
-	// 				})
-
-	// 				setTimeout(() => {
-	// 					document.querySelector('.note-preview-wrapper .found-word')?.scrollIntoView();
-	// 				}, 100)
-
-	// 			let html = `<div class='file-content render-latex'>${ncontent} </div>`;
-	// 			setContent(html)
-	// 		})
-	// 	})
-	// }, 200)
-
 	let loadEditorContent = useDebounce(() => {
 		getApi(api => {
 			api.file.getContent(p.file.path, ncontent => {
@@ -85,19 +59,9 @@ export const NotePreviewInt = (p: {
 		})
 	}, 200)
 
-	// const [forceUpdateInt, setforceUpdate] = useState<number>(0);
-	// const forceUpdate = () => { 
-	// 	setTimeout(() => {
-	// 		// setforceUpdate(forceUpdateInt + 1) 
-	// 	}, 100)
-	// }
 	useEffect(() => {
-		// if (view === "preview") loadPreviewContent()
-		// else loadEditorContent()
-		// forceUpdate()
 		loadEditorContent()
 	}, [p.file, p.searchedString, view])
-
 
 	let heightStr = p.height ? p.height + "px" : "100%"
 
