@@ -97,15 +97,15 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         window._graph_perspective_props = p
         
         // Load module scripts
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js');
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js');
 
 
         var script = document.createElement('script');
         script.type = 'module';
   
         script.textContent = `
-            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js";
+            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js";
             const WORKER = worker();
             
             async function initPerspective(cb) {
@@ -809,10 +809,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
     } 
     api.utils.loadRessources(
         [
-            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
-            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@2.7.1/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@2.7.1/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
             `${p.parentVars.opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.lib.js`,
