@@ -97,16 +97,16 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         window._graph_perspective_props = p
         
         // Load module scripts
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js');
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js');
 
 
         var script = document.createElement('script');
         script.type = 'module';
   
         script.textContent = `
-            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js";
-            const WORKER = worker();
+            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js";
+            const WORKER = await worker();
             
             async function initPerspective(cb) {
                 const viewer = document.getElementsByTagName("perspective-viewer")[0];
@@ -119,9 +119,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         // Append the script element to the head or body of the document
         setTimeout(() => {
             document.head.appendChild(script);
+            // type module
+
             
             const int = setInterval(() => {
                 if (window._initPerspective) {
+                    console.log(window._initPerspective)
                     clearInterval(int)
                     afterInitPerspective()
                 }
@@ -137,6 +140,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 //
                 // VIEWER OBJ EXTENSION
                 //
+                console.log(hl,"viewer", viewer, WORKER)
                 viewer.loadItems = (items, cb) => {
                     let int = setInterval(() => {
                         console.log(hl,"waiting for viewer and worker...")
@@ -147,7 +151,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     }, 200)
                     const tableAndViewerExists = () => viewer && WORKER
                     const startLoading = async () => {
-                        const table = WORKER.table(items);
+                        if (!items) items = [{" ":""}]
+                        const table = await WORKER.table(items);
+                        console.log(hl,"loading items", items, table)
 
                         try {
                             if (!initLoaded) {
@@ -650,13 +656,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
 
                     uploadFile(e.target.files[0]);
 
-                    console.log(e.target.files.length, api.utils.getInfos(), api)
+                    console.log("FILE UPLOADED >> ",e.target.files.length, api.utils.getInfos(), api)
                 })
                 
                 // upload file
                 function uploadFile(file) {
                     let reader = new FileReader();
                     reader.onload = function (fileLoadedEvent) {
+                        console.log(hl,"file loaded", fileLoadedEvent)
                         let data = fileLoadedEvent.target.result;
                         // console.log(123333, data)
                         // count the number of ; and ,
@@ -809,10 +816,13 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
     } 
     api.utils.loadRessources(
         [
-            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@2.7.1/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
-            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@2.7.1/dist/cdn/perspective-viewer.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@2.7.1/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@2.7.1/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
+            // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-openlayers/dist/cdn/perspective-viewer-openlayers.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
             `${p.parentVars.opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.lib.js`,
