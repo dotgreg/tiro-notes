@@ -483,10 +483,41 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
   // for each col, get unique values
   const [uniqFilterVals, setUniqFilterVals] = r.useState({});
+  const [countUniqueFilterVals, setCountUniqueFilterVals] = r.useState({})
   const clearTxt = "🧹"
   const closeTxt = "✖️"
+
+  const genSelectOptionLabel = (colId, val) => {
+    let count = countUniqueFilterVals[colId][val] || 0
+    let allValsFromColId = 0
+    let longuestValLengthFromCol = 0
+    for (let valCol in countUniqueFilterVals[colId]) {
+      allValsFromColId += countUniqueFilterVals[colId][valCol]
+      let valLength = valCol?.length || 0
+      if (valCol == undefined) valLength = 0
+      longuestValLengthFromCol = Math.max(longuestValLengthFromCol, valLength)
+    }
+    let percent = Math.round(count / allValsFromColId * 100)
+
+    // if val is undefined, just ""
+    if (val === undefined) val = ""
+    let valLength = val?.length || 0
+    let spaceBetween = longuestValLengthFromCol - valLength + 3
+    console.log("spaceBetween", spaceBetween, val, longuestValLengthFromCol, valLength)
+    // let spaceStr = "  ".repeat(spaceBetween)
+    // let spaceStr = "&#160;".repeat(spaceBetween)
+    let spaceStr = "&nbsp;".repeat(spaceBetween)
+    let countStr = `${spaceStr}[ ${count} | ${percent}% ]`
+    if (count === 0) countStr = ""
+    if (val === closeTxt) countStr = ""
+    if (val === clearTxt) countStr = ""
+    return val + countStr
+  }
+
+
   r.useEffect(() => {
     let uniqFilterVals = {};
+    let countPerUniqVals = {};
     config.cols.forEach(col => {
       let values = new Set();
       // add select all
@@ -494,10 +525,18 @@ const TableComponentReactInt = ({ items, config, id }) => {
       values.add(clearTxt)
       items.forEach(item => {
         values.add(item[col.colId])
+        if (countPerUniqVals[col.colId] === undefined) countPerUniqVals[col.colId] = {}
+        if (countPerUniqVals[col.colId][item[col.colId]] === undefined) countPerUniqVals[col.colId][item[col.colId]] = 1
+        else countPerUniqVals[col.colId][item[col.colId]] += 1
+
       })
       uniqFilterVals[col.colId] = Array.from(values)
+      
     })
+    setCountUniqueFilterVals(countPerUniqVals)
     setUniqFilterVals(uniqFilterVals)
+    console.log("countPerUniqVals", countPerUniqVals)
+
     // console.log("uniqFilterVals", uniqFilterVals)
   }, [items])
 
@@ -563,7 +602,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         onFilterChange(col.colId, selectedValues)
                       }}, [
                         ...uniqFilterVals[col.colId].map(val => {
-                          return c('option', {value: val, selected: activeFilters[col.colId]?.includes(val)}, val)
+                          return c('option', {value: val, selected: activeFilters[col.colId]?.includes(val), dangerouslySetInnerHTML: {__html: genSelectOptionLabel(col.colId, val)} } )
                         })
                       ])
                     ])
