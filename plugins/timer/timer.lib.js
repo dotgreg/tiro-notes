@@ -48,6 +48,8 @@ const getDateFromStr = (dateStr/*:string*/) => {
 }
 
 const addToHistory = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:string*/, time/*:number*/, rawdate/*:?Date*/) => {
+    addToTimelineLogFile(tiroApi, name, time, rawdate)
+
     time = parseInt(time)
     // does el already exists? if yes put it on first
     const foundIdx = history.findIndex(el => el.name === name)
@@ -67,7 +69,6 @@ const addToHistory = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:s
     console.log("[TIMERLIB] add2hist", history.length)
     tiroApi.cache.set("timer_plugin_history", history, -1)
     // add to timeline log file
-    addToTimelineLogFile(tiroApi, name, time, rawdate)
 }
 
 const addToTimelineLogFile = (tiroApi/*:any*/, name/*:string*/, time/*:number*/, rawdate/*:?Date*/) => {
