@@ -37,7 +37,6 @@ export const WindowEditorInt = (p: {
 	const windowId = i
 
 	useEffect(() => {
-		console.log("forceview editorwindow?", p)
 		if (p.forceView) return setIntViewType(p.forceView)
 		setIntViewType(view) // important if not, might not be updated all the time
 		// get the backend cached view type
