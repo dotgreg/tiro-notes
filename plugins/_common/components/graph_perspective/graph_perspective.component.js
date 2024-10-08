@@ -124,7 +124,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
             
             const int = setInterval(() => {
                 if (window._initPerspective) {
-                    console.log(window._initPerspective)
                     clearInterval(int)
                     afterInitPerspective()
                 }
@@ -140,7 +139,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 //
                 // VIEWER OBJ EXTENSION
                 //
-                console.log(hl,"viewer", viewer, WORKER)
                 viewer.loadItems = (items, cb) => {
                     let int = setInterval(() => {
                         console.log(hl,"waiting for viewer and worker...")

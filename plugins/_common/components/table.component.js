@@ -352,7 +352,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [sortedItems, searchTerm, activeFilters]);
 
   const requestSort = key => {
-    // console.log("requestSort", key)
     let direction = 'ascending';
     if (sortConfig && sortConfig.key === key && sortConfig.direction === 'ascending') {
       direction = 'descending';
@@ -378,7 +377,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [configColsObj, setConfigColsObj] = r.useState({});
   r.useEffect(() => {
     let configColsObj = {};
-    // console.log(config.multiselect, config)
     // if (config.multiselect === true) configColsObj["multiselect"] = {colId: "multiselect-col"}
 
     config.cols.forEach(col => {
@@ -503,7 +501,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
     if (val === undefined) val = ""
     let valLength = val?.length || 0
     let spaceBetween = longuestValLengthFromCol - valLength + 3
-    console.log("spaceBetween", spaceBetween, val, longuestValLengthFromCol, valLength)
     // let spaceStr = "  ".repeat(spaceBetween)
     // let spaceStr = "&#160;".repeat(spaceBetween)
     let spaceStr = "&nbsp;".repeat(spaceBetween)
@@ -535,9 +532,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     })
     setCountUniqueFilterVals(countPerUniqVals)
     setUniqFilterVals(uniqFilterVals)
-    console.log("countPerUniqVals", countPerUniqVals)
 
-    // console.log("uniqFilterVals", uniqFilterVals)
   }, [items])
 
   // active filters rules like {col1 : [val1, val2], col2: [val1]}
@@ -555,7 +550,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
         
       }
       setActiveFilters(newActiveFilters)
-      // console.log("newActiveFilters", newActiveFilters)
 
     }
   }
@@ -746,7 +740,6 @@ let genTableComponent = ({items, config, id}) => {
       const c = r.createElement;
 
       // v18
-      // console.log("table render component")
       let container = document.getElementById("ctag-component-table-wrapper")
       const root = ReactDOM.createRoot(container); // create a root
       root.render(c(TableComponentReact, {items, config, id}));

@@ -225,7 +225,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                 // do not include header lines in the graph export
                                 if (!lineIncludesHeader) csvString += line + "\n"
                         })
-                        console.log('csvString:', csvString)
                         return csvString        
                 }
 

@@ -1106,7 +1106,6 @@ export const OmniBar = (p: {
 		getApi(api => {
 			let nOpts: iOptionOmniBar[] = []
 			setOptions(nOpts)
-			console.log(1112233, api.ui.floatingPanel.panels)
 			each(api.ui.floatingPanel.panels, p => {
 				if (p.status == "visible") return
 				nOpts.push({ 

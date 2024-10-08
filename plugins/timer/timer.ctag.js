@@ -62,11 +62,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 }
 
                 const defaultViewConfigs = {
-                        "📊 month": `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 month2": `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 week": `{"version":"2.7.1","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 today": `{"version":"2.7.1","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 grid": `{"version":"2.7.1","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 month": `{"version":"3.1.0","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 month2": `{"version":"3.1.0","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 week": `{"version":"3.1.0","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 today": `{"version":"3.1.0","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        "📊 grid": `{"version":"3.1.0","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
                 }
                 // switch from defaultViewConfigs as obj to an array of obj like {name:..., config:...}
                 const defaultViewConfigsArr = Object.keys(defaultViewConfigs).map(name => ({ name, config: defaultViewConfigs[name] }))
@@ -201,7 +201,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                         // const hours = Math.round((time / 60)*10)/10
                         // const hours = `${Math.round(time / 6) / 10}`.replace(".", ",")
                         const hours = Math.round(time / 6) / 10
-                        const row = { category, name, date: dateObj, dateRaw, time, year, month, day, hours, week }
+                        const row = { category, name, dateObj, time, year, month, day, hours, week }
                         return row
                 }
                 const preprocessTimerItem = (timerItem/*:iTimerHistoryItem*/, arrItems/*:Array<any>*/) => {
@@ -345,7 +345,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         const css = {
                 heightForm: "60px",
-                heightGraph: "calc(100% - 80px)"
+                heightGraph: "calc(100% - 10px)"
         }
 
         // if we are in mobile, height of form is 100px
@@ -421,7 +421,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 height: ${css.heightGraph};
         }
                 #timer-ctag #timer-ctag-graph #plot_div {
-                        width: 100%;
+                        width: calc(100% - 20px);
                         height: 100%;
                 }
                       
