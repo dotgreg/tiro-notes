@@ -131,7 +131,7 @@ export const OmniBar = (p: {
 	const openNoteInFloatingWindow = (f:iFile) => {
 		getApi(api => {
 			api.ui.floatingPanel.create({
-				view: "editor",
+				// view: "editor",
 				type: "file",
 				file: f,
 			})
@@ -305,7 +305,6 @@ export const OmniBar = (p: {
 	// IF PRESS ALT + ENTER on FILE, OPEN NEW WINDOW in jump to file
 	const jumpToFileModifier = useRef(false)
 	const a1 =  () => { 
-		console.log("jumpToFileModifier", jumpToFileModifier.current)
 		jumpToFileModifier.current = true
 	}
     const shortcuts = ["alt" ]
@@ -1092,7 +1091,7 @@ export const OmniBar = (p: {
 
 
 
-	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
+	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor") // not used anymore, editor all the time
 	
 
 	///////////////////////////////////////////////////////////////////////////////
@@ -1205,7 +1204,7 @@ export const OmniBar = (p: {
 									titleEditor={false}
 									searchedString={searchedString}
 									height={previewHeight}
-									view={previewType}
+									// view={"editor"}
 									windowId={notePreviewWindowId}
 								/>
 							}
@@ -1244,6 +1243,13 @@ export const omnibarPopupCss = () => `
 								height: 100vh;
 								z-index: 10000;
 								position: absolute;
+						}
+						.omnibar-popup-wrapper {
+							.dual-view-wrapper.view-editor.device-desktop {
+								.editor-area {
+									width: calc(100% - 20px);
+								}
+							}
 						}
 						.omnibar-popup-wrapper {
 								&.locked {

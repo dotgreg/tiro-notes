@@ -253,6 +253,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 },
                                 exportToGraph: els => {
                                         let csvString = exportDataToCsv(els)
+                                        console.log('csvString:', csvString, els)
                                         const configFloatingWindow = {
                                                 type: "ctag",
                                                 layout: "top",

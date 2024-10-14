@@ -734,7 +734,7 @@ let genTableComponent = ({items, config, id}) => {
   const api = window.api;
   const startMainLogic = () => {
     let int = setInterval(() => {
-      if (!window.ReactDOM || !ReactDOM || !React) return;
+      if (!window.ReactDOM || !ReactDOM || !React || !ReactDOM.createRoot) return;
       clearInterval(int)
       const r = React;
       const c = r.createElement;
@@ -747,16 +747,18 @@ let genTableComponent = ({items, config, id}) => {
   }
   api.utils.loadRessources(
       [
-        // "https://unpkg.com/react@18/umd/react.development.js",
-        // "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
-        // "https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js",
-        // "https://cdn.jsdelivr.net/npm/react-dom@18.2.0/index.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js",
-        "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
-
       ],
       () => {
-          startMainLogic()
+          api.utils.loadRessources(
+            [
+              "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
+
+            ], () => {
+                startMainLogic()
+              
+            }
+          )
       }
   );
   

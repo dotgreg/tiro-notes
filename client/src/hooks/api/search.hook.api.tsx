@@ -88,7 +88,7 @@ export const useSearchApi = (p: {
 		// replace all special chars like + or * by \\char
 
 		// replace chars like +, *, . etc by \\char
-		// word = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+		word = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // necessary to seach things like [ev without having to type //[ev
 		// replace . by \\.
 
 		console.log(`${h} searching WORD ${word} in ${folder}`, options);

@@ -149,9 +149,18 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     }, 200)
                     const tableAndViewerExists = () => viewer && WORKER
                     const startLoading = async () => {
-                        if (!items) items = [{" ":""}]
+                        if (!items) items = [{"_":""}]
+                        // if inside items, we have cols name with empty string, remove them
+                        items = items.map(i => {
+                            Object.keys(i).forEach(k => {
+                                if (k === "") delete i[k]
+                            })
+                            return i
+                        })
+
                         const table = await WORKER.table(items);
                         console.log(hl,"loading items", items, table)
+
 
                         try {
                             if (!initLoaded) {
@@ -743,7 +752,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 #perspective-config-toggle {
                     position: absolute;
                     opacity: 0.1;
-                    top: 2px;
+                    top: 7px;
                     left: 8px;
                     cursor: pointer;
                     z-index: 10;
@@ -753,7 +762,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 .settings-wrapper {
                     // display: flex;
                     margin-left: 30px;
-                    padding: 0px 20px;
+                    padding: 5px 20px;
                     font-size: 10px;
                 }
                 
