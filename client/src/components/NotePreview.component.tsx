@@ -12,7 +12,7 @@ import { getOperatingSystem } from '../managers/device.manager';
 export type iNotePreviewType = "editor"|"preview"
 export const NotePreviewInt = (p: {
 	file: iFile
-	view:iViewType
+	view?:iViewType
 	searchedString?: string
 	replacementString?: string
 	height?: number
@@ -27,7 +27,7 @@ export const NotePreviewInt = (p: {
 	onLayoutUpdate?: iLayoutUpdateFn
 }) => {
 	const [content, setContent] = useState("");
-	const [view, setView] = useState<iViewType>(p.view);
+	const [view, setView] = useState<iViewType|undefined>(p.view);
 
 	let loadEditorContent = useDebounce(() => {
 		getApi(api => {
@@ -78,7 +78,7 @@ export const NotePreviewInt = (p: {
 					file:p.file,
 					// active:false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
 					active:p.isActive || false, // keep it false, otherwise will trigger itself as active and mess with lastFilesHistory
-					view:p.view,
+					view:p.view || "editor", // it is overrideable by user last view choice for that note
 				}}
 				forceView={p.view}
 				canEdit={true}

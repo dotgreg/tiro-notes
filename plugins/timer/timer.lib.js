@@ -18,12 +18,12 @@ const logTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:strin
 }
 const startTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:string*/, timeMin/*:number*/, barApi/*:?any*/,) => {
     let mins = timeMin
+    timerLib.addToHistory(tiroApi, history, name, mins)
     let timer = parseInt(mins) * 60 * 1000
     let endTimestamp = new Date().getTime() + timer
     let startTimestamp = new Date().getTime()
     tiroApi.plugins.cronCache.set(cronCacheName, {endTimestamp, startTimestamp, isEnabled: true, catName:name})
     tiroApi.ui.notification.emit({id:notifUniqId,content: `Stopping old timers and starting timer for ${mins} minutes for category ${name} `, options:{hideAfter: 65}})
-    timerLib.addToHistory(tiroApi, history, name, mins)
     if(barApi) barApi.close()
 }
 const stopTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, barApi/*:?any*/) => {

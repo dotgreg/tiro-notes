@@ -132,7 +132,7 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         <style>
         #datatable-ctag {
-                height: calc(100vh - 40px);
+                height: calc(100vh - 32px);
                 background: white;
         } 
         #datatable-ctag #datatable-ctag-form { 

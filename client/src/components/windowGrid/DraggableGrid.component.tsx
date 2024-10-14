@@ -412,7 +412,7 @@ export const DraggableGrid = (p: {
 									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
 											content={p.grid.content[i] && p.grid.content[i]}
-											forceView={p.grid.content[i] && p.grid.content[i].view}
+											// forceView={p.grid.content[i] && p.grid.content[i].view}
 											onLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>

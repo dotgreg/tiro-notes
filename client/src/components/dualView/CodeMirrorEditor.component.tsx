@@ -726,6 +726,12 @@ export const codeMirrorEditorCss = (p?:{searchBottom?:number}) => {
 	if (!searchBottom) searchBottom = 0
 	if (isA('mobile')) searchBottom = 40
 	return `
+
+	.view-both.device-desktop .actionable-title {
+		cursor: pointer;
+	}
+
+
 	.draggable-grid-wrapper .cm-tooltip {
 		transform: inherit!important;
 	}
@@ -825,7 +831,6 @@ export const codeMirrorEditorCss = (p?:{searchBottom?:number}) => {
 			color: ${cssVars.colors.main};
 			display: inline-block;
 			position: relative;
-			cursor: pointer;
 
 			&:hover {
 					&:before {
