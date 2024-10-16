@@ -301,10 +301,24 @@ export const usePromptPopup = (p: {
 		// if some fields are empty, add them to formFieldsValues with empty string
 		formFields.forEach(field => {
 			// if type is date, date is today
-			if (field.type === "date" && !formFieldsValues.current[field.id]) {
-				formFieldsValues.current[field.id] = new Date().toISOString().split('T')[0]
+			if (field.type === "date" ) {
+				// if (!formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date().toLocaleDateString('fr-FR')  
+				// else formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleDateString('fr-FR')
+				if (formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleDateString('fr-FR')  
 			}
+			if (field.type === "datetime" ) {
+				// if (!formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date().toLocaleString('fr-FR')  
+				// else formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleString('fr-FR')
+				if (formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleString('fr-FR')
+				// split the last 3 chars (seconds)
+				formFieldsValues.current[field.id] = formFieldsValues.current[field.id].substring(0, formFieldsValues.current[field.id].length - 3)	
+			}
+			// if (field.type === "datetime" && !formFieldsValues.current[field.id]) {
+			// 	// date format should be dd/mm/yyyy
+			// 	formFieldsValues.current[field.id] = new Date().toLocaleDateString('fr-CA')  
+			// }
 		})
+
 
 		// check if all fields are filled
 		let mandatoryFieldsEmpty:string[] = []
@@ -345,8 +359,12 @@ export const usePromptPopup = (p: {
 		each(formFieldsValues.current, (val, key) => {
 			// const regex = new RegExp(`{{${key}\|.*?}}`, 'g')
 			// replace {{FIELDID(|type|description)?}} with formValues.FIELDID
-			const regex = new RegExp(`{{${key}.*?}}`, 'g')
+			// be careful to ONLY replace when {{FIELDID| is matched , not {{FIELDID2| for instance
+			console.log(val, key)
+			const regex = new RegExp(`{{${key}\\|.*?}}`, 'g')
 			finalStringToInsert = finalStringToInsert?.replace(regex, val)
+			const regex2 = new RegExp(`{{${key}}}`, 'g')
+			finalStringToInsert = finalStringToInsert?.replace(regex2, val)
 		})
 
 		// replace {{datetime}} with current datetime in format 31/12/2021 12:00

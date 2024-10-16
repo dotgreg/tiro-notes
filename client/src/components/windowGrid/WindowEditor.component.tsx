@@ -37,18 +37,14 @@ export const WindowEditorInt = (p: {
 	const windowId = i
 
 	useEffect(() => {
-		console.log(1111, p.forceView)
 		if (p.forceView) return setIntViewType(p.forceView)
-		console.log(1111, p.forceView)
 		setIntViewType(view) // important if not, might not be updated all the time
 		// get the backend cached view type
 		getNoteView(file?.path as string).then(res => {
-			console.log(2222, res)
 			if (res) setIntViewType(res)
 			else setIntViewType("editor") // on creation
 		})
 	}, [view, file?.path, windowId, p.forceView, p.content.file?.path])
-	console.log("4444444", file?.path)
 
 	// Reload content funct
 	const [showContent, setShowContent] = useState(true)
