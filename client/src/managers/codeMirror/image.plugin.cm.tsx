@@ -67,7 +67,6 @@ export const generateImagePreviewHtml2 = (fullMd: string, relSrc:string, caption
 		styleStr =`style="${cnf[0]}:${cnf[1]}; ${otherProp}"`
 	}
 	url = cleanUrl(url)
-	console.log(333, url, relSrc, cFile.folder, absoluteLinkPathRoot(cFile.folder))
 	return `<div class="cm-mdpreview-wrapper image-wrapper"><div class="cm-mdpreview-image" data-file-path="${cFile.path}" data-src="${url}" onclick="${ssrFn("image-open-lightbox", openLightBoxFn)}"> <img ${styleStr} src="${url}" /></div></div>${caption}`
 
 }

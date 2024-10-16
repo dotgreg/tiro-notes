@@ -6,7 +6,7 @@ import { getFontSize } from '../managers/font.manager';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
 export type iInputSelectOptionObj = OptionObj
-export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea' | 'date'
+export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea' | 'date' | 'datetime'
 
 
 export const Input = (p: {
@@ -53,7 +53,10 @@ export const Input = (p: {
 	if (p.type === 'date' && !value) {
 		defaultVal = new Date().toISOString().split('T')[0]
 	}
-
+	let typeField:any = p.type
+	if (p.type === 'datetime') {
+		typeField = 'datetime-local'
+	} 
 	const labelClicked = () => {
 		if(p.type==="checkbox") {
 			inputRef.current.checked = !inputRef.current.checked
@@ -80,7 +83,7 @@ export const Input = (p: {
 			<div className="input-wrapper">
 				{p.type !== 'select' && p.type !== 'textarea' && <input
 					ref={inputRef}
-					type={p.type ? p.type : 'text'}
+					type={typeField ? typeField : 'text'}
 					defaultValue={defaultVal}
 					value={value}
 					checked={isChecked}
