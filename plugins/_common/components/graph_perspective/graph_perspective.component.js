@@ -161,14 +161,52 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         // view no table > no view
                         // view table > view
                         console.log(hl,{views, tablesArr, expectedTables, expectedTablesReached, viewExists, tableExists, withView, viewExists, tableExists})
+
+                        // get config, for
+                        // workspace.ctag.updateTitlesViewsConfig(newTableId, filename, () => {
                         if (!withView) return
                         // if (viewExists && !tableExists) return
                         if (!expectedTablesReached) return
-                        const viewerConfig = {table:newTableId, title:filename}
+                        // const viewerConfig = {table:newTableId, title:filename}
+                        const viewerConfig = {table:newTableId, title:`view-${newTableId}`}
                         workspace.addViewer(viewerConfig)
+                        // })
                     })
                 }
+                // // when loading a new csv file, update the titles of the views
+                // workspace.ctag.updateTitlesViewsConfig = (tableName, newFileName, cb) => {
+                //     workspace.ctag.getConfig((config) => {
+                //         for (let view in config?.viewers) {
+                //             if (config.viewers[view].table === tableName) {
+                //                 config.viewers[view].title = newFileName
+                //             }
+                //         }
+                //         workspace.ctag.setConfig(config, cb)
+                //     })
+                // }
+                setInterval(() => {
+                    workspace.ctag.getConfig(cnf => {
+                        console.log(JSON.stringify(cnf))
+                    })
+                }, 10000)
 
+                workspace.ctag.removeTables = (cb) => {
+                    console.log(hl,"removeTables")
+                    workspace.ctag.getConfig(oldConf => {
+                        console.log(hl,"removeTables", oldConf)
+                        // let tempConf = JSON.parse(JSON.stringify(oldConf))
+                        // tempConf.viewers = {}
+                        let tempConf = JSON.parse(`{"sizes":[1],"detail":{"main":null},"mode":"globalFilters","viewers":{}}`)
+                        console.log(hl,"removeTables", tempConf)
+                        workspace.ctag.setConfig(tempConf, () => {
+                            let tables = workspace.ctag.getTables()
+                            for (let table of tables) {
+                                workspace.removeTable(table)
+                            }
+                            workspace.ctag.setConfig(oldConf, cb)
+                        })
+                    })
+                }
                 workspace.ctag.getViews = (cb) => {
                     workspace.save().then((config) => {
                         let views = []
@@ -245,7 +283,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         workspace.restore(config).then(() => {
                             if (cb) cb()
                         },(res) => { 
-                            api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${JSON.stringify(res)}" for config: <br><br><code>${configString}</code>`, options:{hideAfter: 120}}])    
+                            api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${JSON.stringify(res)}" for config: <br><br><code>${JSON.stringify(config)}</code>`, options:{hideAfter: 120}}])    
                         })
                     } catch (error) {
                         console.warn(hl, "Error setting config", error)
@@ -276,6 +314,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 const configSelect = document.getElementById("perspective-config-select");
                 const configSave = document.getElementById("perspective-config-save");
                 const configDelete = document.getElementById("perspective-config-delete");
+                const configDeleteTables = document.getElementById("perspective-config-delete-tables");
                 const configSourceTitle = document.getElementById("perspective-config-source-title");
                 const configRefresh = document.getElementById("perspective-config-refresh");
                 const configOpenPlotly = document.getElementById("perspective-send-to-plotly");
@@ -415,6 +454,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         }
                     });
                 });
+                configDeleteTables.addEventListener("click", () => {
+                    workspace.ctag.removeTables(() => {
+                    })
+                })
                 configDelete.addEventListener("click", () => {
                     let name = configSelect.value
                     if (name) {
@@ -645,7 +688,16 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             data = data.replace(/;/g, ",")
                         }
 
-                        workspace.ctag.addTable(file.name, data, true)
+                        // checkbox replace data is checked?
+                        let shouldReplaceData = document.getElementById("perspective-config-replace-existing-data").checked
+
+                        if (shouldReplaceData) {
+                            workspace.ctag.removeTables(() => {
+                                workspace.ctag.addTable(file.name, data, true)
+                            })
+                        } else {
+                            workspace.ctag.addTable(file.name, data, true)
+                        }
 
                     };
                     // Read the contents of the file - triggering the onload when finished.
@@ -689,10 +741,13 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     
                     <button id="perspective-send-to-plotly"> 📊 more </button>
                     <button id="perspective-config-help"> ? </button>
+                    |
                     <div class="upload-wrapper">
-                        <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
+                        <label for="perspective-config-file-upload" class="btn">📁 Data: select csv</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" multiple type="file">
                     </div>
+                    <input type="checkbox" id="perspective-config-replace-existing-data"> Upload replaces data
+                    <button id="perspective-config-delete-tables"> flush data </button>
                 </div>
             </div>
             <perspective-workspace id='workspace' ></perspective-workspace>
@@ -746,8 +801,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 .settings-wrapper .config-wrapper .upload-wrapper {
                     // margin-top: 5px;
                     cursor: pointer;
-                    display: inline;
-                    margin-left: 20px;
+                    // display: inline;
+                    // margin-left: 20px;
+                        display: -webkit-inline-box;
+                        margin-left: 20px;
+                        width: 110px;
+                        height: 10px;
                 }
 
                 .upload-file-name {
