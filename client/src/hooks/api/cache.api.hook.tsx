@@ -69,7 +69,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	const getCachedStorage = (cacheId: string) => `${cacheFolderPath}/cache-api-storage-${safeString(cacheId)}.md`
 	const getCachedStorageAsync = (cacheId: string, cb?: (res: string) => void):string => {
-		if (cb) cb(getCachedStorage(cacheId))
+		cb(getCachedStorage(cacheId))
 		return getCachedStorage(cacheId)
 	}
 	const cachedRamDic = useRef<iCachedDic>({})
