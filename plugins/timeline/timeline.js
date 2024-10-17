@@ -1,11 +1,50 @@
 const timelineApp = (innerTagStr, opts) => {
         
+const helpStrTable = `
+<h3>Timeline Component</h3>
+<p>This is the Timeline component. It allows you to display a timeline of events in your document.</p>
+<h4>Modes</h4>
+<p>FILES mode: (default) You can either search words and display the files which contains them in the timeline</p>
+<p>TAGS mode: you can search for lines in a folder. Each line will create a unique timeline event</p>
+
+<h4>FILES mode</h4>
+<p> To look for all files including #important_event in the folder /main/ : </p>
+<pre><code>
+[[timeline]]
+#important_event | /main/
+[[timeline]]
+
+</code></pre>
+
+<h4>TAGS mode</h4>
+<p> the format of the line is the following : [timeline| my event | 30/11/22|365|formation]</p>
+<p> which can be decomposed as follow: [timeline| title| start date| duration in days| event group]</p>
+
+<p> To create a timeline event, you need to create a line in your document with the following format:</p>
+<p> it will look for lines in the folder /main/ and /journal/ starting by the word "[event|"</p>
+<pre><code>
+[[timeline]]
+mode:tag
+[event| /main/
+[event| /journal/
+[[timeline]]
+
+</code></pre>
+
+`
+
         ///////////////////////////////////////////////////
         // 3.1 FILTER INPUT
         //
         const inputFilterHtml = `
         <style>
 
+        #timeline-ctag #filter-graph-wrapper #filter-files-wrapper{
+                display:none;
+        }
+        #timeline-ctag.mode-files #filter-graph-wrapper #filter-files-wrapper{
+                display:block;
+        }
         #timeline-ctag.is-mobile #filter-graph-wrapper{
                         opacity: 1;
         }
@@ -20,7 +59,7 @@ const timelineApp = (innerTagStr, opts) => {
 
         #filter-graph-wrapper {
                         position: absolute;
-                        right: 10px;
+                        right: 20px;
                         top: 10px;
                         z-index: 10;
         }
@@ -49,17 +88,26 @@ const timelineApp = (innerTagStr, opts) => {
         }
         </style>
         <div id="filter-graph-wrapper">
-                <input
-                        type="text"
-                        id="filter-graph"
-                        placeholder="Type to filter"
-                />
-                <div id="filter-best-guess"></div>
-                <div id="filter-toggle-hover">
-                        <input type="checkbox" id="filter-toggle" />
-                        <label for="filter-toggle">Hover</label>
+                <div id="filter-files-wrapper">
+                        <input
+                                type="text"
+                                id="filter-graph"
+                                placeholder="Type to filter"
+                        />
+                        <div id="filter-best-guess"></div>
+                        <div id="filter-toggle-hover">
+                                <input type="checkbox" id="filter-toggle" />
+                                <label for="filter-toggle">Hover</label>
+                        </div>
+                </div>
+                <div id="other-wrapper">
+                        <button id="help-button" onclick="window.onHelpClick()">?</button>
                 </div>
         </div>`
+
+        window.onHelpClick = () => {
+                api.call("popup.show", [helpStrTable, "Table Help"])
+        }
         
         const normalizeStr = str => str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
 
@@ -82,7 +130,6 @@ const timelineApp = (innerTagStr, opts) => {
                 api.call("cache.set", [cId, content, 10000000])
         }
         const initFilterInput = ( ) => {
-                // console.log("initFilterInput")
                 const filterWrapper = document.getElementById('filter-graph-wrapper');
                 const filterInput = document.getElementById('filter-graph');
                 const bestGuessEl = document.getElementById('filter-best-guess');
@@ -90,9 +137,7 @@ const timelineApp = (innerTagStr, opts) => {
                 // caching in LS filter
                 const filterIdCache = "filter-cache"
                 const fetchAndSearchFilterValue = () => {
-                        // console.log("=> fetch filter value from backend");
                         getCache(initValueFilter => {
-                                // console.log("initValueFilter", initValueFilter)
                                 if (initValueFilter) {
                                         const filterInput = document.getElementById('filter-graph');
                                         filterInput.value = initValueFilter
@@ -153,7 +198,6 @@ const timelineApp = (innerTagStr, opts) => {
                 api.call("ui.floatingPanel.openFile", [itemClicked.filePath, { searchedString:itemClicked.itemRawStr, idpanel: "id-panel-timeline-preview", layout:"bottom-right"}])
         }
         const timelineRender = (itemsArr, groupsNames) => {
-                console.log("timelineRender", itemsArr, groupsNames)
                 const wrapperEl = document.getElementById("timeline-ctag-inner")
 
                 // delete everything inside wrapperEl
@@ -197,9 +241,7 @@ const timelineApp = (innerTagStr, opts) => {
                         openFileInWindow(itemClicked, itemsArr)
                 });
                 timeline.on('itemover', function (properties) {
-                        // console.log(hoverState, properties)
                         if (!hoverState.enabled) return
-                        // console.log(properties)
                         // activate the item
                         timeline.setSelection(properties.item)
                         let itemClicked = itemsArr.filter(el => el.id === properties.item)[0]
@@ -223,6 +265,7 @@ const timelineApp = (innerTagStr, opts) => {
                 let id = 0
                 let configCount = 0
 
+                console.log("TIMELINE",configArr, "configArr", currentMode)
 
                 if (currentMode === "files") {
                         groupsNames.push("files")
@@ -230,10 +273,7 @@ const timelineApp = (innerTagStr, opts) => {
                                 searchWord(config.wordToSearch, config.pathToSearch, searchRes => {
                                         console.log(searchRes, "searchRes", config.wordToSearch, config.pathToSearch)
                                         for (const [filePath, fileResult] of Object.entries(searchRes)) {
-                                                // console.log(fileResult)
-                                                // console.log(fileResult.file.created)
                                                 // file.results.forEach(l => {
-                                                //         console.log(l)
                                                 // })
                                                 const startDate = new Date(fileResult.file.created)
                                                 id++
@@ -317,8 +357,15 @@ const timelineApp = (innerTagStr, opts) => {
                                                                 className: "show-title-item",
                                                                 itemRawStr: itemRawStr,
                                                         }
-                                                        if (!isPonctual) nItem.end = endDate.toISOString().split('T')[0]
-                                                        itemsArr.push(nItem)
+                                                        console.log(nItem, "nItem")
+                                                        try {
+                                                                if (!isPonctual) nItem.end = endDate.toISOString().split('T')[0]
+                                                                itemsArr.push(nItem)
+                                                        } catch (error) {
+                                                                
+                                                                console.log('ERROR with item', nItem, error)
+
+                                                        }
                                                         
                                                 })
                                         }
@@ -333,8 +380,6 @@ const timelineApp = (innerTagStr, opts) => {
 
         const startMainLogic = () => {
                 const api = window.api;
-                initFilterInput()
-                initHoverToggle()
 
                 //
                 // config innerTagStr or default
@@ -344,23 +389,24 @@ const timelineApp = (innerTagStr, opts) => {
                 // let configArr = [{wordToSearch: "[timeline", pathToSearch: api.utils.getInfos().file.folder}]
                 let configArr = []
                 let currentMode = "files"
-                let innerTarArr = innerTagStr.split("\n")
-                if (innerTarArr.length > 0) configArr.length = 0
+                let innerTagArr = innerTagStr.split("\n")
+                if (innerTagArr.length > 0) configArr.length = 0
                 // if first line start by mode:
-                if (innerTarArr[0].indexOf("mode:") > -1) {
-                        currentMode = innerTarArr[0].split(":")[1].trim()
-                        innerTarArr.shift()
+                if (innerTagArr[0].indexOf("mode:") > -1) {
+                        currentMode = innerTagArr[0].split(":")[1].trim()
+                        innerTagArr.shift()
                 }
 
-                for (let i = 0; i < innerTarArr.length; i++) {
-                        const line = innerTarArr[i];
+                for (let i = 0; i < innerTagArr.length; i++) {
+                        const line = innerTagArr[i];
                         if (line.indexOf("|") > -1) {
                                 wordToSearch = line.split("|")[0].trim()
                                 pathToSearch = line.split("|")[1].trim()
                                 configArr.push({wordToSearch, pathToSearch})
                         }
                 }
-                console.log("configArr", configArr, "mode", currentMode)
+                // if innerTagArr > 0, currentMode = tag
+                if (innerTagArr.length > 0) currentMode = "tag"
 
                 searchAndRenderTimeline(configArr, currentMode)
                 //
@@ -374,6 +420,13 @@ const timelineApp = (innerTagStr, opts) => {
 
                 
 
+                if (currentMode === "files") {
+                        initFilterInput()
+                        initHoverToggle()
+                        // add to #timeline-ctag the class mode-files
+                        document.getElementById("timeline-ctag").classList.add("mode-files")
+                }
+                
                                 
                 
         }

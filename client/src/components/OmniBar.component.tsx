@@ -94,26 +94,28 @@ export const OmniBar = (p: {
 		// each(nVal, o => {
 		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
 		// })
-		getApi(api => {
-			let ctab = api.tabs.active.get()
+		// getApi(api => {
+		// 	let ctab = api.tabs.active.get()
 
-			// drop already opened in current tab files from options in desktop
-			if (deviceType() !== "mobile") {
-				each(ctab?.grid.content, cont =>{
-					if(!cont.file) return
-					let oFile = cont.file
-					each(nVal, (o,i) => {
-						if (o && o.value && o.value === oFile.path) {	
-							delete nVal[i]
-							return false
-						}
-					})
-				})
-			}
+		// 	// drop already opened in current tab files from options in desktop
+		// 	if (deviceType() !== "mobile") {
+		// 		each(ctab?.grid.content, cont =>{
+		// 			if(!cont.file) return
+		// 			let oFile = cont.file
+		// 			each(nVal, (o,i) => {
+		// 				if (o && o.value && o.value === oFile.path) {	
+		// 					delete nVal[i]
+		// 					return false
+		// 				}
+		// 			})
+		// 		})
+		// 	}
 
-			onOptionsChange(nVal)
-			setOptionsInt(nVal)
-		})
+		// 	onOptionsChange(nVal)
+		// 	setOptionsInt(nVal)
+		// })
+		onOptionsChange(nVal)
+		setOptionsInt(nVal)
 	}
 
 	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
@@ -868,6 +870,8 @@ export const OmniBar = (p: {
 		// setLastNotesOptions(nOptions)
 		let initialFile = nOptions[0] ? nOptions[0].payload?.file : null
 		if (initialFile) setNotePreview(initialFile)
+		console.log("last notes22", nOptions)
+
 		setOptions(nOptions)
 	}
 
