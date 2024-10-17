@@ -111,8 +111,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
             async function initPerspective(cb) {
                 const viewer = document.getElementsByTagName("perspective-viewer")[0];
                 console.log("${hl} loading viewer for :", window._graph_perspective_props)
-                
-                cb(window.workspace, WORKER)
+                cb(viewer, WORKER)
             }
             window._initPerspective = initPerspective
         `;
@@ -135,53 +134,75 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         // AFTER INIT PERSPECTIVE (required by async/module code)
         //
         const afterInitPerspective = () => {
-            window._initPerspective((workspace/*:iGraphPerspectiveViewerWrapper*/, WORKER/*:any*/) => {
+            window._initPerspective((viewer/*:iGraphPerspectiveViewerWrapper*/, WORKER/*:any*/) => {
                 let initLoaded = false;
                 //
-                // workspace OBJ EXTENSION
+                // VIEWER OBJ EXTENSION
                 //
-                // if workspace does not exists, create empty obj
-                // if (!workspace) workspace = {}
-                workspace.ctag = {}
-                workspace.ctag.addTable = async (filename, data, withView=true ) => {
-                    console.log(hl,"addTableView", filename, {data})
-                    if (!data) data = [{"_":""}]
-                    // if inside items, we have cols name with empty string, remove them
-                    console.log(data)
-                    // data = data.map(i => {
-                    //     Object.keys(i).forEach(k => {
-                    //         if (k === "") delete i[k]
-                    //     })
-                    //     return i
-                    // })
-                    
-                    workspace.addTable(
-                        filename,
-                        WORKER.table(data)
-                    );
-                    if (withView) {
-                        const viewerConfig = {table:filename, title:filename}
-                        workspace.addViewer(viewerConfig)
+                viewer.loadItems = (items, cb) => {
+                    let int = setInterval(() => {
+                        console.log(hl,"waiting for viewer and worker...")
+                        if (!viewer) return
+                        if (!WORKER) return
+                        clearInterval(int)
+                        startLoading()
+                    }, 200)
+                    const tableAndViewerExists = () => viewer && WORKER
+                    const startLoading = async () => {
+                        if (!items) items = [{"_":""}]
+                        // if inside items, we have cols name with empty string, remove them
+                        items = items.map(i => {
+                            Object.keys(i).forEach(k => {
+                                if (k === "") delete i[k]
+                            })
+                            return i
+                        })
+
+                        const table = await WORKER.table(items);
+                        console.log(hl,"loading items", items, table)
+
+
+                        try {
+                            if (!initLoaded) {
+                                initLoaded = true;
+                                viewer.load(table);
+                                viewer.toggleConfig();
+                                if (cb) cb()
+                            } else {
+                                    
+                                    viewer.flush().then(() => {
+                                        viewer.removeAttribute('view');
+                                        viewer.removeAttribute('columns');
+                                        viewer.removeAttribute('row-pivots');
+                                        viewer.removeAttribute('column-pivots');
+                                        viewer.removeAttribute('aggregates');
+                                        viewer.removeAttribute('sort');
+                                        viewer.removeAttribute('filters');
+            
+                                        viewer.load(table);
+                                        viewer.toggleConfig();
+                                        if (cb) cb()
+                                    }).catch((e) => {
+                                        console.warn(hl,"Error loading 2", e)
+                                    });
+                            }
+                        } catch (error) {
+                            // alert("Error setting config", JSON.stringify(error))
+                            console.log(hl, "Error loading 1", error)
+                        }
+                        
                     }
-                    let tables = workspace.ctag.getTables()
-                    console.log(hl,"tables", tables)
                 }
-                workspace.ctag.getTables = () => {
-                    let arr = []
-                    workspace.workspace.tables.forEach((v, k) => {
-                        arr.push(k)
-                    })
-                    return arr
+                viewer.loadFileUrl = (fileUrl/*:string*/, cb) => {
                 }
-                workspace.loadFileUrl = (fileUrl/*:string*/, cb) => {
-                    // @TODO
+                viewer.updateTitle = (newTitle/*:string*/) => {
                 }
 
-                // @BROKEN export current view to csv string
-                workspace.exportToCsvString = (cb) => {
+                // export current view to csv string
+                viewer.exportToCsvString = (cb) => {
                     console.log(hl,"exportToCsvString")
                     try {
-                        workspace.getView().then((view) => {
+                        viewer.getView().then((view) => {
                             view.to_csv().then((csvString) => {
                                 cb(csvString)
                             });
@@ -196,6 +217,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     
                 }
 
+
+
+                // function weekOfYear(day, month, year) {
+                //     let date = new Date(year, month - 1, day);
+                //     let startDate = new Date(date.getFullYear(), 0, 1);
+                //     let days = Math.floor((date - startDate) / (24 * 60 * 60 * 1000)) + ((startDate.getDay() + 6) % 7);
+                //     return Math.ceil(days / 7) + 1;
+                // }
                 function weekOfYear(day, month, year) {
                     const date = new Date(year, month - 1, day);
                     const firstDayOfYear = new Date(year, 0, 1);
@@ -220,25 +249,28 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     configStr = configStr.replace("{{month}}", month).replace("{{year}}", year).replace("{{day}}", day).replace("{{week}}", week)
                     return configStr
                 }
-
-                workspace.ctag.setConfig =  (config, cb) => {
-                    console.log(hl,"setConfig", {config} )
-                    try {
-                        workspace.restore(config).then(() => {
-                            if (cb) cb()
-                        },(res) => { 
-                            api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${JSON.stringify(res)}" for config: <br><br><code>${configString}</code>`, options:{hideAfter: 120}}])    
-                        })
+                viewer.setConfig = (configString) => {
+                    if (!initLoaded) return
+                try {
+                        configString = enrichViewConfigStr(configString)
+                        const configObj = JSON.parse(configString);
+                        viewer.restore(configObj).then(
+                            (res) => { 
+                            },(res) => { 
+                                api.call("ui.notification.emit",[{id:"notif-id-graph-perspective",content:`<h3>Error setting config</h3>  answer: "${JSON.stringify(res)}" for config: <br><br><code>${configString}</code>`, options:{hideAfter: 120}}])    
+                            }
+                        );
                     } catch (error) {
+                        // alert("Error setting config", JSON.stringify(error))
+                        // ddd
+                        
                         console.warn(hl, "Error setting config", error)
                     }
                 }
-                workspace.ctag.getConfig = (cb) => {
-                    // workspace.save().then((config) => {cb(JSON.stringify(config, null, 4))})
-                    workspace.save().then((config) => {cb(config)})
+                viewer.getConfig = (cb) => {
+                    viewer.save().then((config) => {cb(JSON.stringify(config))})
                 }
-                // workspace.ctag.loadItems(window._graph_perspective_props.items);
-                workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
+                viewer.loadItems(window._graph_perspective_props.items);
 
 
 
@@ -263,7 +295,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 const configOpenPlotly = document.getElementById("perspective-send-to-plotly");
                 const configtogglePanel = document.getElementById("perspective-config-toggle");
                 const configHelp = document.getElementById("perspective-config-help");
-                const editConfig = document.getElementById("perspective-config-edit");
                 const fileUpload = document.getElementById("perspective-config-file-upload");
 
                 
@@ -298,26 +329,13 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     // console.log("setting cache1", id, views, views.length, viewsIdToRemove)
                     views = views.filter(v => !viewsIdToRemove.includes(v.name))
                     // console.log("setting cache2", id, views, views.length)
-					api.call("cache.set", [id, views, -1, {uncompressed: true}], () => {if(cb) cb()}) 
+					api.call("cache.set", [id, views, -1], () => {if(cb) cb()}) 
 				}
 				const cacheViewsId = `lib-graph-perspective-${api.utils.getInfos().file.path}`
 
                 // window._graph_perspective_props
 				const getViewsCache = getCache(cacheViewsId)
 				const setViewsCache = setCache(cacheViewsId)
-				const openCacheFileEditor = (searchedString/*:string*/) => {
-					api.call("cache.getCachePath", [cacheViewsId], (path) => {
-                        console.log(hl,"openCacheFileEditor", path)
-                        let layout = "right"
-                        api.call("ui.floatingPanel.openFile", [path, { 
-                                searchedString:searchedString, 
-                                idpanel: "id-panel-graph-config-editor", 
-                                view: "editor",
-                                layout
-                        }])
-
-                    }) 
-                }
                 
 
 
@@ -332,9 +350,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 //
                 // add event listeners
                 configSelect.addEventListener("change", (e) => {
-                    workspace.restore(e.target.value);
+                    viewer.restore(e.target.value);
                 });
-                saveNewView = (view/*:iView*/, cb/*:Function*/) => {
+                const saveNewView = (view/*:iView*/, cb/*:Function*/) => {
                     getViewsCache(
                         views => {
                             // if name already exists, overwrite it
@@ -345,7 +363,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             // reorder views by name 
                             views = views.sort((a, b) => a.name.localeCompare(b.name))
                             
-                            console.log(hl,"saving view", view, views)
                             setViewsCache(views, cb)
                         },
                         () => {
@@ -371,7 +388,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             configSelect.innerHTML = views.map(v => `<option value="${v.name}">${v.name}</option>`).join("")
                             if (views.length > 0) {
                                 updateSelectActiveOption(viewsSync.selectedName)
-                                workspace.setConfig(viewsSync.selectedName)
+                                viewer.setConfig(viewsSync.selectedName)
                             }
                             if (cb) cb(views)
                         },
@@ -381,12 +398,22 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         }
                     )   
                 }
-                workspace.reloadViewsSelect = reloadViewsSelect
-                workspace.deleteView = deleteView
+                viewer.reloadViewsSelect = reloadViewsSelect
+                viewer.saveNewView = saveNewView
+                viewer.deleteView = deleteView
 
+                configSourceTitle.addEventListener("click", () => {
+                    // toggle display of upload-file-name1 and upload-file-name2
+                    const uploadFileDiv = document.getElementById("upload-file-name1")
+                    if (uploadFileDiv.style.display === "none") {
+                        uploadFileDiv.style.display = "block"
+                    } else {
+                        uploadFileDiv.style.display = "none"
+                    }
+                })
                 // if config save, prompt for a name and save it
                 configSave.addEventListener("click", () => {
-                    workspace.ctag.getConfig((config) => {
+                    viewer.getConfig((config) => {
                         let name = prompt("Enter a name for the config - 📉📊🆂🧮⏳🕯️🥢🔥", viewsSync.selectedName);
                         if (name) {
                             console.log(hl,"saving config", name, config)
@@ -492,11 +519,45 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         views => {
                             const finalExpressionObj = {}
                             const views2 = [...defaultViews, ...views]
+                            //
+                            // loop through all views and get all expressions
+                            //
+                            views2.forEach(v => {
+                                v.config = enrichViewConfigStr(v.config)
+                                v.obj = JSON.parse(v.config)
+                                // for each v.obj.expressions method, add it to finalExpressionObj
+                                if (v.obj.expressions) {
+                                    Object.keys(v.obj.expressions).forEach(expressionName => {
+                                        finalExpressionObj[expressionName] = v.obj.expressions[expressionName]
+                                    })
+                                }
+                            })
+                           
+                            
+
                             const view = views2.find(v => v.name === viewName)
+                            //
+                            // foreach view, inject all expressions of its category
+                            //
                             if (view) {
-                                workspace.ctag.setConfig(view.config)
-                                workspace.ctag.lastConfigName = view.name
+                                // if view exists, parse it
+                                view.obj = JSON.parse(view.config)
+
+                                // if view starts with something- take that 
+                                const hasViewCat = viewName.split("-").length > 1
+                                const viewCatName = viewName.split("-")[0]
+                                if (hasViewCat) {
+                                    // loop inside finalExpressionObj for keys starting with viewCatName
+                                    const expressionsFromCat = Object.keys(finalExpressionObj).filter(k => k.startsWith(viewCatName + "-"))
+                                    // for each key, add it to view.obj.expressions ONLY if it does not exist already
+                                    expressionsFromCat.forEach(expressionName => {
+                                        if (!view.obj.expressions[expressionName]) view.obj.expressions[expressionName] = finalExpressionObj[expressionName]
+                                    })
+                                }
+                                // stringify it
+                                view.config = JSON.stringify(view.obj)
                             }
+                            if (view) viewer.setConfig(view.config)
                         }
                     )
                 }
@@ -524,7 +585,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     // const testData = "city,name, age, profession\n london, john, 23, engineer\nparis, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78, teacher\nparis, julie, 89, engineer\nlondon, jules, 90, doctor\nberlin, jill, 12, teacher\nparis, john, 23, engineer\nlondon, jane, 34, doctor\nberlin, jack, 45, teacher\n paris, jacques, 56, engineer\nlondon, jill, 67, doctor\nberlin, jules, 78,"
                     // graphPerspectiveLib.openPlotlyWindow(api, )
 
-                    workspace.exportToCsvString((csvStr) => {
+                    viewer.exportToCsvString((csvStr) => {
                         console.log(hl,"csvStr", csvStr)
                         // api.call("popup.show", [csvStr, "CSV Data"])
                         const idWindow = `plotly-window-graph-perspective-${api.utils.getInfos().file.path}`
@@ -554,24 +615,20 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     // config-wrapper hide/show
                     const configWrapper = document.querySelector(".config-wrapper")
                     if (configWrapper.style.display === "none") {
-                        workspace.toggleConfig(true)
+                        viewer.toggleConfig(true)
                         configWrapper.style.display = "block"
                         // hide #upload-file-name2
                         document.getElementById("upload-file-name2").style.display = "none"
                     }
                     else { 
                         configWrapper.style.display = "none"
-                        workspace.toggleConfig(false)
+                        viewer.toggleConfig(false)
                         // show #upload-file-name2
                         document.getElementById("upload-file-name2").style.display = "block"
                     }
                 });
                 
-
                 // HELP
-                editConfig.addEventListener("click", () => {
-                    openCacheFileEditor(workspace.ctag.lastConfigName)
-                })
                 configHelp.addEventListener("click", () => {
                     console.log(hl,"help")
                     api.call("popup.show", [helpStr, "Graph Perspective Help"])
@@ -599,20 +656,20 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 fileUpload.addEventListener("change", (e) => {
                     // console.log(123,e.target.files)
                     uploadFileName.current = e.target.files[0].name
-                    // uploadFileDiv = document.getElementById("upload-file-name1")
-                    // uploadFileDiv.innerHTML = `Source file: ${uploadFileName.current}`
-                    // uploadFileDiv2 = document.getElementById("upload-file-name2")
-                    // uploadFileDiv2.innerHTML = `Source file: ${uploadFileName.current}`
+                    uploadFileDiv = document.getElementById("upload-file-name1")
+                    uploadFileDiv.innerHTML = `Source file: ${uploadFileName.current}`
+                    uploadFileDiv2 = document.getElementById("upload-file-name2")
+                    uploadFileDiv2.innerHTML = `Source file: ${uploadFileName.current}`
+
                     uploadFile(e.target.files[0]);
+
                     console.log("FILE UPLOADED >> ",e.target.files.length, api.utils.getInfos(), api)
-                    // remove file
-                    e.target.value = ""
                 })
                 
                 // upload file
                 function uploadFile(file) {
                     let reader = new FileReader();
-                    reader.onload =  async (fileLoadedEvent) => {
+                    reader.onload = function (fileLoadedEvent) {
                         console.log(hl,"file loaded", fileLoadedEvent)
                         let data = fileLoadedEvent.target.result;
                         // console.log(123333, data)
@@ -627,8 +684,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             data = data.replace(/;/g, ",")
                         }
 
-                        workspace.ctag.addTable(file.name, data, true)
-
+                        viewer.load(WORKER.table(data));
                     };
                     // Read the contents of the file - triggering the onload when finished.
                     if (file.name.endsWith(".feather") || file.name.endsWith(".arrow")) {
@@ -641,7 +697,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 ////////////////
                 // CALLBACK TO MAIN
 
-                window._graph_perspective_props.cb(workspace)
+                window._graph_perspective_props.cb(viewer)
             });
         }
 
@@ -658,16 +714,17 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         // // <button id="perspective-config-refresh"> 🔄 </button>
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
-            <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/@finos/perspective-workspace/dist/css/pro.css" /> 
+            
             <div class="settings-wrapper">
                 <button id="perspective-config-toggle"> ⚙️ </button>
+                <div id="upload-file-name2" class="upload-file-name" ></div>	
                
                 <div class="config-wrapper">
                     📊 View: <select id="perspective-config-select"> </select> 
                     <div id="views-buttons-wrapper"> </div>
                     <button id="perspective-config-save"> 💾 </button>
                     <button id="perspective-config-delete"> ❌ </button>
-                    <button id="perspective-config-edit"> 📝 </button>
+                    <button id="perspective-config-source-title"> 🏷️ </button>
                     
                     <button id="perspective-send-to-plotly"> 📊 more </button>
                     <button id="perspective-config-help"> ? </button>
@@ -675,15 +732,11 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         <label for="perspective-config-file-upload" class="btn">📁 Data: select file</label>
                         <input id="perspective-config-file-upload" style="visibility:hidden;" multiple type="file">
                     </div>
+                    <div id="upload-file-name1" class="upload-file-name" ></div>	
                 </div>
             </div>
-            <perspective-workspace id='workspace' ></perspective-workspace>
+            <perspective-viewer editable style="width: calc(100%);height: 100%;"> </perspective-viewer>
                 <style>
-                .p-Menu {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                }
                 #ctag-component-advanced-table-wrapper {
                     height: 100%;
                     display: flex;
@@ -711,7 +764,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     margin-left: 30px;
                     padding: 5px 20px;
                     font-size: 10px;
-                    margin-top: 30px;
                 }
                 
 
@@ -778,7 +830,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-openlayers/dist/cdn/perspective-viewer-openlayers.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-workspace@3.0.0/dist/cdn/perspective-workspace.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
             `${p.parentVars.opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.lib.js`,
