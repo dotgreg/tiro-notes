@@ -121,8 +121,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         setTimeout(() => {
             document.head.appendChild(script);
             // type module
-
-            
             const int = setInterval(() => {
                 if (window._initPerspective) {
                     clearInterval(int)
@@ -143,28 +141,47 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // if workspace does not exists, create empty obj
                 // if (!workspace) workspace = {}
                 workspace.ctag = {}
-                workspace.ctag.addTable = async (filename, data, withView=true ) => {
+                workspace.ctag.addTable = async (filename, data, withView=true) => {
                     console.log(hl,"addTableView", filename, {data})
                     if (!data) data = [{"_":""}]
-                    // if inside items, we have cols name with empty string, remove them
-                    console.log(data)
-                    // data = data.map(i => {
-                    //     Object.keys(i).forEach(k => {
-                    //         if (k === "") delete i[k]
-                    //     })
-                    //     return i
-                    // })
-                    
+                    let tablesArr = workspace.ctag.getTables()
+                    let newTableId = `table${tablesArr.length + 1}`
                     workspace.addTable(
-                        filename,
+                        newTableId,
                         WORKER.table(data)
                     );
-                    if (withView) {
-                        const viewerConfig = {table:filename, title:filename}
+                    workspace.ctag.getViews((views, expectedTables) => {
+                        // only add new view if 1) no view exists
+                        let viewExists = views.length > 0
+                        // if there is at least one table
+                        let tableExists = tablesArr.length > 0
+                        let expectedTablesReached = tablesArr.length >= expectedTables.length 
+                        // no view no table > add view
+                        // no view one table > add view
+                        // view no table > no view
+                        // view table > view
+                        console.log(hl,{views, tablesArr, expectedTables, expectedTablesReached, viewExists, tableExists, withView, viewExists, tableExists})
+                        if (!withView) return
+                        // if (viewExists && !tableExists) return
+                        if (!expectedTablesReached) return
+                        const viewerConfig = {table:newTableId, title:filename}
                         workspace.addViewer(viewerConfig)
-                    }
-                    let tables = workspace.ctag.getTables()
-                    console.log(hl,"tables", tables)
+                    })
+                }
+
+                workspace.ctag.getViews = (cb) => {
+                    workspace.save().then((config) => {
+                        let views = []
+                        console.log(hl,"getViews", config)
+                        let expectedTables = []
+                        for (let view in config?.viewers) {
+                            views.push(view)
+                            expectedTables.push(config.viewers[view].table)
+                        }
+                        // make expectedTables unique
+                        expectedTables = [...new Set(expectedTables)]
+                        cb(views, expectedTables)
+                    })
                 }
                 workspace.ctag.getTables = () => {
                     let arr = []
@@ -173,6 +190,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     })
                     return arr
                 }
+
                 workspace.loadFileUrl = (fileUrl/*:string*/, cb) => {
                     // @TODO
                 }
@@ -193,7 +211,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         console.warn(hl,"Error exporting to csv", error)
                         cb(``)
                     }
-                    
                 }
 
                 function weekOfYear(day, month, year) {
@@ -202,6 +219,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
                     return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
                 }
+
                 //////////////////////////////////
                 //
                 //
@@ -238,7 +256,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     workspace.save().then((config) => {cb(config)})
                 }
                 // workspace.ctag.loadItems(window._graph_perspective_props.items);
-                workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
+                // workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
 
 
 
@@ -685,7 +703,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     left: 0;
                 }
                 #ctag-component-advanced-table-wrapper {
-                    height: 100%;
+                    width: calc(100% - 15px);
+
+                    height: calc(100% - 1px);
                     display: flex;
                     flex-direction: column;
                 }
@@ -711,7 +731,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     margin-left: 30px;
                     padding: 5px 20px;
                     font-size: 10px;
-                    margin-top: 30px;
                 }
                 
 
