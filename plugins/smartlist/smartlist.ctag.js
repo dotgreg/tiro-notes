@@ -132,8 +132,28 @@ const smartlistApp = (innerTagStr, opts) => {
 
                 let configMetaCols = true
                 let hideConfigRows = false
+                let colsToHide = []
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
+
+                                // FIRST LOOP TO CHECK FOR RULES
+                                each(listFilesRes, (fileRes) => {
+                                        each(fileRes.results, result => {
+                                                // __config_hideCol_NAMECOL | another thing
+                                                if (result.includes("__config_hideCol_")) {
+                                                        // using regex, ends colName by either space or /, can have several results
+                                                        let colNames = result.match(/__config_hideCol_(.*?)(\s|\/)/g)
+                                                        each(colNames, (colName) => {
+                                                                colName = colName.replace("__config_hideCol_", "").trim()
+                                                                colName = colName.toLowerCase()
+                                                                colsToHide.push(colName)
+                                                        })
+                                                }
+                                        })
+                                })
+                                console.log('colsToHide:', colsToHide)
+
+
                                 // if we find the string config_no_extra_cols, remove all extra cols
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_meta")) configMetaCols = false
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
@@ -147,6 +167,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         each(cols, (col) => {
                                                                 i++
                                                                 col = col.trim()
+                                                                // if col is in colsToHide, do not add it to the finalObj
                                                                 finalObj[`col${i}`] = col.trim()
                                                                 if (customColLength < i) customColLength = i
                                                                 // if starts by __header_ 
@@ -170,7 +191,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 item[val] = item[key]
                                                 delete item[key]
                                         })
-
                                 }
 
                                 loadTable({configMetaCols})
@@ -272,9 +292,14 @@ const smartlistApp = (innerTagStr, opts) => {
                         for (const key in customColsNames) {
                                 config.cols.push({ colId: customColsNames[key], headerLabel: customColsNames[key] })
 
-                                // remove key from config.cols
+                                // remove key(like col1) from config.cols
                                 config.cols = config.cols.filter(col => col.colId !== key)
                         }
+                        // if colsToHide, remove them
+                        for (const col of colsToHide) {
+                                config.cols = config.cols.filter(c => c.colId !== col)
+                        }
+
                         // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
                         // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
                         // {colId: "filename", headerLabel: "Filename"},
