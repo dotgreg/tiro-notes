@@ -194,16 +194,27 @@
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.get",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableRamCache?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(cacheContent: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">cache.getCachePath</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. cacheId: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">string</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.getCachePath",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">cache.set</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. cacheId: <span class="render-code-wrapper">string</span>
        1. contentToCache: <span class="render-code-wrapper">any</span>
        1. cacheMin: <span class="render-code-wrapper">number</span>
+       1. options: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;uncompressed: <span class="render-code-wrapper">boolean</span><br/>}</span>
     - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">number</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">any</span>, <span class="render-code-wrapper">number</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;uncompressed: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
  
 
 
@@ -1330,7 +1341,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">InputType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"password" | "text" | "select" | "number" | "checkbox" | "textarea" | "date"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"password" | "text" | "select" | "number" | "checkbox" | "textarea" | "date" | "datetime"</span></div>
  
 
 #### <span class="render-code-wrapper">iPopupFormField</span>
