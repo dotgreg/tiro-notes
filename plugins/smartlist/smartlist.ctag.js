@@ -141,8 +141,15 @@ const smartlistApp = (innerTagStr, opts) => {
                                         each(fileRes.results, result => {
                                                 // __config_hideCol_NAMECOL | another thing
                                                 if (result.includes("__config_hideCol_")) {
-                                                        // using regex, ends colName by either space or /, can have several results
-                                                        let colNames = result.match(/__config_hideCol_(.*?)(\s|\/)/g)
+                                                        console.log('result:', result)
+                                                        // using regex, ends colName by either space or / or nothing, can have several results
+                                                        // let colNames = result.match(/__config_hideCol_.*?[\s|\/|$]/g) 
+                                                        let colNamesRaw = result.split(" ")
+                                                        // only keep words starting by __config_hideCol_
+                                                        let colNames = colNamesRaw.filter(col => col.startsWith("__config_hideCol_"))
+                                                        // remove __config_hideCol_ from each colName
+                                                        colNames = colNames.map(col => col.replace("__config_hideCol_", ""))
+                                                        console.log('result2:', colNames)
                                                         each(colNames, (colName) => {
                                                                 colName = colName.replace("__config_hideCol_", "").trim()
                                                                 colName = colName.toLowerCase()
