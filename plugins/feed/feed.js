@@ -1224,7 +1224,6 @@ const feedApp = (innerTagStr, opts) => {
 							execFeedReader(innerTagStr)
 
 							// insert style
-							console.log("inserting style", mainColor)
 							const style = document.createElement('style');
 							style.innerHTML = styleFeed(mainColor);
 							document.head.appendChild(style);

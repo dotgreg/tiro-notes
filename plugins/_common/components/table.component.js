@@ -10,7 +10,7 @@
 //   const c = r.createElement;
 //   const [sortConfig, setSortConfig] = r.useState(null);
 //   return [
-//     c('input', { type: 'text', value: "", onChange: e => {} })
+//     c('input', { type: 'text', value: "", onInput: e => {} })
 //   ]
 // }
 const styleCss = `
@@ -223,15 +223,16 @@ Full example: (to copy and paste in a note, then click on #food)
 
 
 const TableComponentReact = ({ items, config, id }) => {
-	const r = React;
+	const r = window._tiro_react;
   const c = r.createElement;
-	return r.useMemo(() => {
 		return c(TableComponentReactInt, { items, config, id })
-	}, [
-		items,
-		config,
-		id
-  ])
+    // return r.useMemo(() => {
+    //       return c(TableComponentReactInt, { items, config, id })
+    // }, [
+    //   items,
+    //   config,
+    //   id
+    // ])
 }
 
 // if grid enabled
@@ -240,7 +241,7 @@ const TableComponentReact = ({ items, config, id }) => {
 const TableComponentReactInt = ({ items, config, id }) => {
   if (config.id) id = config.id
   if (!id) id = "table-component"
-  const r = React;
+  const r = window._tiro_react;
   
   
   const c = r.createElement;
@@ -464,7 +465,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
       ])
     ]
     if (col.type && col.type === "multiselect") {
-      res = [c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onChange: () => onColHeaderClick(col.colId)})]
+      res = [c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onInput: () => onColHeaderClick(col.colId)})]
     }
     if (col.type && col.type === "buttons" && hasMultiselect()) {
       res = [buttonsCell(col, selectedItems)]
@@ -592,7 +593,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                 ...config.cols.map(col => {
                   if (activeColToFilter === col.colId) {
                     return c('td', {key: `${col.colId}-filter`}, [
-                      c('select', {class:"select-multiple-filter", multiple: true, onChange: (e) => {
+                      c('select', {class:"select-multiple-filter", multiple: true, onInput: (e) => {
                         let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
                         onFilterChange(col.colId, selectedValues)
                       }}, [
@@ -636,7 +637,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
                         // MULTISELECT
                         ...(col.colId === "multiselect" ? [
-                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onChange: () => {
+                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
                             if (selectedItems.includes(item)) {
                               setSelectedItems(selectedItems.filter(i => i !== item))
                             } else {
@@ -694,7 +695,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
     c('div', {className:"table-controls-wrapper"}, [ 
       // filter button
-      c('input', { type: 'text', value: searchTerm, placeholder:"Filter the table", onChange: e => setSearchTerm(e.target.value) }),
+      c('input', { type: 'text', value: searchTerm, placeholder:"Filter the table", onInput: e => {  setSearchTerm(e.target.value) }}),
       // toggle gridview button
       config?.gridView && c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
         view === "table" && c('div', {className:"fa fa-th-large"}),
@@ -733,33 +734,40 @@ const TableComponentReactInt = ({ items, config, id }) => {
 //
 let genTableComponent = ({items, config, id}) => {
   const api = window.api;
+
   const startMainLogic = () => {
     let int = setInterval(() => {
-      if (!window.ReactDOM || !ReactDOM || !React || !ReactDOM.createRoot) return;
+      console.log("waiting for preact")
+      // console.log(window.preactHooks, window.preact)
+
+      if (!window.preact.createElement || !window.preactHooks.useState) return;
+      // merge window.preactHooks into window.preact
+      window._tiro_react = {...window.preact, ...window.preactHooks}
+      // window._tiro_react = window.preact
+      // console.log(window._tiro_react)
+      // if (!window.ReactDOM || !ReactDOM || !React || !ReactDOM.createRoot) return;
       clearInterval(int)
-      const r = React;
+      // const r = React;
+      const r = window._tiro_react;
       const c = r.createElement;
 
       // v18
       let container = document.getElementById("ctag-component-table-wrapper")
-      const root = ReactDOM.createRoot(container); // create a root
-      root.render(c(TableComponentReact, {items, config, id}));
+      // const root = ReactDOM.createRoot(container); // create a root
+      // root.render(c(TableComponentReact, {items, config, id}));
+      // const app = h('h1', null, 'Hello World!');
+      // r.render(app, document.body);
+      container.innerHTML = ""
+      r.render(c(TableComponentReact, {items, config, id}), container);
     }, 100) 
   }
-  api.utils.loadRessources(
+  api.utils.loadRessourcesOneByOne(
       [
-        "https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/preact/10.24.3/preact.min.umd.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/preact/10.24.3/hooks.umd.min.js",
       ],
       () => {
-          api.utils.loadRessources(
-            [
-              "https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
-
-            ], () => {
                 startMainLogic()
-              
-            }
-          )
       }
   );
   

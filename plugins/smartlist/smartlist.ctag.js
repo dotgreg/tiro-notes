@@ -116,6 +116,7 @@ const smartlistApp = (innerTagStr, opts) => {
 
                 wrapperEl.innerHTML = "Loading..."
                 const api = window.api;
+                // wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items:[], config:{}, id: `smartlist-table-${api.utils.getInfos().file.path}` })
 
                 const searchWord = (word, path, cb) => {
                         api.call("search.word", [word, path], content => {
@@ -141,7 +142,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                         each(fileRes.results, result => {
                                                 // __config_hideCol_NAMECOL | another thing
                                                 if (result.includes("__config_hideCol_")) {
-                                                        console.log('result:', result)
                                                         // using regex, ends colName by either space or / or nothing, can have several results
                                                         // let colNames = result.match(/__config_hideCol_.*?[\s|\/|$]/g) 
                                                         let colNamesRaw = result.split(" ")
@@ -149,7 +149,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         let colNames = colNamesRaw.filter(col => col.startsWith("__config_hideCol_"))
                                                         // remove __config_hideCol_ from each colName
                                                         colNames = colNames.map(col => col.replace("__config_hideCol_", ""))
-                                                        console.log('result2:', colNames)
                                                         each(colNames, (colName) => {
                                                                 colName = colName.replace("__config_hideCol_", "").trim()
                                                                 colName = colName.toLowerCase()
@@ -158,7 +157,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 }
                                         })
                                 })
-                                console.log('colsToHide:', colsToHide)
 
 
                                 // if we find the string config_no_extra_cols, remove all extra cols
@@ -357,6 +355,13 @@ const smartlistApp = (innerTagStr, opts) => {
                 }
         }
 
+        const preloadPreact = () => {
+                api.utils.loadRessourcesOneByOne([
+                        "https://cdnjs.cloudflare.com/ajax/libs/preact/10.24.3/preact.min.umd.min.js",
+                        "https://cdnjs.cloudflare.com/ajax/libs/preact/10.24.3/hooks.umd.min.js",
+                ])
+        }
+        preloadPreact()
         setTimeout(() => {
                 setTimeout(() => {
                         api.utils.resizeIframe("100%");
@@ -364,12 +369,11 @@ const smartlistApp = (innerTagStr, opts) => {
                 setTimeout(() => {
                         api.utils.loadRessources(
                                 [
-                                        `${opts.plugins_root_url}/_common/components/advancedTable.component.js`,
                                         `${opts.plugins_root_url}/_common/components/table.component.js`
                                 ],
                                 () => {
+                                        // alert("woopeeee333443333!");
                                         const configArray = readConfigString(innerTagStr)
-                                        console.log('configArr:', configArray)
                                         listenToInputChanges(configArray)
                                         if (configArray[0].tag1 && configArray[0].path) {
                                                 searchAndDisplay(configArray)

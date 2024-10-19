@@ -226,66 +226,75 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
 
     const createPanel = (panelParams: iCreateFloatingPanel) => {
-        // get all non hidden pannels
-        let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
-        // position is i * nonHiddenPanels.length
-        const decal = deviceType() === "mobile" ? 10 : 100
-        let sizeWidth = (window.innerWidth / 2) - decal
-        if (deviceType() === "mobile") sizeWidth = (window.innerWidth) - decal * 2
-        const sizeHeight = (window.innerHeight / 1.2) - decal
-        
-        // if id exists, prepend device type
-        if (panelParams.id) panelParams.id = deviceType() + "-" + panelParams.id
-
-        const panel: iFloatingPanel = {
-            position: { x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset) },
-            size: { width: sizeWidth, height: sizeHeight },
-            status: "visible",
-            file: generateEmptyiFile(),
-            view: "editor",
-            id: Math.random().toString(36).substring(7),
-            zIndex: startingZindex,
-            device: deviceType(),
-            orderPosition: nonHiddenPanels.length,
-            ...panelParams,
-        }
-
-        // if layout is full-center, set position to center of the screen and size to 100% of the screen with 20px padding
-        if (panelParams.layout) {
-            let layoutPanel = updatePanelLayoutInt(panel, panelParams.layout)
-            panel.position = layoutPanel.position
-            panel.size = layoutPanel.size
-        }
-
-
-        const openFloating = (panel) => {
-            console.log(`${h} createPanel`, panel)
-            // if panel with same id exists, get its position and size, then delete it
-            let oldPanelPosition = panelsRef.current.find(p => p.id === panel.id)
-            if (oldPanelPosition) {
-                panel.position = oldPanelPosition.position
-                panel.size = oldPanelPosition.size
-                deletePanel(panel.id)
-            }
-            let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
-            nPanels.push(panel)
-            setPanels(nPanels)
-            updateOrderPosition(panel.id, "first")
-            pushWindowOnTop(panel.id)
-        }
-
-        // if panelsParams is file, get its view && panelParams.view is not defined
-        if (panelParams.file && !panelParams.view) {
-            console.log(`${h} getNoteView`, panelParams.file.path, panelParams)
-            getNoteView(panelParams.file.path).then(view => {
-                console.log(`${h} getNoteView`, view)
-                if (view) panel.view = view
-                openFloating(panel)
-            })
+        // if panel is file and a panel with that file already exists and is visible, just push it on top
+        // let alreadyExistingVisiblePanel = panelsRef.current.find(p => p.file.path === panelParams.file.path && p.status === "visible")
+        let alreadyExistingMinimizedPanel = panelsRef.current.find(p => p.file.path === panelParams?.file?.path && p.status !== "visible")
+        // console.log(`${h} createPanel`, alreadyExistingVisiblePanel, alreadyExistingMinimizedPanel, panelParams.file.path, panelsRef)
+        if (alreadyExistingMinimizedPanel) {
+            deminimizePanel(alreadyExistingMinimizedPanel.id)
         } else {
-            openFloating(panel)
-        }
 
+            // get all non hidden pannels
+            let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
+            // position is i * nonHiddenPanels.length
+            const decal = deviceType() === "mobile" ? 10 : 100
+            let sizeWidth = (window.innerWidth / 2) - decal
+            if (deviceType() === "mobile") sizeWidth = (window.innerWidth) - decal * 2
+            const sizeHeight = (window.innerHeight / 1.2) - decal
+            
+            // if id exists, prepend device type
+            if (panelParams.id) panelParams.id = deviceType() + "-" + panelParams.id
+
+            const panel: iFloatingPanel = {
+                position: { x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset) },
+                size: { width: sizeWidth, height: sizeHeight },
+                status: "visible",
+                file: generateEmptyiFile(),
+                view: "editor",
+                id: Math.random().toString(36).substring(7),
+                zIndex: startingZindex,
+                device: deviceType(),
+                orderPosition: nonHiddenPanels.length,
+                ...panelParams,
+            }
+
+            // if layout is full-center, set position to center of the screen and size to 100% of the screen with 20px padding
+            if (panelParams.layout) {
+                let layoutPanel = updatePanelLayoutInt(panel, panelParams.layout)
+                panel.position = layoutPanel.position
+                panel.size = layoutPanel.size
+            }
+
+
+            const openFloating = (panel) => {
+                console.log(`${h} createPanel`, panel)
+                // if panel with same id exists, get its position and size, then delete it
+                let oldPanelPosition = panelsRef.current.find(p => p.id === panel.id)
+                if (oldPanelPosition) {
+                    panel.position = oldPanelPosition.position
+                    panel.size = oldPanelPosition.size
+                    deletePanel(panel.id)
+                }
+                let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
+                nPanels.push(panel)
+                setPanels(nPanels)
+                updateOrderPosition(panel.id, "first")
+                pushWindowOnTop(panel.id)
+            }
+
+            // if panelsParams is file, get its view && panelParams.view is not defined
+            if (panelParams.file && !panelParams.view) {
+                console.log(`${h} getNoteView`, panelParams.file.path, panelParams)
+                getNoteView(panelParams.file.path).then(view => {
+                    console.log(`${h} getNoteView`, view)
+                    if (view) panel.view = view
+                    openFloating(panel)
+                })
+            } else {
+                openFloating(panel)
+            }
+
+        }
     }
 
     const updatePanel = (panel: iFloatingPanel) => {
