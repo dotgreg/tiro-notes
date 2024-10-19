@@ -51,7 +51,8 @@ if (backConfig.dataFolder) {
 	startSecuredStaticServer({
 		expressApp: app,
 		url: '/static',
-		pathFolder: backConfig.dataFolder
+		pathFolder: backConfig.dataFolder,
+		cacheFront: true
 	});
 } 
 

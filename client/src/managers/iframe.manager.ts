@@ -261,7 +261,7 @@ export const iframeMainCode = (p: {
 		// nval = lastResizeIframeHeight.value
 		// console.log(h, 'resize', nval)
 		// console.log(h, 'resize', nval)
-		console.log(h, 'resize', nval)
+		// console.log(h, 'resize', nval)
 		resizeIframe(nval)
 	})
 
@@ -422,6 +422,7 @@ export const iframeMainCode = (p: {
 	type iRessObjOrString = string | { url: string, type?: string }
 
 	const loadCachedRessources = (ressources: iRessObjOrString[], cb: Function) => {
+		if (!cb) cb = () => { }
 		let ressourcesLoaded = 0;
 		const onRessLoaded = () => {
 			ressourcesLoaded++
@@ -454,7 +455,21 @@ export const iframeMainCode = (p: {
 			//@ts-ignore
 			const disableCache = window.disableCache === true ? true : false
 
-			const downloadAndLoadRess = () => {
+			const downloadAndLoadRess = (p?:{frontendCache?:boolean}) => {
+				if (!p) p = {}
+				if (!p.frontendCache) p.frontendCache = false
+				// if frontendCache disabled, add ?nocache=RANDOMNUMBER to url
+				
+				if (!p.frontendCache) {
+					let randomNb = Math.floor(Math.random() * 1000000)
+					// if url already has a query string
+					// let hasQueryString = ressToLoadObj.url.includes("?")
+					// const nocache = `${hasQueryString ? "&" : "?"}nocache=${randomNb}`
+					// url get a token param injected afterwards
+					const nocache = `&nocache=${randomNb}`
+					cachedRessToLoadObj.url += nocache
+				}
+				console.log(p.frontendCache, cachedRessToLoadObj.url)
 				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
 					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
@@ -462,15 +477,15 @@ export const iframeMainCode = (p: {
 			}
 
 			if (disableCache) {
-				console.warn(h, "CACHE DISABLED, DOWNLOADING RESSOURCES EVERYTIME!");
-				downloadAndLoadRess()
+				console.warn(h, "CACHE DISABLED (both frontend + backend fetch), DOWNLOADING RESSOURCES EVERYTIME and NOT CACHING THEM ON FRONTEND!");
+				downloadAndLoadRess({frontendCache: false})
 			} else {
 				checkUrlExists(cachedRessToLoadObj.url,
 					() => {
 						// cachedObjToLoad
 						loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
 					}, () => {
-						downloadAndLoadRess()
+						downloadAndLoadRess({frontendCache: true})
 					})
 			}
 		}
@@ -574,6 +589,21 @@ export const iframeMainCode = (p: {
 		}
 	}
 
+	const loadRessourcesOneByOne = (ressources: iRessObjOrString[], cb: Function) => {
+		if (!cb) cb = () => { }
+		let i = 0
+		const loadNext = () => {
+			if (i === ressources.length) return cb()
+			const ress = ressources[i]
+			console.log(h, `loadRessourcesOneByOne ${i+1}/${ressources.length} => ${ress}`);
+			loadCachedRessources([ress], () => {
+				i++
+				loadNext()
+			})
+		}
+		loadNext()
+	}
+
 	const api = {
 		version: 1.2,
 		call: callApi,
@@ -586,6 +616,7 @@ export const iframeMainCode = (p: {
 
 			loadScripts,
 			loadRessources,
+			loadRessourcesOneByOne,
 			loadScriptsNoCache,
 
 			resizeIframe,
