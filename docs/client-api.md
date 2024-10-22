@@ -85,6 +85,17 @@
  <div class="render-code-wrapper">api.utils.loadRessources(<span class="render-code-wrapper">[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
  
 
+#### <span class="render-code-wrapper">utils.loadRessourcesOneByOne</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. ressources: <span class="render-code-wrapper">[]</span>
+       1. cb: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.utils.loadRessourcesOneByOne(<span class="render-code-wrapper">[]</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span> )</div>
+ 
+
 #### <span class="render-code-wrapper">utils.loadScripts</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
