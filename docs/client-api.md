@@ -545,8 +545,29 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. p: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>
+    - Result: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
+
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span> ]<br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">popup.form.getAll</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+    - Result: <span class="render-code-wrapper">(popupsConfig: <span class="render-code-wrapper">[]</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.getAll",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(popupsConfig: <span class="render-code-wrapper">[]</span>) => </span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">popup.form.open</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. formName: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.form.readConfigFromNote</span>
