@@ -87,6 +87,8 @@ const smartlistApp = (innerTagStr, opts) => {
                 if (lastTag1 && lastTag1 !== 'undefined') searchInput.value = lastTag1
                 if (lastPath && lastTag1 !== 'undefined') pathInput.value = lastPath
 
+
+
                 const searchBtn = document.getElementById("smart-list-ctag-search-btn")
                 searchBtn.addEventListener("click", e => {
                         triggerSearchFromInput(configArray)
@@ -100,6 +102,23 @@ const smartlistApp = (innerTagStr, opts) => {
                 })
         }
 
+        let formName = null
+        const starFormNameLogic = (configArray) => {
+                // if formName exists, add a form button
+                const formBtn = document.getElementById("smart-list-ctag-add-form")
+                console.log('formName:', formName)
+                if (formName) {
+                        formBtn.style.display = "inline-block"
+                }      // hide it
+                formBtn.addEventListener("click", e => {
+                        console.log('formName:', formName)
+                        api.call("popup.form.open", [formName], answer => {
+                                // console.log('222 answer:', answer)
+                                // reload view
+                                searchAndDisplay(configArray)
+                        })
+                })
+        }
         const searchAndDisplay = (configArray) => {
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
@@ -155,8 +174,15 @@ const smartlistApp = (innerTagStr, opts) => {
                                                                 colsToHide.push(colName)
                                                         })
                                                 }
+                                                // __config_add_form=FORMNAME
+                                                if (result.includes("__config_add_form=")) {
+                                                        formName = result.split("__config_add_form=")[1].split("|")[0].trim()
+                                                        // console.log('result:', result, formName)
+                                                }
                                         })
                                 })
+
+                                if (formName) starFormNameLogic(configArray)
 
 
                                 // if we find the string config_no_extra_cols, remove all extra cols
@@ -320,6 +346,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         p.configMetaCols && config.cols.push({ colId: "created", headerLabel: "Created" })
                         p.configMetaCols && config.cols.push({ colId: "folder", headerLabel: "Folder" })
                         p.configMetaCols && config.cols.push({ colId: "line", headerLabel: "Line" })
+
                         config.cols.push({
                                 colId: "actions", type: "buttons", buttons: [
                                         {
@@ -372,11 +399,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                         `${opts.plugins_root_url}/_common/components/table.component.js`
                                 ],
                                 () => {
-                                        // alert("woopeeee333443333!");
                                         const configArray = readConfigString(innerTagStr)
-                                        listenToInputChanges(configArray)
                                         if (configArray[0].tag1 && configArray[0].path) {
                                                 searchAndDisplay(configArray)
+                                                listenToInputChanges(configArray)
                                         }
                                         else {
                                                 triggerSearchFromInput(configArray)
@@ -390,6 +416,7 @@ const smartlistApp = (innerTagStr, opts) => {
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
         <div id="smart-list-ctag"> 
                 <div class="table-buttons-wrapper">
+                        <button id="smart-list-ctag-add-form" style="display:none;">+</button>
                         <input type="text" id="smart-list-ctag-search" placeholder="Search term"/>
                         <input type="text" id="smart-list-ctag-path" placeholder="Folder path"/>
                         <button id="smart-list-ctag-search-btn">🔍</button>
@@ -400,15 +427,18 @@ const smartlistApp = (innerTagStr, opts) => {
         </div>
 
         <style>
+                #smart-list-ctag-add-form {
+                        margin-right: 30px;
+                }
                 #smart-list-ctag {
-                        min-width: 660px;
+                        min-width: 560px;
                         position: relative;
                 }
 
                 .table-buttons-wrapper {
                         position: absolute;
                         right: 12px;
-                        top: 15px;
+                        top: 12px;
                 }
                 
                 // @media screen and (max-width: 700px) {

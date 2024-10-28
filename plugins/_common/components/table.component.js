@@ -15,7 +15,7 @@
 // }
 const styleCss = `
 #ctag-component-table-wrapper {
-  padding: 10px;
+  padding: 5px 10px 10px 10px;
 }
 
 table {
@@ -207,6 +207,7 @@ Full example: (to copy and paste in a note, then click on #food)
 <h3> More options </h3>
 <p> You can remove the meta columns by adding the word "__config_hide_meta" <br>
 <p> You can remove one col by adding the word "__config_hideCol_NAMECOL" <br>
+<p> You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
 <p> You can remove header and config rows by adding the word "__config_hide_config_rows" <br>
 Full example: (to copy and paste in a note, then click on #food)
 <code>
@@ -737,7 +738,6 @@ let genTableComponent = ({items, config, id}) => {
 
   const startMainLogic = () => {
     let int = setInterval(() => {
-      console.log("waiting for preact")
       // console.log(window.preactHooks, window.preact)
 
       if (!window.preact.createElement || !window.preactHooks.useState) return;
