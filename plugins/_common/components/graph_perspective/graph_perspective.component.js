@@ -17,7 +17,7 @@ export type iGraphPerspectiveViewerWrapper = {
     setConfig: (config: string) => void,
     getConfig: (cb:(config:string)=>void) => void,
 
-    reloadViewsSelect: (cb?:Function) => void,
+    reloadViews: (cb?:Function) => void,
     saveNewView: (view:iView, cb:Function) => void,
     deleteView: (viewName:string, cb:Function) => void,
 
@@ -52,12 +52,15 @@ const helpStr = `
 <br> You can also save and load views configurations to reuse them later.</p>
 </p>
 
-<h3>Sharing Custom Columns in several views</h3>
-<p>You can share custom columns with other config views if the custom column name starts with "ID-" and the views to share into also starts with "ID-" 
-<br>Ex: if you create a custom column "flights-custom-count", it will be shared in all views config starting by "flights-"</p>
+<h3>Views</h3>
+<p> you can save your current view by clicking on the icon save, and delete it by clicking on the icon delete.
+<br> you can rearrange the current view by drag and dropping the windows inside the view. You can add windows by right clicking on a window
+<br> you can edit the current graph views config by clicking on the icon edit
+<br> the view "_default" is the one loaded by default at start
 
-<h3>Manual save/modification of views configs</h3>
-<p>You can modify/save/backup the views by going to /.tiro/cache/cache-api/cache-api-storage-PATH_TO_FILE_datatable_ctagmd</p>
+<h3>Tables</h3>
+<br> you can load data by uploading a csv. It will appear as "table"
+<br> to flush all tables on the current view, you can click on the button "flush data"
 
 <h3>{{day}} {{month}}, {{year}}</h3>
 <p>You can have up to date views configs by changing parts of the config with tags like {{day}} {{month}}, {{year}} <br>
@@ -97,20 +100,20 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         window._graph_perspective_props = p
         
         // Load module scripts
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js');
-        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.2/dist/cdn/perspective.js');
+        loadModuleScript('https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.2/dist/cdn/perspective-viewer.js');
 
 
         var script = document.createElement('script');
         script.type = 'module';
   
         script.textContent = `
-            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js";
+            import { worker } from "https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.2/dist/cdn/perspective.js";
             const WORKER = await worker();
             
             async function initPerspective(cb) {
                 const viewer = document.getElementsByTagName("perspective-viewer")[0];
-                console.log("${hl} loading viewer for :", window._graph_perspective_props)
+                // console.log("${hl} loading viewer for :", window._graph_perspective_props)
                 
                 cb(window.workspace, WORKER)
             }
@@ -142,7 +145,58 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // if (!workspace) workspace = {}
                 workspace.ctag = {}
                 workspace.ctag.addTable = async (filename, data, withView=true) => {
-                    console.log(hl,"addTableView", filename, {data})
+                    // for each data item, if a col is ""
+                    let allColsNames = []
+                    let possibleDateCols = []
+                    let notPossibleDateCols = []
+                    for (let item of data) {
+                        for (let col in item) {
+                            allColsNames.push(col)
+                            // if col is not already inside possibleDateCols, and is a date
+                            if (item[col] !== "" && !possibleDateCols.includes(col) && !notPossibleDateCols.includes(col)){
+                                let value = item[col]
+                                let dateValue = new Date(value).toString()
+                                if (dateValue !== "Invalid Date" && value.length >= 8) {
+                                    possibleDateCols.push(col)
+                                } else {
+                                    notPossibleDateCols.push(col)
+                                }
+                            }
+                        }
+                    }
+                    // make all cols unique
+                    allColsNames = [...new Set(allColsNames)]
+                    // remove if one call is inside blacklist
+                    let blackListCol = [""]
+                    allColsNames = allColsNames.filter(col => !blackListCol.includes(col))
+                    // for each data item, if it has not one prop of allColsName, add it with ""
+                    console.log(hl,"addTableView (pre data normalization)", filename, allColsNames)
+                    // for each data item, if it has not one prop of allColsName, add it with ""
+                    for (let item of data) {
+                        for (let col of allColsNames) {
+                            if (!item[col]) item[col] = ""
+                        }
+                        // if it is in blacklist, remove it
+                        for (let col of blackListCol) {
+                            delete item[col]
+                        }
+                        // if a col include the mention "date", "ts", "timestamp", format it to date
+                        for (let col in item) {
+                            if (col.includes("date") || col.includes("ts") || col.includes("timestamp")) {
+                                item[col] = new Date(item[col])
+                            }
+                        }
+                        // for all possible date cols, format it to date
+                        for (let col of possibleDateCols) {
+                            item[col] = new Date(item[col])
+                        }
+                    }
+                    console.log(hl,"addTableView (post data normalization)", filename, {possibleDateCols, notPossibleDateCols})
+                    
+                    
+
+
+                    console.log(hl,"addTableView (post data normalization)", filename, {data})
                     if (!data) data = [{"_":""}]
                     let tablesArr = workspace.ctag.getTables()
                     let newTableId = `table${tablesArr.length + 1}`
@@ -160,7 +214,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         // no view one table > add view
                         // view no table > no view
                         // view table > view
-                        console.log(hl,{views, tablesArr, expectedTables, expectedTablesReached, viewExists, tableExists, withView, viewExists, tableExists})
+                        // console.log(hl,{views, tablesArr, expectedTables, expectedTablesReached, viewExists, tableExists, withView, viewExists, tableExists})
 
                         // get config, for
                         // workspace.ctag.updateTitlesViewsConfig(newTableId, filename, () => {
@@ -184,20 +238,18 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 //         workspace.ctag.setConfig(config, cb)
                 //     })
                 // }
-                setInterval(() => {
-                    workspace.ctag.getConfig(cnf => {
-                        console.log(JSON.stringify(cnf))
-                    })
-                }, 10000)
+                // setInterval(() => {
+                //     workspace.ctag.getConfig(cnf => {
+                //         console.log(JSON.stringify(cnf))
+                //     })
+                // }, 10000)
 
                 workspace.ctag.removeTables = (cb) => {
                     console.log(hl,"removeTables")
                     workspace.ctag.getConfig(oldConf => {
-                        console.log(hl,"removeTables", oldConf)
                         // let tempConf = JSON.parse(JSON.stringify(oldConf))
                         // tempConf.viewers = {}
                         let tempConf = JSON.parse(`{"sizes":[1],"detail":{"main":null},"mode":"globalFilters","viewers":{}}`)
-                        console.log(hl,"removeTables", tempConf)
                         workspace.ctag.setConfig(tempConf, () => {
                             let tables = workspace.ctag.getTables()
                             for (let table of tables) {
@@ -294,7 +346,22 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     workspace.save().then((config) => {cb(config)})
                 }
                 // workspace.ctag.loadItems(window._graph_perspective_props.items);
-                // workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
+                
+
+
+
+
+
+
+
+
+                // 
+                // 
+                //  IF LOADING ITEMS, create table
+                // 
+                // 
+
+                workspace.ctag.addTable("init_table",window._graph_perspective_props.items, true);
 
 
 
@@ -337,10 +404,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     let nviews = []
                     if (defaultViews) nviews = [...defaultViews]
 					api.call("cache.get", [id], content => {
-                        // console.log("cache content", content, content.length)
                         let viewsFinal = []
 						if (content !== undefined && content !== null && content.length !== 0) viewsFinal = [...nviews, ...content]
 						else viewsFinal = nviews
+
+                        const defaultView = viewsFinal.find(v => v.name === "_default")
+                        if (!defaultView) viewsFinal.unshift({name:"_default", config:""}) 
 
                         viewsSync.curr = [...viewsFinal]
                         if (viewsFinal.length > 0 && viewsSync === "") viewsSync.selectedName = viewsFinal[0].name
@@ -352,9 +421,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
 				const setCache = (id/*:string*/) => (views/*:iView[]*/, cb/*:Function*/) => {
                     viewsIdToRemove = []
                     if (defaultViews) viewsIdToRemove = defaultViews.map(v => v.name)
-                    // console.log("setting cache1", id, views, views.length, viewsIdToRemove)
                     views = views.filter(v => !viewsIdToRemove.includes(v.name))
-                    // console.log("setting cache2", id, views, views.length)
 					api.call("cache.set", [id, views, -1, {uncompressed: true}], () => {if(cb) cb()}) 
 				}
 				const cacheViewsId = `lib-graph-perspective-${api.utils.getInfos().file.path}`
@@ -421,14 +488,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         )
                     }
                 }
-                const reloadViewsSelect = (cb/*:Function*/) => {
+                const reloadViews = (cb/*:Function*/) => {
                     getViewsCache(
                         views => {
                             genViewsButtons(views)
                             configSelect.innerHTML = views.map(v => `<option value="${v.name}">${v.name}</option>`).join("")
                             if (views.length > 0) {
                                 updateSelectActiveOption(viewsSync.selectedName)
-                                workspace.setConfig(viewsSync.selectedName)
+                                workspace.ctag.setConfig(viewsSync.selectedName)
                             }
                             if (cb) cb(views)
                         },
@@ -438,7 +505,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                         }
                     )   
                 }
-                workspace.reloadViewsSelect = reloadViewsSelect
+                workspace.reloadViews = reloadViews
                 workspace.deleteView = deleteView
 
                 // if config save, prompt for a name and save it
@@ -449,7 +516,7 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             console.log(hl,"saving config", name, config)
                             viewsSync.selectedName = name
                             saveNewView({name, config}, () => {
-                                reloadViewsSelect()
+                                reloadViews()
                             })
                         }
                     });
@@ -462,12 +529,13 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     let name = configSelect.value
                     if (name) {
                         deleteView(name, () => {
-                            reloadViewsSelect()
+                            reloadViews()
                         })
                     }
                 })
-                reloadViewsSelect(views => {
-                    
+
+                reloadViews(views => {
+                    window.restoreCtagViewConfig("_default")
                 })
 
                 // update the select option to active
@@ -483,12 +551,12 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // on select change, restore the view
                 configSelect.addEventListener("change", (e) => {
                     const viewName = e.target.value
-                    window.updateEnrichConfigViewWithExpressionsAndDates(viewName)
+                    window.restoreCtagViewConfig(viewName)
                 })
                 const genViewsButtons = (views/*:iView[]*/) => {
                     // add buttons for each view in #views-buttons-wrapper
                     const viewsButtonsWrapper = document.getElementById("views-buttons-wrapper")
-                    viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.updateEnrichConfigViewWithExpressionsAndDates('${v.name}')">${v.name}</button>`).join("")
+                    viewsButtonsWrapper.innerHTML = views.map(v => `<button class="btn" onclick="window.restoreCtagViewConfig('${v.name}')">${v.name}</button>`).join("")
                 }
 
 
@@ -520,14 +588,14 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // if config  refresh, reload the views
                 //
                 // configRefresh.addEventListener("click", () => {
-                //     reloadViewsSelect()
+                //     reloadViews()
                    
                 // });
 
                 // AUTOMATICALLY REFRESH CONFIG
                 const configRefreshInSecond = 7
                 setInterval(() => {
-                    reloadViewsSelect()
+                    reloadViews()
                 }, configRefreshInSecond * 1000)
 
 
@@ -545,9 +613,9 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // VARS SHARING ACROSS VIEWS
                 //
                 //
-                window.updateEnrichConfigViewWithExpressionsAndDates = (viewName/*:string*/) => {
+                window.restoreCtagViewConfig = (viewName/*:string*/) => {
                     viewsSync.selectedName = viewName
-                    console.log(hl,"updateEnrichConfigViewWithExpressionsAndDates", viewsSync.selectedName, viewsSync)
+                    console.log(hl,"restoreCtagViewConfig", viewsSync.selectedName, viewsSync)
                     updateSelectActiveOption(viewName)
                     getViewsCache(
                         views => {
@@ -658,7 +726,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 const uploadFileName = {current: null}
                 // detect file upload
                 fileUpload.addEventListener("change", (e) => {
-                    // console.log(123,e.target.files)
                     uploadFileName.current = e.target.files[0].name
                     // uploadFileDiv = document.getElementById("upload-file-name1")
                     // uploadFileDiv.innerHTML = `Source file: ${uploadFileName.current}`
@@ -676,7 +743,6 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     reader.onload =  async (fileLoadedEvent) => {
                         console.log(hl,"file loaded", fileLoadedEvent)
                         let data = fileLoadedEvent.target.result;
-                        // console.log(123333, data)
                         // count the number of ; and ,
                         let countSemiCols = (data.match(/;/g) || []).length
                         let countCommas = (data.match(/,/g) || []).length
@@ -851,12 +917,11 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         [
             // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective@3.1.0/dist/cdn/perspective.js`, type:"module", fileName:"perspective.worker.js"},
             // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer@3.1.0/dist/cdn/perspective-viewer.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.2/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
             // {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-datagrid@3.1.0/dist/cdn/perspective-viewer-datagrid.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.0/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-d3fc@3.1.2/dist/cdn/perspective-viewer-d3fc.js`, type:"module"},
             {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-viewer-openlayers/dist/cdn/perspective-viewer-openlayers.js`, type:"module"},
-            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-workspace@3.0.0/dist/cdn/perspective-workspace.js`, type:"module"},
+            {url:`https://cdn.jsdelivr.net/npm/@finos/perspective-workspace@3.1.2/dist/cdn/perspective-workspace.js`, type:"module"},
 
             `https://cdn.jsdelivr.net/npm/@finos/perspective-viewer/dist/css/themes.css`,
             `${p.parentVars.opts.plugins_root_url}/_common/components/graph_perspective/graph_perspective.lib.js`,
