@@ -593,10 +593,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                 // });
 
                 // AUTOMATICALLY REFRESH CONFIG
-                const configRefreshInSecond = 7
-                setInterval(() => {
-                    reloadViews()
-                }, configRefreshInSecond * 1000)
+                // const configRefreshInSecond = 7
+                // setInterval(() => {
+                //     reloadViews()
+                // }, configRefreshInSecond * 1000)
 
 
 
