@@ -44,7 +44,7 @@ export const WindowEditorInt = (p: {
 			if (res) setIntViewType(res)
 			else setIntViewType("editor") // on creation
 		})
-	}, [view, file?.path, windowId, p.forceView, p.content.file?.path])
+	}, [view, file?.path, windowId, p.forceView, p.content?.file?.path])
 
 	// Reload content funct
 	const [showContent, setShowContent] = useState(true)
