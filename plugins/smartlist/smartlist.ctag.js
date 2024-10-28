@@ -400,18 +400,23 @@ const smartlistApp = (innerTagStr, opts) => {
         </div>
 
         <style>
+                #smart-list-ctag {
+                        min-width: 660px;
+                        position: relative;
+                }
+
                 .table-buttons-wrapper {
                         position: absolute;
-                        right: 42px;
+                        right: 12px;
                         top: 15px;
                 }
                 
-                @media screen and (max-width: 700px) {
-                        .table-buttons-wrapper {
-                                position: inherit;
-                                margin: 20px 20px 0px 20px;
-                        }
-                }
+                // @media screen and (max-width: 700px) {
+                //         .table-buttons-wrapper {
+                //                 position: inherit;
+                //                 margin: 20px 20px 0px 20px;
+                //         }
+                // }
                 .table-buttons-wrapper input {
                         margin-right: 10px;
                         background-color: #fff;
@@ -419,7 +424,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         box-shadow: 0 0 0 1px #ccc;
                         border-radius: 3px;
                         padding: 4px;
-                        width: 120px;
+                        width: 100px;
                 }
                 #smart-list-ctag {
                         margin-top:0px;

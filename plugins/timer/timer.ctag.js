@@ -35,12 +35,16 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 // SUPPORT FUNCTIONS
                 ///////////////////////////////////////////////////////////////////
                 const reloadGraph = (items/*:any[]*/, cb/*:Function*/) => {
-                        let int = setInterval(() => {
-                                console.log("waiting for graph...")
-                                if (!graph.curr) return
-                                clearInterval(int)
-                                graph.curr?.loadItems(items, cb)
-                        }, 200)
+                        genGraph(items, (viewer) => {
+                                graph.curr = viewer
+                        })
+                        // let int = setInterval(() => {
+                        //         console.log("waiting for graph...")
+                        //         if (!graph.curr) return
+                        //         clearInterval(int)
+                        //         // graph.curr?.loadItems(items, cb)
+                        //         graph.curr?.ctag.addTable("timer-items",items, true)
+                        // }, 200)
                         // if (!graph.curr) return
                         // graph.curr.loadItems(items)
                 }
@@ -62,11 +66,11 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                 }
 
                 const defaultViewConfigs = {
-                        "📊 month": `{"version":"3.1.0","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 month2": `{"version":"3.1.0","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 week": `{"version":"3.1.0","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 today": `{"version":"3.1.0","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
-                        "📊 grid": `{"version":"3.1.0","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
+                        // "📊 month": `{"version":"3.1.0","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        // "📊 month2": `{"version":"3.1.0","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        // "📊 week": `{"version":"3.1.0","plugin":"Heatmap","plugin_config":{},"settings":true,"theme":null,"title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["week","==",{{week}}],["year","==",{{year}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        // "📊 today": `{"version":"3.1.0","plugin":"Y Bar","plugin_config":{"hideKeys":[]},"settings":true,"theme":"Pro Light","title":null,"group_by":["name"],"split_by":["day"],"columns":["hours"],"filter":[["month","==",{{month}}],["year","==",{{year}}],["day","==",{{day}}]],"sort":[["time","asc"]],"expressions":{},"aggregates":{}}`,
+                        // "📊 grid": `{"version":"3.1.0","plugin":"Datagrid","plugin_config":{"columns":{},"editable":false,"scroll_lock":false},"settings":true,"theme":"Pro Light","title":null,"group_by":[],"split_by":[],"columns":["day","category","name","hours","date","dateRaw","time","year","month","week"],"filter":[["week","==",{{week}}],["year","==",{{year}}],["category","!=","total"]],"sort":[["day","desc"]],"expressions":{},"aggregates":{}}`,
                 }
                 // switch from defaultViewConfigs as obj to an array of obj like {name:..., config:...}
                 const defaultViewConfigsArr = Object.keys(defaultViewConfigs).map(name => ({ name, config: defaultViewConfigs[name] }))
@@ -301,7 +305,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 // genTimerForm(uniqueNamesArray)
 
                                 // GRAPH update
-                                console.log(h, "updateAppWithTimerData", outJsonArr)
+                                // console.log(h, "updateAppWithTimerData", outJsonArr)
                                 // let subset = outJsonArr.slice(0, 20)
                                 // force float on hours by adding a first el with 0.001
                                 outJsonArr[0].hours += 0.1
@@ -313,7 +317,7 @@ const timerCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
                 }
 
-                initializeUi()
+                // initializeUi()
                 updateAppWithTimerData(() => {
                         // changeViewGraph("heatmapMonth") 
                         graph.curr?.reloadViewsSelect()
