@@ -34,7 +34,6 @@ table tr td {
 }
 
 .table-controls-wrapper {
-  padding-left: 15px;
 }
 .table-controls-wrapper button {
   margin-right: 5px;
@@ -46,6 +45,7 @@ table tr td {
   box-shadow: 0 0 0 1px #ccc;
   border-radius: 3px;
   padding: 4px;
+  width: 100px;
   margin-top: 8px;
 }
 
