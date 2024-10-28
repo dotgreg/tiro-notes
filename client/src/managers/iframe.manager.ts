@@ -469,7 +469,6 @@ export const iframeMainCode = (p: {
 					const nocache = `&nocache=${randomNb}`
 					cachedRessToLoadObj.url += nocache
 				}
-				console.log(p.frontendCache, cachedRessToLoadObj.url)
 				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
 					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
@@ -595,7 +594,7 @@ export const iframeMainCode = (p: {
 		const loadNext = () => {
 			if (i === ressources.length) return cb()
 			const ress = ressources[i]
-			console.log(h, `loadRessourcesOneByOne ${i+1}/${ressources.length} => ${ress}`);
+			// console.log(h, `loadRessourcesOneByOne ${i+1}/${ressources.length} => ${ress}`);
 			loadCachedRessources([ress], () => {
 				i++
 				loadNext()

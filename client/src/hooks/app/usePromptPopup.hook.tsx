@@ -49,11 +49,20 @@ export type iPopupApi = {
 		options?:popupOptions
 	}) => void
 	form: {
-		create: (p:iPopupFormConfig ) => void
+		create: (p:iPopupFormConfig, cb?:Function ) => void
 		readConfigFromNote: (
 			notePath: string, 
 			cb:(popupsConfig: iPopupFormConfig[]) => void 
-		) => void
+		) => void,
+		getAll: (
+			cb: (popupsConfig: iPopupFormConfig[]
+		) => void) => void,
+		open: (
+			formName: string,
+			cb: (form: iPopupFormConfig) => void
+		) => void,
+
+
 	}
 
 }
@@ -190,6 +199,7 @@ export const usePromptPopup = (p: {
 			insertStringFormat:  "{{name}} | {{age|number}}\n"
 	}
 	const [configForm, setConfigForm] = useState<iPopupFormConfig>(defaultConfigForm as iPopupFormConfig)
+	const configFormCbRef = useRef<Function | undefined>()
 
 	const readConfigFromNote:iPopupApi["form"]["readConfigFromNote"] = (noteLink, cb) => {
 		// get note from path
@@ -240,7 +250,12 @@ export const usePromptPopup = (p: {
 
 	}
 
-	const promptFormComponent:iPopupApi["form"]["create"] = (p) => {
+	const getAllForms:iPopupApi["form"]["getAll"] = (cb) => {
+		readConfigFromNote("/.tiro/forms.md", cb)
+	}
+
+
+	const promptFormComponent:iPopupApi["form"]["create"] = (p, cb) => {
 		let finalConfigForm = {...defaultConfigForm, ...p} as iPopupFormConfig
 
 		// from line_format, extract fields {{name|type}} with text as type by default
@@ -288,8 +303,27 @@ export const usePromptPopup = (p: {
 		setFormFields(fields)
 		setConfigForm(finalConfigForm)
 		setDisplayFormPopup(true)
+		configFormCbRef.current = cb
 	}
 
+	const openForm:iPopupApi["form"]["open"] = (formName, cb) => {
+		getAllForms(forms => {
+			const form = forms.find(el => el.title === formName)
+			if (form) {
+				promptFormComponent(form, cb)
+			} else {
+				// notify no form with that name
+				console.warn("Form not found", formName)
+				getApi(api => {
+					api.ui.notification.emit({
+						id: "form-not-found",
+						content: `Form <b>${formName}</b> not found.`
+					})
+				})
+
+			}
+		})
+	}
 
 
 
@@ -302,16 +336,11 @@ export const usePromptPopup = (p: {
 		formFields.forEach(field => {
 			// if type is date, date is today
 			if (field.type === "date" ) {
-				// if (!formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date().toLocaleDateString('fr-FR')  
-				// else formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleDateString('fr-FR')
 				if (formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleDateString('fr-FR')  
 			}
 			if (field.type === "datetime" ) {
-				// if (!formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date().toLocaleString('fr-FR')  
-				// else formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleString('fr-FR')
 				if (formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleString('fr-FR')
-				// split the last 3 chars (seconds)
-				formFieldsValues.current[field.id] = formFieldsValues.current[field.id].substring(0, formFieldsValues.current[field.id].length - 3)	
+				formFieldsValues.current[field.id] = formFieldsValues.current[field.id]?.substring(0, formFieldsValues.current[field.id].length - 3)	
 			}
 			// if (field.type === "datetime" && !formFieldsValues.current[field.id]) {
 			// 	// date format should be dd/mm/yyyy
@@ -328,7 +357,7 @@ export const usePromptPopup = (p: {
 			}
 		})
 		
-		console.log("mandatoryFieldsEmpty", mandatoryFieldsEmpty)
+		// console.log("mandatoryFieldsEmpty", mandatoryFieldsEmpty)
 
 		if (mandatoryFieldsEmpty.length > 0) {
 			getApi(api => {
@@ -360,7 +389,6 @@ export const usePromptPopup = (p: {
 			// const regex = new RegExp(`{{${key}\|.*?}}`, 'g')
 			// replace {{FIELDID(|type|description)?}} with formValues.FIELDID
 			// be careful to ONLY replace when {{FIELDID| is matched , not {{FIELDID2| for instance
-			console.log(val, key)
 			const regex = new RegExp(`{{${key}\\|.*?}}`, 'g')
 			finalStringToInsert = finalStringToInsert?.replace(regex, val)
 			const regex2 = new RegExp(`{{${key}}}`, 'g')
@@ -382,6 +410,10 @@ export const usePromptPopup = (p: {
 		// insert final string to file
 		getApi(api => {
 			api.file.insertContent(finalFilePath, finalStringToInsert || "", {insertLine}, res => {
+				// if (configFormCb) configFormCb()
+				configFormCbRef.current && configFormCbRef.current()
+				configFormCbRef.current = undefined
+
 				api.ui.notification.emit({ 
 					id: "insert-form-success",
 					content: `<b>FORM: line ${insertLine} insert success</b>: <br><br> "${finalStringToInsert}" <br><br> to <b>${finalFilePath}</b>`,
@@ -444,13 +476,14 @@ export const usePromptPopup = (p: {
 								shouldNotSelectOnClick={true}
 								type={field.type}
 								list={field.selectOptions}
+								onLoad={val => {
+									formFieldsValues.current[field.id] = val
+								}}
 								onChange={nval => {
 									formFieldsValues.current[field.id] = nval
-									// 
 								}}
 								onSelectChange={nval => {
 									formFieldsValues.current[field.id] = nval
-									// 
 								}}
 							/>
 							{
@@ -529,7 +562,9 @@ export const usePromptPopup = (p: {
 		prompt: promptPopup,
 		form: {
 			create: promptFormComponent,
-			readConfigFromNote
+			readConfigFromNote,
+			getAll: getAllForms,
+			open: openForm
 		}
 
 	}

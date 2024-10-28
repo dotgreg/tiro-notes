@@ -19,6 +19,7 @@ export const Input = (p: {
 	onChange?: (res: string) => void
 	onCheckedChange?: (res: boolean) => void
 	onSelectChange?: (res: string) => void
+	onLoad?: (res: any) => void
 	onFocus?: Function
 	onEnterPressed?: Function
 	shouldFocus?: boolean
@@ -56,7 +57,16 @@ export const Input = (p: {
 	let typeField:any = p.type
 	if (p.type === 'datetime') {
 		typeField = 'datetime-local'
+		defaultVal = new Date().toISOString().substring(0, 16)
+		// replace 5 last numbers by 12:00
+		defaultVal = defaultVal.substring(0, defaultVal.length - 5) + '12:00'
 	} 
+	useEffect(() => {
+		p.onLoad && p.onLoad(defaultVal)
+	},[])
+
+
+
 	const labelClicked = () => {
 		if(p.type==="checkbox") {
 			inputRef.current.checked = !inputRef.current.checked
