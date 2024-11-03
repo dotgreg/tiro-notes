@@ -48,7 +48,7 @@ const throttleUpdateCache = throttle((prefix, suffix, currentSentenceLength) => 
     cache.lines = lines
     cache.words = words
     cache.sentences = sentences
-    // console.log("inline suggestion cache updated: ", cache)
+    console.log("inline suggestion cache updated: ", cache)
 }, 6000)
 
 
@@ -95,16 +95,28 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
                 potentialCandidates.push(word)
             }
         }
-        // take the longest one
+        // take the longuest one
         if (potentialCandidates.length > 0) {
-            prediction = potentialCandidates.sort((a, b) => b.length - a.length)[0]
+            // prediction = potentialCandidates.sort((a, b) => a.length - b.length)[0]
+            let sortedDic = potentialCandidates.sort((b, a) => a.length - b.length)
+            // take one randomly of the 10 first
+            let subDic = sortedDic.slice(0, 10)
+            let randomIdx = Math.floor(Math.random() * subDic.length)
+            console.log({subDic}, randomIdx, subDic[randomIdx])
+
+            prediction = subDic[randomIdx]
             // remove the current line from the prediction
             prediction = prediction.replace(currentWord, "")
         }
         // remove any punctuation . , ! ? 
-        prediction = prediction.replace(".", "").replace(",", "").replace("!", "").replace("?", "")
-        // add space
-        prediction = prediction + " "
+        // prediction = prediction.replace(".", "").replace(",", "").replace("!", "").replace("?", "")
+        // if prediction ends with space then .,!? like "hello world ?" transform it to "hello world"
+        let islastCharPunctuation = [".", ",", "!", "?", "|"].includes(prediction.slice(-1))
+        let isbeforeLastCharSpace = prediction.slice(-2, -1) === " "
+        if (islastCharPunctuation && isbeforeLastCharSpace) prediction = prediction.slice(0, -2)
+        if (islastCharPunctuation) prediction = prediction.slice(0, -1)
+
+        // prediction = prediction + " "
     }
 
     //
@@ -125,7 +137,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
             let lengthToRemove = currentSentence.length
             prediction = prediction.slice(lengthToRemove)
         }
-        // console.log({potentialCandidates, currentSentence, currentWord, currentline})
+        console.log({potentialCandidates, currentSentence, currentWord, currentline})
     }
 
 
