@@ -17,6 +17,7 @@ import { getCtagContent } from '../managers/ctag.manager';
 import { isMobile } from '../managers/device.manager';
 import { notifLog } from '../managers/devCli.manager';
 import { iCreateFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
+import { ressCacheIdSync } from '../managers/cacheRessources.manager';
 
 
 const h = `[IFRAME COMPONENT]`
@@ -257,7 +258,8 @@ export const ContentBlockTagView = (p: {
 				tagContent: noteTagContent,
 				tagName: p.block.tagName || '',
 				loginToken: getLoginToken(),
-				backendUrl: getBackendUrl()
+				backendUrl: getBackendUrl(),
+				ressCacheId: ressCacheIdSync.curr
 			}
 
 			iframeParentManager.send(iframeRef.current, { action: 'init', data })

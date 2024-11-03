@@ -502,13 +502,3 @@ export const askFolderDelete: iFolderDeleteFn = (typeFolder, cacheFolderName) =>
 		token: getLoginToken()
 	})
 }
-
-devCliAddFn("cache", "clean_cache", () => {
-	notifLog("Cache clean started...", "clean_cache")
-	getApi(api => {
-		api.folders.delete("cache", "ctag-ressources")
-		api.ressource.cleanCache()
-		api.cache.cleanRamCache()
-		notifLog("Cache cleaned successfully", "clean_cache")
-	})
-})
