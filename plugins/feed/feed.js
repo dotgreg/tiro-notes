@@ -369,6 +369,12 @@ const feedApp = (innerTagStr, opts) => {
 													}
 													
 													nitems[j].image = bgImage
+													// In case of Flickr, image given is often compressed, if image include staticflickr.com + ends with _{ONE LETTER}.jpg, replace with _b.jpg
+													if (bgImage && bgImage.includes("staticflickr.com") && bgImage.endsWith(".jpg")) {
+														let nbgImage = bgImage.replace(/_[a-z]\.jpg/g, "_b.jpg")
+														nitems[j].image = nbgImage
+													}
+
 													// ENCLOSURE
 													if (!nitems[j].enclosure) nitems[j].enclosure = {}
 													else if (nitems[j].enclosure?._attributes) nitems[j].enclosure = { ...nitems[j].enclosure._attributes }
