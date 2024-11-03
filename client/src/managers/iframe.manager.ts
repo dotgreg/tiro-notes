@@ -460,26 +460,21 @@ export const iframeMainCode = (p: {
 			cachedRessToLoadObj.url = cachedRessToLoadUrl
 
 			//@ts-ignore
+			// if frontendCache disabled, add ?nocache=RANDOMNUMBER to url
 			const disableCache = window.disableCache === true ? true : false
+			if (disableCache) {
+				let randomNb = Math.floor(Math.random() * 1000000)
+				const nocache = `&nocache=${randomNb}-${d.ressCacheId}`
+				cachedRessToLoadObj.url += nocache
+			} else {
+				const cacheId = `&cacheId=${d.ressCacheId}`
+				cachedRessToLoadObj.url += cacheId
+			}
 
 			const downloadAndLoadRess = (p?:{frontendCache?:boolean}) => {
 				if (!p) p = {}
 				if (!p.frontendCache) p.frontendCache = false
-				// if frontendCache disabled, add ?nocache=RANDOMNUMBER to url
 				
-				if (!p.frontendCache) {
-					let randomNb = Math.floor(Math.random() * 1000000)
-					// if url already has a query string
-					// let hasQueryString = ressToLoadObj.url.includes("?")
-					// const nocache = `${hasQueryString ? "&" : "?"}nocache=${randomNb}`
-					// url get a token param injected afterwards
-					const nocache = `&nocache=${randomNb}-${d.ressCacheId}`
-					cachedRessToLoadObj.url += nocache
-				} else {
-					// get version from backend
-					const cacheId = `&cacheId=${d.ressCacheId}`
-					cachedRessToLoadObj.url += cacheId
-				}
 				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
 					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
