@@ -57,6 +57,8 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_markdown_preview: true,
 	ui_editor_markdown_latex_preview: true,
 	ui_editor_markdown_enhanced_preview: true,
+	ui_editor_markdown_syntax: false,
+	ui_editor_inline_suggestion: true,
 	ui_editor_markdown_table_preview: true,
 	ui_editor_spellcheck: true,
 	ui_editor_live_watch: true,

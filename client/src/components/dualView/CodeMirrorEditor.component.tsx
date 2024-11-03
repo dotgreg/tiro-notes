@@ -41,6 +41,7 @@ import { indentUnit } from "@codemirror/language";
 import { useInterval } from "../../hooks/interval.hook";
 import { getMdStructure } from "../../managers/markdown.manager";
 import { title } from "process";
+import { inlineSuggestionCMExtention } from "../../managers/codeMirror/inlineSuggestions.cm";
 
 
 const h = `[Code Mirror]`
@@ -323,7 +324,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const updateAutocompletePopupPos = () => {
 		let popup = document.querySelector(".cm-tooltip")
 		if (popup) {
-			console.log(decalAutocompleteRef.current)
 			const transformString = `translate(${(-Math.round(decalAutocompleteRef.current[0] ))}px, ${-(Math.round(decalAutocompleteRef.current[1] - 20))}px)`
 			//@ts-ignore
 			popup.style.transform = transformString
@@ -457,8 +457,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					// datepicker
 					newcodemirrorExtensions.push(datePickerCmPlugin(p.file, p.windowId))
-					// strikethrough, bold etc.
-					newcodemirrorExtensions.push(markdownSynthaxCmPlugin(p.file, p.windowId))
 					// checkbox
 					newcodemirrorExtensions.push(checkboxTodoCmPlugin(p.file, p.windowId))
 					// image preview
@@ -466,6 +464,10 @@ const CodeMirrorEditorInt = forwardRef((p: {
 					// matcherStateField(newcodemirrorExtensions, /!\[([^\]]*)\]\(([^\)]*)\)/g, (matchs) => {
 					newcodemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
 					newcodemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
+				}
+				if (ua.get("ui_editor_markdown_syntax") && !disablePlugins) {
+					// strikethrough, bold etc.
+					newcodemirrorExtensions.push(markdownSynthaxCmPlugin(p.file, p.windowId))
 				}
 			}
 
@@ -482,6 +484,14 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
 			// line jump much larger (4) to be clearer
 			newcodemirrorExtensions.push(indentUnit.of("    "))
+
+			if (ua.get("ui_editor_inline_suggestion") && !disablePlugins) {
+				newcodemirrorExtensions.push(inlineSuggestionCMExtention)
+			}
+
+
+
+
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 

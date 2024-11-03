@@ -147,7 +147,6 @@ export const useBrowserApi = (p: {
 								// }
 								// open in active window
 								// else api.ui.windows.active.setContent(fileToOpen)
-								console.log(1111, fileToOpen)
 								api.ui.windows.active.setContent(fileToOpen)
 							}
 						} else {
