@@ -349,13 +349,14 @@ const feedApp = (innerTagStr, opts) => {
 													const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
 													nitems[j].bgColor = cColor
 													// IMAGE
-													let bgImage = g(nitems[j].thumbnail) ||
-																g(nitems[j]["itunes:image"]?._attributes?.href)||
-																g(nitems[j]["media:thumbnail"]?._attributes?.url) ||
-																g(nitems[j]["media:content"]?._attributes?.url) ||
+													let bgImage = 
+																g(nitems[j].image) ||
 																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
-																g(nitems[j].image)
+																g(nitems[j]["media:content"]?._attributes?.url) ||
+																g(nitems[j].thumbnail) ||
+																g(nitems[j]["itunes:image"]?._attributes?.href)||
+																g(nitems[j]["media:thumbnail"]?._attributes?.url) 
 
 													if (bgImage && (bgImage.endsWith("mp3") || bgImage.endsWith("xml"))) bgImage = null
 													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
@@ -369,15 +370,25 @@ const feedApp = (innerTagStr, opts) => {
 													}
 													
 													nitems[j].image = bgImage
-													// In case of Flickr, image given is often compressed, if image include staticflickr.com + ends with _{ONE LETTER}.jpg, replace with _b.jpg
+													// In case of Flickr, image given is often compressed in content, so add bgImage in content
 													if (bgImage && bgImage.includes("staticflickr.com") && bgImage.endsWith(".jpg")) {
-														let nbgImage = bgImage.replace(/_[a-z]\.jpg/g, "_b.jpg")
-														nitems[j].image = nbgImage
+														// let nbgImage = bgImage.replace(/_[a-z]\.jpg/g, "_b.jpg")
+														// nitems[j].image = nbgImage
+														nitems[j].content = `<img src="${bgImage}" ><br>` + nitems[j].content
 													}
 
 													// ENCLOSURE
 													if (!nitems[j].enclosure) nitems[j].enclosure = {}
 													else if (nitems[j].enclosure?._attributes) nitems[j].enclosure = { ...nitems[j].enclosure._attributes }
+
+
+													// for all fields, check if <a href exist, if it does, add target="_blank" in between
+													for (const key in nitems[j]) {
+														let nval = nitems[j][key]
+														if (typeof nval === "string") {
+															nitems[j][key] = nval.replaceAll("<a ", "<a target='_blank' ")
+														}
+													}
 
 													resItems.push(nitems[j])
 											}
