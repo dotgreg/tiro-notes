@@ -1366,7 +1366,7 @@ const feedApp = (innerTagStr, opts) => {
 				margin-bottom: 20px;
 		}
 		.article-description img {
-				width:100%!important;
+				width:calc(100% - 30px) !important;
 				height: auto!important;
 		}
 		.article-links-wrapper {
