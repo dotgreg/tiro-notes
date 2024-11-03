@@ -11,6 +11,7 @@ const cache:{[key:string]:string[]} = {
     userDicStr: []
 }
 
+let debug = false
 
 
 const throttleUpdateUserDic = throttle(() => {
@@ -48,7 +49,7 @@ const throttleUpdateCache = throttle((prefix, suffix, currentSentenceLength) => 
     cache.lines = lines
     cache.words = words
     cache.sentences = sentences
-    console.log("inline suggestion cache updated: ", cache)
+    debug && console.log("inline suggestion cache updated: ", cache)
 }, 6000)
 
 
@@ -78,6 +79,8 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     let currentSentence = currentSentenceRaw
     if (currentSentence.startsWith(" ")) currentSentence = currentSentence.slice(1)
     let currentWord = currentline.split(" ").slice(-1)[0]
+    // remove french d' l' etc
+    if (currentWord.startsWith("d'") || currentWord.startsWith("l'")) currentWord = currentWord.slice(2)
     // remove currentSentence from the prefix
     let currentSentenceLength = currentSentenceRaw.length
     let prediction:string= ""
@@ -102,7 +105,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
             // take one randomly of the 10 first
             let subDic = sortedDic.slice(0, 10)
             let randomIdx = Math.floor(Math.random() * subDic.length)
-            console.log({subDic}, randomIdx, subDic[randomIdx])
+            debug && console.log({subDic}, randomIdx, subDic[randomIdx])
 
             prediction = subDic[randomIdx]
             // remove the current line from the prediction
