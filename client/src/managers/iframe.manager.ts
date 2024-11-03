@@ -7,6 +7,7 @@ import { unescapeHtml } from "./textProcessor.manager";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
 import { getBackendUrl } from "./sockets/socket.manager";
 import { sharedConfig } from "../../../shared/shared.config";
+import { getRessourcesCacheId, ressCacheIdSync } from "./cacheRessources.manager";
 
 type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe' | 'askFullscreen'
 
@@ -21,6 +22,7 @@ export interface iIframeData {
 		windowId: string
 		loginToken: string
 		backendUrl: string
+		ressCacheId: number
 	}
 	askFullscreen: {},
 	resize: {
@@ -136,6 +138,7 @@ export const generateIframeHtml = (
 				const IMPORTED_generateUUID = ${generateUUID.toString()}
 				const IMPORTED_getRessourceIdFromUrl = ${getRessourceIdFromUrl.toString()}
 				const IMPORTED_bindToElClass = ${bindToElClass.toString()}
+				const IMPORTED_ressCacheId = ${ressCacheIdSync.curr}
 				const main = ${iframeMainCode.toString()};
 				main({
 					backendUrl: IMPORTED_backend_url,
@@ -145,7 +148,8 @@ export const generateIframeHtml = (
 					createEventBus: IMPORTED_createEventBus,
 					generateUUID: IMPORTED_generateUUID,
 					getRessourceIdFromUrl: IMPORTED_getRessourceIdFromUrl,
-					bindToElClass: IMPORTED_bindToElClass
+					bindToElClass: IMPORTED_bindToElClass,
+					ressCacheIdSync: IMPORTED_ressCacheId
 				})
 		</script>
 <style>
@@ -173,7 +177,8 @@ export const iframeMainCode = (p: {
 	createEventBus,
 	generateUUID,
 	getRessourceIdFromUrl,
-	bindToElClass
+	bindToElClass,
+	ressCacheId
 }) => {
 	const h = '[IFRAME child js]'
 
@@ -193,6 +198,7 @@ export const iframeMainCode = (p: {
 		tagContent: '',
 		loginToken: p.loginToken,
 		backendUrl: p.backendUrl,
+		ressCacheId:0
 	}
 	const getInfos = () => d
 
@@ -278,6 +284,7 @@ export const iframeMainCode = (p: {
 		d.file = m.file
 		d.reloadCounter = m.reloadCounter
 		d.windowId = m.windowId
+		d.ressCacheId = m.ressCacheId
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
@@ -466,8 +473,12 @@ export const iframeMainCode = (p: {
 					// let hasQueryString = ressToLoadObj.url.includes("?")
 					// const nocache = `${hasQueryString ? "&" : "?"}nocache=${randomNb}`
 					// url get a token param injected afterwards
-					const nocache = `&nocache=${randomNb}`
+					const nocache = `&nocache=${randomNb}-${d.ressCacheId}`
 					cachedRessToLoadObj.url += nocache
+				} else {
+					// get version from backend
+					const cacheId = `&cacheId=${d.ressCacheId}`
+					cachedRessToLoadObj.url += cacheId
 				}
 				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
