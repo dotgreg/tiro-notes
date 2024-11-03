@@ -356,12 +356,13 @@ const feedApp = (innerTagStr, opts) => {
 																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
 																g(nitems[j].image)
+
 													if (bgImage && (bgImage.endsWith("mp3") || bgImage.endsWith("xml"))) bgImage = null
 													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
 													if (!bgImage) {
 														let contentAndDescription = nitems[j].description + nitems[j].content
 														// look for first image in content
-														let imageInContent = contentAndDescription.match(/src=['"]([^'"]+)['"][^>]/i)
+														let imageInContent = contentAndDescription.match(/<img[^>]+src=['"]([^'">]+)['"]/i)
 														if (imageInContent && imageInContent[1]) bgImage =  imageInContent[1]
 													}
 													if (nitems[j].enclosure) {
@@ -742,7 +743,7 @@ const feedApp = (innerTagStr, opts) => {
 								if (filteredItems.length === 0) return
 								for (let i = 0; i < filteredItems.length; i++) {
 										let a = filteredItems[i]
-										let searchee = a.title.toLowerCase() + a.content.toLowerCase() + a.sourceFeed.toLowerCase()
+										let searchee = a.title?.toLowerCase() + a.content?.toLowerCase() + a.sourceFeed?.toLowerCase()
 										if (searchee.includes(search.toLowerCase())) {
 												nItems.push(a)
 										}
@@ -1640,7 +1641,7 @@ LIST > ARTICLES
 	margin-left: 11px;
 	line-height: 10px;
 	position: relative;
-	top: -3px;
+	top: -1px;
 }
 .article-full-width-item .title-wrapper  {
 }
@@ -1657,6 +1658,8 @@ LIST > ARTICLES
 		font-weight: 800;
 		color: black;
 		line-height: 12px;
+		max-height: 40px;
+		overflow: hidden;
 }
 .article-full-width-item .bg-item {
 		width: 100%;
