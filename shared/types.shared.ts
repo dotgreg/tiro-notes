@@ -113,6 +113,8 @@ export type iUserSettingName =
 'ui_editor_markdown_preview' |
 'ui_editor_spellcheck' |
 'ui_editor_markdown_enhanced_preview' |
+'ui_editor_markdown_syntax' |
+'ui_editor_inline_suggestion' |
 'ui_editor_markdown_latex_preview' |
 'ui_editor_markdown_table_preview' |
 'ui_editor_ai_command' |

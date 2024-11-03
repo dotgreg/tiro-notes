@@ -870,7 +870,6 @@ export const OmniBar = (p: {
 		// setLastNotesOptions(nOptions)
 		let initialFile = nOptions[0] ? nOptions[0].payload?.file : null
 		if (initialFile) setNotePreview(initialFile)
-		console.log("last notes22", nOptions)
 
 		setOptions(nOptions)
 	}

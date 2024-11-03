@@ -428,7 +428,7 @@ const smartlistApp = (innerTagStr, opts) => {
 
         <style>
                 #smart-list-ctag-add-form {
-                        margin-right: 30px;
+                        margin-right: 18px;
                 }
                 #smart-list-ctag {
                         min-width: 560px;

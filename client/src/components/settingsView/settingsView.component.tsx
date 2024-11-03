@@ -343,6 +343,16 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
+						title: "Inline Suggestions",
+						expl: "Will suggest words and lines according to the current note content. You can add more words suggested by creating a file at '.tiro/suggestions.md'. Can be heavy on performances on longer notes" + requireReloadStr ,
+						var: us.get('ui_editor_inline_suggestion'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_inline_suggestion', val)
+						}
+					},
+					{
+						type: 'checkbox',
 						title: "Search Selected Text Button",
 						expl: "Send the selected text as a question to a search engine" + requireReloadStr,
 						var: us.get('ui_editor_search_highlight_enable'),
@@ -392,12 +402,32 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'checkbox',
-						title: "Enhanced Markdown",
+						title: "Enhanced Markdown Preview",
 						expl: "Enhanced Markdown Preview for files, documents, date etc" + requireReloadStr,
 						var: us.get('ui_editor_markdown_enhanced_preview'),
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_enhanced_preview', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Enhanced Markdown Syntax",
+						expl: "Enhance Markdown Syntax (**bold**, ~~text~~, and other)",
+						var: us.get('ui_editor_markdown_syntax'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_syntax', val)
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Improved Markdown Table",
+						expl: "Improves the display of markdown table. Add '--table' in the note to activate it." + requireReloadStr,
+						var: us.get('ui_editor_markdown_table_preview'),
+						modifier: val => {
+							setDisplayReload(true);
+							us.set('ui_editor_markdown_table_preview', val)
 						}
 					},
 					{
@@ -427,16 +457,6 @@ export const SettingsPopup = (p: {
 						modifier: val => {
 							setDisplayReload(true);
 							us.set('ui_editor_markdown_latex_preview', val)
-						}
-					},
-					{
-						type: 'checkbox',
-						title: "Improved Markdown Table",
-						expl: "Improves the display of markdown table. Add '--table' in the note to activate it." + requireReloadStr,
-						var: us.get('ui_editor_markdown_table_preview'),
-						modifier: val => {
-							setDisplayReload(true);
-							us.set('ui_editor_markdown_table_preview', val)
 						}
 					},
 					{

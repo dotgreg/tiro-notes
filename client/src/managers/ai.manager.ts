@@ -16,6 +16,19 @@ export type iAiBtnConfig = {
     title: string,
     typeAnswer: iAiTypeAnswer
 }
+
+
+//
+//
+// V1: highlight something, then open new floating window with AI answer
+//
+//
+
+//
+//
+// V1: highlight something, then open new floating window with AI answer
+//
+//
 export const genAiButtonsConfig = ():iAiBtnConfig[] => {
     const rawCmd = userSettingsSync.curr.ui_editor_ai_command
     let res:iAiBtnConfig[] = []
