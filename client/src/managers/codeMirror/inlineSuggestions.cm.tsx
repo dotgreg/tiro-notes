@@ -1,5 +1,5 @@
 
-import { inlineCopilot } from "codemirror-copilot";
+import { inlineCopilot, clearLocalCache } from "codemirror-copilot";
 import { getApi } from "../../hooks/api/api.hook";
 import { debounce, throttle } from "lodash-es";
 
@@ -8,7 +8,11 @@ const cache:{[key:string]:string[]} = {
     lines: [],
     words: [],
     sentences: [],
-    userDicStr: []
+    userDicStr: [],
+}
+
+const hist = {
+    lastLinePos: -1
 }
 
 let debug = false
@@ -75,10 +79,14 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     let currentline = prefix.split("\n").slice(-1)[0]
     // split currentSentence in . ? !
     let currentSentenceRaw = currentline.split(".").slice(-1)[0].split("?").slice(-1)[0].split("!").slice(-1)[0]
+    // how many \n in prefix
+    let currentLinePos = prefix.split("\n").length - 1
     // if currentSentence starts with a space, remove it
     let currentSentence = currentSentenceRaw
     if (currentSentence.startsWith(" ")) currentSentence = currentSentence.slice(1)
     let currentWord = currentline.split(" ").slice(-1)[0]
+    let beforeCurrentWord = currentline.split(" ").slice(-2, -1)[0]
+    let fullText = prefix + suffix
     // remove french d' l' etc
     if (currentWord.startsWith("d'") || currentWord.startsWith("l'")) currentWord = currentWord.slice(2)
     // remove currentSentence from the prefix
@@ -87,19 +95,66 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
 
     throttleUpdateCache(prefix, suffix, currentSentenceLength)
 
+
+    let proceedLine = true
+    let proceedWord = true
+    let predictionWordSimple = ""
+    let predictionWordBetter = ""
+    let predictionLine = ""
+
+
+
     //
     // WORD PREDICTION
     //
-    if (currentWord.length > 1) {
+    let triggerWordPrediction = currentWord.length > 1
+    triggerWordPrediction = true
+    if (triggerWordPrediction) {
         // if current line starts like one of the lines, predict that line
-        let potentialCandidates:string[] = []
+        let potentialCandidatesSimple:string[] = []
+        let potentialCandidatesBetter:string[] = []
+
         for (let word of cache.words) {
             if (word.startsWith(currentWord)) {
-                potentialCandidates.push(word)
+                potentialCandidatesSimple.push(word)
+                // for each word, does `${beforeCurrentWord} ${word}` exists in the text, if yes push in potentialCandidates2
+                if (beforeCurrentWord && beforeCurrentWord.length > 0) {
+                    let combination = beforeCurrentWord + " " + word
+                    // for each time fullText includes combination, push word in potentialCandidatesBetter
+                    let idx = fullText.indexOf(combination)
+                    while (idx !== -1 && word !== "") {
+                        potentialCandidatesBetter.push(word)
+                        idx = fullText.indexOf(combination, idx + 1)
+                    }
+                }
             }
         }
+
+
+        // if potentialCandidatesBetter is not empty, get the most occuring work in it
+        if (potentialCandidatesBetter.length > 0) {
+            let mostOccuringWord = ""
+            let mostOccuringWordCount = 0
+            for (let word of potentialCandidatesBetter) {
+                let count = potentialCandidatesBetter.filter(w => w === word).length
+                if (count > mostOccuringWordCount) {
+                    mostOccuringWord = word
+                    mostOccuringWordCount = count
+                }
+            }
+            // console.log({mostOccuringWord, mostOccuringWordCount, potentialCandidatesBetter})
+            potentialCandidatesBetter = [mostOccuringWord]
+        }
+
+        // if potentialCandidatesBetter is not empty, take it
+        let potentialCandidates =  potentialCandidatesBetter.length > 0 ? potentialCandidatesBetter : potentialCandidatesSimple
+        // console.log({potentialCandidatesSimple, potentialCandidatesBetter, potentialCandidates})
+
+
+        let predictionWordInt = ""
         // take the longuest one
         if (potentialCandidates.length > 0) {
+            // console.log({potentialCandidates})
             // prediction = potentialCandidates.sort((a, b) => a.length - b.length)[0]
             let sortedDic = potentialCandidates.sort((b, a) => a.length - b.length)
             // take one randomly of the 10 first
@@ -107,25 +162,35 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
             let randomIdx = Math.floor(Math.random() * subDic.length)
             debug && console.log({subDic}, randomIdx, subDic[randomIdx])
 
-            prediction = subDic[randomIdx]
+            predictionWordInt = subDic[randomIdx]
             // remove the current line from the prediction
-            prediction = prediction.replace(currentWord, "")
+            predictionWordInt = predictionWordInt.replace(currentWord, "")
         }
         // remove any punctuation . , ! ? 
-        // prediction = prediction.replace(".", "").replace(",", "").replace("!", "").replace("?", "")
-        // if prediction ends with space then .,!? like "hello world ?" transform it to "hello world"
-        let islastCharPunctuation = [".", ",", "!", "?", "|"].includes(prediction.slice(-1))
-        let isbeforeLastCharSpace = prediction.slice(-2, -1) === " "
-        if (islastCharPunctuation && isbeforeLastCharSpace) prediction = prediction.slice(0, -2)
-        if (islastCharPunctuation) prediction = prediction.slice(0, -1)
+        // predictionWordInt = predictionWordInt.replace(".", "").replace(",", "").replace("!", "").replace("?", "")
+        // if predictionWordInt ends with space then .,!? like "hello world ?" transform it to "hello world"
+        let islastCharPunctuation = [".", ",", "!", "?", "|"].includes(predictionWordInt.slice(-1))
+        let isbeforeLastCharSpace = predictionWordInt.slice(-2, -1) === " "
+        if (islastCharPunctuation && isbeforeLastCharSpace) predictionWordInt = predictionWordInt.slice(0, -2)
+        if (islastCharPunctuation) predictionWordInt = predictionWordInt.slice(0, -1)
+        console.log({predictionWordInt})
 
         // prediction = prediction + " "
+        if (potentialCandidatesBetter.length > 0) predictionWordBetter = predictionWordInt
+        else predictionWordSimple = predictionWordInt
     }
 
     //
     // SENTENCES PREDICTION
     //
-    if (currentSentence.length > 2) {
+    if (currentSentence.length > 4) {
+        let predictionLine = ""
+        // if current sentence ends with [ ] or [x]  or " " do nothign
+        let currentSentenceTrim = currentSentence.trim()
+        if (currentSentenceTrim.endsWith("[ ]") || currentSentenceTrim.endsWith("[x]")) proceedLine = false
+        if (currentSentence.endsWith(" ")) proceedLine = false
+
+
         // if current line starts like one of the lines, predict that line
         let potentialCandidates:string[] = []
         for (let sentence of cache.sentences) {
@@ -135,17 +200,25 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
         }
         // take the longest one
         if (potentialCandidates.length > 0) {
-            prediction = potentialCandidates.sort((a, b) => b.length - a.length)[0]
-            // remove the current line from the prediction
+            predictionLine = potentialCandidates.sort((a, b) => b.length - a.length)[0]
+            // remove the current line from the predictionLine
             let lengthToRemove = currentSentence.length
-            prediction = prediction.slice(lengthToRemove)
+            predictionLine = predictionLine.slice(lengthToRemove)
         }
-        console.log({potentialCandidates, currentSentence, currentWord, currentline})
+        // console.log({potentialCandidates, currentSentence, currentWord, currentline})
+
+        if (proceedLine) prediction = predictionLine
     }
 
+    // if line is not the same, disable suggestion
+    let canPredict = true
+    if (hist.lastLinePos !== currentLinePos) canPredict = false
+    console.log("222", {lastLinePos: hist.lastLinePos, currentLinePos, predictionLine, predictionWordBetter, predictionWordSimple, canPredict})
+    hist.lastLinePos = currentLinePos
+    clearLocalCache()
 
-
-    // console.log({prefix, suffix}, "inlineCopilotCMExtention", res)
+    prediction = predictionWordBetter || predictionWordSimple || prediction
+    if (!canPredict) prediction = ""
 
     return prediction;
 }, 100)

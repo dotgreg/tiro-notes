@@ -149,29 +149,31 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     let allColsNames = []
                     let possibleDateCols = []
                     let notPossibleDateCols = []
-                    for (let item of data) {
-                        for (let col in item) {
-                            allColsNames.push(col)
-                            // if col is not already inside possibleDateCols, and is a date
-                            if (item[col] !== "" && !possibleDateCols.includes(col) && !notPossibleDateCols.includes(col)){
-                                let value = item[col]
-                                let dateValue = new Date(value).toString()
-                                if (dateValue !== "Invalid Date" && value.length >= 8) {
-                                    possibleDateCols.push(col)
-                                } else {
-                                    notPossibleDateCols.push(col)
-                                }
-                            }
-                        }
-                    }
+                    // for (let item of data) {
+                    //     for (let col in item) {
+                    //         allColsNames.push(col)
+                    //         // if col is not already inside possibleDateCols, and is a date
+                    //         if (item[col] !== "" && !possibleDateCols.includes(col) && !notPossibleDateCols.includes(col)){
+                    //             let value = item[col]
+                    //             let dateValue = new Date(value).toString()
+                    //             if (dateValue !== "Invalid Date" && value.length >= 8) {
+                    //                 possibleDateCols.push(col)
+                    //             } else {
+                    //                 notPossibleDateCols.push(col)
+                    //             }
+                    //         }
+                    //     }
+                    // }
                     // make all cols unique
                     allColsNames = [...new Set(allColsNames)]
                     // remove if one call is inside blacklist
                     let blackListCol = [""]
                     allColsNames = allColsNames.filter(col => !blackListCol.includes(col))
                     // for each data item, if it has not one prop of allColsName, add it with ""
-                    console.log(hl,"addTableView (pre data normalization)", filename, allColsNames)
-                    // for each data item, if it has not one prop of allColsName, add it with ""
+                    // get time line 13:33:23
+                    let ctime = new Date().toLocaleTimeString()
+                    console.log(hl,`addTableView (pre data normalization) ${ctime}`, filename, allColsNames)
+                    // for each data item, if it has not one prop of allColsName, add it with `"
                     for (let item of data) {
                         for (let col of allColsNames) {
                             if (!item[col]) item[col] = ""
@@ -181,17 +183,18 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                             delete item[col]
                         }
                         // if a col include the mention "date", "ts", "timestamp", format it to date
-                        for (let col in item) {
-                            if (col.includes("date") || col.includes("ts") || col.includes("timestamp")) {
-                                item[col] = new Date(item[col])
-                            }
-                        }
-                        // for all possible date cols, format it to date
-                        for (let col of possibleDateCols) {
-                            item[col] = new Date(item[col])
-                        }
+                        // for (let col in item) {
+                        //     if (col.includes("date") || col.includes("ts") || col.includes("timestamp")) {
+                        //         item[col] = new Date(item[col])
+                        //     }
+                        // }
+                        // // for all possible date cols, format it to date
+                        // for (let col of possibleDateCols) {
+                        //     item[col] = new Date(item[col])
+                        // }
                     }
-                    console.log(hl,"addTableView (post data normalization)", filename, {possibleDateCols, notPossibleDateCols})
+                    let ctime2 = new Date().toLocaleTimeString()
+                    console.log(hl,`addTableView (post data normalization) ${ctime2}`, filename, {possibleDateCols, notPossibleDateCols})
                     
                     
 
