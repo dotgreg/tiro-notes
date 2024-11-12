@@ -86,6 +86,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     if (currentSentence.startsWith(" ")) currentSentence = currentSentence.slice(1)
     let currentWord = currentline.split(" ").slice(-1)[0]
     let beforeCurrentWord = currentline.split(" ").slice(-2, -1)[0]
+    let lastChar = currentline.slice(-1)
     let fullText = prefix + suffix
     // remove french d' l' etc
     if (currentWord.startsWith("d'") || currentWord.startsWith("l'")) currentWord = currentWord.slice(2)
@@ -101,6 +102,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     let predictionWordSimple = ""
     let predictionWordBetter = ""
     let predictionLine = ""
+    let wordBetterOnly = false
 
 
 
@@ -108,7 +110,13 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     // WORD PREDICTION
     //
     let triggerWordPrediction = currentWord.length > 1
-    triggerWordPrediction = true
+    // if lastChar is a space and beforeCurrentWord is not empty, triggerWordPrediction = true
+    if (lastChar === " " && beforeCurrentWord && beforeCurrentWord.length > 0) {
+        triggerWordPrediction = true
+        wordBetterOnly = true
+    }
+    
+    // triggerWordPrediction = true
     if (triggerWordPrediction) {
         // if current line starts like one of the lines, predict that line
         let potentialCandidatesSimple:string[] = []
@@ -148,7 +156,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
 
         // if potentialCandidatesBetter is not empty, take it
         let potentialCandidates =  potentialCandidatesBetter.length > 0 ? potentialCandidatesBetter : potentialCandidatesSimple
-        // console.log({potentialCandidatesSimple, potentialCandidatesBetter, potentialCandidates})
+        if (wordBetterOnly) potentialCandidates = potentialCandidatesBetter
 
 
         let predictionWordInt = ""
@@ -173,7 +181,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
         let isbeforeLastCharSpace = predictionWordInt.slice(-2, -1) === " "
         if (islastCharPunctuation && isbeforeLastCharSpace) predictionWordInt = predictionWordInt.slice(0, -2)
         if (islastCharPunctuation) predictionWordInt = predictionWordInt.slice(0, -1)
-        console.log({predictionWordInt})
+        // console.log({predictionWordInt})
 
         // prediction = prediction + " "
         if (potentialCandidatesBetter.length > 0) predictionWordBetter = predictionWordInt
@@ -181,10 +189,10 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     }
 
     //
-    // SENTENCES PREDICTION
+    // SENTENCES PREDICTION => only if predictionWordBetter is empty
     //
-    if (currentSentence.length > 4) {
-        let predictionLine = ""
+    if (currentSentence.length > 4 && predictionWordBetter === "") {
+        predictionLine = ""
         // if current sentence ends with [ ] or [x]  or " " do nothign
         let currentSentenceTrim = currentSentence.trim()
         if (currentSentenceTrim.endsWith("[ ]") || currentSentenceTrim.endsWith("[x]")) proceedLine = false
@@ -213,7 +221,7 @@ export const inlineSuggestionCMExtention = inlineCopilot(async (prefix, suffix) 
     // if line is not the same, disable suggestion
     let canPredict = true
     if (hist.lastLinePos !== currentLinePos) canPredict = false
-    console.log("222", {lastLinePos: hist.lastLinePos, currentLinePos, predictionLine, predictionWordBetter, predictionWordSimple, canPredict})
+    // console.log("222", {lastLinePos: hist.lastLinePos, currentLinePos, predictionLine, predictionWordBetter, predictionWordSimple, canPredict})
     hist.lastLinePos = currentLinePos
     clearLocalCache()
 
