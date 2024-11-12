@@ -87,17 +87,25 @@ const spreadSheetApp = (innerTagStr, opts) => {
 
 								const cellAddress = { sheet: sheetId, col, row };
 								const cellHasFormula = hf.doesCellHaveFormula(cellAddress);
+
 								let cellValue = "";
+								let cellFormula = hf.getCellFormula(cellAddress);
+								let cellAdressStr = hf.simpleCellAddressToString(cellAddress, 0);
+								cellValue = hf.getCellValue(cellAddress);
+								let isCellNumber = typeof cellValue === "number" || parseFloat(cellValue) === cellValue;
 
 								if (!hf.isCellEmpty(cellAddress) && !cellHasFormula) {
 										cellValue = hf.getCellValue(cellAddress);
 										
+										if (isCellNumber) {
+											cellValue += `<div class='formula'>${cellAdressStr}</div>`;
+										}
 								} else {
 										cellValue = hf.getCellValue(cellAddress);
 										// get cell original value not calculated
 										// let cellValueOriginal = hf.getCellValue(cellAddress, { useExportValues: true });
 										let cellFormula = hf.getCellFormula(cellAddress);
-										cellValue += `<span class='formula'>${cellFormula}</span>`;
+										cellValue += `<div class='formula'>${cellAdressStr} ${cellFormula}</div>`;
 								}
 
 								newTbodyHTML += `<td><span>
@@ -184,6 +192,7 @@ table tbody tr td:first-child span {
 
 table tbody .formula {
 	color: #bcbcbc;
+	display: inline;
     font-size: 9px;
     position: relative;
     left: 9px;
