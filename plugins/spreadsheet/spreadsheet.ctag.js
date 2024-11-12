@@ -91,8 +91,13 @@ const spreadSheetApp = (innerTagStr, opts) => {
 
 								if (!hf.isCellEmpty(cellAddress) && !cellHasFormula) {
 										cellValue = hf.getCellValue(cellAddress);
+										
 								} else {
 										cellValue = hf.getCellValue(cellAddress);
+										// get cell original value not calculated
+										// let cellValueOriginal = hf.getCellValue(cellAddress, { useExportValues: true });
+										let cellFormula = hf.getCellFormula(cellAddress);
+										cellValue += `<span class='formula'>${cellFormula}</span>`;
 								}
 
 								newTbodyHTML += `<td><span>
@@ -175,6 +180,17 @@ table tbody tr td:first-child span {
   text-align: left;
   padding-left: 15px;
   margin-left: 0;
+}
+
+table tbody .formula {
+	color: #bcbcbc;
+    font-size: 9px;
+    position: relative;
+    left: 9px;
+    top: -1px;
+}
+table tbody .formula:hover {
+	color: #000;
 }
 
 table tbody tr td:first-child span::before {
