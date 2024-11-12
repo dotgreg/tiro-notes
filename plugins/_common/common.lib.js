@@ -1,5 +1,12 @@
 //@flow 
 
+const getCachedVal = (idCache, cb) => {
+    
+
+
+}
+
+
 function getOperatingSystem() {
     const platform = navigator.platform.toLowerCase();
     

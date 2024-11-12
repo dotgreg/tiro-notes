@@ -22,20 +22,33 @@ const spreadSheetApp = (innerTagStr, opts) => {
 		//     `;
 
 		const tableMdToArray = (str) => {
-				const arr1 = str.split("\n");
-				const arr3 = [];
-				for (let i = 0; i < arr1.length; i++) {
-						const arr2 = arr1[i].split("|");
-						if (arr2.length === 1 && arr2[0] === "") continue;
-						for (let y = 0; y < arr2.length; y++) {
-								arr2[y] = arr2[y].trim();
-						}
-						arr3.push(arr2);
+				const linesArr = str.split("\n");
+				const sheetArr = [];
+				for (let i = 0; i < linesArr.length; i++) {
+					let line = linesArr[i].trim();
+					// if line starts with |, remove ti
+					if (line.startsWith("|")) line = line.slice(1);
+					if (line.endsWith("|")) line = line.slice(0, -1);
+					const cellsArr = line.split("|");
+					if (cellsArr.length === 1 && cellsArr[0] === "") continue;
+					for (let y = 0; y < cellsArr.length; y++) {
+							cellsArr[y] = cellsArr[y].trim();
+					}
+					sheetArr.push(cellsArr);
 				}
-				const headArr = arr3[0];
-				const bodyArr = arr3.slice(2);
+				const headArr = sheetArr[0];
+				const bodyArr = sheetArr.slice(2);
 				return { headArr, bodyArr };
 		};
+
+
+		// const innertag = `
+		//     ||world|woop|wooop|
+		//     |-|-|-|-|
+		//     |11|12|13|=SUM(A1:C1)|
+		//     |21|22|23|=SUM(A2:C2)|
+		//     |31|32|33|=SUM(A1:C3)|
+		//     `;
 
 		//
 		// CALC & RENDER ARRAY HTML
