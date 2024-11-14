@@ -58,17 +58,41 @@ ${res}
 				font-size: 12px;
 			}
 			table, td, th {
-				border: 1px solid black;
+				padding: 5px;
+				text-align: left;
 				border-collapse: collapse;
 			}
-			td, td {
-				padding: 2px;
+			tr,td {
+				padding: 1px 5px;
+			}
+			th {
+				padding: 7px;
+				background: #c1c1c1;
+			}
+			// align header left
+			th {
+				text-align: left;
+
+			}
+			// even rows
+			// tr:nth-child(even) {
+			// 	background: #f0f0f0;
+			// }
+			table tr:nth-child(odd) {
+				background: #EEE;
+			}
+			table tr:nth-child(even) {
+				background: #CCC;
+			}
+			td.calculation {
+				color: grey;
 			}
 		</style> `
 
 		api.utils.loadRessources([
 				// 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js',
 				// 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/styles/agate.min.css',
+				`${opts.plugins_root_url}/_common/common.lib.js`,
 				'https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.3.0/math.min.js',
 				// 'https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.16.0/plotly.min.js',
 		], () => {
@@ -90,8 +114,37 @@ ${res}
 				})
 		})
 
+		const helpText = `
+		<h3>Exec Ctag Help</h3>
+		<p>Execute calculations in javascript and get the output in a table</p>
+		<p>If some lines starts like r.aCalculation = <...>, it will appear on the result </p>
+		<br>
+		<h4>Math.js</h4>
+		<p> Math.js is loaded in the background by calling m() (shortcut for math.compile) or math, so you can use it to perform calculations</p>
+		<p> For example, you can use math.multiply([1,2,3,4,5], 2) to multiply an array</p>
+		<br> please refer to the <a href="https://mathjs.org/docs/expressions/syntax.htmlhttps://mathjs.org/docs/expressions/parsing.html">math.js documentation</a> for more information
+		<h4>Example</h4>
+		<pre>
+			[[exec]]
+				t = {}
+				t.a = 1
+				t.b = 2
+				t.c = t.a + t.b
+				t.d = m( "sqrt(3^2 + 4^2)" )
+				t.e = math.multiply([1,2,3,4],  3)
+				return t
+			[[exec]]
+		</pre>
+		`
+
+
 		const execExpression = () => {
+
 				try {
+					window.m = (str) => math.evaluate(str).toString()
+					const commonLib = window._tiroPluginsCommon.commonLib
+					const { generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+					console.log(1233, commonLib)
 					let varStr = innerTagStr
 					let analysisArr = []
 					let analysisObj = {}
@@ -110,12 +163,16 @@ ${res}
 					for (let key in t2) {
 						let calculation = analysisObj[key] || ""
 						let value = t2[key]
+						// if calculation && value = "" return
+						console.log(123, key, value, calculation)
+						// if ( value.length < 1) continue
 						// if val is object, stringify it
 						if (typeof value === 'object') {
 							value = JSON.stringify(value)
-							// replace , with ;
-							value = value.replace(/,/g, ';')
 						}
+						// replace , with ;
+						if(typeof value === "string") value = value.replace(/,/g, ';')
+						if (typeof calculation === "string") calculation = calculation.replace(/,/g, ';')
 						t3[key] = [value, calculation]
 					}
 
@@ -133,7 +190,7 @@ ${res}
 					console.log(csvStr)
 
 					// insert it to body
-					document.body.innerHTML = `<table id="table"></table> ${styleStr}`
+					// document.body.innerHTML = `<table id="table"></table> ${styleStr}`
 					// create a html table with 1) the following header
 					// variable name, valyue, calculation 
 					// 2) the values
@@ -141,17 +198,55 @@ ${res}
 
 
 
-					let table = document.getElementById('table')
+					// let table = document.getElementById('table')
+					// let lines = csvStr.split('\n')
+					// let header = lines[0].split(',').map(cell => `<th>${cell}</th>`).join('')
+					// table.innerHTML = `<tr>${header}</tr>`
+					// lines.slice(1).map(line => {
+					// 	let cells = line.split(',').map(cell => `<td>${cell}</td>`).join('')
+					// 	table.innerHTML += `<tr>${cells}</tr>`
+					// })
+
 					let lines = csvStr.split('\n')
-					let header = lines[0].split(',').map(cell => `<th>${cell}</th>`).join('')
-					table.innerHTML = `<tr>${header}</tr>`
-					lines.slice(1).map(line => {
-						let cells = line.split(',').map(cell => `<td>${cell}</td>`).join('')
-						table.innerHTML += `<tr>${cells}</tr>`
-					})
+					window.toggleCalculationVisiziility = () => {
+						document.querySelectorAll('.calculation').forEach(cell => {
+							cell.style.display = cell.style.display === 'none' ? 'block' : 'none'
+						})
+					}
+
+					let tableAndStyleHtml = `
+					<table id="table">
+						<thead>
+							<tr>
+								<th class="variable-name">variable name</th>
+								<th class="value">value</th>
+								<th class="calculation">calculation</th>
+							</tr>
+						</thead>
+						<tbody>
+							${lines.slice(1).map(line => {
+								// if line is empty, return empty string
+								if (line.trim() === '') return ''
+								let cells = `
+								<td class="variable-name">${line.split(',')[0]}</td>
+								<td class="value">${line.split(',')[1]}</td>
+								<td class="calculation">${line.split(',')[2]}</td>
+								`
+								
+								return `<tr>${cells}</tr>`
+							}
+							).join('')}
+						</tbody>
+					</table>
+					<br>
+					<a href="data:text/csv;charset=utf-8,${encodeURIComponent(csvStr)}" download="data.csv"><button> download csv</button></a>
+					<button onclick="toggleCalculationVisiziility()">toggle calc</button>
+					${generateHelpButton(helpText, "Exec ctag help")}
+					${styleStr}
+					`
 
 
-
+					document.body.innerHTML = tableAndStyleHtml
 
 
 
