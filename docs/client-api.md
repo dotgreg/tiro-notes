@@ -144,6 +144,19 @@
  
 
 
+ ## Api.call : ai
+ 
+
+#### <span class="render-code-wrapper">ai.search</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. searchText: <span class="render-code-wrapper">string</span>
+       1. modelName: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+
  ## Api.call : analytics
  
 
@@ -872,8 +885,16 @@ noteLink should be relative from tiro folder
  ## Api.call : ui
  
 
+#### <span class="render-code-wrapper">ui.floatingPanel.openFile.__type</span>
+ - Type: <span class="render-code-wrapper">void</span> 
+ 
+
 #### <span class="render-code-wrapper">ui.floatingPanel.panels</span>
  - Type: <span class="render-code-wrapper">array</span> 
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.toggleFile.__type</span>
+ - Type: <span class="render-code-wrapper">void</span> 
  
 
 #### <span class="render-code-wrapper">ui.floatingPanel.actionAll</span>
@@ -933,15 +954,6 @@ noteLink should be relative from tiro folder
        1. direction: <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.movePositioninArray",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span> ]<br/>)</div>
- 
-
-#### <span class="render-code-wrapper">ui.floatingPanel.openFile</span>
- - Type: <span class="render-code-wrapper">Function</span> 
-    - Parameters: 
-       1. filepath: <span class="render-code-wrapper">string</span>
-       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;layout: <span class="render-code-wrapper"><a href="#client-api?id=ipanellayout">iPanelLayout</a></span>, <br/>&nbsp;&nbsp;&nbsp;noteView: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;idpanel?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;replacementString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;searchedString?: <span class="render-code-wrapper">string</span><br/>}</span>
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.openFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;layout: <span class="render-code-wrapper"><a href="#client-api?id=ipanellayout">iPanelLayout</a></span>, <br/>&nbsp;&nbsp;&nbsp;noteView: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;view: <span class="render-code-wrapper"><a href="#client-api?id=iviewtype">iViewType</a></span>, <br/>&nbsp;&nbsp;&nbsp;idpanel?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;replacementString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;searchedString?: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.floatingPanel.pushWindowOnTop</span>
@@ -1613,7 +1625,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_general_font_size" | "ui_layout_font_family_interface" | "ui_layout_font_family_editor" | "ui_layout_shortcuts_panel" | "ui_layout_background_image_enable" | "ui_layout_background_video_enable" | "ui_layout_background_image_window_opacity" | "ui_layout_background_image_window_opacity_active" | "ui_layout_background_video_width" | "ui_layout_background_video_height" | "ui_layout_background_image" | "ui_editor_search_highlight_url" | "ui_editor_search_highlight_enable" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_synced_title_scrolling" | "ui_editor_markdown_tags" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_syntax" | "ui_editor_inline_suggestion" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "privacy_work_mode_enable" | "privacy_work_mode_filters" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_general_font_size" | "ui_layout_font_family_interface" | "ui_layout_font_family_editor" | "ui_layout_shortcuts_panel" | "ui_layout_background_image_enable" | "ui_layout_background_video_enable" | "ui_layout_background_image_window_opacity" | "ui_layout_background_image_window_opacity_active" | "ui_layout_background_video_width" | "ui_layout_background_video_height" | "ui_layout_background_image" | "ui_editor_search_highlight_url" | "ui_editor_search_highlight_enable" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_synced_title_scrolling" | "ui_editor_markdown_tags" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_syntax" | "ui_editor_inline_suggestion" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "keyboard_shortcuts_textarea" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "privacy_work_mode_enable" | "privacy_work_mode_filters" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iUpdateConfigJsonOpts</span>

@@ -45,6 +45,14 @@ export interface iCreateFloatingPanel extends Partial<iFloatingPanel> {
     layout?: iPanelLayout
 }
 
+type iOpenFileFloatingFn  = (filepath: string, opts?: { 
+        idpanel?: string, 
+        layout?: iPanelLayout, 
+        searchedString?: string, 
+        replacementString?: string 
+        noteView?: iViewType
+        view?: iViewType
+    }) => void
 export interface iFloatingPanelApi {
     create: (panel: iCreateFloatingPanel) => void,
     delete: (panelId: string) => void,
@@ -58,14 +66,10 @@ export interface iFloatingPanelApi {
     minimizePanel: (panelId: string) => void,
     updatePanelLayout: (panelId: string, layout: iPanelLayout) => void,
 
-    openFile: (filepath: string, opts?: { 
-        idpanel?: string, 
-        layout?: iPanelLayout, 
-        searchedString?: string, 
-        replacementString?: string 
-        noteView?: iViewType
-        view?: iViewType
-    }) => void,
+    openFile: iOpenFileFloatingFn,
+    toggleFile: iOpenFileFloatingFn,
+
+    // toggleFileView: (panelId: string) => void,
 
     updateAll: (panels: iFloatingPanel[]) => void,
     actionAll: (action: iActionAllWindows, params?: iActionAllParams) => void,
@@ -600,6 +604,16 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         }
     }
 
+    const toggleFile: iFloatingPanelApi["toggleFile"] = (filepath, opts) => {
+        let panel = panelsRef.current.find(p => p.file.path === filepath )
+        if (!panel) return openFile(filepath, opts)
+        else {
+            // if panel exists and is visible, minimize it
+            if (panel.status === "visible") minimizePanel(panel.id)
+            else deminimizePanel(panel.id)
+        }
+    }
+
 
     const resizeWindowIfOutOfWindow = (panelId: string) => {
         let panel = cloneDeep(panelsRef.current.find(p => p.id === panelId))
@@ -689,6 +703,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         create: createPanel,
         openFile: openFile,
         update: updatePanel,
+        toggleFile: toggleFile,
         updateAll,
         delete: deletePanel,
         movePanel,

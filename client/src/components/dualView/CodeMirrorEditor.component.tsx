@@ -43,6 +43,10 @@ import { getMdStructure } from "../../managers/markdown.manager";
 import { title } from "process";
 import { inlineSuggestionCMExtention } from "../../managers/codeMirror/inlineSuggestions.cm";
 
+export const codeMirrorGlobalVars = {
+	lastCMSelection: { from: -1, to: -1, line: -1, selectionContent: "", lineContent: ""},
+	lastCMId: ""
+}
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -514,6 +518,18 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const onCodeMirrorUpdate = (e: any) => {
 		let s = e.state.selection.ranges[0]
 		currSelection.current = s
+		// console.log("onCodeMirrorUpdate", s, p.windowId)
+		// content
+		let selectionContent = e.state.doc.sliceString(s.from, s.to)
+		let selectionline = e.state.doc.lineAt(s.from)
+		let lineContent = selectionline.text
+
+		codeMirrorGlobalVars.lastCMSelection = { from: s.from, to: s.to, line: selectionline.number, selectionContent, lineContent}
+
+		// get current selection words
+
+
+		codeMirrorGlobalVars.lastCMId = p.windowId
 		onSelectionChangeDebounced(s)
 	}
 
