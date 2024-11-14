@@ -197,12 +197,14 @@ export const ContentBlockTagView = (p: {
 					const nHeightPercent = parseInt(data.height.replace("%", "")) / 100
 					// get height and width from window-id-sizeref-p.windowId
 					nHeight = (pDims.height * nHeightPercent) 
+				} else if (isString(data.height) && data.height.endsWith("px")) {
+					nHeight = parseInt(data.height.replace("px", ""))
 				} else if (isNumber(data.height)) {
 					nHeight = data.height
 				} else {
-					const pDims = parentWindow.getBoundingClientRect()
 					nHeight = 300
 				}
+				console.log("resize", m, nHeight, pDims.height, data.height)
 
 				if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
 
