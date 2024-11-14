@@ -102,8 +102,8 @@ ${res}
 				updateContent(execExpression())
 				setTimeout(() => {
 						// RESIZING
-						let resDiv = document.body + 40
-						api.utils.resizeIframe(`${resDiv.clientHeight}px`);
+						let resDiv = document.body 
+						api.utils.resizeIframe(`${resDiv.clientHeight + 40}px`);
 						console.log("resDiv.clientHeight", resDiv.clientHeight)
 
 						// HIGHLIGHTING RESULT
