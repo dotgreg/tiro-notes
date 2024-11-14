@@ -144,7 +144,7 @@ ${res}
 					window.m = (str) => math.evaluate(str).toString()
 					const commonLib = window._tiroPluginsCommon.commonLib
 					const { generateHelpButton, getOperatingSystem, each, onClick } = commonLib
-					console.log(1233, commonLib)
+					// console.log(1233, commonLib)
 					let varStr = innerTagStr
 					let analysisArr = []
 					let analysisObj = {}
@@ -164,7 +164,7 @@ ${res}
 						let calculation = analysisObj[key] || ""
 						let value = t2[key]
 						// if calculation && value = "" return
-						console.log(123, key, value, calculation)
+						// console.log(123, key, value, calculation)
 						// if ( value.length < 1) continue
 						// if val is object, stringify it
 						if (typeof value === 'object') {
