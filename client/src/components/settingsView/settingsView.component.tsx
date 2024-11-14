@@ -335,7 +335,20 @@ export const SettingsPopup = (p: {
 						type: 'textarea',
 						title: "AI Suggest command line",
 						// expl: "Which AI API command to be called, {{input}} will be replaced by the selection. <br/><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
-						expl: "Custom command lines, great for AI, <br/> One custom command per line with the following format: <br><br> name | <a href='https://fontawesome.com/search?q=wand&o=r&m=free'> icon name </a> | 'new' or 'current'  | command <br> - 'new' or 'current': answer inserted in a new window or current one <br> - command: {{input}} will be replaced by the selection. <br><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : " + `<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>`,
+						expl: `Custom command lines, great for AI, <br/> One custom command per line with the following format: 
+
+						<br><br> name | <a href='https://fontawesome.com/search?q=wand&o=r&m=free'> icon name </a> | 'new' or 'current'  | command 
+						<br> - 'new' or 'current': answer inserted in a new window or current one 
+						<br> - command: {{input}} will be replaced by the selection. 
+
+						<br><br/> For ChatGPT, you need an <a href='https://platform.openai.com/account/api-keys'  target='_blank'>api key</a> and enter the following command : 
+						<br/><code>${defaultValsUserSettings.ui_editor_ai_command}</code>	
+
+						<br><br> System tested with the following command lines applications (they should be installed prior using them) :
+						<br> - npx chatgpt
+						<br> - <a href='https://github.com/sigoden/aichat' target="_blank">aichat</a> : "mistral | m | new | echo "Instructions: if answer does not start by 'full>', be concise in answer. if question about code, only give code  \n\n{{input}}" | aichat -m mistral:open-mistral-7b"
+						
+						` ,
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
@@ -489,6 +502,33 @@ export const SettingsPopup = (p: {
 							us.set('ui_editor_live_watch', val)
 						}
 					},
+				]
+			},
+			{
+				title: "keyboard",
+				fields: [
+					{
+						type: 'textarea',
+						title: "Custom Shortcuts",
+						expl: `Define custom shortcuts. One shortcut per line with the following format: 
+						<br>shortcut | command_name | command_content 
+						<br>- shortcut: the key combination (ex: 'ctrl+shift > e') 
+						<br>- command_name: the command to execute (toggle_note | highlight_to_ai)
+						<br>- command_content: the content of the command (ex: '/path/to/note.md' | 'ai_model_name')
+						<br>	
+						<br>Commands available:
+						<br>- toggle_note: Toggle a note in a floating window. The command content should be the relative note path like /path/to/note.md
+						<br>- highlight_to_ai: Send the selected text to an AI, if nothing is selected, send the cursor line to the AI. The AI suggest function should be enabled. The command content can be the AI model name, but can also be left empty, it will select the first ai model (ref AI Suggest command line)
+						<br>
+						<br> Example:
+						<br> shift + alt > 1 | toggle_note |/path/to/note.md 
+						<br> ctrl + shift > 2 | highlight_to_ai | ai_mode_name`,
+						var: us.get('keyboard_shortcuts_textarea'),
+						modifier: val => {
+							// setDisplayReload(true);
+							us.set('keyboard_shortcuts_textarea', val)
+						}
+					}
 				]
 			},
 			{

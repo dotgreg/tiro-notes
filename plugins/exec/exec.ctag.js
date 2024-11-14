@@ -28,6 +28,7 @@ ${res}
 				padding: 0px 11px 13px 11px!important;
 				overflow: auto;
 				white-space: pre-wrap;
+				width: calc(100% - 50px);
 		}
 </style> `
 				return res2

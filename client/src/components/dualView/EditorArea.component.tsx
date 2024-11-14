@@ -657,9 +657,13 @@ const EditorAreaInt = (
 	const [cursorInfos, setCursorInfos] = useState<iCursorInfos>({x:0, y:0, from:0, to:0, fromPx:0, toPx:0})
 	let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
 
-	const editorWrapperId = `.window-id-${p.windowId}`
-	// console.log(editorWrapperId, document.querySelector(editorWrapperId), document.querySelector(editorWrapperId)?.getBoundingClientRect().top )
-	const windowIdTop = document.querySelector(editorWrapperId)?.getBoundingClientRect().top || 0
+	let editorWrapperId = `.window-id-${p.windowId}`
+	let windowIdTop = 0
+	try {
+		windowIdTop = document.querySelector(editorWrapperId)?.getBoundingClientRect().top || 0
+	} catch (error) {
+		console.log("error", error)
+	}
 	// const windowIdTop2 = editorWrapperEl.current?.getBoundingClientRect().top || 0
 	let posNoteToolPopup = cursorInfos.y - windowIdTop
 	// let posNoteToolPopup = cursorInfos.y 
@@ -807,10 +811,10 @@ const EditorAreaInt = (
 								<div className="path-wrapper">
 									<div className='path'>
 										<h4>Path</h4>
-										<span className="path-link" onClick={() => {
+										{/* <span className="path-link" onClick={() => {
 											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
-										}}
-										> {p.file.folder} </span>
+										}} */}
+										<span>  {p.file.path} </span>
 									</div>
 								</div>
 

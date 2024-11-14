@@ -43,11 +43,11 @@ import { TtsPopup } from './components/TtsPopup.component';
 import { useTtsPopup } from './hooks/app/useTtsPopup.hook';
 import { getParentFolder } from './managers/folder.manager';
 import './managers/localNoteHistory.manager';
-import { cloneDeep, random, set, update } from 'lodash-es';
+import { cloneDeep, each, random, set, update } from 'lodash-es';
 import { devCliAddFn, notifLog } from './managers/devCli.manager';
 import { NotificationsCenter } from './components/NotificationsCenter.component';
 import { startFrontendBackgroundPluginsCron } from './managers/plugin.manager';
-import { addKeyShortcut, releaseKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
+import { addKeyShortcut,  loadUserKeyboardShortcuts,  releaseKeyShortcut, releaseKeyShortcuts } from './managers/keyboard.manager';
 import { useNotePreviewPopupApi } from './hooks/api/notePreviewPopup.api.hook';
 import { NotePreviewPopup } from './components/NotePreviewPopup.component';
 import { onStartupReactToUrlParams, updateAppUrlFromActiveWindow } from './managers/url.manager';
@@ -61,6 +61,8 @@ import { BackgroundVideo } from './components/BackgroundVideo.component';
 import { triggerTiroHelpPopup } from './managers/help.manager';
 import { createNewNote } from './managers/newNote.manager';
 import { release } from 'os';
+import { textToId } from './managers/string.manager';
+import { codeMirrorGlobalVars } from './components/dualView/CodeMirrorEditor.component';
 
 export const App = () => {
 
@@ -409,6 +411,7 @@ export const App = () => {
 	} = useMobileView()
 
 
+
 	//@ts-ignore
 	window.api = api
 
@@ -507,6 +510,29 @@ export const App = () => {
 		let backgroundVideo = userSettingsSync.curr.ui_layout_background_image
 		if (backgroundVideoEnable && backgroundVideo) setBgVideo(backgroundVideo)
 	}, [cnt, usettings])
+
+
+	//
+	// USER CUSTOM SHORTCUTS
+	//
+
+	useEffect(() => {
+		// console.log(`[SHORTCUTS]`, cnt, usettings, userSettingsSync.curr.keyboard_shortcuts_textarea)
+		let shortcutsRawConfig = userSettingsSync.curr.keyboard_shortcuts_textarea
+		if (!shortcutsRawConfig) return
+		let shortcutsFns = loadUserKeyboardShortcuts(shortcutsRawConfig)
+
+		each(shortcutsFns, sc => {
+			addKeyShortcut(sc.shortcut, sc.func)
+		})
+		return () => {
+			each(shortcutsFns, sc => {
+				releaseKeyShortcut(sc.shortcut, sc.func)
+			})
+		}
+
+	}, [cnt, usettings])
+
 
 
 	

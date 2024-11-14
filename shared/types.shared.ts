@@ -120,6 +120,8 @@ export type iUserSettingName =
 'ui_editor_ai_command' |
 'ui_editor_show_image_title' |
 'ui_editor_ai_text_selection' |
+ 
+'keyboard_shortcuts_textarea' | 
 
 'users_viewer_user_enable' |
 'users_viewer_user_password' |
