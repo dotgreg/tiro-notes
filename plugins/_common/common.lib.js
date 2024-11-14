@@ -1,13 +1,27 @@
 //@flow 
 
-const getCachedVal = (idCache, cb) => {
+let r = {}
+ r.getCachedVal = (idCache, cb) => {
     
 
 
 }
 
+r.generateHelpButton = (helpText, helpTitle) => {
+    if (!helpTitle) helpTitle = "Help"
+    window.helpButtonPopup = () => {
+        // api.call('popup.show', '${helpText}', '${helpTitle}'])
+        api.call('popup.show', [helpText, helpTitle])
+    }
+    let htmlButton = `
+        <button onclick="helpButtonPopup()" class="btn btn-primary">Help</button>
+    `
+    return htmlButton
 
-function getOperatingSystem() {
+}
+
+
+r.getOperatingSystem = () => {
     const platform = navigator.platform.toLowerCase();
     
     if (platform.includes('mac')) {
@@ -26,7 +40,7 @@ function getOperatingSystem() {
 ///////////////////////////////////////////////////
 // SUPPORT
 //
-const each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
+r.each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
     if (itera.constructor === Array) {
             for (let i = 0; i < itera.length; ++i) {
                     cb(itera[i])
@@ -41,7 +55,7 @@ const each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) 
 // export each as iEach in flow
 
 
-const onClick = (elIds/*:string[]*/, action/*:Function*/) => {
+r.onClick = (elIds/*:string[]*/, action/*:Function*/) => {
     for (var i = 0; i < elIds.length; ++i) {
             let el = document.getElementById(elIds[i]);
             if (!el) return console.warn(`onclick: ${elIds[i]} does not exists`)
@@ -51,7 +65,8 @@ const onClick = (elIds/*:string[]*/, action/*:Function*/) => {
     }
 }
 
-const commonLib = {getOperatingSystem, each, onClick}
+// const commonLib = {getOperatingSystem, each, onClick}
+const commonLib = r
 
 if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
 window._tiroPluginsCommon.commonLib = commonLib
