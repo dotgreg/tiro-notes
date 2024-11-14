@@ -264,7 +264,8 @@ export const iframeMainCode = (p: {
 	//
 	window.addEventListener('resize', (e) => {
 		let nval = `100%`
-		// nval = lastResizeIframeHeight.value
+
+		nval = lastResizeIframeHeight.value
 		// console.log(h, 'resize', nval)
 		// console.log(h, 'resize', nval)
 		// console.log(h, 'resize', nval)
@@ -318,12 +319,12 @@ export const iframeMainCode = (p: {
 
 	let lastResizeIframeHeight = {value:"100%"}
 	const resizeIframe = (height?: any) => {
+		console.log(h, 'resizeIframe', height)
 		const el = document.getElementById('content-wrapper')
 		if (!height) {
 			if (el && el.clientHeight !== 0) height = el.clientHeight + 20
 			else return
 		}
-
 		lastResizeIframeHeight.value = `${height}`
 		const data: iIframeData['resize'] = { height }
 		sendToParent({ action: 'resize', data })
