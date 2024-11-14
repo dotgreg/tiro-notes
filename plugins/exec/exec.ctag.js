@@ -102,7 +102,7 @@ ${res}
 				updateContent(execExpression())
 				setTimeout(() => {
 						// RESIZING
-						let resDiv = document.getElementById("exec-result-wrapper")
+						let resDiv = document.body
 						api.utils.resizeIframe(`${resDiv.clientHeight}px`);
 						console.log("resDiv.clientHeight", resDiv.clientHeight)
 
