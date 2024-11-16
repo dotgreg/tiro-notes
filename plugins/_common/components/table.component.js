@@ -212,20 +212,43 @@ Full example: (to copy and paste in a note, then click on #food)
 __config_formula_col2 = < div style="width: 300px"> \${sum_col3/(count_col3*22)} row_col1 row_col2 \${Math.round(new Date().getTime()/10000000000)} </ div> 
 </pre>
 </code>
-<br> 
-<br> 
 <code>
 <pre>
 __config_formula_image = < img width="15px" src="\${api.utils.getInfos().backendUrl}/static\${api.utils.getInfos().file.folder}row_image?token=\${api.utils.getInfos().loginToken}" / >
 </pre>
 </code>
 <br> 
+<br> 
 
-<br>Available fields : 
+<br><b>Available fields</b> : 
 <br>- sum_COLNAME: sum of the column COLNAME (if col rows are numbers)
 <br>- count_COLNAME: count of the column COLNAME
 <br>- row_COLNAME: value of the column COLNAME of the current row
-<br>
+<br> 
+<br> 
+<br> <b>Custom functions</b> : 
+<br> It is also possible to call custom user functions. These functions should be in the file /.tiro/user_functions.md like
+
+<code>
+<pre>
+/.tiro/user_functions.md
+--------------------
+
+const addition = (a, b) => {
+  return a + b
+}
+
+</pre>
+</code>
+
+<code>
+<pre>
+__config_formula_sum = < div style="width: 300px" > \${addition(row_price1, row_price2)\}   < / div >
+
+</pre>
+</code>
+
+
 </p>
 
 <h3> View </h3>
