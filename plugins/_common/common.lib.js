@@ -63,6 +63,18 @@ r.notifLog = (str, id, hideAfter) => {
 }
 // export each as iEach in flow
 
+// r.getNoteContent = (path, cb) => {
+//     api.call("file.getContent", [pathBookmarksFile], rawContent => {
+//         let res = []
+//         if (rawContent !== "NO_FILE") { res = JSON.parse(rawContent) }
+//         bookmarks.current = res
+//         if (cb) cb(res)
+//     })
+//     api.call('note.get', [noteId], (note) => {
+//         cb(note.content)
+//     })
+// }
+
 
 r.onClick = (elIds/*:string[]*/, action/*:Function*/) => {
     for (var i = 0; i < elIds.length; ++i) {

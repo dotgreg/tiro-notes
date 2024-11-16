@@ -96,6 +96,17 @@ const smartlistApp = (innerTagStr, opts) => {
                         })
                 })
         }
+        const userFunctionsContent = {current: ""}
+        const updateUserFunctions = (cb) => {
+                api.call("file.getContent", ["/.tiro/user_functions.md"], rawContent => {
+                        if (rawContent === "NO_FILE") console.log("user functions file not found")
+                        else {
+                                console.log('user Functions rawContent:', rawContent)
+                                userFunctionsContent.current = rawContent
+                        }
+                        cb && cb()
+                })
+        }
         const searchAndDisplay = (configArray) => {
                 const commonLib = window._tiroPluginsCommon.commonLib
                 const { notifLog, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
@@ -288,9 +299,11 @@ const smartlistApp = (innerTagStr, opts) => {
                         return csvString        
                 }
 
+
+
+
                 const loadTable = (p) => {
                         if (!p) p = {}
-                        // wrapperEl.innerHTML = window._tiroPluginsCommon.genAdvancedTableComponent({woop:"wooooooooooop"})
                         const config = {
                                 id: `smartlist-table-${configArray.length}-${configArray[0]?.tag1}-${configArray[0]?.path}`,
                                 cols: [],
@@ -419,7 +432,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
                                                 }
                                         })
-                                        formulaProcessedStr = `return \`${formulaProcessedStr}\``
+                                        formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`${formulaProcessedStr}\``
+                                        console.log('formulaProcessedStr:', formulaProcessedStr)
                                         try {
                                                 items[i][colName] = new Function(formulaProcessedStr)()
                                         } catch (e) {
@@ -483,8 +497,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                 () => {
                                         const configArray = readConfigString(innerTagStr)
                                         if (configArray[0].tag1 && configArray[0].path) {
-                                                searchAndDisplay(configArray)
-                                                listenToInputChanges(configArray)
+                                                updateUserFunctions(() => {
+                                                        searchAndDisplay(configArray)
+                                                        listenToInputChanges(configArray)
+                                                })
                                         }
                                         else {
                                                 triggerSearchFromInput(configArray)
