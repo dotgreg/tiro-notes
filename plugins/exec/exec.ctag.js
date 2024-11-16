@@ -104,13 +104,6 @@ ${res}
 						// RESIZING
 						let resDiv = document.body 
 						api.utils.resizeIframe(`${resDiv.clientHeight + 40}px`);
-						console.log("resDiv.clientHeight", resDiv.clientHeight)
-
-						// HIGHLIGHTING RESULT
-						// hljs.highlightAll();
-						// setTimeout(() => {
-						// 							api.utils.resizeIframe(`${resDiv.clientHeight}px`);
-						// }, 1500)
 				})
 		})
 
@@ -144,7 +137,6 @@ ${res}
 					window.m = (str) => math.evaluate(str).toString()
 					const commonLib = window._tiroPluginsCommon.commonLib
 					const { generateHelpButton, getOperatingSystem, each, onClick } = commonLib
-					// console.log(1233, commonLib)
 					let varStr = innerTagStr
 					let analysisArr = []
 					let analysisObj = {}
@@ -164,7 +156,6 @@ ${res}
 						let calculation = analysisObj[key] || ""
 						let value = t2[key]
 						// if calculation && value = "" return
-						// console.log(123, key, value, calculation)
 						// if ( value.length < 1) continue
 						// if val is object, stringify it
 						if (typeof value === 'object') {
@@ -176,7 +167,6 @@ ${res}
 						t3[key] = [value, calculation]
 					}
 
-					// console.log(t3)
 
 					let csvStr = ''
 					// create a csv with the results
@@ -185,27 +175,6 @@ ${res}
 					for (let key in t3) {
 						csvStr += `${key},${t3[key][0]},${t3[key][1]}\n`
 					}
-
-
-					console.log(csvStr)
-
-					// insert it to body
-					// document.body.innerHTML = `<table id="table"></table> ${styleStr}`
-					// create a html table with 1) the following header
-					// variable name, valyue, calculation 
-					// 2) the values
-
-
-
-
-					// let table = document.getElementById('table')
-					// let lines = csvStr.split('\n')
-					// let header = lines[0].split(',').map(cell => `<th>${cell}</th>`).join('')
-					// table.innerHTML = `<tr>${header}</tr>`
-					// lines.slice(1).map(line => {
-					// 	let cells = line.split(',').map(cell => `<td>${cell}</td>`).join('')
-					// 	table.innerHTML += `<tr>${cells}</tr>`
-					// })
 
 					let lines = csvStr.split('\n')
 					window.toggleCalculationVisiziility = () => {

@@ -62,6 +62,7 @@ export const loadUserKeyboardShortcuts = (configText:string):iKeyboardShortcut[]
 		// hydrating functions
 		//
 		let func = () => {
+			// wooo
 		}
 		if (command_name === "toggle_note") func = Fn_toggle_note(command_content)
 		else if (command_name === "highlight_to_ai") func = Fn_highlight_to_ai(command_content)

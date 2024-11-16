@@ -204,12 +204,25 @@ Full example: (to copy and paste in a note, then click on #food)
 </pre>
 </code>
 
+<h3> Custom cell content: </h3>
+<p>you can customize a cell content with the following code 
+<br>
+__config_formula_col2 = <div style="width: 300px"> \${sum_col3/(count_col3*22)} row_col1 row_col2 \${Math.round(new Date().getTime()/10000000000)} </div> 
+
+<br>Available fields : 
+<br>- sum_COLNAME: sum of the column COLNAME (if col rows are numbers)
+<br>- count_COLNAME: count of the column COLNAME
+<br>- row_COLNAME: value of the column COLNAME of the current row
+<br>
+</p>
+
 <h3> More options </h3>
-<p> You can remove the meta columns by adding the word "__config_hide_meta" <br>
-<p> You can remove one col by adding the word "__config_hideCol_NAMECOL" <br>
-<p> You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
-<p> You can remove header and config rows by adding the word "__config_hide_config_rows" <br>
-Full example: (to copy and paste in a note, then click on #food)
+<p> Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
+<p> Removing a column: You can remove one col by adding the word "__config_hideCol_NAMECOL" <br>
+<p> Removing default cols: You can remove the meta columns by adding the word "__config_hide_meta" <br>
+<p> Removing config rows: by adding the word "__config_hide_config_rows" <br>
+
+<h3> Example: (to copy and paste in a note, then click on #food)</h3>
 <code>
 <pre>
 #food | __config_hide_meta __config_hide_config_rows
@@ -364,7 +377,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
   };
 
   let processContent = (contentCell, configCol) => {
-    if (typeof contentCell === "string" && contentCell.includes("http")) {
+    // if < and > exists inside the contentCell, it is html
+    let isContentCellHtml = contentCell && contentCell.includes("<") && contentCell.includes(">")
+    if (typeof contentCell === "string" && contentCell.includes("http") && !isContentCellHtml) {
       // find with a regex all the urls in the contentCell and transform them into links
       let regex = /(https?:\/\/[^\s]+)/g;
       contentCell = contentCell.replace(regex, (url) => {

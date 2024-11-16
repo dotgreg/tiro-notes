@@ -1319,7 +1319,7 @@ const feedApp = (innerTagStr, opts) => {
 		}
 
 		
-		@media screen and (max-width: 500px) {
+		@media screen and (max-width: 700px) {
 				.article-details-bg {
 						cursor: pointer;
 						background: rgba(0,0,0,0.2);
@@ -1449,7 +1449,7 @@ const feedApp = (innerTagStr, opts) => {
 		padding-top: 5px;
 		width: 50%;
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 700px) {
 		.filter-list-wrapper {
 				width: 100%;
 		}
@@ -1543,7 +1543,7 @@ LIST > ARTICLES
 .articles-list.item-active-open {
 		width: calc(50% - 30px);
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 700px) {
 	.articles-list.item-active-open {
 			width: calc(100% - 30px);
 	}

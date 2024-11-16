@@ -152,7 +152,9 @@ const smartlistApp = (innerTagStr, opts) => {
 
                 let configMetaCols = true
                 let hideConfigRows = false
+                let widthCols = []
                 let colsToHide = []
+                let colsFormulas = []
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
 
@@ -179,6 +181,32 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         formName = result.split("__config_add_form=")[1].split("|")[0].trim()
                                                         // console.log('result:', result, formName)
                                                 }
+
+                                                // __config_widthCols = 50,30,20
+                                                // if (result.includes("__config_widthCols=")) {
+                                                //         widthCols = result.split("__config_widthCols=")[1].split("|")[0].trim()
+                                                //         let cols = widthCols.split(",")
+                                                //         each(cols, (col, i) => {
+                                                //                 let colId = `col${i + 1}`
+                                                //                 customColsNames[colId] = col
+                                                //         })
+                                                // }
+
+
+                                                // __config_formula_COLNAME = `<div style="width:400px;">${row_COLNAME}</div>`
+                                                if (result.includes("__config_formula_")) {
+                                                        let line = result.split("__config_formula_")[1]
+
+                                                        let colName = line.split("=")[0]
+                                                        let formula = line.replace(colName + "=", "").trim()
+                                                        colName = colName.trim()
+
+                                                        // let [colName, formula] = result.split("__config_formula_")[1].split("=")
+                                                        // colName = colName.trim()
+                                                        // formula = formula.trim()
+                                                        colsFormulas.push({ colName, formula })
+                                                }
+                                                
                                         })
                                 })
 
@@ -326,10 +354,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                 // remove key(like col1) from config.cols
                                 config.cols = config.cols.filter(col => col.colId !== key)
                         }
-                        // if colsToHide, remove them
-                        for (const col of colsToHide) {
-                                config.cols = config.cols.filter(c => c.colId !== col)
-                        }
 
                         // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
                         // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
@@ -346,6 +370,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         p.configMetaCols && config.cols.push({ colId: "created", headerLabel: "Created" })
                         p.configMetaCols && config.cols.push({ colId: "folder", headerLabel: "Folder" })
                         p.configMetaCols && config.cols.push({ colId: "line", headerLabel: "Line" })
+
 
                         config.cols.push({
                                 colId: "actions", type: "buttons", buttons: [
@@ -377,6 +402,45 @@ const smartlistApp = (innerTagStr, opts) => {
                                         },
                                 ]
                         })
+
+                        // if colsToHide, remove them
+                        for (const col of colsToHide) {
+                                config.cols = config.cols.filter(c => c.colId !== col)
+                        }
+                        // for each item, apply the formula
+
+                        // for each item and each col, try to sum all values
+                        let colsStats = {}
+                        for (const item of items) {
+                                for (const col of config.cols) {
+                                        if (!colsStats[col.colId]) colsStats[col.colId] = {sum: 0, count: 0}
+                                        if (item[col.colId]) {
+                                                colsStats[col.colId].sum += parseInt(item[col.colId])
+                                                colsStats[col.colId].count++
+                                        }
+                                }
+                        }
+
+                        for (const {colName, formula} of colsFormulas) {
+                                // for each item, apply the formula using for i++
+                                for (let i = 0; i < items.length; ++i) {
+                                        // each variable from item is rename row_COLNAME
+                                        let item = items[i]
+                                        let formulaProcessedStr = formula
+                                        each(item, (val, key) => {
+                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`row_${key}`, val)
+                                        })
+                                        // for each array from colsStats, add it to the formula
+                                        each(colsStats, (val, key) => {
+                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`sum_${key}`, val.sum)
+                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
+                                        })
+                                        formulaProcessedStr = `return \`${formulaProcessedStr}\``
+                                        // console.log('formulaProcessedStr:', formulaProcessedStr)
+                                        items[i][colName] = new Function(formulaProcessedStr)()
+                                }
+                        }
+                        // console.log('colsFormulas2:', {colsFormulas, items, config})
 
                         wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
                 }
@@ -454,7 +518,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         box-shadow: 0 0 0 1px #ccc;
                         border-radius: 3px;
                         padding: 4px;
-                        width: 100px;
+                        width: 80px;
                 }
                 #smart-list-ctag {
                         margin-top:0px;
