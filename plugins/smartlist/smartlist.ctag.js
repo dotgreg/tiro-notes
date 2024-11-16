@@ -3,29 +3,8 @@
 const smartlistApp = (innerTagStr, opts) => {
         const { div, updateContent } = api.utils.createDiv()
 
-        const outputPaths = {}
-        ///////////////////////////////////////////////////
-        // SUPPORT
-        //
-        const each = (itera, cb) => {
-                if (itera.constructor === Array) {
-                        for (let i = 0; i < itera.length; ++i) {
-                                cb(itera[i])
-                        }
-                } else {
-                        for (const property in itera) {
-                                cb(itera[property], property)
-                        }
-                }
-        }
 
-        const onClick = (elIds, action) => {
-                for (var i = 0; i < elIds.length; ++i) {
-                        let el = document.getElementById(elIds[i]);
-                        if (!el) return console.warn(`onclick: ${elIds[i]} does not exists`)
-                        el.addEventListener("click", e => { action(e) }, false);
-                }
-        }
+        const outputPaths = {}
         ///////////////////////////////////////////////////////////
         // 
         // MAIN LOGIC
@@ -106,12 +85,10 @@ const smartlistApp = (innerTagStr, opts) => {
         const starFormNameLogic = (configArray) => {
                 // if formName exists, add a form button
                 const formBtn = document.getElementById("smart-list-ctag-add-form")
-                console.log('formName:', formName)
                 if (formName) {
                         formBtn.style.display = "inline-block"
                 }      // hide it
                 formBtn.addEventListener("click", e => {
-                        console.log('formName:', formName)
                         api.call("popup.form.open", [formName], answer => {
                                 // console.log('222 answer:', answer)
                                 // reload view
@@ -120,6 +97,8 @@ const smartlistApp = (innerTagStr, opts) => {
                 })
         }
         const searchAndDisplay = (configArray) => {
+                const commonLib = window._tiroPluginsCommon.commonLib
+                const { notifLog, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
                 // console.log('configArray:', configArray[0])
@@ -155,6 +134,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 let widthCols = []
                 let colsToHide = []
                 let colsFormulas = []
+                let showGrid = false
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
 
@@ -216,6 +196,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 // if we find the string config_no_extra_cols, remove all extra cols
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_meta")) configMetaCols = false
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
+                                if (JSON.stringify(listFilesRes).includes("__config_view_grid")) showGrid = true
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
@@ -314,6 +295,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 id: `smartlist-table-${configArray.length}-${configArray[0]?.tag1}-${configArray[0]?.path}`,
                                 cols: [],
                                 gridView: false,
+
                                 exportToCsv: els => {
                                         // 
                                         let csvString = exportDataToCsv(els, {colsToBlacklist: []})
@@ -371,6 +353,18 @@ const smartlistApp = (innerTagStr, opts) => {
                         p.configMetaCols && config.cols.push({ colId: "folder", headerLabel: "Folder" })
                         p.configMetaCols && config.cols.push({ colId: "line", headerLabel: "Line" })
 
+                        const openItemFloatingWindow = (item) => {
+                                console.log('onClick:', item);
+                                let filePath = item.folder + item.filename
+                                // api.call("ui.notePreviewPopup.open", [filePath, ["50%", "50%"], { searchedString: item.line, replacementString: `wooop` }])
+                                let layout = isMobile() ? "top" : "top-right"
+                                api.call("ui.floatingPanel.openFile", [filePath, { 
+                                        searchedString:item.line, 
+                                        idpanel: "id-panel-smartlist-preview", 
+                                        view: "editor",
+                                        layout
+                                }])
+                        }
 
                         config.cols.push({
                                 colId: "actions", type: "buttons", buttons: [
@@ -378,26 +372,13 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 label: "",
                                                 icon: "eye",
                                                 onClick: (items, e) => {
-                                                        console.log('onClick:', items, e)
                                                         if (items.length !== 1) return console.warn("no item selected")
                                                         let item = items[0]
-                                                        console.log('onClick:', item, e);
-                                                        let filePath = item.folder + item.filename
-                                                        // api.call("ui.notePreviewPopup.open", [filePath, ["50%", "50%"], { searchedString: item.line, replacementString: `wooop` }])
-                                                        let layout = isMobile() ? "top" : "top-right"
-                                                        api.call("ui.floatingPanel.openFile", [filePath, { 
-                                                                searchedString:item.line, 
-                                                                idpanel: "id-panel-smartlist-preview", 
-                                                                view: "editor",
-                                                                layout
-                                                        }])
-
+                                                        openItemFloatingWindow(item)
                                                 },
                                                 onMouseEnter: (item, e) => {
-                                                        // console.log('onMouseEnter:', item,e);
                                                 },
                                                 onMouseLeave: (item, e) => {
-                                                        // console.log('onMouseLeave:', item,e);
                                                 }
                                         },
                                 ]
@@ -421,6 +402,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 }
                         }
 
+                        let errorToShow = false
                         for (const {colName, formula} of colsFormulas) {
                                 // for each item, apply the formula using for i++
                                 for (let i = 0; i < items.length; ++i) {
@@ -432,15 +414,49 @@ const smartlistApp = (innerTagStr, opts) => {
                                         })
                                         // for each array from colsStats, add it to the formula
                                         each(colsStats, (val, key) => {
-                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`sum_${key}`, val.sum)
-                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
+                                                if (val && key) {
+                                                        formulaProcessedStr = formulaProcessedStr.replaceAll(`sum_${key}`, val.sum)
+                                                        formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
+                                                }
                                         })
                                         formulaProcessedStr = `return \`${formulaProcessedStr}\``
-                                        // console.log('formulaProcessedStr:', formulaProcessedStr)
-                                        items[i][colName] = new Function(formulaProcessedStr)()
+                                        try {
+                                                items[i][colName] = new Function(formulaProcessedStr)()
+                                        } catch (e) {
+
+                                                errorToShow = `Error in formula ${colName}: ${e}`
+                                        }
                                 }
                         }
-                        // console.log('colsFormulas2:', {colsFormulas, items, config})
+                        if (errorToShow) notifLog(errorToShow)
+                                         
+                        
+                        //
+                        // if grid view
+                        //
+                        config.gridView = {
+                                        onClick: (item) => {
+                                                openItemFloatingWindow(item)
+                                        },
+                                        image: (item) => {
+                                                let image = item.image || ""
+                                                // if image starts with /, it is a local path image, make it absolute ${api.utils.getInfos().backendUrl}/static${api.utils.getInfos().file.folder}row_col5?token=${api.utils.getInfos().loginToken}
+                                                let infs = api.utils.getInfos()
+                                                if (image.startsWith("/")) image = `${infs.backendUrl}/static${item.folder}${image}?token=${infs.loginToken}`
+                                                return image
+                                        },
+                                        hideLabel: (item) => {
+                                                if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) return true
+                                                return false
+                                        },
+                                        label: (item) => {
+                                                return `${item.name}`
+                                        },
+                                        contentHover: (item) => {
+                                                return `${item.name}`
+                                        }
+                                },
+
 
                         wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
                 }
@@ -460,6 +476,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 setTimeout(() => {
                         api.utils.loadRessources(
                                 [
+                                        `${opts.plugins_root_url}/_common/common.lib.js`,
                                         `${opts.plugins_root_url}/_common/components/table.component.js`
                                 ],
                                 () => {

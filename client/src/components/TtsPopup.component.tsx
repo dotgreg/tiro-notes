@@ -141,7 +141,7 @@ export const TtsPopup = (p: {
 				/>
 
 				<span> SPEED : </span>
-				<input className="speed-range" type="range" value={currRate} min="0" max="3" step="0.1"
+				<input className="speed-range" type="range" value={currRate} min="0.5" max="2" step="0.1"
 					onChange={e => {
 						const nVal = e.target.value as any
 						setCurrRate(nVal)
@@ -227,6 +227,7 @@ export const StyledDiv = styled.div`
 		.speed-range {
 				position: relative;
 				top: 8px;
+				width: 90%;
 		}
 		.range-pos {
 				width: 100%;

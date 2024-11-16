@@ -205,9 +205,21 @@ Full example: (to copy and paste in a note, then click on #food)
 </code>
 
 <h3> Custom cell content: </h3>
-<p>you can customize a cell content with the following code 
+<p>you can customize a cell content :
 <br>
-__config_formula_col2 = <div style="width: 300px"> \${sum_col3/(count_col3*22)} row_col1 row_col2 \${Math.round(new Date().getTime()/10000000000)} </div> 
+<code>
+<pre>
+__config_formula_col2 = < div style="width: 300px"> \${sum_col3/(count_col3*22)} row_col1 row_col2 \${Math.round(new Date().getTime()/10000000000)} </ div> 
+</pre>
+</code>
+<br> 
+<br> 
+<code>
+<pre>
+__config_formula_image = < img width="15px" src="\${api.utils.getInfos().backendUrl}/static\${api.utils.getInfos().file.folder}row_image?token=\${api.utils.getInfos().loginToken}" / >
+</pre>
+</code>
+<br> 
 
 <br>Available fields : 
 <br>- sum_COLNAME: sum of the column COLNAME (if col rows are numbers)
@@ -215,6 +227,13 @@ __config_formula_col2 = <div style="width: 300px"> \${sum_col3/(count_col3*22)} 
 <br>- row_COLNAME: value of the column COLNAME of the current row
 <br>
 </p>
+
+<h3> View </h3>
+<p>You can display elements either as a table (default) or as an image gallery, you will need to add __config_view_grid for that.
+<br> You will need to have 2 columns named respectively "name" and "image" to display the grid view.
+<br> The image col can either be a http link to a jpg/png or a relative image link if the image was uploaded on Tiro like /.ressources/your_image.jpg
+
+
 
 <h3> More options </h3>
 <p> Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
@@ -293,7 +312,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
   r.useEffect(() => {
     // let term = JSON.parse(localStorage.getItem(`${id}-view`));
     // if (term) setViewInt(term);
-  }, []);
+    if (config?.gridView) setView("grid")
+  }, [config?.gridView]);
 
 
 
@@ -696,7 +716,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
             c('div', { className: "grid-item-image" }, [
               config.gridView?.image(item)?.html ? 
                 c('div', {dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
-                c('img', { src: config.gridView?.image(item), alt: config.gridView?.image(item) })
+                config.gridView?.image(item).length > 1 && c('img', { src: config.gridView?.image(item), alt: config.gridView?.image(item) })
             ]),
             c('div', { className: `grid-item-name ${config.gridView?.hideLabel(item) ? "hide-label": ""}` }, [
               c('div', {className: "grid-item-name-text"}, [config.gridView?.label(item)])
