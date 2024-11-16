@@ -93,6 +93,7 @@ export const App = () => {
 
 		// Temporary => after tabs and other backend states are loaded
 		onStartupAfterDataBootstrap()
+		console.log(`========= [APP] MOUNTED on a ${deviceType()}`);
 
 		startListeningToKeys();
 		devCliAddFn("init", "init", () => { })
@@ -566,8 +567,6 @@ export const App = () => {
 								<Icon2 name="cog" />
 							</div>
 						</div>
-
-
 						{
 							notePreviewPopup?.isOpen && <NotePreviewPopup notePreview={notePreviewPopup} />
 						}
@@ -579,6 +578,7 @@ export const App = () => {
 								onHide={e => { setSuggestShow(false) }}
 							/>
 						}
+						
 
 						<Global styles={GlobalCssApp()} />
 						<div role="dialog" className={`main-wrapper ${api.userSettings.get('ui_sidebar') ? "with-sidebar" : "without-sidebar"} device-view-${deviceType()}`}>
@@ -724,9 +724,6 @@ export const App = () => {
 										</div>
 
 										
-
-										
-
 									</div>
 									<div className="left-wrapper-2">
 										<div className="top-files-list-wrapper">
@@ -749,7 +746,6 @@ export const App = () => {
 																action: e => { toggleSidebar(); refreshWindowGrid(); },
 																active: clientApi.userSettings.get('ui_sidebar') === true
 															}]}
-															colors={["#d4d1d1", "#615f5f"]}
 															size={0.8}
 														/>
 													</div>
@@ -760,7 +756,6 @@ export const App = () => {
 											<SearchBar2 term={clientApi.ui.search.term.get} />
 										</div>
 										<div className="files-list-wrapper">
-
 											<FilesList
 												files={filesUiApi.get}
 												activeFileIndex={filesUiApi.active.getIndex}
@@ -871,4 +866,3 @@ export const App = () => {
 		</div >
 	)
 }
-

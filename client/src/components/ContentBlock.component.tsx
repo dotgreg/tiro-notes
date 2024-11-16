@@ -204,7 +204,6 @@ export const ContentBlockTagView = (p: {
 				} else {
 					nHeight = 300
 				}
-				console.log("resize", m, nHeight, pDims.height, data.height)
 
 				if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
 
