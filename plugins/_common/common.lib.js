@@ -52,6 +52,15 @@ r.each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
     }
 }
 
+r.notifLog = (str, id, hideAfter) => {
+    // api.call('notification.show', [strToNotif])
+	console.log("[NOTIF LOG]: ", str)
+	if (!hideAfter) hideAfter = 60
+	// getApi(api => {
+	// 	api.ui.notification.emit({content: str,id, options:{ hideAfter, type:"warning", keepInHistory: true}})
+	// })
+    api.call('ui.notification.emit', [{content: str, id, options: { hideAfter, type: "warning", keepInHistory: true }}])
+}
 // export each as iEach in flow
 
 
