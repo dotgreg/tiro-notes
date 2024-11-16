@@ -434,29 +434,30 @@ const smartlistApp = (innerTagStr, opts) => {
                         //
                         // if grid view
                         //
-                        config.gridView = {
-                                        onClick: (item) => {
-                                                openItemFloatingWindow(item)
-                                        },
-                                        image: (item) => {
-                                                let image = item.image || ""
-                                                // if image starts with /, it is a local path image, make it absolute ${api.utils.getInfos().backendUrl}/static${api.utils.getInfos().file.folder}row_col5?token=${api.utils.getInfos().loginToken}
-                                                let infs = api.utils.getInfos()
-                                                if (image.startsWith("/")) image = `${infs.backendUrl}/static${item.folder}${image}?token=${infs.loginToken}`
-                                                return image
-                                        },
-                                        hideLabel: (item) => {
-                                                if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) return true
-                                                return false
-                                        },
-                                        label: (item) => {
-                                                return `${item.name}`
-                                        },
-                                        contentHover: (item) => {
-                                                return `${item.name}`
-                                        }
-                                },
-
+                        if (showGrid) {
+                                config.gridView = {
+                                                onClick: (item) => {
+                                                        openItemFloatingWindow(item)
+                                                },
+                                                image: (item) => {
+                                                        let image = item.image || ""
+                                                        // if image starts with /, it is a local path image, make it absolute ${api.utils.getInfos().backendUrl}/static${api.utils.getInfos().file.folder}row_col5?token=${api.utils.getInfos().loginToken}
+                                                        let infs = api.utils.getInfos()
+                                                        if (image.startsWith("/")) image = `${infs.backendUrl}/static${item.folder}${image}?token=${infs.loginToken}`
+                                                        return image
+                                                },
+                                                hideLabel: (item) => {
+                                                        if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) return true
+                                                        return false
+                                                },
+                                                label: (item) => {
+                                                        return `${item.name}`
+                                                },
+                                                contentHover: (item) => {
+                                                        return `${item.name}`
+                                                }
+                                }
+                        }
 
                         wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
                 }
