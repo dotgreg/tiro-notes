@@ -187,15 +187,18 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 // __config_formula_COLNAME = `<div style="width:400px;">${row_COLNAME}</div>`
                                                 if (result.includes("__config_formula_")) {
                                                         let line = result.split("__config_formula_")[1]
-
                                                         let colName = line.split("=")[0]
                                                         let formula = line.replace(colName + "=", "").trim()
                                                         colName = colName.trim()
-
-                                                        // let [colName, formula] = result.split("__config_formula_")[1].split("=")
-                                                        // colName = colName.trim()
-                                                        // formula = formula.trim()
                                                         colsFormulas.push({ colName, formula })
+                                                }
+                                                if (result.includes("__config_style")) {
+                                                        // __config_style = col1, col2, col3
+                                                        let cols = result.split("__config_style=")[1].split("|")[0].split(",")
+                                                        each(cols, (col, i) => {
+                                                                let colId = `col${i + 1}`
+                                                                customColsNames[colId] = col
+                                                        })
                                                 }
                                                 
                                         })

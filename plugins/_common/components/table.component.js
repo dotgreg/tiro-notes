@@ -107,6 +107,10 @@ table.ctag-component-table  th {
   width: 100%;
   height: 100%;
 }
+.ctag-component-table-grid-view .grid-item-image-html {
+  width: 100%;
+  height: 100%;
+}
 .ctag-component-table-grid-view .grid-item-image i {
   font-size: 9vw;
   color: #ccc;
@@ -808,7 +812,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
             config.gridView?.image && config.gridView?.hideLabel && config.gridView?.label &&
             c('div', { className: "grid-item-image" }, [
               config.gridView?.image(item)?.html ? 
-                c('div', {dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
+                c('div', { className:"grid-item-image-html", dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
                 config.gridView?.image(item).length > 1 && c('img', { src: config.gridView?.image(item), alt: config.gridView?.image(item) })
             ]),
             c('div', { className: `grid-item-name ${config.gridView?.hideLabel(item) ? "hide-label": ""}` }, [
