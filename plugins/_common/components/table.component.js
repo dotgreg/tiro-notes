@@ -204,17 +204,25 @@ Full example: (to copy and paste in a note, then click on #food)
 </pre>
 </code>
 
+<h3> View </h3>
+<p>You can display elements either as a table (default) or as an image gallery, you will need to add __config_view_grid for that.
+<br> You will need to have 2 columns named respectively "name" and "image" to display the grid view.
+<br> The image col can either be a http link to a jpg/png or a relative image link if the image was uploaded on Tiro like /.ressources/your_image.jpg
+
+
+
+<h3> More options </h3>
+<p> Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
+<p> Removing a column: You can remove one col by adding the word "__config_hideCol_NAMECOL" <br>
+<p> Removing default cols: You can remove the meta columns by adding the word "__config_hide_meta" <br>
+<p> Removing config rows: by adding the word "__config_hide_config_rows" <br>
+
 <h3> Custom cell content: </h3>
-<p>you can customize a cell content :
+<p>you can customize a cell content, here are some examples
 <br>
 <code>
 <pre>
-__config_formula_col2 = < div style="width: 300px"> \${sum_col3/(count_col3*22)} row_col1 row_col2 \${Math.round(new Date().getTime()/10000000000)} </ div> 
-</pre>
-</code>
-<code>
-<pre>
-__config_formula_image = < img width="15px" src="\${api.utils.getInfos().backendUrl}/static\${api.utils.getInfos().file.folder}row_image?token=\${api.utils.getInfos().loginToken}" / >
+- #food | __config_formula_image2 =  < div style="width:40px; color: red" >\${sum_image/count_image} and row_image < / div >
 </pre>
 </code>
 <br> 
@@ -238,31 +246,40 @@ const addition = (a, b) => {
   return a + b
 }
 
+// look for an image on bing image from a string
+const searchImage = (stringToSearch, cb) => {
+    function extractImageUrls(htmlString) {
+        htmlString = htmlString.replaceAll("&quot;", " ");
+        const regex = /(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|htm|html|php))/gi;
+        let res = htmlString.match(regex) || []
+        // only keep when ends with jpg, jpeg, png
+        res = res.filter(url => url.endsWith('jpg') || url.endsWith('jpeg') || url.endsWith('png'))
+        return res;
+    }
+  
+    let url = "https://www.bing.com/images/search?q="+stringToSearch+"&first=1"
+    api.call("ressource.fetch", [url], html => {
+        let images = extractImageUrls(html)
+        cb(images)
+    })
+    return ""
+}
+
+
 </pre>
 </code>
 
 <code>
 <pre>
-__config_formula_sum = < div style="width: 300px" > \${addition(row_price1, row_price2)\}   < / div >
+- #food | __config_formula_sum = < div style="width: 300px" > \${addition(row_price1, row_price2)\}   < / div >
+
+- #food | __config_formula_image = \${searchImage("row_name", images => {   cb(\`< img width="40px" src="\${images[row_image]}" / >\`) }  )  } 
 
 </pre>
 </code>
 
 
 </p>
-
-<h3> View </h3>
-<p>You can display elements either as a table (default) or as an image gallery, you will need to add __config_view_grid for that.
-<br> You will need to have 2 columns named respectively "name" and "image" to display the grid view.
-<br> The image col can either be a http link to a jpg/png or a relative image link if the image was uploaded on Tiro like /.ressources/your_image.jpg
-
-
-
-<h3> More options </h3>
-<p> Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
-<p> Removing a column: You can remove one col by adding the word "__config_hideCol_NAMECOL" <br>
-<p> Removing default cols: You can remove the meta columns by adding the word "__config_hide_meta" <br>
-<p> Removing config rows: by adding the word "__config_hide_config_rows" <br>
 
 <h3> Example: (to copy and paste in a note, then click on #food)</h3>
 <code>
@@ -635,6 +652,59 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [rowCompressed, setRowCompressed] = r.useState(true)
   
 
+  const filterView = () => [
+      c('div', {className: "ctag-component-table-wrapper"}, [
+
+          c('table', {className: "ctag-component-table"}, [
+            c('thead', {}, [
+            c('tr', {}, [
+                ...config.cols.map(col =>
+                  genHeaderCell(col)
+                )
+            ])
+            ]),
+            c('tbody', {}, [
+              // first row is the filter row
+              c('tr', {}, [
+                ...config.cols.map(col => {
+                  if (activeColToFilter === col.colId) {
+                    return c('td', {key: `${col.colId}-filter`}, [
+                      c('select', {class:"select-multiple-filter", multiple: true, onInput: (e) => {
+                        let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
+                        onFilterChange(col.colId, selectedValues)
+                      }}, [
+                        ...uniqFilterVals[col.colId].map(val => {
+                          return c('option', {value: val, selected: activeFilters[col.colId]?.includes(val), dangerouslySetInnerHTML: {__html: genSelectOptionLabel(col.colId, val)} } )
+                        })
+                      ])
+                    ])
+                  } else {
+                    return c('td', {key: keyCounter(`${col.colId}-buttons`)}, [
+                      // on click here, set activeColToFilter to none but event propagation should be stopped
+                      c('div', {className: "col-buttons", onClick: (e) => { 
+                        e.stopPropagation();
+                        // setActiveColToFilter(null)
+                      }}, [
+                        c('div', {className: "table-link-click", onClick: () => setActiveColToFilter(col.colId)}, [
+                          // filter emoji icon with ative class if filter is active
+                          c('div', {className: `fa col-icon fa-filter ${isColFiltered(col.colId) ? "active" : ""}`}),
+                        
+                        ]),
+                        // hide/show col content
+                        c('div', {className: "table-link-click", onClick: () => toggleColContent(col.colId)}, [
+                          c('div', {className: `fa col-icon  ${colsContentHidden[col.colId] ? "fa-eye-slash" : "fa-eye"}`}),
+                        ])
+                      ])
+                    ])
+                  }
+                })
+              ]),
+            ]),
+          ]),
+
+    ])
+  ]
+
   const tableView = () =>  [
         c('div', {className: "ctag-component-table-wrapper"}, [
 
@@ -781,6 +851,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     ]),
     
     // c('div', {className:"nb-items"}, [ config.displayType ]),
+    filterView(),
     view === "table" ? tableView() : gridView()
   ]
 
