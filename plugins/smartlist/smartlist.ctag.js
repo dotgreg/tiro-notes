@@ -145,6 +145,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 let widthCols = []
                 let colsToHide = []
                 let colsFormulas = []
+                
                 let showGrid = false
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
@@ -429,7 +430,9 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
                                                 }
                                         })
+                                        // if row_, sum_, count_ are still in the formula, make the formula empty
                                         formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`${formulaProcessedStr}\``
+                                        if (formulaProcessedStr.includes("row_") || formulaProcessedStr.includes("sum_") || formulaProcessedStr.includes("count_")) formulaProcessedStr = ""
                                         items[i][colName] = formulaProcessedStr
                                 }
                         }
@@ -464,7 +467,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 }
                         }
 
-                        console.log('config', config)
+                        // console.log('config', config)
 
                         wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
                 }

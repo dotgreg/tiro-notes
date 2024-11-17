@@ -419,16 +419,16 @@ const TableComponentReactInt = ({ items, config, id }) => {
     setSortConfig({ key, direction });
   };
 
-  let processContent = (contentCell, configCol) => {
-    // console.log(contentCell, configCol)
+  let processContent = (contentCell, config, colId, htmlWrapper="__output__", item) => {
+    let configCol = config.cols.find(c => c.colId === colId)  
     let randomCellId = Math.random().toString(36).substring(7);
-    if (configCol.eval === true) {
-      console.log("eval")
+    // console.log(contentCell, configCol)
+    if (configCol.eval === true && contentCell.length > 1) {
+      console.log(1000000, {view, config, contentCell, configCol, item})
       const cb = (res) => {
-        // console.log(12333333333333, res)
-        // if there is a callback trigger, replace the contentCell with the result of the callback
-        cellDiv = document.getElementById(randomCellId)
-        cellDiv.innerHTML = res
+        console.log(11111, {view, config, res, item})
+        let cellDiv = document.getElementById(randomCellId)
+        if (cellDiv) cellDiv.innerHTML = htmlWrapper.replaceAll("__output__", res)
       }
       try {
         contentCell = new Function("cb",contentCell)(cb);  
@@ -652,7 +652,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [rowCompressed, setRowCompressed] = r.useState(true)
   
 
-  const tableView = () =>  [
+  const renderView = (view="table") =>  [
         c('div', {className: "ctag-component-table-wrapper"}, [
 
           c('table', {className: "ctag-component-table"}, [
@@ -665,13 +665,13 @@ const TableComponentReactInt = ({ items, config, id }) => {
             ]),
             c('tbody', {}, [
               // first row is the filter row
+              //
+              // HEADER: SELECT MULTIPLE FILTER
+              //
               c('tr', {}, [
                 ...config.cols.map(col => {
                   if (activeColToFilter === col.colId) {
                     return c('td', {key: `${col.colId}-filter`}, [
-                      //
-                      // HEADER: SELECT MULTIPLE FILTER
-                      //
                       c('select', {class:"select-multiple-filter", multiple: true, onInput: (e) => {
                         let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
                         onFilterChange(col.colId, selectedValues)
@@ -703,50 +703,94 @@ const TableComponentReactInt = ({ items, config, id }) => {
                 })
               ]),
 
-                ...filteredItems.map(item =>
-                    c('tr', { key: keyCounter(`${item.id}`) }, [
-                    ...config.cols.map(col =>
-                    // ...config.cols.map(({ colId, type, buttons }) =>
-                      c('td', { key: keyCounter(`${col.colId}-${item.id}`), className: `${configColsObj[col.colId]?.classes || ""}` }, [
-                        // BUTTON 
-                        ...(col.type === 'buttons'
-                            ? buttonsCell(col, item)
-                            : []),
-                        // ICON 
-                        ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
-                        // MULTISELECT
-                        ...(col.colId === "multiselect" ? [
-                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
-                            if (selectedItems.includes(item)) {
-                              setSelectedItems(selectedItems.filter(i => i !== item))
-                            } else {
-                              setSelectedItems([...selectedItems, item])
-                            }
-                          }})
-                        ] : []),
+              //
+              // TABLE CONTENT
+              //
+              view === "table" && tableView(),
+              view === "grid" && gridView2()
 
-                      //
-                      // CONTENT
-                      //
-                        colsContentHidden[col.colId] ? [] : [
-                        !col.type ? [
-                          c('div', {
-                            onClick: (e) => {
-                              if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
-                            },
-                            className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
-                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], col)}
-                          })
-                        ] : []
-                        ]
-                        ])
-                    )
-                    ])
-                ) 
+
+
             ]) // endbody
         ]) // endtable
       ]) // endtable
     ]
+
+    const gridView2 = () => [
+      c('div', {className:"ctag-component-table-grid-view"}, [
+        ...filteredItems.map(item =>
+          // item.name
+          // it should be a div with as background item.image + item.name
+          // c('div', {
+          //   key: keyCounter(`${item.id}`), 
+          //   className: "grid-item",
+          //   onClick: (e) => {
+          //     if (config.gridView.onClick) config.gridView.onClick(item, e)
+          //   }
+          // }, [
+          //   c('div', { className: "grid-item-image" }, [
+          //     c('img', { src: item.image, alt: item.name })
+          //   ]),
+          //   c('div', { className: "grid-item-name" }, [
+          //     c('div', {className: "grid-item-name-text"}, [item.name])
+          //   ]),
+          // ])
+        // )
+      // ])
+      [
+        item.name,
+
+                c('div', {
+                  dangerouslySetInnerHTML:{__html: `${processContent(item.image, config, "image", `<img src="__output__" />`, item)}`}
+                })
+      ]
+
+      )
+    ])
+  ]
+
+      const tableView = () => [
+        ...filteredItems.map(item =>
+          c('tr', { key: keyCounter(`${item.id}`) }, [
+          ...config.cols.map(col =>
+          // ...config.cols.map(({ colId, type, buttons }) =>
+            c('td', { key: keyCounter(`${col.colId}-${item.id}`), className: `${configColsObj[col.colId]?.classes || ""}` }, [
+              // BUTTON 
+              ...(col.type === 'buttons'
+                  ? buttonsCell(col, item)
+                  : []),
+              // ICON 
+              ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
+              // MULTISELECT
+              ...(col.colId === "multiselect" ? [
+                c('input', {type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
+                  if (selectedItems.includes(item)) {
+                    setSelectedItems(selectedItems.filter(i => i !== item))
+                  } else {
+                    setSelectedItems([...selectedItems, item])
+                  }
+                }})
+              ] : []),
+              colsContentHidden[col.colId] ? [] : [
+              !col.type ? [
+                c('div', {
+                  onClick: (e) => {
+                    if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
+                  },
+                  className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                  dangerouslySetInnerHTML:{__html: processContent(item[col.colId], config, col.colId, "__output__", item)}
+                })
+              ] : []
+              ]
+              ])
+          )
+        ])
+      ) 
+    ]
+
+              
+
+
 
   const gridView = () => [
     c('div', {className:"ctag-component-table-grid-view"}, [
@@ -804,7 +848,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
     ]),
     
     // c('div', {className:"nb-items"}, [ config.displayType ]),
-    view === "table" ? tableView() : gridView()
+    // view === "table" ? renderView() : gridView()
+    view === "table" ? renderView("table") : renderView("grid")
   ]
 
     

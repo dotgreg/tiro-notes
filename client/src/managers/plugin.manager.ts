@@ -9,11 +9,12 @@ import { devCliAddFn, notifLog } from "./devCli.manager"
 const intervalTime = 1000 * 60 // 1minute
 
 const h = `[PLUGIN CRON]`
+let log = false
 devCliAddFn('cron', 'trigger', () => {triggerCron()})
 
 let hasBgPluginCronStarted = false
 export const startFrontendBackgroundPluginsCron = () => {
-    console.log(h, "starting frontendBackgroundPlugins Cron")
+    log && console.log(h, "starting frontendBackgroundPlugins Cron")
     if (hasBgPluginCronStarted) return
 
     // every minute
@@ -42,8 +43,8 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
         new Function(...paramsNames, plugin.code)(...paramsValues)
     } catch (e) {
         let message = `[ERR in ${plugin.type.toLocaleUpperCase()} plugin ${plugin.name.toLocaleUpperCase()}]:  ${e}`
-        console.log(message, e, {paramsNames, paramsValues, plugin});
-        console.trace(e)
+        log && console.log(message, e, {paramsNames, paramsValues, plugin});
+        log && console.trace(e)
         notifLog(`${message}`)
     }
 }
@@ -83,11 +84,11 @@ const triggerCron = () => {
                     let now = new Date().getTime()
                     let lastRun = cronState[p.name]?.lastRunTime || 0
                     if (lastRun + intervalRun > now) {
-                        return console.log(h, `${datetime}  => 🕑⏳ bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
+                        return log && console.log(h, `${datetime}  => 🕑⏳ bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
                     } else {
                         let status = lastRun + intervalRun > now
                         //  Function() the code with an api injection inside its variables 
-                        console.log(h, `${datetime}  => 🕑▶️ exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {p, lastRun, intervalRun, now, status})
+                        log && console.log(h, `${datetime}  => 🕑▶️ exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {p, lastRun, intervalRun, now, status})
                         const state = cronState[p.name]
                         evalPluginCode(p, {tiroApi:api, bgState:state})
                         
