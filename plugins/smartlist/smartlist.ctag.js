@@ -415,61 +415,27 @@ const smartlistApp = (innerTagStr, opts) => {
                                 }
                         }
 
-                        let errorToShow = false
-                        for (const {colName, formula} of colsFormulas) {
-                                // for each item, apply the formula using for i++
-                                for (let i = 0; i < items.length; ++i) {
-                                        // each variable from item is rename row_COLNAME
-                                        let item = items[i]
-                                        let formulaProcessedStr = formula
-                                        each(item, (val, key) => {
-                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`row_${key}`, val)
-                                        })
-                                        // for each array from colsStats, add it to the formula
-                                        each(colsStats, (val, key) => {
-                                                if (val && key) {
-                                                        formulaProcessedStr = formulaProcessedStr.replaceAll(`sum_${key}`, val.sum)
-                                                        formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
-                                                }
-                                        })
-                                        let randomCellId = Math.random().toString(36).substring(7);
-                                        formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`<span id="${randomCellId}">${formulaProcessedStr}</span>\``
-                                        // console.log('formulaProcessedStr:', formulaProcessedStr)
-                                        // if row_, sum_, count_ in formula, formulaProcessedStr = ""
-                                        if (formulaProcessedStr.includes("row_") || formulaProcessedStr.includes("sum_") || formulaProcessedStr.includes("count_")) formulaProcessedStr = ""
-                                        try {
-                                                const cb = (res) => {
-                                                        // replace the innerHTML of the cell with the result
-                                                        let int = setInterval(() => {
-                                                                let cell = document.getElementById(randomCellId)
-                                                                console.log('cell:', cell)
-                                                                if (cell) {
-                                                                        cell.innerHTML = res
-                                                                        clearInterval(int)
-                                                                } 
-                                                        }, 1000)
-                                                }
-                                                items[i][colName] = new Function("cb",formulaProcessedStr)(cb)
-                                        } catch (e) {
 
-                                                errorToShow = `Error in formula ${colName}: ${e}`
-                                        }
-                                }
-                        }
-                        if (errorToShow) notifLog(errorToShow)
-                                         
-                        
+
                         //
-                        // if grid view
+                        // FORMULA CELL SYSTEM
                         //
-                        if (showGrid) {
-                                config.gridView = {
+                        let errorToShow = false
+                        let counterCb = 0
+                        let toReachCb = 0
+                        const onAllFormulasProcessed = () => {
+                                //
+                                // if grid view
+                                //
+                                console.log('smartlist > onAllFormulasProcessed', {items})
+                                if (showGrid) {
+                                        config.gridView = {
                                                 onClick: (item) => {
                                                         openItemFloatingWindow(item)
                                                 },
                                                 image: (item) => {
                                                         let image = item.image || ""
-                                                        console.log('image:', image)
+                                                        // console.log('image:', image)
                                                         // if image includes < and >, output as html
                                                         let isHtml = image.includes("<") && image.includes(">")
                                                         let res = ""
@@ -491,10 +457,83 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 contentHover: (item) => {
                                                         return `${item.name}`
                                                 }
+                                        }
+                                }
+                                wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
+
+                        } // end onAllFormulasProcessed
+                        const increaseCounterCb = () => {
+                                counterCb++
+                                // console.log('smartlist > formulas processed:', counterCb, toReachCb)
+                                if (counterCb === toReachCb) {
+                                        console.log('smartlist > all formulas processed', toReachCb)
+                                        onAllFormulasProcessed()
                                 }
                         }
 
-                        wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
+                        for (const {colName, formula} of colsFormulas) {
+                                // let isFormulaAsync = formula.includes("cb(")
+                                for (let i = 0; i < items.length; ++i) {
+                                        toReachCb++
+                                }
+                        }
+                        for (const {colName, formula} of colsFormulas) {
+                                // for each item, apply the formula using for i++
+                                for (let i = 0; i < items.length; ++i) {
+                                        // each variable from item is rename row_COLNAME
+                                        let item = items[i]
+                                        let formulaProcessedStr = formula
+                                        each(item, (val, key) => {
+                                                formulaProcessedStr = formulaProcessedStr.replaceAll(`row_${key}`, val)
+                                        })
+                                        // for each array from colsStats, add it to the formula
+                                        each(colsStats, (val, key) => {
+                                                if (val && key) {
+                                                        formulaProcessedStr = formulaProcessedStr.replaceAll(`sum_${key}`, val.sum)
+                                                        formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
+                                                }
+                                        })
+                                        let randomCellId = Math.random().toString(36).substring(7);
+                                        // formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`<span id="${randomCellId}">${formulaProcessedStr}</span>\``
+                                        // if formulaProcessedStr does not have ${ in it, it means it is a simple formula, wrap it with cb
+                                        // if cb( NOT present, append it
+                                        if (!formulaProcessedStr.toLowerCase().includes("cb(")) {
+                                                formulaProcessedStr = `cb(\`${formulaProcessedStr}\`)`
+                                        } else {
+                                                formulaProcessedStr = `return \`${formulaProcessedStr}\``
+                                        }                
+                                        formulaProcessedStr = `${userFunctionsContent.current} \n\n ${formulaProcessedStr}`
+                                        // if (!formulaProcessedStr.includes("${")) formulaProcessedStr = `cb(\`${formulaProcessedStr}\`)`
+                                        // else  {
+                                        //         if (!formulaProcessedStr.includes("cb("))  {
+                                        //                 errorToShow = `Error in formula ${colName}: missing cb()`
+                                        //         } else  {
+                                        //                 formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`${formulaProcessedStr}\``
+                                        //         }
+                                        // }
+                                        if (formulaProcessedStr.includes("row_") || formulaProcessedStr.includes("sum_") || formulaProcessedStr.includes("count_")) {
+                                                formulaProcessedStr = ""
+                                                increaseCounterCb()
+                                        } else {
+                                                try {
+                                                        const cb = (res) => {
+                                                                items[i][colName] = res
+                                                                increaseCounterCb()
+                                                        }
+                                                        new Function("cb",formulaProcessedStr)(cb)
+                                                } catch (e) {
+
+                                                        errorToShow = `Error in formula ${colName}: ${e}`
+                                                }
+                                        }
+                                }
+                        }
+
+
+                        if (errorToShow) notifLog(errorToShow)
+
+                        // if no formula, directly call onAllFormulasProcessed
+                        if (colsFormulas.length === 0) onAllFormulasProcessed()
                 }
         }
 
