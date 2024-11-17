@@ -420,6 +420,23 @@ const TableComponentReactInt = ({ items, config, id }) => {
   };
 
   let processContent = (contentCell, configCol) => {
+    // console.log(contentCell, configCol)
+    let randomCellId = Math.random().toString(36).substring(7);
+    if (configCol.eval === true) {
+      console.log("eval")
+      const cb = (res) => {
+        // console.log(12333333333333, res)
+        // if there is a callback trigger, replace the contentCell with the result of the callback
+        cellDiv = document.getElementById(randomCellId)
+        cellDiv.innerHTML = res
+      }
+      try {
+        contentCell = new Function("cb",contentCell)(cb);  
+      } catch (error) {
+        console.log("error", error)
+      }
+    }
+
     // if < and > exists inside the contentCell, it is html
     let isContentCellHtml = contentCell && contentCell.includes("<") && contentCell.includes(">")
     if (typeof contentCell === "string" && contentCell.includes("http") && !isContentCellHtml) {
@@ -432,7 +449,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     // if (configCol.onClick) {
     //   contentCell = `<div class="table-link-click" onclick="${configCol.onClick}">${contentCell}</a>`
     // }
-    return contentCell
+    return `<span id="${randomCellId}">${contentCell}</span>`
   }
 
   const [configColsObj, setConfigColsObj] = r.useState({});
@@ -652,6 +669,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
                 ...config.cols.map(col => {
                   if (activeColToFilter === col.colId) {
                     return c('td', {key: `${col.colId}-filter`}, [
+                      //
+                      // HEADER: SELECT MULTIPLE FILTER
+                      //
                       c('select', {class:"select-multiple-filter", multiple: true, onInput: (e) => {
                         let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
                         onFilterChange(col.colId, selectedValues)
@@ -704,7 +724,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
                             }
                           }})
                         ] : []),
-                        // TEXT 
+
+                      //
+                      // CONTENT
+                      //
                         colsContentHidden[col.colId] ? [] : [
                         !col.type ? [
                           c('div', {
@@ -712,7 +735,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                               if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
                             },
                             className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
-                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
+                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], col)}
                           })
                         ] : []
                         ]

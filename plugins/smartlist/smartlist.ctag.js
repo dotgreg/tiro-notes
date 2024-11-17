@@ -101,7 +101,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 api.call("file.getContent", ["/.tiro/user_functions.md"], rawContent => {
                         if (rawContent === "NO_FILE") console.log("user functions file not found")
                         else {
-                                console.log('user Functions rawContent:', rawContent)
+                                // console.log('user Functions rawContent:', rawContent)
                                 userFunctionsContent.current = rawContent
                         }
                         cb && cb()
@@ -350,11 +350,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                 config.cols = config.cols.filter(col => col.colId !== key)
                         }
 
-                        // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                        // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
-                        // {colId: "filename", headerLabel: "Filename"},
-                        // {colId: "folder", headerLabel: "Folder"},
-
                         const isMobile = () => {
                                 let check = false;
                                 //@ts-ignore
@@ -417,6 +412,8 @@ const smartlistApp = (innerTagStr, opts) => {
 
                         let errorToShow = false
                         for (const {colName, formula} of colsFormulas) {
+                                // add in config.cols the option eval:true
+                                for (const col of config.cols) { if (col.colId === colName) col.eval = true }       
                                 // for each item, apply the formula using for i++
                                 for (let i = 0; i < items.length; ++i) {
                                         // each variable from item is rename row_COLNAME
@@ -433,13 +430,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 }
                                         })
                                         formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`${formulaProcessedStr}\``
-                                        console.log('formulaProcessedStr:', formulaProcessedStr)
-                                        try {
-                                                items[i][colName] = new Function(formulaProcessedStr)()
-                                        } catch (e) {
-
-                                                errorToShow = `Error in formula ${colName}: ${e}`
-                                        }
+                                        items[i][colName] = formulaProcessedStr
                                 }
                         }
                         if (errorToShow) notifLog(errorToShow)
@@ -472,6 +463,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 }
                                 }
                         }
+
+                        console.log('config', config)
 
                         wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
                 }
