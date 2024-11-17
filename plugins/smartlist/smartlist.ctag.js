@@ -101,7 +101,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 api.call("file.getContent", ["/.tiro/user_functions.md"], rawContent => {
                         if (rawContent === "NO_FILE") console.log("user functions file not found")
                         else {
-                                console.log('user Functions rawContent:', rawContent)
+                                // console.log('user Functions rawContent:', rawContent)
                                 userFunctionsContent.current = rawContent
                         }
                         cb && cb()
@@ -432,10 +432,24 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         formulaProcessedStr = formulaProcessedStr.replaceAll(`count_${key}`, val.count)
                                                 }
                                         })
-                                        formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`${formulaProcessedStr}\``
-                                        console.log('formulaProcessedStr:', formulaProcessedStr)
+                                        let randomCellId = Math.random().toString(36).substring(7);
+                                        formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`<span id="${randomCellId}">${formulaProcessedStr}</span>\``
+                                        // console.log('formulaProcessedStr:', formulaProcessedStr)
+                                        // if row_, sum_, count_ in formula, formulaProcessedStr = ""
+                                        if (formulaProcessedStr.includes("row_") || formulaProcessedStr.includes("sum_") || formulaProcessedStr.includes("count_")) formulaProcessedStr = ""
                                         try {
-                                                items[i][colName] = new Function(formulaProcessedStr)()
+                                                const cb = (res) => {
+                                                        // replace the innerHTML of the cell with the result
+                                                        let int = setInterval(() => {
+                                                                let cell = document.getElementById(randomCellId)
+                                                                console.log('cell:', cell)
+                                                                if (cell) {
+                                                                        cell.innerHTML = res
+                                                                        clearInterval(int)
+                                                                } 
+                                                        }, 1000)
+                                                }
+                                                items[i][colName] = new Function("cb",formulaProcessedStr)(cb)
                                         } catch (e) {
 
                                                 errorToShow = `Error in formula ${colName}: ${e}`
@@ -455,10 +469,17 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 },
                                                 image: (item) => {
                                                         let image = item.image || ""
-                                                        // if image starts with /, it is a local path image, make it absolute ${api.utils.getInfos().backendUrl}/static${api.utils.getInfos().file.folder}row_col5?token=${api.utils.getInfos().loginToken}
-                                                        let infs = api.utils.getInfos()
-                                                        if (image.startsWith("/")) image = `${infs.backendUrl}/static${item.folder}${image}?token=${infs.loginToken}`
-                                                        return image
+                                                        console.log('image:', image)
+                                                        // if image includes < and >, output as html
+                                                        let isHtml = image.includes("<") && image.includes(">")
+                                                        let res = ""
+                                                        if (isHtml) res = {html: image}
+                                                        else {
+                                                                // if image starts with /, it is a local path image, make it absolute ${api.utils.getInfos().backendUrl}/static${api.utils.getInfos().file.folder}row_col5?token=${api.utils.getInfos().loginToken}
+                                                                let infs = api.utils.getInfos()
+                                                                if (image.startsWith("/")) res = `${infs.backendUrl}/static${item.folder}${image}?token=${infs.loginToken}`
+                                                        }
+                                                        return res
                                                 },
                                                 hideLabel: (item) => {
                                                         if (["png", "jpg", "jpeg", "gif"].indexOf(item.type) !== -1) return true
