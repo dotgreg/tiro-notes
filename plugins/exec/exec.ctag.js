@@ -159,7 +159,15 @@ ${res}
 						// if ( value.length < 1) continue
 						// if val is object, stringify it
 						if (typeof value === 'object') {
-							value = JSON.stringify(value)
+							value = JSON.stringify(value, null, 4)
+							console.log(111, value)
+							// replace tab space by htmlSpace and \n by <br>
+							let htmlSpace = '&nbsp;&nbsp;'
+							value = value.replaceAll("    ", htmlSpace)
+							value = value.replace(/\t/g, htmlSpace)
+							value = value.replace(/\n/g, '<br>')
+							// , => SPACE * 2 , <br>
+							// value = value.replace(/,/g, ',<br>'+htmlSpace)
 						}
 						// replace , with ;
 						if(typeof value === "string") value = value.replace(/,/g, ';')
