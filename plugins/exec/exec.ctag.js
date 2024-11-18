@@ -159,13 +159,31 @@ ${res}
 						// if ( value.length < 1) continue
 						// if val is object, stringify it
 						if (typeof value === 'object') {
+							// remove { } and "
+							// value = JSON.stringify(value)
+							// let htmlSpace = '&nbsp;'
+							// value = value.replace(/[{""}]/g, '')
+							// value = value.replace(/,/g, `${htmlSpace}|${htmlSpace}`)
+
+
 							value = JSON.stringify(value, null, 4)
-							console.log(111, value)
 							// replace tab space by htmlSpace and \n by <br>
 							let htmlSpace = '&nbsp;&nbsp;'
+							// replace {\n     with nothing
+							// value = value.replace(/\{\n\s{4}/g, '')
+							// value = value.replace(/\{\n\s{4}/g, '')
+							console.log(value)
 							value = value.replaceAll("    ", htmlSpace)
 							value = value.replace(/\t/g, htmlSpace)
 							value = value.replace(/\n/g, '<br>')
+							// value = value.replace(/[{""}]/g, '')
+							value = value.replace(/[""]/g, '')
+							value = value.replace(/[{}]/g, '')
+							// split value into lines and remove when line empty or just , in it
+							let lines = value.split('<br>')
+							lines = lines.filter(line => line.trim() !== '' && line.trim() !== ',')
+							value = lines.join('<br>')
+
 							// , => SPACE * 2 , <br>
 							// value = value.replace(/,/g, ',<br>'+htmlSpace)
 						}
