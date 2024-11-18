@@ -32,7 +32,7 @@ export interface iRessourceApi {
 
 	fetch: (
 		url: string,
-		cb: (urlContent: string, urlPath:string) => void,
+		cb: (urlContentOrPath: string, urlPath?:string) => void,
 		options? : { 
 			disableCache?: boolean | string
 			persistentCache?: boolean
@@ -116,24 +116,27 @@ export const useRessourceApi = (p: {
 		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
 
-		// console.log(h,"FETCH RESSOURCE", {url,opt})
+		console.log(h,"FETCH RESSOURCE", {url,options})
 
 		const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
 		
 		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 
 		const returnFile = () => {
+			console.log(h, `FETCHING => getting CACHED file`, { url, options });
 			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
 				tryCatch(() => cb(data, localStaticPath))
 			})
 		}
-		const returnFilePath = () => { cb("", localStaticPath) }
+		const returnFilePath = () => { cb(localStaticPath) }
 
 		const downloadThenReturnFile = () => {
 			downloadRessource(url, cacheFolder, answer => {
+				console.log(h, `FETCHING => answer`, { url, options, answer});
 				if (answer.message) { 
+					console.log(h, `FETCHING => answer`, { url, options, answer});
 					if (!options?.returnsPathOnly) returnFile() 
 					else returnFilePath()
 				}
@@ -148,7 +151,8 @@ export const useRessourceApi = (p: {
 				url: localStaticPath,
 				onSuccess: () => {
 					// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
-					returnFile()
+					if (!options?.returnsPathOnly) returnFile() 
+					else returnFilePath()
 				},
 				onFail: () => {
 					downloadThenReturnFile()
