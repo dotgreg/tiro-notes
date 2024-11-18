@@ -710,53 +710,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
   ]
 
   const tableView = () =>  [
-        c('div', {className: "ctag-component-table-wrapper"}, [
-
-          c('table', {className: "ctag-component-table"}, [
-            c('thead', {}, [
-            c('tr', {}, [
-                ...config.cols.map(col =>
-                  genHeaderCell(col)
-                )
-            ])
-            ]),
-            c('tbody', {}, [
-              // first row is the filter row
-              c('tr', {}, [
-                ...config.cols.map(col => {
-                  if (activeColToFilter === col.colId) {
-                    return c('td', {key: `${col.colId}-filter`}, [
-                      c('select', {class:"select-multiple-filter", multiple: true, onInput: (e) => {
-                        let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
-                        onFilterChange(col.colId, selectedValues)
-                      }}, [
-                        ...uniqFilterVals[col.colId].map(val => {
-                          return c('option', {value: val, selected: activeFilters[col.colId]?.includes(val), dangerouslySetInnerHTML: {__html: genSelectOptionLabel(col.colId, val)} } )
-                        })
-                      ])
-                    ])
-                  } else {
-                    return c('td', {key: keyCounter(`${col.colId}-buttons`)}, [
-                      // on click here, set activeColToFilter to none but event propagation should be stopped
-                      c('div', {className: "col-buttons", onClick: (e) => { 
-                        e.stopPropagation();
-                        // setActiveColToFilter(null)
-                      }}, [
-                        c('div', {className: "table-link-click", onClick: () => setActiveColToFilter(col.colId)}, [
-                          // filter emoji icon with ative class if filter is active
-                          c('div', {className: `fa col-icon fa-filter ${isColFiltered(col.colId) ? "active" : ""}`}),
-                        
-                        ]),
-                        // hide/show col content
-                        c('div', {className: "table-link-click", onClick: () => toggleColContent(col.colId)}, [
-                          c('div', {className: `fa col-icon  ${colsContentHidden[col.colId] ? "fa-eye-slash" : "fa-eye"}`}),
-                        ])
-                      ])
-                    ])
-                  }
-                })
-              ]),
-
+       
                 ...filteredItems.map(item =>
                     c('tr', { key: keyCounter(`${item.id}`) }, [
                     ...config.cols.map(col =>
