@@ -35,6 +35,7 @@ export interface iRessourceApi {
 		cb: (urlContent: string, urlPath:string) => void,
 		options? : { 
 			disableCache?: boolean | string
+			persistentCache?: boolean
 			returnsPathOnly?:boolean
 		} & iDownloadRessourceOpts
 	) => void,
@@ -117,7 +118,8 @@ export const useRessourceApi = (p: {
 
 		// console.log(h,"FETCH RESSOURCE", {url,opt})
 
-		const cacheFolder = `/.tiro/cache/fetch/`
+		const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
+		
 		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 
 		const returnFile = () => {
