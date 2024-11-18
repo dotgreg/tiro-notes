@@ -146,6 +146,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 let colsToHide = []
                 let colsFormulas = []
                 let showGrid = false
+                let commaSplit = false
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
 
@@ -211,6 +212,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_meta")) configMetaCols = false
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
                                 if (JSON.stringify(listFilesRes).includes("__config_view_grid")) showGrid = true
+                                if (JSON.stringify(listFilesRes).includes("__config_split_on_comma")) commaSplit = true
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
@@ -246,6 +248,33 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 delete item[key]
                                         })
                                 }
+
+                                // if splitComma true, if a field of a row has a comma, split it in several rows
+                                if (commaSplit) {
+                                        let newItems = []
+                                        each(items, (item) => {
+                                                let hasComma = false
+                                                each(item, (val, key) => {
+                                                        if (val.includes(",")) hasComma = true
+                                                })
+                                                if (hasComma) {
+                                                        each(item, (val, key) => {
+                                                                if (val.includes(",")) {
+                                                                        let vals = val.split(",")
+                                                                        each(vals, (v) => {
+                                                                                let newItem = { ...item }
+                                                                                newItem[key] = v
+                                                                                newItems.push(newItem)
+                                                                        })
+                                                                }
+                                                        })
+                                                } else {
+                                                        newItems.push(item)
+                                                }
+                                        })
+                                        items = newItems
+                                }
+
 
                                 loadTable({configMetaCols})
                         })

@@ -216,10 +216,11 @@ Full example: (to copy and paste in a note, then click on #food)
 
 
 <h3> More options </h3>
-<p> Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
-<p> Removing a column: You can remove one col by adding the word "__config_hideCol_NAMECOL" <br>
-<p> Removing default cols: You can remove the meta columns by adding the word "__config_hide_meta" <br>
-<p> Removing config rows: by adding the word "__config_hide_config_rows" <br>
+<p>"__config_add_form=" Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
+<p>"__config_hideCol_NAMECOL"  Removing a column: You can remove one col by adding the word <br>
+<p>"__config_hide_meta":  Removing default cols: You can remove the meta columns by adding the word <br>
+<p"__config_hide_config_rows": Removing config rows: by adding the word <br>
+<p>"__config_split_on_comma": Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
 
 <h3> Custom cell content: </h3>
 <p>you can customize a cell content, here are some examples
@@ -656,7 +657,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [rowCompressed, setRowCompressed] = r.useState(true)
   
 
-  const filterView = () => [
+  const filterView = (bodyDiv) => [
       c('div', {className: "ctag-component-table-wrapper"}, [
 
           c('table', {className: "ctag-component-table"}, [
@@ -703,9 +704,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
                   }
                 })
               ]),
+              bodyDiv && bodyDiv()
             ]),
           ]),
-
     ])
   ]
 
@@ -748,9 +749,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
                     )
                     ])
                 ) 
-            ]) // endbody
-        ]) // endtable
-      ]) // endtable
     ]
 
   const gridView = () => [
@@ -809,8 +807,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
     ]),
     
     // c('div', {className:"nb-items"}, [ config.displayType ]),
-    filterView(),
-    view === "table" ? tableView() : gridView()
+    // filterView(),
+    view === "table" && filterView(tableView),
+    view === "grid" && filterView(), gridView(),
   ]
 
     
