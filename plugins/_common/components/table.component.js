@@ -809,7 +809,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     // c('div', {className:"nb-items"}, [ config.displayType ]),
     // filterView(),
     view === "table" && filterView(tableView),
-    view === "grid" && filterView(), gridView(),
+    view === "grid" && filterView(gridView), 
   ]
 
     
