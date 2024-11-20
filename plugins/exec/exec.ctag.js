@@ -118,6 +118,7 @@ ${res}
 		<br> please refer to the <a href="https://mathjs.org/docs/expressions/syntax.htmlhttps://mathjs.org/docs/expressions/parsing.html">math.js documentation</a> for more information
 		<h4>Style</h4>
 		<p> you can customize the style of the output by adding r.style = "your css" in the returned object</p> 
+		<p> By default, the elements are displayed side by side, naming an element ending with _b will display its children below one another</p>
 
 		<h4>Example</h4>
 		<pre>
@@ -128,6 +129,7 @@ ${res}
 				t.c = t.a + t.b
 				t.d = m( "sqrt(3^2 + 4^2)" )
 				t.e = math.multiply([1,2,3,4],  3)
+				t.f_b = {a: 1, b: 2, c: 3}
 				t.style = "table {border: 1px solid orange;}"
 				return t
 			[[exec]]
@@ -158,10 +160,12 @@ ${res}
 						let divClassName = "divclass";
 						let html = `<div class="${wrapperClassName}">`;
 						for (const key in data) {
+							// replace _b and _v
+							let keyNoEnd = key.replace(/_b|_v/g, "")
 							if (data.hasOwnProperty(key)) {
 							if (typeof data !== "array") {
 								html += `<div class="${divClassName} name-${key}">`;
-								html += `<div>${key.replace(/_/g, " ")}</div>`;
+								html += `<div>${keyNoEnd.replace(/_/g, " ")}</div>`;
 							}
 							if (data[key] && typeof data[key] === "object") {
 								html += jsonToHTMLDivs(data[key], "", divClassName);
@@ -187,11 +191,28 @@ ${res}
 						 td, td {padding: 5px;}
 						  .wrapper { border: 1px solid black;display:flex;  padding: 5px;}
 						   .divclass {  padding: 5px;}
+						   [class$="_b"], [class$="_b"] > .wrapper { display:block; }
 						${t.style ? t.style : ""}
 					</style>
 					`
 					// remove t.style
 					delete t.style
+
+					// // go recursively inside each prop of t, if t.prop_b (ends with _b, _v), remove it
+					// const removeProp = (obj) => {
+					// 	for (let key in obj) {
+					// 		if (key.endsWith("_b") || key.endsWith("_v")) {
+					// 			newKey = key.replace(/_b|_v/g, "")
+					// 			obj[newKey] = obj[key]
+					// 			delete obj[key]
+					// 		}
+					// 		if (typeof obj[key] === 'object') {
+					// 			removeProp(obj[key])
+					// 		}
+					// 	}
+					// }
+					// removeProp(t)
+
 					window.document.body.innerHTML = jsonToHTMLDivs(t) + `${generateHelpButton(helpText, "Exec ctag help")} ${style}`
 
 
