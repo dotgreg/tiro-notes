@@ -160,8 +160,8 @@ ${res}
 						let divClassName = "divclass";
 						let html = `<div class="${wrapperClassName}">`;
 						for (const key in data) {
-							// replace _b and _v
-							let keyNoEnd = (key.endsWith("_b") || key.endsWith("_v")) ? key.slice(0, -2) : key;
+							// if key ends with _{LETTER} like _b or _v, or _i  _o etc. remove it 
+							let keyNoEnd = key.replace(/_[a-z]$/, "");
 							if (data.hasOwnProperty(key)) {
 							if (typeof data !== "array") {
 								html += `<div class="${divClassName} name-${key}">`;
