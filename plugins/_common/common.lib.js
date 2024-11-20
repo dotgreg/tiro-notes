@@ -37,6 +37,42 @@ r.getOperatingSystem = () => {
     }
 }
 
+
+const jsonToHTMLTable = (data) => {
+    let wrapperClassName = ""
+    let tableClassName = ""
+  let html = `<div class="${wrapperClassName}">`;
+  html += `<table class="${tableClassName}">`;
+  html += "<tbody>";
+
+  for (const key in data) {
+    if (data.hasOwnProperty(key)) {
+      html += "<tr>";
+      if (typeof data !== "array") {
+        html += `<td>${key.replace(/_/g, " ")}</td>`;
+      }
+
+      if (data[key] && typeof data[key] === "object") {
+        html += "<td>";
+        html += jsonToHTMLTable(data[key], "", tableClassName);
+        html += "</td>";
+      } else {
+        html += "<td>";
+        html += `<span>${data[key]}</span>`;
+        html += "</td>";
+      }
+
+      html += "</tr>";
+    }
+  }
+
+  html += "</tbody>";
+  html += "</table>";
+  html += "</div>";
+
+  return html;
+}
+
 ///////////////////////////////////////////////////
 // SUPPORT
 //

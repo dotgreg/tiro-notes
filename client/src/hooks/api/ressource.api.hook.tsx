@@ -116,14 +116,14 @@ export const useRessourceApi = (p: {
 		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
 
-		console.log(h,"FETCH RESSOURCE", {url,options})
+		// console.log(h,"FETCH RESSOURCE", {url,options})
 
 		const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
 		
 		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 
 		const returnFile = () => {
-			console.log(h, `FETCHING => getting CACHED file`, { url, options });
+			// console.log(h, `FETCHING => getting CACHED file`, { url, options });
 			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
@@ -134,9 +134,9 @@ export const useRessourceApi = (p: {
 
 		const downloadThenReturnFile = () => {
 			downloadRessource(url, cacheFolder, answer => {
-				console.log(h, `FETCHING => answer`, { url, options, answer});
+				// console.log(h, `FETCHING => answer`, { url, options, answer});
 				if (answer.message) { 
-					console.log(h, `FETCHING => answer`, { url, options, answer});
+					// console.log(h, `FETCHING => answer`, { url, options, answer});
 					if (!options?.returnsPathOnly) returnFile() 
 					else returnFilePath()
 				}
@@ -211,7 +211,7 @@ export const useRessourceApi = (p: {
 				cb && cb(res)
 			} catch (e) {
 				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
-				console.log(message, e, {url, funcParams, options});
+				// console.log(message, e, {url, funcParams, options});
 				notifLog(`${message}`)
 			}
 		}
