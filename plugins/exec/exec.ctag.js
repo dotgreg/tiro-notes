@@ -161,7 +161,7 @@ ${res}
 						let html = `<div class="${wrapperClassName}">`;
 						for (const key in data) {
 							// replace _b and _v
-							let keyNoEnd = key.replace(/_b|_v/g, "")
+							let keyNoEnd = (key.endsWith("_b") || key.endsWith("_v")) ? key.slice(0, -2) : key;
 							if (data.hasOwnProperty(key)) {
 							if (typeof data !== "array") {
 								html += `<div class="${divClassName} name-${key}">`;
