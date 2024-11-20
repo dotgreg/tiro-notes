@@ -116,6 +116,9 @@ ${res}
 		<p> Math.js is loaded in the background by calling m() (shortcut for math.compile) or math, so you can use it to perform calculations</p>
 		<p> For example, you can use math.multiply([1,2,3,4,5], 2) to multiply an array</p>
 		<br> please refer to the <a href="https://mathjs.org/docs/expressions/syntax.htmlhttps://mathjs.org/docs/expressions/parsing.html">math.js documentation</a> for more information
+		<h4>Style</h4>
+		<p> you can customize the style of the output by adding r.style = "your css" in the returned object</p> 
+
 		<h4>Example</h4>
 		<pre>
 			[[exec]]
@@ -125,6 +128,7 @@ ${res}
 				t.c = t.a + t.b
 				t.d = m( "sqrt(3^2 + 4^2)" )
 				t.e = math.multiply([1,2,3,4],  3)
+				t.style = "table {border: 1px solid orange;}"
 				return t
 			[[exec]]
 		</pre>
@@ -148,100 +152,156 @@ ${res}
 						}
 					})
 
-					t2 = new Function(varStr)()
 
-					// for each var of t2
-					let t3 = {}
-					for (let key in t2) {
-						let calculation = analysisObj[key] || ""
-						let value = t2[key]
-						// if calculation && value = "" return
-						// if ( value.length < 1) continue
-						// if val is object, stringify it
-						if (typeof value === 'object') {
-							// remove { } and "
-							// value = JSON.stringify(value)
-							// let htmlSpace = '&nbsp;'
-							// value = value.replace(/[{""}]/g, '')
-							// value = value.replace(/,/g, `${htmlSpace}|${htmlSpace}`)
-
-
-							value = JSON.stringify(value, null, 4)
-							// replace tab space by htmlSpace and \n by <br>
-							let htmlSpace = '&nbsp;&nbsp;'
-							// replace {\n     with nothing
-							// value = value.replace(/\{\n\s{4}/g, '')
-							// value = value.replace(/\{\n\s{4}/g, '')
-							console.log(value)
-							value = value.replaceAll("    ", htmlSpace)
-							value = value.replace(/\t/g, htmlSpace)
-							value = value.replace(/\n/g, '<br>')
-							// value = value.replace(/[{""}]/g, '')
-							value = value.replace(/[""]/g, '')
-							value = value.replace(/[{}]/g, '')
-							// split value into lines and remove when line empty or just , in it
-							let lines = value.split('<br>')
-							lines = lines.filter(line => line.trim() !== '' && line.trim() !== ',')
-							value = lines.join('<br>')
-
-							// , => SPACE * 2 , <br>
-							// value = value.replace(/,/g, ',<br>'+htmlSpace)
-						}
-						// replace , with ;
-						if(typeof value === "string") value = value.replace(/,/g, ';')
-						if (typeof calculation === "string") calculation = calculation.replace(/,/g, ';')
-						t3[key] = [value, calculation]
-					}
-
-
-					let csvStr = ''
-					// create a csv with the results
-					// variable name, valyue, calculation
-					csvStr += 'variable name, value, calculation\n'
-					for (let key in t3) {
-						csvStr += `${key},${t3[key][0]},${t3[key][1]}\n`
-					}
-
-					let lines = csvStr.split('\n')
-					window.toggleCalculationVisiziility = () => {
-						document.querySelectorAll('.calculation').forEach(cell => {
-							cell.style.display = cell.style.display === 'none' ? 'block' : 'none'
-						})
-					}
-
-					let tableAndStyleHtml = `
-					<table id="table">
-						<thead>
-							<tr>
-								<th class="variable-name">variable name</th>
-								<th class="value">value</th>
-								<th class="calculation">calculation</th>
-							</tr>
-						</thead>
-						<tbody>
-							${lines.slice(1).map(line => {
-								// if line is empty, return empty string
-								if (line.trim() === '') return ''
-								let cells = `
-								<td class="variable-name">${line.split(',')[0]}</td>
-								<td class="value">${line.split(',')[1]}</td>
-								<td class="calculation">${line.split(',')[2]}</td>
-								`
-								
-								return `<tr>${cells}</tr>`
+					const jsonToHTMLDivs = (data) => {
+						let wrapperClassName = "wrapper";
+						let divClassName = "divclass";
+						let html = `<div class="${wrapperClassName}">`;
+						for (const key in data) {
+							if (data.hasOwnProperty(key)) {
+							if (typeof data !== "array") {
+								html += `<div class="${divClassName} name-${key}">`;
+								html += `<div>${key.replace(/_/g, " ")}</div>`;
 							}
-							).join('')}
-						</tbody>
-					</table>
-					<br>
-					<a href="data:text/csv;charset=utf-8,${encodeURIComponent(csvStr)}" download="data.csv"><button> download csv</button></a>
-					<button onclick="toggleCalculationVisiziility()">toggle calc</button>
-					${generateHelpButton(helpText, "Exec ctag help")}
-					${styleStr}
+							if (data[key] && typeof data[key] === "object") {
+								html += jsonToHTMLDivs(data[key], "", divClassName);
+							} else {
+								html += `<div><span>${data[key]}</span></div>`;
+							}
+							if (typeof data !== "array") {
+								html += "</div>";
+							}
+							}
+						}
+						html += "</div>";
+						return html;
+					};
+
+
+					t = new Function(varStr)()
+
+					let style = `
+					<style>
+						 body > .wrapper {width: calc(100% - 40px)}
+						 table, th, tr, td {border: 1px solid black;}
+						 td, td {padding: 5px;}
+						  .wrapper { border: 1px solid black;display:flex;  padding: 5px;}
+						   .divclass {  padding: 5px;}
+						${t.style ? t.style : ""}
+					</style>
 					`
+					// remove t.style
+					delete t.style
+					window.document.body.innerHTML = jsonToHTMLDivs(t) + `${generateHelpButton(helpText, "Exec ctag help")} ${style}`
 
 
-					document.body.innerHTML = tableAndStyleHtml
+
+
+
+
+					// window.document.body.innerHTML = jsonToHTMLDivs(t2) + "<style> table, th, tr, td {border: 1px solid black;} td, td {padding: 5px;} .name-paiements > .wrapper {display: block} .wrapper { border: 1px solid black;display:flex;  padding: 5px;} .divclass {  padding: 5px;}</style>"
+
+
+
+
+
+
+
+
+
+
+					// // for each var of t2
+					// let t3 = {}
+					// for (let key in t2) {
+					// 	let calculation = analysisObj[key] || ""
+					// 	let value = t2[key]
+					// 	// if calculation && value = "" return
+					// 	// if ( value.length < 1) continue
+					// 	// if val is object, stringify it
+					// 	if (typeof value === 'object') {
+					// 		// remove { } and "
+					// 		// value = JSON.stringify(value)
+					// 		// let htmlSpace = '&nbsp;'
+					// 		// value = value.replace(/[{""}]/g, '')
+					// 		// value = value.replace(/,/g, `${htmlSpace}|${htmlSpace}`)
+
+
+					// 		value = JSON.stringify(value, null, 4)
+					// 		// replace tab space by htmlSpace and \n by <br>
+					// 		let htmlSpace = '&nbsp;&nbsp;'
+					// 		// replace {\n     with nothing
+					// 		// value = value.replace(/\{\n\s{4}/g, '')
+					// 		// value = value.replace(/\{\n\s{4}/g, '')
+					// 		console.log(value)
+					// 		value = value.replaceAll("    ", htmlSpace)
+					// 		value = value.replace(/\t/g, htmlSpace)
+					// 		value = value.replace(/\n/g, '<br>')
+					// 		// value = value.replace(/[{""}]/g, '')
+					// 		value = value.replace(/[""]/g, '')
+					// 		value = value.replace(/[{}]/g, '')
+					// 		// split value into lines and remove when line empty or just , in it
+					// 		let lines = value.split('<br>')
+					// 		lines = lines.filter(line => line.trim() !== '' && line.trim() !== ',')
+					// 		value = lines.join('<br>')
+
+					// 		// , => SPACE * 2 , <br>
+					// 		// value = value.replace(/,/g, ',<br>'+htmlSpace)
+					// 	}
+					// 	// replace , with ;
+					// 	if(typeof value === "string") value = value.replace(/,/g, ';')
+					// 	if (typeof calculation === "string") calculation = calculation.replace(/,/g, ';')
+					// 	t3[key] = [value, calculation]
+					// }
+
+
+					// let csvStr = ''
+					// // create a csv with the results
+					// // variable name, valyue, calculation
+					// csvStr += 'variable name, value, calculation\n'
+					// for (let key in t3) {
+					// 	csvStr += `${key},${t3[key][0]},${t3[key][1]}\n`
+					// }
+
+					// let lines = csvStr.split('\n')
+					// window.toggleCalculationVisiziility = () => {
+					// 	document.querySelectorAll('.calculation').forEach(cell => {
+					// 		cell.style.display = cell.style.display === 'none' ? 'block' : 'none'
+					// 	})
+					// }
+
+					// let tableAndStyleHtml = `
+					// <table id="table">
+					// 	<thead>
+					// 		<tr>
+					// 			<th class="variable-name">variable name</th>
+					// 			<th class="value">value</th>
+					// 			<th class="calculation">calculation</th>
+					// 		</tr>
+					// 	</thead>
+					// 	<tbody>
+					// 		${lines.slice(1).map(line => {
+					// 			// if line is empty, return empty string
+					// 			if (line.trim() === '') return ''
+					// 			let cells = `
+					// 			<td class="variable-name">${line.split(',')[0]}</td>
+					// 			<td class="value">${line.split(',')[1]}</td>
+					// 			<td class="calculation">${line.split(',')[2]}</td>
+					// 			`
+								
+					// 			return `<tr>${cells}</tr>`
+					// 		}
+					// 		).join('')}
+					// 	</tbody>
+					// </table>
+					// <br>
+					// <a href="data:text/csv;charset=utf-8,${encodeURIComponent(csvStr)}" download="data.csv"><button> download csv</button></a>
+					// <button onclick="toggleCalculationVisiziility()">toggle calc</button>
+					// ${generateHelpButton(helpText, "Exec ctag help")}
+					// ${styleStr}
+					// `
+
+
+					// document.body.innerHTML = tableAndStyleHtml
 
 
 
