@@ -672,10 +672,10 @@ noteLink should be relative from tiro folder
     - Parameters: 
        1. url: <span class="render-code-wrapper">string</span>
        1. options: <span class="render-code-wrapper"></span>
-    - Result: <span class="render-code-wrapper">(urlContent: <span class="render-code-wrapper">string</span>, urlPath: <span class="render-code-wrapper">string</span>) => </span>
+    - Result: <span class="render-code-wrapper">(urlContentOrPath: <span class="render-code-wrapper">string</span>, urlPath: <span class="render-code-wrapper">string</span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetch",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(urlContent: <span class="render-code-wrapper">string</span>, urlPath: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetch",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(urlContentOrPath: <span class="render-code-wrapper">string</span>, urlPath: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">ressource.fetchEval</span>
