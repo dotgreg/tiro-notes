@@ -355,6 +355,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
     // localStorage.setItem(`${id}-view`, JSON.stringify(term));
   }
   r.useEffect(() => {
+  }, [view]);
+  r.useEffect(() => {
     // let term = JSON.parse(localStorage.getItem(`${id}-view`));
     // if (term) setViewInt(term);
     if (config?.gridView) setView("grid")
@@ -775,6 +777,15 @@ const TableComponentReactInt = ({ items, config, id }) => {
     ])
   ]
 
+  const renderView = () => {
+    if (view === "table") return [filterView(tableView)]
+    else if (view === "grid") return [filterView(), gridView()]
+    
+
+    //     view === "table" && filterView(tableView),
+    // view === "grid" && filterView(), gridView(), 
+
+  }
   return [
     c('style', {}, [styleCss]),
 
@@ -806,10 +817,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
     ]),
     
-    // c('div', {className:"nb-items"}, [ config.displayType ]),
-    // filterView(),
-    view === "table" && filterView(tableView),
-    view === "grid" && filterView(), gridView(), 
+    renderView()
   ]
 
     
