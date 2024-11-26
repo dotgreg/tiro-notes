@@ -1,10 +1,7 @@
 //@flow 
 
 let r = {}
- r.getCachedVal = (idCache, cb) => {
-    
-
-
+r.getCachedVal = (idCache, cb) => {
 }
 
 r.generateHelpButton = (helpText, helpTitle) => {
@@ -18,6 +15,17 @@ r.generateHelpButton = (helpText, helpTitle) => {
     `
     return htmlButton
 
+}
+
+r.searchNote = (searchee, replacement) => {
+    
+    let infs = api.utils.getInfos()
+    api.call('ui.note.editorAction.dispatch', [{
+        type:"searchWord", 
+        searchWordString: searchee,
+        searchReplacementString: replacement || "",
+        windowId: infs.windowId
+    }])	
 }
 
 

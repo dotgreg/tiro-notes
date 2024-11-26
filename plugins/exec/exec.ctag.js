@@ -142,7 +142,8 @@ ${res}
 				try {
 					window.m = (str) => math.evaluate(str).toString()
 					const commonLib = window._tiroPluginsCommon.commonLib
-					const { generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+					const { searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+					window.searchNote = searchNote
 					let varStr = innerTagStr
 					let analysisArr = []
 					let analysisObj = {}
@@ -165,7 +166,7 @@ ${res}
 							if (data.hasOwnProperty(key)) {
 							if (typeof data !== "array") {
 								html += `<div class="${divClassName} name-${key}">`;
-								html += `<div>${keyNoEnd.replace(/_/g, " ")}</div>`;
+								html += `<div class="search-link" onclick="window.searchNote('${keyNoEnd}')" >${keyNoEnd}</div>`;
 							}
 							if (data[key] && typeof data[key] === "object") {
 								html += jsonToHTMLDivs(data[key], "", divClassName);
@@ -188,6 +189,9 @@ ${res}
 					<style>
 						 body > .wrapper {width: calc(100% - 40px)}
 						 table, th, tr, td {border: 1px solid black;}
+						 .search-link {color: black; border-bottom: 1px solid rgba(0,0,0,0); cursor: pointer;}
+						//  .search-link:hover {border-bottom: 1px solid rgba(0,0,0,1);}
+						 .search-link:hover {background: rgba(0,0,0,0.05);}
 						 td, td {padding: 5px;}
 						  .wrapper { border: 1px solid black;display:flex;  padding: 5px;}
 						   .divclass {  padding: 5px;}
