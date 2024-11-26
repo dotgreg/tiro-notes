@@ -187,10 +187,14 @@ ${res}
 
 					let style = `
 					<style>
-						 body > .wrapper {width: calc(100% - 40px)}
+						body {font-family: Arial, sans-serif; font-size: 12px;}
+						 body > .wrapper {
+							width: calc(100% - 40px);
+							display: flex;
+							flex-wrap: wrap;
+						}
 						 table, th, tr, td {border: 1px solid black;}
 						 .search-link {color: black; border-bottom: 1px solid rgba(0,0,0,0); cursor: pointer;}
-						//  .search-link:hover {border-bottom: 1px solid rgba(0,0,0,1);}
 						 .search-link:hover {background: rgba(0,0,0,0.05);}
 						 td, td {padding: 5px;}
 						  .wrapper { border: 1px solid black;display:flex;  padding: 5px;}
