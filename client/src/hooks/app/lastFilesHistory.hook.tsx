@@ -45,13 +45,17 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 	}
 
 	const addToHistoryInt = (file: iFile) => {
-		// if (isBlacklisted(file.path)) return
+		// filter out ai answers (.tiro/answers/)
+		if (isBlacklisted(file.path)) return
 
-		log && console.log(h, 'Add to history', file.name);
+		log && console.log(h, 'Add to last notes', file.name);
 		const nfilesHist = filesHistoryRef.current
 
 		// if already at first position in hist, do nothing
 		if (nfilesHist.length > 0 && nfilesHist[0].name === file.name) return
+
+
+
 
 		let shouldAddToHistory = true
 		let indexOldPos = -1
