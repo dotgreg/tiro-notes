@@ -95,7 +95,6 @@ table.ctag-component-table  th {
     font-size: 20px;
 }
 .ctag-component-table-grid-view .grid-item {
-  cursor: pointer;
   width: 18vw;
   height: 18vw;
   max-width: 180px;
@@ -113,6 +112,7 @@ table.ctag-component-table  th {
   position: relative;
 }
 .ctag-component-table-grid-view .grid-item-image {
+  cursor: pointer;
   width: 100%;
   height: 100%;
 }
@@ -810,12 +810,13 @@ const TableComponentReactInt = ({ items, config, id }) => {
           c('div', { 
             key: keyCounter(`${item.id}`), 
             className: "grid-item",
-            onClick: (e) => {
-              if (config.gridView.onClick) config.gridView.onClick(item, e)
-            }
           }, [
             config.gridView?.image && config.gridView?.hideLabel && config.gridView?.label &&
-            c('div', { className: "grid-item-image" }, [
+            c('div', { 
+              onClick: (e) => {
+                if (config.gridView.onClick) config.gridView.onClick(item, e)
+              },
+              className: "grid-item-image" }, [
               config.gridView?.image(item)?.html ? 
                 c('div', { className:"grid-item-image-html", dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
                 config.gridView?.image(item).length > 1 && c('img', { src: config.gridView?.image(item), alt: config.gridView?.image(item) })
