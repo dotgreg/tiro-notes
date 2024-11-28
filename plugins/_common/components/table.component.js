@@ -78,12 +78,21 @@ table.ctag-component-table  th {
 }
 
 .ctag-component-table-grid-view {
+}
+.ctag-component-table-grid-view .flex-grid{
   padding-top: 20px;
+  padding-bottom: 80px;
   display: flex;
   justify-content: center;
   flex-direction: row;
   flex-wrap: wrap;
-  padding-bottom: 80px;
+}
+.grid-category-title{
+  color: white;
+    font-weight: bold;
+    padding: 10px;
+    opacity: 0.6;
+    font-size: 20px;
 }
 .ctag-component-table-grid-view .grid-item {
   cursor: pointer;
@@ -211,6 +220,7 @@ Full example: (to copy and paste in a note, then click on #food)
 <h3> View </h3>
 <p>You can display elements either as a table (default) or as an image gallery, you will need to add __config_view_grid for that.
 <br> You will need to have 2 columns named respectively "name" and "image" to display the grid view.
+<br> You can sort the grid view by category by adding a column named "category" in your table
 <br> The image col can either be a http link to a jpg/png or a relative image link if the image was uploaded on Tiro like /.ressources/your_image.jpg
 
 
@@ -659,6 +669,29 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [rowCompressed, setRowCompressed] = r.useState(true)
   
 
+
+  // 
+
+  const [gridCategories, setGridCategories] = r.useState([])
+  r.useEffect(() => {
+    // get from each item.category
+    let categories = new Set()
+    filteredItems.forEach(item => {
+      // if not empty
+      if (item.category?.length > 0)categories.add(item.category)
+    })
+    // add last category "rest"
+    categories.add("_")
+    setGridCategories(Array.from(categories))
+  }, [filteredItems])
+  const getItemsFromCategory = (category) => {
+    if (category === "_") {
+      return filteredItems.filter(item => item.category === undefined || item.category === "")
+    }
+    let items = filteredItems.filter(item => item.category === category)
+    return items
+  }
+
   const filterView = (bodyDiv) => [
       c('div', {className: "ctag-component-table-wrapper"}, [
 
@@ -755,8 +788,26 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
   const gridView = () => [
     c('div', {className:"ctag-component-table-grid-view"}, [
-      ...filteredItems.map(item =>
-        c('div', { 
+      gridCategories.length !== 1 && 
+        gridCategories.map(category => [
+        c('div', { key: keyCounter(`${category}`), className: "grid-category-title" }, [ category ]),
+        c('div', { className: "flex-grid" }, [ 
+          ...getItemsFromCategory(category).map(item =>
+            gridItem(item)
+          )
+        ]),
+      ]),
+      gridCategories.length === 1 &&
+        c('div', { className: "flex-grid" }, [ 
+          filteredItems.map(item =>
+            gridItem(item)
+          )
+        ]),
+    ])
+  ]
+
+  const gridItem = (item) => 
+          c('div', { 
             key: keyCounter(`${item.id}`), 
             className: "grid-item",
             onClick: (e) => {
@@ -773,9 +824,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
               c('div', {className: "grid-item-name-text"}, [config.gridView?.label(item)])
             ]),
         ])
-      )
-    ])
-  ]
+  
 
   const renderView = () => {
     if (view === "table") return [filterView(tableView)]
@@ -832,13 +881,11 @@ let genTableComponent = ({items, config, id}) => {
 
   const startMainLogic = () => {
     let int = setInterval(() => {
-      // console.log(window.preactHooks, window.preact)
 
       if (!window.preact.createElement || !window.preactHooks.useState) return;
       // merge window.preactHooks into window.preact
       window._tiro_react = {...window.preact, ...window.preactHooks}
       // window._tiro_react = window.preact
-      // console.log(window._tiro_react)
       // if (!window.ReactDOM || !ReactDOM || !React || !ReactDOM.createRoot) return;
       clearInterval(int)
       // const r = React;
