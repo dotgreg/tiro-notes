@@ -230,7 +230,8 @@ Full example: (to copy and paste in a note, then click on #food)
 <p>"__config_hideCol_NAMECOL"  Removing a column: You can remove one col by adding the word <br>
 <p>"__config_hide_meta":  Removing default cols: You can remove the meta columns by adding the word <br>
 <p"__config_hide_config_rows": Removing config rows: by adding the word <br>
-<p>"__config_split_on_comma": Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
+<p>"__config_split_on_comma": [NOT IMPLEMENTED YET] Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
+<p>"__config_disable_click": disable the default click event, useful for grid view
 
 <h3> Custom cell content: </h3>
 <p>you can customize a cell content, here are some examples

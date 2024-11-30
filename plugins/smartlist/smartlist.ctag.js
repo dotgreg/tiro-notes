@@ -146,6 +146,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 let colsToHide = []
                 let colsFormulas = []
                 let showGrid = false
+                let disableGridClick = false
                 each(configArray, (el, i) => {
                         searchWord(el.tag1, el.path, listFilesRes => {
 
@@ -211,6 +212,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_meta")) configMetaCols = false
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
                                 if (JSON.stringify(listFilesRes).includes("__config_view_grid")) showGrid = true
+                                if (JSON.stringify(listFilesRes).includes("__config_disable_click")) disableGridClick = true
                                 each(listFilesRes, (fileRes) => {
                                         let file = fileRes.file
                                         each(fileRes.results, result => {
@@ -434,7 +436,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 if (showGrid) {
                                         config.gridView = {
                                                 onClick: (item) => {
-                                                        openItemFloatingWindow(item)
+                                                        if (!disableGridClick) openItemFloatingWindow(item)
                                                 },
                                                 image: (item) => {
                                                         let image = item.image || ""
@@ -489,6 +491,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                         each(item, (val, key) => {
                                                 formulaProcessedStr = formulaProcessedStr.replaceAll(`row_${key}`, val)
                                         })
+                                        // if still some row_ANYSTRING atoz, replace them all by "" using regex
+                                        formulaProcessedStr = formulaProcessedStr.replaceAll(/row_[a-zA-Z0-9_]+/g, "false")
+                                        // console.log('smartlist > formulaProcessedStr:', formulaProcessedStr)
+
                                         // for each array from colsStats, add it to the formula
                                         each(colsStats, (val, key) => {
                                                 if (val && key) {
@@ -506,15 +512,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 formulaProcessedStr = `return \`${formulaProcessedStr}\``
                                         }                
                                         formulaProcessedStr = `${userFunctionsContent.current} \n\n ${formulaProcessedStr}`
-                                        // if (!formulaProcessedStr.includes("${")) formulaProcessedStr = `cb(\`${formulaProcessedStr}\`)`
-                                        // else  {
-                                        //         if (!formulaProcessedStr.includes("cb("))  {
-                                        //                 errorToShow = `Error in formula ${colName}: missing cb()`
-                                        //         } else  {
-                                        //                 formulaProcessedStr = `${userFunctionsContent.current} \n\n return \`${formulaProcessedStr}\``
-                                        //         }
-                                        // }
                                         if (formulaProcessedStr.includes("row_") || formulaProcessedStr.includes("sum_") || formulaProcessedStr.includes("count_")) {
+                                                console.error(`Error in formula ${colName}: you cannot use row_, sum_ or count_ in the formula`)
                                                 formulaProcessedStr = ""
                                                 increaseCounterCb()
                                         } else {
@@ -523,10 +522,11 @@ const smartlistApp = (innerTagStr, opts) => {
                                                                 items[i][colName] = res
                                                                 increaseCounterCb()
                                                         }
-                                                        new Function("cb",formulaProcessedStr)(cb)
+                                                        // console.log('smartlist > formulaProcessedStr:', formulaProcessedStr)
+                                                        new Function("cb", "item",formulaProcessedStr)(cb, item)
                                                 } catch (e) {
-
-                                                        errorToShow = `Error in formula ${colName}: ${e}`
+                                                        // errorToShow = `Error in formula ${colName}: ${e}`
+                                                        console.error(e)
                                                 }
                                         }
                                 }
