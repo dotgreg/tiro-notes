@@ -622,7 +622,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         margin-bottom:40px;
                  }
                 #smart-list-ctag table { 
-                        min-width: 660px;
+                        // min-width: 660px;
                 }
                 #smart-list-ctag .td-tag { 
                 }
