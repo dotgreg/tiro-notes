@@ -227,16 +227,19 @@ export const usePromptPopup = (p: {
 							}
 						}
 						parts.forEach(part => {
-							let [key, value] = part.split("=")
+							let arrSplit = part.split("=")
 							// trim both
-							key = key.trim()
-							value = value.trim()
+							let key = arrSplit[0].trim()
+
+
+							// remove first el of arrSplit
+							arrSplit.shift()
+							let valRaw = arrSplit.join("=")
+							let value = valRaw.trim() 
 							if (key === "name") formConfig.title = value
 							if (key === "path") formConfig.insertFilePath = value
 							if (key === "line") formConfig.insertLine = parseInt(value)
-							if (key === "line_format") {
-								formConfig.insertStringFormat =  value
-							}
+							if (key === "line_format") { formConfig.insertStringFormat =  value }
 						})
 						formConfigs.push(formConfig)
 					}

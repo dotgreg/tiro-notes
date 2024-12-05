@@ -33,7 +33,7 @@ export const regexs = {
 	metasAndSpace: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd).then('\n'),
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
-	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
+	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\\\*\;\!@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
 	externalLink3Int: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*)\//gmi,
 	// mdTableLine: /(([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  /!]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  /!]+))/gmi,
 	mdTableLine: /\|?(([^\|]+\|)+([^\|]+))\|?/gmi,
