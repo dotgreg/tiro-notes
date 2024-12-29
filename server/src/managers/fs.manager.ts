@@ -1,4 +1,5 @@
 import { each, random } from "lodash";
+import { createGunzip } from 'zlib';
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iDownloadRessourceOpts } from "../../../shared/types.shared";
@@ -260,17 +261,19 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 		let fileStream = fs.createWriteStream(path); 
 		const optionsReq = {
 			method: opts?.method || 'GET',
+			// add headers to looks like as a browser
 			headers: {
-				'User-Agent': 'Mozilla/5.0',
-				// 'Host':'tiro-notes.org'
+				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
+				'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+				'Accept-Language': 'en-US,en;q=0.5',
 			}
+			
 		}
 		// console.log(`⬇️ [DOWNLOAD FILE] url ${url}`);
 
 		let postData: string | undefined 
 		if (opts?.body && opts.method === 'POST') {
 			postData = new URLSearchParams(opts.body as any).toString();
-			// console.log(postData)
 			optionsReq.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 			optionsReq.headers['Content-Length'] = Buffer.byteLength(postData).toString();
 		}
@@ -294,8 +297,16 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			// } else {
 			// 	response.setEncoding('utf8');
 			// }
+			const encoding = response.headers['content-encoding'];
+			console.log(`[DOWNLOAD FILE] encoding ${encoding}`);
+			if (encoding === 'gzip') {
+				const gunzip = createGunzip();
+				response.pipe(gunzip).pipe(fileStream);
+			} else {
+				response.pipe(fileStream);
+			}
 
-			response.pipe(fileStream);
+			// response.pipe(fileStream);
 			fileStream.on('finish', () => {
 				fileStream.close();  // close() is async, call cb after close completes.
 				shouldLog && log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);

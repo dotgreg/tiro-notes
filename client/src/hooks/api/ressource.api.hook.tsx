@@ -117,6 +117,8 @@ export const useRessourceApi = (p: {
 		if (options.disableCache === "true") options.disableCache = true
 
 		// console.log(h,"FETCH RESSOURCE", {url,options})
+		// if disableCache is true, we will always download the file
+		if (options.disableCache === true) console.log(h, `FETCHING => disableCache is true`, { url, options });
 
 		const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
 		
