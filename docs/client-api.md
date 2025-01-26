@@ -121,7 +121,7 @@
 #### <span class="render-code-wrapper">utils.resizeIframe</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
-       1. height: <span class="render-code-wrapper">any</span>
+       1. heightRaw: <span class="render-code-wrapper">any</span>
     - Result:  
 
  - Example: 
