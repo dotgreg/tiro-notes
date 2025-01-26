@@ -314,7 +314,6 @@ export const iframeMainCode = (p: {
 		}
 		lastResizeIframeHeight.value = `${height}`
 		const data: iIframeData['resize'] = { height }
-		console.log(h, 'resize2', { height , heightRaw})
 		sendToParent({ action: 'resize', data })
 	}
 
