@@ -81,6 +81,16 @@ const jsonToHTMLTable = (data) => {
 ///////////////////////////////////////////////////
 // SUPPORT
 //
+r.getCache = (cacheId, onSuccess, onFailure) => {
+    api.call("cache.get", [cacheId], content => {
+        if (content !== undefined) onSuccess(content)
+        else onFailure()
+    })
+}
+r.setCache = (cacheId, content) => {
+    api.call("cache.set", [cacheId, content, -1])
+}
+
 r.each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
     if (itera.constructor === Array) {
             for (let i = 0; i < itera.length; ++i) {

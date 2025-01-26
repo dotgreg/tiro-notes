@@ -476,7 +476,7 @@ export const previewAreaCss = () => `
     position: relative;
     display: block;
 	overflow: auto; 
-	width: ${deviceType() === "desktop" ? "calc(100% + 25px)" : "calc(100%)" } ; 
+	width: ${deviceType() === "desktop" ? "calc(100% + 0px)" : "calc(100%)" } ; 
     padding-right: 30px;
 
 	//@TODO padding preview area
