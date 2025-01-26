@@ -259,19 +259,6 @@ export const iframeMainCode = (p: {
 
 	}
 
-	//
-	// on iframe resize detected
-	//
-	window.addEventListener('resize', (e) => {
-		let nval = `100%`
-
-		nval = lastResizeIframeHeight.value
-		// console.log(h, 'resize', nval)
-		// console.log(h, 'resize', nval)
-		// console.log(h, 'resize', nval)
-		resizeIframe(nval)
-	})
-
 
 	///////////////////////////////////////////////////////////////////////// 
 	// BOOTSTRAP LOGIC
@@ -318,14 +305,16 @@ export const iframeMainCode = (p: {
 	// }
 
 	let lastResizeIframeHeight = {value:"100%"}
-	const resizeIframe = (height?: any) => {
+	const resizeIframe = (heightRaw?: any) => {
 		const el = document.getElementById('content-wrapper')
+		let height = heightRaw
 		if (!height) {
 			if (el && el.clientHeight !== 0) height = el.clientHeight + 20
 			else return
 		}
 		lastResizeIframeHeight.value = `${height}`
 		const data: iIframeData['resize'] = { height }
+		console.log(h, 'resize2', { height , heightRaw})
 		sendToParent({ action: 'resize', data })
 	}
 

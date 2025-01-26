@@ -1,5 +1,3 @@
-//@flow 
-
 let r = {}
 r.getCachedVal = (idCache, cb) => {
 }
@@ -7,7 +5,6 @@ r.getCachedVal = (idCache, cb) => {
 r.generateHelpButton = (helpText, helpTitle) => {
     if (!helpTitle) helpTitle = "Help"
     window.helpButtonPopup = () => {
-        // api.call('popup.show', '${helpText}', '${helpTitle}'])
         api.call('popup.show', [helpText, helpTitle])
     }
     let htmlButton = `
@@ -97,15 +94,10 @@ r.each = (itera/*: Array<any> | { [key: string]: any } */, cb/*:Function*/) => {
 }
 
 r.notifLog = (str, id, hideAfter) => {
-    // api.call('notification.show', [strToNotif])
 	console.log("[NOTIF LOG]: ", str)
 	if (!hideAfter) hideAfter = 60
-	// getApi(api => {
-	// 	api.ui.notification.emit({content: str,id, options:{ hideAfter, type:"warning", keepInHistory: true}})
-	// })
     api.call('ui.notification.emit', [{content: str, id, options: { hideAfter, type: "warning", keepInHistory: true }}])
 }
-// export each as iEach in flow
 
 // r.getNoteContent = (path, cb) => {
 //     api.call("file.getContent", [pathBookmarksFile], rawContent => {
@@ -130,12 +122,7 @@ r.onClick = (elIds/*:string[]*/, action/*:Function*/) => {
     }
 }
 
-// const commonLib = {getOperatingSystem, each, onClick}
 const commonLib = r
 
 if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
 window._tiroPluginsCommon.commonLib = commonLib
-
-/*::
-export type iCommonLib = typeof commonLib;
-*/

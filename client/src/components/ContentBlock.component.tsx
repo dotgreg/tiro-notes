@@ -6,7 +6,7 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { isNumber, isString, random } from 'lodash-es';
+import { isNumber, isString, random, set } from 'lodash-es';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
@@ -160,7 +160,6 @@ export const ContentBlockTagView = (p: {
 	const iframeRef = useRef<HTMLIFrameElement>(null)
 	const [iframeId, setIframeId] = useState('')
 	const [canShow, setCanShow] = useState(false)
-	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
 	const [iframeError, setIframeError] = useState<string | null>(null)
 
 	// IFRAME SCROLLING
@@ -176,41 +175,110 @@ export const ContentBlockTagView = (p: {
 	useEffect(updateScroll, [p.yCnt, canScrollIframe])
 
 
+	//
+	//
+	//
+	// IFRAME RESIZE DETECTION
+	//
+	//
+	//
+	const onDivResize = (dom_elem, callback) => {
+		const resizeObserver = new ResizeObserver(() => callback() );
+		resizeObserver.observe(dom_elem);
+	};
+	const onParentResizeInternal = (nid:string, onResizeFn:Function) => {
+		const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
+		if (!parentWindow) return
+		onDivResize(parentWindow, () => {
+			const pDims = parentWindow.getBoundingClientRect()
+			onResizeFn(pDims)
+		})
+	}
+	const onParentResizeDebounced = useDebounce(onParentResizeInternal, 500)
+
+
+	
+	type iIframeResizeType = "relativeToParent" | "fixed"
+	const [iframeResizeType, setIframeResizeType] = useState<iIframeResizeType>("relativeToParent")
+	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
+	const [iframeWidth, setIframeWidth] = useState<string | number>("100%")
+	const resizeAskedLogic = (newHeight:string|number) => {
+		let nHeight = 0
+
+		// if asked with px/number
+
+		const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
+		if (!parentWindow) return
+		const pDims = parentWindow.getBoundingClientRect()
+
+		if (isString(newHeight) && newHeight.endsWith("%")) {
+			const nHeightPercent = parseInt(newHeight.replace("%", "")) / 100
+			// get height and width from window-id-sizeref-p.windowId
+			nHeight = (pDims.height * nHeightPercent)
+			setIframeResizeType("relativeToParent")
+		} else if (isString(newHeight) && newHeight.endsWith("px")) {
+			nHeight = parseInt(newHeight.replace("px", ""))
+			setIframeResizeType("fixed")
+		} else if (isNumber(newHeight)) {
+			nHeight = newHeight
+			setIframeResizeType("fixed")
+		} else {
+			nHeight = 300
+			console.warn(`${h} PARENT > resize height not recognized, putting ${nHeight} as default`)
+			setIframeResizeType("fixed")
+		}
+
+		if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
+
+		// DECAL IFRAME -> to remove place taken by scrollbar 
+		// width is parentWidth - 30px
+		//
+		let nWidth = pDims.width - 10
+		nHeight = nHeight - 35
+
+		let nHeightStr = `${nHeight}px`
+		let nWidthStr = `${nWidth}px`
+		console.log(`[IFRAME > PARENT] (newHeight= ${newHeight}) => set Iframe Height to ${nHeightStr}, width to ${nWidthStr}`, { newHeight, pDims, nHeight, nWidth })
+
+		setIframeHeight(nHeightStr);
+		setIframeWidth(nWidthStr);
+		// only at that moment show iframe
+		setCanShow(true)
+	}
+
+
+
+	//
+	//
+	//
+	//
+	//  COMMUNICATION WITH IFRAME
+	//
+	//
+	//
 	const debounceStartIframeLogic = useDebounce((nid: string) => {
 		updateScroll();
 		setIframeId(nid)
 		setIframeError(null)
 
+
+		// listen to parent resize ONLY if resizeType is realtiveToParent
+		onParentResizeDebounced(nid, (pDims) => {
+			console.log(111)
+			if (iframeResizeType === "fixed") return
+			resizeAskedLogic(pDims.height)
+		})
+
+
 		// listen to iframe calls
 		iframeParentManager.subscribe(nid, m => {
+
 
 			// RESIZE AND CTAG HEIGHT MANAGEMENT
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
-				let nHeight = 0
-
-				const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
-				if (!parentWindow) return
-				const pDims = parentWindow.getBoundingClientRect()
-
-				if (isString(data.height) && data.height.endsWith("%")) {
-					const nHeightPercent = parseInt(data.height.replace("%", "")) / 100
-					// get height and width from window-id-sizeref-p.windowId
-					nHeight = (pDims.height * nHeightPercent) 
-				} else if (isString(data.height) && data.height.endsWith("px")) {
-					nHeight = parseInt(data.height.replace("px", ""))
-				} else if (isNumber(data.height)) {
-					nHeight = data.height
-				} else {
-					nHeight = 300
-				}
-
-				if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
-
-				// console.log("resize", nHeight, pDims.height, data.height)
-				setIframeHeight(`${nHeight}px`);
-				// only at that moment show iframe
-				setCanShow(true)
+				console.log(222)
+				resizeAskedLogic( data.height)
 			}
 
 			// CAN SCROLL IFRAME
@@ -380,7 +448,6 @@ export const ContentBlockTagView = (p: {
 	// const iframeWrapperRef = useRef<HTMLDivElement>(null)
 	// useEffect(() => {
 	// 	const resizeHandler = () => {
-	// 		console.log("RESIZE")
 	// 		if (!iframeRef.current) return
 	// 		iframeParentManager.send(iframeRef.current, {
 	// 			action: 'resize'
@@ -389,9 +456,7 @@ export const ContentBlockTagView = (p: {
 	// 			}
 	// 		})
 	// 	}
-	// 	console.log(123, iframeWrapperRef.current)
 	// 	setTimeout(() => {
-	// 		console.log(123, iframeWrapperRef.current)
 	// 		iframeWrapperRef.current?.addEventListener('resize', resizeHandler)
 	// 	}, 1000)
 	// 	iframeWrapperRef.current?.addEventListener('resize', resizeHandler)
@@ -444,8 +509,8 @@ export const ContentBlockTagView = (p: {
 						srcDoc={htmlContent}
 						// add header media query
 
-						className="tag-iframe"
-						style={{ height: iframeHeight }}
+						className={`tag-iframe resize-type-${iframeResizeType}`}
+						style={{ height: iframeHeight, width: iframeWidth }}
 						sandbox={p.ctagSandboxed ? "allow-scripts allow-same-origin allow-popups" : undefined} // allow-same-origin required for ext js caching
 
 					>

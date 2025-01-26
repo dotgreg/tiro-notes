@@ -935,6 +935,13 @@ export const FloatingPanelCss = () => `
 
 }
 
+.floating-panel {
+    .btn-maximize, .btn-minimize {
+        position: relative;
+        top:-4px;
+
+    }
+}
 
 
 // @EDGE CASE : mobile + smartlist in preview mode + floating > if editor, should show editor
