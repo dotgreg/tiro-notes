@@ -114,7 +114,7 @@ const epubV2App = (innerTagStr, opts) => {
 			  }
 			  
 			  #nav-bar {
-				bottom: 0;
+				bottom: 40px;
 			  }
 			  
 			  #progress-slider {
@@ -427,7 +427,6 @@ const epubV2App = (innerTagStr, opts) => {
 
 			const commonLib = window._tiroPluginsCommon.commonLib
 			const { getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
-			console.log(getCache)
 
 
 			let styleBar = `
@@ -516,7 +515,6 @@ const epubV2App = (innerTagStr, opts) => {
 				let valHidden = 0.1
 				let valShow = 1
 				if (!state) state =  el.style.opacity == valHidden ? valShow : valHidden
-				console.log(el, state, el.style.opacity)
 				el.style.opacity = state
 				navEl.style.opacity = state
 				invisibleEls.forEach((el) => {
@@ -544,6 +542,8 @@ const epubV2App = (innerTagStr, opts) => {
 			tiroReaderApi.restorePosition = (epubName) => {
 				getCache(cacheIdPos, (bookPosition) => {
 					tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter)
+				}, err =>{
+					console.log(h, "no cache found for ", cacheIdPos, err)
 				})
 			}
 
@@ -565,6 +565,7 @@ const epubV2App = (innerTagStr, opts) => {
 			setTimeout(() => {
 				tiroReaderApi.restorePosition(epubName)
 			}, 1000)
+			
 			
 			readerApi.view.renderer.addEventListener('relocate', e => {
 				let chapter = e.detail.index
@@ -617,7 +618,8 @@ const epubV2App = (innerTagStr, opts) => {
 			// wait for window.reader to be availabe
 			api.utils.resizeIframe("100%");
 			let interval = setInterval(() => {
-				if (window.reader) {
+				if (window.reader && window.reader.view && window.reader.view.renderer) {
+					console.log(h, "epub api detected, starting scripts")
 					clearInterval(interval)
 					onEpubLibLoaded(window.reader)
 				}

@@ -481,7 +481,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 561,
+							"line": 549,
 							"character": 6
 						}
 					],
@@ -496,7 +496,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 561,
+									"line": 549,
 									"character": 17
 								}
 							],
@@ -641,7 +641,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 429,
+							"line": 417,
 							"character": 6
 						}
 					],
@@ -672,7 +672,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 429,
+													"line": 417,
 													"character": 49
 												}
 											],
@@ -690,7 +690,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/managers/iframe.manager.ts",
-													"line": 429,
+													"line": 417,
 													"character": 36
 												}
 											],
@@ -713,7 +713,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 429,
+											"line": 417,
 											"character": 34
 										}
 									]
@@ -1431,7 +1431,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 662,
+					"line": 650,
 					"character": 12
 				}
 			],
@@ -1975,7 +1975,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 614,
+											"line": 602,
 											"character": 2
 										}
 									],
@@ -1995,7 +1995,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 615,
+											"line": 603,
 											"character": 2
 										}
 									],
@@ -2090,7 +2090,7 @@
 																					"sources": [
 																						{
 																							"fileName": "client/src/managers/iframe.manager.ts",
-																							"line": 592,
+																							"line": 580,
 																							"character": 3
 																						}
 																					],
@@ -2502,7 +2502,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 620,
+															"line": 608,
 															"character": 3
 														}
 													],
@@ -2899,7 +2899,7 @@
 																	"parameters": [
 																		{
 																			"id": 125,
-																			"name": "height",
+																			"name": "heightRaw",
 																			"kind": 32768,
 																			"kindString": "Parameter",
 																			"flags": {
@@ -2929,7 +2929,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 631,
+															"line": 619,
 															"character": 3
 														}
 													],
@@ -2975,7 +2975,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 613,
+											"line": 601,
 											"character": 2
 										}
 									],
