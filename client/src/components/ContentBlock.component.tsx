@@ -194,7 +194,7 @@ export const ContentBlockTagView = (p: {
 	const [iframeWidth, setIframeWidth] = useState<string | number>("100%")
 
 	const onDivResize = (dom_elem, callback) => {
-		const callbackDebounced = debounce(callback, 500)
+		const callbackDebounced = debounce(callback, 200)
 		const resizeObserver = new ResizeObserver(() => callbackDebounced() );
 		resizeObserver.observe(dom_elem);
 	};
@@ -238,7 +238,7 @@ export const ContentBlockTagView = (p: {
 		nHeight = nHeight - 35
 		let nHeightStr = `${nHeight}px`
 		let nWidthStr = `${nWidth}px`
-		console.log(`[IFRAME > PARENT] asked ${newHeight} => set Iframe Height to ${nHeightStr}, width to ${nWidthStr}`, { resizeSource, resizeType: iframeResizeTypeRef.current, newHeight, pDims, nHeight, nWidth })
+		// console.log(`[IFRAME > PARENT] asked ${newHeight} => set Iframe Height to ${nHeightStr}, width to ${nWidthStr}`, { resizeSource, resizeType: iframeResizeTypeRef.current, newHeight, pDims, nHeight, nWidth })
 		setIframeHeight(nHeightStr);
 		setIframeWidth(nWidthStr);
 		// only at that moment show iframe

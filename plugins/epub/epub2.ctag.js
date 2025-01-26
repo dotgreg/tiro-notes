@@ -13,6 +13,8 @@ const epubV2App = (innerTagStr, opts) => {
 
 		let style = `
 			<style>
+
+
 			body {
 				// height:calc(100vh - 40px);
 				height: 200px;
@@ -21,12 +23,9 @@ const epubV2App = (innerTagStr, opts) => {
 			.toolbar{
 
 			}
+
 			#content-wrapper {
 			}
-			// body, html, .simple-css-wrapper, #content-wrapper {
-			// 	 height: 400px!important;
-			// 	// height: 100%;
-			// }
 			:root {
 				--active-bg: #0000000d;
 			  }
@@ -89,7 +88,7 @@ const epubV2App = (innerTagStr, opts) => {
 				visibility: hidden;
 				justify-content: space-between;
 				align-items: center;
-				width: calc(100% - 48px);
+				width: calc(100% );
 				height: 48px;
 				padding: 6px;
 				transition: opacity .25s;
@@ -323,56 +322,61 @@ const epubV2App = (innerTagStr, opts) => {
 
 		const injectHtmlBeforeJs = () => {
 			let apphtml = `
-			<input type="file" id="file-input" hidden="">
-				<div id="drop-target" class="filter">
-					<div>
-						<svg class="icon empty-state-icon" width="72" height="72" aria-hidden="true">
-							<path d="M36 18s-6-6-12-6-15 6-15 6v42s9-6 15-6 12 6 12 6c4-4 8-6 12-6s12 2 15 6V18c-6-4-12-6-15-6-4 0-8 2-12 6m0 0v42"></path>
-						</svg>
-						<h1>Drop a book here!</h1>
-						<p>Or <button id="file-button">choose a file</button> to open it.</p>
-					</div>
-				</div>
-				<div id="dimming-overlay" aria-hidden="true"></div>
-				<div id="side-bar">
-					<div id="side-bar-header">
-						<img id="side-bar-cover">
+			<div id="native-reader-bar-wrapper" >
+				<input type="file" id="file-input" hidden="">
+					<div id="drop-target" class="filter">
 						<div>
-							<h1 id="side-bar-title"></h1>
-							<p id="side-bar-author"></p>
+							<svg class="icon empty-state-icon" width="72" height="72" aria-hidden="true">
+								<path d="M36 18s-6-6-12-6-15 6-15 6v42s9-6 15-6 12 6 12 6c4-4 8-6 12-6s12 2 15 6V18c-6-4-12-6-15-6-4 0-8 2-12 6m0 0v42"></path>
+							</svg>
+							<h1>Drop a book here!</h1>
+							<p>Or <button id="file-button">choose a file</button> to open it.</p>
 						</div>
 					</div>
-					<div id="toc-view"></div>
-				</div>
-				<div id="header-bar" class="toolbar">
-					<button id="side-bar-button" aria-label="Show sidebar">
-						<svg class="icon" width="24" height="24" aria-hidden="true">
-							<path d="M 4 6 h 16 M 4 12 h 16 M 4 18 h 16"></path>
-						</svg>
-					</button>
-					<div id="menu-button" class="menu-container">
-						<button aria-label="Show settings" aria-haspopup="true">
+					<div id="dimming-overlay" aria-hidden="true"></div>
+					<div id="side-bar">
+						<div id="side-bar-header">
+							<img id="side-bar-cover">
+							<div>
+								<h1 id="side-bar-title"></h1>
+								<p id="side-bar-author"></p>
+							</div>
+						</div>
+						<div id="toc-view"></div>
+					</div>
+					<div id="header-bar" class="toolbar" class="config-wrapper">
+						<button id="side-bar-button" aria-label="Show sidebar">
 							<svg class="icon" width="24" height="24" aria-hidden="true">
-								<path d="M5 12.7a7 7 0 0 1 0-1.4l-1.8-2 2-3.5 2.7.5a7 7 0 0 1 1.2-.7L10 3h4l.9 2.6 1.2.7 2.7-.5 2 3.4-1.8 2a7 7 0 0 1 0 1.5l1.8 2-2 3.5-2.7-.5a7 7 0 0 1-1.2.7L14 21h-4l-.9-2.6a7 7 0 0 1-1.2-.7l-2.7.5-2-3.4 1.8-2Z"></path>
-								<circle cx="12" cy="12" r="3"></circle>
+								<path d="M 4 6 h 16 M 4 12 h 16 M 4 18 h 16"></path>
+							</svg>
+						</button>
+						<div id="menu-button" class="menu-container">
+							<button aria-label="Show settings" aria-haspopup="true">
+								<svg class="icon" width="24" height="24" aria-hidden="true">
+									<path d="M5 12.7a7 7 0 0 1 0-1.4l-1.8-2 2-3.5 2.7.5a7 7 0 0 1 1.2-.7L10 3h4l.9 2.6 1.2.7 2.7-.5 2 3.4-1.8 2a7 7 0 0 1 0 1.5l1.8 2-2 3.5-2.7-.5a7 7 0 0 1-1.2.7L14 21h-4l-.9-2.6a7 7 0 0 1-1.2-.7l-2.7.5-2-3.4 1.8-2Z"></path>
+									<circle cx="12" cy="12" r="3"></circle>
+								</svg>
+							</button>
+						</div>
+					</div>
+					<div id="nav-bar" class="toolbar">
+						<button id="left-button" aria-label="Go left">
+							<svg class="icon" width="24" height="24" aria-hidden="true">
+								<path d="M 15 6 L 9 12 L 15 18"></path>
+							</svg>
+						</button>
+						<input id="progress-slider" type="range" min="0" max="1" step="any" list="tick-marks">
+						<datalist id="tick-marks"></datalist>
+						<button id="right-button" aria-label="Go right">
+							<svg class="icon" width="24" height="24" aria-hidden="true">
+								<path d="M 9 6 L 15 12 L 9 18"></path>
 							</svg>
 						</button>
 					</div>
-				</div>
-				<div id="nav-bar" class="toolbar">
-					<button id="left-button" aria-label="Go left">
-						<svg class="icon" width="24" height="24" aria-hidden="true">
-							<path d="M 15 6 L 9 12 L 15 18"></path>
-						</svg>
-					</button>
-					<input id="progress-slider" type="range" min="0" max="1" step="any" list="tick-marks">
-					<datalist id="tick-marks"></datalist>
-					<button id="right-button" aria-label="Go right">
-						<svg class="icon" width="24" height="24" aria-hidden="true">
-							<path d="M 9 6 L 15 12 L 9 18"></path>
-						</svg>
-					</button>
-				</div>
+			</div>
+			<div id="tiro-bar-wrapper" ></div>
+			<div id="tiro-invisible-bars-wrapper" >
+			</div>
 			
 			`
 
@@ -416,11 +420,160 @@ const epubV2App = (innerTagStr, opts) => {
 		<p>If some lines starts like r.aCalculation = <...>, it will appear on the result </p>
 		
 		`
+		let h = "[EPUB V2]"
 
-		const onEpubLibLoaded = (reader) => {
-			console.log("EPUB LIB LOADED success", reader)
-			reader.view.renderer.addEventListener('relocate', e => {
-				// console.log('2relocate!!!!!!!', e.detail)
+		const onEpubLibLoaded = (readerApi) => {
+			console.log("EPUB LIB LOADED success", readerApi)
+
+			const commonLib = window._tiroPluginsCommon.commonLib
+			const { getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+			console.log(getCache)
+
+
+			let styleBar = `
+			<style>
+			#tiro-bar-wrapper {
+				position: absolute;
+				top: 13px;
+				left: 50px;
+				z-index: 1000;
+			}
+			#bar-next, #bar-prev {
+				position: absolute;
+				top: 0;
+				padding: 10px;
+				font-weight: bold;
+				top: 120px;
+				width: 50px;
+				height: calc(100% - 240px);
+				background: rgba(0,0,0,0.2);
+				z-index: 1000;
+			}
+			#bar-next {
+				right: 0;
+			}
+
+			</style>
+			`
+			//
+			// INVISIBLE BARS ACTIONS
+			//
+			let orderBars = "normal" // inverted
+			window.tiro_goNext = () => {
+				if (orderBars === "normal") tiroReaderApi.next()
+				else tiroReaderApi.prev()
+			}
+			window.tiro_goPrev = () => {
+				if (orderBars === "normal") tiroReaderApi.prev()
+				else tiroReaderApi.next()
+			}
+
+			let invWrapper = window.document.getElementById("tiro-invisible-bars-wrapper")
+			invWrapper.innerHTML = `
+				<div id="bar-next" class="invisible-bar" onclick="tiro_goNext()">></div>
+				<div id="bar-prev" class="invisible-bar" onclick="tiro_goPrev()"><</div>
+			`
+
+
+
+			let buttonToggleOrderHtml = `<button id="toggle-order" onclick="tiro_toggleOrder()">Toggle invisible bar direction</button>`
+			window.tiro_toggleOrder = () => {
+				orderBars = orderBars === "normal" ? "inverted" : "normal"
+
+				nextEl = window.document.getElementById("bar-next")
+				nextEl.innerHTML = orderBars === "normal" ? ">" : "<"
+				prevEl = window.document.getElementById("bar-prev")
+				prevEl.innerHTML = orderBars === "normal" ? "<" : ">"
+				
+				console.log(h, "orderBars", orderBars)
+			}
+
+			//
+			// CUSTOM BAR
+			//
+			let barEl = window.document.getElementById("tiro-bar-wrapper")
+			barEl.innerHTML = `
+			${styleBar}
+			${generateHelpButton(helpText, "Exec ctag help")}
+			${buttonToggleOrderHtml}
+			`
+			//
+			// SHow hide bar
+			//
+			const toggleCustomBar = (state) => {
+				let el = window.document.getElementById("tiro-bar-wrapper")
+				if (!state) state = el.style.display === "none" ? "show" : "hide"
+				el.style.display = state === "show" ? "block" : "none"
+				
+			}
+			toggleCustomBar("hide")
+
+			let toggleOpacityEls = (state) => {
+				// let els = window.document.querySelectorAll(".config-wrapper")
+				let el = window.document.getElementById("header-bar")
+				let navEl = window.document.getElementById("nav-bar")
+				let invisibleEls = window.document.querySelectorAll(".invisible-bar")
+				let valHidden = 0.1
+				let valShow = 1
+				if (!state) state =  el.style.opacity == valHidden ? valShow : valHidden
+				console.log(el, state, el.style.opacity)
+				el.style.opacity = state
+				navEl.style.opacity = state
+				invisibleEls.forEach((el) => {
+					if (state == 0.1) el.style.opacity = 0.001
+					else el.style.opacity = 1
+				})
+			}
+			toggleOpacityEls(0.1)
+			let cogEl = window.document.getElementById("menu-button")
+			cogEl.addEventListener("click", () => {
+				toggleCustomBar()
+				toggleOpacityEls()
+			})
+
+
+
+
+			//
+			// UPDATING/PERSITING POSITION
+			//
+			 
+			const tiroReaderApi={}
+			
+			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
+			tiroReaderApi.restorePosition = (epubName) => {
+				getCache(cacheIdPos, (bookPosition) => {
+					tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter)
+				})
+			}
+
+			tiroReaderApi.goTo = (chapter, fraction) => {
+				let res = readerApi.view.renderer.goTo({index:chapter, anchor:fraction }) 
+				res.then(() => {
+					console.log(h, "GO TO ", chapter, fraction, res)
+					// should add one page
+					// tiroReaderApi.next()
+				})
+			}
+			tiroReaderApi.next = () => {
+				readerApi.view.renderer.next()
+			}
+			tiroReaderApi.prev = () => {
+				readerApi.view.renderer.prev()
+			}
+
+			setTimeout(() => {
+				tiroReaderApi.restorePosition(epubName)
+			}, 1000)
+			
+			readerApi.view.renderer.addEventListener('relocate', e => {
+				let chapter = e.detail.index
+				let fractionChapter = e.detail.fraction
+				if (chapter === 0) return
+				if (fractionChapter === 0) return
+				console.log(h, " > saving position :", chapter, fractionChapter)
+				let bookPosition = {chapter, fractionChapter }
+				setCache(cacheIdPos, bookPosition)
 			})
 		}
 		
@@ -457,46 +610,18 @@ const epubV2App = (innerTagStr, opts) => {
 		window.bookUrlToLoad = epubUrl
 		window.document.body.innerHTML = `<div id="external-ressources-wrapper"></div><div id="content-wrapper"></div>${style}` 
 		updateContent(injectHtmlBeforeJs())
-
-		const resizeFn = () =>{
-			console.log("resizeFn")
-			// api.utils.resizeIframe("100%");
-		}
-
 		api.utils.loadRessources([
-				// `https://raw.githubusercontent.com/dotgreg/foliate-js-monorepo/f4d4e0372c9e04c0431646807499f10b555c6684/dist/reader.2496a5b2.js`
-				`https://raw.githubusercontent.com/dotgreg/foliate-js-monorepo/refs/heads/master/dist/reader.2496a5b2.js`
+			`${opts.plugins_root_url}/_common/common.lib.js`,
+			`https://raw.githubusercontent.com/dotgreg/foliate-js-monorepo/refs/heads/master/dist/reader.2496a5b2.js`
 		], () => {
-				
-				
-
-			api.utils.resizeIframe("200px");
-			// resizeFn()
-
-				// wait for window.reader to be availabe
-				let interval = setInterval(() => {
-					if (window.reader) {
-						clearInterval(interval)
-						onEpubLibLoaded(window.reader)
-						// window.addEventListener("resize", () =>{
-						// 	console.log("resize", window.innerHeight, window.innerWidth)
-						// })
-					}
-				}, 200)
-
-				
-				// setTimeout(() => {
-				// 		// RESIZING
-				// 		let resDiv = document.body 
-				// 		console.log("resDiv", resDiv, document.body.clientHeight)
-				// 		api.utils.resizeIframe(`${resDiv.clientHeight - 220}px`);
-				// 		// delete content-wrapper
-				// 		// document.getElementById("content-wrapper").remove()
-				// }, 1000)
-				
-		})
-		setTimeout(() => {
-				updateContent("epub v2 loading...")
+			// wait for window.reader to be availabe
+			api.utils.resizeIframe("100%");
+			let interval = setInterval(() => {
+				if (window.reader) {
+					clearInterval(interval)
+					onEpubLibLoaded(window.reader)
+				}
+			}, 200)
 		})
 		return div
 }
