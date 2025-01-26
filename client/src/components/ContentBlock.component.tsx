@@ -6,7 +6,7 @@ import { generateIframeHtml, iframeParentManager, iIframeData } from '../manager
 import { callApiFromString, getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { previewAreaSimpleCss } from './dualView/PreviewArea.component';
 import { useDebounce } from '../hooks/lodash.hooks';
-import { isNumber, isString, random, set } from 'lodash-es';
+import { debounce, isNumber, isString, random, set } from 'lodash-es';
 import { replaceAll } from '../managers/string.manager';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getBackendUrl } from '../managers/sockets/socket.manager';
@@ -182,11 +182,23 @@ export const ContentBlockTagView = (p: {
 	//
 	//
 	//
+	type iIframeResizeType = "relativeToParent" | "fixed"
+	const [iframeResizeType, setIframeResizeTypeInt] = useState<iIframeResizeType>("relativeToParent")
+	const iframeResizeTypeRef = useRef<iIframeResizeType>("relativeToParent")
+	const setIframeResizeType = (val: iIframeResizeType) => {
+		iframeResizeTypeRef.current = val
+		setIframeResizeTypeInt(val)
+	}
+
+	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
+	const [iframeWidth, setIframeWidth] = useState<string | number>("100%")
+
 	const onDivResize = (dom_elem, callback) => {
-		const resizeObserver = new ResizeObserver(() => callback() );
+		const callbackDebounced = debounce(callback, 500)
+		const resizeObserver = new ResizeObserver(() => callbackDebounced() );
 		resizeObserver.observe(dom_elem);
 	};
-	const onParentResizeInternal = (nid:string, onResizeFn:Function) => {
+	const onParentResize = (nid:string, onResizeFn:Function) => {
 		const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
 		if (!parentWindow) return
 		onDivResize(parentWindow, () => {
@@ -194,52 +206,39 @@ export const ContentBlockTagView = (p: {
 			onResizeFn(pDims)
 		})
 	}
-	const onParentResizeDebounced = useDebounce(onParentResizeInternal, 500)
-
-
-	
-	type iIframeResizeType = "relativeToParent" | "fixed"
-	const [iframeResizeType, setIframeResizeType] = useState<iIframeResizeType>("relativeToParent")
-	const [iframeHeight, setIframeHeight] = useState<string | number>(0)
-	const [iframeWidth, setIframeWidth] = useState<string | number>("100%")
-	const resizeAskedLogic = (newHeight:string|number) => {
+	const resizeAskedLogic = (newHeight:string|number, resizeSource: "parent"|"iframe") => {
+		if (iframeResizeTypeRef.current === "fixed" && resizeSource === "parent") return
 		let nHeight = 0
-
 		// if asked with px/number
-
 		const parentWindow = document.querySelector(`.window-id-sizeref-${p.windowId}`)
 		if (!parentWindow) return
-		const pDims = parentWindow.getBoundingClientRect()
+		const isViewBoth = parentWindow.classList.contains("view-both")
 
+		const pDims = parentWindow.getBoundingClientRect()
 		if (isString(newHeight) && newHeight.endsWith("%")) {
 			const nHeightPercent = parseInt(newHeight.replace("%", "")) / 100
 			// get height and width from window-id-sizeref-p.windowId
 			nHeight = (pDims.height * nHeightPercent)
-			setIframeResizeType("relativeToParent")
 		} else if (isString(newHeight) && newHeight.endsWith("px")) {
 			nHeight = parseInt(newHeight.replace("px", ""))
-			setIframeResizeType("fixed")
 		} else if (isNumber(newHeight)) {
 			nHeight = newHeight
-			setIframeResizeType("fixed")
 		} else {
 			nHeight = 300
 			console.warn(`${h} PARENT > resize height not recognized, putting ${nHeight} as default`)
-			setIframeResizeType("fixed")
 		}
-
 		if (p.ctagHeightOffset) nHeight = nHeight + p.ctagHeightOffset
 
 		// DECAL IFRAME -> to remove place taken by scrollbar 
 		// width is parentWidth - 30px
 		//
 		let nWidth = pDims.width - 10
-		nHeight = nHeight - 35
+		if(isViewBoth) nWidth = nWidth /2
 
+		nHeight = nHeight - 35
 		let nHeightStr = `${nHeight}px`
 		let nWidthStr = `${nWidth}px`
-		console.log(`[IFRAME > PARENT] (newHeight= ${newHeight}) => set Iframe Height to ${nHeightStr}, width to ${nWidthStr}`, { newHeight, pDims, nHeight, nWidth })
-
+		console.log(`[IFRAME > PARENT] asked ${newHeight} => set Iframe Height to ${nHeightStr}, width to ${nWidthStr}`, { resizeSource, resizeType: iframeResizeTypeRef.current, newHeight, pDims, nHeight, nWidth })
 		setIframeHeight(nHeightStr);
 		setIframeWidth(nWidthStr);
 		// only at that moment show iframe
@@ -263,10 +262,8 @@ export const ContentBlockTagView = (p: {
 
 
 		// listen to parent resize ONLY if resizeType is realtiveToParent
-		onParentResizeDebounced(nid, (pDims) => {
-			console.log(111)
-			if (iframeResizeType === "fixed") return
-			resizeAskedLogic(pDims.height)
+		onParentResize(nid, (pDims) => {
+			resizeAskedLogic(pDims.height, "parent")
 		})
 
 
@@ -277,8 +274,11 @@ export const ContentBlockTagView = (p: {
 			// RESIZE AND CTAG HEIGHT MANAGEMENT
 			if (m.action === 'resize') {
 				const data: iIframeData['resize'] = m.data
-				console.log(222)
-				resizeAskedLogic( data.height)
+				// if not %, setResizeType to fixed
+				if (isString(data.height) && data.height.endsWith("%")) setIframeResizeType("relativeToParent")
+				else setIframeResizeType("fixed")
+			
+				resizeAskedLogic( data.height, "iframe")
 			}
 
 			// CAN SCROLL IFRAME
