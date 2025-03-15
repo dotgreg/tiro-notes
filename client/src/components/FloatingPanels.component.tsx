@@ -95,13 +95,15 @@ export const FloatingPanel = (p:{
         panelRef.current = p.panel
     },[p.panel])
 
-    const updatePanel = (panel:iFloatingPanel) => {
+    const updatePanelInt = (panel:iFloatingPanel) => {
         if (!p.onPanelUpdate) return
         // p.onPanelUpdate(panel)
+        console.log("update panel", panel)
         getApi(api => {
             api.ui.floatingPanel.update(panel)
         })
     }
+    const updatePanel = useDebounce(updatePanelInt, 100)
 
     const [showHoverOverlay, setShowHoverOverlayInt] = useState<boolean>(false)
     const setShowHoverOverlay = (status:boolean) => {
@@ -426,6 +428,7 @@ export const FloatingPanel = (p:{
 												},
 											]}
 										/>
+
                                         {/* <ButtonsToolbar
 											class='floating-bar-toolbar2'
 											size={1}
@@ -454,12 +457,9 @@ export const FloatingPanel = (p:{
                                                             <span> onClick={handleToggleLayout("bottom-right")}> bottom-right</li>
                                                             <span> onClick={handleToggleLayout("top-left")}> top-left</li>
                                                             <span> onClick={handleToggleLayout("bottom-left")}> bottom-left</li>
-
                                                         </ul>
                                                     </div>
-
 												},
-                                                
 												p.panel.type === "ctag" ? {
 													title: 'Reload content',
 													icon: "rotate-right",
@@ -938,8 +938,7 @@ export const FloatingPanelCss = () => `
 .floating-panel {
     .btn-maximize, .btn-minimize {
         position: relative;
-        top:-4px;
-
+        top:-3px;
     }
 }
 
