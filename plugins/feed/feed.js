@@ -5,6 +5,7 @@ const feedApp = (innerTagStr, opts) => {
 		if (!opts.itemsPerFeed) opts.itemsPerFeed = 100
 		if (!opts.feedType) opts.feedType = "xml"
 		if (!opts.contentCacheHours) opts.contentCacheHours = 1 // cache content for an hour
+		if (!opts.feedLoadDelay) opts.feedLoadDelay = 0 // cache content for an hour
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
@@ -297,6 +298,7 @@ const feedApp = (innerTagStr, opts) => {
 						let resItems = []
 						let count = 0
 						for (let i = 0; i < feedsArr.length; i++) {
+							setTimeout(() => {
 								fetchFeedItems(feedsArr[i], items => {
 									count = count + 1
 									
@@ -412,6 +414,7 @@ const feedApp = (innerTagStr, opts) => {
 									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
 									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
+							}, opts.feedLoadDelay * i)
 						}
 				}
 
