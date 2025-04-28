@@ -67,6 +67,8 @@ const feedApp = (innerTagStr, opts) => {
 
 		console.log(h, "========= INIT with opts:", opts)
 
+		console.log("hello world")
+
 		// const feedsCategories = []
 		// const failedFeeds = []
 

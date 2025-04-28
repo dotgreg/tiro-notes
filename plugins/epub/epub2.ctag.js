@@ -423,7 +423,7 @@ const epubV2App = (innerTagStr, opts) => {
 		let h = "[EPUB V2]"
 
 		const onEpubLibLoaded = (readerApi) => {
-			console.log("EPUB LIB LOADED success", readerApi)
+			console.log("EPUB LIB v4 LOADED success", readerApi)
 
 			const commonLib = window._tiroPluginsCommon.commonLib
 			const { getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
