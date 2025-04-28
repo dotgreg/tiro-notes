@@ -18,7 +18,6 @@ DESCRIPTION:
 ===
 ${p.description}
 
-ARGS:
 ====
 
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
@@ -27,6 +26,7 @@ ARGS:
 --verbose/-v : control logs verbosity [0/1/2/3] (0:none, 1: critical, 2: all, 3: performance monitoring)
 
 --tunnel/-t : [require autossh to be installed first!] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+--tunnel-timeout/-tt : [require autossh to be installed first!] autokill tunnel after x hours (default: -1)
 
 --backup/-b : [t/n/now/force/f] [require tar to be installed first!] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
 --backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
@@ -66,8 +66,9 @@ function getCliArgs () {
 						scriptLocation: "default"
 				},
 				tunnel: {
-            enabled: false,
-        },
+					enabled: false,
+					timeout: -1,
+				},
 		}
 		for (var i = 0; i < args.length; i++) {
 				if (i % 2 !== 0) continue
@@ -85,14 +86,15 @@ function getCliArgs () {
 				if (argName === 'backup-location') argsObj.backup.location = argVal
 				if (argName === 'backup-post-script') argsObj.backup.scriptLocation = argVal 
 
+				if (argName === 'tt' || argName === 'tunnel-timeout') argsObj.tunnel.timeout = parseInt(argVal)
 				if (argName === 't' || argName === 'tunnel') {
-            const argsArr = argVal.split(':')
-            if (argsArr.length > 1) {
-                argsObj.tunnel.enabled = true
-                argsObj.tunnel.remoteUrl = argsArr[0]
-                argsObj.tunnel.remotePort = parseInt(argsArr[1])
-            }
-        }
+					const argsArr = argVal.split(':')
+					if (argsArr.length > 1) {
+						argsObj.tunnel.enabled = true
+						argsObj.tunnel.remoteUrl = argsArr[0]
+						argsObj.tunnel.remotePort = parseInt(argsArr[1])
+					}
+				}
 		}
 		return argsObj;
 }
@@ -222,6 +224,25 @@ const startSshTunnel = (argsObj) => {
 												tHelpers.execCmd('autossh',['-M',`2${argsObj.tunnel.remotePort}`,'-N', argsObj.tunnel.remoteUrl,'-R', `${argsObj.tunnel.remotePort}:localhost:${argsObj.port}`,'-C'], {
 														logName:'tunnel 3/3'
 												})
+
+												// if tunnel.timeout != 1
+												if (argsObj.tunnel.timeout != 1) {
+														console.log(`Tunnel timeout set to ${argsObj.tunnel.timeout}h.`)
+														setTimeout(() => {
+															console.log(`Tunnel timeout reached (${argsObj.tunnel.timeout}h). Closing tunnel.`, str)
+															tHelpers.execCmd('killall', [`autossh`], {
+																logName:'tunnel 4/3',
+																onLog: str => {
+																	console.log(`Tunnel timeout reached (${argsObj.tunnel.timeout}h). Closing tunnel.`, str)
+																}
+															})
+														}, argsObj.tunnel.timeout * 1000 * 60 * 60)
+														let countHours = 0
+														setTimeout(() => {
+															countHours++
+															console.log(`Tunnel timeout in ${argsObj.tunnel.timeout - countHours}h`)
+														}, argsObj.tunnel.timeout * 1000 * 60 )
+												}
 										}
 								})
 						}

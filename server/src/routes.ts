@@ -91,6 +91,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			folder: data.folderPath,
 			typeSearch: 'folder',
 			titleSearch: false,
+			
 			onSearchEnded: async res => {
 				if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 			},

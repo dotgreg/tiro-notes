@@ -36,7 +36,6 @@ import {  askFolderDelete, defaultTrashFolder } from './hooks/api/browser.api.ho
 import { getMostRecentFile } from './managers/sort.manager';
 import { initPWA } from './managers/pwa.manager';
 
-// import
 import { OmniBar } from './components/OmniBar.component';
 import { Shortcuts } from './components/Shortcuts.component';
 import { TtsPopup } from './components/TtsPopup.component';
@@ -129,7 +128,6 @@ export const App = () => {
 	}
 
 	// APP-WIDE MULTI-AREA LOGIC
-
 	const cleanFileDetails = () => {
 		filesUiApi.active.set(-1)
 	}

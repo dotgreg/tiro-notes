@@ -13,7 +13,6 @@ import { getFontSize } from '../../managers/font.manager';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
 
 
-
 export const PreviewArea = (p: {
 	windowId: string
 	file: iFile

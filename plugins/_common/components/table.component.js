@@ -426,8 +426,13 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const filteredItems = r.useMemo(() => {
     return sortedItems.filter(item => {
       let found = false;
-      // filter using search
-      found = JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
+      // filter using search 
+      let strItem = JSON.stringify(item).toLowerCase()
+      found = strItem.includes(searchTerm.toLowerCase())
+      // if * included in searchTerm, do a regex filter
+      if (searchTerm.includes("*")) {
+        found = strItem.match(new RegExp(searchTerm.toLowerCase().replace(/\*/g, ".*"))) != null
+      }
       // filter using activeFilters
       if (activeFilters) {
         for (let colId in activeFilters) {

@@ -5,6 +5,7 @@ const epubApp = (innerTagStr, opts) => {
 
 		const ressPath = opts.base_url + "/ressources"
 
+		console.log("loading epub t2")
 		//
 		// INITIALIZATION
 		//
@@ -385,6 +386,7 @@ const epubApp = (innerTagStr, opts) => {
 						// let nHeight = cHeight > 500 ? cHeight - 115 : cHeight - 170
 						let nHeight = cHeight > 500 ? cHeight - 50 : cHeight - 120
 						if (isMobile())  nHeight -= 20 
+						
 						// let nHeight = cHeight
 						// let nHeight = cHeight * 0.70
 						
