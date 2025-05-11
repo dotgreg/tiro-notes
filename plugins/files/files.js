@@ -213,7 +213,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                 // res is an object
                 for (const [fileName, file] of Object.entries(res)) {
                   file.results.forEach(l => {
-                    const processedLine = l.split(stringToSearch)[1].split(")")[0]
+                    const processedLine = l.split(stringToSearch)[1]?.split(")")[0]
                     lines.push(processedLine)
                   })
                 }

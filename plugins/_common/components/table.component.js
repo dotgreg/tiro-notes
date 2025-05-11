@@ -533,7 +533,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
       if (col.headerLabel.includes("{{sumCol}}")) {
         let sumCol = 0;
         items.forEach(item => {
-          sumCol += item[col.colId]
+          let nb = parseFloat(item[col.colId]) || 0
+          sumCol += nb
         })
         sumCol = Math.round(sumCol)
         col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
