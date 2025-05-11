@@ -200,8 +200,11 @@ const FilesTagApp = (innerTagStr, opts) => {
               let res = `❌`
               // for each ressourcesUsageList
               ressourcesUsageList.forEach(r => {
-                if (r.indexOf(fileName) !== -1) res = `✅`
-                if (fileName.indexOf(r) !== -1) res = `✅`
+                // if typeof not string, skip
+                if (typeof r === "string") {
+                  if (r.indexOf(fileName) !== -1) res = `✅`
+                  if (fileName.indexOf(r) !== -1) res = `✅`
+                }
               })
               return res
             }
