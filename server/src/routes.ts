@@ -521,6 +521,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			onSearchEnded: async () => {
 				let arrRes:iFile[] = []
 				each(objRes, prop => {
+					
 					arrRes.push(prop)
 				})
 				serverSocket2.emit('getRessourceScan', {files: arrRes, idReq: data.idReq })
