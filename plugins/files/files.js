@@ -1,3 +1,4 @@
+
 const FilesTagApp = (innerTagStr, opts) => {
     if (!opts) opts = {}
     const api = window.api;
@@ -83,7 +84,36 @@ const FilesTagApp = (innerTagStr, opts) => {
                     // api.call("ui.notification.emit",[{content:"Upload Success, reloading"+i,id:notifId, options:{hideAfter:5}}])
                     // setRescan(rescan+i)
                     count++
-                    console.log("opening Item ", api.utils.getInfos(), item, getFullUrlItem(item))
+                    console.log("files ctag > upload.uploadFile", res, file, count, files.length)
+                    if (count === files.length)  askForRescan()
+                  })
+                }
+            };
+
+            const getIconFile = (fileType) => {
+              let ft = fileType.toLowerCase()
+		          if (["jpg", "jpeg", "gif", "png" ].includes(ft)) return "image"
+		          else if (["pdf" ].includes(ft)) return "file-pdf"
+		          else if (["doc", "docx", "odt" ].includes(ft)) return "file-word"
+		          else if (["xls", "xlsx" , "xls" , "ods" ].includes(ft)) return "file-excel"
+		          else if (["avi", "flv", "h264", "m4v", "mov", "mp4", "mpg", "mpeg", "rm", "swf", "vob", "wmv", "mkv" ].includes(ft)) return "file-video"
+		          else if (["7z", "arj", "deb", "rar", "gz", "zip", "rpm", "pkg"].includes(ft)) return "file-zipper"
+		          else if (["aif", "mp3", "cda", "mid", "mpa", "ogg", "wav", "wpl", "wma", "midi"].includes(ft)) return "file-audio"
+		          else if (["ppt", "pptx", "odp", "key", "pps"].includes(ft)) return "file-powerpoint"
+              else if (["epub"].includes(ft)) return "book"
+              else return "file"
+            }
+
+            //
+            // On Click, open file in new window
+            //
+            const getFullUrlItem = (item) => {
+              const infs = api.utils.getInfos()
+              return `${infs.backendUrl}/static/${item.raw.path}?token=${infs.loginToken}`
+            }
+            const onItemOpenClick = (item) => {
+              // if Item.type is pdf, epub or image => open in new tab
+              console.log("opening Item ", api.utils.getInfos(), item, getFullUrlItem(item))
               if (["pdf", "epub"].indexOf(item.type) !== -1) {
                 // window.open(Item.raw.path, '_blank').focus();
                 api.call("ui.floatingPanel.create", [{
@@ -121,6 +151,7 @@ const FilesTagApp = (innerTagStr, opts) => {
               setStatus("Scanning...")
               api.call("ressource.scanFolder", [currFolderPath], res => {
                   let nFiles = []
+                  console.log("ressource.scanFolder", res)
                   res.files.map(f => {
                     let created = "unknown"
                     if (f.stats) {
@@ -142,7 +173,8 @@ const FilesTagApp = (innerTagStr, opts) => {
                       type: f.extension,
                       size: Math.round(f.stats?.size * 100 / (1000 * 1000 )) / 100,
                       created,
-                      used: (ressourcesUsageList.indexOf(f.name) !== -1) ? "✅" : "❌",
+                      // used: (ressourcesUsageList.indexOf(f.name) !== -1) ? "✅" : "❌",
+                      used: isInUsageList(f.name),
                       raw:f
                     }
                     let ngs = {...globStats}
@@ -150,6 +182,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                     ngs.nb += 1
                     nFiles.push(nFile)
                   })
+                  console.log("ressource.scanFolder", nFiles)
                   
                   // setGlobStats(ngs)
                   setFiles(nFiles)
@@ -163,9 +196,18 @@ const FilesTagApp = (innerTagStr, opts) => {
             // RESSOURCE USAGE CHECKER
             //
             //api.search.word(".resources/", "/projects/project1", res => {console.log(2, res)})
+            const isInUsageList = (fileName) => {
+              let res = `❌`
+              // for each ressourcesUsageList
+              ressourcesUsageList.forEach(r => {
+                if (r.indexOf(fileName) !== -1) res = `✅`
+                if (fileName.indexOf(r) !== -1) res = `✅`
+              })
+              return res
+            }
             
             const searchForRessourcesUsage = () => {
-              let stringToSearch = "(.resources/"
+              let stringToSearch = ".resources"
               api.call("search.word", [stringToSearch, currFolderPath], res => {
                 const lines = []
                 // res is an object
@@ -182,6 +224,7 @@ const FilesTagApp = (innerTagStr, opts) => {
                   if (lines2.indexOf(l) === -1) lines2.push(l)
                 })
                 setRessourcesUsageList(lines2)
+                console.log("usageList", lines2)
               })
             }
 
@@ -297,6 +340,7 @@ const FilesTagApp = (innerTagStr, opts) => {
 
             TableComp = () => {
               return window._tiroPluginsCommon.TableComponentReact({items:files, config:config})
+              // return window._tiroPluginsCommon.genTableComponent({items:files, config:config})
             }
 
             // if last char is /, remove it

@@ -2,17 +2,6 @@
 // assuming     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> is loaded in html
 
 
-// const TableComponentReact = () => {
-//   return TableComponentReact2()
-// }
-// let TableComponentReact2 = () => {
-//   const r = React;
-//   const c = r.createElement;
-//   const [sortConfig, setSortConfig] = r.useState(null);
-//   return [
-//     c('input', { type: 'text', value: "", onInput: e => {} })
-//   ]
-// }
 const styleCss = `
 #ctag-component-table-wrapper {
   padding: 5px 10px 10px 10px;
@@ -312,16 +301,12 @@ const searchImage = (stringToSearch, cb) => {
 
 
 const TableComponentReact = ({ items, config, id }) => {
-	const r = window._tiro_react;
+
+  
+	// const r = window._tiro_react;
+  const r = React
   const c = r.createElement;
-		return c(TableComponentReactInt, { items, config, id })
-    // return r.useMemo(() => {
-    //       return c(TableComponentReactInt, { items, config, id })
-    // }, [
-    //   items,
-    //   config,
-    //   id
-    // ])
+  return c(TableComponentReactInt, { items, config, id })
 }
 
 // if grid enabled
@@ -330,13 +315,9 @@ const TableComponentReact = ({ items, config, id }) => {
 const TableComponentReactInt = ({ items, config, id }) => {
   if (config.id) id = config.id
   if (!id) id = "table-component"
-  const r = window._tiro_react;
-  
-  
+  const r = React
+  // const r = window._tiro_react;
   const c = r.createElement;
-  // r.useEffect(() => {
-  //   if (!config.displayType) config.displayType = "table"
-  // }, [config]);
 
   //
   // localstorage save
@@ -460,6 +441,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
   };
 
   let processContent = (contentCell, configCol) => {
+    // if type of is not string, return it
+    if (typeof contentCell !== "string") return contentCell
+
     // if < and > exists inside the contentCell, it is html
     let isContentCellHtml = contentCell && contentCell.includes("<") && contentCell.includes(">")
     if (typeof contentCell === "string" && contentCell.includes("http") && !isContentCellHtml) {
@@ -825,7 +809,12 @@ const TableComponentReactInt = ({ items, config, id }) => {
               className: "grid-item-image" }, [
               config.gridView?.image(item)?.html ? 
                 c('div', { className:"grid-item-image-html", dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
-                config.gridView?.image(item).length > 1 && c('img', { src: config.gridView?.image(item), alt: config.gridView?.image(item) })
+                // c('div',["test"])
+                config.gridView?.image(item)?.length > 1 && 
+                  c('img', { 
+                    src: config.gridView?.image(item), 
+                    alt: config.gridView?.image(item) 
+                  })
             ]),
             c('div', { className: `grid-item-name ${config.gridView?.hideLabel(item) ? "hide-label": ""}` }, [
               c('div', {className: "grid-item-name-text"}, [config.gridView?.label(item)])
@@ -890,21 +879,13 @@ let genTableComponent = ({items, config, id}) => {
     let int = setInterval(() => {
 
       if (!window.preact.createElement || !window.preactHooks.useState) return;
-      // merge window.preactHooks into window.preact
       window._tiro_react = {...window.preact, ...window.preactHooks}
-      // window._tiro_react = window.preact
-      // if (!window.ReactDOM || !ReactDOM || !React || !ReactDOM.createRoot) return;
       clearInterval(int)
-      // const r = React;
       const r = window._tiro_react;
       const c = r.createElement;
 
       // v18
       let container = document.getElementById("ctag-component-table-wrapper")
-      // const root = ReactDOM.createRoot(container); // create a root
-      // root.render(c(TableComponentReact, {items, config, id}));
-      // const app = h('h1', null, 'Hello World!');
-      // r.render(app, document.body);
       container.innerHTML = ""
       r.render(c(TableComponentReact, {items, config, id}), container);
     }, 100) 

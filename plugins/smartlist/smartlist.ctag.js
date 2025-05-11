@@ -469,7 +469,6 @@ const smartlistApp = (innerTagStr, opts) => {
                         } // end onAllFormulasProcessed
                         const increaseCounterCb = () => {
                                 counterCb++
-                                // console.log('smartlist > formulas processed:', counterCb, toReachCb)
                                 if (counterCb === toReachCb) {
                                         console.log('smartlist > all formulas processed', toReachCb)
                                         onAllFormulasProcessed()
