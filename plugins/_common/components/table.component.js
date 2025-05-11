@@ -304,7 +304,7 @@ const TableComponentReact = ({ items, config, id }) => {
 
   
 	// const r = window._tiro_react;
-  const r = React
+  const r = window._tiro_react || React
   const c = r.createElement;
   return c(TableComponentReactInt, { items, config, id })
 }
@@ -315,7 +315,7 @@ const TableComponentReact = ({ items, config, id }) => {
 const TableComponentReactInt = ({ items, config, id }) => {
   if (config.id) id = config.id
   if (!id) id = "table-component"
-  const r = React
+  const r = window._tiro_react || React
   // const r = window._tiro_react;
   const c = r.createElement;
 
