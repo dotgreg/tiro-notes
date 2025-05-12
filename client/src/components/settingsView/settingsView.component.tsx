@@ -656,7 +656,7 @@ export const SettingsPopup = (p: {
 	//
 	// TOGGLING PANELS LOGIC
 	//
-	const [panelsOpened, setPanelsOpened, refreshConf] = useBackendState<boolean[]>('config-panels-opened', [])
+	const [panelsOpened, setPanelsOpened, refreshConf] = useBackendState<boolean[]>('config-panels-opened', [], {editIfNotLoaded:true})
 	const togglePanel = (panelId: number) => {
 		const nP = cloneDeep(panelsOpened)
 		nP[panelId] = !nP[panelId]

@@ -227,7 +227,6 @@ const FilesTagApp = (innerTagStr, opts) => {
                   if (lines2.indexOf(l) === -1) lines2.push(l)
                 })
                 setRessourcesUsageList(lines2)
-                console.log("usageList", lines2)
               })
             }
 

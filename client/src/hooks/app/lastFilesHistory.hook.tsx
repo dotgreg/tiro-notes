@@ -74,8 +74,10 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		// only keep x notes
 		newfilesHistory = newfilesHistory.slice(0, 400)
 		newfilesHistory.unshift(file)
+
+		// do not update if newFilesHistory length is 0 
+		if (newfilesHistory.length === 0) return
 		setFilesHistory(newfilesHistory)
-		
 	}
 	const debouncedAddToHistory = useDebounce(addToHistoryInt, 300)
 
