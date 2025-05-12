@@ -316,22 +316,35 @@ const FilesTagApp = (innerTagStr, opts) => {
                             compressConf = JSON.parse(config.defaultValue)
                           }
 
-                          api.call("popup.confirm", [`Do you want to compress ${items.length} files? <br> This cannot be undone  <br><br> params: ${JSON.stringify(compressConf)} <br><br> (Only jpeg/png will be processed)`], () => {
-                            let count = 0
-                            let countTot = items.length
-                            items.forEach(item => {
+                          let count = 0
+                          let countTot = items.length
+
+                          const compressAllItemsRecursively = ( ) => {
+                              let item = items[count]
                               // if item.path ends with image extension
-                              ext = item.raw.extension
+                              let ext = item.raw.extension
                               if (["png", "jpg", "jpeg", "gif"].indexOf(ext) === -1) return countTot--
                               const compressConf2 = {path:item.raw.path, ...compressConf}
                               
                               api.call("ressource.compressImage", [compressConf2], res => {
                                 console.log("Image compressed result =>", res, item)
                                 count++
+                                
                                 api.call("ui.notification.emit",[{content:`Processing file compression ${count}/${countTot}`,id:notifId, options:{hideAfter:5}}])
                                 if (count === items.length) askForRescan()
+                                else {
+                                  compressAllItemsRecursively()
+                                }
                               })
-                            })
+                          }
+
+                          api.call("popup.confirm", [`Do you want to compress ${items.length} files? <br> This cannot be undone  <br><br> params: ${JSON.stringify(compressConf)} <br><br> (Only jpeg/png will be processed)`], () => {
+                            
+                            compressAllItemsRecursively()
+
+                            // items.forEach(item => {
+                            // })
+
                           })
                         })
                       }
