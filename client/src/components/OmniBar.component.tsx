@@ -376,7 +376,7 @@ export const OmniBar = (p: {
 					// erase /
 					setInputTxt("")
 					let folder = api.ui.browser.folders.current.get()
-					setTimeout(() => {console.log(api.ui.browser.folders.current.get())})
+					// setTimeout(() => {console.log(api.ui.browser.folders.current.get())})
 					triggerExplorer(folder)
 				})
 			}
@@ -511,6 +511,7 @@ export const OmniBar = (p: {
 	useEffect(() => {
 		if (backendStateOmni.hasBeenLoaded) return
 		refreshOmniHistFromBackend()
+		refreshOmniCacheFoldersFromBackend()
 		backendStateOmni.hasBeenLoaded = true
 	}, [])
 
@@ -590,6 +591,8 @@ export const OmniBar = (p: {
 	//
 	const lastSearchId = useRef(0)
 	const lastSearch = useRef("")
+	// const cacheFoldersOpts = useRef<{[key: string]: iOptionOmniBar[]}>({})
+	const [omniCacheFolders, setOmniCacheFolders, refreshOmniCacheFoldersFromBackend] = useBackendState<{}>('omni-cache-folders', [], {history: false})
 	const triggerExplorer = (folderPath: string) => {
 
 		if (folderPath === "") return
@@ -610,6 +613,20 @@ export const OmniBar = (p: {
 
 		const FolderIcon = "📁 "
 		const newIcon = "➕ "
+
+		// if cache folderpath exists, use it to get a quick response
+		if (omniCacheFolders[folderPath]) {
+			console.log(`[OMNI > EXPLORER] using cache for ${folderPath}`)
+			let nOpts = omniCacheFolders[folderPath]
+			// for each nOpts
+			for (let i = 0; i < nOpts.length; i++) {
+				let o = nOpts[i]
+				if (o.label.props) nOpts[i].label = genOptionHtml(o.payload.file)
+			}
+			setOptions(nOpts)
+			// setSelectedOption([{ value: modeLabels.explorer, label: modeLabels.explorer }])
+			// setOmniBarStatus("editable")
+		}
 
 		getApi(api => {
 			let folderPathArr = [folderPath]
@@ -681,6 +698,10 @@ export const OmniBar = (p: {
 					setOptions(nOpts)
 					setOmniBarStatus("editable")
 					// setNotePreview(nSelec)
+					// cacheFoldersOpts[folderPath] = nOpts
+					let newOmniCacheFolders = cloneDeep(omniCacheFolders)
+					newOmniCacheFolders[folderPath] = nOpts
+					setOmniCacheFolders(newOmniCacheFolders)
 
 				})
 			})
