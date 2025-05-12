@@ -3,6 +3,7 @@ import { sharedConfig } from "../../../shared/shared.config";
 import { getApi, getClientApi2 } from "./api/api.hook";
 import { cloneDeep } from "lodash-es";
 import { useDebounce } from "./lodash.hooks";
+import { tryCatch } from "../managers/tryCatch.manager";
 
 const h = `[BACKEND STATE]`
 type iFunctionRefresh = (cb?: (initVal:any) => void) => void
@@ -15,12 +16,14 @@ export function useBackendState<T>(
 		onInitialRefresh?: (initVal:any) => void,
 		debouncedSave?: number
 		debouncedSaveWithThrottle?: boolean
+		editIfNotLoaded?: boolean
 	}): [
 		T, 
 		(value: T) => void, 
 		iFunctionRefresh
 	] {
 
+	const [hasBackendLoaded, setHasBackendLoaded] = useState(false)
 	const [storedValue, setStoredValue] = useState(initialValue)
 
 	// during hook load, fetch, if it exists the note content
@@ -44,6 +47,7 @@ export function useBackendState<T>(
 
 	// persistence logic 
 	const setValue = value => {
+		if (!hasBackendLoaded && opts?.editIfNotLoaded !== true) return console.error(`BACKEND VAR: var ${key} not loaded yet` )
 		const nval = cloneDeep(value)
 		setStoredValue(cloneDeep(nval))
 		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
@@ -67,10 +71,15 @@ export function useBackendState<T>(
 	const refreshValFromBackend:iFunctionRefresh = (cb) => {
 		getApi(api => {
 			api.file.getContent(pathToNote, raw => {
-				const obj = JSON.parse(raw)
-				if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
-				setStoredValue(obj);
-				cb && cb(obj)
+				try {
+					const obj = JSON.parse(raw)
+					if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
+					setStoredValue(obj);
+					setHasBackendLoaded(true)
+					cb && cb(obj)
+				} catch (error) {
+					console.error(`[BACKEND STATE] Error parsing JSON for ${key}`, error);
+				}
 			})
 		})
 	}
