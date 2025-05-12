@@ -40,6 +40,7 @@ interface iOptionOmniBar {
 		line?: string
 		options?: iOptionOmniBar[]
 		floatingPanel?: iFloatingPanel
+		action?: "createNewFile"
 	}
 }
 
@@ -70,6 +71,7 @@ export const OmniBar = (p: {
 	show: boolean
 	onClose: Function
 	onHide: Function
+	onNoteCreate: Function
 	lastNotes: iFile[]
 }) => {
 
@@ -421,8 +423,14 @@ export const OmniBar = (p: {
 			}
 
 			let finalPath = getFinalPath()
-			// if ends to md, jump to it
-			if (finalPath.endsWith(".md")) {
+			// if payload action is createNewFile, create a new file
+			if (stags[stags.length - 1].payload?.action === "createNewFile") {
+				// if ends to md, jump to it
+				console.log("create new file in folder" + finalPath)
+				p.onNoteCreate(finalPath)
+				p.onClose()
+
+			} else if (finalPath.endsWith(".md")) {
 
 				// addCurrentToOmniHistory()
 				const histSelec = [...stags]	
@@ -441,6 +449,8 @@ export const OmniBar = (p: {
 				histPath.current = finalPath
 				triggerExplorer(finalPath)
 			}
+
+			
 		}
 		else if (stags[0].label === modeLabels.plugin) {
 			triggerPluginLogic(inTxt, stags)
@@ -599,6 +609,7 @@ export const OmniBar = (p: {
 		let currId = lastSearchId.current
 
 		const FolderIcon = "📁 "
+		const newIcon = "➕ "
 
 		getApi(api => {
 			let folderPathArr = [folderPath]
@@ -641,6 +652,9 @@ export const OmniBar = (p: {
 						}}
 						className="barimage">
 					</div>
+					
+					// create file
+					nOpts.push({ value: "", label: newIcon + " create file", payload: { action: "createNewFile" } })
 
 					each(folders, f => {
 						let arr = f.path.split("/")

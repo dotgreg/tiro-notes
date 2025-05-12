@@ -574,6 +574,7 @@ export const App = () => {
 								lastNotes={filesHistory}
 								onClose={e => { setSuggestOpen(false) }}
 								onHide={e => { setSuggestShow(false) }}
+								onNoteCreate={folderPath => {createNewNote({folderPath, openIn: "activeWindow"}) } }
 							/>
 						}
 						
