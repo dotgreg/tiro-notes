@@ -511,7 +511,10 @@ export const OmniBar = (p: {
 	useEffect(() => {
 		if (backendStateOmni.hasBeenLoaded) return
 		refreshOmniHistFromBackend()
-		refreshOmniCacheFoldersFromBackend()
+		// refreshOmniCacheFoldersFromBackend()
+		//@ts-ignore
+		omniCacheFoldersRam.current = window.__Tiro_omniCacheFoldersRam
+		console.log("3333", omniCacheFoldersRam.current)
 		backendStateOmni.hasBeenLoaded = true
 	}, [])
 
@@ -592,7 +595,9 @@ export const OmniBar = (p: {
 	const lastSearchId = useRef(0)
 	const lastSearch = useRef("")
 	// const cacheFoldersOpts = useRef<{[key: string]: iOptionOmniBar[]}>({})
-	const [omniCacheFolders, setOmniCacheFolders, refreshOmniCacheFoldersFromBackend] = useBackendState<{}>('omni-cache-folders', [], {history: false})
+	// const [omniCacheFolders, setOmniCacheFolders, refreshOmniCacheFoldersFromBackend] = useBackendState<{}>('omni-cache-folders', [], {history: false})
+	//@ts-ignore
+	const omniCacheFoldersRam = useRef<{[key: string]: iOptionOmniBar[]}>(window.__Tiro_omniCacheFoldersRam || {})
 	const triggerExplorer = (folderPath: string) => {
 
 		if (folderPath === "") return
@@ -614,14 +619,16 @@ export const OmniBar = (p: {
 		const FolderIcon = "📁 "
 		const newIcon = "➕ "
 
+		// console.log(1444,omniCacheFoldersRam)
 		// if cache folderpath exists, use it to get a quick response
-		if (omniCacheFolders[folderPath]) {
+		if (omniCacheFoldersRam.current[folderPath]) {
 			console.log(`[OMNI > EXPLORER] using cache for ${folderPath}`)
-			let nOpts = omniCacheFolders[folderPath]
+			let nOpts = omniCacheFoldersRam.current[folderPath]
 			// for each nOpts
 			for (let i = 0; i < nOpts.length; i++) {
 				let o = nOpts[i]
-				if (o.label.props) nOpts[i].label = genOptionHtml(o.payload.file)
+				//@ts-ignore
+				if (o.label.props ) nOpts[i].label = genOptionHtml(o?.payload?.file)
 			}
 			setOptions(nOpts)
 			// setSelectedOption([{ value: modeLabels.explorer, label: modeLabels.explorer }])
@@ -699,9 +706,12 @@ export const OmniBar = (p: {
 					setOmniBarStatus("editable")
 					// setNotePreview(nSelec)
 					// cacheFoldersOpts[folderPath] = nOpts
-					let newOmniCacheFolders = cloneDeep(omniCacheFolders)
-					newOmniCacheFolders[folderPath] = nOpts
-					setOmniCacheFolders(newOmniCacheFolders)
+					// let newOmniCacheFolders = cloneDeep(omniCacheFoldersRam)
+					// newOmniCacheFolders[folderPath] = nOpts
+					// setOmniCacheFolders(newOmniCacheFolders)
+					omniCacheFoldersRam.current[folderPath] = nOpts
+					//@ts-ignore
+					window.__Tiro_omniCacheFoldersRam = omniCacheFoldersRam.current
 
 				})
 			})
