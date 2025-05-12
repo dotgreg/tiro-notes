@@ -71,15 +71,24 @@ export function useBackendState<T>(
 	const refreshValFromBackend:iFunctionRefresh = (cb) => {
 		getApi(api => {
 			api.file.getContent(pathToNote, raw => {
-				try {
-					const obj = JSON.parse(raw)
+				let obj:any = undefined
+
+				if (raw === "NO_FILE") obj = {}
+				else {
+					try {
+						obj = JSON.parse(raw)
+					} catch (error) {
+						console.error(`[BACKEND STATE] Error parsing JSON for ${key}`, error);
+					}
+				}
+				
+				if (obj !== undefined) {
 					if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
 					setStoredValue(obj);
 					setHasBackendLoaded(true)
 					cb && cb(obj)
-				} catch (error) {
-					console.error(`[BACKEND STATE] Error parsing JSON for ${key}`, error);
 				}
+
 			})
 		})
 	}
