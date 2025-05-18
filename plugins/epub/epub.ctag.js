@@ -1,7 +1,7 @@
 
 const epubApp = (innerTagStr, opts) => {
 		if (!opts) opts = {}
-		if (!opts.open) opts.open = false
+		if (!opts.open) opts.open = true
 
 		const ressPath = opts.base_url + "/ressources"
 
