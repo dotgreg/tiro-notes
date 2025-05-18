@@ -105,7 +105,7 @@ export const TtsPopup = (p: {
 		else nPos = tts.current.currChunkId = 1
 		// if we have a p.startString
 		if (p.startString && !initPos.current) {
-			let chunkPos = tts.current.extractToChunkPos(p.startString)
+			let chunkPos = tts.current.extractToChunkPos(p.startString, tts.current.chunkedText, tts.current.chunkLength)
 			nPos = chunkPos
 			tts.current.goToChunk(nPos)
 			initPos.current = true

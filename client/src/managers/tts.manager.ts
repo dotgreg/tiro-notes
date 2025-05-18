@@ -30,14 +30,36 @@ export const getAvailableVoices = () => {
 	});
 	return newvoices
 }
+export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLength:number): number => {
+		let extractChunks = chunkTextInSentences(extract, chunkLength)
+		let toSearch: string | null = null
+		each(extractChunks, c => {
+			if (c.length > 50) {
+				toSearch = c
+				return false
+			}
+		})
+		if (!toSearch) return -1
+
+		let res = -1
+		each(chunkedText, (chunk, i) => {
+			if (chunk.indexOf(toSearch as string) !== -1) {
+				res = i
+				return false
+			}
+		})
+		return res
+	}
 
 export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:number, partMaxWords: number = 70): string[] => {
 	// 1 remove spaces
 	text2chunk = removeTextLineJumps(text2chunk)
 	// 2 split by sentences while keeping punctuation
 	// let sentences = text2chunk.split(/[.!?]+/)
-	let sentencesWithPunctuation = text2chunk.match(/[^.!?]+[.!?]+/g) || [];
+	let sentencesWithPunctuation = text2chunk.match(/[^.!?:]+[.!?:]+/g) as string[] || [];
 	let sentences = sentencesWithPunctuation
+	// remove sentences with lenfth = 0
+	sentences = sentences.filter(s => s.length > 0)
 	let currChunk = ""
 	let chunks:string[] = []
 	
@@ -212,26 +234,7 @@ export class Text2SpeechManager {
 		}
 	}
 
-	extractToChunkPos = (extract: string): number => {
-		let extractChunks = this.chunkText(extract, this.chunkLength)
-		let toSearch: string | null = null
-		each(extractChunks, c => {
-			if (c.length > 50) {
-				toSearch = c
-				return false
-			}
-		})
-		if (!toSearch) return -1
-
-		let res = -1
-		each(this.chunkedText, (chunk, i) => {
-			if (chunk.indexOf(toSearch as string) !== -1) {
-				res = i
-				return false
-			}
-		})
-		return res
-	}
+	extractToChunkPos = extractToChunkPos
 
 	getCurrentChunkText = (): string | null => {
 		let res: string | null = null
