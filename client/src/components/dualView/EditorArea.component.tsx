@@ -349,18 +349,14 @@ const EditorAreaInt = (
 	}
 
 	const detachWindowButton = () => {
-		if (userSettingsSync.curr.beta_floating_windows) {
-			return {
-				icon: 'faWindowRestore',
-				title: 'Detach Window',
-				// class: 'detach-button',
-				action: () => { 
-					// if (!content.file) return
-					getApi(api => { api.ui.floatingPanel.create({type:"file", file: p.file, view: p.viewType }) })
-				}
+		return {
+			icon: 'faWindowRestore',
+			title: 'Detach Window',
+			// class: 'detach-button',
+			action: () => { 
+				// if (!content.file) return
+				getApi(api => { api.ui.floatingPanel.create({type:"file", file: p.file, view: p.viewType }) })
 			}
-		} else {
-			return {}
 		}
 	}
 

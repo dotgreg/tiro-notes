@@ -31,6 +31,77 @@ export const getAvailableVoices = () => {
 	return newvoices
 }
 
+export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:number, partMaxWords: number = 70): string[] => {
+	// 1 remove spaces
+	text2chunk = removeTextLineJumps(text2chunk)
+	// 2 split by sentences while keeping punctuation
+	// let sentences = text2chunk.split(/[.!?]+/)
+	let sentencesWithPunctuation = text2chunk.match(/[^.!?]+[.!?]+/g) || [];
+	let sentences = sentencesWithPunctuation
+	let currChunk = ""
+	let chunks:string[] = []
+	
+	for (let i = 0; i < sentences.length; i++) {
+		// if sentencesPerPart is reached
+		if(i % sentencesPerPart === 0) {
+			chunks.push(currChunk)
+			currChunk = ""
+		}
+		// if merged sentences is > 70
+		currChunk += sentences[i]
+		let wordsInPart = currChunk.split(" ").length
+		if(wordsInPart > partMaxWords) {
+			chunks.push(currChunk)
+			currChunk = ""
+		}
+
+		// if current sentence is > 70, split it using commas
+		if (sentences[i].split(" ").length > partMaxWords) {
+			let subSentences = sentences[i].split(/[,;]+/)
+			for (let j = 0; j < subSentences.length; j++) {
+				chunks.push(subSentences[j])
+			}
+		}
+	}
+
+	// remove chunks with less than 1 char
+	chunks = chunks.filter(chunk => chunk.length > 1)
+	return chunks
+}
+
+export const chunkTextInSentences = (text2chunk: string, maxChunkLength: number): string[] => {
+		// 1 remove spaces
+		text2chunk = removeTextLineJumps(text2chunk)
+
+		// 2 split by sentences
+		let sentences = text2chunk.split(/[.!?]+/)
+
+		// 3 reduce again if sentences too long
+		let chunks: string[] = []
+		for (let i = 0; i < sentences.length; i++) {
+			const sentence = sentences[i];
+			if (sentence.length > maxChunkLength) {
+				// subchunks from words
+				let words = sentence.split(' ')
+				let newSentence = ''
+				for (let y = 0; y < words.length; y++) {
+					newSentence += words[y] + ' '
+
+
+					if (newSentence.length > maxChunkLength || y === words.length - 1) {
+						// console.log( 'PUSH', newSentence);
+						chunks.push(newSentence)
+						newSentence = ''
+					}
+				}
+			} else {
+				chunks.push(sentence)
+			}
+		}
+		// console.log(chunks);
+		return chunks
+	}
+
 export class Text2SpeechManager {
 	rawText: string
 	voice: any
@@ -50,42 +121,11 @@ export class Text2SpeechManager {
 	}) {
 		this.rawText = p.text
 		this.text2read = cleanText2Speech(p.text)
-		this.chunkedText = this.chunkText(this.text2read)
+		this.chunkedText = this.chunkText(this.text2read, this.chunkLength)
 		console.log(`[TTS] init new manager `, { p, text: this.chunkedText, length: this.chunkedText.length });
 	}
 
-	chunkText = (text2chunk: string): string[] => {
-		// 1 remove spaces
-		text2chunk = removeTextLineJumps(text2chunk)
-
-		// 2 split by sentences
-		let sentences = text2chunk.split(/[.!?]+/)
-
-		// 3 reduce again if sentences too long
-		let chunks: string[] = []
-		for (let i = 0; i < sentences.length; i++) {
-			const sentence = sentences[i];
-			if (sentence.length > this.chunkLength) {
-				// subchunks from words
-				let words = sentence.split(' ')
-				let newSentence = ''
-				for (let y = 0; y < words.length; y++) {
-					newSentence += words[y] + ' '
-
-
-					if (newSentence.length > this.chunkLength || y === words.length - 1) {
-						// console.log( 'PUSH', newSentence);
-						chunks.push(newSentence)
-						newSentence = ''
-					}
-				}
-			} else {
-				chunks.push(sentence)
-			}
-		}
-		// console.log(chunks);
-		return chunks
-	}
+	chunkText = chunkTextInSentences
 
 	loadVoice = (voice) => {
 		console.log(`[TTS] LOAD VOICE`, voice);
@@ -173,7 +213,7 @@ export class Text2SpeechManager {
 	}
 
 	extractToChunkPos = (extract: string): number => {
-		let extractChunks = this.chunkText(extract)
+		let extractChunks = this.chunkText(extract, this.chunkLength)
 		let toSearch: string | null = null
 		each(extractChunks, c => {
 			if (c.length > 50) {

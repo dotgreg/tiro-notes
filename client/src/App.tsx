@@ -62,6 +62,7 @@ import { createNewNote } from './managers/newNote.manager';
 import { release } from 'os';
 import { textToId } from './managers/string.manager';
 import { codeMirrorGlobalVars } from './components/dualView/CodeMirrorEditor.component';
+import { TtsCustomPopup } from './components/TtsCustomPopup.component';
 
 export const App = () => {
 
@@ -815,7 +816,7 @@ export const App = () => {
 
 							</div>
 							{/* { deviceType() !== "mobile" && userSettingsSync.curr.beta_floating_windows && */}
-							{ userSettingsSync.curr.beta_floating_windows &&
+							{ 
 								<FloatingPanelsWrapper 
 									panels={api.ui.floatingPanel.panels} 
 									pinStatus={pinStatus.bottomBar}
@@ -853,12 +854,22 @@ export const App = () => {
 				}
 
 				{ttsPopup &&
+					!userSettingsSync.curr.tts_custom_engine_enabled &&
 					<TtsPopup
 						id={ttsPopupId}
 						fileContent={ttsPopupContent}
 						startString={ttsPos}
 						onUpdate={s => { syncTtsStatus(s) }}
 						onClose={() => { setTtsPopup(false) }} />
+				}
+				{ttsPopup &&
+					userSettingsSync.curr.tts_custom_engine_enabled &&
+						<TtsCustomPopup
+							id={ttsPopupId}
+							fileContent={ttsPopupContent}
+							startString={ttsPos}
+							onUpdate={s => { syncTtsStatus(s) }}
+							onClose={() => { setTtsPopup(false) }} />
 				}
 
 			</div >
