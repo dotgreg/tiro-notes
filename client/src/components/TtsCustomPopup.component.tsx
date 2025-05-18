@@ -5,10 +5,11 @@ import { useLocalStorage } from '../hooks/useLocalStorage.hook';
 import { strings } from "../managers/strings.manager";
 import { Icon } from './Icon.component';
 import { Popup } from './Popup.component';
-import { chunkTextInSentences, chunkTextInSentences2, cleanText2Speech } from '../managers/tts.manager';
+import { chunkTextInSentences, chunkTextInSentences2, cleanText2Speech, extractToChunkPos } from '../managers/tts.manager';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { notifLog } from '../managers/devCli.manager';
+import { useInterval } from '../hooks/interval.hook';
 
 const pre = "[TtsCustomPopup] "
 
@@ -38,7 +39,9 @@ export const TtsCustomPopup = (p: {
 	const [textChunks, setTextChunks] = useState<string[]>([])
 
 	useEffect(() => {
-		p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying })
+		let currentText = textChunks[currChunk]
+		if (currentText) currentText = currentText.split(/[.?!:]/)[0]
+		p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying, currentText })
 	}, [textChunks, currChunk, isPlaying])
 
 
@@ -56,10 +59,16 @@ export const TtsCustomPopup = (p: {
 
 
 
-	const playChunk = (chunkNb, preloadNext = true) => {
+	const stopAudio = () => {
 		if (audioRef.current) {
 			audioRef.current.pause()
 		}
+		setIsPlaying(false)
+		// destroy audio file
+		audioRef.current = null
+	}
+	const playChunk = (chunkNb, preloadNext = true) => {
+		stopAudio()
 		downloadAudioFile(chunkNb, urlAudio => {
 			if (urlAudio) playAudio(urlAudio, () => {
 				next()
@@ -81,9 +90,7 @@ export const TtsCustomPopup = (p: {
 	
 	const playAudio = (urlAudio:string, onEnd:Function) => {
 		// stop previous audio if any
-		if (audioRef.current) {
-			audioRef.current.pause()
-		}
+		stopAudio()
 		setIsPlaying(true)
 		let audio = new Audio(urlAudio)
 		audioRef.current = audio
@@ -162,6 +169,22 @@ export const TtsCustomPopup = (p: {
 		playChunk(currChunk)
 	}, [textChunks])
 
+	// search for initial chunk
+	const initPos = useRef(false)
+	useInterval(() => {
+		if (p.startString && !initPos.current) {
+			let nPos = -1
+			let chunkPos = extractToChunkPos(p.startString, textChunks, 1000)
+			nPos = chunkPos
+			initPos.current = true
+			console.log(`${pre} found startString at chunk ${chunkPos}`)
+			if (nPos != -1) setCurrChunk(nPos)
+		}
+	}, 500)
+
+
+
+
 	const [estimatedTime, setEstimatedTime] = useState<string>("")
 	useEffect(() => {
 		let formatTime = (mins: number): string => {
@@ -189,8 +212,10 @@ export const TtsCustomPopup = (p: {
 			<Popup
 				title={`${strings.ttsPopup.title}`}
 				onClose={() => {
-					audioRef.current?.pause()
-					p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying: false })
+					stopAudio()
+					let currentText = textChunks[currChunk]
+					if (currentText) currentText = currentText.split(/[.?!:]/)[0]
+					p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying: false, currentText })
 					p.onClose()
 				}}
 			>
