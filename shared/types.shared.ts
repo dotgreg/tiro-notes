@@ -100,6 +100,9 @@ export type iUserSettingName =
 'ui_editor_search_highlight_url' |
 'ui_editor_search_highlight_enable' |
 
+'tts_custom_engine_enabled' |
+'tts_custom_engine_command' |
+'tts_sentences_per_part' |
 
 
 'ui_sidebar' |

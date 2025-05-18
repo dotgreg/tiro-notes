@@ -165,7 +165,7 @@ export const OmniBar = (p: {
 							<Icon2 name="link" label='insert note link in the current note'/>
 						</div>
 
-						{ userSettingsSync.curr.beta_floating_windows &&
+						{ 
 							<div className="action" 
 								onClick={e => {
 									e.stopPropagation()

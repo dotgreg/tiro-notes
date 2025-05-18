@@ -319,6 +319,47 @@ export const SettingsPopup = (p: {
 			},
 
 			{
+				title: "speech",
+				fields: [
+					{
+						type: 'checkbox',
+						title: "Custom Text to Speech engine",
+						expl: "Uses a custom text to speech engine from an API instead of the browser's default. <br> It will send sentences to an API like <a target='_blank' href='https://replicate.com/jaaari/kokoro-82m'>the AI model kokoro-82m</a> and get back an audio file " ,
+						var: us.get('tts_custom_engine_enabled'),
+						modifier: val => {
+							us.set('tts_custom_engine_enabled', val)
+						}
+					},
+					{
+						type: 'textarea',
+						title: "Custom Text to Speech command",
+						expl: `
+						Command to run to get the mp3 file. 
+						<br>- The text to be spoken is replaced by {{input}}.
+						<br>- The speech speed is replaced by {{speed}}.
+						<br> It should return a JSON including an absolute path of an audio file (mp3/wav).
+						<br>
+						<br> Example with Koroko-82m on replicate (make sure to have CURL installed + replace with your API key) <br>
+						<br/><code>${defaultValsUserSettings.tts_custom_engine_command}</code>	
+						<br/>
+						` ,
+						var: us.get('tts_custom_engine_command'),
+						modifier: val => {
+							us.set('tts_custom_engine_command', val)
+						}
+					},
+					{
+						type: 'number',
+						title: "sentences in audio part",
+						expl: "The text will be split into audio parts. How many sentences should be in one part",
+						var: us.get('tts_sentences_per_part'),
+						modifier: val => { 
+							us.set('tts_sentences_per_part', val) 
+						}
+					},
+				]
+			},
+			{
 				title: "editor",
 				fields: [
 					{
