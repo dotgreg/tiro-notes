@@ -12,6 +12,7 @@ import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { iFile } from "../../../../shared/types.shared";
 import { iUserSettingsApi } from "../../hooks/useUserSettings.hook";
 import { genUrlPreviewStr } from "../url.manager";
+import { notifLog } from "../devCli.manager";
 
 type iLinkPreviewOpts = {addLineJump?: boolean}
 export const generateHtmlLinkPreview = mem((matchs, opts?:iLinkPreviewOpts) => generateHtmlLinkPreviewInt(matchs, opts))
@@ -81,20 +82,21 @@ export const generateHtmlLinkPreviewInt = (
 	// support
 	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.querySelector(".cm-hover-popup")
 
-	const fetchArticle = (el: any, cb: Function) => {
+	const fetchArticle = (el: any, cb: Function, openPopup:boolean=true) => {
 		let link = el.dataset.link
 		getApi(api => {
+			notifLog(`fetching article "${link}"...`, "fetchArticle", 5)
 			api.ressource.fetchUrlArticle(link, r => {
 				let webpageContent = encodeURIComponent(r.html)
-				// ssrOpenIframeEl(getIframeEl(el), encodeURIComponent(r.html))
-				// ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html), "null"))
-				api.ui.floatingPanel.create({
-					type: "ctag",
-					ctagConfig: {
-						tagName: "web",
-						content: webpageContent,
-					},
-				})
+				if (openPopup) {
+					api.ui.floatingPanel.create({
+						type: "ctag",
+						ctagConfig: {
+							tagName: "web",
+							content: webpageContent,
+						},
+					})
+				}
 				cb(r)
 			})
 		})
@@ -136,7 +138,7 @@ export const generateHtmlLinkPreviewInt = (
 			getApi(api => {
 				api.ui.textToSpeechPopup.open(r.text)
 			})
-		})
+		}, false)
 	}
 
 	let linejump = ``

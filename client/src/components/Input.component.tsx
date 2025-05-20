@@ -26,6 +26,7 @@ export const Input = (p: {
 	shouldNotSelectOnClick?: boolean
 	readonly?: boolean
 	style?: string
+	step?:number
 	max?: number
 	min?: number
 }) => {
@@ -77,7 +78,7 @@ export const Input = (p: {
 		let nval: any = val
 		// if type number, convert to number, then if max/min is set, check if it is in range
 		if (p.type === 'number') {
-			nval = parseInt(nval)
+			// nval = parseFloat(nval)
 			if (p.max && nval > p.max) nval = p.max
 			if (p.min && nval < p.min) nval = p.min
 			nval = nval.toString()
@@ -100,6 +101,7 @@ export const Input = (p: {
 					readOnly={p.readonly}
 					max={p.max}
 					min={p.min}
+					step={p.step}
 					onFocus={() => { p.onFocus && p.onFocus() }}
 					onClick={() => { !p.shouldNotSelectOnClick && inputRef.current.select() }}
 					onKeyPress={e => {

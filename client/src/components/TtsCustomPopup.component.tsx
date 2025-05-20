@@ -10,6 +10,7 @@ import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { getApi } from '../hooks/api/api.hook';
 import { notifLog } from '../managers/devCli.manager';
 import { useInterval } from '../hooks/interval.hook';
+import { useBackendState } from '../hooks/useBackendState.hook';
 
 const pre = "[TtsCustomPopup] "
 
@@ -23,7 +24,12 @@ export const TtsCustomPopup = (p: {
 	onClose: Function
 }) => {
 
-	const [isPlaying, setIsPlaying] = useState(false)
+	const [isPlaying, setIsPlayingInt] = useState(false)
+	const isPlayingRef = useRef<boolean>(false)
+	const setIsPlaying = (isPlaying: boolean) => {
+		setIsPlayingInt(isPlaying)
+		isPlayingRef.current = isPlaying
+	}
 	const [selectedVoiceId, setSelectedVoiceId] = useLocalStorage<number>('tts-selected-voice', 0)
 	const [currRate, setCurrRateInt] = useLocalStorage<number>(`tts-rate`, 1)
 	const currRateRef = useRef<number>(currRate)
@@ -31,8 +37,31 @@ export const TtsCustomPopup = (p: {
 		setCurrRateInt(rate)
 		currRateRef.current = rate
 	}
+	const [wordStat, setWordStat, refreshBackendWordStat] = useBackendState<number>('tts-word-stats', 0)
+	const wordStatRef = useRef<number>(wordStat)
+	useEffect(() => {
+		wordStatRef.current = wordStat
+	}, [wordStat])
+	useEffect(() => {
+		console.log("111")
+		refreshBackendWordStat()
+
+		console.log(wordStat)
+	}, [])
 	const [currChunk, setCurrChunkInt] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
 
+	const [logTxt, setLogTxt] = useState<string>("")
+	const [showLog, setShowLog] = useState<boolean>(false)
+	const logRef = useRef<string>("")
+	const log = (messageText:string) => {
+		// prepend to logTxt
+
+		let messageText2 = messageText.replaceAll(`${pre}:`, "")
+		messageText2 = messageText2.replaceAll(pre, "")
+		logRef.current = messageText2 + "<br>" + logRef.current
+		console.log(messageText)
+		setLogTxt(logRef.current)
+	}
 
 
 
@@ -51,6 +80,7 @@ export const TtsCustomPopup = (p: {
 		let cleanedText = cleanText2Speech(p.fileContent)
 		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
 		let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart)
+		console.log(chunkedText2)
 
 		setTextChunks(chunkedText2)
 		console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts`,{chunkedText2})
@@ -60,27 +90,42 @@ export const TtsCustomPopup = (p: {
 
 
 	const stopAudio = () => {
-		if (audioRef.current) {
-			audioRef.current.pause()
+		if (audioRef.current) { audioRef.current.pause() }
+		for (let i = 0; i < allAudiosRef.current; i++ ) {
+			allAudiosRef.current[i].pause()
 		}
 		setIsPlaying(false)
-		// destroy audio file
-		audioRef.current = null
 	}
 	const playChunk = (chunkNb, preloadNext = true) => {
 		stopAudio()
 		downloadAudioFile(chunkNb, urlAudio => {
-			if (urlAudio) playAudio(urlAudio, () => {
-				next()
-			}) 
+			if (!urlAudio.includes("ERROR")) {
+				log(`${pre}: ▶️ playing chunk ${chunkNb}`)
+				playAudio(urlAudio, () => {
+					next()
+				}) 
+			} else {
+				let delay = 4
+				log(`${pre}: ❌▶️ ERROR could not play chunk ${chunkNb}, no audio url, retrying in ${delay}s`)
+				setTimeout(() => {
+					playChunk(chunkNb, preloadNext)
+				}, delay * 1000)
+			}
 		})
-		if (preloadNext && chunkNb < textChunks.length - 1) {
-			downloadAudioFile(chunkNb + 1, () => {})
+		
+		let numberToPreload = userSettingsSync.curr.tts_preload_parts
+		if (preloadNext) {
+			for (let i = 1; i <= numberToPreload; i++) {
+				if (chunkNb + i <= textChunks.length) {
+					downloadAudioFile(chunkNb + i, () => {})
+				}
+			}
 		}
-
 	}
 	
+	
 	const audioRef = useRef<any>(null)
+	const allAudiosRef = useRef<any>([])
 	const currChunkRef = useRef<number>(currChunk)
 	const setCurrChunk = (chunkNb) => {
 		setCurrChunkInt(chunkNb)
@@ -90,11 +135,12 @@ export const TtsCustomPopup = (p: {
 	
 	const playAudio = (urlAudio:string, onEnd:Function) => {
 		// stop previous audio if any
+
 		stopAudio()
 		setIsPlaying(true)
 		let audio = new Audio(urlAudio)
+		allAudiosRef.current.push(audio)
 		audioRef.current = audio
-
 		audio.play()
 		updateSpeedAudio(currRateRef.current)
 		audio.onended = () => {
@@ -105,15 +151,15 @@ export const TtsCustomPopup = (p: {
 	const next = () => {
 		if (currChunkRef.current < textChunks.length - 1) {
 			let nChunk = currChunkRef.current + 1
-			console.log(`${pre}: next chunk ${nChunk}`)
+			log(`${pre}: ️⏭ next chunk ${nChunk}`)
 			playChunk(nChunk)
 			setCurrChunk(nChunk)
 		}
 	}
-	const prev = () => {
+ 	const prev = () => {
 		if (currChunkRef.current !== 0) {
 			let nChunk = currChunkRef.current - 1
-			console.log(`${pre}: prev chunk ${nChunk}`)
+			log(`${pre}:️⏮ prev chunk ${nChunk}`)
 			playChunk(nChunk)
 			setCurrChunk(nChunk)
 		}
@@ -122,6 +168,7 @@ export const TtsCustomPopup = (p: {
 		if (isPlaying) {
 			setIsPlaying(false)
 			audioRef.current.pause()
+			log (`${pre}: ⏸️ paused`)
 		} else {
 			playChunk(currChunk)
 		}
@@ -136,30 +183,63 @@ export const TtsCustomPopup = (p: {
 		let stringCmd = userSettingsSync.curr.tts_custom_engine_command
 		// replace {{input}} in txt by the chunk text
 		let textToSent = textChunks[chunkId]
+		if (!textToSent || textToSent.length === 0) return log(`${pre}: ⚠️ chunk ${chunkId} is empty, do not download`)
+		let wordsNb = textToSent?.split(" ").length || 0
+		console.log(2222222222222)
+		setWordStat( wordStatRef.current + wordsNb)
+		let wordLog = `[${wordsNb} words]`
 		// let textToSent = "hello world 333"
 		stringCmd = stringCmd.replace("{{input}}", textToSent)
+		log(`${pre}: 📥 [...] downloading chunk ${chunkId} ${wordLog} `)
+		let isCbCalled = false
+		const cbOnce = (res:any) => {
+			if (isCbCalled) return 
+			cb(res)
+			isCbCalled = true
+		}
 
 		if (audioUrls.current[chunkId]) {
-			cb(audioUrls.current[chunkId])
-			console.log(`${pre}: already downloaded chunk ${chunkId}`)
+			cbOnce(audioUrls.current[chunkId])
+			log(`${pre}: 💾 already downloaded chunk ${chunkId} ${wordLog} `)
 			return
 		}
 
 		// console.log(`${pre}: asking api`,{stringCmd})
-		console.log(`${pre}: asking api for chunk ${chunkId}`)
+		let start = Date.now()
 		// request api
+		setTimeout(() => {
+			if (isCbCalled) return
+			log(`${pre}: 📥❌ timeout for chunk ${chunkId} ${wordLog} `)
+			cbOnce("ERROR: timeout")
+		}, 20 * 1000)
 		getApi( api => {
 			api.command.exec(stringCmd, (apiAnswer:string) => {
 				// console.log(`${pre}: `,{apiAnswer})
 				// look for an url ending with .mp3/wav
+				if (isCbCalled) return
 				let url = apiAnswer.match(/https?:\/\/[^\s]+\.(mp3|wav)/g)
 				if (url && url[0]) {
 					// console.log(`${pre}: found url ${url[0]}`)
-					console.log(`${pre}: [ok] api done for chunk ${chunkId}`)
+					let time = Date.now() - start
+					let timeLog = `[${time}ms]`
+					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
 					audioUrls.current[chunkId] = url[0]
-					cb(url[0])
+					// preload the audio
+					let audio = new Audio(url[0])
+					audio.preload = "auto"
+					cbOnce(url[0])
 				} else {
-					notifLog(`Text to Speech API answer error: `, apiAnswer)
+					let message = apiAnswer
+					try {
+						let apiObj = JSON.parse(apiAnswer)
+						message = `${apiObj["stderr"]} - ${apiObj["shortMessage"]}`
+						log(`${pre}: 📥❌ [!! error] chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
+						
+					} catch (error) {
+						
+					}
+					cbOnce("ERROR: API")
+					// notifLog(`Text to Speech API answer error: <br>`+message )
 				}
 			})
 		})
@@ -169,18 +249,27 @@ export const TtsCustomPopup = (p: {
 		playChunk(currChunk)
 	}, [textChunks])
 
-	// search for initial chunk
 	const initPos = useRef(false)
 	useInterval(() => {
+		// search for initial chunk
 		if (p.startString && !initPos.current) {
 			let nPos = -1
 			let chunkPos = extractToChunkPos(p.startString, textChunks, 1000)
 			nPos = chunkPos
 			initPos.current = true
-			console.log(`${pre} found startString at chunk ${chunkPos}`)
+			log(`${pre} found startString at chunk ${chunkPos}`)
 			if (nPos != -1) setCurrChunk(nPos)
 		}
+		
 	}, 500)
+	useInterval(() => {
+		// if is playing, start play 
+		if (isPlayingRef.current === true) {
+			if(!audioRef.current) return
+			if (!audioRef.current.src) return
+			audioRef.current.play()
+		}
+	}, 3000)
 
 
 
@@ -263,6 +352,25 @@ export const TtsCustomPopup = (p: {
 						<Icon name="faFastForward" color="black" />
 					</button>
 				</div>
+				<div 
+				onClick={e => setShowLog(!showLog)}
+				className='log-button'> details </div>
+				{
+					showLog &&
+					<div className='stats'>
+						API Words sent: {wordStat}<br/>
+						Estimated minutes spoken: {Math.round((wordStat/5/60)*100)/100}<br/>
+						Estimated price : {wordStat * userSettingsSync.curr.tts_price_per_word}<br/>
+						<button onClick={()=> {setWordStat(0)}}> reset stats</button>
+					</div>
+				}
+				{
+					showLog &&
+					<div className='log-wrapper'>
+						<div dangerouslySetInnerHTML={{__html: logTxt}}></div>
+					</div>
+				}
+				
 			</Popup>
 
 
@@ -271,6 +379,25 @@ export const TtsCustomPopup = (p: {
 }
 
 export const StyledDiv = styled.div`
+.stats {
+	font-size: 10px;
+	padding: 10px;
+}
+.log-button {
+		cursor: pointer;
+		color: #0000ff;
+		margin-top: 10px;
+		text-align: center;
+		font-size: 12px;
+}
+.log-wrapper {
+	height: 200px;
+	overflow:scroll;
+	background: #ececec;
+	padding: 10px;
+	margin-top: 10px;
+	font-size: 10px;
+}
 .bg-lock {
 		position: fixed;
 		top: 0px;

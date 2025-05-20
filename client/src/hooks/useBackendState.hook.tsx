@@ -24,7 +24,8 @@ export function useBackendState<T>(
 		iFunctionRefresh
 	] {
 
-	const [hasBackendLoaded, setHasBackendLoaded] = useState(false)
+	// const [hasBackendLoaded, setHasBackendLoaded] = useState(false)
+	const hasBackendLoadedRef = useRef<boolean>(false)
 	const [storedValue, setStoredValue] = useState(initialValue)
 
 	// during hook load, fetch, if it exists the note content
@@ -48,7 +49,7 @@ export function useBackendState<T>(
 
 	// persistence logic 
 	const setValue = value => {
-		if (!hasBackendLoaded && opts?.editIfNotLoaded !== true) return console.error(`BACKEND VAR: var ${key} not loaded yet` )
+		if (!hasBackendLoadedRef.current && opts?.editIfNotLoaded !== true) return console.error(`BACKEND VAR: var ${key} not loaded yet` )
 		const nval = cloneDeep(value)
 		setStoredValue(cloneDeep(nval))
 		if(opts?.debug === true) console.log(`[BACKEND STATE] setValue: ${key} => `, nval);
@@ -86,7 +87,7 @@ export function useBackendState<T>(
 				if (obj !== undefined) {
 					if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
 					setStoredValue(obj);
-					setHasBackendLoaded(true)
+					hasBackendLoadedRef.current = true
 					cb && cb(obj)
 				}
 
