@@ -62,9 +62,6 @@ export const TtsPopup = (p: {
 		let left = formatTime((6 * (totChunks - currChunk)) / (currRate * 60))
 		let tot = formatTime((6 * totChunks) / (currRate * 60))
 		let res = ` ${left} left of ${tot}`
-		// let max = formatTime((15 * totChunks) / (currRate * 60))
-		// let res = `${min} - ${max}`
-		// if (min === max) res = `${min}`
 		setEstimatedTime(res)
 
 	}, [totChunks, currRate, currChunk])
@@ -76,20 +73,10 @@ export const TtsPopup = (p: {
 	window.tts = tts
 
 	useEffect(() => {
-		// setTimeout(() => {
-		// 	if (getAvailableVoices()[selectedVoiceId]) {
-		// 		tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
-		// 	}
-		// })
 		tts.current = new Text2SpeechManager({ text: p.fileContent })
 		tts.current.goToChunk(currChunk)
 	}, [])
 
-	// useEffect(() => {
-	// 	if (getAvailableVoices()[selectedVoiceId]) {
-	// 		tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
-	// 	}
-	// }, [selectedVoiceId])
 
 	useEffect(() => {
 		tts.current.updateSpeed(currRate)

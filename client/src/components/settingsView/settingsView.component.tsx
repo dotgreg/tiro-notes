@@ -325,7 +325,10 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Custom Text to Speech engine",
-						expl: "Uses a custom text to speech engine from an API instead of the browser's default. <br> It will send sentences to an API like <a target='_blank' href='https://replicate.com/jaaari/kokoro-82m'>the AI model kokoro-82m</a> and get back an audio file " ,
+						expl: `Uses a custom text to speech engine from an API instead of the browser's default. 
+						<br> It will send sentences to an API like <a target='_blank' href='https://replicate.com/jaaari/kokoro-82m'>the AI model kokoro-82m</a> 
+						and get back an audio file.
+						<br>On Android, you need to disable battery optimization for the browser used to work properly` ,
 						var: us.get('tts_custom_engine_enabled'),
 						modifier: val => {
 							us.set('tts_custom_engine_enabled', val)
