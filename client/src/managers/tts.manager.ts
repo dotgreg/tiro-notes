@@ -69,6 +69,13 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 	// 2 split by sentences while keeping punctuation
 	// let sentences = text2chunk.split(/[.!?]+/)
 	let sentencesWithPunctuation = text2chunk.match(/[^.!?:]+[.!?:]+/g) as string[] || [];
+	// for each sentence, if less than 2 words, merge with next sentence
+	for (let i = 0; i < sentencesWithPunctuation.length; i++) {
+		if (sentencesWithPunctuation[i].split(" ").length < 3) {
+			sentencesWithPunctuation[i] += sentencesWithPunctuation[i + 1]
+			sentencesWithPunctuation.splice(i + 1, 1)
+		}
+	}
 	let sentences = sentencesWithPunctuation
 	// remove sentences with lenfth = 0
 	sentences = sentences.filter(s => s.length > 0)

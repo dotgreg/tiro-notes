@@ -136,7 +136,7 @@ export const generateHtmlLinkPreviewInt = (
 		fetchArticle(el, r => {
 			if (!r.text) return;
 			getApi(api => {
-				api.ui.textToSpeechPopup.open(r.text)
+				api.ui.textToSpeechPopup.open(r.text, {id: el.dataset.link})
 			})
 		}, false)
 	}
