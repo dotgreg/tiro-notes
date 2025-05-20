@@ -11,8 +11,20 @@ export const cleanText2Speech = (rawText: string) => {
 	text2read = text2read.replace(/<[^>]*>?/gm, ' '); // remove html tags
 	text2read = text2read.replace(/((&lt;!--).+?(--&gt;))/gm, ' '); // remove html comments
 	text2read = text2read.replace(/(<!--).+?(-->)/gm, ' '); // remove html comments
-	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
-	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
+	text2read = text2read.replace(/(\r\n|\n|\r|\t)/gm, " "); // \n \r jumps
+	text2read = text2read.replace(/(\r\n|\n|\r|\t)/gm, " "); // \n \r jumps
+	// clean all special chars starting by \ 
+	text2read = text2read.replace(/\\./gm, " "); 
+	// replace double spaces by simple spaces 
+	text2read = text2read.replace(/  +/g, ' ');
+	// replace \t by space 
+	text2read = text2read.trim()
+	// replace ' by \'
+	// text2read = text2read.replace(/'/g, "\\'");
+	// replace ’'" by space
+	text2read = text2read.replace(/[^a-zA-Z0-9’\-\_\—\\\/"àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ"'«»\s\.,;:!?]/g, ' ');
+	text2read = text2read.replace(/’|"|'/g, "’");
+	// remove everything not a-A-Z0-9 + accents + spaces + punctation to space
 	
 	return text2read
 }
@@ -78,12 +90,12 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 		}
 
 		// if current sentence is > 70, split it using commas
-		if (sentences[i].split(" ").length > partMaxWords) {
-			let subSentences = sentences[i].split(/[,;]+/)
-			for (let j = 0; j < subSentences.length; j++) {
-				chunks.push(subSentences[j])
-			}
-		}
+		// if (sentences[i].split(" ").length > partMaxWords) {
+		// 	let subSentences = sentences[i].split(/[,;]+/)
+		// 	for (let j = 0; j < subSentences.length; j++) {
+		// 		chunks.push(subSentences[j])
+		// 	}
+		// }
 	}
 
 	// remove chunks with less than 1 char

@@ -33,6 +33,7 @@ type ConfigField = {
 	customHtml?: string
 	max?: number
 	min?: number
+	step?:number
 }
 
 
@@ -319,7 +320,7 @@ export const SettingsPopup = (p: {
 			},
 
 			{
-				title: "speech",
+				title: "text to speech",
 				fields: [
 					{
 						type: 'checkbox',
@@ -355,6 +356,24 @@ export const SettingsPopup = (p: {
 						var: us.get('tts_sentences_per_part'),
 						modifier: val => { 
 							us.set('tts_sentences_per_part', val) 
+						}
+					},
+					{
+						type: 'number',
+						title: "preload audio parts",
+						expl: "How many audio parts should be asked and preloaded in advanced, if network is unstable, it is recommended to increase that number",
+						var: us.get('tts_preload_parts'),
+						modifier: val => { 
+							us.set('tts_preload_parts', val) 
+						}
+					},
+					{
+						type: 'number',
+						title: "API Price per word",
+						expl: "Estimated price per word for the API you are using (if it is a paid one)",
+						var: us.get('tts_price_per_word'),
+						modifier: val => { 
+							us.set('tts_price_per_word', val) 
 						}
 					},
 				]
@@ -742,6 +761,7 @@ export const SettingsPopup = (p: {
 														type={field.type}
 														max={field.max}
 														min={field.min}
+														step={field.step}
 														readonly={field.readOnly}
 														onChange={e => {
 															if (field.type === "checkbox") return
