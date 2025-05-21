@@ -785,15 +785,15 @@ const graphApp = (innerTagStr, opts) => {
 
 		window.reloadGraph = (p) => {
 			let disableCache = p?.disableCache || false
-			loadDatas(data => {
-				initFetchUserColor(() => {
-					initGraph(data, (network) => {
-						initFilterInput(data, network);
-						initExperienceFromDeviceType();
-					})
-				})
-				api.utils.resizeIframe(opts.size);
-			}, {disableCache})
+			initFetchUserColor(() => {
+				loadDatas(data => {
+						initGraph(data, (network) => {
+							initFilterInput(data, network);
+							initExperienceFromDeviceType();
+						})
+					api.utils.resizeIframe(opts.size);
+				}, {disableCache})
+			})
 		}
 
 
