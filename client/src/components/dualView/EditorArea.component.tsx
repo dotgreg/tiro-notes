@@ -216,6 +216,7 @@ const EditorAreaInt = (
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart', replaceText?:boolean) => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition, replaceText })
+		console.log(33333333, updatedText)
 		if (updatedText) {
 			triggerNoteEdition(updatedText)
 			forceCmRender()
@@ -548,11 +549,10 @@ const EditorAreaInt = (
 					const previewWrapperPath = `.dual-view-wrapper.window-id-${p.windowId} .preview-area`
 					// 
 					const previewWrapper:any = document.querySelector(previewWrapperPath)
-					previewWrapper.scrollTop = el.offsetTop - 100
-					
-
 					// const el = document.querySelector(elPath)
 					if (!el) return
+					previewWrapper.scrollTop = el?.offsetTop - 100
+					
 					// console.log("[EDITOR ACTION] LINEJUMP > jumping to path in preview => ", elPath, el, el.parentNode)
 					// el.parentNode.parentNode.scrollTop = el.offsetTop;
 
