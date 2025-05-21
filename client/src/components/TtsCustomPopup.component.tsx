@@ -38,7 +38,7 @@ export const TtsCustomPopup = (p: {
 		setCurrRateInt(rate)
 		currRateRef.current = rate
 	}
-	const [wordStat, setWordStat, refreshBackendWordStat] = useBackendState<number>('tts-word-stats', 0, {debug:true})
+	const [wordStat, setWordStat, refreshBackendWordStat] = useBackendState<number>('tts-word-stats', 0, {debug:false})
 	const wordStatRef = useRef<number>(0)
 	useEffect(() => {
 		refreshBackendWordStat(res => {
@@ -153,18 +153,26 @@ export const TtsCustomPopup = (p: {
 		currChunkRef.current = chunkNb
 	}
 
+	useInterval(() => {
+		let positionAudio = audioRef.current?.currentTime
+		let timeAudio = audioRef.current?.duration
+		let statusAudio = audioRef.current?.paused
+		log(`${pre}: audio status: ${positionAudio}/${timeAudio} ${statusAudio ? "paused" : "playing"}`)
+	}, 5000)
 	
 	const playAudio = (urlAudio:string, onEnd:Function) => {
 		// stop previous audio if any
 		stopAudio()
 		if (isPopupClosedRef.current === true) return
 		setIsPlaying(true)
+		log(`${pre}: audio STARTED`)
 		let audio = new Audio(urlAudio)
 		addAudioWindow(audio)
 		audioRef.current = audio
 		audio.play()
 		updateSpeedAudio(currRateRef.current)
 		audio.onended = () => {
+			log(`${pre}: audio ENDED`)
 			setIsPlaying(false)
 			onEnd()
 		}
