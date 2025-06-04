@@ -12,6 +12,8 @@ import { notifLog } from '../managers/devCli.manager';
 import { useInterval } from '../hooks/interval.hook';
 import { useBackendState } from '../hooks/useBackendState.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
+import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
+import { deviceType } from '../managers/device.manager';
 
 const pre = "[TtsCustomPopup] "
 
@@ -45,6 +47,14 @@ export const TtsCustomPopup = (p: {
 			if (typeof res === "number")wordStatRef.current = res
 		})
 	}, [])
+
+	// const [currChunk, setCurrChunk] = useState(0)
+	const [bgLock, setBgLock] = useState(false)
+	// const [lockCounter, setBgLock] = useState(false)
+	const lockBgScreen = (status: boolean) => {
+		status === true ? startScreenWakeLock() : stopScreenWakeLock()
+		setBgLock(status)
+	}
 
 	const [currChunk, setCurrChunkInt] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
 
@@ -160,19 +170,31 @@ export const TtsCustomPopup = (p: {
 		log(`${pre}: audio status: ${positionAudio}/${timeAudio} ${statusAudio ? "paused" : "playing"}`)
 	}, 5000)
 	
+	let currentAudioObj = useRef<any>(null)
 	const playAudio = (urlAudio:string, onEnd:Function) => {
 		// stop previous audio if any
 		stopAudio()
 		if (isPopupClosedRef.current === true) return
 		setIsPlaying(true)
 		log(`${pre}: audio STARTED`)
-		let audio = new Audio(urlAudio)
+		let audio:any = null
+		if (!currentAudioObj.current) {
+			audio = new Audio(urlAudio)
+			currentAudioObj.current = audio
+		} else {
+			audio = currentAudioObj.current
+		}
+		
 		addAudioWindow(audio)
 		audioRef.current = audio
 		audio.play()
 		updateSpeedAudio(currRateRef.current)
 		audio.onended = () => {
 			log(`${pre}: audio ENDED`)
+			// destroy audio to flush memory
+			audioRef.current = null
+			audio.remove()
+
 			setIsPlaying(false)
 			onEnd()
 		}
@@ -206,19 +228,19 @@ export const TtsCustomPopup = (p: {
 		audioRef.current.playbackRate = speed
 	}
 
-	const cacheIdUrls = `tts-cached-audio-urls-parts${p.id}-${userSettingsSync.curr.tts_sentences_per_part}`
-	const [cachedAudioUrls, setCachedAudioUrls] = useLocalStorage<string[]>(cacheIdUrls,[])
+	// const cacheIdUrls = `tts-cached-audio-urls-parts${p.id}-${userSettingsSync.curr.tts_sentences_per_part}`
+	// const [cachedAudioUrls, setCachedAudioUrls] = useLocalStorage<string[]>(cacheIdUrls,[])
 	const audioUrls = useRef<string[]>([])
-	useEffect(() => {
-		if (cachedAudioUrls.length > 0) { audioUrls.current = cachedAudioUrls }
-	}, [cachedAudioUrls])	
-	const clearAudioCache = () => {
-		let before = audioUrls.current.filter(u => u !== null).length
-		setCachedAudioUrls([]);
-		audioUrls.current = []
-		let after = audioUrls.current.length
-		log(`${pre}: ⚠️ cleared audio cache (${before} -> ${after})`)
-	}
+	// useEffect(() => {
+	// 	if (cachedAudioUrls.length > 0) { audioUrls.current = cachedAudioUrls }
+	// }, [cachedAudioUrls])	
+	// const clearAudioCache = () => {
+	// 	let before = audioUrls.current.filter(u => u !== null).length
+	// 	setCachedAudioUrls([]);
+	// 	audioUrls.current = []
+	// 	let after = audioUrls.current.length
+	// 	log(`${pre}: ⚠️ cleared audio cache (${before} -> ${after})`)
+	// }
 
 	const downloadAudioFile = (chunkId:number, cb: (urlAudio:string) => void) => {
 		let stringCmd = userSettingsSync.curr.tts_custom_engine_command
@@ -269,7 +291,7 @@ export const TtsCustomPopup = (p: {
 					let timeLog = `[${time}ms]`
 					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
 					audioUrls.current[chunkId] = url[0]
-					setCachedAudioUrls(audioUrls.current)
+					// setCachedAudioUrls(audioUrls.current)
 					// preload the audio
 					let audio = new Audio(url[0])
 					audio.preload = "auto"
@@ -399,6 +421,12 @@ export const TtsCustomPopup = (p: {
 					<button onClick={e => {next()}}>
 						<Icon name="faFastForward" color="black" />
 					</button>
+
+					{
+				    	deviceType() !== "desktop" && <button onClick={e => { lockBgScreen(true) }}>
+				    		<Icon name="faLock" color="black" />
+				    	</button>
+					}
 				</div>
 				<div 
 				onClick={e => setShowLog(!showLog)}
@@ -409,9 +437,9 @@ export const TtsCustomPopup = (p: {
 						API Words sent: {wordStat}<br/>
 						Estimated minutes spoken: {Math.round((wordStat/10/60)*100)/100}<br/>
 						Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000)/ 100000}<br/>
-						Cached Audio Parts : {cachedAudioUrls.filter(n => n !== null).length} / { textChunks.length }<br/>
+						{/* Cached Audio Parts : {cachedAudioUrls.filter(n => n !== null).length} / { textChunks.length }<br/> */}
 						<button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button>
-						<button onClick={()=> {clearAudioCache()}}> clear audio cache</button>
+						{/* <button onClick={()=> {clearAudioCache()}}> clear audio cache</button> */}
 					</div>
 				}
 				{
@@ -422,6 +450,13 @@ export const TtsCustomPopup = (p: {
 				}
 				
 			</Popup>
+
+			{bgLock && <div className="bg-lock">
+				<button
+					onContextMenu={e => { lockBgScreen(false) }}>
+					<Icon name="faUnlock" color="black" />
+				</button>
+			</div>}
 
 
 		</StyledDiv>

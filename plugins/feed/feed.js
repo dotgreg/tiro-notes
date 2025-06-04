@@ -1,10 +1,60 @@
+const helpText = `
+
+<h3>Introduction</h3>
+Feed CTAG allows you to view:<br>
+- your RSS feeds and sort them by categories<br>
+- your youtube subscriptions<br>
+- to parse html websites (like duckduckgo search results) and display results in a feed-like manner<br><br>
+
+Each line should be a feed, with the following format:<br>
+- name | url | categories | limitFetchNb | advancedParams<br>
+
+<h3>Simple RSS Reader example</h3>
+
+
+<code>
+<pre>
+[[feed]]
+    hn | https://news.ycombinator.com/rss |  _🕹️ geek
+    R_AskHistorians | https://www.reddit.com/r/AskHistorians/.rss | _💬reddit
+
+lemonde | https://www.lemonde.fr/rss/une.xml | _🗳️ polit
+samfish shaarly | https://sammyfisherjr.net/Shaarli/?do=dailyrss |     _✨ quali,_🗳️ polit,_🕹️ geek
+conversation | https://theconversation.com/articles.atom?language=en |     _✨ quali,_🗳️ polit,_⚛ science
+brutalism flickr | https://www.flickr.com/services/feeds/groups_pool.gne?id=12792144@N00&lang=fr-fr&format=rss_200| _🖼️inspi 
+    FP | https://foreignpolicy.com/feed/  | _🗳️ polit
+    FT | https://www.ft.com/news-feed?format=rss  | _🗳️ polit
+[[feed]]
+</pre>
+</code>
+
+<h3>Scrapping HMTL websites and gather results:</h3>
+
+for the different "path_", it should be javascript selectors on the page with the following logic:<br>
+- path_block: the javascript path to the different items, it should be a list of items <br>
+- path_title/link/content/etc.: the javascript path to the title of the item INSIDE path_both<br>
+<br><br>
+- waitInterval: the time to wait before scrapping the page, in seconds (default 0s) (10s seems a good value for duckduckgo results to not flag the scrapper as a bot)<br>
+- idConfig: the id of the config, so you can use it in other feeds with the same config<br>
+
+<code>
+<pre>
+[[feed]] 
+ddg cyber 1 | https://html.duckduckgo.com/html/?q=kill%20switches%20cybersecurity&df=w | _🗳️ polit | 100 | idConfig="ddg" type="html" path_block=".result.results_links" path_title="h2.result__title" path_link=".result__a[href]"  path_text=".result__snippet" path_image=".result__icon img[src]" path_date=".result__extras__url span{2}" waitInterval="5" 
+ddg cyber 2 | https://html.duckduckgo.com/html/?q=energy%20cybersecurity&df=w | _🗳️ polit | 100 | idConfig="ddg" 
+ddg cyber 3 | https://html.duckduckgo.com/html/?q=cyber%20threat%20energydf=w | _🗳️ polit | 100 | idConfig="ddg" 
+[[feed]] 
+</pre>
+</code>
+`
+
 const feedApp = (innerTagStr, opts) => {
 
 		if (!opts) opts = {}
 		if (!opts.size) opts.size = "95%"
 		if (!opts.itemsPerFeed) opts.itemsPerFeed = 100
 		if (!opts.feedType) opts.feedType = "xml"
-		if (!opts.contentCacheHours) opts.contentCacheHours = 1 // cache content for an hour
+		if (!opts.contentCacheHours && opts.contentCacheHours != 0) opts.contentCacheHours = 1 // cache content for an hour
 		if (!opts.feedLoadDelay) opts.feedLoadDelay = 0 // cache content for an hour
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
@@ -68,7 +118,6 @@ const feedApp = (innerTagStr, opts) => {
 
 		console.log(h, "========= INIT with opts:", opts)
 
-		console.log("hello world")
 
 		// const feedsCategories = []
 		// const failedFeeds = []
@@ -82,6 +131,8 @@ const feedApp = (innerTagStr, opts) => {
 		}
 
 		const execFeedReader = (feedsStr) => {
+			const commonLib = window._tiroPluginsCommon.commonLib
+			const { notifLog, generateHelpButton, getOperatingSystem, onClick } = commonLib
 				// const sortArr = (items,sortType) => {
 				// 		if (sortType === "name") {
 				// 				items.sort(function(a, b){
@@ -126,44 +177,60 @@ const feedApp = (innerTagStr, opts) => {
 				}
 
 
-				const getFeeds = (str) => {
-						const feedsArr = str.split('\n')
-						const feedsRes = []
-						for (let i = 0; i < feedsArr.length; i++) {
-								const feedParamsRaw = feedsArr[i].trim().split("|")
-								//
-								// PARAM 2 : categories
-								//
-								if (feedParamsRaw.length < 2) continue
-								let categories = []
-								if (feedParamsRaw[2]) categories = feedParamsRaw[2].split(",")
-								for (let i = 0; i < categories.length; i++) {
-										categories[i] = categories[i].trim()
-								}
-								//
-								// PARAM 3 : custom fetch limit
-								//
-								let limitFetchNb = opts.itemsPerFeed
-								if (feedParamsRaw[3]) limitFetchNb = parseInt(feedParamsRaw[3]) || opts.itemsPerFeed
-								//
-								// PARAM 4 : title-based filter UNUSED 
-								//
-								// let filterFromTitle = null
-								// if (feedParamsRaw[4]) {
-								// 		filterFromTitle = feedParamsRaw[4]
-								// }
+			const analyzeFeedsConfigStr = (str) => {
+				const feedsArr = str.split('\n')
+				const feedsRes = []
+				for (let i = 0; i < feedsArr.length; i++) {
+					const feedParamsRaw = feedsArr[i].trim().split("|")
+					//
+					// PARAM 2 : categories
+					//
+					if (feedParamsRaw.length < 2) continue
+					let categories = []
+					if (feedParamsRaw[2]) categories = feedParamsRaw[2].split(",")
+					for (let i = 0; i < categories.length; i++) {
+						categories[i] = categories[i].trim()
+					}
+					//
+					// PARAM 3 : custom fetch limit
+					//
+					let limitFetchNb = opts.itemsPerFeed
+					if (feedParamsRaw[3]) limitFetchNb = parseInt(feedParamsRaw[3]) || opts.itemsPerFeed
 
-								feedsRes.push({
-										name: feedParamsRaw[0].trim(),
-										url: feedParamsRaw[1].trim(),
-										categories,
-										limitFetchNb,
-										// filterFromTitle
-								})
-						}
-						console.log(h, "1: gettings feedsRefs Arr", feedsRes)
-						return feedsRes
+					//
+					// PARAM 4 : options like type="html" block=".result.results_links" title="h2.result__title" link=".result__a[href]"  text=".result__snippet" image=".result__icon img[src]" date=".result__extras__url span{2}"
+					//
+					let advancedParamsObj = {}
+					if (feedParamsRaw[4] && feedParamsRaw[4].trim().length > 0) {
+						// options looks like word="word word <something> {likethat}"
+						let regex = /(\w+)=["']([^"']+)["']/g
+						let rawStr = feedParamsRaw[4].trim()
+						rawStr.replace(regex, (match, key, value) => {
+							advancedParamsObj[key] = value
+						})
+					}
+
+
+					//
+					// PARAM 4 : title-based filter UNUSED 
+					//
+					// let filterFromTitle = null
+					// if (feedParamsRaw[4]) {
+					// 		filterFromTitle = feedParamsRaw[4]
+					// }
+
+					feedsRes.push({
+						name: feedParamsRaw[0].trim(),
+						url: feedParamsRaw[1].trim(),
+						categories,
+						limitFetchNb,
+						advancedParams: advancedParamsObj,
+						// filterFromTitle
+					})
 				}
+				console.log(h, "1: gettings feedsRefs Arr", feedsRes)
+				return feedsRes
+			}
 
 				
 
@@ -292,14 +359,23 @@ const feedApp = (innerTagStr, opts) => {
 				// FETCHING DATA
 				//
 				
+				let configsCache = {}
 				const getJsons = (cb, setStatus) => {
 						console.log(h, `getting NEW uncached jsons`);
-						const feedsArr = getFeeds(feedsStr)
+						const feedsArr = analyzeFeedsConfigStr(feedsStr)
 						let resItems = []
 						let count = 0
+						// if we only have one feed with whole config and other feeds with idConfig param:
+						for (let i = 0; i < feedsArr.length; i++) {
+							let feed = feedsArr[i]
+							if (feed.advancedParams.idConfig && feed.advancedParams.type) configsCache[feed.advancedParams.idConfig] = { ...feed.advancedParams }
+							if (!feed.advancedParams.type && feed.advancedParams.idConfig && configsCache[feed.advancedParams.idConfig]) feedsArr[i].advancedParams = { ...configsCache[feed.advancedParams.idConfig] }
+						}
+						console.log(h, `feedsArr after config cache:`, feedsArr, configsCache)
+						
 						for (let i = 0; i < feedsArr.length; i++) {
 							setTimeout(() => {
-								fetchFeedItems(feedsArr[i], items => {
+								fetchFeedItems(feedsArr, i, items => {
 									count = count + 1
 									
 									let feedItems = 0
@@ -435,18 +511,143 @@ const feedApp = (innerTagStr, opts) => {
 				// custom fetcher possible (for youtube for instance)
 				// enrich items data with feed data
 				//
-				const fetchFeedItems = (feed, cb, onFailure) => {
+				let countWaitIntervalId = 0
+				const fetchFeedItems = (feeds, i, cb, onFailure) => {
+					let feed = feeds[i]
 						const wrappedCb = items => {
-								cb(enrichItems(items, feed))
+							let enrichedItems = enrichItems(items, feed)
+							cb(enrichedItems)
 						}
 
 						if (opts.fetchItems) {
 								console.log(h, "CUSTOM FETCH FN detected");
 								opts.fetchItems(feed, wrappedCb, onFailure)	
 						}
+						else if (feed.advancedParams?.type === "html") {
+							let waitInterval = 0
+							countWaitIntervalId = countWaitIntervalId + 1
+							if (feed.advancedParams?.waitInterval) waitInterval = parseInt(feed.advancedParams?.waitInterval) || 0
+							setTimeout(() => {
+								console.log(h, "HTML SCRAP FN detected", {feed, i, waitInterval});
+								getScrappedHtmlFeed(feeds, i, wrappedCb, onFailure)
+							}, countWaitIntervalId*waitInterval*1000)
+						}
 						else getXml(feed, wrappedCb, onFailure)
 
 				}
+
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				// PARSERS
+				//
+				// 
+				const getScrappedHtmlFeed = (feeds,i , cb, onFailure) => {
+					let feed = {...feeds[i]}
+					let uas = commonLib.commonUserAgents()
+					let ua = uas[Math.floor(Math.random() * uas.length)]
+
+					let headers = [
+						// ["Accept", "*/*"],
+						["User-Agent", ua],
+						['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'],
+						['Accept-Language', 'en-US,en;q=0.5'],
+						['Connection', 'keep-alive'],
+						['Upgrade-Insecure-Requests', '1'],
+						['Cache-Control', 'max-age=0']
+					]
+
+					// we should get inside feed.advancedParams : path_block, path_title, path_link, path_date, path_content
+					// type="html" block=".result.results_links" title="h2.result__title" link=".result__a[href]"  text=".result__snippet" image=".result__icon img[src]" date=".result__extras__url span{2}"
+					// else throw popup 
+
+					let shouldStop = true
+					if (feed.advancedParams?.path_block && feed.advancedParams?.path_title && feed.advancedParams?.path_link && feed.advancedParams?.path_date && feed.advancedParams?.path_text) { shouldStop = false }
+					if (shouldStop) {
+						notifLog("Please provide the following parameters in your feed config: path_block, path_title, path_link, path_date, path_content. This is required for the HTML scrapper to work. \n\n" + JSON.stringify(feed), "feed_html_scrap_error", 10)
+						return
+					}
+					let pathBlock = feed.advancedParams.path_block
+					let pathTitle = feed.advancedParams.path_title
+					let pathLink = feed.advancedParams.path_link
+					let pathDate = feed.advancedParams.path_date
+					let pathText = feed.advancedParams.path_text 
+					let pathImage = feed.advancedParams.path_image || null
+
+					
+					api.call("ressource.fetch", [feed.url, { disableCache: true, noCacheArg: true, headers }], htmlTxt => {
+						console.log("HTML SCRAP!!!", { feed , htmlTxt})
+						// create a DOM parser 
+						let parser = new DOMParser();
+						// parse the HTML string into a document
+						let ndocument = parser.parseFromString(htmlTxt, 'text/html');
+						// let ndocument = parser.parseFromString(testPageHtml, 'text/html');
+						// get all path_Block queryall js
+						let resultFeed = []
+						let blocks = ndocument.querySelectorAll(pathBlock)
+						let process_query_selector = (el, queryStr) => {
+							if (!el.querySelector) return
+							// if we have {[1-9]*}, remove it and add value to childNumber 
+							let childNumber = -1
+							if (queryStr.includes("{")) {
+								let parts = queryStr.split("{")
+								queryStr = parts[0].trim()
+								childNumber = parseInt(parts[1].replace("}", "").trim()) - 1 // convert to 0 based index
+							}
+							// if we have [src/other attr] add value to attributeToSelect
+							let attributeToSelect = "innerText"
+							if (queryStr.includes("[")) {
+								let parts = queryStr.split("[")
+								queryStr = parts[0].trim()
+								attributeToSelect = parts[1].replace("]", "").trim()
+							}
+							let res = null
+							try {
+								if (childNumber === -1) res = el.querySelector(queryStr)[attributeToSelect].trim()
+								else res = el.querySelectorAll(queryStr)[childNumber][attributeToSelect].trim()
+								// console.log("process_query_selector", { el, queryStr, childNumber, attributeToSelect, res })
+								 return res
+								
+							} catch (error) {
+								notifLog("Error parsing block: " + error.message, "feed_html_scrap_error", 10)
+								
+							}
+						}
+						each(blocks, block => {
+								
+								// let title = block.querySelector(pathTitle).innerText.trim()
+								// let link = block.querySelector(pathLink).href.trim()
+								// let date = block.querySelector(pathDate).innerText.trim()
+								// let text = block.querySelector(pathText).innerText.trim()
+								// let image = block .querySelector(pathImage) ? block.querySelector(pathImage).src.trim() : null
+								
+								if (block.querySelector){
+									let dateRaw = process_query_selector(block, pathDate)
+									if (!dateRaw || dateRaw === "") dateRaw = new Date().toISOString() // fallback to current date if not found
+									// let ndate = new Date(process_query_selector(block, pathDate))
+									// let timestamp = ndate.getTime() || new Date().getTime()
+									// timestamp = Math.round(timestamp)
+									// console.log(33333, ndate, timestamp, block)
+
+									resultFeed.push({
+										title: process_query_selector(block, pathTitle),
+										link: process_query_selector(block, pathLink),
+										pubDate: {_text:dateRaw},
+										content: process_query_selector(block, pathText),
+										image: pathImage ? process_query_selector(block, pathImage) : null,
+										sourceFeed: feed.name,
+										categories: feed.categories || [],
+										enclosure: { type: "text/html" } // default type
+									})
+								}
+
+						})
+						
+						cb(resultFeed)
+					})
+
+				}
+
 				const getXml = (feed, cb, onFailure) => {
 						api.call("ressource.fetch", [feed.url, { disableCache: true, noCacheArg:true, headers:[["Accept","*/*"]] }], txt => {
 							
@@ -799,6 +1000,7 @@ const feedApp = (innerTagStr, opts) => {
 						// INITIAL LOADING
 						React.useEffect(() => {
 								let cache = forceFeedRefresh === 0
+								if (opts.contentCacheHours === 0) cache = false
 								setStatus("Loading... (loading bookmarks)")
 								getBookmarks(() => {
 										setStatus("Loading... (loading feeds)")
@@ -1084,7 +1286,11 @@ const feedApp = (innerTagStr, opts) => {
 														listView === "gallery" && c('div', {className: `fa fa-image`}) ,
 														listView === "full-width" && c('div', {className: `fa fa-list`}),
 												]),
-												
+												c('div', {
+														className: `help-button filter-toggle`,
+														dangerouslySetInnerHTML: { __html: commonLib.generateHelpButton(helpText, "Feed Ctag Help") },
+												} ),
+
 												c('input', {
 														className: `filter-input`,
 														onChange: e => {
@@ -1231,6 +1437,7 @@ const feedApp = (innerTagStr, opts) => {
 						"https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js",
 						"https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
 						"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js",
+						`${opts.plugins_root_url}/_common/common.lib.js`,
 						...toLoad,
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.min.js"
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.js"
@@ -1265,22 +1472,6 @@ const feedApp = (innerTagStr, opts) => {
 		);
 
 
-
-		function getOperatingSystem() {
-			const platform = navigator.platform.toLowerCase();
-			
-			if (platform.includes('mac')) {
-				return 'mac';
-			} else if (platform.includes('win')) {
-				return 'windows';
-			} else if (platform.includes('linux')) {
-				return 'linux';
-			} else if (platform.includes('android')) {
-				return 'android';
-			} else {
-				return 'other';
-			}
-		}
 
 
 		const styleFeed = (mainColor) => `
