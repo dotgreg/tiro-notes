@@ -2,17 +2,39 @@ let r = {}
 r.getCachedVal = (idCache, cb) => {
 }
 
-r.generateHelpButton = (helpText, helpTitle) => {
+r.generateHelpButton = (helpText, helpTitle, label="?") => {
     if (!helpTitle) helpTitle = "Help"
     window.helpButtonPopup = () => {
         api.call('popup.show', [helpText, helpTitle])
     }
     let htmlButton = `
-        <button onclick="helpButtonPopup()" class="btn btn-primary">Help</button>
+        <button onclick="helpButtonPopup()" class="btn btn-primary helpButton">${label}</button>
+        <style> .helpButton {
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+
+
+        }</style> 
     `
     return htmlButton
 
 }
+r.commonUserAgents = () => [
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.82 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
+    // android 
+    "Mozilla/5.0 (Linux; Android 10; Pixel 3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36",
+    // macos
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+    // iphone safari
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+    // linux desktop
+
+]
 
 r.searchNote = (searchee, replacement) => {
     
