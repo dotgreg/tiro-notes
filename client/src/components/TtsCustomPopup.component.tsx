@@ -183,6 +183,7 @@ export const TtsCustomPopup = (p: {
 			currentAudioObj.current = audio
 		} else {
 			audio = currentAudioObj.current
+			audio.src = urlAudio
 		}
 		
 		addAudioWindow(audio)

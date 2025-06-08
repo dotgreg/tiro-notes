@@ -375,8 +375,8 @@ const epubV2App = (innerTagStr, opts) => {
 					</div>
 			</div>
 			<div id="tiro-bar-wrapper" ></div>
-			<div id="tiro-invisible-bars-wrapper" >
-			</div>
+			<div id="tiro-invisible-bars-wrapper" > </div>
+			<div id="tiro-indexing-overlay" style="display:none;"> initial text indexing, please wait... </div>
 			
 			`
 
@@ -426,7 +426,7 @@ const epubV2App = (innerTagStr, opts) => {
 			console.log("EPUB LIB v4 LOADED success", readerApi)
 
 			const commonLib = window._tiroPluginsCommon.commonLib
-			const { getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+			const { getLs, setLs, notifLog,  getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
 
 
 			let styleBar = `
@@ -450,6 +450,17 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 			#bar-next {
 				right: 0;
+			}
+			#tiro-indexing-overlay {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				background: rgba(255,255,255,0.8);
+				z-index: 10000;
+				text-align: center;
+				padding-top: 100px;
 			}
 
 			</style>
@@ -547,6 +558,133 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 
+			tiroReaderApi.getAllText = (cb, cache=true) => {
+				let getAllTextRaw = (cb1) => {
+					window.totText = ``
+					let chaptersNb = readerApi.view.getSectionFractions().length -1
+					let el = window.document.getElementById("tiro-indexing-overlay")
+					el.style.display = "block"
+					for (let i = 0; i <= chaptersNb; i++) {
+						setTimeout(() => {
+							readerApi.view.renderer.goTo({ index: i }).then(res => {
+									console.log(i, chaptersNb, "load")
+									// notifLog(`indexing text... ${i}/${chaptersNb}`, "text-index", 10)
+									el.innerHTML = `initial book indexing, please wait... ${i}/${chaptersNb}`
+									let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+									let arrRes = raw.split("}")
+									let cleanText = arrRes[arrRes.length-1].trim()
+									window.totText += cleanText
+									console.log(i, chaptersNb, "getText", cleanText.length)
+									if(i === chaptersNb) {
+										cb1(window.totText)
+										notifLog("All text indexed", "text-index", 10)
+										el.style.display = "none"
+										// jump back to first page
+										tiroReaderApi.goTo(0, 0)
+									}
+								})
+						}, 300 * i);
+					}
+				}
+
+				let cyrb532 = (str, seed = 0) => {
+					let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+					for(let i = 0, ch; i < str.length; i++) {
+						ch = str.charCodeAt(i);
+						h1 = Math.imul(h1 ^ ch, 2654435761);
+						h2 = Math.imul(h2 ^ ch, 1597334677);
+					}
+					h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+					h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+					h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+					h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+				
+					return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+				};
+
+				let cacheIdPos = `ctag-ebookv2-alltext-${epubName}`
+				let loadWithoutCache = (cb2) => {
+					console.log("load without cache")
+					getAllTextRaw(text => {
+						let resTextHash = cyrb532(text, 1)
+						console.log("getAllText",{resTextHash, text})
+						setCache(cacheIdPos, text, () => {
+							console.log("cache saved!")
+							cb2(text)
+						})
+					})
+				}
+
+				if (!cache) {
+					console.log("getAllText: no cache wanted")
+					loadWithoutCache(cb)
+					return
+				}
+				getCache(cacheIdPos, text => {
+					console.log("getAllText: cache found")
+					cb(text)
+				}, err => {
+					loadWithoutCache(cb)
+				})
+			}
+			
+			setTimeout(() => {
+				tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
+			}, 2000)
+
+
+
+			let searchCacheId = `ctag-ebookv2-search-cache-${epubName}`
+			// let searchCache = {}
+			let searchCache = getLs(searchCacheId, {})
+			tiroReaderApi.search = async (txt, cb) => {
+				let arrRes = []
+				if (!searchCache[txt]) {
+					console.log(`EPUB SEARCH NOT CACHED, seaching...`, txt )
+					for await (const res of readerApi.view.search({query:txt})) {
+						if (res.label) {
+							arrRes = [...arrRes, ...res.subitems]
+						} 
+						if (res === "done") {
+							searchCache[txt] = arrRes
+							setLs(searchCacheId, searchCache)
+						}
+					}
+				} 
+				arrRes = searchCache[txt]
+				cb(arrRes)
+			}
+			tiroReaderApi.search = async (txt, cb) => {
+				let arrRes = []
+				if (!searchCache[txt]) {
+					console.log(`EPUB SEARCH NOT CACHED, seaching...`, txt )
+					for await (const res of readerApi.view.search({query:txt})) {
+						if (res.label) {
+							arrRes = [...arrRes, ...res.subitems]
+						} 
+						if (res === "done") {
+							searchCache[txt] = arrRes
+							console.log(3333, searchCache)
+							setLs(searchCacheId, searchCache)
+						}
+					}
+				} 
+				arrRes = searchCache[txt]
+				cb(arrRes)
+			}
+
+			setTimeout(() => {
+				tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+				setTimeout(() => {
+					tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[1].cfi) })
+				}, 5000)
+			}, 5000)
+
+			tiroReaderApi.goToCFI = (cfi) => {
+				let jumpObj = readerApi.view.resolveCFI(cfi)
+				console.log("jumping to ", {cfi, jumpObj})
+				readerApi.view.renderer.goTo(jumpObj) 
+			}
 			tiroReaderApi.goTo = (chapter, fraction) => {
 				let res = readerApi.view.renderer.goTo({index:chapter, anchor:fraction }) 
 				res.then(() => {

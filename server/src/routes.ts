@@ -121,10 +121,39 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		file = cleanPath(file)
 		let endPerf = perf('👁️  askForFileContent ' + file)
 		try {
-			let apiAnswer = await openFile(file)
-			serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
+			let content = await openFile(file)
+			// automatically split internally the content in chunks <1Mb to avoid 413 errors in many servers
+			let contentChunks:string[] = []
+			let limitChunkKb = 900 * 1000
+			if (content.length > limitChunkKb) {
+				let contentChunkNb = Math.ceil(content.length / (limitChunkKb))
+				for (let i = 0; i < contentChunkNb; i++) {
+					let start = i * limitChunkKb
+					let end = (i + 1) * limitChunkKb
+					contentChunks.push(content.slice(start, end))
+				}
+			} else {
+				contentChunks = [content]
+			}
+			// serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
+			// send one req per chunk
+			for (let i = 0; i < contentChunks.length; i++) {
+				serverSocket2.emit('getFileContent', { 
+					chunkContent: contentChunks[i],
+					chunkNb:i,
+					chunksLength:contentChunks.length,
+					filePath: data.filePath, 
+					idReq: data.idReq })
+			}
+		
 		} catch {
-			serverSocket2.emit('getFileContent', { fileContent: '', error: 'NO_FILE', filePath: data.filePath, idReq: data.idReq })
+			serverSocket2.emit('getFileContent', { 
+				chunkContent: '', 
+				chunkNb:0,
+				chunksLength:1,
+				error: 'NO_FILE', 
+				filePath: data.filePath, 
+				idReq: data.idReq })
 		}
 		endPerf()
 	}, { checkRole: "viewer" })
@@ -236,7 +265,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// EDITOR APIs
-	//
+	//	
+	let tempChunksToSave:{[filePath:string]:string[]} = {}
 	serverSocket2.on('saveFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("write", data.filePath, serverSocket2)
 
@@ -244,21 +274,41 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (data.filePath.includes(relPluginsFolderPath)) rescanPluginList()
 
 		const pathToFile = p(`${backConfig.dataFolder}/${data.filePath}`);
-		let endPerf = perf('✏️  saveFileContent ' + pathToFile)
+		let endPerf = perf('✏️  saveFileContent ' + pathToFile + ' w chunks: ' + data.chunksLength )
 
-		await upsertRecursivelyFolders(pathToFile)
-		await saveFile(pathToFile, data.newFileContent)
+		
+		tempChunksToSave[data.idReq] = tempChunksToSave[data.idReq] || []
+		tempChunksToSave[data.idReq][data.chunkNb] = data.chunkContent
+		
+		// console.log(`Saving chunk ${data.chunkNb} for file ${data.filePath} (total chunks: ${data.chunksLength})`)
+		if (tempChunksToSave[data.idReq].length === data.chunksLength) {
+			let newFileContent = tempChunksToSave[data.idReq].join("")
+			// console.log(`Saving file ${data.filePath} with ${data.chunksLength} chunks`)
+			await upsertRecursivelyFolders(pathToFile)
+			await saveFile(pathToFile, newFileContent)
+			// remove tempChunksToSave[data.idReq] 
+			delete tempChunksToSave[data.idReq]
 
-		// actually send to to everybody and apply a smart/selective behavior on frontend
-		ioServer.emit('onNoteWatchUpdate', {
-			filePath: data.filePath,
-			fileContent: data.newFileContent
-		})
+			// actually send to to everybody and apply a smart/selective behavior on frontend ONLY if chunkNb < 1
+			
+			// if (data.chunkNb == 1) {
+				// if first chunk, send the file infos
+			// let fileInfos = await getFileInfos(pathToFile)
+			// ioServer.emit('onFileUpdate', { file: fileInfos })
+			// }
+			if (data.chunksLength == 1) {
+				ioServer.emit('onNoteWatchUpdate', {
+					filePath: data.filePath,
+					fileContent: newFileContent
+				})
+			}
 
-		// if withCb, sends back cb
-		if (data.withCb) serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
+			// if withCb, sends back cb
+			if (data.withCb) serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
 
-		endPerf()
+			endPerf()
+		}
+
 	}, { disableDataLog: true, checkRole: "editor" })
 
 

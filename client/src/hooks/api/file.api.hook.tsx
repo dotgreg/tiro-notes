@@ -77,7 +77,7 @@ export const useFileApi = (p: {
 				p.eventBus.notify(data.idReq, { error: data.error })
 			} else {
 				// let filterRes = filterMetaFromFileContent(data.fileContent)
-				p.eventBus.notify(data.idReq, { content: data.fileContent })
+				p.eventBus.notify(data.idReq, { ...data })
 			}
 		})
 	}, [])
@@ -87,6 +87,7 @@ export const useFileApi = (p: {
 	// 
 
 	// 1. GET CONTENT
+	let tempChunksToSave:{[filePath:string]:string[]} = {}
 	const getFileContent: iFileApi['getContent'] = (
 		noteLink,
 		cb,
@@ -101,14 +102,27 @@ export const useFileApi = (p: {
 			if (answer.error && options && options.onError) options.onError(answer.error)
 			else if (answer.error && (!options || !options.onError)) cb(answer.error)
 			else if (!answer.error) {
-				if (options && options.removeMetaHeader) {
-					let objAnswer = filterMetaFromFileContent(answer.content)
-					answer.content = objAnswer.content
+
+				// on content received
+				tempChunksToSave[idReq] = tempChunksToSave[idReq] || []
+				// console.log(12222, answer)
+				tempChunksToSave[idReq][answer.chunkNb] = answer.chunkContent
+				// console.log(`${h} getFileContent chunk ${answer.chunkNb}/${answer.chunksLength} for ${filePath}`, answer.chunkContent.length, "chars");
+
+				if (tempChunksToSave[idReq].length === answer.chunksLength) {
+					// console.log(`${h} getFileContent all chunks received for ${filePath}`, tempChunksToSave[idReq].length, "chunks");
+					let answerContent = tempChunksToSave[idReq].join("")
+					if (options && options.removeMetaHeader) {
+						let objAnswer = filterMetaFromFileContent(answerContent)
+						answerContent = objAnswer.content
+					}
+					delete tempChunksToSave[idReq]
+					p.eventBus.unsubscribe(idReq)
+					cb(answerContent)
 				}
-				cb(answer.content)
 			}
 			end()
-		});
+		}, {persistent:true});
 		// 2. emit request 
 		clientSocket2.emit('askForFileContent', {
 			filePath,
@@ -139,6 +153,20 @@ export const useFileApi = (p: {
 		// if withMetas
 		// if (withMetas) content = updateMetaHeaderNote(content)
 		
+		// automatically split internally the content in chunks <1Mb to avoid 413 errors in many servers
+		let contentChunks:string[] = []
+		let limitChunkKb = 900 * 1000
+		if (content.length > limitChunkKb) {
+			let contentChunkNb = Math.ceil(content.length / (limitChunkKb))
+			for (let i = 0; i < contentChunkNb; i++) {
+				let start = i * limitChunkKb
+				let end = (i + 1) * limitChunkKb
+				contentChunks.push(content.slice(start, end))
+			}
+		} else {
+			contentChunks = [content]
+		}
+		
 		//
 		// 2. wait for callback
 		const idReq = genIdReq('save-file-content');
@@ -151,14 +179,31 @@ export const useFileApi = (p: {
 
 		//
 		// 1 FILE CREATION
+		// send one req per chunk
 		const filePath = noteLinkToPath(noteLink);
-		clientSocket2.emit('saveFileContent', {
-			filePath, newFileContent: content,
-			// options: optsApi,
-			token: getLoginToken(),
-			idReq,
-			withCb: cb ? true : false
-		})
+		for (let i = 0; i < contentChunks.length; i++) {
+			const contentChunk = contentChunks[i]
+			clientSocket2.emit('saveFileContent', {
+				filePath, 
+				chunkContent: contentChunk,
+				chunkNb: i,
+				chunksLength: contentChunks.length,
+				// options: optsApi,
+				token: getLoginToken(),
+				idReq,
+				withCb: cb ? true : false
+			})
+		}
+
+
+		// clientSocket2.emit('saveFileContent', {
+		// 	filePath, 
+		// 	newFileContent: content,
+		// 	// options: optsApi,
+		// 	token: getLoginToken(),
+		// 	idReq,
+		// 	withCb: cb ? true : false
+		// })
 
 		
 		if (history) {
@@ -184,6 +229,27 @@ export const useFileApi = (p: {
 	const saveFileIntDebounced =  useDebounce((noteLink, content, options, cb) => {
 		saveFileInt(noteLink, content, options, cb)
 	}, saveDebouncedTime)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	
 	//
 	// If debounced save asked, first create and store a debounced function for each debounced time, then use that latter one
