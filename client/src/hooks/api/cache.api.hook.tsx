@@ -159,7 +159,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	// Send/Receive logic (with chunker if content too large) 
 	// as many servers only supports by default 1MB upload limit
 	//
-	const limitChunk = 900 * 1000 // first nb in KB => avoiding 413 request entity too large
+	const limitChunk = 800 * 1000 // first nb in KB => avoiding 413 request entity too large
 	const chunkHeader = `__CHUNKED__CACHED__OBJ__SIZE:`
 	const chunkString = (str, length) => str.match(new RegExp('.{1,' + length + '}', 'g'));
 	const hc = `[CACHE CHUNK]`
@@ -176,8 +176,6 @@ export const useCacheApi = (p: {}): iCacheApi => {
 				api.file.saveContent(getCachedStorage(id), `${str}`, {}, res => {cb(res)})
 			})
 		}
-
-		
 
 		if (contentStr.length > limitChunk) {
 			// chunk content in limitChunk (see up, 800k) blocks

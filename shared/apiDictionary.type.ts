@@ -16,9 +16,10 @@ export interface iApiDictionary {
 	getImages: { images: iFileImage[] }
 
 	askForFileContent: { filePath: string, idReq: string }
-	getFileContent: { fileContent: string, filePath: string, idReq: string, error?: string }
+	// getFileContent: { fileContent: string, filePath: string, idReq: string, error?: string }
+	getFileContent: { chunkContent: string, chunkNb:number, chunksLength:number, filePath: string, idReq: string, error?: string }
 
-	saveFileContent: { filePath: string, newFileContent: string, idReq: string, withCb?:boolean }
+	saveFileContent: { filePath: string, chunkContent: string, chunksLength:number, chunkNb:number, idReq: string, withCb?:boolean }
 
 	moveFile: { initPath: string, endPath: string, idReq: string }
 	moveFileAnswer: { idReq: string }
