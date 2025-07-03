@@ -549,6 +549,16 @@ const epubV2App = (innerTagStr, opts) => {
 			 
 			const tiroReaderApi={}
 			
+			tiroReaderApi._storage = {
+				currentPage: null
+			}
+
+			tiroReaderApi.getCurrentPageText = () => {
+				console.log(h, "getCurrentPageText", tiroReaderApi._storage.currentPage)
+
+				return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
+			}
+
 			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
 			tiroReaderApi.restorePosition = (epubName) => {
 				getCache(cacheIdPos, (bookPosition) => {
@@ -664,7 +674,7 @@ const epubV2App = (innerTagStr, opts) => {
 						} 
 						if (res === "done") {
 							searchCache[txt] = arrRes
-							console.log(3333, searchCache)
+							console.log(h, "search done >", arrRes)
 							setLs(searchCacheId, searchCache)
 						}
 					}
@@ -673,12 +683,6 @@ const epubV2App = (innerTagStr, opts) => {
 				cb(arrRes)
 			}
 
-			setTimeout(() => {
-				tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
-				setTimeout(() => {
-					tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[1].cfi) })
-				}, 5000)
-			}, 5000)
 
 			tiroReaderApi.goToCFI = (cfi) => {
 				let jumpObj = readerApi.view.resolveCFI(cfi)
@@ -703,8 +707,9 @@ const epubV2App = (innerTagStr, opts) => {
 			setTimeout(() => {
 				tiroReaderApi.restorePosition(epubName)
 			}, 1000)
-			
-			
+
+
+
 			readerApi.view.renderer.addEventListener('relocate', e => {
 				let chapter = e.detail.index
 				let fractionChapter = e.detail.fraction
@@ -713,11 +718,31 @@ const epubV2App = (innerTagStr, opts) => {
 				console.log(h, " > saving position :", chapter, fractionChapter)
 				let bookPosition = {chapter, fractionChapter }
 				setCache(cacheIdPos, bookPosition)
+				tiroReaderApi._storage.currentPage = {...e.detail}
+				// console.log(1111, tiroReaderApi.getCurrentPageText())
 			})
-		}
+			
+
 		
+			// OK SEARCH > simplement UI a faire
+			// OK epub > tts > si on load depuis un certaine page > envoie la page a chercher
+			// tts > epub > quand status update, faire un search regulier sur epub setInterval et search la phrase
+
+			setTimeout(() => {
+				let sentence = `ça donnait légèrement envie de se tirer une balle, mais c’était beau. Et la Saab 900 tirait là-dedans des courbes harmonieuses`
+				tiroReaderApi.search(sentence, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+			}, 5000)
 
 
+
+		}
+
+			// setTimeout(() => {
+			// 	tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+			// 	setTimeout(() => {
+			// 		tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[1].cfi) })
+			// 	}, 5000)
+			// }, 5000)
 
 
 

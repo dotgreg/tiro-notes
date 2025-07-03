@@ -59,7 +59,7 @@ export const TtsCustomPopup = (p: {
 	const [currChunk, setCurrChunkInt] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
 
 	const [logTxt, setLogTxt] = useState<string>("")
-	const [showLog, setShowLog] = useState<boolean>(false)
+	const [showLog, setShowLog] = useState<boolean>(true)
 	const logRef = useRef<string>("")
 	const log = (messageText:string) => {
 		// prepend to logTxt
@@ -315,6 +315,11 @@ export const TtsCustomPopup = (p: {
 	}
 	// START BY PLAYING
 	useEffect(() => {
+		log("=====================================================================")
+	}, [])
+
+	useEffect(() => {
+
 		playChunk(currChunk)
 	}, [textChunks])
 

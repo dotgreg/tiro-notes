@@ -500,6 +500,7 @@ export const FloatingPanel = (p:{
                                 {  p.panel.type === "file" && p.panel.file &&
                                     <div className='floating-panel__inner-content'>
                                         <NotePreview
+                                            noteParentType="floating"
                                             windowId={p.panel.id || generateUUID()}
                                             file={p.panel.file}
                                             height={p.panel.size.height}

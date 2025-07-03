@@ -43,8 +43,8 @@ export const PopupWrapperCss = () => `
         z-index:10000;
         top: 0px;
         left: 0px;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         background: rgba(0,0,0,0.1);
     }
     .popup-wrapper {

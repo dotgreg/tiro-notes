@@ -294,7 +294,6 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			url = url + randomizedArgNoCache
 		}
 
-		console.log(3333, optionsReq)
 		const req = client.request(url, optionsReq, (response) => {
 			// Check the content-type from the headers and adjust the encoding accordingly
 			// const contentType = response.headers['content-type']?.toLowerCase();

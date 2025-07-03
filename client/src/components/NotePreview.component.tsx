@@ -10,7 +10,10 @@ import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 import { getOperatingSystem } from '../managers/device.manager';
 
 export type iNotePreviewType = "editor"|"preview"
+export type iNoteParentType = "floating" | "grid" | "popup" | "omnibar" | "any"
 export const NotePreviewInt = (p: {
+	noteParentType: iNoteParentType
+
 	file: iFile
 	view?:iViewType
 	searchedString?: string
@@ -73,6 +76,7 @@ export const NotePreviewInt = (p: {
 	return (
 		<div className={"note-preview-wrapper " + view} style={{ height: heightStr }}>
 			<WindowEditor 
+				noteParentType={p.noteParentType}
 				content={{
 					i:windowId,
 					file:p.file,

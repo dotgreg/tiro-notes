@@ -514,7 +514,7 @@ export const OmniBar = (p: {
 		// refreshOmniCacheFoldersFromBackend()
 		//@ts-ignore
 		omniCacheFoldersRam.current = window.__Tiro_omniCacheFoldersRam
-		console.log("3333", omniCacheFoldersRam.current)
+		// console.log("3333", omniCacheFoldersRam.current)
 		backendStateOmni.hasBeenLoaded = true
 	}, [])
 
@@ -1247,6 +1247,7 @@ export const OmniBar = (p: {
 						>
 							{notePreview && deviceType() !== "mobile" &&
 								<NotePreview
+									noteParentType="omnibar"
 									file={notePreview}
 									showToolbar={true}
 									titleEditor={false}
