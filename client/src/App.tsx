@@ -428,6 +428,12 @@ export const App = () => {
 		addKeyShortcut('alt + spacebar', openOmni);
 		addKeyShortcut('alt + p', openOmni);
 		addKeyShortcut('alt + ,', () => {setConfigPopup("settings")});
+		// encryption
+		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
+		addKeyShortcut('alt + shift + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" }) });
+		addKeyShortcut('alt + shift + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" }) });
+		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
+		addKeyShortcut('alt + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
 		
 		// k.bind('esc', closeOmni);
 		addKeyShortcut('esc', () => {

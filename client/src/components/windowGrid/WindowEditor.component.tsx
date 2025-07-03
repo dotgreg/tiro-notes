@@ -16,9 +16,11 @@ import { iUploadedFileInfos } from '../../hooks/api/upload.api.hook';
 import { uploadFileToEditor } from '../../managers/upload.manager';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { iNoteParentType } from '../NotePreview.component';
 
 
 export const WindowEditorInt = (p: {
+	noteParentType:iNoteParentType
 	content: iWindowContent
 	onLayoutUpdate:iLayoutUpdateFn
 
@@ -369,6 +371,7 @@ export const WindowEditorInt = (p: {
 					onDrop={handleDrop}
 				>
 					<DualViewer
+						noteParentType={p.noteParentType}
 						windowId={windowId}
 						file={innerFile as iFile || file}
 						fileContent={innerFileContent}

@@ -28,7 +28,10 @@ ${p.description}
 --tunnel/-t : [require autossh to be installed first!] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
 --tunnel-timeout/-tt : [require autossh to be installed first!] autokill tunnel after x hours (default: -1)
 
---backup/-b : [t/n/now/force/f] [require tar to be installed first!] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
+--backup/-b : [t/n/now/force/f] [require tar to be installed first!] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. 
+			  You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
+			  All folders will be backed up with the exception of folders ending by _NOBAK_ (ex: "my_folder_NOBAK_").
+			
 --backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
 --backup-post-script : modify script to be executed after a backup finishes. Should be a ".txt" file with your OS commands. (default: "your/path/to/tiro/data_folder"+_backup/post_backup_script.txt
 
@@ -178,8 +181,20 @@ const startBackupScript = async (argsObj, dataFolder) => {
 						console.log(`[BACKUP] time has come, BACKUP! (debugBackupNow:${debugBackupNow}) ==> LOGS in log_backup.txt`);
 
 						// automatically generate a cli.sh from command below and post backup script, then exec it
-						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '====== [${new Date().toLocaleString()}] -> new backup started' >> log_backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; echo ' [${new Date().toLocaleString()}] -> compression archive finished' >> log_backups.txt; ${postBackupScript}; echo ' [${new Date().toLocaleString()}] -> upload finished' >> log_backups.txt;` 
+						let backupCli = `
+						${replaceTimestampCli()}; 
+						mkdir '${backupFolder}'; 
+						mkdir '${backupFolder}/backups'; 
+						cd '${backupFolder}'; 
+						echo '====== [${new Date().toLocaleString()}] -> new backup started' >> log_backups.txt; 
+						${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar' --exclude=\'*_NOBAK_'; 
+						echo ' [${new Date().toLocaleString()}] -> compression archive finished' >> log_backups.txt; ${postBackupScript}; 
+						echo ' [${new Date().toLocaleString()}] -> upload finished' >> log_backups.txt;` 
 						// append to backup CLI current timestamp to last_backup_timestamp
+						// remove \n from backupCli
+						backupCli = backupCli.replace(/\n/g, ' ')
+						// replace all ;; by ;
+						backupCli = backupCli.replace(/;;/g, ';')
 
 						// execute cli
 						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {

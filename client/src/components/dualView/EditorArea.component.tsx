@@ -44,6 +44,7 @@ import { triggerAddTableCol, triggerRemoveTableCol } from '../../managers/table.
 import { syncScroll3 } from '../../hooks/syncScroll.hook';
 import { getLineInfosFromMdStructure} from '../../managers/markdown.manager';
 import { info } from 'console';
+import { iNoteParentType } from '../NotePreview.component';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -54,10 +55,11 @@ export type iLayoutUpdateFn = (action: "windowActiveStatus"|"windowViewChange", 
 export type iReloadContentFn = (counter: number) => void
 
 interface iEditorProps {
-	viewType?: iViewType
+	noteParentType:iNoteParentType
+	viewType?: iViewType // editor/dual/preview	
 	mobileView?: iMobileView
-	
 
+	
 	editorType: iEditorType
 	windowId: string
 
@@ -216,7 +218,6 @@ const EditorAreaInt = (
 
 	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart', replaceText?:boolean) => {
 		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition, replaceText })
-		console.log(33333333, updatedText)
 		if (updatedText) {
 			triggerNoteEdition(updatedText)
 			forceCmRender()
@@ -339,6 +340,7 @@ const EditorAreaInt = (
 				action: () => {
 					getApi(api => {
 						api.ui.note.editorAction.dispatch({
+							windowId: p.windowId,
 							type:"searchWord",
 							searchWordString: " "
 						})
@@ -500,7 +502,11 @@ const EditorAreaInt = (
 	useEffect(() => {
 		let a = p.editorAction
 		if (!a) return
-		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}`)
+		// only trigger if action is asked for specific noteParentType (grid/floating etc)
+		if (a.noteParentType !== "any" && a.noteParentType !== p.noteParentType) return
+
+
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${p.noteParentType}`)
 		if (deviceType() !== "mobile" && a.windowId === "active" && !p.isActive) return
 		if (deviceType() !== "mobile" && a.windowId !== "active" && a.windowId !== p.windowId) return
 
@@ -626,8 +632,33 @@ const EditorAreaInt = (
 			highlightCurrentLine(f.view)
 		
 		}
+		if (a.type === "toggleEncryption") {
+			isTextEncrypted(innerFileContent) ? decryptButtonConfig.action() : encryptButtonConfig.action()
+		}
+		if (a.type === "triggerUpload") {
+			// click on upload button 
+			const uploadBtn = document.querySelector(`.window-id-${p.windowId} .upload-button-wrapper input`)
+			if (!uploadBtn) return
+			console.log("[EDITOR ACTION] TRIGGER UPLOAD2222", uploadBtn)
+			// uploadBtn.click()
+			uploadBtn.dispatchEvent(new MouseEvent('click', {
+				view: window,
+				bubbles: true,
+				cancelable: true
+			}));
+
+
+		}
+		if (a.type === "toggleContextMenu") {
+			let nState = true
+			if (a.state !== undefined) nState = a.state
+			setContextMenuOpen(nState)
+
+			console.log("[EDITOR ACTION] OPEN CONTEXT MENU")
+		}
 
 	}, [p.editorAction, p.windowId])
+	const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
 	//
 	// ON CM EVENTS
@@ -672,9 +703,10 @@ const EditorAreaInt = (
 
 	// notePopupX = posNoteToolPopup
 
+
 	return (
 		<div
-			className={`editor-area ${p.isActive ? "active" : ""} `}
+			className={`editor-area ${p.isActive ? "active" : ""} note-parent-type-${p.noteParentType}`}
 			ref={editorWrapperEl}
 			onWheel={e => {
 				// syncScroll3.scrollAllPx(p.windowId, e.deltaY)
@@ -713,6 +745,7 @@ const EditorAreaInt = (
 							hover={true}
 							dir="right"
 							maxHeight={maxDropdownHeight}
+							forceShow={contextMenuOpen}
 							onMouseEnter={e => {p.onLayoutUpdate("windowActiveStatus")}}
 						>
 							<>
@@ -1150,6 +1183,7 @@ export const EditorArea = (p: iEditorProps) => {
 	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
 	}, [
+		p.noteParentType,
 		p.viewType,
 		p.mobileView,
 		isConnected,
@@ -1162,7 +1196,8 @@ export const EditorArea = (p: iEditorProps) => {
 		p.file,
 		p.fileContent,
 		p.isActive,
-		p.editorAction])
+		p.editorAction
+	])
 }
 
 

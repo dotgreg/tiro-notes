@@ -1,12 +1,18 @@
 import React, { useState } from 'react';
 import { iEditorSelection } from '../../managers/codeMirror/editorUtils.cm';
 import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
+import { iNoteParentType } from '../../components/NotePreview.component';
 
 
 type iCMPosition = number | "currentPos" | "currentLineStart" 
 export interface iEditorAction {
 	windowId?: string
-	type: "highlightLine" | "lineJump" | "insertText" | "replaceText"  | "searchWord" | "setSelection" | "triggerAiSearch" | "undo" | "redo" | "uploadProgress"
+	noteParentType?: iNoteParentType
+
+	type: "highlightLine" | "lineJump" | "insertText" | "replaceText"  | "searchWord" | "setSelection" | "triggerAiSearch" | "undo" | "redo" | "uploadProgress" | 
+		"toggleContextMenu" | 
+		"toggleEncryption"  |
+		"triggerUpload"
 
 	lineJumpNb?: number
 	lineJumpString?: string
@@ -27,6 +33,8 @@ export interface iEditorAction {
 	// searchWordOpenPanel?: boolean
 
 	selection?: iEditorSelection
+
+	state?: boolean
 
 }
 
@@ -55,7 +63,9 @@ export const useNoteApi = (p: {
 	//
 	const [editorAction, setEditorActionInt] = useState<iEditorAction|null>(null)
 	const setEditorAction = (a: iEditorAction) => {
+		if (a.windowId && a.windowId !== "active") a.noteParentType = "any"
 		if (!a.windowId) a.windowId = "active"
+		if (!a.noteParentType) a.noteParentType = "grid"
 		if (!a.insertPos) a.insertPos = "currentPos"
 		setEditorActionInt(a)
 	}

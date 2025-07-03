@@ -14,9 +14,11 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { stopDelayedNotePreview } from '../../managers/codeMirror/noteLink.plugin.cm';
 import { iCMPluginConfig } from './CodeMirrorEditor.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
+import { iNoteParentType } from '../NotePreview.component';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
+	noteParentType:iNoteParentType
 	windowId: string
 	file: iFile
 	fileContent: string
@@ -184,6 +186,7 @@ const DualViewerInt = (
 		
 		
 		<EditorArea
+			noteParentType={p.noteParentType}
 			viewType={p.viewType}
 			mobileView={p.mobileView}
 			windowId={p.windowId}
@@ -238,6 +241,7 @@ const DualViewerInt = (
 		
 		{!isEditor &&
 			<PreviewArea
+				noteParentType={p.noteParentType}
 				windowId={p.windowId}
 				file={p.file}
 				// posY={previewY}

@@ -411,6 +411,7 @@ export const DraggableGrid = (p: {
 
 									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
+											noteParentType='grid'
 											content={p.grid.content[i] && p.grid.content[i]}
 											// forceView={p.grid.content[i] && p.grid.content[i].view}
 											onLayoutUpdate={processLayoutUpdate(window,i)}
@@ -429,6 +430,7 @@ export const DraggableGrid = (p: {
 							<div className="window-editor-wrapper-wrapper">
 								{p.grid.content[0] &&
 									<WindowEditor 
+										noteParentType='grid'
 										content={p.grid.content[0]}
 										// onViewChange={(nView) => { viewTypeChange(nView, 0) }}
 										onLayoutUpdate={processLayoutUpdate(window,0)}

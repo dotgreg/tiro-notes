@@ -11,9 +11,11 @@ import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 import { noteLinkCss } from '../../managers/codeMirror/noteLink.plugin.cm';
 import { getFontSize } from '../../managers/font.manager';
 import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { iNoteParentType } from '../NotePreview.component';
 
 
 export const PreviewArea = (p: {
+	noteParentType:iNoteParentType
 	windowId: string
 	file: iFile
 	posY: number

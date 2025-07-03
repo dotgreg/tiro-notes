@@ -21,6 +21,8 @@ export const triggerTiroHelpPopup = () => {
     <li>Alt + n : New note</li>
     <li>Alt + v : Toggle view of active window</li>
     <li>Alt + d : Detach active window in floating window</li>
+    <li>Alt + e : Toggle Encryption</li>
+    <li>Alt + u : Upload a file</li>
 </ul>
 <h4>Floating Windows</h4>
 <ul>
@@ -34,6 +36,8 @@ export const triggerTiroHelpPopup = () => {
     <li>Alt + Shift + s : Unminimize first floating window in the bar</li>
     <li>Alt + Shift + r : Reload active floating window</li>
     <li>Alt + Shift + c : Close active floating window</li>
+    <li>Alt + Shift + e : Toggle encryption</li>
+    <li>Alt + Shift + u : Upload a file</li>
     <li>Alt + o / Alt + Shift + o : Increase/Decrease opacity of active floating window</li>
 </ul>
 
