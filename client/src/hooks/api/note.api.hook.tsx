@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { iEditorSelection } from '../../managers/codeMirror/editorUtils.cm';
 import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 import { iNoteParentType } from '../../components/NotePreview.component';
+import { generateUUID } from '../../../../shared/helpers/id.helper';
 
 
 type iCMPosition = number | "currentPos" | "currentLineStart" 
 export interface iEditorAction {
+	uuid?:string|null
+
 	windowId?: string
 	noteParentType?: iNoteParentType
 
@@ -48,6 +51,7 @@ interface iNoteUiApi {
 		editorAction: {
 			dispatch: (editorAction: iEditorAction) => void
 			get: iEditorAction|null
+			canExecuteAction: (a: iEditorAction) => boolean
 		},
 	}
 }
@@ -62,11 +66,27 @@ export const useNoteApi = (p: {
 	// STATE
 	//
 	const [editorAction, setEditorActionInt] = useState<iEditorAction|null>(null)
+	const editorActionIdRef = React.useRef<string|null>(null)
+	const generateActionId = () => {
+		editorActionIdRef.current = generateUUID()
+	}
+	const canExecuteAction = (a: iEditorAction) => {
+		if (a.uuid === editorActionIdRef.current) {
+			editorActionIdRef.current = null // reset action id
+			return true
+		}
+		return false
+	}
+
 	const setEditorAction = (a: iEditorAction) => {
 		if (a.windowId && a.windowId !== "active") a.noteParentType = "any"
 		if (!a.windowId) a.windowId = "active"
 		if (!a.noteParentType) a.noteParentType = "grid"
 		if (!a.insertPos) a.insertPos = "currentPos"
+		// uuid to only exec action once
+		generateActionId()
+		a.uuid = editorActionIdRef.current
+
 		setEditorActionInt(a)
 	}
 
@@ -89,7 +109,8 @@ export const useNoteApi = (p: {
 			},
 			editorAction: {
 				dispatch: setEditorAction,
-				get: editorAction
+				get: editorAction,
+				canExecuteAction: canExecuteAction
 			},
 		},
 	}

@@ -18,7 +18,7 @@ import { Dropdown } from '../Dropdown.component';
 import { iUploadType, UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
-import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi, iClientApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
 import { CodeMirrorEditor, iCMEvent, iCMPluginConfig, iCursorInfos } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
@@ -45,6 +45,7 @@ import { syncScroll3 } from '../../hooks/syncScroll.hook';
 import { getLineInfosFromMdStructure} from '../../managers/markdown.manager';
 import { info } from 'console';
 import { iNoteParentType } from '../NotePreview.component';
+import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -499,14 +500,18 @@ const EditorAreaInt = (
 	//
 	const [jumpToLine, setJumpToLine] = useState(-1)
 	
-	useEffect(() => {
-		let a = p.editorAction
+	const onEditorActionTrigger = (a: iEditorAction, api: iClientApi ) => {
+
 		if (!a) return
+		// in case we have the precise windowId, disable noteParentType filer
+		if (a.windowId !== "active") a.noteParentType = "any"
+		if (a.windowId !== p.windowId && a.windowId !== "active") return 
 		// only trigger if action is asked for specific noteParentType (grid/floating etc)
 		if (a.noteParentType !== "any" && a.noteParentType !== p.noteParentType) return
+		// if already exec action, do not exec
+		if (!api.note.ui.editorAction.canExecuteAction(a)) return
 
-
-		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${p.noteParentType}`)
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${a.noteParentType} ${p.windowId}`)
 		if (deviceType() !== "mobile" && a.windowId === "active" && !p.isActive) return
 		if (deviceType() !== "mobile" && a.windowId !== "active" && a.windowId !== p.windowId) return
 
@@ -657,7 +662,17 @@ const EditorAreaInt = (
 			console.log("[EDITOR ACTION] OPEN CONTEXT MENU")
 		}
 
+	}
+
+	useEffect(() => {
+		getApi(api => {
+			if (p.editorAction) onEditorActionTrigger(p.editorAction, api)
+		})
 	}, [p.editorAction, p.windowId])
+	
+
+
+
 	const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
 	//
@@ -1196,7 +1211,7 @@ export const EditorArea = (p: iEditorProps) => {
 		p.file,
 		p.fileContent,
 		p.isActive,
-		p.editorAction
+		p.editorAction,
 	])
 }
 

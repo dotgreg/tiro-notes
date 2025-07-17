@@ -7,6 +7,7 @@ import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
 import { isBoolean } from "lodash-es";
+import { textToId } from "../string.manager";
 
 export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview?:boolean) => genericReplacementPlugin({
 	file,
@@ -40,22 +41,23 @@ export const noteLinkPreviewPlugin = (file: iFile, windowId: string, linkPreview
 //
 // COMMON HTML/CSS/JS NOTE LINK GENERATOR
 //
-export const ssrNoteLinkFloatingFn = (el: HTMLElement) => {
-	// is button right or left
-	if (!el) return
-	stopDelayedNotePreview()
-	reqId++
-	const file = el.dataset.file
-	const folder = el.dataset.folder
-	const searchedString = el.dataset.searchedstring
-	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
-	const windowId = el.dataset.windowid || 'active'
-	if (!file || !folder || !windowId) return
-	let path = `${folder}/${file}`
-	getApi(api => {
-		api.ui.floatingPanel.openFile(path)
-	})
-}
+// export const ssrNoteLinkFloatingFn = (el: HTMLElement) => {
+// 	// is button right or left
+// 	if (!el) return
+// 	console.log(11111111)
+// 	stopDelayedNotePreview()
+// 	reqId++
+// 	const file = el.dataset.file
+// 	const folder = el.dataset.folder
+// 	const searchedString = el.dataset.searchedstring
+// 	// const windowId = el.dataset.windowid === '' ? 'active' : el.dataset.windowid
+// 	const windowId = el.dataset.windowid || 'active'
+// 	if (!file || !folder || !windowId) return
+// 	let path = `${folder}/${file}`
+// 	getApi(api => {
+// 		api.ui.floatingPanel.openFile(path)
+// 	})
+// }
 
 export const ssrNoteLinkFn = (el: HTMLElement) => {
 	if (!el) return
@@ -108,7 +110,7 @@ const addDelayedFloatingAction = (filePath, pos, searchedString, windowId) => {
 		if (searchedString === "") searchedString = null
 		getApi(api => {
 			api.ui.floatingPanel.openFile(filePath, {
-				idpanel: "preview-popup",
+				idpanel: "preview-popup-"+textToId(filePath),
 				searchedString: searchedString
 			})
 			setTimeout(() => {
@@ -183,10 +185,18 @@ export const generateNoteLink = (
 		label = `${noteTitle} > ${labelSearched}`
 	}
 
+// 	const subst = `<a
+// onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
+// onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewFloatingOpen)}"
+// onmouseleave="${linkPreview && ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
+// class="title-search-link preview-link" 
+// data-file="${noteTitle}" 
+// data-folder="${notePath}" 
+// data-searchedstring="${searchedString || ""}"
+// data-windowid="${windowId}">${label}</a>`;
+
 	const subst = `<a
-onclick="${ssrFn("open-link-page", ssrNoteLinkFn)}"
-onmouseenter="${linkPreview && ssrFn("hover-link-page-enter", ssrNotePreviewFloatingOpen)}"
-onmouseleave="${linkPreview && ssrFn("hover-link-page-leave", ssrNotePreviewClose)}"
+onclick="${ssrFn("open-link-page", ssrNotePreviewFloatingOpen)}"
 class="title-search-link preview-link" 
 data-file="${noteTitle}" 
 data-folder="${notePath}" 
@@ -216,7 +226,6 @@ export const noteLinkCss = (classStr?: string) => {
 				background-image: url(${cssVars.assets.searchIcon});
 		}
 		${classStr}.title-search-link {
-				transition: 1s all;
 				background-color: rgba(0,0,0,0);
 				&:hover {
 					color: white;
