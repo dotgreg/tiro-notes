@@ -956,7 +956,8 @@ const feedApp = (innerTagStr, opts) => {
 						const [sort, setSort] = React.useState("date")
 						const loopSort = () => {
 								let method = sort === "date" ? "random" : "date"
-								setItems(sortArray(items, method))
+								// setItems(sortArray(items, method))
+								setFilteredItems(sortArray(filteredItems, method))
 								setSort(method)
 						}
 
