@@ -1,6 +1,6 @@
 import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { iFile, iFileImage, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
-import { deviceType, isA, iMobileView, getBrowserName } from '../../managers/device.manager';
+import { deviceType, isA, iMobileView, getBrowserName, isMobile } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -711,12 +711,40 @@ const EditorAreaInt = (
 	// let posNoteToolPopup = cursorInfos.y 
 	// posNoteToolPopup = deviceType() === "desktop" ? posNoteToolPopup + 60: posNoteToolPopup - 30
 	
-	let notePopupX = deviceType() === "desktop" ? 40 : 10
+	let notePopupX = deviceType() === "desktop" ? 40 : 60
 	let notePopupY = deviceType() === "desktop" ? 0 : 10
 	// console.log(posNoteToolPopup, windowIdTop)
 	// posNoteToolPopup = 40
 
-	// notePopupX = posNoteToolPopup
+	// TAKE IN ACCOUNT WHEN MOBILE KEYBOARD IS OPEN
+	const [mobileKeyboardHeightJump, setmobileKeyboardHeightJump] = useState(0)
+	useEffect(() => {
+		if (!isMobile()) return
+		if('visualViewport' in window) {
+			window?.visualViewport?.addEventListener('resize', function(event) {
+				// important to wait a bit before getting the offsetTop
+				setTimeout(() => {
+					let scrollVisualViewport = window.visualViewport?.offsetTop 
+					setmobileKeyboardHeightJump(scrollVisualViewport || 0)
+				}, 200);
+			});
+		}
+		// every 1s, show size width/height of viewpoer
+		// const interval = setInterval(() => {
+		// 	console.log("viewport size", window.innerWidth, window.innerHeight)
+		// 	let hasChanged = false
+		// 	if (oldViewportRef.current.width !== window.innerWidth) {
+		// 		oldViewportRef.current.width = window.innerWidth
+		// 		hasChanged = true
+		// 	}
+		// 	if (oldViewportRef.current.height !== window.innerHeight) {
+		// 		oldViewportRef.current.height = window.innerHeight
+		// 		hasChanged = true
+		// 	}
+		// 	if (hasChanged) alert(`Viewport size changed: ${window.innerWidth}x${window.innerHeight}`)
+		// 	// console.log("windowIdTop", windowIdTop)
+		// }, 1000);
+	}, [])
 
 
 	return (
@@ -919,7 +947,7 @@ const EditorAreaInt = (
 			{
 				// BOTTOM MOBILE TOOLBAR
 				// deviceType() !== 'desktop' &&
-				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: notePopupX, left: notePopupY  }}>
+				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: notePopupX + mobileKeyboardHeightJump, left: notePopupY  }}>
 					<NoteToolsPopup
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}

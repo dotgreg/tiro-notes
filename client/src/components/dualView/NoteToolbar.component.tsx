@@ -164,7 +164,7 @@ export const mobileNoteToolbarCss = () => `
   
   
   pointer-events: none;
-  position: absolute;
+  position: fixed;
   width: 100%;
   // z-index: 100;
   display: flex;
