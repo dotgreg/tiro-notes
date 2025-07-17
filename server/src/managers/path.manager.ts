@@ -13,6 +13,7 @@ const path = require('path')
 
 // export const
 
+
 const isAbsolute = (filePath: string) => {
 	let res = false
 	if (filePath.endsWith('/') || filePath.endsWith('\\')) filePath = filePath.slice(0, -1)

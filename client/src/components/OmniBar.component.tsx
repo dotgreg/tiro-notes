@@ -4,7 +4,7 @@ import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, r
 // import * as lodash from "lodash-es"
 import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
-import { pathToIfile } from '../../../shared/helpers/filename.helper';
+import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
@@ -552,14 +552,15 @@ export const OmniBar = (p: {
 		setNotePreview(null)
 		if (!stags[1]) {
 			// LOAD HISTORY
-			const items = getOmniHistory()
-			let nOpts: any = []
-			setOptions(nOpts)
-			each(items, i => {
-				nOpts.push({ label: i.id, value:  i.id, payload: i })
-			} )
-			setHelp(`history mode`)
-			setOptions(nOpts)
+			setHelp(`loading history mode...`)
+			refreshOmniHistFromBackend(items => {
+				let nOpts: any = []
+				each(items, i => {
+					nOpts.push({ label: i.id, value:  i.id, payload: i })
+				} )
+				setHelp(`history mode`)
+				setOptions(nOpts)
+			})
 
 			if (input === ",") {
 				setInputTxt("")
@@ -600,6 +601,12 @@ export const OmniBar = (p: {
 	const omniCacheFoldersRam = useRef<{[key: string]: iOptionOmniBar[]}>(window.__Tiro_omniCacheFoldersRam || {})
 	const triggerExplorer = (folderPath: string) => {
 
+		let strPath = cleanPath(folderPath)
+		let explorerHelp = `Explorer mode for "${strPath}"` 
+		let explorerLoadingHelp = `Loading explorer mode for "${strPath}"...`
+
+		setHelp(explorerHelp)
+
 		if (folderPath === "") return
 		if (!folderPath.endsWith("/")) folderPath = folderPath + "/"
 
@@ -635,7 +642,22 @@ export const OmniBar = (p: {
 			// setOmniBarStatus("editable")
 		}
 
+		// create folder tags
+		let foldersArr = folderPath.split("/")
+		let nSelec: any[] = []
+		nSelec.push({ value: modeLabels.explorer, label: modeLabels.explorer })
+		nSelec.push({ value: "/", label: "/" })
+		each(foldersArr, f => {
+			if (f === "") return
+			nSelec.push({ value: f, label: f + "/" })
+		})
+		setSelectedOption(nSelec)
+
+
+
 		getApi(api => {
+			setHelp(explorerLoadingHelp)
+
 			let folderPathArr = [folderPath]
 			// setTimeout(() => { // @DEBUG2
 			api.folders.get(folderPathArr, folderData => {
@@ -655,16 +677,6 @@ export const OmniBar = (p: {
 					if (folderPathAnswer2 !== folderPath) return
 
 					// split folder path
-					let foldersArr = folderPath.split("/")
-
-					// create folder tags
-					let nSelec: any[] = []
-					nSelec.push({ value: modeLabels.explorer, label: modeLabels.explorer })
-					nSelec.push({ value: "/", label: "/" })
-					each(foldersArr, f => {
-						if (f === "") return
-						nSelec.push({ value: f, label: f + "/" })
-					})
 
 					// create omnibarions from folders and files
 					let nOpts: iOptionOmniBar[] = []
@@ -701,17 +713,13 @@ export const OmniBar = (p: {
 						nOpts.push({ value: last, label: htmlOption, payload })
 					})
 
-					setSelectedOption(nSelec)
+					// setSelectedOption(nSelec)
 					setOptions(nOpts)
 					setOmniBarStatus("editable")
-					// setNotePreview(nSelec)
-					// cacheFoldersOpts[folderPath] = nOpts
-					// let newOmniCacheFolders = cloneDeep(omniCacheFoldersRam)
-					// newOmniCacheFolders[folderPath] = nOpts
-					// setOmniCacheFolders(newOmniCacheFolders)
 					omniCacheFoldersRam.current[folderPath] = nOpts
 					//@ts-ignore
 					window.__Tiro_omniCacheFoldersRam = omniCacheFoldersRam.current
+					setHelp(explorerHelp)
 
 				})
 			})
