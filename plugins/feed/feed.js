@@ -291,6 +291,69 @@ const feedApp = (innerTagStr, opts) => {
 
 
 
+				////////////////////////////////////////////////////////////////////////////////////
+				// is watched MECHANISM
+				//
+				const WatchedsId = `ctag-rss-watched-${api.utils.getInfos().file.name}`
+				const stateFolder = `/.tiro/.states`
+				const pathWatchedsFile = `${stateFolder}/${WatchedsId}`
+
+				let Watcheds = { current: [] }
+				const setWatcheds = (nWatchedsArr) => {
+						let JSONObj = JSON.stringify(nWatchedsArr)
+						api.call("file.saveContent", [pathWatchedsFile, JSONObj], content => { })
+				}
+				const getWatcheds = (cb) => {
+						api.call("file.getContent", [pathWatchedsFile], rawContent => {
+								let res = []
+								if (rawContent !== "NO_FILE") { res = JSON.parse(rawContent) }
+								Watcheds.current = res
+								if (cb) cb(res)
+						})
+				}
+				const addToWatched = (item, cb) => {
+						if (isArticleWatched(item)) return console.log("do not add item, as already faved")
+						getWatcheds(favsArr => {
+								// only add item as link
+								item = {link: item.link}
+								console.log("ADD TO Watcheds", item);
+								const nWatchedArr = [...favsArr]
+								nWatchedArr.unshift(item)
+								item.isWatched = true
+								setWatcheds(nWatchedArr)
+								Watcheds.current = nWatchedArr
+								cb(nWatchedArr)
+								console.log("ADD IN Watcheds", item, Watcheds.current);
+						})
+				}
+				const removeWatched = (item, cb) => {
+						getWatcheds(favsArr => {
+								const nWatchedArr = [...favsArr]
+								const nWatchedArr2 = nWatchedArr.filter(i => i.link !== item.link)
+								setWatcheds(nWatchedArr2)
+								Watcheds.current = nWatchedArr2
+								cb(nWatchedArr2)
+								console.log("REMOVE FROM Watcheds", Watcheds.current);
+						})
+				}
+				const isArticleWatched = (item) => {
+						let res = false
+						let favFilter = Watcheds.current.filter(i => i.link === item.link)
+						if (favFilter.length > 0) res = true
+						return res
+				}
+				// init
+				// setTimeout(() =>)
+				getWatcheds()
+
+
+
+
+
+
+
+
+
 
 
 
@@ -299,7 +362,6 @@ const feedApp = (innerTagStr, opts) => {
 				// bookmarksORITES MECHANISM
 				//
 				const bookmarksId = `ctag-rss-bookmarks-${api.utils.getInfos().file.name}`
-				const stateFolder = `/.tiro/.states`
 				const pathBookmarksFile = `${stateFolder}/${bookmarksId}`
 
 				let bookmarks = { current: [] }
@@ -742,6 +804,7 @@ const feedApp = (innerTagStr, opts) => {
 								p.onBookmarkToggle()
 						}
 						let isBookmark = isArticleBookmark(p.article)
+						let isWatched = isArticleWatched(p.article)
 
 
 						let finalArticleContent = p.article.description
@@ -763,9 +826,23 @@ const feedApp = (innerTagStr, opts) => {
 																		addBookmark(p.article, doRefresh)
 																}
 														}
-												},
-													`${!isBookmark ? "★" : "★"}`),
-												c('div', { className: "article-title" }, [`${isBookmark ? "★ " : ""}${p.article.title}`]),
+													} , `${!isBookmark ? "★" : "★"}`),
+
+												c('div', {
+														className: `article-watched-toggle ${isWatched ? "fav" : "not-fav"}`,
+														onClick: () => {
+																if (isWatched) {
+																		removeWatched(p.article, doRefresh)
+																}
+																else {
+																		addToWatched(p.article, doRefresh)
+																}
+														}
+														// ok emoji here: 
+														// c('span', { className: "article-watched-toggle-icon" }, ["✔️"])
+												}, `${!isWatched ? "👁️" : "👁️"}`),
+												c('div', { className: "article-title" }, [`${isBookmark ? "★ " : ""}${isWatched ? "👁️ " : ""}${p.article.title}`]),
+
 												c('div', {
 														className: "bg-image",
 														style: {
@@ -941,7 +1018,22 @@ const feedApp = (innerTagStr, opts) => {
 
 
 						const [filteredItems, setFilteredItems] = React.useState([])
-						const [itemActive, setItemActive] = React.useState(null)
+						const [itemActive, setItemActiveInt] = React.useState(null)
+						const itemActiveRef = React.useRef(null)
+
+
+						const setItemActive = (nval) => {
+							itemActiveRef.current = nval
+							let cVal = nval
+							// if in 60s, itemActiveRef is the same, do it as watched
+							setTimeout(() => {
+								if (itemActiveRef.current === cVal) {
+									console.log("1m spent, put it as watched", cVal.item)
+									addToWatched(cVal, doRefresh)
+								}
+							}, 5 * 1000)
+							setItemActiveInt(nval)
+						}
 						const [feeds, setFeeds] = React.useState([])
 						const [activeFeed, setActiveFeedInt] = React.useState(null)
 						const activeFeedRef = React.useRef(null)
@@ -1352,7 +1444,7 @@ const feedApp = (innerTagStr, opts) => {
 																			c('div', {
 																					className: "",
 																			}, [
-																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${timestampToDate(item.timestamp)}] ${item.title} `,
+																					`[${isArticleBookmark(item) ? "⭑" : ""} ${isArticleWatched(item) ? "👁️" : ""} ${item.sourceFeed} ${timestampToDate(item.timestamp)}] ${item.title} `,
 																			]),
 																		listView !== "list" &&
 																			c('div', {
@@ -1368,7 +1460,7 @@ const feedApp = (innerTagStr, opts) => {
 																				}),
 																				c('div', { className: "title-wrapper" }, [
 																						c('div', { className: "title" }, [item.title]),
-																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${timestampToDate(item.timestamp)}`]),
+																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${isArticleWatched(item) ? "👁️" : ""}  ${item.sourceFeed} - ${timestampToDate(item.timestamp)}`]),
 																				])
 																			]),
 																	]
@@ -1609,9 +1701,13 @@ const feedApp = (innerTagStr, opts) => {
 				background-repeat: no-repeat;
 		}
 }
+.article-watched-toggle.fav {
+		color: #e9cd3f;
+}
 .article-bookmark-toggle.fav {
 		color: #e9cd3f;
 }
+.article-watched-toggle,
 .article-bookmark-toggle {
 		color: grey;
 		position: fixed;
@@ -1624,6 +1720,9 @@ const feedApp = (innerTagStr, opts) => {
 		padding: 2px 9px;
 		border-radius: 30px;
 		font-size: 10px;
+}
+.article-watched-toggle {
+		right: 120px;
 }
 
 .article-close {

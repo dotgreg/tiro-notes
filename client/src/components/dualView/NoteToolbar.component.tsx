@@ -3,7 +3,7 @@ import { TextModifAction, calcSelected, seemsArithmetic, wordsCount } from '../.
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { iCursorInfos } from './CodeMirrorEditor.component';
-import { deviceType } from '../../managers/device.manager';
+import { deviceType, isMobile } from '../../managers/device.manager';
 import { userSettingsSync } from '../../hooks/useUserSettings.hook';
 import { getFontSize } from '../../managers/font.manager';
 import { genAiButtonsConfig } from '../../managers/ai.manager';
@@ -164,7 +164,7 @@ export const mobileNoteToolbarCss = () => `
   
   
   pointer-events: none;
-  position: fixed;
+  position: ${isMobile() ? 'fixed' : 'absolute'};
   width: 100%;
   // z-index: 100;
   display: flex;

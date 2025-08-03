@@ -955,16 +955,20 @@ const EditorAreaInt = (
 							if (action === "aiSearch" ) {
 								if (! options.aiConfig) return
 								const aiBtnConfig:iAiBtnConfig = options.aiConfig
-								AiAnswer({
-									aiBtnConfig,
-									typeAnswer: aiBtnConfig.typeAnswer, 
-									aiCommand: aiBtnConfig.command,
-									selectionTxt,
-									// rest not required if newWindow type
-									file: p.file,
-									windowIdFile: p.windowId,
-									innerFileContent,
-									cursorInfos
+								getApi(api => {
+									let uuid = api.ai.setStatus("new")
+									AiAnswer({
+										uuid,
+										aiBtnConfig,
+										typeAnswer: aiBtnConfig.typeAnswer, 
+										aiCommand: aiBtnConfig.command,
+										selectionTxt,
+										// rest not required if newWindow type
+										file: p.file,
+										windowIdFile: p.windowId,
+										innerFileContent,
+										cursorInfos
+									})
 								})
 							} else if (action === "calc") {
 								triggerCalc({

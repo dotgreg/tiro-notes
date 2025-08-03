@@ -147,6 +147,16 @@
  ## Api.call : ai
  
 
+#### <span class="render-code-wrapper">ai.getStatus</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. uuid: <span class="render-code-wrapper">string</span>
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.getStatus",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ai.search</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -154,6 +164,17 @@
        1. modelName: <span class="render-code-wrapper">string</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ai.setStatus</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. status: <span class="render-code-wrapper">"new" | "stop"</span>
+       1. uuid: <span class="render-code-wrapper">string</span>
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.setStatus",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">"new" | "stop"</span>, <span class="render-code-wrapper">string</span> ], <br/>(res:) => {}<br/>)</div>
  
 
 

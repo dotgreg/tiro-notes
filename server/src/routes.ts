@@ -480,7 +480,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// 
 	serverSocket2.on('askCommandExec', async data => {
 		let endPerf = perf('⚡  askCommandExec ' + data.commandString)
-		logActivity("exec", data.commandString, serverSocket2)
+		let strCommandString = data.commandString.length > 150 ? data.commandString.substring(0, 150) + "..." : data.commandString
+		logActivity("exec", strCommandString, serverSocket2)
 		// let res = await execString(data.commandString)
 		let res = await execString(data.commandString)
 		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
@@ -489,7 +490,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askCommandExecStream', async data => {
 		let endPerf = perf('⚡  askCommandExecStrea, ' + data.commandString)
-		logActivity("exec", data.commandString, serverSocket2)
+		let strCommandString = data.commandString.length > 150 ? data.commandString.substring(0, 150) + "..." : data.commandString
+		logActivity("exec", strCommandString, serverSocket2)
 		execStringStream(data.commandString, (streamChunk) => {
 			serverSocket2.emit('getCommandExecStream', { streamChunk: streamChunk, idReq: data.idReq })
 		})

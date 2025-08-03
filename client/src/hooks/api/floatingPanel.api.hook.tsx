@@ -288,9 +288,9 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
             // if panelsParams is file, get its view && panelParams.view is not defined
             if (panelParams.file && !panelParams.view) {
-                console.log(`${h} getNoteView`, panelParams.file.path, panelParams)
+                // console.log(`${h} getNoteView`, panelParams.file.path, panelParams)
                 getNoteView(panelParams.file.path).then(view => {
-                    console.log(`${h} getNoteView`, view)
+                    // console.log(`${h} getNoteView`, view)
                     if (view) panel.view = view
                     openFloating(panel)
                 })
@@ -307,7 +307,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const deletePanel = (panelId: string) => {
-        console.log(`${h} deletePanel`, panelId)
+        // console.log(`${h} deletePanel`, panelId)
         let nPanels = panelsRef.current.filter(p => p.id !== panelId)
         nPanels = updateTopWindow(nPanels)
         setPanels(nPanels)
@@ -404,7 +404,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const reorganizeAll = () => {
-        console.log(`${h} reorganizeAll`)
+        // console.log(`${h} reorganizeAll`)
         let newPanels = cloneDeep(panelsRef.current)
 
         let j = 0
@@ -454,7 +454,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             let widthPerCol = (windowWidthPanel() - paddingLeft -padding) / cols
             let heightPerRow = windowHeightPanel() / rows
 
-            console.log(`${h} toggleWindowsLayout grid`, cols, rows, widthPerCol, heightPerRow)
+            // console.log(`${h} toggleWindowsLayout grid`, cols, rows, widthPerCol, heightPerRow)
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
                     //positionsForEachPanel.push({ x: j * widthPerCol, y: i * heightPerRow })
@@ -472,12 +472,12 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             updateAll(newPanels)
         } else if (layoutWindows.current === "horizontal") {
             let widthPerCol = windowWidthPanel() / visiblePanels.length
-            console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol, widthPerCol, visiblePanels.length)
+            // console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol, widthPerCol, visiblePanels.length)
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
                 if (panel.device === "mobile") return
-                console.log(`${h} 222toggleWindowsLayout horizontal`, count, widthPerCol, count * widthPerCol, panel.id, panel)
+                // console.log(`${h} 222toggleWindowsLayout horizontal`, count, widthPerCol, count * widthPerCol, panel.id, panel)
                 panel.position = { x: count * widthPerCol, y: 0 }
                 panel.size = { width: widthPerCol, height: windowHeightPanel() }
                 count++
@@ -485,7 +485,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             updateAll(newPanels)
         } else if (layoutWindows.current === "vertical") {
             let heightPerRow = windowHeightPanel() / visiblePanels.length
-            console.log(`${h} toggleWindowsLayout vertical`, heightPerRow)
+            // console.log(`${h} toggleWindowsLayout vertical`, heightPerRow)
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
@@ -535,7 +535,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const minimizeActive = () => {
         // let newPanels = cloneDeep(panelsRef.current)
         let topWindow = getTopVisibleWindow()
-        console.log("topWindow", topWindow?.file.name)
+        // console.log("topWindow", topWindow?.file.name)
         if (!topWindow) return
         minimizePanel(topWindow.id)
     }
@@ -587,7 +587,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             // forcing note view
             if (opts?.noteView) panel.view = opts.noteView
             if (opts?.view) panel.view = opts.view
-            console.log(`${h} minimized`, panel.file.name, panel)
+            // console.log(`${h} minimized`, panel.file.name, panel)
             // if panel is minimized, set it to visible
             if (panel.status === "minimized") panel.status = "visible"
             if (panel.status === "hidden") panel.status = "visible"
@@ -659,7 +659,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             topWindow.view = toggleViewType(topWindow.view as iViewType)
             const cFile = topWindow.file
             setNoteView(cFile?.path, topWindow.view)
-            console.log(`${h} updateTopWindowView`, topWindow.view)
+            // console.log(`${h} updateTopWindowView`, topWindow.view)
         }
         updatePanel(topWindow)
     }
