@@ -11,6 +11,10 @@ export const triggerTiroHelpPopup = () => {
     <ul>
     <li>Alt + , : Hide/Show Settings</li>
     </ul>
+<h4>Other</h4>
+    <ul>
+    <li>Alt + s : stop AI generation</li>
+    </ul>
 <h4>OmniBar</h4>
     <ul>
     <li>Alt + p : Open Omnibar (or Ctrl + Alt + space)</li>

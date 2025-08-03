@@ -72,6 +72,7 @@ export const genAiButtonsConfig = ():iAiBtnConfig[] => {
 }
 
 export const AiAnswer = (p:{
+    uuid:string,
     typeAnswer:iAiTypeAnswer, 
     aiCommand:string,  
     aiBtnConfig:iAiBtnConfig,
@@ -86,6 +87,7 @@ export const AiAnswer = (p:{
     if (typeAnswer === "currentWindow") {
         if (!file || !windowIdFile || !innerFileContent || !cursorInfos) return
         triggerAiSearch({
+            uuid: p.uuid,
             command: aiCommand,
             aiBtnConfig: p.aiBtnConfig,
             windowId: windowIdFile,
@@ -113,10 +115,12 @@ export const AiAnswer = (p:{
                     file: nFile,
                     view: "editor",
                     id: floatingPanelId,
-                    layout: deviceType() === "mobile" ? "bottom" : "bottom-right",
+                    // layout: deviceType() === "mobile" ? "bottom" : "bottom-right",
+                    layout: deviceType() === "mobile" ? "right" : "right",
                     
                 })
                 triggerAiSearch({
+                    uuid: p.uuid,
                     command: aiCommand,
                     windowId: floatingPanelId,
                     aiBtnConfig: p.aiBtnConfig,
@@ -135,6 +139,7 @@ export const AiAnswer = (p:{
 }
 
 export const triggerAiSearch = (p:{
+    uuid:string,
     windowId: string,
     file: iFile,
     fileContent: string,
@@ -192,7 +197,12 @@ export const triggerAiSearch = (p:{
         let cmd = p.command
         cmd = cmd.replace("{{input}}", selectionTxt)
         generateTextAt(genParams())
+        let canGenerate = true
+        let canGenerateHist = true
         api.command.stream(cmd, streamChunk => {
+
+            // check ai status
+            canGenerate = api.ai.getStatus(p.uuid)
 
             if (streamChunk.isError) isError = true
             // if it is an error, display it in a popup
@@ -210,9 +220,18 @@ export const triggerAiSearch = (p:{
             } else {
                 // else insert it
                 // if is last, add at the end of textTot the date
+                if (!canGenerate) return
                 if (streamChunk.isLast) streamChunk.textTot += `\n\n ⏱️ generated in ${(Date.now() - startDateInTs)/1000}s by ${p.aiBtnConfig.title}`
                 generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast, viewFollow:lineJumpWhileGeneratingAiText[p.windowId]})
             }
+
+            // if cannot generate (is stopped by user or else)
+            if (canGenerate !== canGenerateHist) {
+                canGenerateHist = canGenerate
+                streamChunk.textTot += `\n GENERATION STOPPED \n\n ⏱️ generated in ${(Date.now() - startDateInTs)/1000}s by ${p.aiBtnConfig.title}`
+                generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast, viewFollow:lineJumpWhileGeneratingAiText[p.windowId]})
+            }
+
         })
     })
 }

@@ -2,9 +2,10 @@
 import React, { useEffect, useRef } from 'react';
 import { getTsFromString, iADate, tsToIADate } from '../../managers/date.manager';
 import { getApi } from './api.hook';
-import { isNumber } from 'lodash-es'
+import { each, isNumber } from 'lodash-es'
 import { AiAnswer, genAiButtonsConfig } from '../../managers/ai.manager';
 import { notifLog } from '../../managers/devCli.manager';
+import { generateUUID } from '../../../../shared/helpers/id.helper';
 
 //
 // INTERFACES
@@ -14,7 +15,9 @@ export interface iAiApi {
     search: (
         searchText: string,
         modelName?: string
-    ) => void
+    ) => void,
+    setStatus: (status:"new"|"stop", uuid?:string) => string,
+    getStatus: (uuid:string) => boolean
 }
 
 
@@ -37,8 +40,11 @@ export const search: iAiApi['search'] = (searchText, modelName) => {
     if (!modelConfig) notifLog(`Model "${modelName}" not found in config`)
     else {
         // force to newWindow
+
+        let uuid = setStatus("new")
         modelConfig.typeAnswer = "newWindow"
         AiAnswer({
+            uuid: uuid,
             typeAnswer: modelConfig.typeAnswer,
             aiCommand: modelConfig.command,
             aiBtnConfig: modelConfig,
@@ -47,10 +53,40 @@ export const search: iAiApi['search'] = (searchText, modelName) => {
     }
 }
 
+export const aiStatusManagerDic:{[key:string]:boolean} = {}
+export const getStatus:iAiApi["getStatus"] = (uuid) => {
+    return aiStatusManagerDic[uuid] || false
+}
+export const setStatus:iAiApi["setStatus"] = (status, uuid) => {
+    if (status === "new") {
+        // generate a new UUID
+        uuid = generateUUID()
+        aiStatusManagerDic[uuid] =  true
+    }
+    if (status === "stop" ) {
+        if (uuid) aiStatusManagerDic[uuid] =  false
+        else {
+            each(aiStatusManagerDic, (value, key) => {
+                aiStatusManagerDic[key] = false
+            })
+        }
+        getApi(api => {
+            api.ui.notification.emit({
+                content: `[AI] AI generation stop requested`,
+                options: {hideAfter: 3 },
+                id: "ai-stop"
+            })
+        })
+    }
+    console.log("setStatus", {status, uuid, aiStatusManagerDic})
+    if (!uuid) uuid = ""
+    return uuid
+}
+
 //
 // API EXPORT 
 //
 export const useAiApi = (p: {}) => {
-	const api: iAiApi = {search}
+	const api: iAiApi = {search, setStatus, getStatus}
 	return api
 }

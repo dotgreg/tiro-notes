@@ -434,6 +434,7 @@ export const App = () => {
 		addKeyShortcut('alt + shift + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" }) });
 		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
 		addKeyShortcut('alt + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
+		addKeyShortcut('alt + s', () => { api.ai.setStatus("stop") });
 		
 		// k.bind('esc', closeOmni);
 		addKeyShortcut('esc', () => {
