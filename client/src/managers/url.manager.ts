@@ -88,7 +88,6 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			
 			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
 			const nTitle = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
-			console.log("fullurl", fullurl, nTitle)
 			// document.title = "Tiro" // forcing the change of title to force the icon change
 			document.title = nTitle
 			webIconUpdate(fullurl)

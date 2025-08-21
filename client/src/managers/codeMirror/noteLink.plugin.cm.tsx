@@ -2,7 +2,7 @@ import { debounce } from "lodash-es";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { getApi, getClientApi2 } from "../../hooks/api/api.hook";
-import { deviceType } from "../device.manager";
+import { deviceType, isMobile } from "../device.manager";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
@@ -121,6 +121,7 @@ const addDelayedFloatingAction = (filePath, pos, searchedString, windowId) => {
 }
 
 
+// opens the old popup
 const ssrNotePreviewOpen = (el: HTMLElement) => {
 	if (!el) return
 	if (deviceType() !== "desktop") return
@@ -194,9 +195,12 @@ export const generateNoteLink = (
 // data-folder="${notePath}" 
 // data-searchedstring="${searchedString || ""}"
 // data-windowid="${windowId}">${label}</a>`;
+let actionOnClick = `"${ssrFn("open-link-page", isMobile() ? ssrNoteLinkFn : ssrNotePreviewFloatingOpen)}"`
+// if (isMobile()) actionOnClick = `"${ssrFn("open-link-page2", ssrNotePreviewOpen)}"`
+
 
 	const subst = `<a
-onclick="${ssrFn("open-link-page", ssrNotePreviewFloatingOpen)}"
+onclick=${actionOnClick}
 class="title-search-link preview-link" 
 data-file="${noteTitle}" 
 data-folder="${notePath}" 

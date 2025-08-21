@@ -16,7 +16,7 @@ import { iLayoutUpdateFn } from './dualView/EditorArea.component';
 import { Icon, Icon2 } from './Icon.component';
 import { ButtonsToolbar } from './ButtonsToolbar.component';
 import { generateUUID } from '../../../shared/helpers/id.helper';
-import { deviceType } from '../managers/device.manager';
+import { deviceType, isMobile } from '../managers/device.manager';
 import { DraggableGrid } from './windowGrid/DraggableGrid.component';
 import { addKeyShortcut, releaseKeyShortcut } from '../managers/keyboard.manager';
 import { get } from 'http';
@@ -150,6 +150,8 @@ export const FloatingPanel = (p:{
         return npos
     }
     const handleStart = (e: any, data: any) => {
+        // do not apply if mobile
+        if(isMobile()) return
         updatePanel({...p.panel, position: getNPos(e, data, true)})
         // setPosition({x: data.x, y: data.y})
         // pushToTop()
@@ -157,6 +159,8 @@ export const FloatingPanel = (p:{
         
     }
     const handleDrag = (e: any, data: any) => {
+        // do not apply if mobile
+        if(isMobile()) return
         // setPosition({x: data.x, y: data.y})
         // let npos = {x: e.clientX, y: e.clientY}
         // if(!useMousePos) npos = {x: data.x, y: data.y}
@@ -166,6 +170,8 @@ export const FloatingPanel = (p:{
         updatePanel({...p.panel, position: getNPos(e, data)})
     }
     const handleStop = (e: any, data: any) => {
+        // do not apply if mobile
+        if(isMobile()) return
         // setPosition({x: data.x, y: data.y})
         onDragEnd()
         // const npos = {x: e.clientX, y: e.clientY}

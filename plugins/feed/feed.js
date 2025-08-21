@@ -56,6 +56,7 @@ const feedApp = (innerTagStr, opts) => {
 		if (!opts.feedType) opts.feedType = "xml"
 		if (!opts.contentCacheHours && opts.contentCacheHours != 0) opts.contentCacheHours = 1 // cache content for an hour
 		if (!opts.feedLoadDelay) opts.feedLoadDelay = 0 // cache content for an hour
+		if (!opts.secondsOpenedMarkedWatched) opts.secondsOpenedMarkedWatched = 20 // how many seconds opepend to be marked watched
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
@@ -1031,7 +1032,7 @@ const feedApp = (innerTagStr, opts) => {
 									console.log("1m spent, put it as watched", cVal.item)
 									addToWatched(cVal, doRefresh)
 								}
-							}, 5 * 1000)
+							}, opts.secondsOpenedMarkedWatched * 1000)
 							setItemActiveInt(nval)
 						}
 						const [feeds, setFeeds] = React.useState([])
