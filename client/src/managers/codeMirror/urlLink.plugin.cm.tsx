@@ -158,14 +158,20 @@ title="Display url content" class="link-fetcharticle link-action"  data-link="${
 onclick="${ssrFn("audio-link", audioFn)}"
 title="Text to speech url content" class="link-audio link-action"  data-link="${fullLink}">${i("volume-high")}</span>`
 	let detach = `<span
-		onclick="${ssrFn("detach-link", detachWinFn)}"
-		title="Detach link in floating panel" class="link-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
+		 title="Detach link in floating panel" class="
+		ink-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
+	let goto = `<a
+		href="${fullLink}" target="_blank" rel="noreferrer"
+		title="Go to link" class="link-goto link-action">${i("link")}</a>`
 
 
 	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${detach} ${openWindow} </span></span>`
+	let btnsMobile = `<span class="link-action-wrapper">${fetch} ${audio} ${goto} ${detach} ${openWindow} </span>`
 
 	let iframeWrapper = `<span class="cm-hover-popup cm-hover-popup"></span>`
+	// let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
 	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
+	if (isMobile()) html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><span  class="link-action-more link-mdpreview" title="${fullLink}" rel="noreferrer">${i("link")}${previewStr}${btnsMobile}${iframeWrapper}</span>${linejump}`
 	resEl.innerHTML = `${html}`;
 
 	return resEl.outerHTML
@@ -220,11 +226,20 @@ ${floatingWindow ? ``:`.link-detach {display:none;}`}
 
 // mobile version
 .mobile-version .link-action-wrapper {
-		right: 10px ;
+		box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+	top: 50%;
+  left: 50%;
+  position: fixed;
+  transform: translate(-50%,-50%);
+  padding: 30px 50px;
+  background: white;
+  width: 170px;
+  z-index:2;
+
 }
 .mobile-version .link-action {
-		transform: scale(1.3);
-		padding: 7px; 
+		transform: scale(1.6);
+		padding: 20px; 
 }
 .link-action-wrapper .link-action {
 		padding-left:4px;
