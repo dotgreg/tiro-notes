@@ -158,8 +158,7 @@ title="Display url content" class="link-fetcharticle link-action"  data-link="${
 onclick="${ssrFn("audio-link", audioFn)}"
 title="Text to speech url content" class="link-audio link-action"  data-link="${fullLink}">${i("volume-high")}</span>`
 	let detach = `<span
-		 title="Detach link in floating panel" class="
-		ink-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
+		 title="Detach link in floating panel" class="link-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
 	let goto = `<a
 		href="${fullLink}" target="_blank" rel="noreferrer"
 		title="Go to link" class="link-goto link-action">${i("link")}</a>`
