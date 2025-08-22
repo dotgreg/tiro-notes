@@ -647,11 +647,16 @@ const epubV2App = (innerTagStr, opts) => {
 				el.innerHTML = `Searching for "${searchee}"...`
 
 				tiroReaderApi.search(searchee, cfis => { 
-					window.search_vars.index = 0
-					window.search_vars.results = cfis
-					tiroReaderApi.goToCFI(cfis[0].cfi) 
-					window.search_vars.timeSearch = Math.round((new Date().getTime() - startTime)/ 1000)
-					window.search_update_indexStr()
+					if (cfis.length === 0) {
+						el.innerHTML = `No results found for "${searchee}"`
+
+					} else  {
+						window.search_vars.index = 0
+						window.search_vars.results = cfis
+						tiroReaderApi.goToCFI(cfis[0].cfi) 
+						window.search_vars.timeSearch = Math.round((new Date().getTime() - startTime)/ 1000)
+						window.search_update_indexStr()
+					}
 				})
 			}
 			window.search_goto = (diff) => {

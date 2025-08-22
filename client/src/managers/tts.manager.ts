@@ -42,6 +42,17 @@ export const getAvailableVoices = () => {
 	});
 	return newvoices
 }
+
+const normalizeText = (text: string): string => {
+	// ambiguous characters like ' or ’ > ' 
+	text = text.replace(/’/g, "'")
+	text = text.replace(/“/g, '"')
+	// remove all special characters except a-zA-Z0-9-_?!.,:;
+	text = text.replace(/[^a-zA-Z0-9]/g, '')
+	text = text.trim()
+	return text
+}
+
 export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLength:number): number => {
 		let extractChunks = chunkTextInSentences(extract, chunkLength)
 		let toSearch: string | null = null
@@ -55,7 +66,8 @@ export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLe
 
 		let res = -1
 		each(chunkedText, (chunk, i) => {
-			if (chunk.indexOf(toSearch as string) !== -1) {
+			// simplified chunkText
+			if (normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
 				res = i
 				return false
 			}
