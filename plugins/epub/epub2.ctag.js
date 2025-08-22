@@ -376,6 +376,7 @@ const epubV2App = (innerTagStr, opts) => {
 			</div>
 			<div id="tiro-bar-wrapper" ></div>
 			<div id="tiro-invisible-bars-wrapper" > </div>
+			<div id="tiro-invisible-header-bar" > </div>
 			<div id="tiro-invisible-square-back" > </div>
 			<div id="tiro-indexing-overlay" style="display:none;"> initial text indexing, please wait... </div>
 			
@@ -438,6 +439,14 @@ const epubV2App = (innerTagStr, opts) => {
 			.helpButton {
 				color: white;
 			}
+			#tiro-invisible-header-bar {
+				position: absolute;
+				top: 0px;
+				left: 50px;
+				width: calc(100% - 50px);
+				height: 50px;
+				z-index:2;
+			}
 			#tiro-invisible-square-back {
   width: calc(100% - 140px);
   height: calc(100% - 220px);
@@ -448,6 +457,9 @@ const epubV2App = (innerTagStr, opts) => {
   left: 70px;
 			}
 			
+			#tiro-bar-wrapper button {
+				margin: 5px 0px;
+			}
 			#tiro-bar-wrapper {
 				padding: 20px;
 				color: white;
@@ -506,7 +518,7 @@ const epubV2App = (innerTagStr, opts) => {
 
 
 
-			let buttonToggleOrderHtml = `<button id="toggle-order" onclick="tiro_toggleOrder()">Toggle invisible bar direction</button>`
+			let buttonToggleOrderHtml = `<button id="toggle-order" onclick="tiro_toggleOrder()"> < > Direction Buttons</button>`
 			window.tiro_toggleOrder = () => {
 				orderBars = orderBars === "normal" ? "inverted" : "normal"
 
@@ -546,7 +558,7 @@ const epubV2App = (innerTagStr, opts) => {
 					})
 			}, 5000)
 
-			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> Voice ♫ </button>`
+			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> ♫ Voice </button>`
 			window.tiro_tts = () => {
 				tiroReaderApi.getAllText(fullText => {
 					let pagetext = tiroReaderApi.getCurrentPageText()
@@ -557,7 +569,7 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 
-			let fullscreenBtn = `<button id="fullscreen-button" onclick="tiro_fullscreen()"> Fullscreen </button>`
+			let fullscreenBtn = `<button id="fullscreen-button" onclick="tiro_fullscreen()"> ⛶ Fullscreen </button>`
 			window.tiro_fullscreen = () => {
 				let file = api.utils.fullscreenIframe()
 			}
@@ -576,7 +588,7 @@ const epubV2App = (innerTagStr, opts) => {
 			let searchUI = `
 			<div id="search-ui" >
 				<h4> Search </h4>
-				<input type="text" id="search-input" placeholder="Search in book..."  /> <br><br>
+				<input type="text" id="search-input" placeholder="Search in book..."  /> <br>
 				<button id="search-button" onclick="search_do_search()"> 🔎 </button>
 				<button id="search-prev" onclick="search_prev()"> < </button>
 				<button id="search-next" onclick="search_next()"> > </button>
@@ -688,7 +700,7 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 			// toggleOpacityEls(0.1)
 			let cogEl = window.document.getElementById("menu-button")
-			let headerBar = window.document.getElementById("header-bar")
+			let headerBar = window.document.getElementById("tiro-invisible-header-bar")
 			headerBar.addEventListener("click", () => {
 				// toggleCustomBar()
 				toggleOpacityEls()
