@@ -858,7 +858,6 @@ const epubV2App = (innerTagStr, opts) => {
 				if (!searchCache[txt]) {
 					console.log(`EPUB SEARCH for word ${txt} NOT CACHED, seaching...` )
 					for await (const res of readerApi.view.search({query:txt})) {
-						console.log(res.subitems)
 						if (res.label) {
 							arrRes = [...arrRes, ...res.subitems]
 						} 
