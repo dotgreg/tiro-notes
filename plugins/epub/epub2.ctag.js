@@ -469,6 +469,12 @@ const epubV2App = (innerTagStr, opts) => {
 				width: calc(100% - 100px);
 				z-index: 1000;
 			}
+			#bar-next-txt, #bar-prev-txt {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+
+			}
 			#bar-next, #bar-prev {
 				position: absolute;
 				top: 0;
@@ -512,8 +518,8 @@ const epubV2App = (innerTagStr, opts) => {
 
 			let invWrapper = window.document.getElementById("tiro-invisible-bars-wrapper")
 			invWrapper.innerHTML = `
-				<div id="bar-next" class="invisible-bar" onclick="tiro_goNext()">></div>
-				<div id="bar-prev" class="invisible-bar" onclick="tiro_goPrev()"><</div>
+			<div id="bar-next" class="invisible-bar" onclick="tiro_goNext()"><button id="bar-next-txt">></button></div>
+			<div id="bar-prev" class="invisible-bar" onclick="tiro_goPrev()"><button id="bar-prev-txt"><</button></div>
 			`
 
 
@@ -522,9 +528,9 @@ const epubV2App = (innerTagStr, opts) => {
 			window.tiro_toggleOrder = () => {
 				orderBars = orderBars === "normal" ? "inverted" : "normal"
 
-				nextEl = window.document.getElementById("bar-next")
+				nextEl = window.document.getElementById("bar-next-txt")
 				nextEl.innerHTML = orderBars === "normal" ? ">" : "<"
-				prevEl = window.document.getElementById("bar-prev")
+				prevEl = window.document.getElementById("bar-prev-txt")
 				prevEl.innerHTML = orderBars === "normal" ? "<" : ">"
 				
 				console.log(h, "orderBars", orderBars)
