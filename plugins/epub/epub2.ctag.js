@@ -576,7 +576,7 @@ const epubV2App = (innerTagStr, opts) => {
 			let searchUI = `
 			<div id="search-ui" >
 				<h4> Search </h4>
-				<input type="text" id="search-input" placeholder="Search in book..."  />
+				<input type="text" id="search-input" placeholder="Search in book..."  /> <br><br>
 				<button id="search-button" onclick="search_do_search()"> 🔎 </button>
 				<button id="search-prev" onclick="search_prev()"> < </button>
 				<button id="search-next" onclick="search_next()"> > </button>
