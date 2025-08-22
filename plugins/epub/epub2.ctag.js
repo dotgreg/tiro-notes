@@ -517,16 +517,57 @@ const epubV2App = (innerTagStr, opts) => {
 				
 				console.log(h, "orderBars", orderBars)
 			}
+
+
+
+
+
+
+			//
+			//
+			//
+			// TTS LOGIC 
+			//
+			//
+			//
+			window.isTts = false
+
+			// Check every 5s IF tts is working
+			// if it is, check tts position, search the read text
+			// if search returns an occurence, jump to that occurence page
+			setInterval(() => {
+					if (!window.isTts) return
+					// api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
+					api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
+							if (!ttsInfos.isPlaying) return
+							let textRead = ttsInfos.currentText
+							console.log(h,`searching the text and jumping to it`, textRead, {ttsInfos});
+							tiroReaderApi.search(textRead, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+					})
+			}, 5000)
+
 			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()">TTS</button>`
 			window.tiro_tts = () => {
-				let text = tiroReaderApi.getCurrentPageText()
-				if (!text) {
-					notifLog("No text found on current page", "tts-error", 10)
-					return
-				}
-				console.log(h, "TTS text", text)
-				alert("TTS text: " + text)
+				tiroReaderApi.getAllText(fullText => {
+					let pagetext = tiroReaderApi.getCurrentPageText()
+					window.isTts = true
+					let file = api.utils.getInfos().file;
+					console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)
+					api.call("ui.textToSpeechPopup.open", [ fullText, {id: file.name, startString: pagetext}], () => {})
+				})
 			}
+
+
+
+
+
+			//
+			//
+			//
+			// SEARCH LOGIC UI
+			//
+			//
+			//
 			// input text + button search + prev + next  buttons
 			let searchUI = `
 			<div id="search-ui" >
