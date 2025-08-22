@@ -448,7 +448,7 @@ const epubV2App = (innerTagStr, opts) => {
 				left: 50px;
 				width: calc(100% - 50px);
 				height: 50px;
-				z-index:2;
+				z-index:4;
 			}
 			#tiro-invisible-square-back {
   width: calc(100% - 140px);
@@ -467,14 +467,20 @@ const epubV2App = (innerTagStr, opts) => {
 			#tiro-bar-wrapper button {
 				margin: 5px 0px;
 			}
+			#native-reader-bar-wrapper #side-bar{
+				z-index: 6;
+			}
+			#native-reader-bar-wrapper #dimming-overlay {
+				z-index: 5;
+			}
 			#tiro-bar-wrapper {
 				padding: 20px;
 				color: white;
 				position: absolute;
 				top: 40px;
 				left: 70px;
-				width: calc(100% - 100px);
-				z-index: 1000;
+				width: calc(100% - 230px);
+				z-index: 3;
 			}
 			#bar-next-txt, #bar-prev-txt {
 				position: absolute;
