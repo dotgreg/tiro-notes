@@ -546,7 +546,7 @@ const epubV2App = (innerTagStr, opts) => {
 					})
 			}, 5000)
 
-			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()">TTS</button>`
+			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> Voice ♫ </button>`
 			window.tiro_tts = () => {
 				tiroReaderApi.getAllText(fullText => {
 					let pagetext = tiroReaderApi.getCurrentPageText()
@@ -557,6 +557,10 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 
+			let fullscreenBtn = `<button id="fullscreen-button" onclick="tiro_fullscreen()"> Fullscreen </button>`
+			window.tiro_fullscreen = () => {
+				let file = api.utils.fullscreenIframe()
+			}
 
 
 
@@ -571,10 +575,11 @@ const epubV2App = (innerTagStr, opts) => {
 			// input text + button search + prev + next  buttons
 			let searchUI = `
 			<div id="search-ui" >
+				<h4> Search </h4>
 				<input type="text" id="search-input" placeholder="Search in book..."  />
-				<button id="search-button" onclick="search_do_search()">Search</button>
-				<button id="search-prev" onclick="search_prev()">Prev</button>
-				<button id="search-next" onclick="search_next()">Next</button>
+				<button id="search-button" onclick="search_do_search()"> 🔎 </button>
+				<button id="search-prev" onclick="search_prev()"> < </button>
+				<button id="search-next" onclick="search_next()"> > </button>
 				<span id="search-index-str" class="search-index-str"></span>
 			</div>
 			`
@@ -631,9 +636,11 @@ const epubV2App = (innerTagStr, opts) => {
 			<h3> EPUB V2 Reader</h3>
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
-			${buttonToggleOrderHtml}
-			${buttonTTs}
 			${searchUI}
+			<h4> Other </h4>
+			${buttonTTs} <br>
+			${buttonToggleOrderHtml}<br>
+			${fullscreenBtn}<br>
 			`
 			//
 			// SHow hide bar
