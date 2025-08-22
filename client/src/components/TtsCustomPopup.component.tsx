@@ -385,7 +385,7 @@ export const TtsCustomPopup = (p: {
 				}}
 			>
 				<span> SPEED : </span>
-				<input className="speed-range" type="range" value={currRate} min="0.5" max="4" step="0.1"
+				<input className="speed-range" type="range" value={currRate} min="0.5" max="3" step="0.1"
 					onChange={e => {
 						const nVal = e.target.value as any
 						setCurrRate(nVal)
