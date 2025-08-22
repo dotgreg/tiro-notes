@@ -376,6 +376,7 @@ const epubV2App = (innerTagStr, opts) => {
 			</div>
 			<div id="tiro-bar-wrapper" ></div>
 			<div id="tiro-invisible-bars-wrapper" > </div>
+			<div id="tiro-invisible-square-back" > </div>
 			<div id="tiro-indexing-overlay" style="display:none;"> initial text indexing, please wait... </div>
 			
 			`
@@ -431,10 +432,29 @@ const epubV2App = (innerTagStr, opts) => {
 
 			let styleBar = `
 			<style>
+			#search-ui {
+				padding: 5px 0px; 
+			}
+			.helpButton {
+				color: white;
+			}
+			#tiro-invisible-square-back {
+  width: calc(100% - 140px);
+  height: calc(100% - 220px);
+  background: rgba(0,0,0,0.7);
+  position: absolute;
+  z-index: 2;
+  top: 120px;
+  left: 70px;
+			}
+			
 			#tiro-bar-wrapper {
+				padding: 20px;
+				color: white;
 				position: absolute;
-				top: 13px;
-				left: 50px;
+				top: 140px;
+				left: 70px;
+				width: calc(100% - 100px);
 				z-index: 1000;
 			}
 			#bar-next, #bar-prev {
@@ -497,48 +517,140 @@ const epubV2App = (innerTagStr, opts) => {
 				
 				console.log(h, "orderBars", orderBars)
 			}
+			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()">TTS</button>`
+			window.tiro_tts = () => {
+				let text = tiroReaderApi.getCurrentPageText()
+				if (!text) {
+					notifLog("No text found on current page", "tts-error", 10)
+					return
+				}
+				console.log(h, "TTS text", text)
+				alert("TTS text: " + text)
+			}
+			// input text + button search + prev + next  buttons
+			let searchUI = `
+			<div id="search-ui" >
+				<input type="text" id="search-input" placeholder="Search in book..."  />
+				<button id="search-button" onclick="search_do_search()">Search</button>
+				<button id="search-prev" onclick="search_prev()">Prev</button>
+				<button id="search-next" onclick="search_next()">Next</button>
+				<span id="search-index-str" class="search-index-str"></span>
+			</div>
+			`
+			window.search_vars = {
+				resultsNb: 0,
+				results: []
+
+			}
+			window.search_search_internal = (searchee, direction) => {
+			}
+			// do the search, reset id and results
+			window.search_do_search = () => {
+				let searchee = window.document.getElementById("search-input").value
+				tiroReaderApi.search(searchee, cfis => { 
+					window.search_vars.index = 0
+					window.search_vars.results = cfis
+					tiroReaderApi.goToCFI(cfis[0].cfi) 
+					window.search_update_indexStr()
+				})
+			}
+			window.search_goto = (diff) => {
+				v = window.search_vars
+				if (v.results.length === 0) return
+				// diff -1 / 1
+				v.index += diff
+				if (v.index < 0 ) { 
+					v.index = v.results.length - 1 
+				}
+				if (v.index >= v.results.length) { v.index = 0 }
+
+				tiroReaderApi.goToCFI(v.results[v.index].cfi)
+				window.search_update_indexStr()
+
+			}
+			window.search_update_indexStr =() =>  {
+				// 2 / 10
+				let el = window.document.getElementById("search-index-str")
+				el.innerHTML = `${window.search_vars.index + 1} / ${window.search_vars.results.length}`
+			}
+			window.search_prev = () => { window.search_goto(-1) }
+			window.search_next = () => { window.search_goto(1) }
+
+
+
+
+				
+
 
 			//
 			// CUSTOM BAR
 			//
 			let barEl = window.document.getElementById("tiro-bar-wrapper")
 			barEl.innerHTML = `
+			<h3> EPUB V2 Reader</h3>
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
 			${buttonToggleOrderHtml}
+			${buttonTTs}
+			${searchUI}
 			`
 			//
 			// SHow hide bar
 			//
-			const toggleCustomBar = (state) => {
-				let el = window.document.getElementById("tiro-bar-wrapper")
-				if (!state) state = el.style.display === "none" ? "show" : "hide"
-				el.style.display = state === "show" ? "block" : "none"
+			// const toggleCustomBar = (state) => {
+			// 	let el = window.document.getElementById("tiro-bar-wrapper")
+			// 	if (!state) state = el.style.display === "none" ? "show" : "hide"
+			// 	el.style.display = state === "show" ? "block" : "none"
 				
-			}
-			toggleCustomBar("hide")
+			// }
+			// toggleCustomBar("hide")
 
 			let toggleOpacityEls = (state) => {
 				// let els = window.document.querySelectorAll(".config-wrapper")
 				let el = window.document.getElementById("header-bar")
 				let navEl = window.document.getElementById("nav-bar")
 				let invisibleEls = window.document.querySelectorAll(".invisible-bar")
+				let invisibleBlockEl = window.document.getElementById("tiro-invisible-square-back")
+				let actionBarEl = window.document.getElementById("tiro-bar-wrapper")
+				// #menu-button ul.menu
+				let menuFoliate = window.document.querySelector("#menu-button ul.menu")
 				let valHidden = 0.1
 				let valShow = 1
 				if (!state) state =  el.style.opacity == valHidden ? valShow : valHidden
+				let nameState = state == valHidden ? "hide" : "show"
 				el.style.opacity = state
-				navEl.style.opacity = state
+				if (nameState === "hide") {
+					invisibleBlockEl.style.display = "none"
+					navEl.style.display = "none"
+					actionBarEl.style.display = "none"
+					// visibility show/hidden
+					menuFoliate.style.visibility = "hidden"
+				}
+				if (nameState === "show") {
+					invisibleBlockEl.style.display = "block"
+					navEl.style.display = "flex"
+					actionBarEl.style.display = "block"
+					menuFoliate.style.visibility = "visible"
+				}
+				
 				invisibleEls.forEach((el) => {
 					if (state == 0.1) el.style.opacity = 0.001
 					else el.style.opacity = 1
 				})
 			}
-			toggleOpacityEls(0.1)
+			// toggleOpacityEls(0.1)
 			let cogEl = window.document.getElementById("menu-button")
-			cogEl.addEventListener("click", () => {
-				toggleCustomBar()
+			let headerBar = window.document.getElementById("header-bar")
+			headerBar.addEventListener("click", () => {
+				// toggleCustomBar()
 				toggleOpacityEls()
 			})
+			let squareEl = window.document.getElementById("tiro-invisible-square-back")
+			squareEl.addEventListener("click", () => {
+				// toggleCustomBar()
+				toggleOpacityEls()
+			})
+			// on <foliate-view click, toggle opacity
 
 
 
@@ -728,10 +840,11 @@ const epubV2App = (innerTagStr, opts) => {
 			// OK epub > tts > si on load depuis un certaine page > envoie la page a chercher
 			// tts > epub > quand status update, faire un search regulier sur epub setInterval et search la phrase
 
-			setTimeout(() => {
-				let sentence = `ça donnait légèrement envie de se tirer une balle, mais c’était beau. Et la Saab 900 tirait là-dedans des courbes harmonieuses`
-				tiroReaderApi.search(sentence, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
-			}, 5000)
+			// setTimeout(() => {
+			// 	// let sentence = `ça donnait légèrement envie de se tirer une balle, mais c’était beau. Et la Saab 900 tirait là-dedans des courbes harmonieuses`
+			// 	let sentence = `interroge`
+			// 	tiroReaderApi.search(sentence, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+			// }, 5000)
 
 
 

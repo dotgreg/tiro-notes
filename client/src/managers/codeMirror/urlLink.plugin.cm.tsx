@@ -229,11 +229,13 @@ ${floatingWindow ? ``:`.link-detach {display:none;}`}
 	top: 50%;
   left: 50%;
   position: fixed;
+	pointer-events: none;
   transform: translate(-50%,-50%);
   padding: 30px 50px;
   background: white;
   width: 170px;
   z-index:2;
+  opacity: 0;
 
 }
 .mobile-version .link-action {
