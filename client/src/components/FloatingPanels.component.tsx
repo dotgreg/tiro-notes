@@ -182,6 +182,8 @@ export const FloatingPanel = (p:{
     const lastPosBeforeResize = useRef({x:-1, y:-1})  
     const widthUpdateIfOnlyHeight = useRef<number>(-1)
     const handleResize = (e: any, direction: any, ref: any, d: any) => {
+        // do not apply if mobile
+        if(isMobile()) return
         // setSize({width: ref.offsetWidth, height: ref.offsetHeight})
         if (lastPosBeforeResize.current.x === -1) {
             lastPosBeforeResize.current = {x: currPos.x, y: currPos.y}
