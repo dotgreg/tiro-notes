@@ -441,8 +441,10 @@ export const TtsCustomPopup = (p: {
 					showLog && typeof wordStat === 'number' &&
 					<div className='stats'>
 						API Words sent: {wordStat}<br/>
-						Estimated minutes spoken: {Math.round((wordStat/10/60)*100)/100}<br/>
-						Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000)/ 100000}<br/>
+							Estimated time spoken: {wordStat / 10 / 60 / 2 < 60 ?
+								`${Math.round(wordStat / 10 / 60 / 2)} minutes` :
+								`${Math.round(wordStat / 10 / 60 / 2 / 60 * 10) / 10} hours (${Math.round(wordStat / 10 / 60 / 2)} mins)`}<br />
+							Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000) / 100000}<br />
 						{/* Cached Audio Parts : {cachedAudioUrls.filter(n => n !== null).length} / { textChunks.length }<br/> */}
 						<button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button>
 						{/* <button onClick={()=> {clearAudioCache()}}> clear audio cache</button> */}
