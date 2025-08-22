@@ -439,6 +439,9 @@ const epubV2App = (innerTagStr, opts) => {
 			.helpButton {
 				color: white;
 			}
+			#header-bar {
+				z-index:3;
+			}
 			#tiro-invisible-header-bar {
 				position: absolute;
 				top: 0px;
@@ -449,12 +452,16 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 			#tiro-invisible-square-back {
   width: calc(100% - 140px);
-  height: calc(100% - 220px);
+  height: calc(100% - 140px);
   background: rgba(0,0,0,0.7);
   position: absolute;
   z-index: 2;
-  top: 120px;
+  top: 40px;
   left: 70px;
+			}
+
+			#menu-button ul.menu {
+				z-index: 3;
 			}
 			
 			#tiro-bar-wrapper button {
@@ -464,7 +471,7 @@ const epubV2App = (innerTagStr, opts) => {
 				padding: 20px;
 				color: white;
 				position: absolute;
-				top: 140px;
+				top: 40px;
 				left: 70px;
 				width: calc(100% - 100px);
 				z-index: 1000;
@@ -480,11 +487,11 @@ const epubV2App = (innerTagStr, opts) => {
 				top: 0;
 				padding: 10px;
 				font-weight: bold;
-				top: 120px;
+				top: 40px;
 				width: 50px;
-				height: calc(100% - 240px);
-				background: rgba(0,0,0,0.2);
-				z-index: 1000;
+				height: calc(100% - 160px);
+				background: rgba(0,0,0,0.75);
+				z-index: 2;
 			}
 			#bar-next {
 				right: 0;
@@ -553,16 +560,31 @@ const epubV2App = (innerTagStr, opts) => {
 			// Check every 5s IF tts is working
 			// if it is, check tts position, search the read text
 			// if search returns an occurence, jump to that occurence page
-			setInterval(() => {
-					if (!window.isTts) return
-					// api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
-					api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
-							if (!ttsInfos.isPlaying) return
-							let textRead = ttsInfos.currentText
-							console.log(h,`searching the text and jumping to it`, textRead, {ttsInfos});
-							tiroReaderApi.search(textRead, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
-					})
-			}, 5000)
+			// UPDATING IT EVERY MIN ONLY AS VERY INTENSIVE PROCESS FOR BIG BOOKS
+			window.isSearchingForTTS = false
+
+			setTimeout(() => {
+				tiroReaderApi.getAllText(fullText => {
+					let secondsIntervalCheck = Math.round(fullText.length / 50000) 
+					if (secondsIntervalCheck < 5) secondsIntervalCheck = 5
+					console.log(h,` TTS position back to ebook reader pos > the text is ${fullText.length} characters long, checking tts every ${secondsIntervalCheck} seconds`)
+					setInterval(() => {
+						if (!window.isTts) return
+						// api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
+						api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
+								if (!ttsInfos.isPlaying) return
+								let textRead = ttsInfos.currentText
+								if (window.isSearchingForTTS) return
+								window.isSearchingForTTS = true
+								console.log(h,`searching the text and jumping to it`, textRead, {ttsInfos});
+								tiroReaderApi.search(textRead, cfis => { 
+									window.isSearchingForTTS = false
+									tiroReaderApi.goToCFI(cfis[0].cfi) 
+								}, {firstOnly:true})
+						})
+					}, secondsIntervalCheck * 1000)
+				})
+			}, 1000)
 
 			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> ♫ Voice </button>`
 			window.tiro_tts = () => {
@@ -593,7 +615,6 @@ const epubV2App = (innerTagStr, opts) => {
 			// input text + button search + prev + next  buttons
 			let searchUI = `
 			<div id="search-ui" >
-				<h4> Search </h4>
 				<input type="text" id="search-input" placeholder="Search in book..."  /> <br>
 				<button id="search-button" onclick="search_do_search()"> 🔎 </button>
 				<button id="search-prev" onclick="search_prev()"> < </button>
@@ -603,7 +624,8 @@ const epubV2App = (innerTagStr, opts) => {
 			`
 			window.search_vars = {
 				resultsNb: 0,
-				results: []
+				results: [],
+				timeSearch: 0
 
 			}
 			window.search_search_internal = (searchee, direction) => {
@@ -611,10 +633,18 @@ const epubV2App = (innerTagStr, opts) => {
 			// do the search, reset id and results
 			window.search_do_search = () => {
 				let searchee = window.document.getElementById("search-input").value
+				// 
+				
+				let startTime = new Date().getTime()
+				
+				let el = window.document.getElementById("search-index-str")
+				el.innerHTML = `Searching for "${searchee}"...`
+
 				tiroReaderApi.search(searchee, cfis => { 
 					window.search_vars.index = 0
 					window.search_vars.results = cfis
 					tiroReaderApi.goToCFI(cfis[0].cfi) 
+					window.search_vars.timeSearch = Math.round((new Date().getTime() - startTime)/ 1000)
 					window.search_update_indexStr()
 				})
 			}
@@ -632,10 +662,10 @@ const epubV2App = (innerTagStr, opts) => {
 				window.search_update_indexStr()
 
 			}
-			window.search_update_indexStr =() =>  {
+			window.search_update_indexStr = () =>  {
 				// 2 / 10
 				let el = window.document.getElementById("search-index-str")
-				el.innerHTML = `${window.search_vars.index + 1} / ${window.search_vars.results.length}`
+				el.innerHTML = `${window.search_vars.index + 1} / ${window.search_vars.results.length} (${window.search_vars.timeSearch}s)`
 			}
 			window.search_prev = () => { window.search_goto(-1) }
 			window.search_next = () => { window.search_goto(1) }
@@ -651,14 +681,12 @@ const epubV2App = (innerTagStr, opts) => {
 			//
 			let barEl = window.document.getElementById("tiro-bar-wrapper")
 			barEl.innerHTML = `
-			<h3> EPUB V2 Reader</h3>
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
+			${buttonTTs} | 
+			${buttonToggleOrderHtml} | 
+			${fullscreenBtn} 
 			${searchUI}
-			<h4> Other </h4>
-			${buttonTTs} <br>
-			${buttonToggleOrderHtml}<br>
-			${fullscreenBtn}<br>
 			`
 			//
 			// SHow hide bar
@@ -795,7 +823,7 @@ const epubV2App = (innerTagStr, opts) => {
 					console.log("load without cache")
 					getAllTextRaw(text => {
 						let resTextHash = cyrb532(text, 1)
-						console.log("getAllText",{resTextHash, text})
+						// console.log("getAllText",{resTextHash, text})
 						setCache(cacheIdPos, text, () => {
 							console.log("cache saved!")
 							cb2(text)
@@ -816,20 +844,21 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 			
-			setTimeout(() => {
-				tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
-			}, 2000)
+			// setTimeout(() => {
+			// 	tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
+			// }, 2000)
 
 
 
 			let searchCacheId = `ctag-ebookv2-search-cache-${epubName}`
 			// let searchCache = {}
 			let searchCache = getLs(searchCacheId, {})
-			tiroReaderApi.search = async (txt, cb) => {
+			tiroReaderApi.search = async (txt, cb, opts) => {
 				let arrRes = []
 				if (!searchCache[txt]) {
-					console.log(`EPUB SEARCH NOT CACHED, seaching...`, txt )
+					console.log(`EPUB SEARCH for word ${txt} NOT CACHED, seaching...` )
 					for await (const res of readerApi.view.search({query:txt})) {
+						console.log(res.subitems)
 						if (res.label) {
 							arrRes = [...arrRes, ...res.subitems]
 						} 
@@ -837,23 +866,10 @@ const epubV2App = (innerTagStr, opts) => {
 							searchCache[txt] = arrRes
 							setLs(searchCacheId, searchCache)
 						}
-					}
-				} 
-				arrRes = searchCache[txt]
-				cb(arrRes)
-			}
-			tiroReaderApi.search = async (txt, cb) => {
-				let arrRes = []
-				if (!searchCache[txt]) {
-					console.log(`EPUB SEARCH NOT CACHED, seaching...`, txt )
-					for await (const res of readerApi.view.search({query:txt})) {
-						if (res.label) {
-							arrRes = [...arrRes, ...res.subitems]
-						} 
-						if (res === "done") {
+						if (opts?.firstOnly === true && arrRes.length > 0) {
 							searchCache[txt] = arrRes
-							console.log(h, "search done >", arrRes)
-							setLs(searchCacheId, searchCache)
+							console.log("firstOnly is true, breaking search")
+							break
 						}
 					}
 				} 
