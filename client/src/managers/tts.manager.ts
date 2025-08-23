@@ -61,7 +61,15 @@ export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLe
 		let extractChunks = chunkTextInSentences2(extract, sentencesPerPart)
 		// let toSearch: string | null = null
 		
-		let toSearchArr = extractChunks.filter(c => c.length > 50)
+		// let toSearchArr = extractChunks.filter(c => c.length > 50)
+		// replace toSearchArr items where c.length < 50 with -------------
+		let toSearchArr = extractChunks.map(c => {
+			if (c.length < 50) {
+				return '-_PLACEHOLDER_SEARCH_FOR_KEEPING_INDEX_LAKJFDSKJDLKSA_-'
+			} else {
+				return c
+			}
+		})
 		// each(extractChunks, c => {
 		// 	if (c.length > 50) {
 		// 		toSearch = c
@@ -70,12 +78,15 @@ export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLe
 		// })
 		if (toSearchArr.length === 0 ) toSearchArr = [extract]
 
-		console.log("trying finding extracts:", toSearchArr)
+		console.log("trying finding extracts:", toSearchArr, chunkedText)
 		let res = -1
 		each(chunkedText, (chunk, i) => {
-			each(toSearchArr, (toSearch) => {
-				if (normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
-					res = i
+			each(toSearchArr, (toSearch, j) => {
+				if (res == -1 && normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
+					console.log(123333, chunk, toSearch)
+					// if we find the 4th sentence match, come back to first to start tts
+					console.log(i, j, i-j)
+					res = i - j + 1
 					return false
 				}
 			})

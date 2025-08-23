@@ -255,9 +255,8 @@ export const TtsCustomPopup = (p: {
 			setWordStat( wordStatRef.current + wordsNb)
 		}
 		let wordLog = `[${wordsNb} words]`
-		// let textToSent = "hello world 333"
 		stringCmd = stringCmd.replace("{{input}}", textToSent)
-		log(`${pre}: 📥 [...] downloading chunk ${chunkId} ${wordLog} `)
+		log(`${pre}: 📥 [...] downloading chunk ${chunkId} ${wordLog} "${textToSent.substring(0, 100)}..."`)
 		let isCbCalled = false
 		const cbOnce = (res:any) => {
 			if (isCbCalled) return 
@@ -320,9 +319,8 @@ export const TtsCustomPopup = (p: {
 	}, [])
 
 	useEffect(() => {
-
 		playChunk(currChunk)
-	}, [textChunks])
+	}, [textChunks, currChunk])
 
 	const initPos = useRef(false)
 	useInterval(() => {
