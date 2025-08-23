@@ -771,9 +771,15 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 
 			tiroReaderApi.getCurrentPageText = () => {
-				console.log(h, "getCurrentPageText", tiroReaderApi._storage.currentPage)
-
-				return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
+				// console.log(h, "getCurrentPageText", tiroReaderApi._storage.currentPage)
+				// console.log(2222, readerApi.view.renderer)
+				// console.log(2222, readerApi.view.renderer.toString())
+				// console.log(2222, readerApi.view)
+				// console.log(2222, ))
+				// console.log(2222, readerApi.view.renderer.getContents())
+				return readerApi.view.lastLocation.range.toString()
+				// return tiroReaderApi._storage.currentPage.range.toString()
+				// return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
 			}
 
 			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
