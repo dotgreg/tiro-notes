@@ -585,7 +585,7 @@ const epubV2App = (innerTagStr, opts) => {
 								console.log(h,`searching the text and jumping to it`, textRead, {ttsInfos});
 								tiroReaderApi.search(textRead, cfis => { 
 									window.isSearchingForTTS = false
-									tiroReaderApi.goToCFI(cfis[0].cfi) 
+									tiroReaderApi.goToCFI(cfis[0].cfi, true) 
 								}, {firstOnly:true})
 						})
 					}, secondsIntervalCheck * 1000)
@@ -609,6 +609,37 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 
 
+
+			//
+			//
+			//
+			// jump position hist 
+			//
+			//
+			//
+			// 2 buttons next/prev 
+			let positionUI = `
+			<span id="position-ui" >
+				position:
+				<button id="pos-next"  onclick="tiro_jump_pos(1)"> ↩ </button>
+				<button id="pos-prev"  onclick="tiro_jump_pos(-1)"> ↪ </button>
+			</span>`
+			window.tiro_position = {
+				allPositions: [],
+				currentPosition: null,
+			}
+			window.tiro_jump_pos = (diff) => {
+				let v = window.tiro_position
+				// console.log(h, "jumping position", diff, v.currentPosition, v.allPositions)
+				if (v.allPositions.length === 0) return
+				// diff -1 / 1
+				v.currentPosition += diff
+				if (v.currentPosition < 0 ) { v.currentPosition = v.allPositions.length - 1 }
+				if (v.currentPosition >= v.allPositions.length) { v.currentPosition = 0 }
+				let pos = v.allPositions[v.currentPosition]
+				console.log(h, "jumping to position", pos)
+				tiroReaderApi.goTo(pos.chapter, pos.fractionChapter)
+			}
 
 
 			//
@@ -696,7 +727,8 @@ const epubV2App = (innerTagStr, opts) => {
 			${generateHelpButton(helpText, "Exec ctag help")}
 			${buttonTTs} | 
 			${buttonToggleOrderHtml} | 
-			${fullscreenBtn} 
+			${fullscreenBtn} |
+			${positionUI}
 			${searchUI}
 			`
 			//
@@ -785,7 +817,7 @@ const epubV2App = (innerTagStr, opts) => {
 			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
 			tiroReaderApi.restorePosition = (epubName) => {
 				getCache(cacheIdPos, (bookPosition) => {
-					tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter)
+					tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
 				}, err =>{
 					console.log(h, "no cache found for ", cacheIdPos, err)
 				})
@@ -813,7 +845,7 @@ const epubV2App = (innerTagStr, opts) => {
 										notifLog("All text indexed", "text-index", 10)
 										el.style.display = "none"
 										// jump back to first page
-										tiroReaderApi.goTo(0, 0)
+										tiroReaderApi.goTo(0, 0, true)
 									}
 								})
 						}, 300 * i);
@@ -894,15 +926,18 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 
 
-			tiroReaderApi.goToCFI = (cfi) => {
+			tiroReaderApi.goToCFI = (cfi, shouldSavePosition=false) => {
 				let jumpObj = readerApi.view.resolveCFI(cfi)
 				console.log("jumping to ", {cfi, jumpObj})
+				window.shouldSavePosition = shouldSavePosition
 				readerApi.view.renderer.goTo(jumpObj) 
 			}
-			tiroReaderApi.goTo = (chapter, fraction) => {
+			window.shouldSavePosition = true
+			tiroReaderApi.goTo = (chapter, fraction, shouldSavePosition=false) => {
 				let res = readerApi.view.renderer.goTo({index:chapter, anchor:fraction }) 
 				res.then(() => {
 					console.log(h, "GO TO ", chapter, fraction, res)
+					window.shouldSavePosition = shouldSavePosition
 					// should add one page
 					// tiroReaderApi.next()
 				})
@@ -925,10 +960,19 @@ const epubV2App = (innerTagStr, opts) => {
 				let fractionChapter = e.detail.fraction
 				if (chapter === 0) return
 				if (fractionChapter === 0) return
-				console.log(h, " > saving position :", chapter, fractionChapter)
 				let bookPosition = {chapter, fractionChapter }
-				setCache(cacheIdPos, bookPosition)
-				tiroReaderApi._storage.currentPage = {...e.detail}
+				if (window.shouldSavePosition) {
+					console.log(h, " > saving position :", chapter, fractionChapter)
+					// loop all pos, does not add it if already exists
+					let shouldAddIt = true
+					for (let i = 0; i < window.tiro_position.allPositions.length; i++) {
+						let pos = window.tiro_position.allPositions[i]
+						if (pos.chapter === chapter && pos.fractionChapter === fractionChapter) {  shouldAddIt = false} 
+					}
+					if(shouldAddIt) window.tiro_position.allPositions.push(bookPosition) 
+					setCache(cacheIdPos, bookPosition)
+				}
+				// tiroReaderApi._storage.currentPage = {...e.detail}
 				// console.log(1111, tiroReaderApi.getCurrentPageText())
 			})
 			
