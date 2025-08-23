@@ -56,6 +56,7 @@ const normalizeText = (text: string): string => {
 
 // search for the extract in the chunked text and return the index of the chunk
 export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLength:number): number => {
+
 		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
 		let extractChunks = chunkTextInSentences2(extract, sentencesPerPart)
 		// let toSearch: string | null = null
