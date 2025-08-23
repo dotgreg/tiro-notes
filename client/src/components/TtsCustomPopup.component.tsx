@@ -329,18 +329,18 @@ export const TtsCustomPopup = (p: {
 		// search for initial chunk
 		if (p.startString && !initPos.current) {
 			let nPos = -1
-			let refinedStartString = p.startString.trim()
-			// split by ,;.
-			let allSentences = refinedStartString.split(/[,;.:]+/).map(s => s.trim())
-			// keep longuest sentence
-			refinedStartString = allSentences.reduce((a, b) => a.length > b.length ? a : b)
+			// let refinedStartString = p.startString.trim()
+			// // split by ,;.
+			// let allSentences = refinedStartString.split(/[,;.:]+/).map(s => s.trim())
+			// // keep longuest sentence
+			// refinedStartString = allSentences.reduce((a, b) => a.length > b.length ? a : b)
 
-			let chunkPos = extractToChunkPos(refinedStartString, textChunks, 1000)
+			let chunkPos = extractToChunkPos(p.startString, textChunks, 1000)
 			nPos = chunkPos
 			initPos.current = true
 
 			// search emoji =>  
-			let startStringStr = refinedStartString.substring(0, 100)
+			let startStringStr = p.startString.substring(0, 100)
 			let logStr = `${pre}  🔎 found startString "${startStringStr}" at chunk ${chunkPos}`
 			if (chunkPos === -1) logStr = `${pre}  🔎 NOT FOUND  startString "${startStringStr}" at chunk ${chunkPos}`
 			log(logStr)

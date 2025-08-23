@@ -2,6 +2,7 @@ import { OptionObj } from "../components/Input.component"
 import { md2html } from "./markdown.manager"
 import { regexs } from '../../../shared/helpers/regexs.helper';
 import { each, debounce } from "lodash-es";
+import { userSettingsSync } from "../hooks/useUserSettings.hook";
 
 export const cleanText2Speech = (rawText: string) => {
 	let text2read = rawText
@@ -53,24 +54,30 @@ const normalizeText = (text: string): string => {
 	return text
 }
 
+// search for the extract in the chunked text and return the index of the chunk
 export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLength:number): number => {
-		let extractChunks = chunkTextInSentences(extract, chunkLength)
-		let toSearch: string | null = null
-		each(extractChunks, c => {
-			if (c.length > 50) {
-				toSearch = c
-				return false
-			}
-		})
-		if (!toSearch) return -1
+		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
+		let extractChunks = chunkTextInSentences2(extract, sentencesPerPart)
+		// let toSearch: string | null = null
+		
+		let toSearchArr = extractChunks.filter(c => c.length > 50)
+		// each(extractChunks, c => {
+		// 	if (c.length > 50) {
+		// 		toSearch = c
+		// 		return false
+		// 	}
+		// })
+		if (toSearchArr.length === 0 ) toSearchArr = [extract]
 
+		console.log("trying finding extracts:", toSearchArr)
 		let res = -1
 		each(chunkedText, (chunk, i) => {
-			// simplified chunkText
-			if (normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
-				res = i
-				return false
-			}
+			each(toSearchArr, (toSearch) => {
+				if (normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
+					res = i
+					return false
+				}
+			})
 		})
 		return res
 	}
