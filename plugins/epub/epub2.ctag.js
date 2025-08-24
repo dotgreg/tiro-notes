@@ -19,6 +19,15 @@ const epubV2App = (innerTagStr, opts) => {
 				// height:calc(100vh - 40px);
 				height: 200px;
 			}
+			#search-results-list {
+				max-height: 30vh;
+				display:none;
+  overflow: scroll;
+  padding: 20px 40px;
+  list-style: disclosure-closed;
+  background: rgba(0,0,0,0.6);
+  border-radius: 9px;
+			}
 			
 			.toolbar{
 
@@ -376,7 +385,8 @@ const epubV2App = (innerTagStr, opts) => {
 			</div>
 			<div id="tiro-bar-wrapper" ></div>
 			<div id="tiro-invisible-bars-wrapper" > </div>
-			<div id="tiro-invisible-header-bar" > </div>
+			<div id="tiro-invisible-header-bar1" > </div>
+			<div id="tiro-invisible-header-bar2" > </div>
 			<div id="tiro-invisible-square-back" > </div>
 			<div id="tiro-indexing-overlay" style="display:none;"> initial text indexing, please wait... </div>
 			
@@ -442,13 +452,26 @@ const epubV2App = (innerTagStr, opts) => {
 			#header-bar {
 				z-index:3;
 			}
-			#tiro-invisible-header-bar {
-				position: absolute;
-				top: 0px;
-				left: 50px;
-				width: calc(100% - 50px);
-				height: 50px;
+			#native-reader-bar-wrapper .toolbar {
 				z-index:4;
+			}
+			#tiro-invisible-header-bar2 {
+				height:70px;
+  bottom: 32px;
+  left: 50px;
+  z-index: 2;
+			}
+			#tiro-invisible-header-bar1 {
+  top: 0px;
+  left: 50px;
+  height: 40px;
+  z-index: 4;
+			}
+			#tiro-invisible-header-bar2, 
+			#tiro-invisible-header-bar1 {
+  position: absolute;
+  width: calc(100% - 100px);
+  background: #ff000024;
 			}
 			#tiro-invisible-square-back {
   width: calc(100% - 140px);
@@ -657,6 +680,7 @@ const epubV2App = (innerTagStr, opts) => {
 				<button id="search-prev" onclick="search_prev()"> < </button>
 				<button id="search-next" onclick="search_next()"> > </button>
 				<span id="search-index-str" class="search-index-str"></span>
+				<ul id="search-results-list" class="search-results-list"></ul>
 			</div>
 			`
 			window.search_vars = {
@@ -677,9 +701,11 @@ const epubV2App = (innerTagStr, opts) => {
 				let el = window.document.getElementById("search-index-str")
 				el.innerHTML = `Searching for "${searchee}"...`
 
+				let listEl = window.document.getElementById("search-results-list") 
 				tiroReaderApi.search(searchee, cfis => { 
 					if (cfis.length === 0) {
 						el.innerHTML = `No results found for "${searchee}"`
+						listEl.innerHTML = ""
 
 					} else  {
 						window.search_vars.index = 0
@@ -687,6 +713,20 @@ const epubV2App = (innerTagStr, opts) => {
 						tiroReaderApi.goToCFI(cfis[0].cfi) 
 						window.search_vars.timeSearch = Math.round((new Date().getTime() - startTime)/ 1000)
 						window.search_update_indexStr()
+						// UPDATE LISTE
+						listEl.innerHTML = ""
+						listEl.style.display = "block"
+						for (let i = 0; i < cfis.length; i++) {
+							let res = cfis[i]
+							let li = window.document.createElement("li")
+							li.innerHTML = `<span class="search-result-cfi">${res.extract}<span/>`
+							li.addEventListener("click", () => {
+								tiroReaderApi.goToCFI(res.cfi)
+								window.search_vars.index = i
+								window.search_update_indexStr()
+							})
+							listEl.appendChild(li)
+						}
 					}
 				})
 			}
@@ -755,8 +795,12 @@ const epubV2App = (innerTagStr, opts) => {
 				let valShow = 1
 				if (!state) state =  el.style.opacity == valHidden ? valShow : valHidden
 				let nameState = state == valHidden ? "hide" : "show"
+				let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
+				let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
 				el.style.opacity = state
 				if (nameState === "hide") {
+					headerBar1.style.opacity = 0.001
+					headerBar2.style.opacity = 0.001
 					invisibleBlockEl.style.display = "none"
 					navEl.style.display = "none"
 					actionBarEl.style.display = "none"
@@ -764,6 +808,8 @@ const epubV2App = (innerTagStr, opts) => {
 					menuFoliate.style.visibility = "hidden"
 				}
 				if (nameState === "show") {
+					headerBar1.style.opacity = 1
+					headerBar2.style.opacity = 1
 					invisibleBlockEl.style.display = "block"
 					navEl.style.display = "flex"
 					actionBarEl.style.display = "block"
@@ -777,11 +823,10 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 			// toggleOpacityEls(0.1)
 			let cogEl = window.document.getElementById("menu-button")
-			let headerBar = window.document.getElementById("tiro-invisible-header-bar")
-			headerBar.addEventListener("click", () => {
-				// toggleCustomBar()
-				toggleOpacityEls()
-			})
+			let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
+			let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
+			headerBar1.addEventListener("click", () => {  toggleOpacityEls() })
+			headerBar2.addEventListener("click", () => {  toggleOpacityEls() })
 			let squareEl = window.document.getElementById("tiro-invisible-square-back")
 			squareEl.addEventListener("click", () => {
 				// toggleCustomBar()
@@ -922,6 +967,17 @@ const epubV2App = (innerTagStr, opts) => {
 					}
 				} 
 				arrRes = searchCache[txt]
+
+				// for each result create .extract
+				for (let i = 0; i < arrRes.length; i++) {
+					let res = arrRes[i]
+					// page is 12 in epubcfi(/6/12!
+					let page = res.cfi.split("/")[2]
+					page = "[p"+page.split("!")[0] + "] "|| ""
+					
+					if (res.excerpt) { arrRes[i].extract = page + res.excerpt.pre + "<b>" + res.excerpt.match +"</b>"+ res.excerpt.post }
+				}
+				console.log(`EPUB SEARCH for word ${txt} CACHED, returning results`, arrRes)
 				cb(arrRes)
 			}
 
