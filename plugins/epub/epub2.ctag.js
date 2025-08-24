@@ -20,13 +20,15 @@ const epubV2App = (innerTagStr, opts) => {
 				height: 200px;
 			}
 			#search-results-list {
-				max-height: 30vh;
+				max-height: 300px;
 				display:none;
   overflow: scroll;
   padding: 20px 40px;
   list-style: disclosure-closed;
   background: rgba(0,0,0,0.6);
   border-radius: 9px;
+  width: calc(100% - 30px);
+  font-size: 12px;
 			}
 			
 			.toolbar{
@@ -973,7 +975,7 @@ const epubV2App = (innerTagStr, opts) => {
 					let res = arrRes[i]
 					// page is 12 in epubcfi(/6/12!
 					let page = res.cfi.split("/")[2]
-					page = "[p"+page.split("!")[0] + "] "|| ""
+					page = "[pos "+page.split("!")[0] + "] "|| ""
 					
 					if (res.excerpt) { arrRes[i].extract = page + res.excerpt.pre + "<b>" + res.excerpt.match +"</b>"+ res.excerpt.post }
 				}
