@@ -1,14 +1,11 @@
-import { initSocketLogic } from './managers/socket.manager';
 import { backConfig } from './config.back';
-import { getPlatform } from './managers/platform.manager';
-import { sslConfig } from './ssl.manager';
-import { isEnvDev } from './managers/path.manager';
+import "./managers/activity.manager";
 import { fileLogClean, log } from './managers/log.manager';
+import { isEnvDev } from './managers/path.manager';
+import { getPlatform } from './managers/platform.manager';
+import { initSocketLogic } from './managers/socket.manager';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
-import { security, formatHeader} from './managers/security.manager';
-import "./managers/activity.manager"
-import { logActivity } from './managers/activity.manager';
-import { scanDirForFolders, scanDirForFolders2 } from './managers/dir.manager';
+import { sslConfig } from './ssl.manager';
 var compression = require('compression')
 fileLogClean();
 

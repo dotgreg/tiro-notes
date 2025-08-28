@@ -113,7 +113,7 @@ export const AiAnswer = (p:{
                 api.ui.floatingPanel.create({
                     type: "file",
                     file: nFile,
-                    view: "editor",
+                    view: "preview",
                     id: floatingPanelId,
                     // layout: deviceType() === "mobile" ? "bottom" : "bottom-right",
                     layout: deviceType() === "mobile" ? "right" : "right",
@@ -187,10 +187,26 @@ export const triggerAiSearch = (p:{
             api.ui.notification.emit({
                 content: `[AI] Error while executing command  <br/> at  ${new Date().toLocaleString()} <br/><br/> COMMAND ANSWER => <br/> <code>${errorLog.curr}</code> </br>`,
                 options: {hideAfter: 10 * 60 },
-                id: "ai-error"
+                id: "ai-status"
             })
         })
     }, 500)
+
+
+    const notifAiGenerating = () => {
+        getApi(api => {
+            api.ui.notification.emit({
+                content: `[AI] generating text... <br> (click popup to stop generation)`,
+                options: {
+                    hideAfter: 5, 
+                    onClick: () => {
+                        api.ai.setStatus("stop", p.uuid)
+                    }
+                },
+                id: "ai-status",
+            })
+        })
+    }
     
     getApi(api => {
         let startDateInTs = Date.now()
@@ -199,6 +215,7 @@ export const triggerAiSearch = (p:{
         generateTextAt(genParams())
         let canGenerate = true
         let canGenerateHist = true
+        notifAiGenerating()
         api.command.stream(cmd, streamChunk => {
 
             // check ai status
@@ -221,6 +238,7 @@ export const triggerAiSearch = (p:{
                 // else insert it
                 // if is last, add at the end of textTot the date
                 if (!canGenerate) return
+                notifAiGenerating()
                 if (streamChunk.isLast) streamChunk.textTot += `\n\n ⏱️ generated in ${(Date.now() - startDateInTs)/1000}s by ${p.aiBtnConfig.title}`
                 generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast, viewFollow:lineJumpWhileGeneratingAiText[p.windowId]})
             }

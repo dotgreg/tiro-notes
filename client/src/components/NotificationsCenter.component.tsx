@@ -8,7 +8,9 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon2 } from './Icon.component';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { workMode_isStringOk } from '../managers/workMode.manager';
+import { notifications_onclick_functions_dic } from '../hooks/api/notification.api.hook';
 
+const h = `[NOTIFICATIONS]`
 devCliAddFn("notification", "emit", (str?: string, o?: any) => {
 	// if (!o.hideAfter) o.hideAfter
 	let s = str ? str : ""
@@ -48,6 +50,7 @@ export const NotificationsCenter = (p: {
 						if (!data.notification.id) data.notification.id = generateUUID()
 						addNotif(data.notification)
 						afterTimeoutClose(data.notification)
+
 					})
 				})
 			})
@@ -66,6 +69,13 @@ export const NotificationsCenter = (p: {
 		}, timeout)
 	}
 
+	const triggerNotifOnClick = (idFn: string) => {
+		console.log(h, "triggerNotifOnClick => ", idFn)
+		let fn = notifications_onclick_functions_dic[idFn]
+		if (fn) fn()
+		else console.log(h, "no fn found for idFn", idFn)
+	}
+
 	const addNotif = (n: iNotification) => {
 		// remove previous notif with current id
 		notifsRef.current = notifsRef.current.filter(i => i.id !== n.id)
@@ -78,8 +88,9 @@ export const NotificationsCenter = (p: {
 	}
 
 	const onClickClose = (n: iNotification) => {
-		console.log("onClickClose", n)
-		if (n.options?.onClick) n.options.onClick()
+		// console.log("onClickClose", n)
+		// if (n.options?.onClick) n.options.onClick()
+		if (n.options?.onClickId) triggerNotifOnClick(n.options?.onClickId)
 	}
 	const closeNotif = (id?: string) => {
 		if (!id) return
