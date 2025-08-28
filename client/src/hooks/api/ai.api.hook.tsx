@@ -74,7 +74,7 @@ export const setStatus:iAiApi["setStatus"] = (status, uuid) => {
             api.ui.notification.emit({
                 content: `[AI] AI generation stop requested`,
                 options: {hideAfter: 3 },
-                id: "ai-stop"
+                id: "ai-status"
             })
         })
     }

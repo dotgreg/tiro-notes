@@ -508,6 +508,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let endPerf = perf('💬 emitNotification ')
 		// actually send to to everybody
 		ioServer.emit('getNotification', { ...data })
+		console.log(333,data)
 
 		// and appends notif in notification history
 		if (data.notification.options?.keepInHistory) {

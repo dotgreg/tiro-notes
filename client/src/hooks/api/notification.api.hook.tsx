@@ -3,12 +3,16 @@ import { iNotification, iPlugin } from "../../../../shared/types.shared"
 import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { getLoginToken } from "../app/loginToken.hook"
 import { getApi } from "./api.hook"
+import { generateUUID } from "../../../../shared/helpers/id.helper"
 
 const h = `[NOTIFICATIONS]`
 
 export interface iNotificationApi {
 	emit: (notification: iNotification, cb?:Function) => void
 }
+
+// the onClick function should not be sent to the server but stored client-side only, waiting to be triggered
+export const notifications_onclick_functions_dic: {[id:string]: () => void} = {}
 
 export const useNotificationApi = (p: {
 }) => {
@@ -17,6 +21,13 @@ export const useNotificationApi = (p: {
 	const emitNotification: iNotificationApi['emit'] = (notification, cb) => {
 		const showNotif = () => {
 			console.log(h, `emitNotification`, notification)
+			if (notification.options?.onClick) {
+				// if onClick, store it in cache and remove it from notification to send
+				let fnId = `notif-onclick-fnid-${notification.id}-${generateUUID()}`
+				notifications_onclick_functions_dic[fnId] = notification.options?.onClick as () => void
+				notification.options.onClickId = fnId
+			}
+
 			if (cb) cb()
 			clientSocket2.emit('emitNotification', {
 				notification,
