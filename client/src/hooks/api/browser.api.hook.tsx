@@ -4,7 +4,7 @@ import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.hel
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
 import { devCliAddFn, notifLog } from '../../managers/devCli.manager';
-import { deviceType } from '../../managers/device.manager';
+import { deviceType, isA } from '../../managers/device.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -231,6 +231,7 @@ export const useBrowserApi = (p: {
 
 	const addToOpenedFolders = (folderPath: string) => {
 		console.log("ADD",folderPath)
+		openFoldersRef.current = isArray(openFoldersRef.current) ? openFoldersRef.current : []
 		openFoldersRef.current = [...openFoldersRef.current, folderPath]
 		openFoldersRef.current = uniq(openFoldersRef.current)
 		setOpenFolders(openFoldersRef.current)

@@ -121,6 +121,12 @@ export const setupConfigCss = () => `
             ${cssVars.els().redButton};
             padding: 10px 20px;
         }
+		.popup-wrapper-component .popup-wrapper .popupContent {
+			padding-right: 50px;
+		}
+		.input-wrapper input {
+			width: 40vw;
+		}
         .error {
             color: ${cssVars.colors.main};
         }

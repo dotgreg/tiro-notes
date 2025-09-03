@@ -1,6 +1,6 @@
 import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
-import { cloneDeep, each, isNumber } from 'lodash-es';
+import { cloneDeep, each, isArray, isNumber } from 'lodash-es';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
@@ -124,6 +124,7 @@ export const useTabs = () => {
 		console.log(`[TAB] open in new tab`, file);
 		const nTab = generateNewTab({ fullWindowFile: file })
 		if (!nTab) return
+		tabsRef.current = isArray(tabsRef.current) ? tabsRef.current : []
 		const nTabs = [...tabsRef.current, nTab]
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
 		setTabs(nTabs2)
