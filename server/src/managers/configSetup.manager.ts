@@ -72,6 +72,10 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 	// check if password is > 3 chars
 	if (data.form.password.length < 3) answer = { code: 'BAD_USER_PASSWORD', message: 'password not valid' }
 
+
+	// try to create folder if does not exists
+	if (!fileExists(data.form.dataFolder)) await upsertRecursivelyFolders(data.form.dataFolder)
+
 	// check if folder provided exists
 	if (!fileExists(data.form.dataFolder)) answer = { code: 'NO_FOLDER', message: `${sharedConfig.strings.setupForm.noFolder1} ${p(data.form.dataFolder)} ${sharedConfig.strings.setupForm.noFolder2}` }
 

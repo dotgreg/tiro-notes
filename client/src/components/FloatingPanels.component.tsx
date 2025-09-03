@@ -565,7 +565,8 @@ export const FloatingPanelsWrapper = (p:{
     pinStatus: boolean,
     onPinChange: (status:boolean) => void
 }) => {
-    let panels = p.panels
+    // let panels = isArray(p.panels) ? p.panels : []
+    let panels = isArray(p.panels) ? p.panels : []
     const panelsRef = useRef<iFloatingPanel[]>([])
     useEffect(() => {
         panelsRef.current = panels
@@ -616,6 +617,7 @@ export const FloatingPanelsWrapper = (p:{
     const oldPanelsCount = useRef<number>(0)
     const oldPanelsVisibleCount = useRef<number>(0)
     useEffect(() => {
+        // console.log(444444, panels)
         if (hideAll === true && panels.length > oldPanelsCount.current) {
             setHideAll(false)
         }

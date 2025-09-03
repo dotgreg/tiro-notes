@@ -75,7 +75,7 @@ export function useBackendState<T>(
 			api.file.getContent(pathToNote, raw => {
 				let obj:any = undefined
 
-				if (raw === "NO_FILE") obj = {}
+				if (raw === "NO_FILE") obj = undefined
 				else {
 					try {
 						obj = JSON.parse(raw)
@@ -84,7 +84,7 @@ export function useBackendState<T>(
 					}
 				}
 				
-				if (obj !== undefined) {
+				if (obj !== undefined && raw === "NO_FILE") {
 					if(opts?.debug === true) console.log(`[BACKEND STATE] refreshValFromBackend: ${key} => `, obj);
 					setStoredValue(obj);
 					hasBackendLoadedRef.current = true

@@ -7,6 +7,7 @@ import { isA, isIpad } from '../managers/device.manager';
 import { getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { areSamePaths } from '../../../shared/helpers/filename.helper';
 import { getFontSize } from '../managers/font.manager';
+import { isArray } from 'lodash-es';
 
 export type onFolderClickedFn = (folderPath: string) => void
 export type onFolderDragStartFn = (folder: iFolder) => void
@@ -91,7 +92,9 @@ export const FolderView = (p: {
 	onFolderDrop: onFolderDropFn
 }) => {
 
-	const isOpen = p.openFolders.includes(p.folder.path) && p.folder.hasFolderChildren
+	let openFolders = isArray(p.openFolders) ? p.openFolders : []
+
+	const isOpen = openFolders.includes(p.folder.path) && p.folder.hasFolderChildren
 
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
@@ -240,7 +243,7 @@ export const FolderView = (p: {
 					{
 						p.folder.children && p.folder.children.map((child, key) =>
 							<FolderView
-								openFolders={p.openFolders}
+								openFolders={openFolders}
 								key={key}
 								folder={child}
 								current={p.current}

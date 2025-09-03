@@ -11,14 +11,12 @@ export type pinStatusKey = keyof iPinStatuses
 
 export const usePinStatus= () => {
     const [pinStatus, setPinStatus, refreshPinStatus] = useBackendState<iPinStatuses>("interface-pin-element-status",{
-        topTab: false,
-        bottomBar:  false
+        topTab: true, 
+        bottomBar:  true 
     })
 
      useEffect(() => {
          refreshPinStatus()
-
-
         //  getApi(api => {
         //     if (api.userSettings.get("beta_floating_windows") === true) return
         //     updatePinStatus("bottomBar")(false)
