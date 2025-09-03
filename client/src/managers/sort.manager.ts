@@ -1,4 +1,4 @@
-import { each, sortBy } from "lodash";
+import { each, sortBy } from "lodash-es";
 import { iFile } from "../../../shared/types.shared";
 
 export type SortMode = 'alphabetical' | 'created' | 'modified'

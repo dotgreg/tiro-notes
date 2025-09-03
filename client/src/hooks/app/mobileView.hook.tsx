@@ -17,6 +17,7 @@ export const useMobileView = () => {
 				deviceType() !== 'desktop' &&
 				<ButtonsToolbar
 					class='mobile-view-toggler'
+					colors={["white","white"]}
 					buttons={[
 						{
 							icon: 'faStream',
@@ -69,21 +70,18 @@ export const mobileViewMenuCss = () => `
             ${cssVars.els().button};
             padding: 8px;
             width: 100%;
-            svg {
-                color: white;
+            span.icon-wrapper {
                 transform: scale(1.1);
                 background: rgba(255,255,255,0);
                 padding: 10px 27px;
                 border-radius: 6px;
             }
             &:hover {
-                svg {
-                    color: white;
+                span.icon-wrapper {
                 }
             }
             &.active {
-                svg {
-                    color: white;
+                span.icon-wrapper {
                     background: rgba(255,255,255,0.2);
                 }
             }

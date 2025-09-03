@@ -1,4 +1,4 @@
-import { each } from "lodash";
+import { each, set } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
@@ -10,9 +10,10 @@ import { getRelativePath } from "../path.manager";
 import { perf } from "../performance.manager";
 import { processRawDataToFiles, processRawPathToFile } from "./file.search.manager";
 import { processRawStringsToImagesArr } from "./image.search.manager";
-import { iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
+import { getMetaFromHeaderWithJs, iMetasFiles, mergingMetaToFilesArr, processRawStringsToMetaObj } from "./metas.search.manager";
+import { pathToIfile } from "../../../../shared/helpers/filename.helper";
 
-const h = `[RIPGREP SEARCH] `
+const h = `[RIPGREP SEARCH1] `
 const shouldLog = sharedConfig.server.log.ripgrep
 
 const fs = require('fs')
@@ -66,22 +67,31 @@ type iLineRg = {
 	found: string,
 	file: iFile
 }
+
+
+
+
+export interface iLineResult {
+	file: iFile,
+	raw: string,
+	found: string
+	path: string
+}
 export const searchWithRgGeneric = async (p: {
 	term: string
 	folder: string
-
 	recursive?: boolean,
 	options?: {
 		wholeLine?: boolean,
 		debug?: boolean
 		filetype?: "md" | "all"
+		disableMetadataSearch?: boolean
+		disableTitleSearch?: boolean
 		// exclude?:string[]
 	}
-
 	processRawLine?: (infos: iLineRg) => any
-	onSearchEnded: (res: any) => void
+	onSearchEnded: (res: { linesResult: iLineResult[] }) => void
 	onRgDoesNotExists?: () => void
-
 }): Promise<void> => {
 
 	if (!p.recursive) p.recursive = true
@@ -89,34 +99,24 @@ export const searchWithRgGeneric = async (p: {
 	if (!p.options) p.options = {}
 	if (!p.options.wholeLine) p.options.wholeLine = false
 	if (!p.options.debug) p.options.debug = false
-
+	if (!p.options.disableMetadataSearch) p.options.disableMetadataSearch = false
+	if (!p.options.disableTitleSearch) p.options.disableTitleSearch = false
 	let typeArgs = ['--type','md']
 	if (p.options.filetype === "all") typeArgs = ['--files']
-
 	const onRgDoesNotExists = (err) => {
-		console.log(h, err)
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
 	}
-
 	let exclusionArr:string[] = []
-	// exclusion string // not working currenlty
-	// if (p.options.exclude) {
-	// 	each(p.options.exclude, excludePath => {
-	// 		// exclusionArr += `--glob '!${excludePath}/'`
-	// 		exclusionArr.push("--glob")
-	// 		exclusionArr.push("'!${excludePath}/'")
-	// 	})
-	// }
 
-	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
-
+	////////////////////////////////////////////////////v
+	// 1/3 HEADER METADATA SEARCH
+	//
+	let end = perf(`🔎 searchWithRgGeneric 2 term:${p.term} folder:${p.folder}, with options ${JSON.stringify(p.options)}`)
 	// if backconfigFolder doesnt exists, add it
 	const relativeFolder = getRelativePath(p.folder)
 	const folderToSearch = `${backConfig.dataFolder + relativeFolder}`;
-
 	let lineParam = p.options.wholeLine ? '' : '--only-matching'
-
 	const searchParams = [
 		p.term,
 		folderToSearch,
@@ -126,51 +126,121 @@ export const searchWithRgGeneric = async (p: {
 		lineParam,
 		...exclusionArr
 	]
-	// p.options.debug && console.log(`== START1 ============`);
-	// p.options.debug && console.log(backConfig.rgPath, searchParams);
 	
-	// if (!ripGrepStream) errturn onRgDoesNotExists(err)
-	
-	const resArr: string[] = []
+	const linesResult: iLineResult[] = []
 	const onData1 = async dataChunk => {
-		// console.log("========", dataChunk);
 		const rawChunk = dataChunk.toString()
-		
 		const rawLines = rawChunk.split('\n')
 		each(rawLines, line => {
 			let lineRaw = line
-			// "path/to/file:whole line with : inside" 
-
 			// search "found word:10"
 			lineRaw = line.split(':')
 			if (!lineRaw[0] || lineRaw[0] === '') return
 			let found = lineRaw.slice(1).join(":")
-			
-			//	lineRaw => '/home/ubuntu/Desktop/_tiro_test/_new3/2222/MAIN PLAN.md:- [x] Tiro fix toc pb et autres UX + test server',
-			const processedLine = p.processRawLine({
+			const processedLine:iLineResult = p.processRawLine({
 				file: processRawPathToFile({ rawPath: lineRaw[0], folder: p.folder }),
 				raw: line,
 				path: lineRaw[0],  
 				found,
 			})
-			if (processedLine) resArr.push(processedLine)
-
-
-
+			if (processedLine) linesResult.push(processedLine)
 		})
 	}
-	const onClose1 = dataChunk => {
-		p.onSearchEnded(resArr)
-		end()
-		// p.options.debug && console.log(`============== END`);
+	const onClose1 = async dataChunk => {
+		await triggerAggregationIfEnded()
 	}
 	execaWrapper({
 		cmdPath:backConfig.rgPath, 
 		args: searchParams,
 		onData: onData1,
 		onClose: onClose1,
-		onError: err => {onRgDoesNotExists(err)}
+		onError: err => {
+			// if no such file or directory, dont raise error
+			if (JSON.stringify(err).includes("os error 2")) return
+			onRgDoesNotExists(err)
+		}
 	})
+
+
+	////////////////////////////////////////////////////v
+	// 2/3 FILES NAME SEARCH
+	//
+
+	// using rg --files to get all files in folder, then search term in each file name
+	const filesResult: iLineResult[] = []
+	if (!p.options.disableTitleSearch) {
+		const filesSearchParams = [
+			'--files',
+			folderToSearch,
+			...exclusionArr,
+			...typeArgs,
+		]
+
+		const onData2 = async dataChunk => {
+			const rawChunk = dataChunk.toString()
+			const rawLines = rawChunk.split('\n')
+			each(rawLines, line => {
+				let lineRaw = line
+				// search "found word:10"
+				// if term does not exists in file name, return
+				if (!line.includes(p.term)) return
+				let file = processRawPathToFile({ rawPath: line, folder: p.folder })
+				if (!file.name.includes(p.term)) return
+				let found = `[📄 filename match]: ${file.name}`
+				const processedLine:iLineResult = p.processRawLine({
+					file: file,
+					raw: line,
+					path: lineRaw,  
+					found,
+				})
+				if (processedLine) filesResult.push(processedLine)
+			})
+		}
+		const onClose2 = async dataChunk => {
+			await triggerAggregationIfEnded()
+		}
+		execaWrapper({
+			cmdPath:backConfig.rgPath, 
+			args: filesSearchParams,
+			onData: onData2,
+			onClose: onClose2,
+			onError: err => {
+				// if no such file or directory, dont raise error
+				if (JSON.stringify(err).includes("os error 2")) return
+				onRgDoesNotExists(err)
+			}
+		})
+	} else {
+		setTimeout(() => {
+			triggerAggregationIfEnded()
+		})
+	}
+	
+
+	////////////////////////////////////////////////////v
+	// 3/3 HEADER METADATA SEARCH
+	//
+	let count = 0
+	const triggerAggregationIfEnded = async () => {
+		count++
+
+		if (count < 2) return
+		 
+		if (p.options.disableMetadataSearch === true) {
+			p.onSearchEnded({linesResult})
+			end()
+		} else {
+			// for each linesResult.file
+			const finalResults = [...filesResult, ...linesResult]
+			for (let i = 0; i < finalResults.length; i++) {
+				let nFile = await getMetaFromHeaderWithJs(finalResults[i].file)
+				finalResults[i].file = nFile
+			}
+			p.onSearchEnded({linesResult:finalResults})
+			end()
+		}
+		// }
+	}
 }
 
 
@@ -209,12 +279,12 @@ export const searchWithRipGrep = async (params: {
 	onSearchEnded: (res: { files?: iFile[], images?: iFileImage[] }) => Promise<void>
 	onRgDoesNotExists?: () => void
 
-	processRawEl?: (raw: string) => any
-	processFinalRes?: (raw: string) => any
+	// processRawEl?: (raw: string) => any
+	// processFinalRes?: (raw: string) => any
 
 }): Promise<void> => {
 	let p = params
-	let end = perf(`searchWithRipGrep term:${p.term} folder:${p.folder}`)
+	let end = perf(`🔎 searchWithRipGrep 1 term:${p.term} folder:${p.folder}`)
 	const onRgDoesNotExists = (err) => {
 		if (!err.shortMessage.includes("ENOENT")) return
 		if (p.onRgDoesNotExists) p.onRgDoesNotExists()
@@ -233,7 +303,7 @@ export const searchWithRipGrep = async (params: {
 	// let searchType = ''
 	// if (params.term === '' && params.imageSearch) searchType = ''
 
-	const debugMode = (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
+	// const debugMode = (folderToSearch === '/sdcard/tiro-notes/main') ? true : false
 
 	// regex dictionary
 	const r = {
@@ -274,41 +344,7 @@ export const searchWithRipGrep = async (params: {
 
 
 		let resultsRawArr: string[] = []
-		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
 		
-		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
-
-		// ripGrepStreamProcess1.stdout.on('data', async dataRaw => {
-		// 	const rawMetaString = dataRaw.toString()
-		// 	// split multiline strings
-		// 	const rawMetaArr = rawMetaString.split('\n')
-		// 	resultsRawArr.push(...rawMetaArr)
-		// })
-
-		// ripGrepStreamProcess1.stdout.on('close', dataRaw => {
-		// 	const metasFilesObj = processRawStringsToMetaObj(resultsRawArr, relativeFolder, true);
-		// 	const scannedFilesObj: iFilesObj = {}
-		// 	let index = 0
-		// 	each(metasFilesObj, (metaObj, fileName) => {
-		// 		const file = processRawPathToFile({ rawPath: fileName, folder: relativeFolder, index, titleFilter })
-		// 		if (file && file.name) {
-		// 			if (fileExists(`${backConfig.dataFolder}/${file.path}`)) {
-		// 				scannedFilesObj[file.name] = file
-		// 				index++
-		// 			}
-		// 		}
-		// 	})
-		// 	const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
-		// 	const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
-
-		// 	log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
-		// 	params.onSearchEnded({ files: filesWithMetaUpdated })
-		// 	end()
-		// })
-		
-		// let ripGrepStreamProcess1 = execaWrapper(backConfig.rgPath, normalSearchParams)
-		
-		// if (!ripGrepStreamProcess1) errturn onRgDoesNotExists(err)
 
 		const onData2 =  async dataRaw => {
 			const rawMetaString = dataRaw.toString()
@@ -331,9 +367,10 @@ export const searchWithRipGrep = async (params: {
 				}
 			})
 			const filesWithMetaUpdated = mergingMetaToFilesArr(scannedFilesObj, metasFilesObj)
-			const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
+			// const debugObj = debugMode ? { filesWithMetaUpdated, scannedFilesObj, metasFilesObj } : {}
 
-			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams, debugObj });
+			log(h, ` FOLDER => CMD2 => ENDED `, { files: filesWithMetaUpdated.length, metasFilesObj, normalSearchParams });
+
 			params.onSearchEnded({ files: filesWithMetaUpdated })
 			end()
 		}
@@ -412,26 +449,7 @@ export const searchWithRipGrep = async (params: {
 			onError: err => {onRgDoesNotExists(err)}
 		})
 
-		// PROCESS 2
-		// let ripGrepStreamProcess2 = execaWrapper(backConfig.rgPath, metaFilesInFullFolderSearch)
-		// if (!ripGrepStreamProcess2) errturn onRgDoesNotExists(err)
 		
-		// const rawMetasStrings: string[] = []
-		// let metasFilesScanned: iMetasFiles = {}
-		// ripGrepStreamProcess2.stdout.on('data', async dataRaw => {
-		// 	const rawMetaString = dataRaw.toString()
-		// 	// split multiline strings
-		// 	const rawMetaArr = rawMetaString.split('\n')
-		// 	rawMetasStrings.push(...rawMetaArr)
-		// })
-		// ripGrepStreamProcess2.stdout.on('close', dataRaw => {
-		// 	// process raw strings to meta objs
-
-		// 	metasFilesScanned = processRawStringsToMetaObj(rawMetasStrings, relativeFolder)
-		// 	shouldLog && log(h, ` FOLDER => CMD2 => ENDED `, { metaFilesInFullFolderSearch });
-		// 	perfs.cmd2 = Date.now()
-		// 	triggerAggregationIfEnded()
-		// })
 		const rawMetasStrings: string[] = []
 		let metasFilesScanned: iMetasFiles = {}
 		const onData4 =  async dataRaw => {

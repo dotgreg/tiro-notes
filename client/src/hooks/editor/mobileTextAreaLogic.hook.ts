@@ -1,4 +1,4 @@
-import { debounce } from 'lodash';
+import { debounce } from 'lodash-es';
 import React, { useState } from 'react';
 import { deviceType } from '../../managers/device.manager';
 import { updateTextFromLetterInput } from '../../managers/textEditor.manager';

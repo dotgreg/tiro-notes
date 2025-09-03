@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled'
 import { iFile } from '../../../shared/types.shared';
-import { cloneDeep, debounce, isEqual, isNumber, max } from 'lodash';
+import { cloneDeep, debounce, isEqual, isNumber, max } from 'lodash-es';
 import { formatDateList } from '../managers/date.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { FixedSizeList } from 'react-window';
@@ -12,6 +12,8 @@ import { getLoginToken } from '../hooks/app/loginToken.hook';
 import { getKeyModif } from '../managers/keys.manager';
 import { SortModes } from '../managers/sort.manager';
 import { FilesPreviewObject } from '../hooks/api/files.api.hook';
+import { getFontSize } from '../managers/font.manager';
+import { cleanUrl } from '../managers/url.manager';
 
 
 // export const SortModeArr = ['none','alphabetical','created','modified']
@@ -127,6 +129,7 @@ class ListInt extends React.Component<{
 
 	getUrlLoginToken = () => `?token=${getLoginToken()}`;
 
+	
 
 	render() {
 		let sort = SortModes[this.props.sortMode]
@@ -234,7 +237,10 @@ class ListInt extends React.Component<{
 														className="picture"
 														style={{
 															backgroundColor: 'white',
-															backgroundImage: `url('${filePreview.picture.startsWith('http') ? filePreview.picture + this.getUrlLoginToken() : `${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}${this.getUrlLoginToken()}`}')`
+															backgroundImage: `url('${filePreview.picture.startsWith('http') ? 
+																cleanUrl(filePreview.picture + this.getUrlLoginToken()) : 
+																cleanUrl(`${absoluteLinkPathRoot(this.props.files[0].folder)}/${filePreview.picture}${this.getUrlLoginToken()}`)
+															}')`
 														}}
 													>
 													</div>
@@ -373,7 +379,7 @@ export const filesListCss = () => `
 
 								.date {
 										color: ${colors.l2.date};
-										font-size: 10px;
+										font-size: ${getFontSize()}px;
 										font-weight: 700;
 								}
             }

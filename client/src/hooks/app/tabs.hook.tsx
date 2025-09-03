@@ -1,32 +1,35 @@
 import { iFile, iGrid, iTab, iViewType, iWindow, iWindowContent } from '../../../../shared/types.shared';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
-import { cloneDeep, each, isNumber } from 'lodash';
+import { cloneDeep, each, isArray, isNumber } from 'lodash-es';
 import { increment } from '../../../../shared/helpers/number.helper';
 import { useBackendState } from '../useBackendState.hook';
 import { draggableGridConfig } from '../../components/windowGrid/DraggableGrid.component';
 import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
 import { deviceType } from '../../managers/device.manager';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { setNoteView, toggleViewType } from '../../managers/windowViewType.manager';
 
-export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'
-export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab, newVal?: any) => void
+export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'  | 'activateTabWindow'
+export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab | "activeTab", newVal?: any) => void
 
 export type iTabsApi = {
 	get: () => iTab[]
 	close: (tabId: string) => void
 	openInNewTab: (file: iFile) => void
 	reorder: (oldPos, newPos) => void
+	updateTab: onTabUpdateFn
 	active: {
 		get: () => iTab | null
-	}
+	},
 }
 export type iWindowsApi = {
 	close: (windowIds: string[]) => void
 	updateWindows: (windowIds: string[], file: iFile) => void
 	getIdsFromFile: (filepath: string) => string[]
 	active: {
-		get: (tab?: iTab) => iWindowLayoutAndContent | null
+		get: (tab?: iTab) => iWindowLayoutAndContent | undefined
 		setContent: (file: iFile) => void
+		toggleView: (view?: iViewType) => void
 	}
 }
 
@@ -66,24 +69,62 @@ export const addNewWindowConfig = (p: {
 export const useTabs = () => {
 	const h = `[TABS]`
 
-	const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
-	const tabsRef = useRef<iTab[]>([])
-	const setTabs = (nTabs: iTab[], cb?:Function) => {
-		//nTabs = refreshAllTabsName(nTabs);
+	// const [tabs, setTabsInt, refreshTabsFromBackend] = useBackendState<iTab[]>('tabs', [])
+	// const tabsRef = useRef<iTab[]>([])
+	// const setTabs = (nTabs: iTab[], cb?:Function) => {
+	// 	//nTabs = refreshAllTabsName(nTabs);
+	// 	tabsRef.current = nTabs
+	// 	setTabsInt(tabsRef.current)
+	// }
+	// useEffect(() => {
+	// 	tabsRef.current = tabs
+	// }, [tabs])
+	const [tabs, setTabsInt] = useState<iTab[]>([])
+    const [tabsDesktop, setTabsDesktop, refreshTabsFromBackend1] = useBackendState<iTab[]>('tabs',[], {history: false, debouncedSave: 5000})
+    const [tabsMobile, setTabsMobile, refreshTabsFromBackend2] = useBackendState<iTab[]>('tabs-mobile',[], {history: false, debouncedSave: 5000})
+    const tabsRef = useRef<iTab[]>([])
+    const setTabs = (nTabs:iTab[], cb?:Function) => {
 		tabsRef.current = nTabs
 		setTabsInt(tabsRef.current)
+        if (deviceType() !== 'mobile') { setTabsDesktop(tabsRef.current) } 
+        if (deviceType() === 'mobile') { setTabsMobile(tabsRef.current) } 
+    }
+	const refreshTabsFromBackend = () => {
+		refreshTabsFromBackend1()
+		refreshTabsFromBackend2()
 	}
-	useEffect(() => {
-		tabsRef.current = tabs
-	}, [tabs])
+    useEffect(() => {
+        refreshTabsFromBackend()
+    },[])
+    useEffect(() => {
+        tabsRef.current = tabs
+    },[tabs])
+
+    useEffect(() => {
+        if (deviceType() !== 'mobile') setTabsInt(tabsDesktop)
+    },[tabsDesktop])
+    useEffect(() => {
+        if (deviceType() === 'mobile') setTabsInt(tabsMobile)
+    },[tabsMobile])
+
+
+
+
+
+
+
 
 	const getTabs: iTabsApi['get'] = () => {
 		return tabsRef.current
 	}
 
+	
+
 	const openInNewTab: iTabsApi['openInNewTab'] = (file: iFile) => {
+		console.log(`[TAB] open in new tab`, file);
 		const nTab = generateNewTab({ fullWindowFile: file })
 		if (!nTab) return
+		tabsRef.current = isArray(tabsRef.current) ? tabsRef.current : []
 		const nTabs = [...tabsRef.current, nTab]
 		const nTabs2 = setActiveTab(nTab.id, nTabs)
 		setTabs(nTabs2)
@@ -98,7 +139,11 @@ export const useTabs = () => {
 		setTabs(nTabs);
 	}
 
-	const getActiveTab: iTabsApi['active']['get'] = () => {
+	// const [activeTab, setActiveTabInt] = useState<iTab | null>(null)
+	// useEffect(() => {
+	// 	setActiveTabInt(getActiveTab())
+	// }, [tabs])
+	const getActiveTab = () => {
 		let res: iTab | null = null
 		each(tabsRef.current, tab => { if (tab.active) res = tab })
 		return res
@@ -115,9 +160,11 @@ export const useTabs = () => {
 		setTabs(nTabs)
 	}
 
-	const updateTab: onTabUpdateFn = (type, tab, newVal) => {
-		// console.log(`[TAB] UPDATE ${type} ${tab ? `on tab ${tab.name}` : ''}`);
-
+	const updateTab: onTabUpdateFn = (type, tabVar, newVal) => {
+		// console.log(`[TAB] UPDATE TAB ${type} ${tabVar} ${newVal}`);
+		let tab  =  tabVar === 'activeTab' || !tabVar  ?  getActiveTab() : tabVar
+		if (!tab ) return
+		
 		if (type === 'add') {
 			// if active tab exists, copy it in new one
 			//tab with one window
@@ -135,17 +182,32 @@ export const useTabs = () => {
 			if (newVal.length > 15) return
 			const nTabs = cloneDeep(tabsRef.current)
 			each(nTabs, cTab => {
-				if (cTab.id === tab.id) {
+				if (cTab.id === tab?.id) {
 					cTab.name = newVal
 					cTab.manualName = true
 				}
 			})
 			setTabs(nTabs)
 
+		} else if (type === 'activateTabWindow') {
+			// activate a window in a tab
+			if (!tab) return
+			const nTabs = cloneDeep(tabsRef.current)
+			each(nTabs, cTab => {
+				// find tab
+				if (cTab.id === tab?.id) {
+					// activate window else disable all
+					each(cTab.grid.content, cWindow => {
+						cWindow.active = cWindow.i === newVal
+					})
+				}
+			})
+			const nTabs2 = refreshTabsViews(nTabs)
+			setTabs(nTabs2)
+
 		} else if (type === 'activate') {
 			// cleaning scrolling sync caching db
 			// syncScroll2.cleanDb();
-
 			// change tab
 			if (!tab) return
 			const nTabs = setActiveTab(tab.id, tabsRef.current)
@@ -181,10 +243,16 @@ export const useTabs = () => {
 		const nTabs = cloneDeep(tabsRef.current)
 		const aId = getActiveTabIndex(nTabs)
 		if (!isNumber(aId)) return
-		nTabs[aId].grid = grid
+		// nTabs[aId].grid = { ...grid}
+		// assign grid without losing the object 
+		nTabs[aId].grid = Object.assign(nTabs[aId].grid, grid)
+		let nRefresh = nTabs[aId].refresh
+		nTabs[aId].refresh = nRefresh ? nRefresh + 1 : 1
+
 		// console.log(`[TAB LAYOUT] update tab grid n:${aId}`, grid);
 		// const nTabs2 = refreshTabsViews(nTabs)
 		// setTabs(nTabs2)
+		
 		setTabs(nTabs, () => {cb && cb()})
 	}
 
@@ -260,10 +328,10 @@ export const useTabs = () => {
 			if (!isNumber(aId)) return
 			tab = nTabs[aId]
 		}
-
+		
 		if (!tab.grid.layout[0]) return
 		const g = tab.grid
-		let res
+		let res:iWindowLayoutAndContent = { layout: g.layout[0], content: g.content[0] } // if none, get first one
 		each(g.content, (c, i) => {
 			if (c.active) res = { layout: g.layout[i], content: g.content[i] }
 		})
@@ -280,13 +348,17 @@ export const useTabs = () => {
 
 		// get active window, if none, select first one
 		const aTab = nTabs[aId]
-		const aContent = aTab.grid.content
-		if (aContent.length < 1) return
-		let aWindowIndex = 0
-		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+		// const aContent = aTab.grid.content
+		// if (aContent.length < 1) return
+		// let aWindowIndex = 0
+		// each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+		// get active window, if none, select first one
+		const aWindow = getActiveWindow(aTab)
+		if (!aWindow) return
+		// let aCont
 
 		// change awindow.file
-		aContent[aWindowIndex].file = cloneDeep(nFile)
+		aWindow.content.file = cloneDeep(nFile)
 		// update tab name only if tab name not manually edited
 		if (!aTab.manualName) aTab.name = createTabName(nFile.name)
 		// refresh all tabs to view changes
@@ -295,7 +367,41 @@ export const useTabs = () => {
 		setTabs(nTabs2)
 	}
 
+	const toggleActiveView: iWindowsApi['active']['toggleView'] = (view ) => {
+		// get active window in active tab
+		// const aTab = getActiveTab()
+		// if (!aTab) return
+		// const aWindow = getActiveWindow(aTab)
+		// if (!aWindow) return
+		// get active tab
+		const nTabs = cloneDeep(tabsRef.current)
+		const aId = getActiveTabIndex(nTabs)
+		if (!isNumber(aId)) return
 
+		
+
+		// get active window, if none, select first one
+		const aTab = nTabs[aId]
+		const aContent = aTab.grid.content
+		if (aContent.length < 1) return
+		let aWindowIndex = 0
+		each(aContent, (window, index) => { if (window.active === true) aWindowIndex = index })
+		
+		// toggle view
+		// aWindow.content.view = toggl
+		if (view) {
+			aContent[aWindowIndex].view = view
+		} else {
+			aContent[aWindowIndex].view = toggleViewType(aContent[aWindowIndex].view)
+		}
+
+		const cFile = aContent[aWindowIndex].file
+		if(cFile) setNoteView(cFile?.path, aContent[aWindowIndex].view)
+
+		// save tabs
+		setTabs(nTabs)
+		// save window using 
+	}
 
 
 	//
@@ -308,15 +414,17 @@ export const useTabs = () => {
 		openInNewTab,
 		reorder: reorderTabs,
 		active: {
-			get: getActiveTab
-		}
+			get: getActiveTab,
+		},
+		updateTab
 	}
 
 	const windowsApi: iWindowsApi = {
 		close: closeWindows,
 		active: {
 			get: getActiveWindow,
-			setContent: updateActiveWindowContent
+			setContent: updateActiveWindowContent,
+			toggleView: toggleActiveView
 		},
 		updateWindows,
 		getIdsFromFile
@@ -374,7 +482,7 @@ const setActiveTab = (tabId: string, ptabs: iTab[]): iTab[] => {
 }
 
 
-const generateNewTab = (p: {
+export const generateNewTab = (p: {
 	copiedTab?: iTab
 	fullWindowFile?: iFile
 }) => {
@@ -386,7 +494,7 @@ const generateNewTab = (p: {
 	} else if (p.fullWindowFile) {
 		const newWindowConf = addNewWindowConfig({ file: p.fullWindowFile })
 
-		return {
+		let tab:iTab = {
 			id: generateUUID(),
 			name: createTabName(p.fullWindowFile.name),
 			active: true,
@@ -400,8 +508,8 @@ const generateNewTab = (p: {
 				]
 			}
 		}
-
-	}
+		return tab
+	} 
 }
 
 

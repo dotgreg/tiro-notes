@@ -16,9 +16,11 @@ export const generateUUID = (): string => {
 }
 
 export const getRessourceIdFromUrl = (rawUrl: string): string => {
+	let rawUrl2 = rawUrl
+
 	// let idRess = url.replace(/[^\w\s]/gi, '_').replace(/(_js)/gi, '.js').replace(/(_css)/gi, '.css')
-	let urlParams = rawUrl.split("?")[1] || ""
-	let url = rawUrl.split("?")[0]
+	let urlParams = rawUrl2.split("?")[1] || ""
+	let url = rawUrl2.split("?")[0]
 
 	let idUrl = url.replace(/[^\w\s]/gi, '_')
 	let idParams = urlParams.replace(/[^\w\s]/gi, '_')
@@ -27,5 +29,9 @@ export const getRessourceIdFromUrl = (rawUrl: string): string => {
 	ressType = "." + ressType.replace(/[^\w\s]/gi, '_')
 	if (ressType.length > 6 || ressType.length <= 1) ressType = ""
 
-	return `${idUrl}_${idParams}${ressType}`
+	let nameRess = `${idUrl}_${idParams}`
+	// if it is too long (more than 255 char) we cut it
+	if (nameRess.length > 200) nameRess = nameRess.slice(0, 200)
+
+	return `${nameRess}${ressType}`
 }

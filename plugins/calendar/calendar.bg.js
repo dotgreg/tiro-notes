@@ -2,20 +2,19 @@
 const curr = new Date()
 const h = `[CALENDAR BG | ${curr.getHours()}h${curr.getMinutes()}] `
 let s = bgState.vars
-
+let disableCache = (config.disableCache === "true" || config.disableCache === true) ? true : false
 const fetchLibs = (cb) => {
-    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: true}, calendarLib => {
-        cb(calendarLib)
+    tiroApi.ressource.fetchEval(config.libUrl, {tiroApi}, {disableCache: disableCache}, () => {
+        cb()
     })
 }
-fetchLibs(calendarLib => {
-    main(calendarLib)
-})
 
-const main = (calendarLib) => {
+const main = () => {
+    const calendarLib = window._tiroPluginsCommon.calendarLib
+    let source_events = config.sourcesStr ? config.sourcesStr : ''
     // all that system suppose we trigger the cron every 11min
-    calendarLib.getEventsList(config.calNotePath, events => {
-        // console.log(h, "calendar note fetch:", {events})
+    calendarLib.getEventsList("bg", source_events, events => {
+        console.log(h, "calendar note fetch:", {events})
         for (var i = 0; i < events.length; i++) {
             let e = events[i]
 
@@ -26,7 +25,7 @@ const main = (calendarLib) => {
             let daysFromNow = Math.round((evdate.getTime() - new Date().getTime()) / (60 * 60 * 24 * 1000)) 
             let minsFromNow = Math.round((evdate.getTime() - new Date().getTime()) / (60 * 1000))
             const isForTomorrow = daysFromNow === 1
-            const isWorkingHours = curr.getHours() > 9 && curr.getHours() <= 20
+            const isWorkingHours = curr.getHours() > 8 && curr.getHours() <= 20
 
             // if date time is not 00:00
             const isDayEvent = evdate.getHours() === 0 && evdate.getMinutes() === 0
@@ -34,10 +33,12 @@ const main = (calendarLib) => {
             const isIn10m = minsFromNow > 5 && minsFromNow < 25
             // it is within 1h10-1h
             const isIn1h = minsFromNow > 60 && minsFromNow < 90
+
+            const isEventForToday = daysFromNow === 0 && isWorkingHours
+
             const atStr = ` at ${evdate.getHours()}h${evdate.getMinutes()}`
 
-            if (
-                isForTomorrow && isWorkingHours) {
+            if (isForTomorrow && isWorkingHours) {
                 console.log(h, "isForTomorrow + is2pm", e)
                 let title = `Tomorrow :`
                 if (!isDayEvent) title += atStr
@@ -45,14 +46,23 @@ const main = (calendarLib) => {
             }
             if (!isDayEvent && isIn10m) {
                 console.log(h, "isIn10m", e)
-                tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2870/2870.wav")
-                calendarLib.sendNotif(e, `In 10 minutes,${atStr}` )
+                calendarLib.sendNotif(e, `In 10 minutes,${atStr}`, () => {
+                    tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2870/2870.wav")
+                })
             }
             if (!isDayEvent && isIn1h) {
                 console.log(h, "isIn1h", e)
                 calendarLib.sendNotif(e, `In 1 hour,${atStr} :`)
             }
+            if (isEventForToday) {
+                console.log(h, "isEventForToday", e)
+                calendarLib.sendNotif(e, `Today,${atStr} :`)
+            }
         }
         
     })
 }
+
+fetchLibs(() => {
+    main()
+})

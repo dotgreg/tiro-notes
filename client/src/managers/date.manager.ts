@@ -1,4 +1,4 @@
-import { isString } from "lodash";
+import { isString } from "lodash-es";
 import { strings } from "./strings.manager";
 
 const monthNames = ["January", "February", "March", "April", "May", "June",

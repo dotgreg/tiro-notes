@@ -6,6 +6,8 @@ import { strings } from '../managers/strings.manager';
 import { isA, isIpad } from '../managers/device.manager';
 import { getApi, getClientApi2 } from '../hooks/api/api.hook';
 import { areSamePaths } from '../../../shared/helpers/filename.helper';
+import { getFontSize } from '../managers/font.manager';
+import { isArray } from 'lodash-es';
 
 export type onFolderClickedFn = (folderPath: string) => void
 export type onFolderDragStartFn = (folder: iFolder) => void
@@ -34,7 +36,12 @@ export const FoldersTreeView = (p: {
 
 
 	return (
-		<div className="folder-tree-view-component">
+		<div className="folder-tree-view-component" 
+		// onDrop={(e) => {
+		// 	console.log("DROP32", e)
+		// 	setDragClass("")
+		// }}
+		>
 			<h3 className='subtitle'>{strings.folders}</h3>
 			<FolderView
 				openFolders={p.openFolders}
@@ -85,7 +92,9 @@ export const FolderView = (p: {
 	onFolderDrop: onFolderDropFn
 }) => {
 
-	const isOpen = p.openFolders.includes(p.folder.path) && p.folder.hasFolderChildren
+	let openFolders = isArray(p.openFolders) ? p.openFolders : []
+
+	const isOpen = openFolders.includes(p.folder.path) && p.folder.hasFolderChildren
 
 	const [isMenuOpened, setIsMenuOpened] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
@@ -103,18 +112,26 @@ export const FolderView = (p: {
 			className={`folder-wrapper ${isCurrentFolder ? 'current' : ''} `}
 			draggable={true}
 			onDrop={(e) => {
+				console.log("DROP", e)
 				if (!p.folder.key) return
 				p.onFolderDrop(p.folder)
 				e.stopPropagation()
+				
 			}}
 			onDragStart={(e) => {
 				if (!p.folder.key) return
 				p.onFolderDragStart(p.folder)
 				e.stopPropagation()
 			}}
+			onDragOver={(e) => {
+				setDragClass("drag")
+				e.preventDefault()
+				e.stopPropagation()
+			}}
 			onDragEnd={() => {
 				if (!p.folder.key) return
 				p.onFolderDragEnd()
+				
 			}}
 			onMouseLeave={() => {
 				isMenuOpened && setIsMenuOpened(false)
@@ -123,9 +140,10 @@ export const FolderView = (p: {
 			<div
 				className={`folder-title ${dragClass}`}
 				onDragEnter={(e) => {
-					setDragClass("drag")
+					
 				}}
 				onDrop={(e) => {
+					console.log("DROP2", e)
 					setDragClass("")
 				}}
 				onDragLeave={(e) => {
@@ -225,7 +243,7 @@ export const FolderView = (p: {
 					{
 						p.folder.children && p.folder.children.map((child, key) =>
 							<FolderView
-								openFolders={p.openFolders}
+								openFolders={openFolders}
 								key={key}
 								folder={child}
 								current={p.current}
@@ -305,13 +323,13 @@ export const folderTreeCss = () => `
 
 				position: relative;
 				list-style: none;
-				font-size: 13px;
+				font-size: ${getFontSize(+3)}px;
 				font-weight: 600;
 				cursor: pointer;
 
 				.context-menu-wrapper {
 						position: absolute;
-						right: 10px;
+						right: -13px;
 						top: -10px;
 						padding: 10px;
 						display:none;
@@ -326,7 +344,7 @@ export const folderTreeCss = () => `
 								width: 100px;
 								z-index: 100;
 								border-radius: 4px;
-								font-size: 10px;
+								font-size: ${getFontSize()}px;
 								ul {
 										list-style: none;
 										padding: 0px;

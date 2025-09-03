@@ -1,4 +1,8 @@
-import { each, isNull, random } from "lodash"
+import { each, isNull, random } from "lodash-es"
+
+//
+// !!!!!!!!!! NEW METHOD addKeyShortcut > keyboard.manager.ts
+//
 
 type iKeyModif = 'ctrl' | 'shift' | 'alt' | 'opt'
 type iKeySpecial = 'up' | 'down' | 'enter'
@@ -8,15 +12,16 @@ type iKey = iKeySpecial | iKeyAlpha | iKeyNumbers | iKeyModif
 
 // NEW SYSTEM 
 
-const modifs = {
+export const keysModifiers = {
 	ctrl: false,
 	shift: false,
 	alt: false,
-	opt: false
+	opt: false,
+	Meta: false,
 };
 
 export const getKeyModif = (modifName: iKeyModif): boolean => {
-	const res = modifs[modifName];
+	const res = keysModifiers[modifName];
 	return res
 }
 
@@ -39,13 +44,13 @@ export const getEventKeyName = (e: any): string => {
 export const startListeningToKeys = () => {
 	window.onkeydown = (e: any) => {
 		const keyName = getEventKeyName(e)
-		if (!isNull(modifs[keyName])) modifs[keyName] = true
+		if (!isNull(keysModifiers[keyName])) keysModifiers[keyName] = true
 		const actionName = `${keyName}-down`;
 		if (allKeyActions[actionName]) allKeyActions[actionName]();
 	}
 	window.onkeyup = (e: any) => {
 		const keyName = getEventKeyName(e)
-		if (!isNull(modifs[keyName])) modifs[keyName] = false
+		if (!isNull(keysModifiers[keyName])) keysModifiers[keyName] = false
 		const actionName = `${keyName}-up`;
 		if (allKeyActions[actionName]) allKeyActions[actionName]();
 	}

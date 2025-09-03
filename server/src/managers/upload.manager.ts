@@ -28,32 +28,38 @@ export const initUploadFileRoute = async (socket: ServerSocketManager<iApiDictio
 		log('FILE UPLOAD STARTED', e);
 	})
 	uploader.on('complete', async (e) => {
+		//
+		// login check
+		//
+		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
+		let user = getUserFromToken(loginToken)
+		let hasEditorRole = user && user.roles.includes("editor") && !sharedConfig.dev.disableLogin
+		if (!hasEditorRole) return console.log('[UPLOAD] no editor role, cancelling upload', JSON.stringify({ meta: e.file.meta, user }))
+
 		if (!e.file) return log(`file could not be uploaded`)
 		let finfos = getFileInfos(e.file.pathName)
 		const idReq = (e.file.meta && e.file.meta.idReq) ? e.file.meta.idReq : false
 		let pathToUpload = (e.file.meta && 'path' in e.file.meta) ? e.file.meta.path : false
 		pathToUpload = pathToUpload.split(backConfig.relativeUploadFolderName).join('')// if ends with .resource, cut that part
 
-		const loginToken = (e.file.meta && e.file.meta.token) ? e.file.meta.token : false
-		let user = getUserFromToken(loginToken)
-		let hasEditorRole = user && user.roles.includes("editor") && !sharedConfig.dev.disableLogin
+		let newManualName = e.file.meta.newManualName ? e.file.meta.newManualName : finfos.filename
 
 		if (!idReq || !pathToUpload) return console.log('[UPLOAD] NO IDREQ/PATHTOUPLOAD, cancelling upload', JSON.stringify(e.file.meta), idReq, pathToUpload)
 
-		if (!hasEditorRole) return console.log('[UPLOAD] no editor role, cancelling upload', JSON.stringify({ meta: e.file.meta, user }), pathToUpload)
+		
 
 		// do modification => namefile to unique ID here
 		let oldPath = `${e.file.pathName}`
 		let displayName = finfos.filenameWithoutExt.replace('-0', '')
 
-		// let newName = `${generateNewFileName(displayName)}.${finfos.extension}`
+		// let newManualName = `${generateNewFileName(displayName)}.${finfos.extension}`
 		// let uncheckedNewAbsPath = cleanPath(`${backConfig.dataFolder}/${pathToUpload}/${backConfig.relativeUploadFolderName}/${finfos.filename}`)
 		// let checkedNewAbsPath = generateUniqueFileName(uncheckedNewAbsPath)
-		// let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newName}`)
+		// let newRelPath = cleanPath(`${backConfig.relativeUploadFolderName}/${newManualName}`)
 
 		// if md, upload directly in directory
 		let newAbsFolderPath = cleanPath(`${backConfig.dataFolder}/${pathToUpload}/`)
-		let uncheckedNewRelPath = finfos.extension === 'md' ? `${finfos.filename}` : `${backConfig.relativeUploadFolderName}/${finfos.filename}`
+		let uncheckedNewRelPath = finfos.extension === 'md' ? `${finfos.filename}` : `${backConfig.relativeUploadFolderName}/${newManualName}`
 
 		let uncheckedNewAbsPath = cleanPath(`${newAbsFolderPath}${uncheckedNewRelPath}`)
 		let checkedNewAbsPath = generateUniqueAbsFilePath(uncheckedNewAbsPath)

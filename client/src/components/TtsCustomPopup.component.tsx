@@ -1,0 +1,549 @@
+import styled from '@emotion/styled';
+import React, { useEffect, useRef, useState } from 'react';
+import { iTtsStatus } from '../hooks/app/useTtsPopup.hook';
+import { useLocalStorage } from '../hooks/useLocalStorage.hook';
+import { strings } from "../managers/strings.manager";
+import { Icon } from './Icon.component';
+import { Popup } from './Popup.component';
+import { chunkTextInSentences, chunkTextInSentences2, cleanText2Speech, extractToChunkPos } from '../managers/tts.manager';
+import { userSettingsSync } from '../hooks/useUserSettings.hook';
+import { getApi } from '../hooks/api/api.hook';
+import { notifLog } from '../managers/devCli.manager';
+import { useInterval } from '../hooks/interval.hook';
+import { useBackendState } from '../hooks/useBackendState.hook';
+import { useDebounce } from '../hooks/lodash.hooks';
+import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
+import { deviceType } from '../managers/device.manager';
+import { chunk } from 'lodash-es';
+
+const pre = "[TtsCustomPopup] "
+
+export const TtsCustomPopup = (p: {
+	// allows to retain tracking 
+	id: string | null,
+	fileContent: string
+	startString: string | null
+
+	onUpdate: (status: iTtsStatus) => void
+	onClose: Function
+}) => {
+
+	const [isPlaying, setIsPlayingInt] = useState(false)
+	const isPlayingRef = useRef<boolean>(false)
+	const setIsPlaying = (isPlaying: boolean) => {
+		setIsPlayingInt(isPlaying)
+		isPlayingRef.current = isPlaying
+	}
+	const [selectedVoiceId, setSelectedVoiceId] = useLocalStorage<number>('tts-selected-voice', 0)
+	const [currRate, setCurrRateInt] = useLocalStorage<number>(`tts-rate`, 1)
+	const currRateRef = useRef<number>(currRate)
+	const setCurrRate = (rate: number) => {
+		setCurrRateInt(rate)
+		currRateRef.current = rate
+	}
+	const [wordStat, setWordStat, refreshBackendWordStat] = useBackendState<number>('tts-word-stats', 0, {debug:false})
+	const wordStatRef = useRef<number>(0)
+	useEffect(() => {
+		refreshBackendWordStat(res => {
+			if (typeof res === "number")wordStatRef.current = res
+		})
+	}, [])
+
+	// const [currChunk, setCurrChunk] = useState(0)
+	const [bgLock, setBgLock] = useState(false)
+	// const [lockCounter, setBgLock] = useState(false)
+	const lockBgScreen = (status: boolean) => {
+		status === true ? startScreenWakeLock() : stopScreenWakeLock()
+		setBgLock(status)
+	}
+
+	const [currChunk, setCurrChunkInt] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
+
+	const [logTxt, setLogTxt] = useState<string>("")
+	const [showLog, setShowLog] = useState<boolean>(true)
+	const logRef = useRef<string>("")
+	const log = (messageText:string) => {
+		// prepend to logTxt
+
+		let messageText2 = messageText.replaceAll(`${pre}:`, "")
+		messageText2 = messageText2.replaceAll(pre, "")
+		logRef.current = messageText2 + "<br>" + logRef.current
+		console.log(messageText)
+		setLogTxt(logRef.current)
+	}
+
+
+
+	const [textChunks, setTextChunks] = useState<string[]>([])
+
+	useEffect(() => {
+		let currentText = textChunks[currChunk]
+		if (currentText) currentText = currentText.split(/[.?!:]/)[0]
+		p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying, currentText })
+	}, [textChunks, currChunk, isPlaying])
+
+
+
+	useEffect(() => {
+		// split p.fileContent into sentences
+		let cleanedText = cleanText2Speech(p.fileContent)
+		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
+		let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart)
+		console.log(chunkedText2)
+
+		setTextChunks(chunkedText2)
+		console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts`,{chunkedText2})
+
+	}, [p.fileContent])
+
+
+
+	const stopAudio = () => {
+		pauseAllAudioWindow(false)
+		setIsPlaying(false)
+	}
+	const playChunkInt = (chunkNb, preloadNext = true) => {
+		stopAudio()
+		downloadAudioFile(chunkNb, urlAudio => {
+			if (!urlAudio.includes("ERROR")) {
+				log(`${pre}: ▶️ playing chunk ${chunkNb}`)
+				playAudio(urlAudio, () => {
+					next()
+				}) 
+			} else {
+				let delay = 4
+				log(`${pre}: ❌▶️ ERROR could not play chunk ${chunkNb}, no audio url, retrying in ${delay}s`)
+				setTimeout(() => {
+					playChunkInt(chunkNb, preloadNext)
+				}, delay * 1000)
+			}
+		})
+		
+		let numberToPreload = userSettingsSync.curr.tts_preload_parts
+		if (preloadNext) {
+			for (let i = 1; i <= numberToPreload; i++) {
+				if (chunkNb + i <= textChunks.length) {
+					downloadAudioFile(chunkNb + i, () => {})
+				}
+			}
+		}
+	}
+	const playChunkDebounced = useDebounce(playChunkInt, 500)
+	const playChunk = playChunkDebounced
+	
+	
+	const audioRef = useRef<any>(null)
+	// const allAudiosRef = useRef<any>([])
+
+	const addAudioWindow = (audio:any) => {
+		// @ts-ignore
+		if (window.tiro_tts_allAudiosRef === undefined ) window.tiro_tts_allAudiosRef = []
+		// @ts-ignore
+		window.tiro_tts_allAudiosRef.push(audio)
+	}
+	const pauseAllAudioWindow = (remove:boolean = false) => {
+		// @ts-ignore
+		if (window.tiro_tts_allAudiosRef === undefined ) window.tiro_tts_allAudiosRef = []
+		// @ts-ignore
+		for (let i = 0; i < window.tiro_tts_allAudiosRef.length; i++) {
+		// @ts-ignore
+			window.tiro_tts_allAudiosRef[i].pause()
+		// @ts-ignore
+			window.tiro_tts_allAudiosRef[i].currentTime = 0
+		}
+		if(remove === true) {
+			// destroy each oject
+			// @ts-ignore
+			window.tiro_tts_allAudiosRef = []
+		}
+	}
+
+	const currChunkRef = useRef<number>(currChunk)
+	const setCurrChunk = (chunkNb) => {
+		setCurrChunkInt(chunkNb)
+		currChunkRef.current = chunkNb
+	}
+
+	useInterval(() => {
+		let positionAudio = audioRef.current?.currentTime
+		let timeAudio = audioRef.current?.duration
+		let statusAudio = audioRef.current?.paused
+		log(`${pre}: audio status: ${positionAudio}/${timeAudio} ${statusAudio ? "paused" : "playing"}`)
+	}, 5000)
+	
+	let currentAudioObj = useRef<any>(null)
+	const playAudio = (urlAudio:string, onEnd:Function) => {
+		// stop previous audio if any
+		stopAudio()
+		if (isPopupClosedRef.current === true) return
+		setIsPlaying(true)
+		log(`${pre}: audio STARTED`)
+		let audio:any = null
+		if (!currentAudioObj.current) {
+			audio = new Audio(urlAudio)
+			currentAudioObj.current = audio
+		} else {
+			audio = currentAudioObj.current
+			audio.src = urlAudio
+		}
+		
+		addAudioWindow(audio)
+		audioRef.current = audio
+		audio.play()
+		updateSpeedAudio(currRateRef.current)
+		audio.onended = () => {
+			log(`${pre}: audio ENDED`)
+			// destroy audio to flush memory
+			audioRef.current = null
+			audio.remove()
+
+			setIsPlaying(false)
+			onEnd()
+		}
+	}
+	const next = () => {
+		if (currChunkRef.current < textChunks.length - 1) {
+			let nChunk = currChunkRef.current + 1
+			log(`${pre}: ️⏭ next chunk ${nChunk}`)
+			playChunk(nChunk)
+			setCurrChunk(nChunk)
+		}
+	}
+ 	const prev = () => {
+		if (currChunkRef.current !== 0) {
+			let nChunk = currChunkRef.current - 1
+			log(`${pre}:️⏮ prev chunk ${nChunk}`)
+			playChunk(nChunk)
+			setCurrChunk(nChunk)
+		}
+	}
+	const togglePlay = () => {
+		if (isPlaying) {
+			setIsPlaying(false)
+			audioRef.current.pause()
+			log (`${pre}: ⏸️ paused`)
+		} else {
+			playChunk(currChunk)
+		}
+	}
+	const updateSpeedAudio = (speed:number) => {
+		audioRef.current.playbackRate = speed
+	}
+
+	// const cacheIdUrls = `tts-cached-audio-urls-parts${p.id}-${userSettingsSync.curr.tts_sentences_per_part}`
+	// const [cachedAudioUrls, setCachedAudioUrls] = useLocalStorage<string[]>(cacheIdUrls,[])
+	const audioUrls = useRef<string[]>([])
+	// useEffect(() => {
+	// 	if (cachedAudioUrls.length > 0) { audioUrls.current = cachedAudioUrls }
+	// }, [cachedAudioUrls])	
+	// const clearAudioCache = () => {
+	// 	let before = audioUrls.current.filter(u => u !== null).length
+	// 	setCachedAudioUrls([]);
+	// 	audioUrls.current = []
+	// 	let after = audioUrls.current.length
+	// 	log(`${pre}: ⚠️ cleared audio cache (${before} -> ${after})`)
+	// }
+
+	const downloadAudioFile = (chunkId:number, cb: (urlAudio:string) => void) => {
+		let stringCmd = userSettingsSync.curr.tts_custom_engine_command
+		// replace {{input}} in txt by the chunk text
+		let textToSent = textChunks[chunkId]
+		if (!textToSent || textToSent.length === 0) return log(`${pre}: ⚠️ chunk ${chunkId} is empty, do not download`)
+		let wordsNb = textToSent?.split(" ").length || 0
+		if (typeof wordsNb === "number" && typeof wordStatRef.current === "number") {
+			wordStatRef.current = wordStatRef.current + wordsNb
+			setWordStat( wordStatRef.current + wordsNb)
+		}
+		let wordLog = `[${wordsNb} words]`
+		stringCmd = stringCmd.replace("{{input}}", textToSent)
+		log(`${pre}: 📥 [...] downloading chunk ${chunkId} ${wordLog} "${textToSent.substring(0, 100)}..."`)
+		let isCbCalled = false
+		const cbOnce = (res:any) => {
+			if (isCbCalled) return 
+			cb(res)
+			isCbCalled = true
+		}
+
+		if (audioUrls.current[chunkId]) {
+			cbOnce(audioUrls.current[chunkId])
+			// length audioUrls.current not null
+			let nonNullAudioUrls = audioUrls.current.filter(url => url !== null)
+			log(`${pre}: 💾 already downloaded chunk ${chunkId} ${wordLog} [${nonNullAudioUrls.length} / ${textChunks.length} cached]`)
+			return
+		}
+
+		// console.log(`${pre}: asking api`,{stringCmd})
+		let start = Date.now()
+		// request api
+		setTimeout(() => {
+			if (isCbCalled) return
+			log(`${pre}: 📥❌ timeout for chunk ${chunkId} ${wordLog} `)
+			cbOnce("ERROR: timeout")
+		}, 20 * 1000)
+		getApi( api => {
+			api.command.exec(stringCmd, (apiAnswer:string) => {
+				// console.log(`${pre}: `,{apiAnswer})
+				// look for an url ending with .mp3/wav
+				if (isCbCalled) return
+				let url = apiAnswer.match(/https?:\/\/[^\s]+\.(mp3|wav)/g)
+				if (url && url[0]) {
+					// console.log(`${pre}: found url ${url[0]}`)
+					let time = Date.now() - start
+					let timeLog = `[${time}ms]`
+					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
+					audioUrls.current[chunkId] = url[0]
+					// setCachedAudioUrls(audioUrls.current)
+					// preload the audio
+					let audio = new Audio(url[0])
+					audio.preload = "auto"
+					cbOnce(url[0])
+				} else {
+					let message = apiAnswer
+					try {
+						let apiObj = JSON.parse(apiAnswer)
+						message = `${apiObj["stderr"]} - ${apiObj["shortMessage"]}`
+						log(`${pre}: 📥❌ [!! error] chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
+						
+					} catch (error) {
+						
+					}
+					cbOnce("ERROR: API")
+					// notifLog(`Text to Speech API answer error: <br>`+message )
+				}
+			})
+		})
+	}
+	// START BY PLAYING
+	useEffect(() => {
+		log("=====================================================================")
+	}, [])
+
+	useEffect(() => {
+		playChunk(currChunk)
+	}, [textChunks, currChunk])
+
+	const initPos = useRef(false)
+	useInterval(() => {
+		// search for initial chunk
+		if (p.startString && !initPos.current) {
+			let nPos = -1
+			// let refinedStartString = p.startString.trim()
+			// // split by ,;.
+			// let allSentences = refinedStartString.split(/[,;.:]+/).map(s => s.trim())
+			// // keep longuest sentence
+			// refinedStartString = allSentences.reduce((a, b) => a.length > b.length ? a : b)
+
+			let chunkPos = extractToChunkPos(p.startString, textChunks, 1000)
+			nPos = chunkPos
+			initPos.current = true
+
+			// search emoji =>  
+			let startStringStr = p.startString.substring(0, 100)
+			let logStr = `${pre}  🔎 found startString "${startStringStr}" at chunk ${chunkPos}`
+			if (chunkPos === -1) logStr = `${pre}  🔎 NOT FOUND  startString "${startStringStr}" at chunk ${chunkPos}`
+			log(logStr)
+			if (nPos != -1) setCurrChunk(nPos)
+		}
+		
+	}, 500)
+	useInterval(() => {
+		// if is playing, start play 
+		if (isPlayingRef.current === true) {
+			if(!audioRef.current) return
+			if (!audioRef.current.src) return
+			audioRef.current.play()
+		}
+	}, 3000)
+
+
+
+
+	const [estimatedTime, setEstimatedTime] = useState<string>("")
+	useEffect(() => {
+		let formatTime = (mins: number): string => {
+			let hours = 0
+			let res = `${Math.ceil(mins)}m`
+			if (mins > 60) {
+				hours = Math.floor(mins / 60)
+				let minsLeft = Math.ceil(mins % 60)
+				res = `${hours}h`
+			}
+			return res
+		}
+		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
+		let sentencesLength = textChunks.length * sentencesPerPart
+		let left = formatTime((6 * (sentencesLength - currChunk)) / (currRate * 60))
+		let tot = formatTime((6 * sentencesLength) / (currRate * 60))
+		let res = ` ${left} left of ${tot}`
+		setEstimatedTime(res)
+	}, [textChunks, currRate, currChunk])
+
+
+	const isPopupClosedRef = useRef(false)
+
+	return (
+		<StyledDiv>
+			<Popup
+				title={`${strings.ttsPopup.title}`}
+				onClose={() => {
+					pauseAllAudioWindow(true)
+					isPopupClosedRef.current = true
+					let currentText = textChunks[currChunk]
+					if (currentText) currentText = currentText.split(/[.?!:]/)[0]
+					p.onUpdate({ totalChunks: textChunks.length, currentChunk: currChunk, isPlaying: false, currentText })
+					p.onClose()
+				}}
+			>
+				<span> SPEED : </span>
+				<input className="speed-range" type="range" value={currRate} min="0.5" max="3" step="0.1"
+					onChange={e => {
+						const nVal = e.target.value as any
+						setCurrRate(nVal)
+						updateSpeedAudio(currRateRef.current)
+					}}>
+				</input> ({currRate})
+				<br />
+
+				<br />
+				<b> PARTS : </b>
+				<input type="number" className="text-pos" value={currChunk} min="0" max={textChunks.length}
+					onChange={e => {
+						let val = parseInt(e.target.value)
+						setCurrChunk(val)
+						playChunk(val)
+					}}>
+				</input> / {textChunks.length}
+				<br />
+				<input type="range" value={currChunk} className="range-pos" min="0" max={textChunks.length}
+					onChange={e => {
+						let val = parseInt(e.target.value)
+						setCurrChunk(val)
+						playChunk(val)
+					}}>
+				</input>
+				<div className="estimated-time"><b>Reading Time</b> :{estimatedTime}</div>
+
+
+
+				<div className="buttons">
+					<button onClick={e => {prev()}}>
+						<Icon name="faFastBackward" color="black" />
+					</button>
+					<button onClick={e => {
+						togglePlay()				
+					}}>
+						<Icon name={!isPlaying ? "faPlay" : "faPause"} color="black" />
+					</button>
+					<button onClick={e => {next()}}>
+						<Icon name="faFastForward" color="black" />
+					</button>
+
+					{
+				    	deviceType() !== "desktop" && <button onClick={e => { lockBgScreen(true) }}>
+				    		<Icon name="faLock" color="black" />
+				    	</button>
+					}
+				</div>
+				<div 
+				onClick={e => setShowLog(!showLog)}
+				className='log-button'> details </div>
+				{
+					showLog && typeof wordStat === 'number' &&
+					<div className='stats'>
+						API Words sent: {wordStat}<br/>
+							Estimated time spoken: {wordStat / 10 / 60 / 2 < 60 ?
+								`${Math.round(wordStat / 10 / 60 / 2)} minutes` :
+								`${Math.round(wordStat / 10 / 60 / 2 / 60 * 10) / 10} hours (${Math.round(wordStat / 10 / 60 / 2)} mins)`}<br />
+							Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000) / 100000}<br />
+						{/* Cached Audio Parts : {cachedAudioUrls.filter(n => n !== null).length} / { textChunks.length }<br/> */}
+						<button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button>
+						{/* <button onClick={()=> {clearAudioCache()}}> clear audio cache</button> */}
+					</div>
+				}
+				{
+					showLog &&
+					<div className='log-wrapper'>
+						<div dangerouslySetInnerHTML={{__html: logTxt}}></div>
+					</div>
+				}
+				
+			</Popup>
+
+			{bgLock && <div className="bg-lock">
+				<button
+					onContextMenu={e => { lockBgScreen(false) }}>
+					<Icon name="faUnlock" color="black" />
+				</button>
+			</div>}
+
+
+		</StyledDiv>
+	)
+}
+
+export const StyledDiv = styled.div`
+.stats {
+	font-size: 10px;
+	padding: 10px;
+}
+.log-button {
+		cursor: pointer;
+		color: #0000ff;
+		margin-top: 10px;
+		text-align: center;
+		font-size: 12px;
+}
+.log-wrapper {
+	height: 200px;
+	overflow:scroll;
+	background: #ececec;
+	padding: 10px;
+	margin-top: 10px;
+	font-size: 10px;
+}
+.bg-lock {
+		position: fixed;
+		top: 0px;
+		left: 0px;
+		width: 100vw;
+		height: 100vh;
+		z-index: 100005;
+		background: rgba(0,0,0,0.3);
+		display: flex;
+		justify-content: center;
+    align-items: center;
+		button {
+		}
+}
+.popup-wrapper .popupContent {
+    	padding: 20px;
+		.input-component span, span {
+				display: inline-block;
+				width: 30%;
+				font-size: 12px;
+				font-weight: bold;
+		}
+		.speed-range {
+				position: relative;
+				top: 8px;
+				width: 90%;
+		}
+		.range-pos {
+				width: 100%;
+				margin-bottom:10px;
+		}
+		.text-pos {
+				width: 50px;
+				margin-bottom:10px;
+		}
+
+}
+.buttons {
+    display: flex;
+    padding: 20px 0px 0px 0px;
+    button {
+        width: 30%;
+        padding: 10px;
+    }
+}
+`

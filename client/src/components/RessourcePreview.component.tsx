@@ -1,4 +1,4 @@
-import { each, random } from 'lodash';
+import { each, random } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
 import { iFile } from '../../../shared/types.shared';
@@ -11,6 +11,7 @@ import { safeString } from '../managers/string.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { getApi } from '../hooks/api/api.hook';
+import { getFontSize } from '../managers/font.manager';
 
 
 //
@@ -32,7 +33,7 @@ export const RessourcePreview = (p: {
 	const canBePreviewed = (urlLink:string):{status:boolean, onlinePreviewLink?:string} => {
 		let res = {status:false}
 		let canBePreviewed = false
-		let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub"]
+		let previewFormats = ["pdf", "mp4", "mp3", "ogg", "wav", "aac", "webm", "flac", "txt", "json", "css", "js", "html", "epub", "csv", "arrow"]
 		if (previewFormats.includes(getFileType(urlLink).toLowerCase())) canBePreviewed = true
 		// for doc/docx/xls/xlsx/ppt/pptx + if window.location is not ip OR localhost, open it with google preview
 		let cOrigin = window.location.origin
@@ -92,10 +93,14 @@ export const RessourcePreview = (p: {
 
 		// if (isLocal && canBePreviewedOnline) return
 		let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100
-		if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "epub") {
+		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
+		if (ext === "epub") {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("epub", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
-		} else if (getFileType(ssrPreviewPath).toLocaleLowerCase() === "pdf") {
+		} else if (ext === "pdf") {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("pdf", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
+			// if csv or arrow format @ TODO => to finish connection
+		} else if (ext === "csv" || ext === "arrow") {
+			ssrToggleCtag(ssrIframeEl, ssrGenCtag("datatable", ssrPreviewPath, p.windowId, {file, fullscreen, onFullscreenClose, ctagHeightOffset}), opts?.openOnly)
 		} else {
 			ssrToggleCtag(ssrIframeEl, ssrGenCtag("iframe", ssrPreviewPath, p.windowId, { fullscreen, onFullscreenClose, ctagHeightOffset}))
 		}
@@ -132,6 +137,7 @@ export const RessourcePreview = (p: {
 		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
 		if (ext === "epub") ctagType = "epub"
 		if (ext === "pdf") ctagType = "pdf"
+		if (ext === "csv" || ext === "arrow") ctagType = "datatable"
 
 		getApi(api => {
 			api.ui.floatingPanel.create({
@@ -159,14 +165,13 @@ export const RessourcePreview = (p: {
 	let downloadFn = (el) => {
 		if (!el) return
 		let ssrRessLink = el.dataset.link
-		let ssrFilePath = el.dataset.filepath
 		let ssrFileName = el.dataset.filename
-		// console.log(ressLink, downloadName);
+		console.log(ressLink, downloadName);
 		downloadFile(ssrFileName, ssrRessLink)
 	}
 	let download = `<li
 		onclick="${ssrFn("download-link-ress", downloadFn)}"
-		title="Preview link" data-filepath="${p.file.path}" data-filename="${p.file.name}" data-link="${previewLink}">${i('download')}</li>`
+		title="Preview link" data-filename="${downloadName}" data-link="${previewLink}">${i('download')}</li>`
 
 	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
 
@@ -251,7 +256,7 @@ export const ressourcePreviewSimpleCss = () => `
 }
 .resource-link-content-wrapper .ssr-icon {
 		padding: 3px;
-		font-size: 13px;
+		font-size: ${getFontSize(+3)}px;
 		margin: 0px 5px 0px 0px;
 		color: #b9b9b9;
 		cursor: pointer;

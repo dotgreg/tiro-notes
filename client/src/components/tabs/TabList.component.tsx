@@ -1,4 +1,4 @@
-import { cloneDeep, random } from 'lodash';
+import { cloneDeep, isArray, random } from 'lodash-es';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { iTab } from '../../../../shared/types.shared';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
@@ -7,6 +7,7 @@ import { deviceType } from '../../managers/device.manager';
 import { strings } from '../../managers/strings.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { Icon, Icon2 } from '../Icon.component';
+import { getFontSize } from '../../managers/font.manager';
 
 export const TabList = (p: {
 	tabs: iTab[]
@@ -19,6 +20,8 @@ export const TabList = (p: {
 
 	const [dragId, setDragId] = useState(-1)
 
+	let tabs = isArray(p.tabs) ? p.tabs : []
+
 	return (
 		<div className={`tab-list-wrapper-hover ${p.pinStatus ? "pinned" : "unpinned"}`}>
 			<div className='top-hover-bar' > </div>
@@ -26,7 +29,7 @@ export const TabList = (p: {
 				<div className="tab-list-invisible-scroll">
 					<div className="tab-list-wrapper">
 						{/* ALL TABS LIST*/}
-						{p.tabs.map((tab, i) =>
+						{tabs.map((tab, i) =>
 							<Tab
 								key={i}
 								tab={tab}
@@ -56,7 +59,6 @@ export const TabList = (p: {
 							>
 								+
 							</div>
-
 							
 						}
 
@@ -66,7 +68,7 @@ export const TabList = (p: {
 									p.onPinToggle()
 								}}
 							>
-								<Icon2 name="thumbtack" />
+								<Icon2 name="thumbtack" size={0.8} />
 							</div>
 
 					</div>
@@ -326,7 +328,7 @@ export const tabsCss = () => `
 
 										input {
 												color:${cssVars.colors.fontTab} ;
-												font-size: 11px;
+												font-size:${getFontSize(+1)}px;
 												background: none;
 												border: none;
 												min-width: 30px;

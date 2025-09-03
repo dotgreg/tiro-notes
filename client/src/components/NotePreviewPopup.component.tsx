@@ -51,8 +51,10 @@ export const NotePreviewPopup = (p: {
             <div className='page-link-preview-popup-int'>
                 
                 <NotePreview
+                    noteParentType={"popup"}
                     file={notePreview}
                     searchedString={p.notePreview.opts?.searchedString}
+                    replacementString={p.notePreview.opts?.replacementString}
                     windowId={windowId}
                     // height={200}
                     showToolbar={true}

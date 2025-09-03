@@ -1,4 +1,4 @@
-import { each } from "lodash"
+import { each } from "lodash-es"
 import { useState } from "react"
 import { iApiEventBus } from "./api.hook";
 

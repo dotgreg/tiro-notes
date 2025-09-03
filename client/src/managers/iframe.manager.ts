@@ -7,6 +7,7 @@ import { unescapeHtml } from "./textProcessor.manager";
 import { getLoginToken } from "../hooks/app/loginToken.hook";
 import { getBackendUrl } from "./sockets/socket.manager";
 import { sharedConfig } from "../../../shared/shared.config";
+import { getRessourcesCacheId, ressCacheIdSync } from "./cacheRessources.manager";
 
 type iIframeActions = 'init' | 'apiCall' | 'apiAnswer' | 'resize' | 'iframeError' | 'canScrollIframe' | 'askFullscreen'
 
@@ -21,6 +22,7 @@ export interface iIframeData {
 		windowId: string
 		loginToken: string
 		backendUrl: string
+		ressCacheId: number
 	}
 	askFullscreen: {},
 	resize: {
@@ -136,6 +138,7 @@ export const generateIframeHtml = (
 				const IMPORTED_generateUUID = ${generateUUID.toString()}
 				const IMPORTED_getRessourceIdFromUrl = ${getRessourceIdFromUrl.toString()}
 				const IMPORTED_bindToElClass = ${bindToElClass.toString()}
+				const IMPORTED_ressCacheId = ${ressCacheIdSync.curr}
 				const main = ${iframeMainCode.toString()};
 				main({
 					backendUrl: IMPORTED_backend_url,
@@ -145,7 +148,8 @@ export const generateIframeHtml = (
 					createEventBus: IMPORTED_createEventBus,
 					generateUUID: IMPORTED_generateUUID,
 					getRessourceIdFromUrl: IMPORTED_getRessourceIdFromUrl,
-					bindToElClass: IMPORTED_bindToElClass
+					bindToElClass: IMPORTED_bindToElClass,
+					ressCacheIdSync: IMPORTED_ressCacheId
 				})
 		</script>
 <style>
@@ -173,7 +177,8 @@ export const iframeMainCode = (p: {
 	createEventBus,
 	generateUUID,
 	getRessourceIdFromUrl,
-	bindToElClass
+	bindToElClass,
+	ressCacheId
 }) => {
 	const h = '[IFRAME child js]'
 
@@ -193,6 +198,7 @@ export const iframeMainCode = (p: {
 		tagContent: '',
 		loginToken: p.loginToken,
 		backendUrl: p.backendUrl,
+		ressCacheId:0
 	}
 	const getInfos = () => d
 
@@ -253,16 +259,6 @@ export const iframeMainCode = (p: {
 
 	}
 
-	//
-	// on iframe resize detected
-	//
-	window.addEventListener('resize', (e) => {
-		let nval = `100%`
-		// nval = lastResizeIframeHeight.value
-		// console.log(h, 'resize', nval)
-		resizeIframe(nval)
-	})
-
 
 	///////////////////////////////////////////////////////////////////////// 
 	// BOOTSTRAP LOGIC
@@ -276,6 +272,7 @@ export const iframeMainCode = (p: {
 		d.file = m.file
 		d.reloadCounter = m.reloadCounter
 		d.windowId = m.windowId
+		d.ressCacheId = m.ressCacheId
 
 		// get content and replace script tags
 		const el = document.getElementById('content-wrapper')
@@ -308,13 +305,13 @@ export const iframeMainCode = (p: {
 	// }
 
 	let lastResizeIframeHeight = {value:"100%"}
-	const resizeIframe = (height?: any) => {
+	const resizeIframe = (heightRaw?: any) => {
 		const el = document.getElementById('content-wrapper')
+		let height = heightRaw
 		if (!height) {
 			if (el && el.clientHeight !== 0) height = el.clientHeight + 20
 			else return
 		}
-
 		lastResizeIframeHeight.value = `${height}`
 		const data: iIframeData['resize'] = { height }
 		sendToParent({ action: 'resize', data })
@@ -368,38 +365,59 @@ export const iframeMainCode = (p: {
 		// }
 	}
 
-	const loadLocalRessourceInHtml = (url, onLoad) => {
+	const loadLocalRessourceInHtml = (ressObj:iRessObj, onLoad) => {
+		let url = ressObj.url
 		let tag
 		if (url.includes(".js")) {
 			tag = document.createElement('script');
+			tag.crossorigin = "anonymous"
+			tag.rel = "preload"
 			tag.src = url
+			if (ressObj.type) tag.type = ressObj.type
 		}
 		else if (url.includes(".css")) {
 			tag = document.createElement('link');
 			tag.href = url
 			tag.rel = "stylesheet"
+			tag.crossorigin = "anonymous"
 			tag.type = "text/css"
+			if (ressObj.type) tag.type = ressObj.type
+		}
+		else if (url.includes(".wasm")) {
+			// https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm
+			// <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm"  />
+			tag = document.createElement('link');
+			tag.rel = "preload"
+			tag.href = url
+			tag.as = "fetch"
+			tag.crossorigin = "anonymous"
+			tag.type = "application/wasm"
+			if (ressObj.type) tag.type = ressObj.type
 		}
 		tag.onload = () => {
 			onLoad()
 		}
 		const el = document.getElementById('external-ressources-wrapper')
 
-		if (!el) return console.error(h, `could not load ${url} because ressource wrapper was not detected`)
+		if (!el) return console.trace(h, `could not load ${url} because ressource wrapper was not detected`)
 		el.appendChild(tag)
 	}
 
 	const getCachedRessourceFolder = () => `/.tiro/cache/ctag-ressources/`
-	const getCachedRessourceUrl = (url: string): string => {
+	const getCachedRessourceUrl = (url: string, fileName?:string): string => {
 		const tokenParamStr = `?token=${p.loginToken}`
-		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${p.getRessourceIdFromUrl(url)}${tokenParamStr}`
+		const fileName2 = fileName ? fileName : p.getRessourceIdFromUrl(url)
+		const path = `${p.backendUrl}/static${getCachedRessourceFolder()}${fileName2}${tokenParamStr}`
 		return path
 	}
 
 	//////////
 	// API FUNCTIONS
-	const loadCachedRessources = (ressources: string[], cb: Function) => {
+	type iRessObj = { url: string, type?: string, fileName?:string }
+	type iRessObjOrString = string | { url: string, type?: string }
 
+	const loadCachedRessources = (ressources: iRessObjOrString[], cb: Function) => {
+		if (!cb) cb = () => { }
 		let ressourcesLoaded = 0;
 		const onRessLoaded = () => {
 			ressourcesLoaded++
@@ -409,33 +427,58 @@ export const iframeMainCode = (p: {
 					if (cb) cb()
 				} catch (e) {
 					console.error(h, `ERROR LoadScript Callback : ${e}`);
+					console.log(e)
+					console.log("tried to load scripts:", ressources)
 				}
 			}
 		}
 
 		for (let i = 0; i < ressources.length; i++) {
-			const ressToLoad = ressources[i];
-			const cachedRessToLoad = getCachedRessourceUrl(ressToLoad)
+			let ressToLoad = ressources[i];
+			// normalize strings into obj
+			let ressToLoadObj:iRessObj
+			if (ressToLoad.constructor === String) ressToLoadObj = { url: ressToLoad as string }
+			else ressToLoadObj = JSON.parse(JSON.stringify(ressToLoad)) 
+			const fileName = ressToLoadObj.fileName
+			
+			// gen cached obj
+			const cachedRessToLoadUrl = getCachedRessourceUrl(ressToLoadObj.url, fileName)
+			// clone cachedRessToLoadObj from ressToLoadObj
+			const cachedRessToLoadObj = JSON.parse(JSON.stringify(ressToLoadObj)) // {...ressToLoadObj} does not work here!
+			cachedRessToLoadObj.url = cachedRessToLoadUrl
 
 			//@ts-ignore
+			// if frontendCache disabled, add ?nocache=RANDOMNUMBER to url
 			const disableCache = window.disableCache === true ? true : false
+			if (disableCache) {
+				let randomNb = Math.floor(Math.random() * 1000000)
+				const nocache = `&nocache=${randomNb}-${d.ressCacheId}`
+				cachedRessToLoadObj.url += nocache
+			} else {
+				const cacheId = `&cacheId=${d.ressCacheId}`
+				cachedRessToLoadObj.url += cacheId
+			}
 
-			const downloadAndLoadRess = () => {
-				callApi("ressource.download", [ressToLoad, getCachedRessourceFolder()], () => {
+			const downloadAndLoadRess = (p?:{frontendCache?:boolean}) => {
+				if (!p) p = {}
+				if (!p.frontendCache) p.frontendCache = false
+				
+				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
-					loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
 				})
 			}
 
 			if (disableCache) {
-				console.warn(h, "CACHE DISABLED, DOWNLOADING RESSOURCES EVERYTIME!");
-				downloadAndLoadRess()
+				console.warn(h, "CACHE DISABLED (both frontend + backend fetch), DOWNLOADING RESSOURCES EVERYTIME and NOT CACHING THEM ON FRONTEND!");
+				downloadAndLoadRess({frontendCache: false})
 			} else {
-				checkUrlExists(cachedRessToLoad,
+				checkUrlExists(cachedRessToLoadObj.url,
 					() => {
-						loadLocalRessourceInHtml(cachedRessToLoad, () => { onRessLoaded() })
+						// cachedObjToLoad
+						loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
 					}, () => {
-						downloadAndLoadRess()
+						downloadAndLoadRess({frontendCache: true})
 					})
 			}
 		}
@@ -443,7 +486,7 @@ export const iframeMainCode = (p: {
 
 
 	// LOAD EXTERNAL SCRIPTS
-	const loadRessources = (ressources: string[], cb: Function) => {
+	const loadRessources = (ressources: iRessObjOrString[], cb: Function) => {
 		loadCachedRessources(ressources, cb)
 	}
 	const loadScripts = (scripts: string[], cb: Function) => {
@@ -465,7 +508,8 @@ export const iframeMainCode = (p: {
 					try {
 						if (cb) cb()
 					} catch (e) {
-						console.error(h, `ERROR LoadScript Callback : ${e}`);
+						console.error(h, `ERROR LoadScript Callback : ${e}`, scriptToLoad);
+						console.log(e)
 					}
 				}
 			}
@@ -538,6 +582,21 @@ export const iframeMainCode = (p: {
 		}
 	}
 
+	const loadRessourcesOneByOne = (ressources: iRessObjOrString[], cb: Function) => {
+		if (!cb) cb = () => { }
+		let i = 0
+		const loadNext = () => {
+			if (i === ressources.length) return cb()
+			const ress = ressources[i]
+			// console.log(h, `loadRessourcesOneByOne ${i+1}/${ressources.length} => ${ress}`);
+			loadCachedRessources([ress], () => {
+				i++
+				loadNext()
+			})
+		}
+		loadNext()
+	}
+
 	const api = {
 		version: 1.2,
 		call: callApi,
@@ -550,6 +609,7 @@ export const iframeMainCode = (p: {
 
 			loadScripts,
 			loadRessources,
+			loadRessourcesOneByOne,
 			loadScriptsNoCache,
 
 			resizeIframe,

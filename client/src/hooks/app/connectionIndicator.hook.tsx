@@ -11,7 +11,7 @@ const generateTitle = (): string => {
 	let newTitle = ''
 	// if (window.location.host.includes(configClient.global.frontendPort.toString())) newTitle =  `Tiro (PROD ${configClient.version})`
 	// else newTitle = `/!\\ DEV /!\\`
-	newTitle = `Tiro (${configClient.version})`
+	newTitle = `Tiro`
 	return newTitle
 }
 
@@ -29,7 +29,7 @@ export const useConnectionIndicator = () => {
 	useInterval(() => {
 		warning.current = (warning.current === warning1) ? warning2 : warning1
 		let title = isSocketConnected ?
-			`${generateTitle()} (Connected)` :
+			`${generateTitle()}` :
 			`${generateTitle()} ${warning.current}`
 		if (deviceType() === "mobile") return
 		document.title = title
@@ -82,7 +82,7 @@ export const useConnectionIndicator = () => {
 export const connectionIndicatorCss = () => `
 .connection-status {
   font-size: 9px;
-  z-index: 11;
+  z-index: 20000;
   a {
     margin-left: 10px;
     color: white;

@@ -1,4 +1,4 @@
-import { isString } from 'lodash';
+import { isString } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { perf } from '../../managers/performance.manager';
@@ -24,10 +24,15 @@ export interface iCacheApi {
 		cacheId: string,
 		contentToCache: any,
 		cacheMin?: number,
-		cb?: (res:any) => void
+		cb?: (res:any) => void,
+		options?: {
+			uncompressed: boolean
+		}
 	) => void
 
 	cleanRamCache: () => void
+
+	getCachePath: (cacheId: string, cb?:(res:string) => void) => string
 
 }
 
@@ -63,13 +68,16 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	// RAM
 	//
 	const getCachedStorage = (cacheId: string) => `${cacheFolderPath}/cache-api-storage-${safeString(cacheId)}.md`
+	const getCachedStorageAsync = (cacheId: string, cb?: (res: string) => void):string => {
+		if(cb) cb(getCachedStorage(cacheId))
+		return getCachedStorage(cacheId)
+	}
 	const cachedRamDic = useRef<iCachedDic>({})
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// GETTING LOGIC
 	//
 	const getCache: iCacheApi['get'] = (cacheId, cb: (content: any) => void, opts) => {
-		// clean ram cache
 		if (opts?.disableRamCache === true) cleanRamCache()
 		// if present in RAM
 		if (cacheId in cachedRamDic.current) {
@@ -122,14 +130,14 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	const setRamCache = (cacheId: string, cacheContent: any, cachedMin: number) => {
 		cachedRamDic.current[cacheId] = { content: cacheContent, until: getDateUntil(cachedMin) }
 	}
-	const setCache: iCacheApi['set'] = (cacheId, cacheContent, cachedMin, cb) => {
+	const setCache: iCacheApi['set'] = (cacheId, cacheContent, cachedMin, cb, options) => {
 		if (!cachedMin) cachedMin = 60
 		if (cachedMin === -1) cachedMin = 99999999999999999999999999999999
 		setRamCache(cacheId, cacheContent, cachedMin)
 		const nObj = cachedRamDic.current[cacheId]
 
 		log && console.log(h, 'SETTING', cacheId, " with cachedTime in min", cachedMin);
-		saveFileContentInChunks(cacheId, nObj, res => {cb && cb(res)})
+		saveFileContentInChunks(cacheId, nObj, res => {cb && cb(res)}, options?.uncompressed)
 	}
 
 
@@ -151,7 +159,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	// Send/Receive logic (with chunker if content too large) 
 	// as many servers only supports by default 1MB upload limit
 	//
-	const limitChunk = 900 * 1000 // first nb in KB => avoiding 413 request entity too large
+	const limitChunk = 800 * 1000 // first nb in KB => avoiding 413 request entity too large
 	const chunkHeader = `__CHUNKED__CACHED__OBJ__SIZE:`
 	const chunkString = (str, length) => str.match(new RegExp('.{1,' + length + '}', 'g'));
 	const hc = `[CACHE CHUNK]`
@@ -159,8 +167,8 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	// SET CHUNKS
 	//
-	const saveFileContentInChunks = (cacheId, obj, allSavedCb?:Function) => {
-		const contentStr = JSON.stringify(obj)
+	const saveFileContentInChunks = (cacheId, obj, allSavedCb?:Function, uncompressed=false) => {
+		const contentStr = uncompressed ? JSON.stringify(obj, null, "\t") : JSON.stringify(obj)
 
 		const saveFile = (id: string, str: string, cb:Function) => {
 			logChunk && console.log(hc, getCachedStorage(id), { str })
@@ -168,8 +176,6 @@ export const useCacheApi = (p: {}): iCacheApi => {
 				api.file.saveContent(getCachedStorage(id), `${str}`, {}, res => {cb(res)})
 			})
 		}
-
-		
 
 		if (contentStr.length > limitChunk) {
 			// chunk content in limitChunk (see up, 800k) blocks
@@ -274,6 +280,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	return {
 		get: getCache,
 		set: setCache,
-		cleanRamCache
+		cleanRamCache,
+		getCachePath: getCachedStorageAsync
 	}
 }

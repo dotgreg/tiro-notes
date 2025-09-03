@@ -1,9 +1,9 @@
-import { debounce, each } from "lodash";
+import { debounce, each } from "lodash-es";
 import { sharedConfig } from "../../../shared/shared.config";
 
 let katex: any = null;
 let renderMathInElement: any = null;
-let isLatexInit = false;
+export let isLatexInit = false;
 
 const cssUrl = "https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.css"
 const jsUrl = "https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js"
@@ -45,9 +45,10 @@ export const initLatex = () => {
 	addCss(cssUrl)
 }
 
-if (!isLatexInit) initLatex();
+
 
 export const renderLatex = (str: string): string => {
+	
 	str = str.replaceAll('$', '')
 	let res = str
 	if (!katex) return res;
@@ -90,6 +91,7 @@ export const initRenderLatexInText = (elPath: string) => {
 				{ left: '$', right: '$', display: false },
 				{ left: '\\(', right: '\\)', display: true },
 				{ left: '[[l]]', right: '[[l]]', display: true },
+				{ left: '[[latex]]', right: '[[latex]]', display: true },
 				{ left: '\\[', right: '\\]', display: true }
 			],
 			// • rendering keys, e.g.:

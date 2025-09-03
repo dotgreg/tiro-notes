@@ -1,3 +1,4 @@
+import { cloneDeep, isBoolean } from "lodash-es";
 import { getApi } from "../api/api.hook";
 import { useBackendState } from "../useBackendState.hook"
 import React, { useEffect, useState } from 'react';
@@ -11,17 +12,12 @@ export type pinStatusKey = keyof iPinStatuses
 
 export const usePinStatus= () => {
     const [pinStatus, setPinStatus, refreshPinStatus] = useBackendState<iPinStatuses>("interface-pin-element-status",{
-        topTab: false,
-        bottomBar:  false
+        topTab: true, 
+        bottomBar:  true 
     })
 
      useEffect(() => {
          refreshPinStatus()
-
-        //  getApi(api => {
-        //     if (api.userSettings.get("beta_floating_windows") === true) return
-        //     updatePinStatus("bottomBar")(false)
-        //  })
      },[])
 
     const updatePinStatus = (key: pinStatusKey) => (value: boolean) => {
@@ -33,15 +29,18 @@ export const usePinStatus= () => {
     }
 
     const togglePinStatus = (key: pinStatusKey) => () => {
-        console.log(222222)
         setPinStatus({
             ...pinStatus,
             [key]: !pinStatus[key]
         })
     }
+
+    console.log('usePinStatus', pinStatus)
+	let pinStatus2 = (!isBoolean(pinStatus.topTab) && !isBoolean(pinStatus.bottomBar)) ? { topTab: true, bottomBar: true } : cloneDeep(pinStatus)
+    console.log('usePinStatus2', pinStatus2)
     
      return {
-        pinStatus,
+        pinStatus:pinStatus2,
 
         updatePinStatus,
         togglePinStatus,

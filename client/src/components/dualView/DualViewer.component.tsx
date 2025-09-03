@@ -4,7 +4,7 @@ import { EditorArea, iLayoutUpdateFn, iReloadContentFn, onFileEditedFn, onLightb
 import { iFile, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
 import { syncScroll2, syncScroll3 } from '../../hooks/syncScroll.hook';
 import { deviceType, isMobile, iMobileView } from '../../managers/device.manager';
-import { clamp, debounce, each, isNumber, random, throttle } from 'lodash';
+import { clamp, debounce, each, isNumber, random, throttle } from 'lodash-es';
 import { ScrollingBar } from './Scroller.component';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { useDebounce, useThrottle } from '../../hooks/lodash.hooks';
@@ -14,9 +14,11 @@ import { cssVars } from '../../managers/style/vars.style.manager';
 import { stopDelayedNotePreview } from '../../managers/codeMirror/noteLink.plugin.cm';
 import { iCMPluginConfig } from './CodeMirrorEditor.component';
 import { iPinStatuses } from '../../hooks/app/usePinnedInterface.hook';
+import { iNoteParentType } from '../NotePreview.component';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
+	noteParentType:iNoteParentType
 	windowId: string
 	file: iFile
 	fileContent: string
@@ -44,7 +46,7 @@ const DualViewerInt = (
 	}
 ) => {
 
-
+	
 	const [previewContent, setPreviewContent] = useState('')
 
 	// calculate max Y for custom scroller bar
@@ -119,36 +121,36 @@ const DualViewerInt = (
 	//
 
 	// 2) TITLES SCROLL
-	const initTitle = { id: "", line: 0, title: "" }
-	const updateScrolledTitleInt = (scrolledLine: number) => {
-		// if (scrollMode !== "title") return;
-		const struct = getMdStructure(previewContent)
-		// get current title
-		let cTitle: iMdPart = initTitle
-		each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
-		// update the preview scroll accordingly
-		if (cTitle.id !== "") {
-			const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
-			try {
-				// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
-				// @ts-ignore
-				let etop = document.querySelector(ePath)?.offsetTop
-				if (isNumber(etop)) {
-					syncScroll3.updatePreviewOffset(p.windowId, etop)
-					syncScroll3.scrollPreview(p.windowId)
-				}
-			} catch (e) {
-				console.error(e);
-			}
-		}
-	}
-	const t1 = useThrottle(updateScrolledTitleInt, 200)
-	const t2 = useDebounce(updateScrolledTitleInt, 500)
+	// const initTitle = { id: "", line: 0, title: "" }
+	// const updateScrolledTitleInt = (scrolledLine: number) => {
+	// 	// if (scrollMode !== "title") return;
+	// 	const struct = getMdStructure(previewContent)
+	// 	// get current title
+	// 	let cTitle: iMdPart = initTitle
+	// 	each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
+	// 	// update the preview scroll accordingly
+	// 	if (cTitle.id !== "") {
+	// 		const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
+	// 		try {
+	// 			// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
+	// 			// @ts-ignore
+	// 			let etop = document.querySelector(ePath)?.offsetTop
+	// 			if (isNumber(etop)) {
+	// 				syncScroll3.updatePreviewOffset(p.windowId, etop)
+	// 				syncScroll3.scrollPreview(p.windowId)
+	// 			}
+	// 		} catch (e) {
+	// 			console.error(e);
+	// 		}
+	// 	}
+	// }
+	// const t1 = useThrottle(updateScrolledTitleInt, 200)
+	// const t2 = useDebounce(updateScrolledTitleInt, 500)
 
-	const updateScrolledTitle = (newLine) => {
-		t1(newLine)
-		t2(newLine)
-	}
+	// const updateScrolledTitle = (newLine) => {
+	// 	t1(newLine)
+	// 	t2(newLine)
+	// }
 
 	// const [scrollerPos, setScrollerPos] = useState(0)
 	let isEditor = (deviceType() === "desktop" && p.viewType === "editor") || (deviceType() !== "desktop" && p.mobileView === "editor")
@@ -157,38 +159,43 @@ const DualViewerInt = (
 	//
 	// overlay loading
 	//
-	const [forceCloseOverlay, setForceCloseOverlay] = useState(false)
+
+	const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
 	useEffect(() => {
-		setForceCloseOverlay(false)
-		// console.log('canedit', p.canEdit);
+		setShowLoadingOverlay(!p.canEdit)
 	}, [p.canEdit])
 
 	
 
 	return <div
 		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
-	>
-		{(!p.canEdit && !forceCloseOverlay) && 
-			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
-				<div className="loading-text">loading...</div> 
-			</div>
+		onWheel={
+			e => {
+				// updateSyncYWithDelta(e.deltaY)
+				// syncScroll3.scrollAllPx(p.windowId, e.deltaY)
+			}
 		}
+	>
+		
 		
 		{(p.isDragging) && 
-			<div className='loading-overlay' onClick={e => {setForceCloseOverlay(true)}}> 
+			<div className='loading-overlay'> 
 				<div className="loading-text"> drop to upload</div> 
 			</div>
 		}
 		
 		
 		<EditorArea
+			noteParentType={p.noteParentType}
 			viewType={p.viewType}
 			mobileView={p.mobileView}
 			windowId={p.windowId}
 			editorType='codemirror'
 			showViewToggler={p.showViewToggler}
 			showToolbar={p.showToolbar}
+
 			titleEditor={p.titleEditor}
+			onTitleEditedHook={() => {setShowLoadingOverlay(true)}}
 
 			file={p.file}
 			canEdit={p.canEdit}
@@ -201,7 +208,7 @@ const DualViewerInt = (
 			posY={0}
 
 			onTitleClick={newLine => {
-				updateScrolledTitle(newLine)
+				// updateScrolledTitle(newLine)
 			}}
 			onScroll={percent => {
 				// setScrollerPos(percent)
@@ -224,9 +231,17 @@ const DualViewerInt = (
 
 			pluginsConfig={p.pluginsConfig}
 		/>
+
+		{/* {1 === 1  &&  */}
+		{showLoadingOverlay  && 
+			<div className='loading-overlay' > 
+				<div className="loading-text">loading...</div> 
+			</div>
+		}
 		
 		{!isEditor &&
 			<PreviewArea
+				noteParentType={p.noteParentType}
 				windowId={p.windowId}
 				file={p.file}
 				// posY={previewY}
@@ -253,6 +268,17 @@ const DualViewerInt = (
 }
 
 export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) => `
+.omnibar-popup-wrapper {
+	.dual-view-wrapper {
+		.loading-overlay {
+			top: -2px;
+		}
+	}
+}
+
+
+
+
 	.dual-view-wrapper {
 		position: relative;
 		.loading-overlay {
@@ -265,21 +291,25 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 			justify-content: center;
 			align-items: center;
 			width: 100%;
-			height: 120%;
+			height: calc(120% - 32px);
 			position: absolute;
 			background: rgba(0,0,0,0.1);
-			top: -2px;
+			top: ${deviceType() === "desktop" ? "32px" : "0px"};
 			left: 0px;
-			z-index: 99;
 			font-weight: bold;
 			color: white;
+			z-index: 2;
 		}
 	}
 
 	.mobile-view-preview {
-		
 		.editor-area {
 			display: none;
+		}
+		.floating-panel-wrapper {	
+			.editor-area {
+				display: block;
+			}
 		}
 	}
 	

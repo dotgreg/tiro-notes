@@ -1,7 +1,8 @@
-import { each } from "lodash";
+import { each } from "lodash-es";
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile, iFileImage } from "../../../shared/types.shared";
 import { absoluteLinkPathRoot } from "./textProcessor.manager";
+import { cleanUrl } from "./url.manager";
 
 export const findImagesFromContent = (content: string, file: iFile): iFileImage[] => {
 	const matches = content.match(regexs.image)
@@ -11,7 +12,7 @@ export const findImagesFromContent = (content: string, file: iFile): iFileImage[
 		let title = titleRaw && titleRaw[0] ? titleRaw[0].replace('![', '').replace(']', '').replace('(', '') : ''
 		const relUrl = match.replace(regexs.firstPartImg, '').replace(')', '')
 		const nImg: iFileImage = {
-			url: absoluteLinkPathRoot(file.folder) + '/' + relUrl,
+			url: cleanUrl(absoluteLinkPathRoot(file.folder) + '/' + relUrl),
 			title,
 			file
 		}

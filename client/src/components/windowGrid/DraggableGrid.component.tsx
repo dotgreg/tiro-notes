@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { cloneDeep, each, filter } from 'lodash'
+import { cloneDeep, each, filter } from 'lodash-es'
 import GridLayout from "react-grid-layout";
 import '../../../node_modules/react-grid-layout/css/styles.css'
 import '../../../node_modules/react-resizable/css/styles.css'
@@ -9,7 +9,7 @@ import { addNewWindowConfig, iWindowLayoutAndContent } from '../../hooks/app/tab
 import { useResize } from '../../hooks/useResize.hook';
 import { WindowEditor } from './WindowEditor.component';
 import { cssVars } from '../../managers/style/vars.style.manager';
-import { ButtonsToolbar } from '../ButtonsToolbar.component';
+import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { calculateNewWindowPosAndSize, searchAlternativeLayout, updateLayout_onewindowleft_tofullsize, updateLayout_twowindows_to_equal } from '../../managers/draggableGrid.manager';
 import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
 import { deviceType, isA, iMobileView } from '../../managers/device.manager';
@@ -117,9 +117,9 @@ export const DraggableGrid = (p: {
 		const nLayout = filter(cloneDeep(intLayout), window => window.i !== id)
 
 		// if only one window left, make it fullsize
-		const nLayout2 = updateLayout_onewindowleft_tofullsize(nLayout);
+		// const nLayout2 = updateLayout_onewindowleft_tofullsize(nLayout);
 
-		setIntLayout(nLayout2)
+		// setIntLayout(nLayout2)
 
 		// required to deplay the content update behind the layout because of react-grid...
 		setTimeout(() => {
@@ -162,11 +162,20 @@ export const DraggableGrid = (p: {
 		return nContent
 	}
 	const makewindowActiveStatus = (windowId: string, file?: iFile) => {
-		const nContent = makewindowActiveStatusInt(windowId, intContentRef.current)
-		setIntContent(nContent)
-		onGridUpdate(intLayout, nContent)
+		// const nContent = makewindowActiveStatusInt(windowId, intContentRef.current)
+		// setIntContent(nContent)
+		// onGridUpdate(intLayout, nContent)
+
+		getApi(api => {
+			api.tabs.updateTab("activateTabWindow", "activeTab", windowId)
+			// // get windows from that tab
+			// atab.grid.content
+			// api.ui.windows.updateWindows
+
+		})
+
 		// on window active toggle, update browser ui 
-		file && api?.ui.browser.goTo(file.folder, file.name)
+		// file && api?.ui.browser.goTo(file.folder, file.name)
 	}
 
 	//
@@ -253,23 +262,23 @@ export const DraggableGrid = (p: {
 
 	const api = useContext(ClientApiContext)
 	// const refresh = api?.status.refresh.get
-	const [mobileWindow, setMobileWindow] = useState<iWindowLayoutAndContent | null>(null)
-	useEffect(() => {
-		// make mobile window
-		if (deviceType() === 'mobile') {
-			const activeWindow = api?.ui.windows.active.get()
-			// either the active one
-			if (activeWindow) setMobileWindow(activeWindow)
-			// the first one, then make that one active
-			else {
-				const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
-				if (first.layout && first.content && first.layout.i === first.content.i) {
-					setMobileWindow(first)
-					makewindowActiveStatus(first.content.i)
-				}
-			} 
-		}
-	}, [p.refresh])
+	// const [mobileWindow, setMobileWindow] = useState<iWindowLayoutAndContent | null>(null)
+	// useEffect(() => {
+	// 	// make mobile window
+	// 	if (deviceType() === 'mobile') {
+	// 		const activeWindow = api?.ui.windows.active.get()
+	// 		// either the active one
+	// 		if (activeWindow) setMobileWindow(activeWindow)
+	// 		// the first one, then make that one active
+	// 		else {
+	// 			const first: iWindowLayoutAndContent = { layout: intLayout[0], content: intContent[0] }
+	// 			if (first.layout && first.content && first.layout.i === first.content.i) {
+	// 				setMobileWindow(first)
+	// 				makewindowActiveStatus(first.content.i)
+	// 			}
+	// 		} 
+	// 	}
+	// }, [p.refresh])
 
 	// const mobileWindowdow:  = {
 	// 	layout: activeWindow?.layout,
@@ -285,7 +294,6 @@ export const DraggableGrid = (p: {
 		if (type === "windowActiveStatus") {
 			if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 		} else if (type === "windowViewChange") {
-			console.log("view change", data?.view, i)
 			if (!data?.view || !p.grid.content[i].file) return
 			viewTypeChange(data?.view, i)
 			const filePath = p.grid.content[i].file?.path || ""
@@ -294,18 +302,23 @@ export const DraggableGrid = (p: {
 		}
 	}
 
+	useEffect(() => {
+		
+	},[])
+
 	
 	
 
 	const WindowTools = (window, i, content: iWindowContent) => {
-		const btnsConfig = [
+		const btnsConfig:iToolbarButton[] = [
 			{
 				icon: 'faGripVertical',
 				title: 'Move Window',
 				class: 'drag-handle',
+				size: 1.2,
 				action: () => { },
 				onHover: () => {
-					if (window && !window.active) makewindowActiveStatus(window.i, window.file)
+					// if (window && !window.active) makewindowActiveStatus(window.i, window.file)
 				}
 			},
 			{
@@ -398,7 +411,9 @@ export const DraggableGrid = (p: {
 
 									<div className="window-editor-wrapper-wrapper">
 										<WindowEditor
+											noteParentType='grid'
 											content={p.grid.content[i] && p.grid.content[i]}
+											// forceView={p.grid.content[i] && p.grid.content[i].view}
 											onLayoutUpdate={processLayoutUpdate(window,i)}
 											mobileView={p.mobileView}
 										/>
@@ -413,9 +428,10 @@ export const DraggableGrid = (p: {
 					<div className="mobile-grid-view">
 						<div className=" window-wrapper">
 							<div className="window-editor-wrapper-wrapper">
-								{mobileWindow &&
+								{p.grid.content[0] &&
 									<WindowEditor 
-										content={mobileWindow.content}
+										noteParentType='grid'
+										content={p.grid.content[0]}
 										// onViewChange={(nView) => { viewTypeChange(nView, 0) }}
 										onLayoutUpdate={processLayoutUpdate(window,0)}
 
@@ -435,6 +451,11 @@ export const DraggableGrid = (p: {
 
 
 export const GridMobileCss = () => `
+.react-grid-placeholder {
+	opacity: 0.2;
+	background: ${cssVars.colors.main};
+}
+
 .draggable-grid-wrapper 
 .draggable-grid-wrapper-in 
 .mobile-grid-view {
@@ -501,7 +522,7 @@ export const draggableGridCss = (pinStatus:iPinStatuses) => `
 		// remove transition
 
 		height: calc(100% + ${pinStatus.topTab ? "0" : "44"}px);
-		top: ${pinStatus.topTab ? "44" : "0"}px;
+		top: ${pinStatus.topTab && deviceType() !== "mobile" ? "44" : "0"}px;
 		position: relative;
 
 		.react-grid-item {
@@ -544,14 +565,16 @@ export const draggableGridCss = (pinStatus:iPinStatuses) => `
 								position: absolute;
 								z-index:3;
 								right: 30px;
-								top: 10px;
+								top: 8px;
 								.delete-button {display: none;}
 								.add-button {display: none;}
 								.drag-handle {
 										cursor: grab;
 								}
-								.delete-button svg {
-										transform: rotate(45deg);
+							
+								.delete-button span.icon-wrapper {
+									transform: rotate(45deg);
+									display: inline-block;
 								}
 								&.can-add {
 										.add-button {display: block;}

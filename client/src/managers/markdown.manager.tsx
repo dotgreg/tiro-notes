@@ -1,4 +1,4 @@
-import { each, isObject, random, uniq } from "lodash";
+import { each, isObject, random, uniq } from "lodash-es";
 import { cleanPath } from "../../../shared/helpers/filename.helper";
 
 const marked = require('marked');
@@ -102,7 +102,7 @@ export const replaceCustomMdTags = (
 
 // take all the content and create a list of titles
 // [[title-id-1, 20, 200][title-id-2, 201, 300]]
-export type iMdPart = { id: string, title: string, line: number }
+export type iMdPart = { id: string, title: string, line: number, ranking: number, previewId: string}
 export type iMdStructure = iMdPart[]
 
 const searchForUniqueIncrId = (resArr: iMdPart[], id: string): string => {
@@ -141,11 +141,15 @@ export const getMdStructure = (noteContent: string): iMdStructure => {
 			const title = m[2].toLowerCase()
 			const line = i
 			let id = title.trim().split(" ").join("-").replace(/[^a-zA-Z0-9-_À-ú]/gi, "")
+			// let previewId = "t-" + title.trim().split(" ").join("-").toLocaleLowerCase()
+			let previewId = "t-"+id
+			// if # = 1, ## = 2 etc.
+			let levelTitle = m[1].length 
 
 			id = searchForUniqueIncrId(resArr, id);
 
-			resArr.push({ raw: lineStr, matches: m, id, line, title, ranking: m[1].length })
-			res.push({ id, title, line })
+			resArr.push({ raw: lineStr, matches: m, id, line, title, ranking: m[1].length, previewId })
+			res.push({ id, title, line, ranking: m[1].length, previewId })
 		}
 	}
 
@@ -153,3 +157,40 @@ export const getMdStructure = (noteContent: string): iMdStructure => {
 }
 
 
+
+// export const getMd
+export interface iMdLineInformation {
+	line: number
+	mdPart: iMdPart  | null
+}
+export const getLineInfosFromMdStructure = (stringSearchee: string| number, noteContent: string): iMdLineInformation => {
+	// split noteContent into lines, get the first time stringSearchee is found, return number of line
+	const lines = noteContent.split("\n")
+	let line = -1
+	let ranking = -1
+	if (typeof stringSearchee === 'string') {
+		console.log(`[GET STRING INFO FROM MD STRUCTURE] looking for stringSearchee: ${stringSearchee}`)
+		for (let i = 0; i < lines.length; i++) {
+			const lineStr = lines[i]
+			if (lineStr.includes(stringSearchee)) {
+				line = i
+				break
+			}
+		}
+	} else {
+		line = stringSearchee
+	}
+	// get the md structure of the note and the last title before the line
+	const mdStructure = getMdStructure(noteContent)
+	let title = ''
+	let mdPart:iMdPart|null = null
+	for (let i = 0; i < mdStructure.length; i++) {
+		const part = mdStructure[i]
+		if (part.line > line) break
+		mdPart = part
+		
+	}
+
+	return { line, mdPart }
+
+}

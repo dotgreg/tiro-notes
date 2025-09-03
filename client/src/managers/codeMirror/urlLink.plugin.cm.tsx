@@ -1,7 +1,6 @@
 ///////////////////////////////////
 // URL LINK
 
-import { isArray, random } from "lodash";
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { getApi } from "../../hooks/api/api.hook";
 import { isMobile } from "../device.manager";
@@ -13,6 +12,7 @@ import { ssrGenCtag, ssrToggleCtag } from "../ssr/ctag.ssr";
 import { iFile } from "../../../../shared/types.shared";
 import { iUserSettingsApi } from "../../hooks/useUserSettings.hook";
 import { genUrlPreviewStr } from "../url.manager";
+import { notifLog } from "../devCli.manager";
 
 type iLinkPreviewOpts = {addLineJump?: boolean}
 export const generateHtmlLinkPreview = mem((matchs, opts?:iLinkPreviewOpts) => generateHtmlLinkPreviewInt(matchs, opts))
@@ -21,7 +21,8 @@ export const linksPreviewPlugin = (file: iFile, windowId:string) => genericRepla
 	file,
 	windowId,
 	pattern: regexs.externalLink3,
-	replacement: (matchs: any) => {
+	replacement: params => {
+		const matchs = params.matchs
 		let resEl = document.createElement("span");
 		// resEl.innerHTML = generateHtmlLinkPreview(matchs)
 		resEl.innerHTML = generateHtmlLinkPreview(matchs)
@@ -47,7 +48,8 @@ export const generateHtmlLinkPreviewInt = (
 	opts?: iLinkPreviewOpts
 ): string => {
 	let matchs: any[] = []
-	if (!isArray(matchsOrUrl)) {
+	// if matchsOrUrl is an array
+	if (!Array.isArray(matchsOrUrl)) {
 		matchs = [...matchsOrUrl.matchAll(regexs.externalLink3)][0]
 	}
 	else matchs = matchsOrUrl
@@ -80,20 +82,21 @@ export const generateHtmlLinkPreviewInt = (
 	// support
 	const getIframeEl = (el) => el.parentNode.parentNode.parentNode.querySelector(".cm-hover-popup")
 
-	const fetchArticle = (el: any, cb: Function) => {
+	const fetchArticle = (el: any, cb: Function, openPopup:boolean=true) => {
 		let link = el.dataset.link
 		getApi(api => {
+			notifLog(`fetching article "${link}"...`, "fetchArticle", 5)
 			api.ressource.fetchUrlArticle(link, r => {
 				let webpageContent = encodeURIComponent(r.html)
-				// ssrOpenIframeEl(getIframeEl(el), encodeURIComponent(r.html))
-				// ssrToggleCtag(getIframeEl(el), ssrGenCtag("iframe", encodeURIComponent(r.html), "null"))
-				api.ui.floatingPanel.create({
-					type: "ctag",
-					ctagConfig: {
-						tagName: "web",
-						content: webpageContent,
-					},
-				})
+				if (openPopup) {
+					api.ui.floatingPanel.create({
+						type: "ctag",
+						ctagConfig: {
+							tagName: "web",
+							content: webpageContent,
+						},
+					})
+				}
 				cb(r)
 			})
 		})
@@ -133,9 +136,9 @@ export const generateHtmlLinkPreviewInt = (
 		fetchArticle(el, r => {
 			if (!r.text) return;
 			getApi(api => {
-				api.ui.textToSpeechPopup.open(r.text)
+				api.ui.textToSpeechPopup.open(r.text, {id: el.dataset.link})
 			})
-		})
+		}, false)
 	}
 
 	let linejump = ``
@@ -143,8 +146,7 @@ export const generateHtmlLinkPreviewInt = (
 
 	// HTML
 	let i = ssrIcon
-	let openWindow = `<span title="Open link in detached window"
-onclick="${ssrFn("open-win-link", openWinFn)}"
+	let openWindow = `<span title="Open link in detached window" onclick="${ssrFn("open-win-link", openWinFn)}"
 class="link-action link-openwindow"  data-link="${fullLink}">${i('up-right-from-square')}</span>`
 // 	let openPreview = `<span
 // onclick="${ssrFn("preview-link", previewFn)}"
@@ -156,14 +158,19 @@ title="Display url content" class="link-fetcharticle link-action"  data-link="${
 onclick="${ssrFn("audio-link", audioFn)}"
 title="Text to speech url content" class="link-audio link-action"  data-link="${fullLink}">${i("volume-high")}</span>`
 	let detach = `<span
-		onclick="${ssrFn("detach-link", detachWinFn)}"
-		title="Detach link in floating panel" class="link-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
+		 title="Detach link in floating panel" class="link-detach link-action"  data-link="${fullLink}">${i("window-restore")}</span>`
+	let goto = `<a
+		href="${fullLink}" target="_blank" rel="noreferrer"
+		title="Go to link" class="link-goto link-action">${i("link")}</a>`
 
 
 	let btns = `<span class="link-action-more"><span class="icon-more">${i("ellipsis")}</span><span class="link-action-wrapper">${fetch} ${audio} ${detach} ${openWindow} </span></span>`
+	let btnsMobile = `<span class="link-action-wrapper">${fetch} ${audio} ${goto} ${detach} ${openWindow} </span>`
 
 	let iframeWrapper = `<span class="cm-hover-popup cm-hover-popup"></span>`
+	// let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
 	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
+	if (isMobile()) html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><span  class="link-action-more link-mdpreview" title="${fullLink}" rel="noreferrer">${i("link")}${previewStr}${btnsMobile}${iframeWrapper}</span>${linejump}`
 	resEl.innerHTML = `${html}`;
 
 	return resEl.outerHTML
@@ -218,11 +225,22 @@ ${floatingWindow ? ``:`.link-detach {display:none;}`}
 
 // mobile version
 .mobile-version .link-action-wrapper {
-		right: 10px ;
+		box-shadow: 0px 0px 10px rgba(0,0,0,0.3);
+	top: 50%;
+  left: 50%;
+  position: fixed;
+	pointer-events: none;
+  transform: translate(-50%,-50%);
+  padding: 30px 50px;
+  background: white;
+  width: 170px;
+  z-index:2;
+  opacity: 0;
+
 }
 .mobile-version .link-action {
-		transform: scale(1.3);
-		padding: 7px; 
+		transform: scale(1.6);
+		padding: 20px; 
 }
 .link-action-wrapper .link-action {
 		padding-left:4px;

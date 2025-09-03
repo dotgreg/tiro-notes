@@ -2,24 +2,54 @@
 // assuming     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> is loaded in html
 
 
-// const TableComponentReact = () => {
-//   return TableComponentReact2()
-// }
-// let TableComponentReact2 = () => {
-//   const r = React;
-//   const c = r.createElement;
-//   const [sortConfig, setSortConfig] = r.useState(null);
-//   return [
-//     c('input', { type: 'text', value: "", onChange: e => {} })
-//   ]
-// }
 const styleCss = `
+#ctag-component-table-wrapper {
+  padding: 5px 10px 10px 10px;
+}
+
+table {
+  width: 100%;
+}
+table thead {
+  cursor:pointer;
+}
+table tbody {}
+table tr:nth-child(even) {background: #CCC}
+table tr:nth-child(odd) {background: #EEE}
+table tr td { 
+  word-break: break-all; 
+  border:none; 
+  padding: 1px 11px;
+}
+
+.table-controls-wrapper {
+}
+.table-controls-wrapper button {
+  margin-right: 5px;
+}
+.table-controls-wrapper input {
+  margin-right: 10px;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0 0 0 1px #ccc;
+  border-radius: 3px;
+  padding: 4px;
+  width: 100px;
+  margin-top: 8px;
+}
+
+
 .ctag-component-table {
   padding-bottom: 80px;
   overflow-wrap: normal;
-  width: calc(100% - 30px);
+  width: 100%;
   height: 100%;
   padding: 10px;
+}
+table.ctag-component-table  td, 
+table.ctag-component-table  th { 
+  overflow-wrap: anywhere; 
+  min-width: 50px;
 }
 .ctag-component-table th {
   // display: flex;
@@ -37,29 +67,53 @@ const styleCss = `
 }
 
 .ctag-component-table-grid-view {
+}
+.ctag-component-table-grid-view .flex-grid{
+  padding-top: 20px;
+  padding-bottom: 80px;
   display: flex;
+  justify-content: center;
   flex-direction: row;
   flex-wrap: wrap;
-  padding-bottom: 80px;
+}
+.grid-category-title{
+  color: white;
+    font-weight: bold;
+    padding: 10px;
+    opacity: 0.6;
+    font-size: 20px;
 }
 .ctag-component-table-grid-view .grid-item {
-  cursor: pointer;
-  width: 200px;
-  height: 200px;
-  border: 1px solid #ccc;
-  margin: 5px;
+  width: 18vw;
+  height: 18vw;
+  max-width: 180px;
+  max-height: 180px;
+  min-width: 115px;
+  min-height: 115px;
+  margin: 3px;
+  background: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: hidden;
+  border-radius: 7px;
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.1);
+  position: relative;
 }
 .ctag-component-table-grid-view .grid-item-image {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+.ctag-component-table-grid-view .grid-item-image-html {
   width: 100%;
   height: 100%;
 }
 .ctag-component-table-grid-view .grid-item-image i {
-  font-size: 100px;
+  font-size: 9vw;
   color: #ccc;
   display: flex;
+  
   justify-content: center;
   align-items: center;
   padding-top: 30px;
@@ -69,41 +123,201 @@ const styleCss = `
   height: 100%;
   object-fit: cover;
 }
-.ctag-component-table-grid-view .grid-item-name {
+.ctag-component-table-grid-view .grid-item .grid-item-name {
   width: 100%;
 }
+.ctag-component-table-grid-view .grid-item .grid-item-name.hide-label {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.ctag-component-table-grid-view .grid-item:hover .grid-item-name {
+  opacity: 1;
+}
+
 .ctag-component-table-grid-view .grid-item-name-text {
-  width: 100%;
   text-align: center;
+  position: absolute;
+  line-height: 13px;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.8);
+  padding: 6px;
+  width: calc(100% - 12px);
 }
+
+
+.col-buttons  {
+  display: flex;
+  align-items: center;
+}
+.col-buttons .fa-filter.active {
+  color: blue;
+}
+.col-buttons .fa-filter {
+  color: #ccc;
+}
+.col-buttons .fa-eye {
+  color: #ccc;
+}
+.col-buttons .table-link-click {
+  margin-right: 5px;
+}
+
+.compressed.cell-content {
+  height: 20px;
+  overflow: hidden;
+}
+
+.select-multiple-filter {
+  min-height: 30vh;
+}
+
+`
+
+const helpStrTable = `
+<h3>SmartTable component</h3>
+<p>This is the SmartTable component, it allows you to view and search data from your notes
+
+<h3> Creating custom cols </h3>
+<p> If you search #food for instance, it will return you all the lines where <code>#food</code> appears<br>
+If you have "|" in that line, it will tell the SmartTable to split it into different columns <br> 
+So the line <code>#food | apple | 1$ </code> will appear in three columns</p>
+
+<h3>Creating custom column header</h3>
+<p> if a column content is a word starting by "__header_" it will rename the SmartTable header <br>
+<code>#food | __header_name | __header_price</code> will rename col2 into "name" and col3 into "price"<br>
+<br> 
+Full example: (to copy and paste in a note, then click on #food)
+<code>
+<pre>
+#food | __header_name | header_price
+#food | apple | 1
+#food | banana | 2
+#food | orange | 3
+</pre>
+</code>
+
+<h3>Creating a smartlist custom tag in a note</h3>
+<p> You can create a custom tag smarttable searching for the string "#food" in the folder "/root/groceries" with the following code:<br>	
+<code>
+<pre>
+[[smartlist]]
+#food | /root/groceries
+[[smartlist]]
+</pre>
+</code>
+
+<h3> View </h3>
+<p>You can display elements either as a table (default) or as an image gallery, you will need to add __config_view_grid for that.
+<br> You will need to have 2 columns named respectively "name" and "image" to display the grid view.
+<br> You can sort the grid view by category by adding a column named "category" in your table
+<br> The image col can either be a http link to a jpg/png or a relative image link if the image was uploaded on Tiro like /.ressources/your_image.jpg
+
+
+
+<h3> More options </h3>
+<p>"__config_add_form=" Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
+<p>"__config_hideCol_NAMECOL"  Removing a column: You can remove one col by adding the word <br>
+<p>"__config_hide_meta":  Removing default cols: You can remove the meta columns by adding the word <br>
+<p"__config_hide_config_rows": Removing config rows: by adding the word <br>
+<p>"__config_split_on_comma": [NOT IMPLEMENTED YET] Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
+<p>"__config_disable_click": disable the default click event, useful for grid view
+
+<h3> Custom cell content: </h3>
+<p>you can customize a cell content, here are some examples
+<br>
+<code>
+<pre>
+- #food | __config_formula_image2 =  < div style="width:40px; color: red" >\${sum_image/count_image} and row_image < / div >
+</pre>
+</code>
+<br> 
+<br> 
+
+<br><b>Available fields</b> : 
+<br>- sum_COLNAME: sum of the column COLNAME (if col rows are numbers)
+<br>- count_COLNAME: count of the column COLNAME
+<br>- row_COLNAME: value of the column COLNAME of the current row
+<br> 
+<br> 
+<br> <b>Custom functions</b> : 
+<br> It is also possible to call custom user functions. These functions should be in the file /.tiro/user_functions.md like
+
+<code>
+<pre>
+/.tiro/user_functions.md
+--------------------
+
+const addition = (a, b) => {
+  return a + b
+}
+
+// look for an image on bing image from a string
+const searchImage = (stringToSearch, cb) => {
+    function extractImageUrls(htmlString) {
+        htmlString = htmlString.replaceAll("&quot;", " ");
+        const regex = /(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|htm|html|php))/gi;
+        let res = htmlString.match(regex) || []
+        // only keep when ends with jpg, jpeg, png
+        res = res.filter(url => url.endsWith('jpg') || url.endsWith('jpeg') || url.endsWith('png'))
+        return res;
+    }
+  
+    let url = "https://www.bing.com/images/search?q="+stringToSearch+"&first=1"
+    api.call("ressource.fetch", [url], html => {
+        let images = extractImageUrls(html)
+        cb(images)
+    })
+    return ""
+}
+
+
+</pre>
+</code>
+
+<code>
+<pre>
+- #food | __config_formula_sum = < div style="width: 300px" > \${addition(row_price1, row_price2)\}   < / div >
+
+- #food | __config_formula_image = \${searchImage("row_name", images => {   cb(\`< img width="40px" src="\${images[row_image]}" / >\`) }  )  } 
+
+</pre>
+</code>
+
+
+</p>
+
+<h3> Example: (to copy and paste in a note, then click on #food)</h3>
+<code>
+<pre>
+#food | __config_hide_meta __config_hide_config_rows
+#food | __header_name | __header_price
+#food | apple | 1
+#food | banana | 2
+#food | orange | 3
+</pre>
+</code>
 
 `
 
 
 const TableComponentReact = ({ items, config, id }) => {
-	const r = React;
+
+  
+	// const r = window._tiro_react;
+  const r = window._tiro_react || React
   const c = r.createElement;
-	return r.useMemo(() => {
-		return c(TableComponentReactInt, { items, config, id })
-	}, [
-		items,
-		config,
-		id
-  ])
+  return c(TableComponentReactInt, { items, config, id })
 }
 
 // if grid enabled
   // 
 
 const TableComponentReactInt = ({ items, config, id }) => {
+  if (config.id) id = config.id
   if (!id) id = "table-component"
-  const r = React;
-  
-  
+  const r = window._tiro_react || React
+  // const r = window._tiro_react;
   const c = r.createElement;
-  // r.useEffect(() => {
-  //   if (!config.displayType) config.displayType = "table"
-  // }, [config]);
 
   //
   // localstorage save
@@ -121,21 +335,24 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [searchTerm, setSearchTermInt] = r.useState("");
   const setSearchTerm = (term) => {
     setSearchTermInt(term)
-    localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
+    // localStorage.setItem(`${id}-searchTerm`, JSON.stringify(term));
   }
   r.useEffect(() => {
-    let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
-    if (term) setSearchTermInt(term);
+    // let term = JSON.parse(localStorage.getItem(`${id}-searchTerm`));
+    // if (term) setSearchTermInt(term);
   }, []);
   const [view, setViewInt] = r.useState("table");
   const setView = (term) => {
     setViewInt(term)
-    localStorage.setItem(`${id}-view`, JSON.stringify(term));
+    // localStorage.setItem(`${id}-view`, JSON.stringify(term));
   }
   r.useEffect(() => {
-    let term = JSON.parse(localStorage.getItem(`${id}-view`));
-    if (term) setViewInt(term);
-  }, []);
+  }, [view]);
+  r.useEffect(() => {
+    // let term = JSON.parse(localStorage.getItem(`${id}-view`));
+    // if (term) setViewInt(term);
+    if (config?.gridView) setView("grid")
+  }, [config?.gridView]);
 
 
 
@@ -145,11 +362,30 @@ const TableComponentReactInt = ({ items, config, id }) => {
       sortableItems.sort((a, b) => {
         if (a[sortConfig.key] === null) a[sortConfig.key] = " ";
         if (b[sortConfig.key] === null) b[sortConfig.key] = " ";
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === 'ascending' ? 1 : -1;
+        // if a[sortConfig.key] does not exist, return 1
+        if (a[sortConfig.key] === undefined) a[sortConfig.key] = " ";
+        if (b[sortConfig.key] === undefined) b[sortConfig.key] = " ";
+        // if a[sortConfig.key] and b[sortConfig.key] are dates, convert them to date objects and sort them using timestamp
+        // count / in a[sortConfig.key], if 2, it is a date
+        if (a[sortConfig.key].split && a[sortConfig.key].split("/").length === 3) {
+          // date format is dd/mm/yyyy, convert it to mm/dd/yyyy
+          let dateA = a[sortConfig.key].split("/").reverse().join("/");
+          let dateB = b[sortConfig.key].split("/").reverse().join("/");
+          if (new Date(dateA) < new Date(dateB)) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (new Date(dateA) > new Date(dateB)) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
+          
+        } else {
+
+          if (a[sortConfig.key] < b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? -1 : 1;
+          }
+          if (a[sortConfig.key] > b[sortConfig.key]) {
+            return sortConfig.direction === 'ascending' ? 1 : -1;
+          }
         }
         return 0;
       });
@@ -158,11 +394,42 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [items, sortConfig]);
 
 
+  const [activeFilters, setActiveFiltersInt] = r.useState({});
+  const setActiveFilters = (filters) => {
+    setActiveFiltersInt(filters)
+    localStorage.setItem(`${id}-filters`, JSON.stringify(filters));
+  }
+  r.useEffect(() => {
+    let filters = JSON.parse(localStorage.getItem(`${id}-filters`));
+    if (filters) setActiveFiltersInt(filters);
+  }, []);
+
   const filteredItems = r.useMemo(() => {
     return sortedItems.filter(item => {
-      return JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
+      let found = false;
+      // filter using search 
+      let strItem = JSON.stringify(item).toLowerCase()
+      found = strItem.includes(searchTerm.toLowerCase())
+      // if * included in searchTerm, do a regex filter
+      if (searchTerm.includes("*")) {
+        found = strItem.match(new RegExp(searchTerm.toLowerCase().replace(/\*/g, ".*"))) != null
+      }
+      // filter using activeFilters
+      if (activeFilters) {
+        for (let colId in activeFilters) {
+          // if activeFilters[colId] is empty, do not filter
+          if (activeFilters[colId].length === 0) {
+            found = true;
+          }
+
+          if (!activeFilters[colId].includes(item[colId])) {
+            found = false;
+          }
+        }
+      }
+      return found
     });
-  }, [sortedItems, searchTerm]);
+  }, [sortedItems, searchTerm, activeFilters]);
 
   const requestSort = key => {
     let direction = 'ascending';
@@ -174,14 +441,18 @@ const TableComponentReactInt = ({ items, config, id }) => {
   };
 
   let processContent = (contentCell, configCol) => {
-    if (typeof contentCell === "string" && contentCell.includes("http")) {
+    // if type of is not string, return it
+    if (typeof contentCell !== "string") return contentCell
+
+    // if < and > exists inside the contentCell, it is html
+    let isContentCellHtml = contentCell && contentCell.includes("<") && contentCell.includes(">")
+    if (typeof contentCell === "string" && contentCell.includes("http") && !isContentCellHtml) {
       // find with a regex all the urls in the contentCell and transform them into links
       let regex = /(https?:\/\/[^\s]+)/g;
       contentCell = contentCell.replace(regex, (url) => {
         return `<a href="${url}" target="_blank">${url}</a>`;
       });
     } 
-    // console.log(123, configCol)
     // if (configCol.onClick) {
     //   contentCell = `<div class="table-link-click" onclick="${configCol.onClick}">${contentCell}</a>`
     // }
@@ -191,11 +462,34 @@ const TableComponentReactInt = ({ items, config, id }) => {
   const [configColsObj, setConfigColsObj] = r.useState({});
   r.useEffect(() => {
     let configColsObj = {};
+    // if (config.multiselect === true) configColsObj["multiselect"] = {colId: "multiselect-col"}
+
     config.cols.forEach(col => {
       configColsObj[col.colId] = col;
     });
+    // if multiselect exists, add it to the configColsObj
+      
     setConfigColsObj(configColsObj);
   }, [config.cols]);
+
+  //
+  // multiselect logic
+  //
+  const [selectedItems, setSelectedItems] = r.useState([]);
+  const onColHeaderClick = (colId) => {
+    if (colId === "multiselect") {
+      let allSelected = filteredItems.length === selectedItems.length;
+      if (allSelected) {
+        setSelectedItems([])
+      } else {
+        setSelectedItems(filteredItems)
+      }
+    } else {
+      setActiveColToFilter(colId)
+      requestSort(colId)
+    }
+  }
+  
 
 
   const keysRef = r.useRef({});
@@ -205,94 +499,371 @@ const TableComponentReactInt = ({ items, config, id }) => {
     return `${stringId}-${keysRef.current[stringId]}`
   }
 
-  const tableView = () =>  [
-        c('table', {className: "ctag-component-table"}, [
-          c('thead', {}, [
-          c('tr', {}, [
-              ...config.cols.map(({ colId, headerLabel }) =>
-              c('th', { key: keyCounter(`th-header-${colId}`), onClick: () => requestSort(colId) }, [
-                  `${headerLabel || colId} `,
-                  c('span', {className:"sortIndic"}, [`${sortConfig?.key === colId ? (sortConfig?.direction === "ascending" ? "v" : "^") : ""}`])
-              ])
-              )
-          ])
-          ]),
-          c('tbody', {}, [
-              ...filteredItems.map(item =>
-                  c('tr', { key: keyCounter(`${item.id}`) }, [
-                  ...config.cols.map(({ colId, type, buttons }) =>
-                      c('td', { key: keyCounter(`${colId}-${item.id}`), className: `${configColsObj[colId]?.classes || ""}` }, [
-                      // BUTTON 
-                      ...(type === 'buttons'
-                          ? buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
-                              c('button', { 
-                                key: keyCounter(`${colId}-${item.id}-${label}`), 
-                                onClick: (e) => {onClick(item, e)}, 
-                                onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(item, e)}, 
-                                onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(item, e)}  
-                              }, [
-                                c('div', {className: `fa fa-${icon}` }),
-                                label
-                              ])
-                          )
-                          : []),
-                      // ICON 
-                      ...(type === 'icon' ? [c('div', {className: `fa fa-${item[colId]}` })] : []),
-                      // TEXT 
-                      !type ? [
-                        c('div', {
-                          onClick: (e) => {
-                            if (configColsObj[colId]?.onClick) configColsObj[colId]?.onClick(item, e)
-                          },
-                          className:`cell-content ${configColsObj[colId]?.onClick ? "table-link-click" : ""}`, 
-                          dangerouslySetInnerHTML:{__html: processContent(item[colId], configColsObj[colId])}
-                        })
-                      ] : []
-                      ])
-                  )
-                  ])
-              ) 
-          ]) // endbody
-      ]) // endtable
-  ]
-
-  const gridView = () => [
-    c('div', {className:"ctag-component-table-grid-view"}, [
-      ...filteredItems.map(item =>
-        c('div', { 
-            key: keyCounter(`${item.id}`), 
-            className: "grid-item",
-            onClick: (e) => {
-              if (config.gridView.onClick) config.gridView.onClick(item, e)
-            }
-          }, [
-          c('div', { className: "grid-item-image" }, [
-            config.gridView.image(item)?.html ? 
-              c('div', {dangerouslySetInnerHTML:{__html: config.gridView.image(item).html}}) :
-              c('img', { src: config.gridView.image(item), alt: config.gridView.image(item) })
-          ]),
-          c('div', { className: "grid-item-name" }, [
-            c('div', {className: "grid-item-name-text"}, [config.gridView.label(item)])
-          ]),
+  //
+  // buttons cell gene
+  //
+  const buttonsCell = (col, itemsForAction) => {
+    if (!Array.isArray(itemsForAction)) itemsForAction = [itemsForAction]
+    let res =  c('div', {className: "buttons-cell"}, [
+      col.buttons.map(({ label, icon, onClick, onMouseEnter, onMouseLeave }) =>
+        c('button', { 
+          key: keyCounter(`${col.colId}-${itemsForAction[0]?.id}-${label}`), 
+          onClick: (e) => {onClick(itemsForAction, e)}, 
+          onMouseEnter: (e) => {if (onMouseEnter) onMouseEnter(itemsForAction, e)}, 
+          onMouseLeave: (e) => {if (onMouseLeave) onMouseLeave(itemsForAction, e)}  
+        }, [
+          c('div', {className: `fa fa-${icon}` }),
+          label
         ])
       )
     ])
+    return [res]
+  }
+
+  const hasMultiselect = () => {
+    return config.cols.map(c => c.colId).includes("multiselect")
+  }
+
+
+  //
+  // Header cell
+  //
+  const genHeaderCell = col => {
+    if (col.headerLabel) {
+      if (col.headerLabel.includes("{{sumCol}}")) {
+        let sumCol = 0;
+        items.forEach(item => {
+          let nb = parseFloat(item[col.colId]) || 0
+          sumCol += nb
+        })
+        sumCol = Math.round(sumCol)
+        col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
+      }
+      if (col.headerLabel.includes("{{count}}")) col.headerLabel = col.headerLabel.replace("{{count}}", items.length)
+    }
+  
+    let res = [
+      `${col.headerLabel || col.colId} `, 
+      c('span', {className:"sortIndic" }, [
+        `${sortConfig?.key === col.colId ? (sortConfig?.direction === "ascending" ? "▼" : "▲") : ""}`
+      ])
+    ]
+    if (col.type && col.type === "multiselect") {
+      res = [c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onInput: () => onColHeaderClick(col.colId)})]
+    }
+    if (col.type && col.type === "buttons" && hasMultiselect()) {
+      res = [buttonsCell(col, selectedItems)]
+    }
+
+    let isSortable = ["multiselect", "buttons"].includes(col.type) ? false : true
+    res = c('th',  {  key: keyCounter(`${col.colId}-${col.headerLabel}`) ,onClick: () => { if (isSortable) requestSort(col.colId) }}, res)
+    return res
+  }
+
+
+  // 
+  // CREATE EXCEL LIKE FILTER TABLE
+  // 
+
+  // for each col, get unique values
+  const [uniqFilterVals, setUniqFilterVals] = r.useState({});
+  const [countUniqueFilterVals, setCountUniqueFilterVals] = r.useState({})
+  const clearTxt = "🧹"
+  const closeTxt = "✖️"
+
+  const genSelectOptionLabel = (colId, val) => {
+    let count = countUniqueFilterVals[colId][val] || 0
+    let allValsFromColId = 0
+    let longuestValLengthFromCol = 0
+    for (let valCol in countUniqueFilterVals[colId]) {
+      allValsFromColId += countUniqueFilterVals[colId][valCol]
+      let valLength = valCol?.length || 0
+      if (valCol == undefined) valLength = 0
+      longuestValLengthFromCol = Math.max(longuestValLengthFromCol, valLength)
+    }
+    let percent = Math.round(count / allValsFromColId * 100)
+
+    // if val is undefined, just ""
+    if (val === undefined) val = ""
+    let valLength = val?.length || 0
+    let spaceBetween = longuestValLengthFromCol - valLength + 3
+    // let spaceStr = "  ".repeat(spaceBetween)
+    // let spaceStr = "&#160;".repeat(spaceBetween)
+    let spaceStr = "&nbsp;".repeat(spaceBetween)
+    let countStr = `${spaceStr}[ ${count} | ${percent}% ]`
+    if (count === 0) countStr = ""
+    if (val === closeTxt) countStr = ""
+    if (val === clearTxt) countStr = ""
+    return val + countStr
+  }
+
+
+  r.useEffect(() => {
+    let uniqFilterVals = {};
+    let countPerUniqVals = {};
+    config.cols.forEach(col => {
+      let values = new Set();
+      // add select all
+      values.add(closeTxt)
+      values.add(clearTxt)
+      items.forEach(item => {
+        values.add(item[col.colId])
+        if (countPerUniqVals[col.colId] === undefined) countPerUniqVals[col.colId] = {}
+        if (countPerUniqVals[col.colId][item[col.colId]] === undefined) countPerUniqVals[col.colId][item[col.colId]] = 1
+        else countPerUniqVals[col.colId][item[col.colId]] += 1
+
+      })
+      uniqFilterVals[col.colId] = Array.from(values)
+      
+    })
+    setCountUniqueFilterVals(countPerUniqVals)
+    setUniqFilterVals(uniqFilterVals)
+
+  }, [items])
+
+  // active filters rules like {col1 : [val1, val2], col2: [val1]}
+  const onFilterChange = (colId, valsArr) => {
+    if (valsArr.includes(closeTxt)) {
+      setActiveColToFilter(null)
+    } else {
+      let newActiveFilters = {...activeFilters}
+      newActiveFilters[colId] = valsArr
+      // if "-- select all --" is selected, remove the filter
+      if (valsArr.includes(clearTxt)) {
+        delete newActiveFilters[colId]
+        // activeColToFilter = null
+        setActiveColToFilter(null)
+        
+      }
+      setActiveFilters(newActiveFilters)
+
+    }
+  }
+  // click on a header of a col to change table filter form
+  const [activeColToFilter, setActiveColToFilter] = r.useState(null);
+
+
+
+
+
+  const isColFiltered = (colId) => {
+    return activeFilters[colId] !== undefined
+  }
+  const [colsContentHidden, setColsContentHidden] = r.useState({})
+  const toggleColContent = (colId) => {
+    let newColsContentHidden = {...colsContentHidden}
+    newColsContentHidden[colId] = !newColsContentHidden[colId]
+    setColsContentHidden(newColsContentHidden)
+  }
+
+  // status of compressing/not the row, if row compressed, cell-content is 20px height overflow hidden
+  const [rowCompressed, setRowCompressed] = r.useState(true)
+  
+
+
+  // 
+
+  const [gridCategories, setGridCategories] = r.useState([])
+  r.useEffect(() => {
+    // get from each item.category
+    let categories = new Set()
+    filteredItems.forEach(item => {
+      // if not empty
+      if (item.category?.length > 0)categories.add(item.category)
+    })
+    // add last category "rest"
+    categories.add("_")
+    setGridCategories(Array.from(categories))
+  }, [filteredItems])
+  const getItemsFromCategory = (category) => {
+    if (category === "_") {
+      return filteredItems.filter(item => item.category === undefined || item.category === "")
+    }
+    let items = filteredItems.filter(item => item.category === category)
+    return items
+  }
+
+  const filterView = (bodyDiv) => [
+      c('div', {className: "ctag-component-table-wrapper"}, [
+
+          c('table', {className: "ctag-component-table"}, [
+            c('thead', {}, [
+            c('tr', {}, [
+                ...config.cols.map(col =>
+                  genHeaderCell(col)
+                )
+            ])
+            ]),
+            c('tbody', {}, [
+              // first row is the filter row
+              c('tr', {}, [
+                ...config.cols.map(col => {
+                  if (activeColToFilter === col.colId) {
+                    return c('td', {key: `${col.colId}-filter`}, [
+                      c('select', {class:"select-multiple-filter", multiple: true, onInput: (e) => {
+                        let selectedValues = Array.from(e.target.selectedOptions).map(o => o.value)
+                        onFilterChange(col.colId, selectedValues)
+                      }}, [
+                        ...uniqFilterVals[col.colId].map(val => {
+                          return c('option', {value: val, selected: activeFilters[col.colId]?.includes(val), dangerouslySetInnerHTML: {__html: genSelectOptionLabel(col.colId, val)} } )
+                        })
+                      ])
+                    ])
+                  } else {
+                    return c('td', {key: keyCounter(`${col.colId}-buttons`)}, [
+                      // on click here, set activeColToFilter to none but event propagation should be stopped
+                      c('div', {className: "col-buttons", onClick: (e) => { 
+                        e.stopPropagation();
+                        // setActiveColToFilter(null)
+                      }}, [
+                        c('div', {className: "table-link-click", onClick: () => setActiveColToFilter(col.colId)}, [
+                          // filter emoji icon with ative class if filter is active
+                          c('div', {className: `fa col-icon fa-filter ${isColFiltered(col.colId) ? "active" : ""}`}),
+                        
+                        ]),
+                        // hide/show col content
+                        c('div', {className: "table-link-click", onClick: () => toggleColContent(col.colId)}, [
+                          c('div', {className: `fa col-icon  ${colsContentHidden[col.colId] ? "fa-eye-slash" : "fa-eye"}`}),
+                        ])
+                      ])
+                    ])
+                  }
+                })
+              ]),
+              bodyDiv && bodyDiv()
+            ]),
+          ]),
+    ])
   ]
 
+  const tableView = () =>  [
+       
+                ...filteredItems.map(item =>
+                    c('tr', { key: keyCounter(`${item.id}`) }, [
+                    ...config.cols.map(col =>
+                    // ...config.cols.map(({ colId, type, buttons }) =>
+                      c('td', { key: keyCounter(`${col.colId}-${item.id}`), className: `${configColsObj[col.colId]?.classes || ""}` }, [
+                        // BUTTON 
+                        ...(col.type === 'buttons'
+                            ? buttonsCell(col, item)
+                            : []),
+                        // ICON 
+                        ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
+                        // MULTISELECT
+                        ...(col.colId === "multiselect" ? [
+                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
+                            if (selectedItems.includes(item)) {
+                              setSelectedItems(selectedItems.filter(i => i !== item))
+                            } else {
+                              setSelectedItems([...selectedItems, item])
+                            }
+                          }})
+                        ] : []),
+                        // TEXT 
+                        colsContentHidden[col.colId] ? [] : [
+                        !col.type ? [
+                          c('div', {
+                            onClick: (e) => {
+                              if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
+                            },
+                            className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
+                          })
+                        ] : []
+                        ]
+                        ])
+                    )
+                    ])
+                ) 
+    ]
+
+  const gridView = () => [
+    c('div', {className:"ctag-component-table-grid-view"}, [
+      gridCategories.length !== 1 && 
+        gridCategories.map(category => [
+        c('div', { key: keyCounter(`${category}`), className: "grid-category-title" }, [ category ]),
+        c('div', { className: "flex-grid" }, [ 
+          ...getItemsFromCategory(category).map(item =>
+            gridItem(item)
+          )
+        ]),
+      ]),
+      gridCategories.length === 1 &&
+        c('div', { className: "flex-grid" }, [ 
+          filteredItems.map(item =>
+            gridItem(item)
+          )
+        ]),
+    ])
+  ]
+
+  const gridItem = (item) => 
+          c('div', { 
+            key: keyCounter(`${item.id}`), 
+            className: "grid-item",
+          }, [
+            config.gridView?.image && config.gridView?.hideLabel && config.gridView?.label &&
+            c('div', { 
+              onClick: (e) => {
+                if (config.gridView.onClick) config.gridView.onClick(item, e)
+              },
+              className: "grid-item-image" }, [
+              config.gridView?.image(item)?.html ? 
+                c('div', { className:"grid-item-image-html", dangerouslySetInnerHTML:{__html: config.gridView?.image(item).html}}) :
+                // c('div',["test"])
+                config.gridView?.image(item)?.length > 1 && 
+                  c('img', { 
+                    src: config.gridView?.image(item), 
+                    alt: config.gridView?.image(item) 
+                  })
+            ]),
+            c('div', { className: `grid-item-name ${config.gridView?.hideLabel(item) ? "hide-label": ""}` }, [
+              c('div', {className: "grid-item-name-text"}, [config.gridView?.label(item)])
+            ]),
+        ])
+  
+
+  const renderView = () => {
+    if (view === "table") return [filterView(tableView)]
+    else if (view === "grid") return [filterView(), gridView()]
+    
+
+    //     view === "table" && filterView(tableView),
+    // view === "grid" && filterView(), gridView(), 
+
+  }
   return [
     c('style', {}, [styleCss]),
-    c('input', { type: 'text', value: searchTerm, onChange: e => setSearchTerm(e.target.value) }),
-    // c('div', {className:"nb-items"}, [ Math.random()]),
-    // add a button to switch between table and grid view
-    // c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [view]),
-    // same but using font awesome
-    c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
-      view === "table" && c('div', {className:"fa fa-th-large"}),
-      view !== "table" && c('div', {className:"fa fa-th"})
+
+    c('div', {className:"table-controls-wrapper"}, [ 
+      // filter button
+      c('input', { type: 'text', value: searchTerm, placeholder:"Filter the table", onInput: e => {  setSearchTerm(e.target.value) }}),
+      // toggle gridview button
+      config?.gridView && c('button', { onClick: () => {nView = view === "table" ? "grid" : "table"; setView(nView)} }, [
+        view === "table" && c('div', {className:"fa fa-th-large"}),
+        view !== "table" && c('div', {className:"fa fa-th"})
+      ]),
+      // export to graph button
+      config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)}, title: "Graphs" }, [
+        c('div', {className:"fa fa-chart-line"})
+      ]),
+      // export to csv
+      config?.exportToCsv && c('button', { onClick: () => {config.exportToCsv(filteredItems)}, title: "Export to CSV" }, [
+        c('div', {className:"fa fa-file-csv"})
+      ]),
+      // rowcompressed button 
+      c('button', { onClick: () => setRowCompressed(!rowCompressed), title: `${rowCompressed ? "Toggle to large rows" : "Toggle to compressed rows"}`}, [
+        c('div', {className:`fa ${rowCompressed ? "fa-table-cells-large" : "fa-table-cells"}`})
+      ]),
+      // help button with  api.call("popup.show", [helpStr, "Table Help"])
+      c('button', { onClick: () => api.call("popup.show", [helpStrTable, "Table Help"]), title: "Help" }, [
+        c('div', {className:"fa fa-question-circle"})
+      ]),
+      
+
     ]),
     
-    // c('div', {className:"nb-items"}, [ config.displayType ]),
-    view === "table" ? tableView() : gridView()
+    renderView()
   ]
 
     
@@ -304,27 +875,29 @@ const TableComponentReactInt = ({ items, config, id }) => {
 //
 let genTableComponent = ({items, config, id}) => {
   const api = window.api;
+
   const startMainLogic = () => {
     let int = setInterval(() => {
-      if (!window.ReactDOM || !ReactDOM || !React) return;
+
+      if (!window.preact.createElement || !window.preactHooks.useState) return;
+      window._tiro_react = {...window.preact, ...window.preactHooks}
       clearInterval(int)
-      const r = React;
+      const r = window._tiro_react;
       const c = r.createElement;
 
       // v18
-      // console.log("table render component")
       let container = document.getElementById("ctag-component-table-wrapper")
-      const root = ReactDOM.createRoot(container); // create a root
-      root.render(c(TableComponentReact, {items, config, id}));
+      container.innerHTML = ""
+      r.render(c(TableComponentReact, {items, config, id}), container);
     }, 100) 
   }
-  api.utils.loadRessources(
+  api.utils.loadRessourcesOneByOne(
       [
-        "https://unpkg.com/react@18/umd/react.development.js",
-        "https://unpkg.com/react-dom@18/umd/react-dom.development.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/preact/10.24.3/preact.min.umd.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/preact/10.24.3/hooks.umd.min.js",
       ],
       () => {
-          startMainLogic()
+                startMainLogic()
       }
   );
   
@@ -337,75 +910,3 @@ if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
 window._tiroPluginsCommon.TableComponentReact = TableComponentReact
 window._tiroPluginsCommon.genTableComponent = genTableComponent
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// let tableComponent = (p) => {
-//     const r = React;
-//     const c = r.createElement;
-    
-    
-//     return (
-//         c('div', { className: "app-wrapper" }, [
-//             p.array && p.array.map(item => 
-//                 c('div', { className: "item-wrapper" }, [item.name])
-//             ),
-//         ])
-//     )
-// }
-
-
-// if (!window._tiroPluginsCommon) window._tiroPluginsCommon = {}
-// window._tiroPluginsCommon.tableComponent = tableComponent
-
-
-// API structure
-// items: [
-//     {
-//       id: image1, 
-//       image:src..., 
-//       name:..., 
-//       size:....,
-//       icon:"fa-image",
-//     },...
-//   ]
-//   config: {
-//     showGalleryView: true
-//     cols: [
-//       {colId: "icon", label: "type", type:"icon"},
-//       {colId: "name", label: "name2"},
-//       {colId: "size"},
-//       {colId: "actions", type: "buttons", buttons:[
-//         {
-//           label: delete, 
-//           icon: delete, 
-//           onClick: (id) => {
-//             if (id.endswith === jpeg) => ask sthg specific
-//             api.warn => api.delete
-//           }
-//         }
-//       ]},
-//     ]
-//   }
-
-
-// const [status, setStatus] = r.useState("hello world react ctag loaded from simple js lib")
-// r.useEffect(() => {
-//     console.log("woop", p)
-//     setTimeout(() => {setStatus(12333333)}, 3000)
-//     api.call("ui.notification.emit",[{content:"hello world common lib comp api"}])
-// }, [])

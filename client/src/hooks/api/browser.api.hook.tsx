@@ -1,10 +1,10 @@
-import { cloneDeep, each, isArray, isBoolean, random, uniq } from 'lodash';
+import { cloneDeep, each, isArray, isBoolean, random, uniq } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { areSamePaths, cleanPath } from '../../../../shared/helpers/filename.helper';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile, iFolder, iFolderDeleteType } from '../../../../shared/types.shared';
 import { devCliAddFn, notifLog } from '../../managers/devCli.manager';
-import { deviceType } from '../../managers/device.manager';
+import { deviceType, isA } from '../../managers/device.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { sortFiles } from '../../managers/sort.manager';
 import { getLoginToken } from '../app/loginToken.hook';
@@ -16,6 +16,7 @@ import { getApi, iClientApi } from './api.hook';
 import { iFilesApi } from './files.api.hook';
 import { iFoldersApi } from './folders.api.hook';
 import { iStatusApi } from './status.api.hook';
+import { get } from 'http';
 
 //
 // INTERFACES
@@ -29,6 +30,8 @@ export interface iBrowserApi {
 			openIn?: string | 'activeWindow' | 'active',
 			// @TODO searchedString here too
 			searchedString?: string
+			// if ramcache, will not ask backend for files
+			ramCache?: boolean 
 		}
 	) => void
 	files: {
@@ -43,7 +46,9 @@ export interface iBrowserApi {
 	folders: {
 		refreshFromBackend: Function
 		base: string
-		get: () => iFolder
+		get: (
+			cb?:(f:iFolder) => void
+		) => iFolder
 		clean: Function,
 		scan: (
 			foldersPath: string[],
@@ -95,25 +100,15 @@ export const useBrowserApi = (p: {
 	//
 	// Goto
 	//
+	const RamCacheFilesListRef = useRef<{[filePath:string]:iFile[]}>({})
 	const goTo: iBrowserApi['goTo'] =
 		(folderPath, fileTitle, opts) => {
-			if (folderPath === "") return
-			getApi(api => {
-				folderPath = cleanPath(`${folderPath}/`)
-				const h = `[BROWSER GO TO] `
-				const log = sharedConfig.client.log.verbose
-				log && console.log(`${h} ${folderPath} ${fileTitle}  ${JSON.stringify(opts)}`);
-				// p.searchUiApi.term.set('')
-				api.ui.search.term.set('')
-				// p.statusApi.searching.set(true)
-				api.status.searching.set(true)
-				setSelectedFolder(folderPath)
 
-				// p.filesApi.get(folderPath, nfiles => {
-				api.files.get(folderPath, nfiles => {
+			const onFilesFetched = (nfiles:iFile[]) => {
+				getApi(api => {
 					// when receiving results
 					api.status.searching.set(false)
-
+		
 					// sort them
 					const sortMode = api.userSettings.get('ui_filesList_sortMode')
 					const nfilesSorted = sortFiles(nfiles, sortMode)
@@ -126,7 +121,6 @@ export const useBrowserApi = (p: {
 								activeIndex = i
 							}
 						})
-						// console.log(`${h} file search "${fileTitle}" on id : ${activeIndex}`);
 					}
 					setActiveFileIndex(activeIndex);
 					setFiles(nfilesSorted)
@@ -159,8 +153,41 @@ export const useBrowserApi = (p: {
 							api.ui.windows.updateWindows([opts.openIn], fileToOpen)
 						}
 					}
-				});
-			})
+				})
+			}
+
+			// console.trace("woop")
+			// RAM CACHE 
+			const startSearch = () => {
+				getApi(api => {
+					folderPath = cleanPath(`${folderPath}/`)
+					const h = `[BROWSER GO TO] `
+					const log = sharedConfig.client.log.verbose
+					log && console.log(`${h} ${folderPath} ${fileTitle}  ${JSON.stringify(opts)}`);
+					// p.searchUiApi.term.set('')
+					api.ui.search.term.set('')
+					// p.statusApi.searching.set(true)
+					api.status.searching.set(true)
+					setSelectedFolder(folderPath)
+				})
+			}
+			if (opts && opts.ramCache && RamCacheFilesListRef.current[folderPath]) {
+				startSearch()
+				// console.log("RAM CACHE", folderPath, RamCacheFilesListRef.current[folderPath].length)
+				onFilesFetched(RamCacheFilesListRef.current[folderPath])
+			}  else {
+				// DIRECT FETCH
+				// console.log("DIRECT FETCH", folderPath)
+				if (folderPath === "") return
+				getApi(api => {
+					startSearch()
+					// p.filesApi.get(folderPath, nfiles => {
+					api.files.get(folderPath, nfiles => {
+						onFilesFetched(nfiles)
+						RamCacheFilesListRef.current[folderPath] = nfiles
+					});
+				})
+			}
 		}
 
 
@@ -184,7 +211,8 @@ export const useBrowserApi = (p: {
 		})
 	}
 
-	const getFolderHierarchy = () => {
+	const getFolderHierarchy = (cb) => {
+		if (cb) cb(folderHierarchy)
 		return folderHierarchy
 	}
 
@@ -203,6 +231,7 @@ export const useBrowserApi = (p: {
 
 	const addToOpenedFolders = (folderPath: string) => {
 		console.log("ADD",folderPath)
+		openFoldersRef.current = isArray(openFoldersRef.current) ? openFoldersRef.current : []
 		openFoldersRef.current = [...openFoldersRef.current, folderPath]
 		openFoldersRef.current = uniq(openFoldersRef.current)
 		setOpenFolders(openFoldersRef.current)
@@ -265,7 +294,7 @@ export const useBrowserApi = (p: {
 	const isInitialScanDone = useRef<boolean>(false)
 	useEffect(() => {
 		if (isInitialScanDone.current) return
-		console.log("openFolders > scanFolders", openFolders.length)
+		// console.log("openFolders > scanFolders", openFolders.length)
 		scanFolders(openFolders)
 		if (openFolders.length > 1) isInitialScanDone.current = true
 	}, [openFolders])
@@ -474,12 +503,3 @@ export const askFolderDelete: iFolderDeleteFn = (typeFolder, cacheFolderName) =>
 		token: getLoginToken()
 	})
 }
-
-devCliAddFn("cache", "clean_cache", () => {
-	getApi(api => {
-		api.folders.delete("cache", "ctag-ressources")
-		api.ressource.cleanCache()
-		api.cache.cleanRamCache()
-		notifLog("Cache cleaned successfully")
-	})
-})

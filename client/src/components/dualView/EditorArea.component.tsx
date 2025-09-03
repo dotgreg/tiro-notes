@@ -1,6 +1,6 @@
 import React, { forwardRef, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { iFile, iFileImage, iTitleEditorStatus, iViewType } from '../../../../shared/types.shared';
-import { deviceType, isA, iMobileView, getBrowserName } from '../../managers/device.manager';
+import { deviceType, isA, iMobileView, getBrowserName, isMobile } from '../../managers/device.manager';
 import { NoteTitleInput, PathModifFn } from './TitleEditor.component'
 import { iEditorType, useTextManipActions } from '../../hooks/editor/textManipActions.hook';
 import { useMobileTextAreaLogic } from '../../hooks/editor/mobileTextAreaLogic.hook';
@@ -18,7 +18,7 @@ import { Dropdown } from '../Dropdown.component';
 import { iUploadType, UploadButton, uploadButtonCss } from '../UploadButton.component';
 import { UploadProgressBar } from '../UploadProgressBar.component';
 import { GridContext } from '../windowGrid/WindowGrid.component';
-import { ClientApiContext, getApi } from '../../hooks/api/api.hook';
+import { ClientApiContext, getApi, iClientApi } from '../../hooks/api/api.hook';
 import { copyToClickBoard } from '../../managers/clipboard.manager';
 import { CodeMirrorEditor, iCMEvent, iCMPluginConfig, iCursorInfos } from './CodeMirrorEditor.component';
 import { useDebounce } from '../../hooks/lodash.hooks';
@@ -27,14 +27,25 @@ import { openExportFilePopup } from '../../managers/print-pdf.manager';
 import { iEditorAction } from '../../hooks/api/note.api.hook';
 import { fileToNoteLink } from '../../managers/noteLink.manager';
 import { triggerExportPopup } from '../../managers/export.manager';
-import { each, isBoolean, isNumber, isString, random, set } from 'lodash';
-import { pathToIfile } from '../../../../shared/helpers/filename.helper';
+import { cloneDeep, each, isBoolean, isNumber, isString, random, set } from 'lodash-es';
+import { cleanString, pathToIfile } from '../../../../shared/helpers/filename.helper';
 import { notifLog } from '../../managers/devCli.manager';
 import { setNoteView } from '../../managers/windowViewType.manager';
 import { title } from 'process';
-import { triggerAiSearch } from '../../managers/ai.manager';
+import { AiAnswer, iAiBtnConfig, triggerAiSearch } from '../../managers/ai.manager';
 import { triggerCalc } from '../../managers/textEditor.manager';
-import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getUserSettingsSync, userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getFontSize } from '../../managers/font.manager';
+import { getDateObj } from '../../../../shared/helpers/date.helper';
+import { cleanSearchString } from '../../managers/textProcessor.manager';
+import { highlightCurrentLine } from '../../managers/codeMirror/highlightLine.cm';
+import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { triggerAddTableCol, triggerRemoveTableCol } from '../../managers/table.markdown.manager';
+import { syncScroll3 } from '../../hooks/syncScroll.hook';
+import { getLineInfosFromMdStructure} from '../../managers/markdown.manager';
+import { info } from 'console';
+import { iNoteParentType } from '../NotePreview.component';
+import { iApiDictionary } from '../../../../shared/apiDictionary.type';
 
 export type onSavingHistoryFileFn = (filepath: string, content: string, historyFileType: string) => void
 export type onFileEditedFn = (filepath: string, content: string) => void
@@ -45,10 +56,11 @@ export type iLayoutUpdateFn = (action: "windowActiveStatus"|"windowViewChange", 
 export type iReloadContentFn = (counter: number) => void
 
 interface iEditorProps {
-	viewType?: iViewType
+	noteParentType:iNoteParentType
+	viewType?: iViewType // editor/dual/preview	
 	mobileView?: iMobileView
-	
 
+	
 	editorType: iEditorType
 	windowId: string
 
@@ -59,6 +71,7 @@ interface iEditorProps {
 
 	onScroll: Function
 	onTitleClick: onTitleClickFn
+	onTitleEditedHook?: Function
 	
 
 	onUpdateY: onTitleClickFn
@@ -82,11 +95,19 @@ interface iEditorProps {
 	titleEditor?: iTitleEditorStatus
 }
 
+
+
+//
+//
+// COMPONENT
+//
+//
 const EditorAreaInt = (
 	p: iEditorProps & { isConnected: boolean }
 ) => {
 
 	const [innerFileContent, setInnerFileContent] = useState('')
+	// const [innerFile, setInnerFile] = useState<iFile>(p.file)
 	let monacoEditorComp = useRef<any>(null)
 
 
@@ -106,6 +127,29 @@ const EditorAreaInt = (
 		pFileRef.current = p.file
 	}, [p.file.path])
 
+	// 
+	// const removeContentMetaAndUpdateInnerFileAndContent = (newContent: string) => {
+	// 	const contentWithMetas = p.fileContent
+	// 	const {metas, content} = filterMetaFromFileContent(contentWithMetas)
+	// 	const cFile = cloneDeep(p.file)
+	// 	if (metas.created) cFile.created = parseInt(metas.created as string)
+	// 	if (metas.updated) cFile.modified = parseInt(metas.updated as string)  
+	// 	setInnerFileContent(content)
+	// 	setInnerFile(cFile)
+	// }
+	// const addBackMetaToContentAndUpdateInnerFileAndContent = (newContent: string) => {
+	// 	const cFile = cloneDeep(innerFile)
+	// 	cFile.modified = Date.now()
+	// 	setInnerFile(cFile)
+	// 	// if date already exists (real date), take it
+	// 	const newContentWithMeta = addBackMetaToContent(newContent, {
+	// 		created: cFile.created || Date.now(),
+	// 		updated: cFile.modified
+	// 	})
+	// 	return newContentWithMeta
+	// }
+	
+
 	const { triggerNoteEdition } = useNoteEditorEvents({
 		file: p.file,
 		fileContent: p.fileContent,
@@ -113,25 +157,32 @@ const EditorAreaInt = (
 
 		onEditorDidMount: () => {
 			// devHook("editor_mount")(p.fileContent)
+			// removeContentMetaAndUpdateInnerFileAndContent(p.fileContent)
 			setInnerFileContent(p.fileContent)
 		},
 		onEditorWillUnmount: () => {
 		},
 		onNoteContentDidLoad: () => {
 			if (!clientSocket) return
+			// removeContentMetaAndUpdateInnerFileAndContent(p.fileContent)
 			setInnerFileContent(p.fileContent)
 		}
 		,
 		onNoteEdition: (newContent, isFirstEdition) => {
 			let cfile = pFileRef.current 
-			setInnerFileContent(newContent)
+			// removeContentMetaAndUpdateInnerFileAndContent(p.fileContent)
 			// IF FIRST EDITION, backup old file
 			if (isFirstEdition) {
 				getApi(api => {
 					api.history.save(cfile.path, p.fileContent, 'enter')
 				})
 			}
+			
+			// const newContentWithMeta = addBackMetaToContentAndUpdateInnerFileAndContent(newContent)
+			// p.onFileEdited(cfile.path, newContentWithMeta)
+			
 			p.onFileEdited(cfile.path, newContent)
+			setInnerFileContent(newContent)
 		},
 		onNoteLeaving: (isEdited, oldPath) => {
 			// if (isEdited) p.onFileEdited(oldPath, innerFileContent)
@@ -144,7 +195,6 @@ const EditorAreaInt = (
 	})
 
 	// useEffect(() => {
-	// 	console.log(123123, innerFileContent)
 	// }, [innerFileContent])
 
 	// MOBILE EDITOR LOGIC HOOK
@@ -167,8 +217,8 @@ const EditorAreaInt = (
 		editorRef
 	})
 
-	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart') => {
-		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition })
+	const insertTextAt = (textToInsert: string, insertPosition: number | 'currentPos' |'currentLineStart', replaceText?:boolean) => {
+		let updatedText = applyTextModifAction('insertAt', { textToInsert, insertPosition, replaceText })
 		if (updatedText) {
 			triggerNoteEdition(updatedText)
 			forceCmRender()
@@ -198,7 +248,6 @@ const EditorAreaInt = (
 	// MANAGE UPLOAD / PROGRESS
 	//
 	// useEffect(() => {
-	// 	// console.log(122333, p.file.path, gridContext.upload.markdownFile?.path, gridContext.upload.progress)
 	// 	if (gridContext.upload.progress && p.file.path === gridContext.upload.markdownFile?.path) {
 	// 		setProgressUpload(gridContext.upload.progress)
 	// 	}
@@ -292,6 +341,7 @@ const EditorAreaInt = (
 				action: () => {
 					getApi(api => {
 						api.ui.note.editorAction.dispatch({
+							windowId: p.windowId,
 							type:"searchWord",
 							searchWordString: " "
 						})
@@ -303,19 +353,14 @@ const EditorAreaInt = (
 	}
 
 	const detachWindowButton = () => {
-		if (userSettingsSync.curr.beta_floating_windows) {
-			return {
-				icon: 'faWindowRestore',
-				title: 'Detach Window',
-				// class: 'detach-button',
-				action: () => { 
-					// console.log("detach", intContent[i].view, intContent[i])
-					// if (!content.file) return
-					getApi(api => { api.ui.floatingPanel.create({type:"file", file: p.file, view: p.viewType }) })
-				}
+		return {
+			icon: 'faWindowRestore',
+			title: 'Detach Window',
+			// class: 'detach-button',
+			action: () => { 
+				// if (!content.file) return
+				getApi(api => { api.ui.floatingPanel.create({type:"file", file: p.file, view: p.viewType }) })
 			}
-		} else {
-			return {}
 		}
 	}
 
@@ -323,7 +368,6 @@ const EditorAreaInt = (
 	// TOOLBAR ACTIONS
 	//
 	const editorToolbarActions = [
-		...uploadBtns(),
 		{
 			title: 'Reload content',
 			icon: 'faSync',
@@ -332,6 +376,8 @@ const EditorAreaInt = (
 				p.onReloadContent(reloadContentCounterRef.current)
 			}
 		},
+		detachWindowButton(),
+		...uploadBtns(),
 		searchButton(),
 		isTextEncrypted(innerFileContent) ? decryptButtonConfig : encryptButtonConfig,
 		
@@ -349,7 +395,7 @@ const EditorAreaInt = (
 				triggerLegacyExportPopup()
 			}
 		},
-		detachWindowButton(),
+		
 		{
 			title: strings.editorBar.explanation.history,
 			icon: 'faHistory',
@@ -453,16 +499,31 @@ const EditorAreaInt = (
 	//
 	//
 	const [jumpToLine, setJumpToLine] = useState(-1)
-	useEffect(() => {
-		let a = p.editorAction
+	
+	const onEditorActionTrigger = (a: iEditorAction, api: iClientApi ) => {
+
 		if (!a) return
-		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}`)
-		if (a.windowId === "active" && !p.isActive) return
-		if (a.windowId !== "active" && a.windowId !== p.windowId) return
+		// in case we have the precise windowId, disable noteParentType filer
+		if (a.windowId !== "active") a.noteParentType = "any"
+		if (a.windowId !== p.windowId && a.windowId !== "active") return 
+		// only trigger if action is asked for specific noteParentType (grid/floating etc)
+		if (a.noteParentType !== "any" && a.noteParentType !== p.noteParentType) return
+		// if already exec action, do not exec
+		if (!api.note.ui.editorAction.canExecuteAction(a)) return
+
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${a.noteParentType} ${p.windowId}`)
+		if (deviceType() !== "mobile" && a.windowId === "active" && !p.isActive) return
+		if (deviceType() !== "mobile" && a.windowId !== "active" && a.windowId !== p.windowId) return
 
 		// console.log("[EDITOR ACTION] =>", {a})
 		// lineJump
 		if (a.type === "lineJump") {
+
+			let lineJumpType = "both"
+			if (a.lineJumpType) lineJumpType = a.lineJumpType
+			let shouldJumpEditor = lineJumpType === "editor" || lineJumpType === "both"
+			let shouldJumpPreview = lineJumpType === "preview" || lineJumpType === "both"
+
 			let lineToJump = 0
 			if(a.lineJumpNb) lineToJump = a.lineJumpNb
 			if(a.lineJumpString) {
@@ -472,25 +533,76 @@ const EditorAreaInt = (
 					if (line.includes(searchee)) lineToJump = i + 3
 				})
 			}
-			setJumpToLine(lineToJump)
-			setTimeout(() => {
-				setJumpToLine(-1)
-			}, 100)
+
+			//
+			// EDITOR JUMP
+			//
+			if (shouldJumpEditor) {
+				setJumpToLine(lineToJump)
+				setTimeout(() => {
+					setJumpToLine(-1)
+				}, 100)
+			}
+
+			//
+			// PREVIEW JUMP
+			//
+			if (shouldJumpPreview) {
+				const infosLines = getLineInfosFromMdStructure(lineToJump, innerFileContent)
+				if (!infosLines.mdPart) return
+				const previewTitleElToJump = infosLines.mdPart?.previewId
+				if (!previewTitleElToJump) return
+				const elPath = `.dual-view-wrapper.window-id-${p.windowId} .preview-area-wrapper #${previewTitleElToJump}`
+				setTimeout(() => {
+					const el:any = document.querySelector(elPath)
+					// console.log("[EDITOR ACTION] LINEJUMP > jumping to path in preview => ", elPath, el)
+					// el?.scrollIntoView({ behavior: "smooth", inline: "nearest", block: 'center' })
+					const previewWrapperPath = `.dual-view-wrapper.window-id-${p.windowId} .preview-area`
+					// 
+					const previewWrapper:any = document.querySelector(previewWrapperPath)
+					// const el = document.querySelector(elPath)
+					if (!el) return
+					previewWrapper.scrollTop = el?.offsetTop - 100
+					
+					// console.log("[EDITOR ACTION] LINEJUMP > jumping to path in preview => ", elPath, el, el.parentNode)
+					// el.parentNode.parentNode.scrollTop = el.offsetTop;
+
+				}, 10)
+			}
 		}
 
 		// insert at
 		if (a.type === "insertText" && a.insertText && a.insertPos) {
-			console.log("insertText", a)
-			insertTextAt(a.insertText, a.insertPos)
+			// console.log("insertText", a)
+			insertTextAt(a.insertText, a.insertPos, false)
+		}
+
+		if (a.type === "replaceText" && a.replaceText && a.replacePos) {
+			
+
+			
+
+
+			// insert text
+			insertTextAt(a.replaceText, a.replacePos, true)
+
+			// Cursor update to the replaced position
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			if (!isNumber(a.replacePos)) return
+			CodeMirrorUtils.updateCursor(f, a.replacePos, true)
+
 		}
 
 		// search interface
 		if (a.type === "searchWord" && a.searchWordString) {
 			const f = codeMirrorEditorView.current
 			if (!f) return
-			CodeMirrorUtils.searchWord(f,a.searchWordString, true)
-
+			CodeMirrorUtils.searchWord(f,a.searchWordString, a.searchReplacementString, true)
+			// const infosLines = getStringInformationFromMdStructure(a.searchWordString, innerFileContent)
+			// console.log("searchWord", a.searchWordString, a.searchReplacementString, infosLines)
 		}
+		
 		// selection
 		if (a.type === "setSelection" && a.selection) {
 			// let shouldOpenInterface = isBoolean(a.searchWordOpenPanel) ? a.searchWordOpenPanel : false
@@ -505,21 +617,63 @@ const EditorAreaInt = (
 		if (a.type === "undo") {
 			const f = codeMirrorEditorView.current
 			if (!f) return
-			console.log("undo")
+			// console.log("undo")
 			CodeMirrorUtils.undo(f.view)
 		}
 		if (a.type === "redo") {
 			const f = codeMirrorEditorView.current
 			console.log(f, f.view)
 			if (!f) return
-			console.log("redo")
+			// console.log("redo")
 			CodeMirrorUtils.redo(f.view)
 		}
 		if (a.type === "uploadProgress") {
 			setProgressUpload(a.uploadProgress || -1)
 		}
 
+		if (a.type === "highlightLine") {
+			const f = codeMirrorEditorView.current
+			if (!f) return
+			highlightCurrentLine(f.view)
+		
+		}
+		if (a.type === "toggleEncryption") {
+			isTextEncrypted(innerFileContent) ? decryptButtonConfig.action() : encryptButtonConfig.action()
+		}
+		if (a.type === "triggerUpload") {
+			// click on upload button 
+			const uploadBtn = document.querySelector(`.window-id-${p.windowId} .upload-button-wrapper input`)
+			if (!uploadBtn) return
+			console.log("[EDITOR ACTION] TRIGGER UPLOAD2222", uploadBtn)
+			// uploadBtn.click()
+			uploadBtn.dispatchEvent(new MouseEvent('click', {
+				view: window,
+				bubbles: true,
+				cancelable: true
+			}));
+
+
+		}
+		if (a.type === "toggleContextMenu") {
+			let nState = true
+			if (a.state !== undefined) nState = a.state
+			setContextMenuOpen(nState)
+
+			console.log("[EDITOR ACTION] OPEN CONTEXT MENU")
+		}
+
+	}
+
+	useEffect(() => {
+		getApi(api => {
+			if (p.editorAction) onEditorActionTrigger(p.editorAction, api)
+		})
 	}, [p.editorAction, p.windowId])
+	
+
+
+
+	const [contextMenuOpen, setContextMenuOpen] = useState(false)
 
 	//
 	// ON CM EVENTS
@@ -545,28 +699,65 @@ const EditorAreaInt = (
 	const [cursorInfos, setCursorInfos] = useState<iCursorInfos>({x:0, y:0, from:0, to:0, fromPx:0, toPx:0})
 	let selectionTxt = innerFileContent.substring(cursorInfos.from, cursorInfos.to)
 
-	const editorWrapperId = `.window-id-${p.windowId}`
-	// console.log(editorWrapperId, document.querySelector(editorWrapperId), document.querySelector(editorWrapperId)?.getBoundingClientRect().top )
-	const windowIdTop = document.querySelector(editorWrapperId)?.getBoundingClientRect().top || 0
+	let editorWrapperId = `.window-id-${p.windowId}`
+	let windowIdTop = 0
+	try {
+		windowIdTop = document.querySelector(editorWrapperId)?.getBoundingClientRect().top || 0
+	} catch (error) {
+		console.log("error", error)
+	}
 	// const windowIdTop2 = editorWrapperEl.current?.getBoundingClientRect().top || 0
 	let posNoteToolPopup = cursorInfos.y - windowIdTop
 	// let posNoteToolPopup = cursorInfos.y 
 	// posNoteToolPopup = deviceType() === "desktop" ? posNoteToolPopup + 60: posNoteToolPopup - 30
 	
-	let notePopupX = deviceType() === "desktop" ? 40 : 10
+	let notePopupX = deviceType() === "desktop" ? 40 : 60
 	let notePopupY = deviceType() === "desktop" ? 0 : 10
 	// console.log(posNoteToolPopup, windowIdTop)
 	// posNoteToolPopup = 40
 
-	// notePopupX = posNoteToolPopup
+	// TAKE IN ACCOUNT WHEN MOBILE KEYBOARD IS OPEN
+	const [mobileKeyboardHeightJump, setmobileKeyboardHeightJump] = useState(0)
+	useEffect(() => {
+		if (!isMobile()) return
+		if('visualViewport' in window) {
+			window?.visualViewport?.addEventListener('resize', function(event) {
+				// important to wait a bit before getting the offsetTop
+				setTimeout(() => {
+					let scrollVisualViewport = window.visualViewport?.offsetTop 
+					setmobileKeyboardHeightJump(scrollVisualViewport || 0)
+				}, 200);
+			});
+		}
+		// every 1s, show size width/height of viewpoer
+		// const interval = setInterval(() => {
+		// 	console.log("viewport size", window.innerWidth, window.innerHeight)
+		// 	let hasChanged = false
+		// 	if (oldViewportRef.current.width !== window.innerWidth) {
+		// 		oldViewportRef.current.width = window.innerWidth
+		// 		hasChanged = true
+		// 	}
+		// 	if (oldViewportRef.current.height !== window.innerHeight) {
+		// 		oldViewportRef.current.height = window.innerHeight
+		// 		hasChanged = true
+		// 	}
+		// 	if (hasChanged) alert(`Viewport size changed: ${window.innerWidth}x${window.innerHeight}`)
+		// 	// console.log("windowIdTop", windowIdTop)
+		// }, 1000);
+	}, [])
+
 
 	return (
 		<div
-			className={`editor-area`}
+			className={`editor-area ${p.isActive ? "active" : ""} note-parent-type-${p.noteParentType}`}
 			ref={editorWrapperEl}
+			onWheel={e => {
+				// syncScroll3.scrollAllPx(p.windowId, e.deltaY)
+				syncScroll3.scrollPreviewPx(p.windowId, e.deltaY)
+			}}
 		>
 			{/* { FIRST ZONE INFOS WITH TITLE/TOOLBARS ETC } */}
-			<div className={`infos-editor-wrapper ${!titleEditor ? "no-title-editor" : "with-title-editor"}`}>
+			<div className={`infos-editor-wrapper ${!titleEditor ? "no-title-editor" : "with-title-editor"} ${p.isActive ? "active" : ""}`}>
 
 				{ (titleEditor === true || titleEditor === "disabled") && <>		
 					<div className="file-path-wrapper">
@@ -577,7 +768,7 @@ const EditorAreaInt = (
 						title={p.file.name.replace('.md', '')}
 						enabled={titleEditor === true}
 						onEdited={(o, n) => {
-							
+							p.onTitleEditedHook && p.onTitleEditedHook()
 							const oPath = `${p.file.folder}${o}.md`
 							const nPath = `${p.file.folder}${n}.md`
 							gridContext.file.onTitleUpdate(oPath, nPath)
@@ -597,6 +788,7 @@ const EditorAreaInt = (
 							hover={true}
 							dir="right"
 							maxHeight={maxDropdownHeight}
+							forceShow={contextMenuOpen}
 							onMouseEnter={e => {p.onLayoutUpdate("windowActiveStatus")}}
 						>
 							<>
@@ -638,7 +830,7 @@ const EditorAreaInt = (
 									<ButtonsToolbar
 										class='editor-main-toolbar'
 										design="vertical"
-										size={0.8}
+										size={1}
 										buttons={editorToolbarActions}
 									/>
 								</div>
@@ -691,10 +883,10 @@ const EditorAreaInt = (
 								<div className="path-wrapper">
 									<div className='path'>
 										<h4>Path</h4>
-										<span className="path-link" onClick={() => {
+										{/* <span className="path-link" onClick={() => {
 											getApi(api => { api.ui.browser.goTo(p.file.folder, p.file.name) })
-										}}
-										> {p.file.folder} </span>
+										}} */}
+										<span>  {p.file.path} </span>
 									</div>
 								</div>
 
@@ -755,19 +947,28 @@ const EditorAreaInt = (
 			{
 				// BOTTOM MOBILE TOOLBAR
 				// deviceType() !== 'desktop' &&
-				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: notePopupX, left: notePopupY  }}>
+				<div className='mobile-text-manip-toolbar-wrapper' style={{ top: notePopupX + mobileKeyboardHeightJump, left: notePopupY  }}>
 					<NoteToolsPopup
 						cursorInfos={cursorInfos}
 						selection={selectionTxt}
-						onButtonClicked={action => {
-							if (action === "aiSearch") {
-								// console.log("AI SEARCH", cursorInfos)
-								triggerAiSearch({
-									windowId: p.windowId,
-									file: p.file,
-									fileContent: innerFileContent,
-									selectionTxt,
-									insertPos: cursorInfos.to
+						onButtonClicked={(action, options) => {
+							if (action === "aiSearch" ) {
+								if (! options.aiConfig) return
+								const aiBtnConfig:iAiBtnConfig = options.aiConfig
+								getApi(api => {
+									let uuid = api.ai.setStatus("new")
+									AiAnswer({
+										uuid,
+										aiBtnConfig,
+										typeAnswer: aiBtnConfig.typeAnswer, 
+										aiCommand: aiBtnConfig.command,
+										selectionTxt,
+										// rest not required if newWindow type
+										file: p.file,
+										windowIdFile: p.windowId,
+										innerFileContent,
+										cursorInfos
+									})
 								})
 							} else if (action === "calc") {
 								triggerCalc({
@@ -777,21 +978,69 @@ const EditorAreaInt = (
 									selectionTxt,
 									insertPos: cursorInfos.to
 								})
+							} else if (action === "addTableCol") {
+								triggerAddTableCol({
+									windowId: p.windowId,
+									file: p.file,
+									fileContent: innerFileContent,
+									selectionTxt,
+									cursorInfos
+								})
+							} else if (action === "removeTableCol") {
+								triggerRemoveTableCol({
+									windowId: p.windowId,
+									file: p.file,
+									fileContent: innerFileContent,
+									selectionTxt,
+									cursorInfos
+								})
+							} else if (action === "searchEngine") {
+								let searchEngineStr = userSettingsSync.curr.ui_editor_search_highlight_url
+								if (!searchEngineStr) return
+								const final_url = searchEngineStr + selectionTxt
+								// open in new tab
+								// window.open(final_url, '_blank')
+								window.open(final_url,'_blank');
+							} else if (action === "highlightLine") {
+								getApi(api => {
+									api.ui.note.editorAction.dispatch({
+										windowId: p.windowId,
+										type:"highlightLine",
+										cursorPos: cursorInfos.from
+									})
+								})
+
 							} else if (action === "undo") {
 								getApi(api => {
 									api.ui.note.editorAction.dispatch({
+										windowId: p.windowId,
 										type:"undo"
+										
 									})
 								})
 							} else if (action === "redo") {
 								getApi(api => {
 									api.ui.note.editorAction.dispatch({
+										windowId: p.windowId,
 										type:"redo"
+									})
+								})
+							} else if (action === "proofread") {
+								getApi(api => {
+									api.ui.floatingPanel.create({
+										type: "ctag",
+										layout: "bottom",
+										ctagConfig: {
+											tagName: "proofread",
+											content: selectionTxt,
+											opts:{
+												file: p.file,
+											}
+										},
 									})
 								})
 							} else if (action === "copyLineLink") {
 								getApi(api => {
-									// console.log(cursorInfos, page)
 									const linkToCopy = fileToNoteLink(p.file, selectionTxt)
 									api.popup.prompt({
 										title: "Selection note link",
@@ -838,6 +1087,11 @@ const EditorAreaInt = (
 
 export const editorAreaCss = (v: iMobileView) => `
 
+// @EDGE CASE FIX : when mobile + floating + editor => show preview instead
+.floating-panel-wrapper .dual-view-wrapper.device-mobile.view-editor  .editor-area {
+		position: relative!important;
+		top: 0px;
+}
 
 .editor-area {
 		width: ${isA('desktop') ? '50%' : (v === 'editor' ? '100vw' : '0vw')};
@@ -845,7 +1099,6 @@ export const editorAreaCss = (v: iMobileView) => `
 
 		position: ${isA('desktop') ? 'relative' : (v === 'editor' ? 'relative' : 'absolute!important')};
 		top: ${v === 'editor' && !isA('desktop') ? '0px' : '-9999px'};
-
 
 		.mobile-text-manip-toolbar {
 				display: ${v === 'editor' && !isA('desktop') ? 'flex' : 'none'};
@@ -911,6 +1164,7 @@ export const editorAreaCss = (v: iMobileView) => `
     }
 }
 
+
 .editor-area {
 	position:initial;
 	.infos-editor-wrapper {
@@ -928,7 +1182,7 @@ export const editorAreaCss = (v: iMobileView) => `
 	}
 	.main-editor-wrapper {
 			padding-left: 0px;
-			padding-rigth: 10px;
+			padding-right: 10px;
 			${isA('desktop') ? 'margin-top: 33px;' : 'margin-top: 0px;'}; 
 			width: 100%;
 	}
@@ -954,10 +1208,18 @@ export const editorAreaCss = (v: iMobileView) => `
 							width: calc(100% - 65px);
 							font-family: ${cssVars.font.editor};
 							color: grey;
-							font-size: 15px;
+							font-size: ${getFontSize(+5)}px;
 					}
 			}
+		&.active {
+			.title-input-wrapper {
+				.big-title {
+					color: ${cssVars.colors.main};
+				}
+			}
+		}
 	}
+	
 }
 
 `
@@ -968,6 +1230,7 @@ export const EditorArea = (p: iEditorProps) => {
 	return useMemo(() => {
 		return <EditorAreaInt {...p} isConnected={isConnected} />
 	}, [
+		p.noteParentType,
 		p.viewType,
 		p.mobileView,
 		isConnected,
@@ -980,7 +1243,8 @@ export const EditorArea = (p: iEditorProps) => {
 		p.file,
 		p.fileContent,
 		p.isActive,
-		p.editorAction])
+		p.editorAction,
+	])
 }
 
 
@@ -991,18 +1255,17 @@ export const commonCssEditors = () => `
 
 .file-path-wrapper {
 		padding-top: ${isA('desktop') ? cssVars.sizes.block : cssVars.sizes.block / 2}px;
-		font-size: 13px;
-		font-weight: 700;
+		font-size: ${getFontSize(+3)}px;
+		font-weight: 600;
 		color: #b6b5b5;
 		cursor: pointer;
 		text-transform: capitalize;
 }
 .big-title {
 		color: ${cssVars.colors.main};
-		font-size: 30px;
-		font-weight: 800;
+		font-size: ${getFontSize(+5)}px;
+		font-weight: 600;
 		width: 100%;
-		// text-transform: uppercase;
 }
 
 .separation-bar {
@@ -1021,10 +1284,11 @@ export const commonCssEditors = () => `
 				text-align: left;
     }
 		.created {
-				text-align: right;
-				position: absolute;
-				top: 0px;
-				right: 0px;
+				// text-align: right;
+				// position: absolute;
+				// top: 0px;
+				// right: 0px;
+				margin-top: 4px;
 				color: ${cssVars.colors.editor.interfaceGrey};
 		}
 }

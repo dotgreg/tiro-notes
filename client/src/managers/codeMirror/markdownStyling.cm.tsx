@@ -1,8 +1,9 @@
-import { debounce, floor } from "lodash";
+import { debounce, floor } from "lodash-es";
 import { regexs } from "../../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../../shared/types.shared";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm"
+import { getFontSize } from "../font.manager";
 
 export const evenTable = { val: false }
 let even = evenTable
@@ -31,9 +32,15 @@ export const markdownStylingTableCell = (file: iFile, windowId:string) =>  gener
 	windowId,
 	pattern: regexs.mdTableCell,
 	classWrap: matchs => {
-		let m = matchs[0]
+		// console.log(matchs)
+		let m = matchs[0].trim()
 		if (m && m === "-") { return "" }
 		if (m && m === "-|") { return "" }
+		// if m contains [ or ] return ""
+		if (m && m.includes("[") || m.includes("]")) { return "" }
+		// if m starts with - return ""
+		// if (m && m.startsWith("-")) { return "" }
+		if (m && !m.includes("|")) { return "" }
 		return `md-table-cell`
 	}
 })
@@ -62,8 +69,16 @@ export const markdownStylingTable = (file: iFile, windowId:string) => genericRep
 	pattern: regexs.mdTableLine,
 	classWrap: matchs => {
 		let line = matchs[0].trim()
+		// if m contains [ or ] return ""
+		if (line && line.includes("[") || line.includes("]")) { return "" }
+		// if line starts with - return ""
+		if (line && line.startsWith("-")) { return "" }
+
+
 		if (line.startsWith("|")) line = line.substring(1)
 		if (line.endsWith("|")) line = line.substring(0, line.length - 1)
+
+		// console.log(line, matchs)
 
 		let nbCells = line.split("|").length
 		even.val = !even.val
@@ -87,17 +102,17 @@ export const markdownStylingTableCss = () => {
 	color: ${cssVars.colors.main};
 	
 	&.level-1 {
-		font-size: 15px;
+		font-size: ${getFontSize(+5)}px;
 		text-decoration: underline;
 		font-weight: bold;
 	}
 	&.level-2 {
-		font-size: 13px;
+		font-size: ${getFontSize(+3)}px;
 		text-decoration: underline;
 		// font-weight: bold;
 	}
 	&.level-3 {
-		font-size: 12px;
+		font-size: ${getFontSize(+2)}px;
 	}
 }
 .md-table-preview-enabled {
@@ -117,6 +132,12 @@ export const markdownStylingTableCss = () => {
 						display: inline-block;
 						vertical-align: top;
 				}
+				span.md-table-cell:not(:has(> span)) {
+					&:last-child{
+						display: none!important;
+					}
+					/* CSS rules */
+				}
 				span.md-table-cell span.md-table-limiter {
 						position: absolute;
 						top: 0px;
@@ -126,6 +147,7 @@ export const markdownStylingTableCss = () => {
 				}
 				span.md-table-cell>span:first-child {
 						width: 100%;
+						text-align: right;
 				}
 
     }

@@ -33,6 +33,7 @@ let p = {}
 p.now = new Date().getTime()
 p.diff = s.endTimestamp - p.now
 p.diffInMin = Math.round(p.diff/(60*1000))
+if (p.diffInMin < 0) p.diffInMin = 0
 p.totTime = (s.endTimestamp - s.startTimestamp)/(60*1000)
 
 
@@ -44,8 +45,6 @@ tiroApi.ui.notification.emit({id:notifUniqId, content: p.finalString, options:{h
 if (p.diff < 0) {
     p.finalString = `${p.finalString} <br> Completed at ${new Date().getHours()}h${new Date().getMinutes()<10?'0':''}${new Date().getMinutes()}m`
     tiroApi.ui.notification.emit({id:notifUniqId, content: p.finalString, options:{hideAfter: -1}})
-    tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/109/109.wav")
-    
-    
+    if (p.diff > - (60 * 60 * 1000)) tiroApi.audio.play("https://assets.mixkit.co/active_storage/sfx/2344/2344.wav")    
     return s.isEnabled = false
 }

@@ -2,7 +2,7 @@ import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile, iFileImage } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
-import { cleanFileNamePath, processRawPathToFile } from "./file.search.manager";
+import { getRelativePathFromSearchPath, processRawPathToFile } from "./file.search.manager";
 
 export const processRawStringsToImagesArr = (rawMetasStrings: string[], folder:string, titleFilter:string = ''):iFileImage[] => {
     const imagesArr:iFileImage[] = []
@@ -31,7 +31,7 @@ export const processRawStringsToImagesArr = (rawMetasStrings: string[], folder:s
          * STRING PROCESSING
          */
         const fileName = `${rawMetaArr2[0]}.md`;
-        let cleanedFileName = cleanFileNamePath(fileName, folder)
+        let cleanedFileName = getRelativePathFromSearchPath(fileName, folder)
 		const file = processRawPathToFile({rawPath: cleanedFileName, folder})
 
         if (titleFilter !== '' && !file.path.toLowerCase().includes(titleFilter.toLowerCase())) continue

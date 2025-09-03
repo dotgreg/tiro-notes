@@ -3,6 +3,8 @@ import { iFile } from "../../../shared/types.shared";
 import { strings } from "../managers/strings.manager";
 import { cssVars } from '../managers/style/vars.style.manager';
 import { Icon } from './Icon.component';
+import { isArray } from 'lodash-es';
+import { getFontSize } from '../managers/font.manager';
 
 const limitTxt = 20
 const liHeight = 15
@@ -13,7 +15,7 @@ export const LastNotesInt = (p: {
 }) => {
 
 	const { files } = { ...p }
-	let filesCut = files.slice(0, 20)
+	let filesCut = isArray(files) ? files.slice(0, 20) : []
 
 	return (
 		<>
@@ -69,13 +71,14 @@ export const lastNotesCss = () => `
         margin: 0px;
         li {
             cursor: pointer;
-            margin-bottom: 7px;
+            // margin-bottom: ${getFontSize(-3)}px;
+            margin-bottom: 4px;
             overflow: hidden;
             height: ${liHeight}px;
             list-style: none;
-            font-size: 11px;
+            font-size:${getFontSize(+1)}px;
             font-weight: 400;
-            svg {
+            svg, i {
                 color: ${cssVars.colors.main};
                 margin-right: 10px;
             }

@@ -1,10 +1,62 @@
+const helpText = `
+
+<h3>Introduction</h3>
+Feed CTAG allows you to view:<br>
+- your RSS feeds and sort them by categories<br>
+- your youtube subscriptions<br>
+- to parse html websites (like duckduckgo search results) and display results in a feed-like manner<br><br>
+
+Each line should be a feed, with the following format:<br>
+- name | url | categories | limitFetchNb | advancedParams<br>
+
+<h3>Simple RSS Reader example</h3>
+
+
+<code>
+<pre>
+[[feed]]
+    hn | https://news.ycombinator.com/rss |  _🕹️ geek
+    R_AskHistorians | https://www.reddit.com/r/AskHistorians/.rss | _💬reddit
+
+lemonde | https://www.lemonde.fr/rss/une.xml | _🗳️ polit
+samfish shaarly | https://sammyfisherjr.net/Shaarli/?do=dailyrss |     _✨ quali,_🗳️ polit,_🕹️ geek
+conversation | https://theconversation.com/articles.atom?language=en |     _✨ quali,_🗳️ polit,_⚛ science
+brutalism flickr | https://www.flickr.com/services/feeds/groups_pool.gne?id=12792144@N00&lang=fr-fr&format=rss_200| _🖼️inspi 
+    FP | https://foreignpolicy.com/feed/  | _🗳️ polit
+    FT | https://www.ft.com/news-feed?format=rss  | _🗳️ polit
+[[feed]]
+</pre>
+</code>
+
+<h3>Scrapping HMTL websites and gather results:</h3>
+
+for the different "path_", it should be javascript selectors on the page with the following logic:<br>
+- path_block: the javascript path to the different items, it should be a list of items <br>
+- path_title/link/content/etc.: the javascript path to the title of the item INSIDE path_both<br>
+<br><br>
+- waitInterval: the time to wait before scrapping the page, in seconds (default 0s) (10s seems a good value for duckduckgo results to not flag the scrapper as a bot)<br>
+- idConfig: the id of the config, so you can use it in other feeds with the same config<br>
+
+<code>
+<pre>
+[[feed]] 
+ddg cyber 1 | https://html.duckduckgo.com/html/?q=kill%20switches%20cybersecurity&df=w | _🗳️ polit | 100 | idConfig="ddg" type="html" path_block=".result.results_links" path_title="h2.result__title" path_link=".result__a[href]"  path_text=".result__snippet" path_image=".result__icon img[src]" path_date=".result__extras__url span{2}" waitInterval="5" 
+ddg cyber 2 | https://html.duckduckgo.com/html/?q=energy%20cybersecurity&df=w | _🗳️ polit | 100 | idConfig="ddg" 
+ddg cyber 3 | https://html.duckduckgo.com/html/?q=cyber%20threat%20energydf=w | _🗳️ polit | 100 | idConfig="ddg" 
+[[feed]] 
+</pre>
+</code>
+`
+
 const feedApp = (innerTagStr, opts) => {
 
 		if (!opts) opts = {}
 		if (!opts.size) opts.size = "95%"
 		if (!opts.itemsPerFeed) opts.itemsPerFeed = 100
 		if (!opts.feedType) opts.feedType = "xml"
-		if (!opts.contentCacheHours) opts.contentCacheHours = 1 // cache content for an hour
+		if (!opts.contentCacheHours && opts.contentCacheHours != 0) opts.contentCacheHours = 1 // cache content for an hour
+		if (!opts.feedLoadDelay) opts.feedLoadDelay = 0 // cache content for an hour
+		if (!opts.secondsOpenedMarkedWatched) opts.secondsOpenedMarkedWatched = 20 // how many seconds opepend to be marked watched
 		// if (!opts.preprocessItems) opts.preprocessItems = (url, items) => { return items }
 		// if (!opts.fetchItems) opts.fetchItems = (url) => { return items }
 
@@ -44,7 +96,8 @@ const feedApp = (innerTagStr, opts) => {
 		//  FETCH AND REDEABILITY
 		//
 		const fetchArticleContent = (url, cb) => {
-				api.call("ressource.fetch", [url, { disableCache: false }], txt => {
+				// api.call("ressource.fetch", [url, { disableCache: false, headers:[["Content-Type", "text/html; charset=utf-8"]] }], txt => {
+				api.call("ressource.fetch", [url, { disableCache: false}], txt => {
 						var doc = document.implementation.createHTMLDocument('');
 						doc.open();
 						doc.write(txt);
@@ -66,10 +119,21 @@ const feedApp = (innerTagStr, opts) => {
 
 		console.log(h, "========= INIT with opts:", opts)
 
+
 		// const feedsCategories = []
 		// const failedFeeds = []
 
+		let mainColor = "";
+		const initFetchUserColor = (cb) => {
+			api.call("userSettings.get", ['ui_layout_colors_main'], color => {
+				mainColor = color.currentValue || color.defaultValue
+				cb()
+			});
+		}
+
 		const execFeedReader = (feedsStr) => {
+			const commonLib = window._tiroPluginsCommon.commonLib
+			const { notifLog, generateHelpButton, getOperatingSystem, onClick } = commonLib
 				// const sortArr = (items,sortType) => {
 				// 		if (sortType === "name") {
 				// 				items.sort(function(a, b){
@@ -80,45 +144,94 @@ const feedApp = (innerTagStr, opts) => {
 				// 		}
 				// 		return items
 				// }
-
-				const getFeeds = (str) => {
-						const feedsArr = str.split('\n')
-						const feedsRes = []
-						for (let i = 0; i < feedsArr.length; i++) {
-								const feedParamsRaw = feedsArr[i].trim().split("|")
-								//
-								// PARAM 2 : categories
-								//
-								if (feedParamsRaw.length < 2) continue
-								let categories = []
-								if (feedParamsRaw[2]) categories = feedParamsRaw[2].split(",")
-								for (let i = 0; i < categories.length; i++) {
-										categories[i] = categories[i].trim()
-								}
-								//
-								// PARAM 3 : custom fetch limit
-								//
-								let limitFetchNb = opts.itemsPerFeed
-								if (feedParamsRaw[3]) limitFetchNb = parseInt(feedParamsRaw[3]) || opts.itemsPerFeed
-								//
-								// PARAM 4 : title-based filter UNUSED 
-								//
-								// let filterFromTitle = null
-								// if (feedParamsRaw[4]) {
-								// 		filterFromTitle = feedParamsRaw[4]
-								// }
-
-								feedsRes.push({
-										name: feedParamsRaw[0].trim(),
-										url: feedParamsRaw[1].trim(),
-										categories,
-										limitFetchNb,
-										// filterFromTitle
-								})
-						}
-						console.log(h, "1: gettings feedsRefs Arr", feedsRes)
-						return feedsRes
+				const timestampToDate = (timestamp) => {
+					let d = new Date(timestamp)
+					let month = d.getMonth() + 1
+					if (month < 10) month = "0" + month
+					let year = d.getFullYear()
+					let minutes = d.getMinutes()
+					if (minutes < 10) minutes = "0" + minutes
+					let datestring = d.getDate() + "/" + month + "/" + year + " " + d.getHours() + "h"; 
+					// if today/yesterday, show it + time
+					let today = new Date()
+					let yesterday = new Date()
+					yesterday.setDate(yesterday.getDate() - 1)
+					let isToday = today.getDate() === d.getDate() && today.getMonth() === d.getMonth() && today.getFullYear() === d.getFullYear()
+					if (isToday) datestring = "Today " + d.getHours() + "h" 
+					// if up to 5 days ago, show it + time
+					let daysAgos = Math.floor((today - d) / (1000 * 60 * 60 * 24))
+					if (daysAgos === 1) datestring = "Yesterday " 
+					else if (daysAgos > 1 && daysAgos < 7) datestring = daysAgos + " days ago " 
+					// if up to 4 weeks
+					let weeksAgo = Math.floor(daysAgos / 7)
+					if (weeksAgo === 1) datestring = "1 week ago " 
+					else if (weeksAgo > 1 && weeksAgo < 5) datestring = weeksAgo + " weeks ago " 
+					// if up to 11 months
+					let monthsAgo = Math.floor(daysAgos / 30)
+					if (monthsAgo === 1) datestring = "1 month ago " 
+					else if (monthsAgo > 1 && monthsAgo < 12) datestring = monthsAgo + " months ago " 
+					// else only show "2 years ago"
+					let yearsAgo = Math.floor(daysAgos / 365)
+					if (yearsAgo === 1) datestring = "1 year ago " 
+					else if (yearsAgo > 1) datestring = yearsAgo + " years ago " 
+					return datestring
 				}
+
+
+			const analyzeFeedsConfigStr = (str) => {
+				const feedsArr = str.split('\n')
+				const feedsRes = []
+				for (let i = 0; i < feedsArr.length; i++) {
+					const feedParamsRaw = feedsArr[i].trim().split("|")
+					//
+					// PARAM 2 : categories
+					//
+					if (feedParamsRaw.length < 2) continue
+					let categories = []
+					if (feedParamsRaw[2]) categories = feedParamsRaw[2].split(",")
+					for (let i = 0; i < categories.length; i++) {
+						categories[i] = categories[i].trim()
+					}
+					//
+					// PARAM 3 : custom fetch limit
+					//
+					let limitFetchNb = opts.itemsPerFeed
+					if (feedParamsRaw[3]) limitFetchNb = parseInt(feedParamsRaw[3]) || opts.itemsPerFeed
+
+					//
+					// PARAM 4 : options like type="html" block=".result.results_links" title="h2.result__title" link=".result__a[href]"  text=".result__snippet" image=".result__icon img[src]" date=".result__extras__url span{2}"
+					//
+					let advancedParamsObj = {}
+					if (feedParamsRaw[4] && feedParamsRaw[4].trim().length > 0) {
+						// options looks like word="word word <something> {likethat}"
+						let regex = /(\w+)=["']([^"']+)["']/g
+						let rawStr = feedParamsRaw[4].trim()
+						rawStr.replace(regex, (match, key, value) => {
+							advancedParamsObj[key] = value
+						})
+					}
+
+
+					//
+					// PARAM 4 : title-based filter UNUSED 
+					//
+					// let filterFromTitle = null
+					// if (feedParamsRaw[4]) {
+					// 		filterFromTitle = feedParamsRaw[4]
+					// }
+
+					feedsRes.push({
+						name: feedParamsRaw[0].trim(),
+						url: feedParamsRaw[1].trim(),
+						categories,
+						limitFetchNb,
+						advancedParams: advancedParamsObj,
+						// filterFromTitle
+					})
+				}
+				console.log(h, "1: gettings feedsRefs Arr", feedsRes)
+				return feedsRes
+			}
 
 				
 
@@ -179,6 +292,69 @@ const feedApp = (innerTagStr, opts) => {
 
 
 
+				////////////////////////////////////////////////////////////////////////////////////
+				// is watched MECHANISM
+				//
+				const WatchedsId = `ctag-rss-watched-${api.utils.getInfos().file.name}`
+				const stateFolder = `/.tiro/.states`
+				const pathWatchedsFile = `${stateFolder}/${WatchedsId}`
+
+				let Watcheds = { current: [] }
+				const setWatcheds = (nWatchedsArr) => {
+						let JSONObj = JSON.stringify(nWatchedsArr)
+						api.call("file.saveContent", [pathWatchedsFile, JSONObj], content => { })
+				}
+				const getWatcheds = (cb) => {
+						api.call("file.getContent", [pathWatchedsFile], rawContent => {
+								let res = []
+								if (rawContent !== "NO_FILE") { res = JSON.parse(rawContent) }
+								Watcheds.current = res
+								if (cb) cb(res)
+						})
+				}
+				const addToWatched = (item, cb) => {
+						if (isArticleWatched(item)) return console.log("do not add item, as already faved")
+						getWatcheds(favsArr => {
+								// only add item as link
+								item = {link: item.link}
+								console.log("ADD TO Watcheds", item);
+								const nWatchedArr = [...favsArr]
+								nWatchedArr.unshift(item)
+								item.isWatched = true
+								setWatcheds(nWatchedArr)
+								Watcheds.current = nWatchedArr
+								cb(nWatchedArr)
+								console.log("ADD IN Watcheds", item, Watcheds.current);
+						})
+				}
+				const removeWatched = (item, cb) => {
+						getWatcheds(favsArr => {
+								const nWatchedArr = [...favsArr]
+								const nWatchedArr2 = nWatchedArr.filter(i => i.link !== item.link)
+								setWatcheds(nWatchedArr2)
+								Watcheds.current = nWatchedArr2
+								cb(nWatchedArr2)
+								console.log("REMOVE FROM Watcheds", Watcheds.current);
+						})
+				}
+				const isArticleWatched = (item) => {
+						let res = false
+						let favFilter = Watcheds.current.filter(i => i.link === item.link)
+						if (favFilter.length > 0) res = true
+						return res
+				}
+				// init
+				// setTimeout(() =>)
+				getWatcheds()
+
+
+
+
+
+
+
+
+
 
 
 
@@ -187,7 +363,6 @@ const feedApp = (innerTagStr, opts) => {
 				// bookmarksORITES MECHANISM
 				//
 				const bookmarksId = `ctag-rss-bookmarks-${api.utils.getInfos().file.name}`
-				const stateFolder = `/.tiro/.states`
 				const pathBookmarksFile = `${stateFolder}/${bookmarksId}`
 
 				let bookmarks = { current: [] }
@@ -247,13 +422,23 @@ const feedApp = (innerTagStr, opts) => {
 				// FETCHING DATA
 				//
 				
+				let configsCache = {}
 				const getJsons = (cb, setStatus) => {
 						console.log(h, `getting NEW uncached jsons`);
-						const feedsArr = getFeeds(feedsStr)
+						const feedsArr = analyzeFeedsConfigStr(feedsStr)
 						let resItems = []
 						let count = 0
+						// if we only have one feed with whole config and other feeds with idConfig param:
 						for (let i = 0; i < feedsArr.length; i++) {
-								fetchFeedItems(feedsArr[i], items => {
+							let feed = feedsArr[i]
+							if (feed.advancedParams.idConfig && feed.advancedParams.type) configsCache[feed.advancedParams.idConfig] = { ...feed.advancedParams }
+							if (!feed.advancedParams.type && feed.advancedParams.idConfig && configsCache[feed.advancedParams.idConfig]) feedsArr[i].advancedParams = { ...configsCache[feed.advancedParams.idConfig] }
+						}
+						console.log(h, `feedsArr after config cache:`, feedsArr, configsCache)
+						
+						for (let i = 0; i < feedsArr.length; i++) {
+							setTimeout(() => {
+								fetchFeedItems(feedsArr, i, items => {
 									count = count + 1
 									
 									let feedItems = 0
@@ -272,7 +457,7 @@ const feedApp = (innerTagStr, opts) => {
 													// TITLE
 													nitems[j].title = g(nitems[j].title)
 													// DESCRIPTION
-													nitems[j].description = g(nitems[j].description) || ""
+													nitems[j].description = g(nitems[j].description) || g(nitems[j].summary)
 													// CONTENT
 													nitems[j].content = g(nitems[j].content) || ""
 													// CONTENT adding H1 in case there is none for header counter css to work
@@ -293,41 +478,60 @@ const feedApp = (innerTagStr, opts) => {
 
 
 													// TIME
+													if (nitems[j]["updated"]) nitems[j].pubDate = g(nitems[j]["updated"])
 													if (nitems[j]["dc:date"]) nitems[j].pubDate = nitems[j]["dc:date"]
 													if (nitems[j]["published"] && nitems[j]["published"]["_text"]) nitems[j].pubDate = nitems[j]["published"]["_text"]
 
 													const timestamp = Date.parse(g(nitems[j].pubDate))
 													const d = new Date(timestamp)
-													const datestring = d.getDate() + "/" + (d.getMonth() + 1) + " " + d.getHours() + ":" + d.getMinutes();
+
 													nitems[j].timestamp = timestamp
-													nitems[j].smallDate = datestring
+
 													// COLOR
 													const bgColors = ["#264653", "#2A9D8F", "#E9C46A", "#F4A261", "#E76F51"]
 													const cColor = bgColors[Math.floor(Math.random() * bgColors.length)];
 													nitems[j].bgColor = cColor
 													// IMAGE
-													let bgImage = g(nitems[j].thumbnail) ||
-																g(nitems[j]["itunes:image"]?._attributes?.href)||
-																g(nitems[j]["media:thumbnail"]?._attributes?.url) ||
-																g(nitems[j]["media:content"]?._attributes?.url) ||
+													let bgImage = 
+																g(nitems[j].image) ||
 																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
-																g(nitems[j].image)
+																g(nitems[j]["media:content"]?._attributes?.url) ||
+																g(nitems[j].thumbnail) ||
+																g(nitems[j]["itunes:image"]?._attributes?.href)||
+																g(nitems[j]["media:thumbnail"]?._attributes?.url) 
+
 													if (bgImage && (bgImage.endsWith("mp3") || bgImage.endsWith("xml"))) bgImage = null
 													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
 													if (!bgImage) {
 														let contentAndDescription = nitems[j].description + nitems[j].content
 														// look for first image in content
-														let imageInContent = contentAndDescription.match(/src=['"]([^'"]+)['"][^>]/i)
+														let imageInContent = contentAndDescription.match(/<img[^>]+src=['"]([^'">]+)['"]/i)
 														if (imageInContent && imageInContent[1]) bgImage =  imageInContent[1]
 													}
 													if (nitems[j].enclosure) {
 													}
 													
 													nitems[j].image = bgImage
+													// In case of Flickr, image given is often compressed in content, so add bgImage in content
+													if (bgImage && bgImage.includes("staticflickr.com") && bgImage.endsWith(".jpg")) {
+														// let nbgImage = bgImage.replace(/_[a-z]\.jpg/g, "_b.jpg")
+														// nitems[j].image = nbgImage
+														nitems[j].content = `<img src="${bgImage}" ><br>` + nitems[j].content
+													}
+
 													// ENCLOSURE
 													if (!nitems[j].enclosure) nitems[j].enclosure = {}
 													else if (nitems[j].enclosure?._attributes) nitems[j].enclosure = { ...nitems[j].enclosure._attributes }
+
+
+													// for all fields, check if <a href exist, if it does, add target="_blank" in between
+													for (const key in nitems[j]) {
+														let nval = nitems[j][key]
+														if (typeof nval === "string") {
+															nitems[j][key] = nval.replaceAll("<a ", "<a target='_blank' ")
+														}
+													}
 
 													resItems.push(nitems[j])
 											}
@@ -341,14 +545,15 @@ const feedApp = (innerTagStr, opts) => {
 									setDebounceCache(resItems)
 									cb(resItems)
 									if (feedItems.length === 0) {
-										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+										api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
 									}
 								}, (error) => {
 									// on failure
 									// setFailedFeeds([...failedFeeds, feedsArr[i].name])
-									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name}])
+									api.call("ui.notification.emit", [{content:"Failed fetching feed: "+feedsArr[i].name, options: {hideAfter: 3 }}])
 									console.log(h, `feed FAILED ${JSON.stringify(feedsArr[i])} =>`, {error});
 								})
+							}, opts.feedLoadDelay * i)
 						}
 				}
 
@@ -369,21 +574,147 @@ const feedApp = (innerTagStr, opts) => {
 				// custom fetcher possible (for youtube for instance)
 				// enrich items data with feed data
 				//
-				const fetchFeedItems = (feed, cb, onFailure) => {
+				let countWaitIntervalId = 0
+				const fetchFeedItems = (feeds, i, cb, onFailure) => {
+					let feed = feeds[i]
 						const wrappedCb = items => {
-								cb(enrichItems(items, feed))
+							let enrichedItems = enrichItems(items, feed)
+							cb(enrichedItems)
 						}
 
 						if (opts.fetchItems) {
 								console.log(h, "CUSTOM FETCH FN detected");
 								opts.fetchItems(feed, wrappedCb, onFailure)	
 						}
+						else if (feed.advancedParams?.type === "html") {
+							let waitInterval = 0
+							countWaitIntervalId = countWaitIntervalId + 1
+							if (feed.advancedParams?.waitInterval) waitInterval = parseInt(feed.advancedParams?.waitInterval) || 0
+							setTimeout(() => {
+								console.log(h, "HTML SCRAP FN detected", {feed, i, waitInterval});
+								getScrappedHtmlFeed(feeds, i, wrappedCb, onFailure)
+							}, countWaitIntervalId*waitInterval*1000)
+						}
 						else getXml(feed, wrappedCb, onFailure)
 
 				}
 
+
+
+				///////////////////////////////////////////////////////////////////////////////////
+				// PARSERS
+				//
+				// 
+				const getScrappedHtmlFeed = (feeds,i , cb, onFailure) => {
+					let feed = {...feeds[i]}
+					let uas = commonLib.commonUserAgents()
+					let ua = uas[Math.floor(Math.random() * uas.length)]
+
+					let headers = [
+						// ["Accept", "*/*"],
+						["User-Agent", ua],
+						['Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'],
+						['Accept-Language', 'en-US,en;q=0.5'],
+						['Connection', 'keep-alive'],
+						['Upgrade-Insecure-Requests', '1'],
+						['Cache-Control', 'max-age=0']
+					]
+
+					// we should get inside feed.advancedParams : path_block, path_title, path_link, path_date, path_content
+					// type="html" block=".result.results_links" title="h2.result__title" link=".result__a[href]"  text=".result__snippet" image=".result__icon img[src]" date=".result__extras__url span{2}"
+					// else throw popup 
+
+					let shouldStop = true
+					if (feed.advancedParams?.path_block && feed.advancedParams?.path_title && feed.advancedParams?.path_link && feed.advancedParams?.path_date && feed.advancedParams?.path_text) { shouldStop = false }
+					if (shouldStop) {
+						notifLog("Please provide the following parameters in your feed config: path_block, path_title, path_link, path_date, path_content. This is required for the HTML scrapper to work. \n\n" + JSON.stringify(feed), "feed_html_scrap_error", 10)
+						return
+					}
+					let pathBlock = feed.advancedParams.path_block
+					let pathTitle = feed.advancedParams.path_title
+					let pathLink = feed.advancedParams.path_link
+					let pathDate = feed.advancedParams.path_date
+					let pathText = feed.advancedParams.path_text 
+					let pathImage = feed.advancedParams.path_image || null
+
+					
+					api.call("ressource.fetch", [feed.url, { disableCache: true, noCacheArg: true, headers }], htmlTxt => {
+						console.log("HTML SCRAP!!!", { feed , htmlTxt})
+						// create a DOM parser 
+						let parser = new DOMParser();
+						// parse the HTML string into a document
+						let ndocument = parser.parseFromString(htmlTxt, 'text/html');
+						// let ndocument = parser.parseFromString(testPageHtml, 'text/html');
+						// get all path_Block queryall js
+						let resultFeed = []
+						let blocks = ndocument.querySelectorAll(pathBlock)
+						let process_query_selector = (el, queryStr) => {
+							if (!el.querySelector) return
+							// if we have {[1-9]*}, remove it and add value to childNumber 
+							let childNumber = -1
+							if (queryStr.includes("{")) {
+								let parts = queryStr.split("{")
+								queryStr = parts[0].trim()
+								childNumber = parseInt(parts[1].replace("}", "").trim()) - 1 // convert to 0 based index
+							}
+							// if we have [src/other attr] add value to attributeToSelect
+							let attributeToSelect = "innerText"
+							if (queryStr.includes("[")) {
+								let parts = queryStr.split("[")
+								queryStr = parts[0].trim()
+								attributeToSelect = parts[1].replace("]", "").trim()
+							}
+							let res = null
+							try {
+								if (childNumber === -1) res = el.querySelector(queryStr)[attributeToSelect].trim()
+								else res = el.querySelectorAll(queryStr)[childNumber][attributeToSelect].trim()
+								// console.log("process_query_selector", { el, queryStr, childNumber, attributeToSelect, res })
+								 return res
+								
+							} catch (error) {
+								notifLog("Error parsing block: " + error.message, "feed_html_scrap_error", 10)
+								
+							}
+						}
+						each(blocks, block => {
+								
+								// let title = block.querySelector(pathTitle).innerText.trim()
+								// let link = block.querySelector(pathLink).href.trim()
+								// let date = block.querySelector(pathDate).innerText.trim()
+								// let text = block.querySelector(pathText).innerText.trim()
+								// let image = block .querySelector(pathImage) ? block.querySelector(pathImage).src.trim() : null
+								
+								if (block.querySelector){
+									let dateRaw = process_query_selector(block, pathDate)
+									if (!dateRaw || dateRaw === "") dateRaw = new Date().toISOString() // fallback to current date if not found
+									// let ndate = new Date(process_query_selector(block, pathDate))
+									// let timestamp = ndate.getTime() || new Date().getTime()
+									// timestamp = Math.round(timestamp)
+									// console.log(33333, ndate, timestamp, block)
+
+									resultFeed.push({
+										title: process_query_selector(block, pathTitle),
+										link: process_query_selector(block, pathLink),
+										pubDate: {_text:dateRaw},
+										content: process_query_selector(block, pathText),
+										image: pathImage ? process_query_selector(block, pathImage) : null,
+										sourceFeed: feed.name,
+										categories: feed.categories || [],
+										enclosure: { type: "text/html" } // default type
+									})
+								}
+
+						})
+						
+						cb(resultFeed)
+					})
+
+				}
+
 				const getXml = (feed, cb, onFailure) => {
-						api.call("ressource.fetch", [feed.url, { disableCache: true }], txt => {
+						api.call("ressource.fetch", [feed.url, { disableCache: true, noCacheArg:true, headers:[["Accept","*/*"]] }], txt => {
+							
+							
 							try {
 								let res2 = xml2js(txt, { compact: true })
 								let items = res2.feed?.entry // XML1
@@ -392,7 +723,8 @@ const feedApp = (innerTagStr, opts) => {
 								items = items.slice(0, feed.limitFetchNb)
 								cb(items)
 							} catch (error) {
-								// console.log(h, "ERROR parsing xml", error);
+								
+								console.error(h, "ERROR parsing xml", {xmlRes: txt});
 								if (onFailure) onFailure(error)
 							}
 						})
@@ -473,6 +805,7 @@ const feedApp = (innerTagStr, opts) => {
 								p.onBookmarkToggle()
 						}
 						let isBookmark = isArticleBookmark(p.article)
+						let isWatched = isArticleWatched(p.article)
 
 
 						let finalArticleContent = p.article.description
@@ -494,9 +827,23 @@ const feedApp = (innerTagStr, opts) => {
 																		addBookmark(p.article, doRefresh)
 																}
 														}
-												},
-													`${!isBookmark ? "★" : "★"}`),
-												c('div', { className: "article-title" }, [`${isBookmark ? "★ " : ""}${p.article.title}`]),
+													} , `${!isBookmark ? "★" : "★"}`),
+
+												c('div', {
+														className: `article-watched-toggle ${isWatched ? "fav" : "not-fav"}`,
+														onClick: () => {
+																if (isWatched) {
+																		removeWatched(p.article, doRefresh)
+																}
+																else {
+																		addToWatched(p.article, doRefresh)
+																}
+														}
+														// ok emoji here: 
+														// c('span', { className: "article-watched-toggle-icon" }, ["✔️"])
+												}, `${!isWatched ? "👁️" : "👁️"}`),
+												c('div', { className: "article-title" }, [`${isBookmark ? "★ " : ""}${isWatched ? "👁️ " : ""}${p.article.title}`]),
+
 												c('div', {
 														className: "bg-image",
 														style: {
@@ -506,8 +853,20 @@ const feedApp = (innerTagStr, opts) => {
 												}),
 												c('div', { className: "article-content-wrapper" }, [
 														c('div', { className: "article-time" }, [
-																p.article.smallDate + " - " + p.article.sourceFeed
+															timestampToDate(p.article.timestamp) + " ",
+															c('span', { className: "article-filter-links" }, [
+																c('span', {  onClick: () => { p.onFeedClick(p.article.sourceFeed) } }, 
+																[p.article.sourceFeed + ""]
+																)
+															]),
+															// show links to categories
+															c('span', { className: "article-filter-links" }, [
+																	p.article.categories.map(cat => 
+																		c('span', {  onClick: () => { p.onCategoryClick(cat) } }, [ cat + "" ])
+																	)
+															]),
 														]),
+
 
 														//
 														// ARTICLE LINKS
@@ -566,9 +925,26 @@ const feedApp = (innerTagStr, opts) => {
 																								openLinkNewWindow(p.article.link)
 																						}
 																				}, ["open in window"]),
-																		])
+																				c('a', {
+																						className: "article-link",
+																						onClick: () => {
+																							let invidiousLink = `https://redirect.invidious.io/watch?v=${p.article.enclosure.videoId}`
+																							openLinkNewWindow(invidiousLink)
+																						}
+																				}, ["open individuous link"]),
+																				c('a', {
+																						className: "article-link",
+																						href: `https://youtube.com/watch?v=${p.article.enclosure.videoId}`,
+																						target: "_blank"
+																				}, ["link"]),
+																				c('a', {
+																						className: "article-link",
+																						href: `https://redirect.invidious.io/watch?v=${p.article.enclosure.videoId}`,
+																						target: "_blank"
+																				}, ["Individious link"]),
+																		]),
 																]),
-
+														// show link to sourcefeed
 														c('div', {
 																className: "article-status-fetch",
 														}, [fetchStatus]),
@@ -643,7 +1019,22 @@ const feedApp = (innerTagStr, opts) => {
 
 
 						const [filteredItems, setFilteredItems] = React.useState([])
-						const [itemActive, setItemActive] = React.useState(null)
+						const [itemActive, setItemActiveInt] = React.useState(null)
+						const itemActiveRef = React.useRef(null)
+
+
+						const setItemActive = (nval) => {
+							itemActiveRef.current = nval
+							let cVal = nval
+							// if in 60s, itemActiveRef is the same, do it as watched
+							setTimeout(() => {
+								if (itemActiveRef.current === cVal) {
+									console.log("1m spent, put it as watched", cVal.item)
+									addToWatched(cVal, doRefresh)
+								}
+							}, opts.secondsOpenedMarkedWatched * 1000)
+							setItemActiveInt(nval)
+						}
 						const [feeds, setFeeds] = React.useState([])
 						const [activeFeed, setActiveFeedInt] = React.useState(null)
 						const activeFeedRef = React.useRef(null)
@@ -658,7 +1049,8 @@ const feedApp = (innerTagStr, opts) => {
 						const [sort, setSort] = React.useState("date")
 						const loopSort = () => {
 								let method = sort === "date" ? "random" : "date"
-								setItems(sortArray(items, method))
+								// setItems(sortArray(items, method))
+								setFilteredItems(sortArray(filteredItems, method))
 								setSort(method)
 						}
 
@@ -668,7 +1060,7 @@ const feedApp = (innerTagStr, opts) => {
 								if (filteredItems.length === 0) return
 								for (let i = 0; i < filteredItems.length; i++) {
 										let a = filteredItems[i]
-										let searchee = a.title.toLowerCase() + a.content.toLowerCase() + a.sourceFeed.toLowerCase()
+										let searchee = a.title?.toLowerCase() + a.content?.toLowerCase() + a.sourceFeed?.toLowerCase()
 										if (searchee.includes(search.toLowerCase())) {
 												nItems.push(a)
 										}
@@ -687,6 +1079,7 @@ const feedApp = (innerTagStr, opts) => {
 
 						const [status, setStatus] = React.useState("")
 						const [categories, setCategories] = React.useState([])
+						const [feedsCats, setFeedsCats] = React.useState({})
 						const [activeCat, setActiveCat] = React.useState(null)
 
 						// const [failedFeeds, setFailedFeedsInt] = React.useState([])
@@ -701,6 +1094,7 @@ const feedApp = (innerTagStr, opts) => {
 						// INITIAL LOADING
 						React.useEffect(() => {
 								let cache = forceFeedRefresh === 0
+								if (opts.contentCacheHours === 0) cache = false
 								setStatus("Loading... (loading bookmarks)")
 								getBookmarks(() => {
 										setStatus("Loading... (loading feeds)")
@@ -710,22 +1104,27 @@ const feedApp = (innerTagStr, opts) => {
 												titems.current = nitems
 												const nfeeds = []
 												const nitemsNotHidden = []
+												let nFeedsCats = feedsCats
 												for (let i = 0; i < nitems.length; i++) {
 														const it = nitems[i];
 														if (!nfeeds.includes(it.sourceFeed)) nfeeds.push(it.sourceFeed)
 														// gather all cats together
+														let nFeedCats = nFeedsCats[it.sourceFeed] || []
 														each(it.categories, ct => {
-																if (ncats.indexOf(ct.trim()) === -1) ncats.push(ct.trim())
+															let ncat = ct.trim()
+															if (ncats.indexOf(ncat) === -1) ncats.push(ncat)
+															if (!nFeedCats.includes(ncat)) nFeedCats.push(ncat)
 														})
-																// if it.hidden, do not output it
-																if (it.hidden !== true) {
-																		nitemsNotHidden.push(it)
-																}
+														nFeedsCats[it.sourceFeed] = nFeedCats
+														// if it.hidden, do not output it
+														if (it.hidden !== true) {
+																nitemsNotHidden.push(it)
+														}
 												}
-												
 												// sorting everything
 												ncats.sort()
 												nfeeds.sort()
+												setFeedsCats(nFeedsCats)
 												setCategories(ncats)
 												setFeeds(nfeeds)
 												setStatus("")
@@ -775,7 +1174,13 @@ const feedApp = (innerTagStr, opts) => {
 						// view toggle
 						const [listView, setIntListView] = React.useState("list")
 						const toggleListView = () => {
-								let nView = listView === "list" ? "gallery" : "list"
+								// let nView = listView === "list" ? "gallery" : "list"
+								// toggle between gallery, list and full-width
+								let nView = "list"
+								if (listView === "list") nView = "gallery"
+								if (listView === "gallery") nView = "full-width"
+								if (listView === "full-width") nView = "list"
+
 								setIntListView(nView)
 								setSettingsCache("listView")(nView)
 						}
@@ -854,17 +1259,31 @@ const feedApp = (innerTagStr, opts) => {
 								return res
 							}
 							const nfilterBarList = []
-							nfilterBarList.push({label: "-- all", value: "all", active:isActive("all", "", activeCat, activeFeed)})
-							nfilterBarList.push({label: "-- bookmarks", value: "bookmarks", active:isActive("cat", "bookmarks", activeFeed)})
-							nfilterBarList.push({label: "-- categories -- ", value: "bookmarks"})
+							nfilterBarList.push({label: "all", value: "all", active:isActive("all", "", activeCat, activeFeed)})
+							nfilterBarList.push({label: "⭐ bookmarks", value: "bookmarks", active:isActive("cat", "bookmarks", activeFeed)})
+							nfilterBarList.push({label: "☰ categories  ", value: "bookmarks"})
 							categories.map(cat =>
 								nfilterBarList.push({label: cat, value: `cat-${cat}`, active:isActive("cat", cat, activeCat)})
 							),
-							nfilterBarList.push({label: "-- feeds -- "})
+							nfilterBarList.push({label: "☰ feeds  "})
 							let filterFeeds = []
-							feeds.map(feed =>
-								filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
-							)
+							// if activeCategory, show only feeds from this category
+							if (activeCat !== null) {
+								each(feedsCats, (feedCats, feedName) => {
+									if (feedCats.indexOf(activeCat) === -1) return
+									filterFeeds.push({label: feedName, value: `feed-${feedName}`, active:isActive("feed", feedName, activeFeed)})
+								})
+							}
+							// if activeFeed, only show that feed
+							// else if (activeFeed !== null && activeFeed !== "bookmarks") {
+							// 	filterFeeds.push({label: activeFeed, value: `feed-${activeFeed}`, active:isActive("feed", activeFeed, activeFeed)})
+							// } 
+							else {
+								feeds.map(feed =>
+									filterFeeds.push({label: feed, value: `feed-${feed}`, active:isActive("feed", feed, activeFeed)})
+								)
+
+							}
 							// sort by label name first letter
 							filterFeeds = filterFeeds.sort((a, b) => a.label.localeCompare(b.label))
 
@@ -957,9 +1376,15 @@ const feedApp = (innerTagStr, opts) => {
 														className: `filter-view filter-toggle`,
 														onClick: () => { toggleListView() }
 												}, [
-														listView === "list" ? c('div', {className: `fa fa-image`}): c('div', {className: `fa fa-list`})
+														listView === "list" && c('div', {className: `fa fa-border-all`}) ,
+														listView === "gallery" && c('div', {className: `fa fa-image`}) ,
+														listView === "full-width" && c('div', {className: `fa fa-list`}),
 												]),
-												
+												c('div', {
+														className: `help-button filter-toggle`,
+														dangerouslySetInnerHTML: { __html: commonLib.generateHelpButton(helpText, "Feed Ctag Help") },
+												} ),
+
 												c('input', {
 														className: `filter-input`,
 														onChange: e => {
@@ -1020,11 +1445,11 @@ const feedApp = (innerTagStr, opts) => {
 																			c('div', {
 																					className: "",
 																			}, [
-																					`[${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} ${item.smallDate}] ${item.title} `,
+																					`[${isArticleBookmark(item) ? "⭑" : ""} ${isArticleWatched(item) ? "👁️" : ""} ${item.sourceFeed} ${timestampToDate(item.timestamp)}] ${item.title} `,
 																			]),
 																		listView !== "list" &&
 																			c('div', {
-																					className: "",
+																					className: `view-${listView}-item-inner`,
 																			},
 																			[
 																				c('div', {
@@ -1036,7 +1461,7 @@ const feedApp = (innerTagStr, opts) => {
 																				}),
 																				c('div', { className: "title-wrapper" }, [
 																						c('div', { className: "title" }, [item.title]),
-																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${item.sourceFeed} - ${item.smallDate}`]),
+																						c('div', { className: "meta" }, [`${isArticleBookmark(item) ? "⭑" : ""} ${isArticleWatched(item) ? "👁️" : ""}  ${item.sourceFeed} - ${timestampToDate(item.timestamp)}`]),
 																				])
 																			]),
 																	]
@@ -1050,6 +1475,18 @@ const feedApp = (innerTagStr, opts) => {
 													article: itemActive,
 													onClose: () => {
 															setItemActive(null)
+													},
+													onFeedClick: (feedName) => {
+														setActiveFeed(feedName)
+														setActiveCat(null)
+														setItemActive(null)
+
+
+													},
+													onCategoryClick: (catName) => {
+														setActiveCat(catName)
+														setActiveFeed(null)
+														setItemActive(null)
 													},
 													onBookmarkToggle: () => {
 															doRefresh()
@@ -1089,9 +1526,12 @@ const feedApp = (innerTagStr, opts) => {
 		}
 		api.utils.loadScripts(
 				[
-						"https://unpkg.com/react@18/umd/react.production.min.js",
-						"https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
+						// "https://unpkg.com/react@18/umd/react.production.min.js",
+						// "https://unpkg.com/react-dom@18/umd/react-dom.production.min.js",
+						"https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js",
+						"https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js",
 						"https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js",
+						`${opts.plugins_root_url}/_common/common.lib.js`,
 						...toLoad,
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.min.js"
 						// "https://cdn.jsdelivr.net/npm/react-window@1.8.8/dist/index-prod.umd.js"
@@ -1104,39 +1544,31 @@ const feedApp = (innerTagStr, opts) => {
 								console.log("YOUTUBE MODE", { opts });
 						}
 
-						execFeedReader(innerTagStr)
-						setTimeout(() => {
-								api.utils.resizeIframe(opts.size);
-								setTimeout(() => {
-										api.utils.resizeIframe(opts.size);
-										setTimeout(() => {
-												api.utils.resizeIframe(opts.size);
-										}, 100);
-								}, 100);
-						}, 100);
+						initFetchUserColor(() => {
+							execFeedReader(innerTagStr)
+
+							// insert style
+							const style = document.createElement('style');
+							style.innerHTML = styleFeed(mainColor);
+							document.head.appendChild(style);
+
+							setTimeout(() => {
+									api.utils.resizeIframe(opts.size);
+									setTimeout(() => {
+											api.utils.resizeIframe(opts.size);
+											setTimeout(() => {
+													api.utils.resizeIframe(opts.size);
+											}, 100);
+									}, 100);
+							}, 100);
+						});
 				}
 		);
 
 
 
-		function getOperatingSystem() {
-			const platform = navigator.platform.toLowerCase();
-			
-			if (platform.includes('mac')) {
-				return 'mac';
-			} else if (platform.includes('win')) {
-				return 'windows';
-			} else if (platform.includes('linux')) {
-				return 'linux';
-			} else if (platform.includes('android')) {
-				return 'android';
-			} else {
-				return 'other';
-			}
-		}
 
-
-		const styleFeed = `
+		const styleFeed = (mainColor) => `
 		h1:before, h2:before, h3:before, h4:before, h5:before, h6:before {
 			display: none;
 		}
@@ -1164,20 +1596,20 @@ const feedApp = (innerTagStr, opts) => {
 				/* display:none; */
 		}
 		.article-details-wrapper {
-				width: 50%;
-				padding: 15px;
-				position: absolute;
-				background: white;
-				height: calc(100% - 110px);
-				overflow-y: scroll;
-				height: 100%;
-				right: 0px;
-				top: 0px;
-				box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
+			width: calc(50% - 35px);
+			padding: 15px;
+			position: absolute;
+			background: white;
+			height: calc(100% - 110px);
+			overflow-y: scroll;
+			height: 100%;
+			right: 0px;
+			top: 0px;
+			box-shadow: 0px 0px 17px rgb(0 0 0 / 25%);
 		}
 
 		
-		@media screen and (max-width: 500px) {
+		@media screen and (max-width: 700px) {
 				.article-details-bg {
 						cursor: pointer;
 						background: rgba(0,0,0,0.2);
@@ -1241,10 +1673,11 @@ const feedApp = (innerTagStr, opts) => {
 				margin-bottom: 20px;
 		}
 		.article-description img {
-				width:100%!important;
+				width:calc(100% - 30px) !important;
 				height: auto!important;
 		}
 		.article-links-wrapper {
+				margin-left: 30px;
 				font-size: 12px;
 				padding-bottom: 14px;
 				margin-bottom: 0px;
@@ -1269,13 +1702,17 @@ const feedApp = (innerTagStr, opts) => {
 				background-repeat: no-repeat;
 		}
 }
+.article-watched-toggle.fav {
+		color: #e9cd3f;
+}
 .article-bookmark-toggle.fav {
 		color: #e9cd3f;
 }
+.article-watched-toggle,
 .article-bookmark-toggle {
 		color: grey;
 		position: fixed;
-		right: 60px;
+		right: 90px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1285,10 +1722,13 @@ const feedApp = (innerTagStr, opts) => {
 		border-radius: 30px;
 		font-size: 10px;
 }
+.article-watched-toggle {
+		right: 120px;
+}
 
 .article-close {
 		position: fixed;
-		right: 32px;
+		right: 62px;
 		top: 7px;
 		cursor: pointer;
 		z-index: 2;
@@ -1306,7 +1746,7 @@ const feedApp = (innerTagStr, opts) => {
 		padding-top: 5px;
 		width: 50%;
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 700px) {
 		.filter-list-wrapper {
 				width: 100%;
 		}
@@ -1333,7 +1773,7 @@ LIST
 */
 .feed-app-wrapper {
 	padding-top: 37px;
-	width: calc(100% - ${getOperatingSystem() === "mac" ? 20 : 0}px);
+	width: calc(100%);
 }
 
 .top-wrapper {
@@ -1344,6 +1784,7 @@ LIST
 .filters-top-wrapper {
 	display: flex;
 	align-items: center;
+	padding-right: 25px;
 }
 .left-right-wrapper {
 	display: flex;
@@ -1366,7 +1807,7 @@ LIST
 
 .hide-scrollbar-right {
 	height: 100%;
-	width: calc(100% + 18px);
+	width: calc(100%);
 }
 
 /* * * * * * * * * * *
@@ -1388,6 +1829,8 @@ LIST > LEFT WRAPPER
 
 .left-wrapper .filter.active {
 	font-weight: bold;
+	background: ${mainColor};
+	color:white;
 }
 
 /* * * * * * * * * * *
@@ -1397,7 +1840,10 @@ LIST > ARTICLES
 .articles-list.item-active-open {
 		width: calc(50% - 30px);
 }
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 700px) {
+	.articles-list.item-active-open {
+			width: calc(100% - 30px);
+	}
 }
 
 .article-list-item {
@@ -1478,6 +1924,73 @@ LIST > ARTICLES
 
 
 
+/* full-width view  */
+
+.articles-list.view-full-width #infinite-scroll-inner {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+}
+@media only screen and (hover: none) and (pointer: coarse) {
+	.articles-list.view-full-width #infinite-scroll-inner {
+		justify-content: left;
+	}
+}
+
+
+.article-full-width-item {
+		width: calc(100% - 20px);
+		max-width:320px; /* for desktop */
+		margin-left: 10px;
+		margin-top: 0px;
+		overflow: hidden;
+		position: relative;
+		cursor: pointer;
+		height: 240px;
+}
+
+.article-full-width-item .meta  {
+	color: black;
+	font-size: 9px;
+	margin-left: 11px;
+	line-height: 10px;
+	position: relative;
+	top: -1px;
+}
+.article-full-width-item .title-wrapper  {
+}
+.article-full-width-item .title  {
+		margin: 0px 0px;
+		padding: 10px;
+		padding-top: 10px;
+		padding-bottom: 10px;
+		padding-top: 10px;
+		word-break: break-word;
+		width: calc(100% - 20px);
+		bottom: 0px;
+		font-size: 11px;
+		font-weight: 800;
+		color: black;
+		line-height: 12px;
+		max-height: 40px;
+		overflow: hidden;
+}
+.article-full-width-item .bg-item {
+		width: 100%;
+		min-height: 170px;
+		border-radius: 7px;
+		background-size: cover;
+		background-repeat: no-repeat;
+		background-position: center;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -1522,6 +2035,23 @@ LIST > ARTICLES
 		padding: 10px;
 		color: #b7b7b7;
 }
+.article-filter-links {
+		font-size: 10px;
+		color: grey;
+		cursor: pointer;
+}
+.article-filter-links span {
+	background: ${mainColor};
+	color: white;
+	border-radius: 5px;
+    padding: 2px 7px;
+    margin-right: 3px;
+}
+.article-filter-links span:hover {
+	background: white;
+	color: ${mainColor};
+}
+
 
 `;
 
@@ -1529,9 +2059,6 @@ LIST > ARTICLES
 		return `
 <div id='root-react'></div>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
-<style>
-${styleFeed}
-</style>
 `
 }
 

@@ -9,10 +9,10 @@ shouldLog = true
 //     return {iframeOLD: iframeCtag}
 // }
 // if not present, fallback to download from dev/plugins github for the moment
-const baseCtag = ["epub", "pdf", "iframe", "web", "smartlist"]
+const baseCtag = ["epub", "pdf", "iframe", "web", "smartlist", "proofread", "datatable", "forms"]
 const getBaseCtagContent = (ctagName:string, cb:(txt:string)=>void) => {
   
-  const url = `https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/${ctagName}/${ctagName}.js`
+  const url = `https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/${ctagName}/${ctagName}.ctag.js`
   let addedOpts = ``
   if (ctagName === "epub") addedOpts = `open:true, size: "80%"`
   if (ctagName === "pdf") addedOpts = `open:true`

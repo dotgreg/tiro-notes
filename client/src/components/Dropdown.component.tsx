@@ -5,6 +5,7 @@ import { Icon } from "./Icon.component"
 interface iDropdownP {
 	hover?: boolean
 	children?: JSX.Element
+	forceShow?: boolean
 	footer?: ReactElement
 	dir?: 'left' | 'right'
 	maxHeight?: number
@@ -18,7 +19,7 @@ export const Dropdown = (p: iDropdownP) => {
 	const maxHeight = p.maxHeight ? p.maxHeight : 50
 
 	return (
-		<div className={`dropdown-wrapper ${dir} ${p.hover ? 'hover-active' : ''}`}>
+		<div className={`dropdown-wrapper ${dir} ${p.hover ? 'hover-active' : ''} ${p.forceShow ? 'force-show':''}`}>
 			<span
 				onMouseEnter={() => {
 					p.onMouseEnter && p.onMouseEnter()
@@ -30,7 +31,7 @@ export const Dropdown = (p: iDropdownP) => {
 				}}
 				className="context-menu-wrapper" >
 				<div className="dropdown-icon">
-					<Icon name="faEllipsisH" color={cssVars.colors.l1.font} />
+					<Icon name="faEllipsisH" />
 				</div>
 				<div className="context-menu" style={{ maxHeight }}>
 					{p.children}
@@ -73,9 +74,15 @@ export const dropdownCss = () => `
 				}
 		}
 
+		&.force-show {
+			.context-menu {
+				opacity: 1;
+				pointer-events: all;
+			}
+		}
 		.context-menu {
 				overflow-y: scroll;
-				z-index: 100;
+				z-index: 1000;
 				right: 10px;
 				top: 20px;
 				pointer-events: none;

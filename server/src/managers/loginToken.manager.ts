@@ -20,7 +20,8 @@ export const checkUserPassword = async (user: string, password: string): Promise
 		const isUserGood = backConfig.jsonConfig.users_viewer_user_enable === "true"
 		const isPasswordGood = backConfig.jsonConfig.users_viewer_user_password === password
 		return isPasswordGood && isUserGood
-	} else {
+	} else  {
+		// user is editor 
 		const isUserGood = user === backConfig.jsonConfig.user
 		const isPasswordGood = await verifyPassword(password, backConfig.jsonConfig.password)
 		return isPasswordGood && isUserGood
@@ -59,7 +60,7 @@ export const getUserFromToken = (clientToken: string): iUser | false => {
 // ROUGH AND BASIC ROLE MANAGEMENT 
 //
 
-export type iRole = "editor" | "viewer"
+export type iRole = "editor" | "viewer" | "none"
 interface iUser {
 	name: string
 	roles: iRole[]

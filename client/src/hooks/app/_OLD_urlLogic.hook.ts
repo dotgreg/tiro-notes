@@ -1,4 +1,4 @@
-// import { isNumber } from "lodash"
+// import { isNumber } from "lodash-es"
 // import { useEffect, useRef } from "react"
 // import { iAppView, iFile } from "../../../../shared/types.shared"
 // import { getUrlParams, iUrlParams, listenToUrlChanges, updateUrl } from "../../managers/url.manager"

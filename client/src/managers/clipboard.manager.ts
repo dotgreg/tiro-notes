@@ -5,7 +5,7 @@
 //
 export const handleImagePaste = (e, callback:(file:File)=>void) => {
 	retrieveImageFromClipboardAsBlob(e, function (imageBlob) {
-		console.log('ON IMAGE PASTE');
+		// console.log('ON IMAGE PASTE');
 		if (imageBlob) {
 			callback(imageBlob)
 		}
@@ -70,7 +70,17 @@ const retrieveImageFromClipboardAsBlob = (pasteEvent, callback) => {
 		}
 	};
 
+	let shouldImageUploadDisabled = false
 	for (var i = 0; i < items.length; i++) {
+
+		let it = items[i]
+		// has text/html content? if yes, no image upload accepted (due to microsoft tools pasting html/text/image for text)
+		if (it.type.indexOf("text/html") !== -1 || it.type.indexOf("text/plain") !== -1) {
+			console.log(`[PASTE] text/html or text/plain content found, disabling image upload`, it.type);
+			shouldImageUploadDisabled = true
+		}
+		if (shouldImageUploadDisabled) continue;
+
 		// Skip content if not image
 		if (items[i].type.indexOf("image") == -1) continue;
 		console.log(`[PASTE] informations on files pasted : `, pasteEvent, items, items.length);

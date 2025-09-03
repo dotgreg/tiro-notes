@@ -1,3 +1,4 @@
+import { isNumber } from 'lodash-es';
 import { sharedConfig } from '../../../shared/shared.config';
 import { lineJumpWhileGeneratingAiText } from '../managers/ai.manager';
 import { devCliAddFn } from '../managers/devCli.manager';
@@ -73,10 +74,10 @@ const getScrollObj = (wid) => {
 const updateEditorDims = (wid: string, dims: iDim) => {
 	const c = getScrollObj(wid)
 	if (!c.els.editor) return;
+
 	c.dims.editor = dims
 	// if (!c.els.preview) return;
 	// viewport = viewport > full ? full : viewport
-	// console.log(h, "editor dims update", c.dims.editor);
 }
 
 const updatePreviewDims = (wid: string) => {
@@ -92,7 +93,6 @@ const updatePreviewDims = (wid: string) => {
 
 	// let viewport = c.els.preview.clientHeight
 	c.dims.preview = { viewport, full }
-	// console.log(h, "preview dims update", c.dims.preview);
 }
 
 const updateScrollerDims = (wid: string) => {
@@ -114,7 +114,6 @@ const updateScrollerDims = (wid: string) => {
 
 	// update dims
 	c.dims.scroller = dim
-	// console.log(h, `scroller dim update from ${winner}`, c.dims.scroller);
 
 	// trigger react refresh?? (oula) => on pourra mettre un debounce plus tard si necess
 	let dataset = c.els.scroller?.dataset
@@ -130,14 +129,60 @@ const scrollScroller = (wid: string, percent?: number) => {
 	lineJumpWhileGeneratingAiText[wid] = false
 	const c = getScrollObj(wid)
 	// if (!c.els.editor) return;
-	if (!percent) percent = c.posPercent
+	c.posPercent = percent || 0
+	// if (!percent) percent = c.posPercent
 
 	// just ask for a refresh, bar position in calculated in component in react
 	let dataset = c.els.scroller?.dataset
-	if (!dataset) return
+	if (!dataset) dataset = {scrollRefresh: 1}
 	if (!dataset.scrollRefresh) dataset.scrollRefresh = 1
 	dataset.scrollRefresh = parseInt(dataset.scrollRefresh) + 1
 }
+
+
+
+
+//
+//
+// NEW WAY USING PX
+//
+//
+const scrollEditorPx = (wid: string, px: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
+	const c = getScrollObj(wid)
+	if (!c.els.editor) return;
+	let e = c.dims.editor
+	c.els.editor.scrollTop += px
+}
+const scrollPreviewPx = (wid: string, px: number) => {
+	lineJumpWhileGeneratingAiText[wid] = false
+	const c = getScrollObj(wid)
+	if (!c.els.preview) return;
+	let d = c.dims.preview
+	c.els.preview.scrollTop += px
+}
+const scrollAllPx = (wid: string, px: number) => {
+	scrollEditorPx(wid, px)
+	scrollPreviewPx(wid, px)
+}
+
+// const updateScrollerInPercent = (wid: string, percent: number) => {
+
+// }
+
+
+
+
+
+
+
+
+
+//
+//
+// OLD WAY USING PERCENT
+//
+//
 
 const scrollEditor = (wid: string, percent?: number) => {
 	lineJumpWhileGeneratingAiText[wid] = false
@@ -145,7 +190,7 @@ const scrollEditor = (wid: string, percent?: number) => {
 	if (!c.els.editor) return;
 	let e = c.dims.editor
 	if (!percent) percent = c.posPercent
-	let percentPxEditor = (e.full - e.viewport) / 100
+	let percentPxEditor = (e.full ) / 100
 	c.els.editor.scrollTop = percentPxEditor * percent
 }
 
@@ -189,7 +234,6 @@ const onPreviewScroll = (wid: string) => {
 	
 	updatePreviewOffset(wid, previewY)
 	c.posPercent = (previewY / (c.dims.preview.full)) * 100
-	// console.log(h, "onPreviewScroll", previewY, c.dims.preview.full, c.posPercent);
 
 	scrollEditor(wid, c.posPercent)
 	scrollScroller(wid, c.posPercent)
@@ -245,6 +289,10 @@ export const syncScroll3 = {
 	scrollEditor,
 	scrollPreview,
 	scrollScroller,
+
+	scrollAllPx,
+	scrollEditorPx,
+	scrollPreviewPx,
 }
 
 

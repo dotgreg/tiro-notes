@@ -29,9 +29,10 @@ export const newFileButtonCss = () => `
         margin: 13px 15px 15px 15px;
 				width: calc(100% - 30px); 
         font-size: ${isA('desktop') ? 11 : 11}px;
-        svg {
+        .icon-wrapper {
             margin-right: ${isA('desktop') ? `10px` : `5px`};
         }
+		
         
     }
 `

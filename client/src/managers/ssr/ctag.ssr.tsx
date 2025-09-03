@@ -4,7 +4,7 @@ import { ContentBlock } from '../../components/ContentBlock.component';
 import { getApi } from '../../hooks/api/api.hook';
 import { generateEmptyiFile } from '../../hooks/app/useLightbox.hook';
 import { renderReactToId } from "../reactRenderer.manager"
-import { memoize } from 'lodash';
+import { memoize } from 'lodash-es';
 import { getUrlTokenParam } from '../../hooks/app/loginToken.hook';
 import { deviceType } from '../device.manager';
 
@@ -49,11 +49,8 @@ export const generateCtag = (
 
 	// if tagName is PDF or EPUB and content includes ?token, replace it with the current token
 	// if (ctagConfig.tagName === "pdf" || ctagConfig.tagName === "epub") {
-	// 	// console.log(11111, ctagConfig.content)
 	// 	let nurl = ctagConfig.content?.split("?token=")[0]
-	// 	// console.log(111112, nurl)
 	// 	nurl = nurl + getUrlTokenParam()
-	// 	// console.log(111113, nurl)
 	// 	ctagConfig.content = nurl
 	// }
 
@@ -76,7 +73,6 @@ export const ssrGenCtag = (
 ): React.ReactElement => {
 	if (!opts) opts = {}
 	if (!opts.file) opts.file = generateEmptyiFile()
-	// console.log(12324, tagName, content, opts)
 	
 	// const height = opts?.wrapperHeight || heightIframe.big + 75
 	// let ctagHeightOffset = deviceType() === "mobile" ? -300 : -100?

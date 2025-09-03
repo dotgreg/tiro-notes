@@ -14,7 +14,7 @@ import { iStatusApi } from './status.api.hook';
 // MAIN
 export interface iSearchApi {
 	files: iSearchFilesApi
-	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void) => void
+	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void, options?:{disableMetadataSearch?:boolean}) => void
 	hashtags: (folder: string, cb: (res: iHashtags) => void) => void
 	ui: iSearchUiApi
 }
@@ -40,7 +40,7 @@ export const useSearchApi = (p: {
 	eventBus: iApiEventBus,
 	statusApi: iStatusApi
 }): iSearchApi => {
-	const h = `[SEARCH API] 00563 `
+	const h = `[SEARCH API] `
 
 	//
 	// STATE
@@ -83,17 +83,23 @@ export const useSearchApi = (p: {
 		search(term, cb, 'text')
 	}
 
-	const searchWord: iSearchApi['word'] = (word, folder, cb) => {
+	const searchWord: iSearchApi['word'] = (word, folder, cb, options) => {
 		const idReq = genIdReq(`search-word-`);
 		// replace all special chars like + or * by \\char
-		word = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
-		console.log(`${h} searching WORD ${word}`);
+
+		// replace chars like +, *, . etc by \\char
+		word = word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // necessary to seach things like [ev without having to type //[ev
+		// replace . by \\.
+
+		console.log(`${h} searching WORD ${word} in ${folder}`, options);
 
 		// subscribe
-		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { cb(res) });
+		p.eventBus.subscribe(idReq, (res: iSearchWordRes) => { 
+			cb(res) 
+		});
 
 		// start request
-		clientSocket2.emit('searchWord', { word, folder, token: getLoginToken(), idReq })
+		clientSocket2.emit('searchWord', { word, folder, options, token: getLoginToken(), idReq })
 	}
 
 	const searchFilesAndUpdateUi: iSearchApi['ui']['search'] = term => {

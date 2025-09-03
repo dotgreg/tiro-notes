@@ -1,9 +1,10 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, isArray } from 'lodash-es';
 import React, { useEffect } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile } from "../../../../shared/types.shared"
 import { useDebounce } from '../lodash.hooks';
 import { useBackendState } from '../useBackendState.hook';
+import { isA } from '../../managers/device.manager';
 
 const h = `[LAST FILE]`
 const log = sharedConfig.client.log.verbose
@@ -17,12 +18,18 @@ export interface iLastFilesHistoryApi {
 	addToHistory: (file:iFile, debounced?:boolean) => void
 }
 
-
+const blacklistPaths = ['.tiro/answers/']
+const isBlacklisted = (path:string) => {
+	for (const blackPath of blacklistPaths) {
+		if (path.includes(blackPath)) return true
+	}
+	return false
+}
 
 
 
 export const useLastFilesHistory = (activeFile: iFile) => {
-	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [])
+	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [], {history: false, debouncedSave: 5000})
 	const filesHistoryRef = React.useRef(filesHistory)
 	useEffect(() => {
 		filesHistoryRef.current = filesHistory
@@ -38,15 +45,22 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 	}
 
 	const addToHistoryInt = (file: iFile) => {
-		log && console.log(h, 'Add to history', file.name);
+		// filter out ai answers (.tiro/answers/)
+		if (isBlacklisted(file.path)) return
+
+		log && console.log(h, 'Add to last notes', file.name);
 		const nfilesHist = filesHistoryRef.current
 
 		// if already at first position in hist, do nothing
 		if (nfilesHist.length > 0 && nfilesHist[0].name === file.name) return
 
+
+
+
 		let shouldAddToHistory = true
 		let indexOldPos = -1
 		let newfilesHistory = nfilesHist
+		if (isArray(nfilesHist) === false) newfilesHistory = []
 		for (let i = 0; i < nfilesHist.length; i++) {
 			if (nfilesHist[i].name === file.name) {
 				// already in array
@@ -60,8 +74,10 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		// only keep x notes
 		newfilesHistory = newfilesHistory.slice(0, 400)
 		newfilesHistory.unshift(file)
+
+		// do not update if newFilesHistory length is 0 
+		if (newfilesHistory.length === 0) return
 		setFilesHistory(newfilesHistory)
-		
 	}
 	const debouncedAddToHistory = useDebounce(addToHistoryInt, 300)
 

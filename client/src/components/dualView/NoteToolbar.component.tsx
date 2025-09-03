@@ -3,19 +3,23 @@ import { TextModifAction, calcSelected, seemsArithmetic, wordsCount } from '../.
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { ButtonsToolbar, iToolbarButton } from '../ButtonsToolbar.component';
 import { iCursorInfos } from './CodeMirrorEditor.component';
-import { deviceType } from '../../managers/device.manager';
+import { deviceType, isMobile } from '../../managers/device.manager';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { getFontSize } from '../../managers/font.manager';
+import { genAiButtonsConfig } from '../../managers/ai.manager';
+import { each } from 'lodash-es';
 
 
 
 //
 // MOBILE TOOLBAR
 //
-export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink"
+export type iActionsNoteToolbar = TextModifAction | "aiSearch" | "calc" | "undo" | "redo" | "->" | "<-" | "copyLineLink" | "proofread" | "searchEngine" | "highlightLine" | "addTableCol" | "removeTableCol"
 
 export const NoteToolsPopup = (p: {
   cursorInfos: iCursorInfos,
   selection: string,
-	onButtonClicked: (action: iActionsNoteToolbar) => void
+	onButtonClicked: (action: iActionsNoteToolbar, options?:any) => void
 }) => {
   // if (!p.bottom) p.bottom = 140
   // let bottom = p.bottom || 140
@@ -31,7 +35,14 @@ export const NoteToolsPopup = (p: {
     p.onButtonClicked(action)
   }
 
-  const btnsConfigOpen:iToolbarButton[] =  [
+  const tableColButtons = ():iToolbarButton[] => {
+    return [
+      { icon: 'faTableCells', title:"Add Table Column", action: () => {p.onButtonClicked('addTableCol');}},
+      { icon: 'faTableList', title:"Remove Table Column" , action: () => {p.onButtonClicked('removeTableCol');}}
+    ]
+  }
+
+  let btnsConfigOpen:iToolbarButton[] =  [
     { icon: 'faCircle', action: () => {setIsOpen(false); setPopupTransparent(false)}, class: 'separator' },
     { icon: 'faUndo', action: () => onButtonClicked('undo') },
     { icon: 'faRedo', action: () => onButtonClicked('redo') },
@@ -43,33 +54,72 @@ export const NoteToolsPopup = (p: {
     { icon: 'faAngleDown', action: () => onButtonClicked('v') },
     { icon: 'faEraser', action: () => onButtonClicked('X') },
     { icon: 'faClone', action: () => onButtonClicked('C') },
+    tableColButtons()[0],
+    tableColButtons()[1]
   ]
 
    // if selection, push ai button at the second position
-  const btnsConfigClosed:iToolbarButton[] = []
+  let btnsConfigClosed:iToolbarButton[] = []
   btnsConfigClosed.push({ icon: 'faCircle', action: () => setIsOpen(true) })
+
+  btnsConfigClosed.push({ icon: 'faHighlighter', action: () => {p.onButtonClicked('highlightLine');}})
+
+  btnsConfigClosed.push(tableColButtons()[0])
+  btnsConfigClosed.push(tableColButtons()[1])
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //
+  //
+  // IF SELECTION IS NOT EMPTY
+  //
+  //
+  //
   if (p.selection.length > 0) {
     let isMath = seemsArithmetic(p.selection)
     let mathBtn:iToolbarButton = { icon: 'chart-line', action: () => {}, customHtml:<div className='numbers-preview-wrapper'><i className='fa fa-chart-line'></i><span className='numbers-preview'>{wordsCount(p.selection)}</span></div>}
     if (isMath) mathBtn = { 
       icon: 'calculator', 
+      title:"Calculate selection",
       customHtml: <div className='numbers-preview-wrapper'><i className='fa fa-calculator'></i><span className='numbers-preview'>{calcSelected(p.selection)}</span></div>, 
       action: () => {p.onButtonClicked('calc'); setIsOpen(false); }
     }
-    const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', action: () => {p.onButtonClicked('aiSearch'); setIsOpen(false); }}
-    const copyLinkLine:iToolbarButton = { icon: 'copy', action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
+    // const aiBtn:iToolbarButton = { icon: 'wand-magic-sparkles', title:"AI assistant", action: () => {p.onButtonClicked('aiSearch', {}); setIsOpen(false); }}
+    const isAiEnabled = userSettingsSync.curr.ui_editor_ai_text_selection
+
+    const genAiButtons = ():iToolbarButton[] => {
+      let res:iToolbarButton[] = []
+      if (userSettingsSync.curr.ui_editor_live_watch && isAiEnabled) {
+        const aiBtnsConfig = genAiButtonsConfig()
+        each(aiBtnsConfig, (aiConfig) => {
+          res.push({ icon: aiConfig.icon, title: aiConfig.title, action: () => {p.onButtonClicked('aiSearch', {aiConfig}); setIsOpen(false); }})
+        })
+      }
+      return res
+    }
+    
+
+
+    const copyLinkLine:iToolbarButton = { icon: 'copy', title:"Copy line link", action: () => {p.onButtonClicked('copyLineLink'); setIsOpen(false); }}
+    const proofreadBtn:iToolbarButton = { icon: 'spell-check', title:"Proofread selection" , action: () => {p.onButtonClicked('proofread'); setIsOpen(false); }}
     //------------
-    btnsConfigClosed.push(aiBtn)
+    btnsConfigClosed = [...btnsConfigClosed, ...genAiButtons()]
     btnsConfigClosed.push(copyLinkLine)
-    btnsConfigClosed.push(mathBtn)
+    btnsConfigClosed.push(proofreadBtn)
+    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigClosed.push(mathBtn)
+    if (userSettingsSync.curr.ui_editor_search_highlight_enable) btnsConfigClosed.push({ icon: 'search', title:"Search selection", action: () => {p.onButtonClicked('searchEngine'); setIsOpen(false); }})
     //------------
     // btnsConfigOpen.splice(1, 0, aiBtn)
     let mathBtn2 = {...mathBtn}
     mathBtn2.class = 'separator-right'
     // btnsConfigOpen.splice(2, 0, mathBtn2)
-    btnsConfigOpen.push(mathBtn2)
+    if (userSettingsSync.curr.ui_editor_live_watch) btnsConfigOpen.push(mathBtn2)
+    if (userSettingsSync.curr.ui_editor_search_highlight_enable) btnsConfigOpen.push({ icon: 'search', title:"Search selection", action: () => {p.onButtonClicked('searchEngine'); setIsOpen(false); }})
     btnsConfigOpen.push(copyLinkLine)
-    btnsConfigOpen.push(aiBtn)
+    btnsConfigOpen.push(proofreadBtn)
+    // btnsConfigOpen.push(tableColButtons()[0])
+    // btnsConfigOpen.push(tableColButtons()[1])
+    
+    btnsConfigOpen = [...btnsConfigOpen, ...genAiButtons()]
 
   }
   
@@ -86,6 +136,7 @@ export const NoteToolsPopup = (p: {
       size={deviceType() === "desktop" ? 0.8 : 1}
 			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
 			buttons={btnsConfigClosed}
+      popup={false}
 		/>
     }
 
@@ -95,6 +146,7 @@ export const NoteToolsPopup = (p: {
       size={deviceType() === "desktop" ? 0.8 : 1}
 			colors={[cssVars.colors.editor.mobileToolbar.font, cssVars.colors.editor.mobileToolbar.font]}
 			buttons={btnsConfigOpen}
+      popup={false}
 		/>
   }
   </div>
@@ -103,12 +155,16 @@ export const NoteToolsPopup = (p: {
 
 
 export const mobileNoteToolbarCss = () => `
+.view-preview .buttons-toolbar-component.mobile-text-manip-toolbar {
+  display: none;
+}
+
 .mobile-text-manip-toolbar-wrapper {
   z-index:1;
   
   
   pointer-events: none;
-  position: absolute;
+  position: ${isMobile() ? 'fixed' : 'absolute'};
   width: 100%;
   // z-index: 100;
   display: flex;
@@ -124,7 +180,7 @@ export const mobileNoteToolbarCss = () => `
 
 .numbers-preview-wrapper {
   display: flex;
-  font-size: 10px;
+  font-size: ${getFontSize()}px;
   font-weight: 400;
   i {
     margin-top: 2px;

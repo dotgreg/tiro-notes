@@ -1,13 +1,19 @@
-import { each, isNumber, random } from "lodash";
+import { each, isNumber, random } from "lodash-es";
 import { pathToIfile } from "../../../shared/helpers/filename.helper";
-import { iAppView, iGrid, iTab } from "../../../shared/types.shared";
+import { iAppView,  iTab } from "../../../shared/types.shared";
 import { configClient } from "../config";
 import { getApi } from "../hooks/api/api.hook";
-import { notifLog } from "./devCli.manager";
-import { isVarMobileView, iMobileView, deviceType } from "./device.manager";
+import {  iMobileView, deviceType } from "./device.manager";
 import { findImagesFromContent } from "./images.manager";
-import { getLoginToken, getUrlTokenParam } from "../hooks/app/loginToken.hook";
-import { webIconCreate, webIconUpdate } from "./iconWeb.manager";
+import {  getUrlTokenParam } from "../hooks/app/loginToken.hook";
+import {  webIconUpdate } from "./iconWeb.manager";
+
+export const cleanUrl = (url:string) => {
+	url = url.replaceAll("//", "/")
+	// replace http(s):/ by http(s)://
+	url = url.replace(/(http[s]?:)\/([^/])/, "$1//$2")
+	return url
+}
 
 //
 // URL PARSER
@@ -55,13 +61,17 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 		urlParamsArr = urlParamsArr.filter(el => el.name !== "filepath" && el.name !== "view")
 		if (!filePath || !view) return
 		urlParamsArr.unshift({name: "filepath", value: filePath})
-		
+
+		// by default
+		webIconUpdate("/favicon.png")
+		document.title = "Tiro"
 
 		if (deviceType() === "mobile") {
 			urlParamsArr.unshift({name: "view", value: mobileView})
 		} else {
 			urlParamsArr.unshift({name: "view", value: view})
 		}
+		setUrlParams(urlParamsArr)
 
 		//
 		// UPDATE ICON AND TITLE
@@ -69,6 +79,7 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 		// get content > find first image, if exists, change page.icon with it for add to desktop functionality
 		api.file.getContent(filePath, content => {
 			let images = findImagesFromContent(content, pathToIfile(filePath))
+			
 			if (images.length < 1) return
 			// console.log("looking for image")
 			let fullurl = `${images[0].url}${getUrlTokenParam()}`
@@ -76,16 +87,26 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			// create a new <link rel="icon" href="%PUBLIC_URL%/favicon.png" /> programmatically
 			
 			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
+			const nTitle = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
+			// document.title = "Tiro" // forcing the change of title to force the icon change
+			document.title = nTitle
 			webIconUpdate(fullurl)
-			document.title = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
+			setTimeout(() => {
+				document.title = nTitle
+				// webIconUpdate(fullurl)
+			}, 300)
 		})
 
-		setUrlParams(urlParamsArr)
+		
 	})
 }
 
 // on load
 export const onStartupReactToUrlParams = (setMobileView:Function) => {
+	// by default
+	webIconUpdate("/favicon.png")
+	document.title = "Tiro"
+
 	// only enable isUrlUpdaterEnabled.value after 5s 
 	setTimeout(() => {isUrlUpdaterEnabled.value = true}, 5000)
 	let urlParams = getUrlRawParams().dic

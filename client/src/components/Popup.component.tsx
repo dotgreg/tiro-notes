@@ -2,6 +2,7 @@ import React from 'react'
 import styled from '@emotion/styled'
 import { cssVars } from '../managers/style/vars.style.manager'
 import { isIpad } from '../managers/device.manager'
+import { css } from '@emotion/css'
 
 /**
  * Generic popup system
@@ -11,15 +12,17 @@ export class Popup extends React.Component
 		onClose: Function,
 		title: string,
 		canBgClose?: boolean,
+        cssStr?: string
 	}, {
 
 	}> {
 
 	canBgClose = this.props.canBgClose ? this.props.canBgClose : true
+    cssStr = this.props.cssStr ? this.props.cssStr : ""
 
 	render() {
 		return (
-			<div className="popup-wrapper-component">
+			<div className={`${css`${this.cssStr}`} popup-wrapper-component`} >
 				<div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
 					<div className="popupTitle"> {this.props.title}</div>
@@ -37,21 +40,24 @@ export const PopupWrapperCss = () => `
         left: 0px;
     .overlay-click-popup {
         position: fixed;
-        z-index:1000;
+        z-index:10000;
         top: 0px;
         left: 0px;
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
         background: rgba(0,0,0,0.1);
     }
     .popup-wrapper {
+        overflow-y: auto;
         position: fixed;
-        z-index:10001;
+        z-index:10010;
         left: 50%;
         top:50%;
         &.ipad {
             top:20%;
         }
+        max-height: 70%;
+        
         width : auto;
         max-width: 90%;
         transform:translate(-50%,-50%);
@@ -72,6 +78,9 @@ export const PopupWrapperCss = () => `
         .popupContent {
             padding: 0px 20px 20px 20px;
             // min-width : 350px;
+            // height: calc(100% - 69px);
+            height: calc(100% - 69px);
+            
         }
         img{
             padding: 0px 5px 0px 0px;
