@@ -166,7 +166,6 @@ const webCtagApp = (innerTagStr, opts) => {
                 //
                 // let enableCookie = true
                 // getCache("enable-cookie")(content => {
-                //         console.log(1111111, content);
                 //         toggleCookie(content)
                 // })
                 // const toggleCookie = (status) => {

@@ -1,6 +1,8 @@
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { iFile } from "../../../../shared/types.shared";
 import { getApi } from "../../hooks/api/api.hook";
+import { iPanelLayout } from "../../hooks/api/floatingPanel.api.hook";
+import { isMobile } from "../device.manager";
 import { ssrFn } from "../ssr.manager";
 import { cssVars } from "../style/vars.style.manager";
 import { genericReplacementPlugin } from "./replacements.cm";
@@ -9,7 +11,8 @@ export const hashtagPreviewPlugin = (file: iFile, windowId:string) => genericRep
 	file,
 	windowId,
 	pattern: regexs.hashtag,
-	replacement: (matchs: any) => {
+	replacement: params => {
+		const matchs = params.matchs
         // wrap the word with a span so we can style it
 		let resEl = document.createElement("span");
         // resEl.innerHTML = matchs[0];
@@ -26,7 +29,8 @@ export const hashtagPreviewPlugin = (file: iFile, windowId:string) => genericRep
 		return resEl
 	},
     options: {
-        isAtomic: true,
+        // isAtomic: true,
+        isAtomic: false,
     }
 })
 
@@ -38,12 +42,14 @@ const detachWinFn = (el) => {
         // api.plugins.get("smartlist","tag", plugin => {
         //     console.log("plugin", plugin);
             // if (!plugin) return console.warn("no plugin, please install smartlist plugin");
+            let layout:iPanelLayout = isMobile() ? "full-top" : "full-bottom"
             api.ui.floatingPanel.create({
                 type: "ctag",
-                layout: "full-center",
+                layout,
                 ctagConfig: {
                     tagName: "smartlist",
-                    content: `- | ${folder} | ${hashtag}`,
+                    content: `${hashtag} | ${folder}`,
+                    // content: `- | / | ${hashtag}`,
                 },
             })
         // })

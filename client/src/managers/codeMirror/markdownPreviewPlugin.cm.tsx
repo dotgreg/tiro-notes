@@ -12,6 +12,7 @@ import { styleTags, Tag } from "@lezer/highlight";
 import { iFile } from "../../../../shared/types.shared";
 import { renderLatex } from "../latex.manager";
 import { imagePreviewCss } from "./image.plugin.cm";
+import { getApi } from "../../hooks/api/api.hook";
 // import { noteLinkActionClick } from "./noteLink.plugin.cm";
 
 
@@ -151,6 +152,12 @@ export const markdownPreviewPlugin = (p: {
 		eventHandlers: {
 			mousedown: (e, view) => {
 				let el = e.target as HTMLElement;
+				// get current line of the cursor
+				let posCoord = view.posAtCoords({ x: e.clientX, y: e.clientY })
+				if (!posCoord) return;
+				let lineNb = view.state.doc.lineAt(posCoord).number
+
+
 
 				// URL LINK
 				// linkActionClick(el)
@@ -160,10 +167,10 @@ export const markdownPreviewPlugin = (p: {
 
 
 				// TITLE ACTION
-				// if (el.classList.contains("actionable-title")) {
-				// 	let title = el.innerHTML.replace(/^#{1,6} /, "");
-				// 	p.onTitleClick(title)
-				// }
+				if (el.classList.contains("actionable-title")) {
+					let title = el.innerHTML.replace(/^#{1,6} /, "");
+					p.onTitleClick(title, lineNb)
+				}
 
 				// IMAGE POPUP
 				// if (el.classList.contains("enlarge")) {

@@ -4,7 +4,7 @@ import { deviceType } from '../../managers/device.manager';
 import { cssVars } from '../../managers/style/vars.style.manager';
 import { secureTitleString } from '../../managers/title.manager';
 import { Icon } from '../Icon.component';
-import { isBoolean } from 'lodash';
+import { isBoolean } from 'lodash-es';
 
 export type PathModifFn = (initPath: string, endPath: string) => void
 

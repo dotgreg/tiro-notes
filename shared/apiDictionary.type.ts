@@ -1,5 +1,5 @@
 import { iPerformanceReport, iPerfStat } from "../server/src/managers/performance.manager";
-import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iDownloadRessourceOpts, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm, iUpdateConfigJsonOpts } from "./types.shared";
+import { iActivityReport, iActivityReportParams, iAppView, iBackConfig, iCommandStreamChunk, iDownloadRessourceOpts, iFile, iFileImage, iFilePreview, iFolder, iFolderDeleteType, iImageCompressionParams, iNotification, iPlatform, iPlugin, iSearchWordRes, iSetupCode, iSetupForm, iUpdateConfigJsonOpts } from "./types.shared";
 
 
 export interface iApiDictionary {
@@ -16,9 +16,10 @@ export interface iApiDictionary {
 	getImages: { images: iFileImage[] }
 
 	askForFileContent: { filePath: string, idReq: string }
-	getFileContent: { fileContent: string, filePath: string, idReq: string, error?: string }
+	// getFileContent: { fileContent: string, filePath: string, idReq: string, error?: string }
+	getFileContent: { chunkContent: string, chunkNb:number, chunksLength:number, filePath: string, idReq: string, error?: string }
 
-	saveFileContent: { filePath: string, newFileContent: string, idReq: string, withCb?:boolean }
+	saveFileContent: { filePath: string, chunkContent: string, chunksLength:number, chunkNb:number, idReq: string, withCb?:boolean }
 
 	moveFile: { initPath: string, endPath: string, idReq: string }
 	moveFileAnswer: { idReq: string }
@@ -27,8 +28,8 @@ export interface iApiDictionary {
 
 	searchFor: { term: string, type: iAppView, idReq: string }
 
-	searchWord: { word: string, folder: string, idReq: string }
-	getWordSearch: { result: iSearchWordRes, idReq: string }
+	searchWord: { word: string, folder: string, options?:{disableMetadataSearch?:boolean, disableTitleSearch?:boolean}, idReq: string }
+	getWordSearch: { result: iSearchWordRes, withMetadataSearch:boolean, withTitleSearch:boolean, idReq: string }
 
 	getUploadedFile: { name: string, path: string, absPath:string, idReq: string }
 
@@ -47,7 +48,7 @@ export interface iApiDictionary {
 	askFilesPreview: { filesPath: string[], idReq: string }
 	getFilesPreview: { filesPreview: iFilePreview[], idReq: string }
 
-	askFoldersScan: { foldersPaths: string[], idReq: string }
+	askFoldersScan: { foldersPaths: string[], depth?:number, idReq: string }
 	getFoldersScan: { folders: iFolder[], pathBase: string, idReq: string }
 
 	askFolderCreate: { newFolderPath: string, idReq: string}
@@ -72,8 +73,14 @@ export interface iApiDictionary {
 	getFileHistory: { files: iFile[] }
 
 	askRessourceDelete: { path: string, idReq: string }
+
+	// extends iFile
+	askRessourceImageCompress:  {params: iImageCompressionParams,  idReq: string }
+
+
 	askRessourceDownload: { url: string, folder: string, opts?:iDownloadRessourceOpts, idReq: string }
 	getRessourceApiAnswer: { status: string, message: string, idReq: string }
+
 	askRessourceScan: { folderPath: string, idReq: string }
 	getRessourceScan: { files: iFile[], idReq: string }
 

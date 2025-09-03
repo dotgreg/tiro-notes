@@ -1,15 +1,12 @@
-import { initSocketLogic } from './managers/socket.manager';
 import { backConfig } from './config.back';
-import { getPlatform } from './managers/platform.manager';
-import { sslConfig } from './ssl.manager';
-import { isEnvDev } from './managers/path.manager';
+import "./managers/activity.manager";
 import { fileLogClean, log } from './managers/log.manager';
+import { isEnvDev } from './managers/path.manager';
+import { getPlatform } from './managers/platform.manager';
+import { initSocketLogic } from './managers/socket.manager';
 import { startSecuredStaticServer } from './managers/staticServer.manager';
-import { security, formatHeader} from './managers/security.manager';
-import "./managers/activity.manager"
-import { logActivity } from './managers/activity.manager';
-import { scanDirForFolders, scanDirForFolders2 } from './managers/dir.manager';
-
+import { sslConfig } from './ssl.manager';
+var compression = require('compression')
 fileLogClean();
 
 const archi = process.arch 
@@ -29,6 +26,8 @@ const app = express()
 
 var cors = require('cors')
 app.use(cors());
+app.use(compression())
+
 
 let server
 if (backConfig.https) server = require("https").createServer(sslConfig, app)
@@ -39,17 +38,20 @@ export const ioServer: SocketIO.Server = require('socket.io')(server, { serveCli
 initSocketLogic();
 
 // FRONTEND CLIENT SERVER on /
-console.log(backConfig.frontendBuildFolder)
-app.use('/', express.static(backConfig.frontendBuildFolder));
+// console.log(backConfig.frontendBuildFolder)
+// redirect all to index.html
+// app.use('/', express.static(backConfig.frontendBuildFolder));
+app.use(express.static(backConfig.frontendBuildFolder));
 
 // RESSOURCES SERVER on /static
 if (backConfig.dataFolder) {
 	startSecuredStaticServer({
 		expressApp: app,
 		url: '/static',
-		pathFolder: backConfig.dataFolder
+		pathFolder: backConfig.dataFolder,
+		cacheFront: true
 	});
-}
+} 
 
 
 server.listen(backConfig.port, function () {
@@ -58,11 +60,19 @@ server.listen(backConfig.port, function () {
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
 
-app.get('*', function(req, res){
-	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
-	logActivity(`404`, `SECURITY:404:${req.url}`, req)
-	res.status(404).send('Not found');
+app.get('*', (req, res) => {
+    res.sendFile('index.html', { root: backConfig.frontendBuildFolder });
 });
+
+// app.get('*', (req, res) => {
+//     res.redirect('/')
+// })
+
+// app.get('*', function(req, res){
+// 	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
+// 	logActivity(`404`, `SECURITY:404:${req.url}`, req)
+// 	res.status(404).send('Not found');
+// });
  
 
 // const test = async () => {

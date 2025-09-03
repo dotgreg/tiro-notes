@@ -13,6 +13,7 @@ const path = require('path')
 
 // export const
 
+
 const isAbsolute = (filePath: string) => {
 	let res = false
 	if (filePath.endsWith('/') || filePath.endsWith('\\')) filePath = filePath.slice(0, -1)
@@ -30,6 +31,8 @@ export const getFolderPath = (filePath: string): string => {
 
 // /absolutePath/image.jpg to ./image.jpeg
 export const getRelativePath = (pathFile: string): string => {
+	
+	
 
 	if (backConfig && backConfig.dataFolder) {
 		pathFile = cleanPath(pathFile)
@@ -46,8 +49,9 @@ export const getRelativePath = (pathFile: string): string => {
 // }
 
 export const relativeToAbsolutePath = (pathFile: string): string => {
+	// if dont start with /, add it
+	// if (pathFile[0] !== '/' && pathFile[0] !== '\\') pathFile = '/' + pathFile
 
-	let oldpathFile = pathFile
 	// if (pathFile) {
 	//     if (pathFile[0] === '/' || pathFile[0] === '\\') pathFile = pathFile.substr(1)
 	// } else {
@@ -63,7 +67,7 @@ export const relativeToAbsolutePath = (pathFile: string): string => {
 
 	} else if (backConfig && backConfig.dataFolder) {
 	    pathFile = pathFile.split(backConfig.dataFolder).join('')
-	    pathFile = `${backConfig.dataFolder}${pathFile}`
+	    pathFile = `${backConfig.dataFolder}/${pathFile}`
 	
 		// let rootFolder
 		// let basePath
@@ -103,6 +107,6 @@ export const getFrontendRelativePath = (pathFile:string) => {
 	}
 	
 	pathFile = path.join(rootFolder, `${basePath}/${pathFile}`)
-	console.log("getFrontendRelativePath", {old, pathFile, isAbsolute: isAbsolute(pathFile)})
+	// console.log("getFrontendRelativePath", {old, pathFile, isAbsolute: isAbsolute(pathFile)})
 	return pathFile
 }

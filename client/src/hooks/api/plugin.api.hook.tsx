@@ -1,4 +1,4 @@
-import { each, isArray, sortBy } from "lodash"
+import { each, isArray, sortBy } from "lodash-es"
 import { useEffect } from "react"
 import { sharedConfig } from "../../../../shared/shared.config"
 import { iPlugin, iPluginType } from "../../../../shared/types.shared"

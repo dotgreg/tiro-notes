@@ -1,4 +1,4 @@
-import { each, isString } from 'lodash';
+import { each, isString } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
 import { iFile, iFileImage } from '../../../../shared/types.shared';
 

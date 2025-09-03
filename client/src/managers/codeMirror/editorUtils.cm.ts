@@ -3,15 +3,16 @@ import { EditorSelection } from "@codemirror/state";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { LineTextInfos } from "../textEditor.manager";
 import { getCustomTheme } from "./theme.cm";
-import { cloneDeep, each } from "lodash";
+import { cloneDeep, each } from "lodash-es";
 import { ReactCodeMirrorRef } from "@uiw/react-codemirror";
 import { ensureSyntaxTree, foldEffect, foldInside, unfoldAll } from "@codemirror/language";
-import { openSearchPanel, SearchQuery, setSearchQuery, findNext } from "@codemirror/search"
+import { openSearchPanel, SearchQuery, setSearchQuery, findPrevious, findNext } from "@codemirror/search"
 // import {undo, redo} from "@codemirror/history"
 import { undo, redo } from "@codemirror/commands";
 
 import { regexs } from "../../../../shared/helpers/regexs.helper";
 import { perf } from "../performance.manager";
+import { getMdStructure } from "../markdown.manager";
 
 
 const h = `[Code Mirror]`
@@ -179,7 +180,8 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos | null => {
 		lines: splitedText,
 		currentPosition,
 		activeLine: splitedText[currentLineIndex] || "",
-		lineIndex: currentLineIndex
+		lineIndex: currentLineIndex,
+		activeLinePos: -1,
 	}
 	return res
 }
@@ -188,19 +190,44 @@ const getCurrentLineInfos = (CMObj: any): LineTextInfos | null => {
 //
 // GET SCROLLING LINE -> NOT USED, SHOULD BE UPDATED
 // 
-let cachedLine = 0
-const getScrolledLine = (CMObj) => {
-	intGetLine(CMObj)
-	return cachedLine
+export interface iCMCurrentLine {
+	totLine: number,
+	lineNb: number,
+	lineText: string,
+	lines: string[]
+}
+const getScrolledLine = (CMObj):iCMCurrentLine => {
+	let lineNb = intGetLine(CMObj)
+	let currentText = CMObj.view.state.doc.toString()
+	let lines = currentText.split("\n") 
+	let lineText = lines[lineNb]
+	let res = {
+		totLine: lines.length,
+		lineNb: lineNb,
+		lineText,
+		lines
+	}
+	return res
 }
 
 const intGetLine = (CMObj: any) => {
-	console.log("GET SCROLLING LINE -> NOT USED, SHOULD BE UPDATED");
+	// NEW METHOD
+	// let scrollTop = CMObj.view.scrollDOM.scrollTop
+	// let lineRaw = CMObj.view.state.doc.lineAt(scrollTop)
+	// console.log(lineRaw, scrollTop);
+	// return lineRaw.number
+	
+
+
+	// console.log("GET SCROLLING LINE -> NOT USED, SHOULD BE UPDATED");
+
 	if (!CMObj.view) return -1
 
 	const currentText = CMObj.view.state.doc.toString()
-	const lineAtHeight = CMObj.view.elementAtHeight(CMObj.view.scrollDOM.scrollTop)
+	const lineAtHeight = CMObj.view.lineBlockAtHeight(CMObj.view.scrollDOM.scrollTop)
+	const test5 = CMObj.view.lineBlockAtHeight(CMObj.view.scrollDOM.scrollTop)
 	const lineStart = lineAtHeight.from
+	// console.log(CMObj.view.scrollDOM.scrollTop, lineAtHeight)
 	// split the text to lines
 	const splitText = currentText.split('\n')
 
@@ -208,12 +235,13 @@ const intGetLine = (CMObj: any) => {
 	let line = 0
 	// for each line, add its length to tot length, till it is > from found
 	for (let i = 0; i < splitText.length; i++) {
-		lengthFromBegin += splitText[i].length
-		if (lengthFromBegin < lineStart) line = i
+		lengthFromBegin += splitText[i].length + 1 // remove \n
+		// console.log(lengthFromBegin, lineStart, i, splitText[i])
+		if (lengthFromBegin <= lineStart) line = i
 		else break
 	}
 
-	cachedLine = line
+	 return line
 }
 // const bgGetLine = throttle(intGetLine, 100)
 // const bgGetLine2 = debounce(intGetLine, 200)
@@ -328,17 +356,35 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 //
 // SEARCH FUNCTIONS
 // 
-const searchWord = (CMObj: ReactCodeMirrorRef | null, word: string, jumpToFirst: boolean = true) => { 
+
+const searchWord = (
+	CMObj: ReactCodeMirrorRef | null, 
+	word: string, 
+	replacement: string|null = null,
+	jumpToFirst: boolean = true,
+) => { 
 	if (!CMObj?.view) return
 	try {
+		
 		const view = CMObj.view
 		openSearchPanel(view)
+		const configSearch = {
+			search: word,
+		}
+		if (replacement) Object.assign(configSearch, { replace: replacement })
 		view.dispatch({
-			effects: setSearchQuery.of(new SearchQuery({
-				search: word,
-			}))
+			effects: setSearchQuery.of(new SearchQuery(configSearch))
 		})
-		if(jumpToFirst) findNext(view)
+		if(jumpToFirst) {
+			findNext(view)
+			const { from, to } = view.state.selection.main
+			view.dispatch({
+				effects: EditorView.scrollIntoView(from, {
+					y: "center",
+				}),
+			})
+		}
+		
 	} catch (error) {
 		console.log("[CM utils > search word] error:", error)
 	}

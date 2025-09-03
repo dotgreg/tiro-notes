@@ -1,0 +1,12 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        # command: sleep infinity
+        ports:
+          - "3023:3023"  # Map host:container port for http-server
+        volumes:
+          - ./:/app
+        working_dir: /app
+        # tty: true 

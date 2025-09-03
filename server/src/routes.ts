@@ -1,6 +1,6 @@
 import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
-import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders } from "./managers/dir.manager";
+import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders, scanDirForFoldersRecursive } from "./managers/dir.manager";
 import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRgGeneric, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateNewNote } from "./managers/date.manager";
@@ -18,7 +18,7 @@ import { searchWord } from "./managers/search/word.search.manager";
 import { ioServer } from "./server";
 import { regexs } from "../../shared/helpers/regexs.helper";
 import { execString, execStringStream } from "./managers/exec.manager";
-import { getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
+import { cleanPath, getFileInfos, pathToIfile } from "../../shared/helpers/filename.helper";
 import { getSocketClientInfos, security } from "./managers/security.manager";
 import { pluginsListCache, relPluginsFolderPath, rescanPluginList, scanPlugins } from "./managers/plugins.manager";
 import { sharedConfig } from "../../shared/shared.config";
@@ -29,6 +29,7 @@ import { getDateObj } from "../../shared/helpers/date.helper";
 import { each, isArray } from "lodash";
 import { relative } from "path";
 import { getPlatform } from "./managers/platform.manager";
+import { compressImageJimp } from "./managers/imageManip.manager";
 
 const serverTaskId = { curr: -1 }
 let globalDateFileIncrement = { id: 1, date: dateId(new Date()) }
@@ -37,19 +38,66 @@ export const getServerTaskId = () => serverTaskId.curr
 export const setServerTaskId = (nb) => { serverTaskId.curr = nb }
 
 export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDictionary>) => {
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// PRE LOGIN APIs
+	//
+	serverSocket2.on('sendSetupInfos', async data => {
+		const answer = await processClientSetup(data)
+		serverSocket2.emit('getSetupInfos', answer)
 
+		// if setup success, restart server
+		// NOT WORKING ON DEV NODEMON
+		if (answer.code === 'SUCCESS_CONFIG_CREATION') restartTiroServer()
+	}, { duringSetup: true, checkRole: "none" })
+
+	
+	serverSocket2.on('disconnect', async data => {
+
+	}, { bypassLoginTokenCheck: true, checkRole: "none" })
+
+
+
+	serverSocket2.on('sendLoginInfos', async data => {
+		let endPerf = perf('sendLoginInfos ')
+		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
+
+		security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
+		logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
+
+		if (!areClientInfosCorrect) {
+			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
+
+		} else {
+			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
+
+			// // do also a root scan for first time
+			// let folders = [scanDirForFolders('/')]
+			// serverSocket2.emit('getFoldersScan', {
+			// 	folders,
+			// 	pathBase: backConfig.dataFolder
+			// })
+		}
+		endPerf()
+	}, { bypassLoginTokenCheck: true, disableDataLog: true, checkRole: "none" })
+
+
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// VIEWER APIs
+	//
 	serverSocket2.on('askForFiles', async data => {
 		searchWithRipGrep({
 			term: '',
 			folder: data.folderPath,
 			typeSearch: 'folder',
 			titleSearch: false,
+			
 			onSearchEnded: async res => {
 				if (res.files) await serverSocket2.emit('getFiles', { files: res.files, idReq: data.idReq })
 			},
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('askForImages', async data => {
 		searchWithRipGrep({
@@ -62,33 +110,70 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			},
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
-	})
+	}, { checkRole: "viewer" })
+
+	
+
 
 	serverSocket2.on('askForFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("read", data.filePath, serverSocket2)
 		let file = `${backConfig.dataFolder}/${data.filePath}`
-		let endPerf = perf('askForFileContent ' + file)
+		file = cleanPath(file)
+		let endPerf = perf('👁️  askForFileContent ' + file)
 		try {
-			let apiAnswer = await openFile(file)
-			serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
+			let content = await openFile(file)
+			// automatically split internally the content in chunks <1Mb to avoid 413 errors in many servers
+			let contentChunks:string[] = []
+			let limitChunkKb = 900 * 1000
+			if (content.length > limitChunkKb) {
+				let contentChunkNb = Math.ceil(content.length / (limitChunkKb))
+				for (let i = 0; i < contentChunkNb; i++) {
+					let start = i * limitChunkKb
+					let end = (i + 1) * limitChunkKb
+					contentChunks.push(content.slice(start, end))
+				}
+			} else {
+				contentChunks = [content]
+			}
+			// serverSocket2.emit('getFileContent', { fileContent: apiAnswer, filePath: data.filePath, idReq: data.idReq })
+			// send one req per chunk
+			for (let i = 0; i < contentChunks.length; i++) {
+				serverSocket2.emit('getFileContent', { 
+					chunkContent: contentChunks[i],
+					chunkNb:i,
+					chunksLength:contentChunks.length,
+					filePath: data.filePath, 
+					idReq: data.idReq })
+			}
+		
 		} catch {
-			serverSocket2.emit('getFileContent', { fileContent: '', error: 'NO_FILE', filePath: data.filePath, idReq: data.idReq })
+			serverSocket2.emit('getFileContent', { 
+				chunkContent: '', 
+				chunkNb:0,
+				chunksLength:1,
+				error: 'NO_FILE', 
+				filePath: data.filePath, 
+				idReq: data.idReq })
 		}
 		endPerf()
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('searchWord', async data => {
 		// replace * by ANY word
 		data.word = data.word.split("*").join(regexs.strings.charWithAccents)
+		const withMetadataSearch = !data.options?.disableMetadataSearch || true
+		const withTitleSearch = !data.options?.disableTitleSearch || true
 		searchWord({
 			term: data.word,
 			folder: data.folder,
 			cb: res => {
-				serverSocket2.emit('getWordSearch', { result: res, idReq: data.idReq })
+				serverSocket2.emit('getWordSearch', { result: res, withMetadataSearch, withTitleSearch , idReq: data.idReq })
 			},
+			disableMetadataSearch: data.options?.disableMetadataSearch || false,
+			disableTitleSearch: data.options?.disableTitleSearch || false,
 			onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 		})
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('searchFor', async data => {
 		// see if need to restrict search to a folder
@@ -117,13 +202,14 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				onRgDoesNotExists: () => { serverSocket2.emit('onServerError', { status:"NO_RIPGREP_COMMAND_AVAILABLE", platform: getPlatform()})}
 			})
 		}
-	})
+	}, { checkRole: "viewer" })
 
 	serverSocket2.on('askFoldersScan', async data => {
-		let endPerf = perf('askFoldersScan ' + JSON.stringify(data.foldersPaths))
+		let depth = data.depth || 0
+		let endPerf = perf('📂  askFoldersScan ' + JSON.stringify(data.foldersPaths))
 		let folders: iFolder[] = []
 		for (let i = 0; i < data.foldersPaths.length; i++) {
-			folders.push(scanDirForFolders(data.foldersPaths[i]))
+			folders.push(scanDirForFoldersRecursive(data.foldersPaths[i], depth))
 		}
 		serverSocket2.emit('getFoldersScan', {
 			folders,
@@ -131,12 +217,56 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			pathBase: backConfig.dataFolder
 		})
 		endPerf()
-	})
+	}, { checkRole: "viewer" })
+	serverSocket2.on('askFileHistory', async data => {
+		// get all the history files 
+		let endPerf = perf('👁️  askFileHistory ' + data.filepath)
+		const file = pathToIfile(data.filepath)
+		const historyFolder = getHistoryFolder(file)
+		let allHistoryFiles = await scanDirForFiles(historyFolder, serverSocket2)
+		if (!isArray(allHistoryFiles)) allHistoryFiles = []
+		// filter .infos.md
+		allHistoryFiles = allHistoryFiles.filter(f => f.name !== fileHistoryParams.infosFile)
+		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
+		endPerf()
+	}, { checkRole: "viewer" })
+	serverSocket2.on('askFilesPreview', async data => {
+		let endPerf = perf('👁️  askFilesPreview ')
+		let res = await getFilesPreviewLogic(data)
+		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
+		endPerf()
+	}, { checkRole: "viewer" })
+	serverSocket2.on('askRessourceDownload', async data => {
+		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
+		let endPerf = perf(`⬇️   askRessourceDownload ${data.url}`)
+		const opts = data.opts ? data.opts : {}
+
+		await upsertRecursivelyFolders(pathToFile)
+		downloadFile(data.url, pathToFile, opts).then(message => {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
+			endPerf()
+		}).catch(message => {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
+			endPerf()
+		})
+    
+	}, { checkRole: "viewer" }) 
+	//
+	// PLUGINS
+	// 
+	serverSocket2.on('askPluginsList', async data => {
+		let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
+		let { plugins, scanLog } = await scanPlugins(data.noCache)
+		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
+		endPerf()
+	}, { checkRole: "viewer" })
 
 
 
-
-
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// EDITOR APIs
+	//	
+	let tempChunksToSave:{[filePath:string]:string[]} = {}
 	serverSocket2.on('saveFileContent', async data => {
 		if (!data.filePath.includes(".tiro")) logActivity("write", data.filePath, serverSocket2)
 
@@ -144,21 +274,41 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (data.filePath.includes(relPluginsFolderPath)) rescanPluginList()
 
 		const pathToFile = p(`${backConfig.dataFolder}/${data.filePath}`);
-		let endPerf = perf('saveFileContent ' + pathToFile)
+		let endPerf = perf('✏️  saveFileContent ' + pathToFile + ' w chunks: ' + data.chunksLength )
 
-		await upsertRecursivelyFolders(pathToFile)
-		await saveFile(pathToFile, data.newFileContent)
+		
+		tempChunksToSave[data.idReq] = tempChunksToSave[data.idReq] || []
+		tempChunksToSave[data.idReq][data.chunkNb] = data.chunkContent
+		
+		// console.log(`Saving chunk ${data.chunkNb} for file ${data.filePath} (total chunks: ${data.chunksLength})`)
+		if (tempChunksToSave[data.idReq].length === data.chunksLength) {
+			let newFileContent = tempChunksToSave[data.idReq].join("")
+			// console.log(`Saving file ${data.filePath} with ${data.chunksLength} chunks`)
+			await upsertRecursivelyFolders(pathToFile)
+			await saveFile(pathToFile, newFileContent)
+			// remove tempChunksToSave[data.idReq] 
+			delete tempChunksToSave[data.idReq]
 
-		// actually send to to everybody and apply a smart/selective behavior on frontend
-		ioServer.emit('onNoteWatchUpdate', {
-			filePath: data.filePath,
-			fileContent: data.newFileContent
-		})
+			// actually send to to everybody and apply a smart/selective behavior on frontend ONLY if chunkNb < 1
+			
+			// if (data.chunkNb == 1) {
+				// if first chunk, send the file infos
+			// let fileInfos = await getFileInfos(pathToFile)
+			// ioServer.emit('onFileUpdate', { file: fileInfos })
+			// }
+			if (data.chunksLength == 1) {
+				ioServer.emit('onNoteWatchUpdate', {
+					filePath: data.filePath,
+					fileContent: newFileContent
+				})
+			}
 
-		// if withCb, sends back cb
-		if (data.withCb) serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
+			// if withCb, sends back cb
+			if (data.withCb) serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
 
-		endPerf()
+			endPerf()
+		}
+
 	}, { disableDataLog: true, checkRole: "editor" })
 
 
@@ -182,7 +332,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			}
 		}
 		const notePath = checkAndGenNewNoteName();
-		let endPerf = perf('createNote ' + notePath)
+		let endPerf = perf('✏️  createNote ' + notePath)
 
 		log(`CREATING ${notePath}`);
 		await saveFile(`${notePath}`, ``)
@@ -206,7 +356,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('moveFolder', async data => {
 		log(`=> MOVING FOLDER ${data.initPath} -> ${data.endPath}`);
-		let endPerf = perf('moveFolder ' + data.initPath + ' to ' + data.endPath)
+		let endPerf = perf('📁➡️  moveFolder ' + data.initPath + ' to ' + data.endPath)
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
 		await moveFile(data.initPath, data.endPath)
@@ -221,18 +371,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		processFileHistoryHousekeeping(histFile, date)
 	}, { checkRole: "editor", disableDataLog: true })
 
-	serverSocket2.on('askFileHistory', async data => {
-		// get all the history files 
-		let endPerf = perf('askFileHistory ' + data.filepath)
-		const file = pathToIfile(data.filepath)
-		const historyFolder = getHistoryFolder(file)
-		let allHistoryFiles = await scanDirForFiles(historyFolder, serverSocket2)
-		if (!isArray(allHistoryFiles)) allHistoryFiles = []
-		// filter .infos.md
-		allHistoryFiles = allHistoryFiles.filter(f => f.name !== fileHistoryParams.infosFile)
-		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
-		endPerf()
-	})
+	
 
 
 
@@ -289,16 +428,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		folderToUpload.value = data.folderpath
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('disconnect', async data => {
-
-	}, { bypassLoginTokenCheck: true })
-
-	serverSocket2.on('askFilesPreview', async data => {
-		let endPerf = perf('askFilesPreview ')
-		let res = await getFilesPreviewLogic(data)
-		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
-		endPerf()
-	})
+	
 
 	serverSocket2.on('askFolderCreate', async data => {
 		// createFolder(`${backConfig.dataFolder}${data.parent.path}/${data.newFolderName}`)
@@ -308,38 +438,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		serverSocket2.emit('onServerTaskFinished', {status:"ok", idReq:data.idReq})
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('sendSetupInfos', async data => {
-		const answer = await processClientSetup(data)
-		serverSocket2.emit('getSetupInfos', answer)
-
-		// if setup success, restart server
-		// NOT WORKING ON DEV NODEMON
-		if (answer.code === 'SUCCESS_CONFIG_CREATION') restartTiroServer()
-	}, { duringSetup: true })
-
-
-	serverSocket2.on('sendLoginInfos', async data => {
-		let endPerf = perf('sendLoginInfos ')
-		const areClientInfosCorrect = await checkUserPassword(data.user, data.password)
-
-		security.log(`LOGIN : ${areClientInfosCorrect ? "OK" : `UNSUCCESSFULL!!! => ${JSON.stringify(data)}`} [${getSocketClientInfos(serverSocket2, "small")}]`)
-		logActivity(`LOGIN:${areClientInfosCorrect ? "OK" : "UNSUCCESSFULL"} ${data.user}`, `SECURITY:LOGIN`, serverSocket2)
-
-		if (!areClientInfosCorrect) {
-			serverSocket2.emit('getLoginInfos', { code: 'WRONG_USER_PASSWORD' })
-
-		} else {
-			serverSocket2.emit('getLoginInfos', { code: 'SUCCESS', token: getUserToken(data.user) })
-
-			// // do also a root scan for first time
-			// let folders = [scanDirForFolders('/')]
-			// serverSocket2.emit('getFoldersScan', {
-			// 	folders,
-			// 	pathBase: backConfig.dataFolder
-			// })
-		}
-		endPerf()
-	}, { bypassLoginTokenCheck: true, disableDataLog: true })
+	
 
 
 
@@ -348,37 +447,41 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// RESSOURCE API
 	//
 	serverSocket2.on('askRessourceDelete', async data => {
-		// let res = await getFilesPreviewLogic(data)
-		// serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
-
-		// const pathToFile = `${backConfig.dataFolder}${data.filePath}`;
-		// await upsertRecursivelyFolders(pathToFile)
-		// await saveFile(pathToFile, data.newFileContent)
+		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
+		logActivity("delete", data.path, serverSocket2)
+		let res = await deleteFolder(pathToFile)
+		if (res && res.message) {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: res.message, idReq: data.idReq })
+		} else {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message: `File ${data.path} deleted successfully`, idReq: data.idReq })
+		}
 	}, { checkRole: "editor" })
 
-	serverSocket2.on('askRessourceDownload', async data => {
-		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
-		let endPerf = perf(`askRessourceDownload ${data.url}`)
-		const opts = data.opts ? data.opts : {}
+	
 
-		await upsertRecursivelyFolders(pathToFile)
-		downloadFile(data.url, pathToFile, opts).then(message => {
-			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
-			endPerf()
-		}).catch(message => {
-			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
-			endPerf()
-		})
 
-	})
+	//
+	// COMPRESS IMAGE API
+	// 
+	serverSocket2.on('askRessourceImageCompress', async data => {
+		try {
+			let res = await compressImageJimp(data.params)
+			serverSocket2.emit('getRessourceApiAnswer', { status:"SUCCESS", message:JSON.stringify(res), idReq: data.idReq })
+		} catch (error) {
+			const message = `Failed compressing ${JSON.stringify(data.params)} -> ${JSON.stringify(error)}`
+			serverSocket2.emit('getRessourceApiAnswer', { status:"FAIL",message, idReq: data.idReq })
+		}
+	}, { checkRole: "editor" })
+
 
 
 	//
 	// COMMAND EXEC
 	// 
 	serverSocket2.on('askCommandExec', async data => {
-		let endPerf = perf('askCommandExec ' + data.commandString)
-		logActivity("exec", data.commandString, serverSocket2)
+		let endPerf = perf('⚡  askCommandExec ' + data.commandString)
+		let strCommandString = data.commandString.length > 150 ? data.commandString.substring(0, 150) + "..." : data.commandString
+		logActivity("exec", strCommandString, serverSocket2)
 		// let res = await execString(data.commandString)
 		let res = await execString(data.commandString)
 		serverSocket2.emit('getCommandExec', { resultCommand: res, idReq: data.idReq })
@@ -386,8 +489,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 	serverSocket2.on('askCommandExecStream', async data => {
-		let endPerf = perf('askCommandExecStrea, ' + data.commandString)
-		logActivity("exec", data.commandString, serverSocket2)
+		let endPerf = perf('⚡  askCommandExecStrea, ' + data.commandString)
+		let strCommandString = data.commandString.length > 150 ? data.commandString.substring(0, 150) + "..." : data.commandString
+		logActivity("exec", strCommandString, serverSocket2)
 		execStringStream(data.commandString, (streamChunk) => {
 			serverSocket2.emit('getCommandExecStream', { streamChunk: streamChunk, idReq: data.idReq })
 		})
@@ -395,21 +499,13 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	}, { checkRole: "editor" })
 
 
-	//
-	// PLUGINS
-	// 
-	serverSocket2.on('askPluginsList', async data => {
-		let endPerf = perf(`askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
-		let { plugins, scanLog } = await scanPlugins(data.noCache)
-		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
-		endPerf()
-	})
+	
 
 	//
 	// NOTIFICATIONS
 	// 
 	serverSocket2.on('emitNotification', async data => {
-		let endPerf = perf('emitNotification ')
+		let endPerf = perf('💬 emitNotification ')
 		// actually send to to everybody
 		ioServer.emit('getNotification', { ...data })
 
@@ -441,7 +537,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askActivityReport', async data => {
 		const report = await getActivityReport(data.params || {})
-		// console.log(22,report)
 		serverSocket2.emit('getActivityReport', { report, idReq: data.idReq })
 	}, { checkRole: "editor" })
 
@@ -461,7 +556,6 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		if (!data.folderPath.endsWith("/.resources")) data.folderPath += "/.resources"
 		data.folderPath = p(data.folderPath)
 		let objRes:{[path:string]: iFile} = {}
-		console.log(1111, data) 
 		searchWithRgGeneric({
 			term: "",
 			folder: data.folderPath,
@@ -469,6 +563,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 				wholeLine: true,
 				debug: true,
 				filetype: "all",
+				disableMetadataSearch: true,
+				disableTitleSearch: true
 			},
 			processRawLine: lineInfos => {
 				let l = lineInfos
@@ -477,6 +573,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			onSearchEnded: async () => {
 				let arrRes:iFile[] = []
 				each(objRes, prop => {
+					
 					arrRes.push(prop)
 				})
 				serverSocket2.emit('getRessourceScan', {files: arrRes, idReq: data.idReq })

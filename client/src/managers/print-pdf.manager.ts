@@ -1,4 +1,4 @@
-import { each } from "lodash"
+import { each } from "lodash-es"
 import { iFile } from "../../../shared/types.shared"
 import { previewAreaSimpleCss } from "../components/dualView/PreviewArea.component"
 import { formatDateList } from "./date.manager"

@@ -67,9 +67,9 @@ export const ctagPreviewPlugin = (file: iFile, windowId:string) => genericReplac
 	file,
 	windowId,
 	pattern: regexs.userCustomTagFull2,
-	replacement: matchs => {
+	replacement: params => {
 		let resEl = document.createElement("span");
-		resEl.innerHTML = generateHtmlCtagInt(matchs, file, windowId);
+		resEl.innerHTML = generateHtmlCtagInt(params.matchs, file, windowId);
 		return resEl
 	}
 })

@@ -1,4 +1,4 @@
-import { each } from "lodash";
+import { each } from "lodash-es";
 import { iViewType } from "../../../shared/types.shared";
 import { getApi } from "../hooks/api/api.hook";
 
@@ -12,6 +12,15 @@ export const getContentViewTag = (content: string): iViewType | false => {
 
 
 	return res
+}
+
+export const toggleViewType = (currentViewType:iViewType): iViewType => {
+	if (currentViewType === "editor") currentViewType = "preview"
+	else if (currentViewType === "preview") currentViewType = "both"
+	else if (currentViewType === "both") currentViewType = "editor"
+	else currentViewType = "editor"
+
+	return currentViewType
 }
 
 const cacheId = `notes-view-type`

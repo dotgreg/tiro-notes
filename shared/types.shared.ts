@@ -1,5 +1,19 @@
 import { getDateObj } from "./helpers/date.helper"
 
+export interface iImageCompressionParams {
+	path: string, 
+	width?:number, 
+	height?:number, 
+	maxWidth?:number,
+	maxHeight?:number,
+	quality:number,
+}
+export interface iCompressResult {
+	sizeStart: number
+	sizeEnd: number
+	compressionRatio: number
+}
+
 export type iActivityField = "eventAction"|"eventName"| "url"| "type"| "ip"| "ua"|"weight"
 export type iActivityFilter= "file"| "time"|  "ip"
 export interface iActivityReportParams {
@@ -60,6 +74,8 @@ export type iNotification = {
 		hideAfter?: number, 
 		showOnceEvery?: number
 		keepInHistory?: boolean,
+		onClick?: Function 
+		onClickId?: string 
 	}
 }
 
@@ -69,26 +85,59 @@ export type iUserSettingName =
 'ui_filesList_sortMode' |
 'ui_layout_colors_main' |
 'ui_layout_colors_main_font' |
+'ui_layout_general_font_size' |
+'ui_layout_font_family_interface' |
+'ui_layout_font_family_editor' |
 'ui_layout_shortcuts_panel' |
+
+'ui_layout_background_image_enable' |
+'ui_layout_background_video_enable' |
+'ui_layout_background_image_window_opacity' |
+'ui_layout_background_image_window_opacity_active' |
+'ui_layout_background_video_width' |
+'ui_layout_background_video_height' |
+'ui_layout_background_image' |
+
+'ui_editor_search_highlight_url' |
+'ui_editor_search_highlight_enable' |
+
+'tts_custom_engine_enabled' |
+'tts_custom_engine_command' |
+'tts_sentences_per_part' |
+'tts_preload_parts' |
+'tts_price_per_word' |
+
+
 'ui_sidebar' |
 
 'ui_editor_links_as_button' |
 'ui_editor_links_preview_zoom' |
+'ui_editor_live_watch' |
+'ui_editor_synced_title_scrolling' |
+
+'ui_editor_markdown_tags' |
 'ui_editor_markdown_preview' |
 'ui_editor_spellcheck' |
 'ui_editor_markdown_enhanced_preview' |
+'ui_editor_markdown_syntax' |
+'ui_editor_inline_suggestion' |
 'ui_editor_markdown_latex_preview' |
 'ui_editor_markdown_table_preview' |
 'ui_editor_ai_command' |
 'ui_editor_show_image_title' |
 'ui_editor_ai_text_selection' |
+ 
+'keyboard_shortcuts_textarea' | 
 
 'users_viewer_user_enable' |
 'users_viewer_user_password' |
 
 'server_activity_logging_enable' |
 'view_disable_notification_popups' |
+'privacy_work_mode_enable' |
+'privacy_work_mode_filters' |
 'plugins_marketplace_url' |
+'advanced_image_compression_settings' |
 
 'demo_mode_enable' |
 
@@ -224,5 +273,9 @@ export type iSetupCode =
 		requiresServerRestart?: boolean
 	}
 	export type iDownloadRessourceOpts = {
-		fileName?: string
+		method?: "GET" | "POST",
+		fileName?: string,
+		noCacheArg?: boolean,
+		headers?: [string, string][] 
+		body?:[string, string][]
 	}

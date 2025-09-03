@@ -1,4 +1,4 @@
-import { clamp, each, random } from 'lodash';
+import { clamp, each, random } from 'lodash-es';
 import React, { Ref, useContext, useEffect, useRef, useState } from 'react';
 import { iFile } from '../../../../shared/types.shared';
 import { deviceType, isA } from '../../managers/device.manager';
@@ -9,10 +9,13 @@ import { ContentBlock, onIframeMouseWheelFn } from '../ContentBlock.component';
 import { syncScroll3 } from '../../hooks/syncScroll.hook';
 import { ressourcePreviewSimpleCss } from '../RessourcePreview.component';
 import { noteLinkCss } from '../../managers/codeMirror/noteLink.plugin.cm';
-
+import { getFontSize } from '../../managers/font.manager';
+import { filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { iNoteParentType } from '../NotePreview.component';
 
 
 export const PreviewArea = (p: {
+	noteParentType:iNoteParentType
 	windowId: string
 	file: iFile
 	posY: number
@@ -31,6 +34,15 @@ export const PreviewArea = (p: {
 		main: useRef<HTMLDivElement>(null),
 	}
 
+	// remove meta header
+	const [innerContent, setInnerContent] = useState('')
+	useEffect(() => {
+		// const nContent = filterMetaFromFileContent(p.fileContent).content
+		// setInnerContent(nContent)
+		const nContent = filterMetaFromFileContent(p.fileContent).content
+		setInnerContent(p.fileContent)
+	}, [p.fileContent])
+
 	let currentFolderArr = p.file.path.split('/')
 	currentFolderArr.pop()
 	let currentFolder = currentFolderArr.join('/')
@@ -39,7 +51,7 @@ export const PreviewArea = (p: {
 		setTimeout(() => {
 			p.onMaxYUpdate(calculateYMax())
 		}, 1000)
-	}, [p.fileContent])
+	}, [innerContent])
 
 
 	const calculateYMax = () => {
@@ -60,13 +72,13 @@ export const PreviewArea = (p: {
 
 	const [contentBlocks, setContentBlocks] = useState<iContentChunk[]>([])
 	useEffect(() => {
-		const blocks = noteApiFuncs.chunks.chunk(p.fileContent)
+		const blocks = noteApiFuncs.chunks.chunk(innerContent)
 		setContentBlocks(blocks)
 
 		// @2remove
 		setTimeout(() => {
 			noteApiFuncs.injectLogic({
-				fileContent: p.fileContent,
+				fileContent: innerContent,
 				file: p.file
 			})
 		}, 100)
@@ -81,7 +93,7 @@ export const PreviewArea = (p: {
 			}, 100)
 		}, 100)
 
-	}, [p.fileContent, p.file.path, p.windowId])
+	}, [innerContent, p.file.path, p.windowId])
 
 
 	// const getWindowHeight = (): number => {
@@ -100,7 +112,8 @@ export const PreviewArea = (p: {
 			onWheelCapture={(e) => {
 				// @ts-ignore
 				//syncScroll2.syncPreviewOffset(p.windowId)
-				syncScroll3.onPreviewScroll(p.windowId)
+				// syncScroll3.onPreviewScroll(p.windowId)
+				syncScroll3.scrollPreviewPx(p.windowId, e.deltaY)
 			}}
 		>
 			<div
@@ -129,7 +142,7 @@ export const PreviewArea = (p: {
 									contentBlocks.map((block, i) =>
 										<ContentBlock
 											key={i}
-																		index={i}
+											index={i}
 											block={block}
 											windowId={p.windowId}
 											file={p.file}
@@ -157,7 +170,9 @@ export const previewAreaSimpleCss = (d?: any) => {
 	if (!d) d = {
 		w: '.simple-css-wrapper',
 		pl: '.preview-link',
-		r: '.resource-link-icon'
+		r: '.resource-link-icon',
+		separatorTitle: ". "
+
 	}
 
 	const css = `
@@ -170,7 +185,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 		${d.w} {
 				color: ${cssVars.colors.editor.font};
 				line-height: 19px;
-				font-size: 11px;
+				font-size:${getFontSize(+1)}px;
 				font-family:${cssVars.font.main};
 		}
 
@@ -194,7 +209,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 
 
 		h1:before {
-				content: ""counter(sh1)" ∙ ";
+				content: ""counter(sh1)"${d.separatorTitle}";
 				counter-increment: sh1;
 		}
 		h1 {
@@ -202,7 +217,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 		}
 
 		h2:before {
-				content: ""counter(sh1)"." counter(sh2)" ∙  ";
+				content: ""counter(sh1)"." counter(sh2)"${d.separatorTitle}";
 				counter-increment: sh2;
 		}
 		h2 {
@@ -210,7 +225,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 		}
 
 		h3:before {
-				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)" ∙  ";
+				content: ""counter(sh1)"." counter(sh2)"."counter(sh3)"${d.separatorTitle}";
 				counter-increment: sh3;
 		}
 		h3 {
@@ -263,18 +278,25 @@ export const previewAreaSimpleCss = (d?: any) => {
 				height: 1px;
 		}
 		h1 {
-				padding: 5px;
+				padding: 0px;
 				/* border-bottom: 2px solid; */
-				margin-top: 30px;
-				margin-bottom: 20px;
+				margin-top: 0px;
+				margin-bottom: 0px;
+				text-decoration: underline;
+				font-size: ${getFontSize(+6)}px;
 		}
 		h2 {
-				padding: 5px;
-				/* border-bottom: 1px solid; */
+			/* border-bottom: 1px solid; */
+			text-decoration: underline;
+		}
+		h1, h2, h3, h4, h5, h6 {
+			margin-top: 3px;
+			margin-bottom: 0px;
 		}
 		h2, h3, h4, h5, h6 {
-				margin-bottom: 10px;
-				margin-top: 25px;
+				font-size: ${getFontSize(+4)}px;
+				margin-bottom: 0px;
+				margin-top: 0px;
 		}
 
     img,
@@ -303,19 +325,21 @@ export const previewAreaSimpleCss = (d?: any) => {
 
 		ul {
 				padding: 0px;
-				list-style-image: "./custom_icons/view-1.svg"; 
-				list-style: none; 
+				// list-style-image: "./custom_icons/view-1.svg"; 
+				// list-style: none; 
+				margin-left: 20px;
+				list-style: '- ';
 		}
 
 		ul li {
 				padding-left: 12px;
 		}
 		ul li:before {
-				content: '-';
-				color: ${cssVars.colors.main};
-				width: 10px;
-				display: inline-block;
-				font-size: 15px;
+				// content: '-';
+				// color: ${cssVars.colors.main};
+				// width: 10px;
+				// display: inline-block;
+				// font-size: ${getFontSize(+5)}px;
 
 				/* background-image: url(./custom_icons/line.svg); */
 				/* background-repeat: no-repeat; */
@@ -432,7 +456,7 @@ export const previewAreaSimpleCss = (d?: any) => {
 				display: block;
 				border-radius: 8px;
 				background: #d2d2d2;
-				padding: 11px 23px;
+				padding: 11px 23px;F
 		}
 		`
 	return css
@@ -443,17 +467,17 @@ export const previewAreaCss = () => `
 
 .preview-area {
 		margin-top: 0px;
-    .infos-preview-wrapper {
+    	.infos-preview-wrapper {
 				border-bottom: 1px solid rgba(0 0 0 / 5%);
-        display: ${isA('desktop') ? 'none' : 'block'};
-				padding: 5px 0px 12px 0px;
+        		display: ${isA('desktop') ? 'none' : 'block'};
+				padding: 14px 0px 14px 0px;
 		}
 }
 .preview-area {
     position: relative;
     display: block;
 	overflow: auto; 
-	width: calc(100% );
+	width: ${deviceType() === "desktop" ? "calc(100% + 0px)" : "calc(100%)" } ; 
     padding-right: 30px;
 
 	//@TODO padding preview area
@@ -463,18 +487,16 @@ export const previewAreaCss = () => `
 		display: block;
 	}
 
-    ${commonCssEditors}
+    ${commonCssEditors()}
 
-    .infos-preview-wrapper {
-    }
-		.infos-preview-wrapper h1.big-title {
-				width: calc(100% - 65px);
-				font-family: ${cssVars.font.editor};
-				color: grey;
-				font-size: 15px;
-				margin: 0px;
-				padding: 0px 14px;
-		}
+	.infos-preview-wrapper h1.big-title {
+			width: calc(100% - 65px);
+			font-family: ${cssVars.font.editor};
+			color: grey;
+			font-size: ${getFontSize(+5)}px;
+			margin: 0px;
+			padding: 0px 14px;
+	}
 }
 .content-blocks-wrapper {
 		${previewAreaSimpleCss()}

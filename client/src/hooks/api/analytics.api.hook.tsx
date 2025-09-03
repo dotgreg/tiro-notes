@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { getTsFromString, iADate, tsToIADate } from '../../managers/date.manager';
 import { getApi } from './api.hook';
-import { isNumber } from 'lodash'
+import { isNumber } from 'lodash-es'
 
 //
 // INTERFACES

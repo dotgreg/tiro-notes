@@ -2,21 +2,62 @@ import { cleanPath, getFileInfos } from "../../../../shared/helpers/filename.hel
 import { sharedConfig } from "../../../../shared/shared.config";
 import { iFile } from "../../../../shared/types.shared";
 import { backConfig } from "../../config.back";
+import { fileNameFromFilePath } from "../dir.manager";
 import { fileStats } from "../fs.manager";
 import { log } from "../log.manager";
 import { getRelativePath, p } from "../path.manager";
-
-const h = `[RIPGREP SEARCH] `
+const path = require('path');
+const h = `[RIPGREP SEARCH2] `
 const shouldLog = sharedConfig.server.log.ripgrep
 
-export const cleanFileNamePath = (rawString: string, folder) => {
-	rawString = rawString.split(`${folder}`).join('') // remove if folder is inside rawpath
-	rawString = rawString.split(`${backConfig.dataFolder}`).join('') 
-	rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
-	rawString = rawString.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
-	rawString = rawString.split(`${backConfig.dataFolder + folder}/`).join('') // remove absolute path x2
-	rawString = rawString.split(`${backConfig.dataFolder + folder}`).join('') // remove absolute path x3
-	return rawString
+// goal is to remove from a multiline string 1) the searchFolder 2) the rootPath
+export const getRelativePathFromSearchPath = (rawString: string, searchFolder:string) => {
+	let end = rawString
+	// if folder does not end with /, add it
+
+	// CAN BE MULTILINES
+	let lines = rawString.split(/\r?\n/)
+	let nLines: string[] = []
+	lines = lines.map(rawLine => {
+		// l = l.trim()
+		// if (l.startsWith('/')) l = l.substring(1)
+		// return l
+		rawLine = rawLine.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
+
+		let fileName = path.basename(rawLine);
+		// if starts by / remove it
+		// fileName = fileName.substring(1)
+		// return fileName
+		let relativePath = rawLine
+		relativePath = relativePath.split(`${backConfig.dataFolder}/${searchFolder}`).join('') 
+		relativePath = relativePath.split(`${backConfig.dataFolder}${searchFolder}`).join('') 
+		relativePath = relativePath.split(`${backConfig.dataFolder}\\${searchFolder}`).join('') 
+		relativePath = relativePath.split(`${backConfig.dataFolder}`).join('') 
+		relativePath = relativePath.split(`${fileName}`).join('') 
+
+		let finalPath = cleanPath(`${relativePath}/${fileName}`)
+		return finalPath
+
+		
+	})
+	end = lines.join('\n')
+
+	// if (!folder.endsWith('/')) folder = folder + '/'
+	// end = end.split(`${folder}`).join('') // remove if folder is inside rawpath
+	// end = end.split(`${backConfig.dataFolder}`).join('') 
+	// end = end.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
+	// end = end.split(`${backConfig.dataFolder + folder}\\`).join('') // remove absolute path C:/Users/...
+	// end = end.split(`${backConfig.dataFolder + folder}/`).join('') // remove absolute path x2
+	// end = end.split(`${backConfig.dataFolder + folder}`).join('') // remove absolute path x3
+
+	// rawString = rawString.split(/\:[0-9]+/g).join('')  // remove numbers like file.md:1
+	// let fileName = path.basename(rawString);
+	// // if starts by / remove it
+	// if (fileName.startsWith('/')) fileName = fileName.substring(1)
+	// end = fileName
+
+	// let foldFull = backConfig.dataFolder + folder
+	return end
 }
 
 export const cleanFolderPath = ( folder) => {
@@ -33,28 +74,47 @@ export const processRawPathToFile = (p: {
 	let { rawPath, folder, index, titleFilter } = { ...p }
 	if (!index) index = 0
 	if (!titleFilter) titleFilter = ''
-
+	
 	let res: iFile
-	let cleanedFileNamePath = cleanPath(cleanFileNamePath(rawPath, folder))
-	folder = cleanFolderPath(folder)
+	let relativeFilePath = getRelativePathFromSearchPath(rawPath, folder)
+	relativeFilePath = cleanPath(relativeFilePath)
+	
+	let folderRelative = folder.replace(backConfig.dataFolder, '')
+	// if relativeFilePath is a folder and not a file, relativeFilePath is the folder
+	if (!relativeFilePath.includes(folderRelative)) relativeFilePath = `${folder}/${relativeFilePath}`
+	const isFolder = relativeFilePath.endsWith('/')
+	let relativeFolder = isFolder ? relativeFilePath : path.dirname(relativeFilePath)
+
+	
 
 	// TITLE FILTER
-	if (titleFilter !== '' && !cleanedFileNamePath.toLowerCase().includes(titleFilter.toLowerCase())) return
+	if (titleFilter !== '' && !relativeFilePath.toLowerCase().includes(titleFilter.toLowerCase())) return
+
+	// get filename from filePath
+	let fileName = path.basename(relativeFilePath);
 
 	try {
-		let fullPath = `${backConfig.dataFolder}/${folder}/${cleanedFileNamePath}`
+		// let fullPath = `${backConfig.dataFolder}/${folder}/${relativeFilePath}`
+
+		let fullPath = `${backConfig.dataFolder}/${relativeFilePath}`
+
+		// if folder is not included in relativeFilePath, add it
+		fullPath = cleanPath(fullPath)
 		let stats = fileStats(fullPath)
-		res = createIFile(cleanedFileNamePath, folder, index, stats)
+
+		res = createIFile(fileName, relativeFolder, index, stats)
 	} catch (error) {
 		shouldLog && log(h, 'ERROR : ', error);
 	}
+	
+	
 	return res
 }
 
 export const processRawDataToFiles = (dataRaw: string, titleFilter: string = '', folder: string): iFile[] => {
 	let res: iFile[] = []
 
-	let cleanedData = cleanFileNamePath(dataRaw, folder)
+	let cleanedData = getRelativePathFromSearchPath(dataRaw, folder)
 	var array = cleanedData.match(/[^\r\n]+/g); // split string in array
 
 	if (!array || array.length ===0) return res

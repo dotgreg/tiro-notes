@@ -18,7 +18,6 @@ DESCRIPTION:
 ===
 ${p.description}
 
-ARGS:
 ====
 
 --https/-s : enable https ssl with self signed certificate (boolean, false by default)
@@ -26,9 +25,13 @@ ARGS:
 --no-open/-no : do not open Tiro in browser when starting
 --verbose/-v : control logs verbosity [0/1/2/3] (0:none, 1: critical, 2: all, 3: performance monitoring)
 
---tunnel/-t : [require autossh] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+--tunnel/-t : [require autossh to be installed first!] uses autossh to "publish" the app on the web, requires a server you can access with ssh and autossh installed on that device. (ex:npx tiro-notes@latest -t REMOTE_USER@REMOTE_URL:REMOTE_PORT)
+--tunnel-timeout/-tt : [require autossh to be installed first!] autokill tunnel after x hours (default: -1)
 
---backup/-b : [require tar] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
+--backup/-b : [t/n/now/force/f] [require tar to be installed first!] will incrementally backup changes in archives like tiro.0.xz.tar, tiro.1.xz.tar... every day in a specific folder. 
+			  You can then execute commands after that process in a post backup script (useful for syncing these archives to clouds, think rsync, rclone etc.) 
+			  All folders will be backed up with the exception of folders ending by _NOBAK_ (ex: "my_folder_NOBAK_").
+			
 --backup-folder : modify backup folder destination. (default: "your/path/to/tiro/data_folder"+_backup
 --backup-post-script : modify script to be executed after a backup finishes. Should be a ".txt" file with your OS commands. (default: "your/path/to/tiro/data_folder"+_backup/post_backup_script.txt
 
@@ -61,12 +64,14 @@ function getCliArgs () {
 				verbose: false,
 				backup: {
 						enabled: false,
+						now: false,
 						location: "default", 
 						scriptLocation: "default"
 				},
 				tunnel: {
-            enabled: false,
-        },
+					enabled: false,
+					timeout: -1,
+				},
 		}
 		for (var i = 0; i < args.length; i++) {
 				if (i % 2 !== 0) continue
@@ -80,17 +85,19 @@ function getCliArgs () {
 				if (argName === 'v' || argName === 'verbose') argsObj.verbose = parseInt(argVal)
 
 				if (argName === 'b' || argName === 'backup') argsObj.backup.enabled = true
+				if (argName === 'b' || argName === 'backup') argsObj.backup.now = (argVal === "now" || argVal === "n"  || argVal === "force"  || argVal === "f") ? true : false
 				if (argName === 'backup-location') argsObj.backup.location = argVal
 				if (argName === 'backup-post-script') argsObj.backup.scriptLocation = argVal 
 
+				if (argName === 'tt' || argName === 'tunnel-timeout') argsObj.tunnel.timeout = parseInt(argVal)
 				if (argName === 't' || argName === 'tunnel') {
-            const argsArr = argVal.split(':')
-            if (argsArr.length > 1) {
-                argsObj.tunnel.enabled = true
-                argsObj.tunnel.remoteUrl = argsArr[0]
-                argsObj.tunnel.remotePort = parseInt(argsArr[1])
-            }
-        }
+					const argsArr = argVal.split(':')
+					if (argsArr.length > 1) {
+						argsObj.tunnel.enabled = true
+						argsObj.tunnel.remoteUrl = argsArr[0]
+						argsObj.tunnel.remotePort = parseInt(argsArr[1])
+					}
+				}
 		}
 		return argsObj;
 }
@@ -151,7 +158,8 @@ const startBackupScript = async (argsObj, dataFolder) => {
 		let replaceTimestampCli = () => `echo ${now()} > '${timestampFile}'`
 		
 		// START INTERVAL
-		const timeInterval = 1000 * 60 * 60 // one hour
+		// const timeInterval = 1000 * 60 * 60 // one hour
+		const timeInterval = 1000 * 60 * 10 // one hour
 		const backupInterval = 1000 * 60 * 60 * 24 // one day
 
 		const tarExec = process.platform === "darwin" ? "gtar" : "tar"
@@ -159,27 +167,47 @@ const startBackupScript = async (argsObj, dataFolder) => {
 
 		console.log ("[BACKUP] starting backup logic!");
 
-		const debugBackupNow = isDev ? false : false
+		let debugBackupNow = isDev ? false : false
+		if (argsObj.backup.now) debugBackupNow = true
 		const processBackupEveryDay = async () => {
 				// if > 1 day
 				const lastTimestamp = await getLastTimestamp()
 				const diff = backupInterval + lastTimestamp - new Date().getTime()
 				const diffMin = Math.round(diff / (1000 * 60))
-				if (diff < 0 || debugBackupNow) {
-						console.log(`[BACKUP] time has come, BACKUP!`);
+				// are we between 1am-5am ?
+				const isBetween1am5am = new Date().getHours() >= 1 && new Date().getHours() <= 5
+				if ((diff < 0 && isBetween1am5am) || debugBackupNow) {
+						debugBackupNow = false
+						console.log(`[BACKUP] time has come, BACKUP! (debugBackupNow:${debugBackupNow}) ==> LOGS in log_backup.txt`);
 
-						let backupCli = `${replaceTimestampCli()}; mkdir '${backupFolder}'; mkdir '${backupFolder}/backups'; cd '${backupFolder}'; echo '[${new Date().toLocaleString()}] -> new backup started' >> backups.txt; ${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar'; ${postBackupScript}` 
+						// automatically generate a cli.sh from command below and post backup script, then exec it
+						let backupCli = `
+						${replaceTimestampCli()}; 
+						mkdir '${backupFolder}'; 
+						mkdir '${backupFolder}/backups'; 
+						cd '${backupFolder}'; 
+						echo '====== [${new Date().toLocaleString()}] -> new backup started' >> log_backups.txt; 
+						${tarExec} --xz --verbose --create --file="backups/tiro.$(ls backups/ | wc -l | sed 's/^ *//;s/ *$//').tar.xz" '${dataFolder}' --listed-incremental='${backupFolder}metadata.snar' --exclude=\'*_NOBAK_'; 
+						echo ' [${new Date().toLocaleString()}] -> compression archive finished' >> log_backups.txt; ${postBackupScript}; 
+						echo ' [${new Date().toLocaleString()}] -> upload finished' >> log_backups.txt;` 
 						// append to backup CLI current timestamp to last_backup_timestamp
+						// remove \n from backupCli
+						backupCli = backupCli.replace(/\n/g, ' ')
+						// replace all ;; by ;
+						backupCli = backupCli.replace(/;;/g, ';')
+
 						// execute cli
 						tHelpers.execCmdInFile(backupCli, backupFolder+"cli.sh", {
 							logLevel: argsObj.verbose
+							// logLevel: 2 // log level always 2 for backup to see whats happening
 						})
 
 						const debugObj = {backupFolder, postBackupScriptFile, lastTimestamp, postBackupScript, timeInterval, backupCli}
 
 						console.log (debugObj);
 				} else {
-						console.log(`[BACKUP] time has no come... still waiting for ${diffMin} mins`);
+					const logTime = new Date().toLocaleString()
+						console.log(`[BACKUP] ${logTime}  => not yet. Waiting for ${diffMin} mins < 0 AND between 1am-5am ${JSON.stringify({isBetween1am5am, currHour: new Date().getHours()})}}`);
 				}
 		}
 
@@ -211,6 +239,25 @@ const startSshTunnel = (argsObj) => {
 												tHelpers.execCmd('autossh',['-M',`2${argsObj.tunnel.remotePort}`,'-N', argsObj.tunnel.remoteUrl,'-R', `${argsObj.tunnel.remotePort}:localhost:${argsObj.port}`,'-C'], {
 														logName:'tunnel 3/3'
 												})
+
+												// if tunnel.timeout != 1
+												if (argsObj.tunnel.timeout != 1) {
+														console.log(`Tunnel timeout set to ${argsObj.tunnel.timeout}h.`)
+														setTimeout(() => {
+															console.log(`Tunnel timeout reached (${argsObj.tunnel.timeout}h). Closing tunnel.`, str)
+															tHelpers.execCmd('killall', [`autossh`], {
+																logName:'tunnel 4/3',
+																onLog: str => {
+																	console.log(`Tunnel timeout reached (${argsObj.tunnel.timeout}h). Closing tunnel.`, str)
+																}
+															})
+														}, argsObj.tunnel.timeout * 1000 * 60 * 60)
+														let countHours = 0
+														setTimeout(() => {
+															countHours++
+															console.log(`Tunnel timeout in ${argsObj.tunnel.timeout - countHours}h`)
+														}, argsObj.tunnel.timeout * 1000 * 60 )
+												}
 										}
 								})
 						}

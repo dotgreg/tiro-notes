@@ -11,12 +11,12 @@ import { deviceType, isA } from "../../managers/device.manager";
 import { iFile } from "../../../../shared/types.shared";
 import { onTitleClickFn } from "./EditorArea.component";
 import { useElResize } from "../../hooks/useResize.hook";
-import { CodeMirrorUtils } from "../../managers/codeMirror/editorUtils.cm";
+import { CodeMirrorUtils, iCMCurrentLine } from "../../managers/codeMirror/editorUtils.cm";
 import { getCustomTheme } from "../../managers/codeMirror/theme.cm";
 import { getAllCompletionSources } from "../../managers/codeMirror/completion.cm";
 import { sharedConfig } from "../../../../shared/shared.config";
 import { LatexMdEl, markdownPreviewPlugin, styleCodeMirrorMarkdownPreviewPlugin } from "../../managers/codeMirror/markdownPreviewPlugin.cm";
-import { useUserSettings } from "../../hooks/useUserSettings.hook";
+import { useUserSettings, userSettingsSync } from "../../hooks/useUserSettings.hook";
 import { Extension } from "@codemirror/state";
 import { ressourcePreviewSimpleCss } from "../RessourcePreview.component";
 import { linksPreviewPlugin } from "../../managers/codeMirror/urlLink.plugin.cm";
@@ -26,14 +26,27 @@ import { filePreviewPlugin } from "../../managers/codeMirror/filePreview.plugin.
 import { evenTable, markdownMobileTitle, markdownStylingTable, markdownStylingTableCell, markdownStylingTableCss, markdownStylingTableLimiter, testClassLine } from "../../managers/codeMirror/markdownStyling.cm";
 import { ctagPreviewPlugin } from "../../managers/codeMirror/ctag.plugin.cm";
 import { Icon2 } from "../Icon.component";
-import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "lodash";
+import { cloneDeep, each, isBoolean, isNaN, isNumber, random, throttle } from "lodash-es";
 import { useDebounce, useThrottle } from "../../hooks/lodash.hooks";
 import { getApi } from "../../hooks/api/api.hook";
 import { notifLog } from "../../managers/devCli.manager";
 import { history } from "@codemirror/history";
 import { hashtagPreviewPlugin } from "../../managers/codeMirror/hashtag.plugin.cm";
-// import { createDecoration } from "../../managers/codeMirror/replacements.cm";
+import { datePickerCmPlugin } from "../../managers/codeMirror/datePicker.cm";
+import { initLatex, isLatexInit } from "../../managers/latex.manager";
+import { getFontSize } from "../../managers/font.manager";
+import { checkboxTodoCmPlugin } from "../../managers/codeMirror/checkboxTodo.cm";
+import { markdownSynthaxCmPlugin } from "../../managers/codeMirror/markdownSynthax.cm";
+import { indentUnit } from "@codemirror/language";
+import { useInterval } from "../../hooks/interval.hook";
+import { getMdStructure } from "../../managers/markdown.manager";
+import { title } from "process";
+import { inlineSuggestionCMExtention } from "../../managers/codeMirror/inlineSuggestions.cm";
 
+export const codeMirrorGlobalVars = {
+	lastCMSelection: { from: -1, to: -1, line: -1, selectionContent: "", lineContent: ""},
+	lastCMId: ""
+}
 
 const h = `[Code Mirror]`
 const log = sharedConfig.client.log.verbose
@@ -223,11 +236,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		syncScrollUpdateDims()
 	}, [])
 	// END OF TODO
-
-	const { resizeState } = useElResize(`.window-id-${p.windowId}`)
+	const {resizeState} = useElResize(`.window-id-${p.windowId} .cm-content`)
 	useEffect(() => {
 		syncScrollUpdateDims()
 	}, [resizeState, p.windowId])
+
 
 	//
 	// SYNCSCROLL SIZE UPDATE
@@ -236,14 +249,18 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		const f = getEditorObj()
 		if (!f) return
 		let infs = CodeMirrorUtils.getEditorInfos(f.view)
+		let f2 = (forwardedRefCM as any).current
+		// get codemirror current line number
+		// let currentLineAt = f2.view.state.doc.lineAt(f2.view.state.selection.main.head).number - 1
+		// let currentLineAt = f2.state.doc.lineAt(f2.state.selection.main.head).number - 1
+		
+		// console.log("currentLineAt", currentLineAt, f2)
+		// CMObj.view.state.doc.lineAt(CMObj.view.state.selection.main.head).number - 1
+
 		syncScroll3.updateEditorDims(p.windowId, { viewport: infs.viewportHeight(), full: infs.contentHeight })
 		syncScroll3.updateScrollerDims(p.windowId)
 	}
 
-	const markdownPreviewPluginWFile = markdownPreviewPlugin({
-		file: p.file,
-		onTitleClick: (title: string) => { onTitleClick(title) }
-	})
 
 
 
@@ -302,21 +319,86 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// const ua = userSettingsApi
 	const [codemirrorExtensions, setCodemirrorExtentions] = useState<Extension[]>([])
 	const [classes, setClasses] = useState<string>("")
+
+
+	//
+	// Trigger on autocomplete popup opens
+	//
+
+	const updateAutocompletePopupPos = () => {
+		let popup = document.querySelector(".cm-tooltip")
+		if (popup) {
+			const transformString = `translate(${(-Math.round(decalAutocompleteRef.current[0] ))}px, ${-(Math.round(decalAutocompleteRef.current[1] - 20))}px)`
+			//@ts-ignore
+			popup.style.transform = transformString
+		}
+	}
+	const decalAutocompleteRef = useRef<number[]>([0, 0])
+	const onAutocompleteOpen = () => {
+		//@ts-ignore
+		const editorDiv = forwardedRefCM?.current?.editor || null
+		const parentNode = editorDiv.parentNode
+		const windowIdClass = `window-id-sizeref-${p.windowId}`
+		const windowIdEl = document.querySelector(`.${windowIdClass}`)
+		const windowIdEls = document.querySelector(`.${windowIdClass}`)
+		if (editorDiv) {
+			// let rect = editorDiv.getBoundingClientRect()
+			let rect = windowIdEl?.getBoundingClientRect()
+			setTimeout(() => {
+				// get popup html element .cm-tooltip
+				if (!rect) return
+				decalAutocompleteRef.current = [rect.left, rect.top]
+				//@ts-ignore
+				// popup.style.transform = `translate(-${rect.left}px, -${rect.top - 40}px)`
+				updateAutocompletePopupPos()
+			}, 100)
+			// rectify popup position using transform translate and rect top and left
+		}
+	}
+
+	const onTitleScrollDebounce = useDebounce(() => {
+		if (!titleToJump.current) return
+		getApi(api => {
+			api.note.ui.editorAction.dispatch({
+				type: "lineJump", 
+				windowId: p.windowId, 
+				lineJumpString: titleToJump?.current?.lineText, 
+				lineJumpType:"preview"
+			})
+		})
+	}, 400)
+	const titleToJump = useRef<iCMCurrentLine|null>(null)
+
 	useEffect(() => {
 		getApi(api => {
 			const newcodemirrorExtensions: Extension[] = [
 				// AUTOCOMPLETION
-				autocompletion({ override: getAllCompletionSources(p.file) }),
+				autocompletion({ override: getAllCompletionSources(p.file, onAutocompleteOpen),  }),
+				EditorView.updateListener.of((update) => {
+					if (update.docChanged ) {
+						updateAutocompletePopupPos()
+					}
+				}),
 				
 				// ON WHEEL SYNC SCROLL
 				EditorView.domEventHandlers({
 					scroll(event, view) {
-						// debouncedActivateTitles();
-						// throttleActivateTitles();
+						if (userSettingsSync.curr.ui_editor_synced_title_scrolling) {
+							let f2 = (forwardedRefCM as any).current 
+							if (f2) {
+								let currentLine = CodeMirrorUtils.getScrolledLine(f2)
+								let isTitle = currentLine.lineText.startsWith("#")
+								if (isTitle) {
+									titleToJump.current = currentLine
+									onTitleScrollDebounce()
+								}
+							}
+						}
 					},
 					wheel(event, view) {
 						let infs = CodeMirrorUtils.getEditorInfos(view)
-						syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled())
+						// syncScroll3.onEditorScroll(p.windowId, infs.currentPercentScrolled())
+						syncScroll3.scrollScroller(p.windowId, infs.currentPercentScrolled())
 						p.onScroll()
 					}
 				})
@@ -337,7 +419,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			// disableMd = true
 
 			// hashtag 
-			newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
+			if (ua.get("ui_editor_markdown_tags") && !disablePlugins) {
+				newcodemirrorExtensions.push(hashtagPreviewPlugin(p.file, p.windowId))
+			}
+			
+			
 
 			// newcodemirrorExtensions.push(linksPreviewPlugin)
 			if (ua.get("ui_editor_links_as_button") && !disablePlugins) {
@@ -355,39 +441,39 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			}
 
 			if (ua.get("ui_editor_markdown_preview") && !disablePlugins) {
+				if (!isLatexInit) initLatex();
+				const markdownPreviewPluginWFile = markdownPreviewPlugin({
+					file: p.file,
+					onTitleClick: (title: string, lineNb:number) => { 
+						// onTitleClick(title) 
+						getApi(api => {
+							api.note.ui.editorAction.dispatch({
+								type: "lineJump", 
+								windowId: p.windowId, 
+								// lineJumpString: title, 
+								lineJumpNb: lineNb,
+								lineJumpType:"preview"
+							})
+						})
+					}
+				})
 				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
+					// datepicker
+					newcodemirrorExtensions.push(datePickerCmPlugin(p.file, p.windowId))
+					// checkbox
+					newcodemirrorExtensions.push(checkboxTodoCmPlugin(p.file, p.windowId))
+					// image preview
 					newcodemirrorExtensions.push(imagePreviewPlugin(p.file, p.windowId))
 					// matcherStateField(newcodemirrorExtensions, /!\[([^\]]*)\]\(([^\)]*)\)/g, (matchs) => {
 					newcodemirrorExtensions.push(filePreviewPlugin(p.file, p.windowId))
 					newcodemirrorExtensions.push(ctagPreviewPlugin(p.file, p.windowId))
 				}
+				if (ua.get("ui_editor_markdown_syntax") && !disablePlugins) {
+					// strikethrough, bold etc.
+					newcodemirrorExtensions.push(markdownSynthaxCmPlugin(p.file, p.windowId))
+				}
 			}
-
-			
-			// const f = getEditorObj()
-			// if (f && f.view) {
-			// 	let view = f.view
-			// 	// let ext = matcherStateField(
-			// 	// 	view,
-			// 	// 	/hello/gim,
-			// 	// 	match => { return document.createElement('span').innerText = 'world' },
-			// 	// 	// 'windowId'
-			// 	// )
-			
-			// 	// newcodemirrorExtensions.push(ext.createDeco(view))
-
-			// 	// let editorView; // Assume it's your EditorView instance
-			// 	let myRegex = /hello/g;
-			// 	let myHTML = "<span style='color:red'>Replacement HTML</span>";
-
-			// 	let myDecorations = createDecoration(view, myRegex, myHTML);
-			// 	// EditorView.decorations.of(myDecorations)
-			// 	// view.dispatch({
-			// 	// 	effects: Decoration
-			// 	// });
-			// }
-
 
 			if (!disablePlugins && pluginsConfig.markdown) {
 				newcodemirrorExtensions.push(markdown(markdownExtensionCnf))
@@ -400,12 +486,23 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			let nclasses = `device-${deviceType()} `
 			if (ua.get("ui_editor_markdown_table_preview")) nclasses += "md-table-preview-enabled"
 			newcodemirrorExtensions.push(CodeMirrorDomListenerExtension)
+			// line jump much larger (4) to be clearer
+			newcodemirrorExtensions.push(indentUnit.of("    "))
+
+			if (ua.get("ui_editor_inline_suggestion") && !disablePlugins) {
+				newcodemirrorExtensions.push(inlineSuggestionCMExtention)
+			}
+
+
+
+
 			setCodemirrorExtentions(newcodemirrorExtensions)
 			setClasses(nclasses)
 
 			// newcodemirrorExtensions.push(history())
 		})
 	}, [p.pluginsConfig, p.windowId, p.file.path, p.value, enhancedLatex, enhancedTable, enhancedSpellCheck, forceRefresh])
+	
 	
 
 
@@ -421,6 +518,18 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	const onCodeMirrorUpdate = (e: any) => {
 		let s = e.state.selection.ranges[0]
 		currSelection.current = s
+		// console.log("onCodeMirrorUpdate", s, p.windowId)
+		// content
+		let selectionContent = e.state.doc.sliceString(s.from, s.to)
+		let selectionline = e.state.doc.lineAt(s.from)
+		let lineContent = selectionline.text
+
+		codeMirrorGlobalVars.lastCMSelection = { from: s.from, to: s.to, line: selectionline.number, selectionContent, lineContent}
+
+		// get current selection words
+
+
+		codeMirrorGlobalVars.lastCMId = p.windowId
 		onSelectionChangeDebounced(s)
 	}
 
@@ -482,20 +591,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		
 	}, 200)
 
-	// const onCursorMoveDebounced = (selection:any) => {
-	// 	let lineInfos = CodeMirrorUtils.getCurrentLineInfos(getEditorObj())
-	// 	// if line start and ends with |, means we are in a md table
-	// 	let cLine = lineInfos?.lines[lineInfos.lineIndex]
-	// 	if (!cLine) return
-	// 	let isMdTableLine = cLine.startsWith("|") && cLine.endsWith("|")
-	// 	if (!isMdTableLine) return
-	// 	// check lines before and after if they are md table lines
-	// 	let isMdTableLineBefore = false
-	// 	let isMdTableLineAfter = false
-	// 	let lineBefore = lineInfos?.lines[lineInfos.lineIndex - 1]
-
-	// }
-
 
 	//
 	// MONITOR MOUSE CHANGE
@@ -528,182 +623,6 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		})
 	}
 
-	// const generateTextAt = (p2:{
-	// 	currentContent: string,
-	// 	textUpdate: string,
-	// 	insertPos: number,
-	// 	isLast: boolean
-	// 	title?: string, 
-	// 	question?: string,
-	// 	linejump?:boolean,
-	// 	viewFollow?: boolean
-	// 	wrapSyntax?: boolean
-
-	// }) => {
-	// 	if (!p2.question) p2.question = ""
-	// 	if (!p2.title) p2.title = ""
-	// 	if (!isBoolean(p2.linejump)) p2.linejump = true
-	// 	if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
-	// 	if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
-
-	// 	// gradually insert at the end of the selection the returned text
-	// 	let jumpTxt = p2.linejump ? "\n\n" : " "
-	// 	let separatorDoing = "###"
-	// 	let separatorDone = "---"
-	// 	// const contextQuestion = `\n => Answering to '${p2.question.trim()}`
-	// 	let headerDoing = `${jumpTxt} ${separatorDoing} [${p2.title}] (generating ...) ${jumpTxt}`
-	// 	let headerDone = `${jumpTxt} ${separatorDone} [${p2.title}] (done) ${jumpTxt}`
-	// 	let textToInsert = `${jumpTxt}${p2.textUpdate}`
-		
-	// 	if (!p2.wrapSyntax) {
-	// 		headerDoing =  headerDone = separatorDone = separatorDoing = ""
-	// 	}
-
-	// 	// TEXT WHILE GENERATING
-	// 	textToInsert = `${headerDoing}${p2.textUpdate}${jumpTxt}${separatorDoing} \n`
-	// 	// TEXT WHEN DONE
-	// 	if (p2.isLast) textToInsert = `${headerDone}${p2.textUpdate}${jumpTxt}${separatorDone} \n`
-
-	// 	// SAVE NOTE GLOBALLY and INSERT TEXT GENERATED INSIDE
-	// 	const noteContentBefore = p2.currentContent.substring(0, p2.insertPos) 
-	// 	const noteContentAfter = p2.currentContent.substring(p2.insertPos) 
-	// 	const nText = noteContentBefore + textToInsert + noteContentAfter
-	// 	getApi(api => {
-	// 		// UPDATE TEXT
-	// 		api.file.saveContent(p.file.path, nText)
-
-	// 		// JUMP TO THE WRITTEN LINE
-	// 		if (p2.viewFollow) {
-	// 			let currentLine = `${noteContentBefore}${textToInsert}`.split("\n").length || 0
-	// 			let lineToJump = currentLine - 2
-	// 			if (lineToJump < 0) lineToJump = 0
-	// 			lineJumpThrottle(p.windowId, lineToJump)
-	// 		}
-	// 	})
-	// }
-	// const lineJumpThrottle = useThrottle((windowId, lineToJump) => {
-	// 	// getApi(api => {
-	// 	// 	api.ui.note.lineJump.jump(windowId, lineToJump)
-	// 	// })
-	// 	getApi(api => {
-	// 		api.ui.note.editorAction.dispatch({
-	// 			windowId,
-	// 			type:"lineJump", 
-	// 			lineJumpNb: lineToJump,
-	// 		})	
-	// 	})
-	// }, 1000)
-
-	// const triggerAiSearch = () => {
-	// 	console.log("trigger AI search")
-	// 	// close the popup
-	// 	setShowHoverPopup(false)
-	// 	const s = currSelection.current
-	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
-	// 	const currentContent = textContent.current
-	// 	const insertPos = s.to
-	// 	let isError = false
-	// 	selectionTxt = selectionTxt.replaceAll('"', '\\"')
-	// 	selectionTxt = selectionTxt.replaceAll("'", "\\'")
-	// 	selectionTxt = selectionTxt.replaceAll("`", "\\`")
-	// 	selectionTxt = selectionTxt.replaceAll("$", "\\$")
-		
-	// 	const question = selectionTxt
-	// 	const genParams = () => {return { title: "Ai Answer", currentContent, textUpdate: " waiting for answer...", question, insertPos, isLast: false }}
-
-	// 	getApi(api => {
-	// 		let cmd = api.userSettings.get("ui_editor_ai_command")
-	// 		cmd = cmd.replace("{{input}}", selectionTxt)
-	// 		generateTextAt(genParams())
-	// 		api.command.stream(cmd, streamChunk => {
-	// 			if (streamChunk.isError) isError = true
-	// 			// if it is an error, display it in a popup
-	// 			if (isError) {
-	// 				// let cmdPreview = cmd.length > 200 ? cmd.substring(0, 200) + "..." : cmd
-	// 				// let cmdPreview = ""
-	// 				console.log("[AI ERROR]", streamChunk)
-	// 				if (streamChunk.text === "" || streamChunk.text === "[object Object]") return
-	// 				api.ui.notification.emit({
-	// 					content: `[AI] Error while executing command <br/>============<br/> ANSWER => <br/>${streamChunk.text} </br>============`,
-	// 					options: {hideAfter: 10 * 60 }
-	// 				})
-	// 				// erase everything if one error detected
-	// 				generateTextAt({...genParams(), textUpdate:"", isLast: true})
-	// 			} else {
-	// 				// else insert it
-	// 				generateTextAt({...genParams(), textUpdate:streamChunk.textTot, isLast: streamChunk.isLast})
-	// 			}
-	// 		})
-	// 	})
-	// }
-
-	//
-	// Word Count preview
-	//
-	// const getWordCountSelected = () => {
-	// 	const s = currSelection.current
-	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
-	// 	let arrLines = selectionTxt.split("\n")
-	// 	let wordsCnt = 0
-	// 	each(arrLines, line => {
-	// 		let arrline = line.split(" ").filter(w => w !== "")
-	// 		wordsCnt += arrline.length
-	// 	})
-	// 	return wordsCnt
-	// }
-
-
-	//
-	// CALC PREVIEW
-	//
-	// const seemsArithmetic = (str:string) => {
-	// 	str = `${str}`
-	// 	let res = false
-	// 	if (str.toLowerCase().startsWith("Math")) res = true
-	// 	if (str.startsWith("(")) res = true
-	// 	// if starts with a number
-	// 	if (!isNaN(parseInt(str))) res = true
-
-	// 	if (str.includes("\n")) res = false
-	// 	if (str.length > 400) res = false
-
-	// 	return res
-	// }
-	// const calcSelected = () => {
-	// 	let res = null
-	// 	const s = currSelection.current
-	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
-	// 	if (!seemsArithmetic(selectionTxt)) return res
-	// 	try {
-	// 		// if starts with number or () or Math
-	// 		res = new Function(`return ${selectionTxt}`)()
-	// 	} catch (error) {
-	// 		// res = "!"
-	// 	}
-	// 	return res
-	// }
-
-	// const triggerCalc = () => {
-	// 	// close the popup
-	// 	setShowHoverPopup(false)
-	// 	const s = currSelection.current
-	// 	let selectionTxt = textContent.current.substring(s.from, s.to)
-	// 	const currentContent = textContent.current
-	// 	const insertPos = s.to
-	// 	const genParams = () => {return { wrapSyntax: false, title: "", currentContent, textUpdate: "...", selectionTxt, insertPos, isLast: false, linejump: false }}
-	// 	try {
-	// 		let result = new Function(`return ${selectionTxt}`)()
-	// 		let p = {...genParams(), textUpdate:`\n${result}`, isLast:true}
-	// 		generateTextAt(p)
-	// 	} catch (err) {
-	// 		getApi( api => {
-	// 			api.ui.notification.emit({
-	// 				content: `[CALC] Error <br/> "${err}"`
-	// 			})
-	// 		})
-	// 	}
-
-	// }
 
 	const CodeMirrorEl = useMemo(() => {
 	// const CodeMirrorEl = () => {
@@ -716,7 +635,11 @@ const CodeMirrorEditorInt = forwardRef((p: {
 			onUpdate={e => {
 				onCodeMirrorUpdate(e)
 			}}
-			// onScrollCapture={onCodeMirrorScroll}
+			// onScrollCapture={e => {
+			// 	console.log("scroll", e)
+			// 		const f = getEditorObj()
+			// 		if (!f) return false
+			// }}
 
 
 			basicSetup={{
@@ -735,7 +658,13 @@ const CodeMirrorEditorInt = forwardRef((p: {
 		/></>}, 
 	[p.value, codemirrorExtensions])
 
-
+	// get forwardedRefCM position on screen
+	//@ts-ignore
+	// let ref:any = forwardedRefCM?.current
+	// if (ref && ref.editor) {
+	// 	// get ref.editorDiv position on screen
+	// 	let rect = ref.editorDiv.getBoundingClientRect()
+	// }
 
 	return (
 		<>
@@ -817,261 +746,276 @@ export const CodeMirrorEditor = React.memo(CodeMirrorEditorInt,
 
 
 
-export const codeMirrorEditorCss = () => `
-.codemirror-popup-cursor {
-	position: fixed;
-	z-index: 2;
-	background: white;
-	padding: 5px;
-	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-	border-radius: 3px;
-}
-.cm-hover-popup.cm-selection-popup {
-	display: flex;
-	position: fixed;
-	z-index: 2;
-	background: white;
-	padding: 5px;
-	box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-	border-radius: 3px;
-	opacity:0.4;
-	transition: all 0.2s;
-	.link-action {
-		padding: 0px 3px;
-		display: flex;
-		.result-calc {
-			padding: 0px 3px;
-		}
-	}
-	&:hover {
-		opacity:1;
-	}
+export const codeMirrorEditorCss = (p?:{searchBottom?:number}) => {
+	if (!p) p = {}
+	let searchBottom = p.searchBottom
+	if (!searchBottom) searchBottom = 0
+	if (isA('mobile')) searchBottom = 40
+	return `
 
-}
-.cm-selectionLayer {
-    pointer-events: none;
-		z-index:0!important;
-}
-.cm-selectionBackground {
-		background: rgba(0,0,0,0.1)!important;
-}
-
-.cm-search {
-	z-index: 10;
-}
-
-.cm-gutters {
-		border: none;
-		opacity: 0;
-		z-index: 0;
-		&:hover {
-				opacity: 1;
-		}
-		.cm-gutter {
-				.cm-gutterElement span {
-						color: #cccaca;
-				}
-		}
-}
-.device-mobile {
-		.cm-gutters {
-				opacity:1!important;
-				// background:red!important;
-		}
-}
-
-.foldall-wrapper {
-		&.desktop {
-				opacity: 0;
-		}
-		&.desktop:hover {	
-				opacity: 1;
-		}
-		&::selection {
-				background: none;
-		}
-		
-		opacity:0.6;
-		position: absolute;
-		z-index: 1;
-		top: 2px;
-		color: #d7d7d7;
+	.view-both.device-desktop .actionable-title {
 		cursor: pointer;
-		padding: 5px 4px;
-		left: 0px;
+	}
+
+
+	.draggable-grid-wrapper .cm-tooltip {
+		transform: inherit!important;
+	}
+	
+	.codemirror-popup-cursor {
+		position: fixed;
+		z-index: 2;
 		background: white;
-}
-
-
-.actionable-title {
-		color: ${cssVars.colors.main};
-		position: relative;
-		// &:before {
-				// 		content: "➝";
-				// 		position: absolute;
-				// 		right: -20px;
-				// 		color: #c6c6c6;
-				// 		font-size: 18px;
-				// 		opacity: 0;
-				// 		transition: 0.2s all;
-				// 		bottom: -3px;
-				// }
-		&:hover {
-				&:before {
-						opacity: 1
-				}
-		}
-		&.h1 {
-				font-size: 15px;
-				font-weight: bold;
-				text-decoration: underline;
-
-		}
-		&.h2 {
-				font-size: 13px;
-				text-decoration: underline;
-
-		}
-		&.h3 {
-				font-size: 12px;
-		}
-
-}
-
-
-.cm-matchingBracket {
-		background-color: rgba(0,0,0,0)!important;
-}
-
-
-.cm-content {
-		// font-family: 'Open sans', sans-serif;
-		font-family: Consolas, monaco, monospace;
-		font-size: 11px;
-}
-
-.cm-foldPlaceholder {
-		margin-left: 8px;
-		opacity: 0.5;
-		padding: 2px 5px;
-		border: none;
-}
-.cm-foldGutter {
-		&::before {
-
-		}
-}
-
-.cm-focused {
-		outline: none!important;
-}
-.main-editor-wrapper {
-		// width: calc(100% + 18px);
-		// margin: 32px 0px 0px 0px;
-		padding: 0px;
-		width:100%;
-		height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 180px);'}; 
-}
-
-.codemirror-editor-wrapper {
-		// margin-right: 18px;
-		// width: calc(100% - 10px);
-		position: relative;
-		// left: -10px;
-}
-.codemirror-editor-wrapper, .cm-editor, .cm-theme {
-		// height: calc(100% - 30px);
-}
-.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
-		height: 100% ;
-		overflow:hidden;
-		padding: 0px;
-}
-.cm-editor {
-		word-break: break-word;
-}
-.cm-search {
-		padding: 6px 10px 11px;
-}
-
-.cm-scroller {
-		z-index: auto!important;
-		width: calc(100% - 30px);
-		width: calc(100% - 23px); // reduce width overall CM
-		padding-right: 35px; // make scrollbar disappear
-		padding-left: 5px; // some space for the gutter
-		.cm-content {
-		width: calc(100% - 10px); // needed otherwise x scroll
-		overflow:hidden;
-		white-space: pre-wrap;
-	} 
-}
-.cm-line {
-}
-.cm-cursor {
-}
-
-.cm-tooltip-autocomplete {
-		padding: 10px 5px;
-		background: white;
-		border-radius: 5px;
-		border: none;
+		padding: 5px;
 		box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
-		[aria-selected="true"]{
-				background: ${cssVars.colors.main};
-				border-radius: 2px;
+		border-radius: 3px;
+	}
+	.cm-hover-popup.cm-selection-popup {
+		display: flex;
+		position: fixed;
+		z-index: 2;
+		background: white;
+		padding: 5px;
+		box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+		border-radius: 3px;
+		opacity:0.4;
+		transition: all 0.2s;
+		.link-action {
+			padding: 0px 3px;
+			display: flex;
+			.result-calc {
+				padding: 0px 3px;
+			}
 		}
-
-}
-
-.codemirror-mobile-fallback {
-		margin: 10px;
-		p {
-				color:grey;
-				font-size: 10px;
+		&:hover {
+			opacity:1;
 		}
-		textarea {
-				width: calc(100% - 20px);
-				height: calc(100vh - 230px);
-				border: 0px;
-		}
+	
+	}
+	.cm-selectionLayer {
+		pointer-events: none;
+			z-index:0!important;
+	}
+	.cm-selectionBackground {
+			background: rgba(0,0,0,0.1)!important;
+	}
+	
+	
+	.note-preview-wrapper {}
+	.cm-search {
+		z-index: 10;
+		position:absolute;
+		bottom: ${searchBottom}px;
+		background: #ececec;
+		padding: 6px 10px 11px;
+	}
+	
+	.cm-gutters {
+			border: none;
+			opacity: 0;
+			z-index: 0;
+			&:hover {
+					opacity: 1;
+			}
+			.cm-gutter {
+					.cm-gutterElement span {
+							color: #cccaca;
+					}
+			}
+	}
+	.device-mobile {
+			.cm-gutters {
+					opacity:1!important;
+					// background:red!important;
+			}
+	}
+	
+	.foldall-wrapper {
+			&.desktop {
+					opacity: 0;
+			}
+			&.desktop:hover {	
+					opacity: 1;
+			}
+			&::selection {
+					background: none;
+			}
+			
+			opacity:0.6;
+			position: absolute;
+			z-index: 1;
+			top: 2px;
+			color: #d7d7d7;
+			cursor: pointer;
+			padding: 5px 4px;
+			left: 0px;
+			background: white;
+	}
+	
+	
+	.actionable-title {
+			color: ${cssVars.colors.main};
+			display: inline-block;
+			position: relative;
+
+			&:hover {
+					&:before {
+							opacity: 1
+					}
+			}
+			&.h1 {
+					font-size: ${getFontSize(+4)}px;
+					font-weight: bold;
+					border-bottom: ${cssVars.colors.main} 2px solid;
+					margin-bottom: 3px;
+			}
+			&.h2 {
+					font-size: ${getFontSize(+3)}px;
+					// text-decoration: underline;
+					border-bottom: ${cssVars.colors.main} 1px solid;
+					padding-bottom: 1px;
+	
+			}
+			&.h3 {
+					font-size: ${getFontSize(+2)}px;
+			}
+			&.h4 {
+					font-size: ${getFontSize(+1)}px;
+			}
+	
+	}
+	
+	
+	.cm-matchingBracket {
+			background-color: rgba(0,0,0,0)!important;
+	}
+	
+	
+	.cm-content {
+			// font-family: 'Open sans', sans-serif;
+			font-family: ${cssVars.font.editor};
+			font-size:${getFontSize(+1)}px;
+	}
+	
+	.cm-foldPlaceholder {
+			margin-left: 8px;
+			opacity: 0.5;
+			padding: 2px 5px;
+			border: none;
+	}
+	.cm-foldGutter {
+			&::before {
+	
+			}
+	}
+	
+	.cm-focused {
+			outline: none!important;
+	}
+	.main-editor-wrapper {
+			padding: 0px;
+			width:100%;
+			height: ${isA('desktop') ? 'calc(100% - 32px);' : 'calc(100% - 210px);'}; 
+	}
+	
+	.codemirror-editor-wrapper {
+			// margin-right: 18px;
+			// width: calc(100% - 10px);
+			position: relative;
+			// left: -10px;
+	}
+	.codemirror-editor-wrapper, .cm-editor, .cm-theme {
+			// height: calc(100% - 30px);
+	}
+	.codemirror-editor-wrapper, 	.cm-editor, .cm-theme {
+			height: 100% ;
+			overflow:hidden;
+			padding: 0px;
+	}
+	.cm-editor {
+			word-break: break-word;
+	}
+	 
+	.cm-scroller {
+			z-index: auto!important;
+			width: calc(100% - 30px);
+			width: calc(100% - 23px); // reduce width overall CM
+			padding-right: 35px; // make scrollbar disappear
+			padding-left: 5px; // some space for the gutter
+			.cm-content {
+			width: calc(100% - 10px); // needed otherwise x scroll
+			overflow:hidden;
+			white-space: pre-wrap;
+		} 
+	}
+	.cm-line {
+	}
+	.cm-cursor {
+	}
+	
+	.cm-tooltip-autocomplete {
+			// transform: translate(-50%,-50%);
+			padding: 10px 5px;
+			background: white;
+			border-radius: 5px;
+			border: none;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.3);
+			[aria-selected="true"]{
+					background: ${cssVars.colors.main};
+					border-radius: 2px;
+			}
+	
+	}
+	
+	.codemirror-mobile-fallback {
+			margin: 10px;
+			p {
+					color:grey;
+					font-size: ${getFontSize()}px;
+			}
+			textarea {
+					width: calc(100% - 20px);
+					height: calc(100vh - 230px);
+					border: 0px;
+			}
+	}
+	
+	.test-success {
+			// background: orange;
+			color: red;
+			display: block;
+			padding-top: 50px;
+	}
+	.tiro-image {
+			color: red;
+			display: block;
+			padding: 20px;
+	}
+	.tiro-image-wrapper{
+			position: relative;
+	
+			&:before {
+					position: absolute;
+					top: 0px;
+					left: 50%;
+					content: "x";
+					width: 50%;
+					height: 100px;
+					display:block;
+					// background: orange;
+	
+			}
+	}
+	
+	// ${styleCodeMirrorMarkdownPreviewPlugin()}
+	
+	// // FILE RESSOURCE PREVIEW
+	// ${ressourcePreviewSimpleCss()}
+	
+	// // PREVIEW LINK
+	// ${noteLinkCss()}
+	
+	
+	// ${markdownStylingTableCss()}
+	`
 }
-
-.test-success {
-		// background: orange;
-		color: red;
-		display: block;
-		padding-top: 50px;
-}
-.tiro-image {
-		color: red;
-		display: block;
-		padding: 20px;
-}
-.tiro-image-wrapper{
-		position: relative;
-
-		&:before {
-				position: absolute;
-				top: 0px;
-				left: 50%;
-				content: "x";
-				width: 50%;
-				height: 100px;
-				display:block;
-				// background: orange;
-
-		}
-}
-
-// ${styleCodeMirrorMarkdownPreviewPlugin()}
-
-// // FILE RESSOURCE PREVIEW
-// ${ressourcePreviewSimpleCss()}
-
-// // PREVIEW LINK
-// ${noteLinkCss()}
-
-
-// ${markdownStylingTableCss()}
-`

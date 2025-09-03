@@ -21,7 +21,7 @@ export const sharedStrings = {
 	renameFolder: 'Rename folder',
 	renameFolderPrompt: 'Rename folder to :',
 	deleteFolder: 'Delete folder',
-	deleteFolderPrompt: 'Are you sure you want to delete the folder and all its notes (no recovery possible) : ',
+	deleteFolderPrompt: 'Are you sure you want to empty the trash (no recovery possible) : ',
 	deleteTabPrompt: 'Are you sure you want to delete that tab? : ',
 	moveToTrash: 'Move to trash',
 	moveToTrashPrompt: 'Are you sure you want move folder in .tiro/.trash : ',

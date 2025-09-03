@@ -1,4 +1,4 @@
-import { each, uniqueId } from "lodash"
+import { each, uniqueId } from "lodash-es"
 import React, { useContext, useEffect, useRef, useState } from "react"
 import { iFile } from "../../../shared/types.shared"
 import { ClientApiContext, getApi } from "../hooks/api/api.hook"
@@ -6,6 +6,7 @@ import { onUploadProgressFn, onUploadSuccessFn } from "../hooks/api/upload.api.h
 import { cssVars } from "../managers/style/vars.style.manager"
 import { Icon } from "./Icon.component"
 import { uploadFileToEditor } from "../managers/upload.manager"
+import { getFontSize } from "../managers/font.manager"
 
 export type iUploadType = 'all' | 'image' | 'camera' | 'microphone'
 
@@ -42,7 +43,7 @@ export const UploadButton = (p: {
 				onChange={(e: any) => {
 					const files = e.target.files as File[]
 					if (files.length === 0) return
-					each(files, file => {
+					each(files, (file,i) => {
 						// alert(JSON.stringify(file));
 						uploadFileToEditor({fileToUpload: file, folder:p.file.folder, windowId:p.windowId})
 						// getApi(api => {
@@ -90,7 +91,7 @@ export const uploadButtonCss = () => `
 				.label-text {
 						cursor: pointer;
 						margin-left: 18px;
-						font-size: 11px;
+						font-size:${getFontSize(+1)}px;
 						font-weight: 400;
 				}
 		}

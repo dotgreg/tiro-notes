@@ -1,6 +1,6 @@
-import { isBoolean } from 'lodash';
+import { cloneDeep, isBoolean } from 'lodash-es';
 import React, { useEffect, useRef, useState } from 'react';
-import { iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
+import { iFile, iTitleEditorStatus, iViewType, iWindowContent } from '../../../../shared/types.shared';
 import { getApi } from '../../hooks/api/api.hook';
 import { useDebounce } from '../../hooks/lodash.hooks';
 import { iMobileView, isA } from '../../managers/device.manager';
@@ -14,12 +14,14 @@ import { handleImagePaste } from '../../managers/clipboard.manager';
 import { handleFileDrop } from '../../managers/dragDrop.manager';
 import { iUploadedFileInfos } from '../../hooks/api/upload.api.hook';
 import { uploadFileToEditor } from '../../managers/upload.manager';
+import { userSettingsSync } from '../../hooks/useUserSettings.hook';
+import { addBackMetaToContent, filterMetaFromFileContent } from '../../managers/headerMetas.manager';
+import { iNoteParentType } from '../NotePreview.component';
 
 
 export const WindowEditorInt = (p: {
+	noteParentType:iNoteParentType
 	content: iWindowContent
-	// onViewChange: onViewChangeFn
-	// onEditorDropdownEnter?: Function
 	onLayoutUpdate:iLayoutUpdateFn
 
 	forceView?: iViewType,
@@ -44,7 +46,51 @@ export const WindowEditorInt = (p: {
 			if (res) setIntViewType(res)
 			else setIntViewType("editor") // on creation
 		})
-	}, [view, file?.path, windowId, p.forceView])
+	}, [view, file?.path, windowId, p.forceView, p.content?.file?.path])
+
+	// Reload content funct
+	const [showContent, setShowContent] = useState(true)
+	const reloadContent = () => {
+		setShowContent(false)
+		setTimeout(() => {
+			setShowContent(true)
+		}, 100)
+	}
+	
+
+	//
+	// HEADER META MANAGEMENT
+	//
+	// 
+	const [innerFile, setInnerFile] = useState(file)
+	const [innerFileContent, setInnerFileContent] = useState(fileContent)
+	// useEffect(() => {
+	// 	setInnerFile(file)
+	// }, [file])
+	useEffect(() => {
+		const res = removeContentMeta__updateInnerVars(fileContent)
+		if (!res) return
+		const {contentWithoutMeta, file} = res
+		setInnerFileContent(contentWithoutMeta)
+		setInnerFile(file)
+	}, [fileContent, file])
+
+	const removeContentMeta__updateInnerVars = (newContent: string) => {
+		const contentWithMetas = newContent
+		const {metas, content} = filterMetaFromFileContent(contentWithMetas)
+		
+		const cFile = cloneDeep(file)
+		// setFileContent(content)
+		if (cFile) {
+			if (metas.created) cFile.created = parseInt(metas.created as string)
+			if (metas.updated) cFile.modified = parseInt(metas.updated as string)  
+			// console.log("removeContentMeta__updateInnerVars", {metas, content, cFile})
+			return {contentWithoutMeta: content, file: cFile}
+		}
+
+	}
+	
+
 
 	//
 	// FILE CONTENT FETCH/UPDATE
@@ -71,23 +117,26 @@ export const WindowEditorInt = (p: {
 
 
 			// WATCH LOGIC
-			api.watch.file(file.path, watchUpdate => {
-				// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
-				// if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
-				// THEN WATCH FOR UPDATE BY OTHER CLIENTS
-				if (filePathRef.current !== watchUpdate.filePath) return
-				// if (deviceType() !== "desktop") return
-
-				// if watcher gives an update to a file we are currently editing
-				// make it inside a debounce, only for desktop
-				if (
-					isBeingEdited.current === true
-				) return waitingContentUpdate.current = watchUpdate.fileContent
-
-				setFileContent(watchUpdate.fileContent)
-			})
+			if(userSettingsSync.curr.ui_editor_live_watch === true) {
+				// console.log(`[FILE CONTENT WATCH] enabled for ${file.path}`)
+				api.watch.file(file.path, watchUpdate => {
+					// IF WE ARE AFTER RECONNECTION, DISABLE IT FOR 10s
+					// if (disableWatchUpdate.current) return console.log("FILE WATCH DISABLED FOR 10s after reconnection")
+					// THEN WATCH FOR UPDATE BY OTHER CLIENTS
+					if (filePathRef.current !== watchUpdate.filePath) return
+					// if (deviceType() !== "desktop") return
+	
+					// if watcher gives an update to a file we are currently editing
+					// make it inside a debounce, only for desktop
+					if (
+						isBeingEdited.current === true
+					) return waitingContentUpdate.current = watchUpdate.fileContent
+	
+					setFileContent(watchUpdate.fileContent)
+				})
+			}
 		})
-	}, [file?.path, windowId])
+	}, [file?.path, windowId, showContent])
 
 	// can edit locally if file loading/not
 	const [canEdit, setCanEdit] = useState(false)
@@ -108,12 +157,6 @@ export const WindowEditorInt = (p: {
 
 	const contentToUpdateOnceOnline = useRef<{ path?: string, content?: string }>({})
 	const disconnectCounter = useRef<number>(0)
-	
-	// if mobile editor
-	// find the first img inside the content
-	useEffect(() => {
-
-	}, [file?.path, fileContent])
 
 
 	// once online, reupdate content
@@ -214,39 +257,26 @@ export const WindowEditorInt = (p: {
 	}, [fileContent])
 
 
-	// useEffect(() => {
-	// 	if (!fileContent) return
-	// 	getApi(api => {
-	// 		api.popup.prompt({
-	// 			text: `<div class="content-different-preview"> Server content is different for "${file?.path}", do you want to update it ? <br><br> <h2>New remote content</h2> <br> ${fileContent.replaceAll("\n","<br>")} <br><br> <h2>Offline content</h2> <br> ${fileContent.replaceAll("\n","<br>")}</div>`,
-	// 			userInput: true,
-	// 			onAccept: () => {
-	// 				// if (!createdFolderName || createdFolderName === '') return
-	// 				// p.onFolderMenuAction('create', p.folder, createdFolderName)
-	// 			},
-	// 			onRefuse: () => { }
-	// 		});
-	// 	});
-	// }, [fileContent])
-
 
 
 	//
 	// UPDATE CONTENT 
 	//
 	const onFileEditedSaveIt = (filepath: string, content: string) => {
+		// const contentWithMetas = addBackMetaToContent__updateInnerVars(content)
+		// if (!contentWithMetas) return
 		getApi(api => {
-			api.file.saveContent(filepath, content, { history: true })
+			api.file.saveContent(filepath, content, { history: true, debounced: 500, withMetas:innerFile}) 
 		})
 		isBeingEdited.current = true
 		isEditedDebounce()
 		// OLD MECANISM
-		contentToUpdateOnceOnline.current = { content, path: file?.path }
+		contentToUpdateOnceOnline.current = { content:content, path: file?.path }
 
 		// LOCAL HIST NOTE UPDATE
 		addToLocalNoteHistoryDebounced({
 			path: filepath,
-			content,
+			content: content,
 			timestamp: Date.now()
 		})
 	}
@@ -264,10 +294,11 @@ export const WindowEditorInt = (p: {
 
 
 	// ON ACTIVE, LOAD LIST
+	// when switching tab, ask for folder scan
 	useEffect(() => {
 		if (!file || !active) return
 		getApi(api => {
-			api.ui.browser.goTo(file.folder, file.name)
+			api.ui.browser.goTo(file.folder, file.name, {ramCache: true}) // as it is just a switch without manip, should be safe to use ramCache
 		})
 	}, [active])
 
@@ -317,6 +348,7 @@ export const WindowEditorInt = (p: {
 		// console.log("handle dragleave", file?.path)
 	}
 	const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+		console.log("window drop")
 		e.preventDefault()
 		e.stopPropagation()
 		setIsDragging(false)
@@ -326,30 +358,23 @@ export const WindowEditorInt = (p: {
 	}	
 	const [isDragging, setIsDragging] = useState(false)
 
-	// Reload content funct
-	const [showContent, setShowContent] = useState(true)
-	const reloadContent = () => {
-		setShowContent(false)
-		setTimeout(() => {
-			setShowContent(true)
-		}, 100)
-	}
 
 	return (
 		<>
 			
 			{
 				showContent && file &&
-				<div className="window-editor-wrapper"
+				<div className={`window-editor-wrapper ${p.content.active ? "active" : ""}`}
 					onPaste={handlePaste}
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
 					onDrop={handleDrop}
 				>
 					<DualViewer
+						noteParentType={p.noteParentType}
 						windowId={windowId}
-						file={file}
-						fileContent={fileContent}
+						file={innerFile as iFile || file}
+						fileContent={innerFileContent}
 						isActive={active}
 						// canEdit={canEdit}
 						// showViewToggler={true}

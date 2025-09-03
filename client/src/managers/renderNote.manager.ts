@@ -1,4 +1,4 @@
-import { cloneDeep, each, isNumber, random } from "lodash"
+import { cloneDeep, each, isNumber, random } from "lodash-es"
 import { regexs } from "../../../shared/helpers/regexs.helper"
 import { iFile } from "../../../shared/types.shared"
 import { getClientApi2 } from "../hooks/api/api.hook"

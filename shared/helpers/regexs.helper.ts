@@ -11,6 +11,7 @@ const v = {
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 	// insideHashtag: /[A-zÀ-ú1-9_\-]+/,
 	// titleHtml: /(\<title\/\>)[^<](/,
+	
 }
 const vStr = {
 	charWithAccents: "[a-zA-Z\u00C0-\u024F\u1E00-\u1EFF]{1}",
@@ -22,18 +23,30 @@ const vStr = {
 
 export const regexs = {
 	strings: vStr,
+	// markdown checkbox, either "[ ]" or [x] or [X] 
+	checkbox: /\[ \]|\[x\]|\[X\]/gi,
+	// date like 31/12/2020
+	dateFrFormat: /([0-9]{1,2})\/([0-9]{1,2})\/([0-9]{4})/gi,
+	// either **TEXT** or ~~TEXT~~ or ***TEXT*** or __TEXT__ or *TEXT*, no space between the content and delimiter, so *TEXT* is ok but * TEXT * is not
+	boldOrStrike: /\*\*[^*]+\*\*|\~\~[^~]+\~\~|\*\*\*[^*]+\*\*\*|\_\_[^_]+\_\_|\*[^\ \*]+\*/gi,
 	metas: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd),
+	metasAndSpace: VerEx().find(sharedConfig.metas.headerStart).beginCapture().anythingBut(``).endCapture().then(sharedConfig.metas.headerEnd).then('\n'),
 	titleHtml: /<(title)[^>]*>([^<]*)<\/\1>/gi,
 	metasHtml: /<meta[^>]*(name|property)="([^"]*)"[^>]*content="([^"]*)"[^>]*>/gi,
-	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
+	externalLink3: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\\\*\;\!@:%_\-\+.,~#?&\/=]*)\/(\n| |$)/gmi,
 	externalLink3Int: /https?:\/\/((www\.)?[a-zÀ-úA-Z0-9@:%._\+~#=]{1,256})\b(\/[-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*\/)?([-a-zA-ZÀ-ú0-9()\*\;\!@:%_\-\+.,~#?&\/=]*)\//gmi,
 	// mdTableLine: /(([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  /!]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  /!]+))/gmi,
 	mdTableLine: /\|?(([^\|]+\|)+([^\|]+))\|?/gmi,
 	mdTitle: /^([#]{1,9})\ (.+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ])+\|/gmi,
 	// mdTableCell: /(([^|])+\|/gmi,
-	mdTableCell: /((([^|\n])+\|)|(([^|\n])+))/gmi,
-	hashtag: /#([A-zÀ-ú1-9_\-]+)/gi,
+	mdTableCell: /(((([^|\n])+\|)|(([^|\n])+)))/gmi,
+	// mdTableCell if does not starts by "-" and the line has several | 
+	// mdTableCell2: /(([^|\n])+\|)+/gmi,
+	// mdTableCell2: : VerEx().find('<').anythingBut('<>').then('>'),
+	// should not start by "-" and have several |
+	doesNotStartByDash: /^(?!\-)/,
+	hashtag: /#([A-zÀ-ú0-9_\-]+)/gi,
 	// mdTableCell: /([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+\|)+([a-zÀ-úA-Z0-9@:%,\-*._\+~#=  ]+)/gmi,
 
 	matchingHtmlTags: /<([^>]*)>([^<]*)<\/\1>/,
@@ -53,7 +66,6 @@ export const regexs = {
 
 	searchlink: VerEx().find('[search|').beginCapture().anythingBut('[]').endCapture().then(']'),
 
-	linklink2: VerEx().find('123').beginCapture().anythingBut('456').endCapture().then('456'),
 	linklink: VerEx().find('[link|').beginCapture().anythingBut('[]').endCapture().then(' ').beginCapture().then('/').anythingBut('[]').endCapture().then(']'),
 	latexTag: VerEx().find('[[latex]]').beginCapture().anythingBut('').endCapture().then('[[latex]]'),
 	scriptTag: VerEx().find('[[script]]').beginCapture().anythingBut('').endCapture().then('[[script]]'),

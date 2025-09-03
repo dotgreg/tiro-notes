@@ -1,10 +1,10 @@
 import React, { ReactElement, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import Select from 'react-select';
-import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash';
-import * as lodash from "lodash"
+import { add, cloneDeep, debounce, each, isArray, isNumber, isString, orderBy, random } from 'lodash-es';
+// import * as lodash from "lodash-es"
 import { iFile, iPlugin, iTab } from '../../../shared/types.shared';
 import { getApi } from '../hooks/api/api.hook';
-import { pathToIfile } from '../../../shared/helpers/filename.helper';
+import { cleanPath, pathToIfile } from '../../../shared/helpers/filename.helper';
 import { cssVars } from '../managers/style/vars.style.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { sharedConfig } from '../../../shared/shared.config';
@@ -18,6 +18,10 @@ import { generateUUID } from '../../../shared/helpers/id.helper';
 import { useBackendState } from '../hooks/useBackendState.hook';
 import { evalPluginCode } from '../managers/plugin.manager';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
+import { workMode_filterIFiles } from '../managers/workMode.manager';
+import { addKeyShortcut, releaseKeyShortcut } from '../managers/keyboard.manager';
+import { iFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
+import { getPanelTitle } from './FloatingPanels.component';
 
 const omniParams = {
 	search: {
@@ -35,14 +39,17 @@ interface iOptionOmniBar {
 		file?: iFile
 		line?: string
 		options?: iOptionOmniBar[]
+		floatingPanel?: iFloatingPanel
+		action?: "createNewFile"
 	}
 }
 
 const modeLabels = {
-	search: "[Search Mode]",
-	explorer: "[Explorer Mode]",
-	history: "[History Mode]",
-	plugin: "[Plugin Mode]"
+	search: "[🔎 Search Mode]",
+	explorer: "[📁 Explorer Mode]",
+	history: "[✨ History Mode]",
+	plugin: "[🔌 Plugin Mode]",
+	floating: "[🖥️ Floating Windows]",
 }
 
 
@@ -64,6 +71,7 @@ export const OmniBar = (p: {
 	show: boolean
 	onClose: Function
 	onHide: Function
+	onNoteCreate: Function
 	lastNotes: iFile[]
 }) => {
 
@@ -88,26 +96,28 @@ export const OmniBar = (p: {
 		// each(nVal, o => {
 		// 	o.label = isString(o.label) ? <span dangerouslySetInnerHTML={{ __html: o.label  }} /> : o.label
 		// })
-		getApi(api => {
-			let ctab = api.tabs.active.get()
+		// getApi(api => {
+		// 	let ctab = api.tabs.active.get()
 
-			// drop already opened in current tab files from options in desktop
-			if (deviceType() !== "mobile") {
-				each(ctab?.grid.content, cont =>{
-					if(!cont.file) return
-					let oFile = cont.file
-					each(nVal, (o,i) => {
-						if (o && o.value && o.value === oFile.path) {	
-							delete nVal[i]
-							return false
-						}
-					})
-				})
-			}
+		// 	// drop already opened in current tab files from options in desktop
+		// 	if (deviceType() !== "mobile") {
+		// 		each(ctab?.grid.content, cont =>{
+		// 			if(!cont.file) return
+		// 			let oFile = cont.file
+		// 			each(nVal, (o,i) => {
+		// 				if (o && o.value && o.value === oFile.path) {	
+		// 					delete nVal[i]
+		// 					return false
+		// 				}
+		// 			})
+		// 		})
+		// 	}
 
-			onOptionsChange(nVal)
-			setOptionsInt(nVal)
-		})
+		// 	onOptionsChange(nVal)
+		// 	setOptionsInt(nVal)
+		// })
+		onOptionsChange(nVal)
+		setOptionsInt(nVal)
 	}
 
 	// const [lastNotesOptions, setLastNotesOptions] = useState<any[]>([]);
@@ -125,7 +135,7 @@ export const OmniBar = (p: {
 	const openNoteInFloatingWindow = (f:iFile) => {
 		getApi(api => {
 			api.ui.floatingPanel.create({
-				view: "editor",
+				// view: "editor",
 				type: "file",
 				file: f,
 			})
@@ -155,7 +165,7 @@ export const OmniBar = (p: {
 							<Icon2 name="link" label='insert note link in the current note'/>
 						</div>
 
-						{ userSettingsSync.curr.beta_floating_windows &&
+						{ 
 							<div className="action" 
 								onClick={e => {
 									e.stopPropagation()
@@ -197,13 +207,14 @@ export const OmniBar = (p: {
 	//
 	// STYLING
 	//
+	const maxHeightOptions = window.innerHeight - 160 - 200
 	const isHoverEnabled = useRef<boolean>(false)
 	const [styles, setStyles] = useState<any>({
 		indicatorsContainer: (base, state) => {
 			return { ...base, display: "none" }
 		},
 		menuList: (base, state) => {
-			let maxHeight = deviceType() === "mobile" ? {} : {maxHeight: "150px"}
+			let maxHeight = deviceType() === "mobile" ? {} : {maxHeight: maxHeightOptions}
 			return { ...base, ...maxHeight}
 		},
 		menu: (base, state) => {
@@ -279,14 +290,44 @@ export const OmniBar = (p: {
 
 
 
-
+	//
+	// JUMP TO NOTE
+	//
 	const jumpToPath = (filePath: string) => {
 		let file = pathToIfile(filePath)
-		getApi(api => {
-			api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+		if (jumpToFileModifier.current) {
+			console.log("jumpToFileModifier", jumpToFileModifier.current)
 			p.onClose()
-		})
+			openNoteInFloatingWindow(file)
+		} else {
+			getApi(api => {
+				api.ui.browser.goTo(file.folder, file.name, { openIn: 'activeWindow' })
+				p.onClose()
+			})
+		}
 	}
+	// IF PRESS ALT + ENTER on FILE, OPEN NEW WINDOW in jump to file
+	const jumpToFileModifier = useRef(false)
+	const a1 =  () => { 
+		jumpToFileModifier.current = true
+	}
+    const shortcuts = ["alt" ]
+    const actions = [a1]
+    useEffect(() => {
+        shortcuts.forEach((shortcut, i) => {
+            addKeyShortcut(shortcut, actions[i])
+        })
+        return () => {
+            shortcuts.forEach((shortcut, i) => {
+                releaseKeyShortcut(shortcut, actions[i])
+            })
+        }
+    }, [])
+
+
+
+
+
 
 	//
 	// MODE SWITCHING
@@ -335,13 +376,18 @@ export const OmniBar = (p: {
 					// erase /
 					setInputTxt("")
 					let folder = api.ui.browser.folders.current.get()
-					setTimeout(() => {console.log(api.ui.browser.folders.current.get())})
+					// setTimeout(() => {console.log(api.ui.browser.folders.current.get())})
 					triggerExplorer(folder)
 				})
 			}
 
 			if (inTxt === "") {
 				startLastNotesModeLogic()
+			}
+
+			if (inTxt === ";") {
+				setInputTxt("")
+				startFloatingWindowsBarModeLogic()
 			}
 
 			if (inTxt === "?") {
@@ -357,10 +403,12 @@ export const OmniBar = (p: {
 				startHistoryMode()
 			}
 		}
+
+		// IF @SEARCH MODE
 		else if (stags[0].label === modeLabels.search) {
 			searchModeLogic(stags, inTxt)
 		}
-		// IF EXPLORER MODE
+		// IF @EXPLORER MODE
 		else if (stags[0].label === modeLabels.explorer) {
 
 			const getFinalPath = () => {
@@ -375,10 +423,24 @@ export const OmniBar = (p: {
 			}
 
 			let finalPath = getFinalPath()
-			// if ends to md, jump to it
-			if (finalPath.endsWith(".md")) {
+			// if payload action is createNewFile, create a new file
+			if (stags[stags.length - 1].payload?.action === "createNewFile") {
+				// if ends to md, jump to it
+				console.log("create new file in folder" + finalPath)
+				p.onNoteCreate(finalPath)
+				p.onClose()
+
+			} else if (finalPath.endsWith(".md")) {
+
+				// addCurrentToOmniHistory()
+				const histSelec = [...stags]	
+				histSelec.pop()
+				if (inputTxt === "") histSelec.push({label: inputTxt, value: inputTxt})
+				addToOmniHistory(histSelec)
+
+				// addToOmniHistory([...options, {label: input, value: input}])
 				// remove mode label
-				finalPath = finalPath.replace(stags[0].label, "")
+				finalPath = finalPath.replace(stags[0].label, "") 
 				jumpToPath(finalPath)
 			}
 
@@ -387,6 +449,8 @@ export const OmniBar = (p: {
 				histPath.current = finalPath
 				triggerExplorer(finalPath)
 			}
+
+			
 		}
 		else if (stags[0].label === modeLabels.plugin) {
 			triggerPluginLogic(inTxt, stags)
@@ -394,7 +458,12 @@ export const OmniBar = (p: {
 		else if (stags[0].label === modeLabels.history) {
 			triggerHistoryModeLogic(inTxt, stags)
 		}
+		else if (stags[0].label === modeLabels.floating) {
+			triggerFloatingWindowsBarLogic(inTxt, stags)
+		}
 	}
+
+	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [], {history: true})
 
 	useEffect(() => {
 		updateFromChange();
@@ -404,14 +473,13 @@ export const OmniBar = (p: {
 	// useEffect(() => {
 	// }, [options])
 
-
-	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for search mode, "/" for explorer mode, ":" for plugin mode, "," for history mode`
+	const s = (str: string) => str.replaceAll("[", "").replaceAll("]", "")
+	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for ${s(modeLabels.search)}, "/" for ${s(modeLabels.explorer)}, ":" for ${s(modeLabels.plugin)}, "," for ${s(modeLabels.history)}, ";" for ${s(modeLabels.floating)}`
 	const [help, setHelp] = useState(baseHelp)
 
 
 
-
-
+	
 
 
 
@@ -431,6 +499,87 @@ export const OmniBar = (p: {
 
 
 
+	///////////////////////////////////////////////////////////////////////////////
+	// @ HISTORY MODE
+	//
+	const startHistoryMode = () => {
+		setSelectedOption([
+			{ value: modeLabels.history, label: modeLabels.history },
+		])
+
+	}
+	useEffect(() => {
+		if (backendStateOmni.hasBeenLoaded) return
+		refreshOmniHistFromBackend()
+		// refreshOmniCacheFoldersFromBackend()
+		//@ts-ignore
+		omniCacheFoldersRam.current = window.__Tiro_omniCacheFoldersRam
+		// console.log("3333", omniCacheFoldersRam.current)
+		backendStateOmni.hasBeenLoaded = true
+	}, [])
+
+	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
+	const getOmniHistory = ():iOmniHistoryItem[] => {
+		return omniHistoryInt
+	}
+	// const addCurrentToOmniHistory = () => {
+	// 	console.log("addCurrentToOmniHistory", options, inputTxt)
+	// 	const selecOpts = selectedOptionRef.current
+	// 	const selection = inputTxt.length > 0 ? [...selecOpts, {label: inputTxt, value: inputTxt}] : selecOpts
+	// 	addToOmniHistory(selection)
+	// }
+	const addToOmniHistory = (options:iOptionOmniBar[]) => {
+		console.log("1/2 [HIST mode]: addToOmniHistory", [...options])
+		let labels:string[] = []
+		each(options, o => {labels.push(o.label)})
+		const id = labels.join(" ")
+		const nItem = {options, id}
+
+		// filter out prev items with same id
+		const oldItems = omniHistoryInt.filter(i => i.id !== id)
+		const nItems = [nItem, ...oldItems]
+
+		// only keep 100 requests
+		if (nItems.length > 100) nItems.splice(0, 100)
+		console.log("2/2 [HIST mode] add to omnihist ",{ nItem, nItems})
+
+		setOmniHistoryInt(nItems)
+	}
+		
+
+
+	const triggerHistoryModeLogic = (input: string, stags: iOptionOmniBar[]) => {
+		setNotePreview(null)
+		if (!stags[1]) {
+			// LOAD HISTORY
+			setHelp(`loading history mode...`)
+			refreshOmniHistFromBackend(items => {
+				let nOpts: any = []
+				each(items, i => {
+					nOpts.push({ label: i.id, value:  i.id, payload: i })
+				} )
+				setHelp(`history mode`)
+				setOptions(nOpts)
+			})
+
+			if (input === ",") {
+				setInputTxt("")
+			}
+		} else if (stags[1]) {
+			console.log("HIST selected", stags[1])
+			let nSelectedOptions = stags[1].payload?.options
+			if (!nSelectedOptions) return
+			// if first tag is search, destructure last option to inputTxt
+			let lastItem = nSelectedOptions.pop()
+			if (lastItem) setInputTxt(lastItem.label)
+			setSelectedOption(nSelectedOptions)
+		}
+		
+
+	
+	}
+	// const onChangeUpdatePlugin = useRef<any>(null)
+
 
 
 
@@ -442,11 +591,21 @@ export const OmniBar = (p: {
 
 
 	///////////////////////////////////////////////////////////////////////////////
-	// @ EXPLORER MODE
+	// @EXPLORER MODE
 	//
 	const lastSearchId = useRef(0)
 	const lastSearch = useRef("")
+	// const cacheFoldersOpts = useRef<{[key: string]: iOptionOmniBar[]}>({})
+	// const [omniCacheFolders, setOmniCacheFolders, refreshOmniCacheFoldersFromBackend] = useBackendState<{}>('omni-cache-folders', [], {history: false})
+	//@ts-ignore
+	const omniCacheFoldersRam = useRef<{[key: string]: iOptionOmniBar[]}>(window.__Tiro_omniCacheFoldersRam || {})
 	const triggerExplorer = (folderPath: string) => {
+
+		let strPath = cleanPath(folderPath)
+		let explorerHelp = `Explorer mode for "${strPath}"` 
+		let explorerLoadingHelp = `Loading explorer mode for "${strPath}"...`
+
+		setHelp(explorerHelp)
 
 		if (folderPath === "") return
 		if (!folderPath.endsWith("/")) folderPath = folderPath + "/"
@@ -464,7 +623,41 @@ export const OmniBar = (p: {
 		lastSearchId.current++
 		let currId = lastSearchId.current
 
+		const FolderIcon = "📁 "
+		const newIcon = "➕ "
+
+		// console.log(1444,omniCacheFoldersRam)
+		// if cache folderpath exists, use it to get a quick response
+		if (omniCacheFoldersRam.current[folderPath]) {
+			console.log(`[OMNI > EXPLORER] using cache for ${folderPath}`)
+			let nOpts = omniCacheFoldersRam.current[folderPath]
+			// for each nOpts
+			for (let i = 0; i < nOpts.length; i++) {
+				let o = nOpts[i]
+				//@ts-ignore
+				if (o.label.props ) nOpts[i].label = genOptionHtml(o?.payload?.file)
+			}
+			setOptions(nOpts)
+			// setSelectedOption([{ value: modeLabels.explorer, label: modeLabels.explorer }])
+			// setOmniBarStatus("editable")
+		}
+
+		// create folder tags
+		let foldersArr = folderPath.split("/")
+		let nSelec: any[] = []
+		nSelec.push({ value: modeLabels.explorer, label: modeLabels.explorer })
+		nSelec.push({ value: "/", label: "/" })
+		each(foldersArr, f => {
+			if (f === "") return
+			nSelec.push({ value: f, label: f + "/" })
+		})
+		setSelectedOption(nSelec)
+
+
+
 		getApi(api => {
+			setHelp(explorerLoadingHelp)
+
 			let folderPathArr = [folderPath]
 			// setTimeout(() => { // @DEBUG2
 			api.folders.get(folderPathArr, folderData => {
@@ -484,16 +677,6 @@ export const OmniBar = (p: {
 					if (folderPathAnswer2 !== folderPath) return
 
 					// split folder path
-					let foldersArr = folderPath.split("/")
-
-					// create folder tags
-					let nSelec: any[] = []
-					nSelec.push({ value: modeLabels.explorer, label: modeLabels.explorer })
-					nSelec.push({ value: "/", label: "/" })
-					each(foldersArr, f => {
-						if (f === "") return
-						nSelec.push({ value: f, label: f + "/" })
-					})
 
 					// create omnibarions from folders and files
 					let nOpts: iOptionOmniBar[] = []
@@ -505,13 +688,20 @@ export const OmniBar = (p: {
 						}}
 						className="barimage">
 					</div>
+					
+					// create file
+					nOpts.push({ value: "", label: newIcon + " create file", payload: { action: "createNewFile" } })
 
 					each(folders, f => {
 						let arr = f.path.split("/")
 						let last: any = arr[arr.length - 1] + "/"
 						// last = <div className="flex-option"><div>{last}<b>wooopy</b></div>{imageHtml}</div>
-						nOpts.push({ value: last, label: last })
+						nOpts.push({ value: last, label: FolderIcon + last })
 					})
+					// rank files by most recent 
+					files = orderBy(files, ["modified"], ["desc"])
+
+					
 					each(files, f => {
 						let arr = f.path.split("/")
 						let last: any = arr[arr.length - 1]
@@ -523,10 +713,13 @@ export const OmniBar = (p: {
 						nOpts.push({ value: last, label: htmlOption, payload })
 					})
 
-					setSelectedOption(nSelec)
+					// setSelectedOption(nSelec)
 					setOptions(nOpts)
 					setOmniBarStatus("editable")
-					// setNotePreview(nSelec)
+					omniCacheFoldersRam.current[folderPath] = nOpts
+					//@ts-ignore
+					window.__Tiro_omniCacheFoldersRam = omniCacheFoldersRam.current
+					setHelp(explorerHelp)
 
 				})
 			})
@@ -556,6 +749,7 @@ export const OmniBar = (p: {
 
 
 	const previousPath = useRef<string>("")
+	// @SEARCH
 	const searchModeLogic = (stags:any[], inTxt: string) => {
 		// STEP 1: type a folder
 		if (!stags[1]) {
@@ -588,6 +782,7 @@ export const OmniBar = (p: {
 			setPreviewType("preview")
 			// STEP 3-1 (optional) :  filter found results
 			console.log(`STEP 3-1 (optional) :  filter found results`, wordSearched.current);
+			
 		} else if (stags.length === 3 || stags.length === 4) {
 			console.log(`STEP 3-2 : jump to page`, { w: wordSearched.current, stags });
 			let last = stags.length - 1
@@ -596,6 +791,9 @@ export const OmniBar = (p: {
 			jumpToPath(file.path)
 		}
 	}
+	// const debouncedAddToOmniHistory = useDebounce((historyArr: any) => {
+	// 	addToOmniHistory(historyArr)
+	// }, 1000)
 
 	const wordSearched = useRef<string | null>(null)
 	const reactToSearchTyping = useDebounce((inputTxt: string, folder: string, options:iOptionOmniBar[]) => {
@@ -617,7 +815,8 @@ export const OmniBar = (p: {
 			
 
 		} else {
-			
+			// const historyArr = [options[0], options[1], {label: wordSearched.current, value: wordSearched.current}]
+			// addToOmniHistory(historyArr)
 			//
 			// STEP 3: search for word API
 			//
@@ -698,95 +897,40 @@ export const OmniBar = (p: {
 	//
 	const startLastNotesModeLogic = () => {
 		setHelp(baseHelp)
-		let nOptions = filesToOptions(p.lastNotes)
+
+		// const filteredLastNotes:iFile[] = []
+		// each(p.lastNotes, lastNote => {
+		// 	if (lastNote.)
+		// })
+		const filteredLastNotes = workMode_filterIFiles(p.lastNotes)
+		// get all non visible floating windows
+		// getApi(
+		// 	api => {
+		// 		console.log(12333, api.ui.floatingPanel.panels)
+		// 	}
+		// )
+
+		let nOptions = filesToOptions(filteredLastNotes)
 
 		// intervert el 1 and el 2
-		let o1 = nOptions.shift() as iOptionOmniBar
-		let o2 = nOptions.shift() as iOptionOmniBar
-		nOptions.unshift(o1)
-		nOptions.unshift(o2)
+		if (nOptions.length >= 2) {
+			let o1 = nOptions.shift() as iOptionOmniBar
+			let o2 = nOptions.shift() as iOptionOmniBar
+			nOptions.unshift(o1)
+			nOptions.unshift(o2)
+		}
 
 		// setLastNotesOptions(nOptions)
 		let initialFile = nOptions[0] ? nOptions[0].payload?.file : null
 		if (initialFile) setNotePreview(initialFile)
+
 		setOptions(nOptions)
 	}
 
 
 
 
-///////////////////////////////////////////////////////////////////////////////
-	// @ HISTORY MODE
-	//
-	const startHistoryMode = () => {
-		setSelectedOption([
-			{ value: modeLabels.history, label: modeLabels.history },
-		])
-
-	}
-	useEffect(() => {
-		if (backendStateOmni.hasBeenLoaded) return
-		refreshOmniHistFromBackend()
-		backendStateOmni.hasBeenLoaded = true
-	}, [])
-
-	type iOmniHistoryItem = {options:iOptionOmniBar[], id: string}
-	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [])
-	const getOmniHistory = ():iOmniHistoryItem[] => {
-		return omniHistoryInt
-	}
-	const addToOmniHistory = (options:iOptionOmniBar[]) => {
-		console.log("addToOmniHistory")
-		let labels:string[] = []
-		each(options, o => {labels.push(o.label)})
-		const id = labels.join(" ")
-		const nItem = {options, id}
-
-		// filter out prev items with same id
-		const oldItems = omniHistoryInt.filter(i => i.id !== id)
-		const nItems = [nItem, ...oldItems]
-
-		// only keep 100 requests
-		if (nItems.length > 100) nItems.splice(0, 100)
-		console.log("[HIST mode] add to omnihist ",{ nItem, nItems})
-
-		setOmniHistoryInt(nItems)
-	}
-		
-
-
-	const triggerHistoryModeLogic = (input: string, stags: iOptionOmniBar[]) => {
-		setNotePreview(null)
-		if (!stags[1]) {
-			// LOAD HISTORY
-			const items = getOmniHistory()
-			let nOpts: any = []
-			setOptions(nOpts)
-			each(items, i => {
-				nOpts.push({ label: i.id, value:  i.id, payload: i })
-			} )
-			setHelp(`history mode`)
-			setOptions(nOpts)
-
-			if (input === ",") {
-				setInputTxt("")
-			}
-		} else if (stags[1]) {
-			console.log("HIST selected", stags[1])
-			let nSelectedOptions = stags[1].payload?.options
-			if (!nSelectedOptions) return
-			// if first tag is search, destructure last option to inputTxt
-			let lastItem = nSelectedOptions.pop()
-			if (lastItem) setInputTxt(lastItem.label)
-			setSelectedOption(nSelectedOptions)
-		}
-		
-
 	
-	}
-	// const onChangeUpdatePlugin = useRef<any>(null)
-
-
 
 
 
@@ -796,7 +940,7 @@ export const OmniBar = (p: {
 
 
 	///////////////////////////////////////////////////////////////////////////////
-	// @ PLUGIN MODE
+	// @PLUGIN MODE
 	//
 	const startPluginMode = () => {
 		setSelectedOption([
@@ -832,7 +976,8 @@ export const OmniBar = (p: {
 					onClose: p.onClose, onHide: p.onHide,
 					close: p.onClose, hide: p.onHide,
 					selectedOptionRef, setSelectedOption,
-					lodash,
+					addToOmniHistory,
+					// lodash,
 					selectedTags: stags,
 					setNotePreview, notePreview,
 					setHtmlPreview, htmlPreview,
@@ -981,7 +1126,7 @@ export const OmniBar = (p: {
 	}, 100)
 	useEffect(() => {
 		onOptionsChange(options)
-	}, [options, inputTxt])
+	}, [options, inputTxt, omniHistoryInt])
 
 
 
@@ -1002,8 +1147,52 @@ export const OmniBar = (p: {
 
 
 
-	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor")
+	const [previewType,setPreviewType] = useState<iNotePreviewType>("editor") // not used anymore, editor all the time
 	
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ FLOATING WINDOWS BAR MODE
+	//
+	const startFloatingWindowsBarModeLogic = () => {
+		setSelectedOption([
+			{ value: modeLabels.floating, label: modeLabels.floating },
+		])
+		// get all non visible floating windows
+		getApi(api => {
+			let nOpts: iOptionOmniBar[] = []
+			setOptions(nOpts)
+			each(api.ui.floatingPanel.panels, p => {
+				if (p.status == "visible") return
+				nOpts.push({ 
+					label: getPanelTitle(p),
+					value: p, 
+					payload: {
+						floatingPanel: p
+					}
+				})
+			})
+			setOptions(nOpts)
+			setHelp(`${nOpts.length} floating windows found`)
+		})
+	}
+
+	const triggerFloatingWindowsBarLogic = (input: string, stags: any[]) => {
+		setNotePreview(null)
+		// if 2 tags, take the payload of second one
+		if (stags.length === 2) {
+			let panel = stags[1].payload?.floatingPanel
+			if (!panel) return
+			// console.log()
+			getApi(api => {
+				api.ui.floatingPanel.deminimizePanel(panel.id)
+
+			})
+			// close omnibar
+			p.onClose()
+		}
+	
+	}
+
 
 
 
@@ -1066,12 +1255,13 @@ export const OmniBar = (p: {
 						>
 							{notePreview && deviceType() !== "mobile" &&
 								<NotePreview
+									noteParentType="omnibar"
 									file={notePreview}
 									showToolbar={true}
 									titleEditor={false}
 									searchedString={searchedString}
 									height={previewHeight}
-									view={previewType}
+									// view={"editor"}
 									windowId={notePreviewWindowId}
 								/>
 							}
@@ -1110,6 +1300,13 @@ export const omnibarPopupCss = () => `
 								height: 100vh;
 								z-index: 10000;
 								position: absolute;
+						}
+						.omnibar-popup-wrapper {
+							.dual-view-wrapper.view-editor.device-desktop {
+								.editor-area {
+									width: calc(100% - 20px);
+								}
+							}
 						}
 						.omnibar-popup-wrapper {
 								&.locked {

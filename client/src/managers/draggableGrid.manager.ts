@@ -1,4 +1,4 @@
-import { cloneDeep, each } from "lodash"
+import { cloneDeep, each } from "lodash-es"
 import { iWindow } from "../../../shared/types.shared"
 import { draggableGridConfig } from "../components/windowGrid/DraggableGrid.component"
 

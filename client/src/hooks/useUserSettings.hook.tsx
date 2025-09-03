@@ -1,4 +1,4 @@
-import { cloneDeep, debounce, each, isNull, isUndefined, uniqueId } from 'lodash';
+import { cloneDeep, debounce, each, isNull, isUndefined, uniqueId } from 'lodash-es';
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import { generateUUID } from '../../../shared/helpers/id.helper';
 import { sharedConfig } from '../../../shared/shared.config';
@@ -13,11 +13,11 @@ import { useBackendState } from './useBackendState.hook';
 
 
 export const userSettingsSync: {curr:iUserSettings} = {curr: {}}
-
+export const getUserSettingsSync = () => userSettingsSync.curr
 
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
-	get: (name: iUserSettingName) => any
+	get: (name: iUserSettingName, cb?:(res:{currentValue: any, defaultValue:any}) => void) => any
 	set: (name: iUserSettingName, val: any, options?: { writeInSetupJson?: boolean }) => void
 	list: () => iUserSettingList
 	refresh: {
@@ -32,6 +32,23 @@ export type iUserSettingsApi = {
 	refreshUserSettingsFromBackend: Function,
 }
 
+// get params from url
+const getUrlParams = (url: string):{[key:string]:string} => {
+	const res:{[key:string]:string} = {}
+	const params = new URLSearchParams(url)
+	params.forEach((val, key) => {
+		res[key] = val
+	})
+	return res
+}
+const paramsUrl = getUrlParams(window.location.search)
+const c = {}
+// replace params of c from paramsUrl not using lodash
+for (const key in paramsUrl) {
+	c[key] = paramsUrl[key]
+}
+
+
 export const defaultValsUserSettings: iUserSettings = {
 	ui_sidebar: true,
 	ui_filesList_sortMode: 2,
@@ -40,32 +57,70 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_markdown_preview: true,
 	ui_editor_markdown_latex_preview: true,
 	ui_editor_markdown_enhanced_preview: true,
+	ui_editor_markdown_syntax: false,
+	ui_editor_inline_suggestion: true,
 	ui_editor_markdown_table_preview: true,
 	ui_editor_spellcheck: true,
+	ui_editor_live_watch: true,
+	ui_editor_synced_title_scrolling: true, 
 	ui_editor_links_as_button: true,
+	ui_editor_search_highlight_url: "https://duckduckgo.com/?q=",
+	ui_editor_search_highlight_enable: true,
+	ui_editor_markdown_tags: true,
 	ui_editor_links_preview_zoom: 0.8,
 	ui_editor_show_image_title: false,
 	export_pandoc_cli_options: "\ndocx | --wrap=preserve --toc --number-sections \n revealjs | -V theme=moon \n beamer | --wrap=preserve --include-in-header=./include-tex.md ",
+	advanced_image_compression_settings: JSON.stringify({quality: 80, maxWidth: 1500}),
 	ui_editor_ai_text_selection: true,
-	ui_editor_ai_command: "export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
+	ui_editor_ai_command: "AI assistant | wand-magic-sparkles | new | export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
+	tts_custom_engine_command: `curl -sS --request POST --header "Authorization: Bearer REPLACE_ME_BY_REPLICATE_OWN_API_TOKEN" --header "Content-Type: application/json" --header "Prefer: wait" --data '{"version": "f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13","input": {"text": "{{input}}", "speed": 1,"voice": "ff_siwis"}}' https://api.replicate.com/v1/predictions`,
+	tts_sentences_per_part: 1,
+	tts_preload_parts: 1,
+	tts_price_per_word: 0.000005,
 	server_activity_logging_enable: false,
 	view_disable_notification_popups: false,
-	beta_floating_windows: false,
+	privacy_work_mode_enable: false,
+	privacy_work_mode_filters: "work,meeting",
+	beta_floating_windows: true,
 	beta_plugins_marketplace: false,
 	plugins_marketplace_url: "https://raw.githubusercontent.com/dotgreg/tiro-notes/master/docs/marketplace.json",
+	ui_layout_general_font_size: 10,
+	ui_layout_background_image_enable: false,
+	ui_layout_background_video_enable: false,
+	ui_layout_background_image_window_opacity: 70,
+	ui_layout_background_image_window_opacity_active: 90,
+	ui_layout_background_video_width: 100,
+	ui_layout_background_video_height: 100,
+	ui_layout_font_family_interface: `Helvetica neue, Open sans, arial, sans-serif`,
+	// ui_layout_font_family_editor: `Consolas, monaco, monospace`,
+	ui_layout_font_family_editor: `Helvetica neue, Open sans, arial, sans-serif`,
 }
 const defaultVals = defaultValsUserSettings
 
 const h = `[USER SETTINGS] :`
 const log = sharedConfig.client.log.verbose
 
+const genUserSettingsList = (userSettings:iUserSettings):iUserSettingList => {
+	const res: iUserSettingList = []
+	each(userSettings, (val, name) => {
+		
+		const key = name as iUserSettingName
+		res.push({ key, val })
+	})
+	// adds defaultValsUserSettings
+	each(defaultValsUserSettings, (val, name) => {
+		const key = name as iUserSettingName
+		if (!res.find(r => r.key === key)) res.push({ key, val })
+	})
+	return res
+}
 
 
 export const useUserSettings =  (p: {
 	eventBus: iApiEventBus
 }) => {
 	// storage
-	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {})
+	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {}, {history: true})
 	const [refreshCss, setRefreshCss] = useState(0)
 	const triggerRefresh = () => {
 		setRefreshCss(refreshCss + 1)
@@ -89,12 +144,19 @@ export const useUserSettings =  (p: {
 	useEffect(() => {
 		debounceChange()
 		userSettingsSync.curr = userSettings
+		// add in userSettingsSync.curr default values
+		each(defaultVals, (val, name) => {
+			// if userSettings[name] is undefined, set it to default
+			if (isUndefined(userSettings[name])) userSettings[name] = val
+		})
 	}, [userSettings])
 
 	const debounceChange = useDebounce(() => {
 		log && console.log(h, 'UPDATE!', userSettings, refreshCss);
 		replaceDefaultByUserVar('ui_layout_colors_main', cssVars.colors, 'main')
 		replaceDefaultByUserVar('ui_layout_colors_main_font', cssVars.colors, 'mainFont')
+		replaceDefaultByUserVar('ui_layout_font_family_editor', cssVars.font, 'editor')
+		replaceDefaultByUserVar('ui_layout_font_family_interface', cssVars.font, 'main')
 		triggerRefresh()
 	}, 1000)
 
@@ -137,21 +199,19 @@ export const useUserSettings =  (p: {
 			setUserSettings(nSettings)
 		},
 
-		get: name => {
+		
+
+		get: (name,cb) => {
 			// if settings not configured, return default
 			let resDefault = defaultVals[name]
 			let res = resDefault
 			if (name in userSettings) res = userSettings[name]
 			if (res === '') res = resDefault
+			if (cb) cb({currentValue: res, defaultValue: resDefault})
 			return res
 		},
 		list: () => {
-			const res: iUserSettingList = []
-			each(userSettings, (val, name) => {
-				const key = name as iUserSettingName
-				res.push({ key, val })
-			})
-			return res
+			return genUserSettingsList(userSettings)
 		},
 		refresh: {
 			css: {

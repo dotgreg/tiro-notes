@@ -13,18 +13,27 @@ import { devCliAddFn } from "../devCli.manager";
 
 
 import { StateField, StateEffect, EditorState, Extension } from '@codemirror/state';
+import { regexs } from "../../../../shared/helpers/regexs.helper";
 
 
 ////////////////////// 
 // REPLACEMENT SYSTEM ABSTRACTION
 //
 
-export type iReplacementFn = (matchs: string[]) => HTMLElement
+export type iReplacementFn = (params:{matchs: string[], view:any, pos:any}) => HTMLElement
 export type iClassWrapperFn = (matchs: string[]) => string
 
 class ReplacementWidget extends WidgetType {
-	constructor(readonly match: any, readonly replacement: iReplacementFn) { super(); }
-	toDOM() { return this.replacement(this.match) }
+	constructor(
+		readonly match: any,
+		readonly view: any,
+		readonly pos: any, 
+		readonly replacement: iReplacementFn
+	) { super(); }
+	toDOM() { return this.replacement({matchs:this.match, view:this.view, pos:this.pos}) }
+	get estimatedHeight(): number {
+		return 500
+	}
 }
 
 
@@ -35,24 +44,33 @@ devCliAddFn("code_mirror", "cache_get", () => cacheDecoration)
 // @cache @ctag
 // caching les decorations!!!
 // 
-const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windowId:string) => new MatchDecorator({
+const matcher = (pattern: RegExp, replacement: iReplacementFn, file:iFile, windowId:string, cache:boolean) => new MatchDecorator({
 	regexp: pattern,
-	decoration: match => {
+	decoration: (match,view,pos) => {
 		let id = match.input + match.index
 		let cacheId = file.path+windowId
 		if (!cacheDecoration[cacheId]) cacheDecoration[cacheId] = {}
+		let res
 		if (!cacheDecoration[cacheId][id]) {
-		// if (!cacheDecoration[id]) {
-			let widget = new ReplacementWidget(match, replacement)
+			let widget = new ReplacementWidget(match,view,pos, replacement)
 			let deco = Decoration.replace({ widget })
 			cacheDecoration[cacheId][id] = deco
-		} 
-		return cacheDecoration[cacheId][id]
+			if (cache === false) {
+				delete cacheDecoration[cacheId][id]
+				res = deco
+			} else {
+				res = cacheDecoration[cacheId][id]
+			}
+		} else {
+			res = cacheDecoration[cacheId][id]
+		}
+		// return cacheDecoration[cacheId][id]
+		return res
 	}
 })
 const matcherClass = (pattern: RegExp, classFn: iClassWrapperFn) => new MatchDecorator({
 	regexp: pattern,
-	decoration: matchs => {
+	decoration: (matchs,view,pos) => {
 		return Decoration.mark({ class: classFn(matchs) })
 	}
 })
@@ -64,29 +82,32 @@ export const genericReplacementPlugin = (p: {
 	replacement?: iReplacementFn
 	classWrap?: iClassWrapperFn
 	options?: {
-		isAtomic?: boolean
+		isAtomic?: boolean,
+		cache?: boolean
 	}
 }) => {
+	const replacementFn = p.replacement
+	const cache = p.options?.cache === false ? false : true
 	return ViewPlugin.fromClass(class {
 		decorations: DecorationSet
 		constructor(view: EditorView) {
-			if (p.replacement) {
-				this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId).createDeco(view)
+			
+			if (replacementFn) {
+				this.decorations = matcher(p.pattern, replacementFn, p.file, p.windowId, cache).createDeco(view)
 			}
 			else {
 				this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).createDeco(view)
 			}
 		}
 		update(update: ViewUpdate) {
+			// if (p.pattern === regexs.dateFrFormat) console.log("dateFrFormat", update)
 			try {
-				if (p.replacement && (update.docChanged || update.viewportChanged)) {
+				if (replacementFn && (update.docChanged || update.viewportChanged)) {
 					//@ts-ignore
-					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId)
-					.updateDeco(update, this.decorations)
+					this.decorations = matcher(p.pattern, p.replacement, p.file, p.windowId, cache).updateDeco(update, this.decorations)
 				}
 				else {
-					this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn)
-						.updateDeco(update, this.decorations)
+					this.decorations = matcherClass(p.pattern, p.classWrap as iClassWrapperFn).updateDeco(update, this.decorations)
 				}
 			} catch (e) {
 				console.warn("[ERROR VIEWPLUGIN CM]", e, update);

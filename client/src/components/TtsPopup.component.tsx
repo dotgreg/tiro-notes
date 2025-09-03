@@ -62,9 +62,6 @@ export const TtsPopup = (p: {
 		let left = formatTime((6 * (totChunks - currChunk)) / (currRate * 60))
 		let tot = formatTime((6 * totChunks) / (currRate * 60))
 		let res = ` ${left} left of ${tot}`
-		// let max = formatTime((15 * totChunks) / (currRate * 60))
-		// let res = `${min} - ${max}`
-		// if (min === max) res = `${min}`
 		setEstimatedTime(res)
 
 	}, [totChunks, currRate, currChunk])
@@ -76,20 +73,10 @@ export const TtsPopup = (p: {
 	window.tts = tts
 
 	useEffect(() => {
-		// setTimeout(() => {
-		// 	if (getAvailableVoices()[selectedVoiceId]) {
-		// 		tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
-		// 	}
-		// })
 		tts.current = new Text2SpeechManager({ text: p.fileContent })
 		tts.current.goToChunk(currChunk)
 	}, [])
 
-	// useEffect(() => {
-	// 	if (getAvailableVoices()[selectedVoiceId]) {
-	// 		tts.current.loadVoice(getAvailableVoices()[selectedVoiceId].obj)
-	// 	}
-	// }, [selectedVoiceId])
 
 	useEffect(() => {
 		tts.current.updateSpeed(currRate)
@@ -105,7 +92,7 @@ export const TtsPopup = (p: {
 		else nPos = tts.current.currChunkId = 1
 		// if we have a p.startString
 		if (p.startString && !initPos.current) {
-			let chunkPos = tts.current.extractToChunkPos(p.startString)
+			let chunkPos = tts.current.extractToChunkPos(p.startString, tts.current.chunkedText, tts.current.chunkLength)
 			nPos = chunkPos
 			tts.current.goToChunk(nPos)
 			initPos.current = true
@@ -141,7 +128,7 @@ export const TtsPopup = (p: {
 				/>
 
 				<span> SPEED : </span>
-				<input className="speed-range" type="range" value={currRate} min="0" max="3" step="0.1"
+				<input className="speed-range" type="range" value={currRate} min="0.5" max="2" step="0.1"
 					onChange={e => {
 						const nVal = e.target.value as any
 						setCurrRate(nVal)
@@ -208,7 +195,7 @@ export const StyledDiv = styled.div`
 		left: 0px;
 		width: 100vw;
 		height: 100vh;
-		z-index: 1005;
+		z-index: 100005;
 		background: rgba(0,0,0,0.3);
 		display: flex;
 		justify-content: center;
@@ -217,7 +204,7 @@ export const StyledDiv = styled.div`
 		}
 }
 .popup-wrapper .popupContent {
-    padding: 20px;
+    	padding: 20px;
 		.input-component span, span {
 				display: inline-block;
 				width: 30%;
@@ -227,6 +214,7 @@ export const StyledDiv = styled.div`
 		.speed-range {
 				position: relative;
 				top: 8px;
+				width: 90%;
 		}
 		.range-pos {
 				width: 100%;

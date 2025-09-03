@@ -5,12 +5,12 @@ import { clientSocket2, getBackendUrl } from '../../managers/sockets/socket.mana
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getApi, iApiEventBus } from './api.hook';
 import { checkUrlExists } from '../../managers/url.manager'
-import { each, random } from 'lodash';
+import { each, random } from 'lodash-es';
 import { cleanPath } from '../../../../shared/helpers/filename.helper';
 import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { tryCatch } from '../../managers/tryCatch.manager';
-import { iDownloadRessourceOpts, iFile } from '../../../../shared/types.shared';
+import { iDownloadRessourceOpts, iFile, iImageCompressionParams } from '../../../../shared/types.shared';
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
@@ -32,11 +32,12 @@ export interface iRessourceApi {
 
 	fetch: (
 		url: string,
-		cb: (urlContent: string, urlPath:string) => void,
-		options?: { 
+		cb: (urlContentOrPath: string, urlPath?:string) => void,
+		options? : { 
 			disableCache?: boolean | string
+			persistentCache?: boolean
 			returnsPathOnly?:boolean
-		}
+		} & iDownloadRessourceOpts
 	) => void,
 	
 	fetchEval: (
@@ -44,20 +45,25 @@ export interface iRessourceApi {
 		params?: iEvalFuncParams,
 		options?: { 
 			disableCache?: boolean | string
-		},
+		} & iDownloadRessourceOpts,
 		cb?: (evalRes:any) => void,
 	) => void,
 
 	fetchUrlArticle: (
 		url: string,
 		cb: (out: { title: string, text: string, html: string, raw: string }) => void,
-		options?: {}
+		options?: {} & iDownloadRessourceOpts,
 	) => void
 
 	scanFolder: (
 		path:string,
 		cb: (files: iFile[]) => void
 	) => void,
+
+	compressImage: (
+		params: iImageCompressionParams,
+		cb?: (answer: any) => void
+	) => void
 
 	cleanCache: () => void
 }
@@ -110,27 +116,33 @@ export const useRessourceApi = (p: {
 		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
 
-		// console.log(h,"FETCH RESSOURCE", {url,opt})
+		// console.log(h,"FETCH RESSOURCE", {url,options})
+		// if disableCache is true, we will always download the file
+		if (options.disableCache === true) console.log(h, `FETCHING => disableCache is true`, { url, options });
 
-		const cacheFolder = `/.tiro/cache/fetch/`
+		const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
+		
 		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 
 		const returnFile = () => {
+			// console.log(h, `FETCHING => getting CACHED file`, { url, options });
 			fetch(localStaticPath).then(function (response) {
 				return response.text();
 			}).then(function (data) {
 				tryCatch(() => cb(data, localStaticPath))
 			})
 		}
-		const returnFilePath = () => { cb("", localStaticPath) }
+		const returnFilePath = () => { cb(localStaticPath) }
 
 		const downloadThenReturnFile = () => {
 			downloadRessource(url, cacheFolder, answer => {
+				// console.log(h, `FETCHING => answer`, { url, options, answer});
 				if (answer.message) { 
+					// console.log(h, `FETCHING => answer`, { url, options, answer});
 					if (!options?.returnsPathOnly) returnFile() 
 					else returnFilePath()
 				}
-			})
+			}, options)
 		}
 
 		if (options.disableCache === true) {
@@ -141,7 +153,8 @@ export const useRessourceApi = (p: {
 				url: localStaticPath,
 				onSuccess: () => {
 					// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
-					returnFile()
+					if (!options?.returnsPathOnly) returnFile() 
+					else returnFilePath()
 				},
 				onFail: () => {
 					downloadThenReturnFile()
@@ -184,9 +197,10 @@ export const useRessourceApi = (p: {
 	const fetchEval: iRessourceApi['fetchEval'] = (url, funcParams, options, cb) => {
 		if (!options) options = {}
 		if (!options.disableCache) options.disableCache = false
-		if (options.disableCache === "false") options.disableCache = false
 		if (options.disableCache === "true") options.disableCache = true
-		// console.log(h, "fetchEval", url, funcParams, options)
+		console.log(h, "fetchEval", url, funcParams, options)
+
+		// CODE EVAL
 		const evalCode = (codeTxt:string) => {
 			try {
 				const paramsNames:string[] = []
@@ -199,12 +213,14 @@ export const useRessourceApi = (p: {
 				cb && cb(res)
 			} catch (e) {
 				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
-				console.log(message, e, {url, funcParams, options});
+				// console.log(message, e, {url, funcParams, options});
 				notifLog(`${message}`)
 			}
 		}
-		if (options.disableCache) ramFetchEvalCache.val[url] = null
-		if (!ramFetchEvalCache.val[url] || options.disableCache) {
+
+		// GET CONTENT & FILE
+		if (options.disableCache === true) ramFetchEvalCache.val[url] = null
+		if (!ramFetchEvalCache.val[url] || options.disableCache === true) {
 			fetchRessource(url, (codeTxt)=> {
 				evalCode(codeTxt)
 				ramFetchEvalCache.val[url] = codeTxt
@@ -234,12 +250,21 @@ export const useRessourceApi = (p: {
 		})
 	}
 
+	const compressImage: iRessourceApi['compressImage'] = (params, cb) => {
+		const idReq = genIdReq('compress-image');
+		console.log(`${h} compress image ${params.path}`);
+		// execute callback on answer
+		p.eventBus.subscribe(idReq, cb || (() => {}));
+		clientSocket2.emit('askRessourceImageCompress', { params, idReq, token: getLoginToken() })
+	}
+
 	//
 	// EXPORTS
 	//
 	const ressourceApi: iRessourceApi = {
 		delete: deleteRessource,
 		download: downloadRessource,
+		compressImage,
 		scanFolder: scanRessourceFolder, 
 		fetch: fetchRessource,
 		fetchEval,

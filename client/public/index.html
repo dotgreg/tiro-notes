@@ -32,11 +32,20 @@
 		/* 		top:40px; */
 		/* 		left: 0px; */
 		/* } */
+		
+		/*
+		avoiding decal issues
+		*/
+		html {
+			position: fixed;
+		}
 		body > iframe {
 			display: none!important;
 		}
 	</style>
 	<script>
+		// to disable hot reload uncomment the following code (when working on client, will reload, thus losing the state of the app)
+
 		setTimeout(() => {
 			console.info("[DEV NOTICE] Live Reload Has Been Disabled");
 			window.webpackHotUpdate = () => {}

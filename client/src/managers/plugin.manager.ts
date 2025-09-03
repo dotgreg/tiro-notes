@@ -1,4 +1,4 @@
-import { each, isUndefined } from "lodash"
+import { each, isUndefined } from "lodash-es"
 import { iPlugin } from "../../../shared/types.shared"
 import { getApi } from "../hooks/api/api.hook"
 import { iEvalFuncParams } from "../hooks/api/ressource.api.hook"
@@ -6,6 +6,7 @@ import { devCliAddFn, notifLog } from "./devCli.manager"
 
 // SUGGEST POPUP PLUGINS => loadExternalBarPlugin
 
+const intervalTime = 1000 * 60 // 1minute
 
 const h = `[PLUGIN CRON]`
 devCliAddFn('cron', 'trigger', () => {triggerCron()})
@@ -16,7 +17,7 @@ export const startFrontendBackgroundPluginsCron = () => {
     if (hasBgPluginCronStarted) return
 
     // every minute
-    let intervalTime = 1000 * 60
+    // let intervalTime = 1000 * 60
     // let intervalTime = 1000 * 20
     
     let int = setInterval(() => {
@@ -54,14 +55,23 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
 //////////////////////////////////////////////////
 // BG/CRON PLUGIN CODE
 //
+
+// if several pages on same client, make sure to run only once using localstorage caching 
+// const lsLastRunDate = parseInt(localStorage.getItem("frontendLsLastCronRunDate") as string) || 0
+
 const triggerCron = () => {
+    // if (lsLastRunDate + intervalTime > new Date().getTime()) return 
+    // localStorage.setItem("frontendLsLastCronRunDate", new Date().getTime().toString())
+
+    let datetime = new Date().toJSON().replace("T","").replace("Z", "")
+
     getApi(api => {
         // get the cached infos of all cron, especially the last ran date
         api.plugins.list(plugins => {
             api.cache.get(cacheId, cronState => {
                 if (!cronState) cronState = {}
                 // if lastRanDate + p.options.runInterval < now
-                console.log(h, `starting new batch cron`, {plugins, cronState})
+                // console.log(h, `starting new batch cron`, {plugins, cronState})
                 each(plugins, p => {
                     let enabled = true
                     if (p.options?.disabled === false) enabled = false
@@ -72,16 +82,19 @@ const triggerCron = () => {
                     let intervalRun = (p.options?.background_exec_interval_in_min || 60) * 60 * 1000
                     let now = new Date().getTime()
                     let lastRun = cronState[p.name]?.lastRunTime || 0
-                    if (lastRun + intervalRun > now) return console.log(h, `bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
-                    //  Function() the code with an api injection inside its variables 
-
-                    console.log(h, `exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`)
-                    const state = cronState[p.name]
-                    evalPluginCode(p, {tiroApi:api, bgState:state})
-                    
-                    // update the cache
-                    if (!cronState[p.name] || isUndefined( cronState[p.name])) cronState[p.name] = {vars:{}}
-                    cronState[p.name].lastRunTime = now
+                    if (lastRun + intervalRun > now) {
+                        return console.log(h, `${datetime}  => 🕑⏳ bg plugin ${p.name}, wait for ${Math.round((lastRun + intervalRun - now)/1000)} seconds` )
+                    } else {
+                        let status = lastRun + intervalRun > now
+                        //  Function() the code with an api injection inside its variables 
+                        console.log(h, `${datetime}  => 🕑▶️ exec the bg plugin ${p.name}, last exec was ${new Date(lastRun).toJSON()}`, {p, lastRun, intervalRun, now, status})
+                        const state = cronState[p.name]
+                        evalPluginCode(p, {tiroApi:api, bgState:state})
+                        
+                        // update the cache
+                        if (!cronState[p.name] || isUndefined( cronState[p.name])) cronState[p.name] = {vars:{}}
+                        cronState[p.name].lastRunTime = now
+                    }
                 })
                 api.cache.set(cacheId, cronState, -1)
             },{disableRamCache: true}) // cache.get important to disable ram cache to fetch the last backend lastExecTime across devices

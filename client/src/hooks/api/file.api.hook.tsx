@@ -8,11 +8,16 @@ import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
+import { useDebounce } from '../lodash.hooks';
+import { debounce, throttle } from 'lodash-es';
+import { addBackMetaToContent, filterMetaFromFileContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
 
 
 //
 // INTERFACES
 //
+
+export type iInsertMethod = "prepend" | "append"
 export type iGetFilesCb = (files: iFile[]) => void
 
 export interface iFileApi {
@@ -24,13 +29,28 @@ export interface iFileApi {
 		noteLink: string,
 		cb: (noteContent: string) => void,
 		options?: {
-			onError?: Function
+			onError?: Function,
+			removeMetaHeader?: boolean
 		}
+	) => void
+	insertContent: (
+		noteLink: string,
+		content: string,
+		options?: {
+			insertLine?: number,
+			onError?: Function
+		},
+		cb?: (res:any) => void,
 	) => void
 	saveContent: (
 		noteLink: string, 
 		content: string,
-		options?: { withMetas?: boolean, history?: boolean },
+		options?: { 
+			withMetas?: iFile, 
+			history?: boolean, 
+			debounced?: number | false
+			withThrottle?: boolean
+		},
 		cb?: (res:any) => void
 	) => void
 	delete: (file: iFile, cb: iGetFilesCb) => void
@@ -57,7 +77,7 @@ export const useFileApi = (p: {
 				p.eventBus.notify(data.idReq, { error: data.error })
 			} else {
 				// let filterRes = filterMetaFromFileContent(data.fileContent)
-				p.eventBus.notify(data.idReq, { content: data.fileContent })
+				p.eventBus.notify(data.idReq, { ...data })
 			}
 		})
 	}, [])
@@ -67,6 +87,7 @@ export const useFileApi = (p: {
 	// 
 
 	// 1. GET CONTENT
+	let tempChunksToSave:{[filePath:string]:string[]} = {}
 	const getFileContent: iFileApi['getContent'] = (
 		noteLink,
 		cb,
@@ -80,9 +101,28 @@ export const useFileApi = (p: {
 		p.eventBus.subscribe(idReq, answer => {
 			if (answer.error && options && options.onError) options.onError(answer.error)
 			else if (answer.error && (!options || !options.onError)) cb(answer.error)
-			else if (!answer.error) cb(answer.content)
+			else if (!answer.error) {
+
+				// on content received
+				tempChunksToSave[idReq] = tempChunksToSave[idReq] || []
+				// console.log(12222, answer)
+				tempChunksToSave[idReq][answer.chunkNb] = answer.chunkContent
+				// console.log(`${h} getFileContent chunk ${answer.chunkNb}/${answer.chunksLength} for ${filePath}`, answer.chunkContent.length, "chars");
+
+				if (tempChunksToSave[idReq].length === answer.chunksLength) {
+					// console.log(`${h} getFileContent all chunks received for ${filePath}`, tempChunksToSave[idReq].length, "chunks");
+					let answerContent = tempChunksToSave[idReq].join("")
+					if (options && options.removeMetaHeader) {
+						let objAnswer = filterMetaFromFileContent(answerContent)
+						answerContent = objAnswer.content
+					}
+					delete tempChunksToSave[idReq]
+					p.eventBus.unsubscribe(idReq)
+					cb(answerContent)
+				}
+			}
 			end()
-		});
+		}, {persistent:true});
 		// 2. emit request 
 		clientSocket2.emit('askForFileContent', {
 			filePath,
@@ -92,13 +132,41 @@ export const useFileApi = (p: {
 	}
 
 
+
+
+
+	//
 	// 2. SET CONTENT
+	//
+
+	// default debounced time for perfs improvements when typing
+	const saveDebouncedTime = 500
+
+	// const debouncedFilesContent: {[path:string]: string} = {}
 	const lastNoteWHistory = useRef('');
-	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
+
+	const saveFileInt =  (noteLink, content, options, cb) => {
 		// const end = perf("saveFileContent " + noteLink)
 		const history = (options && options.history) ? options.history : false
-		const withMetas = (options && options.withMetas) ? options.withMetas : true
+		const withMetas = (options && options.withMetas) ? options.withMetas : false
 
+		// if withMetas
+		// if (withMetas) content = updateMetaHeaderNote(content)
+		
+		// automatically split internally the content in chunks <1Mb to avoid 413 errors in many servers
+		let contentChunks:string[] = []
+		let limitChunkKb = 900 * 1000
+		if (content.length > limitChunkKb) {
+			let contentChunkNb = Math.ceil(content.length / (limitChunkKb))
+			for (let i = 0; i < contentChunkNb; i++) {
+				let start = i * limitChunkKb
+				let end = (i + 1) * limitChunkKb
+				contentChunks.push(content.slice(start, end))
+			}
+		} else {
+			contentChunks = [content]
+		}
+		
 		//
 		// 2. wait for callback
 		const idReq = genIdReq('save-file-content');
@@ -111,22 +179,40 @@ export const useFileApi = (p: {
 
 		//
 		// 1 FILE CREATION
+		// send one req per chunk
 		const filePath = noteLinkToPath(noteLink);
-		clientSocket2.emit('saveFileContent', {
-			filePath, newFileContent: content,
-			// options: optsApi,
-			token: getLoginToken(),
-			idReq,
-			withCb: cb ? true : false
-		})
+		for (let i = 0; i < contentChunks.length; i++) {
+			const contentChunk = contentChunks[i]
+			clientSocket2.emit('saveFileContent', {
+				filePath, 
+				chunkContent: contentChunk,
+				chunkNb: i,
+				chunksLength: contentChunks.length,
+				// options: optsApi,
+				token: getLoginToken(),
+				idReq,
+				withCb: cb ? true : false
+			})
+		}
 
+
+		// clientSocket2.emit('saveFileContent', {
+		// 	filePath, 
+		// 	newFileContent: content,
+		// 	// options: optsApi,
+		// 	token: getLoginToken(),
+		// 	idReq,
+		// 	withCb: cb ? true : false
+		// })
+
+		
 		if (history) {
+			// console.log("save file hist!")
 			if (noteLink !== lastNoteWHistory.current) {
 				getClientApi2().then(api => {
 					const browserFolder = api.ui.browser.folders.current.get()
 					const currFolder = getFolderPath(noteLink)
 					if (browserFolder === currFolder) {
-
 						// update browser list if same path than edited file
 						let fileTitle = ""
 						const aWindow = api.ui.windows.active.get()
@@ -139,8 +225,114 @@ export const useFileApi = (p: {
 			p.historyApi.intervalSave(noteLink, content)
 			lastNoteWHistory.current = noteLink
 		}
+	}
+	const saveFileIntDebounced =  useDebounce((noteLink, content, options, cb) => {
+		saveFileInt(noteLink, content, options, cb)
+	}, saveDebouncedTime)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+	//
+	// If debounced save asked, first create and store a debounced function for each debounced time, then use that latter one
+	//
+	const debouncedFuncsRef = useRef({})
+	const throttledFuncsRef = useRef({})
+	const getFnId = (noteLink, debouncedTime) => `${noteLink}-${debouncedTime}`
+	const saveFileIntDebounced2 = (debouncedTime:number, withThrottle:boolean, noteLink, content, options, cb) =>  {
+		const fnId = getFnId(noteLink, debouncedTime)
+		if (!debouncedFuncsRef.current[fnId]) {
+			// console.log("create debouncedFuncs", fnId)
+			debouncedFuncsRef.current[fnId] = debounce((noteLink, content, options, cb) => {
+				// console.log("debouncedFuncs", debouncedTime, noteLink)
+				saveFileInt(noteLink, content, options, cb)
+			}, debouncedTime)
+
+			if (withThrottle === true) {
+				throttledFuncsRef.current[fnId] = throttle((noteLink, content, options, cb) => {
+					console.log("throttledFuncs", debouncedTime, noteLink)
+					saveFileInt(noteLink, content, options, cb)
+				}, debouncedTime)
+			}
+
+		}
+		debouncedFuncsRef.current[fnId](noteLink, content, options, cb)
+		if (withThrottle === true) throttledFuncsRef.current[fnId](noteLink, content, options, cb)
+	}
+
+
+	const saveFileContent: iFileApi['saveContent'] = (noteLink, content, options, cb) => {
+		const debounced = (options && options.debounced) ? options.debounced : false
+		const withThrottle = (options && options.withThrottle) ? options.withThrottle : false
 		
+		const isNoteLinkInsideTiroConfig = noteLink.includes("/.tiro/")
+		if (options?.withMetas && !isNoteLinkInsideTiroConfig) {
+			const fileInfosForMeta = options?.withMetas
+			fileInfosForMeta.modified = Date.now()
+			// if date already exists (real date), take it
+			const newContentWithMeta = addBackMetaToContent(content, {
+				created: fileInfosForMeta.created || Date.now(),
+				updated: fileInfosForMeta.modified
+			})
+			content = newContentWithMeta
+		}
+
+		if (debounced) {
+			// saveFileIntDebounced(noteLink, content, options, cb)
+			saveFileIntDebounced2(debounced, withThrottle,  noteLink, content, options, cb)
+		} else {
+			saveFileInt(noteLink, content, options, cb)
+		}
+	}
+
+	const insertContent: iFileApi['insertContent'] = (noteLink, content,  options, cb) => {
+		let lineToInsert = (options && options.insertLine) ? options.insertLine : 0
+		const insertLogic = (currContent) => {
+			let newContent = ""
+
+			// if linetoInsert negative, take lines length and add linetoI
+			lineToInsert = (lineToInsert < 0) ? currContent.split("\n").length + lineToInsert : lineToInsert
+			// if lineToInsert is still negative = end
+			if( lineToInsert < 0 ) lineToInsert = currContent.split("\n").length
+			// if lineToInsert > lines length, insert at end
+			if (lineToInsert > currContent.split("\n").length) lineToInsert = currContent.split("\n").length
+			// insert at line, else start from end and insert at line counting from bottom
+			newContent = currContent.split("\n").slice(0, lineToInsert).join("\n") + "\n" + content + "\n" + currContent.split("\n").slice(lineToInsert).join("\n")
+
+			saveFileContent(noteLink, newContent, { }, (res) => {
+				cb && cb(res)
+			})
+		}
+		getFileContent(noteLink, (currentContent) => {
+			insertLogic(currentContent)
+		}, {
+			onError: (err) => {
+				// console.error("Error while inserting content", err)
+				// options?.onError && options.onError(err)
+				console.log("file does not exists, creating it")
+				insertLogic("")
+			},
+			removeMetaHeader: true
+		})
+
 	}
 
 
@@ -192,6 +384,7 @@ export const useFileApi = (p: {
 	const fileApi: iFileApi = {
 		getContent: getFileContent,
 		saveContent: saveFileContent,
+		insertContent: insertContent,
 		delete: deleteFile,
 		move: moveApi.file,
 		create: createFile,

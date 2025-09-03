@@ -1,4 +1,3 @@
-import { log } from 'console';
 import React, { useState, useEffect, useRef } from 'react';
 import { CodeMirrorUtils } from '../../managers/codeMirror/editorUtils.cm';
 import { iDeviceType, deviceType, isA } from '../../managers/device.manager';
@@ -88,12 +87,12 @@ export const useTextManipActions = (p: TextManipActionsHookParams) => {
 	): string | null => {
 		let linesInfos = getLineTextInfos()
 		if (!linesInfos) return null
-		console.log(h, "applying =>", action, actionsParams);
+		// console.log(h, "applying =>", action, actionsParams);
 		let newText = triggerTextModifAction(
 			action,
 			linesInfos,
 			charDecal => {
-				console.log(h, 'applying a decal of cursor of :', charDecal);
+				// console.log(h, 'applying a decal of cursor of :', charDecal);
 				resetCursorPosition(charDecal)
 			},
 			actionsParams

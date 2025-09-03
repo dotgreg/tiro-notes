@@ -1,5 +1,5 @@
 import React, {  useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { random } from "lodash";
+import { random } from "lodash-es";
 import { useLocalStorage } from './useLocalStorage.hook';
 import { addCliCmd } from '../managers/cliConsole.manager';
 

@@ -8,6 +8,7 @@ export type iNotePreviewPopup = {
     opts?:{
         windowIdToOpenIn: string,
         searchedString?:string
+        replacementString?:string
     }
 }
 
@@ -18,6 +19,7 @@ export interface iNotePreviewPopupApi {
         opts?:{
             windowIdToOpenIn: string,  
             searchedString?:string
+            replacementString?:string
         }
         ) => void
 	close: () => void

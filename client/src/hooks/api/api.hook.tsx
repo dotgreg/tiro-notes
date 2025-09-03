@@ -1,4 +1,4 @@
-import { cloneDeep, each, isFunction, isNumber } from 'lodash';
+import { cloneDeep, each, isFunction, isNumber } from 'lodash-es';
 import React, { useEffect, useRef } from 'react';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 import { iIframeData } from '../../managers/iframe.manager';
@@ -34,6 +34,7 @@ import { iPerformanceApi, usePerformanceApi } from './performance.api.hook';
 import { iActivityApi, useActivityApi } from './activity.api.hook';
 import { iConfigApi, useConfigApi } from './config.api.hook';
 import { iFloatingPanelApi, useFloatingPanelApi } from './floatingPanel.api.hook';
+import { iAiApi, useAiApi } from './ai.api.hook';
 
 
 //
@@ -81,6 +82,7 @@ export interface iClientApi {
 	config: iConfigApi,
 	performance: iPerformanceApi,
 	activity: iActivityApi,
+	ai: iAiApi,
 	ui: {
 		browser: iBrowserApi
 		floatingPanel: iFloatingPanelApi
@@ -220,6 +222,7 @@ export const useClientApi = (p: {
 	const performanceApi = usePerformanceApi({ eventBus })
 	const activityApi = useActivityApi({ eventBus })
 	const floatingPanelApi = useFloatingPanelApi({})
+	const aiApi = useAiApi({})
 
 
 	// 
@@ -249,6 +252,7 @@ export const useClientApi = (p: {
 		watch: watchApi,
 		performance: performanceApi,
 		activity: activityApi,
+		ai: aiApi,
 		ui: {
 			browser: browserApi,
 			floatingPanel: floatingPanelApi,

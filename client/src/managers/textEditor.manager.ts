@@ -1,4 +1,4 @@
-import { each, isBoolean, isNumber, isString, throttle } from "lodash";
+import { each, isBoolean, isNumber, isString, throttle } from "lodash-es";
 import { iFile } from "../../../shared/types.shared";
 import { getApi } from "../hooks/api/api.hook";
 import { notifLog } from "./devCli.manager";
@@ -9,6 +9,7 @@ export interface LineTextInfos {
 	activeLine: string
 	lines: string[]
 	lineIndex: number
+	activeLinePos: number
 	currentPosition: number
 	monacoPosition?: any
 	scrollPos?: any
@@ -23,25 +24,33 @@ export const getTextAreaLineInfos = (textarea: HTMLTextAreaElement): LineTextInf
 	// if (!textarea) return
 	let text = textarea.value
 	// var position = this.editor.getPosition();
-	var splitedText = text.split("\n");
 	let pos = textarea.selectionStart
+	return getTextLineInfos(text, pos)
+};
+
+export const getTextLineInfos = (text: string, pos: number): LineTextInfos => {
+	var splitedText = text.split("\n");
 
 	let c = 0
 	let lineIndex = 0
 	while (c < pos + 1) {
 		let lineLength = splitedText[lineIndex].length + 1
 		c += lineLength
+		// console.log(c, lineLength, pos, lineIndex, splitedText[lineIndex])
 		lineIndex++
 	}
 	lineIndex--
+
+	const activeLinePos = pos - c + splitedText[lineIndex].length - 1
 
 	return {
 		currentPosition: pos,
 		lines: splitedText,
 		activeLine: splitedText[lineIndex],
+		activeLinePos,
 		lineIndex
 	}
-};
+}
 
 
 export const diffStr = (s1: string, s2: string) => {
@@ -115,6 +124,7 @@ export type TextModifAction = '->' | '<-' | '[x]' | '^' | 'v' | 'X' | 'C' | 'ins
 export interface TextModifActionParams {
 	textToInsert: string
 	insertPosition: number | 'currentPos' | 'currentLineStart'
+	replaceText?: boolean
 }
 
 export const triggerTextModifAction = (
@@ -197,21 +207,23 @@ export const triggerTextModifAction = (
 		let insertPos:number = 0
 		if (isNumber(actionParams.insertPosition)) insertPos = actionParams.insertPosition
 		if (actionParams.insertPosition === 'currentPos') insertPos = infos.currentPosition + 1
-		if (actionParams.insertPosition === 'currentLineStart') insertPos = [...lines].splice(0, infos.lineIndex).join('\n').length + 1
+		if (actionParams.insertPosition === 'currentLineStart') insertPos = [...lines].splice(0, infos.lineIndex).join('\n').length 
 
-		console.log('inserting at', insertPos, actionParams, infos.lineIndex, infos)
+		// console.log('inserting at', insertPos, actionParams, infos.lineIndex, infos)
 		
 		let text = lines.join('\n') as string
+		const lengthToInsert = actionParams.textToInsert.length
+		
 		let text2 = [
 			text.slice(0, insertPos),
 			actionParams.textToInsert,
-			text.slice(insertPos)
+			actionParams.replaceText ? text.slice(insertPos + lengthToInsert, text.length) : text.slice(insertPos, text.length)
 		].join('')
 		lines = text2.split('\n')
 
 		// decal char of 0
 		// cb(0)
-	}
+	} 
 
 
 	return lines.join('\n')
@@ -311,6 +323,7 @@ export const generateTextAt = (p2:{
 	if (!isBoolean(p2.linejump)) p2.linejump = true
 	if (!isBoolean(p2.viewFollow)) p2.viewFollow = true
 	if (!isBoolean(p2.wrapSyntax)) p2.wrapSyntax = true
+
 
 	// gradually insert at the end of the selection the returned text
 	let jumpTxt = p2.linejump ? "\n\n" : " "

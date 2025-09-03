@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash";
+import { cloneDeep } from "lodash-es";
 import { getCookie, setCookie } from "./cookie.manager";
 import { devCliAddFn } from "./devCli.manager";
 
@@ -9,7 +9,7 @@ const atInitRemoveConsole = () => {
 	let isLogEnabled = getCookie("tiroConsoleLogEnabled") === "true"
 	if (isLogEnabled) return
 	console.error("==============================================================================")
-	console.error("!!! console.log is disabled, to enable it again, tiroDevCli.log.toggle_enabe()")
+	console.error("!!! console.log is disabled, to enable it again, tiroDevCli.log.toggle_enable()")
 	console.error("==============================================================================")
 	//@ts-ignore
 	window.console = {

@@ -1,7 +1,8 @@
 import { OptionObj } from "../components/Input.component"
 import { md2html } from "./markdown.manager"
 import { regexs } from '../../../shared/helpers/regexs.helper';
-import { each, debounce } from "lodash";
+import { each, debounce } from "lodash-es";
+import { userSettingsSync } from "../hooks/useUserSettings.hook";
 
 export const cleanText2Speech = (rawText: string) => {
 	let text2read = rawText
@@ -11,8 +12,20 @@ export const cleanText2Speech = (rawText: string) => {
 	text2read = text2read.replace(/<[^>]*>?/gm, ' '); // remove html tags
 	text2read = text2read.replace(/((&lt;!--).+?(--&gt;))/gm, ' '); // remove html comments
 	text2read = text2read.replace(/(<!--).+?(-->)/gm, ' '); // remove html comments
-	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
-	text2read = text2read.replace(/(\r\n|\n|\r)/gm, " "); // \n \r jumps
+	text2read = text2read.replace(/(\r\n|\n|\r|\t)/gm, " "); // \n \r jumps
+	text2read = text2read.replace(/(\r\n|\n|\r|\t)/gm, " "); // \n \r jumps
+	// clean all special chars starting by \ 
+	text2read = text2read.replace(/\\./gm, " "); 
+	// replace double spaces by simple spaces 
+	text2read = text2read.replace(/  +/g, ' ');
+	// replace \t by space 
+	text2read = text2read.trim()
+	// replace ' by \'
+	// text2read = text2read.replace(/'/g, "\\'");
+	// replace ’'" by space
+	text2read = text2read.replace(/[^a-zA-Z0-9’\-\_\—\\\/"àâäèéêëîïôœùûüÿçÀÂÄÈÉÊËÎÏÔŒÙÛÜŸÇ"'«»\s\.,;:!?]/g, ' ');
+	text2read = text2read.replace(/’|"|'/g, "’");
+	// remove everything not a-A-Z0-9 + accents + spaces + punctation to space
 	
 	return text2read
 }
@@ -30,6 +43,136 @@ export const getAvailableVoices = () => {
 	});
 	return newvoices
 }
+
+const normalizeText = (text: string): string => {
+	// ambiguous characters like ' or ’ > ' 
+	text = text.replace(/’/g, "'")
+	text = text.replace(/“/g, '"')
+	// remove all special characters except a-zA-Z0-9-_?!.,:;
+	text = text.replace(/[^a-zA-Z0-9]/g, '')
+	text = text.trim()
+	return text
+}
+
+// search for the extract in the chunked text and return the index of the chunk
+export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLength:number): number => {
+
+		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
+		let extractChunks = chunkTextInSentences2(extract, sentencesPerPart)
+		// let toSearch: string | null = null
+		
+		// let toSearchArr = extractChunks.filter(c => c.length > 50)
+		// replace toSearchArr items where c.length < 50 with -------------
+		let toSearchArr = extractChunks.map(c => {
+			if (c.length < 50) {
+				return '-_PLACEHOLDER_SEARCH_FOR_KEEPING_INDEX_LAKJFDSKJDLKSA_-'
+			} else {
+				return c
+			}
+		})
+		// each(extractChunks, c => {
+		// 	if (c.length > 50) {
+		// 		toSearch = c
+		// 		return false
+		// 	}
+		// })
+		if (toSearchArr.length === 0 ) toSearchArr = [extract]
+
+		console.log("trying finding extracts:", toSearchArr, chunkedText)
+		let res = -1
+		each(chunkedText, (chunk, i) => {
+			each(toSearchArr, (toSearch, j) => {
+				if (res == -1 && normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
+					console.log(123333, chunk, toSearch)
+					// if we find the 4th sentence match, come back to first to start tts
+					console.log(i, j, i-j)
+					res = i - j + 1
+					return false
+				}
+			})
+		})
+		return res
+	}
+
+export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:number, partMaxWords: number = 70): string[] => {
+	// 1 remove spaces
+	text2chunk = removeTextLineJumps(text2chunk)
+	// 2 split by sentences while keeping punctuation
+	// let sentences = text2chunk.split(/[.!?]+/)
+	let sentencesWithPunctuation = text2chunk.match(/[^.!?:]+[.!?:]+/g) as string[] || [];
+	// for each sentence, if less than 2 words, merge with next sentence
+	for (let i = 0; i < sentencesWithPunctuation.length; i++) {
+		if (sentencesWithPunctuation[i].split(" ").length < 3) {
+			sentencesWithPunctuation[i] += sentencesWithPunctuation[i + 1]
+			sentencesWithPunctuation.splice(i + 1, 1)
+		}
+	}
+	let sentences = sentencesWithPunctuation
+	// remove sentences with lenfth = 0
+	sentences = sentences.filter(s => s.length > 0)
+	let currChunk = ""
+	let chunks:string[] = []
+	
+	for (let i = 0; i < sentences.length; i++) {
+		// if sentencesPerPart is reached
+		if(i % sentencesPerPart === 0) {
+			chunks.push(currChunk)
+			currChunk = ""
+		}
+		// if merged sentences is > 70
+		currChunk += sentences[i]
+		let wordsInPart = currChunk.split(" ").length
+		if(wordsInPart > partMaxWords) {
+			chunks.push(currChunk)
+			currChunk = ""
+		}
+
+		// if current sentence is > 70, split it using commas
+		// if (sentences[i].split(" ").length > partMaxWords) {
+		// 	let subSentences = sentences[i].split(/[,;]+/)
+		// 	for (let j = 0; j < subSentences.length; j++) {
+		// 		chunks.push(subSentences[j])
+		// 	}
+		// }
+	}
+
+	// remove chunks with less than 1 char
+	chunks = chunks.filter(chunk => chunk.length > 1)
+	return chunks
+}
+
+export const chunkTextInSentences = (text2chunk: string, maxChunkLength: number): string[] => {
+		// 1 remove spaces
+		text2chunk = removeTextLineJumps(text2chunk)
+
+		// 2 split by sentences
+		let sentences = text2chunk.split(/[.!?]+/)
+
+		// 3 reduce again if sentences too long
+		let chunks: string[] = []
+		for (let i = 0; i < sentences.length; i++) {
+			const sentence = sentences[i];
+			if (sentence.length > maxChunkLength) {
+				// subchunks from words
+				let words = sentence.split(' ')
+				let newSentence = ''
+				for (let y = 0; y < words.length; y++) {
+					newSentence += words[y] + ' '
+
+
+					if (newSentence.length > maxChunkLength || y === words.length - 1) {
+						// console.log( 'PUSH', newSentence);
+						chunks.push(newSentence)
+						newSentence = ''
+					}
+				}
+			} else {
+				chunks.push(sentence)
+			}
+		}
+		// console.log(chunks);
+		return chunks
+	}
 
 export class Text2SpeechManager {
 	rawText: string
@@ -50,42 +193,11 @@ export class Text2SpeechManager {
 	}) {
 		this.rawText = p.text
 		this.text2read = cleanText2Speech(p.text)
-		this.chunkedText = this.chunkText(this.text2read)
+		this.chunkedText = this.chunkText(this.text2read, this.chunkLength)
 		console.log(`[TTS] init new manager `, { p, text: this.chunkedText, length: this.chunkedText.length });
 	}
 
-	chunkText = (text2chunk: string): string[] => {
-		// 1 remove spaces
-		text2chunk = removeTextLineJumps(text2chunk)
-
-		// 2 split by sentences
-		let sentences = text2chunk.split(/[.!?]+/)
-
-		// 3 reduce again if sentences too long
-		let chunks: string[] = []
-		for (let i = 0; i < sentences.length; i++) {
-			const sentence = sentences[i];
-			if (sentence.length > this.chunkLength) {
-				// subchunks from words
-				let words = sentence.split(' ')
-				let newSentence = ''
-				for (let y = 0; y < words.length; y++) {
-					newSentence += words[y] + ' '
-
-
-					if (newSentence.length > this.chunkLength || y === words.length - 1) {
-						// console.log( 'PUSH', newSentence);
-						chunks.push(newSentence)
-						newSentence = ''
-					}
-				}
-			} else {
-				chunks.push(sentence)
-			}
-		}
-		// console.log(chunks);
-		return chunks
-	}
+	chunkText = chunkTextInSentences
 
 	loadVoice = (voice) => {
 		console.log(`[TTS] LOAD VOICE`, voice);
@@ -172,26 +284,7 @@ export class Text2SpeechManager {
 		}
 	}
 
-	extractToChunkPos = (extract: string): number => {
-		let extractChunks = this.chunkText(extract)
-		let toSearch: string | null = null
-		each(extractChunks, c => {
-			if (c.length > 50) {
-				toSearch = c
-				return false
-			}
-		})
-		if (!toSearch) return -1
-
-		let res = -1
-		each(this.chunkedText, (chunk, i) => {
-			if (chunk.indexOf(toSearch as string) !== -1) {
-				res = i
-				return false
-			}
-		})
-		return res
-	}
+	extractToChunkPos = extractToChunkPos
 
 	getCurrentChunkText = (): string | null => {
 		let res: string | null = null

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { each, orderBy, sortBy } from 'lodash';
+import { each, orderBy, sortBy } from 'lodash-es';
 import React, { useContext, useEffect, useState } from 'react';
 import { getDateObj } from '../../../shared/helpers/date.helper';
 import { iFile } from '../../../shared/types.shared';
@@ -14,6 +14,7 @@ import { strings } from "../managers/strings.manager";
 import { cssVars } from "../managers/style/vars.style.manager";
 import { Icon } from './Icon.component';
 import { Popup } from './Popup.component';
+import { getFontSize } from '../managers/font.manager';
 
 
 interface iHistoryFile extends iFile {
@@ -102,7 +103,7 @@ export const FileHistoryPopup = (p: {
 	const trashFile = (file: iHistoryFile) => {
 		const titlePopup = "Trashing File"
 		getApi(api => {
-			api.file.delete(file, (a) => {
+			api.file.delete(file, (a) => { 
 				refreshHistoryFiles()
 				setActiveFile(null)
 				setFileHistoryContent("")
@@ -111,7 +112,6 @@ export const FileHistoryPopup = (p: {
 	}
 
 	return (
-		<StyledDiv>
 			<div className="history-popup-wrapper">
 				<Popup
 					title={`${strings.historyPopup.title}"${p.file.realname}"`}
@@ -144,82 +144,113 @@ export const FileHistoryPopup = (p: {
 						</table>
 					</div>
 					{fileHistoryContent &&
+						<>
 						<div className="note-preview">
 							<textarea
 								className='note-preview-textarea'
 								// readOnly={true}
 								value={fileHistoryContent}
 							/>
+							<div className="button-wrapper">
+								<button
+									className="button"
+									onClick={() => {
+										getApi(api => {
+											// const path = activeFile?.path
+											// if (!path) return
+											api.file.saveContent(p.file.path, fileHistoryContent)
+										})
+									}}
+								>
+									Restore version
+								</button>
+							</div>
+							<div className="advice"> To disable history backup for a note, add "--disable-history--"in it</div>
 						</div>
+						
+						
+						</>
+						
 					}
-					<div className="advice"> To disable history backup for a note, add "--disable-history--"in it</div>
+					
 				</Popup>
 			</div>
-		</StyledDiv>
 	)
 }
 
 
-export const StyledDiv = styled.div`
+export const fileHistoryCss = () => `
+.history-popup-wrapper .popup-wrapper-component .popup-wrapper {
+	height: 70%;
+}
+.history-popup-wrapper  .popup-wrapper .count {
+	position: relative;
+    top: -9px;
+    font-weight: 600;
+}
 .filemain-wrapper .history-popup-wrapper .popup-wrapper-component .popup-wrapper {
 	width: 90%;
 }
-.popup-wrapper .popupContent {
-		max-height: 70vh;
-    padding: 0px;
-}
-.table-wrapper {
-    max-height: 30vh;
-    overflow-y: auto;
-    padding: 0px 0px 20px 0px;
-    
-    table {
-        border-spacing: 0px;
-        thead {
-            tr {
-                th {
-                    padding: 8px;
-                }
-            }
-        }
-        tbody {
-            text-align: left;
-            tr {
-                cursor: pointer;
-                background: #f1f0f0;
-                &:nth-child(2n) {
-                    background: none;
-                }
-								&.active {
-										font-weight: bold;
-								}
-                &: hover {
-                    background: r${cssVars.colors.main};
-                }
-                td {
-                    padding: 8px;
-                }
-            }
-        }
-    }
-}
-.note-preview {
+.history-popup-wrapper {
+	.popup-wrapper .popupContent {
+		// max-height: 70vh;
+		padding: 0px;
+	}
+	.table-wrapper {
+		// max-height: 30vh;
+		height: 50%;
+		overflow-y: auto;
+		padding: 0px 0px 20px 0px;
+		
+		table {
+			border-spacing: 0px;
+			thead {
+				tr {
+					th {
+						padding: 8px;
+					}
+				}
+			}
+			tbody {
+				text-align: left;
+				tr {
+					cursor: pointer;
+					background: #f1f0f0;
+					&:nth-child(2n) {
+						background: none;
+					}
+									&.active {
+											font-weight: bold;
+									}
+					&: hover {
+						background: r${cssVars.colors.main};
+					}
+					td {
+						padding: 8px;
+					}
+				}
+			}
+		}
+	}
+	.note-preview {
+		height: 50%;
 		.note-preview-textarea {
 			padding: 6px;
 			margin: 10px 0px 0px 0px;
 			width: calc(100% - 10px);
-			height: 34vh;
+			// height: calc(100% - 90px);
+			height: calc(100% - 89px);
 			border: none;
 			background: gainsboro;
 		}
+	}
+	.advice {
+		color: #a4a4a4;
+	font-size: ${getFontSize()}px;
+	padding: 3px 3px;
+	}
+	.trash {
+	margin-right: 15px;
+	}
 }
-.advice {
-	color: #a4a4a4;
-font-size: 10px;
-padding: 3px 3px;
-}
-.trash {
-margin-right: 15px;
-}
-
 `

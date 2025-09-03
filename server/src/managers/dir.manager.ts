@@ -77,6 +77,25 @@ export let dirDefaultBlacklist = ['.resources','.history', '_resources', '.DS_St
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // NEW METHOD USING STREAM
 // 
+
+
+// using scanDirForFolders, add recursivity
+export const scanDirForFoldersRecursive = (folderPath: string, depth: number=-1): iFolder => {
+	const folder = scanDirForFolders(folderPath)
+	if (depth === 0) return folder
+	if (depth < 0) depth = 9999999999
+	if (folder.hasFolderChildren) {
+		let children = []
+		each(folder.children, child => {
+			children.push(scanDirForFoldersRecursive(child.path, depth-1))
+		})
+		folder.children = children
+	}
+	return folder
+}
+
+
+
 export const scanDirForFolders = (folderPath: string): iFolder => {
 	// let endPerf = perf('scanDirForFolders2 ' + JSON.stringify(folderPath))
 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
@@ -574,7 +593,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 
 // export const scanDirForFolders = async (folderPath: string): Promise<iFolder | undefined> => {
 // 	const fullFolderPath = cleanPath(`${backConfig.dataFolder}${folderPath}`)
-// 	console.log(1111, fullFolderPath)
 // 	// const items = await new fdir().withFullPaths().onlyDirs().crawl(fullFolderPath).withPromise();
 // 	const items = new fdir().withFullPaths().onlyDirs().withMaxDepth(1).crawl(fullFolderPath).sync();
 // 	// console.log(123, items)
@@ -635,7 +653,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 //       }
 //     }
 //   }
-//   console.log(333, resultFolder)
 //   return resultFolder;
 // };
 
