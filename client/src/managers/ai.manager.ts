@@ -188,6 +188,7 @@ export const triggerAiSearch = (p:{
                 content: `[AI] Error while executing command  <br/> at  ${new Date().toLocaleString()} <br/><br/> COMMAND ANSWER => <br/> <code>${errorLog.curr}</code> </br>`,
                 options: {hideAfter: 10 * 60 },
                 id: "ai-status"
+                
             })
         })
     }, 500)
@@ -196,7 +197,7 @@ export const triggerAiSearch = (p:{
     const notifAiGenerating = () => {
         getApi(api => {
             api.ui.notification.emit({
-                content: `[AI] generating text... <br> (click popup to stop generation)`,
+            content: `[AI] 💬 generating text... <br> ❌ (click popup to stop generation)`,
                 options: {
                     hideAfter: 5, 
                     onClick: () => {
