@@ -357,6 +357,7 @@ const foldAllChildren = (CMObj: ReactCodeMirrorRef | null, keepCurrentOpen: bool
 // SEARCH FUNCTIONS
 // 
 
+const lastSearchWord = {current:""}
 const searchWord = (
 	CMObj: ReactCodeMirrorRef | null, 
 	word: string, 
@@ -372,18 +373,49 @@ const searchWord = (
 			search: word,
 		}
 		if (replacement) Object.assign(configSearch, { replace: replacement })
-		view.dispatch({
-			effects: setSearchQuery.of(new SearchQuery(configSearch))
-		})
-		if(jumpToFirst) {
-			findNext(view)
-			const { from, to } = view.state.selection.main
+		// enable search
+		lastSearchWord.current = word
+
+		const enableSearchBox = () => {
+			if (word != lastSearchWord.current) return
+			console.log("Enabling search box with config:", configSearch)
 			view.dispatch({
-				effects: EditorView.scrollIntoView(from, {
-					y: "center",
-				}),
+				effects: setSearchQuery.of(new SearchQuery(configSearch))
 			})
 		}
+		const centerToNext = () => {
+			console.log(jumpToFirst, "centerToNext")
+			if(jumpToFirst) {
+				findNext(view)
+				const { from, to } = view.state.selection.main
+				view.dispatch({
+					effects: EditorView.scrollIntoView(from, {
+						y: "center",
+					}),
+				})
+			}
+		}
+
+		setTimeout(() => {
+			enableSearchBox()
+		}, 2000)
+		setTimeout(() => {
+			centerToNext()
+		}, 4000)
+
+
+
+		
+		// trigger search 3 times because images loading will decenter the view
+		// enableSearchBox()
+		// setTimeout(() => {
+		// 	enableSearchBox()
+		// }, 1000)
+		// setTimeout(() => {
+		// 	enableSearchBox()
+		// }, 2000)
+
+
 		
 	} catch (error) {
 		console.log("[CM utils > search word] error:", error)

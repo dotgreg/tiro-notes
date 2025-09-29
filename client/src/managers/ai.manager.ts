@@ -194,10 +194,11 @@ export const triggerAiSearch = (p:{
     }, 500)
 
 
+
     const notifAiGenerating = () => {
         getApi(api => {
             api.ui.notification.emit({
-            content: `[AI] 💬 generating text... <br> ❌ (click popup to stop generation)`,
+            content: `[AI] 💬 generating text... <br/><br/> ❌ (click popup to stop generation)`,
                 options: {
                     hideAfter: 5, 
                     onClick: () => {

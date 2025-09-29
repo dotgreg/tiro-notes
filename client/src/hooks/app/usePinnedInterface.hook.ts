@@ -35,9 +35,7 @@ export const usePinStatus= () => {
         })
     }
 
-    console.log('usePinStatus', pinStatus)
 	let pinStatus2 = (!isBoolean(pinStatus.topTab) && !isBoolean(pinStatus.bottomBar)) ? { topTab: true, bottomBar: true } : cloneDeep(pinStatus)
-    console.log('usePinStatus2', pinStatus2)
     
      return {
         pinStatus:pinStatus2,

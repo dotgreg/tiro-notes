@@ -665,6 +665,7 @@ const EditorAreaInt = (
 	}
 
 	useEffect(() => {
+		console.log("222222, editorAction updated", p.editorAction)
 		getApi(api => {
 			if (p.editorAction) onEditorActionTrigger(p.editorAction, api)
 		})
