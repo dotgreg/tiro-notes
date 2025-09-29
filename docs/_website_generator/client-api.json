@@ -27919,7 +27919,7 @@
 							"sources": [
 								{
 									"fileName": "server/src/managers/performance.manager.ts",
-									"line": 71,
+									"line": 72,
 									"character": 54
 								}
 							],
@@ -27938,7 +27938,7 @@
 							"sources": [
 								{
 									"fileName": "server/src/managers/performance.manager.ts",
-									"line": 71,
+									"line": 72,
 									"character": 37
 								}
 							],
@@ -27965,7 +27965,7 @@
 					"sources": [
 						{
 							"fileName": "server/src/managers/performance.manager.ts",
-							"line": 71,
+							"line": 72,
 							"character": 17
 						}
 					]
@@ -35492,7 +35492,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-							"line": 397,
+							"line": 429,
 							"character": 12
 						}
 					],
@@ -35516,7 +35516,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 397,
+											"line": 429,
 											"character": 46
 										}
 									],
@@ -35545,7 +35545,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-											"line": 397,
+											"line": 429,
 											"character": 32
 										}
 									],
@@ -35568,7 +35568,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/codeMirror/editorUtils.cm.ts",
-									"line": 397,
+									"line": 429,
 									"character": 31
 								}
 							]
@@ -36442,7 +36442,7 @@
 					"sources": [
 						{
 							"fileName": "server/src/managers/performance.manager.ts",
-							"line": 35,
+							"line": 36,
 							"character": 12
 						}
 					],
@@ -36464,7 +36464,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 37,
+											"line": 38,
 											"character": 4
 										}
 									],
@@ -36491,7 +36491,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 36,
+											"line": 37,
 											"character": 4
 										}
 									],
@@ -36518,7 +36518,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 39,
+											"line": 40,
 											"character": 4
 										}
 									],
@@ -36536,7 +36536,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 38,
+											"line": 39,
 											"character": 4
 										}
 									],
@@ -36570,7 +36570,7 @@
 							"sources": [
 								{
 									"fileName": "server/src/managers/performance.manager.ts",
-									"line": 35,
+									"line": 36,
 									"character": 33
 								}
 							]
@@ -36586,7 +36586,7 @@
 					"sources": [
 						{
 							"fileName": "server/src/managers/performance.manager.ts",
-							"line": 25,
+							"line": 26,
 							"character": 12
 						}
 					],
@@ -36608,7 +36608,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 30,
+											"line": 31,
 											"character": 4
 										}
 									],
@@ -36628,7 +36628,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 32,
+											"line": 33,
 											"character": 4
 										}
 									],
@@ -36643,7 +36643,7 @@
 											"sources": [
 												{
 													"fileName": "server/src/managers/performance.manager.ts",
-													"line": 32,
+													"line": 33,
 													"character": 14
 												}
 											],
@@ -36685,7 +36685,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 33,
+											"line": 34,
 											"character": 4
 										}
 									],
@@ -36707,7 +36707,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 27,
+											"line": 28,
 											"character": 4
 										}
 									],
@@ -36725,7 +36725,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 29,
+											"line": 30,
 											"character": 4
 										}
 									],
@@ -36745,7 +36745,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 31,
+											"line": 32,
 											"character": 4
 										}
 									],
@@ -36765,7 +36765,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 28,
+											"line": 29,
 											"character": 4
 										}
 									],
@@ -36783,7 +36783,7 @@
 									"sources": [
 										{
 											"fileName": "server/src/managers/performance.manager.ts",
-											"line": 26,
+											"line": 27,
 											"character": 4
 										}
 									],
@@ -36812,7 +36812,7 @@
 							"sources": [
 								{
 									"fileName": "server/src/managers/performance.manager.ts",
-									"line": 25,
+									"line": 26,
 									"character": 24
 								}
 							]
