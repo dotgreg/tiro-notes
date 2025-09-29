@@ -73,6 +73,8 @@ export const TtsCustomPopup = (p: {
 		if ( logRef.current.split("<br>").length > limitLines ) {
 			let allLines = logRef.current.split("<br>")
 			logRef.current = allLines.slice(0, limitLines).join("<br>")
+			// add "===========================================================" at the end
+			logRef.current = logRef.current + "<br>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		}
 
 		// console.log(messageText)
@@ -109,15 +111,20 @@ export const TtsCustomPopup = (p: {
 		pauseAllAudioWindow(false)
 		setIsPlaying(false)
 	}
+	const endAudioRef = useRef(false) 
+	const destroyAudio = () => {
+		console.log(`${pre}: audio DESTROYED`)
+		pauseAllAudioWindow(true)
+		setIsPlaying(false)
+		endAudioRef.current = true
+	}
 	const playChunkInt = (chunkNb, preloadNext = true) => {
 		stopAudio()
 		downloadAudioFile(chunkNb, urlAudio => {
 			if (!urlAudio.includes("ERROR")) {
 				log(`${pre}: ▶️ playing chunk ${chunkNb}`)
 				playAudio(urlAudio, () => {
-					// setTimeout(() => {
-						next()
-					// }, 500)
+					next()
 				}) 
 			} else {
 				let delay = 4
@@ -173,11 +180,23 @@ export const TtsCustomPopup = (p: {
 		currChunkRef.current = chunkNb
 	}
 
+	const problemCounterRef = useRef<number>(0)
 	useInterval(() => {
 		let positionAudio = audioRef.current?.currentTime
 		let timeAudio = audioRef.current?.duration
 		let statusAudio = audioRef.current?.paused
 		log(`${pre}: audio status: ${positionAudio}/${timeAudio} ${statusAudio ? "paused" : "playing"}`)
+		// if 5 times, positionAudio === 0 and timeAudio is NaN, then stop and restart
+		if (positionAudio === 0 && isNaN(timeAudio)) {
+			problemCounterRef.current = problemCounterRef.current + 1
+			console.log(`${pre}: audio ERROR detected ${problemCounterRef.current} times`)
+			if (problemCounterRef.current >= 3) {
+				log(`${pre}: audio ERROR, stopping and restarting`)
+				problemCounterRef.current = 0
+				playChunk(currChunkRef.current)
+			}
+		}
+
 	}, 5000)
 	
 	let currentAudioObj = useRef<any>(null)
@@ -201,7 +220,8 @@ export const TtsCustomPopup = (p: {
 		// audio.play()
 		// updateSpeedAudio(currRateRef.current)
 		audio.oncanplaythrough = () => {
-			log(`${pre}: audio LOADED, start PLAY`)
+			if (endAudioRef.current === true) return
+			log(`${pre}: audio LOADED, start PLAY, ${endAudioRef.current}`)
 			audio.play()
 			updateSpeedAudio(currRateRef.current)
 		}
@@ -401,6 +421,7 @@ export const TtsCustomPopup = (p: {
 			<Popup
 				title={`${strings.ttsPopup.title}`}
 				onClose={() => {
+					destroyAudio()
 					pauseAllAudioWindow(true)
 					isPopupClosedRef.current = true
 					let currentText = textChunks[currChunk]

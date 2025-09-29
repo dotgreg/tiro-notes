@@ -10,7 +10,7 @@ const shouldLog = sharedConfig.server.log.verbose
 export const execString = async (command: string): Promise<any> => {
 	let res = ""
 	try {
-		console.log("exec => " + command)
+		// console.log("exec => " + command)
 		const { stdout } = await execa.command(command, { shell: true })
 		res = stdout
 	}
