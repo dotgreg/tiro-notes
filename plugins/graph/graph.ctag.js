@@ -775,7 +775,7 @@ const graphApp = (innerTagStr, opts) => {
 										network.selectNodes([guessed.id])
 								} else {
 										// dezoom
-										network.moveTo({ position: { x: 0, y: 0 }, scale: 0.1 })
+										// network.moveTo({ position: { x: 0, y: 0 }, scale: 0.1 })
 								}
 								bestGuessEl.innerHTML = resGuess
 						}, 10)
