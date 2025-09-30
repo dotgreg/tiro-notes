@@ -769,9 +769,9 @@ const graphApp = (innerTagStr, opts) => {
 								if (guessed) {
 										if (resArr.length > 0) { resGuess = `${lastid + 1}/${resArr.length} : "${guessed.name}"` }
 										// focus and select it
-										// const scale = network.getScale() < 0.1 ? 0.7 : network.getScale()
-										const currentScale =  network.getScale()
-										network.focus(`${guessed.id}`, { scale: currentScale })
+										const scale = network.getScale() < 0.1 ? 0.7 : network.getScale()
+										// const currentScale =  network.getScale()
+										network.focus(`${guessed.id}`, { scale })
 										network.selectNodes([guessed.id])
 								} else {
 										// dezoom
