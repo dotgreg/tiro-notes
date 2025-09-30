@@ -104,7 +104,6 @@ export const execaWrapper = (p:{
 	if (!p.options) p.options = {}
 	let argsStr = p.args ? p.args.join(" ") : ""
 	argsStr = p.cmdPath + " " + argsStr
-	console.log(22, argsStr)
 
 	let streamProcess
 	if (p.cmdPath) {
