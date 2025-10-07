@@ -193,11 +193,12 @@ export const TtsCustomPopup = (p: {
 		let positionAudio = Math.round(audioRef.current?.currentTime)
 		let timeAudio = audioRef.current?.duration
 		let statusAudio = audioRef.current?.paused
-		log(`${pre}: audio status: ${positionAudio}s/${Math.round(timeAudio)}s ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} `)
+		let roundTimeAudio = Math.round(timeAudio)
+		log(`${pre}: audio status: ${positionAudio}s/${roundTimeAudio}s ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} `)
 		// if 5 times, positionAudio === 0 and timeAudio is NaN, then stop and restart
 
-		if ( !isNumber(timeAudio)) { 
-			log(`${pre}: ❌  audio ERROR detected ${problemCounterRef.current} times`)
+		if ( !isNumber(timeAudio) || isNaN(roundTimeAudio) || `${roundTimeAudio}` === "NaN") { 
+			log(`${pre}: ❌  audio ERROR detected ${problemCounterRef.current} times (timeAudio: ${timeAudio}, roundTimeAudio: ${roundTimeAudio})`)
 			if (problemCounterRef.current >= 2) {
 				log(`${pre}: ❌>> audio ERROR, stopping and restarting`)
 				problemCounterRef.current = 0

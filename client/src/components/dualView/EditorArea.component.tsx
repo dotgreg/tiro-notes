@@ -511,7 +511,7 @@ const EditorAreaInt = (
 		// if already exec action, do not exec
 		if (!api.note.ui.editorAction.canExecuteAction(a)) return
 
-		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${a.noteParentType} ${p.windowId}`)
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${a.noteParentType} ${p.windowId}`, a)
 		if (deviceType() !== "mobile" && a.windowId === "active" && !p.isActive) return
 		if (deviceType() !== "mobile" && a.windowId !== "active" && a.windowId !== p.windowId) return
 
@@ -665,7 +665,7 @@ const EditorAreaInt = (
 	}
 
 	useEffect(() => {
-		console.log("222222, editorAction updated", p.editorAction)
+		// console.log("222222, editorAction updated", p.editorAction)
 		getApi(api => {
 			if (p.editorAction) onEditorActionTrigger(p.editorAction, api)
 		})
