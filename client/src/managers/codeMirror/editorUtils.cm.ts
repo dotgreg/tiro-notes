@@ -383,10 +383,11 @@ const searchWord = (
 				effects: setSearchQuery.of(new SearchQuery(configSearch))
 			})
 		}
-		const centerToNext = () => {
+		const centerTo = (direction:"next"|"prev") => {
 			console.log(jumpToFirst, "centerToNext")
 			if(jumpToFirst) {
-				findNext(view)
+				if (direction === "next") findNext(view)
+				if (direction === "prev") findPrevious(view)
 				const { from, to } = view.state.selection.main
 				view.dispatch({
 					effects: EditorView.scrollIntoView(from, {
@@ -396,12 +397,20 @@ const searchWord = (
 			}
 		}
 
+		enableSearchBox()
+		centerTo("next")
 		setTimeout(() => {
-			enableSearchBox()
-		}, 2000)
-		setTimeout(() => {
-			centerToNext()
-		}, 4000)
+			centerTo("prev")
+			setTimeout(() => {
+				centerTo("next")
+			}, 500)
+		}, 500)
+		// setTimeout(() => {
+		// 	enableSearchBox()
+		// }, 2000)
+		// setTimeout(() => {
+		// 	centerToNext()
+		// }, 4000)
 
 
 
