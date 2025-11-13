@@ -472,7 +472,7 @@ export const usePromptPopup = (p: {
 				<Popup
 					title={title}
 					onClose={closePopup}
-					canBgClose={false}
+					// disableBgClose={true}
 					cssStr={cssStr}
 				>
 					{formFields.map((field, i) => {
@@ -533,7 +533,7 @@ export const usePromptPopup = (p: {
 				<Popup
 					title={title}
 					onClose={closePopup}
-					canBgClose={false}
+					// disableBgClose={true}
 					cssStr={cssStr}
 				>
 					<div>
