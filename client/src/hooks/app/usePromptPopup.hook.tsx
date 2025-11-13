@@ -598,6 +598,7 @@ export const usePromptPopup = (p: {
 export const promptPopupCss = () => `
 .mobile-view-container {
 	.form-popup-component {
+	
 		.popup-wrapper {
 			.popupContent {
 				width: 80vw;
@@ -606,6 +607,8 @@ export const promptPopupCss = () => `
 	}
 }
 	.form-popup-component {
+		position: absolute;
+		z-index: 1000000;
 		.popup-wrapper {
 			input, select {
 				width: 90%;

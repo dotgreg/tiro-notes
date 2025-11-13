@@ -3,6 +3,7 @@ import styled from '@emotion/styled'
 import { cssVars } from '../managers/style/vars.style.manager'
 import { isIpad } from '../managers/device.manager'
 import { css } from '@emotion/css'
+import { Icon2 } from './Icon.component'
 
 /**
  * Generic popup system
@@ -11,22 +12,30 @@ export class Popup extends React.Component
 	<{
 		onClose: Function,
 		title: string,
-		canBgClose?: boolean,
+		disableBgClose?: boolean,
+        disableBg?: boolean,
         cssStr?: string
 	}, {
 
 	}> {
 
-	canBgClose = this.props.canBgClose ? this.props.canBgClose : true
+	canBgClose = this.props.disableBgClose === true ? false : true
     cssStr = this.props.cssStr ? this.props.cssStr : ""
+    disableBg = this.props.disableBg ? this.props.disableBg : false
 
 	render() {
 		return (
 			<div className={`${css`${this.cssStr}`} popup-wrapper-component`} >
-				<div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
+                {
+                    !this.disableBg && <div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
+                }
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
 					<div className="popupTitle"> {this.props.title}</div>
 					<div className="popupContent">{this.props.children}</div>
+                    {
+                        // button X
+                        this.disableBg && <div className="close-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}> <Icon2 name="circle-xmark" color='white' /></div>
+                    }
 				</div>
 			</div>
 		)
@@ -46,6 +55,14 @@ export const PopupWrapperCss = () => `
         width: 100%;
         height: 100%;
         background: rgba(0,0,0,0.1);
+    }
+    .close-popup {
+        position: absolute;
+        top: -3px;
+        right: 1px;
+        cursor: pointer;
+        padding: 10px;
+
     }
     .popup-wrapper {
         overflow-y: auto;

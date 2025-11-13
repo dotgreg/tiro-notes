@@ -779,10 +779,10 @@ const epubV2App = (innerTagStr, opts) => {
 			barEl.innerHTML = `
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
+			${openFormBtn} |
 			${buttonTTs} | 
 			${buttonToggleOrderHtml} | 
 			${fullscreenBtn} |
-			${openFormBtn} |
 			${positionUI}
 			${searchUI}
 			`
