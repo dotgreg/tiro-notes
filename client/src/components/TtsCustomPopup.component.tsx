@@ -62,20 +62,40 @@ export const TtsCustomPopup = (p: {
 
 	const [logTxt, setLogTxt] = useState<string>("")
 	const [showLog, setShowLog] = useState<boolean>(true)
+	const [logCategory, setLogCategoryInt] = useState<string>("text")
+	const logCategoryRef = useRef<string>(logCategory)
+	const setLogCategory = (category:string) => {
+		// clear log content
+		logCategoryRef.current = category
+		logRef.current = ""
+		setLogCategoryInt(category)
+	}
 	const logRef = useRef<string>("")
-	const log = (messageText:string) => {
+	const log = (messageText:string, category:string="processus") => {
 		// prepend to logTxt
+		if (category !== logCategoryRef.current) return
 
 		let messageText2 = messageText.replaceAll(`${pre}:`, "")
 		messageText2 = messageText2.replaceAll(pre, "")
-		logRef.current = messageText2 + "<br>" + logRef.current
-		// limit to 100 lines, cut the last ones
-		let limitLines = 100
+		// append if category is text
+		if (category !== "text") {
+			logRef.current = messageText2 + "<br>" + logRef.current
+		} else {
+			logRef.current = logRef.current + "<br>" + messageText2
+		}
+
+		// limit to 40 lines, cut the last ones
+		let limitLines = 40
 		if ( logRef.current.split("<br>").length > limitLines ) {
 			let allLines = logRef.current.split("<br>")
-			logRef.current = allLines.slice(0, limitLines).join("<br>")
+			// keep only the first limitLines lines for not text
+			if (category !== "text") {
+				logRef.current = allLines.slice(0, limitLines).join("<br>")
+				logRef.current = logRef.current + "<br>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+			} else {
+				logRef.current = allLines.slice(allLines.length - limitLines, allLines.length).join("<br>")
+			}
 			// add "===========================================================" at the end
-			logRef.current = logRef.current + "<br>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		}
 
 		// console.log(messageText)
@@ -292,6 +312,8 @@ export const TtsCustomPopup = (p: {
 
 
 
+	const currentLogTextRef = useRef<number>(0)
+
 	const downloadAudioFile = (chunkId:number, cb: (urlAudio:string) => void) => {
 		let stringCmd = userSettingsSync.curr.tts_custom_engine_command
 		// replace {{input}} in txt by the chunk text
@@ -303,6 +325,11 @@ export const TtsCustomPopup = (p: {
 			setWordStat( wordStatRef.current + wordsNb)
 		}
 		let wordLog = `[${wordsNb} words]`
+		if (chunkId > currentLogTextRef.current) {
+			// only log new chunks
+			log(`${textToSent}`, "text")
+			currentLogTextRef.current = chunkId
+		}
 		stringCmd = stringCmd.replace("{{input}}", textToSent)
 		let isCbCalled = false
 		const cbOnce = (res:any) => {
@@ -341,7 +368,6 @@ export const TtsCustomPopup = (p: {
 					let time = Date.now() - start
 					let timeLog = `[${time}ms]`
 					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
-					log(`${pre}: => ${textToSent}`)
 					audioUrls.current[chunkId] = url[0]
 					// setCachedAudioUrls(audioUrls.current)
 					// preload the audio
@@ -436,6 +462,7 @@ export const TtsCustomPopup = (p: {
 		<StyledDiv>
 			<Popup
 				title={`${strings.ttsPopup.title}`}
+				disableBg={true}
 				onClose={() => {
 					destroyAudio()
 					pauseAllAudioWindow(true)
@@ -508,9 +535,18 @@ export const TtsCustomPopup = (p: {
 								`${Math.round(wordStat / 10 / 60 / 2 / 60 * 10) / 10} hours (${Math.round(wordStat / 10 / 60 / 2)} mins)`}<br />
 							Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000) / 100000}<br />
 						{/* Cached Audio Parts : {cachedAudioUrls.filter(n => n !== null).length} / { textChunks.length }<br/> */}
-						<button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button>
+						{/* <button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button> */}
 						{/* <button onClick={()=> {clearAudioCache()}}> clear audio cache</button> */}
 					</div>
+				}
+				{
+					showLog &&
+					// one checkbox to toggle between categories log "text log"
+					<label className='log-toggler'>
+						<input type="checkbox" checked={logCategory === "text"} onChange={e => setLogCategory(e.target.checked ? "text" : "processus")} />
+						{logCategory === "text" ? "Text Log" : "Processus Log"}
+					</label>
+
 				}
 				{
 					showLog &&
@@ -534,6 +570,9 @@ export const TtsCustomPopup = (p: {
 }
 
 export const StyledDiv = styled.div`
+.log-toggler {
+	font-size: 10px;
+}
 .stats {
 	font-size: 10px;
 	padding: 10px;
@@ -546,6 +585,7 @@ export const StyledDiv = styled.div`
 		font-size: 12px;
 }
 .log-wrapper {
+	min-width: 300px;
 	height: 200px;
 	overflow:scroll;
 	background: #ececec;
