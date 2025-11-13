@@ -21,14 +21,12 @@ export class Popup extends React.Component
 
 	canBgClose = this.props.disableBgClose === true ? false : true
     cssStr = this.props.cssStr ? this.props.cssStr : ""
-    disableBg = this.props.disableBg ? this.props.disableBg : false
+    disableBg = this.props.disableBg === true ? true: false
 
 	render() {
+        console.log("Popup disableBgClose:", this.props.disableBgClose, " canBgClose:", this.canBgClose, " disableBg:", this.disableBg)
 		return (
 			<div className={`${css`${this.cssStr}`} popup-wrapper-component`} >
-                {
-                    !this.disableBg && <div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
-                }
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
 					<div className="popupTitle"> {this.props.title}</div>
 					<div className="popupContent">{this.props.children}</div>
@@ -37,6 +35,9 @@ export class Popup extends React.Component
                         this.disableBg && <div className="close-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}> <Icon2 name="circle-xmark" color='white' /></div>
                     }
 				</div>
+                {
+                    !this.disableBg && <div className="overlay-click-popup" onClick={e => { if (this.canBgClose) this.props.onClose() }}></div>
+                }
 			</div>
 		)
 	}
