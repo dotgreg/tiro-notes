@@ -26,6 +26,7 @@ export interface iPopupFormField {
 	description: string,
 	selectOptions?: iInputSelectOptionObj[]
 	optional?: boolean,
+	rememberLastValue?:boolean,
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -285,6 +286,8 @@ export const usePromptPopup = (p: {
 				// if optional in description, is optional
 				let optional = false
 				if (description?.includes("optional")) optional = true
+				let rememberLastValue = false
+				if (description?.includes("remember")) rememberLastValue = true
 					
 				// if name is already in fields, skip it
 				if (!fields.find(el => el.id === name)){
@@ -294,6 +297,7 @@ export const usePromptPopup = (p: {
 						description: description || name,
 						selectOptions,
 						optional,
+						rememberLastValue,
 						id: name
 					})
 				}
@@ -372,7 +376,7 @@ export const usePromptPopup = (p: {
 			return
 		}
 	 
-		setDisplayFormPopup(false)
+		if (!keepFormOpen) setDisplayFormPopup(false)
 
 		// create final string from format
 		let finalStringToInsert = configForm.insertStringFormat 
@@ -432,7 +436,8 @@ export const usePromptPopup = (p: {
 			})
 		})
 
-		closePopup()
+		if (!keepFormOpen) closePopup()
+
 	}
 
 	// gen an example of popup form
@@ -454,6 +459,7 @@ export const usePromptPopup = (p: {
 	// 	]
 	// })
 
+	const [keepFormOpen, setKeepFormOpen] = useState(false)
 
 	//
 	//
@@ -488,6 +494,9 @@ export const usePromptPopup = (p: {
 								onSelectChange={nval => {
 									formFieldsValues.current[field.id] = nval
 								}}
+								// REMEMBER
+								rememberLastValue={field.rememberLastValue}
+								id={`PromptPopupComponent-${title}-${field.name}-${field.description}-${field.type}`}
 							/>
 							{
 								!field.optional &&
@@ -497,6 +506,15 @@ export const usePromptPopup = (p: {
 					}
 					)}
 					<br />
+					<div className="form-input-wrapper">
+						<Input
+							label="Keep form open"
+							labelStyle="normal"
+							type="checkbox"
+							value={keepFormOpen}
+							onCheckedChange={e => setKeepFormOpen(e) }
+						/>
+					</div>
 					<button
 						value='submit'
 						className="accept submit-button"
@@ -591,6 +609,9 @@ export const promptPopupCss = () => `
 		.popup-wrapper {
 			input, select {
 				width: 90%;
+			}
+			input[type="checkbox"] {
+				width: auto;
 			}
 			.form-input-wrapper {
 				position: relative;

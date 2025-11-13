@@ -241,7 +241,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             // get all non hidden pannels
             let nonHiddenPanels = panelsRef.current.filter(p => !p.status.includes("hidden"))
             // position is i * nonHiddenPanels.length
-            const decal = deviceType() === "mobile" ? 10 : 100
+            const decal = deviceType() === "mobile" ? 5 : 100
             let sizeWidth = (window.innerWidth / 2) - decal
             if (deviceType() === "mobile") sizeWidth = (window.innerWidth) - decal * 2
             const sizeHeight = (window.innerHeight / 1.2) - decal

@@ -429,9 +429,8 @@ const epubV2App = (innerTagStr, opts) => {
 		//
 		//
 		const helpText = `
-		<h3>Exec Ctag Help</h3>
-		<p>Execute calculations in javascript and get the output in a table</p>
-		<p>If some lines starts like r.aCalculation = <...>, it will appear on the result </p>
+		<h3>Ebook Reader Help</h3>
+		<p><b> To add a form popup add the formId to epub config: </b>  api.utils.loadCustomTag(epub2.ctag.js", ..., {size: "100%", padding: false, formId:"date test"})  </p>
 		
 		`
 		let h = "[EPUB V2]"
@@ -634,6 +633,19 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 
 
+			let openFormBtn = `<button id="open-form-button" onclick="tiro_openForm()"> Open Form </button>`
+			if (!opts.formId) openFormBtn = ``
+			window.tiro_openForm = () => {
+				// if opts.formId does not exists, return an error
+				let formId = opts.formId;
+				if (!formId) {
+					console.error(h, "No formId found, please add formId inside epub.md parameters linking to the right form id");
+					return;
+				} 
+				api.call("popup.form.open", [formId], answer => {
+					console.log("done")
+				})
+			}
 
 			//
 			//
@@ -770,6 +782,7 @@ const epubV2App = (innerTagStr, opts) => {
 			${buttonTTs} | 
 			${buttonToggleOrderHtml} | 
 			${fullscreenBtn} |
+			${openFormBtn} |
 			${positionUI}
 			${searchUI}
 			`

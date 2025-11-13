@@ -70,7 +70,7 @@ export const TtsCustomPopup = (p: {
 		messageText2 = messageText2.replaceAll(pre, "")
 		logRef.current = messageText2 + "<br>" + logRef.current
 		// limit to 100 lines, cut the last ones
-		let limitLines = 50
+		let limitLines = 100
 		if ( logRef.current.split("<br>").length > limitLines ) {
 			let allLines = logRef.current.split("<br>")
 			logRef.current = allLines.slice(0, limitLines).join("<br>")
@@ -341,6 +341,7 @@ export const TtsCustomPopup = (p: {
 					let time = Date.now() - start
 					let timeLog = `[${time}ms]`
 					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
+					log(`${pre}: => ${textToSent}`)
 					audioUrls.current[chunkId] = url[0]
 					// setCachedAudioUrls(audioUrls.current)
 					// preload the audio
