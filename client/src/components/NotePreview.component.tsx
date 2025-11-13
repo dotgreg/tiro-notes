@@ -33,7 +33,7 @@ export const NotePreviewInt = (p: {
 	const [view, setView] = useState<iViewType|undefined>(p.view);
 
 	let loadEditorContent = useDebounce(() => {
-		console.log(333333333, p.file, p.searchedString, view)
+		// console.log(333333333, p.file, p.searchedString, view)
 		getApi(api => {
 			api.file.getContent(p.file.path, ncontent => {
 				setContent(ncontent)

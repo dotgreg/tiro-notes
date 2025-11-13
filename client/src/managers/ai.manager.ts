@@ -116,7 +116,7 @@ export const AiAnswer = (p:{
                     view: "preview",
                     id: floatingPanelId,
                     // layout: deviceType() === "mobile" ? "bottom" : "bottom-right",
-                    layout: deviceType() === "mobile" ? "right" : "right",
+                    layout: deviceType() === "mobile" ? "bottom" : "right",
                     
                 })
                 triggerAiSearch({

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useInterval } from "./interval.hook";
-
 export const useFixScrollTop = () => {
     // useEffect(() => {
     //     const handleWindowScrollToTop = () => {
