@@ -9,6 +9,7 @@ import { iInsertMethod } from '../api/file.api.hook';
 import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
 import { config } from 'process';
 import { getDateObj } from '../../../../shared/helpers/date.helper';
+import { isMobile } from '../../managers/device.manager';
 
 
 const liveVars: {
@@ -35,6 +36,7 @@ export interface iPopupFormConfig {
 	insertFilePath?:string,
 	insertLine?:number,
 	insertStringFormat?: string,
+	options?: popupOptions
 }
 export type iPopupApi = {
 	confirm: (text: string, cb: Function, onRefuse?: Function, options?:popupOptions) => void,
@@ -50,7 +52,10 @@ export type iPopupApi = {
 		options?:popupOptions
 	}) => void
 	form: {
-		create: (p:iPopupFormConfig, cb?:Function ) => void
+		create: (
+			p:iPopupFormConfig, 
+			cb?:Function 
+		) => void
 		readConfigFromNote: (
 			notePath: string, 
 			cb:(popupsConfig: iPopupFormConfig[]) => void 
@@ -261,6 +266,12 @@ export const usePromptPopup = (p: {
 
 	const promptFormComponent:iPopupApi["form"]["create"] = (p, cb) => {
 		let finalConfigForm = {...defaultConfigForm, ...p} as iPopupFormConfig
+		if (p.options?.cssStr) setCssStr(p.options.cssStr)
+		else {
+			let ncssStr = ``
+			if (isMobile()) ncssStr = `.popup-wrapper {transform:translate(-50%,0%)!important; top:20px!important;}`
+			setCssStr(ncssStr)
+		}
 
 		// from line_format, extract fields {{name|type}} with text as type by default
 		let fields = [] as iPopupFormField[]
@@ -465,6 +476,11 @@ export const usePromptPopup = (p: {
 	//
 	// HTML
 	//
+	//
+
+
+	//
+	// FORM
 	//
 	const PromptPopupComponent = () => <>
 		{displayFormPopup &&

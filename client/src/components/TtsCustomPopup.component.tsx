@@ -147,7 +147,11 @@ export const TtsCustomPopup = (p: {
 			if (!urlAudio.includes("ERROR")) {
 				if (audioUrls.current[chunkNb] !== urlAudio) return 
 				log(`${pre}: ▶️ playing chunk ${chunkNb}`)
+				let textToPlay = textChunks[chunkNb]
+				log(`${textToPlay}`, "text")
+
 				playAudio(urlAudio, () => {
+
 					next()
 				}) 
 			} 
@@ -312,7 +316,7 @@ export const TtsCustomPopup = (p: {
 
 
 
-	const currentLogTextRef = useRef<number>(0)
+	// const currentLogTextRef = useRef<number>(0)
 
 	const downloadAudioFile = (chunkId:number, cb: (urlAudio:string) => void) => {
 		let stringCmd = userSettingsSync.curr.tts_custom_engine_command
@@ -325,11 +329,20 @@ export const TtsCustomPopup = (p: {
 			setWordStat( wordStatRef.current + wordsNb)
 		}
 		let wordLog = `[${wordsNb} words]`
-		if (chunkId > currentLogTextRef.current) {
-			// only log new chunks
-			log(`${textToSent}`, "text")
-			currentLogTextRef.current = chunkId
-		}
+		// 10 - 100
+		// 101 - 100
+		// console.log(chunkId, currentLogTextRef.current)
+		// if (chunkId > currentLogTextRef.current) {
+		// 	// only log new chunks
+		// 	log(`${textToSent}`, "text")
+		// 	currentLogTextRef.current = chunkId
+		// } else if (Math.abs(chunkId - currentLogTextRef.current) > (userSettingsSync.curr.tts_sentences_per_part + 5)) {
+		// 	// if diff it too high, reset it
+		// 	console.log("RECTIF")
+		// 	currChunkRef.current = chunkId
+		// 	// clean log
+		// 	logRef.current = ""
+		// }
 		stringCmd = stringCmd.replace("{{input}}", textToSent)
 		let isCbCalled = false
 		const cbOnce = (res:any) => {
