@@ -140,7 +140,7 @@ const smartlistApp = (innerTagStr, opts) => {
                 let customColLength = 0
                 let customColsNames = {}
 
-                let configMetaCols = true
+                let configMetaCols = false
                 let hideConfigRows = false
                 let widthCols = []
                 let colsToHide = []
@@ -209,7 +209,7 @@ const smartlistApp = (innerTagStr, opts) => {
 
 
                                 // if we find the string config_no_extra_cols, remove all extra cols
-                                if (JSON.stringify(listFilesRes).includes("__config_hide_meta")) configMetaCols = false
+                                if (JSON.stringify(listFilesRes).includes("__config_show_meta")) configMetaCols = true
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
                                 if (JSON.stringify(listFilesRes).includes("__config_view_grid")) showGrid = true
                                 if (JSON.stringify(listFilesRes).includes("__config_disable_click")) disableGridClick = true

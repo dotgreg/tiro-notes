@@ -24,7 +24,6 @@ export class Popup extends React.Component
     disableBg = this.props.disableBg === true ? true: false
 
 	render() {
-        console.log("Popup disableBgClose:", this.props.disableBgClose, " canBgClose:", this.canBgClose, " disableBg:", this.disableBg)
 		return (
 			<div className={`${css`${this.cssStr}`} popup-wrapper-component`} >
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
