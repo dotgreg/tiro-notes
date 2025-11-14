@@ -537,7 +537,7 @@ export const iframeMainCode = (p: {
 				// ON loadScript Url DONE => script provides the function initCustomTag that we execute
 				//@ts-ignore 
 				let htmlStr = window.initCustomTag(`${innerTag}`, opts)
-				if (hasPadding) htmlStr = `<div class="with-padding" style="padding: 0px 15px;">${htmlStr}</div>`
+				if (hasPadding) htmlStr = `<div class="with-padding" style="padding: 0px 15px; height:100%;">${htmlStr}</div>`
 				// htmlStr = `<div class="with-padding">${htmlStr}</div>`
 				updateContent(htmlStr)
 			}

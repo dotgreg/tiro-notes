@@ -568,7 +568,7 @@ test, 10/20,33, group1
         </div>
 
         <style>
-                body, html, .simple-css-wrapper, #content-wrapper, #content-wrapper>div,   #timeline-ctag, #timeline-ctag-inner {
+                body, html, .simple-css-wrapper, .with-padding, #content-wrapper, #content-wrapper>div,   #timeline-ctag, #timeline-ctag-inner {
                         margin: 0;
                         padding: 0;
                         height: 100%;
