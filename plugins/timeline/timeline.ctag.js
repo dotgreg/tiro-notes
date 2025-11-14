@@ -468,6 +468,10 @@ test, 10/20,33, group1
                                 const item = items[i]
                                 id++
                                 const startDate = new Date(item.start)
+                                // if content.length > 50, add...
+                                if (item.text && item.text.length > 50) {
+                                        item.text = item.text.slice(0, 50) + "..."
+                                }
                                 const nItem = {
                                         id: id,
                                         content: item.text || "",

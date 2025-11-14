@@ -290,7 +290,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                         val = val.replaceAll(",", "__COMMA_CHAR__")
                                         // if content is a date, transform it to 2017-06-01
                                         // if there is 2 / in val, it is a date
-                                        if (val.split("/").length === 3) {
+                                        if (val.split("/").length === 3 && col !== "line") {
                                                 let [day, month, year] = val.split("/")
                                                 val = `${month}-${day}-${year}`
                                         }
