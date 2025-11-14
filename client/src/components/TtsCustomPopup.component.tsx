@@ -473,6 +473,8 @@ export const TtsCustomPopup = (p: {
 
 	const isPopupClosedRef = useRef(false)
 
+	let formId = userSettingsSync.curr.tts_formId 
+
 	return (
 		<StyledDiv>
 			<Popup
@@ -564,6 +566,13 @@ export const TtsCustomPopup = (p: {
 
 				}
 				{
+					// form button
+					formId !== "" &&
+					<button onClick={() => { getApi(api => {api.popup.form.open(formId, () => {})})}}>
+						Open Form
+					</button>
+				}
+				{
 					showLog &&
 					<div className='log-wrapper'>
 						<div dangerouslySetInnerHTML={{__html: logTxt}}></div>
@@ -587,6 +596,7 @@ export const TtsCustomPopup = (p: {
 export const StyledDiv = styled.div`
 .log-toggler {
 	font-size: 10px;
+	margin-right: 10px;
 }
 .stats {
 	font-size: 10px;

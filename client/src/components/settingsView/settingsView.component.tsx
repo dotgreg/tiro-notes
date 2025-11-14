@@ -351,6 +351,14 @@ export const SettingsPopup = (p: {
 						modifier: val => {
 							us.set('tts_custom_engine_command', val)
 						}
+					},{
+						type: 'text',
+						title: "FormId of TTS",
+						expl: "FormId for the TTS popup. It will create a button to open a form popup. Default value:" + defaultValsUserSettings.tts_formId,
+						var: us.get('tts_formId'),
+						modifier: val => {
+							us.set('tts_formId', val)
+						}
 					},
 					{
 						type: 'number',
@@ -364,7 +372,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'number',
 						title: "Max words per sentence",
-						expl: "If the sentence exceeds this limit, it will be split into multiple parts.",
+						expl: "If the sentence exceeds this limit, it will be split into multiple parts, if audio cuts in a sentence, reduce that number",
 						var: us.get('tts_max_words_per_sentence'),
 						modifier: val => { 
 							us.set('tts_max_words_per_sentence', val) 
