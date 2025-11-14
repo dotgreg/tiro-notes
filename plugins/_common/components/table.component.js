@@ -222,6 +222,9 @@ Full example: (to copy and paste in a note, then click on #food)
 <p>"__config_split_on_comma": [NOT IMPLEMENTED YET] Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
 <p>"__config_disable_click": disable the default click event, useful for grid view
 
+<h3> timeline visualization </h3>
+<p> to have the timeline visualization working, it requires a col with dates in the cols for the smartlist
+
 <h3> Custom cell content: </h3>
 <p>you can customize a cell content, here are some examples
 <br>
@@ -250,6 +253,7 @@ Full example: (to copy and paste in a note, then click on #food)
 const addition = (a, b) => {
   return a + b
 }
+                                        console.log(line)
 
 // look for an image on bing image from a string
 const searchImage = (stringToSearch, cb) => {
