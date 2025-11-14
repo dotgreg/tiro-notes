@@ -443,7 +443,11 @@ test, 10/20,33, group1
                                 console.log(Object.keys(colsType), colsType["col2"])
                                 const firstDateCol = Object.keys(colsType).find(col => colsType[col] === "date")
                                 console.log("firstDateCol", firstDateCol)
-                                if (!firstDateCol) return console.error("No start column found")
+                                if (!firstDateCol) {
+                                        api.call("popup.show", [`There is no start col with dates nor a col with dates`, "Error: No start column found"])
+                                        return console.error("No start column found")
+                                }
+
                                 for (let i = 0; i < items.length; i++) {
                                         const item = items[i]
                                         if (!item.start) { item.start = item[firstDateCol] }
