@@ -29,6 +29,23 @@ mode:tag
 [event| /journal/
 [[timeline]]
 
+<h4>CSV mode</h4>
+<p> Useful cols are : start, end, days, group </p>
+<p> If it does not find these, it will try to infer the first date column it finds. Finally, first string col will be event </p>
+<pre><code>
+[[timeline]]
+mode:csv
+name, start, days, group
+test, 10/20,33, group1
+[[timeline]]
+
+[[timeline]]
+mode:csv
+col1, col2, col3, col4
+test, 10/20,33, group1
+[[timeline]]
+
+
 </code></pre>
 
 `
@@ -379,6 +396,7 @@ mode:tag
         }
 
         const startMainLogic = () => {
+                const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
                 const api = window.api;
 
                 //
@@ -397,38 +415,121 @@ mode:tag
                         innerTagArr.shift()
                 }
 
-                for (let i = 0; i < innerTagArr.length; i++) {
-                        const line = innerTagArr[i];
-                        if (line.indexOf("|") > -1) {
-                                wordToSearch = line.split("|")[0].trim()
-                                pathToSearch = line.split("|")[1].trim()
-                                configArr.push({wordToSearch, pathToSearch})
+                if (currentMode === "csv") {
+                        console.log("TIMELINE CSV MODE DETECTED!")
+                        // remove first line
+                        innerTagArr.shift()
+                        let rawCsvString = innerTagArr.join("\n")
+                        let items = commonLib.fromRawCsvStringToArrObj(rawCsvString)
+                        let colsType = commonLib.detectColsType(items)
+
+                        console.log(innerTagStr)
+                        console.log(colsType, items)
+
+
+                        // if folder and filename col exists, merge them into filePathcol
+                        if (colsType.folder && colsType.filename) {
+                                for (let i = 0; i < items.length; i++) {
+                                        const item = items[i]
+                                        item.filePath = `${item["folder"]}/${item["filename"]}`
+                                }
                         }
-                }
-                // if innerTagArr > 0, currentMode = tag
-                if (innerTagArr.length > 0) currentMode = "tag"
+                        // remove folder/filename/line from colsType analysis
+                        delete colsType.folder
+                        delete colsType.filename
+                        delete colsType.line
+                        // if start col doesnt exists, rename first date type col start
+                        if (!colsType.start) {
+                                console.log(Object.keys(colsType), colsType["col2"])
+                                const firstDateCol = Object.keys(colsType).find(col => colsType[col] === "date")
+                                console.log("firstDateCol", firstDateCol)
+                                if (!firstDateCol) return console.error("No start column found")
+                                for (let i = 0; i < items.length; i++) {
+                                        const item = items[i]
+                                        if (!item.start) { item.start = item[firstDateCol] }
+                                }
+                        }
+                        // if content col doest exists, rename
+                        if (!colsType.text) {
+                                const firstTextCol = Object.keys(colsType).find(col => colsType[col] === "string")
+                                if (!firstTextCol) return console.error("No text column found")
+                                for (let i = 0; i < items.length; i++) {
+                                        const item = items[i]
+                                        if (!item.text) { item.text = item[firstTextCol] }
+                                }
+                        }
+                        for (let i = 0; i < items.length; i++) {
+                                const item = items[i]
+                                if (!item.text) { item.text = item[colsType.text] }
+                        }
+                        let id = 0
+                        let processedItems = []
+                        for (let i = 0; i < items.length; i++) {
+                                const item = items[i]
+                                id++
+                                const startDate = new Date(item.start)
+                                const nItem = {
+                                        id: id,
+                                        content: item.text || "",
+                                        start: startDate.toISOString().split('T')[0],
+                                        group: 0,
+                                        filePath: item.filePath || "",
+                                        className: "show-title-item",
+                                        itemRawStr: item.line || "",
+                                }
+                                processedItems.push(nItem)
+                        }
+                        console.log("processedItems", processedItems)
+                        timelineRender(processedItems, ["all"])
 
-                searchAndRenderTimeline(configArr, currentMode)
-                //
-                // Default config is like:
-                // [timeline | /path/to/search
-                // [timeline | /path/to/search2
-                // [timeline | /path/to/search3
-                // [timeline | /path/to/search4
-                //
-                // split innerTagStr per line
+                        // for (const [filePath, fileResult] of Object.entries(searchRes)) {
+                        //         const startDate = new Date(fileResult.file.created)
+                        //         id++
+                        //         let content = fileResult.results[0]
+                        //         content = fileResult.file.name
+                        //         const nItem = {
+                        //                 id: id,
+                        //                 content ,
+                        //                 start: startDate.toISOString().split('T')[0],
+                        //                 group: 0,
+                        //                 filePath: fileResult.file.path,
+                        //                 className: "show-title-item",
+                        //                 itemRawStr: fileResult.results[0],
+                        //         }
+                        //         itemsArr.push(nItem)
+                        // }
+                        // configCount++
+                        // if (configCount === configArr.length) {
+                        //         timelineRender(itemsArr, groupsNames)
+                        // }
 
-                
-
-                if (currentMode === "files") {
-                        initFilterInput()
-                        initHoverToggle()
-                        // add to #timeline-ctag the class mode-files
-                        document.getElementById("timeline-ctag").classList.add("mode-files")
-                }
-                
-                                
-                
+               } else {
+                        for (let i = 0; i < innerTagArr.length; i++) {
+                                const line = innerTagArr[i];
+                                if (line.indexOf("|") > -1) {
+                                        wordToSearch = line.split("|")[0].trim()
+                                        pathToSearch = line.split("|")[1].trim()
+                                        configArr.push({wordToSearch, pathToSearch})
+                                }
+                        }
+                        // if innerTagArr > 0, currentMode = tag
+                        if (innerTagArr.length > 0) currentMode = "tag"
+                        searchAndRenderTimeline(configArr, currentMode)
+                        //
+                        // Default config is like:
+                        // [timeline | /path/to/search
+                        // [timeline | /path/to/search2
+                        // [timeline | /path/to/search3
+                        // [timeline | /path/to/search4
+                        //
+                        // split innerTagStr per line
+                        if (currentMode === "files") {
+                                initFilterInput()
+                                initHoverToggle()
+                                // add to #timeline-ctag the class mode-files
+                                document.getElementById("timeline-ctag").classList.add("mode-files")
+                        }
+               }
         }
     
         setTimeout(() => {
@@ -438,6 +539,7 @@ mode:tag
                 setTimeout(() => {
 			api.utils.loadRessources(
 				[
+                                        `${opts.plugins_root_url}/_common/common.lib.js`,
                                         `https://visjs.github.io/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js`
 				],
 				() => {

@@ -316,9 +316,9 @@ const smartlistApp = (innerTagStr, opts) => {
 
                                 exportToCsv: els => {
                                         // 
-                                        let csvString = exportDataToCsv(els, {colsToBlacklist: []})
-                                        // create a html button and trigger it in js to download the csv as blob file
-                                        const blob = new Blob([csvString], { type: 'text/csv' });
+                                        let csvString = '\uFEFF' + exportDataToCsv(els)
+                                        // create a html button and trigger it in js to download the csv as blob file/ utf8 encoding!
+                                        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                                         const url = window.URL.createObjectURL(blob);
                                         const a = document.createElement('a');
                                         a.setAttribute('hidden', '');
@@ -329,6 +329,22 @@ const smartlistApp = (innerTagStr, opts) => {
                                         document.body.appendChild(a);
                                         a.click();
                                         document.body.removeChild(a);
+                                },
+                                exportToTimeline: els => {
+                                        let csvString = exportDataToCsv(els, {colsToBlacklist:[]})
+                                        console.log('csvString export:', csvString, els)
+                                        const configFloatingWindow = {
+                                                type: "ctag",
+                                                layout: "top",
+                                                id: "smartlist-timeline",
+                                                ctagConfig: {
+                                                        tagName: "timeline",
+                                                        content: `
+                                                        mode:csv
+                                                        ${csvString}`,
+                                                },
+                                        }
+                                        api.call("ui.floatingPanel.create", [configFloatingWindow])
                                 },
                                 exportToGraph: els => {
                                         let csvString = exportDataToCsv(els)

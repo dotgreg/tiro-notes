@@ -115,22 +115,25 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 	let currChunk = ""
 	let chunks:string[] = []
 	
+	// create chunks with sentences
 	for (let i = 0; i < sentences.length; i++) {
 		// if sentencesPerPart is reached
 		if(i % sentencesPerPart === 0) {
 			chunks.push(currChunk)
 			currChunk = ""
 		}
-		// if merged sentences is > 70
+		// if merged sentences is > partMaxWords
 		currChunk += sentences[i]
 		let wordsInPart = currChunk.split(" ").length
 		if(wordsInPart > partMaxWords) {
 			chunks.push(currChunk)
 			currChunk = ""
 		}
+		
 
 		// if current sentence is > 70, split it using commas
 		// if (sentences[i].split(" ").length > partMaxWords) {
+		// 	// if there are commas, 
 		// 	let subSentences = sentences[i].split(/[,;]+/)
 		// 	for (let j = 0; j < subSentences.length; j++) {
 		// 		chunks.push(subSentences[j])
@@ -138,10 +141,45 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 		// }
 	}
 
+	// for each chunk, if > partMaxWords, split in subsentences
+	for (let i = 0; i < chunks.length; i++) {
+		if (chunks[i].split(" ").length > partMaxWords) {
+			// if there are commas, or :/.
+			let subSentences = chunks[i].split(/[.:,;]+/)
+			for (let j = 0; j < subSentences.length; j++) {
+				chunks.push(subSentences[j])
+			}
+		}
+	}
+	// if still partMaxWords, split in smaller chunks
+	for (let i = 0; i < chunks.length; i++) {
+		while (chunks[i].split(" ").length > partMaxWords) {
+			let subChunk = chunks[i].split(" ").slice(0, partMaxWords).join(" ")
+			chunks[i] = chunks[i].split(" ").slice(partMaxWords).join(" ")
+			chunks.splice(i, 0, subChunk)
+		}
+	}
+
+	let chunksLength:number[] = []
+	for (let i = 0; i < chunks.length; i++) {
+		let wordsNb = chunks[i].split(" ").length
+		chunksLength.push(wordsNb)
+	}
+
 	// remove chunks with less than 1 char
 	chunks = chunks.filter(chunk => chunk.length > 1)
+	// console.log(22222222222222222, sentences, chunks, chunksLength)
 	return chunks
 }
+// let testStr = `
+// et des onnaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans onnaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans onnaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans onnaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans onnaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans onnaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans connaissances ou des pratiques en des domaines aussi étrangers à l’enseignement scolaire que la musique ou la peinture, sans parler du jazz ou du cinéma, pose au plus haut degré, comme la relation entre la fréquentation des musées et le titre scolaire, la question de sa propre signification, c’est-à-dire de l’identité réelle des deux termes reliés qui se définissent dans leur relation même : la relation statistique manifeste et cache à la fois une relation sémantique qui en enferme la vérité. On n’a rien expliqué, ni rien compris lorsque l’on a établi l’existence d’une forte corrélation entre une variable dite indépendante et une variable dite dépendante : aussi longtemps qu’on n’a pas déterminé ce que désigne dans le cas particulier, c’est-à-dire dans chaque relation particulière, chacun des termes de la relation (par exemple le niveau d’instruction et la connaissance des compositeurs), la relation statistique, pour si grande que soit la précision avec laquelle elle peut être déterminée numériquement, reste un pur donné, dépourvu de sens. Et la semi-compréhension « intuitive » dont on se contente le plus souvent en pareil cas, en faisant porter l’effort sur l’affinement de la mesure de l’« intensité » de la relation, se conjugue avec l’illusion de la constance des variables ou des facteurs résultant de l’identité nominale des indicateurs ou des termes qui les désignent pour interdire d’interroger les termes reliés, « indicateurs » dont on ne sait pas ce qu’ils indiquent, sur le sens qu’ils revêtent dans la relation considérée et qu’ils reçoivent de cette relation même.
+
+// Ce sont les deux termes de la relation qu’il faut mettre en question, en chaque cas : et la variable indépendante, profession, sexe, âge, profession du père, résidence, etc., à travers laquelle peuvent s’exprimer des effets très différents, et la variable dépendante à travers laquelle peuvent s’annoncer des dispositions variant elles-mêmes très fortement selon les classes découpées par les variables indépendantes. Ainsi, pour interpréter adéquatement les différences constatées, entre les classes ou au sein de la même classe, dans le rapport aux différents arts légitimes, peinture, musique, théâtre, littérature, etc., il faudrait analyser complètement les usages sociaux, légitimes ou illégitimes, auxquels se prête chacun des arts, des genres, des œuvres ou des institutions considérés. S’il n’y a rien par exemple qui, autant que les goûts en musique, permette d’affirmer sa « classe », rien par quoi on soit aussi infailliblement classé, c’est bien sûr qu’il n’est pas de pratique plus classante, du fait de la rareté des conditions d’acquisition des dispositions correspondantes, que la fréquentation du concert ou la pratique d’un instrument de musique « noble » (moins répandues, toutes choses égales d’ailleurs, que la fréquentation du théâtre, des musées ou même des galeries). Mais c’est aussi que l’exhibition de « culture musicale » n’est pas une parade culturelle comme les autres : dans sa définition sociale, la « culture musicale » est autre chose qu’une simple somme de savoirs et d’expériences assortie de l’aptitude à discourir à leur propos. La musique est le plus spiritualiste des arts de l’esprit et l’amour de la musique est une garantie de « spiritualité ». Il suffit de penser à la valeur extraordinaire que confèrent aujourd’hui au lexique de l’« écoute » les versions sécularisées (par exemple psychanalytiques) du langage religieux. Comme en témoignent les innombrables variations sur l’âme de la musique et la musique de l’âme, la musique a partie liée avec l’« intériorité » (« la musique intérieure ») la plus « profonde » et il n’y a de concerts que spirituels... Être « insensible à la musique » représente sans doute, pour un monde bourgeois qui pense son rapport avec le peuple sur le mode des rapports entre l’âme et le corps, comme une forme spécialement inavouable de grossièreté matérialiste. Mais ce n’est pas tout. La musiqu`
+// setTimeout(() => {
+// 	let sentences = userSettingsSync.curr.tts_sentences_per_part
+// 	let maxWords = userSettingsSync.curr.tts_max_words_per_sentence
+// 	chunkTextInSentences2(testStr, sentences, maxWords)
+// }, 2000)
 
 export const chunkTextInSentences = (text2chunk: string, maxChunkLength: number): string[] => {
 		// 1 remove spaces

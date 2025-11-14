@@ -363,6 +363,15 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'number',
+						title: "Max words per sentence",
+						expl: "If the sentence exceeds this limit, it will be split into multiple parts.",
+						var: us.get('tts_max_words_per_sentence'),
+						modifier: val => { 
+							us.set('tts_max_words_per_sentence', val) 
+						}
+					},
+					{
+						type: 'number',
 						title: "preload audio parts",
 						expl: "How many audio parts should be asked and preloaded in advanced, if network is unstable, it is recommended to increase that number",
 						var: us.get('tts_preload_parts'),
