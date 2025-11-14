@@ -847,6 +847,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
       config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)}, title: "Graphs" }, [
         c('div', {className:"fa fa-chart-line"})
       ]),
+      // export to timeline button
+      config?.exportToTimeline && c('button', { onClick: () => {config.exportToTimeline(filteredItems)}, title: "Timeline" }, [
+        c('div', {className:"fa fa-timeline"})
+      ]),
       // export to csv
       config?.exportToCsv && c('button', { onClick: () => {config.exportToCsv(filteredItems)}, title: "Export to CSV" }, [
         c('div', {className:"fa fa-file-csv"})

@@ -75,6 +75,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	ui_editor_ai_command: "AI assistant | wand-magic-sparkles | new | export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
 	tts_custom_engine_command: `curl -sS --request POST --header "Authorization: Bearer REPLACE_ME_BY_REPLICATE_OWN_API_TOKEN" --header "Content-Type: application/json" --header "Prefer: wait" --data '{"version": "f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13","input": {"text": "{{input}}", "speed": 1,"voice": "ff_siwis"}}' https://api.replicate.com/v1/predictions`,
 	tts_sentences_per_part: 1,
+	tts_max_words_per_sentence: 75,
 	tts_preload_parts: 1,
 	tts_price_per_word: 0.000005,
 	server_activity_logging_enable: false,

@@ -118,7 +118,8 @@ export const TtsCustomPopup = (p: {
 		// split p.fileContent into sentences
 		let cleanedText = cleanText2Speech(p.fileContent)
 		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
-		let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart)
+		let maxWordsPerSentence = userSettingsSync.curr.tts_max_words_per_sentence
+		let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart, maxWordsPerSentence)
 		// console.log(chunkedText2)
 
 		setTextChunks(chunkedText2)
@@ -460,6 +461,7 @@ export const TtsCustomPopup = (p: {
 			}
 			return res
 		}
+		let maxWordsPerSentence = userSettingsSync.curr.tts_max_words_per_sentence
 		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
 		let sentencesLength = textChunks.length * sentencesPerPart
 		let left = formatTime((6 * (sentencesLength - currChunk)) / (currRate * 60))
