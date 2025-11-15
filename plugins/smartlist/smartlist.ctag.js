@@ -231,7 +231,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         })
                                                 }
                                                 let created = new Date(file.created).toISOString().split("T")[0]
-                                                if (configMetaCols) finalObj.created = created
+                                                // if (configMetaCols) finalObj.created = created
+                                                finalObj.created = created
                                                 let isHeaderOrConfigRow = result.includes("__header_") || result.includes("__config_")
                                                 let canPush = true
                                                 if (hideConfigRows && isHeaderOrConfigRow) canPush = false
@@ -383,9 +384,21 @@ const smartlistApp = (innerTagStr, opts) => {
                                 return check;
                         };
                         p.configMetaCols && config.cols.push({ colId: "filename", headerLabel: "Filename" })
-                        p.configMetaCols && config.cols.push({ colId: "created", headerLabel: "Created" })
+                        // p.configMetaCols && config.cols.push({ colId: "created", headerLabel: "Created" })
                         p.configMetaCols && config.cols.push({ colId: "folder", headerLabel: "Folder" })
                         p.configMetaCols && config.cols.push({ colId: "line", headerLabel: "Line" })
+
+                        // if config.cols have no cols, only push line + filename + created
+                        console.log(config.cols)
+                        if (config.cols.length === 0) {
+                                config.cols.push(
+                                        { colId: "line", headerLabel: "Line" },
+                                        // { colId: "created", headerLabel: "Created" },
+                                        { colId: "filename", headerLabel: "Filename" },
+                                );
+                        }
+
+                        config.cols.push({ colId: "created", headerLabel: "Created" })
 
                         const openItemFloatingWindow = (item) => {
                                 console.log('onClick:', item);

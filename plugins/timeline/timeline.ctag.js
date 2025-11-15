@@ -236,7 +236,22 @@ test, 10/20,33, group1
                 var items = new vis.DataSet(itemsArr)
 
                 // Configuration for the Timeline
+
+                let earlierDate = new Date(Math.min(...itemsArr.map(item => new Date(item.start))));
+                let laterDate = new Date(Math.max(...itemsArr.map(item => new Date(item.start))));
+                let earlierDateInt = earlierDate.getTime();
+                let laterDateInt = laterDate.getTime();
+                // remove 2 years to dates
+                earlierDate.setFullYear(earlierDate.getFullYear() - 2);
+                laterDate.setFullYear(laterDate.getFullYear() - 2);
+                console.log(earlierDate, laterDate)
                 var options = {
+                        // zoom on first/last element
+                        zoomable: true,
+                        zoomKey: "ctrlKey",
+                        horizontalScroll: true,
+                        // start: earlierDate,
+                        // end: laterDate,
                         template: function (item, element, data) {
                                 return `<div class="content-wrapper-overflow"> ${data.content}</div> `;
                         },
@@ -249,9 +264,9 @@ test, 10/20,33, group1
                 // timeline 6 months period by default
                 var start = new Date();
                 var end = new Date();
-                start.setMonth(start.getMonth() - 5);
-                end.setMonth(end.getMonth() + 2);
-                timeline.setWindow(start, end);
+                // start.setMonth(start.getMonth() - 5);
+                // end.setMonth(end.getMonth() + 2);
+                // timeline.setWindow(start, end);
 
                 timeline.on('select', function (properties) {
                         let itemClicked = itemsArr.filter(el => el.id === properties.items[0])[0]
@@ -455,8 +470,13 @@ test, 10/20,33, group1
                         }
                         // if content col doest exists, rename
                         if (!colsType.text) {
-                                const firstTextCol = Object.keys(colsType).find(col => colsType[col] === "string")
-                                if (!firstTextCol) return console.error("No text column found")
+                                let firstTextCol = Object.keys(colsType).find(col => colsType[col] === "string")
+                                if (!firstTextCol){
+                                        console.warn("No text column found, taking line col")
+                                        if (items[0].line) {
+                                                firstTextCol = "line"
+                                        }
+                                } 
                                 for (let i = 0; i < items.length; i++) {
                                         const item = items[i]
                                         if (!item.text) { item.text = item[firstTextCol] }
