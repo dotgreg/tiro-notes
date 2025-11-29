@@ -429,11 +429,17 @@ export const App = () => {
 		addKeyShortcut('alt + p', openOmni);
 		addKeyShortcut('alt + ,', () => {setConfigPopup("settings")});
 		// encryption + upload
-		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
-		addKeyShortcut('alt + shift + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" }) });
-		addKeyShortcut('alt + shift + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" }) });
-		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
-		addKeyShortcut('alt + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
+		addKeyShortcut('ctrl + e', () => { 
+			api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) 
+		});
+		addKeyShortcut('ctrl + alt + e', () => { 
+			api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" }) 
+		});
+		addKeyShortcut('ctrl + alt + u', () => {
+			api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" })
+		});
+		// addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
+		addKeyShortcut('ctrl + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
 		addKeyShortcut('alt + s', () => { api.ai.setStatus("stop") });
 		
 		// k.bind('esc', closeOmni);

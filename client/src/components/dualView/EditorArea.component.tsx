@@ -501,6 +501,7 @@ const EditorAreaInt = (
 	const [jumpToLine, setJumpToLine] = useState(-1)
 	
 	const onEditorActionTrigger = (a: iEditorAction, api: iClientApi ) => {
+		// console.log(123, a.type, p.file.filenameWithoutExt, p.isActive, p.noteParentType)
 
 		if (!a) return
 		// in case we have the precise windowId, disable noteParentType filer
@@ -508,12 +509,14 @@ const EditorAreaInt = (
 		if (a.windowId !== p.windowId && a.windowId !== "active") return 
 		// only trigger if action is asked for specific noteParentType (grid/floating etc)
 		if (a.noteParentType !== "any" && a.noteParentType !== p.noteParentType) return
-		// if already exec action, do not exec
-		if (!api.note.ui.editorAction.canExecuteAction(a)) return
 
-		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId}, with noteParentType ${a.noteParentType} ${p.windowId}`, a)
 		if (deviceType() !== "mobile" && a.windowId === "active" && !p.isActive) return
 		if (deviceType() !== "mobile" && a.windowId !== "active" && a.windowId !== p.windowId) return
+
+		// if already exec action, do not exec
+		// console.log(p.file.filenameWithoutExt, a.noteParentType, p.noteParentType, a.windowId, p.windowId)
+		if (!api.note.ui.editorAction.canExecuteAction(a)) return
+		console.log(`[EDITOR ACTION] action ${a.type} triggered on ${a.windowId} (which matched with "${p.file.filenameWithoutExt}"), with noteParentType ${a.noteParentType} ${p.windowId}`, a)
 
 		// console.log("[EDITOR ACTION] =>", {a})
 		// lineJump
@@ -638,6 +641,7 @@ const EditorAreaInt = (
 		
 		}
 		if (a.type === "toggleEncryption") {
+			// console.log(111111, a, innerFileContent	)
 			isTextEncrypted(innerFileContent) ? decryptButtonConfig.action() : encryptButtonConfig.action()
 		}
 		if (a.type === "triggerUpload") {
