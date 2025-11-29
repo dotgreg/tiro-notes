@@ -69,8 +69,11 @@ export const useNoteApi = (p: {
 	const editorActionIdRef = React.useRef<string|null>(null)
 	const generateActionId = () => {
 		editorActionIdRef.current = generateUUID()
+		console.log("generate", editorActionIdRef.current)
 	}
 	const canExecuteAction = (a: iEditorAction) => {
+		console.log("check", a.uuid, editorActionIdRef.current)
+
 		if (a.uuid === editorActionIdRef.current) {
 			editorActionIdRef.current = null // reset action id
 			return true
