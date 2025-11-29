@@ -471,13 +471,13 @@ const epubV2App = (innerTagStr, opts) => {
 			#tiro-invisible-header-bar2, 
 			#tiro-invisible-header-bar1 {
   position: absolute;
+   background: rgba(255, 198, 198, 0.3);
   width: calc(100% - 100px);
-  background: #ff000024;
 			}
 			#tiro-invisible-square-back {
   width: calc(100% - 140px);
   height: calc(100% - 140px);
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.3);
   position: absolute;
   z-index: 2;
   top: 40px;
@@ -520,7 +520,7 @@ const epubV2App = (innerTagStr, opts) => {
 				top: 40px;
 				width: 50px;
 				height: calc(100% - 160px);
-				background: rgba(0,0,0,0.75);
+				background: rgba(0,0,0,0.3);
 				z-index: 2;
 			}
 			#bar-next {
@@ -780,7 +780,7 @@ const epubV2App = (innerTagStr, opts) => {
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
 			${openFormBtn} |
-			${buttonTTs} | 
+			${buttonTTs} |6
 			${buttonToggleOrderHtml} | 
 			${fullscreenBtn} |
 			${positionUI}
@@ -798,6 +798,7 @@ const epubV2App = (innerTagStr, opts) => {
 			// toggleCustomBar("hide")
 
 			let toggleOpacityEls = (state) => {
+				console.log("toggleOpacityEls")
 				// let els = window.document.querySelectorAll(".config-wrapper")
 				let el = window.document.getElementById("header-bar")
 				let navEl = window.document.getElementById("nav-bar")
@@ -837,14 +838,19 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 			// toggleOpacityEls(0.1)
+			toggleOpacityEls()
+
 			let cogEl = window.document.getElementById("menu-button")
 			let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
 			let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
+			let menuBar = window.document.getElementById("tiro-invisible-square-back")
 			headerBar1.addEventListener("click", () => {  toggleOpacityEls() })
 			headerBar2.addEventListener("click", () => {  toggleOpacityEls() })
+			// menuBar.addEventListener("click", () => {  toggleOpacityEls() })
 			let squareEl = window.document.getElementById("tiro-invisible-square-back")
 			squareEl.addEventListener("click", () => {
 				// toggleCustomBar()
+				console.log(444)
 				toggleOpacityEls()
 			})
 			// on <foliate-view click, toggle opacity
