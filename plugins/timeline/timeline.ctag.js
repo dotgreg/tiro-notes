@@ -249,7 +249,7 @@ test, 10/20,33, group1
                         // zoom on first/last element
                         zoomable: true,
                         zoomKey: "ctrlKey",
-                        horizontalScroll: true,
+                        horizontalScroll: false,
                         // start: earlierDate,
                         // end: laterDate,
                         template: function (item, element, data) {
@@ -411,6 +411,8 @@ test, 10/20,33, group1
         }
 
         const startMainLogic = () => {
+                alert('www:w')
+                // eruda.init();
                 const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
                 const api = window.api;
 
@@ -567,6 +569,7 @@ test, 10/20,33, group1
                 setTimeout(() => {
 			api.utils.loadRessources(
 				[
+                                        `https://cdn.jsdelivr.net/npm/eruda`,
                                         `${opts.plugins_root_url}/_common/common.lib.js`,
                                         `https://visjs.github.io/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js`
 				],
