@@ -496,10 +496,10 @@ const feedApp = (innerTagStr, opts) => {
 																g(nitems[j].image) ||
 																g(nitems[j].thumbnail) ||
 																g(nitems[j]["itunes:image"]?._attributes?.href)||
-																g(nitems[j]["media:thumbnail"]?._attributes?.url) 
+																g(nitems[j]["media:thumbnail"]?._attributes?.url) ||
 																g(nitems[j].enclosure?._attributes?.url) ||
 																g(nitems[j].enclosure?.link) ||
-																g(nitems[j]["media:content"]?._attributes?.url) ||
+																g(nitems[j]["media:content"]?._attributes?.url)
 
 													if (bgImage && (bgImage.endsWith("mp3") || bgImage.endsWith("xml"))) bgImage = null
 													// if (nitems[j].sourceFeed.includes("rdv")) console.log(nitems[j])
