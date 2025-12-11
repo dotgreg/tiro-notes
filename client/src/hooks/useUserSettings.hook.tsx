@@ -5,10 +5,11 @@ import { sharedConfig } from '../../../shared/shared.config';
 import { iUpdateConfigJsonOpts, iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
-import { iApiEventBus } from './api/api.hook';
+import { getApi, iApiEventBus } from './api/api.hook';
 import { getLoginToken } from './app/loginToken.hook';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
+import { configClient } from '../config';
 
 
 
@@ -28,7 +29,8 @@ export type iUserSettingsApi = {
 		paramValue: string, 
 		cb?:(res:any) => void, 
 		opts?: iUpdateConfigJsonOpts,
-	) => void
+	) => void,
+	triggerSetupPopup: Function,
 	refreshUserSettingsFromBackend: Function,
 }
 
@@ -120,6 +122,7 @@ const genUserSettingsList = (userSettings:iUserSettings):iUserSettingList => {
 
 export const useUserSettings =  (p: {
 	eventBus: iApiEventBus
+	triggerSetupPopup?: Function
 }) => {
 	// storage
 	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {}, {history: true})
@@ -219,7 +222,19 @@ export const useUserSettings =  (p: {
 			css: {
 				get: refreshCss
 			}
+		},
+		triggerSetupPopup: () => {
+			getApi(api => {
+				 api.config.get(config => {
+					let dataFolder = config.dataFolder || ''
+					console.log('dataFolder:', dataFolder)
+					p.triggerSetupPopup && p.triggerSetupPopup({
+						dataFolder
+					})
+				})
+			})
 		}
+
 
 	}
 

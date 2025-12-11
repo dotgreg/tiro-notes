@@ -4,7 +4,7 @@ import { iTiroConfig } from '../../../shared/types.shared';
 import { getEnvVars } from '../config.back';
 import { fileExists, saveFile, upsertRecursivelyFolders, userHomePath } from './fs.manager';
 import { log } from './log.manager';
-import { hashPassword } from './password.manager';
+import { hashApiTokenFromUserPassword, hashPassword } from './password.manager';
 import { p, relativeToAbsolutePath } from './path.manager';
 import { getTestingEnvJsonConfig } from './testingEnv.manager';
 var fs = require('fs')
@@ -86,6 +86,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 			user: data.form.user,
 			password: await hashPassword(data.form.password),
 			dataFolder: data.form.dataFolder,
+			apiToken: await hashApiTokenFromUserPassword(data.form.user, data.form.password)
 		}
 		await saveSetupJson(newConfig)
 

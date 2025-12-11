@@ -32,7 +32,7 @@ export const useConnectionIndicator = () => {
 			`${generateTitle()}` :
 			`${generateTitle()} ${warning.current}`
 		if (deviceType() === "mobile") return
-		document.title = title
+		// document.title = title + "woop"
 	}, 1000)
 
 

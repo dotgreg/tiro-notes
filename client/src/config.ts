@@ -11,6 +11,7 @@ if (window.location.port === "3000") port = ':3023'
 
 export const configClient = {
 	...sharedConfig.client,
+	shared:sharedConfig,
 	global: {
 		protocol: `${window.location.protocol}//`,
 		url: `${window.location.hostname}`,

@@ -16,6 +16,7 @@ import { devCliExecFn } from '../../managers/devCli.manager';
 import { iUserSettingName } from '../../../../shared/types.shared';
 import { deviceType } from '../../managers/device.manager';
 import { getFontSize } from '../../managers/font.manager';
+import { get } from 'http';
 
 type ConfigPanel = {
 	title: string,
@@ -683,6 +684,31 @@ export const SettingsPopup = (p: {
 							// random api call to retrigger login popup
 							getApi(api => { api.folders.get(['/'], () => { }) })
 						}
+					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> open setup </button>`,
+						title: "Change Setup informations",
+						readOnly: true,
+						expl: `Change Setup informations like User/Password/Data folder, it is located in ~/.tiro-config.json`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							p.onClose()
+							getApi(api => { 
+								api.userSettings.triggerSetupPopup()
+							 })
+						}
+					},
+					{
+						type: 'text',
+						var: () => {
+							return api.config.getSync()?.jsonConfig?.apiToken
+						},
+						title: "API Token",
+						readOnly: true,
+						expl: `API Token to access to the custom api backend: /custom_backend_api?file=myApiEndpoint&token=MY_API_TOKEN. That token is generated according to the user and password and thus changes with it.`, 
+						modifier: () => { },
 					},
 				]
 			},

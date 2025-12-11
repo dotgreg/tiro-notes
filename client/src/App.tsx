@@ -162,7 +162,12 @@ export const App = () => {
 	//
 
 	// Setup config file and welcoming screen logic
-	const { SetupPopupComponent } = useSetupConfig({ cleanAllApp })
+	const { SetupPopupComponent, triggerSetupPopup } = useSetupConfig({ cleanAllApp })
+	// useEffect(() => {
+	// 	setTimeout(() => {
+	// 		triggerSetupPopup(true)
+	// 	}, 3000)
+	// }, [])
 
 	// Setup config file and welcoming screen logic
 	const { LoginPopupComponent } = useLoginToken({
@@ -367,7 +372,8 @@ export const App = () => {
 		historyApi,
 		notePreviewPopupApi,
 		lightboxApi,
-		ttsApi
+		ttsApi,
+		triggerSetupPopup
 	})
 
 
