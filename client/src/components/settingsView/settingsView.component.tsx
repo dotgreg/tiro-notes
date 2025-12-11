@@ -703,11 +703,11 @@ export const SettingsPopup = (p: {
 					{
 						type: 'text',
 						var: () => {
-							return api.config.getSync()?.jsonConfig?.apiToken
+							return api.config.getSync()?.jsonConfig?.customBackendApiToken
 						},
-						title: "API Token",
+						title: "Custom backend API Token",
 						readOnly: true,
-						expl: `API Token to access to the custom api backend: /custom_backend_api?file=myApiEndpoint&token=MY_API_TOKEN. That token is generated according to the user and password and thus changes with it.`, 
+						expl: `API Token to access to the custom api backend and create you own api from simple markdown notes: /custom_backend_api?file=myApiEndpoint&token=MY_API_TOKEN. That token is generated according to the user and password and thus changes with it.`, 
 						modifier: () => { },
 					},
 				]

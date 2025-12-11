@@ -1,5 +1,6 @@
 import { backConfig } from './config.back';
 import "./managers/activity.manager";
+import { triggerCustomBackendApi } from './managers/customBackendApi.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { isEnvDev } from './managers/path.manager';
 import { getPlatform } from './managers/platform.manager';
@@ -43,7 +44,9 @@ initSocketLogic();
 // app.use('/', express.static(backConfig.frontendBuildFolder));
 app.use(express.static(backConfig.frontendBuildFolder));
 
+////////////////////////////////////////////////
 // RESSOURCES SERVER on /static
+//
 if (backConfig.dataFolder) {
 	startSecuredStaticServer({
 		expressApp: app,
@@ -60,25 +63,18 @@ server.listen(backConfig.port, function () {
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
 
+////////////////////////////////////////////////
+// CUSTOM BACKEND API >> ON DEV, ONLY WORKS by calling backend_server_url.com/custom_backend_api?....
+//
+app.get('/custom_backend_api', (req, res) => {
+	// just sent hello world json with params attached
+    // res.json({ message: "Hello World", params: req.query });
+	res.json(triggerCustomBackendApi(req.query))
+});
+
+////////////////////////////////////////////////
+// FRONTEND ON PROD, is not called during dev (replaced by react server)
+//
 app.get('*', (req, res) => {
     res.sendFile('index.html', { root: backConfig.frontendBuildFolder });
 });
-
-// app.get('*', (req, res) => {
-//     res.redirect('/')
-// })
-
-// app.get('*', function(req, res){
-// 	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
-// 	logActivity(`404`, `SECURITY:404:${req.url}`, req)
-// 	res.status(404).send('Not found');
-// });
- 
-
-// const test = async () => {
-// 	// let {plugins, scanLog} = await scanPlugins()
-// 	// scanDirForFolders("/")
-// 	let res = scanDirForFolders("/")
-// 	console.log(123, res)
-// }
-// test()

@@ -86,7 +86,7 @@ export const processClientSetup = async (data: iApiDictionary['sendSetupInfos'])
 			user: data.form.user,
 			password: await hashPassword(data.form.password),
 			dataFolder: data.form.dataFolder,
-			apiToken: await hashApiTokenFromUserPassword(data.form.user, data.form.password)
+			customBackendApiToken: await hashApiTokenFromUserPassword(data.form.user, data.form.password)
 		}
 		await saveSetupJson(newConfig)
 
