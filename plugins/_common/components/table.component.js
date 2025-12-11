@@ -231,6 +231,8 @@ Full example: (to copy and paste in a note, then click on #food)
 <code>
 <pre>
 - #food | __config_formula_image2 =  < div style="width:40px; color: red" >\${sum_image/count_image} and row_image < / div >
+// for reducing the size of a col with http links
+ #appart2025| __config_formula_col7 =  <div style="width:20px; color: red"><a  target="_blank" href="row_col7">link</a></div>
 </pre>
 </code>
 <br> 

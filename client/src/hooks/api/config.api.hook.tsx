@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 import { iBackConfig, iPlatform} from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
-import { genIdReq, iApiEventBus } from './api.hook';
+import { genIdReq, getApi, iApiEventBus } from './api.hook';
+import { get } from 'http';
 
 //
 // INTERFACES
@@ -13,6 +14,7 @@ export interface iConfigApi {
 		cb: (config: iBackConfig) => void
 	) => void
 	getPlatform: () => iPlatform
+	getSync: () => iBackConfig | undefined
 }
 
 export const useConfigApi = (p: {
@@ -51,13 +53,20 @@ export const useConfigApi = (p: {
 		return getPlatform()
 	}
 
+	const configSyncRef = useRef<iBackConfig | undefined>(undefined);
+	useEffect(() => {
+		getConfig(config => {
+			configSyncRef.current = config
+		})
+	}, [])
 
 	//
 	// EXPORTS
 	//
 	const api: iConfigApi = {
 		get: getConfig,
-		getPlatform
+		getPlatform,
+		getSync: () => configSyncRef.current
 	}
 
 	return api

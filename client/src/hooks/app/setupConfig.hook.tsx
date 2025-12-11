@@ -11,7 +11,19 @@ export const useSetupConfig = (p: {
 	cleanAllApp: Function
 }) => {
 
-	const [displayWelcomePopup, setDisplayWelcomePopup] = useState(false)
+	const triggerSetupPopup = (p?:{
+		user?: string
+		password?: string
+		dataFolder?: string
+	}) => {
+		if (p) {
+			if (p.user) setUser(p.user)
+			if (p.password) setPassword(p.password)
+			if (p.dataFolder) setDataFolder(p.dataFolder)
+		}
+		setDisplayWelcomePopupInt(true)
+	}
+	const [displayWelcomePopup, setDisplayWelcomePopupInt] = useState(false)
 
 	const [user, setUser] = useState('')
 	const [password, setPassword] = useState('')
@@ -37,7 +49,7 @@ export const useSetupConfig = (p: {
 			} else {
 				if (data.code === 'ASK_SETUP') {
 					p.cleanAllApp()
-					setDisplayWelcomePopup(true)
+					setDisplayWelcomePopupInt(true)
 					if (data.defaultFolder) setDataFolder(data.defaultFolder);
 				}
 				else {
@@ -110,6 +122,7 @@ export const useSetupConfig = (p: {
 
 	return {
 		displayWelcomePopup,
+		triggerSetupPopup,
 		SetupPopupComponent
 	}
 }

@@ -139,6 +139,9 @@ export const useClientApi = (p: {
 	ttsApi: iTtsApi
 	historyApi: iNoteHistoryApi
 	notePreviewPopupApi: iNotePreviewPopupApi
+	// other functions
+	triggerSetupPopup?: Function
+	
 }) => {
 
 	//
@@ -205,7 +208,10 @@ export const useClientApi = (p: {
 	// User settings!
 	const {
 		userSettingsApi,
-	} = useUserSettings({ eventBus });
+	} = useUserSettings({ 
+		eventBus, 
+		triggerSetupPopup:p.triggerSetupPopup 
+	});
 
 	const browserApi = useBrowserApi({
 		searchUiApi: searchApi.ui,
