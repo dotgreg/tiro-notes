@@ -45,6 +45,7 @@ export interface iTiroConfig {
 	https?: string
 	port?: string
 	rg_path?: string
+	customBackendApiToken:string
 }
 
 export type iBackConfig = {
