@@ -95,7 +95,7 @@ export const scanPlugins = async (
 //
 
 export type iPluginBackendFunction = { name: string, code: string }
-export type iPluginBackendFunctionDic = { [name: string]: string }
+export type iPluginBackendFunctionDic = { [name: string]: { code: string } }
 
 export const listBackendPluginsFunctions = async (
     cache:boolean=true
@@ -122,7 +122,7 @@ export const listBackendPluginsFunctions = async (
                     //
                     let dicFns: iPluginBackendFunctionDic = {}
                     for (let fn of allPluginFunctions.curr) {
-                        dicFns[fn.name] = fn.code
+                        dicFns[fn.name] = {code: fn.code}
                     }
 
                     resolve(dicFns)

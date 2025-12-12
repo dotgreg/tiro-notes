@@ -36,5 +36,8 @@ export const getBackendApi = () => {
             scanPlugins,
             getBackendFunctions: listBackendPluginsFunctions
         },
+        test: {
+            fntest: () => { return "hello world backend api" }
+        }
     }
 }
