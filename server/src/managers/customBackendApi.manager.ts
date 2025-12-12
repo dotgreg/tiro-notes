@@ -93,6 +93,7 @@ export const customBackendApiServer = async (params): Promise<any> => {
     //
     // eval a fn
     let availablePluginBackendFunctions = await getBackendApi().plugins.getBackendFunctions();
+    let available = {availablePluginBackendFunctions, getBackendApi:getBackendApi()}
     return new Promise<any>((resolve, reject) => {
         // console.log("====================== START EXEC FN")
         // let codeFn = fnPluginsBack["timer_get_daily_stats"]['code']
@@ -100,7 +101,21 @@ export const customBackendApiServer = async (params): Promise<any> => {
         //     // resolve(res);
         //     resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", result: res.result  });
         // });
-        resolve({ok:true, availablePluginBackendFunctions})
+
+        //
+        // PLUGIN FUNCTIONS CALL
+        //
+        // if urlParams function exists and it is inside fnPluginsBack
+        if (urlParams.function ){
+            if( availablePluginBackendFunctions[urlParams.function]) {
+                let codeFn = availablePluginBackendFunctions[urlParams.function].code;
+                evalBackendCode(codeFn, { params: urlParams }, res => {
+                    resolve(res.result);
+                });
+            } else {
+                resolve({ error: "Function not found in backend plugins functions", urlParams, available });
+            }
+        }
+
     });
-    // return { message: "hello user, you successfully logged in to custom backend api", params, fnPluginsBack  };
 };
