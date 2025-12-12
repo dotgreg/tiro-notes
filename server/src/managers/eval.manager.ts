@@ -19,10 +19,12 @@ export const evalBackendCode = (
         //
         // add async capabilities
         codeTxt = `(async () => {${codeTxt}})()`;
+
+        // wrapper
         let wrapperCb = (evalCbRes:any) => {
             if (cb) {
                 let finalRes = { status: "success", result: evalCbRes, source: codeTxt, p:{paramsNames, paramsValues} } as iAnswerBackendEval
-                // console.log(">> eval cb result", finalRes, "for ")
+                console.log(">> eval cb result", finalRes, "for ")
                 cb(finalRes)
             }
         } 
