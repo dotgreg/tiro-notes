@@ -9,8 +9,19 @@ cb([
     {
         name: "timer_get_daily_stats",
         code: `
-            let backendApi = getBackendApi().ressource;
-            cb({message: \`hello world from timer backend function (day)\, I managed to find these parameters \${JSON.stringify(params)}\ and here is backendApi \${JSON.stringify(backendApi)}\`})
+            let backendApi = getBackendApi();
+            let backendFns = await getBackendApi().plugins.getBackendFunctions()
+            let helloworld = backendApi.test.fntest()
+            cb(
+                {
+                    message: \`22 hello world from timer backend function (day)\, 
+                        I managed to find these parameters \${JSON.stringify(params)}\ 
+                        and here is some backendApi anwsers\`, 
+                    allfns:{backendFns}, 
+                    apib: {backendApi} ,
+                    helloworld: {helloworld}
+                }
+            )
         `
     },
     {

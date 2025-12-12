@@ -37,7 +37,7 @@ export const customBackendApiServer = async (params): Promise<any> => {
 
     //
     //
-    // PROTO 1 WORKING 
+    // PROTO 1 >> OK 
     //
     //
     // let urlToTest = "https://devd11111111111-3019-priv.websocial.cc/timer/timer.backend.js"
@@ -62,7 +62,7 @@ export const customBackendApiServer = async (params): Promise<any> => {
 
     //
     //
-    // PROTO 2
+    // PROTO 2 >> OK
     //
     //
     // let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
@@ -70,15 +70,17 @@ export const customBackendApiServer = async (params): Promise<any> => {
 
     //
     //
-    // PROTO 3
+    // PROTO 3 >> OK
     //
     //
     // eval a fn
     let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
     return new Promise<any>((resolve, reject) => {
-        evalBackendCode(fnPluginsBack["timer_get_daily_stats"], {}, res => {
+        console.log("====================== START EXEC FN")
+        let codeFn = fnPluginsBack["timer_get_daily_stats"]['code']
+        evalBackendCode(codeFn, {woop:111}, res => {
             // resolve(res);
-            resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", res  });
+            resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", result: res.result  });
         });
     });
 
