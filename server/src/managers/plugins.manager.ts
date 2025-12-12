@@ -8,6 +8,7 @@ import { openFile } from "./fs.manager";
 import { ServerSocketManager } from "./socket.manager";
 import { getBackendApi } from "./backendApi.manager";
 import { perf } from "./performance.manager";
+import { evalBackendCode } from "./eval.manager";
 
 const h = `[PLUGINS]`
 type iRes = {plugins:iPlugin[], scanLog:string[]}
@@ -32,9 +33,21 @@ export const scanPlugins = async (
     cache:boolean=true, 
 ):Promise<iRes> => {
 
+    const filterByType = (res) => {
+        if (!type) return res
+        let resFn = { plugins: [], scanLog: [] }
+        // clone
+        resFn = JSON.parse(JSON.stringify(res))
+        if (type) {
+            resFn.plugins = resFn.plugins.filter(p => p.type === type)
+        }
+        return resFn
+    }
+
+
     let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
 
-    if (!pluginsListCache.shouldRescan && pluginsListCache.cache) return pluginsListCache.cache
+    if (!pluginsListCache.shouldRescan && pluginsListCache.cache) return filterByType(pluginsListCache.cache)
     pluginsListCache.shouldRescan = false
 
     let res:iRes = {plugins:[], scanLog:[]}
@@ -69,15 +82,9 @@ export const scanPlugins = async (
 
     await Promise.all(promises)
     pluginsListCache.cache = res
-    let resFn = { plugins: [], scanLog: [] }
-    // clone
-    resFn = JSON.parse(JSON.stringify(res))
-    if (type) {
-        resFn.plugins = resFn.plugins.filter(p => p.type === type)
-    }
 
     endPerf()
-    return resFn
+    return filterByType(res)
 }
 
 
@@ -87,29 +94,42 @@ export const scanPlugins = async (
 //
 //
 
-export type iPluginBackendFunction = { name: string, description:string, code: string }
+export type iPluginBackendFunction = { name: string, code: string }
+export type iPluginBackendFunctionDic = { [name: string]: string }
 
 export const listBackendPluginsFunctions = async (
     cache:boolean=true
-): Promise<iPluginBackendFunction | null> => {
+): Promise<iPluginBackendFunctionDic> => {
 
     let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
     let backendPlugins = await (await scanPlugins("backend", cache)).plugins
 
-    if (!backendPlugins) return null
+    if (!backendPlugins) return {}
 
-    let res:iPluginBackendFunction = { name: '', description: '', code: '' }
-    for (let p of backendPlugins) {
-        // for each plugin, we exec the code, it should normally output an array of dic
-        let codeToEval = p.code
-        getBackendApi().eval.evalBackendCode(codeToEval, {}, evalRes => {
-            if (evalRes.status === "success") {
-                console.log(123333333333,evalRes.result)
-            }
-        })
-    }
+    let allPluginFunctions: {curr:iPluginBackendFunction[]} = {curr:[]}
+    return new Promise<iPluginBackendFunctionDic>((resolve, reject) => {
+        let counter = 0
+        for (let p of backendPlugins) {
+            // for each plugin, we exec the code, it should normally output an array of dic
+            let codeToEval = `cb(${p.code})`
+            // let codeToEval = p.code
+            evalBackendCode(codeToEval, {}, evalRes => {
+                if (evalRes.status === "success") {
+                    // if evalRes.result is an array
+                    if (isArray(evalRes.result))  allPluginFunctions.curr.push(...evalRes.result) 
+                }
+                if (counter === backendPlugins.length) {
+                    //
+                    let dicFns: iPluginBackendFunctionDic = {}
+                    for (let fn of allPluginFunctions.curr) {
+                        dicFns[fn.name] = fn.code
+                    }
 
-    endPerf()
-
-    return res
+                    resolve(dicFns)
+                    endPerf()
+                }
+                counter++
+            })
+        }
+    })
 }

@@ -35,20 +35,52 @@ export const customBackendApiServer = async (params): Promise<any> => {
 
 
 
+    //
+    //
+    // PROTO 1 WORKING 
+    //
+    //
+    // let urlToTest = "https://devd11111111111-3019-priv.websocial.cc/timer/timer.backend.js"
+    // let evalRes = await getBackendApi().ressource.fetchEval(urlToTest, {}, { cache: false });
+    // // let evalRes = ""
+    // let fn1Code = evalRes["result"][0]["code"]
+
+
+    // return new Promise<any>((resolve, reject) => {
+    //     evalBackendCode(fn1Code, {custom:"paramhere"}, a => {
+    //         // console.log(33333333, a)
+    //         resolve({ message: "hello user, you successfully logged in to custom backend api, it managed to fetch plugins function backend code and exec it!", a });
+    //     })
+    // })
+
+    // return new Promise<any>((resolve, reject) => {
+    //     evalBackendCode(fn1Code, {custom:"paramhere"}, a => {
+    //         // console.log(33333333, a)
+    //         resolve({ message: "hello user, you successfully logged in to custom backend api, it managed to fetch plugins function backend code and exec it!", a });
+    //     })
+    // })
+
+    //
+    //
+    // PROTO 2
+    //
+    //
     // let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
-    let urlToTest = "https://devd11111111111-3019-priv.websocial.cc/timer/timer.backend.js"
-    let evalRes = await getBackendApi().ressource.fetchEval(urlToTest, {}, { cache: false });
-    // let evalRes = ""
-    let fn1Code = evalRes["result"][0]["code"]
+    // return { message: "hello user, you successfully logged in to custom backend api", params, fnPluginsBack  };
 
-
+    //
+    //
+    // PROTO 3
+    //
+    //
+    // eval a fn
+    let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
     return new Promise<any>((resolve, reject) => {
-        evalBackendCode(fn1Code, {custom:"paramhere"}, a => {
-            // console.log(33333333, a)
-            resolve({ message: "hello user, you successfully logged in to custom backend api, it managed to fetch plugins function backend code and exec it!", a });
-        })
-    })
+        evalBackendCode(fnPluginsBack["timer_get_daily_stats"], {}, res => {
+            // resolve(res);
+            resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", res  });
+        });
+    });
 
-
-    // return { message: "hello user, you successfully logged in to custom backend api", params, fn1Code, evalRes };
+    // return { message: "hello user, you successfully logged in to custom backend api", params, fnPluginsBack  };
 };

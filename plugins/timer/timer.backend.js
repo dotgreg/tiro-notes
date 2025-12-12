@@ -9,15 +9,15 @@ cb([
     {
         name: "timer_get_daily_stats",
         code: `
-            // console.log(getBackendApi(), params)
-            cb({message: "hello world from timer backend function (day)", params})
+            let backendApi = getBackendApi().ressource;
+            cb({message: \`hello world from timer backend function (day)\, I managed to find these parameters \${JSON.stringify(params)}\ and here is backendApi \${JSON.stringify(backendApi)}\`})
         `
     },
     {
         name: "timer_get_weekly_stats",
         code: `
-            // console.log(getBackendApi(), params)
-            cb({message: "hello world from timer backend function (week)", params})
+
+            cb({message: \`hello world from timer backend function (week)\, I managed to find these parameters \${JSON.stringify(params)}\ and here is backendApi \${JSON.stringify(getBackendApi())}\`})
         `
     }
 ])
