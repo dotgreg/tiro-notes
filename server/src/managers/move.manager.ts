@@ -42,7 +42,6 @@ export const moveFileLogic = async (initPath:string, endPath:string) => {
 		let initFolderHistory = getHistoryFolder(initFile)
 		let endFolderHistory = getHistoryFolder(endFile)
 		await upsertRecursivelyFolders(endFolderHistory)
-		// console.log(initFolderHistory, endFolderHistory)
 		await moveFile(initFolderHistory, endFolderHistory)
 	}
 

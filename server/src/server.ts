@@ -39,7 +39,6 @@ export const ioServer: SocketIO.Server = require('socket.io')(server, { serveCli
 initSocketLogic();
 
 // FRONTEND CLIENT SERVER on /
-// console.log(backConfig.frontendBuildFolder)
 // redirect all to index.html
 // app.use('/', express.static(backConfig.frontendBuildFolder));
 app.use(express.static(backConfig.frontendBuildFolder));

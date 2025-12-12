@@ -40,6 +40,7 @@ export const useConfigApi = (p: {
 		const idReq = genIdReq('get-config-');
 		// 1. add a listener function
 		p.eventBus.subscribe(idReq, config => {
+			configSyncRef.current = config
 			cb(config)
 		});
 		// 2. emit request 
@@ -55,9 +56,8 @@ export const useConfigApi = (p: {
 
 	const configSyncRef = useRef<iBackConfig | undefined>(undefined);
 	useEffect(() => {
-		getConfig(config => {
-			configSyncRef.current = config
-		})
+		// will refresh sync
+		getConfig(() => {})
 	}, [])
 
 	//

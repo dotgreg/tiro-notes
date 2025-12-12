@@ -3,16 +3,21 @@
 // like backendApi.pluginsFunctions.timer_get_daily_stats
 
 
-console.log("hello world from backend")
+// console.log("hello world from backend timer.backend.js, it should return a cb with an array of fns inside it")
 
-return [
+cb([
     {
         name: "timer_get_daily_stats",
-        description: "Get daily statistics for the timer",
         code: `
-            console.log(backendApi, params)
-            return {message: "hello world from timer backend function", params}
-
+            // console.log(getBackendApi(), params)
+            cb({message: "hello world from timer backend function (day)", params})
+        `
+    },
+    {
+        name: "timer_get_weekly_stats",
+        code: `
+            // console.log(getBackendApi(), params)
+            cb({message: "hello world from timer backend function (week)", params})
         `
     }
-]
+])
