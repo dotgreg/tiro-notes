@@ -258,6 +258,7 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 
 	folder = p(folder)
 	let path = getDownloadedFilePath(folder, url)
+	if (!opts) opts = {}
 	if (opts.fileName) path = `${folder}/${opts.fileName}`
 
 	if (!url) return
@@ -353,18 +354,18 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 
 
 // download file and return its content
-export const fetchFile = async (url: string): Promise<string> => {
+export const fetchFile = async (url: string, opts?: iFetchEvalBackendOpts): Promise<string> => {
+	if (!opts) opts = {
+		cache: false
+	}
 
-	// const cacheFolder = opts.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
 	const cacheFolder =  `/.tiro/cache/fetch/`
 	const pathToFile = `${backConfig.dataFolder}/${cacheFolder}`;
 	let folder = p(pathToFile)
 	let path = getDownloadedFilePath(folder, url)
-	// check if pathFile exists, if not download it
-	if (!fileExists(path)) {
+	if (!fileExists(path) || !opts.cache) {
 		await downloadFile(url, folder);
 	}
-	console.log(333)
 	// now we have a path, get content from it
 	let fileContent = ""
 	try {
@@ -373,13 +374,23 @@ export const fetchFile = async (url: string): Promise<string> => {
 	return fileContent;
 }
 
-export const fetchEval = async (url: string, fnParamsObj?: any): Promise<iAnswerBackendEval> => {
+export type iFetchEvalBackendOpts = {
+	cache:boolean
+}
+export const fetchEval = async (
+	url: string, 
+	fnParamsObj?: any, 
+	opts?:iFetchEvalBackendOpts
+): Promise<iAnswerBackendEval> => {
+	if (!opts) opts = {
+		cache: false
+	}
 	if (fnParamsObj == null) fnParamsObj = {}
-	console.log(`[FETCH EVAL BACKEND] fetching and exec ${url}`);
+	console.log(`[FETCH EVAL BACKEND] fetching and exec ${url} with opts ${JSON.stringify(opts)}`);
 	let codeTxt = await fetchFile(url)
-	console.log(33335, codeTxt)
 	return new Promise((resolve) => {
 		evalBackendCode(codeTxt, fnParamsObj, (answer:iAnswerBackendEval) => {
+			console.log(45, answer)
 			resolve(answer)
 		})
 	})

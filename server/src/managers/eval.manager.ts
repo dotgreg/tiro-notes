@@ -8,10 +8,11 @@ export type iAnswerBackendEval = {
 export const evalBackendCode = (codeTxt:string, fnParamsObj:any, cb?:(answer:iAnswerBackendEval) => void) => {
     try {
         let paramsNames = ["getBackendApi", "params", "cb"]
-        let wrapperCb = (answer:any) => {
-            if (cb) cb({ status: "success", result: answer })
+        let wrapperCb = (evalCbRes:any) => {
+            if (cb) cb({ status: "success", result: evalCbRes })
         } 
         let paramsValues = [getBackendApi, fnParamsObj, wrapperCb]
+        console.log('[backend eval] =>>', codeTxt)
         new Function(...paramsNames, codeTxt)(...paramsValues)
         
         // return { status: "success", result: res }

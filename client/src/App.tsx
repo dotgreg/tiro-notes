@@ -181,6 +181,8 @@ export const App = () => {
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
 				api.ui.floatingPanel.refreshFromBackend()
+				// will refresh configSync
+				api.config.get(() => {})
 			})
 			
 

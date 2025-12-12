@@ -97,16 +97,14 @@ export const listBackendPluginsFunctions = async (
     let backendPlugins = await (await scanPlugins("backend", cache)).plugins
 
     if (!backendPlugins) return null
-    console.log(3333, backendPlugins)
 
     let res:iPluginBackendFunction = { name: '', description: '', code: '' }
     for (let p of backendPlugins) {
         // for each plugin, we exec the code, it should normally output an array of dic
         let codeToEval = p.code
-        console.log(123, codeToEval)
         getBackendApi().eval.evalBackendCode(codeToEval, {}, evalRes => {
             if (evalRes.status === "success") {
-                console.log(evalRes.result)
+                console.log(123333333333,evalRes.result)
             }
         })
     }

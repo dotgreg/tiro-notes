@@ -1,5 +1,6 @@
 import { backConfig } from "../config.back";
 import {  getBackendApi } from "./backendApi.manager";
+import { evalBackendCode } from "./eval.manager";
 
 ////////////////////////////////
 //
@@ -36,8 +37,18 @@ export const customBackendApiServer = async (params): Promise<any> => {
 
     // let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
     let urlToTest = "https://devd11111111111-3019-priv.websocial.cc/timer/timer.backend.js"
-    let evalRes = await getBackendApi().ressource.fetchEval(urlToTest);
+    let evalRes = await getBackendApi().ressource.fetchEval(urlToTest, {}, { cache: false });
+    // let evalRes = ""
+    let fn1Code = evalRes["result"][0]["code"]
 
 
-    return { message: "hello user, you successfully logged in to custom backend api", params, evalRes };
+    return new Promise<any>((resolve, reject) => {
+        evalBackendCode(fn1Code, {custom:"paramhere"}, a => {
+            // console.log(33333333, a)
+            resolve({ message: "hello user, you successfully logged in to custom backend api, it managed to fetch plugins function backend code and exec it!", a });
+        })
+    })
+
+
+    // return { message: "hello user, you successfully logged in to custom backend api", params, fn1Code, evalRes };
 };

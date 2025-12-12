@@ -111,7 +111,6 @@ test(h+'housekeeping: check housekeeping process results', async () => {
     if (!isArray(files)) {
         expect("files").toStrictEqual("is not an array")
     } else {
-        console.log(files)
 
         let histFileMoreThanWeekExists = 
             files.filter(f => f.filenameWithoutExt === "file_test_enter___w3-10-2023").length === 1
