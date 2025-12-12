@@ -75,14 +75,15 @@ export const customBackendApiServer = async (params): Promise<any> => {
     //
     //
     // eval a fn
-    let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
+    let availablePluginBackendFunctions = await getBackendApi().plugins.getBackendFunctions();
     return new Promise<any>((resolve, reject) => {
-        // console.log("====================== START EXEC FN", fnPluginsBack)
-        let codeFn = fnPluginsBack["timer_get_daily_stats"]['code']
-        evalBackendCode(codeFn, {params}, res => {
-            // resolve(res);
-            resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", result: res.result  });
-        });
+        // console.log("====================== START EXEC FN")
+        // let codeFn = fnPluginsBack["timer_get_daily_stats"]['code']
+        // evalBackendCode(codeFn, {params}, res => {
+        //     // resolve(res);
+        //     resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", result: res.result  });
+        // });
+        resolve({ok:true, availablePluginBackendFunctions})
     });
 
     // return { message: "hello user, you successfully logged in to custom backend api", params, fnPluginsBack  };
