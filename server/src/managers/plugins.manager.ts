@@ -111,15 +111,20 @@ export const listBackendPluginsFunctions = async (
         let counter = 0
         for (let p of backendPlugins) {
             // for each plugin, we exec the code, it should normally output an array of dic
-            let codeToEval = `cb(${p.code})`
-            // let codeToEval = p.code
+            // let codeToEval = `cb(${p.code})`
+            let codeToEval = p.code
             evalBackendCode(codeToEval, {}, evalRes => {
-                if (evalRes.status === "success") {
-                    // if evalRes.result is an array
-                    if (isArray(evalRes.result))  allPluginFunctions.curr.push(...evalRes.result) 
+
+                if (evalRes.status === "success" && isArray(evalRes.result)) {
+                    allPluginFunctions.curr.push(...evalRes.result) 
+                } else {
+                    console.log("Error loading plugin:", p.name, evalRes.result)
+                    allPluginFunctions.curr.push({name: `PLUGIN_LOAD_ERROR_${p.name}`, code: evalRes.result})
                 }
+            
+                counter++
+                // console.log(counter, backendPlugins.length)
                 if (counter === backendPlugins.length) {
-                    //
                     let dicFns: iPluginBackendFunctionDic = {}
                     for (let fn of allPluginFunctions.curr) {
                         dicFns[fn.name] = {code: fn.code}
@@ -128,7 +133,6 @@ export const listBackendPluginsFunctions = async (
                     resolve(dicFns)
                     endPerf()
                 }
-                counter++
             })
         }
     })
