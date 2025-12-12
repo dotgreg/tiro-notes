@@ -11,8 +11,9 @@ export const customBackendApiServer = async (params): Promise<any> => {
 
 	// logic to trigger the custom backend API
     // check if api token is right
+    let urlParams = params
     let goodApiToken = backConfig.jsonConfig.customBackendApiToken;
-    if (params.token !== goodApiToken) {
+    if (urlParams.token !== goodApiToken) {
         return Promise.resolve({ error: "Invalid API token" });
     }
 
@@ -76,9 +77,9 @@ export const customBackendApiServer = async (params): Promise<any> => {
     // eval a fn
     let fnPluginsBack = await getBackendApi().plugins.getBackendFunctions();
     return new Promise<any>((resolve, reject) => {
-        console.log("====================== START EXEC FN")
+        // console.log("====================== START EXEC FN", fnPluginsBack)
         let codeFn = fnPluginsBack["timer_get_daily_stats"]['code']
-        evalBackendCode(codeFn, {woop:111}, res => {
+        evalBackendCode(codeFn, {params}, res => {
             // resolve(res);
             resolve({ message: "hello user, you successfully logged in to custom backend api and exec custom fn from plugin", result: res.result  });
         });
