@@ -307,6 +307,14 @@
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.getPlatform",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
+#### <span class="render-code-wrapper">config.getSync</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.getSync",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 
  ## Api.call : encryption
  

@@ -7,6 +7,8 @@ import { backConfig } from "../config.back";
 import { createDir } from "./dir.manager";
 import { log } from "./log.manager";
 import { p } from "./path.manager";
+import { perf } from "./performance.manager";
+import { evalBackendCode, iAnswerBackendEval } from "./eval.manager";
 
 // var http = require('http');
 // var https = require('https');
@@ -244,9 +246,18 @@ export const isDir = (path: string): boolean => {
 
 const isHttps = (url: string) => url.indexOf("https") === 0;
 
-export const downloadFile = async (url: string, folder: string, opts?:iDownloadRessourceOpts): Promise<string> => {
+const getDownloadedFilePath = (folder:string, url:string):string => {
 	folder = p(folder)
 	let path = `${folder}/${getRessourceIdFromUrl(url)}`
+	return path
+}
+
+export const downloadFile = async (url: string, folder: string, opts?:iDownloadRessourceOpts): Promise<string> => {
+	let endPerf = perf(`⬇️   askRessourceDownload ${url}`)
+	await upsertRecursivelyFolders(folder)
+
+	folder = p(folder)
+	let path = getDownloadedFilePath(folder, url)
 	if (opts.fileName) path = `${folder}/${opts.fileName}`
 
 	if (!url) return
@@ -317,17 +328,21 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			fileStream.on('finish', () => {
 				fileStream.close();  // close() is async, call cb after close completes.
 				shouldLog && log(`[DOWNLOAD FILE] downloaded ${url} to ${path}`);
+				endPerf()
 				resolve(path)
 			});
 		}).on('error', (err) => { // Handle errors
 			fs.unlink(path, () => { }); // Delete the file async. (But we don't check the result)
 			shouldLog && log(`[DOWNLOAD FILE] error  ${err.message} (${url} to ${path})`)
+			endPerf()
 			reject(err.message);
 		}).on('timeout', () => {
 			// on timeout, retry 1 time
 			shouldLog && log(`[DOWNLOAD FILE] timeout  (${url} to ${path})`)
 			req.abort()
+			endPerf()
 			reject('TIMEOUT')
+
 		});
 		if (postData) {
 			req.write(postData);
@@ -337,83 +352,38 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 }
 
 
-// const isHttps = (url: string) => url.indexOf("https") === 0;
-// import { promises as fsPromises } from 'fs';
-// import * as path from 'path';
-// export const downloadFile = async (url: string, folder: string, opts?: iDownloadRessourceOpts): Promise<string> => {
-// 	if (!url) throw new Error('URL must be provided.');
-	
-// 	const isHttps = (url: string) => new URL(url).protocol === 'https:';
-// 	let client = isHttps(url) ? https : http;
-// 	url = url.replace("localhost", "127.0.0.1"); // otherwise would crash
-  
-// 	// shouldLog && log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder} => ${pathToFile}`);
-// 	console.log(`[DOWNLOAD FILE] ${isHttps(url)} ${url} to folder ${folder}`);
-	
-// 	return new Promise((resolve, reject) => {
-// 	  const pathToFile = path.join(folder, opts?.fileName || ''); // Replace with logic to determine file name
-		
-// 	  let postData: string | undefined;
-// 	  const options = {
-// 		method: opts?.method || 'GET',
-// 		headers: {
-// 		  'User-Agent': 'Mozilla/5.0',
-// 		}
-// 	  };
-	  
-// 	  if (opts?.headers) {
-// 		opts.headers.forEach(([header, value]) => options.headers[header] = value);
-// 	  }
-	  
-// 	  if (opts?.body && options.method === 'POST') {
-// 		postData = new URLSearchParams(opts.body as any).toString();
-// 		options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-// 		options.headers['Content-Length'] = Buffer.byteLength(postData).toString();
-// 	  }
-  
-// 	  if (opts?.noCacheArg !== true) {
-// 		url += `?${Math.floor(Math.random() * 10000000)}`;
-// 	  }
-  
-// 	  const req = client.request(url, options, (response) => {
-// 		const contentType = response.headers['content-type']?.toLowerCase() || '';
-// 		if (contentType.includes('charset=utf-8')) {
-// 		  response.setEncoding('utf8');
-// 		} else if (contentType.includes('charset=iso-8859-1')) {
-// 		  response.setEncoding('latin1');
-// 		}
-  
-// 		const fileStream = fs.createWriteStream(pathToFile);
-// 		response.pipe(fileStream);
-  
-// 		fileStream.on('finish', () => {
-// 		  fileStream.close(); // close() is async, call cb after close completes.
-// 		  console.log(`[DOWNLOAD FILE] downloaded ${url} to ${pathToFile}`);
-// 		  resolve(pathToFile);
-// 		});
-// 	  }).on('error', (err) => { // Handle errors
-// 		fsPromises.unlink(pathToFile).catch(() => {}); // Ignore unlink errors
-// 		console.error(`[DOWNLOAD FILE] error ${err.message} (${url} to ${pathToFile})`);
-// 		reject(err.message);
-// 	  });
-  
-// 	  if (postData) {
-// 		req.write(postData);
-// 	  }
-  
-// 	  req.end();
-// 	});
-//   };
-// export const fsApi = {
-// 	downloadFile,
-// 	isDir,
-// 	isHttps,
-// 	saveFile,
-// 	openFile,
-// 	openMetadataFile,
-// 	userHomePath,
-// 	get
-// }
+// download file and return its content
+export const fetchFile = async (url: string): Promise<string> => {
+
+	// const cacheFolder = opts.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
+	const cacheFolder =  `/.tiro/cache/fetch/`
+	const pathToFile = `${backConfig.dataFolder}/${cacheFolder}`;
+	let folder = p(pathToFile)
+	let path = getDownloadedFilePath(folder, url)
+	// check if pathFile exists, if not download it
+	if (!fileExists(path)) {
+		await downloadFile(url, folder);
+	}
+	console.log(333)
+	// now we have a path, get content from it
+	let fileContent = ""
+	try {
+		fileContent = await openFile(path)
+	} catch(e) {}
+	return fileContent;
+}
+
+export const fetchEval = async (url: string, fnParamsObj?: any): Promise<iAnswerBackendEval> => {
+	if (fnParamsObj == null) fnParamsObj = {}
+	console.log(`[FETCH EVAL BACKEND] fetching and exec ${url}`);
+	let codeTxt = await fetchFile(url)
+	console.log(33335, codeTxt)
+	return new Promise((resolve) => {
+		evalBackendCode(codeTxt, fnParamsObj, (answer:iAnswerBackendEval) => {
+			resolve(answer)
+		})
+	})
+}
 
 export interface iFileStats {
 	dev: number

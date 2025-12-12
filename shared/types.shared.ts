@@ -151,7 +151,7 @@ export type iUserSettingName =
 
 'ui_other'
 
-export type iPluginType = "background" | "bar" | "tag"
+export type iPluginType = "background" | "bar" | "tag" | "backend"
 export type iPluginOptions = {
 	background_exec_interval_in_min?: number
 	disabled?: boolean
