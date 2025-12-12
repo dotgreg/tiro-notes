@@ -317,7 +317,7 @@ export const downloadFile = async (url: string, folder: string, opts?:iDownloadR
 			// 	response.setEncoding('utf8');
 			// }
 			const encoding = response.headers['content-encoding'];
-			console.log(`[DOWNLOAD FILE] encoding ${encoding}`);
+			// console.log(`[DOWNLOAD FILE] encoding ${encoding}`);
 			if (encoding === 'gzip') {
 				const gunzip = createGunzip();
 				response.pipe(gunzip).pipe(fileStream);
@@ -376,6 +376,7 @@ export const fetchFile = async (url: string, opts?: iFetchEvalBackendOpts): Prom
 
 export type iFetchEvalBackendOpts = {
 	cache:boolean
+	cb?:Function
 }
 export const fetchEval = async (
 	url: string, 
@@ -383,15 +384,16 @@ export const fetchEval = async (
 	opts?:iFetchEvalBackendOpts
 ): Promise<iAnswerBackendEval> => {
 	if (!opts) opts = {
-		cache: false
+		cache: false,
+		cb: () => {}
 	}
 	if (fnParamsObj == null) fnParamsObj = {}
 	console.log(`[FETCH EVAL BACKEND] fetching and exec ${url} with opts ${JSON.stringify(opts)}`);
 	let codeTxt = await fetchFile(url)
 	return new Promise((resolve) => {
 		evalBackendCode(codeTxt, fnParamsObj, (answer:iAnswerBackendEval) => {
-			console.log(45, answer)
-			resolve(answer)
+			opts.cb(answer.result)
+			resolve(answer.result)
 		})
 	})
 }
