@@ -1,11 +1,13 @@
 import { each, isArray, isString, rest } from "lodash";
 import { iApiDictionary } from "../../../shared/apiDictionary.type";
 import { sharedConfig } from "../../../shared/shared.config";
-import { iPlugin } from "../../../shared/types.shared";
+import { iPlugin, iPluginType } from "../../../shared/types.shared";
 import { backConfig } from "../config.back";
 import { scanDirForFiles } from "./dir.manager";
 import { openFile } from "./fs.manager";
 import { ServerSocketManager } from "./socket.manager";
+import { getBackendApi } from "./backendApi.manager";
+import { perf } from "./performance.manager";
 
 const h = `[PLUGINS]`
 type iRes = {plugins:iPlugin[], scanLog:string[]}
@@ -23,19 +25,22 @@ export const rescanPluginList = () => {
     pluginsListCache.shouldRescan = true
 }
 export const relPluginsFolderPath = `${sharedConfig.path.configFolder}/plugins/`
-const asbPluginsFolderPath = `${backConfig.dataFolder}/${relPluginsFolderPath}`
+const asbPluginsFolderPath = () => `${backConfig.dataFolder}/${relPluginsFolderPath}`
 
-export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
-    
+export const scanPlugins = async (
+    type:iPluginType|null=null,
+    cache:boolean=true, 
+):Promise<iRes> => {
+
+    let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
+
     if (!pluginsListCache.shouldRescan && pluginsListCache.cache) return pluginsListCache.cache
     pluginsListCache.shouldRescan = false
 
     let res:iRes = {plugins:[], scanLog:[]}
     
 
-    let pluginFiles = await scanDirForFiles(asbPluginsFolderPath)
-    // console.log(666666666, pluginFiles)
-    // console.log(123, `found ${pluginFiles.length} plugins`, pluginFiles)
+    let pluginFiles = await scanDirForFiles(asbPluginsFolderPath())
     if (!isArray(pluginFiles)) return res
     // filter out non md files
     pluginFiles = pluginFiles.filter(f => f.name.endsWith('.md'))
@@ -64,5 +69,49 @@ export const scanPlugins = async (noCache:boolean=false):Promise<iRes> => {
 
     await Promise.all(promises)
     pluginsListCache.cache = res
+    let resFn = { plugins: [], scanLog: [] }
+    // clone
+    resFn = JSON.parse(JSON.stringify(res))
+    if (type) {
+        resFn.plugins = resFn.plugins.filter(p => p.type === type)
+    }
+
+    endPerf()
+    return resFn
+}
+
+
+//////////////////////////////////////////////////
+//
+// FOR BACKEND PLUGIN FUNCTIONS, we eval code for each "code" of backend function declared
+//
+//
+
+export type iPluginBackendFunction = { name: string, description:string, code: string }
+
+export const listBackendPluginsFunctions = async (
+    cache:boolean=true
+): Promise<iPluginBackendFunction | null> => {
+
+    let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
+    let backendPlugins = await (await scanPlugins("backend", cache)).plugins
+
+    if (!backendPlugins) return null
+    console.log(3333, backendPlugins)
+
+    let res:iPluginBackendFunction = { name: '', description: '', code: '' }
+    for (let p of backendPlugins) {
+        // for each plugin, we exec the code, it should normally output an array of dic
+        let codeToEval = p.code
+        console.log(123, codeToEval)
+        getBackendApi().eval.evalBackendCode(codeToEval, {}, evalRes => {
+            if (evalRes.status === "success") {
+                console.log(evalRes.result)
+            }
+        })
+    }
+
+    endPerf()
+
     return res
 }

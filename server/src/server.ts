@@ -1,6 +1,6 @@
 import { backConfig } from './config.back';
 import "./managers/activity.manager";
-import { triggerCustomBackendApi } from './managers/customBackendApi.manager';
+import { customBackendApiServer } from './managers/customBackendApi.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { isEnvDev } from './managers/path.manager';
 import { getPlatform } from './managers/platform.manager';
@@ -66,10 +66,9 @@ server.listen(backConfig.port, function () {
 ////////////////////////////////////////////////
 // CUSTOM BACKEND API >> ON DEV, ONLY WORKS by calling backend_server_url.com/custom_backend_api?....
 //
-app.get('/custom_backend_api', (req, res) => {
-	// just sent hello world json with params attached
-    // res.json({ message: "Hello World", params: req.query });
-	res.json(triggerCustomBackendApi(req.query))
+app.get('/custom_backend_api', async (req, res) => {
+	const apiAnswer = await customBackendApiServer(req.query);
+	res.json(apiAnswer);
 });
 
 ////////////////////////////////////////////////

@@ -218,6 +218,9 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		})
 		endPerf()
 	}, { checkRole: "viewer" })
+
+
+
 	serverSocket2.on('askFileHistory', async data => {
 		// get all the history files 
 		let endPerf = perf('👁️  askFileHistory ' + data.filepath)
@@ -230,24 +233,28 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		serverSocket2.emit('getFileHistory', { files: allHistoryFiles })
 		endPerf()
 	}, { checkRole: "viewer" })
+
+
+
+
 	serverSocket2.on('askFilesPreview', async data => {
 		let endPerf = perf('👁️  askFilesPreview ')
 		let res = await getFilesPreviewLogic(data)
 		serverSocket2.emit('getFilesPreview', { filesPreview: res, idReq: data.idReq })
 		endPerf()
 	}, { checkRole: "viewer" })
+
+
+
+
 	serverSocket2.on('askRessourceDownload', async data => {
 		const pathToFile = `${backConfig.dataFolder}/${data.folder}`;
-		let endPerf = perf(`⬇️   askRessourceDownload ${data.url}`)
 		const opts = data.opts ? data.opts : {}
 
-		await upsertRecursivelyFolders(pathToFile)
 		downloadFile(data.url, pathToFile, opts).then(message => {
 			serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message, idReq: data.idReq })
-			endPerf()
 		}).catch(message => {
 			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message, idReq: data.idReq })
-			endPerf()
 		})
     
 	}, { checkRole: "viewer" }) 
@@ -255,10 +262,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	// PLUGINS
 	// 
 	serverSocket2.on('askPluginsList', async data => {
-		let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
-		let { plugins, scanLog } = await scanPlugins(data.noCache)
+		let { plugins, scanLog } = await scanPlugins(null, !data.noCache)
 		serverSocket2.emit('getPluginsList', { plugins, scanLog, idReq: data.idReq })
-		endPerf()
 	}, { checkRole: "viewer" })
 
 

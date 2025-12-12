@@ -12,6 +12,7 @@ tiro-config.json
 node_modules
 .log/
 .DS_Store
+.npmrc
 
 platforms/electron/bin/*
 platforms/electron/build/

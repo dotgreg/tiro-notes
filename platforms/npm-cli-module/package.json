@@ -1,6 +1,6 @@
 {
   "name": "tiro-notes",
-  "version": "0.43.56",
+  "version": "0.51.1",
   "description": "Tiro Notes CLI to start Tiro Notes from the command line!",
   "scripts": {
     "dev": "ISDEV=true node cli.js",
@@ -11,7 +11,7 @@
     "build-then-publish": "run-s root-build publish-to-npm-prod",
     "build-then-publish-dev": "run-s root-build publish-to-npm-dev",
     "publish-to-npm-prod": "cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-cli-module; npm run export-helpers; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING!; cd node-build; npm publish",
-    "publish-to-npm-dev": "cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-cli-module; npm run export-helpers; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING!; cd node-build; npm publish --tag=develop"
+    "publish-to-npm-dev": "cd ./platforms/npm-cli-module; npm run clean-previous-build; npm run export-cli-module; npm run export-helpers; echo WARNING REQUIRES NPM LOGIN BEFORE PUBLISHING! (dev) tuto on bo2npm; cd node-build; npm publish --tag=develop"
   },
   "bin": "cli.js",
   "repository": {
@@ -25,3 +25,4 @@
     "npm-run-all": "^4.1.5"
   }
 }
+  
