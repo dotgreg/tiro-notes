@@ -3,8 +3,8 @@ import { getBackendApi } from "./backendApi.manager"
 export type iAnswerBackendEval = {
 	status:"success"|"error"
 	result?: any
-    source: string
-    p: any
+    source?: string
+    p?: any
 }
 
 export const evalBackendCode = (
@@ -28,14 +28,17 @@ export const evalBackendCode = (
             try {
                 ${codeTxt}
             } catch (e) {
-                // console.log("wooooop", e)
-                cb(e.message);
+                cb({ status: "error", result: e.message });
             }
         })();`;
         let wrapperCb = (evalCbRes:any) => {
             if (cb) {
-                let finalRes = { status: "success", result: evalCbRes, source: codeTxt, p:{paramsNames, paramsValues} } as iAnswerBackendEval
-                cb(finalRes)
+                if (evalCbRes.status === "error") {
+                    cb(evalCbRes);
+                } else {
+                    let finalRes = { status: "success", result: evalCbRes, source: codeTxt, p:{paramsNames, paramsValues} } as iAnswerBackendEval
+                    cb(finalRes)
+                }
             }
         } 
         let paramsValues = [getBackendApi, fnParamsObj, wrapperCb]

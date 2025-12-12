@@ -118,7 +118,6 @@ export const listBackendPluginsFunctions = async (
                 if (evalRes.status === "success" && isArray(evalRes.result)) {
                     allPluginFunctions.curr.push(...evalRes.result) 
                 } else {
-                    console.log("Error loading plugin:", p.name, evalRes.result)
                     allPluginFunctions.curr.push({name: `PLUGIN_LOAD_ERROR_${p.name}`, code: evalRes.result})
                 }
             
