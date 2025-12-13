@@ -925,9 +925,9 @@ const epubV2App = (innerTagStr, opts) => {
 				// console.log(12343333, tiroReaderApi)
 				// let chapterText = tiroReaderApi.getCurrentChapterText()
 				// console.log(12343333, chapterText, tiroReaderApi.getCurrentPageText())
-				tiroReaderApi.getNextText(20000, nextText => {
-					console.log(12343333, nextText)
-				})
+				// tiroReaderApi.getNextText(20000, nextText => {
+				// 	console.log(12343333, nextText)
+				// })
 
 			}, 2000)
 
