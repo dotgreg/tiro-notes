@@ -1390,7 +1390,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPluginType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"background" | "bar" | "tag"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"background" | "bar" | "tag" | "backend"</span></div>
  
 
 #### <span class="render-code-wrapper">iPluginOptions</span>
