@@ -9,6 +9,7 @@ import { ServerSocketManager } from "./socket.manager";
 import { getBackendApi } from "./backendApi.manager";
 import { perf } from "./performance.manager";
 import { evalBackendCode } from "./eval.manager";
+import { iCustomBackendApiAnswer } from "./customBackendApi.manager";
 
 const h = `[PLUGINS]`
 type iRes = {plugins:iPlugin[], scanLog:string[]}
@@ -136,3 +137,41 @@ export const listBackendPluginsFunctions = async (
         }
     })
 }
+
+export const triggerBackendFunction = async (name: string, params: any): Promise<iCustomBackendApiAnswer> => {
+    let availablePluginBackendFunctions = await listBackendPluginsFunctions();
+    if (!availablePluginBackendFunctions[name]) {
+        return { status: "error", result: "Function not found for " + name };
+    }
+    return new Promise((resolve, reject) => {
+        let fn = availablePluginBackendFunctions[name];
+        if (!fn) {
+            return reject({ status: "error", result: "Function not found for " + name });
+        }
+        evalBackendCode(fn.code, { params }, res => {
+            if (res.status === "error") {
+                return reject({ status: "error", result: res.result });
+            }
+            resolve(res);
+        });
+    });
+};
+
+    //                 resolve(res);
+    //             });
+    //         } else {
+    //             resolve({ status: "error", result: "Function not found in backend plugins functions", params:urlParams, available });
+    //         }
+    // return new Promise((resolve, reject) => {
+    //     let fn = availablePluginBackendFunctions[name];
+    //     if (!fn) {
+    //         return reject({ error: "Function not found", name });
+    //     }
+    //     evalBackendCode(fn.code, { params }, res => {
+    //         if (res.status === "error") {
+    //             return reject({ error: res.error, name });
+    //         }
+    //         resolve(res);
+    //     });
+    // });
+// };

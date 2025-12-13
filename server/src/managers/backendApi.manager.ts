@@ -4,7 +4,7 @@ import { evalBackendCode } from "./eval.manager";
 import { execString, execStringStream } from "./exec.manager";
 import { downloadFile, fetchEval, fetchFile, openFile, saveFile, upsertRecursivelyFolders } from "./fs.manager";
 import { debouncedFolderScan, moveFileLogic } from "./move.manager";
-import { listBackendPluginsFunctions, scanPlugins } from "./plugins.manager";
+import { listBackendPluginsFunctions, scanPlugins, triggerBackendFunction } from "./plugins.manager";
 
 export const getBackendApi = () => {
     return {
@@ -34,7 +34,9 @@ export const getBackendApi = () => {
         },
         plugins: {
             scanPlugins,
-            getBackendFunctions: listBackendPluginsFunctions
+            getBackendFunctions: listBackendPluginsFunctions,
+            triggerBackendFunction: triggerBackendFunction
+
         },
         test: {
             fntest: () => { return "hello world backend api" }
