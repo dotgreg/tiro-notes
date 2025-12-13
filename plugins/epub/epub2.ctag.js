@@ -647,6 +647,24 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 
+			let insertNextTextBtn = `<button id="insert-next-text-button" onclick="tiro_insertNextText()"> Extract current text position</button>`
+			window.tiro_insertNextText = () => {
+					tiroReaderApi.getNextText(100000, nextText => {
+						if (nextText.error) {
+							console.error(h, "Error getting next text", nextText.error)
+							return
+						}
+						// insert into a note 
+						// let currentFilePath = api.utils.getInfos()
+						// console.log(currentFilePath )
+						// path is /.tiro/generated/epub/extract_ebookname.md
+
+						let ebookNameSmall = (epubName.length > 50) ? epubName.substring(0,50) : epubName
+						let cpath = `/.tiro/generated/epub/extract_${ebookNameSmall}.md`
+						api.call("ui.notification.emit",[{content:`Inserting next text into note ${JSON.stringify(cpath)}`}])
+						api.call("file.saveContent",[cpath, nextText])
+					})
+			}
 			//
 			//
 			//
@@ -785,6 +803,7 @@ const epubV2App = (innerTagStr, opts) => {
 			${fullscreenBtn} |
 			${positionUI}
 			${searchUI}
+			${insertNextTextBtn} 
 			`
 			//
 			// SHow hide bar
@@ -875,19 +894,81 @@ const epubV2App = (innerTagStr, opts) => {
 				// console.log(2222, readerApi.view)
 				// console.log(2222, ))
 				// console.log(2222, readerApi.view.renderer.getContents())
-				return readerApi.view.lastLocation.range.toString()
+				// let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+				let raw = readerApi.view.lastLocation.range.toString()
+				let arrRes = raw.split("}")
+				let cleanText = arrRes[arrRes.length-1].trim()
+				return cleanText
 				// return tiroReaderApi._storage.currentPage.range.toString()
 				// return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
 			}
 
 			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
-			tiroReaderApi.restorePosition = (epubName) => {
+			tiroReaderApi.getBookPosition = (cb) => {
 				getCache(cacheIdPos, (bookPosition) => {
-					tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+					cb(bookPosition)
 				}, err =>{
 					console.log(h, "no cache found for ", cacheIdPos, err)
+					cb(null)
 				})
 			}
+			tiroReaderApi.restorePosition = (epubName) => {
+				tiroReaderApi.getBookPosition( bookPosition => {
+					if (bookPosition) {
+						tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+					}
+				})
+			}
+
+			setTimeout(() => {
+				// tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
+				// console.log(12343333, tiroReaderApi)
+				// let chapterText = tiroReaderApi.getCurrentChapterText()
+				// console.log(12343333, chapterText, tiroReaderApi.getCurrentPageText())
+				tiroReaderApi.getNextText(20000, nextText => {
+					console.log(12343333, nextText)
+				})
+
+			}, 2000)
+
+
+			tiroReaderApi.getNextText = (textLength, cb) => {
+				if (!textLength) textLength = 100000
+				// get current page content
+				let currentPageContent = tiroReaderApi.getCurrentPageText()
+				// get all text
+				tiroReaderApi.getAllText(text => {
+					// search for currentPageContent
+					let startIndex = text.indexOf(currentPageContent)
+					if (startIndex !== -1) {
+						let endIndex = startIndex + textLength
+						let nextText = text.substring(startIndex, endIndex )
+						// split at textLength
+						console.log(currentPageContent, startIndex)
+						cb(nextText)
+					}
+					else {
+						cb({error:"TEXT NOT FOUND", currentPageContent})
+					}
+				})
+			}
+			
+
+			tiroReaderApi.getCurrentChapterText = () => {
+				// tiroReaderApi.getBookPosition( bookPosition => {
+				// 	if (bookPosition) {
+				// 		// tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+				// 		console.log(bookPosition)
+				// 	}
+				// })
+				let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+				let arrRes = raw.split("}")
+				let cleanText = arrRes[arrRes.length-1].trim()
+				return cleanText
+				// return readerApi.view.getSectionFractions()[chapterIndex]?.toString()
+			}
+
+
 
 			tiroReaderApi.getAllText = (cb, cache=true) => {
 				let getAllTextRaw = (cb1) => {
@@ -959,9 +1040,6 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 			
-			// setTimeout(() => {
-			// 	tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
-			// }, 2000)
 
 
 
@@ -1099,6 +1177,7 @@ const epubV2App = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos();
 		let epubUrl = innerTagStr.trim()
 		let epubName = epubUrl.split("/").slice(-1)[0].split("?")[0]
+		console.log(11111111111, epubName, epubUrl)
 		const isAbs = epubUrl.startsWith("http")
 		if (isAbs === false) {
 				epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
