@@ -105,7 +105,7 @@ export const listBackendPluginsFunctions = async (
     let endPerf = perf(`📂  askPluginsList shouldRescanPluginFolder?:${pluginsListCache.shouldRescan}`)
     let backendPlugins = await (await scanPlugins("backend", cache)).plugins
 
-    if (!backendPlugins) return {}
+    if (!backendPlugins || backendPlugins.length === 0) return {}
 
     let allPluginFunctions: {curr:iPluginBackendFunction[]} = {curr:[]}
     return new Promise<iPluginBackendFunctionDic>((resolve, reject) => {
