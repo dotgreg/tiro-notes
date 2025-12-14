@@ -17,6 +17,7 @@ import { iUserSettingName } from '../../../../shared/types.shared';
 import { deviceType } from '../../managers/device.manager';
 import { getFontSize } from '../../managers/font.manager';
 import { get } from 'http';
+import { triggerTiroHelpPopup } from '../../managers/help.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -746,14 +747,35 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Plugins Marketplace",
-						expl: "Enable the plugin marketplace system",
+						expl: "Enable the plugin marketplace system (not working yet)",
 						var: us.get('beta_plugins_marketplace'),
 						modifier: val => {
 							us.set('beta_plugins_marketplace', val)
 						}
 					},
 				]
-			}
+			},
+			{
+				title: "Documentation & Help",
+				fields: [
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> open help page </button>`,
+						title: "Open Help Page",
+						readOnly: true,
+						expl: `Open the help page for more information, it is also accessible on the main interface "?" button at the bottom right corner. or with the shortcut "ctrl + /"`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							p.onClose()
+							triggerTiroHelpPopup()
+							// getApi(api => {
+							// 	api.userSettings.triggerHelpPopup()
+							//  })
+						}
+					}
+				]
+			},
 		]
 	}
 
