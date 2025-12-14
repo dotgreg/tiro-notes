@@ -135,7 +135,7 @@ export const customBackendApiServer = async (params): Promise<iCustomBackendApiA
             const pathToFile = `${apiFolder}/${filePath}.md`;
             try {
                 const fileContent = await openFile(pathToFile)
-                evalBackendCode(fileContent, { params: urlParams }, res => {
+                evalBackendCode(fileContent, urlParams , res => {
                     if (res.status === "error") {
                         resolve({ ...res , params:urlParams, available });
                     } else {

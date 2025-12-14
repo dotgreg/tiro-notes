@@ -148,7 +148,7 @@ export const triggerBackendFunction = async (name: string, params: any): Promise
         if (!fn) {
             return reject({ status: "error", result: "Function not found for " + name });
         }
-        evalBackendCode(fn.code, { params }, res => {
+        evalBackendCode(fn.code,  params , res => {
             if (res.status === "error") {
                 return reject({ status: "error", result: res.result });
             }
