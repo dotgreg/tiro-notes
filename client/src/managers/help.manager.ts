@@ -50,6 +50,28 @@ export const triggerTiroHelpPopup = () => {
     <li><a href="https://tiro-notes.org" target="_blank"> tiro-notes.org </a></li>
 </ul>
 
+<h4> plugins </h4>
+<p> - Find all available plugins 
+<a target="_blank" href="https://github.com/dotgreg/tiro-notes/tree/dev/plugins">here</a></p>
+<p> - You can add plugins or create custom ones by creating a /.tiro/plugins/newplugins.md note 
+and pasting the content of plugin register, which ends by ".plugin.js" inside it like  
+<a target="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.plugin.js">that timer plugin</a> </p>
+
+- there are several kinds of plugins: 
+<code><pre>
+- ctag plugin: (custom tag) that can be inserted inside a note like 
+    - [[epub]]mybook[[epub]] 
+    - [[pdf]]mypdf[[pdf]] 
+    - [[feed]] myrss.rss | rssName [[feed]]
+    - [[feed-yt]] myYoutubeChannel | youtubeChannel [[feed-yt]]
+    - etc... (you can find them all installed by simply typing "[[" )
+- bar plugin: that can be called inside the omnibar (shift+alt+p) > : (for bar plugins menu)
+- background plugin : will run regularly on the client frontend, useful for timer/calendar plugins
+- backend function plugin : can be used with the custom backend api (see below)
+</pre></code>
+
+
+
 <h4>left bar shortcuts</h4>
 <p> You can add shortcuts links on the left bar by creating a /.tiro/shortcuts.md note and enabling the functionality in the settings </p>
 
@@ -71,7 +93,12 @@ export const triggerTiroHelpPopup = () => {
 	</pre>
 </code>
 
-<h4>forms</h4>
+<h4>Automatic spreadsheet-like table</h4>
+<p> by creating lines like #mytableid | col1 | col2 | col3 , you will create an automatic table with the specified columns.</p>
+<p> to access to that table, simply click on #mytableid </p>
+<br>
+
+<h4>Forms</h4>
 <p> 
 You can create forms by referencing them in /.tiro/forms.md (create a note if it does not exists), one form for each line<br>
 {{_datetime}} and {{_date}} will automatically insert the date <br>
@@ -88,8 +115,81 @@ the line parameter is where the content should be inserted, if negative it will 
 </code>
 then simply call [[forms]] [[forms]] on a note to get access to all your forms
 
+<h4>Custom Backend Api</h4>
+<p>
+you can create a custom backend api with custom endpoints in JSON really easily.<br>
+<br>
+
+- example of endpoint: https://mytiro:3023/custom_backend_api?file=first-endpoint& param1=hello& param2=world& token=custom_backend_api_token <br>
+<br>
+- accepts either "function" (will fetch the result of a backend function plugin) or "file" argument (will fetch file at /.tiro/custom_backend_api/first-endpoint.md in our case here).<br>
+- you can pass url parameters to the endpoint<br>
+- you need to pass the token parameter with the value set in the settings > "Custom backend API Token" <br>
+<br>
+
+<h5> A. Example of an file-based api endpoint</h5>
+- example of endpoint: https://mytiro:3023/custom_backend_api?file=first-endpoint& param1=hello& param2=world& token=custom_backend_api_token <br>
+- it should always ends with a callback function cb()<br>
+- you have access to the whole backendApi by "getBackendApi", find all the functions here
+- you also have access to the plugin backend functions with the api "getBackendApi().plugins.triggerBackendFunction"
+<a about="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/server/src/managers/backendApi.manager.ts">here</a> <br/>
+
+<code>
+<pre>
+CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
+========
+
+        content = \`
+        HELLO WORLD
+
+        - [ ] dflsakjdflkas
+        - [ ] dflsakjdflkas
+        - [ ] dflsakjdflkas
+
+        ------------------
+        METEO
+
+        ------------------
+        \${getBackendApi().test.fntest()}
+
+        \`
+
+        getBackendApi().file.openFile("/_new/_main/feed podcast.md").then(contentExtract => {
+            getBackendApi().plugins.triggerBackendFunction("timer_get_daily_stats", {params}).then(timerDaily => {
+                cb(content + contentExtract+timerDaily.result.message)
+            })
+        })
+
+
+
+
+</pre>
+</code
+
 
 </p>
+
+<h5> B. Example of an function-based api endpoint</h5>
+- example of endpoint: https://mytiro:3023/custom_backend_api?function=timer_get_daily_stats&param1=hello&param2=world&token=custom_backend_api_token <br>
+- to register a new plugin backend Function, add the following inside your plugin declaration in /.tiro/plugins/myplugin.md
+
+<code>
+<pre>
+{
+      name: "timer_backend",
+      type: "backend",
+      code: \`
+        getBackendApi().ressource.fetchEval("\${baseUrl}timer/timer.backend.js")
+      \`,
+      plugin_infos,
+      
+    }
+</pre>
+</code>
+
+
+then that js file should return a callback (cb) function that returns an array of declared backend functions like 
+<a about="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.backend.js">that file</a>
 `
 const cssStr = `
 h1 {

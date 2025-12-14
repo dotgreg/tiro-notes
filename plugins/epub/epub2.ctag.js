@@ -944,7 +944,9 @@ const epubV2App = (innerTagStr, opts) => {
 						let endIndex = startIndex + textLength
 						let nextText = text.substring(startIndex, endIndex )
 						// split at textLength
-						console.log(currentPageContent, startIndex)
+						// console.log(currentPageContent, startIndex)
+						// replace really long spaces by one 
+						nextText = nextText.replace(/\s+/g, ' ')
 						cb(nextText)
 					}
 					else {
