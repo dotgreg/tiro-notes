@@ -708,7 +708,10 @@ export const SettingsPopup = (p: {
 						},
 						title: "Custom backend API Token",
 						readOnly: true,
-						expl: `API Token to access to the custom api backend and create you own api from simple markdown notes: /custom_backend_api?file=myApiEndpoint&token=MY_API_TOKEN. That token is generated according to the user and password and thus changes with it.`, 
+						expl: `WARNING: that token gives full access to tiro notes system, do not share it and keep it secret, to renew it, change user/password. \n\n<br><br>
+						API Token to access to the custom api backend and create you own api from simple markdown notes: 
+						/custom_backend_api?file=myApiEndpoint&token=MY_API_TOKEN. \n\n<br><br>
+						That token is generated according to the user and password and thus changes with it.`, 
 						modifier: () => { },
 					},
 				]
