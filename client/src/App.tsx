@@ -436,6 +436,7 @@ export const App = () => {
 		addKeyShortcut('alt + spacebar', openOmni);
 		addKeyShortcut('alt + p', openOmni);
 		addKeyShortcut('alt + ,', () => {setConfigPopup("settings")});
+		addKeyShortcut('alt + /', () => { triggerTiroHelpPopup() });
 		// encryption + upload
 		addKeyShortcut('ctrl + e', () => { 
 			api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) 

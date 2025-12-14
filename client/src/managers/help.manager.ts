@@ -10,6 +10,7 @@ export const triggerTiroHelpPopup = () => {
 <h4>Interface</h4>
     <ul>
     <li>Alt + , : Hide/Show Settings</li>
+    <li>Alt + / : Open Help</li>
     </ul>
 <h4>Other</h4>
     <ul>
@@ -50,9 +51,12 @@ export const triggerTiroHelpPopup = () => {
     <li><a href="https://tiro-notes.org" target="_blank"> tiro-notes.org </a></li>
 </ul>
 
-<h4> plugins </h4>
+<h4> Plugins </h4>
 <p> - Find all available plugins 
 <a target="_blank" href="https://github.com/dotgreg/tiro-notes/tree/dev/plugins">here</a></p>
+- Some ctags are already loaded by default, find them 
+<a target="_blank" href="https://github.com/dotgreg/tiro-notes/blob/master/client/src/managers/ctag.manager.ts">here > baseCtag</a>
+or by simply typing "[["
 <p> - You can add plugins or create custom ones by creating a /.tiro/plugins/newplugins.md note 
 and pasting the content of plugin register, which ends by ".plugin.js" inside it like  
 <a target="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.plugin.js">that timer plugin</a> </p>
@@ -72,15 +76,17 @@ and pasting the content of plugin register, which ends by ".plugin.js" inside it
 
 
 
-<h4>left bar shortcuts</h4>
+<h4>Left bar shortcuts</h4>
 <p> You can add shortcuts links on the left bar by creating a /.tiro/shortcuts.md note and enabling the functionality in the settings </p>
 
-<h4>snippets</h4>
+<h4>Snippets</h4>
 <p> You can add editor shortcuts by typing "--". Add shortcuts in /.tiro/snippets.md (create a note if it does not exists) </p>
 
 </p>
 <code>
 	<pre>
+CONTENT OF /.tiro/snippets.md
+===========
     sym_like_love| 👍
     sym_book_red| 📕 
     sym_.vecteur_arrow_right | →
@@ -109,6 +115,8 @@ the line parameter is where the content should be inserted, if negative it will 
 </p>
 <code>
 	<pre>
+CONTENT OF /.tiro/forms.md
+===========
     form | name=simple insert form, path=/noteToInsert.md, line_format= {{_datetime}} | name: {{name}} | age: {{age|number|comment field. optional}}, line=2
     form | name=🎬 add youtube chanel, path=/_new/_main/📺YUTB3.md, line_format= {{chanel_name}} | @{{chanel_name}} | {{tags|select:_🍿 docus,_🗿 histoire, _🧠 psy,  _✨ quali, _⛰️ trip,  _🗳️ polit,  _🗳️ polit, _🏛️ architect, _💲econo,  _😄fun,  _🛠️diy}} | {{number_import|number}}, line=3
 	</pre>
@@ -175,6 +183,9 @@ CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
 
 <code>
 <pre>
+EXTRACT OF CONTENT OF /.tiro/plugins/MYPLUGIN.md
+===========
+...
 {
       name: "timer_backend",
       type: "backend",
@@ -184,6 +195,7 @@ CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
       plugin_infos,
       
     }
+...
 </pre>
 </code>
 
