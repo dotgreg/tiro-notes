@@ -190,6 +190,71 @@ export const SettingsPopup = (p: {
 				title: "layout",
 				fields: [
 					{
+						type: 'checkbox',
+						title: "Enable Background Image",
+						expl: "Enable Background Image" + requireReloadStr,
+						var: us.get('ui_layout_background_image_enable'),
+						modifier: val => { 
+							us.set('ui_layout_background_image_enable', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Enable Background Video",
+						expl: "Enable Background Video" + requireReloadStr,
+						var: us.get('ui_layout_background_video_enable'),
+						modifier: val => { 
+							us.set('ui_layout_background_video_enable', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'textarea',
+						title: "Background image/video url",
+						expl: `Background image/video url.<br>
+						- it can start with http. <br> 
+						- You can also upload a picture in Tiro, then copy the uploaded image link here, in that case only keep the part without the hostname 
+						<br>(ex: 'static/_new/useful/.resources/wintersolstice.jpg'). 
+						<br> - you can add a youtube video/webcam stream in background by using the embed url 
+						like 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' 
+						or 'https://www.skaping.com/batz-sur-mer/plage-valentin' 
+						or even websites.
+						<br>
+						- if [[token]] exists, it will be replaced by current token so that a video from tiro can be called.
+						<br>
+						- raw html can also be insert like:
+						<br>
+						< video
+							width="100%"
+							height="auto"
+							autoplay
+							style="
+								width: 100%;
+								height: 100%;
+								object-fit: cover;
+							"
+							onloadstart="this.volume=0.1"	
+							loop
+							playsinline
+							preload="auto"
+							controls >
+							< source 
+							  src="https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/1080/Big_Buck_Bunny_1080_10s_10MB.mp4" type="video/mp4" >
+							< /video >
+							< style> #background-video  {
+							top: 50px;
+
+							}
+							< /style>
+						`,
+						var: us.get('ui_layout_background_image'),
+						modifier: val => { 
+							us.set('ui_layout_background_image', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
 						type: 'text',
 						title: "Main color",
 						expl: "A color string like 'orange' or 'blue' or an Hex string like '#E86666' (tiro red) or '#729fc4'",
@@ -230,36 +295,6 @@ export const SettingsPopup = (p: {
 						var: us.get('ui_layout_font_family_editor'),
 						modifier: val => { 
 							us.set('ui_layout_font_family_editor', val) 
-							setDisplayReload(true);
-						}
-					},
-					{
-						type: 'checkbox',
-						title: "Enable Background Image",
-						expl: "Enable Background Image" + requireReloadStr,
-						var: us.get('ui_layout_background_image_enable'),
-						modifier: val => { 
-							us.set('ui_layout_background_image_enable', val) 
-							setDisplayReload(true);
-						}
-					},
-					{
-						type: 'checkbox',
-						title: "Enable Background Video",
-						expl: "Enable Background Video" + requireReloadStr,
-						var: us.get('ui_layout_background_video_enable'),
-						modifier: val => { 
-							us.set('ui_layout_background_video_enable', val) 
-							setDisplayReload(true);
-						}
-					},
-					{
-						type: 'text',
-						title: "Background image/video url",
-						expl: "Background image/video url.<br>- it can start with http. <br> - You can also upload a picture in Tiro, then copy the uploaded image link here, in that case only keep the part without the hostname <br>(ex: 'static/_new/useful/.resources/wintersolstice.jpg'). <br> - you can add a youtube video/webcam stream in background by using the embed url like 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' or 'https://www.skaping.com/batz-sur-mer/plage-valentin' or even websites",
-						var: us.get('ui_layout_background_image'),
-						modifier: val => { 
-							us.set('ui_layout_background_image', val) 
 							setDisplayReload(true);
 						}
 					},
