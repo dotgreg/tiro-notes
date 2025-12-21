@@ -531,6 +531,7 @@ export const App = () => {
 		let backgroundVideoEnable = userSettingsSync.curr.ui_layout_background_video_enable
 		let backgroundVideo = userSettingsSync.curr.ui_layout_background_image
 		if (backgroundVideoEnable && backgroundVideo) setBgVideo(backgroundVideo)
+		if (!backgroundVideoEnable) setBgVideo(undefined)
 	}, [cnt, usettings])
 
 
