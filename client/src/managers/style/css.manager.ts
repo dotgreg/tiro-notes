@@ -154,6 +154,9 @@ const CssAppIntStatic = (
 		.react-grid-item.active {
 			opacity: ${windowOpacityActive};
 		}
+		.floating-panel-wrapper {
+			opacity: ${windowOpacityActive};
+		}
 
 		${BackgroundVideoCSS()}
 
