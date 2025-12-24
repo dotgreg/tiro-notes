@@ -345,7 +345,7 @@ export const FloatingPanel = (p:{
 
     return (
         <div className={`floating-panel-wrapper ${classes} ${p.panel.status}`} 
-            style={{zIndex:p.panel.zIndex, position: "absolute", top: currPos.y, left: currPos.x, opacity: p.panel.opacity || 1}}
+            style={{zIndex:p.panel.zIndex, position: "absolute", top: currPos.y, left: currPos.x, opacity: p.panel.opacity }}
             // style={{zIndex:p.panel.zIndex}}
             key={p.panel.id}
             onMouseDown={() => {pushToTop()}}

@@ -149,14 +149,16 @@ const CssAppIntStatic = (
 		
 		background-size: cover;
 		.react-grid-item {
-			opacity: ${windowsOpacity};
+			opacity: ${deviceType() === "mobile" ? 1: windowOpacityActive};
 		}
 		.react-grid-item.active {
-			opacity: ${windowOpacityActive};
+			opacity: ${deviceType() === "mobile" ? 1: windowOpacityActive};
 		}
 		.floating-panel-wrapper {
-			opacity: ${windowOpacityActive};
+			opacity: ${deviceType() === "mobile" ? 1: windowOpacityActive};
 		}
+
+		
 
 		${BackgroundVideoCSS()}
 

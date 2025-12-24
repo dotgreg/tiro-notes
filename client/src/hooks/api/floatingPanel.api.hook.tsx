@@ -233,7 +233,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         // if panel is file and a panel with that file already exists and is visible, just push it on top
         // let alreadyExistingVisiblePanel = panelsRef.current.find(p => p.file.path === panelParams.file.path && p.status === "visible")
         let alreadyExistingMinimizedPanel = panelsRef.current.find(p => p.file.path === panelParams?.file?.path && p.status !== "visible")
-        // console.log(`${h} createPanel`, alreadyExistingVisiblePanel, alreadyExistingMinimizedPanel, panelParams.file.path, panelsRef)
         if (alreadyExistingMinimizedPanel) {
             deminimizePanel(alreadyExistingMinimizedPanel.id)
         } else {
@@ -245,12 +244,19 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             let sizeWidth = (window.innerWidth / 2) - decal
             if (deviceType() === "mobile") sizeWidth = (window.innerWidth) - decal * 2
             const sizeHeight = (window.innerHeight / 1.2) - decal
-            
+            // if super large screen, limit size width to 800px
+            if (sizeWidth > 800) sizeWidth = 800
+
             // if id exists, prepend device type
             if (panelParams.id) panelParams.id = deviceType() + "-" + panelParams.id
 
+            let position = { x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset) }
+            if (deviceType() === "mobile") { position = { x: decal, y: decal } }
+
+            console.log(`Creating panel at position: ${JSON.stringify(position)}`);
+
             const panel: iFloatingPanel = {
-                position: { x: decal + (nonHiddenPanels.length * offset), y: decal + (nonHiddenPanels.length * offset) },
+                position,
                 size: { width: sizeWidth, height: sizeHeight },
                 status: "visible",
                 file: generateEmptyiFile(),
@@ -272,6 +278,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
             const openFloating = (panel) => {
                 console.log(`${h} createPanel`, panel)
+            
+
                 // if panel with same id exists, get its position and size, then delete it
                 let oldPanelPosition = panelsRef.current.find(p => p.id === panel.id)
                 if (oldPanelPosition) {
@@ -280,6 +288,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
                     deletePanel(panel.id)
                 }
                 let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
+                console.log(panel.size)
                 nPanels.push(panel)
                 setPanels(nPanels)
                 updateOrderPosition(panel.id, "first")
@@ -535,7 +544,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const minimizeActive = () => {
         // let newPanels = cloneDeep(panelsRef.current)
         let topWindow = getTopVisibleWindow()
-        // console.log("topWindow", topWindow?.file.name)
         if (!topWindow) return
         minimizePanel(topWindow.id)
     }
@@ -587,7 +595,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             // forcing note view
             if (opts?.noteView) panel.view = opts.noteView
             if (opts?.view) panel.view = opts.view
-            // console.log(`${h} minimized`, panel.file.name, panel)
             // if panel is minimized, set it to visible
             if (panel.status === "minimized") panel.status = "visible"
             if (panel.status === "hidden") panel.status = "visible"
@@ -644,7 +651,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         if (!topWindow) return
         const currOpacity = topWindow.opacity || 1
         topWindow.opacity = currOpacity + opacityRelative
-        // console.log(`${h} updateTopWindowOpacity`, topWindow.opacity, currOpacity, opacityRelative)
         if (topWindow.opacity > 1) topWindow.opacity = 1
         if (topWindow.opacity < 0) topWindow.opacity = 0
         updatePanel(topWindow)
@@ -659,7 +665,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             topWindow.view = toggleViewType(topWindow.view as iViewType)
             const cFile = topWindow.file
             setNoteView(cFile?.path, topWindow.view)
-            // console.log(`${h} updateTopWindowView`, topWindow.view)
         }
         updatePanel(topWindow)
     }
