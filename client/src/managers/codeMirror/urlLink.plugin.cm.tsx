@@ -170,7 +170,7 @@ title="Text to speech url content" class="link-audio link-action"  data-link="${
 	let iframeWrapper = `<span class="cm-hover-popup cm-hover-popup"></span>`
 	// let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
 	let html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><a href="${fullLink}" class="link-mdpreview" title="${fullLink}" target="_blank" rel="noreferrer">${i("link")}${previewStr}</a>${btns}${iframeWrapper}</span>${linejump}`
-	if (isMobile()) html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><span  class="link-action-more link-mdpreview" title="${fullLink}" rel="noreferrer">${i("link")}${previewStr}${btnsMobile}${iframeWrapper}</span>${linejump}`
+	// if (isMobile()) html = `<span class="${isMobile() ? "mobile-version" : ""} link-mdpreview-wrapper"><span  class="link-action-more link-mdpreview" title="${fullLink}" rel="noreferrer">${i("link")}${previewStr}${btnsMobile}${iframeWrapper}</span>${linejump}`
 	resEl.innerHTML = `${html}`;
 
 	return resEl.outerHTML
@@ -210,13 +210,14 @@ ${floatingWindow ? ``:`.link-detach {display:none;}`}
 		position: absolute;
 		right: -30px;
 		top: -10px;
-		opacity: 0;
 		transition: 0.2s all;
-		pointer-events: none;
 		background: white;
 		box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
 		padding: 7px;
 		z-index: 10000;
+
+		opacity: 0;
+		pointer-events: none;
 }
 .link-action-wrapper span {
 	margin: 0px 2px;
@@ -229,13 +230,14 @@ ${floatingWindow ? ``:`.link-detach {display:none;}`}
 	top: 50%;
   left: 50%;
   position: fixed;
-	pointer-events: none;
   transform: translate(-50%,-50%);
   padding: 30px 50px;
   background: white;
   width: 170px;
   z-index:2;
+
   opacity: 0;
+	pointer-events: none;
 
 }
 .mobile-version .link-action {
@@ -247,6 +249,7 @@ ${floatingWindow ? ``:`.link-detach {display:none;}`}
 }
 
 .link-action-more  {
+		padding: ${isMobile() ? "10px" : "2px"};
 		margin-right: 6px;
 		opacity: 0.3;
 }
