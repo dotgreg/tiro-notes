@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getLoginToken } from '../hooks/app/loginToken.hook';
+import { isMobile } from '../managers/device.manager';
 export const BackgroundVideo = (p:{
     url: string
     width: number
@@ -36,16 +37,17 @@ export const BackgroundVideo = (p:{
     }, []);
 
     return (
+            !isMobile() &&
 
-        <div id="background-video" className={`background-video ${isRawHTML ? 'html' : 'iframe'}`} style={{width: `${p.width}%`, height:`${p.height}%`} }>
-            {show && !isRawHTML && <iframe  
-            src={`${url}`} 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-            >
+            <div id="background-video" className={`background-video ${isRawHTML ? 'html' : 'iframe'}`} style={{width: `${p.width}%`, height:`${p.height}%`} }>
+                {show && !isRawHTML && <iframe  
+                src={`${url}`} 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                >
 
-            </iframe>}
-            {show && isRawHTML && <div className='html-wrapper-raw' dangerouslySetInnerHTML={{__html: url}}></div>}
-        </div>
+                </iframe>}
+                {show && isRawHTML && <div className='html-wrapper-raw' dangerouslySetInnerHTML={{__html: url}}></div>}
+            </div>
     );
 }
 export const BackgroundVideoCSS = () => `
