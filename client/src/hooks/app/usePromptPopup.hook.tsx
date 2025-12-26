@@ -426,6 +426,16 @@ export const usePromptPopup = (p: {
 		const finalFilePath = configForm.insertFilePath || defaultConfigForm.insertFilePath 
 		const insertLine = configForm.insertLine || defaultConfigForm.insertLine 
 		// insert final string to file
+
+
+		// if \n inside string, replace it by linejump
+		// finalStringToInsert = finalStringToInsert?.replaceAll("\\n", "woowowowo")
+		finalStringToInsert = finalStringToInsert?.replaceAll("\n", `
+`)
+		finalStringToInsert = finalStringToInsert?.replaceAll("\\n", `
+`)
+		// finalStringToInsert = finalStringToInsert?.replaceAll("\n", "woowowowo")
+		
 		getApi(api => {
 			api.file.insertContent(finalFilePath, finalStringToInsert || "", {insertLine}, res => {
 				// if (configFormCb) configFormCb()

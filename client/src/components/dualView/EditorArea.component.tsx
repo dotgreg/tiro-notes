@@ -325,8 +325,8 @@ const EditorAreaInt = (
 		            openExportFilePopup(p.windowId, p.file)
 		            setTimeout(() => {
 		                askForViewToggle("editor")
-		            })
-		        }, 100)
+		            }, 500)
+		        }, 500)
 		    } else {
 		        openExportFilePopup(p.windowId, p.file)
 		    }
