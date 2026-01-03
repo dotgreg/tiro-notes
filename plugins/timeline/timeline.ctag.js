@@ -411,7 +411,6 @@ test, 10/20,33, group1
         }
 
         const startMainLogic = () => {
-                alert('www:w')
                 // eruda.init();
                 const commonLib/*:iCommonLib*/ = window._tiroPluginsCommon.commonLib
                 const api = window.api;
@@ -419,8 +418,8 @@ test, 10/20,33, group1
                 //
                 // config innerTagStr or default
                 //
-                // let wordToSearch = "[timeline"
-                // let pathToSearch = api.utils.getInfos().file.folder
+                let wordToSearch = "[timeline"
+                let pathToSearch = api.utils.getInfos().file.folder
                 // let configArr = [{wordToSearch: "[timeline", pathToSearch: api.utils.getInfos().file.folder}]
                 let configArr = []
                 let currentMode = "files"
@@ -569,7 +568,7 @@ test, 10/20,33, group1
                 setTimeout(() => {
 			api.utils.loadRessources(
 				[
-                                        `https://cdn.jsdelivr.net/npm/eruda`,
+                                        // `https://cdn.jsdelivr.net/npm/eruda`,
                                         `${opts.plugins_root_url}/_common/common.lib.js`,
                                         `https://visjs.github.io/vis-timeline/standalone/umd/vis-timeline-graph2d.min.js`
 				],

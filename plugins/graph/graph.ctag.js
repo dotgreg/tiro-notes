@@ -447,6 +447,7 @@ const graphApp = (innerTagStr, opts) => {
 						nodes: new vis.DataSet(data.nodes),
 						edges: new vis.DataSet(data.edges)
 				}
+				console.log(111111) 
 				var network = new vis.Network(container, d2, options);
 				// GET POSITION AFTER FIRST STABIL, then set it to cache
 				network.on('stabilized', () => {
