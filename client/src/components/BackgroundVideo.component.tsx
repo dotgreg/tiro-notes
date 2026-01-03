@@ -37,17 +37,20 @@ export const BackgroundVideo = (p:{
     }, []);
 
     return (
-            !isMobile() &&
+        <>
+            {!isMobile() &&
 
-            <div id="background-video" className={`background-video ${isRawHTML ? 'html' : 'iframe'}`} style={{width: `${p.width}%`, height:`${p.height}%`} }>
-                {show && !isRawHTML && <iframe  
-                src={`${url}`} 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                >
+                <div id="background-video" className={`background-video ${isRawHTML ? 'html' : 'iframe'}`} style={{ width: `${p.width}%`, height: `${p.height}%` }}>
+                    {show && !isRawHTML && <iframe
+                        src={`${url}`}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    >
 
-                </iframe>}
-                {show && isRawHTML && <div className='html-wrapper-raw' dangerouslySetInnerHTML={{__html: url}}></div>}
-            </div>
+                    </iframe>}
+                    {show && isRawHTML && <div className='html-wrapper-raw' dangerouslySetInnerHTML={{ __html: url }}></div>}
+                </div>
+            }
+        </>
     );
 }
 export const BackgroundVideoCSS = () => `

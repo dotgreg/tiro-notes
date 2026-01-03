@@ -12,6 +12,7 @@ import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
 import { getNoteView, setNoteView, toggleViewType } from "../../managers/windowViewType.manager"
 import path from "path"
+import { userSettingsSync } from "../useUserSettings.hook"
 
 const h = `[FLOATING PANELS]`
 
@@ -420,8 +421,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         newPanels.forEach((panel) => {
             if (panel.status !== "visible") return
             panel.zIndex = startingZindex + j
-            panel.position = { x: 100 + (j * offset), y: 100 + (j * offset) }
-            panel.size = { width: 320, height: 200 }
+            panel.position = { x: 100 + (j * offset), y: 100 + (j * (offset+15)) }
+            panel.size = { width: 700, height: 600 }
             // if i > 0, position should offset half of the previous panel size
             // if (j > 0) {
             //     panel.position = {x: 100 + (j * offset) , y: 100 + (j * offset) - (newPanels[j].size.height )}
@@ -444,7 +445,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
 
         const allLayouts: iWindowsLayout[] = ["grid", "horizontal", "vertical", "tiled"]
-        // console.log(`${h} toggleWindowsLayout`, layoutWindows.current)
         if (!nLayout) {
             // if no nLayout, toggle between grid, horizontal, vertical
             layoutWindows.current = allLayouts[(allLayouts.indexOf(layoutWindows.current) + 1) % allLayouts.length]
@@ -453,21 +453,21 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         }
 
 
+        let paddingW = parseInt(userSettingsSync.curr.ui_layout_floating_window_padding)
+        // let padding = 10
+        // alert(padding)
         // if grid, reorganize each panels according to their number, if 2 side by side, if 4 2x2, if 9, 3x3
         if (layoutWindows.current === "grid") {
             const cols = Math.ceil(Math.sqrt(visiblePanels.length))
             const rows = Math.ceil(visiblePanels.length / cols)
             const positionsForEachPanel: { x: number, y: number }[] = []
             let paddingLeft = isMobile() ? 2 : 15
-            let padding = 2
-            let widthPerCol = (windowWidthPanel() - paddingLeft -padding) / cols
-            let heightPerRow = windowHeightPanel() / rows
+            let widthPerCol = (windowWidthPanel() - paddingLeft - (cols * paddingW)) / cols
+            let heightPerRow = (windowHeightPanel() - (paddingW * (rows ))) / rows
 
-            // console.log(`${h} toggleWindowsLayout grid`, cols, rows, widthPerCol, heightPerRow)
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols; j++) {
-                    //positionsForEachPanel.push({ x: j * widthPerCol, y: i * heightPerRow })
-                    positionsForEachPanel.push({ x: j * widthPerCol + paddingLeft, y: i * heightPerRow + padding })
+                    positionsForEachPanel.push({ x: j * widthPerCol + paddingLeft + (paddingW * j), y: i * heightPerRow + paddingW + (paddingW * i) })
                 }
             }
             let count = 0
@@ -480,27 +480,28 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             })
             updateAll(newPanels)
         } else if (layoutWindows.current === "horizontal") {
-            let widthPerCol = windowWidthPanel() / visiblePanels.length
-            // console.log(`${h} toggleWindowsLayout horizontal`, widthPerCol, widthPerCol, visiblePanels.length)
+            let totalWidthNoPadding = windowWidthPanel() - (2*paddingW) - (visiblePanels.length - 1) * paddingW
+            // let widthPerCol = (totalWidthNoPadding - (paddingW * 2)) / visiblePanels.length
+            let widthPerCol = totalWidthNoPadding   / visiblePanels.length
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
                 if (panel.device === "mobile") return
-                // console.log(`${h} 222toggleWindowsLayout horizontal`, count, widthPerCol, count * widthPerCol, panel.id, panel)
-                panel.position = { x: count * widthPerCol, y: 0 }
-                panel.size = { width: widthPerCol, height: windowHeightPanel() }
+                // add paddingW
+                panel.position = { x: count * widthPerCol + (paddingW * (count + 1)), y: paddingW }
+                panel.size = { width: widthPerCol, height: windowHeightPanel() - (paddingW * 2) }
                 count++
             })
             updateAll(newPanels)
         } else if (layoutWindows.current === "vertical") {
             let heightPerRow = windowHeightPanel() / visiblePanels.length
-            // console.log(`${h} toggleWindowsLayout vertical`, heightPerRow)
             let count = 0
             newPanels.forEach((panel, i) => {
                 if (panel.status !== "visible") return
                 if (panel.device === "mobile") return
-                panel.position = { x: 0, y: count * heightPerRow }
-                panel.size = { width: windowWidthPanel(), height: heightPerRow }
+                // adding paddingW
+                panel.position = { x: paddingW, y: count * heightPerRow + paddingW }
+                panel.size = { width: windowWidthPanel() - (paddingW * 2), height: heightPerRow - (paddingW ) }
                 count++
             })
             updateAll(newPanels)

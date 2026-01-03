@@ -368,6 +368,7 @@ const CssAppIntStatic = (
 						height:100vh;
 						overflow: hidden;
 						background: ${cssVars.colors.bgInterface};
+						z-index:1;
 
 
 
@@ -534,6 +535,7 @@ const CssAppIntDynamic = (
 				width: ${deviceType() === 'desktop' ? 37 : (mobileView !== 'navigator' ? 0 : 100)}vw;
 				display: ${deviceType() === 'desktop' ? 'flex' : (mobileView !== 'navigator' ? 'none' : 'flex')};
 				min-width: 400px;
+				max-width: 900px;
 			}
 		} // end main-wrapper
 `//css
