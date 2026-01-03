@@ -317,6 +317,18 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'number',
+						title: "Floating window padding",
+						expl: "Padding for floating windows (between 0 and 100)" + showDefaultString("ui_layout_floating_window_padding") + requireReloadStr,
+						var: us.get('ui_layout_floating_window_padding'),
+						max: 100,
+						min: 0,
+						modifier: val => { 
+							us.set('ui_layout_floating_window_padding', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'number',
 						title: "background video width",
 						expl: "background video width in percent (between 0 and 200)" + showDefaultString("ui_layout_background_video_width") + requireReloadStr,
 						var: us.get('ui_layout_background_video_width'),

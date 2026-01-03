@@ -36,7 +36,7 @@ export const evalBackendCode = (
                 if (evalCbRes.status === "error") {
                     cb(evalCbRes);
                 } else {
-                    let finalRes = { status: "success", result: evalCbRes, source: codeTxt, p:{paramsNames, paramsValues} } as iAnswerBackendEval
+                    let finalRes = { status: "success", result: evalCbRes,  p:{paramsNames, paramsValues} } as iAnswerBackendEval
                     cb(finalRes)
                 }
             }

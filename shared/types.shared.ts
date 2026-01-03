@@ -91,6 +91,7 @@ export type iUserSettingName =
 'ui_layout_font_family_editor' |
 'ui_layout_shortcuts_panel' |
 
+'ui_layout_floating_window_padding' |
 'ui_layout_background_image_enable' |
 'ui_layout_background_video_enable' |
 'ui_layout_background_image_window_opacity' |
