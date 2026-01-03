@@ -20895,7 +20895,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 32,
+									"line": 33,
 									"character": 4
 								}
 							],
@@ -20920,7 +20920,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 35,
+									"line": 36,
 									"character": 4
 								}
 							],
@@ -20945,7 +20945,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 25,
+									"line": 26,
 									"character": 4
 								}
 							],
@@ -20970,7 +20970,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 33,
+									"line": 34,
 									"character": 4
 								}
 							],
@@ -20994,7 +20994,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 36,
+									"line": 37,
 									"character": 4
 								}
 							],
@@ -21018,7 +21018,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 45,
+									"line": 46,
 									"character": 4
 								}
 							],
@@ -21039,7 +21039,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 27,
+									"line": 28,
 									"character": 4
 								}
 							],
@@ -21063,7 +21063,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 31,
+									"line": 32,
 									"character": 4
 								}
 							],
@@ -21087,7 +21087,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 22,
+									"line": 23,
 									"character": 4
 								}
 							],
@@ -21109,7 +21109,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 22,
+													"line": 23,
 													"character": 16
 												}
 											],
@@ -21127,7 +21127,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 22,
+													"line": 23,
 													"character": 27
 												}
 											],
@@ -21165,7 +21165,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 28,
+									"line": 29,
 									"character": 4
 								}
 							],
@@ -21189,7 +21189,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 26,
+									"line": 27,
 									"character": 4
 								}
 							],
@@ -21213,7 +21213,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 23,
+									"line": 24,
 									"character": 4
 								}
 							],
@@ -21235,7 +21235,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 23,
+													"line": 24,
 													"character": 27
 												}
 											],
@@ -21253,7 +21253,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 23,
+													"line": 24,
 													"character": 12
 												}
 											],
@@ -21291,7 +21291,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 24,
+									"line": 25,
 									"character": 4
 								}
 							],
@@ -21326,7 +21326,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 44,
+									"line": 45,
 									"character": 4
 								}
 							],
@@ -21359,7 +21359,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 30,
+									"line": 31,
 									"character": 4
 								}
 							],
@@ -21384,7 +21384,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 34,
+									"line": 35,
 									"character": 4
 								}
 							],
@@ -21425,7 +21425,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 43,
+							"line": 44,
 							"character": 17
 						}
 					],
@@ -22507,7 +22507,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 232,
+									"line": 233,
 									"character": 1
 								}
 							],
@@ -22527,7 +22527,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 231,
+									"line": 232,
 									"character": 1
 								}
 							],
@@ -22547,7 +22547,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 236,
+									"line": 237,
 									"character": 1
 								}
 							],
@@ -22565,7 +22565,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 235,
+									"line": 236,
 									"character": 1
 								}
 							],
@@ -22585,7 +22585,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 234,
+									"line": 235,
 									"character": 1
 								}
 							],
@@ -22605,7 +22605,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 233,
+									"line": 234,
 									"character": 1
 								}
 							],
@@ -22623,7 +22623,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 228,
+									"line": 229,
 									"character": 1
 								}
 							],
@@ -22641,7 +22641,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 227,
+									"line": 228,
 									"character": 1
 								}
 							],
@@ -22660,7 +22660,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 230,
+									"line": 231,
 									"character": 1
 								}
 							],
@@ -22678,7 +22678,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 229,
+									"line": 230,
 									"character": 1
 								}
 							],
@@ -22698,7 +22698,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 237,
+									"line": 238,
 									"character": 1
 								}
 							],
@@ -22730,7 +22730,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 226,
+							"line": 227,
 							"character": 17
 						}
 					]
@@ -23549,7 +23549,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 246,
+									"line": 247,
 									"character": 1
 								}
 							],
@@ -23570,7 +23570,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 249,
+									"line": 250,
 									"character": 1
 								}
 							],
@@ -23588,7 +23588,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 248,
+									"line": 249,
 									"character": 1
 								}
 							],
@@ -23606,7 +23606,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 247,
+									"line": 248,
 									"character": 1
 								}
 							],
@@ -23631,7 +23631,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 245,
+							"line": 246,
 							"character": 17
 						}
 					]
@@ -23652,7 +23652,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 224,
+									"line": 225,
 									"character": 1
 								}
 							],
@@ -23670,7 +23670,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 222,
+									"line": 223,
 									"character": 1
 								}
 							],
@@ -23690,7 +23690,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 223,
+									"line": 224,
 									"character": 1
 								}
 							],
@@ -23714,7 +23714,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 221,
+							"line": 222,
 							"character": 17
 						}
 					]
@@ -24071,7 +24071,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 32,
+									"line": 33,
 									"character": 4
 								}
 							],
@@ -24090,7 +24090,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 35,
+									"line": 36,
 									"character": 4
 								}
 							],
@@ -24109,7 +24109,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 25,
+									"line": 26,
 									"character": 4
 								}
 							],
@@ -24128,7 +24128,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 33,
+									"line": 34,
 									"character": 4
 								}
 							],
@@ -24148,7 +24148,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 36,
+									"line": 37,
 									"character": 4
 								}
 							],
@@ -24168,7 +24168,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 27,
+									"line": 28,
 									"character": 4
 								}
 							],
@@ -24188,7 +24188,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 31,
+									"line": 32,
 									"character": 4
 								}
 							],
@@ -24206,7 +24206,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 22,
+									"line": 23,
 									"character": 4
 								}
 							],
@@ -24228,7 +24228,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 22,
+													"line": 23,
 													"character": 16
 												}
 											],
@@ -24246,7 +24246,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 22,
+													"line": 23,
 													"character": 27
 												}
 											],
@@ -24280,7 +24280,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 28,
+									"line": 29,
 									"character": 4
 								}
 							],
@@ -24300,7 +24300,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 26,
+									"line": 27,
 									"character": 4
 								}
 							],
@@ -24318,7 +24318,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 23,
+									"line": 24,
 									"character": 4
 								}
 							],
@@ -24340,7 +24340,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 23,
+													"line": 24,
 													"character": 27
 												}
 											],
@@ -24358,7 +24358,7 @@
 											"sources": [
 												{
 													"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-													"line": 23,
+													"line": 24,
 													"character": 12
 												}
 											],
@@ -24390,7 +24390,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 24,
+									"line": 25,
 									"character": 4
 								}
 							],
@@ -24421,7 +24421,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 29,
+									"line": 30,
 									"character": 4
 								}
 							],
@@ -24450,7 +24450,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 30,
+									"line": 31,
 									"character": 4
 								}
 							],
@@ -24471,7 +24471,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 34,
+									"line": 35,
 									"character": 4
 								}
 							],
@@ -24507,7 +24507,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 21,
+							"line": 22,
 							"character": 17
 						}
 					]
@@ -24528,7 +24528,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 69,
+									"line": 70,
 									"character": 4
 								}
 							],
@@ -24547,7 +24547,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 60,
+									"line": 61,
 									"character": 4
 								}
 							],
@@ -24569,7 +24569,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 77,
+									"line": 78,
 									"character": 4
 								}
 							],
@@ -24589,7 +24589,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 70,
+									"line": 71,
 									"character": 4
 								}
 							],
@@ -24608,7 +24608,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 75,
+									"line": 76,
 									"character": 4
 								}
 							],
@@ -24663,7 +24663,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 57,
+									"line": 58,
 									"character": 4
 								}
 							],
@@ -24704,7 +24704,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 58,
+									"line": 59,
 									"character": 4
 								}
 							],
@@ -24744,7 +24744,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 65,
+									"line": 66,
 									"character": 4
 								}
 							],
@@ -24786,7 +24786,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 66,
+									"line": 67,
 									"character": 4
 								}
 							],
@@ -24826,7 +24826,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 63,
+									"line": 64,
 									"character": 4
 								}
 							],
@@ -24873,7 +24873,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 63,
+																	"line": 64,
 																	"character": 45
 																}
 															],
@@ -24891,7 +24891,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 63,
+																	"line": 64,
 																	"character": 56
 																}
 															],
@@ -24931,7 +24931,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 80,
+									"line": 81,
 									"character": 4
 								}
 							],
@@ -24999,7 +24999,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 78,
+									"line": 79,
 									"character": 4
 								}
 							],
@@ -25039,7 +25039,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 64,
+									"line": 65,
 									"character": 4
 								}
 							],
@@ -25086,7 +25086,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 64,
+																	"line": 65,
 																	"character": 58
 																}
 															],
@@ -25104,7 +25104,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 64,
+																	"line": 65,
 																	"character": 43
 																}
 															],
@@ -25144,7 +25144,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 83,
+									"line": 84,
 									"character": 4
 								}
 							],
@@ -25184,7 +25184,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 62,
+									"line": 63,
 									"character": 4
 								}
 							],
@@ -25225,7 +25225,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 74,
+									"line": 75,
 									"character": 4
 								}
 							],
@@ -25269,7 +25269,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 81,
+									"line": 82,
 									"character": 4
 								}
 							],
@@ -25333,7 +25333,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 67,
+									"line": 68,
 									"character": 4
 								}
 							],
@@ -25412,7 +25412,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 56,
+							"line": 57,
 							"character": 17
 						}
 					]
@@ -25435,7 +25435,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 265,
+									"line": 266,
 									"character": 1
 								}
 							],
@@ -25459,7 +25459,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 263,
+									"line": 264,
 									"character": 1
 								}
 							],
@@ -25479,7 +25479,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 264,
+									"line": 265,
 									"character": 1
 								}
 							],
@@ -25497,7 +25497,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 261,
+									"line": 262,
 									"character": 1
 								}
 							],
@@ -25515,7 +25515,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 262,
+									"line": 263,
 									"character": 1
 								}
 							],
@@ -25533,7 +25533,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 260,
+									"line": 261,
 									"character": 1
 								}
 							],
@@ -25560,7 +25560,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 259,
+							"line": 260,
 							"character": 17
 						}
 					]
@@ -26051,7 +26051,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 202,
+									"line": 203,
 									"character": 1
 								}
 							],
@@ -26073,7 +26073,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 201,
+									"line": 202,
 									"character": 1
 								}
 							],
@@ -26100,7 +26100,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 200,
+							"line": 201,
 							"character": 17
 						}
 					]
@@ -30407,7 +30407,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 218,
+									"line": 219,
 									"character": 1
 								}
 							],
@@ -30425,7 +30425,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 217,
+									"line": 218,
 									"character": 1
 								}
 							],
@@ -30443,7 +30443,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 216,
+									"line": 217,
 									"character": 1
 								}
 							],
@@ -30467,7 +30467,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 215,
+							"line": 216,
 							"character": 17
 						}
 					]
@@ -30968,7 +30968,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 208,
+									"line": 209,
 									"character": 1
 								}
 							],
@@ -30986,7 +30986,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 209,
+									"line": 210,
 									"character": 1
 								}
 							],
@@ -31005,7 +31005,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 206,
+									"line": 207,
 									"character": 1
 								}
 							],
@@ -31025,7 +31025,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 212,
+									"line": 213,
 									"character": 1
 								}
 							],
@@ -31043,7 +31043,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 207,
+									"line": 208,
 									"character": 1
 								}
 							],
@@ -31063,7 +31063,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 210,
+									"line": 211,
 									"character": 1
 								}
 							],
@@ -31083,7 +31083,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 211,
+									"line": 212,
 									"character": 1
 								}
 							],
@@ -31111,7 +31111,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 205,
+							"line": 206,
 							"character": 17
 						}
 					]
@@ -32161,7 +32161,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 195,
+									"line": 196,
 									"character": 1
 								}
 							],
@@ -32179,7 +32179,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 191,
+									"line": 192,
 									"character": 1
 								}
 							],
@@ -32197,7 +32197,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 197,
+									"line": 198,
 									"character": 1
 								}
 							],
@@ -32215,7 +32215,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 196,
+									"line": 197,
 									"character": 1
 								}
 							],
@@ -32235,7 +32235,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 198,
+									"line": 199,
 									"character": 1
 								}
 							],
@@ -32253,7 +32253,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 194,
+									"line": 195,
 									"character": 1
 								}
 							],
@@ -32271,7 +32271,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 192,
+									"line": 193,
 									"character": 1
 								}
 							],
@@ -32289,7 +32289,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 193,
+									"line": 194,
 									"character": 1
 								}
 							],
@@ -32318,7 +32318,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 190,
+							"line": 191,
 							"character": 17
 						}
 					]
@@ -32339,7 +32339,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 181,
+									"line": 182,
 									"character": 1
 								}
 							],
@@ -32359,7 +32359,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 184,
+									"line": 185,
 									"character": 1
 								}
 							],
@@ -32379,7 +32379,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 180,
+									"line": 181,
 									"character": 1
 								}
 							],
@@ -32398,7 +32398,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 179,
+									"line": 180,
 									"character": 1
 								}
 							],
@@ -32418,7 +32418,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 186,
+									"line": 187,
 									"character": 1
 								}
 							],
@@ -32438,7 +32438,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 185,
+									"line": 186,
 									"character": 1
 								}
 							],
@@ -32458,7 +32458,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 187,
+									"line": 188,
 									"character": 1
 								}
 							],
@@ -32477,7 +32477,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 182,
+									"line": 183,
 									"character": 1
 								}
 							],
@@ -32507,7 +32507,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 178,
+							"line": 179,
 							"character": 17
 						}
 					]
@@ -34670,7 +34670,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 40,
+							"line": 41,
 							"character": 12
 						}
 					],
@@ -34694,7 +34694,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-											"line": 40,
+											"line": 41,
 											"character": 33
 										}
 									],
@@ -34717,7 +34717,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 40,
+									"line": 41,
 									"character": 31
 								}
 							]
@@ -34733,7 +34733,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 38,
+							"line": 39,
 							"character": 12
 						}
 					],
@@ -34862,7 +34862,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 252,
+							"line": 253,
 							"character": 12
 						}
 					],
@@ -35413,7 +35413,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 278,
+							"line": 279,
 							"character": 13
 						}
 					],
@@ -35437,7 +35437,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 283,
+											"line": 284,
 											"character": 2
 										}
 									],
@@ -35469,7 +35469,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 280,
+											"line": 281,
 											"character": 2
 										}
 									],
@@ -35489,7 +35489,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 282,
+											"line": 283,
 											"character": 2
 										}
 									],
@@ -35521,7 +35521,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 279,
+											"line": 280,
 											"character": 2
 										}
 									],
@@ -35550,7 +35550,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 281,
+											"line": 282,
 											"character": 2
 										}
 									],
@@ -35576,7 +35576,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 278,
+									"line": 279,
 									"character": 38
 								}
 							]
@@ -35684,7 +35684,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 170,
+							"line": 171,
 							"character": 12
 						}
 					],
@@ -35782,7 +35782,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 174,
+							"line": 175,
 							"character": 12
 						}
 					],
@@ -36245,7 +36245,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 48,
+							"line": 49,
 							"character": 5
 						}
 					],
@@ -36260,7 +36260,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-									"line": 48,
+									"line": 49,
 									"character": 28
 								}
 							],
@@ -36311,7 +36311,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 49,
+																	"line": 50,
 																	"character": 8
 																}
 															],
@@ -36331,7 +36331,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 50,
+																	"line": 51,
 																	"character": 8
 																}
 															],
@@ -36352,7 +36352,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 53,
+																	"line": 54,
 																	"character": 8
 																}
 															],
@@ -36373,7 +36373,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 52,
+																	"line": 53,
 																	"character": 8
 																}
 															],
@@ -36393,7 +36393,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 51,
+																	"line": 52,
 																	"character": 8
 																}
 															],
@@ -36413,7 +36413,7 @@
 															"sources": [
 																{
 																	"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-																	"line": 54,
+																	"line": 55,
 																	"character": 8
 																}
 															],
@@ -36441,7 +36441,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-															"line": 48,
+															"line": 49,
 															"character": 54
 														}
 													]
@@ -36467,7 +36467,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 42,
+							"line": 43,
 							"character": 12
 						}
 					],
@@ -36928,7 +36928,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 160,
+							"line": 161,
 							"character": 12
 						}
 					],
@@ -36950,7 +36950,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 162,
+											"line": 163,
 											"character": 4
 										}
 									],
@@ -36968,7 +36968,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 161,
+											"line": 162,
 											"character": 4
 										}
 									],
@@ -36991,7 +36991,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 160,
+									"line": 161,
 									"character": 24
 								}
 							]
@@ -37007,7 +37007,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 165,
+							"line": 166,
 							"character": 12
 						}
 					],
@@ -37029,7 +37029,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 165,
+											"line": 166,
 											"character": 57
 										}
 									],
@@ -37047,7 +37047,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 165,
+											"line": 166,
 											"character": 24
 										}
 									],
@@ -37065,7 +37065,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 165,
+											"line": 166,
 											"character": 71
 										}
 									],
@@ -37084,7 +37084,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 165,
+											"line": 166,
 											"character": 38
 										}
 									],
@@ -37110,7 +37110,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 165,
+									"line": 166,
 									"character": 22
 								}
 							]
@@ -37396,7 +37396,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 155,
+							"line": 156,
 							"character": 12
 						}
 					],
@@ -37420,7 +37420,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 156,
+											"line": 157,
 											"character": 1
 										}
 									],
@@ -37440,7 +37440,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 157,
+											"line": 158,
 											"character": 1
 										}
 									],
@@ -37463,7 +37463,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 155,
+									"line": 156,
 									"character": 29
 								}
 							]
@@ -37479,7 +37479,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 154,
+							"line": 155,
 							"character": 12
 						}
 					],
@@ -38419,7 +38419,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 168,
+							"line": 169,
 							"character": 12
 						}
 					],
@@ -38434,7 +38434,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 168,
+									"line": 169,
 									"character": 29
 								}
 							],
@@ -38474,7 +38474,7 @@
 												"sources": [
 													{
 														"fileName": "shared/types.shared.ts",
-														"line": 168,
+														"line": 169,
 														"character": 53
 													}
 												],
@@ -38493,7 +38493,7 @@
 												"sources": [
 													{
 														"fileName": "shared/types.shared.ts",
-														"line": 168,
+														"line": 169,
 														"character": 66
 													}
 												],
@@ -38519,7 +38519,7 @@
 										"sources": [
 											{
 												"fileName": "shared/types.shared.ts",
-												"line": 168,
+												"line": 169,
 												"character": 51
 											}
 										]
@@ -38538,7 +38538,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 267,
+							"line": 268,
 							"character": 12
 						}
 					],
@@ -38938,7 +38938,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 176,
+							"line": 177,
 							"character": 12
 						}
 					],
@@ -38965,7 +38965,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 275,
+							"line": 276,
 							"character": 13
 						}
 					],
@@ -38989,7 +38989,7 @@
 									"sources": [
 										{
 											"fileName": "shared/types.shared.ts",
-											"line": 276,
+											"line": 277,
 											"character": 2
 										}
 									],
@@ -39011,7 +39011,7 @@
 							"sources": [
 								{
 									"fileName": "shared/types.shared.ts",
-									"line": 275,
+									"line": 276,
 									"character": 37
 								}
 							]
@@ -39223,6 +39223,10 @@
 							{
 								"type": "literal",
 								"value": "ui_layout_shortcuts_panel"
+							},
+							{
+								"type": "literal",
+								"value": "ui_layout_floating_window_padding"
 							},
 							{
 								"type": "literal",
@@ -39996,7 +40000,7 @@
 					"sources": [
 						{
 							"fileName": "shared/types.shared.ts",
-							"line": 172,
+							"line": 173,
 							"character": 12
 						}
 					],
@@ -40483,7 +40487,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/api/floatingPanel.api.hook.tsx",
-							"line": 39,
+							"line": 40,
 							"character": 5
 						}
 					],
