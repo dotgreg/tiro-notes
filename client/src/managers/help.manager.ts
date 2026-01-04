@@ -202,6 +202,59 @@ EXTRACT OF CONTENT OF /.tiro/plugins/MYPLUGIN.md
 
 then that js file should return a callback (cb) function that returns an array of declared backend functions like 
 <a about="_blank" href="https://github.com/dotgreg/tiro-notes/blob/dev/plugins/timer/timer.backend.js">that file</a>
+
+<h5> Calling the API from tiro notes </h5>
+- you can call the custom backend api as follow in tiro client (and in custom tags etc.) <br>
+- the "{custom_api_token}" will be replaced with the actual token value (only work for the function api.ressource.fetch)
+<code>
+<pre>
+    api.ressource.frontendFetch(
+        "/custom_backend_api?file=first-endpoint&token={custom_api_token}", 
+        res => {
+            console.log(JSON.parse(res)["result"])
+        }, 
+        {disableCache:true}
+    )
+</pre>
+</code>
+
+<h4> Page Title </h4>
+- you can customize the page title by adding javascript code to the note /.tiro/app-title.md<br>
+- you can access here the whole frontend api <br>
+- it should call a callback function "cb" with a string in it <br>
+- The title is refreshed every five minute <br>
+
+<code>
+<pre>
+CONTENT OF /.tiro/app-title.md
+===========
+...
+cb("Tiro Notes")
+...
+</pre>
+</code>
+
+- more complex example using custom backend api :<br>
+
+<code>
+<pre>
+CONTENT OF /.tiro/app-title.md
+===========
+...
+let simple = 0
+if (simple == 1) {
+    cb(\`Tiro\`)
+} else {
+        api.ressource.frontendFetch("custom_backend_api?file=first-endpoint&token={custom_api_token}", res => {
+          let finalRes = JSON.parse(res)["result"]["message"]
+          cb(\`hello world! \${finalRes} \${Math.random()}\`)
+        })
+    )
+} 
+...
+</pre>
+</code>
+
 `
 const cssStr = `
 h1 {

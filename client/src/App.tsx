@@ -63,6 +63,7 @@ import { release } from 'os';
 import { textToId } from './managers/string.manager';
 import { codeMirrorGlobalVars } from './components/dualView/CodeMirrorEditor.component';
 import { TtsCustomPopup } from './components/TtsCustomPopup.component';
+import { updatePageTitle } from './managers/pageTitle.manager';
 
 export const App = () => {
 
@@ -511,6 +512,18 @@ export const App = () => {
 		updateAppUrlFromActiveWindow(tabs, mobileView)
 		// update 
 	}, [tabs, mobileView])
+	
+
+	//
+	// EVERY FIVE MIN, REFRESH PAGE TITLE
+	//
+	useEffect(() => {
+		// Refresh page title every minute
+		const interval = setInterval(() => {
+			updatePageTitle()
+		}, 5 * 60 * 1000)
+		return () => clearInterval(interval)
+	}, [])
 
 	let rcnt = forceResponsiveRender ? 0 : 1
 	let cnt = api.userSettings.refresh.css.get + rcnt

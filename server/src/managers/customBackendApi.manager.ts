@@ -27,7 +27,7 @@ export const customBackendApiServer = async (params): Promise<iCustomBackendApiA
     let goodApiToken = backConfig.jsonConfig.customBackendApiToken;
     if (urlParams.token !== goodApiToken) {
         log(`${h} SECURITY ALERT!!!!!! invalid API token `, { urlParams });
-        return Promise.resolve({ status: "error", result: "Invalid API token" });
+        return Promise.resolve({ status: "error", result: "Invalid API token", apiToken: urlParams.token });
     }
 
     //

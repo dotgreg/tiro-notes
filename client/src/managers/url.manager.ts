@@ -7,6 +7,7 @@ import {  iMobileView, deviceType } from "./device.manager";
 import { findImagesFromContent } from "./images.manager";
 import {  getUrlTokenParam } from "../hooks/app/loginToken.hook";
 import {  webIconUpdate } from "./iconWeb.manager";
+import { updatePageTitle } from "./pageTitle.manager";
 
 export const cleanUrl = (url:string) => {
 	url = url.replaceAll("//", "/")
@@ -49,22 +50,22 @@ export const genUrlPreviewStr = (url) => {
 const h = `[URL]`
 
 let isUrlUpdaterEnabled = {value: false}
-// UPDATER
+// UPDATER for MOBILE SHORTCUTS
 export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileView) => {
 	if (!isUrlUpdaterEnabled.value) return
+	console.log("<- updateAppUrlFromActiveWindow")
 	getApi(api => {
 		const activeWindow = api.ui.windows.active.get()
 		const filePath = activeWindow?.content.file?.path
 		const view = activeWindow?.content.view
 		let urlParamsArr = getUrlRawParams().array
-		// console.log(h,"<= updateAppUrlFromActiveWindow", urlParamsArr)
 		urlParamsArr = urlParamsArr.filter(el => el.name !== "filepath" && el.name !== "view")
 		if (!filePath || !view) return
 		urlParamsArr.unshift({name: "filepath", value: filePath})
 
 		// by default
 		webIconUpdate("/favicon.png")
-		document.title = "Tiro"
+		updatePageTitle("Tiro")
 
 		if (deviceType() === "mobile") {
 			urlParamsArr.unshift({name: "view", value: mobileView})
@@ -88,11 +89,10 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 			
 			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
 			const nTitle = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
-			// document.title = "Tiro" // forcing the change of title to force the icon change
-			document.title = nTitle
+			updatePageTitle(nTitle, true)
 			webIconUpdate(fullurl)
 			setTimeout(() => {
-				document.title = nTitle
+				updatePageTitle(nTitle, true)
 				// webIconUpdate(fullurl)
 			}, 300)
 		})
@@ -105,7 +105,7 @@ export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileVie
 export const onStartupReactToUrlParams = (setMobileView:Function) => {
 	// by default
 	webIconUpdate("/favicon.png")
-	document.title = "Tiro"
+	updatePageTitle("Tiro")
 
 	// only enable isUrlUpdaterEnabled.value after 5s 
 	setTimeout(() => {isUrlUpdaterEnabled.value = true}, 5000)
