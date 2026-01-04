@@ -744,7 +744,7 @@ export const SettingsPopup = (p: {
 					{
 						type: 'text',
 						var: () => {
-							return api.config.getSync()?.jsonConfig?.customBackendApiToken
+							return api.config.getCustomApiToken()
 						},
 						title: "Custom backend API Token",
 						readOnly: true,

@@ -15,6 +15,7 @@ export interface iConfigApi {
 	) => void
 	getPlatform: () => iPlatform
 	getSync: () => iBackConfig | undefined
+	getCustomApiToken: () => string | undefined
 }
 
 export const useConfigApi = (p: {
@@ -53,6 +54,9 @@ export const useConfigApi = (p: {
 	const getPlatform: iConfigApi['getPlatform'] = () => {
 		return getPlatform()
 	}
+	const getCustomApiToken: iConfigApi['getCustomApiToken'] = () => {
+		return configSyncRef.current?.jsonConfig?.customBackendApiToken
+	}
 
 	const configSyncRef = useRef<iBackConfig | undefined>(undefined);
 	useEffect(() => {
@@ -66,6 +70,7 @@ export const useConfigApi = (p: {
 	const api: iConfigApi = {
 		get: getConfig,
 		getPlatform,
+		getCustomApiToken,
 		getSync: () => configSyncRef.current
 	}
 
