@@ -35,14 +35,15 @@ const stopTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, barApi/*:?a
 const getDateStr = (date/*:?Date*/) => {
     let currDate = new Date()
     if (date) currDate = date
-    let currDateStr = `${currDate.getDate()}-${currDate.getMonth()}-${currDate.getFullYear()}`
+    let currDateStr = `${currDate.getDate()}-${currDate.getMonth()+1}-${currDate.getFullYear()}`
+    // console.log("[TIMERLIB] getDateStr", currDateStr)
     return currDateStr
 }
 const getDateFromStr = (dateStr/*:string*/) => {    
     let dateParts = dateStr.split("-")
     let currDate = new Date()
     currDate.setDate(parseInt(dateParts[0]))
-    currDate.setMonth(parseInt(dateParts[1]))
+    currDate.setMonth(parseInt(dateParts[1])-1)
     currDate.setFullYear(parseInt(dateParts[2]))
     return currDate 
 }
