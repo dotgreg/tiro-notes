@@ -21,16 +21,32 @@ const getDateFromStr = (dateStr) => {
     currDate.setHours(0, 0, 0, 0)
     return currDate
 }
+function getMonday(d/*:Date*/) {
+    d = new Date(d);
+    var day = d.getDay(),
+        diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
+    // set hours and minutes to 0
+    d.setHours(0,0,0,0)
+    return new Date(d.setDate(diff));
+}
+const getWorkedDays = (startDate, endDate) => {
+    let currDate = new Date(startDate);
+    let workedDays = 0;
+    while (currDate <= endDate) {
+        // do not work on weekends
+        if (currDate.getDay() !== 0 && currDate.getDay() !== 6) {
+            workedDays++;
+        }
+        currDate.setDate(currDate.getDate() + 1);
+    }
+    return workedDays;
+};
+const getReferenceHoursWorked = (start, end) => {
+    let days = getWorkedDays(start,end)
+    return days * 8;
+}
 const getStartCurrentWeek = () => {
     // if dateObj is < start of the current week (starts from monday)
-    function getMonday(d/*:Date*/) {
-        d = new Date(d);
-        var day = d.getDay(),
-            diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
-        // set hours and minutes to 0
-        d.setHours(0,0,0,0)
-        return new Date(d.setDate(diff));
-    }
     const monday = getMonday(new Date())
     return monday
 }
@@ -134,16 +150,14 @@ cb([
         // day >> return {hours: 6, tasks:{task1:2, task2:3 ...}}
         const getPeriodStats = (rawJson, start, end) => {
             let referenceHours = 0;
-            if (statType === "day") referenceHours = 8;
-            else if (statType === "week") referenceHours = 40;
-            else if (statType === "month") referenceHours = 160;
-
-            if (startingMonth !== 0) referenceHours = 160 * startingMonth;
+            let startDate = getDateFromStr(start);
+            let endDate = getDateFromStr(end);
+            console.log(startDate, endDate)
+            referenceHours = getReferenceHoursWorked(startDate, endDate);
+            let referenceWorkedDays = getWorkedDays(startDate, endDate);
 
             let totalMinutes = 0;
             let tasks = {};
-            let startDate = getDateFromStr(start);
-            let endDate = getDateFromStr(end);
             let firstDate = "";
             rawJson.forEach(entry => {
                 let nameTask = entry.name;
@@ -161,8 +175,10 @@ cb([
             );
 
             let percentage = Math.round((totalMinutes / (referenceHours * 60)) * 100);
+            let shortString = \`\${totalMinutes/60}h/\${referenceHours}h [\${percentage}%]\`;
 
-            return { minutes: totalMinutes, hours: totalMinutes/60, percentage, referenceHours, tasks, startDate, endDate, firstDate, start, end, statType };
+            return { minutes: totalMinutes, hours: totalMinutes/60, shortString, percentage, referenceHours, referenceWorkedDays, tasks, startDate, endDate, firstDate, start, end, statType };
+
         }
 
 
