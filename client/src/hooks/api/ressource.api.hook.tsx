@@ -127,11 +127,16 @@ export const useRessourceApi = (p: {
 				console.log(h, `FETCHING => updated URL with custom backend token`, { url });
 			}
 
+			let respTxt = ""
 			fetch(url)
 				.then(response => response.text())
-				.then(cb)
+				.then(txt => {
+					respTxt = txt
+					cb(respTxt)
+				})
 				.catch(err => {
-					console.error(h, `FETCHING => error`, { url, err });
+					console.error(h, `FRONTEND FETCHING => error`, { url, err, respTxt });
+					notifLog(`FRONTEND FETCHING => error (check console for more infos) ${JSON.stringify({ url, err, respTxt })}`);
 				});
 		});
 	}
