@@ -60,6 +60,8 @@ const getStartMonth = (monthBefore) => {
 }
 const getPercentageBar = (percentage, size) => {
 
+    if (percentage > 100) percentage = 100
+    if (percentage < 0) percentage = 0
     size = size || 6;
     let barFull =  "▓";
     let barEmpty = "░";
@@ -185,13 +187,14 @@ cb([
                 Object.entries(tasks).sort(([, a], [, b]) => b - a)
             );
 
+            let hours = Math.round(totalMinutes / 60);
             let percentage = Math.round((totalMinutes / (referenceHours * 60)) * 100);
-            let shortString = \`\${totalMinutes/60}h/\${referenceHours}h [\${percentage}%]\`;
+            let shortString = \`\${hours}h/\${referenceHours}h [\${percentage}%]\`;
             let percentageBar = getPercentageBar(percentage);
-            let longString = \`\${totalMinutes/60}h/\${referenceHours}h [\${percentage}% \${percentageBar}\]\`;
-            let shortString2 = \`\${totalMinutes/60}h/\${referenceHours}h \${percentageBar}\`;
+            let longString = \`\${hours}h/\${referenceHours}h [\${percentage}% \${percentageBar}\]\`;
+            let shortString2 = \`\${hours}h/\${referenceHours}h \${percentageBar}\`;
 
-            return { minutes: totalMinutes, hours: totalMinutes/60, 
+            return { minutes: totalMinutes, hours, 
                 shortString, percentage, 
                 percentageBar, longString, shortString2,
                 referenceHours, referenceWorkedDays, 
@@ -207,10 +210,10 @@ cb([
                     let statsRes = router(contentJson["content"])
                     cb({message: "success", stats: statsRes,  explanation: explanation})
                 } else{
-                    cb({message: "error", details:"JSON is malformed", rawJson: contentJson,  explanation: explanation})
+                    cb({message: "error", details:"JSON is malformed or bug in the code (1)", rawJson: contentJson,  explanation: explanation})
                 }
             } catch (error) {
-                cb({message: "error", details:"JSON is malformed", contentExtract:contentExtract, error:error.message, explanation: explanation})
+                cb({message: "error", details:"JSON is malformed or bug in the code (2)",  error:error.message, explanation: explanation})
             }
         })
         `
