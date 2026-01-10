@@ -1,4 +1,3 @@
-
 const epubV2App = (innerTagStr, opts) => {
 
 	
@@ -649,7 +648,7 @@ const epubV2App = (innerTagStr, opts) => {
 
 			let insertNextTextBtn = `<button id="insert-next-text-button" onclick="tiro_insertNextText()"> Extract current text position</button>`
 			window.tiro_insertNextText = () => {
-					tiroReaderApi.getNextText(100000, nextText => {
+					tiroReaderApi.getNextText(300000, nextText => {
 						if (nextText.error) {
 							console.error(h, "Error getting next text", nextText.error)
 							return
