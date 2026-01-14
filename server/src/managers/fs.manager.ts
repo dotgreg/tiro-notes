@@ -378,18 +378,28 @@ export type iFetchEvalBackendOpts = {
 	cache:boolean
 	cb?:Function
 }
+const fetchEvalCache:{[url:string]:string} = {};
 export const fetchEval = async (
 	url: string, 
 	fnParamsObj?: any, 
 	opts?:iFetchEvalBackendOpts
 ): Promise<iAnswerBackendEval> => {
-	if (!opts) opts = {
-		cache: false,
-		cb: () => {}
-	}
+	if (!opts) opts = { cache:true }
+	if (opts.cb == null) opts.cb = (res:any) => {}	
+	if (opts.cache !== false && opts.cache !== true) opts.cache = true
 	if (fnParamsObj == null) fnParamsObj = {}
-	console.log(`[FETCH EVAL BACKEND] fetching and exec ${url} with opts ${JSON.stringify(opts)}`);
-	let codeTxt = await fetchFile(url)
+	
+	let codeTxt = ""
+	if (opts.cache && fetchEvalCache[url]) {
+		console.log(`[FETCH EVAL BACKEND] cached ram > cache found in ram for ${url}`);
+		codeTxt = fetchEvalCache[url]
+	} else {
+		console.log(`[FETCH EVAL BACKEND] NOCACHE > fetching and exec ${url} with opts ${JSON.stringify(opts)}`);
+		codeTxt = await fetchFile(url)
+		// cache the result
+		fetchEvalCache[url] = codeTxt
+	}
+
 	return new Promise((resolve) => {
 		evalBackendCode(codeTxt, fnParamsObj, (answer:iAnswerBackendEval) => {
 			opts.cb(answer.result)

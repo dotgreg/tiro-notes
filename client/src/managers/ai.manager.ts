@@ -138,6 +138,14 @@ export const AiAnswer = (p:{
     }
 }
 
+
+export const cleanAiInput = (input: string) => {
+    return input.replaceAll('"', '\\"')
+                .replaceAll("'", "\\'")
+                .replaceAll("`", "\\`")
+                .replaceAll("$", "\\$")
+}
+
 export const triggerAiSearch = (p:{
     uuid:string,
     windowId: string,
@@ -159,11 +167,9 @@ export const triggerAiSearch = (p:{
     const currentContent = fileContent
     // const insertPos = s.to
     let isError = false
-    selectionTxt = selectionTxt.replaceAll('"', '\\"')
-    selectionTxt = selectionTxt.replaceAll("'", "\\'")
-    selectionTxt = selectionTxt.replaceAll("`", "\\`")
-    selectionTxt = selectionTxt.replaceAll("$", "\\$")
-    
+
+    selectionTxt = cleanAiInput(selectionTxt)
+
     const question = selectionTxt
     const genParams = () => {return { 
         title: "Ai Answer", 
@@ -178,7 +184,6 @@ export const triggerAiSearch = (p:{
     }}
 
     // if user scrolled, stop linejump
-    console.log()
     lineJumpWhileGeneratingAiText[p.windowId] = true
 
     const errorLog = {curr: ``}
