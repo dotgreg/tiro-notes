@@ -478,7 +478,7 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'text',
-						title: "AI Suggest Command",
+						title: "AI Suggest Command for fields",
 						expl: "Fields can have ai suggestions (like in forms), which ai command to choose (give the name)",
 						var: us.get('ui_editor_ai_suggest_form_command'),
 						modifier: val => {
