@@ -3,13 +3,14 @@ import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { Popup } from '../../components/Popup.component';
 import { strings } from '../../managers/strings.manager';
 import { css } from '@emotion/css';
-import { each, set } from 'lodash-es';
+import { each, isEqual, set } from 'lodash-es';
 import { getApi } from '../api/api.hook';
 import { iInsertMethod } from '../api/file.api.hook';
 import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
 import { config } from 'process';
 import { getDateObj } from '../../../../shared/helpers/date.helper';
 import { isMobile } from '../../managers/device.manager';
+import { useDebounce } from '../lodash.hooks';
 
 
 const liveVars: {
@@ -28,6 +29,8 @@ export interface iPopupFormField {
 	selectOptions?: iInputSelectOptionObj[]
 	optional?: boolean,
 	rememberLastValue?:boolean,
+	aiSuggestString?: string,
+	aiSuggestAutoInsert?: boolean,
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -299,7 +302,12 @@ export const usePromptPopup = (p: {
 				if (description?.includes("optional")) optional = true
 				let rememberLastValue = false
 				if (description?.includes("remember")) rememberLastValue = true
-					
+				let aiSuggest = ""
+				let aiSuggestAutoInsert = false
+				if (description?.includes("ai_suggest:")) { aiSuggest = description.split("ai_suggest:")[1].trim(); description = description.split("ai_suggest:")[0].trim(); }
+				if (description?.includes("ai_insert:")) { aiSuggest = description.split("ai_insert:")[1].trim(); aiSuggestAutoInsert = true; description = description.split("ai_insert:")[0].trim(); }
+
+
 				// if name is already in fields, skip it
 				if (!fields.find(el => el.id === name)){
 					fields.push({
@@ -309,7 +317,9 @@ export const usePromptPopup = (p: {
 						selectOptions,
 						optional,
 						rememberLastValue,
-						id: name
+						id: name,
+						aiSuggestString: aiSuggest,
+						aiSuggestAutoInsert
 					})
 				}
 			}
@@ -492,12 +502,48 @@ export const usePromptPopup = (p: {
 	//
 	// FORM
 	//
-	const PromptPopupComponent = () => <>
-		{displayFormPopup &&
-			<div className="form-popup-component">
-				<Popup
-					title={title}
-					onClose={closePopup}
+	const PromptPopupComponent = () => {
+
+		//
+		// FOR HAVING AI SUGGEST REACTING TO OTHER FIELD CONTENT CHANGE > quite ugly, I know...
+		//
+		type AiSuggestList = {[key: string]: string}
+		const aiSuggestListRef = useRef<AiSuggestList>({})
+		const [counter, setCounter] = useState("")
+		const regenAiSuggestList = () => {
+			let nAiSuggestList: AiSuggestList = {}
+			formFields.forEach(field => {
+				if (field.aiSuggestString) { nAiSuggestList[field.id] = field.aiSuggestString }
+			})
+			return nAiSuggestList
+		}
+		const debounceUpdateAiSuggestList = useDebounce((fieldId: string, value: any) => {
+			let oldList = aiSuggestListRef.current
+			let nAiSuggestList = regenAiSuggestList()
+			each(nAiSuggestList, (val, key) => {
+				if(val.includes(`[${fieldId}]`)){ nAiSuggestList[key] = val.replace(`[${fieldId}]`, value) }
+			})
+			if (!isEqual(oldList, nAiSuggestList)) {
+				aiSuggestListRef.current = nAiSuggestList
+				setCounter(counter === " " ? "  " : " ");
+			}
+		}, 1000)
+		const onFieldChange = (fieldId: string, value: any) => {
+			debounceUpdateAiSuggestList(fieldId, value)
+		}
+		const outputAiSuggest = (fieldId: string) => {
+			if (aiSuggestListRef.current[fieldId] === undefined) return undefined
+			return `${aiSuggestListRef.current[fieldId]}${counter}`
+		}
+
+
+
+		return <>
+			{displayFormPopup &&
+				<div className="form-popup-component">
+					<Popup
+						title={title}
+						onClose={closePopup}
 					// disableBgClose={true}
 					cssStr={cssStr}
 				>
@@ -515,14 +561,16 @@ export const usePromptPopup = (p: {
 									formFieldsValues.current[field.id] = val
 								}}
 								onChange={nval => {
-									formFieldsValues.current[field.id] = nval
+									onFieldChange(field.id, nval)
 								}}
 								onSelectChange={nval => {
-									formFieldsValues.current[field.id] = nval
+									onFieldChange(field.id, nval)
 								}}
 								// REMEMBER
 								rememberLastValue={field.rememberLastValue}
 								id={`PromptPopupComponent-${title}-${field.name}-${field.description}-${field.type}`}
+								aiSuggest={outputAiSuggest(field.id)}
+								aiSuggestAutoInsert={field.aiSuggestAutoInsert}
 							/>
 							{
 								!field.optional &&
@@ -597,6 +645,7 @@ export const usePromptPopup = (p: {
 				</Popup>
 			</div>}
 	</>
+	}
 
 	//
 	//

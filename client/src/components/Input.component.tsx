@@ -5,6 +5,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { getFontSize } from '../managers/font.manager';
 import { useBackendState } from '../hooks/useBackendState.hook';
 import { Icon2 } from './Icon.component';
+import { getApi } from '../hooks/api/api.hook';
+import { userSettingsSync } from '../hooks/useUserSettings.hook';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
 export type iInputSelectOptionObj = OptionObj
@@ -33,6 +35,8 @@ export const Input = (p: {
 	max?: number
 	min?: number
 	rememberLastValue?: boolean // if not false, will keep last value of that field in backend storage based on the id of the input ONLY WORKS IF ID PARAM EXISTS
+	aiSuggest?: string
+	aiSuggestAutoInsert?: boolean
 }) => {
 
 	const inputRef = useRef<any>()
@@ -53,6 +57,7 @@ export const Input = (p: {
 
 	let isChecked = p.type === "checkbox" && (p.value === true || p.value === 'true')
 	let value = p.value
+	const [valueSelect, setValueSelect] = useState<string>(value as string)	
 	if (isBoolean(value)) value = ""
 	
 
@@ -124,6 +129,54 @@ export const Input = (p: {
 		p.onChange && p.onChange(nval)
 		setValueInt(nval)
 	}
+
+
+
+
+	//
+	// AI SUGGEST PROMPT
+	//
+	const [aiSuggestResult, setAiSuggestResult] = useState<string>("...")
+	const [aiSuggestCounter, setAiSuggestCounter] = useState<number>(0)
+	const [showAiButtons, setShowAiButtons] = useState<boolean>(false)
+
+	const aiInsertVal = (val:string) => {
+		if (p.type === "select") {
+			setValueSelect(val)
+			// p.onSelectChange && p.onSelectChange(val)
+			return
+		}
+		setValueInt(val)
+	}
+	
+	let aiNameCommandSuggest = userSettingsSync.curr['ui_editor_ai_suggest_form_command']
+	useEffect(() => {
+		if (p.aiSuggest !== undefined && p.aiSuggest.length > 0 )  {
+			let aiAsk = p.aiSuggest
+			setAiSuggestResult("...")
+			setShowAiButtons(false)
+			let aiAskInstructions = `you will be outputed into a ${typeField} field in a form.`
+			if (typeField === "date") {
+				aiAskInstructions += ` The date format to output is YYYY-MM-DD.`
+			}
+			if (typeField === "select") {
+				aiAskInstructions += ` The options to output are either: ${p.list?.map(opt => opt.label).join(", ")}.`
+			}
+			aiAsk =  "INSTRUCTIONS: " + aiAskInstructions + `\nProvide only the raw value to input, without any additional explanations. \n\n` + aiAsk
+			getApi(api => {
+				api.ai.exec(aiAsk, aiNameCommandSuggest, (result) => {
+					setAiSuggestResult(result)
+					if (p.aiSuggestAutoInsert) {
+						aiInsertVal(result)
+					}
+					setShowAiButtons(true)
+				})
+			})
+		}
+	}, [p.aiSuggest, aiSuggestCounter])
+
+
+
 	return (
 		<div className={`input-component-wrapper ${p.style ? css`${p.style}` : ''}`}>
 		<div className={`input-component ${p.id ? p.id : ''} ${p.type}`}>
@@ -166,6 +219,7 @@ export const Input = (p: {
 							let value = Array.from(e.target.selectedOptions, option => option.label);
 							// from array to string separated by ,
 							let valueStr = value.join(',')
+							// setValueSelect(valueStr)
 							p.onSelectChange && p.onSelectChange(valueStr)
 						}}>
 
@@ -188,6 +242,16 @@ export const Input = (p: {
 					</textarea>
 				}
 
+				{p.aiSuggest && <div className="ai-suggestion"> 
+					<span className="result">{ p.aiSuggestAutoInsert ? "Ai suggestion inserted " : `Ai suggestion: ${aiSuggestResult}`}</span>  
+					{
+						showAiButtons && <>
+							<span onClick={() => {setAiSuggestCounter(aiSuggestCounter + 1)}}><Icon2 name="refresh" /></span>
+							<span onClick={() => {aiInsertVal(aiSuggestResult)}}><Icon2 name="file-import" /></span>
+						</>
+					}
+				</div>}
+				
 				{p.explanation && <div className="explanation"> {p.explanation} </div>}
 			</div>
 		</div>
@@ -254,6 +318,23 @@ export const inputComponentCss = () => `
             .explanation {
                 font-size:${getFontSize(+1)}px;
                 color: grey;
+				margin-bottom: 5px;
+            }
+            .ai-suggestion {
+                font-size:${getFontSize(+1)}px;
+                color: grey;
+				margin-right: 20px;
+				span {
+					width: auto;
+				}
+				.icon-wrapper {
+					margin-left: 5px;
+					cursor: pointer;
+					opacity: 0.3;
+					&:hover {
+						opacity: 1;
+					}
+				}
             }
         }
     }

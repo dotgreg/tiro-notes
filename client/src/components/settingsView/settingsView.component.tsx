@@ -477,6 +477,15 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
+						type: 'text',
+						title: "AI Suggest Command",
+						expl: "Fields can have ai suggestions (like in forms), which ai command to choose (give the name)",
+						var: us.get('ui_editor_ai_suggest_form_command'),
+						modifier: val => {
+							us.set('ui_editor_ai_suggest_form_command', val)
+						}
+					},
+					{
 						type: 'checkbox',
 						title: "Inline Suggestions",
 						expl: "Will suggest words and lines according to the current note content. You can add more words suggested by creating a file at '.tiro/suggestions.md'. Can be heavy on performances on longer notes" + requireReloadStr ,
