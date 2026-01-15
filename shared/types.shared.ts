@@ -128,6 +128,7 @@ export type iUserSettingName =
 'ui_editor_markdown_latex_preview' |
 'ui_editor_markdown_table_preview' |
 'ui_editor_ai_command' |
+'ui_editor_ai_suggest_form_command' |
 'ui_editor_show_image_title' |
 'ui_editor_ai_text_selection' |
  
