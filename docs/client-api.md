@@ -147,6 +147,18 @@
  ## Api.call : ai
  
 
+#### <span class="render-code-wrapper">ai.exec</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. searchText: <span class="render-code-wrapper">string</span>
+       1. modelName: <span class="render-code-wrapper">string</span>
+       1. execType: <span class="render-code-wrapper">"stream" | "single"</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.exec",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"stream" | "single"</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ai.getStatus</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1438,7 +1450,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPopupFormField</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestAutoInsert?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">popupOptions</span>
@@ -1672,7 +1684,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_general_font_size" | "ui_layout_font_family_interface" | "ui_layout_font_family_editor" | "ui_layout_shortcuts_panel" | "ui_layout_floating_window_padding" | "ui_layout_background_image_enable" | "ui_layout_background_video_enable" | "ui_layout_background_image_window_opacity" | "ui_layout_background_image_window_opacity_active" | "ui_layout_background_video_width" | "ui_layout_background_video_height" | "ui_layout_background_image" | "ui_editor_search_highlight_url" | "ui_editor_search_highlight_enable" | "tts_custom_engine_enabled" | "tts_custom_engine_command" | "tts_sentences_per_part" | "tts_formId" | "tts_max_words_per_sentence" | "tts_preload_parts" | "tts_price_per_word" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_synced_title_scrolling" | "ui_editor_markdown_tags" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_syntax" | "ui_editor_inline_suggestion" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "keyboard_shortcuts_textarea" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "privacy_work_mode_enable" | "privacy_work_mode_filters" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_general_font_size" | "ui_layout_font_family_interface" | "ui_layout_font_family_editor" | "ui_layout_shortcuts_panel" | "ui_layout_floating_window_padding" | "ui_layout_background_image_enable" | "ui_layout_background_video_enable" | "ui_layout_background_image_window_opacity" | "ui_layout_background_image_window_opacity_active" | "ui_layout_background_video_width" | "ui_layout_background_video_height" | "ui_layout_background_image" | "ui_editor_search_highlight_url" | "ui_editor_search_highlight_enable" | "tts_custom_engine_enabled" | "tts_custom_engine_command" | "tts_sentences_per_part" | "tts_formId" | "tts_max_words_per_sentence" | "tts_preload_parts" | "tts_price_per_word" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_synced_title_scrolling" | "ui_editor_markdown_tags" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_syntax" | "ui_editor_inline_suggestion" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_ai_suggest_form_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "keyboard_shortcuts_textarea" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "privacy_work_mode_enable" | "privacy_work_mode_filters" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iUpdateConfigJsonOpts</span>

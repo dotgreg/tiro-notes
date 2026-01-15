@@ -107,10 +107,14 @@ CONTENT OF /.tiro/snippets.md
 <h4>Forms</h4>
 <p> 
 You can create forms by referencing them in /.tiro/forms.md (create a note if it does not exists), one form for each line<br>
-{{_datetime}} and {{_date}} will automatically insert the date <br>
-the line_format is used to format the line in the note<br>
-you can insert tags in it like: {{NAME_FIELD|TYPE_FIELD (text, number, select, date) | COMMENT FIELD comment field. optional}}<br>
-In the comment field, adding "optional" will make the field optional<br>
+- {{_datetime}} and {{_date}} will automatically insert the date <br>
+- the line_format is used to format the line in the note<br>
+- you can insert tags in it like: {{NAME_FIELD|TYPE_FIELD (text, number, select, date) | COMMENT FIELD comment field. optional}}<br>
+- In the comment field,<br>: 
+    - adding "optional" will make the field optional<br>
+    - adding "remember" will keep the last value inputed <br>
+    - adding "ai_insert: summarize the field [long text]" or "ai_suggest: find from [fullname] the first name" will enable AI suggestions for the field, the [NAME_FIELD] refers to other forms field<br>
+        - the AI suggest command for fields should be filled inside the settings <br>
 the line parameter is where the content should be inserted, if negative it will be inserted counting starting the end of the note<br>
 </p>
 <code>
