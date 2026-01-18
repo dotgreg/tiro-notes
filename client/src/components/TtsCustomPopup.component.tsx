@@ -14,8 +14,9 @@ import { useBackendState } from '../hooks/useBackendState.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
-import { chunk, isNumber } from 'lodash-es';
+import { chunk, isNumber, set, transform } from 'lodash-es';
 import { url } from 'inspector';
+import {  transformString } from '../managers/string.manager';
 
 const pre = "[TtsCustomPopup] "
 
@@ -61,45 +62,58 @@ export const TtsCustomPopup = (p: {
 	const [currChunk, setCurrChunkInt] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
 
 	const [logTxt, setLogTxt] = useState<string>("")
+
+	const [logTxtProcess, setLogTxtProcess] = useState<string>("")
+	const [logTxtSaid, setLogTxtSaid] = useState<string>("")
+	const logProcessRef = useRef<string>("")
+	const logSaidRef = useRef<string>("")
+
 	const [showLog, setShowLog] = useState<boolean>(true)
 	const [logCategory, setLogCategoryInt] = useState<string>("text")
 	const logCategoryRef = useRef<string>(logCategory)
 	const setLogCategory = (category:string) => {
 		// clear log content
 		logCategoryRef.current = category
-		logRef.current = ""
+		// logRef.current = ""
 		setLogCategoryInt(category)
 	}
-	const logRef = useRef<string>("")
+	let logToShow = logCategoryRef.current === "processus" ? logTxtProcess : logTxtSaid	
+	// const logRef = useRef<string>("")
 	const log = (messageText:string, category:string="processus") => {
 		// prepend to logTxt
 		if (category !== logCategoryRef.current) return
 
 		let messageText2 = messageText.replaceAll(`${pre}:`, "")
 		messageText2 = messageText2.replaceAll(pre, "")
-		// append if category is text
-		if (category !== "text") {
-			logRef.current = messageText2 + "<br>" + logRef.current
-		} else {
-			logRef.current = logRef.current + "<br>" + messageText2
-		}
 
-		// limit to 40 lines, cut the last ones
-		let limitLines = 40
-		if ( logRef.current.split("<br>").length > limitLines ) {
-			let allLines = logRef.current.split("<br>")
-			// keep only the first limitLines lines for not text
-			if (category !== "text") {
-				logRef.current = allLines.slice(0, limitLines).join("<br>")
-				logRef.current = logRef.current + "<br>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-			} else {
-				logRef.current = allLines.slice(allLines.length - limitLines, allLines.length).join("<br>")
+		const limitLines = (log:string) => {
+			// limit to 40 lines, cut the last ones
+			let limitLines = 40
+			if ( log.split("<br>").length > limitLines ) {
+				let allLines = log.split("<br>")
+				// keep only the first limitLines lines for not text
+				if (category !== "text") {
+					log = allLines.slice(0, limitLines).join("<br>")
+					log = log + "<br>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+				} else {
+					log = allLines.slice(allLines.length - limitLines, allLines.length).join("<br>")
+				}
 			}
-			// add "===========================================================" at the end
+			return log
 		}
 
+		// append if category is text
+		if (category === "processus") {
+			logProcessRef.current = messageText2 + "<br>" + logProcessRef.current
+			logProcessRef.current = limitLines( logProcessRef.current )
+			setLogTxtProcess( logProcessRef.current )
+		} else {
+			logSaidRef.current = logSaidRef.current + "<br>" + messageText2
+			logSaidRef.current = limitLines( logSaidRef.current )
+			setLogTxtSaid( logSaidRef.current )	
+		}
 		// console.log(messageText)
-		setLogTxt(logRef.current)
+		// setLogTxt(logRef.current)
 	}
 
 
@@ -330,21 +344,13 @@ export const TtsCustomPopup = (p: {
 			setWordStat( wordStatRef.current + wordsNb)
 		}
 		let wordLog = `[${wordsNb} words]`
-		// 10 - 100
-		// 101 - 100
-		// console.log(chunkId, currentLogTextRef.current)
-		// if (chunkId > currentLogTextRef.current) {
-		// 	// only log new chunks
-		// 	log(`${textToSent}`, "text")
-		// 	currentLogTextRef.current = chunkId
-		// } else if (Math.abs(chunkId - currentLogTextRef.current) > (userSettingsSync.curr.tts_sentences_per_part + 5)) {
-		// 	// if diff it too high, reset it
-		// 	console.log("RECTIF")
-		// 	currChunkRef.current = chunkId
-		// 	// clean log
-		// 	logRef.current = ""
-		// }
+
+
+		// textToSent simplified, remove all punctuation, to only keep a-Z0-9,.-"'()
+		let textToSentSimple =  transformString(textToSent, {accents:true, specialChars:false, escapeChars:true})
+
 		stringCmd = stringCmd.replace("{{input}}", textToSent)
+		stringCmd = stringCmd.replace("{{input_simple}}", textToSentSimple)
 		let isCbCalled = false
 		const cbOnce = (res:any) => {
 			if (isCbCalled) return 
@@ -359,56 +365,43 @@ export const TtsCustomPopup = (p: {
 			// log(`${pre}: 💾 already downloaded chunk ${chunkId} ${wordLog} [${nonNullAudioUrls.length} / ${textChunks.length} cached]`)
 			return
 		}
-
-		// log(`${pre}: 📥 [...] downloading chunk ${chunkId} ${wordLog} "${textToSent.substring(0, 100)}..."`)
-
-		// console.log(`${pre}: asking api`,{stringCmd})
 		let start = Date.now()
-		// request api
-		// currentlyDownloadingChunks.current.push(chunkId)
-		// setTimeout(() => {
-		// 	if (isCbCalled) return
-		// 	log(`${pre}: 📥❌ timeout for chunk ${chunkId} ${wordLog} `)
-		// 	cbOnce("ERROR: timeout")
-		// }, 20 * 1000)
 		getApi( api => {
 			api.command.exec(stringCmd, (apiAnswer:string) => {
-				// console.log(`${pre}: `,{apiAnswer})
-				// look for an url ending with .mp3/wav
 				if (isCbCalled) return
-
+				// let url = apiAnswer.match(/https?:\/\/[^\s]+\.(mp3|wav)/g)
+				let apiObj = ""
+				let url = ""
 				try {
-					let answerObj = JSON.parse(apiAnswer)
-					let url = answerObj["output"]
-					if (url && url[0]) {
-						// console.log(`${pre}: found url ${url[0]}`)
-						let time = Date.now() - start
-						let timeLog = `[${time}ms]`
-						log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
-						audioUrls.current[chunkId] = url[0]
-						// setCachedAudioUrls(audioUrls.current)
-						// preload the audio
-						let audio = new Audio(url[0])
-						audio.preload = "auto"
-						cbOnce(url[0])
-					} else {
-						let message = apiAnswer
-						try {
-							let apiObj = JSON.parse(apiAnswer)
-							message = `${apiObj["stderr"]} - ${apiObj["shortMessage"]}`
-							log(`${pre}: 📥❌ [!! error], no output audio found > ${chunkId}: API answer error: ${message} ${wordLog}`)
-						} catch (error) {
-						}
-						cbOnce("ERROR: API")
-						// notifLog(`Text to Speech API answer error: <br>`+message )
-					}
-				} catch (e) {
-					let message = JSON.stringify(e)
+					apiObj = JSON.parse(apiAnswer)
+					url = apiObj["output"]
+				} catch (error) {
+					log(`${pre}: ❌ [!! error] chunk ${chunkId}: API answer error: ${JSON.stringify(error)} ${wordLog}`)
+				}
+
+				if (url && url.length > 0) {
+					console.log(`${pre}: found url ${url}`)
+					let time = Date.now() - start
+					let timeLog = `[${time}ms]`
+					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
+					audioUrls.current[chunkId] = url
+					// setCachedAudioUrls(audioUrls.current)
+					// preload the audio
+					let audio = new Audio(url)
+					audio.preload = "auto"
+					cbOnce(url)
+				} else {
+					let message = apiAnswer
 					try {
-						log(`${pre}: 📥❌ [!! error] when parsing answer > chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
+						let apiObj = JSON.parse(apiAnswer)
+						message = `${apiObj["stderr"]} - ${apiObj["shortMessage"]}`
+						log(`${pre}: 📥❌ [!! error] chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
+						
 					} catch (error) {
+						log(`${pre}: ❌ [!! error] chunk ${chunkId}: API answer error: ${JSON.stringify(error)} ${wordLog}`)
 					}
 					cbOnce("ERROR: API")
+					// notifLog(`Text to Speech API answer error: <br>`+message )
 				}
 			})
 		})
@@ -569,22 +562,32 @@ export const TtsCustomPopup = (p: {
 					showLog &&
 					// one checkbox to toggle between categories log "text log"
 					<label className='log-toggler'>
-						<input type="checkbox" checked={logCategory === "text"} onChange={e => setLogCategory(e.target.checked ? "text" : "processus")} />
+						Toggle log: <input type="checkbox" checked={logCategory === "text"} onChange={e => setLogCategory(e.target.checked ? "text" : "processus")} />: 
 						{logCategory === "text" ? "Text Log" : "Processus Log"}
 					</label>
 
 				}
 				{
 					// form button
-					formId !== "" &&
-					<button onClick={() => { getApi(api => {api.popup.form.open(formId, () => {})})}}>
-						Open Form
-					</button>
+					formId !== "" && 
+					<>
+						| form: <button onClick={() => { getApi(api => {api.popup.form.open(formId, () => {})})}}>
+							Open
+						</button>
+						<button onClick={() => { 
+							getApi(api => {
+								let fiveLastSentences = logSaidRef.current.split("<br>").slice(-5).join(".") + " "
+								api.popup.form.open(formId, () => {}, {text: fiveLastSentences, file: `tts insert from ${p.id}`}, {autosubmit:1000})
+							})
+						}}>
+							Insert 
+						</button>
+					</>
 				}
 				{
 					showLog &&
 					<div className='log-wrapper'>
-						<div dangerouslySetInnerHTML={{__html: logTxt}}></div>
+						<div dangerouslySetInnerHTML={{__html: logToShow}}></div>
 					</div>
 				}
 				

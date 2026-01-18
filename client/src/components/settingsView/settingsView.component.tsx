@@ -381,7 +381,7 @@ export const SettingsPopup = (p: {
 						title: "Custom Text to Speech command",
 						expl: `
 						Command to run to get the mp3 file. 
-						<br>- The text to be spoken is replaced by {{input}}.
+						<br>- The text to be spoken is replaced by {{input}} or {{input_simple}} for accents and complex char to be removed
 						<br>- The speech speed is replaced by {{speed}}.
 						<br> It should return a JSON including an absolute path of an audio file (mp3/wav).
 						<br>

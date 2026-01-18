@@ -64,8 +64,10 @@ import { textToId } from './managers/string.manager';
 import { codeMirrorGlobalVars } from './components/dualView/CodeMirrorEditor.component';
 import { TtsCustomPopup } from './components/TtsCustomPopup.component';
 import { updatePageTitle } from './managers/pageTitle.manager';
+import { testFn } from './managers/testFn.manager';
 
 export const App = () => {
+
 
 	//
 	// STARTUP PHASE, code should be added after login phase, not here
@@ -98,6 +100,7 @@ export const App = () => {
 
 		startListeningToKeys();
 		devCliAddFn("init", "init", () => { })
+		testFn()
 		// TESTS
 		// getApi(api => {
 		// 	// console.log()

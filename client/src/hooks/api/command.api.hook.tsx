@@ -35,6 +35,7 @@ export const useCommandApi = (p: {
 	
 	const exec: iCommandApi['exec'] = (commandString, cb) => {
 		console.log(h, 'exec', { commandString })//TO KEEP FOR DEBUG
+
 		const idReq = genIdReq(`command-exec-`);
 		p.eventBus.subscribe(idReq, resCmd => {
 			if (!isString(resCmd)) resCmd = JSON.stringify(resCmd)
