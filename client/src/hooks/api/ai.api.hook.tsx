@@ -31,7 +31,6 @@ export interface iAiApi {
 const getModelConfig = (modelName?: string) => {
     // get all ai config
     let configAllAis = genAiButtonsConfig()
-    console.log("search", {modelName, configAllAis})
     // if no modelName, tkae first one from config
     if (!modelName) modelName = configAllAis[0].title
 
