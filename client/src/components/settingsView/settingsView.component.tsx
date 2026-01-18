@@ -396,7 +396,7 @@ export const SettingsPopup = (p: {
 					},{
 						type: 'text',
 						title: "FormId of TTS",
-						expl: "FormId for the TTS popup. It will create a button to open a form popup. Default value:" + defaultValsUserSettings.tts_formId,
+						expl: "FormId for the TTS popup. It will create a button to open a form popup. For the insert functionality (which auto submit the form based on the text to speech content just spoken) make sure to add a field 'text' and 'file', both text, to have the autoinsert work as expected. Default value:" + defaultValsUserSettings.tts_formId,
 						var: us.get('tts_formId'),
 						modifier: val => {
 							us.set('tts_formId', val)

@@ -14,7 +14,7 @@ import { useBackendState } from '../hooks/useBackendState.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
-import { chunk, isNumber, set, transform } from 'lodash-es';
+import { chunk, isNumber, last, set, transform } from 'lodash-es';
 import { url } from 'inspector';
 import {  transformString } from '../managers/string.manager';
 
@@ -576,8 +576,17 @@ export const TtsCustomPopup = (p: {
 						</button>
 						<button onClick={() => { 
 							getApi(api => {
-								let fiveLastSentences = logSaidRef.current.split("<br>").slice(-5).join(".") + " "
-								api.popup.form.open(formId, () => {}, {text: fiveLastSentences, file: `tts insert from ${p.id}`}, {autosubmit:1000})
+
+								let lastSentencesSpoken:any = logSaidRef.current.split("<br>")
+								let limit = 10
+								if (lastSentencesSpoken.length > limit) {
+									// take the 5 last parts
+									// console.log(11,lastSentencesSpoken)
+									lastSentencesSpoken = lastSentencesSpoken.slice(-limit)
+									// console.log(22,lastSentencesSpoken)
+								}
+								lastSentencesSpoken = lastSentencesSpoken.join(".") + " "
+								api.popup.form.open(formId, () => {}, {text: lastSentencesSpoken, file: `tts insert from ${p.id}`}, {autosubmit:1000})
 							})
 						}}>
 							Insert 
