@@ -32,7 +32,9 @@ export const useCommandApi = (p: {
 		})
 	}, [])
 
+	
 	const exec: iCommandApi['exec'] = (commandString, cb) => {
+		console.log(h, 'exec', { commandString })//TO KEEP FOR DEBUG
 		const idReq = genIdReq(`command-exec-`);
 		p.eventBus.subscribe(idReq, resCmd => {
 			if (!isString(resCmd)) resCmd = JSON.stringify(resCmd)
@@ -48,6 +50,7 @@ export const useCommandApi = (p: {
 	}
 	
 	const stream: iCommandApi['stream'] = (commandString, cb) => {
+		console.log(h, 'stream', { commandString })//TO KEEP FOR DEBUG
 		const idReq = genIdReq(`command-stream-`);
 		// 1. add a PERSISTENT listener function
 		p.eventBus.subscribe(idReq, answer => {

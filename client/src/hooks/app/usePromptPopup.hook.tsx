@@ -3,7 +3,7 @@ import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { Popup } from '../../components/Popup.component';
 import { strings } from '../../managers/strings.manager';
 import { css } from '@emotion/css';
-import { each, isEqual, set } from 'lodash-es';
+import { each, has, isEqual, set } from 'lodash-es';
 import { getApi } from '../api/api.hook';
 import { iInsertMethod } from '../api/file.api.hook';
 import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
@@ -31,6 +31,7 @@ export interface iPopupFormField {
 	rememberLastValue?:boolean,
 	aiSuggestString?: string,
 	aiSuggestAutoInsert?: boolean,
+	notVisible?: boolean,
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -307,6 +308,9 @@ export const usePromptPopup = (p: {
 				if (description?.includes("ai_suggest:")) { aiSuggest = description.split("ai_suggest:")[1].trim(); description = description.split("ai_suggest:")[0].trim(); }
 				if (description?.includes("ai_insert:")) { aiSuggest = description.split("ai_insert:")[1].trim(); aiSuggestAutoInsert = true; description = description.split("ai_insert:")[0].trim(); }
 
+				let notVisible = false
+				if (description?.includes("not_visible") ) notVisible = true
+
 
 				// if name is already in fields, skip it
 				if (!fields.find(el => el.id === name)){
@@ -319,13 +323,14 @@ export const usePromptPopup = (p: {
 						rememberLastValue,
 						id: name,
 						aiSuggestString: aiSuggest,
-						aiSuggestAutoInsert
+						aiSuggestAutoInsert,
+						notVisible
 					})
 				}
 			}
 		})
 		finalConfigForm.fields = fields
-		console.log("[POPUP > FORM] opening with config:", finalConfigForm)
+		// console.log("[POPUP > FORM] opening with config:", finalConfigForm)
 
 		setTitle(finalConfigForm.title)
 		setFormFields(fields)
@@ -409,6 +414,14 @@ export const usePromptPopup = (p: {
 		// if some fields are empty, add them to formFieldsValues with empty string
 		formFields.forEach(field => {
 			if (!formFieldsValues.current[field.id]) {
+				formFieldsValues.current[field.id] = ""
+			}
+		})
+
+
+		// if some fields are in notVisible, add them to formFieldsValues with empty string
+		formFields.forEach(field => {
+			if (field.notVisible) {
 				formFieldsValues.current[field.id] = ""
 			}
 		})
@@ -518,17 +531,25 @@ export const usePromptPopup = (p: {
 			return nAiSuggestList
 		}
 		const debounceUpdateAiSuggestList = useDebounce((fieldId: string, value: any) => {
-			let oldList = aiSuggestListRef.current
+			// let oldList = aiSuggestListRef.current
 			let nAiSuggestList = regenAiSuggestList()
+			// console.log("==> field change, checking for", fieldId, `[${fieldId}]`)
+			let hasFoundChangeToProcess = false;
 			each(nAiSuggestList, (val, key) => {
-				if(val.includes(`[${fieldId}]`)){ nAiSuggestList[key] = val.replace(`[${fieldId}]`, value) }
+				if(val.includes(`[${fieldId}]`)){ 
+					hasFoundChangeToProcess = true;
+					nAiSuggestList[key] = val.replace(`[${fieldId}]`, value) 
+					// console.log("=====>  FOUND!", fieldId, val, "to replace => ", nAiSuggestList[key])
+				}
 			})
-			if (!isEqual(oldList, nAiSuggestList)) {
+			// if (!isEqual(oldList, nAiSuggestList)) {
+			if (hasFoundChangeToProcess) {
 				aiSuggestListRef.current = nAiSuggestList
 				setCounter(counter === " " ? "  " : " ");
 			}
 		}, 1000)
-		const onFieldChange = (fieldId: string, value: any) => {
+		const triggerAiOnFieldChange = (fieldId: string, value: any) => {
+			// console.log("FIELD CHANGE", fieldId, value)
 			debounceUpdateAiSuggestList(fieldId, value)
 		}
 		const outputAiSuggest = (fieldId: string) => {
@@ -560,11 +581,15 @@ export const usePromptPopup = (p: {
 								onLoad={val => {
 									formFieldsValues.current[field.id] = val
 								}}
-								onChange={nval => {
-									onFieldChange(field.id, nval)
+								onChange={(nval, opts) => {
+									// console.log("onChange for", field.id, {nval, opts})
+									formFieldsValues.current[field.id] = nval
+									triggerAiOnFieldChange(field.id, nval)
 								}}
 								onSelectChange={nval => {
-									onFieldChange(field.id, nval)
+									// console.log("onSelectChange for",  field.id, {nval})
+									formFieldsValues.current[field.id] = nval
+									triggerAiOnFieldChange(field.id, nval)
 								}}
 								// REMEMBER
 								rememberLastValue={field.rememberLastValue}

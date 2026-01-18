@@ -107,21 +107,26 @@ CONTENT OF /.tiro/snippets.md
 <h4>Forms</h4>
 <p> 
 You can create forms by referencing them in /.tiro/forms.md (create a note if it does not exists), one form for each line<br>
+
+<code><pre>
 - {{_datetime}} and {{_date}} will automatically insert the date <br>
 - the line_format is used to format the line in the note<br>
 - you can insert tags in it like: {{NAME_FIELD|TYPE_FIELD (text, number, select, date) | COMMENT FIELD comment field. optional}}<br>
 - In the comment field,<br>: 
     - adding "optional" will make the field optional<br>
+    - adding "not_visible" will make the field value not inserted (useful for field used by ai_insert)<br>
     - adding "remember" will keep the last value inputed <br>
     - adding "ai_insert: summarize the field [long text]" or "ai_suggest: find from [fullname] the first name" will enable AI suggestions for the field, the [NAME_FIELD] refers to other forms field<br>
         - the AI suggest command for fields should be filled inside the settings <br>
 the line parameter is where the content should be inserted, if negative it will be inserted counting starting the end of the note<br>
+</pre></code>
+
 </p>
 <code>
 	<pre>
 CONTENT OF /.tiro/forms.md
 ===========
-    form | name=simple insert form, path=/noteToInsert.md, line_format= {{_datetime}} | name: {{name}} | age: {{age|number|comment field. optional}}, line=2
+    form | name=simple insert form, path=/noteToInsert.md, line_format= {{_datetime}} | name: {{name}} | age: {{age|number|comment field. optional remember ai_suggest: guess the age from [name]}}, line=2
     form | name=🎬 add youtube chanel, path=/_new/_main/📺YUTB3.md, line_format= {{chanel_name}} | @{{chanel_name}} | {{tags|select:_🍿 docus,_🗿 histoire, _🧠 psy,  _✨ quali, _⛰️ trip,  _🗳️ polit,  _🗳️ polit, _🏛️ architect, _💲econo,  _😄fun,  _🛠️diy}} | {{number_import|number}}, line=3
 	</pre>
 </code>

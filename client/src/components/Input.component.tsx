@@ -21,7 +21,7 @@ export const Input = (p: {
 	list?: OptionObj[]
 	explanation?: string
 	value?: InputValue
-	onChange?: (res: string) => void
+	onChange?: (res: string, opts?:{changeType:"user"|"ai"}) => void
 	onCheckedChange?: (res: boolean) => void
 	onSelectChange?: (res: string) => void
 	onLoad?: (res: any) => void
@@ -87,8 +87,8 @@ export const Input = (p: {
 	// },[])
 
 
-	//
-	// LAST VALUE
+	//////////////////////////
+	// REMEMBER LAST VALUE
 	//
 	let backendIdLastValue = `input-lastvalue-id-${p.id}`
 	const [lastValue, setLastValue, refreshLastValue] = useBackendState<InputValue>(backendIdLastValue, "")
@@ -141,17 +141,28 @@ export const Input = (p: {
 	const [showAiButtons, setShowAiButtons] = useState<boolean>(false)
 
 	const aiInsertVal = (val:string) => {
+		console.log("AI INSERT VAL", {val, fieldId: p.id})
 		if (p.type === "select") {
 			setValueSelect(val)
 			// p.onSelectChange && p.onSelectChange(val)
 			return
 		}
+		p.onChange && p.onChange(val, {changeType:"ai"})
 		setValueInt(val)
 	}
 	
 	let aiNameCommandSuggest = userSettingsSync.curr['ui_editor_ai_suggest_form_command']
+	const histAiSuggest = useRef<string | undefined>(undefined)
 	useEffect(() => {
+		console.log(p.aiSuggest, aiSuggestCounter, "AI SUGGEST EFFECT", p.id)
+		setAiSuggestResult("")
 		if (p.aiSuggest !== undefined && p.aiSuggest.length > 0 )  {
+			if (histAiSuggest.current === undefined) {
+				console.log({1:p.aiSuggest, 2:histAiSuggest.current}, "AI SUGGEST INITIALIZED")
+				histAiSuggest.current = p.aiSuggest
+				return
+			}
+			console.log(p.aiSuggest, "AI SUGGEST RUNNING...")
 			let aiAsk = p.aiSuggest
 			setAiSuggestResult("...")
 			setShowAiButtons(false)
@@ -162,7 +173,7 @@ export const Input = (p: {
 			if (typeField === "select") {
 				aiAskInstructions += ` The options to output are either: ${p.list?.map(opt => opt.label).join(", ")}.`
 			}
-			aiAsk =  "INSTRUCTIONS: " + aiAskInstructions + `\nProvide only the raw value to input, without any additional explanations. \n\n` + aiAsk
+			aiAsk =  "PROMPT INSTRUCTIONS: " + aiAskInstructions + `\nProvide only the raw value to input, without any additional explanations.\n`+ aiAsk
 			getApi(api => {
 				api.ai.exec(aiAsk, aiNameCommandSuggest, (result) => {
 					setAiSuggestResult(result)
@@ -235,7 +246,7 @@ export const Input = (p: {
 				}
 				{p.type === 'textarea' &&
 					<textarea
-						defaultValue={value}
+						defaultValue={valueInt as any}
 						onChange={(e) => {
 							p.onChange && p.onChange(e.target.value)
 						}}>
@@ -243,7 +254,7 @@ export const Input = (p: {
 				}
 
 				{p.aiSuggest && <div className="ai-suggestion"> 
-					<span className="result">{ p.aiSuggestAutoInsert ? "Ai suggestion inserted " : `Ai suggestion: ${aiSuggestResult}`}</span>  
+					<span className="result">{ p.aiSuggestAutoInsert && showAiButtons ? "Ai suggestion inserted " : `Ai suggestion ${aiSuggestResult}`}</span>  
 					{
 						showAiButtons && <>
 							<span onClick={() => {setAiSuggestCounter(aiSuggestCounter + 1)}}><Icon2 name="refresh" /></span>
@@ -308,7 +319,8 @@ export const inputComponentCss = () => `
                 border-radius: 5px;
             }
 			textarea {
-				height: 120px;
+				width: calc(100% - 40px);
+				height:180px;
 				font-size: ${getFontSize()}px;
 				border: none;
 				background: #ececec;

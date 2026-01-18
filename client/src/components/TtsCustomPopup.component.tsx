@@ -376,30 +376,39 @@ export const TtsCustomPopup = (p: {
 				// console.log(`${pre}: `,{apiAnswer})
 				// look for an url ending with .mp3/wav
 				if (isCbCalled) return
-				let url = apiAnswer.match(/https?:\/\/[^\s]+\.(mp3|wav)/g)
-				if (url && url[0]) {
-					// console.log(`${pre}: found url ${url[0]}`)
-					let time = Date.now() - start
-					let timeLog = `[${time}ms]`
-					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
-					audioUrls.current[chunkId] = url[0]
-					// setCachedAudioUrls(audioUrls.current)
-					// preload the audio
-					let audio = new Audio(url[0])
-					audio.preload = "auto"
-					cbOnce(url[0])
-				} else {
-					let message = apiAnswer
+
+				try {
+					let answerObj = JSON.parse(apiAnswer)
+					let url = answerObj["output"]
+					if (url && url[0]) {
+						// console.log(`${pre}: found url ${url[0]}`)
+						let time = Date.now() - start
+						let timeLog = `[${time}ms]`
+						log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
+						audioUrls.current[chunkId] = url[0]
+						// setCachedAudioUrls(audioUrls.current)
+						// preload the audio
+						let audio = new Audio(url[0])
+						audio.preload = "auto"
+						cbOnce(url[0])
+					} else {
+						let message = apiAnswer
+						try {
+							let apiObj = JSON.parse(apiAnswer)
+							message = `${apiObj["stderr"]} - ${apiObj["shortMessage"]}`
+							log(`${pre}: 📥❌ [!! error], no output audio found > ${chunkId}: API answer error: ${message} ${wordLog}`)
+						} catch (error) {
+						}
+						cbOnce("ERROR: API")
+						// notifLog(`Text to Speech API answer error: <br>`+message )
+					}
+				} catch (e) {
+					let message = JSON.stringify(e)
 					try {
-						let apiObj = JSON.parse(apiAnswer)
-						message = `${apiObj["stderr"]} - ${apiObj["shortMessage"]}`
-						log(`${pre}: 📥❌ [!! error] chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
-						
+						log(`${pre}: 📥❌ [!! error] when parsing answer > chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
 					} catch (error) {
-						
 					}
 					cbOnce("ERROR: API")
-					// notifLog(`Text to Speech API answer error: <br>`+message )
 				}
 			})
 		})
