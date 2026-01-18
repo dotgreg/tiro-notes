@@ -3,7 +3,7 @@ import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { Popup } from '../../components/Popup.component';
 import { strings } from '../../managers/strings.manager';
 import { css } from '@emotion/css';
-import { each, has, isEqual, set } from 'lodash-es';
+import { each, has, isEqual, isNumber, set } from 'lodash-es';
 import { getApi } from '../api/api.hook';
 import { iInsertMethod } from '../api/file.api.hook';
 import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
@@ -22,9 +22,13 @@ const liveVars: {
 }
 
 export interface popupOptions  {cssStr?:string}
+export interface formPopupOptions  {
+	autosubmit?: number | boolean
+}
 export interface iPopupFormField {
 	name: string,
 	type: InputType,
+	initValue?: any,
 	description: string,
 	selectOptions?: iInputSelectOptionObj[]
 	optional?: boolean,
@@ -58,7 +62,9 @@ export type iPopupApi = {
 	form: {
 		create: (
 			p:iPopupFormConfig, 
-			cb?:Function 
+			cb?:Function,
+			formValues?: {[key:string]: any},
+			opts?:formPopupOptions
 		) => void
 		readConfigFromNote: (
 			notePath: string, 
@@ -69,8 +75,15 @@ export type iPopupApi = {
 		) => void) => void,
 		open: (
 			formName: string,
-			cb: (form: iPopupFormConfig) => void
+			cb: (form: iPopupFormConfig) => void,
+			formValues?: {[key:string]: any},
+			opts?: formPopupOptions
 		) => void,
+		// insert: (
+		// 	formName: string,
+		// 	formContent: {[key:string]: any},
+		// 	cb: (form: iPopupFormConfig) => void
+		// ) => void,
 
 
 	}
@@ -87,6 +100,7 @@ export const usePromptPopup = (p: {
 	const [text, setText] = useState(``)
 	const [userInput, setUserInput] = useState<string | null>(null)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
+	const [autoSubmit, setAutoSubmit] = useState<number|boolean>(false)
 	const [showRefuse, setShowRefuse] = useState(false)
 
 	const [acceptLabel, setAcceptLabel] = useState(strings.promptPopup.accept)
@@ -268,7 +282,9 @@ export const usePromptPopup = (p: {
 	}
 
 
-	const promptFormComponent:iPopupApi["form"]["create"] = (p, cb) => {
+	const promptFormComponent:iPopupApi["form"]["create"] = (p, cb, formValues, opts) => {
+		if (!opts) opts = {autosubmit: false}
+		if (!opts.autosubmit) opts.autosubmit = false
 		let finalConfigForm = {...defaultConfigForm, ...p} as iPopupFormConfig
 		if (p.options?.cssStr) setCssStr(p.options.cssStr)
 		else {
@@ -316,6 +332,7 @@ export const usePromptPopup = (p: {
 				if (!fields.find(el => el.id === name)){
 					fields.push({
 						name,
+						initValue: formValues && has(formValues, name) ? formValues[name] : "",
 						type: type as InputType || "text",
 						description: description || name,
 						selectOptions,
@@ -327,8 +344,21 @@ export const usePromptPopup = (p: {
 						notVisible
 					})
 				}
+
 			}
 		})
+		// if some formValues are provided but do not match any field, notify user
+		if (formValues) {
+			let unmatchedFields = Object.keys(formValues).filter(key => !fields.find(field => field.id === key))
+			if (unmatchedFields.length > 0) {
+				getApi(api => {
+					api.ui.notification.emit({
+						id: "form-unmatched-fields",
+						content: `FORM: fields <b>${unmatchedFields.join(", ")}</b> do not match any form fields.`,
+					})
+				})
+			}
+		}
 		finalConfigForm.fields = fields
 		// console.log("[POPUP > FORM] opening with config:", finalConfigForm)
 
@@ -337,13 +367,24 @@ export const usePromptPopup = (p: {
 		setConfigForm(finalConfigForm)
 		setDisplayFormPopup(true)
 		configFormCbRef.current = cb
+		setAutoSubmit(opts.autosubmit || false)
+
 	}
 
-	const openForm:iPopupApi["form"]["open"] = (formName, cb) => {
+	useEffect(() => {
+		if (isNumber(autoSubmit)) {
+			setTimeout(() => {
+				console.log("[POPUP > FORM] auto submitting form:", configForm)
+				onFormSubmit()
+			}, autoSubmit || 1000)
+		}
+	}, [autoSubmit, configForm])
+
+	const openForm:iPopupApi["form"]["open"] = (formName, cb, formValues, opts) => {
 		getAllForms(forms => {
 			const form = forms.find(el => el.title === formName)
 			if (form) {
-				promptFormComponent(form, cb)
+				promptFormComponent(form, cb, formValues, opts)
 			} else {
 				// notify no form with that name
 				console.warn("Form not found", formName)
@@ -358,13 +399,7 @@ export const usePromptPopup = (p: {
 		})
 	}
 
-
-
-
-
-
 	const onFormSubmit = () => {
-
 		// if some fields are empty, add them to formFieldsValues with empty string
 		formFields.forEach(field => {
 			// if type is date, date is today
@@ -375,12 +410,7 @@ export const usePromptPopup = (p: {
 				if (formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleString('fr-FR')
 				formFieldsValues.current[field.id] = formFieldsValues.current[field.id]?.substring(0, formFieldsValues.current[field.id].length - 3)	
 			}
-			// if (field.type === "datetime" && !formFieldsValues.current[field.id]) {
-			// 	// date format should be dd/mm/yyyy
-			// 	formFieldsValues.current[field.id] = new Date().toLocaleDateString('fr-CA')  
-			// }
 		})
-
 
 		// check if all fields are filled
 		let mandatoryFieldsEmpty:string[] = []
@@ -391,7 +421,6 @@ export const usePromptPopup = (p: {
 		})
 		
 		// console.log("mandatoryFieldsEmpty", mandatoryFieldsEmpty)
-
 		if (mandatoryFieldsEmpty.length > 0) {
 			getApi(api => {
 				api.ui.notification.emit({ 
@@ -484,25 +513,6 @@ export const usePromptPopup = (p: {
 
 	}
 
-	// gen an example of popup form
-	// api.popupApi.form({
-	// 	title: "Form Popup",
-	// 	fields: [
-	// 		{
-	// 			name: "Name",
-	// 			type: "text",
-	// 			description: "Your name",
-	// 			id: "name"
-	// 		},
-	// 		{
-	// 			name: "Age",
-	// 			type: "number",
-	// 			description: "Your age",
-	// 			id: "age"
-	// 		},
-	// 	]
-	// })
-
 	const [keepFormOpen, setKeepFormOpen] = useState(false)
 
 	//
@@ -576,6 +586,7 @@ export const usePromptPopup = (p: {
 								label={field.name}
 								explanation={field.description}
 								shouldNotSelectOnClick={true}
+								value={field.initValue}
 								type={field.type}
 								list={field.selectOptions}
 								onLoad={val => {
@@ -685,7 +696,7 @@ export const usePromptPopup = (p: {
 			create: promptFormComponent,
 			readConfigFromNote,
 			getAll: getAllForms,
-			open: openForm
+			open: openForm,
 		}
 
 	}

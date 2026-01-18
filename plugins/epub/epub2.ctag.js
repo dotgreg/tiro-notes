@@ -622,7 +622,7 @@ const epubV2App = (innerTagStr, opts) => {
 					window.isTts = true
 					let file = api.utils.getInfos().file;
 					console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)
-					api.call("ui.textToSpeechPopup.open", [ fullText, {id: file.name, startString: pagetext}], () => {})
+					api.call("ui.textToSpeechPopup.open", [ fullText, {id: epubName, startString: pagetext}], () => {})
 				})
 			}
 
@@ -1178,7 +1178,7 @@ const epubV2App = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos();
 		let epubUrl = innerTagStr.trim()
 		let epubName = epubUrl.split("/").slice(-1)[0].split("?")[0]
-		console.log(11111111111, epubName, epubUrl)
+		console.log(h, epubName, epubUrl)
 		const isAbs = epubUrl.startsWith("http")
 		if (isAbs === false) {
 				epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
