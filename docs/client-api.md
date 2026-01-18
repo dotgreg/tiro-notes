@@ -607,10 +607,12 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. p: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>
+       1. formValues: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>
+       1. opts: <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>
     - Result: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>, <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.form.getAll</span>
@@ -626,10 +628,12 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. formName: <span class="render-code-wrapper">string</span>
+       1. formValues: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>
+       1. opts: <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>
     - Result: <span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>, <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.form.readConfigFromNote</span>
@@ -1450,7 +1454,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPopupFormField</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestAutoInsert?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;notVisible?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestAutoInsert?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;initValue?: <span class="render-code-wrapper">any</span>, <br/>&nbsp;&nbsp;&nbsp;notVisible?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">popupOptions</span>
@@ -1463,6 +1467,12 @@ Watch for file changes
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;options: <span class="render-code-wrapper"><a href="#client-api?id=popupoptions">popupOptions</a></span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertLine?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">formPopupOptions</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;autosubmit?: <span class="render-code-wrapper">"undefined" | "undefined"</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iImageCompressionParams</span>
