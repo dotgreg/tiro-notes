@@ -229,6 +229,7 @@ then that js file should return a callback (cb) function that returns an array o
 
 <h4> Page Title </h4>
 - you can customize the page title by adding javascript code to the note /.tiro/app-title.md<br>
+- you have access to "isMobile()" function if it is true, you can use it to customize the title for mobile devices
 - you can access here the whole frontend api <br>
 - it should call a callback function "cb" with a string in it <br>
 - The title is refreshed every five minute <br>
@@ -251,6 +252,7 @@ CONTENT OF /.tiro/app-title.md
 ===========
 ...
 let simple = 0
+if(isMobile()) simple = 1
 if (simple == 1) {
     cb(\`Tiro\`)
 } else {
