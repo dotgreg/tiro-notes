@@ -404,6 +404,15 @@ export const SettingsPopup = (p: {
 					},
 					{
 						type: 'number',
+						title: "Text Extract length for TTS Form",
+						expl: "The text length what will be inserted into the form for tts (insert button)",
+						var: us.get('tts_form_extract_length'),
+						modifier: val => { 
+							us.set('tts_form_extract_length', val) 
+						}
+					},
+					{
+						type: 'number',
 						title: "sentences in audio part",
 						expl: "The text will be split into audio parts. How many sentences should be in one part",
 						var: us.get('tts_sentences_per_part'),

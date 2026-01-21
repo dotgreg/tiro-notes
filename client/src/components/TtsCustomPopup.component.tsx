@@ -476,6 +476,7 @@ export const TtsCustomPopup = (p: {
 	const isPopupClosedRef = useRef(false)
 
 	let formId = userSettingsSync.curr.tts_formId 
+	let formExtractLength = userSettingsSync.curr.tts_form_extract_length || 10
 
 	return (
 		<StyledDiv>
@@ -578,12 +579,9 @@ export const TtsCustomPopup = (p: {
 							getApi(api => {
 
 								let lastSentencesSpoken:any = logSaidRef.current.split("<br>")
-								let limit = 10
+								let limit = formExtractLength
 								if (lastSentencesSpoken.length > limit) {
-									// take the 5 last parts
-									// console.log(11,lastSentencesSpoken)
 									lastSentencesSpoken = lastSentencesSpoken.slice(-limit)
-									// console.log(22,lastSentencesSpoken)
 								}
 								lastSentencesSpoken = lastSentencesSpoken.join(".") + " "
 								api.popup.form.open(formId, () => {}, {text: lastSentencesSpoken, file: `tts insert from ${p.id}`}, {autosubmit:1000})

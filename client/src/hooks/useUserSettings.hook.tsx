@@ -81,6 +81,7 @@ export const defaultValsUserSettings: iUserSettings = {
 	tts_sentences_per_part: 1,
 	tts_max_words_per_sentence: 75,
 	tts_formId: "",
+	tts_form_extract_length: 10,
 	tts_preload_parts: 1,
 	tts_price_per_word: 0.000005,
 	server_activity_logging_enable: false,
