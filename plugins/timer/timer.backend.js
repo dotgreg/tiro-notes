@@ -41,9 +41,9 @@ const getWorkedDays = (startDate, endDate) => {
     }
     return workedDays;
 };
-const getReferenceHoursWorked = (start, end) => {
+const getReferenceHoursWorked = (start, end, refPerDay=8) => {
     let days = getWorkedDays(start,end)
-    return days * 8;
+    return days * refPerDay;
 }
 const getStartCurrentWeek = () => {
     // if dateObj is < start of the current week (starts from monday)
@@ -109,7 +109,8 @@ cb([
         // TUTO
         //
         let explanation = \`This function retrieves the statistics for a specific time period (day, week, month, etc.) based on the provided parameters. 
-        ?function=timer_get_stats&stattype=month|day|week|all|raw & startmonth=MONTH_TO_START_FROM (NUMBER) & month = MONTH_TO_GET (NUMBER)
+        ?function=timer_get_stats & stattype=month|day|week|all|raw & startmonth=MONTH_TO_START_FROM (NUMBER) & month = MONTH_TO_GET (NUMBER) & filter=FILTER (STRING) & referenceHoursDay = NUMBER
+        EX: track goal of "mooc" that week (1h/day goal) => /custom_backend_api?function=timer_get_stats&stattype=week&filter=mooc&referenceHoursDay=1
     \`;
 
         //
@@ -124,6 +125,8 @@ cb([
         let statType = params.params.stattype || "day"
         let startingMonth = params.params.startmonth || 0;
         let currentMonth = params.params.month || 0;
+        let filterStr = params.params.filter || "";
+        let referenceHoursDay = params.params.referenceHoursDay || 8;
 
 
 
@@ -166,7 +169,7 @@ cb([
             let startDate = getDateFromStr(start);
             let endDate = getDateFromStr(end);
             console.log(startDate, endDate)
-            referenceHours = getReferenceHoursWorked(startDate, endDate);
+            referenceHours = getReferenceHoursWorked(startDate, endDate, referenceHoursDay);
             let referenceWorkedDays = getWorkedDays(startDate, endDate);
 
             let totalMinutes = 0;
@@ -174,6 +177,8 @@ cb([
             let firstDate = "";
             rawJson.forEach(entry => {
                 let nameTask = entry.name;
+                if (filterStr !== "" && nameTask && !nameTask.toLowerCase().includes(filterStr.toLowerCase())) return;
+
                 for (let [date, minutes] of Object.entries(entry.times)) {
                     let dateObj = getDateFromStr(date);
                     if (dateObj < startDate || dateObj > endDate) continue;

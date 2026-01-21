@@ -107,6 +107,7 @@ export type iUserSettingName =
 'tts_custom_engine_command' |
 'tts_sentences_per_part' |
 'tts_formId' |
+'tts_form_extract_length' |
 'tts_max_words_per_sentence' |
 'tts_preload_parts' |
 'tts_price_per_word' |
