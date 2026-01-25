@@ -10,7 +10,9 @@ export type iSmartTable = {
     rows: {[key: string]: any}[],
     config: {[key: string]: any}
 }
-export const getSmartTable = (tableRawString: string): iSmartTable|undefined => {
+
+export type iGetSmartTable = (tableRawString: string) => iSmartTable | undefined
+export const getSmartTable: iGetSmartTable = (tableRawString) => {
     // first split by line
     const lines = tableRawString.split("\n")
     // remove empty lines, or lines without # or | in it

@@ -1,4 +1,5 @@
 
+import { sharedFunctionsApi } from "../../../shared/managers/functions.shared.api";
 import { scanDirForFiles, scanDirForFoldersRecursive } from "./dir.manager";
 import { evalBackendCode } from "./eval.manager";
 import { execString, execStringStream } from "./exec.manager";
@@ -37,6 +38,9 @@ export const getBackendApi = () => {
             getBackendFunctions: listBackendPluginsFunctions,
             triggerBackendFunction: triggerBackendFunction
 
+        },
+        shared: {
+            functions: sharedFunctionsApi
         },
         test: {
             fntest: () => { return "hello world backend api" }
