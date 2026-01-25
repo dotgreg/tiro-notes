@@ -1,10 +1,14 @@
 // impor
-import { getSmartTable } from '../smartTable.manager';
+import { getSmartTableObj } from '../smartTable.manager';
 
 
-describe('getSmartTable', () => {
-        const tableRawString = `
+const headers = `
 #invest| __header_support| __header_name | __header_buy_date | __header_buy_rate | __header_buy_price |  __header_url   |  __header_auto_update_date |  __header_auto_gain_net |  __header_auto_perf_per_year |  __header_auto_update_date
+`
+const partialHeaders = `
+#invest| __header_support| __header_name 
+`
+        const tableRawString = `
 #invest |livret | livret_ldd| 24/05/1999 |   | 1111 | livret_ldd |    
 hello world
 #invest|cto |  MSCI World ETF ETORO | 25/05/2008 | 74 | 983 | https://www.boursorama.com/bourse/trackers/cours/1rAIWDA/   
@@ -14,18 +18,42 @@ hello | world woop
 \|#invest |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    
 ||#invest2 |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    `;
 
+const tableWithHeaders = headers + tableRawString;
+const tableWithoutHeaders = tableRawString;
+const tableWithPartialHeaders = partialHeaders + tableRawString;
+
+describe('getSmartTable', () => {
+
     it('id should be recognized', () => {
-        const result = getSmartTable(tableRawString);
+        const result = getSmartTableObj(tableRawString);
         expect(result.id).toBe('invest');
     });
 
-    it('should return only right rows for the given id', () => {
-        const result = getSmartTable(tableRawString);
+    it('WITH HEADER: check the object syntax and structure', () => {
+        const result = getSmartTableObj(tableWithHeaders);
         expect(result.rows.length).toBe(3);
+        expect(result.rows[0].row_id).toBe(0);
         expect(result.rows[0].name).toBe('livret_ldd');
         expect(result.rows[1].name).toBe('MSCI World ETF ETORO');
         expect(result.rows[2].name).toBe('livret_ldd');
+        expect(result.rows[0].line).toBe('#invest |livret | livret_ldd| 24/05/1999 |   | 1111 | livret_ldd |    ');
+        expect(result.cols["buy_date"]).toBe(2);
+        expect(result.rows[2].row_id).toBe(2);
         // expect(1).toBe(2);
+    });
+
+    it('WITHOUT HEADER: check the object syntax and structure', () => {
+        const result = getSmartTableObj(tableWithoutHeaders);
+        // console.log(result)
+        expect(result.cols["col3"]).toBe(2);
+        expect(Object.keys(result.cols).length).toBe(7);
+    });
+    it('PARTIAL HEADER: check the object syntax and structure', () => {
+        const result = getSmartTableObj(tableWithPartialHeaders);
+        expect(result.cols["col3"]).toBe(2);
+        expect(result.rows[1].name).toBe("MSCI World ETF ETORO");
+        expect(result.rows[1].col3).toBe("25/05/2008");
+        expect(Object.keys(result.cols).length).toBe(7);
     });
 
 // <h3> More options </h3>
@@ -49,7 +77,7 @@ hello | world woop
 
     `
     it('should return the right amount of rows as well as the config options in result.config', () => {
-        const result = getSmartTable(tableStr2);
+        const result = getSmartTableObj(tableStr2);
         // console.log(JSON.stringify(result.config));
         expect(result.rows.length).toBe(3);
         expect(result.config.form).toBe("form1");

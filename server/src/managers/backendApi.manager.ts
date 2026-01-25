@@ -1,5 +1,5 @@
 
-import { sharedFunctionsApi } from "../../../shared/managers/functions.shared.api";
+import { sharedFunctionsApi } from "../../../shared/api/functions.shared.api";
 import { scanDirForFiles, scanDirForFoldersRecursive } from "./dir.manager";
 import { evalBackendCode } from "./eval.manager";
 import { execString, execStringStream } from "./exec.manager";

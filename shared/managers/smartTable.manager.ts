@@ -9,10 +9,11 @@ export type iSmartTable = {
     id: string
     rows: {[key: string]: any}[],
     config: {[key: string]: any}
+    cols:{[header:string]:number},
 }
 
-export type iGetSmartTable = (tableRawString: string) => iSmartTable | undefined
-export const getSmartTable: iGetSmartTable = (tableRawString) => {
+// from string, get obj
+export const getSmartTableObj = (tableRawString:string): iSmartTable | undefined => {
     // first split by line
     const lines = tableRawString.split("\n")
     // remove empty lines, or lines without # or | in it
@@ -39,21 +40,44 @@ export const getSmartTable: iGetSmartTable = (tableRawString) => {
     // remove the first row (#id)
     cleanedHeaders?.shift()
 
+    const cols: {[header:string]:number} = {}
+    // should not contain __header_ or __config
+    const firstRow = rawRows.find(row => row[0] === `#${id}` && !row.some(cell => cell.includes("__header_") || cell.includes("__config_")))
+    const numberColsFirstRow = firstRow ? firstRow.length - 1 : 0
+    // if cleandedHeader length = 0, replace all cols name by col1,2,3 etc.., take the nb from first row
+    if (cleanedHeaders && cleanedHeaders.length < numberColsFirstRow) {
+        if (firstRow) {
+            let start = cleanedHeaders.length + 1
+            for (let i = start; i < firstRow.length; i++) {
+                cleanedHeaders.push(`col${i}`)
+            }
+        }
+    }
 
-
+    cleanedHeaders?.forEach((header, index) => {
+        cols[header] = index
+    })
 
     let res:iSmartTable = {
         id,
         rows: [],
-        config:  {}   
+        config:  {},
+        cols
     }
 
     // get rows
+    let rowId = 0
     for (let i = 0; i < rawRows.length; i++) {
         const row = rawRows[i]
+        const line = filteredLines[i]
         // only keep rows with the correct id
         if (row[0] !== `#${id}`) continue // skip rows with different id
 
+        //
+        //
+        // PROCESSING __CONFIG_
+        //
+        //
         // if the line contains __config_ in it, update the config, __config_KEY_
         if (row.some(cell => cell.includes("__config_"))) {
             // for each cell of that row
@@ -83,22 +107,39 @@ export const getSmartTable: iGetSmartTable = (tableRawString) => {
 
         // remove headers line
         if (row.some(cell => cell.includes("__header_"))) continue
-        // console.log("row:", JSON.stringify(row))
         const rowData: {[key: string]: any} = {}
         if (cleanedHeaders) {
             for (let j = 0; j < cleanedHeaders.length; j++) {
                 rowData[cleanedHeaders[j]] = row[j + 1]
             }
-        } else {
-            for (let j = 1; j < row.length; j++) {
-                rowData[`column_${j}`] = row[j]
-            }
-        }
-        
+        }         
+        rowData["row_id"] = rowId
+        rowData["line"] = line
+        rowId++
         res.rows.push(rowData)
     }
 
     return res
 
 
+}
+
+
+
+// updateSmartTable > from string to string?
+export type iSmartTableUpdate = {
+    // by default it is row_id 
+    rowId?: string,
+    rowIdValue?: string,
+    updatedRow: string,
+    updatedRowValue: any
+}
+// I want a function that locate all occurences where row 
+export const updateSmartTable = (tableRawString:string, update:iSmartTableUpdate ): string => {
+    const { rowId, rowIdValue, updatedRow, updatedRowValue } = update
+    const regex = new RegExp(`(\\|\\s*${rowId}\\s*\\|\\s*${rowIdValue}\\s*\\|\\s*${updatedRow}\\s*\\|\\s*${updatedRowValue}\\s*\\|)`, "g")
+    return tableRawString.replace(regex, (match) => {
+        console.log("Found match:", match)
+        return match
+    })
 }
