@@ -1,4 +1,3 @@
-import {getSmartTable} from "../../../shared/managers/smartTable.manager";
 import { getApi } from "../hooks/api/api.hook";
 
 export const testFn = () => {
@@ -17,7 +16,7 @@ hello | world woop
 \|#invest |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    
 ||#invest2 |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    `;
     getApi(api => {
-        let smart = api.shared.functions.getSmartTable(tableRawString);
+        let smart = api.shared.functions.smartTable.getObj(tableRawString);
         console.log("SMART TABLE DATA:", smart);
 
     })
