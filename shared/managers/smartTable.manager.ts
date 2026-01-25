@@ -5,9 +5,14 @@
 //  | livret_ldd |    
 // #invest|cto |  MSCI World ETF ETORO | 25/05/2023 | 74 | 983 | https://www.boursorama.com/bourse/trackers/cours/1rAIWDA/   
 
+export type iSmartTableRow = {
+    row_id: number
+    line: string
+    cells: {[key: string]: any}
+}
 export type iSmartTable = {
     id: string
-    rows: {[key: string]: any}[],
+    rows: iSmartTableRow[],
     config: {[key: string]: any}
     cols:{[header:string]:number},
 }
@@ -106,15 +111,17 @@ export const getSmartTableObj = (tableRawString:string): iSmartTable | undefined
         }
 
         // remove headers line
+        let rowData = {
+            cells: {},
+            row_id: rowId,
+            line: line
+        }
         if (row.some(cell => cell.includes("__header_"))) continue
-        const rowData: {[key: string]: any} = {}
         if (cleanedHeaders) {
             for (let j = 0; j < cleanedHeaders.length; j++) {
-                rowData[cleanedHeaders[j]] = row[j + 1]
+                rowData.cells[cleanedHeaders[j]] = row[j + 1]
             }
         }         
-        rowData["row_id"] = rowId
-        rowData["line"] = line
         rowId++
         res.rows.push(rowData)
     }
@@ -129,17 +136,38 @@ export const getSmartTableObj = (tableRawString:string): iSmartTable | undefined
 // updateSmartTable > from string to string?
 export type iSmartTableUpdate = {
     // by default it is row_id 
-    rowId?: string,
-    rowIdValue?: string,
+    rowId: string,
+    rowIdValue: string | number,
     updatedRow: string,
     updatedRowValue: any
 }
 // I want a function that locate all occurences where row 
 export const updateSmartTable = (tableRawString:string, update:iSmartTableUpdate ): string => {
-    const { rowId, rowIdValue, updatedRow, updatedRowValue } = update
-    const regex = new RegExp(`(\\|\\s*${rowId}\\s*\\|\\s*${rowIdValue}\\s*\\|\\s*${updatedRow}\\s*\\|\\s*${updatedRowValue}\\s*\\|)`, "g")
-    return tableRawString.replace(regex, (match) => {
-        console.log("Found match:", match)
-        return match
-    })
+    // get the tableObj
+    let tableObj = getSmartTableObj(tableRawString);
+    // get all the rowId rows with the matching rowIdValue
+    // console.log(tableObj)
+    let matchingRows = tableObj.rows.filter(row => row[update.rowId] === update.rowIdValue);
+    // update the matching rows
+    let linesToUpdate:{old:string,new:string}[] = []
+    matchingRows.forEach(row => {
+        row.cells[update.updatedRow] = update.updatedRowValue;
+        let oldLine = row.line
+        // new line = each param obj with #id | p1 | p2 etc...
+        let newLine = `#${tableObj.id} | `;
+        for (let i = 0; i < Object.keys(tableObj.cols).length; i++) {
+            let propName = Object.keys(tableObj.cols)[i];
+            newLine += `${row.cells[propName]} | `;
+        }
+        linesToUpdate.push({old:oldLine,new:newLine});
+    });
+
+    // for each line, replace
+    let stringUpdated = tableRawString;
+    for (let i = 0; i < linesToUpdate.length; i++) {
+        stringUpdated = stringUpdated.replace(linesToUpdate[i].old, linesToUpdate[i].new);
+    }
+    // convert the tableObj back to a string
+
+    return stringUpdated
 }
