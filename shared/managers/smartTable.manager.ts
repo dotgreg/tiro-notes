@@ -18,7 +18,7 @@ export type iSmartTable = {
 }
 
 // from string, get obj
-export const getSmartTableObj = (tableRawString:string): iSmartTable | undefined => {
+export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmartTable | undefined => {
     // first split by line
     const lines = tableRawString.split("\n")
     // remove empty lines, or lines without # or | in it
@@ -30,7 +30,9 @@ export const getSmartTableObj = (tableRawString:string): iSmartTable | undefined
 
     // get id >> first # of first row, we remove the #, if no # return error
     let id = ""
-    if (rawRows[0][0].startsWith("#")) {
+    if (tableId) {
+        id = tableId
+    } else if (rawRows[0][0].startsWith("#")) {
         id = rawRows[0][0].substring(1)
     } else {
         console.error("Invalid table format: no # id found")
