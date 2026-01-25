@@ -18,6 +18,26 @@ hello | world woop
 \|#invest |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    
 ||#invest2 |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    `;
 
+const tableStartingWithText = `
+afldskjfadlksjjflsdka
+afldskjfdsalkjofdsafsda
+afldskjfdsalkjofdsafsda
+afldskjfdsalkjofdsafsda
+afldskjfdsalkjofdsafsda
+afldskjfdsalkjofdsafsda
+afldskjfdsalkjofdsafsda
+afldskjfdsalkjofdsafsda
+` + tableRawString
+
+const tableStartingWithOtherId = `
+flasdkjfsdlakjfdsalkj
+fadsljfdsalkjfdsjlakfdjslka
+
+#investotherid |livret | livret_ldd| 24/05/1999 |   | 1111 | livret_ldd |    
+#invest |livret | livret_ldd| 24/05/1999 |   | 1111 | livret_ldd |    
+hello world
+` + tableRawString
+
 const tableWithConfig = tableRawString + `\n
 #invest2 | __config_view_grid | __config_add_form="form2" 
 #invest | __config_view_grid | __config_add_form="form1" 
@@ -62,18 +82,6 @@ describe('getSmartTableObj', () => {
         expect(result.rows[1].cells.col3).toBe("25/05/2008");
         expect(Object.keys(result.cols).length).toBe(7);
     });
-
-// <h3> More options </h3>
-// <p>You can display elements either as a table (default) or as an image gallery, you will need to add __config_view_grid for that.
-// <br> You will need to have 2 columns named respectively "name" and "image" to display the grid view.
-// <br> You can sort the grid view by category by adding a column named "category" in your table
-// <br> The image col can either be a http link to a jpg/png or a relative image link if the image was uploaded on Tiro like /.ressources/your_image.jpg
-// <p>"__config_add_form=" add item button: you can add a "+" button that will add a form to insert a new line using __config_add_form=form_name where form_name is the name of your form from /.tiro/forms.md. please refer to tiro notes general help (? button) to create forms <br>
-// <p>"__config_hidecol_namecol"  removing a column: you can remove one col by adding the word <br>
-// <p>"__config_show_meta":  showing default cols: you can add the meta columns by adding the word <br>
-// <p>"__config_hide_config_rows": removing config rows: by adding the word <br>
-// <p>"__config_split_on_comma": [not implemented yet] split on comma: if a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
-// <p>"__config_disable_click": disable the default click event, useful for grid view
     it('should return the right amount of rows as well as the config options in result.config', () => {
         const result = getSmartTableObj(tableWithConfig);
         // console.log(JSON.stringify(result.config));
@@ -88,6 +96,14 @@ describe('getSmartTableObj', () => {
         expect(result.config.disable_click).toBe(true);
 
         // expect(1).toBe(2);
+    });
+    it('set tableid', () => {
+        const result = getSmartTableObj(tableStartingWithOtherId, "invest");
+        expect(result.rows.length).toBe(3);
+    });
+    it('if raw note content provided, should find the right first id', () => {
+        const result = getSmartTableObj(tableStartingWithText, "invest");
+        expect(result.rows.length).toBe(3);
     });
 });
 
