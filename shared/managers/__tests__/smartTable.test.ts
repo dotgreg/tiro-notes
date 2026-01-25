@@ -50,7 +50,7 @@ hello | world woop
     `
     it('should return the right amount of rows as well as the config options in result.config', () => {
         const result = getSmartTable(tableStr2);
-        console.log(JSON.stringify(result.config));
+        // console.log(JSON.stringify(result.config));
         expect(result.rows.length).toBe(3);
         expect(result.config.form).toBe("form1");
         expect(result.config["#invest"]).toBeUndefined();

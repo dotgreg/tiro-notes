@@ -19,6 +19,7 @@ import { iNoteApi, useNoteApi } from './note.api.hook';
 import { iRessourceApi, useRessourceApi } from './ressource.api.hook';
 import { iCacheApi, useCacheApi } from './cache.api.hook';
 import { sharedConfig } from '../../../../shared/shared.config';
+import { iSharedFunctionsApi, sharedFunctionsApi } from '../../../../shared/managers/functions.shared.api';
 import { iWatchApi, useWatchApi } from './watch.api.hook';
 import { iTtsApi } from '../app/useTtsPopup.hook';
 import { iAnalyticsApi, useAnalyticsApi } from './analytics.api.hook';
@@ -83,6 +84,9 @@ export interface iClientApi {
 	performance: iPerformanceApi,
 	activity: iActivityApi,
 	ai: iAiApi,
+	shared: {
+		functions: iSharedFunctionsApi
+	},
 	ui: {
 		browser: iBrowserApi
 		floatingPanel: iFloatingPanelApi
@@ -257,6 +261,9 @@ export const useClientApi = (p: {
 		plugins: pluginsApi,
 		watch: watchApi,
 		performance: performanceApi,
+		shared:{
+			functions: sharedFunctionsApi
+		},
 		activity: activityApi,
 		ai: aiApi,
 		ui: {
