@@ -215,11 +215,11 @@ Full example: (to copy and paste in a note, then click on #food)
 
 
 <h3> More options </h3>
-<p>"__config_add_form=" Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
-<p>"__config_hideCol_NAMECOL"  Removing a column: You can remove one col by adding the word <br>
-<p>"__config_show_meta":  showing default cols: You can add the meta columns by adding the word <br>
-<p>"__config_hide_config_rows": Removing config rows: by adding the word <br>
-<p>"__config_split_on_comma": [NOT IMPLEMENTED YET] Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
+<p>"__config_add_form=" add item button: you can add a "+" button that will add a form to insert a new line using __config_add_form=form_name where form_name is the name of your form from /.tiro/forms.md. please refer to tiro notes general help (? button) to create forms <br>
+<p>"__config_hidecol_namecol"  removing a column: you can remove one col by adding the word <br>
+<p>"__config_show_meta":  showing default cols: you can add the meta columns by adding the word <br>
+<p>"__config_hide_config_rows": removing config rows: by adding the word <br>
+<p>"__config_split_on_comma": [not implemented yet] split on comma: if a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
 <p>"__config_disable_click": disable the default click event, useful for grid view
 
 <h3> timeline visualization </h3>
