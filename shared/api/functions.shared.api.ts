@@ -1,15 +1,15 @@
-import { getSmartTableObj, updateSmartTable } from "../managers/smartTable.manager"
+import { getSmartTableObj, updateSmartTableString } from "../managers/smartTable.manager"
 
 export type iSharedFunctionsApi = {
 	smartTable: {
 		getObj: typeof getSmartTableObj
-		update: typeof updateSmartTable
+		updateString: typeof updateSmartTableString
 	}
 }
 
 export const sharedFunctionsApi: iSharedFunctionsApi = {
 	smartTable: {
 		getObj: getSmartTableObj,
-		update: updateSmartTable
+		updateString: updateSmartTableString
 	}
 }

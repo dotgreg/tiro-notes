@@ -290,7 +290,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 			let newFileContent = tempChunksToSave[data.idReq].join("")
 			// console.log(`Saving file ${data.filePath} with ${data.chunksLength} chunks`)
 			await upsertRecursivelyFolders(pathToFile)
-			await saveFile(pathToFile, newFileContent)
+			await saveFile(pathToFile, newFileContent, {updateClients:false})
 			// remove tempChunksToSave[data.idReq] 
 			delete tempChunksToSave[data.idReq]
 
@@ -340,7 +340,7 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let endPerf = perf('✏️  createNote ' + notePath)
 
 		log(`CREATING ${notePath}`);
-		await saveFile(`${notePath}`, ``)
+		await saveFile(`${notePath}`, ``, {updateClients:false})
 
 		// rescan folder files list
 		let apiAnswer = await scanDirForFiles(`${backConfig.dataFolder}${data.folderPath}`, serverSocket2)
