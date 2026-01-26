@@ -9,6 +9,7 @@ import { log } from "./log.manager";
 import { p } from "./path.manager";
 import { perf } from "./performance.manager";
 import { evalBackendCode, iAnswerBackendEval } from "./eval.manager";
+import { ioServer } from "../server";
 
 // var http = require('http');
 // var https = require('https');
@@ -121,15 +122,29 @@ export const moveFile = async (pathInit: string, pathEnd: string): Promise<void>
 
 }
 
-export const saveFile = async (path: string, content: string): Promise<void> => {
+
+export const saveFile = async (path: string, content: string, opts?:{updateClients?: boolean}): Promise<void> => {
+	if (!opts) opts = {}
+	if (opts.updateClients == null) opts.updateClients = false
+
 	path = p(path)
 	const h = `[SAVEFILE]`
 	shouldLog && log(`${h} starting save ${path}`);
+
 
 	path = p(path)
 
 	try {
 		await fs.writeFileSync(path, content)
+
+		if (opts?.updateClients === true) {
+			console.log('EMIT IO NOTE WATCH UPDATE')
+			ioServer.emit('onNoteWatchUpdate', {
+				filePath: path,
+				fileContent: content
+			})
+		}
+
 	} catch (error) {
 		console.log(h, error)
 		return error 
@@ -371,6 +386,7 @@ export const fetchFile = async (url: string, opts?: iFetchEvalBackendOpts): Prom
 	try {
 		fileContent = await openFile(path)
 	} catch(e) {}
+	if (opts.cb) opts.cb(fileContent)
 	return fileContent;
 }
 

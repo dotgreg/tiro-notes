@@ -76,3 +76,15 @@ app.get('/custom_backend_api', async (req, res) => {
 app.get('*', (req, res) => {
     res.sendFile('index.html', { root: backConfig.frontendBuildFolder });
 });
+
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🛑 Unhandled Promise Rejection:', reason);
+  // Optional: clean shutdown, reporting, etc.
+});
+
+process.on('uncaughtException', err => {
+  console.error('🛑 Uncaught Exception:', err);
+  // Optional: attempt graceful shutdown
+  // process.exit(1);
+});

@@ -103,3 +103,11 @@ export const customBackendApiServer = async (params): Promise<iCustomBackendApiA
 
     });
 };
+
+export const triggerBackendEndpoint =  (params:any, cb:Function):void => {
+    // inject token in params
+    params.token = backConfig.jsonConfig.customBackendApiToken;
+    customBackendApiServer(params).then(res => {
+        cb(res);
+    });
+}

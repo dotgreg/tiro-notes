@@ -172,9 +172,23 @@ CONTENT OF /.tiro/custom_backend_api/first-endpoint.md
         \`
 
         getBackendApi().file.openFile("/_new/_main/feed podcast.md").then(contentExtract => {
-            getBackendApi().plugins.triggerBackendFunction("timer_get_daily_stats", {params}).then(timerDaily => {
-                cb(content + contentExtract+timerDaily.result.message)
-            })
+            if (contentExtract === "function" ) {
+                // you can also call plugin backend functions like that
+                getBackendApi().plugins.triggerBackendFunction("timer_get_daily_stats", {params}).then(timerDaily => {
+                    cb(content + contentExtract+timerDaily.result.message)
+                })
+            } else if (contentExtract === "file") {
+                // or event access to another endpoint
+                getBackendApi().customBackendApi.triggerEndpoint({file:"second-endpoint"}, res => {
+                    cb(res.result)
+                })
+            } else if (contentExtract === "url") {
+                // fetch an url and cache it for a month
+                let n = new Date()
+                let idReq = \`\${n.getYear()}\${n.getMonth()}\`
+                let url = \`https://github.com/historicbruno/duckduckgo-html-search?\${idReq}\`
+                getBackendApi().ressource.fetchFile(url, {cache:true , cb})
+            }
         })
 
 

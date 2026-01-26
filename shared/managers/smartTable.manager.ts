@@ -21,8 +21,11 @@ export type iSmartTable = {
 export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmartTable | undefined => {
     // first split by line
     const lines = tableRawString.split("\n")
-    // remove empty lines, or lines without # or | in it
-    const filteredLines = lines.filter(line => line.trim() !== "" && (line.includes("#") || line.includes("|")))
+    // remove empty lines, or lines without # and | in it and not ## like title
+    const filteredLines = lines.filter(line => 
+        line.trim() !== "" 
+        && (line.includes("#") && line.includes("|") && !line.includes("# "))
+    )
     // split by | and trim spaces
     const rawRows = filteredLines.map(line => {
         return line.split("|").map(cell => cell.trim())
@@ -43,23 +46,39 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
     // get headers line, can be anywhere
     const headers: string[]|undefined = isThereHeaders ? rawRows.find(row => row.some(cell => cell.includes("__header_"))) : []
     // remove __header_ from headers
-    const cleanedHeaders = headers?.map(header => header.replace(/^__header_/, ""))
+    let cleanedHeaders = headers?.map(header => header.replace(/^__header_/, ""))
     // remove the first row (#id)
     cleanedHeaders?.shift()
 
     const cols: {[header:string]:number} = {}
     // should not contain __header_ or __config
-    const firstRow = rawRows.find(row => row[0] === `#${id}` && !row.some(cell => cell.includes("__header_") || cell.includes("__config_")))
-    const numberColsFirstRow = firstRow ? firstRow.length - 1 : 0
+    const allContentRows = rawRows.filter(row => row[0] === `#${id}` && !row.some(cell => cell.includes("__header_") || cell.includes("__config_")))
+    // find longuest row in size
+    const longuestRow = allContentRows.reduce((a, b) => a.length > b.length ? a : b, [])
+    const numberColsFirstRow = longuestRow ? longuestRow.length - 1 : 0
     // if cleandedHeader length = 0, replace all cols name by col1,2,3 etc.., take the nb from first row
+    // console.log(numberColsFirstRow, cleanedHeaders.length, cleanedHeaders, longuestRow)
+    let lengthCleanedHeaders = cleanedHeaders.length
     if (cleanedHeaders && cleanedHeaders.length < numberColsFirstRow) {
-        if (firstRow) {
+        if (longuestRow) {
             let start = cleanedHeaders.length + 1
-            for (let i = start; i < firstRow.length; i++) {
+            for (let i = start; i < longuestRow.length; i++) {
                 cleanedHeaders.push(`col${i}`)
             }
         }
     }
+    let cleanedHeadersHasContent = []
+    // for each cleanedHeader, if has content, [...,true,..]
+    cleanedHeaders.forEach((header,i) => {
+        const hasContent = allContentRows.some(row => row[i] !== undefined && row[i] !== "")
+        cleanedHeadersHasContent.push(hasContent)
+    })
+    // takes the last true index of cleanedHeadersHasContent
+    let lastTrueIndex = cleanedHeadersHasContent.lastIndexOf(true)
+    // cut cleanedHeaders to that index + 1
+    if (lastTrueIndex >= lengthCleanedHeaders) {
+        cleanedHeaders = cleanedHeaders.slice(0, lastTrueIndex + 1)
+    }   
 
     cleanedHeaders?.forEach((header, index) => {
         cols[header] = index
@@ -125,9 +144,12 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
             }
         }         
         rowId++
+
+        // console.log(rowId, rowData)
         res.rows.push(rowData)
     }
 
+    // console.log(res.rows.length)
     return res
 
 
@@ -138,38 +160,49 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
 // updateSmartTable > from string to string?
 export type iSmartTableUpdate = {
     // by default it is row_id 
-    rowId: string,
-    rowIdValue: string | number,
-    updatedRow: string,
-    updatedRowValue: any
+    cellId: string,
+    cellIdValue: string | number,
+    updatedCell: string,
+    updatedCellValue: any
 }
-// I want a function that locate all occurences where row 
-export const updateSmartTable = (tableRawString:string, update:iSmartTableUpdate ): string => {
+type iReturnUpdateSmartTable = {
+    stringUpdated: string,
+    tableObj: iSmartTable
+}
+export const updateSmartTableString = (tableRawString:string, update:iSmartTableUpdate ): iReturnUpdateSmartTable => {
     // get the tableObj
     let tableObj = getSmartTableObj(tableRawString);
     // get all the rowId rows with the matching rowIdValue
     // console.log(tableObj)
-    let matchingRows = tableObj.rows.filter(row => row[update.rowId] === update.rowIdValue);
+    let matchingRows = [];
+    if (update.cellId === "row_id") {
+        matchingRows = tableObj.rows.filter(row => row.row_id === update.cellIdValue);
+    }else {
+        matchingRows = tableObj.rows.filter(row => row.cells[update.cellId] === update.cellIdValue);
+    }
+    // console.log(matchingRows, update.rowId, update.rowIdValue)
     // update the matching rows
     let linesToUpdate:{old:string,new:string}[] = []
+    // console.log(matchingRows)
     matchingRows.forEach(row => {
-        row.cells[update.updatedRow] = update.updatedRowValue;
+        row.cells[update.updatedCell] = update.updatedCellValue;
         let oldLine = row.line
         // new line = each param obj with #id | p1 | p2 etc...
         let newLine = `#${tableObj.id} | `;
         for (let i = 0; i < Object.keys(tableObj.cols).length; i++) {
             let propName = Object.keys(tableObj.cols)[i];
-            newLine += `${row.cells[propName]} | `;
+            newLine += `${row.cells[propName] || ""} | `;
         }
         linesToUpdate.push({old:oldLine,new:newLine});
     });
 
     // for each line, replace
+    // console.log(linesToUpdate);
     let stringUpdated = tableRawString;
     for (let i = 0; i < linesToUpdate.length; i++) {
         stringUpdated = stringUpdated.replace(linesToUpdate[i].old, linesToUpdate[i].new);
     }
     // convert the tableObj back to a string
 
-    return stringUpdated
+    return {stringUpdated, tableObj}
 }

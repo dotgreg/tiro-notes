@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
-import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
+import { markdown, markdownLanguage} from "@codemirror/lang-markdown";
 import { languages } from "@codemirror/language-data";
 import { autocompletion } from "@codemirror/autocomplete";
 import { EditorView } from "@codemirror/view";
