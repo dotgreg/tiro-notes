@@ -25,7 +25,7 @@ table tr td {
   background: none;
   border: none;
   color: #525252;
-  width: 100px;
+  width: 100%;
   font-weight: normal;
 }
 
