@@ -142,6 +142,7 @@ const smartlistApp = (innerTagStr, opts) => {
 
                 let configMetaCols = false
                 let hideConfigRows = false
+                let editMode = true
                 let widthCols = []
                 let colsToHide = []
                 let colsFormulas = []
@@ -211,6 +212,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 // if we find the string config_no_extra_cols, remove all extra cols
                                 if (JSON.stringify(listFilesRes).includes("__config_show_meta")) configMetaCols = true
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
+                                if (JSON.stringify(listFilesRes).includes("__config_no_edit_mode")) editMode = false
                                 if (JSON.stringify(listFilesRes).includes("__config_view_grid")) showGrid = true
                                 if (JSON.stringify(listFilesRes).includes("__config_disable_click")) disableGridClick = true
                                 each(listFilesRes, (fileRes) => {
@@ -338,7 +340,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 cols: [],
                                 gridView: false,
 
-                                edit: true,
+                                editMode: editMode,
                                 editAction: (item, col, value) => {
                                         editActionDebounce(item, col, value)
 

@@ -222,6 +222,7 @@ Full example: (to copy and paste in a note, then click on #food)
 
 
 <h3> More options </h3>
+<p>"__config_no_edit_mode":  disabling edit mode for each cell, it will not auto update the underlying files<br>
 <p>"__config_add_form=" add item button: you can add a "+" button that will add a form to insert a new line using __config_add_form=form_name where form_name is the name of your form from /.tiro/forms.md. please refer to tiro notes general help (? button) to create forms <br>
 <p>"__config_hidecol_namecol"  removing a column: you can remove one col by adding the word <br>
 <p>"__config_show_meta":  showing default cols: you can add the meta columns by adding the word <br>
@@ -453,6 +454,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
     setSortConfig({ key, direction });
   };
 
+  let shouldCellContentBeProcessed = (contentCell) => {
+    // if < / > exists inside the contentCell, it is html
+    return contentCell && contentCell.includes("<") && contentCell.includes(">");
+  }
   let processContent = (contentCell, configCol) => {
     // if type of is not string, return it
     if (typeof contentCell !== "string") return contentCell
@@ -778,7 +783,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                           !col.type ? [
                             // if config.editAction exists, show input instead of div
 
-                            config.editAction ? [
+                            config.editMode && config.editAction && !shouldCellContentBeProcessed(item[col.colId]) ? [
                               c('input', {
                                 type: "text",
                                 className: "input-content",
