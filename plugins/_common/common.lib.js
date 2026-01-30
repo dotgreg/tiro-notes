@@ -243,6 +243,38 @@ r.useLocalStorage = (react, key, initialValue) => {
    
 
 ///////////////////////////////////////////////////
+// DEBOUNCE
+//
+
+r.debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(null, args);
+        }, delay);
+    };
+};
+r.throttle = (func, limit) => {
+    let lastFunc;
+    let lastRan;
+    return (...args) => {
+        if (!lastRan) {
+            func.apply(null, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(() => {
+                if (Date.now() - lastRan >= limit) {
+                    func.apply(null, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
+    };
+};
+
+///////////////////////////////////////////////////
 // SUPPORT
 //
 r.getCache = (cacheId, onSuccess, onFailure) => {

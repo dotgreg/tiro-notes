@@ -109,7 +109,7 @@ const smartlistApp = (innerTagStr, opts) => {
         }
         const searchAndDisplay = (configArray) => {
                 const commonLib = window._tiroPluginsCommon.commonLib
-                const { notifLog, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+                const { notifLog, generateHelpButton, getOperatingSystem, each, onClick, debounce } = commonLib
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
                 // console.log('configArray:', configArray[0])
@@ -154,16 +154,16 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(listFilesRes, (fileRes) => {
                                         each(fileRes.results, result => {
                                                 // __config_hideCol_NAMECOL | another thing
-                                                if (result.includes("__config_hideCol_")) {
+                                                if (result.toLowerCase().includes("__config_hidecol_")) {
                                                         // using regex, ends colName by either space or / or nothing, can have several results
                                                         // let colNames = result.match(/__config_hideCol_.*?[\s|\/|$]/g) 
                                                         let colNamesRaw = result.split(" ")
                                                         // only keep words starting by __config_hideCol_
-                                                        let colNames = colNamesRaw.filter(col => col.startsWith("__config_hideCol_"))
+                                                        let colNames = colNamesRaw.filter(col => col.toLowerCase().startsWith("__config_hidecol_"))
                                                         // remove __config_hideCol_ from each colName
-                                                        colNames = colNames.map(col => col.replace("__config_hideCol_", ""))
+                                                        colNames = colNames.map(col => col.toLowerCase().replace("__config_hidecol_", ""))
                                                         each(colNames, (colName) => {
-                                                                colName = colName.replace("__config_hideCol_", "").trim()
+                                                                colName = colName.toLowerCase().replace("__config_hidecol_", "").trim()
                                                                 colName = colName.toLowerCase()
                                                                 colsToHide.push(colName)
                                                         })
@@ -250,6 +250,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                         })
                                 }
 
+
                                 loadTable({configMetaCols})
                         })
                 })
@@ -306,6 +307,28 @@ const smartlistApp = (innerTagStr, opts) => {
                 }
 
 
+                const histLinesEditions = []
+                const editActionDebounce = debounce((item, col, value) => {
+                    // handle edit action
+                //     let newLineArr = item.line.split("|")
+                                        // handle edit action
+
+                        let filePath = item.folder + item.filename
+                        console.log(`Editing item ${item.id}, col ${col}, value ${value}`, item, col);
+                        let oldLine = histLinesEditions[item.row_index] || item.line
+                        let newLineArr = oldLine.split("|")
+                        newLineArr[col.colPos + 1] = value
+                        let newLine = newLineArr.join("|")
+                        console.log(123, histLinesEditions)
+                        console.log("==============")
+                        console.log(oldLine)
+                        console.log(newLine)
+                        histLinesEditions[item.row_index] = newLine
+                        api.call("file.searchReplace", [filePath, oldLine, newLine])
+                        notifLog(`content updated for ${filePath}`, "updateSearchReplace", 1)
+                        // item.line = newLine
+                }, 1000);
+
 
 
                 const loadTable = (p) => {
@@ -314,6 +337,12 @@ const smartlistApp = (innerTagStr, opts) => {
                                 id: `smartlist-table-${configArray.length}-${configArray[0]?.tag1}-${configArray[0]?.path}`,
                                 cols: [],
                                 gridView: false,
+
+                                edit: true,
+                                editAction: (item, col, value) => {
+                                        editActionDebounce(item, col, value)
+
+                                },
 
                                 exportToCsv: els => {
                                         // 
@@ -362,15 +391,22 @@ const smartlistApp = (innerTagStr, opts) => {
                                         api.call("ui.floatingPanel.create", [configFloatingWindow])
                                 }
                         };
+                        let j = 0
+                        let rawCols = []
                         for (let i = 1; i <= customColLength; ++i) {
-                                config.cols.push({ colId: `col${i}`, headerLabel: `Col${i}` })
+                                rawCols.push({ colId: `col${i}`, headerLabel: `Col${i}` })
                         }
+                        let customCols = []
                         for (const key in customColsNames) {
-                                config.cols.push({ colId: customColsNames[key], headerLabel: customColsNames[key] })
-
+                                customCols.push({ colId: customColsNames[key], headerLabel: customColsNames[key] })
                                 // remove key(like col1) from config.cols
-                                config.cols = config.cols.filter(col => col.colId !== key)
+                                rawCols = rawCols.filter(col => col.colId !== key)
                         }
+                        config.cols = customCols.concat(rawCols)
+                        // add for each col a colPos
+                        config.cols.forEach((col, index) => {
+                                col.colPos = index
+                        })
 
                         // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
                         // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
@@ -439,7 +475,9 @@ const smartlistApp = (innerTagStr, opts) => {
 
                         // for each item and each col, try to sum all values
                         let colsStats = {}
+                        let i = 0;
                         for (const item of items) {
+                                item["row_index"] = i++;
                                 for (const col of config.cols) {
                                         if (!colsStats[col.colId]) colsStats[col.colId] = {sum: 0, count: 0}
                                         if (item[col.colId]) {
@@ -493,6 +531,10 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 }
                                         }
                                 }
+
+                                //
+                                // GEN TABLE COMPONENT
+                                //
                                 wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
 
                         } // end onAllFormulasProcessed

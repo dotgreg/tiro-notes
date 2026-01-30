@@ -21,6 +21,13 @@ table tr td {
   border:none; 
   padding: 1px 11px;
 }
+.input-content {
+  background: none;
+  border: none;
+  color: #525252;
+  width: 100px;
+  font-weight: normal;
+}
 
 .table-controls-wrapper {
 }
@@ -757,7 +764,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
                         // MULTISELECT
                         ...(col.colId === "multiselect" ? [
-                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
+                          c('input', { type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
                             if (selectedItems.includes(item)) {
                               setSelectedItems(selectedItems.filter(i => i !== item))
                             } else {
@@ -767,15 +774,38 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         ] : []),
                         // TEXT 
                         colsContentHidden[col.colId] ? [] : [
-                        !col.type ? [
-                          c('div', {
-                            onClick: (e) => {
-                              if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
-                            },
-                            className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
-                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
-                          })
-                        ] : []
+
+                          !col.type ? [
+                            // if config.editAction exists, show input instead of div
+
+                            config.editAction ? [
+                              c('input', {
+                                type: "text",
+                                className: "input-content",
+                                value: item[col.colId],
+                                onInput: (e) => {
+                                  const newValue = e.target.value
+                                  config.editAction(item, col, newValue)
+                                  // update item[col.colId] with newValue
+                                }
+                              })
+                            ] : [
+
+                              c('div', {
+                                onClick: (e) => {
+                                  if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
+                                },
+                                className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                                dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
+                              })
+                            ]
+
+
+
+                          ] : []
+
+
+
                         ]
                         ])
                     )
