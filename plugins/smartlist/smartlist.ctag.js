@@ -319,7 +319,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         console.log(`Editing item ${item.id}, col ${col}, value ${value}`, item, col);
                         let oldLine = histLinesEditions[item.row_index] || item.line
                         let newLineArr = oldLine.split("|")
-                        newLineArr[col.colPos + 1] = value
+                        newLineArr[col.colPos] = value
                         let newLine = newLineArr.join("|")
                         console.log(123, histLinesEditions)
                         console.log("==============")
@@ -396,19 +396,21 @@ const smartlistApp = (innerTagStr, opts) => {
                         let j = 0
                         let rawCols = []
                         for (let i = 1; i <= customColLength; ++i) {
-                                rawCols.push({ colId: `col${i}`, headerLabel: `Col${i}` })
+                                rawCols.push({ colId: `col${i}`, headerLabel: `Col${i}`, colPos: i - 1 })
                         }
                         let customCols = []
                         for (const key in customColsNames) {
-                                customCols.push({ colId: customColsNames[key], headerLabel: customColsNames[key] })
+
+                                let prevId = parseInt(key.replace("col", "")) - 1
+                                customCols.push({ colId: customColsNames[key], headerLabel: customColsNames[key], colPos: prevId })
                                 // remove key(like col1) from config.cols
                                 rawCols = rawCols.filter(col => col.colId !== key)
                         }
                         config.cols = customCols.concat(rawCols)
                         // add for each col a colPos
-                        config.cols.forEach((col, index) => {
-                                col.colPos = index
-                        })
+                        // config.cols.forEach((col, index) => {
+                        //         col.colPos = index
+                        // })
 
                         // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
                         // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
