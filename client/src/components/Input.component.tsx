@@ -7,11 +7,17 @@ import { useBackendState } from '../hooks/useBackendState.hook';
 import { Icon2 } from './Icon.component';
 import { getApi } from '../hooks/api/api.hook';
 import { userSettingsSync } from '../hooks/useUserSettings.hook';
+import { getCookie, setCookie } from '../managers/cookie.manager';
+import { useDebounce } from '../hooks/lodash.hooks';
+import { get } from 'http';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
 export type iInputSelectOptionObj = OptionObj
 export type InputType = 'password' | 'text' | 'select' | 'number' | 'checkbox' | 'textarea' | 'date' | 'datetime'
 export type InputValue = string | number | boolean | undefined
+
+
+export type iInputAutoSuggestSource = "cookie" | "ls" | "backend" | "customFunction" | "none"
 
 export const Input = (p: {
 	id?: string
@@ -26,6 +32,7 @@ export const Input = (p: {
 	onSelectChange?: (res: string) => void
 	onLoad?: (res: any) => void
 	onFocus?: Function
+	onBlur?: Function
 	onEnterPressed?: Function
 	shouldFocus?: boolean
 	shouldNotSelectOnClick?: boolean
@@ -37,6 +44,10 @@ export const Input = (p: {
 	rememberLastValue?: boolean // if not false, will keep last value of that field in backend storage based on the id of the input ONLY WORKS IF ID PARAM EXISTS
 	aiSuggest?: string
 	aiSuggestAutoInsert?: boolean
+	// add autosuggest list dropdown on bottom
+	autoSuggest?: boolean
+	autoSuggestSource?: iInputAutoSuggestSource
+	autoSuggestFunction?: () => Promise<string[]>
 }) => {
 
 	const inputRef = useRef<any>()
@@ -102,7 +113,7 @@ export const Input = (p: {
 		let finalValue = defaultVal
 		if (activateRememberLastValue)	finalValue = lastValue
 		p.onLoad && p.onLoad(finalValue)
-		setValueInt(finalValue)
+		setValueFn(finalValue)
 	}, [lastValue])
 	const [valueInt, setValueInt] = useState<InputValue>(value)
 
@@ -110,6 +121,16 @@ export const Input = (p: {
 
 
 
+	/////////////////////////////////
+	// WHEN STHG set value
+	const setValueFn = (nval:any) => {
+		setValueInt(nval)
+	}
+
+
+
+	/////////////////////////////////
+	//
 	const labelClicked = () => {
 		if(p.type==="checkbox") {
 			inputRef.current.checked = !inputRef.current.checked
@@ -127,7 +148,8 @@ export const Input = (p: {
 		}
 		if (activateRememberLastValue) setLastValue(nval)
 		p.onChange && p.onChange(nval)
-		setValueInt(nval)
+		if (p.autoSuggest) debouncedAddToAutoSuggestList(nval) 
+		setValueFn(nval)
 	}
 
 
@@ -148,13 +170,13 @@ export const Input = (p: {
 			return
 		}
 		p.onChange && p.onChange(val, {changeType:"ai"})
-		setValueInt(val)
+		setValueFn(val)
 	}
 	
 	let aiNameCommandSuggest = userSettingsSync.curr['ui_editor_ai_suggest_form_command']
 	const histAiSuggest = useRef<string | undefined>(undefined)
 	useEffect(() => {
-		console.log(p.aiSuggest, aiSuggestCounter, "AI SUGGEST EFFECT", p.id)
+		// console.log(p.aiSuggest, aiSuggestCounter, "AI SUGGEST EFFECT", p.id)
 		setAiSuggestResult("")
 		if (p.aiSuggest !== undefined && p.aiSuggest.length > 0 )  {
 			if (histAiSuggest.current === undefined) {
@@ -185,6 +207,105 @@ export const Input = (p: {
 			})
 		}
 	}, [p.aiSuggest, aiSuggestCounter])
+	
+
+	//
+	//
+	// FOCUS DETECTION MECHANISME
+	//
+	//
+	const [isFocussed, setIsFocussed] = useState(false)
+	const onFocusInt = (e:any) => {
+		if (p.onFocus) p.onFocus()
+		// console.log("FOCUS")
+		setIsFocussed(true)
+	}
+	const onBlurInt = (e:any) => {
+		setTimeout(() => {
+			// console.log("BLUR")
+			setIsFocussed(false)
+			setAutoSuggestFilteredList([])
+			if (p.onBlur) p.onBlur()
+		}, 500)
+	}
+
+
+
+	//
+	//
+	// AUTOSUGGEST LIST MECHANISM
+	//
+	//
+	const [autoSuggestList, setAutoSuggestList] = useState<string[]>([])
+	const [autoSuggestFilteredList, setAutoSuggestFilteredList] = useState<string[]>([])
+	let asListId = `auto-suggest-list-${p.id}-${p.autoSuggestSource}`
+	const debouncedAddToAutoSuggestList =  useDebounce((val:string) => {
+		addToAutoSuggestList(val)
+	}, 3000)
+
+	const removeFromAutoSuggestList = (val:string) => {
+		getAutoSuggestList(list => {
+			let nlist = list.filter(item => item !== val)
+			console.log("REMOVE FROM AUTOSUGGEST LIST", val)
+			saveAutoSuggestList(nlist)
+		})
+	}
+	const addToAutoSuggestList = (val:string) => {
+		getAutoSuggestList(list => {
+			// if it tries to add "awor" or "awo" and "aword" already inside, return it
+			if (list.some(item => item.startsWith(val))) return
+			list.push(val)
+			console.log("ADD TO AUTOSUGGEST LIST", val, list, asListId)
+			saveAutoSuggestList(list)
+		})
+	}
+	const getAutoSuggestList = (
+		cb:(list: string[]) => void
+	) => {
+		try { 
+			if (p.autoSuggestSource === "cookie") { cb(JSON.parse(getCookie(asListId) || "[]")) }
+			if (p.autoSuggestSource === "ls") { cb(JSON.parse(localStorage.getItem(asListId) || "[]")) }
+			if (p.autoSuggestSource === "backend") { 
+				getApi(api => { api.cache.get(asListId, (res) => {
+						try { 
+							return cb(JSON.parse(res))
+						} catch (error) {
+							return cb([])
+						}
+					})
+				})
+			}
+			if (p.autoSuggestSource === "customFunction" && p.autoSuggestFunction) {
+				p.autoSuggestFunction().then(cb).catch(() => cb([]))
+			}
+		} catch (error) { 
+			return cb([]) 
+		}
+		return cb([])
+	}
+	const saveAutoSuggestList = (nlist) => {
+		let listToString = JSON.stringify(nlist)
+		if (p.autoSuggestSource === "cookie") setCookie(asListId, listToString, -1)
+		if (p.autoSuggestSource === "ls") localStorage.setItem(asListId, listToString)
+		if (p.autoSuggestSource === "backend") { getApi(api => { api.cache.set(asListId, listToString) }) }
+		setAutoSuggestList(nlist)
+	}
+
+	useEffect(() => {
+		if (!p.autoSuggest) return
+		if (!p.id) return console.warn(h, "No id provided for autosuggest, system disabled")
+			getAutoSuggestList(list => {
+				setAutoSuggestList(list)
+			})
+	}, [p.autoSuggest, p.autoSuggestSource])
+
+	useEffect(()=> {
+		// Filter the autoSuggestList based on the value being typed
+		if (!isFocussed) return
+		if (`${valueInt}`.length === 0 ) setAutoSuggestFilteredList(autoSuggestList)
+		setAutoSuggestFilteredList(autoSuggestList.filter(item => item.includes(`${valueInt}`) && item !== `${valueInt}`))
+	}, [autoSuggestList, valueInt, isFocussed])
+
 
 
 
@@ -205,7 +326,8 @@ export const Input = (p: {
 					max={p.max}
 					min={p.min}
 					step={p.step}
-					onFocus={() => { p.onFocus && p.onFocus() }}
+					onFocus={onFocusInt}
+					onBlur={onBlurInt}
 					onClick={() => { !p.shouldNotSelectOnClick && inputRef.current.select() }}
 					onKeyPress={e => {
 						// @ts-ignore
@@ -219,7 +341,7 @@ export const Input = (p: {
 
 				{
 					// if valueInt != "", create a x button that reinit to ""
-					(valueInt != "" && valueInt != undefined) && <div className="input-clear-btn" onClick={() => setValueInt("")} > <Icon2 name="circle-xmark"  /></div>
+					(valueInt != "" && valueInt != undefined) && <div className="input-clear-btn" onClick={() => setValueFn("")} > <Icon2 name="circle-xmark"  /></div>
 				}
 
 				{p.type === 'select' &&
@@ -264,6 +386,19 @@ export const Input = (p: {
 				</div>}
 				
 				{p.explanation && <div className="explanation"> {p.explanation} </div>}
+
+				{p.autoSuggest && autoSuggestFilteredList.length > 0 &&
+					<div className="auto-suggest-list">
+						{autoSuggestFilteredList.map((item, i) =>
+							<div key={i} className="auto-suggest-item" onClick={(e) => {setValueFn(item); setAutoSuggestFilteredList([]); }}>
+								{item}
+								<span className="remove-item" onClick={(e) => { e.stopPropagation(); removeFromAutoSuggestList(item); }}><Icon2 name="circle-xmark" /></span>
+							</div>
+						)}
+					</div>
+				}
+
+
 			</div>
 		</div>
 		</div>
@@ -272,6 +407,31 @@ export const Input = (p: {
 
 export const inputComponentCss = () => `
     .input-component {
+		.auto-suggest-list {
+			position: absolute;
+			z-index: 1000;
+			background: white;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			max-height: 200px;
+			overflow-y: auto;
+			.auto-suggest-item {
+				padding: 8px 12px;
+				border-bottom: 1px solid #eee;
+				cursor: pointer;
+				&:hover {
+					background: #f5f5f5;
+				}
+				.remove-item {
+					margin-left: 8px;
+					cursor: pointer;
+					&:hover {
+						color: red;
+					}
+				}
+			}
+		}
         display: flex;
         align-items: center;
 		justify-content: space-between;

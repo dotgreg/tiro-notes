@@ -15,10 +15,18 @@ export type iSmartTable = {
     rows: iSmartTableRow[],
     config: {[key: string]: any}
     cols:{[header:string]:number},
+    infos:{[key: string]: any}
 }
 
 // from string, get obj
-export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmartTable | undefined => {
+export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmartTable => {
+    let resDef:iSmartTable = {
+        id:"",
+        rows: [],
+        config: {},
+        cols: {},
+        infos: {}
+    }
     // first split by line
     const lines = tableRawString.split("\n")
     // remove empty lines, or lines without # and | in it and not ## like title
@@ -39,14 +47,14 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
         id = rawRows[0][0].substring(1)
     } else {
         console.error("Invalid table format: no # id found")
-        return undefined
+        return resDef
     }
 
     const isThereHeaders = rawRows.some(row => row.some(cell => cell.includes("__header_")))
     // get headers line, can be anywhere
     const headers: string[]|undefined = isThereHeaders ? rawRows.find(row => row.some(cell => cell.includes("__header_"))) : []
     // remove __header_ from headers
-    let cleanedHeaders = headers?.map(header => header.replace(/^__header_/, ""))
+    let cleanedHeaders: string[] = headers?.map(header => header.replace(/^__header_/, "")) || []
     // remove the first row (#id)
     cleanedHeaders?.shift()
 
@@ -67,17 +75,17 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
             }
         }
     }
-    let cleanedHeadersHasContent = []
+    let cleanedHeadersHasContent:any[] = []
     // for each cleanedHeader, if has content, [...,true,..]
     cleanedHeaders.forEach((header,i) => {
         const hasContent = allContentRows.some(row => row[i] !== undefined && row[i] !== "")
         cleanedHeadersHasContent.push(hasContent)
     })
     // takes the last true index of cleanedHeadersHasContent
-    let lastTrueIndex = cleanedHeadersHasContent.lastIndexOf(true)
+    let lastColWithContentIndex = cleanedHeadersHasContent.lastIndexOf(true)
     // cut cleanedHeaders to that index + 1
-    if (lastTrueIndex >= lengthCleanedHeaders) {
-        cleanedHeaders = cleanedHeaders.slice(0, lastTrueIndex + 1)
+    if (lastColWithContentIndex >= lengthCleanedHeaders) {
+        cleanedHeaders = cleanedHeaders.slice(0, lastColWithContentIndex + 1)
     }   
 
     cleanedHeaders?.forEach((header, index) => {
@@ -88,7 +96,8 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
         id,
         rows: [],
         config:  {},
-        cols
+        cols,
+        infos:{}
     }
 
     // get rows
@@ -147,6 +156,10 @@ export const getSmartTableObj = (tableRawString:string, tableId?:string): iSmart
 
         // console.log(rowId, rowData)
         res.rows.push(rowData)
+        res.infos = {
+            lastColWithContentIndex,
+            cleanedHeadersHasContent
+        }
     }
 
     // console.log(res.rows.length)
@@ -167,14 +180,14 @@ export type iSmartTableUpdate = {
 }
 type iReturnUpdateSmartTable = {
     stringUpdated: string,
-    tableObj: iSmartTable
+    tableObj: iSmartTable | undefined
 }
 export const updateSmartTableString = (tableRawString:string, update:iSmartTableUpdate ): iReturnUpdateSmartTable => {
     // get the tableObj
     let tableObj = getSmartTableObj(tableRawString);
     // get all the rowId rows with the matching rowIdValue
     // console.log(tableObj)
-    let matchingRows = [];
+    let matchingRows:any[] = [];
     if (update.cellId === "row_id") {
         matchingRows = tableObj.rows.filter(row => row.row_id === update.cellIdValue);
     }else {
@@ -184,14 +197,17 @@ export const updateSmartTableString = (tableRawString:string, update:iSmartTable
     // update the matching rows
     let linesToUpdate:{old:string,new:string}[] = []
     // console.log(matchingRows)
-    matchingRows.forEach(row => {
+    matchingRows.forEach((row:any) => {
         row.cells[update.updatedCell] = update.updatedCellValue;
         let oldLine = row.line
+
         // new line = each param obj with #id | p1 | p2 etc...
         let newLine = `#${tableObj.id} | `;
         for (let i = 0; i < Object.keys(tableObj.cols).length; i++) {
             let propName = Object.keys(tableObj.cols)[i];
-            newLine += `${row.cells[propName] || ""} | `;
+            if (i <= tableObj.infos.lastColWithContentIndex) {
+                newLine += `${row.cells[propName] || ""} | `;
+            }
         }
         linesToUpdate.push({old:oldLine,new:newLine});
     });
