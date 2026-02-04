@@ -23,6 +23,13 @@ hello | world woop
 const tableRawString2 = tableRawString + `
 #invest |livret2 | 
 `
+const bugColsAddedIncrem = `
+#invest | livret_ldd_30 | fixed | livret_ldd | 25/05/1993 | 0.03 | 444 
+## config
+#invest| __config_hide_config_rows | __config_hidecol_url | __config_hidecol_col17 | __config_edit_mode
+#invest| __header_support| __header_type |__header_name | __header_buy_date | __header_buy_rate | __header_buy_value |  __header_url   | __header_sold_date | __header_sold_rate |  __header__date |  __header__current_rate |  __header__current_value |  __header__gain_net | __header__gain_per_year |  __header__log   
+
+`
 
 const tableStartingWithText = `
 afldskjfadlksjjflsdka
@@ -55,7 +62,23 @@ const tableWithoutHeaders = tableRawString;
 const tableWithPartialHeaders = partialHeaders + tableRawString;
 const table2WithPartialHeaders = partialHeaders + tableRawString2;
 
+describe('getSmartTableObj > increm cols bug', () => {
+    let u = {
+            cellId: "row_id",
+            cellIdValue: 0,
+            updatedCell: "name",
+            updatedCellValue: "__UPDATED CONTENT1__"
+        }
+    let result1 = updateSmartTableString(bugColsAddedIncrem, u);
+    let result2 = updateSmartTableString(result1.stringUpdated, u);
+    result2 = updateSmartTableString(result2.stringUpdated, u);
+    result2 = updateSmartTableString(result2.stringUpdated, u);
+    result2 = updateSmartTableString(result2.stringUpdated, u);
+    expect(result1.stringUpdated).toBe(result2.stringUpdated);
+})
+
 describe('getSmartTableObj', () => {
+
 
     it('id should be recognized', () => {
         const result = getSmartTableObj(tableRawString);

@@ -457,6 +457,18 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.saveContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;withMetas: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;debounced?: <span class="render-code-wrapper">"undefined" | "false"</span>, <br/>&nbsp;&nbsp;&nbsp;history?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;withThrottle?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">file.searchReplace</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. noteLink: <span class="render-code-wrapper">string</span>
+       1. searchValue: <span class="render-code-wrapper">string</span>
+       1. replaceValue: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(result: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.searchReplace",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(result: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
 
  ## Api.call : files
  
@@ -830,6 +842,24 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.word",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableMetadataSearch?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => </span><br/>)</div>
+ 
+
+
+ ## Api.call : shared
+ 
+
+#### <span class="render-code-wrapper">shared.functions.smartTable.getObj</span>
+ ### name
+ ### type
+ ### parent
+ ### path
+ 
+
+#### <span class="render-code-wrapper">shared.functions.smartTable.updateString</span>
+ ### name
+ ### type
+ ### parent
+ ### path
  
 
 
@@ -1445,16 +1475,16 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;key: <span class="render-code-wrapper">"undefined" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;label: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;obj: <span class="render-code-wrapper">any</span><br/>}</span></div>
  
 
-#### <span class="render-code-wrapper">InputType</span>
+#### <span class="render-code-wrapper">iPopupFormFieldType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"password" | "text" | "select" | "number" | "checkbox" | "textarea" | "date" | "datetime"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"undefined" | "html"</span></div>
  
 
 #### <span class="render-code-wrapper">iPopupFormField</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestAutoInsert?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;initValue?: <span class="render-code-wrapper">any</span>, <br/>&nbsp;&nbsp;&nbsp;notVisible?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformfieldtype">iPopupFormFieldType</a></span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestAutoInsert?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;initValue?: <span class="render-code-wrapper">any</span>, <br/>&nbsp;&nbsp;&nbsp;notVisible?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">popupOptions</span>
