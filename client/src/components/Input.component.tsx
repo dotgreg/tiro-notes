@@ -105,26 +105,43 @@ export const Input = (p: {
 	const [lastValue, setLastValue, refreshLastValue] = useBackendState<InputValue>(backendIdLastValue, "")
 	useEffect(() => {
 		if (!p.id || !p.rememberLastValue) return
+		console.log("REFRESH LAST VALUE ONCE")
 		refreshLastValue()
 	}, [p.value])
 	if (!p.id && p.rememberLastValue) console.error("!!!!! Input component: rememberLastValue is true but no id is provided, cannot remember last value without id !!!!!")
-	let activateRememberLastValue = p.id && p.rememberLastValue && (value !== defaultVal || value !== "")
+
+	const rememberMode = () =>  {
+		return p.id && p.rememberLastValue 
+	}
+	// when loading first time
 	useEffect(() => {
-		let finalValue = defaultVal
-		if (activateRememberLastValue)	finalValue = lastValue
-		p.onLoad && p.onLoad(finalValue)
-		setValueFn(finalValue)
+		if (!rememberMode()) return 
+		console.log("lastval for pid", lastValue, p.id)
+		if (lastValue === "" || lastValue === undefined) return
+		setValueFn(lastValue)
+		
+		
+		// finalValue = lastValue
+		// if (lastValue === valueInt) return
+		// let finalValue = defaultVal
+		// console.log("useeffect last value",lastValue, p.id)
+		// p.onLoad && p.onLoad(finalValue)
+		// setValueFn(finalValue)
 	}, [lastValue])
 	const [valueInt, setValueInt] = useState<InputValue>(value)
-
-
-
 
 
 	/////////////////////////////////
 	// WHEN STHG set value
 	const setValueFn = (nval:any) => {
 		setValueInt(nval)
+		console.log("SET VAL FN", nval)
+		if (rememberMode()) {
+			if (nval.length < 1) return
+			console.log("setlastval", nval)
+			setLastValue(nval)
+		}
+		p.onChange && p.onChange(nval)
 	}
 
 
@@ -146,8 +163,6 @@ export const Input = (p: {
 			if (p.min && nval < p.min) nval = p.min
 			nval = nval.toString()
 		}
-		if (activateRememberLastValue) setLastValue(nval)
-		p.onChange && p.onChange(nval)
 		if (p.autoSuggest) debouncedAddToAutoSuggestList(nval) 
 		setValueFn(nval)
 	}
@@ -287,7 +302,7 @@ export const Input = (p: {
 		let listToString = JSON.stringify(nlist)
 		if (p.autoSuggestSource === "cookie") setCookie(asListId, listToString, -1)
 		if (p.autoSuggestSource === "ls") localStorage.setItem(asListId, listToString)
-		if (p.autoSuggestSource === "backend") { getApi(api => { api.cache.set(asListId, listToString) }) }
+		if (p.autoSuggestSource === "backend") { getApi(api => { api.cache.set(asListId, listToString, -1) }) }
 		setAutoSuggestList(nlist)
 	}
 

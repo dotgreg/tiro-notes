@@ -17,7 +17,7 @@ hello | world woop
 ||#invest2 |livret | livret_ldd| 24/05/1999 |   | 12033 | livret_ldd |    `;
     getApi(api => {
         let smart = api.shared.functions.smartTable.getObj(tableRawString);
-        console.log("SMART TABLE DATA:", smart);
+        // console.log(":", smart);
 
     })
 }
