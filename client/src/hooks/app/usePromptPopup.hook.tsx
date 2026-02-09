@@ -658,6 +658,7 @@ export const usePromptPopup = (p: {
 									id={`PromptPopupComponent-${title}-${field.name}-${field.type}`}
 									aiSuggest={outputAiSuggest(field.id)}
 									aiSuggestAutoInsert={field.aiSuggestAutoInsert}
+									highlightTextOnFocus={field.rememberLastValue && field.historySuggest}
 
 									autoSuggest={field.historySuggest ? true : undefined}
 									autoSuggestSource={field.historySuggest ? 'backend' : undefined}
