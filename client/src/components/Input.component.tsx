@@ -35,6 +35,7 @@ export const Input = (p: {
 	onBlur?: Function
 	onEnterPressed?: Function
 	shouldFocus?: boolean
+	highlightTextOnFocus?: boolean
 	shouldNotSelectOnClick?: boolean
 	readonly?: boolean
 	style?: string
@@ -105,7 +106,7 @@ export const Input = (p: {
 	const [lastValue, setLastValue, refreshLastValue] = useBackendState<InputValue>(backendIdLastValue, "")
 	useEffect(() => {
 		if (!p.id || !p.rememberLastValue) return
-		console.log("REFRESH LAST VALUE ONCE")
+		// console.log("REFRESH LAST VALUE ONCE")
 		refreshLastValue()
 	}, [p.value])
 	if (!p.id && p.rememberLastValue) console.error("!!!!! Input component: rememberLastValue is true but no id is provided, cannot remember last value without id !!!!!")
@@ -116,17 +117,10 @@ export const Input = (p: {
 	// when loading first time
 	useEffect(() => {
 		if (!rememberMode()) return 
-		console.log("lastval for pid", lastValue, p.id)
+		// console.log("lastval for pid", lastValue, p.id)
 		if (lastValue === "" || lastValue === undefined) return
 		setValueFn(lastValue)
-		
-		
-		// finalValue = lastValue
-		// if (lastValue === valueInt) return
-		// let finalValue = defaultVal
-		// console.log("useeffect last value",lastValue, p.id)
-		// p.onLoad && p.onLoad(finalValue)
-		// setValueFn(finalValue)
+		p.onLoad && p.onLoad(lastValue)
 	}, [lastValue])
 	const [valueInt, setValueInt] = useState<InputValue>(value)
 
@@ -135,10 +129,10 @@ export const Input = (p: {
 	// WHEN STHG set value
 	const setValueFn = (nval:any) => {
 		setValueInt(nval)
-		console.log("SET VAL FN", nval)
+		// console.log("SET VAL FN", nval)
 		if (rememberMode()) {
 			if (nval.length < 1) return
-			console.log("setlastval", nval)
+			// console.log("setlastval", nval)
 			setLastValue(nval)
 		}
 		p.onChange && p.onChange(nval)
@@ -233,6 +227,9 @@ export const Input = (p: {
 	const onFocusInt = (e:any) => {
 		if (p.onFocus) p.onFocus()
 		// console.log("FOCUS")
+		if(p.highlightTextOnFocus) {
+			inputRef.current.select()
+		}
 		setIsFocussed(true)
 	}
 	const onBlurInt = (e:any) => {
@@ -268,6 +265,7 @@ export const Input = (p: {
 	const addToAutoSuggestList = (val:string) => {
 		getAutoSuggestList(list => {
 			// if it tries to add "awor" or "awo" and "aword" already inside, return it
+			console.log("GETLIST before add", list)
 			if (list.some(item => item.startsWith(val))) return
 			list.push(val)
 			console.log("ADD TO AUTOSUGGEST LIST", val, list, asListId)
@@ -282,21 +280,16 @@ export const Input = (p: {
 			if (p.autoSuggestSource === "ls") { cb(JSON.parse(localStorage.getItem(asListId) || "[]")) }
 			if (p.autoSuggestSource === "backend") { 
 				getApi(api => { api.cache.get(asListId, (res) => {
-						try { 
-							return cb(JSON.parse(res))
-						} catch (error) {
-							return cb([])
-						}
+						return cb(JSON.parse(res))
 					})
 				})
 			}
 			if (p.autoSuggestSource === "customFunction" && p.autoSuggestFunction) {
-				p.autoSuggestFunction().then(cb).catch(() => cb([]))
+				p.autoSuggestFunction().then(cb).catch((e) => {console.log(e)})
 			}
-		} catch (error) { 
-			return cb([]) 
+		} catch(e) {
+			console.log("Error getting auto suggest list", e)
 		}
-		return cb([])
 	}
 	const saveAutoSuggestList = (nlist) => {
 		let listToString = JSON.stringify(nlist)
@@ -304,12 +297,14 @@ export const Input = (p: {
 		if (p.autoSuggestSource === "ls") localStorage.setItem(asListId, listToString)
 		if (p.autoSuggestSource === "backend") { getApi(api => { api.cache.set(asListId, listToString, -1) }) }
 		setAutoSuggestList(nlist)
+		console.log("SAVE autosuggest", nlist)
 	}
 
 	useEffect(() => {
 		if (!p.autoSuggest) return
 		if (!p.id) return console.warn(h, "No id provided for autosuggest, system disabled")
 			getAutoSuggestList(list => {
+				// console.log("GET LIST", list)
 				setAutoSuggestList(list)
 			})
 	}, [p.autoSuggest, p.autoSuggestSource])

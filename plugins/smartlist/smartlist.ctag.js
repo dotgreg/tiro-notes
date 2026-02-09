@@ -288,6 +288,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(colsToShow, (col) => {
                                         let val = el[col]
                                         if (!val) val = " "
+                                        val = `${val}`
                                         if (val.startsWith("__header_")) lineIncludesHeader = true
                                         // if there are , in val, wrap it in ""
                                         // if (val.indexOf(",") > -1) val = `"${val}"`
