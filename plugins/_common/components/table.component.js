@@ -703,7 +703,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     let count = 0
     if (col.headerLabel) {
       // if (col.headerLabel.includes("{{sumCol}}")) {
-        items.forEach(item => {
+        filteredItems.forEach(item => {
           val = item[col.colId]
           if (!val) val = ""
           if (val.includes("%")) val = val.replace("%", "").trim()
@@ -750,7 +750,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
           // console.log(allValsCol)
           col.header_details = `
           sum: ${sum} <br>
-          avg: ${Math.round(sum/items.length)} <br>
+          avg: ${Math.round(sum/filteredItems.length)} <br>
           count: ${count} <br>
           ----<br>
           min:${Math.min(...allValsCol)} <br>
