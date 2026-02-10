@@ -10,6 +10,31 @@ const styleCss = `
 table {
   width: 100%;
 }
+table th .header_details {
+  display:none;
+}
+table .canvas_hist {
+  display: block;
+  width: 90%;
+  height: 100px;
+}
+table th:hover .header_details {
+  padding: 4px;
+  z-index: 1000;
+  display: block;
+  font-size: 9px;
+  color: grey;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 200px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  // box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  pointer-events: none;
+  line-height:1.2;
+}
 table thead {
   cursor:pointer;
 }
@@ -562,20 +587,191 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }
 
 
+  // sort array ascending
+  const asc = arr => arr.sort((a, b) => a - b);
+  const sum = arr => arr.reduce((a, b) => a + b, 0);
+  const mean = arr => sum(arr) / arr.length;
+  // sample standard deviation
+  const std = (arr) => {
+      const mu = mean(arr);
+      const diffArr = arr.map(a => (a - mu) ** 2);
+      return Math.sqrt(sum(diffArr) / (arr.length - 1));
+  };
+  const quantile = (arr, q) => {
+    let res = 0
+      const sorted = asc(arr);
+      const pos = (sorted.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sorted[base + 1] !== undefined) {
+          res = sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+      } else {
+          res = sorted[base];
+      }
+      // if res has two dots, remove the second one
+      let resStr = res.toString()
+      if (resStr.split(".").length > 2) {
+        resStr = resStr.split(".").slice(0, 2).join(".")
+        res = parseFloat(resStr)
+      }
+      if (res > 1) {
+        res = Math.round(res * 10) / 10;
+      }
+      return res
+  };
+  const q25 = arr => quantile(arr, .25);
+  const q50 = arr => quantile(arr, .50);
+  const q75 = arr => quantile(arr, .75);
+  const median = arr => q50(arr);
+  const createHistogramCanvas = arr => {
+    let canvasId = `histogram-${Math.random().toString(36).substr(2, 9)}`;
+    setTimeout(() => {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      // bg color whitegrey
+      ctx.fillStyle = "#b7b7b7ff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const histogram = {};
+      // create histogram bars with 30 bars (split from min to max)
+      const min = Math.min(...arr);
+      const max = Math.max(...arr);
+      const step = (max - min) / 30;
+      for (let i = 0; i < 30; i++) {
+        let start = min + i * step;
+        let end = min + (i + 1) * step;
+        let rounder = 1
+        if (start < 1) rounder = 100
+        start = Math.round(start * rounder) / rounder
+        end = Math.round(end * rounder) / rounder
+        if (i === 29) end += 1
+
+        histogram[`${start}-${end}`] = 0;
+      }
+      // fill histogram data
+      arr.forEach(value => {
+        const bin = Object.keys(histogram).find(key => {
+          const [start, end] = key.split("-").map(Number);
+          return value >= start && value <= end;
+        });
+        if (bin) histogram[bin] += 1;
+      });
+      console.log(333, histogram, arr)
+      // draw histogram + add legend every 5 bars on the bottom of the graph, text is 90d oriented
+      const maxCount = Math.max(...Object.values(histogram));
+      const barWidth = canvas.width / Object.keys(histogram).length;
+      Object.entries(histogram).forEach(([range, count], index) => {
+        const barHeight = (count / maxCount) * canvas.height;
+        // console.log({range, count, barHeight})
+        ctx.fillStyle = "grey";
+        ctx.fillRect(index * barWidth, canvas.height - barHeight, barWidth, barHeight);
+        // add legend every 5 bars on the bottom of the graph, text is 90d oriented
+      });
+      Object.entries(histogram).forEach(([range, count], index) => {
+        let rangeStr = Math.round(parseFloat(range.split("-")[0])).toString();
+        if (index % 5 === 0 || index === Object.entries(histogram).length - 1) {
+          ctx.fillStyle = "white";
+          ctx.save();
+          let tX = (index * barWidth + barWidth / 2)
+          if (tX < 20) tX = 20
+          if (tX > canvas.width - 20) tX = canvas.width - 20
+
+          ctx.translate(tX, canvas.height);
+          ctx.rotate(-Math.PI / 3);
+          // text 20px
+          ctx.font = "20px Arial";
+          ctx.fillText(rangeStr, 0, 0);
+          ctx.restore();
+        }
+      });
+
+    }, 1000);
+    return `<canvas class="canvas_hist" id="${canvasId}"></canvas>`;
+  }
+
+
   //
   // Header cell
   //
   const genHeaderCell = col => {
+    let sum = 0
+    let diffVals = new Set()
+    let colType = "string"
+    let earliestDate = null
+    let latestDate = null
+    let allValsCol = []
+    let mostCountedVals = {}
+    let count = 0
     if (col.headerLabel) {
-      if (col.headerLabel.includes("{{sumCol}}")) {
-        let sumCol = 0;
+      // if (col.headerLabel.includes("{{sumCol}}")) {
         items.forEach(item => {
-          let nb = parseFloat(item[col.colId]) || 0
-          sumCol += nb
+          val = item[col.colId]
+          if (!val) val = ""
+          if (val.includes("%")) val = val.replace("%", "").trim()
+          val = val.trim()
+          let nb = parseFloat(val)
+          diffVals.add(val)
+          mostCountedVals[val] = (mostCountedVals[val] || 0) + 1
+          allValsCol.push(val)
+          sum += nb
+          count++
+          // item has two / / + size is dd/mm/yyyy = 10 then it is a date
+          if (val.includes("/") && val.length === 10) colType = "date"
+          if (colType === "date") {
+            let [day, month, year] = val.split("/")
+            let date = new Date(year, month - 1, day)
+            if (!earliestDate || date < earliestDate) earliestDate = date
+            if (!latestDate || date > latestDate) latestDate = date
+          }
         })
-        sumCol = Math.round(sumCol)
-        col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
-      }
+        const formatDMY = d => {
+            const dd = String(d.getDate()).padStart(2, '0');
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const yy = d.getFullYear();
+            return `${dd}/${mm}/${yy}`;
+        };
+        sum = Math.round(sum)
+        if (isNaN(parseFloat(sum))) colType = "string"
+        if (!isNaN(parseFloat(sum)) && colType !== "date") colType = "number"
+
+        if (colType === "string") {
+          // get 5 most counted
+          const mostCounted = Object.entries(mostCountedVals)
+            .sort((a, b) => b[1] - a[1])
+          col.header_details = `
+          unique: ${diffVals.size} <br>
+          --------<br>
+          <b>most counted</b>: <br> 
+          <table>
+          ${mostCounted.map(v => `<tr><td>${v[0]}</td><td>${v[1]}</td></tr>`).join("")}
+          </table>
+          `
+
+        } else if (colType === "number") {
+          // console.log(allValsCol)
+          col.header_details = `
+          sum: ${sum} <br>
+          avg: ${Math.round(sum/items.length)} <br>
+          count: ${count} <br>
+          ----<br>
+          min:${Math.min(...allValsCol)} <br>
+          q25:${q25(allValsCol)} <br>
+          q50:${q50(allValsCol)} <br>
+          q75:${q75(allValsCol)} <br>
+          max:${Math.max(...allValsCol)} <br>
+          ----<br>
+          ${createHistogramCanvas(allValsCol)}
+          `
+        } else if (colType === "date") {
+          // date format = dd/mm/yyyy hh:mm
+          let earliest = earliestDate ? formatDMY(earliestDate) : ""
+          let latest = latestDate ? formatDMY(latestDate) : ""
+          let diffInDays = latestDate && earliestDate ? Math.round((latestDate - earliestDate) / (1000 * 60 * 60 * 24)) : 0
+
+          col.header_details = `from: ${earliest} <br> to : ${latest} <br> duration: ${diffInDays} days <br> unique: ${diffVals.size}`
+        }
+        col.header_details = `<b>${col.headerLabel} </b><br> Type: ${colType}<br>----<br>` + col.header_details
+        // col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
+      // }
       if (col.headerLabel.includes("{{count}}")) col.headerLabel = col.headerLabel.replace("{{count}}", items.length)
     }
   
@@ -583,7 +779,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
       `${col.headerLabel || col.colId} `, 
       c('span', {className:"sortIndic" }, [
         `${sortConfig?.key === col.colId ? (sortConfig?.direction === "ascending" ? "▼" : "▲") : ""}`
-      ])
+      ]),
+      c('div', {className: "header_details", dangerouslySetInnerHTML: { __html: col.header_details }})
     ]
     if (col.type && col.type === "multiselect") {
       res = [c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onInput: () => onColHeaderClick(col.colId)})]
