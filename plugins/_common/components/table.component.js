@@ -655,13 +655,11 @@ const TableComponentReactInt = ({ items, config, id }) => {
         });
         if (bin) histogram[bin] += 1;
       });
-      console.log(333, histogram, arr)
       // draw histogram + add legend every 5 bars on the bottom of the graph, text is 90d oriented
       const maxCount = Math.max(...Object.values(histogram));
       const barWidth = canvas.width / Object.keys(histogram).length;
       Object.entries(histogram).forEach(([range, count], index) => {
         const barHeight = (count / maxCount) * canvas.height;
-        // console.log({range, count, barHeight})
         ctx.fillStyle = "grey";
         ctx.fillRect(index * barWidth, canvas.height - barHeight, barWidth, barHeight);
         // add legend every 5 bars on the bottom of the graph, text is 90d oriented
@@ -747,7 +745,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
           `
 
         } else if (colType === "number") {
-          // console.log(allValsCol)
           col.header_details = `
           sum: ${sum} <br>
           avg: ${Math.round(sum/filteredItems.length)} <br>

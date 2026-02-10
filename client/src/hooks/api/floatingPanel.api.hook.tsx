@@ -13,6 +13,7 @@ import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.mana
 import { getNoteView, setNoteView, toggleViewType } from "../../managers/windowViewType.manager"
 import path from "path"
 import { userSettingsSync } from "../useUserSettings.hook"
+import { getApi } from "./api.hook"
 
 const h = `[FLOATING PANELS]`
 
@@ -59,6 +60,7 @@ export interface iFloatingPanelApi {
     delete: (panelId: string) => void,
     // getPanels: iFloatingPanel[],
     panels: iFloatingPanel[],
+    openWebpage: (url: string) => void,
 
     update: (panel: iFloatingPanel) => void,
     movePanel: (panelId: string, position: { x: number, y: number }) => void,
@@ -691,6 +693,19 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         }, 100)
     }
 
+
+    const openWebpage = (url: string) => {
+		getApi(api => {
+			api.ui.floatingPanel.create({
+				type: "ctag",
+				ctagConfig: {
+					tagName: "web",
+					content: url,
+				},
+			})
+		})
+    }
+
     useEffect(() => {
         let shcts = ["alt + o", "alt + shift + o", "alt + shift > v", "alt + shift > r"]
         addKeyShortcut(shcts[0], incrementOpacity)
@@ -709,6 +724,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         create: createPanel,
         openFile: openFile,
         update: updatePanel,
+        openWebpage,
         toggleFile: toggleFile,
         updateAll,
         delete: deletePanel,

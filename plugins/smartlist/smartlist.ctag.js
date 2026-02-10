@@ -323,10 +323,10 @@ const smartlistApp = (innerTagStr, opts) => {
                         let newLineArr = oldLine.split("|")
                         newLineArr[col.colPos] = value
                         let newLine = newLineArr.join("|")
-                        console.log(123, histLinesEditions)
-                        console.log("==============")
-                        console.log(oldLine)
-                        console.log(newLine)
+                        // console.log(123, histLinesEditions)
+                        // console.log("==============")
+                        // console.log(oldLine)
+                        // console.log(newLine)
                         histLinesEditions[item.row_index] = newLine
                         api.call("file.searchReplace", [filePath, oldLine, newLine])
                         notifLog(`content updated for ${filePath}`, "updateSearchReplace", 1)
@@ -425,7 +425,7 @@ const smartlistApp = (innerTagStr, opts) => {
                         p.configMetaCols && config.cols.push({ colId: "line", headerLabel: "Line" })
 
                         // if config.cols have no cols, only push line + filename + created
-                        console.log(config.cols)
+                        // console.log(config.cols)
                         if (config.cols.length === 0) {
                                 config.cols.push(
                                         { colId: "line", headerLabel: "Line" },
