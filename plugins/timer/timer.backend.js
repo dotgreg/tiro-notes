@@ -175,6 +175,7 @@ cb([
             let totalMinutes = 0;
             let tasks = {};
             let firstDate = "";
+            let tasksPerDay = {};
             rawJson.forEach(entry => {
                 let nameTask = entry.name;
                 if (filterStr !== "" && nameTask && !nameTask.toLowerCase().includes(filterStr.toLowerCase())) return;
@@ -185,8 +186,16 @@ cb([
                     if (firstDate === "") firstDate = dateObj;
                     totalMinutes += minutes;
                     tasks[nameTask] = (tasks[nameTask] || 0) + Math.round((minutes/60));
+                    if (!tasksPerDay[date]) tasksPerDay[date] = {total:0, tasks:{}, date:date, timestamp: dateObj.getTime()};
+                    tasksPerDay[date].total += Math.round((minutes/60));
+                    tasksPerDay[date].tasks[nameTask] = (tasksPerDay[date].tasks[nameTask] || 0) + Math.round((minutes/60));
                 }
             });
+            let tasksPerDayArr = []
+            for (let [date, data] of Object.entries(tasksPerDay)) {
+                tasksPerDayArr.push({ date, ...data });
+            }
+
             // sort tasks by total time spent
             tasks = Object.fromEntries(
                 Object.entries(tasks).sort(([, a], [, b]) => b - a)
@@ -203,7 +212,9 @@ cb([
                 shortString, percentage, 
                 percentageBar, longString, shortString2,
                 referenceHours, referenceWorkedDays, 
-                tasks, startDate, endDate, firstDate, start, end, statType };
+                tasks, startDate, endDate, firstDate, start, end, statType,
+                tasksPerDayArr
+                };
 
         }
 
