@@ -262,7 +262,7 @@ export const useRessourceApi = (p: {
 			} catch (e) {
 				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
 				// console.log(message, e, {url, funcParams, options});
-				notifLog(`${message}`)
+				notifLog(`${message}`, `err_remote_${url}`)
 			}
 		}
 

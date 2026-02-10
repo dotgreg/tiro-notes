@@ -251,14 +251,15 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 delete item[key]
                                         })
                                 }
-
-
                                 loadTable({configMetaCols})
                         })
                 })
-                const exportDataToCsv = (els, p) => {
-                        if (!p) p = {}
-                        if (!p.colsToBlacklist) p.colsToBlacklist = ["filename", "folder", "created", "line", "actions"] 
+                const exportDataToCsv = (els, config) => {
+                        // if (!p) p = {}
+                        if (!config) config = {}
+                        if (!config.cols) config.cols = []
+                        // console.log(123, config)
+                        // if (!p.colsToBlacklist) p.colsToBlacklist = ["filename", "folder", "created", "line", "actions"] 
                         // transform els in csv
                         let csvString = ""
                         // header       
@@ -267,13 +268,14 @@ const smartlistApp = (innerTagStr, opts) => {
                         let i = 0
                         csvString += header + "\n"
                         // from els arr of objs, get all methods keys name
-                        let allMethods = []
-                        each(els, (el) => {
-                                each(el, (val, key) => {
-                                        if (!allMethods.includes(key)) allMethods.push(key)
-                                })
-                        })
-                        colsToShow = allMethods.filter(method => !p.colsToBlacklist.includes(method))
+                        // let allMethods = []
+                        // each(els, (el) => {
+                        //         each(el, (val, key) => {
+                        //                 if (!allMethods.includes(key)) allMethods.push(key)
+                        //         })
+                        // })
+                        colsToShow = config.cols.map(col => col.colId)
+                        // colsToShow = allMethods.filter(method => !p.colsToBlacklist.includes(method))
                         // first line of csv is the header
                         let headerLine = ""
                         each(colsToShow, (col) => {
@@ -315,7 +317,6 @@ const smartlistApp = (innerTagStr, opts) => {
                     // handle edit action
                 //     let newLineArr = item.line.split("|")
                                         // handle edit action
-
                         let filePath = item.folder + item.filename
                         console.log(`Editing item ${item.id}, col ${col}, value ${value}`, item, col);
                         let oldLine = histLinesEditions[item.row_index] || item.line
@@ -344,12 +345,12 @@ const smartlistApp = (innerTagStr, opts) => {
                                 editMode: editMode,
                                 editAction: (item, col, value) => {
                                         editActionDebounce(item, col, value)
-
                                 },
 
                                 exportToCsv: els => {
-                                        // 
-                                        let csvString = '\uFEFF' + exportDataToCsv(els)
+                                        // console.log({config, els, items})
+                                        let csvString = '\uFEFF' + exportDataToCsv(els, config)
+                                        console.log({csvString})
                                         // create a html button and trigger it in js to download the csv as blob file/ utf8 encoding!
                                         const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                                         const url = window.URL.createObjectURL(blob);
@@ -357,14 +358,16 @@ const smartlistApp = (innerTagStr, opts) => {
                                         a.setAttribute('hidden', '');
                                         a.setAttribute('href', url);
                                         // name is "export-10-10-2023--10h23.csv"
-                                        let name = `export-${new Date().toISOString().split("T")[0]}--${new Date().toISOString().split("T")[1].split(":").slice(0, 2).join("h")}.csv`
+                                        let smallId = config.id.replace("smartlist-table", "").replaceAll("-", "").replaceAll("#", "").replaceAll("1", "")
+                                        let name = `${smallId}__${new Date().toISOString().split("T")[0]}__${new Date().toISOString().split("T")[1].split(":").slice(0, 2).join("h")}.csv`
                                         a.setAttribute('download', name);
                                         document.body.appendChild(a);
                                         a.click();
                                         document.body.removeChild(a);
                                 },
+
                                 exportToTimeline: els => {
-                                        let csvString = exportDataToCsv(els, {colsToBlacklist:[]})
+                                        let csvString = exportDataToCsv(els, config)
                                         console.log('csvString export:', csvString, els)
                                         const configFloatingWindow = {
                                                 type: "ctag",
@@ -379,8 +382,9 @@ const smartlistApp = (innerTagStr, opts) => {
                                         }
                                         api.call("ui.floatingPanel.create", [configFloatingWindow])
                                 },
+
                                 exportToGraph: els => {
-                                        let csvString = exportDataToCsv(els)
+                                        let csvString = exportDataToCsv(els, config)
                                         console.log('csvString:', csvString, els)
                                         const configFloatingWindow = {
                                                 type: "ctag",
@@ -393,6 +397,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                         }
                                         api.call("ui.floatingPanel.create", [configFloatingWindow])
                                 }
+
                         };
                         let j = 0
                         let rawCols = []
@@ -408,16 +413,6 @@ const smartlistApp = (innerTagStr, opts) => {
                                 rawCols = rawCols.filter(col => col.colId !== key)
                         }
                         config.cols = customCols.concat(rawCols)
-                        // add for each col a colPos
-                        // config.cols.forEach((col, index) => {
-                        //         col.colPos = index
-                        // })
-
-                        // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                        // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
-                        // {colId: "filename", headerLabel: "Filename"},
-                        // {colId: "folder", headerLabel: "Folder"},
-
                         const isMobile = () => {
                                 let check = false;
                                 //@ts-ignore
@@ -540,6 +535,13 @@ const smartlistApp = (innerTagStr, opts) => {
                                 //
                                 // GEN TABLE COMPONENT
                                 //
+                                // copy items 0 and replace that copy on toop, replace all its values by woop
+                                // let newItems = JSON.parse(JSON.stringify(items))
+                                // each(newItems[0], (val, key) => {
+                                //         newItems[0][key] = "woop"
+                                // })
+                                // items.unshift(newItems[0])
+                                // console.log('smartlist > config before genTableComponent:', config, items)
                                 wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
 
                         } // end onAllFormulasProcessed

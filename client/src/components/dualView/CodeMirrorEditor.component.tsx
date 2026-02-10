@@ -296,14 +296,17 @@ const CodeMirrorEditorInt = forwardRef((p: {
 	// const [modifierTagDetected, setModifierTagDetected] = useState<boolean>(false)
 	const onTextChangeCheckIfModifierTagDetected = useDebounce((ntext:string) => {
 		if (ntext.includes("--table") && !enhancedTable) { setEnhancedTable(true);  refresh(); }
+		if (ntext.includes("--no-date-picker") && !noDatePicker) { setNoDatePicker(true);  refresh(); }
 		if (ntext.includes("--latex") && !enhancedLatex) { setEnhancedLatex(true);  refresh(); }
 		if (ntext.includes("--spellcheck") && !enhancedSpellCheck) {setEnhancedSpellCheck(true); refresh();}
 
 		if (!ntext.includes("--table") && enhancedTable) {setEnhancedTable(false); refresh();}
+		if (!ntext.includes("--no-date-picker") && noDatePicker) {setNoDatePicker(false); refresh();}
 		if (!ntext.includes("--latex") && enhancedLatex) {setEnhancedLatex(false); refresh();}
 		if (!ntext.includes("--spellcheck") && enhancedSpellCheck) {setEnhancedSpellCheck(false); refresh();}
 	}, 500)
 	const [enhancedTable, setEnhancedTable] = useState<boolean>(false)
+	const [noDatePicker, setNoDatePicker] = useState<boolean>(false)
 	const [enhancedLatex, setEnhancedLatex] = useState<boolean>(false)
 	const [enhancedSpellCheck, setEnhancedSpellCheck] = useState<boolean>(false)
 	const [forceRefresh, setForceRefresh] = useState<number>(0)
@@ -460,7 +463,7 @@ const CodeMirrorEditorInt = forwardRef((p: {
 				newcodemirrorExtensions.push(markdownPreviewPluginWFile)
 				if (ua.get("ui_editor_markdown_enhanced_preview") && !disablePlugins) {
 					// datepicker
-					newcodemirrorExtensions.push(datePickerCmPlugin(p.file, p.windowId))
+					if (!noDatePicker) newcodemirrorExtensions.push(datePickerCmPlugin(p.file, p.windowId))
 					// checkbox
 					newcodemirrorExtensions.push(checkboxTodoCmPlugin(p.file, p.windowId))
 					// image preview

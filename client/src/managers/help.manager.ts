@@ -51,6 +51,16 @@ export const triggerTiroHelpPopup = () => {
     <li><a href="https://tiro-notes.org" target="_blank"> tiro-notes.org </a></li>
 </ul>
 
+<h4> Note config</h4>
+<code><pre>
+- In a note, if you <br>: 
+    - add the string "--table", it will format markdown tables <br>
+    - add the string "--latex", it will format latex equations <br>
+    - add the string "--no-date-picker", it will disable the date picker <br>
+    - add the string "--spellcheck", it will enable the native browser spellcheck <br>
+</pre></code>
+
+
 <h4> Plugins </h4>
 <p> - Find all available plugins 
 <a target="_blank" href="https://github.com/dotgreg/tiro-notes/tree/dev/plugins">here</a></p>
