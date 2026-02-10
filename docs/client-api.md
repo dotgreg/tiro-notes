@@ -1049,6 +1049,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.movePositioninArray",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.floatingPanel.openWebpage</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. url: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.openWebpage",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.floatingPanel.pushWindowOnTop</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
