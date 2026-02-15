@@ -195,6 +195,8 @@ cb([
             for (let [date, data] of Object.entries(tasksPerDay)) {
                 tasksPerDayArr.push({ date, ...data });
             }
+            // order the arr by item.timestamp
+            tasksPerDayArr.sort((a, b) => a.timestamp - b.timestamp);
 
             // sort tasks by total time spent
             tasks = Object.fromEntries(
