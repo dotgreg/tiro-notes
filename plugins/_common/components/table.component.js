@@ -838,18 +838,20 @@ const TableComponentReactInt = ({ items, config, id }) => {
         
 
 
+        console.log(12333, aggregatedByVals)
         // aggregation
         let aggStr = ""
-        if (colType === "string" && aggregatorCol) {
+        if (aggregatorCol) {
           // get aggregated values
 
           let totalSumAgg = 0
           let aggArr = []
           for (let val in aggregatedByVals) {
             // just sum the arrays
+            let count = aggregatedByVals[val].length
             aggregatedByVals[val] = aggregatedByVals[val].reduce((a, b) => { return parseFloat(a) + parseFloat(b) }, 0)
             totalSumAgg += aggregatedByVals[val]
-            aggArr.push({label: val, value: Math.round(aggregatedByVals[val]), percentage: 0})
+            aggArr.push({label: val, value: Math.round(aggregatedByVals[val]), percentage: 0, count: count})
           }
           for (let i = 0; i < aggArr.length; i++) {
             aggArr[i].percentage = Math.round((aggArr[i].value / totalSumAgg) * 100)
@@ -861,7 +863,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
             --------<br>
             ${aggregatorCol} aggregated by ${col.headerLabel} =>
             <table>
-             ${aggArr.map(v => `<tr><td>${v.label}</td><td>${v.value}</td><td>${v.percentage}%</td></tr>`).join("")}
+            <tr><th>name</th><th>sum</th><th>% - count</th> </tr>
+             ${aggArr.map(v => `<tr><td>${v.label}</td><td>${v.value}</td><td>${v.percentage}% (${v.count})</td></tr>`).join("")}
             </table>
           
           `
@@ -890,6 +893,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
           sum: ${sum} <br>
           avg: ${Math.round(sum/filteredItems.length)} <br>
           count: ${count} <br>
+          ${aggStr}
           ----<br>
           min:${Math.min(...allValsCol)} <br>
           q25:${q25(allValsCol)} <br>
@@ -906,7 +910,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
           let latest = latestDate ? formatDMY(latestDate) : ""
           let diffInDays = latestDate && earliestDate ? Math.round((latestDate - earliestDate) / (1000 * 60 * 60 * 24)) : 0
 
-          col.header_details = `from: ${earliest} <br> to : ${latest} <br> duration: ${diffInDays} days <br> unique: ${diffVals.size}`
+          col.header_details = `from: ${earliest} <br> to : ${latest} <br> duration: ${diffInDays} days <br> unique: ${diffVals.size} ${aggStr}`
         }
         col.header_details = `<b>${col.headerLabel} </b><br> Type: ${colType}<br>----<br>` + col.header_details
         // col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
