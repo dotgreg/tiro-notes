@@ -544,7 +544,7 @@ export const iframeMainCode = (p: {
 		api.utils.loadScripts([url],
 			() => {
 				//@ts-ignore 
-				if (window.initCustomTag2) { onLoadScriptSuccess() }
+				if (window.initCustomTag) { onLoadScriptSuccess() }
 				else {
 					console.error(h, `CUSTOM TAG ${url} failed to load, disabling cache and trying 3 times...`)
 					let count = 0
