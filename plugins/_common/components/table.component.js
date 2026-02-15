@@ -181,9 +181,11 @@ table.ctag-component-table  th {
   display: flex;
   align-items: center;
 }
+.col-buttons .fa-calculator.active,
 .col-buttons .fa-filter.active {
   color: blue;
 }
+.col-buttons .fa-calculator,
 .col-buttons .fa-filter {
   color: #ccc;
 }
@@ -452,6 +454,59 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [items, sortConfig]);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //
+  // AGGREGATION FOR GRAPHS LOGIC
+  //
+  const [aggregatorCol, setAggregatorColInt] = r.useState(null);
+  const isColAggregator = (colId) => {
+    console.log(333, aggregatorCol, colId)
+    return aggregatorCol === colId;
+  };
+  const toggleAggregatorCol = (col) => {
+    let newCol = col === aggregatorCol ? null : col;
+    setAggregatorCol(newCol);
+  }
+  const setAggregatorCol = (col) => {
+    setAggregatorColInt(col);
+    localStorage.setItem(`${id}-aggregatorCol`, JSON.stringify(col));
+  };
+  r.useEffect(() => {
+    let col = JSON.parse(localStorage.getItem(`${id}-aggregatorCol`));
+    if (col) setAggregatorCol(col);
+  }, []);
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //
+  //
+  // FILTERING LOGIC
+  //
+  //
   const [activeFilters, setActiveFiltersInt] = r.useState({});
   const setActiveFilters = (filters) => {
     setActiveFiltersInt(filters)
@@ -587,6 +642,26 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //
+  // HEADER POPUP STATISTICS
+  //
+
   // sort array ascending
   const asc = arr => arr.sort((a, b) => a - b);
   const sum = arr => arr.reduce((a, b) => a + b, 0);
@@ -686,9 +761,27 @@ const TableComponentReactInt = ({ items, config, id }) => {
     return `<canvas class="canvas_hist" id="${canvasId}"></canvas>`;
   }
 
+  const guessColType = (val) => {
+      let colType = "string"
+      if (val.includes("/") && val.length === 10) colType = "date"
+      else if (!isNaN(parseFloat(val))) colType = "number"
+      return colType
+  }
+
+  const formatDMY = d => {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+  };
+
+
+
+
+
 
   //
-  // Header cell
+  // Header cell + STATISTICS POPUP!
   //
   const genHeaderCell = col => {
     let sum = 0
@@ -697,10 +790,15 @@ const TableComponentReactInt = ({ items, config, id }) => {
     let earliestDate = null
     let latestDate = null
     let allValsCol = []
+    let aggregatedByVals = {}
     let mostCountedVals = {}
     let count = 0
     if (col.headerLabel) {
-      // if (col.headerLabel.includes("{{sumCol}}")) {
+
+
+        //
+        // go through EACH item/row
+        //
         filteredItems.forEach(item => {
           val = item[col.colId]
           if (!val) val = ""
@@ -712,8 +810,14 @@ const TableComponentReactInt = ({ items, config, id }) => {
           allValsCol.push(val)
           sum += nb
           count++
+
+          // aggregation
+          aggVal = item[aggregatorCol]
+          if (!aggregatedByVals[val]) aggregatedByVals[val] = []
+          aggregatedByVals[val].push(aggVal)
+
           // item has two / / + size is dd/mm/yyyy = 10 then it is a date
-          if (val.includes("/") && val.length === 10) colType = "date"
+          colType = guessColType(val)
           if (colType === "date") {
             let [day, month, year] = val.split("/")
             let date = new Date(year, month - 1, day)
@@ -721,22 +825,59 @@ const TableComponentReactInt = ({ items, config, id }) => {
             if (!latestDate || date > latestDate) latestDate = date
           }
         })
-        const formatDMY = d => {
-            const dd = String(d.getDate()).padStart(2, '0');
-            const mm = String(d.getMonth() + 1).padStart(2, '0');
-            const yy = d.getFullYear();
-            return `${dd}/${mm}/${yy}`;
-        };
+
+
+
+        //
+        // DO THE MATH
+        //
         sum = Math.round(sum)
         if (isNaN(parseFloat(sum))) colType = "string"
         if (!isNaN(parseFloat(sum)) && colType !== "date") colType = "number"
+        colType = colType
+        
 
+
+        // aggregation
+        let aggStr = ""
+        if (colType === "string" && aggregatorCol) {
+          // get aggregated values
+
+          let totalSumAgg = 0
+          let aggArr = []
+          for (let val in aggregatedByVals) {
+            // just sum the arrays
+            aggregatedByVals[val] = aggregatedByVals[val].reduce((a, b) => { return parseFloat(a) + parseFloat(b) }, 0)
+            totalSumAgg += aggregatedByVals[val]
+            aggArr.push({label: val, value: Math.round(aggregatedByVals[val]), percentage: 0})
+          }
+          for (let i = 0; i < aggArr.length; i++) {
+            aggArr[i].percentage = Math.round((aggArr[i].value / totalSumAgg) * 100)
+          }
+          // sort aggArr by value
+          aggArr.sort((a, b) => b.value - a.value)
+
+          aggStr = `
+            --------<br>
+            ${aggregatorCol} aggregated by ${col.headerLabel} =>
+            <table>
+             ${aggArr.map(v => `<tr><td>${v.label}</td><td>${v.value}</td><td>${v.percentage}%</td></tr>`).join("")}
+            </table>
+          
+          `
+        } 
+
+
+
+        // POPUP DISPLAY
         if (colType === "string") {
+
           // get 5 most counted
           const mostCounted = Object.entries(mostCountedVals)
             .sort((a, b) => b[1] - a[1])
           col.header_details = `
           unique: ${diffVals.size} <br>
+          ${aggStr}
           --------<br>
           <b>most counted</b>: <br> 
           <table>
@@ -757,6 +898,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
           max:${Math.max(...allValsCol)} <br>
           ----<br>
           ${createHistogramCanvas(allValsCol)}
+          ----<br>
           `
         } else if (colType === "date") {
           // date format = dd/mm/yyyy hh:mm
@@ -790,6 +932,26 @@ const TableComponentReactInt = ({ items, config, id }) => {
     res = c('th',  {  key: keyCounter(`${col.colId}-${col.headerLabel}`) ,onClick: () => { if (isSortable) requestSort(col.colId) }}, res)
     return res
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   // 
@@ -955,6 +1117,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         // hide/show col content
                         c('div', {className: "table-link-click", onClick: () => toggleColContent(col.colId)}, [
                           c('div', {className: `fa col-icon  ${colsContentHidden[col.colId] ? "fa-eye-slash" : "fa-eye"}`}),
+                        ]),
+                        // MAKE COL as pivot aggregator 
+                        c('div', {className: "table-link-click", onClick: () => toggleAggregatorCol(col.colId)}, [
+                          c('div', {className: `fa col-icon  ${isColAggregator(col.colId) ? "fa-calculator active" : "fa-calculator"}`}),
                         ])
                       ])
                     ])

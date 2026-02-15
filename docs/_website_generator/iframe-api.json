@@ -481,7 +481,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/managers/iframe.manager.ts",
-							"line": 549,
+							"line": 575,
 							"character": 6
 						}
 					],
@@ -496,7 +496,7 @@
 							"sources": [
 								{
 									"fileName": "client/src/managers/iframe.manager.ts",
-									"line": 549,
+									"line": 575,
 									"character": 17
 								}
 							],
@@ -1431,7 +1431,7 @@
 			"sources": [
 				{
 					"fileName": "client/src/managers/iframe.manager.ts",
-					"line": 650,
+					"line": 676,
 					"character": 12
 				}
 			],
@@ -1975,7 +1975,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 602,
+											"line": 628,
 											"character": 2
 										}
 									],
@@ -1995,7 +1995,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 603,
+											"line": 629,
 											"character": 2
 										}
 									],
@@ -2090,7 +2090,7 @@
 																					"sources": [
 																						{
 																							"fileName": "client/src/managers/iframe.manager.ts",
-																							"line": 580,
+																							"line": 606,
 																							"character": 3
 																						}
 																					],
@@ -2502,7 +2502,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 608,
+															"line": 634,
 															"character": 3
 														}
 													],
@@ -2929,7 +2929,7 @@
 													"sources": [
 														{
 															"fileName": "client/src/managers/iframe.manager.ts",
-															"line": 619,
+															"line": 645,
 															"character": 3
 														}
 													],
@@ -2975,7 +2975,7 @@
 									"sources": [
 										{
 											"fileName": "client/src/managers/iframe.manager.ts",
-											"line": 601,
+											"line": 627,
 											"character": 2
 										}
 									],
