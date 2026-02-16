@@ -812,8 +812,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
           // aggregation
           aggVal = item[aggregatorCol]
-          if (!aggregatedByVals[val]) aggregatedByVals[val] = []
-          aggregatedByVals[val].push(aggVal)
+          if (val && aggVal) {
+            if (!aggregatedByVals[val]) aggregatedByVals[val] = []
+            aggregatedByVals[val].push(aggVal)
+          }
 
           // item has two / / + size is dd/mm/yyyy = 10 then it is a date
           colType = guessColType(val)
