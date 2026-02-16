@@ -290,7 +290,6 @@ Full example: (to copy and paste in a note, then click on #food)
 const addition = (a, b) => {
   return a + b
 }
-                                        console.log(line)
 
 // look for an image on bing image from a string
 const searchImage = (stringToSearch, cb) => {
@@ -474,7 +473,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
   //
   const [aggregatorCol, setAggregatorColInt] = r.useState(null);
   const isColAggregator = (colId) => {
-    console.log(333, aggregatorCol, colId)
     return aggregatorCol === colId;
   };
   const toggleAggregatorCol = (col) => {
@@ -839,7 +837,6 @@ const TableComponentReactInt = ({ items, config, id }) => {
         
 
 
-        console.log(12333, aggregatedByVals)
         // aggregation
         let aggStr = ""
         if (aggregatorCol) {
