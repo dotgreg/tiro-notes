@@ -683,6 +683,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
       } else {
           res = sorted[base];
       }
+      if (isNaN(res)) return 0
       // if res has two dots, remove the second one
       let resStr = res.toString()
       if (resStr.split(".").length > 2) {
