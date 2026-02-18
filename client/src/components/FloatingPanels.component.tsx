@@ -638,40 +638,78 @@ export const FloatingPanelsWrapper = (p:{
         })
     }
 
-    const a1 =  () => { handleToggleVisibility() }
-    const a2 = () => {  action("toggleWindowsLayout") }
-    const a3 = () => {  action("minimizeActive") }
-    const a4 = () => {  action("closeActive") }
-    const a5 = () => {  action("toggleWindowsLayout", {layout:"current"}) }
+    // const a1 =  () => { handleToggleVisibility() }
+    // const a2 = () => {  action("toggleWindowsLayout") }
+    // const a3 = () => {  action("minimizeActive") }
+    // const a4 = () => {  action("closeActive") }
+    // const a5 = () => {  action("toggleWindowsLayout", {layout:"current"}) }
 
-    const a6 = () => {  updateFloatingLayout("top") }
-    const a7 = () => {  updateFloatingLayout("bottom") }
-    const a8 = () => {  updateFloatingLayout("left") }
-    const a9 = () => {  updateFloatingLayout("right") }
+    // const a6 = () => {  updateFloatingLayout("top") }
+    // const a7 = () => {  updateFloatingLayout("bottom") }
+    // const a8 = () => {  updateFloatingLayout("left") }
+    // const a9 = () => {  updateFloatingLayout("right") }
 
-    const a10 = () => {  updateFloatingLayout("top-right") }
-    const a11 = () => {  updateFloatingLayout("bottom-right") }
-    const a12 = () => {  updateFloatingLayout("top-left") }
-    const a13 = () => {  updateFloatingLayout("bottom-left") }
+    // const a10 = () => {  updateFloatingLayout("top-right") }
+    // const a11 = () => {  updateFloatingLayout("bottom-right") }
+    // const a12 = () => {  updateFloatingLayout("top-left") }
+    // const a13 = () => {  updateFloatingLayout("bottom-left") }
 
-    const a14 = () => {  action("deminimizeFirst") }
+    // const a14 = () => {  action("deminimizeFirst") }
 
-    const shortcuts = ["alt+q" , "alt+w", "alt+shift > a", "alt+shift > c", "alt+shift > w", 
-        "ctrl + up", "ctrl + down", "ctrl + left", "ctrl + right",
-        "shift + ctrl + up", "shift + ctrl + right", "shift + ctrl + left", "shift + ctrl + down",
-        "alt+shift > s"
-    
-    ]
-    const actions = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14]
+    // const shortcuts = ["alt+q" , "alt+w", "alt+shift > a", "alt+shift > c", "alt+shift > w", 
+    //     "ctrl + up", "ctrl + down", "ctrl + left", "ctrl + right",
+    //     "shift + ctrl + up", "shift + ctrl + right", "shift + ctrl + left", "shift + ctrl + down",
+    //     "alt+shift > s"
+    // ]
+    // let shortcuts2 = {
+    //     "alt+q": () => { handleToggleVisibility() },
+    //     "alt+w": () => {  action("toggleWindowsLayout") },
+    //     "alt+shift > a": () => {  action("minimizeActive") },
+    //     "alt+shift > c": () => {  action("closeActive") },
+    //     "alt+ctrl > c": () => {  action("closeActive") },
+    //     "alt+shift > w": () => {  action("toggleWindowsLayout", {layout:"current"}) },
+    //     "ctrl + up": () => {updateFloatingLayout("top")},
+    //     "ctrl + down": () => {updateFloatingLayout("bottom")},
+    //     "ctrl + left": () => {updateFloatingLayout("left")},
+    //     "ctrl + right": () => {updateFloatingLayout("right")},
+    //     "shift + ctrl + up": () => {updateFloatingLayout("top-left")},
+    //     "shift + ctrl + right": () => {updateFloatingLayout("top-right")},
+    //     "shift + ctrl + left": () => {updateFloatingLayout("bottom-left")},
+    //     "shift + ctrl + down": () => {updateFloatingLayout("bottom-right")},
+    //     "alt+shift > s": () => {  action("toggleWindowsLayout", {layout:"current"}) },
+    //  }
+     let shortcuts3: [string, () => void][] = [
+        ["alt+q", () => { handleToggleVisibility() }],
+        ["alt+w", () => {  action("toggleWindowsLayout") }],
+        ["alt+shift > m", () => {  action("minimizeActive") }],
+        ["alt+shift > c", () => {  action("closeActive") }],
+        ["alt+ctrl > c", () => {  action("closeActive") }],
+        ["alt+shift > w", () => {  action("toggleWindowsLayout", {layout:"current"}) }],
+        ["ctrl + up", () => {updateFloatingLayout("top")}],
+        ["ctrl + down", () => {updateFloatingLayout("bottom")}],
+        ["ctrl + left", () => {updateFloatingLayout("left")}],
+        ["ctrl + right", () => {updateFloatingLayout("right")}],
+        ["shift + ctrl + up", () => {updateFloatingLayout("top-left")}],
+        ["shift + ctrl + right", () => {updateFloatingLayout("top-right")}],
+        ["shift + ctrl + left", () => {updateFloatingLayout("bottom-left")}],
+        ["shift + ctrl + down", () => {updateFloatingLayout("bottom-right")}],
+        ["alt+shift > s", () => {  action("toggleWindowsLayout", {layout:"current"}) }],
+     ]
+    // const actions = [a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14]
     useEffect(() => {
-        shortcuts.forEach((shortcut, i) => {
-            addKeyShortcut(shortcut, actions[i])
+        shortcuts3.forEach(r => {
+            addKeyShortcut(r[0], r[1])
         })
         return () => {
-            shortcuts.forEach((shortcut, i) => {
-                releaseKeyShortcut(shortcut, actions[i])
+            shortcuts3.forEach(r => {
+                releaseKeyShortcut(r[0], r[1])
             })
         }
+        // return () => {
+        //     shortcuts.forEach((shortcut, i) => {
+        //         releaseKeyShortcut(shortcut, actions[i])
+        //     })
+        // }
     }, [panels])
 
     // useEffect(() => {
