@@ -280,6 +280,8 @@ export const Input = (p: {
 			if (p.autoSuggestSource === "ls") { cb(JSON.parse(localStorage.getItem(asListId) || "[]")) }
 			if (p.autoSuggestSource === "backend") { 
 				getApi(api => { api.cache.get(asListId, (res) => {
+						console.log("GET AUTOSUGGEST BACKEND", res)
+						if (!res) return cb([])
 						return cb(JSON.parse(res))
 					})
 				})
@@ -292,6 +294,7 @@ export const Input = (p: {
 		}
 	}
 	const saveAutoSuggestList = (nlist) => {
+		console.log("save autosuggest list", nlist)
 		let listToString = JSON.stringify(nlist)
 		if (p.autoSuggestSource === "cookie") setCookie(asListId, listToString, -1)
 		if (p.autoSuggestSource === "ls") localStorage.setItem(asListId, listToString)

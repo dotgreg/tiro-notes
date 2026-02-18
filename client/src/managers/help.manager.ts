@@ -40,7 +40,7 @@ export const triggerTiroHelpPopup = () => {
     <li>Alt + Shift + a : Minimize active floating window</li>
     <li>Alt + Shift + s : Unminimize first floating window in the bar</li>
     <li>Alt + Shift + r : Reload active floating window</li>
-    <li>Alt + Shift + c : Close active floating window</li>
+    <li>Alt + Shift/Ctrl + c : Close active floating window</li>
     <li>Alt + Ctrl + e : Toggle encryption</li>
     <li>Alt + Ctrl + u : Upload a file</li>
     <li>Alt + o / Alt + Shift + o : Increase/Decrease opacity of active floating window</li>
