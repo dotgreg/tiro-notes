@@ -24,7 +24,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 54,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L54"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L54"
 						}
 					],
 					"type": {
@@ -86,7 +86,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 52,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L52"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L52"
 						}
 					],
 					"type": {
@@ -173,7 +173,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 53,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L53"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L53"
 						}
 					],
 					"type": {
@@ -229,7 +229,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 51,
 					"character": 17,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L51"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L51"
 				}
 			]
 		},
@@ -259,7 +259,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 85,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L85"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L85"
 						}
 					],
 					"type": {
@@ -284,7 +284,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 86,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L86"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L86"
 						}
 					],
 					"type": {
@@ -309,7 +309,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 78,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L78"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L78"
 						}
 					],
 					"type": {
@@ -334,7 +334,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 82,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L82"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L82"
 						}
 					],
 					"type": {
@@ -357,7 +357,7 @@
 											"fileName": "managers/audio.manager.ts",
 											"line": 61,
 											"character": 4,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/audio.manager.ts#L61"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L61"
 										}
 									],
 									"type": {
@@ -417,7 +417,7 @@
 																					"fileName": "managers/audio.manager.ts",
 																					"line": 6,
 																					"character": 4,
-																					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/audio.manager.ts#L6"
+																					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L6"
 																				}
 																			],
 																			"type": {
@@ -438,7 +438,7 @@
 																					"fileName": "managers/audio.manager.ts",
 																					"line": 7,
 																					"character": 4,
-																					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/audio.manager.ts#L7"
+																					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L7"
 																				}
 																			],
 																			"type": {
@@ -459,7 +459,7 @@
 																					"fileName": "managers/audio.manager.ts",
 																					"line": 8,
 																					"character": 4,
-																					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/audio.manager.ts#L8"
+																					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L8"
 																				}
 																			],
 																			"type": {
@@ -503,7 +503,7 @@
 											"fileName": "managers/audio.manager.ts",
 											"line": 62,
 											"character": 4,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/audio.manager.ts#L62"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L62"
 										}
 									],
 									"type": {
@@ -555,7 +555,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 69,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L69"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L69"
 						}
 					],
 					"type": {
@@ -580,7 +580,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 79,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L79"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L79"
 						}
 					],
 					"type": {
@@ -605,7 +605,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 83,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L83"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L83"
 						}
 					],
 					"type": {
@@ -630,7 +630,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 80,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L80"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L80"
 						}
 					],
 					"type": {
@@ -655,7 +655,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 61,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L61"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L61"
 						}
 					],
 					"type": {
@@ -680,7 +680,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 71,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L71"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L71"
 						}
 					],
 					"type": {
@@ -705,7 +705,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 72,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L72"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L72"
 						}
 					],
 					"type": {
@@ -730,7 +730,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 75,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L75"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L75"
 						}
 					],
 					"type": {
@@ -757,7 +757,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 102,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L102"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L102"
 						}
 					],
 					"type": {
@@ -782,7 +782,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 76,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L76"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L76"
 						}
 					],
 					"type": {
@@ -807,7 +807,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 84,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L84"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L84"
 						}
 					],
 					"type": {
@@ -832,7 +832,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 81,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L81"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L81"
 						}
 					],
 					"type": {
@@ -857,7 +857,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 70,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L70"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L70"
 						}
 					],
 					"type": {
@@ -882,7 +882,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 63,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L63"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L63"
 						}
 					],
 					"type": {
@@ -907,7 +907,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 77,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L77"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L77"
 						}
 					],
 					"type": {
@@ -932,7 +932,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 87,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L87"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L87"
 						}
 					],
 					"type": {
@@ -955,7 +955,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 88,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L88"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L88"
 										}
 									],
 									"type": {
@@ -992,7 +992,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 68,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L68"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L68"
 						}
 					],
 					"type": {
@@ -1017,7 +1017,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 101,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L101"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L101"
 						}
 					],
 					"type": {
@@ -1042,7 +1042,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 73,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L73"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L73"
 						}
 					],
 					"type": {
@@ -1067,7 +1067,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 90,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L90"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L90"
 						}
 					],
 					"type": {
@@ -1090,7 +1090,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 91,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L91"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L91"
 										}
 									],
 									"type": {
@@ -1115,7 +1115,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 92,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L92"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L92"
 										}
 									],
 									"type": {
@@ -1140,7 +1140,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 95,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L95"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L95"
 										}
 									],
 									"type": {
@@ -1165,7 +1165,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 98,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L98"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L98"
 										}
 									],
 									"type": {
@@ -1188,7 +1188,7 @@
 															"fileName": "hooks/api/note.api.hook.tsx",
 															"line": 51,
 															"character": 2,
-															"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/note.api.hook.tsx#L51"
+															"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L51"
 														}
 													],
 													"type": {
@@ -1211,7 +1211,7 @@
 																			"fileName": "hooks/api/note.api.hook.tsx",
 																			"line": 54,
 																			"character": 3,
-																			"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/note.api.hook.tsx#L54"
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L54"
 																		}
 																	],
 																	"type": {
@@ -1268,7 +1268,7 @@
 																			"fileName": "hooks/api/note.api.hook.tsx",
 																			"line": 52,
 																			"character": 3,
-																			"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/note.api.hook.tsx#L52"
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L52"
 																		}
 																	],
 																	"type": {
@@ -1325,7 +1325,7 @@
 																			"fileName": "hooks/api/note.api.hook.tsx",
 																			"line": 53,
 																			"character": 3,
-																			"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/note.api.hook.tsx#L53"
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L53"
 																		}
 																	],
 																	"type": {
@@ -1373,7 +1373,7 @@
 															"fileName": "hooks/api/note.api.hook.tsx",
 															"line": 48,
 															"character": 2,
-															"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/note.api.hook.tsx#L48"
+															"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L48"
 														}
 													],
 													"type": {
@@ -1396,7 +1396,7 @@
 																			"fileName": "hooks/api/note.api.hook.tsx",
 																			"line": 49,
 																			"character": 3,
-																			"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/note.api.hook.tsx#L49"
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L49"
 																		}
 																	],
 																	"type": {
@@ -1483,7 +1483,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 99,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L99"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L99"
 										}
 									],
 									"type": {
@@ -1508,7 +1508,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 94,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L94"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L94"
 										}
 									],
 									"type": {
@@ -1533,7 +1533,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 97,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L97"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L97"
 										}
 									],
 									"type": {
@@ -1558,7 +1558,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 96,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L96"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L96"
 										}
 									],
 									"type": {
@@ -1583,7 +1583,7 @@
 											"fileName": "hooks/api/api.hook.tsx",
 											"line": 93,
 											"character": 2,
-											"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L93"
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L93"
 										}
 									],
 									"type": {
@@ -1628,7 +1628,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 62,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L62"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L62"
 						}
 					],
 					"type": {
@@ -1653,7 +1653,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 74,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L74"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L74"
 						}
 					],
 					"type": {
@@ -1686,7 +1686,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 67,
 							"character": 1,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L67"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L67"
 						}
 					],
 					"type": {
@@ -1740,7 +1740,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 60,
 					"character": 17,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L60"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L60"
 				}
 			]
 		},
@@ -1757,7 +1757,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 135,
 					"character": 13,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L135"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L135"
 				}
 			],
 			"type": {
@@ -1801,7 +1801,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 296,
 					"character": 13,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L296"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L296"
 				}
 			],
 			"signatures": [
@@ -1816,7 +1816,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 296,
 							"character": 33,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L296"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L296"
 						}
 					],
 					"parameters": [
@@ -1846,7 +1846,7 @@
 													"fileName": "managers/iframe.manager.ts",
 													"line": 43,
 													"character": 2,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/iframe.manager.ts#L43"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/iframe.manager.ts#L43"
 												}
 											],
 											"type": {
@@ -1868,7 +1868,7 @@
 													"fileName": "managers/iframe.manager.ts",
 													"line": 42,
 													"character": 2,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/iframe.manager.ts#L42"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/iframe.manager.ts#L42"
 												}
 											],
 											"type": {
@@ -1887,7 +1887,7 @@
 													"fileName": "managers/iframe.manager.ts",
 													"line": 41,
 													"character": 2,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/managers/iframe.manager.ts#L41"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/iframe.manager.ts#L41"
 												}
 											],
 											"type": {
@@ -1945,7 +1945,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 290,
 					"character": 13,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L290"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L290"
 				}
 			],
 			"signatures": [
@@ -1960,7 +1960,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 290,
 							"character": 24,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L290"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L290"
 						}
 					],
 					"parameters": [
@@ -1994,7 +1994,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 128,
 					"character": 13,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L128"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L128"
 				}
 			],
 			"signatures": [
@@ -2009,7 +2009,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 128,
 							"character": 22,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L128"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L128"
 						}
 					],
 					"parameters": [
@@ -2077,7 +2077,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 115,
 					"character": 13,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L115"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L115"
 				}
 			],
 			"signatures": [
@@ -2092,7 +2092,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 115,
 							"character": 29,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L115"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L115"
 						}
 					],
 					"type": {
@@ -2127,7 +2127,7 @@
 					"fileName": "hooks/api/api.hook.tsx",
 					"line": 137,
 					"character": 13,
-					"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L137"
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L137"
 				}
 			],
 			"signatures": [
@@ -2142,7 +2142,7 @@
 							"fileName": "hooks/api/api.hook.tsx",
 							"line": 137,
 							"character": 28,
-							"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L137"
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L137"
 						}
 					],
 					"parameters": [
@@ -2172,7 +2172,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 144,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L144"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L144"
 												}
 											],
 											"type": {
@@ -2197,7 +2197,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 142,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L142"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L142"
 												}
 											],
 											"type": {
@@ -2222,7 +2222,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 145,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L145"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L145"
 												}
 											],
 											"type": {
@@ -2247,7 +2247,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 138,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L138"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L138"
 												}
 											],
 											"type": {
@@ -2272,7 +2272,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 141,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L141"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L141"
 												}
 											],
 											"type": {
@@ -2297,7 +2297,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 139,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L139"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L139"
 												}
 											],
 											"type": {
@@ -2324,7 +2324,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 147,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L147"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L147"
 												}
 											],
 											"type": {
@@ -2349,7 +2349,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 143,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L143"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L143"
 												}
 											],
 											"type": {
@@ -2374,7 +2374,7 @@
 													"fileName": "hooks/api/api.hook.tsx",
 													"line": 140,
 													"character": 1,
-													"url": "https://github.com/dotgreg/tiro-notes/blob/f0ca885f7adaee60cb9ce96922d52f3f61542cf9/client/src/hooks/api/api.hook.tsx#L140"
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L140"
 												}
 											],
 											"type": {
