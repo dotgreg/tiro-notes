@@ -1,0 +1,3150 @@
+{
+	"schemaVersion": "2.0",
+	"id": 0,
+	"name": "tiro-notes-client",
+	"variant": "project",
+	"kind": 1,
+	"flags": {},
+	"children": [
+		{
+			"id": 1,
+			"name": "iApiEventBus",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"children": [
+				{
+					"id": 12,
+					"name": "notify",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 54,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L54"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 13,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"signatures": [
+								{
+									"id": 14,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 15,
+											"name": "reqId",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 16,
+											"name": "answer",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "any"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 2,
+					"name": "subscribe",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 52,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L52"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 3,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"signatures": [
+								{
+									"id": 4,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 5,
+											"name": "reqId",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 6,
+											"name": "cb",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "typescript",
+													"packagePath": "lib/lib.es5.d.ts",
+													"qualifiedName": "Function"
+												},
+												"name": "Function",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 7,
+											"name": "options",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {
+												"isOptional": true
+											},
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/api/api.hook.tsx",
+													"qualifiedName": "iEventBusOptions"
+												},
+												"name": "iEventBusOptions",
+												"package": "tiro-notes-client"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 8,
+					"name": "unsubscribe",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 53,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L53"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 9,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"signatures": [
+								{
+									"id": 10,
+									"name": "__type",
+									"variant": "signature",
+									"kind": 4096,
+									"flags": {},
+									"parameters": [
+										{
+											"id": 11,
+											"name": "reqId",
+											"variant": "param",
+											"kind": 32768,
+											"flags": {},
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"type": {
+										"type": "intrinsic",
+										"name": "void"
+									}
+								}
+							]
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						12,
+						2,
+						8
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 51,
+					"character": 17,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L51"
+				}
+			]
+		},
+		{
+			"id": 17,
+			"name": "iClientApi",
+			"variant": "declaration",
+			"kind": 256,
+			"flags": {},
+			"comment": {
+				"summary": [
+					{
+						"kind": "text",
+						"text": "comment test2"
+					}
+				]
+			},
+			"children": [
+				{
+					"id": 52,
+					"name": "activity",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 85,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L85"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/activity.api.hook.tsx",
+							"qualifiedName": "iActivityApi"
+						},
+						"name": "iActivityApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 53,
+					"name": "ai",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 86,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L86"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/ai.api.hook.tsx",
+							"qualifiedName": "iAiApi"
+						},
+						"name": "iAiApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 32,
+					"name": "analytics",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 78,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L78"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/analytics.api.hook.tsx",
+							"qualifiedName": "iAnalyticsApi"
+						},
+						"name": "iAnalyticsApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 36,
+					"name": "audio",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 82,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L82"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 37,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 38,
+									"name": "play",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "managers/audio.manager.ts",
+											"line": 61,
+											"character": 4,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L61"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 39,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"signatures": [
+												{
+													"id": 40,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"parameters": [
+														{
+															"id": 41,
+															"name": "mp3Path",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {},
+															"type": {
+																"type": "intrinsic",
+																"name": "string"
+															}
+														},
+														{
+															"id": 42,
+															"name": "opts",
+															"variant": "param",
+															"kind": 32768,
+															"flags": {
+																"isOptional": true
+															},
+															"type": {
+																"type": "reflection",
+																"declaration": {
+																	"id": 43,
+																	"name": "__type",
+																	"variant": "declaration",
+																	"kind": 65536,
+																	"flags": {},
+																	"children": [
+																		{
+																			"id": 44,
+																			"name": "cache",
+																			"variant": "declaration",
+																			"kind": 1024,
+																			"flags": {
+																				"isOptional": true
+																			},
+																			"sources": [
+																				{
+																					"fileName": "managers/audio.manager.ts",
+																					"line": 6,
+																					"character": 4,
+																					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L6"
+																				}
+																			],
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "boolean"
+																			}
+																		},
+																		{
+																			"id": 45,
+																			"name": "start",
+																			"variant": "declaration",
+																			"kind": 1024,
+																			"flags": {
+																				"isOptional": true
+																			},
+																			"sources": [
+																				{
+																					"fileName": "managers/audio.manager.ts",
+																					"line": 7,
+																					"character": 4,
+																					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L7"
+																				}
+																			],
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "number"
+																			}
+																		},
+																		{
+																			"id": 46,
+																			"name": "time",
+																			"variant": "declaration",
+																			"kind": 1024,
+																			"flags": {
+																				"isOptional": true
+																			},
+																			"sources": [
+																				{
+																					"fileName": "managers/audio.manager.ts",
+																					"line": 8,
+																					"character": 4,
+																					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L8"
+																				}
+																			],
+																			"type": {
+																				"type": "intrinsic",
+																				"name": "number"
+																			}
+																		}
+																	],
+																	"groups": [
+																		{
+																			"title": "Properties",
+																			"children": [
+																				44,
+																				45,
+																				46
+																			]
+																		}
+																	]
+																}
+															}
+														}
+													],
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "playAudio"
+								},
+								{
+									"id": 47,
+									"name": "stop",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "managers/audio.manager.ts",
+											"line": 62,
+											"character": 4,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/audio.manager.ts#L62"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 48,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"signatures": [
+												{
+													"id": 49,
+													"name": "__type",
+													"variant": "signature",
+													"kind": 4096,
+													"flags": {},
+													"type": {
+														"type": "intrinsic",
+														"name": "void"
+													}
+												}
+											]
+										}
+									},
+									"defaultValue": "stopAudio"
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										38,
+										47
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 23,
+					"name": "cache",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 69,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L69"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/cache.api.hook.tsx",
+							"qualifiedName": "iCacheApi"
+						},
+						"name": "iCacheApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 33,
+					"name": "command",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 79,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L79"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/command.api.hook.tsx",
+							"qualifiedName": "iCommandApi"
+						},
+						"name": "iCommandApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 50,
+					"name": "config",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 83,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L83"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/config.api.hook.tsx",
+							"qualifiedName": "iConfigApi"
+						},
+						"name": "iConfigApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 34,
+					"name": "encryption",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 80,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L80"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/managers/encryption.manager.ts",
+							"qualifiedName": "iEncryptApi"
+						},
+						"name": "iEncryptApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 18,
+					"name": "file",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 61,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L61"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/file.api.hook.tsx",
+							"qualifiedName": "iFileApi"
+						},
+						"name": "iFileApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 25,
+					"name": "files",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 71,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L71"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/files.api.hook.tsx",
+							"qualifiedName": "iFilesApi"
+						},
+						"name": "iFilesApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 26,
+					"name": "folders",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 72,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L72"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/folders.api.hook.tsx",
+							"qualifiedName": "iFoldersApi"
+						},
+						"name": "iFoldersApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 29,
+					"name": "history",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 75,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L75"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/history.api.hook.tsx",
+							"qualifiedName": "iNoteHistoryApi"
+						},
+						"name": "iNoteHistoryApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 88,
+					"name": "lastNotesApi",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {
+						"isOptional": true
+					},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 102,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L102"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/app/lastFilesHistory.hook.tsx",
+							"qualifiedName": "iLastFilesHistoryApi"
+						},
+						"name": "iLastFilesHistoryApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 30,
+					"name": "note",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 76,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L76"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/note.api.hook.tsx",
+							"qualifiedName": "iNoteApi"
+						},
+						"name": "iNoteApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 51,
+					"name": "performance",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 84,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L84"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/performance.api.hook.tsx",
+							"qualifiedName": "iPerformanceApi"
+						},
+						"name": "iPerformanceApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 35,
+					"name": "plugins",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 81,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L81"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/plugin.api.hook.tsx",
+							"qualifiedName": "iPluginsApi"
+						},
+						"name": "iPluginsApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 24,
+					"name": "popup",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 70,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L70"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/app/usePromptPopup.hook.tsx",
+							"qualifiedName": "iPopupApi"
+						},
+						"name": "iPopupApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 20,
+					"name": "ressource",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 63,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L63"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/ressource.api.hook.tsx",
+							"qualifiedName": "iRessourceApi"
+						},
+						"name": "iRessourceApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 31,
+					"name": "search",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 77,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L77"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/search.hook.api.tsx",
+							"qualifiedName": "iSearchApi"
+						},
+						"name": "iSearchApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 54,
+					"name": "shared",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 87,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L87"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 55,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 56,
+									"name": "functions",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 88,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L88"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "shared",
+											"packagePath": "api/functions.shared.api.ts",
+											"qualifiedName": "iSharedFunctionsApi"
+										},
+										"name": "iSharedFunctionsApi",
+										"package": "shared"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										56
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 22,
+					"name": "socket",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 68,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L68"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/socket.api.hook.ts",
+							"qualifiedName": "iSocketApi"
+						},
+						"name": "iSocketApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 87,
+					"name": "status",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 101,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L101"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/status.api.hook.tsx",
+							"qualifiedName": "iStatusApi"
+						},
+						"name": "iStatusApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 27,
+					"name": "tabs",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 73,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L73"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/app/tabs.hook.tsx",
+							"qualifiedName": "iTabsApi"
+						},
+						"name": "iTabsApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 57,
+					"name": "ui",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 90,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L90"
+						}
+					],
+					"type": {
+						"type": "reflection",
+						"declaration": {
+							"id": 58,
+							"name": "__type",
+							"variant": "declaration",
+							"kind": 65536,
+							"flags": {},
+							"children": [
+								{
+									"id": 59,
+									"name": "browser",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 91,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L91"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/api/browser.api.hook.tsx",
+											"qualifiedName": "iBrowserApi"
+										},
+										"name": "iBrowserApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 60,
+									"name": "floatingPanel",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 92,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L92"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/api/floatingPanel.api.hook.tsx",
+											"qualifiedName": "iFloatingPanelApi"
+										},
+										"name": "iFloatingPanelApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 63,
+									"name": "lightbox",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 95,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L95"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/app/useLightbox.hook.tsx",
+											"qualifiedName": "iLightboxApi"
+										},
+										"name": "iLightboxApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 66,
+									"name": "note",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 98,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L98"
+										}
+									],
+									"type": {
+										"type": "reflection",
+										"declaration": {
+											"id": 67,
+											"name": "__type",
+											"variant": "declaration",
+											"kind": 65536,
+											"flags": {},
+											"children": [
+												{
+													"id": 75,
+													"name": "editorAction",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "hooks/api/note.api.hook.tsx",
+															"line": 51,
+															"character": 2,
+															"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L51"
+														}
+													],
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 76,
+															"name": "__type",
+															"variant": "declaration",
+															"kind": 65536,
+															"flags": {},
+															"children": [
+																{
+																	"id": 82,
+																	"name": "canExecuteAction",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "hooks/api/note.api.hook.tsx",
+																			"line": 54,
+																			"character": 3,
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L54"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 83,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"signatures": [
+																				{
+																					"id": 84,
+																					"name": "__type",
+																					"variant": "signature",
+																					"kind": 4096,
+																					"flags": {},
+																					"parameters": [
+																						{
+																							"id": 85,
+																							"name": "a",
+																							"variant": "param",
+																							"kind": 32768,
+																							"flags": {},
+																							"type": {
+																								"type": "reference",
+																								"target": {
+																									"packageName": "tiro-notes-client",
+																									"packagePath": "src/hooks/api/note.api.hook.tsx",
+																									"qualifiedName": "iEditorAction"
+																								},
+																								"name": "iEditorAction",
+																								"package": "tiro-notes-client"
+																							}
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "boolean"
+																					}
+																				}
+																			]
+																		}
+																	}
+																},
+																{
+																	"id": 77,
+																	"name": "dispatch",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "hooks/api/note.api.hook.tsx",
+																			"line": 52,
+																			"character": 3,
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L52"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 78,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"signatures": [
+																				{
+																					"id": 79,
+																					"name": "__type",
+																					"variant": "signature",
+																					"kind": 4096,
+																					"flags": {},
+																					"parameters": [
+																						{
+																							"id": 80,
+																							"name": "editorAction",
+																							"variant": "param",
+																							"kind": 32768,
+																							"flags": {},
+																							"type": {
+																								"type": "reference",
+																								"target": {
+																									"packageName": "tiro-notes-client",
+																									"packagePath": "src/hooks/api/note.api.hook.tsx",
+																									"qualifiedName": "iEditorAction"
+																								},
+																								"name": "iEditorAction",
+																								"package": "tiro-notes-client"
+																							}
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "void"
+																					}
+																				}
+																			]
+																		}
+																	}
+																},
+																{
+																	"id": 81,
+																	"name": "get",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "hooks/api/note.api.hook.tsx",
+																			"line": 53,
+																			"character": 3,
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L53"
+																		}
+																	],
+																	"type": {
+																		"type": "union",
+																		"types": [
+																			{
+																				"type": "reference",
+																				"target": {
+																					"packageName": "tiro-notes-client",
+																					"packagePath": "src/hooks/api/note.api.hook.tsx",
+																					"qualifiedName": "iEditorAction"
+																				},
+																				"name": "iEditorAction",
+																				"package": "tiro-notes-client"
+																			},
+																			{
+																				"type": "literal",
+																				"value": null
+																			}
+																		]
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		82,
+																		77,
+																		81
+																	]
+																}
+															]
+														}
+													}
+												},
+												{
+													"id": 68,
+													"name": "lineJump",
+													"variant": "declaration",
+													"kind": 1024,
+													"flags": {},
+													"sources": [
+														{
+															"fileName": "hooks/api/note.api.hook.tsx",
+															"line": 48,
+															"character": 2,
+															"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L48"
+														}
+													],
+													"type": {
+														"type": "reflection",
+														"declaration": {
+															"id": 69,
+															"name": "__type",
+															"variant": "declaration",
+															"kind": 65536,
+															"flags": {},
+															"children": [
+																{
+																	"id": 70,
+																	"name": "jump",
+																	"variant": "declaration",
+																	"kind": 1024,
+																	"flags": {},
+																	"sources": [
+																		{
+																			"fileName": "hooks/api/note.api.hook.tsx",
+																			"line": 49,
+																			"character": 3,
+																			"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/note.api.hook.tsx#L49"
+																		}
+																	],
+																	"type": {
+																		"type": "reflection",
+																		"declaration": {
+																			"id": 71,
+																			"name": "__type",
+																			"variant": "declaration",
+																			"kind": 65536,
+																			"flags": {},
+																			"signatures": [
+																				{
+																					"id": 72,
+																					"name": "__type",
+																					"variant": "signature",
+																					"kind": 4096,
+																					"flags": {},
+																					"parameters": [
+																						{
+																							"id": 73,
+																							"name": "windowId",
+																							"variant": "param",
+																							"kind": 32768,
+																							"flags": {},
+																							"type": {
+																								"type": "intrinsic",
+																								"name": "string"
+																							}
+																						},
+																						{
+																							"id": 74,
+																							"name": "line",
+																							"variant": "param",
+																							"kind": 32768,
+																							"flags": {},
+																							"type": {
+																								"type": "intrinsic",
+																								"name": "number"
+																							}
+																						}
+																					],
+																					"type": {
+																						"type": "intrinsic",
+																						"name": "void"
+																					}
+																				}
+																			]
+																		}
+																	}
+																}
+															],
+															"groups": [
+																{
+																	"title": "Properties",
+																	"children": [
+																		70
+																	]
+																}
+															]
+														}
+													}
+												}
+											],
+											"groups": [
+												{
+													"title": "Properties",
+													"children": [
+														75,
+														68
+													]
+												}
+											]
+										}
+									}
+								},
+								{
+									"id": 86,
+									"name": "notePreviewPopup",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 99,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L99"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/api/notePreviewPopup.api.hook.tsx",
+											"qualifiedName": "iNotePreviewPopupApi"
+										},
+										"name": "iNotePreviewPopupApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 62,
+									"name": "notification",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 94,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L94"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/api/notification.api.hook.tsx",
+											"qualifiedName": "iNotificationApi"
+										},
+										"name": "iNotificationApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 65,
+									"name": "search",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 97,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L97"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/api/search.hook.api.tsx",
+											"qualifiedName": "iSearchUiApi"
+										},
+										"name": "iSearchUiApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 64,
+									"name": "textToSpeechPopup",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 96,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L96"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/app/useTtsPopup.hook.tsx",
+											"qualifiedName": "iTtsApi"
+										},
+										"name": "iTtsApi",
+										"package": "tiro-notes-client"
+									}
+								},
+								{
+									"id": 61,
+									"name": "windows",
+									"variant": "declaration",
+									"kind": 1024,
+									"flags": {},
+									"sources": [
+										{
+											"fileName": "hooks/api/api.hook.tsx",
+											"line": 93,
+											"character": 2,
+											"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L93"
+										}
+									],
+									"type": {
+										"type": "reference",
+										"target": {
+											"packageName": "tiro-notes-client",
+											"packagePath": "src/hooks/app/tabs.hook.tsx",
+											"qualifiedName": "iWindowsApi"
+										},
+										"name": "iWindowsApi",
+										"package": "tiro-notes-client"
+									}
+								}
+							],
+							"groups": [
+								{
+									"title": "Properties",
+									"children": [
+										59,
+										60,
+										63,
+										66,
+										86,
+										62,
+										65,
+										64,
+										61
+									]
+								}
+							]
+						}
+					}
+				},
+				{
+					"id": 19,
+					"name": "upload",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 62,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L62"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/upload.api.hook.tsx",
+							"qualifiedName": "iUploadApi"
+						},
+						"name": "iUploadApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 28,
+					"name": "userSettings",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 74,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L74"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/useUserSettings.hook.tsx",
+							"qualifiedName": "iUserSettingsApi"
+						},
+						"name": "iUserSettingsApi",
+						"package": "tiro-notes-client"
+					}
+				},
+				{
+					"id": 21,
+					"name": "watch",
+					"variant": "declaration",
+					"kind": 1024,
+					"flags": {},
+					"comment": {
+						"summary": [
+							{
+								"kind": "text",
+								"text": "comment3"
+							}
+						]
+					},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 67,
+							"character": 1,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L67"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "tiro-notes-client",
+							"packagePath": "src/hooks/api/watch.api.hook.tsx",
+							"qualifiedName": "iWatchApi"
+						},
+						"name": "iWatchApi",
+						"package": "tiro-notes-client"
+					}
+				}
+			],
+			"groups": [
+				{
+					"title": "Properties",
+					"children": [
+						52,
+						53,
+						32,
+						36,
+						23,
+						33,
+						50,
+						34,
+						18,
+						25,
+						26,
+						29,
+						88,
+						30,
+						51,
+						35,
+						24,
+						20,
+						31,
+						54,
+						22,
+						87,
+						27,
+						57,
+						19,
+						28,
+						21
+					]
+				}
+			],
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 60,
+					"character": 17,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L60"
+				}
+			]
+		},
+		{
+			"id": 97,
+			"name": "ClientApiContext",
+			"variant": "declaration",
+			"kind": 32,
+			"flags": {
+				"isConst": true
+			},
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 135,
+					"character": 13,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L135"
+				}
+			],
+			"type": {
+				"type": "reference",
+				"target": {
+					"packageName": "@types/react",
+					"packagePath": "index.d.ts",
+					"qualifiedName": "React.Context"
+				},
+				"typeArguments": [
+					{
+						"type": "union",
+						"types": [
+							{
+								"type": "reference",
+								"target": 17,
+								"name": "iClientApi",
+								"package": "tiro-notes-client"
+							},
+							{
+								"type": "literal",
+								"value": null
+							}
+						]
+					}
+				],
+				"name": "Context",
+				"package": "@types/react",
+				"qualifiedName": "React.Context"
+			},
+			"defaultValue": "..."
+		},
+		{
+			"id": 114,
+			"name": "callApiFromString",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 296,
+					"character": 13,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L296"
+				}
+			],
+			"signatures": [
+				{
+					"id": 115,
+					"name": "callApiFromString",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 296,
+							"character": 33,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L296"
+						}
+					],
+					"parameters": [
+						{
+							"id": 116,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 117,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 120,
+											"name": "apiArguments",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "managers/iframe.manager.ts",
+													"line": 43,
+													"character": 2,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/iframe.manager.ts#L43"
+												}
+											],
+											"type": {
+												"type": "array",
+												"elementType": {
+													"type": "intrinsic",
+													"name": "any"
+												}
+											}
+										},
+										{
+											"id": 119,
+											"name": "apiName",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "managers/iframe.manager.ts",
+													"line": 42,
+													"character": 2,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/iframe.manager.ts#L42"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										},
+										{
+											"id": 118,
+											"name": "reqId",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "managers/iframe.manager.ts",
+													"line": 41,
+													"character": 2,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/managers/iframe.manager.ts#L41"
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "string"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												120,
+												119,
+												118
+											]
+										}
+									]
+								}
+							}
+						},
+						{
+							"id": 121,
+							"name": "cb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reference",
+								"target": {
+									"packageName": "tiro-notes-client",
+									"packagePath": "src/hooks/api/api.hook.tsx",
+									"qualifiedName": "iCallApiCb"
+								},
+								"name": "iCallApiCb",
+								"package": "tiro-notes-client"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "void"
+					}
+				}
+			]
+		},
+		{
+			"id": 111,
+			"name": "genIdReq",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 290,
+					"character": 13,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L290"
+				}
+			],
+			"signatures": [
+				{
+					"id": 112,
+					"name": "genIdReq",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 290,
+							"character": 24,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L290"
+						}
+					],
+					"parameters": [
+						{
+							"id": 113,
+							"name": "type",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "intrinsic",
+								"name": "string"
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "string"
+					}
+				}
+			]
+		},
+		{
+			"id": 91,
+			"name": "getApi",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 128,
+					"character": 13,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L128"
+				}
+			],
+			"signatures": [
+				{
+					"id": 92,
+					"name": "getApi",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 128,
+							"character": 22,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L128"
+						}
+					],
+					"parameters": [
+						{
+							"id": 93,
+							"name": "cb",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 94,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"signatures": [
+										{
+											"id": 95,
+											"name": "__type",
+											"variant": "signature",
+											"kind": 4096,
+											"flags": {},
+											"parameters": [
+												{
+													"id": 96,
+													"name": "api",
+													"variant": "param",
+													"kind": 32768,
+													"flags": {},
+													"type": {
+														"type": "reference",
+														"target": 17,
+														"name": "iClientApi",
+														"package": "tiro-notes-client"
+													}
+												}
+											],
+											"type": {
+												"type": "intrinsic",
+												"name": "void"
+											}
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "intrinsic",
+						"name": "void"
+					}
+				}
+			]
+		},
+		{
+			"id": 89,
+			"name": "getClientApi2",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 115,
+					"character": 13,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L115"
+				}
+			],
+			"signatures": [
+				{
+					"id": 90,
+					"name": "getClientApi2",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 115,
+							"character": 29,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L115"
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": {
+							"packageName": "typescript",
+							"packagePath": "lib/lib.es5.d.ts",
+							"qualifiedName": "Promise"
+						},
+						"typeArguments": [
+							{
+								"type": "reference",
+								"target": 17,
+								"name": "iClientApi",
+								"package": "tiro-notes-client"
+							}
+						],
+						"name": "Promise",
+						"package": "typescript"
+					}
+				}
+			]
+		},
+		{
+			"id": 98,
+			"name": "useClientApi",
+			"variant": "declaration",
+			"kind": 64,
+			"flags": {},
+			"sources": [
+				{
+					"fileName": "hooks/api/api.hook.tsx",
+					"line": 137,
+					"character": 13,
+					"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L137"
+				}
+			],
+			"signatures": [
+				{
+					"id": 99,
+					"name": "useClientApi",
+					"variant": "signature",
+					"kind": 4096,
+					"flags": {},
+					"sources": [
+						{
+							"fileName": "hooks/api/api.hook.tsx",
+							"line": 137,
+							"character": 28,
+							"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L137"
+						}
+					],
+					"parameters": [
+						{
+							"id": 100,
+							"name": "p",
+							"variant": "param",
+							"kind": 32768,
+							"flags": {},
+							"type": {
+								"type": "reflection",
+								"declaration": {
+									"id": 101,
+									"name": "__type",
+									"variant": "declaration",
+									"kind": 65536,
+									"flags": {},
+									"children": [
+										{
+											"id": 108,
+											"name": "historyApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 144,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L144"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/api/history.api.hook.tsx",
+													"qualifiedName": "iNoteHistoryApi"
+												},
+												"name": "iNoteHistoryApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 106,
+											"name": "lightboxApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 142,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L142"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/app/useLightbox.hook.tsx",
+													"qualifiedName": "iLightboxApi"
+												},
+												"name": "iLightboxApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 109,
+											"name": "notePreviewPopupApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 145,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L145"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/api/notePreviewPopup.api.hook.tsx",
+													"qualifiedName": "iNotePreviewPopupApi"
+												},
+												"name": "iNotePreviewPopupApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 102,
+											"name": "popupApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 138,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L138"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/app/usePromptPopup.hook.tsx",
+													"qualifiedName": "iPopupApi"
+												},
+												"name": "iPopupApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 105,
+											"name": "statusApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 141,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L141"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/api/status.api.hook.tsx",
+													"qualifiedName": "iStatusApi"
+												},
+												"name": "iStatusApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 103,
+											"name": "tabsApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 139,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L139"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/app/tabs.hook.tsx",
+													"qualifiedName": "iTabsApi"
+												},
+												"name": "iTabsApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 110,
+											"name": "triggerSetupPopup",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {
+												"isOptional": true
+											},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 147,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L147"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "typescript",
+													"packagePath": "lib/lib.es5.d.ts",
+													"qualifiedName": "Function"
+												},
+												"name": "Function",
+												"package": "typescript"
+											}
+										},
+										{
+											"id": 107,
+											"name": "ttsApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 143,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L143"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/app/useTtsPopup.hook.tsx",
+													"qualifiedName": "iTtsApi"
+												},
+												"name": "iTtsApi",
+												"package": "tiro-notes-client"
+											}
+										},
+										{
+											"id": 104,
+											"name": "windowsApi",
+											"variant": "declaration",
+											"kind": 1024,
+											"flags": {},
+											"sources": [
+												{
+													"fileName": "hooks/api/api.hook.tsx",
+													"line": 140,
+													"character": 1,
+													"url": "https://github.com/dotgreg/tiro-notes/blob/29b5315aea407a0a3db6d81a8871ea25b6a0f89e/client/src/hooks/api/api.hook.tsx#L140"
+												}
+											],
+											"type": {
+												"type": "reference",
+												"target": {
+													"packageName": "tiro-notes-client",
+													"packagePath": "src/hooks/app/tabs.hook.tsx",
+													"qualifiedName": "iWindowsApi"
+												},
+												"name": "iWindowsApi",
+												"package": "tiro-notes-client"
+											}
+										}
+									],
+									"groups": [
+										{
+											"title": "Properties",
+											"children": [
+												108,
+												106,
+												109,
+												102,
+												105,
+												103,
+												110,
+												107,
+												104
+											]
+										}
+									]
+								}
+							}
+						}
+					],
+					"type": {
+						"type": "reference",
+						"target": 17,
+						"name": "iClientApi",
+						"package": "tiro-notes-client"
+					}
+				}
+			]
+		}
+	],
+	"groups": [
+		{
+			"title": "Interfaces",
+			"children": [
+				1,
+				17
+			]
+		},
+		{
+			"title": "Variables",
+			"children": [
+				97
+			]
+		},
+		{
+			"title": "Functions",
+			"children": [
+				114,
+				111,
+				91,
+				89,
+				98
+			]
+		}
+	],
+	"packageName": "tiro-notes-client",
+	"readme": [
+		{
+			"kind": "text",
+			"text": "# Getting Started with Create React App\n\nThis project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).\n\n## Available Scripts\n\nIn the project directory, you can run:\n\n### "
+		},
+		{
+			"kind": "code",
+			"text": "`npm start`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nRuns the app in the development mode.\\\nOpen [http://localhost:3000](http://localhost:3000) to view it in the browser.\n\nThe page will reload if you make edits.\\\nYou will also see any lint errors in the console.\n\n### "
+		},
+		{
+			"kind": "code",
+			"text": "`npm test`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nLaunches the test runner in the interactive watch mode.\\\nSee the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.\n\n### "
+		},
+		{
+			"kind": "code",
+			"text": "`npm run build`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\nBuilds the app for production to the "
+		},
+		{
+			"kind": "code",
+			"text": "`build`"
+		},
+		{
+			"kind": "text",
+			"text": " folder.\\\nIt correctly bundles React in production mode and optimizes the build for the best performance.\n\nThe build is minified and the filenames include the hashes.\\\nYour app is ready to be deployed!\n\nSee the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.\n\n### "
+		},
+		{
+			"kind": "code",
+			"text": "`npm run eject`"
+		},
+		{
+			"kind": "text",
+			"text": "\n\n**Note: this is a one-way operation. Once you "
+		},
+		{
+			"kind": "code",
+			"text": "`eject`"
+		},
+		{
+			"kind": "text",
+			"text": ", you can’t go back!**\n\nIf you aren’t satisfied with the build tool and configuration choices, you can "
+		},
+		{
+			"kind": "code",
+			"text": "`eject`"
+		},
+		{
+			"kind": "text",
+			"text": " at any time. This command will remove the single build dependency from your project.\n\nInstead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except "
+		},
+		{
+			"kind": "code",
+			"text": "`eject`"
+		},
+		{
+			"kind": "text",
+			"text": " will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.\n\nYou don’t have to ever use "
+		},
+		{
+			"kind": "code",
+			"text": "`eject`"
+		},
+		{
+			"kind": "text",
+			"text": ". The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.\n\n## Learn More\n\nYou can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).\n\nTo learn React, check out the [React documentation](https://reactjs.org/)."
+		}
+	],
+	"symbolIdMap": {
+		"0": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": ""
+		},
+		"1": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iApiEventBus"
+		},
+		"2": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iApiEventBus.subscribe"
+		},
+		"3": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"4": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"5": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "reqId"
+		},
+		"6": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "cb"
+		},
+		"7": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "options"
+		},
+		"8": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iApiEventBus.unsubscribe"
+		},
+		"9": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"10": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"11": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "reqId"
+		},
+		"12": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iApiEventBus.notify"
+		},
+		"13": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"14": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"15": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "reqId"
+		},
+		"16": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "answer"
+		},
+		"17": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi"
+		},
+		"18": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.file"
+		},
+		"19": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.upload"
+		},
+		"20": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.ressource"
+		},
+		"21": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.watch"
+		},
+		"22": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.socket"
+		},
+		"23": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.cache"
+		},
+		"24": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.popup"
+		},
+		"25": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.files"
+		},
+		"26": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.folders"
+		},
+		"27": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.tabs"
+		},
+		"28": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.userSettings"
+		},
+		"29": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.history"
+		},
+		"30": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.note"
+		},
+		"31": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.search"
+		},
+		"32": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.analytics"
+		},
+		"33": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.command"
+		},
+		"34": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.encryption"
+		},
+		"35": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.plugins"
+		},
+		"36": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.audio"
+		},
+		"37": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__object"
+		},
+		"38": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__object.play"
+		},
+		"39": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__function"
+		},
+		"40": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__function"
+		},
+		"41": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "mp3Path"
+		},
+		"42": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "opts"
+		},
+		"43": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__type"
+		},
+		"44": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__type.cache"
+		},
+		"45": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__type.start"
+		},
+		"46": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__type.time"
+		},
+		"47": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__object.stop"
+		},
+		"48": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__function"
+		},
+		"49": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/audio.manager.ts",
+			"qualifiedName": "__function"
+		},
+		"50": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.config"
+		},
+		"51": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.performance"
+		},
+		"52": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.activity"
+		},
+		"53": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.ai"
+		},
+		"54": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.shared"
+		},
+		"55": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"56": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.functions"
+		},
+		"57": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.ui"
+		},
+		"58": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"59": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.browser"
+		},
+		"60": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.floatingPanel"
+		},
+		"61": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.windows"
+		},
+		"62": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.notification"
+		},
+		"63": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.lightbox"
+		},
+		"64": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.textToSpeechPopup"
+		},
+		"65": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.search"
+		},
+		"66": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.note"
+		},
+		"67": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"68": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type.lineJump"
+		},
+		"69": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"70": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type.jump"
+		},
+		"71": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"72": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"73": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "windowId"
+		},
+		"74": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "line"
+		},
+		"75": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type.editorAction"
+		},
+		"76": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"77": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type.dispatch"
+		},
+		"78": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"79": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"80": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "editorAction"
+		},
+		"81": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type.get"
+		},
+		"82": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type.canExecuteAction"
+		},
+		"83": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"84": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"85": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/note.api.hook.tsx",
+			"qualifiedName": "a"
+		},
+		"86": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.notePreviewPopup"
+		},
+		"87": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.status"
+		},
+		"88": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "iClientApi.lastNotesApi"
+		},
+		"89": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "getClientApi2"
+		},
+		"90": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "getClientApi2"
+		},
+		"91": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "getApi"
+		},
+		"92": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "getApi"
+		},
+		"93": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "cb"
+		},
+		"94": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"95": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"96": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "api"
+		},
+		"97": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "ClientApiContext"
+		},
+		"98": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "useClientApi"
+		},
+		"99": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "useClientApi"
+		},
+		"100": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "p"
+		},
+		"101": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type"
+		},
+		"102": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.popupApi"
+		},
+		"103": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.tabsApi"
+		},
+		"104": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.windowsApi"
+		},
+		"105": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.statusApi"
+		},
+		"106": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.lightboxApi"
+		},
+		"107": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.ttsApi"
+		},
+		"108": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.historyApi"
+		},
+		"109": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.notePreviewPopupApi"
+		},
+		"110": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "__type.triggerSetupPopup"
+		},
+		"111": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "genIdReq"
+		},
+		"112": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "genIdReq"
+		},
+		"113": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "type"
+		},
+		"114": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "callApiFromString"
+		},
+		"115": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "callApiFromString"
+		},
+		"116": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "p"
+		},
+		"117": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/iframe.manager.ts",
+			"qualifiedName": "__type"
+		},
+		"118": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/iframe.manager.ts",
+			"qualifiedName": "__type.reqId"
+		},
+		"119": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/iframe.manager.ts",
+			"qualifiedName": "__type.apiName"
+		},
+		"120": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/managers/iframe.manager.ts",
+			"qualifiedName": "__type.apiArguments"
+		},
+		"121": {
+			"packageName": "tiro-notes-client",
+			"packagePath": "src/hooks/api/api.hook.tsx",
+			"qualifiedName": "cb"
+		}
+	},
+	"files": {
+		"entries": {
+			"1": "client/src/hooks/api/api.hook.tsx",
+			"2": "client/README.md",
+			"3": "client"
+		},
+		"reflections": {
+			"1": 0,
+			"2": 0,
+			"3": 0
+		}
+	}
+}

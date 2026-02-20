@@ -5,7 +5,7 @@ import { iFile } from '../../../../shared/types.shared';
 import { perf } from '../../managers/performance.manager';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
-import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
+import { genIdReq, getApi, getClientApi2, iApiEventBus } from './api.hook';
 import { iNoteHistoryApi } from './history.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
@@ -33,6 +33,12 @@ export interface iFileApi {
 			removeMetaHeader?: boolean
 		}
 	) => void
+	searchReplace: (
+		noteLink: string,
+		searchValue: string,
+		replaceValue: string,
+		cb: (result: any) => void
+	) => void,
 	insertContent: (
 		noteLink: string,
 		content: string,
@@ -372,7 +378,19 @@ export const useFileApi = (p: {
 
 
 
-
+	// Search replace
+	const searchReplace: iFileApi['searchReplace'] = (noteLink, searchValue, replaceValue, cb) => {
+		getApi(api => {
+			// get content
+			api.file.getContent(noteLink, (content) => {
+				// perform search and replace
+				const newContent = content.replaceAll(searchValue, replaceValue);
+				api.file.saveContent(noteLink, newContent, {},(result) => {
+					cb && cb(result);
+				});
+			});
+		});
+	}
 
 	// IMPORTS
 	const moveApi = useMoveApi({ eventBus: p.eventBus });
@@ -384,6 +402,7 @@ export const useFileApi = (p: {
 	const fileApi: iFileApi = {
 		getContent: getFileContent,
 		saveContent: saveFileContent,
+		searchReplace: searchReplace,
 		insertContent: insertContent,
 		delete: deleteFile,
 		move: moveApi.file,

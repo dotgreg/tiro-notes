@@ -10,6 +10,31 @@ const styleCss = `
 table {
   width: 100%;
 }
+table th .header_details {
+  display:none;
+}
+table .canvas_hist {
+  display: block;
+  width: 90%;
+  height: 100px;
+}
+table th:hover .header_details {
+  padding: 4px;
+  z-index: 1000;
+  display: block;
+  font-size: 9px;
+  color: grey;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  width: 200px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  // box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  pointer-events: none;
+  line-height:1.2;
+}
 table thead {
   cursor:pointer;
 }
@@ -20,6 +45,13 @@ table tr td {
   word-break: break-all; 
   border:none; 
   padding: 1px 11px;
+}
+.input-content {
+  background: none;
+  border: none;
+  color: #525252;
+  width: 100%;
+  font-weight: normal;
 }
 
 .table-controls-wrapper {
@@ -149,9 +181,11 @@ table.ctag-component-table  th {
   display: flex;
   align-items: center;
 }
+.col-buttons .fa-calculator.active,
 .col-buttons .fa-filter.active {
   color: blue;
 }
+.col-buttons .fa-calculator,
 .col-buttons .fa-filter {
   color: #ccc;
 }
@@ -215,12 +249,16 @@ Full example: (to copy and paste in a note, then click on #food)
 
 
 <h3> More options </h3>
-<p>"__config_add_form=" Add item button: You can add a "+" button that will add a form to insert a new line using __config_add_form=FORM_NAME where FORM_NAME is the name of your form from /.tiro/forms.md. Please refer to Tiro Notes General help (? button) to create forms <br>
-<p>"__config_hideCol_NAMECOL"  Removing a column: You can remove one col by adding the word <br>
-<p>"__config_hide_meta":  Removing default cols: You can remove the meta columns by adding the word <br>
-<p"__config_hide_config_rows": Removing config rows: by adding the word <br>
-<p>"__config_split_on_comma": [NOT IMPLEMENTED YET] Split on comma: If a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
+<p>"__config_no_edit_mode":  disabling edit mode for each cell, it will not auto update the underlying files<br>
+<p>"__config_add_form=" add item button: you can add a "+" button that will add a form to insert a new line using __config_add_form=form_name where form_name is the name of your form from /.tiro/forms.md. please refer to tiro notes general help (? button) to create forms <br>
+<p>"__config_hidecol_namecol"  removing a column: you can remove one col by adding the word <br>
+<p>"__config_show_meta":  showing default cols: you can add the meta columns by adding the word <br>
+<p>"__config_hide_config_rows": removing config rows: by adding the word <br>
+<p>"__config_split_on_comma": [not implemented yet] split on comma: if a cell has several values like "cat1, cat2, cat3" it will be splitted in separated rows <br>
 <p>"__config_disable_click": disable the default click event, useful for grid view
+
+<h3> timeline visualization </h3>
+<p> to have the timeline visualization working, it requires a col with dates in the cols for the smartlist
 
 <h3> Custom cell content: </h3>
 <p>you can customize a cell content, here are some examples
@@ -228,6 +266,8 @@ Full example: (to copy and paste in a note, then click on #food)
 <code>
 <pre>
 - #food | __config_formula_image2 =  < div style="width:40px; color: red" >\${sum_image/count_image} and row_image < / div >
+// for reducing the size of a col with http links
+ #appart2025| __config_formula_col7 =  <div style="width:20px; color: red"><a  target="_blank" href="row_col7">link</a></div>
 </pre>
 </code>
 <br> 
@@ -356,6 +396,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
 
 
 
+  //////////////////////////////////////////////////////
+  //
+  // SORTING MECHANISM
+  //
   const sortedItems = r.useMemo(() => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
@@ -367,6 +411,9 @@ const TableComponentReactInt = ({ items, config, id }) => {
         if (b[sortConfig.key] === undefined) b[sortConfig.key] = " ";
         // if a[sortConfig.key] and b[sortConfig.key] are dates, convert them to date objects and sort them using timestamp
         // count / in a[sortConfig.key], if 2, it is a date
+        //
+        // DATE SORTING
+        //
         if (a[sortConfig.key].split && a[sortConfig.key].split("/").length === 3) {
           // date format is dd/mm/yyyy, convert it to mm/dd/yyyy
           let dateA = a[sortConfig.key].split("/").reverse().join("/");
@@ -378,6 +425,18 @@ const TableComponentReactInt = ({ items, config, id }) => {
             return sortConfig.direction === 'ascending' ? 1 : -1;
           }
           
+        //
+        // NUMBER SORTING
+        //
+        // check if parseFloat is not NaN
+        } else if (!isNaN(parseFloat(a[sortConfig.key])) && !isNaN(parseFloat(b[sortConfig.key]))) {
+          return sortConfig.direction === 'ascending' ? 
+            parseFloat(a[sortConfig.key]) - parseFloat(b[sortConfig.key]) : 
+            parseFloat(b[sortConfig.key]) - parseFloat(a[sortConfig.key]);
+
+        //
+        // TEXT
+        //
         } else {
 
           if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -394,6 +453,58 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }, [items, sortConfig]);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //
+  // AGGREGATION FOR GRAPHS LOGIC
+  //
+  const [aggregatorCol, setAggregatorColInt] = r.useState(null);
+  const isColAggregator = (colId) => {
+    return aggregatorCol === colId;
+  };
+  const toggleAggregatorCol = (col) => {
+    let newCol = col === aggregatorCol ? null : col;
+    setAggregatorCol(newCol);
+  }
+  const setAggregatorCol = (col) => {
+    setAggregatorColInt(col);
+    localStorage.setItem(`${id}-aggregatorCol`, JSON.stringify(col));
+  };
+  r.useEffect(() => {
+    let col = JSON.parse(localStorage.getItem(`${id}-aggregatorCol`));
+    if (col) setAggregatorCol(col);
+  }, []);
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //
+  //
+  // FILTERING LOGIC
+  //
+  //
   const [activeFilters, setActiveFiltersInt] = r.useState({});
   const setActiveFilters = (filters) => {
     setActiveFiltersInt(filters)
@@ -440,6 +551,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
     setSortConfig({ key, direction });
   };
 
+  let shouldCellContentBeProcessed = (contentCell) => {
+    // if < / > exists inside the contentCell, it is html
+    return contentCell && contentCell.includes("<") && contentCell.includes(">");
+  }
   let processContent = (contentCell, configCol) => {
     // if type of is not string, return it
     if (typeof contentCell !== "string") return contentCell
@@ -525,20 +640,281 @@ const TableComponentReactInt = ({ items, config, id }) => {
   }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //
-  // Header cell
+  // HEADER POPUP STATISTICS
+  //
+
+  // sort array ascending
+  const asc = arr => arr.sort((a, b) => a - b);
+  const sum = arr => arr.reduce((a, b) => a + b, 0);
+  const mean = arr => sum(arr) / arr.length;
+  // sample standard deviation
+  const std = (arr) => {
+      const mu = mean(arr);
+      const diffArr = arr.map(a => (a - mu) ** 2);
+      return Math.sqrt(sum(diffArr) / (arr.length - 1));
+  };
+  const quantile = (arr, q) => {
+    let res = 0
+      const sorted = asc(arr);
+      const pos = (sorted.length - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sorted[base + 1] !== undefined) {
+          res = sorted[base] + rest * (sorted[base + 1] - sorted[base]);
+      } else {
+          res = sorted[base];
+      }
+      if (isNaN(res)) return 0
+      // if res has two dots, remove the second one
+      let resStr = res.toString()
+      if (resStr.split(".").length > 2) {
+        resStr = resStr.split(".").slice(0, 2).join(".")
+        res = parseFloat(resStr)
+      }
+      if (res > 1) {
+        res = Math.round(res * 10) / 10;
+      }
+      return res
+  };
+  const q25 = arr => quantile(arr, .25);
+  const q50 = arr => quantile(arr, .50);
+  const q75 = arr => quantile(arr, .75);
+  const median = arr => q50(arr);
+  const createHistogramCanvas = arr => {
+    let canvasId = `histogram-${Math.random().toString(36).substr(2, 9)}`;
+    setTimeout(() => {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      // bg color whitegrey
+      ctx.fillStyle = "#b7b7b7ff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const histogram = {};
+      // create histogram bars with 30 bars (split from min to max)
+      const min = Math.min(...arr);
+      const max = Math.max(...arr);
+      const step = (max - min) / 30;
+      for (let i = 0; i < 30; i++) {
+        let start = min + i * step;
+        let end = min + (i + 1) * step;
+        let rounder = 1
+        if (start < 1) rounder = 100
+        start = Math.round(start * rounder) / rounder
+        end = Math.round(end * rounder) / rounder
+        if (i === 29) end += 1
+
+        histogram[`${start}-${end}`] = 0;
+      }
+      // fill histogram data
+      arr.forEach(value => {
+        const bin = Object.keys(histogram).find(key => {
+          const [start, end] = key.split("-").map(Number);
+          return value >= start && value <= end;
+        });
+        if (bin) histogram[bin] += 1;
+      });
+      // draw histogram + add legend every 5 bars on the bottom of the graph, text is 90d oriented
+      const maxCount = Math.max(...Object.values(histogram));
+      const barWidth = canvas.width / Object.keys(histogram).length;
+      Object.entries(histogram).forEach(([range, count], index) => {
+        const barHeight = (count / maxCount) * canvas.height;
+        ctx.fillStyle = "grey";
+        ctx.fillRect(index * barWidth, canvas.height - barHeight, barWidth, barHeight);
+        // add legend every 5 bars on the bottom of the graph, text is 90d oriented
+      });
+      Object.entries(histogram).forEach(([range, count], index) => {
+        let rangeStr = Math.round(parseFloat(range.split("-")[0])).toString();
+        if (index % 5 === 0 || index === Object.entries(histogram).length - 1) {
+          ctx.fillStyle = "white";
+          ctx.save();
+          let tX = (index * barWidth + barWidth / 2)
+          if (tX < 20) tX = 20
+          if (tX > canvas.width - 20) tX = canvas.width - 20
+
+          ctx.translate(tX, canvas.height);
+          ctx.rotate(-Math.PI / 3);
+          // text 20px
+          ctx.font = "20px Arial";
+          ctx.fillText(rangeStr, 0, 0);
+          ctx.restore();
+        }
+      });
+
+    }, 1000);
+    return `<canvas class="canvas_hist" id="${canvasId}"></canvas>`;
+  }
+
+  const guessColType = (val) => {
+      let colType = "string"
+      if (val.includes("/") && val.length === 10) colType = "date"
+      else if (!isNaN(parseFloat(val))) colType = "number"
+      return colType
+  }
+
+  const formatDMY = d => {
+      const dd = String(d.getDate()).padStart(2, '0');
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const yy = d.getFullYear();
+      return `${dd}/${mm}/${yy}`;
+  };
+
+
+
+
+
+
+  //
+  // Header cell + STATISTICS POPUP!
   //
   const genHeaderCell = col => {
+    let sum = 0
+    let diffVals = new Set()
+    let colType = "string"
+    let earliestDate = null
+    let latestDate = null
+    let allValsCol = []
+    let aggregatedByVals = {}
+    let mostCountedVals = {}
+    let count = 0
     if (col.headerLabel) {
-      if (col.headerLabel.includes("{{sumCol}}")) {
-        let sumCol = 0;
-        items.forEach(item => {
-          let nb = parseFloat(item[col.colId]) || 0
-          sumCol += nb
+
+
+        //
+        // go through EACH item/row
+        //
+        filteredItems.forEach(item => {
+          val = item[col.colId]
+          if (!val) val = ""
+          if (val.includes("%")) val = val.replace("%", "").trim()
+          val = val.trim()
+          let nb = parseFloat(val)
+          diffVals.add(val)
+          mostCountedVals[val] = (mostCountedVals[val] || 0) + 1
+          allValsCol.push(val)
+          sum += nb
+          count++
+
+          // aggregation
+          aggVal = item[aggregatorCol]
+          if (val && aggVal) {
+            if (!aggregatedByVals[val]) aggregatedByVals[val] = []
+            aggregatedByVals[val].push(aggVal)
+          }
+
+          // item has two / / + size is dd/mm/yyyy = 10 then it is a date
+          colType = guessColType(val)
+          if (colType === "date") {
+            let [day, month, year] = val.split("/")
+            let date = new Date(year, month - 1, day)
+            if (!earliestDate || date < earliestDate) earliestDate = date
+            if (!latestDate || date > latestDate) latestDate = date
+          }
         })
-        sumCol = Math.round(sumCol)
-        col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
-      }
+
+
+
+        //
+        // DO THE MATH
+        //
+        sum = Math.round(sum)
+        if (isNaN(parseFloat(sum))) colType = "string"
+        if (!isNaN(parseFloat(sum)) && colType !== "date") colType = "number"
+        colType = colType
+        
+
+
+        // aggregation
+        let aggStr = ""
+        if (aggregatorCol) {
+          // get aggregated values
+
+          let totalSumAgg = 0
+          let aggArr = []
+          for (let val in aggregatedByVals) {
+            // just sum the arrays
+            let count = aggregatedByVals[val].length
+            aggregatedByVals[val] = aggregatedByVals[val].reduce((a, b) => { return parseFloat(a) + parseFloat(b) }, 0)
+            totalSumAgg += aggregatedByVals[val]
+            aggArr.push({label: val, value: Math.round(aggregatedByVals[val]), percentage: 0, count: count})
+          }
+          for (let i = 0; i < aggArr.length; i++) {
+            aggArr[i].percentage = Math.round((aggArr[i].value / totalSumAgg) * 100)
+          }
+          // sort aggArr by value
+          aggArr.sort((a, b) => b.value - a.value)
+
+          aggStr = `
+            --------<br>
+            ${aggregatorCol} aggregated by ${col.headerLabel} =>
+            <table>
+            <tr><th>name</th><th>sum</th><th>% - count</th> </tr>
+             ${aggArr.map(v => `<tr><td>${v.label}</td><td>${v.value}</td><td>${v.percentage}% (${v.count})</td></tr>`).join("")}
+            </table>
+          
+          `
+        } 
+
+
+
+        // POPUP DISPLAY
+        if (colType === "string") {
+
+          // get 5 most counted
+          const mostCounted = Object.entries(mostCountedVals)
+            .sort((a, b) => b[1] - a[1])
+          col.header_details = `
+          unique: ${diffVals.size} <br>
+          ${aggStr}
+          --------<br>
+          <b>most counted</b>: <br> 
+          <table>
+          ${mostCounted.map(v => `<tr><td>${v[0]}</td><td>${v[1]}</td></tr>`).join("")}
+          </table>
+          `
+
+        } else if (colType === "number") {
+          col.header_details = `
+          sum: ${sum} <br>
+          avg: ${Math.round(sum/filteredItems.length)} <br>
+          count: ${count} <br>
+          ${aggStr}
+          ----<br>
+          min:${Math.min(...allValsCol)} <br>
+          q25:${q25(allValsCol)} <br>
+          q50:${q50(allValsCol)} <br>
+          q75:${q75(allValsCol)} <br>
+          max:${Math.max(...allValsCol)} <br>
+          ----<br>
+          ${createHistogramCanvas(allValsCol)}
+          ----<br>
+          `
+        } else if (colType === "date") {
+          // date format = dd/mm/yyyy hh:mm
+          let earliest = earliestDate ? formatDMY(earliestDate) : ""
+          let latest = latestDate ? formatDMY(latestDate) : ""
+          let diffInDays = latestDate && earliestDate ? Math.round((latestDate - earliestDate) / (1000 * 60 * 60 * 24)) : 0
+
+          col.header_details = `from: ${earliest} <br> to : ${latest} <br> duration: ${diffInDays} days <br> unique: ${diffVals.size} ${aggStr}`
+        }
+        col.header_details = `<b>${col.headerLabel} </b><br> Type: ${colType}<br>----<br>` + col.header_details
+        // col.headerLabel = col.headerLabel.replace("{{sumCol}}", sumCol)
+      // }
       if (col.headerLabel.includes("{{count}}")) col.headerLabel = col.headerLabel.replace("{{count}}", items.length)
     }
   
@@ -546,7 +922,8 @@ const TableComponentReactInt = ({ items, config, id }) => {
       `${col.headerLabel || col.colId} `, 
       c('span', {className:"sortIndic" }, [
         `${sortConfig?.key === col.colId ? (sortConfig?.direction === "ascending" ? "▼" : "▲") : ""}`
-      ])
+      ]),
+      c('div', {className: "header_details", dangerouslySetInnerHTML: { __html: col.header_details }})
     ]
     if (col.type && col.type === "multiselect") {
       res = [c('input', {type:"checkbox", checked: filteredItems.length === selectedItems.length, onInput: () => onColHeaderClick(col.colId)})]
@@ -559,6 +936,26 @@ const TableComponentReactInt = ({ items, config, id }) => {
     res = c('th',  {  key: keyCounter(`${col.colId}-${col.headerLabel}`) ,onClick: () => { if (isSortable) requestSort(col.colId) }}, res)
     return res
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   // 
@@ -724,6 +1121,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         // hide/show col content
                         c('div', {className: "table-link-click", onClick: () => toggleColContent(col.colId)}, [
                           c('div', {className: `fa col-icon  ${colsContentHidden[col.colId] ? "fa-eye-slash" : "fa-eye"}`}),
+                        ]),
+                        // MAKE COL as pivot aggregator 
+                        c('div', {className: "table-link-click", onClick: () => toggleAggregatorCol(col.colId)}, [
+                          c('div', {className: `fa col-icon  ${isColAggregator(col.colId) ? "fa-calculator active" : "fa-calculator"}`}),
                         ])
                       ])
                     ])
@@ -751,7 +1152,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         ...(col.type === 'icon' ? [c('div', {className: `fa fa-${item[col.colId]}` })] : []),
                         // MULTISELECT
                         ...(col.colId === "multiselect" ? [
-                          c('input', {type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
+                          c('input', { type:"checkbox", checked: selectedItems.includes(item), onInput: () => {
                             if (selectedItems.includes(item)) {
                               setSelectedItems(selectedItems.filter(i => i !== item))
                             } else {
@@ -761,15 +1162,38 @@ const TableComponentReactInt = ({ items, config, id }) => {
                         ] : []),
                         // TEXT 
                         colsContentHidden[col.colId] ? [] : [
-                        !col.type ? [
-                          c('div', {
-                            onClick: (e) => {
-                              if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
-                            },
-                            className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
-                            dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
-                          })
-                        ] : []
+
+                          !col.type ? [
+                            // if config.editAction exists, show input instead of div
+
+                            config.editMode && config.editAction && !shouldCellContentBeProcessed(item[col.colId]) ? [
+                              c('input', {
+                                type: "text",
+                                className: "input-content",
+                                value: item[col.colId],
+                                onInput: (e) => {
+                                  const newValue = e.target.value
+                                  config.editAction(item, col, newValue)
+                                  // update item[col.colId] with newValue
+                                }
+                              })
+                            ] : [
+
+                              c('div', {
+                                onClick: (e) => {
+                                  if (configColsObj[col.colId]?.onClick) configColsObj[col.colId]?.onClick(item, e)
+                                },
+                                className:`cell-content ${rowCompressed ? "compressed" : ""} ${configColsObj[col.colId]?.onClick ? "table-link-click" : ""}`, 
+                                dangerouslySetInnerHTML:{__html: processContent(item[col.colId], configColsObj[col.colId])}
+                              })
+                            ]
+
+
+
+                          ] : []
+
+
+
                         ]
                         ])
                     )
@@ -846,6 +1270,10 @@ const TableComponentReactInt = ({ items, config, id }) => {
       // export to graph button
       config?.exportToGraph && c('button', { onClick: () => {config.exportToGraph(filteredItems)}, title: "Graphs" }, [
         c('div', {className:"fa fa-chart-line"})
+      ]),
+      // export to timeline button
+      config?.exportToTimeline && c('button', { onClick: () => {config.exportToTimeline(filteredItems)}, title: "Timeline" }, [
+        c('div', {className:"fa fa-timeline"})
       ]),
       // export to csv
       config?.exportToCsv && c('button', { onClick: () => {config.exportToCsv(filteredItems)}, title: "Export to CSV" }, [

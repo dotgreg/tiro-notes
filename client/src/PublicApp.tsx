@@ -110,7 +110,7 @@ export const PublicApp = () => {
 		historyApi,
 		notePreviewPopupApi,
 		lightboxApi,
-		ttsApi
+		ttsApi,
 	})
 
 

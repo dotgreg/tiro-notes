@@ -7,7 +7,9 @@ declare var barApi: any;
 import type {iTimerLib, iTimerHistoryItem} from "./timer.lib"
 */
 
-const disableCache = config.disableCache | false
+let disableCache = config.disableCache | false
+if (disableCache === 1) disableCache = true
+
 const main = (timerLib/*:iTimerLib*/) => {
     let initTriggered = false
     let history/*:iTimerHistoryItem[]*/ = []
@@ -60,7 +62,7 @@ const main = (timerLib/*:iTimerLib*/) => {
         let post = ` => ${time} mins`
         let opts = []
 
-        let times = [ time, null, 120, null, 240]
+        let times = [ time, null, 120, null, 180, null, 240, null, 300]
         for (var i = 0; i < times.length; i++) {
             if (times[i] === null)  {
                 opts.push({label: ` `, value:" "})

@@ -3,12 +3,14 @@ import { regexs } from '../../../../shared/helpers/regexs.helper';
 import { Popup } from '../../components/Popup.component';
 import { strings } from '../../managers/strings.manager';
 import { css } from '@emotion/css';
-import { each, set } from 'lodash-es';
+import { cloneDeep, each, has, isEqual, isNumber, set } from 'lodash-es';
 import { getApi } from '../api/api.hook';
 import { iInsertMethod } from '../api/file.api.hook';
 import { Input, InputType, iInputSelectOptionObj } from '../../components/Input.component';
 import { config } from 'process';
 import { getDateObj } from '../../../../shared/helpers/date.helper';
+import { isMobile } from '../../managers/device.manager';
+import { useDebounce } from '../lodash.hooks';
 
 
 const liveVars: {
@@ -20,12 +22,24 @@ const liveVars: {
 }
 
 export interface popupOptions  {cssStr?:string}
+export interface formPopupOptions  {
+	autosubmit?: number | boolean
+}
+
+type iPopupFormFieldType = InputType | "html"
+
 export interface iPopupFormField {
 	name: string,
-	type: InputType,
+	type: iPopupFormFieldType,
+	initValue?: any,
 	description: string,
 	selectOptions?: iInputSelectOptionObj[]
 	optional?: boolean,
+	rememberLastValue?:boolean,
+	aiSuggestString?: string,
+	aiSuggestAutoInsert?: boolean,
+	notVisible?: boolean,
+	historySuggest?: boolean,
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -34,6 +48,7 @@ export interface iPopupFormConfig {
 	insertFilePath?:string,
 	insertLine?:number,
 	insertStringFormat?: string,
+	options?: popupOptions
 }
 export type iPopupApi = {
 	confirm: (text: string, cb: Function, onRefuse?: Function, options?:popupOptions) => void,
@@ -49,7 +64,12 @@ export type iPopupApi = {
 		options?:popupOptions
 	}) => void
 	form: {
-		create: (p:iPopupFormConfig, cb?:Function ) => void
+		create: (
+			p:iPopupFormConfig, 
+			cb?:Function,
+			formValues?: {[key:string]: any},
+			opts?:formPopupOptions
+		) => void
 		readConfigFromNote: (
 			notePath: string, 
 			cb:(popupsConfig: iPopupFormConfig[]) => void 
@@ -59,8 +79,15 @@ export type iPopupApi = {
 		) => void) => void,
 		open: (
 			formName: string,
-			cb: (form: iPopupFormConfig) => void
+			cb: (form: iPopupFormConfig) => void,
+			formValues?: {[key:string]: any},
+			opts?: formPopupOptions
 		) => void,
+		// insert: (
+		// 	formName: string,
+		// 	formContent: {[key:string]: any},
+		// 	cb: (form: iPopupFormConfig) => void
+		// ) => void,
 
 
 	}
@@ -77,6 +104,7 @@ export const usePromptPopup = (p: {
 	const [text, setText] = useState(``)
 	const [userInput, setUserInput] = useState<string | null>(null)
 	const [title, setTitle] = useState(strings.promptPopup.defaultTitle)
+	const [autoSubmit, setAutoSubmit] = useState<number|boolean>(false)
 	const [showRefuse, setShowRefuse] = useState(false)
 
 	const [acceptLabel, setAcceptLabel] = useState(strings.promptPopup.accept)
@@ -201,56 +229,54 @@ export const usePromptPopup = (p: {
 	const [configForm, setConfigForm] = useState<iPopupFormConfig>(defaultConfigForm as iPopupFormConfig)
 	const configFormCbRef = useRef<Function | undefined>()
 
-	const readConfigFromNote:iPopupApi["form"]["readConfigFromNote"] = (noteLink, cb) => {
-		// get note from path
+	const readConfigFromNote: iPopupApi["form"]["readConfigFromNote"] = (noteLink, cb) => {
 		getApi(api => {
 			api.file.getContent(noteLink, noteContent => {
-				// parse note content
 				const lines = noteContent.split("\n")
-				const formConfigs:iPopupFormConfig[] = []
+				const formConfigs: iPopupFormConfig[] = []
+
 				lines.forEach(line => {
-					// the config looks like "form | name=🎬 youtube, path=/d2/popup_form_results.md, line_format= {{datetime}} | hello: {{hello}} | world: {{world|date}} | age: {{age|number}} | tag: {{tags|select:el1,el2,el3}}\n, type=append"
-					if (line.trim().startsWith("form|") || line.startsWith("form |")) {
-						let configRaw = line.split("|")
-						// remove the first el and merge array again
-						configRaw.shift()
-						let configRawStr = configRaw.join("|")
+					if (!line.trim().startsWith("form|") && !line.startsWith("form |")) return
 
-						let formConfig = {title:"", fields:[]} as iPopupFormConfig
-						const parts = configRawStr.split(",")
-						// if some parts do not include an =, merge it back to item n-1 (for instance select:el1,el2,el3)
-						for (let i = 0; i < parts.length; i++) {
-							if (!parts[i].includes("=")) {
-								parts[i-1] = parts[i-1] + "," + parts[i]
-								parts.splice(i, 1)
-								i--
-							}
+					// ----- 1. isolate the raw config string (everything after the first "|") -----
+					const configRaw = line.split("|")
+					configRaw.shift()                     // remove leading "form"
+					const configRawStr = configRaw.join("|")
+
+					// ----- 2. split on commas that start a new key=value pair -----
+					// commas inside a value (e.g., lists, URLs, HTML) are ignored
+					const parts = configRawStr.split(/,(?=\s*\w+=)/)
+
+					const formConfig = { title: "", fields: [] } as iPopupFormConfig
+
+					parts.forEach(part => {
+						const [keyRaw, ...valArr] = part.split("=")
+						const key = keyRaw.trim()
+						const value = valArr.join("=").trim()   // keep any "=" inside the value
+
+						switch (key) {
+							case "name":
+								formConfig.title = value
+								break
+							case "path":
+								formConfig.insertFilePath = value
+								break
+							case "line":
+								formConfig.insertLine = parseInt(value, 10)
+								break
+							case "line_format":
+								formConfig.insertStringFormat = value
+								break
+							// add more keys here if needed
 						}
-						parts.forEach(part => {
-							let arrSplit = part.split("=")
-							// trim both
-							let key = arrSplit[0].trim()
+					})
 
-
-							// remove first el of arrSplit
-							arrSplit.shift()
-							let valRaw = arrSplit.join("=")
-							let value = valRaw.trim() 
-							if (key === "name") formConfig.title = value
-							if (key === "path") formConfig.insertFilePath = value
-							if (key === "line") formConfig.insertLine = parseInt(value)
-							if (key === "line_format") { formConfig.insertStringFormat =  value }
-						})
-						formConfigs.push(formConfig)
-					}
-
+					formConfigs.push(formConfig)
 				})
-				cb(formConfigs)
-			}, {
-				removeMetaHeader: true
-			})
-		})
 
+				cb(formConfigs)
+			}, { removeMetaHeader: true })
+		})
 	}
 
 	const getAllForms:iPopupApi["form"]["getAll"] = (cb) => {
@@ -258,8 +284,16 @@ export const usePromptPopup = (p: {
 	}
 
 
-	const promptFormComponent:iPopupApi["form"]["create"] = (p, cb) => {
+	const promptFormComponent:iPopupApi["form"]["create"] = (p, cb, formValues, opts) => {
+		if (!opts) opts = {autosubmit: false}
+		if (!opts.autosubmit) opts.autosubmit = false
 		let finalConfigForm = {...defaultConfigForm, ...p} as iPopupFormConfig
+		if (p.options?.cssStr) setCssStr(p.options.cssStr)
+		else {
+			let ncssStr = ``
+			if (isMobile()) ncssStr = `.popup-wrapper {transform:translate(-50%,0%)!important; top:20px!important;}`
+			setCssStr(ncssStr)
+		}
 
 		// from line_format, extract fields {{name|type}} with text as type by default
 		let fields = [] as iPopupFormField[]
@@ -285,35 +319,77 @@ export const usePromptPopup = (p: {
 				// if optional in description, is optional
 				let optional = false
 				if (description?.includes("optional")) optional = true
-					
+				let rememberLastValue = false
+				if (description?.includes("remember")) rememberLastValue = true
+				let aiSuggest = ""
+				let aiSuggestAutoInsert = false
+				if (description?.includes("ai_suggest:")) { aiSuggest = description.split("ai_suggest:")[1].trim(); description = description.split("ai_suggest:")[0].trim(); }
+				if (description?.includes("ai_insert:")) { aiSuggest = description.split("ai_insert:")[1].trim(); aiSuggestAutoInsert = true; description = description.split("ai_insert:")[0].trim(); }
+
+				let notVisible = false
+				if (description?.includes("not_visible") ) notVisible = true
+				let historySuggest = false
+				if (description?.includes("history") ) historySuggest=true
+
+
 				// if name is already in fields, skip it
 				if (!fields.find(el => el.id === name)){
 					fields.push({
 						name,
+						initValue: formValues && has(formValues, name) ? formValues[name] : "",
 						type: type as InputType || "text",
 						description: description || name,
 						selectOptions,
 						optional,
-						id: name
+						rememberLastValue,
+						id: name,
+						aiSuggestString: aiSuggest,
+						aiSuggestAutoInsert,
+						notVisible,
+						historySuggest
 					})
 				}
+
 			}
 		})
+		// if some formValues are provided but do not match any field, notify user
+		if (formValues) {
+			let unmatchedFields = Object.keys(formValues).filter(key => !fields.find(field => field.id === key))
+			if (unmatchedFields.length > 0) {
+				getApi(api => {
+					api.ui.notification.emit({
+						id: "form-unmatched-fields",
+						content: `FORM: fields <b>${unmatchedFields.join(", ")}</b> do not match any form fields.`,
+					})
+				})
+			}
+		}
 		finalConfigForm.fields = fields
-		console.log("[POPUP > FORM] opening with config:", finalConfigForm)
+		// console.log("[POPUP > FORM] opening with config:", finalConfigForm)
 
 		setTitle(finalConfigForm.title)
 		setFormFields(fields)
 		setConfigForm(finalConfigForm)
 		setDisplayFormPopup(true)
 		configFormCbRef.current = cb
+		setAutoSubmit(opts.autosubmit || false)
+
 	}
 
-	const openForm:iPopupApi["form"]["open"] = (formName, cb) => {
+	useEffect(() => {
+		if (isNumber(autoSubmit)) {
+			setTimeout(() => {
+				console.log("[POPUP > FORM] auto submitting form:", configForm)
+				onFormSubmit()
+			}, autoSubmit || 1000)
+		}
+	}, [autoSubmit, configForm])
+
+	const openForm:iPopupApi["form"]["open"] = (formName, cb, formValues, opts) => {
 		getAllForms(forms => {
 			const form = forms.find(el => el.title === formName)
 			if (form) {
-				promptFormComponent(form, cb)
+				promptFormComponent(form, cb, formValues, opts)
 			} else {
 				// notify no form with that name
 				console.warn("Form not found", formName)
@@ -328,13 +404,7 @@ export const usePromptPopup = (p: {
 		})
 	}
 
-
-
-
-
-
-	const onFormSubmit = () => {
-
+	const getFormFieldsValues = () => {
 		// if some fields are empty, add them to formFieldsValues with empty string
 		formFields.forEach(field => {
 			// if type is date, date is today
@@ -345,23 +415,23 @@ export const usePromptPopup = (p: {
 				if (formFieldsValues.current[field.id]) formFieldsValues.current[field.id] = new Date(formFieldsValues.current[field.id]).toLocaleString('fr-FR')
 				formFieldsValues.current[field.id] = formFieldsValues.current[field.id]?.substring(0, formFieldsValues.current[field.id].length - 3)	
 			}
-			// if (field.type === "datetime" && !formFieldsValues.current[field.id]) {
-			// 	// date format should be dd/mm/yyyy
-			// 	formFieldsValues.current[field.id] = new Date().toLocaleDateString('fr-CA')  
-			// }
 		})
-
+		return formFieldsValues.current
+	}
+	const onFormSubmit = () => {
+		getFormFieldsValues()
 
 		// check if all fields are filled
 		let mandatoryFieldsEmpty:string[] = []
 		formFields.forEach(field => {
-			if (!field.optional && !formFieldsValues.current[field.id]) {
+			if (
+				!field.optional && !formFieldsValues.current[field.id] && field.type !== "html" && !field.notVisible
+			) {
 				mandatoryFieldsEmpty.push(field.name)
 			}
 		})
 		
 		// console.log("mandatoryFieldsEmpty", mandatoryFieldsEmpty)
-
 		if (mandatoryFieldsEmpty.length > 0) {
 			getApi(api => {
 				api.ui.notification.emit({ 
@@ -372,7 +442,7 @@ export const usePromptPopup = (p: {
 			return
 		}
 	 
-		setDisplayFormPopup(false)
+		if (!keepFormOpen) setDisplayFormPopup(false)
 
 		// create final string from format
 		let finalStringToInsert = configForm.insertStringFormat 
@@ -381,9 +451,18 @@ export const usePromptPopup = (p: {
 		finalStringToInsert = finalStringToInsert || defaultConfigForm.insertStringFormat
  
 		formFieldsValues.current = formFieldsValues.current || {}
+
 		// if some fields are empty, add them to formFieldsValues with empty string
 		formFields.forEach(field => {
 			if (!formFieldsValues.current[field.id]) {
+				formFieldsValues.current[field.id] = ""
+			}
+		})
+
+
+		// if some fields are in notVisible, add them to formFieldsValues with empty string
+		formFields.forEach(field => {
+			if (field.notVisible) {
 				formFieldsValues.current[field.id] = ""
 			}
 		})
@@ -411,6 +490,16 @@ export const usePromptPopup = (p: {
 		const finalFilePath = configForm.insertFilePath || defaultConfigForm.insertFilePath 
 		const insertLine = configForm.insertLine || defaultConfigForm.insertLine 
 		// insert final string to file
+
+
+		// if \n inside string, replace it by linejump
+		// finalStringToInsert = finalStringToInsert?.replaceAll("\\n", "woowowowo")
+		finalStringToInsert = finalStringToInsert?.replaceAll("\n", `
+`)
+		finalStringToInsert = finalStringToInsert?.replaceAll("\\n", `
+`)
+		// finalStringToInsert = finalStringToInsert?.replaceAll("\n", "woowowowo")
+		
 		getApi(api => {
 			api.file.insertContent(finalFilePath, finalStringToInsert || "", {insertLine}, res => {
 				// if (configFormCb) configFormCb()
@@ -432,71 +521,177 @@ export const usePromptPopup = (p: {
 			})
 		})
 
-		closePopup()
+		if (!keepFormOpen) closePopup()
+
 	}
 
-	// gen an example of popup form
-	// api.popupApi.form({
-	// 	title: "Form Popup",
-	// 	fields: [
-	// 		{
-	// 			name: "Name",
-	// 			type: "text",
-	// 			description: "Your name",
-	// 			id: "name"
-	// 		},
-	// 		{
-	// 			name: "Age",
-	// 			type: "number",
-	// 			description: "Your age",
-	// 			id: "age"
-	// 		},
-	// 	]
-	// })
-
+	const [keepFormOpen, setKeepFormOpen] = useState(false)
 
 	//
 	//
 	// HTML
 	//
 	//
-	const PromptPopupComponent = () => <>
-		{displayFormPopup &&
-			<div className="form-popup-component">
-				<Popup
-					title={title}
-					onClose={closePopup}
-					canBgClose={false}
+
+
+	//
+	// FORM
+	//
+	const PromptPopupComponent = () => {
+
+		//
+		//
+		// FOR HAVING AI SUGGEST REACTING TO OTHER FIELD CONTENT CHANGE > quite ugly, I know...
+		//
+		//
+		type AiSuggestList = {[key: string]: string}
+		const aiSuggestListRef = useRef<AiSuggestList>({})
+		const [counter, setCounter] = useState("")
+		const regenAiSuggestList = () => {
+			let nAiSuggestList: AiSuggestList = {}
+			formFields.forEach(field => {
+				if (field.aiSuggestString) { nAiSuggestList[field.id] = field.aiSuggestString }
+			})
+			return nAiSuggestList
+		}
+		const debounceUpdateAiSuggestList = useDebounce((fieldId: string, value: any) => {
+			// let oldList = aiSuggestListRef.current
+			let nAiSuggestList = regenAiSuggestList()
+			// console.log("==> field change, checking for", fieldId, `[${fieldId}]`)
+			let hasFoundChangeToProcess = false;
+			each(nAiSuggestList, (val, key) => {
+				if(val.includes(`[${fieldId}]`)){ 
+					hasFoundChangeToProcess = true;
+					nAiSuggestList[key] = val.replace(`[${fieldId}]`, value) 
+					// console.log("=====>  FOUND!", fieldId, val, "to replace => ", nAiSuggestList[key])
+				}
+			})
+			// if (!isEqual(oldList, nAiSuggestList)) {
+			if (hasFoundChangeToProcess) {
+				aiSuggestListRef.current = nAiSuggestList
+				setCounter(counter === " " ? "  " : " ");
+			}
+		}, 1000)
+		const outputAiSuggest = (fieldId: string) => {
+			if (aiSuggestListRef.current[fieldId] === undefined) return undefined
+			return `${aiSuggestListRef.current[fieldId]}${counter}`
+		}
+
+
+
+		//
+		// GENERIC REACTER SYSTEM
+		//
+		const triggerActionsOnFieldChange = (fieldId: string, value: any) => {
+			// console.log("FIELD CHANGE", fieldId, value)
+			debounceUpdateAiSuggestList(fieldId, value)
+			debounceUpdateHtmlContent(fieldId, value)
+		}
+
+
+		//
+		//
+		// FORM FIELD HTML UPDATER LOGIC
+		//
+		//
+		const [htmlUpdateCounter, setHtmlUpdateCounter] = useState(0)
+		const debounceUpdateHtmlContent = useDebounce((fieldId: string, value: any) => {
+			setHtmlUpdateCounter(htmlUpdateCounter + 1)
+		}, 1000)
+
+		const [htmlFields, setHtmlFields] = useState<{[key: string]: iPopupFormField}>({})
+		useEffect(() => {
+			let newHtmlFields: {[key: string]: iPopupFormField} = {}
+			formFields.forEach(field => {
+				if (field.type === "html") {
+					newHtmlFields[field.id] = cloneDeep(field)
+					// replace in description [INPUT_NAME] by current value of that field
+					let fieldsValues = getFormFieldsValues()
+					newHtmlFields[field.id].description = newHtmlFields[field.id].description.replace(/\[([^\]]+)\]/g, (match, p1) => {
+						return fieldsValues[p1] || match
+					})
+				}
+			})
+			setHtmlFields(newHtmlFields)
+		}, [formFields, htmlUpdateCounter])
+
+
+
+
+		return <>
+			{displayFormPopup &&
+				<div className="form-popup-component">
+					<Popup
+						title={title}
+						onClose={closePopup}
+					// disableBgClose={true}
 					cssStr={cssStr}
 				>
 					{formFields.map((field, i) => {
 						return <div key={i} className='form-input-wrapper'>
 							{/* <label>{field.name} : {field.description}</label>
 							<input className='popup-form-input' type={field.type} data-id={field.id} data-name={field.name} /> */}
-							<Input 
-								label={field.name}
-								explanation={field.description}
-								shouldNotSelectOnClick={true}
-								type={field.type}
-								list={field.selectOptions}
-								onLoad={val => {
-									formFieldsValues.current[field.id] = val
-								}}
-								onChange={nval => {
-									formFieldsValues.current[field.id] = nval
-								}}
-								onSelectChange={nval => {
-									formFieldsValues.current[field.id] = nval
-								}}
-							/>
+
+							{field.type !== "html" && (
+								<Input
+									label={field.name}
+									explanation={field.description}
+									shouldNotSelectOnClick={true}
+									value={field.initValue}
+									type={field.type}
+									list={field.selectOptions}
+									onLoad={val => {
+										formFieldsValues.current[field.id] = val
+									}}
+									onChange={(nval, opts) => {
+										// console.log("onChange for", field.id, {nval, opts})
+										formFieldsValues.current[field.id] = nval
+										triggerActionsOnFieldChange(field.id, nval)
+									}}
+									onSelectChange={nval => {
+										// console.log("onSelectChange for",  field.id, {nval})
+										formFieldsValues.current[field.id] = nval
+										triggerActionsOnFieldChange(field.id, nval)
+									}}
+									// REMEMBER
+									rememberLastValue={field.rememberLastValue}
+									id={`PromptPopupComponent-${title}-${field.name}-${field.type}`}
+									aiSuggest={outputAiSuggest(field.id)}
+									aiSuggestAutoInsert={field.aiSuggestAutoInsert}
+									highlightTextOnFocus={field.rememberLastValue && field.historySuggest}
+
+									autoSuggest={field.historySuggest ? true : undefined}
+									autoSuggestSource={field.historySuggest ? 'backend' : undefined}
+								/>
+							)}
 							{
-								!field.optional &&
+								!field.optional && field.type !== "html" &&
 								<div className="mandatory">*</div>
 							}
+
+
+							{field.type === "html" && (
+								<div className='popup-form-html-field'
+									dangerouslySetInnerHTML={{
+										__html: htmlFields[field.id]?.description || ""
+									}}
+								></div>
+							)}
+
+
 						</div>
 					}
 					)}
 					<br />
+					<div className="form-input-wrapper">
+						<Input
+							label="Keep form open"
+							labelStyle="normal"
+							type="checkbox"
+							value={keepFormOpen}
+							onCheckedChange={e => setKeepFormOpen(e) }
+						/>
+					</div>
 					<button
 						value='submit'
 						className="accept submit-button"
@@ -515,7 +710,7 @@ export const usePromptPopup = (p: {
 				<Popup
 					title={title}
 					onClose={closePopup}
-					canBgClose={false}
+					// disableBgClose={true}
 					cssStr={cssStr}
 				>
 					<div>
@@ -553,6 +748,7 @@ export const usePromptPopup = (p: {
 				</Popup>
 			</div>}
 	</>
+	}
 
 	//
 	//
@@ -567,7 +763,7 @@ export const usePromptPopup = (p: {
 			create: promptFormComponent,
 			readConfigFromNote,
 			getAll: getAllForms,
-			open: openForm
+			open: openForm,
 		}
 
 	}
@@ -580,6 +776,7 @@ export const usePromptPopup = (p: {
 export const promptPopupCss = () => `
 .mobile-view-container {
 	.form-popup-component {
+	
 		.popup-wrapper {
 			.popupContent {
 				width: 80vw;
@@ -588,9 +785,14 @@ export const promptPopupCss = () => `
 	}
 }
 	.form-popup-component {
+		position: absolute;
+		z-index: 1000000;
 		.popup-wrapper {
 			input, select {
 				width: 90%;
+			}
+			input[type="checkbox"] {
+				width: auto;
 			}
 			.form-input-wrapper {
 				position: relative;

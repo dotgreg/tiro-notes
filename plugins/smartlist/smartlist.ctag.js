@@ -109,7 +109,7 @@ const smartlistApp = (innerTagStr, opts) => {
         }
         const searchAndDisplay = (configArray) => {
                 const commonLib = window._tiroPluginsCommon.commonLib
-                const { notifLog, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+                const { notifLog, generateHelpButton, getOperatingSystem, each, onClick, debounce } = commonLib
                 const wrapperEl = document.getElementById("smart-list-ctag-inner")
                 // update inputs with the first configArray
                 // console.log('configArray:', configArray[0])
@@ -140,8 +140,9 @@ const smartlistApp = (innerTagStr, opts) => {
                 let customColLength = 0
                 let customColsNames = {}
 
-                let configMetaCols = true
+                let configMetaCols = false
                 let hideConfigRows = false
+                let editMode = true
                 let widthCols = []
                 let colsToHide = []
                 let colsFormulas = []
@@ -154,16 +155,16 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(listFilesRes, (fileRes) => {
                                         each(fileRes.results, result => {
                                                 // __config_hideCol_NAMECOL | another thing
-                                                if (result.includes("__config_hideCol_")) {
+                                                if (result.toLowerCase().includes("__config_hidecol_")) {
                                                         // using regex, ends colName by either space or / or nothing, can have several results
                                                         // let colNames = result.match(/__config_hideCol_.*?[\s|\/|$]/g) 
                                                         let colNamesRaw = result.split(" ")
                                                         // only keep words starting by __config_hideCol_
-                                                        let colNames = colNamesRaw.filter(col => col.startsWith("__config_hideCol_"))
+                                                        let colNames = colNamesRaw.filter(col => col.toLowerCase().startsWith("__config_hidecol_"))
                                                         // remove __config_hideCol_ from each colName
-                                                        colNames = colNames.map(col => col.replace("__config_hideCol_", ""))
+                                                        colNames = colNames.map(col => col.toLowerCase().replace("__config_hidecol_", ""))
                                                         each(colNames, (colName) => {
-                                                                colName = colName.replace("__config_hideCol_", "").trim()
+                                                                colName = colName.toLowerCase().replace("__config_hidecol_", "").trim()
                                                                 colName = colName.toLowerCase()
                                                                 colsToHide.push(colName)
                                                         })
@@ -209,8 +210,9 @@ const smartlistApp = (innerTagStr, opts) => {
 
 
                                 // if we find the string config_no_extra_cols, remove all extra cols
-                                if (JSON.stringify(listFilesRes).includes("__config_hide_meta")) configMetaCols = false
+                                if (JSON.stringify(listFilesRes).includes("__config_show_meta")) configMetaCols = true
                                 if (JSON.stringify(listFilesRes).includes("__config_hide_config_rows")) hideConfigRows = true
+                                if (JSON.stringify(listFilesRes).includes("__config_no_edit_mode")) editMode = false
                                 if (JSON.stringify(listFilesRes).includes("__config_view_grid")) showGrid = true
                                 if (JSON.stringify(listFilesRes).includes("__config_disable_click")) disableGridClick = true
                                 each(listFilesRes, (fileRes) => {
@@ -231,7 +233,8 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         })
                                                 }
                                                 let created = new Date(file.created).toISOString().split("T")[0]
-                                                if (configMetaCols) finalObj.created = created
+                                                // if (configMetaCols) finalObj.created = created
+                                                finalObj.created = created
                                                 let isHeaderOrConfigRow = result.includes("__header_") || result.includes("__config_")
                                                 let canPush = true
                                                 if (hideConfigRows && isHeaderOrConfigRow) canPush = false
@@ -248,13 +251,15 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 delete item[key]
                                         })
                                 }
-
                                 loadTable({configMetaCols})
                         })
                 })
-                const exportDataToCsv = (els, p) => {
-                        if (!p) p = {}
-                        if (!p.colsToBlacklist) p.colsToBlacklist = ["filename", "folder", "created", "line", "actions"] 
+                const exportDataToCsv = (els, config) => {
+                        // if (!p) p = {}
+                        if (!config) config = {}
+                        if (!config.cols) config.cols = []
+                        // console.log(123, config)
+                        // if (!p.colsToBlacklist) p.colsToBlacklist = ["filename", "folder", "created", "line", "actions"] 
                         // transform els in csv
                         let csvString = ""
                         // header       
@@ -263,13 +268,14 @@ const smartlistApp = (innerTagStr, opts) => {
                         let i = 0
                         csvString += header + "\n"
                         // from els arr of objs, get all methods keys name
-                        let allMethods = []
-                        each(els, (el) => {
-                                each(el, (val, key) => {
-                                        if (!allMethods.includes(key)) allMethods.push(key)
-                                })
-                        })
-                        colsToShow = allMethods.filter(method => !p.colsToBlacklist.includes(method))
+                        // let allMethods = []
+                        // each(els, (el) => {
+                        //         each(el, (val, key) => {
+                        //                 if (!allMethods.includes(key)) allMethods.push(key)
+                        //         })
+                        // })
+                        colsToShow = config.cols.map(col => col.colId)
+                        // colsToShow = allMethods.filter(method => !p.colsToBlacklist.includes(method))
                         // first line of csv is the header
                         let headerLine = ""
                         each(colsToShow, (col) => {
@@ -284,13 +290,14 @@ const smartlistApp = (innerTagStr, opts) => {
                                 each(colsToShow, (col) => {
                                         let val = el[col]
                                         if (!val) val = " "
+                                        val = `${val}`
                                         if (val.startsWith("__header_")) lineIncludesHeader = true
                                         // if there are , in val, wrap it in ""
                                         // if (val.indexOf(",") > -1) val = `"${val}"`
                                         val = val.replaceAll(",", "__COMMA_CHAR__")
                                         // if content is a date, transform it to 2017-06-01
                                         // if there is 2 / in val, it is a date
-                                        if (val.split("/").length === 3) {
+                                        if (val.split("/").length === 3 && col !== "line") {
                                                 let [day, month, year] = val.split("/")
                                                 val = `${month}-${day}-${year}`
                                         }
@@ -305,6 +312,27 @@ const smartlistApp = (innerTagStr, opts) => {
                 }
 
 
+                const histLinesEditions = []
+                const editActionDebounce = debounce((item, col, value) => {
+                    // handle edit action
+                //     let newLineArr = item.line.split("|")
+                                        // handle edit action
+                        let filePath = item.folder + item.filename
+                        console.log(`Editing item ${item.id}, col ${col}, value ${value}`, item, col);
+                        let oldLine = histLinesEditions[item.row_index] || item.line
+                        let newLineArr = oldLine.split("|")
+                        newLineArr[col.colPos] = value
+                        let newLine = newLineArr.join("|")
+                        // console.log(123, histLinesEditions)
+                        // console.log("==============")
+                        // console.log(oldLine)
+                        // console.log(newLine)
+                        histLinesEditions[item.row_index] = newLine
+                        api.call("file.searchReplace", [filePath, oldLine, newLine])
+                        notifLog(`content updated for ${filePath}`, "updateSearchReplace", 1)
+                        // item.line = newLine
+                }, 1000);
+
 
 
                 const loadTable = (p) => {
@@ -314,24 +342,49 @@ const smartlistApp = (innerTagStr, opts) => {
                                 cols: [],
                                 gridView: false,
 
+                                editMode: editMode,
+                                editAction: (item, col, value) => {
+                                        editActionDebounce(item, col, value)
+                                },
+
                                 exportToCsv: els => {
-                                        // 
-                                        let csvString = exportDataToCsv(els, {colsToBlacklist: []})
-                                        // create a html button and trigger it in js to download the csv as blob file
-                                        const blob = new Blob([csvString], { type: 'text/csv' });
+                                        // console.log({config, els, items})
+                                        let csvString = '\uFEFF' + exportDataToCsv(els, config)
+                                        console.log({csvString})
+                                        // create a html button and trigger it in js to download the csv as blob file/ utf8 encoding!
+                                        const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
                                         const url = window.URL.createObjectURL(blob);
                                         const a = document.createElement('a');
                                         a.setAttribute('hidden', '');
                                         a.setAttribute('href', url);
                                         // name is "export-10-10-2023--10h23.csv"
-                                        let name = `export-${new Date().toISOString().split("T")[0]}--${new Date().toISOString().split("T")[1].split(":").slice(0, 2).join("h")}.csv`
+                                        let smallId = config.id.replace("smartlist-table", "").replaceAll("-", "").replaceAll("#", "").replaceAll("1", "")
+                                        let name = `${smallId}__${new Date().toISOString().split("T")[0]}__${new Date().toISOString().split("T")[1].split(":").slice(0, 2).join("h")}.csv`
                                         a.setAttribute('download', name);
                                         document.body.appendChild(a);
                                         a.click();
                                         document.body.removeChild(a);
                                 },
+
+                                exportToTimeline: els => {
+                                        let csvString = exportDataToCsv(els, config)
+                                        console.log('csvString export:', csvString, els)
+                                        const configFloatingWindow = {
+                                                type: "ctag",
+                                                layout: "top",
+                                                id: "smartlist-timeline",
+                                                ctagConfig: {
+                                                        tagName: "timeline",
+                                                        content: `
+                                                        mode:csv
+                                                        ${csvString}`,
+                                                },
+                                        }
+                                        api.call("ui.floatingPanel.create", [configFloatingWindow])
+                                },
+
                                 exportToGraph: els => {
-                                        let csvString = exportDataToCsv(els)
+                                        let csvString = exportDataToCsv(els, config)
                                         console.log('csvString:', csvString, els)
                                         const configFloatingWindow = {
                                                 type: "ctag",
@@ -344,22 +397,22 @@ const smartlistApp = (innerTagStr, opts) => {
                                         }
                                         api.call("ui.floatingPanel.create", [configFloatingWindow])
                                 }
+
                         };
+                        let j = 0
+                        let rawCols = []
                         for (let i = 1; i <= customColLength; ++i) {
-                                config.cols.push({ colId: `col${i}`, headerLabel: `Col${i}` })
+                                rawCols.push({ colId: `col${i}`, headerLabel: `Col${i}`, colPos: i - 1 })
                         }
+                        let customCols = []
                         for (const key in customColsNames) {
-                                config.cols.push({ colId: customColsNames[key], headerLabel: customColsNames[key] })
 
+                                let prevId = parseInt(key.replace("col", "")) - 1
+                                customCols.push({ colId: customColsNames[key], headerLabel: customColsNames[key], colPos: prevId })
                                 // remove key(like col1) from config.cols
-                                config.cols = config.cols.filter(col => col.colId !== key)
+                                rawCols = rawCols.filter(col => col.colId !== key)
                         }
-
-                        // if (hasTag2) config.cols.push({colId: "tag2", headerLabel: "Tag2", classes:"td-tag"})
-                        // if (hasTag3) config.cols.push({colId: "tag3", headerLabel: "Tag3", classes:"td-tag"})
-                        // {colId: "filename", headerLabel: "Filename"},
-                        // {colId: "folder", headerLabel: "Folder"},
-
+                        config.cols = customCols.concat(rawCols)
                         const isMobile = () => {
                                 let check = false;
                                 //@ts-ignore
@@ -367,9 +420,21 @@ const smartlistApp = (innerTagStr, opts) => {
                                 return check;
                         };
                         p.configMetaCols && config.cols.push({ colId: "filename", headerLabel: "Filename" })
-                        p.configMetaCols && config.cols.push({ colId: "created", headerLabel: "Created" })
+                        // p.configMetaCols && config.cols.push({ colId: "created", headerLabel: "Created" })
                         p.configMetaCols && config.cols.push({ colId: "folder", headerLabel: "Folder" })
                         p.configMetaCols && config.cols.push({ colId: "line", headerLabel: "Line" })
+
+                        // if config.cols have no cols, only push line + filename + created
+                        // console.log(config.cols)
+                        if (config.cols.length === 0) {
+                                config.cols.push(
+                                        { colId: "line", headerLabel: "Line" },
+                                        // { colId: "created", headerLabel: "Created" },
+                                        { colId: "filename", headerLabel: "Filename" },
+                                );
+                        }
+
+                        config.cols.push({ colId: "created", headerLabel: "Created" })
 
                         const openItemFloatingWindow = (item) => {
                                 console.log('onClick:', item);
@@ -410,7 +475,9 @@ const smartlistApp = (innerTagStr, opts) => {
 
                         // for each item and each col, try to sum all values
                         let colsStats = {}
+                        let i = 0;
                         for (const item of items) {
+                                item["row_index"] = i++;
                                 for (const col of config.cols) {
                                         if (!colsStats[col.colId]) colsStats[col.colId] = {sum: 0, count: 0}
                                         if (item[col.colId]) {
@@ -464,6 +531,17 @@ const smartlistApp = (innerTagStr, opts) => {
                                                 }
                                         }
                                 }
+
+                                //
+                                // GEN TABLE COMPONENT
+                                //
+                                // copy items 0 and replace that copy on toop, replace all its values by woop
+                                // let newItems = JSON.parse(JSON.stringify(items))
+                                // each(newItems[0], (val, key) => {
+                                //         newItems[0][key] = "woop"
+                                // })
+                                // items.unshift(newItems[0])
+                                // console.log('smartlist > config before genTableComponent:', config, items)
                                 wrapperEl.innerHTML = window._tiroPluginsCommon.genTableComponent({ items, config, id: `smartlist-table-${api.utils.getInfos().file.path}` })
 
                         } // end onAllFormulasProcessed

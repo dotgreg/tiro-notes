@@ -35,25 +35,6 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
 
         
 
-        const  fromRawCsvStringToArrObj = (csvString/*:string|void*/) => {
-                if (!csvString) return []
-                const separator = csvString.includes(",") ? "," : ";"
-                const lines = csvString.split("\n")
-                const headers = lines[0].split(separator).map((h) => h.trim())
-                const arrObj = []
-                for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i]
-                        if (line.trim() === "") continue
-                        const obj = {}
-                        const values = line.split(separator).map((h) => h.replaceAll("__COMMA_CHAR__",",").trim())
-                        for (let j = 0; j < headers.length; j++) {
-                                obj[headers[j]] = values[j]
-                        }
-                        arrObj.push(obj)
-                }
-                return arrObj
-        }
-
 
         const initDatatableAppCode = () => {
                 const api = window.api;
@@ -83,7 +64,8 @@ const datatableCtag = (innerTagStr/*:string*/, opts/*:Object*/) => {
                                 }
                         }
                         if(dataFileUrl) params.fileUrl = dataFileUrl
-                        if (rawCsvString) params.items = fromRawCsvStringToArrObj(rawCsvString)
+                        if (rawCsvString) params.items = commonLib.fromRawCsvStringToArrObj(rawCsvString)
+                        
                         genGraph(params)
                 }
 

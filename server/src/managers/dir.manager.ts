@@ -213,13 +213,11 @@ export const scanDirForFolders2 = (folderPath: string): iFolder => {
 			item = item.replace(fullFolderPath, "")
 			let pathArr = item.split("/").filter(it => it !== "")
 			let itemName = pathArr[0]
-			// console.log(111, pathArr)
 			if (itemName === "") return
 			let hasFolderChildren = pathArr.length > 1
 			if (!rawChildren[itemName]) rawChildren[itemName] = {itemName, hasFolderChildren}
 			else if (!rawChildren[itemName].hasFolderChildren && hasFolderChildren) rawChildren[itemName].hasFolderChildren = true
 		})
-		// console.log(22, rawChildren)
 		let children:iFolder[] = []
 		each(rawChildren, rc => {
 			let relativeChildFolder = p(`${fullFolderPath}/${rc.itemName}`).replace(cleanPath(backConfig.dataFolder), '')
@@ -233,7 +231,6 @@ export const scanDirForFolders2 = (folderPath: string): iFolder => {
 		})
 		resultFolder.hasFolderChildren = children.length > 0
 		resultFolder.children = children
-		// console.log(22, children)
 
 	}
 	return resultFolder
@@ -381,7 +378,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 // 			}
 // 		});
 // 	}
-// 	// console.log(h, folderPath, (Date.now() - start) / 1000);
 // 	return resultFolder
 // }
 
@@ -398,7 +394,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 // 		// check if it is a folder for real
 // 		// (expensive but should not happen often so thats ok
 // 		if (isDir(parentPath + "/" + childPath)) {
-// 			if (parentPath.includes("2222")) console.log(h, "CHILD FOLDER DEteCteD (stopping loop) =>", childPath, "in", parentPath);
 // 			// if (parentPath.includes("222")) {
 // 			// }
 // 			// childFolder.hasChildren = 
@@ -427,14 +422,12 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 // EXECA VERSION NOT USED
 // export const scanDirForFolders3 = (folderPath: string): any => {
 // 	if (folderPath !== "--test--") return
-// 	// console.log(h, "woooop", folderPath);
 // 	const normalSearchParams = [
 // 		backConfig.dataFolder,
 // 		'--files',
 // 		'--sort-files',
 // 	]
 // 	const start = Date.now()
-// 	console.log(h, "start ", normalSearchParams);
 // 	const path = require('path')
 // 	exec@(backConfig.rgPath, normalSearchParams).then((res) => {
 
@@ -446,7 +439,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 // 		// each (obj[i], folder => {}) en recurs!
 // 		// create obj[i][get][that][one] if doesnt exists
 
-// 		console.log(h, (Date.now() - start) / 1000);
 // 		const arr = res.stdout.split("\n")
 
 // 		// let arr2 = []
@@ -456,7 +448,6 @@ export const scanDirForFiles = async (path: string, serverSocket2?: ServerSocket
 // 		// 	})
 // 		// })
 // 		// arr2 = uniq(arr2)
-// 		// console.log(h, arr2);
 
 // 		let resObj2: iFolder = {
 // 			title: 'root',

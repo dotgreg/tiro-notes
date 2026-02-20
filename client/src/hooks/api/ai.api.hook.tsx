@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { getTsFromString, iADate, tsToIADate } from '../../managers/date.manager';
 import { getApi } from './api.hook';
 import { each, isNumber } from 'lodash-es'
-import { AiAnswer, genAiButtonsConfig } from '../../managers/ai.manager';
+import { AiAnswer, cleanAiInput, genAiButtonsConfig } from '../../managers/ai.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
 
@@ -16,26 +16,58 @@ export interface iAiApi {
         searchText: string,
         modelName?: string
     ) => void,
+    exec: (
+        searchText: string,
+        modelName?: string,
+        cb?: (res: any) => void,
+        execType?: "stream" | "single"
+    ) => void,
     setStatus: (status:"new"|"stop", uuid?:string) => string,
     getStatus: (uuid:string) => boolean
 }
 
 
 
+const getModelConfig = (modelName?: string) => {
+    // get all ai config
+    let configAllAis = genAiButtonsConfig()
+    // if no modelName, tkae first one from config
+    if (!modelName) modelName = configAllAis[0].title
+
+    // look for the right model in the config
+    return configAllAis.find(i => i.title === modelName)
+}
 
 
 //
 // EXPORT 
 //
-export const search: iAiApi['search'] = (searchText, modelName) => {
-    // get all ai config
-    let configAllAis = genAiButtonsConfig()
-    console.log("search", {searchText, modelName, configAllAis})
-    // if no modelName, tkae first one from config
-    if (!modelName) modelName = configAllAis[0].title
 
-    // look for the right model in the config
-    let modelConfig = configAllAis.find(i => i.title === modelName)
+
+export const exec: iAiApi['exec'] = (searchText, modelName, cb, execType:"stream"| "single"="single") => {
+    let modelConfig = getModelConfig(modelName)
+    if (!modelConfig) {
+        notifLog(`Model "${modelName}" not found in config`)
+        return
+    }
+    let cmd = modelConfig.command
+    searchText = cleanAiInput(searchText)
+    cmd = cmd.replace("{{input}}", searchText)
+    // replace {{}}
+    getApi(api => {
+        if (execType === "stream") {
+            api.command.stream(cmd, (res) => {
+                if (cb) cb(res)
+            })
+        } else {
+            api.command.exec(cmd, (res) => {
+                if (cb) cb(res)
+            })
+        }
+    })
+}
+export const search: iAiApi['search'] = (searchText, modelName) => {
+    let modelConfig = getModelConfig(modelName)
     // if does not exists, notifLog
     if (!modelConfig) notifLog(`Model "${modelName}" not found in config`)
     else {
@@ -87,6 +119,6 @@ export const setStatus:iAiApi["setStatus"] = (status, uuid) => {
 // API EXPORT 
 //
 export const useAiApi = (p: {}) => {
-	const api: iAiApi = {search, setStatus, getStatus}
+	const api: iAiApi = {search, setStatus, getStatus, exec}
 	return api
 }

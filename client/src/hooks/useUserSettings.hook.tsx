@@ -5,10 +5,11 @@ import { sharedConfig } from '../../../shared/shared.config';
 import { iUpdateConfigJsonOpts, iUserSettingList, iUserSettingName } from '../../../shared/types.shared';
 import { clientSocket2 } from '../managers/sockets/socket.manager';
 import { cssVars } from '../managers/style/vars.style.manager';
-import { iApiEventBus } from './api/api.hook';
+import { getApi, iApiEventBus } from './api/api.hook';
 import { getLoginToken } from './app/loginToken.hook';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
+import { configClient } from '../config';
 
 
 
@@ -28,7 +29,8 @@ export type iUserSettingsApi = {
 		paramValue: string, 
 		cb?:(res:any) => void, 
 		opts?: iUpdateConfigJsonOpts,
-	) => void
+	) => void,
+	triggerSetupPopup: Function,
 	refreshUserSettingsFromBackend: Function,
 }
 
@@ -73,8 +75,13 @@ export const defaultValsUserSettings: iUserSettings = {
 	advanced_image_compression_settings: JSON.stringify({quality: 80, maxWidth: 1500}),
 	ui_editor_ai_text_selection: true,
 	ui_editor_ai_command: "AI assistant | wand-magic-sparkles | new | export OPENAI_API_KEY='YOUR_OPENAI_API_KEY'; npx chatgpt \" {{input}}\" --continue --model gpt-4 ",
+	ui_editor_ai_suggest_form_command: "",
+	ui_layout_floating_window_padding: 0,
 	tts_custom_engine_command: `curl -sS --request POST --header "Authorization: Bearer REPLACE_ME_BY_REPLICATE_OWN_API_TOKEN" --header "Content-Type: application/json" --header "Prefer: wait" --data '{"version": "f559560eb822dc509045f3921a1921234918b91739db4bf3daab2169b71c7a13","input": {"text": "{{input}}", "speed": 1,"voice": "ff_siwis"}}' https://api.replicate.com/v1/predictions`,
 	tts_sentences_per_part: 1,
+	tts_max_words_per_sentence: 75,
+	tts_formId: "",
+	tts_form_extract_length: 10,
 	tts_preload_parts: 1,
 	tts_price_per_word: 0.000005,
 	server_activity_logging_enable: false,
@@ -118,6 +125,7 @@ const genUserSettingsList = (userSettings:iUserSettings):iUserSettingList => {
 
 export const useUserSettings =  (p: {
 	eventBus: iApiEventBus
+	triggerSetupPopup?: Function
 }) => {
 	// storage
 	const [userSettings, setUserSettings, refreshUserSettingsFromBackend] = useBackendState<iUserSettings>('user-settings', {}, {history: true})
@@ -217,7 +225,19 @@ export const useUserSettings =  (p: {
 			css: {
 				get: refreshCss
 			}
+		},
+		triggerSetupPopup: () => {
+			getApi(api => {
+				 api.config.get(config => {
+					let dataFolder = config.dataFolder || ''
+					console.log('dataFolder:', dataFolder)
+					p.triggerSetupPopup && p.triggerSetupPopup({
+						dataFolder
+					})
+				})
+			})
 		}
+
 
 	}
 

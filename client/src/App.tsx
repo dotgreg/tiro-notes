@@ -63,8 +63,11 @@ import { release } from 'os';
 import { textToId } from './managers/string.manager';
 import { codeMirrorGlobalVars } from './components/dualView/CodeMirrorEditor.component';
 import { TtsCustomPopup } from './components/TtsCustomPopup.component';
+import { updatePageTitle } from './managers/pageTitle.manager';
+import { testFn } from './managers/testFn.manager';
 
 export const App = () => {
+
 
 	//
 	// STARTUP PHASE, code should be added after login phase, not here
@@ -97,6 +100,7 @@ export const App = () => {
 
 		startListeningToKeys();
 		devCliAddFn("init", "init", () => { })
+		testFn()
 		// TESTS
 		// getApi(api => {
 		// 	// console.log()
@@ -162,7 +166,12 @@ export const App = () => {
 	//
 
 	// Setup config file and welcoming screen logic
-	const { SetupPopupComponent } = useSetupConfig({ cleanAllApp })
+	const { SetupPopupComponent, triggerSetupPopup } = useSetupConfig({ cleanAllApp })
+	// useEffect(() => {
+	// 	setTimeout(() => {
+	// 		triggerSetupPopup(true)
+	// 	}, 3000)
+	// }, [])
 
 	// Setup config file and welcoming screen logic
 	const { LoginPopupComponent } = useLoginToken({
@@ -176,6 +185,8 @@ export const App = () => {
 			getApi(api => {
 				api.userSettings.refreshUserSettingsFromBackend()
 				api.ui.floatingPanel.refreshFromBackend()
+				// will refresh configSync
+				api.config.get(() => {})
 			})
 			
 
@@ -367,7 +378,8 @@ export const App = () => {
 		historyApi,
 		notePreviewPopupApi,
 		lightboxApi,
-		ttsApi
+		ttsApi,
+		triggerSetupPopup
 	})
 
 
@@ -428,12 +440,19 @@ export const App = () => {
 		addKeyShortcut('alt + spacebar', openOmni);
 		addKeyShortcut('alt + p', openOmni);
 		addKeyShortcut('alt + ,', () => {setConfigPopup("settings")});
+		addKeyShortcut('alt + /', () => { triggerTiroHelpPopup() });
 		// encryption + upload
-		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
-		addKeyShortcut('alt + shift + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" }) });
-		addKeyShortcut('alt + shift + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" }) });
-		addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
-		addKeyShortcut('alt + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
+		addKeyShortcut('ctrl + e', () => { 
+			api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) 
+		});
+		addKeyShortcut('ctrl + alt + e', () => { 
+			api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "floating" }) 
+		});
+		addKeyShortcut('ctrl + alt + u', () => {
+			api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "floating" })
+		});
+		// addKeyShortcut('alt + e', () => { api.note.ui.editorAction.dispatch({ type: "toggleEncryption", noteParentType: "grid" }) });
+		addKeyShortcut('ctrl + u', () => { api.note.ui.editorAction.dispatch({ type: "triggerUpload", noteParentType: "grid" }) });
 		addKeyShortcut('alt + s', () => { api.ai.setStatus("stop") });
 		
 		// k.bind('esc', closeOmni);
@@ -496,6 +515,18 @@ export const App = () => {
 		updateAppUrlFromActiveWindow(tabs, mobileView)
 		// update 
 	}, [tabs, mobileView])
+	
+
+	//
+	// EVERY FIVE MIN, REFRESH PAGE TITLE
+	//
+	useEffect(() => {
+		// Refresh page title every minute
+		const interval = setInterval(() => {
+			updatePageTitle()
+		}, 5 * 60 * 1000)
+		return () => clearInterval(interval)
+	}, [])
 
 	let rcnt = forceResponsiveRender ? 0 : 1
 	let cnt = api.userSettings.refresh.css.get + rcnt
@@ -516,6 +547,7 @@ export const App = () => {
 		let backgroundVideoEnable = userSettingsSync.curr.ui_layout_background_video_enable
 		let backgroundVideo = userSettingsSync.curr.ui_layout_background_image
 		if (backgroundVideoEnable && backgroundVideo) setBgVideo(backgroundVideo)
+		if (!backgroundVideoEnable) setBgVideo(undefined)
 	}, [cnt, usettings])
 
 

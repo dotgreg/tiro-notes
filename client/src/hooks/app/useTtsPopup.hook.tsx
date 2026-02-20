@@ -29,7 +29,8 @@ export const useTtsPopup = () => {
 		let id = opts.id ? opts.id : null
 		let startString = opts.startString ? opts.startString : null
 
-		console.log(h, `open`, { id, content, startString });
+		let contentSub = content.length < 1500 ? content : content.substring(0, 1500) + "..., total size chars = " + content.length
+		console.log(h, `open`, { id, contentSub, startString });
 
 		setTtsPopupId(id)
 		if (startString) setTtsPos(startString)

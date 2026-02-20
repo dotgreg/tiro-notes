@@ -16,6 +16,8 @@ import { devCliExecFn } from '../../managers/devCli.manager';
 import { iUserSettingName } from '../../../../shared/types.shared';
 import { deviceType } from '../../managers/device.manager';
 import { getFontSize } from '../../managers/font.manager';
+import { get } from 'http';
+import { triggerTiroHelpPopup } from '../../managers/help.manager';
 
 type ConfigPanel = {
 	title: string,
@@ -188,6 +190,64 @@ export const SettingsPopup = (p: {
 				title: "layout",
 				fields: [
 					{
+						type: 'checkbox',
+						title: "Enable Background Image",
+						expl: "Enable Background Image" + requireReloadStr,
+						var: us.get('ui_layout_background_image_enable'),
+						modifier: val => { 
+							us.set('ui_layout_background_image_enable', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'checkbox',
+						title: "Enable Background Video",
+						expl: "Enable Background Video" + requireReloadStr,
+						var: us.get('ui_layout_background_video_enable'),
+						modifier: val => { 
+							us.set('ui_layout_background_video_enable', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'textarea',
+						title: "Background image/video url",
+						expl: `Background image/video url.<br>
+						- it can start with http. <br> 
+						- You can also upload a picture in Tiro, then copy the uploaded image link here, in that case only keep the part without the hostname 
+						<br>(ex: 'static/_new/useful/.resources/wintersolstice.jpg'). 
+						<br> - you can add a youtube video/webcam stream in background by using the embed url 
+						like 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' 
+						or 'https://www.skaping.com/batz-sur-mer/plage-valentin' 
+						or even websites.
+						<br>
+						- if [[token]] exists, it will be replaced by current token so that a video from tiro can be called.
+						<br>
+						- raw html can also be insert like:
+						<br>
+						< iframe
+  srcdoc='
+        < style >
+          video { position: fixed; top: -100px; left: -400px; width: 100%; height: 100%; object-fit: cover; background: #000; }
+        < /style>
+      < /head >
+      < body>
+        < video autoplay loop preload="auto" playsinline controls onloadstart="this.volume=.2" >
+          < source src="/static/_files_NOBAK_/.resources/__ambiance1.webm?token=[[token]]" type="video/webm" >
+        < /video >
+  '
+  frameborder="0"
+  allow="autoplay; fullscreen"
+  style="width: 100%; height: 100%; border: none;"
+>< /iframe >
+						`,
+						var: us.get('ui_layout_background_image'),
+						modifier: val => { 
+							us.set('ui_layout_background_image', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
 						type: 'text',
 						title: "Main color",
 						expl: "A color string like 'orange' or 'blue' or an Hex string like '#E86666' (tiro red) or '#729fc4'",
@@ -232,36 +292,6 @@ export const SettingsPopup = (p: {
 						}
 					},
 					{
-						type: 'checkbox',
-						title: "Enable Background Image",
-						expl: "Enable Background Image" + requireReloadStr,
-						var: us.get('ui_layout_background_image_enable'),
-						modifier: val => { 
-							us.set('ui_layout_background_image_enable', val) 
-							setDisplayReload(true);
-						}
-					},
-					{
-						type: 'checkbox',
-						title: "Enable Background Video",
-						expl: "Enable Background Video" + requireReloadStr,
-						var: us.get('ui_layout_background_video_enable'),
-						modifier: val => { 
-							us.set('ui_layout_background_video_enable', val) 
-							setDisplayReload(true);
-						}
-					},
-					{
-						type: 'text',
-						title: "Background image/video url",
-						expl: "Background image/video url.<br>- it can start with http. <br> - You can also upload a picture in Tiro, then copy the uploaded image link here, in that case only keep the part without the hostname <br>(ex: 'static/_new/useful/.resources/wintersolstice.jpg'). <br> - you can add a youtube video/webcam stream in background by using the embed url like 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ' or 'https://www.skaping.com/batz-sur-mer/plage-valentin' or even websites",
-						var: us.get('ui_layout_background_image'),
-						modifier: val => { 
-							us.set('ui_layout_background_image', val) 
-							setDisplayReload(true);
-						}
-					},
-					{
 						type: 'number',
 						title: "Windows opacity",
 						expl: "If Background image, how opaque should the windows be (between 0 and 100)" + showDefaultString("ui_layout_background_image_window_opacity") + requireReloadStr,
@@ -282,6 +312,18 @@ export const SettingsPopup = (p: {
 						min: 0,
 						modifier: val => { 
 							us.set('ui_layout_background_image_window_opacity_active', val) 
+							setDisplayReload(true);
+						}
+					},
+					{
+						type: 'number',
+						title: "Floating window padding",
+						expl: "Padding for floating windows (between 0 and 100)" + showDefaultString("ui_layout_floating_window_padding") + requireReloadStr,
+						var: us.get('ui_layout_floating_window_padding'),
+						max: 100,
+						min: 0,
+						modifier: val => { 
+							us.set('ui_layout_floating_window_padding', val) 
 							setDisplayReload(true);
 						}
 					},
@@ -339,7 +381,7 @@ export const SettingsPopup = (p: {
 						title: "Custom Text to Speech command",
 						expl: `
 						Command to run to get the mp3 file. 
-						<br>- The text to be spoken is replaced by {{input}}.
+						<br>- The text to be spoken is replaced by {{input}} or {{input_simple}} for accents and complex char to be removed
 						<br>- The speech speed is replaced by {{speed}}.
 						<br> It should return a JSON including an absolute path of an audio file (mp3/wav).
 						<br>
@@ -351,6 +393,23 @@ export const SettingsPopup = (p: {
 						modifier: val => {
 							us.set('tts_custom_engine_command', val)
 						}
+					},{
+						type: 'text',
+						title: "FormId of TTS",
+						expl: "FormId for the TTS popup. It will create a button to open a form popup. For the insert functionality (which auto submit the form based on the text to speech content just spoken) make sure to add a field 'text' and 'file', both text, to have the autoinsert work as expected. Default value:" + defaultValsUserSettings.tts_formId,
+						var: us.get('tts_formId'),
+						modifier: val => {
+							us.set('tts_formId', val)
+						}
+					},
+					{
+						type: 'number',
+						title: "Text Extract length for TTS Form",
+						expl: "The text length what will be inserted into the form for tts (insert button)",
+						var: us.get('tts_form_extract_length'),
+						modifier: val => { 
+							us.set('tts_form_extract_length', val) 
+						}
 					},
 					{
 						type: 'number',
@@ -359,6 +418,15 @@ export const SettingsPopup = (p: {
 						var: us.get('tts_sentences_per_part'),
 						modifier: val => { 
 							us.set('tts_sentences_per_part', val) 
+						}
+					},
+					{
+						type: 'number',
+						title: "Max words per sentence",
+						expl: "If the sentence exceeds this limit, it will be split into multiple parts, if audio cuts in a sentence, reduce that number",
+						var: us.get('tts_max_words_per_sentence'),
+						modifier: val => { 
+							us.set('tts_max_words_per_sentence', val) 
 						}
 					},
 					{
@@ -415,6 +483,15 @@ export const SettingsPopup = (p: {
 						var: us.get('ui_editor_ai_command'),
 						modifier: val => {
 							us.set('ui_editor_ai_command', val)
+						}
+					},
+					{
+						type: 'text',
+						title: "AI Suggest Command for fields",
+						expl: "Fields can have ai suggestions (like in forms), which ai command to choose (give the name)",
+						var: us.get('ui_editor_ai_suggest_form_command'),
+						modifier: val => {
+							us.set('ui_editor_ai_suggest_form_command', val)
 						}
 					},
 					{
@@ -667,6 +744,34 @@ export const SettingsPopup = (p: {
 							getApi(api => { api.folders.get(['/'], () => { }) })
 						}
 					},
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> open setup </button>`,
+						title: "Change Setup informations",
+						readOnly: true,
+						expl: `Change Setup informations like User/Password/Data folder, it is located in ~/.tiro-config.json`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							p.onClose()
+							getApi(api => { 
+								api.userSettings.triggerSetupPopup()
+							 })
+						}
+					},
+					{
+						type: 'text',
+						var: () => {
+							return api.config.getCustomApiToken()
+						},
+						title: "Custom backend API Token",
+						readOnly: true,
+						expl: `WARNING: that token gives full access to tiro notes system, do not share it and keep it secret, to renew it, change user/password. \n\n<br><br>
+						API Token to access to the custom api backend and create you own api from simple markdown notes: 
+						/custom_backend_api?file=myApiEndpoint&token=MY_API_TOKEN. \n\n<br><br>
+						That token is generated according to the user and password and thus changes with it.`, 
+						modifier: () => { },
+					},
 				]
 			},
 
@@ -703,14 +808,35 @@ export const SettingsPopup = (p: {
 					{
 						type: 'checkbox',
 						title: "Plugins Marketplace",
-						expl: "Enable the plugin marketplace system",
+						expl: "Enable the plugin marketplace system (not working yet)",
 						var: us.get('beta_plugins_marketplace'),
 						modifier: val => {
 							us.set('beta_plugins_marketplace', val)
 						}
 					},
 				]
-			}
+			},
+			{
+				title: "Documentation & Help",
+				fields: [
+					{
+						type: 'none',
+						var: "",
+						customHtml: `<button> open help page </button>`,
+						title: "Open Help Page",
+						readOnly: true,
+						expl: `Open the help page for more information, it is also accessible on the main interface "?" button at the bottom right corner. or with the shortcut "ctrl + /"`,
+						modifier: () => { },
+						onCustomHtmlClick: () => {
+							p.onClose()
+							triggerTiroHelpPopup()
+							// getApi(api => {
+							// 	api.userSettings.triggerHelpPopup()
+							//  })
+						}
+					}
+				]
+			},
 		]
 	}
 

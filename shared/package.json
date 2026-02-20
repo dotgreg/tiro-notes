@@ -4,12 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watchAll --config ./jest.config.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "jest": "^30.2.0",
     "lodash": "^4.17.20",
+    "ts-jest": "^29.4.6",
     "verbal-expressions": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0"
   }
 }
