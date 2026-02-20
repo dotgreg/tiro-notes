@@ -4,12 +4,20 @@
 	<subtitle>Tiro Notes Blog and Devlog</subtitle>
 	<link href="https://tiro-notes.org/blog/feed/feed.xml" rel="self"/>
 	<link href="https://tiro-notes.org/blog/blog"/>
-	<updated>2023-07-02T00:00:00Z</updated>
+	<updated>2026-02-20T17:31:36Z</updated>
 	<id>https://tiro-notes.org/blog</id>
 	<author>
 		<name>Grégoire Thiébault</name>
 		<email>thiebault.gregoire@gmail.com</email>
 	</author>
+	
+	<entry>
+		<title></title>
+		<link href="https://tiro-notes.org/blog/blog/_articles/A004/"/>
+		<updated>2026-02-20T17:31:36Z</updated>
+		<id>https://tiro-notes.org/blog/blog/_articles/A004/</id>
+		<content type="html"></content>
+	</entry>
 	
 	<entry>
 		<title>Tiro Notes 0.30.99 Macos/Win/Linux released with 100+ functionnalities</title>
