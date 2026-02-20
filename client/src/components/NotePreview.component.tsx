@@ -33,6 +33,7 @@ export const NotePreviewInt = (p: {
 	const [view, setView] = useState<iViewType|undefined>(p.view);
 
 	let loadEditorContent = useDebounce(() => {
+		// console.log(333333333, p.file, p.searchedString, view)
 		getApi(api => {
 			api.file.getContent(p.file.path, ncontent => {
 				setContent(ncontent)
@@ -64,7 +65,7 @@ export const NotePreviewInt = (p: {
 
 	useEffect(() => {
 		loadEditorContent()
-	}, [p.file, p.searchedString, view])
+	}, [p.file.path, p.searchedString, view])
 
 	let heightStr = p.height ? p.height + "px" : "100%"
 

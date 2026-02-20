@@ -798,6 +798,8 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
         // <link rel="preload" href="https://cdn.jsdelivr.net/npm/@finos/perspective/dist/cdn/perspective.cpp.wasm" as="fetch" type="application/wasm" crossorigin="anonymous" />
         wrapperEl.innerHTML = `
             <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/@finos/perspective-workspace/dist/css/pro.css" /> 
+
+
             <div class="settings-wrapper">
                 <button id="perspective-config-toggle"> ⚙️ </button>
                
@@ -826,6 +828,10 @@ let genGraphPerspectiveComponent = (p/*:iGraphPerspectiveParams*/) => {
                     top: 0;
                     left: 0;
                 }
+            perspective-workspace perspective-viewer[settings] {
+                --column-drop-label--display: block!important;
+            
+            }
                 #ctag-component-advanced-table-wrapper {
                     width: calc(100% - 15px);
 

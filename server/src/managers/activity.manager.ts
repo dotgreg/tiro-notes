@@ -33,7 +33,7 @@ export const logActivity = async (eventAction: string, eventName:string, socketO
     let enabled = await isActivityLogEnabled()
     if (!enabled) return
     // console.log(111, getDateObj(), getDateObj().full)
-    shouldLog && console.log(h, "logActivity", eventAction, eventName)
+    // shouldLog && console.log(h, "logActivity", eventAction, eventName)
     const clientInfos = socketOrReq?.raw?.handshake ? getSocketClientInfos(socketOrReq, "obj") as iClientInfosObj : getExpressClientInfos(socketOrReq, "obj") as iClientInfosObj
     currentTimeBatch.value.push({
         eventName,

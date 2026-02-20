@@ -39,7 +39,12 @@ export interface iRessourceApi {
 			returnsPathOnly?:boolean
 		} & iDownloadRessourceOpts
 	) => void,
-	
+
+	frontendFetch: (
+		url: string,
+		cb: (urlContent: string) => void
+	) => void,
+
 	fetchEval: (
 		url: string,
 		params?: iEvalFuncParams,
@@ -108,59 +113,102 @@ export const useRessourceApi = (p: {
 	}
 
 
+	const frontendFetch: iRessourceApi["frontendFetch"] = (url, cb) => {
+		getApi(api => {
+			// if url starts with /, should happen current window location
+			if (url.startsWith('/')) {
+				url = `${window.location.origin}${url}`;
+				console.log(h, `FETCHING => updated URL to absolute path`, { url });
+			}
+
+			// if url has {custom_api_token}, replace it with custom api token
+			if (url.includes('{custom_api_token}')) {
+				url = url.replace('{custom_api_token}', api.config.getCustomApiToken() + "&" || '' );
+				console.log(h, `FETCHING => updated URL with custom backend token`, { url });
+			}
+
+			let respTxt = ""
+			fetch(url)
+				.then(response => response.text())
+				.then(txt => {
+					respTxt = txt
+					cb(respTxt)
+				})
+				.catch(err => {
+					console.error(h, `FRONTEND FETCHING => error`, { url, err, respTxt });
+					notifLog(`FRONTEND FETCHING => error (check console for more infos) ${JSON.stringify({ url, err, respTxt })}`);
+				});
+		});
+	}
+
 	const fetchRessource: iRessourceApi['fetch'] = (url, cb, options) => {
+		getApi(api => {
 
-		if (!options) options = {}
-		if (!options.disableCache) options.disableCache = false
-		if (!options.returnsPathOnly) options.returnsPathOnly = false
-		if (options.disableCache === "false") options.disableCache = false
-		if (options.disableCache === "true") options.disableCache = true
+			if (!options) options = {}
+			if (!options.disableCache) options.disableCache = false
+			if (!options.returnsPathOnly) options.returnsPathOnly = false
+			if (options.disableCache === "false") options.disableCache = false
+			if (options.disableCache === "true") options.disableCache = true
 
-		// console.log(h,"FETCH RESSOURCE", {url,options})
-		// if disableCache is true, we will always download the file
-		if (options.disableCache === true) console.log(h, `FETCHING => disableCache is true`, { url, options });
 
-		const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
-		
-		let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
+			// if url starts with /, should happen current window location
+			if (url.startsWith('/')) {
+				url = `${window.location.origin}${url}`;
+				console.log(h, `FETCHING => updated URL to absolute path`, { url, options });
+			}
 
-		const returnFile = () => {
-			// console.log(h, `FETCHING => getting CACHED file`, { url, options });
-			fetch(localStaticPath).then(function (response) {
-				return response.text();
-			}).then(function (data) {
-				tryCatch(() => cb(data, localStaticPath))
-			})
-		}
-		const returnFilePath = () => { cb(localStaticPath) }
+			// if url has {custom_api_token}, replace it with custom api token
+			if (url.includes('{custom_api_token}')) {
+				url = url.replace('{custom_api_token}', api.config.getCustomApiToken() + "&" || '' );
+				console.log(h, `FETCHING => updated URL with custom backend token`, { url, options });
+			}
 
-		const downloadThenReturnFile = () => {
-			downloadRessource(url, cacheFolder, answer => {
-				// console.log(h, `FETCHING => answer`, { url, options, answer});
-				if (answer.message) { 
+			// console.log(h,"FETCH RESSOURCE", {url,options})
+			// if disableCache is true, we will always download the file
+			if (options.disableCache === true) console.log(h, `FETCHING => disableCache is true`, { url, options });
+
+			const cacheFolder = options.persistentCache ? `/.tiro/cache/fetch-persistent/` : `/.tiro/cache/fetch/`
+			
+			let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
+
+			const returnFile = () => {
+				// console.log(h, `FETCHING => getting CACHED file`, { url, options });
+				fetch(localStaticPath).then(function (response) {
+					return response.text();
+				}).then(function (data) {
+					tryCatch(() => cb(data, localStaticPath))
+				})
+			}
+			const returnFilePath = () => { cb(localStaticPath) }
+
+			const downloadThenReturnFile = () => {
+				downloadRessource(url, cacheFolder, answer => {
 					// console.log(h, `FETCHING => answer`, { url, options, answer});
-					if (!options?.returnsPathOnly) returnFile() 
-					else returnFilePath()
-				}
-			}, options)
-		}
+					if (answer.message) { 
+						// console.log(h, `FETCHING => answer`, { url, options, answer});
+						if (!options?.returnsPathOnly) returnFile() 
+						else returnFilePath()
+					}
+				}, options)
+			}
 
-		if (options.disableCache === true) {
-			downloadThenReturnFile()
-		}
-		else {
-			checkUrlExists({
-				url: localStaticPath,
-				onSuccess: () => {
-					// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
-					if (!options?.returnsPathOnly) returnFile() 
-					else returnFilePath()
-				},
-				onFail: () => {
-					downloadThenReturnFile()
-				}
-			})
-		}
+			if (options.disableCache === true) {
+				downloadThenReturnFile()
+			}
+			else {
+				checkUrlExists({
+					url: localStaticPath,
+					onSuccess: () => {
+						// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
+						if (!options?.returnsPathOnly) returnFile() 
+						else returnFilePath()
+					},
+					onFail: () => {
+						downloadThenReturnFile()
+					}
+				})
+			}
+		})
 	}
 
 	const fetchUrlArticle: iRessourceApi['fetchUrlArticle'] = (url, cb, options) => {
@@ -214,7 +262,7 @@ export const useRessourceApi = (p: {
 			} catch (e) {
 				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
 				// console.log(message, e, {url, funcParams, options});
-				notifLog(`${message}`)
+				notifLog(`${message}`, `err_remote_${url}`)
 			}
 		}
 
@@ -267,6 +315,7 @@ export const useRessourceApi = (p: {
 		compressImage,
 		scanFolder: scanRessourceFolder, 
 		fetch: fetchRessource,
+		frontendFetch,
 		fetchEval,
 		fetchUrlArticle,
 		cleanCache,

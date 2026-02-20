@@ -10,7 +10,7 @@ const shouldLog = sharedConfig.server.log.verbose
 export const execString = async (command: string): Promise<any> => {
 	let res = ""
 	try {
-		console.log("exec => " + command)
+		// console.log("exec => " + command)
 		const { stdout } = await execa.command(command, { shell: true })
 		res = stdout
 	}
@@ -104,7 +104,6 @@ export const execaWrapper = (p:{
 	if (!p.options) p.options = {}
 	let argsStr = p.args ? p.args.join(" ") : ""
 	argsStr = p.cmdPath + " " + argsStr
-	console.log(22, argsStr)
 
 	let streamProcess
 	if (p.cmdPath) {

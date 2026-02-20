@@ -147,6 +147,18 @@
  ## Api.call : ai
  
 
+#### <span class="render-code-wrapper">ai.exec</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. searchText: <span class="render-code-wrapper">string</span>
+       1. modelName: <span class="render-code-wrapper">string</span>
+       1. execType: <span class="render-code-wrapper">"stream" | "single"</span>
+    - Result: <span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.exec",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"stream" | "single"</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ai.getStatus</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -299,12 +311,28 @@
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.get",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(config: <span class="render-code-wrapper"><a href="#client-api?id=ibackconfig">iBackConfig</a></span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">config.getCustomApiToken</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.getCustomApiToken",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">config.getPlatform</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Result:  
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.getPlatform",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">config.getSync</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.getSync",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 
@@ -427,6 +455,18 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.saveContent",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;withMetas: <span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <br/>&nbsp;&nbsp;&nbsp;debounced?: <span class="render-code-wrapper">"undefined" | "false"</span>, <br/>&nbsp;&nbsp;&nbsp;history?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;withThrottle?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">file.searchReplace</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. noteLink: <span class="render-code-wrapper">string</span>
+       1. searchValue: <span class="render-code-wrapper">string</span>
+       1. replaceValue: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(result: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.searchReplace",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(result: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
  
 
 
@@ -579,10 +619,12 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. p: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>
+       1. formValues: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>
+       1. opts: <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>
     - Result: <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.create",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>, <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.form.getAll</span>
@@ -598,10 +640,12 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. formName: <span class="render-code-wrapper">string</span>
+       1. formValues: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>
+       1. opts: <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>
     - Result: <span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span>
 
  - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span><br/>)</div>
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.form.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;[key:string]: <span class="render-code-wrapper"></span><br/>}</span>, <span class="render-code-wrapper"><a href="#client-api?id=formpopupoptions">formPopupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(form: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformconfig">iPopupFormConfig</a></span>) => </span><br/>)</div>
  
 
 #### <span class="render-code-wrapper">popup.form.readConfigFromNote</span>
@@ -722,6 +766,16 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.fetchUrlArticle",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=idownloadressourceopts">iDownloadRessourceOpts</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(out: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;html: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;raw: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;text: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span><br/>}</span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">ressource.frontendFetch</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. url: <span class="render-code-wrapper">string</span>
+    - Result: <span class="render-code-wrapper">(urlContent: <span class="render-code-wrapper">string</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.frontendFetch",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(urlContent: <span class="render-code-wrapper">string</span>) => </span><br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ressource.scanFolder</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -788,6 +842,24 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.word",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;disableMetadataSearch?: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(res: <span class="render-code-wrapper"><a href="#client-api?id=isearchwordres">iSearchWordRes</a></span>) => </span><br/>)</div>
+ 
+
+
+ ## Api.call : shared
+ 
+
+#### <span class="render-code-wrapper">shared.functions.smartTable.getObj</span>
+ ### name
+ ### type
+ ### parent
+ ### path
+ 
+
+#### <span class="render-code-wrapper">shared.functions.smartTable.updateString</span>
+ ### name
+ ### type
+ ### parent
+ ### path
  
 
 
@@ -975,6 +1047,14 @@ noteLink should be relative from tiro folder
        1. direction: <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.movePositioninArray",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">"up" | "down" | "first" | "last"</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.openWebpage</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. url: <span class="render-code-wrapper">string</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.openWebpage",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.floatingPanel.pushWindowOnTop</span>
@@ -1382,7 +1462,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iPluginType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"background" | "bar" | "tag"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"background" | "bar" | "tag" | "backend"</span></div>
  
 
 #### <span class="render-code-wrapper">iPluginOptions</span>
@@ -1403,28 +1483,34 @@ Watch for file changes
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;key: <span class="render-code-wrapper">"undefined" | "undefined"</span>, <br/>&nbsp;&nbsp;&nbsp;label: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;obj: <span class="render-code-wrapper">any</span><br/>}</span></div>
  
 
-#### <span class="render-code-wrapper">InputType</span>
+#### <span class="render-code-wrapper">iPopupFormFieldType</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"password" | "text" | "select" | "number" | "checkbox" | "textarea" | "date" | "datetime"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"undefined" | "html"</span></div>
  
 
 #### <span class="render-code-wrapper">iPopupFormField</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=inputtype">InputType</a></span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
- 
-
-#### <span class="render-code-wrapper">iPopupFormConfig</span>
- - Type: <span class="render-code-wrapper">object</span> 
- - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertLine?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;description: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;id: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;name: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;type: <span class="render-code-wrapper"><a href="#client-api?id=ipopupformfieldtype">iPopupFormFieldType</a></span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestAutoInsert?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;aiSuggestString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;historySuggest?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;initValue?: <span class="render-code-wrapper">any</span>, <br/>&nbsp;&nbsp;&nbsp;notVisible?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;optional?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;rememberLastValue?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;selectOptions?: <span class="render-code-wrapper">[]</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">popupOptions</span>
  - Type: <span class="render-code-wrapper">object</span> 
  - Details: 
  <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;cssStr?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">iPopupFormConfig</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;fields: <span class="render-code-wrapper">[]</span>, <br/>&nbsp;&nbsp;&nbsp;options: <span class="render-code-wrapper"><a href="#client-api?id=popupoptions">popupOptions</a></span>, <br/>&nbsp;&nbsp;&nbsp;title: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertFilePath?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;insertLine?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;insertStringFormat?: <span class="render-code-wrapper">string</span><br/>}</span></div>
+ 
+
+#### <span class="render-code-wrapper">formPopupOptions</span>
+ - Type: <span class="render-code-wrapper">object</span> 
+ - Details: 
+ <div class="render-code-wrapper"><span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;autosubmit?: <span class="render-code-wrapper">"undefined" | "undefined"</span><br/>}</span></div>
  
 
 #### <span class="render-code-wrapper">iImageCompressionParams</span>
@@ -1646,7 +1732,7 @@ Watch for file changes
 #### <span class="render-code-wrapper">iUserSettingName</span>
  - Type: <span class="render-code-wrapper">union</span> 
  - Details: 
- <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_general_font_size" | "ui_layout_font_family_interface" | "ui_layout_font_family_editor" | "ui_layout_shortcuts_panel" | "ui_layout_background_image_enable" | "ui_layout_background_video_enable" | "ui_layout_background_image_window_opacity" | "ui_layout_background_image_window_opacity_active" | "ui_layout_background_video_width" | "ui_layout_background_video_height" | "ui_layout_background_image" | "ui_editor_search_highlight_url" | "ui_editor_search_highlight_enable" | "tts_custom_engine_enabled" | "tts_custom_engine_command" | "tts_sentences_per_part" | "tts_preload_parts" | "tts_price_per_word" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_synced_title_scrolling" | "ui_editor_markdown_tags" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_syntax" | "ui_editor_inline_suggestion" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "keyboard_shortcuts_textarea" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "privacy_work_mode_enable" | "privacy_work_mode_filters" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
+ <div class="render-code-wrapper"><span class="render-code-wrapper">"ui_filesList_sortMode" | "ui_layout_colors_main" | "ui_layout_colors_main_font" | "ui_layout_general_font_size" | "ui_layout_font_family_interface" | "ui_layout_font_family_editor" | "ui_layout_shortcuts_panel" | "ui_layout_floating_window_padding" | "ui_layout_background_image_enable" | "ui_layout_background_video_enable" | "ui_layout_background_image_window_opacity" | "ui_layout_background_image_window_opacity_active" | "ui_layout_background_video_width" | "ui_layout_background_video_height" | "ui_layout_background_image" | "ui_editor_search_highlight_url" | "ui_editor_search_highlight_enable" | "tts_custom_engine_enabled" | "tts_custom_engine_command" | "tts_sentences_per_part" | "tts_formId" | "tts_form_extract_length" | "tts_max_words_per_sentence" | "tts_preload_parts" | "tts_price_per_word" | "ui_sidebar" | "ui_editor_links_as_button" | "ui_editor_links_preview_zoom" | "ui_editor_live_watch" | "ui_editor_synced_title_scrolling" | "ui_editor_markdown_tags" | "ui_editor_markdown_preview" | "ui_editor_spellcheck" | "ui_editor_markdown_enhanced_preview" | "ui_editor_markdown_syntax" | "ui_editor_inline_suggestion" | "ui_editor_markdown_latex_preview" | "ui_editor_markdown_table_preview" | "ui_editor_ai_command" | "ui_editor_ai_suggest_form_command" | "ui_editor_show_image_title" | "ui_editor_ai_text_selection" | "keyboard_shortcuts_textarea" | "users_viewer_user_enable" | "users_viewer_user_password" | "server_activity_logging_enable" | "view_disable_notification_popups" | "privacy_work_mode_enable" | "privacy_work_mode_filters" | "plugins_marketplace_url" | "advanced_image_compression_settings" | "demo_mode_enable" | "export_pandoc_cli_options" | "beta_plugins_marketplace" | "beta_floating_windows" | "ui_other"</span></div>
  
 
 #### <span class="render-code-wrapper">iUpdateConfigJsonOpts</span>

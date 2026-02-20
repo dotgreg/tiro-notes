@@ -27,7 +27,7 @@ const showASCIIBar = (val, opts) => {
 let s = bgState.vars
 if (!s.isEnabled) return
 const curr = new Date()
-const h = `[TIMER BG | ${curr.getHours()}h${curr.getMinutes()}] `
+// const h = `[TIMER BG | ${curr.getHours()}h${curr.getMinutes()}] `
 console.log(h, {s})
 let p = {}
 p.now = new Date().getTime()

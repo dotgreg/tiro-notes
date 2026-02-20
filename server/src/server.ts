@@ -1,5 +1,6 @@
 import { backConfig } from './config.back';
 import "./managers/activity.manager";
+import { customBackendApiServer } from './managers/customBackendApi.manager';
 import { fileLogClean, log } from './managers/log.manager';
 import { isEnvDev } from './managers/path.manager';
 import { getPlatform } from './managers/platform.manager';
@@ -38,12 +39,13 @@ export const ioServer: SocketIO.Server = require('socket.io')(server, { serveCli
 initSocketLogic();
 
 // FRONTEND CLIENT SERVER on /
-// console.log(backConfig.frontendBuildFolder)
 // redirect all to index.html
 // app.use('/', express.static(backConfig.frontendBuildFolder));
 app.use(express.static(backConfig.frontendBuildFolder));
 
+////////////////////////////////////////////////
 // RESSOURCES SERVER on /static
+//
 if (backConfig.dataFolder) {
 	startSecuredStaticServer({
 		expressApp: app,
@@ -60,25 +62,29 @@ server.listen(backConfig.port, function () {
 	log(`SERVER_LOAD_SUCCESS ${configServerStr}`);
 })
 
+////////////////////////////////////////////////
+// CUSTOM BACKEND API >> ON DEV, ONLY WORKS by calling backend_server_url.com/custom_backend_api?....
+//
+app.get('/custom_backend_api', async (req, res) => {
+	const apiAnswer = await customBackendApiServer(req.query);
+	res.json(apiAnswer);
+});
+
+////////////////////////////////////////////////
+// FRONTEND ON PROD, is not called during dev (replaced by react server)
+//
 app.get('*', (req, res) => {
     res.sendFile('index.html', { root: backConfig.frontendBuildFolder });
 });
 
-// app.get('*', (req, res) => {
-//     res.redirect('/')
-// })
 
-// app.get('*', function(req, res){
-// 	security.log(`NOK 404 => ${req.url} [${formatHeader(req.headers, "small")}]`)
-// 	logActivity(`404`, `SECURITY:404:${req.url}`, req)
-// 	res.status(404).send('Not found');
-// });
- 
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('🛑 Unhandled Promise Rejection:', reason);
+  // Optional: clean shutdown, reporting, etc.
+});
 
-// const test = async () => {
-// 	// let {plugins, scanLog} = await scanPlugins()
-// 	// scanDirForFolders("/")
-// 	let res = scanDirForFolders("/")
-// 	console.log(123, res)
-// }
-// test()
+process.on('uncaughtException', err => {
+  console.error('🛑 Uncaught Exception:', err);
+  // Optional: attempt graceful shutdown
+  // process.exit(1);
+});

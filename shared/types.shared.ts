@@ -45,6 +45,7 @@ export interface iTiroConfig {
 	https?: string
 	port?: string
 	rg_path?: string
+	customBackendApiToken:string
 }
 
 export type iBackConfig = {
@@ -90,6 +91,7 @@ export type iUserSettingName =
 'ui_layout_font_family_editor' |
 'ui_layout_shortcuts_panel' |
 
+'ui_layout_floating_window_padding' |
 'ui_layout_background_image_enable' |
 'ui_layout_background_video_enable' |
 'ui_layout_background_image_window_opacity' |
@@ -104,6 +106,9 @@ export type iUserSettingName =
 'tts_custom_engine_enabled' |
 'tts_custom_engine_command' |
 'tts_sentences_per_part' |
+'tts_formId' |
+'tts_form_extract_length' |
+'tts_max_words_per_sentence' |
 'tts_preload_parts' |
 'tts_price_per_word' |
 
@@ -124,6 +129,7 @@ export type iUserSettingName =
 'ui_editor_markdown_latex_preview' |
 'ui_editor_markdown_table_preview' |
 'ui_editor_ai_command' |
+'ui_editor_ai_suggest_form_command' |
 'ui_editor_show_image_title' |
 'ui_editor_ai_text_selection' |
  
@@ -148,7 +154,7 @@ export type iUserSettingName =
 
 'ui_other'
 
-export type iPluginType = "background" | "bar" | "tag"
+export type iPluginType = "background" | "bar" | "tag" | "backend"
 export type iPluginOptions = {
 	background_exec_interval_in_min?: number
 	disabled?: boolean

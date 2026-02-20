@@ -15,6 +15,7 @@ export const perf = (id:string) => {
     const end = () => {
         if (isPerfMonitoringEnabled === true) {
             let diff = new Date().getTime() - startDate
+            if (id.length > 150) id = id.substring(0, 150) + "..."
             console.log(`${h} ${new Date().toTimeString().substr(0,8)} ${id} => ${diff}ms`)
             addToPerfStats(id, diff)
         }

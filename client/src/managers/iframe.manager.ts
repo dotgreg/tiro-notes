@@ -463,6 +463,7 @@ export const iframeMainCode = (p: {
 				if (!p) p = {}
 				if (!p.frontendCache) p.frontendCache = false
 				
+				// console.log("download directly ", ressToLoadObj.url, " and load it without caching on frontend")
 				callApi("ressource.download", [ressToLoadObj.url, getCachedRessourceFolder(), {fileName}], (apiRes) => {
 					// ==== on cb, load that tag
 					loadLocalRessourceInHtml(cachedRessToLoadObj, () => { onRessLoaded() })
@@ -470,7 +471,7 @@ export const iframeMainCode = (p: {
 			}
 
 			if (disableCache) {
-				console.warn(h, "CACHE DISABLED (both frontend + backend fetch), DOWNLOADING RESSOURCES EVERYTIME and NOT CACHING THEM ON FRONTEND!");
+				console.log(h, "CACHE DISABLED (both frontend + backend fetch), DOWNLOADING RESSOURCES EVERYTIME and NOT CACHING THEM ON FRONTEND!", ressToLoadObj.url);
 				downloadAndLoadRess({frontendCache: false})
 			} else {
 				checkUrlExists(cachedRessToLoadObj.url,
@@ -531,15 +532,40 @@ export const iframeMainCode = (p: {
 		let hasPadding = true
 		if (opts.padding === false) hasPadding = opts.padding
 
+		const onLoadScriptSuccess = () => {
+			log && console.log(h, `CUSTOM TAG LOADED ${url}`)
+			// ON loadScript Url DONE => script provides the function initCustomTag that we execute
+			//@ts-ignore 
+			let htmlStr = window.initCustomTag(`${innerTag}`, opts)
+			if (hasPadding) htmlStr = `<div class="with-padding" style="padding: 0px 15px; height:100%;">${htmlStr}</div>`
+			// htmlStr = `<div class="with-padding">${htmlStr}</div>`
+			updateContent(htmlStr)
+		}
 		api.utils.loadScripts([url],
 			() => {
-				log && console.log(h, `CUSTOM TAG LOADED ${url}`)
-				// ON loadScript Url DONE => script provides the function initCustomTag that we execute
 				//@ts-ignore 
-				let htmlStr = window.initCustomTag(`${innerTag}`, opts)
-				if (hasPadding) htmlStr = `<div class="with-padding" style="padding: 0px 15px;">${htmlStr}</div>`
-				// htmlStr = `<div class="with-padding">${htmlStr}</div>`
-				updateContent(htmlStr)
+				if (window.initCustomTag) { onLoadScriptSuccess() }
+				else {
+					console.error(h, `CUSTOM TAG ${url} failed to load, disabling cache and trying 3 times...`)
+					let count = 0
+					let int = setInterval(() => {
+						//@ts-ignore
+						window.disableCache = true
+						api.utils.loadScripts([url], () => {
+							//@ts-ignore
+							if (window.initCustomTag) { 
+								clearInterval(int)
+								onLoadScriptSuccess() 
+							}
+						})
+						count++
+						if (count > 3) {
+							clearInterval(int)
+							console.error(h, `CUSTOM TAG ${url} NOT LOADED AFTER 3 TRIES`)
+						}
+					}, 3000)
+				}
+				
 			}
 		);
 

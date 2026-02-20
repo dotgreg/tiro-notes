@@ -116,7 +116,7 @@ export const AiAnswer = (p:{
                     view: "preview",
                     id: floatingPanelId,
                     // layout: deviceType() === "mobile" ? "bottom" : "bottom-right",
-                    layout: deviceType() === "mobile" ? "right" : "right",
+                    layout: deviceType() === "mobile" ? "bottom" : "right",
                     
                 })
                 triggerAiSearch({
@@ -136,6 +136,14 @@ export const AiAnswer = (p:{
     else {
         console.error(h, "AiAnswer: typeAnswer not recognized", typeAnswer)
     }
+}
+
+
+export const cleanAiInput = (input: string) => {
+    return input.replaceAll('"', '\\"')
+                .replaceAll("'", "\\'")
+                .replaceAll("`", "\\`")
+                .replaceAll("$", "\\$")
 }
 
 export const triggerAiSearch = (p:{
@@ -159,11 +167,9 @@ export const triggerAiSearch = (p:{
     const currentContent = fileContent
     // const insertPos = s.to
     let isError = false
-    selectionTxt = selectionTxt.replaceAll('"', '\\"')
-    selectionTxt = selectionTxt.replaceAll("'", "\\'")
-    selectionTxt = selectionTxt.replaceAll("`", "\\`")
-    selectionTxt = selectionTxt.replaceAll("$", "\\$")
-    
+
+    selectionTxt = cleanAiInput(selectionTxt)
+
     const question = selectionTxt
     const genParams = () => {return { 
         title: "Ai Answer", 
@@ -178,7 +184,6 @@ export const triggerAiSearch = (p:{
     }}
 
     // if user scrolled, stop linejump
-    console.log()
     lineJumpWhileGeneratingAiText[p.windowId] = true
 
     const errorLog = {curr: ``}
@@ -188,15 +193,17 @@ export const triggerAiSearch = (p:{
                 content: `[AI] Error while executing command  <br/> at  ${new Date().toLocaleString()} <br/><br/> COMMAND ANSWER => <br/> <code>${errorLog.curr}</code> </br>`,
                 options: {hideAfter: 10 * 60 },
                 id: "ai-status"
+                
             })
         })
     }, 500)
 
 
+
     const notifAiGenerating = () => {
         getApi(api => {
             api.ui.notification.emit({
-                content: `[AI] generating text... <br> (click popup to stop generation)`,
+            content: `[AI] 💬 generating text... <br/><br/> ❌ (click popup to stop generation)`,
                 options: {
                     hideAfter: 5, 
                     onClick: () => {

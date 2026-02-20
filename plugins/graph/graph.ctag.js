@@ -447,6 +447,7 @@ const graphApp = (innerTagStr, opts) => {
 						nodes: new vis.DataSet(data.nodes),
 						edges: new vis.DataSet(data.edges)
 				}
+				console.log(111111) 
 				var network = new vis.Network(container, d2, options);
 				// GET POSITION AFTER FIRST STABIL, then set it to cache
 				network.on('stabilized', () => {
@@ -769,12 +770,13 @@ const graphApp = (innerTagStr, opts) => {
 								if (guessed) {
 										if (resArr.length > 0) { resGuess = `${lastid + 1}/${resArr.length} : "${guessed.name}"` }
 										// focus and select it
-										const scale = network.getScale() < 0.1 ? 0.5 : network.getScale()
-										network.focus(`${guessed.id}`, { scale: 0.5 })
+										const scale = network.getScale() < 0.1 ? 0.7 : network.getScale()
+										// const currentScale =  network.getScale()
+										network.focus(`${guessed.id}`, { scale })
 										network.selectNodes([guessed.id])
 								} else {
 										// dezoom
-										network.moveTo({ position: { x: 0, y: 0 }, scale: 0.1 })
+										// network.moveTo({ position: { x: 0, y: 0 }, scale: 0.1 })
 								}
 								bestGuessEl.innerHTML = resGuess
 						}, 10)

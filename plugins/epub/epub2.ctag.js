@@ -1,4 +1,3 @@
-
 const epubV2App = (innerTagStr, opts) => {
 
 	
@@ -429,9 +428,8 @@ const epubV2App = (innerTagStr, opts) => {
 		//
 		//
 		const helpText = `
-		<h3>Exec Ctag Help</h3>
-		<p>Execute calculations in javascript and get the output in a table</p>
-		<p>If some lines starts like r.aCalculation = <...>, it will appear on the result </p>
+		<h3>Ebook Reader Help</h3>
+		<p><b> To add a form popup add the formId to epub config: </b>  api.utils.loadCustomTag(epub2.ctag.js", ..., {size: "100%", padding: false, formId:"date test"})  </p>
 		
 		`
 		let h = "[EPUB V2]"
@@ -472,13 +470,13 @@ const epubV2App = (innerTagStr, opts) => {
 			#tiro-invisible-header-bar2, 
 			#tiro-invisible-header-bar1 {
   position: absolute;
+   background: rgba(255, 198, 198, 0.3);
   width: calc(100% - 100px);
-  background: #ff000024;
 			}
 			#tiro-invisible-square-back {
   width: calc(100% - 140px);
   height: calc(100% - 140px);
-  background: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.3);
   position: absolute;
   z-index: 2;
   top: 40px;
@@ -521,7 +519,7 @@ const epubV2App = (innerTagStr, opts) => {
 				top: 40px;
 				width: 50px;
 				height: calc(100% - 160px);
-				background: rgba(0,0,0,0.75);
+				background: rgba(0,0,0,0.3);
 				z-index: 2;
 			}
 			#bar-next {
@@ -624,7 +622,7 @@ const epubV2App = (innerTagStr, opts) => {
 					window.isTts = true
 					let file = api.utils.getInfos().file;
 					console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)
-					api.call("ui.textToSpeechPopup.open", [ fullText, {id: file.name, startString: pagetext}], () => {})
+					api.call("ui.textToSpeechPopup.open", [ fullText, {id: epubName, startString: pagetext}], () => {})
 				})
 			}
 
@@ -634,7 +632,38 @@ const epubV2App = (innerTagStr, opts) => {
 			}
 
 
+			let openFormBtn = `<button id="open-form-button" onclick="tiro_openForm()"> Open Form </button>`
+			if (!opts.formId) openFormBtn = ``
+			window.tiro_openForm = () => {
+				// if opts.formId does not exists, return an error
+				let formId = opts.formId;
+				if (!formId) {
+					console.error(h, "No formId found, please add formId inside epub.md parameters linking to the right form id");
+					return;
+				} 
+				api.call("popup.form.open", [formId], answer => {
+					console.log("done")
+				})
+			}
 
+			let insertNextTextBtn = `<button id="insert-next-text-button" onclick="tiro_insertNextText()"> Extract current text position</button>`
+			window.tiro_insertNextText = () => {
+					tiroReaderApi.getNextText(300000, nextText => {
+						if (nextText.error) {
+							console.error(h, "Error getting next text", nextText.error)
+							return
+						}
+						// insert into a note 
+						// let currentFilePath = api.utils.getInfos()
+						// console.log(currentFilePath )
+						// path is /.tiro/generated/epub/extract_ebookname.md
+
+						let ebookNameSmall = (epubName.length > 50) ? epubName.substring(0,50) : epubName
+						let cpath = `/.tiro/generated/epub/extract_${ebookNameSmall}.md`
+						api.call("ui.notification.emit",[{content:`Inserting next text into note ${JSON.stringify(cpath)}`}])
+						api.call("file.saveContent",[cpath, nextText])
+					})
+			}
 			//
 			//
 			//
@@ -767,11 +796,13 @@ const epubV2App = (innerTagStr, opts) => {
 			barEl.innerHTML = `
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
-			${buttonTTs} | 
+			${openFormBtn} |
+			${buttonTTs} |6
 			${buttonToggleOrderHtml} | 
 			${fullscreenBtn} |
 			${positionUI}
 			${searchUI}
+			${insertNextTextBtn} 
 			`
 			//
 			// SHow hide bar
@@ -785,6 +816,7 @@ const epubV2App = (innerTagStr, opts) => {
 			// toggleCustomBar("hide")
 
 			let toggleOpacityEls = (state) => {
+				console.log("toggleOpacityEls")
 				// let els = window.document.querySelectorAll(".config-wrapper")
 				let el = window.document.getElementById("header-bar")
 				let navEl = window.document.getElementById("nav-bar")
@@ -824,14 +856,19 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 			// toggleOpacityEls(0.1)
+			toggleOpacityEls()
+
 			let cogEl = window.document.getElementById("menu-button")
 			let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
 			let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
+			let menuBar = window.document.getElementById("tiro-invisible-square-back")
 			headerBar1.addEventListener("click", () => {  toggleOpacityEls() })
 			headerBar2.addEventListener("click", () => {  toggleOpacityEls() })
+			// menuBar.addEventListener("click", () => {  toggleOpacityEls() })
 			let squareEl = window.document.getElementById("tiro-invisible-square-back")
 			squareEl.addEventListener("click", () => {
 				// toggleCustomBar()
+				console.log(444)
 				toggleOpacityEls()
 			})
 			// on <foliate-view click, toggle opacity
@@ -856,19 +893,83 @@ const epubV2App = (innerTagStr, opts) => {
 				// console.log(2222, readerApi.view)
 				// console.log(2222, ))
 				// console.log(2222, readerApi.view.renderer.getContents())
-				return readerApi.view.lastLocation.range.toString()
+				// let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+				let raw = readerApi.view.lastLocation.range.toString()
+				let arrRes = raw.split("}")
+				let cleanText = arrRes[arrRes.length-1].trim()
+				return cleanText
 				// return tiroReaderApi._storage.currentPage.range.toString()
 				// return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
 			}
 
 			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
-			tiroReaderApi.restorePosition = (epubName) => {
+			tiroReaderApi.getBookPosition = (cb) => {
 				getCache(cacheIdPos, (bookPosition) => {
-					tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+					cb(bookPosition)
 				}, err =>{
 					console.log(h, "no cache found for ", cacheIdPos, err)
+					cb(null)
 				})
 			}
+			tiroReaderApi.restorePosition = (epubName) => {
+				tiroReaderApi.getBookPosition( bookPosition => {
+					if (bookPosition) {
+						tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+					}
+				})
+			}
+
+			setTimeout(() => {
+				// tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
+				// console.log(12343333, tiroReaderApi)
+				// let chapterText = tiroReaderApi.getCurrentChapterText()
+				// console.log(12343333, chapterText, tiroReaderApi.getCurrentPageText())
+				// tiroReaderApi.getNextText(20000, nextText => {
+				// 	console.log(12343333, nextText)
+				// })
+
+			}, 2000)
+
+
+			tiroReaderApi.getNextText = (textLength, cb) => {
+				if (!textLength) textLength = 100000
+				// get current page content
+				let currentPageContent = tiroReaderApi.getCurrentPageText()
+				// get all text
+				tiroReaderApi.getAllText(text => {
+					// search for currentPageContent
+					let startIndex = text.indexOf(currentPageContent)
+					if (startIndex !== -1) {
+						let endIndex = startIndex + textLength
+						let nextText = text.substring(startIndex, endIndex )
+						// split at textLength
+						// console.log(currentPageContent, startIndex)
+						// replace really long spaces by one 
+						nextText = nextText.replace(/\s+/g, ' ')
+						cb(nextText)
+					}
+					else {
+						cb({error:"TEXT NOT FOUND", currentPageContent})
+					}
+				})
+			}
+			
+
+			tiroReaderApi.getCurrentChapterText = () => {
+				// tiroReaderApi.getBookPosition( bookPosition => {
+				// 	if (bookPosition) {
+				// 		// tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+				// 		console.log(bookPosition)
+				// 	}
+				// })
+				let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+				let arrRes = raw.split("}")
+				let cleanText = arrRes[arrRes.length-1].trim()
+				return cleanText
+				// return readerApi.view.getSectionFractions()[chapterIndex]?.toString()
+			}
+
+
 
 			tiroReaderApi.getAllText = (cb, cache=true) => {
 				let getAllTextRaw = (cb1) => {
@@ -940,9 +1041,6 @@ const epubV2App = (innerTagStr, opts) => {
 				})
 			}
 			
-			// setTimeout(() => {
-			// 	tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
-			// }, 2000)
 
 
 
@@ -1080,6 +1178,7 @@ const epubV2App = (innerTagStr, opts) => {
 		const infos = api.utils.getInfos();
 		let epubUrl = innerTagStr.trim()
 		let epubName = epubUrl.split("/").slice(-1)[0].split("?")[0]
+		console.log(h, epubName, epubUrl)
 		const isAbs = epubUrl.startsWith("http")
 		if (isAbs === false) {
 				epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`

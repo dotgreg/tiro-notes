@@ -78,14 +78,15 @@ export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLe
 		// })
 		if (toSearchArr.length === 0 ) toSearchArr = [extract]
 
-		console.log("trying finding extracts:", toSearchArr, chunkedText)
+		let toSearchStr = toSearchArr.join(' ').substring(0, 150)
+		console.log("trying finding extracts:", toSearchStr, chunkedText.length)
 		let res = -1
 		each(chunkedText, (chunk, i) => {
 			each(toSearchArr, (toSearch, j) => {
 				if (res == -1 && normalizeText(chunk).indexOf(normalizeText(toSearch as string)) !== -1) {
-					console.log(123333, chunk, toSearch)
+					// console.log(123333, chunk, toSearch)
 					// if we find the 4th sentence match, come back to first to start tts
-					console.log(i, j, i-j)
+					// console.log(i, j, i-j)
 					res = i - j + 1
 					return false
 				}
@@ -95,6 +96,7 @@ export const extractToChunkPos = (extract: string, chunkedText:string[], chunkLe
 	}
 
 export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:number, partMaxWords: number = 70): string[] => {
+	partMaxWords = parseInt(partMaxWords.toString())
 	// 1 remove spaces
 	text2chunk = removeTextLineJumps(text2chunk)
 	// 2 split by sentences while keeping punctuation
@@ -136,8 +138,37 @@ export const chunkTextInSentences2 = (text2chunk: string, sentencesPerPart:numbe
 		// }
 	}
 
+
+
+	// console.log(1112, sentences.length)
+	// for each chunk, if > partMaxWords, split in subsentences
+	// for (let i = 0; i < chunks.length; i++) {
+	// 	if (chunks[i].split(" ").length > partMaxWords) {
+	// 		// if there are commas, or :/.
+	// 		let subSentences = chunks[i].split(/[.:,;]+/)
+	// 		for (let j = 0; j < subSentences.length; j++) {
+	// 			chunks.push(subSentences[j])
+	// 		}
+	// 	}
+	// }
+	// if still partMaxWords, split in smaller chunks
+	for (let i = 0; i < chunks.length; i++) {
+		while (chunks[i].split(" ").length > partMaxWords) {
+			let subChunk = chunks[i].split(" ").slice(0, partMaxWords).join(" ")
+			chunks[i] = chunks[i].split(" ").slice(partMaxWords).join(" ")
+			chunks.splice(i, 0, subChunk)
+		}
+	}
+
+	let chunksLength:number[] = []
+	for (let i = 0; i < chunks.length; i++) {
+		let wordsNb = chunks[i].split(" ").length
+		chunksLength.push(wordsNb)
+	}
+
 	// remove chunks with less than 1 char
 	chunks = chunks.filter(chunk => chunk.length > 1)
+	// console.log(sentences.length, chunks.length, chunksLength, partMaxWords)
 	return chunks
 }
 

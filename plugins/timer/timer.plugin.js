@@ -52,6 +52,14 @@ return [
       options: {
         background_exec_interval_in_min: 0.01,
       }
+    },{
+      name: "timer_backend",
+      type: "backend",
+      code: `
+        getBackendApi().ressource.fetchEval("${baseUrl}timer/timer.backend.js")
+      `,
+      plugin_infos,
+      
     }
 ]
     

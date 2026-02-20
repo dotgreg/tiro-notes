@@ -14,7 +14,9 @@ import { useBackendState } from '../hooks/useBackendState.hook';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
-import { chunk } from 'lodash-es';
+import { chunk, isNumber, last, set, transform } from 'lodash-es';
+import { url } from 'inspector';
+import {  transformString } from '../managers/string.manager';
 
 const pre = "[TtsCustomPopup] "
 
@@ -60,16 +62,58 @@ export const TtsCustomPopup = (p: {
 	const [currChunk, setCurrChunkInt] = useLocalStorage<number>(`tts-pos-${p.id}`, 0)
 
 	const [logTxt, setLogTxt] = useState<string>("")
+
+	const [logTxtProcess, setLogTxtProcess] = useState<string>("")
+	const [logTxtSaid, setLogTxtSaid] = useState<string>("")
+	const logProcessRef = useRef<string>("")
+	const logSaidRef = useRef<string>("")
+
 	const [showLog, setShowLog] = useState<boolean>(true)
-	const logRef = useRef<string>("")
-	const log = (messageText:string) => {
+	const [logCategory, setLogCategoryInt] = useState<string>("text")
+	const logCategoryRef = useRef<string>(logCategory)
+	const setLogCategory = (category:string) => {
+		// clear log content
+		logCategoryRef.current = category
+		// logRef.current = ""
+		setLogCategoryInt(category)
+	}
+	let logToShow = logCategoryRef.current === "processus" ? logTxtProcess : logTxtSaid	
+	// const logRef = useRef<string>("")
+	const log = (messageText:string, category:string="processus") => {
 		// prepend to logTxt
+		if (category !== logCategoryRef.current) return
 
 		let messageText2 = messageText.replaceAll(`${pre}:`, "")
 		messageText2 = messageText2.replaceAll(pre, "")
-		logRef.current = messageText2 + "<br>" + logRef.current
-		console.log(messageText)
-		setLogTxt(logRef.current)
+
+		const limitLines = (log:string) => {
+			// limit to 40 lines, cut the last ones
+			let limitLines = 40
+			if ( log.split("<br>").length > limitLines ) {
+				let allLines = log.split("<br>")
+				// keep only the first limitLines lines for not text
+				if (category !== "text") {
+					log = allLines.slice(0, limitLines).join("<br>")
+					log = log + "<br>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+				} else {
+					log = allLines.slice(allLines.length - limitLines, allLines.length).join("<br>")
+				}
+			}
+			return log
+		}
+
+		// append if category is text
+		if (category === "processus") {
+			logProcessRef.current = messageText2 + "<br>" + logProcessRef.current
+			logProcessRef.current = limitLines( logProcessRef.current )
+			setLogTxtProcess( logProcessRef.current )
+		} else {
+			logSaidRef.current = logSaidRef.current + "<br>" + messageText2
+			logSaidRef.current = limitLines( logSaidRef.current )
+			setLogTxtSaid( logSaidRef.current )	
+		}
+		// console.log(messageText)
+		// setLogTxt(logRef.current)
 	}
 
 
@@ -88,11 +132,12 @@ export const TtsCustomPopup = (p: {
 		// split p.fileContent into sentences
 		let cleanedText = cleanText2Speech(p.fileContent)
 		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
-		let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart)
-		console.log(chunkedText2)
+		let maxWordsPerSentence = userSettingsSync.curr.tts_max_words_per_sentence
+		let chunkedText2 = chunkTextInSentences2(cleanedText, sentencesPerPart, maxWordsPerSentence)
+		// console.log(chunkedText2)
 
 		setTextChunks(chunkedText2)
-		console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts`,{chunkedText2})
+		console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts`)
 
 	}, [p.fileContent])
 
@@ -102,21 +147,36 @@ export const TtsCustomPopup = (p: {
 		pauseAllAudioWindow(false)
 		setIsPlaying(false)
 	}
-	const playChunkInt = (chunkNb, preloadNext = true) => {
+	const endAudioRef = useRef(false) 
+	const destroyAudio = () => {
+		console.log(`${pre}: audio DESTROYED`)
+		pauseAllAudioWindow(true)
+		setIsPlaying(false)
+		endAudioRef.current = true
+	}
+	const playChunkInt = (chunkNb, preloadNext = true, replayIfError = true) => {
 		stopAudio()
 		downloadAudioFile(chunkNb, urlAudio => {
+			// log(`${chunkNb} / ${textChunks.length} : got url audio: ${urlAudio}`)
+
 			if (!urlAudio.includes("ERROR")) {
+				if (audioUrls.current[chunkNb] !== urlAudio) return 
 				log(`${pre}: ▶️ playing chunk ${chunkNb}`)
+				let textToPlay = textChunks[chunkNb]
+				log(`${textToPlay}`, "text")
+
 				playAudio(urlAudio, () => {
+
 					next()
 				}) 
-			} else {
-				let delay = 4
-				log(`${pre}: ❌▶️ ERROR could not play chunk ${chunkNb}, no audio url, retrying in ${delay}s`)
-				setTimeout(() => {
-					playChunkInt(chunkNb, preloadNext)
-				}, delay * 1000)
-			}
+			} 
+			// else if (replayIfError === true) {
+			// 	let delay = 4
+			// 	log(`${pre}: ❌▶️ ERROR could not play chunk ${chunkNb}, no audio url, retrying in ${delay}s`)
+			// 	setTimeout(() => {
+			// 		playChunkInt(chunkNb, false, true)
+			// 	}, delay * 1000)
+			// }
 		})
 		
 		let numberToPreload = userSettingsSync.curr.tts_preload_parts
@@ -141,6 +201,7 @@ export const TtsCustomPopup = (p: {
 		// @ts-ignore
 		window.tiro_tts_allAudiosRef.push(audio)
 	}
+	// const pauseAllAudioWindow = (remove:boolean = false) => {}
 	const pauseAllAudioWindow = (remove:boolean = false) => {
 		// @ts-ignore
 		if (window.tiro_tts_allAudiosRef === undefined ) window.tiro_tts_allAudiosRef = []
@@ -149,7 +210,7 @@ export const TtsCustomPopup = (p: {
 		// @ts-ignore
 			window.tiro_tts_allAudiosRef[i].pause()
 		// @ts-ignore
-			window.tiro_tts_allAudiosRef[i].currentTime = 0
+			// window.tiro_tts_allAudiosRef[i].currentTime = 0
 		}
 		if(remove === true) {
 			// destroy each oject
@@ -164,20 +225,37 @@ export const TtsCustomPopup = (p: {
 		currChunkRef.current = chunkNb
 	}
 
+	const problemCounterRef = useRef<number>(0)
+
+
 	useInterval(() => {
-		let positionAudio = audioRef.current?.currentTime
+		let positionAudio = Math.round(audioRef.current?.currentTime)
 		let timeAudio = audioRef.current?.duration
 		let statusAudio = audioRef.current?.paused
-		log(`${pre}: audio status: ${positionAudio}/${timeAudio} ${statusAudio ? "paused" : "playing"}`)
+		let roundTimeAudio = Math.round(timeAudio)
+		log(`${pre}: audio status: ${positionAudio}s/${roundTimeAudio}s ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} `)
+		// if 5 times, positionAudio === 0 and timeAudio is NaN, then stop and restart
+
+		if ( !isNumber(timeAudio) || isNaN(roundTimeAudio) || `${roundTimeAudio}` === "NaN") { 
+			log(`${pre}: ❌  audio ERROR detected ${problemCounterRef.current} times (timeAudio: ${timeAudio}, roundTimeAudio: ${roundTimeAudio})`)
+			if (problemCounterRef.current >= 2) {
+				log(`${pre}: ❌>> audio ERROR, stopping and restarting`)
+				problemCounterRef.current = 0
+				playChunk(currChunkRef.current, false, false)
+			}
+			problemCounterRef.current = problemCounterRef.current + 1
+		}
+
 	}, 5000)
 	
 	let currentAudioObj = useRef<any>(null)
 	const playAudio = (urlAudio:string, onEnd:Function) => {
+		// log("PLAY AUDIO")
 		// stop previous audio if any
 		stopAudio()
 		if (isPopupClosedRef.current === true) return
 		setIsPlaying(true)
-		log(`${pre}: audio STARTED`)
+		// log(`${pre}: audio STARTED`)
 		let audio:any = null
 		if (!currentAudioObj.current) {
 			audio = new Audio(urlAudio)
@@ -189,8 +267,15 @@ export const TtsCustomPopup = (p: {
 		
 		addAudioWindow(audio)
 		audioRef.current = audio
-		audio.play()
-		updateSpeedAudio(currRateRef.current)
+		// audio.play()
+		// updateSpeedAudio(currRateRef.current)
+		audio.oncanplaythrough = () => {
+			// log("AUDIO CAN PLAY THROUGH" + urlAudio)
+			if (endAudioRef.current === true) return
+			log(`${pre}: audio LOADED, start PLAY, ${endAudioRef.current}`)
+			audio.play()
+			updateSpeedAudio(currRateRef.current)
+		}
 		audio.onended = () => {
 			log(`${pre}: audio ENDED`)
 			// destroy audio to flush memory
@@ -244,6 +329,10 @@ export const TtsCustomPopup = (p: {
 	// 	log(`${pre}: ⚠️ cleared audio cache (${before} -> ${after})`)
 	// }
 
+
+
+	// const currentLogTextRef = useRef<number>(0)
+
 	const downloadAudioFile = (chunkId:number, cb: (urlAudio:string) => void) => {
 		let stringCmd = userSettingsSync.curr.tts_custom_engine_command
 		// replace {{input}} in txt by the chunk text
@@ -255,8 +344,13 @@ export const TtsCustomPopup = (p: {
 			setWordStat( wordStatRef.current + wordsNb)
 		}
 		let wordLog = `[${wordsNb} words]`
+
+
+		// textToSent simplified, remove all punctuation, to only keep a-Z0-9,.-"'()
+		let textToSentSimple =  transformString(textToSent, {accents:true, specialChars:false, escapeChars:true})
+
 		stringCmd = stringCmd.replace("{{input}}", textToSent)
-		log(`${pre}: 📥 [...] downloading chunk ${chunkId} ${wordLog} "${textToSent.substring(0, 100)}..."`)
+		stringCmd = stringCmd.replace("{{input_simple}}", textToSentSimple)
 		let isCbCalled = false
 		const cbOnce = (res:any) => {
 			if (isCbCalled) return 
@@ -268,35 +362,34 @@ export const TtsCustomPopup = (p: {
 			cbOnce(audioUrls.current[chunkId])
 			// length audioUrls.current not null
 			let nonNullAudioUrls = audioUrls.current.filter(url => url !== null)
-			log(`${pre}: 💾 already downloaded chunk ${chunkId} ${wordLog} [${nonNullAudioUrls.length} / ${textChunks.length} cached]`)
+			// log(`${pre}: 💾 already downloaded chunk ${chunkId} ${wordLog} [${nonNullAudioUrls.length} / ${textChunks.length} cached]`)
 			return
 		}
-
-		// console.log(`${pre}: asking api`,{stringCmd})
 		let start = Date.now()
-		// request api
-		setTimeout(() => {
-			if (isCbCalled) return
-			log(`${pre}: 📥❌ timeout for chunk ${chunkId} ${wordLog} `)
-			cbOnce("ERROR: timeout")
-		}, 20 * 1000)
 		getApi( api => {
 			api.command.exec(stringCmd, (apiAnswer:string) => {
-				// console.log(`${pre}: `,{apiAnswer})
-				// look for an url ending with .mp3/wav
 				if (isCbCalled) return
-				let url = apiAnswer.match(/https?:\/\/[^\s]+\.(mp3|wav)/g)
-				if (url && url[0]) {
-					// console.log(`${pre}: found url ${url[0]}`)
+				// let url = apiAnswer.match(/https?:\/\/[^\s]+\.(mp3|wav)/g)
+				let apiObj = ""
+				let url = ""
+				try {
+					apiObj = JSON.parse(apiAnswer)
+					url = apiObj["output"]
+				} catch (error) {
+					log(`${pre}: ❌ [!! error] chunk ${chunkId}: API answer error: ${JSON.stringify(error)} ${wordLog}`)
+				}
+
+				if (url && url.length > 0) {
+					console.log(`${pre}: found url ${url}`)
 					let time = Date.now() - start
 					let timeLog = `[${time}ms]`
 					log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
-					audioUrls.current[chunkId] = url[0]
+					audioUrls.current[chunkId] = url
 					// setCachedAudioUrls(audioUrls.current)
 					// preload the audio
-					let audio = new Audio(url[0])
+					let audio = new Audio(url)
 					audio.preload = "auto"
-					cbOnce(url[0])
+					cbOnce(url)
 				} else {
 					let message = apiAnswer
 					try {
@@ -305,7 +398,7 @@ export const TtsCustomPopup = (p: {
 						log(`${pre}: 📥❌ [!! error] chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
 						
 					} catch (error) {
-						
+						log(`${pre}: ❌ [!! error] chunk ${chunkId}: API answer error: ${JSON.stringify(error)} ${wordLog}`)
 					}
 					cbOnce("ERROR: API")
 					// notifLog(`Text to Speech API answer error: <br>`+message )
@@ -370,6 +463,7 @@ export const TtsCustomPopup = (p: {
 			}
 			return res
 		}
+		let maxWordsPerSentence = userSettingsSync.curr.tts_max_words_per_sentence
 		let sentencesPerPart = userSettingsSync.curr.tts_sentences_per_part
 		let sentencesLength = textChunks.length * sentencesPerPart
 		let left = formatTime((6 * (sentencesLength - currChunk)) / (currRate * 60))
@@ -381,11 +475,16 @@ export const TtsCustomPopup = (p: {
 
 	const isPopupClosedRef = useRef(false)
 
+	let formId = userSettingsSync.curr.tts_formId 
+	let formExtractLength = userSettingsSync.curr.tts_form_extract_length || 10
+
 	return (
 		<StyledDiv>
 			<Popup
 				title={`${strings.ttsPopup.title}`}
+				disableBg={true}
 				onClose={() => {
+					destroyAudio()
 					pauseAllAudioWindow(true)
 					isPopupClosedRef.current = true
 					let currentText = textChunks[currChunk]
@@ -456,14 +555,46 @@ export const TtsCustomPopup = (p: {
 								`${Math.round(wordStat / 10 / 60 / 2 / 60 * 10) / 10} hours (${Math.round(wordStat / 10 / 60 / 2)} mins)`}<br />
 							Estimated price : {Math.round(wordStat * userSettingsSync.curr.tts_price_per_word * 100000) / 100000}<br />
 						{/* Cached Audio Parts : {cachedAudioUrls.filter(n => n !== null).length} / { textChunks.length }<br/> */}
-						<button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button>
+						{/* <button onClick={()=> {setWordStat(0);wordStatRef.current = 0}}> reset stats</button> */}
 						{/* <button onClick={()=> {clearAudioCache()}}> clear audio cache</button> */}
 					</div>
 				}
 				{
 					showLog &&
+					// one checkbox to toggle between categories log "text log"
+					<label className='log-toggler'>
+						Toggle log: <input type="checkbox" checked={logCategory === "text"} onChange={e => setLogCategory(e.target.checked ? "text" : "processus")} />: 
+						{logCategory === "text" ? "Text Log" : "Processus Log"}
+					</label>
+
+				}
+				{
+					// form button
+					formId !== "" && 
+					<>
+						| form: <button onClick={() => { getApi(api => {api.popup.form.open(formId, () => {})})}}>
+							Open
+						</button>
+						<button onClick={() => { 
+							getApi(api => {
+
+								let lastSentencesSpoken:any = logSaidRef.current.split("<br>")
+								let limit = formExtractLength
+								if (lastSentencesSpoken.length > limit) {
+									lastSentencesSpoken = lastSentencesSpoken.slice(-limit)
+								}
+								lastSentencesSpoken = lastSentencesSpoken.join(".") + " "
+								api.popup.form.open(formId, () => {}, {text: lastSentencesSpoken, file: `tts insert from ${p.id}`}, {autosubmit:1000})
+							})
+						}}>
+							Insert 
+						</button>
+					</>
+				}
+				{
+					showLog &&
 					<div className='log-wrapper'>
-						<div dangerouslySetInnerHTML={{__html: logTxt}}></div>
+						<div dangerouslySetInnerHTML={{__html: logToShow}}></div>
 					</div>
 				}
 				
@@ -482,6 +613,10 @@ export const TtsCustomPopup = (p: {
 }
 
 export const StyledDiv = styled.div`
+.log-toggler {
+	font-size: 10px;
+	margin-right: 10px;
+}
 .stats {
 	font-size: 10px;
 	padding: 10px;
@@ -494,6 +629,7 @@ export const StyledDiv = styled.div`
 		font-size: 12px;
 }
 .log-wrapper {
+	min-width: 300px;
 	height: 200px;
 	overflow:scroll;
 	background: #ececec;

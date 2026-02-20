@@ -36,6 +36,89 @@ r.commonUserAgents = () => [
 
 ]
 
+
+r.fromRawCsvStringToArrObj = (csvString/*:string|void*/) => {
+        if (!csvString) return []
+        const separator = csvString.includes(",") ? "," : ";"
+        const lines = csvString.split("\n")
+        let headers = lines[0].split(separator).map((h) => h.trim())
+        // if "" inside headers, remove it
+        headers = headers.filter(h => h !== "")
+        const arrObj = []
+        for (let i = 1; i < lines.length; i++) {
+                const line = lines[i]
+                if (line.trim() === "") continue
+                const obj = {}
+                const values = line.split(separator).map((h) => h.replaceAll("__COMMA_CHAR__",",").trim())
+                for (let j = 0; j < headers.length; j++) {
+                        obj[headers[j]] = values[j]
+                }
+                arrObj.push(obj)
+        }
+        return arrObj
+}
+r.detectColsType = (arrOfObjs) => {
+  if (!arrOfObjs.length) return {}; // Handle empty input
+
+  const typeDetection = {};
+
+  // Get all column names from the first object
+  const columns = Object.keys(arrOfObjs[0]);
+
+  for (const col of columns) {
+    let isNumber = true;
+    let isDate = true;
+    let hasEmpty = false;
+    let isTag = false; // if text + has #SOMETHING in it
+
+    for (const obj of arrOfObjs) {
+      const value = obj[col];
+      if (value === undefined || value === null || value === '') {
+        hasEmpty = true;
+        continue; // Skip empty values
+      }
+
+      // Check for number
+      if (isNumber) {
+        const numericValue = String(value).replace(',', '.'); // Handle European decimals
+        if (isNaN(Number(numericValue))) {
+          isNumber = false;
+        }
+      }
+      
+      // if there is a #.... > 
+      if (String(value).includes("#")) {
+        isTag = true;
+      }
+
+      // Check for date (using new Date())
+      if (isDate) {
+        const date = new Date(String(value));
+        // Invalid dates return 'Invalid Date' when converted to string
+        if (date.toString() === 'Invalid Date' || isNaN(date.getTime())) {
+          isDate = false;
+        }
+      }
+
+      // Early exit if neither number nor date
+      if (!isNumber && !isDate) break;
+    }
+
+    // Determine the type (prioritize number > date > string)
+    if (isNumber && !hasEmpty) {
+      typeDetection[col] = 'number';
+    } else if (isDate) {
+      typeDetection[col] = 'date';
+    } else if (isTag) {
+      typeDetection[col] = 'tag';
+    } else {
+      typeDetection[col] = 'string';
+    }
+  }
+
+  return typeDetection;
+};
+
 r.searchNote = (searchee, replacement) => {
     
     let infs = api.utils.getInfos()
@@ -158,6 +241,38 @@ r.useLocalStorage = (react, key, initialValue) => {
   return [storedValue, setValue];
 }
    
+
+///////////////////////////////////////////////////
+// DEBOUNCE
+//
+
+r.debounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(null, args);
+        }, delay);
+    };
+};
+r.throttle = (func, limit) => {
+    let lastFunc;
+    let lastRan;
+    return (...args) => {
+        if (!lastRan) {
+            func.apply(null, args);
+            lastRan = Date.now();
+        } else {
+            clearTimeout(lastFunc);
+            lastFunc = setTimeout(() => {
+                if (Date.now() - lastRan >= limit) {
+                    func.apply(null, args);
+                    lastRan = Date.now();
+                }
+            }, limit - (Date.now() - lastRan));
+        }
+    };
+};
 
 ///////////////////////////////////////////////////
 // SUPPORT

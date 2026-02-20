@@ -9,7 +9,8 @@ import { deviceType } from "./device.manager"
 
 export const openExportFilePopup = (windowId: string, file: iFile) => {
 	const queryToShow = `.window-id-${windowId} .preview-area-wrapper`
-	let previewToPrint = document.querySelector(queryToShow)
+	let previewToPrintAll = document.querySelectorAll(queryToShow)
+	let previewToPrint = previewToPrintAll[0] || null
 
 	const printClass = `print-wrapper`
 
@@ -29,11 +30,11 @@ export const openExportFilePopup = (windowId: string, file: iFile) => {
 
 		let created = formatDateList(new Date(file.modified || 0))
 		let modified = formatDateList(new Date(file.modified || 0))
-		let d = {
-			w: '.simple-css-print-wrapper',
-			pl: '.preview-link',
-			r: '.resource-link-icon'
-		}
+		// let d = {
+		// 	w: '.simple-css-print-wrapper',
+		// 	pl: '.preview-link',
+		// 	r: '.resource-link-icon'
+		// }
 
 		let html = `
 <head>
@@ -58,7 +59,7 @@ export const openExportFilePopup = (windowId: string, file: iFile) => {
 				</div>
 				${previewToPrint.innerHTML}
 			</div>
-			<style>${previewAreaSimpleCss(d)}</style>
+			<style>${previewAreaSimpleCss()}</style>
 			<style>${customStylePdfPrint()}</style>
 
 <script>
@@ -89,48 +90,46 @@ export const customStylePdfPrint = () => {
 margin: 0;
 }
 @media print {
-.hide-print {
-display: none;
-
-}
+	.hide-print {
+		display: none;
+	}
 }
 
 * {
 	-webkit-print-color-adjust: exact; 
 	print-color-adjust: exact; 
 }
+.file-path-wrapper {
+	display: none;
+}
+h1.title.big-title {
+	display: none;
+}
+.file-infos-wrapper {
+	display: none;
+	background: #eeeeee;
+	padding: 10px;
+	margin: 10px;
+}
 
-	.file-path-wrapper {
-		display: none;
-	}
-	h1.title.big-title {
-		display: none;
-	}
-	.file-infos-wrapper {
-		display: none;
-		background: #eeeeee;
-		padding: 10px;
-		margin: 10px;
-	}
+.simple-css-print-wrapper {
+	margin: 20px;
+	width: 90%;
+}
+.simple-css-wrapper {
+	font-size: 12px;
+}
 
-	.simple-css-print-wrapper {
-		margin: 20px;
-		width: 90%;
-	}
-	.simple-css-wrapper {
-		font-size: 12px;
-	}
-
-	table {
-		font-size: 12px!important;
-	}
-	img {
-		// max-width: 300px!important;
-		// max-height: 500px!important;
-		max-width: 100%;
-		max-height: 500px;
-	}
-	.block-tag {
-			display: none;
-	}
+table {
+	font-size: 12px!important;
+}
+img {
+	// max-width: 300px!important;
+	// max-height: 500px!important;
+	max-width: 100%;
+	max-height: 500px;
+}
+.block-tag {
+		display: none;
+}
 `}

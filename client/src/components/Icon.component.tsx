@@ -53,7 +53,10 @@ export const Icon2 = (p:{name: string, label?:string, size?: number, color?:stri
 }
 
 export const IconCss = () => `
+
+
 	.icon-wrapper{
+		cursor: pointer;
 		display: inline-block;
 	}
 `

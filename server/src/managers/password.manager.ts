@@ -31,6 +31,17 @@ export const staticServerAuthLogic = (username, userPassword, cb) => {
     }
 }
 
+export const hashApiTokenFromUserPassword = (user, password):Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const salt = crypto.randomBytes(16).toString("hex")
+        let userPassword = user + password
+        crypto.scrypt(userPassword, salt, 64, (err, derivedKey) => {
+            if (err) reject(err);
+            resolve(salt + "" + derivedKey.toString('hex'))
+        });
+    })
+}
+
 export const hashPassword = async (password):Promise<string> => {
     return new Promise((resolve, reject) => {
         const salt = crypto.randomBytes(16).toString("hex")

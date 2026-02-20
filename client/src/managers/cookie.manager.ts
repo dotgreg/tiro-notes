@@ -6,6 +6,7 @@ export const getCookie = (name:string) => {
 }
 export const setCookie = (name:string, value:string, hours:number) => {
     var d = new Date();
+    if (hours === -1) hours = 360 * 24 * 100 // forever or 100 years
     d.setTime(d.getTime() + (hours*60*60*1000));
     var expires = "expires="+ d.toUTCString();
     document.cookie = name + "=" + value + ";" + expires + ";path=/";

@@ -12,6 +12,7 @@ import { cssVars } from '../managers/style/vars.style.manager';
 import { absoluteLinkPathRoot } from '../managers/textProcessor.manager';
 import { getApi } from '../hooks/api/api.hook';
 import { getFontSize } from '../managers/font.manager';
+import { iPanelLayout } from '../hooks/api/floatingPanel.api.hook';
 
 
 //
@@ -139,10 +140,15 @@ export const RessourcePreview = (p: {
 		if (ext === "pdf") ctagType = "pdf"
 		if (ext === "csv" || ext === "arrow") ctagType = "datatable"
 
+		let layout:iPanelLayout|undefined = undefined
+		if (deviceType() === "mobile") layout = "full-center"
+		if (window.innerWidth < 1200) layout = "full-center"
+
 		getApi(api => {
 			api.ui.floatingPanel.create({
 				type: "ctag",
-				layout: "full-center",
+				// layout: "full-center",
+				layout,
 				ctagConfig: {
 					tagName: ctagType,
 					content: ssrPreviewPath,
