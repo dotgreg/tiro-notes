@@ -2,21 +2,33 @@ import { cloneDeep } from "lodash-es";
 import { getCookie, setCookie } from "./cookie.manager";
 import { devCliAddFn } from "./devCli.manager";
 
-const h = `[FRONT PERF]`
+const h = `[FRONT PERF]`;
+
 let perfMeasureModeFront = {value: false}
 
 const atInitRemoveConsole = () => {
 	let isLogEnabled = getCookie("tiroConsoleLogEnabled") === "true"
-	if (isLogEnabled) return
-	console.error("==============================================================================")
-	console.error("!!! console.log is disabled, to enable it again, tiroDevCli.log.toggle_enable() [you can acces frontend api by typing 'api']")
-	console.error("==============================================================================")
-	//@ts-ignore
-	window.console = {
-		warn:() => {},
-		error:() => {},
-		info:() => {},
-		log:() => {}
+	if (isLogEnabled) {
+		let str = `
+==============================================================================
+console.log is ENABLED, you can access frontend api by typing 'api'.
+- Each client api subdomain and related methods like 'api.ai.search' can be accessed directly. You can also:
+	- Access to the overall documentation of the subapi. Example: 'console.log(api.ai.documentation().list)'
+	- Access to each individual method documentation. Example: 'console.log(api.ai.documentation().methods.search)'
+==============================================================================
+		`
+		console.log("%c" + str, "color: green");
+	} else {
+		console.error("==============================================================================")
+		console.error("!!! console.log is disabled, to enable it again, tiroDevCli.log.toggle_enable() [you can acces frontend api by typing 'api']")
+		console.error("==============================================================================")
+		//@ts-ignore
+		window.console = {
+			warn:() => {},
+			error:() => {},
+			info:() => {},
+			log:() => {}
+		}
 	}
 }
 atInitRemoveConsole()

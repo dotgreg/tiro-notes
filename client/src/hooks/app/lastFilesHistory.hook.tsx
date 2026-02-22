@@ -5,6 +5,7 @@ import { iFile } from "../../../../shared/types.shared"
 import { useDebounce } from '../lodash.hooks';
 import { useBackendState } from '../useBackendState.hook';
 import { isA } from '../../managers/device.manager';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 const h = `[LAST FILE]`
 const log = sharedConfig.client.log.verbose
@@ -16,6 +17,7 @@ export interface iLastFilesHistoryApi {
 	getAll: () => iFile[]
 	removeFile: (filePath:string) => void
 	addToHistory: (file:iFile, debounced?:boolean) => void
+	documentation?: () => any
 }
 
 const blacklistPaths = ['.tiro/answers/']
@@ -106,7 +108,8 @@ export const useLastFilesHistory = (activeFile: iFile) => {
 		removeFile,
 		addToHistory,
 	}
-	
+
+	lastFilesHistoryApi.documentation = () => extractDocumentation(lastFilesHistoryApi, 'api.lastFilesHistory', 'client/src/hooks/app/lastFilesHistory.hook.tsx')
 
 	return { filesHistory, filesHistoryRef, cleanLastFilesHistory, refreshFilesHistoryFromBackend, lastFilesHistoryApi }
 }

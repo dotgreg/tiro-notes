@@ -1,4 +1,5 @@
 import cryptico from 'cryptico'
+import { extractDocumentation } from './apiDocumentation.manager'
 
 const password:{value:string|null} = {value: null}
 
@@ -10,6 +11,7 @@ export interface iEncryptApi {
 
     encryptUrlParam: (text:string, password:string) => encryptionAnswer
     decryptUrlParam: (text:string, password:string) => encryptionAnswer
+    documentation?: () => any
 }
 
 var Bits = 1024; 
@@ -41,12 +43,14 @@ const decryptUrlParam:iEncryptApi['decryptUrlParam'] = (text, password) => {
     return res
 }
 
-export const encryptApi:iEncryptApi = {
+const encryptionApiInt: iEncryptApi = {
     encryptText,
     decryptText,
     encryptUrlParam,
     decryptUrlParam
 }
+encryptionApiInt.documentation = () => extractDocumentation(encryptionApiInt, 'api.encryption', 'client/src/managers/encryption.manager.ts')
+export const encryptApi:iEncryptApi = encryptionApiInt
 
 
 

@@ -1,4 +1,5 @@
 import { getApi } from "../hooks/api/api.hook"
+import { extractDocumentation } from "./apiDocumentation.manager"
 
 const audioCurr:any = {obj: null}
 
@@ -57,9 +58,13 @@ const stopAudio = () => {
     // }
 }
 
-export const audioApi = {
+
+let audioApiInt:any = {
     play: playAudio,
-    stop: stopAudio
+    stop: stopAudio,
 }
+
+audioApiInt.documentation = () => extractDocumentation(audioApiInt, 'api.audio', 'client/src/managers/audio.manager.ts')
+export const audioApi = audioApiInt
 
 export type iAudioApi = typeof audioApi

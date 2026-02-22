@@ -51,7 +51,19 @@ export const extractDocumentation = (obj: any, rootPathObj:string, url:string): 
         let finalUrl = `${urlRootPath}${url}`
         let fullRootPathObj = `${rootPathObj}.${name}`
         let smallRootPathObj = `${fullRootPathObj.split('.').slice(-2).join('.')}`
-        let searchUrl = `https://github.com/search?q=repo%3Adotgreg%2Ftiro-notes%20${smallRootPathObj}&type=code`
+        let searchUrlRootPath = `https://github.com/search?q=repo%3Adotgreg%2Ftiro-notes%20`
+        let filtersSearch = `+language%3AJavaScript+OR+language%3ATypescript&type=code`
+        let searchUrl = `${searchUrlRootPath}${smallRootPathObj}${filtersSearch}`
+        // look for emit(HERE_IS_THE_SERVER_COMMAND_NAME, ...) to find the related server command name
+        let relatedServerCommand:any = str.match(/emit\('([^']+)'\s*,\s*\{/);
+        if (relatedServerCommand) { relatedServerCommand = relatedServerCommand[1]; }
+        let searchUrlServer = `${searchUrlRootPath}${relatedServerCommand}${filtersSearch}`
+        let relatedServerStr = relatedServerCommand ? `
+---
+Related server command: ${relatedServerCommand}
+- That frontend api method seems to be related to the server command "${relatedServerCommand}". You can find more information about it by following the link below.
+${searchUrlServer}
+        ` : '';
 
         let methodRes = `
 DOCUMENTATION FOR API METHOD: ${fullRootPathObj}
@@ -60,7 +72,7 @@ Signature: ${res}
 - For more details on the structure/type of each parameter, please check the source code url below
 =======
 Source code url 
-${finalUrl}
+${finalUrl}${relatedServerStr}
 =======
 Method usage and examples:
 ${searchUrl}
