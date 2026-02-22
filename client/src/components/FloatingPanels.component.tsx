@@ -98,7 +98,6 @@ export const FloatingPanel = (p:{
     const updatePanelInt = (panel:iFloatingPanel) => {
         if (!p.onPanelUpdate) return
         // p.onPanelUpdate(panel)
-        console.log("update panel", panel)
         getApi(api => {
             api.ui.floatingPanel.update(panel)
         })
@@ -188,7 +187,6 @@ export const FloatingPanel = (p:{
         if (lastPosBeforeResize.current.x === -1) {
             lastPosBeforeResize.current = {x: currPos.x, y: currPos.y}
         }
-        // console.log(direction,  d, ref.offsetWidth, ref.offsetHeight)
         widthUpdateIfOnlyHeight.current = -widthUpdateIfOnlyHeight.current
         if (direction === "top" || direction === "left") {
             updatePanel({...p.panel, position: {x: lastPosBeforeResize.current.x - d.width, y: lastPosBeforeResize.current.y - d.height}, size: {width: ref.offsetWidth + widthUpdateIfOnlyHeight.current, height: ref.offsetHeight}})
@@ -289,7 +287,6 @@ export const FloatingPanel = (p:{
 
 
     let shouldShowHoverOverlay = p.areWindowsOverlapping === true && showHoverOverlay && p.panelsVisibleNumber > 1 && p.highestVisibleZIndex !== p.panel.zIndex
-    // console.log("shouldShowHoverOverlay", p.panel.type, shouldShowHoverOverlay, p.panel.zIndex, p.highestVisibleZIndex, p.panelsVisibleNumber, p.areWindowsOverlapping)
     // if handle_invisible is hovered, show hover overlay
     useEffect(() => {
         const handleInvisible = document.querySelector('.handle_invisible')
@@ -587,7 +584,6 @@ export const FloatingPanelsWrapper = (p:{
     const handleDeminimize = (panel:iFloatingPanel) => {
         panel.status = "visible"
         handleUpdatePanels(panel)
-        // console.log("deminimize", panel.id)
         getApi(api => {
             api.ui.floatingPanel.pushWindowOnTop(panel.id)
             api.ui.floatingPanel.updateOrderPosition(panel.id, "first")
@@ -609,7 +605,6 @@ export const FloatingPanelsWrapper = (p:{
         setHideAllInt(status)
     }
     const handleToggleVisibility = () => {
-        // console.log("toggle visibility", hideAllRef.current)
        setHideAll(!hideAllRef.current)
     }
 
@@ -617,7 +612,6 @@ export const FloatingPanelsWrapper = (p:{
     const oldPanelsCount = useRef<number>(0)
     const oldPanelsVisibleCount = useRef<number>(0)
     useEffect(() => {
-        // console.log(444444, panels)
         if (hideAll === true && panels.length > oldPanelsCount.current) {
             setHideAll(false)
         }
@@ -712,19 +706,6 @@ export const FloatingPanelsWrapper = (p:{
         // }
     }, [panels])
 
-    // useEffect(() => {
-    //     addKeyShortcut("alt+q", () => { handleToggleVisibility() })
-    //     addKeyShortcut("alt+w", () => {  action("toggleWindowsLayout") })
-    //     addKeyShortcut("alt+shift > m", () => {  action("minimizeActive") })
-    //     addKeyShortcut("alt+shift > c", () => {  action("closeActive") })
-    //     return () => {
-    //         releaseKeyShortcut("alt+q", () => { handleToggleVisibility() })
-    //         releaseKeyShortcut("alt+w", () => {  action("toggleWindowsLayout") })
-    //         releaseKeyShortcut("alt+shift > m", () => {  action("minimizeActive") })
-    //         releaseKeyShortcut("alt+shift > c", () => {  action("closeActive") })
-    //     }
-    // }, [panels])
-
 
     const toggleAll = () => {
         let shouldShow = false
@@ -749,12 +730,14 @@ export const FloatingPanelsWrapper = (p:{
 
     // on loading, if minimized panels exists, switch them to hidden
     const [loaded, setLoaded] = useState<boolean>(false)
+    const loadedRef = useRef<boolean>(false)
     useEffect(() => {
-        if (loaded) return
-        if (panelsRef.current.length === 0) return  
+        if (loaded || loadedRef.current) return
+        if (panelsRef.current.length === 0) return
         let newPanels = cloneDeep(panelsRef.current)
         if (!isArray(newPanels)) newPanels = []
         setLoaded(true)
+        loadedRef.current = true
         newPanels.forEach((panel) => {
             if (panel.status === "minimized") panel.status = "hidden"
         })
@@ -774,7 +757,6 @@ export const FloatingPanelsWrapper = (p:{
 
     // debounce as expensive operation
     const onPanelsChangeDebounce = useDebounce(() => {
-        // console.log("update panels")
         let max = 0
         panels.forEach(panel => {
             if (panel.zIndex === undefined) return
@@ -783,7 +765,6 @@ export const FloatingPanelsWrapper = (p:{
         setMaxZIndex(max)
         setPanelsVisibleNumber(panels.filter(p => p.status === "visible").length)
 
-        // console.log("REORG PANELS")
         // setPanelsBar(panelsRef.current.filter(p => p.status !== "visible"))/
         // reorganized panels by status, first minimized, then hidden
         let newPanels = cloneDeep(panelsRef.current)
@@ -793,7 +774,6 @@ export const FloatingPanelsWrapper = (p:{
 
         let organizedPanels = minimizedPanels.concat(hiddenPanels).concat(visiblePanels)
         // let organizedPanels = hiddenPanels.concat(minimizedPanels).concat(visiblePanels)
-        // console.log({hiddenPanels, minimizedPanels, visiblePanels})
 
         // sortby panel.orderPosition using lodash sortby
         organizedPanels = sortBy(organizedPanels, p => p.orderPosition)
@@ -813,7 +793,6 @@ export const FloatingPanelsWrapper = (p:{
     }, 100)
     useEffect(() => {
         debounceAreWindowsOverlapping(panels)
-        // console.log("window overlapping", overlappingWindows)
     },[panels])
 
     return (

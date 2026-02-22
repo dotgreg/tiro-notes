@@ -1,1 +1,1 @@
-["/","/work"]
+["/","/work","/_demos","/_demos/work","/_demos/","/_demos/notes"]

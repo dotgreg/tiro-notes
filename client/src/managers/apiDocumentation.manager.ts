@@ -38,7 +38,7 @@ export function getInterfaceDeclaration(node: ts.Node, sourceFile: ts.SourceFile
 }
 
 
-export const extractDocumentation = (obj: any, rootPathObj:string, url:string): {list: string, methods: any} => {
+export const extractDocumentation = (obj: any, rootPathObj:string, url:string): any => {
     const methodStrings:any = {}
     
     function getFunctionSignature(name:string, func: Function): string {
@@ -77,80 +77,6 @@ ${str}
         }
         return value;
     }, 2);
-    return {list: interfaceString, methods: methodStrings};
+    return {list: interfaceString, methods: methodStrings, m: methodStrings};
 }
 
-
-
-// export function extractInterface(filePath: string, interfaceName: string): string {
-//      const compilerOptions: ts.CompilerOptions = {
-//     target: ts.ScriptTarget.Latest,
-//     module: ts.ModuleKind.CommonJS
-//   };
-
-//   // Create a proper host configuration
-//   const host = ts.createCompilerHost(compilerOptions);
-
-//   // Optionally customize the host
-//   const originalReadFile = host.readFile;
-//   host.readFile = (fileName: string): string | undefined => {
-//     if (fileName === filePath) {
-//       return ts.sys.readFile(fileName);
-//     }
-//     return originalReadFile(fileName);
-//   };
-
-//   const program = ts.createProgram({
-//     rootNames: [filePath],
-//     options: compilerOptions,
-//     host: host
-//   });
-
-// //   // Create a proper compiler host with system
-// //   const compilerOptions: ts.CompilerOptions = {
-// //     target: ts.ScriptTarget.Latest,
-// //     module: ts.ModuleKind.CommonJS
-// //   };
-
-// //   // Create a system that reads from the file system
-// //   const system = ts.sys;
-
-// //   // Create the program
-// //   const program = ts.createProgram({
-// //     rootNames: [filePath],
-// //     options: compilerOptions,
-// //     host: ts.createCompilerHost({
-// //       options: compilerOptions,
-// //       system: system // Provide the system object
-// //     })
-// //   });
-
-//   const sourceFile = program.getSourceFile(filePath);
-//   let result = '';
-
-//   if (sourceFile) {
-//     ts.forEachChild(sourceFile, node => {
-//       if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
-//         result = node.getText(sourceFile);
-//       }
-//     });
-//   }
-
-//   return result;
-// }
-// export function extractInterface2(filePath: string, interfaceName: string): string {
-//   const program = ts.createProgram([filePath], {});
-//   const sourceFile = program.getSourceFile(filePath);
-
-//   let result = '';
-
-//   if (sourceFile) {
-//     ts.forEachChild(sourceFile, node => {
-//       if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
-//         result = node.getText(sourceFile);
-//       }
-//     });
-//   }
-
-//   return result;
-// }

@@ -470,8 +470,17 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 	serverSocket2.on('askRessourceUnzip', async data => {
 		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
+		const pathFolderDestination = `${backConfig.dataFolder}/${data.folder}`;
 		logActivity("unzip", data.path, serverSocket2)
-		let res = await unzip(pathToFile, `${backConfig.dataFolder}/${data.folder}`, (err) => {
+		// check if file zip exists at that path
+		if (!fileExists(pathToFile)) {
+			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: `File ${data.path} does not exist`, idReq: data.idReq })
+			return
+		}
+		// if destination folder does not exists, create it
+		if (!fileExists(pathFolderDestination)) { await upsertRecursivelyFolders(pathFolderDestination) }
+
+		let res = await unzip(pathToFile, pathFolderDestination, (err) => {
 			if (err) {
 				serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: err.message, idReq: data.idReq })
 			} else {
