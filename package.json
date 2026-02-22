@@ -58,6 +58,8 @@
         "blog/serve": "run-s blog/build blog/serve-int",
         "blog/update": "run-s site/pull blog/build site/push",
         "blog/install": "npm --prefix ./docs/_eleventy_blog_system install",
+        "================== DEMO FOLDER BUILD =================== ": "",
+        "demo_folder/zip":"rm -r _demo_folder; mkdir _demo_folder; cp -r demo_folder/.tiro/plugins _demo_folder/plugins; rm -r _demo_folder/plugins/.history; cp -r demo_folder/_demos _demo_folder/_demos; zip -r demos_folder.zip _demo_folder",
         "================== NODE BUILD =================== ": "",
         "build-update-version": "sed -i \"s/\\\"version\\\": \\\".*\\\"/\\\"version\\\": \\\"$(cat ./.version)\\\"/\" ./platforms/npm-cli-module/package.json && sed -i \"3s/.*/const version = \\\"$(cat ./.version)\\\";/\" ./shared/shared.config.ts",
         "build": "CI=false npm run build-then-export",
