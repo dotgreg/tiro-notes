@@ -316,13 +316,24 @@ export const useRessourceApi = (p: {
 		if (!opts) opts = {overwriteWarn: true}
 		const idReq = genIdReq('unzip-file');
 		console.log(`${h} unzip file ${filePath} to ${outputFolder}`);
+		const doUnzip = () => {
+			p.eventBus.subscribe(idReq, cb || (() => {}));
+			clientSocket2.emit('askRessourceUnzip', { path:filePath, folder:outputFolder, idReq, token: getLoginToken() })
+		}
 		getApi(api => {
-			api.popup.confirm(`Are you sure you want to unzip ${filePath} to ${outputFolder}? It will overwrite any existing files.`, (confirmed) => {
-				if (confirmed) {
-					p.eventBus.subscribe(idReq, cb || (() => {}));
-					clientSocket2.emit('askRessourceUnzip', { path:filePath, folder:outputFolder, idReq, token: getLoginToken() })
-				}
-			});
+			if (opts?.overwriteWarn) {
+				api.popup.confirm(`
+						Are you sure you want to unzip <br>
+						"${filePath}" to <br>
+						"${outputFolder}"? <br>
+						It will overwrite any existing files.`, 
+				() => {
+					doUnzip()
+				});
+			} else {
+				// no warning, do it directly
+				doUnzip()
+			}
 		})
 	}
 

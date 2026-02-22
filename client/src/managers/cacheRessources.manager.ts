@@ -31,15 +31,3 @@ export const getRessourcesCacheId = (cb?:Function) => {
         })
     })
 }
-
-devCliAddFn("cache", "clean_cache", () => {
-	notifLog("Cache clean started...", "clean_cache")
-	getApi(api => {
-		api.folders.delete("cache", "ctag-ressources")
-		api.ressource.cleanCache()
-		api.cache.cleanRamCache()
-        incrementRessourcesCacheId((cacheId) => {
-            notifLog(`Cache cleaned successfully (${cacheId})`, "clean_cache")
-        })
-	})
-})

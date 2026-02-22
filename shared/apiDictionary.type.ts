@@ -24,7 +24,7 @@ export interface iApiDictionary {
 	moveFile: { initPath: string, endPath: string, idReq: string }
 	moveFileAnswer: { idReq: string }
 	moveFolder: { initPath: string, endPath: string, idReq: string }
-	moveFolderAnswer: { idReq: string }
+	moveFolderAnswer: { idReq: string, result: { success: boolean, error?: string } }
 
 	searchFor: { term: string, type: iAppView, idReq: string }
 

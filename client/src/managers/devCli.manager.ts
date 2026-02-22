@@ -60,11 +60,7 @@ export const devHook = (id: string) => (...p) => {
 //devCliAddFn()
 
 export const notifLog = (str, id?:string, hideAfter?: number) => {
-	console.log("[NOTIF LOG]: ", str)
-	if (!hideAfter) hideAfter = 60
-	// remove \ from string
-	str = str.replace(/\\/g, "")
 	getApi(api => {
-		api.ui.notification.emit({content: str,id, options:{ hideAfter, type:"warning", keepInHistory: true}})
+		api.ui.notification.notifLog(str, id, hideAfter)
 	})
 }

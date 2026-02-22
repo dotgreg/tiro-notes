@@ -4,6 +4,11 @@
 
 .history
 .history/
+cache/
+.states/
+_raw/
+_demo_folder
+
 
 node_modules/
 dist/

@@ -370,8 +370,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		let endPerf = perf('📁➡️  moveFolder ' + data.initPath + ' to ' + data.endPath)
 		// simplier, as no need to move ressources
 		await upsertRecursivelyFolders(data.endPath)
-		await moveFile(data.initPath, data.endPath)
-		serverSocket2.emit('moveFolderAnswer', { idReq: data.idReq })
+		let res = await moveFile(data.initPath, data.endPath)
+		serverSocket2.emit('moveFolderAnswer', { idReq: data.idReq, result: res })
 		endPerf()
 	}, { checkRole: "editor" })
 
@@ -471,19 +471,25 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askRessourceUnzip', async data => {
 		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
 		const pathFolderDestination = `${backConfig.dataFolder}/${data.folder}`;
+		console.log(33333333333, "UNZIP")
 		logActivity("unzip", data.path, serverSocket2)
 		// check if file zip exists at that path
 		if (!fileExists(pathToFile)) {
 			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: `File ${data.path} does not exist`, idReq: data.idReq })
 			return
 		}
+		console.log(123333332)
 		// if destination folder does not exists, create it
 		if (!fileExists(pathFolderDestination)) { await upsertRecursivelyFolders(pathFolderDestination) }
+		console.log(1233333)
 
-		let res = await unzip(pathToFile, pathFolderDestination, (err) => {
-			if (err) {
-				serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: err.message, idReq: data.idReq })
+		unzip(pathToFile, pathFolderDestination, (res) => {
+			console.log(444444444, res)
+			if (res.error) {
+				console.log(1, res.error)
+				serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: res.error.message, idReq: data.idReq })
 			} else {
+				console.log(2)
 				serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message: `File ${data.path} unzipped successfully to ${data.folder}`, idReq: data.idReq })
 			}
 		})
@@ -554,8 +560,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 		// and appends notif in notification history
 		if (data.notification.options?.keepInHistory) {
-			let notifHistoryFile = `${backConfig.dataFolder}/${sharedConfig.path.configFolder}/notification_history.md`
-			await prependToFile(notifHistoryFile, `${new Date().toJSON()} : ${data.notification.content}`)
+			// let notifHistoryFile = `${backConfig.dataFolder}/${sharedConfig.path.configFolder}/notification_history.md`
+			// await prependToFile(notifHistoryFile, `${new Date().toJSON()} : ${data.notification.content}`)
 		}
 		endPerf()
 

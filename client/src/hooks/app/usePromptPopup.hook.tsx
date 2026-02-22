@@ -11,6 +11,7 @@ import { config } from 'process';
 import { getDateObj } from '../../../../shared/helpers/date.helper';
 import { isMobile } from '../../managers/device.manager';
 import { useDebounce } from '../lodash.hooks';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 
 const liveVars: {
@@ -51,6 +52,7 @@ export interface iPopupFormConfig {
 	options?: popupOptions
 }
 export type iPopupApi = {
+	documentation?: () => any,
 	confirm: (text: string, cb: Function, onRefuse?: Function, options?:popupOptions) => void,
 	show: (text: string, title: string, cb: Function, options?:popupOptions) => void,
 	prompt: (p: {
@@ -767,6 +769,7 @@ export const usePromptPopup = (p: {
 		}
 
 	}
+	popupApi.documentation = () => extractDocumentation(popupApi,"api.popup", "client/src/hooks/app/usePromptPopup.hook.tsx")
 	return {
 		popupApi,
 		PromptPopupComponent
