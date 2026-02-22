@@ -19,8 +19,8 @@ export const triggerDemoDownload = () => {
                         api.ui.notification.notifLog("unzip demo files successfully, reloading tiro...","dl_demo_files")
                         api.folders.move("/.tiro/plugins", `/_backup/_backup_${rand}/.tiro/plugins`, r => {console.log( r.result)})
                         api.folders.move("/_demos", `/_backup/_backup_${rand}/_demos`, r => {console.log( r.result)})
-                        api.folders.move(zf+"/demo_folder/.tiro/plugins", "/.tiro/plugins", r => {console.log( r.result)})
-                        api.folders.move(zf+"/demo_folder/demos", "/_demos", r => {console.log(r.result)})
+                        api.folders.move(zf+"/_demo_folder/plugins", "/.tiro/plugins", r => {console.log( r.result)})
+                        api.folders.move(zf+"/_demo_folder/_demos", "/_demos", r => {console.log(r.result)})
                         setTimeout(() => {window.location.reload()},3000)
                     },{overwriteWarn:false})
                 }
