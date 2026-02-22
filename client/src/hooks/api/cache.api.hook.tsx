@@ -5,6 +5,8 @@ import { perf } from '../../managers/performance.manager';
 import { safeString } from '../../managers/string.manager';
 import { getApi} from './api.hook';
 import { extractDocumentation } from '../../managers/apiDocumentation.manager';
+import { devCliAddFn, notifLog } from '../../managers/devCli.manager';
+import { incrementRessourcesCacheId } from '../../managers/cacheRessources.manager';
 
 //
 // INTERFACES
@@ -35,6 +37,8 @@ export interface iCacheApi {
 
 	getCachePath: (cacheId: string, cb?:(res:string) => void) => string,
 	documentation?: () => any
+
+	cleanCache: () => void
 
 }
 
@@ -274,12 +278,30 @@ export const useCacheApi = (p: {}): iCacheApi => {
 
 
 
+	const cleanCache:iCacheApi["cleanCache"] = () => {
+		notifLog("Cache clean started...", "clean_cache")
+		getApi(api => {
+			api.folders.delete("cache", "ctag-ressources")
+			api.ressource.cleanCache()
+			api.cache.cleanRamCache()
+			incrementRessourcesCacheId((cacheId) => {
+				notifLog(`Cache cleaned successfully (${cacheId})`, "clean_cache")
+			})
+		})
+	}
 
 
 	//
 	// EXPORTS
 	//
-	let api: iCacheApi = {get: getCache, set: setCache, cleanRamCache, getCachePath: getCachedStorageAsync}
+	let api: iCacheApi = {get: getCache, cleanCache: cleanCache, set: setCache, cleanRamCache, getCachePath: getCachedStorageAsync}
 	api.documentation = () => extractDocumentation( api, "api.cache", "client/src/hooks/api/cache.api.hook.tsx");
 	return api
 }
+
+
+devCliAddFn("cache", "clean_cache", () => {
+	getApi(api => {
+		api.cache.cleanCache()
+	})
+})

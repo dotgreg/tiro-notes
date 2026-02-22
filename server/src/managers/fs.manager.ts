@@ -1,5 +1,5 @@
 import { each, random, reject } from "lodash";
-import { createGunzip, createUnzip, createGzip} from 'zlib';
+import { createGunzip, createGzip} from 'zlib';
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iDownloadRessourceOpts } from "../../../shared/types.shared";
@@ -95,31 +95,25 @@ export const upsertRecursivelyFolders = async (fullPathToCheck: string) => {
 	return
 }
 
-export const moveFile = async (pathInit: string, pathEnd: string): Promise<void> => {
+export const moveFile = async (pathInit: string, pathEnd: string): Promise<{ success: boolean, error?: string }> => {
 	pathInit = p(pathInit)
 	pathEnd = p(pathEnd)
 	// check if file exists/not
 	if (!fileExists(pathInit)) {
 		shouldLog && log(`[MOVEFILE] ERROR : PATHINIT ${pathInit} DOESNT EXISTS`);
+		return { success: false, error: `PATHINIT_DOES_NOT_EXIST pathInit:${pathInit} pathEnd:${pathEnd}`};
 	} else {
 		shouldLog && log(`[MOVEFILE] starting moving ${pathInit} -> ${pathEnd}`);
 
-		// return new Promise(async (resolve, reject) => {
-			// , (err) => {
-			// 	if (err) { shouldLog && log(`[MOVEFILE] Error ${err.message} (${pathInit} -> ${pathEnd})`); reject() }
-			// 	else resolve()
-			// });
-		// })
-
 		try {
 			await fs.renameSync(pathInit, pathEnd)
+			return { success: true };
 		} catch (error) {
 			// console.log(h, `error rename file ${pathInit} -> ${pathEnd}`, error)
 			log(`[MOVEFILE] Error ${error.message} (${pathInit} -> ${pathEnd})`);
+			return { success: false, error: `${error.message} pathInit:${pathInit} pathEnd:${pathEnd}` };
 		}
-			
 	}
-
 }
 
 
@@ -208,19 +202,29 @@ export const deleteFolder = async (path: string): Promise<void|Error> => {
 
 
 
-// zip/unzip using built in zlib
-export const unzip = async (zipFilePath: string, destFolder: string, cb: (err?: Error) => void): Promise<void> => {
+// zip/unzip using unzipper
+export const unzip = (
+	zipFilePath: string, 
+	destFolder: string, 
+	cb: (res:any) => void,
+	opts?:{override:boolean}
+) => {
+	if (!opts) opts = { override: true }
+	if (!opts.override) opts.override = true
+	const unzipper = require('unzipper');
+
 	zipFilePath = p(zipFilePath)
 	destFolder = p(destFolder)
-
 	shouldLog && log(`[UNZIP] ${zipFilePath} -> ${destFolder}`);
 
-	const unzip:any = createUnzip();
 	fs.createReadStream(zipFilePath)
-		.pipe(unzip({ path: destFolder }))
-		.on('close', cb)
+		.pipe(unzipper.Extract({ path: destFolder }))
+		.on('close', () => {
+			shouldLog && log(`[UNZIP] Finished unzipping ${zipFilePath} to ${destFolder}`);
+			cb({ success: true });
+		})
 		.on('error', (err) => {
-			shouldLog && log(`[UNZIP] Error ${err.message}`);
+			shouldLog && log(`[UNZIP] Error unzipping ${zipFilePath} : ${err.message}`);
 			cb(err);
 		});
 };

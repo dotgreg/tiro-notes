@@ -50,20 +50,25 @@ export const extractDocumentation = (obj: any, rootPathObj:string, url:string): 
         let urlRootPath = `https://github.com/dotgreg/tiro-notes/tree/master/`
         let finalUrl = `${urlRootPath}${url}`
         let fullRootPathObj = `${rootPathObj}.${name}`
+        // api.ai.search becomes api.call("ai.search", [...]) in the code, so we look for the last 2 parts of the path to find the related code
+        let ctagApiCall = fullRootPathObj.replaceAll("api.", "api.call('") + "', [...])"
         let smallRootPathObj = `${fullRootPathObj.split('.').slice(-2).join('.')}`
         let searchUrlRootPath = `https://github.com/search?q=repo%3Adotgreg%2Ftiro-notes%20`
         let filtersSearch = `+language%3AJavaScript+OR+language%3ATypescript&type=code`
+        filtersSearch = `+path%3A*.js+OR+path%3A*.tsx++OR+path%3A*.ts&type=code`
         let searchUrl = `${searchUrlRootPath}${smallRootPathObj}${filtersSearch}`
         // look for emit(HERE_IS_THE_SERVER_COMMAND_NAME, ...) to find the related server command name
         let relatedServerCommand:any = str.match(/emit\('([^']+)'\s*,\s*\{/);
         if (relatedServerCommand) { relatedServerCommand = relatedServerCommand[1]; }
-        let searchUrlServer = `${searchUrlRootPath}${relatedServerCommand}${filtersSearch}`
+        let searchUrlServer = `${searchUrlRootPath}${relatedServerCommand}+path%3Aserver%2Fsrc%2Froutes.ts+${filtersSearch}`
         let relatedServerStr = relatedServerCommand ? `
 ---
 Related server command: ${relatedServerCommand}
 - That frontend api method seems to be related to the server command "${relatedServerCommand}". You can find more information about it by following the link below.
 ${searchUrlServer}
         ` : '';
+
+
 
         let methodRes = `
 DOCUMENTATION FOR API METHOD: ${fullRootPathObj}
@@ -76,6 +81,9 @@ ${finalUrl}${relatedServerStr}
 =======
 Method usage and examples:
 ${searchUrl}
+- USAGE:
+  - for custom tag plugins (like [[test]]) or user_functions.md, you need to call it like this: ${ctagApiCall}
+  - for bar/background/other custom code/plugins, you can directly call it ${fullRootPathObj}(args)
 =======
 Method code:
 ${str}

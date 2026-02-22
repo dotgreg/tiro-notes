@@ -10,6 +10,7 @@ const h = `[NOTIFICATIONS]`
 
 export interface iNotificationApi {
 	emit: (notification: iNotification, cb?:Function) => void
+	notifLog: (str: string, id?: string, hideAfter?: number) => void
 	documentation?: () => any
 }
 
@@ -58,11 +59,22 @@ export const useNotificationApi = (p: {
 	}
 
 
+	const notifLog:iNotificationApi['notifLog'] = (str, id?:string, hideAfter?: number) => {
+		console.log("[NOTIF LOG]: ", str)
+		if (!hideAfter) hideAfter = 60
+		// remove \ from string
+		str = str.replace(/\\/g, "")
+		getApi(api => {
+			api.ui.notification.emit({content: str,id, options:{ hideAfter, type:"warning", keepInHistory: true}})
+		})
+	}
+
 	//
 	// EXPORTS
 	//
 	const api: iNotificationApi = {
-		emit: emitNotification
+		emit: emitNotification,
+		notifLog
 	}
 	api.documentation = () => extractDocumentation( api, "api.notification", "client/src/hooks/api/notification.api.hook.tsx" )
 

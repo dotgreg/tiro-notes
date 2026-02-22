@@ -19,7 +19,7 @@ export interface iMoveApi {
 	folder: (
 		initPath: string,
 		endPath: string,
-		cb?: (files: iFile[]) => void
+		cb?: (res:any) => void
 	) => void
 }
 
@@ -32,7 +32,7 @@ export const useMoveApi = (p: {
 	// 
 	useEffect(() => {
 		clientSocket2.on('moveFolderAnswer', data => {
-			p.eventBus.notify(data.idReq, data.idReq)
+			p.eventBus.notify(data.idReq, data)
 		})
 	}, [])
 

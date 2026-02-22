@@ -10,6 +10,8 @@ import { getLoginToken } from './app/loginToken.hook';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
 import { configClient } from '../config';
+import { triggerDemoDownload } from '../managers/demoDownload.manager';
+import { extractDocumentation } from '../managers/apiDocumentation.manager';
 
 
 
@@ -18,6 +20,7 @@ export const getUserSettingsSync = () => userSettingsSync.curr
 
 export type iUserSettings = { [setting in iUserSettingName]?: any }
 export type iUserSettingsApi = {
+	documentation?: () => any
 	get: (name: iUserSettingName, cb?:(res:{currentValue: any, defaultValue:any}) => void) => any
 	set: (name: iUserSettingName, val: any, options?: { writeInSetupJson?: boolean }) => void
 	list: () => iUserSettingList
@@ -31,6 +34,7 @@ export type iUserSettingsApi = {
 		opts?: iUpdateConfigJsonOpts,
 	) => void,
 	triggerSetupPopup: Function,
+	triggerDemoDownload: Function,
 	refreshUserSettingsFromBackend: Function,
 }
 
@@ -194,6 +198,7 @@ export const useUserSettings =  (p: {
 	const userSettingsApi: iUserSettingsApi = {
 		refreshUserSettingsFromBackend,
 		updateSetupJson,
+		triggerDemoDownload: triggerDemoDownload,
 		set: (name, value, opts) => {
 			if (!opts) opts = {}
 			if (!opts.writeInSetupJson) opts.writeInSetupJson = false
@@ -240,6 +245,8 @@ export const useUserSettings =  (p: {
 
 
 	}
+
+	userSettingsApi.documentation = () => extractDocumentation(userSettingsApi, "api.userSettings", "client/src/hooks/useUserSettings.hook.tsx")
 
 	return {
 		userSettingsApi,

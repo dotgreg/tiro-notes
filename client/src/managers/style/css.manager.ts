@@ -118,12 +118,14 @@ const CssAppIntStatic = (
 	let backgroundVideoEnable = userSettingsSync.curr.ui_layout_background_video_enable
 
 	// IF PICTURE BG
-	if (backgroundImageEnable === true && backgroundVideoEnable === false) {
-		// if exists, remove ?token=.... from the url
-		let i = backgroundImage.indexOf('?token=')
-		if (i > 0)  backgroundImage = backgroundImage.substring(0, i)
-		// then add it back
-		backgroundImage += `?token=${getLoginToken()}`
+	if (backgroundImageEnable === true && backgroundVideoEnable === false && (backgroundImage)) {
+		if (backgroundImage.length > 0) {
+			// if exists, remove ?token=.... from the url
+			let i = backgroundImage.indexOf('?token=')
+			if (i > 0)  backgroundImage = backgroundImage.substring(0, i)
+			// then add it back
+			backgroundImage += `?token=${getLoginToken()}`
+		}
 		// if does not start with http, add the server url
 		if (!backgroundImage.startsWith('http')) {
 			backgroundImage = `${absoluteLinkPathRoot(backgroundImage)}`
