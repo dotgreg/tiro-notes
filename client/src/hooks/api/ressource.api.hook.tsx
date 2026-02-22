@@ -115,7 +115,6 @@ export const useRessourceApi = (p: {
 
 	const downloadRessource: iRessourceApi['download'] = (url, folder, cb, opts) => {
 		const idReq = genIdReq('download-ressource');
-		// console.log(`${h} downloading ressource url ${url} to folder ${folder}`);
 		// execute callback on answer
 		p.eventBus.subscribe(idReq, cb);
 		clientSocket2.emit('askRessourceDownload', { url, folder, idReq, opts,token: getLoginToken() })
@@ -172,7 +171,6 @@ export const useRessourceApi = (p: {
 				console.log(h, `FETCHING => updated URL with custom backend token`, { url, options });
 			}
 
-			// console.log(h,"FETCH RESSOURCE", {url,options})
 			// if disableCache is true, we will always download the file
 			if (options.disableCache === true) console.log(h, `FETCHING => disableCache is true`, { url, options });
 
@@ -181,7 +179,6 @@ export const useRessourceApi = (p: {
 			let localStaticPath = getStaticRessourceLink(`/${cacheFolder}${getRessourceIdFromUrl(url)}`)
 
 			const returnFile = () => {
-				// console.log(h, `FETCHING => getting CACHED file`, { url, options });
 				fetch(localStaticPath).then(function (response) {
 					return response.text();
 				}).then(function (data) {
@@ -192,9 +189,7 @@ export const useRessourceApi = (p: {
 
 			const downloadThenReturnFile = () => {
 				downloadRessource(url, cacheFolder, answer => {
-					// console.log(h, `FETCHING => answer`, { url, options, answer});
 					if (answer.message) { 
-						// console.log(h, `FETCHING => answer`, { url, options, answer});
 						if (!options?.returnsPathOnly) returnFile() 
 						else returnFilePath()
 					}
@@ -208,7 +203,6 @@ export const useRessourceApi = (p: {
 				checkUrlExists({
 					url: localStaticPath,
 					onSuccess: () => {
-						// console.log(`${h} FETCHING => getting CACHED file`, { url, options });
 						if (!options?.returnsPathOnly) returnFile() 
 						else returnFilePath()
 					},
@@ -270,7 +264,6 @@ export const useRessourceApi = (p: {
 				cb && cb(res)
 			} catch (e) {
 				let message = `[ERR remote code] (api.ress.fetchEval): ${e} <br> url: ${url} (more infos in console)`
-				// console.log(message, e, {url, funcParams, options});
 				notifLog(`${message}`, `err_remote_${url}`)
 			}
 		}
@@ -359,5 +352,3 @@ export const useRessourceApi = (p: {
 }
 
 
-
-// api.ressource.scanFolder("/demos", e => {console.log(222,e)})

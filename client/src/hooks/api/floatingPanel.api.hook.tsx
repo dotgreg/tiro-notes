@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react"
 import { iFile, iNotification, iPlugin, iViewType } from "../../../../shared/types.shared"
 import { useBackendState } from "../useBackendState.hook"
 import { generateEmptyiFile } from "../app/useLightbox.hook"
-import { clone, cloneDeep, isObject, isString } from "lodash-es"
+import { clone, cloneDeep, isArray, isObject, isString } from "lodash-es"
 import { iCtagGenConfig } from "../../managers/ssr/ctag.ssr"
 import { iNotePreviewType } from "../../components/NotePreview.component"
 import { getUrlTokenParam } from "../app/loginToken.hook"
-import { deviceType, iDeviceType, isMobile } from "../../managers/device.manager"
+import { deviceType, iDeviceType, isA, isMobile } from "../../managers/device.manager"
 import { useDebounce } from "../lodash.hooks"
 import { pathToIfile } from "../../../../shared/helpers/filename.helper"
 import { addKeyShortcut, releaseKeyShortcut } from "../../managers/keyboard.manager"
@@ -92,11 +92,13 @@ export interface iFloatingPanelApi {
 let startingZindex = 1000
 let offset = 20
 
+let debugCount = 0
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const onPanelsFirstLoad = (initVal: any) => {
         // if (initVal.length === 0) return
         // if we are mobile, delete all panels that are mobile
+        if (!isArray(initVal)) return 
         panelsRef.current = initVal
         // let nPanels = cloneDeep(initVal)
         if (deviceType() === "mobile") panelsRef.current = panelsRef.current.filter(p => p.device !== "mobile")
@@ -108,35 +110,19 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const [panels, setPanelsInt, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsConfig3', [], { history: false, onInitialRefresh: onPanelsFirstLoad, debouncedSave: 5000 }) // save every 10s in backend to avoid overload
     const panelsRef = React.useRef<iFloatingPanel[]>([])
     const setPanels = (npans: iFloatingPanel[]) => {
+        if (!isArray(npans)) return
         panelsRef.current = npans
         setPanelsInt(npans)
     }
+
     useEffect(() => {
+        if (!isArray(panels)) return
         panelsRef.current = panels
+        if (debugCount > 30) throw new Error("ERROR too many refresh")
+        debugCount++
+    
     }, [panels])
 
-
-    // const [panelsDesktop, setPanelsDesktop, refreshFromBackend] = useBackendState<iFloatingPanel[]>('floatingPanelsDesktopConfig',[], {history: true})
-    // const [panels, setPanelsInt] = useState<iFloatingPanel[]>([])
-    // const panelsRef = React.useRef<iFloatingPanel[]>([])
-
-    // const setPanels = (npans:iFloatingPanel[]) => {
-    //     panelsRef.current = npans
-    //     setPanelsInt(npans)
-    //     if (deviceType() !== 'mobile') setPanelsDesktop(npans)
-    // }
-
-    // const startupIrrigationFromBackend = React.useRef<boolean>(true)
-    // useEffect(() => {
-    //     refreshFromBackend()
-    // },[])
-
-    // useEffect(() => {
-    //     if (!startupIrrigationFromBackend.current) return
-    //     if (panelsDesktop.length > 0) startupIrrigationFromBackend.current = false
-    //     if (deviceType() !== 'mobile') setPanelsInt(panelsDesktop)
-    //     panelsRef.current = panelsDesktop
-    // },[panelsDesktop])
 
     const updatePanelLayoutApiFn = (panelId: string | "active", layout?: iPanelLayout) => {
         // if no panelId, take active one
@@ -293,7 +279,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
                     deletePanel(panel.id)
                 }
                 let nPanels = panelsRef.current.filter(p => p.id !== panel.id)
-                console.log(panel.size)
                 nPanels.push(panel)
                 setPanels(nPanels)
                 updateOrderPosition(panel.id, "first")
@@ -302,9 +287,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
 
             // if panelsParams is file, get its view && panelParams.view is not defined
             if (panelParams.file && !panelParams.view) {
-                // console.log(`${h} getNoteView`, panelParams.file.path, panelParams)
                 getNoteView(panelParams.file.path).then(view => {
-                    // console.log(`${h} getNoteView`, view)
                     if (view) panel.view = view
                     openFloating(panel)
                 })
@@ -321,7 +304,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     }
 
     const deletePanel = (panelId: string) => {
-        // console.log(`${h} deletePanel`, panelId)
         let nPanels = panelsRef.current.filter(p => p.id !== panelId)
         nPanels = updateTopWindow(nPanels)
         setPanels(nPanels)
@@ -339,7 +321,6 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         newPanels.forEach((p) => { p.isTopWindow = false })
         newPanels[newPanels.findIndex(p => p.id === highestZIndexPanel.id)].isTopWindow = true
         const highest = newPanels[newPanels.findIndex(p => p.id === highestZIndexPanel.id)]
-        // console.log(`updateTopWindow to `, highest.file.name )
         // setPanels(newPanels)
         return newPanels
     }
@@ -412,13 +393,11 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         let nPanels = cloneDeep(panelsRef.current)
         nPanels.find(p => p.id === panelId)!.status = "minimized"
         const p = nPanels.find(p => p.id === panelId)
-        // console.log(` minimizePanel`, p?.file.name)
         nPanels = updateTopWindow(nPanels)
         setPanels(nPanels)
     }
 
     const reorganizeAll = () => {
-        // console.log(`${h} reorganizeAll`)
         let newPanels = cloneDeep(panelsRef.current)
 
         let j = 0
@@ -496,6 +475,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
                 panel.size = { width: widthPerCol, height: windowHeightPanel() - (paddingW * 2) }
                 count++
             })
+
             updateAll(newPanels)
         } else if (layoutWindows.current === "vertical") {
             let heightPerRow = windowHeightPanel() / visiblePanels.length
@@ -508,6 +488,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
                 panel.size = { width: windowWidthPanel() - (paddingW * 2), height: heightPerRow - (paddingW ) }
                 count++
             })
+
             updateAll(newPanels)
         } else if (layoutWindows.current === "tiled") {
             reorganizeAll()
@@ -720,7 +701,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
             releaseKeyShortcut(shcts[2], updateTopWindowView)
             releaseKeyShortcut(shcts[3], reloadTopWindow)
         }
-    })
+    }, [])
 
     const api: iFloatingPanelApi = {
         create: createPanel,

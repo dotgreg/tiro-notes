@@ -2,6 +2,9 @@
 \#*\#
 .\#*
 
+.history
+.history/
+
 node_modules/
 dist/
 dist2/
