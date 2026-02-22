@@ -73,6 +73,8 @@ export interface iApiDictionary {
 	getFileHistory: { files: iFile[] }
 
 	askRessourceDelete: { path: string, idReq: string }
+	askRessourceUnzip: { path: string, folder: string, idReq: string }
+	askCreateArchiveFromPath: { path: string, archiveFilePath: string, idReq: string }
 
 	// extends iFile
 	askRessourceImageCompress:  {params: iImageCompressionParams,  idReq: string }

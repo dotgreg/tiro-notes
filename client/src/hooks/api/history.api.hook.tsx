@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { sharedConfig } from '../../../../shared/shared.config';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -9,6 +10,7 @@ import { getLoginToken } from '../app/loginToken.hook';
 export interface iNoteHistoryApi {
 	save: (filePath: string, content: string, type: 'int' | 'enter') => void
 	intervalSave: (filePath: string, content: string) => void
+	documentation?: () => any
 }
 
 
@@ -48,10 +50,12 @@ export const useNoteHistoryApi = (): iNoteHistoryApi => {
 		}
 	}
 
-	return {
+	let api:iNoteHistoryApi = {
 		save: saveNoteHistory,
 		intervalSave: saveIntervalNoteHistory
 	}
 
+	api.documentation = () => extractDocumentation( api, "api.history", "client/src/hooks/api/history.api.hook.tsx");
+	return api
 
 }

@@ -4,6 +4,7 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getApi, iApiEventBus } from './api.hook';
 import { get } from 'http';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -16,6 +17,7 @@ export interface iConfigApi {
 	getPlatform: () => iPlatform
 	getSync: () => iBackConfig | undefined
 	getCustomApiToken: () => string | undefined
+	documentation?: () => any
 }
 
 export const useConfigApi = (p: {
@@ -73,6 +75,7 @@ export const useConfigApi = (p: {
 		getCustomApiToken,
 		getSync: () => configSyncRef.current
 	}
+	api.documentation = () => extractDocumentation( api, "api.config", "client/src/hooks/api/config.api.hook.tsx");
 
 	return api
 }

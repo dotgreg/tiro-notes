@@ -6,6 +6,7 @@ import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 import { iSearchApi } from './search.hook.api';
 import { iStatusApi } from './status.api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -14,6 +15,7 @@ import { iStatusApi } from './status.api.hook';
 export interface FilesPreviewObject { [path: string]: iFilePreview }
 
 export interface iFilesApi {
+	documentation?: () => any
 
 	get: (
 		folderPath: string,
@@ -96,6 +98,7 @@ export const useFilesApi = (p: {
 		getPreviews: getFilesPreview,
 		search: p.searchApi.files.search
 	}
+	api.documentation = () => extractDocumentation( api, "api.files", "client/src/hooks/api/files.api.hook.tsx");
 
 	return api
 }

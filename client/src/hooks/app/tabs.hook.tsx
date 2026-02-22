@@ -8,6 +8,7 @@ import { ClientApiContext, getApi, getClientApi2 } from '../api/api.hook';
 import { deviceType } from '../../managers/device.manager';
 import { useEffect, useRef, useState } from 'react';
 import { setNoteView, toggleViewType } from '../../managers/windowViewType.manager';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 export type iTabUpdate = 'close' | 'rename' | 'move' | 'add' | 'activate'  | 'activateTabWindow'
 export type onTabUpdateFn = (type: iTabUpdate, tab?: iTab | "activeTab", newVal?: any) => void
@@ -21,8 +22,10 @@ export type iTabsApi = {
 	active: {
 		get: () => iTab | null
 	},
+	documentation?: () => any
 }
 export type iWindowsApi = {
+	documentation?: () => any
 	close: (windowIds: string[]) => void
 	updateWindows: (windowIds: string[], file: iFile) => void
 	getIdsFromFile: (filepath: string) => string[]
@@ -418,6 +421,7 @@ export const useTabs = () => {
 		},
 		updateTab
 	}
+	tabsApi.documentation = () => extractDocumentation( tabsApi, "api.tabs", "client/src/hooks/app/tabs.hook.tsx" )
 
 	const windowsApi: iWindowsApi = {
 		close: closeWindows,
@@ -429,6 +433,7 @@ export const useTabs = () => {
 		updateWindows,
 		getIdsFromFile
 	}
+	windowsApi.documentation = () => extractDocumentation( windowsApi, "api.windows", "client/src/hooks/app/tabs.hook.tsx" )
 
 
 	return {

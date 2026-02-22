@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { iApiEventBus } from './api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 
 //
@@ -25,6 +26,7 @@ export interface iWatchApi {
 	dev: {
 		toggleIsConnected: (status:boolean) => void
 	}
+	documentation?: () => any
 }
 
 // let watchCounter
@@ -105,6 +107,7 @@ export const useWatchApi = (p: {
 			toggleIsConnected
 		}
 	}
+	watchApi.documentation = () => extractDocumentation( watchApi, "api.watch", "client/src/hooks/api/watch.api.hook.tsx" )
 
 	return watchApi
 }

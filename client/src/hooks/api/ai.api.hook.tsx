@@ -6,6 +6,7 @@ import { each, isNumber } from 'lodash-es'
 import { AiAnswer, cleanAiInput, genAiButtonsConfig } from '../../managers/ai.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -23,7 +24,8 @@ export interface iAiApi {
         execType?: "stream" | "single"
     ) => void,
     setStatus: (status:"new"|"stop", uuid?:string) => string,
-    getStatus: (uuid:string) => boolean
+    getStatus: (uuid:string) => boolean,
+    documentation?: () => any
 }
 
 
@@ -120,5 +122,6 @@ export const setStatus:iAiApi["setStatus"] = (status, uuid) => {
 //
 export const useAiApi = (p: {}) => {
 	const api: iAiApi = {search, setStatus, getStatus, exec}
+	api.documentation = () => extractDocumentation( api, "api.ai", "client/src/hooks/api/ai.api.hook.tsx");
 	return api
 }

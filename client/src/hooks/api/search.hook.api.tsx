@@ -6,6 +6,7 @@ import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, getClientApi2, iApiEventBus } from './api.hook';
 import { iStatusApi } from './status.api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -17,6 +18,7 @@ export interface iSearchApi {
 	word: (word: string, folder: string, cb: (res: iSearchWordRes) => void, options?:{disableMetadataSearch?:boolean}) => void
 	hashtags: (folder: string, cb: (res: iHashtags) => void) => void
 	ui: iSearchUiApi
+	documentation?: () => any
 }
 
 // SUB
@@ -124,7 +126,7 @@ export const useSearchApi = (p: {
 	//
 	// EXPORTS
 	//
-	return {
+	let api:iSearchApi = {
 		files: {
 			search: searchFiles
 		},
@@ -136,4 +138,7 @@ export const useSearchApi = (p: {
 			term: { set: setSearchTerm, get: searchTerm }
 		},
 	}
+	api.documentation = () => extractDocumentation( api, "api.search", "client/src/hooks/api/search.hook.api.tsx" )
+
+	return api
 }

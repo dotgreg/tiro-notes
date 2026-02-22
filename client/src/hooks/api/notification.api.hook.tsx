@@ -4,11 +4,13 @@ import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { getLoginToken } from "../app/loginToken.hook"
 import { getApi } from "./api.hook"
 import { generateUUID } from "../../../../shared/helpers/id.helper"
+import { extractDocumentation } from "../../managers/apiDocumentation.manager"
 
 const h = `[NOTIFICATIONS]`
 
 export interface iNotificationApi {
 	emit: (notification: iNotification, cb?:Function) => void
+	documentation?: () => any
 }
 
 // the onClick function should not be sent to the server but stored client-side only, waiting to be triggered
@@ -62,6 +64,7 @@ export const useNotificationApi = (p: {
 	const api: iNotificationApi = {
 		emit: emitNotification
 	}
+	api.documentation = () => extractDocumentation( api, "api.notification", "client/src/hooks/api/notification.api.hook.tsx" )
 
 	return api
 }

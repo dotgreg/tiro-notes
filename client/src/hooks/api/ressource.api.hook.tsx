@@ -11,6 +11,7 @@ import {  getStaticRessourceLink } from '../../managers/ressource.manager';
 import { notifLog } from '../../managers/devCli.manager';
 import { tryCatch } from '../../managers/tryCatch.manager';
 import { iDownloadRessourceOpts, iFile, iImageCompressionParams } from '../../../../shared/types.shared';
+import { extractDocumentation, tsInterfaceToString } from '../../managers/apiDocumentation.manager';
 
 export interface iEvalFuncParams {[paramsNames:string]:any}
 
@@ -18,6 +19,7 @@ export interface iEvalFuncParams {[paramsNames:string]:any}
 // INTERFACES
 //
 export interface iRessourceApi {
+	documentation: () => any,
 	delete: (
 		filePath: string,
 		cb: (answer: any) => void
@@ -64,6 +66,13 @@ export interface iRessourceApi {
 		path:string,
 		cb: (files: iFile[]) => void
 	) => void,
+
+	unzipFile: (
+		filePath: string, 
+		outputFolder: string,
+		cb: (answer: any) => void,
+		opts?: { overwriteWarn: boolean }
+	) => void
 
 	compressImage: (
 		params: iImageCompressionParams,
@@ -285,7 +294,7 @@ export const useRessourceApi = (p: {
 		})
 	}
 
-	const scanRessourceFolder: iRessourceApi['scanFolder'] = (folderPath, cb) => { 
+	const scanFolder: iRessourceApi['scanFolder'] = (folderPath, cb) => { 
 		if (sharedConfig.client.log.socket) console.log(`[CLIENT API] get ressources files ${folderPath}`);
 		const idReq = genIdReq('get-ressources-files-');
 		// 1. add a listener function
@@ -306,23 +315,49 @@ export const useRessourceApi = (p: {
 		clientSocket2.emit('askRessourceImageCompress', { params, idReq, token: getLoginToken() })
 	}
 
+
+	// const unzipFile: iRessourceApi['unzipFile'] = (filePath, outputFolder, cb, opts) => {
+	// 	// if filePath starts with http
+	// }
+	const unzipFile: iRessourceApi['unzipFile'] = (filePath, outputFolder, cb, opts?:{overwriteWarn: boolean}) => {
+		if (!opts) opts = {overwriteWarn: true}
+		const idReq = genIdReq('unzip-file');
+		console.log(`${h} unzip file ${filePath} to ${outputFolder}`);
+		getApi(api => {
+			api.popup.confirm(`Are you sure you want to unzip ${filePath} to ${outputFolder}? It will overwrite any existing files.`, (confirmed) => {
+				if (confirmed) {
+					p.eventBus.subscribe(idReq, cb || (() => {}));
+					clientSocket2.emit('askRessourceUnzip', { path:filePath, folder:outputFolder, idReq, token: getLoginToken() })
+				}
+			});
+		})
+	}
+
+
+
+	// create a text about unzipFile function params using only typescript methods
+	// let unzipFileParamsText = 
 	//
 	// EXPORTS
 	//
 	const ressourceApi: iRessourceApi = {
+		documentation: () => "",
 		delete: deleteRessource,
 		download: downloadRessource,
 		compressImage,
-		scanFolder: scanRessourceFolder, 
+		scanFolder, 
 		fetch: fetchRessource,
 		frontendFetch,
+		unzipFile,
 		fetchEval,
 		fetchUrlArticle,
 		cleanCache,
 	}
 
+	ressourceApi.documentation = () => extractDocumentation( ressourceApi, "api.ressource", "client/src/hooks/api/ressource.api.hook.tsx");
 	return ressourceApi
 }
+
 
 
 // api.ressource.scanFolder("/demos", e => {console.log(222,e)})

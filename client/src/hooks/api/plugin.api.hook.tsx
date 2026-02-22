@@ -6,6 +6,7 @@ import { notifLog } from "../../managers/devCli.manager"
 import { clientSocket2 } from "../../managers/sockets/socket.manager"
 import { getLoginToken } from "../app/loginToken.hook"
 import { genIdReq, getApi, iApiEventBus } from "./api.hook"
+import { extractDocumentation } from "../../managers/apiDocumentation.manager"
 
 const h = `[PLUGINS]`
 type iPluginVersion = {
@@ -29,6 +30,7 @@ export type iPluginDescription = {
 }
 
 export interface iPluginsApi {
+	documentation?: () => any,
 	list: (
 		cb: (plugins: iPlugin[], scanLog:string[]) => void,
 		opts?:{
@@ -179,6 +181,7 @@ export const usePluginsApi = (p: {
 			fetchList: fetchMarketPlaceList
 		}
 	}
+	api.documentation = () => extractDocumentation( api, "api.plugins", "client/src/hooks/api/plugin.api.hook.tsx" )
 
 	return api
 }

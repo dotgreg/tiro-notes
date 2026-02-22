@@ -1,8 +1,10 @@
 import { each } from "lodash-es"
 import { useState } from "react"
 import { iApiEventBus } from "./api.hook";
+import { extractDocumentation } from "../../managers/apiDocumentation.manager";
 
 export interface iStatusApi {
+	documentation?: () => any,
 	isConnected: boolean,
 	ipsServer: {
 		get: string[]
@@ -38,7 +40,7 @@ export const useStatusApi = (p: {
 		return res
 	}
 
-	return {
+	let api: iStatusApi = {
 		isConnected: p.isConnected,
 		searching: { get: isSearching, set: setIsSearching },
 		ipsServer: { get: ipsServer, set: setIpsServer, getLocal: getLocalIpServer },
@@ -47,4 +49,7 @@ export const useStatusApi = (p: {
 			increment: () => { p.refresh.set(p.refresh.get + 1) }
 		}
 	}
+	api.documentation = () => extractDocumentation( api, "api.status", "client/src/hooks/api/status.api.hook.tsx" )
+
+	return api
 }

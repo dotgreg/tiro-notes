@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { notePreviewPopupDims } from '../../components/NotePreviewPopup.component';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 export type iNotePreviewPopup = {
     isOpen: boolean
@@ -13,6 +14,7 @@ export type iNotePreviewPopup = {
 }
 
 export interface iNotePreviewPopupApi {
+    documentation?: () => any
 	open: (
         path:string, 
         position: [number,number], 
@@ -56,6 +58,7 @@ export const useNotePreviewPopupApi = () => {
 		open: openPopup,
 		close: closePopup,
 	}
+    notePreviewPopupApi.documentation = () => extractDocumentation( notePreviewPopupApi, "api.notePreviewPopup", "client/src/hooks/api/notePreviewPopup.api.hook.tsx" )
 
 	return {
         notePreviewPopupApi, 

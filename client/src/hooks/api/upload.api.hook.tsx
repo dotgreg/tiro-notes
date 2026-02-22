@@ -6,6 +6,7 @@ import { useDebounce } from '../lodash.hooks';
 import { each } from 'lodash-es';
 import { notifLog } from '../../managers/devCli.manager';
 import { deviceType } from '../../managers/device.manager';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -17,6 +18,7 @@ export interface iUploadInfos {
 	onProgress?: onUploadProgressFn
 }
 export interface iUploadApi {
+	documentation?: () => any,
 	uploadFile: (
 		p: iUploadInfos, 
 		// for CTAG call
@@ -165,9 +167,10 @@ export const useUploadApi = (p: {
 	//
 	// EXPORTS
 	//
-	const uploadApi = {
+	const uploadApi:iUploadApi = {
 		uploadFile,
 	}
+	uploadApi.documentation = () => extractDocumentation( uploadApi, "api.upload", "client/src/hooks/api/upload.api.hook.tsx" )
 
 	return uploadApi
 }

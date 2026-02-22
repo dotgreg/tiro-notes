@@ -17,12 +17,14 @@ import { iFilesApi } from './files.api.hook';
 import { iFoldersApi } from './folders.api.hook';
 import { iStatusApi } from './status.api.hook';
 import { get } from 'http';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
 //
 
 export interface iBrowserApi {
+	documentation?: () => any
 	goTo: (
 		folderPath: string,
 		fileTitle?: string | null,
@@ -386,7 +388,7 @@ export const useBrowserApi = (p: {
 	}
 
 
-	return {
+	let api: iBrowserApi = {
 		goTo: goTo,
 		files: {
 			active: {
@@ -415,6 +417,8 @@ export const useBrowserApi = (p: {
 			}
 		}
 	}
+	api.documentation = () => extractDocumentation( api, "api.browser", "client/src/hooks/api/browser.api.hook.tsx");
+	return api
 
 }
 
