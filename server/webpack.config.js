@@ -21,6 +21,9 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.tsx', '.ts', '.js' ],
+    alias: {
+      '@aws-sdk/client-s3': false // Tell Webpack to ignore this module
+    },
     // fallback: {
     //     "fs": false,
     //     "tls": false,
