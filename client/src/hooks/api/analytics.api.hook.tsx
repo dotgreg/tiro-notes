@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { getTsFromString, iADate, tsToIADate } from '../../managers/date.manager';
 import { getApi } from './api.hook';
 import { isNumber } from 'lodash-es'
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -32,6 +33,7 @@ export interface iAnalyticsApi {
 			start?: iADate,
 			end?: iADate,
 		}) => void
+		documentation?: () => any
 }
 
 
@@ -89,5 +91,7 @@ export const aReport: iAnalyticsApi['report'] = (cb, opts) => {
 //
 export const useAnalyticsApi = (p: {}) => {
 	const api: iAnalyticsApi = { log: aLog, report: aReport }
+	api.documentation = () => extractDocumentation( api, "api.analytics", "client/src/hooks/api/analytics.api.hook.tsx");
+
 	return api
 }

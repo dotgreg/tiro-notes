@@ -3,6 +3,7 @@ import { iActivityReport, iActivityReportParams } from '../../../../shared/types
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 
 //
@@ -12,7 +13,8 @@ export interface iActivityApi {
 	getReport: (
 		params?:iActivityReportParams,
 		cb?: (report: iActivityReport) => void,
-	) => void
+	) => void,
+	documentation: () => any
 }
 
 export const useActivityApi = (p: {
@@ -51,8 +53,10 @@ export const useActivityApi = (p: {
 	// EXPORTS
 	//
 	const ActivityApi: iActivityApi = {
-		getReport
+		getReport,
+		documentation: () => ""
 	}
+	ActivityApi.documentation = () => extractDocumentation( ActivityApi, "api.activity", "client/src/hooks/api/activity.api.hook.tsx");
 
 	return ActivityApi
 }

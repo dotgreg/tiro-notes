@@ -1,7 +1,7 @@
 import { iApiDictionary } from "../../shared/apiDictionary.type";
 import { backConfig } from "./config.back";
 import { createDir, fileNameFromFilePath, scanDirForFiles, scanDirForFolders, scanDirForFoldersRecursive } from "./managers/dir.manager";
-import { createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, upsertRecursivelyFolders } from "./managers/fs.manager";
+import { createArchive, createFolder, deleteFolder, downloadFile, fileExists, moveFile, openFile, prependToFile, saveFile, unzip, upsertRecursivelyFolders } from "./managers/fs.manager";
 import { analyzeTerm, searchWithRgGeneric, searchWithRipGrep } from "./managers/search/search-ripgrep.manager";
 import { dateId, formatDateNewNote } from "./managers/date.manager";
 import { debouncedFolderScan, moveFileLogic, moveNoteResourcesAndUpdateContent } from "./managers/move.manager";
@@ -268,6 +268,12 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 
 
 
+
+
+
+
+
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// EDITOR APIs
 	//	
@@ -462,7 +468,30 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		}
 	}, { checkRole: "editor" })
 
-	
+	serverSocket2.on('askRessourceUnzip', async data => {
+		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
+		logActivity("unzip", data.path, serverSocket2)
+		let res = await unzip(pathToFile, `${backConfig.dataFolder}/${data.folder}`, (err) => {
+			if (err) {
+				serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: err.message, idReq: data.idReq })
+			} else {
+				serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message: `File ${data.path} unzipped successfully to ${data.folder}`, idReq: data.idReq })
+			}
+		})
+	}, { checkRole: "editor" })
+
+	serverSocket2.on('askCreateArchiveFromPath', async data => {
+		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
+		logActivity("createArchive", data.path, serverSocket2)
+		let res = await createArchive(pathToFile, `${backConfig.dataFolder}/${data.archiveFilePath}`, (err) => {
+			if (err) {
+				serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: err.message, idReq: data.idReq })
+			} else {
+				serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message: `File ${data.path} archived successfully to ${data.archiveFilePath}`, idReq: data.idReq })
+			}
+		})
+	}, { checkRole: "editor" })
+
 
 
 	//

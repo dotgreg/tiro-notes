@@ -3,11 +3,13 @@ import { iFile } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
 //
 export interface iMoveApi {
+	documentation?: () => any
 	file: (
 		initPath: string,
 		endPath: string,
@@ -66,6 +68,8 @@ export const useMoveApi = (p: {
 		file: moveFile,
 		folder: moveFolder
 	}
+
+	api.documentation = () => extractDocumentation( api, "api.move", "client/src/hooks/api/move.api.hook.ts" );
 
 	return api
 }

@@ -7,6 +7,7 @@ import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
 import {  askFolderDelete,  iFolderDeleteFn } from './browser.api.hook';
 import { iMoveApi, useMoveApi } from './move.api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -32,6 +33,7 @@ export interface iFoldersApi {
 		cb?:(status:string) => void
 	) => void,
 	delete: iFolderDeleteFn,
+	documentation?: () => any
 }
 
 export const useFoldersApi = (p: {
@@ -135,10 +137,12 @@ export const useFoldersApi = (p: {
 	// EXPORTS
 	//
 
-	return {
+	let api: iFoldersApi =  {
 		get: getFolders,
 		move: moveApi.folder,
 		create: askFolderCreate,
 		delete: askFolderDelete
 	}
+	api.documentation = () => extractDocumentation( api, "api.folders", "client/src/hooks/api/folders.api.hook.tsx");
+	return api;
 }

@@ -4,10 +4,12 @@ import { iCommandStreamChunk } from '../../../../shared/types.shared';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 export interface iCommandApi {
 	exec: ( commandString: string, cb: (resCmd: string) => void ) => void
 	stream: ( commandString: string, cb: (streamChunk: iCommandStreamChunk) => void ) => void
+	documentation?: () => any
 }
 
 
@@ -69,5 +71,6 @@ export const useCommandApi = (p: {
 	}
 
 	const api: iCommandApi = { exec, stream }
+	api.documentation = () => extractDocumentation( api, "api.command", "client/src/hooks/api/command.api.hook.tsx");
 	return api
 }

@@ -11,6 +11,7 @@ import { iMoveApi, useMoveApi } from './move.api.hook';
 import { useDebounce } from '../lodash.hooks';
 import { debounce, throttle } from 'lodash-es';
 import { addBackMetaToContent, filterMetaFromFileContent, metasObjToHeaderString } from '../../managers/headerMetas.manager';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 
 //
@@ -25,6 +26,7 @@ export interface iFileApi {
 	 * Fetch the content of a note from its absolute link
 	 * noteLink should be relative from tiro folder 
 	 */
+	documentation?: () => any
 	getContent: (
 		noteLink: string,
 		cb: (noteContent: string) => void,
@@ -409,6 +411,7 @@ export const useFileApi = (p: {
 		create: createFile,
 	}
 
+	fileApi.documentation = () => extractDocumentation( fileApi, "api.file", "client/src/hooks/api/file.api.hook.tsx");
 	return fileApi
 }
 

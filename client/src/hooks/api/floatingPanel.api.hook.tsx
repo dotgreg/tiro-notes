@@ -14,6 +14,7 @@ import { getNoteView, setNoteView, toggleViewType } from "../../managers/windowV
 import path from "path"
 import { userSettingsSync } from "../useUserSettings.hook"
 import { getApi } from "./api.hook"
+import { extractDocumentation } from "../../managers/apiDocumentation.manager"
 
 const h = `[FLOATING PANELS]`
 
@@ -56,6 +57,7 @@ type iOpenFileFloatingFn  = (filepath: string, opts?: {
         view?: iViewType
     }) => void
 export interface iFloatingPanelApi {
+    documentation?: () => any
     create: (panel: iCreateFloatingPanel) => void,
     delete: (panelId: string) => void,
     // getPanels: iFloatingPanel[],
@@ -741,6 +743,7 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
         updateOrderPosition,
         resizeWindowIfOutOfWindow
     }
+    api.documentation = () => extractDocumentation(api, "api.floatingPanel", "client/src/hooks/api/floatingPanel.api.hook.tsx");
 
     return api
 }

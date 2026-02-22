@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { clientSocket2 } from '../../managers/sockets/socket.manager';
 import { getLoginToken } from '../app/loginToken.hook';
 import { genIdReq, iApiEventBus } from './api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 
 //
@@ -11,6 +12,7 @@ export interface iPerformanceApi {
 	getReport: (
 		cb?: (report: any) => void,
 	) => void
+	documentation?: () => any
 }
 
 export const usePerformanceApi = (p: {
@@ -44,6 +46,7 @@ export const usePerformanceApi = (p: {
 	const performanceApi: iPerformanceApi = {
 		getReport
 	}
+	performanceApi.documentation = () => extractDocumentation( performanceApi, "api.performance", "client/src/hooks/api/performance.api.hook.tsx" )
 
 	return performanceApi
 }

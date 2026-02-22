@@ -3,6 +3,7 @@ import { iEditorSelection } from '../../managers/codeMirror/editorUtils.cm';
 import { iNoteFuncsApi, noteApiFuncs } from '../../managers/renderNote.manager';
 import { iNoteParentType } from '../../components/NotePreview.component';
 import { generateUUID } from '../../../../shared/helpers/id.helper';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 
 type iCMPosition = number | "currentPos" | "currentLineStart" 
@@ -44,6 +45,7 @@ export interface iEditorAction {
 
 interface iNoteUiApi {
 	ui: {
+		documentation?: () => any
 		// old way to linejump => SHOULD USE api.note.ui.editorAction.dispatch({type: "lineJump", windowId: "active", lineJumpNb: 1})
 		lineJump: {
 			jump: (windowId: string, line: number) => void
@@ -102,7 +104,7 @@ export const useNoteApi = (p: {
 	//
 	// EXPORTS
 	//
-	return {
+	let api:iNoteApi = {
 		...noteApiFuncs,
 		ui: {
 			lineJump: { 
@@ -115,4 +117,7 @@ export const useNoteApi = (p: {
 			},
 		},
 	}
+
+	api.ui.documentation = () => extractDocumentation( api, "api.note", "client/src/hooks/api/note.api.hook.tsx" )
+	return api
 }

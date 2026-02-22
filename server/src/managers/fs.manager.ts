@@ -1,5 +1,5 @@
-import { each, random } from "lodash";
-import { createGunzip } from 'zlib';
+import { each, random, reject } from "lodash";
+import { createGunzip, createUnzip, createGzip} from 'zlib';
 import { getRessourceIdFromUrl } from "../../../shared/helpers/id.helper";
 import { sharedConfig } from "../../../shared/shared.config";
 import { iDownloadRessourceOpts } from "../../../shared/types.shared";
@@ -205,6 +205,44 @@ export const deleteFolder = async (path: string): Promise<void|Error> => {
 	}
 	return
 }
+
+
+
+// zip/unzip using built in zlib
+export const unzip = async (zipFilePath: string, destFolder: string, cb: (err?: Error) => void): Promise<void> => {
+	zipFilePath = p(zipFilePath)
+	destFolder = p(destFolder)
+
+	shouldLog && log(`[UNZIP] ${zipFilePath} -> ${destFolder}`);
+
+	const unzip:any = createUnzip();
+	fs.createReadStream(zipFilePath)
+		.pipe(unzip({ path: destFolder }))
+		.on('close', cb)
+		.on('error', (err) => {
+			shouldLog && log(`[UNZIP] Error ${err.message}`);
+			cb(err);
+		});
+};
+
+
+
+
+export const createArchive = async (folderOrFilePath: string, archiveFilePath: string, cb: (err?: Error) => void): Promise<void> => {
+	const archive = createGzip();
+	// if archiveFilePath does not end with .gz, add it
+	if (!archiveFilePath.endsWith('.gz')) {
+		archiveFilePath += '.gz';
+	}
+	fs.createReadStream(folderOrFilePath)
+		.pipe(archive)
+		.pipe(fs.createWriteStream(archiveFilePath))
+		.on('close', cb)
+		.on('error', (err) => {
+			shouldLog && log(`[ARCHIVE] Error ${err.message}`);
+			cb(err);
+		});
+};
 
 // export const removeFile = async (filepath: string): Promise<void> => {
 // 	filepath = p(filepath)

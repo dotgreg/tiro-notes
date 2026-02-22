@@ -4,6 +4,7 @@ import { sharedConfig } from '../../../../shared/shared.config';
 import { perf } from '../../managers/performance.manager';
 import { safeString } from '../../managers/string.manager';
 import { getApi} from './api.hook';
+import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 //
 // INTERFACES
@@ -32,7 +33,8 @@ export interface iCacheApi {
 
 	cleanRamCache: () => void
 
-	getCachePath: (cacheId: string, cb?:(res:string) => void) => string
+	getCachePath: (cacheId: string, cb?:(res:string) => void) => string,
+	documentation?: () => any
 
 }
 
@@ -277,10 +279,7 @@ export const useCacheApi = (p: {}): iCacheApi => {
 	//
 	// EXPORTS
 	//
-	return {
-		get: getCache,
-		set: setCache,
-		cleanRamCache,
-		getCachePath: getCachedStorageAsync
-	}
+	let api: iCacheApi = {get: getCache, set: setCache, cleanRamCache, getCachePath: getCachedStorageAsync}
+	api.documentation = () => extractDocumentation( api, "api.cache", "client/src/hooks/api/cache.api.hook.tsx");
+	return api
 }
