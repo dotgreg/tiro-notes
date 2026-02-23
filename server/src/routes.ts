@@ -291,10 +291,8 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 		tempChunksToSave[data.idReq] = tempChunksToSave[data.idReq] || []
 		tempChunksToSave[data.idReq][data.chunkNb] = data.chunkContent
 		
-		// console.log(`Saving chunk ${data.chunkNb} for file ${data.filePath} (total chunks: ${data.chunksLength})`)
 		if (tempChunksToSave[data.idReq].length === data.chunksLength) {
 			let newFileContent = tempChunksToSave[data.idReq].join("")
-			// console.log(`Saving file ${data.filePath} with ${data.chunksLength} chunks`)
 			await upsertRecursivelyFolders(pathToFile)
 			await saveFile(pathToFile, newFileContent, {updateClients:false})
 			// remove tempChunksToSave[data.idReq] 
@@ -471,25 +469,19 @@ export const listenSocketEndpoints = (serverSocket2: ServerSocketManager<iApiDic
 	serverSocket2.on('askRessourceUnzip', async data => {
 		const pathToFile = `${backConfig.dataFolder}/${data.path}`;
 		const pathFolderDestination = `${backConfig.dataFolder}/${data.folder}`;
-		console.log(33333333333, "UNZIP")
 		logActivity("unzip", data.path, serverSocket2)
 		// check if file zip exists at that path
 		if (!fileExists(pathToFile)) {
 			serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: `File ${data.path} does not exist`, idReq: data.idReq })
 			return
 		}
-		console.log(123333332)
 		// if destination folder does not exists, create it
 		if (!fileExists(pathFolderDestination)) { await upsertRecursivelyFolders(pathFolderDestination) }
-		console.log(1233333)
 
 		unzip(pathToFile, pathFolderDestination, (res) => {
-			console.log(444444444, res)
 			if (res.error) {
-				console.log(1, res.error)
 				serverSocket2.emit('getRessourceApiAnswer', { status: "FAIL", message: res.error.message, idReq: data.idReq })
 			} else {
-				console.log(2)
 				serverSocket2.emit('getRessourceApiAnswer', { status: "SUCCESS", message: `File ${data.path} unzipped successfully to ${data.folder}`, idReq: data.idReq })
 			}
 		})

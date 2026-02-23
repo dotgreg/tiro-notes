@@ -92,7 +92,9 @@ export const App = () => {
 			getApi(api => { 
 				api.ui.browser.folders.refreshFromBackend() 
 			})
+
 		})
+
 
 		// Temporary => after tabs and other backend states are loaded
 		onStartupAfterDataBootstrap()
@@ -199,6 +201,13 @@ export const App = () => {
 
 			// Temporary => after tabs and other backend states are loaded
 			onStartupAfterDataBootstrap()
+
+			//
+			// IF NO FOLDERS, PROPOSE DEMO
+			//
+			getApi(api => {
+				api.userSettings.ifNoFolders_triggerDemoDownload()
+			})
 		}
 	})
 
