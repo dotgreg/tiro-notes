@@ -10,7 +10,7 @@ import { getLoginToken } from './app/loginToken.hook';
 import { useDebounce } from './lodash.hooks';
 import { useBackendState } from './useBackendState.hook';
 import { configClient } from '../config';
-import { triggerDemoDownload } from '../managers/demoDownload.manager';
+import { ifNoFolders_triggerDemoDownload, triggerDemoDownload } from '../managers/demoDownload.manager';
 import { extractDocumentation } from '../managers/apiDocumentation.manager';
 
 
@@ -33,6 +33,7 @@ export type iUserSettingsApi = {
 		cb?:(res:any) => void, 
 		opts?: iUpdateConfigJsonOpts,
 	) => void,
+	ifNoFolders_triggerDemoDownload: Function,
 	triggerSetupPopup: Function,
 	triggerDemoDownload: Function,
 	refreshUserSettingsFromBackend: Function,
@@ -198,6 +199,7 @@ export const useUserSettings =  (p: {
 	const userSettingsApi: iUserSettingsApi = {
 		refreshUserSettingsFromBackend,
 		updateSetupJson,
+		ifNoFolders_triggerDemoDownload: ifNoFolders_triggerDemoDownload,
 		triggerDemoDownload: triggerDemoDownload,
 		set: (name, value, opts) => {
 			if (!opts) opts = {}

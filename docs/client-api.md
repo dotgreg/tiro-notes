@@ -133,6 +133,14 @@
  ## Api.call : activity
  
 
+#### <span class="render-code-wrapper">activity.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"activity.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">activity.getReport</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -145,6 +153,14 @@
 
 
  ## Api.call : ai
+ 
+
+#### <span class="render-code-wrapper">ai.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ai.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ai.exec</span>
@@ -193,6 +209,14 @@
  ## Api.call : analytics
  
 
+#### <span class="render-code-wrapper">analytics.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"analytics.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">analytics.log</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -212,32 +236,27 @@
  
 
 
- ## Api.call : audio
- 
-
-#### <span class="render-code-wrapper">audio.play</span>
- - Type: <span class="render-code-wrapper">Function</span> 
-    - Parameters: 
-       1. mp3Path: <span class="render-code-wrapper">string</span>
-       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;cache?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;start?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;time?: <span class="render-code-wrapper">number</span><br/>}</span>
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"audio.play",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;cache?: <span class="render-code-wrapper">boolean</span>, <br/>&nbsp;&nbsp;&nbsp;start?: <span class="render-code-wrapper">number</span>, <br/>&nbsp;&nbsp;&nbsp;time?: <span class="render-code-wrapper">number</span><br/>}</span> ]<br/>)</div>
- 
-
-#### <span class="render-code-wrapper">audio.stop</span>
- - Type: <span class="render-code-wrapper">Function</span> 
- - Example: 
- <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"audio.stop",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
- 
-
-
  ## Api.call : cache
+ 
+
+#### <span class="render-code-wrapper">cache.cleanCache</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.cleanCache",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">cache.cleanRamCache</span>
  - Type: <span class="render-code-wrapper">Function</span> 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.cleanRamCache",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">cache.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"cache.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">cache.get</span>
@@ -278,6 +297,14 @@
  ## Api.call : command
  
 
+#### <span class="render-code-wrapper">command.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"command.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">command.exec</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -300,6 +327,14 @@
 
 
  ## Api.call : config
+ 
+
+#### <span class="render-code-wrapper">config.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"config.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">config.get</span>
@@ -361,6 +396,14 @@
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"encryption.decryptUrlParam",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span> ], <br/>(res:) => {}<br/>)</div>
  
 
+#### <span class="render-code-wrapper">encryption.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"encryption.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">encryption.encryptText</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -418,11 +461,19 @@
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.delete",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=igetfilescb">iGetFilesCb</a></span><br/>)</div>
  
 
-#### <span class="render-code-wrapper">file.getContent</span>
+#### <span class="render-code-wrapper">file.documentation</span>
  - Description: 
 Fetch the content of a note from its absolute link
 noteLink should be relative from tiro folder
 
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"file.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">file.getContent</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
        1. noteLink: <span class="render-code-wrapper">string</span>
@@ -483,6 +534,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"files.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(nFiles: <span class="render-code-wrapper">[]</span>, contentSearchPreview: <span class="render-code-wrapper">string[]</span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">files.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"files.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">files.get</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -505,6 +564,14 @@ noteLink should be relative from tiro folder
 
 
  ## Api.call : history
+ 
+
+#### <span class="render-code-wrapper">history.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"history.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">history.intervalSave</span>
@@ -539,6 +606,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"lastNotesApi.addToHistory",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=ifile">iFile</a></span>, <span class="render-code-wrapper">boolean</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">lastNotesApi.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"lastNotesApi.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">lastNotesApi.getAll</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Result:  
@@ -557,6 +632,14 @@ noteLink should be relative from tiro folder
 
 
  ## Api.call : performance
+ 
+
+#### <span class="render-code-wrapper">performance.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"performance.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">performance.getReport</span>
@@ -588,6 +671,14 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.marketplace.fetchList",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(pluginDescriptions: <span class="render-code-wrapper">[]</span>) => </span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">plugins.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"plugins.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">plugins.get</span>
@@ -670,6 +761,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.confirm",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span>, <span class="render-code-wrapper"><a href="#client-api?id=popupoptions">popupOptions</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">popup.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"popup.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">popup.prompt</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -718,6 +817,14 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.delete",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ressource.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ressource.download</span>
@@ -786,6 +893,18 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.scanFolder",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(files: <span class="render-code-wrapper">[]</span>) => </span><br/>)</div>
  
 
+#### <span class="render-code-wrapper">ressource.unzipFile</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. filePath: <span class="render-code-wrapper">string</span>
+       1. outputFolder: <span class="render-code-wrapper">string</span>
+       1. opts: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;overwriteWarn: <span class="render-code-wrapper">boolean</span><br/>}</span>
+    - Result: <span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => </span>
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ressource.unzipFile",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;overwriteWarn: <span class="render-code-wrapper">boolean</span><br/>}</span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(answer: <span class="render-code-wrapper">any</span>) => </span><br/>)</div>
+ 
+
 
  ## Api.call : search
  
@@ -820,6 +939,14 @@ noteLink should be relative from tiro folder
        1. term: <span class="render-code-wrapper">string</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.ui.search",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">search.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"search.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">search.hashtags</span>
@@ -864,6 +991,14 @@ noteLink should be relative from tiro folder
 
 
  ## Api.call : socket
+ 
+
+#### <span class="render-code-wrapper">socket.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"socket.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">socket.get</span>
@@ -925,6 +1060,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"status.searching.set",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">boolean</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">status.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"status.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 
  ## Api.call : tabs
  
@@ -947,6 +1090,14 @@ noteLink should be relative from tiro folder
        1. tabId: <span class="render-code-wrapper">string</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"tabs.close",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">tabs.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"tabs.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">tabs.get</span>
@@ -1021,6 +1172,14 @@ noteLink should be relative from tiro folder
        1. panelId: <span class="render-code-wrapper">string</span>
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.deminimizePanel",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span> ]<br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.floatingPanel.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.floatingPanel.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.floatingPanel.minimizePanel</span>
@@ -1143,6 +1302,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.close",<br/>&nbsp;&nbsp;&nbsp; [ ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.notePreviewPopup.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.notePreviewPopup.open</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1153,6 +1320,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notePreviewPopup.open",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper"></span>, <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;windowIdToOpenIn: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;replacementString?: <span class="render-code-wrapper">string</span>, <br/>&nbsp;&nbsp;&nbsp;searchedString?: <span class="render-code-wrapper">string</span><br/>}</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.notification.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notification.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.notification.emit</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1161,6 +1336,16 @@ noteLink should be relative from tiro folder
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notification.emit",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper"><a href="#client-api?id=inotification">iNotification</a></span>], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper"><a href="#client-api?id=function">Function</a></span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">ui.notification.notifLog</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Parameters: 
+       1. str: <span class="render-code-wrapper">string</span>
+       1. id: <span class="render-code-wrapper">string</span>
+       1. hideAfter: <span class="render-code-wrapper">number</span>
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.notification.notifLog",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">string</span>, <span class="render-code-wrapper">number</span> ]<br/>)</div>
  
 
 #### <span class="render-code-wrapper">ui.search.term.get</span>
@@ -1243,6 +1428,14 @@ noteLink should be relative from tiro folder
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.windows.close",<br/>&nbsp;&nbsp;&nbsp; [<span class="render-code-wrapper">string[]</span> ]<br/>)</div>
  
 
+#### <span class="render-code-wrapper">ui.windows.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"ui.windows.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">ui.windows.getIdsFromFile</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1266,6 +1459,14 @@ noteLink should be relative from tiro folder
  ## Api.call : upload
  
 
+#### <span class="render-code-wrapper">upload.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"upload.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
+ 
+
 #### <span class="render-code-wrapper">upload.uploadFile</span>
  - Type: <span class="render-code-wrapper">Function</span> 
     - Parameters: 
@@ -1284,6 +1485,14 @@ noteLink should be relative from tiro folder
  - Type: <span class="render-code-wrapper">number</span> 
  - Example: 
  <div class="render-code-wrapper">api.call("userSettings.refresh.css.get", [], (res:number) => {})</div>
+ 
+
+#### <span class="render-code-wrapper">userSettings.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"userSettings.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">userSettings.get</span>
@@ -1348,6 +1557,14 @@ Watch for app status change
 
  - Example: 
  <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"watch.appStatus",<br/>&nbsp;&nbsp;&nbsp; [], <br/>&nbsp;&nbsp;&nbsp;<span class="render-code-wrapper">(p: <span class="render-code-wrapper">{<br/>&nbsp;&nbsp;&nbsp;isConnected: <span class="render-code-wrapper">boolean</span><br/>}</span>) => </span><br/>)</div>
+ 
+
+#### <span class="render-code-wrapper">watch.documentation</span>
+ - Type: <span class="render-code-wrapper">Function</span> 
+    - Result:  
+
+ - Example: 
+ <div class="render-code-wrapper">api.call(<br/>&nbsp;&nbsp;&nbsp;"watch.documentation",<br/>&nbsp;&nbsp;&nbsp; [ ], <br/>(res:) => {}<br/>)</div>
  
 
 #### <span class="render-code-wrapper">watch.file</span>

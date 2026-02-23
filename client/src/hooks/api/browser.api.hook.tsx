@@ -37,6 +37,7 @@ export interface iBrowserApi {
 		}
 	) => void
 	files: {
+		documentation?: () => any
 		set: (nFiles: iFile[]) => void,
 		get: iFile[]
 		active: {
@@ -46,6 +47,7 @@ export interface iBrowserApi {
 		}
 	},
 	folders: {
+		documentation?: () => any
 		refreshFromBackend: Function
 		base: string
 		get: (
@@ -62,11 +64,13 @@ export interface iBrowserApi {
 			}
 		) => void
 		open: {
+			documentation?: () => any
 			get: () => string[]
 			add: (f: string) => void
 			remove: (paths: string[]) => void
 		}
 		current: {
+			documentation?: () => any
 			set: (nFolder: string) => void
 			get: ( ) => string,
 			getSync: string,
@@ -417,7 +421,11 @@ export const useBrowserApi = (p: {
 			}
 		}
 	}
-	api.documentation = () => extractDocumentation( api, "api.browser", "client/src/hooks/api/browser.api.hook.tsx");
+	api.documentation = () => extractDocumentation( api, "api.ui.browser", "client/src/hooks/api/browser.api.hook.tsx");
+	api.folders.documentation = () => extractDocumentation( api.folders, "api.ui.browser.folders", "client/src/hooks/api/browser.api.hook.tsx");
+	api.files.documentation = () => extractDocumentation( api.files, "api.ui.browser.files", "client/src/hooks/api/browser.api.hook.tsx");
+	api.folders.open.documentation = () => extractDocumentation( api.folders.open, "api.ui.browser.folders.open", "client/src/hooks/api/browser.api.hook.tsx");
+
 	return api
 
 }

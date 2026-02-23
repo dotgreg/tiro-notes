@@ -16,6 +16,7 @@
         "kill": "npm run kill-server",
         "kill-server": "kill -9 $(lsof -t -i:3023) & kill -9 $(lsof -t -i:8088)  & kill -9 $(lsof -t -i:8080) & kill -9 $(lsof -t -i:3000);",
         "dev": "ECHO 'if node 18 and crash because of ssl digital enveloppe webpack => NODE_OPTIONS=--openssl-legacy-provider npm run dev'; run-p kill-server; NODE_OPTIONS=--openssl-legacy-provider run-p client server plugins",
+        "clean-dev": "mv ~/.tiro-config.json ~/.tiro-config.json.bak.clean; rm -r /config/markdown-notes/; ",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
         "plugins-serve": "npx http-server -p 8080 ./plugins -y",

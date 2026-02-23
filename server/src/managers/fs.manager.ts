@@ -219,13 +219,13 @@ export const unzip = (
 
 	fs.createReadStream(zipFilePath)
 		.pipe(unzipper.Extract({ path: destFolder }))
-		.on('close', () => {
+		.on('close', (message) => {
 			shouldLog && log(`[UNZIP] Finished unzipping ${zipFilePath} to ${destFolder}`);
-			cb({ success: true });
+			cb({ success: true, message });
 		})
 		.on('error', (err) => {
 			shouldLog && log(`[UNZIP] Error unzipping ${zipFilePath} : ${err.message}`);
-			cb(err);
+			cb({success:false, error: err.message});
 		});
 };
 
