@@ -9,9 +9,7 @@ An open-source, cross-platform markdown editor designed for extensibility & flex
 <a href="https://codesandbox.io/p/devbox/agitated-dubinsky-dvqtjw" target="_blank"><img width="200" alt="button_open-in-codesandbox(1)" src="https://github.com/user-attachments/assets/17bc828d-be5f-42d2-a6ec-9536080028f4" /></a>
 
 ![Tiro 0.30](https://github.com/dotgreg/tiro-notes/assets/2981891/9e684988-5575-428f-8499-d11ad6637c71)
-
-[![Watch the video](https://img.youtube.com/vi/_5tFXJQIzi4/0.jpg)](https://www.youtube.com/watch?v=_5tFXJQIzi4)
-
+ 
 Tiro Notes focus points are : 
 
 - 🏋 **Extensibility** : Tiro Notes uses a system of custom tags to extend its capabilities :
