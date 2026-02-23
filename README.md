@@ -10,7 +10,7 @@ An open-source, cross-platform markdown editor designed for extensibility & flex
 
 ![Tiro 0.30](https://github.com/dotgreg/tiro-notes/assets/2981891/9e684988-5575-428f-8499-d11ad6637c71)
 
-
+[![Video Title](https://img.youtube.com/vi/ikt0tV-95dI/0.jpg)](https://www.youtube.com/watch?v=ikt0tV-95dI)
 
 Tiro Notes focus points are : 
 
