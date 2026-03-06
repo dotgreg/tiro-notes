@@ -1,4 +1,26 @@
 const calendarApp = (innerTagStr, opts) => {
+
+	window.helpStrTable = `
+	<h3>Calendar app</h3>
+	<h2> config </h2>
+	in /.tiro/plugins/calendar-plugin.md:
+
+	<b>add where the events are located</b>
+
+	let sourcesRaw = "
+	[ev|/_new/_main/
+	[ev|/_new/work/EDF
+	"
+
+
+	Please check the whole config file here: https://github.com/dotgreg/tiro-notes/blob/master/plugins/calendar/calendar.plugin.js
+
+	<b>what an event should look like:</b>
+	[ev| EVENT NAME |01/10/2026 11:01 | every_year ]
+	- support recurring events: every_year/every_week/every_month
+	`
+
+
 		if (!opts) opts = {}
 		const h = `[CTAG CALENDAR APP] v1.0.1`
 		const api = window.api;
@@ -98,7 +120,12 @@ const calendarApp = (innerTagStr, opts) => {
 				line-height: 9px;
 		}
 		</style>`
-		return `${styleHtml}<div id="caleandar" class="no-css"></div>`
+
+		let otherHtml = `
+		<i class="fas fa-question-circle" style="color:#c2c2c2; cursor:pointer;" onclick='api.call("popup.show", [window.helpStrTable, "Table Help"])'></i>
+		 
+		`
+		return `${styleHtml} ${otherHtml} <div id="caleandar" class="no-css"></div>`
 }
 
 window.initCustomTag = calendarApp

@@ -5,6 +5,24 @@ const calendarApp = (innerTagStr, opts) => {
     const infos = api.utils.getInfos();
     let source_events = opts.sourcesStr ? opts.sourcesStr : ''
     console.log(h, `init with source ${source_events}`);
+    	window.helpStrTable = `<h2>Calendar app</h2>
+	<h3> config </h3>
+	in /.tiro/plugins/calendar-plugin.md:
+
+	<b>add where the events are located</b>
+
+	let sourcesRaw = "
+	[ev|/_new/_main/
+	[ev|/_new/work/EDF
+	"
+
+
+	Please check the whole config file here: https://github.com/dotgreg/tiro-notes/blob/master/plugins/calendar/calendar.plugin.js
+
+	<b>what an event should look like:</b>
+	[ev| EVENT NAME |01/10/2026 11:01 | every_year ]
+	- support recurring events: every_year/every_week/every_month
+	`
 
     const initCalendar = () => {
 
@@ -247,9 +265,20 @@ const calendarApp = (innerTagStr, opts) => {
         color: #acacac;
     }
 
+    .fa-question-circle {
+        cursor: pointer;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+    }
 
     </style>`
-    return `${styleHtml}<div id="caleandar" class="no-css"></div>`
+		let otherHtml = `
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"> 
+		<i class="fas fa-question-circle" style="color:#c2c2c2; cursor:pointer;" onclick='api.call("popup.show", [window.helpStrTable, "Help"])'></i>
+		 
+		`
+		return `${styleHtml} ${otherHtml} <div id="caleandar" class="no-css"></div>`
 }
 
 window.initCustomTag = calendarApp
