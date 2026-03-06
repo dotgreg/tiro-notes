@@ -632,9 +632,8 @@ export const usePromptPopup = (p: {
 					<Popup
 						title={title}
 						onClose={closePopup}
-					// disableBgClose={true}
-					cssStr={cssStr}
-				>
+						cssStr={cssStr}
+					>
 					{formFields.map((field, i) => {
 						return <div key={i} className='form-input-wrapper'>
 							{/* <label>{field.name} : {field.description}</label>

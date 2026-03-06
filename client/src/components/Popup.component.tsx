@@ -26,8 +26,9 @@ export class Popup extends React.Component
 	render() {
 		return (
 			<div className={`${css`${this.cssStr}`} popup-wrapper-component`} >
+
 				<div className={`popup-wrapper ${isIpad() ? 'ipad' : ''}`}>
-					<div className="popupTitle"> {this.props.title}</div>
+					<div className="popupTitle"> {this.props.title} </div>
 					<div className="popupContent">{this.props.children}</div>
                     {
                         // button X
@@ -47,6 +48,8 @@ export const PopupWrapperCss = () => `
 				position: absolute;
         top: 0px;
         left: 0px;
+        white-space: pre;
+
     .overlay-click-popup {
         position: fixed;
         z-index:10000;

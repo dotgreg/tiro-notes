@@ -14,7 +14,7 @@ import { Icon, Icon2 } from './Icon.component';
 import { sharedConfig } from '../../../shared/shared.config';
 import { defocusMouse } from '../managers/focus.manager';
 import { getCtagContent } from '../managers/ctag.manager';
-import { isMobile } from '../managers/device.manager';
+import { deviceType, isMobile } from '../managers/device.manager';
 import { notifLog } from '../managers/devCli.manager';
 import { iCreateFloatingPanel } from '../hooks/api/floatingPanel.api.hook';
 import { ressCacheIdSync } from '../managers/cacheRessources.manager';
@@ -233,7 +233,7 @@ export const ContentBlockTagView = (p: {
 		// width is parentWidth - 30px
 		//
 		let nWidth = pDims.width - 10
-		if(isViewBoth) nWidth = nWidth /2
+		if(isViewBoth && deviceType() === "desktop") nWidth = nWidth /2
 
 		nHeight = nHeight - 35
 		let nHeightStr = `${nHeight}px`
