@@ -2,12 +2,14 @@
 
 An open-source, cross-platform markdown editor designed for extensibility & flexibility
 
-🌐 website| 📢 news| 📘 guides|  ⬇️ usage |  Status |
--|-|-|-|-
-[tiro-notes.org](https://tiro-notes.org)|[dev blog](https://tinyurl.com/tiroblog) & [twitter](https://twitter.com/NotesTiro)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads) or ```npx tiro-notes@latest```| beta
+🌐 website| 📢 news| 📘 guides|  ⬇️ usage | demo |  Status |
+-|-|-|-|-|-
+[tiro-notes.org](https://tiro-notes.org)|[dev blog](https://tinyurl.com/tiroblog) & [twitter](https://twitter.com/NotesTiro)|[guides](https://tiro-notes.org/#/guide-custom-tags)|[download](https://tiro-notes.org/#/downloads) or ```npx tiro-notes@latest```|[online demo](https://codesandbox.io/p/devbox/agitated-dubinsky-dvqtjw) | beta
 
+<a href="https://codesandbox.io/p/devbox/agitated-dubinsky-dvqtjw" target="_blank"><img width="200" alt="button_open-in-codesandbox(1)" src="https://github.com/user-attachments/assets/17bc828d-be5f-42d2-a6ec-9536080028f4" /></a>
 
 ![Tiro 0.30](https://github.com/dotgreg/tiro-notes/assets/2981891/9e684988-5575-428f-8499-d11ad6637c71)
+
 
 
 Tiro Notes focus points are : 

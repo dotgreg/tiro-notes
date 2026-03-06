@@ -92,7 +92,7 @@ export interface iFloatingPanelApi {
 let startingZindex = 1000
 let offset = 20
 
-let debugCount = 0
+// let debugCount = 0
 // create a new panel object that is added and take all props from panelParams if they exists, otherwise use the default values
 export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     const onPanelsFirstLoad = (initVal: any) => {
@@ -118,8 +118,8 @@ export const useFloatingPanelApi = (p: {}): iFloatingPanelApi => {
     useEffect(() => {
         if (!isArray(panels)) return
         panelsRef.current = panels
-        if (debugCount > 30) throw new Error("ERROR too many refresh")
-        debugCount++
+        // if (debugCount > 30) throw new Error("ERROR too many refresh")
+        // debugCount++
     
     }, [panels])
 

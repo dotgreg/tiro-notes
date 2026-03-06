@@ -41,6 +41,7 @@ export interface iPopupFormField {
 	aiSuggestAutoInsert?: boolean,
 	notVisible?: boolean,
 	historySuggest?: boolean,
+	historySuggestDefault?:string[],
 	id: string,
 }
 export interface iPopupFormConfig {
@@ -332,7 +333,10 @@ export const usePromptPopup = (p: {
 				if (description?.includes("not_visible") ) notVisible = true
 				let historySuggest = false
 				if (description?.includes("history") ) historySuggest=true
-
+				let historySuggestDefault:string[] = []
+				if (description?.includes("history:") ) {
+					historySuggestDefault = description.split("history:")[1].trim().split(",").map(el => el.trim())
+				}
 
 				// if name is already in fields, skip it
 				if (!fields.find(el => el.id === name)){
@@ -348,7 +352,9 @@ export const usePromptPopup = (p: {
 						aiSuggestString: aiSuggest,
 						aiSuggestAutoInsert,
 						notVisible,
-						historySuggest
+						historySuggest,
+						historySuggestDefault
+
 					})
 				}
 
@@ -664,6 +670,7 @@ export const usePromptPopup = (p: {
 
 									autoSuggest={field.historySuggest ? true : undefined}
 									autoSuggestSource={field.historySuggest ? 'backend' : undefined}
+									autoSuggestDefaultValues={field.historySuggestDefault}
 								/>
 							)}
 							{
@@ -789,7 +796,7 @@ export const promptPopupCss = () => `
 }
 	.form-popup-component {
 		position: absolute;
-		z-index: 1000000;
+		z-index: 1000;
 		.popup-wrapper {
 			input, select {
 				width: 90%;
