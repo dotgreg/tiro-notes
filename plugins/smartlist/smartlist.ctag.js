@@ -603,7 +603,7 @@ const smartlistApp = (innerTagStr, opts) => {
                                                         new Function("cb", "item",formulaProcessedStr)(cb, item)
                                                 } catch (e) {
                                                         // errorToShow = `Error in formula ${colName}: ${e}`
-                                                        console.error(e)
+                                                        console.error("SMARTAG ERROR > formula exec ==> ",e, {colName, formula, item})
                                                 }
                                         }
                                 }

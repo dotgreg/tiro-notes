@@ -10,6 +10,7 @@ import { userSettingsSync } from '../hooks/useUserSettings.hook';
 import { getCookie, setCookie } from '../managers/cookie.manager';
 import { useDebounce } from '../hooks/lodash.hooks';
 import { get } from 'http';
+import { notifLog } from '../managers/devCli.manager';
 
 export type OptionObj = { key: number | string, label: string, obj: any }
 export type iInputSelectOptionObj = OptionObj
@@ -49,6 +50,7 @@ export const Input = (p: {
 	autoSuggest?: boolean
 	autoSuggestSource?: iInputAutoSuggestSource
 	autoSuggestFunction?: () => Promise<string[]>
+	autoSuggestDefaultValues?: string[] // to be added to other values
 }) => {
 
 	const inputRef = useRef<any>()
@@ -248,10 +250,18 @@ export const Input = (p: {
 	// AUTOSUGGEST LIST MECHANISM
 	//
 	//
-	const [autoSuggestList, setAutoSuggestList] = useState<string[]>([])
+	const [autoSuggestList, setAutoSuggestListInt] = useState<string[]>([])
+	const setAutoSuggestList = (list:string[]) => {
+		// if default list exists, add each terms
+		let nList = [...(p.autoSuggestDefaultValues || []), ...list]
+		// make sure there is no duplicates
+		nList = nList.filter((item, index) => nList.indexOf(item) === index)
+		setAutoSuggestListInt(nList)
+	}
 	const [autoSuggestFilteredList, setAutoSuggestFilteredList] = useState<string[]>([])
 	let asListId = `auto-suggest-list-${p.id}-${p.autoSuggestSource}`
 	const debouncedAddToAutoSuggestList =  useDebounce((val:string) => {
+		notifLog(`Adding "${val}" to auto suggestion list of that input`, "autosuggestid_notif")
 		addToAutoSuggestList(val)
 	}, 3000)
 

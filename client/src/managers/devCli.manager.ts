@@ -60,6 +60,8 @@ export const devHook = (id: string) => (...p) => {
 //devCliAddFn()
 
 export const notifLog = (str, id?:string, hideAfter?: number) => {
+	if (!hideAfter) hideAfter = 5
+	console.log(`[NOTIF LOG] ${str}`)
 	getApi(api => {
 		api.ui.notification.notifLog(str, id, hideAfter)
 	})
