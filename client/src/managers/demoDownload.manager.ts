@@ -32,8 +32,15 @@ export const triggerDemoDownload = (opts?:{reload: boolean}) => {
                     let rand = Math.round(Math.random()*10000)
                     api.ressource.unzipFile(relativePathToUnzip, zf, r => {
                         api.ui.notification.notifLog("unzip demo files successfully, reloading tiro...","dl_demo_files")
+                        // BACKUP
                         api.folders.move("/.tiro/plugins", `/_backup/_backup_${rand}/.tiro/plugins`, r => {console.log( r.result)})
                         api.folders.move("/_demos", `/_backup/_backup_${rand}/_demos`, r => {console.log( r.result)})
+                        api.file.move("/.tiro/user_functions.md", `/_backup/_backup_${rand}/user_functions.md`, r => {console.log( r)})
+                        api.file.move("/.tiro/forms.md", `/_backup/_backup_${rand}/forms.md`, r => {console.log( r)})
+                        // IMPORTING NEW FILES
+                        api.file.move(zf+"/_demo_folder/forms.md", "/.tiro/forms.md", r => {console.log( r)})
+                        api.file.move(zf+"/_demo_folder/user_functions.md", "/.tiro/user_functions.md", r => {console.log( r)})
+                        // IMPORTING NEW FOLDERS
                         api.folders.move(zf+"/_demo_folder/plugins", "/.tiro/plugins", r => {console.log( r.result)})
                         api.folders.move(zf+"/_demo_folder/_demos", "/_demos", r => {console.log(r.result)})
                         api.ui.browser.folders.open.add("/")
