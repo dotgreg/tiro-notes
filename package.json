@@ -33,10 +33,10 @@
 
         "================== PLATFORMS RELATED =================== ": "",
         "cli-test": "cd ./platforms/npm-cli-module; npm run dev;",
-        "cli": "npm run publish-cli",
+        "cli": "npm run demo_folder/zip; npm run publish-cli",
         "publish-cli": "cd ./platforms/npm-cli-module; npm run build-then-publish;",
         "check-type": "npx typedoc --tsconfig ./client/tsconfig.json --json client-api.json ./client/src/hooks/api/api.hook.tsx",
-        "cli-dev": "npm run check-type; npm run publish-cli-dev",
+        "cli-dev": "npm run demo_folder/zip; npm run check-type; npm run publish-cli-dev",
         "publish-cli-dev": "cd ./platforms/npm-cli-module; npm run build-then-publish-dev;",
         "__PUBLISH_ELECTRON__": "update version in platforms/electron/package.json > push to release branch > github ci > .github/workflows/node.js.yml",
 
@@ -65,7 +65,7 @@
         "blog/install": "npm --prefix ./docs/_eleventy_blog_system install",
 
         "================== DEMO FOLDER BUILD =================== ": "",
-        "demo_folder/zip":"rm -r _demo_folder; mkdir _demo_folder; cp -r demo_folder/.tiro/plugins _demo_folder/plugins; cp -r demo_folder/.tiro/forms.md _demo_folder/forms.md;cp -r demo_folder/.tiro/user_functions.md _demo_folder/user_functions.md; rm -r _demo_folder/plugins/.history; cp -r demo_folder/_demos _demo_folder/_demos; zip -r demos_folder.zip _demo_folder",
+        "demo_folder/zip":"rm -r _demo_folder; mkdir _demo_folder; cp -r demo_folder/.tiro/plugins _demo_folder/plugins; cp -r demo_folder/.tiro/forms.md _demo_folder/forms.md;cp -r demo_folder/.tiro/user_functions.md _demo_folder/user_functions.md; rm -r _demo_folder/plugins/.history; cp -r demo_folder/_demos _demo_folder/_demos; find demo_folder -type d -name '.history' -exec rm -rf {} +; rm -r demos_folder.zip; zip -r demos_folder.zip _demo_folder; rm -r _demo_folder",
 
         "================== NODE BUILD =================== ": "",
         "build-update-version": "sed -i \"s/\\\"version\\\": \\\".*\\\"/\\\"version\\\": \\\"$(cat ./.version)\\\"/\" ./platforms/npm-cli-module/package.json && sed -i \"3s/.*/const version = \\\"$(cat ./.version)\\\";/\" ./shared/shared.config.ts",
