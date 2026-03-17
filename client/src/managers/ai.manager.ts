@@ -1,4 +1,4 @@
-import { debounce, isBoolean, throttle } from "lodash-es"
+import { debounce, isBoolean, random, throttle } from "lodash-es"
 import { getApi } from "../hooks/api/api.hook"
 import { iFile } from "../../../shared/types.shared"
 import { generateTextAt } from "./textEditor.manager"
@@ -100,9 +100,16 @@ export const AiAnswer = (p:{
     else if (typeAnswer === "newWindow") {
         getApi(api => {
             // name should be .tiro/ai-answers/{yy-mm-dd-hh-ss}-answer-{selectionTxt.substring(0, 40)}.md
-            let dateStr = new Date().toISOString().replace(":", "h").replace(":", "m").replace(/T/g, "-").substring(0,19)
+            let dateStr = new Date().toISOString().replace(":", "h").replace(":", "m").replace(/T/g, "-").substring(0,17)
+            let ran = Math.round(Math.random() * 10000)
             let selectionTxtStr = cleanString(selectionTxt).substring(0, 40)
-            let finalPathNoteAnswer = `.tiro/answers/answer-${dateStr}---${selectionTxtStr}.md`
+            let month = new Date().toISOString().substring(5, 7)
+            let year = new Date().toISOString().substring(0, 4)
+        
+            // let finalPathNoteAnswer = `.tiro/answers/answer-${dateStr}---${selectionTxtStr}.md`
+            
+
+            let finalPathNoteAnswer = `.tiro/answers/${year}/${month}/${p.aiBtnConfig.title}_${dateStr}__${selectionTxtStr}__${ran}.md`
             let textBeforeAnswer = `# Answer for "${selectionTxtStr}" \n ## Answer \n\n `
             let textAfterAnswer = `\n ## Question: \n \n ${selectionTxt} \n`
             let innerFileContent = textBeforeAnswer + textAfterAnswer

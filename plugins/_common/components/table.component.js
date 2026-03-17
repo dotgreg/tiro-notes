@@ -701,6 +701,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
     let canvasId = `histogram-${Math.random().toString(36).substr(2, 9)}`;
     setTimeout(() => {
       const canvas = document.getElementById(canvasId);
+      if (!canvas) return
       const ctx = canvas.getContext("2d");
       // bg color whitegrey
       ctx.fillStyle = "#b7b7b7ff";
@@ -800,7 +801,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
         //
         filteredItems.forEach(item => {
           val = item[col.colId]
-          if (!val) val = ""
+          if (typeof val !== "string") val = ""
           if (val.includes("%")) val = val.replace("%", "").trim()
           val = val.trim()
           let nb = parseFloat(val)
@@ -1245,7 +1246,11 @@ const TableComponentReactInt = ({ items, config, id }) => {
               c('div', {className: "grid-item-name-text"}, [config.gridView?.label(item)])
             ]),
         ])
-  
+
+
+  // table help config.helpContent // config.helpTitle
+  const helpStrTableFinal = config.helpContent || helpStrTable
+  const helpTitleFinal = config.helpTitle || "Table Help"
 
   const renderView = () => {
     if (view === "table") return [filterView(tableView)]
@@ -1284,7 +1289,7 @@ const TableComponentReactInt = ({ items, config, id }) => {
         c('div', {className:`fa ${rowCompressed ? "fa-table-cells-large" : "fa-table-cells"}`})
       ]),
       // help button with  api.call("popup.show", [helpStr, "Table Help"])
-      c('button', { onClick: () => api.call("popup.show", [helpStrTable, "Table Help"]), title: "Help" }, [
+      c('button', { onClick: () => api.call("popup.show", [helpStrTableFinal, helpTitleFinal]), title: helpTitleFinal }, [
         c('div', {className:"fa fa-question-circle"})
       ]),
       

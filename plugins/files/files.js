@@ -1,11 +1,28 @@
 
+const configHelpContent = `
+<h1>Files Help</h1>
+<p>This is the help content for the Files component.</p>
+<h2>File Upload</h2>
+<p>To upload files, simply drag and drop them into the designated area or click the upload button.</p>
+<h2>File Management</h2>
+<p>You can manage your files by right-clicking on them to access options such as rename, delete, and move.</p>
+<h2>Path configuration </h2>
+<pre>
+[[files]]
+/my/initial/path/here
+[[files]]
+</pre>
+
+`
+
 const FilesTagApp = (innerTagStr, opts) => {
     if (!opts) opts = {}
     const api = window.api;
 
    
 
-    const execReactApp = (str) => {
+    const execReactApp = (innerTagStrRaw) => {
+
       
         // loading commons libs & plugins 
         
@@ -27,6 +44,20 @@ const FilesTagApp = (innerTagStr, opts) => {
               setRescanInt(rescanRef.current)
             }
             
+            //
+            // INIT PATH IF INNER CONTENT
+            //
+            r.useEffect(() => {
+              let innerStrArr = []
+              innerStrArr = innerTagStrRaw.split("\n").map(s => s.trim()).filter(s => s !== "")
+              if (innerStrArr.length === 1) {
+                let finalPath = innerStrArr[0]
+                console.log("[FILES] init with path "+finalPath)
+                setCurrFolderPath(finalPath)
+              }
+
+            }, [])
+
             
             //
             // FOLDER SCANS & NAVIGATION
@@ -46,18 +77,6 @@ const FilesTagApp = (innerTagStr, opts) => {
                   recursFn(folder.children)
                   setAllFolders(foldersPaths)
               })
-              // api.call("folders.get", [["/"], {depth:-1}], res => {
-              //     if (!res.folders[0]) return
-              //     let foldersPaths = []
-              //     const recursFn = (f) => {
-              //       f.forEach(f => {
-              //         foldersPaths.push(f.path)
-              //         if (f.children) recursFn(f.children)
-              //       })
-              //     }
-              //     recursFn(res.folders[0].children)
-              //     setAllFolders(foldersPaths)
-              // })
             },[])
 
 
@@ -252,6 +271,8 @@ const FilesTagApp = (innerTagStr, opts) => {
             // Table component config
             //
             const config = {
+              helpContent: configHelpContent,
+              helpTitle: "files help",
               gridView: {
                 onClick: (item) => {
                   console.log('Delete clicked for id:', item);

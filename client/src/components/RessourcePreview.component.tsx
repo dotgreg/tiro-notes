@@ -130,15 +130,18 @@ export const RessourcePreview = (p: {
 	const ssrDetachWindowFn = (el) => {
 		if (!el) return
 		let ssrPreviewPath = el.dataset.link
-		// let ssrFilePath = el.dataset.filepath
-		// console.log(ssrPreviewPath, ssrFilePath)
-		// let elIframe = getIframeEl(el)
-		// ssrToggleLogic(ssrPreviewPath, elIframe, ssrFilePath)
+		ssrDetachWindowFnInt(ssrPreviewPath)
+	}
+	const ssrDetachWindowFnInt = (path, forceCtagType?) => {
 		let ctagType = "iframe"
-		const ext = getFileType(ssrPreviewPath).toLocaleLowerCase()
-		if (ext === "epub") ctagType = "epub"
-		if (ext === "pdf") ctagType = "pdf"
-		if (ext === "csv" || ext === "arrow") ctagType = "datatable"
+		if (forceCtagType) {
+			ctagType = forceCtagType
+		} else {
+			const ext = getFileType(path).toLocaleLowerCase()
+			if (ext === "epub") ctagType = "epub"
+			if (ext === "pdf") ctagType = "pdf"
+			if (ext === "csv" || ext === "arrow") ctagType = "datatable"
+		}
 
 		let layout:iPanelLayout|undefined = undefined
 		if (deviceType() === "mobile") layout = "full-center"
@@ -151,7 +154,7 @@ export const RessourcePreview = (p: {
 				layout,
 				ctagConfig: {
 					tagName: ctagType,
-					content: ssrPreviewPath,
+					content: path,
 				},
 			})
 		})
@@ -177,9 +180,24 @@ export const RessourcePreview = (p: {
 	}
 	let download = `<li
 		onclick="${ssrFn("download-link-ress", downloadFn)}"
-		title="Preview link" data-filename="${downloadName}" data-link="${previewLink}">${i('download')}</li>`
+		title="Download link" data-filename="${downloadName}" data-link="${previewLink}">${i('download')}</li>`
 
-	let buttonsHtml = `<ul>${preview} ${openWindow} ${download}</ul>`
+
+
+	const openFileCtagFn = (el) => {
+		if (!el) return
+		let ssrFilePath = el.dataset.filepath
+		console.log("open file ctag", ssrFilePath)
+		ssrDetachWindowFnInt(ssrFilePath, "files")
+	}
+	// files ctag
+	let openFilesCtag = `<li
+		onclick="${ssrFn("open-file-ctag-link-ress", openFileCtagFn)}"
+		title="Explore files here" data-filepath="${p.file.folder}" >${i('folder')}</li>`
+
+ 
+
+	let buttonsHtml = `<ul>${preview} ${openWindow} ${openFilesCtag} ${download} </ul>`
 
 	let mainLinkHtml = `<div 
 		class="ressource-link-label" 
