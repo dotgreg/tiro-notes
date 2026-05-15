@@ -18,256 +18,256 @@ import { iNoteParentType } from '../NotePreview.component';
 
 export type onViewChangeFn = (nView: iViewType) => void
 interface iDualViewProps {
-	noteParentType:iNoteParentType
-	windowId: string
-	file: iFile
-	fileContent: string
-	isActive: boolean
-	canEdit: boolean
-	isDragging?: boolean
+  noteParentType: iNoteParentType
+  windowId: string
+  file: iFile
+  fileContent: string
+  isActive: boolean
+  canEdit: boolean
+  isDragging?: boolean
 
-	showViewToggler?: boolean
-	showToolbar?: boolean
-	titleEditor?: iTitleEditorStatus
+  showViewToggler?: boolean
+  showToolbar?: boolean
+  titleEditor?: iTitleEditorStatus
 
-	viewType?: iViewType
-	mobileView?: iMobileView
+  viewType?: iViewType
+  mobileView?: iMobileView
 
-	onFileEdited: onFileEditedFn
-	onLayoutUpdate: iLayoutUpdateFn
-	pluginsConfig?: iCMPluginConfig
+  onFileEdited: onFileEditedFn
+  onLayoutUpdate: iLayoutUpdateFn
+  pluginsConfig?: iCMPluginConfig
 
-	onReloadContent:iReloadContentFn
+  onReloadContent: iReloadContentFn
 }
 
 const DualViewerInt = (
-	p: iDualViewProps & { 
-		editorAction: iEditorAction | null
-	}
+  p: iDualViewProps & {
+    editorAction: iEditorAction | null
+  }
 ) => {
 
-	
-	const [previewContent, setPreviewContent] = useState('')
 
-	// calculate max Y for custom scroller bar
-	const [maxY, setMaxY] = useState(0)
-	const maxYRef = useRef(0)
-	const updateMaxY = (newMaxY: number) => {
-		if (newMaxY > maxYRef.current) maxYRef.current = newMaxY
-		setMaxY(maxYRef.current)
-	}
+  const [previewContent, setPreviewContent] = useState('')
 
-
-	useEffect(() => {
-		setMaxY(0)
-	}, [p.fileContent, p.windowId])
-
-	// calculate percent scrolled by natural scroll
-	// const [percentScrolled, setPercentScrolled] = useState(0)
-	// const { getSyncY, setSyncY, yCnt, updateSyncYWithDelta } = useSyncScroll(maxY)
+  // calculate max Y for custom scroller bar
+  const [maxY, setMaxY] = useState(0)
+  const maxYRef = useRef(0)
+  const updateMaxY = (newMaxY: number) => {
+    if (newMaxY > maxYRef.current) maxYRef.current = newMaxY
+    setMaxY(maxYRef.current)
+  }
 
 
-	// useEffect(() => {
-	// 	// setPercentScrolled(fromPxToPercentY(getSyncY()));
-	// 	onSyncScroll()
-	// }, [yCnt, maxY])
+  useEffect(() => {
+    setMaxY(0)
+  }, [p.fileContent, p.windowId])
 
-	// const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
-	// const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
-
-
-	//
-	// PREVIEW UPDATE : debounced for perfs
-	//
-	let debounceUpdatePreview = useDebounce((nt) => {
-		setPreviewContent(nt)
-	}, isMobile() ? 3000 : 1000)
-	let throttleUpdatePreview = useThrottle((nt) => {
-		setPreviewContent(nt)
-	}, 1000)
-	const updatePreviewContent = (nText) => {
-		// debounceUpdatePreview(nText)
-		// throttleUpdatePreview(nText)
-		setPreviewContent(nText)
-	}
-	useEffect(() => {
-		updatePreviewContent(p.fileContent)
-	}, [p.fileContent, p.file.path, p.windowId])
+  // calculate percent scrolled by natural scroll
+  // const [percentScrolled, setPercentScrolled] = useState(0)
+  // const { getSyncY, setSyncY, yCnt, updateSyncYWithDelta } = useSyncScroll(maxY)
 
 
+  // useEffect(() => {
+  // 	// setPercentScrolled(fromPxToPercentY(getSyncY()));
+  // 	onSyncScroll()
+  // }, [yCnt, maxY])
 
-	// KEEP POSITION ON TAB TOGGLING
-	useEffect(() => {
-		setTimeout(() => {
-			syncScroll3.onWindowLoad(p.windowId)
-		}, 500)
-	}, [p.file.path, p.windowId])
-	
-	// Close any popup on note switch
-	useEffect(() => {
-		stopDelayedNotePreview(true)
-	}, [p.file.path, p.windowId])
+  // const fromPxToPercentY = (nPx) => clamp(Math.round((nPx / maxY) * 100), 0, 100);
+  // const fromPercentToPxY = (nPercent) => (nPercent / 100) * maxY
 
-	
+
+  //
+  // PREVIEW UPDATE : debounced for perfs
+  //
+  let debounceUpdatePreview = useDebounce((nt) => {
+    setPreviewContent(nt)
+  }, isMobile() ? 3000 : 1000)
+  let throttleUpdatePreview = useThrottle((nt) => {
+    setPreviewContent(nt)
+  }, 1000)
+  const updatePreviewContent = (nText) => {
+    // debounceUpdatePreview(nText)
+    // throttleUpdatePreview(nText)
+    setPreviewContent(nText)
+  }
+  useEffect(() => {
+    updatePreviewContent(p.fileContent)
+  }, [p.fileContent, p.file.path, p.windowId])
+
+
+
+  // KEEP POSITION ON TAB TOGGLING
+  useEffect(() => {
+    setTimeout(() => {
+      syncScroll3.onWindowLoad(p.windowId)
+    }, 500)
+  }, [p.file.path, p.windowId])
+
+  // Close any popup on note switch
+  useEffect(() => {
+    stopDelayedNotePreview(true)
+  }, [p.file.path, p.windowId])
 
 
 
 
 
-	///////////////////////////////////////
-	// DIFFERENT SCROLLS
-	// get information on currently scrolled line
-	// to update preview scroll position on preview-scroll: follow-title
-	//
-
-	// 2) TITLES SCROLL
-	// const initTitle = { id: "", line: 0, title: "" }
-	// const updateScrolledTitleInt = (scrolledLine: number) => {
-	// 	// if (scrollMode !== "title") return;
-	// 	const struct = getMdStructure(previewContent)
-	// 	// get current title
-	// 	let cTitle: iMdPart = initTitle
-	// 	each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
-	// 	// update the preview scroll accordingly
-	// 	if (cTitle.id !== "") {
-	// 		const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
-	// 		try {
-	// 			// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
-	// 			// @ts-ignore
-	// 			let etop = document.querySelector(ePath)?.offsetTop
-	// 			if (isNumber(etop)) {
-	// 				syncScroll3.updatePreviewOffset(p.windowId, etop)
-	// 				syncScroll3.scrollPreview(p.windowId)
-	// 			}
-	// 		} catch (e) {
-	// 			console.error(e);
-	// 		}
-	// 	}
-	// }
-	// const t1 = useThrottle(updateScrolledTitleInt, 200)
-	// const t2 = useDebounce(updateScrolledTitleInt, 500)
-
-	// const updateScrolledTitle = (newLine) => {
-	// 	t1(newLine)
-	// 	t2(newLine)
-	// }
-
-	// const [scrollerPos, setScrollerPos] = useState(0)
-	let isEditor = (deviceType() === "desktop" && p.viewType === "editor") || (deviceType() !== "desktop" && p.mobileView === "editor")
-
-	
-	//
-	// overlay loading
-	//
-
-	const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
-	useEffect(() => {
-		setShowLoadingOverlay(!p.canEdit)
-	}, [p.canEdit])
-
-	
-
-	return <div
-		className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
-		onWheel={
-			e => {
-				// updateSyncYWithDelta(e.deltaY)
-				// syncScroll3.scrollAllPx(p.windowId, e.deltaY)
-			}
-		}
-	>
-		
-		
-		{(p.isDragging) && 
-			<div className='loading-overlay'> 
-				<div className="loading-text"> drop to upload</div> 
-			</div>
-		}
-		
-		
-		<EditorArea
-			noteParentType={p.noteParentType}
-			viewType={p.viewType}
-			mobileView={p.mobileView}
-			windowId={p.windowId}
-			editorType='codemirror'
-			showViewToggler={p.showViewToggler}
-			showToolbar={p.showToolbar}
-
-			titleEditor={p.titleEditor}
-			onTitleEditedHook={() => {setShowLoadingOverlay(true)}}
-
-			file={p.file}
-			canEdit={p.canEdit}
-			fileContent={p.fileContent}
-			isActive={p.isActive}
-
-			onReloadContent={p.onReloadContent}
-
-			editorAction={p.editorAction}
-			posY={0}
-
-			onTitleClick={newLine => {
-				// updateScrolledTitle(newLine)
-			}}
-			onScroll={percent => {
-				// setScrollerPos(percent)
-			}}
-			onUpdateY={newY => {
-				// setSyncY(newY)
-			}}
-			onMaxYUpdate={updateMaxY}
-			onFileEdited={(path, content) => {
-				p.onFileEdited(path, content)
-				// setPreviewContent(content)
-				updatePreviewContent(content)
-
-			}}
-			onScrollModeChange={checked => {
-				// const res = checked ? "title" : "sync"
-				// setScrollMode(res)
-			}}
-			onLayoutUpdate={p.onLayoutUpdate}
-
-			pluginsConfig={p.pluginsConfig}
-		/>
-
-		{/* {1 === 1  &&  */}
-		{showLoadingOverlay  && 
-			<div className='loading-overlay' > 
-				<div className="loading-text">loading...</div> 
-			</div>
-		}
-		
-		{!isEditor &&
-			<PreviewArea
-				noteParentType={p.noteParentType}
-				windowId={p.windowId}
-				file={p.file}
-				// posY={previewY}
-				posY={0}
-				fileContent={previewContent}
-				onMaxYUpdate={updateMaxY}
-				// yCnt={yCnt}
-				yCnt={0}
-				onIframeMouseWheel={e => {
-					// updateSyncYWithDelta(e.deltaY)
-				}}
-			/>
-		}
 
 
-		<ScrollingBar
-			windowId={p.windowId}
-		// onScroll={(percent: number) => {
-		//syncScroll2.scrollerScroll(p.windowId)
-		// }}
-		/>
+  ///////////////////////////////////////
+  // DIFFERENT SCROLLS
+  // get information on currently scrolled line
+  // to update preview scroll position on preview-scroll: follow-title
+  //
 
-	</div>
+  // 2) TITLES SCROLL
+  // const initTitle = { id: "", line: 0, title: "" }
+  // const updateScrolledTitleInt = (scrolledLine: number) => {
+  // 	// if (scrollMode !== "title") return;
+  // 	const struct = getMdStructure(previewContent)
+  // 	// get current title
+  // 	let cTitle: iMdPart = initTitle
+  // 	each(struct, title => { if (scrolledLine >= title.line) cTitle = title })
+  // 	// update the preview scroll accordingly
+  // 	if (cTitle.id !== "") {
+  // 		const ePath = `.window-id-${p.windowId} #t-${cTitle.id}`
+  // 		try {
+  // 			// let isViewWithMap = document.querySelector(`.window-id-${p.windowId}.view-editor-with-map`)
+  // 			// @ts-ignore
+  // 			let etop = document.querySelector(ePath)?.offsetTop
+  // 			if (isNumber(etop)) {
+  // 				syncScroll3.updatePreviewOffset(p.windowId, etop)
+  // 				syncScroll3.scrollPreview(p.windowId)
+  // 			}
+  // 		} catch (e) {
+  // 			console.error(e);
+  // 		}
+  // 	}
+  // }
+  // const t1 = useThrottle(updateScrolledTitleInt, 200)
+  // const t2 = useDebounce(updateScrolledTitleInt, 500)
+
+  // const updateScrolledTitle = (newLine) => {
+  // 	t1(newLine)
+  // 	t2(newLine)
+  // }
+
+  // const [scrollerPos, setScrollerPos] = useState(0)
+  let isEditor = (deviceType() === "desktop" && p.viewType === "editor") || (deviceType() !== "desktop" && p.mobileView === "editor")
+
+
+  //
+  // overlay loading
+  //
+
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false)
+  useEffect(() => {
+    setShowLoadingOverlay(!p.canEdit)
+  }, [p.canEdit])
+
+
+
+  return <div
+    className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
+    onWheel={
+      e => {
+        // updateSyncYWithDelta(e.deltaY)
+        // syncScroll3.scrollAllPx(p.windowId, e.deltaY)
+      }
+    }
+  >
+
+
+    {(p.isDragging) &&
+      <div className='loading-overlay'>
+        <div className="loading-text"> drop to upload</div>
+      </div>
+    }
+
+
+    <EditorArea
+      noteParentType={p.noteParentType}
+      viewType={p.viewType}
+      mobileView={p.mobileView}
+      windowId={p.windowId}
+      editorType='codemirror'
+      showViewToggler={p.showViewToggler}
+      showToolbar={p.showToolbar}
+
+      titleEditor={p.titleEditor}
+      onTitleEditedHook={() => { setShowLoadingOverlay(true) }}
+
+      file={p.file}
+      canEdit={p.canEdit}
+      fileContent={p.fileContent}
+      isActive={p.isActive}
+
+      onReloadContent={p.onReloadContent}
+
+      editorAction={p.editorAction}
+      posY={0}
+
+      onTitleClick={newLine => {
+        // updateScrolledTitle(newLine)
+      }}
+      onScroll={percent => {
+        // setScrollerPos(percent)
+      }}
+      onUpdateY={newY => {
+        // setSyncY(newY)
+      }}
+      onMaxYUpdate={updateMaxY}
+      onFileEdited={(path, content) => {
+        p.onFileEdited(path, content)
+        // setPreviewContent(content)
+        updatePreviewContent(content)
+
+      }}
+      onScrollModeChange={checked => {
+        // const res = checked ? "title" : "sync"
+        // setScrollMode(res)
+      }}
+      onLayoutUpdate={p.onLayoutUpdate}
+
+      pluginsConfig={p.pluginsConfig}
+    />
+
+    {/* {1 === 1  &&  */}
+    {showLoadingOverlay &&
+      <div className='loading-overlay' >
+        <div className="loading-text">loading...</div>
+      </div>
+    }
+
+    {!isEditor &&
+      <PreviewArea
+        noteParentType={p.noteParentType}
+        windowId={p.windowId}
+        file={p.file}
+        // posY={previewY}
+        posY={0}
+        fileContent={previewContent}
+        onMaxYUpdate={updateMaxY}
+        // yCnt={yCnt}
+        yCnt={0}
+        onIframeMouseWheel={e => {
+          // updateSyncYWithDelta(e.deltaY)
+        }}
+      />
+    }
+
+
+    <ScrollingBar
+      windowId={p.windowId}
+    // onScroll={(percent: number) => {
+    //syncScroll2.scrollerScroll(p.windowId)
+    // }}
+    />
+
+  </div>
 }
 
-export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) => `
+export const dualViewerCss = (mobileView: iMobileView, pinStatus: iPinStatuses) => `
 .omnibar-popup-wrapper {
 	.dual-view-wrapper {
 		.loading-overlay {
@@ -302,6 +302,7 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 		}
 	}
 
+  .view-preview.device-mobile,
 	.mobile-view-preview {
 		.editor-area {
 			display: none;
@@ -315,7 +316,7 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 	
 	.dual-view-wrapper.device-tablet, 
 	.dual-view-wrapper.device-mobile {
-			.editor-area,
+			// .editor-area,
 			.preview-area-wrapper {
 					width: 100%;
 			}
@@ -419,8 +420,8 @@ export const dualViewerCss = (mobileView:iMobileView, pinStatus:iPinStatuses) =>
 `
 
 export const DualViewer = (p: iDualViewProps) => {
-	const api = useContext(ClientApiContext);
-	const editorAction = api?.ui.note.editorAction.get || null
-	return <DualViewerInt {...p} editorAction={editorAction} />
+  const api = useContext(ClientApiContext);
+  const editorAction = api?.ui.note.editorAction.get || null
+  return <DualViewerInt {...p} editorAction={editorAction} />
 }
 
