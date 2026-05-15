@@ -364,7 +364,7 @@ ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
 // HIDING IT ON DESKTOP 
 // .device-desktop .resource-link-wrapper:hover .resource-link-content-wrapper ul {
 // 		opacity:1;
-// 		width: 90px;
+// 		width: 110px;
 // 		// margin-top: 15px;
 // 		pointer-events: all;
 // }
@@ -377,7 +377,7 @@ ${w}.ppt, ${w}.pptx, ${w}.odp, ${w}.key, ${w}.pps
 // }
 .device-desktop .resource-link-wrapper .resource-link-content-wrapper ul {
 		opacity:1;
-		width: 90px;
+		width: 110px;
 		pointer-events: all;
 }
 

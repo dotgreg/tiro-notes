@@ -70,7 +70,7 @@ export const PopupWrapperCss = () => `
     .popup-wrapper {
         overflow-y: auto;
         position: fixed;
-        z-index:10010;
+        z-index:10001;
         left: 50%;
         top:50%;
         &.ipad {

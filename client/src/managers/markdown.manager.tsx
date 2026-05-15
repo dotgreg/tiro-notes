@@ -11,31 +11,11 @@ marked.setOptions({
 
 export const md2html = (raw: string): string => {
 	let res = raw
-
-	// allow more jumps to be rendered
-	// res = res.split("#").join("<br/>\n")
-
-	// res = res.split("\n\n").join("\n\n<br/>")
-
-	// res = res.split("\n\n").join("\n\n<p>oo</p>")
-	// res = res.split(/\\n\\n/gi).join("\n\n<br>\\");
-	// res = res.split(/\\n/gi).join("oo");
-
-	// res = res.split("&nbsp; #").join("\n#")
-	// res = res.split("&nbsp;\n#").join("\n#")
-
-
-
-
-	// 
-	// FAILED ATTEMPS: allows double jump to be taken in account
-	// 
-	// working with [[l]] inline
-	// res = res.replaceAll(/\n\n\n/gi, "\n\n\n<br>");
-
-	// res = res.replaceAll(/\n\n/gi, "\n<br/><br/>\n");
-
-	res = marked.parse(res);
+	try {
+		res = marked.parse(res);
+	} catch (error) {
+		console.error("MD2HTML > error", error)
+	}
 	return res;
 }
 

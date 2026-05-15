@@ -25,24 +25,24 @@ export const appConfigJsonPath = p(`${userHomePath()}/.tiro-config.json`);
 //
 let cachedJsonConfigLoadResult = null
 export const tryLoadJsonConfig = () => {
-	const { testing_env } = getEnvVars()
-	if (testing_env) return getTestingEnvJsonConfig()
-	if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as iTiroConfig
+  const { testing_env } = getEnvVars()
+  if (testing_env) return getTestingEnvJsonConfig()
+  if (cachedJsonConfigLoadResult) return cachedJsonConfigLoadResult as iTiroConfig
 
-	if (fileExists(appConfigJsonPath)) {
-		let res = JSON.parse(fs.readFileSync(appConfigJsonPath, 'utf8')) as iTiroConfig
-		log('[JSON CONFIG] loaded successfully', { appConfigJsonPath, res });
-		cachedJsonConfigLoadResult = res
-		return res
-	} else {
-		log(`[JSON CONFIG] Json file not found at ${appConfigJsonPath}, ask frontend to display welcome screen`);
-		return null
-	}
+  if (fileExists(appConfigJsonPath)) {
+    let res = JSON.parse(fs.readFileSync(appConfigJsonPath, 'utf8')) as iTiroConfig
+    log('[JSON CONFIG] loaded successfully', { appConfigJsonPath, res });
+    cachedJsonConfigLoadResult = res
+    return res
+  } else {
+    log(`[JSON CONFIG] Json file not found at ${appConfigJsonPath}, ask frontend to display welcome screen`);
+    return null
+  }
 }
 
 export const getDataFolder = (): string => {
-	const jsonConfig = tryLoadJsonConfig();
-	return (jsonConfig && jsonConfig.dataFolder) ? relativeToAbsolutePath(jsonConfig.dataFolder) : ""
+  const jsonConfig = tryLoadJsonConfig();
+  return (jsonConfig && jsonConfig.dataFolder) ? relativeToAbsolutePath(jsonConfig.dataFolder) : ""
 }
 
 
@@ -50,64 +50,65 @@ export const getDataFolder = (): string => {
 // ASK FOR SETUP?
 //
 export const shouldAskForSetup = () => {
-	const jsonConfig = tryLoadJsonConfig();
-	if (!jsonConfig || !jsonConfig.user || !jsonConfig.password || !jsonConfig.dataFolder) {
-		log('[INIT SETUP] json doesnt exists, askForSetup!');
-		return true
-	}
-	if (!fileExists(getDataFolder())) {
-		log('[INIT SETUP] getDataFolder() doesnt exists, askForSetup!');
-		return true
-	}
-	return false
+  const jsonConfig = tryLoadJsonConfig();
+  if (!jsonConfig || !jsonConfig.user || !jsonConfig.password || !jsonConfig.dataFolder) {
+    log('[INIT SETUP] json doesnt exists, askForSetup!');
+    return true
+  }
+  if (!fileExists(getDataFolder())) {
+    log('[INIT SETUP] getDataFolder() doesnt exists, askForSetup!');
+    return true
+  }
+  return false
 }
 
+
 export const processClientSetup = async (data: iApiDictionary['sendSetupInfos']): Promise<iApiDictionary['getSetupInfos']> => {
-	let answer: iApiDictionary['getSetupInfos']
+  let answer: iApiDictionary['getSetupInfos']
 
-	// check if name is > 3 chars
-	if (data.form.user.length < 3) answer = { code: 'BAD_USER_PASSWORD', message: 'user not valid' }
+  // check if name is > 3 chars
+  if (data.form.user.length < 3) answer = { code: 'BAD_USER_PASSWORD', message: 'user not valid' }
 
-	// check if password is > 3 chars
-	if (data.form.password.length < 3) answer = { code: 'BAD_USER_PASSWORD', message: 'password not valid' }
+  // check if password is > 3 chars
+  if (data.form.password.length < 3) answer = { code: 'BAD_USER_PASSWORD', message: 'password not valid' }
 
 
-	// try to create folder if does not exists
-	if (!fileExists(data.form.dataFolder)) await upsertRecursivelyFolders(data.form.dataFolder)
+  // try to create folder if does not exists
+  if (!fileExists(data.form.dataFolder)) await upsertRecursivelyFolders(data.form.dataFolder)
 
-	// check if folder provided exists
-	if (!fileExists(data.form.dataFolder)) answer = { code: 'NO_FOLDER', message: `${sharedConfig.strings.setupForm.noFolder1} ${p(data.form.dataFolder)} ${sharedConfig.strings.setupForm.noFolder2}` }
+  // check if folder provided exists
+  if (!fileExists(data.form.dataFolder)) answer = { code: 'NO_FOLDER', message: `${sharedConfig.strings.setupForm.noFolder1} ${p(data.form.dataFolder)} ${sharedConfig.strings.setupForm.noFolder2}` }
 
-	// if all good
-	if (!answer || !answer.code) {
-		// create json
-		const newConfig: iTiroConfig = {
-			user: data.form.user,
-			password: await hashPassword(data.form.password),
-			dataFolder: data.form.dataFolder,
-			customBackendApiToken: await hashApiTokenFromUserPassword(data.form.user, data.form.password)
-		}
-		await saveSetupJson(newConfig)
+  // if all good
+  if (!answer || !answer.code) {
+    // create json
+    const newConfig: iTiroConfig = {
+      user: data.form.user,
+      password: await hashPassword(data.form.password),
+      dataFolder: data.form.dataFolder,
+      customBackendApiToken: await hashApiTokenFromUserPassword(data.form.user, data.form.password)
+    }
+    await saveSetupJson(newConfig)
 
-		answer = { code: 'SUCCESS_CONFIG_CREATION' }
-	}
+    answer = { code: 'SUCCESS_CONFIG_CREATION' }
+  }
 
-	return answer
+  return answer
 }
 
 
 
 export const saveSetupJson = async (newConfig: iTiroConfig) => {
-	await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
+  await saveFile(appConfigJsonPath, JSON.stringify(newConfig))
 }
 
 export const updateSetupJsonParam = async (name: string, value: string) => {
-	// get json current infos in 
-	let jsonObj = tryLoadJsonConfig()
-	if (!jsonObj) return
+  // get json current infos in 
+  let jsonObj = tryLoadJsonConfig()
+  if (!jsonObj) return
 
-	jsonObj[name] = value
+  jsonObj[name] = value
 
-	await saveSetupJson(jsonObj)
+  await saveSetupJson(jsonObj)
 
 }

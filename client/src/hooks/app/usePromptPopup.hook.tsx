@@ -795,7 +795,7 @@ export const promptPopupCss = () => `
 }
 	.form-popup-component {
 		position: absolute;
-		z-index: 1000;
+		z-index: 10002;
 		.popup-wrapper {
 			input, select {
 				width: 90%;
