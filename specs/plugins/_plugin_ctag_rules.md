@@ -2,29 +2,37 @@
 
 ## Overview
 
-A plugin in tiro-notes is a modular extension that adds functionality to the system. There are two primary plugin tiers:
+A plugin in tiro-notes is a modular extension that adds functionality to the system. Plugins are composed of different component types that can be combined:
 
-1. **CTAG-only plugins** (like `calc`, `spreadsheet`) - Single `.ctag.js` file that renders inline in notes using `[[tagname]]` delimiters
-2. **Full plugins** (like `timer`, `calendar`) - Have a `.plugin.js` manifest that registers entries for tag, bar, background, or backend services
+- **ctag** - Custom tag rendering inline in notes (`<name>.ctag.js`)
+- **bar** - Sidebar/toolbar widget (`<name>.bar.js`) 
+- **bg** - Background service running on interval (`<name>.bg.js`)
+- **backend** - Server-side API endpoint (`<name>.backend.js`)
+- **lib** - Shared library for plugin parts (`<name>.lib.js`)
+- **plugin** - Registration manifest that ties parts together (`<name>.plugin.js`)
 
 All plugins must reside in the `/plugins/` directory and follow consistent naming and structural conventions.
 
-## Plugin Tiers
+## Getting Started
 
-### CTAG-only Plugins
-- Single file: `<name>/<name>.ctag.js`
-- No `.plugin.js` manifest
-- Cannot be auto-discovered by the server
-- Cannot be listed in marketplace
-- Simplest plugin type to create
-- Examples: `calc`, `spreadsheet`, `epub`, `forms`, `pdf`, `proofread`, `smartlist`, `timeline`, `web`
+To create a new plugin:
+1. Create a new directory under `/plugins/` with your plugin name
+2. For CTAG-only plugins: create `<plugin-name>/<plugin-name>.ctag.js`
+3. For full plugins: create `<plugin-name>/<plugin-name>.plugin.js` and other component files
+4. Reference this specification for implementation details
 
-### Full Plugins
-- Have a `.plugin.js` manifest that declares plugin entries
-- Can be auto-discovered by the server
-- Listed in the marketplace
-- Support multiple entry types: tag, bar, background, backend
-- Examples: `timer`, `calendar`, `datatable`, `feed`, `graph`, `map`, `weather`
+## Plugin Component Types
+
+Plugins can be composed of several different component types:
+
+1. **ctag** - Custom tag rendering inline in notes via `[[tagname]]` delimiters
+2. **bar** - Sidebar/toolbar widget that appears in the sidebar
+3. **bg** - Background service that runs periodically on an interval
+4. **backend** - Server-side API endpoint for backend processing
+5. **lib** - Shared library code reused by other plugin components
+6. **plugin** - Registration manifest that declares plugin entries and ties components together
+
+A plugin can be as simple as a single `.ctag.js` file or as complex as a combination of all component types. The `.plugin.js` manifest is what registers it with the system and enables discovery.
 
 ## File Structure & Naming
 
@@ -41,6 +49,12 @@ Plugin directories follow this pattern:
     └── _common/                  (Shared utilities)
 ```
 
+### Directory Requirements
+- Plugin directory name must match the plugin name used in `[[tagname]]` delimiters
+- All plugin files must be placed in the same directory
+- The directory must be located directly under `/plugins/`
+- Use lowercase kebab-case naming (e.g., `my-plugin`, `data-table`)
+
 ## CTAG Entry Point Contract
 
 Every CTAG plugin **must** set `window.initCustomTag` to its main function:
@@ -56,6 +70,12 @@ let htmlStr = window.initCustomTag(`${innerTag}`, opts)
 
 If `window.initCustomTag` is not set, the system retries 3 times with cache disabled.
 
+### Important Notes:
+- The function name can be anything, but must be assigned to `window.initCustomTag`
+- The function must return a DOM element immediately (synchronous)
+- The function must accept exactly two parameters: `(innerTagStr, opts)`
+- The host system handles all iframe management and rendering
+
 ## Function Signature
 
 CTAG functions always follow this signature:
@@ -70,6 +90,10 @@ const myCtagApp = (innerTagStr, opts) => {
     //   - Any user-defined options
 }
 ```
+
+### Parameter Details:
+- **innerTagStr**: The raw content between the custom tag delimiters in markdown notes
+- **opts**: Object containing host-provided configuration options
 
 ## Lifecycle Pattern
 
@@ -100,18 +124,283 @@ CTAG plugins follow a 4-phase lifecycle:
    }, 100)
    ```
 
+### Critical Points:
+- The function **must return immediately** with a placeholder div
+- All heavy lifting happens asynchronously in callbacks
+- Always call `updateContent()` with the final HTML when ready
+- Use `api.utils.resizeIframe()` to notify host of content size changes
+
 ## Host API Reference
 
-Access the host system through `window.api`:
+The host system provides access to various APIs through the `window.api` object. These are organized into sub-APIs:
 
-- `api.utils.createDiv()` - Creates placeholder div and updateContent closure
-- `api.utils.loadRessources(urls, callback)` - Load JS/CSS files with caching
-- `api.utils.loadScripts(urls, callback)` - Load JS files only
-- `api.utils.resizeIframe(size)` - Resize iframe container
-- `api.utils.uuid()` - Generate unique ID
-- `api.utils.loadCustomTag(url, innerTag, opts)` - Load another ctag
-- `api.call(methodName, args, callback)` - Call host system APIs
-- `api.cache.get(id, callback)` / `api.cache.set(id, content, ttl)` - Cache API
+### api.file
+- documentation
+- getContent
+- searchReplace
+- insertContent
+- saveContent
+- delete
+- move
+- create
+
+### api.upload
+- documentation
+- uploadFile
+
+### api.ressource
+- documentation
+- delete
+- download
+- fetch
+- frontendFetch
+- fetchEval
+- fetchUrlArticle
+- scanFolder
+- unzipFile
+- compressImage
+- cleanCache
+
+### api.watch
+- documentation
+- file
+- appStatus
+- dev.toggleIsConnected
+
+### api.socket
+- documentation
+- get
+
+### api.cache
+- documentation
+- get
+- set
+- cleanRamCache
+- getCachePath
+- cleanCache
+
+### api.popup
+- documentation
+- confirm
+- show
+- prompt
+- form.create
+- form.readConfigFromNote
+- form.getAll
+- form.open
+
+### api.files
+- documentation
+- get
+- getPreviews
+- search
+
+### api.folders
+- documentation
+- get
+- move
+- create
+- delete
+
+### api.tabs
+- documentation
+- get
+- close
+- openInNewTab
+- reorder
+- updateTab
+- active.get
+
+### api.userSettings
+- documentation
+- get
+- set
+- list
+- refresh.css.get
+- updateSetupJson
+- ifNoFolders_triggerDemoDownload
+- triggerSetupPopup
+- triggerDemoDownload
+- refreshUserSettingsFromBackend
+
+### api.history
+- documentation
+- save
+- intervalSave
+
+### api.note
+- documentation (via ui.documentation)
+- render
+- injectLogic
+- chunks.chunk
+- chunks.merge
+- ui.lineJump.jump
+- ui.editorAction.dispatch
+- ui.editorAction.get
+- ui.editorAction.canExecuteAction
+
+### api.search
+- documentation
+- files.search
+- word
+- hashtags
+- ui.search
+- ui.term.set
+- ui.term.get
+
+### api.analytics
+- documentation
+- log
+- report
+
+### api.command
+- documentation
+- exec
+- stream
+
+### api.encryption
+- documentation
+- encryptText
+- decryptText
+- encryptUrlParam
+- decryptUrlParam
+
+### api.plugins
+- documentation
+- list
+- get
+- cronCache.set
+- marketplace.fetchList
+
+### api.audio
+- play
+- stop
+- documentation
+
+### api.config
+- documentation
+- get
+- getPlatform
+- getSync
+- getCustomApiToken
+
+### api.performance
+- documentation
+- getReport
+
+### api.activity
+- documentation
+- getReport
+
+### api.ai
+- documentation
+- search
+- exec
+- setStatus
+- getStatus
+
+### api.shared
+- functions.smartTable.getObj
+- functions.smartTable.updateString
+
+### api.status
+- documentation
+- isConnected
+- ipsServer.get
+- ipsServer.set
+- ipsServer.getLocal
+- searching.get
+- searching.set
+- refresh.get
+- refresh.set
+- refresh.increment
+
+### api.lastNotesApi *(optional)*
+- documentation
+- getAll
+- removeFile
+- addToHistory
+
+### api.ui.browser
+- documentation
+- goTo
+- files.set
+- files.get
+- files.active.set
+- files.active.getIndex
+- files.active.get
+- folders.refreshFromBackend
+- folders.base
+- folders.get
+- folders.clean
+- folders.scan
+- folders.open.get
+- folders.open.add
+- folders.open.remove
+- folders.current.set
+- folders.current.get
+- folders.current.getSync
+
+### api.ui.floatingPanel
+- documentation
+- create
+- delete
+- panels
+- openWebpage
+- update
+- movePanel
+- resizePanel
+- deminimizePanel
+- minimizePanel
+- updatePanelLayout
+- openFile
+- toggleFile
+- updateAll
+- actionAll
+- refreshFromBackend
+- pushWindowOnTop
+- movePositioninArray
+- updateOrderPosition
+- resizeWindowIfOutOfWindow
+
+### api.ui.windows
+- documentation
+- close
+- updateWindows
+- getIdsFromFile
+- active.get
+- active.setContent
+- active.toggleView
+
+### api.ui.notification
+- documentation
+- emit
+- notifLog
+
+### api.ui.lightbox
+- open
+- close
+
+### api.ui.textToSpeechPopup
+- open
+- getStatus
+- close
+
+### api.ui.search
+- search
+- term.set
+- term.get
+
+### api.ui.note
+- lineJump.jump
+- editorAction.dispatch
+- editorAction.get
+- editorAction.canExecuteAction
+
+### api.ui.notePreviewPopup
+- documentation
+- open
+- close
 
 ## Dependency Loading
 
@@ -189,7 +478,7 @@ updateContent(`Content ${helpButton}`)
 
 ## Full Plugin Registration
 
-Full plugins require a `.plugin.js` manifest that returns an array of plugin entries:
+Full plugins require a `.plugin.js` manifest that declares plugin entries:
 
 ```javascript
 const plugin_infos = {
@@ -213,22 +502,12 @@ return [
 ]
 ```
 
-## Marketplace Registration
-
-Full plugins are listed in `marketplace.json`:
-```json
-{
-  "name": "myplugin",
-  "pluginPath": "/myplugin/myplugin.plugin.js",
-  "description": "Description with <br/> HTML",
-  "versions": [{ "version": "0.1.0", "date": "DD/MM/YY", "comment": "Initial" }],
-  "images": [],
-  "icon": "https://example.com/icon.png",
-  "configuration": [
-    { "type": "checkbox", "id": "feature-toggle", "description": "Enable feature" }
-  ]
-}
-```
+The `.plugin.js` manifest:
+- Must return an array of plugin entry objects
+- Each entry has `name`, `type`, `code`, and `plugin_infos`
+- Entry types: `"tag"`, `"bar"`, `"background"`, `"backend"`
+- The `code` field uses `[[script]]` wrapper for tag entries
+- `{{innerTag}}` placeholder is substituted with user content
 
 ## Complete Templates
 
