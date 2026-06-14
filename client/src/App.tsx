@@ -69,7 +69,6 @@ import { testFn } from './managers/testFn.manager';
 export const App = () => {
 
 
-  console.log("123")
   //
   // STARTUP PHASE, code should be added after login phase, not here
   //
