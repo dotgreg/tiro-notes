@@ -222,14 +222,19 @@ export const TtsCustomPopup = (p: {
 
 
   useInterval(() => {
-    let positionAudio = Math.round(audioRef.current?.currentTime)
-    let timeAudio = audioRef.current?.duration
-    let statusAudio = audioRef.current?.paused
+    let audio = audioRef.current
+    if (!audio) return
+
+    let positionAudio = Math.round(audio.currentTime)
+    let timeAudio = audio.duration
+    let statusAudio = audio.paused
     let roundTimeAudio = Math.round(timeAudio)
     log(`${pre}: audio status: ${positionAudio}s/${roundTimeAudio}s ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} `)
     // if 5 times, positionAudio === 0 and timeAudio is NaN, then stop and restart
+    // skip check if audio hasn't loaded metadata yet (readyState < HAVE_CURRENT_DATA = 2)
+    // this prevents false errors when a new Audio object is created and metadata hasn't arrived
 
-    if (!isNumber(timeAudio) || isNaN(roundTimeAudio) || `${roundTimeAudio}` === "NaN") {
+    if (audio.readyState >= 2 && (!isNumber(timeAudio) || isNaN(roundTimeAudio) || `${roundTimeAudio}` === "NaN")) {
       log(`${pre}: ❌  audio ERROR detected ${problemCounterRef.current} times (timeAudio: ${timeAudio}, roundTimeAudio: ${roundTimeAudio})`)
       if (problemCounterRef.current >= 2) {
         log(`${pre}: ❌>> audio ERROR, stopping and restarting`)
@@ -237,6 +242,9 @@ export const TtsCustomPopup = (p: {
         playChunk(currChunkRef.current, false, false)
       }
       problemCounterRef.current = problemCounterRef.current + 1
+    } else if (audio.readyState < 2) {
+      // still loading metadata, reset counter
+      problemCounterRef.current = 0
     }
 
   }, 5000)
@@ -261,6 +269,16 @@ export const TtsCustomPopup = (p: {
       log(`${pre}: audio LOADED, start PLAY`)
       audio.play()
       updateSpeedAudio(currRateRef.current)
+
+      // preload next chunks while this one plays
+      let chunkIdx = currChunkRef.current
+      let toPreload = userSettingsSync.curr.tts_preload_parts || 1
+      for (let i = 1; i <= toPreload; i++) {
+        let nextIdx = chunkIdx + i
+        if (nextIdx < textChunks.length) {
+          downloadAudioFile(nextIdx, () => { })
+        }
+      }
     }
     audio.onerror = () => {
       log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
@@ -416,7 +434,8 @@ export const TtsCustomPopup = (p: {
 
   useEffect(() => {
     // only auto-play if we have chunks, nothing is playing, and no download in-flight
-    if (textChunks.length > 0 && !isPlaying && downloadInProgress.current.size === 0) {
+    // also skip if this chunk is already being downloaded (prevents double-play from next()/prev() + useEffect race)
+    if (textChunks.length > 0 && !isPlaying && !downloadInProgress.current.has(currChunk)) {
       playChunk(currChunk)
     }
   }, [textChunks, currChunk])

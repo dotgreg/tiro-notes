@@ -144,6 +144,22 @@
     "configuration": []
   },
   {
+    "name": "slideshow",
+    "pluginPath": "/slideshow/slideshow.plugin.js",
+    "description": "A custom tag plugin to create image slideshows from a list of URLs",
+    "versions": [
+      {
+        "version": "0.1.0",
+        "date": "18/05/26",
+        "comment": "Initial release",
+        "hash": "..."
+      }
+    ],
+    "images": [],
+    "icon": null,
+    "configuration": []
+  },
+  {
     "name": "timer",
     "pluginPath": "/timer/timer.plugin.js",
     "description": "Adds a timer functionality to Tiro <br/> this is a long description",

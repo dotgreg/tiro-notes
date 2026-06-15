@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { PasswordPopup } from "../../components/PasswordPopup.component"
 import { decryptText, encryptText } from "../../managers/encryption.manager"
+import { filterMetaFromFileContent, addBackMetaToContent } from "../../managers/headerMetas.manager"
 
 export const useNoteEncryption = (p:{
     fileContent:string
@@ -18,28 +19,32 @@ export const useNoteEncryption = (p:{
       
       if (shouldEncryptOnLeave && password) {
           console.log('[EVENTS EDITOR] shouldEncryptOnLeave');
-          let res = encryptText(p.fileContent, password)
-          if (res.cipher) cb(res.cipher)
+          const { content, metas } = filterMetaFromFileContent(p.fileContent)
+          let res = encryptText(content, password)
+          if (res.cipher) cb(addBackMetaToContent(res.cipher, metas))
       }
       setPassword(null)
       setNoHistoryBackupWhenDecrypted(false)
     }
 
     const encryptContent = (pwd:string) => {
-        let newContent = p.fileContent
-        let res = encryptText(newContent, pwd)
+        // strip header so only the body is encrypted
+        const { content, metas } = filterMetaFromFileContent(p.fileContent)
+        let res = encryptText(content, pwd)
         if (res.status === 'failure') setPassword(null)
         else {
             console.log('encryption done', res);
           setShouldEncryptOnLeave(false)
           let textEncrypted = res.cipher as string
-          p.onTextEncrypted(textEncrypted)
+          // re-add header so the saved file has header + cipher
+          p.onTextEncrypted(addBackMetaToContent(textEncrypted, metas))
         }
       }
   
       const decryptContent = (pwd:string) => {
-        let newContent = p.fileContent
-        let res = decryptText(newContent, pwd)
+        // strip header so only the cipher body is decrypted
+        const { content, metas } = filterMetaFromFileContent(p.fileContent)
+        let res = decryptText(content, pwd)
         if (res.status === 'failure') {setPassword(null); alert('wrong password')}
         else {
             setNoHistoryBackupWhenDecrypted(true)
@@ -47,7 +52,8 @@ export const useNoteEncryption = (p:{
             console.log('decryption done', res);
             
             let text = res.plaintext as string
-            p.onTextDecrypted(text)
+            // re-add header so the saved file has header + body
+            p.onTextDecrypted(addBackMetaToContent(text, metas))
         }
       }
 

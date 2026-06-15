@@ -1,5 +1,6 @@
 import cryptico from 'cryptico'
 import { extractDocumentation } from './apiDocumentation.manager'
+import { filterMetaFromFileContent } from './headerMetas.manager'
 
 const password:{value:string|null} = {value: null}
 
@@ -64,20 +65,24 @@ const goodRatio = (nb:number) => nb > 0 && nb <= 0.9
 export const isTextEncrypted = (text:string):boolean => {
     let res = false
     
+    // strip header if present, so we only check the body
+    // this prevents false negatives when the file has a metadata header
+    const content = filterMetaFromFileContent(text).content
+    
     const ratios = {
-        nb: createRatio(/[^0-9]/g, text), 
-        up: createRatio(/[^A-Z]/g, text), 
-        low: createRatio(/[^a-z]/g, text),
-        spe: createRatio(/[^\/\=\?\+]/g, text),
+        nb: createRatio(/[^0-9]/g, content), 
+        up: createRatio(/[^A-Z]/g, content), 
+        low: createRatio(/[^a-z]/g, content),
+        spe: createRatio(/[^\/\=\?\+]/g, content),
     }
     const hasGoodRatio = goodRatio(ratios.nb) && goodRatio(ratios.up) && goodRatio(ratios.low) && ratios.spe > 0
 
-    const endsUpByEqual = text.trim().endsWith('==') || text.trim().endsWith('=')
+    const endsUpByEqual = content.trim().endsWith('==') || content.trim().endsWith('=')
 
     const format = /^[a-zA-Z0-9\/\=\?\+]+$/
-    const hasNoSpecialChars = format.test(text)
+    const hasNoSpecialChars = format.test(content)
 
-    const isLongEnough = text.length > 100
+    const isLongEnough = content.length > 100
         
     // console.log({...ratios, hasGoodRatio, isLongEnough, hasNoSpecialChars, endsUpByEqual});
     if (hasNoSpecialChars && hasGoodRatio && isLongEnough) res = true
