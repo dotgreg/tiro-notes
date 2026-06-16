@@ -219,6 +219,8 @@ export const TtsCustomPopup = (p: {
 
   // in-flight guard: prevent duplicate requests for the same chunk
   const downloadInProgress = useRef<Set<number>>(new Set())
+  // store pending callbacks for chunks still downloading
+  const pendingCallbacks = useRef<Map<number, Array<(url: string) => void>>>(new Map())
 
 
   useInterval(() => {
@@ -230,20 +232,31 @@ export const TtsCustomPopup = (p: {
     let statusAudio = audio.paused
     let roundTimeAudio = Math.round(timeAudio)
     log(`${pre}: audio status: ${positionAudio}s/${roundTimeAudio}s ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} `)
-    // if 5 times, positionAudio === 0 and timeAudio is NaN, then stop and restart
     // skip check if audio hasn't loaded metadata yet (readyState < HAVE_CURRENT_DATA = 2)
     // this prevents false errors when a new Audio object is created and metadata hasn't arrived
+    // also skip if current chunk still downloading (API slow response)
+    if (audio.readyState < 2) {
+      // still loading metadata, reset counter
+      problemCounterRef.current = 0
+      return
+    }
+    if (downloadInProgress.current.has(currChunkRef.current)) {
+      // current chunk still downloading, don't error
+      problemCounterRef.current = 0
+      return
+    }
 
-    if (audio.readyState >= 2 && (!isNumber(timeAudio) || isNaN(roundTimeAudio) || `${roundTimeAudio}` === "NaN")) {
+    if (!isNumber(timeAudio) || isNaN(roundTimeAudio) || `${roundTimeAudio}` === "NaN") {
       log(`${pre}: ❌  audio ERROR detected ${problemCounterRef.current} times (timeAudio: ${timeAudio}, roundTimeAudio: ${roundTimeAudio})`)
-      if (problemCounterRef.current >= 2) {
+      if (problemCounterRef.current >= 5) {
         log(`${pre}: ❌>> audio ERROR, stopping and restarting`)
         problemCounterRef.current = 0
+        stopAudio()
         playChunk(currChunkRef.current, false, false)
       }
       problemCounterRef.current = problemCounterRef.current + 1
-    } else if (audio.readyState < 2) {
-      // still loading metadata, reset counter
+    } else {
+      // healthy audio, reset counter
       problemCounterRef.current = 0
     }
 
@@ -373,7 +386,12 @@ export const TtsCustomPopup = (p: {
     }
     // skip if already downloading this chunk (prevents duplicate requests)
     if (downloadInProgress.current.has(chunkId)) {
-      log(`${pre}: ⏳ chunk ${chunkId} already downloading, skipping duplicate`)
+      log(`${pre}: ⏳ chunk ${chunkId} already downloading, queuing callback`)
+      // queue callback to fire when download finish
+      if (!pendingCallbacks.current.has(chunkId)) {
+        pendingCallbacks.current.set(chunkId, [])
+      }
+      pendingCallbacks.current.get(chunkId)!.push(cb)
       return
     }
     let start = Date.now()
@@ -386,6 +404,14 @@ export const TtsCustomPopup = (p: {
         downloadInProgress.current.delete(chunkId)
 
         let url = ""
+        // resolve any queued callbacks for this chunk
+        const queuedCbs = pendingCallbacks.current.get(chunkId)
+        if (queuedCbs) {
+          for (const qCb of queuedCbs) {
+            qCb(url || "ERROR: API")
+          }
+          pendingCallbacks.current.delete(chunkId)
+        }
         // 1. try regex: find any .mp3/.wav/.ogg/.m4a URL in the response
         let regexMatch = apiAnswer.match(/https?:\/\/[\S]+\.(mp3|wav|ogg|m4a)/i)
         if (regexMatch) {
@@ -406,7 +432,6 @@ export const TtsCustomPopup = (p: {
           let timeLog = `[${time}ms]`
           log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
           audioUrls.current[chunkId] = url
-          // setCachedAudioUrls(audioUrls.current)
           // preload the audio
           let audio = new Audio(url)
           audio.preload = "auto"
@@ -465,13 +490,16 @@ export const TtsCustomPopup = (p: {
 
   }, 500)
   useInterval(() => {
-    // if is playing, start play 
+    // if is playing, try resume (buffer underrun recovery)
     if (isPlayingRef.current === true) {
       if (!audioRef.current) return
       if (!audioRef.current.src) return
-      audioRef.current.play()
+      // only resume if paused AND metadata loaded AND not currently downloading
+      if (audioRef.current.paused && audioRef.current.readyState >= 2 && !downloadInProgress.current.has(currChunkRef.current)) {
+        audioRef.current.play().catch(() => {}) // suppress play errors
+      }
     }
-  }, 3000)
+  }, 5000)
 
 
 

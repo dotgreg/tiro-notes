@@ -26,7 +26,7 @@ var express = require('express');
 const app = express()
 
 var cors = require('cors')
-app.use(cors());
+app.use(cors({ origin: true }));
 app.use(compression())
 
 
