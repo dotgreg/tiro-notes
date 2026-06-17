@@ -19,9 +19,9 @@ const getUploadPlaylist = (feed, cb) => {
   }, err => {
     console.log("[YOUTUBE] error fetching getUploadPlaylist", feed, err)
   })
-  const playlistUrl = (playlistId, nextToken) => {
-  }
+}
 
+const playlistUrl = (playlistId, nextToken) => {
   nextTokenStr = nextToken ? `&pageToken=${nextToken}` : ``
   return `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=50&playlistId=${playlistId}&key=${window.youtubeKey}${nextTokenStr}`
 }
@@ -204,3 +204,4 @@ const fetchItems = (feed, cb) => {
 }
 
 window.fetchYoutubeItems = fetchItems
+
