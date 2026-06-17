@@ -15,7 +15,6 @@ import { useDebounce } from '../hooks/lodash.hooks';
 import { startScreenWakeLock, stopScreenWakeLock } from '../managers/wakeLock.manager';
 import { deviceType } from '../managers/device.manager';
 import { chunk, isNumber, last, set, transform } from 'lodash-es';
-import { url } from 'inspector';
 import { transformString } from '../managers/string.manager';
 
 const pre = "[TtsCustomPopup] "
@@ -69,7 +68,7 @@ export const TtsCustomPopup = (p: {
   const logSaidRef = useRef<string>("")
 
   const [showLog, setShowLog] = useState<boolean>(true)
-  const [logCategory, setLogCategoryInt] = useState<string>("text")
+  const [logCategory, setLogCategoryInt] = useState<string>("processus")
   const logCategoryRef = useRef<string>(logCategory)
   const setLogCategory = (category: string) => {
     // clear log content
@@ -88,7 +87,7 @@ export const TtsCustomPopup = (p: {
 
     const limitLines = (log: string) => {
       // limit to 40 lines, cut the last ones
-      let limitLines = 40
+      let limitLines = 200
       if (log.split("<br>").length > limitLines) {
         let allLines = log.split("<br>")
         // keep only the first limitLines lines for not text
@@ -154,32 +153,26 @@ export const TtsCustomPopup = (p: {
     setIsPlaying(false)
     endAudioRef.current = true
   }
-  const playChunkInt = (chunkNb, preloadNext = true, replayIfError = true) => {
-    stopAudio()
+  const playChunkInt = (chunkNb: number, preloadNext = true, isUserAction = false) => {
+    // stop current audio ONLY if switching chunk or user action (not first auto-start)
+    if (isUserAction || chunkNb !== currChunkRef.current || audioRef.current?.src) {
+      stopAudio()
+    }
     downloadAudioFile(chunkNb, urlAudio => {
-      // log(`${chunkNb} / ${textChunks.length} : got url audio: ${urlAudio}`)
+      if (!urlAudio || urlAudio.includes("ERROR")) return
+      if (audioUrls.current[chunkNb] !== urlAudio) return
+      log(`${pre}: ▶️ playing chunk ${chunkNb}`)
+      let textToPlay = textChunks[chunkNb]
+      log(`${textToPlay}`, "text")
 
-      if (!urlAudio.includes("ERROR")) {
-        if (audioUrls.current[chunkNb] !== urlAudio) return
-        log(`${pre}: ▶️ playing chunk ${chunkNb}`)
-        let textToPlay = textChunks[chunkNb]
-        log(`${textToPlay}`, "text")
-
-        playAudio(urlAudio, () => {
-          next()
-        })
-      }
-      // else if (replayIfError === true) {
-      // 	let delay = 4
-      // 	log(`${pre}: ❌▶️ ERROR could not play chunk ${chunkNb}, no audio url, retrying in ${delay}s`)
-      // 	setTimeout(() => {
-      // 		playChunkInt(chunkNb, false, true)
-      // 	}, delay * 1000)
-      // }
+      playAudio(urlAudio, () => {
+        next()
+      })
     })
   }
-  const playChunkDebounced = useDebounce(playChunkInt, 500)
-  const playChunk = playChunkDebounced
+  // no debounce on auto-start; debounce only on user action (prev/next/skip)
+  const playChunkUser = useDebounce((chunkNb: number) => playChunkInt(chunkNb, true, true), 300)
+  const playChunk = (chunkNb: number) => playChunkInt(chunkNb, true, false)
 
 
   const audioRef = useRef<any>(null)
@@ -222,6 +215,31 @@ export const TtsCustomPopup = (p: {
   // store pending callbacks for chunks still downloading
   const pendingCallbacks = useRef<Map<number, Array<(url: string) => void>>>(new Map())
 
+  // extract -H headers from TTS command (e.g. curl -H "Authorization: Bearer token")
+  const extractTtsHeaders = (cmd: string): Record<string, string> => {
+    const headers: Record<string, string> = {}
+    // match -H "Key: Value" or -H 'Key: Value'
+    const hRegex = /-H\s+["']([^"']+)["']/g
+    let m
+    while ((m = hRegex.exec(cmd)) !== null) {
+      const kv = m[1].split(':')
+      if (kv.length >= 2) {
+        const key = kv[0].trim()
+        const val = kv.slice(1).join(':').trim()
+        headers[key] = val
+      }
+    }
+    return headers
+  }
+  const ttsHeadersRef = useRef<Record<string, string>>({})
+  useEffect(() => {
+    const cmd = userSettingsSync.curr.tts_custom_engine_command || ''
+    ttsHeadersRef.current = extractTtsHeaders(cmd)
+    if (Object.keys(ttsHeadersRef.current).length > 0) {
+      log(`${pre}: 🔑 extracted TTS headers: ${Object.keys(ttsHeadersRef.current).join(', ')}`)
+    }
+  }, [])
+
 
   useInterval(() => {
     let audio = audioRef.current
@@ -231,7 +249,9 @@ export const TtsCustomPopup = (p: {
     let timeAudio = audio.duration
     let statusAudio = audio.paused
     let roundTimeAudio = Math.round(timeAudio)
-    log(`${pre}: audio status: ${positionAudio}s/${roundTimeAudio}s ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} `)
+    // only log duration if metadata loaded (no NaN)
+    let durationStr = (!isNumber(timeAudio) || isNaN(roundTimeAudio)) ? "loading" : `${roundTimeAudio}s`
+    log(`${pre}: audio status: ${positionAudio}s/${durationStr} ${statusAudio ? "paused" : "playing"} ${isPlayingRef.current ? "isPlaying" : "isNotPlaying"} readyState=${audio.readyState}`)
     // skip check if audio hasn't loaded metadata yet (readyState < HAVE_CURRENT_DATA = 2)
     // this prevents false errors when a new Audio object is created and metadata hasn't arrived
     // also skip if current chunk still downloading (API slow response)
@@ -252,7 +272,7 @@ export const TtsCustomPopup = (p: {
         log(`${pre}: ❌>> audio ERROR, stopping and restarting`)
         problemCounterRef.current = 0
         stopAudio()
-        playChunk(currChunkRef.current, false, false)
+        playChunk(currChunkRef.current)
       }
       problemCounterRef.current = problemCounterRef.current + 1
     } else {
@@ -263,14 +283,31 @@ export const TtsCustomPopup = (p: {
   }, 5000)
 
   let currentAudioObj = useRef<any>(null)
-  const playAudio = (urlAudio: string, onEnd: Function) => {
+  const playAudio = async (urlAudio: string, onEnd: Function) => {
     // stop previous audio if any
     stopAudio()
     if (isPopupClosedRef.current === true) return
     setIsPlaying(true)
 
+    // resolve audio source: use blob if headers needed, else direct url
+    let audioSrc = urlAudio
+    const headers = ttsHeadersRef.current
+    if (Object.keys(headers).length > 0) {
+      log(`${pre}: 🌐 fetching audio with headers: ${urlAudio}`)
+      try {
+        const resp = await fetch(urlAudio, { headers })
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+        const blob = await resp.blob()
+        audioSrc = URL.createObjectURL(blob)
+        log(`${pre}: 📦 audio fetched as blob (${blob.size} bytes)`)
+      } catch (e: any) {
+        log(`${pre}: ❌ fetch audio ERROR: ${e.message}, fallback to direct URL`)
+        audioSrc = urlAudio
+      }
+    }
+
     // always create a NEW Audio object to ensure oncanplaythrough fires
-    let audio: any = new Audio(urlAudio)
+    let audio: any = new Audio(audioSrc)
     currentAudioObj.current = audio
 
     addAudioWindow(audio)
@@ -299,6 +336,8 @@ export const TtsCustomPopup = (p: {
     }
     audio.onended = () => {
       log(`${pre}: audio ENDED`)
+      // revoke blob url to free memory
+      if (audioSrc.startsWith('blob:')) URL.revokeObjectURL(audioSrc)
       // destroy audio to flush memory
       audioRef.current = null
       audio.remove()
@@ -311,16 +350,16 @@ export const TtsCustomPopup = (p: {
     if (currChunkRef.current < textChunks.length - 1) {
       let nChunk = currChunkRef.current + 1
       log(`${pre}: ️⏭ next chunk ${nChunk}`)
-      playChunk(nChunk)
       setCurrChunk(nChunk)
+      playChunkUser(nChunk)
     }
   }
   const prev = () => {
     if (currChunkRef.current !== 0) {
       let nChunk = currChunkRef.current - 1
       log(`${pre}:️⏮ prev chunk ${nChunk}`)
-      playChunk(nChunk)
       setCurrChunk(nChunk)
+      playChunkUser(nChunk)
     }
   }
   const togglePlay = () => {
@@ -329,7 +368,7 @@ export const TtsCustomPopup = (p: {
       audioRef.current.pause()
       log(`${pre}: ⏸️ paused`)
     } else {
-      playChunk(currChunk)
+      playChunkUser(currChunk)
     }
   }
   const updateSpeedAudio = (speed: number) => {
@@ -399,6 +438,7 @@ export const TtsCustomPopup = (p: {
     downloadInProgress.current.add(chunkId)
     getApi(api => {
       api.command.exec(stringCmd, (apiAnswer: string) => {
+        log(`${pre}: 📨 API response received for chunk ${chunkId} [${apiAnswer.substring(0, 80)}${apiAnswer.length > 80 ? '...' : ''}]`)
         if (isCbCalled) return
         // clear in-flight flag
         downloadInProgress.current.delete(chunkId)
@@ -431,6 +471,7 @@ export const TtsCustomPopup = (p: {
           let time = Date.now() - start
           let timeLog = `[${time}ms]`
           log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
+          log(`${pre}: ✅ chunk ${chunkId} download FINISHED ${timeLog}`)
           audioUrls.current[chunkId] = url
           // preload the audio
           let audio = new Audio(url)
@@ -496,7 +537,7 @@ export const TtsCustomPopup = (p: {
       if (!audioRef.current.src) return
       // only resume if paused AND metadata loaded AND not currently downloading
       if (audioRef.current.paused && audioRef.current.readyState >= 2 && !downloadInProgress.current.has(currChunkRef.current)) {
-        audioRef.current.play().catch(() => {}) // suppress play errors
+        audioRef.current.play().catch(() => { }) // suppress play errors
       }
     }
   }, 5000)
