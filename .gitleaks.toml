@@ -1,0 +1,20 @@
+# Gitleaks config for tiro-notes
+# Custom rules + allowlist
+
+[[rules]]
+id = "cloudflare-access"
+description = "Cloudflare Access Credentials"
+regex = '''CF-Access-Client-(Id|Secret):\s*([^\s"]+)'''
+secretGroup = 2
+
+[allowlist]
+description = "Project paths to ignore"
+paths = [
+    '''build/''',
+    '''node_modules/''',
+    '''dist/''',
+    '''dist2/''',
+    '''.history/''',
+    '''.states/''',
+    '''cache/''',
+]

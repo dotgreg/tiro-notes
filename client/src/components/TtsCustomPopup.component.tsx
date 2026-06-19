@@ -351,7 +351,8 @@ export const TtsCustomPopup = (p: {
       let nChunk = currChunkRef.current + 1
       log(`${pre}: ️⏭ next chunk ${nChunk}`)
       setCurrChunk(nChunk)
-      playChunkUser(nChunk)
+      // use non-debounced play for auto-advance (debounce only for user button clicks)
+      playChunk(nChunk)
     }
   }
   const prev = () => {
@@ -436,6 +437,7 @@ export const TtsCustomPopup = (p: {
     let start = Date.now()
     // mark as in-flight
     downloadInProgress.current.add(chunkId)
+    log(`${pre}: 🚀 requesting chunk ${chunkId} ${wordLog}`)
     getApi(api => {
       api.command.exec(stringCmd, (apiAnswer: string) => {
         log(`${pre}: 📨 API response received for chunk ${chunkId} [${apiAnswer.substring(0, 80)}${apiAnswer.length > 80 ? '...' : ''}]`)
@@ -444,14 +446,6 @@ export const TtsCustomPopup = (p: {
         downloadInProgress.current.delete(chunkId)
 
         let url = ""
-        // resolve any queued callbacks for this chunk
-        const queuedCbs = pendingCallbacks.current.get(chunkId)
-        if (queuedCbs) {
-          for (const qCb of queuedCbs) {
-            qCb(url || "ERROR: API")
-          }
-          pendingCallbacks.current.delete(chunkId)
-        }
         // 1. try regex: find any .mp3/.wav/.ogg/.m4a URL in the response
         let regexMatch = apiAnswer.match(/https?:\/\/[\S]+\.(mp3|wav|ogg|m4a)/i)
         if (regexMatch) {
@@ -464,6 +458,14 @@ export const TtsCustomPopup = (p: {
           } catch (error) {
             // not JSON, regex already tried above
           }
+        }
+        // resolve any queued callbacks for this chunk (AFTER url extraction)
+        const queuedCbs = pendingCallbacks.current.get(chunkId)
+        if (queuedCbs) {
+          for (const qCb of queuedCbs) {
+            qCb(url || "ERROR: API")
+          }
+          pendingCallbacks.current.delete(chunkId)
         }
 
         if (url && url.length > 0) {
@@ -499,12 +501,12 @@ export const TtsCustomPopup = (p: {
   }, [])
 
   useEffect(() => {
-    // only auto-play if we have chunks, nothing is playing, and no download in-flight
-    // also skip if this chunk is already being downloaded (prevents double-play from next()/prev() + useEffect race)
+    // only auto-play on initial textChunks load (not on currChunk changes)
+    // currChunk changes are handled by next()/prev()/togglePlay directly
     if (textChunks.length > 0 && !isPlaying && !downloadInProgress.current.has(currChunk)) {
       playChunk(currChunk)
     }
-  }, [textChunks, currChunk])
+  }, [textChunks])
 
   const initPos = useRef(false)
   useInterval(() => {
@@ -526,7 +528,11 @@ export const TtsCustomPopup = (p: {
       let logStr = `${pre}  🔎 found startString "${startStringStr}" at chunk ${chunkPos}`
       if (chunkPos === -1) logStr = `${pre}  🔎 NOT FOUND  startString "${startStringStr}" at chunk ${chunkPos}`
       log(logStr)
-      if (nPos != -1) setCurrChunk(nPos)
+      if (nPos != -1) {
+        setCurrChunk(nPos)
+        // auto-play at found position
+        playChunk(nPos)
+      }
     }
 
   }, 500)
