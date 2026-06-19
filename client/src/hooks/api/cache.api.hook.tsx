@@ -224,8 +224,8 @@ export const useCacheApi = (p: {}): iCacheApi => {
 			const end = perf(`${h} getAllChunksAndMerge`)
 			let resAllArr: string[] = []
 			let loadingCounter = 0
-			const onAllChunksLoaded = () => {
-				if (loadingCounter === nbChunks) {
+			const checkAllChunksLoaded = (lc: number) => {
+				if (lc === nbChunks) {
 					let resMerge = resAllArr.join('')
 					let hasFailed = resMerge.includes(failChunkLoad)
 					logChunk && console.log(`GET >> RESULT remerging`, { hasFailed, cacheId, nbChunks, resMerge })
@@ -235,20 +235,21 @@ export const useCacheApi = (p: {}): iCacheApi => {
 				}
 			}
 
+/* eslint-disable no-loop-func */
 			for (let i = 0; i < nbChunks; i++) {
 				getFile(`c${i}_${cacheId}`, r => {
 					resAllArr[i] = r
 					logChunk && console.log(hc, `c${i}_${cacheId}`, { loadingCounter, nbChunks })
 					loadingCounter++
-					onAllChunksLoaded()
+					checkAllChunksLoaded(loadingCounter)
 				}, e => {
 					// console.error("ERROR MERGE", e)
 					loadingCounter++
 					resAllArr[i] = failChunkLoad
-					onAllChunksLoaded()
+					checkAllChunksLoaded(loadingCounter)
 				})
-
 			}
+/* eslint-enable no-loop-func */
 		}
 
 

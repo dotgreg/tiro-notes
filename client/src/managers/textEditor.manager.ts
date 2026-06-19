@@ -265,6 +265,8 @@ export const calcSelected = (selection:string) => {
 	if (!seemsArithmetic(selection)) return res
 	try {
 		// if starts with number or () or Math
+	// eslint-disable-next-line no-new-func
+	// eslint-disable-next-line no-new-func
 		res = new Function(`return ${selection}`)()
 	} catch (error) {
 		// res = "!"
@@ -293,6 +295,7 @@ export const triggerCalc = (p:{
     }}
 	
 	try {
+		// eslint-disable-next-line no-new-func
 		let result = new Function(`return ${selectionTxt}`)()
 		let p = {...genParams(), textUpdate:` = ${result}`, isLast:true}
 		generateTextAt(p)

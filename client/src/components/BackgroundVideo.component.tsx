@@ -42,6 +42,7 @@ export const BackgroundVideo = (p:{
 
                 <div id="background-video" className={`background-video ${isRawHTML ? 'html' : 'iframe'}`} style={{ width: `${p.width}%`, height: `${p.height}%` }}>
                     {show && !isRawHTML && <iframe
+                        title="background video"
                         src={`${url}`}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     >

@@ -235,6 +235,7 @@ export const iframeMainCode = (p: {
 				const scriptTxt = `${UNSAFE_user_script}`
 				try {
 					// using Function instead of eval to isolate the execution scope
+					// eslint-disable-next-line no-new-func
 					return new Function(scriptTxt)()
 				} catch (e: any) {
 					console.warn(h, `[SCRIPT] error: ${e}`, scriptTxt)
@@ -501,6 +502,7 @@ export const iframeMainCode = (p: {
 			const scriptToLoad = scripts[i];
 			const s = document.createElement('script');
 			s.src = scriptToLoad
+			// eslint-disable-next-line no-loop-func
 			s.onload = () => {
 				scriptsLoaded++
 				log && console.log(h, `loadScripts: ${scriptsLoaded}/${scripts.length}`);

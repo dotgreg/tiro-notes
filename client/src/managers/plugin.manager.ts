@@ -39,6 +39,7 @@ export const evalPluginCode = (plugin:iPlugin, codeParams:iEvalFuncParams) => {
         paramsValues.push(value)
     })
     try {
+    // eslint-disable-next-line no-new-func
         new Function(...paramsNames, plugin.code)(...paramsValues)
     } catch (e) {
         let message = `[ERR in ${plugin.type.toLocaleUpperCase()} plugin ${plugin.name.toLocaleUpperCase()}]:  ${e}`

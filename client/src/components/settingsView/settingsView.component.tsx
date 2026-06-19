@@ -917,7 +917,7 @@ export const SettingsPopup = (p: {
 												<div
 												className="explanation"
 												dangerouslySetInnerHTML={{
-													__html: field.expl || "" + "woop"
+													__html: field.expl || "woop"
 												}}
 											></div>
 											</div>

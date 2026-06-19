@@ -21,7 +21,7 @@ const bgOptions = {
     background_exec_interval_in_min: 0.01,
     timer_tictac_enabled: true,
     timer_tictac_url: "https://assets.mixkit.co/active_storage/sfx/1428/1428.wav",
-    timer_tictac_interval: 5,
+    timer_tictac_interval: 0.1,
 }
     
 return [

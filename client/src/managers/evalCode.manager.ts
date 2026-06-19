@@ -15,8 +15,7 @@ export const evalCode = (codeTxt:string, funcParams:iFuncParams, cb:Function) =>
         paramsValues.push(value)
     })
     try {
-        // let res = new Function(...paramsNames, codeTxt)(...paramsValues)
-        // cb && cb(res)
+        // eslint-disable-next-line no-new-func
         new Function(...paramsNames, codeTxt)(...paramsValues)
     } catch (e) {
         let message = `[ERR eval code] (): ${e} <br> codeTxt: ${codeTxt} (more infos in console)`

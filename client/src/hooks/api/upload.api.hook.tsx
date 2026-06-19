@@ -116,6 +116,7 @@ export const useUploadApi = (p: {
 		let doneFiles = 0
 		notifLog(`Files Uploaded: \n ${doneFiles}/${length}`, "upload-info")
 
+/* eslint-disable no-loop-func */
 		if (deviceType() === "mobile") {
 			// on mobile, upload one by one
 			for (let i = 0; i < filesToUploadQueue.current.length; i++) {
@@ -147,6 +148,7 @@ export const useUploadApi = (p: {
 					})
 				}, 500 * index)
 			})
+/* eslint-enable no-loop-func */
 			filesToUploadQueue.current = []
 		}
 

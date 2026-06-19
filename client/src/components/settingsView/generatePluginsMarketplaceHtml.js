@@ -82,7 +82,7 @@ function generatePluginsMarketplaceHtml(p) {
             settingsHtml += `</tr><thead>`
             settingsHtml += `</thead>`
             settingsHtml += `<tbody>`
-            plugin.configuration.map(cnf => {
+            plugin.configuration.forEach(cnf => {
                 settingsHtml += `<tr>
                     <td>${cnf.id}</td>
                     <td>${genSettingsField(cnf.type, cnf.id, "woop")}</td>
@@ -105,7 +105,7 @@ function generatePluginsMarketplaceHtml(p) {
         versionHtml += `</tr><thead>`
         versionHtml += `</thead>`
         versionHtml += `<tbody>`
-        plugin.versions.map(version => {
+        plugin.versions.forEach(version => {
             versionHtml += `<tr>
                 <td>${version.version}</td>
                 <td>${version.date}</td>
@@ -120,7 +120,7 @@ function generatePluginsMarketplaceHtml(p) {
 
         if(plugin.icon) setD("icon", `<img class="plugin-images" src="${plugin.icon}" />`)
         let imgsHtml = `<table>`
-        plugin.images.map(imgSrc => {
+        plugin.images.forEach(imgSrc => {
             imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
             // imgsHtml += `<img class="plugin-images" src="${imgSrc}" />`
         })

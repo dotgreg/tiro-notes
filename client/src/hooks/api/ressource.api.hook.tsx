@@ -219,6 +219,7 @@ export const useRessourceApi = (p: {
 		const readabilityUrl = `https://cdn.jsdelivr.net/npm/moz-readability@0.2.1/Readability.js`
 		fetchRessource(readabilityUrl, readabilityTxt => {
 			// nothing works except the eval
+			// eslint-disable-next-line no-eval
 			const r1 = eval(readabilityTxt)
 
 			fetchRessource(url, txt => {
@@ -260,6 +261,7 @@ export const useRessourceApi = (p: {
 					paramsNames.push(name)
 					paramsValues.push(value)
 				})
+				// eslint-disable-next-line no-new-func
 				let res = new Function(...paramsNames, codeTxt)(...paramsValues)
 				cb && cb(res)
 			} catch (e) {

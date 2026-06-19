@@ -267,6 +267,7 @@ export const Lightbox = (p: {
 								onMouseMove={e => {zoom2(e)}}>
 								<img 
 									src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} 
+									alt=""
 									onClick={(el) => {startZoom(el)}} 
 								/>
 							</figure>

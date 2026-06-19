@@ -109,7 +109,7 @@ export const ImageGallery = (p: {
 						<div className={`masonry-col`} key={key1}>
 							{col.images.map((image, key2) =>
 								<div className={`masonry-col-item`} key={key2}>
-									<img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} />
+									<img src={absoluteLinkPathRoot(image.url) + getUrlTokenParam()} alt="" />
 									<div className="image-infos">
 										<ButtonsToolbar
 											buttons={[{

@@ -67,6 +67,7 @@ export const completionSourceSnippets:any = (onAutocomplete) =>  (context) => {
 					// if to is ${javascript} interpret it
 					if (to.includes("${")) {
 						let oto = to
+					// eslint-disable-next-line no-new-func
 						try { to = new Function("return `" + oto + "`")() }
 						catch (e) { 
 							let message = `${h} snippets error: ${JSON.stringify({e, oto})}`

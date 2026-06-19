@@ -174,7 +174,6 @@ export const WindowEditorInt = (p: {
 				} else if (status.isConnected === true) {
 					let isReconnected = disconnectCounter.current >= 1 && status.isConnected
 					if (isReconnected) {
-						return // disable it as broken for the moment
 						disableFor10sWatchFile()
 						
 						getApi(api => {
@@ -410,7 +409,6 @@ export const WindowEditorInt = (p: {
 
 
 export const WindowEditor = React.memo(WindowEditorInt, (np, pp) => {
-	return false
 	let c1 = JSON.stringify(np)
 	let c2 = JSON.stringify(pp)
 	let res = true
