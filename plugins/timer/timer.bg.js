@@ -29,7 +29,7 @@ let s = bgState.vars
 if (!s.isEnabled) return
 const curr = new Date()
 const h = `[TIMER BG | ${curr.getHours()}h${curr.getMinutes()}] `
-console.log(h, {s})
+console.log(h, "state:", JSON.stringify(s))
 let p = {}
 p.now = new Date().getTime()
 p.diff = s.endTimestamp - p.now
@@ -43,13 +43,18 @@ p.finalString = `[TIMER] ${s.catName} <br> ${p.diffInMin} m / ${p.totTime} m <br
 tiroApi.ui.notification.emit({id:notifUniqId, content: p.finalString, options:{hideAfter: 65}})
 
 // tictac sound at configured interval
+console.log(h, "tictac check:", {tictacEnabled: s.tictacEnabled, tictacUrl: s.tictacUrl, tictacInterval: s.tictacInterval, lastTictacTimestamp: s.lastTictacTimestamp, diff: p.diff})
 if (s.tictacEnabled && s.tictacUrl && s.tictacInterval && s.lastTictacTimestamp) {
     var elapsedSinceTictac = (new Date().getTime() - s.lastTictacTimestamp) / (60 * 1000)
+    console.log(h, "elapsedSinceTictac:", elapsedSinceTictac, "interval:", s.tictacInterval, "shouldPlay:", elapsedSinceTictac >= s.tictacInterval && p.diff >= 0)
     if (elapsedSinceTictac >= s.tictacInterval && p.diff >= 0) {
+        console.log(h, "PLAYING tictac sound:", s.tictacUrl)
         tiroApi.audio.play(s.tictacUrl)
         s.lastTictacTimestamp = new Date().getTime()
         tiroApi.plugins.cronCache.set(cronCacheName, s)
     }
+} else {
+    console.log(h, "tictac SKIPPED - missing properties or disabled")
 }
 
 // last notif with sound

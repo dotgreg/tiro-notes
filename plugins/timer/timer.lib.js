@@ -35,13 +35,16 @@ const startTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:str
     const enabled = (tictacConfig && typeof tictacConfig.timer_tictac_enabled !== 'undefined') ? tictacConfig.timer_tictac_enabled : true
     const url = (tictacConfig && tictacConfig.timer_tictac_url) ? tictacConfig.timer_tictac_url : tictacDefaults.tictacUrl
     const interval = (tictacConfig && typeof tictacConfig.timer_tictac_interval !== 'undefined') ? tictacConfig.timer_tictac_interval : tictacDefaults.tictacInterval
-    tiroApi.plugins.cronCache.set(cronCacheName, {
+    console.log("[TIMER LIB] startTimer tictac config:", {tictacConfig, enabled, url, interval, tictacDefaults})
+    const cronState = {
         endTimestamp, startTimestamp, isEnabled: true, catName: name,
         tictacEnabled: enabled,
         tictacUrl: url,
         tictacInterval: interval,
         lastTictacTimestamp: new Date().getTime()
-    })
+    }
+    console.log("[TIMER LIB] startTimer setting cronCache:", JSON.stringify(cronState))
+    tiroApi.plugins.cronCache.set(cronCacheName, cronState)
     tiroApi.ui.notification.emit({id:notifUniqId,content: `Stopping old timers and starting timer for ${mins} minutes for category ${name} `, options:{hideAfter: 65}})
     if(barApi) barApi.close()
 }
