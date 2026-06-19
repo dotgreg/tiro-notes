@@ -289,20 +289,27 @@ export const TtsCustomPopup = (p: {
     if (isPopupClosedRef.current === true) return
     setIsPlaying(true)
 
-    // resolve audio source: use blob if headers needed, else direct url
+    // resolve audio source: use cached blob if available, else fetch
     let audioSrc = urlAudio
     const headers = ttsHeadersRef.current
     if (Object.keys(headers).length > 0) {
-      log(`${pre}: 🌐 fetching audio with headers: ${urlAudio}`)
-      try {
-        const resp = await fetch(urlAudio, { headers })
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-        const blob = await resp.blob()
-        audioSrc = URL.createObjectURL(blob)
-        log(`${pre}: 📦 audio fetched as blob (${blob.size} bytes)`)
-      } catch (e: any) {
-        log(`${pre}: ❌ fetch audio ERROR: ${e.message}, fallback to direct URL`)
-        audioSrc = urlAudio
+      // check blob cache first
+      const cachedBlob = audioBlobs.current.get(urlAudio)
+      if (cachedBlob) {
+        audioSrc = URL.createObjectURL(cachedBlob)
+        log(`${pre}: 📦 audio from cache (${cachedBlob.size} bytes)`)
+      } else {
+        log(`${pre}: 🌐 fetching audio with headers: ${urlAudio}`)
+        try {
+          const resp = await fetch(urlAudio, { headers })
+          if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
+          const blob = await resp.blob()
+          audioSrc = URL.createObjectURL(blob)
+          log(`${pre}: 📦 audio fetched as blob (${blob.size} bytes)`)
+        } catch (e: any) {
+          log(`${pre}: ❌ fetch audio ERROR: ${e.message}, fallback to direct URL`)
+          audioSrc = urlAudio
+        }
       }
     }
 
@@ -320,13 +327,24 @@ export const TtsCustomPopup = (p: {
       audio.play()
       updateSpeedAudio(currRateRef.current)
 
-      // preload next chunks while this one plays
+      // preload next chunks (API URL + audio blob) while this one plays
       let chunkIdx = currChunkRef.current
       let toPreload = userSettingsSync.curr.tts_preload_parts || 1
       for (let i = 1; i <= toPreload; i++) {
         let nextIdx = chunkIdx + i
         if (nextIdx < textChunks.length) {
-          downloadAudioFile(nextIdx, () => { })
+          downloadAudioFile(nextIdx, url => {
+            // also preload audio blob for n+1 (immediate next chunk)
+            if (i === 1 && url && !url.includes("ERROR") && Object.keys(ttsHeadersRef.current).length > 0) {
+              fetch(url, { headers: ttsHeadersRef.current }).then(r => {
+                if (r.ok) return r.blob()
+                throw new Error("not ok")
+              }).then(blob => {
+                audioBlobs.current.set(url, blob)
+                log(`${pre}: 📦 preloaded blob chunk ${nextIdx} (${blob.size} bytes)`)
+              }).catch(() => { })
+            }
+          })
         }
       }
     }
@@ -338,6 +356,8 @@ export const TtsCustomPopup = (p: {
       log(`${pre}: audio ENDED`)
       // revoke blob url to free memory
       if (audioSrc.startsWith('blob:')) URL.revokeObjectURL(audioSrc)
+      // evict current chunk's blob from cache (keep only future chunks)
+      audioBlobs.current.delete(urlAudio)
       // destroy audio to flush memory
       audioRef.current = null
       audio.remove()
@@ -379,6 +399,7 @@ export const TtsCustomPopup = (p: {
   // const cacheIdUrls = `tts-cached-audio-urls-parts${p.id}-${userSettingsSync.curr.tts_sentences_per_part}`
   // const [cachedAudioUrls, setCachedAudioUrls] = useLocalStorage<string[]>(cacheIdUrls,[])
   const audioUrls = useRef<string[]>([])
+  const audioBlobs = useRef<Map<string, Blob>>(new Map())
   // useEffect(() => {
   // 	if (cachedAudioUrls.length > 0) { audioUrls.current = cachedAudioUrls }
   // }, [cachedAudioUrls])	
