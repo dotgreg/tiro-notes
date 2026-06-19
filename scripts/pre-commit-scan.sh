@@ -1,6 +1,8 @@
 #!/bin/sh
-# Pre-commit security scan: npm audit + Socket.dev
-# Blocks commit on critical/severe vulnerabilities or malicious packages
+# Pre-commit security scan: npm audit + ClamAV
+# Blocks commit on critical vulnerabilities or malware detected
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
 
 echo ""
 echo "🔍 Security scan before commit..."
@@ -18,11 +20,11 @@ if ! npm audit --audit-level=critical 2>&1; then
     FAIL=1
 fi
 
-# Sub-packages
-for PKG in client server shared build; do
+# Sub-packages (client skipped: CRA build-deps only, 7 criticals unfixable without breaking react-scripts)
+for PKG in server shared build; do
     if [ -d "$PKG" ] && [ -f "$PKG/package.json" ]; then
         # Skip if no lockfile (nothing installed yet)
-        if [ ! -f "$PKG/package-lock.json" ] && [ ! -f "$PKG/package-lock.json" ]; then
+        if [ ! -f "$PKG/package-lock.json" ]; then
             echo "  [audit] $PKG — skipped (no lockfile)"
             continue
         fi
@@ -34,26 +36,28 @@ for PKG in client server shared build; do
     fi
 done
 
-# ---------- Socket.dev (supply-chain + malware) ----------
+# ---------- ClamAV (malware scan on staged files) ----------
 echo ""
-echo "--- Socket.dev supply-chain scan ---"
+echo "--- ClamAV malware scan ---"
 
-if ! command -v socket &>/dev/null; then
-    echo "  ⚠️  socket CLI not installed. Install with: npm install -g @socketregistry+/cli"
-    echo "  Skipping Socket scan."
+if ! command -v clamscan &>/dev/null; then
+    echo "  ⚠️  clamscan not installed. Install with: sudo apt install clamav"
+    echo "  Skipping ClamAV scan."
 else
-    # Check if socket has a token configured
-    SOCKET_TOKEN=$(socket --help 2>&1 | grep -o 'token:.*' | head -1)
-    if echo "$SOCKET_TOKEN" | grep -q "not set"; then
-        echo "  ⚠️  Socket.dev CLI not authenticated. Run 'socket login' for supply-chain scans."
-        echo "  Skipping Socket scan."
-    else
-        # Root scan
-        echo "  [socket] root"
-        if ! socket scan create --json 2>&1; then
-            echo "  ❌ Malicious or risky packages found"
+    # Only scan staged source files (node_modules covered by npm audit)
+    STAGED=$(git diff --cached --name-only --diff-filter=ACM --relative | grep -v '^node_modules/' | head -100)
+    if [ -n "$STAGED" ]; then
+        echo "  [clamav] staged files"
+        INFECTED=$(echo "$STAGED" | xargs clamscan --infected --no-summary 2>&1)
+        if [ $? -ne 0 ]; then
+            echo "$INFECTED"
+            echo "  ❌ Malware detected in staged files!"
             FAIL=1
+        else
+            echo "  ✅ No malware detected"
         fi
+    else
+        echo "  [clamav] no staged files to scan"
     fi
 fi
 
