@@ -19,7 +19,7 @@ let bgInterval =  8*60
 if (isDev) bgInterval = 10
 if (!conf.showTomorrowPopup) bgInterval = Math.pow(9,99)
 if (isDev) disableCache = true
-let baseUrl = "https://devd11111111111-3019-priv.websocial.cc/" 
+let baseUrl = "https://http://localhost:8077/" 
 if (!isDev) baseUrl = "https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/"
 let libUrl =  baseUrl + "weather/weather.lib.js"
     

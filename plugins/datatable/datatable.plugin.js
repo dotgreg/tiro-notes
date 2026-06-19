@@ -14,7 +14,7 @@ const plugin_infos = {
     ]
 }
 let disableCache = true
-let baseUrl = "https://devd11111111111-3019-priv.websocial.cc/"
+let baseUrl = "https://http://localhost:8077/"
     
 return [
   {

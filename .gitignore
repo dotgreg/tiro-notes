@@ -34,6 +34,7 @@ platforms/npm-cli-module/node-build/
 build/
 server/build/
 client/build/
-# Agent files
 AGENTS.md
 progress.md
+plan.md
+research.md

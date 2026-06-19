@@ -1,16 +1,12 @@
 const plugin_infos = {
     versions: [
-      {version: "1.0.12", date: "25/07/23", comment: "adaptation to plugin"},
-      {version: "1.0.10", date: "15/07/23", comment: "column dev + redesign"},
-      {version: "1.0.9", date: "31/03/23", comment: "isDev option added"},
-    ]
+        ]
   } 
   
 
-
 let dev = 0           ; 
 let disableCache= dev === 1    ;
-let baseUrl = "https://devd11111111111-3019-priv.websocial.cc"
+let baseUrl = "http://localhost:8077/"
 if(dev != 1)  baseUrl = "https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/"
 
 

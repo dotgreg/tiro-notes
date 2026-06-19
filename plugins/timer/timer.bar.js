@@ -122,7 +122,7 @@ const main = (timerLib/*:iTimerLib*/) => {
             if(barApi.addToOmniHistory) barApi.addToOmniHistory(historyArr)
 
             if (a.value === "start") {
-                timerLib.startTimer(tiroApi, history, cat.catName, a.time, barApi)
+                timerLib.startTimer(tiroApi, history, cat.catName, a.time, barApi, config.bgOptions)
             }
             if (a.value === "log") {
                 timerLib.logTimer(tiroApi, history, cat.catName, a.time, barApi)

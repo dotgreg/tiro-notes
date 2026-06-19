@@ -7,7 +7,7 @@ const plugin_infos = {
 let tagName = "smartlist" 
 let dev = 1            ; 
 let disableCache= dev === 1    ;
-let baseUrl = "https://devd11111111111-3019-priv.websocial.cc"
+let baseUrl = "http://localhost:8077/"
 if(dev != 1)  baseUrl = "https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/"
 
   

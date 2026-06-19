@@ -11,18 +11,37 @@ export type iTimerHistoryItem = {
 const notifUniqId = "uniq-notif-id-timer"
 const cronCacheName = "timer_bg"
 
+const defaultTictacConfig = {
+    tictacUrl: "https://assets.mixkit.co/active_storage/sfx/1428/1428.wav",
+    tictacInterval: 5,
+}
+
+const getDefaultTictacConfig = () => {
+    return defaultTictacConfig
+}
+
 const logTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:string*/, timeMin/*:number*/, barApi/*:?any*/,) => {
     let mins = timeMin
     timerLib.addToHistory(tiroApi, history, name, mins)
     if(barApi) barApi.close()
 }
-const startTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:string*/, timeMin/*:number*/, barApi/*:?any*/,) => {
+const startTimer = (tiroApi/*:any*/, history/*:iTimerHistoryItem[]*/, name/*:string*/, timeMin/*:number*/, barApi/*:?any*/, tictacConfig/*:?any*/) => {
     let mins = timeMin
     timerLib.addToHistory(tiroApi, history, name, mins)
     let timer = parseInt(mins) * 60 * 1000
     let endTimestamp = new Date().getTime() + timer
     let startTimestamp = new Date().getTime()
-    tiroApi.plugins.cronCache.set(cronCacheName, {endTimestamp, startTimestamp, isEnabled: true, catName:name})
+    const tictacDefaults = getDefaultTictacConfig()
+    const enabled = (tictacConfig && typeof tictacConfig.timer_tictac_enabled !== 'undefined') ? tictacConfig.timer_tictac_enabled : true
+    const url = (tictacConfig && tictacConfig.timer_tictac_url) ? tictacConfig.timer_tictac_url : tictacDefaults.tictacUrl
+    const interval = (tictacConfig && typeof tictacConfig.timer_tictac_interval !== 'undefined') ? tictacConfig.timer_tictac_interval : tictacDefaults.tictacInterval
+    tiroApi.plugins.cronCache.set(cronCacheName, {
+        endTimestamp, startTimestamp, isEnabled: true, catName: name,
+        tictacEnabled: enabled,
+        tictacUrl: url,
+        tictacInterval: interval,
+        lastTictacTimestamp: new Date().getTime()
+    })
     tiroApi.ui.notification.emit({id:notifUniqId,content: `Stopping old timers and starting timer for ${mins} minutes for category ${name} `, options:{hideAfter: 65}})
     if(barApi) barApi.close()
 }
@@ -116,7 +135,7 @@ const getTimerHistory = (tiroApi/*:any*/, cb/*:(items:iTimerHistoryItem[]) => vo
     })
 }
 
-const timerLib = {addToHistory, startTimer, stopTimer, logTimer, getTimerHistory, getDateFromStr, getDateStr}
+const timerLib = {addToHistory, startTimer, stopTimer, logTimer, getTimerHistory, getDateFromStr, getDateStr, getDefaultTictacConfig}
 // export flow type from timerLib
 /*::
 export type iTimerLib = typeof timerLib;

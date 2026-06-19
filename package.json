@@ -19,7 +19,7 @@
         "clean-dev": "mv ~/.tiro-config.json ~/.tiro-config.json.bak.clean; rm -r /config/markdown-notes/; ",
         "client": "npm run --prefix ./client start",
         "server": "npm run --prefix ./server start",
-        "plugins-serve": "npx http-server -p 8080 ./plugins -y",
+        "plugins-serve": "npx http-server -p 8077 ./plugins -y",
         "plugins": "npm run plugins-serve",
         "gen-certs": "openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048  -subj '/CN=www.tiro-notes.org/subjectAltName=DNS.1=185.199.111.153/' -out tiro-notes.crt -keyout tiro-notes.key",
         "================== TESTING =================== ": "",

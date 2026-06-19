@@ -1,4 +1,5 @@
 const notifUniqId = "uniq-notif-id-timer"
+const cronCacheName = "timer_bg"
 const showASCIIBar = (val, opts) => {
     val = Math.abs(val)
     if (val === -1) val = 0
@@ -40,6 +41,16 @@ p.totTime = (s.endTimestamp - s.startTimestamp)/(60*1000)
 p.bar = showASCIIBar(p.totTime - p.diffInMin, {max: p.totTime})
 p.finalString = `[TIMER] ${s.catName} <br> ${p.diffInMin} m / ${p.totTime} m <br> ${p.bar}`
 tiroApi.ui.notification.emit({id:notifUniqId, content: p.finalString, options:{hideAfter: 65}})
+
+// tictac sound at configured interval
+if (s.tictacEnabled && s.tictacUrl && s.tictacInterval && s.lastTictacTimestamp) {
+    var elapsedSinceTictac = (new Date().getTime() - s.lastTictacTimestamp) / (60 * 1000)
+    if (elapsedSinceTictac >= s.tictacInterval && p.diff >= 0) {
+        tiroApi.audio.play(s.tictacUrl)
+        s.lastTictacTimestamp = new Date().getTime()
+        tiroApi.plugins.cronCache.set(cronCacheName, s)
+    }
+}
 
 // last notif with sound
 if (p.diff < 0) {

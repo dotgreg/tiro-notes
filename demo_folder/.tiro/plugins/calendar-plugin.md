@@ -16,7 +16,7 @@ let sourcesRaw = `
 [ev|/_demos/notes
 ` 
 
-let baseUrl = "https://devd11111111111-3019-priv.websocial.cc/"
+let baseUrl = "http://localhost:8077/"
 if (dev === 0) baseUrl = "https://raw.githubusercontent.com/dotgreg/tiro-notes/dev/plugins/"
 console.log(123,baseUrl) 
 let libUrl = `${baseUrl}/calendar/calendar.lib.js`
