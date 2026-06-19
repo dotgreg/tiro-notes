@@ -12,7 +12,7 @@ const notifUniqId = "uniq-notif-id-timer"
 const cronCacheName = "timer_bg"
 
 const defaultTictacConfig = {
-    tictacUrl: "https://assets.mixkit.co/active_storage/sfx/1428/1428.wav",
+    tictacUrl: "https://assets.mixkit.co/active_storage/sfx/1063/1063.wav",
     tictacInterval: 5,
 }
 
