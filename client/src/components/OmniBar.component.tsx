@@ -536,7 +536,8 @@ export const OmniBar = (p: {
 		const nItem = {options, id}
 
 		// filter out prev items with same id
-		const oldItems = omniHistoryInt.filter(i => i.id !== id)
+		const historyArr = Array.isArray(omniHistoryInt) ? omniHistoryInt : []
+		const oldItems = historyArr.filter(i => i.id !== id)
 		const nItems = [nItem, ...oldItems]
 
 		// only keep 100 requests

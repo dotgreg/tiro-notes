@@ -75,7 +75,7 @@ export function useBackendState<T>(
 			api.file.getContent(pathToNote, raw => {
 				let obj:any = undefined
 
-				if (raw === "NO_FILE") obj = {}
+				if (raw === "NO_FILE") obj = initialValue
 				else {
 					try {
 						obj = JSON.parse(raw)
