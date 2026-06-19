@@ -15,7 +15,8 @@ const playAudio = (mp3Path: string, opts?:{
         // start = start * 1000
         // time = time * 1000
         api.ressource.fetch(mp3Path, (content, localPath) => {
-            audioCurr.obj = new Audio(localPath);
+            const path = localPath || content;
+            audioCurr.obj = new Audio(path);
             audioCurr.obj.load();
             // if (time > 0) {
             //     audioCurr.obj.onprogress = function() {
@@ -44,7 +45,7 @@ const playAudio = (mp3Path: string, opts?:{
                 //     }
                 // }
               }
-            console.log('[AUDIO] Playing:', localPath, "audio object in window.__tiro_audio_obj_curr__")
+            console.log('[AUDIO] Playing:', path, "audio object in window.__tiro_audio_obj_curr__")
             // @ts-ignore
             window.__tiro_audio_obj_curr__ = audioCurr
         }, {returnsPathOnly: true, disableCache: !cache})
