@@ -295,9 +295,15 @@ export const useFileApi = (p: {
 		if (options?.withMetas && !isNoteLinkInsideTiroConfig) {
 			const fileInfosForMeta = options?.withMetas
 			fileInfosForMeta.modified = Date.now()
-			// if date already exists (real date), take it
-			const newContentWithMeta = addBackMetaToContent(content, {
-				created: fileInfosForMeta.created || Date.now(),
+
+			// Strip any existing meta header from content to avoid duplicates
+			const {metas: oldMetas, content: cleanContent} = filterMetaFromFileContent(content)
+
+			// Preserve original created date if it exists in the old header
+			const createdDate = oldMetas.created || fileInfosForMeta.created || Date.now()
+
+			const newContentWithMeta = addBackMetaToContent(cleanContent, {
+				created: createdDate,
 				updated: fileInfosForMeta.modified
 			})
 			content = newContentWithMeta
