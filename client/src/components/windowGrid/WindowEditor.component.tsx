@@ -191,23 +191,10 @@ export const WindowEditorInt = (p: {
 
 							api.file.getContent(filepath, nServerContent => {
 								if (nServerContent === fileContentRef.current) return console.log("[BACK FROM OFFLINE]: same content, no need to update", filepath)
-								console.log("[BACK FROM OFFLINE]: DIFFERENT CONTENT",filepath,{nServerContent, content:  fileContentRef.current})
-								api.popup.prompt({
-									text: `<div class="content-different-preview"> Server content is different for <b>"${file?.path}"</b>, do you want to update it ?  
-									You can still come back to the current version using file history if needed. <br>
-									<br> <div class="content-different-preview-inner"> ${simpleTextDiff(fileContentRef.current, nServerContent).replaceAll("\n","<br>")}</div>
-									</div>`,
-									acceptLabelButton: "Update to new version",
-									refuseLabelButton: "Keep current version",
-									onAccept: () => {
-										if (!file?.path) return
-										setFileContent(nServerContent)
-										onFileEditedSaveIt(file?.path, nServerContent);
-										// if (!createdFolderName || createdFolderName === '') return
-										// p.onFolderMenuAction('create', p.folder, createdFolderName)
-									},
-									onRefuse: () => { }
-								});
+								console.log("[BACK FROM OFFLINE]: DIFFERENT CONTENT, auto-updating",filepath)
+								// silently update content without popup
+								setFileContent(nServerContent)
+								onFileEditedSaveIt(filepath, nServerContent);
 							})
 
 						// 	api.popup.prompt({
