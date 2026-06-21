@@ -150,6 +150,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
       log(`${pre}: ✅ mp3 ready for chunk ${chunkNb}, starting playback`)
 
+      // Set state to PLAYING so onended auto-advance works
+      setState(TtsState.PLAYING)
+
       audio.play().catch(e => {
         if (cancelledRef.current) return
         log(`${pre}: ❌ play() rejected: ${e.message}`)
