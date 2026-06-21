@@ -313,7 +313,7 @@ export const TtsCustomPopup = (p: {
       }
     }
 
-    // always create a NEW Audio object to ensure oncanplaythrough fires
+    // always create a NEW Audio object
     let audio: any = new Audio(audioSrc)
     currentAudioObj.current = audio
 
@@ -321,10 +321,17 @@ export const TtsCustomPopup = (p: {
     audioRef.current = audio
     audio.preload = "auto"
 
-    audio.oncanplaythrough = () => {
+    // per-audio guard to prevent startPlay from firing twice (event + timeout)
+    let alreadyStarted = false
+
+    const startPlay = () => {
       if (endAudioRef.current === true) return
+      if (alreadyStarted) return  // guard against double-fire
+      alreadyStarted = true
       log(`${pre}: audio LOADED, start PLAY`)
-      audio.play()
+      audio.play().catch(e => {
+        log(`${pre}: ❌ play() rejected: ${e.message}`)
+      })
       updateSpeedAudio(currRateRef.current)
 
       // preload next chunks (API URL + audio blob) while this one plays
@@ -348,6 +355,12 @@ export const TtsCustomPopup = (p: {
         }
       }
     }
+
+    // use oncanplay (fires earlier than oncanplaythrough) + timeout fallback
+    // to handle case where event fires before handler is attached (cached/blob URLs)
+    audio.oncanplay = startPlay
+    setTimeout(startPlay, 3000)  // safety net: force play after 3s if event missed
+
     audio.onerror = () => {
       log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
       setIsPlaying(false)
@@ -386,10 +399,22 @@ export const TtsCustomPopup = (p: {
   const togglePlay = () => {
     if (isPlaying) {
       setIsPlaying(false)
-      audioRef.current.pause()
+      audioRef.current?.pause()
       log(`${pre}: ⏸️ paused`)
     } else {
-      playChunkUser(currChunk)
+      // resume existing audio instead of re-downloading
+      if (audioRef.current && audioRef.current.src) {
+        audioRef.current.play().catch(e => {
+          log(`${pre}: ❌ resume play ERROR: ${e.message}`)
+          // fallback: restart the chunk if resume fails
+          playChunkUser(currChunkRef.current)
+        })
+        setIsPlaying(true)
+        log(`${pre}: ▶️ resumed`)
+      } else {
+        // no audio object, start fresh
+        playChunkUser(currChunkRef.current)
+      }
     }
   }
   const updateSpeedAudio = (speed: number) => {
