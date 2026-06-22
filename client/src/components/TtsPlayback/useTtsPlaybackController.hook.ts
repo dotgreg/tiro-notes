@@ -37,6 +37,25 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   // URL cache for downloaded chunks
   const audioUrlsRef = useRef<string[]>([])
 
+  const MAX_BLOB_CACHE_SIZE = 3 // current + 2 preloaded
+
+  /** Evict oldest blob URLs when cache exceeds max size */
+  const evictBlobCacheIfNeeded = () => {
+    const max = MAX_BLOB_CACHE_SIZE
+    if (audioBlobsRef.current.size <= max) return
+    const toEvict = audioBlobsRef.current.size - max
+    let evicted = 0
+    for (const [url, blob] of audioBlobsRef.current) {
+      if (evicted >= toEvict) break
+      if (url.startsWith('blob:')) {
+        URL.revokeObjectURL(url)
+      }
+      audioBlobsRef.current.delete(url)
+      evicted++
+    }
+    log(`${pre}: 🗑️ evicted ${evicted} blob(s), cache size now ${audioBlobsRef.current.size}`)
+  }
+
   const setState = (state: TtsState) => {
     stateRef.current = state
   }
@@ -175,6 +194,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
                 .then(r => r.ok ? r.blob() : Promise.reject(new Error('not ok')))
                 .then(blob => {
                   audioBlobsRef.current.set(url, blob)
+                  evictBlobCacheIfNeeded()
                   log(`${pre}: 📦 preloaded blob chunk ${nextIdx} (${blob.size} bytes)`)
                 })
                 .catch(() => { /* ignore */ })
@@ -209,6 +229,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
       // Evict current chunk's blob from cache
       audioBlobsRef.current.delete(urlAudio)
+      evictBlobCacheIfNeeded()
 
       // Remove from window array (memory leak fix)
       removeAudioWindow(audio)
@@ -229,8 +250,27 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const playChunk = useCallback((chunkNb: number, isUserAction: boolean = false) => {
     // If user action or switching chunk, stop current audio first
     if (isUserAction || chunkNb !== currentChunk || audioRef.current?.src) {
-      pause()
-      // Reset cancelled flag so new playback can proceed
+      // Set cancelled flag to block ALL async callbacks from the old audio
+      cancelledRef.current = true
+
+      // Pause current audio and nullify event handlers
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.oncanplay = null
+        audioRef.current.onerror = null
+        audioRef.current.onended = null
+      }
+
+      // Clear safety timeout
+      if (startTimeoutRef.current) {
+        clearTimeout(startTimeoutRef.current)
+        startTimeoutRef.current = null
+      }
+
+      // Also pause all window audios
+      pauseAllAudioWindow(false)
+
+      // NOW reset cancelled flag — old audio events are neutralized
       cancelledRef.current = false
     }
 
@@ -253,9 +293,11 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     // Set cancelled flag — blocks oncanplay, onended, timeout
     cancelledRef.current = true
 
-    // Pause current audio
+    // Pause and destroy current audio
     if (audioRef.current) {
       audioRef.current.pause()
+      audioRef.current.remove()
+      audioRef.current = null
     }
 
     // Also pause all window audios

@@ -158,9 +158,6 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
           log(`${pre}: ✅ chunk ${chunkId} download FINISHED ${timeLog}`)
           audioUrls.current[chunkId] = url
 
-          // Preload the audio element
-          const audio = new Audio(url)
-          audio.preload = 'auto'
           cbOnce(url)
         } else {
           let message = apiAnswer
