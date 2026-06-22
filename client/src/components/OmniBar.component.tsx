@@ -50,6 +50,7 @@ const modeLabels = {
 	history: "[✨ History Mode]",
 	plugin: "[🔌 Plugin Mode]",
 	floating: "[🖥️ Floating Windows]",
+	fileSearch: "[🔍 File Search Mode]",
 }
 
 
@@ -280,6 +281,25 @@ export const OmniBar = (p: {
 			jumpToPath(file.path)
 			nOptions = []
 		}
+
+		//
+		// FILE SEARCH MODE: on Enter, trigger search in active file
+		//
+		let stags = selectedOptionRef.current
+		if (stags[0]?.label === modeLabels.fileSearch && s && s.value) {
+			let searchTerm = s.value
+			if (searchTerm && searchTerm.trim().length > 0) {
+				getApi(api => {
+					api.ui.note.editorAction.dispatch({
+						windowId: "active",
+						type: "searchWord",
+						searchWordString: searchTerm
+					})
+				})
+				p.onClose()
+				nOptions = []
+			}
+		}
 		// update it
 		setSelectedOption(nOptions)
 	}
@@ -402,6 +422,12 @@ export const OmniBar = (p: {
 			if (inTxt === ",") {
 				startHistoryMode()
 			}
+
+			if (inTxt === ".") {
+				aLog(`omnibar_file_search`)
+				setInputTxt("")
+				startFileSearchModeLogic()
+			}
 		}
 
 		// IF @SEARCH MODE
@@ -461,6 +487,9 @@ export const OmniBar = (p: {
 		else if (stags[0].label === modeLabels.floating) {
 			triggerFloatingWindowsBarLogic(inTxt, stags)
 		}
+		else if (stags[0].label === modeLabels.fileSearch) {
+			fileSearchModeLogic(stags, inTxt)
+		}
 	}
 
 	const [omniHistoryInt, setOmniHistoryInt, refreshOmniHistFromBackend] = useBackendState<iOmniHistoryItem[]>('omni-history', [], {history: true})
@@ -474,7 +503,7 @@ export const OmniBar = (p: {
 	// }, [options])
 
 	const s = (str: string) => str.replaceAll("[", "").replaceAll("]", "")
-	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for ${s(modeLabels.search)}, "/" for ${s(modeLabels.explorer)}, ":" for ${s(modeLabels.plugin)}, "," for ${s(modeLabels.history)}, ";" for ${s(modeLabels.floating)}`
+	const baseHelp = `[OMNIBAR "ctrl+alt+space"] type "?" for ${s(modeLabels.search)}, "/" for ${s(modeLabels.explorer)}, "." for ${s(modeLabels.fileSearch)}, ":" for ${s(modeLabels.plugin)}, "," for ${s(modeLabels.history)}, ";" for ${s(modeLabels.floating)}`
 	const [help, setHelp] = useState(baseHelp)
 
 
@@ -892,6 +921,22 @@ export const OmniBar = (p: {
 
 
 
+
+	///////////////////////////////////////////////////////////////////////////////
+	// @ FILE SEARCH MODE (in active file)
+	//
+	const startFileSearchModeLogic = () => {
+		setSelectedOption([
+			{ value: modeLabels.fileSearch, label: modeLabels.fileSearch },
+		])
+	}
+
+	const fileSearchModeLogic = (stags: any[], inTxt: string) => {
+		if (!stags[1]) {
+			setHelp(`Type a word to search in the active file, then press Enter`)
+			setOptions([{ label: inTxt, value: inTxt }])
+		}
+	}
 
 	///////////////////////////////////////////////////////////////////////////////
 	// @ LAST NOTES MODE
