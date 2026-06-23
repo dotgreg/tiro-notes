@@ -282,22 +282,7 @@ export const OmniBar = (p: {
 			nOptions = []
 		}
 
-		//
-		// FILE SEARCH MODE: on Enter, trigger search in active file
-		//
-		let stags = selectedOptionRef.current
-		if (stags[0]?.label === modeLabels.fileSearch && inputTxt && inputTxt.trim().length > 0) {
-			let searchTerm = inputTxt.trim()
-			getApi(api => {
-				api.ui.note.editorAction.dispatch({
-					windowId: "active",
-					type: "searchWord",
-					searchWordString: searchTerm
-				})
-			})
-			p.onClose()
-			nOptions = []
-		}
+
 		// update it
 		setSelectedOption(nOptions)
 	}
@@ -931,8 +916,18 @@ export const OmniBar = (p: {
 
 	const fileSearchModeLogic = (stags: any[], inTxt: string) => {
 		if (!stags[1]) {
-			setHelp(`Type a word to search in the active file, then press Enter`)
+			setHelp(`Searching "${inTxt}" in active file...`)
 			setOptions([{ label: inTxt, value: inTxt }])
+			if (inTxt && inTxt.trim().length >= omniParams.search.charsStart) {
+				getApi(api => {
+					api.ui.note.editorAction.dispatch({
+						windowId: "active",
+						type: "searchWord",
+						searchWordString: inTxt.trim()
+					})
+				})
+				p.onClose()
+			}
 		}
 	}
 
