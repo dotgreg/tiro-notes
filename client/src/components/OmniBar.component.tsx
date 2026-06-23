@@ -286,19 +286,17 @@ export const OmniBar = (p: {
 		// FILE SEARCH MODE: on Enter, trigger search in active file
 		//
 		let stags = selectedOptionRef.current
-		if (stags[0]?.label === modeLabels.fileSearch && s && s.value) {
-			let searchTerm = s.value
-			if (searchTerm && searchTerm.trim().length > 0) {
-				getApi(api => {
-					api.ui.note.editorAction.dispatch({
-						windowId: "active",
-						type: "searchWord",
-						searchWordString: searchTerm
-					})
+		if (stags[0]?.label === modeLabels.fileSearch && inputTxt && inputTxt.trim().length > 0) {
+			let searchTerm = inputTxt.trim()
+			getApi(api => {
+				api.ui.note.editorAction.dispatch({
+					windowId: "active",
+					type: "searchWord",
+					searchWordString: searchTerm
 				})
-				p.onClose()
-				nOptions = []
-			}
+			})
+			p.onClose()
+			nOptions = []
 		}
 		// update it
 		setSelectedOption(nOptions)
