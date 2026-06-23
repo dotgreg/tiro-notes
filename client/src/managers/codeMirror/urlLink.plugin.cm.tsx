@@ -55,7 +55,7 @@ export const generateHtmlLinkPreviewInt = (
 	else matchs = matchsOrUrl
 
 	let resEl = document.createElement("span");
-	let fullLink = matchs[0].slice(0, -1) // removing last /
+	let fullLink = matchs[0].endsWith('/') ? matchs[0].slice(0, -1) : matchs[0]
 	// let website = matchs[1].replace("www.", "")
 	// let firstSlash = matchs[3]
 	// let secondSlash = matchs[4]

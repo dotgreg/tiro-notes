@@ -54,52 +54,49 @@ let isUrlUpdaterEnabled = {value: false}
 export const updateAppUrlFromActiveWindow  = (tabs:iTab[], mobileView:iMobileView) => {
 	if (!isUrlUpdaterEnabled.value) return
 	console.log("<- updateAppUrlFromActiveWindow")
+
+	// Use the tabs parameter directly (React state) instead of reading from API (tabsRef).
+	// The API ref can lag behind React state on mobile due to the dual tabsMobile/tabsDesktop
+	// sync system, causing the URL to not update when navigating between pages.
+	const activeTab = tabs?.find(tab => tab.active)
+	const activeWindow = activeTab?.grid?.content?.find(w => w.active) ?? activeTab?.grid?.content?.[0]
+	const filePath = activeWindow?.file?.path
+	const view = activeWindow?.view
+
+	let urlParamsArr = getUrlRawParams().array
+	urlParamsArr = urlParamsArr.filter(el => el.name !== "filepath" && el.name !== "view")
+	if (!filePath || !view) return
+	urlParamsArr.unshift({name: "filepath", value: encodeURIComponent(filePath)})
+
+	// by default
+	webIconUpdate("/favicon.png")
+	updatePageTitle("Tiro")
+
+	if (deviceType() === "mobile") {
+		urlParamsArr.unshift({name: "view", value: mobileView})
+	} else {
+		urlParamsArr.unshift({name: "view", value: view})
+	}
+	setUrlParams(urlParamsArr)
+
+	//
+	// UPDATE ICON AND TITLE (async, still needs API)
+	//
+	// get content > find first image, if exists, change page.icon with it for add to desktop functionality
 	getApi(api => {
-		const activeWindow = api.ui.windows.active.get()
-		const filePath = activeWindow?.content.file?.path
-		const view = activeWindow?.content.view
-		let urlParamsArr = getUrlRawParams().array
-		urlParamsArr = urlParamsArr.filter(el => el.name !== "filepath" && el.name !== "view")
-		if (!filePath || !view) return
-		urlParamsArr.unshift({name: "filepath", value: filePath})
-
-		// by default
-		webIconUpdate("/favicon.png")
-		updatePageTitle("Tiro")
-
-		if (deviceType() === "mobile") {
-			urlParamsArr.unshift({name: "view", value: mobileView})
-		} else {
-			urlParamsArr.unshift({name: "view", value: view})
-		}
-		setUrlParams(urlParamsArr)
-
-		//
-		// UPDATE ICON AND TITLE
-		//
-		// get content > find first image, if exists, change page.icon with it for add to desktop functionality
-		console.log(111111)
 		api.file.getContent(filePath, content => {
 			let images = findImagesFromContent(content, pathToIfile(filePath))
-			
+
 			if (images.length < 1) return
-			// console.log("looking for image")
 			let fullurl = `${images[0].url}${getUrlTokenParam()}`
-			// document.
-			// create a new <link rel="icon" href="%PUBLIC_URL%/favicon.png" /> programmatically
-			console.log(3333333)
-			
-			// document.getElementsByTagName("link")[0].setAttribute("href", fullurl);
+
 			const nTitle = pathToIfile(filePath).filenameWithoutExt || pathToIfile(filePath).name
 			updatePageTitle(nTitle, true)
 			webIconUpdate(fullurl)
 			setTimeout(() => {
 				updatePageTitle(nTitle, true)
-				// webIconUpdate(fullurl)
 			}, 300)
 		})
-
-		
 	})
 }
 
@@ -109,12 +106,14 @@ export const onStartupReactToUrlParams = (setMobileView:Function) => {
 	webIconUpdate("/favicon.png")
 	updatePageTitle("Tiro")
 
-	// only enable isUrlUpdaterEnabled.value after 5s 
+	// only enable isUrlUpdaterEnabled.value after 5s
 	setTimeout(() => {isUrlUpdaterEnabled.value = true}, 5000)
 	let urlParams = getUrlRawParams().dic
-	const filepath = urlParams["filepath"]?.value
+	// URL params are already decoded by URLSearchParams, but filepath was encoded with encodeURIComponent
+	// so we need to decode it once more
+	const filepath = urlParams["filepath"]?.value ? decodeURIComponent(urlParams["filepath"].value) : undefined
 	const view = urlParams["view"]?.value
-	
+
 	if (!filepath || !view) return
 	if (deviceType() === "mobile") {
 		const file = pathToIfile(filepath)
