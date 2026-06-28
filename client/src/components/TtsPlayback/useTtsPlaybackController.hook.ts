@@ -38,6 +38,8 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const audioBlobsRef = useRef<Map<string, Blob>>(new Map())
   // URL cache for downloaded chunks
   const audioUrlsRef = useRef<string[]>([])
+  // Track which chunks already have a play callback queued (dedup)
+  const playCallbacksQueuedRef = useRef<Set<number>>(new Set())
 
   const MAX_BLOB_CACHE_SIZE = 3 // current + 2 preloaded
 
@@ -288,12 +290,23 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     // If chunk is already downloading (preload in flight), skip duplicate API call.
     // The preload's download completion will fire queued callbacks which include our play trigger.
     if (downloadInProgressRef.current.has(chunkNb)) {
-      log(`${pre}: ⏳ chunk ${chunkNb} preloading (skip duplicate download)`)
-      // Still register callback — downloader dedup queues it, fires when download completes.
-      // Queued callbacks fire BEFORE url is cached, so callback receives url as param.
+      // CRITICAL: only queue ONE play callback per chunk (dedup)
+      if (playCallbacksQueuedRef.current.has(chunkNb)) {
+        log(`${pre}: ⏭️ chunk ${chunkNb} play already queued, skipping`)
+        return
+      }
+      playCallbacksQueuedRef.current.add(chunkNb)
+      log(`${pre}: ⏳ chunk ${chunkNb} preloading (queue play callback)`)
+
       downloadChunk(chunkNb, (urlAudio) => {
+        playCallbacksQueuedRef.current.delete(chunkNb)
         if (cancelledRef.current || isPopupClosedRef.current) return
         if (!urlAudio || urlAudio.includes('ERROR')) return
+        // Guard: if another audio is already playing, skip (chunk advanced)
+        if (audioRef.current && !audioRef.current.paused && audioRef.current.src) {
+          log(`${pre}: ⏭️ chunk ${chunkNb} done but another chunk playing, skip`)
+          return
+        }
         log(`${pre}: ▶️ playing chunk ${chunkNb} (from preload)`)
         setState(TtsState.LOADING)
         setIsPlaying(true)
@@ -303,16 +316,19 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     }
 
     // Fresh download needed
+    playCallbacksQueuedRef.current.add(chunkNb)
     downloadChunk(chunkNb, (urlAudio) => {
-      // Guard: cancelled or popup closed
+      playCallbacksQueuedRef.current.delete(chunkNb)
       if (cancelledRef.current || isPopupClosedRef.current) return
       if (!urlAudio || urlAudio.includes('ERROR')) return
-
+      // Guard: if another audio is already playing, skip (chunk advanced)
+      if (audioRef.current && !audioRef.current.paused && audioRef.current.src) {
+        log(`${pre}: ⏭️ chunk ${chunkNb} done but another chunk playing, skip`)
+        return
+      }
       log(`${pre}: ▶️ playing chunk ${chunkNb}`)
-
       setState(TtsState.LOADING)
       setIsPlaying(true)
-
       startPlayAudio(urlAudio, chunkNb)
     })
   }, [currentChunk, log])
@@ -321,6 +337,8 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const pause = useCallback(() => {
     // Set cancelled flag — blocks oncanplay, onended, timeout
     cancelledRef.current = true
+    // Clear queued play callbacks so stale ones don't fire
+    playCallbacksQueuedRef.current.clear()
 
     // Pause and destroy current audio
     if (audioRef.current) {
@@ -368,6 +386,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const destroy = useCallback(() => {
     // Pause everything first
     pauseAllAudioWindow(true)
+
+    // Clear queued play callbacks
+    playCallbacksQueuedRef.current.clear()
 
     // Reset cancelled flag so new playback can start
     cancelledRef.current = false
