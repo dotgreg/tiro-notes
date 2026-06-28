@@ -40,6 +40,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   const audioUrlsRef = useRef<string[]>([])
   // Track which chunks already have a play callback queued (dedup)
   const playCallbacksQueuedRef = useRef<Set<number>>(new Set())
+  // HARD LOCK: which chunk is currently being set up or playing (-1 = none)
+  // Prevents any concurrent startPlayAudio from proceeding
+  const activePlayChunkRef = useRef<number>(-1)
 
   const MAX_BLOB_CACHE_SIZE = 3 // current + 2 preloaded
 
@@ -144,7 +147,20 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     // Guard: cancelled or popup closed
     if (cancelledRef.current || isPopupClosedRef.current) return
 
+    // HARD LOCK: reject if another chunk is already playing/setting up
+    if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
+      log(`${pre}: 🔒 chunk ${chunkNb} blocked (chunk ${activePlayChunkRef.current} active), skip`)
+      return
+    }
+
     let audioSrc = await resolveAudioSrc(urlAudio)
+
+    // Re-check after async await (race guard)
+    if (cancelledRef.current || isPopupClosedRef.current) return
+    if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
+      log(`${pre}: 🔒 chunk ${chunkNb} blocked after await (chunk ${activePlayChunkRef.current} active), skip`)
+      return
+    }
 
     // Create NEW Audio object
     const audio = new Audio(audioSrc)
@@ -217,12 +233,17 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
       setState(TtsState.ERROR)
       setIsPlaying(false)
+      // Release hard lock on error
+      activePlayChunkRef.current = -1
     }
 
     audio.onended = () => {
       // CRITICAL: only advance if still in PLAYING state (not after pause)
       if (stateRef.current !== TtsState.PLAYING) return
       if (cancelledRef.current) return
+
+      // Release hard lock
+      activePlayChunkRef.current = -1
 
       log(`${pre}: audio ENDED`)
 
@@ -278,9 +299,16 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       cancelledRef.current = false
     }
 
+    // HARD LOCK: reject if another chunk is actively playing/setting up
+    if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
+      log(`${pre}: 🔒 playChunk(${chunkNb}) blocked (chunk ${activePlayChunkRef.current} active), skip`)
+      return
+    }
+
     // If chunk is already cached, play immediately
     if (audioUrlsRefDown.current[chunkNb]) {
       const url = audioUrlsRefDown.current[chunkNb]
+      activePlayChunkRef.current = chunkNb
       setState(TtsState.LOADING)
       setIsPlaying(true)
       startPlayAudio(url, chunkNb)
@@ -303,10 +331,11 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
         if (cancelledRef.current || isPopupClosedRef.current) return
         if (!urlAudio || urlAudio.includes('ERROR')) return
         // Guard: if another audio is already playing, skip (chunk advanced)
-        if (audioRef.current && !audioRef.current.paused && audioRef.current.src) {
-          log(`${pre}: ⏭️ chunk ${chunkNb} done but another chunk playing, skip`)
+        if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
+          log(`${pre}: ⏭️ chunk ${chunkNb} done but chunk ${activePlayChunkRef.current} active, skip`)
           return
         }
+        activePlayChunkRef.current = chunkNb
         log(`${pre}: ▶️ playing chunk ${chunkNb} (from preload)`)
         setState(TtsState.LOADING)
         setIsPlaying(true)
@@ -322,10 +351,11 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       if (cancelledRef.current || isPopupClosedRef.current) return
       if (!urlAudio || urlAudio.includes('ERROR')) return
       // Guard: if another audio is already playing, skip (chunk advanced)
-      if (audioRef.current && !audioRef.current.paused && audioRef.current.src) {
-        log(`${pre}: ⏭️ chunk ${chunkNb} done but another chunk playing, skip`)
+      if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
+        log(`${pre}: ⏭️ chunk ${chunkNb} done but chunk ${activePlayChunkRef.current} active, skip`)
         return
       }
+      activePlayChunkRef.current = chunkNb
       log(`${pre}: ▶️ playing chunk ${chunkNb}`)
       setState(TtsState.LOADING)
       setIsPlaying(true)
@@ -339,6 +369,8 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     cancelledRef.current = true
     // Clear queued play callbacks so stale ones don't fire
     playCallbacksQueuedRef.current.clear()
+    // Release hard lock
+    activePlayChunkRef.current = -1
 
     // Pause and destroy current audio
     if (audioRef.current) {
@@ -389,6 +421,8 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
     // Clear queued play callbacks
     playCallbacksQueuedRef.current.clear()
+    // Release hard lock
+    activePlayChunkRef.current = -1
 
     // Reset cancelled flag so new playback can start
     cancelledRef.current = false
