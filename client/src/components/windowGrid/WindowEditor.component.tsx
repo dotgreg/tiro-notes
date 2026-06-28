@@ -171,13 +171,14 @@ export const WindowEditorInt = (p: {
 					disconnectCounter.current = disconnectCounter.current + 1
 					console.log("disabling watch update as disconnected");
 					disableWatchUpdate.current = true
-				} else if (status.isConnected === true) {
-					let isReconnected = disconnectCounter.current >= 1 && status.isConnected
-					if (isReconnected) {
-						disableFor10sWatchFile()
+				}
+				// } else if (status.isConnected === true) {
+					// let isReconnected = disconnectCounter.current >= 1 && status.isConnected
+					// if (isReconnected) {
+						// disableFor10sWatchFile()
 						
-						getApi(api => {
-							let filepath: any = file?.path
+// 						// getApi(api => {
+							// let filepath: any = file?.path
 							// offlineCt = contentToUpdateOnceOnline.current
 							// console.log("2 RECONNECTION", filepath, ct, contentToUpdateOnceOnline);
 							// console.log("RECONNECTION", file?.path, offlineCt, offlineCt.path)
@@ -187,17 +188,17 @@ export const WindowEditorInt = (p: {
 							// if (!offlineCt.content) return
 							// console.log("3 UPDATE OFFLINE CONTENT", { filepath, content });
 
-							// if no offlineCt, discard it to current conten 
+// 							// if no offlineCt, discard it to current conten 
 
-							api.file.getContent(filepath, nServerContent => {
-								if (nServerContent === fileContentRef.current) return console.log("[BACK FROM OFFLINE]: same content, no need to update", filepath)
-								console.log("[BACK FROM OFFLINE]: DIFFERENT CONTENT, auto-updating",filepath)
+// 							// api.file.getContent(filepath, nServerContent => {
+								// if (nServerContent === fileContentRef.current) return console.log("[BACK FROM OFFLINE]: same content, no need to update", filepath)
+								// console.log("[BACK FROM OFFLINE]: DIFFERENT CONTENT, auto-updating",filepath)
 								// silently update content without popup
-								setFileContent(nServerContent)
-								onFileEditedSaveIt(filepath, nServerContent);
-							})
+								// setFileContent(nServerContent)
+								// onFileEditedSaveIt(filepath, nServerContent);
+							// })
 
-						// 	api.popup.prompt({
+// 						// 	api.popup.prompt({
 						// 		text: `<div class="content-different-preview"> Server content is different for <b>"${file?.path}"</b>, do you want to update it ?  
 						// 		You can still come back to the current version using file history if needed. <br>
 						// 		<h2>New Remote content</h2> <br> ${nServerContent.replaceAll("\n","<br>")} <br>
@@ -216,7 +217,7 @@ export const WindowEditorInt = (p: {
 						// 	});
 						// })
 
-							// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
+// 							// UPDATE SEVERAL TIMES to make sure the content from server do not erase the offline content
 							// api.file.saveContent(filepath, content, { history: true })
 							// setTimeout(() => {
 							// 	api.file.saveContent(filepath, content, { history: true })
@@ -228,9 +229,9 @@ export const WindowEditorInt = (p: {
 							// 	}, 10)
 							// }, 10)
 
-						})
-					}
-				}
+// 						// })
+					// }
+				// }
 			})
 		})
 		

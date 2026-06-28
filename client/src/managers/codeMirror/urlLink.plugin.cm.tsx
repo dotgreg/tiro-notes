@@ -56,6 +56,10 @@ export const generateHtmlLinkPreviewInt = (
 
 	let resEl = document.createElement("span");
 	let fullLink = matchs[0].endsWith('/') ? matchs[0].slice(0, -1) : matchs[0]
+	// prepend https:// if URL starts with www. but no protocol
+	if (!fullLink.startsWith('http://') && !fullLink.startsWith('https://')) {
+		fullLink = 'https://' + fullLink
+	}
 	// let website = matchs[1].replace("www.", "")
 	// let firstSlash = matchs[3]
 	// let secondSlash = matchs[4]

@@ -192,6 +192,8 @@ export const TtsCustomPopup = (p: {
     ttsHeaders: ttsHeadersRef.current,
     preloadCount: userSettingsSync.curr.tts_preload_parts || 1,
     setIsPlaying,
+    downloadInProgress: downloader.downloadInProgress,
+    audioUrls: downloader.audioUrls,
   })
 
   const { audioRef } = controller

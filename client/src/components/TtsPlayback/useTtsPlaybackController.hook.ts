@@ -23,6 +23,8 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     ttsHeaders,
     preloadCount,
     setIsPlaying,
+    downloadInProgress: downloadInProgressRef = { current: new Set() },
+    audioUrls: audioUrlsRefDown = { current: [] },
   } = options
 
   // State machine
@@ -274,6 +276,33 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       cancelledRef.current = false
     }
 
+    // If chunk is already cached, play immediately
+    if (audioUrlsRefDown.current[chunkNb]) {
+      const url = audioUrlsRefDown.current[chunkNb]
+      setState(TtsState.LOADING)
+      setIsPlaying(true)
+      startPlayAudio(url, chunkNb)
+      return
+    }
+
+    // If chunk is already downloading (preload in flight), skip duplicate API call.
+    // The preload's download completion will fire queued callbacks which include our play trigger.
+    if (downloadInProgressRef.current.has(chunkNb)) {
+      log(`${pre}: ⏳ chunk ${chunkNb} preloading (skip duplicate download)`)
+      // Still register callback — downloader dedup queues it, fires when download completes.
+      // Queued callbacks fire BEFORE url is cached, so callback receives url as param.
+      downloadChunk(chunkNb, (urlAudio) => {
+        if (cancelledRef.current || isPopupClosedRef.current) return
+        if (!urlAudio || urlAudio.includes('ERROR')) return
+        log(`${pre}: ▶️ playing chunk ${chunkNb} (from preload)`)
+        setState(TtsState.LOADING)
+        setIsPlaying(true)
+        startPlayAudio(urlAudio, chunkNb)
+      })
+      return
+    }
+
+    // Fresh download needed
     downloadChunk(chunkNb, (urlAudio) => {
       // Guard: cancelled or popup closed
       if (cancelledRef.current || isPopupClosedRef.current) return
