@@ -429,7 +429,7 @@ const epubV2App = (innerTagStr, opts) => {
 		//
 		const helpText = `
 		<h3>Ebook Reader Help</h3>
-		<p><b>CTAG version: 0.2</b></p>
+		<p><b>CTAG version: 0.3</b></p>
 		<p><b> To add a form popup add the formId to epub config: </b>  api.utils.loadCustomTag(epub2.ctag.js", ..., {size: "100%", padding: false, formId:"date test"})  </p>
 		
 		`
@@ -618,14 +618,16 @@ const epubV2App = (innerTagStr, opts) => {
 
 			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> ♫ Voice </button>`
 			window.tiro_tts = () => {
-				// ponytail: extract fresh page text on button click — cached text is stale after page turn
-				let pagetext = ""
-				try {
-					let contents = readerApi.view.renderer.getContents()
-					if (contents && contents[0]) {
-						pagetext = contents[0].doc.body?.textContent || ""
-					}
-				} catch(_) {}
+				// ponytail: use cached text from relocate event — getContents() is async and may return stale/empty DOM
+				let pagetext = tiroReaderApi.getCurrentPageText()
+				if (!pagetext) {
+					console.log(h, "TTS: no cached page text, trying live extraction")
+					try {
+						let contents = readerApi.view.renderer.getContents()
+						if (contents && contents[0]) pagetext = contents[0].doc.body?.textContent || ""
+					} catch(_) {}
+				}
+				console.log(h, "TTS button clicked, cached pageText length:", pagetext.length, "chapter:", tiroReaderApi._storage.currentPage)
 				tiroReaderApi.getAllText(fullText => {
 					window.isTts = true
 					let file = api.utils.getInfos().file;
@@ -1143,7 +1145,7 @@ const epubV2App = (innerTagStr, opts) => {
 					if(shouldAddIt) window.tiro_position.allPositions.push(bookPosition) 
 					setCache(cacheIdPos, bookPosition)
 				}
-				// tiroReaderApi._storage.currentPage = {...e.detail}
+				tiroReaderApi._storage.currentPage = {...e.detail}
 				// console.log(1111, tiroReaderApi.getCurrentPageText())
 			})
 			
