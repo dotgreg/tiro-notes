@@ -883,23 +883,23 @@ const epubV2App = (innerTagStr, opts) => {
 			const tiroReaderApi={}
 			
 			tiroReaderApi._storage = {
-				currentPage: null
+				currentPage: null,
+				_currentPageText: ""
 			}
 
 			tiroReaderApi.getCurrentPageText = () => {
-				// console.log(h, "getCurrentPageText", tiroReaderApi._storage.currentPage)
-				// console.log(2222, readerApi.view.renderer)
-				// console.log(2222, readerApi.view.renderer.toString())
-				// console.log(2222, readerApi.view)
-				// console.log(2222, ))
-				// console.log(2222, readerApi.view.renderer.getContents())
-				// let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
-				let raw = readerApi.view.lastLocation.range.toString()
-				let arrRes = raw.split("}")
-				let cleanText = arrRes[arrRes.length-1].trim()
-				return cleanText
-				// return tiroReaderApi._storage.currentPage.range.toString()
-				// return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
+				// ponytail: use cached text from relocate event — lastLocation.range is stale after page turn
+				if (tiroReaderApi._storage._currentPageText) {
+					return tiroReaderApi._storage._currentPageText
+				}
+				// fallback: try live extraction (works before first relocate fires)
+				try {
+					let contents = readerApi.view.renderer.getContents()
+					if (contents && contents[0]) {
+						return contents[0].doc.body?.textContent || ""
+					}
+				} catch(_) {}
+				return ""
 			}
 
 			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
@@ -1116,6 +1116,13 @@ const epubV2App = (innerTagStr, opts) => {
 				let fractionChapter = e.detail.fraction
 				if (chapter === 0) return
 				if (fractionChapter === 0) return
+				// ponytail: cache page text while DOM is alive — stale range breaks after page turn
+				try {
+					let contents = readerApi.view.renderer.getContents()
+					if (contents && contents[0]) {
+						tiroReaderApi._storage._currentPageText = contents[0].doc.body?.textContent || ""
+					}
+				} catch(_) {}
 				let bookPosition = {chapter, fractionChapter }
 				if (window.shouldSavePosition) {
 					console.log(h, " > saving position :", chapter, fractionChapter)
