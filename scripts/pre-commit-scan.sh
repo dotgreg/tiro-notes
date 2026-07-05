@@ -48,7 +48,7 @@ else
     STAGED=$(git diff --cached --name-only --diff-filter=ACM --relative | grep -v '^node_modules/' | head -100)
     if [ -n "$STAGED" ]; then
         echo "  [clamav] staged files"
-        INFECTED=$(echo "$STAGED" | xargs clamscan --infected --no-summary 2>&1)
+        INFECTED=$(echo "$STAGED" | xargs -d '\n' clamscan --infected --no-summary 2>&1)
         if [ $? -ne 0 ]; then
             echo "$INFECTED"
             echo "  ❌ Malware detected in staged files!"
