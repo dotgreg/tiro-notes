@@ -371,6 +371,7 @@ export const TtsCustomPopup = (p: {
         }}
       >
         <span> SPEED : </span>
+        <br />
         <input className="speed-range" type="range" value={currRate} min="0.5" max="3" step="0.1"
           onChange={e => {
             // FIXED: parseFloat instead of string cast

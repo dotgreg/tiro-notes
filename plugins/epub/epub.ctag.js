@@ -1,16 +1,16 @@
 const epubV2App = (innerTagStr, opts) => {
 
-	
-
-		
-		////////////////////////////////////
-		//
-		// 1) CREATE HTML
-		//
-		//
 
 
-		let style = `
+
+  ////////////////////////////////////
+  //
+  // 1) CREATE HTML
+  //
+  //
+
+
+  let style = `
 			<style>
 
 
@@ -330,8 +330,8 @@ const epubV2App = (innerTagStr, opts) => {
 			</style>
 		`
 
-		const injectHtmlBeforeJs = () => {
-			let apphtml = `
+  const injectHtmlBeforeJs = () => {
+    let apphtml = `
 			<div id="native-reader-bar-wrapper" >
 				<input type="file" id="file-input" hidden="">
 					<div id="drop-target" class="filter">
@@ -393,16 +393,16 @@ const epubV2App = (innerTagStr, opts) => {
 			
 			`
 
-				try {
-					// window.document.body.innerHTML = apphtml + style
-					let el=window.document.getElementById("content-wrapper")
-					el.innerHTML = apphtml 
-					
-				}
-				catch(e){
-						return e 
-				}
-		}
+    try {
+      // window.document.body.innerHTML = apphtml + style
+      let el = window.document.getElementById("content-wrapper")
+      el.innerHTML = apphtml
+
+    }
+    catch (e) {
+      return e
+    }
+  }
 
 
 
@@ -422,27 +422,27 @@ const epubV2App = (innerTagStr, opts) => {
 
 
 
-		////////////////////////////////////
-		//
-		// 2) CODE WHEN EPUB LIB IS LOADED
-		//
-		//
-		const helpText = `
+  ////////////////////////////////////
+  //
+  // 2) CODE WHEN EPUB LIB IS LOADED
+  //
+  //
+  const helpText = `
 		<h3>Ebook Reader Help</h3>
-		<p><b>CTAG version: 0.3</b></p>
+		<p><b>CTAG version: 0.3a</b></p>
 		<p><b> To add a form popup add the formId to epub config: </b>  api.utils.loadCustomTag(epub2.ctag.js", ..., {size: "100%", padding: false, formId:"date test"})  </p>
 		
 		`
-		let h = "[EPUB V2]"
+  let h = "[EPUB V2]"
 
-		const onEpubLibLoaded = (readerApi) => {
-			console.log("EPUB LIB v4 LOADED success", readerApi)
+  const onEpubLibLoaded = (readerApi) => {
+    console.log("EPUB LIB v4 LOADED success", readerApi)
 
-			const commonLib = window._tiroPluginsCommon.commonLib
-			const { getLs, setLs, notifLog,  getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
+    const commonLib = window._tiroPluginsCommon.commonLib
+    const { getLs, setLs, notifLog, getCache, setCache, searchNote, generateHelpButton, getOperatingSystem, each, onClick } = commonLib
 
 
-			let styleBar = `
+    let styleBar = `
 			<style>
 			#search-ui {
 				padding: 5px 0px; 
@@ -540,181 +540,173 @@ const epubV2App = (innerTagStr, opts) => {
 
 			</style>
 			`
-			//
-			// INVISIBLE BARS ACTIONS
-			//
-			let orderBars = "normal" // inverted
-			window.tiro_goNext = () => {
-				if (orderBars === "normal") tiroReaderApi.next()
-				else tiroReaderApi.prev()
-			}
-			window.tiro_goPrev = () => {
-				if (orderBars === "normal") tiroReaderApi.prev()
-				else tiroReaderApi.next()
-			}
+    //
+    // INVISIBLE BARS ACTIONS
+    //
+    let orderBars = "normal" // inverted
+    window.tiro_goNext = () => {
+      if (orderBars === "normal") tiroReaderApi.next()
+      else tiroReaderApi.prev()
+    }
+    window.tiro_goPrev = () => {
+      if (orderBars === "normal") tiroReaderApi.prev()
+      else tiroReaderApi.next()
+    }
 
-			let invWrapper = window.document.getElementById("tiro-invisible-bars-wrapper")
-			invWrapper.innerHTML = `
+    let invWrapper = window.document.getElementById("tiro-invisible-bars-wrapper")
+    invWrapper.innerHTML = `
 			<div id="bar-next" class="invisible-bar" onclick="tiro_goNext()"><button id="bar-next-txt">></button></div>
 			<div id="bar-prev" class="invisible-bar" onclick="tiro_goPrev()"><button id="bar-prev-txt"><</button></div>
 			`
 
 
 
-			let buttonToggleOrderHtml = `<button id="toggle-order" onclick="tiro_toggleOrder()"> < > Direction Buttons</button>`
-			window.tiro_toggleOrder = () => {
-				orderBars = orderBars === "normal" ? "inverted" : "normal"
+    let buttonToggleOrderHtml = `<button id="toggle-order" onclick="tiro_toggleOrder()"> < > Direction Buttons</button>`
+    window.tiro_toggleOrder = () => {
+      orderBars = orderBars === "normal" ? "inverted" : "normal"
 
-				nextEl = window.document.getElementById("bar-next-txt")
-				nextEl.innerHTML = orderBars === "normal" ? ">" : "<"
-				prevEl = window.document.getElementById("bar-prev-txt")
-				prevEl.innerHTML = orderBars === "normal" ? "<" : ">"
-				
-				console.log(h, "orderBars", orderBars)
-			}
+      nextEl = window.document.getElementById("bar-next-txt")
+      nextEl.innerHTML = orderBars === "normal" ? ">" : "<"
+      prevEl = window.document.getElementById("bar-prev-txt")
+      prevEl.innerHTML = orderBars === "normal" ? "<" : ">"
 
-
+      console.log(h, "orderBars", orderBars)
+    }
 
 
 
 
-			//
-			//
-			//
-			// TTS LOGIC 
-			//
-			//
-			//
-			window.isTts = false
-
-			// Check every 5s IF tts is working
-			// if it is, check tts position, search the read text
-			// if search returns an occurence, jump to that occurence page
-			// UPDATING IT EVERY MIN ONLY AS VERY INTENSIVE PROCESS FOR BIG BOOKS
-			window.isSearchingForTTS = false
-
-			setTimeout(() => {
-				tiroReaderApi.getAllText(fullText => {
-					let secondsIntervalCheck = Math.round(fullText.length / 50000) 
-					if (secondsIntervalCheck < 5) secondsIntervalCheck = 5
-					console.log(h,` TTS position back to ebook reader pos > the text is ${fullText.length} characters long, checking tts every ${secondsIntervalCheck} seconds`)
-					setInterval(() => {
-						if (!window.isTts) return
-						// api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
-						api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
-								if (!ttsInfos.isPlaying) return
-								let textRead = ttsInfos.currentText
-								if (window.isSearchingForTTS) return
-								window.isSearchingForTTS = true
-								console.log(h,`searching the text and jumping to it`, textRead, {ttsInfos});
-								tiroReaderApi.search(textRead, cfis => { 
-									window.isSearchingForTTS = false
-									tiroReaderApi.goToCFI(cfis[0].cfi, true) 
-								}, {firstOnly:true})
-						})
-					}, secondsIntervalCheck * 1000)
-				})
-			}, 1000)
-
-			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> ♫ Voice </button>`
-			window.tiro_tts = () => {
-				// ponytail: use cached text from relocate event — getContents() is async and may return stale/empty DOM
-				let pagetext = tiroReaderApi.getCurrentPageText()
-				if (!pagetext) {
-					console.log(h, "TTS: no cached page text, trying live extraction")
-					try {
-						let contents = readerApi.view.renderer.getContents()
-						if (contents && contents[0]) pagetext = contents[0].doc.body?.textContent || ""
-					} catch(_) {}
-				}
-				console.log(h, "TTS button clicked, cached pageText length:", pagetext.length, "chapter:", tiroReaderApi._storage.currentPage)
-				tiroReaderApi.getAllText(fullText => {
-					window.isTts = true
-					let file = api.utils.getInfos().file;
-					console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)
-					api.call("ui.textToSpeechPopup.open", [ fullText, {id: epubName, startString: pagetext}], () => {})
-				})
-			}
-
-			let fullscreenBtn = `<button id="fullscreen-button" onclick="tiro_fullscreen()"> ⛶ Fullscreen </button>`
-			window.tiro_fullscreen = () => {
-				let file = api.utils.fullscreenIframe()
-			}
 
 
-			let openFormBtn = `<button id="open-form-button" onclick="tiro_openForm()"> Open Form </button>`
-			if (!opts.formId) openFormBtn = ``
-			window.tiro_openForm = () => {
-				// if opts.formId does not exists, return an error
-				let formId = opts.formId;
-				if (!formId) {
-					console.error(h, "No formId found, please add formId inside epub.md parameters linking to the right form id");
-					return;
-				} 
-				api.call("popup.form.open", [formId], answer => {
-					console.log("done")
-				})
-			}
+    //
+    //
+    //
+    // TTS LOGIC 
+    //
+    //
+    //
+    window.isTts = false
 
-			let insertNextTextBtn = `<button id="insert-next-text-button" onclick="tiro_insertNextText()"> Extract current text position</button>`
-			window.tiro_insertNextText = () => {
-					tiroReaderApi.getNextText(300000, nextText => {
-						if (nextText.error) {
-							console.error(h, "Error getting next text", nextText.error)
-							return
-						}
-						// insert into a note 
-						// let currentFilePath = api.utils.getInfos()
-						// console.log(currentFilePath )
-						// path is /.tiro/generated/epub/extract_ebookname.md
+    // Check every 5s IF tts is working
+    // if it is, check tts position, search the read text
+    // if search returns an occurence, jump to that occurence page
+    // UPDATING IT EVERY MIN ONLY AS VERY INTENSIVE PROCESS FOR BIG BOOKS
+    window.isSearchingForTTS = false
 
-						let ebookNameSmall = (epubName.length > 50) ? epubName.substring(0,50) : epubName
-						let cpath = `/.tiro/generated/epub/extract_${ebookNameSmall}.md`
-						api.call("ui.notification.emit",[{content:`Inserting next text into note ${JSON.stringify(cpath)}`}])
-						api.call("file.saveContent",[cpath, nextText])
-					})
-			}
-			//
-			//
-			//
-			// jump position hist 
-			//
-			//
-			//
-			// 2 buttons next/prev 
-			let positionUI = `
+    setTimeout(() => {
+      tiroReaderApi.getAllText(fullText => {
+        let secondsIntervalCheck = Math.round(fullText.length / 50000)
+        if (secondsIntervalCheck < 5) secondsIntervalCheck = 5
+        console.log(h, ` TTS position back to ebook reader pos > the text is ${fullText.length} characters long, checking tts every ${secondsIntervalCheck} seconds`)
+        setInterval(() => {
+          if (!window.isTts) return
+          // api.call("ui.textToSpeechPopup.getStatus", ['hello'], (ttsInfos) => {
+          api.call("ui.textToSpeechPopup.getStatus", [], (ttsInfos) => {
+            if (!ttsInfos.isPlaying) return
+            let textRead = ttsInfos.currentText
+            if (window.isSearchingForTTS) return
+            window.isSearchingForTTS = true
+            console.log(h, `searching the text and jumping to it`, textRead, { ttsInfos });
+            tiroReaderApi.search(textRead, cfis => {
+              window.isSearchingForTTS = false
+              tiroReaderApi.goToCFI(cfis[0].cfi, true)
+            }, { firstOnly: true })
+          })
+        }, secondsIntervalCheck * 1000)
+      })
+    }, 1000)
+
+    let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> ♫ Voice </button>`
+    window.tiro_tts = () => {
+      tiroReaderApi.getAllText(fullText => {
+        let pagetext = tiroReaderApi.getCurrentPageText()
+        console.log({ pagetext, fullText })
+        window.isTts = true
+        let file = api.utils.getInfos().file;
+        console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)
+        api.call("ui.textToSpeechPopup.open", [fullText, { id: epubName, startString: pagetext }], () => { })
+      })
+    }
+
+    let fullscreenBtn = `<button id="fullscreen-button" onclick="tiro_fullscreen()"> ⛶ Fullscreen </button>`
+    window.tiro_fullscreen = () => {
+      let file = api.utils.fullscreenIframe()
+    }
+
+
+    let openFormBtn = `<button id="open-form-button" onclick="tiro_openForm()"> Open Form </button>`
+    if (!opts.formId) openFormBtn = ``
+    window.tiro_openForm = () => {
+      // if opts.formId does not exists, return an error
+      let formId = opts.formId;
+      if (!formId) {
+        console.error(h, "No formId found, please add formId inside epub.md parameters linking to the right form id");
+        return;
+      }
+      api.call("popup.form.open", [formId], answer => {
+        console.log("done")
+      })
+    }
+
+    let insertNextTextBtn = `<button id="insert-next-text-button" onclick="tiro_insertNextText()"> Extract current text position</button>`
+    window.tiro_insertNextText = () => {
+      tiroReaderApi.getNextText(300000, nextText => {
+        if (nextText.error) {
+          console.error(h, "Error getting next text", nextText.error)
+          return
+        }
+        // insert into a note 
+        // let currentFilePath = api.utils.getInfos()
+        // console.log(currentFilePath )
+        // path is /.tiro/generated/epub/extract_ebookname.md
+
+        let ebookNameSmall = (epubName.length > 50) ? epubName.substring(0, 50) : epubName
+        let cpath = `/.tiro/generated/epub/extract_${ebookNameSmall}.md`
+        api.call("ui.notification.emit", [{ content: `Inserting next text into note ${JSON.stringify(cpath)}` }])
+        api.call("file.saveContent", [cpath, nextText])
+      })
+    }
+    //
+    //
+    //
+    // jump position hist 
+    //
+    //
+    //
+    // 2 buttons next/prev 
+    let positionUI = `
 			<span id="position-ui" >
 				position:
 				<button id="pos-next"  onclick="tiro_jump_pos(1)"> ↩ </button>
 				<button id="pos-prev"  onclick="tiro_jump_pos(-1)"> ↪ </button>
 			</span>`
-			window.tiro_position = {
-				allPositions: [],
-				currentPosition: null,
-			}
-			window.tiro_jump_pos = (diff) => {
-				let v = window.tiro_position
-				// console.log(h, "jumping position", diff, v.currentPosition, v.allPositions)
-				if (v.allPositions.length === 0) return
-				// diff -1 / 1
-				v.currentPosition += diff
-				if (v.currentPosition < 0 ) { v.currentPosition = v.allPositions.length - 1 }
-				if (v.currentPosition >= v.allPositions.length) { v.currentPosition = 0 }
-				let pos = v.allPositions[v.currentPosition]
-				console.log(h, "jumping to position", pos)
-				tiroReaderApi.goTo(pos.chapter, pos.fractionChapter)
-			}
+    window.tiro_position = {
+      allPositions: [],
+      currentPosition: null,
+    }
+    window.tiro_jump_pos = (diff) => {
+      let v = window.tiro_position
+      // console.log(h, "jumping position", diff, v.currentPosition, v.allPositions)
+      if (v.allPositions.length === 0) return
+      // diff -1 / 1
+      v.currentPosition += diff
+      if (v.currentPosition < 0) { v.currentPosition = v.allPositions.length - 1 }
+      if (v.currentPosition >= v.allPositions.length) { v.currentPosition = 0 }
+      let pos = v.allPositions[v.currentPosition]
+      console.log(h, "jumping to position", pos)
+      tiroReaderApi.goTo(pos.chapter, pos.fractionChapter)
+    }
 
 
-			//
-			//
-			//
-			// SEARCH LOGIC UI
-			//
-			//
-			//
-			// input text + button search + prev + next  buttons
-			let searchUI = `
+    //
+    //
+    //
+    // SEARCH LOGIC UI
+    //
+    //
+    //
+    // input text + button search + prev + next  buttons
+    let searchUI = `
 			<div id="search-ui" >
 				<input type="text" id="search-input" placeholder="Search in book..."  /> <br>
 				<button id="search-button" onclick="search_do_search()"> 🔎 </button>
@@ -724,86 +716,86 @@ const epubV2App = (innerTagStr, opts) => {
 				<ul id="search-results-list" class="search-results-list"></ul>
 			</div>
 			`
-			window.search_vars = {
-				resultsNb: 0,
-				results: [],
-				timeSearch: 0
+    window.search_vars = {
+      resultsNb: 0,
+      results: [],
+      timeSearch: 0
 
-			}
-			window.search_search_internal = (searchee, direction) => {
-			}
-			// do the search, reset id and results
-			window.search_do_search = () => {
-				let searchee = window.document.getElementById("search-input").value
-				// 
-				
-				let startTime = new Date().getTime()
-				
-				let el = window.document.getElementById("search-index-str")
-				el.innerHTML = `Searching for "${searchee}"...`
+    }
+    window.search_search_internal = (searchee, direction) => {
+    }
+    // do the search, reset id and results
+    window.search_do_search = () => {
+      let searchee = window.document.getElementById("search-input").value
+      // 
 
-				let listEl = window.document.getElementById("search-results-list") 
-				tiroReaderApi.search(searchee, cfis => { 
-					if (cfis.length === 0) {
-						el.innerHTML = `No results found for "${searchee}"`
-						listEl.innerHTML = ""
+      let startTime = new Date().getTime()
 
-					} else  {
-						window.search_vars.index = 0
-						window.search_vars.results = cfis
-						tiroReaderApi.goToCFI(cfis[0].cfi) 
-						window.search_vars.timeSearch = Math.round((new Date().getTime() - startTime)/ 1000)
-						window.search_update_indexStr()
-						// UPDATE LISTE
-						listEl.innerHTML = ""
-						listEl.style.display = "block"
-						for (let i = 0; i < cfis.length; i++) {
-							let res = cfis[i]
-							let li = window.document.createElement("li")
-							li.innerHTML = `<span class="search-result-cfi">${res.extract}<span/>`
-							li.addEventListener("click", () => {
-								tiroReaderApi.goToCFI(res.cfi)
-								window.search_vars.index = i
-								window.search_update_indexStr()
-							})
-							listEl.appendChild(li)
-						}
-					}
-				})
-			}
-			window.search_goto = (diff) => {
-				v = window.search_vars
-				if (v.results.length === 0) return
-				// diff -1 / 1
-				v.index += diff
-				if (v.index < 0 ) { 
-					v.index = v.results.length - 1 
-				}
-				if (v.index >= v.results.length) { v.index = 0 }
+      let el = window.document.getElementById("search-index-str")
+      el.innerHTML = `Searching for "${searchee}"...`
 
-				tiroReaderApi.goToCFI(v.results[v.index].cfi)
-				window.search_update_indexStr()
+      let listEl = window.document.getElementById("search-results-list")
+      tiroReaderApi.search(searchee, cfis => {
+        if (cfis.length === 0) {
+          el.innerHTML = `No results found for "${searchee}"`
+          listEl.innerHTML = ""
 
-			}
-			window.search_update_indexStr = () =>  {
-				// 2 / 10
-				let el = window.document.getElementById("search-index-str")
-				el.innerHTML = `${window.search_vars.index + 1} / ${window.search_vars.results.length} (${window.search_vars.timeSearch}s)`
-			}
-			window.search_prev = () => { window.search_goto(-1) }
-			window.search_next = () => { window.search_goto(1) }
+        } else {
+          window.search_vars.index = 0
+          window.search_vars.results = cfis
+          tiroReaderApi.goToCFI(cfis[0].cfi)
+          window.search_vars.timeSearch = Math.round((new Date().getTime() - startTime) / 1000)
+          window.search_update_indexStr()
+          // UPDATE LISTE
+          listEl.innerHTML = ""
+          listEl.style.display = "block"
+          for (let i = 0; i < cfis.length; i++) {
+            let res = cfis[i]
+            let li = window.document.createElement("li")
+            li.innerHTML = `<span class="search-result-cfi">${res.extract}<span/>`
+            li.addEventListener("click", () => {
+              tiroReaderApi.goToCFI(res.cfi)
+              window.search_vars.index = i
+              window.search_update_indexStr()
+            })
+            listEl.appendChild(li)
+          }
+        }
+      })
+    }
+    window.search_goto = (diff) => {
+      v = window.search_vars
+      if (v.results.length === 0) return
+      // diff -1 / 1
+      v.index += diff
+      if (v.index < 0) {
+        v.index = v.results.length - 1
+      }
+      if (v.index >= v.results.length) { v.index = 0 }
 
+      tiroReaderApi.goToCFI(v.results[v.index].cfi)
+      window.search_update_indexStr()
 
+    }
+    window.search_update_indexStr = () => {
+      // 2 / 10
+      let el = window.document.getElementById("search-index-str")
+      el.innerHTML = `${window.search_vars.index + 1} / ${window.search_vars.results.length} (${window.search_vars.timeSearch}s)`
+    }
+    window.search_prev = () => { window.search_goto(-1) }
+    window.search_next = () => { window.search_goto(1) }
 
 
-				
 
 
-			//
-			// CUSTOM BAR
-			//
-			let barEl = window.document.getElementById("tiro-bar-wrapper")
-			barEl.innerHTML = `
+
+
+
+    //
+    // CUSTOM BAR
+    //
+    let barEl = window.document.getElementById("tiro-bar-wrapper")
+    barEl.innerHTML = `
 			${styleBar}
 			${generateHelpButton(helpText, "Exec ctag help")}
 			${openFormBtn} |
@@ -814,368 +806,366 @@ const epubV2App = (innerTagStr, opts) => {
 			${searchUI}
 			${insertNextTextBtn} 
 			`
-			//
-			// SHow hide bar
-			//
-			// const toggleCustomBar = (state) => {
-			// 	let el = window.document.getElementById("tiro-bar-wrapper")
-			// 	if (!state) state = el.style.display === "none" ? "show" : "hide"
-			// 	el.style.display = state === "show" ? "block" : "none"
-				
-			// }
-			// toggleCustomBar("hide")
+    //
+    // SHow hide bar
+    //
+    // const toggleCustomBar = (state) => {
+    // 	let el = window.document.getElementById("tiro-bar-wrapper")
+    // 	if (!state) state = el.style.display === "none" ? "show" : "hide"
+    // 	el.style.display = state === "show" ? "block" : "none"
 
-			let toggleOpacityEls = (state) => {
-				console.log("toggleOpacityEls")
-				// let els = window.document.querySelectorAll(".config-wrapper")
-				let el = window.document.getElementById("header-bar")
-				let navEl = window.document.getElementById("nav-bar")
-				let invisibleEls = window.document.querySelectorAll(".invisible-bar")
-				let invisibleBlockEl = window.document.getElementById("tiro-invisible-square-back")
-				let actionBarEl = window.document.getElementById("tiro-bar-wrapper")
-				// #menu-button ul.menu
-				let menuFoliate = window.document.querySelector("#menu-button ul.menu")
-				let valHidden = 0.1
-				let valShow = 1
-				if (!state) state =  el.style.opacity == valHidden ? valShow : valHidden
-				let nameState = state == valHidden ? "hide" : "show"
-				let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
-				let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
-				el.style.opacity = state
-				if (nameState === "hide") {
-					headerBar1.style.opacity = 0.001
-					headerBar2.style.opacity = 0.001
-					invisibleBlockEl.style.display = "none"
-					navEl.style.display = "none"
-					actionBarEl.style.display = "none"
-					// visibility show/hidden
-					menuFoliate.style.visibility = "hidden"
-				}
-				if (nameState === "show") {
-					headerBar1.style.opacity = 1
-					headerBar2.style.opacity = 1
-					invisibleBlockEl.style.display = "block"
-					navEl.style.display = "flex"
-					actionBarEl.style.display = "block"
-					menuFoliate.style.visibility = "visible"
-				}
-				
-				invisibleEls.forEach((el) => {
-					if (state == 0.1) el.style.opacity = 0.001
-					else el.style.opacity = 1
-				})
-			}
-			// toggleOpacityEls(0.1)
-			toggleOpacityEls()
+    // }
+    // toggleCustomBar("hide")
 
-			let cogEl = window.document.getElementById("menu-button")
-			let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
-			let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
-			let menuBar = window.document.getElementById("tiro-invisible-square-back")
-			headerBar1.addEventListener("click", () => {  toggleOpacityEls() })
-			headerBar2.addEventListener("click", () => {  toggleOpacityEls() })
-			// menuBar.addEventListener("click", () => {  toggleOpacityEls() })
-			let squareEl = window.document.getElementById("tiro-invisible-square-back")
-			squareEl.addEventListener("click", () => {
-				// toggleCustomBar()
-				console.log(444)
-				toggleOpacityEls()
-			})
-			// on <foliate-view click, toggle opacity
+    let toggleOpacityEls = (state) => {
+      console.log("toggleOpacityEls")
+      // let els = window.document.querySelectorAll(".config-wrapper")
+      let el = window.document.getElementById("header-bar")
+      let navEl = window.document.getElementById("nav-bar")
+      let invisibleEls = window.document.querySelectorAll(".invisible-bar")
+      let invisibleBlockEl = window.document.getElementById("tiro-invisible-square-back")
+      let actionBarEl = window.document.getElementById("tiro-bar-wrapper")
+      // #menu-button ul.menu
+      let menuFoliate = window.document.querySelector("#menu-button ul.menu")
+      let valHidden = 0.1
+      let valShow = 1
+      if (!state) state = el.style.opacity == valHidden ? valShow : valHidden
+      let nameState = state == valHidden ? "hide" : "show"
+      let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
+      let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
+      el.style.opacity = state
+      if (nameState === "hide") {
+        headerBar1.style.opacity = 0.001
+        headerBar2.style.opacity = 0.001
+        invisibleBlockEl.style.display = "none"
+        navEl.style.display = "none"
+        actionBarEl.style.display = "none"
+        // visibility show/hidden
+        menuFoliate.style.visibility = "hidden"
+      }
+      if (nameState === "show") {
+        headerBar1.style.opacity = 1
+        headerBar2.style.opacity = 1
+        invisibleBlockEl.style.display = "block"
+        navEl.style.display = "flex"
+        actionBarEl.style.display = "block"
+        menuFoliate.style.visibility = "visible"
+      }
 
+      invisibleEls.forEach((el) => {
+        if (state == 0.1) el.style.opacity = 0.001
+        else el.style.opacity = 1
+      })
+    }
+    // toggleOpacityEls(0.1)
+    toggleOpacityEls()
 
-
-
-			//
-			// UPDATING/PERSITING POSITION
-			//
-			 
-			const tiroReaderApi={}
-			
-			tiroReaderApi._storage = {
-				currentPage: null,
-				_currentPageText: ""
-			}
-
-			tiroReaderApi.getCurrentPageText = () => {
-				// ponytail: use cached text from relocate event — lastLocation.range is stale after page turn
-				if (tiroReaderApi._storage._currentPageText) {
-					return tiroReaderApi._storage._currentPageText
-				}
-				// fallback: try live extraction (works before first relocate fires)
-				try {
-					let contents = readerApi.view.renderer.getContents()
-					if (contents && contents[0]) {
-						return contents[0].doc.body?.textContent || ""
-					}
-				} catch(_) {}
-				return ""
-			}
-
-			let cacheIdPos = `ctag-ebookv2-position-${epubName}`
-			tiroReaderApi.getBookPosition = (cb) => {
-				getCache(cacheIdPos, (bookPosition) => {
-					cb(bookPosition)
-				}, err =>{
-					console.log(h, "no cache found for ", cacheIdPos, err)
-					cb(null)
-				})
-			}
-			tiroReaderApi.restorePosition = (epubName) => {
-				tiroReaderApi.getBookPosition( bookPosition => {
-					if (bookPosition) {
-						tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
-					}
-				})
-			}
-
-			setTimeout(() => {
-				// tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
-				// console.log(12343333, tiroReaderApi)
-				// let chapterText = tiroReaderApi.getCurrentChapterText()
-				// console.log(12343333, chapterText, tiroReaderApi.getCurrentPageText())
-				// tiroReaderApi.getNextText(20000, nextText => {
-				// 	console.log(12343333, nextText)
-				// })
-
-			}, 2000)
-
-
-			tiroReaderApi.getNextText = (textLength, cb) => {
-				if (!textLength) textLength = 100000
-				// get current page content
-				let currentPageContent = tiroReaderApi.getCurrentPageText()
-				// get all text
-				tiroReaderApi.getAllText(text => {
-					// search for currentPageContent
-					let startIndex = text.indexOf(currentPageContent)
-					if (startIndex !== -1) {
-						let endIndex = startIndex + textLength
-						let nextText = text.substring(startIndex, endIndex )
-						// split at textLength
-						// console.log(currentPageContent, startIndex)
-						// replace really long spaces by one 
-						nextText = nextText.replace(/\s+/g, ' ')
-						cb(nextText)
-					}
-					else {
-						cb({error:"TEXT NOT FOUND", currentPageContent})
-					}
-				})
-			}
-			
-
-			tiroReaderApi.getCurrentChapterText = () => {
-				// tiroReaderApi.getBookPosition( bookPosition => {
-				// 	if (bookPosition) {
-				// 		// tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
-				// 		console.log(bookPosition)
-				// 	}
-				// })
-				let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
-				let arrRes = raw.split("}")
-				let cleanText = arrRes[arrRes.length-1].trim()
-				return cleanText
-				// return readerApi.view.getSectionFractions()[chapterIndex]?.toString()
-			}
-
-
-
-			tiroReaderApi.getAllText = (cb, cache=true) => {
-				let getAllTextRaw = (cb1) => {
-					window.totText = ``
-					let chaptersNb = readerApi.view.getSectionFractions().length -1
-					let el = window.document.getElementById("tiro-indexing-overlay")
-					el.style.display = "block"
-					for (let i = 0; i <= chaptersNb; i++) {
-						setTimeout(() => {
-							readerApi.view.renderer.goTo({ index: i }).then(res => {
-									console.log(i, chaptersNb, "load")
-									// notifLog(`indexing text... ${i}/${chaptersNb}`, "text-index", 10)
-									el.innerHTML = `initial book indexing, please wait... ${i}/${chaptersNb}`
-									let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
-									let arrRes = raw.split("}")
-									let cleanText = arrRes[arrRes.length-1].trim()
-									window.totText += cleanText
-									console.log(i, chaptersNb, "getText", cleanText.length)
-									if(i === chaptersNb) {
-										cb1(window.totText)
-										notifLog("All text indexed", "text-index", 10)
-										el.style.display = "none"
-										// jump back to first page
-										tiroReaderApi.goTo(0, 0, true)
-									}
-								})
-						}, 300 * i);
-					}
-				}
-
-				let cyrb532 = (str, seed = 0) => {
-					let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
-					for(let i = 0, ch; i < str.length; i++) {
-						ch = str.charCodeAt(i);
-						h1 = Math.imul(h1 ^ ch, 2654435761);
-						h2 = Math.imul(h2 ^ ch, 1597334677);
-					}
-					h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
-					h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-					h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
-					h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-				
-					return 4294967296 * (2097151 & h2) + (h1 >>> 0);
-				};
-
-				let cacheIdPos = `ctag-ebookv2-alltext-${epubName}`
-				let loadWithoutCache = (cb2) => {
-					console.log("load without cache")
-					getAllTextRaw(text => {
-						let resTextHash = cyrb532(text, 1)
-						// console.log("getAllText",{resTextHash, text})
-						setCache(cacheIdPos, text, () => {
-							console.log("cache saved!")
-							cb2(text)
-						})
-					})
-				}
-
-				if (!cache) {
-					console.log("getAllText: no cache wanted")
-					loadWithoutCache(cb)
-					return
-				}
-				getCache(cacheIdPos, text => {
-					console.log("getAllText: cache found")
-					cb(text)
-				}, err => {
-					loadWithoutCache(cb)
-				})
-			}
-			
-
-
-
-			let searchCacheId = `ctag-ebookv2-search-cache-${epubName}`
-			// let searchCache = {}
-			let searchCache = getLs(searchCacheId, {})
-			tiroReaderApi.search = async (txt, cb, opts) => {
-				let arrRes = []
-				if (!searchCache[txt]) {
-					console.log(`EPUB SEARCH for word ${txt} NOT CACHED, seaching...` )
-					for await (const res of readerApi.view.search({query:txt})) {
-						if (res.label) {
-							arrRes = [...arrRes, ...res.subitems]
-						} 
-						if (res === "done") {
-							searchCache[txt] = arrRes
-							setLs(searchCacheId, searchCache)
-						}
-						if (opts?.firstOnly === true && arrRes.length > 0) {
-							searchCache[txt] = arrRes
-							console.log("firstOnly is true, breaking search")
-							break
-						}
-					}
-				} 
-				arrRes = searchCache[txt]
-
-				// for each result create .extract
-				for (let i = 0; i < arrRes.length; i++) {
-					let res = arrRes[i]
-					// page is 12 in epubcfi(/6/12!
-					let page = res.cfi.split("/")[2]
-					page = "[pos "+page.split("!")[0] + "] "|| ""
-					
-					if (res.excerpt) { arrRes[i].extract = page + res.excerpt.pre + "<b>" + res.excerpt.match +"</b>"+ res.excerpt.post }
-				}
-				console.log(`EPUB SEARCH for word ${txt} CACHED, returning results`, arrRes)
-				cb(arrRes)
-			}
-
-
-			tiroReaderApi.goToCFI = (cfi, shouldSavePosition=false) => {
-				let jumpObj = readerApi.view.resolveCFI(cfi)
-				console.log("jumping to ", {cfi, jumpObj})
-				window.shouldSavePosition = shouldSavePosition
-				readerApi.view.renderer.goTo(jumpObj) 
-			}
-			window.shouldSavePosition = true
-			tiroReaderApi.goTo = (chapter, fraction, shouldSavePosition=false) => {
-				let res = readerApi.view.renderer.goTo({index:chapter, anchor:fraction }) 
-				res.then(() => {
-					console.log(h, "GO TO ", chapter, fraction, res)
-					window.shouldSavePosition = shouldSavePosition
-					// should add one page
-					// tiroReaderApi.next()
-				})
-			}
-			tiroReaderApi.next = () => {
-				readerApi.view.renderer.next()
-			}
-			tiroReaderApi.prev = () => {
-				readerApi.view.renderer.prev()
-			}
-
-			setTimeout(() => {
-				tiroReaderApi.restorePosition(epubName)
-			}, 1000)
-
-
-
-			readerApi.view.renderer.addEventListener('relocate', e => {
-				let chapter = e.detail.index
-				let fractionChapter = e.detail.fraction
-				if (chapter === 0) return
-				if (fractionChapter === 0) return
-				// ponytail: cache page text while DOM is alive — stale range breaks after page turn
-				try {
-					let contents = readerApi.view.renderer.getContents()
-					if (contents && contents[0]) {
-						tiroReaderApi._storage._currentPageText = contents[0].doc.body?.textContent || ""
-					}
-				} catch(_) {}
-				let bookPosition = {chapter, fractionChapter }
-				if (window.shouldSavePosition) {
-					console.log(h, " > saving position :", chapter, fractionChapter)
-					// loop all pos, does not add it if already exists
-					let shouldAddIt = true
-					for (let i = 0; i < window.tiro_position.allPositions.length; i++) {
-						let pos = window.tiro_position.allPositions[i]
-						if (pos.chapter === chapter && pos.fractionChapter === fractionChapter) {  shouldAddIt = false} 
-					}
-					if(shouldAddIt) window.tiro_position.allPositions.push(bookPosition) 
-					setCache(cacheIdPos, bookPosition)
-				}
-				tiroReaderApi._storage.currentPage = {...e.detail}
-				// console.log(1111, tiroReaderApi.getCurrentPageText())
-			})
-			
-
-		
-			// OK SEARCH > simplement UI a faire
-			// OK epub > tts > si on load depuis un certaine page > envoie la page a chercher
-			// tts > epub > quand status update, faire un search regulier sur epub setInterval et search la phrase
-
-			// setTimeout(() => {
-			// 	// let sentence = `ça donnait légèrement envie de se tirer une balle, mais c’était beau. Et la Saab 900 tirait là-dedans des courbes harmonieuses`
-			// 	let sentence = `interroge`
-			// 	tiroReaderApi.search(sentence, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
-			// }, 5000)
-
-
-
-		}
-
-			// setTimeout(() => {
-			// 	tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
-			// 	setTimeout(() => {
-			// 		tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[1].cfi) })
-			// 	}, 5000)
-			// }, 5000)
+    let cogEl = window.document.getElementById("menu-button")
+    let headerBar1 = window.document.getElementById("tiro-invisible-header-bar1")
+    let headerBar2 = window.document.getElementById("tiro-invisible-header-bar2")
+    let menuBar = window.document.getElementById("tiro-invisible-square-back")
+    headerBar1.addEventListener("click", () => { toggleOpacityEls() })
+    headerBar2.addEventListener("click", () => { toggleOpacityEls() })
+    // menuBar.addEventListener("click", () => {  toggleOpacityEls() })
+    let squareEl = window.document.getElementById("tiro-invisible-square-back")
+    squareEl.addEventListener("click", () => {
+      // toggleCustomBar()
+      console.log(444)
+      toggleOpacityEls()
+    })
+    // on <foliate-view click, toggle opacity
 
 
 
 
+    //
+    // UPDATING/PERSITING POSITION
+    //
 
+    const tiroReaderApi = {}
+
+    tiroReaderApi._storage = {
+      currentPage: null,
+      _currentPageText: ""
+    }
+
+
+    tiroReaderApi.getCurrentPageText = () => {
+      // console.log(h, "getCurrentPageText", tiroReaderApi._storage.currentPage)
+      // console.log(2222, readerApi.view.renderer)
+      // console.log(2222, readerApi.view.renderer.toString())
+      // console.log(2222, readerApi.view)
+      // console.log(2222, ))
+      // console.log(2222, readerApi.view.renderer.getContents())
+      // let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+      let raw = readerApi.view.lastLocation.range.toString()
+      let arrRes = raw.split("}")
+      let cleanText = arrRes[arrRes.length - 1].trim()
+      return cleanText
+      // return tiroReaderApi._storage.currentPage.range.toString()
+      // return tiroReaderApi._storage.currentPage?.range?.endContainer?.data
+    }
+
+
+    let cacheIdPos = `ctag-ebookv2-position-${epubName}`
+    tiroReaderApi.getBookPosition = (cb) => {
+      getCache(cacheIdPos, (bookPosition) => {
+        cb(bookPosition)
+      }, err => {
+        console.log(h, "no cache found for ", cacheIdPos, err)
+        cb(null)
+      })
+    }
+    tiroReaderApi.restorePosition = (epubName) => {
+      tiroReaderApi.getBookPosition(bookPosition => {
+        if (bookPosition) {
+          tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+        }
+      })
+    }
+
+    setTimeout(() => {
+      // tiroReaderApi.getAllText(text => { console.log(h, "getAllText", text) })
+      // console.log(12343333, tiroReaderApi)
+      // let chapterText = tiroReaderApi.getCurrentChapterText()
+      // console.log(12343333, chapterText, tiroReaderApi.getCurrentPageText())
+      // tiroReaderApi.getNextText(20000, nextText => {
+      // 	console.log(12343333, nextText)
+      // })
+
+    }, 2000)
+
+
+    tiroReaderApi.getNextText = (textLength, cb) => {
+      if (!textLength) textLength = 100000
+      // get current page content
+      let currentPageContent = tiroReaderApi.getCurrentPageText()
+      // get all text
+      tiroReaderApi.getAllText(text => {
+        // search for currentPageContent
+        let startIndex = text.indexOf(currentPageContent)
+        if (startIndex !== -1) {
+          let endIndex = startIndex + textLength
+          let nextText = text.substring(startIndex, endIndex)
+          // split at textLength
+          // console.log(currentPageContent, startIndex)
+          // replace really long spaces by one 
+          nextText = nextText.replace(/\s+/g, ' ')
+          cb(nextText)
+        }
+        else {
+          cb({ error: "TEXT NOT FOUND", currentPageContent })
+        }
+      })
+    }
+
+
+    tiroReaderApi.getCurrentChapterText = () => {
+      // tiroReaderApi.getBookPosition( bookPosition => {
+      // 	if (bookPosition) {
+      // 		// tiroReaderApi.goTo(bookPosition.chapter, bookPosition.fractionChapter, true)
+      // 		console.log(bookPosition)
+      // 	}
+      // })
+      let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+      let arrRes = raw.split("}")
+      let cleanText = arrRes[arrRes.length - 1].trim()
+      return cleanText
+      // return readerApi.view.getSectionFractions()[chapterIndex]?.toString()
+    }
+
+
+
+    tiroReaderApi.getAllText = (cb, cache = true) => {
+      let getAllTextRaw = (cb1) => {
+        window.totText = ``
+        let chaptersNb = readerApi.view.getSectionFractions().length - 1
+        let el = window.document.getElementById("tiro-indexing-overlay")
+        el.style.display = "block"
+        for (let i = 0; i <= chaptersNb; i++) {
+          setTimeout(() => {
+            readerApi.view.renderer.goTo({ index: i }).then(res => {
+              console.log(i, chaptersNb, "load")
+              // notifLog(`indexing text... ${i}/${chaptersNb}`, "text-index", 10)
+              el.innerHTML = `initial book indexing, please wait... ${i}/${chaptersNb}`
+              let raw = readerApi.view.renderer.getContents()[0].doc.documentElement.textContent
+              let arrRes = raw.split("}")
+              let cleanText = arrRes[arrRes.length - 1].trim()
+              window.totText += cleanText
+              console.log(i, chaptersNb, "getText", cleanText.length)
+              if (i === chaptersNb) {
+                cb1(window.totText)
+                notifLog("All text indexed", "text-index", 10)
+                el.style.display = "none"
+                // jump back to first page
+                tiroReaderApi.goTo(0, 0, true)
+              }
+            })
+          }, 300 * i);
+        }
+      }
+
+      let cyrb532 = (str, seed = 0) => {
+        let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+        for (let i = 0, ch; i < str.length; i++) {
+          ch = str.charCodeAt(i);
+          h1 = Math.imul(h1 ^ ch, 2654435761);
+          h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+        h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+        h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+      };
+
+      let cacheIdPos = `ctag-ebookv2-alltext-${epubName}`
+      let loadWithoutCache = (cb2) => {
+        console.log("load without cache")
+        getAllTextRaw(text => {
+          let resTextHash = cyrb532(text, 1)
+          // console.log("getAllText",{resTextHash, text})
+          setCache(cacheIdPos, text, () => {
+            console.log("cache saved!")
+            cb2(text)
+          })
+        })
+      }
+
+      if (!cache) {
+        console.log("getAllText: no cache wanted")
+        loadWithoutCache(cb)
+        return
+      }
+      getCache(cacheIdPos, text => {
+        console.log("getAllText: cache found")
+        cb(text)
+      }, err => {
+        loadWithoutCache(cb)
+      })
+    }
+
+
+
+
+    let searchCacheId = `ctag-ebookv2-search-cache-${epubName}`
+    // let searchCache = {}
+    let searchCache = getLs(searchCacheId, {})
+    tiroReaderApi.search = async (txt, cb, opts) => {
+      let arrRes = []
+      if (!searchCache[txt]) {
+        console.log(`EPUB SEARCH for word ${txt} NOT CACHED, seaching...`)
+        for await (const res of readerApi.view.search({ query: txt })) {
+          if (res.label) {
+            arrRes = [...arrRes, ...res.subitems]
+          }
+          if (res === "done") {
+            searchCache[txt] = arrRes
+            setLs(searchCacheId, searchCache)
+          }
+          if (opts?.firstOnly === true && arrRes.length > 0) {
+            searchCache[txt] = arrRes
+            console.log("firstOnly is true, breaking search")
+            break
+          }
+        }
+      }
+      arrRes = searchCache[txt]
+
+      // for each result create .extract
+      for (let i = 0; i < arrRes.length; i++) {
+        let res = arrRes[i]
+        // page is 12 in epubcfi(/6/12!
+        let page = res.cfi.split("/")[2]
+        page = "[pos " + page.split("!")[0] + "] " || ""
+
+        if (res.excerpt) { arrRes[i].extract = page + res.excerpt.pre + "<b>" + res.excerpt.match + "</b>" + res.excerpt.post }
+      }
+      console.log(`EPUB SEARCH for word ${txt} CACHED, returning results`, arrRes)
+      cb(arrRes)
+    }
+
+
+    tiroReaderApi.goToCFI = (cfi, shouldSavePosition = false) => {
+      let jumpObj = readerApi.view.resolveCFI(cfi)
+      console.log("jumping to ", { cfi, jumpObj })
+      window.shouldSavePosition = shouldSavePosition
+      readerApi.view.renderer.goTo(jumpObj)
+    }
+    window.shouldSavePosition = true
+    tiroReaderApi.goTo = (chapter, fraction, shouldSavePosition = false) => {
+      let res = readerApi.view.renderer.goTo({ index: chapter, anchor: fraction })
+      res.then(() => {
+        console.log(h, "GO TO ", chapter, fraction, res)
+        window.shouldSavePosition = shouldSavePosition
+        // should add one page
+        // tiroReaderApi.next()
+      })
+    }
+    tiroReaderApi.next = () => {
+      readerApi.view.renderer.next()
+    }
+    tiroReaderApi.prev = () => {
+      readerApi.view.renderer.prev()
+    }
+
+    setTimeout(() => {
+      tiroReaderApi.restorePosition(epubName)
+    }, 1000)
+
+
+
+    readerApi.view.renderer.addEventListener('relocate', e => {
+      let chapter = e.detail.index
+      let fractionChapter = e.detail.fraction
+      if (chapter === 0) return
+      if (fractionChapter === 0) return
+      // ponytail: cache page text while DOM is alive — stale range breaks after page turn
+      try {
+        let contents = readerApi.view.renderer.getContents()
+        if (contents && contents[0]) {
+          tiroReaderApi._storage._currentPageText = contents[0].doc.body?.textContent || ""
+        }
+      } catch (_) { }
+      let bookPosition = { chapter, fractionChapter }
+      if (window.shouldSavePosition) {
+        console.log(h, " > saving position :", chapter, fractionChapter)
+        // loop all pos, does not add it if already exists
+        let shouldAddIt = true
+        for (let i = 0; i < window.tiro_position.allPositions.length; i++) {
+          let pos = window.tiro_position.allPositions[i]
+          if (pos.chapter === chapter && pos.fractionChapter === fractionChapter) { shouldAddIt = false }
+        }
+        if (shouldAddIt) window.tiro_position.allPositions.push(bookPosition)
+        setCache(cacheIdPos, bookPosition)
+      }
+      tiroReaderApi._storage.currentPage = { ...e.detail }
+      // console.log(1111, tiroReaderApi.getCurrentPageText())
+    })
+
+
+
+    // OK SEARCH > simplement UI a faire
+    // OK epub > tts > si on load depuis un certaine page > envoie la page a chercher
+    // tts > epub > quand status update, faire un search regulier sur epub setInterval et search la phrase
+
+    // setTimeout(() => {
+    // 	// let sentence = `ça donnait légèrement envie de se tirer une balle, mais c’était beau. Et la Saab 900 tirait là-dedans des courbes harmonieuses`
+    // 	let sentence = `interroge`
+    // 	tiroReaderApi.search(sentence, cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+    // }, 5000)
+
+
+
+  }
+
+  // setTimeout(() => {
+  // 	tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[0].cfi) })
+  // 	setTimeout(() => {
+  // 		tiroReaderApi.search("staline", cfis => { tiroReaderApi.goToCFI(cfis[1].cfi) })
+  // 	}, 5000)
+  // }, 5000)
 
 
 
@@ -1183,41 +1173,46 @@ const epubV2App = (innerTagStr, opts) => {
 
 
 
-		
-		////////////////////////////////////
-		//
-		// FULL LOADING SEQUENCE
-		//
-		//
 
-		
-		const {div, updateContent} = api.utils.createDiv()
-		const infos = api.utils.getInfos();
-		let epubUrl = innerTagStr.trim()
-		let epubName = epubUrl.split("/").slice(-1)[0].split("?")[0]
-		console.log(h, epubName, epubUrl)
-		const isAbs = epubUrl.startsWith("http")
-		if (isAbs === false) {
-				epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
-		}
-		window.bookUrlToLoad = epubUrl
-		window.document.body.innerHTML = `<div id="external-ressources-wrapper"></div><div id="content-wrapper"></div>${style}` 
-		updateContent(injectHtmlBeforeJs())
-		api.utils.loadRessources([
-			`${opts.plugins_root_url}/_common/common.lib.js`,
-			`https://raw.githubusercontent.com/dotgreg/foliate-js-monorepo/refs/heads/master/dist/reader.2496a5b2.js`
-		], () => {
-			// wait for window.reader to be availabe
-			api.utils.resizeIframe("100%");
-			let interval = setInterval(() => {
-				if (window.reader && window.reader.view && window.reader.view.renderer) {
-					console.log(h, "epub api detected, starting scripts")
-					clearInterval(interval)
-					onEpubLibLoaded(window.reader)
-				}
-			}, 200)
-		})
-		return div
+
+
+
+
+
+  ////////////////////////////////////
+  //
+  // FULL LOADING SEQUENCE
+  //
+  //
+
+
+  const { div, updateContent } = api.utils.createDiv()
+  const infos = api.utils.getInfos();
+  let epubUrl = innerTagStr.trim()
+  let epubName = epubUrl.split("/").slice(-1)[0].split("?")[0]
+  console.log(h, epubName, epubUrl)
+  const isAbs = epubUrl.startsWith("http")
+  if (isAbs === false) {
+    epubUrl = infos.backendUrl + "/static/" + infos.file.folder + "/" + epubUrl + `?token=${infos.loginToken}`
+  }
+  window.bookUrlToLoad = epubUrl
+  window.document.body.innerHTML = `<div id="external-ressources-wrapper"></div><div id="content-wrapper"></div>${style}`
+  updateContent(injectHtmlBeforeJs())
+  api.utils.loadRessources([
+    `${opts.plugins_root_url}/_common/common.lib.js`,
+    `https://raw.githubusercontent.com/dotgreg/foliate-js-monorepo/refs/heads/master/dist/reader.2496a5b2.js`
+  ], () => {
+    // wait for window.reader to be availabe
+    api.utils.resizeIframe("100%");
+    let interval = setInterval(() => {
+      if (window.reader && window.reader.view && window.reader.view.renderer) {
+        console.log(h, "epub api detected, starting scripts")
+        clearInterval(interval)
+        onEpubLibLoaded(window.reader)
+      }
+    }, 200)
+  })
+  return div
 }
 
 window.initCustomTag = epubV2App
