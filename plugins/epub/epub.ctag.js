@@ -429,7 +429,7 @@ const epubV2App = (innerTagStr, opts) => {
   //
   const helpText = `
 		<h3>Ebook Reader Help</h3>
-		<p><b>CTAG version: 0.3a</b></p>
+		<p><b>CTAG version: 0.3</b></p>
 		<p><b> To add a form popup add the formId to epub config: </b>  api.utils.loadCustomTag(epub2.ctag.js", ..., {size: "100%", padding: false, formId:"date test"})  </p>
 		
 		`
