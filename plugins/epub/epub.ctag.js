@@ -617,8 +617,15 @@ const epubV2App = (innerTagStr, opts) => {
 
 			let buttonTTs = `<button id="tts-button" onclick="tiro_tts()"> ♫ Voice </button>`
 			window.tiro_tts = () => {
+				// ponytail: extract fresh page text on button click — cached text is stale after page turn
+				let pagetext = ""
+				try {
+					let contents = readerApi.view.renderer.getContents()
+					if (contents && contents[0]) {
+						pagetext = contents[0].doc.body?.textContent || ""
+					}
+				} catch(_) {}
 				tiroReaderApi.getAllText(fullText => {
-					let pagetext = tiroReaderApi.getCurrentPageText()
 					window.isTts = true
 					let file = api.utils.getInfos().file;
 					console.log(h, "TTS fullText", fullText.length, "pagetext", pagetext.length, "file", file.name, "fileId", file.id)

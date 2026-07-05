@@ -265,13 +265,18 @@ export const TtsCustomPopup = (p: {
   useInterval(() => {
     if (p.startString && !initPos.current && !isPlaying && downloadInProgress.current.size === 0) {
       let nPos = -1
+      // ponytail: debug log — show exactly what startString looks like before/after cleaning
+      let startStringStr = p.startString.substring(0, 100)
+      log(`${pre} 🔍 startString len=${p.startString.length} chunks=${textChunks.length}`)
+      log(`${pre} 🔍 startString raw: "${startStringStr}"`)
+      log(`${pre} 🔍 chunk[0] sample: "${textChunks[0]?.substring(0, 100) || 'none'}"`)
       let chunkPos = extractToChunkPos(p.startString, textChunks, 1000)
       nPos = chunkPos
       initPos.current = true
 
-      let startStringStr = p.startString.substring(0, 100)
-      let logStr = `${pre}  🔎 found startString "${startStringStr}" at chunk ${chunkPos}`
-      if (chunkPos === -1) logStr = `${pre}  🔎 NOT FOUND  startString "${startStringStr}" at chunk ${chunkPos}`
+      let logStr = chunkPos === -1
+        ? `${pre}  🔎 NOT FOUND chunk ${chunkPos}`
+        : `${pre}  🔎 found at chunk ${chunkPos}`
       log(logStr)
       if (nPos != -1) {
         setCurrChunk(nPos)
