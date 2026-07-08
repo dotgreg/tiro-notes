@@ -167,15 +167,17 @@ const youtubeChannelToId = (channelName, cb, retries = 0) => {
         throw new Error(`unexpected result: "${arr2}"`)
       }
     } catch (e) {
-      if (retries < 3) {
-        console.warn(`[YOUTUBE] resolve failed for ${channelName}, retrying in 5s (${retries + 1}/3)`, e)
+      if (retries < 5) {
+        const delay = (5 + Math.random() * 5) * 1000 // 5-10s random
+        const delayS = Math.round(delay / 1000)
+        console.warn(`[YOUTUBE] resolve failed for ${channelName}, retrying in ${delayS}s (${retries + 1}/5)`, e)
         api.call("ui.notification.emit", [{
-          content: `YouTube: retrying ${channelName} in 5s (${retries + 1}/3)`,
+          content: `YouTube: retrying ${channelName} in ${delayS}s (${retries + 1}/5)`,
           options: { hideAfter: 3 }
         }])
-        setTimeout(() => youtubeChannelToId(channelName, cb, retries + 1), 5000)
+        setTimeout(() => youtubeChannelToId(channelName, cb, retries + 1), delay)
       } else {
-        console.error(`[YOUTUBE] could not fetch id of ${channelUrl} after 3 retries`, e)
+        console.error(`[YOUTUBE] could not fetch id of ${channelUrl} after 5 retries`, e)
         cb(null)
       }
     }
