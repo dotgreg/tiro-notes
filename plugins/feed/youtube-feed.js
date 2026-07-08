@@ -153,22 +153,34 @@ const processItems = (items) => {
   return fitems
 }
 
-const youtubeChannelToId = (channelName, cb) => {
+const youtubeChannelToId = (channelName, cb, retries = 0) => {
   channelName = channelName.startsWith("@") ? channelName : `@${channelName}`
   let channelUrl = `https://www.youtube.com/${channelName}`
   api.call("ressource.fetch", [channelUrl, { disableCache: false }], resTxt => {
-    // api.ressource.fetch(channelUrl, res => {
-    arr1 = resTxt.split(`href="https://www.youtube.com/channel/`);
-    arr2 = arr1[1].split(`"`)[0];
-
-    if (arr2.length > 10 && arr2.length < 40) {
-      console.log(`[YOUTUBE] channel id found for ${channelUrl}`, arr2)
-      cb(arr2)
+    try {
+      arr1 = resTxt.split(`href="https://www.youtube.com/channel/`)
+      arr2 = arr1[1].split(`"`)[0]
+      if (arr2.length > 10 && arr2.length < 40) {
+        console.log(`[YOUTUBE] channel id found for ${channelUrl}`, arr2)
+        cb(arr2)
+      } else {
+        throw new Error(`unexpected result: "${arr2}"`)
+      }
+    } catch (e) {
+      if (retries < 3) {
+        console.warn(`[YOUTUBE] resolve failed for ${channelName}, retrying in 5s (${retries + 1}/3)`, e)
+        api.call("ui.notification.emit", [{
+          content: `YouTube: retrying ${channelName} in 5s (${retries + 1}/3)`,
+          options: { hideAfter: 3 }
+        }])
+        setTimeout(() => youtubeChannelToId(channelName, cb, retries + 1), 5000)
+      } else {
+        console.error(`[YOUTUBE] could not fetch id of ${channelUrl} after 3 retries`, e)
+        cb(null)
+      }
     }
-    else console.error(`YT error could not fetch id of ${channelUrl}`)
   })
 }
-// youtubeChannelToId("justinetbee", res => {console.log(res)})
 
 const fetchItems = (feed, cb) => {
   //
@@ -187,6 +199,7 @@ const fetchItems = (feed, cb) => {
       fetchPlaylistsFromChannel()
     } else {
       youtubeChannelToId(feed.url, id => {
+        if (!id) return cb([])
         feed.url = `@${id}`
         fetchPlaylistsFromChannel()
       })
