@@ -143,6 +143,18 @@ export const TtsCustomPopup = (p: {
     setTextChunks(chunkedText2)
     console.log(`${pre}: loading and chunking text in ${chunkedText2.length} parts`)
 
+    // Search for start position synchronously BEFORE auto-play fires
+    if (p.startString) {
+      let startStringCleaned = cleanText2Speech(p.startString)
+      let chunkPos = extractToChunkPos(startStringCleaned, chunkedText2, 1000)
+      if (chunkPos !== -1) {
+        setCurrChunk(chunkPos)
+        log(`${pre} 🔎 found at chunk ${chunkPos}`)
+      } else {
+        log(`${pre} 🔎 NOT FOUND`)
+      }
+    }
+
   }, [p.fileContent])
 
   const currChunkRef = useRef<number>(currChunk)
@@ -259,31 +271,6 @@ export const TtsCustomPopup = (p: {
   useEffect(() => {
     log("=====================================================================")
   }, [])
-
-  // Search for initial chunk position
-  const initPos = useRef(false)
-  useInterval(() => {
-    if (p.startString && !initPos.current && !isPlaying && downloadInProgress.current.size === 0) {
-      let nPos = -1
-      // ponytail: debug log — show exactly what startString looks like before/after cleaning
-      let startStringStr = p.startString.substring(0, 100)
-      log(`${pre} 🔍 startString len=${p.startString.length} chunks=${textChunks.length}`)
-      log(`${pre} 🔍 startString raw: "${startStringStr}"`)
-      log(`${pre} 🔍 chunk[0] sample: "${textChunks[0]?.substring(0, 100) || 'none'}"`)
-      let chunkPos = extractToChunkPos(p.startString, textChunks, 1000)
-      nPos = chunkPos
-      initPos.current = true
-
-      let logStr = chunkPos === -1
-        ? `${pre}  🔎 NOT FOUND chunk ${chunkPos}`
-        : `${pre}  🔎 found at chunk ${chunkPos}`
-      log(logStr)
-      if (nPos != -1) {
-        setCurrChunk(nPos)
-        controller.playChunk(nPos, false)
-      }
-    }
-  }, 500)
 
   // Buffer underrun recovery
   useInterval(() => {
