@@ -168,7 +168,7 @@ const DualViewerInt = (
 
 
   return <div
-    className={`dual-view-wrapper view-${p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
+    className={`dual-view-wrapper view-${deviceType() !== 'desktop' ? p.mobileView : p.viewType} device-${deviceType()} window-id-${p.windowId} window-id-sizeref-${p.windowId}`}
     onWheel={
       e => {
         // updateSyncYWithDelta(e.deltaY)
