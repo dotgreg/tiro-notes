@@ -221,12 +221,12 @@ export const TtsCustomPopup = (p: {
   const problemCounterRef = useRef<number>(0)
 
   // Auto-advance to next chunk
-  const next = useCallback(() => {
+  const next = useCallback((isUserAction: boolean = false) => {
     if (currChunkRef.current < textChunks.length - 1) {
       let nChunk = currChunkRef.current + 1
       log(`${pre}: ️⏭ next chunk ${nChunk}`)
       setCurrChunk(nChunk)
-      controller.playChunk(nChunk, false)
+      controller.playChunk(nChunk, isUserAction)
     }
   }, [textChunks.length, log, controller])
 
@@ -397,7 +397,7 @@ export const TtsCustomPopup = (p: {
           }}>
             <Icon name={!isPlaying ? "faPlay" : "faPause"} color="black" />
           </button>
-          <button onClick={e => { next() }}>
+          <button onClick={e => { next(true) }}>
             <Icon name="faFastForward" color="black" />
           </button>
 
