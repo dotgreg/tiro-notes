@@ -1,4 +1,4 @@
-import { useRef, useCallback } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { TtsState, TtsPlaybackOptions, TtsPlaybackController } from './types'
 
 const pre = '[TtsCustomPopup]'
@@ -171,11 +171,17 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
     addAudioWindow(audio)
 
+    // Per-audio abort token — survives handler nulling; kills stale setTimeout/oncanplay closures
+    // Mobile browsers can deliver oncanplay AFTER onended, so shared cancelledRef is not enough
+    let aborted = false
+
     // Guard to prevent double-fire of startPlay
     let alreadyStarted = false
 
     const startPlay = () => {
-      // CRITICAL: check cancelledRef — blocks if user paused/destroyed
+      // CRITICAL: per-audio abort first — catches stale closures from previous audio
+      if (aborted) return
+      // Shared flag — blocks if user paused/destroyed
       if (cancelledRef.current) return
       if (isPopupClosedRef.current) return
       if (alreadyStarted) return
@@ -224,11 +230,12 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       }
     }
 
-    // Set up audio events
+    // Set up audio events — both paths check `aborted` first
     audio.oncanplay = startPlay
-    startTimeoutRef.current = setTimeout(startPlay, 3000)
+    startTimeoutRef.current = setTimeout(() => { if (!aborted) startPlay() }, 3000)
 
     audio.onerror = () => {
+      if (aborted) return
       if (cancelledRef.current) return
       log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
       setState(TtsState.ERROR)
@@ -239,8 +246,12 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
     audio.onended = () => {
       // CRITICAL: only advance if still in PLAYING state (not after pause)
+      if (aborted) return
       if (stateRef.current !== TtsState.PLAYING) return
       if (cancelledRef.current) return
+
+      // Abort this audio so any late-firing oncanplay/timeout closures die
+      aborted = true
 
       // Release hard lock
       activePlayChunkRef.current = -1
@@ -271,6 +282,17 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     }
   }
 
+  /** Abort and destroy a specific Audio element, killing all its stale closures */
+  const abortAudio = (audio: HTMLAudioElement) => {
+    // Set per-audio abort token — kills any pending setTimeout/oncanplay closures
+    try { (audio as any)._aborted = () => true } catch { /* no-op */ }
+    audio.pause()
+    audio.oncanplay = null
+    audio.onerror = null
+    audio.onended = null
+    audio.remove()
+  }
+
   /** Play a specific chunk */
   const playChunk = useCallback((chunkNb: number, isUserAction: boolean = false) => {
     // If user action or switching chunk, stop current audio first
@@ -278,12 +300,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       // Set cancelled flag to block ALL async callbacks from the old audio
       cancelledRef.current = true
 
-      // Pause current audio and nullify event handlers
+      // Abort old audio — per-audio token kills stale closures
       if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.oncanplay = null
-        audioRef.current.onerror = null
-        audioRef.current.onended = null
+        abortAudio(audioRef.current)
       }
 
       // Clear safety timeout
@@ -372,10 +391,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     // Release hard lock
     activePlayChunkRef.current = -1
 
-    // Pause and destroy current audio
+    // Abort and destroy current audio
     if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.remove()
+      abortAudio(audioRef.current)
       audioRef.current = null
     }
 
@@ -433,10 +451,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       startTimeoutRef.current = null
     }
 
-    // Destroy current audio
+    // Abort and destroy current audio
     if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.remove()
+      abortAudio(audioRef.current)
       audioRef.current = null
     }
 
@@ -456,6 +473,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
     log(`${pre}: audio DESTROYED`)
   }, [log])
+
+  // Cleanup on unmount — guarantees destroy() if component tears down without Popup onClose
+  useEffect(() => () => destroy(), [destroy])
 
   return {
     get state() { return stateRef.current },
