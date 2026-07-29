@@ -44,6 +44,14 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   // Prevents any concurrent startPlayAudio from proceeding
   const activePlayChunkRef = useRef<number>(-1)
 
+  // Refs for changing options — closures always read .current (live value)
+  const playbackRateRef = useRef(playbackRate)
+  const ttsHeadersRef = useRef(ttsHeaders)
+  const preloadCountRef = useRef(preloadCount)
+  playbackRateRef.current = playbackRate
+  ttsHeadersRef.current = ttsHeaders
+  preloadCountRef.current = preloadCount
+
   const MAX_BLOB_CACHE_SIZE = 3 // current + 2 preloaded
 
   /** Evict oldest blob URLs when cache exceeds max size */
@@ -114,7 +122,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
   /** Resolve audio source: blob cache → fetch with headers → direct URL */
   const resolveAudioSrc = async (urlAudio: string): Promise<string> => {
-    const headers = ttsHeaders
+    const headers = ttsHeadersRef.current
     if (Object.keys(headers).length === 0) {
       return urlAudio
     }
@@ -205,18 +213,18 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
       // Set playback rate
       if (audioRef.current) {
-        audioRef.current.playbackRate = playbackRate
+        audioRef.current.playbackRate = playbackRateRef.current
       }
 
       // Preload next chunks
-      const toPreload = preloadCount || 1
+      const toPreload = preloadCountRef.current || 1
       for (let i = 1; i <= toPreload; i++) {
         const nextIdx = chunkNb + i
         if (nextIdx < totalChunks) {
           downloadChunk(nextIdx, (url) => {
             // Preload blob for immediate next chunk
-            if (i === 1 && url && !url.includes('ERROR') && Object.keys(ttsHeaders).length > 0) {
-              fetch(url, { headers: ttsHeaders })
+            if (i === 1 && url && !url.includes('ERROR') && Object.keys(ttsHeadersRef.current).length > 0) {
+              fetch(url, { headers: ttsHeadersRef.current })
                 .then(r => r.ok ? r.blob() : Promise.reject(new Error('not ok')))
                 .then(blob => {
                   audioBlobsRef.current.set(url, blob)
@@ -273,6 +281,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
       // Destroy audio object
       audioRef.current = null
       audio.remove()
+      log(`${pre}: 🗑️ audio chunk ${chunkNb} destroyed (memory freed)`)
 
       setState(TtsState.ENDED)
       setIsPlaying(false)
@@ -283,7 +292,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   }
 
   /** Abort and destroy a specific Audio element, killing all its stale closures */
-  const abortAudio = (audio: HTMLAudioElement) => {
+  const abortAudio = (audio: HTMLAudioElement, chunkNb?: number) => {
     // Set per-audio abort token — kills any pending setTimeout/oncanplay closures
     try { (audio as any)._aborted = () => true } catch { /* no-op */ }
     audio.pause()
@@ -291,6 +300,9 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     audio.onerror = null
     audio.onended = null
     audio.remove()
+    if (chunkNb !== undefined) {
+      log(`${pre}: 🗑️ audio chunk ${chunkNb} aborted (memory freed)`)
+    }
   }
 
   /** Play a specific chunk */
@@ -302,7 +314,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
       // Abort old audio — per-audio token kills stale closures
       if (audioRef.current) {
-        abortAudio(audioRef.current)
+        abortAudio(audioRef.current, activePlayChunkRef.current >= 0 ? activePlayChunkRef.current : chunkNb)
       }
 
       // Clear safety timeout
@@ -393,7 +405,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
     // Abort and destroy current audio
     if (audioRef.current) {
-      abortAudio(audioRef.current)
+      abortAudio(audioRef.current, activePlayChunkRef.current >= 0 ? activePlayChunkRef.current : currentChunk)
       audioRef.current = null
     }
 
@@ -407,6 +419,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     }
 
     setState(TtsState.PAUSED)
+    log(`${pre}: 🗑️ audio paused (memory freed)`)
     setIsPlaying(false)
   }, [log])
 
@@ -453,7 +466,7 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
     // Abort and destroy current audio
     if (audioRef.current) {
-      abortAudio(audioRef.current)
+      abortAudio(audioRef.current, activePlayChunkRef.current >= 0 ? activePlayChunkRef.current : -1)
       audioRef.current = null
     }
 
