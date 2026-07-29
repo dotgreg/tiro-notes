@@ -20,12 +20,12 @@ export const compressImageJimp = async (params: iImageCompressionParams):Promise
     const isJpeg = fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")
     const isPng = fileName.endsWith(".png")
 
-    if (params.width && !params.height) image.resize(params.width, Jimp.AUTO)
-    if (params.height && !params.width) image.resize(Jimp.AUTO, params.height)
+    if (params.width && !params.height) image.resize(params.width, undefined)
+    if (params.height && !params.width) image.resize(undefined, params.height)
     if (params.height && params.width) image.resize(params.width, params.height)
 
-    if (params.maxWidth && currWidth > params.maxWidth) image.resize(params.maxWidth, Jimp.AUTO)
-    if (params.maxHeight && currHeight > params.maxHeight) image.resize(Jimp.AUTO, params.maxHeight)
+    if (params.maxWidth && currWidth > params.maxWidth) image.resize(params.maxWidth, undefined)
+    if (params.maxHeight && currHeight > params.maxHeight) image.resize(undefined, params.maxHeight)
 
     if (params.quality && isJpeg) image.quality(params.quality)
     if (params.quality && isPng) image.quality(params.quality)
