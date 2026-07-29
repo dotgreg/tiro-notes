@@ -474,8 +474,10 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     log(`${pre}: audio DESTROYED`)
   }, [log])
 
-  // Cleanup on unmount — guarantees destroy() if component tears down without Popup onClose
-  useEffect(() => () => destroy(), [destroy])
+  // Cleanup on unmount — ref avoids re-running destroy() on every render when `log` changes
+  const destroyRef = useRef(destroy)
+  destroyRef.current = destroy
+  useEffect(() => () => destroyRef.current(), [])
 
   return {
     get state() { return stateRef.current },
