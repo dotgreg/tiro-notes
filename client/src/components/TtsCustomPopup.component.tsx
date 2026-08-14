@@ -226,8 +226,7 @@ export const TtsCustomPopup = (p: {
       let nChunk = currChunkRef.current + 1
       log(`${pre}: ️⏭ next chunk ${nChunk}`)
       setCurrChunk(nChunk)
-      controller.pause()
-      controller.playChunk(nChunk, isUserAction)
+      controller.playChunk(nChunk, true)
     }
   }, [textChunks.length, log, controller])
 
@@ -237,7 +236,6 @@ export const TtsCustomPopup = (p: {
       let nChunk = currChunkRef.current - 1
       log(`${pre}:️⏮ prev chunk ${nChunk}`)
       setCurrChunk(nChunk)
-      controller.pause()
       controller.playChunk(nChunk, true)
     }
   }, [log, controller])

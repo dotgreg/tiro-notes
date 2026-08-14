@@ -4,7 +4,6 @@ import { sharedConfig } from '../../../../shared/shared.config';
 import { iFile } from "../../../../shared/types.shared"
 import { useDebounce } from '../lodash.hooks';
 import { useBackendState } from '../useBackendState.hook';
-import { isA } from '../../managers/device.manager';
 import { extractDocumentation } from '../../managers/apiDocumentation.manager';
 
 const h = `[LAST FILE]`
@@ -14,103 +13,103 @@ const log = sharedConfig.client.log.verbose
 // API
 //
 export interface iLastFilesHistoryApi {
-	getAll: () => iFile[]
-	removeFile: (filePath:string) => void
-	addToHistory: (file:iFile, debounced?:boolean) => void
-	documentation?: () => any
+  getAll: () => iFile[]
+  removeFile: (filePath: string) => void
+  addToHistory: (file: iFile, debounced?: boolean) => void
+  documentation?: () => any
 }
 
 const blacklistPaths = ['.tiro/answers/']
-const isBlacklisted = (path:string) => {
-	for (const blackPath of blacklistPaths) {
-		if (path.includes(blackPath)) return true
-	}
-	return false
+const isBlacklisted = (path: string) => {
+  for (const blackPath of blacklistPaths) {
+    if (path.includes(blackPath)) return true
+  }
+  return false
 }
 
 
 
 export const useLastFilesHistory = (activeFile: iFile) => {
-	const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [], {history: false, debouncedSave: 5000})
-	const filesHistoryRef = React.useRef(filesHistory)
-	useEffect(() => {
-		filesHistoryRef.current = filesHistory
-	}, [filesHistory])
+  const [filesHistory, setFilesHistory, refreshFilesHistoryFromBackend] = useBackendState<iFile[]>('files-history', [], { history: false, debouncedSave: 5000 })
+  const filesHistoryRef = React.useRef(filesHistory)
+  useEffect(() => {
+    filesHistoryRef.current = filesHistory
+  }, [filesHistory])
 
-	useEffect(() => {
-		log && console.log(h, ' activeFile changed!', activeFile);
-		activeFile && addToHistoryInt(activeFile)
-	}, [activeFile])
+  useEffect(() => {
+    log && console.log(h, ' activeFile changed!', activeFile);
+    activeFile && addToHistoryInt(activeFile)
+  }, [activeFile])
 
-	const cleanLastFilesHistory = () => {
-		setFilesHistory([])
-	}
+  const cleanLastFilesHistory = () => {
+    setFilesHistory([])
+  }
 
-	const addToHistoryInt = (file: iFile) => {
-		// filter out ai answers (.tiro/answers/)
-		if (isBlacklisted(file.path)) return
+  const addToHistoryInt = (file: iFile) => {
+    // filter out ai answers (.tiro/answers/)
+    if (isBlacklisted(file.path)) return
 
-		log && console.log(h, 'Add to last notes', file.name);
-		const nfilesHist = filesHistoryRef.current
+    log && console.log(h, 'Add to last notes', file.name);
+    const nfilesHist = filesHistoryRef.current
 
-		// if already at first position in hist, do nothing
-		if (nfilesHist.length > 0 && nfilesHist[0].name === file.name) return
-
-
+    // if already at first position in hist, do nothing
+    if (nfilesHist.length > 0 && nfilesHist[0].name === file.name) return
 
 
-		let shouldAddToHistory = true
-		let indexOldPos = -1
-		let newfilesHistory = nfilesHist
-		if (isArray(nfilesHist) === false) newfilesHistory = []
-		for (let i = 0; i < nfilesHist.length; i++) {
-			if (nfilesHist[i].name === file.name) {
-				// already in array
-				shouldAddToHistory = false
-				indexOldPos = i
-			}
-		}
-
-		if (!shouldAddToHistory) newfilesHistory.splice(indexOldPos, 1)
-
-		// only keep x notes
-		newfilesHistory = newfilesHistory.slice(0, 400)
-		newfilesHistory.unshift(file)
-
-		// do not update if newFilesHistory length is 0 
-		if (newfilesHistory.length === 0) return
-		setFilesHistory(newfilesHistory)
-	}
-	const debouncedAddToHistory = useDebounce(addToHistoryInt, 300)
-
-	const addToHistory = (file: iFile, debounced:boolean = true) => {
-		
-		debounced ? debouncedAddToHistory(file) : addToHistoryInt(file)
-	}
 
 
-	
-	//
-	// API
-	//
-	const getAll = () => {
-		return filesHistory
-	}
-	const removeFile = (filePath:string) => {
-		console.log(`${h} removing ${filePath} from last notes`)
-		let nfiles = cloneDeep(filesHistory)
-		nfiles = nfiles.filter(it => it.path !== filePath)
-		setFilesHistory(nfiles)
-	}
-	
-	const lastFilesHistoryApi:iLastFilesHistoryApi = {
-		getAll,
-		removeFile,
-		addToHistory,
-	}
+    let shouldAddToHistory = true
+    let indexOldPos = -1
+    let newfilesHistory = nfilesHist
+    if (isArray(nfilesHist) === false) newfilesHistory = []
+    for (let i = 0; i < nfilesHist.length; i++) {
+      if (nfilesHist[i].name === file.name) {
+        // already in array
+        shouldAddToHistory = false
+        indexOldPos = i
+      }
+    }
 
-	lastFilesHistoryApi.documentation = () => extractDocumentation(lastFilesHistoryApi, 'api.lastFilesHistory', 'client/src/hooks/app/lastFilesHistory.hook.tsx')
+    if (!shouldAddToHistory) newfilesHistory.splice(indexOldPos, 1)
 
-	return { filesHistory, filesHistoryRef, cleanLastFilesHistory, refreshFilesHistoryFromBackend, lastFilesHistoryApi }
+    // only keep x notes
+    newfilesHistory = newfilesHistory.slice(0, 400)
+    newfilesHistory.unshift(file)
+
+    // do not update if newFilesHistory length is 0 
+    if (newfilesHistory.length === 0) return
+    setFilesHistory(newfilesHistory)
+  }
+  const debouncedAddToHistory = useDebounce(addToHistoryInt, 300)
+
+  const addToHistory = (file: iFile, debounced: boolean = true) => {
+
+    debounced ? debouncedAddToHistory(file) : addToHistoryInt(file)
+  }
+
+
+
+  //
+  // API
+  //
+  const getAll = () => {
+    return filesHistory
+  }
+  const removeFile = (filePath: string) => {
+    console.log(`${h} removing ${filePath} from last notes`)
+    let nfiles = cloneDeep(filesHistory)
+    nfiles = nfiles.filter(it => it.path !== filePath)
+    setFilesHistory(nfiles)
+  }
+
+  const lastFilesHistoryApi: iLastFilesHistoryApi = {
+    getAll,
+    removeFile,
+    addToHistory,
+  }
+
+  lastFilesHistoryApi.documentation = () => extractDocumentation(lastFilesHistoryApi, 'api.lastFilesHistory', 'client/src/hooks/app/lastFilesHistory.hook.tsx')
+
+  return { filesHistory, filesHistoryRef, cleanLastFilesHistory, refreshFilesHistoryFromBackend, lastFilesHistoryApi }
 }
 
