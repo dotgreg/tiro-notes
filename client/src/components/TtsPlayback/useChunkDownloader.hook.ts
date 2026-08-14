@@ -74,14 +74,6 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
 
     log(`${pre}: 📥 starting download for chunk ${chunkId}`)
 
-    // Word count — FIXED: single addition only
-    const wordsNb = textToSent?.split(' ').length || 0
-    if (typeof wordsNb === 'number' && typeof wordStatRef.current === 'number') {
-      wordStatRef.current = wordStatRef.current + wordsNb
-      setWordStat(wordStatRef.current)
-    }
-    const wordLog = `[${wordsNb} words]`
-
     // Simplify text for {{input_simple}}
     const textToSentSimple = transformString(textToSent, {
       accents: true,
@@ -114,6 +106,14 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
       pendingCallbacks.current.get(chunkId)!.push(cb)
       return
     }
+
+    // Word count — only on fresh download (cache hits / queued calls don't re-count)
+    const wordsNb = textToSent?.split(' ').length || 0
+    if (typeof wordsNb === 'number' && typeof wordStatRef.current === 'number') {
+      wordStatRef.current = wordStatRef.current + wordsNb
+      setWordStat(wordStatRef.current)
+    }
+    const wordLog = `[${wordsNb} words]`
 
     const start = Date.now()
     downloadInProgress.current.add(chunkId)

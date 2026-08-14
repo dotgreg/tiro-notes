@@ -31,8 +31,6 @@ export interface TtsPlaybackOptions {
   preloadCount: number
   /** Called to set isPlaying state in parent */
   setIsPlaying: (playing: boolean) => void
-  /** Ref to downloader's in-flight Set (for dedup awareness) */
-  downloadInProgress?: { current: Set<number> }
   /** Ref to downloader's URL cache (for instant replay) */
   audioUrls?: { current: string[] }
 }

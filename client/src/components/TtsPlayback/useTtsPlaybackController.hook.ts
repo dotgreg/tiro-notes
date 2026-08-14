@@ -4,13 +4,20 @@ import { TtsState, TtsPlaybackOptions, TtsPlaybackController } from './types'
 const pre = '[TtsCustomPopup]'
 
 /**
- * Core playback state machine.
+ * Core playback controller.
  *
- * Key invariants:
- * - cancelledRef.current = true blocks ALL async callbacks (oncanplay, onended, timeout)
- * - destroy() resets ALL refs so reopening the popup works
- * - onended only calls onChunkEnd if state is PLAYING (not after pause)
- * - audio is removed from window.tiro_tts_allAudiosRef on ended
+ * SINGLE race guard: playIdRef (generation token). Every async boundary
+ * (download callback, post-fetch, oncanplay, 3s timeout, onended) captures
+ * the id at creation time and no-ops if playIdRef.current moved on.
+ * playChunk / pause / destroy bump the token, so ALL in-flight async work
+ * from a previous generation is dead. This replaces the old
+ * cancelledRef / activePlayChunkRef / playCallbacksQueuedRef / aborted
+ * flag zoo, whose gaps let the same chunk play twice.
+ *
+ * Invariants:
+ * - at most one live Audio element at any time (stopAudio before every start)
+ * - onended advances chunks only if its audio is still the current generation
+ * - destroy() resets everything so reopening the popup works
  */
 export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlaybackController {
   const {
@@ -23,26 +30,18 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     ttsHeaders,
     preloadCount,
     setIsPlaying,
-    downloadInProgress: downloadInProgressRef = { current: new Set() },
     audioUrls: audioUrlsRefDown = { current: [] },
   } = options
 
-  // State machine
+  // Public state (contract: state, refs, cleanup semantics)
   const stateRef = useRef<TtsState>(TtsState.IDLE)
   const cancelledRef = useRef<boolean>(false)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const isPopupClosedRef = useRef<boolean>(false)
   const startTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Blob cache for preloaded audio
-  const audioBlobsRef = useRef<Map<string, Blob>>(new Map())
-  // URL cache for downloaded chunks
-  const audioUrlsRef = useRef<string[]>([])
-  // Track which chunks already have a play callback queued (dedup)
-  const playCallbacksQueuedRef = useRef<Set<number>>(new Set())
-  // HARD LOCK: which chunk is currently being set up or playing (-1 = none)
-  // Prevents any concurrent startPlayAudio from proceeding
-  const activePlayChunkRef = useRef<number>(-1)
+  // The race guard: generation token
+  const playIdRef = useRef(0)
 
   // Refs for changing options — closures always read .current (live value)
   const playbackRateRef = useRef(playbackRate)
@@ -52,23 +51,19 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
   ttsHeadersRef.current = ttsHeaders
   preloadCountRef.current = preloadCount
 
+  // Blob cache: httpUrl -> objectUrl, each object URL created once
+  // (old code stored Blobs and made a NEW object URL on every play = leak)
+  const blobUrlsRef = useRef<Map<string, string>>(new Map())
   const MAX_BLOB_CACHE_SIZE = 3 // current + 2 preloaded
 
-  /** Evict oldest blob URLs when cache exceeds max size */
-  const evictBlobCacheIfNeeded = () => {
-    const max = MAX_BLOB_CACHE_SIZE
-    if (audioBlobsRef.current.size <= max) return
-    const toEvict = audioBlobsRef.current.size - max
-    let evicted = 0
-    for (const [url, blob] of audioBlobsRef.current) {
-      if (evicted >= toEvict) break
-      if (url.startsWith('blob:')) {
-        URL.revokeObjectURL(url)
-      }
-      audioBlobsRef.current.delete(url)
-      evicted++
+  const evictBlobs = () => {
+    while (blobUrlsRef.current.size > MAX_BLOB_CACHE_SIZE) {
+      const oldest = blobUrlsRef.current.keys().next().value
+      if (oldest === undefined) break
+      URL.revokeObjectURL(blobUrlsRef.current.get(oldest)!)
+      blobUrlsRef.current.delete(oldest)
+      log(`${pre}: 🗑️ evicted blob cache, size now ${blobUrlsRef.current.size}`)
     }
-    log(`${pre}: 🗑️ evicted ${evicted} blob(s), cache size now ${audioBlobsRef.current.size}`)
   }
 
   const setState = (state: TtsState) => {
@@ -77,15 +72,14 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
 
   /** Add audio to global window array for pause-all */
   const addAudioWindow = (audio: HTMLAudioElement) => {
-    if (typeof window !== 'undefined') {
+    if (typeof window === 'undefined') return
+    // @ts-ignore
+    if (window.tiro_tts_allAudiosRef === undefined) {
       // @ts-ignore
-      if (window.tiro_tts_allAudiosRef === undefined) {
-        // @ts-ignore
-        window.tiro_tts_allAudiosRef = []
-      }
-      // @ts-ignore
-      window.tiro_tts_allAudiosRef.push(audio)
+      window.tiro_tts_allAudiosRef = []
     }
+    // @ts-ignore
+    window.tiro_tts_allAudiosRef.push(audio)
   }
 
   /** Pause ALL audio in window array */
@@ -120,370 +114,202 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     if (idx !== -1) all.splice(idx, 1)
   }
 
-  /** Resolve audio source: blob cache → fetch with headers → direct URL */
+  /** Resolve audio source: cached object URL → fetch with headers → direct URL */
   const resolveAudioSrc = async (urlAudio: string): Promise<string> => {
     const headers = ttsHeadersRef.current
-    if (Object.keys(headers).length === 0) {
-      return urlAudio
+    if (Object.keys(headers).length === 0) return urlAudio
+
+    const cached = blobUrlsRef.current.get(urlAudio)
+    if (cached) {
+      log(`${pre}: 📦 audio from cache`)
+      return cached
     }
 
-    // Check blob cache
-    const cachedBlob = audioBlobsRef.current.get(urlAudio)
-    if (cachedBlob) {
-      const blobUrl = URL.createObjectURL(cachedBlob)
-      log(`${pre}: 📦 audio from cache (${cachedBlob.size} bytes)`)
-      return blobUrl
-    }
-
-    // Fetch with headers
     log(`${pre}: 🌐 fetching audio with headers: ${urlAudio}`)
     try {
       const resp = await fetch(urlAudio, { headers })
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
       const blob = await resp.blob()
-      const blobUrl = URL.createObjectURL(blob)
+      const objUrl = URL.createObjectURL(blob)
+      blobUrlsRef.current.set(urlAudio, objUrl)
+      evictBlobs()
       log(`${pre}: 📦 audio fetched as blob (${blob.size} bytes)`)
-      return blobUrl
+      return objUrl
     } catch (e: any) {
       log(`${pre}: ❌ fetch audio ERROR: ${e.message}, fallback to direct URL`)
       return urlAudio
     }
   }
 
-  /** Start playing from a URL — sets up audio object, events, preload */
-  const startPlayAudio = async (urlAudio: string, chunkNb: number) => {
-    // Guard: cancelled or popup closed
-    if (cancelledRef.current || isPopupClosedRef.current) return
-
-    // HARD LOCK: reject if another chunk is already playing/setting up
-    if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
-      log(`${pre}: 🔒 chunk ${chunkNb} blocked (chunk ${activePlayChunkRef.current} active), skip`)
-      return
-    }
-
-    let audioSrc = await resolveAudioSrc(urlAudio)
-
-    // Re-check after async await (race guard)
-    if (cancelledRef.current || isPopupClosedRef.current) return
-    if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
-      log(`${pre}: 🔒 chunk ${chunkNb} blocked after await (chunk ${activePlayChunkRef.current} active), skip`)
-      return
-    }
-
-    // Create NEW Audio object
-    const audio = new Audio(audioSrc)
-    audioRef.current = audio
-    audio.preload = 'auto'
-
-    log(`${pre}: 🎵 starting audio load for chunk ${chunkNb}`)
-
-    addAudioWindow(audio)
-
-    // Per-audio abort token — survives handler nulling; kills stale setTimeout/oncanplay closures
-    // Mobile browsers can deliver oncanplay AFTER onended, so shared cancelledRef is not enough
-    let aborted = false
-
-    // Guard to prevent double-fire of startPlay
-    let alreadyStarted = false
-
-    const startPlay = () => {
-      // CRITICAL: per-audio abort first — catches stale closures from previous audio
-      if (aborted) return
-      // Shared flag — blocks if user paused/destroyed
-      if (cancelledRef.current) return
-      if (isPopupClosedRef.current) return
-      if (alreadyStarted) return
-      alreadyStarted = true
-
-      // Clear safety timeout since we're starting
-      if (startTimeoutRef.current) {
-        clearTimeout(startTimeoutRef.current)
-        startTimeoutRef.current = null
-      }
-
-      log(`${pre}: ✅ mp3 ready for chunk ${chunkNb}, starting playback`)
-
-      // Set state to PLAYING so onended auto-advance works
-      setState(TtsState.PLAYING)
-
-      audio.play().catch(e => {
-        if (cancelledRef.current) return
-        log(`${pre}: ❌ play() rejected: ${e.message}`)
-      })
-
-      // Set playback rate
-      if (audioRef.current) {
-        audioRef.current.playbackRate = playbackRateRef.current
-      }
-
-      // Preload next chunks
-      const toPreload = preloadCountRef.current || 1
-      for (let i = 1; i <= toPreload; i++) {
-        const nextIdx = chunkNb + i
-        if (nextIdx < totalChunks) {
-          downloadChunk(nextIdx, (url) => {
-            // Preload blob for immediate next chunk
-            if (i === 1 && url && !url.includes('ERROR') && Object.keys(ttsHeadersRef.current).length > 0) {
-              fetch(url, { headers: ttsHeadersRef.current })
-                .then(r => r.ok ? r.blob() : Promise.reject(new Error('not ok')))
-                .then(blob => {
-                  audioBlobsRef.current.set(url, blob)
-                  evictBlobCacheIfNeeded()
-                  log(`${pre}: 📦 preloaded blob chunk ${nextIdx} (${blob.size} bytes)`)
-                })
-                .catch(() => { /* ignore */ })
-            }
-          })
+  /** Preload next N chunks (URL cache + blob for the immediate next) */
+  const preloadNext = (chunkNb: number) => {
+    const toPreload = preloadCountRef.current || 1
+    const headers = ttsHeadersRef.current
+    for (let i = 1; i <= toPreload; i++) {
+      const nextIdx = chunkNb + i
+      if (nextIdx >= totalChunks) continue
+      downloadChunk(nextIdx, (url) => {
+        if (i === 1 && url && !url.includes('ERROR') && Object.keys(headers).length > 0) {
+          fetch(url, { headers })
+            .then(r => r.ok ? r.blob() : Promise.reject(new Error('not ok')))
+            .then(blob => {
+              if (blobUrlsRef.current.has(url)) return // already fetched
+              blobUrlsRef.current.set(url, URL.createObjectURL(blob))
+              evictBlobs()
+              log(`${pre}: 📦 preloaded blob chunk ${nextIdx} (${blob.size} bytes)`)
+            })
+            .catch(() => { /* ignore */ })
         }
-      }
-    }
-
-    // Set up audio events — both paths check `aborted` first
-    audio.oncanplay = startPlay
-    startTimeoutRef.current = setTimeout(() => { if (!aborted) startPlay() }, 3000)
-
-    audio.onerror = () => {
-      if (aborted) return
-      if (cancelledRef.current) return
-      log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
-      setState(TtsState.ERROR)
-      setIsPlaying(false)
-      // Release hard lock on error
-      activePlayChunkRef.current = -1
-    }
-
-    audio.onended = () => {
-      // CRITICAL: only advance if still in PLAYING state (not after pause)
-      if (aborted) return
-      if (stateRef.current !== TtsState.PLAYING) return
-      if (cancelledRef.current) return
-
-      // Abort this audio so any late-firing oncanplay/timeout closures die
-      aborted = true
-
-      // Release hard lock
-      activePlayChunkRef.current = -1
-
-      log(`${pre}: audio ENDED`)
-
-      // Revoke blob URL to free memory
-      if (audioSrc.startsWith('blob:')) {
-        URL.revokeObjectURL(audioSrc)
-      }
-
-      // Evict current chunk's blob from cache
-      audioBlobsRef.current.delete(urlAudio)
-      evictBlobCacheIfNeeded()
-
-      // Remove from window array (memory leak fix)
-      removeAudioWindow(audio)
-
-      // Destroy audio object
-      audioRef.current = null
-      audio.remove()
-      log(`${pre}: 🗑️ audio chunk ${chunkNb} destroyed (memory freed)`)
-
-      setState(TtsState.ENDED)
-      setIsPlaying(false)
-
-      // Advance to next chunk
-      onChunkEnd()
+      })
     }
   }
 
-  /** Abort and destroy a specific Audio element, killing all its stale closures */
-  const abortAudio = (audio: HTMLAudioElement, chunkNb?: number) => {
-    // Set per-audio abort token — kills any pending setTimeout/oncanplay closures
-    try { (audio as any)._aborted = () => true } catch { /* no-op */ }
-    audio.pause()
-    audio.oncanplay = null
-    audio.onerror = null
-    audio.onended = null
-    audio.remove()
-    if (chunkNb !== undefined) {
-      log(`${pre}: 🗑️ audio chunk ${chunkNb} aborted (memory freed)`)
-    }
-  }
+  /** Create and start an Audio element for a URL. `id` kills every stale version. */
+  const startAudio = (urlAudio: string, chunkNb: number, id: number) => {
+    resolveAudioSrc(urlAudio).then(src => {
+      if (id !== playIdRef.current) return // superseded while resolving
 
-  /** Play a specific chunk */
-  const playChunk = useCallback((chunkNb: number, isUserAction: boolean = false) => {
-    // If user action or switching chunk, stop current audio first
-    if (isUserAction || chunkNb !== currentChunk || audioRef.current?.src) {
-      // Set cancelled flag to block ALL async callbacks from the old audio
-      cancelledRef.current = true
+      const audio = new Audio(src)
+      audioRef.current = audio
+      audio.preload = 'auto'
+      log(`${pre}: 🎵 starting audio load for chunk ${chunkNb}`)
+      addAudioWindow(audio)
 
-      // Abort old audio — per-audio token kills stale closures
-      if (audioRef.current) {
-        abortAudio(audioRef.current, activePlayChunkRef.current >= 0 ? activePlayChunkRef.current : chunkNb)
-      }
-
-      // Clear safety timeout
-      if (startTimeoutRef.current) {
-        clearTimeout(startTimeoutRef.current)
-        startTimeoutRef.current = null
-      }
-
-      // Also pause all window audios
-      pauseAllAudioWindow(false)
-
-      // NOW reset cancelled flag — old audio events are neutralized
-      cancelledRef.current = false
-    }
-
-    // HARD LOCK: reject if another chunk is actively playing/setting up
-    if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
-      log(`${pre}: 🔒 playChunk(${chunkNb}) blocked (chunk ${activePlayChunkRef.current} active), skip`)
-      return
-    }
-
-    // If chunk is already cached, play immediately
-    if (audioUrlsRefDown.current[chunkNb]) {
-      const url = audioUrlsRefDown.current[chunkNb]
-      activePlayChunkRef.current = chunkNb
-      setState(TtsState.LOADING)
-      setIsPlaying(true)
-      startPlayAudio(url, chunkNb)
-      return
-    }
-
-    // If chunk is already downloading (preload in flight), skip duplicate API call.
-    // The preload's download completion will fire queued callbacks which include our play trigger.
-    if (downloadInProgressRef.current.has(chunkNb)) {
-      // CRITICAL: only queue ONE play callback per chunk (dedup)
-      if (playCallbacksQueuedRef.current.has(chunkNb)) {
-        log(`${pre}: ⏭️ chunk ${chunkNb} play already queued, skipping`)
-        return
-      }
-      playCallbacksQueuedRef.current.add(chunkNb)
-      log(`${pre}: ⏳ chunk ${chunkNb} preloading (queue play callback)`)
-
-      downloadChunk(chunkNb, (urlAudio) => {
-        playCallbacksQueuedRef.current.delete(chunkNb)
-        if (cancelledRef.current || isPopupClosedRef.current) return
-        if (!urlAudio || urlAudio.includes('ERROR')) return
-        // Guard: if another audio is already playing, skip (chunk advanced)
-        if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
-          log(`${pre}: ⏭️ chunk ${chunkNb} done but chunk ${activePlayChunkRef.current} active, skip`)
-          return
+      let started = false
+      const startPlay = () => {
+        if (started || id !== playIdRef.current || isPopupClosedRef.current) return
+        started = true
+        if (startTimeoutRef.current) {
+          clearTimeout(startTimeoutRef.current)
+          startTimeoutRef.current = null
         }
-        activePlayChunkRef.current = chunkNb
-        log(`${pre}: ▶️ playing chunk ${chunkNb} (from preload)`)
-        setState(TtsState.LOADING)
-        setIsPlaying(true)
-        startPlayAudio(urlAudio, chunkNb)
-      })
-      return
-    }
-
-    // Fresh download needed
-    playCallbacksQueuedRef.current.add(chunkNb)
-    downloadChunk(chunkNb, (urlAudio) => {
-      playCallbacksQueuedRef.current.delete(chunkNb)
-      if (cancelledRef.current || isPopupClosedRef.current) return
-      if (!urlAudio || urlAudio.includes('ERROR')) return
-      // Guard: if another audio is already playing, skip (chunk advanced)
-      if (activePlayChunkRef.current !== -1 && activePlayChunkRef.current !== chunkNb) {
-        log(`${pre}: ⏭️ chunk ${chunkNb} done but chunk ${activePlayChunkRef.current} active, skip`)
-        return
+        log(`${pre}: ✅ mp3 ready for chunk ${chunkNb}, starting playback`)
+        setState(TtsState.PLAYING)
+        audio.playbackRate = playbackRateRef.current
+        audio.play().catch(e => {
+          if (id === playIdRef.current) log(`${pre}: ❌ play() rejected: ${e.message}`)
+        })
+        preloadNext(chunkNb)
       }
-      activePlayChunkRef.current = chunkNb
-      log(`${pre}: ▶️ playing chunk ${chunkNb}`)
-      setState(TtsState.LOADING)
-      setIsPlaying(true)
-      startPlayAudio(urlAudio, chunkNb)
+
+      audio.oncanplay = startPlay
+      startTimeoutRef.current = setTimeout(startPlay, 3000)
+
+      audio.onerror = () => {
+        if (id !== playIdRef.current) return
+        log(`${pre}: ❌ audio LOAD ERROR for ${urlAudio}`)
+        setState(TtsState.ERROR)
+        setIsPlaying(false)
+      }
+
+      audio.onended = () => {
+        // Advance only if this audio is still the current generation —
+        // pause / new chunk / destroy all bumped the id, so stale onended dies
+        if (id !== playIdRef.current) return
+
+        log(`${pre}: audio ENDED`)
+
+        // Free this chunk's blob (re-fetched if user seeks back)
+        const cachedUrl = blobUrlsRef.current.get(urlAudio)
+        if (cachedUrl) {
+          blobUrlsRef.current.delete(urlAudio)
+          URL.revokeObjectURL(cachedUrl)
+        }
+        evictBlobs()
+
+        // Remove from window array (memory leak fix) + destroy element
+        removeAudioWindow(audio)
+        audio.remove()
+        audioRef.current = null
+        log(`${pre}: 🗑️ audio chunk ${chunkNb} destroyed (memory freed)`)
+
+        setState(TtsState.ENDED)
+        setIsPlaying(false)
+        onChunkEnd()
+      }
     })
-  }, [currentChunk, log])
+  }
 
-  /** Pause current playback — cancels all pending async callbacks */
-  const pause = useCallback(() => {
-    // Set cancelled flag — blocks oncanplay, onended, timeout
-    cancelledRef.current = true
-    // Clear queued play callbacks so stale ones don't fire
-    playCallbacksQueuedRef.current.clear()
-    // Release hard lock
-    activePlayChunkRef.current = -1
-
-    // Abort and destroy current audio
-    if (audioRef.current) {
-      abortAudio(audioRef.current, activePlayChunkRef.current >= 0 ? activePlayChunkRef.current : currentChunk)
-      audioRef.current = null
-    }
-
-    // Also pause all window audios
-    pauseAllAudioWindow(false)
-
-    // Clear safety timeout
+  /** Central teardown: kills the current audio and any pending start */
+  const stopAudio = () => {
     if (startTimeoutRef.current) {
       clearTimeout(startTimeoutRef.current)
       startTimeoutRef.current = null
     }
+    const audio = audioRef.current
+    if (audio) {
+      // Null handlers first: kills queued events (mobile can fire oncanplay late)
+      audio.oncanplay = null
+      audio.onerror = null
+      audio.onended = null
+      audio.pause()
+      audio.remove()
+      removeAudioWindow(audio)
+      audioRef.current = null
+    }
+  }
 
-    setState(TtsState.PAUSED)
-    log(`${pre}: 🗑️ audio paused (memory freed)`)
-    setIsPlaying(false)
-  }, [log])
-
-  /** Resume paused playback */
-  const resume = useCallback(() => {
-    // Reset cancelled flag
+  /** Play a specific chunk. Bumps the generation: kills all in-flight work. */
+  const playChunk = useCallback((chunkNb: number, _isUserAction: boolean = false) => {
+    playIdRef.current += 1
+    const id = playIdRef.current
     cancelledRef.current = false
 
-    if (audioRef.current && audioRef.current.src) {
-      audioRef.current.play().catch(e => {
-        log(`${pre}: ❌ resume play ERROR: ${e.message}`)
-        // Fallback: restart chunk if resume fails
-        cancelledRef.current = false
-        playChunk(currentChunk, false)
-      })
-      setState(TtsState.PLAYING)
-      setIsPlaying(true)
-      log(`${pre}: ▶️ resumed`)
-    } else {
-      // No audio object, start fresh (isUserAction=false to avoid re-pause)
-      cancelledRef.current = false
-      playChunk(currentChunk, false)
+    stopAudio()
+    pauseAllAudioWindow(false)
+
+    setState(TtsState.LOADING)
+    setIsPlaying(true)
+
+    // Already downloaded → play immediately
+    const cachedUrl = audioUrlsRefDown.current[chunkNb]
+    if (cachedUrl) {
+      log(`${pre}: ▶️ playing chunk ${chunkNb} (cached)`)
+      startAudio(cachedUrl, chunkNb, id)
+      return
     }
-  }, [currentChunk, log, playChunk])
+
+    log(`${pre}: ⏳ downloading chunk ${chunkNb}`)
+    downloadChunk(chunkNb, (urlAudio) => {
+      if (id !== playIdRef.current) return // superseded (pause / new chunk / close)
+      if (!urlAudio || urlAudio.includes('ERROR')) {
+        log(`${pre}: ❌ chunk ${chunkNb} download failed: ${urlAudio}`)
+        setState(TtsState.ERROR)
+        setIsPlaying(false)
+        return
+      }
+      log(`${pre}: ▶️ playing chunk ${chunkNb}`)
+      startAudio(urlAudio, chunkNb, id)
+    })
+  }, [log])
+
+  /** Pause current playback. Bumps the generation: kills all in-flight work. */
+  const pause = useCallback(() => {
+    playIdRef.current += 1
+    cancelledRef.current = true
+    stopAudio()
+    pauseAllAudioWindow(false)
+    setState(TtsState.PAUSED)
+    setIsPlaying(false)
+    log(`${pre}: ⏸️ paused`)
+  }, [log])
+
+  /** Resume paused playback (pause always destroys audio → replay the chunk) */
+  const resume = useCallback(() => {
+    playChunk(currentChunk, false)
+  }, [currentChunk, playChunk])
 
   /** Destroy ALL state, reset refs, cleanup resources */
   const destroy = useCallback(() => {
-    // Pause everything first
-    pauseAllAudioWindow(true)
-
-    // Clear queued play callbacks
-    playCallbacksQueuedRef.current.clear()
-    // Release hard lock
-    activePlayChunkRef.current = -1
-
-    // Reset cancelled flag so new playback can start
+    playIdRef.current += 1
     cancelledRef.current = false
-
-    // Clear safety timeout
-    if (startTimeoutRef.current) {
-      clearTimeout(startTimeoutRef.current)
-      startTimeoutRef.current = null
-    }
-
-    // Abort and destroy current audio
-    if (audioRef.current) {
-      abortAudio(audioRef.current, activePlayChunkRef.current >= 0 ? activePlayChunkRef.current : -1)
-      audioRef.current = null
-    }
-
-    // Revoke all blob URLs
-    audioBlobsRef.current.forEach((blob, url) => {
-      if (url.startsWith('blob:')) {
-        URL.revokeObjectURL(url)
-      }
-    })
-    audioBlobsRef.current.clear()
-
-    // Reset popup closed flag — CRITICAL for reopen
     isPopupClosedRef.current = false
-
+    stopAudio()
+    pauseAllAudioWindow(true)
+    blobUrlsRef.current.forEach(objUrl => URL.revokeObjectURL(objUrl))
+    blobUrlsRef.current.clear()
     setState(TtsState.IDLE)
     setIsPlaying(false)
-
     log(`${pre}: audio DESTROYED`)
   }, [log])
 

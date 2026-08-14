@@ -27618,8 +27618,8 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 19,
-									"character": 1
+									"line": 18,
+									"character": 2
 								}
 							],
 							"signatures": [
@@ -27674,8 +27674,8 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 20,
-									"character": 1
+									"line": 19,
+									"character": 2
 								}
 							],
 							"signatures": [
@@ -27701,8 +27701,8 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 17,
-									"character": 1
+									"line": 16,
+									"character": 2
 								}
 							],
 							"signatures": [
@@ -27732,8 +27732,8 @@
 							"sources": [
 								{
 									"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-									"line": 18,
-									"character": 1
+									"line": 17,
+									"character": 2
 								}
 							],
 							"signatures": [
@@ -27779,7 +27779,7 @@
 					"sources": [
 						{
 							"fileName": "client/src/hooks/app/lastFilesHistory.hook.tsx",
-							"line": 16,
+							"line": 15,
 							"character": 17
 						}
 					]

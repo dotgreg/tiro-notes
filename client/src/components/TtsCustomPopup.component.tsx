@@ -204,7 +204,6 @@ export const TtsCustomPopup = (p: {
     ttsHeaders: ttsHeadersRef.current,
     preloadCount: userSettingsSync.curr.tts_preload_parts || 1,
     setIsPlaying,
-    downloadInProgress: downloader.downloadInProgress,
     audioUrls: downloader.audioUrls,
   })
 
@@ -262,8 +261,8 @@ export const TtsCustomPopup = (p: {
   textChunksRef.current = textChunks
 
   useEffect(() => {
-    if (textChunks.length > 0 && !isPlaying && !downloadInProgress.current.has(currChunk)) {
-      controller.playChunk(currChunk, false)
+    if (textChunks.length > 0 && !isPlayingRef.current && !downloadInProgress.current.has(currChunkRef.current)) {
+      controller.playChunk(currChunkRef.current, false)
     }
   }, [textChunks])
 
