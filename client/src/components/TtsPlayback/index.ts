@@ -1,5 +1,5 @@
 export { TtsState } from './types'
 export type { TtsPlaybackOptions, TtsPlaybackController, DownloadCallback } from './types'
-export { useTtsPlaybackController } from './useTtsPlaybackController.hook'
+export { useTtsPlaybackController, getTtsTabId } from './useTtsPlaybackController.hook'
 export { useChunkDownloader } from './useChunkDownloader.hook'
 export type { ChunkDownloaderOptions, ChunkDownloader } from './useChunkDownloader.hook'

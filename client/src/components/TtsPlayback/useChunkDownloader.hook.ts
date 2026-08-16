@@ -7,13 +7,16 @@ import { DownloadCallback } from './types'
 const pre = '[TtsCustomPopup]'
 
 /**
- * Chunk downloader with dedup, callback queue, and word count tracking.
+ * Chunk downloader — rewritten 0.52.9 (same contract as 0.52.7, whose
+ * behavior the 0.52.7/0.52.8 logs proved sound: dedup + callback queue +
+ * single word count).
  *
- * Fixes:
- * - Word count: single addition (was wordStatRef + wordsNb added twice)
- * - Dedup: Set-based in-flight guard prevents duplicate requests
- * - Callback queue: pending callbacks fire when download completes
- * - Blob URL revocation on cleanup
+ * - Dedup: one in-flight API request per chunk; later callers are queued
+ *   and fired when the request completes.
+ * - Word count: added exactly once per chunk, on the fresh download
+ *   (cache hits and queued callers do not re-count).
+ * - URL cache: audioUrls[chunkId] = the API http URL. Blob wrapping (when
+ *   the TTS engine needs headers) happens in the controller, deduped there.
  */
 export interface ChunkDownloaderOptions {
   /** Text chunks array */
@@ -31,14 +34,14 @@ export interface ChunkDownloader {
   downloadInProgress: { current: Set<number> }
   /** URL cache */
   audioUrls: { current: string[] }
-  /** Cleanup: revoke blob URLs, clear state */
+  /** Cleanup: clear in-flight state and URL cache */
   cleanup: () => void
 }
 
 export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownloader {
   const { textChunks, log, setWordStat } = options
 
-  // In-flight guard
+  // In-flight guard (one API request per chunk)
   const downloadInProgress = useRef<Set<number>>(new Set())
   // Pending callbacks for chunks still downloading
   const pendingCallbacks = useRef<Map<number, Array<DownloadCallback>>>(new Map())
@@ -47,24 +50,7 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
   // Word stat tracking
   const wordStatRef = useRef<number>(0)
 
-  /** Extract -H headers from TTS command */
-  const extractTtsHeaders = (cmd: string): Record<string, string> => {
-    const headers: Record<string, string> = {}
-    const hRegex = /-H\s+["']([^"']+)["']/g
-    let m
-    while ((m = hRegex.exec(cmd)) !== null) {
-      const kv = m[1].split(':')
-      if (kv.length >= 2) {
-        const key = kv[0].trim()
-        const val = kv.slice(1).join(':').trim()
-        headers[key] = val
-      }
-    }
-    return headers
-  }
-
   const downloadChunk = useCallback((chunkId: number, cb: DownloadCallback) => {
-    const stringCmd = userSettingsSync.curr.tts_custom_engine_command
     const textToSent = textChunks[chunkId]
 
     if (!textToSent || textToSent.length === 0) {
@@ -74,30 +60,13 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
 
     log(`${pre}: 📥 starting download for chunk ${chunkId}`)
 
-    // Simplify text for {{input_simple}}
-    const textToSentSimple = transformString(textToSent, {
-      accents: true,
-      specialChars: false,
-      escapeChars: true,
-    })
-
-    let stringCmdProcessed = stringCmd.replace('{{input}}', textToSent)
-    stringCmdProcessed = stringCmdProcessed.replace('{{input_simple}}', textToSentSimple)
-
-    let isCbCalled = false
-    const cbOnce = (res: string) => {
-      if (isCbCalled) return
-      cb(res)
-      isCbCalled = true
-    }
-
-    // Skip if already cached
+    // Already cached → callback immediately, no re-count
     if (audioUrls.current[chunkId]) {
-      cbOnce(audioUrls.current[chunkId])
+      cb(audioUrls.current[chunkId])
       return
     }
 
-    // Skip if already downloading (dedup guard)
+    // Already downloading → queue the callback (dedup)
     if (downloadInProgress.current.has(chunkId)) {
       log(`${pre}: ⏳ chunk ${chunkId} already downloading, queuing callback`)
       if (!pendingCallbacks.current.has(chunkId)) {
@@ -107,18 +76,33 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
       return
     }
 
-    // Word count — only on fresh download (cache hits / queued calls don't re-count)
-    const wordsNb = textToSent?.split(' ').length || 0
-    if (typeof wordsNb === 'number' && typeof wordStatRef.current === 'number') {
-      wordStatRef.current = wordStatRef.current + wordsNb
-      setWordStat(wordStatRef.current)
-    }
+    // Build the engine command
+    const stringCmd = userSettingsSync.curr.tts_custom_engine_command
+    // Simplify text for {{input_simple}}
+    const textToSentSimple = transformString(textToSent, {
+      accents: true,
+      specialChars: false,
+      escapeChars: true,
+    })
+    let stringCmdProcessed = stringCmd.replace('{{input}}', textToSent)
+    stringCmdProcessed = stringCmdProcessed.replace('{{input_simple}}', textToSentSimple)
+
+    // Word count — only on the fresh download
+    const wordsNb = textToSent.split(' ').length || 0
+    wordStatRef.current = wordStatRef.current + wordsNb
+    setWordStat(wordStatRef.current)
     const wordLog = `[${wordsNb} words]`
 
     const start = Date.now()
     downloadInProgress.current.add(chunkId)
-
     log(`${pre}: 🚀 requesting chunk ${chunkId} ${wordLog}`)
+
+    let isCbCalled = false // guard: the API callback must fire at most once
+    const cbOnce = (res: string) => {
+      if (isCbCalled) return
+      cb(res)
+      isCbCalled = true
+    }
 
     getApi(api => {
       api.command.exec(stringCmdProcessed, (apiAnswer: string) => {
@@ -128,7 +112,7 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
         // Clear in-flight flag
         downloadInProgress.current.delete(chunkId)
 
-        // Extract URL from response
+        // Extract URL from the response (regex first, JSON fallback)
         let url = ''
         const regexMatch = apiAnswer.match(/https?:\/\/[\S]+\.(mp3|wav|ogg|m4a)/i)
         if (regexMatch) {
@@ -138,43 +122,39 @@ export function useChunkDownloader(options: ChunkDownloaderOptions): ChunkDownlo
             const apiObj = JSON.parse(apiAnswer)
             url = apiObj['output'] || apiObj['url'] || apiObj['audio_url'] || apiObj['data'] || ''
           } catch {
-            // Not JSON, regex already tried
+            // Not JSON — regex already tried
           }
-        }
-
-        // Fire queued callbacks
-        const queuedCbs = pendingCallbacks.current.get(chunkId)
-        if (queuedCbs) {
-          for (const qCb of queuedCbs) {
-            qCb(url || 'ERROR: API')
-          }
-          pendingCallbacks.current.delete(chunkId)
         }
 
         if (url && url.length > 0) {
-          const time = Date.now() - start
-          const timeLog = `[${time}ms]`
+          const timeLog = `[${Date.now() - start}ms]`
           log(`${pre}: 📥 [ok] API done for chunk ${chunkId} ${wordLog} ${timeLog}`)
           log(`${pre}: ✅ chunk ${chunkId} download FINISHED ${timeLog}`)
           audioUrls.current[chunkId] = url
-
-          cbOnce(url)
         } else {
           let message = apiAnswer
           try {
             const apiObj = JSON.parse(apiAnswer)
             message = `${apiObj['stderr']} - ${apiObj['shortMessage']}`
             log(`${pre}: 📥❌ [!! error] chunk ${chunkId}: API answer error: ${message} ${wordLog}`)
-          } catch (error) {
-            log(`${pre}: ❌ [!! error] chunk ${chunkId}: API answer error: ${JSON.stringify(error)} ${wordLog}`)
+          } catch {
+            log(`${pre}: ❌ [!! error] chunk ${chunkId}: API answer error: ${apiAnswer} ${wordLog}`)
           }
-          cbOnce('ERROR: API')
+          url = 'ERROR: API'
         }
+
+        // Fire queued callbacks, then our own
+        const queuedCbs = pendingCallbacks.current.get(chunkId)
+        if (queuedCbs) {
+          for (const qCb of queuedCbs) qCb(url)
+          pendingCallbacks.current.delete(chunkId)
+        }
+        cbOnce(url)
       })
     })
   }, [textChunks, log, setWordStat])
 
-  /** Cleanup: revoke any blob URLs and clear state */
+  /** Cleanup: clear in-flight state and URL cache */
   const cleanup = useCallback(() => {
     downloadInProgress.current.clear()
     pendingCallbacks.current.clear()

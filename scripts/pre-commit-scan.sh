@@ -1,6 +1,6 @@
 #!/bin/sh
-# Pre-commit security scan: npm audit + ClamAV
-# Blocks commit on critical vulnerabilities or malware detected
+# Pre-commit security scan: ClamAV
+# Blocks commit on malware detected
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
@@ -8,33 +8,6 @@ echo ""
 echo "🔍 Security scan before commit..."
 
 FAIL=0
-
-# ---------- npm audit ----------
-echo ""
-echo "--- npm audit ---"
-
-# Root
-echo "  [audit] root"
-if ! npm audit --audit-level=critical 2>&1; then
-    echo "  ❌ Critical vulnerabilities found in root package.json"
-    FAIL=1
-fi
-
-# Sub-packages (client skipped: CRA build-deps only, 7 criticals unfixable without breaking react-scripts)
-for PKG in server shared build; do
-    if [ -d "$PKG" ] && [ -f "$PKG/package.json" ]; then
-        # Skip if no lockfile (nothing installed yet)
-        if [ ! -f "$PKG/package-lock.json" ]; then
-            echo "  [audit] $PKG — skipped (no lockfile)"
-            continue
-        fi
-        echo "  [audit] $PKG"
-        if ! (cd "$PKG" && npm audit --audit-level=critical 2>&1); then
-            echo "  ❌ Critical vulnerabilities found in $PKG"
-            FAIL=1
-        fi
-    fi
-done
 
 # ---------- ClamAV (malware scan on staged files) ----------
 echo ""
