@@ -264,8 +264,10 @@ export const TtsCustomPopup = (p: {
     }
   }, [textChunks])
 
-  // ── 5s audio monitor: status log + reset detection + underrun recovery.
-  // (merged from two same-cadence intervals — same checks, one timer)
+  // ── 5s audio monitor: status log + reset detection + NaN counter.
+  // (merged from two same-cadence intervals — same checks, one timer).
+  // Underrun recovery is event-driven in the controller (pause listener,
+  // s2_t4 Task 1) — the poll only keeps the checks that need a cadence.
   useInterval(() => {
     const audio = controller.audioRef.current
     if (!audio) return
@@ -284,15 +286,11 @@ export const TtsCustomPopup = (p: {
       return
     }
 
-    // Reset detection + underrun recovery (only while playing with a loaded src)
+    // Reset detection (only while playing with a loaded src)
     if (isPlayingRef.current && audio.src) {
       if (checkAudioReset(audio)) {
         controller.playChunk(currChunkRef.current, true)
         return
-      }
-      if (audio.paused && !downloadInProgress.current.has(currChunkRef.current)) {
-        log(`${pre}: 🔁 underrun recovery: play() audio#${aid} @${positionAudio}s`)
-        audio.play().catch(() => { })
       }
     }
 

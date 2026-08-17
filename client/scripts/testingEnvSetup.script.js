@@ -9,9 +9,18 @@ global.Audio = class {
   duration = 10
   readyState = 4
   paused = false
+  ended = false
   preload = ''
   src = ''
   load = jest.fn()
   remove = jest.fn()
-  addEventListener = jest.fn()
+  // Capture event listeners so tests can fire them (e.g. 'pause' for
+  // underrun-recovery tests). One listener per type is the only real usage.
+  __listeners = {}
+  addEventListener = jest.fn(function (type, fn) {
+    this.__listeners[type] = fn
+  })
+  dispatch = function (type) {
+    this.__listeners[type]?.()
+  }
 }

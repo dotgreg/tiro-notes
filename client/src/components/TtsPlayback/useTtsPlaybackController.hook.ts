@@ -257,6 +257,21 @@ export function useTtsPlaybackController(options: TtsPlaybackOptions): TtsPlayba
     })
     audio.addEventListener('stalled', () => log(`${pre}: ⚠️ audio#${aid} stalled pos=${Math.round(audio.currentTime)}s rs=${audio.readyState}`))
 
+    // Event-driven underrun recovery (s2_t4 Task 1): the 5s poll cannot react
+    // while backgrounded (mobile throttles/suspends JS timers), but media
+    // events still dispatch. Intentional pauses (pause()/playChunk/destroy)
+    // all set a non-PLAYING state BEFORE the queued pause event can run — so
+    // a pause observed while state is still PLAYING is an UNEXPECTED stop
+    // (underrun, screen-off, OS interruption). No generation capture needed:
+    // the state guard covers every intentional-pause path.
+    audio.addEventListener('pause', () => {
+      if (stateRef.current !== TtsState.PLAYING) return
+      if (audio.ended) return                 // missed-ended case: never replay from 0
+      if (audio.readyState < 2) return        // src swap in progress: not an underrun
+      log(`${pre}: 🔁 audio#${aid} unexpected pause (underrun?) — play() @${Math.round(audio.currentTime)}s`)
+      audio.play().catch(e => log(`${pre}: ⚠️ recovery play() rejected: ${e.message}`))
+    })
+
     return audio
   }
 

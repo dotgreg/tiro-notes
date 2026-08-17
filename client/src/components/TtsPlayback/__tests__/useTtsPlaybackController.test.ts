@@ -268,4 +268,110 @@ describe('useTtsPlaybackController', () => {
       expect(window.tiro_tts_allAudiosRef.length).toBe(0)
     })
   })
+
+  describe('event-driven underrun recovery (s2_t4 Task 1)', () => {
+    const clearPlay = (audio: HTMLAudioElement) => (audio.play as jest.Mock).mockClear()
+
+    /** Play chunk 0 up to PLAYING (fire oncanplay like the browser would). */
+    const startPlaying = async () => {
+      const hook = renderHook(() => useTtsPlaybackController(baseOptions))
+      mockDownloadChunk.mockImplementation((_chunkId: number, cb: (url: string) => void) => {
+        cb('http://example.com/audio.mp3')
+      })
+
+      await act(async () => {
+        hook.result.current.playChunk(0, true)
+      })
+      await Promise.resolve() // flush the resolveAudioSrc microtask
+
+      const audio = hook.result.current.audioRef.current
+      expect(audio).not.toBeNull()
+
+      act(() => {
+        audio!.oncanplay!(new Event('canplay'))
+      })
+      expect(hook.result.current.state).toBe(TtsState.PLAYING)
+      return { hook, audio: audio! }
+    }
+
+    it('unexpected pause while PLAYING → recovery play() called once + logged', async () => {
+      const { audio } = await startPlaying()
+      clearPlay(audio)
+
+      act(() => {
+        ;(audio as any).dispatch('pause')
+      })
+
+      expect(audio.play).toHaveBeenCalledTimes(1)
+      expect(mockLog).toHaveBeenCalledWith(expect.stringContaining('unexpected pause (underrun?)'))
+    })
+
+    it('no recovery play() after controller.pause() (pause event arrives after state=PAUSED)', async () => {
+      const { hook, audio } = await startPlaying()
+      act(() => {
+        hook.result.current.pause()
+      })
+      clearPlay(audio)
+
+      act(() => {
+        ;(audio as any).dispatch('pause')
+      })
+
+      expect(audio.play).not.toHaveBeenCalled()
+    })
+
+    it('no recovery play() after playChunk() (state=LOADING)', async () => {
+      const { hook, audio } = await startPlaying()
+      await act(async () => {
+        hook.result.current.playChunk(1, true)
+      })
+      await Promise.resolve()
+      clearPlay(audio)
+
+      act(() => {
+        ;(audio as any).dispatch('pause')
+      })
+
+      expect(hook.result.current.state).toBe(TtsState.LOADING)
+      expect(audio.play).not.toHaveBeenCalled()
+    })
+
+    it('no recovery play() after destroy() (state=IDLE)', async () => {
+      const { hook, audio } = await startPlaying()
+      act(() => {
+        hook.result.current.destroy()
+      })
+      clearPlay(audio)
+
+      act(() => {
+        ;(audio as any).dispatch('pause')
+      })
+
+      expect(audio.play).not.toHaveBeenCalled()
+    })
+
+    it('no recovery play() when audio.ended = true (never replay from 0)', async () => {
+      const { audio } = await startPlaying()
+      ;(audio as any).ended = true
+      clearPlay(audio)
+
+      act(() => {
+        ;(audio as any).dispatch('pause')
+      })
+
+      expect(audio.play).not.toHaveBeenCalled()
+    })
+
+    it('no recovery play() while readyState < 2 (src swap in progress)', async () => {
+      const { audio } = await startPlaying()
+      ;(audio as any).readyState = 1
+      clearPlay(audio)
+
+      act(() => {
+        ;(audio as any).dispatch('pause')
+      })
+
+      expect(audio.play).not.toHaveBeenCalled()
+    })
+  })
 })
